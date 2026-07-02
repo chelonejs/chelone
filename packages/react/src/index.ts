@@ -19,6 +19,7 @@ export type {
   UseDeleteControllerResult,
   UseEditControllerResult,
   UseListControllerResult,
+  UseShowControllerResult,
 } from "./controller-hooks";
 export {
   useCreateController,

@@ -17,10 +17,12 @@ import {
   type ListControllerContext,
   type ListControllerOptions,
   type ListControllerState,
+  type LooseRecord,
   type MicroStore,
   type RecordControllerContext,
   type RecordOf,
   type ResourceMap,
+  type ResourceRecord,
   type ShowControllerOptions,
   type ShowControllerState,
 } from "@chelone/core";
@@ -147,6 +149,11 @@ export function useEditController<
     [snapshot, controller],
   );
 }
+
+/** Naming alias so all five bridges expose a UseXControllerResult type. */
+export type UseShowControllerResult<
+  TRecord extends ResourceRecord = LooseRecord,
+> = ShowControllerState<TRecord>;
 
 /**
  * React bridge for the vanilla show controller. The show controller is pure
