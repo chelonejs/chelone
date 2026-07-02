@@ -72,6 +72,13 @@ export type SaveTransform<TRecord> = (
 export interface SaveOptions<TRecord> {
   /** Call-time transform — takes priority over the controller-level one. */
   transform?: SaveTransform<TRecord>;
+  /**
+   * OBSERVES the saved record WITHOUT replacing the default success handling
+   * (runs before `onSuccess`/defaults). The P5 composed form controllers
+   * reconcile form state with server truth through this — the save contract
+   * itself resolves `FieldErrors | undefined`, never the record.
+   */
+  onSaved?: (record: TRecord) => void | Promise<void>;
   /** REPLACES the default success handling (notify + redirect request). */
   onSuccess?: (record: TRecord) => void | Promise<void>;
   /** REPLACES the default error handling (the http_error notify). */
@@ -90,6 +97,8 @@ interface MutationRunner<TRecord, TVariables> {
 
 /** The caller-supplied handlers that REPLACE the default side effects (behavior 9). */
 interface MutationFlowHandlers<TRecord> {
+  /** Success OBSERVER — does not replace the defaults (see SaveOptions.onSaved). */
+  onSaved?: (record: TRecord) => void | Promise<void>;
   onSuccess?: (record: TRecord) => void | Promise<void>;
   onError?: (error: unknown) => void | Promise<void>;
 }
@@ -180,6 +189,9 @@ function createMutationFlow<TRecord, TVariables>(
         observer.reset();
       }
     }
+    // The observer hook first: reconciliation (P5 form reset to server truth)
+    // must land before any redirect request fires.
+    if (handlers.onSaved) await handlers.onSaved(result);
     if (handlers.onSuccess) {
       await handlers.onSuccess(result);
       return undefined;

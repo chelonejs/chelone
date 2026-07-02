@@ -70,3 +70,22 @@ it("normalizeFormError returns the translatable boundary union", () => {
     args?: Record<string, unknown>;
   }>();
 });
+
+it("submit never rejects and takes no arguments", () => {
+  const controller = createFormController<PostDraft>({
+    save: async () => undefined,
+  });
+  expectTypeOf(controller.submit).toEqualTypeOf<() => Promise<void>>();
+});
+
+it("the T2 pipeline options are precisely typed (no any)", () => {
+  expectTypeOf<FormControllerOptions<PostDraft>["getRecord"]>().toEqualTypeOf<
+    (() => Partial<PostDraft> | undefined) | undefined
+  >();
+  expectTypeOf<FormControllerOptions<PostDraft>["onSuccess"]>().toEqualTypeOf<
+    ((data: PostDraft) => void | Promise<void>) | undefined
+  >();
+  expectTypeOf<
+    FormControllerOptions<PostDraft>["notifications"]
+  >().not.toBeAny();
+});

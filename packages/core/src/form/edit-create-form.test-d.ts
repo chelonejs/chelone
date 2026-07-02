@@ -1,0 +1,57 @@
+import { QueryClient } from "@tanstack/query-core";
+import { expectTypeOf, it } from "vitest";
+import { z } from "zod";
+import { fakeDataProvider } from "../data/fake-provider";
+import { defineResources } from "../resource/registry";
+import {
+  createCreateFormController,
+  createEditFormController,
+  type EditFormController,
+  resolveHydrationAction,
+} from "./edit-create-form";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+type Post = z.infer<(typeof resources)["posts"]["schema"]>;
+
+const ctx = {
+  dataProvider: fakeDataProvider<typeof resources>({ posts: [] }),
+  queryClient: new QueryClient(),
+};
+
+it("createEditFormController infers the record type from the registry — no any leaks", () => {
+  const controller = createEditFormController(ctx, "posts", { id: 1 });
+  expectTypeOf(controller).not.toBeAny();
+  expectTypeOf(controller).toEqualTypeOf<EditFormController<Post>>();
+  expectTypeOf(controller.getSnapshot().record).toEqualTypeOf<
+    Post | undefined
+  >();
+  expectTypeOf(controller.getSnapshot().form.values).toEqualTypeOf<
+    Partial<Post>
+  >();
+  expectTypeOf(controller.getSnapshot().saving).toEqualTypeOf<boolean>();
+  expectTypeOf(controller.submit).toEqualTypeOf<() => Promise<void>>();
+  expectTypeOf(controller.form.state.values).toEqualTypeOf<Partial<Post>>();
+});
+
+it("createCreateFormController types the seed and created record", () => {
+  const controller = createCreateFormController(ctx, "posts", {
+    record: { title: "seed" },
+    onSuccess: (record) => {
+      expectTypeOf(record).toEqualTypeOf<Post>();
+    },
+  });
+  expectTypeOf(controller).not.toBeAny();
+  expectTypeOf(controller.getSnapshot().record).toEqualTypeOf<Partial<Post>>();
+  expectTypeOf(controller.getSnapshot().form.values).toEqualTypeOf<
+    Partial<Post>
+  >();
+});
+
+it("resolveHydrationAction is a closed union", () => {
+  expectTypeOf(resolveHydrationAction(1, 2, true)).toEqualTypeOf<
+    "rebaseline" | "hard-reset" | "keep-dirty"
+  >();
+});
