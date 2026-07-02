@@ -16,9 +16,11 @@
     "zod": "^3.24.0"
   },
   "peerDependencies": {
+    "@tanstack/form-core": "^1.33.0",
     "@tanstack/query-core": "^5.0.0"
   },
   "devDependencies": {
+    "@tanstack/form-core": "^1.33.0",
     "@tanstack/query-core": "^5.0.0",
     "jsdom": "^26.1.0",
     "vitest": "^3.0.0"

@@ -14,6 +14,8 @@
               "level": "error",
               "options": {
                 "paths": {
+                  "@tanstack/react-form": "@chelone/core wraps @tanstack/form-core directly; the React bridge lives in @chelone/react (and never uses react-form — its useForm cannot accept an external FormApi).",
+                  "@tanstack/react-store": "@chelone/core is vanilla TS — the react-store uSES bridge belongs in @chelone/react.",
                   "react": "@chelone/core is vanilla TS — no React. Put React code in @chelone/react.",
                   "react-dom": "@chelone/core must not import react-dom.",
                   "react-hook-form": "@chelone/core uses @tanstack/form-core, not react-hook-form.",
