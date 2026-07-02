@@ -1,5 +1,12 @@
 export { ValidationError } from "./data/errors";
 export { fakeDataProvider } from "./data/fake-provider";
+export {
+  listKey,
+  manyKey,
+  manyReferenceKey,
+  oneKey,
+  resourceKey,
+} from "./data/keys";
 export type {
   MutationMode,
   MutationModeOptions,
@@ -24,7 +31,6 @@ export type {
   DeleteManyResult,
   DeleteParams,
   DeleteResult,
-  FilterPayload,
   GetListParams,
   GetListResult,
   GetManyParams,
@@ -36,7 +42,6 @@ export type {
   PageInfo,
   PagePagination,
   Pagination,
-  SortPayload,
   UpdateManyParams,
   UpdateManyResult,
   UpdateParams,
