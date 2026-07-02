@@ -5,19 +5,28 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
   },
   "scripts": {
+    "test": "vitest run --typecheck",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@chelone/core": "workspace:*"
   },
   "peerDependencies": {
+    "@tanstack/react-query": "^5.0.0",
     "react": "^18 || ^19"
   },
   "devDependencies": {
+    "@tanstack/react-query": "^5.0.0",
+    "@testing-library/react": "^16.0.0",
     "@types/react": "^19",
-    "react": "^19"
+    "@types/react-dom": "^19",
+    "jsdom": "^26.0.0",
+    "react": "^19",
+    "react-dom": "^19",
+    "vitest": "^3.0.0"
   }
 }
