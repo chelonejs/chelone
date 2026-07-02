@@ -14,8 +14,19 @@ export {
   useChelonNotifications,
   useChelonStore,
 } from "./context";
-export type { UseListControllerResult } from "./controller-hooks";
-export { useListController } from "./controller-hooks";
+export type {
+  UseCreateControllerResult,
+  UseDeleteControllerResult,
+  UseEditControllerResult,
+  UseListControllerResult,
+} from "./controller-hooks";
+export {
+  useCreateController,
+  useDeleteController,
+  useEditController,
+  useListController,
+  useShowController,
+} from "./controller-hooks";
 export {
   createCheloneHooks,
   useCreate,

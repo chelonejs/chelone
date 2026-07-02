@@ -16,7 +16,13 @@ import {
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { CheloneProvider } from "./context";
-import { useListController } from "./controller-hooks";
+import {
+  useCreateController,
+  useDeleteController,
+  useEditController,
+  useListController,
+  useShowController,
+} from "./controller-hooks";
 import { useNotifications, useNotify } from "./notification-hooks";
 
 const resources = defineResources({
@@ -53,7 +59,15 @@ function makeWrapper({ strict = false }: { strict?: boolean } = {}) {
         <StrictMode>{inner({ children })}</StrictMode>
       )
     : inner;
-  return { wrapper, notifications, queryClient, getList, store, setItem };
+  return {
+    wrapper,
+    notifications,
+    queryClient,
+    dataProvider,
+    getList,
+    store,
+    setItem,
+  };
 }
 
 /** Live QueryObserver subscriptions across the whole cache. */
@@ -321,6 +335,99 @@ describe("discarded-render leak regression (Task 4R gate finding)", () => {
     } finally {
       errorSpy.mockRestore();
     }
+  });
+});
+
+describe("useEditController", () => {
+  it("loads the record; save updates it and pushes the success notification", async () => {
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => ({
+        edit: useEditController<typeof resources, "posts">("posts", { id: 1 }),
+        notifications: useNotifications(),
+      }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.edit.isPending).toBe(false));
+    expect(result.current.edit.record?.title).toBe("t1");
+
+    await act(async () => {
+      const fieldErrors = await result.current.edit.save({ title: "b" });
+      expect(fieldErrors).toBeUndefined();
+    });
+    // onSettled invalidation refetches the getOne — the hook state converges.
+    await waitFor(() => expect(result.current.edit.record?.title).toBe("b"));
+    expect(
+      result.current.notifications.some(
+        (n) =>
+          n.message === "chelone.notification.updated" &&
+          n.type === "success" &&
+          n.messageArgs?.smart_count === 1,
+      ),
+    ).toBe(true);
+  });
+});
+
+describe("useShowController", () => {
+  it("loads the record", async () => {
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => useShowController<typeof resources, "posts">("posts", { id: 2 }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isPending).toBe(false));
+    expect(result.current.record).toMatchObject({ id: 2, title: "t2" });
+    expect(result.current.error).toBeNull();
+  });
+});
+
+describe("useCreateController", () => {
+  it("save creates the record and requests a redirect to the new record's edit view", async () => {
+    const { wrapper, dataProvider } = makeWrapper();
+    const onRedirect = vi.fn();
+    const { result } = renderHook(
+      () =>
+        useCreateController<typeof resources, "posts">("posts", { onRedirect }),
+      { wrapper },
+    );
+    // Nothing to fetch: never pending.
+    expect(result.current.isPending).toBe(false);
+
+    await act(async () => {
+      const fieldErrors = await result.current.save({ title: "brand new" });
+      expect(fieldErrors).toBeUndefined();
+    });
+    // Redirect matrix (behavior 10): create -> edit of the NEW record.
+    expect(onRedirect).toHaveBeenCalledWith(
+      "edit",
+      "posts",
+      expect.anything(),
+      expect.objectContaining({ title: "brand new" }),
+    );
+    const newId = onRedirect.mock.calls[0]?.[2];
+    expect((await dataProvider.getOne("posts", { id: newId })).data.title).toBe(
+      "brand new",
+    );
+  });
+});
+
+describe("useDeleteController", () => {
+  it("deleteOne removes the record", async () => {
+    const { wrapper, dataProvider } = makeWrapper();
+    const { result } = renderHook(
+      () => useDeleteController<typeof resources, "posts">("posts"),
+      { wrapper },
+    );
+    expect(result.current.saving).toBe(false);
+
+    await act(async () => {
+      const fieldErrors = await result.current.deleteOne(3);
+      expect(fieldErrors).toBeUndefined();
+    });
+    await expect(dataProvider.getOne("posts", { id: 3 })).rejects.toThrow(
+      /not found/,
+    );
+    expect(result.current.saving).toBe(false);
   });
 });
 
