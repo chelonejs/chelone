@@ -13,6 +13,23 @@ export type {
   ListControllerState,
 } from "./controller/list-controller";
 export { createListController } from "./controller/list-controller";
+export type {
+  EditController,
+  EditControllerOptions,
+  EditControllerState,
+  RecordControllerContext,
+  RedirectRequest,
+  RedirectTarget,
+  SaveOptions,
+  SaveTransform,
+  ShowController,
+  ShowControllerOptions,
+  ShowControllerState,
+} from "./controller/record-controllers";
+export {
+  createEditController,
+  createShowController,
+} from "./controller/record-controllers";
 export { resolveNotificationKey } from "./controller/translate-fallback";
 export { ValidationError } from "./data/errors";
 export { fakeDataProvider } from "./data/fake-provider";
