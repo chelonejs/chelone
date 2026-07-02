@@ -68,6 +68,11 @@ export type {
   TranslateParams,
 } from "./i18n/messages";
 export { defineMessages } from "./i18n/messages";
+export type {
+  Notification,
+  NotificationStore,
+} from "./notification/notification-store";
+export { createNotificationStore } from "./notification/notification-store";
 export type { Identifier } from "./resource/identifier";
 export type { LooseRecord, ResourceRecord } from "./resource/record";
 export type {
