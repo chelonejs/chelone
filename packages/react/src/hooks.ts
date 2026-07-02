@@ -94,7 +94,8 @@ export function createCheloneHooks<TResources extends ResourceMap>() {
     useGetMany: <TName extends keyof TResources & string>(
       resource: TName,
       params: GetManyParams,
-    ) => useGetMany<TResources, TName>(resource, params),
+      options?: { enabled?: boolean; staleTime?: number },
+    ) => useGetMany<TResources, TName>(resource, params, options),
     useCreate: <TName extends keyof TResources & string>(resource: TName) =>
       useCreate<TResources, TName>(resource),
     useUpdate: <TName extends keyof TResources & string>(

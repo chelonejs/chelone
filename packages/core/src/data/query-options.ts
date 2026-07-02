@@ -1,4 +1,5 @@
 import type { QueryClient } from "@tanstack/query-core";
+import type { Identifier } from "../resource/identifier";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { listKey, manyKey, oneKey } from "./keys";
 import type {
@@ -17,7 +18,7 @@ export interface DataContext<TResources extends ResourceMap = ResourceMap> {
 function seedRecords(
   queryClient: QueryClient,
   resource: string,
-  records: Array<{ id: string | number }>,
+  records: Array<{ id: Identifier }>,
 ): void {
   for (const record of records) {
     queryClient.setQueryData(oneKey(resource, { id: record.id }), record);

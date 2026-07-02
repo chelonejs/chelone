@@ -97,16 +97,29 @@ describe("mutation option factories", () => {
   it("optimistic delete removes the cache entry and restores it on error", async () => {
     const c = seed();
     await c.queryClient.fetchQuery(getOneOptions(c, "posts", { id: 1 }));
+    let rejectDelete!: (e: Error) => void;
+    let deleteCalled = false;
     const failing: DataProvider<R> = {
       ...c.dataProvider,
-      delete: () => Promise.reject(new Error("nope")),
+      delete: () =>
+        new Promise((_resolve, reject) => {
+          deleteCalled = true;
+          rejectDelete = reject;
+        }),
     };
     const ctx = { dataProvider: failing, queryClient: c.queryClient };
     const observer = new MutationObserver(
       c.queryClient,
       deleteMutationOptions(ctx, "posts", { mutationMode: "optimistic" }),
     );
-    await expect(observer.mutate({ id: 1 })).rejects.toThrow();
+    const done = observer.mutate({ id: 1 });
+    await vi.waitFor(() => expect(deleteCalled).toBe(true));
+    // mid-flight: the optimistic removal is observable while the provider is pending
+    expect(
+      c.queryClient.getQueryData(oneKey("posts", { id: 1 })),
+    ).toBeUndefined();
+    rejectDelete(new Error("nope"));
+    await expect(done).rejects.toThrow();
     expect(
       c.queryClient.getQueryData(oneKey("posts", { id: 1 })),
     ).toMatchObject({ id: 1 });
