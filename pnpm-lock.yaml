@@ -27,6 +27,9 @@ importers:
       '@tanstack/query-core':
         specifier: ^5.0.0
         version: 5.101.2
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0
       vitest:
         specifier: ^3.0.0
         version: 3.2.6(jsdom@26.1.0)

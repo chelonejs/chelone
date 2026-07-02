@@ -9,7 +9,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "test": "vitest run --typecheck",
+    "test": "NODE_OPTIONS=--no-experimental-webstorage vitest run --typecheck",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@tanstack/query-core": "^5.0.0",
+    "jsdom": "^26.1.0",
     "vitest": "^3.0.0"
   }
 }

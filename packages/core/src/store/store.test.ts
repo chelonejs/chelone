@@ -91,4 +91,12 @@ describe("createStore", () => {
     store.setItem("k", 1);
     expect(cb).not.toHaveBeenCalled();
   });
+
+  it("localStorageAdapter is SSR-safe: importable and callable without window", async () => {
+    const { localStorageAdapter } = await import("./adapters");
+    const a = localStorageAdapter();
+    expect(a.getItem("k")).toBeUndefined();
+    expect(() => a.setItem("k", 1)).not.toThrow();
+    expect(() => a.removeItem("k")).not.toThrow();
+  });
 });
