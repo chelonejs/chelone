@@ -4,6 +4,7 @@ import type {
   ChelonStore,
   DataContext,
   DataProvider,
+  NotificationStore,
   ResourceMap,
 } from "@chelone/core";
 import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -16,6 +17,7 @@ export interface CheloneContextValue<
   store?: ChelonStore;
   i18n?: AnyChelonI18n;
   authProvider?: AuthProvider;
+  notifications?: NotificationStore;
 }
 
 const CheloneContext = createContext<CheloneContextValue | null>(null);
@@ -28,6 +30,7 @@ export interface CheloneProviderProps<
   store?: ChelonStore;
   i18n?: AnyChelonI18n;
   authProvider?: AuthProvider;
+  notifications?: NotificationStore;
   children: ReactNode;
 }
 
@@ -37,6 +40,7 @@ export function CheloneProvider<TResources extends ResourceMap = ResourceMap>({
   store,
   i18n,
   authProvider,
+  notifications,
   children,
 }: CheloneProviderProps<TResources>) {
   const value = useMemo(
@@ -47,8 +51,9 @@ export function CheloneProvider<TResources extends ResourceMap = ResourceMap>({
         store,
         i18n,
         authProvider,
+        notifications,
       }) as CheloneContextValue,
-    [dataProvider, queryClient, store, i18n, authProvider],
+    [dataProvider, queryClient, store, i18n, authProvider, notifications],
   );
   return (
     <CheloneContext.Provider value={value}>
@@ -85,6 +90,15 @@ export function useChelonI18n(): AnyChelonI18n {
     );
   }
   return i18n;
+}
+
+/**
+ * Optional-returning by design: notifications are an optional service, and
+ * some consumers (e.g. controllers) degrade gracefully without one. Hooks
+ * that REQUIRE the store (useNotify/useNotifications) throw on undefined.
+ */
+export function useChelonNotifications(): NotificationStore | undefined {
+  return useCheloneContext().notifications;
 }
 
 export function useChelonAuthProvider(): AuthProvider {
