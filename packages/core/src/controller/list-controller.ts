@@ -1,0 +1,475 @@
+import { QueryObserver, type QueryObserverResult } from "@tanstack/query-core";
+import { type DataContext, getListOptions } from "../data/query-options";
+import type {
+  FilterPayload,
+  GetListResult,
+  PageInfo,
+  SortPayload,
+} from "../data/types";
+import type { NotificationStore } from "../notification/notification-store";
+import type { Identifier } from "../resource/identifier";
+import type { ResourceRecord } from "../resource/record";
+import type { RecordOf, ResourceMap } from "../resource/registry";
+import { createMicroStore, type MicroStore } from "../store/micro-store";
+import type { ChelonStore } from "../store/store";
+
+export interface ListControllerState<TRecord> {
+  page: number;
+  perPage: number;
+  /** Always an array in controller state — multi-sort is first-class. */
+  sort: SortPayload[];
+  filter: FilterPayload;
+  displayedFilters: Record<string, boolean>;
+  selectedIds: Identifier[];
+  data: TRecord[] | undefined;
+  total: number | undefined;
+  pageInfo: PageInfo | undefined;
+  isPending: boolean;
+  isFetching: boolean;
+  error: unknown;
+  hasNextPage: boolean | undefined;
+  hasPreviousPage: boolean | undefined;
+}
+
+export interface ListController<TRecord>
+  extends MicroStore<ListControllerState<TRecord>> {
+  setPage(page: number): void;
+  setPerPage(perPage: number): void;
+  /** Single payload on the SAME single-sorted field toggles order; anything else replaces. */
+  setSort(sort: SortPayload | SortPayload[]): void;
+  setFilters(
+    filter: FilterPayload,
+    displayedFilters?: Record<string, boolean>,
+    debounced?: boolean,
+  ): void;
+  showFilter(name: string, defaultValue?: unknown): void;
+  hideFilter(name: string): void;
+  select(ids: Identifier[]): void;
+  toggleItem(id: Identifier): void;
+  unselectAll(): void;
+  selectAll(options?: { limit?: number }): Promise<void>;
+  refetch(): void;
+}
+
+export interface ListControllerContext<
+  TResources extends ResourceMap = ResourceMap,
+> extends DataContext<TResources> {
+  store?: ChelonStore;
+  notifications?: NotificationStore;
+  translate?: (key: string) => string;
+}
+
+export interface ListControllerOptions {
+  perPage?: number;
+  sort?: SortPayload | SortPayload[];
+  /** Permanent filter — merged OVER the user filter for every fetch. */
+  filter?: FilterPayload;
+  /** Seed for the user filter when nothing is persisted. */
+  filterDefaultValues?: FilterPayload;
+  /** Debounce delay for `setFilters(..., debounced=true)`. Default 500ms. */
+  debounceMs?: number;
+  /** KV namespace for params/selection persistence. Default: the resource name. `false` disables persistence. */
+  storeKey?: string | false;
+  enabled?: boolean;
+}
+
+interface PersistedListParams {
+  page: number;
+  perPage: number;
+  sort: SortPayload[];
+  filter: FilterPayload;
+  displayedFilters: Record<string, boolean>;
+}
+
+const DEFAULT_PER_PAGE = 10;
+const DEFAULT_DEBOUNCE_MS = 500;
+const DEFAULT_SELECT_ALL_LIMIT = 250;
+const DEFAULT_SORT: SortPayload[] = [{ field: "id", order: "ASC" }];
+
+function normalizeSort(
+  sort: SortPayload | SortPayload[] | undefined,
+  fallback: SortPayload[],
+): SortPayload[] {
+  if (!sort) return fallback.map((entry) => ({ ...entry }));
+  const entries = Array.isArray(sort) ? sort : [sort];
+  return entries.map((entry) => ({ ...entry }));
+}
+
+/** Strips `''`, `null` and `undefined` values. Always returns a FRESH object. */
+function removeEmpty(filter: FilterPayload): FilterPayload {
+  const result: FilterPayload = {};
+  for (const [key, value] of Object.entries(filter)) {
+    if (value === "" || value === null || value === undefined) continue;
+    result[key] = value;
+  }
+  return result;
+}
+
+function errorMessageKey(error: unknown): string {
+  const message = error instanceof Error ? error.message : "";
+  return message || "chelone.notification.http_error";
+}
+
+/**
+ * Vanilla list controller: one QueryObserver mapped into a micro-store.
+ *
+ * Loop-prevention architecture rule: `observer.setOptions` is called ONLY
+ * from param-mutating actions — never directly from the observer result
+ * subscription. Out-of-range page resets go through the normal `setPage`
+ * action path and are guarded to run only on SETTLED results, so they
+ * cannot ping-pong.
+ */
+export function createListController<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(
+  ctx: ListControllerContext<TResources>,
+  resource: TName,
+  options: ListControllerOptions = {},
+): ListController<RecordOf<TResources, TName>> {
+  type TRecord = RecordOf<TResources, TName>;
+  type ListResult = GetListResult<TRecord>;
+
+  const storeKey =
+    options.storeKey === false ? null : (options.storeKey ?? resource);
+  const paramsKey = storeKey ? `${storeKey}.listParams` : null;
+  const selectionKey = storeKey ? `${storeKey}.selectedIds` : null;
+  const kv = ctx.store;
+
+  // --- initial params: persisted (when available) over option defaults ---
+  const defaults: PersistedListParams = {
+    page: 1,
+    perPage: options.perPage ?? DEFAULT_PER_PAGE,
+    sort: normalizeSort(options.sort, DEFAULT_SORT),
+    filter: { ...(options.filterDefaultValues ?? {}) },
+    displayedFilters: {},
+  };
+  const persisted =
+    paramsKey && kv
+      ? kv.getItem<Partial<PersistedListParams>>(paramsKey)
+      : undefined;
+  const initialParams: PersistedListParams = persisted
+    ? {
+        page: persisted.page ?? defaults.page,
+        perPage: persisted.perPage ?? defaults.perPage,
+        sort: normalizeSort(persisted.sort, defaults.sort),
+        filter: { ...(persisted.filter ?? defaults.filter) },
+        displayedFilters: { ...(persisted.displayedFilters ?? {}) },
+      }
+    : defaults;
+
+  const readSelection = (): Identifier[] =>
+    (selectionKey && kv ? kv.getItem<Identifier[]>(selectionKey) : undefined) ??
+    [];
+
+  const store = createMicroStore<ListControllerState<TRecord>>({
+    ...initialParams,
+    selectedIds: readSelection(),
+    data: undefined,
+    total: undefined,
+    pageInfo: undefined,
+    isPending: true,
+    isFetching: false,
+    error: null,
+    hasNextPage: undefined,
+    hasPreviousPage: undefined,
+  });
+
+  let destroyed = false;
+  store.onDestroy(() => {
+    destroyed = true;
+  });
+
+  // --- query wiring: ONE observer, options rebuilt on every param change ---
+  const buildOptions = () => {
+    const s = store.getSnapshot();
+    return {
+      ...getListOptions(ctx, resource, {
+        pagination: { page: s.page, perPage: s.perPage },
+        // Pass a single object when there is exactly one key (adapter compat).
+        sort: s.sort.length === 1 ? s.sort[0] : s.sort,
+        filter: { ...s.filter, ...(options.filter ?? {}) },
+      }),
+      placeholderData: (prev: ListResult | undefined) => prev,
+      retry: false,
+      enabled: options.enabled ?? true,
+    };
+  };
+
+  const persistParams = (): void => {
+    if (!paramsKey || !kv) return;
+    const s = store.getSnapshot();
+    const params: PersistedListParams = {
+      page: s.page,
+      perPage: s.perPage,
+      sort: s.sort,
+      filter: s.filter,
+      displayedFilters: s.displayedFilters,
+    };
+    kv.setItem(paramsKey, params);
+  };
+
+  const observer = new QueryObserver<ListResult, Error>(
+    ctx.queryClient,
+    buildOptions(),
+  );
+
+  /** The ONLY path that reconfigures the observer — param-mutating actions. */
+  const applyParams = (
+    patch: Partial<
+      Pick<
+        ListControllerState<TRecord>,
+        "page" | "perPage" | "sort" | "filter" | "displayedFilters"
+      >
+    >,
+  ): void => {
+    store.setState(patch);
+    persistParams();
+    observer.setOptions(buildOptions());
+  };
+
+  // --- actions ---
+  const setPage = (page: number): void => {
+    if (destroyed) return;
+    applyParams({ page });
+  };
+
+  const setPerPage = (perPage: number): void => {
+    if (destroyed) return;
+    applyParams({ perPage, page: 1 });
+  };
+
+  const setSort = (input: SortPayload | SortPayload[]): void => {
+    if (destroyed) return;
+    const current = store.getSnapshot().sort;
+    const single = current.length === 1 ? current[0] : undefined;
+    let next: SortPayload[];
+    if (Array.isArray(input)) {
+      next = input.map((entry) => ({ ...entry }));
+    } else if (single && single.field === input.field) {
+      // Same single field -> toggle order (ra-core column-header semantics).
+      next = [
+        { field: input.field, order: single.order === "ASC" ? "DESC" : "ASC" },
+      ];
+    } else {
+      next = [{ field: input.field, order: input.order ?? "ASC" }];
+    }
+    applyParams({ sort: next, page: 1 });
+  };
+
+  const applyFilters = (
+    filter: FilterPayload,
+    displayedFilters?: Record<string, boolean>,
+  ): void => {
+    applyParams({
+      filter: removeEmpty(filter),
+      displayedFilters:
+        displayedFilters === undefined
+          ? store.getSnapshot().displayedFilters
+          : { ...displayedFilters },
+      page: 1,
+    });
+  };
+
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  const clearDebounce = (): void => {
+    if (debounceTimer !== undefined) {
+      clearTimeout(debounceTimer);
+      debounceTimer = undefined;
+    }
+  };
+  store.onDestroy(clearDebounce);
+
+  const setFilters = (
+    filter: FilterPayload,
+    displayedFilters?: Record<string, boolean>,
+    debounced = false,
+  ): void => {
+    if (destroyed) return;
+    clearDebounce();
+    if (!debounced) {
+      applyFilters(filter, displayedFilters);
+      return;
+    }
+    debounceTimer = setTimeout(() => {
+      debounceTimer = undefined;
+      if (destroyed) return;
+      applyFilters(filter, displayedFilters);
+    }, options.debounceMs ?? DEFAULT_DEBOUNCE_MS);
+  };
+
+  const showFilter = (name: string, defaultValue?: unknown): void => {
+    if (destroyed) return;
+    const s = store.getSnapshot();
+    applyParams({
+      // Keep the same filter reference when no default value is supplied.
+      filter:
+        defaultValue === undefined
+          ? s.filter
+          : removeEmpty({ ...s.filter, [name]: defaultValue }),
+      displayedFilters: { ...s.displayedFilters, [name]: true },
+    });
+  };
+
+  const hideFilter = (name: string): void => {
+    if (destroyed) return;
+    const s = store.getSnapshot();
+    const { [name]: _value, ...filter } = s.filter;
+    const { [name]: _shown, ...displayedFilters } = s.displayedFilters;
+    applyParams({ filter, displayedFilters });
+  };
+
+  // --- selection: KV-backed when available (cross-instance sync), else local ---
+  const writeSelection = (ids: Identifier[]): void => {
+    if (selectionKey && kv) {
+      // State update arrives through the KV subscription below (single path).
+      kv.setItem(selectionKey, ids);
+    } else {
+      store.setState({ selectedIds: ids });
+    }
+  };
+  if (selectionKey && kv) {
+    const syncKey = selectionKey;
+    const unsubscribeSelection = kv.subscribe(syncKey, () => {
+      store.setState({
+        selectedIds: kv.getItem<Identifier[]>(syncKey) ?? [],
+      });
+    });
+    store.onDestroy(unsubscribeSelection);
+  }
+
+  const select = (ids: Identifier[]): void => {
+    if (destroyed) return;
+    writeSelection([...ids]);
+  };
+
+  const toggleItem = (id: Identifier): void => {
+    if (destroyed) return;
+    const current = store.getSnapshot().selectedIds;
+    writeSelection(
+      current.includes(id)
+        ? current.filter((existing) => existing !== id)
+        : [...current, id],
+    );
+  };
+
+  const unselectAll = (): void => {
+    if (destroyed) return;
+    writeSelection([]);
+  };
+
+  const selectAll = async (opts?: { limit?: number }): Promise<void> => {
+    if (destroyed) return;
+    const limit = opts?.limit ?? DEFAULT_SELECT_ALL_LIMIT;
+    const s = store.getSnapshot();
+    try {
+      const result = await ctx.queryClient.fetchQuery({
+        ...getListOptions(ctx, resource, {
+          pagination: { page: 1, perPage: limit },
+          sort: s.sort.length === 1 ? s.sort[0] : s.sort,
+          filter: { ...s.filter, ...(options.filter ?? {}) },
+        }),
+        retry: false,
+      });
+      if (destroyed) return;
+      writeSelection(
+        result.data.map((record) => (record as ResourceRecord).id),
+      );
+      if (result.data.length === limit) {
+        ctx.notifications?.notify("chelone.message.select_all_limit_reached", {
+          type: "warning",
+          messageArgs: { max: limit },
+        });
+      }
+    } catch (error) {
+      if (destroyed) return;
+      ctx.notifications?.notify(errorMessageKey(error), {
+        type: "error",
+        messageArgs: { _: String(error) },
+      });
+    }
+  };
+
+  const refetch = (): void => {
+    if (destroyed) return;
+    void observer.refetch();
+  };
+
+  // --- out-of-range page resets (recon rule 2) ---
+  // Guarded: only a SETTLED result may trigger a reset, so a reset-induced
+  // refetch (isFetching) can never re-trigger a reset — no ping-pong.
+  const maybeResetPage = (): void => {
+    const s = store.getSnapshot();
+    if (s.page <= 0) {
+      setPage(1);
+      return;
+    }
+    if (s.isPending || s.isFetching) return;
+    if (s.total !== undefined) {
+      const lastPage = Math.max(Math.ceil(s.total / s.perPage), 1);
+      if (s.page > lastPage) setPage(lastPage);
+      return;
+    }
+    if (s.page > 1 && s.data !== undefined && s.data.length === 0) setPage(1);
+  };
+
+  // --- observer result -> state (the observer NEVER gets setOptions from here) ---
+  let lastNotifiedError: unknown = null;
+  const onResult = (result: QueryObserverResult<ListResult, Error>): void => {
+    const list = result.data;
+    const { page, perPage } = store.getSnapshot();
+    const total = list?.total;
+    const pageInfo = list?.pageInfo;
+    let hasNextPage: boolean | undefined;
+    let hasPreviousPage: boolean | undefined;
+    if (pageInfo) {
+      hasNextPage = pageInfo.hasNextPage;
+      hasPreviousPage = pageInfo.hasPreviousPage;
+    } else if (total !== undefined) {
+      hasNextPage = page * perPage < total;
+      hasPreviousPage = page > 1;
+    }
+    store.setState({
+      data: list?.data,
+      total,
+      pageInfo,
+      isPending: result.isPending,
+      isFetching: result.isFetching,
+      error: result.error ?? null,
+      hasNextPage,
+      hasPreviousPage,
+    });
+    if (result.error) {
+      if (result.error !== lastNotifiedError) {
+        lastNotifiedError = result.error;
+        ctx.notifications?.notify(errorMessageKey(result.error), {
+          type: "error",
+          messageArgs: { _: String(result.error) },
+        });
+      }
+    } else {
+      lastNotifiedError = null;
+    }
+    maybeResetPage();
+  };
+
+  const unsubscribeObserver = observer.subscribe(onResult);
+  store.onDestroy(unsubscribeObserver);
+  // Sync the optimistic first result (covers cached data + enabled: false).
+  onResult(observer.getCurrentResult());
+
+  return {
+    ...store,
+    setPage,
+    setPerPage,
+    setSort,
+    setFilters,
+    showFilter,
+    hideFilter,
+    select,
+    toggleItem,
+    unselectAll,
+    selectAll,
+    refetch,
+  };
+}

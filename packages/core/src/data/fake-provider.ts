@@ -18,13 +18,22 @@ function applyFilter(rows: Row[], filter: FilterPayload | undefined): Row[] {
   );
 }
 
-function applySort(rows: Row[], sort: SortPayload | undefined): Row[] {
+function applySort(
+  rows: Row[],
+  sort: SortPayload | SortPayload[] | undefined,
+): Row[] {
   if (!sort) return rows;
-  const dir = sort.order === "ASC" ? 1 : -1;
+  const keys = Array.isArray(sort) ? sort : [sort];
+  if (keys.length === 0) return rows;
   return [...rows].sort((a, b) => {
-    const av = a[sort.field] as never;
-    const bv = b[sort.field] as never;
-    return av < bv ? -dir : av > bv ? dir : 0;
+    for (const { field, order } of keys) {
+      const dir = order === "ASC" ? 1 : -1;
+      const av = a[field] as never;
+      const bv = b[field] as never;
+      if (av < bv) return -dir;
+      if (av > bv) return dir;
+    }
+    return 0;
   });
 }
 

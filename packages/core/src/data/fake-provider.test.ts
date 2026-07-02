@@ -79,6 +79,17 @@ describe("fakeDataProvider", () => {
     await expect(dp.getOne("posts", { id: 1 })).rejects.toThrow();
   });
 
+  it("getList applies multi-key sort in order", async () => {
+    const dp = seed();
+    const r = await dp.getList("posts", {
+      sort: [
+        { field: "author_id", order: "ASC" },
+        { field: "title", order: "DESC" },
+      ],
+    });
+    expect(r.data.map((p) => p.id)).toEqual([3, 1, 2]);
+  });
+
   it("updateMany/deleteMany return the touched ids", async () => {
     const dp = seed();
     expect(

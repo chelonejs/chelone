@@ -28,7 +28,8 @@ export type FilterPayload = { [key: string]: unknown };
 
 export interface GetListParams {
   pagination?: Pagination;
-  sort?: SortPayload;
+  /** Single sort key, or multi-sort: keys applied in order (first is primary). */
+  sort?: SortPayload | SortPayload[];
   filter?: FilterPayload;
   meta?: unknown;
 }
@@ -91,7 +92,8 @@ export interface GetManyReferenceParams {
   target: string;
   id: Identifier;
   pagination?: Pagination;
-  sort?: SortPayload;
+  /** Single sort key, or multi-sort: keys applied in order (first is primary). */
+  sort?: SortPayload | SortPayload[];
   filter?: FilterPayload;
   meta?: unknown;
 }
