@@ -51,4 +51,34 @@ describe("DataProvider inference", () => {
       Parameters<typeof dp.delete<"posts">>[1]["previousData"]
     >().toEqualTypeOf<{ id: number; title: string } | undefined>();
   });
+
+  it("getMany returns typed records", async () => {
+    const result = await dp.getMany("posts", { ids: [1, 2] });
+    expectTypeOf(result.data).toEqualTypeOf<Post[]>();
+  });
+
+  it("getManyReference returns typed records with list result shape", async () => {
+    const result = await dp.getManyReference("posts", {
+      target: "author_id",
+      id: 1,
+    });
+    expectTypeOf(result.data).toEqualTypeOf<Post[]>();
+    expectTypeOf(result.pageInfo).toEqualTypeOf<
+      import("./types").PageInfo | undefined
+    >();
+  });
+
+  it("updateMany/deleteMany return identifier arrays", async () => {
+    const u = await dp.updateMany("posts", { ids: [1], data: { title: "x" } });
+    const d = await dp.deleteMany("posts", { ids: [1] });
+    expectTypeOf(u.data).toEqualTypeOf<Array<string | number>>();
+    expectTypeOf(d.data).toEqualTypeOf<Array<string | number>>();
+  });
+
+  it("pagination is a discriminated union: page and cursor modes both accepted", async () => {
+    await dp.getList("posts", { pagination: { page: 1, perPage: 10 } });
+    await dp.getList("posts", { pagination: { cursor: null, limit: 10 } });
+    // @ts-expect-error mixing the two modes is rejected
+    await dp.getList("posts", { pagination: { page: 1, limit: 10 } });
+  });
 });

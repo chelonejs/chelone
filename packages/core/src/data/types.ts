@@ -2,10 +2,24 @@ import type { Identifier } from "../resource/identifier";
 import type { LooseRecord, ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 
-export interface PaginationPayload {
+export interface PagePagination {
   page: number;
   perPage: number;
 }
+export interface CursorPagination {
+  cursor: string | null;
+  limit: number;
+}
+/** Discriminated by presence of `page` vs `cursor` — offset AND keyset backends are first-class. */
+export type Pagination = PagePagination | CursorPagination;
+
+export interface PageInfo {
+  nextCursor?: string | null;
+  prevCursor?: string | null;
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
+}
+
 export interface SortPayload {
   field: string;
   order: "ASC" | "DESC";
@@ -13,14 +27,16 @@ export interface SortPayload {
 export type FilterPayload = { [key: string]: unknown };
 
 export interface GetListParams {
-  pagination?: PaginationPayload;
+  pagination?: Pagination;
   sort?: SortPayload;
   filter?: FilterPayload;
   meta?: unknown;
 }
 export interface GetListResult<TRecord extends ResourceRecord = LooseRecord> {
   data: TRecord[];
+  /** Optional — cursor backends often cannot count. */
   total?: number;
+  pageInfo?: PageInfo;
 }
 
 export interface GetOneParams<TId extends Identifier = Identifier> {
@@ -58,8 +74,51 @@ export interface DeleteResult<TRecord extends ResourceRecord = LooseRecord> {
   data: TRecord;
 }
 
+export interface GetManyParams {
+  ids: Identifier[];
+  meta?: unknown;
+}
+export interface GetManyResult<TRecord extends ResourceRecord = LooseRecord> {
+  data: TRecord[];
+}
+
 /**
- * The data contract: 5 promise-returning CRUD verbs (P1 subset).
+ * Fetch records whose `target` field (the FK on the referenced-FROM side)
+ * equals `id`. Arbitrary-lookup-key resolution on the referenced side is a
+ * controller concern (P4/P5) via getList filter — not extra contract surface.
+ */
+export interface GetManyReferenceParams {
+  target: string;
+  id: Identifier;
+  pagination?: Pagination;
+  sort?: SortPayload;
+  filter?: FilterPayload;
+  meta?: unknown;
+}
+export type GetManyReferenceResult<
+  TRecord extends ResourceRecord = LooseRecord,
+> = GetListResult<TRecord>;
+
+export interface UpdateManyParams<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
+  ids: Identifier[];
+  data: Partial<TRecord>;
+  meta?: unknown;
+}
+export interface UpdateManyResult {
+  data: Identifier[];
+}
+export interface DeleteManyParams {
+  ids: Identifier[];
+  meta?: unknown;
+}
+export interface DeleteManyResult {
+  data: Identifier[];
+}
+
+/**
+ * The data contract: 9 promise-returning CRUD verbs (P2 full set).
  * Parameterized by a registry so `resource` names are checked and record
  * types flow to results via `RecordOf`.
  */
@@ -88,4 +147,24 @@ export interface DataProvider<TResources extends ResourceMap = ResourceMap> {
     resource: TName,
     params: DeleteParams<RecordOf<TResources, TName>>,
   ): Promise<DeleteResult<RecordOf<TResources, TName>>>;
+
+  getMany<TName extends keyof TResources & string>(
+    resource: TName,
+    params: GetManyParams,
+  ): Promise<GetManyResult<RecordOf<TResources, TName>>>;
+
+  getManyReference<TName extends keyof TResources & string>(
+    resource: TName,
+    params: GetManyReferenceParams,
+  ): Promise<GetManyReferenceResult<RecordOf<TResources, TName>>>;
+
+  updateMany<TName extends keyof TResources & string>(
+    resource: TName,
+    params: UpdateManyParams<RecordOf<TResources, TName>>,
+  ): Promise<UpdateManyResult>;
+
+  deleteMany<TName extends keyof TResources & string>(
+    resource: TName,
+    params: DeleteManyParams,
+  ): Promise<DeleteManyResult>;
 }
