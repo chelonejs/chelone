@@ -10,7 +10,10 @@ export function listKey(resource: string, params: GetListParams = {}) {
   return [resource, "getList", params] as const;
 }
 
-export function oneKey(resource: string, params: { id: Identifier; meta?: unknown }) {
+export function oneKey(
+  resource: string,
+  params: { id: Identifier; meta?: unknown },
+) {
   return [
     resource,
     "getOne",
@@ -20,7 +23,10 @@ export function oneKey(resource: string, params: { id: Identifier; meta?: unknow
   ] as const;
 }
 
-export function manyKey(resource: string, params: { ids: Identifier[]; meta?: unknown }) {
+export function manyKey(
+  resource: string,
+  params: { ids: Identifier[]; meta?: unknown },
+) {
   const ids = params.ids.map(String).sort();
   return [
     resource,
@@ -29,6 +35,9 @@ export function manyKey(resource: string, params: { ids: Identifier[]; meta?: un
   ] as const;
 }
 
-export function manyReferenceKey(resource: string, params: GetManyReferenceParams) {
+export function manyReferenceKey(
+  resource: string,
+  params: GetManyReferenceParams,
+) {
   return [resource, "getManyReference", params] as const;
 }

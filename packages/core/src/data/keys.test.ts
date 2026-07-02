@@ -16,7 +16,9 @@ describe("query keys", () => {
   });
 
   it("manyKey stringifies and sorts ids for order-insensitive hits", () => {
-    expect(manyKey("posts", { ids: [2, 1] })).toEqual(manyKey("posts", { ids: ["1", "2"] }));
+    expect(manyKey("posts", { ids: [2, 1] })).toEqual(
+      manyKey("posts", { ids: ["1", "2"] }),
+    );
   });
 
   it("listKey defaults params to an empty object", () => {
