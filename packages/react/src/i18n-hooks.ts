@@ -1,4 +1,4 @@
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { useChelonI18n } from "./context";
 
 function useI18nVersion(): string {
@@ -21,6 +21,8 @@ export function useSetLocale(): (locale: string) => void {
 
 export function useTranslate() {
   const i18n = useChelonI18n();
-  useI18nVersion(); // re-render this consumer on locale change — no remount anywhere
-  return i18n.translate.bind(i18n);
+  const locale = useI18nVersion(); // re-render this consumer on locale change — no remount anywhere
+  // Identity-stable per locale so React.memo children receiving `t` skip correctly.
+  // biome-ignore lint/correctness/useExhaustiveDependencies(locale): locale is the deliberate invalidation key — translate closes over the i18n instance's mutable locale, so the bound identity must refresh on locale change.
+  return useMemo(() => i18n.translate.bind(i18n), [i18n, locale]);
 }

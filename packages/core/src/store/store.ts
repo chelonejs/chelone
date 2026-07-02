@@ -71,7 +71,10 @@ export function createStore(adapter?: StoreAdapter): ChelonStore {
       set.add(callback);
       return () => {
         set.delete(callback);
-        if (set.size === 0) subscribers.delete(key);
+        // Guard against a stale unsubscribe deleting a recreated set for the same key.
+        if (set.size === 0 && subscribers.get(key) === set) {
+          subscribers.delete(key);
+        }
       };
     },
     keys(): string[] {

@@ -32,6 +32,17 @@ describe("createStore", () => {
     expect(cb).not.toHaveBeenCalled();
   });
 
+  it("a stale double-unsubscribe does not orphan a newer subscriber on the same key", () => {
+    const store = createStore();
+    const staleUnsub = store.subscribe("k", () => {});
+    staleUnsub();
+    const live = vi.fn();
+    store.subscribe("k", live);
+    staleUnsub(); // stale second call must NOT delete the recreated set
+    store.setItem("k", 1);
+    expect(live).toHaveBeenCalledTimes(1);
+  });
+
   it("removeItem clears the value and notifies", () => {
     const store = createStore();
     const cb = vi.fn();

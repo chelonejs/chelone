@@ -94,4 +94,36 @@ describe("canAccessWithPermissions", () => {
       canAccessWithPermissions(perms, { action: "edit", resource: "posts" }),
     ).toBe(true);
   });
+
+  it("a throwing record predicate denies (deny-by-default holds under exceptions)", () => {
+    const perms: Permission[] = [
+      {
+        action: "edit",
+        resource: "posts",
+        record: () => {
+          throw new Error("boom");
+        },
+      },
+    ];
+    expect(
+      canAccessWithPermissions(perms, {
+        action: "edit",
+        resource: "posts",
+        record: { id: 1 },
+      }),
+    ).toBe(false);
+  });
+
+  it("a null record never satisfies a predicate grant", () => {
+    const perms: Permission[] = [
+      { action: "edit", resource: "posts", record: () => true },
+    ];
+    expect(
+      canAccessWithPermissions(perms, {
+        action: "edit",
+        resource: "posts",
+        record: null,
+      }),
+    ).toBe(false);
+  });
 });

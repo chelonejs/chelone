@@ -109,7 +109,7 @@ export function createI18n<const TCatalog extends MessageCatalog>(options: {
     },
     getLocale: () => locale,
     setLocale(next) {
-      if (!(next in options.messages)) {
+      if (!Object.hasOwn(options.messages, next)) {
         throw new Error(
           `createI18n: unknown locale "${next}" — available: ${Object.keys(options.messages).join(", ")}`,
         );

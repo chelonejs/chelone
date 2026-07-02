@@ -76,6 +76,12 @@ describe("createI18n", () => {
     expect(() => i18n.setLocale("de")).toThrow(/unknown locale/i);
   });
 
+  it("setLocale rejects Object.prototype keys (toString is not a locale)", () => {
+    const i18n = make();
+    expect(() => i18n.setLocale("toString")).toThrow(/unknown locale/i);
+    expect(() => i18n.setLocale("hasOwnProperty")).toThrow(/unknown locale/i);
+  });
+
   it("unsubscribe stops locale notifications", () => {
     const i18n = make();
     const cb = vi.fn();

@@ -48,7 +48,7 @@ export function localStorageAdapter(
     subscribeExternal(onChange) {
       if (typeof window === "undefined") return () => {};
       const listener = (event: StorageEvent) => {
-        if (!event.key || !event.key.startsWith(prefix)) return;
+        if (!event.key?.startsWith(prefix)) return;
         const key = event.key.slice(prefix.length);
         if (event.newValue == null) {
           onChange(key, undefined);

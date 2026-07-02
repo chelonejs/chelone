@@ -27,8 +27,12 @@ export function canAccessWithPermissions(
     if (!matchesAction(permission.action, params.action)) return false;
     if (!matchesResource(permission.resource, params.resource)) return false;
     if (permission.record) {
-      if (params.record === undefined) return false; // predicate grants never apply blanket
-      return permission.record(params.record);
+      if (params.record == null) return false; // predicate grants never apply blanket
+      try {
+        return permission.record(params.record);
+      } catch {
+        return false; // deny-by-default holds even when a predicate throws
+      }
     }
     return true;
   });
