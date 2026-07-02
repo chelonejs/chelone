@@ -90,7 +90,7 @@ export type {
 } from "./resource/registry";
 export { defineResources } from "./resource/registry";
 export { localStorageAdapter, memoryStoreAdapter } from "./store/adapters";
-export type { MicroStore } from "./store/micro-store";
+export type { MicroStore, MicroStoreOptions } from "./store/micro-store";
 export { createMicroStore } from "./store/micro-store";
 export type { ChelonStore, StoreAdapter } from "./store/store";
 export { createStore } from "./store/store";
