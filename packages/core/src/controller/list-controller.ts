@@ -113,6 +113,16 @@ function errorMessageKey(error: unknown): string {
 /**
  * Vanilla list controller: one QueryObserver mapped into a micro-store.
  *
+ * Lifecycle (Task 4R): construction is INERT — pure state + closures, zero
+ * subscriptions, zero fetching. A controller constructed in a discarded
+ * React render (Suspense retry, StrictMode double render, hidden
+ * <Activity> pre-render) is plain garbage, never a zombie. Acquisition
+ * (QueryObserver + KV selection subscription) happens on the micro-store's
+ * FIRST subscriber; the LAST unsubscribe releases everything. Attach/detach
+ * cycles are re-entrant; re-attach rebuilds query options from CURRENT
+ * state, so params changed while detached take effect on the next attach.
+ * `destroy()` remains the hard imperative teardown for non-React consumers.
+ *
  * Loop-prevention architecture rule: `observer.setOptions` is called ONLY
  * from param-mutating actions — never directly from the observer result
  * subscription. Out-of-range page resets go through the normal `setPage`
@@ -162,23 +172,31 @@ export function createListController<
     (selectionKey && kv ? kv.getItem<Identifier[]>(selectionKey) : undefined) ??
     [];
 
-  const store = createMicroStore<ListControllerState<TRecord>>({
-    ...initialParams,
-    selectedIds: readSelection(),
-    data: undefined,
-    total: undefined,
-    pageInfo: undefined,
-    isPending: true,
-    isFetching: false,
-    error: null,
-    hasNextPage: undefined,
-    hasPreviousPage: undefined,
-  });
+  const store = createMicroStore<ListControllerState<TRecord>>(
+    {
+      ...initialParams,
+      selectedIds: readSelection(),
+      data: undefined,
+      total: undefined,
+      pageInfo: undefined,
+      isPending: true,
+      isFetching: false,
+      error: null,
+      hasNextPage: undefined,
+      hasPreviousPage: undefined,
+    },
+    // Acquisition is subscription-driven: nothing is fetched or subscribed
+    // until the first subscriber attaches (see `acquire` below, hoisted).
+    { onSubscribed: acquire },
+  );
 
   let destroyed = false;
   store.onDestroy(() => {
     destroyed = true;
   });
+
+  /** Non-null exactly while attached — doubles as the attached flag. */
+  let observer: QueryObserver<ListResult, Error> | null = null;
 
   // --- query wiring: ONE observer, options rebuilt on every param change ---
   const buildOptions = () => {
@@ -209,12 +227,11 @@ export function createListController<
     kv.setItem(paramsKey, params);
   };
 
-  const observer = new QueryObserver<ListResult, Error>(
-    ctx.queryClient,
-    buildOptions(),
-  );
-
-  /** The ONLY path that reconfigures the observer — param-mutating actions. */
+  /**
+   * The ONLY path that reconfigures the observer — param-mutating actions.
+   * Detached, the observer does not exist: state still updates and persists,
+   * and the next attach rebuilds options from CURRENT state.
+   */
   const applyParams = (
     patch: Partial<
       Pick<
@@ -225,7 +242,7 @@ export function createListController<
   ): void => {
     store.setState(patch);
     persistParams();
-    observer.setOptions(buildOptions());
+    observer?.setOptions(buildOptions());
   };
 
   // --- actions ---
@@ -322,21 +339,15 @@ export function createListController<
   // --- selection: KV-backed when available (cross-instance sync), else local ---
   const writeSelection = (ids: Identifier[]): void => {
     if (selectionKey && kv) {
-      // State update arrives through the KV subscription below (single path).
+      // Attached, the state update arrives through the KV subscription armed
+      // in `acquire` (single path). Detached, that subscription is not armed —
+      // mirror into local state directly so snapshots stay truthful.
       kv.setItem(selectionKey, ids);
+      if (!observer) store.setState({ selectedIds: ids });
     } else {
       store.setState({ selectedIds: ids });
     }
   };
-  if (selectionKey && kv) {
-    const syncKey = selectionKey;
-    const unsubscribeSelection = kv.subscribe(syncKey, () => {
-      store.setState({
-        selectedIds: kv.getItem<Identifier[]>(syncKey) ?? [],
-      });
-    });
-    store.onDestroy(unsubscribeSelection);
-  }
 
   const select = (ids: Identifier[]): void => {
     if (destroyed) return;
@@ -392,7 +403,9 @@ export function createListController<
 
   const refetch = (): void => {
     if (destroyed) return;
-    void observer.refetch();
+    // Detached there is no observer — refetch is a NO-OP by design; the next
+    // attach refetches with current params anyway.
+    void observer?.refetch();
   };
 
   // --- out-of-range page resets (recon rule 2) ---
@@ -453,10 +466,41 @@ export function createListController<
     maybeResetPage();
   };
 
-  const unsubscribeObserver = observer.subscribe(onResult);
-  store.onDestroy(unsubscribeObserver);
-  // Sync the optimistic first result (covers cached data + enabled: false).
-  onResult(observer.getCurrentResult());
+  /**
+   * Attach: runs on the micro-store's FIRST subscriber (hoisted into the
+   * `createMicroStore` options above). Creates and subscribes the observer
+   * with options built from CURRENT state, arms the KV selection sync, and
+   * returns the teardown that the micro-store runs on last-unsubscribe AND
+   * on destroy-while-attached.
+   */
+  function acquire(): () => void {
+    const attached = new QueryObserver<ListResult, Error>(
+      ctx.queryClient,
+      buildOptions(),
+    );
+    observer = attached;
+    const unsubscribeObserver = attached.subscribe(onResult);
+    // Sync the optimistic first result (covers cached data + enabled: false).
+    onResult(attached.getCurrentResult());
+    let unsubscribeSelection: (() => void) | undefined;
+    if (selectionKey && kv) {
+      const syncKey = selectionKey;
+      const syncSelection = (): void => {
+        store.setState({
+          selectedIds: kv.getItem<Identifier[]>(syncKey) ?? [],
+        });
+      };
+      unsubscribeSelection = kv.subscribe(syncKey, syncSelection);
+      // The selection may have moved (another instance/tab) while detached.
+      syncSelection();
+    }
+    return () => {
+      unsubscribeObserver();
+      unsubscribeSelection?.();
+      observer = null;
+      clearDebounce();
+    };
+  }
 
   return {
     ...store,

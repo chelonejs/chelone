@@ -33,11 +33,26 @@ function makeCtx() {
 const settled = async (c: { getSnapshot: () => { isPending: boolean } }) =>
   vi.waitFor(() => expect(c.getSnapshot().isPending).toBe(false));
 
+/**
+ * Post-4R lifecycle: construction is INERT — acquisition happens on the FIRST
+ * subscriber. Vanilla tests attach explicitly, mirroring real vanilla usage.
+ */
+const attach = (c: { subscribe: (cb: () => void) => () => void }) =>
+  c.subscribe(() => {});
+
+/** Live QueryObserver subscriptions across the whole cache. */
+const observerCount = (queryClient: QueryClient): number =>
+  queryClient
+    .getQueryCache()
+    .getAll()
+    .reduce((sum, query) => sum + query.getObserversCount(), 0);
+
 describe("createListController", () => {
   beforeEach(() => vi.useRealTimers());
 
   it("fetches page 1 with defaults and exposes data/total", async () => {
     const c = createListController(makeCtx(), "posts", {});
+    attach(c);
     await settled(c);
     const s = c.getSnapshot();
     expect(s.data?.length).toBe(10);
@@ -50,6 +65,7 @@ describe("createListController", () => {
 
   it("setSort toggles order on the same field and resets page", async () => {
     const c = createListController(makeCtx(), "posts", {});
+    attach(c);
     await settled(c);
     c.setPage(2);
     c.setSort({ field: "title", order: "ASC" });
@@ -64,6 +80,7 @@ describe("createListController", () => {
     const ctx = makeCtx();
     const spy = vi.spyOn(ctx.dataProvider, "getList");
     const c = createListController(ctx, "posts", {});
+    attach(c);
     await settled(c);
     c.setSort([
       { field: "views", order: "ASC" },
@@ -80,6 +97,7 @@ describe("createListController", () => {
 
   it("setFilters strips empties, resets page, keeps displayedFilters when undefined; never mutates previous filter", async () => {
     const c = createListController(makeCtx(), "posts", {});
+    attach(c);
     await settled(c);
     c.showFilter("title", undefined);
     const before = c.getSnapshot().filter;
@@ -94,6 +112,7 @@ describe("createListController", () => {
     const ctx = makeCtx();
     const spy = vi.spyOn(ctx.dataProvider, "getList");
     const c = createListController(ctx, "posts", { filter: { views: 0 } });
+    attach(c);
     await settled(c);
     c.setFilters({ views: 3, title: "x" });
     await settled(c);
@@ -107,6 +126,7 @@ describe("createListController", () => {
   it("out-of-range page resets to last page when data shrinks", async () => {
     const ctx = makeCtx();
     const c = createListController(ctx, "posts", {});
+    attach(c);
     await settled(c);
     c.setPage(3); // rows 21-25
     await settled(c);
@@ -119,11 +139,13 @@ describe("createListController", () => {
   it("selection persists in the KV store across controller instances and selectAll caps + warns", async () => {
     const ctx = makeCtx();
     const c1 = createListController(ctx, "posts", {});
+    attach(c1);
     await settled(c1);
     c1.toggleItem(1);
     c1.toggleItem(2);
     c1.destroy();
     const c2 = createListController(ctx, "posts", {});
+    attach(c2);
     await settled(c2);
     expect(c2.getSnapshot().selectedIds).toEqual([1, 2]);
     await c2.selectAll({ limit: 10 });
@@ -154,10 +176,12 @@ describe("createListController", () => {
   it("params persist to the KV store and rehydrate", async () => {
     const ctx = makeCtx();
     const c1 = createListController(ctx, "posts", {});
+    attach(c1);
     await settled(c1);
     c1.setPerPage(5);
     c1.setSort({ field: "title", order: "DESC" });
     c1.destroy();
+    // c2 stays DETACHED — inert construction must still read persisted params.
     const c2 = createListController(ctx, "posts", {});
     expect(c2.getSnapshot().perPage).toBe(5);
     expect(c2.getSnapshot().sort).toEqual([{ field: "title", order: "DESC" }]);
@@ -167,6 +191,7 @@ describe("createListController", () => {
   it("destroy unsubscribes the query observer (no further state updates)", async () => {
     const ctx = makeCtx();
     const c = createListController(ctx, "posts", {});
+    attach(c);
     await settled(c);
     const snap = c.getSnapshot();
     c.destroy();
@@ -178,6 +203,7 @@ describe("createListController", () => {
 
   it("setPerPage resets page to 1", async () => {
     const c = createListController(makeCtx(), "posts", {});
+    attach(c);
     await settled(c);
     c.setPage(2);
     c.setPerPage(20);
@@ -189,6 +215,7 @@ describe("createListController", () => {
 
   it("hideFilter removes the filter value and its displayed flag", async () => {
     const c = createListController(makeCtx(), "posts", {});
+    attach(c);
     await settled(c);
     c.showFilter("title", "abc");
     expect(c.getSnapshot().filter).toEqual({ title: "abc" });
@@ -202,6 +229,7 @@ describe("createListController", () => {
   it("storeKey: false keeps params and selection out of the KV store", async () => {
     const ctx = makeCtx();
     const c = createListController(ctx, "posts", { storeKey: false });
+    attach(c);
     await settled(c);
     c.setPerPage(5);
     c.toggleItem(1);
@@ -216,6 +244,7 @@ describe("createListController", () => {
     const c = createListController(ctx, "posts", {
       filterDefaultValues: { views: 0 },
     });
+    attach(c);
     await settled(c);
     expect(c.getSnapshot().filter).toEqual({ views: 0 });
     expect(spy.mock.calls.at(-1)?.[1]?.filter).toEqual({ views: 0 });
@@ -226,6 +255,7 @@ describe("createListController", () => {
     const ctx = makeCtx();
     const spy = vi.spyOn(ctx.dataProvider, "getList");
     const c = createListController(ctx, "posts", { enabled: false });
+    attach(c); // even ATTACHED, enabled: false must not fetch
     await new Promise((resolve) => setTimeout(resolve, 20));
     expect(spy).not.toHaveBeenCalled();
     expect(c.getSnapshot().isPending).toBe(true);
@@ -234,6 +264,7 @@ describe("createListController", () => {
 
   it("select replaces the selection; unselectAll clears it", async () => {
     const c = createListController(makeCtx(), "posts", {});
+    attach(c);
     await settled(c);
     c.select([3, 4, 5]);
     expect(c.getSnapshot().selectedIds).toEqual([3, 4, 5]);
@@ -248,6 +279,7 @@ describe("createListController", () => {
     const ctx = makeCtx();
     vi.spyOn(ctx.dataProvider, "getList").mockRejectedValue(new Error("boom"));
     const c = createListController(ctx, "posts", {});
+    attach(c);
     await vi.waitFor(() => expect(c.getSnapshot().error).toBeTruthy());
     const errors = ctx.notifications
       .getSnapshot()
@@ -262,6 +294,7 @@ describe("createListController", () => {
     const ctx = makeCtx();
     vi.spyOn(ctx.dataProvider, "getList").mockRejectedValue(new Error(""));
     const c = createListController(ctx, "posts", {});
+    attach(c);
     await vi.waitFor(() => expect(c.getSnapshot().error).toBeTruthy());
     expect(
       ctx.notifications
@@ -275,11 +308,128 @@ describe("createListController", () => {
     const ctx = makeCtx();
     const c1 = createListController(ctx, "posts", {});
     const c2 = createListController(ctx, "posts", {});
+    attach(c1);
+    attach(c2);
     await settled(c1);
     await settled(c2);
     c1.select([7]);
     expect(c2.getSnapshot().selectedIds).toEqual([7]);
     c1.destroy();
     c2.destroy();
+  });
+
+  // --- Task 4R: subscription-driven acquisition (the zombie-leak fix) ---
+
+  describe("lazy acquisition lifecycle", () => {
+    it("construction is INERT: no fetch, no observers, no KV subscriptions", async () => {
+      const ctx = makeCtx();
+      const spy = vi.spyOn(ctx.dataProvider, "getList");
+      const c = createListController(ctx, "posts", {});
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(spy).not.toHaveBeenCalled();
+      expect(observerCount(ctx.queryClient)).toBe(0);
+      // A discarded (never-subscribed) controller needs no destroy to be leak-free,
+      // but destroy must still be safe on it.
+      c.destroy();
+      expect(observerCount(ctx.queryClient)).toBe(0);
+    });
+
+    it("acquires on first subscribe, releases on last unsubscribe", async () => {
+      const ctx = makeCtx();
+      const c = createListController(ctx, "posts", {});
+      const detach = attach(c);
+      await settled(c);
+      expect(c.getSnapshot().data?.length).toBe(10);
+      expect(observerCount(ctx.queryClient)).toBe(1);
+      detach();
+      expect(observerCount(ctx.queryClient)).toBe(0);
+      c.destroy();
+    });
+
+    it("re-attach rebuilds query options from CURRENT state (params changed while detached)", async () => {
+      const ctx = makeCtx();
+      const spy = vi.spyOn(ctx.dataProvider, "getList");
+      const c = createListController(ctx, "posts", {});
+      const detach = attach(c);
+      await settled(c);
+      detach();
+      const callsAfterDetach = spy.mock.calls.length;
+      c.setPage(3); // actions work detached: state + KV persistence, no fetch
+      expect(c.getSnapshot().page).toBe(3);
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(spy.mock.calls.length).toBe(callsAfterDetach);
+      attach(c);
+      await vi.waitFor(() => expect(c.getSnapshot().data?.[0]?.id).toBe(21));
+      const lastPagination = spy.mock.calls.at(-1)?.[1]?.pagination;
+      expect(lastPagination).toEqual({ page: 3, perPage: 10 });
+      c.destroy();
+    });
+
+    it("refetch while detached is a no-op", async () => {
+      const ctx = makeCtx();
+      const spy = vi.spyOn(ctx.dataProvider, "getList");
+      const c = createListController(ctx, "posts", {});
+      const detach = attach(c);
+      await settled(c);
+      detach();
+      const calls = spy.mock.calls.length;
+      c.refetch();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(spy.mock.calls.length).toBe(calls);
+      c.destroy();
+    });
+
+    it("actions while detached persist params to the KV store", async () => {
+      const ctx = makeCtx();
+      const c = createListController(ctx, "posts", {});
+      c.setPerPage(5); // never attached at all
+      expect(c.getSnapshot().perPage).toBe(5);
+      expect(
+        ctx.store.getItem<{ perPage: number }>("posts.listParams")?.perPage,
+      ).toBe(5);
+      c.destroy();
+    });
+
+    it("selection changes while detached mirror into local state AND the KV store", () => {
+      const ctx = makeCtx();
+      const c = createListController(ctx, "posts", {});
+      c.toggleItem(1);
+      c.select([1, 2]);
+      expect(c.getSnapshot().selectedIds).toEqual([1, 2]);
+      expect(ctx.store.getItem<number[]>("posts.selectedIds")).toEqual([1, 2]);
+      c.destroy();
+    });
+
+    it("selection re-syncs from the KV store on attach (moved while detached)", async () => {
+      const ctx = makeCtx();
+      const c = createListController(ctx, "posts", {});
+      // Another instance (or tab) moves the selection while c is detached.
+      ctx.store.setItem("posts.selectedIds", [9]);
+      attach(c);
+      expect(c.getSnapshot().selectedIds).toEqual([9]);
+      await settled(c);
+      c.destroy();
+    });
+
+    it("selectAll works detached (direct fetchQuery, no observer needed)", async () => {
+      const ctx = makeCtx();
+      const c = createListController(ctx, "posts", {});
+      await c.selectAll({ limit: 5 });
+      expect(c.getSnapshot().selectedIds.length).toBe(5);
+      c.destroy();
+    });
+
+    it("destroy while attached releases the observer and the KV subscription", async () => {
+      const ctx = makeCtx();
+      const c = createListController(ctx, "posts", {});
+      attach(c);
+      await settled(c);
+      expect(observerCount(ctx.queryClient)).toBe(1);
+      c.destroy();
+      expect(observerCount(ctx.queryClient)).toBe(0);
+      // KV subscription is gone: external selection writes no longer reach state.
+      ctx.store.setItem("posts.selectedIds", [4]);
+      expect(c.getSnapshot().selectedIds).toEqual([]);
+    });
   });
 });
