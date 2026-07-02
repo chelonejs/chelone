@@ -1,3 +1,13 @@
+export {
+  authStateQueryOptions,
+  canAccessQueryOptions,
+  identityQueryOptions,
+} from "./auth/auth-options";
+export type {
+  AuthProvider,
+  CanAccessParams,
+  UserIdentity,
+} from "./auth/types";
 export { ValidationError } from "./data/errors";
 export { fakeDataProvider } from "./data/fake-provider";
 export {
@@ -49,6 +59,10 @@ export type {
   UpdateParams,
   UpdateResult,
 } from "./data/types";
+export type { AnyChelonI18n, ChelonI18n } from "./i18n/i18n";
+export { createI18n } from "./i18n/i18n";
+export type { MessageCatalog } from "./i18n/messages";
+export { defineMessages } from "./i18n/messages";
 export type { Identifier } from "./resource/identifier";
 export type { LooseRecord, ResourceRecord } from "./resource/record";
 export type {
@@ -57,3 +71,5 @@ export type {
   ResourceMap,
 } from "./resource/registry";
 export { defineResources } from "./resource/registry";
+export type { ChelonStore } from "./store/store";
+export { createStore } from "./store/store";

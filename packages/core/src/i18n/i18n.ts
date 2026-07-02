@@ -23,12 +23,38 @@ type CatalogValue<
     : never
   : never;
 
+/**
+ * Catalog-erased view of an i18n instance — what a type-erased holder (e.g. a
+ * React context) can carry. Any `ChelonI18n<TCatalog>` is structurally
+ * assignable to this; key-level literal typing lives on the concrete instance.
+ */
+export interface AnyChelonI18n {
+  translate(key: string, params?: Record<string, unknown>): string;
+  getLocale(): string;
+  setLocale(locale: string): void;
+  getLocales(): string[];
+  subscribe(callback: () => void): () => void;
+}
+
 export interface ChelonI18n<TCatalog extends MessageCatalog> {
+  /**
+   * Params tuple, three-way: no placeholders → no params; type-erased or
+   * heterogeneous catalogs (where `undefined` joins the union, e.g.
+   * `ChelonI18n<MessageCatalog>`) → optional params; placeholders known →
+   * required params.
+   */
   translate<K extends CatalogKey<TCatalog>>(
     key: K,
     ...params: TranslateParams<CatalogValue<TCatalog, K>> extends undefined
       ? []
-      : [TranslateParams<CatalogValue<TCatalog, K>>]
+      : undefined extends TranslateParams<CatalogValue<TCatalog, K>>
+        ? [
+            params?: Exclude<
+              TranslateParams<CatalogValue<TCatalog, K>>,
+              undefined
+            >,
+          ]
+        : [params: TranslateParams<CatalogValue<TCatalog, K>>]
   ): string;
   getLocale(): string;
   setLocale(locale: string): void;
