@@ -34,4 +34,21 @@ describe("DataProvider inference", () => {
     // @ts-expect-error "widgets" is not in the registry
     void dp.getOne("widgets", { id: 1 });
   });
+
+  it("create data is typed by the resource's record", () => {
+    void dp.create("posts", { data: { title: "ok" } });
+    // @ts-expect-error title must be string
+    void dp.create("posts", { data: { title: 123 } });
+  });
+
+  it("update data rejects unknown fields", () => {
+    // @ts-expect-error unknown field rejected
+    void dp.update("posts", { id: 1, data: { unknownField: true } });
+  });
+
+  it("delete previousData is the typed record", () => {
+    expectTypeOf<
+      Parameters<typeof dp.delete<"posts">>[1]["previousData"]
+    >().toEqualTypeOf<{ id: number; title: string } | undefined>();
+  });
 });
