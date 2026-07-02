@@ -1,4 +1,20 @@
 export { ValidationError } from "./data/errors";
+export { fakeDataProvider } from "./data/fake-provider";
+export type {
+  MutationMode,
+  MutationModeOptions,
+} from "./data/mutation-options";
+export {
+  createMutationOptions,
+  deleteMutationOptions,
+  updateMutationOptions,
+} from "./data/mutation-options";
+export type { DataContext } from "./data/query-options";
+export {
+  getListOptions,
+  getManyOptions,
+  getOneOptions,
+} from "./data/query-options";
 export type {
   CreateParams,
   CreateResult,
