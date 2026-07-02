@@ -1,0 +1,91 @@
+import type { Identifier } from "../resource/identifier";
+import type { LooseRecord, ResourceRecord } from "../resource/record";
+import type { RecordOf, ResourceMap } from "../resource/registry";
+
+export interface PaginationPayload {
+  page: number;
+  perPage: number;
+}
+export interface SortPayload {
+  field: string;
+  order: "ASC" | "DESC";
+}
+export type FilterPayload = { [key: string]: unknown };
+
+export interface GetListParams {
+  pagination?: PaginationPayload;
+  sort?: SortPayload;
+  filter?: FilterPayload;
+  meta?: unknown;
+}
+export interface GetListResult<TRecord extends ResourceRecord = LooseRecord> {
+  data: TRecord[];
+  total?: number;
+}
+
+export interface GetOneParams<TId extends Identifier = Identifier> {
+  id: TId;
+  meta?: unknown;
+}
+export interface GetOneResult<TRecord extends ResourceRecord = LooseRecord> {
+  data: TRecord;
+}
+
+export interface CreateParams<TRecord extends ResourceRecord = LooseRecord> {
+  data: Partial<TRecord>;
+  meta?: unknown;
+}
+export interface CreateResult<TRecord extends ResourceRecord = LooseRecord> {
+  data: TRecord;
+}
+
+export interface UpdateParams<TRecord extends ResourceRecord = LooseRecord> {
+  id: Identifier;
+  data: Partial<TRecord>;
+  previousData?: TRecord;
+  meta?: unknown;
+}
+export interface UpdateResult<TRecord extends ResourceRecord = LooseRecord> {
+  data: TRecord;
+}
+
+export interface DeleteParams<TRecord extends ResourceRecord = LooseRecord> {
+  id: Identifier;
+  previousData?: TRecord;
+  meta?: unknown;
+}
+export interface DeleteResult<TRecord extends ResourceRecord = LooseRecord> {
+  data: TRecord;
+}
+
+/**
+ * The data contract: 5 promise-returning CRUD verbs (P1 subset).
+ * Parameterized by a registry so `resource` names are checked and record
+ * types flow to results via `RecordOf`.
+ */
+export interface DataProvider<TResources extends ResourceMap = ResourceMap> {
+  getList<TName extends keyof TResources & string>(
+    resource: TName,
+    params: GetListParams,
+  ): Promise<GetListResult<RecordOf<TResources, TName>>>;
+
+  getOne<TName extends keyof TResources & string>(
+    resource: TName,
+    params: GetOneParams,
+  ): Promise<GetOneResult<RecordOf<TResources, TName>>>;
+
+  create<TName extends keyof TResources & string>(
+    resource: TName,
+    params: CreateParams<RecordOf<TResources, TName>>,
+  ): Promise<CreateResult<RecordOf<TResources, TName>>>;
+
+  update<TName extends keyof TResources & string>(
+    resource: TName,
+    params: UpdateParams<RecordOf<TResources, TName>>,
+  ): Promise<UpdateResult<RecordOf<TResources, TName>>>;
+
+  delete<TName extends keyof TResources & string>(
+    resource: TName,
+    params: DeleteParams<RecordOf<TResources, TName>>,
+  ): Promise<DeleteResult<RecordOf<TResources, TName>>>;
+}
