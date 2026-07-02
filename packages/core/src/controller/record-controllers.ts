@@ -5,15 +5,19 @@ import {
 } from "@tanstack/query-core";
 import { ValidationError } from "../data/errors";
 import {
+  createMutationOptions,
+  deleteMutationOptions,
   type MutationMode,
   updateMutationOptions,
 } from "../data/mutation-options";
 import { type DataContext, getOneOptions } from "../data/query-options";
+import type { CreateParams, DeleteParams, UpdateParams } from "../data/types";
 import type { NotificationStore } from "../notification/notification-store";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
+import type { ChelonStore } from "../store/store";
 import { resolveNotificationKey } from "./translate-fallback";
 
 export interface ShowControllerState<TRecord> {
@@ -46,6 +50,8 @@ export interface RecordControllerContext<
 > extends DataContext<TResources> {
   notifications?: NotificationStore;
   translate?: (key: string) => string;
+  /** Keyed KV store — the delete controller cleans `${resource}.selectedIds` through it. */
+  store?: ChelonStore;
 }
 
 export interface ShowControllerOptions {
@@ -71,6 +77,124 @@ export interface SaveOptions<TRecord> {
   /** REPLACES the default error handling (the http_error notify). */
   onError?: (error: unknown) => void | Promise<void>;
   meta?: unknown;
+}
+
+/** What `save`/`deleteOne` resolve with on `ValidationError` (the P5 form contract). */
+type FieldErrors = Record<string, string | string[]>;
+
+/** The slice of MutationObserver the shared flow needs — dodges class generic variance. */
+interface MutationRunner<TRecord, TVariables> {
+  mutate(variables: TVariables): Promise<TRecord>;
+  reset(): void;
+}
+
+/** The caller-supplied handlers that REPLACE the default side effects (behavior 9). */
+interface MutationFlowHandlers<TRecord> {
+  onSuccess?: (record: TRecord) => void | Promise<void>;
+  onError?: (error: unknown) => void | Promise<void>;
+}
+
+/** The saving-flag slice of controller state the shared flow writes into. */
+interface SavingTarget {
+  setState(patch: { saving: boolean }): void;
+}
+
+interface MutationFlowConfig<TRecord, TVariables> {
+  ctx: {
+    notifications?: NotificationStore;
+    translate?: (key: string) => string;
+  };
+  resource: string;
+  store: SavingTarget;
+  isDestroyed(): boolean;
+  /** The shared observer, non-null exactly while the controller is attached. */
+  attachedObserver(): MutationRunner<TRecord, TVariables> | null;
+  /** Builds a transient observer for detached (imperative) mutations. */
+  makeObserver(): MutationRunner<TRecord, TVariables>;
+  /** Notification event: `updated` | `created` | `deleted` (resource-scoped fallback). */
+  successEvent: string;
+  /** Default success side effects (redirect request, selection cleanup, …). */
+  onDefaultSuccess(result: TRecord, variables: TVariables): void;
+}
+
+/**
+ * THE shared save/delete flow (behaviors 9 + 10) for the edit, create and
+ * delete controllers — one implementation of: the `saving` flag (counter-
+ * guarded so overlapping mutations cannot flicker it false early), attached
+ * vs transient observer selection, `ValidationError` RESOLVING with
+ * `fieldErrors` (no notify), other errors notifying
+ * `chelone.notification.http_error`, caller onSuccess/onError REPLACING the
+ * defaults, the success notify, and MutationObserver release.
+ *
+ * MutationObserver RELEASE is explicit: mutate() attaches the observer to the
+ * built Mutation (clearing its GC timeout) and query-core only detaches an
+ * observer via onUnsubscribe (needs listeners), reset(), or a later mutate().
+ * An unsubscribed observer therefore pins its last mutation (full data +
+ * previousData) in the MutationCache forever unless we reset() — done in the
+ * attach-cycle teardown and after each mutation settles (the finally block).
+ */
+function createMutationFlow<TRecord, TVariables>(
+  config: MutationFlowConfig<TRecord, TVariables>,
+): (
+  variables: TVariables,
+  handlers?: MutationFlowHandlers<TRecord>,
+) => Promise<FieldErrors | undefined> {
+  /** Overlapping mutations: `saving` goes false only when the LAST one settles. */
+  let pending = 0;
+
+  return async function run(variables, handlers = {}) {
+    if (config.isDestroyed()) return undefined;
+    // Detached (imperative use) a transient observer stands in — the mutation
+    // side effects (invalidation, optimistic patching) live in the shared
+    // mutation options, not in the observer.
+    const observer = config.attachedObserver() ?? config.makeObserver();
+    pending += 1;
+    config.store.setState({ saving: true });
+    let result: TRecord;
+    try {
+      result = await observer.mutate(variables);
+    } catch (error) {
+      if (handlers.onError) {
+        // Replaces the default SIDE-EFFECT handling only — the fieldErrors
+        // resolution below is the flow's return contract (P5 forms rely on it).
+        await handlers.onError(error);
+      } else if (!(error instanceof ValidationError)) {
+        config.ctx.notifications?.notify("chelone.notification.http_error", {
+          type: "error",
+          messageArgs: { _: String(error) },
+        });
+      }
+      // ValidationError: RESOLVE with the server's fieldErrors, no notify —
+      // surfacing them on the form is the form layer's job (P5).
+      return error instanceof ValidationError ? error.fieldErrors : undefined;
+    } finally {
+      pending -= 1;
+      if (pending === 0) config.store.setState({ saving: false });
+      // Release the settled mutation for MutationCache GC (see the doc block).
+      // A transient observer (detached mutation, or an attach cycle that ended
+      // mid-flight) is exclusively this call's — reset immediately. The SHARED
+      // attached observer is reset only once no mutation is in flight: an
+      // overlapping call's mutate() already detached the earlier mutation, so
+      // nothing is retained in the meantime.
+      if (observer !== config.attachedObserver() || pending === 0) {
+        observer.reset();
+      }
+    }
+    if (handlers.onSuccess) {
+      await handlers.onSuccess(result);
+      return undefined;
+    }
+    config.ctx.notifications?.notify(
+      resolveNotificationKey(
+        config.ctx.translate,
+        config.resource,
+        config.successEvent,
+      ),
+      { type: "success", messageArgs: { smart_count: 1 } },
+    );
+    config.onDefaultSuccess(result, variables);
+    return undefined;
+  };
 }
 
 export interface EditControllerOptions<TRecord> extends ShowControllerOptions {
@@ -208,16 +332,9 @@ export function createShowController<
  *
  * Lifecycle: both observers are ACQUIRED in the micro-store's onSubscribed
  * and released on last-unsubscribe/destroy. The MutationObserver is not
- * subscribed — `saving` has a single writer (save(), counter-guarded so
- * overlapping saves cannot flicker it false early), which also keeps the
- * flag truthful for detached imperative saves.
- *
- * MutationObserver RELEASE is explicit: mutate() attaches the observer to the
- * built Mutation (clearing its GC timeout) and query-core only detaches an
- * observer via onUnsubscribe (needs listeners), reset(), or a later mutate().
- * An unsubscribed observer therefore pins its last mutation (full data +
- * previousData) in the MutationCache forever unless we reset() — done in the
- * attach-cycle teardown and after each save settles (see the finally block).
+ * subscribed — `saving` has a single writer (the shared mutation flow), which
+ * also keeps the flag truthful for detached imperative saves. Save semantics
+ * (validation errors, notify, release) live in `createMutationFlow`.
  */
 export function createEditController<
   TResources extends ResourceMap,
@@ -274,13 +391,23 @@ export function createEditController<
     };
   }
 
-  /** Overlapping saves: `saving` goes false only when the LAST one settles. */
-  let pendingSaves = 0;
+  const runSave = createMutationFlow<TRecord, UpdateParams<TRecord>>({
+    ctx,
+    resource,
+    store,
+    isDestroyed: () => destroyed,
+    attachedObserver: () => mutationObserver,
+    makeObserver: makeMutationObserver,
+    successEvent: "updated",
+    onDefaultSuccess: (result) => {
+      options.onRedirect?.("list", resource, options.id, result);
+    },
+  });
 
   const save = async (
     data: Partial<TRecord>,
     saveOptions: SaveOptions<TRecord> = {},
-  ): Promise<Record<string, string | string[]> | undefined> => {
+  ): Promise<FieldErrors | undefined> => {
     if (destroyed) return undefined;
     const previousData = store.getSnapshot().record;
     // Transform priority: call-time > option > identity (behavior 9).
@@ -288,58 +415,251 @@ export function createEditController<
     const transformed = transform
       ? await transform(data, { previousData })
       : data;
-    // Detached (imperative use) a transient observer stands in — the mutation
-    // side effects (invalidation, optimistic patching) live in the shared
-    // mutation options, not in the observer.
-    const observer = mutationObserver ?? makeMutationObserver();
-    pendingSaves += 1;
-    store.setState({ saving: true });
-    let result: TRecord;
-    try {
-      result = await observer.mutate({
+    return runSave(
+      {
         id: options.id,
         data: transformed,
         previousData,
         meta: saveOptions.meta,
-      });
-    } catch (error) {
-      if (saveOptions.onError) {
-        // Replaces the default SIDE-EFFECT handling only — the fieldErrors
-        // resolution below is save()'s return contract (P5 forms rely on it).
-        await saveOptions.onError(error);
-      } else if (!(error instanceof ValidationError)) {
-        ctx.notifications?.notify("chelone.notification.http_error", {
-          type: "error",
-          messageArgs: { _: String(error) },
-        });
-      }
-      // ValidationError: RESOLVE with the server's fieldErrors, no notify —
-      // surfacing them on the form is the form layer's job (P5).
-      return error instanceof ValidationError ? error.fieldErrors : undefined;
-    } finally {
-      pendingSaves -= 1;
-      if (pendingSaves === 0) store.setState({ saving: false });
-      // Release the settled mutation for MutationCache GC (see the controller
-      // doc block). A transient observer (detached save, or an attach cycle
-      // that ended mid-save) is exclusively this save's — reset immediately.
-      // The SHARED attached observer is reset only once no save is in flight:
-      // an overlapping save's mutate() already detached the earlier mutation,
-      // so nothing is retained in the meantime.
-      if (observer !== mutationObserver || pendingSaves === 0) {
-        observer.reset();
-      }
-    }
-    if (saveOptions.onSuccess) {
-      await saveOptions.onSuccess(result);
-      return undefined;
-    }
-    ctx.notifications?.notify(
-      resolveNotificationKey(ctx.translate, resource, "updated"),
-      { type: "success", messageArgs: { smart_count: 1 } },
+      },
+      saveOptions,
     );
-    options.onRedirect?.("list", resource, options.id, result);
-    return undefined;
   };
 
   return { ...store, save };
+}
+
+export interface CreateControllerState<TRecord> {
+  /** The seed values for the not-yet-created record (`options.record`). */
+  record: Partial<TRecord>;
+  saving: boolean;
+  /** Always false — a create has nothing to fetch. Kept for view parity with edit/show. */
+  isPending: boolean;
+}
+
+export interface CreateControllerOptions<TRecord> {
+  /** Seed values for the not-yet-created record (e.g. from a location state). */
+  record?: Partial<TRecord>;
+  transform?: SaveTransform<TRecord>;
+  onRedirect?: RedirectRequest;
+  /**
+   * Reserved for signature parity with edit: create has no optimistic variant
+   * (there is no cached record to patch before it exists), so this is
+   * currently inert — creation is always pessimistic.
+   */
+  mutationMode?: MutationMode;
+}
+
+export interface CreateController<TRecord>
+  extends MicroStore<CreateControllerState<TRecord>> {
+  /**
+   * Persists `data` through the create mutation. Same contract as edit's save
+   * (transform priority, ValidationError resolving with `fieldErrors`), except
+   * the transform receives NO `previousData` — there is none. Default success:
+   * notify `created` + request a redirect to the EDIT of the new record.
+   */
+  save(
+    data: Partial<TRecord>,
+    options?: SaveOptions<TRecord>,
+  ): Promise<Record<string, string | string[]> | undefined>;
+}
+
+/**
+ * Vanilla create controller: no fetch AT ALL — construction is trivially
+ * inert and `isPending` is false from birth. The only acquired resource is
+ * the shared MutationObserver (onSubscribed attach / last-unsubscribe or
+ * destroy release); detached saves use a transient observer, exactly like
+ * edit. Save semantics live in `createMutationFlow`.
+ */
+export function createCreateController<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(
+  ctx: RecordControllerContext<TResources>,
+  resource: TName,
+  options: CreateControllerOptions<RecordOf<TResources, TName>> = {},
+): CreateController<RecordOf<TResources, TName>> {
+  type TRecord = RecordOf<TResources, TName>;
+
+  const store = createMicroStore<CreateControllerState<TRecord>>(
+    { record: options.record ?? {}, saving: false, isPending: false },
+    { onSubscribed: acquire },
+  );
+
+  let destroyed = false;
+  store.onDestroy(() => {
+    destroyed = true;
+  });
+
+  const makeMutationObserver = () =>
+    new MutationObserver(ctx.queryClient, createMutationOptions(ctx, resource));
+
+  /** Non-null exactly while attached. */
+  let mutationObserver: ReturnType<typeof makeMutationObserver> | null = null;
+
+  function acquire(): () => void {
+    const observer = makeMutationObserver();
+    mutationObserver = observer;
+    return () => {
+      // Detach the observer from its current mutation so the MutationCache
+      // can GC it (see the createMutationFlow doc block).
+      observer.reset();
+      mutationObserver = null;
+    };
+  }
+
+  const runSave = createMutationFlow<TRecord, CreateParams<TRecord>>({
+    ctx,
+    resource,
+    store,
+    isDestroyed: () => destroyed,
+    attachedObserver: () => mutationObserver,
+    makeObserver: makeMutationObserver,
+    successEvent: "created",
+    onDefaultSuccess: (result) => {
+      // Redirect matrix: create -> EDIT of the new record (behavior 10).
+      options.onRedirect?.(
+        "edit",
+        resource,
+        (result as ResourceRecord).id,
+        result,
+      );
+    },
+  });
+
+  const save = async (
+    data: Partial<TRecord>,
+    saveOptions: SaveOptions<TRecord> = {},
+  ): Promise<FieldErrors | undefined> => {
+    if (destroyed) return undefined;
+    // Transform priority: call-time > option > identity (behavior 9); a
+    // create transform gets NO previousData — the record does not exist yet.
+    const transform = saveOptions.transform ?? options.transform;
+    const transformed = transform ? await transform(data) : data;
+    return runSave({ data: transformed, meta: saveOptions.meta }, saveOptions);
+  };
+
+  return { ...store, save };
+}
+
+export interface DeleteControllerState {
+  /** True while a delete mutation is in flight (same field as edit/create). */
+  saving: boolean;
+}
+
+export interface DeleteControllerOptions {
+  onRedirect?: RedirectRequest;
+}
+
+export interface DeleteOneOptions<TRecord> {
+  /** Forwarded to the DataProvider (some backends need the full record). */
+  previousData?: TRecord;
+  /** REPLACES the default success handling (notify + redirect + selection cleanup). */
+  onSuccess?: (record: TRecord) => void | Promise<void>;
+  /** REPLACES the default error handling (the http_error notify). */
+  onError?: (error: unknown) => void | Promise<void>;
+  meta?: unknown;
+}
+
+export interface DeleteController<TRecord>
+  extends MicroStore<DeleteControllerState> {
+  /**
+   * Deletes the record. Same error contract as edit's save: resolves with the
+   * server's `fieldErrors` on `ValidationError` (no notify), notifies
+   * `http_error` otherwise — it never rejects for provider errors. Default
+   * success: notify `deleted` + request a list redirect + strip the id from
+   * the `${resource}.selectedIds` KV selection (immutably, when present).
+   */
+  deleteOne(
+    id: Identifier,
+    options?: DeleteOneOptions<TRecord>,
+  ): Promise<Record<string, string | string[]> | undefined>;
+}
+
+/**
+ * Vanilla delete controller: no fetch — like create, construction is
+ * trivially inert and the only acquired resource is the shared
+ * MutationObserver. Delete semantics live in `createMutationFlow`; the
+ * delete-specific default success additionally cleans the KV selection so a
+ * deleted row cannot linger selected in list views.
+ */
+export function createDeleteController<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(
+  ctx: RecordControllerContext<TResources>,
+  resource: TName,
+  options: DeleteControllerOptions = {},
+): DeleteController<RecordOf<TResources, TName>> {
+  type TRecord = RecordOf<TResources, TName>;
+
+  const store = createMicroStore<DeleteControllerState>(
+    { saving: false },
+    { onSubscribed: acquire },
+  );
+
+  let destroyed = false;
+  store.onDestroy(() => {
+    destroyed = true;
+  });
+
+  const makeMutationObserver = () =>
+    new MutationObserver(ctx.queryClient, deleteMutationOptions(ctx, resource));
+
+  /** Non-null exactly while attached. */
+  let mutationObserver: ReturnType<typeof makeMutationObserver> | null = null;
+
+  function acquire(): () => void {
+    const observer = makeMutationObserver();
+    mutationObserver = observer;
+    return () => {
+      // Detach the observer from its current mutation so the MutationCache
+      // can GC it (see the createMutationFlow doc block).
+      observer.reset();
+      mutationObserver = null;
+    };
+  }
+
+  /** Strips the REQUESTED id from the KV selection — immutably (fresh array). */
+  const stripSelection = (id: Identifier): void => {
+    const kv = ctx.store;
+    if (!kv) return;
+    const key = `${resource}.selectedIds`;
+    const selection = kv.getItem<Identifier[]>(key);
+    if (!selection?.includes(id)) return;
+    kv.setItem(
+      key,
+      selection.filter((existing) => existing !== id),
+    );
+  };
+
+  const runDelete = createMutationFlow<TRecord, DeleteParams<TRecord>>({
+    ctx,
+    resource,
+    store,
+    isDestroyed: () => destroyed,
+    attachedObserver: () => mutationObserver,
+    makeObserver: makeMutationObserver,
+    successEvent: "deleted",
+    onDefaultSuccess: (_result, variables) => {
+      // Redirect matrix: delete -> list + selection cleanup (behavior 10).
+      options.onRedirect?.("list", resource);
+      stripSelection(variables.id);
+    },
+  });
+
+  const deleteOne = async (
+    id: Identifier,
+    deleteOptions: DeleteOneOptions<TRecord> = {},
+  ): Promise<FieldErrors | undefined> =>
+    runDelete(
+      {
+        id,
+        previousData: deleteOptions.previousData,
+        meta: deleteOptions.meta,
+      },
+      deleteOptions,
+    );
+
+  return { ...store, deleteOne };
 }

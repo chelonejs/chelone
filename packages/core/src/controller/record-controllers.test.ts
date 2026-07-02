@@ -5,7 +5,10 @@ import { ValidationError } from "../data/errors";
 import { fakeDataProvider } from "../data/fake-provider";
 import { createNotificationStore } from "../notification/notification-store";
 import { defineResources } from "../resource/registry";
+import { createStore } from "../store/store";
 import {
+  createCreateController,
+  createDeleteController,
   createEditController,
   createShowController,
 } from "./record-controllers";
@@ -459,5 +462,380 @@ describe("createEditController", () => {
     expect(c.getSnapshot().saving).toBe(false);
     await mutationCacheEmpty(ctx.queryClient);
     c.destroy();
+  });
+});
+
+describe("createCreateController", () => {
+  it("save creates, notifies created, redirects to edit of the new record", async () => {
+    const ctx = makeCtx();
+    const onRedirect = vi.fn();
+    const c = createCreateController(ctx, "posts", { onRedirect });
+    const result = await c.save({ title: "new" });
+    expect(result).toBeUndefined(); // success path resolves void
+    const created = ctx.notifications
+      .getSnapshot()
+      .find((n) => n.message === "chelone.notification.created");
+    expect(created?.type).toBe("success");
+    expect(created?.messageArgs?.smart_count).toBe(1);
+    expect(onRedirect).toHaveBeenCalledWith(
+      "edit",
+      "posts",
+      expect.anything(),
+      expect.objectContaining({ title: "new" }),
+    );
+    c.destroy();
+  });
+
+  it("NO fetch at all, even attached; isPending is false from birth", async () => {
+    const ctx = makeCtx();
+    const getOne = vi.spyOn(ctx.dataProvider, "getOne");
+    const getList = vi.spyOn(ctx.dataProvider, "getList");
+    const c = createCreateController(ctx, "posts");
+    expect(c.getSnapshot()).toMatchObject({
+      record: {},
+      saving: false,
+      isPending: false,
+    });
+    attach(c);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(getOne).not.toHaveBeenCalled();
+    expect(getList).not.toHaveBeenCalled();
+    expect(observerCount(ctx.queryClient)).toBe(0);
+    c.destroy();
+  });
+
+  it("options.record seeds the initial record", () => {
+    const c = createCreateController(makeCtx(), "posts", {
+      record: { title: "seed" },
+    });
+    expect(c.getSnapshot().record).toEqual({ title: "seed" });
+    c.destroy();
+  });
+
+  it("transform priority: call-time beats option; create transforms get NO previousData", async () => {
+    const ctx = makeCtx();
+    const spy = vi.spyOn(ctx.dataProvider, "create");
+    const optionTransform = vi.fn((d: { title?: string }) => ({
+      ...d,
+      via: "option",
+    }));
+    const callTimeTransform = vi.fn((d: { title?: string }) => ({
+      ...d,
+      title: `${d.title}!`,
+    }));
+    const c = createCreateController(ctx, "posts", {
+      transform: optionTransform,
+    });
+    await c.save({ title: "n" }, { transform: callTimeTransform });
+    expect(optionTransform).not.toHaveBeenCalled();
+    // Exactly one argument: create transforms receive no previousData extra.
+    expect(callTimeTransform.mock.calls).toEqual([[{ title: "n" }]]);
+    expect(spy).toHaveBeenCalledWith("posts", {
+      data: { title: "n!" },
+      meta: undefined,
+    });
+    c.destroy();
+  });
+
+  it("option transform applies when no call-time transform is given (async supported)", async () => {
+    const ctx = makeCtx();
+    const spy = vi.spyOn(ctx.dataProvider, "create");
+    const c = createCreateController(ctx, "posts", {
+      transform: async (d) => ({ ...d, title: `${d.title}?` }),
+    });
+    await c.save({ title: "n" }, { meta: { reason: "test" } });
+    expect(spy).toHaveBeenCalledWith("posts", {
+      data: { title: "n?" },
+      meta: { reason: "test" },
+    });
+    c.destroy();
+  });
+
+  it("ValidationError resolves with fieldErrors and does NOT notify", async () => {
+    const ctx = makeCtx();
+    ctx.dataProvider.create = () =>
+      Promise.reject(new ValidationError("invalid", { title: "Required" }));
+    const c = createCreateController(ctx, "posts");
+    const errors = await c.save({ title: "" });
+    expect(errors).toEqual({ title: "Required" });
+    expect(ctx.notifications.getSnapshot()).toEqual([]);
+    c.destroy();
+  });
+
+  it("other errors notify http_error and resolve undefined", async () => {
+    const ctx = makeCtx();
+    ctx.dataProvider.create = () => Promise.reject(new Error("boom"));
+    const c = createCreateController(ctx, "posts");
+    expect(await c.save({ title: "n" })).toBeUndefined();
+    expect(
+      ctx.notifications
+        .getSnapshot()
+        .some(
+          (n) =>
+            n.message === "chelone.notification.http_error" &&
+            n.type === "error" &&
+            n.messageArgs?._ === "Error: boom",
+        ),
+    ).toBe(true);
+    c.destroy();
+  });
+
+  it("caller onSuccess REPLACES the default notify + redirect", async () => {
+    const ctx = makeCtx();
+    const onRedirect = vi.fn();
+    const onSuccess = vi.fn();
+    const c = createCreateController(ctx, "posts", { onRedirect });
+    await c.save({ title: "n" }, { onSuccess });
+    expect(onSuccess).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "n" }),
+    );
+    expect(ctx.notifications.getSnapshot()).toEqual([]);
+    expect(onRedirect).not.toHaveBeenCalled();
+    c.destroy();
+  });
+
+  it("caller onError REPLACES the default error notify", async () => {
+    const ctx = makeCtx();
+    ctx.dataProvider.create = () => Promise.reject(new Error("boom"));
+    const onError = vi.fn();
+    const c = createCreateController(ctx, "posts");
+    expect(await c.save({ title: "n" }, { onError })).toBeUndefined();
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "boom" }),
+    );
+    expect(ctx.notifications.getSnapshot()).toEqual([]);
+    c.destroy();
+  });
+
+  it("saving reflects the in-flight create", async () => {
+    const ctx = makeCtx();
+    const inner = ctx.dataProvider.create.bind(ctx.dataProvider);
+    let release!: () => void;
+    ctx.dataProvider.create = (resource, params) =>
+      new Promise((resolve) => {
+        release = () => resolve(inner(resource, params) as never);
+      });
+    const c = createCreateController(ctx, "posts");
+    attach(c);
+    expect(c.getSnapshot().saving).toBe(false);
+    const done = c.save({ title: "n" });
+    await vi.waitFor(() => expect(c.getSnapshot().saving).toBe(true));
+    release();
+    await done;
+    expect(c.getSnapshot().saving).toBe(false);
+    c.destroy();
+  });
+
+  it("success notification uses the resource-scoped key when translated", async () => {
+    const ctx = {
+      ...makeCtx(),
+      translate: (key: string) =>
+        key === "resources.posts.notifications.created" ? "Post created" : key,
+    };
+    const c = createCreateController(ctx, "posts");
+    await c.save({ title: "n" });
+    expect(
+      ctx.notifications
+        .getSnapshot()
+        .some((n) => n.message === "resources.posts.notifications.created"),
+    ).toBe(true);
+    c.destroy();
+  });
+
+  it("attached save: the settled mutation is released from the MutationCache", async () => {
+    const ctx = makeGcCtx();
+    const c = createCreateController(ctx, "posts");
+    attach(c);
+    await c.save({ title: "n" });
+    await mutationCacheEmpty(ctx.queryClient);
+    c.destroy();
+  });
+
+  it("detached save: the transient observer's mutation is released", async () => {
+    const ctx = makeGcCtx();
+    const c = createCreateController(ctx, "posts");
+    await c.save({ title: "n" });
+    await c.save({ title: "m" });
+    await mutationCacheEmpty(ctx.queryClient);
+    c.destroy();
+  });
+
+  it("destroy: save becomes a no-op", async () => {
+    const ctx = makeCtx();
+    const spy = vi.spyOn(ctx.dataProvider, "create");
+    const c = createCreateController(ctx, "posts");
+    c.destroy();
+    expect(await c.save({ title: "n" })).toBeUndefined();
+    expect(spy).not.toHaveBeenCalled();
+  });
+});
+
+describe("createDeleteController", () => {
+  it("deleteOne deletes, notifies, redirects, and strips the id from KV selection", async () => {
+    const ctx = { ...makeCtx(), store: createStore() };
+    ctx.store.setItem("posts.selectedIds", [1, 2]);
+    const onRedirect = vi.fn();
+    const c = createDeleteController(ctx, "posts", { onRedirect });
+    await c.deleteOne(1);
+    await expect(ctx.dataProvider.getOne("posts", { id: 1 })).rejects.toThrow();
+    expect(
+      ctx.notifications
+        .getSnapshot()
+        .some(
+          (n) =>
+            n.message === "chelone.notification.deleted" &&
+            n.type === "success" &&
+            n.messageArgs?.smart_count === 1,
+        ),
+    ).toBe(true);
+    expect(onRedirect).toHaveBeenCalledWith("list", "posts");
+    expect(ctx.store.getItem("posts.selectedIds")).toEqual([2]);
+    c.destroy();
+  });
+
+  it("selection strip is immutable: the original array is never mutated", async () => {
+    const ctx = { ...makeCtx(), store: createStore() };
+    const original = [1, 2];
+    ctx.store.setItem("posts.selectedIds", original);
+    const c = createDeleteController(ctx, "posts");
+    await c.deleteOne(1);
+    expect(original).toEqual([1, 2]);
+    expect(ctx.store.getItem("posts.selectedIds")).toEqual([2]);
+    c.destroy();
+  });
+
+  it("an unselected id leaves the selection untouched (same reference, no write)", async () => {
+    const ctx = { ...makeCtx(), store: createStore() };
+    const selection = [2, 3];
+    ctx.store.setItem("posts.selectedIds", selection);
+    const c = createDeleteController(ctx, "posts");
+    await c.deleteOne(1);
+    expect(ctx.store.getItem("posts.selectedIds")).toBe(selection);
+    c.destroy();
+  });
+
+  it("no KV store in ctx: deleteOne still deletes, notifies, and redirects", async () => {
+    const ctx = makeCtx();
+    const onRedirect = vi.fn();
+    const c = createDeleteController(ctx, "posts", { onRedirect });
+    await c.deleteOne(1);
+    expect(
+      ctx.notifications
+        .getSnapshot()
+        .some((n) => n.message === "chelone.notification.deleted"),
+    ).toBe(true);
+    expect(onRedirect).toHaveBeenCalledWith("list", "posts");
+    c.destroy();
+  });
+
+  it("caller onSuccess REPLACES the default notify + redirect + selection strip", async () => {
+    const ctx = { ...makeCtx(), store: createStore() };
+    ctx.store.setItem("posts.selectedIds", [1, 2]);
+    const onRedirect = vi.fn();
+    const onSuccess = vi.fn();
+    const c = createDeleteController(ctx, "posts", { onRedirect });
+    await c.deleteOne(1, { onSuccess });
+    expect(onSuccess).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 1, title: "a" }),
+    );
+    expect(ctx.notifications.getSnapshot()).toEqual([]);
+    expect(onRedirect).not.toHaveBeenCalled();
+    expect(ctx.store.getItem("posts.selectedIds")).toEqual([1, 2]);
+    c.destroy();
+  });
+
+  it("ValidationError resolves with fieldErrors and does NOT notify", async () => {
+    const ctx = makeCtx();
+    ctx.dataProvider.delete = () =>
+      Promise.reject(new ValidationError("invalid", { id: "Locked" }));
+    const c = createDeleteController(ctx, "posts");
+    const errors = await c.deleteOne(1);
+    expect(errors).toEqual({ id: "Locked" });
+    expect(ctx.notifications.getSnapshot()).toEqual([]);
+    c.destroy();
+  });
+
+  it("other errors notify http_error and resolve undefined", async () => {
+    const ctx = makeCtx();
+    const onRedirect = vi.fn();
+    const c = createDeleteController(ctx, "posts", { onRedirect });
+    expect(await c.deleteOne(99)).toBeUndefined(); // fake provider rejects: not found
+    expect(
+      ctx.notifications
+        .getSnapshot()
+        .some(
+          (n) =>
+            n.message === "chelone.notification.http_error" &&
+            n.type === "error" &&
+            String(n.messageArgs?._).includes("not found"),
+        ),
+    ).toBe(true);
+    expect(onRedirect).not.toHaveBeenCalled();
+    c.destroy();
+  });
+
+  it("caller onError REPLACES the default error notify", async () => {
+    const ctx = makeCtx();
+    const onError = vi.fn();
+    const c = createDeleteController(ctx, "posts");
+    expect(await c.deleteOne(99, { onError })).toBeUndefined();
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining("99") }),
+    );
+    expect(ctx.notifications.getSnapshot()).toEqual([]);
+    c.destroy();
+  });
+
+  it("previousData and meta reach the provider", async () => {
+    const ctx = makeCtx();
+    const spy = vi.spyOn(ctx.dataProvider, "delete");
+    const c = createDeleteController(ctx, "posts");
+    await c.deleteOne(1, {
+      previousData: { id: 1, title: "a" },
+      meta: { reason: "test" },
+    });
+    expect(spy).toHaveBeenCalledWith("posts", {
+      id: 1,
+      previousData: { id: 1, title: "a" },
+      meta: { reason: "test" },
+    });
+    c.destroy();
+  });
+
+  it("saving reflects the in-flight delete", async () => {
+    const ctx = makeCtx();
+    const inner = ctx.dataProvider.delete.bind(ctx.dataProvider);
+    let release!: () => void;
+    ctx.dataProvider.delete = (resource, params) =>
+      new Promise((resolve) => {
+        release = () => resolve(inner(resource, params) as never);
+      });
+    const c = createDeleteController(ctx, "posts");
+    attach(c);
+    expect(c.getSnapshot().saving).toBe(false);
+    const done = c.deleteOne(1);
+    await vi.waitFor(() => expect(c.getSnapshot().saving).toBe(true));
+    release();
+    await done;
+    expect(c.getSnapshot().saving).toBe(false);
+    c.destroy();
+  });
+
+  it("attached deleteOne: the settled mutation is released from the MutationCache", async () => {
+    const ctx = makeGcCtx();
+    const c = createDeleteController(ctx, "posts");
+    attach(c);
+    await c.deleteOne(1);
+    await mutationCacheEmpty(ctx.queryClient);
+    c.destroy();
+  });
+
+  it("destroy: deleteOne becomes a no-op", async () => {
+    const ctx = makeCtx();
+    const spy = vi.spyOn(ctx.dataProvider, "delete");
+    const c = createDeleteController(ctx, "posts");
+    c.destroy();
+    expect(await c.deleteOne(1)).toBeUndefined();
+    expect(spy).not.toHaveBeenCalled();
   });
 });

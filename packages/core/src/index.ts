@@ -14,6 +14,13 @@ export type {
 } from "./controller/list-controller";
 export { createListController } from "./controller/list-controller";
 export type {
+  CreateController,
+  CreateControllerOptions,
+  CreateControllerState,
+  DeleteController,
+  DeleteControllerOptions,
+  DeleteControllerState,
+  DeleteOneOptions,
   EditController,
   EditControllerOptions,
   EditControllerState,
@@ -27,6 +34,8 @@ export type {
   ShowControllerState,
 } from "./controller/record-controllers";
 export {
+  createCreateController,
+  createDeleteController,
   createEditController,
   createShowController,
 } from "./controller/record-controllers";
