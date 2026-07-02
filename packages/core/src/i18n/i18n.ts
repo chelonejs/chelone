@@ -1,0 +1,101 @@
+import type {
+  MessageCatalog,
+  MessageKey,
+  MessageValue,
+  TranslateParams,
+} from "./messages";
+
+/**
+ * Distributive key lookup: locale catalogs may be heterogeneous (a fallback
+ * locale can carry keys a partial catalog lacks), so `TCatalog` is often a
+ * union — distribute so every member's keys stay translatable.
+ */
+type CatalogKey<TCatalog extends MessageCatalog> =
+  TCatalog extends MessageCatalog ? MessageKey<TCatalog> : never;
+
+/** Distributive value lookup across a (possibly union) catalog type. */
+type CatalogValue<
+  TCatalog extends MessageCatalog,
+  K extends string,
+> = TCatalog extends MessageCatalog
+  ? K extends keyof TCatalog
+    ? TCatalog[K]
+    : never
+  : never;
+
+export interface ChelonI18n<TCatalog extends MessageCatalog> {
+  translate<K extends CatalogKey<TCatalog>>(
+    key: K,
+    ...params: TranslateParams<CatalogValue<TCatalog, K>> extends undefined
+      ? []
+      : [TranslateParams<CatalogValue<TCatalog, K>>]
+  ): string;
+  getLocale(): string;
+  setLocale(locale: string): void;
+  getLocales(): string[];
+  subscribe(callback: () => void): () => void;
+}
+
+function interpolate(
+  template: string,
+  params: Record<string, unknown> | undefined,
+): string {
+  if (!params) return template;
+  return template.replace(/\{(\w+)\}/g, (match, name: string) =>
+    name in params ? String(params[name]) : match,
+  );
+}
+
+function resolve(
+  value: MessageValue,
+  locale: string,
+  params?: Record<string, unknown>,
+): string {
+  if (typeof value === "string") return interpolate(value, params);
+  const count =
+    typeof params?.count === "number"
+      ? params.count
+      : Number(params?.count ?? Number.NaN);
+  const category = Number.isNaN(count)
+    ? "other"
+    : new Intl.PluralRules(locale).select(count);
+  return interpolate(value[category] ?? value.other, params);
+}
+
+export function createI18n<const TCatalog extends MessageCatalog>(options: {
+  locale: string;
+  messages: Record<string, TCatalog>;
+  fallbackLocale?: string;
+}): ChelonI18n<TCatalog> {
+  let locale = options.locale;
+  const subscribers = new Set<() => void>();
+
+  return {
+    translate(key, ...args) {
+      const params = args[0] as Record<string, unknown> | undefined;
+      const value =
+        options.messages[locale]?.[key] ??
+        (options.fallbackLocale
+          ? options.messages[options.fallbackLocale]?.[key]
+          : undefined);
+      if (value === undefined) return key; // never throw — surface the key
+      return resolve(value, locale, params);
+    },
+    getLocale: () => locale,
+    setLocale(next) {
+      if (!(next in options.messages)) {
+        throw new Error(
+          `createI18n: unknown locale "${next}" — available: ${Object.keys(options.messages).join(", ")}`,
+        );
+      }
+      if (next === locale) return;
+      locale = next;
+      for (const cb of subscribers) cb();
+    },
+    getLocales: () => Object.keys(options.messages),
+    subscribe(callback) {
+      subscribers.add(callback);
+      return () => void subscribers.delete(callback);
+    },
+  };
+}
