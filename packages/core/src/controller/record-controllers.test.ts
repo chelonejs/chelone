@@ -44,6 +44,27 @@ const observerCount = (queryClient: QueryClient): number =>
     .getAll()
     .reduce((sum, query) => sum + query.getObserversCount(), 0);
 
+/**
+ * ctx whose mutations GC instantly once detached (gcTime: 0) — makes the
+ * MutationObserver release (reset on settle/teardown) observable: a retained
+ * mutation stays in getMutationCache().getAll() forever, a released one
+ * disappears on the next timer tick.
+ */
+const makeGcCtx = () => ({
+  ...makeCtx(),
+  queryClient: new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false, gcTime: 0 },
+    },
+  }),
+});
+
+const mutationCacheEmpty = (queryClient: QueryClient) =>
+  vi.waitFor(() =>
+    expect(queryClient.getMutationCache().getAll()).toHaveLength(0),
+  );
+
 describe("createShowController", () => {
   it("fetches the record", async () => {
     const c = createShowController(makeCtx(), "posts", { id: 1 });
@@ -374,5 +395,69 @@ describe("createEditController", () => {
     expect(observerCount(ctx.queryClient)).toBe(0);
     expect(await c.save({ title: "b" })).toBeUndefined();
     expect(spy).not.toHaveBeenCalled();
+  });
+
+  it("attached save: the settled mutation is released from the MutationCache", async () => {
+    const ctx = makeGcCtx();
+    const c = createEditController(ctx, "posts", { id: 1 });
+    attach(c);
+    await settled(c);
+    await c.save({ title: "b" });
+    // Released on settle, while still attached — not just at teardown.
+    await mutationCacheEmpty(ctx.queryClient);
+    c.destroy();
+  });
+
+  it("detached save: the transient observer's mutation is released", async () => {
+    const ctx = makeGcCtx();
+    const c = createEditController(ctx, "posts", { id: 1 });
+    // never attached — transient observer per save
+    await c.save({ title: "c" });
+    await c.save({ title: "d" });
+    await mutationCacheEmpty(ctx.queryClient);
+    c.destroy();
+  });
+
+  it("destroy mid-save: the in-flight mutation is released once it settles", async () => {
+    const ctx = makeGcCtx();
+    const inner = ctx.dataProvider.update.bind(ctx.dataProvider);
+    let release!: () => void;
+    ctx.dataProvider.update = (resource, params) =>
+      new Promise((resolve) => {
+        release = () => resolve(inner(resource, params) as never);
+      });
+    const c = createEditController(ctx, "posts", { id: 1 });
+    attach(c);
+    await settled(c);
+    const done = c.save({ title: "b" });
+    await vi.waitFor(() =>
+      expect(ctx.queryClient.getMutationCache().getAll()).toHaveLength(1),
+    );
+    c.destroy();
+    release();
+    await done;
+    await mutationCacheEmpty(ctx.queryClient);
+  });
+
+  it("overlapping attached saves: both mutations released after both settle", async () => {
+    const ctx = makeGcCtx();
+    const inner = ctx.dataProvider.update.bind(ctx.dataProvider);
+    const releases: Array<() => void> = [];
+    ctx.dataProvider.update = (resource, params) =>
+      new Promise((resolve) => {
+        releases.push(() => resolve(inner(resource, params) as never));
+      });
+    const c = createEditController(ctx, "posts", { id: 1 });
+    attach(c);
+    await settled(c);
+    const first = c.save({ title: "b" });
+    await vi.waitFor(() => expect(releases).toHaveLength(1));
+    const second = c.save({ title: "c" });
+    await vi.waitFor(() => expect(releases).toHaveLength(2));
+    for (const releaseSave of releases) releaseSave();
+    await Promise.all([first, second]);
+    expect(c.getSnapshot().saving).toBe(false);
+    await mutationCacheEmpty(ctx.queryClient);
+    c.destroy();
   });
 });

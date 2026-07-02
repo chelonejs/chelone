@@ -211,6 +211,13 @@ export function createShowController<
  * subscribed — `saving` has a single writer (save(), counter-guarded so
  * overlapping saves cannot flicker it false early), which also keeps the
  * flag truthful for detached imperative saves.
+ *
+ * MutationObserver RELEASE is explicit: mutate() attaches the observer to the
+ * built Mutation (clearing its GC timeout) and query-core only detaches an
+ * observer via onUnsubscribe (needs listeners), reset(), or a later mutate().
+ * An unsubscribed observer therefore pins its last mutation (full data +
+ * previousData) in the MutationCache forever unless we reset() — done in the
+ * attach-cycle teardown and after each save settles (see the finally block).
  */
 export function createEditController<
   TResources extends ResourceMap,
@@ -252,10 +259,17 @@ export function createEditController<
   let mutationObserver: ReturnType<typeof makeMutationObserver> | null = null;
 
   function acquire(): () => void {
-    mutationObserver = makeMutationObserver();
+    const observer = makeMutationObserver();
+    mutationObserver = observer;
     const releaseFetch = acquireFetch();
     return () => {
       releaseFetch();
+      // Detach the observer from its current mutation so the MutationCache
+      // can GC it (immediately if settled; after settle if still in flight).
+      // Without this, a save's mutation is retained forever (see the
+      // controller doc block). Safe mid-save: the mutate() promise and the
+      // mutation-level side effects live on the Mutation, not the observer.
+      observer.reset();
       mutationObserver = null;
     };
   }
@@ -305,6 +319,15 @@ export function createEditController<
     } finally {
       pendingSaves -= 1;
       if (pendingSaves === 0) store.setState({ saving: false });
+      // Release the settled mutation for MutationCache GC (see the controller
+      // doc block). A transient observer (detached save, or an attach cycle
+      // that ended mid-save) is exclusively this save's — reset immediately.
+      // The SHARED attached observer is reset only once no save is in flight:
+      // an overlapping save's mutate() already detached the earlier mutation,
+      // so nothing is retained in the meantime.
+      if (observer !== mutationObserver || pendingSaves === 0) {
+        observer.reset();
+      }
     }
     if (saveOptions.onSuccess) {
       await saveOptions.onSuccess(result);
