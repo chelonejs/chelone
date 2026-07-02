@@ -6,7 +6,13 @@ import {
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { act, render, renderHook, waitFor } from "@testing-library/react";
-import { Activity, type ReactNode, StrictMode } from "react";
+import {
+  Activity,
+  Component,
+  type ReactNode,
+  StrictMode,
+  Suspense,
+} from "react";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { CheloneProvider } from "./context";
@@ -30,11 +36,13 @@ function makeWrapper({ strict = false }: { strict?: boolean } = {}) {
     posts: structuredClone(rows),
   });
   const getList = vi.spyOn(dataProvider, "getList");
+  const store = createStore();
+  const setItem = vi.spyOn(store, "setItem");
   const inner = ({ children }: { children: ReactNode }) => (
     <CheloneProvider
       dataProvider={dataProvider}
       queryClient={queryClient}
-      store={createStore()}
+      store={store}
       notifications={notifications}
     >
       {children}
@@ -45,7 +53,7 @@ function makeWrapper({ strict = false }: { strict?: boolean } = {}) {
         <StrictMode>{inner({ children })}</StrictMode>
       )
     : inner;
-  return { wrapper, notifications, queryClient, getList };
+  return { wrapper, notifications, queryClient, getList, store, setItem };
 }
 
 /** Live QueryObserver subscriptions across the whole cache. */
@@ -82,14 +90,16 @@ describe("useListController", () => {
     expect(result.current.setPage).toBe(setPage1);
   });
 
-  it("unmount destroys the controller (no state updates after unmount, no act warnings)", async () => {
+  it("unmount releases the controller's resources (last-unsubscribe detach, no act warnings)", async () => {
     const { wrapper, queryClient } = makeWrapper();
     const { result, unmount } = renderHook(
       () => useListController<typeof resources, "posts">("posts"),
       { wrapper },
     );
     await waitFor(() => expect(result.current.isPending).toBe(false));
-    unmount(); // destroy must tear down the QueryObserver — vitest fails on unhandled act() warnings
+    // useSyncExternalStore's unsubscribe is the LAST subscriber leaving —
+    // the detach teardown must release the QueryObserver.
+    unmount();
     expect(observerCount(queryClient)).toBe(0);
   });
 
@@ -101,8 +111,10 @@ describe("useListController", () => {
         () => useListController<typeof resources, "posts">("posts"),
         { wrapper },
       );
-      // Mount/destroy/remount path: the hook must recover from StrictMode's
-      // simulated unmount (which destroys the first controller) and settle.
+      // StrictMode: the useState initializer double-runs (one discarded INERT
+      // controller — garbage, not a zombie) and the subscription runs
+      // sub/unsub/sub (attach -> detach -> re-attach on the SAME controller).
+      // The second attach must refetch/reattach correctly and settle.
       await waitFor(() => expect(result.current.isPending).toBe(false));
       expect(result.current.data?.length).toBe(10);
       act(() => result.current.setPage(2));
@@ -115,8 +127,8 @@ describe("useListController", () => {
             p.pagination && "page" in p.pagination && p.pagination.page === 1,
         ),
       ).toHaveLength(1);
-      // Exactly ONE live controller remains subscribed — the StrictMode
-      // first-mount controller was destroyed and did not leak its observer.
+      // Exactly ONE live observer — the discarded-render controller acquired
+      // nothing, and the detach/re-attach cycle left no extra subscription.
       expect(observerCount(queryClient)).toBe(1);
       unmount();
       expect(observerCount(queryClient)).toBe(0);
@@ -130,11 +142,12 @@ describe("useListController", () => {
     }
   });
 
-  it("recovers from effect teardown without unmount (Activity hide/show — the remount path)", async () => {
+  it("recovers from effect teardown without unmount (Activity hide/show — detach/re-attach)", async () => {
     // <Activity mode="hidden"> cleans up effects while PRESERVING hook state —
-    // the same cleanup->re-setup cycle StrictMode simulates in dev. The hook's
-    // cleanup destroys the controller; on re-show it must detect the destroyed
-    // controller, rebuild a fresh one, and resubscribe — no dead snapshots.
+    // the same cleanup->re-setup cycle StrictMode simulates in dev. Hiding
+    // detaches (last unsubscribe releases the observer + KV subscriptions);
+    // revealing re-attaches the SAME controller with options rebuilt from
+    // current state — no recreate, no dead snapshots.
     const { wrapper: Wrapper, queryClient } = makeWrapper();
     const latest: {
       current: ReturnType<
@@ -157,21 +170,157 @@ describe("useListController", () => {
     expect(latest.current?.data?.length).toBe(10);
     expect(observerCount(queryClient)).toBe(1);
 
-    view.rerender(ui("hidden")); // effects torn down -> controller destroyed
+    view.rerender(ui("hidden")); // effects torn down -> last unsubscribe -> detach
     await waitFor(() => expect(observerCount(queryClient)).toBe(0));
 
-    view.rerender(ui("visible")); // effects re-run -> fresh controller
+    view.rerender(ui("visible")); // effects re-run -> re-attach (same controller)
     await waitFor(() => expect(observerCount(queryClient)).toBe(1));
     await waitFor(() => expect(latest.current?.isPending).toBe(false));
     expect(latest.current?.data?.length).toBe(10);
 
-    // The fresh controller's actions are live, not the destroyed one's.
+    // The re-attached controller's actions are live.
     act(() => latest.current?.setPage(2));
     await waitFor(() => expect(latest.current?.data?.length).toBe(2));
     expect(latest.current?.page).toBe(2);
 
     view.unmount();
     expect(observerCount(queryClient)).toBe(0);
+  });
+});
+
+describe("discarded-render leak regression (Task 4R gate finding)", () => {
+  type ListResult = ReturnType<
+    typeof useListController<typeof resources, "posts">
+  >;
+
+  function makeProbe() {
+    const latest: { current: ListResult | null } = { current: null };
+    function Probe() {
+      latest.current = useListController<typeof resources, "posts">("posts");
+      return null;
+    }
+    return { latest, Probe };
+  }
+
+  it("Suspense sibling suspending on initial mount: discarded renders leak no controllers and write no KV", async () => {
+    const { wrapper: Wrapper, queryClient, setItem } = makeWrapper();
+    const { latest, Probe } = makeProbe();
+    let release!: () => void;
+    let resolved = false;
+    const gate = new Promise<void>((r) => {
+      release = () => {
+        resolved = true;
+        r();
+      };
+    });
+    function Suspender() {
+      if (!resolved) throw gate;
+      return null;
+    }
+    const view = render(
+      <Wrapper>
+        <Suspense fallback={null}>
+          <Probe />
+          <Suspender />
+        </Suspense>
+      </Wrapper>,
+    );
+    await act(async () => {
+      release();
+      await gate;
+    });
+    await waitFor(() => expect(latest.current?.isPending).toBe(false));
+    expect(latest.current?.data?.length).toBe(10);
+    // Exactly ONE live controller is attached — controllers constructed in
+    // discarded renders are inert garbage, not zombies.
+    expect(observerCount(queryClient)).toBe(1);
+    view.unmount();
+    // Gate reproduction: 2 zombie QueryObservers survived here pre-redesign.
+    expect(observerCount(queryClient)).toBe(0);
+    // Discarded controllers wrote nothing to the shared KV store.
+    expect(setItem).not.toHaveBeenCalled();
+  });
+
+  it("initial-hidden <Activity>: the pre-rendered controller acquires nothing until reveal", async () => {
+    const { wrapper: Wrapper, queryClient, getList } = makeWrapper();
+    const { latest, Probe } = makeProbe();
+    const ui = (mode: "visible" | "hidden") => (
+      <Wrapper>
+        <Activity mode={mode}>
+          <Probe />
+        </Activity>
+      </Wrapper>
+    );
+    const view = render(ui("hidden"));
+    await act(async () => {});
+    // The hidden pre-render constructed a controller; construction is inert.
+    // Gate reproduction: 1 zombie QueryObserver leaked here pre-redesign.
+    expect(observerCount(queryClient)).toBe(0);
+    expect(getList).not.toHaveBeenCalled();
+    view.rerender(ui("visible")); // reveal -> effects mount -> attach
+    await waitFor(() => expect(latest.current?.isPending).toBe(false));
+    expect(latest.current?.data?.length).toBe(10);
+    expect(observerCount(queryClient)).toBe(1);
+    view.unmount();
+    expect(observerCount(queryClient)).toBe(0);
+  });
+
+  it("a render throwing AFTER controller creation never commits and leaks nothing; a clean mount then works", async () => {
+    // React logs boundary-caught errors via console.error — keep output clean.
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const latest: { current: ListResult | null } = { current: null };
+      let explode = true;
+      function Exploding() {
+        latest.current = useListController<typeof resources, "posts">("posts");
+        if (explode) throw new Error("discarded-render");
+        return null;
+      }
+      class Boundary extends Component<
+        { children: ReactNode },
+        { failed: boolean }
+      > {
+        state = { failed: false };
+        static getDerivedStateFromError() {
+          return { failed: true };
+        }
+        render() {
+          return this.state.failed ? null : this.props.children;
+        }
+      }
+      const first = makeWrapper();
+      const FirstWrapper = first.wrapper;
+      const view = render(
+        <FirstWrapper>
+          <Boundary>
+            <Exploding />
+          </Boundary>
+        </FirstWrapper>,
+      );
+      await act(async () => {});
+      // The discarded render's controller acquired nothing.
+      expect(observerCount(first.queryClient)).toBe(0);
+      expect(first.setItem).not.toHaveBeenCalled();
+      view.unmount();
+
+      explode = false;
+      const second = makeWrapper();
+      const SecondWrapper = second.wrapper;
+      const clean = render(
+        <SecondWrapper>
+          <Boundary>
+            <Exploding />
+          </Boundary>
+        </SecondWrapper>,
+      );
+      await waitFor(() => expect(latest.current?.isPending).toBe(false));
+      expect(latest.current?.data?.length).toBe(10);
+      expect(observerCount(second.queryClient)).toBe(1);
+      clean.unmount();
+      expect(observerCount(second.queryClient)).toBe(0);
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 });
 
