@@ -397,6 +397,33 @@ function firstFieldError(
   return undefined;
 }
 
+type DisplayError = string | TranslatableMessage | undefined;
+
+/**
+ * Value-equality for the SELECTED displayable error. A form-level validator
+ * rewrites EVERY field's raw `meta.errorMap` (fresh `StandardSchemaV1Issue[]`
+ * refs) on each keystroke — subscribing to the raw errorMap would re-render
+ * every sibling per keystroke (O(N) cliff, form-perf-schema.test.tsx). We
+ * subscribe to the NORMALIZED displayable error instead and compare it by
+ * VALUE so a field re-renders only when its own displayed message actually
+ * changes: strings by identity, translatable payloads by `message` + shallow
+ * `args`.
+ */
+function sameDisplayError(a: DisplayError, b: DisplayError): boolean {
+  if (a === b) return true;
+  if (a === undefined || b === undefined) return false;
+  if (typeof a === "string" || typeof b === "string") return a === b;
+  if (a.message !== b.message) return false;
+  const aArgs = a.args ?? {};
+  const bArgs = b.args ?? {};
+  const aKeys = Object.keys(aArgs);
+  if (aKeys.length !== Object.keys(bArgs).length) return false;
+  for (const k of aKeys) {
+    if (aArgs[k] !== bArgs[k]) return false;
+  }
+  return true;
+}
+
 /**
  * The input workhorse (ra's useInput rebridged onto form-core).
  *
@@ -451,7 +478,13 @@ export function useInput(options: UseInputOptions): UseInputResult {
   const isTouched = useSelector(store, (s) => s.meta.isTouched);
   const isDirty = useSelector(store, (s) => s.meta.isDirty);
   const isValidating = useSelector(store, (s) => s.meta.isValidating);
-  const errorMap = useSelector(store, (s) => s.meta.errorMap);
+  // Subscribe to the DISPLAYABLE error (not the raw errorMap object) with
+  // value-equality: a form-level validator rewrites every field's errorMap ref
+  // per keystroke, but a sibling whose message is unchanged must NOT re-render
+  // (see sameDisplayError + form-perf-schema.test.tsx).
+  const error = useSelector(store, (s) => firstFieldError(s.meta.errorMap), {
+    compare: sameDisplayError,
+  });
 
   // Freshness after every commit — deliberately no dependency array.
   useEffect(() => {
@@ -459,7 +492,6 @@ export function useInput(options: UseInputOptions): UseInputResult {
   });
 
   const format = options.format ?? defaultFormat;
-  const error = firstFieldError(errorMap);
 
   return {
     id: options.id ?? generatedId,
