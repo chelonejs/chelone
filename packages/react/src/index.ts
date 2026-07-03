@@ -256,4 +256,18 @@ export {
   useRedirect,
   useRouterAdapter,
 } from "./router";
+export type {
+  CheloneRouterHandle,
+  CreateCheloneRouterOptions,
+  DehydratedState,
+  DehydrateOptions,
+  HydrateOptions,
+  HydrationBoundaryProps,
+} from "./ssr";
+export {
+  createCheloneRouter,
+  dehydrate,
+  HydrationBoundary,
+  hydrate,
+} from "./ssr";
 export { useStoreItem } from "./store-hooks";
