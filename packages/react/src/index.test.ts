@@ -41,6 +41,7 @@ import type {
   UseRecordContextOptions,
   UseResourceTranslationOptions,
   UseTabbedFormResult,
+  UseWatchOptions,
   UseWizardFormResult,
   WarnWhenUnsavedChangesDecision,
   WizardFormProps,
@@ -221,6 +222,25 @@ describe("@chelone/react barrel — P6 form leftovers + SSR seam (W2)", () => {
   });
 });
 
+describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () => {
+  it("exports the small ra/shadcn compat hooks", () => {
+    expect(barrel.useDataProvider).toBeTypeOf("function");
+    expect(barrel.useRefresh).toBeTypeOf("function");
+    expect(barrel.useLoading).toBeTypeOf("function");
+    expect(barrel.useLocaleState).toBeTypeOf("function");
+    expect(barrel.useIsMobile).toBeTypeOf("function");
+  });
+
+  it("exports the RHF→chelone form shim (runnable useWatch + rename aliases)", () => {
+    expect(barrel.useWatch).toBeTypeOf("function");
+    // Rename-only aliases resolve to the canonical chelone symbols.
+    expect(barrel.FormProvider).toBe(barrel.CheloneFormProvider);
+    expect(barrel.useFormContext).toBe(barrel.useCheloneFormContext);
+    expect(barrel.useController).toBe(barrel.useInput);
+    expect(barrel.useFieldArray).toBe(barrel.useArrayInput);
+  });
+});
+
 describe("@chelone/react barrel — UseXResult symmetry (every hook's result type is exported)", () => {
   // Type-only assertion: referencing each result/props type forces the barrel to
   // export it. A dropped `export type` line here fails `tsc --typecheck`. The
@@ -262,6 +282,7 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
       | UseFieldValueOptions
       | UseRecordContextOptions
       | UseResourceTranslationOptions
+      | UseWatchOptions
       | TabbedFormProps<unknown>
       | UseFilterFormResult
       | UseTabbedFormResult

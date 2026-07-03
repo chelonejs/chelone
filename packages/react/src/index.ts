@@ -99,6 +99,13 @@ export {
   useChoicesContext,
   useReferenceInput,
 } from "./choices-hooks";
+export {
+  useDataProvider,
+  useIsMobile,
+  useLoading,
+  useLocaleState,
+  useRefresh,
+} from "./compat-hooks";
 export type { CheloneProviderProps } from "./context";
 export {
   CheloneProvider,
@@ -142,6 +149,7 @@ export type {
   UseFilterFormOptions,
   UseFilterFormResult,
   UseTabbedFormResult,
+  UseWatchOptions,
   UseWizardFormResult,
   WarnWhenUnsavedChangesDecision,
   WizardFormProps,
@@ -151,10 +159,14 @@ export {
   FilterLiveForm,
   FormGroupProvider,
   FormGroupsProvider,
+  FormProvider,
   getFilterFormValues,
   ListContextProvider,
   TabbedForm,
+  useController,
+  useFieldArray,
   useFilterForm,
+  useFormContext,
   useFormGroup,
   useFormGroupName,
   useFormGroups,
@@ -163,6 +175,7 @@ export {
   useRegisterFieldGroup,
   useTabbedFormContext,
   useWarnWhenUnsavedChanges,
+  useWatch,
   useWizardForm,
   useWizardFormContext,
   WizardForm,

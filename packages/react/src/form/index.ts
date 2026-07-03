@@ -33,6 +33,14 @@ export {
   useOptionalFormGroups,
   useRegisterFieldGroup,
 } from "./group-hooks";
+export type { UseWatchOptions } from "./rhf-shim";
+export {
+  FormProvider,
+  useController,
+  useFieldArray,
+  useFormContext,
+  useWatch,
+} from "./rhf-shim";
 export type {
   TabbedFormProps,
   TabbedFormTabProps,
