@@ -9,7 +9,6 @@ import {
   createArrayBinding,
   createArraySourceScope,
   createRowSourceScope,
-  normalizeFormError,
 } from "@chelone/core";
 import { useSelector } from "@tanstack/react-store";
 import {
@@ -22,6 +21,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { firstFieldError, sameDisplayError } from "./field-error";
 import {
   SourceContextProvider,
   useCheloneFormContext,
@@ -84,27 +84,6 @@ export interface UseArrayInputResult {
 interface ArrayBindingHolder {
   form: unknown;
   binding: ArrayBinding<UnknownFormValues>;
-}
-
-/** Error-map scan order: server/submit errors first, then validator causes. */
-const ERROR_MAP_PRIORITY = [
-  "onSubmit",
-  "onDynamic",
-  "onChange",
-  "onBlur",
-  "onMount",
-  "onServer",
-] as const;
-
-function firstFieldError(
-  errorMap: object,
-): string | TranslatableMessage | undefined {
-  const map = errorMap as Record<string, unknown>;
-  for (const cause of ERROR_MAP_PRIORITY) {
-    const normalized = normalizeFormError(map[cause]);
-    if (normalized !== undefined) return normalized;
-  }
-  return undefined;
 }
 
 function toBindingUpdate(
@@ -181,7 +160,15 @@ export function useArrayInput(
   const fieldStore = binding.field.field.store;
   const isTouched = useSelector(fieldStore, (s) => s.meta.isTouched);
   const isDirty = useSelector(fieldStore, (s) => s.meta.isDirty);
-  const errorMap = useSelector(fieldStore, (s) => s.meta.errorMap);
+  // Subscribe to the DISPLAYABLE error (not the raw errorMap object) with
+  // value-equality: a form/array-level validator rewrites the array field's
+  // errorMap ref per keystroke, but the iterator must NOT re-render unless its
+  // own displayed message changes (mirrors useInput; see field-error.ts).
+  const error = useSelector(
+    fieldStore,
+    (s) => firstFieldError(s.meta.errorMap),
+    { compare: sameDisplayError },
+  );
 
   // Freshness after every commit — deliberately no dependency array.
   useEffect(() => {
@@ -194,8 +181,6 @@ export function useArrayInput(
     () => createArraySourceScope(parentScope, source),
     [parentScope, source],
   );
-
-  const error = firstFieldError(errorMap);
 
   return useMemo(
     () => ({
