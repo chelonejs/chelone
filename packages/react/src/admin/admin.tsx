@@ -18,14 +18,17 @@
  * resolved via `useResolvedChildren` (parity §0a-9) BEFORE it reaches
  * `<AdminUI>`, so the shell always partitions a concrete node.
  *
- * The routing engine is W1-T7: `<Admin>` leaves `<AdminUI>`'s `render` at its
- * default placeholder here; W1-T7 wires its `AdminRoutes` in as `render`.
+ * The routing engine (W1-T7) is wired in here as `<AdminUI>`'s `render` prop:
+ * `<Admin>` supplies `AdminRoutes`, which reads the partition via `useAdminUI()`
+ * and builds the branch-ordered / no-flash / error-boundary tree. The low-level
+ * `<AdminUI>` escape hatch still defaults to its placeholder when used directly.
  */
 
 import type { ResourceMap } from "@chelone/core";
 import type { ReactNode } from "react";
 import type { RouterAdapter } from "../router/adapter";
 import { AdminContext, type AdminContextProps } from "./admin-context";
+import { AdminRoutes } from "./admin-routes";
 import { type AdminSlotProps, AdminUI } from "./admin-ui";
 import { type AdminChildren, useResolvedChildren } from "./partition";
 import {
@@ -103,7 +106,12 @@ function AdminInner<TResources extends ResourceMap = ResourceMap>({
   void (undefined as unknown as TResources);
   const { node } = useResolvedChildren(adminChildren, permissions);
   return (
-    <AdminUI requireAuth={requireAuth} permissions={permissions} {...slotProps}>
+    <AdminUI
+      requireAuth={requireAuth}
+      permissions={permissions}
+      render={AdminRoutes}
+      {...slotProps}
+    >
       {node}
     </AdminUI>
   );
