@@ -60,6 +60,14 @@ describe("@chelone/core barrel", () => {
     );
   });
 
+  it("exports the P6 router primitives (path utils + location parser + matcher)", () => {
+    expect(barrel.createPath).toBeTypeOf("function");
+    expect(barrel.joinBasename).toBeTypeOf("function");
+    expect(barrel.removeDoubleSlashes).toBeTypeOf("function");
+    expect(barrel.parseLocation).toBeTypeOf("function");
+    expect(barrel.matchPath).toBeTypeOf("function");
+  });
+
   it("does NOT leak internal save-pipeline / hydration helpers", () => {
     expect("sanitizeEmptyValues" in barrel).toBe(false);
     expect("toFormErrorMapValue" in barrel).toBe(false);

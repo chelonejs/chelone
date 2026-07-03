@@ -202,6 +202,13 @@ export type {
   ResourceMap,
 } from "./resource/registry";
 export { defineResources } from "./resource/registry";
+export type { CheloneLocation, NavigateOpts } from "./router/location";
+export { parseLocation } from "./router/location";
+export type { PathMatch } from "./router/match";
+export { matchPath } from "./router/match";
+export type { CreatePathParams, CreatePathType } from "./router/paths";
+export { createPath, joinBasename, removeDoubleSlashes } from "./router/paths";
+export type { RouterPort, Unsubscribe } from "./router/port";
 export { localStorageAdapter, memoryStoreAdapter } from "./store/adapters";
 export type { MicroStore, MicroStoreOptions } from "./store/micro-store";
 export { createMicroStore } from "./store/micro-store";

@@ -19,7 +19,8 @@
                   "react": "@chelone/core is vanilla TS — no React. Put React code in @chelone/react.",
                   "react-dom": "@chelone/core must not import react-dom.",
                   "react-hook-form": "@chelone/core uses @tanstack/form-core, not react-hook-form.",
-                  "react-router": "@chelone/core must not own a router; use the RouterProvider interface."
+                  "react-router": "@chelone/core must not own a router; it owns the vanilla RouterPort seam and injects a RouterAdapter from @chelone/react.",
+                  "@tanstack/react-router": "@chelone/core must not own a router; the tanstackRouterAdapter lives in @chelone/react. Core exposes the vanilla RouterPort + pure path utils only."
                 }
               }
             }

@@ -1,5 +1,12 @@
 import { expectTypeOf, it } from "vitest";
 import { z } from "zod";
+import type {
+  CheloneLocation,
+  NavigateOpts,
+  PathMatch,
+  RouterPort,
+  Unsubscribe,
+} from "./index";
 import { type DataProvider, defineResources, type RecordOf } from "./index";
 
 it("re-exports defineResources and inference types from the root", () => {
@@ -11,4 +18,14 @@ it("re-exports defineResources and inference types from the root", () => {
     title: string;
   }>();
   expectTypeOf<DataProvider<typeof resources>>().not.toBeNever();
+});
+
+it("re-exports the P6 router types from the root", () => {
+  expectTypeOf<
+    CheloneLocation["searchParams"]
+  >().toEqualTypeOf<URLSearchParams>();
+  expectTypeOf<NavigateOpts["state"]>().not.toBeAny();
+  expectTypeOf<PathMatch["params"]>().toEqualTypeOf<Record<string, string>>();
+  expectTypeOf<RouterPort["navigate"]>().toBeFunction();
+  expectTypeOf<Unsubscribe>().toEqualTypeOf<() => void>();
 });
