@@ -95,7 +95,10 @@ export interface ComposeFormValidatorConfig<TFormData> {
  * form-level validators do not block a field-less `handleSubmit` (probed on
  * form-core 1.33), so vanilla submit-only forms would save invalid data.
  * An async validate fn is detected on its first call, skipped here from then
- * on, and awaited by the submit pipeline instead (on-submit semantics).
+ * on, and re-run by the submit pipeline instead (on-submit semantics). The
+ * pipeline absorbs sync AND async results from the latched fn — ra's
+ * contract legally mixes sync fast-path errors with async server checks, and
+ * a latched fn's later sync error can only surface through the pipeline.
  *
  * Returns `undefined` when there is nothing to compose.
  */

@@ -69,7 +69,11 @@ function deepMerge(base: unknown, override: unknown): unknown {
   return result;
 }
 
-export type HydrationAction = "rebaseline" | "hard-reset" | "keep-dirty";
+export type HydrationAction =
+  | "rebaseline"
+  | "hard-reset"
+  | "keep-dirty"
+  | "partial-apply";
 
 /**
  * The record-hydration decision (§0b: record identity drives reset):
@@ -79,7 +83,15 @@ export type HydrationAction = "rebaseline" | "hard-reset" | "keep-dirty";
  *   the pinned semantic for any composition that can swap records.
  * - untouched form -> rebaseline (apply the merged record as new defaults —
  *   `form.update` auto-applies defaults to untouched forms without dirtying).
- * - touched form, same record -> keep the user's values untouched (soft).
+ * - FIRST record arrival into a touched form -> partial apply (§0b
+ *   keepDirtyValues): the form has never seen the record, so clean fields
+ *   still hold construction defaults — keeping them would make the next save
+ *   send those defaults over the real record fields (a data wipe). The
+ *   record hydrates every clean field; dirty values (and their dirty meta)
+ *   survive.
+ * - touched form, same record (refetch) -> keep ALL current values (soft):
+ *   clean fields already hold the previous record's values — stale at worst,
+ *   never destructive.
  */
 export function resolveHydrationAction(
   previousId: Identifier | undefined,
@@ -89,7 +101,23 @@ export function resolveHydrationAction(
   if (previousId !== undefined && String(nextId) !== String(previousId)) {
     return "hard-reset";
   }
-  return isTouched ? "keep-dirty" : "rebaseline";
+  if (!isTouched) return "rebaseline";
+  return previousId === undefined ? "partial-apply" : "keep-dirty";
+}
+
+/**
+ * Path-keyed FormApi access with the `DeepKeys` correlation erased: the
+ * partial-apply hydration re-applies values captured at RUNTIME `fieldMeta`
+ * paths, which no static type can correlate with their `DeepValue` types.
+ * The values round-trip through the same path unchanged.
+ */
+interface PathValueAccess {
+  getFieldValue(path: string): unknown;
+  setFieldValue(
+    path: string,
+    value: unknown,
+    opts?: { dontRunListeners?: boolean },
+  ): void;
 }
 
 /** The composed-option subset shared by edit + create (the form side). */
@@ -324,6 +352,37 @@ export function createEditFormController<
     const merged = mergedWith(record);
     if (action === "hard-reset") {
       form.reset(merged);
+      return;
+    }
+    if (action === "partial-apply") {
+      // First arrival into a touched form (§0b keepDirtyValues): hydrate the
+      // record into every CLEAN field, keep the user's dirty values.
+      // `reset(merged)` rebaselines on the merged record (defaults + values;
+      // meta and errors clear), then every previously-dirty leaf is written
+      // back WITH meta marking — restoring touched+dirty is load-bearing: a
+      // meta-untouched form's next refetch takes the rebaseline path, and
+      // `form.update` wholesale-overwrites the values of any meta-untouched
+      // form (probed: `shouldUpdateValues` gates on `!state.isTouched` only),
+      // which would wipe the re-applied values one refetch later. Listeners
+      // are suppressed — hydration is not a user change; net-new dirt is
+      // zero (only fields the user already dirtied are re-marked).
+      const pathAccess = form as unknown as PathValueAccess;
+      // Same DeepKeys erasure as PathValueAccess: fieldMeta keys are runtime
+      // leaf paths; every meta carries isDirty (sticky ever-modified).
+      const fieldMeta = form.state.fieldMeta as Record<
+        string,
+        { isDirty: boolean }
+      >;
+      const dirtyValues: Array<[path: string, value: unknown]> = [];
+      for (const [path, meta] of Object.entries(fieldMeta)) {
+        if (meta.isDirty) {
+          dirtyValues.push([path, pathAccess.getFieldValue(path)]);
+        }
+      }
+      form.reset(merged);
+      for (const [path, value] of dirtyValues) {
+        pathAccess.setFieldValue(path, value, { dontRunListeners: true });
+      }
       return;
     }
     // Rebaseline: REPLACE the options wholesale with ONLY defaultValues

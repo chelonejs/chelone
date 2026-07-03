@@ -234,18 +234,22 @@ export function createFormController<TRecord>(
   });
 
   const onSubmit = async ({ value }: { value: TRecord }): Promise<void> => {
-    // 1. Async form-level validate fn — sync results were already handled by
-    // the dynamic validator during handleSubmit's validation pass.
+    // 1. Form-level validate fn. Purely-sync results were already handled by
+    // the dynamic validator during handleSubmit's validation pass — but ra's
+    // contract legally MIXES sync fast-path errors with async server checks
+    // (`if (!v.email) return {email: 'required'}; return checkServer(v)`).
+    // Once a thenable latches the fn out of the sync slot
+    // (composeFormValidator), a later sync error return only surfaces HERE —
+    // so the pipeline absorbs sync and async results alike.
     if (options.validate) {
       const pending = options.validate(value);
-      if (isThenable(pending)) {
-        const mapped = toFormErrorMapValue(await pending);
-        if (mapped) {
-          form.setErrorMap({ onSubmit: mapped });
-          serverErrorsApplied = true;
-          notifyInvalid(mapped.form);
-          return;
-        }
+      const result = isThenable(pending) ? await pending : pending;
+      const mapped = toFormErrorMapValue(result);
+      if (mapped) {
+        form.setErrorMap({ onSubmit: mapped });
+        serverErrorsApplied = true;
+        notifyInvalid(mapped.form);
+        return;
       }
     }
     // 2. Sanitize (ra semantics, top-level only, record baseline).

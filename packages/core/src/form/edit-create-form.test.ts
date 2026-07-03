@@ -59,7 +59,12 @@ describe("resolveHydrationAction", () => {
   it("keeps dirty values on a touched form (same id, loose comparison)", () => {
     expect(resolveHydrationAction(1, 1, true)).toBe("keep-dirty");
     expect(resolveHydrationAction(1, "1", true)).toBe("keep-dirty");
-    expect(resolveHydrationAction(undefined, 1, true)).toBe("keep-dirty");
+  });
+
+  it("partial-applies the FIRST record arrival into a touched form (clean fields must hydrate)", () => {
+    // Keeping construction defaults on clean fields here would make the next
+    // save send those defaults over the real record fields (data wipe).
+    expect(resolveHydrationAction(undefined, 1, true)).toBe("partial-apply");
   });
 });
 
@@ -105,6 +110,58 @@ describe("createEditFormController", () => {
     expect(form.isDirty).toBe(false);
     expect(form.isTouched).toBe(false);
     expect(form.isDefaultValue).toBe(true);
+    c.destroy();
+  });
+
+  it("first record arrival into a TOUCHED form hydrates clean fields, keeps typed values, and cannot wipe on save", async () => {
+    const ctx = makeCtx();
+    const realGetOne = ctx.dataProvider.getOne.bind(ctx.dataProvider);
+    let releaseRecord: (() => void) | undefined;
+    ctx.dataProvider.getOne = (async (
+      resource: "posts",
+      params: { id: number },
+    ) => {
+      // Only the FIRST fetch is deferred — the post-save invalidation refetch
+      // must flow through, or submit() would await it forever.
+      if (releaseRecord === undefined) {
+        await new Promise<void>((resolve) => {
+          releaseRecord = resolve;
+        });
+      }
+      return realGetOne(resource, params as never);
+    }) as never;
+    const update = vi.spyOn(ctx.dataProvider, "update");
+    const c = createEditFormController(ctx, "posts", { id: 1 });
+    c.subscribe(() => {});
+
+    // The user types BEFORE the record arrives (slow fetch).
+    const title = new FieldApi({ form: c.form, name: "title" });
+    title.mount();
+    title.handleChange("typed");
+    expect(c.getSnapshot().record).toBeUndefined();
+
+    // The fetch starts asynchronously after subscribe — wait for the provider
+    // call before releasing the record.
+    await vi.waitFor(() => expect(releaseRecord).toBeDefined());
+    releaseRecord?.();
+    await recordLoaded(c);
+    const { form } = c.getSnapshot();
+    // Dirty value survives; CLEAN fields hydrate from the server record.
+    expect(form.values.title).toBe("typed");
+    expect(form.values.subtitle).toBe("s");
+    expect(form.values.id).toBe(1);
+    // The dirty signal survives the partial apply (a later same-id refetch
+    // must take the touched path, not silently rebaseline over the values).
+    expect(form.fieldMeta.title?.isDirty).toBe(true);
+    expect(form.isTouched).toBe(true);
+    expect(form.isDefaultValue).toBe(false);
+
+    // The save payload carries the hydrated record fields, NOT construction
+    // defaults — the data-wipe shape is impossible.
+    await c.submit();
+    const payload = update.mock.calls[0]?.[1]?.data as Record<string, unknown>;
+    expect(payload.title).toBe("typed");
+    expect(payload.subtitle).toBe("s");
     c.destroy();
   });
 

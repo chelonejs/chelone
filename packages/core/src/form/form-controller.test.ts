@@ -400,6 +400,42 @@ describe("submit pipeline", () => {
       await controller.submit();
       expect(save).toHaveBeenCalledTimes(1);
     });
+
+    it("a MIXED sync/async fn: a sync error return AFTER the async latch still blocks save", async () => {
+      // ra's validator contract legally mixes a sync fast-path error with an
+      // async server check: `if (!v.email) return {email: 'required'};
+      // return checkServer(v)`. Once the first thenable latches the fn out of
+      // the sync onDynamic slot, later SYNC error returns only surface through
+      // the submit pipeline — they must block the save exactly like awaited
+      // async results.
+      const { controller, save, mountField, lastNotification } =
+        makeSubmitHarness({
+          validate: (values) => {
+            if (!values.email) {
+              return { email: "chelone.validation.required" };
+            }
+            return Promise.resolve(undefined); // async server check passes
+          },
+        });
+      const email = mountField("email");
+      // 1st submit: email present -> thenable return latches the fn as async.
+      await controller.submit();
+      expect(save).toHaveBeenCalledTimes(1);
+      // Clear the email: the latched fn now returns a SYNC error.
+      email.handleChange("");
+      await controller.submit();
+      expect(save).toHaveBeenCalledTimes(1); // save must NOT run again
+      expect(email.state.meta.errors).toContain("chelone.validation.required");
+      expect(lastNotification()).toMatchObject({
+        message: "chelone.message.invalid_form",
+        type: "error",
+      });
+      // Same auto-clear channel as async/server errors (onSubmit key).
+      email.handleChange("fixed@b.c");
+      expect(email.state.meta.errors).toEqual([]);
+      await controller.submit();
+      expect(save).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("server field errors (D4: onSubmit channel, never onServer)", () => {

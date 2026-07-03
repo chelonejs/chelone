@@ -52,6 +52,6 @@ it("createCreateFormController types the seed and created record", () => {
 
 it("resolveHydrationAction is a closed union", () => {
   expectTypeOf(resolveHydrationAction(1, 2, true)).toEqualTypeOf<
-    "rebaseline" | "hard-reset" | "keep-dirty"
+    "rebaseline" | "hard-reset" | "keep-dirty" | "partial-apply"
   >();
 });
