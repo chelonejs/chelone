@@ -1,3 +1,18 @@
+export type {
+  ArrayFieldState,
+  ArrayInputContextValue,
+  ArrayInputProviderProps,
+  IteratorItem,
+  IteratorRowProviderProps,
+  UseArrayInputOptions,
+  UseArrayInputResult,
+} from "./array-hooks";
+export {
+  ArrayInputProvider,
+  IteratorRowProvider,
+  useArrayInput,
+  useIteratorItem,
+} from "./array-hooks";
 export {
   useAuthState,
   useCanAccess,
@@ -5,6 +20,24 @@ export {
   useLogin,
   useLogout,
 } from "./auth-hooks";
+export type {
+  ChoiceRecord,
+  ChoicesContextProviderProps,
+  ChoicesContextValue,
+  InlineChoicesConfig,
+  OptionText,
+  UseChoicesContextOptions,
+  UseChoicesOptions,
+  UseChoicesResult,
+  UseReferenceInputOptions,
+  UseReferenceInputResult,
+} from "./choices-hooks";
+export {
+  ChoicesContextProvider,
+  useChoices,
+  useChoicesContext,
+  useReferenceInput,
+} from "./choices-hooks";
 export type { CheloneProviderProps } from "./context";
 export {
   CheloneProvider,
