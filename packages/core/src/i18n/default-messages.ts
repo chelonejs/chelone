@@ -19,6 +19,8 @@ export const defaultMessages = defineMessages({
     "Either you typed a wrong URL, or you followed a bad link.",
   "chelone.message.select_all_limit_reached":
     "There are too many elements to select them all. Only the first {max} elements were selected",
+  "chelone.message.unsaved_changes":
+    "Some of your changes weren't saved. Are you sure you want to ignore them?",
   "chelone.notification.created": "Element created",
   "chelone.notification.deleted": "Element deleted",
   "chelone.notification.http_error": "Server communication error",

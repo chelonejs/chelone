@@ -130,6 +130,7 @@ export type {
   ListContextValue,
   UseFilterFormOptions,
   UseFilterFormResult,
+  WarnWhenUnsavedChangesDecision,
 } from "./form";
 export {
   FilterLiveForm,
@@ -144,6 +145,7 @@ export {
   useListContext,
   useOptionalFormGroups,
   useRegisterFieldGroup,
+  useWarnWhenUnsavedChanges,
 } from "./form";
 export type {
   CheloneFormContextValue,

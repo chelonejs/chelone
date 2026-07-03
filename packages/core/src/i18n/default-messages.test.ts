@@ -7,6 +7,7 @@ describe("defaultMessages", () => {
     const emittedKeys = [
       "chelone.message.invalid_form",
       "chelone.message.select_all_limit_reached",
+      "chelone.message.unsaved_changes",
       "chelone.notification.created",
       "chelone.notification.deleted",
       "chelone.notification.http_error",

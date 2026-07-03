@@ -33,3 +33,5 @@ export {
   useOptionalFormGroups,
   useRegisterFieldGroup,
 } from "./group-hooks";
+export type { WarnWhenUnsavedChangesDecision } from "./warn-unsaved-changes";
+export { useWarnWhenUnsavedChanges } from "./warn-unsaved-changes";
