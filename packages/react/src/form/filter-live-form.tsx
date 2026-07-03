@@ -293,6 +293,11 @@ export function useFilterForm(
   // notifications inside one edit coalesce into a single scheduled push.
   useEffect(() => {
     let scheduled = false;
+    // Cleared on unmount so a microtask scheduled by the LAST keystroke does not
+    // fire a zombie `setFilters` against a torn-down list controller after the
+    // form is gone (the subscription is already gone, but an in-flight microtask
+    // would otherwise still run).
+    let cancelled = false;
     const sub = form.store.subscribe(() => {
       const values = form.store.state.values;
       if (values === lastSeenValues.current) return;
@@ -303,6 +308,7 @@ export function useFilterForm(
       scheduled = true;
       queueMicrotask(() => {
         scheduled = false;
+        if (cancelled) return; // unmounted before the push settled — no zombie write.
         // Read the SETTLED state at push time.
         if (!form.store.state.canSubmit) return; // validity gate (ra parity).
         setFiltersRef.current(
@@ -312,7 +318,10 @@ export function useFilterForm(
         );
       });
     });
-    return () => sub.unsubscribe();
+    return () => {
+      cancelled = true;
+      sub.unsubscribe();
+    };
   }, [form]);
 
   // Reflect EXTERNAL filter changes back into the form. Depend on the filter's
