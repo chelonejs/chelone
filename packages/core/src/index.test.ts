@@ -24,6 +24,12 @@ describe("@chelone/core barrel", () => {
     expect(barrel.reduceGroupState).toBeTypeOf("function");
   });
 
+  it("re-exports the form-core validation-logic factory (P6 W2-T2)", () => {
+    // Consumers build a custom `formOptions.validationLogic` (e.g. a filter
+    // form validating on change) without a direct @tanstack/form-core dep.
+    expect(barrel.revalidateLogic).toBeTypeOf("function");
+  });
+
   it("exports the P5 field-binding + source + array primitives", () => {
     expect(barrel.createFieldBinding).toBeTypeOf("function");
     expect(barrel.defaultFormat).toBeTypeOf("function");

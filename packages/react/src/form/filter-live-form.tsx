@@ -1,0 +1,405 @@
+import type {
+  ChelonFormApi,
+  FieldErrors,
+  FilterPayload,
+  ResourceRecord,
+  SourceScope,
+} from "@chelone/core";
+import { revalidateLogic } from "@chelone/core";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
+import type { UseListControllerResult } from "../controller-hooks";
+import { CheloneFormProvider, SourceContextProvider } from "../form-context";
+import { useForm } from "../form-hooks";
+import { useResourceContext } from "../resource";
+import { FormGroupsProvider } from "./group-hooks";
+
+/**
+ * FilterLiveForm (P6 W2-T2) — a form that auto-submits its child input values
+ * into a list's `setFilters`. Sits beside a filter UI (a `<FilterList>`, a
+ * search box) and keeps the list filter in sync as the user types.
+ *
+ * Chelone owns the debounce ONCE, in the list-controller: `setFilters(filter,
+ * displayed?, debounced?)` already debounces (default 500ms) + strips empties +
+ * resets the page (P4). So this form DELEGATES the debounce — it pushes on
+ * every change with `debounced=true` and never re-implements a timer (cleaner
+ * than ra, which debounces again in the form). The `debounce` prop is accepted
+ * for API familiarity but is ADVISORY: the effective delay is the list
+ * controller's own `debounceMs`. See the report for the rationale.
+ */
+
+/* -------------------------------------------------------------------------- */
+/* List context (the seam a `<List>` view provides — P7)                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The ambient list surface. Mirrors ra-core's `ListContext` (the full list
+ * controller result). Erased to `ResourceRecord` because a React context
+ * cannot be generic; FilterLiveForm reads only `filter` + `setFilters` from it,
+ * and both are record-shape-agnostic.
+ */
+export type ListContextValue = UseListControllerResult<ResourceRecord>;
+
+const ListContext = createContext<ListContextValue | null>(null);
+
+export interface ListContextProviderProps {
+  /** The list controller result — `useListController(...)`'s return value. */
+  value: ListContextValue;
+  children: ReactNode;
+}
+
+/**
+ * Provides the ambient list surface to filter/aggregation components below.
+ * A future `<List>`/`<ListBase>` view (P7) mounts this around its children with
+ * the value from `useListController`; FilterLiveForm reads it here.
+ */
+export function ListContextProvider({
+  value,
+  children,
+}: ListContextProviderProps): ReactNode {
+  return <ListContext.Provider value={value}>{children}</ListContext.Provider>;
+}
+
+/**
+ * The ambient list surface; throws without a `<ListContextProvider>` above.
+ * FilterLiveForm/useFilterForm use it to read the list's `filter` + push
+ * `setFilters`.
+ */
+export function useListContext(): ListContextValue {
+  const ctx = useContext(ListContext);
+  if (!ctx) {
+    throw new Error(
+      "useListContext: no <ListContextProvider> found above this component.",
+    );
+  }
+  return ctx;
+}
+
+/* -------------------------------------------------------------------------- */
+/* getFilterFormValues — all-keys-present rebuild                             */
+/* -------------------------------------------------------------------------- */
+
+const resolveFilterValue = (
+  formValues: Record<string, unknown>,
+  key: string,
+  filter: Record<string, unknown>,
+): unknown => {
+  const formValue = formValues[key];
+  // Nullish, arrays and Dates: take the filter value (fallback '') as-is; do
+  // NOT recurse into them (a Date/array is a leaf for filter purposes).
+  if (
+    formValue === undefined ||
+    formValue === null ||
+    Array.isArray(formValue) ||
+    formValue instanceof Date
+  ) {
+    return key in filter ? filter[key] : "";
+  }
+  // Nested object: rebuild every inner key too, defaulting each to ''.
+  if (typeof formValue === "object") {
+    const nestedFilter =
+      typeof filter[key] === "object" && filter[key] !== null
+        ? (filter[key] as Record<string, unknown>)
+        : {};
+    const inner = formValue as Record<string, unknown>;
+    const rebuilt: Record<string, unknown> = {};
+    for (const innerKey of Object.keys(inner)) {
+      rebuilt[innerKey] = resolveFilterValue(inner, innerKey, nestedFilter);
+    }
+    if (Object.keys(rebuilt).length === 0) return "";
+    return rebuilt;
+  }
+  return key in filter ? filter[key] : "";
+};
+
+/**
+ * Rebuild form values from the incoming filter so EVERY current form key is
+ * present with a defined value (an empty string when the filter lacks it).
+ *
+ * form-core (like RHF) re-applies a field's CURRENT value when `reset(values)`
+ * omits that key — which would silently ignore an external filter clear. So a
+ * reset must carry a value for every mounted input. This never produces
+ * `undefined`/`null` for a present form key.
+ */
+export function getFilterFormValues(
+  formValues: Record<string, unknown>,
+  filter: Record<string, unknown>,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const key of Object.keys(formValues)) {
+    result[key] = resolveFilterValue(formValues, key, filter);
+  }
+  return result;
+}
+
+/**
+ * The form shape the external-reflect must cover: every key that is either a
+ * current form value, a REGISTERED field (form-core tracks these in `fieldMeta`
+ * even when unset), or present on the incoming filter. Existing values are
+ * carried through; registered-but-unset / filter-only keys seed to `undefined`
+ * so {@link getFilterFormValues} resolves them from the filter (fallback `''`).
+ */
+function buildReflectShape(
+  values: Record<string, unknown>,
+  fieldMeta: Record<string, unknown>,
+  filter: Record<string, unknown>,
+): Record<string, unknown> {
+  const shape: Record<string, unknown> = { ...values };
+  for (const key of Object.keys(fieldMeta)) {
+    // fieldMeta keys are full field paths (e.g. `a.b`); only the TOP-LEVEL
+    // segment is a form-values key. Nested paths are covered by their parent.
+    const top = key.split(/[.[]/, 1)[0];
+    if (top && !(top in shape)) shape[top] = undefined;
+  }
+  for (const key of Object.keys(filter)) {
+    if (!(key in shape)) shape[key] = undefined;
+  }
+  return shape;
+}
+
+/* -------------------------------------------------------------------------- */
+/* merge — object-merge, arrays replace                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Merge form values OVER the existing filter, one level deep, with arrays
+ * REPLACED (never element-merged) — matching ra's mergeObjNotArray. The result
+ * is a fresh object (no mutation of the inputs).
+ */
+function mergeFilters(
+  filter: Record<string, unknown>,
+  values: Record<string, unknown>,
+): FilterPayload {
+  const merged: Record<string, unknown> = { ...filter };
+  for (const key of Object.keys(values)) {
+    const next = values[key];
+    const prev = merged[key];
+    if (
+      next !== null &&
+      typeof next === "object" &&
+      !Array.isArray(next) &&
+      !(next instanceof Date) &&
+      prev !== null &&
+      typeof prev === "object" &&
+      !Array.isArray(prev) &&
+      !(prev instanceof Date)
+    ) {
+      merged[key] = {
+        ...(prev as Record<string, unknown>),
+        ...(next as Record<string, unknown>),
+      };
+    } else {
+      merged[key] = next;
+    }
+  }
+  return merged as FilterPayload;
+}
+
+/* -------------------------------------------------------------------------- */
+/* useFilterForm                                                              */
+/* -------------------------------------------------------------------------- */
+
+/** Options for {@link useFilterForm} / props shared by {@link FilterLiveForm}. */
+export interface UseFilterFormOptions {
+  /** Overrides the ambient resource (drives the filter-flavored labels). */
+  resource?: string;
+  /**
+   * ADVISORY debounce (ms) for API parity with ra. The EFFECTIVE debounce is
+   * the list controller's own `debounceMs` — FilterLiveForm delegates it and
+   * does not add a form-side timer.
+   */
+  debounce?: number;
+}
+
+/** What {@link useFilterForm} returns: the form + provider inputs. */
+export interface UseFilterFormResult {
+  /** The form to expose via `<CheloneFormProvider>` (erased filter-values shape). */
+  form: ChelonFormApi<Record<string, unknown>>;
+  /** The filter-flavored source scope (identity source, resource-keyed labels). */
+  sourceScope: SourceScope;
+  /** Validity: `false` blocks a filter push (the validity gate). */
+  canSubmit: boolean;
+}
+
+/** A filter form never saves — the save pipeline is a no-op. */
+const noopSave = async (): Promise<FieldErrors | undefined> => undefined;
+
+/**
+ * Headless half of {@link FilterLiveForm}. Reads the ambient list's `filter` +
+ * `setFilters`, builds a standalone form controller seeded from the current
+ * filter (`resetOnSuccess:false` — a filter form never saves), pushes value
+ * changes into `setFilters(merged, undefined, /*debounced*​/ true)` behind a
+ * validity gate, and mirrors EXTERNAL filter changes back into the form with a
+ * `hasJustBeenModifiedByUser` guard so a stale (debounced) external value never
+ * clobbers what the user is actively typing.
+ */
+export function useFilterForm(
+  options: UseFilterFormOptions = {},
+): UseFilterFormResult {
+  const list = useListContext();
+  const resource = useResourceContext(options);
+
+  // Seed defaults from the CURRENT filter — captured on first render (the form
+  // controller options are captured-once by `useForm`; the external-reflect
+  // effect keeps it in sync afterwards).
+  const initialFilterRef = useRef(list.filter);
+  const { form, canSubmit } = useForm<Record<string, unknown>>({
+    defaultValues: { ...initialFilterRef.current },
+    resetOnSuccess: false,
+    save: noopSave,
+    // A filter form never submits, so the default revalidate-on-submit strategy
+    // would never run field validators and the validity gate would be inert.
+    // Validate on change from the start so `canSubmit` reflects live validity.
+    formOptions: {
+      validationLogic: revalidateLogic({
+        mode: "change",
+        modeAfterSubmission: "change",
+      }),
+    },
+  });
+
+  const setFilters = list.setFilters;
+  const filter = list.filter;
+
+  // Guards. `hasJustBeenModifiedByUser` is set on a user change and consumed by
+  // the external-reflect effect (skip one reflect). `isReflecting` marks OUR
+  // own `form.reset` so the value-change listener ignores that transition.
+  const hasJustBeenModifiedByUser = useRef(false);
+  const isReflecting = useRef(false);
+  // The last values we pushed / reflected — the value-change baseline.
+  const lastSeenValues = useRef<Record<string, unknown>>({
+    ...form.store.state.values,
+  });
+
+  // Latest-props refs so the store listener (registered once) always reads the
+  // current filter/setFilters without re-subscribing.
+  const filterRef = useRef(filter);
+  filterRef.current = filter;
+  const setFiltersRef = useRef(setFilters);
+  setFiltersRef.current = setFilters;
+
+  // Push on USER value change. Subscribe to the form store; on a values change
+  // that we did NOT originate (not a reflect), treat it as a user edit: flag it
+  // and SCHEDULE a push. The push is deferred to a microtask so any synchronous
+  // field validation the change triggers has SETTLED `canSubmit` first — else
+  // the validity gate would read the stale (pre-validation) value and let an
+  // invalid filter through (the clear-a-required-field race). Multiple
+  // notifications inside one edit coalesce into a single scheduled push.
+  useEffect(() => {
+    let scheduled = false;
+    const sub = form.store.subscribe(() => {
+      const values = form.store.state.values;
+      if (values === lastSeenValues.current) return;
+      lastSeenValues.current = values;
+      if (isReflecting.current) return; // our own reset — not a user edit.
+      hasJustBeenModifiedByUser.current = true;
+      if (scheduled) return;
+      scheduled = true;
+      queueMicrotask(() => {
+        scheduled = false;
+        // Read the SETTLED state at push time.
+        if (!form.store.state.canSubmit) return; // validity gate (ra parity).
+        setFiltersRef.current(
+          mergeFilters(filterRef.current, form.store.state.values),
+          undefined,
+          true,
+        );
+      });
+    });
+    return () => sub.unsubscribe();
+  }, [form]);
+
+  // Reflect EXTERNAL filter changes back into the form. Depend on the filter's
+  // VALUE-KEY (`filterKey`) — the filter's reference is not stable across list
+  // renders, so a reference dep would re-run every render; the value-key runs
+  // the effect only on a genuine content change. `filterKey` is genuinely
+  // consumed inside (the reflected-key guard), and the current filter is read
+  // through `filterRef` (a stable ref) to keep the dep list honest.
+  const filterKey = JSON.stringify(filter);
+  const lastReflectedKey = useRef<string | null>(null);
+  useEffect(() => {
+    // Skip exactly one reflect after a user edit (the guard) so a stale
+    // debounced value the list echoes back does not overwrite fresher input.
+    if (hasJustBeenModifiedByUser.current) {
+      hasJustBeenModifiedByUser.current = false;
+      lastReflectedKey.current = filterKey;
+      return;
+    }
+    if (lastReflectedKey.current === filterKey) return; // already reflected.
+    lastReflectedKey.current = filterKey;
+    const incoming = filterRef.current;
+    const current = form.store.state.values;
+    // Build the reflect shape over the UNION of current values, registered
+    // fields (form-core keeps registered inputs in `fieldMeta`, NOT in `values`
+    // until they hold a value), and filter keys — so a mounted-but-unset input
+    // still receives the external filter value.
+    const shape = buildReflectShape(
+      current,
+      form.store.state.fieldMeta,
+      incoming,
+    );
+    const next = getFilterFormValues(shape, incoming);
+    if (JSON.stringify(next) === JSON.stringify(current)) return;
+    isReflecting.current = true;
+    form.reset(next);
+    lastSeenValues.current = form.store.state.values;
+    isReflecting.current = false;
+  }, [filterKey, form]);
+
+  // Filter-flavored source scope: identity source, resource-keyed labels.
+  const sourceScope = useMemo<SourceScope>(
+    () => ({
+      getSource: (source: string) => source,
+      getLabel: (source: string) =>
+        resource ? `resources.${resource}.fields.${source}` : source,
+    }),
+    [resource],
+  );
+
+  return { form, sourceScope, canSubmit };
+}
+
+/* -------------------------------------------------------------------------- */
+/* FilterLiveForm                                                             */
+/* -------------------------------------------------------------------------- */
+
+export interface FilterLiveFormProps extends UseFilterFormOptions {
+  /** The filter inputs (`useInput`-driven) whose values drive `setFilters`. */
+  children: ReactNode;
+}
+
+/**
+ * A form that auto-submits its child inputs into the ambient list's filter.
+ * Wrap filter inputs in it beside a `<FilterList>` or as a standalone search
+ * box:
+ *
+ * ```tsx
+ * <ListContextProvider value={list}>
+ *   <FilterLiveForm>
+ *     <TextInput source="title" />
+ *   </FilterLiveForm>
+ * </ListContextProvider>
+ * ```
+ */
+export function FilterLiveForm({
+  children,
+  resource,
+  debounce,
+}: FilterLiveFormProps): ReactNode {
+  const { form, sourceScope } = useFilterForm({ resource, debounce });
+  return (
+    <CheloneFormProvider form={form}>
+      <FormGroupsProvider>
+        <SourceContextProvider scope={sourceScope}>
+          {children}
+        </SourceContextProvider>
+      </FormGroupsProvider>
+    </CheloneFormProvider>
+  );
+}

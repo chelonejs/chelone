@@ -1,3 +1,9 @@
+// The form-core validation-strategy factory. The form controller's
+// `formOptions.validationLogic` escape hatch invites a user-supplied strategy
+// (e.g. a filter form that validates on change: `revalidateLogic({ mode:
+// "change" })`); re-exported so consumers can build one without a direct
+// `@tanstack/form-core` dependency.
+export { revalidateLogic } from "@tanstack/form-core";
 export type { Permission } from "./auth/access-control";
 export { canAccessWithPermissions } from "./auth/access-control";
 export {

@@ -1,10 +1,25 @@
 /**
- * Public form-leftovers surface for `@chelone/react` (P6 Wave 2). Starts with
- * the FormGroups primitive (W2-T1): the registry provider, the ambient group
- * scope, and the `useFormGroup` badge hook. FilterLiveForm / warnWhenUnsaved /
- * WizardForm / TabbedForm (W2-T2..T5) land here alongside.
+ * Public form-leftovers surface for `@chelone/react` (P6 Wave 2). The
+ * FormGroups primitive (W2-T1: registry provider, ambient group scope,
+ * `useFormGroup` badge hook) and FilterLiveForm (W2-T2: the list-filter form +
+ * its list-context seam). warnWhenUnsaved / WizardForm / TabbedForm
+ * (W2-T3..T5) land here alongside.
  */
 
+export type {
+  FilterLiveFormProps,
+  ListContextProviderProps,
+  ListContextValue,
+  UseFilterFormOptions,
+  UseFilterFormResult,
+} from "./filter-live-form";
+export {
+  FilterLiveForm,
+  getFilterFormValues,
+  ListContextProvider,
+  useFilterForm,
+  useListContext,
+} from "./filter-live-form";
 export type {
   FormGroupProviderProps,
   FormGroupsProviderProps,
