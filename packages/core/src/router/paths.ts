@@ -48,8 +48,10 @@ export function joinBasename(path: string, basename = ""): string {
  * Build a route path for a link intent (parity §0a-11):
  * `list`→`/res`, `create`→`/res/create`, `edit`→`/res/:id`, `show`→`/res/:id/show`.
  * `id==null` on `edit`/`show` falls back to the list path. The id is
- * `encodeURIComponent`d. A custom string `type` is returned verbatim (still
- * basename-prefixed + slash-collapsed). Double slashes are always removed.
+ * `encodeURIComponent`d, and double slashes are removed from these four known
+ * intents. A custom string `type` is returned COMPLETELY verbatim — NO basename
+ * prefix, NO slash collapse — matching ra-core's `useCreatePath` `default`
+ * branch (the author owns the full, final path).
  */
 export function createPath(params: CreatePathParams, basename = ""): string {
   const { type, resource, id } = params;
@@ -71,7 +73,11 @@ export function createPath(params: CreatePathParams, basename = ""): string {
       );
     }
     default:
-      // A custom path string — verbatim, but still basename-prefixed + collapsed.
-      return joinBasename(type, basename);
+      // A custom path string — returned COMPLETELY verbatim, matching ra-core's
+      // `useCreatePath` `default: return type;` (react-admin
+      // packages/ra-core/src/routing/useCreatePath.ts). NO basename prefix and
+      // NO slash collapse: the author supplies the full, final path (basename
+      // included) and owns it entirely. See parity §0a-11.
+      return type;
   }
 }

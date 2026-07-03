@@ -78,11 +78,20 @@ describe("createPath", () => {
     );
   });
 
-  it("returns a custom string type verbatim (still basename-prefixed + slash-collapsed)", () => {
+  it("returns a custom string type completely verbatim (ra-core parity: no basename, no slash-collapse)", () => {
+    // ra-core useCreatePath `default: return type;` — the custom string is the
+    // author's full, final path. No basename prefix, no double-slash removal.
     expect(createPath({ type: "/settings" })).toBe("/settings");
+    // basename is NOT applied to a custom string (parity §0a-11).
     expect(createPath({ type: "/settings/general" }, "/admin")).toBe(
-      "/admin/settings/general",
+      "/settings/general",
     );
+    // double slashes in a custom string are preserved verbatim (parity).
+    expect(createPath({ type: "/settings//general" }, "/admin")).toBe(
+      "/settings//general",
+    );
+    // a relative custom string is returned as-is (no leading-slash injection).
+    expect(createPath({ type: "settings" }, "/admin")).toBe("settings");
   });
 
   it("applies the basename to resource paths", () => {
