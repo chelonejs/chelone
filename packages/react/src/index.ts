@@ -103,4 +103,39 @@ export {
 } from "./hooks";
 export { useLocale, useSetLocale, useTranslate } from "./i18n-hooks";
 export { useNotifications, useNotify } from "./notification-hooks";
+export type {
+  AdapterLinkProps,
+  AdapterNavigate,
+  AdapterNavigateProps,
+  AdapterRouteProps,
+  AdapterRoutesProps,
+  BasenameProviderProps,
+  BlockerPredicate,
+  LinkToType,
+  RedirectTo,
+  RouterAdapter,
+  RouterAdapterProviderProps,
+  RouterBlocker,
+  RouterWrapperProps,
+  UseGetPathForRecordOptions,
+  UseMatchArgs,
+} from "./router";
+export {
+  BasenameContext,
+  BasenameProvider,
+  RouterAdapterContext,
+  RouterAdapterProvider,
+  reactRouterAdapter,
+  useBasename,
+  useBlocker,
+  useCanBlock,
+  useCreatePath,
+  useGetPathForRecord,
+  useLocation,
+  useMatch,
+  useNavigate,
+  useParams,
+  useRedirect,
+  useRouterAdapter,
+} from "./router";
 export { useStoreItem } from "./store-hooks";

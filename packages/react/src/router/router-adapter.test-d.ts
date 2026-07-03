@@ -1,0 +1,108 @@
+/**
+ * Type-level contract pins (W1-T3). The `RouterAdapter` surface, the neutral
+ * blocker shape, and the nav-hook signatures are `any`-free and shaped as the
+ * §0a-4 contract requires.
+ */
+
+import type { CheloneLocation, PathMatch } from "@chelone/core";
+import { assertType, describe, expectTypeOf, it } from "vitest";
+import type { AdapterNavigate, RouterAdapter, RouterBlocker } from "./adapter";
+import type { BlockerPredicate, RedirectTo } from "./nav-hooks";
+import {
+  useBasename,
+  type useBlocker,
+  type useCreatePath,
+  useGetPathForRecord,
+  useLocation,
+  useNavigate,
+  useParams,
+  type useRedirect,
+} from "./nav-hooks";
+import { reactRouterAdapter } from "./react-router-adapter";
+
+describe("RouterAdapter type contract", () => {
+  it("the default adapter satisfies RouterAdapter exactly", () => {
+    expectTypeOf(reactRouterAdapter).toMatchTypeOf<RouterAdapter>();
+  });
+
+  it("useLocation returns a CheloneLocation", () => {
+    expectTypeOf<
+      ReturnType<RouterAdapter["useLocation"]>
+    >().toEqualTypeOf<CheloneLocation>();
+  });
+
+  it("useNavigate returns a ref-stable AdapterNavigate", () => {
+    expectTypeOf<
+      ReturnType<RouterAdapter["useNavigate"]>
+    >().toEqualTypeOf<AdapterNavigate>();
+  });
+
+  it("useBlocker returns the normalized RouterBlocker", () => {
+    expectTypeOf<
+      ReturnType<RouterAdapter["useBlocker"]>
+    >().toEqualTypeOf<RouterBlocker>();
+    // The three-state union is exhaustive.
+    expectTypeOf<RouterBlocker["state"]>().toEqualTypeOf<
+      "blocked" | "unblocked" | "proceeding"
+    >();
+    // location is CheloneLocation | null (never `any`).
+    expectTypeOf<
+      RouterBlocker["location"]
+    >().toEqualTypeOf<CheloneLocation | null>();
+  });
+
+  it("matchPath returns the neutral PathMatch | null", () => {
+    expectTypeOf<
+      ReturnType<RouterAdapter["matchPath"]>
+    >().toEqualTypeOf<PathMatch | null>();
+  });
+
+  it("useParams values are string | undefined (never any)", () => {
+    expectTypeOf<ReturnType<RouterAdapter["useParams"]>>().toEqualTypeOf<
+      Record<string, string | undefined>
+    >();
+  });
+});
+
+describe("nav-hook signatures", () => {
+  it("useLocation / useParams / useNavigate resolve to the adapter types", () => {
+    expectTypeOf(useLocation).returns.toEqualTypeOf<CheloneLocation>();
+    expectTypeOf(useParams).returns.toEqualTypeOf<
+      Record<string, string | undefined>
+    >();
+    expectTypeOf(useNavigate).returns.toEqualTypeOf<AdapterNavigate>();
+  });
+
+  it("useBasename is a string", () => {
+    expectTypeOf(useBasename).returns.toEqualTypeOf<string>();
+  });
+
+  it("useCreatePath returns a (CreatePathParams) => string closure", () => {
+    const cp = {} as ReturnType<typeof useCreatePath>;
+    assertType<string>(cp({ type: "list", resource: "posts" }));
+  });
+
+  it("useBlocker accepts a boolean or a neutral-location predicate", () => {
+    expectTypeOf<
+      Parameters<typeof useBlocker>[0]
+    >().toEqualTypeOf<BlockerPredicate>();
+  });
+
+  it("useRedirect accepts every ra-core form (false / fn / CreatePathType)", () => {
+    const redirect = {} as ReturnType<typeof useRedirect>;
+    assertType<void>(redirect(false));
+    assertType<void>(redirect("list", "posts"));
+    assertType<void>(redirect("edit", "posts", 1));
+    assertType<void>(redirect((_r, _id) => "show", "posts", 1));
+    // RedirectTo admits the string and false forms (the function form is
+    // covered by the callable assertion above).
+    const asString: RedirectTo = "list";
+    const asFalse: RedirectTo = false;
+    assertType<RedirectTo>(asString);
+    assertType<RedirectTo>(asFalse);
+  });
+
+  it("useGetPathForRecord returns string | false (never any)", () => {
+    expectTypeOf(useGetPathForRecord).returns.toEqualTypeOf<string | false>();
+  });
+});
