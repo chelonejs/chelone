@@ -44,7 +44,7 @@ describe("V5 — SSR: core router importable in pure node (no window-at-import)"
 describe("V5 — SSR: <Admin> renders on a host router without a DOM router", () => {
   it("renderToString of the join path (StaticRouter host) produces markup, no window access", () => {
     const html = renderToString(
-      <StaticRouter location="/">
+      <StaticRouter location="/posts">
         <Admin
           dataProvider={fakeDataProvider({})}
           queryClient={
@@ -58,11 +58,14 @@ describe("V5 — SSR: <Admin> renders on a host router without a DOM router", ()
         </Admin>
       </StaticRouter>,
     );
-    // A string came back (the shell shallow-rendered server-side). The registry
-    // starts empty on the first synchronous render (registration is an effect,
-    // which does not run during renderToString), so the empty-state `ready`
-    // slot renders — proving the branch machinery ran without a DOM.
+    // A string came back (the shell shallow-rendered server-side) — proving the
+    // branch machinery ran without a DOM. Emptiness is computed from the
+    // SYNCHRONOUS partition (`parts.resources`), NOT the effect-lagged registry
+    // (B2 fix): a resource IS present, so the resource tree renders on the first
+    // synchronous pass and the `ready` empty-state slot NEVER flashes — even
+    // server-side, where the register effect does not run.
     expect(typeof html).toBe("string");
-    expect(html).toContain("ready");
+    expect(html).toContain("posts");
+    expect(html).not.toContain("ready");
   });
 });

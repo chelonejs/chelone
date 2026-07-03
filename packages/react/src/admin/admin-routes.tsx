@@ -148,7 +148,6 @@ function ScrollManager(): ReactNode {
  */
 export function AdminRoutes(): ReactNode {
   const { parts, slots, requireAuth, childrenStatus } = useAdminUI();
-  const definitions = useResourceDefinitions();
   const { Routes, Route } = useRouterAdapter();
   const gate = useAuthGate(requireAuth);
 
@@ -172,7 +171,13 @@ export function AdminRoutes(): ReactNode {
   // state (plan §0a-7). An all-custom-routes app is NOT empty, so with-layout /
   // no-layout customs suppress this branch. Only renders when a `ready` slot is
   // supplied; without one, fall through (the shell renders the catch-all).
-  const hasResources = Object.keys(definitions).length > 0;
+  //
+  // Emptiness is derived from the SYNCHRONOUS partition (`parts.resources`), NOT
+  // the effect-lagged registry (`definitions`, populated by the register effect
+  // — B2 fix). ra-core computes emptiness synchronously from the child-walk;
+  // reading the registry would FLASH the `ready` slot for one frame on the first
+  // render (resources present in `parts` but not yet flushed into the registry).
+  const hasResources = parts.resources.length > 0;
   const hasCustomRoutes =
     parts.customRoutesWithLayout.length > 0 ||
     parts.customRoutesWithoutLayout.length > 0;

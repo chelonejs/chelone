@@ -5,9 +5,13 @@
  *
  * - **Location-change auto-reset.** After an error, changing the route resets
  *   the boundary so navigating away recovers (a stuck error page is a common
- *   ra-core complaint). Implemented by re-mounting the class boundary via a
- *   `key` tied to `location.pathname` (a fresh key discards the errored subtree
- *   and its captured error) — no `componentDidUpdate` reset dance needed.
+ *   ra-core complaint). Implemented the ra-core way — an effect that RESETS the
+ *   boundary's error state when `location.pathname` changes
+ *   (`useResetErrorBoundaryOnLocationChange`), NOT a `key`. A `key` tied to
+ *   `location.pathname` would REMOUNT the entire Layout + routes subtree on every
+ *   navigation, destroying form/component state (and breaking URL-synced
+ *   TabbedForm/WizardForm). The subtree therefore stays MOUNTED across
+ *   navigations; only the captured error is cleared on a route change.
  * - **`errorInfo` capture.** `componentDidCatch` records React's
  *   `componentStack`, passed to the fallback so a dev-facing default can show it.
  *
@@ -26,6 +30,8 @@ import {
   type ErrorInfo,
   isValidElement,
   type ReactNode,
+  useEffect,
+  useRef,
 } from "react";
 import { useLocation } from "../router/nav-hooks";
 
@@ -53,7 +59,11 @@ interface ErrorBoundaryClassProps {
   children: ReactNode;
 }
 
-/** The class boundary — remounted on location change via its `key` (see below). */
+/**
+ * The class boundary. Stays MOUNTED across navigations (no `key`); its error
+ * state is cleared imperatively via `reset()` — either by the fallback's action
+ * or by `ShellErrorBoundary`'s location-change effect (plan §0a-13, B1 fix).
+ */
 class ErrorBoundaryClass extends Component<
   ErrorBoundaryClassProps,
   ErrorBoundaryState
@@ -69,7 +79,13 @@ class ErrorBoundaryClass extends Component<
     this.setState({ error, errorInfo });
   }
 
-  private reset = (): void => {
+  /**
+   * Clear the captured error (public so the location-change effect can drive it
+   * — the ra-core `useResetErrorBoundaryOnLocationChange` reset). Idempotent:
+   * `setState` no-ops when the boundary already has no error.
+   */
+  reset = (): void => {
+    if (this.state.error == null) return;
     this.setState({ error: null, errorInfo: null });
   };
 
@@ -129,16 +145,31 @@ export interface ShellErrorBoundaryProps {
 }
 
 /**
- * The shell error boundary with location-change auto-reset (plan §0a-13). Reads
- * the current location and keys the inner class boundary on `pathname`, so any
- * navigation remounts the boundary — discarding a captured error and rendering
- * the (now current-route) children fresh. Callers place this ABOVE `<Layout>`.
+ * The shell error boundary with location-change auto-reset (plan §0a-13, B1 fix).
+ * The inner class boundary stays MOUNTED across navigations — no `key`, so the
+ * Layout + routes subtree it wraps is never remounted (component/form state
+ * survives every nav). On a `location.pathname` change AFTER an error, an effect
+ * clears the boundary's captured error (the ra-core
+ * `useResetErrorBoundaryOnLocationChange` reset), so navigating away from a
+ * crashed route recovers. Callers place this ABOVE `<Layout>`.
  */
 export function ShellErrorBoundary({
   fallback,
   children,
 }: ShellErrorBoundaryProps): ReactNode {
   const location = useLocation();
+  const boundaryRef = useRef<ErrorBoundaryClass>(null);
+
+  // Reset the captured error whenever the pathname changes (parity §0a-13). The
+  // ref targets the class instance; `reset()` is a no-op when there is no error,
+  // so this safely fires on every navigation (the first run — no prior error —
+  // is inert). Keyed on `pathname` ALONE: a search/hash change is not a route
+  // change and must not clear an error prematurely.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset on pathname change only; `reset()` reads the freshest instance via the ref.
+  useEffect(() => {
+    boundaryRef.current?.reset();
+  }, [location.pathname]);
+
   // A slot node fallback is passed through; a render function is passed through;
   // `undefined` means "use the default". `isValidElement` keeps a node fallback
   // from being mistaken for a render function (both are truthy).
@@ -147,7 +178,7 @@ export function ShellErrorBoundary({
       ? fallback
       : (fallback ?? undefined);
   return (
-    <ErrorBoundaryClass key={location.pathname} fallback={resolved}>
+    <ErrorBoundaryClass ref={boundaryRef} fallback={resolved}>
       {children}
     </ErrorBoundaryClass>
   );

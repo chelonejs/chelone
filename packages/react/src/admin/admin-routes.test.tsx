@@ -11,8 +11,9 @@
 import type { AuthProvider } from "@chelone/core";
 import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route } from "react-router";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { useEffect } from "react";
+import { MemoryRouter, Route, useNavigate } from "react-router";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { Resource } from "../resource/resource";
 import { Admin } from "./admin";
@@ -481,5 +482,152 @@ describe("ShellErrorBoundary — location-change auto-reset (§0a-13)", () => {
     await waitFor(() =>
       expect(screen.getByTestId("custom-error")).toBeDefined(),
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FINDING B1 (CRITICAL) — the shell error boundary must NOT remount the whole
+// Layout + routes subtree on every navigation. ra-core keeps the tree MOUNTED
+// and only RESETS the boundary's error state when `location.pathname` changes.
+// A `key={location.pathname}` on the boundary would destroy form/component
+// state on every nav (and WILL break W2 URL-synced TabbedForm/WizardForm).
+// ---------------------------------------------------------------------------
+
+describe("ShellErrorBoundary — subtree survives navigation (B1)", () => {
+  /** Navigate the host router imperatively from OUTSIDE the boundary. */
+  function Navigator({
+    to,
+    label,
+  }: {
+    to: string;
+    label: string;
+  }): React.ReactNode {
+    const navigate = useNavigate();
+    return (
+      <button
+        type="button"
+        data-testid={`go-${label}`}
+        onClick={() => navigate(to)}
+      >
+        go {to}
+      </button>
+    );
+  }
+
+  it("does NOT remount the Layout subtree across navigations (state survives)", async () => {
+    let layoutMounts = 0;
+    // A persistent custom Layout: counts its mounts and renders the routes.
+    function CountingLayout({
+      children,
+    }: {
+      children?: React.ReactNode;
+    }): React.ReactNode {
+      // Mount-count probe: fires once per real mount (empty deps).
+      useEffect(() => {
+        layoutMounts += 1;
+      }, []);
+      return <div data-testid="layout">{children}</div>;
+    }
+
+    render(
+      <MemoryRouter initialEntries={["/a"]}>
+        <Navigator to="/a" label="a" />
+        <Navigator to="/b" label="b" />
+        <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+          <Resource name="posts" list={() => <div>L</div>} />
+          <Admin.Layout>
+            <CountingLayout />
+          </Admin.Layout>
+          <CustomRoutes>
+            <Route path="a" element={<div data-testid="page-a">A</div>} />
+            <Route path="b" element={<div data-testid="page-b">B</div>} />
+          </CustomRoutes>
+        </Admin>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId("page-a")).toBeDefined());
+    expect(layoutMounts).toBe(1);
+
+    // Navigate /a -> /b: the Layout (inside the boundary) must NOT remount.
+    act(() => {
+      screen.getByTestId("go-b").click();
+    });
+    await waitFor(() => expect(screen.getByTestId("page-b")).toBeDefined());
+    expect(layoutMounts).toBe(1); // RED with key={pathname}: this would be 2.
+
+    // Navigate back /b -> /a: still one mount (no remount churn).
+    act(() => {
+      screen.getByTestId("go-a").click();
+    });
+    await waitFor(() => expect(screen.getByTestId("page-a")).toBeDefined());
+    expect(layoutMounts).toBe(1);
+  });
+
+  it("still CLEARS a caught error when navigating away (reset-on-location preserved)", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    function Boom(): React.ReactNode {
+      throw new Error("kaboom-b1");
+    }
+    render(
+      <MemoryRouter initialEntries={["/boom"]}>
+        <Navigator to="/safe" label="safe" />
+        <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+          <Resource name="posts" list={() => <div>L</div>} />
+          <CustomRoutes>
+            <Route path="boom" element={<Boom />} />
+            <Route path="safe" element={<div data-testid="safe">safe</div>} />
+          </CustomRoutes>
+        </Admin>
+      </MemoryRouter>,
+    );
+
+    // The error is caught → the fallback shows.
+    await waitFor(() => expect(screen.getByRole("alert")).toBeDefined());
+    expect(screen.getByText("kaboom-b1")).toBeDefined();
+
+    // Navigate away: the boundary resets, the safe route renders, no fallback.
+    act(() => {
+      screen.getByTestId("go-safe").click();
+    });
+    await waitFor(() => expect(screen.getByTestId("safe")).toBeDefined());
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FINDING B2 (important) — the branch-1 emptiness check must read the
+// SYNCHRONOUS partition (`parts.resources`), not the effect-lagged registry.
+// An app with resources + a Ready slot + no customs must render the resource
+// tree on the FIRST render, never flashing the Ready slot for one frame while
+// the register effect flushes.
+// ---------------------------------------------------------------------------
+
+describe("AdminRoutes — no Ready-slot flash with resources present (B2)", () => {
+  it("renders the resource tree on the FIRST render (never the Ready slot)", () => {
+    // A Ready slot that records if it is EVER rendered — even for one frame.
+    let readyRendered = 0;
+    function SpiedReady(): React.ReactNode {
+      readyRendered += 1;
+      return <div data-testid="ready-flash">nothing yet</div>;
+    }
+    render(
+      <MemoryRouter initialEntries={["/posts"]}>
+        <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+          <Resource
+            name="posts"
+            list={() => <div data-testid="plist">L</div>}
+          />
+          <Admin.Ready>
+            <SpiedReady />
+          </Admin.Ready>
+        </Admin>
+      </MemoryRouter>,
+    );
+    // With the registry read (effect-lagged), the Ready slot rendered on the
+    // first synchronous pass before the register effect flushed → flash.
+    // Reading parts.resources (synchronous) suppresses it entirely.
+    expect(readyRendered).toBe(0);
+    expect(screen.queryByTestId("ready-flash")).toBeNull();
   });
 });
