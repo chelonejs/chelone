@@ -305,3 +305,5 @@ export {
   hydrate,
 } from "./ssr";
 export { useStoreItem } from "./store-hooks";
+export type { UseListOptions, UseListResult } from "./use-list";
+export { useList } from "./use-list";

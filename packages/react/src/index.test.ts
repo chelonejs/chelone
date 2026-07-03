@@ -168,6 +168,8 @@ describe("@chelone/react barrel — P6 form leftovers + SSR seam (W2)", () => {
     expect(barrel.getFilterFormValues).toBeTypeOf("function");
     expect(barrel.ListContextProvider).toBeTypeOf("function");
     expect(barrel.useListContext).toBeTypeOf("function");
+    // P7a: client-side list → ListContext (no dataProvider).
+    expect(barrel.useList).toBeTypeOf("function");
   });
 
   it("exports warnWhenUnsavedChanges (W2-T3)", () => {

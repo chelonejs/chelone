@@ -13,6 +13,11 @@ export {
 } from "./auth/auth-options";
 export type { AuthProvider, CanAccessParams, UserIdentity } from "./auth/types";
 export type {
+  ClientListController,
+  ClientListControllerOptions,
+} from "./controller/client-list-controller";
+export { createClientListController } from "./controller/client-list-controller";
+export type {
   ListController,
   ListControllerContext,
   ListControllerOptions,
