@@ -22,6 +22,7 @@ import {
   type ReactNode,
   useCallback,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -77,23 +78,37 @@ function useLocation(): CheloneLocation {
 }
 
 /**
- * A ref-STABLE navigator (plan §0a-4). react-router's `useNavigate()` is itself
- * stable within a router, but we wrap it in a `useCallback` keyed on that
- * function so Chelone's own navigate identity never churns even if react-router
- * were to return a fresh function. A string `to` or a numeric delta both flow
+ * A ref-STABLE navigator (plan §0a-4) — the identity NEVER churns, in EITHER
+ * host-router shape.
+ *
+ * Why the naive `useCallback([rrNavigate])` is NOT enough: react-router v7's
+ * navigate is only stable in a DATA router (`useNavigateStable`, deps
+ * `[router, id]`). Under an app's own DECLARATIVE router (the JOIN path),
+ * react-router uses `useNavigateUnstable`, whose `useCallback` deps include
+ * `locationPathname` — so `rrNavigate`'s identity CHURNS on every navigation. A
+ * wrapper keyed on it would inherit that churn, breaking the "nav doesn't
+ * re-render" guarantee for any consumer memoized on the navigator (and the
+ * `useRedirect` closure that depends on it).
+ *
+ * The fix (latest-ref): keep the freshest `rrNavigate` in a ref (updated every
+ * render), and return a wrapper with an EMPTY dep array so its identity is
+ * fixed for the component's lifetime while it always calls through to the
+ * current react-router navigate. A string `to` or a numeric delta both flow
  * through; opts map 1:1 (`replace`, `state`).
  */
 function useNavigate(): AdapterNavigate {
   const navigate = useRRNavigate();
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
   return useCallback(
     (to: string | number, opts?: { replace?: boolean; state?: unknown }) => {
       if (typeof to === "number") {
-        navigate(to);
+        navigateRef.current(to);
         return;
       }
-      navigate(to, opts);
+      navigateRef.current(to, opts);
     },
-    [navigate],
+    [],
   ) as AdapterNavigate;
 }
 

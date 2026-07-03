@@ -14,7 +14,7 @@ import {
   renderHook,
   screen,
 } from "@testing-library/react";
-import { type ReactNode, useRef } from "react";
+import { type ReactNode, useRef, useState } from "react";
 import {
   createMemoryRouter,
   MemoryRouter,
@@ -202,6 +202,77 @@ describe("useNavigate — ref stability + no re-render", () => {
     expect(screen.getByTestId("loc").textContent).toBe("/b");
     expect(renders).toBe(before + 1);
   });
+
+  // Regression: the navigator MUST stay ref-stable ACROSS AN ACTUAL NAVIGATION
+  // in the JOIN path (Chelone hosted under an app's own DECLARATIVE router). In
+  // react-router v7 the declarative-router `useNavigate` (`useNavigateUnstable`)
+  // memoizes on `locationPathname`, so its identity CHURNS on every nav. A naive
+  // `useCallback([rrNavigate])` wrapper inherits that churn. This is the case
+  // the plan (§0a-4) calls "unconditionally ref-stable" — it must hold here too,
+  // not only in the created-data-router path.
+  it("navigator is ref-stable across an actual navigation (declarative join path)", () => {
+    const identities: unknown[] = [];
+    let navigateFn: ((to: string) => void) | null = null;
+    function Reader() {
+      // Reads location so the tree re-renders when navigation lands.
+      return <span data-testid="loc">{useLocation().pathname}</span>;
+    }
+    function Probe() {
+      const navigate = useNavigate();
+      identities.push(navigate);
+      navigateFn = (to: string) => navigate(to);
+      return null;
+    }
+    render(
+      <RouterAdapterProvider adapter={adapter}>
+        <MemoryRouter initialEntries={["/a"]}>
+          <Probe />
+          <Reader />
+        </MemoryRouter>
+      </RouterAdapterProvider>,
+    );
+    const beforeCount = identities.length;
+    act(() => navigateFn?.("/b"));
+    // The navigation landed (Reader re-rendered), which re-ran Probe too.
+    expect(screen.getByTestId("loc").textContent).toBe("/b");
+    expect(identities.length).toBeGreaterThan(beforeCount);
+    // Every captured navigator identity — before AND after the nav — is the same.
+    for (const id of identities) {
+      expect(id).toBe(identities[0]);
+    }
+  });
+
+  // Same guarantee in the CREATE / data-router path (Chelone builds its own DATA
+  // router). v7's data-router `useNavigate` (`useNavigateStable`) memoizes on
+  // `[router, id]` — both nav-invariant — so it is stable by construction. We
+  // pin it across a forced re-render inside a data router (a real data-router
+  // NAVIGATION cannot land under this jsdom env: v7's data navigation trips a
+  // jsdom/undici `AbortSignal` incompatibility). The join-path test above is the
+  // load-bearing regression pin for the cross-navigation churn.
+  it("navigator is ref-stable across re-renders (data router)", () => {
+    const identities: unknown[] = [];
+    let forceRerender: (() => void) | null = null;
+    function Probe() {
+      const [, setN] = useState(0);
+      forceRerender = () => setN((n) => n + 1);
+      identities.push(useNavigate());
+      return null;
+    }
+    const router = createMemoryRouter([{ path: "/a", element: <Probe /> }], {
+      initialEntries: ["/a"],
+    });
+    render(
+      <RouterAdapterProvider adapter={adapter}>
+        <RouterProvider router={router} />
+      </RouterAdapterProvider>,
+    );
+    act(() => forceRerender?.());
+    act(() => forceRerender?.());
+    expect(identities.length).toBeGreaterThanOrEqual(3);
+    for (const id of identities) {
+      expect(id).toBe(identities[0]);
+    }
+  });
 });
 
 describe("useCreatePath — matrix (basename applied)", () => {
@@ -337,7 +408,13 @@ describe("useRedirect — the ra-core forms (parity §0a-11)", () => {
     expect(state).not.toMatchObject({ _scrollToTop: true });
   });
 
-  it("a function form is invoked and its result navigates", () => {
+  // ra-core-EXACT (packages/ra-core/src/routing/useRedirect.ts): the function
+  // form returns a RAW PATH (or location object), NOT a CreatePathType. The
+  // result is prefixed with the basename + a leading slash and passed STRAIGHT
+  // to navigate — it is NOT expanded through createPath. So returning "posts/9"
+  // navigates to "/posts/9" verbatim, and a keyword like "show" would navigate
+  // to the literal "/show" (never "/res/id/show").
+  it("a function form returns a RAW path (not a CreatePathType) and navigates verbatim", () => {
     function Reader() {
       return <span data-testid="path">{useLocation().pathname}</span>;
     }
@@ -354,8 +431,85 @@ describe("useRedirect — the ra-core forms (parity §0a-11)", () => {
         </MemoryRouter>
       </RouterAdapterProvider>,
     );
-    act(() => redirect?.((_res, id) => (id ? "show" : false), "posts", 9));
+    act(() =>
+      redirect?.((_res, id) => (id ? `posts/${id}/show` : false), "posts", 9),
+    );
+    // Raw path is honored verbatim (leading slash added), NOT createPath-expanded.
     expect(screen.getByTestId("path").textContent).toBe("/posts/9/show");
+  });
+
+  it("a function form returning false is a no-op", () => {
+    function Reader() {
+      return <span data-testid="path">{useLocation().pathname}</span>;
+    }
+    let redirect: ReturnType<typeof useRedirect> | null = null;
+    function Cap() {
+      redirect = useRedirect();
+      return null;
+    }
+    render(
+      <RouterAdapterProvider adapter={adapter}>
+        <MemoryRouter initialEntries={["/start"]}>
+          <Cap />
+          <Reader />
+        </MemoryRouter>
+      </RouterAdapterProvider>,
+    );
+    act(() => redirect?.(() => false, "posts", 9));
+    expect(screen.getByTestId("path").textContent).toBe("/start");
+  });
+
+  // ra-core-EXACT: the function form ALWAYS pushes `_scrollToTop` (there is NO
+  // list exception — the list exception only applies to the CreatePathType-`list`
+  // string form). A fn returning a list-like raw path still scrolls to top.
+  it("a function form ALWAYS pushes _scrollToTop (no list exception)", () => {
+    let state: unknown = null;
+    function Reader() {
+      state = useLocation().state;
+      return <span data-testid="path">{useLocation().pathname}</span>;
+    }
+    let redirect: ReturnType<typeof useRedirect> | null = null;
+    function Cap() {
+      redirect = useRedirect();
+      return null;
+    }
+    render(
+      <RouterAdapterProvider adapter={adapter}>
+        <MemoryRouter initialEntries={["/start"]}>
+          <Cap />
+          <Reader />
+        </MemoryRouter>
+      </RouterAdapterProvider>,
+    );
+    // A raw "posts" list-like path via the fn form still scrolls to top.
+    act(() => redirect?.(() => "posts", "posts"));
+    expect(screen.getByTestId("path").textContent).toBe("/posts");
+    expect(state).toMatchObject({ _scrollToTop: true });
+  });
+
+  // ra-core-EXACT: the function form prefixes the returned path with the ambient
+  // basename (a raw "posts/9" under basename "/admin" → "/admin/posts/9").
+  it("a function form prefixes the ambient basename", () => {
+    function Reader() {
+      return <span data-testid="path">{useLocation().pathname}</span>;
+    }
+    let redirect: ReturnType<typeof useRedirect> | null = null;
+    function Cap() {
+      redirect = useRedirect();
+      return null;
+    }
+    render(
+      <RouterAdapterProvider adapter={adapter}>
+        <BasenameProvider basename="/admin">
+          <MemoryRouter initialEntries={["/admin/start"]}>
+            <Cap />
+            <Reader />
+          </MemoryRouter>
+        </BasenameProvider>
+      </RouterAdapterProvider>,
+    );
+    act(() => redirect?.((_res, id) => `posts/${id}`, "posts", 9));
+    expect(screen.getByTestId("path").textContent).toBe("/admin/posts/9");
   });
 
   it("an absolute http URL sets window.location.href (no SPA nav)", () => {

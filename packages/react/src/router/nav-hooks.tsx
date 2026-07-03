@@ -4,9 +4,11 @@
  * router (react-router ↔ TanStack) never touches these call sites.
  *
  * `useRedirect` reproduces ra-core's redirect contract EXACTLY (plan §0a-11):
- * `false` → no-op, function → invoked, absolute-http → `window.location.href`,
- * a `CreatePathType` → adapter navigate, adding `_scrollToTop` state EXCEPT for
- * `'list'` (a list restores its own scroll).
+ * `false` → no-op; a function → invoked, its RAW-PATH result navigated verbatim
+ * (basename-prefixed, always `_scrollToTop`, never expanded via `createPath`);
+ * an absolute-http URL → `window.location.href`; a `CreatePathType` string →
+ * adapter navigate, adding `_scrollToTop` state EXCEPT for `'list'` (which
+ * restores its own scroll). See `useRedirect` below for the per-form detail.
  */
 
 import {
@@ -85,17 +87,29 @@ export function useCreatePath(): (params: CreatePathParams) => string {
   );
 }
 
-/** What `redirect` / `useRedirect` accept (parity §0a-11). */
+/**
+ * What `redirect` / `useRedirect` accept (parity §0a-11). NOTE the function form
+ * returns a RAW PATH string (ra-core's `RouterTo`), NOT a `CreatePathType`: it
+ * is navigated to verbatim (basename-prefixed), never expanded through
+ * `createPath`. The string form (non-function) IS a `CreatePathType`.
+ */
 export type RedirectTo =
   | CreatePathType
   | false
   | ((resource?: string, id?: Identifier, data?: unknown) => string | false);
 
 /**
- * Navigate in the four ra-core forms (parity §0a-11):
+ * Navigate in the ra-core redirect forms — reproducing
+ * `packages/ra-core/src/routing/useRedirect.ts` EXACTLY (parity §0a-11):
+ *
  * - `false` → no-op.
- * - a function → invoked with `(resource, id, data)`; its result recurses.
- * - an absolute `http(s)://` URL → hard `window.location.href` (guarded for SSR).
+ * - a **function** → invoked with `(resource, id, data)`; its result is a RAW
+ *   PATH string (or `false` → no-op). The path is prefixed with the ambient
+ *   basename + a leading slash and navigated to VERBATIM (NOT run through
+ *   `createPath`, so a keyword like `'show'` becomes the literal `/show`, never
+ *   `/res/id/show`), ALWAYS pushing `{ _scrollToTop: true, ...state }` (the
+ *   list scroll-exception does NOT apply to the function form).
+ * - an absolute `http(s)://` URL → hard `window.location.href` (SSR-guarded).
  * - a `CreatePathType` (`'list'|'create'|'edit'|'show'|custom`) → adapter
  *   navigate to `createPath({type, resource, id})`, pushing `_scrollToTop`
  *   state EXCEPT for `'list'` (a list restores its own scroll).
@@ -110,6 +124,7 @@ export function useRedirect(): (
   state?: Record<string, unknown>,
 ) => void {
   const navigate = useNavigate();
+  const basename = useBasename();
   const createPathFn = useCreatePath();
 
   return useCallback(
@@ -122,34 +137,30 @@ export function useRedirect(): (
     ) => {
       if (to === false) return;
 
+      // Function form: the result is a RAW PATH (ra-core `RouterTo`), NOT a
+      // CreatePathType. Prefix the basename + a leading slash and navigate
+      // verbatim, ALWAYS scrolling to top (no list exception). See ra-core.
       if (typeof to === "function") {
-        const result = to(resource, id, data);
-        if (result === false) return;
-        // Recurse on the function's result (a CreatePathType), preserving args.
-        navigateTo(result);
+        const target = to(resource, id, data);
+        if (target === false) return;
+        const path = `${basename}${target.startsWith("/") ? "" : "/"}${target}`;
+        navigate(path, { state: { _scrollToTop: true, ...state } });
         return;
       }
 
-      navigateTo(to);
-
-      function navigateTo(type: CreatePathType): void {
-        // Absolute http(s) URL → hard navigation (SSR-guarded).
-        if (
-          typeof type === "string" &&
-          type.startsWith("http") &&
-          typeof window !== "undefined"
-        ) {
-          window.location.href = type;
-          return;
-        }
-        const path = createPathFn({ type, resource, id });
-        // `_scrollToTop` for everything EXCEPT a list (which restores its own
-        // scroll). Merge caller-supplied state on top.
-        const scrollState = type === "list" ? {} : { _scrollToTop: true };
-        navigate(path, { state: { ...scrollState, ...state } });
+      // Absolute http(s) URL → hard navigation (SSR-guarded).
+      if (to.startsWith("http") && typeof window !== "undefined") {
+        window.location.href = to;
+        return;
       }
+
+      // String CreatePathType → expand via createPath. `_scrollToTop` for
+      // everything EXCEPT a list (which restores its own scroll).
+      const path = createPathFn({ type: to, resource, id });
+      const scrollState = to === "list" ? {} : { _scrollToTop: true };
+      navigate(path, { state: { ...scrollState, ...state } });
     },
-    [navigate, createPathFn],
+    [navigate, basename, createPathFn],
   );
 }
 
