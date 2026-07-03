@@ -605,11 +605,74 @@ describe("useBlocker — state normalization", () => {
     expect(blockerLoc).toBe("/b");
   });
 
-  it("useCanBlock is true inside a router", () => {
+  // A2 (interim-review finding): `useCanBlock` must reflect whether a
+  // react-router BLOCKER is actually available — i.e. a DATA router — not merely
+  // "inside a router". Under a DECLARATIVE host (an app wrapping <Admin> in
+  // <BrowserRouter>/<MemoryRouter>), react-router's `useBlocker` THROWS, so
+  // `warnWhenUnsavedChanges` (W2-T3, which gates on `useCanBlock`) would crash if
+  // this reported `true`. Matching ra-core: warn + disable blocking when
+  // `!canBlock`.
+  it("useCanBlock is FALSE under a declarative host router (no blocker available)", () => {
+    // `wrapper()` hosts a DECLARATIVE <MemoryRouter> — inRouter is true but no
+    // data-router blocker exists. Must be false (and must not throw).
     const { result } = renderHook(() => useCanBlock(), {
       wrapper: wrapper("/"),
     });
-    expect(result.current).toBe(true);
+    expect(result.current).toBe(false);
+  });
+
+  it("useCanBlock is TRUE under a DATA-router host (blocker available)", () => {
+    let canBlock: boolean | null = null;
+    function Probe() {
+      canBlock = useCanBlock();
+      return null;
+    }
+    const router = createMemoryRouter([{ path: "/", element: <Probe /> }]);
+    render(
+      <RouterAdapterProvider adapter={adapter}>
+        <RouterProvider router={router} />
+      </RouterAdapterProvider>,
+    );
+    expect(canBlock).toBe(true);
+  });
+
+  it("useCanBlock is FALSE with no router present", () => {
+    let canBlock: boolean | null = null;
+    function Probe() {
+      canBlock = useCanBlock();
+      return null;
+    }
+    render(
+      <RouterAdapterProvider adapter={adapter}>
+        <Probe />
+      </RouterAdapterProvider>,
+    );
+    expect(canBlock).toBe(false);
+  });
+
+  // A2 end-to-end: under a declarative host, `useCanBlock()` is false AND a
+  // `useBlocker` call there would throw — so a `canBlock`-gated caller never
+  // reaches the throwing `useBlocker`. Pin that the throw is real (justifying
+  // the gate) without a warnWhenUnsavedChanges component (W2).
+  it("useBlocker THROWS under a declarative host (why useCanBlock must gate it)", () => {
+    function Probe() {
+      // Calling the adapter blocker under a declarative router must throw the
+      // react-router "data router" error — the exact crash useCanBlock prevents.
+      useBlocker(true);
+      return null;
+    }
+    // Silence the expected React error boundary console noise.
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() =>
+      render(
+        <RouterAdapterProvider adapter={adapter}>
+          <MemoryRouter>
+            <Probe />
+          </MemoryRouter>
+        </RouterAdapterProvider>,
+      ),
+    ).toThrow();
+    spy.mockRestore();
   });
 });
 
@@ -666,6 +729,62 @@ describe("RouterWrapper — join vs create", () => {
       </RouterAdapterProvider>,
     );
     expect(screen.getByTestId("bs").textContent).toBe("unblocked");
+  });
+
+  // A1 (interim-review CRITICAL): a STANDALONE <Admin> (the CREATE path) must
+  // render LIVE children on parent re-render. The data router owns history and
+  // must be built once, but its ROOT-ROUTE ELEMENT must read the CURRENT children
+  // — not a snapshot captured in a useState initializer. Repro: parent re-renders
+  // with a new child A→B; the created path must show B (the bug kept showing A,
+  // breaking dynamic resources / slots / i18n under a standalone Admin).
+  it("renders LIVE children on parent re-render in the CREATE path (A1)", () => {
+    function Parent({ label }: { label: string }) {
+      return (
+        <RouterAdapterProvider adapter={adapter}>
+          <adapter.RouterWrapper>
+            <span data-testid="child">{label}</span>
+          </adapter.RouterWrapper>
+        </RouterAdapterProvider>
+      );
+    }
+    const { rerender } = render(<Parent label="A" />);
+    expect(screen.getByTestId("child").textContent).toBe("A");
+    // Parent re-renders with a fresh child. The created data router must reflect
+    // it — the same <Admin> instance, new children (dynamic resources/i18n).
+    rerender(<Parent label="B" />);
+    expect(screen.getByTestId("child").textContent).toBe("B");
+  });
+
+  // A1 corollary: the created router is built ONCE (history is not rebuilt on
+  // re-render) even though children stay live — proven by keeping a router-owned
+  // side effect (the mount) stable while the child text updates. A remount would
+  // reset the child-mount counter; a stale tree would keep the old label.
+  it("does NOT rebuild the data router when children change (A1 stability)", () => {
+    let rootMounts = 0;
+    function RootSentinel({ children }: { children: ReactNode }) {
+      // Runs once per data-router root mount (create path). If the router were
+      // rebuilt on re-render this would increment past 1.
+      useState(() => {
+        rootMounts += 1;
+        return null;
+      });
+      return <>{children}</>;
+    }
+    function Parent({ label }: { label: string }) {
+      return (
+        <RouterAdapterProvider adapter={adapter}>
+          <adapter.RouterWrapper>
+            <RootSentinel>
+              <span data-testid="child">{label}</span>
+            </RootSentinel>
+          </adapter.RouterWrapper>
+        </RouterAdapterProvider>
+      );
+    }
+    const { rerender } = render(<Parent label="A" />);
+    rerender(<Parent label="B" />);
+    expect(screen.getByTestId("child").textContent).toBe("B");
+    expect(rootMounts).toBe(1);
   });
 });
 

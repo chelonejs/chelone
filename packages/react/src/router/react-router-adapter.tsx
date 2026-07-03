@@ -18,12 +18,16 @@
 import type { CheloneLocation, PathMatch } from "@chelone/core";
 import { parseLocation } from "@chelone/core";
 import {
+  createContext,
   forwardRef,
   type ReactNode,
   useCallback,
+  useContext,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import {
   createBrowserRouter,
@@ -34,6 +38,7 @@ import {
   Route as RRRoute,
   Routes as RRRoutes,
   matchPath as rrMatchPath,
+  UNSAFE_DataRouterContext,
   useBlocker as useRRBlocker,
   useInRouterContext as useRRInRouterContext,
   useLocation as useRRLocation,
@@ -194,16 +199,25 @@ function useInRouterContext(): boolean {
 }
 
 /**
- * Whether the host router can block. react-router v7 supports `useBlocker` only
- * in a DATA router — the created path (`RouterWrapper`) always builds one, and
- * an app hosting Chelone in a data router of its own can too. We report `true`
- * whenever inside a router (the common case); a caller mounted under a bare
- * declarative `<BrowserRouter>` host that then calls `useBlocker` would get
- * react-router's own error, which is the correct signal to switch to a data
- * router. Outside a router it's `false` (nothing to block).
+ * Whether a react-router BLOCKER is actually available — i.e. a DATA router is
+ * present (plan §0a-4; interim-review finding A2). react-router v7's
+ * `useBlocker` works ONLY in a data router and THROWS under a declarative host
+ * (`<BrowserRouter>`/`<MemoryRouter>`). So `useCanBlock` must NOT report `true`
+ * merely because we're "inside a router": if an app wraps `<Admin>` in a
+ * declarative `<BrowserRouter>`, `warnWhenUnsavedChanges` (W2-T3, gated on this)
+ * would then call `useBlocker` and crash.
+ *
+ * A data router is detected via react-router's own `UNSAFE_DataRouterContext`
+ * (`RouterProvider` sets it; declarative routers leave it `null`) — the same
+ * signal covers BOTH data-router shapes: Chelone's own create-path router
+ * (`CreatedDataRouter`) AND an app hosting `<Admin>` in a data router of its own.
+ * Empirically pinned: declarative host → `useInRouterContext()===true` but the
+ * context is `null`; data router → context is non-null. Outside any router it's
+ * `false` too (nothing to block). Matches ra-core: warn + disable blocking when
+ * `!canBlock`, never throw.
  */
 function useCanBlock(): boolean {
-  return useRRInRouterContext();
+  return useContext(UNSAFE_DataRouterContext) != null;
 }
 
 const Link = forwardRef<HTMLAnchorElement, AdapterLinkProps>(
@@ -246,18 +260,79 @@ function matchPath(pattern: string, pathname: string): PathMatch | null {
 }
 
 /**
+ * A tiny latest-value store for the create-path children. The data router is
+ * built ONCE (it owns history), so its root-route element lives in a SEPARATE
+ * React subtree that would otherwise never see fresh children handed to
+ * `RouterWrapper` on a parent re-render (interim-review finding A1: standalone
+ * `<Admin>` rendered a STALE tree — A→B stayed A). This store bridges the two
+ * subtrees: `RouterWrapper` publishes the current children every render, and
+ * the stable root-route element subscribes via `useSyncExternalStore`, so it
+ * always renders LIVE children while the router itself is never rebuilt.
+ */
+interface LiveChildrenStore {
+  get(): ReactNode;
+  set(children: ReactNode): void;
+  subscribe(listener: () => void): () => void;
+}
+
+function createLiveChildrenStore(initial: ReactNode): LiveChildrenStore {
+  let current = initial;
+  const listeners = new Set<() => void>();
+  return {
+    get: () => current,
+    set(children) {
+      // Identity compare: React children are fresh elements each render, so this
+      // notifies on every publish — cheap (one setState in the subscribed root),
+      // and correct (stale-children was the bug). Skip only on referential noop.
+      if (children === current) return;
+      current = children;
+      for (const listener of listeners) listener();
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
+}
+
+const LiveChildrenContext = createContext<LiveChildrenStore | null>(null);
+
+/**
+ * The STABLE root-route element of the created data router. It subscribes to the
+ * live-children store (published by `RouterWrapper` each render) so a standalone
+ * `<Admin>` always renders the CURRENT children (A1) — even though the router
+ * and this element mount exactly once.
+ */
+function LiveChildrenOutlet() {
+  const store = useContext(LiveChildrenContext);
+  const children = useSyncExternalStore(
+    store ? store.subscribe : noopSubscribe,
+    store ? store.get : nullSnapshot,
+    store ? store.get : nullSnapshot,
+  );
+  return <>{children}</>;
+}
+
+const noopSubscribe = () => () => {};
+const nullSnapshot = (): ReactNode => null;
+
+/**
  * Render children inside a data router — mounted via `RouterProvider` over a
- * single splat route so the shell's arbitrary declarative `<Routes>` tree is
- * the route element.
+ * single splat route whose element is the STABLE `LiveChildrenOutlet`, so the
+ * shell's arbitrary declarative `<Routes>` tree stays LIVE across re-renders
+ * (A1) while the router owns history and is built exactly once.
  *
  * DEVIATION (empirical, plan §0a-4 offered `<BrowserRouter>` OR
  * `createBrowserRouter`): react-router v7's `useBlocker` REQUIRES a DATA router
  * ("useBlocker must be used within a data router") — the declarative
  * `<BrowserRouter>` throws. Since `warnWhenUnsavedChanges` (D6 / W2-T3) hinges
- * on `useBlocker`, the created router MUST be a data router. A single
- * `{ path: "*", element: children }` route hosts the whole declarative tree, so
- * the children-composable `<Admin>` façade keeps its declarative shape while
- * the underlying router is a real-path data router (never a hash router).
+ * on `useBlocker`, the created router MUST be a data router. The single
+ * `{ path: "*", element: <LiveChildrenOutlet/> }` route hosts the whole
+ * declarative tree, so the children-composable `<Admin>` façade keeps its
+ * declarative shape while the underlying router is a real-path data router
+ * (never a hash router).
  */
 function CreatedDataRouter({
   basename,
@@ -266,17 +341,34 @@ function CreatedDataRouter({
   basename?: string;
   children: ReactNode;
 }) {
+  // The store carries the LIVE children into the data-router subtree. Created
+  // once alongside the router; updated below on every commit so the root outlet
+  // re-renders fresh children (A1) without rebuilding history. The FIRST render
+  // is seeded via the initializer (below), so the outlet already reads current
+  // children on mount; subsequent parent re-renders publish here.
+  const [store] = useState(() => createLiveChildrenStore(children));
+  // Publish AFTER commit (layout effect, not during render) so the subscribed
+  // `LiveChildrenOutlet` is never setState-d mid-render. Layout timing lands the
+  // fresh children before paint — no stale flash. The initializer already
+  // seeded the mount value, so this only propagates A→B updates.
+  useLayoutEffect(() => {
+    store.set(children);
+  });
+
   // Build the data router ONCE (lazy useState initializer — the created router
-  // owns history and must not be rebuilt on re-render). The children are the
-  // shell tree, stable across renders of the same <Admin>; a genuinely new tree
-  // implies a new <Admin>, which remounts this component and rebuilds here.
+  // owns history and must not be rebuilt on re-render). Its root element is the
+  // STABLE `LiveChildrenOutlet`; the actual children flow through the store.
   const [router] = useState(() =>
     createBrowserRouter(
-      [{ path: "*", element: <>{children}</> }],
+      [{ path: "*", element: <LiveChildrenOutlet /> }],
       basename ? { basename } : undefined,
     ),
   );
-  return <RouterProvider router={router} />;
+  return (
+    <LiveChildrenContext.Provider value={store}>
+      <RouterProvider router={router} />
+    </LiveChildrenContext.Provider>
+  );
 }
 
 /**
