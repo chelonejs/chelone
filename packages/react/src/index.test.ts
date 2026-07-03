@@ -15,6 +15,8 @@ import type {
   FilterLiveFormProps,
   FormGroupProviderProps,
   FormGroupsProviderProps,
+  GetRecordRepresentation,
+  GetResourceLabel,
   HandleAuthCallbackResult,
   ListContextValue,
   PartitionedChildren,
@@ -23,9 +25,12 @@ import type {
   ResourceProps,
   RouterAdapter,
   TabbedFormProps,
+  TranslateLabel,
+  TranslateLabelOptions,
   UseFieldValueOptions,
   UseFilterFormResult,
   UseRecordContextOptions,
+  UseResourceTranslationOptions,
   UseTabbedFormResult,
   UseWizardFormResult,
   WarnWhenUnsavedChangesDecision,
@@ -115,6 +120,13 @@ describe("@chelone/react barrel — P6 shell + router surface (W1)", () => {
     expect(barrel.useFieldValue).toBeTypeOf("function");
   });
 
+  it("exports the label/representation/resource-translation compat layer (P7a-T2)", () => {
+    expect(barrel.useGetRecordRepresentation).toBeTypeOf("function");
+    expect(barrel.useGetResourceLabel).toBeTypeOf("function");
+    expect(barrel.useTranslateLabel).toBeTypeOf("function");
+    expect(barrel.useResourceTranslation).toBeTypeOf("function");
+  });
+
   it("exports the RouterAdapter interface + both adapters + injection", () => {
     expect(barrel.reactRouterAdapter).toBeTypeOf("object");
     expect(barrel.tanstackRouterAdapter).toBeTypeOf("object");
@@ -201,6 +213,8 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
       | FilterLiveFormProps
       | FormGroupProviderProps
       | FormGroupsProviderProps
+      | GetRecordRepresentation
+      | GetResourceLabel
       | HandleAuthCallbackResult
       | ListContextValue
       | PartitionedChildren
@@ -208,8 +222,11 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
       | RecordContextValue
       | ResourceProps
       | RouterAdapter
+      | TranslateLabel
+      | TranslateLabelOptions
       | UseFieldValueOptions
       | UseRecordContextOptions
+      | UseResourceTranslationOptions
       | TabbedFormProps<unknown>
       | UseFilterFormResult
       | UseTabbedFormResult

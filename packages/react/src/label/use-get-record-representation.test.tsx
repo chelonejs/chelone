@@ -1,0 +1,131 @@
+/**
+ * P7a-T2: `useGetRecordRepresentation(resource?)` — resolve a record to a
+ * display string (parity: ra-core `useGetRecordRepresentation`). Reads the
+ * resource's `recordRepresentation` from the registry definition:
+ * - a function → call it with the record;
+ * - a string → the value at that source path off the record;
+ * - a React element → returned verbatim;
+ * - otherwise the default chain: name → title → label → reference → `#${id}`.
+ * An empty / nullish record → `""`.
+ */
+
+import { createResourceRegistry, type ResourceRegistry } from "@chelone/core";
+import { renderHook } from "@testing-library/react";
+import { isValidElement, type ReactNode } from "react";
+import { afterEach, describe, expect, it } from "vitest";
+import { ResourceContextProvider, ResourceRegistryProvider } from "../resource";
+import { useGetRecordRepresentation } from "./use-get-record-representation";
+
+interface WrapperOpts {
+  registry: ResourceRegistry;
+  resource?: string;
+}
+
+function makeWrapper({ registry, resource }: WrapperOpts) {
+  return ({ children }: { children: ReactNode }) => (
+    <ResourceRegistryProvider registry={registry}>
+      <ResourceContextProvider value={resource}>
+        {children}
+      </ResourceContextProvider>
+    </ResourceRegistryProvider>
+  );
+}
+
+function registryWith(
+  name: string,
+  recordRepresentation?: unknown,
+): ResourceRegistry {
+  const registry = createResourceRegistry();
+  registry.register({
+    name,
+    hasList: true,
+    hasCreate: false,
+    hasEdit: false,
+    hasShow: false,
+    recordRepresentation,
+  });
+  return registry;
+}
+
+afterEach(() => {});
+
+describe("useGetRecordRepresentation", () => {
+  it("uses a function recordRepresentation", () => {
+    const registry = registryWith(
+      "posts",
+      (r: { id: number; title: string }) => `Post: ${r.title}`,
+    );
+    const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
+      wrapper: makeWrapper({ registry, resource: "posts" }),
+    });
+    expect(result.current({ id: 1, title: "Hello" })).toBe("Post: Hello");
+  });
+
+  it("uses a string recordRepresentation as a (deep) source path", () => {
+    const registry = registryWith("posts", "author.name");
+    const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
+      wrapper: makeWrapper({ registry, resource: "posts" }),
+    });
+    expect(result.current({ id: 1, author: { name: "Ada" } })).toBe("Ada");
+  });
+
+  it("returns a React element recordRepresentation verbatim", () => {
+    const element = <span>custom</span>;
+    const registry = registryWith("posts", element);
+    const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
+      wrapper: makeWrapper({ registry, resource: "posts" }),
+    });
+    const out = result.current({ id: 1 });
+    expect(isValidElement(out)).toBe(true);
+    expect(out).toBe(element);
+  });
+
+  it("falls back to the default chain: name → title → label → reference → #id", () => {
+    const registry = registryWith("posts"); // no recordRepresentation
+    const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
+      wrapper: makeWrapper({ registry, resource: "posts" }),
+    });
+    expect(result.current({ id: 1, name: "N" })).toBe("N");
+    expect(result.current({ id: 2, title: "T" })).toBe("T");
+    expect(result.current({ id: 3, label: "L" })).toBe("L");
+    expect(result.current({ id: 4, reference: "R" })).toBe("R");
+    expect(result.current({ id: 5 })).toBe("#5");
+  });
+
+  it("skips empty-string default-chain fields", () => {
+    const registry = registryWith("posts");
+    const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
+      wrapper: makeWrapper({ registry, resource: "posts" }),
+    });
+    // empty name → fall through to title
+    expect(result.current({ id: 1, name: "", title: "T" })).toBe("T");
+  });
+
+  it("returns an empty string for a nullish record", () => {
+    const registry = registryWith("posts");
+    const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
+      wrapper: makeWrapper({ registry, resource: "posts" }),
+    });
+    expect(result.current(undefined)).toBe("");
+    expect(result.current(null)).toBe("");
+  });
+
+  it("reads the resource from context when no argument is passed", () => {
+    const registry = registryWith("posts", "title");
+    const { result } = renderHook(() => useGetRecordRepresentation(), {
+      wrapper: makeWrapper({ registry, resource: "posts" }),
+    });
+    expect(result.current({ id: 1, title: "Ctx" })).toBe("Ctx");
+  });
+
+  it("returns a stable callback identity across re-renders", () => {
+    const registry = registryWith("posts", "title");
+    const { result, rerender } = renderHook(
+      () => useGetRecordRepresentation("posts"),
+      { wrapper: makeWrapper({ registry, resource: "posts" }) },
+    );
+    const first = result.current;
+    rerender();
+    expect(result.current).toBe(first);
+  });
+});

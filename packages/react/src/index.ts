@@ -199,6 +199,19 @@ export {
   useUpdate,
 } from "./hooks";
 export { useLocale, useSetLocale, useTranslate } from "./i18n-hooks";
+export type {
+  GetRecordRepresentation,
+  GetResourceLabel,
+  TranslateLabel,
+  TranslateLabelOptions,
+  UseResourceTranslationOptions,
+} from "./label";
+export {
+  useGetRecordRepresentation,
+  useGetResourceLabel,
+  useResourceTranslation,
+  useTranslateLabel,
+} from "./label";
 export { useNotifications, useNotify } from "./notification-hooks";
 export type {
   RecordContextProviderProps,
