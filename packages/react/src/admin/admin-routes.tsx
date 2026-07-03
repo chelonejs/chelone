@@ -8,11 +8,16 @@
  * the order IS the no-flash guarantee, so it is not rearranged:
  *
  *   1. no resources registered           → the `ready` empty state.
- *   2. gate pending (requireAuth & auth   → NO-LAYOUT custom routes + the
- *      check in flight)                     loading page ONLY. The layout tree
- *                                           (and every resource view) does NOT
- *                                           mount — protected content never
+ *   2. async children resolving OR gate  → NO-LAYOUT custom routes + the
+ *      pending (childrenStatus==='loading' auth-callback route + the loading
+ *      || requireAuth & auth in flight)    page ONLY. The layout tree (and every
+ *                                           resource view) does NOT mount —
+ *                                           protected / resolving content never
  *                                           appears during the pending window.
+ *
+ * The `auth-callback` route (parity §0a-1/D4) is public/auth-agnostic — mounted
+ * in EVERY branch (like the no-layout customs) so an OAuth landing resolves
+ * whether or not the user is authenticated yet.
  *   3. requireAuth & NOT authenticated    → NO-LAYOUT custom routes + a
  *                                           `<LogoutOnMount>` (bounce to login).
  *   4. else (authenticated / ungated)     → the full tree: `<HasDashboard>`
@@ -142,7 +147,7 @@ function ScrollManager(): ReactNode {
  * `requireAuth` flag, runs the no-flash gate, and renders the §0a-7 branch.
  */
 export function AdminRoutes(): ReactNode {
-  const { parts, slots, requireAuth } = useAdminUI();
+  const { parts, slots, requireAuth, childrenStatus } = useAdminUI();
   const definitions = useResourceDefinitions();
   const { Routes, Route } = useRouterAdapter();
   const gate = useAuthGate(requireAuth);
@@ -151,6 +156,17 @@ export function AdminRoutes(): ReactNode {
     () => customRouteChildren(parts.customRoutesWithoutLayout),
     [parts.customRoutesWithoutLayout],
   );
+
+  // The auth-callback route (parity §0a-1/D4). Mounted in EVERY branch's
+  // `<Routes>` (like the no-layout customs) so an OAuth landing at
+  // `/auth-callback` resolves whether or not the user is authenticated yet — the
+  // callback happens BEFORE authentication. Absent slot → no route (the shell's
+  // catch-all / login page handles the path as usual). Placed BEFORE the
+  // branch's catch-all so the specific path wins.
+  const authCallbackRoute =
+    slots.authCallback != null ? (
+      <Route path="auth-callback" element={slots.authCallback} />
+    ) : null;
 
   // BRANCH 1 — nothing to route (no resources AND no custom routes): the empty
   // state (plan §0a-7). An all-custom-routes app is NOT empty, so with-layout /
@@ -164,27 +180,34 @@ export function AdminRoutes(): ReactNode {
     return slots.ready;
   }
 
-  // BRANCH 2 — gate pending: NO-LAYOUT customs + the loading page ONLY. The
-  // layout tree (and every resource view) does NOT mount — no-flash guarantee.
-  if (gate.isPending) {
+  // BRANCH 2 — async children resolving OR gate pending: NO-LAYOUT customs +
+  // the auth-callback route + the loading page ONLY. The layout tree (and every
+  // resource view) does NOT mount — no-flash guarantee. `childrenStatus ===
+  // 'loading'` mirrors ra-core's `status === 'loading'` (an async
+  // `(permissions) => Promise<node>` child mid-resolve): the resolving children
+  // never mount, the loading page shows instead (parity §0a-7/§0a-9).
+  if (childrenStatus === "loading" || gate.isPending) {
     return (
       <>
         <ScrollManager />
         <Routes>
           {noLayoutCustoms}
+          {authCallbackRoute}
           <Route path="*" element={slots.loading} />
         </Routes>
       </>
     );
   }
 
-  // BRANCH 3 — requireAuth & NOT authenticated: NO-LAYOUT customs + logout.
+  // BRANCH 3 — requireAuth & NOT authenticated: NO-LAYOUT customs + the
+  // auth-callback route (OAuth landing is public — it happens pre-auth) + logout.
   if (requireAuth && !gate.authenticated) {
     return (
       <>
         <LogoutOnMount />
         <Routes>
           {noLayoutCustoms}
+          {authCallbackRoute}
           <Route path="*" element={slots.loginPage} />
         </Routes>
       </>
@@ -243,6 +266,11 @@ function FullRoutes({
     <Routes>
       {/* No-layout customs render in ALL branches (plan §0a-10). */}
       {noLayoutCustoms}
+      {/* The auth-callback route is public/auth-agnostic (parity §0a-1/D4):
+          mounted here too so a settled/authenticated OAuth landing resolves. */}
+      {slots.authCallback != null ? (
+        <Route path="auth-callback" element={slots.authCallback} />
+      ) : null}
       {/* Layout customs BEFORE resources so an app can override a path. */}
       {layoutCustoms}
       {resourceRouteEls}

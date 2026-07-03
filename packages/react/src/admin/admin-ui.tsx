@@ -25,7 +25,11 @@ import {
   useMemo,
 } from "react";
 import { useRegisterResources } from "../resource/registry-hooks";
-import type { AdminSlots, PartitionedChildren } from "./partition";
+import type {
+  AdminChildrenStatus,
+  AdminSlots,
+  PartitionedChildren,
+} from "./partition";
 import { partitionChildren } from "./partition";
 
 /**
@@ -57,6 +61,14 @@ export interface AdminUIContent {
   slots: AdminSlots;
   /** Whether the shell gates on auth (the no-flash gate — W1-T7). */
   requireAuth: boolean;
+  /**
+   * The async function-child resolution status (parity §0a-9). `'loading'` while
+   * an async `(permissions) => Promise<node>` child resolves; `'ready'` for
+   * static / sync / settled children. The routing engine folds `'loading'` into
+   * the §0a-7 loading branch (like ra-core's `status === 'loading'`), so the
+   * resolving children NEVER mount — the loading page shows instead.
+   */
+  childrenStatus: AdminChildrenStatus;
 }
 
 const AdminUIContext = createContext<AdminUIContent | null>(null);
@@ -98,6 +110,13 @@ export interface AdminUIProps extends AdminSlotProps {
   requireAuth?: boolean;
   /** The app's permissions (passed to the resource registration re-run). */
   permissions?: unknown;
+  /**
+   * The async function-child resolution status (parity §0a-9), supplied by
+   * `<Admin>` from `useResolvedChildren`. `'loading'` holds the shell on the
+   * loading branch while an async child resolves; defaults to `'ready'` (the
+   * escape-hatch `<AdminUI>` receives concrete children, never a function).
+   */
+  childrenStatus?: AdminChildrenStatus;
   /**
    * The routing engine. Defaults to `DefaultShellContent` (a placeholder that
    * renders the dashboard + resources); W1-T7 supplies `AdminRoutes`. Rendered
@@ -144,6 +163,7 @@ function ResourceKey({ element }: { element: ReactElement }): ReactNode {
 export function AdminUI<TResources extends ResourceMap = ResourceMap>({
   requireAuth = false,
   permissions,
+  childrenStatus = "ready",
   render,
   children,
   // Named (not `...rest`) so each is a tracked capture the merge memo keys on.
@@ -207,8 +227,8 @@ export function AdminUI<TResources extends ResourceMap = ResourceMap>({
   useRegisterResources(parts.resources, permissions);
 
   const content = useMemo<AdminUIContent>(
-    () => ({ parts, slots: mergedSlots, requireAuth }),
-    [parts, mergedSlots, requireAuth],
+    () => ({ parts, slots: mergedSlots, requireAuth, childrenStatus }),
+    [parts, mergedSlots, requireAuth, childrenStatus],
   );
 
   const Content = render ?? DefaultShellContent;

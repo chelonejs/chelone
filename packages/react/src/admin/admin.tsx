@@ -104,11 +104,12 @@ function AdminInner<TResources extends ResourceMap = ResourceMap>({
   adminChildren: AdminChildren;
 }): ReactNode {
   void (undefined as unknown as TResources);
-  const { node } = useResolvedChildren(adminChildren, permissions);
+  const { status, node } = useResolvedChildren(adminChildren, permissions);
   return (
     <AdminUI
       requireAuth={requireAuth}
       permissions={permissions}
+      childrenStatus={status}
       render={AdminRoutes}
       {...slotProps}
     >

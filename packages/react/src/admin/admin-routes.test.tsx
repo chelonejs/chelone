@@ -310,6 +310,140 @@ describe("AdminRoutes — custom routes in all branches (§0a-10)", () => {
   });
 });
 
+describe("AdminRoutes — async function-child loading branch (§0a-7/§0a-9)", () => {
+  // §0a-9: the async form is a SINGLE `(permissions) => Promise<node>` child (the
+  // sole child). Page slots / customs that must show during the resolve are
+  // supplied as PROPS (the escape hatch), since a marker sibling would make
+  // `children` an array (not a function) and short-circuit the async machine.
+  it("shows the loading slot while an async function-child resolves; protected content never mounts", async () => {
+    const listSpy = makeSpiedList(vi.fn());
+    // An async function-child that never resolves: `useResolvedChildren` stays
+    // `status: 'loading'`, so branch 2 (loading) must render the loading slot
+    // and NOT the resolved resource tree (no-flash of the resolving children).
+    const children = () =>
+      new Promise<React.ReactNode>((resolve) => {
+        // Resolve far in the future so the loading branch is observable now.
+        setTimeout(
+          () => resolve(<Resource name="posts" list={listSpy} />),
+          500,
+        );
+      });
+    render(
+      <MemoryRouter initialEntries={["/posts"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          loading={<div data-testid="child-loading">loading…</div>}
+        >
+          {children}
+        </Admin>
+      </MemoryRouter>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("child-loading")).toBeDefined(),
+    );
+    expect(screen.queryByTestId("posts-list")).toBeNull();
+  });
+
+  it("renders the resolved children once the async function-child settles", async () => {
+    const children = () =>
+      Promise.resolve(
+        <Resource
+          name="posts"
+          list={() => <div data-testid="posts-list">L</div>}
+        />,
+      );
+    render(
+      <MemoryRouter initialEntries={["/posts"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          loading={<div data-testid="child-loading">loading…</div>}
+        >
+          {children}
+        </Admin>
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(screen.getByTestId("posts-list")).toBeDefined());
+  });
+
+  it("mounts the auth-callback route during the async-children loading window", async () => {
+    // The auth-callback route is public/auth-agnostic (§0a-1/D4): it must be
+    // reachable EVEN while the async children are still resolving, so an OAuth
+    // landing that arrives mid-resolve is not swallowed by the loading catch-all.
+    const children = () =>
+      new Promise<React.ReactNode>(() => {
+        // never resolves — the loading branch holds
+      });
+    render(
+      <MemoryRouter initialEntries={["/auth-callback"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          loading={<div data-testid="child-loading">loading…</div>}
+          authCallback={<div data-testid="callback-loading">oauth</div>}
+        >
+          {children}
+        </Admin>
+      </MemoryRouter>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("callback-loading")).toBeDefined(),
+    );
+    // The loading page did NOT swallow the auth-callback path.
+    expect(screen.queryByTestId("child-loading")).toBeNull();
+  });
+});
+
+describe("AdminRoutes — auth-callback route (§0a-1/D4)", () => {
+  it("mounts the auth-callback slot at /auth-callback in the authenticated branch", async () => {
+    render(
+      <MemoryRouter initialEntries={["/auth-callback"]}>
+        <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+          <Resource name="posts" list={() => <div>L</div>} />
+          <Admin.AuthCallback>
+            <div data-testid="callback">handling oauth…</div>
+          </Admin.AuthCallback>
+        </Admin>
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(screen.getByTestId("callback")).toBeDefined());
+  });
+
+  it("mounts the auth-callback slot while UNAUTHENTICATED (OAuth landing is public)", async () => {
+    // The OAuth landing happens BEFORE the user is authenticated, so the
+    // auth-callback route must be reachable in the unauthenticated branch —
+    // otherwise the login catch-all swallows it and the provider never resolves.
+    const authProvider = makeAuthProvider({
+      checkAuth: async () => {
+        throw new Error("not yet");
+      },
+    });
+    render(
+      <MemoryRouter initialEntries={["/auth-callback"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          authProvider={authProvider}
+          requireAuth
+        >
+          <Resource name="posts" list={() => <div>L</div>} />
+          <Admin.LoginPage>
+            <div data-testid="login">login</div>
+          </Admin.LoginPage>
+          <Admin.AuthCallback>
+            <div data-testid="callback-unauth">handling oauth…</div>
+          </Admin.AuthCallback>
+        </Admin>
+      </MemoryRouter>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("callback-unauth")).toBeDefined(),
+    );
+    expect(screen.queryByTestId("login")).toBeNull();
+  });
+});
+
 describe("ShellErrorBoundary — location-change auto-reset (§0a-13)", () => {
   it("catches a thrown error and shows the default fallback", async () => {
     function Boom(): React.ReactNode {
