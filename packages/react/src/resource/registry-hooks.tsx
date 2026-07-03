@@ -137,15 +137,83 @@ function collectResourceElements(children: ReactNode): ResourceElement[] {
 }
 
 /**
+ * A stable string signature of a `ResourceDefinition` — the effect's
+ * invalidation key. It captures EVERY field that changes the stored definition
+ * (not just the name): the `has*` route flags plus reference-identity tokens for
+ * the non-primitive `icon` / `recordRepresentation` / `options` slots. So a
+ * runtime prop change (e.g. `hasEdit` false → true, a swapped `list` component,
+ * or a mutated `options` bag) flips the signature and re-runs registration,
+ * keeping the registry current (parity §0a-8: ra-core keys on the whole
+ * resources array). `options` is serialized by its own key/value pairs so a new
+ * bag with the same shape does NOT churn, matching the core `optionsEqual`
+ * guard.
+ */
+function definitionSignature(definition: ResourceDefinition): string {
+  return [
+    definition.name,
+    definition.hasList ? "L" : "",
+    definition.hasCreate ? "C" : "",
+    definition.hasEdit ? "E" : "",
+    definition.hasShow ? "S" : "",
+    identityToken(definition.icon),
+    identityToken(definition.recordRepresentation),
+    optionsSignature(definition.options),
+  ].join("|");
+}
+
+// One shared identity space for every opaque value the signature references
+// (icons, record representations, option values). A `WeakMap` holds the
+// value → token mapping WITHOUT retaining the values; a monotonic counter mints
+// a fresh token per distinct reference. (`WeakMap` has no `.size`, so the
+// counter — not the map — is the source of new tokens.)
+const identityTokens = new WeakMap<object, number>();
+let nextIdentityToken = 0;
+
+/**
+ * Map an opaque, non-serializable value (a component, a function, an object) to
+ * a stable per-reference token so an equal reference collapses to the same
+ * signature fragment and a swapped reference produces a new one. Primitives are
+ * inlined verbatim; a swapped reference always yields a distinct token.
+ */
+function identityToken(value: unknown): string {
+  if (value == null) return "";
+  if (typeof value !== "object" && typeof value !== "function") {
+    return `p:${String(value)}`;
+  }
+  const key = value as object;
+  let token = identityTokens.get(key);
+  if (token === undefined) {
+    nextIdentityToken += 1;
+    token = nextIdentityToken;
+    identityTokens.set(key, token);
+  }
+  return `r:${token}`;
+}
+
+/** Serialize the `options` bag by own key + per-value identity (shallow). */
+function optionsSignature(
+  options: Record<string, unknown> | undefined,
+): string {
+  if (options == null) return "";
+  return Object.keys(options)
+    .sort()
+    .map((key) => `${key}=${identityToken(options[key])}`)
+    .join(";");
+}
+
+/**
  * Register the `<Resource>` children on mount and unregister them on unmount,
- * re-running whenever `permissions` change (parity §0a-8). Registration is
- * lazy (an effect, not render-phase) so a discarded render never mutates the
- * shared registry. The core registry's `isEqual`-guard means a re-run with an
- * unchanged definition is a no-op — subscribers are not churned.
+ * re-running whenever `permissions` OR any resource DEFINITION changes (parity
+ * §0a-8). Registration is lazy (an effect, not render-phase) so a discarded
+ * render never mutates the shared registry. The core registry's `isEqual`-guard
+ * means a re-run with an unchanged definition is a no-op — subscribers are not
+ * churned.
  *
- * `children` is walked each render (fragments recursed, non-resources ignored);
- * the effect keys on the derived resource-name list so an added/removed
- * `<Resource>` re-runs registration too.
+ * `children` is walked each render (fragments recursed, non-resources ignored).
+ * The effect keys on a signature of the DERIVED definitions (name + `has*` flags
+ * + icon/repr/options identity), not just the names — so a runtime non-name prop
+ * change (`hasEdit`, a swapped view, a changed `options` bag) re-runs
+ * registration and the stored definition stays current, instead of going stale.
  */
 export function useRegisterResources(
   children: ReactNode,
@@ -153,36 +221,41 @@ export function useRegisterResources(
 ): void {
   const registry = useResourceRegistry();
   const resources = collectResourceElements(children);
-  // A stable dependency the effect can key on: the ordered resource names.
-  const names = resources.map((r) => r.props.name as string).join("|");
+  // The derived definitions, computed once per render and reused for both the
+  // invalidation key and the effect body (so the two never drift).
+  const definitions = resources.map((r) =>
+    r.registerResource(r.props, permissions),
+  );
+  // A stable dependency the effect can key on: the full definition signatures.
+  // Any definition-relevant prop change (not just the name) flips this.
+  const signature = definitions.map(definitionSignature).join("\n");
 
-  // Keep the freshest collected resources in a ref (updated every render) so
+  // Keep the freshest derived definitions in a ref (updated every render) so
   // the effect reads them WITHOUT depending on the array's per-render identity.
-  // It is instead keyed on `names` (add/remove) + `permissions`, so it re-runs
-  // on a real change but not on an incidental re-render.
-  const resourcesRef = useRef(resources);
-  resourcesRef.current = resources;
+  // It is instead keyed on `signature` alone — which already folds in
+  // `permissions` (via `registerResource`) — so it re-runs on a real definition
+  // change but not on an incidental re-render.
+  const definitionsRef = useRef(definitions);
+  definitionsRef.current = definitions;
 
-  // `names` is a DELIBERATE invalidation key: it is not read in the body (the
-  // resources come from the ref), but a change to it means a `<Resource>` was
-  // added/removed, which must re-run registration. Biome sees it as "extra"
-  // because the body reads the ref, not `names` — the suppression is exact.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: `names` is the intentional add/remove invalidation key; the body reads the freshest resources via `resourcesRef`.
+  // `signature` is a DELIBERATE invalidation key: it is not read in the body
+  // (the definitions come from the ref), but a change to it means a resource was
+  // added/removed OR a definition changed, which must re-run registration.
+  // Biome sees it as "extra" because the body reads the ref — the suppression is
+  // exact. `permissions` is not in the key because it is already folded into
+  // each definition (via `registerResource`), and hence into `signature`.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `signature` is the intentional definition-change invalidation key; the body reads the freshest definitions via `definitionsRef`.
   useEffect(() => {
-    const current = resourcesRef.current;
-    for (const resource of current) {
-      registry.register(resource.registerResource(resource.props, permissions));
+    const current = definitionsRef.current;
+    for (const definition of current) {
+      registry.register(definition);
     }
     return () => {
-      for (const resource of current) {
-        const definition = resource.registerResource(
-          resource.props,
-          permissions,
-        );
+      for (const definition of current) {
         registry.unregister(definition.name);
       }
     };
-  }, [registry, names, permissions]);
+  }, [registry, signature]);
 }
 
 /**

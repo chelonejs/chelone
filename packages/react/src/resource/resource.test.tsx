@@ -399,6 +399,142 @@ describe("useRegisterResources — lifecycle", () => {
     expect(listener).not.toHaveBeenCalled();
     unsub();
   });
+
+  it("re-registers when a non-name prop flips at runtime (hasEdit false → true)", () => {
+    const { Wrapper, registryRef } = registryWrapper();
+    function Register() {
+      const [hasEdit, setHasEdit] = useState(false);
+      useRegisterResources(
+        <Resource name="posts" list={ListView} hasEdit={hasEdit} />,
+        undefined,
+      );
+      return (
+        <button
+          type="button"
+          data-testid="grant-edit"
+          onClick={() => setHasEdit(true)}
+        >
+          grant edit
+        </button>
+      );
+    }
+    render(
+      <Wrapper>
+        <Register />
+      </Wrapper>,
+    );
+    // Same name, but hasEdit changed — the stored definition must stay current.
+    expect(registryRef.current?.get("posts")?.hasEdit).toBe(false);
+    act(() => {
+      screen.getByTestId("grant-edit").click();
+    });
+    expect(registryRef.current?.get("posts")?.hasEdit).toBe(true);
+  });
+
+  it("re-registers when the options bag changes at runtime (same name)", () => {
+    const { Wrapper, registryRef } = registryWrapper();
+    function Register() {
+      const [group, setGroup] = useState("content");
+      useRegisterResources(
+        <Resource name="posts" list={ListView} options={{ group }} />,
+        undefined,
+      );
+      return (
+        <button
+          type="button"
+          data-testid="regroup"
+          onClick={() => setGroup("admin")}
+        >
+          regroup
+        </button>
+      );
+    }
+    render(
+      <Wrapper>
+        <Register />
+      </Wrapper>,
+    );
+    expect(registryRef.current?.get("posts")?.options).toEqual({
+      group: "content",
+    });
+    act(() => {
+      screen.getByTestId("regroup").click();
+    });
+    expect(registryRef.current?.get("posts")?.options).toEqual({
+      group: "admin",
+    });
+  });
+
+  it("re-registers when a view slot changes reference at runtime (edit swap flips hasEdit)", () => {
+    const { Wrapper, registryRef } = registryWrapper();
+    const ListA = () => <div>a</div>;
+    const EditB = () => <div>b</div>;
+    function Register() {
+      const [swapped, setSwapped] = useState(false);
+      useRegisterResources(
+        // hasEdit derived from the edit slot's presence flips false → true.
+        <Resource
+          name="posts"
+          list={ListA}
+          edit={swapped ? EditB : undefined}
+        />,
+        undefined,
+      );
+      return (
+        <button
+          type="button"
+          data-testid="swap"
+          onClick={() => setSwapped(true)}
+        >
+          swap
+        </button>
+      );
+    }
+    render(
+      <Wrapper>
+        <Register />
+      </Wrapper>,
+    );
+    expect(registryRef.current?.get("posts")?.hasEdit).toBe(false);
+    act(() => {
+      screen.getByTestId("swap").click();
+    });
+    expect(registryRef.current?.get("posts")?.hasEdit).toBe(true);
+  });
+
+  it("re-registers when the icon reference swaps but no has* flag changes", () => {
+    const { Wrapper, registryRef } = registryWrapper();
+    const IconA = () => <span>a</span>;
+    const IconB = () => <span>b</span>;
+    function Register() {
+      const [icon, setIcon] = useState<unknown>(() => IconA);
+      useRegisterResources(
+        <Resource name="posts" list={ListView} icon={icon} />,
+        undefined,
+      );
+      return (
+        <button
+          type="button"
+          data-testid="swap-icon"
+          onClick={() => setIcon(() => IconB)}
+        >
+          swap icon
+        </button>
+      );
+    }
+    render(
+      <Wrapper>
+        <Register />
+      </Wrapper>,
+    );
+    // Only the icon reference changes — no route flag flips. The stored
+    // definition must still track the new icon (reference-identity keying).
+    expect(registryRef.current?.get("posts")?.icon).toBe(IconA);
+    act(() => {
+      screen.getByTestId("swap-icon").click();
+    });
+    expect(registryRef.current?.get("posts")?.icon).toBe(IconB);
+  });
 });
 
 describe("useResourceDefinitions / useResourceDefinition", () => {
