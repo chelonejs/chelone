@@ -202,6 +202,17 @@ export type {
   ResourceMap,
 } from "./resource/registry";
 export { defineResources } from "./resource/registry";
+export type {
+  ComputeDefinitionProps,
+  ResourceDefinition,
+  ResourceDefinitionMap,
+  ResourceRegistry,
+  ResourceRegistryListener,
+} from "./resource/registry-store";
+export {
+  computeDefinition,
+  createResourceRegistry,
+} from "./resource/registry-store";
 export type { CheloneLocation, NavigateOpts } from "./router/location";
 export { parseLocation } from "./router/location";
 export type { PathMatch } from "./router/match";
