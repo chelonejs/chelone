@@ -18,6 +18,11 @@ export interface CheloneContextValue<
   i18n?: AnyChelonI18n;
   authProvider?: AuthProvider;
   notifications?: NotificationStore;
+  /**
+   * The resource registry (P5): a resource's zod schema becomes the DEFAULT
+   * form validator for `useEditForm`/`useCreateForm` (D6) when present.
+   */
+  resources?: TResources;
 }
 
 const CheloneContext = createContext<CheloneContextValue | null>(null);
@@ -31,6 +36,8 @@ export interface CheloneProviderProps<
   i18n?: AnyChelonI18n;
   authProvider?: AuthProvider;
   notifications?: NotificationStore;
+  /** The resource registry — enables registry-schema form validation (D6). */
+  resources?: TResources;
   children: ReactNode;
 }
 
@@ -41,6 +48,7 @@ export function CheloneProvider<TResources extends ResourceMap = ResourceMap>({
   i18n,
   authProvider,
   notifications,
+  resources,
   children,
 }: CheloneProviderProps<TResources>) {
   const value = useMemo(
@@ -52,8 +60,17 @@ export function CheloneProvider<TResources extends ResourceMap = ResourceMap>({
         i18n,
         authProvider,
         notifications,
+        resources,
       }) as CheloneContextValue,
-    [dataProvider, queryClient, store, i18n, authProvider, notifications],
+    [
+      dataProvider,
+      queryClient,
+      store,
+      i18n,
+      authProvider,
+      notifications,
+      resources,
+    ],
   );
   return (
     <CheloneContext.Provider value={value}>

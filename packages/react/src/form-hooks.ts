@@ -1,0 +1,488 @@
+import type {
+  ChelonFormApi,
+  CreateControllerState,
+  CreateFormController,
+  CreateFormControllerOptions,
+  EditControllerState,
+  EditFormController,
+  EditFormControllerOptions,
+  FieldBinding,
+  FieldBindingUpdateOptions,
+  FormController,
+  FormControllerContext,
+  FormControllerOptions,
+  RecordOf,
+  ResourceMap,
+  TranslatableMessage,
+} from "@chelone/core";
+import {
+  createCreateFormController,
+  createEditFormController,
+  createFieldBinding,
+  createFormController,
+  defaultFormat,
+  isRequired as hasRequiredValidator,
+  normalizeFormError,
+} from "@chelone/core";
+import { useSelector } from "@tanstack/react-store";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { type CheloneContextValue, useCheloneContext } from "./context";
+import { useCheloneFormContext, useSourceContext } from "./form-context";
+
+/** The erased form-data shape ambient (context-provided) forms carry. */
+type UnknownFormValues = Record<string, unknown>;
+
+/** Structurally the composed-form context: record services + registry. */
+function toFormContext<TResources extends ResourceMap>(
+  ctx: CheloneContextValue<TResources>,
+): FormControllerContext<TResources> {
+  const { dataProvider, queryClient, store, notifications, i18n, resources } =
+    ctx;
+  return {
+    dataProvider,
+    queryClient,
+    store,
+    notifications,
+    resources,
+    translate: i18n ? (key) => i18n.translate(key) : undefined,
+  };
+}
+
+/** Constant snapshot for mount-driving subscriptions — never re-renders. */
+const attachSnapshot = (): true => true;
+
+/**
+ * The commit-phase ATTACH DRIVER. `useSyncExternalStore`'s subscribe performs
+ * the refcounted attach (first subscriber mounts the form/field, last
+ * unsubscribe unmounts — the ratified 4R lifecycle); the constant snapshot
+ * means this subscription NEVER causes a re-render. Re-render reactivity
+ * comes from the narrow `useSelector` slices instead, so a form shell doesn't
+ * re-render per keystroke and inputs stay isolated per field.
+ */
+function useAttach(subscribe: (listener: () => void) => () => void): void {
+  useSyncExternalStore(subscribe, attachSnapshot, attachSnapshot);
+}
+
+/**
+ * The narrow form-state slice every form hook exposes. Deliberately excludes
+ * `values`/`fieldMeta` — those change per keystroke and belong to `useInput`
+ * consumers; a form shell subscribing here re-renders only on validity /
+ * dirty-signal flips (the T9 perf budget).
+ */
+export interface FormStateSlices {
+  canSubmit: boolean;
+  isSubmitting: boolean;
+  isValidating: boolean;
+  isTouched: boolean;
+  /** STICKY ever-modified flag — clears only on reset (ground truth #7). */
+  isDirty: boolean;
+  /** Deep-equality baseline check: `!isDefaultValue` = "unsaved changes". */
+  isDefaultValue: boolean;
+}
+
+/** Six identity-cheap selectors over `form.store` (uSES-with-selector). */
+function useFormStateSlices<TFormData>(
+  form: ChelonFormApi<TFormData>,
+): FormStateSlices {
+  const canSubmit = useSelector(form.store, (s) => s.canSubmit);
+  const isSubmitting = useSelector(form.store, (s) => s.isSubmitting);
+  const isValidating = useSelector(form.store, (s) => s.isValidating);
+  const isTouched = useSelector(form.store, (s) => s.isTouched);
+  const isDirty = useSelector(form.store, (s) => s.isDirty);
+  const isDefaultValue = useSelector(form.store, (s) => s.isDefaultValue);
+  return useMemo(
+    () => ({
+      canSubmit,
+      isSubmitting,
+      isValidating,
+      isTouched,
+      isDirty,
+      isDefaultValue,
+    }),
+    [canSubmit, isSubmitting, isValidating, isTouched, isDirty, isDefaultValue],
+  );
+}
+
+/** Reactive form slices plus the controller's stable form + submit. */
+export interface UseFormControllerResult<TFormData> extends FormStateSlices {
+  form: ChelonFormApi<TFormData>;
+  submit: () => Promise<void>;
+}
+
+/**
+ * React bridge for an externally created vanilla form controller.
+ *
+ * Binding pattern (Task 4R redesign, P4):
+ * - Controller construction is INERT (no mount, no validation), so creating
+ *   one in a render-phase `useState` initializer is safe: a discarded render
+ *   (Suspense sibling suspending, StrictMode double render, hidden
+ *   `<Activity>` pre-render, a render that throws) leaves only garbage —
+ *   never a live zombie. The `controller` argument is captured on FIRST
+ *   render; passing a different one later is IGNORED by design — remount
+ *   (e.g. with a `key`) to swap controllers.
+ * - `useSyncExternalStore`'s commit-phase subscribe performs the attach: the
+ *   controller runs `form.mount()` on the FIRST subscriber and unmounts on
+ *   the LAST unsubscribe. Unmount, StrictMode's simulated
+ *   mount->cleanup->remount, and `<Activity>` hide/show all flow through this
+ *   single detach/re-attach path — no recreate machinery, nothing leaks.
+ * - There is deliberately NO `useEffect(() => () => controller.destroy())`:
+ *   an effect-cleanup destroy is indistinguishable from an `<Activity>` hide
+ *   (both are effect teardowns without unmount) and would permanently kill a
+ *   controller that must survive to re-attach on reveal. Last-unsubscribe
+ *   detach already releases every resource at unmount; `destroy()` stays the
+ *   imperative teardown for vanilla (non-React) consumers.
+ * - `form` and `submit` are identity-stable across renders; reactivity comes
+ *   from narrow slices, never a whole-state subscription.
+ */
+export function useFormController<TFormData>(
+  controller: FormController<TFormData>,
+): UseFormControllerResult<TFormData> {
+  const [captured] = useState(controller);
+  useAttach(captured.subscribe);
+  const slices = useFormStateSlices(captured.form);
+  return useMemo(
+    () => ({ ...slices, form: captured.form, submit: captured.submit }),
+    [slices, captured],
+  );
+}
+
+/** `useForm` options: the controller options minus the context-injected services. */
+export type UseFormOptions<TFormData> = Omit<
+  FormControllerOptions<TFormData>,
+  "notifications" | "translate"
+>;
+
+/** Type symmetry: `useForm` returns the `useFormController` surface. */
+export type UseFormResult<TFormData> = UseFormControllerResult<TFormData>;
+
+/**
+ * Standalone form hook (bulk-edit-drawer-class custom forms): constructs a
+ * vanilla form controller lazily (notifications + translate injected from
+ * `useCheloneContext`) and bridges it per the `useFormController` doc block.
+ * `options` are captured on first render — remount with a `key` to change.
+ */
+export function useForm<TFormData>(
+  options: UseFormOptions<TFormData>,
+): UseFormResult<TFormData> {
+  const ctx = useCheloneContext();
+  const [controller] = useState<FormController<TFormData>>(() => {
+    const { notifications, i18n } = ctx;
+    return createFormController<TFormData>({
+      ...options,
+      notifications,
+      translate: i18n ? (key) => i18n.translate(key) : undefined,
+    });
+  });
+  return useFormController(controller);
+}
+
+/** Record state + form slices + the composed controller's form and submit. */
+export interface UseEditFormResult<TRecord>
+  extends EditControllerState<TRecord>,
+    FormStateSlices {
+  form: ChelonFormApi<Partial<TRecord>>;
+  submit: () => Promise<void>;
+}
+
+/**
+ * React bridge for the composed edit-form controller (D10 money path). Same
+ * binding pattern as `useFormController` (see its doc block): inert lazy
+ * construction, ONE commit-phase attach spanning BOTH controllers (record
+ * fetch/mutation observers + hydration listener + `form.mount()`), release
+ * on last unsubscribe, deliberately NO destroy effect.
+ * `ctx`/`resource`/`options` changes after mount are IGNORED — remount with
+ * a `key` to change them. Record state re-renders on record events only;
+ * form reactivity is the narrow `FormStateSlices`.
+ */
+export function useEditForm<
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(
+  resource: TName,
+  options: EditFormControllerOptions<RecordOf<TResources, TName>>,
+): UseEditFormResult<RecordOf<TResources, TName>> {
+  type TRecord = RecordOf<TResources, TName>;
+  const ctx = useCheloneContext<TResources>();
+
+  const [controller] = useState<EditFormController<TRecord>>(() =>
+    createEditFormController<TResources, TName>(
+      toFormContext(ctx),
+      resource,
+      options,
+    ),
+  );
+
+  useAttach(controller.subscribe);
+  const recordState = useSyncExternalStore(
+    controller.recordController.subscribe,
+    controller.recordController.getSnapshot,
+    controller.recordController.getSnapshot,
+  );
+  const slices = useFormStateSlices(controller.form);
+
+  return useMemo(
+    () => ({
+      ...recordState,
+      ...slices,
+      form: controller.form,
+      submit: controller.submit,
+    }),
+    [recordState, slices, controller],
+  );
+}
+
+/** Seed-record state + form slices + the composed controller's form and submit. */
+export interface UseCreateFormResult<TRecord>
+  extends CreateControllerState<TRecord>,
+    FormStateSlices {
+  form: ChelonFormApi<Partial<TRecord>>;
+  submit: () => Promise<void>;
+}
+
+/**
+ * React bridge for the composed create-form controller. Follows the
+ * `useEditForm` binding pattern exactly (no hydration machinery — the seed
+ * is known at construction).
+ */
+export function useCreateForm<
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(
+  resource: TName,
+  options?: CreateFormControllerOptions<RecordOf<TResources, TName>>,
+): UseCreateFormResult<RecordOf<TResources, TName>> {
+  type TRecord = RecordOf<TResources, TName>;
+  const ctx = useCheloneContext<TResources>();
+
+  const [controller] = useState<CreateFormController<TRecord>>(() =>
+    createCreateFormController<TResources, TName>(
+      toFormContext(ctx),
+      resource,
+      options,
+    ),
+  );
+
+  useAttach(controller.subscribe);
+  const recordState = useSyncExternalStore(
+    controller.recordController.subscribe,
+    controller.recordController.getSnapshot,
+    controller.recordController.getSnapshot,
+  );
+  const slices = useFormStateSlices(controller.form);
+
+  return useMemo(
+    () => ({
+      ...recordState,
+      ...slices,
+      form: controller.form,
+      submit: controller.submit,
+    }),
+    [recordState, slices, controller],
+  );
+}
+
+export interface UseInputOptions extends FieldBindingUpdateOptions {
+  /** The field path RELATIVE to the ambient source scope (iterator rows compose it). */
+  source: string;
+  /** Forces the required marker; ORed with `required()` detection on `validate`. */
+  isRequired?: boolean;
+  /** Explicit element id; a `useId` value is generated otherwise. */
+  id?: string;
+  /** Chained AFTER the parsed value is written to the form. */
+  onChange?: (eventOrValue?: unknown) => void;
+  /** Chained AFTER the blur is recorded. */
+  onBlur?: (event?: unknown) => void;
+}
+
+/** ra-parity input wiring: spread onto the DOM/UI input. */
+export interface UseInputField {
+  name: string;
+  /** `format(raw)` — recomputed every render, `''` for nullish under the default. */
+  value: unknown;
+  /** Accepts a DOM/synthetic event OR a raw value; writes `parse(extracted)`. */
+  onChange: (eventOrValue?: unknown) => void;
+  onBlur: (event?: unknown) => void;
+}
+
+/** ra-parity field state (+ `isValidating` for async validators). */
+export interface UseInputFieldState {
+  invalid: boolean;
+  isTouched: boolean;
+  isDirty: boolean;
+  isValidating: boolean;
+  /** The first field error, normalized to a displayable/translatable payload. */
+  error: string | TranslatableMessage | undefined;
+}
+
+export interface UseInputResult {
+  id: string;
+  field: UseInputField;
+  fieldState: UseInputFieldState;
+  isRequired: boolean;
+}
+
+/** One binding per (form, final source) pair — the useInput identity key. */
+interface InputBindingHolder {
+  form: ChelonFormApi<UnknownFormValues>;
+  binding: FieldBinding<UnknownFormValues>;
+}
+
+/**
+ * The non-identity binding options for the CURRENT render's props. The
+ * validators' meta argument carries the full input props (ra parity: custom
+ * validators can read them), with an explicit `validatorMeta` merged on top.
+ */
+function toBindingUpdate(options: UseInputOptions): FieldBindingUpdateOptions {
+  const meta: Record<string, unknown> = {};
+  Object.assign(meta, options, options.validatorMeta);
+  return {
+    defaultValue: options.defaultValue,
+    format: options.format,
+    parse: options.parse,
+    validate: options.validate,
+    schema: options.schema,
+    validatorMeta: meta,
+  };
+}
+
+/**
+ * RHF-compatible event extraction: DOM/synthetic change events yield
+ * `target.checked` for checkboxes and `target.value` otherwise; anything
+ * else (a raw value, a custom picker's payload) passes through untouched.
+ */
+function extractEventValue(input: unknown): unknown {
+  if (typeof input === "object" && input !== null && "target" in input) {
+    const { target } = input as { target: unknown };
+    if (
+      typeof target === "object" &&
+      target !== null &&
+      ("value" in target || "checked" in target)
+    ) {
+      const element = target as {
+        type?: unknown;
+        checked?: unknown;
+        value?: unknown;
+      };
+      return element.type === "checkbox" ? element.checked : element.value;
+    }
+  }
+  return input;
+}
+
+/** Error-map scan order: server/submit errors first, then validator causes. */
+const ERROR_MAP_PRIORITY = [
+  "onSubmit",
+  "onDynamic",
+  "onChange",
+  "onBlur",
+  "onMount",
+  "onServer",
+] as const;
+
+/** First displayable error across the field's error-map causes, normalized. */
+function firstFieldError(
+  errorMap: object,
+): string | TranslatableMessage | undefined {
+  const map = errorMap as Record<string, unknown>;
+  for (const cause of ERROR_MAP_PRIORITY) {
+    const normalized = normalizeFormError(map[cause]);
+    if (normalized !== undefined) return normalized;
+  }
+  return undefined;
+}
+
+/**
+ * The input workhorse (ra's useInput rebridged onto form-core).
+ *
+ * Consumes the ambient `<CheloneFormProvider>` form and SourceContext scope.
+ * Follows the react-form useField shape over the ratified 4R lifecycle:
+ * - The field binding (T3) is constructed INERTLY in a render-phase
+ *   `useState` and RECREATED when the form or the final source changes
+ *   (react-form's own recreate key); the abandoned binding was either never
+ *   attached (discarded render — garbage, not a zombie) or detaches when the
+ *   attach driver re-subscribes.
+ * - The commit-phase attach driver routes `field.mount()` through the
+ *   binding's refcounted subscribe — NEVER a bare render-phase mount — so
+ *   registration/seeding only ever happen for committed components, and
+ *   StrictMode / `<Activity>` hide/show flow through detach/re-attach.
+ * - Non-identity options (format/parse/validate/defaultValue) stay FRESH via
+ *   `binding.update` after every commit (react-form's `field.update`
+ *   pattern) — by the time an event handler can fire, the binding sees the
+ *   latest props.
+ * - Reactivity is per-field: slices over the identity-memoized `field.store`
+ *   (react-form's slice pattern), so typing here never re-renders sibling
+ *   inputs.
+ */
+export function useInput(options: UseInputOptions): UseInputResult {
+  const { form } = useCheloneFormContext();
+  const scope = useSourceContext();
+  const source = scope.getSource(options.source);
+  const generatedId = useId();
+
+  const [holder, setHolder] = useState<InputBindingHolder>(() => ({
+    form,
+    binding: createFieldBinding(form, { ...toBindingUpdate(options), source }),
+  }));
+  let active = holder;
+  if (active.form !== form || active.binding.source !== source) {
+    // Render-phase derived-state reset (react-form recreates its FieldApi the
+    // same way). The new binding is inert until the attach driver commits.
+    active = {
+      form,
+      binding: createFieldBinding(form, {
+        ...toBindingUpdate(options),
+        source,
+      }),
+    };
+    setHolder(active);
+  }
+  const { binding } = active;
+
+  useAttach(binding.subscribe);
+
+  const store = binding.field.store;
+  const rawValue = useSelector(store, (s) => s.value);
+  const isTouched = useSelector(store, (s) => s.meta.isTouched);
+  const isDirty = useSelector(store, (s) => s.meta.isDirty);
+  const isValidating = useSelector(store, (s) => s.meta.isValidating);
+  const errorMap = useSelector(store, (s) => s.meta.errorMap);
+
+  // Freshness after every commit — deliberately no dependency array.
+  useEffect(() => {
+    binding.update(toBindingUpdate(options));
+  });
+
+  const format = options.format ?? defaultFormat;
+  const error = firstFieldError(errorMap);
+
+  return {
+    id: options.id ?? generatedId,
+    field: {
+      name: source,
+      value: format(rawValue),
+      onChange: (eventOrValue?: unknown) => {
+        binding.setValue(extractEventValue(eventOrValue));
+        options.onChange?.(eventOrValue);
+      },
+      onBlur: (event?: unknown) => {
+        binding.blur();
+        options.onBlur?.(event);
+      },
+    },
+    fieldState: {
+      invalid: error !== undefined,
+      isTouched,
+      isDirty,
+      isValidating,
+      error,
+    },
+    isRequired:
+      options.isRequired === true || hasRequiredValidator(options.validate),
+  };
+}
