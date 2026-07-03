@@ -19,6 +19,11 @@ describe("@chelone/core barrel", () => {
     expect(barrel.createCreateFormController).toBeTypeOf("function");
   });
 
+  it("exports the P6 FormGroups primitive (registry + reducer)", () => {
+    expect(barrel.createFormGroups).toBeTypeOf("function");
+    expect(barrel.reduceGroupState).toBeTypeOf("function");
+  });
+
   it("exports the P5 field-binding + source + array primitives", () => {
     expect(barrel.createFieldBinding).toBeTypeOf("function");
     expect(barrel.defaultFormat).toBeTypeOf("function");

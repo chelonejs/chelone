@@ -33,6 +33,7 @@ import {
 } from "react";
 import { type CheloneContextValue, useCheloneContext } from "./context";
 import { firstFieldError, sameDisplayError } from "./field-error";
+import { useRegisterFieldGroup } from "./form/group-hooks";
 import { useCheloneFormContext, useSourceContext } from "./form-context";
 
 /** The erased form-data shape ambient (context-provided) forms carry. */
@@ -402,6 +403,10 @@ export function useInput(options: UseInputOptions): UseInputResult {
   const scope = useSourceContext();
   const source = scope.getSource(options.source);
   const generatedId = useId();
+
+  // Auto-register the FINAL source into the ambient form group (if any) so a
+  // tab/step badge aggregates this field's validity. No-op outside a group.
+  useRegisterFieldGroup(source);
 
   const [holder, setHolder] = useState<InputBindingHolder>(() => ({
     form,

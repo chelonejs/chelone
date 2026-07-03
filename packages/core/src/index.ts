@@ -135,6 +135,13 @@ export {
   normalizeFormError,
 } from "./form/form-controller";
 export type {
+  FormGroups,
+  FormGroupsListener,
+  GroupFieldMeta,
+  GroupState,
+} from "./form/form-groups";
+export { createFormGroups, reduceGroupState } from "./form/form-groups";
+export type {
   ChelonFieldApi,
   ChelonFieldState,
   FieldBinding,

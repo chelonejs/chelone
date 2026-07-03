@@ -123,6 +123,19 @@ export {
   useShowController,
 } from "./controller-hooks";
 export type {
+  FormGroupProviderProps,
+  FormGroupsProviderProps,
+} from "./form";
+export {
+  FormGroupProvider,
+  FormGroupsProvider,
+  useFormGroup,
+  useFormGroupName,
+  useFormGroups,
+  useOptionalFormGroups,
+  useRegisterFieldGroup,
+} from "./form";
+export type {
   CheloneFormContextValue,
   CheloneFormProviderProps,
   SourceContextProviderProps,
