@@ -99,6 +99,13 @@ export type {
 } from "./form/array-binding";
 export { createArrayBinding } from "./form/array-binding";
 export type {
+  ChoicesController,
+  ChoicesControllerContext,
+  ChoicesControllerOptions,
+  ChoicesControllerState,
+} from "./form/choices-controller";
+export { createChoicesController } from "./form/choices-controller";
+export type {
   CreateFormController,
   CreateFormControllerOptions,
   CreateFormControllerState,
