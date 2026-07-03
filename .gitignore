@@ -137,3 +137,6 @@ dist
 
 # Turborepo
 .turbo
+
+# Superpowers SDD workspace (briefs, reports, ledger — local only)
+.superpowers/
