@@ -18,10 +18,14 @@ import type {
   HandleAuthCallbackResult,
   ListContextValue,
   PartitionedChildren,
+  RecordContextProviderProps,
+  RecordContextValue,
   ResourceProps,
   RouterAdapter,
   TabbedFormProps,
+  UseFieldValueOptions,
   UseFilterFormResult,
+  UseRecordContextOptions,
   UseTabbedFormResult,
   UseWizardFormResult,
   WarnWhenUnsavedChangesDecision,
@@ -102,6 +106,13 @@ describe("@chelone/react barrel — P6 shell + router surface (W1)", () => {
     expect(barrel.useRegisterResources).toBeTypeOf("function");
     expect(barrel.useResourceDefinition).toBeTypeOf("function");
     expect(barrel.useResourceDefinitions).toBeTypeOf("function");
+  });
+
+  it("exports the record context + field-value compat layer (P7a)", () => {
+    expect(barrel.RecordContext).toBeTypeOf("object");
+    expect(barrel.RecordContextProvider).toBeTypeOf("function");
+    expect(barrel.useRecordContext).toBeTypeOf("function");
+    expect(barrel.useFieldValue).toBeTypeOf("function");
   });
 
   it("exports the RouterAdapter interface + both adapters + injection", () => {
@@ -193,8 +204,12 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
       | HandleAuthCallbackResult
       | ListContextValue
       | PartitionedChildren
+      | RecordContextProviderProps
+      | RecordContextValue
       | ResourceProps
       | RouterAdapter
+      | UseFieldValueOptions
+      | UseRecordContextOptions
       | TabbedFormProps<unknown>
       | UseFilterFormResult
       | UseTabbedFormResult

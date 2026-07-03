@@ -201,6 +201,18 @@ export {
 export { useLocale, useSetLocale, useTranslate } from "./i18n-hooks";
 export { useNotifications, useNotify } from "./notification-hooks";
 export type {
+  RecordContextProviderProps,
+  RecordContextValue,
+  UseRecordContextOptions,
+} from "./record/record-context";
+export {
+  RecordContext,
+  RecordContextProvider,
+  useRecordContext,
+} from "./record/record-context";
+export type { UseFieldValueOptions } from "./record/use-field-value";
+export { useFieldValue } from "./record/use-field-value";
+export type {
   ResourceContextProviderProps,
   ResourceContextValue,
   ResourceProps,
