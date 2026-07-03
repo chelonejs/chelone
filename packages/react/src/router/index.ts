@@ -43,3 +43,4 @@ export {
   useRedirect,
 } from "./nav-hooks";
 export { reactRouterAdapter } from "./react-router-adapter";
+export { tanstackRouterAdapter } from "./tanstack-router-adapter";

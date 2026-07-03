@@ -17,17 +17,22 @@
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5.0.0",
+    "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
     "react": "^18 || ^19",
     "react-router": "^7.0.0"
   },
   "peerDependenciesMeta": {
+    "@tanstack/react-router": {
+      "optional": true
+    },
     "react-router": {
       "optional": false
     }
   },
   "devDependencies": {
     "@tanstack/react-query": "^5.0.0",
+    "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
     "@testing-library/react": "^16.0.0",
     "@types/react": "^19",
