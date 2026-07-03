@@ -177,6 +177,7 @@ export {
   regex,
   required,
 } from "./form/validators";
+export { defaultMessages } from "./i18n/default-messages";
 export type { AnyChelonI18n, ChelonI18n } from "./i18n/i18n";
 export { createI18n } from "./i18n/i18n";
 export type {
