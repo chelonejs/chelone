@@ -42,7 +42,7 @@ const EMPTY_FILTER: FilterPayload = {};
 export function useList<TRecord extends ResourceRecord = ResourceRecord>(
   options: UseListOptions<TRecord>,
 ): UseListResult<TRecord> {
-  const { data, filter } = options;
+  const { data, filter, isPending, isFetching, error } = options;
 
   const [controller] = useState<ClientListController<TRecord>>(() =>
     createClientListController(options),
@@ -93,6 +93,21 @@ export function useList<TRecord extends ResourceRecord = ResourceRecord>(
     lastReflectedFilterKey.current = filterKey;
     controller.setSourceFilter(filterRef.current ?? EMPTY_FILTER);
   }, [filterKey, controller]);
+
+  // Reflect external LOADING-FLAG prop changes (async source feeding the list).
+  // Declared AFTER the data effect so that on a render where both `data` and
+  // `isPending` change (source resolves), `setData` lands first (recompute
+  // still blanks while pending) and the `isPending: false` recompute here then
+  // populates the derived slice. `setLoadingState` diffs internally, so a plain
+  // scalar dep list is safe — no key stringify needed. Skips the mount seed.
+  const loadingReflected = useRef(false);
+  useEffect(() => {
+    if (!loadingReflected.current) {
+      loadingReflected.current = true; // seeded at construction.
+      return;
+    }
+    controller.setLoadingState({ isPending, isFetching, error });
+  }, [isPending, isFetching, error, controller]);
 
   return useMemo(
     () => ({

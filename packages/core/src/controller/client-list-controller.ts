@@ -23,7 +23,6 @@ export interface ClientListControllerOptions<TRecord> {
   perPage?: number;
   /** Pass-through loading flags for callers wiring an async source into a client list. */
   isPending?: boolean;
-  isLoading?: boolean;
   isFetching?: boolean;
   /** Pass-through error. Default `null`. */
   error?: unknown;
@@ -36,11 +35,28 @@ export interface ClientListControllerOptions<TRecord> {
  * React bridge uses to push external `data` / `filter` prop changes without
  * remounting.
  */
+/**
+ * The subset of loading flags a caller may push from an async source (external
+ * prop changes). Reflected into controller state, and `isPending` re-triggers
+ * the derived-slice recompute (pending -> blanks data; resolved -> populates).
+ */
+export interface ClientListLoadingState {
+  isPending?: boolean;
+  isFetching?: boolean;
+  error?: unknown;
+}
+
 export interface ClientListController<TRecord> extends ListController<TRecord> {
   /** Replace the source records (external `data` prop change) and recompute. */
   setData(data: TRecord[] | undefined): void;
   /** Replace the user filter from the `filter` prop (external change) and recompute. */
   setSourceFilter(filter: FilterPayload): void;
+  /**
+   * Push external loading-flag changes (async source feeding a client list).
+   * An `isPending` transition re-runs the derived-slice recompute so data
+   * populates once the source resolves — the documented async-source path.
+   */
+  setLoadingState(patch: ClientListLoadingState): void;
 }
 
 const DEFAULT_PER_PAGE = 1000;
@@ -181,8 +197,6 @@ export function createClientListController<
   // Mutable source of truth for the "input" side (data + params).
   let source: TRecord[] | undefined = options.data;
 
-  const isPending = options.isPending ?? false;
-
   const store = createMicroStore<ListControllerState<TRecord>>({
     page: options.page ?? 1,
     perPage: options.perPage ?? DEFAULT_PER_PAGE,
@@ -193,7 +207,7 @@ export function createClientListController<
     data: undefined,
     total: undefined,
     pageInfo: undefined,
-    isPending,
+    isPending: options.isPending ?? false,
     isFetching: options.isFetching ?? false,
     error: options.error ?? null,
     hasNextPage: undefined,
@@ -360,6 +374,28 @@ export function createClientListController<
     recompute();
   };
 
+  const setLoadingState = (patch: ClientListLoadingState): void => {
+    if (destroyed) return;
+    const s = store.getSnapshot();
+    const next: Partial<ListControllerState<TRecord>> = {};
+    if (patch.isPending !== undefined && patch.isPending !== s.isPending) {
+      next.isPending = patch.isPending;
+    }
+    if (patch.isFetching !== undefined && patch.isFetching !== s.isFetching) {
+      next.isFetching = patch.isFetching;
+    }
+    if (patch.error !== undefined && patch.error !== s.error) {
+      next.error = patch.error;
+    }
+    if (Object.keys(next).length === 0) return;
+    // Land the flag patch in state BEFORE recompute — recompute reads
+    // `isPending` from the snapshot, so it must see the new value.
+    store.setState(next);
+    // Only an isPending transition changes the derived slice (data blanks
+    // while pending, repopulates once resolved). Skip the recompute otherwise.
+    if (next.isPending !== undefined) recompute();
+  };
+
   return {
     ...store,
     setPage,
@@ -375,5 +411,6 @@ export function createClientListController<
     refetch,
     setData,
     setSourceFilter,
+    setLoadingState,
   };
 }

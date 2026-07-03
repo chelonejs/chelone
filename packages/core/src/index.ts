@@ -15,6 +15,7 @@ export type { AuthProvider, CanAccessParams, UserIdentity } from "./auth/types";
 export type {
   ClientListController,
   ClientListControllerOptions,
+  ClientListLoadingState,
 } from "./controller/client-list-controller";
 export { createClientListController } from "./controller/client-list-controller";
 export type {

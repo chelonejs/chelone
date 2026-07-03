@@ -23,13 +23,16 @@ it("useList returns a UseListResult assignable to ListContextValue", () => {
   expectTypeOf(result.isPending).toBeBoolean();
 });
 
-it("useList options accept data/sort/filter/page/perPage", () => {
+it("useList options accept data/sort/filter/page/perPage + async flags", () => {
   expectTypeOf<UseListOptions<Row>>().toMatchTypeOf<{
     data?: Row[];
     sort?: SortPayload | SortPayload[];
     filter?: FilterPayload;
     page?: number;
     perPage?: number;
+    isPending?: boolean;
+    isFetching?: boolean;
+    error?: unknown;
   }>();
 });
 

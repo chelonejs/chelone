@@ -278,6 +278,55 @@ describe("createClientListController", () => {
     });
   });
 
+  describe("async loading flags (isPending reflection)", () => {
+    it("populates data once isPending flips true -> false", () => {
+      // The documented async-source capability: start pending with no data,
+      // then the async source resolves (data arrives + isPending -> false).
+      const c = createClientListController<Row>({
+        data: undefined,
+        isPending: true,
+      });
+      expect(c.getSnapshot().data).toBeUndefined();
+      c.setData(data);
+      c.setLoadingState({ isPending: false });
+      const s = c.getSnapshot();
+      expect(s.isPending).toBe(false);
+      expect(s.data).toEqual(data);
+      expect(s.total).toBe(4);
+    });
+
+    it("blanks data when isPending flips false -> true (refetch)", () => {
+      const c = createClientListController<Row>({ data });
+      expect(c.getSnapshot().data).toEqual(data);
+      c.setLoadingState({ isPending: true });
+      const s = c.getSnapshot();
+      expect(s.isPending).toBe(true);
+      expect(s.data).toBeUndefined();
+      expect(s.total).toBeUndefined();
+    });
+
+    it("reflects isFetching / error changes", () => {
+      const c = createClientListController<Row>({ data });
+      const err = new Error("boom");
+      c.setLoadingState({ isFetching: true, error: err });
+      const s = c.getSnapshot();
+      expect(s.isFetching).toBe(true);
+      expect(s.error).toBe(err);
+    });
+
+    it("setLoadingState is a no-op patch when nothing changes (snapshot stable)", () => {
+      const c = createClientListController<Row>({ data });
+      const before = c.getSnapshot();
+      let calls = 0;
+      c.subscribe(() => {
+        calls += 1;
+      });
+      c.setLoadingState({ isPending: false });
+      expect(c.getSnapshot()).toBe(before);
+      expect(calls).toBe(0);
+    });
+  });
+
   describe("showFilter / hideFilter", () => {
     it("showFilter marks a filter displayed and seeds a default", () => {
       const c = createClientListController<Row>({ data });

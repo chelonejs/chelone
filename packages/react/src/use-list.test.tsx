@@ -124,6 +124,47 @@ describe("useList", () => {
     expect(result.current.hasNextPage).toBe(false);
   });
 
+  it("reflects an async source resolving (isPending true -> false + data)", () => {
+    // The documented capability: a caller wires an async source into useList
+    // via {data, isPending}. Starts pending (data undefined); once the source
+    // resolves the props flip and the derived slice must populate.
+    interface Props {
+      rows: Row[] | undefined;
+      pending: boolean;
+    }
+    const { result, rerender } = renderHook(
+      ({ rows, pending }: Props) =>
+        useList<Row>({ data: rows, isPending: pending }),
+      { initialProps: { rows: undefined, pending: true } as Props },
+    );
+    expect(result.current.isPending).toBe(true);
+    expect(result.current.data).toBeUndefined();
+
+    rerender({ rows: data, pending: false });
+    expect(result.current.isPending).toBe(false);
+    expect(result.current.data).toEqual(data);
+    expect(result.current.total).toBe(4);
+  });
+
+  it("reflects an isFetching / error prop change", () => {
+    interface Props {
+      fetching: boolean;
+      error: unknown;
+    }
+    const err = new Error("boom");
+    const { result, rerender } = renderHook(
+      ({ fetching, error }: Props) =>
+        useList<Row>({ data, isFetching: fetching, error }),
+      { initialProps: { fetching: false, error: null } as Props },
+    );
+    expect(result.current.isFetching).toBe(false);
+    expect(result.current.error).toBe(null);
+
+    rerender({ fetching: true, error: err });
+    expect(result.current.isFetching).toBe(true);
+    expect(result.current.error).toBe(err);
+  });
+
   it("survives StrictMode double-mount without losing state", () => {
     const { result } = renderHook(() => useList<Row>({ data, perPage: 2 }), {
       wrapper: StrictMode,
