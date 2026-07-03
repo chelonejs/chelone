@@ -15,7 +15,7 @@
  * adapter) so nested `<Routes>` matching is observable.
  */
 
-import { fakeDataProvider } from "@chelone/core";
+import { fakeDataProvider, type ResourceDefinition } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -76,6 +76,54 @@ const ListView = () => <div data-testid="list">list</div>;
 const CreateView = () => <div data-testid="create">create</div>;
 const ShowView = () => <div data-testid="show">show</div>;
 const EditView = () => <div data-testid="edit">edit</div>;
+
+/** The static shape the registry partition + registration hook read off a marker. */
+interface ResourceMarker {
+  chelName: "Resource";
+  registerResource: (
+    props: Record<string, unknown>,
+    permissions: unknown,
+  ) => ResourceDefinition;
+}
+
+/** Build a `<Resource>`-shaped marker with a bespoke permission-aware registrar. */
+function makeMarker(
+  registerResource: ResourceMarker["registerResource"],
+): ResourceMarker & ((props: Record<string, unknown>) => null) {
+  const marker = ((_: Record<string, unknown>) => null) as ResourceMarker &
+    ((props: Record<string, unknown>) => null);
+  Object.defineProperty(marker, "chelName", { value: "Resource" });
+  marker.registerResource = registerResource;
+  return marker;
+}
+
+/** hasCreate is granted only to the "admin" permission (a captured signature field). */
+const PermissionAwareResource = makeMarker((props, permissions) => ({
+  name: props.name as string,
+  hasList: true,
+  hasCreate: permissions === "admin",
+  hasEdit: false,
+  hasShow: false,
+  icon: undefined,
+  recordRepresentation: undefined,
+  options: undefined,
+}));
+
+/**
+ * recordRepresentation flips undefined → null on the "admin" permission. Both
+ * collapse to the same signature token, so ONLY the `permissions` effect dep
+ * (not the signature) can force the entry to track the change.
+ */
+const NullReprResource = makeMarker((props, permissions) => ({
+  name: props.name as string,
+  hasList: true,
+  hasCreate: false,
+  hasEdit: false,
+  hasShow: false,
+  icon: undefined,
+  recordRepresentation: permissions === "admin" ? null : undefined,
+  options: undefined,
+}));
 
 describe("Resource — marker + static registration contract", () => {
   it("carries the chelName='Resource' marker for the partition", () => {
@@ -329,8 +377,92 @@ describe("useRegisterResources — lifecycle", () => {
     ]);
   });
 
-  it("re-runs registration when permissions change", () => {
-    const registerSpy = vi.spyOn(Resource, "registerResource");
+  it("re-registers the entry when a permission-aware registrar's definition flips (hasCreate)", () => {
+    // A permission-aware custom `<Resource>` marker: hasCreate is granted only
+    // to the "admin" permission. This is the ra-core contract — the registrar
+    // re-runs on a permissions change and the REGISTRY ENTRY tracks it. The old
+    // test spied on registerResource call COUNT, which the render body bumps
+    // every render regardless of any effect re-run — vacuous. Here we assert the
+    // stored definition itself changes.
+    const { Wrapper, registryRef } = registryWrapper();
+    function Register({ permissions }: { permissions: unknown }) {
+      useRegisterResources(
+        <PermissionAwareResource name="posts" list={ListView} />,
+        permissions,
+      );
+      return null;
+    }
+    function Harness() {
+      const [permissions, setPermissions] = useState<unknown>("viewer");
+      return (
+        <Wrapper>
+          <Register permissions={permissions} />
+          <button
+            type="button"
+            data-testid="promote"
+            onClick={() => setPermissions("admin")}
+          >
+            promote
+          </button>
+        </Wrapper>
+      );
+    }
+    render(<Harness />);
+    // viewer: no create.
+    expect(registryRef.current?.get("posts")?.hasCreate).toBe(false);
+    act(() => {
+      screen.getByTestId("promote").click();
+    });
+    // admin: the flip re-ran the registrar and the stored entry now grants create.
+    expect(registryRef.current?.get("posts")?.hasCreate).toBe(true);
+  });
+
+  it("re-registers on a permission flip even when the definition signature is lossy (null vs undefined repr)", () => {
+    // The signature key serializes `recordRepresentation` by identity, and both
+    // `null` and `undefined` collapse to the empty token. Keying the effect on
+    // `permissions` (not just the signature) guarantees the entry still tracks a
+    // permission-dependent change the signature can't distinguish — matching
+    // ra-core, which re-runs registration on every permissions change.
+    const { Wrapper, registryRef } = registryWrapper();
+    function Register({ permissions }: { permissions: unknown }) {
+      useRegisterResources(
+        <NullReprResource name="posts" list={ListView} />,
+        permissions,
+      );
+      return null;
+    }
+    function Harness() {
+      const [permissions, setPermissions] = useState<unknown>("viewer");
+      return (
+        <Wrapper>
+          <Register permissions={permissions} />
+          <button
+            type="button"
+            data-testid="promote"
+            onClick={() => setPermissions("admin")}
+          >
+            promote
+          </button>
+        </Wrapper>
+      );
+    }
+    render(<Harness />);
+    expect(registryRef.current?.get("posts")?.recordRepresentation).toBe(
+      undefined,
+    );
+    act(() => {
+      screen.getByTestId("promote").click();
+    });
+    // Signature is byte-identical across the flip; only the `permissions` dep
+    // forces the re-run that updates the entry to the admin value.
+    expect(registryRef.current?.get("posts")?.recordRepresentation).toBe(null);
+  });
+
+  it("does NOT churn subscribers when a permission-INDEPENDENT registrar's permissions flip", () => {
+    // The default `<Resource>` ignores permissions, so a flip recomputes an
+    // identical definition. The core isEqual-guard must absorb the re-register
+    // (no notify) — the `permissions` dep must not reintroduce redundant churn.
+    const { Wrapper, registryRef } = registryWrapper();
     function Register({ permissions }: { permissions: unknown }) {
       useRegisterResources(
         <Resource name="posts" list={ListView} />,
@@ -341,7 +473,7 @@ describe("useRegisterResources — lifecycle", () => {
     function Harness() {
       const [permissions, setPermissions] = useState<unknown>("role-a");
       return (
-        <ResourceRegistryProvider>
+        <Wrapper>
           <Register permissions={permissions} />
           <button
             type="button"
@@ -350,19 +482,20 @@ describe("useRegisterResources — lifecycle", () => {
           >
             flip
           </button>
-        </ResourceRegistryProvider>
+        </Wrapper>
       );
     }
     render(<Harness />);
-    const callsAfterMount = registerSpy.mock.calls.length;
+    const registry = registryRef.current;
+    if (!registry) throw new Error("no registry captured");
+    const listener = vi.fn();
+    const unsub = registry.subscribe(listener);
     act(() => {
       screen.getByTestId("flip").click();
     });
-    // Permissions flip re-ran registerResource (register + prior-unregister).
-    expect(registerSpy.mock.calls.length).toBeGreaterThan(callsAfterMount);
-    const lastCall = registerSpy.mock.calls.at(-1);
-    expect(lastCall?.[1]).toBe("role-b");
-    registerSpy.mockRestore();
+    // Permission-independent definition unchanged → isEqual-guard no-op → no notify.
+    expect(listener).not.toHaveBeenCalled();
+    unsub();
   });
 
   it("does not notify subscribers when a stable definition re-registers", () => {

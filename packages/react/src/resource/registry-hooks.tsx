@@ -214,6 +214,24 @@ function optionsSignature(
  * + icon/repr/options identity), not just the names — so a runtime non-name prop
  * change (`hasEdit`, a swapped view, a changed `options` bag) re-runs
  * registration and the stored definition stays current, instead of going stale.
+ *
+ * Registration is split into TWO effects so a permissions change updates the
+ * stored definition WITHOUT tearing it down (parity §0a-8: ra-core re-runs
+ * `registerResource(props, permissions)` on every permissions change):
+ *
+ * - The LIFECYCLE effect keys on the resource-NAME set: it registers each
+ *   resource and, in cleanup, unregisters the ones it added. It re-runs only
+ *   when a `<Resource>` is added or removed — so a mere prop/permissions change
+ *   never unregisters (which would notify twice: an unregister then a register).
+ * - The UPDATE effect keys on `signature` (the derived definition — name +
+ *   `has*` + icon/repr/options identity) AND `permissions`. It ONLY `register()`s
+ *   (no cleanup), so the core `isEqual`-guard absorbs a no-op: an unchanged
+ *   definition does not notify. `permissions` is a key because the signature is a
+ *   LOSSY view of the definition (`null` and `undefined` `recordRepresentation`
+ *   both serialize to the empty token), so a permission-aware registrar's change
+ *   the signature can't distinguish is still applied on a flip. A
+ *   permission-INDEPENDENT registrar recomputes an identical definition on a
+ *   flip → isEqual no-op → no churn.
  */
 export function useRegisterResources(
   children: ReactNode,
@@ -226,25 +244,23 @@ export function useRegisterResources(
   const definitions = resources.map((r) =>
     r.registerResource(r.props, permissions),
   );
-  // A stable dependency the effect can key on: the full definition signatures.
-  // Any definition-relevant prop change (not just the name) flips this.
+  // The lifecycle key: the ordered resource names. Changes only on add/remove.
+  const names = definitions.map((definition) => definition.name).join("\n");
+  // The update key: the full definition signatures. Any definition-relevant prop
+  // change (not just the name) flips this.
   const signature = definitions.map(definitionSignature).join("\n");
 
-  // Keep the freshest derived definitions in a ref (updated every render) so
-  // the effect reads them WITHOUT depending on the array's per-render identity.
-  // It is instead keyed on `signature` alone — which already folds in
-  // `permissions` (via `registerResource`) — so it re-runs on a real definition
-  // change but not on an incidental re-render.
+  // Keep the freshest derived definitions in a ref (updated every render) so the
+  // effects read them WITHOUT depending on the array's per-render identity —
+  // they are keyed on `names` / `signature` / `permissions` instead.
   const definitionsRef = useRef(definitions);
   definitionsRef.current = definitions;
 
-  // `signature` is a DELIBERATE invalidation key: it is not read in the body
-  // (the definitions come from the ref), but a change to it means a resource was
-  // added/removed OR a definition changed, which must re-run registration.
-  // Biome sees it as "extra" because the body reads the ref — the suppression is
-  // exact. `permissions` is not in the key because it is already folded into
-  // each definition (via `registerResource`), and hence into `signature`.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: `signature` is the intentional definition-change invalidation key; the body reads the freshest definitions via `definitionsRef`.
+  // LIFECYCLE: register on mount, unregister on unmount / resource removal. Keyed
+  // on `names` only, so a prop or permissions change does NOT tear a resource
+  // down and re-add it (which would double-notify). Biome sees `names` as "extra"
+  // because the body reads the ref — the suppression is exact.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `names` is the intentional add/remove lifecycle key; the body reads the freshest definitions via `definitionsRef`.
   useEffect(() => {
     const current = definitionsRef.current;
     for (const definition of current) {
@@ -255,7 +271,22 @@ export function useRegisterResources(
         registry.unregister(definition.name);
       }
     };
-  }, [registry, signature]);
+  }, [registry, names]);
+
+  // UPDATE: re-`register()` (no unregister) whenever a definition changes OR
+  // permissions flip, so the stored entry tracks the latest registrar output.
+  // The core isEqual-guard no-ops an unchanged definition (no notify), so a
+  // permission-INDEPENDENT flip does not churn subscribers. `signature` folds in
+  // most changes; `permissions` covers the lossy-signature case. This effect runs
+  // AFTER the lifecycle effect on mount, re-registering the identical definitions
+  // it just added (isEqual no-op) — no double registration.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `signature`/`permissions` are the intentional change keys; the body reads the freshest definitions via `definitionsRef`.
+  useEffect(() => {
+    const current = definitionsRef.current;
+    for (const definition of current) {
+      registry.register(definition);
+    }
+  }, [registry, signature, permissions]);
 }
 
 /**
