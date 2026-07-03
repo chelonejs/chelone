@@ -15,9 +15,11 @@ import {
 } from "./save-pipeline";
 
 /** A sync validator slot of the wrapped FormApi: fn, Standard Schema, or absent. */
-type SyncValidator<TRecord> = FormValidateOrFn<TRecord> | undefined;
+export type SyncValidator<TRecord> = FormValidateOrFn<TRecord> | undefined;
 /** An async validator slot of the wrapped FormApi. */
-type AsyncValidator<TRecord> = FormAsyncValidateOrFn<TRecord> | undefined;
+export type AsyncValidator<TRecord> =
+  | FormAsyncValidateOrFn<TRecord>
+  | undefined;
 
 /**
  * The wrapped FormApi, generic in the DATA type only. form-core's FormApi
@@ -290,11 +292,13 @@ export function createFormController<TRecord>(
     validators: dynamicValidator
       ? { ...userFormOptions?.validators, onDynamic: dynamicValidator }
       : userFormOptions?.validators,
-    // revalidateLogic routes the onDynamic slot: run on submit, re-run on
-    // change once a submission failed. A user-supplied validationLogic wins.
-    validationLogic:
-      userFormOptions?.validationLogic ??
-      (dynamicValidator ? revalidateLogic() : undefined),
+    // revalidateLogic routes the onDynamic slots: run on submit, re-run on
+    // change once a submission failed. ALWAYS set (not only when the form
+    // has its own dynamic validator): FIELD bindings (T3) wire their
+    // validators into the field onDynamic slots, and those route through
+    // `form.options.validationLogic` — under form-core's default logic they
+    // would never run (probed on 1.33). A user-supplied validationLogic wins.
+    validationLogic: userFormOptions?.validationLogic ?? revalidateLogic(),
     onSubmit,
     onSubmitInvalid,
   };

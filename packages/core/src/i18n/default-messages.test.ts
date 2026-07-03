@@ -12,6 +12,15 @@ describe("defaultMessages", () => {
       "chelone.notification.http_error",
       "chelone.notification.item_doesnt_exist",
       "chelone.notification.updated",
+      "chelone.validation.email",
+      "chelone.validation.maxLength",
+      "chelone.validation.maxValue",
+      "chelone.validation.minLength",
+      "chelone.validation.minValue",
+      "chelone.validation.number",
+      "chelone.validation.oneOf",
+      "chelone.validation.regex",
+      "chelone.validation.required",
     ];
     for (const key of emittedKeys) {
       expect(defaultMessages, `missing key: ${key}`).toHaveProperty([key]);

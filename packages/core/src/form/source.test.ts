@@ -1,0 +1,64 @@
+import { describe, expect, it } from "vitest";
+import {
+  composeSource,
+  createArraySourceScope,
+  createRowSourceScope,
+  rootSourceScope,
+} from "./source";
+
+describe("composeSource", () => {
+  it("joins object members with a dot", () => {
+    expect(composeSource("coordinates", "lat")).toBe("coordinates.lat");
+  });
+
+  it("concatenates bracket fragments without a dot (form-core path syntax)", () => {
+    expect(composeSource("items", "[0]")).toBe("items[0]");
+    expect(composeSource("items", "[0].sku")).toBe("items[0].sku");
+  });
+
+  it("returns the other part when one side is empty", () => {
+    expect(composeSource("", "lat")).toBe("lat");
+    expect(composeSource("coordinates", "")).toBe("coordinates");
+  });
+});
+
+describe("rootSourceScope", () => {
+  it("is the identity scope", () => {
+    expect(rootSourceScope.getSource("title")).toBe("title");
+    expect(rootSourceScope.getLabel("title")).toBe("title");
+  });
+});
+
+describe("array + row scopes", () => {
+  const orders = createArraySourceScope(rootSourceScope, "orders");
+  const row0 = createRowSourceScope(orders, 0);
+
+  it("array scope resolves the array source itself for an empty child", () => {
+    expect(orders.getSource("")).toBe("orders");
+    expect(orders.getLabel("")).toBe("orders");
+  });
+
+  it("row scope addresses the row with the bracket convention", () => {
+    expect(row0.getSource("")).toBe("orders[0]");
+    expect(row0.getSource("date")).toBe("orders[0].date");
+  });
+
+  it("row labels are index-free (translation keys must not contain indices)", () => {
+    expect(row0.getLabel("date")).toBe("orders.date");
+  });
+
+  it("nested arrays compose bracket paths and index-free labels", () => {
+    const items = createArraySourceScope(row0, "items");
+    const item1 = createRowSourceScope(items, 1);
+    expect(item1.getSource("sku")).toBe("orders[0].items[1].sku");
+    expect(item1.getSource("")).toBe("orders[0].items[1]");
+    expect(item1.getLabel("sku")).toBe("orders.items.sku");
+  });
+
+  it("scalar rows: empty child source binds the row itself, label stays the array's", () => {
+    const tags = createArraySourceScope(rootSourceScope, "tags");
+    const tag2 = createRowSourceScope(tags, 2);
+    expect(tag2.getSource("")).toBe("tags[2]");
+    expect(tag2.getLabel("")).toBe("tags");
+  });
+});
