@@ -219,25 +219,23 @@ function Navigate({ to, replace, state }: AdapterNavigateProps) {
   return <RRNavigate to={to} replace={replace} state={state} />;
 }
 
-function Route({ path, index, element, children }: AdapterRouteProps) {
-  // react-router's <Route> requires index XOR path; forward both faithfully.
-  if (index) return <RRRoute index element={element} />;
-  return (
-    <RRRoute path={path} element={element}>
-      {children}
-    </RRRoute>
-  );
-}
-
-function Routes({ location, children }: AdapterRoutesProps) {
-  const rrLocation =
-    typeof location === "string"
-      ? location
-      : location
-        ? { pathname: location.pathname ?? "/", search: location.search ?? "" }
-        : undefined;
-  return <RRRoutes location={rrLocation}>{children}</RRRoutes>;
-}
+/**
+ * `Route` and `Routes` are react-router's OWN components (not wrappers).
+ *
+ * This is load-bearing for nested routing (`<Resource>`'s inner `<Routes>`,
+ * `AdminRoutes`, `TabbedForm`): react-router's `<Routes>` builds its route tree
+ * by inspecting its children's TYPE directly (`createRoutesFromChildren`), and
+ * REJECTS any child that is not literally its own `Route` (or a `Fragment`). A
+ * wrapper function — even one that renders `<RRRoute>` — is rejected with
+ * "[Route] is not a <Route> component", so nesting through the adapter would be
+ * impossible. Matching ra-core's `reactRouterProvider` (which also assigns
+ * `Route`/`Routes` by identity), we expose the real components. `AdapterRouteProps`
+ * (`path?/index?/element?/children?`) and `AdapterRoutesProps` (`location?`,
+ * `children?`) are structural subsets of react-router's props, so the identity
+ * assignment satisfies the neutral `RouterAdapter` contract.
+ */
+const Route = RRRoute as unknown as (props: AdapterRouteProps) => ReactNode;
+const Routes = RRRoutes as unknown as (props: AdapterRoutesProps) => ReactNode;
 
 function Outlet() {
   return <RROutlet />;

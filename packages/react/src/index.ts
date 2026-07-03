@@ -104,6 +104,26 @@ export {
 export { useLocale, useSetLocale, useTranslate } from "./i18n-hooks";
 export { useNotifications, useNotify } from "./notification-hooks";
 export type {
+  ResourceContextProviderProps,
+  ResourceContextValue,
+  ResourceProps,
+  ResourceRegistryProviderProps,
+  ResourceViewChild,
+  UseResourceContextOptions,
+  UseResourceDefinitionOptions,
+} from "./resource";
+export {
+  Resource,
+  ResourceContext,
+  ResourceContextProvider,
+  ResourceRegistryProvider,
+  useRegisterResources,
+  useResourceContext,
+  useResourceDefinition,
+  useResourceDefinitions,
+  useResourceRegistry,
+} from "./resource";
+export type {
   AdapterLinkProps,
   AdapterNavigate,
   AdapterNavigateProps,
