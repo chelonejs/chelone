@@ -33,6 +33,12 @@ export {
   useOptionalFormGroups,
   useRegisterFieldGroup,
 } from "./group-hooks";
+export type {
+  TabbedFormProps,
+  TabbedFormTabProps,
+  UseTabbedFormResult,
+} from "./tabbed-form";
+export { TabbedForm, useTabbedFormContext } from "./tabbed-form";
 export type { WarnWhenUnsavedChangesDecision } from "./warn-unsaved-changes";
 export { useWarnWhenUnsavedChanges } from "./warn-unsaved-changes";
 export type {
