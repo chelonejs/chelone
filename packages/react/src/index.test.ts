@@ -10,7 +10,11 @@ import type {
   AuthGateState,
   CheloneRouterHandle,
   CreateCheloneRouterOptions,
+  CreateContextProviderProps,
+  CreateContextValue,
   CustomRoutesProps,
+  EditContextProviderProps,
+  EditContextValue,
   ErrorFallbackProps,
   FilterLiveFormProps,
   FormGroupProviderProps,
@@ -24,6 +28,11 @@ import type {
   RecordContextValue,
   ResourceProps,
   RouterAdapter,
+  SaveContextProviderProps,
+  SaveContextValue,
+  SaveHandler,
+  ShowContextProviderProps,
+  ShowContextValue,
   TabbedFormProps,
   TranslateLabel,
   TranslateLabelOptions,
@@ -127,6 +136,21 @@ describe("@chelone/react barrel — P6 shell + router surface (W1)", () => {
     expect(barrel.useResourceTranslation).toBeTypeOf("function");
   });
 
+  it("exports the CRUD-view context aliases + SaveContext + useStore (P7a-T5)", () => {
+    expect(barrel.EditContextProvider).toBeTypeOf("function");
+    expect(barrel.useEditContext).toBeTypeOf("function");
+    expect(barrel.ShowContextProvider).toBeTypeOf("function");
+    expect(barrel.useShowContext).toBeTypeOf("function");
+    expect(barrel.CreateContextProvider).toBeTypeOf("function");
+    expect(barrel.useCreateContext).toBeTypeOf("function");
+    expect(barrel.SaveContext).toBeTypeOf("object");
+    expect(barrel.SaveContextProvider).toBeTypeOf("function");
+    expect(barrel.useSaveContext).toBeTypeOf("function");
+    // ra alias over useStoreItem — the SAME function value.
+    expect(barrel.useStore).toBeTypeOf("function");
+    expect(barrel.useStore).toBe(barrel.useStoreItem);
+  });
+
   it("exports the RouterAdapter interface + both adapters + injection", () => {
     expect(barrel.reactRouterAdapter).toBeTypeOf("object");
     expect(barrel.tanstackRouterAdapter).toBeTypeOf("object");
@@ -210,7 +234,11 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
       | AuthGateState
       | CheloneRouterHandle
       | CreateCheloneRouterOptions
+      | CreateContextProviderProps
+      | CreateContextValue
       | CustomRoutesProps
+      | EditContextProviderProps
+      | EditContextValue
       | ErrorFallbackProps
       | FilterLiveFormProps
       | FormGroupProviderProps
@@ -224,6 +252,11 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
       | RecordContextValue
       | ResourceProps
       | RouterAdapter
+      | SaveContextProviderProps
+      | SaveContextValue
+      | SaveHandler<unknown>
+      | ShowContextProviderProps
+      | ShowContextValue
       | TranslateLabel
       | TranslateLabelOptions
       | UseFieldValueOptions

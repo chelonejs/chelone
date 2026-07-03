@@ -23,3 +23,11 @@ export function useStoreItem<T>(
   );
   return [value, setValue];
 }
+
+/**
+ * ra-parity alias of {@link useStoreItem}. shadmin components import
+ * `useStore(key, defaultValue) -> [value, setter]` (30 call sites); chelone's
+ * store hook is the identically-shaped `useStoreItem`. This is the SAME
+ * function value — no wrapper, so no behavioral drift and no re-render cost.
+ */
+export const useStore = useStoreItem;
