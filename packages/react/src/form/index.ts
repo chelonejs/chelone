@@ -35,3 +35,9 @@ export {
 } from "./group-hooks";
 export type { WarnWhenUnsavedChangesDecision } from "./warn-unsaved-changes";
 export { useWarnWhenUnsavedChanges } from "./warn-unsaved-changes";
+export type {
+  UseWizardFormResult,
+  WizardFormProps,
+  WizardFormStepProps,
+} from "./wizard-form";
+export { useWizardForm, useWizardFormContext, WizardForm } from "./wizard-form";
