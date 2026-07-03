@@ -92,6 +92,13 @@ export type {
   UpdateResult,
 } from "./data/types";
 export type {
+  ArrayBinding,
+  ArrayBindingOptions,
+  ArrayBindingUpdateOptions,
+  ArrayRow,
+} from "./form/array-binding";
+export { createArrayBinding } from "./form/array-binding";
+export type {
   CreateFormController,
   CreateFormControllerOptions,
   CreateFormControllerState,
