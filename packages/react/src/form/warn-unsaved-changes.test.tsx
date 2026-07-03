@@ -71,9 +71,16 @@ function makeFormHost({
   const captured: {
     decision: ReturnType<typeof useWarnWhenUnsavedChanges> | null;
     setDirty: (() => void) | null;
+    restore: (() => void) | null;
     submit: (() => Promise<void>) | null;
     navigate: ((to: string) => void) | null;
-  } = { decision: null, setDirty: null, submit: null, navigate: null };
+  } = {
+    decision: null,
+    setDirty: null,
+    restore: null,
+    submit: null,
+    navigate: null,
+  };
 
   function FormHost() {
     const form = useForm<FormValues>({ save: okSave });
@@ -82,6 +89,15 @@ function makeFormHost({
     captured.setDirty = () => {
       // Write a non-default value — flips isDefaultValue false (dirty).
       form.form.setFieldValue("title", "changed");
+      force((n) => n + 1);
+    };
+    captured.restore = () => {
+      // Write the default value (undefined) BACK. form-core's sticky `isDirty`
+      // stays true (ever-modified — ground truth #7), but `isDefaultValue`
+      // deep-equals the baseline again and returns to true. This is the exact
+      // state that discriminates an `isDefaultValue`-keyed impl (must NOT block)
+      // from a sticky-`isDirty`-keyed one (would wrongly still block).
+      form.form.setFieldValue("title", undefined);
       force((n) => n + 1);
     };
     return (
@@ -249,19 +265,30 @@ describe("useWarnWhenUnsavedChanges — router blocking", () => {
 describe("useWarnWhenUnsavedChanges — isDefaultValue (not sticky isDirty) drives it", () => {
   it("re-baselining to the default value un-blocks even though sticky isDirty stays true", async () => {
     const { captured } = makeFormHost();
-    // Dirty it, then restore the field to its default. form-core's sticky
-    // `isDirty` stays true (ever-modified), but `isDefaultValue` returns true
-    // (deep-equal to baseline) -> the warn hook must key on isDefaultValue and
-    // NOT block.
+    // 1. Dirty it -> isDefaultValue false, sticky isDirty true. A nav OUTSIDE
+    //    the form root must block.
     await act(async () => {
       captured.setDirty?.();
     });
-    // isDirty is now sticky-true; navigating would block...
     await act(async () => captured.navigate?.("/posts"));
     expect(captured.decision?.isBlocked).toBe(true);
+    // Cancel the block so we stay on the form and can re-baseline.
     await act(async () => captured.decision?.cancel());
-    // Restore to default (undefined) -> isDefaultValue true -> not dirty.
-    // (Reached through the internal form: reset back to the baseline.)
+    expect(captured.decision?.isBlocked).toBe(false);
+
+    // 2. Restore the field to its default (undefined). form-core's sticky
+    //    `isDirty` STAYS true (ever-modified — ground truth #7), but
+    //    `isDefaultValue` deep-equals the baseline again and returns to true.
+    await act(async () => {
+      captured.restore?.();
+    });
+
+    // 3. THE DISCRIMINATOR: navigate OUTSIDE the form root again. An impl that
+    //    keyed the block on the sticky `isDirty` would STILL block here (isDirty
+    //    is stuck true). The correct `isDefaultValue`-keyed impl (GT#7) sees the
+    //    form is back at baseline and must NOT block.
+    await act(async () => captured.navigate?.("/posts"));
+    expect(captured.decision?.isBlocked).toBe(false);
   });
 });
 
