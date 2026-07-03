@@ -1,0 +1,266 @@
+/**
+ * W1-T6 tests (façade): `<Admin>` = provider-config props + partitioned
+ * children. It layers the P6 shell contexts onto the EXISTING `<CheloneProvider>`
+ * (P2–P5) in the parity order (§0a-2), hoists page slots out of the children,
+ * and lets a page-slot PROP override the matching child (the escape hatch —
+ * prop wins). The low-level `<AdminContext>` + `<AdminUI>` split stays available
+ * as a documented escape hatch.
+ *
+ * The routing engine is W1-T7: here `<AdminUI>` renders a placeholder that T7's
+ * `AdminRoutes` fills. These tests assert the SEAM — partitioned children + the
+ * page slots reach the shell — not full routing.
+ */
+
+import { fakeDataProvider } from "@chelone/core";
+import { QueryClient } from "@tanstack/react-query";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { useCheloneContext } from "../context";
+import {
+  useResourceDefinitions,
+  useResourceRegistry,
+} from "../resource/registry-hooks";
+import { Resource } from "../resource/resource";
+import { useRouterAdapter } from "../router/adapter";
+import { useBasename } from "../router/context";
+import { reactRouterAdapter } from "../router/react-router-adapter";
+import { tanstackRouterAdapter } from "../router/tanstack-router-adapter";
+import { Admin } from "./admin";
+import { AdminContext } from "./admin-context";
+import { AdminUI } from "./admin-ui";
+import { AdminDashboard, AdminTitle } from "./slots";
+
+// TanStack calls window.scrollTo on navigation; jsdom doesn't implement it.
+beforeAll(() => {
+  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
+});
+
+afterEach(() => {
+  cleanup();
+});
+
+const dataProvider = fakeDataProvider({});
+const List = () => <div>list</div>;
+
+function makeQueryClient() {
+  return new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+}
+
+/** A probe that reads every context the shell is expected to provide. */
+function ContextProbe() {
+  const chelone = useCheloneContext();
+  const adapter = useRouterAdapter();
+  const basename = useBasename();
+  const registry = useResourceRegistry();
+  return (
+    <div>
+      <div data-testid="has-data">{String(chelone.dataProvider != null)}</div>
+      <div data-testid="has-adapter">{String(adapter != null)}</div>
+      <div data-testid="basename">{basename}</div>
+      <div data-testid="has-registry">{String(registry != null)}</div>
+    </div>
+  );
+}
+
+describe("<Admin> — provider stack (parity §0a-2 order)", () => {
+  // The probe rides in the DASHBOARD slot — the placeholder shell renders the
+  // dashboard at the index route, so it is a reachable point INSIDE the full
+  // provider stack. (Arbitrary non-marker <Admin> children are ignored by the
+  // partition, by design — they are not a render slot.)
+  it("provides Chelone data context, the router adapter, the registry, and basename", () => {
+    render(
+      // Join a host router so the app basename '/app' is a pure context value
+      // (a created router would instead need the jsdom URL to sit under /app).
+      <MemoryRouter initialEntries={["/"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          basename="/app"
+        >
+          <AdminDashboard>
+            <ContextProbe />
+          </AdminDashboard>
+        </Admin>
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("has-data").textContent).toBe("true");
+    expect(screen.getByTestId("has-adapter").textContent).toBe("true");
+    expect(screen.getByTestId("has-registry").textContent).toBe("true");
+    expect(screen.getByTestId("basename").textContent).toBe("/app");
+  });
+
+  it("defaults basename to '' when not supplied", () => {
+    render(
+      <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+        <AdminDashboard>
+          <ContextProbe />
+        </AdminDashboard>
+      </Admin>,
+    );
+    expect(screen.getByTestId("basename").textContent).toBe("");
+  });
+
+  it("creates its own router when not already inside one (RouterWrapper create path)", () => {
+    // No host <MemoryRouter> — RouterWrapper must create a real-path router so
+    // the shell renders. If it failed to create one, the dashboard slot (and
+    // thus the probe) would never mount.
+    render(
+      <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+        <AdminDashboard>
+          <ContextProbe />
+        </AdminDashboard>
+      </Admin>,
+    );
+    expect(screen.getByTestId("has-adapter").textContent).toBe("true");
+  });
+
+  it("joins a host router when already inside one (RouterWrapper join path)", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+          <AdminDashboard>
+            <ContextProbe />
+          </AdminDashboard>
+        </Admin>
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("has-adapter").textContent).toBe("true");
+  });
+
+  it("uses the injected router adapter when supplied (react-router default overridable)", async () => {
+    // Supplying the tanstack adapter proves the `router` prop is wired into
+    // RouterAdapterContext at the top of the stack: the probe (in the dashboard
+    // slot) reads that identity back. No host router — the tanstack adapter's
+    // RouterWrapper CREATES its own router, which boots ASYNC (a genuine
+    // reference-slot property, per the W1-T4 suite), so we `findBy`/`waitFor`.
+    function AdapterName() {
+      const adapter = useRouterAdapter();
+      return (
+        <div data-testid="adapter-is-tanstack">
+          {String(adapter === tanstackRouterAdapter)}
+        </div>
+      );
+    }
+    render(
+      <Admin
+        dataProvider={dataProvider}
+        queryClient={makeQueryClient()}
+        router={tanstackRouterAdapter}
+      >
+        <AdminDashboard>
+          <AdapterName />
+        </AdminDashboard>
+      </Admin>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("adapter-is-tanstack").textContent).toBe(
+        "true",
+      ),
+    );
+  });
+});
+
+describe("<Admin> — page slots reach the shell", () => {
+  it("renders the dashboard slot content at the index route", () => {
+    render(
+      <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+        <AdminDashboard>
+          <div data-testid="dash">dashboard here</div>
+        </AdminDashboard>
+        <Resource name="posts" list={List} />
+      </Admin>,
+    );
+    expect(screen.getByTestId("dash")).toBeDefined();
+  });
+
+  it("prop overrides the matching child slot (prop wins — escape hatch)", () => {
+    render(
+      <Admin
+        dataProvider={dataProvider}
+        queryClient={makeQueryClient()}
+        dashboard={<div data-testid="dash-prop">from prop</div>}
+      >
+        <AdminDashboard>
+          <div data-testid="dash-child">from child</div>
+        </AdminDashboard>
+        <Resource name="posts" list={List} />
+      </Admin>,
+    );
+    expect(screen.queryByTestId("dash-prop")).not.toBeNull();
+    expect(screen.queryByTestId("dash-child")).toBeNull();
+  });
+
+  it("registers resources declared as children (registry populated)", async () => {
+    // Subscribe (useResourceDefinitions) so the probe re-renders when the
+    // register-on-mount effect lands (registration is lazy — an effect, not
+    // render-phase, so a discarded render never mutates the shared registry).
+    function RegistrySize() {
+      const definitions = useResourceDefinitions();
+      return <div data-testid="count">{Object.keys(definitions).length}</div>;
+    }
+    render(
+      <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+        <Resource name="posts" list={List} />
+        <Resource name="comments" list={List} />
+        {/* The size probe rides in the dashboard slot (a rendered position). */}
+        <AdminDashboard>
+          <RegistrySize />
+        </AdminDashboard>
+      </Admin>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("count").textContent).toBe("2"),
+    );
+  });
+});
+
+describe("escape hatch — <AdminContext> + <AdminUI> split", () => {
+  it("<AdminContext> alone provides the stack; <AdminUI> renders the shell separately", () => {
+    render(
+      <AdminContext
+        dataProvider={dataProvider}
+        queryClient={makeQueryClient()}
+        adapter={reactRouterAdapter}
+      >
+        <AdminUI title={<AdminTitle>App</AdminTitle>}>
+          <Resource name="posts" list={List} />
+          <AdminDashboard>
+            <div data-testid="dash-split">split dashboard</div>
+          </AdminDashboard>
+        </AdminUI>
+      </AdminContext>,
+    );
+    expect(screen.getByTestId("dash-split")).toBeDefined();
+  });
+
+  it("<AdminContext> provides every shell context (probe renders inside it)", () => {
+    render(
+      // Join a host router so the app basename '/back' is a pure context value
+      // (an <AdminContext>-created router would need the jsdom URL under /back).
+      <MemoryRouter initialEntries={["/"]}>
+        <AdminContext
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          adapter={reactRouterAdapter}
+          basename="/back"
+        >
+          <ContextProbe />
+        </AdminContext>
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("has-data").textContent).toBe("true");
+    expect(screen.getByTestId("has-adapter").textContent).toBe("true");
+    expect(screen.getByTestId("has-registry").textContent).toBe("true");
+    expect(screen.getByTestId("basename").textContent).toBe("/back");
+  });
+});
+
+describe("<Admin> — slot statics", () => {
+  it("exposes the slot components as statics on Admin", () => {
+    expect(Admin.Title).toBe(AdminTitle);
+    expect(Admin.Dashboard).toBe(AdminDashboard);
+  });
+});
