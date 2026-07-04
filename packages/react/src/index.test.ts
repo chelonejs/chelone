@@ -9,6 +9,7 @@ import type {
   AuthenticatedProps,
   AuthGateState,
   CheloneRouterHandle,
+  ColorInputProps,
   CreateCheloneRouterOptions,
   CreateContextProviderProps,
   CreateContextValue,
@@ -24,10 +25,15 @@ import type {
   GetRecordRepresentation,
   GetResourceLabel,
   HandleAuthCallbackResult,
+  InputFieldError,
+  InputProps,
   ListContextValue,
+  NumberInputProps,
   PartitionedChildren,
+  PasswordInputProps,
   RecordContextProviderProps,
   RecordContextValue,
+  ResettableTextInputProps,
   ResourceProps,
   RouterAdapter,
   SaveContextProviderProps,
@@ -36,6 +42,9 @@ import type {
   ShowContextProviderProps,
   ShowContextValue,
   TabbedFormProps,
+  TagProps,
+  TextArrayInputProps,
+  TextInputProps,
   TranslateLabel,
   TranslateLabelOptions,
   UseFieldValueOptions,
@@ -262,6 +271,25 @@ describe("@chelone/react barrel — P7a compat leaf utils", () => {
   });
 });
 
+describe("@chelone/react barrel — P7b simple text-like inputs", () => {
+  it("exports every ported text-like input component", () => {
+    expect(barrel.TextInput).toBeTypeOf("function");
+    expect(barrel.NumberInput).toBeTypeOf("function");
+    expect(barrel.PasswordInput).toBeTypeOf("function");
+    expect(barrel.ColorInput).toBeTypeOf("function");
+    expect(barrel.ResettableTextInput).toBeTypeOf("function");
+    expect(barrel.TextArrayInput).toBeTypeOf("function");
+  });
+
+  it("does NOT re-export ui/ primitives from the package root (registry-facing via @/)", () => {
+    // ui/ primitives are consumer-facing through the `@/` alias, mirroring
+    // shadmin — they must not leak onto the package barrel.
+    expect("Input" in barrel).toBe(false);
+    expect("Field" in barrel).toBe(false);
+    expect("Button" in barrel).toBe(false);
+  });
+});
+
 describe("@chelone/react barrel — UseXResult symmetry (every hook's result type is exported)", () => {
   // Type-only assertion: referencing each result/props type forces the barrel to
   // export it. A dropped `export type` line here fails `tsc --typecheck`. The
@@ -289,10 +317,15 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
       | GetRecordRepresentation
       | GetResourceLabel
       | HandleAuthCallbackResult
+      | InputFieldError
+      | InputProps
       | ListContextValue
+      | NumberInputProps
       | PartitionedChildren
+      | PasswordInputProps
       | RecordContextProviderProps
       | RecordContextValue
+      | ResettableTextInputProps
       | ResourceProps
       | RouterAdapter
       | SaveContextProviderProps
@@ -300,6 +333,10 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
       | SaveHandler<unknown>
       | ShowContextProviderProps
       | ShowContextValue
+      | ColorInputProps
+      | TagProps
+      | TextArrayInputProps
+      | TextInputProps
       | TranslateLabel
       | TranslateLabelOptions
       | UseFieldValueOptions

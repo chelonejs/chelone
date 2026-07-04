@@ -106,6 +106,39 @@ export {
   useLocaleState,
   useRefresh,
 } from "./compat-hooks";
+// P7b component surface — simple text-like inputs (ported from shadmin onto
+// useInput + ui/field + <ValidationError>). The `ui/` primitives are NOT
+// barrel-exported (they are registry/consumer-facing via the `@/` alias,
+// mirroring shadmin); only the admin input components + their prop types are.
+export type {
+  InputFieldError,
+  InputProps,
+} from "./components/admin/input-props";
+export {
+  ColorInput,
+  type ColorInputProps,
+} from "./components/admin/inputs/color-input";
+export {
+  NumberInput,
+  type NumberInputProps,
+} from "./components/admin/inputs/number-input";
+export {
+  PasswordInput,
+  type PasswordInputProps,
+} from "./components/admin/inputs/password-input";
+export {
+  ResettableTextInput,
+  type ResettableTextInputProps,
+} from "./components/admin/inputs/resettable-text-input";
+export {
+  type TagProps,
+  TextArrayInput,
+  type TextArrayInputProps,
+} from "./components/admin/inputs/text-array-input";
+export {
+  TextInput,
+  type TextInputProps,
+} from "./components/admin/inputs/text-input";
 export type { CheloneProviderProps } from "./context";
 export {
   CheloneProvider,
