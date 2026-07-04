@@ -115,6 +115,11 @@ export type {
   InputProps,
 } from "./components/admin/input-props";
 export {
+  ArrayInput,
+  type ArrayInputProps,
+} from "./components/admin/inputs/array-input";
+export { useArrayInputResult } from "./components/admin/inputs/array-input-context";
+export {
   AutocompleteArrayInput,
   type AutocompleteArrayInputProps,
 } from "./components/admin/inputs/autocomplete-array-input";
@@ -134,6 +139,10 @@ export {
   ColorInput,
   type ColorInputProps,
 } from "./components/admin/inputs/color-input";
+export {
+  DatagridInput,
+  type DatagridInputProps,
+} from "./components/admin/inputs/datagrid-input";
 export {
   DateInput,
   type DateInputProps,
@@ -158,6 +167,14 @@ export {
   RadioButtonGroupInput,
   type RadioButtonGroupInputProps,
 } from "./components/admin/inputs/radio-button-group-input";
+export {
+  ReferenceArrayInput,
+  type ReferenceArrayInputProps,
+} from "./components/admin/inputs/reference-array-input";
+export {
+  ReferenceInput,
+  type ReferenceInputProps,
+} from "./components/admin/inputs/reference-input";
 export {
   ResettableTextInput,
   type ResettableTextInputProps,

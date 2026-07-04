@@ -1,0 +1,145 @@
+import type { Validator } from "@chelone/core";
+import type { ReactNode } from "react";
+import { FieldLabelText } from "@/components/admin/common/field-label-text";
+import { InputHelperText } from "@/components/admin/common/input-helper-text";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { cn } from "@/lib/utils";
+import { ArrayInputProvider, useArrayInput } from "../../../array-hooks";
+import { ValidationError } from "../../../field-error-display";
+import { useResourceContext } from "../../../resource";
+import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
+import { ArrayInputResultContext } from "./array-input-context";
+
+interface ArrayInputProps {
+  /** The array field path RELATIVE to the ambient source scope. */
+  source: string;
+  /**
+   * The input label. A string is translated; a ReactNode renders as-is;
+   * `false` renders no label.
+   */
+  label?: ReactNode | false;
+  /** Override the ambient resource (label-key resolution). */
+  resource?: string;
+  /** Helper text rendered below the iterator; a string is translated. */
+  helperText?: ReactNode | false;
+  /** Array-level validators (e.g. `minLength`) — composed, first error wins. */
+  validate?: Validator | readonly Validator[];
+  /** The array's default value (seeds an untouched hole). */
+  defaultValue?: readonly unknown[];
+  /** Force scalar-row mode (a `string[]`/`number[]`); DETECTED when omitted. */
+  scalar?: boolean;
+  /** Object-row defaults merged into a new row (object mode). */
+  itemDefaults?: Record<string, unknown>;
+  /** Extra classes on the field wrapper. */
+  className?: string;
+  /**
+   * The form iterator that renders the rows — typically
+   * `<SimpleFormIterator>`. It reads the array result via the ambient
+   * `<ArrayInput>` context.
+   */
+  children: ReactNode;
+}
+
+/** Detects a `required()`-tagged validator on the raw `validate` prop. */
+function hasRequiredValidator(validate: ArrayInputProps["validate"]): boolean {
+  if (!validate) return false;
+  const validators: readonly Validator[] = Array.isArray(validate)
+    ? validate
+    : [validate as Validator];
+  return validators.some(
+    (v) => (v as { isRequired?: boolean }).isRequired === true,
+  );
+}
+
+/**
+ * Creates a list of sub-forms for editing arrays of data embedded inside a
+ * record (order items, tags, any repeatable embedded data).
+ *
+ * Rebridged onto chelone's `useArrayInput` (the 4R array binding): `<ArrayInput>`
+ * owns the SINGLE binding for the field, renders the label/error chrome, scopes
+ * children under the array path via `<ArrayInputProvider>`, and exposes the full
+ * iterator result to its child iterator (P7e `<SimpleFormIterator>`) through the
+ * ambient array-input context. Requires a form-iterator child to render + manage
+ * the individual rows.
+ *
+ * @example
+ * import {
+ *   Edit, SimpleForm, TextInput, NumberInput, ArrayInput, SimpleFormIterator,
+ * } from '@/components/admin';
+ *
+ * const OrderEdit = () => (
+ *   <Edit>
+ *     <SimpleForm>
+ *       <ArrayInput source="items">
+ *         <SimpleFormIterator inline>
+ *           <TextInput source="name" />
+ *           <NumberInput source="price" />
+ *         </SimpleFormIterator>
+ *       </ArrayInput>
+ *     </SimpleForm>
+ *   </Edit>
+ * );
+ */
+function ArrayInput(props: ArrayInputProps): ReactNode {
+  const {
+    className,
+    defaultValue = [],
+    label,
+    children,
+    helperText,
+    resource: resourceFromProps,
+    source: arraySource,
+    validate,
+    scalar,
+    itemDefaults,
+    ...rest
+  } = props;
+  const resource = useResourceContext(props);
+
+  const array = useArrayInput({
+    source: arraySource,
+    defaultValue,
+    validate,
+    scalar,
+    itemDefaults,
+  });
+
+  const { fieldState, source: finalSource } = array;
+  const invalid = fieldState.invalid;
+  // chelone `fieldState.error` is ALREADY the displayable
+  // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
+  const error = fieldState.error;
+
+  return (
+    <Field
+      className={cn(
+        "ra-input",
+        `ra-input-${finalSource}`,
+        "flex w-full flex-col gap-2",
+        className,
+      )}
+      data-invalid={invalid || undefined}
+      {...sanitizeInputRestProps(rest)}
+    >
+      {label !== false && (
+        <FieldLabel className="text-muted-foreground text-sm">
+          <FieldLabelText
+            label={label}
+            source={arraySource}
+            resource={resourceFromProps ?? resource}
+            isRequired={hasRequiredValidator(validate)}
+          />
+        </FieldLabel>
+      )}
+      <ArrayInputResultContext.Provider value={array}>
+        <ArrayInputProvider array={array}>{children}</ArrayInputProvider>
+      </ArrayInputResultContext.Provider>
+      <InputHelperText helperText={helperText} />
+      <FieldError>
+        {invalid && error ? <ValidationError error={error} /> : null}
+      </FieldError>
+    </Field>
+  );
+}
+
+export { ArrayInput, type ArrayInputProps };

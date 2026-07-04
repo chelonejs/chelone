@@ -301,6 +301,16 @@ describe("@chelone/react barrel — P7c choice inputs", () => {
   });
 });
 
+describe("@chelone/react barrel — P7c reference + array inputs (T2)", () => {
+  it("exports every ported reference/array input component + the iterator hook", () => {
+    expect(barrel.ReferenceInput).toBeTypeOf("function");
+    expect(barrel.ReferenceArrayInput).toBeTypeOf("function");
+    expect(barrel.ArrayInput).toBeTypeOf("function");
+    expect(barrel.DatagridInput).toBeTypeOf("function");
+    expect(barrel.useArrayInputResult).toBeTypeOf("function");
+  });
+});
+
 describe("@chelone/react barrel — UseXResult symmetry (every hook's result type is exported)", () => {
   // Type-only assertion: referencing each result/props type forces the barrel to
   // export it. A dropped `export type` line here fails `tsc --typecheck`. The
