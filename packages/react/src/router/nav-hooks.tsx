@@ -23,10 +23,11 @@ import {
   type ResourceDefinition,
 } from "@chelone/core";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
 import { useCheloneContext } from "../context";
 import {
   type AdapterNavigate,
+  RouterAdapterContext,
   type RouterBlocker,
   type UseMatchArgs,
   useRouterAdapter,
@@ -116,13 +117,15 @@ export type RedirectTo =
  *
  * The navigator is ref-stable, so the returned `redirect` is stable per render.
  */
-export function useRedirect(): (
+export type Redirect = (
   to: RedirectTo,
   resource?: string,
   id?: Identifier,
   data?: unknown,
   state?: Record<string, unknown>,
-) => void {
+) => void;
+
+export function useRedirect(): Redirect {
   const navigate = useNavigate();
   const basename = useBasename();
   const createPathFn = useCreatePath();
@@ -162,6 +165,35 @@ export function useRedirect(): (
     },
     [navigate, basename, createPathFn],
   );
+}
+
+/** A stable no-op redirect for the no-router case — one identity forever. */
+const noopRedirect: Redirect = () => {};
+
+/**
+ * A NULL-TOLERANT `useRedirect`: the real redirect when a `RouterAdapter` is
+ * present, a stable no-op `() => {}` when absent — never throwing.
+ *
+ * Standalone forms (bulk-edit-drawer-class custom forms, and many unit tests)
+ * compose the edit/create-form controllers WITHOUT a router. Those controllers
+ * still REQUEST a redirect on successful save (ra-core parity:
+ * record-controllers `onDefaultSuccess` calls `onRedirect("list", …)`), so the
+ * React hooks that build them must degrade the redirect to a no-op rather than
+ * hard-require a router. `useRedirect` cannot: it calls `useNavigate` →
+ * `useRouterAdapter`, which THROWS with no adapter (a contract we keep — misuse
+ * of the routing hooks outside `<Admin>` must still fail loudly).
+ *
+ * Rules of Hooks: adapter presence is MOUNT-STABLE (the `RouterAdapterContext`
+ * value can only change across a full remount of this subtree, never between two
+ * renders of the same mounted component — the same guarantee
+ * `useWarnWhenUnsavedChanges` relies on for `canBlock`). Calling `useRedirect`
+ * only when the adapter is present therefore preserves hook order on every
+ * render, so the `useHookAtTopLevel` rule is safe to suppress HERE.
+ */
+export function useRedirectOptional(): Redirect {
+  const hasAdapter = useContext(RouterAdapterContext) != null;
+  // biome-ignore lint/correctness/useHookAtTopLevel: adapter presence is mount-stable — see the doc block + useWarnWhenUnsavedChanges (W1-T3).
+  return hasAdapter ? useRedirect() : noopRedirect;
 }
 
 /** How a record link is inferred / forced (parity §0a-11). */

@@ -14,6 +14,7 @@ import {
 import { QueryClient } from "@tanstack/react-query";
 import { act, render, renderHook, waitFor } from "@testing-library/react";
 import { memo, type ReactNode, StrictMode } from "react";
+import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { CheloneProvider } from "./context";
@@ -30,6 +31,9 @@ import {
   useFormController,
   useInput,
 } from "./form-hooks";
+import { RouterAdapterProvider } from "./router/adapter";
+import { useLocation } from "./router/nav-hooks";
+import { reactRouterAdapter } from "./router/react-router-adapter";
 
 const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
@@ -648,5 +652,81 @@ describe("useCreateForm", () => {
       await latest.create?.submit();
     });
     expect(createSpy).toHaveBeenCalledTimes(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Redirect-on-save: real router navigates to the list; standalone no-ops.
+// ---------------------------------------------------------------------------
+
+describe("useEditForm redirect-on-save", () => {
+  it("inside a RouterAdapter: a successful save navigates to the resource list (ra-core parity)", async () => {
+    const { wrapper: Inner, dataProvider } = makeWrapper();
+    const updateSpy = vi.spyOn(dataProvider, "update");
+    const location: { pathname: string | null } = { pathname: null };
+    const latest: {
+      edit: ReturnType<typeof useEditForm<typeof resources, "posts">> | null;
+    } = { edit: null };
+    function CaptureLocation() {
+      location.pathname = useLocation().pathname;
+      return null;
+    }
+    function EditHost() {
+      // No `onRedirect` override — the hook wires the ambient router's redirect,
+      // so `onDefaultSuccess` -> `onRedirect("list", "posts", …)` navigates.
+      latest.edit = useEditForm<typeof resources, "posts">("posts", { id: 1 });
+      return null;
+    }
+    render(
+      <Inner>
+        <RouterAdapterProvider adapter={reactRouterAdapter}>
+          <MemoryRouter initialEntries={["/posts/1"]}>
+            <CaptureLocation />
+            <EditHost />
+          </MemoryRouter>
+        </RouterAdapterProvider>
+      </Inner>,
+    );
+
+    await waitFor(() => expect(latest.edit?.record?.title).toBe("t1"));
+    expect(location.pathname).toBe("/posts/1");
+
+    await act(async () => {
+      await latest.edit?.submit();
+    });
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+    // ra-core parity: the edit view redirects to the list after a save.
+    await waitFor(() => expect(location.pathname).toBe("/posts"));
+  });
+
+  it("without a RouterAdapter: a successful save resolves and does NOT throw (redirect degrades to a no-op)", async () => {
+    const { wrapper: Wrapper, dataProvider } = makeWrapper();
+    const updateSpy = vi.spyOn(dataProvider, "update");
+    const latest: {
+      edit: ReturnType<typeof useEditForm<typeof resources, "posts">> | null;
+    } = { edit: null };
+    function EditHost() {
+      latest.edit = useEditForm<typeof resources, "posts">("posts", { id: 1 });
+      return null;
+    }
+    // No router anywhere in the tree — mounting must not throw.
+    expect(() =>
+      render(
+        <Wrapper>
+          <EditHost />
+        </Wrapper>,
+      ),
+    ).not.toThrow();
+
+    await waitFor(() => expect(latest.edit?.record?.title).toBe("t1"));
+
+    // The save (which requests a redirect on success) resolves cleanly — the
+    // no-op redirect swallows the request instead of throwing.
+    await act(async () => {
+      await expect(latest.edit?.submit()).resolves.toBeUndefined();
+    });
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+    // The record reconciled with server truth — the save actually landed.
+    await waitFor(() => expect(latest.edit?.isDefaultValue).toBe(true));
   });
 });

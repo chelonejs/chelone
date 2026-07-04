@@ -35,6 +35,7 @@ import { type CheloneContextValue, useCheloneContext } from "./context";
 import { firstFieldError, sameDisplayError } from "./field-error";
 import { useRegisterFieldGroup } from "./form/group-hooks";
 import { useCheloneFormContext, useSourceContext } from "./form-context";
+import { useRedirectOptional } from "./router";
 
 /** The erased form-data shape ambient (context-provided) forms carry. */
 type UnknownFormValues = Record<string, unknown>;
@@ -210,13 +211,19 @@ export function useEditForm<
 ): UseEditFormResult<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
+  // ra-core parity: after a successful save the edit view redirects to the
+  // list by default. The controller REQUESTS the redirect via `onRedirect`
+  // (record-controllers.ts onDefaultSuccess); wire it to the router's stable
+  // redirect unless the caller supplied their own (e.g. `() => {}` to stay).
+  // `useRedirectOptional` DEGRADES TO A NO-OP without a RouterAdapter, so a
+  // standalone form (bulk-edit-drawer, unit tests) never hard-requires a router.
+  const redirect = useRedirectOptional();
 
   const [controller] = useState<EditFormController<TRecord>>(() =>
-    createEditFormController<TResources, TName>(
-      toFormContext(ctx),
-      resource,
-      options,
-    ),
+    createEditFormController<TResources, TName>(toFormContext(ctx), resource, {
+      ...options,
+      onRedirect: options.onRedirect ?? redirect,
+    }),
   );
 
   useAttach(controller.subscribe);
@@ -260,12 +267,17 @@ export function useCreateForm<
 ): UseCreateFormResult<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
+  // ra-core parity: redirect on successful create (the controller decides the
+  // target — typically the new record's edit page or the list). Caller can
+  // override `onRedirect` to stay on the form. `useRedirectOptional` degrades
+  // to a no-op without a RouterAdapter (standalone forms never need a router).
+  const redirect = useRedirectOptional();
 
   const [controller] = useState<CreateFormController<TRecord>>(() =>
     createCreateFormController<TResources, TName>(
       toFormContext(ctx),
       resource,
-      options,
+      { ...options, onRedirect: options?.onRedirect ?? redirect },
     ),
   );
 

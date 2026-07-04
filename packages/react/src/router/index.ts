@@ -27,6 +27,7 @@ export { BasenameContext, BasenameProvider } from "./context";
 export type {
   BlockerPredicate,
   LinkToType,
+  Redirect,
   RedirectTo,
   UseGetPathForRecordOptions,
 } from "./nav-hooks";
@@ -41,6 +42,7 @@ export {
   useNavigate,
   useParams,
   useRedirect,
+  useRedirectOptional,
 } from "./nav-hooks";
 export { reactRouterAdapter } from "./react-router-adapter";
 export { tanstackRouterAdapter } from "./tanstack-router-adapter";
