@@ -115,9 +115,25 @@ export type {
   InputProps,
 } from "./components/admin/input-props";
 export {
+  BooleanInput,
+  type BooleanInputProps,
+} from "./components/admin/inputs/boolean-input";
+export {
   ColorInput,
   type ColorInputProps,
 } from "./components/admin/inputs/color-input";
+export {
+  DateInput,
+  type DateInputProps,
+} from "./components/admin/inputs/date-input";
+export {
+  DateTimeInput,
+  type DateTimeInputProps,
+} from "./components/admin/inputs/date-time-input";
+export {
+  NullableBooleanInput,
+  type NullableBooleanInputProps,
+} from "./components/admin/inputs/nullable-boolean-input";
 export {
   NumberInput,
   type NumberInputProps,
@@ -139,6 +155,10 @@ export {
   TextInput,
   type TextInputProps,
 } from "./components/admin/inputs/text-input";
+export {
+  TimeInput,
+  type TimeInputProps,
+} from "./components/admin/inputs/time-input";
 export type { CheloneProviderProps } from "./context";
 export {
   CheloneProvider,
