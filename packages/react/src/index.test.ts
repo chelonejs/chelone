@@ -16,6 +16,8 @@ import type {
   EditContextProviderProps,
   EditContextValue,
   ErrorFallbackProps,
+  FilterContextProviderProps,
+  FilterContextType,
   FilterLiveFormProps,
   FormGroupProviderProps,
   FormGroupsProviderProps,
@@ -241,6 +243,25 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
   });
 });
 
+describe("@chelone/react barrel — P7a compat leaf utils", () => {
+  it("exports useEvent + shallowEqual + warning", () => {
+    expect(barrel.useEvent).toBeTypeOf("function");
+    expect(barrel.shallowEqual).toBeTypeOf("function");
+    expect(barrel.warning).toBeTypeOf("function");
+  });
+
+  it("exports the sanitize-rest-props helpers", () => {
+    expect(barrel.sanitizeFieldRestProps).toBeTypeOf("function");
+    expect(barrel.sanitizeInputRestProps).toBeTypeOf("function");
+  });
+
+  it("exports the FilterContext (filter ELEMENTS, not the values slice)", () => {
+    expect(barrel.FilterContext).toBeTypeOf("object");
+    expect(barrel.FilterContextProvider).toBeTypeOf("function");
+    expect(barrel.useFilterContext).toBeTypeOf("function");
+  });
+});
+
 describe("@chelone/react barrel — UseXResult symmetry (every hook's result type is exported)", () => {
   // Type-only assertion: referencing each result/props type forces the barrel to
   // export it. A dropped `export type` line here fails `tsc --typecheck`. The
@@ -260,6 +281,8 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
       | EditContextProviderProps
       | EditContextValue
       | ErrorFallbackProps
+      | FilterContextProviderProps
+      | FilterContextType
       | FilterLiveFormProps
       | FormGroupProviderProps
       | FormGroupsProviderProps

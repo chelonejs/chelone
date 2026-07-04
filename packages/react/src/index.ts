@@ -234,6 +234,16 @@ export {
   useResourceTranslation,
   useTranslateLabel,
 } from "./label";
+// P7a compat leaf utils (component-port support)
+export type {
+  FilterContextProviderProps,
+  FilterContextType,
+} from "./list/filter-context";
+export {
+  FilterContext,
+  FilterContextProvider,
+  useFilterContext,
+} from "./list/filter-context";
 export { useNotifications, useNotify } from "./notification-hooks";
 export type {
   RecordContextProviderProps,
@@ -346,3 +356,8 @@ export {
 export { useStore, useStoreItem } from "./store-hooks";
 export type { UseListOptions, UseListResult } from "./use-list";
 export { useList } from "./use-list";
+export { sanitizeFieldRestProps } from "./util/sanitize-field-rest-props";
+export { sanitizeInputRestProps } from "./util/sanitize-input-rest-props";
+export { shallowEqual } from "./util/shallow-equal";
+export { useEvent } from "./util/use-event";
+export { warning } from "./util/warning";
