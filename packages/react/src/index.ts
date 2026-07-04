@@ -147,6 +147,18 @@ export { Logout, type LogoutProps } from "./components/admin/auth/logout";
 // router-adapter `Link` + the no-throw `useMenuAccess`. This is what gives the
 // demo Edit/Create views a working Save button.
 export {
+  BulkDeleteButton,
+  type BulkDeleteButtonProps,
+} from "./components/admin/buttons/bulk-delete-button";
+export {
+  BulkExportButton,
+  type BulkExportButtonProps,
+} from "./components/admin/buttons/bulk-export-button";
+export {
+  BulkUpdateButton,
+  type BulkUpdateButtonProps,
+} from "./components/admin/buttons/bulk-update-button";
+export {
   CancelButton,
   type CancelButtonProps,
 } from "./components/admin/buttons/cancel-button";
@@ -163,6 +175,30 @@ export {
   type EditButtonProps,
 } from "./components/admin/buttons/edit-button";
 export {
+  defaultExporter,
+  downloadCSV,
+  type Exporter,
+  recordsToCSV,
+} from "./components/admin/buttons/export";
+export {
+  ExportButton,
+  type ExportButtonProps,
+} from "./components/admin/buttons/export-button";
+export {
+  FilterButton,
+  FilterButtonMenuItem,
+  type FilterButtonMenuItemProps,
+  type FilterButtonProps,
+} from "./components/admin/buttons/filter-button";
+export {
+  ListButton,
+  type ListButtonProps,
+} from "./components/admin/buttons/list-button";
+export {
+  RefreshButton,
+  type RefreshButtonProps,
+} from "./components/admin/buttons/refresh-button";
+export {
   SaveButton,
   type SaveButtonProps,
 } from "./components/admin/buttons/save-button";
@@ -174,6 +210,10 @@ export {
   SidebarToggleButton,
   type SidebarToggleButtonProps,
 } from "./components/admin/buttons/sidebar-toggle-button";
+export {
+  SortButton,
+  type SortButtonProps,
+} from "./components/admin/buttons/sort-button";
 // P7e component surface — the layout chrome (Layout/AppBar/AppSidebar/Menu/
 // ThemeProvider/UserMenu/Notification + their sub-components). Ported from
 // shadmin `admin/layout` + `feedback/notification` onto @chelone/react's
