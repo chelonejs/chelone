@@ -139,6 +139,37 @@ export {
   type LoginPageProps,
 } from "./components/admin/auth/login-page";
 export { Logout, type LogoutProps } from "./components/admin/auth/logout";
+// P7g component surface — the CRUD action buttons + form toolbar + Confirm
+// dialog (ported from shadmin `admin/buttons` + `admin/feedback` onto chelone's
+// mutation/nav/save seams). SaveButton fires the ambient composed `submit`
+// (chelone views render no `<form>`); DeleteButton is confirm-gated on
+// `useDeleteController` (chelone has no undoable mode); the nav buttons use the
+// router-adapter `Link` + the no-throw `useMenuAccess`. This is what gives the
+// demo Edit/Create views a working Save button.
+export {
+  CancelButton,
+  type CancelButtonProps,
+} from "./components/admin/buttons/cancel-button";
+export {
+  CreateButton,
+  type CreateButtonProps,
+} from "./components/admin/buttons/create-button";
+export {
+  DeleteButton,
+  type DeleteButtonProps,
+} from "./components/admin/buttons/delete-button";
+export {
+  EditButton,
+  type EditButtonProps,
+} from "./components/admin/buttons/edit-button";
+export {
+  SaveButton,
+  type SaveButtonProps,
+} from "./components/admin/buttons/save-button";
+export {
+  ShowButton,
+  type ShowButtonProps,
+} from "./components/admin/buttons/show-button";
 export {
   SidebarToggleButton,
   type SidebarToggleButtonProps,
@@ -153,6 +184,10 @@ export {
   KeyboardShortcut,
   type KeyboardShortcutProps,
 } from "./components/admin/common/keyboard-shortcut";
+export {
+  Confirm,
+  type ConfirmProps,
+} from "./components/admin/feedback/confirm";
 export { Notification } from "./components/admin/feedback/notification";
 // P7d component surface — read-only display fields (ported from shadmin onto
 // useFieldValue + useRecordContext). Same seam as the inputs: only the admin
@@ -286,6 +321,7 @@ export {
   WrapperField,
   type WrapperFieldProps,
 } from "./components/admin/fields/wrapper-field";
+export { Toolbar, type ToolbarProps } from "./components/admin/form/toolbar";
 // P7b component surface — simple text-like inputs (ported from shadmin onto
 // useInput + ui/field + <ValidationError>). The `ui/` primitives are NOT
 // barrel-exported (they are registry/consumer-facing via the `@/` alias,

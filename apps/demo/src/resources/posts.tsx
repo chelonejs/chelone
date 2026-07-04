@@ -19,16 +19,19 @@ import {
   Create,
   DataTable,
   Edit,
+  EditButton,
   List,
   NumberField,
   NumberInput,
   RecordField,
   ReferenceField,
   ReferenceInput,
+  SaveButton,
   SelectInput,
   Show,
   TextField,
   TextInput,
+  Toolbar,
 } from "@chelone/react";
 import { z } from "zod";
 
@@ -56,6 +59,9 @@ export function PostList() {
         <DataTable.Col source="published">
           <BooleanField source="published" />
         </DataTable.Col>
+        <DataTable.Col>
+          <EditButton />
+        </DataTable.Col>
       </DataTable>
     </List>
   );
@@ -71,6 +77,7 @@ export function PostEdit() {
       </ReferenceInput>
       <NumberInput source="views" min={0} />
       <BooleanInput source="published" />
+      <Toolbar />
     </Edit>
   );
 }
@@ -85,6 +92,7 @@ export function PostCreate() {
       </ReferenceInput>
       <NumberInput source="views" min={0} defaultValue={0} />
       <BooleanInput source="published" defaultValue={false} />
+      <SaveButton />
     </Create>
   );
 }
