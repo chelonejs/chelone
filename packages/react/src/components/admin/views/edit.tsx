@@ -1,0 +1,191 @@
+/**
+ * P7e-T2 — `<Edit>` ported from shadmin `admin/views/edit.tsx` onto chelone's
+ * COMPOSED `useEditForm` (record hydration + form + submit in one controller —
+ * NOT ra-core's `EditBase`).
+ *
+ * The shell: reads the record `id` from the route params, runs `useEditForm`
+ * for the ambient `<Resource>` resource, and publishes the result into the full
+ * ambient stack a shadmin `<EditBase>` layered (parity with ra's
+ * `EditContextProvider`):
+ *   `EditContext` (view fields) → `SaveContext` (save buttons / toolbar) →
+ *   `RecordContext` (record the fields default to) → `CheloneFormProvider`
+ *   (the ambient form `useInput` binds to). So a bare `<TextInput>` child works
+ *   with no `<SimpleForm>` in between.
+ *
+ * Chelone divergences (deliberate):
+ * - No `<EditBase>`: the composed `useEditForm` fetches + hydrates + owns the
+ *   form; the view mounts every provider itself.
+ * - `SaveContext.save(data)` is the compat bridge over the composed pipeline:
+ *   it writes `data` into the ambient form then runs the composed `submit()`
+ *   (validate → persist → reconcile). A chelone save button reads the current
+ *   form values (the inputs already wrote them), so `data` == the form values;
+ *   the bridge also serves a programmatic `save(explicitData)`.
+ * - Breadcrumb + the default `<ShowButton>`/`<DeleteButton>` actions are
+ *   LAYOUT/BUTTONS chrome from later waves — the `title`/`actions` props remain
+ *   the seams (`actions` defaults to nothing). `defaultTitle` is COMPUTED here
+ *   from the record representation (chelone controllers don't carry it).
+ */
+
+import type { Identifier } from "@chelone/core";
+import { type ReactNode, useCallback, useMemo } from "react";
+import { cn } from "@/lib/utils";
+import { CheloneFormProvider } from "../../../form-context";
+import { useEditForm } from "../../../form-hooks";
+import { useGetRecordRepresentation } from "../../../label";
+import { RecordContextProvider } from "../../../record/record-context";
+import {
+  EditContextProvider,
+  type EditContextValue,
+  useEditContext,
+} from "../../../record-view-context";
+import { useResourceContext } from "../../../resource";
+import { useParams } from "../../../router";
+import {
+  SaveContextProvider,
+  type SaveContextValue,
+} from "../../../save-context";
+
+export interface EditProps {
+  /** Override the ambient resource (defaults to the `<Resource>` context). */
+  resource?: string;
+  /** Override the record id (defaults to the `:id` route param). */
+  id?: Identifier;
+  children?: ReactNode;
+  component?: React.ElementType;
+  /** Header actions (show/delete buttons); nothing by default. */
+  actions?: ReactNode | false;
+  /** Header title. A string/element renders as an `<h2>`; `false` omits it. */
+  title?: ReactNode | string | false;
+  className?: string;
+}
+
+/**
+ * An edit page: fetches + hydrates the record via `useEditForm`, publishes the
+ * edit/save/record/form contexts, and renders a title + children (a form).
+ *
+ * @example
+ * import { Edit, TextInput } from "@chelone/react";
+ *
+ * export const PostEdit = () => (
+ *   <Edit>
+ *     <TextInput source="title" />
+ *   </Edit>
+ * );
+ */
+function Edit(props: EditProps) {
+  const { resource: resourceProp, id: idProp, children, ...viewProps } = props;
+  const contextResource = useResourceContext();
+  const resource = resourceProp ?? contextResource;
+  if (!resource) {
+    throw new Error(
+      "The Edit component must be used within a ResourceContextProvider or given a `resource` prop",
+    );
+  }
+  const params = useParams();
+  const id = idProp ?? (params.id as Identifier);
+
+  const controller = useEditForm(resource, { id });
+  const { form, submit, record } = controller;
+
+  const getRecordRepresentation = useGetRecordRepresentation(resource);
+  const defaultTitle = String(getRecordRepresentation(record) ?? "");
+
+  // The compat save bridge: write `data` into the ambient form, then run the
+  // composed submit pipeline (validate → persist → reconcile). Errors surface
+  // on the form store (fieldState), so this resolves `undefined`.
+  const save = useCallback<NonNullable<SaveContextValue["save"]>>(
+    async (data) => {
+      for (const [key, value] of Object.entries(
+        data as Record<string, unknown>,
+      )) {
+        form.setFieldValue(key, value);
+      }
+      await submit();
+      return undefined;
+    },
+    [form, submit],
+  );
+
+  const editValue = useMemo<EditContextValue>(
+    () => ({
+      record: controller.record,
+      isPending: controller.isPending,
+      isFetching: controller.isFetching,
+      error: controller.error,
+      saving: controller.isSubmitting,
+      resource,
+      defaultTitle,
+      save,
+      mutationMode: "pessimistic",
+    }),
+    [controller, resource, defaultTitle, save],
+  );
+
+  const saveValue = useMemo<SaveContextValue>(
+    () => ({
+      save,
+      saving: controller.isSubmitting,
+      mutationMode: "pessimistic",
+    }),
+    [save, controller.isSubmitting],
+  );
+
+  return (
+    <EditContextProvider value={editValue}>
+      <SaveContextProvider value={saveValue}>
+        <RecordContextProvider value={record}>
+          <CheloneFormProvider form={form} submit={submit}>
+            <EditView {...viewProps}>{children}</EditView>
+          </CheloneFormProvider>
+        </RecordContextProvider>
+      </SaveContextProvider>
+    </EditContextProvider>
+  );
+}
+
+interface EditViewProps {
+  children?: ReactNode;
+  component?: React.ElementType;
+  actions?: ReactNode | false;
+  title?: ReactNode | string | false;
+  className?: string;
+}
+
+/**
+ * The edit layout: title + actions header, then the children (only once the
+ * record has hydrated — parity with shadmin's `context.record ? children`).
+ * @internal
+ */
+function EditView(props: EditViewProps) {
+  const {
+    component: Wrapper = "div",
+    title,
+    actions,
+    children,
+    className,
+  } = props;
+  const context = useEditContext();
+
+  const resolvedActions = actions === false ? null : (actions ?? null);
+
+  return (
+    <>
+      <div
+        className={cn(
+          "flex justify-between items-start flex-wrap gap-2 my-2",
+          className,
+        )}
+      >
+        {title !== false && (
+          <h2 className="text-2xl font-bold tracking-tight">
+            {title !== undefined ? title : context.defaultTitle}
+          </h2>
+        )}
+        {resolvedActions}
+      </div>
+      <Wrapper className="my-2">{context.record ? children : null}</Wrapper>
+    </>
+  );
+}
+
+export { Edit, EditView, type EditViewProps };

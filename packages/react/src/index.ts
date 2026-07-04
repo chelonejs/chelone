@@ -417,6 +417,36 @@ export {
   ListPagination,
   type ListPaginationProps,
 } from "./components/admin/list/list-pagination";
+// P7e component surface — the CRUD view shells (List/Create/Edit/Show). Each
+// wires a composed controller (useListController/useCreateForm/useEditForm/
+// useShowController) and publishes the ambient context stack its descendants
+// read (ListContext / CreateContext+SaveContext+RecordContext+form /
+// EditContext+... / ShowContext+RecordContext). These are the page components
+// the `<Resource list/create/edit/show>` props point at.
+export {
+  Create,
+  type CreateProps,
+  CreateView,
+  type CreateViewProps,
+} from "./components/admin/views/create";
+export {
+  Edit,
+  type EditProps,
+  EditView,
+  type EditViewProps,
+} from "./components/admin/views/edit";
+export {
+  List,
+  type ListProps,
+  ListView,
+  type ListViewProps,
+} from "./components/admin/views/list";
+export {
+  Show,
+  type ShowProps,
+  ShowView,
+  type ShowViewProps,
+} from "./components/admin/views/show";
 export type { CheloneProviderProps } from "./context";
 export {
   CheloneProvider,
