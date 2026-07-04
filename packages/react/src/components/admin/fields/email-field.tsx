@@ -1,0 +1,72 @@
+import type React from "react";
+import type { AnchorHTMLAttributes } from "react";
+import type { FieldProps } from "@/lib/field-types";
+import { genericMemo } from "@/lib/gen-memo";
+import type { UnknownRecord } from "@/lib/unknown-types";
+import { cn } from "@/lib/utils";
+import { useTranslate } from "../../../i18n-hooks";
+import { useFieldValue } from "../../../record/use-field-value";
+import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
+
+function EmailFieldImpl<RecordType extends UnknownRecord = UnknownRecord>(
+  inProps: EmailFieldProps<RecordType>,
+) {
+  const { className, empty, defaultValue, source, record, ...rest } = inProps;
+  const value = useFieldValue({ defaultValue, source, record });
+  const translate = useTranslate();
+
+  if (value == null) {
+    if (!empty) {
+      return null;
+    }
+
+    return (
+      <span className={className} {...sanitizeFieldRestProps(rest)}>
+        {typeof empty === "string" ? translate(empty, { _: empty }) : empty}
+      </span>
+    );
+  }
+
+  return (
+    <a
+      className={cn("underline hover:no-underline", className)}
+      href={`mailto:${value}`}
+      onClick={stopPropagation}
+      {...sanitizeFieldRestProps(rest)}
+    >
+      {value as string}
+    </a>
+  );
+}
+EmailFieldImpl.displayName = "EmailFieldImpl";
+
+/**
+ * Displays an email address as a clickable `mailto:` link.
+ *
+ * Click events are prevented from bubbling up, making it safe inside DataTable
+ * rows with `rowClick`. To be used with `RecordField` or `DataTable.Col`, or
+ * anywhere a `RecordContext` is available.
+ *
+ * @example
+ * import { List, DataTable, EmailField } from '@/components/admin';
+ *
+ * const UserList = () => (
+ *   <List>
+ *     <DataTable>
+ *       <DataTable.Col source="name" />
+ *       <DataTable.Col source="email" field={EmailField} />
+ *     </DataTable>
+ *   </List>
+ * );
+ */
+const EmailField = genericMemo(EmailFieldImpl);
+
+interface EmailFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+  extends FieldProps<RecordType>,
+    AnchorHTMLAttributes<HTMLAnchorElement> {}
+
+// useful to prevent click bubbling in a DataTable with rowClick
+const stopPropagation = (e: React.MouseEvent<HTMLAnchorElement>) =>
+  e.stopPropagation();
+
+export { EmailField, type EmailFieldProps };

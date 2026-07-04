@@ -1,0 +1,84 @@
+import type { HTMLAttributes } from "react";
+import type { FieldProps } from "@/lib/field-types";
+import type { UnknownRecord, UnknownValue } from "@/lib/unknown-types";
+import { useTranslate } from "../../../i18n-hooks";
+import { useFieldValue } from "../../../record/use-field-value";
+import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
+
+/**
+ * Displays a numeric value with locale-specific formatting.
+ *
+ * Formats numbers according to the user's locale via `Intl.NumberFormat`, with
+ * custom locales and formatting options (currencies, percentages, etc.). To be
+ * used with `RecordField` or `DataTable.Col`, or anywhere a `RecordContext` is
+ * available.
+ *
+ * @example
+ * import { Show, RecordField, NumberField } from '@/components/admin';
+ *
+ * const ProductShow = () => (
+ *   <Show>
+ *     <RecordField source="price">
+ *       <NumberField source="price" options={{ style: 'currency', currency: 'USD' }} />
+ *     </RecordField>
+ *   </Show>
+ * );
+ */
+function NumberField<RecordType extends UnknownRecord = UnknownRecord>({
+  defaultValue,
+  source,
+  record,
+  empty,
+  transform = defaultTransform,
+  locales,
+  options,
+  ...rest
+}: NumberFieldProps<RecordType>) {
+  let value = useFieldValue({ defaultValue, source, record });
+  const translate = useTranslate();
+
+  if (value == null) {
+    if (!empty) {
+      return null;
+    }
+
+    return (
+      <span {...sanitizeFieldRestProps(rest)}>
+        {typeof empty === "string" ? translate(empty, { _: empty }) : empty}
+      </span>
+    );
+  }
+
+  if (transform) {
+    value = transform(value);
+  }
+
+  return (
+    <span {...sanitizeFieldRestProps(rest)}>
+      {hasNumberFormat && typeof value === "number"
+        ? value.toLocaleString(locales, options)
+        : (value as UnknownValue as string)}
+    </span>
+  );
+}
+
+interface NumberFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+  extends FieldProps<RecordType>,
+    HTMLAttributes<HTMLSpanElement> {
+  locales?: string | string[];
+  options?: object;
+  transform?: (value: UnknownValue) => UnknownValue;
+}
+
+const defaultTransform = (value: UnknownValue): UnknownValue =>
+  value && typeof value === "string" && !Number.isNaN(Number(value))
+    ? +value
+    : value;
+
+const hasNumberFormat = !!(
+  typeof Intl === "object" &&
+  Intl &&
+  typeof Intl.NumberFormat === "function"
+);
+
+export { NumberField, type NumberFieldProps };

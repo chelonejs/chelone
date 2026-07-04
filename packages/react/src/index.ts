@@ -106,6 +106,66 @@ export {
   useLocaleState,
   useRefresh,
 } from "./compat-hooks";
+// P7d component surface — read-only display fields (ported from shadmin onto
+// useFieldValue + useRecordContext). Same seam as the inputs: only the admin
+// field components + their prop types are barrel-exported (the `ui/` primitives
+// and the `lib/` field-type helpers stay `@/`-alias-only, mirroring shadmin).
+export {
+  BadgeField,
+  type BadgeFieldProps,
+} from "./components/admin/fields/badge-field";
+export {
+  BooleanField,
+  type BooleanFieldProps,
+} from "./components/admin/fields/boolean-field";
+export {
+  ChipField,
+  type ChipFieldProps,
+} from "./components/admin/fields/chip-field";
+export {
+  ColorField,
+  type ColorFieldProps,
+} from "./components/admin/fields/color-field";
+export {
+  DateField,
+  type DateFieldProps,
+} from "./components/admin/fields/date-field";
+export {
+  EmailField,
+  type EmailFieldProps,
+} from "./components/admin/fields/email-field";
+export {
+  FunctionField,
+  type FunctionFieldProps,
+} from "./components/admin/fields/function-field";
+export {
+  NumberField,
+  type NumberFieldProps,
+} from "./components/admin/fields/number-field";
+export {
+  RecordField,
+  type RecordFieldProps,
+} from "./components/admin/fields/record-field";
+export {
+  SelectField,
+  type SelectFieldProps,
+} from "./components/admin/fields/select-field";
+export {
+  TextArrayField,
+  type TextArrayFieldProps,
+} from "./components/admin/fields/text-array-field";
+export {
+  TextField,
+  type TextFieldProps,
+} from "./components/admin/fields/text-field";
+export {
+  UrlField,
+  type UrlFieldProps,
+} from "./components/admin/fields/url-field";
+export {
+  WrapperField,
+  type WrapperFieldProps,
+} from "./components/admin/fields/wrapper-field";
 // P7b component surface — simple text-like inputs (ported from shadmin onto
 // useInput + ui/field + <ValidationError>). The `ui/` primitives are NOT
 // barrel-exported (they are registry/consumer-facing via the `@/` alias,

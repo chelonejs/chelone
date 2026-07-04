@@ -1,0 +1,103 @@
+import type { HTMLAttributes } from "react";
+import type { FieldProps } from "@/lib/field-types";
+import { genericMemo } from "@/lib/gen-memo";
+import type { UnknownRecord } from "@/lib/unknown-types";
+import type { ChoiceRecord, OptionText } from "../../../choices-hooks";
+import { useChoices } from "../../../choices-hooks";
+import { useTranslate } from "../../../i18n-hooks";
+import { useFieldValue } from "../../../record/use-field-value";
+import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
+
+/**
+ * Displays a value from an enumeration by mapping it to a human-readable label.
+ *
+ * Supports custom `optionText`/`optionValue` and automatic translation of
+ * choice labels. To be used with `RecordField` or `DataTable.Col`, or anywhere
+ * a `RecordContext` is available.
+ *
+ * @example
+ * import { List, DataTable, SelectField } from '@/components/admin';
+ *
+ * const choices = [{ id: 'M', name: 'Male' }, { id: 'F', name: 'Female' }];
+ *
+ * const UserList = () => (
+ *   <List>
+ *     <DataTable>
+ *       <DataTable.Col>
+ *         <SelectField source="gender" choices={choices} />
+ *       </DataTable.Col>
+ *     </DataTable>
+ *   </List>
+ * );
+ *
+ * The current choice is translated by default, so translation identifiers work
+ * as choice labels. Set `translateChoice={false}` to opt out (e.g. inside a
+ * `<ReferenceField>`, which defaults it to false).
+ */
+const SelectFieldImpl = <RecordType extends UnknownRecord = UnknownRecord>(
+  props: SelectFieldProps<RecordType>,
+) => {
+  const {
+    className,
+    empty,
+    choices,
+    defaultValue,
+    source,
+    record,
+    optionValue = "id",
+    optionText = "name",
+    translateChoice = true,
+    ...rest
+  } = props;
+  const value = useFieldValue({ defaultValue, source, record });
+
+  const { getChoiceText, getChoiceValue } = useChoices({
+    optionText,
+    optionValue,
+    translateChoice,
+  });
+  const translate = useTranslate();
+
+  const choice = choices
+    ? choices.find((choice) => getChoiceValue(choice) === value)
+    : undefined;
+
+  if (!choice) {
+    if (!empty) {
+      return null;
+    }
+
+    return (
+      <span className={className} {...sanitizeFieldRestProps(rest)}>
+        {typeof empty === "string" ? translate(empty, { _: empty }) : empty}
+      </span>
+    );
+  }
+
+  const choiceText = getChoiceText(choice);
+
+  return (
+    <span className={className} {...sanitizeFieldRestProps(rest)}>
+      {choiceText}
+    </span>
+  );
+};
+
+SelectFieldImpl.displayName = "SelectFieldImpl";
+
+const SelectField = genericMemo(SelectFieldImpl);
+
+interface SelectFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+  extends FieldProps<RecordType>,
+    HTMLAttributes<HTMLSpanElement> {
+  /** The list of choices to map the value against. */
+  choices?: readonly ChoiceRecord[];
+  /** The value path on a choice. Default `'id'`. */
+  optionValue?: string;
+  /** The display path or a formatter. Default `'name'`. */
+  optionText?: OptionText;
+  /** Translate a string-path text through the catalog. Default `true`. */
+  translateChoice?: boolean;
+}
+
+export { SelectField, type SelectFieldProps };
