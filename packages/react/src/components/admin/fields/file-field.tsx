@@ -75,12 +75,15 @@ function FileField<RecordType extends UnknownRecord = UnknownRecord>(
   const sourceValue = useFieldValue({ defaultValue, source, record });
   const titleFromRecord = useFieldValue({
     record,
-    // A `title` may be a record path OR a literal label — read it only when
-    // provided; the `""` fallback source resolves to `undefined`, so the `??`
-    // below drops back to the literal `title`.
+    // A `title` may be a record path OR a literal label. The hook must always be
+    // called (rules of hooks), so pass `""` when `title` is absent — but chelone
+    // reads `source:""` as the WHOLE record, so we discard that read below.
     source: title ?? "",
   });
-  const titleValue = titleFromRecord?.toString() ?? title;
+  // Only derive a title when `title` is set: a real path resolves via the read,
+  // a literal-but-missing path falls back to the literal, and no `title` prop
+  // yields `undefined` (never the whole-record `"[object Object]"` leak).
+  const titleValue = title ? (titleFromRecord?.toString() ?? title) : undefined;
   const translate = useTranslate();
 
   if (

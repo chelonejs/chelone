@@ -107,4 +107,19 @@ describe("<FileField>", () => {
     );
     expect(screen.getByText("No file")).toBeTruthy();
   });
+
+  it("omits title and avoids a whole-record leak when no title prop is given", () => {
+    const { container } = render(
+      <Providers>
+        <RecordContextProvider value={{ id: 1, url: "doc.pdf" }}>
+          <FileField source="url" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    const link = container.querySelector("a");
+    expect(link?.getAttribute("href")).toBe("doc.pdf");
+    // No title prop → no title attribute and no "[object Object]" whole-record leak.
+    expect(link?.getAttribute("title")).toBeNull();
+    expect(link?.textContent ?? "").not.toContain("[object Object]");
+  });
 });

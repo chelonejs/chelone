@@ -102,4 +102,17 @@ describe("<ImageField>", () => {
     );
     expect(container.querySelector("img")).toBeNull();
   });
+
+  it("omits title/alt when no title prop is given (no whole-record leak)", () => {
+    render(
+      <Providers>
+        <RecordContextProvider value={{ id: 1, url: "avatar.png" }}>
+          <ImageField source="url" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    const img = screen.getByRole("img");
+    expect(img.getAttribute("title")).toBeNull();
+    expect(img.getAttribute("alt")).toBeNull();
+  });
 });
