@@ -26,6 +26,7 @@ import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { RecordContextProvider } from "../../../record/record-context";
+import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
 import { shallowEqual } from "../../../util/shallow-equal";
 import type { InputProps } from "../input-props";
 
@@ -204,7 +205,7 @@ function FileInput(props: FileInputProps) {
     <Field
       className={cn("w-full", className)}
       data-invalid={invalid || undefined}
-      {...rest}
+      {...sanitizeInputRestProps(rest as Record<string, unknown>)}
     >
       <FieldLabel
         htmlFor={id}
@@ -336,7 +337,10 @@ function FileInputPreview(props: FileInputPreviewProps) {
   }, [file]);
 
   return (
-    <div className={cn("flex flex-row gap-1 group", className)} {...rest}>
+    <div
+      className={cn("flex flex-row gap-1 group", className)}
+      {...sanitizeInputRestProps(rest as Record<string, unknown>)}
+    >
       <Button
         type="button"
         variant="ghost"

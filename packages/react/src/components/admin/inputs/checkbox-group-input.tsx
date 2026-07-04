@@ -17,6 +17,7 @@ import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useGetRecordRepresentation } from "../../../label";
+import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
 import type { InputProps } from "../input-props";
 
 interface ChoicesProps {
@@ -160,7 +161,7 @@ function CheckboxGroupInput(inProps: CheckboxGroupInputProps) {
     <FieldSet
       className={className}
       data-invalid={invalid || undefined}
-      {...rest}
+      {...sanitizeInputRestProps(rest as Record<string, unknown>)}
     >
       {label !== false && (
         <FieldLegend variant="label">

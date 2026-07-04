@@ -19,6 +19,7 @@ import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentation } from "../../../label";
+import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
 import type { InputProps } from "../input-props";
 
 /**
@@ -201,7 +202,7 @@ function SelectInput(props: SelectInputProps) {
     <Field
       className={cn("w-full min-w-20", className)}
       data-invalid={invalid || undefined}
-      {...rest}
+      {...sanitizeInputRestProps(rest as Record<string, unknown>)}
     >
       {label !== "" && label !== false && (
         <FieldLabel htmlFor={id}>

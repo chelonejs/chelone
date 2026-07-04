@@ -41,7 +41,10 @@ function RatingInput(props: RatingInputProps) {
     ...rest
   } = props;
   const resource = useResourceContext({ resource: resourceProp });
-  const { id, field, fieldState, isRequired } = useInput(props);
+  // Pass the already-destructured `...rest` (presentational keys removed) plus
+  // `source` explicitly, so label/className/max/allowHalf/etc. don't pollute
+  // `validatorMeta`. `defaultValue`/`validate`/`format`/`parse` remain in `rest`.
+  const { id, field, fieldState, isRequired } = useInput({ ...rest, source });
 
   const invalid = fieldState.invalid;
   // chelone `fieldState.error` is ALREADY the displayable
