@@ -104,7 +104,13 @@ export function createI18n<const TCatalog extends MessageCatalog>(options: {
         (options.fallbackLocale
           ? options.messages[options.fallbackLocale]?.[key]
           : undefined);
-      if (value === undefined) return key; // never throw — surface the key
+      if (value === undefined) {
+        // Polyglot/ra `{ _: default }` convention: a missing key with a string
+        // `_` fallback renders that default (interpolated with the same params),
+        // so ported `ra.*` labels read as English without a registered catalog.
+        if (typeof params?._ === "string") return interpolate(params._, params);
+        return key; // never throw — surface the key
+      }
       return resolve(value, locale, params);
     },
     getLocale: () => locale,

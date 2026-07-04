@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createI18n } from "./i18n";
+import { type AnyChelonI18n, createI18n } from "./i18n";
 import { defineMessages } from "./messages";
 
 const en = defineMessages({
@@ -68,6 +68,24 @@ describe("createI18n", () => {
       "Hello Rin",
     ); // en fallback
     expect(i18n.translate("chelone.missing" as never)).toBe("chelone.missing"); // key fallback, no throw
+  });
+
+  it("honors the polyglot `_` fallback for keys missing from the catalog", () => {
+    // The catalog-erased view: what components hold, and the surface that
+    // accepts an arbitrary `ra.*` key plus a `{ _: default }` param.
+    const i18n: AnyChelonI18n = make();
+    // Missing key + string `_` → the fallback, not the echoed key.
+    expect(i18n.translate("ra.auth.sign_in", { _: "Sign in" })).toBe("Sign in");
+    // Fallback is interpolated with the same params.
+    expect(i18n.translate("greeting", { _: "Hi {name}", name: "Ada" })).toBe(
+      "Hi Ada",
+    );
+    // Missing key + no `_` → unchanged key echo.
+    expect(i18n.translate("missing")).toBe("missing");
+    // Catalog hit ignores `_` entirely.
+    expect(i18n.translate("chelone.action.save", { _: "IGNORED" })).toBe(
+      "Save",
+    );
   });
 
   it("setLocale of an unknown locale throws; getLocales lists catalogs", () => {

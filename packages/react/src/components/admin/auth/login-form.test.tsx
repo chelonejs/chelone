@@ -11,9 +11,11 @@
  */
 
 import {
+  type AnyChelonI18n,
   type AuthProvider,
   createI18n,
   createNotificationStore,
+  defaultMessages,
   defineMessages,
   fakeDataProvider,
   type NotificationStore,
@@ -59,10 +61,12 @@ function makeAuthProvider(over: Partial<AuthProvider> = {}): AuthProvider {
 function Wrap({
   authProvider,
   notifications,
+  i18n,
   children,
 }: {
   authProvider: AuthProvider;
   notifications?: NotificationStore;
+  i18n?: AnyChelonI18n;
   children: ReactNode;
 }) {
   const queryClient = new QueryClient({
@@ -72,7 +76,7 @@ function Wrap({
     <CheloneProvider
       dataProvider={fakeDataProvider({})}
       queryClient={queryClient}
-      i18n={makeI18n()}
+      i18n={i18n ?? makeI18n()}
       notifications={notifications ?? createNotificationStore()}
       authProvider={authProvider}
     >
@@ -115,6 +119,23 @@ describe("<LoginForm>", () => {
         password: "hunter2",
       }),
     );
+  });
+
+  it("renders the English `_` fallback for `ra.*` labels under the default catalog", () => {
+    // The default catalog carries only `chelone.*` keys — no `ra.*`. Without
+    // the core `_`-fallback fix, `translate("ra.auth.sign_in", { _: "Sign in" })`
+    // echoes the raw key and the button reads "ra.auth.sign_in".
+    const i18n = createI18n({
+      locale: "en",
+      messages: { en: defaultMessages },
+    });
+    render(
+      <Wrap authProvider={makeAuthProvider()} i18n={i18n}>
+        <LoginForm />
+      </Wrap>,
+    );
+    expect(screen.getByRole("button", { name: /sign in/i })).toBeTruthy();
+    expect(screen.queryByText("ra.auth.sign_in")).toBeNull();
   });
 
   it("surfaces an error notification when login rejects", async () => {
