@@ -1,0 +1,110 @@
+/**
+ * QUICKSTART — "point at a Zod schema" resource.
+ *
+ * `postSchema` (below) is registered via `defineResources({ posts: { schema:
+ * postSchema } })` in `App.tsx` and passed to `<Admin resources={...}>`. Because
+ * the resource carries a Zod schema, the Edit/Create forms get AUTOMATIC
+ * validation from it (the D6 default validator): the controller reads the
+ * registry schema and validates the form against it on submit — no per-field
+ * `validate={...}` props needed. Zod ≥ 3.24 implements Standard Schema, so the
+ * schema plugs straight into the form-core validation seam.
+ *
+ * Try it: open a post's Edit page, clear the Title, and submit — the schema's
+ * `.min(1)` rule blocks the save and surfaces the message.
+ */
+
+import {
+  BooleanField,
+  BooleanInput,
+  Create,
+  DataTable,
+  Edit,
+  List,
+  NumberField,
+  NumberInput,
+  RecordField,
+  ReferenceField,
+  ReferenceInput,
+  SelectInput,
+  Show,
+  TextField,
+  TextInput,
+} from "@chelone/react";
+import { z } from "zod";
+
+/** The record shape + the form validator, in one place. */
+export const postSchema = z.object({
+  id: z.number().optional(),
+  title: z.string().min(1, "Title is required").max(120),
+  body: z.string().min(1, "Body is required"),
+  author_id: z.number({ message: "Pick an author" }),
+  views: z.number().min(0).optional(),
+  published: z.boolean().optional(),
+});
+
+export function PostList() {
+  return (
+    <List>
+      <DataTable>
+        <DataTable.Col source="title" />
+        <DataTable.Col label="Author">
+          <ReferenceField source="author_id" reference="authors">
+            <TextField source="name" />
+          </ReferenceField>
+        </DataTable.Col>
+        <DataTable.NumberCol source="views" />
+        <DataTable.Col source="published">
+          <BooleanField source="published" />
+        </DataTable.Col>
+      </DataTable>
+    </List>
+  );
+}
+
+export function PostEdit() {
+  return (
+    <Edit>
+      <TextInput source="title" />
+      <TextInput source="body" multiline />
+      <ReferenceInput source="author_id" reference="authors">
+        <SelectInput optionText="name" />
+      </ReferenceInput>
+      <NumberInput source="views" min={0} />
+      <BooleanInput source="published" />
+    </Edit>
+  );
+}
+
+export function PostCreate() {
+  return (
+    <Create>
+      <TextInput source="title" />
+      <TextInput source="body" multiline />
+      <ReferenceInput source="author_id" reference="authors">
+        <SelectInput optionText="name" />
+      </ReferenceInput>
+      <NumberInput source="views" min={0} defaultValue={0} />
+      <BooleanInput source="published" defaultValue={false} />
+    </Create>
+  );
+}
+
+export function PostShow() {
+  return (
+    <Show>
+      <RecordField source="title" />
+      <RecordField source="body" />
+      <RecordField label="Author">
+        <ReferenceField source="author_id" reference="authors">
+          <TextField source="name" />
+        </ReferenceField>
+      </RecordField>
+      <RecordField label="Views">
+        <NumberField source="views" />
+      </RecordField>
+      <RecordField label="Published">
+        <BooleanField source="published" />
+      </RecordField>
+    </Show>
+  );
+}
