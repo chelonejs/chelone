@@ -122,6 +122,54 @@ describe("<ReferenceField>", () => {
     });
   });
 
+  it("infers a show link when link is omitted (definition.hasShow)", async () => {
+    const Providers = makeProviders();
+    render(
+      <Providers>
+        <RecordContextProvider value={{ id: 10, author_id: 1 }}>
+          <ReferenceField source="author_id" reference="authors" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    await waitFor(() => {
+      const link = screen.getByRole("link", { name: "Jane Doe" });
+      expect(link.getAttribute("href")).toContain("/authors/1/show");
+    });
+  });
+
+  it("renders no link when link is false", async () => {
+    const Providers = makeProviders();
+    render(
+      <Providers>
+        <RecordContextProvider value={{ id: 10, author_id: 1 }}>
+          <ReferenceField source="author_id" reference="authors" link={false} />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    await waitFor(() => {
+      expect(screen.getByText("Jane Doe")).toBeTruthy();
+    });
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("links to the edit path when link='edit' is explicit", async () => {
+    const Providers = makeProviders();
+    render(
+      <Providers>
+        <RecordContextProvider value={{ id: 10, author_id: 1 }}>
+          <ReferenceField source="author_id" reference="authors" link="edit" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    await waitFor(() => {
+      const link = screen.getByRole("link", { name: "Jane Doe" });
+      expect(link.getAttribute("href")).toContain("/authors/1");
+    });
+    expect(
+      screen.getByRole("link", { name: "Jane Doe" }).getAttribute("href"),
+    ).not.toContain("/show");
+  });
+
   it("renders the empty node when the FK is null", () => {
     const Providers = makeProviders();
     render(

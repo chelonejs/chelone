@@ -6,7 +6,8 @@ import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentation } from "../../../label";
 import { RecordContextProvider } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
-import { type LinkToType, useCreatePath } from "../../../router";
+import { useResourceDefinition } from "../../../resource";
+import { type LinkToType, useGetPathForRecord } from "../../../router";
 import { useRouterAdapter } from "../../../router/adapter";
 
 interface ReferenceFieldProps<
@@ -53,7 +54,8 @@ const stopPropagation = (e: MouseEvent<HTMLAnchorElement>) =>
  * `ReferenceFieldBase`/`useReferenceFieldContext` stack. This field resolves the
  * single record directly with `useGetOne`, publishes it via
  * `RecordContextProvider`, and links through the router adapter's `Link` +
- * `useCreatePath`. The default representation comes from
+ * `useGetPathForRecord` (which infers a `show`/`edit` link when `link` is
+ * omitted, matching ra-core). The default representation comes from
  * `useGetRecordRepresentation(reference)`.
  *
  * @example
@@ -89,7 +91,7 @@ function ReferenceField<RecordType extends UnknownRecord = UnknownRecord>(
   const id = useFieldValue({ source, record }) as Identifier | null | undefined;
   const translate = useTranslate();
   const getRecordRepresentation = useGetRecordRepresentation(reference);
-  const createPath = useCreatePath();
+  const definition = useResourceDefinition({ resource: reference });
   const { Link } = useRouterAdapter();
 
   // Fetch only when a FK is present — `useGetOne` requires an id.
@@ -99,6 +101,24 @@ function ReferenceField<RecordType extends UnknownRecord = UnknownRecord>(
     { enabled: id != null },
   );
   const referenceRecord = data as UnknownRecord | undefined;
+
+  // Compute the link path unconditionally (Rules of Hooks): the hook owns the
+  // `link==null` inference (show → edit → none, gated on the reference's
+  // definition + `canAccess`), returning a basename-applied path or `false`. A
+  // pending / absent record yields `false`; passing it here (before the early
+  // returns) keeps the hook order stable across renders.
+  const linkPath = useGetPathForRecord({
+    resource: reference,
+    record: referenceRecord as { id: Identifier } | undefined,
+    // `useResourceDefinition` returns a partial (fields optional); the hook only
+    // needs the show/edit flags, defaulted to `false` when the resource is
+    // unregistered or the view is absent.
+    definition: {
+      hasShow: definition.hasShow ?? false,
+      hasEdit: definition.hasEdit ?? false,
+    },
+    link,
+  });
 
   if (id == null) {
     return typeof empty === "string"
@@ -138,23 +158,18 @@ function ReferenceField<RecordType extends UnknownRecord = UnknownRecord>(
     </RecordContextProvider>
   );
 
-  if (link !== false && link != null) {
-    const type =
-      typeof link === "function" ? link(referenceRecord, reference) : link;
-    if (type !== false) {
-      const to = createPath({ type, resource: reference, id });
-      return (
-        <span className={className}>
-          <Link
-            to={to}
-            state={{ _scrollToTop: true }}
-            onClick={stopPropagation}
-          >
-            {body}
-          </Link>
-        </span>
-      );
-    }
+  if (linkPath) {
+    return (
+      <span className={className}>
+        <Link
+          to={linkPath}
+          state={{ _scrollToTop: true }}
+          onClick={stopPropagation}
+        >
+          {body}
+        </Link>
+      </span>
+    );
   }
 
   return body;
