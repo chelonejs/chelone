@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FieldError } from "@/components/ui/field";
 import {
   Table,
   TableBody,
@@ -14,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { ChoiceRecord, OptionText } from "../../../choices-hooks";
 import { useChoices, useChoicesContext } from "../../../choices-hooks";
+import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import type { InputProps } from "../input-props";
@@ -142,6 +144,12 @@ function DatagridInput(props: DatagridInputProps): ReactNode {
   }, [field, allSelected, allIds]);
 
   const invalid = fieldState.invalid;
+  // chelone `fieldState.error` is ALREADY the displayable
+  // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
+  // shadmin routed it through `InputHelperText`; here it renders as a proper
+  // `role="alert"` `<FieldError>` (matching the sibling choice inputs), so a
+  // required/minLength failure on the id-array is surfaced instead of silent.
+  const error = fieldState.error;
 
   return (
     <div
@@ -188,6 +196,9 @@ function DatagridInput(props: DatagridInputProps): ReactNode {
         </TableBody>
       </Table>
       <InputHelperText helperText={helperText} />
+      <FieldError>
+        {invalid && error ? <ValidationError error={error} /> : null}
+      </FieldError>
     </div>
   );
 }

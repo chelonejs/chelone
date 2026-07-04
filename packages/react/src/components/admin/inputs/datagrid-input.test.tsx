@@ -13,6 +13,7 @@ import {
   defineMessages,
   type FieldErrors,
   fakeDataProvider,
+  required,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import {
@@ -170,6 +171,22 @@ describe("<DatagridInput>", () => {
       await submitRef.current?.();
     });
     expect(onData).toHaveBeenCalledWith({ tag_ids: [1, 2, 3] });
+  });
+
+  it("surfaces a validation error via <ValidationError> after submit", async () => {
+    const { submitRef } = setup<{ tag_ids: number[] }>(
+      <DatagridInput
+        source="tag_ids"
+        choices={choices}
+        validate={required()}
+      />,
+      { defaultValues: { tag_ids: [] } },
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+    await act(async () => {
+      await submitRef.current?.();
+    });
+    expect(screen.getByRole("alert").textContent).toContain("Required");
   });
 
   it("reads choices from an ambient reference ChoicesContext", () => {
