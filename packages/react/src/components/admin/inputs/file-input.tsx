@@ -60,7 +60,6 @@ function FileInput(props: FileInputProps) {
     format,
     label,
     helperText,
-    name: nameProp,
     onBlur: onBlurProp,
     onChange: onChangeProp,
     parse,
@@ -128,13 +127,9 @@ function FileInput(props: FileInputProps) {
   } = useInput({
     defaultValue,
     format: format ?? transformFiles,
-    label,
-    helperText,
-    name: nameProp,
     onBlur: onBlurProp,
     onChange: onChangeProp,
     parse: parse ?? transformFiles,
-    resource,
     source,
     validate,
   });

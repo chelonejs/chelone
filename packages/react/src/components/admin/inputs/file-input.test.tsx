@@ -125,9 +125,11 @@ describe("<FileInput>", () => {
     // Each file's record surfaces through the per-file RecordContextProvider.
     const links = screen.getAllByRole("link");
     expect(links).toHaveLength(2);
-    expect(links[0]).toHaveProperty("href", "https://example.org/a.pdf");
-    expect(links[0].getAttribute("title")).toBe("Cover");
-    expect(links[1].getAttribute("title")).toBe("Plan");
+    const [firstLink, secondLink] = links;
+    if (!firstLink || !secondLink) throw new Error("expected 2 links");
+    expect(firstLink).toHaveProperty("href", "https://example.org/a.pdf");
+    expect(firstLink.getAttribute("title")).toBe("Cover");
+    expect(secondLink.getAttribute("title")).toBe("Plan");
   });
 
   it("wraps a single (non-array) value into one preview", () => {
@@ -143,7 +145,9 @@ describe("<FileInput>", () => {
     );
     const links = screen.getAllByRole("link");
     expect(links).toHaveLength(1);
-    expect(links[0].getAttribute("title")).toBe("Me");
+    const [firstLink] = links;
+    if (!firstLink) throw new Error("expected 1 link");
+    expect(firstLink.getAttribute("title")).toBe("Me");
   });
 
   it("renders a remove button per file and removes on click", () => {
@@ -162,11 +166,15 @@ describe("<FileInput>", () => {
     );
     const removeButtons = screen.getAllByRole("button", { name: /delete/i });
     expect(removeButtons).toHaveLength(2);
+    const [firstRemove] = removeButtons;
+    if (!firstRemove) throw new Error("expected a remove button");
     // Remove the first file (Cover) → only Plan remains.
-    fireEvent.click(removeButtons[0]);
+    fireEvent.click(firstRemove);
     const links = screen.getAllByRole("link");
     expect(links).toHaveLength(1);
-    expect(links[0].getAttribute("title")).toBe("Plan");
+    const [remainingLink] = links;
+    if (!remainingLink) throw new Error("expected 1 link");
+    expect(remainingLink.getAttribute("title")).toBe("Plan");
   });
 
   it("accepts a dropped file and shows its preview", async () => {
@@ -188,8 +196,10 @@ describe("<FileInput>", () => {
     // await the state flush before asserting the preview.
     await waitFor(() => expect(screen.getAllByRole("link")).toHaveLength(1));
     const links = screen.getAllByRole("link");
+    const [firstLink] = links;
+    if (!firstLink) throw new Error("expected 1 link");
     // transformFile sets title to the dropped file's name.
-    expect(links[0].getAttribute("title")).toBe("hello.png");
+    expect(firstLink.getAttribute("title")).toBe("hello.png");
   });
 
   it("surfaces a validation error via <ValidationError> after submit", async () => {

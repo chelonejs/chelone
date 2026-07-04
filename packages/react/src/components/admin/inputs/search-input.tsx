@@ -80,6 +80,8 @@ export const SearchInput = (inProps: SearchInputProps) => {
   );
 };
 
-export type SearchInputProps = TextInputProps & {
+export type SearchInputProps = Omit<TextInputProps, "source"> & {
+  /** Full-text search source. Defaults to `"q"`. */
+  source?: string;
   disableClearable?: boolean;
 };

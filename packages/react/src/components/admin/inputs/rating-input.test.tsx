@@ -115,10 +115,13 @@ describe("<RatingInput>", () => {
       { defaultValues: { rating: 0 }, save },
     );
     const stars = screen.getAllByRole("radio");
+    const fourthStar = stars[3];
+    const fifthStar = stars[4];
+    if (!fourthStar || !fifthStar) throw new Error("expected 5 stars");
     // Click the 4th star → value 4.
-    fireEvent.click(stars[3]);
-    expect(stars[3].getAttribute("aria-checked")).toBe("true");
-    expect(stars[4].getAttribute("aria-checked")).toBe("false");
+    fireEvent.click(fourthStar);
+    expect(fourthStar.getAttribute("aria-checked")).toBe("true");
+    expect(fifthStar.getAttribute("aria-checked")).toBe("false");
     void submitRef;
   });
 
@@ -155,9 +158,12 @@ describe("<RatingInput>", () => {
       defaultValues: { rating: 3 },
     });
     const stars = screen.getAllByRole("radio");
-    expect(stars[0].getAttribute("aria-disabled")).toBe("true");
+    const firstStar = stars[0];
+    const fifthStar = stars[4];
+    if (!firstStar || !fifthStar) throw new Error("expected 5 stars");
+    expect(firstStar.getAttribute("aria-disabled")).toBe("true");
     // Clicking a disabled star does not change the selection.
-    fireEvent.click(stars[4]);
-    expect(stars[4].getAttribute("aria-checked")).toBe("false");
+    fireEvent.click(fifthStar);
+    expect(fifthStar.getAttribute("aria-checked")).toBe("false");
   });
 });

@@ -80,9 +80,11 @@ describe("<ImageInput>", () => {
       document.querySelectorAll("img"),
     ) as HTMLImageElement[];
     expect(imgs).toHaveLength(2);
-    expect(imgs[0].getAttribute("src")).toBe("https://example.org/1.png");
-    expect(imgs[0].getAttribute("title")).toBe("One");
-    expect(imgs[0].getAttribute("alt")).toBe("One");
+    const [firstImg] = imgs;
+    if (!firstImg) throw new Error("expected 2 images");
+    expect(firstImg.getAttribute("src")).toBe("https://example.org/1.png");
+    expect(firstImg.getAttribute("title")).toBe("One");
+    expect(firstImg.getAttribute("alt")).toBe("One");
   });
 
   it("passes an explicit child through instead of the default thumbnail", () => {
