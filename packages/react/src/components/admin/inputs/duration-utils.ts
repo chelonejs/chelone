@@ -39,4 +39,33 @@ function compactDuration(p: ParsedDuration): string {
   return parts.join(" ") || "0m";
 }
 
-export { compactDuration, type ParsedDuration, parseIsoDuration };
+/**
+ * Renders a `ParsedDuration` in relative long-form, e.g. `2 hours 30 minutes`.
+ *
+ * Clean-room reimplementation of date-fns's `formatDuration` (the only shape
+ * `<DurationField displayFormat="relative">` needs), so chelone avoids a
+ * date-fns dependency for a single formatter — consistent with the zero-lodash
+ * / minimal-dep ethos of `useFieldValue`. Emits English unit words with the
+ * usual singular/plural rule, space-joined in largest-to-smallest order.
+ */
+function relativeDuration(p: ParsedDuration): string {
+  const units: [keyof ParsedDuration, string][] = [
+    ["days", "day"],
+    ["hours", "hour"],
+    ["minutes", "minute"],
+    ["seconds", "second"],
+  ];
+  const parts: string[] = [];
+  for (const [key, word] of units) {
+    const n = p[key];
+    if (n) parts.push(`${n} ${word}${n === 1 ? "" : "s"}`);
+  }
+  return parts.join(" ") || "0 seconds";
+}
+
+export {
+  compactDuration,
+  type ParsedDuration,
+  parseIsoDuration,
+  relativeDuration,
+};

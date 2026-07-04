@@ -111,6 +111,10 @@ export {
 // field components + their prop types are barrel-exported (the `ui/` primitives
 // and the `lib/` field-type helpers stay `@/`-alias-only, mirroring shadmin).
 export {
+  ApiKeyField,
+  type ApiKeyFieldProps,
+} from "./components/admin/fields/api-key-field";
+export {
   BadgeField,
   type BadgeFieldProps,
 } from "./components/admin/fields/badge-field";
@@ -127,9 +131,21 @@ export {
   type ColorFieldProps,
 } from "./components/admin/fields/color-field";
 export {
+  CronField,
+  type CronFieldProps,
+} from "./components/admin/fields/cron-field";
+export {
+  CurrencyField,
+  type CurrencyFieldProps,
+} from "./components/admin/fields/currency-field";
+export {
   DateField,
   type DateFieldProps,
 } from "./components/admin/fields/date-field";
+export {
+  DurationField,
+  type DurationFieldProps,
+} from "./components/admin/fields/duration-field";
 export {
   EmailField,
   type EmailFieldProps,
@@ -143,6 +159,14 @@ export {
   type NumberFieldProps,
 } from "./components/admin/fields/number-field";
 export {
+  PhoneField,
+  type PhoneFieldProps,
+} from "./components/admin/fields/phone-field";
+export {
+  RatingField,
+  type RatingFieldProps,
+} from "./components/admin/fields/rating-field";
+export {
   RecordField,
   type RecordFieldProps,
 } from "./components/admin/fields/record-field";
@@ -150,6 +174,14 @@ export {
   SelectField,
   type SelectFieldProps,
 } from "./components/admin/fields/select-field";
+// NOTE: `SubscriptionPlan` (the plan shape) is intentionally NOT re-exported
+// here — it is already exported from `subscription-plan-picker` (the input) and
+// the field's interface is structurally identical. Re-exporting the same name
+// twice from the barrel is a TS2308 duplicate-export error.
+export {
+  SubscriptionPlanField,
+  type SubscriptionPlanFieldProps,
+} from "./components/admin/fields/subscription-plan-field";
 export {
   TextArrayField,
   type TextArrayFieldProps,
@@ -162,6 +194,18 @@ export {
   UrlField,
   type UrlFieldProps,
 } from "./components/admin/fields/url-field";
+export {
+  UsageMeterField,
+  type UsageMeterFieldProps,
+} from "./components/admin/fields/usage-meter-field";
+// NOTE: `WebhookEndpoint` (the endpoint shape) is intentionally NOT re-exported
+// here — it is already exported from `webhook-endpoint-input` (the input) and
+// the field's interface is structurally identical. Re-exporting the same name
+// twice from the barrel is a TS2308 duplicate-export error.
+export {
+  WebhookEndpointField,
+  type WebhookEndpointFieldProps,
+} from "./components/admin/fields/webhook-endpoint-field";
 export {
   WrapperField,
   type WrapperFieldProps,
