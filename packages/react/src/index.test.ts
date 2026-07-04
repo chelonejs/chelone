@@ -409,3 +409,18 @@ describe("@chelone/react barrel — P7e layout chrome (T3)", () => {
     expect(barrel.Menu.ResourceGroup).toBe(barrel.ResourceMenuItemGroup);
   });
 });
+
+describe("@chelone/react barrel — P7e auth pages (T4)", () => {
+  it("exports the auth-page components", () => {
+    expect(barrel.LoginPage).toBeTypeOf("function");
+    expect(barrel.LoginForm).toBeTypeOf("function");
+    expect(barrel.AuthCallback).toBeTypeOf("function");
+    expect(barrel.AuthLayout).toBeTypeOf("function");
+  });
+
+  it("exports the auth error-display leaves", () => {
+    expect(barrel.AccessDenied).toBeTypeOf("function");
+    expect(barrel.AuthenticationError).toBeTypeOf("function");
+    expect(barrel.AuthError).toBeTypeOf("function");
+  });
+});

@@ -106,6 +106,38 @@ export {
   useLocaleState,
   useRefresh,
 } from "./compat-hooks";
+// P7e-T4 component surface — the auth pages (LoginPage / LoginForm / Logout /
+// AuthCallback / AuthLayout + the error-display leaves). Ported from shadmin
+// `admin/auth/*` onto @chelone/react's auth hooks (useLogin/useLogout/
+// useAuthState/useHandleAuthCallback — mutations/queries, not ra-core's
+// imperative fns), the router adapter, and the standalone `useForm`
+// (the RHF `<Form>` seam). `<AuthLayout>` mounts its own `<Notification>`
+// because it renders OUTSIDE the main `<Layout>`.
+export {
+  AccessDenied,
+  type AccessDeniedProps,
+} from "./components/admin/auth/access-denied";
+export { AuthCallback } from "./components/admin/auth/auth-callback";
+export {
+  AuthError,
+  type AuthErrorProps,
+} from "./components/admin/auth/auth-error";
+export {
+  AuthLayout,
+  type AuthLayoutProps,
+} from "./components/admin/auth/auth-layout";
+export {
+  AuthenticationError,
+  type AuthenticationErrorProps,
+} from "./components/admin/auth/authentication-error";
+export {
+  LoginForm,
+  type LoginFormProps,
+} from "./components/admin/auth/login-form";
+export {
+  LoginPage,
+  type LoginPageProps,
+} from "./components/admin/auth/login-page";
 export { Logout, type LogoutProps } from "./components/admin/auth/logout";
 export {
   SidebarToggleButton,
