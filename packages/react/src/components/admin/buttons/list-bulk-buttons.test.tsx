@@ -23,6 +23,7 @@ import {
   type DataProvider,
   defineMessages,
   fakeDataProvider,
+  type NotificationStore,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import {
@@ -126,12 +127,14 @@ function ListHarness({
   dataProvider,
   filters,
   initialEntries = ["/posts"],
+  notifications = createNotificationStore(),
 }: {
   children: ReactNode;
   selectedIds?: number[];
   dataProvider: DataProvider;
   filters?: ReactNode[];
   initialEntries?: string[];
+  notifications?: NotificationStore;
 }) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -149,7 +152,7 @@ function ListHarness({
       dataProvider={dataProvider}
       queryClient={queryClient}
       i18n={makeI18n()}
-      notifications={createNotificationStore()}
+      notifications={notifications}
     >
       <ResourceRegistryProvider registry={registry}>
         <RouterAdapterProvider adapter={reactRouterAdapter}>
@@ -227,6 +230,42 @@ describe("<ExportButton>", () => {
     expect(resource).toBe("posts");
     expect((rows as { id: number }[]).map((r) => r.id)).toEqual([1, 2, 3]);
   });
+
+  it("notifies the chelone http_error key when the fetch fails", async () => {
+    const dataProvider = makeDataProvider();
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    vi.spyOn(dataProvider, "getList").mockImplementation((resource, params) => {
+      // Fail only the ExportButton's explicit page fetch (perPage 1000),
+      // not the list controller's own page load.
+      const pagination = params.pagination;
+      if (
+        pagination &&
+        "perPage" in pagination &&
+        pagination.perPage === 1000
+      ) {
+        return Promise.reject(new Error("boom"));
+      }
+      return makeDataProvider().getList(resource, params);
+    });
+    const notifications = createNotificationStore();
+    const notifySpy = vi.spyOn(notifications, "notify");
+    render(
+      <ListHarness dataProvider={dataProvider} notifications={notifications}>
+        <ExportButton />
+      </ListHarness>,
+    );
+    const button = await screen.findByRole("button", { name: /export/i });
+    fireEvent.click(button);
+    await waitFor(() =>
+      expect(notifySpy).toHaveBeenCalledWith(
+        "chelone.notification.http_error",
+        expect.objectContaining({ type: "error" }),
+      ),
+    );
+    consoleError.mockRestore();
+  });
 });
 
 describe("<BulkDeleteButton>", () => {
@@ -289,6 +328,34 @@ describe("<BulkExportButton>", () => {
     expect(call).toBeDefined();
     const [rows] = call as unknown[];
     expect((rows as { id: number }[]).map((r) => r.id).sort()).toEqual([2, 3]);
+  });
+
+  it("notifies the chelone http_error key when the fetch fails", async () => {
+    const dataProvider = makeDataProvider();
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    vi.spyOn(dataProvider, "getMany").mockRejectedValue(new Error("boom"));
+    const notifications = createNotificationStore();
+    const notifySpy = vi.spyOn(notifications, "notify");
+    render(
+      <ListHarness
+        dataProvider={dataProvider}
+        selectedIds={[2, 3]}
+        notifications={notifications}
+      >
+        <BulkExportButton />
+      </ListHarness>,
+    );
+    const button = await screen.findByRole("button", { name: /export/i });
+    fireEvent.click(button);
+    await waitFor(() =>
+      expect(notifySpy).toHaveBeenCalledWith(
+        "chelone.notification.http_error",
+        expect.objectContaining({ type: "error" }),
+      ),
+    );
+    consoleError.mockRestore();
   });
 });
 

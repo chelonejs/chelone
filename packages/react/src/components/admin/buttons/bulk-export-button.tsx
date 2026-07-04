@@ -92,7 +92,7 @@ function BulkExportButton(props: BulkExportButtonProps) {
       .then(({ data }) => customExporter(data, dataProvider, resource))
       .catch((error) => {
         console.error(error);
-        notify("ra.notification.http_error", { type: "error" });
+        notify("chelone.notification.http_error", { type: "error" });
       });
     onClick?.(event);
   };
