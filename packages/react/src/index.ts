@@ -115,6 +115,10 @@ export {
   type ApiKeyFieldProps,
 } from "./components/admin/fields/api-key-field";
 export {
+  ArrayField,
+  type ArrayFieldProps,
+} from "./components/admin/fields/array-field";
+export {
   BadgeField,
   type BadgeFieldProps,
 } from "./components/admin/fields/badge-field";
@@ -151,9 +155,17 @@ export {
   type EmailFieldProps,
 } from "./components/admin/fields/email-field";
 export {
+  FileField,
+  type FileFieldProps,
+} from "./components/admin/fields/file-field";
+export {
   FunctionField,
   type FunctionFieldProps,
 } from "./components/admin/fields/function-field";
+export {
+  ImageField,
+  type ImageFieldProps,
+} from "./components/admin/fields/image-field";
 export {
   NumberField,
   type NumberFieldProps,
@@ -170,6 +182,22 @@ export {
   RecordField,
   type RecordFieldProps,
 } from "./components/admin/fields/record-field";
+export {
+  ReferenceArrayField,
+  type ReferenceArrayFieldProps,
+} from "./components/admin/fields/reference-array-field";
+export {
+  ReferenceField,
+  type ReferenceFieldProps,
+} from "./components/admin/fields/reference-field";
+export {
+  ReferenceManyField,
+  type ReferenceManyFieldProps,
+} from "./components/admin/fields/reference-many-field";
+export {
+  ReferenceOneField,
+  type ReferenceOneFieldProps,
+} from "./components/admin/fields/reference-one-field";
 export {
   SelectField,
   type SelectFieldProps,
