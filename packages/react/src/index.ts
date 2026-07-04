@@ -106,6 +106,22 @@ export {
   useLocaleState,
   useRefresh,
 } from "./compat-hooks";
+export { Logout, type LogoutProps } from "./components/admin/auth/logout";
+export {
+  SidebarToggleButton,
+  type SidebarToggleButtonProps,
+} from "./components/admin/buttons/sidebar-toggle-button";
+// P7e component surface — the layout chrome (Layout/AppBar/AppSidebar/Menu/
+// ThemeProvider/UserMenu/Notification + their sub-components). Ported from
+// shadmin `admin/layout` + `feedback/notification` onto @chelone/react's
+// resource-registry (`useResourceDefinitions` + `options.group`), the P6
+// HasDashboardContext / ShellErrorBoundary, the store-backed theme, and the
+// chelone notification store. `<Layout>` is the `<Admin.Layout>` slot's default.
+export {
+  KeyboardShortcut,
+  type KeyboardShortcutProps,
+} from "./components/admin/common/keyboard-shortcut";
+export { Notification } from "./components/admin/feedback/notification";
 // P7d component surface — read-only display fields (ported from shadmin onto
 // useFieldValue + useRecordContext). Same seam as the inputs: only the admin
 // field components + their prop types are barrel-exported (the `ui/` primitives
@@ -381,6 +397,56 @@ export {
   WebhookEndpointInput,
   type WebhookEndpointInputProps,
 } from "./components/admin/inputs/webhook-endpoint-input";
+export { AppBar, type AppBarProps } from "./components/admin/layout/app-bar";
+export {
+  AppSidebar,
+  type AppSidebarProps,
+} from "./components/admin/layout/app-sidebar";
+export {
+  DashboardMenuItem,
+  type DashboardMenuItemProps,
+} from "./components/admin/layout/dashboard-menu-item";
+export { Layout, type LayoutProps } from "./components/admin/layout/layout";
+export { Menu, type MenuProps } from "./components/admin/layout/menu";
+export {
+  MenuItemLink,
+  type MenuItemLinkProps,
+} from "./components/admin/layout/menu-item-link";
+export {
+  ResourceMenuItem,
+  type ResourceMenuItemProps,
+} from "./components/admin/layout/resource-menu-item";
+export {
+  ResourceMenuItemGroup,
+  type ResourceMenuItemGroupProps,
+} from "./components/admin/layout/resource-menu-item-group";
+export {
+  type ResolvedTheme,
+  type Theme,
+  ThemeProviderContext,
+  type ThemeProviderState,
+} from "./components/admin/layout/theme-context";
+export {
+  ThemeModeToggle,
+  type ThemeModeToggleProps,
+} from "./components/admin/layout/theme-mode-toggle";
+export {
+  ThemeProvider,
+  type ThemeProviderProps,
+} from "./components/admin/layout/theme-provider";
+export {
+  TitlePortal,
+  type TitlePortalProps,
+} from "./components/admin/layout/title-portal";
+export { TITLE_PORTAL_ID } from "./components/admin/layout/title-portal-id";
+export {
+  useResolvedTheme,
+  useTheme,
+} from "./components/admin/layout/use-theme";
+export {
+  UserMenu,
+  type UserMenuProps,
+} from "./components/admin/layout/user-menu";
 // P7e component surface — list / datatable + list controls (ported from shadmin
 // onto the single `useListContext` + the list-slice hooks below). The datatable
 // is rewritten off `useListContext` directly (chelone has no `DataTableBase` /

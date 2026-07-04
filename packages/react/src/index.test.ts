@@ -374,3 +374,38 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
     expect(_witness).toBeUndefined();
   });
 });
+
+describe("@chelone/react barrel — P7e layout chrome (T3)", () => {
+  it("exports the layout chrome components", () => {
+    expect(barrel.Layout).toBeTypeOf("function");
+    expect(barrel.AppBar).toBeTypeOf("function");
+    expect(barrel.AppSidebar).toBeTypeOf("function");
+    expect(barrel.Menu).toBeTypeOf("function");
+    expect(barrel.ThemeProvider).toBeTypeOf("function");
+    expect(barrel.UserMenu).toBeTypeOf("function");
+    expect(barrel.Notification).toBeTypeOf("function");
+  });
+
+  it("exports the layout sub-components + theme hooks", () => {
+    expect(barrel.MenuItemLink).toBeTypeOf("function");
+    expect(barrel.DashboardMenuItem).toBeTypeOf("function");
+    expect(barrel.ResourceMenuItem).toBeTypeOf("function");
+    expect(barrel.ResourceMenuItemGroup).toBeTypeOf("function");
+    expect(barrel.ThemeModeToggle).toBeTypeOf("function");
+    expect(barrel.SidebarToggleButton).toBeTypeOf("function");
+    expect(barrel.TitlePortal).toBeTypeOf("function");
+    expect(barrel.Logout).toBeTypeOf("function");
+    expect(barrel.KeyboardShortcut).toBeTypeOf("function");
+    expect(barrel.useTheme).toBeTypeOf("function");
+    expect(barrel.useResolvedTheme).toBeTypeOf("function");
+    expect(barrel.ThemeProviderContext).toBeTypeOf("object");
+    expect(barrel.TITLE_PORTAL_ID).toBeTypeOf("string");
+  });
+
+  it("attaches the menu sub-item statics to <Menu>", () => {
+    expect(barrel.Menu.Item).toBe(barrel.MenuItemLink);
+    expect(barrel.Menu.DashboardItem).toBe(barrel.DashboardMenuItem);
+    expect(barrel.Menu.ResourceItem).toBe(barrel.ResourceMenuItem);
+    expect(barrel.Menu.ResourceGroup).toBe(barrel.ResourceMenuItemGroup);
+  });
+});

@@ -12,6 +12,10 @@
  * `URL.revokeObjectURL` on every dropped file to build a preview blob URL; jsdom
  * implements neither and throws "Not implemented", aborting the drop — so those
  * are stubbed too (same additive-guard pattern).
+ *
+ * `<Notification>` (sonner `<Toaster>`) and `<ThemeProvider>` (system-mode
+ * resolution) read `window.matchMedia("(prefers-color-scheme: dark)")`; jsdom
+ * ships no `matchMedia`, so a light-mode-default stub is provided.
  */
 
 if (typeof URL !== "undefined") {
@@ -23,6 +27,23 @@ if (typeof URL !== "undefined") {
   if (typeof URL.revokeObjectURL !== "function") {
     URL.revokeObjectURL = function revokeObjectURL(): void {};
   }
+}
+
+if (typeof window !== "undefined" && typeof window.matchMedia !== "function") {
+  window.matchMedia = function matchMedia(query: string): MediaQueryList {
+    return {
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener() {},
+      removeListener() {},
+      addEventListener() {},
+      removeEventListener() {},
+      dispatchEvent() {
+        return false;
+      },
+    } as MediaQueryList;
+  };
 }
 
 if (typeof globalThis.ResizeObserver === "undefined") {
