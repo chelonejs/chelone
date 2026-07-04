@@ -19,6 +19,9 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     passWithNoTests: true,
+    // jsdom lacks ResizeObserver + pointer-capture/scroll APIs that cmdk +
+    // Radix popover primitives (composed by the choice inputs) call on mount.
+    setupFiles: ["./src/test-setup.ts"],
     typecheck: { enabled: true, tsconfig: "./tsconfig.json" },
   },
 });

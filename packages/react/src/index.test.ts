@@ -290,6 +290,17 @@ describe("@chelone/react barrel — P7b simple text-like inputs", () => {
   });
 });
 
+describe("@chelone/react barrel — P7c choice inputs", () => {
+  it("exports every ported choice input component", () => {
+    expect(barrel.SelectInput).toBeTypeOf("function");
+    expect(barrel.SelectArrayInput).toBeTypeOf("function");
+    expect(barrel.AutocompleteInput).toBeTypeOf("function");
+    expect(barrel.AutocompleteArrayInput).toBeTypeOf("function");
+    expect(barrel.CheckboxGroupInput).toBeTypeOf("function");
+    expect(barrel.RadioButtonGroupInput).toBeTypeOf("function");
+  });
+});
+
 describe("@chelone/react barrel — UseXResult symmetry (every hook's result type is exported)", () => {
   // Type-only assertion: referencing each result/props type forces the barrel to
   // export it. A dropped `export type` line here fails `tsc --typecheck`. The

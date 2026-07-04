@@ -115,9 +115,21 @@ export type {
   InputProps,
 } from "./components/admin/input-props";
 export {
+  AutocompleteArrayInput,
+  type AutocompleteArrayInputProps,
+} from "./components/admin/inputs/autocomplete-array-input";
+export {
+  AutocompleteInput,
+  type AutocompleteInputProps,
+} from "./components/admin/inputs/autocomplete-input";
+export {
   BooleanInput,
   type BooleanInputProps,
 } from "./components/admin/inputs/boolean-input";
+export {
+  CheckboxGroupInput,
+  type CheckboxGroupInputProps,
+} from "./components/admin/inputs/checkbox-group-input";
 export {
   ColorInput,
   type ColorInputProps,
@@ -143,9 +155,21 @@ export {
   type PasswordInputProps,
 } from "./components/admin/inputs/password-input";
 export {
+  RadioButtonGroupInput,
+  type RadioButtonGroupInputProps,
+} from "./components/admin/inputs/radio-button-group-input";
+export {
   ResettableTextInput,
   type ResettableTextInputProps,
 } from "./components/admin/inputs/resettable-text-input";
+export {
+  SelectArrayInput,
+  type SelectArrayInputProps,
+} from "./components/admin/inputs/select-array-input";
+export {
+  SelectInput,
+  type SelectInputProps,
+} from "./components/admin/inputs/select-input";
 export {
   type TagProps,
   TextArrayInput,
