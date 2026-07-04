@@ -105,6 +105,7 @@ export {
   useLoading,
   useLocaleState,
   useRefresh,
+  useTimeout,
 } from "./compat-hooks";
 // P7e-T4 component surface — the auth pages (LoginPage / LoginForm / Logout /
 // AuthCallback / AuthLayout + the error-display leaves). Ported from shadmin
@@ -228,7 +229,31 @@ export {
   Confirm,
   type ConfirmProps,
 } from "./components/admin/feedback/confirm";
+// P7g feedback surface — the loading / error / ready splash components (ported
+// from shadmin `feedback/*`). `<Loading>`/`<LinearProgress>` defer their UI via
+// the `useTimeout` compat hook; `<Error>` consumes chelone's own
+// `ErrorFallbackProps` (no `react-error-boundary` dep) and drops into the
+// `<Admin.Error>` slot; `<Ready>` is the no-resource splash.
+export {
+  Error,
+  type ErrorProps,
+} from "./components/admin/feedback/error";
+export {
+  LinearProgress,
+  type LinearProgressProps,
+} from "./components/admin/feedback/linear-progress";
+export {
+  Loading,
+  LoadingPage,
+  type LoadingPageProps,
+  type LoadingProps,
+} from "./components/admin/feedback/loading";
 export { Notification } from "./components/admin/feedback/notification";
+export { Ready } from "./components/admin/feedback/ready";
+export {
+  Spinner,
+  type SpinnerContentProps,
+} from "./components/admin/feedback/spinner";
 // P7d component surface — read-only display fields (ported from shadmin onto
 // useFieldValue + useRecordContext). Same seam as the inputs: only the admin
 // field components + their prop types are barrel-exported (the `ui/` primitives
@@ -542,6 +567,7 @@ export {
   ThemeProvider,
   type ThemeProviderProps,
 } from "./components/admin/layout/theme-provider";
+export { Title, type TitleProps } from "./components/admin/layout/title";
 export {
   TitlePortal,
   type TitlePortalProps,

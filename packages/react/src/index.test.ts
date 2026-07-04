@@ -424,3 +424,27 @@ describe("@chelone/react barrel — P7e auth pages (T4)", () => {
     expect(barrel.AuthError).toBeTypeOf("function");
   });
 });
+
+describe("@chelone/react barrel — P7g feedback + common", () => {
+  it("exports the confirm dialog + notification", () => {
+    expect(barrel.Confirm).toBeTypeOf("function");
+    expect(barrel.Notification).toBeTypeOf("function");
+  });
+
+  it("exports the loading / progress / spinner components", () => {
+    expect(barrel.Loading).toBeTypeOf("function");
+    expect(barrel.LoadingPage).toBeTypeOf("function");
+    expect(barrel.LinearProgress).toBeTypeOf("function");
+    expect(barrel.Spinner).toBeTypeOf("function");
+  });
+
+  it("exports the error / ready splash + title", () => {
+    expect(barrel.Error).toBeTypeOf("function");
+    expect(barrel.Ready).toBeTypeOf("function");
+    expect(barrel.Title).toBeTypeOf("function");
+  });
+
+  it("exports the useTimeout compat hook", () => {
+    expect(barrel.useTimeout).toBeTypeOf("function");
+  });
+});

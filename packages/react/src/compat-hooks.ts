@@ -103,6 +103,29 @@ export function useLocaleState(): [string, (locale: string) => void] {
   return [locale, setLocale];
 }
 
+/**
+ * Returns `false`, then flips to `true` once `delay` ms have elapsed since the
+ * timer (re)started (ra `useTimeout` parity). The timer restarts whenever
+ * `delay` or any entry of `dependencies` changes; `dependencies` defaults to a
+ * stable empty array (fires once on mount). Used to defer loading UI — the
+ * spinner/progress bar only appears after a short grace period so a fast
+ * response never flashes it.
+ */
+export function useTimeout(delay = 0, dependencies: unknown[] = []): boolean {
+  const [ready, setReady] = useState(false);
+
+  // `dependencies` is the caller-supplied reset key (ra `useTimeout` contract):
+  // spreading it (plus `delay`) into the dep array re-arms the timer whenever
+  // any entry changes. This is the intended, contract-driven dep list.
+  useEffect(() => {
+    setReady(false);
+    const timer = setTimeout(() => setReady(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay, ...dependencies]);
+
+  return ready;
+}
+
 /** The mobile breakpoint (px). Below this width the viewport is "mobile". */
 const MOBILE_BREAKPOINT = 768;
 
