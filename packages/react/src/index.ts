@@ -381,6 +381,42 @@ export {
   WebhookEndpointInput,
   type WebhookEndpointInputProps,
 } from "./components/admin/inputs/webhook-endpoint-input";
+// P7e component surface — list / datatable + list controls (ported from shadmin
+// onto the single `useListContext` + the list-slice hooks below). The datatable
+// is rewritten off `useListContext` directly (chelone has no `DataTableBase` /
+// `useDataTable*Context` substrate); pagination/bulk-bar/filter-form read the
+// list-slice re-selections. Only the admin components + their prop types are
+// exported (ui/ primitives stay `@/`-alias-only, mirroring the input/field blocks).
+export {
+  BulkActionsToolbar,
+  type BulkActionsToolbarProps,
+} from "./components/admin/list/bulk-actions-toolbar";
+export {
+  DataTable,
+  DataTableBody,
+  DataTableCell,
+  DataTableColumn,
+  type DataTableColumnProps,
+  DataTableEmpty,
+  DataTableHead,
+  DataTableHeadCell,
+  DataTableNumberColumn,
+  type DataTableNumberColumnProps,
+  type DataTableProps,
+  DataTableRow,
+} from "./components/admin/list/data-table";
+export {
+  FilterForm,
+  FilterFormBase,
+  type FilterFormBaseProps,
+  FilterFormInput,
+  type FilterFormInputProps,
+  type FilterFormProps,
+} from "./components/admin/list/filter-form";
+export {
+  ListPagination,
+  type ListPaginationProps,
+} from "./components/admin/list/list-pagination";
 export type { CheloneProviderProps } from "./context";
 export {
   CheloneProvider,
@@ -519,6 +555,17 @@ export {
   FilterContextProvider,
   useFilterContext,
 } from "./list/filter-context";
+export type {
+  ListFilterContextValue,
+  ListPaginationContextValue,
+  ListSortContextValue,
+} from "./list/list-slice-hooks";
+export {
+  useListFilterContext,
+  useListPaginationContext,
+  useListSortContext,
+  useUnselect,
+} from "./list/list-slice-hooks";
 export { useNotifications, useNotify } from "./notification-hooks";
 export type {
   RecordContextProviderProps,
