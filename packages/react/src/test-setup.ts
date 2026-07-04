@@ -7,7 +7,23 @@
  * those primitives, so their behavior tests crash in jsdom without these shims.
  * Purely additive: each guard only defines a global when it is missing, so no
  * existing jsdom behavior changes.
+ *
+ * `<FileInput>` (react-dropzone) additionally calls `URL.createObjectURL` /
+ * `URL.revokeObjectURL` on every dropped file to build a preview blob URL; jsdom
+ * implements neither and throws "Not implemented", aborting the drop — so those
+ * are stubbed too (same additive-guard pattern).
  */
+
+if (typeof URL !== "undefined") {
+  if (typeof URL.createObjectURL !== "function") {
+    URL.createObjectURL = function createObjectURL(): string {
+      return "blob:jsdom/preview";
+    };
+  }
+  if (typeof URL.revokeObjectURL !== "function") {
+    URL.revokeObjectURL = function revokeObjectURL(): void {};
+  }
+}
 
 if (typeof globalThis.ResizeObserver === "undefined") {
   globalThis.ResizeObserver = class ResizeObserver {

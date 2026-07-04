@@ -152,6 +152,17 @@ export {
   type DateTimeInputProps,
 } from "./components/admin/inputs/date-time-input";
 export {
+  FileInput,
+  FileInputPreview,
+  type FileInputPreviewProps,
+  type FileInputProps,
+  type TransformedFile,
+} from "./components/admin/inputs/file-input";
+export {
+  ImageInput,
+  type ImageInputProps,
+} from "./components/admin/inputs/image-input";
+export {
   NullableBooleanInput,
   type NullableBooleanInputProps,
 } from "./components/admin/inputs/nullable-boolean-input";
@@ -167,6 +178,10 @@ export {
   RadioButtonGroupInput,
   type RadioButtonGroupInputProps,
 } from "./components/admin/inputs/radio-button-group-input";
+export {
+  RatingInput,
+  type RatingInputProps,
+} from "./components/admin/inputs/rating-input";
 export {
   ReferenceArrayInput,
   type ReferenceArrayInputProps,
