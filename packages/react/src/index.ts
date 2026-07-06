@@ -775,6 +775,10 @@ export {
   useResourceTranslation,
   useTranslateLabel,
 } from "./label";
+// Inflection helpers copied admin components (delete/bulk buttons) call
+// directly — public-API completion so the registry-shipped source can import
+// them from `@chelone/react` instead of a deep engine relative.
+export { humanize, pluralize } from "./label/inflection";
 // P7a compat leaf utils (component-port support)
 export type {
   FilterContextProviderProps,

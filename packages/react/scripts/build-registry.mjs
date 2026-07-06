@@ -14,6 +14,7 @@ import {
   copyFile,
   mkdir,
   mkdtemp,
+  readdir,
   readFile,
   rm,
   stat,
@@ -21,6 +22,13 @@ import {
 } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+
+import {
+  ENGINE_PACKAGE,
+  isEngineRelative,
+  resolveSpecifier,
+  rewriteEngineImports,
+} from "./engine-seam.mjs";
 
 const cwd = process.cwd();
 const registryPath = path.resolve(cwd, "registry.json");
@@ -114,6 +122,104 @@ const verifyOutput = async (registry) => {
   }
 };
 
+// EMIT-TIME ENGINE-SEAM REWRITE (the shadmin-core->ra-core analog).
+//
+// shadcn's `build` copies each source file's RAW content into dist/r/<item>.json
+// files[].content — INCLUDING the deep engine relatives (`../../../form-hooks`)
+// that 404 in a consumer (the engine is the npm package @chelone/react, not
+// present as sibling files). This pass rewrites every ENGINE-relative specifier
+// in shipped content to the bare `@chelone/react`, and adds that npm dependency
+// to any item whose content changed. Class-B sibling relatives (another shipped
+// components/lib/hooks file) are LEFT ALONE — they resolve fine because shadcn
+// preserves the src/… structure in the consumer. Runs over EVERY dist/r item
+// (AUTO + MANUAL) so the rewrite reaches the final content regardless of how it
+// was produced. `file.path` is the ORIGINAL source-relative path, so relatives
+// resolve against the true source location.
+const rewriteEmittedItems = async () => {
+  const entries = await readdir(outputDir);
+  let filesRewritten = 0;
+  let itemsWithEngineDep = 0;
+
+  for (const entry of entries) {
+    if (!entry.endsWith(".json") || entry === "registry.json") continue;
+    const outPath = path.join(outputDir, entry);
+    const item = JSON.parse(await readFile(outPath, "utf8"));
+    if (!item.files?.length) continue;
+
+    let itemRewrote = false;
+    for (const file of item.files) {
+      if (typeof file.content !== "string") continue;
+      const sourceAbs = path.resolve(cwd, file.path);
+      const { content, rewrote } = rewriteEngineImports(
+        file.content,
+        sourceAbs,
+        cwd,
+      );
+      if (rewrote) {
+        file.content = content;
+        itemRewrote = true;
+        filesRewritten += 1;
+      }
+    }
+
+    if (itemRewrote) {
+      const deps = new Set(item.dependencies ?? []);
+      deps.add(ENGINE_PACKAGE);
+      item.dependencies = [...deps].sort();
+      itemsWithEngineDep += 1;
+      await writeFile(outPath, `${JSON.stringify(item, null, 2)}\n`);
+    }
+  }
+
+  return { filesRewritten, itemsWithEngineDep };
+};
+
+// CONTENT-AWARE ESCAPING-RELATIVE VALIDATOR (finding 3).
+//
+// verifyOutput only checks @chelone/<x> registry refs + declared files. It never
+// inspected shipped file CONTENT for relative imports that escape the installed
+// surface — the real 404 class. After the rewrite, assert NO shipped content
+// still contains an ENGINE-relative: every relative/`@/` import in every dist/r
+// file must resolve to a file under components/, lib/, or hooks/ (a
+// structurally-installed sibling), NOT an engine file. Any survivor is an
+// unrewritten seam that would fail `tsc`/build in a consumer (TS2307).
+const IMPORT_SPEC_RE = /(?:\bfrom\s+|^\s*(?:import|export)\s+)["']([^"']+)["']/gm;
+
+const validateNoEngineEscapes = async () => {
+  const entries = await readdir(outputDir);
+  const violations = [];
+
+  for (const entry of entries) {
+    if (!entry.endsWith(".json") || entry === "registry.json") continue;
+    const item = JSON.parse(
+      await readFile(path.join(outputDir, entry), "utf8"),
+    );
+    if (!item.files?.length) continue;
+
+    for (const file of item.files) {
+      if (typeof file.content !== "string") continue;
+      const sourceAbs = path.resolve(cwd, file.path);
+      for (const m of file.content.matchAll(IMPORT_SPEC_RE)) {
+        const spec = m[1];
+        if (!spec.startsWith(".") && !spec.startsWith("@/")) continue;
+        if (isEngineRelative(spec, sourceAbs, cwd)) {
+          violations.push(
+            `${item.name} (${file.path}) still imports engine relative "${spec}" — must be "${ENGINE_PACKAGE}"`,
+          );
+        }
+      }
+    }
+  }
+
+  if (violations.length > 0) {
+    throw new Error(
+      `Registry engine-seam validator failed: ${violations.length} shipped ` +
+        `file(s) import the engine via an escaping relative that 404s in a ` +
+        `consumer (should be "${ENGINE_PACKAGE}"):\n  ${violations.join("\n  ")}`,
+    );
+  }
+};
+
 const run = async () => {
   const rawRegistry = await readFile(registryPath, "utf8");
   const registry = JSON.parse(rawRegistry);
@@ -180,12 +286,21 @@ const run = async () => {
     );
   }
 
+  // Rewrite engine relatives -> "@chelone/react" in shipped content BEFORE the
+  // registry.json copy + validators, so dist reflects the installable form.
+  const { filesRewritten, itemsWithEngineDep } = await rewriteEmittedItems();
+
   await copyFile(registryPath, path.join(outputDir, "registry.json"));
 
   await verifyOutput(registry);
+  // Content-aware gate: no shipped file may still import an engine relative.
+  await validateNoEngineEscapes();
 
   console.log(
     `Built ${registry.items.length} items into ${path.relative(cwd, outputDir)} (+ registry.json). Gate passed.`,
+  );
+  console.log(
+    `Engine seam: rewrote ${filesRewritten} file(s) across ${itemsWithEngineDep} item(s) to import "${ENGINE_PACKAGE}"; 0 engine-relative escapes remain.`,
   );
 };
 

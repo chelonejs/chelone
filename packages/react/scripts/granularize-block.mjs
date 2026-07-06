@@ -13,6 +13,12 @@
 import { readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 
+import {
+  ENGINE_PACKAGE,
+  isEngineRelative,
+  resolveSpecifier,
+} from "./engine-seam.mjs";
+
 const SOURCE_EXTS = [".tsx", ".ts"];
 
 // hooks/ files authored in THIS repo (resolve to `@chelone/<name>` items).
@@ -57,6 +63,56 @@ const parseImports = (src) => {
     imports.add(m[1]);
   }
   return [...imports];
+};
+
+// Parse the NAMED symbols an `import … from "<spec>"` statement pulls from a
+// given specifier — used by the barrel-export guard to verify every engine
+// symbol a copied component needs is actually exported by @chelone/react.
+// Returns a flat list of the imported source names (drops `as` aliases, keeps
+// the exported name). Default and namespace imports are returned as a sentinel.
+const parseImportedSymbols = (src, targetSpec) => {
+  const clean = stripComments(src);
+  const symbols = new Set();
+  const re =
+    /import\s+(type\s+)?([^;]*?)\s+from\s+["']([^"']+)["']/g;
+  for (const m of clean.matchAll(re)) {
+    if (m[3] !== targetSpec) continue;
+    const clause = m[2].trim();
+    const brace = clause.match(/\{([^}]*)\}/);
+    if (brace) {
+      for (const raw of brace[1].split(",")) {
+        const name = raw.trim().replace(/^type\s+/, "").split(/\s+as\s+/)[0].trim();
+        if (name) symbols.add(name);
+      }
+    }
+    // default / namespace clause (e.g. `import Foo from` or `import * as Foo`)
+    const head = clause.replace(/\{[^}]*\}/, "").replace(/,/g, "").trim();
+    if (head && !head.startsWith("*")) symbols.add(head);
+    else if (head.startsWith("*")) symbols.add("*");
+  }
+  return [...symbols];
+};
+
+// Collects every named symbol EXPORTED by the @chelone/react barrel
+// (src/index.ts). Handles `export { a, b as c }` and `export type { … }` blocks
+// (with or without a trailing `from "…"`). No `export *` is used in the barrel,
+// so a flat name set is a complete public-API surface.
+const parseBarrelExports = (repoRoot) => {
+  const barrel = stripComments(
+    readFileSync(join(repoRoot, "src", "index.ts"), "utf8"),
+  );
+  const exported = new Set();
+  const re = /export\s+(?:type\s+)?\{([^}]*)\}/g;
+  for (const m of barrel.matchAll(re)) {
+    for (const raw of m[1].split(",")) {
+      const seg = raw.trim();
+      if (!seg) continue;
+      // `a as b` re-exports name `b`; a plain `a` exports `a`.
+      const name = seg.split(/\s+as\s+/).pop().replace(/^type\s+/, "").trim();
+      if (name) exported.add(name);
+    }
+  }
+  return exported;
 };
 
 const tryResolveFile = (basePath) => {
@@ -197,6 +253,13 @@ export const granularizeBlock = ({
   extraRegistryDependencies = [],
   extraDependencies = [],
 }) => {
+  // The @chelone/react public-API surface — every ENGINE symbol a copied
+  // component imports MUST be re-exported here, or the emit-time rewrite
+  // (relative -> "@chelone/react") produces an unresolvable bare import. The
+  // guard below fails generate loud on any gap so we never ship a broken item.
+  const barrelExports = parseBarrelExports(repoRoot);
+  const missingBarrelSymbols = [];
+
   // Group input files by the item they belong to. A flat file is its own group;
   // a ui subdir (e.g. color-picker/) collapses onto its barrel's item name, so
   // all its files (component + types + index) ship in that ONE item. The
@@ -253,6 +316,24 @@ export const granularizeBlock = ({
       const imports = parseImports(src);
 
       for (const imp of imports) {
+        // Class A — ENGINE relative. Resolves to a src/ file OUTSIDE the shipped
+        // surface (components/, lib/, hooks/). The emit-time content rewrite
+        // turns the specifier into a bare `@chelone/react`, so declare that npm
+        // dep here (collapsing every engine import in the file to the one dep),
+        // and verify each imported symbol IS on the barrel's public surface.
+        if (isEngineRelative(imp, absFile, repoRoot)) {
+          npmDeps.add(ENGINE_PACKAGE);
+          for (const sym of parseImportedSymbols(src, imp)) {
+            if (sym === "*") continue; // namespace import — barrel is the target
+            if (!barrelExports.has(sym)) {
+              missingBarrelSymbols.push(
+                `${sym} (imported by ${file} from "${imp}") — add it to src/index.ts`,
+              );
+            }
+          }
+          continue;
+        }
+
         const resolved = resolveImport(imp, absFile, repoRoot);
         if (resolved) {
           if (groupAbs.has(resolve(resolved))) continue; // intra-item file
@@ -302,6 +383,16 @@ export const granularizeBlock = ({
     }
 
     items.push(item);
+  }
+
+  if (missingBarrelSymbols.length > 0) {
+    const unique = [...new Set(missingBarrelSymbols)].sort();
+    throw new Error(
+      `Engine seam: copied component imports ${unique.length} symbol(s) NOT ` +
+        `exported by the @chelone/react barrel (src/index.ts). The emit-time ` +
+        `rewrite would produce an unresolvable "@chelone/react" import. Add ` +
+        `each to the barrel:\n  ${unique.join("\n  ")}`,
+    );
   }
 
   return items;

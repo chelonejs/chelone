@@ -1,24 +1,34 @@
 #!/bin/bash
 
-# End-to-end registry install test — DEFERRED (not wired into CI/verify yet).
+# End-to-end registry install test — the LIVE (registry-URL) variant is DEFERRED.
 #
 # ============================ READ THIS FIRST ============================
-# This live E2E is BLOCKED until @chelone/core and @chelone/react are
-# PUBLISHED to npm. The registry's copied component source imports those two
-# packages as REAL npm dependencies (see WORKSPACE_NPM_DEPS in
-# scripts/granularize-block.mjs). They are unpublished 0.0.0 workspace packages
-# today, so a standalone consumer created by `shadcn add` cannot resolve them —
-# `pnpm install` / `vite build` in the scratch consumer would fail on the
-# missing @chelone/* deps, NOT on any registry defect.
+# WHAT THIS DEFERS, AND WHAT IT DOES NOT.
 #
-# Publishing @chelone/core + @chelone/react is a USER ACTION (npm org). Once
-# they are on npm, set CHELONE_REGISTRY_E2E=1 to run this script; until then it
-# exits early with a reminder. This matches plan D6 (registry BUILT, live E2E
-# DEFERRED — external dependency, not a P7 blocker).
+# This LIVE script exercises the real `shadcn add http://…/admin.json` path
+# against a served dist/. It is deferred ONLY because that path pulls
+# @chelone/core + @chelone/react from the PUBLIC npm registry (a real
+# `pnpm install`), and both are unpublished 0.0.0 workspace packages today —
+# publishing them is a USER ACTION (npm org). Set CHELONE_REGISTRY_E2E=1 once
+# they are on npm; until then this exits early with a reminder.
 #
-# The `registry:generate` + `registry:build` gates (dangling-dep validator,
-# basename-collision guard, per-item dist output check) DO run in verify and
-# already exercise the whole pipeline short of the live consumer install.
+# IMPORTANT — publish is NOT the only thing this would have caught, and it is
+# NOT the only offline coverage:
+#   * The ENGINE-SEAM / escaping-relative class (copied admin source importing
+#     the engine via deep `../../../*` relatives that 404 in a consumer) is now
+#     covered OFFLINE, with NO publish required, by:
+#       - the content-aware escaping-relative validator in build-registry.mjs
+#         (validateNoEngineEscapes) — asserts no shipped file imports an engine
+#         relative; runs on every `registry:build`; AND
+#       - scripts/test-registry-local.mjs — a LOCAL LINKED-CONSUMER E2E that
+#         materializes a scratch consumer, copies representative items + their
+#         registryDependency files, links @chelone/{core,react} from the
+#         workspace (no npm publish needed), and `tsc --noEmit`s the copied
+#         source. GREEN there = every import resolves (engine via @chelone/react,
+#         siblings via preserved structure, ui via @/). Run: `pnpm registry:test-local`.
+#   Before this wave, the seam bug slipped through precisely because that
+#   content-aware install proof was missing — the old gates only checked
+#   @chelone/<x> registry refs + declared-file existence, never file CONTENT.
 # ========================================================================
 #
 # When enabled, run from the package root:
@@ -32,16 +42,18 @@ set -euo pipefail
 
 if [ "${CHELONE_REGISTRY_E2E:-0}" != "1" ]; then
   cat >&2 <<'EOF'
-[test-registry] SKIPPED — live consumer E2E is deferred.
+[test-registry] SKIPPED — the LIVE (registry-URL) consumer E2E is deferred.
 
-  @chelone/core and @chelone/react are unpublished (0.0.0). The registry's
-  copied source needs them as real npm deps, so a scratch consumer install
-  cannot resolve them yet. Publish both to npm, then re-run with:
+  Deferred ONLY because `shadcn add http://…/admin.json` runs a real
+  `pnpm install` that pulls @chelone/core + @chelone/react from PUBLIC npm, and
+  both are unpublished (0.0.0). Publish both, then re-run with:
 
     CHELONE_REGISTRY_E2E=1 ./scripts/test-registry.sh
 
-  The registry:generate + registry:build gates already validate the pipeline
-  (dangling-dep + per-item dist output). See plan D6.
+  This is NOT the only coverage of the engine-seam / escaping-relative class —
+  that class is proven OFFLINE right now (no publish needed) by:
+    * validateNoEngineEscapes in build-registry.mjs (every registry:build), and
+    * the local linked-consumer E2E:  pnpm registry:test-local
 EOF
   exit 0
 fi

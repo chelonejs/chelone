@@ -1739,7 +1739,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils"],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "authentication"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1754,6 +1754,7 @@
         }
       ],
       "registryDependencies": ["@chelone/auth-error", "@chelone/ui-spinner"],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "authentication"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1768,7 +1769,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "authentication"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1817,7 +1818,7 @@
         "@chelone/text-input",
         "@chelone/ui-spinner"
       ],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "authentication"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1832,6 +1833,7 @@
         }
       ],
       "registryDependencies": ["@chelone/auth-layout", "@chelone/login-form"],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "authentication"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1846,7 +1848,7 @@
         }
       ],
       "registryDependencies": ["@chelone/dropdown-menu", "@chelone/lib-utils"],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "authentication"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1866,7 +1868,7 @@
         "@chelone/lib-utils",
         "@chelone/use-menu-access"
       ],
-      "dependencies": ["@chelone/core", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1881,7 +1883,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/export"],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1900,7 +1902,7 @@
         "@chelone/confirm",
         "@chelone/use-menu-access"
       ],
-      "dependencies": ["@chelone/core", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1915,7 +1917,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button"],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1930,7 +1932,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/use-menu-access"],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1949,7 +1951,7 @@
         "@chelone/confirm",
         "@chelone/use-menu-access"
       ],
-      "dependencies": ["@chelone/core", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1964,7 +1966,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/use-menu-access"],
-      "dependencies": ["@chelone/core", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1979,7 +1981,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/export"],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2013,7 +2015,7 @@
         "@chelone/field-label-text",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2032,7 +2034,7 @@
         "@chelone/lib-utils",
         "@chelone/use-menu-access"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2047,7 +2049,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/ui-spinner"],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2062,7 +2064,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/ui-spinner"],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "devDependencies": ["@tanstack/react-store"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
@@ -2078,7 +2080,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/use-menu-access"],
-      "dependencies": ["@chelone/core", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2097,6 +2099,7 @@
         "@chelone/sidebar",
         "@chelone/tooltip"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2116,7 +2119,7 @@
         "@chelone/tooltip",
         "use-mobile"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2130,6 +2133,7 @@
           "type": "registry:component"
         }
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2144,6 +2148,7 @@
         }
       ],
       "registryDependencies": ["@chelone/field"],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2176,7 +2181,7 @@
         "@chelone/dialog",
         "@chelone/primitives"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2195,7 +2200,7 @@
         "@chelone/button",
         "@chelone/title"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2210,6 +2215,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2224,6 +2230,7 @@
         }
       ],
       "registryDependencies": ["@chelone/spinner"],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2238,7 +2245,7 @@
         }
       ],
       "registryDependencies": ["@chelone/use-theme"],
-      "dependencies": ["sonner"],
+      "dependencies": ["@chelone/react", "sonner"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2286,7 +2293,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2301,7 +2308,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-unknown-types"],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2320,6 +2327,7 @@
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2339,7 +2347,7 @@
         "@chelone/lib-utils",
         "@chelone/tooltip"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2360,6 +2368,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2377,6 +2386,7 @@
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2396,6 +2406,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2413,6 +2424,7 @@
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2431,6 +2443,7 @@
         "@chelone/lib-gen-memo",
         "@chelone/lib-unknown-types"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2449,6 +2462,7 @@
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2468,6 +2482,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2486,6 +2501,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2504,6 +2520,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2522,6 +2539,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2539,6 +2557,7 @@
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2556,7 +2575,7 @@
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types"
       ],
-      "dependencies": ["libphonenumber-js"],
+      "dependencies": ["@chelone/react", "libphonenumber-js"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2574,6 +2593,7 @@
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2594,6 +2614,7 @@
         "@chelone/lib-utils",
         "@chelone/text-field"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2608,7 +2629,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-unknown-types"],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2623,7 +2644,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-unknown-types"],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2638,7 +2659,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-unknown-types"],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2653,7 +2674,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-unknown-types"],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2672,6 +2693,7 @@
         "@chelone/lib-gen-memo",
         "@chelone/lib-unknown-types"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2690,6 +2712,7 @@
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2709,6 +2732,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2726,6 +2750,7 @@
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2745,6 +2770,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2764,6 +2790,7 @@
         "@chelone/lib-utils",
         "@chelone/progress"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2782,6 +2809,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2845,7 +2873,7 @@
         }
       ],
       "registryDependencies": ["@chelone/alert-dialog", "@chelone/button"],
-      "dependencies": ["@chelone/core", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2859,6 +2887,7 @@
           "type": "registry:component"
         }
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2879,7 +2908,7 @@
         "@chelone/input-helper-text",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2905,7 +2934,12 @@
         "@chelone/lib-unknown-types",
         "@chelone/popover"
       ],
-      "dependencies": ["@chelone/core", "cmdk", "lucide-react"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "cmdk",
+        "lucide-react"
+      ],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2932,7 +2966,7 @@
         "@chelone/lib-utils",
         "@chelone/popover"
       ],
-      "dependencies": ["@chelone/core", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2953,6 +2987,7 @@
         "@chelone/input-props",
         "@chelone/switch"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2975,6 +3010,7 @@
         "@chelone/lib-utils",
         "@chelone/skeleton"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2996,6 +3032,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3031,6 +3068,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3066,6 +3104,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3087,7 +3126,7 @@
         "@chelone/lib-utils",
         "@chelone/table"
       ],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3109,6 +3148,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3130,6 +3170,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3152,6 +3193,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3187,7 +3229,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["lucide-react", "react-dropzone"],
+      "dependencies": ["@chelone/react", "lucide-react", "react-dropzone"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3202,6 +3244,7 @@
         }
       ],
       "registryDependencies": ["@chelone/file-input"],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3223,6 +3266,7 @@
         "@chelone/lib-utils",
         "@chelone/select"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3243,6 +3287,7 @@
         "@chelone/input-helper-text",
         "@chelone/input-props"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3261,7 +3306,7 @@
         "@chelone/lib-utils",
         "@chelone/text-input"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3283,7 +3328,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["libphonenumber-js"],
+      "dependencies": ["@chelone/react", "libphonenumber-js"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3306,6 +3351,7 @@
         "@chelone/radio-group",
         "@chelone/skeleton"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3326,6 +3372,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3340,7 +3387,7 @@
         }
       ],
       "registryDependencies": ["@chelone/autocomplete-array-input"],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3355,7 +3402,7 @@
         }
       ],
       "registryDependencies": ["@chelone/autocomplete-input"],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3374,7 +3421,7 @@
         "@chelone/lib-utils",
         "@chelone/text-input"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3393,7 +3440,7 @@
         "@chelone/lib-utils",
         "@chelone/text-input"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3419,7 +3466,7 @@
         "@chelone/popover",
         "@chelone/skeleton"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3442,7 +3489,7 @@
         "@chelone/select",
         "@chelone/skeleton"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3465,6 +3512,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3487,7 +3535,7 @@
         "@chelone/input-props",
         "@chelone/popover"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3510,7 +3558,7 @@
         "@chelone/lib-utils",
         "@chelone/textarea"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3532,6 +3580,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3555,6 +3604,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3589,7 +3639,7 @@
         }
       ],
       "registryDependencies": ["@chelone/menu", "@chelone/sidebar"],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3604,7 +3654,7 @@
         }
       ],
       "registryDependencies": ["@chelone/menu-item-link"],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3626,6 +3676,7 @@
         "@chelone/notification",
         "@chelone/sidebar"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3644,6 +3695,7 @@
         "@chelone/sidebar",
         "@chelone/tooltip"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3665,7 +3717,7 @@
         "@chelone/resource-menu-item-group",
         "@chelone/sidebar"
       ],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3685,7 +3737,7 @@
         "@chelone/resource-menu-item",
         "@chelone/sidebar"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3704,7 +3756,7 @@
         "@chelone/skeleton",
         "@chelone/use-menu-access"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3737,7 +3789,7 @@
         "@chelone/lib-utils",
         "@chelone/use-theme"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3752,6 +3804,7 @@
         }
       ],
       "registryDependencies": ["@chelone/theme-context"],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3799,6 +3852,7 @@
         "@chelone/lib-utils",
         "@chelone/title-portal-id"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3812,7 +3866,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -3848,6 +3902,7 @@
         "@chelone/logout",
         "@chelone/skeleton"
       ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3862,7 +3917,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/card"],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3890,7 +3945,7 @@
         "@chelone/table",
         "@chelone/tooltip"
       ],
-      "dependencies": ["@chelone/core", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3909,7 +3964,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3929,7 +3984,7 @@
         "@chelone/pagination",
         "@chelone/select"
       ],
-      "dependencies": ["lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3944,6 +3999,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3958,7 +4014,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils"],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3973,6 +4029,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3987,7 +4044,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils"],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
