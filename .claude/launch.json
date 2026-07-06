@@ -6,6 +6,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--dir", "apps/demo", "dev", "--port", "4273"],
       "port": 4273
+    },
+    {
+      "name": "website",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "website", "dev", "--port", "5373"],
+      "port": 5373
     }
   ]
 }

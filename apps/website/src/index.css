@@ -1,0 +1,360 @@
+@import "tailwindcss";
+/* The site consumes `@chelone/react` from SOURCE (no dist build), so Tailwind
+   must scan the package src — otherwise admin-only utility classes used by the
+   ported components are never generated and those components render mis-styled.
+   See chelone-source-resolver.mjs. */
+@source "../../../packages/react/src";
+@import "tw-animate-css";
+@import "@fontsource-variable/inter";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: 'Inter Variable', sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6)
+}
+
+/* Brand gradient — violet (#8b5cf6) → indigo (#4f46e5), matching the logo mark. */
+:root {
+  --brand-from: #8b5cf6;
+  --brand-to: #4f46e5;
+  --brand-gradient: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+}
+
+@utility bg-brand-gradient {
+  background-image: var(--brand-gradient);
+}
+
+@utility text-brand-gradient {
+  background-image: var(--brand-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+@utility ring-brand {
+  --tw-ring-color: var(--brand-to);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.87 0 0);
+  --input: oklch(0.87 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.87 0 0);
+  --sidebar-ring: oklch(0.708 0 0)
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0)
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html {
+    @apply font-sans;
+  }
+}
+
+/* ── rehype-pretty-code ────────────────────────────────────────────────────── */
+
+[data-rehype-pretty-code-figure] {
+  @apply my-4 overflow-hidden rounded-lg border border-border;
+}
+
+[data-rehype-pretty-code-figure] pre {
+  @apply overflow-x-auto p-4 text-sm leading-relaxed;
+  /* github-light/github-dark tokens are tuned for a near-background surface;
+     a gray --muted bg drops comment-token contrast below AA. */
+  background-color: var(--background);
+}
+
+/* Dual-theme shiki (github-light / github-dark): tokens carry both --shiki-light
+   and --shiki-dark vars. Use light by default, swap under .dark. */
+[data-rehype-pretty-code-figure] code[data-theme*=" "],
+[data-rehype-pretty-code-figure] code[data-theme*=" "] span {
+  color: var(--shiki-light);
+}
+
+.dark [data-rehype-pretty-code-figure] code[data-theme*=" "],
+.dark [data-rehype-pretty-code-figure] code[data-theme*=" "] span {
+  color: var(--shiki-dark);
+}
+
+.shiki {
+  @apply overflow-x-auto;
+}
+
+/* react-shiki <ShikiHighlighter> dual-theme output (docs ComponentPreview +
+   gallery ExampleFrame): it inline-styles the light theme on <pre>/<span> and
+   stashes the dark theme in --shiki-dark / --shiki-dark-bg vars. Nothing swaps
+   them, so it stays light in dark mode. Force a transparent, panel-blended
+   surface in both modes and swap the token colors under .dark. !important is
+   required to beat react-shiki's inline styles (the Tailwind `!bg-transparent`
+   class on these is dead — v4 wants the suffix form `bg-transparent!`). */
+.shiki {
+  background-color: transparent !important;
+}
+.dark .shiki,
+.dark .shiki span {
+  color: var(--shiki-dark) !important;
+}
+
+[data-rehype-pretty-code-title] {
+  @apply flex items-center gap-2 border-b border-border bg-muted px-4 py-2 font-mono text-xs text-foreground;
+}
+
+/* ── docs prose tables (the hand-authored markdown prop tables) ──────────────
+   Styled to match the <PropsTable> component so prop docs look consistent
+   whether a page uses markdown tables or the component. */
+
+.prose table {
+  @apply my-6 w-full overflow-hidden rounded-lg border border-border text-sm;
+  border-collapse: collapse;
+}
+
+.prose thead {
+  @apply bg-muted;
+}
+
+.prose th {
+  @apply border-b border-border px-4 py-2 text-left font-semibold text-foreground;
+}
+
+.prose td {
+  @apply border-t border-border/60 px-4 py-2 align-top text-muted-foreground;
+}
+
+/* zebra striping */
+.prose tbody tr:nth-child(even) {
+  @apply bg-muted/40;
+}
+
+.prose td:first-child {
+  @apply font-mono text-xs text-foreground;
+}
+
+/* @tailwindcss/typography wraps inline <code> in literal backtick characters
+   via ::before/::after content. Our MdxCode renders a styled chip, so the
+   backticks are noise (e.g. the props tables showed `titleSource`). Drop them. */
+.prose code::before,
+.prose code::after {
+  content: none;
+}
+
+/* offset anchor jumps so headings clear the sticky nav + utility bar */
+.prose :is(h1, h2, h3, h4) {
+  scroll-margin-top: 6rem;
+}
+
+@keyframes docs-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="docs-rise"] {
+    animation: none !important;
+  }
+}
+
+/* Landing scroll-reveal (see src/landing/reveal.tsx). The hidden state is gated
+   on the `.js` class (set before paint in root.tsx), so the prerendered / no-JS
+   page renders fully visible — only JS hides-then-reveals. */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.js [data-reveal]:not([data-shown]) > * {
+  opacity: 0;
+}
+.js [data-reveal][data-shown] > * {
+  animation: reveal-up 0.7s cubic-bezier(0.32, 0.72, 0, 1) both;
+  animation-delay: var(--reveal-delay, 0s);
+}
+.js [data-reveal][data-shown] > *:nth-child(2) {
+  animation-delay: calc(var(--reveal-delay, 0s) + 0.06s);
+}
+.js [data-reveal][data-shown] > *:nth-child(3) {
+  animation-delay: calc(var(--reveal-delay, 0s) + 0.12s);
+}
+.js [data-reveal][data-shown] > *:nth-child(4) {
+  animation-delay: calc(var(--reveal-delay, 0s) + 0.18s);
+}
+.js [data-reveal][data-shown] > *:nth-child(5) {
+  animation-delay: calc(var(--reveal-delay, 0s) + 0.24s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal] > *,
+  .js [data-reveal][data-shown] > * {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* Bento card texture: a faint dot grid fading from the top-left + a soft brand
+   glow behind the icon that intensifies on hover. Both pseudo-layers sit behind
+   the card content (z-index -1 inside the card's own stacking context). */
+.bento-card {
+  isolation: isolate;
+}
+.bento-card::before,
+.bento-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.bento-card::before {
+  /* inset a gutter so the grid doesn't crowd the card border */
+  inset: 1rem;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in oklch, var(--foreground) 10%, transparent) 1px,
+    transparent 0
+  );
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(130% 90% at 0% 0%, black, transparent 70%);
+  mask-image: radial-gradient(130% 90% at 0% 0%, black, transparent 70%);
+}
+/* The glow reads as light cast from BEHIND the icon: a fixed-size circle
+   (rem, not %) centred on the icon chip (p-5 padding = 1.25rem + half of the
+   size-10 chip = 1.25rem → 2.5rem in), so it's the same physical size and
+   position on every card regardless of card size. Always faintly lit; the
+   "lamp" brightens on hover. */
+.bento-card::after {
+  background: radial-gradient(
+    circle 11rem at 2.5rem 2.5rem,
+    color-mix(in oklch, var(--brand-from) 38%, transparent) 0%,
+    color-mix(in oklch, var(--brand-from) 12%, transparent) 34%,
+    transparent 70%
+  );
+  opacity: 0.65;
+  transition: opacity 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.bento-card:hover::after {
+  opacity: 1;
+}

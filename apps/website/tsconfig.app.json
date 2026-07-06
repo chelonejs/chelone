@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* RR7 framework mode generates route types into .react-router/types */
+    "rootDirs": [".", "./.react-router/types"],
+    "types": ["vite/client"],
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* `@/` is importer-aware at build time (chelone-source-resolver.mjs): it
+       resolves to the website src OR the @chelone/react package src depending on
+       the importer. tsc can't model that split, so both roots are listed — the
+       website src first (its own @/docs, @/landing, @/lib win), the package src
+       second (its @/components/ui, @/hooks). */
+    "paths": {
+      "@/*": ["./src/*", "../../packages/react/src/*"]
+    }
+  },
+  "include": ["src", ".react-router/types/**/*", "../../packages/react/src"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
+}
