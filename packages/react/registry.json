@@ -1,0 +1,4157 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "Chelone",
+  "homepage": "https://chelone.dev/",
+  "items": [
+    {
+      "name": "ui",
+      "type": "registry:block",
+      "title": "Chelone UI Primitives",
+      "categories": ["chelone", "ui"],
+      "description": "The shadcn/ui primitive layer Chelone components compose (button, card, dialog, field, sidebar, table, …), shipped verbatim so consumers can install a single primitive or the whole set.",
+      "files": [
+        {
+          "path": "src/components/ui/accordion.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/alert-dialog.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/alert.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/aspect-ratio.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/avatar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/badge.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/breadcrumb.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/button-group.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/calendar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/carousel.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/chart.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/checkbox.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/collapsible.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/color-picker/color-picker.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/color-picker/color-picker.types.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/color-picker/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/command.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/context-menu.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/direction.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/drawer.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/empty.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/hover-card.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/input-group.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/input-otp.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/item.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/kbd.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/menubar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/native-select.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/navigation-menu.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/pagination.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/popover.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/primitives.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/progress.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/radio-group.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/resizable.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/scroll-area.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/select.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/separator.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/sheet.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/sidebar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/skeleton.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/slider.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/slot.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/sonner.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/switch.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/table.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/tabs.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/textarea.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/toggle-group.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/toggle.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "accordion",
+      "type": "registry:ui",
+      "title": "Accordion",
+      "files": [
+        {
+          "path": "src/components/ui/accordion.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "alert-dialog",
+      "type": "registry:ui",
+      "title": "Alert Dialog",
+      "files": [
+        {
+          "path": "src/components/ui/alert-dialog.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "alert",
+      "type": "registry:ui",
+      "title": "Alert",
+      "files": [
+        {
+          "path": "src/components/ui/alert.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["class-variance-authority"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "aspect-ratio",
+      "type": "registry:ui",
+      "title": "Aspect Ratio",
+      "files": [
+        {
+          "path": "src/components/ui/aspect-ratio.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "Avatar",
+      "files": [
+        {
+          "path": "src/components/ui/avatar.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "Badge",
+      "files": [
+        {
+          "path": "src/components/ui/badge.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["class-variance-authority", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "breadcrumb",
+      "type": "registry:ui",
+      "title": "Breadcrumb",
+      "files": [
+        {
+          "path": "src/components/ui/breadcrumb.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "button-group",
+      "type": "registry:ui",
+      "title": "Button Group",
+      "files": [
+        {
+          "path": "src/components/ui/button-group.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/separator"],
+      "dependencies": ["class-variance-authority", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "files": [
+        {
+          "path": "src/components/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["class-variance-authority", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar",
+      "type": "registry:ui",
+      "title": "Calendar",
+      "files": [
+        {
+          "path": "src/components/ui/calendar.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["lucide-react", "react-day-picker"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "title": "Card",
+      "files": [
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "carousel",
+      "type": "registry:ui",
+      "title": "Carousel",
+      "files": [
+        {
+          "path": "src/components/ui/carousel.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["embla-carousel-react", "lucide-react"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "chart",
+      "type": "registry:ui",
+      "title": "Chart",
+      "files": [
+        {
+          "path": "src/components/ui/chart.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["recharts"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "title": "Checkbox",
+      "files": [
+        {
+          "path": "src/components/ui/checkbox.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "collapsible",
+      "type": "registry:ui",
+      "title": "Collapsible",
+      "files": [
+        {
+          "path": "src/components/ui/collapsible.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "color-picker",
+      "type": "registry:ui",
+      "title": "Color Picker",
+      "files": [
+        {
+          "path": "src/components/ui/color-picker/color-picker.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/color-picker/color-picker.types.ts",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/color-picker/index.ts",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/popover"
+      ],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "command",
+      "type": "registry:ui",
+      "title": "Command",
+      "files": [
+        {
+          "path": "src/components/ui/command.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/dialog", "@chelone/lib-utils"],
+      "dependencies": ["cmdk", "lucide-react"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "context-menu",
+      "type": "registry:ui",
+      "title": "Context Menu",
+      "files": [
+        {
+          "path": "src/components/ui/context-menu.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "files": [
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["lucide-react", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "direction",
+      "type": "registry:ui",
+      "title": "Direction",
+      "files": [
+        {
+          "path": "src/components/ui/direction.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "drawer",
+      "type": "registry:ui",
+      "title": "Drawer",
+      "files": [
+        {
+          "path": "src/components/ui/drawer.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["vaul"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "title": "Dropdown Menu",
+      "files": [
+        {
+          "path": "src/components/ui/dropdown-menu.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "empty",
+      "type": "registry:ui",
+      "title": "Empty",
+      "files": [
+        {
+          "path": "src/components/ui/empty.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["class-variance-authority"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "field",
+      "type": "registry:ui",
+      "title": "Field",
+      "files": [
+        {
+          "path": "src/components/ui/field.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/label",
+        "@chelone/lib-utils",
+        "@chelone/separator"
+      ],
+      "dependencies": ["class-variance-authority"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "hover-card",
+      "type": "registry:ui",
+      "title": "Hover Card",
+      "files": [
+        {
+          "path": "src/components/ui/hover-card.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "input-group",
+      "type": "registry:ui",
+      "title": "Input Group",
+      "files": [
+        {
+          "path": "src/components/ui/input-group.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/input",
+        "@chelone/lib-utils",
+        "@chelone/textarea"
+      ],
+      "dependencies": ["class-variance-authority"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "input-otp",
+      "type": "registry:ui",
+      "title": "Input Otp",
+      "files": [
+        {
+          "path": "src/components/ui/input-otp.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["input-otp", "lucide-react"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "title": "Input",
+      "files": [
+        {
+          "path": "src/components/ui/input.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "item",
+      "type": "registry:ui",
+      "title": "Item",
+      "files": [
+        {
+          "path": "src/components/ui/item.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/separator"],
+      "dependencies": ["class-variance-authority", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "kbd",
+      "type": "registry:ui",
+      "title": "Kbd",
+      "files": [
+        {
+          "path": "src/components/ui/kbd.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "label",
+      "type": "registry:ui",
+      "title": "Label",
+      "files": [
+        {
+          "path": "src/components/ui/label.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "menubar",
+      "type": "registry:ui",
+      "title": "Menubar",
+      "files": [
+        {
+          "path": "src/components/ui/menubar.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "native-select",
+      "type": "registry:ui",
+      "title": "Native Select",
+      "files": [
+        {
+          "path": "src/components/ui/native-select.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "navigation-menu",
+      "type": "registry:ui",
+      "title": "Navigation Menu",
+      "files": [
+        {
+          "path": "src/components/ui/navigation-menu.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["class-variance-authority", "lucide-react", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "pagination",
+      "type": "registry:ui",
+      "title": "Pagination",
+      "files": [
+        {
+          "path": "src/components/ui/pagination.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "Popover",
+      "files": [
+        {
+          "path": "src/components/ui/popover.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "primitives",
+      "type": "registry:ui",
+      "title": "Primitives",
+      "files": [
+        {
+          "path": "src/components/ui/primitives.ts",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "progress",
+      "type": "registry:ui",
+      "title": "Progress",
+      "files": [
+        {
+          "path": "src/components/ui/progress.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "radio-group",
+      "type": "registry:ui",
+      "title": "Radio Group",
+      "files": [
+        {
+          "path": "src/components/ui/radio-group.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "resizable",
+      "type": "registry:ui",
+      "title": "Resizable",
+      "files": [
+        {
+          "path": "src/components/ui/resizable.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react", "react-resizable-panels"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "scroll-area",
+      "type": "registry:ui",
+      "title": "Scroll Area",
+      "files": [
+        {
+          "path": "src/components/ui/scroll-area.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "title": "Select",
+      "files": [
+        {
+          "path": "src/components/ui/select.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "separator",
+      "type": "registry:ui",
+      "title": "Separator",
+      "files": [
+        {
+          "path": "src/components/ui/separator.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "sheet",
+      "type": "registry:ui",
+      "title": "Sheet",
+      "files": [
+        {
+          "path": "src/components/ui/sheet.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "sidebar",
+      "type": "registry:ui",
+      "title": "Sidebar",
+      "files": [
+        {
+          "path": "src/components/ui/sidebar.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/input",
+        "@chelone/lib-utils",
+        "@chelone/separator",
+        "@chelone/sheet",
+        "@chelone/skeleton",
+        "@chelone/tooltip",
+        "use-mobile"
+      ],
+      "dependencies": ["class-variance-authority", "lucide-react", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "files": [
+        {
+          "path": "src/components/ui/skeleton.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "slider",
+      "type": "registry:ui",
+      "title": "Slider",
+      "files": [
+        {
+          "path": "src/components/ui/slider.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "slot",
+      "type": "registry:ui",
+      "title": "Slot",
+      "files": [
+        {
+          "path": "src/components/ui/slot.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "sonner",
+      "type": "registry:ui",
+      "title": "Sonner",
+      "files": [
+        {
+          "path": "src/components/ui/sonner.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": ["lucide-react", "next-themes", "sonner"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "ui-spinner",
+      "type": "registry:ui",
+      "title": "Ui Spinner",
+      "files": [
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "switch",
+      "type": "registry:ui",
+      "title": "Switch",
+      "files": [
+        {
+          "path": "src/components/ui/switch.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "table",
+      "type": "registry:ui",
+      "title": "Table",
+      "files": [
+        {
+          "path": "src/components/ui/table.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "tabs",
+      "type": "registry:ui",
+      "title": "Tabs",
+      "files": [
+        {
+          "path": "src/components/ui/tabs.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["class-variance-authority", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "textarea",
+      "type": "registry:ui",
+      "title": "Textarea",
+      "files": [
+        {
+          "path": "src/components/ui/textarea.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "toggle-group",
+      "type": "registry:ui",
+      "title": "Toggle Group",
+      "files": [
+        {
+          "path": "src/components/ui/toggle-group.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/toggle"],
+      "dependencies": ["class-variance-authority", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "toggle",
+      "type": "registry:ui",
+      "title": "Toggle",
+      "files": [
+        {
+          "path": "src/components/ui/toggle.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["class-variance-authority", "radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:ui",
+      "title": "Tooltip",
+      "files": [
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["radix-ui"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "admin",
+      "type": "registry:block",
+      "title": "Chelone Admin",
+      "categories": ["chelone", "dashboard"],
+      "description": "The Chelone admin component surface (Admin, List, Edit, DataTable, TextField, TextInput, the auth pages, layout, buttons, fields, inputs, and views) wired onto the @chelone/react hooks. Granularizes so each component installs on its own.",
+      "files": [
+        {
+          "path": "src/components/admin/auth/access-denied.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/auth-callback.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/auth-error.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/auth-layout.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/authentication-error.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/login-form.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/login-page.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/logout.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/bulk-delete-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/bulk-export-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/bulk-update-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/cancel-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/create-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/delete-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/edit-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/export-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/export.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/filter-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/list-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/refresh-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/save-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/show-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/sidebar-toggle-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/sort-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/common/field-label-text.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/common/input-helper-text.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/common/keyboard-shortcut.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/confirm.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/error.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/linear-progress.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/loading.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/notification.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/ready.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/spinner.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/api-key-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/array-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/badge-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/boolean-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/chip-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/color-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/cron-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/currency-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/date-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/duration-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/email-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/file-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/function-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/image-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/number-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/phone-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/rating-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/record-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/reference-array-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/reference-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/reference-many-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/reference-one-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/select-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/subscription-plan-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/text-array-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/text-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/url-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/usage-meter-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/webhook-endpoint-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/wrapper-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/form/toolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/input-props.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/api-key-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/array-input-context.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/array-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/autocomplete-array-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/autocomplete-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/boolean-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/checkbox-group-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/color-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/create-debounce.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/cron-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/cron-utils.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/currency-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/datagrid-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/date-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/date-time-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/duration-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/duration-utils.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/file-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/image-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/nullable-boolean-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/number-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/password-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/phone-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/radio-button-group-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/rating-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/reference-array-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/reference-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/resettable-text-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/search-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/select-array-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/select-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/subscription-plan-picker.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/text-array-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/text-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/time-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/webhook-endpoint-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/app-bar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/app-sidebar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/dashboard-menu-item.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/layout.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/menu-item-link.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/menu.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/resource-menu-item-group.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/resource-menu-item.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/theme-context.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/theme-mode-toggle.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/theme-provider.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/title-portal-id.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/title-portal.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/title.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/use-menu-access.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/use-theme.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/user-menu.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/bulk-actions-toolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/data-table.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/filter-form.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/list-pagination.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/views/create.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/views/edit.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/views/list.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/views/show.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/lib/are-ids-equal.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "src/lib/field-types.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "src/lib/gen-memo.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "src/lib/unknown-types.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "src/lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "cssVars": {
+        "light": {
+          "radius": "0.625rem",
+          "background": "oklch(1 0 0)",
+          "foreground": "oklch(0.145 0 0)",
+          "card": "oklch(1 0 0)",
+          "card-foreground": "oklch(0.145 0 0)",
+          "popover": "oklch(1 0 0)",
+          "popover-foreground": "oklch(0.145 0 0)",
+          "primary": "oklch(0.205 0 0)",
+          "primary-foreground": "oklch(0.985 0 0)",
+          "secondary": "oklch(0.97 0 0)",
+          "secondary-foreground": "oklch(0.205 0 0)",
+          "muted": "oklch(0.97 0 0)",
+          "muted-foreground": "oklch(0.556 0 0)",
+          "accent": "oklch(0.97 0 0)",
+          "accent-foreground": "oklch(0.205 0 0)",
+          "destructive": "oklch(0.577 0.245 27.325)",
+          "border": "oklch(0.922 0 0)",
+          "input": "oklch(0.922 0 0)",
+          "ring": "oklch(0.708 0 0)",
+          "chart-1": "oklch(0.646 0.222 41.116)",
+          "chart-2": "oklch(0.6 0.118 184.704)",
+          "chart-3": "oklch(0.398 0.07 227.392)",
+          "chart-4": "oklch(0.828 0.189 84.429)",
+          "chart-5": "oklch(0.769 0.188 70.08)",
+          "sidebar": "oklch(0.985 0 0)",
+          "sidebar-foreground": "oklch(0.145 0 0)",
+          "sidebar-primary": "oklch(0.205 0 0)",
+          "sidebar-primary-foreground": "oklch(0.985 0 0)",
+          "sidebar-accent": "oklch(0.97 0 0)",
+          "sidebar-accent-foreground": "oklch(0.205 0 0)",
+          "sidebar-border": "oklch(0.922 0 0)",
+          "sidebar-ring": "oklch(0.708 0 0)"
+        },
+        "dark": {
+          "background": "oklch(0.145 0 0)",
+          "foreground": "oklch(0.985 0 0)",
+          "card": "oklch(0.205 0 0)",
+          "card-foreground": "oklch(0.985 0 0)",
+          "popover": "oklch(0.205 0 0)",
+          "popover-foreground": "oklch(0.985 0 0)",
+          "primary": "oklch(0.922 0 0)",
+          "primary-foreground": "oklch(0.205 0 0)",
+          "secondary": "oklch(0.269 0 0)",
+          "secondary-foreground": "oklch(0.985 0 0)",
+          "muted": "oklch(0.269 0 0)",
+          "muted-foreground": "oklch(0.708 0 0)",
+          "accent": "oklch(0.269 0 0)",
+          "accent-foreground": "oklch(0.985 0 0)",
+          "destructive": "oklch(0.704 0.191 22.216)",
+          "border": "oklch(1 0 0 / 10%)",
+          "input": "oklch(1 0 0 / 15%)",
+          "ring": "oklch(0.556 0 0)",
+          "chart-1": "oklch(0.488 0.243 264.376)",
+          "chart-2": "oklch(0.696 0.17 162.48)",
+          "chart-3": "oklch(0.769 0.188 70.08)",
+          "chart-4": "oklch(0.627 0.265 303.9)",
+          "chart-5": "oklch(0.645 0.246 16.439)",
+          "sidebar": "oklch(0.205 0 0)",
+          "sidebar-foreground": "oklch(0.985 0 0)",
+          "sidebar-primary": "oklch(0.488 0.243 264.376)",
+          "sidebar-primary-foreground": "oklch(0.985 0 0)",
+          "sidebar-accent": "oklch(0.269 0 0)",
+          "sidebar-accent-foreground": "oklch(0.985 0 0)",
+          "sidebar-border": "oklch(1 0 0 / 10%)",
+          "sidebar-ring": "oklch(0.556 0 0)"
+        }
+      },
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "access-denied",
+      "type": "registry:component",
+      "title": "Access Denied",
+      "files": [
+        {
+          "path": "src/components/admin/auth/access-denied.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "auth-callback",
+      "type": "registry:component",
+      "title": "Auth Callback",
+      "files": [
+        {
+          "path": "src/components/admin/auth/auth-callback.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/auth-error", "@chelone/ui-spinner"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "auth-error",
+      "type": "registry:component",
+      "title": "Auth Error",
+      "files": [
+        {
+          "path": "src/components/admin/auth/auth-error.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "auth-layout",
+      "type": "registry:component",
+      "title": "Auth Layout",
+      "files": [
+        {
+          "path": "src/components/admin/auth/auth-layout.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/notification"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "authentication-error",
+      "type": "registry:component",
+      "title": "Authentication Error",
+      "files": [
+        {
+          "path": "src/components/admin/auth/authentication-error.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/access-denied"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "login-form",
+      "type": "registry:component",
+      "title": "Login Form",
+      "files": [
+        {
+          "path": "src/components/admin/auth/login-form.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-input",
+        "@chelone/ui-spinner"
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "login-page",
+      "type": "registry:component",
+      "title": "Login Page",
+      "files": [
+        {
+          "path": "src/components/admin/auth/login-page.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/auth-layout", "@chelone/login-form"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "logout",
+      "type": "registry:component",
+      "title": "Logout",
+      "files": [
+        {
+          "path": "src/components/admin/auth/logout.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/dropdown-menu", "@chelone/lib-utils"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bulk-delete-button",
+      "type": "registry:component",
+      "title": "Bulk Delete Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/bulk-delete-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/confirm",
+        "@chelone/lib-utils",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bulk-export-button",
+      "type": "registry:component",
+      "title": "Bulk Export Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/bulk-export-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/export"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bulk-update-button",
+      "type": "registry:component",
+      "title": "Bulk Update Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/bulk-update-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/confirm",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "cancel-button",
+      "type": "registry:component",
+      "title": "Cancel Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/cancel-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "create-button",
+      "type": "registry:component",
+      "title": "Create Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/create-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/use-menu-access"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "delete-button",
+      "type": "registry:component",
+      "title": "Delete Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/delete-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/confirm",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "edit-button",
+      "type": "registry:component",
+      "title": "Edit Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/edit-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/use-menu-access"],
+      "dependencies": ["@chelone/core", "lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "export-button",
+      "type": "registry:component",
+      "title": "Export Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/export-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/export"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "export",
+      "type": "registry:component",
+      "title": "Export",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/export.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "filter-button",
+      "type": "registry:component",
+      "title": "Filter Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/filter-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/dropdown-menu",
+        "@chelone/field-label-text",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "list-button",
+      "type": "registry:component",
+      "title": "List Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/list-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "refresh-button",
+      "type": "registry:component",
+      "title": "Refresh Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/refresh-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/ui-spinner"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "save-button",
+      "type": "registry:component",
+      "title": "Save Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/save-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/ui-spinner"],
+      "dependencies": ["lucide-react"],
+      "devDependencies": ["@tanstack/react-store"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "show-button",
+      "type": "registry:component",
+      "title": "Show Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/show-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/use-menu-access"],
+      "dependencies": ["@chelone/core", "lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "sidebar-toggle-button",
+      "type": "registry:component",
+      "title": "Sidebar Toggle Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/sidebar-toggle-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/sidebar",
+        "@chelone/tooltip"
+      ],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "sort-button",
+      "type": "registry:component",
+      "title": "Sort Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/sort-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/dropdown-menu",
+        "@chelone/tooltip",
+        "use-mobile"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "field-label-text",
+      "type": "registry:component",
+      "title": "Field Label Text",
+      "files": [
+        {
+          "path": "src/components/admin/common/field-label-text.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "input-helper-text",
+      "type": "registry:component",
+      "title": "Input Helper Text",
+      "files": [
+        {
+          "path": "src/components/admin/common/input-helper-text.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/field"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "keyboard-shortcut",
+      "type": "registry:component",
+      "title": "Keyboard Shortcut",
+      "files": [
+        {
+          "path": "src/components/admin/common/keyboard-shortcut.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "confirm",
+      "type": "registry:component",
+      "title": "Confirm",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/confirm.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/dialog",
+        "@chelone/primitives"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "error",
+      "type": "registry:component",
+      "title": "Error",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/error.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/accordion",
+        "@chelone/button",
+        "@chelone/title"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "linear-progress",
+      "type": "registry:component",
+      "title": "Linear Progress",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/linear-progress.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "loading",
+      "type": "registry:component",
+      "title": "Loading",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/loading.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/spinner"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "notification",
+      "type": "registry:component",
+      "title": "Notification",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/notification.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/use-theme"],
+      "dependencies": ["sonner"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "ready",
+      "type": "registry:component",
+      "title": "Ready",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/ready.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "spinner",
+      "type": "registry:component",
+      "title": "Spinner",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/spinner.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/ui-spinner"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "api-key-field",
+      "type": "registry:component",
+      "title": "Api Key Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/api-key-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "array-field",
+      "type": "registry:component",
+      "title": "Array Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/array-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-unknown-types"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "badge-field",
+      "type": "registry:component",
+      "title": "Badge Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/badge-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "boolean-field",
+      "type": "registry:component",
+      "title": "Boolean Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/boolean-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils",
+        "@chelone/tooltip"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "chip-field",
+      "type": "registry:component",
+      "title": "Chip Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/chip-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/lib-field-types",
+        "@chelone/lib-gen-memo",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "color-field",
+      "type": "registry:component",
+      "title": "Color Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/color-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "cron-field",
+      "type": "registry:component",
+      "title": "Cron Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/cron-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/cron-utils",
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "currency-field",
+      "type": "registry:component",
+      "title": "Currency Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/currency-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "date-field",
+      "type": "registry:component",
+      "title": "Date Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/date-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-gen-memo",
+        "@chelone/lib-unknown-types"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "duration-field",
+      "type": "registry:component",
+      "title": "Duration Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/duration-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/duration-utils",
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "email-field",
+      "type": "registry:component",
+      "title": "Email Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/email-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-gen-memo",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "file-field",
+      "type": "registry:component",
+      "title": "File Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/file-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "function-field",
+      "type": "registry:component",
+      "title": "Function Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/function-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "image-field",
+      "type": "registry:component",
+      "title": "Image Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/image-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "number-field",
+      "type": "registry:component",
+      "title": "Number Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/number-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "phone-field",
+      "type": "registry:component",
+      "title": "Phone Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/phone-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types"
+      ],
+      "dependencies": ["libphonenumber-js"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rating-field",
+      "type": "registry:component",
+      "title": "Rating Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/rating-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "record-field",
+      "type": "registry:component",
+      "title": "Record Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/record-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field-label-text",
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils",
+        "@chelone/text-field"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-array-field",
+      "type": "registry:component",
+      "title": "Reference Array Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/reference-array-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-unknown-types"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-field",
+      "type": "registry:component",
+      "title": "Reference Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/reference-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-unknown-types"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-many-field",
+      "type": "registry:component",
+      "title": "Reference Many Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/reference-many-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-unknown-types"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-one-field",
+      "type": "registry:component",
+      "title": "Reference One Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/reference-one-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-unknown-types"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "select-field",
+      "type": "registry:component",
+      "title": "Select Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/select-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-gen-memo",
+        "@chelone/lib-unknown-types"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "subscription-plan-field",
+      "type": "registry:component",
+      "title": "Subscription Plan Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/subscription-plan-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "text-array-field",
+      "type": "registry:component",
+      "title": "Text Array Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/text-array-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "text-field",
+      "type": "registry:component",
+      "title": "Text Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/text-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "url-field",
+      "type": "registry:component",
+      "title": "Url Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/url-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-gen-memo",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "usage-meter-field",
+      "type": "registry:component",
+      "title": "Usage Meter Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/usage-meter-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils",
+        "@chelone/progress"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "webhook-endpoint-field",
+      "type": "registry:component",
+      "title": "Webhook Endpoint Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/webhook-endpoint-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "wrapper-field",
+      "type": "registry:component",
+      "title": "Wrapper Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/wrapper-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types"
+      ],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "toolbar",
+      "type": "registry:component",
+      "title": "Toolbar",
+      "files": [
+        {
+          "path": "src/components/admin/form/toolbar.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/delete-button",
+        "@chelone/lib-utils",
+        "@chelone/save-button"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "input-props",
+      "type": "registry:component",
+      "title": "Input Props",
+      "files": [
+        {
+          "path": "src/components/admin/input-props.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "api-key-input",
+      "type": "registry:component",
+      "title": "Api Key Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/api-key-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/alert-dialog", "@chelone/button"],
+      "dependencies": ["@chelone/core", "lucide-react"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "array-input-context",
+      "type": "registry:component",
+      "title": "Array Input Context",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/array-input-context.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "array-input",
+      "type": "registry:component",
+      "title": "Array Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/array-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/array-input-context",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "autocomplete-array-input",
+      "type": "registry:component",
+      "title": "Autocomplete Array Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/autocomplete-array-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/command",
+        "@chelone/create-debounce",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-are-ids-equal",
+        "@chelone/lib-unknown-types",
+        "@chelone/popover"
+      ],
+      "dependencies": ["@chelone/core", "cmdk", "lucide-react"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "autocomplete-input",
+      "type": "registry:component",
+      "title": "Autocomplete Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/autocomplete-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/command",
+        "@chelone/create-debounce",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-are-ids-equal",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils",
+        "@chelone/popover"
+      ],
+      "dependencies": ["@chelone/core", "lucide-react"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "boolean-input",
+      "type": "registry:component",
+      "title": "Boolean Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/boolean-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/switch"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "checkbox-group-input",
+      "type": "registry:component",
+      "title": "Checkbox Group Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/checkbox-group-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/checkbox",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils",
+        "@chelone/skeleton"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "color-input",
+      "type": "registry:component",
+      "title": "Color Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/color-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/color-picker",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "create-debounce",
+      "type": "registry:component",
+      "title": "Create Debounce",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/create-debounce.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "cron-input",
+      "type": "registry:component",
+      "title": "Cron Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/cron-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/cron-utils",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "cron-utils",
+      "type": "registry:component",
+      "title": "Cron Utils",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/cron-utils.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["cronstrue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "currency-input",
+      "type": "registry:component",
+      "title": "Currency Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/currency-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "datagrid-input",
+      "type": "registry:component",
+      "title": "Datagrid Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/datagrid-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/checkbox",
+        "@chelone/field",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils",
+        "@chelone/table"
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "date-input",
+      "type": "registry:component",
+      "title": "Date Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/date-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "date-time-input",
+      "type": "registry:component",
+      "title": "Date Time Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/date-time-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "duration-input",
+      "type": "registry:component",
+      "title": "Duration Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/duration-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/duration-utils",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "duration-utils",
+      "type": "registry:component",
+      "title": "Duration Utils",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/duration-utils.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "file-input",
+      "type": "registry:component",
+      "title": "File Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/file-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["lucide-react", "react-dropzone"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "image-input",
+      "type": "registry:component",
+      "title": "Image Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/image-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/file-input"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "nullable-boolean-input",
+      "type": "registry:component",
+      "title": "Nullable Boolean Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/nullable-boolean-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils",
+        "@chelone/select"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "number-input",
+      "type": "registry:component",
+      "title": "Number Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/number-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "password-input",
+      "type": "registry:component",
+      "title": "Password Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/password-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-input"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "phone-input",
+      "type": "registry:component",
+      "title": "Phone Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/phone-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["libphonenumber-js"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "radio-button-group-input",
+      "type": "registry:component",
+      "title": "Radio Button Group Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/radio-button-group-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils",
+        "@chelone/radio-group",
+        "@chelone/skeleton"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rating-input",
+      "type": "registry:component",
+      "title": "Rating Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/rating-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-array-input",
+      "type": "registry:component",
+      "title": "Reference Array Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/reference-array-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/autocomplete-array-input"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-input",
+      "type": "registry:component",
+      "title": "Reference Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/reference-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/autocomplete-input"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "resettable-text-input",
+      "type": "registry:component",
+      "title": "Resettable Text Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/resettable-text-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-input"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "search-input",
+      "type": "registry:component",
+      "title": "Search Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/search-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-input"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "select-array-input",
+      "type": "registry:component",
+      "title": "Select Array Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/select-array-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/button",
+        "@chelone/checkbox",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils",
+        "@chelone/popover",
+        "@chelone/skeleton"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "select-input",
+      "type": "registry:component",
+      "title": "Select Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/select-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils",
+        "@chelone/select",
+        "@chelone/skeleton"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "subscription-plan-picker",
+      "type": "registry:component",
+      "title": "Subscription Plan Picker",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/subscription-plan-picker.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "text-array-input",
+      "type": "registry:component",
+      "title": "Text Array Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/text-array-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/command",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/popover"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "text-input",
+      "type": "registry:component",
+      "title": "Text Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/text-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils",
+        "@chelone/textarea"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "time-input",
+      "type": "registry:component",
+      "title": "Time Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/time-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "webhook-endpoint-input",
+      "type": "registry:component",
+      "title": "Webhook Endpoint Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/webhook-endpoint-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/checkbox",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "app-bar",
+      "type": "registry:component",
+      "title": "App Bar",
+      "files": [
+        {
+          "path": "src/components/admin/layout/app-bar.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/sidebar-toggle-button",
+        "@chelone/theme-mode-toggle",
+        "@chelone/title-portal",
+        "@chelone/user-menu"
+      ],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "app-sidebar",
+      "type": "registry:component",
+      "title": "App Sidebar",
+      "files": [
+        {
+          "path": "src/components/admin/layout/app-sidebar.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/menu", "@chelone/sidebar"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "dashboard-menu-item",
+      "type": "registry:component",
+      "title": "Dashboard Menu Item",
+      "files": [
+        {
+          "path": "src/components/admin/layout/dashboard-menu-item.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/menu-item-link"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "layout",
+      "type": "registry:component",
+      "title": "Layout",
+      "files": [
+        {
+          "path": "src/components/admin/layout/layout.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/app-bar",
+        "@chelone/app-sidebar",
+        "@chelone/lib-utils",
+        "@chelone/menu",
+        "@chelone/notification",
+        "@chelone/sidebar"
+      ],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "menu-item-link",
+      "type": "registry:component",
+      "title": "Menu Item Link",
+      "files": [
+        {
+          "path": "src/components/admin/layout/menu-item-link.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/keyboard-shortcut",
+        "@chelone/sidebar",
+        "@chelone/tooltip"
+      ],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "menu",
+      "type": "registry:component",
+      "title": "Menu",
+      "files": [
+        {
+          "path": "src/components/admin/layout/menu.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/dashboard-menu-item",
+        "@chelone/lib-utils",
+        "@chelone/menu-item-link",
+        "@chelone/resource-menu-item",
+        "@chelone/resource-menu-item-group",
+        "@chelone/sidebar"
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "resource-menu-item-group",
+      "type": "registry:component",
+      "title": "Resource Menu Item Group",
+      "files": [
+        {
+          "path": "src/components/admin/layout/resource-menu-item-group.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/collapsible",
+        "@chelone/lib-utils",
+        "@chelone/resource-menu-item",
+        "@chelone/sidebar"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "resource-menu-item",
+      "type": "registry:component",
+      "title": "Resource Menu Item",
+      "files": [
+        {
+          "path": "src/components/admin/layout/resource-menu-item.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/sidebar",
+        "@chelone/skeleton",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "theme-context",
+      "type": "registry:component",
+      "title": "Theme Context",
+      "files": [
+        {
+          "path": "src/components/admin/layout/theme-context.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "theme-mode-toggle",
+      "type": "registry:component",
+      "title": "Theme Mode Toggle",
+      "files": [
+        {
+          "path": "src/components/admin/layout/theme-mode-toggle.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/dropdown-menu",
+        "@chelone/lib-utils",
+        "@chelone/use-theme"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "theme-provider",
+      "type": "registry:component",
+      "title": "Theme Provider",
+      "files": [
+        {
+          "path": "src/components/admin/layout/theme-provider.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/theme-context"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "title-portal-id",
+      "type": "registry:component",
+      "title": "Title Portal Id",
+      "files": [
+        {
+          "path": "src/components/admin/layout/title-portal-id.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "title-portal",
+      "type": "registry:component",
+      "title": "Title Portal",
+      "files": [
+        {
+          "path": "src/components/admin/layout/title-portal.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/title-portal-id"
+      ],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "title",
+      "type": "registry:component",
+      "title": "Title",
+      "files": [
+        {
+          "path": "src/components/admin/layout/title.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/title-portal-id"
+      ],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-menu-access",
+      "type": "registry:component",
+      "title": "Use Menu Access",
+      "files": [
+        {
+          "path": "src/components/admin/layout/use-menu-access.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "devDependencies": ["@tanstack/react-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-theme",
+      "type": "registry:component",
+      "title": "Use Theme",
+      "files": [
+        {
+          "path": "src/components/admin/layout/use-theme.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/theme-context"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "user-menu",
+      "type": "registry:component",
+      "title": "User Menu",
+      "files": [
+        {
+          "path": "src/components/admin/layout/user-menu.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/avatar",
+        "@chelone/button",
+        "@chelone/dropdown-menu",
+        "@chelone/logout",
+        "@chelone/skeleton"
+      ],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bulk-actions-toolbar",
+      "type": "registry:component",
+      "title": "Bulk Actions Toolbar",
+      "files": [
+        {
+          "path": "src/components/admin/list/bulk-actions-toolbar.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/card"],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-table",
+      "type": "registry:component",
+      "title": "Data Table",
+      "files": [
+        {
+          "path": "src/components/admin/list/data-table.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/alert",
+        "@chelone/bulk-actions-toolbar",
+        "@chelone/button",
+        "@chelone/checkbox",
+        "@chelone/collapsible",
+        "@chelone/field-label-text",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils",
+        "@chelone/number-field",
+        "@chelone/skeleton",
+        "@chelone/table",
+        "@chelone/tooltip"
+      ],
+      "dependencies": ["@chelone/core", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "filter-form",
+      "type": "registry:component",
+      "title": "Filter Form",
+      "files": [
+        {
+          "path": "src/components/admin/list/filter-form.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "list-pagination",
+      "type": "registry:component",
+      "title": "List Pagination",
+      "files": [
+        {
+          "path": "src/components/admin/list/list-pagination.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/pagination",
+        "@chelone/select"
+      ],
+      "dependencies": ["lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "create",
+      "type": "registry:component",
+      "title": "Create",
+      "files": [
+        {
+          "path": "src/components/admin/views/create.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "edit",
+      "type": "registry:component",
+      "title": "Edit",
+      "files": [
+        {
+          "path": "src/components/admin/views/edit.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "list",
+      "type": "registry:component",
+      "title": "List",
+      "files": [
+        {
+          "path": "src/components/admin/views/list.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "show",
+      "type": "registry:component",
+      "title": "Show",
+      "files": [
+        {
+          "path": "src/components/admin/views/show.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lib-are-ids-equal",
+      "type": "registry:lib",
+      "title": "Lib Are Ids Equal",
+      "files": [
+        {
+          "path": "src/lib/are-ids-equal.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "categories": ["chelone", "library"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lib-field-types",
+      "type": "registry:lib",
+      "title": "Lib Field Types",
+      "files": [
+        {
+          "path": "src/lib/field-types.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-unknown-types"],
+      "categories": ["chelone", "library"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lib-gen-memo",
+      "type": "registry:lib",
+      "title": "Lib Gen Memo",
+      "files": [
+        {
+          "path": "src/lib/gen-memo.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "categories": ["chelone", "library"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lib-unknown-types",
+      "type": "registry:lib",
+      "title": "Lib Unknown Types",
+      "files": [
+        {
+          "path": "src/lib/unknown-types.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "categories": ["chelone", "library"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lib-utils",
+      "type": "registry:lib",
+      "title": "Lib Utils",
+      "files": [
+        {
+          "path": "src/lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "dependencies": ["clsx", "tailwind-merge"],
+      "categories": ["chelone", "library"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "style-chelone",
+      "type": "registry:base",
+      "title": "Chelone",
+      "description": "Chelone's base configuration: the vanilla shadcn New York style with the neutral base color, Lucide icons, and CSS-variable theming. Install first to set sensible components.json defaults, then add Chelone components.",
+      "config": {
+        "style": "new-york",
+        "tailwind": {
+          "config": "",
+          "css": "src/index.css",
+          "baseColor": "neutral",
+          "cssVariables": true,
+          "prefix": ""
+        },
+        "iconLibrary": "lucide",
+        "aliases": {
+          "components": "@/components",
+          "utils": "@/lib/utils",
+          "ui": "@/components/ui",
+          "lib": "@/lib",
+          "hooks": "@/hooks"
+        }
+      },
+      "cssVars": {
+        "light": {
+          "radius": "0.625rem",
+          "background": "oklch(1 0 0)",
+          "foreground": "oklch(0.145 0 0)",
+          "card": "oklch(1 0 0)",
+          "card-foreground": "oklch(0.145 0 0)",
+          "popover": "oklch(1 0 0)",
+          "popover-foreground": "oklch(0.145 0 0)",
+          "primary": "oklch(0.205 0 0)",
+          "primary-foreground": "oklch(0.985 0 0)",
+          "secondary": "oklch(0.97 0 0)",
+          "secondary-foreground": "oklch(0.205 0 0)",
+          "muted": "oklch(0.97 0 0)",
+          "muted-foreground": "oklch(0.556 0 0)",
+          "accent": "oklch(0.97 0 0)",
+          "accent-foreground": "oklch(0.205 0 0)",
+          "destructive": "oklch(0.577 0.245 27.325)",
+          "border": "oklch(0.922 0 0)",
+          "input": "oklch(0.922 0 0)",
+          "ring": "oklch(0.708 0 0)",
+          "chart-1": "oklch(0.646 0.222 41.116)",
+          "chart-2": "oklch(0.6 0.118 184.704)",
+          "chart-3": "oklch(0.398 0.07 227.392)",
+          "chart-4": "oklch(0.828 0.189 84.429)",
+          "chart-5": "oklch(0.769 0.188 70.08)",
+          "sidebar": "oklch(0.985 0 0)",
+          "sidebar-foreground": "oklch(0.145 0 0)",
+          "sidebar-primary": "oklch(0.205 0 0)",
+          "sidebar-primary-foreground": "oklch(0.985 0 0)",
+          "sidebar-accent": "oklch(0.97 0 0)",
+          "sidebar-accent-foreground": "oklch(0.205 0 0)",
+          "sidebar-border": "oklch(0.922 0 0)",
+          "sidebar-ring": "oklch(0.708 0 0)"
+        },
+        "dark": {
+          "background": "oklch(0.145 0 0)",
+          "foreground": "oklch(0.985 0 0)",
+          "card": "oklch(0.205 0 0)",
+          "card-foreground": "oklch(0.985 0 0)",
+          "popover": "oklch(0.205 0 0)",
+          "popover-foreground": "oklch(0.985 0 0)",
+          "primary": "oklch(0.922 0 0)",
+          "primary-foreground": "oklch(0.205 0 0)",
+          "secondary": "oklch(0.269 0 0)",
+          "secondary-foreground": "oklch(0.985 0 0)",
+          "muted": "oklch(0.269 0 0)",
+          "muted-foreground": "oklch(0.708 0 0)",
+          "accent": "oklch(0.269 0 0)",
+          "accent-foreground": "oklch(0.985 0 0)",
+          "destructive": "oklch(0.704 0.191 22.216)",
+          "border": "oklch(1 0 0 / 10%)",
+          "input": "oklch(1 0 0 / 15%)",
+          "ring": "oklch(0.556 0 0)",
+          "chart-1": "oklch(0.488 0.243 264.376)",
+          "chart-2": "oklch(0.696 0.17 162.48)",
+          "chart-3": "oklch(0.769 0.188 70.08)",
+          "chart-4": "oklch(0.627 0.265 303.9)",
+          "chart-5": "oklch(0.645 0.246 16.439)",
+          "sidebar": "oklch(0.205 0 0)",
+          "sidebar-foreground": "oklch(0.985 0 0)",
+          "sidebar-primary": "oklch(0.488 0.243 264.376)",
+          "sidebar-primary-foreground": "oklch(0.985 0 0)",
+          "sidebar-accent": "oklch(0.269 0 0)",
+          "sidebar-accent-foreground": "oklch(0.985 0 0)",
+          "sidebar-border": "oklch(1 0 0 / 10%)",
+          "sidebar-ring": "oklch(0.556 0 0)"
+        }
+      },
+      "files": [],
+      "author": "Chelone <https://chelone.dev>"
+    }
+  ]
+}
