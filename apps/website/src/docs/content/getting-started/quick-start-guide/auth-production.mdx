@@ -1,0 +1,182 @@
+---
+title: "5. Auth & Production"
+description: "Add authentication and connect Chelone to a real API."
+---
+
+Two things stand between the tutorial and a real deployment: authentication, and
+a data provider that talks to your actual backend.
+
+## Adding authentication
+
+Chelone makes no assumption about your auth strategy (basic auth, OAuth, a custom
+route). You supply an **`authProvider`** object and pass it to `<Admin>`; Chelone
+calls it to gate pages and to react to `401` / `403` responses from your API.
+
+An `authProvider` exposes four required async methods:
+
+```tsx title="src/auth-provider.ts"
+import type { AuthProvider } from "@chelone/core";
+
+export const authProvider: AuthProvider = {
+  // Called when the user submits the login form.
+  async login({ username }) {
+    // Accept everyone for the tutorial; call your auth API here instead.
+    localStorage.setItem("username", String(username));
+  },
+  // Called when the user clicks logout.
+  async logout() {
+    localStorage.removeItem("username");
+  },
+  // Called on every navigation to confirm the user is still authenticated.
+  async checkAuth() {
+    if (!localStorage.getItem("username")) {
+      throw new Error("Authentication required");
+    }
+  },
+  // Called when the data provider returns an error — sign out on 401/403.
+  async checkError(error) {
+    const status = (error as { status?: number })?.status;
+    if (status === 401 || status === 403) {
+      localStorage.removeItem("username");
+      throw new Error("Session expired");
+    }
+  },
+};
+```
+
+Wire it into `<Admin>`:
+
+```tsx title="src/App.tsx" {3}
+import { authProvider } from "./auth-provider";
+
+<Admin authProvider={authProvider} dataProvider={dataProvider} resources={resources}>
+  {/* …resources… */}
+</Admin>;
+```
+
+Now the admin sits behind a login page. `<Admin>` ships a default login form; see
+[Security](/docs/app-config/security) for `getIdentity`, `canAccess`
+permission checks, and OAuth `handleCallback`.
+
+## Connecting to a real API
+
+The tutorial ran on `fakeDataProvider`, an in-memory adapter. For production you
+swap in a **Data Provider** that maps Chelone's method calls to your API's HTTP
+dialect. Chelone calls one method per action and expects a `Promise` back:
+
+| Action | Data Provider method |
+| --- | --- |
+| Get a page of records | `getList` |
+| Get one record | `getOne` |
+| Get several by id | `getMany` |
+| Get related records | `getManyReference` |
+| Create a record | `create` |
+| Update a record | `update` |
+| Update several | `updateMany` |
+| Delete a record | `delete` |
+| Delete several | `deleteMany` |
+
+A minimal REST provider is just those methods over `fetch`:
+
+```tsx title="src/data-provider.ts"
+import type { DataProvider } from "@chelone/core";
+
+const apiUrl = "https://my.api.url";
+
+async function json(input: string, init?: RequestInit) {
+  const res = await fetch(input, init);
+  if (!res.ok) throw { status: res.status, message: res.statusText };
+  return res.json();
+}
+
+export const dataProvider: DataProvider = {
+  async getList(resource, params) {
+    const { page, perPage } = params.pagination;
+    const { field, order } = params.sort;
+    const query = new URLSearchParams({
+      _sort: field,
+      _order: order,
+      _page: String(page),
+      _limit: String(perPage),
+      ...(params.filter as Record<string, string>),
+    });
+    const res = await fetch(`${apiUrl}/${resource}?${query}`);
+    const data = await res.json();
+    const total = Number(res.headers.get("x-total-count") ?? data.length);
+    return { data, total };
+  },
+  async getOne(resource, params) {
+    return { data: await json(`${apiUrl}/${resource}/${params.id}`) };
+  },
+  async getMany(resource, params) {
+    const query = params.ids.map((id) => `id=${id}`).join("&");
+    return { data: await json(`${apiUrl}/${resource}?${query}`) };
+  },
+  async getManyReference(resource, params) {
+    const query = new URLSearchParams({ [params.target]: String(params.id) });
+    const data = await json(`${apiUrl}/${resource}?${query}`);
+    return { data, total: data.length };
+  },
+  async create(resource, params) {
+    const data = await json(`${apiUrl}/${resource}`, {
+      method: "POST",
+      body: JSON.stringify(params.data),
+    });
+    return { data };
+  },
+  async update(resource, params) {
+    const data = await json(`${apiUrl}/${resource}/${params.id}`, {
+      method: "PUT",
+      body: JSON.stringify(params.data),
+    });
+    return { data };
+  },
+  async updateMany(resource, params) {
+    await Promise.all(
+      params.ids.map((id) =>
+        json(`${apiUrl}/${resource}/${id}`, {
+          method: "PUT",
+          body: JSON.stringify(params.data),
+        }),
+      ),
+    );
+    return { data: params.ids };
+  },
+  async delete(resource, params) {
+    const data = await json(`${apiUrl}/${resource}/${params.id}`, {
+      method: "DELETE",
+    });
+    return { data };
+  },
+  async deleteMany(resource, params) {
+    await Promise.all(
+      params.ids.map((id) =>
+        json(`${apiUrl}/${resource}/${id}`, { method: "DELETE" }),
+      ),
+    );
+    return { data: params.ids };
+  },
+};
+```
+
+Swapping providers is a one-line change:
+
+```tsx title="src/App.tsx"
+import { dataProvider } from "./data-provider";
+
+<Admin dataProvider={dataProvider} resources={resources}>
+  {/* …resources… */}
+</Admin>;
+```
+
+See [Data Providers](/docs/app-config/data-providers) for the full method
+signatures and for wrapping a provider with lifecycle callbacks.
+
+## Conclusion
+
+You've built a Zod-schema-backed CRUD admin, added search, auth, and a real API
+adapter. Because the UI lives in your own project (via the shadcn registry), any
+view, field, or input is yours to reshape.
+
+Continue with [Guides and Concepts](/docs/getting-started/guides-and-concepts),
+or browse the [Page Components](/docs/page-components/list/overview) reference.

@@ -1,0 +1,113 @@
+---
+title: "4. Polish"
+description: "Add search and filters, custom menu icons, and a dashboard home page."
+---
+
+You have a working CRUD admin. Now let's make it feel finished: a search box, a
+custom menu icon, and a dashboard home page.
+
+## Adding search and filters to the list
+
+The list already sorts and paginates. To let users search, you add filter
+inputs and surface them from the list's **actions** slot with a `<FilterButton>`.
+
+Chelone has no react-admin `filters` prop on `<List>` — filtering is plain
+composition. Declare an array of filter inputs, then render a `<FilterButton>`
+(and any always-on inputs) in the list's `actions`:
+
+```tsx title="src/posts.tsx"
+import {
+  DataTable,
+  FilterButton,
+  List,
+  ReferenceInput,
+  SearchInput,
+  SelectInput,
+} from "@chelone/react";
+
+const postFilters = [
+  <SearchInput source="q" alwaysOn key="q" />,
+  <ReferenceInput source="author_id" reference="authors" key="author_id">
+    <SelectInput label="Author" optionText="name" />
+  </ReferenceInput>,
+];
+
+export function PostList() {
+  return (
+    <List actions={<FilterButton filters={postFilters} />}>
+      <DataTable>
+        <DataTable.Col source="title" />
+        {/* …the other columns… */}
+      </DataTable>
+    </List>
+  );
+}
+```
+
+The `q` filter is an `alwaysOn` full-text search — Chelone forwards it to your
+data provider's `getList` under `filter.q`, and the list refreshes as the user
+types. The `author_id` filter is optional: the `<FilterButton>` dropdown toggles
+it on, and because it's a `<ReferenceInput>` its `<SelectInput>` is already
+populated with the authors.
+
+:::tip
+Filters are "search-as-you-type" — every keystroke updates the list's filter
+state and refetches. The `label` prop customises any input's label.
+:::
+
+## Customizing the menu icon
+
+The sidebar shows a default icon for every resource. Pass an `icon` to a
+`<Resource>` to change it — any React component works, so a Lucide icon drops
+straight in:
+
+```tsx title="src/App.tsx" {2,7}
+import { Admin, Layout, Resource } from "@chelone/react";
+import { StickyNote, Users } from "lucide-react";
+
+// …
+
+<Admin dataProvider={dataProvider} resources={resources}>
+  <Admin.Layout>
+    <Layout />
+  </Admin.Layout>
+  <Resource name="posts" icon={StickyNote} list={PostList} edit={PostEdit} />
+  <Resource name="authors" icon={Users} list={AuthorList} />
+</Admin>;
+```
+
+## Using a custom home page
+
+By default `<Admin>` shows the first resource's list as the home page. To show
+your own component instead, pass it as the `dashboard` prop:
+
+```tsx title="src/dashboard.tsx"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export function Dashboard() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Welcome to the administration</CardTitle>
+      </CardHeader>
+      <CardContent>
+        Manage posts and authors from the sidebar.
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+```tsx title="src/App.tsx" {3}
+import { Dashboard } from "./dashboard";
+
+<Admin dataProvider={dataProvider} resources={resources} dashboard={Dashboard}>
+  {/* …resources… */}
+</Admin>;
+```
+
+`Card` and the other UI primitives come from the shadcn components you pulled in
+with the registry — they live in your own `@/components/ui`, so restyle them
+however you like.
+
+Next: [auth & production](/docs/getting-started/quick-start-guide/auth-production).
