@@ -101,7 +101,7 @@ export function Dashboard() {
 ```tsx title="src/App.tsx" {3}
 import { Dashboard } from "./dashboard";
 
-<Admin dataProvider={dataProvider} resources={resources} dashboard={Dashboard}>
+<Admin dataProvider={dataProvider} resources={resources} dashboard={<Dashboard />}>
   {/* …resources… */}
 </Admin>;
 ```
