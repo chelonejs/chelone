@@ -1,0 +1,67 @@
+---
+title: "Themes"
+description: "Style the admin with shadcn CSS variables — no palette API."
+---
+
+Chelone theming is **shadcn theming**. There is no `AdminTheme` object, no
+palette prop, no TypeScript theme system — the look of the admin is defined by
+**CSS variables** on your stylesheet, exactly as any shadcn project. Change a
+variable, and every component that reads it updates.
+
+## The CSS variables
+
+The admin components render in terms of the standard shadcn design tokens —
+`--background`, `--foreground`, `--primary`, `--muted`, `--border`, `--radius`,
+the `--sidebar-*` set, and so on. They live in your global CSS, scoped to the
+root and to `.dark`:
+
+```css title="src/index.css"
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.21 0.006 285.885);
+  --radius: 0.625rem;
+  /* …the rest of the shadcn tokens… */
+}
+
+.dark {
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  /* …dark overrides… */
+}
+```
+
+Retheme the whole admin by editing these values — recolor `--primary`, soften
+`--radius`, tune the sidebar. Because it's plain CSS, any shadcn theme generator
+or registry theme drops straight in.
+
+## Light / dark mode
+
+Mode (light / dark / system) is separate from the palette. `<ThemeProvider>`
+persists the chosen mode to the store and applies the `.dark` class to `<html>`;
+`<ThemeModeToggle>` is the switch. The default `<Layout>` includes both, so a
+fresh admin has working dark mode out of the box:
+
+```tsx
+import { ThemeModeToggle, ThemeProvider } from "@chelone/react";
+
+<ThemeProvider defaultTheme="system">
+  {/* … */}
+  <ThemeModeToggle />
+</ThemeProvider>;
+```
+
+`useTheme` / `useResolvedTheme` read and set the mode from your own components.
+
+## Distributing a theme
+
+Because a theme is just CSS variables, you ship it the shadcn way — as a registry
+item with `cssVars`, installed via the CLI — not as a prop. There is no
+`theme=` prop to pass to `<Admin>`.
+
+## Tips
+
+- `--radius` cascades through the whole component set — one value controls the
+  corner rounding everywhere.
+- Keep mode (light/dark, a `ThemeProvider` concern) separate from palette (CSS
+  variables, a stylesheet concern); they compose but aren't the same knob.

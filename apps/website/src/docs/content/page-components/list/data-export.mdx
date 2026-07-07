@@ -1,0 +1,67 @@
+---
+title: "Data Export"
+description: "Let users download the list — or a selection — as CSV."
+---
+
+Chelone ships a CSV exporter and two buttons that call it: `<ExportButton>` for
+the whole (filtered) list, and `<BulkExportButton>` for the currently selected
+rows.
+
+## Export the list
+
+Drop an `<ExportButton>` into the list header `actions`. It re-fetches the list
+with the current filters and sort (ignoring pagination), converts the records to
+CSV, and triggers a download:
+
+```tsx title="src/posts.tsx"
+import { CreateButton, DataTable, ExportButton, List } from "@chelone/react";
+
+export function PostList() {
+  return (
+    <List
+      actions={
+        <>
+          <CreateButton />
+          <ExportButton />
+        </>
+      }
+    >
+      <DataTable>
+        <DataTable.Col source="title" />
+        <DataTable.NumberCol source="views" />
+      </DataTable>
+    </List>
+  );
+}
+```
+
+## Export a selection
+
+When rows are selected, the `<DataTable>`'s bulk-actions toolbar can host a
+`<BulkExportButton>`, which exports only the checked records.
+
+## Custom export logic
+
+The button accepts an `exporter` prop — a function that receives the records and
+does whatever you need (reshape columns, fetch related data, hand off to a
+different serializer). The default is `defaultExporter`, which flattens each
+record and calls `downloadCSV`. The CSV helpers are exported so you can build on
+them:
+
+```tsx
+import { downloadCSV, recordsToCSV, type Exporter } from "@chelone/react";
+
+const exportPosts: Exporter = (records) => {
+  const rows = records.map((r) => ({ Title: r.title, Views: r.views }));
+  downloadCSV(recordsToCSV(rows), "posts");
+};
+
+<ExportButton exporter={exportPosts} />;
+```
+
+## Tips
+
+- `<ExportButton>` exports the **filtered** list, not just the visible page — it
+  issues its own fetch with the active filters and sort.
+- For very large datasets, page through the data inside a custom `exporter`
+  rather than pulling everything into one request.

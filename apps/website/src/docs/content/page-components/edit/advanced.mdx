@@ -1,0 +1,63 @@
+---
+title: "Advanced Edit"
+description: "Drop to the edit controller, transform values, and guard unsaved changes."
+---
+
+`<Edit>` wraps the **edit-form controller** (`useEditForm`). When you need
+control the view doesn't expose — a bespoke layout, a save side-effect, a
+transform before persist — read the controller directly.
+
+## The edit controller
+
+`useEditForm(resource, { id })` fetches the record, builds the form store, and
+returns the `form`, the `record`, and a `submit` handler. The `<Edit>` view is a
+thin shell over it; a custom edit page reads the same pieces:
+
+```tsx
+import { useEditForm, useEditContext } from "@chelone/react";
+
+function CustomEdit() {
+  const { record, isPending } = useEditContext();
+  if (isPending) return <p>Loading…</p>;
+  return <h1>Editing “{record?.title}”</h1>;
+}
+```
+
+`useEditContext` reads the context an ancestor `<Edit>` published; `useEditForm`
+constructs a fresh controller when you're building the whole page yourself.
+
+## Transforming values before save
+
+To reshape the form values before they hit the data provider (compute a slug,
+stamp a timestamp, drop a UI-only field), transform in a custom submit and call
+the mutation hook — the form context feeds you the values, `useUpdate` persists
+them.
+
+## Guarding unsaved changes
+
+`useWarnWhenUnsavedChanges` blocks navigation away from a dirty form (via the
+router adapter's blocker). Wire it inside the form to prompt before a user
+loses edits:
+
+```tsx
+import { useWarnWhenUnsavedChanges } from "@chelone/react";
+
+function GuardUnsaved() {
+  useWarnWhenUnsavedChanges(true);
+  return null;
+}
+```
+
+## Form context
+
+Inside any form you can read and drive the form store with the form hooks:
+`useFormContext` (the form instance), `useWatch` (subscribe to a field),
+`useController` / `useFieldArray` (bind a custom control or a repeatable group).
+These are the same primitives the inputs are built on.
+
+## Tips
+
+- Prefer `<Edit>` + composed inputs first; reach for `useEditForm` only when the
+  page is fundamentally custom.
+- `useEditContext` (consume) vs `useEditForm` (construct) — pick by whether an
+  `<Edit>` ancestor already exists.

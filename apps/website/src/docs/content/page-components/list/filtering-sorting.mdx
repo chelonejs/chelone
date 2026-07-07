@@ -1,0 +1,84 @@
+---
+title: "Filtering & Sorting"
+description: "Add a filter bar and let column headers sort — all synced to the URL."
+---
+
+The list controller keeps the active **filters** and the **sort** in the URL, so
+every view is a shareable link and the browser back button walks the history.
+You wire the UI; the controller owns the state and re-fetches when it changes.
+
+## Sorting
+
+Every `<DataTable.Col>` with a `source` is sortable out of the box: click its
+header to sort ascending, click again for descending. Opt a column out with
+`disableSort`, or set its default order with `sortByOrder`:
+
+```tsx
+<DataTable>
+  <DataTable.Col source="title" />
+  <DataTable.NumberCol source="views" sortByOrder="DESC" />
+  <DataTable.Col source="published" disableSort />
+</DataTable>
+```
+
+For a standalone control, `<SortButton>` exposes a menu of sortable fields:
+
+```tsx
+import { SortButton } from "@chelone/react";
+
+<SortButton fields={["title", "views"]} />;
+```
+
+## Filtering
+
+A filter bar is a set of inputs whose values feed the list query. `<FilterForm>`
+renders the always-on inputs inline; `<FilterButton>` is a menu that toggles the
+optional ones on and off. Both take the **same** array of input elements — each
+input's `source` is the filter key, and `alwaysOn` pins it to the form:
+
+<ComponentPreview name="page-components/list/filters" />
+
+```tsx title="src/posts.tsx"
+import {
+  DataTable,
+  FilterButton,
+  FilterForm,
+  List,
+  TextInput,
+} from "@chelone/react";
+
+const postFilters = [
+  <TextInput key="q" source="q" label="Search" alwaysOn />,
+  <TextInput key="title" source="title" label="Title" />,
+];
+
+export function PostList() {
+  return (
+    <List
+      actions={
+        <>
+          <FilterForm filters={postFilters} />
+          <FilterButton filters={postFilters} />
+        </>
+      }
+    >
+      <DataTable>
+        <DataTable.Col source="title" />
+        <DataTable.NumberCol source="views" />
+      </DataTable>
+    </List>
+  );
+}
+```
+
+Type in the search box in the preview above — the list re-queries as the filter
+value changes, and the query lands in the URL.
+
+## Tips
+
+- A filter input's `source` is passed to the data provider's `getList` as a
+  filter key; how the value narrows the result set is the provider's job.
+- `alwaysOn` inputs can't also carry a `defaultValue` — pin the input **or**
+  seed a default filter, not both.
+- Sorting and filtering compose: a filtered list still sorts by any column
+  header, and both survive a page reload because they live in the URL.

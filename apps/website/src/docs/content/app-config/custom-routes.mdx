@@ -1,0 +1,73 @@
+---
+title: "Custom Routes"
+description: "Add pages beyond the resource CRUD routes."
+registry: "custom-routes"
+---
+
+Not every page is a resource view. `<CustomRoutes>` lets you add arbitrary routes
+to the admin — a settings screen, a dashboard, a public marketing page — that
+render either inside the layout or standalone.
+
+## Adding routes
+
+Drop `<CustomRoutes>` among your `<Resource>`s and give it `<Route>` children:
+
+```tsx title="src/App.tsx"
+import { Admin, CustomRoutes, Resource } from "@chelone/react";
+import { Route } from "react-router";
+import { SettingsPage } from "./settings";
+import { AboutPage } from "./about";
+
+<Admin dataProvider={dataProvider} queryClient={queryClient}>
+  <Admin.Layout>
+    <Layout />
+  </Admin.Layout>
+
+  <Resource name="posts" list={PostList} />
+
+  {/* inside the layout — has the sidebar, app bar, and auth gate */}
+  <CustomRoutes>
+    <Route path="/settings" element={<SettingsPage />} />
+  </CustomRoutes>
+
+  {/* standalone — no layout, auth-agnostic */}
+  <CustomRoutes noLayout>
+    <Route path="/about" element={<AboutPage />} />
+  </CustomRoutes>
+</Admin>;
+```
+
+## Layout vs standalone
+
+- **Default** (`<CustomRoutes>`): the route renders **inside** `<Layout>` — it
+  gets the sidebar, app bar, and (when `requireAuth`) the auth gate. Use it for
+  admin pages that belong in the shell.
+- **`noLayout`**: the route renders **standalone**, outside the layout and
+  auth-agnostic. Use it for login-adjacent or public pages that shouldn't show
+  the admin chrome.
+
+You can mix both — one `<CustomRoutes>` for in-shell pages, another with
+`noLayout` for public ones.
+
+## Linking to a custom route
+
+Use the router adapter's navigation — `useNavigate`, `useRedirect`, or a
+`<Link>` — so links work under whichever router adapter the admin runs on:
+
+```tsx
+import { useNavigate } from "@chelone/react";
+
+const navigate = useNavigate();
+navigate("/settings");
+```
+
+## Props
+
+<PropsTable name="CustomRoutes" />
+
+## Tips
+
+- `noLayout` routes render outside the auth gate — put anything that must stay
+  public (a login page, a marketing page) here.
+- Custom routes are matched alongside the resource routes; a custom route can
+  override a resource path by declaring it first.

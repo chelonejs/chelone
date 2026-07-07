@@ -1,0 +1,75 @@
+---
+title: "Show"
+description: "A read-only detail view that fetches a record and renders its fields."
+registry: "show"
+---
+
+The `<Show>` view presents a single record read-only. It fetches the record by
+id, publishes it into the **show / record** contexts, and renders its children —
+usually a stack of `<RecordField>`s, each labelling and displaying one field.
+
+## A live show view
+
+<ComponentPreview name="page-components/show/basic" />
+
+```tsx title="src/posts.tsx"
+import {
+  BooleanField,
+  NumberField,
+  RecordField,
+  ReferenceField,
+  Show,
+  TextField,
+} from "@chelone/react";
+
+export function PostShow() {
+  return (
+    <Show>
+      <RecordField source="title" />
+      <RecordField source="body" />
+      <RecordField label="Author">
+        <ReferenceField source="author_id" reference="authors">
+          <TextField source="name" />
+        </ReferenceField>
+      </RecordField>
+      <RecordField label="Views">
+        <NumberField source="views" />
+      </RecordField>
+      <RecordField label="Published">
+        <BooleanField source="published" />
+      </RecordField>
+    </Show>
+  );
+}
+```
+
+Wire it onto the resource so `/posts/:id/show` renders it:
+
+```tsx
+<Resource name="posts" show={PostShow} />
+```
+
+## RecordField
+
+`<RecordField>` is the show-view building block. Given a `source`, it renders a
+labelled row with that field's value; given `children`, it labels them and lets
+you drop in any field component (a reference, a number, a boolean). Chelone has
+**no** `<SimpleShowLayout>` — you compose `<RecordField>`s directly.
+
+## The fields, on their own
+
+Every field reads the ambient record from context, so the same field components
+work inside a `<Show>`, a `<DataTable>` cell, or any `RecordContextProvider`:
+
+<ComponentPreview name="viewing/fields-overview" />
+
+## Props
+
+<PropsTable name="Show" />
+
+## Tips
+
+- `<Show>` reads `:id` from the route; pass an explicit `id` prop to show a
+  fixed record outside a route (as the preview above does).
+- Reach for the show controller (`useShowController` / `useShowContext`) when you
+  need a custom read-only layout.

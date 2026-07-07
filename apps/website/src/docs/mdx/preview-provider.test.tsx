@@ -23,11 +23,18 @@ import { render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
+import InputsOverviewDemo from "../content/editing/demos/inputs-overview";
 import BooleanFieldDemo from "../content/getting-started/quick-start-guide/demos/boolean-field";
 import PostListDemo from "../content/getting-started/quick-start-guide/demos/post-list";
 import ReferenceFieldDemo from "../content/getting-started/quick-start-guide/demos/reference-field";
 import TextFieldDemo from "../content/getting-started/quick-start-guide/demos/text-field";
 import TextInputDemo from "../content/getting-started/quick-start-guide/demos/text-input";
+// P7g3 page-components + overview demos.
+import CreateBasicDemo from "../content/page-components/create/demos/basic";
+import EditBasicDemo from "../content/page-components/edit/demos/basic";
+import ListBasicDemo from "../content/page-components/list/demos/basic";
+import ShowBasicDemo from "../content/page-components/show/demos/basic";
+import FieldsOverviewDemo from "../content/viewing/demos/fields-overview";
 import { PreviewProvider } from "./preview-provider";
 
 // Mount inside a `<MemoryRouter>` at a docs-like path — mirrors the site, where
@@ -110,6 +117,68 @@ describe("PreviewProvider — live admin previews render against the fixture pro
       </PreviewProvider>,
     );
     // The input binds to `title`; its label + control render inside the form.
+    expect(await screen.findByLabelText(/title/i)).toBeTruthy();
+  });
+
+  // ── P7g3 page-components + overview demos ──────────────────────────────────
+
+  it("renders the page-components <List> demo (view mode)", async () => {
+    renderInHostRouter(
+      <PreviewProvider mode="view">
+        <ListBasicDemo />
+      </PreviewProvider>,
+    );
+    expect(await screen.findByText("On Computable Numbers")).toBeTruthy();
+  });
+
+  it("renders the page-components <Edit> demo for id=1 (view mode)", async () => {
+    renderInHostRouter(
+      <PreviewProvider mode="view">
+        <EditBasicDemo />
+      </PreviewProvider>,
+    );
+    // The fetched record hydrates the title input.
+    const input = (await screen.findByLabelText(/title/i)) as HTMLInputElement;
+    expect(input.value).toBe("On Computable Numbers");
+  });
+
+  it("renders the page-components <Create> demo (view mode)", async () => {
+    renderInHostRouter(
+      <PreviewProvider mode="view">
+        <CreateBasicDemo />
+      </PreviewProvider>,
+    );
+    // A fresh create form renders an empty title input + a Save button.
+    expect(await screen.findByLabelText(/title/i)).toBeTruthy();
+  });
+
+  it("renders the page-components <Show> demo for id=1 (view mode)", async () => {
+    renderInHostRouter(
+      <PreviewProvider mode="view">
+        <ShowBasicDemo />
+      </PreviewProvider>,
+    );
+    // RecordField rows render the fetched record's values (also in the title).
+    const hits = await screen.findAllByText("On Computable Numbers");
+    expect(hits.length).toBeGreaterThan(0);
+  });
+
+  it("renders the Fields overview demo (record mode)", async () => {
+    renderInHostRouter(
+      <PreviewProvider mode="record">
+        <FieldsOverviewDemo />
+      </PreviewProvider>,
+    );
+    // The resolved author reference proves the whole field stack renders.
+    expect(await screen.findByText("Ada Lovelace")).toBeTruthy();
+  });
+
+  it("renders the Inputs overview demo (input mode)", async () => {
+    renderInHostRouter(
+      <PreviewProvider mode="input">
+        <InputsOverviewDemo />
+      </PreviewProvider>,
+    );
     expect(await screen.findByLabelText(/title/i)).toBeTruthy();
   });
 });

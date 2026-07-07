@@ -1,0 +1,60 @@
+---
+title: "Inputs"
+description: "Form controls that bind a record field to the form and validate it."
+index: true
+---
+
+**Inputs** are the editable counterparts of [fields](/docs/viewing). Each one
+binds a single record property — named by its `source` — into the ambient
+**form**, rendering a labelled control that reads and writes the form store.
+Place inputs inside a `<Create>` or `<Edit>` view (Chelone has no
+`<SimpleForm>` wrapper — the view *is* the form) and they register, display the
+current value, and surface validation errors automatically.
+
+## How an input binds
+
+An input calls `useInput` under the hood: it registers `source` with the form,
+subscribes to that field's value and error, and renders a shadcn control wired to
+both. Type in the preview and the form store updates; the resource's Zod schema
+validates it on submit.
+
+<ComponentPreview name="editing/inputs-overview" />
+
+```tsx
+import { BooleanInput, NumberInput, TextInput } from "@chelone/react";
+
+<TextInput source="title" />
+<TextInput source="body" multiline />
+<NumberInput source="views" min={0} />
+<BooleanInput source="published" />
+```
+
+## Validation comes from the schema
+
+When a resource is registered with a Zod schema, the form validates against it
+on submit — no per-input `validate` props. The schema is the single source of
+truth for both the record type and the form rules. You can still pass a
+per-input `validate` for one-off rules on top.
+
+## The input families
+
+- **Text & numbers** — `<TextInput>`, `<NumberInput>`, `<PasswordInput>`,
+  `<CurrencyInput>`, `<DateInput>`, `<DateTimeInput>`, `<TimeInput>`,
+  `<PhoneInput>`.
+- **Choices** — `<SelectInput>`, `<AutocompleteInput>`,
+  `<RadioButtonGroupInput>`, `<CheckboxGroupInput>`, `<BooleanInput>`,
+  `<NullableBooleanInput>`.
+- **References** — `<ReferenceInput>` (pick one related record),
+  `<ReferenceArrayInput>` / `<SelectArrayInput>` / `<AutocompleteArrayInput>`
+  (pick many).
+- **Files & arrays** — `<FileInput>`, `<ImageInput>`, `<ArrayInput>`,
+  `<TextArrayInput>`.
+
+Browse the full reference in the sidebar — every input documents its `source`,
+its control-specific props, and a live example.
+
+## Inputs vs fields
+
+Inputs **edit**; [fields](/docs/viewing) **display**. They pair by `source`:
+`<TextInput source="title" />` in an `<Edit>`, `<TextField source="title" />` in
+a `<Show>`.

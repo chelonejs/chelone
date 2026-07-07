@@ -1,0 +1,53 @@
+---
+title: "Fields"
+description: "Read-only components that display one value from the current record."
+index: true
+---
+
+**Fields** are the read-only building blocks of a Chelone UI. Each one reads a
+single value from the **current record** — supplied by a `RecordContext` — and
+renders it: a string, a number, a boolean, a date, a formatted currency, a
+resolved reference. You place fields inside a `<DataTable>` cell, a `<Show>`
+view, or any component under a record context, and they Just Work.
+
+## How a field reads the record
+
+A field takes a `source` — the record property to display — and pulls its value
+from context via `useFieldValue`. It doesn't fetch, doesn't own state, and
+doesn't care where the record came from. That's why the same `<TextField>` works
+in a list row and a detail page:
+
+<ComponentPreview name="viewing/fields-overview" />
+
+```tsx
+import { BooleanField, NumberField, ReferenceField, TextField } from "@chelone/react";
+
+<TextField source="title" />
+<NumberField source="views" />
+<ReferenceField source="author_id" reference="authors">
+  <TextField source="name" />
+</ReferenceField>
+<BooleanField source="published" />
+```
+
+## The field families
+
+- **Text & numbers** — `<TextField>`, `<NumberField>`, `<CurrencyField>`,
+  `<DateField>`, `<EmailField>`, `<UrlField>`, `<PhoneField>`.
+- **Booleans & chips** — `<BooleanField>`, `<BadgeField>`, `<ChipField>`,
+  `<SelectField>`.
+- **References** — `<ReferenceField>` (a foreign key → one record),
+  `<ReferenceManyField>` / `<ReferenceArrayField>` (a record → many),
+  `<ReferenceOneField>`.
+- **Composite** — `<RecordField>` (labelled row for a `<Show>`),
+  `<ArrayField>`, `<FunctionField>` (render anything from the record),
+  `<WrapperField>`.
+
+Browse the full reference in the sidebar — every field below documents its
+`source`, formatting props, and a live example.
+
+## Fields vs inputs
+
+Fields **display**; [inputs](/docs/editing) **edit**. A `<TextField source="title" />`
+shows the title; a `<TextInput source="title" />` binds it to a form. They pair
+by `source`: read with the field, write with the input.

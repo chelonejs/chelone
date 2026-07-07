@@ -1,0 +1,70 @@
+---
+title: "Edit Customization"
+description: "Title, header actions, and editing a specific record."
+---
+
+`<Edit>` exposes a handful of props for tailoring the page chrome without
+touching the form body.
+
+## Title and actions
+
+Pass a `title` to override the heading (the default is the record's
+representation), and an `actions` node to fill the header slot — commonly a
+`<ShowButton>` or a `<DeleteButton>`:
+
+<ComponentPreview name="page-components/edit/customized" />
+
+```tsx title="src/posts.tsx"
+import { Edit, ShowButton, TextInput, Toolbar } from "@chelone/react";
+
+export function PostEdit() {
+  return (
+    <Edit title="Edit post" actions={<ShowButton />}>
+      <TextInput source="title" />
+      <TextInput source="body" multiline />
+      <Toolbar />
+    </Edit>
+  );
+}
+```
+
+Set `title={false}` to drop the heading entirely, or `actions={false}` to omit
+the header slot.
+
+## Editing a specific record
+
+By default `<Edit>` reads the record id from the `:id` route param. Pass an
+explicit `id` prop to edit a fixed record — useful for an inline edit panel or a
+detail page that isn't mounted at a resource route:
+
+```tsx
+<Edit id={42} resource="posts">
+  <TextInput source="title" />
+  <Toolbar />
+</Edit>
+```
+
+The `resource` prop likewise overrides the ambient `<Resource>` context, so you
+can render an `<Edit>` for a different resource than the one the route is under.
+
+## Framing the form
+
+The `component` prop swaps the element that wraps the children. Pass a card or
+any layout wrapper to frame the form:
+
+```tsx
+import { Card } from "@/components/ui/card";
+
+<Edit component={Card}>{/* inputs … */}</Edit>;
+```
+
+## Props
+
+<PropsTable name="Edit" />
+
+## Tips
+
+- `id` and `resource` together let you mount an `<Edit>` anywhere — no route
+  required — which is exactly how the live previews on this site render.
+- The title default comes from the resource's `recordRepresentation`; set that
+  on the `<Resource>` to control how records name themselves.

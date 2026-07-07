@@ -1,0 +1,77 @@
+---
+title: "Edit"
+description: "The page that fetches a record and lets the user update it."
+---
+
+The `<Edit>` view lets users update an existing record. It reads the record id
+from the route (`/posts/:id`), fetches and hydrates the record into a form, and
+publishes the **edit / save / record / form** contexts its children read. You
+compose the inputs directly as children — Chelone has **no** `<SimpleForm>`
+wrapper; the view **is** the form.
+
+## A live edit form
+
+Here is the `posts` edit view for a seeded record, running against the in-memory
+provider:
+
+<ComponentPreview name="page-components/edit/basic" />
+
+```tsx title="src/posts.tsx"
+import {
+  BooleanInput,
+  Edit,
+  NumberInput,
+  ReferenceInput,
+  SelectInput,
+  TextInput,
+  Toolbar,
+} from "@chelone/react";
+
+export function PostEdit() {
+  return (
+    <Edit>
+      <TextInput source="title" />
+      <TextInput source="body" multiline />
+      <ReferenceInput source="author_id" reference="authors">
+        <SelectInput optionText="name" />
+      </ReferenceInput>
+      <NumberInput source="views" min={0} />
+      <BooleanInput source="published" />
+      <Toolbar />
+    </Edit>
+  );
+}
+```
+
+Wire it onto the resource so `/posts/:id` renders it:
+
+```tsx
+<Resource name="posts" edit={PostEdit} />
+```
+
+## How it works
+
+`<Edit>` resolves the resource (from `<Resource>` context or the `resource`
+prop) and the record id (from the `:id` route param or the `id` prop), then runs
+the edit-form controller. The controller fetches the record, seeds the form
+store with its values, and exposes a `submit` handler that validates, persists
+via the data provider's `update`, and reconciles the cache. The `<Toolbar>`'s
+Save button fires that submit; Delete is confirm-gated.
+
+## Validation from the schema
+
+Because the `posts` resource was registered with a Zod schema, the form
+validates against it on submit — no per-input `validate` props. Clear the
+**Title** in the preview above and save: the schema's `.min(1, "Title is
+required")` rule blocks the submit and surfaces the message.
+
+## Props
+
+<PropsTable name="Edit" />
+
+## Tips
+
+- `<Edit>` reads `:id` from the route; pass an explicit `id` prop to edit a
+  fixed record outside a route (as the preview above does).
+- The children are the form body — compose inputs, layout, and a `<Toolbar>` (or
+  a bare `<SaveButton>`) however you like.

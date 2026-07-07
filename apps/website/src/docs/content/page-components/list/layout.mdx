@@ -1,0 +1,93 @@
+---
+title: "List Layout"
+description: "Arrange the list header, actions, and table — or replace the DataTable entirely."
+---
+
+`<List>` renders a thin shell — a **title**, a **header actions** slot, and its
+**children** — then hands the fetched records to whatever you put inside. The
+default child is a `<DataTable>`, but the layout is yours to shape.
+
+## The header
+
+`<List>` shows a title (the resource label, pluralized) and an `actions` slot on
+the right. Pass `actions` to fill it — typically the create / export / filter
+buttons — or `actions={false}` to omit it. Pass `title` to override the heading,
+or `title={false}` to drop it:
+
+```tsx
+import { CreateButton, ExportButton, List, DataTable } from "@chelone/react";
+
+<List
+  title="All posts"
+  actions={
+    <>
+      <CreateButton />
+      <ExportButton />
+    </>
+  }
+>
+  <DataTable>{/* … */}</DataTable>
+</List>;
+```
+
+## The table body
+
+Inside `<List>`, a `<DataTable>` renders one `<DataTable.Col>` per column. A
+column either points at a `source` (and renders that value), wraps a field
+component, or supplies a `render` function:
+
+```tsx
+<DataTable>
+  {/* value straight from the record */}
+  <DataTable.Col source="title" />
+  {/* right-aligned numeric column */}
+  <DataTable.NumberCol source="views" />
+  {/* a field component reading the row record */}
+  <DataTable.Col label="Author">
+    <ReferenceField source="author_id" reference="authors">
+      <TextField source="name" />
+    </ReferenceField>
+  </DataTable.Col>
+  {/* an inline render for a computed cell */}
+  <DataTable.Col label="Excerpt" render={(record) => record.body.slice(0, 40)} />
+</DataTable>
+```
+
+## Replace the table
+
+`<List>` only requires that its child reads the list context. To build a custom
+layout — cards, a gallery, a grid — read the records with `useListContext`
+directly and render them however you like:
+
+```tsx
+import { List, useListContext } from "@chelone/react";
+
+function PostCards() {
+  const { data, isPending } = useListContext();
+  if (isPending) return <p>Loading…</p>;
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      {data?.map((post) => (
+        <article key={post.id} className="rounded border p-4">
+          <h3>{post.title}</h3>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+<List>
+  <PostCards />
+</List>;
+```
+
+## Props
+
+<PropsTable name="List" />
+
+## Tips
+
+- The `component` prop swaps the element wrapping the children (default
+  `"div"`) — pass a `Card` or any layout component to frame the body.
+- Bulk selection lives in the list context too; a `<DataTable>` renders a
+  bulk-actions toolbar when rows are selected.

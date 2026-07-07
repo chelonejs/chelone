@@ -1,0 +1,88 @@
+---
+title: "Data Providers"
+description: "The single adapter every component fetches and mutates through."
+---
+
+A **data provider** is the one object that stands between Chelone and your API.
+Every list, field, form, and mutation hook speaks to it — never directly to the
+network — so swapping REST for GraphQL for Supabase is a one-line change at the
+root. The provider is just an object with nine async methods.
+
+## The contract
+
+```ts
+interface DataProvider {
+  getList(resource, params): Promise<{ data; total }>;
+  getOne(resource, params): Promise<{ data }>;
+  getMany(resource, params): Promise<{ data }>;
+  getManyReference(resource, params): Promise<{ data; total }>;
+  create(resource, params): Promise<{ data }>;
+  update(resource, params): Promise<{ data }>;
+  updateMany(resource, params): Promise<{ data }>;
+  delete(resource, params): Promise<{ data }>;
+  deleteMany(resource, params): Promise<{ data }>;
+}
+```
+
+Each method takes the resource name and a typed params object and returns a
+promise. `getList` receives pagination, sort, and filter; `create`/`update`
+receive the record data. That's the whole surface — implement it once and the
+entire admin works against your backend.
+
+## The in-memory provider
+
+`fakeDataProvider` implements the full contract over an in-memory seed — no
+server. It's how the demo and every live preview on this site run, and it's the
+fastest way to prototype:
+
+```tsx
+import { fakeDataProvider } from "@chelone/core";
+
+const dataProvider = fakeDataProvider({
+  posts: [{ id: 1, title: "Hello", author_id: 1 }],
+  authors: [{ id: 1, name: "Ada Lovelace" }],
+});
+```
+
+It filters, sorts, paginates, and mutates the seed in place, so a full CRUD flow
+works with zero backend.
+
+## Writing your own
+
+Any object that satisfies the interface is a valid provider. A thin REST adapter
+maps each method to a `fetch`:
+
+```ts
+import type { DataProvider } from "@chelone/core";
+
+export const dataProvider: DataProvider = {
+  async getList(resource, params) {
+    const res = await fetch(`/api/${resource}?${toQuery(params)}`);
+    return { data: await res.json(), total: Number(res.headers.get("X-Total")) };
+  },
+  async getOne(resource, { id }) {
+    const res = await fetch(`/api/${resource}/${id}`);
+    return { data: await res.json() };
+  },
+  // …create / update / delete / getMany / …
+};
+```
+
+## Using the provider
+
+You rarely call the provider by hand — the views and the mutation hooks do it —
+but `useDataProvider` returns it when you need a one-off call:
+
+```tsx
+import { useDataProvider } from "@chelone/react";
+
+const dataProvider = useDataProvider();
+await dataProvider.getOne("posts", { id: 1 });
+```
+
+## Tips
+
+- Return `{ data, total }` from `getList` — `total` drives the pagination
+  control.
+- Errors are thrown/rejected promises; the query cache surfaces them to the
+  view, and `checkError` on the auth provider can react to 401/403.

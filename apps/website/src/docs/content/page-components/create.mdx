@@ -1,0 +1,77 @@
+---
+title: "Create"
+description: "The page for adding a new record, validated against the resource schema."
+registry: "create"
+---
+
+The `<Create>` view lets users add a new record. Like `<Edit>`, it publishes a
+form context and takes inputs directly as children — but it starts from an
+**empty** record instead of fetching one, and persists via the data provider's
+`create`.
+
+## A live create form
+
+<ComponentPreview name="page-components/create/basic" />
+
+```tsx title="src/posts.tsx"
+import {
+  BooleanInput,
+  Create,
+  NumberInput,
+  ReferenceInput,
+  SaveButton,
+  SelectInput,
+  TextInput,
+} from "@chelone/react";
+
+export function PostCreate() {
+  return (
+    <Create>
+      <TextInput source="title" />
+      <TextInput source="body" multiline />
+      <ReferenceInput source="author_id" reference="authors">
+        <SelectInput optionText="name" />
+      </ReferenceInput>
+      <NumberInput source="views" min={0} defaultValue={0} />
+      <BooleanInput source="published" defaultValue={false} />
+      <SaveButton />
+    </Create>
+  );
+}
+```
+
+Wire it onto the resource so `/posts/create` renders it:
+
+```tsx
+<Resource name="posts" create={PostCreate} />
+```
+
+## Seeding defaults
+
+Give an input a `defaultValue` to pre-fill it, or seed the whole record with the
+`record` prop — handy for pre-populating a create form from a query string or a
+parent record:
+
+```tsx
+<Create record={{ author_id: 1, published: false }}>
+  <TextInput source="title" />
+  <SaveButton />
+</Create>
+```
+
+## Validation from the schema
+
+`<Create>` validates against the resource's Zod schema on submit, exactly as
+`<Edit>` does. In the preview above, submitting with an empty **Title** surfaces
+the schema's required-field message — no per-input `validate` props needed.
+
+## Props
+
+<PropsTable name="Create" />
+
+## Tips
+
+- `<Create>` has no record id — it starts empty (or from the `record` seed) and
+  calls the data provider's `create` on save, then redirects.
+- Use a bare `<SaveButton>` on create (there is nothing to delete yet); the full
+  `<Toolbar>` is for `<Edit>`.

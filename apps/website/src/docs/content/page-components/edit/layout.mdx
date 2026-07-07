@@ -1,0 +1,81 @@
+---
+title: "Edit Layout"
+description: "Arrange the form body, group inputs, and place the toolbar."
+---
+
+`<Edit>` renders a **title**, a header **actions** slot, and its **children** —
+the form. Because inputs compose directly as children, the layout is plain JSX:
+wrap inputs in your own containers, split them into columns, or group them into
+tabs and steps.
+
+## The form body
+
+The simplest form is a stack of inputs followed by a toolbar:
+
+```tsx
+<Edit>
+  <TextInput source="title" />
+  <TextInput source="body" multiline />
+  <Toolbar />
+</Edit>
+```
+
+Wrap inputs in ordinary layout elements to shape the form — Chelone imposes no
+form container:
+
+```tsx
+<Edit>
+  <div className="grid grid-cols-2 gap-4">
+    <TextInput source="title" />
+    <NumberInput source="views" />
+  </div>
+  <TextInput source="body" multiline />
+  <Toolbar />
+</Edit>
+```
+
+## Tabs and steps
+
+For long forms, `<TabbedForm>` splits inputs across tabs and `<WizardForm>`
+across sequential steps. Both compose as `<Edit>` children in place of a plain
+stack:
+
+```tsx
+import { Edit, TabbedForm, TextInput } from "@chelone/react";
+
+<Edit>
+  <TabbedForm>
+    <TabbedForm.Tab name="summary" label="Summary">
+      <TextInput source="title" />
+    </TabbedForm.Tab>
+    <TabbedForm.Tab name="body" label="Body">
+      <TextInput source="body" multiline />
+    </TabbedForm.Tab>
+  </TabbedForm>
+</Edit>;
+```
+
+## The toolbar
+
+`<Toolbar>` renders the form's action row — Save, and (on Edit) Delete. Place it
+as the last child, or drop in a bare `<SaveButton>` if you want just the save
+action:
+
+```tsx
+import { SaveButton } from "@chelone/react";
+
+<Edit>
+  <TextInput source="title" />
+  <SaveButton />
+</Edit>;
+```
+
+## Props
+
+<PropsTable name="Edit" />
+
+## Tips
+
+- The `component` prop swaps the element wrapping the children (default a
+  `div`) — pass a `Card` to frame the form.
+- `title={false}` drops the heading; `actions={false}` drops the header slot.

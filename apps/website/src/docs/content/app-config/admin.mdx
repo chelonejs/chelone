@@ -1,0 +1,110 @@
+---
+title: "Admin"
+description: "The root provider that wires the data, query, i18n, store, and router stack."
+registry: "admin"
+---
+
+`<Admin>` is the root of a Chelone app. It layers the whole provider stack — the
+**data provider**, the **query client**, optional **i18n**, **notifications**,
+**store**, **auth**, and the **resource registry** — then renders the resources
+and routes you declare as children. Wrap it in a router and you have an admin.
+
+## The minimal admin
+
+```tsx title="src/App.tsx"
+import { fakeDataProvider } from "@chelone/core";
+import { Admin, Layout, Resource } from "@chelone/react";
+import { QueryClient } from "@tanstack/react-query";
+import { BrowserRouter } from "react-router";
+import { PostList } from "./posts";
+
+const queryClient = new QueryClient();
+const dataProvider = fakeDataProvider({ posts: [] });
+
+export function App() {
+  return (
+    <BrowserRouter>
+      <Admin dataProvider={dataProvider} queryClient={queryClient}>
+        <Admin.Layout>
+          <Layout />
+        </Admin.Layout>
+        <Resource name="posts" list={PostList} />
+      </Admin>
+    </BrowserRouter>
+  );
+}
+```
+
+`dataProvider` and `queryClient` are the only required props. The rest are opt-in
+services you add as the app grows.
+
+## The full stack
+
+A production admin configures the optional services too — the i18n catalog, the
+notification store the toaster reads, and the KV store for list scroll and
+preferences:
+
+```tsx
+import {
+  createNotificationStore,
+  createStore,
+  fakeDataProvider,
+} from "@chelone/core";
+import { Admin, Layout, Resource } from "@chelone/react";
+import { QueryClient } from "@tanstack/react-query";
+import { BrowserRouter } from "react-router";
+import { makeI18n } from "./i18n";
+import { resources } from "./resources";
+
+const queryClient = new QueryClient();
+const dataProvider = fakeDataProvider(seed);
+const i18n = makeI18n();
+const notifications = createNotificationStore();
+const store = createStore();
+
+<BrowserRouter>
+  <Admin
+    dataProvider={dataProvider}
+    queryClient={queryClient}
+    i18n={i18n}
+    notifications={notifications}
+    store={store}
+    resources={resources}
+  >
+    <Admin.Layout>
+      <Layout />
+    </Admin.Layout>
+    <Resource name="posts" list={PostList} edit={PostEdit} />
+  </Admin>
+</BrowserRouter>;
+```
+
+## The `resources` prop and schema validation
+
+Pass a resource registry built with `defineResources({ posts: { schema } })` as
+`resources` to enable **automatic form validation** — the form controllers read
+each resource's Zod schema and validate against it on submit. See
+[Resource](/docs/app-config/resource) for the registry.
+
+## The layout slot
+
+`<Admin.Layout>` is the opt-in shell — sidebar, app bar, toaster. Omit it for a
+headless admin, or pass your own layout element. Other slots (`<Admin.Dashboard>`,
+`<Admin.LoginPage>`, and the auth/error pages) follow the same pattern.
+
+## Swapping the router
+
+`<Admin>` defaults to the react-router adapter. Pass `router={tanstackRouterAdapter}`
+(or a custom adapter) to run under TanStack Router instead — the components speak
+the adapter's navigation contract, not a specific router.
+
+## Props
+
+<PropsTable name="Admin" />
+
+## Tips
+
+- `<Admin>` must render inside a router (`<BrowserRouter>`, or your framework's
+  router) — it joins the host router rather than creating its own.
+- Create the `QueryClient` and the data provider at module scope (stable across
+  renders), not inside the component body.

@@ -1,0 +1,84 @@
+---
+title: "Security"
+description: "Authentication and access control via an auth provider."
+---
+
+Chelone gates an admin with an **auth provider** — an object of async methods,
+paralleling the data provider. Pass it to `<Admin authProvider={…}>` and set
+`requireAuth` to block the shell until the user is authenticated.
+
+## The auth provider contract
+
+```ts
+interface AuthProvider {
+  login(params): Promise<void | { redirectTo?: string }>;
+  logout(params?): Promise<void | string>;
+  checkAuth(params?): Promise<void>;   // reject → redirect to login
+  checkError(error): Promise<void>;    // reject → logout (e.g. on 401)
+  getIdentity?(): Promise<UserIdentity>;
+  canAccess?(params): Promise<boolean>; // per-resource/action authorization
+  handleCallback?(): Promise<void | { redirectTo?: string }>; // OAuth return
+  refreshAuth?(): Promise<void>;
+}
+```
+
+`login` / `logout` / `checkAuth` / `checkError` are the required four; the rest
+are opt-in (identity for the user menu, `canAccess` for authorization,
+`handleCallback` for OAuth).
+
+## Wiring it up
+
+```tsx title="src/App.tsx"
+import { Admin, Resource } from "@chelone/react";
+import { authProvider } from "./authProvider";
+
+<Admin
+  dataProvider={dataProvider}
+  queryClient={queryClient}
+  authProvider={authProvider}
+  requireAuth
+>
+  <Resource name="posts" list={PostList} />
+</Admin>;
+```
+
+With `requireAuth`, the shell renders nothing until `checkAuth` resolves — the
+no-flash gate. Chelone ships the login UI (`<LoginPage>`, `<LoginForm>`), the
+logout action (`<Logout>`), the OAuth return (`<AuthCallback>`), and the
+standalone `<AuthLayout>` for login-adjacent pages.
+
+## The auth hooks
+
+Components call auth through hooks rather than the provider directly. `useLogin`
+and `useLogout` are TanStack **mutations** (call `.mutate`); `useAuthState` and
+`useGetIdentity` are **queries** (read `.data`):
+
+```tsx
+import { useLogin, useLogout, useAuthState, useGetIdentity } from "@chelone/react";
+
+const login = useLogin();          // login.mutate({ username, password })
+const logout = useLogout();        // logout.mutate()
+const { data: authState } = useAuthState();  // authState?.authenticated
+const { data: identity } = useGetIdentity(); // identity?.fullName
+```
+
+## Access control
+
+When the provider implements `canAccess`, `useCanAccess` checks whether the
+current user may perform an action on a resource — the menu and action buttons
+use it to hide affordances the user can't reach. It's a query whose `data` is a
+boolean:
+
+```tsx
+import { useCanAccess } from "@chelone/react";
+
+const { data: canDelete } = useCanAccess({ resource: "posts", action: "delete" });
+```
+
+## Tips
+
+- `checkError` rejecting on a 401/403 triggers a logout — wire your provider's
+  error handling here so expired sessions bounce to login.
+- `requireAuth` gates the whole shell; for a public page inside an
+  otherwise-gated app, use [custom routes](/docs/app-config/custom-routes) with
+  `noLayout`.

@@ -1,0 +1,93 @@
+---
+title: "Translation"
+description: "Localize the admin with createI18n and message catalogs."
+---
+
+Chelone localizes through a small i18n instance you build with `createI18n` and
+hand to `<Admin i18n={…}>`. A catalog is a flat map of keys to strings; the
+components translate `ra.*` keys (page titles, pagination, bulk-action labels,
+booleans, auth) and the core controllers emit `chelone.*` keys (save
+notifications, validation).
+
+## Building the i18n instance
+
+```tsx title="src/i18n.ts"
+import { createI18n, defaultMessages, defineMessages } from "@chelone/core";
+
+const en = defineMessages({
+  ...defaultMessages, // the chelone.* core keys
+  "ra.action.save": "Save",
+  "ra.action.create": "Create",
+  "ra.page.list": "{name}",
+  "ra.boolean.true": "Yes",
+  "ra.boolean.false": "No",
+});
+
+export function makeI18n() {
+  return createI18n({
+    locale: "en",
+    messages: { en },
+    fallbackLocale: "en",
+  });
+}
+```
+
+`defaultMessages` supplies the `chelone.*` keys the controllers need; spread it
+first, then override or add the `ra.*` labels the components read.
+`defineMessages` is an identity helper that gives you key/value type-checking.
+
+## Interpolation and plurals
+
+Chelone uses **single-brace** interpolation — `{name}` — **not** react-admin's
+`%{name}`:
+
+```ts
+"ra.page.create": "Create {name}",
+"ra.navigation.page_range_info": "{offsetBegin}-{offsetEnd} of {total}",
+```
+
+Plurals are an object keyed by `Intl.PluralRules` categories (not react-admin's
+`a |||| b`):
+
+```ts
+"ra.action.bulk_actions": {
+  one: "1 item selected",
+  other: "{count} items selected",
+},
+```
+
+## Missing keys never throw
+
+If a key isn't in the catalog, `translate` returns the key itself (or a `_`
+string fallback) — it never throws. So a partial catalog "works" but shows raw
+`ra.page.list`-style keys; supplying the full English catalog makes every label
+read as English.
+
+## Multiple locales
+
+Register more catalogs under `messages` and switch at runtime:
+
+```tsx
+createI18n({
+  locale: "en",
+  messages: { en, fr },
+  fallbackLocale: "en",
+});
+```
+
+Read and change the active locale from your components:
+
+```tsx
+import { useTranslate, useLocale, useSetLocale } from "@chelone/react";
+
+const translate = useTranslate();   // translate("ra.action.save")
+const locale = useLocale();         // "en"
+const setLocale = useSetLocale();   // setLocale("fr")
+```
+
+## Tips
+
+- `setLocale` throws on an **unregistered** locale — register every locale in
+  `messages` before switching to it.
+- Keep the interpolation single-brace (`{name}`) — porting react-admin catalogs
+  means rewriting `%{name}` → `{name}` and `a |||| b` → `{ one, other }`.

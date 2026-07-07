@@ -1,0 +1,73 @@
+---
+title: "Advanced List"
+description: "Drop to the controller, build custom layouts, and handle selection yourself."
+---
+
+`<List>` is a thin wrapper over the **list controller**. When the default
+DataTable layout isn't enough, reach for the controller directly — everything
+`<List>` renders is built on the same context you can read.
+
+## Read the controller
+
+`useListContext` returns the full list state: the fetched `data`, the `total`,
+the `isPending` flag, the current `sort`, the `filterValues`, the selection, and
+the actions that mutate them. Build any layout on top of it:
+
+```tsx
+import { List, useListContext } from "@chelone/react";
+
+function PostGallery() {
+  const { data, total, isPending } = useListContext();
+  if (isPending) return <p>Loading…</p>;
+  return (
+    <>
+      <p>{total} posts</p>
+      <ul className="grid grid-cols-2 gap-3">
+        {data?.map((post) => (
+          <li key={post.id} className="rounded border p-3">
+            {post.title}
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+<List>
+  <PostGallery />
+</List>;
+```
+
+## Selection
+
+The list context tracks selected row ids and the actions to change them —
+`selectedIds`, `toggleItem`, `unselectAll`. A `<DataTable>` wires its checkboxes
+to these automatically; in a custom layout you drive them yourself and render a
+bulk toolbar (e.g. `<BulkDeleteButton>` / `<BulkExportButton>`) when the
+selection is non-empty.
+
+## A list without a Resource
+
+You don't need a full `<Resource>` to show a list. `useList` builds the same
+list context over an **in-memory** array — no data provider, no fetch — for
+embedded records, choice arrays, or any data you already hold:
+
+```tsx
+import { ListContextProvider, useList } from "@chelone/react";
+
+function EmbeddedList({ rows }: { rows: MyRow[] }) {
+  const listContext = useList({ data: rows });
+  return (
+    <ListContextProvider value={listContext}>
+      {/* any list-context consumer renders here */}
+    </ListContextProvider>
+  );
+}
+```
+
+## Tips
+
+- Prefer composing over the default `<DataTable>` first; drop to the controller
+  only when you need a fundamentally different layout.
+- `useList` and `useListController` return the **same** shape, so a component
+  written against `useListContext` works under either.

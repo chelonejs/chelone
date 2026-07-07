@@ -1,0 +1,80 @@
+---
+title: "List"
+description: "The page that fetches and displays a page of records for a resource."
+---
+
+The `<List>` view is where users browse a resource. It runs the list controller
+for the ambient `<Resource>`, fetches the current page of records, and publishes
+them through a **list context** that every descendant reads — the `<DataTable>`,
+the pagination, the filter bar. You compose what to show; `<List>` owns the
+fetch, the URL-synced query state (page, sort, filters), and the loading/empty
+handling.
+
+## A live list
+
+Here is the `posts` list, running against the in-memory provider — a real
+`<DataTable>` over seeded records:
+
+<ComponentPreview name="page-components/list/basic" />
+
+```tsx title="src/posts.tsx"
+import {
+  BooleanField,
+  DataTable,
+  EditButton,
+  List,
+  ReferenceField,
+  TextField,
+} from "@chelone/react";
+
+export function PostList() {
+  return (
+    <List>
+      <DataTable>
+        <DataTable.Col source="title" />
+        <DataTable.Col label="Author">
+          <ReferenceField source="author_id" reference="authors">
+            <TextField source="name" />
+          </ReferenceField>
+        </DataTable.Col>
+        <DataTable.NumberCol source="views" />
+        <DataTable.Col source="published">
+          <BooleanField source="published" />
+        </DataTable.Col>
+        <DataTable.Col>
+          <EditButton />
+        </DataTable.Col>
+      </DataTable>
+    </List>
+  );
+}
+```
+
+Wire it onto the resource so `/posts` renders it:
+
+```tsx
+<Resource name="posts" list={PostList} />
+```
+
+## How it works
+
+`<List>` reads the resource from the surrounding `<Resource>` context (or from a
+`resource` prop) and calls the list controller. The controller keeps the query —
+current page, `perPage`, sort field and order, and the active filters — in sync
+with the URL, so a shared link reproduces the exact view. The fetched records,
+the loading flag, and the selection are handed to the descendants through the
+list context; the `<DataTable>` renders the rows, and its column headers drive
+sorting.
+
+## Props
+
+<PropsTable name="List" />
+
+## Tips
+
+- A `<List>` **must** be inside a `<ResourceContextProvider>` (a `<Resource>`
+  supplies one) or be given an explicit `resource` prop, or it throws.
+- The children are usually a single `<DataTable>`, but any component that reads
+  the list context works — build your own layout on top of `useListContext`.
+- `perPage` sets the page size for the fetch; the pagination control lets the
+  user change it at runtime.
