@@ -29,6 +29,7 @@ import {
   resolveSpecifier,
   rewriteEngineImports,
 } from "./engine-seam.mjs";
+import { fileToItemRef, resolveImport } from "./granularize-block.mjs";
 
 const cwd = process.cwd();
 const registryPath = path.resolve(cwd, "registry.json");
@@ -220,6 +221,81 @@ const validateNoEngineEscapes = async () => {
   }
 };
 
+// CONTENT-AWARE ALIAS-RESOLUTION VALIDATOR (the @/ monolith gap).
+//
+// validateNoEngineEscapes guards ENGINE relatives → @chelone/react. It does NOT
+// guard `@/`-alias imports that resolve to ANOTHER emitted registry item (the
+// primitive layer): the `admin` monolith shipped 132 files importing 26+
+// `@/components/ui/*` primitives while declaring registryDependencies:undefined
+// — every one dangled (TS2307) on install. This validator asserts, for EVERY
+// item, that every `@/components|lib|hooks/*` alias import in its shipped
+// content resolves to EITHER (a) a file bundled in the SAME item, OR (b) a
+// declared `@chelone/<basename>` registryDependency that IS an emitted item.
+// Bare stock-shadcn refs (e.g. `use-mobile`) are covered by a plain-name
+// registryDependency. ENGINE relatives are ignored here (validateNoEngineEscapes
+// owns them). Fails loud on any alias import with no covering bundle-or-dep, so
+// no future regen can reintroduce a dangling alias.
+const validateNoAliasEscapes = async (registry) => {
+  const emitted = new Set(registry.items.map((i) => i.name));
+  const entries = await readdir(outputDir);
+  const violations = [];
+
+  for (const entry of entries) {
+    if (!entry.endsWith(".json") || entry === "registry.json") continue;
+    const item = JSON.parse(
+      await readFile(path.join(outputDir, entry), "utf8"),
+    );
+    if (!item.files?.length) continue;
+
+    const bundled = new Set(
+      item.files.map((f) => path.resolve(cwd, f.path)),
+    );
+    // Declared @chelone/<name> deps this item covers with, by bare item name.
+    const declaredCheloneDeps = new Set(
+      (item.registryDependencies ?? [])
+        .filter((d) => d.startsWith("@chelone/"))
+        .map((d) => d.slice("@chelone/".length)),
+    );
+
+    for (const file of item.files) {
+      if (typeof file.content !== "string") continue;
+      const sourceAbs = path.resolve(cwd, file.path);
+      for (const m of file.content.matchAll(IMPORT_SPEC_RE)) {
+        const spec = m[1];
+        if (!spec.startsWith("@/")) continue; // only alias imports here
+        // ENGINE `@/` imports are validateNoEngineEscapes's domain; skip.
+        if (isEngineRelative(spec, sourceAbs, cwd)) continue;
+
+        const resolved = resolveImport(spec, sourceAbs, cwd);
+        if (!resolved) continue; // unresolvable @/ path — not one of our tracked items
+        if (bundled.has(path.resolve(resolved))) continue; // (a) bundled in same item
+
+        const ref = fileToItemRef(resolved, cwd);
+        if (!ref || ref.kind !== "ours") continue; // stock-shadcn/untracked — not our item
+        if (declaredCheloneDeps.has(ref.name)) continue; // (b) covered by a declared dep
+        if (!emitted.has(ref.name)) {
+          // Resolves to an OUR item that was never emitted — deeper bug.
+          violations.push(
+            `${item.name} (${file.path}) imports "${spec}" → @chelone/${ref.name}, which is NOT an emitted registry item`,
+          );
+          continue;
+        }
+        violations.push(
+          `${item.name} (${file.path}) imports "${spec}" → @chelone/${ref.name}, but that is NOT bundled here NOR a declared registryDependency (would dangle TS2307 on install)`,
+        );
+      }
+    }
+  }
+
+  if (violations.length > 0) {
+    throw new Error(
+      `Registry alias-resolution validator failed: ${violations.length} shipped ` +
+        `file(s) import an @/ alias that resolves to an OUR registry item with no ` +
+        `covering bundle-or-registryDependency (dangles TS2307 on install):\n  ${violations.join("\n  ")}`,
+    );
+  }
+};
+
 const run = async () => {
   const rawRegistry = await readFile(registryPath, "utf8");
   const registry = JSON.parse(rawRegistry);
@@ -295,6 +371,9 @@ const run = async () => {
   await verifyOutput(registry);
   // Content-aware gate: no shipped file may still import an engine relative.
   await validateNoEngineEscapes();
+  // Content-aware gate: every @/ alias import resolving to an OUR item must be
+  // bundled here or declared as a @chelone/<name> registryDependency.
+  await validateNoAliasEscapes(registry);
 
   console.log(
     `Built ${registry.items.length} items into ${path.relative(cwd, outputDir)} (+ registry.json). Gate passed.`,

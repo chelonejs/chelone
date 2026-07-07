@@ -34,8 +34,11 @@ Then add the full admin surface in one shot:
 npx shadcn@latest add @chelone/admin
 ```
 
-This writes the admin components into `components/admin`, the shadcn primitives
-into `components/ui`, and the supporting helpers into `lib/` and `hooks/`.
+This writes the admin components into `components/admin` and the supporting
+helpers into `lib/`. The admin block declares the shadcn primitives it composes
+(`button`, `card`, `field`, `sidebar`, `table`, and the rest) as registry
+dependencies, so the CLI resolves and writes those into `components/ui` and adds
+the `use-mobile` hook to `hooks/` automatically — nothing dangles.
 
 :::note
 The `shadcn` CLI has [known issues](https://github.com/shadcn-ui/ui/issues/8778)

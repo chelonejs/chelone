@@ -15,7 +15,10 @@ import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { granularizeBlock } from "./granularize-block.mjs";
+import {
+  computeItemRegistryDeps,
+  granularizeBlock,
+} from "./granularize-block.mjs";
 import { parseCssVars } from "./parse-css-vars.mjs";
 import {
   AUTHOR,
@@ -122,8 +125,26 @@ const buildBlock = (block) => {
   if (block.description !== undefined) {
     item.description = block.description;
   }
-  if (block.registryDependencies !== undefined) {
-    item.registryDependencies = [...block.registryDependencies];
+
+  // Compute registryDependencies from the alias/relative imports across ALL the
+  // block's bundled files (the monolith path). Every `@/components/*`,
+  // `@/components/ui/*`, `@/lib/*`, `@/hooks/*` import that maps to an OUR
+  // emitted item — and is NOT itself one of the block's bundled files — becomes
+  // a `@chelone/<basename>` dep (bare stock-shadcn refs stay bare). Without this
+  // the monolith `admin` block shipped 132 files importing 26 `@/components/ui/*`
+  // primitives with registryDependencies:undefined, so every ui import dangled
+  // (TS2307) on install. Merge any explicit config deps on top.
+  const computedDeps = computeItemRegistryDeps({
+    files: files.map((f) => f.path),
+    repoRoot,
+    blockName: block.name,
+  });
+  const mergedDeps = new Set([
+    ...(block.registryDependencies ?? []),
+    ...computedDeps,
+  ]);
+  if (mergedDeps.size > 0) {
+    item.registryDependencies = [...mergedDeps].sort();
   }
   if (block.dependencies !== undefined) {
     item.dependencies = [...block.dependencies];

@@ -140,7 +140,7 @@ const tryResolveFile = (basePath) => {
   return null;
 };
 
-const resolveImport = (importPath, sourceFile, repoRoot) => {
+export const resolveImport = (importPath, sourceFile, repoRoot) => {
   if (importPath.startsWith(".")) {
     return tryResolveFile(resolve(dirname(sourceFile), importPath));
   }
@@ -163,7 +163,7 @@ const applyUiOverride = (name) => UI_NAME_OVERRIDES.get(name) ?? name;
 // Returns null when the file shouldn't be tracked (index barrels, type modules,
 // unknown locations). `kind` tells callers whether it's an OUR item
 // (`@chelone/<name>`) or a shadcn-upstream item referenced by bare name.
-const fileToItemRef = (absFile, repoRoot) => {
+export const fileToItemRef = (absFile, repoRoot) => {
   const rel = relative(join(repoRoot, "src"), absFile);
   if (rel.startsWith("..")) return null;
 
@@ -396,4 +396,47 @@ export const granularizeBlock = ({
   }
 
   return items;
+};
+
+// Compute the registryDependencies for a BUNDLED/BLOCK item (e.g. the `admin`
+// monolith) from the alias/relative imports across ALL its bundled files. Each
+// `@/components/*`, `@/components/ui/*`, `@/lib/*`, `@/hooks/*` (or sibling
+// relative) import that resolves to an OUR emitted item becomes a
+// `@chelone/<basename>` dep — UNLESS that exact file is already bundled inside
+// this SAME item (then it resolves internally, no dep needed). Shadcn-upstream
+// refs (bare stock hooks) are returned as bare names. ENGINE relatives (class A)
+// are ignored here — they collapse onto the `@chelone/react` npm dep, handled by
+// the emit-time rewrite in build-registry.mjs, NOT a registryDependency.
+//
+// This is the SAME import-graph resolution the granular items use, applied
+// across a multi-file item with its own files subtracted. `blockName` lets the
+// item skip a self-referential dep (an import onto a file that granularizes to
+// this block's own name).
+export const computeItemRegistryDeps = ({ files, repoRoot, blockName }) => {
+  const registryDeps = new Set();
+  const bundledAbs = new Set(files.map((f) => resolve(repoRoot, f)));
+
+  for (const file of files) {
+    const absFile = resolve(repoRoot, file);
+    const src = readFileSync(absFile, "utf8");
+    for (const imp of parseImports(src)) {
+      // Class A engine relatives → @chelone/react npm dep (emit-time rewrite),
+      // never a registryDependency. Skip.
+      if (isEngineRelative(imp, absFile, repoRoot)) continue;
+
+      const resolved = resolveImport(imp, absFile, repoRoot);
+      if (!resolved) continue; // bare npm import — handled as a dependency elsewhere
+      if (bundledAbs.has(resolve(resolved))) continue; // intra-item file, resolves internally
+
+      const depRef = fileToItemRef(resolved, repoRoot);
+      if (!depRef) continue; // untracked (index barrel, engine file already excluded)
+      if (depRef.kind === "shadcn") {
+        registryDeps.add(depRef.name);
+      } else if (depRef.name !== blockName) {
+        registryDeps.add(`@chelone/${depRef.name}`);
+      }
+    }
+  }
+
+  return [...registryDeps].sort();
 };

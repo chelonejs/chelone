@@ -36,17 +36,19 @@ const distDir = join(pkgRoot, "dist", "r");
 const scratchDir = join(pkgRoot, "temp-local-e2e");
 
 // One representative per surface (per the wave spec): an input, a field, the
-// data-table, a view, and a layout piece. Each GRANULAR item carries a complete
-// registryDependency graph (granularizeBlock), so its transitive close copies
-// every sibling admin/ui/lib file it needs — the seam proof needs that closure.
+// data-table, a view, and a layout piece — PLUS the `admin` MONOLITH itself.
+// Each GRANULAR item carries a complete registryDependency graph
+// (granularizeBlock), so its transitive close copies every sibling admin/ui/lib
+// file it needs — the seam proof needs that closure.
 //
-// The `admin` MONOLITH is intentionally NOT in this set: it declares ZERO
-// registryDependencies (it under-declares the stock ui primitives its files
-// import — a SEPARATE completeness concern, tracked out-of-band), so its
-// transitive close wouldn't copy those ui files and the test would fail on that
-// unrelated gap rather than the engine seam. The monolith's engine-seam fix is
-// still proven by validateNoEngineEscapes (build gate) + its @chelone/react dep.
+// The `admin` MONOLITH is now included: after the alias-dep fix it declares the
+// ~28 `@chelone/<ui>` registryDependencies its 132 files import, so its
+// transitive close copies every ui primitive file. This is the exact
+// `npx shadcn add @chelone/admin` install path — the P7-final blocker. Its
+// close must resolve every `@/components/ui/*` alias to a COPIED file (no ui
+// stub), proving the monolith no longer dangles 26 primitives (TS2307).
 const REPRESENTATIVE_ITEMS = [
+  "admin",
   "text-input",
   "text-field",
   "data-table",
@@ -119,8 +121,18 @@ const main = () => {
   //     engine types imported for USE surface as TS2709, which the result filter
   //     below deliberately ignores (only TS2307/TS2305 module-resolution errors
   //     on COPIED files are treated as the install defect).
-  //   * @/components/ui/* + @/hooks/* — stock shadcn primitives (ui dep-graph
-  //     completeness is a SEPARATE concern from the engine seam).
+  //   * @/hooks/use-mobile — the ONE bare stock-shadcn hook the admin surface
+  //     imports (a consumer runs `shadcn add use-mobile`); it is intentionally
+  //     NOT an emitted registry item (OUR_HOOK_ITEMS is empty), so nothing copies
+  //     it — stub it as consumer-provided.
+  //
+  // CRUCIALLY, there is NO blanket `@/components/ui/*` stub anymore: the OUR ui
+  // primitives are emitted registry items and MUST arrive as COPIED files via
+  // each root's registryDependency closure. A stub would mask the exact P7-final
+  // bug (the `admin` monolith dangling 26 `@/components/ui/*` imports). If the
+  // dep graph is incomplete, the ui import resolves to nothing → TS2307 → FAIL,
+  // which is the whole point of adding the monolith root.
+  //
   // Everything else (react, lucide, cva, clsx, radix, …) resolves upward to real
   // node_modules with real types.
   writeFileSync(
@@ -130,8 +142,7 @@ const main = () => {
       'declare module "@chelone/react";',
       'declare module "@chelone/core";',
       'declare module "@chelone/core/*";',
-      'declare module "@/components/ui/*";',
-      'declare module "@/hooks/*";',
+      'declare module "@/hooks/use-mobile";',
       "",
     ].join("\n"),
   );
@@ -165,8 +176,16 @@ const main = () => {
           baseUrl: ".",
           paths: { "@/*": ["./src/*"] },
           types: [],
+          // Harness hardening: pin the program root to src/ so every copied-file
+          // diagnostic is reported with a `src/…` prefix (never a `../…` one). A
+          // copied file whose error tsc chose to report relative to some other
+          // rootDir with a `../` prefix would slip past the `^src/` success
+          // filter below and silently pass the gate — rootDir + exclude ../**
+          // shut that bypass.
+          rootDir: "src",
         },
         include: ["src"],
+        exclude: ["../**"],
       },
       null,
       2,
