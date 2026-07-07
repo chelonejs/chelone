@@ -1,0 +1,75 @@
+---
+title: "Installation"
+description: "Add Chelone to any React app — Vite, React Router, Next.js, or TanStack Start."
+---
+
+Chelone is a framework-agnostic admin engine for React. The headless logic ships
+as an npm package (`@chelone/react`), and the shadcn-native UI components install
+through the shadcn CLI from the Chelone registry — so you own the component code.
+
+## Install the engine
+
+Add the React adapter (it pulls in `@chelone/core` and its TanStack peers):
+
+```bash
+npm install @chelone/react @chelone/core
+```
+
+`@chelone/react` expects `react`, `react-dom`, `react-router`, `@tanstack/react-query`,
+and `@tanstack/react-store` as peers — most React apps already have the first three.
+
+## Add the UI components
+
+Chelone's admin components (List, DataTable, the fields and inputs, the layout
+shell) are distributed as a shadcn registry, so you pull the source into your own
+project and can edit it freely. Initialise shadcn if you haven't:
+
+```bash
+npx shadcn@latest init
+```
+
+Then add the full admin surface in one shot:
+
+```bash
+npx shadcn@latest add @chelone/admin
+```
+
+This writes the admin components into `components/admin`, the shadcn primitives
+into `components/ui`, and the supporting helpers into `lib/` and `hooks/`.
+
+:::note
+The `shadcn` CLI has [known issues](https://github.com/shadcn-ui/ui/issues/8778)
+on Windows. If you hit problems, use a WSL terminal.
+:::
+
+## Mount an admin
+
+Chelone runs as a client-side single-page app. Wrap your admin in a router and
+the `<Admin>` provider, then declare a `<Resource>` per entity:
+
+```tsx title="src/App.tsx"
+import { fakeDataProvider } from "@chelone/core";
+import { Admin, Layout, Resource } from "@chelone/react";
+import { QueryClient } from "@tanstack/react-query";
+import { BrowserRouter } from "react-router";
+import { PostList } from "./posts";
+
+const queryClient = new QueryClient();
+const dataProvider = fakeDataProvider({ posts: [] });
+
+export function App() {
+  return (
+    <BrowserRouter>
+      <Admin dataProvider={dataProvider} queryClient={queryClient}>
+        <Admin.Layout>
+          <Layout />
+        </Admin.Layout>
+        <Resource name="posts" list={PostList} />
+      </Admin>
+    </BrowserRouter>
+  );
+}
+```
+
+Next step: the [Quick Start Guide](/docs/getting-started/quick-start-guide/setup)
+builds a real CRUD admin from a Zod schema.

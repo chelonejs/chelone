@@ -7,7 +7,8 @@
     "dev": "react-router dev --port 5373",
     "build": "react-router build && node scripts/copy-spa-fallback.mjs",
     "preview": "vite preview --outDir build/client --port 4373",
-    "typecheck": "react-router typegen && tsc --noEmit -p tsconfig.app.json"
+    "typecheck": "react-router typegen && tsc --noEmit -p tsconfig.app.json",
+    "test": "vitest run"
   },
   "dependencies": {
     "@chelone/core": "workspace:*",
@@ -30,6 +31,9 @@
     "@mdx-js/react": "^3.1.1",
     "@mdx-js/rollup": "^3.1.1",
     "@react-router/dev": "^7.0.0",
+    "@testing-library/react": "^16.0.0",
+    "jsdom": "^26.0.0",
+    "vitest": "^3.0.0",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.1.0",
     "@types/mdx": "^2.0.14",

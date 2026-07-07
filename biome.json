@@ -31,6 +31,30 @@
       }
     },
     {
+      "includes": [
+        "apps/website/src/docs/**",
+        "apps/website/src/components/site-shell/**",
+        "apps/website/src/components/doc-search.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNonNullAssertion": "off",
+            "useTemplate": "off"
+          },
+          "suspicious": {
+            "noExplicitAny": "off",
+            "noDocumentCookie": "off",
+            "noShadowRestrictedNames": "off",
+            "useIterableCallbackReturn": "off"
+          },
+          "correctness": {
+            "useExhaustiveDependencies": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["packages/core/**"],
       "linter": {
         "rules": {

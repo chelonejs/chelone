@@ -1,0 +1,68 @@
+---
+title: "2. Building the List"
+description: "Render a DataTable of records with reference, number, and boolean fields."
+---
+
+The `list` view of a resource is where users browse records. Chelone's `<List>`
+fetches the current page and publishes it to a `<DataTable>`; each `<DataTable.Col>`
+picks a field to render.
+
+## A live list
+
+Here is the `posts` list, running against the in-memory provider — a real
+`<DataTable>` over seeded records:
+
+<ComponentPreview name="getting-started/quick-start-guide/post-list" />
+
+The code:
+
+```tsx title="src/posts.tsx"
+import {
+  BooleanField,
+  DataTable,
+  EditButton,
+  List,
+  ReferenceField,
+  TextField,
+} from "@chelone/react";
+
+export function PostList() {
+  return (
+    <List>
+      <DataTable>
+        <DataTable.Col source="title" />
+        <DataTable.Col label="Author">
+          <ReferenceField source="author_id" reference="authors">
+            <TextField source="name" />
+          </ReferenceField>
+        </DataTable.Col>
+        <DataTable.NumberCol source="views" />
+        <DataTable.Col source="published">
+          <BooleanField source="published" />
+        </DataTable.Col>
+        <DataTable.Col>
+          <EditButton />
+        </DataTable.Col>
+      </DataTable>
+    </List>
+  );
+}
+```
+
+## The fields, on their own
+
+Each field reads the current record from context. A `<TextField>` shows a string
+value:
+
+<ComponentPreview name="getting-started/quick-start-guide/text-field" />
+
+A `<ReferenceField>` follows a foreign key (`author_id`) to another resource and
+renders a field from the related record:
+
+<ComponentPreview name="getting-started/quick-start-guide/reference-field" />
+
+A `<BooleanField>` renders a boolean as a check or a cross:
+
+<ComponentPreview name="getting-started/quick-start-guide/boolean-field" />
+
+Next: [detail & editing](/docs/getting-started/quick-start-guide/detail-editing).

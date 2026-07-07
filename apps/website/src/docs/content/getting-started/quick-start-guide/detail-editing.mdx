@@ -1,0 +1,69 @@
+---
+title: "3. Detail & Editing"
+description: "Edit records with inputs that validate against the resource's Zod schema."
+---
+
+The `edit` view lets users update a record. Chelone's `<Edit>` fetches the record
+and publishes a form context; each input binds to a `source` and validates against
+the resource's Zod schema — no per-input `validate` props.
+
+## A single input
+
+An input renders a labelled control bound to one field:
+
+<ComponentPreview name="getting-started/quick-start-guide/text-input" />
+
+```tsx
+import { TextInput } from "@chelone/react";
+
+<TextInput source="title" />;
+```
+
+## The full edit form
+
+Compose inputs directly as `<Edit>` children — Chelone has no `<SimpleForm>`
+wrapper; the view IS the form:
+
+<ComponentPreview name="getting-started/quick-start-guide/post-edit" />
+
+```tsx title="src/posts.tsx"
+import {
+  BooleanInput,
+  Edit,
+  NumberInput,
+  ReferenceInput,
+  SelectInput,
+  TextInput,
+  Toolbar,
+} from "@chelone/react";
+
+export function PostEdit() {
+  return (
+    <Edit>
+      <TextInput source="title" />
+      <TextInput source="body" multiline />
+      <ReferenceInput source="author_id" reference="authors">
+        <SelectInput optionText="name" />
+      </ReferenceInput>
+      <NumberInput source="views" min={0} />
+      <BooleanInput source="published" />
+      <Toolbar />
+    </Edit>
+  );
+}
+```
+
+## Validation comes from the schema
+
+Because `posts` was registered with `postSchema`, the form validates against it on
+submit. Clear the **Title** in the preview above and save — the schema's
+`.min(1, "Title is required")` rule blocks the submit and surfaces the message.
+That is the "point at a Zod schema" payoff: typed records **and** zero-boilerplate
+validation, from one source of truth.
+
+You now have a working CRUD admin. Wire `<Edit>`, `<Create>`, and `<Show>` onto the
+`<Resource>` to complete it:
+
+```tsx
+<Resource name="posts" list={PostList} edit={PostEdit} create={PostCreate} show={PostShow} />
+```

@@ -1,0 +1,91 @@
+---
+title: "1. Setup"
+description: "Point Chelone at a Zod schema and mount an admin over an in-memory data provider."
+---
+
+Chelone turns a **Zod schema** into a typed, validated admin resource. You write
+the schema once; the Create and Edit forms validate against it automatically, and
+your records are typed end to end. This guide builds a small `posts` admin.
+
+## Point at a Zod schema
+
+Describe your record with Zod, then register it with `defineResources`:
+
+```tsx title="src/resources.ts"
+import { defineResources } from "@chelone/core";
+import { z } from "zod";
+
+export const postSchema = z.object({
+  id: z.number().optional(),
+  title: z.string().min(1, "Title is required").max(120),
+  body: z.string().min(1, "Body is required"),
+  author_id: z.number({ message: "Pick an author" }),
+  views: z.number().min(0).optional(),
+  published: z.boolean().optional(),
+});
+
+export const resources = defineResources({
+  posts: { schema: postSchema },
+});
+```
+
+Because `posts` carries a schema, its forms get **automatic validation** — no
+per-field `validate` props. Zod ≥ 3.24 implements Standard Schema, so it plugs
+straight into Chelone's form-core validation seam.
+
+:::tip
+`defineResources` preserves the `"posts"` key and the `typeof postSchema` literal,
+so every controller and hook infers the concrete record type from here.
+:::
+
+## A data source
+
+Chelone talks to your API through a **Data Provider** adapter. For this guide we
+use the in-memory `fakeDataProvider`, seeded with a few posts and authors — no
+server required:
+
+```tsx title="src/App.tsx"
+import { fakeDataProvider } from "@chelone/core";
+
+const dataProvider = fakeDataProvider({
+  posts: [
+    { id: 1, title: "On Computable Numbers", body: "…", author_id: 1, views: 120, published: true },
+  ],
+  authors: [{ id: 1, name: "Ada Lovelace" }],
+});
+```
+
+## Mount the admin
+
+Wrap everything in a router and `<Admin>`, pass the `resources` registry, and add
+the opt-in shadcn shell:
+
+```tsx title="src/App.tsx"
+import { fakeDataProvider } from "@chelone/core";
+import { Admin, Layout, Resource } from "@chelone/react";
+import { QueryClient } from "@tanstack/react-query";
+import { BrowserRouter } from "react-router";
+import { resources } from "./resources";
+import { PostList } from "./posts";
+
+const queryClient = new QueryClient();
+
+export function App() {
+  return (
+    <BrowserRouter>
+      <Admin
+        dataProvider={dataProvider}
+        queryClient={queryClient}
+        resources={resources}
+      >
+        <Admin.Layout>
+          <Layout />
+        </Admin.Layout>
+        <Resource name="posts" list={PostList} />
+      </Admin>
+    </BrowserRouter>
+  );
+}
+```
+
+Next: [build the list](/docs/getting-started/quick-start-guide/building-the-list).

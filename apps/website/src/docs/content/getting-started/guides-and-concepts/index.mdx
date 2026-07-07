@@ -1,0 +1,46 @@
+---
+title: "Guides and Concepts"
+description: "The mental model behind Chelone — the engine, the registry, and the composition."
+---
+
+Chelone splits cleanly into two halves, and understanding the split explains
+almost everything about how you use it.
+
+## The engine and the components
+
+- **`@chelone/core`** is the framework-agnostic, headless engine: the data
+  provider contract, the resource registry, the controllers (list / create /
+  edit / show), validation, i18n, and the store. It has no UI and no React
+  dependency in its core logic.
+- **`@chelone/react`** is the React adapter: the hooks (`useListController`,
+  `useInput`, `useRecordContext`, …) and the admin components (`<List>`,
+  `<DataTable>`, the fields and inputs, the layout shell).
+
+The components are distributed through a **shadcn registry**, so you pull their
+source into your project and own the code — restyle a field, swap a primitive,
+fork a view, all without ejecting.
+
+## Composition, not configuration
+
+A Chelone admin is plain React composition:
+
+- `<Admin>` layers the provider stack (data, query, i18n, notifications, store,
+  router, resource registry).
+- `<Resource>` declares an entity and its CRUD routes.
+- The views (`<List>`, `<Edit>`, `<Create>`, `<Show>`) are ordinary components
+  you compose from fields and inputs.
+
+There is no `<SimpleForm>` wrapper and no schema-to-view magic: you write the
+views explicitly (a dozen lines), and they are yours to shape.
+
+## What the schema buys you
+
+Registering a resource with a Zod schema (`defineResources({ posts: { schema }})`)
+gives you two things automatically:
+
+1. **Typed records** — every controller and field infers the record shape.
+2. **Zero-boilerplate validation** — the Create/Edit forms validate against the
+   schema on submit, with no per-input `validate` props.
+
+You still write the views. The schema is the single source of truth for *shape*
+and *validity*, not for layout.
