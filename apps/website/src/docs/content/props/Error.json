@@ -1,0 +1,29 @@
+{
+  "name": "Error",
+  "props": [
+    {
+      "name": "error",
+      "type": "Error",
+      "optional": false,
+      "comment": "The thrown error."
+    },
+    {
+      "name": "errorInfo",
+      "type": "ErrorInfo | null",
+      "optional": false,
+      "comment": "React's captured component stack (dev-facing), or null before capture."
+    },
+    {
+      "name": "resetErrorBoundary",
+      "type": "() => void",
+      "optional": false,
+      "comment": "Reset the boundary imperatively (in addition to the location auto-reset)."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "When provided, injects a `<Title>` portal to update the app-bar page title.\nPass `false` to explicitly suppress a title."
+    }
+  ]
+}

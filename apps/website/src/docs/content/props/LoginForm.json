@@ -1,0 +1,17 @@
+{
+  "name": "LoginForm",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra class names applied to the `<form>` element."
+    },
+    {
+      "name": "redirectTo",
+      "type": "string",
+      "optional": true,
+      "comment": "Path the user is redirected to after a successful sign in. Passed through\nto `authProvider.login({ ...values, redirectTo })`."
+    }
+  ]
+}

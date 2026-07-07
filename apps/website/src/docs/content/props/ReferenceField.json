@@ -1,0 +1,65 @@
+{
+  "name": "ReferenceField",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Child field(s) rendered against the referenced record."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name applied to the link wrapper."
+    },
+    {
+      "name": "empty",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered when the FK is null/undefined. A string is translated."
+    },
+    {
+      "name": "error",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered when the reference lookup errors."
+    },
+    {
+      "name": "link",
+      "type": "LinkToType",
+      "optional": true,
+      "comment": "A `CreatePathType` (`\"show\"`/`\"edit\"`/…) or `false` to disable linking."
+    },
+    {
+      "name": "loading",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered while the referenced record is loading."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record to read the FK off. Defaults to the ambient record."
+    },
+    {
+      "name": "reference",
+      "type": "string",
+      "optional": false,
+      "comment": "The referenced resource the FK points at (e.g. `\"authors\"`)."
+    },
+    {
+      "name": "render",
+      "type": "(referenceRecord: UnknownRecord | undefined) => ReactNode",
+      "optional": true,
+      "comment": "Render-prop alternative to `children`: receives the resolved referenced\nrecord (or `undefined` while loading / on error)."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "The FK field on the current record (e.g. `\"author_id\"`)."
+    }
+  ]
+}

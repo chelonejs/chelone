@@ -1,0 +1,11 @@
+{
+  "name": "ValidationError",
+  "props": [
+    {
+      "name": "error",
+      "type": "FieldError",
+      "optional": false,
+      "comment": "A displayable field error — a translation key string or `{ message, args }`."
+    }
+  ]
+}

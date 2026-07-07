@@ -1,0 +1,11 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["../../../packages/react/src/index.ts"],
+  "tsconfig": "../../../packages/react/tsconfig.json",
+  "json": "./public-api.typedoc.json",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "excludeExternals": true,
+  "skipErrorChecking": true,
+  "logLevel": "Error"
+}

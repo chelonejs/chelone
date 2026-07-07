@@ -1,0 +1,23 @@
+{
+  "name": "Toolbar",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Forward to the default `<DeleteButton>` when used outside a ResourceContext."
+    }
+  ]
+}

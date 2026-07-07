@@ -1,0 +1,17 @@
+{
+  "name": "BasenameProvider",
+  "props": [
+    {
+      "name": "basename",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}

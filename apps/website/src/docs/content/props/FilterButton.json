@@ -1,0 +1,41 @@
+{
+  "name": "FilterButton",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "disableSaveQuery",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Accepted for API parity; a no-op (chelone has no saved-queries stack yet)."
+    },
+    {
+      "name": "filters",
+      "type": "ReactNode[]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "size",
+      "type": "\"default\" | \"sm\" | \"lg\" | \"icon\"",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "variant",
+      "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\"",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

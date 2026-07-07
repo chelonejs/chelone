@@ -1,0 +1,17 @@
+{
+  "name": "CustomRoutes",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The `<Route>` elements (or a fragment of them)."
+    },
+    {
+      "name": "noLayout",
+      "type": "boolean",
+      "optional": true,
+      "comment": "When true these routes render STANDALONE (outside `<Layout>`, auth-agnostic\n— parity §0a-10): login-adjacent pages, public pages. When false/omitted\nthey render inside `<Layout>` (can override resource paths by order)."
+    }
+  ]
+}

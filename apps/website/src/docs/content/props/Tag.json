@@ -1,0 +1,17 @@
+{
+  "name": "Tag",
+  "props": [
+    {
+      "name": "key",
+      "type": "string | number",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "onDelete",
+      "type": "() => void",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}

@@ -10,7 +10,7 @@
     {
       "name": "website",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "website", "dev", "--port", "5373"],
+      "runtimeArgs": ["--dir", "apps/website", "dev", "--port", "5373"],
       "port": 5373
     }
   ]

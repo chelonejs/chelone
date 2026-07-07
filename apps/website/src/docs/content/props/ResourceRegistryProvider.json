@@ -1,0 +1,17 @@
+{
+  "name": "ResourceRegistryProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "registry",
+      "type": "ResourceRegistry",
+      "optional": true,
+      "comment": "An existing registry to use (e.g. one created by the shell). When omitted a\nfresh registry is created and owned by this provider — stable for the\nprovider's lifetime."
+    }
+  ]
+}

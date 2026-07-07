@@ -1,0 +1,47 @@
+{
+  "name": "Edit",
+  "props": [
+    {
+      "name": "actions",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Header actions (show/delete buttons); nothing by default."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "component",
+      "type": "ElementType<any, keyof IntrinsicElements>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "id",
+      "type": "Identifier",
+      "optional": true,
+      "comment": "Override the record id (defaults to the `:id` route param)."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient resource (defaults to the `<Resource>` context)."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Header title. A string/element renders as an `<h2>`; `false` omits it."
+    }
+  ]
+}

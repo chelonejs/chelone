@@ -1,0 +1,53 @@
+{
+  "name": "CheloneProvider",
+  "props": [
+    {
+      "name": "authProvider",
+      "type": "AuthProvider",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "dataProvider",
+      "type": "DataProvider<TResources>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "i18n",
+      "type": "AnyChelonI18n",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "notifications",
+      "type": "NotificationStore",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "queryClient",
+      "type": "QueryClient",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "resources",
+      "type": "TResources",
+      "optional": true,
+      "comment": "The resource registry — enables registry-schema form validation (D6)."
+    },
+    {
+      "name": "store",
+      "type": "ChelonStore",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

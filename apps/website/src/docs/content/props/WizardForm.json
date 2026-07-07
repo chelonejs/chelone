@@ -1,0 +1,65 @@
+{
+  "name": "WizardForm",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "`<WizardForm.Step>` elements (and any non-step chrome — toolbars, etc.)."
+    },
+    {
+      "name": "defaultValues",
+      "type": "TFormData",
+      "optional": true,
+      "comment": "Seed values. Note form-core's `reset(values)` rebaselines these — the\npost-save reconciliation primitive."
+    },
+    {
+      "name": "formOptions",
+      "type": "Omit<ChelonFormOptions<TFormData>, \"defaultValues\">",
+      "optional": true,
+      "comment": "Escape hatch to the underlying FormApi options (validators, listeners,\n…). `defaultValues` lives top-level on the controller options instead.\nThe controller OWNS submission: `onSubmit` is replaced by the save\npipeline (use `onSuccess`), `onSubmitInvalid` is chained after the\ndefault invalid-form notification, and `validators.onDynamic` is\ncomposed after `schema` + `validate` (first error wins per field)."
+    },
+    {
+      "name": "getRecord",
+      "type": "() => Partial<TFormData> | undefined",
+      "optional": true,
+      "comment": "The sanitize baseline (ra: \"the record\"): empty values whose key exists\non it become `null`, others are omitted. The composed controllers wire\nthis to the fetched record / the create seed; standalone forms default to\nno baseline (every empty key is omitted)."
+    },
+    {
+      "name": "onSuccess",
+      "type": "(data: TFormData) => void | Promise<void>",
+      "optional": true,
+      "comment": "Runs after a successful save, post-reset, with the saved (sanitized) data."
+    },
+    {
+      "name": "resetOnSuccess",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Rebaseline the form from the saved values on success (D5). The\nSTANDALONE controller only knows the submitted values — the composed\nedit/create controllers reconcile with the SERVER record instead.\nDefault true."
+    },
+    {
+      "name": "sanitizeEmptyValues",
+      "type": "boolean",
+      "optional": true,
+      "comment": "ra parity: nullify/strip empty TOP-LEVEL values before save. Default false."
+    },
+    {
+      "name": "save",
+      "type": "(data: TFormData) => Promise<FieldErrors | undefined>",
+      "optional": false,
+      "comment": "The P4 save contract: resolves with the server's `fieldErrors` on\n`ValidationError`, `undefined` otherwise — never rejects for provider\nerrors. Called by the submit pipeline."
+    },
+    {
+      "name": "schema",
+      "type": "StandardSchemaV1<TFormData, unknown>",
+      "optional": true,
+      "comment": "Resource schema (zod or any Standard Schema) — wired as the default form\nvalidator by the submit pipeline (T2)."
+    },
+    {
+      "name": "validate",
+      "type": "FormLevelValidate<TFormData>",
+      "optional": true,
+      "comment": "Form-level validate fn (ra contract) — consumed by the submit pipeline (T2)."
+    }
+  ]
+}

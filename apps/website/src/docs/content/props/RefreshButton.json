@@ -1,0 +1,29 @@
+{
+  "name": "RefreshButton",
+  "props": [
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "ref",
+      "type": "Ref<HTMLButtonElement>",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

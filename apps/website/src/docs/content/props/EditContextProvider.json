@@ -1,0 +1,17 @@
+{
+  "name": "EditContextProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "value",
+      "type": "EditContextValue<RecordType>",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}

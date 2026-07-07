@@ -1,0 +1,47 @@
+{
+  "name": "ReferenceArrayField",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The list-rendering children (a `SingleFieldList`, datagrid, etc.)."
+    },
+    {
+      "name": "filter",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": "Client-side filter for the resolved list."
+    },
+    {
+      "name": "perPage",
+      "type": "number",
+      "optional": true,
+      "comment": "Client-side page size for the resolved list."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record to read the FK array off. Defaults to the ambient record."
+    },
+    {
+      "name": "reference",
+      "type": "string",
+      "optional": false,
+      "comment": "The referenced resource the ids point at (e.g. `\"tags\"`)."
+    },
+    {
+      "name": "sort",
+      "type": "SortPayload",
+      "optional": true,
+      "comment": "Client-side sort for the resolved list."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "The FK-array field on the current record (e.g. `\"tag_ids\"`)."
+    }
+  ]
+}

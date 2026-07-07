@@ -1,0 +1,17 @@
+{
+  "name": "RecordContextProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "value",
+      "type": "RecordContextValue<RecordType>",
+      "optional": true,
+      "comment": "The record to publish. When absent the provider is a pass-through (does\nNOT push an empty context), so a nested `useRecordContext` still sees the\nclosest non-empty ancestor."
+    }
+  ]
+}

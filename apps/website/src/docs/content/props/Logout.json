@@ -1,0 +1,23 @@
+{
+  "name": "Logout",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Custom icon rendered alongside the logout label. Defaults to a power icon."
+    },
+    {
+      "name": "redirectTo",
+      "type": "string",
+      "optional": true,
+      "comment": "Path the user is redirected to after logout. Passed through to the\nauthProvider's `logout` params."
+    }
+  ]
+}

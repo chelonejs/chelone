@@ -1,0 +1,35 @@
+{
+  "name": "AuthLayout",
+  "props": [
+    {
+      "name": "aside",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Left-pane content (e.g. brand logo + testimonial). When omitted, the\nlayout renders the main pane full-width."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "Main-pane content — typically a login / signup / password-reset form."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "subtitle",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Subtitle shown below the heading."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Heading shown above the main-pane content."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "CreateContextProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "value",
+      "type": "CreateContextValue<RecordType>",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}

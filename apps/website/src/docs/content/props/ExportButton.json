@@ -1,0 +1,59 @@
+{
+  "name": "ExportButton",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "exporter",
+      "type": "Exporter",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "maxResults",
+      "type": "number",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "meta",
+      "type": "unknown",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "onClick",
+      "type": "(e: MouseEvent<HTMLButtonElement>) => void",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "ref",
+      "type": "Ref<HTMLButtonElement>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

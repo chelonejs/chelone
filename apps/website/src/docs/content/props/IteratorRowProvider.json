@@ -1,0 +1,17 @@
+{
+  "name": "IteratorRowProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "row",
+      "type": "ArrayRow",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}

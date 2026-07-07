@@ -1,0 +1,107 @@
+{
+  "name": "Confirm",
+  "props": [
+    {
+      "name": "cancel",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "CancelIcon",
+      "type": "ComponentType<{ className?: string }>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "confirm",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "confirmColor",
+      "type": "\"primary\" | \"warning\"",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "ConfirmIcon",
+      "type": "ComponentType<{ className?: string }>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "content",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "contentTranslateOptions",
+      "type": "object",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Forwarded to Radix `Dialog.Root` — uncontrolled initial open state."
+    },
+    {
+      "name": "isOpen",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "loading",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "modal",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Forwarded to Radix `Dialog.Root` — sets modality."
+    },
+    {
+      "name": "onClose",
+      "type": "(event: MouseEvent<Element, MouseEvent>) => void",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "onConfirm",
+      "type": "MouseEventHandler",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "titleTranslateOptions",
+      "type": "object",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "translateOptions",
+      "type": "object",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "WizardFormStep",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "optional": false,
+      "comment": "The step name — also its FormGroup name (its inputs register into it)."
+    }
+  ]
+}

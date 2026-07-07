@@ -1,0 +1,53 @@
+{
+  "name": "MenuItemLink",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra CSS class appended to the underlying `<SidebarMenuButton>`."
+    },
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Icon rendered before `label` (a lucide icon or any ReactNode)."
+    },
+    {
+      "name": "keyboardShortcut",
+      "type": "string",
+      "optional": true,
+      "comment": "Keyboard shortcut string (e.g. `\"mod+k\"`, `\"shift+/\"`). When pressed\nanywhere, navigates to `to`. `mod` normalizes to `metaKey` on macOS,\n`ctrlKey` elsewhere."
+    },
+    {
+      "name": "keyboardShortcutRepresentation",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Visual representation of the keyboard shortcut rendered after the label.\nDefaults to `<KeyboardShortcut keyboardShortcut={keyboardShortcut} />`."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "The text rendered alongside `icon`. Strings are auto-translated via\n`useTranslate` (with the string itself as the fallback). Pass a ReactNode\nto render custom content without a translation lookup."
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "optional": true,
+      "comment": "Click handler invoked after the default navigation. The default\n`<AppSidebar>` uses this to close the mobile drawer."
+    },
+    {
+      "name": "to",
+      "type": "string",
+      "optional": false,
+      "comment": "Target path for the link. Compared against the current location to derive\nthe active state."
+    },
+    {
+      "name": "tooltipProps",
+      "type": "Omit<TooltipProps, \"children\">",
+      "optional": true,
+      "comment": "Extra props forwarded to the `<Tooltip>` wrapping the menu item."
+    }
+  ]
+}

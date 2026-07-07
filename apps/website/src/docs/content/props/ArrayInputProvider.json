@@ -1,0 +1,17 @@
+{
+  "name": "ArrayInputProvider",
+  "props": [
+    {
+      "name": "array",
+      "type": "UseArrayInputResult",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "LinearProgress",
+  "props": [
+    {
+      "name": "max",
+      "type": "number",
+      "optional": true,
+      "comment": "Maximum value used to compute the fill percentage."
+    },
+    {
+      "name": "timeout",
+      "type": "number",
+      "optional": true,
+      "comment": "Delay in milliseconds before showing the progress bar."
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "optional": true,
+      "comment": "When provided, switches to determinate mode and renders the bar at\n`(value / max) * 100` percent width."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "FilterFormInput",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "filterElement",
+      "type": "ReactElement<FilterElementProps>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "handleHide",
+      "type": "(event: MouseEvent<HTMLElement>) => void",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

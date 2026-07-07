@@ -1,0 +1,23 @@
+{
+  "name": "RestoreScrollPosition",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "debounce",
+      "type": "number",
+      "optional": true,
+      "comment": "Debounce (ms) for persisting the scroll position. Default 250 (plan §0a-14)."
+    },
+    {
+      "name": "storeKey",
+      "type": "string",
+      "optional": false,
+      "comment": "A stable per-list key (typically the resource name + a list identity) the\nremembered position is stored under. Distinct lists use distinct keys so\ntheir scroll memories never collide."
+    }
+  ]
+}

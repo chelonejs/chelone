@@ -1,0 +1,17 @@
+{
+  "name": "ListContextProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "value",
+      "type": "ListContextValue",
+      "optional": false,
+      "comment": "The list controller result — `useListController(...)`'s return value."
+    }
+  ]
+}

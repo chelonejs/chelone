@@ -1,3 +1,7 @@
 # React Router framework-mode generated artifacts
 .react-router/
 build/
+
+# Typedoc intermediate blob (the split per-component JSON under
+# src/docs/content/props/ IS committed; this monolith is regenerated).
+scripts/public-api.typedoc.json

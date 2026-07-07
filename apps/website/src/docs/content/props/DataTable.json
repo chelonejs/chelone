@@ -1,0 +1,83 @@
+{
+  "name": "DataTable",
+  "props": [
+    {
+      "name": "body",
+      "type": "ComponentType<{ children: ReactNode; rowClassName?: (record: UnknownRecord, rowIndex: number) => string | undefined }>",
+      "optional": true,
+      "comment": "Override the table body component."
+    },
+    {
+      "name": "bulkActionButtons",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Bulk-action children rendered in the selection toolbar. `false` (default)\ndisables selection entirely — the shadmin default delete/export/select-all\nbuttons are a later wave, so pass your own bulk children (or a\n`bulkActionsToolbar`) to turn selection on."
+    },
+    {
+      "name": "bulkActionsToolbar",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "A fully custom selection toolbar, overriding `bulkActionButtons`."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "expand",
+      "type": "ReactElement<unknown, string | JSXElementConstructor<any>> | ComponentType<{ id: Identifier; record: UnknownRecord; resource: string }>",
+      "optional": true,
+      "comment": "Element or function component rendered as the expand panel under each row.\nWhen provided, a chevron toggle column is added at the start of every row."
+    },
+    {
+      "name": "expandSingle",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Expanding a row collapses any previously-expanded one. Default `false`."
+    },
+    {
+      "name": "head",
+      "type": "ComponentType<{ children: ReactNode }>",
+      "optional": true,
+      "comment": "Override the table head component."
+    },
+    {
+      "name": "hover",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Disable row hover highlighting. Default `true` (hover on)."
+    },
+    {
+      "name": "isRowExpandable",
+      "type": "(record: UnknownRecord) => boolean",
+      "optional": true,
+      "comment": "Predicate deciding whether a given record can be expanded."
+    },
+    {
+      "name": "rowClassName",
+      "type": "(record: UnknownRecord, rowIndex: number) => string | undefined",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "rowClick",
+      "type": "string | false | (record: UnknownRecord, id: Identifier) => string | false",
+      "optional": true,
+      "comment": "Row-click action: `\"edit\"` (default) | `\"show\"` | `\"expand\"` |\n`\"toggleSelection\"` | `false` | a path string | `(record, id) => …`."
+    },
+    {
+      "name": "size",
+      "type": "DataTableSize",
+      "optional": true,
+      "comment": "Row density. `\"small\"` tightens cell padding; `\"medium\"` (default) is standard."
+    }
+  ]
+}

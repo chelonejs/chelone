@@ -1,0 +1,29 @@
+{
+  "name": "TabbedFormTab",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The tab header label (a string or a node)."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "optional": false,
+      "comment": "The tab name — also its FormGroup name (its inputs register into it)."
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "optional": true,
+      "comment": "The URL path segment for this tab (URL-synced mode). Defaults to the tab\n`name` for every tab after the first, and `''` (the index) for the first."
+    }
+  ]
+}

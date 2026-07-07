@@ -1,0 +1,35 @@
+{
+  "name": "Layout",
+  "props": [
+    {
+      "name": "appBar",
+      "type": "ComponentType<AppBarProps>",
+      "optional": true,
+      "comment": "Replaces the default `<AppBar />` at the top of the content area."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The route content injected by the `<Admin>`/`<AdminRoutes>` shell."
+    },
+    {
+      "name": "error",
+      "type": "ReactNode | (props: ErrorFallbackProps) => ReactNode",
+      "optional": true,
+      "comment": "Replaces the content-boundary fallback. A node renders verbatim; a render\nfunction receives `{ error, errorInfo, resetErrorBoundary }`."
+    },
+    {
+      "name": "menu",
+      "type": "ComponentType<MenuProps>",
+      "optional": true,
+      "comment": "Replaces the default `<Menu />` inside the sidebar content area."
+    },
+    {
+      "name": "sidebar",
+      "type": "ComponentType<AppSidebarProps>",
+      "optional": true,
+      "comment": "Replaces the default `<AppSidebar>` component."
+    }
+  ]
+}

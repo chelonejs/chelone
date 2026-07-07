@@ -1,0 +1,17 @@
+{
+  "name": "ResourceContextProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "value",
+      "type": "ResourceContextValue",
+      "optional": true,
+      "comment": "The resource name. When empty the provider is a pass-through (no context)."
+    }
+  ]
+}

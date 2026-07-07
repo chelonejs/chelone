@@ -1,0 +1,71 @@
+{
+  "name": "AdminContext",
+  "props": [
+    {
+      "name": "adapter",
+      "type": "RouterAdapter",
+      "optional": true,
+      "comment": "The router adapter to inject. Defaults to `reactRouterAdapter`; swap it for\n`tanstackRouterAdapter` or a custom adapter (plan D1). Named `router` on\n`<Admin>`, `adapter` here (the low-level name)."
+    },
+    {
+      "name": "authProvider",
+      "type": "AuthProvider",
+      "optional": true,
+      "comment": "The optional auth provider (gates the shell when `requireAuth`)."
+    },
+    {
+      "name": "basename",
+      "type": "string",
+      "optional": true,
+      "comment": "The app basename (default `''`)."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "dataProvider",
+      "type": "DataProvider<TResources>",
+      "optional": false,
+      "comment": "The data provider (required — the P2 data seam)."
+    },
+    {
+      "name": "i18n",
+      "type": "AnyChelonI18n",
+      "optional": true,
+      "comment": "The optional i18n instance (translations)."
+    },
+    {
+      "name": "notifications",
+      "type": "NotificationStore",
+      "optional": true,
+      "comment": "The optional notification store (i18n-key notifications)."
+    },
+    {
+      "name": "queryClient",
+      "type": "QueryClient",
+      "optional": false,
+      "comment": "The React Query client (required — factory-created at the app root)."
+    },
+    {
+      "name": "registry",
+      "type": "ResourceRegistry",
+      "optional": true,
+      "comment": "An existing runtime resource registry. Omit to have the provider create one\n(the common case). Supply one to share a registry across trees / for SSR."
+    },
+    {
+      "name": "resources",
+      "type": "TResources",
+      "optional": true,
+      "comment": "The zod resource registry (enables registry-schema form validation)."
+    },
+    {
+      "name": "store",
+      "type": "ChelonStore",
+      "optional": true,
+      "comment": "The optional KV store (preferences / list scroll)."
+    }
+  ]
+}

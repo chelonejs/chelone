@@ -1,0 +1,29 @@
+{
+  "name": "DashboardMenuItem",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra CSS class appended to the underlying menu button."
+    },
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Replaces the default `<House />` icon."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Replaces the default translated label (`ra.page.dashboard`). Strings are\ntranslated (with the string as fallback); ReactNodes render as-is."
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "optional": true,
+      "comment": "Click handler invoked after the default navigation (e.g. close drawer)."
+    }
+  ]
+}

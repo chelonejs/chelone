@@ -1,0 +1,47 @@
+{
+  "name": "FilterButtonMenuItem",
+  "props": [
+    {
+      "name": "autoFocus",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "displayed",
+      "type": "boolean",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "filter",
+      "type": "ReactElement<FilterElementProps>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "onHide",
+      "type": "(params: { source: string }) => void",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "onShow",
+      "type": "(params: { defaultValue: unknown; source: string }) => void",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "ref",
+      "type": "Ref<HTMLDivElement>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "FormGroupsProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "groups",
+      "type": "FormGroups",
+      "optional": true,
+      "comment": "An externally created registry (advanced/testing). Omit to have the\nprovider create one lazily — the common case (one registry per form)."
+    }
+  ]
+}

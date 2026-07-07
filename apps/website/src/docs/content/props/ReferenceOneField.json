@@ -1,0 +1,71 @@
+{
+  "name": "ReferenceOneField",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Child field(s) rendered against the referenced record."
+    },
+    {
+      "name": "empty",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered when no related record exists. A string is translated."
+    },
+    {
+      "name": "error",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered when the reference lookup errors."
+    },
+    {
+      "name": "filter",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": "Permanent filter merged into the reference lookup."
+    },
+    {
+      "name": "loading",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered while the referenced record is loading."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record whose id is matched. Defaults to the ambient record."
+    },
+    {
+      "name": "reference",
+      "type": "string",
+      "optional": false,
+      "comment": "The referenced resource holding the one-to-one record (e.g. `\"bios\"`)."
+    },
+    {
+      "name": "render",
+      "type": "(referenceRecord: UnknownRecord | undefined) => ReactNode",
+      "optional": true,
+      "comment": "Render-prop alternative to `children`: receives the resolved referenced\nrecord (or `undefined` while loading / on error)."
+    },
+    {
+      "name": "sort",
+      "type": "SortPayload",
+      "optional": true,
+      "comment": "Sort applied to the reference lookup (the first match is used)."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": true,
+      "comment": "The field on the current record the `target` matches. Default `\"id\"`."
+    },
+    {
+      "name": "target",
+      "type": "string",
+      "optional": false,
+      "comment": "The FK field on the reference pointing back at this record (e.g. `\"author_id\"`)."
+    }
+  ]
+}

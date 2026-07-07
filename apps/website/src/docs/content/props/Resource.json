@@ -1,0 +1,83 @@
+{
+  "name": "Resource",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Extra nested routes appended after the CRUD routes."
+    },
+    {
+      "name": "create",
+      "type": "ResourceViewChild",
+      "optional": true,
+      "comment": "The create view. Presence sets `hasCreate`."
+    },
+    {
+      "name": "edit",
+      "type": "ResourceViewChild",
+      "optional": true,
+      "comment": "The edit view. Presence sets `hasEdit`."
+    },
+    {
+      "name": "hasCreate",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "hasEdit",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "hasList",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Explicit route-flag overrides, OR-ed with component presence (e.g. a\nresource whose list view is registered elsewhere but should still show a\n\"create\" affordance)."
+    },
+    {
+      "name": "hasShow",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "icon",
+      "type": "unknown",
+      "optional": true,
+      "comment": "The menu / breadcrumb icon (a React component)."
+    },
+    {
+      "name": "list",
+      "type": "ResourceViewChild",
+      "optional": true,
+      "comment": "The list view (component or element). Presence sets `hasList`."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "optional": false,
+      "comment": "The resource name — the registry key and the route base (`<name>/*`)."
+    },
+    {
+      "name": "options",
+      "type": "Record<string, unknown>",
+      "optional": true,
+      "comment": "Open extension bag — the shadcn menu reads `options.group` (D9)."
+    },
+    {
+      "name": "recordRepresentation",
+      "type": "unknown",
+      "optional": true,
+      "comment": "How a record renders as a label (string field name, function, or node)."
+    },
+    {
+      "name": "show",
+      "type": "ResourceViewChild",
+      "optional": true,
+      "comment": "The show view. Presence sets `hasShow`."
+    }
+  ]
+}

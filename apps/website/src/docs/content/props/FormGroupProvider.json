@@ -1,0 +1,17 @@
+{
+  "name": "FormGroupProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "optional": false,
+      "comment": "The group name inputs below auto-register into (tab/step name)."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "ShellErrorBoundary",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "fallback",
+      "type": "ReactNode | (props: ErrorFallbackProps) => ReactNode",
+      "optional": true,
+      "comment": "Custom fallback: the `error` page slot's node (rendered verbatim on error),\nor a render function receiving `ErrorFallbackProps`. Omit for the built-in\n`DefaultErrorFallback`."
+    }
+  ]
+}

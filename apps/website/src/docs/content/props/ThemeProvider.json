@@ -1,0 +1,23 @@
+{
+  "name": "ThemeProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "defaultTheme",
+      "type": "Theme",
+      "optional": true,
+      "comment": "Initial mode when no user preference has been persisted yet. Named\n`defaultTheme` for shadcn/ra parity — it configures the MODE\n(light/dark/system), not a palette."
+    },
+    {
+      "name": "storageKey",
+      "type": "string",
+      "optional": true,
+      "comment": "Store key the selected mode is persisted under. Defaults to `\"theme\"`."
+    }
+  ]
+}

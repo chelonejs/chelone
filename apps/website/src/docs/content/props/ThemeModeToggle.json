@@ -1,0 +1,11 @@
+{
+  "name": "ThemeModeToggle",
+  "props": [
+    {
+      "name": "ref",
+      "type": "Ref<HTMLButtonElement>",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

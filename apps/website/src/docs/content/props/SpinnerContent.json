@@ -1,0 +1,29 @@
+{
+  "name": "SpinnerContent",
+  "props": [
+    {
+      "name": "aria-label",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "show",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "size",
+      "type": "\"small\" | \"medium\" | \"large\"",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

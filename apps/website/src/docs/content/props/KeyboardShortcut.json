@@ -1,0 +1,11 @@
+{
+  "name": "KeyboardShortcut",
+  "props": [
+    {
+      "name": "keyboardShortcut",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

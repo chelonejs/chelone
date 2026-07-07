@@ -1,0 +1,17 @@
+{
+  "name": "SaveContextProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "value",
+      "type": "SaveContextValue",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}

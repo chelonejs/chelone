@@ -1,0 +1,149 @@
+{
+  "name": "Admin",
+  "props": [
+    {
+      "name": "accessDenied",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "authCallback",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "authenticationError",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "authProvider",
+      "type": "AuthProvider",
+      "optional": true,
+      "comment": "The optional auth provider (gates the shell when `requireAuth`)."
+    },
+    {
+      "name": "basename",
+      "type": "string",
+      "optional": true,
+      "comment": "The app basename (default `''`)."
+    },
+    {
+      "name": "catchAll",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "children",
+      "type": "AdminChildren",
+      "optional": true,
+      "comment": "Resources / custom routes / page-slot markers — OR a single\n`(permissions) => node | Promise<node>` function-child (parity §0a-9)."
+    },
+    {
+      "name": "dashboard",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "dataProvider",
+      "type": "DataProvider<TResources>",
+      "optional": false,
+      "comment": "The data provider (required — the P2 data seam)."
+    },
+    {
+      "name": "error",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "i18n",
+      "type": "AnyChelonI18n",
+      "optional": true,
+      "comment": "The optional i18n instance (translations)."
+    },
+    {
+      "name": "layout",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "loading",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "loginPage",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "notifications",
+      "type": "NotificationStore",
+      "optional": true,
+      "comment": "The optional notification store (i18n-key notifications)."
+    },
+    {
+      "name": "permissions",
+      "type": "unknown",
+      "optional": true,
+      "comment": "The app's permissions, passed to the function-child + registration."
+    },
+    {
+      "name": "queryClient",
+      "type": "QueryClient",
+      "optional": false,
+      "comment": "The React Query client (required — factory-created at the app root)."
+    },
+    {
+      "name": "ready",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "registry",
+      "type": "ResourceRegistry",
+      "optional": true,
+      "comment": "An existing runtime resource registry. Omit to have the provider create one\n(the common case). Supply one to share a registry across trees / for SSR."
+    },
+    {
+      "name": "requireAuth",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Gate the shell on auth (the no-flash gate — consumed by W1-T7)."
+    },
+    {
+      "name": "resources",
+      "type": "TResources",
+      "optional": true,
+      "comment": "The zod resource registry (enables registry-schema form validation)."
+    },
+    {
+      "name": "router",
+      "type": "RouterAdapter",
+      "optional": true,
+      "comment": "The router adapter (defaults to `reactRouterAdapter`). Named `router` here\n(the app-facing name); mapped to `<AdminContext>`'s `adapter` prop."
+    },
+    {
+      "name": "store",
+      "type": "ChelonStore",
+      "optional": true,
+      "comment": "The optional KV store (preferences / list scroll)."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

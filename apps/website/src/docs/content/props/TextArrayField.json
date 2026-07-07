@@ -1,0 +1,83 @@
+{
+  "name": "TextArrayField",
+  "props": [
+    {
+      "name": "cellClassName",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the cell element when used inside `<DataTable>`."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the root element."
+    },
+    {
+      "name": "empty",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The node to display when the field value is empty. Defaults to nothing.\nA string is translated; a ReactNode renders as-is."
+    },
+    {
+      "name": "headerClassName",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the header cell element when used inside `<DataTable>`."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Label to use as column header when using `<DataTable>` or `<SimpleShowLayout>`.\nDefaults to the capitalized field name. Set to `false` to disable the label."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record to render. Defaults to the ambient `RecordContext` value."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource name. Defaults to the ambient `ResourceContext` value."
+    },
+    {
+      "name": "sortable",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Disable the header click handler when used inside `<DataTable>`."
+    },
+    {
+      "name": "sortBy",
+      "type": "string",
+      "optional": true,
+      "comment": "The field to sort by when this column head is clicked, if sortable."
+    },
+    {
+      "name": "sortByOrder",
+      "type": "SortOrder",
+      "optional": true,
+      "comment": "The order used for sorting when this column head is clicked, if sortable."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "Name of the property to display (dot/bracket path)."
+    },
+    {
+      "name": "textAlign",
+      "type": "TextAlign",
+      "optional": true,
+      "comment": "The text alignment for the cell content, when used inside `<DataTable>`."
+    },
+    {
+      "name": "variant",
+      "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | null",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

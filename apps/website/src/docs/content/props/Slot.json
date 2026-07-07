@@ -1,0 +1,11 @@
+{
+  "name": "Slot",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

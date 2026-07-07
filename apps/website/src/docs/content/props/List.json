@@ -1,0 +1,47 @@
+{
+  "name": "List",
+  "props": [
+    {
+      "name": "actions",
+      "type": "false | ReactElement<unknown, string | JSXElementConstructor<any>>",
+      "optional": true,
+      "comment": "Header actions (create/export/filter buttons); nothing by default."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "component",
+      "type": "ElementType<any, keyof IntrinsicElements>",
+      "optional": true,
+      "comment": "Element/component wrapping the children (defaults to `\"div\"`)."
+    },
+    {
+      "name": "perPage",
+      "type": "number",
+      "optional": true,
+      "comment": "Rows-per-page for the initial query."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient resource (defaults to the `<Resource>` context)."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Header title. A string/element renders as an `<h2>`; `false` omits it."
+    }
+  ]
+}

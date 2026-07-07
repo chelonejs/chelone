@@ -1,0 +1,23 @@
+{
+  "name": "FilterLiveForm",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "The filter inputs (`useInput`-driven) whose values drive `setFilters`."
+    },
+    {
+      "name": "debounce",
+      "type": "number",
+      "optional": true,
+      "comment": "ADVISORY debounce (ms) for API parity with ra. The EFFECTIVE debounce is\nthe list controller's own `debounceMs` — FilterLiveForm delegates it and\ndoes not add a form-side timer."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Overrides the ambient resource (drives the filter-flavored labels)."
+    }
+  ]
+}

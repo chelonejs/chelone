@@ -1,0 +1,23 @@
+{
+  "name": "CheloneFormProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "form",
+      "type": "ChelonFormApi<TFormData>",
+      "optional": false,
+      "comment": "The form to expose — `useForm`/`useEditForm`/`useCreateForm`'s `.form`."
+    },
+    {
+      "name": "submit",
+      "type": "() => Promise<void>",
+      "optional": true,
+      "comment": "The controller submit pipeline — the hooks' `.submit`."
+    }
+  ]
+}

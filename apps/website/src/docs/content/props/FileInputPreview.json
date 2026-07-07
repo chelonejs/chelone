@@ -1,0 +1,23 @@
+{
+  "name": "FileInputPreview",
+  "props": [
+    {
+      "name": "file",
+      "type": "FileWithPreview | TransformedFile",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "onRemove",
+      "type": "() => void",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "removeIcon",
+      "type": "ComponentType<{ className?: string }>",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

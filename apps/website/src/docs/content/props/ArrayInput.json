@@ -1,0 +1,65 @@
+{
+  "name": "ArrayInput",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "The form iterator that renders the rows — typically\n`<SimpleFormIterator>`. It reads the array result via the ambient\n`<ArrayInput>` context."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra classes on the field wrapper."
+    },
+    {
+      "name": "defaultValue",
+      "type": "readonly unknown[]",
+      "optional": true,
+      "comment": "The array's default value (seeds an untouched hole)."
+    },
+    {
+      "name": "helperText",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Helper text rendered below the iterator; a string is translated."
+    },
+    {
+      "name": "itemDefaults",
+      "type": "Record<string, unknown>",
+      "optional": true,
+      "comment": "Object-row defaults merged into a new row (object mode)."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The input label. A string is translated; a ReactNode renders as-is;\n`false` renders no label."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient resource (label-key resolution)."
+    },
+    {
+      "name": "scalar",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Force scalar-row mode (a `string[]`/`number[]`); DETECTED when omitted."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "The array field path RELATIVE to the ambient source scope."
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "Array-level validators (e.g. `minLength`) — composed, first error wins."
+    }
+  ]
+}

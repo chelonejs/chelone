@@ -1,0 +1,17 @@
+{
+  "name": "ChoicesContextProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "value",
+      "type": "ChoicesContextValue | InlineChoicesConfig",
+      "optional": false,
+      "comment": "A ready ChoicesContextValue (e.g. `useReferenceInput`'s context)\nOR an inline-choices config (`{ choices }`) synthesized here."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "AccessDenied",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "textPrimary",
+      "type": "string",
+      "optional": true,
+      "comment": "i18n key for the heading. Defaults to `ra.page.access_denied`."
+    },
+    {
+      "name": "textSecondary",
+      "type": "string",
+      "optional": true,
+      "comment": "i18n key for the sub-text. Defaults to `ra.message.access_denied`."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Title",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Optional CSS class applied to the rendered title element."
+    },
+    {
+      "name": "defaultTitle",
+      "type": "string | ReactElement<unknown, string | JSXElementConstructor<any>>",
+      "optional": true,
+      "comment": "Fallback title used when `title` is undefined. Translated if a string."
+    },
+    {
+      "name": "title",
+      "type": "string | ReactElement<unknown, string | JSXElementConstructor<any>>",
+      "optional": true,
+      "comment": "The title to display. If a string, it is translated using the i18n\nprovider. Pass a React element to render a custom title."
+    }
+  ]
+}

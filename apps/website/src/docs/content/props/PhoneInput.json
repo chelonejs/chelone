@@ -1,0 +1,113 @@
+{
+  "name": "PhoneInput",
+  "props": [
+    {
+      "name": "allowedCountries",
+      "type": "readonly CountryCode[]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultCountry",
+      "type": "CountryCode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "unknown",
+      "optional": true,
+      "comment": "Input-level default, ra precedence (seeds only into an untouched hole)."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Native disabled state."
+    },
+    {
+      "name": "format",
+      "type": "(value: unknown) => unknown",
+      "optional": true,
+      "comment": "Read transform (raw form value → input value)."
+    },
+    {
+      "name": "helperText",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Helper text rendered below the input; a string is translated."
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "optional": true,
+      "comment": "Explicit element id; a generated `useId` value is used otherwise."
+    },
+    {
+      "name": "isRequired",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Forces the required marker; ORed with `required()` detection on `validate`."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The input label. A string is translated; a ReactNode renders as-is;\n`false` (or `\"\"`) renders no label."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "optional": true,
+      "comment": "Legacy field-name alias (ra parity); the wiring uses `source`."
+    },
+    {
+      "name": "onBlur",
+      "type": "(event: unknown) => void",
+      "optional": true,
+      "comment": "Chained AFTER the blur is recorded."
+    },
+    {
+      "name": "onChange",
+      "type": "(eventOrValue: unknown) => void",
+      "optional": true,
+      "comment": "Chained AFTER the parsed value is written to the form."
+    },
+    {
+      "name": "parse",
+      "type": "(value: unknown) => unknown",
+      "optional": true,
+      "comment": "Write transform (input value → stored value)."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Native read-only state."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient resource (used to resolve the default label key)."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "The field path RELATIVE to the ambient source scope."
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "optional": true,
+      "comment": "The DOM input `type` (text inputs default to `\"text\"`)."
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "ra-contract validators — composed, first error wins."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "ListPagination",
+  "props": [
+    {
+      "name": "actions",
+      "type": "ReactElement<unknown, string | JSXElementConstructor<any>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "rowsPerPageOptions",
+      "type": "number[]",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "name": "DataTableColumn",
+  "props": [
+    {
+      "name": "cellClassName",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "conditionalClassName",
+      "type": "(record: UnknownRecord) => string | false | undefined",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "disableSort",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "field",
+      "type": "ElementType<any, keyof IntrinsicElements>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "headerClassName",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "render",
+      "type": "(record: UnknownRecord) => ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "sortByOrder",
+      "type": "\"ASC\" | \"DESC\"",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

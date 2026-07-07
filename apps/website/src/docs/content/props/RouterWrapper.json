@@ -1,0 +1,17 @@
+{
+  "name": "RouterWrapper",
+  "props": [
+    {
+      "name": "basename",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

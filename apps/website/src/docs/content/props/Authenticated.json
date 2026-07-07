@@ -1,0 +1,29 @@
+{
+  "name": "Authenticated",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "Rendered only once authenticated (never during the pending window)."
+    },
+    {
+      "name": "enabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Whether to enforce the check (default true). `false` → a no-op pass."
+    },
+    {
+      "name": "loading",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Shown while the check is pending (default: nothing)."
+    },
+    {
+      "name": "logoutOnFailure",
+      "type": "boolean",
+      "optional": true,
+      "comment": "On a failed check, log the user out (default true) vs. render nothing."
+    }
+  ]
+}

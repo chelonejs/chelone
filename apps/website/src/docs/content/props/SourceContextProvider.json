@@ -1,0 +1,17 @@
+{
+  "name": "SourceContextProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "scope",
+      "type": "SourceScope",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}

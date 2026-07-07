@@ -1,0 +1,17 @@
+{
+  "name": "AdapterRoutes",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "location",
+      "type": "string | Partial<CheloneLocation>",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "name": "ResourceMenuItem",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra CSS class appended to the underlying menu button."
+    },
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Override the icon. Defaults to the resource icon or `<List />`."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Override the label. Defaults to the pluralised resource label."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "optional": false,
+      "comment": "The resource name (matches a `<Resource name>` registered in `<Admin>`).\nUsed to look up the definition, label, icon and list path."
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "optional": true,
+      "comment": "Click handler invoked after the default navigation (e.g. close drawer)."
+    },
+    {
+      "name": "tooltipProps",
+      "type": "Record<string, unknown>",
+      "optional": true,
+      "comment": "Extra props spread onto the underlying `<SidebarMenuButton>`."
+    }
+  ]
+}

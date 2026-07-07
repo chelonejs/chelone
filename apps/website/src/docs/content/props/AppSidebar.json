@@ -1,0 +1,47 @@
+{
+  "name": "AppSidebar",
+  "props": [
+    {
+      "name": "appBarAlwaysOn",
+      "type": "boolean",
+      "optional": true,
+      "comment": "When `true`, signals that the AppBar is always visible (not hidden on\nscroll). Accepted for forward-compat; not otherwise consumed here."
+    },
+    {
+      "name": "brand",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Brand label rendered in the sidebar header. Defaults to `\"Chelone\"`."
+    },
+    {
+      "name": "brandIcon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Brand icon rendered before the label. Defaults to the `Shell` icon."
+    },
+    {
+      "name": "brandTo",
+      "type": "string",
+      "optional": true,
+      "comment": "Where the brand links to. Defaults to `\"/\"`."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Replaces the default `<Menu />` rendered inside the content area. Pass a\ncustom navigation tree for full control over sidebar items."
+    },
+    {
+      "name": "closedSize",
+      "type": "number",
+      "optional": true,
+      "comment": "Width of the sidebar in its collapsed/icon-only state, in pixels.\nDefaults to 55."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "optional": true,
+      "comment": "Width of the sidebar in its open/expanded state, in pixels. Defaults to 240."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "RouterAdapterProvider",
+  "props": [
+    {
+      "name": "adapter",
+      "type": "RouterAdapter",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}

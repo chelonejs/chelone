@@ -1,0 +1,23 @@
+{
+  "name": "Loading",
+  "props": [
+    {
+      "name": "delay",
+      "type": "number",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "loadingPrimary",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "loadingSecondary",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

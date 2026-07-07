@@ -1,0 +1,35 @@
+{
+  "name": "ResourceMenuItemGroup",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra CSS class appended to the wrapping sidebar group."
+    },
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Initial open state for labeled (collapsible) groups."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Optional section label. Omit for the ungrouped resource section."
+    },
+    {
+      "name": "menuClassName",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra CSS class appended to the underlying sidebar menu."
+    },
+    {
+      "name": "resources",
+      "type": "string[]",
+      "optional": true,
+      "comment": "Resource names to render. When omitted, every registered resource with\n`hasList === true` is rendered."
+    }
+  ]
+}

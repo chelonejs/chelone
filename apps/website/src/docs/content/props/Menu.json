@@ -1,0 +1,17 @@
+{
+  "name": "Menu",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "When provided, replaces the default resource-list rendering. Use\n`<Menu.Item>`, `<Menu.DashboardItem>` and `<Menu.ResourceItem>` as children."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra CSS class appended to the wrapping `<SidebarMenu>`."
+    }
+  ]
+}

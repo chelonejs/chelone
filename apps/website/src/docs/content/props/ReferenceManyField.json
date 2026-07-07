@@ -1,0 +1,53 @@
+{
+  "name": "ReferenceManyField",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The list-rendering children (a datagrid, `SingleFieldList`, etc.)."
+    },
+    {
+      "name": "filter",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": "Permanent filter merged into the reference lookup."
+    },
+    {
+      "name": "perPage",
+      "type": "number",
+      "optional": true,
+      "comment": "Page size for the related list."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record whose id is matched. Defaults to the ambient record."
+    },
+    {
+      "name": "reference",
+      "type": "string",
+      "optional": false,
+      "comment": "The referenced resource holding the reverse FK (e.g. `\"books\"`)."
+    },
+    {
+      "name": "sort",
+      "type": "SortPayload",
+      "optional": true,
+      "comment": "Sort applied to the related list."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": true,
+      "comment": "The field on the current record the `target` matches. Default `\"id\"`."
+    },
+    {
+      "name": "target",
+      "type": "string",
+      "optional": false,
+      "comment": "The FK field on the reference pointing back at this record (e.g. `\"author_id\"`)."
+    }
+  ]
+}

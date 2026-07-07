@@ -1,0 +1,23 @@
+{
+  "name": "AdapterNavigate",
+  "props": [
+    {
+      "name": "replace",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "state",
+      "type": "unknown",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "to",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}

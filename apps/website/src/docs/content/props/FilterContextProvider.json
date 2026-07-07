@@ -1,0 +1,17 @@
+{
+  "name": "FilterContextProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "value",
+      "type": "FilterContextType",
+      "optional": false,
+      "comment": "The array of filter element nodes to publish to the subtree."
+    }
+  ]
+}

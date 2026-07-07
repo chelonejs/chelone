@@ -1,0 +1,101 @@
+{
+  "name": "AdminUI",
+  "props": [
+    {
+      "name": "accessDenied",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "authCallback",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "authenticationError",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "catchAll",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The `<Admin>` children to partition (resources, custom routes, slots)."
+    },
+    {
+      "name": "childrenStatus",
+      "type": "AdminChildrenStatus",
+      "optional": true,
+      "comment": "The async function-child resolution status (parity §0a-9), supplied by\n`<Admin>` from `useResolvedChildren`. `'loading'` holds the shell on the\nloading branch while an async child resolves; defaults to `'ready'` (the\nescape-hatch `<AdminUI>` receives concrete children, never a function)."
+    },
+    {
+      "name": "dashboard",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "error",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "layout",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "loading",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "loginPage",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "permissions",
+      "type": "unknown",
+      "optional": true,
+      "comment": "The app's permissions (passed to the resource registration re-run)."
+    },
+    {
+      "name": "ready",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "render",
+      "type": "() => ReactNode",
+      "optional": true,
+      "comment": "The routing engine. Defaults to `DefaultShellContent` (a placeholder that\nrenders the dashboard + resources); W1-T7 supplies `AdminRoutes`. Rendered\ninside `AdminUIContext`, so it reads the partition via `useAdminUI()`."
+    },
+    {
+      "name": "requireAuth",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Whether the shell gates on auth (no-flash gate — consumed by W1-T7)."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
