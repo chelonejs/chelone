@@ -1,17 +1,28 @@
 /**
  * The live-preview end-to-end gate.
  *
- * Mounts the representative quickstart demos under `<PreviewProvider>` in jsdom
- * and asserts that REAL `@chelone/react` components render against the fixture
+ * Mounts the representative quickstart demos under `<PreviewProvider>` and
+ * asserts that REAL `@chelone/react` components render against the fixture
  * provider. This proves the whole runtime chain the docs pipeline depends on:
  * the `@/`-alias + package resolution, the admin provider stack, and the
- * MemoryRouter-hosted `<Resource>` view mount — all resolving the ported
- * components at runtime (not just at build time).
+ * resource/record contexts — all resolving the ported components at runtime
+ * (not just at build time).
+ *
+ * CRITICAL: every render is wrapped in a `<MemoryRouter>` — the AMBIENT HOST
+ * ROUTER the docs site (a react-router SPA) always supplies around a `/docs`
+ * page. An earlier version of this test mounted `<PreviewProvider>` with NO
+ * ambient router, which made it structurally blind to the site's real failure
+ * mode: PreviewProvider nesting its own `<Router>` inside the site's router
+ * ("You cannot render a <Router> inside another <Router>"). Mounting inside a
+ * host router here reproduces the site's environment, so the test actually
+ * exercises the router-nesting path that hydration hits.
  *
  * Plain DOM assertions (no jest-dom) so the website needs no extra matcher dep.
  */
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import type { ReactNode } from "react";
+import { MemoryRouter } from "react-router";
+import { describe, expect, it, vi } from "vitest";
 import BooleanFieldDemo from "../content/getting-started/quick-start-guide/demos/boolean-field";
 import PostListDemo from "../content/getting-started/quick-start-guide/demos/post-list";
 import ReferenceFieldDemo from "../content/getting-started/quick-start-guide/demos/reference-field";
@@ -19,9 +30,38 @@ import TextFieldDemo from "../content/getting-started/quick-start-guide/demos/te
 import TextInputDemo from "../content/getting-started/quick-start-guide/demos/text-input";
 import { PreviewProvider } from "./preview-provider";
 
+// Mount inside a `<MemoryRouter>` at a docs-like path — mirrors the site, where
+// PreviewProvider always renders inside the SPA's host router.
+function renderInHostRouter(ui: ReactNode) {
+  return render(
+    <MemoryRouter initialEntries={["/docs/getting-started/quick-start-guide"]}>
+      {ui}
+    </MemoryRouter>,
+  );
+}
+
 describe("PreviewProvider — live admin previews render against the fixture provider", () => {
+  it("does NOT nest a router inside the host router (no <Router> in <Router> crash)", () => {
+    // The exact failure the site hits on hydration surfaces as a thrown
+    // "You cannot render a <Router> inside another <Router>". Assert the render
+    // completes without throwing AND without React logging that error.
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() =>
+      renderInHostRouter(
+        <PreviewProvider mode="view">
+          <PostListDemo />
+        </PreviewProvider>,
+      ),
+    ).not.toThrow();
+    const nestedRouterError = errorSpy.mock.calls.find((c) =>
+      String(c[0]).includes("cannot render a <Router> inside another <Router>"),
+    );
+    expect(nestedRouterError).toBeUndefined();
+    errorSpy.mockRestore();
+  });
+
   it("renders a <List><DataTable> with a seeded post row cell (view mode)", async () => {
-    render(
+    renderInHostRouter(
       <PreviewProvider mode="view">
         <PostListDemo />
       </PreviewProvider>,
@@ -33,7 +73,7 @@ describe("PreviewProvider — live admin previews render against the fixture pro
   });
 
   it("renders a bare <TextField> showing the record value (record mode)", async () => {
-    render(
+    renderInHostRouter(
       <PreviewProvider mode="record">
         <TextFieldDemo />
       </PreviewProvider>,
@@ -42,7 +82,7 @@ describe("PreviewProvider — live admin previews render against the fixture pro
   });
 
   it("renders a <ReferenceField> resolving the author name (record mode)", async () => {
-    render(
+    renderInHostRouter(
       <PreviewProvider mode="record">
         <ReferenceFieldDemo />
       </PreviewProvider>,
@@ -52,7 +92,7 @@ describe("PreviewProvider — live admin previews render against the fixture pro
   });
 
   it("renders a <BooleanField> for the record (record mode)", async () => {
-    const { container } = render(
+    const { container } = renderInHostRouter(
       <PreviewProvider mode="record">
         <BooleanFieldDemo />
       </PreviewProvider>,
@@ -64,7 +104,7 @@ describe("PreviewProvider — live admin previews render against the fixture pro
   });
 
   it("renders a <TextInput> with its label (input mode)", async () => {
-    render(
+    renderInHostRouter(
       <PreviewProvider mode="input">
         <TextInputDemo />
       </PreviewProvider>,

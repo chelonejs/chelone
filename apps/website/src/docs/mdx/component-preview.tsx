@@ -52,10 +52,10 @@ interface ComponentPreviewProps {
 
 export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   const [tab, setTab] = useState<"preview" | "code">("preview");
-  // The live demo mounts the full admin stack (data provider, MemoryRouter,
-  // TanStack query) — a client-only concern. During SSG prerender we render a
-  // placeholder and only mount the real demo after hydration, so the static
-  // build never runs the admin runtime in Node.
+  // The live demo mounts the full admin stack (data provider, TanStack query,
+  // the resource registry) — a client-only concern. During SSG prerender we
+  // render a placeholder and only mount the real demo after hydration, so the
+  // static build never runs the admin runtime in Node.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
