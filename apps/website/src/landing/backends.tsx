@@ -8,22 +8,12 @@ import { cn } from "@/lib/utils";
 import { insetCard, links } from "./constants";
 import { CtaButton } from "./cta-button";
 import { Reveal, RevealItem } from "./reveal";
-import {
-  BezelPanel,
-  Eyebrow,
-  Heading,
-  Lead,
-  LogoChip,
-  Section,
-} from "./section";
+import { BezelPanel, Eyebrow, Heading, Lead, Section } from "./section";
 
-const backendLogos = [
-  { label: "Supabase", src: "/img/supabase-logo-icon.svg" },
-  { label: "Appwrite", src: "/img/appwrite-logo.svg" },
-  { label: "Firebase", src: "/img/firebase-logo.svg" },
-  { label: "Strapi", src: "/img/strapi-logo.svg" },
-  { label: "Hasura", src: "/img/hasura-logo.svg" },
-];
+// Chelone talks to any backend through a `dataProvider` — a small adapter you
+// write (or generate) against your API. These are the transport shapes the
+// contract supports, NOT pre-built vendor integrations (which aren't shipped).
+const transports = ["REST", "GraphQL", "Custom API"];
 
 interface FlowBoxProps {
   label: string;
@@ -70,15 +60,23 @@ export function Backends() {
             Connect to <span className="text-brand-gradient">Any Backend</span>
           </Heading>
           <Lead>
-            Chelone is designed to fit seamlessly with the tools you already
-            know and love. As a single-page app, it connects to any
-            backend—REST, GraphQL, or custom APIs—and works with any
-            authentication provider.
+            Chelone talks to your backend through a{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.85em]">
+              dataProvider
+            </code>
+            — a small adapter you write against your API. As a single-page app,
+            it connects to any backend—REST, GraphQL, or custom APIs—and works
+            with any authentication provider.
           </Lead>
 
           <RevealItem className="mt-8 flex flex-wrap items-center gap-3">
-            {backendLogos.map((logo) => (
-              <LogoChip key={logo.label} label={logo.label} src={logo.src} />
+            {transports.map((label) => (
+              <span
+                key={label}
+                className="inline-flex items-center rounded-full border border-border/60 bg-card px-3.5 py-1.5 text-sm font-medium text-foreground"
+              >
+                {label}
+              </span>
             ))}
             <span className="inline-flex items-center rounded-full border border-dashed border-border px-3.5 py-1.5 text-sm font-medium text-muted-foreground">
               Works with any REST or GraphQL API

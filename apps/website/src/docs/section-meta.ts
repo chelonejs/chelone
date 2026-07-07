@@ -1,24 +1,18 @@
 import {
-  Blocks,
   Boxes,
-  Database,
-  FileSpreadsheet,
-  FileText,
   LayoutDashboard,
   type LucideIcon,
-  Map,
   PanelsTopLeft,
-  RadioTower,
   Rocket,
   Settings2,
-  Sparkles,
   SquarePen,
   Table2,
-  Type,
 } from "lucide-react";
 
 // Per-section icon + one-line blurb (keyed by folder). Shared by the /docs
-// landing and each category index page.
+// landing and each category index page. Only the six sections Chelone v1 ships
+// are listed — the dropped sections (widgets, leaflet, realtime, supabase, etc.)
+// have no content dirs and never render, so they get no entry here.
 export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
   {
     "getting-started": {
@@ -41,42 +35,9 @@ export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
       icon: SquarePen,
       blurb: "Forms and inputs for creating and updating records.",
     },
-    widgets: {
-      icon: Sparkles,
-      blurb:
-        "Composite, batteries-included widgets: kanban, pivot, dashboards, and more.",
-    },
-    leaflet: {
-      icon: Map,
-      blurb: "Interactive maps, markers, and geocoding with Leaflet.",
-    },
-    "csv-import": {
-      icon: FileSpreadsheet,
-      blurb: "Bulk-import records straight from CSV files.",
-    },
-    "mdx-editor": {
-      icon: FileText,
-      blurb: "Author MDX content with a rich WYSIWYG editor.",
-    },
-    "rich-text-input": {
-      icon: Type,
-      blurb: "A TipTap-based rich text input for your forms.",
-    },
-    "block-editor": {
-      icon: Blocks,
-      blurb: "Notion-style block editing for structured content.",
-    },
-    realtime: {
-      icon: RadioTower,
-      blurb: "Live updates, locks, and presence over your data provider.",
-    },
     "ui-layout": {
       icon: PanelsTopLeft,
       blurb: "App shell, sidebar, theming, and the shadcn primitives.",
-    },
-    supabase: {
-      icon: Database,
-      blurb: "Drop-in Supabase auth and data-provider integration.",
     },
   };
 

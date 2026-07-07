@@ -2,20 +2,14 @@ import {
   AlignJustify,
   ArrowDownUp,
   BugOff,
-  CalendarDays,
-  Command,
+  Download,
   Earth,
-  FileSpreadsheet,
   KeyRound,
   type LucideIcon,
-  MapPin,
   NotepadText,
   Palette,
-  Pilcrow,
-  RadioTower,
   ScanSearch,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 
 export type FeatureSize = "hero" | "tall" | "wide" | "single";
@@ -33,39 +27,42 @@ export interface Feature {
 }
 
 /**
- * Hand-placed tetris bento (ported from v1): big pieces zig-zag through every
- * column so no column is ever all 1×1 cards.
- * 2 hero(8) + 1 tall(2) + 4 wide(8) + 9 single(9) = 27 = 9 rows × 3 cols.
+ * Hand-placed tetris bento: big pieces zig-zag through every column so no
+ * column is ever all 1×1 cards. Every card maps to a capability @chelone/react
+ * actually ships (verified against the barrel) — no roadmap/aspirational cards.
+ * 1 hero(4) + 2 wide(4) + 7 single(7) = 15 cells = 5 rows × 3 cols.
  */
 export const features: Feature[] = [
   {
-    title: "Data Maps",
-    description: "Interactive Leaflet maps with geospatial data layers",
-    icon: MapPin,
+    title: "Lists & Data Tables",
+    description:
+      "Flexible lists & data tables for displaying record collections",
+    icon: AlignJustify,
     size: "hero",
     col: 1,
     row: 1,
   },
   {
     title: "Data Fetching",
-    description: "Efficient hooks for robust API interactions",
+    description: "TanStack Query hooks for robust, cached API interactions",
     icon: ArrowDownUp,
     size: "single",
     col: 3,
     row: 1,
   },
   {
-    title: "Lists & Data Tables",
-    description: "Flexible lists & tables for displaying data collections",
-    icon: AlignJustify,
-    size: "tall",
+    title: "Schema-Driven",
+    description:
+      "Point a resource at a Zod schema for typed records and automatic validation",
+    icon: ShieldCheck,
+    size: "single",
     col: 3,
     row: 2,
   },
   {
-    title: "Command Menu",
-    description: "A ⌘K command palette for instant keyboard-driven navigation",
-    icon: Command,
+    title: "Forms & Validation",
+    description: "Data-bound inputs, adaptable layouts, dynamic fields",
+    icon: NotepadText,
     size: "wide",
     col: 1,
     row: 3,
@@ -75,16 +72,15 @@ export const features: Feature[] = [
     description: "Secure auth flows and user management",
     icon: KeyRound,
     size: "single",
-    col: 1,
-    row: 4,
+    col: 3,
+    row: 3,
   },
   {
-    title: "AI-Ready",
-    description:
-      "Ships with an MCP server — scaffold and edit admin UIs with AI",
-    icon: Sparkles,
-    size: "hero",
-    col: 2,
+    title: "Flexible Theming",
+    description: "CSS-variable themes, light/dark mode & granular styling",
+    icon: Palette,
+    size: "wide",
+    col: 1,
     row: 4,
   },
   {
@@ -92,73 +88,24 @@ export const features: Feature[] = [
     description: "Search-as-you-type and combined filters",
     icon: ScanSearch,
     size: "single",
-    col: 1,
-    row: 5,
-  },
-  {
-    title: "Flexible Theming",
-    description: "Theme presets, light/dark mode & granular styling",
-    icon: Palette,
-    size: "wide",
-    col: 1,
-    row: 6,
+    col: 3,
+    row: 4,
   },
   {
     title: "I18n",
     description: "Internationalization for global applications",
     icon: Earth,
     size: "single",
-    col: 3,
-    row: 6,
-  },
-  {
-    title: "Realtime",
-    description: "Live updates with any realtime backend",
-    icon: RadioTower,
-    size: "single",
     col: 1,
-    row: 7,
+    row: 5,
   },
   {
-    title: "Forms & Validation",
-    description: "Data-bound inputs, adaptable layouts, dynamic fields",
-    icon: NotepadText,
-    size: "wide",
-    col: 2,
-    row: 7,
-  },
-  {
-    title: "Roles & Permissions",
-    description: "Fine-grained RBAC, per-resource and per-action",
-    icon: ShieldCheck,
-    size: "wide",
-    col: 1,
-    row: 8,
-    flexRow: true,
-  },
-  {
-    title: "CSV Import / Export",
-    description: "Bulk data import and export with spreadsheet support",
-    icon: FileSpreadsheet,
-    size: "single",
-    col: 3,
-    row: 8,
-  },
-  {
-    title: "Rich Text Editor",
-    description: "WYSIWYG editing with full formatting and media",
-    icon: Pilcrow,
-    size: "single",
-    col: 1,
-    row: 9,
-  },
-  {
-    title: "Kanban & Scheduling",
-    description: "Drag-and-drop boards and calendar views",
-    icon: CalendarDays,
+    title: "Data Export",
+    description: "One-click CSV export of records and bulk selections",
+    icon: Download,
     size: "single",
     col: 2,
-    row: 9,
+    row: 5,
   },
   {
     title: "Resilient UI",
@@ -166,7 +113,7 @@ export const features: Feature[] = [
     icon: BugOff,
     size: "single",
     col: 3,
-    row: 9,
+    row: 5,
   },
 ];
 
@@ -182,10 +129,6 @@ export const ROW_START: Record<number, string> = {
   3: "md:row-start-3",
   4: "md:row-start-4",
   5: "md:row-start-5",
-  6: "md:row-start-6",
-  7: "md:row-start-7",
-  8: "md:row-start-8",
-  9: "md:row-start-9",
 };
 
 export function sizeClasses(size: FeatureSize): string {

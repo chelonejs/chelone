@@ -3,26 +3,21 @@ export interface ChecklistItem {
   description: string;
 }
 
+// Every item maps to a shipped capability. Dropped from the original v1 copy:
+// auto-generated views (the schema drives validation, not view scaffolding),
+// undo (not shipped — mutations are pessimistic/optimistic only), and RBAC UI.
 export const advancedItems: ChecklistItem[] = [
   {
-    title: "Rapid CRUD Generation",
-    description: "Automatically generate admin UIs from your API",
+    title: "Schema-driven validation",
+    description: "Point a resource at a Zod schema and get validation for free",
   },
   {
     title: "Seamless relationships",
     description: "Combine and display data from multiple resources",
   },
   {
-    title: "Roles & permissions",
-    description: "Manage user access with fine-grained control",
-  },
-  {
     title: "Optimistic UI",
     description: "A snappy, native-app experience, even on slow networks",
-  },
-  {
-    title: "Undo Functionality",
-    description: "Allows users to instantly revert any changes",
   },
   {
     title: "Bulk Actions",
