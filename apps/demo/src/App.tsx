@@ -63,7 +63,10 @@ const store = createStore();
 
 export function App() {
   return (
-    <BrowserRouter>
+    // basename="/demo" — the app is served under `/demo/` on the deployed site
+    // (and under Vite's `base` in dev), so its client routes live below that
+    // prefix. Mirrors vite.config.ts `base: "/demo/"`.
+    <BrowserRouter basename="/demo">
       <Admin
         dataProvider={dataProvider}
         queryClient={queryClient}

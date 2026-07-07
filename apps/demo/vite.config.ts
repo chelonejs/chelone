@@ -16,6 +16,13 @@ const reactPkgSrc = fileURLToPath(
 );
 
 export default defineConfig({
+  // Served under `/demo/` on the deployed site (the website's build step copies
+  // this app's `dist/` into `build/client/demo/`, decision B). The base rewrites
+  // every emitted asset URL to `/demo/assets/*` so they resolve there; paired
+  // with `<BrowserRouter basename="/demo">` so the admin's client routes match.
+  // Standalone `pnpm --filter @chelone/demo dev|preview` still works — Vite maps
+  // the base to the dev-server root, so http://localhost:4273/demo/ serves it.
+  base: "/demo/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

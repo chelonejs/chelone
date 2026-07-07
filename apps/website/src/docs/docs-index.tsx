@@ -14,9 +14,6 @@ export default function DocsIndex() {
     })
     .filter((s) => s.count > 0);
 
-  const componentsHref =
-    sections.find((s) => s.dir === "page-components")?.dir ?? sections[0]?.dir;
-
   return (
     <div className="not-prose">
       {/* Hero */}
@@ -45,14 +42,14 @@ export default function DocsIndex() {
             <ArrowRight className="size-3.5" strokeWidth={2} />
           </span>
         </Link>
-        {componentsHref && (
-          <Link
-            to={`/docs/${componentsHref}`}
-            className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-          >
-            Browse components
-          </Link>
-        )}
+        {/* The full component directory (all 111 components, grouped) lives at
+            /docs/components — not the page-components section. */}
+        <Link
+          to="/docs/components"
+          className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+        >
+          Browse components
+        </Link>
       </div>
 
       {/* Section cards (double-bezel) */}

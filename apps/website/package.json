@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "react-router dev --port 5373",
-    "build": "react-router build && node scripts/copy-spa-fallback.mjs",
+    "build": "react-router build && node scripts/copy-spa-fallback.mjs && node scripts/copy-demo.mjs",
     "preview": "vite preview --outDir build/client --port 4373",
     "typecheck": "react-router typegen && tsc --noEmit -p tsconfig.app.json",
     "test": "vitest run",

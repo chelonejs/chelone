@@ -24,12 +24,14 @@ export function LandingFooter() {
           >
             Docs
           </Link>
-          <Link
-            to={links.demo}
+          {/* Hard nav: the demo is a separate SPA at /demo/, not a react-router
+              route — a <Link> would be intercepted and 404 (decision B). */}
+          <a
+            href={links.demo}
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
             Demo
-          </Link>
+          </a>
         </nav>
 
         <p className="text-muted-foreground">

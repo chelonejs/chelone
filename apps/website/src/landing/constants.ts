@@ -12,9 +12,11 @@ export const insetCard = "rounded-[0.85rem] border border-border/40 bg-card";
 export const links = {
   install: "/docs/getting-started/install",
   // Decision B: the demo ships as a standalone Vite app, linked out (not folded
-  // into this SSG shell). Wired to its deployed artifact in g4; internal /docs
-  // placeholder until then keeps the landing free of dead external links.
-  demo: "/docs",
+  // into this SSG shell). The website build copies apps/demo/dist → the static
+  // output at build/client/demo/, so the deployed site serves the working admin
+  // at /demo/. Consume this with a plain <a href> (hard nav) — NOT a react-router
+  // <Link> — so the SPA router doesn't intercept it (there is no /demo/* route).
+  demo: "/demo/",
   docs: "/docs",
   dataProviders: "/docs/app-config/data-providers",
   github: "https://github.com/TurtIeSocks/chelone",

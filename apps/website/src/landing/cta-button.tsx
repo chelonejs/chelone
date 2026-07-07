@@ -53,18 +53,35 @@ interface GhostButtonProps {
   to: string;
   children: ReactNode;
   className?: string;
+  /**
+   * Render a plain `<a href>` (full-page navigation) instead of a react-router
+   * `<Link>`. Needed for the standalone demo at `/demo/` — it's a SEPARATE SPA
+   * copied into the static output, not a react-router route, so a `<Link>` would
+   * be intercepted by the site's client router and 404 (decision B).
+   */
+  hardNav?: boolean;
 }
 
 /** Secondary outline pill button. */
-export function GhostButton({ to, children, className }: GhostButtonProps) {
+export function GhostButton({
+  to,
+  children,
+  className,
+  hardNav,
+}: GhostButtonProps) {
+  const classes = cn(
+    "inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted",
+    className,
+  );
+  if (hardNav) {
+    return (
+      <a href={to} className={classes}>
+        {children}
+      </a>
+    );
+  }
   return (
-    <Link
-      to={to}
-      className={cn(
-        "inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted",
-        className,
-      )}
-    >
+    <Link to={to} className={classes}>
       {children}
     </Link>
   );

@@ -31,7 +31,9 @@ export function Hero() {
 
           <RevealItem className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <CtaButton to={links.install}>Get started</CtaButton>
-            <GhostButton to={links.demo}>Live demo</GhostButton>
+            <GhostButton to={links.demo} hardNav>
+              Live demo
+            </GhostButton>
           </RevealItem>
         </Reveal>
 
