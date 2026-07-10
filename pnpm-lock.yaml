@@ -364,6 +364,9 @@ importers:
       '@chelone/core':
         specifier: workspace:*
         version: link:../core
+      cronstrue:
+        specifier: ^3.24.0
+        version: 3.24.0
       libphonenumber-js:
         specifier: ^1.13.8
         version: 1.13.8

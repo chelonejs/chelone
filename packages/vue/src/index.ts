@@ -46,6 +46,7 @@ export {
   useListController,
 } from "./controllers";
 // --- supporting composables the vertical is built on ----------------------
+export { useUpdate } from "./data/mutations";
 export { useGetList, useGetOne } from "./data/queries";
 export type {
   CheloneFormContextValue,
