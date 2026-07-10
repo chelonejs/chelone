@@ -322,7 +322,15 @@ function mountAdmin(render: () => unknown) {
   });
   const Harness = defineComponent({
     setup() {
-      return () => h(Admin, { dataProvider, queryClient }, { default: render });
+      // Override the #layout slot with an empty node to suppress the default
+      // <Layout> chrome — a null slot would let Vue fall back to the chrome, so
+      // its sidebar <li>s + brand text would leak into `findAll`/`text`.
+      return () =>
+        h(
+          Admin,
+          { dataProvider, queryClient },
+          { default: render, layout: () => h("div") },
+        );
     },
   });
   return mount(Harness, { global: { plugins: [makeRouter()] } });

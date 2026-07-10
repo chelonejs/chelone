@@ -41,6 +41,8 @@ import type {
 import { QueryClient, VUE_QUERY_CLIENT } from "@tanstack/vue-query";
 import { onScopeDispose, provide, watchEffect } from "vue";
 import { useRouter } from "vue-router";
+import Layout from "../components/admin/layout/layout.vue";
+import ThemeProvider from "../components/admin/layout/theme-provider.vue";
 import { provideCheloneContext } from "../context";
 import { provideVueRouterAdapter } from "../router/vue-router-adapter";
 import {
@@ -209,9 +211,14 @@ onScopeDispose(() => {
        no DOM. It must always render so registration runs. -->
   <slot />
   <!-- The shell: a #layout slot overrides the default chrome; its fallback is
-       the dashboard slot + the route view. -->
+       the default <Layout> (sidebar + app bar + theme), wrapped in a
+       <ThemeProvider>, framing the dashboard slot + the route view. -->
   <slot name="layout">
-    <slot name="dashboard" />
-    <router-view />
+    <ThemeProvider>
+      <Layout>
+        <slot name="dashboard" />
+        <router-view />
+      </Layout>
+    </ThemeProvider>
   </slot>
 </template>

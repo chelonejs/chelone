@@ -1,0 +1,151 @@
+/**
+ * V3-a Task 1 contract — the app shell. Mounting `<Admin>` (with no `#layout`
+ * slot) must render the default `<Layout>` frame: a sidebar + an app bar, an
+ * auto-generated resource menu, and a theme toggle that flips the `dark` class
+ * on `<html>`. Mirrors the intent of the React twins' `layout.test.tsx` /
+ * `theme-provider.test.tsx`, translated to the Vue mount harness.
+ */
+
+import { flushPromises, mount } from "@vue/test-utils";
+import { beforeEach, describe, expect, it } from "vitest";
+import { defineComponent, h, nextTick } from "vue";
+import { createMemoryHistory, createRouter, type Router } from "vue-router";
+import Admin from "../../../admin/admin.vue";
+import Resource from "../../../admin/resource.vue";
+import { CheloneContextKey, type CheloneContextValue } from "../../../context";
+import ThemeModeToggle from "./theme-mode-toggle.vue";
+import ThemeProvider from "./theme-provider.vue";
+
+// This jsdom config ships without localStorage; install an in-memory stub so the
+// theme provider's persistence path (and these assertions) exercise real storage.
+if (typeof globalThis.localStorage === "undefined") {
+  const store = new Map<string, string>();
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => store.set(key, value),
+      removeItem: (key: string) => store.delete(key),
+      clear: () => store.clear(),
+      key: (index: number) => [...store.keys()][index] ?? null,
+      get length() {
+        return store.size;
+      },
+    },
+  });
+}
+
+const Blank = defineComponent({ setup: () => () => h("div", "blank") });
+
+const dataProvider = {
+  name: "stub-dp",
+} as unknown as CheloneContextValue["dataProvider"];
+
+function makeRouter(): Router {
+  return createRouter({
+    history: createMemoryHistory(),
+    routes: [{ path: "/", component: Blank }],
+  });
+}
+
+beforeEach(() => {
+  // jsdom's <html> + localStorage persist across tests — reset the theme state.
+  document.documentElement.classList.remove("light", "dark");
+  localStorage.clear();
+});
+
+describe("<Layout> shell (via <Admin> default slot)", () => {
+  it("renders the sidebar + app bar frame around the routed content", async () => {
+    const router = makeRouter();
+    const wrapper = mount(Admin, {
+      props: { dataProvider },
+      slots: {
+        default: () => h(Resource, { name: "posts", list: Blank }),
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
+
+    expect(wrapper.find('[data-slot="sidebar"]').exists()).toBe(true);
+    expect(wrapper.find('[data-slot="app-bar"]').exists()).toBe(true);
+    expect(wrapper.find('[data-slot="sidebar-trigger"]').exists()).toBe(true);
+    // The brand header renders the default "Chelone" label.
+    expect(wrapper.text()).toContain("Chelone");
+  });
+
+  it("auto-generates a menu link per resource that has a list view", async () => {
+    const router = makeRouter();
+    const wrapper = mount(Admin, {
+      props: { dataProvider },
+      slots: {
+        default: () => [
+          h(Resource, { name: "posts", list: Blank }),
+          h(Resource, { name: "comments", list: Blank }),
+          // No list view → no menu entry.
+          h(Resource, { name: "tags", edit: Blank }),
+        ],
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
+
+    const hrefs = wrapper
+      .findAll('[data-slot="sidebar-menu-button"]')
+      .map((el) => el.attributes("href"));
+    expect(hrefs).toContain("/posts");
+    expect(hrefs).toContain("/comments");
+    expect(hrefs).not.toContain("/tags");
+  });
+
+  it("mounts a theme toggle that flips the dark class on <html>", async () => {
+    const router = makeRouter();
+    const wrapper = mount(Admin, {
+      props: { dataProvider },
+      slots: {
+        default: () => h(Resource, { name: "posts", list: Blank }),
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
+
+    // Default mode "system" resolves to light under jsdom (no matchMedia).
+    expect(document.documentElement.classList.contains("light")).toBe(true);
+
+    const toggle = wrapper.find("[data-theme-mode-toggle]");
+    expect(toggle.exists()).toBe(true);
+
+    // Cycle order is light -> dark -> system; from the default "system" two
+    // clicks (system -> light -> dark) land the dark class on <html>.
+    await toggle.trigger("click");
+    await toggle.trigger("click");
+    await nextTick();
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(document.documentElement.classList.contains("light")).toBe(false);
+  });
+});
+
+describe("<ThemeProvider> + <ThemeModeToggle> in isolation", () => {
+  it("cycles light -> dark -> system and persists to localStorage", async () => {
+    // The toggle's label uses `useTranslate`, which reads the Chelone context;
+    // provide a minimal (i18n-less) one so it echoes without an <Admin>.
+    const wrapper = mount(ThemeProvider, {
+      props: { defaultTheme: "light", storageKey: "test-theme" },
+      slots: { default: () => h(ThemeModeToggle) },
+      global: {
+        provide: { [CheloneContextKey]: {} as CheloneContextValue },
+      },
+    });
+    await nextTick();
+    expect(document.documentElement.classList.contains("light")).toBe(true);
+
+    const toggle = wrapper.find("[data-theme-mode-toggle]");
+    await toggle.trigger("click");
+    await nextTick();
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(localStorage.getItem("test-theme")).toBe("dark");
+
+    await toggle.trigger("click");
+    await nextTick();
+    expect(localStorage.getItem("test-theme")).toBe("system");
+  });
+});

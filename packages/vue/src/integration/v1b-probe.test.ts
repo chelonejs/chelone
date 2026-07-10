@@ -123,7 +123,10 @@ function mountAdmin(render: () => unknown, opts: MountOpts = {}) {
         h(
           Admin,
           { dataProvider, queryClient, i18n: opts.i18n },
-          { default: render },
+          // Override #layout with an empty node to suppress the default <Layout>
+          // chrome (a null slot falls back to the chrome, whose sidebar DOM
+          // would pollute these probes' document-wide `text()` assertions).
+          { default: render, layout: () => h("div") },
         );
     },
   });

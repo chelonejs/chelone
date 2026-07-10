@@ -21,6 +21,32 @@ export {
 } from "./field";
 export { default as Input } from "./input.vue";
 export { default as NativeSelect } from "./native-select.vue";
+// --- sidebar primitive family --------------------------------------------
+export type {
+  SidebarContext,
+  SidebarMenuButtonProps,
+  SidebarProps,
+  SidebarProviderProps,
+  SidebarState,
+} from "./sidebar";
+export {
+  SIDEBAR_WIDTH,
+  SIDEBAR_WIDTH_ICON,
+  Sidebar,
+  SidebarContent,
+  SidebarContextKey,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from "./sidebar";
 export { default as Switch } from "./switch.vue";
 export {
   Table,

@@ -152,6 +152,29 @@ export type {
   WebhookEndpointInputProps,
 } from "./admin/inputs/webhook-endpoint-input.vue";
 export { default as WebhookEndpointInput } from "./admin/inputs/webhook-endpoint-input.vue";
+// --- admin: layout (V3-a app shell) ---------------------------------------
+export type { AppBarProps } from "./admin/layout/app-bar.vue";
+export { default as AppBar } from "./admin/layout/app-bar.vue";
+export type { AppSidebarProps } from "./admin/layout/app-sidebar.vue";
+export { default as AppSidebar } from "./admin/layout/app-sidebar.vue";
+export { default as Layout } from "./admin/layout/layout.vue";
+export { default as Menu } from "./admin/layout/menu.vue";
+export type { ResourceMenuItemProps } from "./admin/layout/resource-menu-item.vue";
+export { default as ResourceMenuItem } from "./admin/layout/resource-menu-item.vue";
+export type {
+  ResolvedTheme,
+  Theme,
+  ThemeContext,
+} from "./admin/layout/theme-context";
+export {
+  resolveTheme,
+  ThemeContextKey,
+  useTheme,
+} from "./admin/layout/theme-context";
+export type { ThemeModeToggleProps } from "./admin/layout/theme-mode-toggle.vue";
+export { default as ThemeModeToggle } from "./admin/layout/theme-mode-toggle.vue";
+export type { ThemeProviderProps } from "./admin/layout/theme-provider.vue";
+export { default as ThemeProvider } from "./admin/layout/theme-provider.vue";
 // --- admin: list ----------------------------------------------------------
 export { default as DataTable } from "./admin/list/data-table.vue";
 export { default as DataTableCol } from "./admin/list/data-table-col.vue";

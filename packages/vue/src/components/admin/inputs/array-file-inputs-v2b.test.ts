@@ -91,7 +91,13 @@ function mountInForm(
         h(
           Admin,
           { dataProvider, queryClient },
-          { default: () => h(FormHost, null, { default: render }) },
+          {
+            default: () => h(FormHost, null, { default: render }),
+            // Override #layout with an empty node to suppress the default
+            // <Layout> chrome (a null slot falls back to the chrome, whose
+            // sidebar DOM would pollute this harness's document-wide queries).
+            layout: () => h("div"),
+          },
         );
     },
   });
