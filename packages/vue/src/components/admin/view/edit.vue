@@ -23,12 +23,21 @@ import {
   useResourceContext,
 } from "../../../resource-context";
 
-const props = defineProps<{
-  resource?: string;
-  id?: Identifier;
-  title?: string;
-  redirectOnSave?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    resource?: string;
+    id?: Identifier;
+    title?: string;
+    /**
+     * Redirect to the list on a successful save (the default). Vue coerces an
+     * absent Boolean prop to `false`, so this MUST default via `withDefaults`
+     * (otherwise omitting it silently disables the redirect); pass `false` to
+     * stay on the form after save.
+     */
+    redirectOnSave?: boolean;
+  }>(),
+  { redirectOnSave: true },
+);
 
 const resource = props.resource ?? useResourceContext();
 if (!resource) {
@@ -46,7 +55,7 @@ const form = useForm<Record<string, unknown>>({
   record: edit.record as Record<string, unknown> | undefined,
   onSubmit: async (data): Promise<FieldErrors | undefined> => {
     const errors = await edit.save(data);
-    if (!errors && props.redirectOnSave !== false) {
+    if (!errors && props.redirectOnSave) {
       redirect("list", resource);
     }
     return errors;
