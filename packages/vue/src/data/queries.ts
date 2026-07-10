@@ -16,8 +16,10 @@
 
 import {
   type GetListParams,
+  type GetManyParams,
   type GetOneParams,
   getListOptions,
+  getManyOptions,
   getOneOptions,
   type ResourceMap,
 } from "@chelone/core";
@@ -38,6 +40,28 @@ export function useGetOne<
   return useQuery(
     computed(() => ({
       ...getOneOptions(ctx, resource, toValue(params)),
+      enabled: options.enabled === undefined ? true : toValue(options.enabled),
+    })),
+  );
+}
+
+/**
+ * Fetch many records by an array of ids, reactively — the Vue twin of
+ * `@chelone/react`'s `useGetMany`. Backs `<ReferenceArrayField>` (resolve an
+ * FK array to its records). `enabled` gates the fetch (skip an empty id list).
+ */
+export function useGetMany<
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(
+  resource: TName,
+  params: MaybeRefOrGetter<GetManyParams>,
+  options: { enabled?: MaybeRefOrGetter<boolean> } = {},
+) {
+  const ctx = useCheloneContext<TResources>();
+  return useQuery(
+    computed(() => ({
+      ...getManyOptions(ctx, resource, toValue(params)),
       enabled: options.enabled === undefined ? true : toValue(options.enabled),
     })),
   );

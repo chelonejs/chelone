@@ -84,7 +84,7 @@ export {
 } from "./controllers";
 // --- supporting composables the vertical is built on ----------------------
 export { useUpdate } from "./data/mutations";
-export { useGetList, useGetOne } from "./data/queries";
+export { useGetList, useGetMany, useGetOne } from "./data/queries";
 export type {
   CheloneFormContextValue,
   FormSubmit,
@@ -118,6 +118,8 @@ export {
   provideListContext,
   useListContext,
 } from "./list/list-context";
+export type { UseListOptions } from "./list/use-list";
+export { useList } from "./list/use-list";
 export type {
   RecordValue,
   UseRecordContextOptions,

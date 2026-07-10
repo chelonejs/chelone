@@ -1,0 +1,82 @@
+<script lang="ts">
+import type {
+  FilterPayload,
+  Identifier,
+  LooseRecord,
+  SortPayload,
+} from "@chelone/core";
+
+/** Props for {@link ReferenceArrayField}. */
+export interface ReferenceArrayFieldProps {
+  /** The FK-array field on the current record (e.g. `"tag_ids"`). */
+  source: string;
+  /** The referenced resource the ids point at (e.g. `"tags"`). */
+  reference: string;
+  /** The record to read the FK array off. Defaults to the ambient record. */
+  record?: LooseRecord;
+  /** Client-side sort for the resolved list. */
+  sort?: SortPayload;
+  /** Client-side filter for the resolved list. */
+  filter?: FilterPayload;
+  /** Client-side page size for the resolved list. */
+  perPage?: number;
+}
+</script>
+
+<script setup lang="ts">
+/**
+ * `<ReferenceArrayField>` — displays multiple related records by following an
+ * array of foreign keys. The Vue port of `@chelone/react`'s
+ * `fields/reference-array-field.tsx`. Reads the id array at `source`, fetches the
+ * referenced records with `useGetMany`, drops them in a client-side `ListContext`,
+ * publishes the reference resource, and renders its default slot.
+ *
+ * Rebridge note (mirrors the React twin): chelone has no `ReferenceArrayFieldBase`
+ * — composes `useFieldValue` + `useGetMany` + client-side `useList` +
+ * `provideListContext` + `provideResourceContext`.
+ */
+
+import type { ResourceRecord } from "@chelone/core";
+import { computed } from "vue";
+import { useGetMany } from "../../../data/queries";
+import { useFieldValue } from "../../../record/use-field-value";
+import { provideListContext } from "../../../list/list-context";
+import { provideResourceContext } from "../../../resource-context";
+import { useList } from "../../../list/use-list";
+
+const props = defineProps<ReferenceArrayFieldProps>();
+
+const value = useFieldValue({ source: props.source, record: props.record });
+
+const ids = computed<Identifier[]>(() =>
+  Array.isArray(value.value) ? (value.value as Identifier[]) : [],
+);
+
+const query = useGetMany(
+  props.reference,
+  () => ({ ids: ids.value }),
+  { enabled: () => ids.value.length > 0 },
+);
+
+// Only "pending" while a non-empty fetch is in flight; an empty FK array
+// resolves to an empty list synchronously.
+const listContext = useList({
+  data: () =>
+    (ids.value.length > 0
+      ? (query.data.value ?? undefined)
+      : []) as ResourceRecord[] | undefined,
+  isPending: () => (ids.value.length > 0 ? query.isPending.value : false),
+  isFetching: () => (ids.value.length > 0 ? query.isFetching.value : false),
+  error: () => query.error.value,
+  sort: props.sort,
+  filter: props.filter,
+  perPage: props.perPage,
+});
+
+provideResourceContext(props.reference);
+provideListContext(listContext);
+</script>
+
+<template>
+  <slot />
+</template>

@@ -1,0 +1,127 @@
+<script lang="ts">
+import type {
+  FilterPayload,
+  LooseRecord,
+  SortPayload,
+} from "@chelone/core";
+
+/** Props for {@link ReferenceOneField}. */
+export interface ReferenceOneFieldProps {
+  /** The referenced resource holding the one-to-one record (e.g. `"bios"`). */
+  reference: string;
+  /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
+  target: string;
+  /** The field on the current record the `target` matches. Default `"id"`. */
+  source?: string;
+  /** The record whose id is matched. Defaults to the ambient record. */
+  record?: LooseRecord;
+  /** Sort applied to the reference lookup (the first match is used). */
+  sort?: SortPayload;
+  /** Permanent filter merged into the reference lookup. */
+  filter?: FilterPayload;
+  /** Rendered when no related record exists. A string is translated. */
+  empty?: string;
+  /** Rendered while the referenced record is loading. */
+  loading?: string;
+  /** Rendered when the reference lookup errors. */
+  error?: string;
+}
+</script>
+
+<script setup lang="ts">
+/**
+ * `<ReferenceOneField>` — displays a related record from a one-to-one
+ * relationship. The Vue port of `@chelone/react`'s `fields/reference-one-field.tsx`.
+ * Fetches the record of `reference` whose `target` matches the current record's id
+ * (or `source`), then renders the default slot inside a `RecordContext` populated
+ * with the referenced record — or, with no slot content, its record representation.
+ *
+ * The default slot is SCOPED (`#default="{ record }"`) — the Vue analog of the
+ * React twin's `render` prop — AND publishes the referenced record on the
+ * `RecordContext`, so a child field (`<TextField source="body" />`) reads it
+ * ambiently too. Distinct `empty` / `loading` / `error` states mirror the twin.
+ *
+ * Rebridge note: chelone has no `ReferenceOneFieldBase`; the one-to-one lookup is
+ * `useGetList({ filter: { [target]: id }, perPage: 1 })`, the first match published.
+ */
+
+import type { Identifier } from "@chelone/core";
+import { computed, inject, ref, watch } from "vue";
+import { useGetList } from "../../../data/queries";
+import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
+import {
+  RecordContextKey,
+  type RecordValue,
+} from "../../../record/record-context";
+import { provideRecordContext } from "../../../record/record-context";
+import { provideResourceContext } from "../../../resource-context";
+import { useTranslate } from "../../../i18n/use-translate";
+
+const props = defineProps<ReferenceOneFieldProps>();
+
+const injectedRecord = inject(RecordContextKey, null);
+const record = computed(() => props.record ?? injectedRecord?.value);
+
+const id = computed(
+  () => record.value?.[props.source ?? "id"] as Identifier | undefined,
+);
+
+const translate = useTranslate();
+const getRepresentation = useGetRecordRepresentation(props.reference);
+
+const query = useGetList(
+  props.reference,
+  () => ({
+    filter: { ...props.filter, [props.target]: id.value },
+    sort: props.sort,
+    pagination: { page: 1, perPage: 1 },
+  }),
+  { enabled: () => id.value != null },
+);
+
+const referenceRecord = computed(() =>
+  id.value != null ? query.data.value?.data?.[0] : undefined,
+);
+
+// Publish the referenced record so a default-slot child field reads it ambiently.
+const recordRef = ref<RecordValue>(referenceRecord.value);
+watch(referenceRecord, (next) => {
+  recordRef.value = next;
+});
+provideRecordContext(recordRef);
+provideResourceContext(props.reference);
+
+const isLoading = computed(() => id.value != null && query.isPending.value);
+const isError = computed(() => !referenceRecord.value && query.error.value != null);
+
+const representation = computed(() =>
+  referenceRecord.value ? getRepresentation(referenceRecord.value) : null,
+);
+
+const emptyText = computed(() =>
+  props.empty ? translate(props.empty, { _: props.empty }) : null,
+);
+</script>
+
+<template>
+  <template v-if="isLoading">
+    <span v-if="props.loading" data-slot="reference-one-field">{{
+      props.loading
+    }}</span>
+  </template>
+  <template v-else-if="isError">
+    <span v-if="props.error" data-slot="reference-one-field">{{
+      props.error
+    }}</span>
+  </template>
+  <template v-else-if="referenceRecord">
+    <slot :record="referenceRecord">
+      <span data-slot="reference-one-field">{{ representation }}</span>
+    </slot>
+  </template>
+  <template v-else>
+    <span v-if="emptyText != null" data-slot="reference-one-field">{{
+      emptyText
+    }}</span>
+  </template>
+</template>
