@@ -13,6 +13,11 @@ export { default as TextField } from "./admin/fields/text-field.vue";
 export type { ApiKeyInputProps } from "./admin/inputs/api-key-input.vue";
 // --- admin: inputs --------------------------------------------------------
 export { default as ApiKeyInput } from "./admin/inputs/api-key-input.vue";
+// --- admin: inputs (V2-b T3: array family + file/image) -------------------
+export type { ArrayInputProps } from "./admin/inputs/array-input.vue";
+export { default as ArrayInput } from "./admin/inputs/array-input.vue";
+export type { ArrayInputRowProps } from "./admin/inputs/array-input-row.vue";
+export { default as ArrayInputRow } from "./admin/inputs/array-input-row.vue";
 export type { AutocompleteArrayInputProps } from "./admin/inputs/autocomplete-array-input.vue";
 export { default as AutocompleteArrayInput } from "./admin/inputs/autocomplete-array-input.vue";
 export type { AutocompleteInputProps } from "./admin/inputs/autocomplete-input.vue";
@@ -26,6 +31,8 @@ export type { CronInputProps } from "./admin/inputs/cron-input.vue";
 export { default as CronInput } from "./admin/inputs/cron-input.vue";
 export { describeCron, looksLikeCron } from "./admin/inputs/cron-utils";
 export { default as CurrencyInput } from "./admin/inputs/currency-input.vue";
+export type { DatagridInputProps } from "./admin/inputs/datagrid-input.vue";
+export { default as DatagridInput } from "./admin/inputs/datagrid-input.vue";
 export { default as DateInput } from "./admin/inputs/date-input.vue";
 export { default as DateTimeInput } from "./admin/inputs/date-time-input.vue";
 export { default as DurationInput } from "./admin/inputs/duration-input.vue";
@@ -35,6 +42,16 @@ export {
   parseIsoDuration,
   relativeDuration,
 } from "./admin/inputs/duration-utils";
+export type {
+  FileInputProps,
+  TransformedFile,
+} from "./admin/inputs/file-input.vue";
+export { default as FileInput } from "./admin/inputs/file-input.vue";
+export type { FileInputPreviewProps } from "./admin/inputs/file-input-preview.vue";
+export { default as FileInputPreview } from "./admin/inputs/file-input-preview.vue";
+export type { ImageInputProps } from "./admin/inputs/image-input.vue";
+export { default as ImageInput } from "./admin/inputs/image-input.vue";
+export { default as ImageInputThumbnail } from "./admin/inputs/image-input-thumbnail.vue";
 export { humanizeSource } from "./admin/inputs/label-text";
 export { default as NullableBooleanInput } from "./admin/inputs/nullable-boolean-input.vue";
 export { default as NumberInput } from "./admin/inputs/number-input.vue";
@@ -44,6 +61,8 @@ export type { RadioButtonGroupInputProps } from "./admin/inputs/radio-button-gro
 export { default as RadioButtonGroupInput } from "./admin/inputs/radio-button-group-input.vue";
 export type { RatingInputProps } from "./admin/inputs/rating-input.vue";
 export { default as RatingInput } from "./admin/inputs/rating-input.vue";
+export type { ReferenceArrayInputProps } from "./admin/inputs/reference-array-input.vue";
+export { default as ReferenceArrayInput } from "./admin/inputs/reference-array-input.vue";
 export { default as ReferenceInput } from "./admin/inputs/reference-input.vue";
 export { default as ResettableTextInput } from "./admin/inputs/resettable-text-input.vue";
 export { default as SearchInput } from "./admin/inputs/search-input.vue";
@@ -51,6 +70,11 @@ export type { SelectArrayInputProps } from "./admin/inputs/select-array-input.vu
 export { default as SelectArrayInput } from "./admin/inputs/select-array-input.vue";
 export type { SelectInputProps } from "./admin/inputs/select-input.vue";
 export { default as SelectInput } from "./admin/inputs/select-input.vue";
+export type {
+  SubscriptionPlan,
+  SubscriptionPlanPickerProps,
+} from "./admin/inputs/subscription-plan-picker.vue";
+export { default as SubscriptionPlanPicker } from "./admin/inputs/subscription-plan-picker.vue";
 export type { TextArrayInputProps } from "./admin/inputs/text-array-input.vue";
 export { default as TextArrayInput } from "./admin/inputs/text-array-input.vue";
 export { default as TextInput } from "./admin/inputs/text-input.vue";

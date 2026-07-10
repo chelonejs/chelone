@@ -110,6 +110,7 @@ export { useTranslate } from "./i18n/use-translate";
 export type { GetRecordRepresentation } from "./label/use-get-record-representation";
 export { useGetRecordRepresentation } from "./label/use-get-record-representation";
 export { areIdsEqual } from "./lib/are-ids-equal";
+export { shallowEqual } from "./lib/shallow-equal";
 export { cn } from "./lib/utils";
 export type { ListContextValue } from "./list/list-context";
 export {
