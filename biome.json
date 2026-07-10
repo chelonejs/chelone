@@ -76,6 +76,29 @@
           }
         }
       }
+    },
+    {
+      "includes": ["packages/vue/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react-dom": "@chelone/vue must not import react-dom.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
+                  "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
+                  "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
+                  "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
+                }
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }
