@@ -7,10 +7,12 @@
  * is built from the `@chelone/vue` components over the in-memory
  * `fakeDataProvider` — no server.
  *
- * The `#layout` slot supplies the demo's chrome (a nav bar + `<router-view />`);
- * it WINS over `<Admin>`'s default fallback, so the demo owns where the routed
- * page renders. The default slot holds the `<Resource>` markers (they register
- * and render no DOM).
+ * No `#layout` override: `<Admin>` renders its DEFAULT shell — the `<Layout>`
+ * (a `<Sidebar>` with a resource `<Menu>` linking each registered resource + an
+ * `<AppBar>` carrying the page title and a `<UserMenu>`), wrapped in a
+ * `<ThemeProvider>`. The routed resource view mounts in the shell's main content
+ * area. The default slot holds the `<Resource>` markers (they register and
+ * render no DOM).
  */
 
 import { fakeDataProvider } from "@chelone/core";
@@ -54,38 +56,5 @@ const i18n = makeI18n();
       :create="PostCreate"
     />
     <Resource name="authors" :list="AuthorList" />
-
-    <template #layout>
-      <div class="min-h-screen">
-        <header class="border-b">
-          <nav
-            class="mx-auto flex max-w-5xl items-center gap-4 px-6 py-3 text-sm"
-          >
-            <span class="font-semibold">Chelone · Vue</span>
-            <RouterLink
-              to="/posts"
-              class="text-muted-foreground hover:text-foreground"
-            >
-              Posts
-            </RouterLink>
-            <RouterLink
-              to="/authors"
-              class="text-muted-foreground hover:text-foreground"
-            >
-              Authors
-            </RouterLink>
-            <RouterLink
-              to="/posts/create"
-              class="ml-auto text-primary underline underline-offset-4"
-            >
-              Create post
-            </RouterLink>
-          </nav>
-        </header>
-        <main class="mx-auto max-w-5xl px-6 py-6">
-          <router-view />
-        </main>
-      </div>
-    </template>
   </Admin>
 </template>
