@@ -40,6 +40,8 @@ export {
   useArrayInput,
   useIteratorItem,
 } from "./array";
+// --- auth composables (V3-a app shell: identity / auth-state / logout) -----
+export { useAuthState, useGetIdentity, useLogout } from "./auth/auth-hooks";
 // --- choices slice (shared choice machinery consumed by choice inputs) -----
 export type {
   ChoiceRecord,

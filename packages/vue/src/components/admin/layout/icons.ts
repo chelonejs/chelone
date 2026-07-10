@@ -37,3 +37,10 @@ export const HouseIcon: FunctionalComponent = glyph([
   "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8",
   "M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
 ]);
+
+/** The default logout glyph (a door + arrow) — the `<Logout>` item's default icon. */
+export const LogOutIcon: FunctionalComponent = glyph([
+  "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4",
+  "M16 17l5-5-5-5",
+  "M21 12H9",
+]);

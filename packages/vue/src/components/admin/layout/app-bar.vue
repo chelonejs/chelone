@@ -14,14 +14,18 @@ export interface AppBarProps {
  *
  * Slots (the Vue idiom for the React twin's override props):
  * - `#start` — replaces the default `<SidebarTrigger>`.
- * - `#title` — the page-title region (a `<Title>`/breadcrumb slot lands later).
+ * - `#title` — the page-title region (defaults to `<TitlePortal>`, the target a
+ *   page `<Title>` teleports into).
  * - `#toolbar` — replaces the default `<ThemeModeToggle>`.
- * - `#user-menu` — the user menu (a `<UserMenu>` component lands in a later wave).
+ * - `#user-menu` — replaces the default `<UserMenu>` (which itself renders
+ *   nothing when no `authProvider` is configured).
  */
 
 import { cn } from "../../../lib/utils";
 import { SidebarTrigger } from "../../ui/sidebar";
 import ThemeModeToggle from "./theme-mode-toggle.vue";
+import TitlePortal from "./title-portal.vue";
+import UserMenu from "./user-menu.vue";
 
 const props = defineProps<AppBarProps>();
 </script>
@@ -40,11 +44,15 @@ const props = defineProps<AppBarProps>();
       <SidebarTrigger />
     </slot>
     <div class="flex min-w-0 flex-1 items-center" data-slot="app-bar-title">
-      <slot name="title" />
+      <slot name="title">
+        <TitlePortal />
+      </slot>
     </div>
     <slot name="toolbar">
       <ThemeModeToggle />
     </slot>
-    <slot name="user-menu" />
+    <slot name="user-menu">
+      <UserMenu />
+    </slot>
   </header>
 </template>

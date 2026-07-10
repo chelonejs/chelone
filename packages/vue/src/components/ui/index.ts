@@ -3,6 +3,7 @@
 // table family, card family). Native-backed + dependency-free; reka-ui prop
 // diffs are adapted per primitive (see each file's header).
 
+export { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 export { Badge, type BadgeVariant } from "./badge";
 export { default as Button } from "./button.vue";
 export {
@@ -13,6 +14,22 @@ export {
   CardTitle,
 } from "./card";
 export { default as Checkbox } from "./checkbox.vue";
+// --- dropdown-menu primitive family --------------------------------------
+export type {
+  DropdownMenuContentProps,
+  DropdownMenuContext,
+} from "./dropdown-menu";
+export {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuKey,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  provideDropdownMenu,
+  useDropdownMenu,
+} from "./dropdown-menu";
 export {
   Field,
   FieldDescription,
@@ -47,6 +64,7 @@ export {
   SidebarTrigger,
   useSidebar,
 } from "./sidebar";
+export { default as Skeleton } from "./skeleton.vue";
 export { default as Switch } from "./switch.vue";
 export {
   Table,

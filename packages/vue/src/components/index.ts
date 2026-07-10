@@ -2,6 +2,9 @@
 // plus the `admin/` SFCs (list/datatable, edit/create, inputs, fields, buttons)
 // wired to the Task 5/6 controller + form composables.
 
+// --- admin: auth (V3-a app shell) -----------------------------------------
+export type { LogoutProps } from "./admin/auth/logout.vue";
+export { default as Logout } from "./admin/auth/logout.vue";
 // --- admin: buttons + form ------------------------------------------------
 export { default as SaveButton } from "./admin/buttons/save-button.vue";
 export { default as Toolbar } from "./admin/buttons/toolbar.vue";
@@ -181,6 +184,13 @@ export type { ThemeModeToggleProps } from "./admin/layout/theme-mode-toggle.vue"
 export { default as ThemeModeToggle } from "./admin/layout/theme-mode-toggle.vue";
 export type { ThemeProviderProps } from "./admin/layout/theme-provider.vue";
 export { default as ThemeProvider } from "./admin/layout/theme-provider.vue";
+export type { TitleProps } from "./admin/layout/title.vue";
+export { default as Title } from "./admin/layout/title.vue";
+export type { TitlePortalProps } from "./admin/layout/title-portal.vue";
+export { default as TitlePortal } from "./admin/layout/title-portal.vue";
+export { TITLE_PORTAL_ID } from "./admin/layout/title-portal-id";
+export type { UserMenuProps } from "./admin/layout/user-menu.vue";
+export { default as UserMenu } from "./admin/layout/user-menu.vue";
 // --- admin: list ----------------------------------------------------------
 export { default as DataTable } from "./admin/list/data-table.vue";
 export { default as DataTableCol } from "./admin/list/data-table-col.vue";
