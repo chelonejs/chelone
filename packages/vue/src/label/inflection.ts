@@ -25,6 +25,28 @@ export function humanize(text: string): string {
   return capitalizeFirst(spaced);
 }
 
+/**
+ * Convert a camelCase / snake_case identifier to lowercase underscore form:
+ * `firstName` → `first_name`, `full_name` → `full_name`. Parity with ra-core's
+ * `inflection.underscore` (the first transform in the field-label chain).
+ */
+function underscore(text: string): string {
+  return text
+    .replace(/([a-z\d])([A-Z])/g, "$1_$2")
+    .replace(/[-\s]+/g, "_")
+    .toLowerCase();
+}
+
+/**
+ * ra-core `transform(source, ['underscore','humanize'])`: camelCase-aware
+ * humanization for FIELD labels — `firstName` → `First name`, `full_name` →
+ * `Full name`, `author name` → `Author name`. Used by `useTranslateLabel` for
+ * the humanized fallback when no translation key and no explicit label exist.
+ */
+export function humanizeField(source: string): string {
+  return humanize(underscore(source));
+}
+
 // A small irregular plural table (singular ↔ plural) — the common cases the
 // resource-name fallback is likely to hit.
 const IRREGULARS: ReadonlyArray<readonly [string, string]> = [

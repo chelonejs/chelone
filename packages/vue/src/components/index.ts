@@ -61,7 +61,13 @@ export { default as SidebarToggleButton } from "./admin/buttons/sidebar-toggle-b
 export type { SortButtonProps } from "./admin/buttons/sort-button.vue";
 export { default as SortButton } from "./admin/buttons/sort-button.vue";
 export { default as Toolbar } from "./admin/buttons/toolbar.vue";
-// --- admin: common --------------------------------------------------------
+// --- admin: common (V3-c) -------------------------------------------------
+export type { FieldLabelTextProps } from "./admin/common/field-label-text.vue";
+export { default as FieldLabelText } from "./admin/common/field-label-text.vue";
+export type { InputHelperTextProps } from "./admin/common/input-helper-text.vue";
+export { default as InputHelperText } from "./admin/common/input-helper-text.vue";
+export type { KeyboardShortcutProps } from "./admin/common/keyboard-shortcut.vue";
+export { default as KeyboardShortcut } from "./admin/common/keyboard-shortcut.vue";
 export { default as ValidationError } from "./admin/common/validation-error.vue";
 // --- admin: feedback (V3-c) -----------------------------------------------
 export type { ConfirmProps } from "./admin/feedback/confirm.vue";

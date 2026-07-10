@@ -140,11 +140,16 @@ export {
 } from "./form";
 export type { Translate } from "./i18n/use-translate";
 export { useTranslate } from "./i18n/use-translate";
-export { humanize, pluralize } from "./label/inflection";
+export { humanize, humanizeField, pluralize } from "./label/inflection";
 export type { GetRecordRepresentation } from "./label/use-get-record-representation";
 export { useGetRecordRepresentation } from "./label/use-get-record-representation";
 export type { GetResourceLabel } from "./label/use-get-resource-label";
 export { useGetResourceLabel } from "./label/use-get-resource-label";
+export type {
+  TranslateLabel,
+  TranslateLabelOptions,
+} from "./label/use-translate-label";
+export { useTranslateLabel } from "./label/use-translate-label";
 export { areIdsEqual } from "./lib/are-ids-equal";
 export { shallowEqual } from "./lib/shallow-equal";
 export { cn } from "./lib/utils";
