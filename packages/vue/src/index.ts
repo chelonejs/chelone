@@ -19,6 +19,8 @@ export {
   ResourceRegistryKey,
   useResourceRegistry,
 } from "./admin/resource-registry";
+// --- component vertical (ui slice + admin SFCs) ---------------------------
+export * from "./components";
 export type { CheloneContextValue } from "./context";
 export {
   CheloneContextKey,
@@ -43,6 +45,8 @@ export {
   useEditController,
   useListController,
 } from "./controllers";
+// --- supporting composables the vertical is built on ----------------------
+export { useGetList, useGetOne } from "./data/queries";
 export type {
   CheloneFormContextValue,
   FormSubmit,
@@ -63,6 +67,28 @@ export {
   useSourceScope,
   useWrappedSource,
 } from "./form";
+export type { Translate } from "./i18n/use-translate";
+export { useTranslate } from "./i18n/use-translate";
+export type { GetRecordRepresentation } from "./label/use-get-record-representation";
+export { useGetRecordRepresentation } from "./label/use-get-record-representation";
+export { cn } from "./lib/utils";
+export type { ListContextValue } from "./list/list-context";
+export {
+  ListContextKey,
+  provideListContext,
+  useListContext,
+} from "./list/list-context";
+export type {
+  RecordValue,
+  UseRecordContextOptions,
+} from "./record/record-context";
+export {
+  provideRecordContext,
+  RecordContextKey,
+  useRecordContext,
+} from "./record/record-context";
+export type { UseFieldValueOptions } from "./record/use-field-value";
+export { useFieldValue } from "./record/use-field-value";
 export type { UseResourceContextOptions } from "./resource-context";
 export {
   provideResourceContext,
