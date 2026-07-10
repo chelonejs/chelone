@@ -37,7 +37,7 @@ const props = withDefaults(
     inputClass?: string;
     class?: string;
   }>(),
-  { resettable: true, clearAlwaysVisible: false },
+  { resettable: true, clearAlwaysVisible: false, label: undefined },
 );
 
 const translate = useTranslate();

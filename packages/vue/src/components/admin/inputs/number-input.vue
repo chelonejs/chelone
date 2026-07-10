@@ -14,13 +14,15 @@ import Input from "../../ui/input.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   source: string;
   label?: string | false;
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
   class?: string;
-}>();
+}>(), {
+  label: undefined,
+});
 
 /** Parse the raw string to a number, or `null` on empty/unparseable. */
 function toNumber(raw: string): number | null {

@@ -22,7 +22,7 @@ import NativeSelect from "../../ui/native-select.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   source: string;
   label?: string | false;
   nullLabel?: string;
@@ -32,7 +32,9 @@ const props = defineProps<{
   disabled?: boolean;
   helperText?: string;
   class?: string;
-}>();
+}>(), {
+  label: undefined,
+});
 
 const getStringFromBoolean = (v: unknown): string => {
   if (v === true) return "true";

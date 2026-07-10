@@ -14,13 +14,15 @@ import Switch from "../../ui/switch.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   source: string;
   label?: string | false;
   defaultValue?: boolean;
   validate?: Validator | readonly Validator[];
   class?: string;
-}>();
+}>(), {
+  label: undefined,
+});
 
 const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source: props.source,

@@ -16,7 +16,7 @@ import { cn } from "../../../lib/utils";
 import Button from "../../ui/button.vue";
 import TextInput from "./text-input.vue";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   source: string;
   label?: string | false;
   initiallyVisible?: boolean;
@@ -28,7 +28,9 @@ const props = defineProps<{
   readonly?: boolean;
   inputClass?: string;
   class?: string;
-}>();
+}>(), {
+  label: undefined,
+});
 
 const visible = ref(props.initiallyVisible === true);
 const translate = useTranslate();

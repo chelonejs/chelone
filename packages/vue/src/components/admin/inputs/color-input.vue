@@ -17,7 +17,7 @@ import { Field, FieldError, FieldLabel } from "../../ui/field";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   source: string;
   label?: string | false;
   defaultValue?: unknown;
@@ -26,7 +26,9 @@ const props = defineProps<{
   swatches?: readonly string[];
   disabled?: boolean;
   class?: string;
-}>();
+}>(), {
+  label: undefined,
+});
 
 const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source: props.source,

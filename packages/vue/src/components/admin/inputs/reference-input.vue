@@ -19,14 +19,16 @@ import NativeSelect from "../../ui/native-select.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   source: string;
   reference: string;
   label?: string | false;
   perPage?: number;
   validate?: Validator | readonly Validator[];
   class?: string;
-}>();
+}>(), {
+  label: undefined,
+});
 
 const { id, value, setValue, error, touched, isRequired } = useInput({
   source: props.source,

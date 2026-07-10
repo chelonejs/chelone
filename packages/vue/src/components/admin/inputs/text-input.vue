@@ -15,7 +15,7 @@ import Input from "../../ui/input.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   source: string;
   label?: string | false;
   type?: string;
@@ -28,7 +28,9 @@ const props = defineProps<{
   /** Class applied to the inner `<Input>` control (wrappers reserve trailing room). */
   inputClass?: string;
   class?: string;
-}>();
+}>(), {
+  label: undefined,
+});
 
 const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source: props.source,
