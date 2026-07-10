@@ -7,4 +7,4 @@
 // *how* it subscribes (a shallowRef + MicroStore.subscribe + onScopeDispose
 // bridge). The barrel fills in as V1 tasks land (store bridge, router adapter,
 // <Admin>/<Resource>, controllers, form, components).
-export {};
+export { useStore, useStoreSelector } from "./store/use-store";
