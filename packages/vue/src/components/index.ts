@@ -13,7 +13,14 @@ export { default as TextField } from "./admin/fields/text-field.vue";
 export type { ApiKeyInputProps } from "./admin/inputs/api-key-input.vue";
 // --- admin: inputs --------------------------------------------------------
 export { default as ApiKeyInput } from "./admin/inputs/api-key-input.vue";
+export type { AutocompleteArrayInputProps } from "./admin/inputs/autocomplete-array-input.vue";
+export { default as AutocompleteArrayInput } from "./admin/inputs/autocomplete-array-input.vue";
+export type { AutocompleteInputProps } from "./admin/inputs/autocomplete-input.vue";
+export { default as AutocompleteInput } from "./admin/inputs/autocomplete-input.vue";
 export { default as BooleanInput } from "./admin/inputs/boolean-input.vue";
+export type { CheckboxGroupInputProps } from "./admin/inputs/checkbox-group-input.vue";
+export { default as CheckboxGroupInput } from "./admin/inputs/checkbox-group-input.vue";
+export type { ChoiceInputBaseProps } from "./admin/inputs/choice-input-props";
 export { default as ColorInput } from "./admin/inputs/color-input.vue";
 export type { CronInputProps } from "./admin/inputs/cron-input.vue";
 export { default as CronInput } from "./admin/inputs/cron-input.vue";
@@ -33,15 +40,26 @@ export { default as NullableBooleanInput } from "./admin/inputs/nullable-boolean
 export { default as NumberInput } from "./admin/inputs/number-input.vue";
 export { default as PasswordInput } from "./admin/inputs/password-input.vue";
 export { default as PhoneInput } from "./admin/inputs/phone-input.vue";
+export type { RadioButtonGroupInputProps } from "./admin/inputs/radio-button-group-input.vue";
+export { default as RadioButtonGroupInput } from "./admin/inputs/radio-button-group-input.vue";
 export type { RatingInputProps } from "./admin/inputs/rating-input.vue";
 export { default as RatingInput } from "./admin/inputs/rating-input.vue";
 export { default as ReferenceInput } from "./admin/inputs/reference-input.vue";
 export { default as ResettableTextInput } from "./admin/inputs/resettable-text-input.vue";
 export { default as SearchInput } from "./admin/inputs/search-input.vue";
+export type { SelectArrayInputProps } from "./admin/inputs/select-array-input.vue";
+export { default as SelectArrayInput } from "./admin/inputs/select-array-input.vue";
+export type { SelectInputProps } from "./admin/inputs/select-input.vue";
+export { default as SelectInput } from "./admin/inputs/select-input.vue";
 export type { TextArrayInputProps } from "./admin/inputs/text-array-input.vue";
 export { default as TextArrayInput } from "./admin/inputs/text-array-input.vue";
 export { default as TextInput } from "./admin/inputs/text-input.vue";
 export { default as TimeInput } from "./admin/inputs/time-input.vue";
+export type {
+  UseChoiceInputOptions,
+  UseChoiceInputResult,
+} from "./admin/inputs/use-choice-input";
+export { useChoiceInput } from "./admin/inputs/use-choice-input";
 export type {
   WebhookEndpoint,
   WebhookEndpointInputProps,
