@@ -9,6 +9,17 @@
 // <Admin>/<Resource>, controllers, form, components).
 
 export { default as Admin } from "./admin/admin.vue";
+// --- auth gate (no-flash gate + per-page gate + OAuth callback resolver) ---
+export type {
+  AuthGateState,
+  HandleAuthCallbackResult,
+  UseAuthenticatedOptions,
+} from "./admin/auth-gate";
+export {
+  useAuthenticated,
+  useAuthGate,
+  useHandleAuthCallback,
+} from "./admin/auth-gate";
 export {
   HasDashboardKey,
   provideHasDashboard,
@@ -40,8 +51,14 @@ export {
   useArrayInput,
   useIteratorItem,
 } from "./array";
-// --- auth composables (V3-a app shell: identity / auth-state / logout) -----
-export { useAuthState, useGetIdentity, useLogout } from "./auth/auth-hooks";
+// --- auth composables (identity / auth-state / login / logout / access) ----
+export {
+  useAuthState,
+  useCanAccess,
+  useGetIdentity,
+  useLogin,
+  useLogout,
+} from "./auth/auth-hooks";
 // --- choices slice (shared choice machinery consumed by choice inputs) -----
 export type {
   ChoiceRecord,

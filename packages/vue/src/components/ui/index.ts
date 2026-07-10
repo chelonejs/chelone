@@ -71,6 +71,7 @@ export {
   useSidebar,
 } from "./sidebar";
 export { default as Skeleton } from "./skeleton.vue";
+export { default as Spinner } from "./spinner.vue";
 export { default as Switch } from "./switch.vue";
 export {
   Table,

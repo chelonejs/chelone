@@ -2,7 +2,20 @@
 // plus the `admin/` SFCs (list/datatable, edit/create, inputs, fields, buttons)
 // wired to the Task 5/6 controller + form composables.
 
-// --- admin: auth (V3-a app shell) -----------------------------------------
+// --- admin: auth (V3-a app shell + V3-c auth pages) -----------------------
+export type { AccessDeniedProps } from "./admin/auth/access-denied.vue";
+export { default as AccessDenied } from "./admin/auth/access-denied.vue";
+export { default as AuthCallback } from "./admin/auth/auth-callback.vue";
+export type { AuthErrorProps } from "./admin/auth/auth-error.vue";
+export { default as AuthError } from "./admin/auth/auth-error.vue";
+export type { AuthLayoutProps } from "./admin/auth/auth-layout.vue";
+export { default as AuthLayout } from "./admin/auth/auth-layout.vue";
+export type { AuthenticationErrorProps } from "./admin/auth/authentication-error.vue";
+export { default as AuthenticationError } from "./admin/auth/authentication-error.vue";
+export type { LoginFormProps } from "./admin/auth/login-form.vue";
+export { default as LoginForm } from "./admin/auth/login-form.vue";
+export type { LoginPageProps } from "./admin/auth/login-page.vue";
+export { default as LoginPage } from "./admin/auth/login-page.vue";
 export type { LogoutProps } from "./admin/auth/logout.vue";
 export { default as Logout } from "./admin/auth/logout.vue";
 // --- admin: buttons + form ------------------------------------------------

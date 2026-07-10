@@ -6,15 +6,21 @@
  * `authProvider`, reusing the SAME vue-query client `<Admin>` installs under
  * `VUE_QUERY_CLIENT`.
  *
- * Only the three the V3-a app shell needs are ported here — the login page +
- * the auth gate (`useLogin` / `useCanAccess` / `useAuthState`-gated routing)
- * land in the V3-c auth wave. `useChelonAuthProvider` throws when no provider is
- * configured (parity with the React twin), so every one of these must run past
- * an authProvider guard — `<UserMenu>` mounts its identity-reading body only
- * when a provider is present, exactly as the React twin isolates the read.
+ * The V3-a app shell ported the three the shell needs (`useGetIdentity` /
+ * `useAuthState` / `useLogout`); the V3-c auth wave adds the login mutation
+ * (`useLogin`) and the access check (`useCanAccess`) the login page + gate
+ * consume. `useChelonAuthProvider` throws when no provider is configured (parity
+ * with the React twin), so every one of these must run past an authProvider
+ * guard — `<UserMenu>` mounts its identity-reading body only when a provider is
+ * present, exactly as the React twin isolates the read.
  */
 
-import { authStateQueryOptions, identityQueryOptions } from "@chelone/core";
+import {
+  authStateQueryOptions,
+  type CanAccessParams,
+  canAccessQueryOptions,
+  identityQueryOptions,
+} from "@chelone/core";
 import { useMutation, useQuery } from "@tanstack/vue-query";
 import { useChelonAuthProvider } from "../context";
 
@@ -31,10 +37,33 @@ export function useAuthState() {
   return useQuery(authStateQueryOptions(useChelonAuthProvider()));
 }
 
+/**
+ * A login mutation — calls the provider's `login(params)` on `mutate(...)` /
+ * `mutateAsync(...)`. The Vue twin of the React `useLogin`; `<LoginForm>` calls
+ * `mutateAsync(credentials)` and catches a rejection to surface an auth-error
+ * notification (the form `save` contract must resolve, never reject).
+ */
+export function useLogin() {
+  const authProvider = useChelonAuthProvider();
+  return useMutation({
+    mutationFn: (params: Record<string, unknown>) => authProvider.login(params),
+  });
+}
+
 /** A logout mutation — calls the provider's `logout(params)` on `mutate(...)`. */
 export function useLogout() {
   const authProvider = useChelonAuthProvider();
   return useMutation({
     mutationFn: (params?: unknown) => authProvider.logout(params),
   });
+}
+
+/**
+ * Read whether the current user may perform `action` on `resource` (+ optional
+ * `record`) as a vue-query query — the Vue twin of the React `useCanAccess`.
+ * Defaults to granted when the provider omits `canAccess` (via
+ * `canAccessQueryOptions`).
+ */
+export function useCanAccess(params: CanAccessParams) {
+  return useQuery(canAccessQueryOptions(useChelonAuthProvider(), params));
 }

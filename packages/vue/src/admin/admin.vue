@@ -41,8 +41,7 @@ import type {
 import { QueryClient, VUE_QUERY_CLIENT } from "@tanstack/vue-query";
 import { onScopeDispose, provide, useSlots, watchEffect } from "vue";
 import { useRouter } from "vue-router";
-import Layout from "../components/admin/layout/layout.vue";
-import ThemeProvider from "../components/admin/layout/theme-provider.vue";
+import AdminShell from "./admin-shell.vue";
 import { provideCheloneContext } from "../context";
 import { provideVueRouterAdapter } from "../router/vue-router-adapter";
 import { provideHasDashboard } from "./has-dashboard";
@@ -81,6 +80,15 @@ const props = defineProps<{
    * the zod schema registry — that is `registry` above.
    */
   resources?: ResourceDefinition[];
+  /**
+   * Gate the shell behind authentication (the no-flash auth gate). When `true`
+   * (and an `authProvider` is configured), the shell renders a loading spinner
+   * while the auth check is pending and the `#login` slot (default
+   * `<LoginPage>`) when unauthenticated — the protected layout never mounts
+   * during that window. Defaults `false`: the shell renders immediately, exactly
+   * as before (parity with React's `<Admin requireAuth>`).
+   */
+  requireAuth?: boolean;
 }>();
 
 defineSlots<{
@@ -90,7 +98,7 @@ defineSlots<{
   layout?: () => unknown;
   /** The index/dashboard content (rendered before the route view by default). */
   dashboard?: () => unknown;
-  /** Reserved for the auth gate (a later V1 wave). */
+  /** The unauthenticated login screen (`requireAuth`) — default `<LoginPage>`. */
   login?: () => unknown;
 }>();
 
@@ -216,15 +224,13 @@ onScopeDispose(() => {
   <!-- The default slot holds the <Resource> markers; they register and render
        no DOM. It must always render so registration runs. -->
   <slot />
-  <!-- The shell: a #layout slot overrides the default chrome; its fallback is
-       the default <Layout> (sidebar + app bar + theme), wrapped in a
-       <ThemeProvider>, framing the dashboard slot + the route view. -->
-  <slot name="layout">
-    <ThemeProvider>
-      <Layout>
-        <slot name="dashboard" />
-        <router-view />
-      </Layout>
-    </ThemeProvider>
-  </slot>
+  <!-- The shell + auth gate live in <AdminShell>, rendered INSIDE this provided
+       context so its auth composables can inject the Chelone context + query
+       client. #layout / #dashboard / #login are forwarded through (each only
+       when given, so the shell's own fallbacks apply otherwise). -->
+  <AdminShell :require-auth="props.requireAuth ?? false">
+    <template v-if="$slots.layout" #layout><slot name="layout" /></template>
+    <template v-if="$slots.dashboard" #dashboard><slot name="dashboard" /></template>
+    <template v-if="$slots.login" #login><slot name="login" /></template>
+  </AdminShell>
 </template>
