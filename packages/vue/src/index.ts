@@ -43,6 +43,26 @@ export {
   useEditController,
   useListController,
 } from "./controllers";
+export type {
+  CheloneFormContextValue,
+  FormSubmit,
+  UseFormOptions,
+  UseFormReturn,
+  UseInputOptions,
+  UseInputReturn,
+} from "./form";
+export {
+  CheloneFormContextKey,
+  firstFieldError,
+  provideCheloneForm,
+  provideSourceScope,
+  SourceScopeKey,
+  useCheloneFormContext,
+  useForm,
+  useInput,
+  useSourceScope,
+  useWrappedSource,
+} from "./form";
 export type { UseResourceContextOptions } from "./resource-context";
 export {
   provideResourceContext,
