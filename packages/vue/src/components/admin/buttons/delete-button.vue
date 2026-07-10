@@ -14,8 +14,12 @@ export interface DeleteButtonProps {
   label?: string;
   /** Where to navigate after deleting. Default `"list"`; `false` = stay. */
   redirect?: DeleteRedirect;
-  /** Confirmation-dialog body copy (the V3-c `<Confirm>` upgrade will use this). */
+  /** Confirmation-dialog title. Default `"ra.message.delete_title"`. */
+  confirmTitle?: string;
+  /** Confirmation-dialog body copy. Default `"ra.message.delete_content"`. */
   confirmContent?: string;
+  /** `"warning"` tints the confirm button destructive. Default `"warning"`. */
+  confirmColor?: "primary" | "warning";
   /** Button variant. Default `"outline"` with a destructive tint. */
   variant?:
     | "default"
@@ -38,11 +42,10 @@ export interface DeleteButtonProps {
  * - chelone has NO baked-in delete controller (React's `useDeleteController`),
  *   so this wires the pieces itself: the `useDelete(resource)` vue-query
  *   mutation on confirm, then a `useRedirect(redirect)` + a success `notify`.
- * - CONFIRM PLACEHOLDER (V3-c): the React twin gates on the `<Confirm>` dialog;
- *   the Vue `<Confirm>` primitive lands in V3-c (feedback wave). Until then this
- *   uses a minimal `window.confirm(...)` gate. V3-c should replace the
- *   `window.confirm` call with the `<Confirm>` dialog (the `confirmContent`
- *   prop + the deleting/`saving` state are already threaded for it).
+ * - the delete is gated by the `<Confirm>` dialog (V3-c): the button click opens
+ *   it; confirming dispatches the delete; cancelling / dismissing closes it. This
+ *   replaced the V3-b `window.confirm(...)` placeholder now that the Vue
+ *   `<Confirm>` primitive has landed.
  * - the `useMenuAccess` auth gate is not ported (parity with the rest of the Vue
  *   V3 surface).
  *
@@ -51,7 +54,7 @@ export interface DeleteButtonProps {
  * invalidates the resource caches on settle.
  */
 
-import { computed, inject } from "vue";
+import { computed, inject, ref } from "vue";
 import { useChelonNotifications } from "../../../context";
 import { useDelete } from "../../../data/mutations";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -59,11 +62,15 @@ import { RecordContextKey } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 import { useRedirect } from "../../../router";
 import Button from "../../ui/button.vue";
+import Confirm from "../feedback/confirm.vue";
 import { TrashIcon } from "./icons";
 
 const props = withDefaults(defineProps<DeleteButtonProps>(), {
   redirect: "list",
   variant: "outline",
+  confirmTitle: "ra.message.delete_title",
+  confirmContent: "ra.message.delete_content",
+  confirmColor: "warning",
 });
 
 const resource = useResourceContext(props);
@@ -87,19 +94,26 @@ const destructiveClass =
   "cursor-pointer text-destructive border-destructive hover:bg-destructive/10";
 const classes = computed(() => props.class ?? destructiveClass);
 
-async function onClick(): Promise<void> {
+const open = ref(false);
+
+function onClick(): void {
+  if (record.value?.id == null) return;
+  open.value = true;
+}
+
+function onCancel(): void {
+  open.value = false;
+}
+
+async function onConfirm(): Promise<void> {
   const current = record.value;
   const id = current?.id;
-  if (id == null) return;
-  const message =
-    props.confirmContent ??
-    translate("ra.message.delete_content", {
-      _: "Are you sure you want to delete this item?",
-    });
-  // V3-c: replace this window.confirm gate with the <Confirm> dialog.
-  if (typeof window !== "undefined" && !window.confirm(message)) return;
-
+  if (id == null) {
+    open.value = false;
+    return;
+  }
   await deleteMutation.mutateAsync({ id, previousData: current });
+  open.value = false;
   notifications?.notify("ra.notification.deleted", {
     type: "info",
     messageArgs: { smart_count: 1 },
@@ -123,4 +137,13 @@ async function onClick(): Promise<void> {
     <TrashIcon />
     {{ label }}
   </Button>
+  <Confirm
+    :is-open="open"
+    :loading="saving"
+    :title="confirmTitle"
+    :content="confirmContent"
+    :confirm-color="confirmColor"
+    @confirm="onConfirm"
+    @close="onCancel"
+  />
 </template>

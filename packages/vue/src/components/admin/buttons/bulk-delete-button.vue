@@ -5,8 +5,12 @@ export interface BulkDeleteButtonProps {
   resource?: string;
   /** Override the auto-translated label. */
   label?: string;
-  /** Confirmation-dialog body copy (the V3-c `<Confirm>` upgrade will use this). */
+  /** Confirmation-dialog title. Default `"ra.message.bulk_delete_title"`. */
+  confirmTitle?: string;
+  /** Confirmation-dialog body copy. Default `"ra.message.bulk_delete_content"`. */
   confirmContent?: string;
+  /** `"warning"` tints the confirm button destructive. Default `"warning"`. */
+  confirmColor?: "primary" | "warning";
   /** Extra CSS class appended to the button. */
   class?: string;
 }
@@ -23,27 +27,31 @@ export interface BulkDeleteButtonProps {
  *   mutation over those ids, then clears the selection + notifies. There is NO
  *   `useBulkDeleteController` and no undoable mode in chelone, so this is the
  *   only path (pessimistic-with-confirm).
- * - CONFIRM PLACEHOLDER (V3-c): the React twin gates on the `<Confirm>` dialog;
- *   until the Vue `<Confirm>` primitive lands (V3-c), this uses a minimal
- *   `window.confirm(...)` gate — the same placeholder `<DeleteButton>` uses. V3-c
- *   should swap the `window.confirm` call for the `<Confirm>` dialog (the
- *   `confirmContent` prop + the `isPending` state are already threaded for it).
+ * - the delete is gated by the `<Confirm>` dialog (V3-c): the button click opens
+ *   it; confirming dispatches the bulk delete + clears the selection; cancelling
+ *   closes it. This replaced the V3-b `window.confirm(...)` placeholder now that
+ *   the Vue `<Confirm>` primitive has landed.
  * - the `useMenuAccess` auth gate is not ported (parity with the rest of the Vue
  *   V3 surface).
  *
  * Use inside a `<DataTable :bulk-actions>` / `<BulkActionsToolbar>`.
  */
 
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useChelonNotifications } from "../../../context";
 import { useDeleteMany } from "../../../data/mutations";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useListContext } from "../../../list/list-context";
 import { useResourceContext } from "../../../resource-context";
 import Button from "../../ui/button.vue";
+import Confirm from "../feedback/confirm.vue";
 import { TrashIcon } from "./icons";
 
-const props = defineProps<BulkDeleteButtonProps>();
+const props = withDefaults(defineProps<BulkDeleteButtonProps>(), {
+  confirmTitle: "ra.message.bulk_delete_title",
+  confirmContent: "ra.message.bulk_delete_content",
+  confirmColor: "warning",
+});
 
 const resource = useResourceContext(props);
 if (!resource) {
@@ -62,27 +70,35 @@ const label = computed(() =>
 );
 const classes = computed(() => props.class ?? "h-9");
 
-async function onClick(event: MouseEvent): Promise<void> {
-  event.stopPropagation();
-  const ids = list.selectedIds ?? [];
-  if (ids.length === 0) return;
-  const message =
-    props.confirmContent ??
-    translate("ra.message.bulk_delete_content", {
-      smart_count: ids.length,
-      _: "Are you sure you want to delete these items?",
-    });
-  // V3-c: replace this window.confirm gate with the <Confirm> dialog.
-  if (typeof window !== "undefined" && !window.confirm(message)) return;
+const open = ref(false);
+const selectedCount = computed(() => (list.selectedIds ?? []).length);
 
+function onClick(event: MouseEvent): void {
+  event.stopPropagation();
+  if (selectedCount.value === 0) return;
+  open.value = true;
+}
+
+function onCancel(): void {
+  open.value = false;
+}
+
+async function onConfirm(): Promise<void> {
+  const ids = list.selectedIds ?? [];
+  if (ids.length === 0) {
+    open.value = false;
+    return;
+  }
   try {
     await deleteMany.mutateAsync({ ids });
+    open.value = false;
     notifications?.notify("ra.notification.deleted", {
       type: "info",
       messageArgs: { smart_count: ids.length },
     });
     list.unselectAll();
   } catch (error) {
+    open.value = false;
     console.error(error);
     notifications?.notify("ra.notification.http_error", { type: "error" });
   }
@@ -102,4 +118,14 @@ async function onClick(event: MouseEvent): Promise<void> {
     <TrashIcon />
     {{ label }}
   </Button>
+  <Confirm
+    :is-open="open"
+    :loading="isPending"
+    :title="confirmTitle"
+    :content="confirmContent"
+    :confirm-color="confirmColor"
+    :translate-options="{ smart_count: selectedCount }"
+    @confirm="onConfirm"
+    @close="onCancel"
+  />
 </template>

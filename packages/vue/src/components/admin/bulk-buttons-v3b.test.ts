@@ -78,6 +78,9 @@ const listProbe = (capture: { list?: ListContextValue }) =>
 const settled = (capture: { list?: ListContextValue }) =>
   vi.waitFor(() => expect(capture.list?.isPending).toBe(false));
 
+// `<BulkUpdateButton>` still gates on the V3-b `window.confirm(...)` placeholder
+// (only Delete/BulkDelete were upgraded to `<Confirm>` in V3-c) — jsdom does not
+// implement `window.confirm`, so stub it for that button's specs.
 let confirmSpy: ReturnType<typeof vi.spyOn>;
 beforeEach(() => {
   confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
@@ -87,7 +90,7 @@ afterEach(() => {
 });
 
 describe("<BulkDeleteButton>", () => {
-  it("deletes the selected rows after confirm and clears the selection", async () => {
+  it("opens the <Confirm> dialog then deletes on confirm + clears the selection", async () => {
     const capture: { list?: ListContextValue } = {};
     const { wrapper, dataProvider } = mountAdmin(() =>
       h(
@@ -106,16 +109,19 @@ describe("<BulkDeleteButton>", () => {
     capture.list?.select([1, 3]);
     await vi.waitFor(() => expect(capture.list?.selectedIds).toEqual([1, 3]));
 
+    // Click opens the dialog — no delete yet.
     await wrapper.find('[data-slot="bulk-delete-button"]').trigger("click");
+    expect(wrapper.find('[data-slot="confirm"]').exists()).toBe(true);
+    expect(deleteManySpy).not.toHaveBeenCalled();
 
+    await wrapper.find('[data-slot="confirm-accept"]').trigger("click");
     await vi.waitFor(() => expect(deleteManySpy).toHaveBeenCalledTimes(1));
     expect(deleteManySpy.mock.calls[0][0]).toBe("posts");
     expect(deleteManySpy.mock.calls[0][1]).toMatchObject({ ids: [1, 3] });
     await vi.waitFor(() => expect(capture.list?.selectedIds).toEqual([]));
   });
 
-  it("does nothing when the confirm is declined", async () => {
-    confirmSpy.mockReturnValue(false);
+  it("does nothing when the dialog is cancelled", async () => {
     const capture: { list?: ListContextValue } = {};
     const { wrapper, dataProvider } = mountAdmin(() =>
       h(
@@ -132,10 +138,13 @@ describe("<BulkDeleteButton>", () => {
     await settled(capture);
     const deleteManySpy = vi.spyOn(dataProvider, "deleteMany");
     capture.list?.select([1]);
+    await vi.waitFor(() => expect(capture.list?.selectedIds).toEqual([1]));
 
     await wrapper.find('[data-slot="bulk-delete-button"]').trigger("click");
+    await wrapper.find('[data-slot="confirm-cancel"]').trigger("click");
     await new Promise((r) => setTimeout(r, 0));
     expect(deleteManySpy).not.toHaveBeenCalled();
+    expect(wrapper.find('[data-slot="confirm"]').exists()).toBe(false);
   });
 
   it("does nothing when no rows are selected", async () => {

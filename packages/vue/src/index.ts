@@ -156,6 +156,8 @@ export {
 } from "./list/list-context";
 export type { UseListOptions } from "./list/use-list";
 export { useList } from "./list/use-list";
+// --- notification composables (reactive queue + notify action) ------------
+export { useNotifications, useNotify } from "./notification-hooks";
 export type {
   RecordValue,
   UseRecordContextOptions,

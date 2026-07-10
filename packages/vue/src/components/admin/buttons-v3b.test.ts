@@ -156,8 +156,7 @@ describe("<CancelButton>", () => {
 });
 
 describe("<DeleteButton>", () => {
-  it("deletes the ambient record after confirm", async () => {
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+  it("opens the <Confirm> dialog then deletes on confirm", async () => {
     const { wrapper, dataProvider } = mountAdmin(() =>
       h(
         withRecord({ id: 2, title: "t2" }, () =>
@@ -167,16 +166,23 @@ describe("<DeleteButton>", () => {
     );
     const deleteSpy = vi.spyOn(dataProvider, "delete");
 
+    // Click opens the dialog — no delete yet.
     await wrapper.find('[data-slot="delete-button"]').trigger("click");
+    expect(wrapper.find('[data-slot="confirm"]').exists()).toBe(true);
+    expect(deleteSpy).not.toHaveBeenCalled();
 
+    // Accepting the dialog dispatches the delete.
+    await wrapper.find('[data-slot="confirm-accept"]').trigger("click");
     await vi.waitFor(() => expect(deleteSpy).toHaveBeenCalledTimes(1));
     expect(deleteSpy.mock.calls[0][0]).toBe("posts");
     expect(deleteSpy.mock.calls[0][1]).toMatchObject({ id: 2 });
-    confirmSpy.mockRestore();
+    // Dialog closes after a successful delete.
+    await vi.waitFor(() =>
+      expect(wrapper.find('[data-slot="confirm"]').exists()).toBe(false),
+    );
   });
 
-  it("does nothing when the confirm is declined", async () => {
-    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
+  it("does nothing when the dialog is cancelled", async () => {
     const { wrapper, dataProvider } = mountAdmin(() =>
       h(
         withRecord({ id: 2, title: "t2" }, () =>
@@ -187,9 +193,10 @@ describe("<DeleteButton>", () => {
     const deleteSpy = vi.spyOn(dataProvider, "delete");
 
     await wrapper.find('[data-slot="delete-button"]').trigger("click");
+    await wrapper.find('[data-slot="confirm-cancel"]').trigger("click");
     await new Promise((r) => setTimeout(r, 0));
     expect(deleteSpy).not.toHaveBeenCalled();
-    confirmSpy.mockRestore();
+    expect(wrapper.find('[data-slot="confirm"]').exists()).toBe(false);
   });
 });
 

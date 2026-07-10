@@ -63,6 +63,30 @@ export { default as SortButton } from "./admin/buttons/sort-button.vue";
 export { default as Toolbar } from "./admin/buttons/toolbar.vue";
 // --- admin: common --------------------------------------------------------
 export { default as ValidationError } from "./admin/common/validation-error.vue";
+// --- admin: feedback (V3-c) -----------------------------------------------
+export type { ConfirmProps } from "./admin/feedback/confirm.vue";
+export { default as Confirm } from "./admin/feedback/confirm.vue";
+export type {
+  ErrorFallbackProps,
+  ErrorProps,
+} from "./admin/feedback/error.vue";
+export { default as Error } from "./admin/feedback/error.vue";
+export type { LinearProgressProps } from "./admin/feedback/linear-progress.vue";
+export { default as LinearProgress } from "./admin/feedback/linear-progress.vue";
+export type { LoadingProps } from "./admin/feedback/loading.vue";
+export {
+  default as Loading,
+  default as LoadingPage,
+} from "./admin/feedback/loading.vue";
+export type { NotificationProps } from "./admin/feedback/notification.vue";
+export { default as Notification } from "./admin/feedback/notification.vue";
+export { default as Ready } from "./admin/feedback/ready.vue";
+export type {
+  SpinnerContentProps,
+  SpinnerSize,
+} from "./admin/feedback/spinner.vue";
+export { default as Spinner } from "./admin/feedback/spinner.vue";
+export { useTimeout } from "./admin/feedback/use-timeout";
 // --- admin: fields --------------------------------------------------------
 export type { ApiKeyFieldProps } from "./admin/fields/api-key-field.vue";
 export { default as ApiKeyField } from "./admin/fields/api-key-field.vue";
