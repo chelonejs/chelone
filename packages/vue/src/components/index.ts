@@ -7,9 +7,29 @@ export { default as SaveButton } from "./admin/buttons/save-button.vue";
 export { default as Toolbar } from "./admin/buttons/toolbar.vue";
 // --- admin: common --------------------------------------------------------
 export { default as ValidationError } from "./admin/common/validation-error.vue";
-export { default as ReferenceField } from "./admin/fields/reference-field.vue";
 // --- admin: fields --------------------------------------------------------
+export type { BadgeFieldProps } from "./admin/fields/badge-field.vue";
+export { default as BadgeField } from "./admin/fields/badge-field.vue";
+export type { BooleanFieldProps } from "./admin/fields/boolean-field.vue";
+export { default as BooleanField } from "./admin/fields/boolean-field.vue";
+export type { ChipFieldProps } from "./admin/fields/chip-field.vue";
+export { default as ChipField } from "./admin/fields/chip-field.vue";
+export type { ColorFieldProps } from "./admin/fields/color-field.vue";
+export { default as ColorField } from "./admin/fields/color-field.vue";
+export type { DateFieldProps } from "./admin/fields/date-field.vue";
+export { default as DateField } from "./admin/fields/date-field.vue";
+export type { EmailFieldProps } from "./admin/fields/email-field.vue";
+export { default as EmailField } from "./admin/fields/email-field.vue";
+export type { NumberFieldProps } from "./admin/fields/number-field.vue";
+export { default as NumberField } from "./admin/fields/number-field.vue";
+export type { PhoneFieldProps } from "./admin/fields/phone-field.vue";
+export { default as PhoneField } from "./admin/fields/phone-field.vue";
+export type { RatingFieldProps } from "./admin/fields/rating-field.vue";
+export { default as RatingField } from "./admin/fields/rating-field.vue";
+export { default as ReferenceField } from "./admin/fields/reference-field.vue";
 export { default as TextField } from "./admin/fields/text-field.vue";
+export type { UrlFieldProps } from "./admin/fields/url-field.vue";
+export { default as UrlField } from "./admin/fields/url-field.vue";
 export type { ApiKeyInputProps } from "./admin/inputs/api-key-input.vue";
 // --- admin: inputs --------------------------------------------------------
 export { default as ApiKeyInput } from "./admin/inputs/api-key-input.vue";

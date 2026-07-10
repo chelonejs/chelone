@@ -3,6 +3,7 @@
 // table family, card family). Native-backed + dependency-free; reka-ui prop
 // diffs are adapted per primitive (see each file's header).
 
+export { Badge, type BadgeVariant } from "./badge";
 export { default as Button } from "./button.vue";
 export {
   Card,
