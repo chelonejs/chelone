@@ -19,6 +19,43 @@ export {
   ResourceRegistryKey,
   useResourceRegistry,
 } from "./admin/resource-registry";
+// --- array-input slice (iterator machinery consumed by array inputs) -------
+export type {
+  ArrayFieldState,
+  ArrayInputContextValue,
+  IteratorItem,
+  UseArrayInputOptions,
+  UseArrayInputResult,
+} from "./array";
+export {
+  ArrayInputContextKey,
+  IteratorRowContextKey,
+  provideArrayInput,
+  provideIteratorRow,
+  useArrayInput,
+  useIteratorItem,
+} from "./array";
+// --- choices slice (shared choice machinery consumed by choice inputs) -----
+export type {
+  ChoiceRecord,
+  ChoicesContextValue,
+  InlineChoicesConfig,
+  OptionText,
+  UseChoicesContextOptions,
+  UseChoicesOptions,
+  UseChoicesResult,
+  UseReferenceInputOptions,
+  UseReferenceInputResult,
+} from "./choices";
+export {
+  ChoicesContextKey,
+  getChoicePath,
+  provideChoicesContext,
+  synthesizeInlineChoices,
+  useChoices,
+  useChoicesContext,
+  useReferenceInput,
+} from "./choices";
 // --- component vertical (ui slice + admin SFCs) ---------------------------
 export * from "./components";
 export type { CheloneContextValue } from "./context";
