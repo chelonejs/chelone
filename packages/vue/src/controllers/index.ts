@@ -19,3 +19,8 @@ export type {
   UseListControllerReturn,
 } from "./use-list-controller";
 export { useListController } from "./use-list-controller";
+export type {
+  UseShowControllerOptions,
+  UseShowControllerReturn,
+} from "./use-show-controller";
+export { useShowController } from "./use-show-controller";

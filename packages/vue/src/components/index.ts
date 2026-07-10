@@ -192,6 +192,7 @@ export { TITLE_PORTAL_ID } from "./admin/layout/title-portal-id";
 export type { UserMenuProps } from "./admin/layout/user-menu.vue";
 export { default as UserMenu } from "./admin/layout/user-menu.vue";
 // --- admin: list ----------------------------------------------------------
+export { default as BulkActionsToolbar } from "./admin/list/bulk-actions-toolbar.vue";
 export { default as DataTable } from "./admin/list/data-table.vue";
 export { default as DataTableCol } from "./admin/list/data-table-col.vue";
 export {
@@ -201,9 +202,12 @@ export {
   useDataTablePass,
 } from "./admin/list/data-table-context";
 export { default as DataTableRow } from "./admin/list/data-table-row.vue";
+export { default as FilterForm } from "./admin/list/filter-form.vue";
+export { default as ListPagination } from "./admin/list/list-pagination.vue";
 export { default as Create } from "./admin/view/create.vue";
 export { default as Edit } from "./admin/view/edit.vue";
 // --- admin: views ---------------------------------------------------------
 export { default as List } from "./admin/view/list.vue";
+export { default as Show } from "./admin/view/show.vue";
 // --- ui primitives --------------------------------------------------------
 export * from "./ui";

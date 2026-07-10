@@ -82,12 +82,15 @@ export type {
   UseEditControllerReturn,
   UseListControllerOptions,
   UseListControllerReturn,
+  UseShowControllerOptions,
+  UseShowControllerReturn,
 } from "./controllers";
 export {
   toControllerContext,
   useCreateController,
   useEditController,
   useListController,
+  useShowController,
 } from "./controllers";
 // --- supporting composables the vertical is built on ----------------------
 export { useUpdate } from "./data/mutations";
