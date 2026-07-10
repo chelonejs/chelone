@@ -93,7 +93,12 @@ export {
   useShowController,
 } from "./controllers";
 // --- supporting composables the vertical is built on ----------------------
-export { useDelete, useUpdate } from "./data/mutations";
+export {
+  useDelete,
+  useDeleteMany,
+  useUpdate,
+  useUpdateMany,
+} from "./data/mutations";
 export { useGetList, useGetMany, useGetOne } from "./data/queries";
 export { useLoading, useRefresh } from "./data/use-refresh";
 export type {

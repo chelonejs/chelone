@@ -6,6 +6,12 @@
 export type { LogoutProps } from "./admin/auth/logout.vue";
 export { default as Logout } from "./admin/auth/logout.vue";
 // --- admin: buttons + form ------------------------------------------------
+export type { BulkDeleteButtonProps } from "./admin/buttons/bulk-delete-button.vue";
+export { default as BulkDeleteButton } from "./admin/buttons/bulk-delete-button.vue";
+export type { BulkExportButtonProps } from "./admin/buttons/bulk-export-button.vue";
+export { default as BulkExportButton } from "./admin/buttons/bulk-export-button.vue";
+export type { BulkUpdateButtonProps } from "./admin/buttons/bulk-update-button.vue";
+export { default as BulkUpdateButton } from "./admin/buttons/bulk-update-button.vue";
 export type { CancelButtonProps } from "./admin/buttons/cancel-button.vue";
 export { default as CancelButton } from "./admin/buttons/cancel-button.vue";
 export type { CreateButtonProps } from "./admin/buttons/create-button.vue";
@@ -17,6 +23,14 @@ export type {
 export { default as DeleteButton } from "./admin/buttons/delete-button.vue";
 export type { EditButtonProps } from "./admin/buttons/edit-button.vue";
 export { default as EditButton } from "./admin/buttons/edit-button.vue";
+export {
+  defaultExporter,
+  downloadCSV,
+  type Exporter,
+  recordsToCSV,
+} from "./admin/buttons/export";
+export type { ExportButtonProps } from "./admin/buttons/export-button.vue";
+export { default as ExportButton } from "./admin/buttons/export-button.vue";
 export type {
   FilterButtonEntry,
   FilterButtonProps,
