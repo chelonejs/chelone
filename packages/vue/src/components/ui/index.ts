@@ -7,6 +7,12 @@ export { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 export { Badge, type BadgeVariant } from "./badge";
 export { default as Button } from "./button.vue";
 export {
+  type ButtonSize,
+  type ButtonVariant,
+  type ButtonVariantsOptions,
+  buttonVariants,
+} from "./button-variants";
+export {
   Card,
   CardContent,
   CardFooter,
