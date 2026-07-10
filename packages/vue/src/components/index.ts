@@ -13,14 +13,26 @@ export { default as TextField } from "./admin/fields/text-field.vue";
 // --- admin: inputs --------------------------------------------------------
 export { default as BooleanInput } from "./admin/inputs/boolean-input.vue";
 export { default as ColorInput } from "./admin/inputs/color-input.vue";
+export { default as CurrencyInput } from "./admin/inputs/currency-input.vue";
+export { default as DateInput } from "./admin/inputs/date-input.vue";
+export { default as DateTimeInput } from "./admin/inputs/date-time-input.vue";
+export { default as DurationInput } from "./admin/inputs/duration-input.vue";
+export {
+  compactDuration,
+  type ParsedDuration,
+  parseIsoDuration,
+  relativeDuration,
+} from "./admin/inputs/duration-utils";
 export { humanizeSource } from "./admin/inputs/label-text";
 export { default as NullableBooleanInput } from "./admin/inputs/nullable-boolean-input.vue";
 export { default as NumberInput } from "./admin/inputs/number-input.vue";
 export { default as PasswordInput } from "./admin/inputs/password-input.vue";
+export { default as PhoneInput } from "./admin/inputs/phone-input.vue";
 export { default as ReferenceInput } from "./admin/inputs/reference-input.vue";
 export { default as ResettableTextInput } from "./admin/inputs/resettable-text-input.vue";
 export { default as SearchInput } from "./admin/inputs/search-input.vue";
 export { default as TextInput } from "./admin/inputs/text-input.vue";
+export { default as TimeInput } from "./admin/inputs/time-input.vue";
 // --- admin: list ----------------------------------------------------------
 export { default as DataTable } from "./admin/list/data-table.vue";
 export { default as DataTableCol } from "./admin/list/data-table-col.vue";

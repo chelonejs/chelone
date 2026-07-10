@@ -13,7 +13,8 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@chelone/core": "workspace:*"
+    "@chelone/core": "workspace:*",
+    "libphonenumber-js": "^1.13.8"
   },
   "peerDependencies": {
     "@tanstack/vue-query": "^5.0.0",

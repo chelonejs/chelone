@@ -73,6 +73,52 @@ importers:
         specifier: ^7.0.0
         version: 7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
 
+  apps/vue-demo:
+    dependencies:
+      '@chelone/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@chelone/vue':
+        specifier: workspace:*
+        version: link:../../packages/vue
+      '@tanstack/vue-query':
+        specifier: ^5.0.0
+        version: 5.101.2(vue@3.5.39(typescript@5.9.3))
+      vue:
+        specifier: ^3.4.0
+        version: 3.5.39(typescript@5.9.3)
+      vue-router:
+        specifier: ^4.0.0
+        version: 4.6.4(vue@3.5.39(typescript@5.9.3))
+      zod:
+        specifier: ^3.24.0
+        version: 3.25.76
+    devDependencies:
+      '@tailwindcss/vite':
+        specifier: ^4.1.0
+        version: 4.3.2(vite@7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.0
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.0
+        version: 6.0.7(vite@7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
+      tailwindcss:
+        specifier: ^4.1.0
+        version: 4.3.2
+      tw-animate-css:
+        specifier: ^1.4.0
+        version: 1.4.0
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
+      vue-tsc:
+        specifier: ^2.0.0
+        version: 2.2.12(typescript@5.9.3)
+
   apps/website:
     dependencies:
       '@chelone/core':
@@ -318,6 +364,9 @@ importers:
       '@chelone/core':
         specifier: workspace:*
         version: link:../core
+      libphonenumber-js:
+        specifier: ^1.13.8
+        version: 1.13.8
     devDependencies:
       '@tanstack/vue-query':
         specifier: ^5.0.0
