@@ -1,0 +1,108 @@
+/**
+ * The runtime resource registry for `@chelone/vue` — the Vue twin of the React
+ * adapter's registry seam (`packages/react/src/resource/registry-hooks.tsx`).
+ * Where React wraps core's vanilla `createResourceRegistry` in a
+ * `useSyncExternalStore`, the Vue adapter models the registry as a *reactive
+ * map* (D3): `<Resource>` children `register` themselves into it on `setup` and
+ * `unregister` on scope disposal, and `<Admin>`'s `watchEffect` rebuilds the
+ * vue-router route table whenever the map's key set changes. Vue's own
+ * reactivity graph replaces the external-store subscription — no bridge needed
+ * because the registry IS reactive.
+ *
+ * The stored `ResourceDefinition` deliberately holds the ACTUAL view components
+ * (`list`/`edit`/`create`/`show`) rather than boolean `has*` route flags: the
+ * Vue router needs the component to mount a route, so the registry doubles as
+ * the source of route records. This differs from core's `ResourceDefinition`
+ * (name + `has*` flags) — a Vue-adapter-local shape, matching how React's
+ * `<Resource>` also carries the view components as props.
+ */
+
+import {
+  type Component,
+  type InjectionKey,
+  inject,
+  shallowReactive,
+} from "vue";
+
+/**
+ * A registered resource: its name (the registry key + route base) plus the view
+ * components to mount under `/{name}` (list), `/{name}/create`, `/{name}/:id`
+ * (edit), `/{name}/:id/show`. `icon` / `recordRepresentation` are carried for
+ * the menu / breadcrumb surface (later phases).
+ */
+export interface ResourceDefinition {
+  /** The resource name — the registry key and the route base (`/{name}`). */
+  name: string;
+  /** The list view. Presence adds the `/{name}` route. */
+  list?: Component;
+  /** The create view. Presence adds the `/{name}/create` route. */
+  create?: Component;
+  /** The edit view. Presence adds the `/{name}/:id` route. */
+  edit?: Component;
+  /** The show view. Presence adds the `/{name}/:id/show` route. */
+  show?: Component;
+  /** The menu / breadcrumb icon (a Vue component). */
+  icon?: Component;
+  /** How a record renders as a label (field name, function, or component). */
+  recordRepresentation?: unknown;
+}
+
+/** The reactive resource registry contract `<Admin>` provides and `<Resource>` mutates. */
+export interface ResourceRegistry {
+  /**
+   * The live map of registered resources (resource-name → definition). A
+   * `shallowReactive` object: adding / deleting a key triggers dependents
+   * (`<Admin>`'s route-build `watchEffect`), while the definition VALUES stay
+   * raw so Vue never deep-proxies a component definition.
+   */
+  readonly definitions: Record<string, ResourceDefinition>;
+  /** Register (or replace) a resource under its `name`. */
+  register(definition: ResourceDefinition): void;
+  /** Remove a resource by `name`. Absent name → no-op. */
+  unregister(name: string): void;
+}
+
+/**
+ * The provide/inject key for the reactive registry. `<Admin>` provides it in
+ * `setup`; `<Resource>` reads it via {@link useResourceRegistry} to
+ * self-register. A typed `InjectionKey` keeps both sites cast-free.
+ */
+export const ResourceRegistryKey: InjectionKey<ResourceRegistry> = Symbol(
+  "chelone-resource-registry",
+);
+
+/**
+ * Create a fresh reactive registry. `<Admin>` owns one per instance. The backing
+ * store is a `shallowReactive` map: key add/remove is tracked (so the route
+ * builder re-runs), but the stored definitions — which hold Vue components — are
+ * NOT deep-proxied (proxying a component definition is both wasteful and a
+ * documented Vue footgun).
+ */
+export function createResourceRegistry(): ResourceRegistry {
+  const definitions = shallowReactive<Record<string, ResourceDefinition>>({});
+  return {
+    definitions,
+    register(definition: ResourceDefinition): void {
+      definitions[definition.name] = definition;
+    },
+    unregister(name: string): void {
+      delete definitions[name];
+    },
+  };
+}
+
+/**
+ * Read the ambient resource registry. Throws when used outside `<Admin>` — a
+ * `<Resource>` (or any registry consumer) rendered without a provider is a
+ * misuse that must fail loudly (parity with the React twin's
+ * `useResourceRegistry`).
+ */
+export function useResourceRegistry(): ResourceRegistry {
+  const registry = inject(ResourceRegistryKey, null);
+  if (!registry) {
+    throw new Error(
+      "useResourceRegistry: no registry found. Render <Resource> inside <Admin>.",
+    );
+  }
+  return registry;
+}

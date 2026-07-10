@@ -8,6 +8,27 @@
 // bridge). The barrel fills in as V1 tasks land (store bridge, router adapter,
 // <Admin>/<Resource>, controllers, form, components).
 
+export { default as Admin } from "./admin/admin.vue";
+export { default as Resource } from "./admin/resource.vue";
+export type {
+  ResourceDefinition,
+  ResourceRegistry,
+} from "./admin/resource-registry";
+export {
+  createResourceRegistry,
+  ResourceRegistryKey,
+  useResourceRegistry,
+} from "./admin/resource-registry";
+export type { CheloneContextValue } from "./context";
+export {
+  CheloneContextKey,
+  provideCheloneContext,
+  useChelonAuthProvider,
+  useCheloneContext,
+  useChelonI18n,
+  useChelonNotifications,
+  useChelonStore,
+} from "./context";
 export type {
   AdapterNavigate,
   AdapterNavigateOpts,
