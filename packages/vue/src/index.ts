@@ -7,4 +7,29 @@
 // *how* it subscribes (a shallowRef + MicroStore.subscribe + onScopeDispose
 // bridge). The barrel fills in as V1 tasks land (store bridge, router adapter,
 // <Admin>/<Resource>, controllers, form, components).
+
+export type {
+  AdapterNavigate,
+  AdapterNavigateOpts,
+  Redirect,
+  RedirectTo,
+  RouterAdapter,
+  UseMatchArgs,
+} from "./router";
+export {
+  BasenameKey,
+  provideVueRouterAdapter,
+  RouterAdapterKey,
+  useBasename,
+  useCreatePath,
+  useLocation,
+  useMatch,
+  useNavigate,
+  useParams,
+  useRedirect,
+  useRedirectOptional,
+  useRouterAdapter,
+  useRouterAdapterOptional,
+  vueRouterAdapter,
+} from "./router";
 export { useStore, useStoreSelector } from "./store/use-store";
