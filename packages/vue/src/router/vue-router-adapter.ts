@@ -17,7 +17,10 @@
  * - `useParams`: `route.params` (`string | string[]`) → `Record<string,
  *   string | undefined>`, catch-all arrays joined with `/`.
  * - `useMatch` / `matchPath`: core's dependency-free `matchPath` over the
- *   reactive `route.path`.
+ *   reactive `route.path`. `useMatch`'s `end` toggle (default exact; `end:
+ *   false` also matches descendants, for a parent list that stays active on a
+ *   child route) is synthesized over core's exact matcher via a trailing splat
+ *   (see `toCorePattern`) — react-router honors `end` natively.
  *
  * The adapter is a stateless const of methods (like `reactRouterAdapter`): each
  * method calls `useRoute()` / `useRouter()` itself, so it is invoked from the
@@ -47,9 +50,26 @@ function readHistoryState(): unknown {
   return typeof window !== "undefined" ? window.history.state : null;
 }
 
-/** Normalize a `UseMatchArgs | string` down to its pattern string. */
-function toPattern(pattern: string | UseMatchArgs): string {
-  return typeof pattern === "string" ? pattern : pattern.path;
+/**
+ * Compile a `UseMatchArgs | string` into the CORE pattern to match against.
+ *
+ * react-router's `useMatch` defaults to an EXACT match (`end: true`) and, with
+ * `end: false`, also matches every descendant route (so a parent list entry
+ * `/posts` stays active on `/posts/:id`). Core's `matchPath` is exact-only, so
+ * a non-`end` match is synthesized as a trailing-splat pattern
+ * (`/posts` → `/posts/*`): core matches that for the bare `/posts` AND every
+ * child segment, while staying segment-safe (it never matches a mere textual
+ * prefix like `/postscript`). A string pattern is always exact (`end: true`).
+ *
+ * Divergence from the React twin: react-router honors `end` natively; here it
+ * is expressed over core's dependency-free matcher — ZERO core changes.
+ */
+function toCorePattern(pattern: string | UseMatchArgs): string {
+  if (typeof pattern === "string") return pattern;
+  if (pattern.end !== false) return pattern.path;
+  // `end: false` → prefix/descendant match via a trailing splat. Strip any
+  // trailing slash first so `/posts/` → `/posts/*`, not `/posts//*`.
+  return `${pattern.path.replace(/\/+$/, "")}/*`;
 }
 
 /** vue-router `route.params` → the neutral `Record<string, string | undefined>`. */
@@ -96,8 +116,8 @@ export const vueRouterAdapter: RouterAdapter = {
 
   useMatch(pattern: string | UseMatchArgs): ComputedRef<PathMatch | null> {
     const route = useRoute();
-    const patternStr = toPattern(pattern);
-    return computed(() => matchPath(patternStr, route.path));
+    const corePattern = toCorePattern(pattern);
+    return computed(() => matchPath(corePattern, route.path));
   },
 
   matchPath,

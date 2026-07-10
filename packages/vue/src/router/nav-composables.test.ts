@@ -157,6 +157,37 @@ describe("nav-composables — vue-router adapter bridge", () => {
     expect(match.value?.params.id).toBe("5");
   });
 
+  it("useMatch honors end:false — a parent stays matched on a child route", async () => {
+    const { captured: match } = await mountConsumer(
+      () => useMatch({ path: "/posts", end: false }),
+      { start: "/posts/5" },
+    );
+    expect(match.value).not.toBeNull();
+  });
+
+  it("useMatch defaults to exact (end:true) — no child match", async () => {
+    const { captured: match } = await mountConsumer(
+      () => useMatch({ path: "/posts", end: true }),
+      { start: "/posts/5" },
+    );
+    expect(match.value).toBeNull();
+  });
+
+  it("useMatch string form is exact — no child match", async () => {
+    const { captured: match } = await mountConsumer(() => useMatch("/posts"), {
+      start: "/posts/5",
+    });
+    expect(match.value).toBeNull();
+  });
+
+  it("useMatch end:false is segment-safe (no bare-prefix false positive)", async () => {
+    const { captured: match } = await mountConsumer(
+      () => useMatch({ path: "/post", end: false }),
+      { start: "/posts" },
+    );
+    expect(match.value).toBeNull();
+  });
+
   it("useCreatePath builds paths via core createPath", async () => {
     const { captured: createPathFn } = await mountConsumer(() =>
       useCreatePath(),

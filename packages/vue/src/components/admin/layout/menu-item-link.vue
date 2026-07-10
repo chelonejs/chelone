@@ -5,7 +5,10 @@ import type { Component } from "vue";
 export interface MenuItemLinkProps {
   /**
    * Target path for the link. Compared against the current location (via the
-   * router `useMatch`) to derive the active-highlight state.
+   * router `useMatch`) to derive the active-highlight state. Resource-list
+   * entries match with `end: false`, so the parent stays highlighted on a child
+   * detail route (`/posts` active on `/posts/:id`); the dashboard/root link
+   * (`${basename}/`) matches exactly.
    */
   to: string;
   /**
@@ -27,9 +30,12 @@ export interface MenuItemLinkProps {
 /**
  * `<MenuItemLink>` — a clickable sidebar entry that navigates to a route. The Vue
  * twin of `@chelone/react`'s `layout/menu-item-link.tsx`. The active state is
- * derived from `useMatch(to)`; when the current pathname matches `to`, the item
- * is highlighted. It is the building block for `<DashboardMenuItem>` /
- * `<ResourceMenuItem>` and for custom `<Menu>` children.
+ * derived from `useMatch({ path: to, end: to === `${basename}/` })` (mirroring
+ * the React twin); when the current pathname matches `to`, the item is
+ * highlighted, and — because non-root links match with `end: false` — the
+ * parent list entry stays highlighted on its child detail routes. It is the
+ * building block for `<DashboardMenuItem>` / `<ResourceMenuItem>` and for custom
+ * `<Menu>` children.
  *
  * Vue divergences from the React twin: the keyboard-shortcut binding and the
  * collapsed-rail `<Tooltip>` wrapper are NOT ported yet (those React
@@ -41,15 +47,20 @@ export interface MenuItemLinkProps {
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useTranslate } from "../../../i18n/use-translate";
-import { useMatch } from "../../../router";
+import { useBasename, useMatch } from "../../../router";
 import { SidebarMenuButton, SidebarMenuItem } from "../../ui/sidebar";
 
 const props = defineProps<MenuItemLinkProps>();
 
 const translate = useTranslate();
-// `to` is a stable per-instance identity, so the match subscription is set up
-// once; it stays reactive to the CURRENT route via the adapter's computed.
-const match = useMatch({ path: props.to });
+const basename = useBasename();
+// Mirror the React twin `useMatch({ path: to, end: to === `${basename}/` })`:
+// resource-list items match with `end: false` so the parent entry stays active
+// on a child detail route (`/posts` highlighted on `/posts/:id`); only the
+// dashboard/root link (`${basename}/`) matches exactly. `to` is a stable
+// per-instance identity, so the subscription is set up once and stays reactive
+// to the CURRENT route via the adapter's computed.
+const match = useMatch({ path: props.to, end: props.to === `${basename}/` });
 const isActive = computed(() => match.value != null);
 const text = computed(() => translate(props.label, { _: props.label }));
 </script>

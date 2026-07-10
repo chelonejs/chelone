@@ -86,6 +86,33 @@ describe("<Menu> (resource menu family)", () => {
     ).toBeUndefined();
   });
 
+  it("keeps the parent list entry active on a child route (end:false parity)", async () => {
+    const router = makeRouter();
+    const wrapper = mount(Admin, {
+      props: { dataProvider },
+      slots: {
+        default: () => [
+          h(Resource, { name: "posts", list: Blank }),
+          h(Resource, { name: "authors", list: Blank }),
+        ],
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
+
+    await router.push("/posts/1");
+    await flushPromises();
+
+    // React parity: resource links use end:false, so `/posts` stays highlighted
+    // on a child detail route while a sibling list does not.
+    expect(wrapper.find('[href="/posts"]').attributes("data-active")).toBe(
+      "true",
+    );
+    expect(
+      wrapper.find('[href="/authors"]').attributes("data-active"),
+    ).toBeUndefined();
+  });
+
   it("navigates when a menu link is clicked", async () => {
     const router = makeRouter();
     const wrapper = mount(Admin, {
