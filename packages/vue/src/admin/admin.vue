@@ -63,8 +63,19 @@ const props = defineProps<{
   /** The optional notification store. */
   notifications?: NotificationStore;
   /**
+   * The zod resource registry (P5), the output of `defineResources(...)`. Named
+   * `registry` to avoid colliding with the `resources` view-component escape
+   * hatch below. When present, a resource's schema becomes the DEFAULT form
+   * validator for `useForm({ resource })` (D6): the core save-pipeline and
+   * `useForm` already READ `ctx.resources` — `<Admin>` is what PUTS it there,
+   * the exact seam React's `<Admin resources>` threads through `<CheloneProvider>`.
+   */
+  registry?: TResources;
+  /**
    * The escape hatch (D3): resource definitions to merge into the registry
    * WITHOUT a `<Resource>` child — the config path mirroring React's array form.
+   * NOTE: this is the runtime VIEW registry (list/edit/create components), NOT
+   * the zod schema registry — that is `registry` above.
    */
   resources?: ResourceDefinition[];
 }>();
@@ -102,6 +113,9 @@ provideCheloneContext({
   i18n: props.i18n,
   store: props.store,
   notifications: props.notifications,
+  // Thread the zod registry so `useForm({ resource })` auto-resolves the
+  // resource schema as its default validator (the V1-b wiring gap this closes).
+  resources: props.registry,
 });
 
 // --- Seam 4: the router adapter + reactive route build --------------------
