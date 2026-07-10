@@ -9,6 +9,11 @@
 // <Admin>/<Resource>, controllers, form, components).
 
 export { default as Admin } from "./admin/admin.vue";
+export {
+  HasDashboardKey,
+  provideHasDashboard,
+  useHasDashboard,
+} from "./admin/has-dashboard";
 export { default as Resource } from "./admin/resource.vue";
 export type {
   ResourceDefinition,

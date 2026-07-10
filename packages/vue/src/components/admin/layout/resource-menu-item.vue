@@ -1,8 +1,18 @@
 <script lang="ts">
+import type { Component } from "vue";
+
 /** Props for {@link ResourceMenuItem}. */
 export interface ResourceMenuItemProps {
   /** The resource name (matches a `<Resource name>` registered in `<Admin>`). */
   name: string;
+  /** Override the label. Defaults to the pluralized resource label. */
+  label?: string;
+  /** Override the icon. Defaults to the resource's registry icon or a list glyph. */
+  icon?: Component;
+  /** Extra CSS class appended to the underlying menu button. */
+  class?: string;
+  /** Click handler invoked alongside the default navigation (e.g. close the drawer). */
+  onClick?: () => void;
 }
 </script>
 
@@ -10,24 +20,25 @@ export interface ResourceMenuItemProps {
 /**
  * `<ResourceMenuItem>` — a sidebar entry linking to a resource's list view. The
  * Vue twin of `@chelone/react`'s `layout/resource-menu-item.tsx`. Resolves the
- * list path via `useCreatePath`, the active state via `useMatch`, the label via
- * `useGetResourceLabel`, and the icon from the resource's registry definition
- * (falling back to an inline list glyph).
+ * list path via `useCreatePath`, the label via `useGetResourceLabel`, and the
+ * icon from the resource's registry definition (falling back to an inline list
+ * glyph), then delegates to `<MenuItemLink>` for the link + active-highlight.
  *
- * Each item computes its own path/match in its OWN setup (not in a `v-for` loop
- * in `<Menu>`) — the Vue rule that composables run once per component instance,
+ * Each item resolves its OWN path in its OWN setup (not in the `<Menu>` `v-for`
+ * loop) — the Vue rule that composables run once per component instance,
  * mirroring the React twin being a discrete component per resource.
+ *
+ * Vue divergences from the React twin: no `useMenuAccess` auth gate and no
+ * loading `<Skeleton>` (the Vue adapter has no auth wave yet), and the
+ * `_scrollToTop` navigation state is deferred to the scroll-manager wave.
  */
 
 import { computed } from "vue";
-import { RouterLink } from "vue-router";
 import { useResourceRegistry } from "../../../admin/resource-registry";
 import { useGetResourceLabel } from "../../../label/use-get-resource-label";
-import { useCreatePath, useMatch } from "../../../router";
-import {
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "../../ui/sidebar";
+import { useCreatePath } from "../../../router";
+import { ListIcon } from "./icons";
+import MenuItemLink from "./menu-item-link.vue";
 
 const props = defineProps<ResourceMenuItemProps>();
 
@@ -37,30 +48,18 @@ const getResourceLabel = useGetResourceLabel();
 
 // The name is a stable identity for the item, so the path is computed once.
 const to = createPath({ resource: props.name, type: "list" });
-const match = useMatch({ path: to });
-const isActive = computed(() => match.value != null);
-
-const label = computed(() => getResourceLabel(props.name, 2));
-const icon = computed(() => registry.definitions[props.name]?.icon);
+const label = computed(() => props.label ?? getResourceLabel(props.name, 2));
+const icon = computed(
+  () => props.icon ?? registry.definitions[props.name]?.icon ?? ListIcon,
+);
 </script>
 
 <template>
-  <SidebarMenuItem>
-    <SidebarMenuButton :as="RouterLink" :to="to" :is-active="isActive">
-      <component :is="icon" v-if="icon" />
-      <svg
-        v-else
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M3 12h.01M3 18h.01M3 6h.01M8 6h13M8 12h13M8 18h13" />
-      </svg>
-      <span>{{ label }}</span>
-    </SidebarMenuButton>
-  </SidebarMenuItem>
+  <MenuItemLink
+    :to="to"
+    :label="label"
+    :icon="icon"
+    :class="class"
+    :on-click="onClick"
+  />
 </template>

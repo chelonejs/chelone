@@ -1,0 +1,39 @@
+/**
+ * The two default menu glyphs (`ListIcon` / `HouseIcon`) as dependency-free
+ * functional components. `@chelone/vue` carries no icon library (unlike the React
+ * twin's `lucide-react`), so the menu family renders inline SVGs — the same
+ * convention the rest of the Vue layout uses (see `app-sidebar.vue`). Kept in a
+ * `.ts` sibling so the `.vue` SFCs stay component-file-per-component.
+ */
+
+import { type FunctionalComponent, h } from "vue";
+
+/** A shared `<svg>` shell with the lucide stroke recipe around `paths`. */
+function glyph(paths: string[]): FunctionalComponent {
+  const icon: FunctionalComponent = () =>
+    h(
+      "svg",
+      {
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        "stroke-width": "2",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        "aria-hidden": "true",
+      },
+      paths.map((d) => h("path", { d })),
+    );
+  return icon;
+}
+
+/** The default resource-list glyph (three rows) — the `<ResourceMenuItem>` fallback. */
+export const ListIcon: FunctionalComponent = glyph([
+  "M3 12h.01M3 18h.01M3 6h.01M8 6h13M8 12h13M8 18h13",
+]);
+
+/** The default dashboard glyph (a house) — the `<DashboardMenuItem>` default icon. */
+export const HouseIcon: FunctionalComponent = glyph([
+  "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8",
+  "M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
+]);

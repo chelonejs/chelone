@@ -39,12 +39,13 @@ import type {
   ResourceMap,
 } from "@chelone/core";
 import { QueryClient, VUE_QUERY_CLIENT } from "@tanstack/vue-query";
-import { onScopeDispose, provide, watchEffect } from "vue";
+import { onScopeDispose, provide, useSlots, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import Layout from "../components/admin/layout/layout.vue";
 import ThemeProvider from "../components/admin/layout/theme-provider.vue";
 import { provideCheloneContext } from "../context";
 import { provideVueRouterAdapter } from "../router/vue-router-adapter";
+import { provideHasDashboard } from "./has-dashboard";
 import {
   createResourceRegistry,
   type ResourceDefinition,
@@ -100,6 +101,11 @@ provide(ResourceRegistryKey, registry);
 if (props.resources) {
   for (const definition of props.resources) registry.register(definition);
 }
+
+// Provide whether a `#dashboard` slot was given so the sidebar `<Menu>` renders
+// a "Dashboard" entry ONLY when a dashboard exists (parity with React's
+// `HasDashboardContext`). Slot presence is stable per mount.
+provideHasDashboard(useSlots().dashboard != null);
 
 // --- Seam 3: the vue-query client -----------------------------------------
 const queryClient = props.queryClient ?? new QueryClient();
