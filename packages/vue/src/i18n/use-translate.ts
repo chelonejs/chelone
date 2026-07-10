@@ -21,7 +21,13 @@ export type Translate = (
 /** A bound `translate` over the ambient i18n, or an echo when none is present. */
 export function useTranslate(): Translate {
   const { i18n } = useCheloneContext();
-  if (!i18n) return (key: string) => key;
+  // No i18n → echo the key, but honor the polyglot/ra `{ _: default }`
+  // convention so a fallback (e.g. a button's aria-label) renders readable text
+  // instead of a raw dotted key. Core's `translate` already honors `_`.
+  if (!i18n) {
+    return (key: string, params?: Record<string, unknown>) =>
+      typeof params?._ === "string" ? params._ : key;
+  }
   return (key: string, params?: Record<string, unknown>) =>
     i18n.translate(key, params);
 }

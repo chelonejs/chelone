@@ -22,6 +22,11 @@ const props = defineProps<{
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
   helperText?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  /** Class applied to the inner `<Input>` control (wrappers reserve trailing room). */
+  inputClass?: string;
   class?: string;
 }>();
 
@@ -29,6 +34,13 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source: props.source,
   defaultValue: props.defaultValue,
   validate: props.validate,
+  // Coercion papercut fix: core's `defaultParse` maps `""` → `null`, so a
+  // CLEARED required text field would be validated as `null` and a zod
+  // `z.string().min(1)` schema fires its "Expected string, received null" TYPE
+  // error before the friendly `.min(1)` refinement can run. Keep a cleared text
+  // field an empty STRING (identity parse) so the string refinement — and its
+  // custom/i18n message — is what surfaces.
+  parse: (input: unknown) => input,
 });
 
 const invalid = computed(() => touched.value && error.value != null);
@@ -46,7 +58,11 @@ const labelText = computed(() =>
       :id="id"
       :type="type ?? 'text'"
       :model-value="value as string"
+      :placeholder="placeholder"
+      :disabled="disabled"
+      :readonly="readonly"
       :aria-invalid="invalid"
+      :class="inputClass"
       @update:model-value="setValue"
       @blur="blur"
     />
