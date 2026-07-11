@@ -21,8 +21,10 @@ export interface EditButtonProps {
  * ambient `RecordContext` (a `<DataTable>` row, an `<Edit>`/`<Show>` view) to
  * build `useCreatePath({ resource, type: 'edit', id })`, and renders a
  * `<RouterLink>` styled as an outline button. Renders nothing when there is no
- * record id. See `<CreateButton>` for the shared divergence notes (no
- * `useMenuAccess` gate; `translate(...)` label).
+ * record id. See `<CreateButton>` for the shared `translate(...)` label note.
+ *
+ * R2: gated by `useMenuAccess` on the record — hides while the `edit` access
+ * check is pending and when denied (allow when access control is unconfigured).
  */
 
 import { computed, inject } from "vue";
@@ -32,6 +34,7 @@ import { useGetResourceLabel } from "../../../label/use-get-resource-label";
 import { RecordContextKey } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 import { useCreatePath } from "../../../router";
+import { useMenuAccess } from "../layout/use-menu-access";
 import { buttonVariants } from "../../ui/button-variants";
 import { PencilIcon } from "./icons";
 
@@ -45,6 +48,14 @@ const record = computed(() => props.record ?? injectedRecord?.value);
 const createPath = useCreatePath();
 const getResourceLabel = useGetResourceLabel();
 const translate = useTranslate();
+
+const { canAccess, isPending: isAccessPending } = useMenuAccess(
+  computed(() => ({
+    action: "edit",
+    resource: resource ?? "",
+    record: record.value,
+  })),
+);
 
 const to = computed(() => {
   const id = record.value?.id;
@@ -63,7 +74,7 @@ const classes = computed(() =>
 
 <template>
   <RouterLink
-    v-if="record && record.id != null"
+    v-if="record && record.id != null && !isAccessPending && canAccess"
     :to="to"
     :class="classes"
     :aria-label="label"

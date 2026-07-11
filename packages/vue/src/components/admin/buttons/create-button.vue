@@ -19,11 +19,13 @@ export interface CreateButtonProps {
  * to the path from `useCreatePath({ resource, type: 'create' })`.
  *
  * Divergences from the React twin (deliberate, matching the rest of the Vue V3
- * surface): the `useMenuAccess` auth gate is NOT ported (the Vue slice has no
- * menu-access layer yet — see `resource-menu-item.vue`), and the label uses
- * `translate(key, { _, name })` rather than the React `useResourceTranslation`
- * chain (no Vue twin yet). The icon defaults to `<PlusIcon>`; override via the
- * `#icon` slot.
+ * surface): the label uses `translate(key, { _, name })` rather than the React
+ * `useResourceTranslation` chain (no Vue twin yet). The icon defaults to
+ * `<PlusIcon>`; override via the `#icon` slot.
+ *
+ * R2: gated by `useMenuAccess` (the no-throw `useCanAccess`) — the button hides
+ * while the `create` access check is pending and when access is denied (allow
+ * when access control is unconfigured).
  */
 
 import { computed } from "vue";
@@ -32,6 +34,7 @@ import { useTranslate } from "../../../i18n/use-translate";
 import { useGetResourceLabel } from "../../../label/use-get-resource-label";
 import { useResourceContext } from "../../../resource-context";
 import { useCreatePath } from "../../../router";
+import { useMenuAccess } from "../layout/use-menu-access";
 import { buttonVariants } from "../../ui/button-variants";
 import { PlusIcon } from "./icons";
 
@@ -41,6 +44,11 @@ const resource = useResourceContext(props);
 const createPath = useCreatePath();
 const getResourceLabel = useGetResourceLabel();
 const translate = useTranslate();
+
+const { canAccess, isPending: isAccessPending } = useMenuAccess(
+  computed(() => ({ action: "create", resource: resource ?? "" })),
+);
+const show = computed(() => !isAccessPending.value && canAccess.value);
 
 const to = computed(() => createPath({ resource, type: "create" }));
 const label = computed(() =>
@@ -56,6 +64,7 @@ const classes = computed(() =>
 
 <template>
   <RouterLink
+    v-if="show"
     :to="to"
     :class="classes"
     :aria-label="label"

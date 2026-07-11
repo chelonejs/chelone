@@ -12,6 +12,8 @@ export type { AuthLayoutProps } from "./admin/auth/auth-layout.vue";
 export { default as AuthLayout } from "./admin/auth/auth-layout.vue";
 export type { AuthenticationErrorProps } from "./admin/auth/authentication-error.vue";
 export { default as AuthenticationError } from "./admin/auth/authentication-error.vue";
+export type { CanAccessProps } from "./admin/auth/can-access.vue";
+export { default as CanAccess } from "./admin/auth/can-access.vue";
 export type { LoginFormProps } from "./admin/auth/login-form.vue";
 export { default as LoginForm } from "./admin/auth/login-form.vue";
 export type { LoginPageProps } from "./admin/auth/login-page.vue";

@@ -59,6 +59,17 @@ export {
   useLogin,
   useLogout,
 } from "./auth/auth-hooks";
+// --- R2: permissions + logout-if-access-denied + data-error wiring ---------
+export type {
+  LogoutIfAccessDenied,
+  UsePermissionsOptions,
+  UsePermissionsResult,
+} from "./auth/permissions-hooks";
+export {
+  useLogoutIfAccessDenied,
+  usePermissions,
+  useWatchDataErrors,
+} from "./auth/permissions-hooks";
 // --- choices slice (shared choice machinery consumed by choice inputs) -----
 export type {
   ChoiceRecord,
@@ -82,6 +93,8 @@ export {
 } from "./choices";
 // --- component vertical (ui slice + admin SFCs) ---------------------------
 export * from "./components";
+export type { MenuAccessResult } from "./components/admin/layout/use-menu-access";
+export { useMenuAccess } from "./components/admin/layout/use-menu-access";
 export type { CheloneContextValue } from "./context";
 export {
   CheloneContextKey,

@@ -46,8 +46,8 @@ export interface DeleteButtonProps {
  *   it; confirming dispatches the delete; cancelling / dismissing closes it. This
  *   replaced the V3-b `window.confirm(...)` placeholder now that the Vue
  *   `<Confirm>` primitive has landed.
- * - the `useMenuAccess` auth gate is not ported (parity with the rest of the Vue
- *   V3 surface).
+ * - R2: gated by `useMenuAccess` — the button hides while the `delete` access
+ *   check is pending and when denied (allow when access control is unconfigured).
  *
  * On confirm it dispatches the pessimistic delete, notifies `ra.notification.
  * deleted`, and (by default) redirects to the list. `deleteMutationOptions`
@@ -61,6 +61,7 @@ import { useTranslate } from "../../../i18n/use-translate";
 import { RecordContextKey } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 import { useRedirect } from "../../../router";
+import { useMenuAccess } from "../layout/use-menu-access";
 import Button from "../../ui/button.vue";
 import Confirm from "../feedback/confirm.vue";
 import { TrashIcon } from "./icons";
@@ -85,6 +86,15 @@ const translate = useTranslate();
 const redirect = useRedirect();
 const notifications = useChelonNotifications();
 const deleteMutation = useDelete(resource as string);
+
+const { canAccess, isPending: isAccessPending } = useMenuAccess(
+  computed(() => ({
+    action: "delete",
+    resource: resource as string,
+    record: record.value,
+  })),
+);
+const show = computed(() => !isAccessPending.value && canAccess.value);
 
 const saving = computed(() => deleteMutation.isPending.value);
 const label = computed(() =>
@@ -126,6 +136,7 @@ async function onConfirm(): Promise<void> {
 
 <template>
   <Button
+    v-if="show"
     type="button"
     :variant="variant"
     :disabled="saving"
@@ -138,6 +149,7 @@ async function onConfirm(): Promise<void> {
     {{ label }}
   </Button>
   <Confirm
+    v-if="show"
     :is-open="open"
     :loading="saving"
     :title="confirmTitle"

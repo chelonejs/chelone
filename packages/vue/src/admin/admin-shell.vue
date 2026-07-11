@@ -22,6 +22,7 @@ import Layout from "../components/admin/layout/layout.vue";
 import ThemeProvider from "../components/admin/layout/theme-provider.vue";
 import LoginPage from "../components/admin/auth/login-page.vue";
 import Spinner from "../components/ui/spinner.vue";
+import { useWatchDataErrors } from "../auth/permissions-hooks";
 import { useAuthGate } from "./auth-gate";
 
 const props = defineProps<{ requireAuth: boolean }>();
@@ -36,6 +37,12 @@ defineSlots<{
 }>();
 
 const gate = useAuthGate(props.requireAuth);
+
+// R2 — wire `checkError` → auto-logout into the data-error path. Mounted here
+// (inside `<Admin>`'s provided context + vue-query client) so the watcher's
+// injects resolve; runs regardless of `requireAuth` since a data 401/403 can
+// surface on any page. No-op without an authProvider.
+useWatchDataErrors();
 </script>
 
 <template>

@@ -28,8 +28,9 @@ export interface ResourceMenuItemProps {
  * loop) — the Vue rule that composables run once per component instance,
  * mirroring the React twin being a discrete component per resource.
  *
- * Vue divergences from the React twin: no `useMenuAccess` auth gate and no
- * loading `<Skeleton>` (the Vue adapter has no auth wave yet), and the
+ * R2: the item is gated by `useMenuAccess` on the resource's `list` action — a
+ * `<Skeleton>` renders while the access check is pending and the item hides when
+ * `list` access is denied (allow when access control is unconfigured). The
  * `_scrollToTop` navigation state is deferred to the scroll-manager wave.
  */
 
@@ -37,8 +38,10 @@ import { computed } from "vue";
 import { useResourceRegistry } from "../../../admin/resource-registry";
 import { useGetResourceLabel } from "../../../label/use-get-resource-label";
 import { useCreatePath } from "../../../router";
+import Skeleton from "../../ui/skeleton.vue";
 import { ListIcon } from "./icons";
 import MenuItemLink from "./menu-item-link.vue";
+import { useMenuAccess } from "./use-menu-access";
 
 const props = defineProps<ResourceMenuItemProps>();
 
@@ -52,10 +55,16 @@ const label = computed(() => props.label ?? getResourceLabel(props.name, 2));
 const icon = computed(
   () => props.icon ?? registry.definitions[props.name]?.icon ?? ListIcon,
 );
+
+const { canAccess, isPending: isAccessPending } = useMenuAccess(
+  computed(() => ({ action: "list", resource: props.name })),
+);
 </script>
 
 <template>
+  <Skeleton v-if="isAccessPending" class="h-8 w-full" />
   <MenuItemLink
+    v-else-if="canAccess"
     :to="to"
     :label="label"
     :icon="icon"
