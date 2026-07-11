@@ -1,25 +1,37 @@
 /**
  * Data-mutation composables over `@tanstack/vue-query` — the Vue twin of the
- * mutation half of `@chelone/react`'s `hooks.ts` (`useUpdate`). Wraps core's
- * framework-agnostic `updateMutationOptions` (`mutationFn` + cache invalidation)
- * and hands it to vue-query's `useMutation`, reusing the SAME `dataProvider` +
- * `queryClient` `<Admin>` provides. `<ApiKeyInput>` is the first consumer: it is
- * NOT form-bound — it reads the ambient record/resource and dispatches this
- * mutation directly to trigger a server-side key rotation.
+ * mutation half of `@chelone/react`'s `hooks.ts` (`useUpdate` / `useDelete` +
+ * the bulk pair). Wraps core's framework-agnostic `updateMutationOptions` /
+ * `deleteMutationOptions` (`mutationFn` + cache invalidation) and hands it to
+ * vue-query's `useMutation`, reusing the SAME `dataProvider` + `queryClient`
+ * `<Admin>` provides. `<ApiKeyInput>` is the first consumer: it is NOT form-bound
+ * — it reads the ambient record/resource and dispatches this mutation directly
+ * to trigger a server-side key rotation.
+ *
+ * R3: each composable honors `options.mutationMode: "undoable"` by swapping its
+ * `mutate` / `mutateAsync` for the optimistic-with-Undo flow (apply the cache
+ * change now, defer the dataProvider call until the Undo window closes) via the
+ * vanilla `startUndoableMutation` engine + an Undo notification. The default
+ * (`"pessimistic"`) path is unchanged.
  */
 
 import {
   type DeleteManyParams,
+  type DeleteParams,
   deleteMutationOptions,
   type MutationModeOptions,
   type RecordOf,
   type ResourceMap,
+  removeRecordsFromCache,
   resourceKey,
   type UpdateManyParams,
+  type UpdateParams,
   updateMutationOptions,
+  updateRecordsInCache,
 } from "@chelone/core";
 import { useMutation } from "@tanstack/vue-query";
 import { useCheloneContext } from "../context";
+import { useUndoable } from "./undoable";
 
 /**
  * Update-one mutation for `resource`. Returns vue-query's mutation object; call
@@ -32,7 +44,36 @@ export function useUpdate<
   TName extends keyof TResources & string = keyof TResources & string,
 >(resource: TName, options: MutationModeOptions = {}) {
   const ctx = useCheloneContext<TResources>();
-  return useMutation(updateMutationOptions(ctx, resource, options));
+  const runUndoable = useUndoable();
+  const mutation = useMutation(updateMutationOptions(ctx, resource, options));
+  if (options.mutationMode !== "undoable") return mutation;
+  // Undoable: patch the cache now, defer the update, notify with Undo. `mutate`
+  // is fire-and-forget (the server call is withheld until the undo window
+  // closes); `mutateAsync` resolves once the undoable is enqueued, not on the
+  // deferred server response. Only the two action functions are swapped — the
+  // reactive state refs (`isPending`, …) stay the same objects.
+  const mutate = (params: UpdateParams<RecordOf<TResources, TName>>) => {
+    runUndoable({
+      queryKeys: [[resource]],
+      applyOptimistic: () =>
+        updateRecordsInCache(
+          ctx.queryClient,
+          resource,
+          [params.id],
+          params.data as Record<string, unknown>,
+        ),
+      commit: () => ctx.dataProvider.update(resource, params),
+      message: "ra.notification.updated",
+      messageArgs: { smart_count: 1 },
+    });
+  };
+  mutation.mutate = mutate as unknown as typeof mutation.mutate;
+  mutation.mutateAsync = (async (
+    params: UpdateParams<RecordOf<TResources, TName>>,
+  ) => {
+    mutate(params);
+  }) as unknown as typeof mutation.mutateAsync;
+  return mutation;
 }
 
 /**
@@ -48,7 +89,28 @@ export function useDelete<
   TName extends keyof TResources & string = keyof TResources & string,
 >(resource: TName, options: MutationModeOptions = {}) {
   const ctx = useCheloneContext<TResources>();
-  return useMutation(deleteMutationOptions(ctx, resource, options));
+  const runUndoable = useUndoable();
+  const mutation = useMutation(deleteMutationOptions(ctx, resource, options));
+  if (options.mutationMode !== "undoable") return mutation;
+  // Undoable: remove the row now, defer the delete, notify with Undo. See
+  // `useUpdate` for the `mutate`/`mutateAsync` semantics.
+  const mutate = (params: DeleteParams<RecordOf<TResources, TName>>) => {
+    runUndoable({
+      queryKeys: [[resource]],
+      applyOptimistic: () =>
+        removeRecordsFromCache(ctx.queryClient, resource, [params.id]),
+      commit: () => ctx.dataProvider.delete(resource, params),
+      message: "ra.notification.deleted",
+      messageArgs: { smart_count: 1 },
+    });
+  };
+  mutation.mutate = mutate as unknown as typeof mutation.mutate;
+  mutation.mutateAsync = (async (
+    params: DeleteParams<RecordOf<TResources, TName>>,
+  ) => {
+    mutate(params);
+  }) as unknown as typeof mutation.mutateAsync;
+  return mutation;
 }
 
 /**
@@ -59,15 +121,17 @@ export function useDelete<
  * itself and invalidates the resource's caches on settle (the same
  * `resourceKey` scope core's single-record helpers invalidate). Call
  * `.mutateAsync({ ids })` to dispatch; `<BulkDeleteButton>` then clears the
- * selection + notifies. `options.mutationMode` is accepted for API parity but
- * has no undoable path yet (pessimistic only).
+ * selection + notifies. `options.mutationMode: "undoable"` swaps `mutate` /
+ * `mutateAsync` for the optimistic-with-Undo flow (remove the rows now, defer the
+ * server call until the Undo window closes) via the core `startUndoableMutation`.
  */
 export function useDeleteMany<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
->(resource: TName, _options: MutationModeOptions = {}) {
+>(resource: TName, options: MutationModeOptions = {}) {
   const ctx = useCheloneContext<TResources>();
-  return useMutation({
+  const runUndoable = useUndoable();
+  const mutation = useMutation({
     mutationFn: async (params: DeleteManyParams) => {
       const result = await ctx.dataProvider.deleteMany(resource, params);
       return result.data;
@@ -75,6 +139,23 @@ export function useDeleteMany<
     onSettled: () =>
       ctx.queryClient.invalidateQueries({ queryKey: resourceKey(resource) }),
   });
+  if (options.mutationMode !== "undoable") return mutation;
+  // Undoable: remove the selected rows now, defer `deleteMany`, notify with Undo.
+  const mutate = (params: DeleteManyParams) => {
+    runUndoable({
+      queryKeys: [[resource]],
+      applyOptimistic: () =>
+        removeRecordsFromCache(ctx.queryClient, resource, params.ids),
+      commit: () => ctx.dataProvider.deleteMany(resource, params),
+      message: "ra.notification.deleted",
+      messageArgs: { smart_count: params.ids.length },
+    });
+  };
+  mutation.mutate = mutate as unknown as typeof mutation.mutate;
+  mutation.mutateAsync = (async (params: DeleteManyParams) => {
+    mutate(params);
+  }) as unknown as typeof mutation.mutateAsync;
+  return mutation;
 }
 
 /**
@@ -88,9 +169,10 @@ export function useDeleteMany<
 export function useUpdateMany<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
->(resource: TName, _options: MutationModeOptions = {}) {
+>(resource: TName, options: MutationModeOptions = {}) {
   const ctx = useCheloneContext<TResources>();
-  return useMutation({
+  const runUndoable = useUndoable();
+  const mutation = useMutation({
     mutationFn: async (
       params: UpdateManyParams<RecordOf<TResources, TName>>,
     ) => {
@@ -100,4 +182,28 @@ export function useUpdateMany<
     onSettled: () =>
       ctx.queryClient.invalidateQueries({ queryKey: resourceKey(resource) }),
   });
+  if (options.mutationMode !== "undoable") return mutation;
+  // Undoable: patch the selected rows now, defer `updateMany`, notify with Undo.
+  const mutate = (params: UpdateManyParams<RecordOf<TResources, TName>>) => {
+    runUndoable({
+      queryKeys: [[resource]],
+      applyOptimistic: () =>
+        updateRecordsInCache(
+          ctx.queryClient,
+          resource,
+          params.ids,
+          params.data as Record<string, unknown>,
+        ),
+      commit: () => ctx.dataProvider.updateMany(resource, params),
+      message: "ra.notification.updated",
+      messageArgs: { smart_count: params.ids.length },
+    });
+  };
+  mutation.mutate = mutate as unknown as typeof mutation.mutate;
+  mutation.mutateAsync = (async (
+    params: UpdateManyParams<RecordOf<TResources, TName>>,
+  ) => {
+    mutate(params);
+  }) as unknown as typeof mutation.mutateAsync;
+  return mutation;
 }

@@ -130,6 +130,8 @@ export {
   useUpdateMany,
 } from "./data/mutations";
 export { useGetList, useGetMany, useGetOne } from "./data/queries";
+export type { RunUndoableOptions } from "./data/undoable";
+export { useUndoable } from "./data/undoable";
 export { useLoading, useRefresh } from "./data/use-refresh";
 export type {
   CheloneFormContextValue,

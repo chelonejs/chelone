@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, MutationMode } from "@chelone/core";
 
 /** Where to go after a successful delete. */
 export type DeleteRedirect = "list" | "show" | "edit" | false;
@@ -12,6 +12,13 @@ export interface DeleteButtonProps {
   resource?: string;
   /** Override the auto-translated label. */
   label?: string;
+  /**
+   * `"undoable"` deletes optimistically with an Undo notification (no confirm
+   * dialog): the record vanishes now, the list redirect happens immediately, and
+   * the server call is deferred until the Undo window closes. Default
+   * (`"pessimistic"`) is confirm-gated.
+   */
+  mutationMode?: MutationMode;
   /** Where to navigate after deleting. Default `"list"`; `false` = stay. */
   redirect?: DeleteRedirect;
   /** Confirmation-dialog title. Default `"ra.message.delete_title"`. */
@@ -54,9 +61,11 @@ export interface DeleteButtonProps {
  * invalidates the resource caches on settle.
  */
 
+import { type Identifier, removeRecordsFromCache } from "@chelone/core";
 import { computed, inject, ref } from "vue";
-import { useChelonNotifications } from "../../../context";
+import { useCheloneContext, useChelonNotifications } from "../../../context";
 import { useDelete } from "../../../data/mutations";
+import { useUndoable } from "../../../data/undoable";
 import { useTranslate } from "../../../i18n/use-translate";
 import { RecordContextKey } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
@@ -85,6 +94,8 @@ const record = computed(() => props.record ?? injectedRecord?.value);
 const translate = useTranslate();
 const redirect = useRedirect();
 const notifications = useChelonNotifications();
+const ctx = useCheloneContext();
+const runUndoable = useUndoable();
 const deleteMutation = useDelete(resource as string);
 
 const { canAccess, isPending: isAccessPending } = useMenuAccess(
@@ -107,7 +118,28 @@ const classes = computed(() => props.class ?? destructiveClass);
 const open = ref(false);
 
 function onClick(): void {
-  if (record.value?.id == null) return;
+  const current = record.value;
+  if (current?.id == null) return;
+  if (props.mutationMode === "undoable") {
+    const id = current.id as Identifier;
+    runUndoable({
+      queryKeys: [[resource as string]],
+      applyOptimistic: () =>
+        removeRecordsFromCache(ctx.queryClient, resource as string, [id]),
+      commit: () =>
+        ctx.dataProvider.delete(resource as string, {
+          id,
+          previousData: current,
+        }),
+      message: "ra.notification.deleted",
+      messageArgs: { smart_count: 1 },
+    });
+    // Redirect optimistically — the row is already gone from the cache.
+    if (props.redirect !== false) {
+      redirect(props.redirect, resource as string, id);
+    }
+    return;
+  }
   open.value = true;
 }
 

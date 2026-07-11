@@ -12,6 +12,12 @@ interface LiveToast {
   id: number;
   message: string;
   type: CheloneNotification["type"];
+  /** True for optimistic-with-Undo toasts — renders an Undo action. */
+  undoable?: boolean;
+  /** Rollback callback (Undo action) — leaves the server untouched. */
+  undo?: () => void;
+  /** Commit callback (auto-hide / close X) — fires the deferred server call. */
+  onClose?: () => void;
 }
 </script>
 
@@ -32,9 +38,19 @@ interface LiveToast {
  * store stays the source of truth for the PENDING queue only; the toast owns its
  * lifecycle (auto-close timer + a manual close button) from then on. A `shown`
  * set guards against a re-render (or a locale change) double-firing a toast.
+ *
+ * R3 (undoable): a notification flagged `undoable` renders an extra Undo action.
+ * Clicking Undo runs its `undo()` callback (rolls the optimistic cache back — the
+ * server is NEVER called). The auto-hide timeout OR the manual close (X) instead
+ * runs `onClose()` (COMMIT — the deferred server call fires exactly once). The
+ * core undoable handle makes both callbacks idempotent + one-way, so a stray
+ * close firing after Undo is a harmless no-op. A `beforeunload` guard commits any
+ * still-pending undoable mutation so the server never trails the optimistic cache
+ * when the page unloads (ra-core parity).
  */
 
-import { onBeforeUnmount, ref, watch } from "vue";
+import { commitAllUndoables, hasPendingUndoables } from "@chelone/core";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useChelonNotifications } from "../../../context";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useNotifications } from "../../../notification-hooks";
@@ -51,7 +67,8 @@ const toasts = ref<LiveToast[]>([]);
 const shown = new Set<number>();
 const timers = new Map<number, ReturnType<typeof setTimeout>>();
 
-function dismiss(id: number): void {
+/** Remove a toast + clear its timer, WITHOUT firing any undoable callback. */
+function remove(id: number): void {
   const index = toasts.value.findIndex((t) => t.id === id);
   if (index !== -1) toasts.value.splice(index, 1);
   const timer = timers.get(id);
@@ -60,6 +77,20 @@ function dismiss(id: number): void {
     timers.delete(id);
   }
   shown.delete(id);
+}
+
+/** Auto-hide / manual close X: COMMIT an undoable, then remove the toast. */
+function close(id: number): void {
+  const toast = toasts.value.find((t) => t.id === id);
+  toast?.onClose?.();
+  remove(id);
+}
+
+/** Undo action: ROLL BACK an undoable (server untouched), then remove. */
+function undo(id: number): void {
+  const toast = toasts.value.find((t) => t.id === id);
+  toast?.undo?.();
+  remove(id);
 }
 
 const typeClasses: Record<CheloneNotification["type"], string> = {
@@ -80,11 +111,18 @@ watch(
         id,
         message: translate(message, messageArgs),
         type,
+        undoable: notification.undoable,
+        undo: notification.undo,
+        onClose: notification.onClose,
       });
-      if (props.duration > 0) {
+      // Undoable toasts honor their own auto-hide window (⇒ commit on expiry).
+      const duration = notification.undoable
+        ? (notification.autoHideDuration ?? props.duration)
+        : props.duration;
+      if (duration > 0) {
         timers.set(
           id,
-          setTimeout(() => dismiss(id), props.duration),
+          setTimeout(() => close(id), duration),
         );
       }
       // Drain the queue immediately — the toast now owns the lifecycle.
@@ -94,7 +132,24 @@ watch(
   { immediate: true, deep: true },
 );
 
+// Commit any still-pending undoable mutation when the page unloads, so the
+// server is never left behind the optimistic cache (ra-core parity).
+function onBeforeUnloadHandler(): void {
+  if (hasPendingUndoables()) {
+    void commitAllUndoables();
+  }
+}
+
+onMounted(() => {
+  if (typeof window !== "undefined") {
+    window.addEventListener("beforeunload", onBeforeUnloadHandler);
+  }
+});
+
 onBeforeUnmount(() => {
+  if (typeof window !== "undefined") {
+    window.removeEventListener("beforeunload", onBeforeUnloadHandler);
+  }
   for (const timer of timers.values()) clearTimeout(timer);
   timers.clear();
 });
@@ -114,15 +169,28 @@ onBeforeUnmount(() => {
       :class="typeClasses[toast.type]"
       data-slot="notification-toast"
       :data-type="toast.type"
+      :data-undoable="toast.undoable ? 'true' : undefined"
       role="status"
     >
       <span class="text-sm">{{ toast.message }}</span>
       <button
+        v-if="toast.undoable"
         type="button"
-        class="ml-auto text-muted-foreground hover:text-foreground"
+        class="ml-auto text-sm font-medium underline underline-offset-2 hover:no-underline"
+        data-slot="notification-undo"
+        @click="undo(toast.id)"
+      >
+        {{ translate("ra.action.undo", { _: "Undo" }) }}
+      </button>
+      <button
+        type="button"
+        :class="[
+          'text-muted-foreground hover:text-foreground',
+          toast.undoable ? '' : 'ml-auto',
+        ]"
         aria-label="Close"
         data-slot="notification-close"
-        @click="dismiss(toast.id)"
+        @click="close(toast.id)"
       >
         <svg
           viewBox="0 0 24 24"

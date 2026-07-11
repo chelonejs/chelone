@@ -1,10 +1,18 @@
 <script lang="ts">
+import type { MutationMode } from "@chelone/core";
+
 /** Props for {@link BulkDeleteButton}. */
 export interface BulkDeleteButtonProps {
   /** Override the ambient `<Resource>`. */
   resource?: string;
   /** Override the auto-translated label. */
   label?: string;
+  /**
+   * `"undoable"` deletes optimistically with an Undo notification (no confirm
+   * dialog): the rows vanish now and the server call is deferred until the Undo
+   * window closes. Default (`"pessimistic"`) is confirm-gated.
+   */
+  mutationMode?: MutationMode;
   /** Confirmation-dialog title. Default `"ra.message.bulk_delete_title"`. */
   confirmTitle?: string;
   /** Confirmation-dialog body copy. Default `"ra.message.bulk_delete_content"`. */
@@ -25,8 +33,11 @@ export interface BulkDeleteButtonProps {
  * - it reads the ambient list surface (`useListContext` — `selectedIds` +
  *   `unselectAll`) and dispatches the `useDeleteMany(resource)` vue-query
  *   mutation over those ids, then clears the selection + notifies. There is NO
- *   `useBulkDeleteController` and no undoable mode in chelone, so this is the
- *   only path (pessimistic-with-confirm).
+ *   `useBulkDeleteController`, so the pessimistic path wires the pieces here.
+ * - `mutationMode="undoable"` deletes optimistically with an Undo notification
+ *   (via the vanilla `startUndoableMutation` engine) and no confirm: the rows
+ *   vanish now and the server `deleteMany` is deferred until the Undo window
+ *   closes; a commit error re-notifies + `refresh()`es to resync.
  * - the delete is gated by the `<Confirm>` dialog (V3-c): the button click opens
  *   it; confirming dispatches the bulk delete + clears the selection; cancelling
  *   closes it. This replaced the V3-b `window.confirm(...)` placeholder now that
@@ -37,9 +48,12 @@ export interface BulkDeleteButtonProps {
  * Use inside a `<DataTable :bulk-actions>` / `<BulkActionsToolbar>`.
  */
 
+import { type Identifier, removeRecordsFromCache } from "@chelone/core";
 import { computed, ref } from "vue";
-import { useChelonNotifications } from "../../../context";
+import { useCheloneContext, useChelonNotifications } from "../../../context";
 import { useDeleteMany } from "../../../data/mutations";
+import { useUndoable } from "../../../data/undoable";
+import { useRefresh } from "../../../data/use-refresh";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useListContext } from "../../../list/list-context";
 import { useResourceContext } from "../../../resource-context";
@@ -62,6 +76,9 @@ if (!resource) {
 const list = useListContext();
 const translate = useTranslate();
 const notifications = useChelonNotifications();
+const ctx = useCheloneContext();
+const runUndoable = useUndoable();
+const refresh = useRefresh();
 const deleteMany = useDeleteMany(resource as string);
 
 const isPending = computed(() => deleteMany.isPending.value);
@@ -76,6 +93,23 @@ const selectedCount = computed(() => (list.selectedIds ?? []).length);
 function onClick(event: MouseEvent): void {
   event.stopPropagation();
   if (selectedCount.value === 0) return;
+  if (props.mutationMode === "undoable") {
+    const ids = (list.selectedIds ?? []) as Identifier[];
+    runUndoable({
+      queryKeys: [[resource as string]],
+      applyOptimistic: () =>
+        removeRecordsFromCache(ctx.queryClient, resource as string, ids),
+      commit: () => ctx.dataProvider.deleteMany(resource as string, { ids }),
+      message: "ra.notification.deleted",
+      messageArgs: { smart_count: ids.length },
+      onCommitError: () => {
+        notifications?.notify("ra.notification.http_error", { type: "error" });
+        refresh();
+      },
+    });
+    list.unselectAll();
+    return;
+  }
   open.value = true;
 }
 
