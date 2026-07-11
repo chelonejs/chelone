@@ -10,7 +10,8 @@
  *   session) and is a no-op on a checkError RESOLUTION (ordinary data error).
  * - the data-error wiring auto-logs-out on a data 403 (checkError rejects) but
  *   leaves an ordinary 500 alone (checkError resolves).
- * - a gated `<CreateButton>` hides when `canAccess` denies.
+ * - a gated `<CreateButton>` + `<ResourceMenuItem>` hide when `canAccess`
+ *   denies, show when it grants, and show when access control is unconfigured.
  *
  * All mounted under a real `<Admin>` + vue-router (the V3-c harness).
  */
@@ -29,6 +30,7 @@ import {
 } from "../../auth/permissions-hooks";
 import CanAccess from "./auth/can-access.vue";
 import CreateButton from "./buttons/create-button.vue";
+import ResourceMenuItem from "./layout/resource-menu-item.vue";
 
 function makeAuthProvider(over: Partial<AuthProvider> = {}): AuthProvider {
   return {
@@ -325,5 +327,55 @@ describe("gated <CreateButton>", () => {
     await vi.waitFor(() =>
       expect(wrapper.find('[data-slot="create-button"]').exists()).toBe(true),
     );
+  });
+
+  it("shows when access control is unconfigured (no canAccess)", async () => {
+    const { wrapper } = mountAdmin(
+      () => h(CreateButton, { resource: "posts" }),
+      { authProvider: makeAuthProvider() }, // no canAccess = fail-open
+    );
+    await flushPromises();
+    expect(wrapper.find('[data-slot="create-button"]').exists()).toBe(true);
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/* gated resource menu item                                                   */
+/* -------------------------------------------------------------------------- */
+
+describe("gated <ResourceMenuItem>", () => {
+  it("hides when list access is denied", async () => {
+    const { wrapper } = mountAdmin(
+      () => h(ResourceMenuItem, { name: "posts" }),
+      {
+        authProvider: makeAuthProvider({ canAccess: async () => false }),
+      },
+    );
+    await vi.waitFor(() =>
+      expect(wrapper.find('a[href="/posts"]').exists()).toBe(false),
+    );
+  });
+
+  it("shows when list access is granted", async () => {
+    const { wrapper } = mountAdmin(
+      () => h(ResourceMenuItem, { name: "posts" }),
+      {
+        authProvider: makeAuthProvider({ canAccess: async () => true }),
+      },
+    );
+    await vi.waitFor(() =>
+      expect(wrapper.find('a[href="/posts"]').exists()).toBe(true),
+    );
+  });
+
+  it("shows when access control is unconfigured (no canAccess)", async () => {
+    const { wrapper } = mountAdmin(
+      () => h(ResourceMenuItem, { name: "posts" }),
+      {
+        authProvider: makeAuthProvider(), // no canAccess = fail-open
+      },
+    );
+    await flushPromises();
+    expect(wrapper.find('a[href="/posts"]').exists()).toBe(true);
   });
 });
