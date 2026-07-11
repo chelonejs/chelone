@@ -13,25 +13,109 @@ import {
   type EditController,
   type EditControllerOptions,
   type EditControllerState,
+  type FilterPayload,
+  hasCustomParams,
   type ListController,
   type ListControllerContext,
   type ListControllerOptions,
   type ListControllerState,
+  type ListParamsQuery,
   type LooseRecord,
   type MicroStore,
+  parseListParams,
   type RecordControllerContext,
   type RecordOf,
   type ResourceMap,
   type ResourceRecord,
   type ShowControllerOptions,
   type ShowControllerState,
+  type SortPayload,
+  serializeListParams,
 } from "@chelone/core";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import {
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { type CheloneContextValue, useCheloneContext } from "./context";
+import { RouterAdapterContext } from "./router/adapter";
 
 /** Reactive controller state plus the controller's stable actions. */
 export type UseListControllerResult<TRecord> = ListControllerState<TRecord> &
   Omit<ListController<TRecord>, keyof MicroStore<ListControllerState<TRecord>>>;
+
+/**
+ * Options for {@link useListController} — the vanilla {@link ListControllerOptions}
+ * plus the React-only `syncWithLocation` URL-sync switch.
+ */
+export interface UseListControllerOptions extends ListControllerOptions {
+  /**
+   * Sync list params (filter / sort / page / perPage / displayedFilters) to the
+   * URL query string, ra-core `useListParams`-style: the initial params are
+   * SEEDED from the location on mount (deep-linkable) and every param change is
+   * PUSHED back with `replace: true`. Default `true` for a top-level resource
+   * list. Set `false` for an embedded / reference list (mirrors ra-core's
+   * `disableSyncWithLocation`) to keep the pure store/KV behavior.
+   *
+   * Effective only when a `RouterAdapter` is present above the hook; without one
+   * (standalone / many unit tests) the sync degrades to a no-op and the store/KV
+   * behavior is used regardless of this flag.
+   */
+  syncWithLocation?: boolean;
+}
+
+/** The URL-shaped param slice of the list-controller state (multi-sort -> primary). */
+function listStateToQuery(s: {
+  page: number;
+  perPage: number;
+  sort: SortPayload[];
+  filter: FilterPayload;
+  displayedFilters: Record<string, boolean>;
+}): ListParamsQuery {
+  const primary = s.sort[0];
+  return {
+    filter: s.filter,
+    displayedFilters: s.displayedFilters,
+    sort: primary?.field,
+    order: primary?.order,
+    page: s.page,
+    perPage: s.perPage,
+  };
+}
+
+/** The subset of list-controller actions {@link seedListFromQuery} drives. */
+interface ListSeedTarget {
+  setFilters(
+    filter: FilterPayload,
+    displayedFilters?: Record<string, boolean>,
+  ): void;
+  setSort(sort: SortPayload): void;
+  setPerPage(perPage: number): void;
+  setPage(page: number): void;
+}
+
+/**
+ * Seed a freshly-constructed (INERT, unattached) list controller from a
+ * deep-linked URL query. Applied in the render-phase `useState` initializer so
+ * the FIRST fetch already uses the URL params (no wasted default fetch). Order
+ * matters: filter/sort/perPage each reset `page` to 1, so `setPage` runs LAST.
+ */
+function seedListFromQuery(
+  target: ListSeedTarget,
+  query: ListParamsQuery,
+): void {
+  if (query.filter !== undefined || query.displayedFilters !== undefined) {
+    target.setFilters(query.filter ?? {}, query.displayedFilters);
+  }
+  if (query.sort !== undefined) {
+    target.setSort({ field: query.sort, order: query.order ?? "ASC" });
+  }
+  if (query.perPage !== undefined) target.setPerPage(query.perPage);
+  if (query.page !== undefined) target.setPage(query.page);
+}
 
 /** Structurally one context: both controller families need the same services. */
 function toControllerContext<TResources extends ResourceMap>(
@@ -77,14 +161,71 @@ export function useListController<
   TName extends keyof TResources & string = keyof TResources & string,
 >(
   resource: TName,
-  options?: ListControllerOptions,
+  options?: UseListControllerOptions,
 ): UseListControllerResult<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
 
-  const [controller] = useState<ListController<TRecord>>(() =>
-    createListController(toControllerContext(ctx), resource, options),
+  // URL-sync is enabled only for a top-level list (default on) AND only when a
+  // RouterAdapter is present. Both conditions are MOUNT-STABLE (adapter presence
+  // can only change across a full remount of this subtree — same guarantee
+  // `useRedirectOptional` relies on; options are frozen at mount by design), so
+  // the conditional adapter-hook calls below preserve hook order every render.
+  const adapter = useContext(RouterAdapterContext);
+  const [syncEnabled] = useState(
+    () => (options?.syncWithLocation ?? true) && adapter != null,
   );
+
+  // biome-ignore lint/correctness/useHookAtTopLevel: syncEnabled + adapter presence are mount-stable — see the doc block above and useRedirectOptional.
+  const location = syncEnabled && adapter ? adapter.useLocation() : null;
+  // biome-ignore lint/correctness/useHookAtTopLevel: same mount-stability as `location`.
+  const navigate = syncEnabled && adapter ? adapter.useNavigate() : null;
+
+  const [controller] = useState<ListController<TRecord>>(() => {
+    const created = createListController(
+      toControllerContext(ctx),
+      resource,
+      options,
+    );
+    // Deep-link seed: only when the URL carries custom params, so a clean URL
+    // falls back to the controller's option/KV defaults (ra-core semantics).
+    if (syncEnabled && location) {
+      const query = parseListParams(location.search);
+      if (hasCustomParams(query)) seedListFromQuery(created, query);
+    }
+    return created;
+  });
+
+  // Push param changes -> URL (state -> URL, one-way after the init seed).
+  // Read the live pathname through a ref so a router that re-renders us with a
+  // new pathname pushes to the right place without re-subscribing.
+  const pathnameRef = useRef<string>(location?.pathname ?? "");
+  pathnameRef.current = location?.pathname ?? pathnameRef.current;
+  const lastPushedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!syncEnabled || !navigate) return;
+    // Initialize to the CURRENT (seeded) state's search so the mount itself
+    // never pushes — a clean URL stays clean until the user actually changes a
+    // param (then the full query is written, ra-core `useListParams`-style).
+    if (lastPushedRef.current === null) {
+      lastPushedRef.current = serializeListParams(
+        listStateToQuery(controller.getSnapshot()),
+      );
+    }
+    const pushToUrl = (): void => {
+      const search = serializeListParams(
+        listStateToQuery(controller.getSnapshot()),
+      );
+      if (search === lastPushedRef.current) return;
+      lastPushedRef.current = search;
+      navigate(`${pathnameRef.current}${search}`, { replace: true });
+    };
+    // The controller notifies on EVERY state change (incl. data/isPending); the
+    // search-diff guard makes non-param changes a no-op, so only real param
+    // moves navigate. This second subscriber also naturally covers the DEBOUNCED
+    // `setFilters` path (the URL updates when the debounced state settles).
+    return controller.subscribe(pushToUrl);
+  }, [syncEnabled, navigate, controller]);
 
   const snapshot = useSyncExternalStore(
     controller.subscribe,

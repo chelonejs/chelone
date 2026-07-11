@@ -660,6 +660,7 @@ export type {
   UseCreateControllerResult,
   UseDeleteControllerResult,
   UseEditControllerResult,
+  UseListControllerOptions,
   UseListControllerResult,
   UseShowControllerResult,
 } from "./controller-hooks";
