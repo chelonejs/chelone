@@ -6,10 +6,13 @@
 export { revalidateLogic } from "@tanstack/form-core";
 export type { Permission } from "./auth/access-control";
 export { canAccessWithPermissions } from "./auth/access-control";
+export type { CheckErrorOutcome } from "./auth/auth-options";
 export {
   authStateQueryOptions,
   canAccessQueryOptions,
+  checkError,
   identityQueryOptions,
+  permissionsQueryOptions,
 } from "./auth/auth-options";
 export type { AuthProvider, CanAccessParams, UserIdentity } from "./auth/types";
 export type {

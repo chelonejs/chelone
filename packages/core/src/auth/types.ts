@@ -26,6 +26,7 @@ export interface AuthProvider {
   checkAuth(params?: unknown): Promise<void>;
   checkError(error: unknown): Promise<void>;
   getIdentity?(): Promise<UserIdentity>;
+  getPermissions?(params?: unknown): Promise<unknown>;
   canAccess?(params: CanAccessParams): Promise<boolean>;
   handleCallback?(): Promise<void | { redirectTo?: string }>;
   refreshAuth?(): Promise<void>;
