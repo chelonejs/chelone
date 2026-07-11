@@ -3,8 +3,13 @@ import { oneKey, resourceKey } from "./keys";
 import type { DataContext } from "./query-options";
 import type { CreateParams, DeleteParams, UpdateParams } from "./types";
 
-/** 'undoable' joins this union in P3 — the seam is this option. Default: pessimistic (least surprise). */
-export type MutationMode = "pessimistic" | "optimistic";
+/**
+ * Default: pessimistic (least surprise). `undoable` = optimistic-with-Undo:
+ * the mutation is applied to the cache immediately and the dataProvider call is
+ * DEFERRED (see `startUndoableMutation` in ./undoable) until the Undo window
+ * closes; an Undo rolls the cache back and the server is never called.
+ */
+export type MutationMode = "pessimistic" | "optimistic" | "undoable";
 
 export interface MutationModeOptions {
   mutationMode?: MutationMode;

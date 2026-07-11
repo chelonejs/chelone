@@ -113,6 +113,16 @@ export type {
   UpdateResult,
 } from "./data/types";
 export type {
+  UndoableHandle,
+  UndoableMutationConfig,
+  UndoableSnapshot,
+} from "./data/undoable";
+export {
+  commitAllUndoables,
+  hasPendingUndoables,
+  startUndoableMutation,
+} from "./data/undoable";
+export type {
   ArrayBinding,
   ArrayBindingOptions,
   ArrayBindingUpdateOptions,
@@ -220,6 +230,7 @@ export { defineMessages } from "./i18n/messages";
 export type {
   Notification,
   NotificationStore,
+  NotifyOptions,
 } from "./notification/notification-store";
 export { createNotificationStore } from "./notification/notification-store";
 export type { Identifier } from "./resource/identifier";

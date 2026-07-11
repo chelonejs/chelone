@@ -210,7 +210,10 @@ function createMutationFlow<TRecord, TVariables>(
 }
 
 export interface EditControllerOptions<TRecord> extends ShowControllerOptions {
-  /** Default: pessimistic (least surprise). 'undoable' does not exist yet. */
+  /**
+   * Default: pessimistic (least surprise). `undoable` is orchestrated by the
+   * adapter via `startUndoableMutation`, not by this controller's observer.
+   */
   mutationMode?: MutationMode;
   transform?: SaveTransform<TRecord>;
 }

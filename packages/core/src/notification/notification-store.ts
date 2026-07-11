@@ -4,16 +4,41 @@ export interface Notification {
   message: string;
   type: "info" | "success" | "warning" | "error";
   messageArgs?: Record<string, unknown>;
+  /**
+   * True for optimistic-with-Undo notifications: the adapter renders an Undo
+   * action and treats auto-hide/dismiss as a COMMIT (via `onClose`).
+   */
+  undoable?: boolean;
+  /**
+   * Auto-dismiss after this many ms. When it elapses (or the user dismisses),
+   * the adapter should COMMIT the undoable mutation via `onClose`. `undefined`
+   * = sticky (no auto-hide).
+   */
+  autoHideDuration?: number;
+  /**
+   * Undo action for an undoable notification — rolls the cache back and leaves
+   * the server untouched. The adapter wires it to the Undo button.
+   */
+  undo?: () => void;
+  /**
+   * Called when the notification closes WITHOUT an undo (auto-hide timeout or
+   * manual dismiss) — the adapter uses it to COMMIT the deferred mutation.
+   */
+  onClose?: () => void;
+}
+
+/** The caller-facing options for `notify` (id and derived fields excluded). */
+export interface NotifyOptions {
+  type?: Notification["type"];
+  messageArgs?: Record<string, unknown>;
+  undoable?: boolean;
+  autoHideDuration?: number;
+  undo?: () => void;
+  onClose?: () => void;
 }
 
 export interface NotificationStore {
-  notify(
-    message: string,
-    options?: {
-      type?: Notification["type"];
-      messageArgs?: Record<string, unknown>;
-    },
-  ): number;
+  notify(message: string, options?: NotifyOptions): number;
   dismiss(id: number): void;
   clear(): void;
   getSnapshot(): readonly Notification[];
@@ -38,6 +63,10 @@ export function createNotificationStore(): NotificationStore {
           message,
           type: options.type ?? "info",
           messageArgs: options.messageArgs,
+          undoable: options.undoable,
+          autoHideDuration: options.autoHideDuration,
+          undo: options.undo,
+          onClose: options.onClose,
         },
       ];
       emit();
