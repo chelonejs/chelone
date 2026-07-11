@@ -3,10 +3,9 @@
  * Ported from shadmin `buttons/delete-button.tsx` and heavily rebridged, because
  * chelone's delete stack diverges from ra-core's:
  *
- * - No undoable / `useDeleteWithUndoController` in chelone (there is no undo
- *   notification stack yet), so the DEFAULT is pessimistic-with-confirm — the
- *   `<Confirm>` dialog gate. `mutationMode` is accepted for API parity but only
- *   the confirm path exists.
+ * - `mutationMode="pessimistic"` (default) is confirm-gated via the `<Confirm>`
+ *   dialog; `mutationMode="undoable"` deletes optimistically with an Undo
+ *   notification (via the vanilla `startUndoableMutation` engine) and no confirm.
  * - `useDeleteController(resource)` gives `{ deleteOne, saving }` (NOT ra's
  *   `{ handleDelete, isPending }` with baked-in record/redirect/label). This
  *   button wires the pieces itself: `deleteOne(id, { previousData })` on confirm,
@@ -19,11 +18,18 @@
  * list redirect + strips the deleted id from the KV selection.
  */
 
-import type { LooseRecord, MutationMode } from "@chelone/core";
+import {
+  type Identifier,
+  type LooseRecord,
+  type MutationMode,
+  removeRecordsFromCache,
+} from "@chelone/core";
+import { useQueryClient } from "@tanstack/react-query";
 import { Trash } from "lucide-react";
 import type { ReactNode, Ref } from "react";
 import { Fragment, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useDataProvider } from "../../../compat-hooks";
 import { useDeleteController } from "../../../controller-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import {
@@ -34,6 +40,7 @@ import { humanize, pluralize } from "../../../label/inflection";
 import { useRecordContext } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource";
 import { useRedirect } from "../../../router";
+import { useUndoable } from "../../../undoable-hooks";
 import { Confirm } from "../feedback/confirm";
 import { useMenuAccess } from "../layout/use-menu-access";
 
@@ -42,7 +49,12 @@ interface DeleteButtonProps {
   size?: "default" | "sm" | "lg" | "icon";
   record?: LooseRecord;
   onClick?: React.ReactEventHandler<HTMLButtonElement>;
-  /** Accepted for API parity; chelone only supports the confirm (pessimistic) path. */
+  /**
+   * `"undoable"` deletes optimistically with an Undo notification (no confirm
+   * dialog): the record vanishes now, the list redirect happens immediately,
+   * and the server call is deferred until the Undo window closes. Default
+   * (`"pessimistic"`) is confirm-gated.
+   */
   mutationMode?: MutationMode;
   redirect?: "list" | "show" | "edit" | false;
   resource?: string;
@@ -90,6 +102,7 @@ function DeleteButton(props: DeleteButtonProps) {
     confirmTitle: confirmTitleProp,
     confirmContent: confirmContentProp,
     confirmColor = "primary",
+    mutationMode = "pessimistic",
   } = props;
   const record = useRecordContext(props);
   const resource = useResourceContext(props);
@@ -106,6 +119,9 @@ function DeleteButton(props: DeleteButtonProps) {
   const translate = useTranslate();
   const redirect = useRedirect();
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const dataProvider = useDataProvider();
+  const runUndoable = useUndoable();
 
   const { saving, deleteOne } = useDeleteController(resource, {
     onRedirect: redirect,
@@ -162,10 +178,29 @@ function DeleteButton(props: DeleteButtonProps) {
     userText: confirmContentProp,
   });
 
-  const handleDialogOpen: React.ReactEventHandler<HTMLButtonElement> = (
+  const handleButtonClick: React.ReactEventHandler<HTMLButtonElement> = (
     event,
   ) => {
     event.stopPropagation();
+    if (mutationMode === "undoable") {
+      if (onClick) onClick(event);
+      if (record?.id == null) return;
+      const id = record.id as Identifier;
+      const previousData = record;
+      runUndoable({
+        queryKeys: [[resource]],
+        applyOptimistic: () =>
+          removeRecordsFromCache(queryClient, resource, [id]),
+        commit: () => dataProvider.delete(resource, { id, previousData }),
+        message: "chelone.notification.deleted",
+        messageArgs: { smart_count: 1 },
+      });
+      // Redirect optimistically (the row is already gone from the cache).
+      if (redirectTo !== false) {
+        redirect(redirectTo, resource, id);
+      }
+      return;
+    }
     setOpen(true);
     if (onClick) {
       onClick(event);
@@ -192,7 +227,7 @@ function DeleteButton(props: DeleteButtonProps) {
         ref={ref}
         variant={variant}
         type="button"
-        onClick={handleDialogOpen}
+        onClick={handleButtonClick}
         disabled={saving}
         aria-label={typeof label === "string" ? label : undefined}
         size={size}

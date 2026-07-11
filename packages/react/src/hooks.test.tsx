@@ -1,11 +1,32 @@
-import { defineResources, fakeDataProvider } from "@chelone/core";
+import {
+  createNotificationStore,
+  defineResources,
+  fakeDataProvider,
+  type GetListResult,
+  listKey,
+  type NotificationStore,
+  type NotifyOptions,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { describe, expect, expectTypeOf, it } from "vitest";
+import {
+  describe,
+  expect,
+  expectTypeOf,
+  it,
+  type MockInstance,
+  vi,
+} from "vitest";
 import { z } from "zod";
 import { CheloneProvider } from "./context";
-import { createCheloneHooks, useGetList, useGetOne, useUpdate } from "./hooks";
+import {
+  createCheloneHooks,
+  useDelete,
+  useGetList,
+  useGetOne,
+  useUpdate,
+} from "./hooks";
 
 const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
@@ -84,5 +105,124 @@ describe("react hooks", () => {
     expect(() => renderHook(() => useGetList("posts"))).toThrow(
       /CheloneProvider/,
     );
+  });
+});
+
+const undoableListParams = {
+  pagination: { page: 1, perPage: 100 },
+  sort: { field: "id", order: "ASC" as const },
+  filter: {},
+};
+
+function makeUndoableWrapper() {
+  const dataProvider = fakeDataProvider<R>({
+    posts: [
+      { id: 1, title: "a" },
+      { id: 2, title: "b" },
+    ],
+  });
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  queryClient.setQueryData<GetListResult>(
+    listKey("posts", undoableListParams),
+    {
+      data: [
+        { id: 1, title: "a" },
+        { id: 2, title: "b" },
+      ],
+      total: 2,
+    },
+  );
+  const notifications = createNotificationStore();
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <CheloneProvider
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+      notifications={notifications}
+    >
+      {children}
+    </CheloneProvider>
+  );
+  return { wrapper, queryClient, dataProvider, notifications };
+}
+
+function captureUndoable(
+  notify: MockInstance<NotificationStore["notify"]>,
+): NotifyOptions {
+  const call = notify.mock.calls.find((args) => args[1]?.undoable);
+  if (!call?.[1]) throw new Error("no undoable notification was enqueued");
+  return call[1];
+}
+
+function cachedTitles(queryClient: QueryClient): Record<number, string> {
+  const list = queryClient.getQueryData<GetListResult>(
+    listKey("posts", undoableListParams),
+  );
+  return Object.fromEntries(
+    (list?.data ?? []).map((r) => [r.id, r.title as string]),
+  );
+}
+
+describe("undoable useDelete / useUpdate hooks", () => {
+  it("useDelete undoable removes the row now, commits the provider exactly once", async () => {
+    const { wrapper, queryClient, dataProvider, notifications } =
+      makeUndoableWrapper();
+    const del = vi.spyOn(dataProvider, "delete");
+    const notify = vi.spyOn(notifications, "notify");
+    const { result } = renderHook(
+      () => useDelete<R, "posts">("posts", { mutationMode: "undoable" }),
+      { wrapper },
+    );
+    act(() => {
+      result.current.mutate({ id: 1 });
+    });
+    // Optimistic removal; server deferred.
+    expect(cachedTitles(queryClient)).toEqual({ 2: "b" });
+    expect(del).not.toHaveBeenCalled();
+    await act(async () => {
+      captureUndoable(notify).onClose?.();
+    });
+    expect(del).toHaveBeenCalledTimes(1);
+    expect(del).toHaveBeenCalledWith("posts", { id: 1 });
+  });
+
+  it("useDelete undoable Undo restores the row and never calls the provider", () => {
+    const { wrapper, queryClient, dataProvider, notifications } =
+      makeUndoableWrapper();
+    const del = vi.spyOn(dataProvider, "delete");
+    const notify = vi.spyOn(notifications, "notify");
+    const { result } = renderHook(
+      () => useDelete<R, "posts">("posts", { mutationMode: "undoable" }),
+      { wrapper },
+    );
+    act(() => {
+      result.current.mutate({ id: 1 });
+    });
+    act(() => {
+      captureUndoable(notify).undo?.();
+    });
+    expect(cachedTitles(queryClient)).toEqual({ 1: "a", 2: "b" });
+    expect(del).not.toHaveBeenCalled();
+  });
+
+  it("useUpdate undoable patches the cache now and commits once", async () => {
+    const { wrapper, queryClient, dataProvider, notifications } =
+      makeUndoableWrapper();
+    const update = vi.spyOn(dataProvider, "update");
+    const notify = vi.spyOn(notifications, "notify");
+    const { result } = renderHook(
+      () => useUpdate<R, "posts">("posts", { mutationMode: "undoable" }),
+      { wrapper },
+    );
+    act(() => {
+      result.current.mutate({ id: 1, data: { title: "A!" } });
+    });
+    expect(cachedTitles(queryClient)).toEqual({ 1: "A!", 2: "b" });
+    expect(update).not.toHaveBeenCalled();
+    await act(async () => {
+      captureUndoable(notify).onClose?.();
+    });
+    expect(update).toHaveBeenCalledTimes(1);
   });
 });

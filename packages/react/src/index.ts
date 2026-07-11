@@ -922,6 +922,8 @@ export {
   hydrate,
 } from "./ssr";
 export { useStore, useStoreItem } from "./store-hooks";
+export type { RunUndoableOptions } from "./undoable-hooks";
+export { useUndoable } from "./undoable-hooks";
 export type { UseListOptions, UseListResult } from "./use-list";
 export { useList } from "./use-list";
 export { sanitizeFieldRestProps } from "./util/sanitize-field-rest-props";

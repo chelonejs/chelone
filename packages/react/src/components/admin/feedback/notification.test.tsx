@@ -16,10 +16,16 @@ import {
   type NotificationStore,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import type { ReactNode } from "react";
 import { act } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { Notification } from "./notification";
 
@@ -31,6 +37,8 @@ function makeI18n() {
     messages: {
       en: defineMessages({
         "chelone.notification.created": "Element created",
+        "chelone.notification.deleted": "Element deleted",
+        "ra.action.undo": "Undo",
       }),
     },
   });
@@ -103,5 +111,77 @@ describe("<Notification>", () => {
     await waitFor(() =>
       expect(document.querySelector("[data-sonner-toaster]")).toBeTruthy(),
     );
+  });
+
+  it("renders an Undo action for an undoable notification", async () => {
+    const notifications = createNotificationStore();
+    render(
+      <Wrap notifications={notifications}>
+        <Notification />
+      </Wrap>,
+    );
+    act(() => {
+      notifications.notify("chelone.notification.deleted", {
+        type: "info",
+        undoable: true,
+        autoHideDuration: 5000,
+        undo: () => {},
+        onClose: () => {},
+      });
+    });
+    await screen.findByText("Element deleted");
+    expect(screen.getByRole("button", { name: /undo/i })).toBeTruthy();
+  });
+
+  it("clicking Undo calls undo() and not onClose()", async () => {
+    const notifications = createNotificationStore();
+    const undo = vi.fn();
+    const onClose = vi.fn();
+    render(
+      <Wrap notifications={notifications}>
+        <Notification />
+      </Wrap>,
+    );
+    act(() => {
+      notifications.notify("chelone.notification.deleted", {
+        type: "info",
+        undoable: true,
+        autoHideDuration: 5000,
+        undo,
+        onClose,
+      });
+    });
+    const undoButton = await screen.findByRole("button", { name: /undo/i });
+    fireEvent.click(undoButton);
+    expect(undo).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("dismissing the toast (close button) commits via onClose()", async () => {
+    const notifications = createNotificationStore();
+    const undo = vi.fn();
+    const onClose = vi.fn();
+    const { container } = render(
+      <Wrap notifications={notifications}>
+        <Notification />
+      </Wrap>,
+    );
+    act(() => {
+      notifications.notify("chelone.notification.deleted", {
+        type: "info",
+        undoable: true,
+        autoHideDuration: 5000,
+        undo,
+        onClose,
+      });
+    });
+    await screen.findByText("Element deleted");
+    const closeButton = container.ownerDocument.querySelector(
+      "[data-close-button]",
+    ) as HTMLElement | null;
+    expect(closeButton).toBeTruthy();
+    if (closeButton) fireEvent.click(closeButton);
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
+    expect(undo).not.toHaveBeenCalled();
   });
 });

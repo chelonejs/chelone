@@ -61,6 +61,10 @@ export {
   createShowController,
 } from "./controller/record-controllers";
 export { resolveNotificationKey } from "./controller/translate-fallback";
+export {
+  removeRecordsFromCache,
+  updateRecordsInCache,
+} from "./data/cache-ops";
 export { ValidationError } from "./data/errors";
 export { fakeDataProvider } from "./data/fake-provider";
 export {

@@ -1,5 +1,6 @@
 import {
   createMutationOptions,
+  type DeleteParams,
   deleteMutationOptions,
   type GetListParams,
   type GetManyParams,
@@ -8,11 +9,16 @@ import {
   getManyOptions,
   getOneOptions,
   type MutationModeOptions,
+  type RecordOf,
   type ResourceMap,
+  removeRecordsFromCache,
+  type UpdateParams,
   updateMutationOptions,
+  updateRecordsInCache,
 } from "@chelone/core";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCheloneContext } from "./context";
+import { useUndoable } from "./undoable-hooks";
 
 export function useGetList<
   TResources extends ResourceMap = ResourceMap,
@@ -63,7 +69,36 @@ export function useUpdate<
   TName extends keyof TResources & string = keyof TResources & string,
 >(resource: TName, options: MutationModeOptions = {}) {
   const ctx = useCheloneContext<TResources>();
-  return useMutation(updateMutationOptions(ctx, resource, options));
+  const queryClient = useQueryClient();
+  const runUndoable = useUndoable();
+  const mutation = useMutation(updateMutationOptions(ctx, resource, options));
+  if (options.mutationMode !== "undoable") return mutation;
+  // Undoable: patch the cache now, defer the update, notify with Undo. `mutate`
+  // is fire-and-forget (the server call is withheld until the undo window
+  // closes); `mutateAsync` resolves once the undoable is enqueued, not on the
+  // deferred server response.
+  const mutate = (params: UpdateParams<RecordOf<TResources, TName>>) => {
+    runUndoable({
+      queryKeys: [[resource]],
+      applyOptimistic: () =>
+        updateRecordsInCache(
+          queryClient,
+          resource,
+          [params.id],
+          params.data as Record<string, unknown>,
+        ),
+      commit: () => ctx.dataProvider.update(resource, params),
+      message: "chelone.notification.updated",
+      messageArgs: { smart_count: 1 },
+    });
+  };
+  return {
+    ...mutation,
+    mutate: mutate as unknown as typeof mutation.mutate,
+    mutateAsync: (async (params: UpdateParams<RecordOf<TResources, TName>>) => {
+      mutate(params);
+    }) as unknown as typeof mutation.mutateAsync,
+  };
 }
 
 export function useDelete<
@@ -71,7 +106,29 @@ export function useDelete<
   TName extends keyof TResources & string = keyof TResources & string,
 >(resource: TName, options: MutationModeOptions = {}) {
   const ctx = useCheloneContext<TResources>();
-  return useMutation(deleteMutationOptions(ctx, resource, options));
+  const queryClient = useQueryClient();
+  const runUndoable = useUndoable();
+  const mutation = useMutation(deleteMutationOptions(ctx, resource, options));
+  if (options.mutationMode !== "undoable") return mutation;
+  // Undoable: remove the row now, defer the delete, notify with Undo. See
+  // `useUpdate` for the `mutate`/`mutateAsync` semantics.
+  const mutate = (params: DeleteParams<RecordOf<TResources, TName>>) => {
+    runUndoable({
+      queryKeys: [[resource]],
+      applyOptimistic: () =>
+        removeRecordsFromCache(queryClient, resource, [params.id]),
+      commit: () => ctx.dataProvider.delete(resource, params),
+      message: "chelone.notification.deleted",
+      messageArgs: { smart_count: 1 },
+    });
+  };
+  return {
+    ...mutation,
+    mutate: mutate as unknown as typeof mutation.mutate,
+    mutateAsync: (async (params: DeleteParams<RecordOf<TResources, TName>>) => {
+      mutate(params);
+    }) as unknown as typeof mutation.mutateAsync,
+  };
 }
 
 /**
