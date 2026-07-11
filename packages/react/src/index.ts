@@ -74,12 +74,19 @@ export {
   useArrayInput,
   useIteratorItem,
 } from "./array-hooks";
+export type {
+  LogoutIfAccessDenied,
+  UsePermissionsResult,
+} from "./auth-hooks";
 export {
   useAuthState,
   useCanAccess,
   useGetIdentity,
   useLogin,
   useLogout,
+  useLogoutIfAccessDenied,
+  usePermissions,
+  useWatchDataErrors,
 } from "./auth-hooks";
 export type {
   ChoiceRecord,
@@ -131,6 +138,10 @@ export {
   AuthenticationError,
   type AuthenticationErrorProps,
 } from "./components/admin/auth/authentication-error";
+export {
+  CanAccess,
+  type CanAccessProps,
+} from "./components/admin/auth/can-access";
 export {
   LoginForm,
   type LoginFormProps,

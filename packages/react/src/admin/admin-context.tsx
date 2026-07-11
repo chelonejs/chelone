@@ -33,6 +33,7 @@ import type {
 } from "@chelone/core";
 import type { QueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
+import { useWatchDataErrors } from "../auth-hooks";
 import { CheloneProvider } from "../context";
 import {
   ResourceRegistryProvider,
@@ -96,6 +97,17 @@ function AdminRouterWrapper({
 }
 
 /**
+ * Wire `checkError` → auto-logout into the data error path (R2). Renders
+ * nothing; subscribes to the shared QueryClient's caches so a 401/403 from the
+ * dataProvider logs the user out. Mounted inside the router + providers so the
+ * logout notify/redirect seams resolve. A no-op without an `authProvider`.
+ */
+function AuthErrorWatcher(): null {
+  useWatchDataErrors();
+  return null;
+}
+
+/**
  * The provider stack (escape hatch). See the module doc for the exact nesting.
  * The registry is created ONCE by `ResourceRegistryProvider` (unless supplied),
  * so it is stable for the provider's lifetime.
@@ -127,6 +139,7 @@ export function AdminContext<TResources extends ResourceMap = ResourceMap>({
         <ResourceRegistryProvider registry={registry}>
           <BasenameProvider basename={basename}>
             <AdminRouterWrapper basename={basename}>
+              <AuthErrorWatcher />
               {children}
             </AdminRouterWrapper>
           </BasenameProvider>
