@@ -101,11 +101,23 @@ export const vueRouterAdapter: RouterAdapter = {
         return;
       }
       const state = opts?.state as HistoryState | undefined;
+      // `to` is a FULL path string (Chelone owns search serialization, so it may
+      // carry `?query#hash`). vue-router's `{ path }` object form treats the
+      // whole string as the path and DROPS an embedded query — so `resolve` it
+      // first to split path/query/hash (encoding-correct), then re-attach state.
+      // A plain string form parses the query but can't carry `state`.
+      const resolved = router.resolve(to);
+      const location = {
+        path: resolved.path,
+        query: resolved.query,
+        hash: resolved.hash,
+        state,
+      };
       if (opts?.replace) {
-        void router.replace({ path: to, state });
+        void router.replace(location);
         return;
       }
-      void router.push({ path: to, state });
+      void router.push(location);
     }) as AdapterNavigate;
   },
 
