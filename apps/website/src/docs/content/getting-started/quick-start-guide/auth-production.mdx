@@ -9,8 +9,9 @@ a data provider that talks to your actual backend.
 ## Adding authentication
 
 Chelone makes no assumption about your auth strategy (basic auth, OAuth, a custom
-route). You supply an **`authProvider`** object and pass it to `<Admin>`; Chelone
-calls it to gate pages and to react to `401` / `403` responses from your API.
+route). You supply an **`authProvider`** object and pass it to `<Admin>` with
+`requireAuth` to gate pages. Chelone also calls it to react to `401` / `403`
+responses from your API.
 
 An `authProvider` exposes four required async methods:
 
@@ -44,19 +45,30 @@ export const authProvider: AuthProvider = {
 };
 ```
 
-Wire it into `<Admin>`:
+Wire it into the `App` from
+[Setup](/docs/getting-started/quick-start-guide/setup). Keep its `dataProvider`,
+`queryClient`, `resources`, layout, resource views, and surrounding
+`<BrowserRouter>` in these `App.tsx` excerpts:
 
-```tsx title="src/App.tsx" {3}
+```tsx title="src/App.tsx" {5,6}
+import { Admin } from "@chelone/react";
 import { authProvider } from "./auth-provider";
 
-<Admin authProvider={authProvider} dataProvider={dataProvider} resources={resources}>
+<Admin
+  authProvider={authProvider}
+  requireAuth
+  dataProvider={dataProvider}
+  queryClient={queryClient}
+  resources={resources}
+>
   {/* …resources… */}
 </Admin>;
 ```
 
-Now the admin sits behind a login page. `<Admin>` ships a default login form; see
-[Security](/docs/app-config/security) for `getIdentity`, `canAccess`
-permission checks, and OAuth `handleCallback`.
+With `requireAuth`, the admin waits for `checkAuth` and redirects unauthenticated
+users to login. `<LoginPage>` is the default login page, so no `loginPage` prop
+is needed. See [Security](/docs/app-config/security) for `getIdentity`,
+`getPermissions`, `canAccess`, and OAuth `handleCallback`.
 
 ## Connecting to a real API
 
@@ -76,23 +88,33 @@ dialect. Chelone calls one method per action and expects a `Promise` back:
 | Delete a record | `delete` |
 | Delete several | `deleteMany` |
 
-A minimal REST provider is just those methods over `fetch`:
+This example targets a REST API with JSON request and response bodies,
+`_page` / `_limit` pagination, and an `x-total-count` response header. It uses
+page pagination (defaulting to page 1) and the first sort key (defaulting to
+`id ASC`). Adapt these conventions to your backend:
 
 ```tsx title="src/data-provider.ts"
-import type { DataProvider } from "@chelone/core";
+import { type DataProvider, HttpError } from "@chelone/core";
 
 const apiUrl = "https://my.api.url";
 
 async function json(input: string, init?: RequestInit) {
-  const res = await fetch(input, init);
-  if (!res.ok) throw { status: res.status, message: res.statusText };
+  const res = await fetch(input, {
+    headers: { "Content-Type": "application/json" },
+    ...init,
+  });
+  if (!res.ok) throw new HttpError(res.statusText, res.status);
   return res.json();
 }
 
 export const dataProvider: DataProvider = {
   async getList(resource, params) {
-    const { page, perPage } = params.pagination;
-    const { field, order } = params.sort;
+    const { pagination, sort } = params;
+    const { page, perPage } = pagination && "page" in pagination
+      ? pagination
+      : { page: 1, perPage: 10 };
+    const { field, order } = (Array.isArray(sort) ? sort[0] : sort)
+      ?? { field: "id", order: "ASC" };
     const query = new URLSearchParams({
       _sort: field,
       _order: order,
@@ -101,6 +123,7 @@ export const dataProvider: DataProvider = {
       ...(params.filter as Record<string, string>),
     });
     const res = await fetch(`${apiUrl}/${resource}?${query}`);
+    if (!res.ok) throw new HttpError(res.statusText, res.status);
     const data = await res.json();
     const total = Number(res.headers.get("x-total-count") ?? data.length);
     return { data, total };
@@ -159,12 +182,21 @@ export const dataProvider: DataProvider = {
 };
 ```
 
-Swapping providers is a one-line change:
+Replace the fake provider's import in `src/App.tsx` with the production provider.
+Keep `authProvider` and `requireAuth` on `<Admin>`:
 
 ```tsx title="src/App.tsx"
+import { Admin } from "@chelone/react";
+import { authProvider } from "./auth-provider";
 import { dataProvider } from "./data-provider";
 
-<Admin dataProvider={dataProvider} resources={resources}>
+<Admin
+  dataProvider={dataProvider}
+  queryClient={queryClient}
+  resources={resources}
+  authProvider={authProvider}
+  requireAuth
+>
   {/* …resources… */}
 </Admin>;
 ```
