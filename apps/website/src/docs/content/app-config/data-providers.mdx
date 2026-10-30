@@ -216,8 +216,10 @@ constructor takes a message and a `fieldErrors` object that maps a field's
 source path to one message or an array of them.
 
 ```ts
-import { ValidationError } from "@chelone/core";
+import { fetchUtils, HttpError, ValidationError } from "@chelone/core";
 import type { DataProvider } from "@chelone/core";
+
+const { fetchJson } = fetchUtils;
 
 export const dataProvider: Pick<DataProvider, "create"> = {
   async create(resource, { data }) {
