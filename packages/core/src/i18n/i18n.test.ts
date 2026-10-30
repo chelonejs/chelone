@@ -88,6 +88,19 @@ describe("createI18n", () => {
     );
   });
 
+  it("treats Object.prototype names as missing keys, not catalog entries", () => {
+    const i18n: AnyCheloneI18n = createI18n({
+      locale: "en",
+      fallbackLocale: "fr",
+      messages: { en: {}, fr: {} },
+    });
+    expect(i18n.translate("constructor")).toBe("constructor");
+    expect(i18n.translate("toString")).toBe("toString");
+    expect(i18n.translate("toString", { _: "Default {x}", x: "1" })).toBe(
+      "Default 1",
+    );
+  });
+
   it("setLocale of an unknown locale throws; getLocales lists catalogs", () => {
     const i18n = make();
     expect(i18n.getLocales().sort()).toEqual(["en", "fr"]);

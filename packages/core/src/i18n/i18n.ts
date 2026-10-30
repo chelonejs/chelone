@@ -88,6 +88,14 @@ function resolve(
   return interpolate(value[category] ?? value.other, params);
 }
 
+/** Own-property lookup: `"constructor"` or `"toString"` is a missing key, not a function. */
+function lookup(
+  catalog: MessageCatalog | undefined,
+  key: string,
+): MessageValue | undefined {
+  return catalog && Object.hasOwn(catalog, key) ? catalog[key] : undefined;
+}
+
 export function createI18n<const TCatalog extends MessageCatalog>(options: {
   locale: string;
   messages: Record<string, TCatalog>;
@@ -100,9 +108,9 @@ export function createI18n<const TCatalog extends MessageCatalog>(options: {
     translate(key, ...args) {
       const params = args[0] as Record<string, unknown> | undefined;
       const value =
-        options.messages[locale]?.[key] ??
+        lookup(options.messages[locale], key) ??
         (options.fallbackLocale
-          ? options.messages[options.fallbackLocale]?.[key]
+          ? lookup(options.messages[options.fallbackLocale], key)
           : undefined);
       if (value === undefined) {
         // Polyglot/ra `{ _: default }` convention: a missing key with a string
