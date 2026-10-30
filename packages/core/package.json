@@ -32,7 +32,7 @@
   },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && node ../../scripts/dts-extensions.mjs dist",
-    "check:pack": "publint --pack pnpm --strict && attw --pack . --profile node16",
+    "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only",
     "test": "NODE_OPTIONS=--no-experimental-webstorage vitest run --typecheck",
     "typecheck": "tsc --noEmit"
   },
