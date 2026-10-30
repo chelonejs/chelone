@@ -67,7 +67,13 @@ export {
 } from "./data/cache-ops";
 export { ValidationError } from "./data/errors";
 export { fakeDataProvider } from "./data/fake-provider";
+export type {
+  FetchJsonOptions,
+  FetchJsonResult,
+} from "./data/fetch-utils";
+export { fetchUtils } from "./data/fetch-utils";
 export { getManyAggregateOptions } from "./data/get-many-aggregate";
+export { HttpError } from "./data/http-error";
 export {
   listKey,
   manyKey,
