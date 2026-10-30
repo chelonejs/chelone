@@ -15,7 +15,14 @@ describe("WizardForm types", () => {
       save: okSave,
       children: null,
     };
-    expectTypeOf(props.save).parameter(0).toEqualTypeOf<FormValues>();
+    expectTypeOf(props.save).toEqualTypeOf<
+      ((data: FormValues) => Promise<FieldErrors | undefined>) | undefined
+    >();
+  });
+
+  it("save is optional: a form inside a view needs none", () => {
+    const props: WizardFormProps<FormValues> = { children: null };
+    expectTypeOf(props.save).toBeNullable();
   });
 
   it("the wizard controller result is any-free and shaped correctly", () => {

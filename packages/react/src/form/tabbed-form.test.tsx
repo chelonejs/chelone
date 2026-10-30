@@ -28,8 +28,11 @@
  */
 
 import {
+  createI18n,
   createNotificationStore,
+  createResourceRegistry,
   createStore,
+  defineMessages,
   type FieldErrors,
   fakeDataProvider,
   required,
@@ -41,15 +44,20 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { TextInput } from "../components/admin/inputs/text-input";
+import { Edit } from "../components/admin/views/edit";
 import { CheloneProvider } from "../context";
 import { useInput } from "../form-hooks";
+import { ResourceContextProvider, ResourceRegistryProvider } from "../resource";
 import { RouterAdapterProvider } from "../router/adapter";
 import { useLocation, useNavigate } from "../router/nav-hooks";
 import { reactRouterAdapter } from "../router/react-router-adapter";
+import { useSaveContext } from "../save-context";
 import { useFormGroup } from "./group-hooks";
 import {
   TabbedForm,
@@ -237,6 +245,55 @@ function tabVisible(name: string): boolean {
     `[data-chelone-tab="${name}"]`,
   );
   return el != null && !el.hidden;
+}
+
+/** Mounts `children` at `/1` under a `posts` resource, as `<Edit>` expects. */
+function renderInEditRoute(
+  dataProvider: ReturnType<typeof fakeDataProvider>,
+  children: ReactNode,
+) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  const registry = createResourceRegistry();
+  registry.register({
+    name: "posts",
+    hasList: true,
+    hasCreate: false,
+    hasEdit: true,
+    hasShow: false,
+  });
+  return render(
+    <CheloneProvider
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+      i18n={createI18n({
+        locale: "en",
+        messages: { en: defineMessages({ "ra.action.edit": "Edit" }) },
+      })}
+    >
+      <ResourceRegistryProvider registry={registry}>
+        <RouterAdapterProvider adapter={reactRouterAdapter}>
+          <MemoryRouter initialEntries={["/1"]}>
+            <ResourceContextProvider value="posts">
+              <Routes>
+                <Route path=":id" element={children} />
+              </Routes>
+            </ResourceContextProvider>
+          </MemoryRouter>
+        </RouterAdapterProvider>
+      </ResourceRegistryProvider>
+    </CheloneProvider>,
+  );
+}
+
+function SaveButton() {
+  const { save } = useSaveContext();
+  return (
+    <button type="button" onClick={() => save?.({})}>
+      Save
+    </button>
+  );
 }
 
 afterEach(() => {
@@ -431,5 +488,101 @@ describe("<TabbedForm> — single submit collects all tabs", () => {
       await tabbed.current?.submit();
     });
     expect(seen.values).toEqual({ title: "T", body: "B", slug: "S" });
+  });
+});
+
+describe("<TabbedForm> inside <Edit>", () => {
+  it("inside Edit the tabs show the record and Save calls update", async () => {
+    const dataProvider = fakeDataProvider({
+      posts: [{ id: 1, title: "Original", body: "Body" }],
+    });
+    const update = vi.spyOn(dataProvider, "update");
+    renderInEditRoute(
+      dataProvider,
+      <Edit title={false}>
+        <TabbedForm syncWithLocation={false}>
+          <TabbedForm.Tab name="one">
+            <TextInput source="title" />
+          </TabbedForm.Tab>
+          <TabbedForm.Tab name="two">
+            <TextInput source="body" />
+          </TabbedForm.Tab>
+        </TabbedForm>
+        <SaveButton />
+      </Edit>,
+    );
+    await waitFor(() =>
+      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
+        "Original",
+      ),
+    );
+    expect((screen.getByLabelText(/body/i) as HTMLInputElement).value).toBe(
+      "Body",
+    );
+    fireEvent.change(screen.getByLabelText(/title/i), {
+      target: { value: "Updated" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(update).toHaveBeenCalledTimes(1));
+    expect(update.mock.calls[0]?.[1].data).toMatchObject({
+      title: "Updated",
+      body: "Body",
+    });
+  });
+
+  it("a TabbedForm given save inside Edit builds its own form", async () => {
+    const dataProvider = fakeDataProvider({
+      posts: [{ id: 1, title: "Original" }],
+    });
+    const update = vi.spyOn(dataProvider, "update");
+    const ownSave = vi.fn(async (_values: unknown) => undefined);
+    function SubmitOwn() {
+      const { submit } = useTabbedFormContext();
+      return (
+        <button type="button" onClick={() => submit()}>
+          Submit own
+        </button>
+      );
+    }
+    renderInEditRoute(
+      dataProvider,
+      <Edit title={false}>
+        <TabbedForm
+          save={ownSave}
+          defaultValues={{ title: "Mine" }}
+          syncWithLocation={false}
+        >
+          <TabbedForm.Tab name="one">
+            <TextInput source="title" />
+            <SubmitOwn />
+          </TabbedForm.Tab>
+        </TabbedForm>
+      </Edit>,
+    );
+    await waitFor(() =>
+      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
+        "Mine",
+      ),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Submit own" }));
+    await waitFor(() => expect(ownSave).toHaveBeenCalledTimes(1));
+    expect(ownSave.mock.calls[0]?.[0]).toEqual({ title: "Mine" });
+    expect(update).not.toHaveBeenCalled();
+  });
+});
+
+describe("<TabbedForm> outside a view", () => {
+  it("throws a clear error when save is missing", () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const Wrapper = makeProviders();
+    expect(() =>
+      render(
+        <Wrapper>
+          <TabbedForm syncWithLocation={false}>
+            <TabbedForm.Tab name="one">{null}</TabbedForm.Tab>
+          </TabbedForm>
+        </Wrapper>,
+      ),
+    ).toThrow(/<TabbedForm>.*save/);
   });
 });

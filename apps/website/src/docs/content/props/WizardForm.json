@@ -46,7 +46,7 @@
     {
       "name": "save",
       "type": "(data: TFormData) => Promise<FieldErrors | undefined>",
-      "optional": false,
+      "optional": true,
       "comment": "The P4 save contract: resolves with the server's `fieldErrors` on\n`ValidationError`, `undefined` otherwise — never rejects for provider\nerrors. Called by the submit pipeline."
     },
     {
