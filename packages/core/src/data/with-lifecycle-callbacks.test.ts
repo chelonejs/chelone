@@ -58,7 +58,7 @@ function stubProvider() {
 
 const asProvider = (stub: object) => stub as unknown as DataProvider<Resources>;
 
-const cap = (verb: string) => verb[0].toUpperCase() + verb.slice(1);
+const cap = (verb: string) => verb.charAt(0).toUpperCase() + verb.slice(1);
 
 /** Builds a handler with computed callback names, which the typed shape cannot express. */
 const handler = (

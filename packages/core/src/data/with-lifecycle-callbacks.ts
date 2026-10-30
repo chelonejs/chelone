@@ -144,7 +144,8 @@ type Callback = (value: unknown, dataProvider: unknown) => unknown;
 type LooseHandler = { resource: string } & Record<string, Callback | undefined>;
 type LooseVerb = (resource: string, params: unknown) => Promise<unknown>;
 
-const capitalize = (verb: string) => verb[0].toUpperCase() + verb.slice(1);
+const capitalize = (verb: string) =>
+  verb.charAt(0).toUpperCase() + verb.slice(1);
 
 /**
  * Wraps `dataProvider` with before/after hooks per resource, without touching
@@ -166,10 +167,9 @@ export function withLifecycleCallbacks<
     const beforeName = `before${capitalize(verb)}`;
     const afterName = `after${capitalize(verb)}`;
     const callProvider = (resource: string, params: unknown) =>
-      (dataProvider as unknown as Record<string, LooseVerb>)[verb](
-        resource,
-        params,
-      );
+      (dataProvider as unknown as Record<(typeof VERBS)[number], LooseVerb>)[
+        verb
+      ](resource, params);
 
     wrapped[verb] = (resource: string, params: unknown) => {
       const matching = loose.filter(
