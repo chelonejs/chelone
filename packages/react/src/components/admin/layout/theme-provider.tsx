@@ -3,14 +3,21 @@
  * `layout/theme-provider.tsx`; the ONE seam (`shadmin-core`'s `useStore`) is
  * rewired to `@chelone/react`'s `useStore` (per-key store subscription).
  *
- * The mode is persisted via `useStore` and applied as a class (`light`/`dark`)
+ * The mode is persisted through the store (or `localStorage` when no store is
+ * configured, so a default `<Admin>` works) and applied as a class (`light`/`dark`)
  * on `<html>` so Tailwind `dark:` variants + the shadcn `.dark` token block
  * resolve. Theme PALETTES are not a runtime concern in chelone — tokens live in
  * CSS (the `ui/` layer + registry `cssVars`), so this only manages the MODE.
  */
 
-import { useEffect, useMemo } from "react";
-import { useStore } from "../../../store-hooks";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { useCheloneContext } from "../../../context";
 import {
   type ResolvedTheme,
   type Theme,
@@ -40,23 +47,86 @@ function resolveMode(mode: Theme): ResolvedTheme {
   return mode;
 }
 
+function isTheme(value: unknown): value is Theme {
+  return value === "light" || value === "dark" || value === "system";
+}
+
+// Storage can be blocked (third-party or sandboxed iframes: even touching
+// `localStorage` throws) or full, so every access is guarded.
+function readStoredMode(key: string): Theme | undefined {
+  try {
+    const stored = localStorage.getItem(key);
+    return isTheme(stored) ? stored : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function writeStoredMode(key: string, mode: Theme): void {
+  try {
+    localStorage.setItem(key, mode);
+  } catch {
+    // The mode still applies for this session.
+  }
+}
+
+const noopSubscribe = () => () => {};
+
 /**
- * Provides the active light/dark mode to `useTheme` and applies it to `<html>`.
- *
- * @example
- * <CheloneProvider store={createStore()}>
- *   <ThemeProvider defaultTheme="system">
- *     <App />
- *   </ThemeProvider>
- * </CheloneProvider>
+ * The `[mode, setMode]` pair. Backed by the Chelone store when there is one,
+ * else by `localStorage` under `key`. Both paths run every hook, so a store
+ * appearing or disappearing between renders never remounts the tree.
  */
-function ThemeProvider({
+function useMode(
+  key: string,
+  defaultTheme: Theme,
+): [Theme, (mode: Theme) => void] {
+  const { store } = useCheloneContext();
+  const subscribe = useCallback(
+    (cb: () => void) => (store ? store.subscribe(key, cb) : noopSubscribe()),
+    [store, key],
+  );
+  const storeMode = useSyncExternalStore(
+    subscribe,
+    () => store?.getItem<Theme>(key),
+    () => undefined,
+  );
+  const [local, setLocal] = useState(() => ({
+    key,
+    mode: readStoredMode(key) ?? defaultTheme,
+  }));
+  // A new `key` starts from what is stored under it, not the old key's mode.
+  let localMode = local.mode;
+  if (local.key !== key) {
+    localMode = readStoredMode(key) ?? defaultTheme;
+    setLocal({ key, mode: localMode });
+  }
+
+  const setMode = useCallback(
+    (next: Theme) => {
+      if (store) {
+        store.setItem(key, next);
+      } else {
+        setLocal({ key, mode: next });
+        writeStoredMode(key, next);
+      }
+    },
+    [store, key],
+  );
+  const mode = store ? (storeMode ?? defaultTheme) : localMode;
+  return [mode, setMode];
+}
+
+/** Applies the mode to `<html>` and publishes it to `useTheme`. */
+function ModeContext({
+  mode,
+  setMode,
   children,
-  defaultTheme = "system",
-  storageKey = "theme",
-}: ThemeProviderProps) {
-  const [storedMode, setMode] = useStore<Theme>(storageKey, defaultTheme);
-  const mode = storedMode ?? defaultTheme;
+}: {
+  mode: Theme;
+  setMode: (mode: Theme) => void;
+  children: React.ReactNode;
+}) {
   const effectiveMode = resolveMode(mode);
 
   useEffect(() => {
@@ -74,6 +144,31 @@ function ThemeProvider({
     <ThemeProviderContext.Provider value={value}>
       {children}
     </ThemeProviderContext.Provider>
+  );
+}
+
+/**
+ * Provides the active light/dark mode to `useTheme` and applies it to `<html>`.
+ * Persists through the Chelone store when `<CheloneProvider>` has one, else
+ * through `localStorage` under `storageKey`.
+ *
+ * @example
+ * <CheloneProvider store={createStore()}>
+ *   <ThemeProvider defaultTheme="system">
+ *     <App />
+ *   </ThemeProvider>
+ * </CheloneProvider>
+ */
+function ThemeProvider({
+  children,
+  defaultTheme = "system",
+  storageKey = "theme",
+}: ThemeProviderProps) {
+  const [mode, setMode] = useMode(storageKey, defaultTheme);
+  return (
+    <ModeContext mode={mode} setMode={setMode}>
+      {children}
+    </ModeContext>
   );
 }
 
