@@ -101,7 +101,7 @@ function registrySchema<TFormData>(
 }
 
 export function useForm<
-  TFormData extends Record<string, unknown> = Record<string, unknown>,
+  TFormData = Record<string, unknown>,
 >(options: UseFormOptions<TFormData>): UseFormReturn<TFormData> {
   const ctx = useCheloneContext();
   // Resource is optional for a form — it only sources the default schema. An
