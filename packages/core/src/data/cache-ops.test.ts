@@ -250,7 +250,10 @@ describe("removeRecordsFromCache on infinite and reference lists", () => {
     removeRecordsFromCache(qc, "authors", [1]);
     expect(qc.getQueryData(both)).toEqual([{ id: 2, name: "Bob" }]);
     expect(qc.getQueryData(other)).toEqual([{ id: 3, name: "Cy" }]);
-    expect(before).toHaveLength(2);
+    expect(before).toEqual([
+      { id: 1, name: "Ann" },
+      { id: 2, name: "Bob" },
+    ]);
   });
 
   it("removeRecordsFromCache keeps the cached object of a getMany entry that holds none of the ids", () => {
@@ -259,6 +262,18 @@ describe("removeRecordsFromCache on infinite and reference lists", () => {
     qc.setQueryData(key, [{ id: 2, name: "Bob" }]);
     const before = qc.getQueryData(key);
     removeRecordsFromCache(qc, "authors", [1]);
+    expect(qc.getQueryData(key)).toBe(before);
+  });
+
+  it("removeRecordsFromCache with no ids leaves every getMany entry as it was", () => {
+    const qc = makeClient();
+    const key = manyKey("authors", { ids: [1, 2] });
+    qc.setQueryData(key, [
+      { id: 1, name: "Ann" },
+      { id: 2, name: "Bob" },
+    ]);
+    const before = qc.getQueryData(key);
+    removeRecordsFromCache(qc, "authors", []);
     expect(qc.getQueryData(key)).toBe(before);
   });
 });

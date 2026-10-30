@@ -17,8 +17,9 @@ export interface MutationModeOptions {
 }
 
 function invalidateResource(ctx: DataContext<ResourceMap>, resource: string) {
-  // ponytail: optimistic mode invalidates list caches instead of patching them;
-  // per-list optimistic patching arrives with controllers (P4) if profiling demands.
+  // ponytail: optimistic mode invalidates list caches instead of patching them
+  // (only the getOne and getMany entries are patched); per-list optimistic
+  // patching arrives with controllers (P4) if profiling demands.
   return ctx.queryClient.invalidateQueries({ queryKey: resourceKey(resource) });
 }
 
