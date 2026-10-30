@@ -16,7 +16,9 @@ import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { Layout } from "../components/admin/layout/layout";
 import { useCheloneContext } from "../context";
+import { useNotify } from "../notification-hooks";
 import {
   useResourceDefinitions,
   useResourceRegistry,
@@ -255,6 +257,51 @@ describe("escape hatch — <AdminContext> + <AdminUI> split", () => {
     expect(screen.getByTestId("has-adapter").textContent).toBe("true");
     expect(screen.getByTestId("has-registry").textContent).toBe("true");
     expect(screen.getByTestId("basename").textContent).toBe("/back");
+  });
+});
+
+describe("<Admin> — optional services", () => {
+  it("a default Admin renders with only dataProvider and queryClient", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+          <Admin.Layout>
+            <Layout />
+          </Admin.Layout>
+          <Admin.Dashboard>
+            <div>dash</div>
+          </Admin.Dashboard>
+        </Admin>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText("dash")).toBeTruthy();
+  });
+
+  it("useNotify still throws without a notification store", () => {
+    function Notifier() {
+      useNotify();
+      return null;
+    }
+    // The shell's error boundary catches the throw and renders its fallback.
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      render(
+        <MemoryRouter initialEntries={["/"]}>
+          <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+            <Admin.Dashboard>
+              <Notifier />
+            </Admin.Dashboard>
+          </Admin>
+        </MemoryRouter>,
+      );
+
+      expect(screen.getByRole("alert").textContent).toMatch(
+        /useNotify: pass a notification store/,
+      );
+    } finally {
+      error.mockRestore();
+    }
   });
 });
 
