@@ -4,6 +4,7 @@ import {
   Edit,
   EmailField,
   List,
+  ListPagination,
   RecordField,
   ReferenceManyField,
   Show,
@@ -59,6 +60,7 @@ export function CustomerShow() {
             <DataTable.Col source="status" />
             <DataTable.NumberCol source="total" />
           </DataTable>
+          <ListPagination />
         </ReferenceManyField>
       </RecordField>
     </Show>
