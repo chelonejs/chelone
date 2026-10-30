@@ -1,22 +1,40 @@
 ---
 title: "Installation"
-description: "Add Chelone to any React app — Vite, React Router, Next.js, or TanStack Start."
+description: "Install Chelone with React Router v7, plus an optional TanStack Router reference adapter."
 ---
 
-Chelone is a framework-agnostic admin engine for React. The headless logic ships
-as an npm package (`@chelone/react`), and the shadcn-native UI components install
-through the shadcn CLI from the Chelone registry — so you own the component code.
+Chelone is a headless admin engine for React, using `react-router` v7 by default.
+An optional TanStack Router reference adapter is available at
+`@chelone/react/tanstack-router`. The headless logic is packaged as
+`@chelone/react`, and the shadcn-native UI components install through the shadcn
+CLI from the Chelone registry, so you own the component code.
+
+:::note
+The `@chelone` packages are not on npm yet. The commands below will work after
+the first release, tracked in the repository's
+[release guide](https://github.com/chelonejs/chelone/blob/main/docs/releasing.md).
+:::
 
 ## Install the engine
 
-Add the React adapter (it pulls in `@chelone/core` and its TanStack peers):
+Add the React adapter, its required router and TanStack peers, and Zod for
+resource schemas. `@chelone/react` pulls in `@chelone/core` automatically:
 
 ```bash
-npm install @chelone/react @chelone/core
+npm install @chelone/react react-router@^7.0.0 @tanstack/react-query@^5.0.0 @tanstack/react-store@^0.11.0 zod@^3.24.0
 ```
 
-`@chelone/react` expects `react`, `react-dom`, `react-router`, `@tanstack/react-query`,
-and `@tanstack/react-store` as peers — most React apps already have the first three.
+Your app must also have React and React DOM installed. The peer ranges declared
+by `@chelone/react` are:
+
+| Peer | Range | Required |
+| --- | --- | --- |
+| `react` | `^18 \|\| ^19` | Yes |
+| `react-dom` | `^18 \|\| ^19` | Yes |
+| `react-router` | `^7.0.0` | Yes |
+| `@tanstack/react-query` | `^5.0.0` | Yes |
+| `@tanstack/react-store` | `^0.11.0` | Yes |
+| `@tanstack/react-router` | `^1.0.0` | Only for the optional reference adapter |
 
 ## Add the UI components
 
@@ -28,7 +46,18 @@ project and can edit it freely. Initialise shadcn if you haven't:
 npx shadcn@latest init
 ```
 
-Then add the full admin surface in one shot:
+Add the Chelone registry to your `components.json`, keeping the rest of your
+shadcn configuration:
+
+```json title="components.json"
+{
+  "registries": {
+    "@chelone": "https://chelone.dev/r/{name}.json"
+  }
+}
+```
+
+Then add the full admin surface:
 
 ```bash
 npx shadcn@latest add @chelone/admin

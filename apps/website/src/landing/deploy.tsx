@@ -52,7 +52,7 @@ export function Deploy() {
               <div className="bg-zinc-950 p-5 font-mono text-sm leading-relaxed">
                 <span className="text-zinc-500">$ </span>
                 <span className="text-zinc-100">
-                  npx shadcn@latest add https://chelone.dev/r/admin.json
+                  npx shadcn@latest add @chelone/admin
                 </span>
               </div>
             </WindowChrome>
