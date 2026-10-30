@@ -10,21 +10,26 @@ paralleling the data provider. Pass it to `<Admin authProvider={…}>` and set
 ## The auth provider contract
 
 ```ts
+import type { CanAccessParams, UserIdentity } from "@chelone/core";
+
 interface AuthProvider {
-  login(params): Promise<void | { redirectTo?: string }>;
-  logout(params?): Promise<void | string>;
-  checkAuth(params?): Promise<void>;   // reject → redirect to login
-  checkError(error): Promise<void>;    // reject → logout (e.g. on 401)
+  login(params: Record<string, unknown>): Promise<void | { redirectTo?: string }>;
+  logout(params?: unknown): Promise<void | string>;
+  checkAuth(params?: unknown): Promise<void>;
+  checkError(error: unknown): Promise<void>;
   getIdentity?(): Promise<UserIdentity>;
-  canAccess?(params): Promise<boolean>; // per-resource/action authorization
-  handleCallback?(): Promise<void | { redirectTo?: string }>; // OAuth return
+  getPermissions?(params?: unknown): Promise<unknown>;
+  canAccess?(params: CanAccessParams): Promise<boolean>;
+  handleCallback?(): Promise<void | { redirectTo?: string }>;
   refreshAuth?(): Promise<void>;
 }
 ```
 
 `login` / `logout` / `checkAuth` / `checkError` are the required four; the rest
-are opt-in (identity for the user menu, `canAccess` for authorization,
-`handleCallback` for OAuth).
+are opt-in: `getIdentity` for the user menu, `getPermissions` for permissions,
+`canAccess` for resource/action authorization, and `handleCallback` for OAuth.
+`refreshAuth` is reserved: nothing calls it yet. Implement token refresh inside
+your provider's active methods if needed.
 
 ## Wiring it up
 
@@ -38,14 +43,29 @@ import { authProvider } from "./authProvider";
   authProvider={authProvider}
   requireAuth
 >
+  <Admin.Loading>
+    <p role="status">Checking your session…</p>
+  </Admin.Loading>
   <Resource name="posts" list={PostList} />
 </Admin>;
 ```
 
-With `requireAuth`, the shell renders nothing until `checkAuth` resolves — the
-no-flash gate. Chelone ships the login UI (`<LoginPage>`, `<LoginForm>`), the
-logout action (`<Logout>`), the OAuth return (`<AuthCallback>`), and the
-standalone `<AuthLayout>` for login-adjacent pages.
+With `requireAuth`, the shell renders the `<Admin.Loading>` slot while `checkAuth`
+is pending. The layout and protected resource views do not mount during this
+check. Without a loading slot, the pending state renders nothing.
+
+If `checkAuth` rejects, the shell renders the built-in `<LoginPage>` in place at
+the current URL instead of redirecting to a login route. This is the default;
+replace it by adding an `<Admin.LoginPage>` child:
+
+```tsx
+<Admin.LoginPage>
+  <MyLoginPage />
+</Admin.LoginPage>
+```
+
+Chelone also ships `<LoginForm>`, the logout action (`<Logout>`), the OAuth return
+(`<AuthCallback>`), and the standalone `<AuthLayout>` for login-adjacent pages.
 
 ## The auth hooks
 
@@ -62,6 +82,38 @@ const { data: authState } = useAuthState();  // authState?.authenticated
 const { data: identity } = useGetIdentity(); // identity?.fullName
 ```
 
+## Permissions
+
+Implement `getPermissions` to expose your application's permission data. Its
+shape is up to your provider. `usePermissions` returns it as `permissions`,
+alongside `isPending`, `error`, and `refetch`:
+
+```tsx
+import { usePermissions } from "@chelone/react";
+
+const { permissions, isPending } = usePermissions<string[]>();
+const isAdmin = !isPending && permissions?.includes("admin");
+```
+
+Without an auth provider or `getPermissions`, `usePermissions` returns
+`permissions: undefined` and `isPending: false`. It does not throw.
+
+Related hooks handle authentication and access failures:
+
+- `useAuthenticated()` checks authentication for a page or subtree and returns
+  `{ isPending, authenticated }`. Hold protected content until the check settles.
+  It calls `logout` on failure by default; set `{ logoutOnFailure: false }` to
+  handle failure yourself. `<Authenticated>` is the component form.
+- `useLogoutIfAccessDenied()` returns an async callback accepting an error. It
+  runs `checkError` and applies logout, notification, and redirect hints on
+  rejection. It resolves `true` for an auth rejection and `false` when
+  `checkError` resolves or there is no auth provider.
+- `useHandleAuthCallback()` calls `handleCallback` on mount and returns
+  `{ settled, error }`. On success it redirects to the first available target:
+  the returned `redirectTo`, the stored `nextPathname`,
+  `location.state.nextPathname`, or `/`. `<AuthCallback>` uses this hook for the
+  OAuth return page.
+
 ## Access control
 
 When the provider implements `canAccess`, `useCanAccess` checks whether the
@@ -75,10 +127,30 @@ import { useCanAccess } from "@chelone/react";
 const { data: canDelete } = useCanAccess({ resource: "posts", action: "delete" });
 ```
 
+With an auth provider that omits `canAccess`, `useCanAccess` resolves `true`.
+Both `useCanAccess` and `useGetIdentity` throw when there is no auth provider.
+With a provider that omits `getIdentity`, the identity query fails with an error.
+
+## Handling errors
+
+`<Admin>` watches every query and mutation error on its shared QueryClient and
+passes it through `checkError` via `useLogoutIfAccessDenied`. Queries keyed with
+`["auth", …]` are skipped to avoid feedback loops.
+
+Resolve `checkError` for ordinary data errors. Reject it for authentication or
+access failures, such as a 401 or 403. By default, rejection logs the user out,
+shows an error notification when notifications are configured, and redirects to
+`/login`. The rejection payload can carry these hints:
+
+- `redirectTo`: choose a redirect target. If absent from the rejection, the
+  original error's `redirectTo` is used.
+- `logoutUser: false`: keep the session and show a "not authorized" notification.
+  Redirect only when `redirectTo` is supplied.
+- `message`: override the notification text with a string, or use `false` to
+  suppress it. Redirects to absolute HTTP URLs also suppress the notification.
+
 ## Tips
 
-- `checkError` rejecting on a 401/403 triggers a logout — wire your provider's
-  error handling here so expired sessions bounce to login.
 - `requireAuth` gates the whole shell; for a public page inside an
   otherwise-gated app, use [custom routes](/docs/app-config/custom-routes) with
   `noLayout`.
