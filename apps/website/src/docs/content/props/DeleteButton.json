@@ -35,7 +35,7 @@
       "name": "mutationMode",
       "type": "MutationMode",
       "optional": true,
-      "comment": "Accepted for API parity; chelone only supports the confirm (pessimistic) path."
+      "comment": "`\"undoable\"` deletes optimistically with an Undo notification (no confirm\ndialog): the record vanishes now, the list redirect happens immediately,\nand the server call is deferred until the Undo window closes. Default\n(`\"pessimistic\"`) is confirm-gated."
     },
     {
       "name": "onClick",

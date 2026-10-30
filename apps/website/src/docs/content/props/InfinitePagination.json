@@ -1,0 +1,23 @@
+{
+  "name": "InfinitePagination",
+  "props": [
+    {
+      "name": "autoLoad",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Load the next page when the end of the list scrolls into view."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Classes for the root element."
+    },
+    {
+      "name": "offset",
+      "type": "number",
+      "optional": true,
+      "comment": "Pixels before the end of the list at which `autoLoad` fires."
+    }
+  ]
+}

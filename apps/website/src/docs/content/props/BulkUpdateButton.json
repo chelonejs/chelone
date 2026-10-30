@@ -44,6 +44,12 @@
       "comment": ""
     },
     {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "comment": "`\"undoable\"` updates optimistically with an Undo notification (no confirm\ndialog): the rows patch now and the server call is deferred until the Undo\nwindow closes. Default (`\"pessimistic\"`) is confirm-gated."
+    },
+    {
       "name": "onClick",
       "type": "MouseEventHandler<HTMLButtonElement>",
       "optional": true,

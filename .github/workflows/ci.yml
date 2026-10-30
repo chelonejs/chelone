@@ -36,6 +36,13 @@ jobs:
         run: pnpm test
       - name: Build
         run: pnpm build
+      - name: Props pages are up to date
+        run: |
+          pnpm --dir apps/website props
+          git diff --exit-code apps/website/src/docs/content/props || {
+            echo "::error::Props pages are stale. Run pnpm --dir apps/website props and commit the output."
+            exit 1
+          }
       - name: Packages pack cleanly
         run: pnpm --filter "./packages/*" --if-present run check:pack
       - name: Registry is up to date

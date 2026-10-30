@@ -23,7 +23,7 @@
       "name": "filter",
       "type": "FilterPayload",
       "optional": true,
-      "comment": "Permanent filter merged into the reference lookup."
+      "comment": "Permanent filter merged into the reference lookup. Read when the record id changes; remount with a `key` to change it otherwise."
     },
     {
       "name": "loading",
@@ -53,7 +53,7 @@
       "name": "sort",
       "type": "SortPayload",
       "optional": true,
-      "comment": "Sort applied to the reference lookup (the first match is used)."
+      "comment": "Sort applied to the reference lookup (the first match is used). Read when the record id changes; remount with a `key` to change it otherwise."
     },
     {
       "name": "source",
