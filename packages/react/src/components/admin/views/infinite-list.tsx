@@ -5,9 +5,9 @@
  * each loaded page, which `<InfinitePagination>` reads.
  */
 
-import { useInfiniteListController } from "../../../infinite-hooks";
 import type { ListContextValue } from "../../../form";
 import { ListContextProvider } from "../../../form";
+import { useInfiniteListController } from "../../../infinite-hooks";
 import { useResourceContext } from "../../../resource";
 import { type ListProps, ListView } from "./list";
 

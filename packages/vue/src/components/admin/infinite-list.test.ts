@@ -76,6 +76,13 @@ class FakeObserver {
 const live = () =>
   FakeObserver.instances.filter((o) => o.disconnect.mock.calls.length === 0);
 
+/** The one observer still connected. */
+function liveObserver(): FakeObserver {
+  const [observer] = live();
+  if (!observer) throw new Error("no live IntersectionObserver");
+  return observer;
+}
+
 afterEach(() => {
   vi.unstubAllGlobals();
   FakeObserver.instances = [];
@@ -88,6 +95,7 @@ function stubList(overrides: Record<string, unknown> = {}) {
     hasNextPage: true,
     isFetchingNextPage: false,
     fetchNextPage: vi.fn(),
+    fetchPreviousPage: vi.fn(),
     ...overrides,
   });
 }
@@ -148,7 +156,7 @@ describe("InfinitePagination", () => {
     const wrapper = mountPagination(list, { offset: 100 });
     await vi.waitFor(() => expect(live()).toHaveLength(1));
 
-    const observer = live()[0];
+    const observer = liveObserver();
     expect(observer.options?.rootMargin).toBe("0px 0px 100px 0px");
     observer.trigger(false);
     expect(list.fetchNextPage).not.toHaveBeenCalled();
@@ -243,7 +251,8 @@ describe("InfiniteList", () => {
     expect(capture.list?.selectedIds).toEqual([1]);
     const boxes = wrapper.findAll('input[aria-label="Select row"]');
     expect(boxes).toHaveLength(4);
-    expect((boxes[0].element as HTMLInputElement).checked).toBe(true);
-    expect((boxes[3].element as HTMLInputElement).checked).toBe(false);
+    expect(
+      boxes.map((box) => (box.element as HTMLInputElement).checked),
+    ).toEqual([true, false, false, false]);
   });
 });

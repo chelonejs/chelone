@@ -75,7 +75,7 @@ function mount(node: ReactNode) {
 
 const page = (
   <InfiniteList perPage={2}>
-    <DataTable>
+    <DataTable bulkActionButtons={<span>bulk</span>}>
       <DataTable.Col source="title" />
     </DataTable>
     <InfinitePagination autoLoad={false} />
