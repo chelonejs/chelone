@@ -35,13 +35,11 @@ type ResettableTextInputProps = TextInputProps & {
  * absolute path identically.
  *
  * @example
- * import { Edit, SimpleForm, ResettableTextInput } from '@/components/admin';
+ * import { Edit, ResettableTextInput } from '@/components/admin';
  *
  * const PostEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <ResettableTextInput source="title" />
- *     </SimpleForm>
+ *     <ResettableTextInput source="title" />
  *   </Edit>
  * );
  */

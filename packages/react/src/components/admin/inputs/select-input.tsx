@@ -31,20 +31,18 @@ import type { InputProps } from "../input-props";
  * `source`/`choices` become optional). Wraps shadcn's `<Select>`.
  *
  * @example
- * import { Edit, SimpleForm, SelectInput } from '@/components/admin';
+ * import { Edit, SelectInput } from '@/components/admin';
  *
  * const PostEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <SelectInput
- *         source="category"
- *         choices={[
- *           { id: 'tech', name: 'Tech' },
- *           { id: 'lifestyle', name: 'Lifestyle' },
- *           { id: 'people', name: 'People' },
- *         ]}
- *       />
- *     </SimpleForm>
+ *     <SelectInput
+ *       source="category"
+ *       choices={[
+ *         { id: 'tech', name: 'Tech' },
+ *         { id: 'lifestyle', name: 'Lifestyle' },
+ *         { id: 'people', name: 'People' },
+ *       ]}
+ *     />
  *   </Edit>
  * );
  */

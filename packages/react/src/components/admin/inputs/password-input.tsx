@@ -17,13 +17,11 @@ interface PasswordInputProps
  * render the password in plain text on first render.
  *
  * @example
- * import { Edit, SimpleForm, PasswordInput } from '@/components/admin';
+ * import { Edit, PasswordInput } from '@/components/admin';
  *
  * const UserEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <PasswordInput source="password" />
- *     </SimpleForm>
+ *     <PasswordInput source="password" />
  *   </Edit>
  * );
  */

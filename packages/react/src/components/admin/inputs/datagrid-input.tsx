@@ -57,15 +57,13 @@ type DatagridInputProps = Omit<
  * pagination, and the create-suggestion flow are not wired.
  *
  * @example
- * import { Edit, SimpleForm, ReferenceArrayInput, DatagridInput } from '@/components/admin';
+ * import { Edit, ReferenceArrayInput, DatagridInput } from '@/components/admin';
  *
  * const PostEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <ReferenceArrayInput source="tag_ids" reference="tags">
- *         <DatagridInput />
- *       </ReferenceArrayInput>
- *     </SimpleForm>
+ *     <ReferenceArrayInput source="tag_ids" reference="tags">
+ *       <DatagridInput />
+ *     </ReferenceArrayInput>
  *   </Edit>
  * );
  */

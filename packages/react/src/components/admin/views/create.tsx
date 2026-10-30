@@ -9,7 +9,7 @@
  * `CreateContextProvider`):
  *   `CreateContext` → `SaveContext` (mutationMode pessimistic) →
  *   `RecordContext` (the id-less seed) → `CheloneFormProvider`. So a bare
- *   `<TextInput>` child binds to the form with no `<SimpleForm>` in between.
+ *   `<TextInput>` child binds to the form directly.
  *
  * Chelone divergences mirror `<Edit>`: no `<CreateBase>` (composed
  * `useCreateForm`), the `SaveContext.save(data)` compat bridge over `submit()`,

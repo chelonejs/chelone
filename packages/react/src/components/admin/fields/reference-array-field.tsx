@@ -21,7 +21,7 @@ interface ReferenceArrayFieldProps<
   reference: string;
   /** The record to read the FK array off. Defaults to the ambient record. */
   record?: RecordType;
-  /** The list-rendering children (a `SingleFieldList`, datagrid, etc.). */
+  /** The list-rendering children (a `DataTable`, etc.). */
   children?: ReactNode;
   /** Client-side sort for the resolved list. */
   sort?: SortPayload;
@@ -47,14 +47,16 @@ const emptyIds: Identifier[] = [];
  * resource is published via `ResourceContextProvider` for child fields.
  *
  * @example
- * import { List, DataTable, ReferenceArrayField, SingleFieldList } from '@/components/admin';
+ * import { List, DataTable, ReferenceArrayField } from '@/components/admin';
  *
  * const PostList = () => (
  *   <List>
  *     <DataTable>
  *       <DataTable.Col source="tag_ids" label="Tags">
  *         <ReferenceArrayField reference="tags" source="tag_ids">
- *           <SingleFieldList />
+ *           <DataTable>
+ *             <DataTable.Col source="name" />
+ *           </DataTable>
  *         </ReferenceArrayField>
  *       </DataTable.Col>
  *     </DataTable>

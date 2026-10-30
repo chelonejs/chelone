@@ -68,7 +68,7 @@ function hasRequiredValidator(validate: ArrayInputProps["validate"]): boolean {
  *
  * @example
  * import {
- *   Edit, SimpleForm, TextInput, NumberInput, ArrayInput, ArrayInputRow,
+ *   Edit, TextInput, NumberInput, ArrayInput, ArrayInputRow,
  *   useArrayInputResult,
  * } from '@/components/admin';
  *
@@ -84,11 +84,9 @@ function hasRequiredValidator(validate: ArrayInputProps["validate"]): boolean {
  *
  * const OrderEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <ArrayInput source="items">
- *         <ItemRows />
- *       </ArrayInput>
- *     </SimpleForm>
+ *     <ArrayInput source="items">
+ *       <ItemRows />
+ *     </ArrayInput>
  *   </Edit>
  * );
  */

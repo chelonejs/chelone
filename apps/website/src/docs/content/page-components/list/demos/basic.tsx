@@ -3,12 +3,14 @@ import {
   DataTable,
   EditButton,
   List,
+  ListPagination,
   ReferenceField,
   TextField,
 } from "@chelone/react";
 
 /** A `<List>` over the seeded `posts`: a `<DataTable>` with a text column, a
- *  reference column, a number column, a boolean, and a row action. */
+ *  reference column, a number column, a boolean, and a row action, with
+ *  `<ListPagination>` paging through the seeded posts. */
 export default function ListBasicDemo() {
   return (
     <List>
@@ -27,6 +29,7 @@ export default function ListBasicDemo() {
           <EditButton />
         </DataTable.Col>
       </DataTable>
+      <ListPagination />
     </List>
   );
 }

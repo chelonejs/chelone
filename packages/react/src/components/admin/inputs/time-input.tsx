@@ -29,13 +29,11 @@ import type { InputProps } from "../input-props";
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/time input type="time"}
  *
  * @example
- * import { Edit, SimpleForm, TimeInput } from '@/components/admin';
+ * import { Edit, TimeInput } from '@/components/admin';
  *
  * const EventEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <TimeInput source="opens_at" />
- *     </SimpleForm>
+ *     <TimeInput source="opens_at" />
  *   </Edit>
  * );
  */

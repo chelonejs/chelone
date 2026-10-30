@@ -29,13 +29,11 @@ import type { InputProps } from "../input-props";
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime-local input type="datetime-local"}
  *
  * @example
- * import { Edit, SimpleForm, DateTimeInput } from '@/components/admin';
+ * import { Edit, DateTimeInput } from '@/components/admin';
  *
  * const EventEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <DateTimeInput source="starts_at" />
- *     </SimpleForm>
+ *     <DateTimeInput source="starts_at" />
  *   </Edit>
  * );
  */
