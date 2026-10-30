@@ -66,7 +66,10 @@ describe("saved queries", () => {
     controller.save("Drafts", value());
     controller.save("Big pages", value({ perPage: 100 }));
 
-    const expected = [query("Drafts"), query("Big pages", value({ perPage: 100 }))];
+    const expected = [
+      query("Drafts"),
+      query("Big pages", value({ perPage: 100 })),
+    ];
     expect(controller.getSnapshot().queries).toEqual(expected);
     expect(store.getItem("posts.savedQueries")).toEqual(expected);
   });
@@ -113,13 +116,16 @@ describe("saved queries", () => {
   });
 
   it("save keeps a copy so later edits to the filter object do not change it", () => {
-    const controller = createSavedQueriesController({ store: createStore() }, "posts");
+    const controller = createSavedQueriesController(
+      { store: createStore() },
+      "posts",
+    );
     const live = value({ filter: { status: "draft", tags: ["a"] } });
 
     controller.save("Drafts", live);
     live.filter.status = "published";
     (live.filter.tags as string[]).push("b");
-    live.sort[0].order = "DESC";
+    live.sort[0]!.order = "DESC";
     live.displayedFilters.status = false;
 
     expect(controller.getSnapshot().queries).toEqual([

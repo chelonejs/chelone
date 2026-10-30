@@ -47,7 +47,9 @@ function isSavedQueryValue(value: unknown): value is SavedQueryValue {
     isRecord(value) &&
     isRecord(value.filter) &&
     isRecord(value.displayedFilters) &&
-    Object.values(value.displayedFilters).every((v) => typeof v === "boolean") &&
+    Object.values(value.displayedFilters).every(
+      (flag) => typeof flag === "boolean",
+    ) &&
     Array.isArray(value.sort) &&
     value.sort.every(isSortPayload) &&
     typeof value.perPage === "number" &&
