@@ -182,7 +182,7 @@ describe("getInfiniteListOptions", () => {
       [3, 2],
     ]);
     expectTypeOf(result.pages[0]?.data).toEqualTypeOf<
-      { id: number; title: string }[]
+      { id: number; title: string }[] | undefined
     >();
   });
 
