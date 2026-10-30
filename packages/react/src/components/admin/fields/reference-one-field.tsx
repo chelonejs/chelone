@@ -1,13 +1,13 @@
-import type { FilterPayload, Identifier, SortPayload } from "@chelone/core";
+import type { FilterPayload, SortPayload } from "@chelone/core";
 import type { ReactNode } from "react";
 import type { UnknownRecord } from "@/lib/unknown-types";
-import { useGetList } from "../../../hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentation } from "../../../label";
 import {
   RecordContextProvider,
-  useRecordContext,
+  type RecordContextValue,
 } from "../../../record/record-context";
+import { useReferenceOneFieldController } from "../../../reference-hooks";
 import { ResourceContextProvider } from "../../../resource";
 
 interface ReferenceOneFieldProps<
@@ -28,9 +28,9 @@ interface ReferenceOneFieldProps<
    * record (or `undefined` while loading / on error).
    */
   render?: (referenceRecord: UnknownRecord | undefined) => ReactNode;
-  /** Sort applied to the reference lookup (the first match is used). */
+  /** Sort applied to the reference lookup (the first match is used). Read when the record id changes; remount with a `key` to change it otherwise. */
   sort?: SortPayload;
-  /** Permanent filter merged into the reference lookup. */
+  /** Permanent filter merged into the reference lookup. Read when the record id changes; remount with a `key` to change it otherwise. */
   filter?: FilterPayload;
   /** Rendered when no related record exists. A string is translated. */
   empty?: ReactNode;
@@ -48,9 +48,10 @@ interface ReferenceOneFieldProps<
  * populated with that referenced record.
  *
  * Rebridge note (chelone): chelone has no ra-core `ReferenceOneFieldBase`. The
- * one-to-one lookup is `useGetList({ filter: { [target]: id }, perPage: 1 })`;
- * the first match is published via `RecordContextProvider`. Matches
- * `ReferenceManyField`'s resolution path, narrowed to a single record.
+ * lookup is `useReferenceOneFieldController`, which reads the first match
+ * through `getManyReference` as a page of one; the field publishes it via
+ * `RecordContextProvider`. `sort` and `filter` are read when the record id
+ * changes, not on every render.
  *
  * @example
  * import { Show, RecordField, ReferenceOneField, TextField } from '@/components/admin';
@@ -83,26 +84,19 @@ function ReferenceOneField<RecordType extends UnknownRecord = UnknownRecord>(
     error: errorElement = null,
   } = props;
 
-  const record = useRecordContext<RecordType>({ record: recordProp });
-  const id = record?.[source] as Identifier | undefined;
   const translate = useTranslate();
   const getRecordRepresentation = useGetRecordRepresentation(reference);
 
-  const { data, isPending, error } = useGetList(
+  const { referenceRecord, isPending, error } = useReferenceOneFieldController({
     reference,
-    {
-      filter: { ...filter, [target]: id },
-      sort,
-      pagination: { page: 1, perPage: 1 },
-    },
-    { enabled: id != null },
-  );
+    target,
+    source,
+    record: recordProp as RecordContextValue,
+    sort,
+    filter,
+  });
 
-  const referenceRecord = (id != null ? data?.data?.[0] : undefined) as
-    | UnknownRecord
-    | undefined;
-
-  if (id != null && isPending) {
+  if (isPending) {
     return loading;
   }
 
