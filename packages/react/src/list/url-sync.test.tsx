@@ -37,7 +37,7 @@ const rows = Array.from({ length: 25 }, (_, i) => ({
  * A minimal `RouterAdapter` whose `useLocation`/`useNavigate` are real; the
  * remaining members are inert stubs (the list hook touches only those two).
  * `navigate` mutates the closed-over `search`, so a follow-up render observes
- * the pushed query — enough to exercise the one-way (state -> URL) sync.
+ * the pushed query; `setSearch` stands in for back/forward or a followed link.
  */
 function makeMockAdapter(initialSearch = "") {
   let search = initialSearch;
@@ -69,7 +69,14 @@ function makeMockAdapter(initialSearch = "") {
     matchPath: () => null,
     RouterWrapper: ({ children }) => children,
   };
-  return { adapter, navigate, getSearch: () => search };
+  return {
+    adapter,
+    navigate,
+    getSearch: () => search,
+    setSearch: (next: string) => {
+      search = next;
+    },
+  };
 }
 
 function makeWrapper(adapter?: RouterAdapter) {
@@ -175,6 +182,46 @@ describe("useListController URL-sync (syncWithLocation)", () => {
     );
     await waitFor(() => expect(result.current.isPending).toBe(false));
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it("a later location change re-seeds the params (back/forward)", async () => {
+    const { adapter, setSearch } = makeMockAdapter("?page=2&perPage=5");
+    const { wrapper } = makeWrapper(adapter);
+    const { result, rerender } = renderHook(
+      () => useListController<typeof resources, "posts">("posts"),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isPending).toBe(false));
+
+    setSearch("?page=4&perPage=5");
+    rerender();
+    expect(result.current.page).toBe(4);
+    await waitFor(() =>
+      expect(result.current.data?.map((r) => r.id)).toEqual([
+        16, 17, 18, 19, 20,
+      ]),
+    );
+
+    setSearch("?page=2&perPage=5");
+    rerender();
+    expect(result.current.page).toBe(2);
+    await waitFor(() => expect(result.current.isFetching).toBe(false));
+  });
+
+  it("its own push does not re-seed or navigate again", async () => {
+    const { adapter, navigate } = makeMockAdapter();
+    const { wrapper } = makeWrapper(adapter);
+    const { result, rerender } = renderHook(
+      () => useListController<typeof resources, "posts">("posts"),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isPending).toBe(false));
+    act(() => result.current.setPage(2));
+    await waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
+    rerender();
+    await waitFor(() => expect(result.current.isFetching).toBe(false));
+    expect(result.current.page).toBe(2);
+    expect(navigate).toHaveBeenCalledTimes(1);
   });
 
   it("syncWithLocation:false leaves the URL untouched", async () => {

@@ -34,11 +34,16 @@ export type {
   ListParamsPatch,
 } from "./controller/list-controller";
 export { createListController } from "./controller/list-controller";
-export type { ListParamsQuery } from "./controller/list-params";
+export type {
+  ListParamsQuery,
+  ListUrlState,
+} from "./controller/list-params";
 export {
   hasCustomParams,
+  listPatchFromSearch,
   parseListParams,
   serializeListParams,
+  serializeListState,
 } from "./controller/list-params";
 export type {
   CreateController,

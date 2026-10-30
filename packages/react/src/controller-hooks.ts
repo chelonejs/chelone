@@ -13,24 +13,20 @@ import {
   type EditController,
   type EditControllerOptions,
   type EditControllerState,
-  type FilterPayload,
-  hasCustomParams,
   type ListController,
   type ListControllerContext,
   type ListControllerOptions,
   type ListControllerState,
-  type ListParamsQuery,
   type LooseRecord,
+  listPatchFromSearch,
   type MicroStore,
-  parseListParams,
   type RecordControllerContext,
   type RecordOf,
   type ResourceMap,
   type ResourceRecord,
   type ShowControllerOptions,
   type ShowControllerState,
-  type SortPayload,
-  serializeListParams,
+  serializeListState,
 } from "@chelone/core";
 import {
   useContext,
@@ -55,8 +51,9 @@ export interface UseListControllerOptions extends ListControllerOptions {
   /**
    * Sync list params (filter / sort / page / perPage / displayedFilters) to the
    * URL query string, ra-core `useListParams`-style: the initial params are
-   * SEEDED from the location on mount (deep-linkable) and every param change is
-   * PUSHED back with `replace: true`. Default `true` for a top-level resource
+   * SEEDED from the location on mount (deep-linkable), re-seeded when the
+   * location changes later (back/forward, a followed link), and every param
+   * change is PUSHED back with `replace: true`. Default `true` for a top-level resource
    * list. Set `false` for an embedded / reference list (mirrors ra-core's
    * `disableSyncWithLocation`) to keep the pure store/KV behavior.
    *
@@ -65,56 +62,6 @@ export interface UseListControllerOptions extends ListControllerOptions {
    * behavior is used regardless of this flag.
    */
   syncWithLocation?: boolean;
-}
-
-/** The URL-shaped param slice of the list-controller state (multi-sort -> primary). */
-function listStateToQuery(s: {
-  page: number;
-  perPage: number;
-  sort: SortPayload[];
-  filter: FilterPayload;
-  displayedFilters: Record<string, boolean>;
-}): ListParamsQuery {
-  const primary = s.sort[0];
-  return {
-    filter: s.filter,
-    displayedFilters: s.displayedFilters,
-    sort: primary?.field,
-    order: primary?.order,
-    page: s.page,
-    perPage: s.perPage,
-  };
-}
-
-/** The subset of list-controller actions {@link seedListFromQuery} drives. */
-interface ListSeedTarget {
-  setFilters(
-    filter: FilterPayload,
-    displayedFilters?: Record<string, boolean>,
-  ): void;
-  setSort(sort: SortPayload): void;
-  setPerPage(perPage: number): void;
-  setPage(page: number): void;
-}
-
-/**
- * Seed a freshly-constructed (INERT, unattached) list controller from a
- * deep-linked URL query. Applied in the render-phase `useState` initializer so
- * the FIRST fetch already uses the URL params (no wasted default fetch). Order
- * matters: filter/sort/perPage each reset `page` to 1, so `setPage` runs LAST.
- */
-function seedListFromQuery(
-  target: ListSeedTarget,
-  query: ListParamsQuery,
-): void {
-  if (query.filter !== undefined || query.displayedFilters !== undefined) {
-    target.setFilters(query.filter ?? {}, query.displayedFilters);
-  }
-  if (query.sort !== undefined) {
-    target.setSort({ field: query.sort, order: query.order ?? "ASC" });
-  }
-  if (query.perPage !== undefined) target.setPerPage(query.perPage);
-  if (query.page !== undefined) target.setPage(query.page);
 }
 
 /** Structurally one context: both controller families need the same services. */
@@ -187,20 +134,24 @@ export function useListController<
       resource,
       options,
     );
-    // Deep-link seed: only when the URL carries custom params, so a clean URL
-    // falls back to the controller's option/KV defaults (ra-core semantics).
-    if (syncEnabled && location) {
-      const query = parseListParams(location.search);
-      if (hasCustomParams(query)) seedListFromQuery(created, query);
-    }
+    // Deep-link seed, applied while the controller is still inert so the FIRST
+    // fetch already uses the URL params. A clean URL keeps the option/KV
+    // defaults (ra-core semantics).
+    const patch =
+      syncEnabled && location ? listPatchFromSearch(location.search) : null;
+    if (patch) created.setParams(patch);
     return created;
   });
 
-  // Push param changes -> URL (state -> URL, one-way after the init seed).
-  // Read the live pathname through a ref so a router that re-renders us with a
-  // new pathname pushes to the right place without re-subscribing.
-  const pathnameRef = useRef<string>(location?.pathname ?? "");
-  pathnameRef.current = location?.pathname ?? pathnameRef.current;
+  // Push param changes -> URL. Read the live pathname through a ref so a router
+  // that re-renders us with a new pathname pushes to the right place without
+  // re-subscribing. `lastPushedRef` is the search the state was last synced
+  // with, so the location effect below can tell our own push from a navigation.
+  const pathname = location?.pathname;
+  const pathnameRef = useRef<string>(pathname ?? "");
+  useEffect(() => {
+    if (pathname !== undefined) pathnameRef.current = pathname;
+  }, [pathname]);
   const lastPushedRef = useRef<string | null>(null);
   useEffect(() => {
     if (!syncEnabled || !navigate) return;
@@ -208,14 +159,10 @@ export function useListController<
     // never pushes — a clean URL stays clean until the user actually changes a
     // param (then the full query is written, ra-core `useListParams`-style).
     if (lastPushedRef.current === null) {
-      lastPushedRef.current = serializeListParams(
-        listStateToQuery(controller.getSnapshot()),
-      );
+      lastPushedRef.current = serializeListState(controller.getSnapshot());
     }
     const pushToUrl = (): void => {
-      const search = serializeListParams(
-        listStateToQuery(controller.getSnapshot()),
-      );
+      const search = serializeListState(controller.getSnapshot());
       if (search === lastPushedRef.current) return;
       lastPushedRef.current = search;
       navigate(`${pathnameRef.current}${search}`, { replace: true });
@@ -226,6 +173,17 @@ export function useListController<
     // `setFilters` path (the URL updates when the debounced state settles).
     return controller.subscribe(pushToUrl);
   }, [syncEnabled, navigate, controller]);
+
+  // URL -> state after mount: back/forward or a followed link re-seeds the params.
+  const search = location?.search;
+  const seenSearchRef = useRef(search);
+  useEffect(() => {
+    if (search === undefined || search === seenSearchRef.current) return;
+    seenSearchRef.current = search;
+    if (search === lastPushedRef.current) return;
+    const patch = listPatchFromSearch(search);
+    if (patch) controller.setParams(patch);
+  }, [search, controller]);
 
   const snapshot = useSyncExternalStore(
     controller.subscribe,

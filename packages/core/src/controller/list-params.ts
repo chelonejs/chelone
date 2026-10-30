@@ -11,12 +11,13 @@
  * non-numeric page, invalid order are ignored rather than thrown or trusted).
  *
  * Chelone's controller state carries a multi-sort `SortPayload[]`; the URL is
- * single-sort (`field` + `order`), faithful to react-admin. Adapters own the
- * `SortPayload[]` <-> `sort`/`order` mapping (primary key) around these
- * functions — the serializer stays a flat string/object transform.
+ * single-sort (`field` + `order`), faithful to react-admin.
+ * {@link serializeListState} and {@link listPatchFromSearch} map between the
+ * two (primary key) for the adapters' location sync.
  */
 
-import type { FilterPayload } from "../data/types";
+import type { FilterPayload, SortPayload } from "../data/types";
+import type { ListParamsPatch } from "./list-controller";
 
 type SortOrder = "ASC" | "DESC";
 
@@ -138,4 +139,47 @@ export function hasCustomParams(params: ListParamsQuery): boolean {
     (params.page !== undefined && params.page !== 1) ||
     params.perPage !== undefined
   );
+}
+
+/** The list-controller state a URL carries. */
+export interface ListUrlState {
+  page: number;
+  perPage: number;
+  sort: SortPayload[];
+  filter: FilterPayload;
+  displayedFilters: Record<string, boolean>;
+}
+
+/** The query string for a list's state; the primary sort becomes `sort`/`order`. */
+export function serializeListState(state: ListUrlState): string {
+  const primary = state.sort[0];
+  return serializeListParams({
+    filter: state.filter,
+    displayedFilters: state.displayedFilters,
+    sort: primary?.field,
+    order: primary?.order,
+    page: state.page,
+    perPage: state.perPage,
+  });
+}
+
+/**
+ * The params a URL query string sets, as one `setParams` patch, or `null` when
+ * it sets none of {@link hasCustomParams}, so a clean URL keeps the option and
+ * store defaults. Shown filter inputs without a filter clear the filter.
+ */
+export function listPatchFromSearch(search: string): ListParamsPatch | null {
+  const query = parseListParams(search);
+  if (!hasCustomParams(query)) return null;
+  const patch: ListParamsPatch = {};
+  if (query.filter !== undefined || query.displayedFilters !== undefined) {
+    patch.filter = query.filter ?? {};
+    patch.displayedFilters = query.displayedFilters;
+  }
+  if (query.sort !== undefined) {
+    patch.sort = { field: query.sort, order: query.order ?? "ASC" };
+  }
+  if (query.perPage !== undefined) patch.perPage = query.perPage;
+  if (query.page !== undefined) patch.page = query.page;
+  return patch;
 }

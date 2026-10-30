@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   hasCustomParams,
   type ListParamsQuery,
+  listPatchFromSearch,
   parseListParams,
   serializeListParams,
+  serializeListState,
 } from "./list-params";
 
 describe("serializeListParams", () => {
@@ -160,5 +162,78 @@ describe("hasCustomParams", () => {
 
   it("is true when perPage is set", () => {
     expect(hasCustomParams({ perPage: 25 })).toBe(true);
+  });
+});
+
+describe("serializeListState", () => {
+  it("writes the primary sort as sort and order", () => {
+    expect(
+      parseListParams(
+        serializeListState({
+          page: 2,
+          perPage: 5,
+          sort: [
+            { field: "title", order: "DESC" },
+            { field: "id", order: "ASC" },
+          ],
+          filter: { q: "war" },
+          displayedFilters: { q: true },
+        }),
+      ),
+    ).toEqual({
+      filter: { q: "war" },
+      displayedFilters: { q: true },
+      sort: "title",
+      order: "DESC",
+      page: 2,
+      perPage: 5,
+    });
+  });
+
+  it("leaves sort and order out when there is no sort", () => {
+    const query = parseListParams(
+      serializeListState({
+        page: 1,
+        perPage: 10,
+        sort: [],
+        filter: {},
+        displayedFilters: {},
+      }),
+    );
+    expect(query.sort).toBeUndefined();
+    expect(query.order).toBeUndefined();
+  });
+});
+
+describe("listPatchFromSearch", () => {
+  const filter = encodeURIComponent(JSON.stringify({ q: "war" }));
+  const shown = encodeURIComponent(JSON.stringify({ q: true }));
+  it.each([
+    ["a clean search", "", null],
+    ["page 1 and an empty filter", "?page=1&filter=%7B%7D", null],
+    ["a page", "?page=3", { page: 3 }],
+    [
+      "a sort without an order",
+      "?sort=title",
+      { sort: { field: "title", order: "ASC" } },
+    ],
+    [
+      "a sort with an order",
+      "?sort=title&order=DESC",
+      { sort: { field: "title", order: "DESC" } },
+    ],
+    [
+      "a filter and its shown inputs",
+      `?filter=${filter}&displayedFilters=${shown}`,
+      { filter: { q: "war" }, displayedFilters: { q: true } },
+    ],
+    [
+      "shown inputs but no filter",
+      `?displayedFilters=${shown}&page=2`,
+      { filter: {}, displayedFilters: { q: true }, page: 2 },
+    ],
+    ["a perPage", "?perPage=25", { perPage: 25 }],
+  ])("reads %s", (_, search, patch) => {
+    expect(listPatchFromSearch(search)).toEqual(patch);
   });
 });
