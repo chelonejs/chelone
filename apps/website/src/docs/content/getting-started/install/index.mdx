@@ -1,9 +1,11 @@
 ---
 title: "Installation"
-description: "Install Chelone with React Router v7, plus an optional TanStack Router reference adapter."
+description: "Install Chelone with React Router v7 or Vue Router 4, plus an optional TanStack Router reference adapter."
 ---
 
-Chelone is a headless admin engine for React, using `react-router` v7 by default.
+Chelone is a headless admin engine for React and Vue. This page is React-first,
+using `react-router` v7 by default; the [Vue section](#install-for-vue) covers
+`@chelone/vue`.
 An optional TanStack Router reference adapter is available at
 `@chelone/react/tanstack-router`. The headless logic is packaged as
 `@chelone/react`, and the shadcn-native UI components install through the shadcn
@@ -122,6 +124,91 @@ export function App() {
   );
 }
 ```
+
+## Install for Vue
+
+`@chelone/vue` is the Vue 3 adapter. It sits on the same `@chelone/core` engine
+as the React adapter and uses `vue-router` 4. Add it with its peers and Zod.
+`@chelone/core` is listed directly because the examples below import
+`fakeDataProvider` from it, which pnpm and Yarn Plug'n'Play only resolve for a
+direct dependency:
+
+```bash
+npm install @chelone/vue @chelone/core zod@^3.24.0 \
+  vue@^3.4.0 vue-router@^4.0.0 \
+  @tanstack/vue-query@^5.0.0 \
+  @tanstack/form-core@^1.33.0 @tanstack/query-core@^5.0.0
+```
+
+The peer ranges declared by `@chelone/vue` are:
+
+| Peer | Range |
+| --- | --- |
+| `vue` | `^3.4.0` |
+| `vue-router` | `^4.0.0` |
+| `@tanstack/vue-query` | `^5.0.0` |
+
+`@chelone/core` also requires these peers:
+
+| Peer | Range |
+| --- | --- |
+| `@tanstack/form-core` | `^1.33.0` |
+| `@tanstack/query-core` | `^5.0.0` |
+
+The Vue components ship inside the `@chelone/vue` package. There is no
+`shadcn-vue` registry yet, so there is nothing to add with a CLI and no source
+is copied into your project. A registry (`npx shadcn-vue add @chelone/...`) is
+planned in the [Vue adapter design](https://github.com/chelonejs/chelone/blob/main/docs/vue-adapter-design.md).
+
+Install the router and the Vue Query plugin on your app, then mount `<Admin>`
+with a `<Resource>` per entity. `<Admin>` builds the resource routes as each
+`<Resource>` registers:
+
+```ts title="src/main.ts"
+import { VueQueryPlugin } from "@tanstack/vue-query";
+import { createApp } from "vue";
+import { createRouter, createWebHistory } from "vue-router";
+import App from "./App.vue";
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [{ path: "/", redirect: "/posts" }],
+});
+
+createApp(App).use(router).use(VueQueryPlugin).mount("#app");
+
+// `<Admin>` adds the resource routes while it mounts, after the first
+// navigation has already resolved. Re-resolve the current URL so `/posts`
+// matches.
+router.isReady().then(() => {
+  const current = router.currentRoute.value;
+  if (current.matched.length === 0) {
+    void router.replace(current.fullPath);
+  }
+});
+```
+
+```vue title="src/App.vue"
+<script setup lang="ts">
+import { fakeDataProvider } from "@chelone/core";
+import { Admin, Resource } from "@chelone/vue";
+import { QueryClient } from "@tanstack/vue-query";
+import PostList from "./PostList.vue";
+
+const queryClient = new QueryClient();
+const dataProvider = fakeDataProvider({ posts: [] });
+</script>
+
+<template>
+  <Admin :data-provider="dataProvider" :query-client="queryClient">
+    <Resource name="posts" :list="PostList" />
+  </Admin>
+</template>
+```
+
+The rest of these docs are written for React. Vue reference pages are not
+written yet; the [Vue demo](https://github.com/chelonejs/chelone/tree/main/apps/vue-demo)
+in the repository is the working reference.
 
 Next step: the [Quick Start Guide](/docs/getting-started/quick-start-guide/setup)
 builds a real CRUD admin from a Zod schema.

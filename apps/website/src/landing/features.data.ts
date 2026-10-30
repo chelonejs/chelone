@@ -29,7 +29,7 @@ export interface Feature {
 /**
  * Hand-placed tetris bento: big pieces zig-zag through every column so no
  * column is ever all 1×1 cards. Every card maps to a capability @chelone/react
- * actually ships (verified against the barrel) — no roadmap/aspirational cards.
+ * or @chelone/vue actually ships (verified against the barrels) — no roadmap/aspirational cards.
  * 1 hero(4) + 2 wide(4) + 7 single(7) = 15 cells = 5 rows × 3 cols.
  */
 export const features: Feature[] = [
@@ -44,7 +44,8 @@ export const features: Feature[] = [
   },
   {
     title: "Data Fetching",
-    description: "TanStack Query hooks for robust, cached API interactions",
+    description:
+      "TanStack Query hooks and composables for robust, cached API interactions in React and Vue",
     icon: ArrowDownUp,
     size: "single",
     col: 3,
@@ -53,7 +54,7 @@ export const features: Feature[] = [
   {
     title: "Schema-Driven",
     description:
-      "Point a resource at a Zod schema for typed records and automatic validation",
+      "Point a resource at a Zod schema for typed records and automatic validation, in React or Vue",
     icon: ShieldCheck,
     size: "single",
     col: 3,
