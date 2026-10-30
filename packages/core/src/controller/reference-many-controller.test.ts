@@ -48,8 +48,10 @@ function makeCtx() {
 }
 type Ctx = ReturnType<typeof makeCtx>;
 
+/** Resolves once the first result has arrived. */
 const settled = async (c: { getSnapshot: () => { isPending: boolean } }) =>
   vi.waitFor(() => expect(c.getSnapshot().isPending).toBe(false));
+/** Resolves once no fetch is in flight; use it after an action that refetches. */
 const idle = async (c: { getSnapshot: () => { isFetching: boolean } }) =>
   vi.waitFor(() => expect(c.getSnapshot().isFetching).toBe(false));
 
@@ -57,6 +59,7 @@ const idle = async (c: { getSnapshot: () => { isFetching: boolean } }) =>
 const attach = (c: { subscribe: (cb: () => void) => () => void }) =>
   c.subscribe(() => {});
 
+/** Live observers in the cache. Each test builds its own client, so only the controller's queries are counted. */
 const observerCount = (queryClient: QueryClient): number =>
   queryClient
     .getQueryCache()
@@ -122,7 +125,9 @@ describe("createReferenceManyController", () => {
       sort: { field: "body", order: "DESC" },
       filter: { score: 1 },
     });
+    // The user filter keeps its own value (score 2); only the request is overridden (score 1).
     expect(c.getSnapshot().filter).toEqual({ score: 2 });
+    expect(c.getSnapshot().data?.every((row) => row.score === 1)).toBe(true);
     expect(c.getSnapshot().data?.map((row) => row.body)).toEqual([
       "c29",
       "c26",
@@ -149,7 +154,7 @@ describe("createReferenceManyController", () => {
       "comments",
       expect.objectContaining({ pagination: { page: 2, perPage: 10 } }),
     );
-    c.setSort({ field: "id", order: "DESC" } as never);
+    c.setSort({ field: "id", order: "ASC" });
     // same single field: toggles ASC -> DESC and restarts from page 1
     expect(c.getSnapshot().page).toBe(1);
     await vi.waitFor(() => expect(c.getSnapshot().data?.[0]?.id).toBe(30));
@@ -197,6 +202,7 @@ describe("createReferenceManyController", () => {
 
   it("a page past the last resets to the last page once total is known", async () => {
     const ctx = makeCtx();
+    const { ref } = spies(ctx);
     ctx.store.setItem("comments.postId.1.listParams", {
       page: 9,
       perPage: 10,
@@ -212,6 +218,10 @@ describe("createReferenceManyController", () => {
     await vi.waitFor(() => expect(c.getSnapshot().page).toBe(3));
     await vi.waitFor(() => expect(c.getSnapshot().data?.length).toBe(10));
     expect(c.getSnapshot().total).toBe(30);
+    expect(ref).toHaveBeenLastCalledWith(
+      "comments",
+      expect.objectContaining({ pagination: { page: 3, perPage: 10 } }),
+    );
     c.setPage(0);
     expect(c.getSnapshot().page).toBe(1);
     c.destroy();
@@ -242,6 +252,23 @@ describe("createReferenceManyController", () => {
       expect(ref).not.toHaveBeenCalled();
       c.destroy();
     }
+  });
+
+  it("an id of 0 is a real id and is fetched", async () => {
+    const ctx = makeCtx();
+    const { ref } = spies(ctx);
+    const c = createReferenceManyController(ctx, "comments", {
+      target: "postId",
+      id: 0,
+    });
+    attach(c);
+    await settled(c);
+    expect(ref).toHaveBeenCalledWith(
+      "comments",
+      expect.objectContaining({ id: 0 }),
+    );
+    expect(c.getSnapshot()).toMatchObject({ data: [], total: 0 });
+    c.destroy();
   });
 
   it("selection persists under the storeKey and two ids keep separate selections", async () => {
@@ -285,6 +312,10 @@ describe("createReferenceManyController", () => {
     attach(custom);
     custom.setPage(2);
     expect(ctx.store.getItem("mine.listParams")).toMatchObject({ page: 2 });
+    custom.select([7]);
+    expect(ctx.store.getItem("mine.selectedIds")).toEqual([7]);
+    // the default key is untouched by the custom one
+    expect(ctx.store.getItem("comments.postId.1.selectedIds")).toEqual([]);
     custom.destroy();
   });
 
@@ -312,6 +343,22 @@ describe("createReferenceManyController", () => {
     expect(list).not.toHaveBeenCalled();
     expect(ctx.notifications.getSnapshot()).toEqual([]);
 
+    // active filter and sort apply; the permanent filter would too
+    c.setParams({ filter: { score: 1 }, sort: { field: "id", order: "DESC" } });
+    await idle(c);
+    await c.selectAll({ limit: 4 });
+    expect(c.getSnapshot().selectedIds).toEqual([29, 26, 23, 20]);
+    expect(ref).toHaveBeenLastCalledWith("comments", {
+      target: "postId",
+      id: 1,
+      pagination: { page: 1, perPage: 4 },
+      sort: { field: "id", order: "DESC" },
+      filter: { score: 1 },
+    });
+    ctx.notifications.clear();
+
+    c.setParams({ filter: {}, sort: { field: "id", order: "ASC" } });
+    await idle(c);
     await c.selectAll({ limit: 12 });
     expect(c.getSnapshot().selectedIds).toEqual(
       Array.from({ length: 12 }, (_, i) => i + 1),
@@ -355,8 +402,12 @@ describe("createReferenceManyController", () => {
     attach(c);
     await settled(c);
     expect(c.getSnapshot().error).toBe(boom);
+    expect(ctx.notifications.getSnapshot()).toHaveLength(1);
     c.refetch();
     await idle(c);
+    c.refetch();
+    await idle(c);
+    // the same error object across refetches is announced once
     expect(ctx.notifications.getSnapshot()).toHaveLength(1);
     expect(ctx.notifications.getSnapshot()[0]).toMatchObject({
       message: "comments are down",
@@ -392,9 +443,10 @@ describe("createReferenceManyController", () => {
     const first = attach(c);
     const second = attach(c);
     await settled(c);
-    expect(observerCount(ctx.queryClient)).toBeGreaterThan(0);
+    // the data observer plus the inner params observer
+    expect(observerCount(ctx.queryClient)).toBe(2);
     first();
-    expect(observerCount(ctx.queryClient)).toBeGreaterThan(0);
+    expect(observerCount(ctx.queryClient)).toBe(2);
     second();
     expect(observerCount(ctx.queryClient)).toBe(0);
 
@@ -405,6 +457,26 @@ describe("createReferenceManyController", () => {
     third();
     expect(observerCount(ctx.queryClient)).toBe(0);
     c.destroy();
+  });
+
+  it("destroy while attached releases every observer and later actions do nothing", async () => {
+    const ctx = makeCtx();
+    const { ref } = spies(ctx);
+    const c = createReferenceManyController(ctx, "comments", {
+      target: "postId",
+      id: 1,
+    });
+    attach(c);
+    await settled(c);
+    c.destroy();
+    expect(observerCount(ctx.queryClient)).toBe(0);
+    ref.mockClear();
+    c.setPage(2);
+    c.select([1]);
+    await c.selectAll();
+    expect(c.getSnapshot().page).toBe(1);
+    expect(c.getSnapshot().selectedIds).toEqual([]);
+    expect(ref).not.toHaveBeenCalled();
   });
 
   it("refetch fetches the current page again", async () => {

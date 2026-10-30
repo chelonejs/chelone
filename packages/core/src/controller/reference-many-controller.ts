@@ -6,7 +6,6 @@ import type {
   SortPayload,
 } from "../data/types";
 import type { Identifier } from "../resource/identifier";
-import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore } from "../store/micro-store";
 import {
@@ -31,6 +30,7 @@ export interface ReferenceManyControllerOptions {
   filter?: FilterPayload;
   /** Seed for the user filter when nothing is persisted. */
   filterDefaultValues?: FilterPayload;
+  /** Initial sort when nothing is persisted: one payload or several, applied in order. Default id ascending. */
   sort?: SortPayload | SortPayload[];
   /** Default 25. */
   perPage?: number;
@@ -43,6 +43,7 @@ export interface ReferenceManyControllerOptions {
    * in memory.
    */
   storeKey?: string | false;
+  /** Gates the data fetch only. Params and selection work either way. A disabled query with no cached data reads `isPending: true`. Default true. */
   enabled?: boolean;
 }
 
@@ -74,10 +75,13 @@ export function createReferenceManyController<
   type ReferenceResult = GetManyReferenceResult<TRecord>;
 
   const { target, id } = options;
-  const recordId = id ?? undefined;
+  /** The value `target` must equal; undefined means "nothing to fetch". */
+  const targetValue = id ?? undefined;
   const storeKey =
     options.storeKey ??
-    (recordId === undefined ? false : `${reference}.${target}.${recordId}`);
+    (targetValue === undefined
+      ? false
+      : `${reference}.${target}.${targetValue}`);
 
   const inner = createListController(ctx, reference, {
     perPage: options.perPage ?? DEFAULT_PER_PAGE,
@@ -92,14 +96,14 @@ export function createReferenceManyController<
   const store = createMicroStore<ListControllerState<TRecord>>(
     {
       ...initial,
-      data: recordId === undefined ? [] : undefined,
-      total: recordId === undefined ? 0 : undefined,
+      data: targetValue === undefined ? [] : undefined,
+      total: targetValue === undefined ? 0 : undefined,
       pageInfo: undefined,
-      isPending: recordId !== undefined,
+      isPending: targetValue !== undefined,
       isFetching: false,
       error: null,
-      hasNextPage: recordId === undefined ? false : undefined,
-      hasPreviousPage: recordId === undefined ? false : undefined,
+      hasNextPage: targetValue === undefined ? false : undefined,
+      hasPreviousPage: targetValue === undefined ? false : undefined,
     },
     { onSubscribed: acquire },
   );
@@ -112,17 +116,26 @@ export function createReferenceManyController<
 
   /** Non-null exactly while attached to a record id. */
   let observer: QueryObserver<ReferenceResult, Error> | null = null;
+  /** Rebuilds the attached observer's options from current state. */
+  let reconfigure: (() => void) | null = null;
 
-  const buildOptions = () => {
+  /** The one place sort and the permanent filter are folded into a query. */
+  const queryFor = (value: Identifier, page: number, perPage: number) => {
+    const s = store.getSnapshot();
+    return getManyReferenceOptions(ctx, reference, {
+      target,
+      id: value,
+      pagination: { page, perPage },
+      // A single object when there is exactly one key (adapter compat).
+      sort: s.sort.length === 1 ? s.sort[0] : s.sort,
+      filter: { ...s.filter, ...(options.filter ?? {}) },
+    });
+  };
+
+  const buildOptions = (value: Identifier) => {
     const s = store.getSnapshot();
     return {
-      ...getManyReferenceOptions(ctx, reference, {
-        target,
-        id: recordId as Identifier,
-        pagination: { page: s.page, perPage: s.perPage },
-        sort: s.sort.length === 1 ? s.sort[0] : s.sort,
-        filter: { ...s.filter, ...(options.filter ?? {}) },
-      }),
+      ...queryFor(value, s.page, s.perPage),
       placeholderData: (prev: ReferenceResult | undefined) => prev,
       retry: false,
       enabled: options.enabled ?? true,
@@ -146,34 +159,28 @@ export function createReferenceManyController<
       displayedFilters: next.displayedFilters,
       selectedIds: next.selectedIds,
     });
-    if (queryChanged) observer?.setOptions(buildOptions());
+    if (queryChanged) reconfigure?.();
   };
 
   /** Runs an inner action, then mirrors, so detached snapshots stay truthful. */
   const through =
     <TArgs extends unknown[]>(action: (...args: TArgs) => void) =>
     (...args: TArgs): void => {
+      if (destroyed) return;
       action(...args);
       mirror();
     };
 
   const selectAll = async (opts?: { limit?: number }): Promise<void> => {
-    if (destroyed || recordId === undefined) return;
+    if (destroyed || targetValue === undefined) return;
     const limit = opts?.limit ?? DEFAULT_SELECT_ALL_LIMIT;
-    const s = store.getSnapshot();
     try {
       const result = await ctx.queryClient.fetchQuery({
-        ...getManyReferenceOptions(ctx, reference, {
-          target,
-          id: recordId,
-          pagination: { page: 1, perPage: limit },
-          sort: s.sort.length === 1 ? s.sort[0] : s.sort,
-          filter: { ...s.filter, ...(options.filter ?? {}) },
-        }),
+        ...queryFor(targetValue, 1, limit),
         retry: false,
       });
       if (destroyed) return;
-      inner.select(result.data.map((record) => (record as ResourceRecord).id));
+      inner.select(result.data.map((record) => record.id));
       mirror();
       notifySelectAllLimit(ctx.notifications, result.data.length, limit);
     } catch (error) {
@@ -188,9 +195,9 @@ export function createReferenceManyController<
   };
 
   const maybeResetPage = (): void => {
-    const target = resetPageTarget(store.getSnapshot());
-    if (target === undefined) return;
-    inner.setPage(target);
+    const resetTo = resetPageTarget(store.getSnapshot());
+    if (resetTo === undefined) return;
+    inner.setPage(resetTo);
     mirror();
   };
 
@@ -200,6 +207,7 @@ export function createReferenceManyController<
   const onResult = (
     result: QueryObserverResult<ReferenceResult, Error>,
   ): void => {
+    if (destroyed) return;
     const list = result.data;
     const { page, perPage } = store.getSnapshot();
     store.setState({
@@ -221,12 +229,14 @@ export function createReferenceManyController<
     const unsubscribeInner = inner.subscribe(mirror);
     mirror();
     let unsubscribeObserver: (() => void) | undefined;
-    if (recordId !== undefined) {
+    if (targetValue !== undefined) {
+      const value = targetValue;
       const attached = new QueryObserver<ReferenceResult, Error>(
         ctx.queryClient,
-        buildOptions(),
+        buildOptions(value),
       );
       observer = attached;
+      reconfigure = () => attached.setOptions(buildOptions(value));
       unsubscribeObserver = attached.subscribe(onResult);
       onResult(attached.getCurrentResult());
     }
@@ -234,6 +244,7 @@ export function createReferenceManyController<
       unsubscribeObserver?.();
       unsubscribeInner();
       observer = null;
+      reconfigure = null;
     };
   }
 

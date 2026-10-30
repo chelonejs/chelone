@@ -154,6 +154,7 @@ export function listParamsFromPatch<TRecord>(
   return next;
 }
 
+/** The notification key for a failed fetch: the error's own message, else `chelone.notification.http_error`. */
 export function errorMessageKey(error: unknown): string {
   const message = error instanceof Error ? error.message : "";
   return message || "chelone.notification.http_error";
@@ -170,13 +171,13 @@ export function notifyFetchError(
   });
 }
 
-/** Warns that `selectAll` stopped at `limit` rows. A short result is complete and stays quiet. */
+/** Warns that `selectAll` stopped at `limit` rows. A shorter result is complete and stays quiet. */
 export function notifySelectAllLimit(
   notifications: NotificationStore | undefined,
   count: number,
   limit: number,
 ): void {
-  if (count !== limit) return;
+  if (count < limit) return;
   notifications?.notify("chelone.message.select_all_limit_reached", {
     type: "warning",
     messageArgs: { max: limit },
@@ -184,7 +185,8 @@ export function notifySelectAllLimit(
 }
 
 /**
- * Notifies a distinct error once however many results carry it. `rearm`
+ * Notifies a distinct error OBJECT once however many results carry it (a new
+ * Error with the same message is a new failure and is announced). `rearm`
  * forgets the last one, so a controller that wants the same error announced
  * again after a success can say so.
  */

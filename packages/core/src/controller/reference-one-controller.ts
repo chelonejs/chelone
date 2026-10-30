@@ -17,14 +17,20 @@ export interface ReferenceOneControllerOptions {
   id: Identifier | null | undefined;
   /** Decides which row is first when several match. Omitted: the provider's order. */
   sort?: SortPayload | SortPayload[];
+  /** Narrows the lookup, e.g. to one kind of row. Default: no filter. */
   filter?: FilterPayload;
+  /** Gates the fetch. A disabled lookup with no cached data reads `isPending: true`. Default true. */
   enabled?: boolean;
 }
 
 export interface ReferenceOneControllerState<TRecord> {
+  /** The first matching row; undefined while pending, on error, or when no row matches. */
   referenceRecord: TRecord | undefined;
+  /** True until the first result settles. False at once when `id` is null or undefined. */
   isPending: boolean;
+  /** True during any fetch, the first one included. */
   isFetching: boolean;
+  /** The provider error of the last fetch, else null. */
   error: unknown;
 }
 
@@ -52,12 +58,12 @@ export function createReferenceOneController<
   type TRecord = RecordOf<TResources, TName>;
   type ReferenceResult = GetManyReferenceResult<TRecord>;
 
-  const recordId = options.id ?? undefined;
+  const targetValue = options.id ?? undefined;
 
   const store = createMicroStore<ReferenceOneControllerState<TRecord>>(
     {
       referenceRecord: undefined,
-      isPending: recordId !== undefined,
+      isPending: targetValue !== undefined,
       isFetching: false,
       error: null,
     },
@@ -83,13 +89,13 @@ export function createReferenceOneController<
   };
 
   function acquire(): (() => void) | undefined {
-    if (recordId === undefined) return undefined;
+    if (targetValue === undefined) return undefined;
     const attached = new QueryObserver<ReferenceResult, Error>(
       ctx.queryClient,
       {
         ...getManyReferenceOptions(ctx, reference, {
           target: options.target,
-          id: recordId,
+          id: targetValue,
           pagination: { page: 1, perPage: 1 },
           ...(options.sort === undefined ? {} : { sort: options.sort }),
           filter: { ...(options.filter ?? {}) },
