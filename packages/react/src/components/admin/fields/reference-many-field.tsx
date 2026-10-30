@@ -1,16 +1,10 @@
-import type {
-  FilterPayload,
-  Identifier,
-  ResourceRecord,
-  SortPayload,
-} from "@chelone/core";
+import type { FilterPayload, SortPayload } from "@chelone/core";
 import type { ReactNode } from "react";
 import type { UnknownRecord } from "@/lib/unknown-types";
 import { ListContextProvider } from "../../../form";
-import { useGetList } from "../../../hooks";
-import { useRecordContext } from "../../../record/record-context";
+import type { RecordContextValue } from "../../../record/record-context";
+import { useReferenceManyFieldController } from "../../../reference-hooks";
 import { ResourceContextProvider } from "../../../resource";
-import { useList } from "../../../use-list";
 
 interface ReferenceManyFieldProps<
   RecordType extends UnknownRecord = UnknownRecord,
@@ -25,28 +19,31 @@ interface ReferenceManyFieldProps<
   record?: RecordType;
   /** The list-rendering children (a datagrid, `SingleFieldList`, etc.). */
   children?: ReactNode;
-  /** Sort applied to the related list. */
+  /** Initial sort of the related list. Default id ascending. */
   sort?: SortPayload;
   /** Permanent filter merged into the reference lookup. */
   filter?: FilterPayload;
-  /** Page size for the related list. */
+  /** Page size for the related list. Default 25. */
   perPage?: number;
+  /** KV namespace for the list params and selection. Default `${reference}.${target}.${id}`; `false` keeps them in memory. */
+  storeKey?: string | false;
+  /** Debounce delay in ms for debounced `setFilters` calls. Default 500. */
+  debounce?: number;
 }
 
 /**
  * Displays multiple related records that reference the current record via a
  * foreign key (a one-to-many / reverse relationship).
  *
- * Fetches the records of `reference` whose `target` field equals the current
- * record's id (or `source`), drops them in a `ListContext`, and renders its
- * children.
+ * Asks the data provider's `getManyReference` for the records of `reference`
+ * whose `target` field equals the current record's id (or `source`), one page
+ * at a time: `ListPagination`, a `DataTable` header click and `setFilters` in
+ * the list context all reach the server. The result goes in a `ListContext`
+ * and the children render under it. The list does not read or write the URL.
  *
- * Rebridge note (chelone): chelone has no ra-core `ReferenceManyFieldBase` /
- * `useReferenceManyFieldController`. Per the data-provider contract note
- * (`getManyReference` is "a controller concern via getList filter"), this field
- * resolves the reverse relation with `useGetList({ filter: { [target]: id } })`
- * and reuses the client-side `useList` + `ListContextProvider` (as `ArrayField`
- * does). The reference resource is published via `ResourceContextProvider`.
+ * Rebridge note (chelone): this is `useReferenceManyFieldController` plus
+ * `ListContextProvider`, where ra-core splits it into `ReferenceManyFieldBase`.
+ * The reference resource is published via `ResourceContextProvider`.
  *
  * @example
  * import { Show, RecordField, ReferenceManyField, DataTable, DateField } from '@/components/admin';
@@ -70,39 +67,26 @@ function ReferenceManyField<RecordType extends UnknownRecord = UnknownRecord>(
   const {
     reference,
     target,
-    source = "id",
-    record: recordProp,
+    source,
+    record,
     children,
     sort,
     filter,
     perPage,
+    storeKey,
+    debounce,
   } = props;
 
-  const record = useRecordContext<RecordType>({ record: recordProp });
-  const id = record?.[source] as Identifier | undefined;
-
-  const referenceFilter: FilterPayload = { ...filter, [target]: id };
-
-  const { data, isPending, isFetching, error } = useGetList(
+  const listContext = useReferenceManyFieldController({
     reference,
-    {
-      filter: referenceFilter,
-      sort,
-      pagination: perPage ? { page: 1, perPage } : undefined,
-    },
-    { enabled: id != null },
-  );
-
-  const listContext = useList({
-    data: (id != null ? (data?.data ?? undefined) : []) as
-      | ResourceRecord[]
-      | undefined,
-    isPending: id != null ? isPending : false,
-    isFetching: id != null ? isFetching : false,
-    error,
+    target,
+    source,
+    record: record as RecordContextValue,
     sort,
     filter,
     perPage,
+    storeKey,
+    debounce,
   });
 
   return (

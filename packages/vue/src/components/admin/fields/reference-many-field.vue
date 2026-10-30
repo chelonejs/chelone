@@ -15,12 +15,16 @@ export interface ReferenceManyFieldProps {
   source?: string;
   /** The record whose id is matched. Defaults to the ambient record. */
   record?: LooseRecord;
-  /** Sort applied to the related list. */
+  /** Initial sort of the related list. Default id ascending. */
   sort?: SortPayload;
   /** Permanent filter merged into the reference lookup. */
   filter?: FilterPayload;
-  /** Page size for the related list. */
+  /** Page size for the related list. Default 25. */
   perPage?: number;
+  /** KV namespace for the list params and selection. Default `${reference}.${target}.${id}`; `false` keeps them in memory. */
+  storeKey?: string | false;
+  /** Debounce delay in ms for debounced `setFilters` calls. Default 500. */
+  debounce?: number;
 }
 </script>
 
@@ -28,56 +32,41 @@ export interface ReferenceManyFieldProps {
 /**
  * `<ReferenceManyField>` — displays multiple related records that reference the
  * current record via a foreign key (a one-to-many / reverse relationship). The
- * Vue port of `@chelone/react`'s `fields/reference-many-field.tsx`. Fetches the
- * records of `reference` whose `target` equals the current record's id (or
- * `source`), drops them in a `ListContext`, publishes the reference resource,
- * and renders its default slot.
+ * Vue port of `@chelone/react`'s `fields/reference-many-field.tsx`. Asks the
+ * data provider's `getManyReference` for the records of `reference` whose
+ * `target` equals the current record's id (or `source`), one page at a time:
+ * `ListPagination`, a `DataTable` header click and `setFilters` in the list
+ * context all reach the server. The result goes in a `ListContext`, the
+ * reference resource is published, and the default slot renders. The list does
+ * not read or write the URL.
  *
- * Rebridge note (mirrors the React twin): chelone has no `ReferenceManyFieldBase`
- * — the reverse relation resolves via `useGetList({ filter: { [target]: id } })`
- * plus client-side `useList` + `provideListContext`.
+ * Rebridge note (mirrors the React twin): this is
+ * `useReferenceManyFieldController` plus `provideListContext`, where ra-core
+ * splits it into `ReferenceManyFieldBase`.
  */
 
-import type { Identifier, ResourceRecord } from "@chelone/core";
-import { computed, inject } from "vue";
-import { useGetList } from "../../../data/queries";
-import { RecordContextKey } from "../../../record/record-context";
+import { useReferenceManyFieldController } from "../../../controllers/use-reference-many-field-controller";
 import { provideListContext } from "../../../list/list-context";
 import { provideResourceContext } from "../../../resource-context";
-import { useList } from "../../../list/use-list";
 
-const props = defineProps<ReferenceManyFieldProps>();
+// `storeKey` may be `false`, which makes Vue cast an absent prop to `false`
+// (keep in memory). The explicit `undefined` default keeps absent as absent.
+const props = withDefaults(defineProps<ReferenceManyFieldProps>(), {
+  storeKey: undefined,
+});
 
-// Inject the record ref directly (not `useRecordContext`, which reads once) so
-// the field re-resolves when an async record lands. A `record` prop wins.
-const injectedRecord = inject(RecordContextKey, null);
-const record = computed(() => props.record ?? injectedRecord?.value);
-
-const id = computed(
-  () => record.value?.[props.source ?? "id"] as Identifier | undefined,
-);
-
-const query = useGetList(
-  props.reference,
-  () => ({
-    filter: { ...props.filter, [props.target]: id.value },
-    sort: props.sort,
-    pagination: props.perPage ? { page: 1, perPage: props.perPage } : undefined,
-  }),
-  { enabled: () => id.value != null },
-);
-
-const listContext = useList({
-  data: () =>
-    (id.value != null
-      ? (query.data.value?.data ?? undefined)
-      : []) as ResourceRecord[] | undefined,
-  isPending: () => (id.value != null ? query.isPending.value : false),
-  isFetching: () => (id.value != null ? query.isFetching.value : false),
-  error: () => query.error.value,
+// A getter, so a `record` prop or an async ambient record lands live. The
+// composable falls back to the ambient record when the prop is absent.
+const listContext = useReferenceManyFieldController({
+  reference: props.reference,
+  target: props.target,
+  source: props.source,
+  record: () => props.record,
   sort: props.sort,
   filter: props.filter,
   perPage: props.perPage,
+  storeKey: props.storeKey,
+  debounce: props.debounce,
 });
 
 provideResourceContext(props.reference);
