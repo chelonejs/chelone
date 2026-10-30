@@ -3,7 +3,10 @@ import type { ReactNode } from "react";
 import type { UnknownRecord } from "@/lib/unknown-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentation } from "../../../label";
-import { RecordContextProvider } from "../../../record/record-context";
+import {
+  RecordContextProvider,
+  type RecordContextValue,
+} from "../../../record/record-context";
 import { useReferenceOneFieldController } from "../../../reference-hooks";
 import { ResourceContextProvider } from "../../../resource";
 
@@ -88,7 +91,7 @@ function ReferenceOneField<RecordType extends UnknownRecord = UnknownRecord>(
     reference,
     target,
     source,
-    record: recordProp,
+    record: recordProp as RecordContextValue,
     sort,
     filter,
   });

@@ -5,7 +5,7 @@
  * data-provider calls.
  */
 
-import { fakeDataProvider } from "@chelone/core";
+import { fakeDataProvider, type LooseRecord } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -147,7 +147,7 @@ describe("ReferenceOneField", () => {
   });
 
   it("resolves a record that arrives late", async () => {
-    const record = ref<Record<string, unknown> | undefined>(undefined);
+    const record = ref<LooseRecord | undefined>(undefined);
     const dataProvider = makeProvider();
     const getManyReference = vi.spyOn(dataProvider, "getManyReference");
     const w = mountAdmin(dataProvider, () =>
