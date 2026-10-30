@@ -7,6 +7,7 @@ import {
   type GetManyReferenceParams,
   type GetOneParams,
   getListOptions,
+  getManyAggregateOptions,
   getManyOptions,
   getManyReferenceOptions,
   getOneOptions,
@@ -56,6 +57,25 @@ export function useGetMany<
 ) {
   const ctx = useCheloneContext<TResources>();
   return useQuery({ ...getManyOptions(ctx, resource, params), ...options });
+}
+
+/**
+ * Same result as `useGetMany`, but reads started in the same tick by any
+ * component reach the data provider as one `getMany` per resource.
+ */
+export function useGetManyAggregate<
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(
+  resource: TName,
+  params: GetManyParams,
+  options: { enabled?: boolean; staleTime?: number } = {},
+) {
+  const ctx = useCheloneContext<TResources>();
+  return useQuery({
+    ...getManyAggregateOptions(ctx, resource, params),
+    ...options,
+  });
 }
 
 export function useGetManyReference<
@@ -170,6 +190,11 @@ export function createCheloneHooks<TResources extends ResourceMap>() {
       params: GetManyParams,
       options?: { enabled?: boolean; staleTime?: number },
     ) => useGetMany<TResources, TName>(resource, params, options),
+    useGetManyAggregate: <TName extends keyof TResources & string>(
+      resource: TName,
+      params: GetManyParams,
+      options?: { enabled?: boolean; staleTime?: number },
+    ) => useGetManyAggregate<TResources, TName>(resource, params, options),
     useGetManyReference: <TName extends keyof TResources & string>(
       resource: TName,
       params: GetManyReferenceParams,

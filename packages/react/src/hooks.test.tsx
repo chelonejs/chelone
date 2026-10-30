@@ -24,6 +24,7 @@ import {
   createCheloneHooks,
   useDelete,
   useGetList,
+  useGetManyAggregate,
   useGetManyReference,
   useGetOne,
   useUpdate,
@@ -160,6 +161,85 @@ describe("react hooks", () => {
     expect(result.current.data?.data.map((c) => c.body)).toEqual(["y"]);
     // @ts-expect-error unknown resource name rejected by the bound hooks
     void (() => hooks.useGetManyReference("nope", { target: "x", id: 1 }));
+  });
+
+  it("three useGetManyAggregate hooks mounted together make one getMany call and each gets only its own records", async () => {
+    const { wrapper, dataProvider } = makeWrapper();
+    const getMany = vi.spyOn(dataProvider, "getMany");
+    const { result } = renderHook(
+      () => ({
+        first: useGetManyAggregate<R, "posts">("posts", { ids: [1] }),
+        second: useGetManyAggregate<R, "posts">("posts", { ids: [2] }),
+        both: useGetManyAggregate<R, "posts">("posts", { ids: [2, 1] }),
+      }),
+      { wrapper },
+    );
+    await waitFor(() => {
+      expect(result.current.first.isSuccess).toBe(true);
+      expect(result.current.second.isSuccess).toBe(true);
+      expect(result.current.both.isSuccess).toBe(true);
+    });
+    expect(getMany).toHaveBeenCalledTimes(1);
+    expect(result.current.first.data?.map((p) => p.title)).toEqual(["a"]);
+    expect(result.current.second.data?.map((p) => p.title)).toEqual(["b"]);
+    expect(result.current.both.data?.map((p) => p.title)).toEqual(["b", "a"]);
+  });
+
+  it("useGetManyAggregate does not fetch while enabled is false", async () => {
+    const { wrapper, dataProvider } = makeWrapper();
+    const getMany = vi.spyOn(dataProvider, "getMany");
+    const { result, rerender } = renderHook(
+      ({ enabled }) =>
+        useGetManyAggregate<R, "posts">("posts", { ids: [1] }, { enabled }),
+      { wrapper, initialProps: { enabled: false } },
+    );
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+    expect(getMany).not.toHaveBeenCalled();
+    expect(result.current.fetchStatus).toBe("idle");
+    expect(result.current.data).toBeUndefined();
+    rerender({ enabled: true });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(getMany).toHaveBeenCalledTimes(1);
+    expect(result.current.data?.map((p) => p.title)).toEqual(["a"]);
+  });
+
+  it("useGetManyAggregate exposes a provider rejection as error on every hook in the batch", async () => {
+    const { wrapper, dataProvider } = makeWrapper();
+    const getMany = vi
+      .spyOn(dataProvider, "getMany")
+      .mockRejectedValue(new Error("boom"));
+    const { result } = renderHook(
+      () => ({
+        first: useGetManyAggregate<R, "posts">("posts", { ids: [1] }),
+        second: useGetManyAggregate<R, "posts">("posts", { ids: [2] }),
+      }),
+      { wrapper },
+    );
+    await waitFor(() => {
+      expect(result.current.first.isError).toBe(true);
+      expect(result.current.second.isError).toBe(true);
+    });
+    expect(getMany).toHaveBeenCalledTimes(1);
+    expect(result.current.first.error?.message).toBe("boom");
+    expect(result.current.second.error?.message).toBe("boom");
+  });
+
+  it("createCheloneHooks binds useGetManyAggregate to the registry type and rejects an unknown resource", async () => {
+    const hooks = createCheloneHooks<R>();
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => hooks.useGetManyAggregate("posts", { ids: [2] }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expectTypeOf(result.current.data).toEqualTypeOf<
+      { id: number; title: string }[] | undefined
+    >();
+    expect(result.current.data?.map((p) => p.title)).toEqual(["b"]);
+    // @ts-expect-error unknown resource name rejected by the bound hooks
+    void (() => hooks.useGetManyAggregate("nope", { ids: [1] }));
   });
 
   it("useCheloneContext throws a clear error outside the provider", () => {
