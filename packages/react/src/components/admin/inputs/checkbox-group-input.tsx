@@ -51,20 +51,18 @@ interface CheckboxGroupInputProps
  * for horizontal layout.
  *
  * @example
- * import { Edit, SimpleForm, CheckboxGroupInput } from '@/components/admin';
+ * import { Edit, CheckboxGroupInput } from '@/components/admin';
  *
  * const PostEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <CheckboxGroupInput
- *         source="tags"
- *         choices={[
- *           { id: 'tech', name: 'Tech' },
- *           { id: 'lifestyle', name: 'Lifestyle' },
- *           { id: 'people', name: 'People' },
- *         ]}
- *       />
- *     </SimpleForm>
+ *     <CheckboxGroupInput
+ *       source="tags"
+ *       choices={[
+ *         { id: 'tech', name: 'Tech' },
+ *         { id: 'lifestyle', name: 'Lifestyle' },
+ *         { id: 'people', name: 'People' },
+ *       ]}
+ *     />
  *   </Edit>
  * );
  */

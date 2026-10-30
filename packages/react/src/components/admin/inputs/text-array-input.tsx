@@ -50,14 +50,12 @@ const emptyArray: string[] = [];
  * whole `string[]` (no per-item array binding).
  *
  * @example
- * import { Edit, SimpleForm, TextArrayInput } from '@/components/admin';
+ * import { Edit, TextArrayInput } from '@/components/admin';
  *
  * const PostEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <TextArrayInput source="tags" />
- *       <TextArrayInput source="emails" placeholder="Add an email..." />
- *     </SimpleForm>
+ *     <TextArrayInput source="tags" />
+ *     <TextArrayInput source="emails" placeholder="Add an email..." />
  *   </Edit>
  * );
  */

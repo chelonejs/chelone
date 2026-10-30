@@ -7,11 +7,9 @@
  * The default screen for the `<Admin.AuthenticationError>` slot.
  *
  * Chelone divergence: shadmin wraps a `<Title defaultTitle={useDefaultTitle()}>`
- * to set the browser-tab title. Chelone has no `useDefaultTitle` hook nor a
- * concrete `<Title>` component yet (only the `<Admin.Title>` slot marker), so
- * that chrome is dropped — the visible screen is `<AccessDenied>` with the
- * authentication-error defaults. Re-add the title wrapper once the title
- * portal + `useDefaultTitle` land.
+ * to set the browser-tab title. Chelone has no `useDefaultTitle` hook, so that
+ * chrome is dropped: the visible screen is `<AccessDenied>` with the
+ * authentication-error defaults.
  */
 
 import { TriangleAlert } from "lucide-react";

@@ -10,7 +10,7 @@
  *   `EditContext` (view fields) → `SaveContext` (save buttons / toolbar) →
  *   `RecordContext` (record the fields default to) → `CheloneFormProvider`
  *   (the ambient form `useInput` binds to). So a bare `<TextInput>` child works
- *   with no `<SimpleForm>` in between.
+ *   directly.
  *
  * Chelone divergences (deliberate):
  * - No `<EditBase>`: the composed `useEditForm` fetches + hydrates + owns the

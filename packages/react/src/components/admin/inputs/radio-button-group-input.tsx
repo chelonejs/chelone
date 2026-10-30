@@ -46,20 +46,18 @@ interface ChoicesProps {
  * `<SelectInput>`. Set `row` to `true` for horizontal layout.
  *
  * @example
- * import { Edit, SimpleForm, RadioButtonGroupInput } from '@/components/admin';
+ * import { Edit, RadioButtonGroupInput } from '@/components/admin';
  *
  * const PostEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <RadioButtonGroupInput
- *         source="category"
- *         choices={[
- *           { id: 'tech', name: 'Tech' },
- *           { id: 'lifestyle', name: 'Lifestyle' },
- *           { id: 'people', name: 'People' },
- *         ]}
- *       />
- *     </SimpleForm>
+ *     <RadioButtonGroupInput
+ *       source="category"
+ *       choices={[
+ *         { id: 'tech', name: 'Tech' },
+ *         { id: 'lifestyle', name: 'Lifestyle' },
+ *         { id: 'people', name: 'People' },
+ *       ]}
+ *     />
  *   </Edit>
  * );
  */

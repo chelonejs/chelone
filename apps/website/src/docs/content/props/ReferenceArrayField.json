@@ -5,7 +5,7 @@
       "name": "children",
       "type": "ReactNode",
       "optional": true,
-      "comment": "The list-rendering children (a `SingleFieldList`, datagrid, etc.)."
+      "comment": "The list-rendering children (a `DataTable`, etc.)."
     },
     {
       "name": "filter",

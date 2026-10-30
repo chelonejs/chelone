@@ -55,14 +55,12 @@ interface ReferenceArrayInputProps {
  * `key` remount.
  *
  * @example
- * import { Edit, SimpleForm, TextInput, ReferenceArrayInput } from '@/components/admin';
+ * import { Edit, TextInput, ReferenceArrayInput } from '@/components/admin';
  *
  * const PostEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <TextInput source="title" />
- *       <ReferenceArrayInput source="tag_ids" reference="tags" />
- *     </SimpleForm>
+ *     <TextInput source="title" />
+ *     <ReferenceArrayInput source="tag_ids" reference="tags" />
  *   </Edit>
  * );
  */
