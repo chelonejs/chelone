@@ -126,12 +126,14 @@ Here `<Home />` renders at the index route and `<OldHome />` never does.
 - `requireAuth` gates the whole shell on `authProvider`. While the auth check is in
   flight the loading page shows, never the layout. An unauthenticated visitor gets
   the login page. Without an `authProvider` the gate is open.
-- `basename` is the URL prefix the app is served under, such as `/admin`. A router
-  `<Admin>` creates applies it for you. Under a host router, set the same
-  `basename` on that router too.
+- `basename` is the URL prefix the app is served under. A router `<Admin>` creates
+  applies it, and Chelone also prepends it to the links it builds. Those two
+  prefixes currently stack, so links come out as `/admin/admin/posts`. Leave
+  `basename` unset until that is fixed.
 - The children can be a function that receives the `permissions` prop, so resources
   can depend on who is signed in. It may return a promise, and the loading page
-  shows until it resolves.
+  shows until it resolves. A `ready` slot, if you set one, shows in its place
+  during that wait.
 
 ```tsx title="src/App.tsx"
 import { Admin, Resource } from "@chelone/react";
@@ -146,7 +148,6 @@ export function App({ permissions }: { permissions: string }) {
       queryClient={queryClient}
       authProvider={authProvider}
       requireAuth
-      basename="/admin"
       permissions={permissions}
     >
       {(role) => (

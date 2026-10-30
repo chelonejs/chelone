@@ -88,6 +88,7 @@ export function SettingsButton() {
 
 - `noLayout` routes render outside the auth gate — put anything that must stay
   public (a login page, a marketing page) here.
-- With-layout custom routes always win over resource routes, wherever the
-  `<CustomRoutes>` sits among the children. A custom route can override a resource
-  path, and its position does not matter.
+- With-layout custom routes are matched before resource routes, wherever the
+  `<CustomRoutes>` sits among the children, so a custom route overrides a resource
+  path it matches exactly. The router still ranks by specificity first, so a broad
+  pattern such as `/:slug` does not take over `/posts`.
