@@ -532,4 +532,30 @@ describe("<TabbedForm> inside <Edit>", () => {
     });
     expect(ownSave).not.toHaveBeenCalled();
   });
+
+  it("warns that form options other than save are ignored inside Edit", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    renderInEditRoute(
+      fakeDataProvider({ posts: [{ id: 1, title: "Original" }] }),
+      <Edit title={false}>
+        <TabbedForm
+          save={vi.fn(async () => undefined)}
+          validate={() => ({ title: "required" })}
+          syncWithLocation={false}
+        >
+          <TabbedForm.Tab name="one">
+            <TextInput source="title" />
+          </TabbedForm.Tab>
+        </TabbedForm>
+      </Edit>,
+    );
+    await waitFor(() =>
+      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
+        "Original",
+      ),
+    );
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(/<TabbedForm>.*ignored.*validate/),
+    );
+  });
 });

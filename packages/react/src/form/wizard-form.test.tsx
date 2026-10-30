@@ -512,4 +512,29 @@ describe("<WizardForm> inside <Edit>", () => {
     });
     expect(ownSave).not.toHaveBeenCalled();
   });
+
+  it("warns that form options other than save are ignored inside Edit", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    renderInEditRoute(
+      fakeDataProvider({ posts: [{ id: 1, title: "Original" }] }),
+      <Edit title={false}>
+        <WizardForm
+          save={vi.fn(async () => undefined)}
+          validate={() => ({ title: "required" })}
+        >
+          <WizardForm.Step name="one">
+            <TextInput source="title" />
+          </WizardForm.Step>
+        </WizardForm>
+      </Edit>,
+    );
+    await waitFor(() =>
+      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
+        "Original",
+      ),
+    );
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(/<WizardForm>.*ignored.*validate/),
+    );
+  });
 });

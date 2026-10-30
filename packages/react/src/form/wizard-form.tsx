@@ -212,7 +212,7 @@ function WizardFormImpl<TFormData>({
   // Step names are structural (children order); recompute only when they change.
   const stepNames = useMemo(() => collectStepNames(children), [children]);
   return (
-    <FormScope<TFormData> options={formOptions}>
+    <FormScope<TFormData> name="WizardForm" options={formOptions}>
       {(submit) => (
         <FormGroupsProvider>
           <WizardShell stepNames={stepNames} submit={submit}>

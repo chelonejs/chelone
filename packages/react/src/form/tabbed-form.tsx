@@ -251,7 +251,7 @@ function TabbedFormImpl<TFormData>({
 }: TabbedFormProps<TFormData>): ReactElement {
   const tabs = useMemo(() => collectTabs(children), [children]);
   return (
-    <FormScope<TFormData> options={formOptions}>
+    <FormScope<TFormData> name="TabbedForm" options={formOptions}>
       {(submit) => (
         <FormGroupsProvider>
           {syncWithLocation ? (
