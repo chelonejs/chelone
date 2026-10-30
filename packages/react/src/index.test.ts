@@ -166,6 +166,8 @@ describe("@chelone/react barrel — P6 shell + router surface (W1)", () => {
   it("exports the RouterAdapter interface + the react-router adapter + injection", () => {
     expect(barrel.reactRouterAdapter).toBeTypeOf("object");
     // The optional @tanstack/react-router peer must not load with the barrel.
+    // The one dynamic access here: the export no longer exists, so a static
+    // `barrel.tanstackRouterAdapter` would fail the typecheck.
     expect("tanstackRouterAdapter" in barrel).toBe(false);
     expect(Reflect.get(barrel, "tanstackRouterAdapter")).toBeUndefined();
     expect(barrel.RouterAdapterContext).toBeTypeOf("object");
@@ -247,6 +249,12 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
   it("exports the RHF→chelone form shim (runnable useWatch + rename aliases)", () => {
     expect(barrel.useWatch).toBeTypeOf("function");
     // Rename-only aliases resolve to the canonical chelone symbols.
+    // `toBeTypeOf` first: `undefined === undefined` would pass `toBe` when
+    // both the alias and its canonical export were dropped.
+    expect(barrel.CheloneFormProvider).toBeTypeOf("function");
+    expect(barrel.useCheloneFormContext).toBeTypeOf("function");
+    expect(barrel.useInput).toBeTypeOf("function");
+    expect(barrel.useArrayInput).toBeTypeOf("function");
     expect(barrel.FormProvider).toBe(barrel.CheloneFormProvider);
     expect(barrel.useFormContext).toBe(barrel.useCheloneFormContext);
     expect(barrel.useController).toBe(barrel.useInput);
