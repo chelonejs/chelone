@@ -34,14 +34,13 @@ export interface NavTreeProps {
   badgeFor?: (slug: string) => ReactNode;
   /**
    * When true, clicking a top-level section toggles its collapsible instead of
-   * navigating to a section index. Use for the gallery (no category landing
-   * page); docs leaves it off so sections link to their landing.
+   * navigating to a section index. Docs leaves it off so sections link to
+   * their landing.
    */
   sectionAsToggle?: boolean;
   /**
    * Class for the rendered `<SidebarGroup>`. Docs uses NavTree as the sole
-   * group (default `p-2` padding); the demo nests it under its own
-   * `<SidebarGroup>` + label, so it passes `p-0` to avoid double padding.
+   * group (default `p-2` padding).
    */
   className?: string;
 }
@@ -116,7 +115,6 @@ function NavSubNode({ node, ...p }: { node: DocNode } & SubProps) {
  *
  * Presentation-only: caller owns open state + href shape + section icons.
  *   - docs:    hrefFor={s => `/docs/${s}`},    iconFor={d => SECTION_META[d]?.icon}
- *   - gallery: hrefFor={s => `/demo/components/${s}`}
  */
 export function NavTree({
   tree,
@@ -147,8 +145,7 @@ export function NavTree({
               >
                 <SidebarMenuItem>
                   {sectionAsToggle ? (
-                    // Gallery: the whole section row toggles its sub-list (no
-                    // category landing page to navigate to).
+                    // The whole section row toggles its sub-list.
                     <CollapsibleTrigger asChild>
                       <SidebarMenuButton tooltip={section.title}>
                         {Icon ? <Icon /> : null}

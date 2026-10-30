@@ -12,7 +12,7 @@ export function FinalCta() {
             as="h2"
             className="mx-auto max-w-3xl text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl"
           >
-            Generate a beautiful admin panel in just a few lines of code.
+            Compose a beautiful admin panel in just a few lines of code.
           </RevealItem>
           <RevealItem
             as="p"

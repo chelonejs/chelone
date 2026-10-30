@@ -3,30 +3,44 @@ title: "Migrating from react-admin"
 description: "How Chelone's API differs from react-admin / ra-ui-materialui, and how to port a resource."
 ---
 
-Chelone's component API is deliberately close to react-admin's, so a resource
-ports with mostly mechanical changes. The differences are in the seams, not the
-shape.
+Chelone's component API is close to react-admin's. Many component names and
+binding patterns carry over, but hooks, provider types, and page composition
+need checking when porting a resource.
 
 ## What stays the same
 
 - `<Admin>`, `<Resource>`, `<List>`, `<Edit>`, `<Create>`, `<Show>`.
 - The field / input vocabulary: `<TextField>`, `<ReferenceField>`,
   `<BooleanField>`, `<TextInput>`, `<ReferenceInput>`, `<SelectInput>`, …
-- The Data Provider contract (`getList` / `getOne` / `getMany` / `create` /
-  `update` / `delete`).
+- The Data Provider method names (`getList` / `getOne` / `getMany` / `create` /
+  `update` / `delete`), with contract differences listed below.
 - `source`-based binding and the ambient record / list / form contexts.
 
 ## What changes
 
 | react-admin | Chelone |
 | --- | --- |
-| `ra-core` hooks | `@chelone/react` hooks (same names, TanStack-backed) |
+| `ra-core` hooks | Most have same-name, TanStack-backed `@chelone/react` hooks; see the missing hooks below |
 | Material UI components | shadcn components from the `@chelone` registry |
 | `<SimpleForm>` wrapper | inputs are direct `<Edit>` / `<Create>` children |
 | `<Datagrid>` | `<DataTable>` with `<DataTable.Col>` |
-| per-input `validate={…}` | a resource-level Zod schema (`defineResources`) |
+| `<List filters={…}>` with built-in chrome | `<List>` has no `filters` prop and renders no filter form, pagination, or default actions; compose these explicitly |
+| per-input `validate={…}` | Still supported alongside a resource-level Zod schema (`defineResources`) |
 | `ra-i18n-polyglot`, `%{name}` | `createI18n` / `defineMessages`, single-brace `{name}` |
 | MUI theme palette | CSS variables + the shadcn registry theme |
+
+Missing hooks include `useUpdateMany`, `useDeleteMany`, `useListParams`,
+`useRecordSelection`, `useUnselectAll`, `useReferenceInputController`, and
+`useSimpleFormIterator`. Check custom hooks and bulk-action code before porting.
+
+### Provider contracts and setup
+
+- `pagination` is optional and accepts page-based or cursor-based pagination.
+- `sort` is optional and accepts a single sort object or an array of sort objects.
+- List results may omit `total`; update and delete parameters may omit
+  `previousData`.
+- `<Admin>` requires a `queryClient` prop. Create a TanStack Query `QueryClient`
+  and pass it alongside `dataProvider`.
 
 ## Porting a resource
 
@@ -35,10 +49,10 @@ shape.
 2. Drop the `<SimpleForm>` wrapper — move its input children up to be direct
    `<Edit>` / `<Create>` children, and add a `<Toolbar>` (Edit) or `<SaveButton>`
    (Create).
-3. Move field-level `validate` rules into a Zod schema and register it with
-   `defineResources({ posts: { schema } })`.
+3. Keep per-input `validate` rules, or add a Zod schema with
+   `defineResources({ posts: { schema } })`. Both can be used together.
 4. Swap `%{name}` interpolation for `{name}` in any custom translations, and
    plural strings from `a |||| b` to `{ one, other }` objects.
 
-Everything else — sources, references, the provider contract — carries over
-unchanged.
+5. Check the provider contracts above, pass `queryClient` to `<Admin>`, and
+   compose the list's filter form, pagination, and actions as needed.
