@@ -12,6 +12,13 @@ import * as barrel from "./index";
  * breaks the test AND biome's noDynamicNamespaceImportAccess stays happy.
  */
 describe("@chelone/core barrel", () => {
+  it("exports the saved-queries controller and helpers", () => {
+    expect(barrel.createSavedQueriesController).toBeTypeOf("function");
+    expect(barrel.extractValidSavedQueries).toBeTypeOf("function");
+    expect(barrel.isSavedQueryActive).toBeTypeOf("function");
+    expect(barrel.savedQueriesKey).toBeTypeOf("function");
+  });
+
   it("exports the P5 form controllers + composed controllers", () => {
     expect(barrel.createFormController).toBeTypeOf("function");
     expect(barrel.normalizeFormError).toBeTypeOf("function");
