@@ -463,6 +463,17 @@ describe("createListController", () => {
       c.destroy();
     });
 
+    it("setParams with a filter cancels a pending debounced setFilters", () => {
+      vi.useFakeTimers();
+      const c = createListController(makeCtx(), "posts", { debounceMs: 300 });
+      c.setFilters({ title: "abc" }, undefined, true);
+      c.setParams({ filter: { title: "x" } });
+      vi.advanceTimersByTime(1000);
+      expect(c.getSnapshot().filter).toEqual({ title: "x" });
+      vi.useRealTimers();
+      c.destroy();
+    });
+
     it("setParams with an empty patch does not write or notify", () => {
       const ctx = makeCtx();
       const writes = vi.spyOn(ctx.store, "setItem");

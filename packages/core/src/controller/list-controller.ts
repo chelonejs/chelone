@@ -341,6 +341,8 @@ export function createListController<
     if (destroyed) return;
     const next = listParamsFromPatch<TRecord>(patch);
     if (Object.keys(next).length === 0) return;
+    // A debounced filter still pending would overwrite this patch's filter.
+    if (patch.filter !== undefined) clearDebounce();
     applyParams(next);
   };
 
