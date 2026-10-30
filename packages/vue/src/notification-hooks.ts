@@ -5,11 +5,9 @@
  * `subscribe`/`getSnapshot` seam into a `shallowRef` released on scope disposal
  * (the pattern established by `store/use-store.ts`).
  *
- * DELIBERATE DIVERGENCE: the React `useNotifications` THROWS without a store;
- * the Vue `useNotifications` DEGRADES to an empty snapshot so `<Notification>`
- * can be mounted in a shell that never configured a notification store (it then
- * simply renders nothing). `useNotify` still throws — pushing a notification
- * with no store is a wiring error, exactly as in React.
+ * Both adapters degrade `useNotifications` to an empty snapshot without a store
+ * (so `<Notification>` renders nothing) and throw from `useNotify`: pushing a
+ * notification with no store is a wiring error.
  */
 
 import type { Notification, NotificationStore } from "@chelone/core";

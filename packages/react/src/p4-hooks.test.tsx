@@ -450,7 +450,7 @@ describe("notifications", () => {
     );
   });
 
-  it("both hooks throw clear errors when no notification store is provided", () => {
+  it("useNotify throws and useNotifications returns an empty queue when no notification store is provided", () => {
     const queryClient = new QueryClient();
     const wrapper = ({ children }: { children: ReactNode }) => (
       <CheloneProvider
@@ -463,8 +463,7 @@ describe("notifications", () => {
     expect(() => renderHook(() => useNotify(), { wrapper })).toThrow(
       /notification/i,
     );
-    expect(() => renderHook(() => useNotifications(), { wrapper })).toThrow(
-      /notification/i,
-    );
+    const { result } = renderHook(() => useNotifications(), { wrapper });
+    expect(result.current).toEqual([]);
   });
 });
