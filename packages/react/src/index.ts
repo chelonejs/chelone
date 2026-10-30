@@ -350,6 +350,10 @@ export {
   type ReferenceFieldProps,
 } from "./components/admin/fields/reference-field";
 export {
+  ReferenceManyCount,
+  type ReferenceManyCountProps,
+} from "./components/admin/fields/reference-many-count";
+export {
   ReferenceManyField,
   type ReferenceManyFieldProps,
 } from "./components/admin/fields/reference-many-field";

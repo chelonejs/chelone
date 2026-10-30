@@ -135,6 +135,8 @@ export { default as RecordField } from "./admin/fields/record-field.vue";
 export type { ReferenceArrayFieldProps } from "./admin/fields/reference-array-field.vue";
 export { default as ReferenceArrayField } from "./admin/fields/reference-array-field.vue";
 export { default as ReferenceField } from "./admin/fields/reference-field.vue";
+export type { ReferenceManyCountProps } from "./admin/fields/reference-many-count.vue";
+export { default as ReferenceManyCount } from "./admin/fields/reference-many-count.vue";
 export type { ReferenceManyFieldProps } from "./admin/fields/reference-many-field.vue";
 export { default as ReferenceManyField } from "./admin/fields/reference-many-field.vue";
 export type { ReferenceOneFieldProps } from "./admin/fields/reference-one-field.vue";
