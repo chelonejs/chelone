@@ -39,6 +39,12 @@ export type UseInfiniteListControllerReturn<TRecord> =
       keyof MicroStore<InfiniteListControllerState<TRecord>>
     >;
 
+/**
+ * Load a resource list page by page. `fetchNextPage` appends the next page to
+ * `data`; any change to filter, sort, page or perPage drops the loaded pages
+ * and starts over. The controller attaches on mount and releases on scope
+ * disposal. `options` are read once at `setup`.
+ */
 export function useInfiniteListController<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
@@ -56,7 +62,7 @@ export function useInfiniteListController<
     createInfiniteListController(toControllerContext(ctx), resource, options);
   const state = useStore(controller);
 
-  return reactive({
+  const facade: UseInfiniteListControllerReturn<TRecord> = reactive({
     data: computed(() => state.value.data),
     total: computed(() => state.value.total),
     pageInfo: computed(() => state.value.pageInfo),
@@ -87,5 +93,6 @@ export function useInfiniteListController<
     refetch: controller.refetch,
     fetchNextPage: controller.fetchNextPage,
     fetchPreviousPage: controller.fetchPreviousPage,
-  }) as UseInfiniteListControllerReturn<TRecord>;
+  });
+  return facade;
 }

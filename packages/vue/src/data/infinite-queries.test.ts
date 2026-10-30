@@ -6,8 +6,8 @@
 
 import { defineResources, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
-import { flushPromises, mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, type Ref, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
@@ -24,6 +24,15 @@ const rows = Array.from({ length: 25 }, (_, i) => ({
   id: i + 1,
   title: `t${i + 1}`,
 }));
+
+const mounted: Array<{ wrapper: VueWrapper; queryClient: QueryClient }> = [];
+
+afterEach(() => {
+  for (const { wrapper, queryClient } of mounted.splice(0)) {
+    wrapper.unmount();
+    queryClient.clear();
+  }
+});
 
 function mountProbe(options: { enabled?: Ref<boolean> } = {}) {
   const dataProvider = fakeDataProvider<Resources>({
@@ -75,20 +84,47 @@ function mountProbe(options: { enabled?: Ref<boolean> } = {}) {
     routes: [{ path: "/", component: { render: () => null } }],
   });
   const wrapper = mount(Harness, { global: { plugins: [router] } });
+  mounted.push({ wrapper, queryClient });
   const titles = () => wrapper.findAll("li").map((li) => li.text());
   return { wrapper, titles, getList };
 }
 
 describe("useInfiniteGetList", () => {
   it("useInfiniteGetList loads page 1 and fetchNextPage appends page 2", async () => {
-    const { wrapper, titles } = mountProbe();
+    const { wrapper, titles, getList } = mountProbe();
     await vi.waitFor(() => expect(titles()).toHaveLength(10));
     expect(wrapper.get('[data-testid="has-next"]').text()).toBe("true");
+    expect(getList).toHaveBeenCalledTimes(1);
+    expect(getList).toHaveBeenLastCalledWith(
+      "posts",
+      expect.objectContaining({ pagination: { page: 1, perPage: 10 } }),
+    );
 
     await wrapper.get("button").trigger("click");
     await vi.waitFor(() => expect(titles()).toHaveLength(20));
     expect(titles()[10]).toBe("t11");
     expect(wrapper.get('[data-testid="pages"]').text()).toBe("2");
+    expect(getList).toHaveBeenCalledTimes(2);
+    expect(getList).toHaveBeenLastCalledWith(
+      "posts",
+      expect.objectContaining({ pagination: { page: 2, perPage: 10 } }),
+    );
+  });
+
+  it("useInfiniteGetList hasNextPage is false after the last page and fetchNextPage calls the provider no more", async () => {
+    const { wrapper, titles, getList } = mountProbe();
+    await vi.waitFor(() => expect(titles()).toHaveLength(10));
+    await wrapper.get("button").trigger("click");
+    await vi.waitFor(() => expect(titles()).toHaveLength(20));
+    await wrapper.get("button").trigger("click");
+    await vi.waitFor(() => expect(titles()).toHaveLength(25));
+    expect(wrapper.get('[data-testid="has-next"]').text()).toBe("false");
+
+    getList.mockClear();
+    await wrapper.get("button").trigger("click");
+    await flushPromises();
+    expect(getList).not.toHaveBeenCalled();
+    expect(titles()).toHaveLength(25);
   });
 
   it("useInfiniteGetList does not fetch while enabled is false", async () => {

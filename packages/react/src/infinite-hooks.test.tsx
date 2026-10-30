@@ -14,12 +14,13 @@ import {
 } from "./infinite-hooks";
 import { useInfiniteListContext } from "./list/infinite-list-context";
 
-const resources = defineResources({
-  posts: {
-    schema: z.object({ id: z.number(), title: z.string(), group: z.string() }),
-  },
+const postSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  group: z.string(),
 });
-type Post = { id: number; title: string; group: string };
+const resources = defineResources({ posts: { schema: postSchema } });
+type Post = z.infer<typeof postSchema>;
 
 // 25 rows: pages of 10, 10 and 5. Odd ids are group "a", even ids group "b".
 const rows: Post[] = Array.from({ length: 25 }, (_, i) => ({
@@ -36,11 +37,12 @@ function makeWrapper() {
     posts: structuredClone(rows),
   });
   const getList = vi.spyOn(dataProvider, "getList");
+  const store = createStore();
   const wrapper = ({ children }: { children: ReactNode }) => (
     <CheloneProvider
       dataProvider={dataProvider}
       queryClient={queryClient}
-      store={createStore()}
+      store={store}
     >
       {children}
     </CheloneProvider>
@@ -82,6 +84,43 @@ describe("useInfiniteGetList", () => {
     expect(result.current.hasNextPage).toBe(true);
   });
 
+  it("hasNextPage is false on the last page and fetchNextPage then makes no provider call", async () => {
+    const { wrapper, getList } = makeWrapper();
+    const { result } = renderHook(
+      () =>
+        useInfiniteGetList<typeof resources, "posts">("posts", {
+          pagination: { page: 1, perPage: 10 },
+        }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.data?.pages).toHaveLength(1));
+    await act(() => result.current.fetchNextPage());
+    await waitFor(() => expect(result.current.data?.pages).toHaveLength(2));
+    await act(() => result.current.fetchNextPage());
+    await waitFor(() => expect(result.current.data?.pages).toHaveLength(3));
+    expect(result.current.hasNextPage).toBe(false);
+
+    getList.mockClear();
+    await act(() => result.current.fetchNextPage());
+    expect(getList).not.toHaveBeenCalled();
+    expect(result.current.data?.pages).toHaveLength(3);
+  });
+
+  it("reports a provider failure as an error", async () => {
+    const { wrapper, getList } = makeWrapper();
+    getList.mockRejectedValue(new Error("boom"));
+    const { result } = renderHook(
+      () =>
+        useInfiniteGetList<typeof resources, "posts">("posts", {
+          pagination: { page: 1, perPage: 10 },
+        }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error?.message).toBe("boom");
+    expect(result.current.data).toBeUndefined();
+  });
+
   it("does not fetch while enabled is false", async () => {
     const { wrapper, getList } = makeWrapper();
     const { result } = renderHook(
@@ -93,7 +132,7 @@ describe("useInfiniteGetList", () => {
         ),
       { wrapper },
     );
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await act(async () => {});
     expect(getList).not.toHaveBeenCalled();
     expect(result.current.data).toBeUndefined();
     expect(result.current.fetchStatus).toBe("idle");
@@ -191,10 +230,13 @@ function PlainList({ children }: { children: ReactNode }) {
 
 describe("useInfiniteListContext", () => {
   it("returns the infinite fields under an infinite list and throws under a plain list", async () => {
-    const { wrapper } = makeWrapper();
+    const { wrapper: Chelone } = makeWrapper();
     const under = (List: typeof InfiniteList) => ({
-      wrapper: ({ children }: { children: ReactNode }) =>
-        wrapper({ children: <List>{children}</List> }),
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <Chelone>
+          <List>{children}</List>
+        </Chelone>
+      ),
     });
 
     const infinite = renderHook(

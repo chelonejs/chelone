@@ -8,17 +8,25 @@ import type { RecordOf, ResourceMap } from "@chelone/core";
 import type { UseInfiniteListControllerReturn } from "../controllers/use-infinite-list-controller";
 import { useListContext } from "./list-context";
 
+function isInfiniteList<TRecord>(
+  list: unknown,
+): list is UseInfiniteListControllerReturn<TRecord> {
+  const candidate = list as Partial<UseInfiniteListControllerReturn<TRecord>>;
+  return (
+    typeof candidate.fetchNextPage === "function" &&
+    typeof candidate.fetchPreviousPage === "function"
+  );
+}
+
 export function useInfiniteListContext<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
 >(): UseInfiniteListControllerReturn<RecordOf<TResources, TName>> {
   const list = useListContext<TResources, TName>();
-  if (!("fetchNextPage" in list)) {
+  if (!isInfiniteList<RecordOf<TResources, TName>>(list)) {
     throw new Error(
       "useInfiniteListContext: the ambient list is not an infinite list",
     );
   }
-  return list as unknown as UseInfiniteListControllerReturn<
-    RecordOf<TResources, TName>
-  >;
+  return list;
 }

@@ -1,7 +1,7 @@
 import { defineResources, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
-import { flushPromises, mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { type Component, defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
@@ -14,13 +14,14 @@ import {
 } from "./use-infinite-list-controller";
 import { useListController } from "./use-list-controller";
 
-const resources = defineResources({
-  posts: {
-    schema: z.object({ id: z.number(), title: z.string(), group: z.string() }),
-  },
+const postSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  group: z.string(),
 });
+const resources = defineResources({ posts: { schema: postSchema } });
 type Resources = typeof resources;
-type Post = { id: number; title: string; group: string };
+type Post = z.infer<typeof postSchema>;
 
 // 25 rows: pages of 10, 10 and 5. Odd ids are group "a", even ids group "b".
 const rows: Post[] = Array.from({ length: 25 }, (_, i) => ({
@@ -39,17 +40,33 @@ const observerCount = (queryClient: QueryClient): number =>
     .getAll()
     .reduce((sum, query) => sum + query.getObserversCount(), 0);
 
-/** Mounts `Probe` (or the default controller probe) under a real `<Admin>`. */
+const mounted: Array<{ wrapper: VueWrapper; queryClient: QueryClient }> = [];
+
+afterEach(() => {
+  for (const { wrapper, queryClient } of mounted.splice(0)) {
+    if (wrapper.exists()) wrapper.unmount();
+    queryClient.clear();
+  }
+});
+
+/**
+ * Mounts the `Probe` that `build` returns under a real `<Admin>`. `build`
+ * receives `capture`, where a probe can leave the controller result it reads.
+ */
 function mountUnderAdmin(
   build: (capture: { result?: UseInfiniteListControllerReturn<Post> }) => {
     Probe: Component;
   },
+  prepare?: (
+    dataProvider: ReturnType<typeof fakeDataProvider<Resources>>,
+  ) => void,
 ) {
   const capture: { result?: UseInfiniteListControllerReturn<Post> } = {};
   const dataProvider = fakeDataProvider<Resources>({
     posts: structuredClone(rows),
   });
   const getList = vi.spyOn(dataProvider, "getList");
+  prepare?.(dataProvider);
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -67,20 +84,24 @@ function mountUnderAdmin(
     routes: [{ path: "/", component: { render: () => null } }],
   });
   const wrapper = mount(Harness, { global: { plugins: [router] } });
-  return { wrapper, capture, getList, queryClient };
+  mounted.push({ wrapper, queryClient });
+  return { wrapper, capture, getList, queryClient, dataProvider };
 }
 
-function mountInfiniteList() {
-  return mountUnderAdmin((capture) => ({
-    Probe: defineComponent({
-      setup() {
-        capture.result = useInfiniteListController<Resources, "posts">({
-          resource: "posts",
-        });
-        return () => null;
-      },
+function mountInfiniteList(prepare?: Parameters<typeof mountUnderAdmin>[1]) {
+  return mountUnderAdmin(
+    (capture) => ({
+      Probe: defineComponent({
+        setup() {
+          capture.result = useInfiniteListController<Resources, "posts">({
+            resource: "posts",
+          });
+          return () => null;
+        },
+      }),
     }),
-  }));
+    prepare,
+  );
 }
 
 const settled = (
@@ -139,6 +160,17 @@ describe("useInfiniteListController", () => {
     });
   });
 
+  it("useInfiniteListController reports a provider failure as error and leaves no rows", async () => {
+    const { capture } = mountInfiniteList((dataProvider) =>
+      vi.spyOn(dataProvider, "getList").mockRejectedValue(new Error("boom")),
+    );
+    await vi.waitFor(() =>
+      expect(capture.result?.error).toEqual(new Error("boom")),
+    );
+    expect(capture.result?.data).toBeUndefined();
+    expect(capture.result?.hasNextPage).toBeUndefined();
+  });
+
   it("useInfiniteListController unmount releases every observer", async () => {
     const { wrapper, capture, queryClient } = mountInfiniteList();
     await settled(() => capture.result);
@@ -155,10 +187,17 @@ describe("useInfiniteListContext", () => {
   function mountUnderList(
     useList: () => Parameters<typeof provideListContext>[0],
   ) {
-    const seen: { list?: ReturnType<typeof useInfiniteListContext> } = {};
+    const seen: {
+      list?: ReturnType<typeof useInfiniteListContext>;
+      error?: unknown;
+    } = {};
     const Reader = defineComponent({
       setup() {
-        seen.list = useInfiniteListContext();
+        try {
+          seen.list = useInfiniteListContext();
+        } catch (error) {
+          seen.error = error;
+        }
         return () => null;
       },
     });
@@ -182,20 +221,16 @@ describe("useInfiniteListContext", () => {
     await seen.list?.fetchNextPage();
     await vi.waitFor(() => expect(seen.list?.data).toHaveLength(20));
 
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    try {
-      expect(() =>
-        mountUnderList(() =>
-          useListController<Resources, "posts">({
-            resource: "posts",
-            syncWithLocation: false,
-          }),
-        ),
-      ).toThrow(
-        "useInfiniteListContext: the ambient list is not an infinite list",
-      );
-    } finally {
-      warn.mockRestore();
-    }
+    const plain = mountUnderList(() =>
+      useListController<Resources, "posts">({
+        resource: "posts",
+        syncWithLocation: false,
+      }),
+    );
+    expect(plain.list).toBeUndefined();
+    expect(plain.error).toBeInstanceOf(Error);
+    expect((plain.error as Error).message).toBe(
+      "useInfiniteListContext: the ambient list is not an infinite list",
+    );
   });
 });
