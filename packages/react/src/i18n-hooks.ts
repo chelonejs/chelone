@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useSyncExternalStore } from "react";
 import type { AnyChelonI18n } from "@chelone/core";
-import { useChelonI18n, useCheloneContext } from "./context";
+import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { useCheloneContext, useChelonI18n } from "./context";
 
 function useI18nVersion(): string {
   const i18n = useChelonI18n();
