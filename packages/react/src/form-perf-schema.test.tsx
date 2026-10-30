@@ -115,7 +115,6 @@ describe("form perf budget — form-level schema isolation (§11 #4 addendum)", 
     // Every OTHER field's error ("fN required") is UNCHANGED, so its displayable
     // error slice is identity-stable => zero sibling re-renders.
     for (const t of ["a", "ab", "abc", "abcd", "abcde"]) {
-      // biome-ignore lint/style/noNonNullAssertion: f0 seeded + mounted above
       act(() => handles.f0!(t));
     }
     await act(async () => {});
@@ -178,9 +177,7 @@ describe("form perf budget — form-level schema isolation (§11 #4 addendum)", 
     // Drive f1 across its error boundary: "" (too short) -> "ab" (still too
     // short, SAME message) -> "abc" (valid, error clears). f1 must re-render
     // when the message clears.
-    // biome-ignore lint/style/noNonNullAssertion: f1 seeded + mounted above
     act(() => handles.f1!("ab"));
-    // biome-ignore lint/style/noNonNullAssertion: f1 seeded + mounted above
     act(() => handles.f1!("abc"));
     await act(async () => {});
 

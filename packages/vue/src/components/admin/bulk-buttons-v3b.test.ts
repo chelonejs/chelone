@@ -11,7 +11,15 @@
 import { defineResources, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type MockInstance,
+  vi,
+} from "vitest";
 import { defineComponent, h, type VNodeChild } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import { z } from "zod";
@@ -81,7 +89,7 @@ const settled = (capture: { list?: ListContextValue }) =>
 // `<BulkUpdateButton>` still gates on the V3-b `window.confirm(...)` placeholder
 // (only Delete/BulkDelete were upgraded to `<Confirm>` in V3-c) — jsdom does not
 // implement `window.confirm`, so stub it for that button's specs.
-let confirmSpy: ReturnType<typeof vi.spyOn>;
+let confirmSpy: MockInstance<typeof window.confirm>;
 beforeEach(() => {
   confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
 });
@@ -116,8 +124,8 @@ describe("<BulkDeleteButton>", () => {
 
     await wrapper.find('[data-slot="confirm-accept"]').trigger("click");
     await vi.waitFor(() => expect(deleteManySpy).toHaveBeenCalledTimes(1));
-    expect(deleteManySpy.mock.calls[0][0]).toBe("posts");
-    expect(deleteManySpy.mock.calls[0][1]).toMatchObject({ ids: [1, 3] });
+    expect(deleteManySpy.mock.calls[0]![0]).toBe("posts");
+    expect(deleteManySpy.mock.calls[0]![1]).toMatchObject({ ids: [1, 3] });
     await vi.waitFor(() => expect(capture.list?.selectedIds).toEqual([]));
   });
 
@@ -193,8 +201,8 @@ describe("<BulkUpdateButton>", () => {
     await wrapper.find('[data-slot="bulk-update-button"]').trigger("click");
 
     await vi.waitFor(() => expect(updateManySpy).toHaveBeenCalledTimes(1));
-    expect(updateManySpy.mock.calls[0][0]).toBe("posts");
-    expect(updateManySpy.mock.calls[0][1]).toMatchObject({
+    expect(updateManySpy.mock.calls[0]![0]).toBe("posts");
+    expect(updateManySpy.mock.calls[0]![1]).toMatchObject({
       ids: [2, 4],
       data: { views: 0 },
     });
@@ -226,9 +234,9 @@ describe("<BulkExportButton>", () => {
     await wrapper.find('[data-slot="bulk-export-button"]').trigger("click");
 
     await vi.waitFor(() => expect(getManySpy).toHaveBeenCalledTimes(1));
-    expect(getManySpy.mock.calls[0][1]).toMatchObject({ ids: [1, 2] });
+    expect(getManySpy.mock.calls[0]![1]).toMatchObject({ ids: [1, 2] });
     await vi.waitFor(() => expect(exporter).toHaveBeenCalledTimes(1));
-    expect(exporter.mock.calls[0][0]).toHaveLength(2);
+    expect(exporter.mock.calls[0]![0]).toHaveLength(2);
   });
 });
 
@@ -254,11 +262,11 @@ describe("<ExportButton>", () => {
     await wrapper.find('[data-slot="export-button"]').trigger("click");
 
     await vi.waitFor(() => expect(getListSpy).toHaveBeenCalledTimes(1));
-    expect(getListSpy.mock.calls[0][1]).toMatchObject({
+    expect(getListSpy.mock.calls[0]![1]).toMatchObject({
       pagination: { page: 1, perPage: 1000 },
     });
     await vi.waitFor(() => expect(exporter).toHaveBeenCalledTimes(1));
-    expect(exporter.mock.calls[0][0]).toHaveLength(5);
+    expect(exporter.mock.calls[0]![0]).toHaveLength(5);
   });
 
   it("is disabled when the list is empty", async () => {

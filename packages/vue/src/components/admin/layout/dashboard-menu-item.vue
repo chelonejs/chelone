@@ -44,7 +44,7 @@ const icon = computed(() => props.icon ?? HouseIcon);
     :to="to"
     :label="label"
     :icon="icon"
-    :class="class"
+    :class="props.class"
     :on-click="onClick"
   />
 </template>

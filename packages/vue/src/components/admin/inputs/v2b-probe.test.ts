@@ -28,7 +28,7 @@
  * visual styling.
  */
 
-import { fakeDataProvider } from "@chelone/core";
+import { fakeDataProvider, type LooseRecord } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -109,7 +109,7 @@ function mountInForm(
   {
     record,
     records = {},
-  }: { record: FormValues; records?: Record<string, unknown[]> },
+  }: { record: FormValues; records?: Record<string, LooseRecord[]> },
 ) {
   const captured: Captured = {};
   const queryClient = new QueryClient({
@@ -232,9 +232,9 @@ describe("choice inputs (requirement 1)", () => {
     await nextTick();
     const filtered = wrapper.findAll('[role="option"]');
     expect(filtered).toHaveLength(1);
-    expect(filtered[0].text()).toContain("Lifestyle");
+    expect(filtered[0]!.text()).toContain("Lifestyle");
 
-    await filtered[0].trigger("mousedown");
+    await filtered[0]!.trigger("mousedown");
     await nextTick();
     expect(captured.values?.().category).toBe("lifestyle");
   });
@@ -267,9 +267,9 @@ describe("choice inputs (requirement 1)", () => {
     await flushPromises();
 
     const boxes = wrapper.findAll('input[type="checkbox"]');
-    await boxes[0].setValue(true); // tech
+    await boxes[0]!.setValue(true); // tech
     await nextTick();
-    await boxes[2].setValue(true); // people
+    await boxes[2]!.setValue(true); // people
     await nextTick();
     expect(captured.values?.().tags).toEqual(["tech", "people"]);
   });
@@ -287,9 +287,9 @@ describe("multi + array inputs (requirement 2)", () => {
     await wrapper.find('[role="combobox"]').trigger("click");
     await nextTick();
     const boxes = wrapper.findAll('input[type="checkbox"]');
-    await boxes[1].setValue(true); // lifestyle
+    await boxes[1]!.setValue(true); // lifestyle
     await nextTick();
-    await boxes[2].setValue(true); // people
+    await boxes[2]!.setValue(true); // people
     await nextTick();
     expect(captured.values?.().tags).toEqual(["lifestyle", "people"]);
   });
@@ -322,18 +322,18 @@ describe("multi + array inputs (requirement 2)", () => {
 
     // Edit row 0's name, then remove row 0 — the surviving row is the second.
     const textInputs = wrapper.findAll('input[type="text"]');
-    await textInputs[0].setValue("First");
+    await textInputs[0]!.setValue("First");
     await nextTick();
-    await textInputs[1].setValue("Second");
+    await textInputs[1]!.setValue("Second");
     await nextTick();
 
-    const remove = wrapper.findAll('[data-slot="array-input-remove"]')[0];
+    const remove = wrapper.findAll('[data-slot="array-input-remove"]')[0]!;
     await remove.trigger("click");
     await nextTick();
     expect(wrapper.findAll('[data-slot="array-input-row"]')).toHaveLength(1);
     const items = captured.values?.().items as Array<{ name: string }>;
     expect(items).toHaveLength(1);
-    expect(items[0].name).toBe("Second");
+    expect(items[0]!.name).toBe("Second");
   });
 
   it("<ReferenceArrayInput> multi-selects referenced records", async () => {
@@ -417,7 +417,7 @@ describe("foundational composables (requirement 4)", () => {
     await flushPromises();
 
     expect(accessors).toBeDefined();
-    const choice = CATEGORY_CHOICES[0];
+    const choice = CATEGORY_CHOICES[0]!;
     expect(accessors?.getChoiceText(choice)).toBe("#tech:Tech");
     // value falls back to id.
     expect(accessors?.getChoiceValue(choice)).toBe("tech");
@@ -448,6 +448,6 @@ describe("foundational composables (requirement 4)", () => {
     await nextTick();
     expect(api?.total.value).toBe(1);
     const items = captured.values?.().items as Array<{ name: string }>;
-    expect(items[0].name).toBe("added");
+    expect(items[0]!.name).toBe("added");
   });
 });

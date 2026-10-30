@@ -55,3 +55,15 @@ export function useSubscribable<T>(source: Subscribable<T>): Readonly<Ref<T>> {
   onScopeDispose(unsubscribe);
   return state;
 }
+
+/**
+ * Subscribe to a `@tanstack/store` store and return the unsubscribe function a
+ * {@link Subscribable} promises: the store hands back a `Subscription` object.
+ */
+export function subscribeStore(
+  store: { subscribe(listener: () => void): { unsubscribe(): void } },
+  listener: () => void,
+): () => void {
+  const subscription = store.subscribe(listener);
+  return () => subscription.unsubscribe();
+}

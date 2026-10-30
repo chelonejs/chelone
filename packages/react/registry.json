@@ -1181,6 +1181,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/auth/can-access.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/auth/login-form.tsx",
           "type": "registry:component"
         },
@@ -1835,6 +1839,20 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "can-access",
+      "type": "registry:component",
+      "title": "Can Access",
+      "files": [
+        {
+          "path": "src/components/admin/auth/can-access.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/use-menu-access"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "login-form",
       "type": "registry:component",
       "title": "Login Form",
@@ -1901,6 +1919,7 @@
         "@chelone/use-menu-access"
       ],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1935,6 +1954,7 @@
         "@chelone/use-menu-access"
       ],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1984,6 +2004,7 @@
         "@chelone/use-menu-access"
       ],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2277,7 +2298,7 @@
         }
       ],
       "registryDependencies": ["@chelone/use-theme"],
-      "dependencies": ["@chelone/react", "sonner"],
+      "dependencies": ["@chelone/core", "@chelone/react", "sonner"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

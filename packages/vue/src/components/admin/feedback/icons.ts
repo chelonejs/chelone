@@ -7,10 +7,10 @@
  * (`aria-hidden`); the surrounding control/heading carries the accessible text.
  */
 
-import { type FunctionalComponent, h, type VNodeChild } from "vue";
+import { type FunctionalComponent, h, type VNode } from "vue";
 
 /** A shared stroked `<svg>` shell with the lucide recipe around `children`. */
-function icon(children: () => VNodeChild): FunctionalComponent<{
+function icon(children: () => VNode[]): FunctionalComponent<{
   class?: string;
 }> {
   const cmp: FunctionalComponent<{ class?: string }> = (props) =>

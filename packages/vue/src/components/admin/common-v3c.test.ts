@@ -192,8 +192,8 @@ describe("<KeyboardShortcut>", () => {
     });
     const kbds = wrapper.findAll("kbd");
     expect(kbds).toHaveLength(2);
-    expect(kbds[0].text()).toBe("⌘");
-    expect(kbds[1].text()).toBe("K");
+    expect(kbds[0]!.text()).toBe("⌘");
+    expect(kbds[1]!.text()).toBe("K");
   });
 
   it("renders sequential chords split by >", () => {
@@ -202,8 +202,8 @@ describe("<KeyboardShortcut>", () => {
     });
     const kbds = wrapper.findAll("kbd");
     expect(kbds).toHaveLength(2);
-    expect(kbds[0].text()).toBe("A");
-    expect(kbds[1].text()).toBe("B");
+    expect(kbds[0]!.text()).toBe("A");
+    expect(kbds[1]!.text()).toBe("B");
   });
 
   it("renders nothing without a shortcut", () => {

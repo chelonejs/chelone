@@ -91,7 +91,7 @@ function makeContext() {
 
 /** Mount `field` (with `props` + optional `slots`) under a static `record`. */
 function mountField(
-  field: Component,
+  field: object,
   props: Record<string, unknown>,
   record: Record<string, unknown> | undefined,
   slots?: Record<string, unknown>,
@@ -100,7 +100,7 @@ function mountField(
     setup() {
       provideCheloneContext(makeContext());
       provideRecordContext(record);
-      return () => h(field, props, slots as never);
+      return () => h(field as Component, props, slots as never);
     },
   });
   return mount(Harness);

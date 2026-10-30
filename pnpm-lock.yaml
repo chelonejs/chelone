@@ -166,6 +166,9 @@ importers:
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.6.0
+      zod:
+        specifier: ^3.24.0
+        version: 3.25.76
     devDependencies:
       '@mdx-js/react':
         specifier: ^3.1.1
@@ -395,6 +398,9 @@ importers:
       vue-tsc:
         specifier: ^2.0.0
         version: 2.2.12(typescript@5.9.3)
+      zod:
+        specifier: ^3.24.0
+        version: 3.25.76
 
 packages:
 

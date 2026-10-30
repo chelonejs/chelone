@@ -12,7 +12,7 @@ import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import { type Component, defineComponent, h, type Slots } from "vue";
+import { type Component, defineComponent, h } from "vue";
 import { provideCheloneContext } from "../../../context";
 import { provideRecordContext } from "../../../record/record-context";
 import ApiKeyField from "./api-key-field.vue";
@@ -35,16 +35,16 @@ function makeContext() {
 
 /** Mount `field` (with `props` + optional `slots`) under a static `record`. */
 function mountField(
-  field: Component,
+  field: object,
   props: Record<string, unknown>,
   record: Record<string, unknown> | undefined,
-  slots?: Slots,
+  slots?: Record<string, unknown>,
 ) {
   const Harness = defineComponent({
     setup() {
       provideCheloneContext(makeContext());
       provideRecordContext(record);
-      return () => h(field, props, slots);
+      return () => h(field as Component, props, slots as never);
     },
   });
   return mount(Harness);
@@ -205,7 +205,7 @@ describe("ApiKeyField", () => {
     );
     const badges = w.findAll("[data-scope-badge]");
     expect(badges).toHaveLength(2);
-    expect(badges[0].text()).toBe("read");
+    expect(badges[0]!.text()).toBe("read");
   });
 
   it("renders nothing for a nullish value", () => {

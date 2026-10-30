@@ -248,13 +248,13 @@ describe("<CheckboxGroupInput>", () => {
     await flushPromises();
 
     const boxes = wrapper.findAll('input[type="checkbox"]');
-    await boxes[0].setValue(true); // tech
+    await boxes[0]!.setValue(true); // tech
     await nextTick();
-    await boxes[2].setValue(true); // people
+    await boxes[2]!.setValue(true); // people
     await nextTick();
     expect(captured.values?.().tags).toEqual(["tech", "people"]);
 
-    await boxes[0].setValue(false); // untoggle tech
+    await boxes[0]!.setValue(false); // untoggle tech
     await nextTick();
     expect(captured.values?.().tags).toEqual(["people"]);
   });
@@ -315,10 +315,10 @@ describe("<SelectArrayInput>", () => {
     await wrapper.find('[role="combobox"]').trigger("click");
     await nextTick();
     const boxes = wrapper.findAll('input[type="checkbox"]');
-    await boxes[1].setValue(true); // lifestyle
+    await boxes[1]!.setValue(true); // lifestyle
     await nextTick();
     expect(captured.values?.().tags).toEqual(["lifestyle"]);
-    await boxes[2].setValue(true); // people
+    await boxes[2]!.setValue(true); // people
     await nextTick();
     expect(captured.values?.().tags).toEqual(["lifestyle", "people"]);
   });
@@ -343,7 +343,7 @@ describe("<AutocompleteInput>", () => {
     await nextTick();
     const opts = wrapper.findAll('[role="option"]');
     expect(opts).toHaveLength(1);
-    expect(opts[0].text()).toContain("Lifestyle");
+    expect(opts[0]!.text()).toContain("Lifestyle");
   });
 
   it("selecting an option writes the value and closes the list", async () => {
@@ -416,7 +416,7 @@ describe("<AutocompleteArrayInput>", () => {
     // Two selected badges, each with a remove button.
     const removeButtons = wrapper.findAll("button");
     expect(removeButtons.length).toBeGreaterThanOrEqual(2);
-    await removeButtons[0].trigger("click");
+    await removeButtons[0]!.trigger("click");
     await nextTick();
     expect(captured.values?.().tags).toEqual(["people"]);
   });

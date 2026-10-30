@@ -92,7 +92,7 @@ describe("<LoginForm>", () => {
   });
 
   it("submits the entered credentials to authProvider.login", async () => {
-    const login = vi.fn(async () => {});
+    const login = vi.fn(async (_params: unknown) => {});
     const { wrapper } = mountAdmin(() => h(LoginForm), {
       authProvider: makeAuthProvider({ login }),
     });
@@ -102,14 +102,14 @@ describe("<LoginForm>", () => {
     await wrapper.find("form").trigger("submit");
 
     await vi.waitFor(() => expect(login).toHaveBeenCalledTimes(1));
-    expect(login.mock.calls[0][0]).toMatchObject({
+    expect(login.mock.calls[0]![0]).toMatchObject({
       email: "user@example.com",
       password: "s3cret",
     });
   });
 
   it("forwards redirectTo to authProvider.login", async () => {
-    const login = vi.fn(async () => {});
+    const login = vi.fn(async (_params: unknown) => {});
     const { wrapper } = mountAdmin(
       () => h(LoginForm, { redirectTo: "/dashboard" }),
       { authProvider: makeAuthProvider({ login }) },
@@ -120,7 +120,7 @@ describe("<LoginForm>", () => {
     await wrapper.find("form").trigger("submit");
 
     await vi.waitFor(() => expect(login).toHaveBeenCalledTimes(1));
-    expect(login.mock.calls[0][0]).toMatchObject({ redirectTo: "/dashboard" });
+    expect(login.mock.calls[0]![0]).toMatchObject({ redirectTo: "/dashboard" });
   });
 
   it("pushes an error notification when the login rejects", async () => {
@@ -138,7 +138,7 @@ describe("<LoginForm>", () => {
     await wrapper.find("form").trigger("submit");
 
     await vi.waitFor(() => expect(notifications.getSnapshot().length).toBe(1));
-    const [note] = notifications.getSnapshot();
+    const note = notifications.getSnapshot()[0]!;
     expect(note.type).toBe("error");
     expect(note.message).toBe("bad credentials");
   });
