@@ -46,6 +46,38 @@ describe("createI18n", () => {
     ).toBe("4 elements deleted");
   });
 
+  it("a plural message picks its form from smart_count", () => {
+    // Callers hold the catalog-erased view, where `count` is not required.
+    const i18n: AnyCheloneI18n = make();
+    expect(
+      i18n.translate("chelone.notification.deleted", { smart_count: 1 }),
+    ).toBe("1 element deleted");
+    expect(
+      i18n.translate("chelone.notification.deleted", { smart_count: 4 }),
+    ).toBe("4 elements deleted");
+  });
+
+  it("a plural message interpolates {count} from smart_count", () => {
+    const i18n = createI18n({
+      locale: "en",
+      messages: { en: { "items.selected": { other: "{count} selected" } } },
+    });
+    const erased: AnyCheloneI18n = i18n;
+    expect(erased.translate("items.selected", { smart_count: 3 })).toBe(
+      "3 selected",
+    );
+  });
+
+  it("count wins over smart_count", () => {
+    const i18n: AnyCheloneI18n = make();
+    expect(
+      i18n.translate("chelone.notification.deleted", {
+        count: 1,
+        smart_count: 4,
+      }),
+    ).toBe("1 element deleted");
+  });
+
   it("setLocale switches translations and notifies subscribers synchronously", () => {
     const i18n = make();
     const cb = vi.fn();
