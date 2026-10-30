@@ -5,12 +5,18 @@ import { HttpError } from "./http-error";
 const { fetchJson, queryParameters } = fetchUtils;
 
 function stubFetch(response: Response | Error) {
-  const fetchMock = vi.fn(async (_url: unknown, _init?: RequestInit) => {
-    if (response instanceof Error) throw response;
-    return response.clone();
-  });
+  const fetchMock = vi.fn(
+    async (_url: string | URL | Request, _init?: RequestInit) => {
+      if (response instanceof Error) throw response;
+      return response.clone();
+    },
+  );
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
+}
+
+function sentHeaders(fetchMock: ReturnType<typeof stubFetch>): Headers {
+  return new Headers(fetchMock.mock.calls.at(-1)?.[1]?.headers);
 }
 
 afterEach(() => {
@@ -53,31 +59,50 @@ describe("fetchJson", () => {
         status: 400,
         statusText: "Bad Request",
         text: '{"message":"Bad title"}',
+        message: "Bad title",
+        body: { message: "Bad title" },
       },
-      { status: 401, statusText: "Unauthorized", text: '{"message":42}' },
-      { status: 404, statusText: "Not Found", text: "<html>gone</html>" },
-      { status: 500, statusText: "Internal Server Error", text: "" },
-    ];
-    const expected = [
-      { message: "Bad title", body: { message: "Bad title" } },
-      { message: "Unauthorized", body: { message: 42 } },
-      { message: "Not Found", body: undefined },
-      { message: "Internal Server Error", body: undefined },
+      {
+        status: 401,
+        statusText: "Unauthorized",
+        text: '{"message":42}',
+        message: "Unauthorized",
+        body: { message: 42 },
+      },
+      {
+        status: 404,
+        statusText: "Not Found",
+        text: "<html>gone</html>",
+        message: "Not Found",
+        body: undefined,
+      },
+      {
+        status: 500,
+        statusText: "Internal Server Error",
+        text: "",
+        message: "Internal Server Error",
+        body: undefined,
+      },
     ];
 
-    for (const [i, c] of cases.entries()) {
-      stubFetch(
-        new Response(c.text, { status: c.status, statusText: c.statusText }),
-      );
-      const error = await fetchJson("https://api.test/posts").catch(
-        (e: unknown) => e,
-      );
-      expect(error).toBeInstanceOf(HttpError);
-      const httpError = error as HttpError;
-      expect(httpError.status).toBe(c.status);
-      expect(httpError.message).toBe(expected[i]?.message);
-      expect(httpError.body).toEqual(expected[i]?.body);
+    for (const { status, statusText, text, message, body } of cases) {
+      stubFetch(new Response(text, { status, statusText }));
+
+      const rejection = fetchJson("https://api.test/posts");
+
+      await expect(rejection).rejects.toBeInstanceOf(HttpError);
+      await expect(rejection).rejects.toMatchObject({ status, message });
+      await expect(rejection).rejects.toHaveProperty("body", body);
     }
+  });
+
+  it("fetchJson falls back to a status message when the statusText is empty", async () => {
+    stubFetch(new Response("", { status: 503, statusText: "" }));
+
+    await expect(fetchJson("https://api.test/posts")).rejects.toMatchObject({
+      status: 503,
+      message: "HTTP 503",
+    });
   });
 
   it("fetchJson rejects with the fetch error itself on a network failure", async () => {
@@ -91,24 +116,24 @@ describe("fetchJson", () => {
 
   it("fetchJson sets Accept, sets Content-Type only for a string body without one, and never for FormData", async () => {
     const fetchMock = stubFetch(new Response("{}"));
-    const sent = () => new Headers(fetchMock.mock.calls.at(-1)?.[1]?.headers);
 
     await fetchJson("https://api.test/posts");
-    expect(sent().get("Accept")).toBe("application/json");
-    expect(sent().has("Content-Type")).toBe(false);
+    expect(sentHeaders(fetchMock).get("Accept")).toBe("application/json");
+    expect(sentHeaders(fetchMock).has("Content-Type")).toBe(false);
 
     await fetchJson("https://api.test/posts", {
       method: "POST",
       body: JSON.stringify({ title: "Hi" }),
     });
-    expect(sent().get("Content-Type")).toBe("application/json");
+    expect(sentHeaders(fetchMock).get("Accept")).toBe("application/json");
+    expect(sentHeaders(fetchMock).get("Content-Type")).toBe("application/json");
 
     await fetchJson("https://api.test/posts", {
       method: "POST",
       body: "title=Hi",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
     });
-    expect(sent().get("Content-Type")).toBe(
+    expect(sentHeaders(fetchMock).get("Content-Type")).toBe(
       "application/x-www-form-urlencoded",
     );
 
@@ -116,18 +141,32 @@ describe("fetchJson", () => {
       method: "POST",
       body: new FormData(),
     });
-    expect(sent().has("Content-Type")).toBe(false);
+    expect(sentHeaders(fetchMock).get("Accept")).toBe("application/json");
+    expect(sentHeaders(fetchMock).has("Content-Type")).toBe(false);
   });
 
   it("fetchJson sends Authorization Bearer only when a token is given", async () => {
     const fetchMock = stubFetch(new Response("{}"));
-    const sent = () => new Headers(fetchMock.mock.calls.at(-1)?.[1]?.headers);
 
     await fetchJson("https://api.test/posts", { token: "abc123" });
-    expect(sent().get("Authorization")).toBe("Bearer abc123");
+    expect(sentHeaders(fetchMock).get("Authorization")).toBe("Bearer abc123");
 
     await fetchJson("https://api.test/posts");
-    expect(sent().has("Authorization")).toBe(false);
+    expect(sentHeaders(fetchMock).has("Authorization")).toBe(false);
+
+    await fetchJson("https://api.test/posts", { token: "" });
+    expect(sentHeaders(fetchMock).has("Authorization")).toBe(false);
+
+    await fetchJson("https://api.test/posts", {
+      token: "abc123",
+      headers: { Authorization: "Basic xyz" },
+    });
+    expect(sentHeaders(fetchMock).get("Authorization")).toBe("Bearer abc123");
+
+    await fetchJson("https://api.test/posts", {
+      headers: { Authorization: "Basic xyz" },
+    });
+    expect(sentHeaders(fetchMock).get("Authorization")).toBe("Basic xyz");
   });
 
   it("fetchJson passes the AbortSignal through to fetch", async () => {
@@ -160,6 +199,25 @@ describe("queryParameters", () => {
         "&page=2" +
         "&k%26y=%C3%BC" +
         "&flag=false",
+    );
+  });
+
+  it("queryParameters keeps falsy-but-valid values", () => {
+    expect(queryParameters({ page: 0, q: "", flag: false })).toBe(
+      "page=0&q=&flag=false",
+    );
+  });
+
+  it("queryParameters skips undefined and null items inside an array", () => {
+    expect(queryParameters({ tag: ["x", undefined, null, "y"] })).toBe(
+      "tag=x&tag=y",
+    );
+    expect(queryParameters({ tag: [undefined, null] })).toBe("");
+  });
+
+  it("queryParameters JSON-encodes an object as JSON.stringify does, undefined members dropped and null kept", () => {
+    expect(queryParameters({ filter: { a: undefined, b: null, c: 1 } })).toBe(
+      `filter=${encodeURIComponent('{"b":null,"c":1}')}`,
     );
   });
 

@@ -23,14 +23,29 @@ function parseJson(text: string): unknown {
   }
 }
 
-function errorMessage(json: unknown, fallback: string): string {
+// HTTP/2 responses carry no status text, so fall back to the code.
+function errorMessage(json: unknown, response: Response): string {
   const message =
     json != null && typeof json === "object"
       ? (json as { message?: unknown }).message
       : undefined;
-  return typeof message === "string" ? message : fallback;
+  if (typeof message === "string") return message;
+  return response.statusText || `HTTP ${response.status}`;
 }
 
+/**
+ * A thin call to the global `fetch`.
+ *
+ * - Resolves `{ status, statusText, headers, body, json }` on a 2xx; `json` is
+ *   `undefined` when the text is not JSON.
+ * - Rejects a non-2xx with an `HttpError` whose `body` is the parsed JSON.
+ * - Rejects a network failure with the error `fetch` threw, unchanged.
+ * - Sets `Accept: application/json`, and `Content-Type: application/json` for
+ *   a string `body` when the caller set none.
+ * - A non-empty `token` is sent as `Authorization: Bearer <token>` and wins
+ *   over an `Authorization` header in `options.headers`; an empty one is
+ *   ignored.
+ */
 async function fetchJson(
   url: string,
   options: FetchJsonOptions = {},
@@ -41,16 +56,12 @@ async function fetchJson(
   if (typeof init.body === "string" && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
-  if (token !== undefined) headers.set("Authorization", `Bearer ${token}`);
+  if (token) headers.set("Authorization", `Bearer ${token}`);
   const response = await fetch(url, { ...init, headers });
   const body = await response.text();
   const json = parseJson(body);
   if (!response.ok) {
-    throw new HttpError(
-      errorMessage(json, response.statusText),
-      response.status,
-      json,
-    );
+    throw new HttpError(errorMessage(json, response), response.status, json);
   }
   return {
     status: response.status,

@@ -22,21 +22,25 @@ describe("HttpError", () => {
 
   it("core checkError hands the same HttpError to authProvider.checkError, a 401 rejects into logout and a 500 resolves", async () => {
     const seen: unknown[] = [];
-    const authProvider = {
-      checkError: async (error: unknown) => {
+    const authProvider: AuthProvider = {
+      login: async () => {},
+      logout: async () => {},
+      checkAuth: async () => {},
+      checkError: async (error) => {
         seen.push(error);
         if (error instanceof HttpError && [401, 403].includes(error.status)) {
           throw new Error("session expired");
         }
       },
-    } as unknown as AuthProvider;
+    };
 
     const unauthorized = new HttpError("Unauthorized", 401);
     const failed = new HttpError("Internal Server Error", 500);
 
     expect((await checkError(authProvider, unauthorized)).logout).toBe(true);
     expect((await checkError(authProvider, failed)).logout).toBe(false);
-    expect(seen).toEqual([unauthorized, failed]);
+    expect(seen).toHaveLength(2);
     expect(seen[0]).toBe(unauthorized);
+    expect(seen[1]).toBe(failed);
   });
 });
