@@ -36,6 +36,8 @@ jobs:
         run: pnpm test
       - name: Build
         run: pnpm build
+      - name: Packages pack cleanly
+        run: pnpm --filter "./packages/*" --if-present run check:pack
       - name: Registry is up to date
         run: |
           pnpm --dir packages/react registry:generate
