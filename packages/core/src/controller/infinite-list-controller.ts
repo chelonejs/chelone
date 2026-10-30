@@ -2,6 +2,7 @@ import {
   type InfiniteData,
   InfiniteQueryObserver,
   type InfiniteQueryObserverResult,
+  QueryClient,
 } from "@tanstack/query-core";
 import type { infiniteListKey } from "../data/keys";
 import { getInfiniteListOptions, getListOptions } from "../data/query-options";
@@ -58,7 +59,8 @@ type ParamsSlice = Pick<
  * runs ONLY when the inner params change, never from the observer result.
  * The query key holds the start page, so any param change, `setPage`
  * included, drops the loaded pages and loads from the new start page. The
- * out-of-range page reset of the list controller does not apply.
+ * out-of-range page reset of the list controller does not apply: the inner
+ * controller reads a private empty cache, so no result can trigger it.
  */
 export function createInfiniteListController<
   TResources extends ResourceMap,
@@ -71,11 +73,16 @@ export function createInfiniteListController<
   type TRecord = RecordOf<TResources, TName>;
   type Page = GetListResult<TRecord>;
 
-  // The inner controller still observes the `getList` entry that matches its
-  // params, so it gets no notifications: a cached `getList` failure is not
-  // this infinite list's error. Errors and `selectAll` are announced here.
+  // The inner controller never fetches, but its disabled observer still reads
+  // the `getList` entry that matches its params: a cached failure, or stale
+  // data feeding its out-of-range page reset, would leak into this list. It
+  // gets a private empty cache and no notifications, so it sees none of that.
+  // Errors and `selectAll` are handled here, on the real client.
+  const innerCache = new QueryClient({
+    defaultOptions: { queries: { gcTime: 0 } },
+  });
   const inner = createListController(
-    { ...ctx, notifications: undefined },
+    { ...ctx, queryClient: innerCache, notifications: undefined },
     resource,
     { ...options, enabled: false },
   );
@@ -107,6 +114,7 @@ export function createInfiniteListController<
   store.onDestroy(() => {
     destroyed = true;
     inner.destroy();
+    innerCache.clear();
   });
 
   type Observer = InfiniteQueryObserver<
@@ -120,8 +128,15 @@ export function createInfiniteListController<
   let observer: Observer | null = null;
   /** The params the observer's options were last built from. */
   let applied: ParamsSlice | null = null;
-  let fetchingNext: Promise<void> | null = null;
-  let fetchingPrevious: Promise<void> | null = null;
+  /**
+   * The page load or refetch this controller has running. A second load
+   * started on the same query would cancel the first (query-core's default),
+   * so another load waits for it instead.
+   */
+  let busy: {
+    kind: "next" | "previous" | "refetch";
+    promise: Promise<void>;
+  } | null = null;
 
   /** Sort and filter of a request: the infinite fetch and `selectAll` share them. */
   const requestParams = (
@@ -162,6 +177,8 @@ export function createInfiniteListController<
       next.sort !== applied.sort ||
       next.filter !== applied.filter
     ) {
+      // A new query key: the running load belongs to the old query.
+      busy = null;
       observer.setOptions(buildOptions());
     }
   };
@@ -215,8 +232,7 @@ export function createInfiniteListController<
       applied = null;
       lastPages = undefined;
       lastRows = undefined;
-      fetchingNext = null;
-      fetchingPrevious = null;
+      busy = null;
     };
   }
 
@@ -230,33 +246,51 @@ export function createInfiniteListController<
       return result;
     };
 
+  /** Records `promise` as the running load until it settles. */
+  const track = (
+    kind: "next" | "previous" | "refetch",
+    promise: Promise<void>,
+  ): Promise<void> => {
+    const entry = { kind, promise };
+    busy = entry;
+    void promise.then(() => {
+      if (busy === entry) busy = null;
+    });
+    return promise;
+  };
+
+  // The failure of a load reaches state and notifications through onResult.
+  const swallow = (): undefined => undefined;
+
   const fetchMore = (direction: "next" | "previous"): Promise<void> => {
     if (destroyed || !observer) return Promise.resolve();
-    const running = direction === "next" ? fetchingNext : fetchingPrevious;
-    if (running) return running;
+    if (busy) {
+      if (busy.kind === direction) return busy.promise;
+      // Another load is running: starting this one now would cancel it.
+      return busy.promise.then(() => fetchMore(direction));
+    }
     const current = observer.getCurrentResult();
     if (
       direction === "next" ? !current.hasNextPage : !current.hasPreviousPage
     ) {
       return Promise.resolve();
     }
-    const started = (
+    const started =
       direction === "next"
         ? observer.fetchNextPage()
-        : observer.fetchPreviousPage()
-    ).then(
-      () => undefined,
-      () => undefined, // the failure reaches state and notifications through onResult
-    );
-    const clear = (): void => {
-      if (direction === "next") {
-        if (fetchingNext === started) fetchingNext = null;
-      } else if (fetchingPrevious === started) fetchingPrevious = null;
-    };
-    if (direction === "next") fetchingNext = started;
-    else fetchingPrevious = started;
-    void started.then(clear);
-    return started;
+        : observer.fetchPreviousPage();
+    return track(direction, started.then(swallow, swallow));
+  };
+
+  const refetch = (): void => {
+    // Detached there is no observer: the next attach loads current params anyway.
+    if (destroyed || !observer) return;
+    if (busy) {
+      // A refetch already running reloads every page; a page load finishes first.
+      if (busy.kind !== "refetch") void busy.promise.then(refetch);
+      return;
+    }
+    void track("refetch", observer.refetch().then(swallow, swallow));
   };
 
   const selectAll = async (opts?: { limit?: number }): Promise<void> => {
@@ -296,11 +330,7 @@ export function createInfiniteListController<
     toggleItem: through(inner.toggleItem),
     unselectAll: through(inner.unselectAll),
     selectAll,
-    refetch: () => {
-      if (destroyed) return;
-      // Detached there is no observer: the next attach loads current params anyway.
-      void observer?.refetch();
-    },
+    refetch,
     fetchNextPage: () => fetchMore("next"),
     fetchPreviousPage: () => fetchMore("previous"),
   };

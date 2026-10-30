@@ -50,6 +50,20 @@ const observerCount = (queryClient: QueryClient): number =>
     .getAll()
     .reduce((sum, query) => sum + query.getObserversCount(), 0);
 
+/** Delays the provider: the nth call waits `delays[n]` ms (the last entry repeats). */
+const slowProvider = (ctx: ReturnType<typeof makeCtx>, delays: number[]) => {
+  const real = ctx.dataProvider.getList.bind(ctx.dataProvider);
+  let call = 0;
+  return vi.spyOn(ctx.dataProvider, "getList").mockImplementation((async (
+    resource: never,
+    params: never,
+  ) => {
+    const wait = delays[Math.min(call++, delays.length - 1)] ?? 0;
+    await new Promise((resolve) => setTimeout(resolve, wait));
+    return real(resource, params);
+  }) as never);
+};
+
 const ids = (c: {
   getSnapshot: () => { data: { id: number }[] | undefined };
 }) => c.getSnapshot().data?.map((r) => r.id);
@@ -388,6 +402,95 @@ describe("createInfiniteListController", () => {
       .filter((n) => n.type === "error");
     expect(errors.map((n) => n.message)).toEqual(["boom"]);
     expect(c.getSnapshot().selectedIds).toEqual([3]);
+    c.destroy();
+  });
+
+  it("a fetch in the other direction waits for the running one instead of cancelling it", async () => {
+    const ctx = makeCtx();
+    const c = createInfiniteListController(ctx, "posts", {});
+    attach(c);
+    await settled(c);
+    c.setPage(2);
+    await vi.waitFor(() => expect(ids(c)).toEqual(range(11, 20)));
+    await settled(c);
+    const getList = slowProvider(ctx, [40]);
+    const next = c.fetchNextPage();
+    const previous = c.fetchPreviousPage();
+    await Promise.all([next, previous]);
+    expect(ids(c)).toEqual(range(1, 25));
+    expect(getList.mock.calls.map(([, params]) => params?.pagination)).toEqual([
+      { page: 3, perPage: 10 },
+      { page: 1, perPage: 10 },
+    ]);
+    c.destroy();
+  });
+
+  it("refetch during fetchNextPage and fetchNextPage during refetch each load once", async () => {
+    const ctx = makeCtx();
+    const c = createInfiniteListController(ctx, "posts", {});
+    attach(c);
+    await settled(c);
+    const getList = slowProvider(ctx, [40]);
+    const next = c.fetchNextPage();
+    c.refetch();
+    await next;
+    await settled(c);
+    expect(ids(c)).toEqual(range(1, 20));
+    getList.mockClear();
+    c.refetch();
+    const appended = c.fetchNextPage();
+    await appended;
+    await settled(c);
+    expect(ids(c)).toEqual(range(1, 25));
+    c.destroy();
+  });
+
+  it("a param change forgets the old query's running fetch", async () => {
+    const ctx = makeCtx();
+    const c = createInfiniteListController(ctx, "posts", { perPage: 2 });
+    attach(c);
+    await settled(c);
+    const getList = slowProvider(ctx, [80, 5]);
+    const stale = c.fetchNextPage();
+    c.setFilters({ views: 0 });
+    await settled(c);
+    expect(ids(c)).toEqual([1, 6]);
+    await c.fetchNextPage();
+    expect(ids(c)).toEqual([1, 6, 11, 16]);
+    expect(getList.mock.calls.at(-1)?.[1]).toMatchObject({
+      pagination: { page: 2, perPage: 2 },
+      filter: { views: 0 },
+    });
+    await stale;
+    c.destroy();
+  });
+
+  it("a stale cached getList entry cannot move the list off the page that was asked for", async () => {
+    const ctx = makeCtx();
+    const params = {
+      pagination: { page: 1, perPage: 10 },
+      sort: { field: "id", order: "ASC" } as const,
+      filter: {},
+    };
+    // A plain List cached page 1 when the resource held 10 rows.
+    ctx.queryClient.setQueryData(
+      getListOptions(ctx, "posts", params).queryKey,
+      {
+        data: rows.slice(0, 10),
+        total: 10,
+      },
+    );
+    const c = createInfiniteListController(ctx, "posts", {
+      perPage: 10,
+      sort: params.sort,
+    });
+    attach(c);
+    await settled(c);
+    c.setPage(2);
+    await vi.waitFor(() => expect(ids(c)).toEqual(range(11, 20)));
+    await settled(c);
+    expect(c.getSnapshot().page).toBe(2);
+    expect(ids(c)).toEqual(range(11, 20));
     c.destroy();
   });
 });
