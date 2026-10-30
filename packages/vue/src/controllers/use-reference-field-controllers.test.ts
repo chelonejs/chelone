@@ -302,12 +302,12 @@ describe("useReferenceOneFieldController", () => {
   });
 
   it("fetches nothing without a record", async () => {
-    const { capture, referenceSpy, observerCount } = mountOne();
+    const { capture, referenceSpy, dataObserverCount } = mountOne();
     await nextTick();
     expect(capture.result?.isPending).toBe(false);
     expect(capture.result?.referenceRecord).toBeUndefined();
     expect(referenceSpy).not.toHaveBeenCalled();
-    expect(observerCount()).toBe(0);
+    expect(dataObserverCount()).toBe(0);
   });
 
   it("exposes a getManyReference rejection as error", async () => {
@@ -319,7 +319,7 @@ describe("useReferenceOneFieldController", () => {
   });
 
   it("follows a record that arrives late or changes", async () => {
-    const { capture, record, referenceSpy, observerCount } = mountOne();
+    const { capture, record, referenceSpy, dataObserverCount } = mountOne();
     expect(capture.result?.referenceRecord).toBeUndefined();
 
     record.value = { id: 1 };
@@ -332,6 +332,6 @@ describe("useReferenceOneFieldController", () => {
       expect(capture.result?.referenceRecord).toMatchObject({ bio: "other" }),
     );
     expect(referenceSpy).toHaveBeenCalledTimes(2);
-    expect(observerCount()).toBe(1);
+    expect(dataObserverCount()).toBe(1);
   });
 });
