@@ -22,7 +22,16 @@ const verbs = [
 ] as const;
 type Verb = (typeof verbs)[number];
 
-const paramsFor: Record<Verb, Record<string, unknown>> = {
+/** Fixtures are shared across tests, so a callback that mutates one throws. */
+const deepFreeze = <T>(value: T): T => {
+  if (typeof value === "object" && value !== null) {
+    for (const child of Object.values(value)) deepFreeze(child);
+    Object.freeze(value);
+  }
+  return value;
+};
+
+const paramsFor: Record<Verb, Record<string, unknown>> = deepFreeze({
   getList: { filter: { q: "a" } },
   getOne: { id: 1 },
   create: { data: { title: "a" } },
@@ -32,9 +41,9 @@ const paramsFor: Record<Verb, Record<string, unknown>> = {
   getManyReference: { target: "postId", id: 1 },
   updateMany: { ids: [1], data: { title: "a" } },
   deleteMany: { ids: [1] },
-};
+});
 
-const resultFor: Record<Verb, Record<string, unknown>> = {
+const resultFor: Record<Verb, Record<string, unknown>> = deepFreeze({
   getList: { data: [{ id: 1 }], total: 1 },
   getOne: { data: { id: 1 } },
   create: { data: { id: 1 } },
@@ -44,7 +53,7 @@ const resultFor: Record<Verb, Record<string, unknown>> = {
   getManyReference: { data: [{ id: 1 }], total: 1 },
   updateMany: { data: [1] },
   deleteMany: { data: [1] },
-};
+});
 
 type Stub = Record<Verb, ReturnType<typeof vi.fn>>;
 
@@ -58,7 +67,7 @@ function stubProvider() {
 
 const asProvider = (stub: object) => stub as unknown as DataProvider<Resources>;
 
-const cap = (verb: string) => verb.charAt(0).toUpperCase() + verb.slice(1);
+const cap = (verb: Verb) => verb.charAt(0).toUpperCase() + verb.slice(1);
 
 /** Builds a handler with computed callback names, which the typed shape cannot express. */
 const handler = (
@@ -135,13 +144,29 @@ describe("withLifecycleCallbacks", () => {
 
     expect(stub.getList).toHaveBeenCalledExactlyOnceWith("posts", params);
     expect(list).toBe(resultFor.getList);
+    expect(stub.getOne).toHaveBeenCalledExactlyOnceWith("comments", {
+      id: 1,
+      tags: ["x"],
+    });
     expect(other).toEqual({ data: { id: 1 }, tags: ["x"] });
     expect(beforeGetOne).toHaveBeenCalledTimes(1);
     expect(afterGetOne).toHaveBeenCalledTimes(1);
+
+    // The "posts" handler runs for posts, the "comments" one does not.
+    await wrapped.getOne("posts", { id: 2 });
+
+    expect(stub.getOne).toHaveBeenLastCalledWith("posts", {
+      id: 2,
+      tags: ["x"],
+    });
+    expect(beforeGetOne).toHaveBeenCalledTimes(2);
   });
 
   it('a "*" handler applies to every resource and runs with the named handlers in array order', async () => {
     const stub = stubProvider();
+    stub.getOne.mockImplementation(async (_resource, params) => ({
+      data: { id: params.id },
+    }));
     const wrapped = withLifecycleCallbacks(asProvider(stub), [
       handler("*", { beforeGetOne: tag("b1"), afterGetOne: tag("a1") }),
       handler("posts", { beforeGetOne: tag("b2"), afterGetOne: tag("a2") }),
@@ -160,7 +185,27 @@ describe("withLifecycleCallbacks", () => {
       tags: ["b1", "b3"],
     });
     expect(posts).toEqual({ data: { id: 1 }, tags: ["a1", "a2", "a3"] });
-    expect(comments).toEqual({ data: { id: 1 }, tags: ["a1", "a3"] });
+    expect(comments).toEqual({ data: { id: 2 }, tags: ["a1", "a3"] });
+  });
+
+  it('a "*" handler applies to every verb', async () => {
+    for (const verb of verbs) {
+      const stub = stubProvider();
+      const wrapped = withLifecycleCallbacks(asProvider(stub), [
+        handler("*", {
+          [`before${cap(verb)}`]: tag("b"),
+          [`after${cap(verb)}`]: tag("a"),
+        }),
+      ]);
+
+      const result = await call(wrapped, verb);
+
+      expect(stub[verb]).toHaveBeenCalledExactlyOnceWith("posts", {
+        ...paramsFor[verb],
+        tags: ["b"],
+      });
+      expect(result).toEqual({ ...resultFor[verb], tags: ["a"] });
+    }
   });
 
   it("async callbacks are awaited before the next step", async () => {
@@ -170,16 +215,16 @@ describe("withLifecycleCallbacks", () => {
       log.push("provider");
       return resultFor.getOne;
     });
-    const later = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const later = () => new Promise((r) => setTimeout(r, 0));
     const wrapped = withLifecycleCallbacks(asProvider(stub), [
       handler("posts", {
         beforeGetOne: async (params: object) => {
-          await later(10);
+          await later();
           log.push("before1");
           return tag("b1")(params);
         },
         afterGetOne: async (result: object) => {
-          await later(10);
+          await later();
           log.push("after1");
           return tag("a1")(result);
         },
@@ -242,16 +287,19 @@ describe("withLifecycleCallbacks", () => {
   it("a rejecting after callback rejects the call", async () => {
     const stub = stubProvider();
     const error = new Error("bad result");
+    const second = vi.fn(tag("a2"));
     const wrapped = withLifecycleCallbacks(asProvider(stub), [
       handler("posts", {
         afterGetOne: async () => {
           throw error;
         },
       }),
+      handler("posts", { afterGetOne: second }),
     ]);
 
     await expect(wrapped.getOne("posts", { id: 1 })).rejects.toBe(error);
 
+    expect(second).not.toHaveBeenCalled();
     expect(stub.getOne).toHaveBeenCalledTimes(1);
   });
 

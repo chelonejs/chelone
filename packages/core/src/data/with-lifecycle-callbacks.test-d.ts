@@ -35,11 +35,47 @@ describe("withLifecycleCallbacks inference", () => {
 
     withLifecycleCallbacks(dp, [
       // @ts-expect-error "widgets" is not in the registry
-      { resource: "widgets", afterGetOne: (result) => result },
+      { resource: "widgets", afterGetOne: (result: unknown) => result },
     ]);
 
     expectTypeOf(withLifecycleCallbacks(dp, [])).toEqualTypeOf<
       DataProvider<typeof resources>
     >();
+    expectTypeOf(
+      withLifecycleCallbacks(dp, [
+        { resource: "posts", afterGetOne: (result) => result },
+      ]),
+    ).toEqualTypeOf<DataProvider<typeof resources>>();
+  });
+
+  it("the other verbs' callbacks are typed with the resource's record", () => {
+    withLifecycleCallbacks(dp, [
+      {
+        resource: "posts",
+        beforeCreate: (params) => {
+          expectTypeOf(params.data).toEqualTypeOf<Partial<Post>>();
+          return params;
+        },
+        afterGetList: (result) => {
+          expectTypeOf(result.data).toEqualTypeOf<Post[]>();
+          return result;
+        },
+        beforeUpdate: (params) => {
+          expectTypeOf(params.previousData).toEqualTypeOf<Post | undefined>();
+          return params;
+        },
+        afterDeleteMany: (result) => {
+          expectTypeOf(result.data).toEqualTypeOf<(string | number)[]>();
+          return result;
+        },
+      },
+      {
+        resource: "comments",
+        afterCreate: (result) => {
+          expectTypeOf(result.data.body).toEqualTypeOf<unknown>();
+          return result;
+        },
+      },
+    ]);
   });
 });

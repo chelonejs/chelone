@@ -160,23 +160,25 @@ export function withLifecycleCallbacks<
   dataProvider: DataProvider<TResources>,
   handlers: LifecycleHandler<TResources>[],
 ): DataProvider<TResources> {
+  // The handler list is read once here: later changes to the array are ignored.
   const loose = handlers as unknown as LooseHandler[];
   const wrapped: Record<string, unknown> = { ...dataProvider };
 
   for (const verb of VERBS) {
     const beforeName = `before${capitalize(verb)}`;
     const afterName = `after${capitalize(verb)}`;
+    const withBefore = loose.filter((h) => typeof h[beforeName] === "function");
+    const withAfter = loose.filter((h) => typeof h[afterName] === "function");
     const callProvider = (resource: string, params: unknown) =>
       (dataProvider as unknown as Record<(typeof VERBS)[number], LooseVerb>)[
         verb
       ](resource, params);
 
     wrapped[verb] = (resource: string, params: unknown) => {
-      const matching = loose.filter(
-        (handler) => handler.resource === resource || handler.resource === "*",
-      );
-      const befores = matching.filter((handler) => handler[beforeName]);
-      const afters = matching.filter((handler) => handler[afterName]);
+      const applies = (h: LooseHandler) =>
+        h.resource === resource || h.resource === "*";
+      const befores = withBefore.filter(applies);
+      const afters = withAfter.filter(applies);
       if (befores.length === 0 && afters.length === 0) {
         return callProvider(resource, params);
       }
