@@ -186,6 +186,18 @@ describe("InfinitePagination", () => {
     expect(wrapper.find(BUTTON).exists()).toBe(false);
   });
 
+  it("does not observe after a failed load, and Load more still retries", async () => {
+    vi.stubGlobal("IntersectionObserver", FakeObserver);
+    const list = stubList({ error: new Error("boom") });
+    const wrapper = mountPagination(list);
+    expect(FakeObserver.instances).toHaveLength(0);
+    await wrapper.find(BUTTON).trigger("click");
+    expect(list.fetchNextPage).toHaveBeenCalledTimes(1);
+
+    list.error = null;
+    await vi.waitFor(() => expect(live()).toHaveLength(1));
+  });
+
   it("autoLoad false creates no IntersectionObserver", () => {
     vi.stubGlobal("IntersectionObserver", FakeObserver);
     const wrapper = mountPagination(stubList(), { autoLoad: false });

@@ -234,6 +234,15 @@ describe("<InfinitePagination>", () => {
     expect(value.fetchNextPage).toHaveBeenCalledTimes(1);
   });
 
+  it("does not observe after a failed load, and Load more still retries", () => {
+    stubObserver();
+    const value = makeList({ error: new Error("boom") });
+    wrap(value, <InfinitePagination />);
+    expect(FakeObserver.instances).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Load more" }));
+    expect(value.fetchNextPage).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps Load more visible when autoLoad is on", () => {
     stubObserver();
     wrap(makeList(), <InfinitePagination />);

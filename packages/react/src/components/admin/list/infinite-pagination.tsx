@@ -27,8 +27,14 @@ function InfinitePagination({
   className,
 }: InfinitePaginationProps) {
   const translate = useTranslate();
-  const { data, isPending, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useInfiniteListContext();
+  const {
+    data,
+    error,
+    isPending,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useInfiniteListContext();
   const sentinelRef = useRef<HTMLDivElement>(null);
   // The latest `fetchNextPage`, so the observer need not be rebuilt when the
   // list result (and with it the callback's identity) changes. Written in an
@@ -40,7 +46,9 @@ function InfinitePagination({
 
   const canObserve = typeof IntersectionObserver !== "undefined";
   const canLoad = !!hasNextPage && !isFetchingNextPage;
-  const observing = autoLoad && canObserve && canLoad;
+  // After a failed load the sentinel is still in view: a fresh observer would
+  // report it at once and retry forever. Load more stays as the manual retry.
+  const observing = autoLoad && canObserve && canLoad && !error;
 
   // Rebuilt after each page lands: an observer only reports a change, so one
   // kept across loads would never fire again while the sentinel stays in view.

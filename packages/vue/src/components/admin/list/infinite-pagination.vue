@@ -37,7 +37,10 @@ const observing = computed(
     props.autoLoad &&
     canObserve &&
     !!list.hasNextPage &&
-    !list.isFetchingNextPage,
+    !list.isFetchingNextPage &&
+    // After a failed load the sentinel is still in view: a fresh observer would
+    // report it at once and retry forever. Load more stays as the manual retry.
+    !list.error,
 );
 
 // Rebuilt after each page lands: an observer only reports a change, so one
