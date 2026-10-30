@@ -147,11 +147,10 @@ function* walk(node) {
   }
 }
 
-let written = 0;
-const seen = new Set();
+const pages = new Map();
 
 for (const { componentName, iface } of walk(doc)) {
-  if (seen.has(componentName)) {
+  if (pages.has(componentName)) {
     // First-seen-wins. If two source modules export the same `*Props` name,
     // warn loudly rather than silently attaching the wrong table to a component.
     console.warn(
@@ -159,8 +158,6 @@ for (const { componentName, iface } of walk(doc)) {
     );
     continue;
   }
-  seen.add(componentName);
-
   // Interfaces have `children`; type aliases sometimes resolve to an inline
   // reflection (intersection / object literal). Try both shapes.
   let members = iface.children;
@@ -177,21 +174,26 @@ for (const { componentName, iface } of walk(doc)) {
     }),
   );
 
-  writeFileSync(
-    resolve(propsDir, `${componentName}.json`),
+  pages.set(
+    componentName,
     JSON.stringify({ name: componentName, props }, null, 2) + "\n",
   );
-  written++;
 }
 
+// Remove obsolete names before writing: case-insensitive filesystems keep the
+// old filename when a component changes only case.
 for (const entry of readdirSync(propsDir, { withFileTypes: true })) {
   if (
     entry.isFile() &&
     entry.name.endsWith(".json") &&
-    !seen.has(entry.name.slice(0, -5))
+    !pages.has(entry.name.slice(0, -5))
   ) {
     unlinkSync(resolve(propsDir, entry.name));
   }
 }
 
-console.log(`Wrote ${written} prop files to ${propsDir}`);
+for (const [componentName, content] of pages) {
+  writeFileSync(resolve(propsDir, `${componentName}.json`), content);
+}
+
+console.log(`Wrote ${pages.size} prop files to ${propsDir}`);

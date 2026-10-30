@@ -55,6 +55,19 @@ it("replaces the old props page when an exported interface is renamed", () => {
   expect(readdirSync(fixture.propsDir)).toEqual(["Bar.json"]);
 });
 
+it("preserves the props page when an exported interface changes only case", () => {
+  const fixture = generatorFixture();
+  fixture.generate(["FooProps"]);
+
+  fixture.generate(["FOOProps"]);
+
+  expect(readdirSync(fixture.propsDir)).toEqual(["FOO.json"]);
+
+  fixture.generate(["FOOProps"]);
+
+  expect(readdirSync(fixture.propsDir)).toEqual(["FOO.json"]);
+});
+
 it("removes the last props page while preserving non-JSON files", () => {
   const fixture = generatorFixture();
   fixture.generate(["FooProps"]);
