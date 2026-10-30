@@ -13,14 +13,16 @@ each page has a default component you can pass in or replace.
 
 Fill a slot with a child (`<Admin.Layout>`) or with the matching prop
 (`layout={...}`). The prop wins when both are given. Every slot is optional. An
-empty slot has no built-in page, except `error`, which falls back to a plain
-error message with the stack. An empty `layout` renders the routes with no shell.
-Pass the component from this table to turn a page on.
+empty slot has no built-in page, except two. `error` falls back to a plain error
+message with the stack. `loginPage` falls back to a working `<LoginPage>`, so
+`requireAuth` never lands on a blank screen. Pass `loginPage={null}` to turn
+that one off. An empty `layout` renders the routes with no shell. For the other
+slots, pass the component from this table to turn a page on.
 
 | Slot | Component | When it renders |
 | --- | --- | --- |
 | `layout` | [`<Layout>`](/docs/ui-layout/layout) | Wraps every authenticated screen: sidebar, app bar and content area. |
-| `loginPage` | [`<LoginPage>`](/docs/ui-layout/login-page) | While unauthenticated, when `requireAuth` is set. |
+| `loginPage` | [`<LoginPage>`](/docs/ui-layout/login-page) | While unauthenticated, when `requireAuth` is set. Defaults to `<LoginPage>`. |
 | `dashboard` | Your own component | The index route. Without one, the index redirects to the first resource that has a list. If your `authProvider` denies `list` on that resource, the index renders blank. |
 | `error` | Any element, such as a page of your own | When rendering throws. |
 | `ready` | [`<Ready>`](/docs/ui-layout/ready) | When no resource or custom route is registered. |
