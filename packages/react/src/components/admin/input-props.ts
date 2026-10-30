@@ -49,6 +49,11 @@ export interface InputProps<ValueType = unknown> {
   readOnly?: boolean;
   /** Legacy field-name alias (ra parity); the wiring uses `source`. */
   name?: string;
+  /**
+   * As a `<FilterForm>`/`<FilterButton>` filter: always shown, never in the
+   * add-filter menu. Read off the element by the filter layer, never by the input.
+   */
+  alwaysOn?: boolean;
   /** Chained AFTER the parsed value is written to the form. */
   onChange?: (eventOrValue?: unknown) => void;
   /** Chained AFTER the blur is recorded. */
