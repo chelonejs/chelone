@@ -67,6 +67,7 @@ export {
 } from "./data/cache-ops";
 export { ValidationError } from "./data/errors";
 export { fakeDataProvider } from "./data/fake-provider";
+export { getManyAggregateOptions } from "./data/get-many-aggregate";
 export {
   listKey,
   manyKey,
