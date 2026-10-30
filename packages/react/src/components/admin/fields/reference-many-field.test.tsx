@@ -1,12 +1,10 @@
 /**
- * P7d-T3 — `<ReferenceManyField>` ported onto chelone data hooks.
+ * `<ReferenceManyField>` on chelone's `useReferenceManyFieldController`.
  *
  * Resolves the records of `reference` whose `target` field points back at the
- * current record's id (a reverse FK / one-to-many), drops them in a client-side
- * `ListContext`, and renders its children. Rebridge note: chelone has no
- * `ReferenceManyFieldBase`; the field composes `useGetList` (with a
- * `{ [target]: id }` filter — the intended chelone path per the data-provider
- * contract) + `useList` + `ListContextProvider`.
+ * current record's id (a reverse FK / one-to-many) through the data provider's
+ * `getManyReference`, one page at a time, drops them in a `ListContext`, and
+ * renders its children.
  */
 import {
   createI18n,
@@ -146,10 +144,7 @@ describe("<ReferenceManyField>", () => {
 // provider's `getManyReference` for every change instead of slicing in memory.
 
 const pagedBooks = [
-  { id: 1, title: "Hello", author_id: 1, year: 2020 },
-  { id: 2, title: "World", author_id: 1, year: 2022 },
-  { id: 3, title: "Foo", author_id: 1, year: 2021 },
-  { id: 4, title: "Other", author_id: 2, year: 2019 },
+  ...books,
   { id: 5, title: "Another", author_id: 2, year: 2018 },
   { id: 6, title: "Third", author_id: 2, year: 2017 },
 ];
@@ -225,9 +220,6 @@ function Probe() {
       <button type="button" onClick={() => toggleItem(3)}>
         toggle 3
       </button>
-      <button type="button" onClick={() => toggleItem(4)}>
-        toggle 4
-      </button>
       <button type="button" onClick={() => unselectAll()}>
         unselect all
       </button>
@@ -265,7 +257,35 @@ describe("<ReferenceManyField>", () => {
         sort: { field: "id", order: "ASC" },
       }),
     );
+    expect(manyReferenceSpy).toHaveBeenCalledTimes(1);
     expect(listSpy).not.toHaveBeenCalled();
+  });
+
+  it("sends the sort prop to getManyReference", async () => {
+    const { Providers, manyReferenceSpy } = makeServerProviders();
+    render(
+      <Providers>
+        <RecordContextProvider value={{ id: 1, name: "Jane" }}>
+          <ReferenceManyField
+            reference="books"
+            target="author_id"
+            sort={{ field: "year", order: "DESC" }}
+          >
+            <Probe />
+          </ReferenceManyField>
+        </RecordContextProvider>
+      </Providers>,
+    );
+    await waitFor(() => {
+      expect(screen.getByText("World")).toBeTruthy();
+    });
+    expect(manyReferenceSpy).toHaveBeenCalledTimes(1);
+    expect(manyReferenceSpy).toHaveBeenCalledWith(
+      "books",
+      expect.objectContaining({ sort: { field: "year", order: "DESC" } }),
+    );
+    const titles = screen.getAllByRole("listitem").map((li) => li.textContent);
+    expect(titles).toEqual(["World", "Foo", "Hello"]);
   });
 
   it("perPage 2 shows two rows and the next page button of ListPagination fetches page 2 from the provider", async () => {
@@ -456,18 +476,40 @@ describe("<ReferenceManyField>", () => {
     const { Providers, manyReferenceSpy, listSpy } = makeServerProviders();
     render(
       <Providers>
-        <RecordContextProvider value={{ name: "Draft" } as never}>
-          <ReferenceManyField reference="books" target="author_id">
+        <div data-testid="draft">
+          <ReferenceManyField
+            reference="books"
+            target="author_id"
+            record={{ name: "Draft" }}
+          >
             <Probe />
           </ReferenceManyField>
-        </RecordContextProvider>
+        </div>
+        <div data-testid="saved">
+          <ReferenceManyField
+            reference="books"
+            target="author_id"
+            record={{ id: 1 }}
+          >
+            <Probe />
+          </ReferenceManyField>
+        </div>
       </Providers>,
     );
-    expect(screen.getByText("page 1")).toBeTruthy();
-    expect(screen.queryAllByRole("listitem")).toHaveLength(0);
-    // Let any stray fetch settle before asserting there was none.
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(manyReferenceSpy).not.toHaveBeenCalled();
+    const draft = within(screen.getByTestId("draft"));
+    const saved = within(screen.getByTestId("saved"));
+    // Both fields mount together, so once the saved record's rows are in, a
+    // fetch for the draft would have been issued already.
+    await waitFor(() => {
+      expect(saved.getByText("Hello")).toBeTruthy();
+    });
+    expect(draft.getByText("page 1")).toBeTruthy();
+    expect(draft.queryAllByRole("listitem")).toHaveLength(0);
+    expect(manyReferenceSpy).toHaveBeenCalledTimes(1);
+    expect(manyReferenceSpy).toHaveBeenCalledWith(
+      "books",
+      expect.objectContaining({ id: 1 }),
+    );
     expect(listSpy).not.toHaveBeenCalled();
   });
 });

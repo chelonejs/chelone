@@ -7,9 +7,9 @@
 
 import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
-import { mount } from "@vue/test-utils";
+import { type DOMWrapper, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, type Ref, ref } from "vue";
+import { defineComponent, h, type Ref, ref, type VNodeChild } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../../admin/admin.vue";
 import { useListContext } from "../../../list/list-context";
@@ -20,7 +20,9 @@ import {
 import SortButton from "../buttons/sort-button.vue";
 import DataTable from "../list/data-table.vue";
 import DataTableCol from "../list/data-table-col.vue";
-import ReferenceManyField from "./reference-many-field.vue";
+import ReferenceManyField, {
+  type ReferenceManyFieldProps,
+} from "./reference-many-field.vue";
 
 const books = [
   { id: 1, title: "Hello", author_id: 1, year: 2020 },
@@ -31,7 +33,7 @@ const books = [
   { id: 6, title: "Third", author_id: 2, year: 2017 },
 ];
 
-function mountAdmin(render: () => unknown) {
+function mountAdmin(render: () => VNodeChild) {
   const dataProvider = fakeDataProvider({
     books: structuredClone(books),
     authors: [],
@@ -63,12 +65,12 @@ function mountAdmin(render: () => unknown) {
 /** Provides `record` as the ambient record, then renders the field around `children`. */
 function withRecord(
   record: RecordValue | Ref<RecordValue>,
-  props: Record<string, unknown>,
-  children: () => unknown,
+  props: Partial<ReferenceManyFieldProps>,
+  children: () => VNodeChild,
 ) {
   return defineComponent({
     setup() {
-      provideRecordContext(record as never);
+      provideRecordContext(record);
       return () =>
         h(
           ReferenceManyField,
@@ -105,6 +107,14 @@ const Probe = defineComponent({
   },
 });
 
+/** Clicks the button whose text is `label`. */
+async function clickButton(
+  buttons: DOMWrapper<HTMLButtonElement>[],
+  label: string,
+) {
+  await buttons.find((b) => b.text() === label)?.trigger("click");
+}
+
 const titleTable = () =>
   h(DataTable, null, { default: () => h(DataTableCol, { source: "title" }) });
 
@@ -125,6 +135,7 @@ describe("ReferenceManyField", () => {
         sort: { field: "id", order: "ASC" },
       }),
     );
+    expect(manyReferenceSpy).toHaveBeenCalledTimes(1);
     expect(listSpy).not.toHaveBeenCalled();
   });
 
@@ -146,7 +157,12 @@ describe("ReferenceManyField", () => {
     expect(wrapper.text()).not.toContain("Hello");
     expect(manyReferenceSpy).toHaveBeenLastCalledWith(
       "books",
-      expect.objectContaining({ pagination: { page: 2, perPage: 2 } }),
+      expect.objectContaining({
+        target: "author_id",
+        id: 1,
+        pagination: { page: 2, perPage: 2 },
+        sort: { field: "id", order: "ASC" },
+      }),
     );
   });
 
@@ -191,13 +207,7 @@ describe("ReferenceManyField", () => {
       expect(wrapper.findAll("li").map((li) => li.text())).toEqual(["Foo"]);
     });
 
-    const click = (label: string) =>
-      wrapper
-        .findAll("button")
-        .find((b) => b.text() === label)
-        ?.trigger("click");
-
-    await click("narrow to one");
+    await clickButton(wrapper.findAll("button"), "narrow to one");
     await vi.waitFor(() => {
       expect(manyReferenceSpy).toHaveBeenLastCalledWith(
         "books",
@@ -207,7 +217,7 @@ describe("ReferenceManyField", () => {
     expect(wrapper.findAll("li").map((li) => li.text())).toEqual(["Foo"]);
 
     // Hello is a 2020 book: the year 2021 filter prop still applies.
-    await click("narrow to none");
+    await clickButton(wrapper.findAll("button"), "narrow to none");
     await vi.waitFor(() => {
       expect(manyReferenceSpy).toHaveBeenLastCalledWith(
         "books",
@@ -226,26 +236,20 @@ describe("ReferenceManyField", () => {
     await vi.waitFor(() => {
       expect(wrapper.findAll("li")).toHaveLength(2);
     });
-    const click = async (label: string) => {
-      await wrapper
-        .findAll("button")
-        .find((b) => b.text() === label)
-        ?.trigger("click");
-    };
 
-    await click("toggle 1");
+    await clickButton(wrapper.findAll("button"), "toggle 1");
     expect(wrapper.text()).toContain("selected [1]");
 
-    await click("go to page 2");
+    await clickButton(wrapper.findAll("button"), "go to page 2");
     await vi.waitFor(() => {
       expect(wrapper.findAll("li").map((li) => li.text())).toEqual(["Foo"]);
     });
     expect(wrapper.text()).toContain("selected [1]");
 
-    await click("toggle 3");
+    await clickButton(wrapper.findAll("button"), "toggle 3");
     expect(wrapper.text()).toContain("selected [1,3]");
 
-    await click("unselect all");
+    await clickButton(wrapper.findAll("button"), "unselect all");
     expect(wrapper.text()).toContain("selected []");
   });
 
@@ -270,14 +274,28 @@ describe("ReferenceManyField", () => {
   });
 
   it("without a record id fetches nothing and renders an empty list", async () => {
-    const { wrapper, manyReferenceSpy, listSpy } = mountAdmin(() =>
-      h(withRecord({ name: "Draft" } as never, {}, () => h(Probe))),
+    const { wrapper, manyReferenceSpy, listSpy } = mountAdmin(() => [
+      h("div", { "data-testid": "draft" }, [
+        h(withRecord({ name: "Draft" } as never, {}, () => h(Probe))),
+      ]),
+      h("div", { "data-testid": "saved" }, [
+        h(withRecord({ id: 1 }, {}, () => h(Probe))),
+      ]),
+    ]);
+    // Both fields mount together, so once the saved record's rows are in, a
+    // fetch for the draft would have been issued already.
+    await vi.waitFor(() => {
+      const saved = wrapper.get('[data-testid="saved"]');
+      expect(saved.findAll("li")).toHaveLength(3);
+    });
+    const draft = wrapper.get('[data-testid="draft"]');
+    expect(draft.text()).toContain("page 1");
+    expect(draft.findAll("li")).toHaveLength(0);
+    expect(manyReferenceSpy).toHaveBeenCalledTimes(1);
+    expect(manyReferenceSpy).toHaveBeenCalledWith(
+      "books",
+      expect.objectContaining({ id: 1 }),
     );
-    expect(wrapper.text()).toContain("page 1");
-    expect(wrapper.findAll("li")).toHaveLength(0);
-    // Let any stray fetch settle before asserting there was none.
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(manyReferenceSpy).not.toHaveBeenCalled();
     expect(listSpy).not.toHaveBeenCalled();
   });
 });
