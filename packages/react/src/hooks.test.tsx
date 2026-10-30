@@ -180,6 +180,7 @@ describe("react hooks", () => {
       expect(result.current.both.isSuccess).toBe(true);
     });
     expect(getMany).toHaveBeenCalledTimes(1);
+    expect(getMany).toHaveBeenCalledWith("posts", { ids: [1, 2] });
     expect(result.current.first.data?.map((p) => p.title)).toEqual(["a"]);
     expect(result.current.second.data?.map((p) => p.title)).toEqual(["b"]);
     expect(result.current.both.data?.map((p) => p.title)).toEqual(["b", "a"]);
@@ -193,9 +194,6 @@ describe("react hooks", () => {
         useGetManyAggregate<R, "posts">("posts", { ids: [1] }, { enabled }),
       { wrapper, initialProps: { enabled: false } },
     );
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 10));
-    });
     expect(getMany).not.toHaveBeenCalled();
     expect(result.current.fetchStatus).toBe("idle");
     expect(result.current.data).toBeUndefined();

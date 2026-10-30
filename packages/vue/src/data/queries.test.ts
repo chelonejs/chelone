@@ -1,16 +1,15 @@
 /**
  * `useGetManyReference` and `useGetManyAggregate` — mounted through probe
- * components under a real
- * `<Admin>` (which installs the vue-query client and the Chelone context) over a
- * seeded `fakeDataProvider`. Each case asserts what the probe renders and what
- * the provider was asked, never an internal.
+ * components under a real `<Admin>` (which installs the vue-query client and
+ * the Chelone context) over a seeded `fakeDataProvider`. Each case asserts what
+ * the probe renders and what the provider was asked, never an internal.
  */
 
 import { defineResources, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, type Ref, ref } from "vue";
+import { type Component, defineComponent, h, type Ref, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
 import Admin from "../admin/admin.vue";
@@ -20,21 +19,58 @@ const resources = defineResources({
   comments: {
     schema: z.object({ id: z.number(), post_id: z.number(), body: z.string() }),
   },
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
 });
 type Resources = typeof resources;
 
-function mountProbe(options: { id: Ref<number>; enabled?: Ref<boolean> }) {
-  const dataProvider = fakeDataProvider<Resources>({
+function seededDataProvider() {
+  return fakeDataProvider<Resources>({
     comments: [
       { id: 1, post_id: 1, body: "x" },
       { id: 2, post_id: 2, body: "y" },
       { id: 3, post_id: 1, body: "z" },
     ],
+    posts: [
+      { id: 1, title: "a" },
+      { id: 2, title: "b" },
+      { id: 3, title: "c" },
+    ],
   });
-  const getManyReference = vi.spyOn(dataProvider, "getManyReference");
+}
+
+/** Mounts the probes as siblings under one `<Admin>` over `dataProvider`. */
+function mountUnderAdmin(
+  dataProvider: ReturnType<typeof seededDataProvider>,
+  probes: Component[],
+) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
+  const Harness = defineComponent({
+    setup: () => () =>
+      h(
+        Admin,
+        { dataProvider, queryClient },
+        {
+          default: () =>
+            h(
+              "div",
+              probes.map((Probe) => h(Probe)),
+            ),
+          layout: () => h("div"),
+        },
+      ),
+  });
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [{ path: "/", component: { render: () => null } }],
+  });
+  return mount(Harness, { global: { plugins: [router] } });
+}
+
+function mountProbe(options: { id: Ref<number>; enabled?: Ref<boolean> }) {
+  const dataProvider = seededDataProvider();
+  const getManyReference = vi.spyOn(dataProvider, "getManyReference");
   const Probe = defineComponent({
     setup() {
       const query = useGetManyReference<Resources, "comments">(
@@ -62,19 +98,7 @@ function mountProbe(options: { id: Ref<number>; enabled?: Ref<boolean> }) {
         ]);
     },
   });
-  const Harness = defineComponent({
-    setup: () => () =>
-      h(
-        Admin,
-        { dataProvider, queryClient },
-        { default: () => h(Probe), layout: () => h("div") },
-      ),
-  });
-  const router = createRouter({
-    history: createMemoryHistory(),
-    routes: [{ path: "/", component: { render: () => null } }],
-  });
-  const wrapper = mount(Harness, { global: { plugins: [router] } });
+  const wrapper = mountUnderAdmin(dataProvider, [Probe]);
   const rows = () => wrapper.findAll("li").map((li) => li.text());
   return { wrapper, rows, getManyReference };
 }
@@ -111,34 +135,24 @@ describe("useGetManyReference", () => {
   });
 });
 
-const postResources = defineResources({
-  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
-});
-type PostResources = typeof postResources;
-
 /**
- * One probe per entry in `idLists`, all siblings under one `<Admin>`, each
- * rendering `<ul data-testid="probe-N">` with the titles it received.
+ * One probe per entry in `idLists`, all siblings under one `<Admin>`. Each
+ * renders `<ul data-testid="probe-N">` with the titles it received,
+ * `<p data-testid="error-N">` with its error message and
+ * `<p data-testid="status-N">` with its fetch status. `failWith` makes the
+ * provider's `getMany` reject, installed before the probes mount.
  */
 function mountAggregateProbes(
   idLists: Array<Ref<number[]>>,
-  options: { enabled?: Ref<boolean> } = {},
+  options: { enabled?: Ref<boolean>; failWith?: Error } = {},
 ) {
-  const dataProvider = fakeDataProvider<PostResources>({
-    posts: [
-      { id: 1, title: "a" },
-      { id: 2, title: "b" },
-      { id: 3, title: "c" },
-    ],
-  });
+  const dataProvider = seededDataProvider();
   const getMany = vi.spyOn(dataProvider, "getMany");
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
+  if (options.failWith) getMany.mockRejectedValue(options.failWith);
   const probes = idLists.map((ids, index) =>
     defineComponent({
       setup() {
-        const query = useGetManyAggregate<PostResources, "posts">(
+        const query = useGetManyAggregate<Resources, "posts">(
           "posts",
           () => ({ ids: ids.value }),
           { enabled: options.enabled },
@@ -157,30 +171,16 @@ function mountAggregateProbes(
               { "data-testid": `error-${index}` },
               query.error.value?.message ?? "",
             ),
+            h(
+              "p",
+              { "data-testid": `status-${index}` },
+              query.fetchStatus.value,
+            ),
           ]);
       },
     }),
   );
-  const Harness = defineComponent({
-    setup: () => () =>
-      h(
-        Admin,
-        { dataProvider, queryClient },
-        {
-          default: () =>
-            h(
-              "div",
-              probes.map((Probe) => h(Probe)),
-            ),
-          layout: () => h("div"),
-        },
-      ),
-  });
-  const router = createRouter({
-    history: createMemoryHistory(),
-    routes: [{ path: "/", component: { render: () => null } }],
-  });
-  const wrapper = mount(Harness, { global: { plugins: [router] } });
+  const wrapper = mountUnderAdmin(dataProvider, probes);
   const titles = (index: number) =>
     wrapper
       .get(`[data-testid="probe-${index}"]`)
@@ -188,7 +188,9 @@ function mountAggregateProbes(
       .map((li) => li.text());
   const error = (index: number) =>
     wrapper.get(`[data-testid="error-${index}"]`).text();
-  return { titles, error, getMany };
+  const fetchStatus = (index: number) =>
+    wrapper.get(`[data-testid="status-${index}"]`).text();
+  return { titles, error, fetchStatus, getMany };
 }
 
 describe("useGetManyAggregate", () => {
@@ -204,23 +206,25 @@ describe("useGetManyAggregate", () => {
       expect(titles(2)).toEqual(["c", "a"]);
     });
     expect(getMany).toHaveBeenCalledTimes(1);
+    expect(getMany).toHaveBeenCalledWith("posts", { ids: [1, 2, 3] });
   });
 
   it("useGetManyAggregate does not fetch while enabled is false", async () => {
     const enabled = ref(false);
-    const { titles, getMany } = mountAggregateProbes([ref([1])], { enabled });
+    const probes = mountAggregateProbes([ref([1])], { enabled });
     await flushPromises();
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    expect(getMany).not.toHaveBeenCalled();
-    expect(titles(0)).toEqual([]);
+    expect(probes.getMany).not.toHaveBeenCalled();
+    expect(probes.fetchStatus(0)).toBe("idle");
+    expect(probes.titles(0)).toEqual([]);
     enabled.value = true;
-    await vi.waitFor(() => expect(titles(0)).toEqual(["a"]));
-    expect(getMany).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(probes.titles(0)).toEqual(["a"]));
+    expect(probes.getMany).toHaveBeenCalledTimes(1);
   });
 
   it("useGetManyAggregate exposes a provider rejection as error on every composable in the batch", async () => {
-    const { error, getMany } = mountAggregateProbes([ref([1]), ref([2])]);
-    getMany.mockRejectedValue(new Error("boom"));
+    const { error, getMany } = mountAggregateProbes([ref([1]), ref([2])], {
+      failWith: new Error("boom"),
+    });
     await vi.waitFor(() => {
       expect(error(0)).toBe("boom");
       expect(error(1)).toBe("boom");
@@ -236,5 +240,12 @@ describe("useGetManyAggregate", () => {
     await vi.waitFor(() => expect(titles(0)).toEqual(["b", "c"]));
     expect(getMany).toHaveBeenCalledTimes(2);
     expect(getMany).toHaveBeenLastCalledWith("posts", { ids: [2, 3] });
+  });
+
+  it("useGetManyAggregate with an empty id list renders no records and never calls the provider", async () => {
+    const probes = mountAggregateProbes([ref<number[]>([])]);
+    await vi.waitFor(() => expect(probes.fetchStatus(0)).toBe("idle"));
+    expect(probes.titles(0)).toEqual([]);
+    expect(probes.getMany).not.toHaveBeenCalled();
   });
 });
