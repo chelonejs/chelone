@@ -39,7 +39,10 @@ function Providers({ children }: { children: ReactNode }) {
   );
 }
 
-function makeList(overrides: Record<string, unknown> = {}): ListContextValue {
+/** The ambient list as an infinite one: `fetchNextPage` is a spy. */
+type StubList = ListContextValue & { fetchNextPage: ReturnType<typeof vi.fn> };
+
+function makeList(overrides: Record<string, unknown> = {}): StubList {
   return {
     page: 1,
     perPage: 10,
@@ -71,7 +74,7 @@ function makeList(overrides: Record<string, unknown> = {}): ListContextValue {
     fetchNextPage: vi.fn(),
     fetchPreviousPage: vi.fn(),
     ...overrides,
-  } as unknown as ListContextValue;
+  } as unknown as StubList;
 }
 
 function tree(value: ListContextValue, node: ReactNode) {
@@ -106,6 +109,12 @@ class FakeObserver {
       this as unknown as IntersectionObserver,
     );
   }
+}
+
+function firstObserver(): FakeObserver {
+  const [observer] = FakeObserver.instances;
+  if (!observer) throw new Error("no IntersectionObserver was created");
+  return observer;
 }
 
 function stubObserver() {
@@ -185,7 +194,7 @@ describe("<InfinitePagination>", () => {
     const { rerender } = wrap(value, <InfinitePagination offset={100} />);
 
     expect(FakeObserver.instances).toHaveLength(1);
-    const observer = FakeObserver.instances[0];
+    const observer = firstObserver();
     expect(observer.options?.rootMargin).toBe("0px 0px 100px 0px");
 
     act(() => observer.trigger(false));
@@ -243,7 +252,7 @@ describe("<InfinitePagination>", () => {
   it("unmount disconnects the IntersectionObserver", () => {
     stubObserver();
     const { unmount } = wrap(makeList(), <InfinitePagination />);
-    const observer = FakeObserver.instances[0];
+    const observer = firstObserver();
     expect(observer.disconnect).not.toHaveBeenCalled();
     unmount();
     expect(observer.disconnect).toHaveBeenCalled();

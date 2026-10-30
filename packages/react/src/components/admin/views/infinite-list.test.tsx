@@ -82,6 +82,10 @@ const page = (
   </InfiniteList>
 );
 
+const rowBoxes = () => screen.getAllByRole("checkbox", { name: "Select row" });
+const checked = () =>
+  rowBoxes().map((box) => box.getAttribute("aria-checked") === "true");
+
 describe("<InfiniteList>", () => {
   it("loads page 1 and Load more appends page 2 to the DataTable", async () => {
     mount(page);
@@ -113,7 +117,7 @@ describe("<InfiniteList>", () => {
     expect(screen.queryByText("Charlie")).toBeNull();
 
     const params = getList.mock.calls.at(-1)?.[1];
-    expect(params?.pagination.page).toBe(1);
+    expect(params?.pagination).toMatchObject({ page: 1 });
     expect([params?.sort].flat()[0]).toEqual({ field: "title", order: "ASC" });
   });
 
@@ -121,22 +125,13 @@ describe("<InfiniteList>", () => {
     mount(page);
     await screen.findByText("Echo");
 
-    fireEvent.click(screen.getAllByRole("checkbox", { name: "Select row" })[0]);
-    await waitFor(() =>
-      expect(
-        screen
-          .getAllByRole("checkbox", { name: "Select row" })[0]
-          .getAttribute("aria-checked"),
-      ).toBe("true"),
-    );
+    fireEvent.click(rowBoxes()[0] as HTMLElement);
+    await waitFor(() => expect(checked()).toEqual([true, false]));
 
     fireEvent.click(screen.getByRole("button", { name: "Load more" }));
     await screen.findByText("Charlie");
 
-    const boxes = screen.getAllByRole("checkbox", { name: "Select row" });
-    expect(boxes).toHaveLength(4);
-    expect(boxes[0].getAttribute("aria-checked")).toBe("true");
-    expect(boxes[2].getAttribute("aria-checked")).toBe("false");
+    expect(checked()).toEqual([true, false, false, false]);
   });
 
   it("select all selects every loaded row", async () => {
@@ -149,12 +144,6 @@ describe("<InfiniteList>", () => {
       screen.getByRole("checkbox", { name: "Select all rows on this page" }),
     );
 
-    await waitFor(() =>
-      expect(
-        screen
-          .getAllByRole("checkbox", { name: "Select row" })
-          .every((box) => box.getAttribute("aria-checked") === "true"),
-      ).toBe(true),
-    );
+    await waitFor(() => expect(checked()).toEqual([true, true, true, true]));
   });
 });

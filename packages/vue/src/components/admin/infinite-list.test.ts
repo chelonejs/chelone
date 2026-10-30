@@ -110,6 +110,9 @@ function withList(list: ReturnType<typeof stubList>, child: unknown) {
   });
 }
 
+/** The Admin shell has buttons of its own: look only inside the pagination. */
+const BUTTON = '[data-slot="infinite-pagination"] button';
+
 function mountPagination(
   list: ReturnType<typeof stubList>,
   props: Record<string, unknown> = {},
@@ -123,7 +126,7 @@ describe("InfinitePagination", () => {
     const list = stubList();
     const wrapper = mountPagination(list);
 
-    const button = wrapper.find("button");
+    const button = wrapper.find(BUTTON);
     expect(button.text()).toBe("Load more");
     await button.trigger("click");
     expect(list.fetchNextPage).toHaveBeenCalledTimes(1);
@@ -132,13 +135,13 @@ describe("InfinitePagination", () => {
   it("disables Load more while isFetchingNextPage", () => {
     const list = stubList({ isFetchingNextPage: true });
     const wrapper = mountPagination(list);
-    expect(wrapper.find("button").attributes("disabled")).toBeDefined();
+    expect(wrapper.find(BUTTON).attributes("disabled")).toBeDefined();
   });
 
   it("shows the end message and no button when hasNextPage is false", () => {
     const wrapper = mountPagination(stubList({ hasNextPage: false }));
     expect(wrapper.text()).toContain("No more rows");
-    expect(wrapper.find("button").exists()).toBe(false);
+    expect(wrapper.find(BUTTON).exists()).toBe(false);
   });
 
   it("renders nothing while the first page is loading", () => {
@@ -172,14 +175,14 @@ describe("InfinitePagination", () => {
     list.hasNextPage = false;
     await vi.waitFor(() => expect(live()).toHaveLength(0));
     expect(list.fetchNextPage).toHaveBeenCalledTimes(1);
-    expect(wrapper.find("button").exists()).toBe(false);
+    expect(wrapper.find(BUTTON).exists()).toBe(false);
   });
 
   it("autoLoad false creates no IntersectionObserver", () => {
     vi.stubGlobal("IntersectionObserver", FakeObserver);
     const wrapper = mountPagination(stubList(), { autoLoad: false });
     expect(FakeObserver.instances).toHaveLength(0);
-    expect(wrapper.find("button").text()).toBe("Load more");
+    expect(wrapper.find(BUTTON).text()).toBe("Load more");
   });
 
   it("unmount disconnects the IntersectionObserver", async () => {
