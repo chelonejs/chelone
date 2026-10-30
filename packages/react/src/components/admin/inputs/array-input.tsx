@@ -2,10 +2,12 @@ import type { Validator } from "@chelone/core";
 import type { ReactNode } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
+import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 import { ArrayInputProvider, useArrayInput } from "../../../array-hooks";
 import { ValidationError } from "../../../field-error-display";
+import { useTranslate } from "../../../i18n-hooks";
 import { useResourceContext } from "../../../resource";
 import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
 import { ArrayInputResultContext } from "./array-input-context";
@@ -32,10 +34,11 @@ interface ArrayInputProps {
   itemDefaults?: Record<string, unknown>;
   /** Extra classes on the field wrapper. */
   className?: string;
+  /** Label for the add-row button; a string is translated. */
+  addLabel?: ReactNode;
   /**
-   * The form iterator that renders the rows — typically
-   * `<SimpleFormIterator>`. It reads the array result via the ambient
-   * `<ArrayInput>` context.
+   * The iterator that renders the rows: map `useArrayInputResult().rows` to
+   * `<ArrayInputRow>`s.
    */
   children: ReactNode;
 }
@@ -58,23 +61,32 @@ function hasRequiredValidator(validate: ArrayInputProps["validate"]): boolean {
  * Rebridged onto chelone's `useArrayInput` (the 4R array binding): `<ArrayInput>`
  * owns the SINGLE binding for the field, renders the label/error chrome, scopes
  * children under the array path via `<ArrayInputProvider>`, and exposes the full
- * iterator result to its child iterator (P7e `<SimpleFormIterator>`) through the
- * ambient array-input context. Requires a form-iterator child to render + manage
- * the individual rows.
+ * iterator result to its child iterator through the
+ * ambient array-input context. Requires an iterator child that maps the rows to
+ * `<ArrayInputRow>`s, which scope each row's inputs and render its remove and
+ * reorder controls. `<ArrayInput>` renders the add button.
  *
  * @example
  * import {
- *   Edit, SimpleForm, TextInput, NumberInput, ArrayInput, SimpleFormIterator,
+ *   Edit, SimpleForm, TextInput, NumberInput, ArrayInput, ArrayInputRow,
+ *   useArrayInputResult,
  * } from '@/components/admin';
+ *
+ * const ItemRows = () => {
+ *   const { rows } = useArrayInputResult();
+ *   return rows.map((row) => (
+ *     <ArrayInputRow key={row.id} row={row}>
+ *       <TextInput source="name" />
+ *       <NumberInput source="price" />
+ *     </ArrayInputRow>
+ *   ));
+ * };
  *
  * const OrderEdit = () => (
  *   <Edit>
  *     <SimpleForm>
  *       <ArrayInput source="items">
- *         <SimpleFormIterator inline>
- *           <TextInput source="name" />
- *           <NumberInput source="price" />
- *         </SimpleFormIterator>
+ *         <ItemRows />
  *       </ArrayInput>
  *     </SimpleForm>
  *   </Edit>
@@ -87,6 +99,7 @@ function ArrayInput(props: ArrayInputProps): ReactNode {
     label,
     children,
     helperText,
+    addLabel,
     resource: resourceFromProps,
     source: arraySource,
     validate,
@@ -95,6 +108,7 @@ function ArrayInput(props: ArrayInputProps): ReactNode {
     ...rest
   } = props;
   const resource = useResourceContext(props);
+  const translate = useTranslate();
 
   const array = useArrayInput({
     source: arraySource,
@@ -134,6 +148,17 @@ function ArrayInput(props: ArrayInputProps): ReactNode {
       <ArrayInputResultContext.Provider value={array}>
         <ArrayInputProvider array={array}>{children}</ArrayInputProvider>
       </ArrayInputResultContext.Provider>
+      <div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          data-slot="array-input-add"
+          onClick={() => array.add()}
+        >
+          {addLabel ?? translate("ra.action.add", { _: "Add" })}
+        </Button>
+      </div>
       <InputHelperText helperText={helperText} />
       <FieldError>
         {invalid && error ? <ValidationError error={error} /> : null}

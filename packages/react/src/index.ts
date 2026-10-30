@@ -420,6 +420,10 @@ export {
 } from "./components/admin/inputs/array-input";
 export { useArrayInputResult } from "./components/admin/inputs/array-input-context";
 export {
+  ArrayInputRow,
+  type ArrayInputRowProps,
+} from "./components/admin/inputs/array-input-row";
+export {
   AutocompleteArrayInput,
   type AutocompleteArrayInputProps,
 } from "./components/admin/inputs/autocomplete-array-input";
