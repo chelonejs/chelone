@@ -8,7 +8,11 @@
  * store.
  */
 
-import { type ChelonStore, createStore, fakeDataProvider } from "@chelone/core";
+import {
+  type CheloneStore,
+  createStore,
+  fakeDataProvider,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -22,7 +26,7 @@ function Wrap({
   store,
   children,
 }: {
-  store: ChelonStore;
+  store: CheloneStore;
   children: ReactNode;
 }) {
   const queryClient = new QueryClient({

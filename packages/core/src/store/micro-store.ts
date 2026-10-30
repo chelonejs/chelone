@@ -1,6 +1,6 @@
 /**
  * Single-object observable state for controllers. Distinct from the keyed KV
- * ChelonStore (preferences): one object, whole-snapshot subscription, and an
+ * CheloneStore (preferences): one object, whole-snapshot subscription, and an
  * explicit destroy() lifecycle for observer teardown.
  */
 export interface MicroStore<T> {

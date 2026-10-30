@@ -8,30 +8,30 @@ import {
 } from "@chelone/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
-import { useChelonAuthProvider, useCheloneContext } from "./context";
+import { useCheloneAuthProvider, useCheloneContext } from "./context";
 import { type Redirect, useRedirectOptional } from "./router/nav-hooks";
 
 export function useGetIdentity() {
-  return useQuery(identityQueryOptions(useChelonAuthProvider()));
+  return useQuery(identityQueryOptions(useCheloneAuthProvider()));
 }
 
 export function useCanAccess(params: CanAccessParams) {
-  return useQuery(canAccessQueryOptions(useChelonAuthProvider(), params));
+  return useQuery(canAccessQueryOptions(useCheloneAuthProvider(), params));
 }
 
 export function useAuthState() {
-  return useQuery(authStateQueryOptions(useChelonAuthProvider()));
+  return useQuery(authStateQueryOptions(useCheloneAuthProvider()));
 }
 
 export function useLogin() {
-  const authProvider = useChelonAuthProvider();
+  const authProvider = useCheloneAuthProvider();
   return useMutation({
     mutationFn: (params: Record<string, unknown>) => authProvider.login(params),
   });
 }
 
 export function useLogout() {
-  const authProvider = useChelonAuthProvider();
+  const authProvider = useCheloneAuthProvider();
   return useMutation({
     mutationFn: (params?: unknown) => authProvider.logout(params),
   });

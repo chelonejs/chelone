@@ -1,5 +1,5 @@
 import type {
-  ChelonFormApi,
+  CheloneFormApi,
   CreateControllerState,
   CreateFormController,
   CreateFormControllerOptions,
@@ -90,7 +90,7 @@ export interface FormStateSlices {
 
 /** Six identity-cheap selectors over `form.store` (uSES-with-selector). */
 function useFormStateSlices<TFormData>(
-  form: ChelonFormApi<TFormData>,
+  form: CheloneFormApi<TFormData>,
 ): FormStateSlices {
   const canSubmit = useSelector(form.store, (s) => s.canSubmit);
   const isSubmitting = useSelector(form.store, (s) => s.isSubmitting);
@@ -113,7 +113,7 @@ function useFormStateSlices<TFormData>(
 
 /** Reactive form slices plus the controller's stable form + submit. */
 export interface UseFormControllerResult<TFormData> extends FormStateSlices {
-  form: ChelonFormApi<TFormData>;
+  form: CheloneFormApi<TFormData>;
   submit: () => Promise<void>;
 }
 
@@ -188,7 +188,7 @@ export function useForm<TFormData>(
 export interface UseEditFormResult<TRecord>
   extends EditControllerState<TRecord>,
     FormStateSlices {
-  form: ChelonFormApi<Partial<TRecord>>;
+  form: CheloneFormApi<Partial<TRecord>>;
   submit: () => Promise<void>;
 }
 
@@ -249,7 +249,7 @@ export function useEditForm<
 export interface UseCreateFormResult<TRecord>
   extends CreateControllerState<TRecord>,
     FormStateSlices {
-  form: ChelonFormApi<Partial<TRecord>>;
+  form: CheloneFormApi<Partial<TRecord>>;
   submit: () => Promise<void>;
 }
 
@@ -342,7 +342,7 @@ export interface UseInputResult {
 
 /** One binding per (form, final source) pair — the useInput identity key. */
 interface InputBindingHolder {
-  form: ChelonFormApi<UnknownFormValues>;
+  form: CheloneFormApi<UnknownFormValues>;
   binding: FieldBinding<UnknownFormValues>;
 }
 

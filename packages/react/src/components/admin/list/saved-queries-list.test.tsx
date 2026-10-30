@@ -5,7 +5,7 @@
  * roles, the store and data-provider calls.
  */
 import {
-  type ChelonStore,
+  type CheloneStore,
   createI18n,
   createStore,
   defineMessages,
@@ -47,7 +47,7 @@ const savedValue = (title: string, perPage = 10): SavedQueryValue => ({
   perPage,
 });
 
-function providers(store: ChelonStore) {
+function providers(store: CheloneStore) {
   const i18n = createI18n({
     locale: "en",
     messages: { en: defineMessages({}) },
@@ -168,7 +168,7 @@ function makeList(overrides: Partial<ListContextValue> = {}): ListContextValue {
 
 function mountList(
   list: ListContextValue,
-  store: ChelonStore,
+  store: CheloneStore,
   ui: ReactNode = <SavedQueriesList />,
 ) {
   const Providers = providers(store);
@@ -186,7 +186,7 @@ function mountList(
   };
 }
 
-const seeded = (): ChelonStore => {
+const seeded = (): CheloneStore => {
   const store = createStore();
   store.setItem<SavedQuery[]>("posts.savedQueries", [
     { label: "Hello posts", value: savedValue("hello", 10) },

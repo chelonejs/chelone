@@ -1,5 +1,5 @@
 import type {
-  ChelonFormApi,
+  CheloneFormApi,
   FieldErrors,
   FilterPayload,
   ResourceRecord,
@@ -220,7 +220,7 @@ export interface UseFilterFormOptions {
 /** What {@link useFilterForm} returns: the form + provider inputs. */
 export interface UseFilterFormResult {
   /** The form to expose via `<CheloneFormProvider>` (erased filter-values shape). */
-  form: ChelonFormApi<Record<string, unknown>>;
+  form: CheloneFormApi<Record<string, unknown>>;
   /** The filter-flavored source scope (identity source, resource-keyed labels). */
   sourceScope: SourceScope;
   /** Validity: `false` blocks a filter push (the validity gate). */

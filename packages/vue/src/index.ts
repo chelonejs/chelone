@@ -101,11 +101,11 @@ export type { CheloneContextValue } from "./context";
 export {
   CheloneContextKey,
   provideCheloneContext,
-  useChelonAuthProvider,
+  useCheloneAuthProvider,
   useCheloneContext,
-  useChelonI18n,
-  useChelonNotifications,
-  useChelonStore,
+  useCheloneI18n,
+  useCheloneNotifications,
+  useCheloneStore,
 } from "./context";
 export type {
   UseCreateControllerOptions,

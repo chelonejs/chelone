@@ -1,10 +1,10 @@
-import type { ChelonFormApi, SourceScope } from "@chelone/core";
+import type { CheloneFormApi, SourceScope } from "@chelone/core";
 import { rootSourceScope } from "@chelone/core";
 import { createContext, type ReactNode, useContext, useMemo } from "react";
 
 /**
  * The erased form-data shape context transport uses: a React context cannot
- * be generic, so providers widen their `ChelonFormApi<TFormData>` to this.
+ * be generic, so providers widen their `CheloneFormApi<TFormData>` to this.
  * Field paths are runtime strings and field values `unknown`, so nothing
  * downstream (useInput, field bindings) needs the precise type back.
  */
@@ -16,7 +16,7 @@ type UnknownFormValues = Record<string, unknown>;
  * toolbar buttons — P7 UI). Provided by `<CheloneFormProvider>`.
  */
 export interface CheloneFormContextValue {
-  form: ChelonFormApi<UnknownFormValues>;
+  form: CheloneFormApi<UnknownFormValues>;
   submit: (() => Promise<void>) | undefined;
 }
 
@@ -24,7 +24,7 @@ const CheloneFormContext = createContext<CheloneFormContextValue | null>(null);
 
 export interface CheloneFormProviderProps<TFormData> {
   /** The form to expose — `useForm`/`useEditForm`/`useCreateForm`'s `.form`. */
-  form: ChelonFormApi<TFormData>;
+  form: CheloneFormApi<TFormData>;
   /** The controller submit pipeline — the hooks' `.submit`. */
   submit?: () => Promise<void>;
   children: ReactNode;
@@ -43,7 +43,7 @@ export function CheloneFormProvider<TFormData>({
   const value = useMemo<CheloneFormContextValue>(
     () => ({
       // Erasure cast only — the runtime object is untouched.
-      form: form as unknown as ChelonFormApi<UnknownFormValues>,
+      form: form as unknown as CheloneFormApi<UnknownFormValues>,
       submit,
     }),
     [form, submit],

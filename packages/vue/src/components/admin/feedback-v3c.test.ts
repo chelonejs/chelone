@@ -9,7 +9,7 @@
  */
 
 import {
-  type AnyChelonI18n,
+  type AnyCheloneI18n,
   createI18n,
   createNotificationStore,
   defineMessages,
@@ -34,7 +34,7 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
 
 interface HarnessOptions {
   notifications?: NotificationStore;
-  i18n?: AnyChelonI18n;
+  i18n?: AnyCheloneI18n;
 }
 
 /** Mount `render` under a minimal Chelone context (no `<Admin>`/router). */

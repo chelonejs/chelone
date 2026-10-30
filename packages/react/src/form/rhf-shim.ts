@@ -41,7 +41,7 @@
  * - `SubmitHandler` / `FieldValues` — RHF type aliases; drop them (chelone
  *   forms are generic in the data type).
  */
-import type { ChelonFormApi } from "@chelone/core";
+import type { CheloneFormApi } from "@chelone/core";
 import { useSelector } from "@tanstack/react-store";
 import { useCheloneFormContext, useSourceContext } from "../form-context";
 
@@ -71,7 +71,7 @@ export function useWatch<TValue = unknown>({
   // the selector on any form write; value-equality would need a compare fn, but
   // primitives (the common watched shape) already short-circuit re-renders.
   return useSelector(
-    (form as ChelonFormApi<Record<string, unknown>>).store,
+    (form as CheloneFormApi<Record<string, unknown>>).store,
     () => form.getFieldValue(source) as TValue | undefined,
   );
 }

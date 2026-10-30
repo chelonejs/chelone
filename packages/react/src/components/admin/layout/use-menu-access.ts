@@ -1,7 +1,7 @@
 /**
  * `useMenuAccess` — a no-throw `useCanAccess` for the sidebar menu.
  *
- * Chelone's `useCanAccess` calls `useChelonAuthProvider()`, which THROWS when
+ * Chelone's `useCanAccess` calls `useCheloneAuthProvider()`, which THROWS when
  * no `authProvider` is configured. A no-auth app must still render its resource
  * menu, so this reads the provider OPTIONALLY (`useCheloneContext`) and only
  * runs the access query when a provider exists. With no provider — or no
