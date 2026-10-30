@@ -228,11 +228,7 @@ function page({ slug, section, component, registry, title, desc }) {
   }
 
   parts.push("", "## Props", "");
-  parts.push(
-    hasProps
-      ? `<PropsTable name="${component}" />`
-      : `Props are typed in the [\`${component}\`](https://chelone.dev) component source.`,
-  );
+  parts.push(hasProps ? `<PropsTable name="${component}" />` : PROPLESS_EXPORTS.get(component));
   parts.push("");
   return parts.join("\n");
 }
@@ -240,8 +236,15 @@ function page({ slug, section, component, registry, title, desc }) {
 // Components that ARE barrel-exported but carry no `*Props` interface (they
 // take no props, or type them inline). They legitimately have no generated
 // props JSON, so the props-JSON gate below must not treat them as "not
-// exported" — they still get a page (with the source-typed props note).
-const PROPLESS_EXPORTS = new Set(["AuthCallback", "Notification", "Ready"]);
+// exported" — they still get a page, with the props sentence below.
+const PROPLESS_EXPORTS = new Map([
+  ["AuthCallback", "`AuthCallback` takes no props."],
+  [
+    "Notification",
+    "`Notification` forwards its props to sonner's `<Toaster>`. It defaults `richColors`, `closeButton` and `position=\"bottom-center\"`, and `theme` follows the active theme.",
+  ],
+  ["Ready", "`Ready` takes no props."],
+]);
 
 let written = 0;
 let skipped = 0;
