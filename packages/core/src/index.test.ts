@@ -19,6 +19,11 @@ describe("@chelone/core barrel", () => {
     expect(barrel.savedQueriesKey).toBeTypeOf("function");
   });
 
+  it("exports the reference-many and reference-one controllers", () => {
+    expect(barrel.createReferenceManyController).toBeTypeOf("function");
+    expect(barrel.createReferenceOneController).toBeTypeOf("function");
+  });
+
   it("exports the P5 form controllers + composed controllers", () => {
     expect(barrel.createFormController).toBeTypeOf("function");
     expect(barrel.normalizeFormError).toBeTypeOf("function");
