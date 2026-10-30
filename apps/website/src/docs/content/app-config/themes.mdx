@@ -38,20 +38,69 @@ or registry theme drops straight in.
 ## Light / dark mode
 
 Mode (light / dark / system) is separate from the palette. `<ThemeProvider>`
-persists the chosen mode to the store and applies the `.dark` class to `<html>`;
-`<ThemeModeToggle>` is the switch. The default `<Layout>` includes both, so a
-fresh admin has working dark mode out of the box:
+holds the chosen mode and applies it as a class on `<html>`: `light` or `dark`,
+with `system` resolved through `prefers-color-scheme`. The shadcn `.dark` token
+block and Tailwind `dark:` variants key off that class.
+
+### What `<Admin>` mounts
+
+`<Admin>` wraps the shell in a `<ThemeProvider>` with the defaults
+(`defaultTheme="system"`, `storageKey="theme"`), so the `<ThemeModeToggle>` in
+the default `<AppBar>` works with no setup. `<Admin>` has no props for either
+option. To change them, mount your own `<ThemeProvider>` above `<Admin>`; it
+stays in charge and `<Admin>` mounts none. `<ThemeProvider>` reads the store from
+the nearest `<CheloneProvider>`, so it needs one above it:
 
 ```tsx
-import { ThemeModeToggle, ThemeProvider } from "@chelone/react";
+import { CheloneProvider, Admin, ThemeProvider } from "@chelone/react";
 
-<ThemeProvider defaultTheme="system">
-  <ThemeModeToggle />
-  <App />
-</ThemeProvider>;
+<CheloneProvider
+  dataProvider={dataProvider}
+  queryClient={queryClient}
+  store={store}
+>
+  <ThemeProvider defaultTheme="dark" storageKey="my-app-theme">
+    <Admin dataProvider={dataProvider} queryClient={queryClient} store={store}>
+      {/* … */}
+    </Admin>
+  </ThemeProvider>
+</CheloneProvider>;
 ```
 
-`useTheme` / `useResolvedTheme` read and set the mode from your own components.
+### Persistence
+
+- With a store, the mode is saved in the store under `storageKey`. Which store:
+  the `<ThemeProvider>` uses the nearest `<CheloneProvider>`'s. The default
+  provider `<Admin>` mounts uses `<Admin store>`. With your own provider above
+  `<Admin>`, pass the same `store` to the `<CheloneProvider>`, as above;
+  otherwise the mode goes to `localStorage`.
+- Without a store, it is saved in `localStorage` under `storageKey`. If
+  `localStorage` is blocked or full, the mode still applies for the session.
+- Nothing saved yet: `defaultTheme` is used. A stored value other than `light`,
+  `dark` or `system` is ignored, in the store and in `localStorage`.
+
+### Reading and setting the mode
+
+```tsx
+import { useResolvedTheme, useTheme } from "@chelone/react";
+
+const [mode, setMode] = useTheme(); // "light" | "dark" | "system"
+setMode("dark");
+
+const resolved = useResolvedTheme(); // "light" | "dark", never "system"
+```
+
+- `useTheme()` returns a `[mode, setMode]` tuple. Without a `<ThemeProvider>`
+  above, `mode` is `"system"` and `setMode` does nothing.
+- `useResolvedTheme()` returns the concrete mode: `"system"` becomes `"dark"`
+  or `"light"` from `prefers-color-scheme`, and `"light"` where `matchMedia` is
+  missing.
+
+:::note
+The Vue adapter differs. Its `<ThemeProvider>` always uses `localStorage`, under
+`chelone-theme` by default, and never the store. `useTheme()` returns
+`{ theme, setTheme }` with `theme` a `Ref`, and there is no `useResolvedTheme`.
+:::
 
 ## Distributing a theme
 

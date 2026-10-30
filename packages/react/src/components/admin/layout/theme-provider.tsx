@@ -88,7 +88,7 @@ function useMode(
   );
   const storeMode = useSyncExternalStore(
     subscribe,
-    () => store?.getItem<Theme>(key),
+    () => store?.getItem<unknown>(key),
     () => undefined,
   );
   const [local, setLocal] = useState(() => ({
@@ -113,7 +113,11 @@ function useMode(
     },
     [store, key],
   );
-  const mode = store ? (storeMode ?? defaultTheme) : localMode;
+  const mode = store
+    ? isTheme(storeMode)
+      ? storeMode
+      : defaultTheme
+    : localMode;
   return [mode, setMode];
 }
 
