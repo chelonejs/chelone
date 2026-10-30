@@ -23,16 +23,19 @@
 - **Design:** add the undoable mutation queue in core (vanilla: a deferred-commit registry with commit/undo), + the adapter notification with an Undo action + timer. Pairs with the Notification gaps (undoable/autoHide/multiLine).
 - **Effort:** M–L.
 
-## Tier 2 — medium value
+## Tier 2 — medium value (done ✅)
 
-### R4. Infinite list + saved queries
+### R4. Infinite list + saved queries ✅
 - Infinite-scroll list controller (`useInfiniteGetList` + `useInfiniteListController`) + saved queries (persist named filter/sort sets to the store). Effort M.
+- **Shipped:** infinite list core #50, #55, adapters #58, `InfiniteList`/`InfinitePagination` #60; `setParams` #48; saved queries core #49, `SavedQueriesList` #61.
 
-### R5. Data-provider power tools
+### R5. Data-provider power tools ✅
 - `useGetManyAggregate` (N+1 → single `getMany` batching per tick — a real perf win), `useGetManyReference` hook, `withLifecycleCallbacks` (beforeGetList/afterCreate/etc.), `combineDataProviders`, `HttpError` + `fetchUtils` (a batteries-included REST helper). Effort M.
+- **Shipped:** `getMany` batching #36, `useGetManyAggregate` #44, cache patching #46, #54; `useGetManyReference` #42; `withLifecycleCallbacks` #45; `combineDataProviders` #47; `HttpError` + `fetchUtils` #43, documented in #53.
 
-### R6. Server-side reverse-relation fields
-- `useReferenceManyFieldController`/`useReferenceOneFieldController` with server pagination/sort/filter/selection (Chelone's reverse-relation fields are client-side). `ReferenceManyCount`. Effort M.
+### R6. Server-side reverse-relation fields ✅
+- `useReferenceManyFieldController`/`useReferenceOneFieldController` with server pagination/sort/filter/selection. `ReferenceManyCount`. Effort M.
+- **Shipped:** the reverse-relation fields page, sort, filter and select on the server through `getManyReference`. Controllers #51, #57; `ReferenceManyField` #59; `ReferenceOneField` #62; `ReferenceManyCount` #63.
 
 ## Tier 3 — deferred / lower priority (charter-deferred or niche)
 
@@ -52,4 +55,6 @@
 
 **STATUS 2026-07-10 — TIER 1 COMPLETE. ✅ R1 URL-synced lists · ✅ R2 permissions/access-control · ✅ R3 undoable mutations.** All three closed in BOTH adapters, core stayed framework-free (external react/vue/router import grep = empty across all additions), core 590 / react 1241 / vue 493 green, vue-demo builds. R1 browser-verified (deep-link seed + page-push). R2 security semantics verified both directions (checkError-reject→logout, resolve→stay; fail-open-when-unconfigured). R3 data-integrity verified by spy counts (server 0× on undo, 1× on commit; rollback on undo + commit-error; beforeunload commit). The gate that held: parity work ADDS to core (additive vanilla), invariant = core stays REACT/framework-FREE, not zero-core-change.
 
-**Next: Tier 2** (R4 infinite-list/saved-queries · R5 data-provider power tools · R6 server-side reverse-relations), then Tier 3. Each lands in both adapters on the framework-free core with the SDD wave rhythm (implementer + reviewer + probe + opus).
+**STATUS — TIER 2 COMPLETE. ✅ R4 infinite list + saved queries · ✅ R5 data-provider power tools · ✅ R6 server-side reverse-relation fields.** Each landed in both adapters on the framework-free core; PRs are listed under each item.
+
+**Next:** Tier 3 (R7 to R10) stays deferred. The open v1 work is the first npm release (#8) and the Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)).
