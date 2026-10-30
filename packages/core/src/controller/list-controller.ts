@@ -31,6 +31,22 @@ export interface ListControllerState<TRecord> {
   hasPreviousPage: boolean | undefined;
 }
 
+/**
+ * Several list params applied as one change: one state update, one persisted
+ * write and one query reconfiguration. Every key is optional; an omitted key
+ * stays as it is.
+ */
+export interface ListParamsPatch {
+  /** Replaces the user filter; empty values are stripped. */
+  filter?: FilterPayload;
+  displayedFilters?: Record<string, boolean>;
+  /** Replaces wholesale; a single payload never toggles the order. */
+  sort?: SortPayload | SortPayload[];
+  perPage?: number;
+  /** Defaults to 1 when the patch holds `filter`, `sort` or `perPage`. */
+  page?: number;
+}
+
 export interface ListController<TRecord>
   extends MicroStore<ListControllerState<TRecord>> {
   setPage(page: number): void;
@@ -42,6 +58,8 @@ export interface ListController<TRecord>
     displayedFilters?: Record<string, boolean>,
     debounced?: boolean,
   ): void;
+  /** Applies a {@link ListParamsPatch} as one change (one persisted write, one query update; a fetch only if the query changes). An empty patch does nothing. Never debounced. */
+  setParams(patch: ListParamsPatch): void;
   showFilter(name: string, defaultValue?: unknown): void;
   hideFilter(name: string): void;
   select(ids: Identifier[]): void;
@@ -103,6 +121,37 @@ function removeEmpty(filter: FilterPayload): FilterPayload {
     result[key] = value;
   }
   return result;
+}
+
+/**
+ * Turns a {@link ListParamsPatch} into the state slice it changes. Shared with
+ * the client controller so the page-reset rule lives in one place.
+ */
+export function listParamsFromPatch<TRecord>(
+  patch: ListParamsPatch,
+): Partial<
+  Pick<
+    ListControllerState<TRecord>,
+    "page" | "perPage" | "sort" | "filter" | "displayedFilters"
+  >
+> {
+  const next: Partial<ListControllerState<TRecord>> = {};
+  if (patch.filter !== undefined) next.filter = removeEmpty(patch.filter);
+  if (patch.displayedFilters !== undefined) {
+    next.displayedFilters = { ...patch.displayedFilters };
+  }
+  if (patch.sort !== undefined) next.sort = normalizeSort(patch.sort, []);
+  if (patch.perPage !== undefined) next.perPage = patch.perPage;
+  if (patch.page !== undefined) {
+    next.page = patch.page;
+  } else if (
+    patch.filter !== undefined ||
+    patch.sort !== undefined ||
+    patch.perPage !== undefined
+  ) {
+    next.page = 1;
+  }
+  return next;
 }
 
 function errorMessageKey(error: unknown): string {
@@ -286,6 +335,15 @@ export function createListController<
           : { ...displayedFilters },
       page: 1,
     });
+  };
+
+  const setParams = (patch: ListParamsPatch): void => {
+    if (destroyed) return;
+    const next = listParamsFromPatch<TRecord>(patch);
+    if (Object.keys(next).length === 0) return;
+    // A debounced filter still pending would overwrite this patch's filter.
+    if (patch.filter !== undefined) clearDebounce();
+    applyParams(next);
   };
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
@@ -508,6 +566,7 @@ export function createListController<
     setPerPage,
     setSort,
     setFilters,
+    setParams,
     showFilter,
     hideFilter,
     select,

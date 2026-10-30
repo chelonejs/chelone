@@ -240,6 +240,7 @@ export function useListController<
       setPerPage: controller.setPerPage,
       setSort: controller.setSort,
       setFilters: controller.setFilters,
+      setParams: controller.setParams,
       showFilter: controller.showFilter,
       hideFilter: controller.hideFilter,
       select: controller.select,

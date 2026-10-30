@@ -2,7 +2,12 @@ import type { FilterPayload, SortPayload } from "../data/types";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
 import { createMicroStore } from "../store/micro-store";
-import type { ListController, ListControllerState } from "./list-controller";
+import {
+  type ListController,
+  type ListControllerState,
+  type ListParamsPatch,
+  listParamsFromPatch,
+} from "./list-controller";
 
 /**
  * Options for a client-side (in-memory) list controller — the vanilla engine
@@ -298,6 +303,14 @@ export function createClientListController<
     recompute();
   };
 
+  const setParams = (patch: ListParamsPatch): void => {
+    if (destroyed) return;
+    const next = listParamsFromPatch<TRecord>(patch);
+    if (Object.keys(next).length === 0) return;
+    store.setState(next);
+    recompute();
+  };
+
   const showFilter = (name: string, defaultValue?: unknown): void => {
     if (destroyed) return;
     const s = store.getSnapshot();
@@ -402,6 +415,7 @@ export function createClientListController<
     setPerPage,
     setSort,
     setFilters,
+    setParams,
     showFilter,
     hideFilter,
     select,

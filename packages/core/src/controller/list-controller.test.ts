@@ -320,6 +320,185 @@ describe("createListController", () => {
 
   // --- Task 4R: subscription-driven acquisition (the zombie-leak fix) ---
 
+  describe("setParams", () => {
+    it("setParams replaces filter, sort and perPage with a single getList call", async () => {
+      const ctx = makeCtx();
+      const spy = vi.spyOn(ctx.dataProvider, "getList");
+      const c = createListController(ctx, "posts", {});
+      attach(c);
+      await settled(c);
+      const before = spy.mock.calls.length;
+      c.setParams({
+        filter: { title: "t0" },
+        sort: { field: "views", order: "DESC" },
+        perPage: 5,
+      });
+      await settled(c);
+      expect(spy.mock.calls.length).toBe(before + 1);
+      expect(spy.mock.calls.at(-1)?.[1]).toMatchObject({
+        pagination: { page: 1, perPage: 5 },
+        sort: { field: "views", order: "DESC" },
+        filter: { title: "t0" },
+      });
+      c.destroy();
+    });
+
+    it("setParams replaces the sort wholesale instead of toggling the sorted field", () => {
+      const c = createListController(makeCtx(), "posts", {
+        sort: { field: "title", order: "ASC" },
+      });
+      c.setParams({ sort: { field: "title", order: "ASC" } });
+      expect(c.getSnapshot().sort).toEqual([{ field: "title", order: "ASC" }]);
+      c.destroy();
+    });
+
+    it("setParams resets page to 1 unless the patch sets page", () => {
+      const c = createListController(makeCtx(), "posts", {});
+      c.setPage(3);
+      c.setParams({ perPage: 5 });
+      expect(c.getSnapshot().page).toBe(1);
+      c.setPage(3);
+      c.setParams({ filter: { title: "t" }, page: 2 });
+      expect(c.getSnapshot().page).toBe(2);
+      c.setPage(3);
+      c.setParams({ sort: { field: "title", order: "ASC" } });
+      expect(c.getSnapshot().page).toBe(1);
+      c.setPage(3);
+      c.setParams({ filter: {} });
+      expect(c.getSnapshot().page).toBe(1);
+      c.destroy();
+    });
+
+    it("setParams with only displayedFilters keeps the filter and the page", () => {
+      const c = createListController(makeCtx(), "posts", {});
+      c.setFilters({ title: "t" }, { title: true });
+      c.setPage(2);
+      c.setParams({ displayedFilters: { views: true } });
+      const s = c.getSnapshot();
+      expect(s.displayedFilters).toEqual({ views: true });
+      expect(s.filter).toEqual({ title: "t" });
+      expect(s.page).toBe(2);
+      c.destroy();
+    });
+
+    it("setParams keeps displayedFilters when the patch omits it", () => {
+      const c = createListController(makeCtx(), "posts", {});
+      c.setFilters({ title: "t" }, { title: true });
+      c.setParams({ filter: { views: 1 } });
+      expect(c.getSnapshot().displayedFilters).toEqual({ title: true });
+      c.destroy();
+    });
+
+    it("setParams strips empty filter values and keeps an array sort in order", () => {
+      const c = createListController(makeCtx(), "posts", {});
+      c.setParams({
+        filter: { title: "t0", views: "", id: null },
+        sort: [
+          { field: "views", order: "ASC" },
+          { field: "title", order: "DESC" },
+        ],
+      });
+      const s = c.getSnapshot();
+      expect(s.filter).toEqual({ title: "t0" });
+      expect(s.sort).toEqual([
+        { field: "views", order: "ASC" },
+        { field: "title", order: "DESC" },
+      ]);
+      c.destroy();
+    });
+
+    it("setParams writes the listParams store key once", () => {
+      const ctx = makeCtx();
+      const writes = vi.spyOn(ctx.store, "setItem");
+      const c = createListController(ctx, "posts", {});
+      c.setParams({
+        filter: { title: "t0" },
+        sort: { field: "views", order: "DESC" },
+        perPage: 5,
+      });
+      expect(
+        writes.mock.calls.filter(([key]) => key === "posts.listParams"),
+      ).toHaveLength(1);
+      expect(ctx.store.getItem("posts.listParams")).toMatchObject({
+        perPage: 5,
+        page: 1,
+        filter: { title: "t0" },
+      });
+      c.destroy();
+    });
+
+    it("setParams moves filter, sort and perPage in one state change", async () => {
+      const c = createListController(makeCtx(), "posts", {});
+      const seen: Array<{ filter: unknown; sort: unknown; perPage: number }> =
+        [];
+      c.subscribe(() => {
+        const { filter, sort, perPage } = c.getSnapshot();
+        seen.push({ filter, sort, perPage });
+      });
+      await settled(c);
+      seen.length = 0;
+      c.setParams({
+        filter: { title: "t0" },
+        sort: { field: "views", order: "DESC" },
+        perPage: 5,
+      });
+      await settled(c);
+      // Later notifications are the fetch lifecycle; none shows a half-applied patch.
+      const distinct = new Set(seen.map((s) => JSON.stringify(s)));
+      expect(distinct.size).toBe(1);
+      expect(seen[0]).toEqual({
+        filter: { title: "t0" },
+        sort: [{ field: "views", order: "DESC" }],
+        perPage: 5,
+      });
+      c.destroy();
+    });
+
+    it("setParams is not debounced", () => {
+      vi.useFakeTimers();
+      const c = createListController(makeCtx(), "posts", { debounceMs: 300 });
+      c.setParams({ filter: { title: "t0" } });
+      expect(c.getSnapshot().filter).toEqual({ title: "t0" });
+      vi.useRealTimers();
+      c.destroy();
+    });
+
+    it("setParams with a filter cancels a pending debounced setFilters", () => {
+      vi.useFakeTimers();
+      const c = createListController(makeCtx(), "posts", { debounceMs: 300 });
+      c.setFilters({ title: "abc" }, undefined, true);
+      c.setParams({ filter: { title: "x" } });
+      vi.advanceTimersByTime(1000);
+      expect(c.getSnapshot().filter).toEqual({ title: "x" });
+      vi.useRealTimers();
+      c.destroy();
+    });
+
+    it("setParams with an empty patch does not write or notify", () => {
+      const ctx = makeCtx();
+      const writes = vi.spyOn(ctx.store, "setItem");
+      const c = createListController(ctx, "posts", {});
+      const listener = vi.fn();
+      c.subscribe(listener);
+      listener.mockClear();
+      writes.mockClear();
+      c.setParams({});
+      expect(writes).not.toHaveBeenCalled();
+      expect(listener).not.toHaveBeenCalled();
+      c.destroy();
+    });
+
+    it("setParams after destroy does nothing", () => {
+      const ctx = makeCtx();
+      const c = createListController(ctx, "posts", {});
+      c.destroy();
+      c.setParams({ filter: { title: "t0" }, perPage: 5 });
+      expect(c.getSnapshot().filter).toEqual({});
+      expect(c.getSnapshot().perPage).toBe(10);
+      expect(ctx.store.getItem("posts.listParams")).toBeUndefined();
+    });
+  });
+
   describe("lazy acquisition lifecycle", () => {
     it("construction is INERT: no fetch, no observers, no KV subscriptions", async () => {
       const ctx = makeCtx();

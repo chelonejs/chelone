@@ -26,6 +26,7 @@ export type {
   ListControllerContext,
   ListControllerOptions,
   ListControllerState,
+  ListParamsPatch,
 } from "./controller/list-controller";
 export { createListController } from "./controller/list-controller";
 export type { ListParamsQuery } from "./controller/list-params";

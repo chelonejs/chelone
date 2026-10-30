@@ -217,4 +217,34 @@ describe("useListController URL-sync (syncWithLocation)", () => {
     await waitFor(() => expect(result.current.page).toBe(2));
     expect(result.current.data?.length).toBe(10);
   });
+
+  it("setParams with filter, sort and perPage navigates once", async () => {
+    const { adapter, navigate } = makeMockAdapter();
+    const { wrapper } = makeWrapper(adapter);
+    const { result } = renderHook(
+      () => useListController<typeof resources, "posts">("posts"),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isPending).toBe(false));
+    navigate.mockClear();
+    act(() =>
+      result.current.setParams({
+        filter: { title: "t1" },
+        sort: { field: "title", order: "DESC" },
+        perPage: 5,
+      }),
+    );
+    await waitFor(() => expect(result.current.perPage).toBe(5));
+    await waitFor(() => expect(result.current.isFetching).toBe(false));
+    expect(result.current.filter).toEqual({ title: "t1" });
+    expect(result.current.sort).toEqual([{ field: "title", order: "DESC" }]);
+    expect(result.current.page).toBe(1);
+    expect(navigate).toHaveBeenCalledTimes(1);
+    const to = decodeURIComponent(navigate.mock.calls[0]?.[0] as string);
+    expect(to).toContain('{"title":"t1"}');
+    expect(to).toContain("sort=title");
+    expect(to).toContain("order=DESC");
+    expect(to).toContain("perPage=5");
+    expect(navigate.mock.calls[0]?.[1]?.replace).toBe(true);
+  });
 });

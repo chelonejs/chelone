@@ -179,4 +179,32 @@ describe("useListController — URL sync (R1)", () => {
     expect(capture.result?.page).toBe(1);
     expect(capture.result?.perPage).toBe(10);
   });
+
+  it("setParams with filter, sort and perPage navigates once", async () => {
+    const router = await makeRouter("/");
+    const { capture } = mountList(router, { resource: "posts" });
+    await settled(() => capture.result);
+    const replace = vi.spyOn(router, "replace");
+
+    capture.result?.setParams({
+      filter: { title: "t01" },
+      sort: { field: "views", order: "DESC" },
+      perPage: 5,
+    });
+    await flushPromises();
+    await vi.waitFor(() => expect(capture.result?.perPage).toBe(5));
+    await settled(() => capture.result);
+    await vi.waitFor(() =>
+      expect(currentQuery(router).filter).toBe(
+        JSON.stringify({ title: "t01" }),
+      ),
+    );
+
+    expect(replace).toHaveBeenCalledTimes(1);
+    const query = currentQuery(router);
+    expect(query.sort).toBe("views");
+    expect(query.order).toBe("DESC");
+    expect(query.perPage).toBe("5");
+    expect(capture.result?.data?.map((p) => p.id)).toEqual([1]);
+  });
 });

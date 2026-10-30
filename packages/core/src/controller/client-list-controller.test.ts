@@ -348,4 +348,65 @@ describe("createClientListController", () => {
       expect(s.displayedFilters.category).toBeUndefined();
     });
   });
+
+  describe("setParams", () => {
+    it("setParams filters, sorts and pages the in-memory data in one change", () => {
+      const c = createClientListController<Row>({ data, page: 2, perPage: 1 });
+      c.setParams({
+        filter: { category: "a" },
+        sort: { field: "name", order: "DESC" },
+        perPage: 1,
+      });
+      const s = c.getSnapshot();
+      expect(s.page).toBe(1);
+      expect(s.total).toBe(2);
+      expect(s.data?.map((r) => r.id)).toEqual([3]);
+      expect(s.sort).toEqual([{ field: "name", order: "DESC" }]);
+      c.setParams({ page: 2 });
+      expect(c.getSnapshot().data?.map((r) => r.id)).toEqual([1]);
+    });
+
+    it("setParams replaces the sort instead of toggling the sorted field", () => {
+      const c = createClientListController<Row>({
+        data,
+        sort: { field: "name", order: "ASC" },
+      });
+      c.setParams({ sort: { field: "name", order: "ASC" } });
+      expect(c.getSnapshot().sort).toEqual([{ field: "name", order: "ASC" }]);
+    });
+
+    it("setParams with only displayedFilters keeps the filter and the page", () => {
+      const c = createClientListController<Row>({
+        data,
+        filter: { category: "a" },
+        perPage: 1,
+        page: 2,
+      });
+      c.setParams({ displayedFilters: { category: true } });
+      const s = c.getSnapshot();
+      expect(s.displayedFilters).toEqual({ category: true });
+      expect(s.filter).toEqual({ category: "a" });
+      expect(s.page).toBe(2);
+    });
+
+    it("setParams with an empty patch changes nothing", () => {
+      const c = createClientListController<Row>({ data, page: 1 });
+      const before = c.getSnapshot();
+      c.setParams({});
+      expect(c.getSnapshot()).toBe(before);
+    });
+
+    it("setParams does nothing after destroy", () => {
+      const c = createClientListController<Row>({ data });
+      c.destroy();
+      c.setParams({ filter: { category: "a" }, perPage: 1 });
+      c.setPage(2);
+      c.setFilters({ category: "b" });
+      const s = c.getSnapshot();
+      expect(s.total).toBe(4);
+      expect(s.filter).toEqual({});
+      expect(s.page).toBe(1);
+      expect(s.perPage).toBe(1000);
+    });
+  });
 });

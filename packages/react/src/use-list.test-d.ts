@@ -1,4 +1,9 @@
-import type { FilterPayload, Identifier, SortPayload } from "@chelone/core";
+import type {
+  FilterPayload,
+  Identifier,
+  ListParamsPatch,
+  SortPayload,
+} from "@chelone/core";
 import { expectTypeOf, it } from "vitest";
 import type { ListContextValue } from "./form";
 import type { UseListOptions, UseListResult } from "./use-list";
@@ -45,6 +50,20 @@ it("useList selection + param actions are present", () => {
   expectTypeOf(result.toggleItem).toBeFunction();
   expectTypeOf(result.unselectAll).toBeFunction();
   expectTypeOf(result.selectAll).returns.resolves.toBeVoid();
+});
+
+it("useList exposes setParams taking a ListParamsPatch", () => {
+  const result = {} as UseListResult<Row>;
+  expectTypeOf(result.setParams).toBeFunction();
+  expectTypeOf(result.setParams).parameters.toEqualTypeOf<[ListParamsPatch]>();
+  expectTypeOf(result.setParams).returns.toBeVoid();
+  expectTypeOf<ListParamsPatch>().toEqualTypeOf<{
+    filter?: FilterPayload;
+    displayedFilters?: Record<string, boolean>;
+    sort?: SortPayload | SortPayload[];
+    perPage?: number;
+    page?: number;
+  }>();
 });
 
 it("useList is callable with just data", () => {
