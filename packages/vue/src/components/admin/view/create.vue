@@ -1,3 +1,19 @@
+<script lang="ts">
+/** Props for {@link Create}. */
+export interface CreateProps {
+  resource?: string;
+  record?: Record<string, unknown>;
+  title?: string;
+  /**
+   * Redirect to the list on a successful save (the default). Vue coerces an
+   * absent Boolean prop to `false`, so this MUST default via `withDefaults`
+   * (otherwise omitting it silently disables the redirect); pass `false` to
+   * stay on the form after save.
+   */
+  redirectOnSave?: boolean;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<Create>` — a create page, the Vue analog of `@chelone/react`'s
@@ -19,18 +35,7 @@ import {
 } from "../../../resource-context";
 
 const props = withDefaults(
-  defineProps<{
-    resource?: string;
-    record?: Record<string, unknown>;
-    title?: string;
-    /**
-     * Redirect to the list on a successful save (the default). Vue coerces an
-     * absent Boolean prop to `false`, so this MUST default via `withDefaults`
-     * (otherwise omitting it silently disables the redirect); pass `false` to
-     * stay on the form after save.
-     */
-    redirectOnSave?: boolean;
-  }>(),
+  defineProps<CreateProps>(),
   { redirectOnSave: true },
 );
 

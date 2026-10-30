@@ -1,3 +1,18 @@
+<script lang="ts">
+/** Props for {@link NullableBooleanInput}. */
+export interface NullableBooleanInputProps {
+  source: string;
+  label?: string | false;
+  nullLabel?: string;
+  trueLabel?: string;
+  falseLabel?: string;
+  validate?: Validator | readonly Validator[];
+  disabled?: boolean;
+  helperText?: string;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<NullableBooleanInput>` — a tri-state select for a `boolean | null` field,
@@ -22,17 +37,7 @@ import NativeSelect from "../../ui/native-select.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = withDefaults(defineProps<{
-  source: string;
-  label?: string | false;
-  nullLabel?: string;
-  trueLabel?: string;
-  falseLabel?: string;
-  validate?: Validator | readonly Validator[];
-  disabled?: boolean;
-  helperText?: string;
-  class?: string;
-}>(), {
+const props = withDefaults(defineProps<NullableBooleanInputProps>(), {
   label: undefined,
 });
 

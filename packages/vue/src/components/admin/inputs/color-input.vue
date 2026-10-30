@@ -1,3 +1,17 @@
+<script lang="ts">
+/** Props for {@link ColorInput}. */
+export interface ColorInputProps {
+  source: string;
+  label?: string | false;
+  defaultValue?: unknown;
+  validate?: Validator | readonly Validator[];
+  helperText?: string;
+  swatches?: readonly string[];
+  disabled?: boolean;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<ColorInput>` — a color picker input storing a CSS color string (hex), the
@@ -17,16 +31,7 @@ import { Field, FieldError, FieldLabel } from "../../ui/field";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = withDefaults(defineProps<{
-  source: string;
-  label?: string | false;
-  defaultValue?: unknown;
-  validate?: Validator | readonly Validator[];
-  helperText?: string;
-  swatches?: readonly string[];
-  disabled?: boolean;
-  class?: string;
-}>(), {
+const props = withDefaults(defineProps<ColorInputProps>(), {
   label: undefined,
 });
 

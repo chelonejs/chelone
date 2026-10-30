@@ -1,3 +1,13 @@
+<script lang="ts">
+/** Props for {@link ReferenceField}. */
+export interface ReferenceFieldProps {
+  source: string;
+  reference: string;
+  record?: LooseRecord;
+  empty?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<ReferenceField>` — follows a foreign key to a related record and displays
@@ -21,12 +31,7 @@ import { useGetRecordRepresentation } from "../../../label/use-get-record-repres
 import { provideRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 
-const props = defineProps<{
-  source: string;
-  reference: string;
-  record?: LooseRecord;
-  empty?: string;
-}>();
+const props = defineProps<ReferenceFieldProps>();
 
 const fk = useFieldValue({ source: props.source, record: props.record });
 const id = computed(() => fk.value as Identifier | null | undefined);

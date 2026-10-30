@@ -1,3 +1,20 @@
+<script lang="ts">
+type Unit = "d" | "h" | "m" | "s";
+
+/** Props for {@link DurationInput}. */
+export interface DurationInputProps {
+  source: string;
+  label?: string | false;
+  defaultValue?: unknown;
+  validate?: Validator | readonly Validator[];
+  /** Which units to expose. Default `["d","h","m","s"]`. */
+  units?: readonly Unit[];
+  disabled?: boolean;
+  helperText?: string;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<DurationInput>` — edits an ISO-8601 duration string (`PT2H30M`, `P1DT4H`)
@@ -15,7 +32,6 @@ import ValidationError from "../common/validation-error.vue";
 import { parseIsoDuration } from "./duration-utils";
 import { humanizeSource } from "./label-text";
 
-type Unit = "d" | "h" | "m" | "s";
 const UNIT_LABEL: Record<Unit, string> = {
   d: "days",
   h: "hours",
@@ -24,17 +40,7 @@ const UNIT_LABEL: Record<Unit, string> = {
 };
 
 const props = withDefaults(
-  defineProps<{
-    source: string;
-    label?: string | false;
-    defaultValue?: unknown;
-    validate?: Validator | readonly Validator[];
-    /** Which units to expose. Default `["d","h","m","s"]`. */
-    units?: readonly Unit[];
-    disabled?: boolean;
-    helperText?: string;
-    class?: string;
-  }>(),
+  defineProps<DurationInputProps>(),
   // `label: undefined` so an absent `string | false` label isn't coerced to
   // `false` by Vue's Boolean-prop rule (which would suppress the label).
   { units: () => ["d", "h", "m", "s"] as Unit[], label: undefined },

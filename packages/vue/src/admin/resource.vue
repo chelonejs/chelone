@@ -1,3 +1,23 @@
+<script lang="ts">
+/** Props for {@link Resource}. */
+export interface ResourceProps {
+  /** The resource name — the registry key and the route base (`/{name}`). */
+  name: string;
+  /** The list view (adds the `/{name}` route). */
+  list?: ResourceDefinition["list"];
+  /** The create view (adds the `/{name}/create` route). */
+  create?: ResourceDefinition["create"];
+  /** The edit view (adds the `/{name}/:id` route). */
+  edit?: ResourceDefinition["edit"];
+  /** The show view (adds the `/{name}/:id/show` route). */
+  show?: ResourceDefinition["show"];
+  /** The menu / breadcrumb icon. */
+  icon?: ResourceDefinition["icon"];
+  /** How a record renders as a label. */
+  recordRepresentation?: ResourceDefinition["recordRepresentation"];
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<Resource>` — the self-registration marker (D3), the Vue twin of
@@ -18,22 +38,7 @@
 import { onScopeDispose } from "vue";
 import { type ResourceDefinition, useResourceRegistry } from "./resource-registry";
 
-const props = defineProps<{
-  /** The resource name — the registry key and the route base (`/{name}`). */
-  name: string;
-  /** The list view (adds the `/{name}` route). */
-  list?: ResourceDefinition["list"];
-  /** The create view (adds the `/{name}/create` route). */
-  create?: ResourceDefinition["create"];
-  /** The edit view (adds the `/{name}/:id` route). */
-  edit?: ResourceDefinition["edit"];
-  /** The show view (adds the `/{name}/:id/show` route). */
-  show?: ResourceDefinition["show"];
-  /** The menu / breadcrumb icon. */
-  icon?: ResourceDefinition["icon"];
-  /** How a record renders as a label. */
-  recordRepresentation?: ResourceDefinition["recordRepresentation"];
-}>();
+const props = defineProps<ResourceProps>();
 
 const registry = useResourceRegistry();
 

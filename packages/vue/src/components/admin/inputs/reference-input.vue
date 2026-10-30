@@ -1,3 +1,15 @@
+<script lang="ts">
+/** Props for {@link ReferenceInput}. */
+export interface ReferenceInputProps {
+  source: string;
+  reference: string;
+  label?: string | false;
+  perPage?: number;
+  validate?: Validator | readonly Validator[];
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<ReferenceInput>` — edits a to-one foreign key, the Vue analog of
@@ -19,14 +31,7 @@ import NativeSelect from "../../ui/native-select.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = withDefaults(defineProps<{
-  source: string;
-  reference: string;
-  label?: string | false;
-  perPage?: number;
-  validate?: Validator | readonly Validator[];
-  class?: string;
-}>(), {
+const props = withDefaults(defineProps<ReferenceInputProps>(), {
   label: undefined,
 });
 

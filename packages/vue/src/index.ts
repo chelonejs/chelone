@@ -8,6 +8,7 @@
 // bridge). The barrel fills in as V1 tasks land (store bridge, router adapter,
 // <Admin>/<Resource>, controllers, form, components).
 
+export type { AdminProps } from "./admin/admin.vue";
 export { default as Admin } from "./admin/admin.vue";
 // --- auth gate (no-flash gate + per-page gate + OAuth callback resolver) ---
 export type {
@@ -25,6 +26,7 @@ export {
   provideHasDashboard,
   useHasDashboard,
 } from "./admin/has-dashboard";
+export type { ResourceProps } from "./admin/resource.vue";
 export { default as Resource } from "./admin/resource.vue";
 export type {
   ResourceDefinition,

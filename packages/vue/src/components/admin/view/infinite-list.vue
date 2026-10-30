@@ -1,3 +1,12 @@
+<script lang="ts">
+/** Props for {@link InfiniteList}. */
+export interface InfiniteListProps {
+  resource?: string;
+  perPage?: number;
+  title?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<InfiniteList>` — `<List>` on `useInfiniteListController`, the Vue analog of
@@ -17,11 +26,7 @@ import {
   useResourceContext,
 } from "../../../resource-context";
 
-const props = defineProps<{
-  resource?: string;
-  perPage?: number;
-  title?: string;
-}>();
+const props = defineProps<InfiniteListProps>();
 
 const resource = props.resource ?? useResourceContext();
 if (!resource) {

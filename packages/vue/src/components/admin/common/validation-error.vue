@@ -1,3 +1,10 @@
+<script lang="ts">
+/** Props for {@link ValidationError}. */
+export interface ValidationErrorProps {
+  error?: string | TranslatableMessage;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<ValidationError>` — renders a Chelone field error as translated text, the
@@ -15,9 +22,7 @@ import type { TranslatableMessage } from "@chelone/core";
 import { computed } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = defineProps<{
-  error?: string | TranslatableMessage;
-}>();
+const props = defineProps<ValidationErrorProps>();
 
 const translate = useTranslate();
 

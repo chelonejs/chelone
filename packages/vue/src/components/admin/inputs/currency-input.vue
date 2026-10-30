@@ -1,3 +1,24 @@
+<script lang="ts">
+/** Props for {@link CurrencyInput}. */
+export interface CurrencyInputProps {
+  source: string;
+  label?: string | false;
+  defaultValue?: unknown;
+  validate?: Validator | readonly Validator[];
+  /** ISO-4217 currency code when storage is a plain number. */
+  currency?: string;
+  /** Provide to enable currency selection; stores composite { amount, currency }. */
+  currencies?: readonly string[];
+  /** Override the app locale for formatting the symbol/step. */
+  displayLocale?: string;
+  /** Multiply displayed major units by 100 on write so storage is integer cents. */
+  storeAsMinorUnits?: boolean;
+  disabled?: boolean;
+  helperText?: string;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<CurrencyInput>` — locale-aware money input, the Vue analog of
@@ -24,23 +45,7 @@ interface Composite {
 }
 
 const props = withDefaults(
-  defineProps<{
-    source: string;
-    label?: string | false;
-    defaultValue?: unknown;
-    validate?: Validator | readonly Validator[];
-    /** ISO-4217 currency code when storage is a plain number. */
-    currency?: string;
-    /** Provide to enable currency selection; stores composite { amount, currency }. */
-    currencies?: readonly string[];
-    /** Override the app locale for formatting the symbol/step. */
-    displayLocale?: string;
-    /** Multiply displayed major units by 100 on write so storage is integer cents. */
-    storeAsMinorUnits?: boolean;
-    disabled?: boolean;
-    helperText?: string;
-    class?: string;
-  }>(),
+  defineProps<CurrencyInputProps>(),
   // `label: undefined` so an absent `string | false` label isn't coerced to
   // `false` by Vue's Boolean-prop rule (which would suppress the label).
   { storeAsMinorUnits: false, label: undefined },

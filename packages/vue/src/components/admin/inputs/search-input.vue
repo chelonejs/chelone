@@ -1,3 +1,17 @@
+<script lang="ts">
+/** Props for {@link SearchInput}. */
+export interface SearchInputProps {
+  source?: string;
+  label?: string | false;
+  disableClearable?: boolean;
+  defaultValue?: unknown;
+  validate?: Validator | readonly Validator[];
+  placeholder?: string;
+  inputClass?: string;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<SearchInput>` — an unlabelled text input with a search icon, the Vue analog
@@ -17,16 +31,7 @@ import Button from "../../ui/button.vue";
 import TextInput from "./text-input.vue";
 
 const props = withDefaults(
-  defineProps<{
-    source?: string;
-    label?: string | false;
-    disableClearable?: boolean;
-    defaultValue?: unknown;
-    validate?: Validator | readonly Validator[];
-    placeholder?: string;
-    inputClass?: string;
-    class?: string;
-  }>(),
+  defineProps<SearchInputProps>(),
   { source: "q", disableClearable: false },
 );
 

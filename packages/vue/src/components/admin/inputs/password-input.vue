@@ -1,3 +1,20 @@
+<script lang="ts">
+/** Props for {@link PasswordInput}. */
+export interface PasswordInputProps {
+  source: string;
+  label?: string | false;
+  initiallyVisible?: boolean;
+  defaultValue?: unknown;
+  validate?: Validator | readonly Validator[];
+  helperText?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  inputClass?: string;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<PasswordInput>` — text input for passwords with a reveal toggle, the Vue
@@ -16,19 +33,7 @@ import { cn } from "../../../lib/utils";
 import Button from "../../ui/button.vue";
 import TextInput from "./text-input.vue";
 
-const props = withDefaults(defineProps<{
-  source: string;
-  label?: string | false;
-  initiallyVisible?: boolean;
-  defaultValue?: unknown;
-  validate?: Validator | readonly Validator[];
-  helperText?: string;
-  placeholder?: string;
-  disabled?: boolean;
-  readonly?: boolean;
-  inputClass?: string;
-  class?: string;
-}>(), {
+const props = withDefaults(defineProps<PasswordInputProps>(), {
   label: undefined,
 });
 

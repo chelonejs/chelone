@@ -1,3 +1,13 @@
+<script lang="ts">
+/** Props for {@link TextField}. */
+export interface TextFieldProps {
+  source: string;
+  record?: LooseRecord;
+  defaultValue?: unknown;
+  empty?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<TextField>` — displays a text value from a record field, the Vue analog of
@@ -10,12 +20,7 @@ import type { LooseRecord } from "@chelone/core";
 import { computed } from "vue";
 import { useFieldValue } from "../../../record/use-field-value";
 
-const props = defineProps<{
-  source: string;
-  record?: LooseRecord;
-  defaultValue?: unknown;
-  empty?: string;
-}>();
+const props = defineProps<TextFieldProps>();
 
 const value = useFieldValue({
   source: props.source,

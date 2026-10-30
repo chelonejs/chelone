@@ -1,3 +1,18 @@
+<script lang="ts">
+/** Props for {@link PhoneInput}. */
+export interface PhoneInputProps {
+  source: string;
+  label?: string | false;
+  defaultValue?: unknown;
+  validate?: Validator | readonly Validator[];
+  defaultCountry?: CountryCode;
+  allowedCountries?: readonly CountryCode[];
+  disabled?: boolean;
+  helperText?: string;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<PhoneInput>` — stores E.164 (`+14155552671`) and renders a country selector
@@ -24,17 +39,7 @@ import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
 const props = withDefaults(
-  defineProps<{
-    source: string;
-    label?: string | false;
-    defaultValue?: unknown;
-    validate?: Validator | readonly Validator[];
-    defaultCountry?: CountryCode;
-    allowedCountries?: readonly CountryCode[];
-    disabled?: boolean;
-    helperText?: string;
-    class?: string;
-  }>(),
+  defineProps<PhoneInputProps>(),
   // `label: undefined` so an absent `string | false` label isn't coerced to
   // `false` by Vue's Boolean-prop rule (which would suppress the label).
   { defaultCountry: "US", label: undefined },
