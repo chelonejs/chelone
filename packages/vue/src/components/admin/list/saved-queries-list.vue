@@ -11,7 +11,7 @@
  */
 
 import { isSavedQueryActive, type SavedQueryValue } from "@chelone/core";
-import { computed, ref, toRaw } from "vue";
+import { computed, ref, toRaw, watch } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { cn } from "../../../lib/utils";
 import { useListContext } from "../../../list/list-context";
@@ -94,6 +94,12 @@ function closeForm() {
   naming.value = false;
   name.value = "";
 }
+
+// A form left open while the list stops being saveable would come back
+// pre-filled once it is saveable again.
+watch(canSave, (saveable) => {
+  if (!saveable) closeForm();
+});
 
 function submit() {
   // The list may have changed while the form was open.

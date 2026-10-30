@@ -66,6 +66,9 @@ function SavedQueriesList({
     setNaming(false);
     setName("");
   };
+  // A form left open while the list stops being saveable would come back
+  // pre-filled, and with autofocus, once it is saveable again.
+  if (!canSave && (naming || name)) closeForm();
   const submit = (event: FormEvent) => {
     event.preventDefault();
     // The list may have changed while the form was open.

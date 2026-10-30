@@ -50,7 +50,7 @@ const seeded = (): ChelonStore => {
 };
 
 function mountAdmin(
-  store: ChelonStore,
+  store: ChelonStore | undefined,
   render: () => VNodeChild,
   dataProvider = fakeDataProvider({}),
 ) {
@@ -164,6 +164,19 @@ describe("useSavedQueries", () => {
     expect(labels(store)).toEqual(["World posts", "Third"]);
   });
 
+  it("keeps the queries in the instance when the app has no store", () => {
+    let api: ReturnType<typeof useSavedQueries> | undefined;
+    const Probe = defineComponent({
+      setup() {
+        api = useSavedQueries("posts");
+        return () => h("div");
+      },
+    });
+    mountAdmin(undefined, () => h(Probe));
+    api?.save("Local", savedValue("local"));
+    expect(api?.queries.value.map((q) => q.label)).toEqual(["Local"]);
+  });
+
   it("follows a change written to the store by another instance", async () => {
     const store = createStore();
     const apis: ReturnType<typeof useSavedQueries>[] = [];
@@ -260,21 +273,16 @@ describe("SavedQueriesList", () => {
     expect(button(wrapper, "My drafts")).toBeDefined();
   });
 
-  it("offers no save while the filter is empty", () => {
-    const { wrapper } = mountStub(seeded(), { filter: {} });
+  it("offers no save while the filter is empty or a saved query already matches", async () => {
+    const { wrapper, list } = mountStub(seeded(), { filter: {} });
     expect(button(wrapper, "Save current query")).toBeUndefined();
-  });
 
-  it("offers no save while a saved query already matches", () => {
-    const { wrapper } = mountStub(seeded(), {
-      filter: { title: "hello" },
-      perPage: 10,
-    });
+    list.filter = { title: "hello" };
+    await nextTick();
     expect(button(wrapper, "Save current query")).toBeUndefined();
-  });
 
-  it("offers save for a filter no saved query matches", () => {
-    const { wrapper } = mountStub(seeded(), { filter: { title: "other" } });
+    list.filter = { title: "other" };
+    await nextTick();
     expect(button(wrapper, "Save current query")).toBeDefined();
   });
 
@@ -283,12 +291,24 @@ describe("SavedQueriesList", () => {
       filter: { title: "draft" },
     });
     await button(wrapper, "Save current query")?.trigger("click");
-    expect(wrapper.find('input[aria-label="Query name"]').exists()).toBe(true);
+    await wrapper.find('input[aria-label="Query name"]').setValue("Foo");
 
     list.filter = {};
     await nextTick();
     expect(wrapper.find('input[aria-label="Query name"]').exists()).toBe(false);
     expect(button(wrapper, "Save current query")).toBeUndefined();
+
+    // Saveable again: the button is back, not a form still holding "Foo".
+    list.filter = { title: "next" };
+    await nextTick();
+    expect(wrapper.find('input[aria-label="Query name"]').exists()).toBe(false);
+    await button(wrapper, "Save current query")?.trigger("click");
+    expect(
+      (
+        wrapper.find('input[aria-label="Query name"]')
+          .element as HTMLInputElement
+      ).value,
+    ).toBe("");
   });
 
   it("saving an existing name replaces that query", async () => {

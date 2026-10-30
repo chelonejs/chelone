@@ -5,7 +5,7 @@ import {
   type SavedQueryValue,
 } from "@chelone/core";
 import { computed, type Ref } from "vue";
-import { useChelonStore } from "../context";
+import { useCheloneContext } from "../context";
 import { useStore } from "./use-store";
 
 export interface UseSavedQueriesReturn {
@@ -18,7 +18,8 @@ export interface UseSavedQueriesReturn {
 
 /**
  * The named list queries of `resource`, persisted in the KV store. Several
- * instances over one store key stay in step. The resource and options are read
+ * instances over one store key stay in step. Without a store the queries live
+ * in this instance only. The resource and options are read
  * once, in `setup`.
  *
  * Divergence from ra-core's `useSavedQueries`, which returns a
@@ -30,7 +31,7 @@ export function useSavedQueries(
   options: SavedQueriesControllerOptions = {},
 ): UseSavedQueriesReturn {
   const controller = createSavedQueriesController(
-    { store: useChelonStore() },
+    { store: useCheloneContext().store },
     resource,
     options,
   );

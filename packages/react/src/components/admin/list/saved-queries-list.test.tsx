@@ -275,25 +275,17 @@ describe("<SavedQueriesList>", () => {
     expect(screen.getByRole("button", { name: "My drafts" })).toBeTruthy();
   });
 
-  it("offers no save while the filter is empty", () => {
-    mountList(makeList({ filter: {} }), seeded());
-    expect(
-      screen.queryByRole("button", { name: "Save current query" }),
-    ).toBeNull();
-  });
+  it("offers no save while the filter is empty or a saved query already matches", () => {
+    const saveButton = () =>
+      screen.queryByRole("button", { name: "Save current query" });
+    const view = mountList(makeList({ filter: {} }), seeded());
+    expect(saveButton()).toBeNull();
 
-  it("offers no save while a saved query already matches", () => {
-    mountList(makeList({ filter: { title: "hello" }, perPage: 10 }), seeded());
-    expect(
-      screen.queryByRole("button", { name: "Save current query" }),
-    ).toBeNull();
-  });
+    view.setList(makeList({ filter: { title: "hello" }, perPage: 10 }));
+    expect(saveButton()).toBeNull();
 
-  it("offers save for a filter no saved query matches", () => {
-    mountList(makeList({ filter: { title: "other" }, perPage: 10 }), seeded());
-    expect(
-      screen.getByRole("button", { name: "Save current query" }),
-    ).toBeTruthy();
+    view.setList(makeList({ filter: { title: "other" }, perPage: 10 }));
+    expect(saveButton()).not.toBeNull();
   });
 
   it("closes the name form when the list stops being saveable", () => {
@@ -302,13 +294,24 @@ describe("<SavedQueriesList>", () => {
       createStore(),
     );
     fireEvent.click(screen.getByRole("button", { name: "Save current query" }));
-    expect(screen.getByRole("textbox", { name: "Query name" })).toBeTruthy();
+    fireEvent.change(screen.getByRole("textbox", { name: "Query name" }), {
+      target: { value: "Foo" },
+    });
 
     view.setList(makeList({ filter: {} }));
     expect(screen.queryByRole("textbox", { name: "Query name" })).toBeNull();
     expect(
       screen.queryByRole("button", { name: "Save current query" }),
     ).toBeNull();
+
+    // Saveable again: the button is back, not a form still holding "Foo".
+    view.setList(makeList({ filter: { title: "next" } }));
+    expect(screen.queryByRole("textbox", { name: "Query name" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Save current query" }));
+    expect(
+      (screen.getByRole("textbox", { name: "Query name" }) as HTMLInputElement)
+        .value,
+    ).toBe("");
   });
 
   it("saving an existing name replaces that query", () => {
