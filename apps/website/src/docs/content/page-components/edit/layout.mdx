@@ -6,24 +6,28 @@ description: "Arrange the form body, group inputs, and place the toolbar."
 `<Edit>` renders a **title**, a header **actions** slot, and its **children** —
 the form. Because inputs compose directly as children, the layout is plain JSX:
 wrap inputs in your own containers, split them into columns, or group them into
-tabs and steps.
+tabs and steps. The children mount once the record has loaded.
 
 ## The form body
 
 The simplest form is a stack of inputs followed by a toolbar:
 
 ```tsx
+import { Edit, TextInput, Toolbar } from "@chelone/react";
+
 <Edit>
   <TextInput source="title" />
   <TextInput source="body" multiline />
   <Toolbar />
-</Edit>
+</Edit>;
 ```
 
 Wrap inputs in ordinary layout elements to shape the form — Chelone imposes no
 form container:
 
 ```tsx
+import { Edit, NumberInput, TextInput, Toolbar } from "@chelone/react";
+
 <Edit>
   <div className="grid grid-cols-2 gap-4">
     <TextInput source="title" />
@@ -31,17 +35,21 @@ form container:
   </div>
   <TextInput source="body" multiline />
   <Toolbar />
-</Edit>
+</Edit>;
 ```
 
 ## Tabs and steps
 
 For long forms, `<TabbedForm>` splits inputs across tabs and `<WizardForm>`
 across sequential steps. Both compose as `<Edit>` children in place of a plain
-stack:
+stack. Given no `save` prop, they drive the form `<Edit>` already built: the
+record hydration, the schema validation and the save pipeline stay in effect.
+Form options such as `validate` belong on `<Edit>`, not on the tabs or steps.
+
+Neither renders a toolbar, so add one after them:
 
 ```tsx
-import { Edit, TabbedForm, TextInput } from "@chelone/react";
+import { Edit, TabbedForm, TextInput, Toolbar } from "@chelone/react";
 
 <Edit>
   <TabbedForm>
@@ -52,23 +60,76 @@ import { Edit, TabbedForm, TextInput } from "@chelone/react";
       <TextInput source="body" multiline />
     </TabbedForm.Tab>
   </TabbedForm>
+  <Toolbar />
+</Edit>;
+```
+
+Every tab stays mounted (inactive ones are hidden), so a single save submits
+all of them and a failing input on a hidden tab still blocks the save. A tab
+header shows a dot while its inputs are invalid. Tabs sync with the URL by
+default, which makes them deep-linkable; pass `syncWithLocation={false}` to keep
+the active tab in local state.
+
+`<WizardForm>` works the same way, with `<WizardForm.Step>` children. It renders
+no navigation: drive it with `useWizardFormContext`. `next()` validates the
+current step and only advances when it passes:
+
+```tsx
+import {
+  Edit,
+  SaveButton,
+  TextInput,
+  useWizardFormContext,
+  WizardForm,
+} from "@chelone/react";
+
+function StepNav() {
+  const { hasNext, hasPrev, next, prev } = useWizardFormContext();
+  return (
+    <div className="flex gap-2">
+      <button type="button" disabled={!hasPrev} onClick={prev}>
+        Back
+      </button>
+      {hasNext ? (
+        <button type="button" onClick={() => next()}>
+          Next
+        </button>
+      ) : (
+        <SaveButton />
+      )}
+    </div>
+  );
+}
+
+<Edit>
+  <WizardForm>
+    <WizardForm.Step name="summary">
+      <TextInput source="title" />
+    </WizardForm.Step>
+    <WizardForm.Step name="body">
+      <TextInput source="body" multiline />
+    </WizardForm.Step>
+    <StepNav />
+  </WizardForm>
 </Edit>;
 ```
 
 ## The toolbar
 
-`<Toolbar>` renders the form's action row — Save, and (on Edit) Delete. Place it
-as the last child, or drop in a bare `<SaveButton>` if you want just the save
-action:
+With no children, `<Toolbar>` always renders Save and Delete. Pass children to
+replace them, or drop in a bare `<SaveButton>` if you want just the save action:
 
 ```tsx
-import { SaveButton } from "@chelone/react";
+import { Edit, SaveButton, TextInput } from "@chelone/react";
 
 <Edit>
   <TextInput source="title" />
   <SaveButton />
 </Edit>;
 ```
+
+Because the default toolbar includes Delete, `<Create>` uses a bare
+`<SaveButton>` too: there is nothing to delete yet.
 
 ## Props
 
