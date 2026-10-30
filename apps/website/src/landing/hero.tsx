@@ -24,9 +24,9 @@ export function Hero() {
             as="p"
             className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl"
           >
-            Chelone is a framework-agnostic admin engine for React — typed
-            records and zero-boilerplate validation from your schema, composed
-            with production-ready shadcn blocks.
+            Chelone is a framework-agnostic admin engine with React and Vue
+            adapters — typed records and zero-boilerplate validation from your
+            schema, composed with production-ready shadcn blocks.
           </RevealItem>
 
           <RevealItem className="mt-9 flex flex-wrap items-center justify-center gap-3">
