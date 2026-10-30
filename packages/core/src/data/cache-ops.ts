@@ -14,8 +14,8 @@ import type { GetListResult } from "./types";
  * object — so the pre-apply snapshot stays a valid rollback target).
  */
 
-/** Partial-match keys covering the flat `GetListResult` caches of a resource. */
-function flatListQueryKeys(resource: string) {
+/** Partial-match keys of the caches holding one `GetListResult` per query (not one per page). */
+function singleResultListKeyPrefixes(resource: string) {
   return [
     [resource, "getList"],
     [resource, "getManyReference"],
@@ -50,9 +50,15 @@ function withPatchedRows(
   return changed ? { ...page, data: nextData } : undefined;
 }
 
+/** `total` after `removed` rows left; stays at 0 if a stale total is lower than the rows removed. */
+function lowerTotal(total: number | undefined, removed: number) {
+  return total == null ? total : Math.max(0, total - removed);
+}
+
 /**
  * Optimistically remove records: drop each `getOne` entry and filter the id(s)
- * out of every cached `getList` page (decrementing its `total` when known).
+ * out of every cached `getList`, `getManyReference` and `getInfiniteList` page
+ * (decrementing `total` when known).
  */
 export function removeRecordsFromCache(
   queryClient: QueryClient,
@@ -63,7 +69,7 @@ export function removeRecordsFromCache(
   for (const id of ids) {
     queryClient.removeQueries({ queryKey: oneKey(resource, { id }) });
   }
-  for (const queryKey of flatListQueryKeys(resource)) {
+  for (const queryKey of singleResultListKeyPrefixes(resource)) {
     for (const [key, value] of queryClient.getQueriesData<GetListResult>({
       queryKey,
     })) {
@@ -73,7 +79,7 @@ export function removeRecordsFromCache(
       const removed = value.data.length - next.data.length;
       queryClient.setQueryData<GetListResult>(key, {
         ...next,
-        total: value.total == null ? value.total : value.total - removed,
+        total: lowerTotal(value.total, removed),
       });
     }
   }
@@ -82,23 +88,19 @@ export function removeRecordsFromCache(
   >({ queryKey: infiniteListKeyPrefix(resource) });
   for (const [key, value] of infinite) {
     if (!value) continue;
-    const pages = value.pages.map((page) => withoutIds(page, idSet));
-    if (pages.every((page) => page === undefined)) continue;
+    const kept = value.pages.map((page) => withoutIds(page, idSet) ?? page);
     // `total` counts the whole list, so every page drops by the rows removed across all pages.
     const removed = value.pages.reduce(
-      (n, page, i) =>
-        n + page.data.length - (pages[i]?.data.length ?? page.data.length),
+      (n, page, i) => n + page.data.length - (kept[i]?.data.length ?? 0),
       0,
     );
+    if (removed === 0) continue;
     queryClient.setQueryData<InfiniteData<GetListResult, unknown>>(key, {
       ...value,
-      pages: value.pages.map((page, i) => {
-        const next = pages[i] ?? page;
-        return {
-          ...next,
-          total: next.total == null ? next.total : next.total - removed,
-        };
-      }),
+      pages: kept.map((page) => ({
+        ...page,
+        total: lowerTotal(page.total, removed),
+      })),
     });
   }
 }
@@ -122,7 +124,7 @@ export function updateRecordsInCache(
       queryClient.setQueryData(key, { ...previous, ...data });
     }
   }
-  for (const queryKey of flatListQueryKeys(resource)) {
+  for (const queryKey of singleResultListKeyPrefixes(resource)) {
     for (const [key, value] of queryClient.getQueriesData<GetListResult>({
       queryKey,
     })) {
@@ -136,11 +138,13 @@ export function updateRecordsInCache(
   >({ queryKey: infiniteListKeyPrefix(resource) });
   for (const [key, value] of infinite) {
     if (!value) continue;
-    const pages = value.pages.map((page) => withPatchedRows(page, idSet, data));
-    if (pages.every((page) => page === undefined)) continue;
+    const pages = value.pages.map(
+      (page) => withPatchedRows(page, idSet, data) ?? page,
+    );
+    if (pages.every((page, i) => page === value.pages[i])) continue;
     queryClient.setQueryData<InfiniteData<GetListResult, unknown>>(key, {
       ...value,
-      pages: value.pages.map((page, i) => pages[i] ?? page),
+      pages,
     });
   }
   patchManyEntries(queryClient, resource, idSet, data);

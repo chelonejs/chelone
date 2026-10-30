@@ -194,8 +194,11 @@ describe("getInfiniteListOptions", () => {
     expect(options.initialPageParam).toBe(3);
   });
 
+  // The paging callbacks never touch the context, so one set serves the pure tests.
+  const paging = () => getInfiniteListOptions(infCtx(), "posts", params());
+
   it("getInfiniteListOptions has no next page once pageInfo.hasNextPage is false", () => {
-    const options = getInfiniteListOptions(infCtx(), "posts", params());
+    const options = paging();
     const full = [row(1), row(2)];
     expect(
       options.getNextPageParam(
@@ -216,7 +219,7 @@ describe("getInfiniteListOptions", () => {
   });
 
   it("getInfiniteListOptions has no next page once loaded rows reach total", () => {
-    const options = getInfiniteListOptions(infCtx(), "posts", params());
+    const options = paging();
     const p1 = { data: [row(1), row(2)], total: 3 };
     const p2 = { data: [row(3), row(4)], total: 4 };
     expect(options.getNextPageParam(p1, [p1], 1, [1])).toBe(2);
@@ -224,7 +227,7 @@ describe("getInfiniteListOptions", () => {
   });
 
   it("getInfiniteListOptions treats a short last page as the end when total and pageInfo are absent", () => {
-    const options = getInfiniteListOptions(infCtx(), "posts", params());
+    const options = paging();
     expect(
       options.getNextPageParam({ data: [row(1), row(2)] }, [], 4, [4]),
     ).toBe(5);
@@ -233,8 +236,29 @@ describe("getInfiniteListOptions", () => {
     ).toBeUndefined();
   });
 
+  it("getInfiniteListOptions treats an empty last page as the end when total and pageInfo are absent", () => {
+    const options = paging();
+    expect(options.getNextPageParam({ data: [] }, [], 4, [4])).toBeUndefined();
+    const zeroPerPage = getInfiniteListOptions(infCtx(), "posts", {
+      pagination: { page: 1, perPage: 0 },
+    });
+    expect(
+      zeroPerPage.getNextPageParam({ data: [] }, [], 1, [1]),
+    ).toBeUndefined();
+  });
+
+  it("getInfiniteListOptions counts the rows before a first page past page 1 when checking total", () => {
+    const options = getInfiniteListOptions(infCtx(), "posts", {
+      pagination: { page: 3, perPage: 2 },
+    });
+    const p3 = { data: [row(5), row(6)], total: 8 };
+    const p4 = { data: [row(7), row(8)], total: 8 };
+    expect(options.getNextPageParam(p3, [p3], 3, [3])).toBe(4);
+    expect(options.getNextPageParam(p4, [p3, p4], 4, [3, 4])).toBeUndefined();
+  });
+
   it("getInfiniteListOptions has no previous page at page 1 and page - 1 after", () => {
-    const options = getInfiniteListOptions(infCtx(), "posts", params());
+    const options = paging();
     const page = { data: [row(1)] };
     expect(options.getPreviousPageParam(page, [page], 1, [1])).toBeUndefined();
     expect(options.getPreviousPageParam(page, [page], 3, [3])).toBe(2);
