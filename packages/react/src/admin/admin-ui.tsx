@@ -24,6 +24,7 @@ import {
   useContext,
   useMemo,
 } from "react";
+import { LoginPage } from "../components/admin/auth/login-page";
 import { useRegisterResources } from "../resource/registry-hooks";
 import type {
   AdminChildrenStatus,
@@ -192,7 +193,9 @@ export function AdminUI<TResources extends ResourceMap = ResourceMap>({
       mergeSlots(rawParts.slots, {
         title,
         layout,
-        loginPage,
+        // Default so `requireAuth` never lands on a blank screen; a prop or
+        // `<Admin.LoginPage>` child still wins.
+        loginPage: loginPage ?? rawParts.slots.loginPage ?? <LoginPage />,
         dashboard,
         catchAll,
         error,

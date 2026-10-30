@@ -9,7 +9,12 @@
  */
 
 import type { AuthProvider } from "@chelone/core";
-import { fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  createNotificationStore,
+  defineMessages,
+  fakeDataProvider,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
@@ -177,6 +182,68 @@ describe("AdminRoutes — no-flash auth gate (§0a-7/16)", () => {
     expect(screen.queryByTestId("posts-list")).toBeNull();
     expect(listSpy).not.toHaveBeenCalled();
     await waitFor(() => expect(logout).toHaveBeenCalled());
+  });
+
+  it("requireAuth with no login slot renders the default LoginPage", async () => {
+    const authProvider = makeAuthProvider({
+      checkAuth: async () => {
+        throw new Error("nope");
+      },
+    });
+    render(
+      <MemoryRouter initialEntries={["/posts"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          authProvider={authProvider}
+          notifications={createNotificationStore()}
+          i18n={createI18n({
+            locale: "en",
+            messages: { en: defineMessages({ "ra.auth.sign_in": "Sign in" }) },
+          })}
+          requireAuth
+        >
+          <Resource
+            name="posts"
+            list={() => <div data-testid="posts-list" />}
+          />
+        </Admin>
+      </MemoryRouter>,
+    );
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Sign in" })).toBeDefined(),
+    );
+    expect(screen.queryByTestId("posts-list")).toBeNull();
+  });
+
+  it("a login slot replaces the default LoginPage", async () => {
+    const authProvider = makeAuthProvider({
+      checkAuth: async () => {
+        throw new Error("nope");
+      },
+    });
+    render(
+      <MemoryRouter initialEntries={["/posts"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          authProvider={authProvider}
+          requireAuth
+        >
+          <Resource
+            name="posts"
+            list={() => <div data-testid="posts-list" />}
+          />
+          <Admin.LoginPage>
+            <div data-testid="custom-login">custom login</div>
+          </Admin.LoginPage>
+        </Admin>
+      </MemoryRouter>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("custom-login")).toBeDefined(),
+    );
+    expect(screen.queryByRole("button", { name: "Sign in" })).toBeNull();
   });
 
   it("no authProvider → never gates (appless demo shortcut §0a-16)", async () => {
