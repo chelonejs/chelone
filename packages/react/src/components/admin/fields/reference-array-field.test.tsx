@@ -253,6 +253,114 @@ describe("<ReferenceArrayField>", () => {
     expect(getOne).not.toHaveBeenCalled();
   });
 
+  it.each([
+    { label: "missing", record: {} },
+    { label: "undefined", record: { tag_ids: undefined } },
+    { label: "null", record: { tag_ids: null } },
+    { label: "empty", record: { tag_ids: [] } },
+    { label: "string", record: { tag_ids: "invalid" } },
+    { label: "object", record: { tag_ids: {} } },
+  ])("does not fetch a $label FK array", async ({ record }) => {
+    const dataProvider = fakeDataProvider({ tags: structuredClone(tags) });
+    const getMany = vi.spyOn(dataProvider, "getMany");
+    renderUnderAdmin(
+      <>
+        <section aria-label="Empty tags">
+          <ReferenceArrayField
+            source="tag_ids"
+            reference="tags"
+            record={record}
+          >
+            <ListStatus />
+          </ReferenceArrayField>
+        </section>
+        <ReferenceField
+          source="tag_id"
+          reference="tags"
+          record={{ tag_id: 3 }}
+          link={false}
+        />
+      </>,
+      dataProvider,
+    );
+    // The sibling's result proves the aggregate batch has flushed.
+    await screen.findByText("Lifestyle");
+    const field = within(screen.getByRole("region", { name: "Empty tags" }));
+    expect(field.getByRole("list")).toBeDefined();
+    expect(field.queryByRole("listitem")).toBeNull();
+    expect(field.queryByRole("status")).toBeNull();
+    expect(getMany).toHaveBeenCalledTimes(1);
+    expect(getMany).toHaveBeenCalledWith(
+      "tags",
+      expect.objectContaining({ ids: [3] }),
+    );
+  });
+
+  it("exposes a rejected batch and clears its error when the FK array becomes empty", async () => {
+    const dataProvider = fakeDataProvider({ tags: structuredClone(tags) });
+    const getMany = vi
+      .spyOn(dataProvider, "getMany")
+      .mockRejectedValue(new Error("Offline"));
+    const view = renderUnderAdmin(
+      <ReferenceArrayField
+        source="tag_ids"
+        reference="tags"
+        record={{ tag_ids: [1] }}
+      >
+        <ListStatus />
+      </ReferenceArrayField>,
+      dataProvider,
+    );
+    expect(screen.getByRole("status").textContent).toBe("Loading");
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "Lookup failed",
+    );
+    view.rerender(
+      <ReferenceArrayField
+        source="tag_ids"
+        reference="tags"
+        record={{ tag_ids: [] }}
+      >
+        <ListStatus />
+      </ReferenceArrayField>,
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("list")).toBeDefined();
+      expect(screen.queryByRole("alert")).toBeNull();
+      expect(screen.queryByRole("status")).toBeNull();
+      expect(screen.queryByRole("listitem")).toBeNull();
+    });
+    expect(getMany).toHaveBeenCalledTimes(1);
+  });
+
+  it("lists only records returned for its requested ids", async () => {
+    const dataProvider = fakeDataProvider({ tags: structuredClone(tags) });
+    const getMany = vi
+      .spyOn(dataProvider, "getMany")
+      .mockResolvedValue({ data: [{ id: 1, name: "Tech" }] });
+    renderUnderAdmin(
+      <ReferenceArrayField
+        source="tag_ids"
+        reference="tags"
+        record={{ tag_ids: [1, 99] }}
+      >
+        <ListStatus />
+      </ReferenceArrayField>,
+      dataProvider,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole("listitem").map((item) => item.textContent),
+      ).toEqual(["Tech"]),
+    );
+    expect(getMany).toHaveBeenCalledTimes(1);
+    expect(getMany).toHaveBeenCalledWith(
+      "tags",
+      expect.objectContaining({ ids: expect.arrayContaining([1, 99]) }),
+    );
+    expect(getMany.mock.calls[0]?.[1].ids).toHaveLength(2);
+  });
+
   it("resolves the array of FKs and lists the referenced records", async () => {
     const Providers = makeProviders();
     render(
