@@ -31,8 +31,8 @@
     }
   },
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.build.json",
-    "check:pack": "publint --pack pnpm --strict",
+    "build": "vite build && tsc -p tsconfig.build.json && node ../../scripts/dts-extensions.mjs dist",
+    "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only",
     "test": "NODE_OPTIONS=--no-experimental-webstorage vitest run --typecheck",
     "typecheck": "tsc --noEmit"
   },
@@ -44,6 +44,7 @@
     "@tanstack/query-core": "^5.0.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.0",
     "@tanstack/form-core": "^1.33.0",
     "@tanstack/query-core": "^5.0.0",
     "jsdom": "^26.1.0",
