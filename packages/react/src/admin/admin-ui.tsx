@@ -31,6 +31,11 @@ import {
   useState,
 } from "react";
 import { LoginPage } from "../components/admin/auth/login-page";
+import {
+  noThemeProvider,
+  ThemeProviderContext,
+} from "../components/admin/layout/theme-context";
+import { ThemeProvider } from "../components/admin/layout/theme-provider";
 import { CheloneProvider, useCheloneContext } from "../context";
 import { useRegisterResources } from "../resource/registry-hooks";
 import type {
@@ -122,6 +127,22 @@ function DefaultLoginPage(): ReactNode {
       <LoginPage />
     </CheloneProvider>
   );
+}
+
+/**
+ * Mounts a `<ThemeProvider>` around the shell so the default `<AppBar>` toggle
+ * works, unless the app already mounted one above `<Admin>`: that provider
+ * carries the app's `defaultTheme` and `storageKey`, which `<Admin>` has no
+ * props to set, so it is left in charge.
+ */
+function DefaultThemeProvider({
+  children,
+}: {
+  children: ReactNode;
+}): ReactNode {
+  const outer = useContext(ThemeProviderContext);
+  if (outer !== noThemeProvider) return children;
+  return <ThemeProvider>{children}</ThemeProvider>;
 }
 
 /**
@@ -276,7 +297,9 @@ export function AdminUI<TResources extends ResourceMap = ResourceMap>({
   const Content = render ?? DefaultShellContent;
   return (
     <AdminUIContext.Provider value={content}>
-      <Content />
+      <DefaultThemeProvider>
+        <Content />
+      </DefaultThemeProvider>
     </AdminUIContext.Provider>
   );
 }

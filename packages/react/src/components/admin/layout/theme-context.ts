@@ -21,11 +21,12 @@ export interface ThemeProviderState {
   setTheme: (theme: Theme) => void;
 }
 
-const initialState: ThemeProviderState = {
+/** The value with no `<ThemeProvider>` above: the mode is read-only. */
+export const noThemeProvider: ThemeProviderState = {
   theme: "system",
   setTheme: () => {},
 };
 
 /** Context carrying the active theme mode + its setter. */
 export const ThemeProviderContext =
-  createContext<ThemeProviderState>(initialState);
+  createContext<ThemeProviderState>(noThemeProvider);

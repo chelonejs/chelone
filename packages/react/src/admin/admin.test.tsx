@@ -11,13 +11,20 @@
  * page slots reach the shell — not full routing.
  */
 
-import { fakeDataProvider } from "@chelone/core";
+import { createStore, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { Layout } from "../components/admin/layout/layout";
-import { useCheloneContext } from "../context";
+import { ThemeProvider } from "../components/admin/layout/theme-provider";
+import { CheloneProvider, useCheloneContext } from "../context";
 import { useTranslate } from "../i18n-hooks";
 import { useNotify } from "../notification-hooks";
 import {
@@ -41,6 +48,8 @@ beforeAll(() => {
 
 afterEach(() => {
   cleanup();
+  localStorage.clear();
+  document.documentElement.classList.remove("light", "dark");
 });
 
 const dataProvider = fakeDataProvider({});
@@ -277,6 +286,61 @@ describe("<Admin> — optional services", () => {
     );
 
     expect(screen.getByText("dash")).toBeTruthy();
+  });
+
+  it("the default layout's theme toggle sets the dark class", async () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+          <Admin.Layout>
+            <Layout />
+          </Admin.Layout>
+          <Admin.Dashboard>
+            <div>dash</div>
+          </Admin.Dashboard>
+        </Admin>
+      </MemoryRouter>,
+    );
+
+    fireEvent.keyDown(screen.getByRole("button", { name: /toggle theme/i }), {
+      key: "Enter",
+    });
+    fireEvent.click(await screen.findByRole("menuitem", { name: /dark/i }));
+
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+  });
+
+  it("an app's own ThemeProvider above Admin keeps its default and key", async () => {
+    const queryClient = makeQueryClient();
+    const store = createStore();
+    render(
+      <CheloneProvider
+        dataProvider={dataProvider}
+        queryClient={queryClient}
+        store={store}
+      >
+        <ThemeProvider defaultTheme="dark" storageKey="my-theme">
+          <MemoryRouter initialEntries={["/"]}>
+            <Admin dataProvider={dataProvider} queryClient={queryClient}>
+              <Admin.Layout>
+                <Layout />
+              </Admin.Layout>
+              <Admin.Dashboard>
+                <div>dash</div>
+              </Admin.Dashboard>
+            </Admin>
+          </MemoryRouter>
+        </ThemeProvider>
+      </CheloneProvider>,
+    );
+
+    fireEvent.keyDown(screen.getByRole("button", { name: /toggle theme/i }), {
+      key: "Enter",
+    });
+    fireEvent.click(await screen.findByRole("menuitem", { name: /light/i }));
+
+    expect(store.getItem("my-theme")).toBe("light");
+    expect(store.getItem("theme")).toBeUndefined();
   });
 
   it("without i18n, a default label keeps its {_} text and fills its placeholders", () => {
