@@ -24,12 +24,16 @@ import {
   createCheloneHooks,
   useDelete,
   useGetList,
+  useGetManyReference,
   useGetOne,
   useUpdate,
 } from "./hooks";
 
 const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: {
+    schema: z.object({ id: z.number(), post_id: z.number(), body: z.string() }),
+  },
 });
 type R = typeof resources;
 
@@ -38,6 +42,11 @@ function makeWrapper() {
     posts: [
       { id: 1, title: "a" },
       { id: 2, title: "b" },
+    ],
+    comments: [
+      { id: 1, post_id: 1, body: "x" },
+      { id: 2, post_id: 2, body: "y" },
+      { id: 3, post_id: 1, body: "z" },
     ],
   });
   const queryClient = new QueryClient({
@@ -48,7 +57,7 @@ function makeWrapper() {
       {children}
     </CheloneProvider>
   );
-  return { wrapper, queryClient };
+  return { wrapper, queryClient, dataProvider };
 }
 
 describe("react hooks", () => {
@@ -99,6 +108,56 @@ describe("react hooks", () => {
     >();
     // @ts-expect-error unknown resource name rejected by the bound hooks
     void (() => hooks.useGetList("nope"));
+  });
+
+  it("useGetManyReference resolves the rows whose target field equals the id and reports the total", async () => {
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () =>
+        useGetManyReference<R, "comments">("comments", {
+          target: "post_id",
+          id: 1,
+          pagination: { page: 1, perPage: 10 },
+        }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data?.data.map((c) => c.body)).toEqual(["x", "z"]);
+    expect(result.current.data?.total).toBe(2);
+  });
+
+  it("useGetManyReference does not fetch while enabled is false", async () => {
+    const { wrapper, dataProvider } = makeWrapper();
+    const spy = vi.spyOn(dataProvider, "getManyReference");
+    const { result } = renderHook(
+      () =>
+        useGetManyReference<R, "comments">(
+          "comments",
+          { target: "post_id", id: 1 },
+          { enabled: false },
+        ),
+      { wrapper },
+    );
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(spy).not.toHaveBeenCalled();
+    expect(result.current.fetchStatus).toBe("idle");
+    expect(result.current.data).toBeUndefined();
+  });
+
+  it("createCheloneHooks binds useGetManyReference to the registry type and rejects an unknown resource", async () => {
+    const hooks = createCheloneHooks<R>();
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => hooks.useGetManyReference("comments", { target: "post_id", id: 2 }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expectTypeOf(result.current.data?.data).toEqualTypeOf<
+      { id: number; post_id: number; body: string }[] | undefined
+    >();
+    expect(result.current.data?.data.map((c) => c.body)).toEqual(["y"]);
+    // @ts-expect-error unknown resource name rejected by the bound hooks
+    void (() => hooks.useGetManyReference("nope", { target: "x", id: 1 }));
   });
 
   it("useCheloneContext throws a clear error outside the provider", () => {

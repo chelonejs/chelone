@@ -68,7 +68,11 @@ describe("query option factories", () => {
 describe("getManyReferenceOptions", () => {
   const refResources = defineResources({
     comments: {
-      schema: z.object({ id: z.number(), post_id: z.number(), body: z.string() }),
+      schema: z.object({
+        id: z.number(),
+        post_id: z.number(),
+        body: z.string(),
+      }),
     },
   });
   const refCtx = () => ({
