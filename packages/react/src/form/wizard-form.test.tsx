@@ -166,7 +166,13 @@ function renderInEditRoute(
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
   const registry = createResourceRegistry();
-  registry.register({ name: "posts", hasList: true, hasEdit: true });
+  registry.register({
+    name: "posts",
+    hasList: true,
+    hasCreate: false,
+    hasEdit: true,
+    hasShow: false,
+  });
   return render(
     <CheloneProvider
       dataProvider={dataProvider}
@@ -471,10 +477,12 @@ describe("<WizardForm> inside <Edit>", () => {
       posts: [{ id: 1, title: "Original", body: "Body" }],
     });
     const update = vi.spyOn(dataProvider, "update");
+    // Required by the props, but inside <Edit> the view's own save runs.
+    const ownSave = vi.fn(async () => undefined);
     renderInEditRoute(
       dataProvider,
       <Edit title={false}>
-        <WizardForm>
+        <WizardForm save={ownSave}>
           <WizardForm.Step name="one">
             <TextInput source="title" />
           </WizardForm.Step>
@@ -502,5 +510,6 @@ describe("<WizardForm> inside <Edit>", () => {
       title: "Updated",
       body: "Body",
     });
+    expect(ownSave).not.toHaveBeenCalled();
   });
 });
