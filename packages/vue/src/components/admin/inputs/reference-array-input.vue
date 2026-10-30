@@ -51,7 +51,7 @@ import {
   useReferenceInput,
 } from "../../../choices";
 import { useCheloneFormContext, useWrappedSource } from "../../../form";
-import { useSubscribable } from "../../../form/subscribe-ref";
+import { subscribeStore, useSubscribable } from "../../../form/subscribe-ref";
 import { provideResourceContext } from "../../../resource-context";
 import AutocompleteArrayInput from "./autocomplete-array-input.vue";
 
@@ -84,7 +84,7 @@ const source = useWrappedSource(props.source);
 const store = (form as ChelonFormApi<Record<string, unknown>>).store;
 const fieldValue = useSubscribable<unknown>({
   getSnapshot: () => form.getFieldValue(source),
-  subscribe: (listener) => store.subscribe(listener),
+  subscribe: (listener) => subscribeStore(store, listener),
 });
 watch(
   fieldValue,

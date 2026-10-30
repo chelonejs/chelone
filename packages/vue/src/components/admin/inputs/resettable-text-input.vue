@@ -16,7 +16,7 @@
 import type { Validator } from "@chelone/core";
 import { computed } from "vue";
 import { useCheloneFormContext, useWrappedSource } from "../../../form/form-context";
-import { useSubscribable } from "../../../form/subscribe-ref";
+import { subscribeStore, useSubscribable } from "../../../form/subscribe-ref";
 import { useTranslate } from "../../../i18n/use-translate";
 import { cn } from "../../../lib/utils";
 import Button from "../../ui/button.vue";
@@ -49,7 +49,7 @@ const wrappedSource = useWrappedSource(props.source);
 // depends on the store snapshot, hence the `void formState.value` touch.
 const formState = useSubscribable({
   getSnapshot: () => form.store.state,
-  subscribe: (cb: () => void) => form.store.subscribe(cb),
+  subscribe: (cb) => subscribeStore(form.store, cb),
 });
 const hasValue = computed(() => {
   void formState.value;

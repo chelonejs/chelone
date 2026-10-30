@@ -195,6 +195,21 @@ describe("<ResettableTextInput>", () => {
   });
 });
 
+// Each subscribes to the form store, which hands back a `Subscription` object;
+// passing that to `onScopeDispose` as the cleanup threw on unmount.
+describe("form-store subscribers release on unmount", () => {
+  it.each([
+    ["ResettableTextInput", () => h(ResettableTextInput, { source: "title" })],
+    ["SearchInput", () => h(SearchInput)],
+  ])("<%s> unmounts without throwing", async (_, render) => {
+    const { wrapper } = mountInForm(render, {
+      record: { id: 1, title: "War and Peace", author_id: 10, views: 0 },
+    });
+    await flushPromises();
+    expect(() => wrapper.unmount()).not.toThrow();
+  });
+});
+
 describe("<SearchInput>", () => {
   it("renders an unlabelled search input on the q source and clears it", async () => {
     const { wrapper, captured } = mountInForm(() => h(SearchInput), {
