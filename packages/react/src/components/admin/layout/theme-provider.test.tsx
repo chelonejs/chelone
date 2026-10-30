@@ -134,6 +134,21 @@ describe("<ThemeProvider>", () => {
     expect(screen.getByTestId("mode").textContent).toBe("dark");
   });
 
+  it("ignores a stored value that is not a mode and uses the default", () => {
+    const store = createStore();
+    store.setItem("theme", "blue");
+    render(
+      <Wrap store={store}>
+        <ThemeProvider defaultTheme="light">
+          <Probe />
+        </ThemeProvider>
+      </Wrap>,
+    );
+    expect(screen.getByTestId("mode").textContent).toBe("light");
+    expect(document.documentElement.classList.contains("light")).toBe(true);
+    expect(document.documentElement.classList.contains("blue")).toBe(false);
+  });
+
   it("without a store the mode persists to localStorage", () => {
     const { unmount } = render(
       <WrapWithoutStore>

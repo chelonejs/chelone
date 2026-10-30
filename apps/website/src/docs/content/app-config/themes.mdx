@@ -48,26 +48,36 @@ block and Tailwind `dark:` variants key off that class.
 (`defaultTheme="system"`, `storageKey="theme"`), so the `<ThemeModeToggle>` in
 the default `<AppBar>` works with no setup. `<Admin>` has no props for either
 option. To change them, mount your own `<ThemeProvider>` above `<Admin>`; it
-stays in charge and `<Admin>` mounts none:
+stays in charge and `<Admin>` mounts none. `<ThemeProvider>` reads the store from
+the nearest `<CheloneProvider>`, so it needs one above it:
 
 ```tsx
-import { Admin, ThemeProvider } from "@chelone/react";
+import { CheloneProvider, Admin, ThemeProvider } from "@chelone/react";
 
-<ThemeProvider defaultTheme="dark" storageKey="my-app-theme">
-  <Admin dataProvider={dataProvider} queryClient={queryClient}>
-    {/* … */}
-  </Admin>
-</ThemeProvider>;
+<CheloneProvider
+  dataProvider={dataProvider}
+  queryClient={queryClient}
+  store={store}
+>
+  <ThemeProvider defaultTheme="dark" storageKey="my-app-theme">
+    <Admin dataProvider={dataProvider} queryClient={queryClient} store={store}>
+      {/* … */}
+    </Admin>
+  </ThemeProvider>
+</CheloneProvider>;
 ```
 
 ### Persistence
 
-- With a `store` on `<Admin>` (or `<CheloneProvider>`), the mode is saved in the
-  store under `storageKey`.
+- With a store, the mode is saved in the store under `storageKey`. Which store:
+  the `<ThemeProvider>` uses the nearest `<CheloneProvider>`'s. The default
+  provider `<Admin>` mounts uses `<Admin store>`. With your own provider above
+  `<Admin>`, pass the same `store` to the `<CheloneProvider>`, as above;
+  otherwise the mode goes to `localStorage`.
 - Without a store, it is saved in `localStorage` under `storageKey`. If
   `localStorage` is blocked or full, the mode still applies for the session.
 - Nothing saved yet: `defaultTheme` is used. A stored value other than `light`,
-  `dark` or `system` is ignored.
+  `dark` or `system` is ignored, in the store and in `localStorage`.
 
 ### Reading and setting the mode
 

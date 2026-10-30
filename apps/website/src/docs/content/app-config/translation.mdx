@@ -97,9 +97,13 @@ react-admin and the components use) when `count` is absent. Whichever you pass
 also fills `{count}` and `{smart_count}` in the text:
 
 ```ts
-i18n.translate("ra.action.bulk_actions", { smart_count: 1 }); // "1 item selected"
-i18n.translate("ra.action.bulk_actions", { smart_count: 4 }); // "4 items selected"
+i18n.translate("ra.action.bulk_actions", { count: 1 }); // "1 item selected"
+i18n.translate("ra.action.bulk_actions", { count: 4 }); // "4 items selected"
 ```
+
+On an instance typed from a `defineMessages` catalog, a plural message requires
+`count`. `smart_count` is accepted only through `useTranslate()` and the
+catalog-erased instance `<Admin>` holds, which is how the components call it.
 
 Without a numeric count, the `other` form is used. A category the locale needs
 but the message lacks (for example `few` in Polish) falls back to `other`.
