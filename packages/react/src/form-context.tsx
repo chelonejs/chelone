@@ -66,6 +66,11 @@ export function useCheloneFormContext(): CheloneFormContextValue {
   return ctx;
 }
 
+/** The ambient form context, or `null` when no provider is above. */
+export function useOptionalCheloneFormContext():CheloneFormContextValue | null {
+  return useContext(CheloneFormContext);
+}
+
 /**
  * Source scoping (ra's SourceContext): composed inputs (iterator rows,
  * grouped inputs) prefix their children's `source`. Defaults to the identity

@@ -27,8 +27,9 @@ import {
   useMemo,
   useState,
 } from "react";
-import { CheloneFormProvider, useCheloneFormContext } from "../form-context";
-import { type UseFormOptions, useForm } from "../form-hooks";
+import { useCheloneFormContext } from "../form-context";
+import type { UseFormOptions } from "../form-hooks";
+import { FormScope } from "./form-scope";
 import {
   FormGroupProvider,
   FormGroupsProvider,
@@ -199,24 +200,27 @@ interface WizardFormComponent {
 /**
  * A multi-step form. Provide `<WizardForm.Step name>` children (in order) plus
  * any step-nav chrome; a single `save` (via {@link UseFormOptions}) submits the
- * whole form. Wires the ambient form + FormGroups registry, drives the local
+ * whole form. Inside a view that provides a form (`<Edit>`) it drives that form
+ * and ignores the form options; standalone it builds its own. Wires the
+ * FormGroups registry, drives the local
  * step index, and CSS-hides inactive steps so every field stays mounted.
  */
 function WizardFormImpl<TFormData>({
   children,
   ...formOptions
 }: WizardFormProps<TFormData>): ReactElement {
-  const { form, submit } = useForm<TFormData>(formOptions);
   // Step names are structural (children order); recompute only when they change.
   const stepNames = useMemo(() => collectStepNames(children), [children]);
   return (
-    <CheloneFormProvider form={form} submit={submit}>
-      <FormGroupsProvider>
-        <WizardShell stepNames={stepNames} submit={submit}>
-          {children}
-        </WizardShell>
-      </FormGroupsProvider>
-    </CheloneFormProvider>
+    <FormScope<TFormData> options={formOptions}>
+      {(submit) => (
+        <FormGroupsProvider>
+          <WizardShell stepNames={stepNames} submit={submit}>
+            {children}
+          </WizardShell>
+        </FormGroupsProvider>
+      )}
+    </FormScope>
   );
 }
 

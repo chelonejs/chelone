@@ -44,10 +44,10 @@ import {
   useMemo,
   useState,
 } from "react";
-import { CheloneFormProvider } from "../form-context";
-import { type UseFormOptions, useForm } from "../form-hooks";
+import type { UseFormOptions } from "../form-hooks";
 import { useRouterAdapter } from "../router/adapter";
 import { useLocation, useParams } from "../router/nav-hooks";
+import { FormScope } from "./form-scope";
 import {
   FormGroupProvider,
   FormGroupsProvider,
@@ -239,8 +239,9 @@ interface TabbedFormComponent {
 
 /**
  * A tabbed form. Provide `<TabbedForm.Tab name label>` children (in order); a
- * single `save` (via {@link UseFormOptions}) submits the whole form. Wires the
- * ambient form + FormGroups registry, then either the URL-synced or the local
+ * single `save` (via {@link UseFormOptions}) submits the whole form. Inside a
+ * view that provides a form (`<Edit>`) it drives that form and ignores the form
+ * options; standalone it builds its own. Wires the FormGroups registry, then either the URL-synced or the local
  * shell per `syncWithLocation`.
  */
 function TabbedFormImpl<TFormData>({
@@ -248,22 +249,23 @@ function TabbedFormImpl<TFormData>({
   syncWithLocation = true,
   ...formOptions
 }: TabbedFormProps<TFormData>): ReactElement {
-  const { form, submit } = useForm<TFormData>(formOptions);
   const tabs = useMemo(() => collectTabs(children), [children]);
   return (
-    <CheloneFormProvider form={form} submit={submit}>
-      <FormGroupsProvider>
-        {syncWithLocation ? (
-          <UrlSyncedShell tabs={tabs} submit={submit}>
-            {children}
-          </UrlSyncedShell>
-        ) : (
-          <LocalShell tabs={tabs} submit={submit}>
-            {children}
-          </LocalShell>
-        )}
-      </FormGroupsProvider>
-    </CheloneFormProvider>
+    <FormScope<TFormData> options={formOptions}>
+      {(submit) => (
+        <FormGroupsProvider>
+          {syncWithLocation ? (
+            <UrlSyncedShell tabs={tabs} submit={submit}>
+              {children}
+            </UrlSyncedShell>
+          ) : (
+            <LocalShell tabs={tabs} submit={submit}>
+              {children}
+            </LocalShell>
+          )}
+        </FormGroupsProvider>
+      )}
+    </FormScope>
   );
 }
 
