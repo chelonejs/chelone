@@ -26,8 +26,8 @@
  *   from the record representation (chelone controllers don't carry it).
  */
 
-import type { Identifier } from "@chelone/core";
-import { type ReactNode, useCallback, useMemo } from "react";
+import type { EditFormControllerOptions, Identifier } from "@chelone/core";
+import { type ReactNode, useCallback, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { CheloneFormProvider } from "../../../form-context";
 import { useEditForm } from "../../../form-hooks";
@@ -45,7 +45,15 @@ import {
   type SaveContextValue,
 } from "../../../save-context";
 
-export interface EditProps {
+/**
+ * `validate` and `onSuccess` run as of the latest render. `schema` and
+ * `sanitizeEmptyValues` are read once, at mount: remount with a `key` to change them.
+ */
+export interface EditProps
+  extends Pick<
+    EditFormControllerOptions<Record<string, unknown>>,
+    "validate" | "schema" | "sanitizeEmptyValues" | "onSuccess"
+  > {
   /** Override the ambient resource (defaults to the `<Resource>` context). */
   resource?: string;
   /** Override the record id (defaults to the `:id` route param). */
@@ -73,7 +81,16 @@ export interface EditProps {
  * );
  */
 function Edit(props: EditProps) {
-  const { resource: resourceProp, id: idProp, children, ...viewProps } = props;
+  const {
+    resource: resourceProp,
+    id: idProp,
+    validate,
+    schema,
+    sanitizeEmptyValues,
+    onSuccess,
+    children,
+    ...viewProps
+  } = props;
   const contextResource = useResourceContext();
   const resource = resourceProp ?? contextResource;
   if (!resource) {
@@ -84,7 +101,18 @@ function Edit(props: EditProps) {
   const params = useParams();
   const id = idProp ?? (params.id as Identifier);
 
-  const controller = useEditForm(resource, { id });
+  // The controller captures its options once, so it always gets these two
+  // wrappers (a callback added after mount still runs) and they read the
+  // latest render's callbacks through the ref.
+  const latest = useRef({ validate, onSuccess });
+  latest.current = { validate, onSuccess };
+  const controller = useEditForm(resource, {
+    id,
+    validate: (values) => latest.current.validate?.(values),
+    schema,
+    sanitizeEmptyValues,
+    onSuccess: (record) => latest.current.onSuccess?.(record),
+  });
   const { form, submit, record } = controller;
 
   const getRecordRepresentation = useGetRecordRepresentation(resource);

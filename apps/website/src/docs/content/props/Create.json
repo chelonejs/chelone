@@ -26,6 +26,12 @@
       "comment": ""
     },
     {
+      "name": "onSuccess",
+      "type": "(record: TRecord) => void | Promise<void>",
+      "optional": true,
+      "comment": "Runs after a successful save with the SERVER record, post-reconciliation."
+    },
+    {
       "name": "record",
       "type": "Record<string, unknown>",
       "optional": true,
@@ -38,10 +44,28 @@
       "comment": "Override the ambient resource (defaults to the `<Resource>` context)."
     },
     {
+      "name": "sanitizeEmptyValues",
+      "type": "boolean",
+      "optional": true,
+      "comment": "ra parity: nullify/strip empty TOP-LEVEL values before save. Default false."
+    },
+    {
+      "name": "schema",
+      "type": "StandardSchemaV1<Partial<Record<string, unknown>>, unknown>",
+      "optional": true,
+      "comment": "Resource schema (zod or any Standard Schema) — wired as the default form\nvalidator by the submit pipeline (T2)."
+    },
+    {
       "name": "title",
       "type": "ReactNode",
       "optional": true,
       "comment": "Header title. A string/element renders as an `<h2>`; `false` omits it."
+    },
+    {
+      "name": "validate",
+      "type": "FormLevelValidate<Partial<Record<string, unknown>>>",
+      "optional": true,
+      "comment": "Form-level validate fn (ra contract) — consumed by the submit pipeline (T2)."
     }
   ]
 }
