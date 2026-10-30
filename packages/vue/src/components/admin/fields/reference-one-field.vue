@@ -15,9 +15,9 @@ export interface ReferenceOneFieldProps {
   source?: string;
   /** The record whose id is matched. Defaults to the ambient record. */
   record?: LooseRecord;
-  /** Sort applied to the reference lookup (the first match is used). */
+  /** Sort applied to the reference lookup (the first match is used). Read when the record id changes; remount with a `key` to change it otherwise. */
   sort?: SortPayload;
-  /** Permanent filter merged into the reference lookup. */
+  /** Permanent filter merged into the reference lookup. Read when the record id changes; remount with a `key` to change it otherwise. */
   filter?: FilterPayload;
   /** Rendered when no related record exists. A string is translated. */
   empty?: string;
