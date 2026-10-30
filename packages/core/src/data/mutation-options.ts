@@ -1,4 +1,5 @@
 import type { RecordOf, ResourceMap } from "../resource/registry";
+import { patchManyEntries } from "./cache-ops";
 import { oneKey, resourceKey } from "./keys";
 import type { DataContext } from "./query-options";
 import type { CreateParams, DeleteParams, UpdateParams } from "./types";
@@ -61,15 +62,35 @@ export function updateMutationOptions<
         );
         ctx.queryClient.setQueryData(key, merged);
       }
-      return { previous, key };
+      // Reference fields read the getMany entries, not oneKey.
+      const manyKeyPrefix = [resource, "getMany"];
+      const manySnapshot = ctx.queryClient.getQueriesData({
+        queryKey: manyKeyPrefix,
+      });
+      patchManyEntries(
+        ctx.queryClient,
+        resource,
+        new Set([String(params.id)]),
+        structuredClone(params.data) as Record<string, unknown>,
+      );
+      return { previous, key, manySnapshot };
     },
     onError: (
       _error: unknown,
       _params: UpdateParams<RecordOf<TResources, TName>>,
-      context: { previous?: unknown; key?: readonly unknown[] } | undefined,
+      context:
+        | {
+            previous?: unknown;
+            key?: readonly unknown[];
+            manySnapshot?: Array<[readonly unknown[], unknown]>;
+          }
+        | undefined,
     ) => {
       if (context?.key && context.previous !== undefined) {
         ctx.queryClient.setQueryData(context.key, context.previous);
+      }
+      for (const [manyEntryKey, value] of context?.manySnapshot ?? []) {
+        ctx.queryClient.setQueryData(manyEntryKey, value);
       }
     },
     onSettled: () => invalidateResource(ctx, resource),

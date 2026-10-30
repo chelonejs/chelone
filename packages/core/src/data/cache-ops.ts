@@ -52,7 +52,8 @@ export function removeRecordsFromCache(
 
 /**
  * Optimistically patch records: shallow-merge `data` into each matching
- * `getOne` entry and every matching row of every cached `getList` page.
+ * `getOne` entry and every matching row of every cached `getList` page and
+ * `getMany` entry.
  */
 export function updateRecordsInCache(
   queryClient: QueryClient,
@@ -87,5 +88,33 @@ export function updateRecordsInCache(
         data: nextData,
       });
     }
+  }
+  patchManyEntries(queryClient, resource, idSet, data);
+}
+
+/**
+ * Shallow-merge `data` into the matching records of every cached `getMany`
+ * entry (what `ReferenceField` and `ReferenceArrayField` read through).
+ */
+export function patchManyEntries(
+  queryClient: QueryClient,
+  resource: string,
+  idSet: Set<string>,
+  data: Record<string, unknown>,
+): void {
+  const manys = queryClient.getQueriesData<ResourceRecord[]>({
+    queryKey: [resource, "getMany"],
+  });
+  for (const [key, value] of manys) {
+    if (!value) continue;
+    let changed = false;
+    const next = value.map((record) => {
+      if (idSet.has(String(record.id))) {
+        changed = true;
+        return { ...record, ...data };
+      }
+      return record;
+    });
+    if (changed) queryClient.setQueryData<ResourceRecord[]>(key, next);
   }
 }
