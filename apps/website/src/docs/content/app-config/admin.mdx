@@ -98,13 +98,44 @@ headless admin, or pass your own layout element. Other slots (`<Admin.Dashboard>
 (or a custom adapter) to run under TanStack Router instead — the components speak
 the adapter's navigation contract, not a specific router.
 
+```tsx title="src/App.tsx"
+import { fakeDataProvider } from "@chelone/core";
+import { Admin, Layout, Resource } from "@chelone/react";
+import { tanstackRouterAdapter } from "@chelone/react/tanstack-router";
+import { QueryClient } from "@tanstack/react-query";
+import { PostList } from "./posts";
+
+const queryClient = new QueryClient();
+const dataProvider = fakeDataProvider({ posts: [] });
+
+export function App() {
+  return (
+    <Admin
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+      router={tanstackRouterAdapter}
+    >
+      <Admin.Layout>
+        <Layout />
+      </Admin.Layout>
+      <Resource name="posts" list={PostList} />
+    </Admin>
+  );
+}
+```
+
+The adapter creates its own TanStack router, so there is no `<BrowserRouter>` here.
+It lives on its own entry so `@chelone/react` loads without `@tanstack/react-router`,
+an optional peer. Install that peer only when you use this adapter.
+
 ## Props
 
 <PropsTable name="Admin" />
 
 ## Tips
 
-- `<Admin>` must render inside a router (`<BrowserRouter>`, or your framework's
-  router) — it joins the host router rather than creating its own.
+- With the default react-router adapter, `<Admin>` must render inside a router
+  (`<BrowserRouter>`, or your framework's router) — it joins the host router
+  rather than creating its own.
 - Create the `QueryClient` and the data provider at module scope (stable across
   renders), not inside the component body.

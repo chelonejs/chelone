@@ -884,7 +884,6 @@ export {
   RouterAdapterContext,
   RouterAdapterProvider,
   reactRouterAdapter,
-  tanstackRouterAdapter,
   useBasename,
   useBlocker,
   useCanBlock,

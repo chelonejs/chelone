@@ -57,7 +57,10 @@ export default defineConfig({
     },
   },
   build: {
-    lib: { entry: "src/index.ts", formats: ["es"] },
+    lib: {
+      entry: ["src/index.ts", "src/tanstack-router.ts"],
+      formats: ["es"],
+    },
     outDir: "dist",
     emptyOutDir: false,
     sourcemap: false,
