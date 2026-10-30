@@ -1,5 +1,5 @@
 import type { RecordOf, ResourceMap } from "../resource/registry";
-import { patchManyEntries } from "./cache-ops";
+import { patchManyEntries, removeManyEntries } from "./cache-ops";
 import { manyKeyPrefix, oneKey, resourceKey } from "./keys";
 import type { DataContext } from "./query-options";
 import type { CreateParams, DeleteParams, UpdateParams } from "./types";
@@ -120,15 +120,36 @@ export function deleteMutationOptions<
       const previous =
         ctx.queryClient.getQueryData<RecordOf<TResources, TName>>(key);
       ctx.queryClient.removeQueries({ queryKey: key });
-      return { previous, key };
+      // Reference fields read the getMany entries, not oneKey.
+      await ctx.queryClient.cancelQueries({
+        queryKey: manyKeyPrefix(resource),
+      });
+      const manySnapshot = ctx.queryClient.getQueriesData({
+        queryKey: manyKeyPrefix(resource),
+      });
+      removeManyEntries(
+        ctx.queryClient,
+        resource,
+        new Set([String(params.id)]),
+      );
+      return { previous, key, manySnapshot };
     },
     onError: (
       _error: unknown,
       _params: DeleteParams<RecordOf<TResources, TName>>,
-      context: { previous?: unknown; key?: readonly unknown[] } | undefined,
+      context:
+        | {
+            previous?: unknown;
+            key?: readonly unknown[];
+            manySnapshot?: Array<[readonly unknown[], unknown]>;
+          }
+        | undefined,
     ) => {
       if (context?.key && context.previous !== undefined) {
         ctx.queryClient.setQueryData(context.key, context.previous);
+      }
+      for (const [manyEntryKey, value] of context?.manySnapshot ?? []) {
+        ctx.queryClient.setQueryData(manyEntryKey, value);
       }
     },
     onSettled: () => invalidateResource(ctx, resource),
