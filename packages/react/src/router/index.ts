@@ -2,7 +2,8 @@
  * Public router surface for `@chelone/react` (P6 W1-T3): the `RouterAdapter`
  * interface + injection context, the default `reactRouterAdapter`, the app
  * basename context, and the bridged navigation hooks. The TanStack reference
- * adapter (W1-T4) and the shell (W1-T6/T7) build on these.
+ * adapter (W1-T4) is not here: it imports the optional `@tanstack/react-router`
+ * peer, so it ships from `@chelone/react/tanstack-router`.
  */
 
 export type {
@@ -45,4 +46,3 @@ export {
   useRedirectOptional,
 } from "./nav-hooks";
 export { reactRouterAdapter } from "./react-router-adapter";
-export { tanstackRouterAdapter } from "./tanstack-router-adapter";
