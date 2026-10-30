@@ -2,7 +2,7 @@ import { defineResources, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick, type Ref, ref } from "vue";
+import { defineComponent, effectScope, h, nextTick, type Ref, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
 import Admin from "../admin/admin.vue";
@@ -250,6 +250,23 @@ describe("useReferenceManyFieldController", () => {
     // The first controller's observers are gone; only the new one's remain.
     expect(dataObserverCount()).toBe(1);
     expect(observerCount()).toBe(attached);
+  });
+
+  it("stays bound when the record changes inside another scope that then stops", async () => {
+    const { capture, record, dataObserverCount } = mountMany({}, { id: 1 });
+    await vi.waitFor(() => expect(capture.result?.total).toBe(5));
+
+    // The sync watcher rebinds inside whatever scope is active, as when a
+    // child's onMounted sets the record and the child is then unmounted.
+    const other = effectScope();
+    other.run(() => {
+      record.value = { id: 2 };
+    });
+    other.stop();
+
+    await vi.waitFor(() => expect(capture.result?.total).toBe(1));
+    expect(capture.result?.data?.map((row) => row.id)).toEqual([6]);
+    expect(dataObserverCount()).toBe(1);
   });
 
   it("with no record id fetches nothing", async () => {

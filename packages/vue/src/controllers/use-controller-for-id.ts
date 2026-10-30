@@ -42,7 +42,9 @@ export function useControllerForId<
   create: (id: SourceId) => TController,
 ): Readonly<Ref<BoundController<TController, TState>>> {
   const bind = (value: SourceId) => {
-    const scope = effectScope();
+    // Detached: the sync watcher can rebind inside another component's scope,
+    // and stopping that scope must not stop this one. We stop it ourselves.
+    const scope = effectScope(true);
     try {
       // `run` returns undefined only for a stopped scope, and this one is new.
       const bound = scope.run(() => {
