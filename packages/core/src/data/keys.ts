@@ -1,4 +1,5 @@
 import type { Identifier } from "../resource/identifier";
+import type { InfiniteListParams } from "./query-options";
 import type { GetListParams, GetManyReferenceParams } from "./types";
 
 /** Root key for a resource — invalidation scope for everything under it. */
@@ -8,6 +9,10 @@ export function resourceKey(resource: string) {
 
 export function listKey(resource: string, params: GetListParams = {}) {
   return [resource, "getList", params] as const;
+}
+
+export function infiniteListKey(resource: string, params: InfiniteListParams) {
+  return [resource, "getInfiniteList", params] as const;
 }
 
 export function oneKey(

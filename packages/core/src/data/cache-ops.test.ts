@@ -1,7 +1,13 @@
-import { QueryClient } from "@tanstack/query-core";
+import { type InfiniteData, QueryClient } from "@tanstack/query-core";
 import { describe, expect, it } from "vitest";
 import { removeRecordsFromCache, updateRecordsInCache } from "./cache-ops";
-import { listKey, manyKey, oneKey } from "./keys";
+import {
+  infiniteListKey,
+  listKey,
+  manyKey,
+  manyReferenceKey,
+  oneKey,
+} from "./keys";
 import type { GetListResult } from "./types";
 
 function makeClient() {
@@ -26,6 +32,39 @@ function seedList(qc: QueryClient) {
     total: 3,
   });
 }
+
+const infiniteParams = { pagination: { page: 1, perPage: 2 } };
+
+function seedInfinite(qc: QueryClient) {
+  qc.setQueryData<InfiniteData<GetListResult, number>>(
+    infiniteListKey("posts", infiniteParams),
+    {
+      pages: [
+        {
+          data: [
+            { id: 1, title: "One" },
+            { id: 2, title: "Two" },
+          ],
+          total: 4,
+        },
+        {
+          data: [
+            { id: 3, title: "Three" },
+            { id: 4, title: "Four" },
+          ],
+          total: 4,
+        },
+      ],
+      pageParams: [1, 2],
+    },
+  );
+}
+
+const refParams = {
+  target: "post_id",
+  id: 1,
+  pagination: { page: 1, perPage: 10 },
+};
 
 describe("removeRecordsFromCache", () => {
   it("removes rows from every list page and decrements total", () => {
@@ -74,6 +113,48 @@ describe("removeRecordsFromCache", () => {
   });
 });
 
+describe("removeRecordsFromCache on infinite and reference lists", () => {
+  it("removeRecordsFromCache drops ids from every page of an infinite list and lowers total on each page", () => {
+    const qc = makeClient();
+    seedInfinite(qc);
+    const key = infiniteListKey("posts", infiniteParams);
+    const before = qc.getQueryData<InfiniteData<GetListResult, number>>(key);
+    removeRecordsFromCache(qc, "posts", [2, 3]);
+    const after = qc.getQueryData<InfiniteData<GetListResult, number>>(key);
+    expect(after?.pages.map((p) => p.data.map((r) => r.id))).toEqual([
+      [1],
+      [4],
+    ]);
+    expect(after?.pages.map((p) => p.total)).toEqual([2, 2]);
+    expect(after?.pageParams).toEqual([1, 2]);
+    // The pre-apply object is untouched, so the undoable snapshot can roll back.
+    expect(before?.pages.map((p) => p.data.length)).toEqual([2, 2]);
+    expect(before?.pages.map((p) => p.total)).toEqual([4, 4]);
+  });
+
+  it("removeRecordsFromCache keeps the cached object of an infinite list that holds none of the ids", () => {
+    const qc = makeClient();
+    seedInfinite(qc);
+    const key = infiniteListKey("posts", infiniteParams);
+    const before = qc.getQueryData(key);
+    removeRecordsFromCache(qc, "posts", [99]);
+    expect(qc.getQueryData(key)).toBe(before);
+  });
+
+  it("removeRecordsFromCache drops ids from a getManyReference list and lowers its total", () => {
+    const qc = makeClient();
+    const key = manyReferenceKey("posts", refParams);
+    qc.setQueryData<GetListResult>(key, {
+      data: [{ id: 1 }, { id: 2 }, { id: 3 }],
+      total: 3,
+    });
+    removeRecordsFromCache(qc, "posts", [2]);
+    const list = qc.getQueryData<GetListResult>(key);
+    expect(list?.data.map((r) => r.id)).toEqual([1, 3]);
+    expect(list?.total).toBe(2);
+  });
+});
+
 describe("updateRecordsInCache", () => {
   it("patches matching rows in every list page", () => {
     const qc = makeClient();
@@ -119,5 +200,47 @@ describe("updateRecordsInCache", () => {
     ]);
     expect(qc.getQueryData(other)).toEqual([{ id: 3, name: "Cy" }]);
     expect(before[0]?.name).toBe("Ann");
+  });
+});
+
+describe("updateRecordsInCache on infinite and reference lists", () => {
+  it("updateRecordsInCache patches matching rows on every infinite page and leaves other rows", () => {
+    const qc = makeClient();
+    seedInfinite(qc);
+    const key = infiniteListKey("posts", infiniteParams);
+    const before = qc.getQueryData<InfiniteData<GetListResult, number>>(key);
+    updateRecordsInCache(qc, "posts", [2, 3], { title: "Patched" });
+    const after = qc.getQueryData<InfiniteData<GetListResult, number>>(key);
+    expect(after?.pages.flatMap((p) => p.data)).toEqual([
+      { id: 1, title: "One" },
+      { id: 2, title: "Patched" },
+      { id: 3, title: "Patched" },
+      { id: 4, title: "Four" },
+    ]);
+    expect(after?.pages.map((p) => p.total)).toEqual([4, 4]);
+    expect(after?.pageParams).toEqual([1, 2]);
+    expect(before?.pages[0]?.data[1]?.title).toBe("Two");
+  });
+
+  it("updateRecordsInCache patches matching rows of a getManyReference list", () => {
+    const qc = makeClient();
+    const key = manyReferenceKey("posts", refParams);
+    const before: GetListResult = {
+      data: [
+        { id: 1, title: "One" },
+        { id: 2, title: "Two" },
+      ],
+      total: 2,
+    };
+    qc.setQueryData<GetListResult>(key, before);
+    updateRecordsInCache(qc, "posts", [2], { title: "Patched" });
+    expect(qc.getQueryData<GetListResult>(key)).toEqual({
+      data: [
+        { id: 1, title: "One" },
+        { id: 2, title: "Patched" },
+      ],
+      total: 2,
+    });
+    expect(before.data[1]?.title).toBe("Two");
   });
 });
