@@ -63,8 +63,13 @@ export const dataProvider: DataProvider = {
   async getList(resource, { pagination, sort, filter }) {
     const query = queryParameters({ ...pagination, sort, filter });
     const { json, headers } = await fetchJson(`/api/${resource}?${query}`);
-    const total = Number(headers.get("X-Total"));
-    return { data: json as LooseRecord[], total };
+    if (!Array.isArray(json)) throw new Error(`Expected a list from ${resource}`);
+    // `total` is optional: leave it out when the backend sends no count.
+    const count = headers.get("X-Total");
+    return {
+      data: json as LooseRecord[],
+      total: count === null ? undefined : Number(count),
+    };
   },
   async getOne(resource, { id }) {
     const { json } = await fetchJson(`/api/${resource}/${id}`);
@@ -151,7 +156,13 @@ export const dataProvider = withLifecycleCallbacks(baseProvider, [
     }),
     afterGetOne: (result) => ({
       ...result,
-      data: { ...result.data, title: String(result.data.title).trim() },
+      data: {
+        ...result.data,
+        title:
+          typeof result.data.title === "string"
+            ? result.data.title.trim()
+            : result.data.title,
+      },
     }),
   },
 ]);
