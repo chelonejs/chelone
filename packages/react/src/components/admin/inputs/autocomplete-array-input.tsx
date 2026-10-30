@@ -48,20 +48,18 @@ const EMPTY_VALUES: UnknownValue[] = [];
  * context supplies choices + server-side filtering via `setFilters`).
  *
  * @example
- * import { Create, SimpleForm, AutocompleteArrayInput, ReferenceArrayInput } from '@/components/admin';
+ * import { Create, AutocompleteArrayInput, ReferenceArrayInput } from '@/components/admin';
  *
  * const PostCreate = () => (
  *   <Create>
- *     <SimpleForm>
- *       <AutocompleteArrayInput
- *         source="tags"
- *         choices={[
- *           { id: 'tech', name: 'Tech' },
- *           { id: 'news', name: 'News' },
- *           { id: 'lifestyle', name: 'Lifestyle' },
- *         ]}
- *       />
- *     </SimpleForm>
+ *     <AutocompleteArrayInput
+ *       source="tags"
+ *       choices={[
+ *         { id: 'tech', name: 'Tech' },
+ *         { id: 'news', name: 'News' },
+ *         { id: 'lifestyle', name: 'Lifestyle' },
+ *       ]}
+ *     />
  *   </Create>
  * );
  */

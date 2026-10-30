@@ -17,7 +17,7 @@ interface ReferenceManyFieldProps<
   source?: string;
   /** The record whose id is matched. Defaults to the ambient record. */
   record?: RecordType;
-  /** The list-rendering children (a datagrid, `SingleFieldList`, etc.). */
+  /** The list-rendering children (a `DataTable`, etc.). */
   children?: ReactNode;
   /** Initial sort of the related list. Default id ascending. */
   sort?: SortPayload;

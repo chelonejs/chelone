@@ -18,14 +18,12 @@ import type { InputProps } from "../input-props";
  * NOT support `null` — use `<NullableBooleanInput>` for tri-state booleans.
  *
  * @example
- * import { Edit, SimpleForm, BooleanInput, TextInput } from '@/components/admin';
+ * import { Edit, BooleanInput, TextInput } from '@/components/admin';
  *
  * const PostEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <TextInput source="title" />
- *       <BooleanInput source="is_published" />
- *     </SimpleForm>
+ *     <TextInput source="title" />
+ *     <BooleanInput source="is_published" />
  *   </Edit>
  * );
  */

@@ -22,13 +22,11 @@ import type { InputProps } from "../input-props";
  * selector plus a national-format text input.
  *
  * @example
- * import { Edit, SimpleForm, PhoneInput } from '@chelone/react';
+ * import { Edit, PhoneInput } from '@chelone/react';
  *
  * const CustomerEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <PhoneInput source="phone" defaultCountry="US" />
- *     </SimpleForm>
+ *     <PhoneInput source="phone" defaultCountry="US" />
  *   </Edit>
  * );
  */

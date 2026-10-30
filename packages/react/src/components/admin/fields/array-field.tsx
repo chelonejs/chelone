@@ -9,8 +9,8 @@ import { useList } from "../../../use-list";
  * Reads an array-valued field, puts it in a `ListContext`, and renders its
  * children.
  *
- * This field enables list-rendering components (like `SingleFieldList` or a
- * datagrid) to display embedded array data. To be used with `RecordField` or
+ * This field enables list-rendering components (like `DataTable`) to display
+ * embedded array data. To be used with `RecordField` or
  * `DataTable.Col`, or anywhere a `RecordContext` is available.
  *
  * Rebridge note (chelone): shadmin's `ArrayField` composed ra-core's
@@ -20,15 +20,15 @@ import { useList } from "../../../use-list";
  * `useList` wraps it in a controller, and the provider publishes it.
  *
  * @example
- * import { Show, RecordField, ArrayField, SingleFieldList, BadgeField } from '@/components/admin';
+ * import { Show, RecordField, ArrayField, DataTable } from '@/components/admin';
  *
  * const PostShow = () => (
  *   <Show>
  *     <RecordField source="tags">
  *       <ArrayField source="tags">
- *         <SingleFieldList>
- *           <BadgeField source="name" />
- *         </SingleFieldList>
+ *         <DataTable>
+ *           <DataTable.Col source="name" />
+ *         </DataTable>
  *       </ArrayField>
  *     </RecordField>
  *   </Show>
@@ -71,7 +71,7 @@ interface ArrayFieldProps<RecordType extends UnknownRecord = UnknownRecord> {
   sort?: SortPayload;
   /** Client-side filter for the embedded list. */
   filter?: FilterPayload;
-  /** The list-rendering children (a `SingleFieldList`, datagrid, etc.). */
+  /** The list-rendering children (a `DataTable`, etc.). */
   children?: ReactNode;
 }
 

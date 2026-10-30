@@ -9,7 +9,7 @@
  * `CreateContextProvider`):
  *   `CreateContext` → `SaveContext` (mutationMode pessimistic) →
  *   `RecordContext` (the id-less seed) → `CheloneFormProvider`. So a bare
- *   `<TextInput>` child binds to the form with no `<SimpleForm>` in between.
+ *   `<TextInput>` child binds to the form directly.
  *
  * Chelone divergences mirror `<Edit>`: no `<CreateBase>` (composed
  * `useCreateForm`), the `SaveContext.save(data)` compat bridge over `submit()`,
@@ -18,7 +18,8 @@
  * the resource label (`ra.page.create`).
  */
 
-import { type ReactNode, useCallback, useMemo } from "react";
+import type { CreateFormControllerOptions } from "@chelone/core";
+import { type ReactNode, useCallback, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { CheloneFormProvider } from "../../../form-context";
 import { useCreateForm } from "../../../form-hooks";
@@ -36,7 +37,15 @@ import {
   type SaveContextValue,
 } from "../../../save-context";
 
-export interface CreateProps {
+/**
+ * `validate` and `onSuccess` run as of the latest render. `schema` and
+ * `sanitizeEmptyValues` are read once, at mount: remount with a `key` to change them.
+ */
+export interface CreateProps
+  extends Pick<
+    CreateFormControllerOptions<Record<string, unknown>>,
+    "validate" | "schema" | "sanitizeEmptyValues" | "onSuccess"
+  > {
   /** Override the ambient resource (defaults to the `<Resource>` context). */
   resource?: string;
   /** Seed values for the not-yet-created record. */
@@ -64,7 +73,16 @@ export interface CreateProps {
  * );
  */
 function Create(props: CreateProps) {
-  const { resource: resourceProp, record, children, ...viewProps } = props;
+  const {
+    resource: resourceProp,
+    record,
+    validate,
+    schema,
+    sanitizeEmptyValues,
+    onSuccess,
+    children,
+    ...viewProps
+  } = props;
   const contextResource = useResourceContext();
   const resource = resourceProp ?? contextResource;
   if (!resource) {
@@ -73,7 +91,18 @@ function Create(props: CreateProps) {
     );
   }
 
-  const controller = useCreateForm(resource, record ? { record } : undefined);
+  // The controller captures its options once, so it always gets these two
+  // wrappers (a callback added after mount still runs) and they read the
+  // latest render's callbacks through the ref.
+  const latest = useRef({ validate, onSuccess });
+  latest.current = { validate, onSuccess };
+  const controller = useCreateForm(resource, {
+    record,
+    validate: (values) => latest.current.validate?.(values),
+    schema,
+    sanitizeEmptyValues,
+    onSuccess: (saved) => latest.current.onSuccess?.(saved),
+  });
   const { form, submit } = controller;
 
   const translate = useTranslate();

@@ -22,9 +22,9 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { MemoryRouter } from "react-router";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { useCreateContext } from "../../../record-view-context";
 import {
@@ -181,5 +181,103 @@ describe("<Create>", () => {
         data.some((r) => (r as { title?: string }).title === "created"),
       ).toBe(true);
     });
+  });
+
+  it("validate on <Create> blocks a save that fails it", async () => {
+    const dataProvider = makeDataProvider();
+    const create = vi.spyOn(dataProvider, "create");
+    function Submit() {
+      const { save } = useSaveContext();
+      return (
+        <button type="button" onClick={() => save?.({ title: "" })}>
+          save
+        </button>
+      );
+    }
+    render(
+      <Providers dataProvider={dataProvider}>
+        <Create
+          validate={(values) =>
+            values.title ? undefined : { title: "Title is required" }
+          }
+        >
+          <TextInput source="title" />
+          <Submit />
+        </Create>
+      </Providers>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await screen.findByText("Title is required");
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("onSuccess on <Create> reads the latest render, not the first", async () => {
+    const seen: string[] = [];
+    function Submit() {
+      const { save } = useSaveContext();
+      return (
+        <button type="button" onClick={() => save?.({ title: "created" })}>
+          save
+        </button>
+      );
+    }
+    function Page() {
+      const [target, setTarget] = useState("first");
+      return (
+        <>
+          <button type="button" onClick={() => setTarget("second")}>
+            retarget
+          </button>
+          <Create onSuccess={() => void seen.push(target)}>
+            <TextInput source="title" />
+            <Submit />
+          </Create>
+        </>
+      );
+    }
+    render(
+      <Providers>
+        <Page />
+      </Providers>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "retarget" }));
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await waitFor(() => expect(seen).toEqual(["second"]));
+  });
+
+  it("onSuccess added to <Create> after mount is called", async () => {
+    const seen: string[] = [];
+    function Submit() {
+      const { save } = useSaveContext();
+      return (
+        <button type="button" onClick={() => save?.({ title: "created" })}>
+          save
+        </button>
+      );
+    }
+    function Page() {
+      const [listening, setListening] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setListening(true)}>
+            listen
+          </button>
+          <Create
+            onSuccess={listening ? () => void seen.push("saved") : undefined}
+          >
+            <TextInput source="title" />
+            <Submit />
+          </Create>
+        </>
+      );
+    }
+    render(
+      <Providers>
+        <Page />
+      </Providers>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "listen" }));
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await waitFor(() => expect(seen).toEqual(["saved"]));
   });
 });

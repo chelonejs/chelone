@@ -12,10 +12,11 @@ import { defineResources, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick } from "vue";
+import { defineComponent, h, nextTick, ref } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import { z } from "zod";
 import Admin from "../../admin/admin.vue";
+import { useCheloneFormContext } from "../../form/form-context";
 import { useForm } from "../../form/use-form";
 import SaveButton from "./buttons/save-button.vue";
 import ReferenceField from "./fields/reference-field.vue";
@@ -312,5 +313,279 @@ describe("<SaveButton> in <Edit>", () => {
     // The change persisted through the provider.
     const persisted = await dataProvider.getOne("posts", { id: 1 });
     expect(persisted.data.title).toBe("Edited Title");
+  });
+});
+
+describe("form options on the view", () => {
+  // The registry schema accepts "Brand New", so only `validate` can block it.
+  const reject = () => ({ title: "Rejected by validate" });
+
+  it("validate on <Create> blocks a save that fails it", async () => {
+    const dataProvider = makeProvider();
+    const createSpy = vi.spyOn(dataProvider, "create");
+
+    const { wrapper } = mountAdmin(
+      () =>
+        h(
+          Create,
+          { resource: "posts", redirectOnSave: false, validate: reject },
+          {
+            default: () => h(TextInput, { source: "title" }),
+            toolbar: () => h(SaveButton),
+          },
+        ),
+      dataProvider,
+    );
+    await flushPromises();
+
+    await wrapper.find('input[type="text"]').setValue("Brand New");
+    await nextTick();
+    await wrapper.find('[data-slot="save-button"]').trigger("click");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Rejected by validate");
+    expect(createSpy).not.toHaveBeenCalled();
+  });
+
+  it("validate on <Edit> blocks a save that fails it", async () => {
+    const dataProvider = makeProvider();
+    const updateSpy = vi.spyOn(dataProvider, "update");
+
+    const { wrapper } = mountAdmin(
+      () =>
+        h(
+          Edit,
+          { resource: "posts", id: 1, redirectOnSave: false, validate: reject },
+          {
+            default: () => h(TextInput, { source: "title" }),
+            toolbar: () => h(SaveButton),
+          },
+        ),
+      dataProvider,
+    );
+
+    await vi.waitFor(() => {
+      const input = wrapper.find('input[type="text"]');
+      expect((input.element as HTMLInputElement | undefined)?.value).toBe(
+        "Hello World",
+      );
+    });
+
+    await wrapper.find('input[type="text"]').setValue("Edited Title");
+    await nextTick();
+    await wrapper.find('[data-slot="save-button"]').trigger("click");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Rejected by validate");
+    expect(updateSpy).not.toHaveBeenCalled();
+  });
+
+  it("sanitizeEmptyValues on <Edit> sends null for a cleared field of the record", async () => {
+    const dataProvider = makeProvider();
+    const updateSpy = vi.spyOn(dataProvider, "update");
+
+    const { wrapper } = mountAdmin(
+      () =>
+        h(
+          Edit,
+          {
+            resource: "posts",
+            id: 1,
+            redirectOnSave: false,
+            sanitizeEmptyValues: true,
+            // Only the sanitize step is under test, not the registry schema.
+            schema: z.object({}).passthrough(),
+          },
+          {
+            default: () => h(TextInput, { source: "title" }),
+            toolbar: () => h(SaveButton),
+          },
+        ),
+      dataProvider,
+    );
+
+    await vi.waitFor(() => {
+      const input = wrapper.find('input[type="text"]');
+      expect((input.element as HTMLInputElement | undefined)?.value).toBe(
+        "Hello World",
+      );
+    });
+
+    await wrapper.find('input[type="text"]').setValue("");
+    await nextTick();
+    await wrapper.find('[data-slot="save-button"]').trigger("click");
+
+    await vi.waitFor(() => {
+      expect(updateSpy).toHaveBeenCalled();
+    });
+    expect(updateSpy.mock.calls[0]?.[1].data).toHaveProperty("title", null);
+  });
+
+  it("sanitizeEmptyValues on <Create> sends null for a cleared field of the seed", async () => {
+    const dataProvider = makeProvider();
+    const createSpy = vi.spyOn(dataProvider, "create");
+
+    const { wrapper } = mountAdmin(
+      () =>
+        h(
+          Create,
+          {
+            resource: "posts",
+            redirectOnSave: false,
+            sanitizeEmptyValues: true,
+            record: { title: "Seeded" },
+            schema: z.object({}).passthrough(),
+          },
+          {
+            default: () => h(TextInput, { source: "title" }),
+            toolbar: () => h(SaveButton),
+          },
+        ),
+      dataProvider,
+    );
+    await flushPromises();
+
+    await wrapper.find('input[type="text"]').setValue("");
+    await nextTick();
+    await wrapper.find('[data-slot="save-button"]').trigger("click");
+
+    await vi.waitFor(() => {
+      expect(createSpy).toHaveBeenCalled();
+    });
+    expect(createSpy.mock.calls[0]?.[1].data).toHaveProperty("title", null);
+  });
+
+  it("validate on <Edit> runs the latest prop, not the first", async () => {
+    const dataProvider = makeProvider();
+    const updateSpy = vi.spyOn(dataProvider, "update");
+    const strict = ref(false);
+
+    const { wrapper } = mountAdmin(
+      () =>
+        h(
+          Edit,
+          {
+            resource: "posts",
+            id: 1,
+            redirectOnSave: false,
+            validate: strict.value ? reject : () => undefined,
+          },
+          {
+            default: () => h(TextInput, { source: "title" }),
+            toolbar: () => h(SaveButton),
+          },
+        ),
+      dataProvider,
+    );
+
+    await vi.waitFor(() => {
+      const input = wrapper.find('input[type="text"]');
+      expect((input.element as HTMLInputElement | undefined)?.value).toBe(
+        "Hello World",
+      );
+    });
+
+    strict.value = true;
+    await nextTick();
+    await wrapper.find('input[type="text"]').setValue("Edited Title");
+    await nextTick();
+    await wrapper.find('[data-slot="save-button"]').trigger("click");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Rejected by validate");
+    expect(updateSpy).not.toHaveBeenCalled();
+  });
+
+  it("validate added to <Edit> after mount blocks a save", async () => {
+    const dataProvider = makeProvider();
+    const updateSpy = vi.spyOn(dataProvider, "update");
+    const strict = ref(false);
+
+    const { wrapper } = mountAdmin(
+      () =>
+        h(
+          Edit,
+          {
+            resource: "posts",
+            id: 1,
+            redirectOnSave: false,
+            validate: strict.value ? reject : undefined,
+          },
+          {
+            default: () => h(TextInput, { source: "title" }),
+            toolbar: () => h(SaveButton),
+          },
+        ),
+      dataProvider,
+    );
+
+    await vi.waitFor(() => {
+      const input = wrapper.find('input[type="text"]');
+      expect((input.element as HTMLInputElement | undefined)?.value).toBe(
+        "Hello World",
+      );
+    });
+
+    strict.value = true;
+    await nextTick();
+    await wrapper.find('input[type="text"]').setValue("Edited Title");
+    await nextTick();
+    await wrapper.find('[data-slot="save-button"]').trigger("click");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Rejected by validate");
+    expect(updateSpy).not.toHaveBeenCalled();
+  });
+
+  it("onSuccess on <Edit> sees the form reconciled to the server record", async () => {
+    const dataProvider = makeProvider();
+    vi.spyOn(dataProvider, "update").mockImplementation(async (_, params) => ({
+      data: { ...(params.data as Post), id: 1, title: "Server Title" },
+    }));
+    const seen: { title?: unknown; isDirty?: boolean } = {};
+    let formApi: ReturnType<typeof useCheloneFormContext>["form"] | undefined;
+    const Probe = defineComponent({
+      setup() {
+        formApi = useCheloneFormContext().form;
+        return () => null;
+      },
+    });
+
+    const { wrapper } = mountAdmin(
+      () =>
+        h(
+          Edit,
+          {
+            resource: "posts",
+            id: 1,
+            redirectOnSave: false,
+            onSuccess: () => {
+              seen.title = formApi?.state.values.title;
+              seen.isDirty = formApi?.state.isDirty;
+            },
+          },
+          {
+            default: () => [h(Probe), h(TextInput, { source: "title" })],
+            toolbar: () => h(SaveButton),
+          },
+        ),
+      dataProvider,
+    );
+
+    await vi.waitFor(() => {
+      const input = wrapper.find('input[type="text"]');
+      expect((input.element as HTMLInputElement | undefined)?.value).toBe(
+        "Hello World",
+      );
+    });
+
+    await wrapper.find('input[type="text"]').setValue("Edited Title");
+    await nextTick();
+    await wrapper.find('[data-slot="save-button"]').trigger("click");
+
+    await vi.waitFor(() => {
+      expect(seen.title).toBeDefined();
+    });
+    expect(seen).toEqual({ title: "Server Title", isDirty: false });
   });
 });

@@ -36,7 +36,7 @@ interface FilterElementProps {
 }
 
 /**
- * A form for filter inputs with live updates, included by default in `<List>`.
+ * A form for filter inputs with live updates.
  * Used with `<FilterButton>` to provide the full filtering UI.
  *
  * Ported from shadmin, rewired off chelone's `FilterLiveForm` + the list filter
@@ -82,7 +82,7 @@ function FilterFormBase(props: FilterFormBaseProps) {
       .forEach((filter) => {
         if (filter.props.alwaysOn && filter.props.defaultValue) {
           throw new Error(
-            "Cannot use alwaysOn and defaultValue on a filter input. Please set the filterDefaultValues props on the <List> element instead.",
+            "Cannot use alwaysOn and defaultValue on a filter input. Please use useListController({ filterDefaultValues }) instead.",
           );
         }
       });

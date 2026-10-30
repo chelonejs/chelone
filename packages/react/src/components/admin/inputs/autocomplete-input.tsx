@@ -48,23 +48,21 @@ interface ChoicesProps {
  * context supplies choices + server-side filtering via `setFilters`).
  *
  * @example
- * import { Create, SimpleForm, AutocompleteInput, ReferenceInput } from '@/components/admin';
+ * import { Create, AutocompleteInput, ReferenceInput } from '@/components/admin';
  *
  * const PostCreate = () => (
  *   <Create>
- *     <SimpleForm>
- *       <AutocompleteInput
- *         source="category"
- *         choices={[
- *           { id: 'tech', name: 'Tech' },
- *           { id: 'lifestyle', name: 'Lifestyle' },
- *           { id: 'people', name: 'People' },
- *         ]}
- *       />
- *       <ReferenceInput label="Author" source="author_id" reference="authors">
- *         <AutocompleteInput />
- *       </ReferenceInput>
- *     </SimpleForm>
+ *     <AutocompleteInput
+ *       source="category"
+ *       choices={[
+ *         { id: 'tech', name: 'Tech' },
+ *         { id: 'lifestyle', name: 'Lifestyle' },
+ *         { id: 'people', name: 'People' },
+ *       ]}
+ *     />
+ *     <ReferenceInput label="Author" source="author_id" reference="authors">
+ *       <AutocompleteInput />
+ *     </ReferenceInput>
  *   </Create>
  * );
  */

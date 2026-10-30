@@ -42,16 +42,14 @@ import type { InputProps } from "../input-props";
  * @see {@link https://react-dropzone.js.org/ React Dropzone documentation}
  *
  * @example
- * import { Edit, SimpleForm, TextInput, FileInput, FileField } from '@/components/admin';
+ * import { Edit, TextInput, FileInput, FileField } from '@/components/admin';
  *
  * const DocumentEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <TextInput source="title" />
- *       <FileInput source="attachments" multiple accept={{ 'image/*': [], 'application/pdf': [] }}>
- *         <FileField source="src" title="title" />
- *       </FileInput>
- *     </SimpleForm>
+ *     <TextInput source="title" />
+ *     <FileInput source="attachments" multiple accept={{ 'image/*': [], 'application/pdf': [] }}>
+ *       <FileField source="src" title="title" />
+ *     </FileInput>
  *   </Edit>
  * );
  */

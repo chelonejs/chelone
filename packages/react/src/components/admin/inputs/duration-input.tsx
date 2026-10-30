@@ -23,13 +23,11 @@ const UNIT_LABEL: Record<Unit, string> = {
  * Edits an ISO-8601 duration string via per-unit numeric inputs.
  *
  * @example
- * import { Edit, SimpleForm, DurationInput } from '@chelone/react';
+ * import { Edit, DurationInput } from '@chelone/react';
  *
  * const TaskEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <DurationInput source="duration" />
- *     </SimpleForm>
+ *     <DurationInput source="duration" />
  *   </Edit>
  * );
  */

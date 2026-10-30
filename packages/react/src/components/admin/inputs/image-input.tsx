@@ -21,15 +21,13 @@ import { useRecordContext } from "../../../record/record-context";
  * an explicit child (e.g. a ported `<ImageField>`) to override it.
  *
  * @example
- * import { Edit, SimpleForm, ImageInput, ImageField } from '@/components/admin';
+ * import { Edit, ImageInput, ImageField } from '@/components/admin';
  *
  * const ProductEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <ImageInput source="pictures" multiple>
- *         <ImageField source="src" title="title" />
- *       </ImageInput>
- *     </SimpleForm>
+ *     <ImageInput source="pictures" multiple>
+ *       <ImageField source="src" title="title" />
+ *     </ImageInput>
  *   </Edit>
  * );
  */
