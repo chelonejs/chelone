@@ -18,6 +18,7 @@ import { MemoryRouter } from "react-router";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { Layout } from "../components/admin/layout/layout";
 import { useCheloneContext } from "../context";
+import { useTranslate } from "../i18n-hooks";
 import { useNotify } from "../notification-hooks";
 import {
   useResourceDefinitions,
@@ -276,6 +277,28 @@ describe("<Admin> — optional services", () => {
     );
 
     expect(screen.getByText("dash")).toBeTruthy();
+  });
+
+  it("without i18n, a default label keeps its {_} text and fills its placeholders", () => {
+    function Greeting() {
+      const translate = useTranslate();
+      return (
+        <div>
+          {translate("app.greet", { _: "Hello {name}", name: "Ada" })}
+        </div>
+      );
+    }
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+          <Admin.Dashboard>
+            <Greeting />
+          </Admin.Dashboard>
+        </Admin>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText("Hello Ada")).toBeTruthy();
   });
 
   it("useNotify still throws without a notification store", () => {

@@ -10,6 +10,7 @@
  * `{ _: message }` fallback behavior without smuggling a default arg.
  */
 
+import { type AnyChelonI18n, createI18n } from "@chelone/core";
 import { useCheloneContext } from "../context";
 
 /** The translate signature the components consume. */
@@ -18,16 +19,17 @@ export type Translate = (
   params?: Record<string, unknown>,
 ) => string;
 
+// No i18n: an empty catalog echoes the key, and for a missing key honours the
+// polyglot `{ _: default }` convention, placeholders filled in, as with a real one.
+const echoI18n: AnyChelonI18n = createI18n({
+  locale: "en",
+  messages: { en: {} },
+});
+
 /** A bound `translate` over the ambient i18n, or an echo when none is present. */
 export function useTranslate(): Translate {
   const { i18n } = useCheloneContext();
-  // No i18n → echo the key, but honor the polyglot/ra `{ _: default }`
-  // convention so a fallback (e.g. a button's aria-label) renders readable text
-  // instead of a raw dotted key. Core's `translate` already honors `_`.
-  if (!i18n) {
-    return (key: string, params?: Record<string, unknown>) =>
-      typeof params?._ === "string" ? params._ : key;
-  }
+  const active = i18n ?? echoI18n;
   return (key: string, params?: Record<string, unknown>) =>
-    i18n.translate(key, params);
+    active.translate(key, params);
 }
