@@ -6,7 +6,10 @@ import { WindowChrome } from "./window-chrome";
 
 const APP_TSX = `import { Admin, Resource } from "@chelone/react";
 import { defineResources } from "@chelone/core";
+import { QueryClient } from "@tanstack/react-query";
 import { z } from "zod";
+
+const queryClient = new QueryClient();
 
 // 1. Point at a Zod schema — it types the records AND validates the forms.
 const postSchema = z.object({
@@ -18,7 +21,7 @@ const resources = defineResources({ posts: { schema: postSchema } });
 
 // 2. Compose the views from shadcn blocks.
 export const App = () => (
-  <Admin dataProvider={dataProvider} resources={resources}>
+  <Admin dataProvider={dataProvider} resources={resources} queryClient={queryClient}>
     <Resource name="posts" list={PostList} edit={PostEdit} />
   </Admin>
 );
