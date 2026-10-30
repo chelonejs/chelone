@@ -1,3 +1,21 @@
+<script lang="ts">
+/** Props for {@link ResettableTextInput}. */
+export interface ResettableTextInputProps {
+  source: string;
+  label?: string | false;
+  resettable?: boolean;
+  clearAlwaysVisible?: boolean;
+  defaultValue?: unknown;
+  validate?: Validator | readonly Validator[];
+  helperText?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  inputClass?: string;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<ResettableTextInput>` — a text input with a clear (×) button that resets the
@@ -23,20 +41,7 @@ import Button from "../../ui/button.vue";
 import TextInput from "./text-input.vue";
 
 const props = withDefaults(
-  defineProps<{
-    source: string;
-    label?: string | false;
-    resettable?: boolean;
-    clearAlwaysVisible?: boolean;
-    defaultValue?: unknown;
-    validate?: Validator | readonly Validator[];
-    helperText?: string;
-    placeholder?: string;
-    disabled?: boolean;
-    readonly?: boolean;
-    inputClass?: string;
-    class?: string;
-  }>(),
+  defineProps<ResettableTextInputProps>(),
   { resettable: true, clearAlwaysVisible: false, label: undefined },
 );
 

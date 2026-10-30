@@ -1,3 +1,14 @@
+<script lang="ts">
+/** Props for {@link InfinitePagination}. */
+export interface InfinitePaginationProps {
+  /** Pixels before the end of the list at which `autoLoad` fires. */
+  offset?: number;
+  /** Load the next page when the end of the list scrolls into view. */
+  autoLoad?: boolean;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<InfinitePagination>` — pagination for an `<InfiniteList>`, the Vue analog
@@ -16,13 +27,7 @@ import { useInfiniteListContext } from "../../../list/infinite-list-context";
 import Button from "../../ui/button.vue";
 
 const props = withDefaults(
-  defineProps<{
-    /** Pixels before the end of the list at which `autoLoad` fires. */
-    offset?: number;
-    /** Load the next page when the end of the list scrolls into view. */
-    autoLoad?: boolean;
-    class?: string;
-  }>(),
+  defineProps<InfinitePaginationProps>(),
   { offset: 250, autoLoad: true },
 );
 

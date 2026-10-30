@@ -1,3 +1,22 @@
+<script lang="ts">
+/** Props for {@link DateTimeInput}. */
+export interface DateTimeInputProps {
+  source: string;
+  label?: string | false;
+  defaultValue?: unknown;
+  validate?: Validator | readonly Validator[];
+  /** Read transform (form value → display string). Default {@link formatDateTime}. */
+  format?: (value: unknown) => unknown;
+  /** Write transform (display string → stored value). Default {@link parseDateTimeToISO}. */
+  parse?: (input: unknown) => unknown;
+  helperText?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  inputClass?: string;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<DateTimeInput>` — native `datetime-local` picker, the Vue analog of
@@ -22,21 +41,7 @@ import {
 import { humanizeSource } from "./label-text";
 
 const props = withDefaults(
-  defineProps<{
-    source: string;
-    label?: string | false;
-    defaultValue?: unknown;
-    validate?: Validator | readonly Validator[];
-    /** Read transform (form value → display string). Default {@link formatDateTime}. */
-    format?: (value: unknown) => unknown;
-    /** Write transform (display string → stored value). Default {@link parseDateTimeToISO}. */
-    parse?: (input: unknown) => unknown;
-    helperText?: string;
-    disabled?: boolean;
-    readonly?: boolean;
-    inputClass?: string;
-    class?: string;
-  }>(),
+  defineProps<DateTimeInputProps>(),
   // See `<DateInput>`: default `label` to `undefined` so the Boolean-prop rule
   // doesn't coerce an absent label to `false` and suppress it.
   { label: undefined },

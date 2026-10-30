@@ -1,3 +1,20 @@
+<script lang="ts">
+/** Props for {@link SaveButton}. */
+export interface SaveButtonProps {
+  label?: string;
+  alwaysEnable?: boolean;
+  disabled?: boolean;
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<SaveButton>` — submits the ambient CRUD form, the Vue analog of
@@ -16,19 +33,7 @@ import { useTranslate } from "../../../i18n/use-translate";
 import Button from "../../ui/button.vue";
 
 const props = withDefaults(
-  defineProps<{
-    label?: string;
-    alwaysEnable?: boolean;
-    disabled?: boolean;
-    variant?:
-      | "default"
-      | "destructive"
-      | "outline"
-      | "secondary"
-      | "ghost"
-      | "link";
-    class?: string;
-  }>(),
+  defineProps<SaveButtonProps>(),
   { label: "chelone.action.save", alwaysEnable: false, variant: "default" },
 );
 

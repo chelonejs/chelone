@@ -1,3 +1,14 @@
+<script lang="ts">
+/** Props for {@link DataTable}. */
+export interface DataTableProps {
+  class?: string;
+  /** Enable row selection + the bulk-actions toolbar (also on if a `#bulkActions` slot is passed). */
+  bulkActions?: boolean;
+  /** Render `<ListPagination>` below the table (default true). */
+  pagination?: boolean;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<DataTable>` — a table over the ambient list surface, the Vue analog of
@@ -35,13 +46,7 @@ import DataTableRow from "./data-table-row.vue";
 import ListPagination from "./list-pagination.vue";
 
 const props = withDefaults(
-  defineProps<{
-    class?: string;
-    /** Enable row selection + the bulk-actions toolbar (also on if a `#bulkActions` slot is passed). */
-    bulkActions?: boolean;
-    /** Render `<ListPagination>` below the table (default true). */
-    pagination?: boolean;
-  }>(),
+  defineProps<DataTableProps>(),
   { bulkActions: false, pagination: true },
 );
 

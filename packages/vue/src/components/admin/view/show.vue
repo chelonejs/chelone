@@ -1,3 +1,12 @@
+<script lang="ts">
+/** Props for {@link Show}. */
+export interface ShowProps {
+  resource?: string;
+  id?: Identifier;
+  title?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<Show>` — a read-only detail page, the Vue analog of `@chelone/react`'s
@@ -23,11 +32,7 @@ import {
   useResourceContext,
 } from "../../../resource-context";
 
-const props = defineProps<{
-  resource?: string;
-  id?: Identifier;
-  title?: string;
-}>();
+const props = defineProps<ShowProps>();
 
 const resource = props.resource ?? useResourceContext();
 if (!resource) {

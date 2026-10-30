@@ -1,3 +1,22 @@
+<script lang="ts">
+/** Props for {@link DateInput}. */
+export interface DateInputProps {
+  source: string;
+  label?: string | false;
+  defaultValue?: unknown;
+  validate?: Validator | readonly Validator[];
+  /** Read transform (form value → display string). Default {@link formatDate}. */
+  format?: (value: unknown) => unknown;
+  /** Write transform (display string → stored value). Default core parse (""→null). */
+  parse?: (input: unknown) => unknown;
+  helperText?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  inputClass?: string;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<DateInput>` — native date picker for a "YYYY-MM-DD" value, the Vue analog of
@@ -20,21 +39,7 @@ import { formatDate, isValidDate } from "./date-input-format";
 import { humanizeSource } from "./label-text";
 
 const props = withDefaults(
-  defineProps<{
-    source: string;
-    label?: string | false;
-    defaultValue?: unknown;
-    validate?: Validator | readonly Validator[];
-    /** Read transform (form value → display string). Default {@link formatDate}. */
-    format?: (value: unknown) => unknown;
-    /** Write transform (display string → stored value). Default core parse (""→null). */
-    parse?: (input: unknown) => unknown;
-    helperText?: string;
-    disabled?: boolean;
-    readonly?: boolean;
-    inputClass?: string;
-    class?: string;
-  }>(),
+  defineProps<DateInputProps>(),
   // A `string | false` prop is inferred Boolean-inclusive, so an ABSENT `label`
   // would coerce to `false` (Vue's boolean-prop rule) and suppress the label.
   // Default it to `undefined` so the humanized fallback renders.

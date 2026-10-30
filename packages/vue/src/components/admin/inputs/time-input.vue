@@ -1,3 +1,22 @@
+<script lang="ts">
+/** Props for {@link TimeInput}. */
+export interface TimeInputProps {
+  source: string;
+  label?: string | false;
+  defaultValue?: unknown;
+  validate?: Validator | readonly Validator[];
+  /** Read transform (form value → display string). Default {@link formatTime}. */
+  format?: (value: unknown) => unknown;
+  /** Write transform (display string → stored value). Default {@link parseTimeToDate}. */
+  parse?: (input: unknown) => unknown;
+  helperText?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  inputClass?: string;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<TimeInput>` — native time picker for a time-of-day value, the Vue analog of
@@ -18,21 +37,7 @@ import { formatTime, isValidTime, parseTimeToDate } from "./date-input-format";
 import { humanizeSource } from "./label-text";
 
 const props = withDefaults(
-  defineProps<{
-    source: string;
-    label?: string | false;
-    defaultValue?: unknown;
-    validate?: Validator | readonly Validator[];
-    /** Read transform (form value → display string). Default {@link formatTime}. */
-    format?: (value: unknown) => unknown;
-    /** Write transform (display string → stored value). Default {@link parseTimeToDate}. */
-    parse?: (input: unknown) => unknown;
-    helperText?: string;
-    disabled?: boolean;
-    readonly?: boolean;
-    inputClass?: string;
-    class?: string;
-  }>(),
+  defineProps<TimeInputProps>(),
   // See `<DateInput>`: default `label` to `undefined` so the Boolean-prop rule
   // doesn't coerce an absent label to `false` and suppress it.
   { label: undefined },

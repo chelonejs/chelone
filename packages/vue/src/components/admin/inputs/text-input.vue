@@ -1,3 +1,21 @@
+<script lang="ts">
+/** Props for {@link TextInput}. */
+export interface TextInputProps {
+  source: string;
+  label?: string | false;
+  type?: string;
+  defaultValue?: unknown;
+  validate?: Validator | readonly Validator[];
+  helperText?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  /** Class applied to the inner `<Input>` control (wrappers reserve trailing room). */
+  inputClass?: string;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<TextInput>` — single-line text input, the Vue analog of `@chelone/react`'s
@@ -15,20 +33,7 @@ import Input from "../../ui/input.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = withDefaults(defineProps<{
-  source: string;
-  label?: string | false;
-  type?: string;
-  defaultValue?: unknown;
-  validate?: Validator | readonly Validator[];
-  helperText?: string;
-  placeholder?: string;
-  disabled?: boolean;
-  readonly?: boolean;
-  /** Class applied to the inner `<Input>` control (wrappers reserve trailing room). */
-  inputClass?: string;
-  class?: string;
-}>(), {
+const props = withDefaults(defineProps<TextInputProps>(), {
   label: undefined,
 });
 

@@ -1,3 +1,12 @@
+<script lang="ts">
+/** Props for {@link List}. */
+export interface ListProps {
+  resource?: string;
+  perPage?: number;
+  title?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<List>` — a list page, the Vue analog of `@chelone/react`'s `views/list.tsx`.
@@ -18,11 +27,7 @@ import {
   useResourceContext,
 } from "../../../resource-context";
 
-const props = defineProps<{
-  resource?: string;
-  perPage?: number;
-  title?: string;
-}>();
+const props = defineProps<ListProps>();
 
 const resource = props.resource ?? useResourceContext();
 if (!resource) {

@@ -1,3 +1,10 @@
+<script lang="ts">
+/** Props for {@link Toolbar}. */
+export interface ToolbarProps {
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<Toolbar>` — the default action bar at the bottom of Edit/Create forms, the
@@ -10,7 +17,7 @@ import { useSlots } from "vue";
 import { cn } from "../../../lib/utils";
 import SaveButton from "./save-button.vue";
 
-const props = defineProps<{ class?: string }>();
+const props = defineProps<ToolbarProps>();
 const slots = useSlots();
 const hasContent = () => slots.default != null;
 </script>

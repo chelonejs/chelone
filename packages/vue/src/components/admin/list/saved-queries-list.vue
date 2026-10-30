@@ -1,3 +1,14 @@
+<script lang="ts">
+/** Props for {@link SavedQueriesList}. */
+export interface SavedQueriesListProps {
+  /** Defaults to the ambient resource. */
+  resource?: string;
+  /** KV namespace for the saved queries. Default: the resource name. */
+  storeKey?: string;
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<SavedQueriesList>` — named filter/sort sets of the ambient `<List>`, the Vue
@@ -20,13 +31,7 @@ import { useSavedQueries } from "../../../store/use-saved-queries";
 import Button from "../../ui/button.vue";
 import Input from "../../ui/input.vue";
 
-const props = defineProps<{
-  /** Defaults to the ambient resource. */
-  resource?: string;
-  /** KV namespace for the saved queries. Default: the resource name. */
-  storeKey?: string;
-  class?: string;
-}>();
+const props = defineProps<SavedQueriesListProps>();
 
 const resource = useRequiredResource("SavedQueriesList", {
   resource: props.resource,

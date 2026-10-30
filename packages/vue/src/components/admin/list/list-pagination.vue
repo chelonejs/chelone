@@ -1,3 +1,10 @@
+<script lang="ts">
+/** Props for {@link ListPagination}. */
+export interface ListPaginationProps {
+  rowsPerPageOptions?: number[]; class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<ListPagination>` — pagination controls for a `<List>`, the Vue analog of
@@ -22,7 +29,7 @@ import NativeSelect from "../../ui/native-select.vue";
 import { ChevronLeftIcon, ChevronRightIcon } from "./list-icons";
 
 const props = withDefaults(
-  defineProps<{ rowsPerPageOptions?: number[]; class?: string }>(),
+  defineProps<ListPaginationProps>(),
   { rowsPerPageOptions: () => [5, 10, 25, 50] },
 );
 

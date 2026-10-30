@@ -18,6 +18,10 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     passWithNoTests: true,
-    typecheck: { enabled: true, tsconfig: "./tsconfig.json" },
+    typecheck: {
+      enabled: true,
+      checker: "vue-tsc",
+      tsconfig: "./tsconfig.json",
+    },
   },
 });

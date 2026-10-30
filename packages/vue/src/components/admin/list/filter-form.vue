@@ -1,3 +1,10 @@
+<script lang="ts">
+/** Props for {@link FilterForm}. */
+export interface FilterFormProps {
+  resource?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<FilterForm>` — an inline, live-updating filter form, the Vue analog of
@@ -23,7 +30,7 @@ import { useForm } from "../../../form/use-form";
 import { useListContext } from "../../../list/list-context";
 import { useResourceContext } from "../../../resource-context";
 
-const props = defineProps<{ resource?: string }>();
+const props = defineProps<FilterFormProps>();
 
 const list = useListContext();
 const resource = props.resource ?? useResourceContext();

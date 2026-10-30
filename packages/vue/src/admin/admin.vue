@@ -1,3 +1,46 @@
+<script lang="ts">
+/** Props for {@link Admin}. */
+export interface AdminProps<TResources extends ResourceMap = ResourceMap> {
+  /** The data provider (required — the P2 data seam). */
+  dataProvider: DataProvider<TResources>;
+  /** An existing vue-query client. Omit to have `<Admin>` create one. */
+  queryClient?: QueryClient;
+  /** The optional auth provider. */
+  authProvider?: AuthProvider;
+  /** The optional i18n instance. */
+  i18n?: AnyChelonI18n;
+  /** The optional KV store. */
+  store?: ChelonStore;
+  /** The optional notification store. */
+  notifications?: NotificationStore;
+  /**
+   * The zod resource registry (P5), the output of `defineResources(...)`. Named
+   * `registry` to avoid colliding with the `resources` view-component escape
+   * hatch below. When present, a resource's schema becomes the DEFAULT form
+   * validator for `useForm({ resource })` (D6): the core save-pipeline and
+   * `useForm` already READ `ctx.resources` — `<Admin>` is what PUTS it there,
+   * the exact seam React's `<Admin resources>` threads through `<CheloneProvider>`.
+   */
+  registry?: TResources;
+  /**
+   * The escape hatch (D3): resource definitions to merge into the registry
+   * WITHOUT a `<Resource>` child — the config path mirroring React's array form.
+   * NOTE: this is the runtime VIEW registry (list/edit/create components), NOT
+   * the zod schema registry — that is `registry` above.
+   */
+  resources?: ResourceDefinition[];
+  /**
+   * Gate the shell behind authentication (the no-flash auth gate). When `true`
+   * (and an `authProvider` is configured), the shell renders a loading spinner
+   * while the auth check is pending and the `#login` slot (default
+   * `<LoginPage>`) when unauthenticated — the protected layout never mounts
+   * during that window. Defaults `false`: the shell renders immediately, exactly
+   * as before (parity with React's `<Admin requireAuth>`).
+   */
+  requireAuth?: boolean;
+}
+</script>
+
 <script setup lang="ts" generic="TResources extends ResourceMap = ResourceMap">
 /**
  * `<Admin>` — the children-composable façade (D3), the Vue twin of
@@ -51,45 +94,7 @@ import {
   ResourceRegistryKey,
 } from "./resource-registry";
 
-const props = defineProps<{
-  /** The data provider (required — the P2 data seam). */
-  dataProvider: DataProvider<TResources>;
-  /** An existing vue-query client. Omit to have `<Admin>` create one. */
-  queryClient?: QueryClient;
-  /** The optional auth provider. */
-  authProvider?: AuthProvider;
-  /** The optional i18n instance. */
-  i18n?: AnyChelonI18n;
-  /** The optional KV store. */
-  store?: ChelonStore;
-  /** The optional notification store. */
-  notifications?: NotificationStore;
-  /**
-   * The zod resource registry (P5), the output of `defineResources(...)`. Named
-   * `registry` to avoid colliding with the `resources` view-component escape
-   * hatch below. When present, a resource's schema becomes the DEFAULT form
-   * validator for `useForm({ resource })` (D6): the core save-pipeline and
-   * `useForm` already READ `ctx.resources` — `<Admin>` is what PUTS it there,
-   * the exact seam React's `<Admin resources>` threads through `<CheloneProvider>`.
-   */
-  registry?: TResources;
-  /**
-   * The escape hatch (D3): resource definitions to merge into the registry
-   * WITHOUT a `<Resource>` child — the config path mirroring React's array form.
-   * NOTE: this is the runtime VIEW registry (list/edit/create components), NOT
-   * the zod schema registry — that is `registry` above.
-   */
-  resources?: ResourceDefinition[];
-  /**
-   * Gate the shell behind authentication (the no-flash auth gate). When `true`
-   * (and an `authProvider` is configured), the shell renders a loading spinner
-   * while the auth check is pending and the `#login` slot (default
-   * `<LoginPage>`) when unauthenticated — the protected layout never mounts
-   * during that window. Defaults `false`: the shell renders immediately, exactly
-   * as before (parity with React's `<Admin requireAuth>`).
-   */
-  requireAuth?: boolean;
-}>();
+const props = defineProps<AdminProps<TResources>>();
 
 defineSlots<{
   /** The resource markers (`<Resource>`) — always rendered so they register. */

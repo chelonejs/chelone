@@ -1,3 +1,14 @@
+<script lang="ts">
+/** Props for {@link BooleanInput}. */
+export interface BooleanInputProps {
+  source: string;
+  label?: string | false;
+  defaultValue?: boolean;
+  validate?: Validator | readonly Validator[];
+  class?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<BooleanInput>` — toggle switch for boolean values, the Vue analog of
@@ -14,13 +25,7 @@ import Switch from "../../ui/switch.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = withDefaults(defineProps<{
-  source: string;
-  label?: string | false;
-  defaultValue?: boolean;
-  validate?: Validator | readonly Validator[];
-  class?: string;
-}>(), {
+const props = withDefaults(defineProps<BooleanInputProps>(), {
   label: undefined,
 });
 

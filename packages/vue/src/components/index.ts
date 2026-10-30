@@ -55,6 +55,7 @@ export type { ListButtonProps } from "./admin/buttons/list-button.vue";
 export { default as ListButton } from "./admin/buttons/list-button.vue";
 export type { RefreshButtonProps } from "./admin/buttons/refresh-button.vue";
 export { default as RefreshButton } from "./admin/buttons/refresh-button.vue";
+export type { SaveButtonProps } from "./admin/buttons/save-button.vue";
 export { default as SaveButton } from "./admin/buttons/save-button.vue";
 export type { ShowButtonProps } from "./admin/buttons/show-button.vue";
 export { default as ShowButton } from "./admin/buttons/show-button.vue";
@@ -62,6 +63,7 @@ export type { SidebarToggleButtonProps } from "./admin/buttons/sidebar-toggle-bu
 export { default as SidebarToggleButton } from "./admin/buttons/sidebar-toggle-button.vue";
 export type { SortButtonProps } from "./admin/buttons/sort-button.vue";
 export { default as SortButton } from "./admin/buttons/sort-button.vue";
+export type { ToolbarProps } from "./admin/buttons/toolbar.vue";
 export { default as Toolbar } from "./admin/buttons/toolbar.vue";
 // --- admin: common (V3-c) -------------------------------------------------
 export type { FieldLabelTextProps } from "./admin/common/field-label-text.vue";
@@ -70,6 +72,7 @@ export type { InputHelperTextProps } from "./admin/common/input-helper-text.vue"
 export { default as InputHelperText } from "./admin/common/input-helper-text.vue";
 export type { KeyboardShortcutProps } from "./admin/common/keyboard-shortcut.vue";
 export { default as KeyboardShortcut } from "./admin/common/keyboard-shortcut.vue";
+export type { ValidationErrorProps } from "./admin/common/validation-error.vue";
 export { default as ValidationError } from "./admin/common/validation-error.vue";
 // --- admin: feedback (V3-c) -----------------------------------------------
 export type { ConfirmProps } from "./admin/feedback/confirm.vue";
@@ -81,7 +84,10 @@ export type {
 export { default as Error } from "./admin/feedback/error.vue";
 export type { LinearProgressProps } from "./admin/feedback/linear-progress.vue";
 export { default as LinearProgress } from "./admin/feedback/linear-progress.vue";
-export type { LoadingProps } from "./admin/feedback/loading.vue";
+export type {
+  LoadingProps as LoadingPageProps,
+  LoadingProps,
+} from "./admin/feedback/loading.vue";
 export {
   default as Loading,
   default as LoadingPage,
@@ -134,6 +140,7 @@ export type { RecordFieldProps } from "./admin/fields/record-field.vue";
 export { default as RecordField } from "./admin/fields/record-field.vue";
 export type { ReferenceArrayFieldProps } from "./admin/fields/reference-array-field.vue";
 export { default as ReferenceArrayField } from "./admin/fields/reference-array-field.vue";
+export type { ReferenceFieldProps } from "./admin/fields/reference-field.vue";
 export { default as ReferenceField } from "./admin/fields/reference-field.vue";
 export type { ReferenceManyCountProps } from "./admin/fields/reference-many-count.vue";
 export { default as ReferenceManyCount } from "./admin/fields/reference-many-count.vue";
@@ -147,6 +154,7 @@ export type { SubscriptionPlanFieldProps } from "./admin/fields/subscription-pla
 export { default as SubscriptionPlanField } from "./admin/fields/subscription-plan-field.vue";
 export type { TextArrayFieldProps } from "./admin/fields/text-array-field.vue";
 export { default as TextArrayField } from "./admin/fields/text-array-field.vue";
+export type { TextFieldProps } from "./admin/fields/text-field.vue";
 export { default as TextField } from "./admin/fields/text-field.vue";
 export type { UrlFieldProps } from "./admin/fields/url-field.vue";
 export { default as UrlField } from "./admin/fields/url-field.vue";
@@ -157,7 +165,6 @@ export type {
 export { default as UsageMeterField } from "./admin/fields/usage-meter-field.vue";
 export type {
   DeliveryStatus,
-  WebhookEndpoint as WebhookEndpointFieldEndpoint,
   WebhookEndpointFieldProps,
 } from "./admin/fields/webhook-endpoint-field.vue";
 export { default as WebhookEndpointField } from "./admin/fields/webhook-endpoint-field.vue";
@@ -175,19 +182,25 @@ export type { AutocompleteArrayInputProps } from "./admin/inputs/autocomplete-ar
 export { default as AutocompleteArrayInput } from "./admin/inputs/autocomplete-array-input.vue";
 export type { AutocompleteInputProps } from "./admin/inputs/autocomplete-input.vue";
 export { default as AutocompleteInput } from "./admin/inputs/autocomplete-input.vue";
+export type { BooleanInputProps } from "./admin/inputs/boolean-input.vue";
 export { default as BooleanInput } from "./admin/inputs/boolean-input.vue";
 export type { CheckboxGroupInputProps } from "./admin/inputs/checkbox-group-input.vue";
 export { default as CheckboxGroupInput } from "./admin/inputs/checkbox-group-input.vue";
 export type { ChoiceInputBaseProps } from "./admin/inputs/choice-input-props";
+export type { ColorInputProps } from "./admin/inputs/color-input.vue";
 export { default as ColorInput } from "./admin/inputs/color-input.vue";
 export type { CronInputProps } from "./admin/inputs/cron-input.vue";
 export { default as CronInput } from "./admin/inputs/cron-input.vue";
 export { describeCron, looksLikeCron } from "./admin/inputs/cron-utils";
+export type { CurrencyInputProps } from "./admin/inputs/currency-input.vue";
 export { default as CurrencyInput } from "./admin/inputs/currency-input.vue";
 export type { DatagridInputProps } from "./admin/inputs/datagrid-input.vue";
 export { default as DatagridInput } from "./admin/inputs/datagrid-input.vue";
+export type { DateInputProps } from "./admin/inputs/date-input.vue";
 export { default as DateInput } from "./admin/inputs/date-input.vue";
+export type { DateTimeInputProps } from "./admin/inputs/date-time-input.vue";
 export { default as DateTimeInput } from "./admin/inputs/date-time-input.vue";
+export type { DurationInputProps } from "./admin/inputs/duration-input.vue";
 export { default as DurationInput } from "./admin/inputs/duration-input.vue";
 export {
   compactDuration,
@@ -206,9 +219,13 @@ export type { ImageInputProps } from "./admin/inputs/image-input.vue";
 export { default as ImageInput } from "./admin/inputs/image-input.vue";
 export { default as ImageInputThumbnail } from "./admin/inputs/image-input-thumbnail.vue";
 export { humanizeSource } from "./admin/inputs/label-text";
+export type { NullableBooleanInputProps } from "./admin/inputs/nullable-boolean-input.vue";
 export { default as NullableBooleanInput } from "./admin/inputs/nullable-boolean-input.vue";
+export type { NumberInputProps } from "./admin/inputs/number-input.vue";
 export { default as NumberInput } from "./admin/inputs/number-input.vue";
+export type { PasswordInputProps } from "./admin/inputs/password-input.vue";
 export { default as PasswordInput } from "./admin/inputs/password-input.vue";
+export type { PhoneInputProps } from "./admin/inputs/phone-input.vue";
 export { default as PhoneInput } from "./admin/inputs/phone-input.vue";
 export type { RadioButtonGroupInputProps } from "./admin/inputs/radio-button-group-input.vue";
 export { default as RadioButtonGroupInput } from "./admin/inputs/radio-button-group-input.vue";
@@ -216,8 +233,11 @@ export type { RatingInputProps } from "./admin/inputs/rating-input.vue";
 export { default as RatingInput } from "./admin/inputs/rating-input.vue";
 export type { ReferenceArrayInputProps } from "./admin/inputs/reference-array-input.vue";
 export { default as ReferenceArrayInput } from "./admin/inputs/reference-array-input.vue";
+export type { ReferenceInputProps } from "./admin/inputs/reference-input.vue";
 export { default as ReferenceInput } from "./admin/inputs/reference-input.vue";
+export type { ResettableTextInputProps } from "./admin/inputs/resettable-text-input.vue";
 export { default as ResettableTextInput } from "./admin/inputs/resettable-text-input.vue";
+export type { SearchInputProps } from "./admin/inputs/search-input.vue";
 export { default as SearchInput } from "./admin/inputs/search-input.vue";
 export type { SelectArrayInputProps } from "./admin/inputs/select-array-input.vue";
 export { default as SelectArrayInput } from "./admin/inputs/select-array-input.vue";
@@ -230,7 +250,9 @@ export type {
 export { default as SubscriptionPlanPicker } from "./admin/inputs/subscription-plan-picker.vue";
 export type { TextArrayInputProps } from "./admin/inputs/text-array-input.vue";
 export { default as TextArrayInput } from "./admin/inputs/text-array-input.vue";
+export type { TextInputProps } from "./admin/inputs/text-input.vue";
 export { default as TextInput } from "./admin/inputs/text-input.vue";
+export type { TimeInputProps } from "./admin/inputs/time-input.vue";
 export { default as TimeInput } from "./admin/inputs/time-input.vue";
 export type {
   UseChoiceInputOptions,
@@ -279,7 +301,9 @@ export { TITLE_PORTAL_ID } from "./admin/layout/title-portal-id";
 export type { UserMenuProps } from "./admin/layout/user-menu.vue";
 export { default as UserMenu } from "./admin/layout/user-menu.vue";
 // --- admin: list ----------------------------------------------------------
+export type { BulkActionsToolbarProps } from "./admin/list/bulk-actions-toolbar.vue";
 export { default as BulkActionsToolbar } from "./admin/list/bulk-actions-toolbar.vue";
+export type { DataTableProps } from "./admin/list/data-table.vue";
 export { default as DataTable } from "./admin/list/data-table.vue";
 export { default as DataTableCol } from "./admin/list/data-table-col.vue";
 export {
@@ -289,15 +313,24 @@ export {
   useDataTablePass,
 } from "./admin/list/data-table-context";
 export { default as DataTableRow } from "./admin/list/data-table-row.vue";
+export type { FilterFormProps } from "./admin/list/filter-form.vue";
 export { default as FilterForm } from "./admin/list/filter-form.vue";
+export type { InfinitePaginationProps } from "./admin/list/infinite-pagination.vue";
 export { default as InfinitePagination } from "./admin/list/infinite-pagination.vue";
+export type { ListPaginationProps } from "./admin/list/list-pagination.vue";
 export { default as ListPagination } from "./admin/list/list-pagination.vue";
+export type { SavedQueriesListProps } from "./admin/list/saved-queries-list.vue";
 export { default as SavedQueriesList } from "./admin/list/saved-queries-list.vue";
+export type { CreateProps } from "./admin/view/create.vue";
 export { default as Create } from "./admin/view/create.vue";
+export type { EditProps } from "./admin/view/edit.vue";
 export { default as Edit } from "./admin/view/edit.vue";
 // --- admin: views ---------------------------------------------------------
+export type { InfiniteListProps } from "./admin/view/infinite-list.vue";
 export { default as InfiniteList } from "./admin/view/infinite-list.vue";
+export type { ListProps } from "./admin/view/list.vue";
 export { default as List } from "./admin/view/list.vue";
+export type { ShowProps } from "./admin/view/show.vue";
 export { default as Show } from "./admin/view/show.vue";
 // --- ui primitives --------------------------------------------------------
 export * from "./ui";

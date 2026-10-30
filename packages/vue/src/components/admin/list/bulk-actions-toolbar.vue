@@ -1,3 +1,10 @@
+<script lang="ts">
+/** Props for {@link BulkActionsToolbar}. */
+export interface BulkActionsToolbarProps {
+  label?: string;
+}
+</script>
+
 <script setup lang="ts">
 /**
  * `<BulkActionsToolbar>` — a sticky toolbar that appears when rows are selected
@@ -22,7 +29,7 @@ import { Card } from "../../ui/card";
 import Button from "../../ui/button.vue";
 import { XIcon } from "./list-icons";
 
-defineProps<{ label?: string }>();
+defineProps<BulkActionsToolbarProps>();
 
 const list = useListContext();
 const translate = useTranslate();
