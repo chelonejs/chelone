@@ -17,7 +17,7 @@ export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
   {
     "getting-started": {
       icon: Rocket,
-      blurb: "Install Chelone and scaffold your first admin in minutes.",
+      blurb: "Install Chelone and set up your first admin in minutes.",
     },
     "app-config": {
       icon: Settings2,
@@ -37,7 +37,7 @@ export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
     },
     "ui-layout": {
       icon: PanelsTopLeft,
-      blurb: "App shell, sidebar, theming, and the shadcn primitives.",
+      blurb: "App shell, sidebar, and theming.",
     },
   };
 
