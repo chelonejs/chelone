@@ -776,6 +776,11 @@ export {
   useUpdate,
 } from "./hooks";
 export { useLocale, useSetLocale, useTranslate } from "./i18n-hooks";
+export type { UseInfiniteListControllerResult } from "./infinite-hooks";
+export {
+  useInfiniteGetList,
+  useInfiniteListController,
+} from "./infinite-hooks";
 export type {
   GetRecordRepresentation,
   GetResourceLabel,
@@ -803,6 +808,7 @@ export {
   FilterContextProvider,
   useFilterContext,
 } from "./list/filter-context";
+export { useInfiniteListContext } from "./list/infinite-list-context";
 export type {
   ListFilterContextValue,
   ListPaginationContextValue,
