@@ -1,7 +1,9 @@
 import {
+  createI18n,
   createNotificationStore,
   createResourceRegistry,
   createStore,
+  defineMessages,
   type FieldErrors,
   fakeDataProvider,
   required,
@@ -166,7 +168,14 @@ function renderInEditRoute(
   const registry = createResourceRegistry();
   registry.register({ name: "posts", hasList: true, hasEdit: true });
   return render(
-    <CheloneProvider dataProvider={dataProvider} queryClient={queryClient}>
+    <CheloneProvider
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+      i18n={createI18n({
+        locale: "en",
+        messages: { en: defineMessages({ "ra.action.edit": "Edit" }) },
+      })}
+    >
       <ResourceRegistryProvider registry={registry}>
         <RouterAdapterProvider adapter={reactRouterAdapter}>
           <MemoryRouter initialEntries={["/1"]}>
