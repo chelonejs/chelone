@@ -3,28 +3,60 @@ title: "Data Mutations"
 description: "How Edit saves — validation, the update call, and cache reconciliation."
 ---
 
-Saving an `<Edit>` form runs a pipeline: **validate → persist → reconcile**. The
-edit-form controller owns it; the `<Toolbar>`'s Save button (or a bare
-`<SaveButton>`) fires it.
+Saving an `<Edit>` form runs a pipeline: **validate → transform → persist →
+reconcile**. The edit-form controller owns it; the `<Toolbar>`'s Save button (or
+a bare `<SaveButton>`) fires it.
 
 ## The save pipeline
 
 1. **Validate.** The form values are checked against the resource's Zod schema
-   (if one is registered) plus any per-input `validate` functions. On failure,
-   the messages surface on the inputs and the save is blocked.
-2. **Persist.** The controller calls the data provider's `update(resource, {
+   (if one is registered with `defineResources`) plus any per-input `validate`
+   functions. On failure, the messages surface on the inputs and the save is
+   blocked.
+2. **Transform.** An optional `transform` reshapes the values (see
+   [below](#transforming-values)).
+3. **Persist.** The controller calls the data provider's `update(resource, {
    id, data, previousData })` and awaits the result.
-3. **Reconcile.** On success, the updated record is written back into the
-   TanStack Query cache, a save notification fires, and the form resets to the
-   saved values.
+4. **Reconcile.** `<Edit>` and `<Create>` are pessimistic: nothing is written to
+   the cache until the server answers. Then the resource's queries are
+   invalidated, so the record and its lists refetch. The form resets to the
+   saved record, an "updated" notification fires, and the view redirects to the
+   list.
+
+### Server validation errors
+
+A data provider that rejects with a `ValidationError` from `@chelone/core`
+reports field-level problems. The form maps `fieldErrors` onto the matching
+inputs, with no error notification and no redirect, so the user fixes the input
+and saves again:
+
+```ts
+import { ValidationError } from "@chelone/core";
+
+// inside your data provider's `update`
+throw new ValidationError("Validation failed", {
+  title: "That title is taken",
+});
+```
+
+Any other rejection shows an error notification and leaves the form as it is.
+
+### Transforming values
+
+`transform` receives the form values and `{ previousData }`, the record as it
+was fetched, and returns the data to send. It can be async. `<Edit>` has no
+`transform` prop: pass it to `useEditForm` (see
+[Advanced Edit](/docs/page-components/edit/advanced#transforming-values-before-save)).
+A `<Create>` transform gets no `previousData`, because the record does not exist
+yet.
 
 ## Mutation hooks
 
-Under the hood the controller uses `useUpdate`, one of the mutation hooks you can
-call directly for custom flows (an inline toggle, a bulk action, a button
-outside a form). Each hook binds a resource and returns a TanStack Query
-mutation object — call `.mutate` (or `.mutateAsync`) with the data-provider
-params:
+Under the hood the controller drives the same mutation options as `useUpdate`,
+one of the mutation hooks you can call directly for custom flows (an inline
+toggle, a bulk action, a button outside a form). Each hook binds a resource and
+returns a TanStack Query mutation object — call `.mutate` (or `.mutateAsync`)
+with the data-provider params:
 
 ```tsx
 import { useUpdate } from "@chelone/react";
@@ -48,16 +80,70 @@ reads — each a thin, typed wrapper over the data
 provider plus the query cache. For a fully-typed set bound to your registry, call
 `createCheloneHooks<typeof resources>()` once and use its members.
 
+## Mutation modes
+
+`useUpdate` and `useDelete` take a `mutationMode`. It decides when the cache
+changes relative to the server call:
+
+| Mode | Cache | Server call |
+| --- | --- | --- |
+| `"pessimistic"` (default) | Untouched until the server answers, then the resource's queries are invalidated and refetch. | Immediate. |
+| `"optimistic"` | The cached record (and the entries reference fields read) is patched or removed first. An error restores it. The resource's queries are invalidated when the call settles either way. | Immediate. |
+| `"undoable"` | Patched or removed first. | Held back until the undo window closes. An "Undo" notification cancels it. |
+
+Pessimistic mode never touches the cache ahead of the server: it only
+invalidates and refetches. Optimistic and undoable modes write to the cache
+first.
+
+```tsx
+import { useDelete, useUpdate } from "@chelone/react";
+
+function Row({ id }: { id: number }) {
+  const { mutate: update } = useUpdate("posts", { mutationMode: "optimistic" });
+  const { mutate: remove } = useDelete("posts", { mutationMode: "undoable" });
+  return (
+    <>
+      <button onClick={() => update({ id, data: { published: true } })}>
+        Publish
+      </button>
+      <button onClick={() => remove({ id })}>Delete</button>
+    </>
+  );
+}
+```
+
+With `"undoable"`, `mutate` is fire and forget and `mutateAsync` resolves once
+the undoable is queued, not when the server answers. It needs the notification
+store `<Admin>` provides.
+
+`<Edit>` and `<Create>` are pessimistic only, and `useCreate` takes no mode.
+
 ## Deleting
 
 The `<Toolbar>` includes a confirm-gated Delete on Edit views. To delete
 elsewhere, use `<DeleteButton>` (which wraps `useDelete` behind a confirm
 dialog) or call `useDelete` yourself.
 
+`<DeleteButton>` takes a `mutationMode` too. The default asks for confirmation,
+deletes, and redirects to the list. `mutationMode="undoable"` skips the dialog,
+removes the record from the cache, redirects at once, and offers Undo before the
+server call goes out:
+
+```tsx
+import { DeleteButton, Edit, TextInput } from "@chelone/react";
+
+<Edit actions={<DeleteButton mutationMode="undoable" />}>
+  <TextInput source="title" />
+</Edit>;
+```
+
+On the button, any value other than `"undoable"` behaves as the confirm-gated
+default.
+
 ## Tips
 
 - The data provider owns the actual persistence — REST, GraphQL, Supabase,
   in-memory. The mutation hooks and `<Edit>` only speak its `update` / `delete`
   contract.
-- Validation errors returned by the provider (a rejected `update`) surface on
-  the form the same way schema errors do.
+- A `ValidationError` rejection surfaces on the form the same way schema errors
+  do. Other rejections show an error notification.

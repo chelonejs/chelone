@@ -7,7 +7,8 @@ registry: "create"
 The `<Create>` view lets users add a new record. Like `<Edit>`, it publishes a
 form context and takes inputs directly as children — but it starts from an
 **empty** record instead of fetching one, and persists via the data provider's
-`create`.
+`create`. A successful save shows a "created" notification and redirects to the
+new record's edit page.
 
 ## A live create form
 
@@ -53,16 +54,18 @@ Give an input a `defaultValue` to pre-fill it, or seed the whole record with the
 parent record:
 
 ```tsx
+import { Create, SaveButton, TextInput } from "@chelone/react";
+
 <Create record={{ author_id: 1, published: false }}>
   <TextInput source="title" />
   <SaveButton />
-</Create>
+</Create>;
 ```
 
 ## Validation from the schema
 
-`<Create>` validates against the resource's Zod schema on submit, exactly as
-`<Edit>` does. In the preview above, submitting with an empty **Title** surfaces
+`<Create>` validates against the resource's Zod schema (registered with
+`defineResources`) on submit, exactly as `<Edit>` does. In the preview above, submitting with an empty **Title** surfaces
 the schema's required-field message — no per-input `validate` props needed.
 
 ## Props
@@ -72,6 +75,12 @@ the schema's required-field message — no per-input `validate` props needed.
 ## Tips
 
 - `<Create>` has no record id — it starts empty (or from the `record` seed) and
-  calls the data provider's `create` on save, then redirects.
-- Use a bare `<SaveButton>` on create (there is nothing to delete yet); the full
-  `<Toolbar>` is for `<Edit>`.
+  calls the data provider's `create` on save, then redirects to the new record's
+  edit page.
+- `<Create>` is pessimistic only: the cache is invalidated and refetched after
+  the server answers, never patched ahead of it. See
+  [Mutation modes](/docs/page-components/edit/data-mutations#mutation-modes).
+- Use a bare `<SaveButton>` on create. `<Toolbar>` always renders Delete next to
+  Save, and there is nothing to delete yet.
+- A `ValidationError` from the data provider lands on the matching inputs, as on
+  `<Edit>`.

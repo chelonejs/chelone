@@ -55,13 +55,22 @@ Wire it onto the resource so `/posts/:id` renders it:
 prop) and the record id (from the `:id` route param or the `id` prop), then runs
 the edit-form controller. The controller fetches the record, seeds the form
 store with its values, and exposes a `submit` handler that validates, persists
-via the data provider's `update`, and reconciles the cache. The `<Toolbar>`'s
-Save button fires that submit; Delete is confirm-gated.
+via the data provider's `update`, and refetches the resource's queries. The
+`<Toolbar>`'s Save button fires that submit; Delete is confirm-gated.
+
+- The header (title and `actions`) renders straight away. The children mount
+  once the record has loaded, so inputs never see an empty form.
+- A successful save shows the "updated" notification and redirects to the
+  resource's list. `onSuccess` runs after the form resets to the saved record
+  and does not replace either of those. To stay on the page, build the page
+  with [`useEditForm`](/docs/page-components/edit/advanced) and pass
+  `onRedirect`.
 
 ## Validation from the schema
 
-Because the `posts` resource was registered with a Zod schema, the form
-validates against it on submit — no per-input `validate` props. Clear the
+The schema comes from `defineResources`: when the `posts` entry carries a Zod
+`schema`, the form validates against it on submit, with no per-input `validate`
+props (see [Resource](/docs/app-config/resource)). Clear the
 **Title** in the preview above and save: the schema's `.min(1, "Title is
 required")` rule blocks the submit and surfaces the message.
 
