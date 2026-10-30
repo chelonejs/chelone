@@ -21,7 +21,8 @@ import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { Admin } from "../../../admin/admin";
 import { CheloneProvider } from "../../../context";
 import { RecordContextProvider } from "../../../record/record-context";
 import { ResourceRegistryProvider } from "../../../resource";
@@ -74,9 +75,57 @@ function makeProviders() {
   return Providers;
 }
 
+function renderUnderAdmin(
+  children: ReactNode,
+  dataProvider = fakeDataProvider({ authors: structuredClone(authors) }),
+) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  render(
+    <MemoryRouter>
+      <Admin
+        dataProvider={dataProvider}
+        queryClient={queryClient}
+        i18n={createI18n({
+          locale: "en",
+          messages: { en: defineMessages({}) },
+        })}
+        dashboard={children}
+      />
+    </MemoryRouter>,
+  );
+}
+
 afterEach(cleanup);
 
 describe("<ReferenceField>", () => {
+  it("three rows over two authors make one getMany call with each id once and no getOne call", async () => {
+    const dataProvider = fakeDataProvider({
+      authors: structuredClone(authors),
+    });
+    const getMany = vi.spyOn(dataProvider, "getMany");
+    const getOne = vi.spyOn(dataProvider, "getOne");
+    renderUnderAdmin(
+      [
+        { id: 10, author_id: 1 },
+        { id: 11, author_id: 2 },
+        { id: 12, author_id: 1 },
+      ].map((record) => (
+        <RecordContextProvider key={record.id} value={record}>
+          <ReferenceField source="author_id" reference="authors" link={false} />
+        </RecordContextProvider>
+      )),
+      dataProvider,
+    );
+    await waitFor(() => {
+      expect(screen.getAllByText("Jane Doe")).toHaveLength(2);
+      expect(screen.getByText("John Smith")).toBeTruthy();
+    });
+    expect(getMany).toHaveBeenCalledExactlyOnceWith("authors", { ids: [1, 2] });
+    expect(getOne).not.toHaveBeenCalled();
+  });
+
   it("renders the referenced record's representation once loaded", async () => {
     const Providers = makeProviders();
     render(
