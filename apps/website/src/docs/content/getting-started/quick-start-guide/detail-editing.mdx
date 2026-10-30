@@ -22,7 +22,8 @@ import { TextInput } from "@chelone/react";
 ## The full edit form
 
 Compose inputs directly as `<Edit>` children — Chelone has no `<SimpleForm>`
-wrapper; the view IS the form:
+wrapper; the view IS the form. Keep `PostList` and merge the new imported names
+into the existing `@chelone/react` import in `src/posts.tsx`:
 
 <ComponentPreview name="getting-started/quick-start-guide/post-edit" />
 
@@ -61,9 +62,47 @@ submit. Clear the **Title** in the preview above and save — the schema's
 That is the "point at a Zod schema" payoff: typed records **and** zero-boilerplate
 validation, from one source of truth.
 
-You now have a working CRUD admin. Wire `<Edit>`, `<Create>`, and `<Show>` onto the
-`<Resource>` to complete it:
+## Create and show views
 
-```tsx
+Add these exports to `src/posts.tsx`, alongside `PostList` and `PostEdit`. Merge
+`Create`, `SaveButton`, and `Show` into the existing `@chelone/react` import;
+keep `TextField` from the list and the inputs from the edit form. The create form
+includes all required fields from `postSchema` and a `<SaveButton>`:
+
+```tsx title="src/posts.tsx"
+import { Create, SaveButton, Show } from "@chelone/react";
+// Keep TextField, ReferenceInput, SelectInput and TextInput already imported.
+
+export function PostCreate() {
+  return (
+    <Create>
+      <TextInput source="title" />
+      <TextInput source="body" multiline />
+      <ReferenceInput source="author_id" reference="authors">
+        <SelectInput optionText="name" />
+      </ReferenceInput>
+      <SaveButton />
+    </Create>
+  );
+}
+
+export function PostShow() {
+  return (
+    <Show>
+      <TextField source="title" />
+      <TextField source="body" />
+    </Show>
+  );
+}
+```
+
+In the `App` from [Setup](/docs/getting-started/quick-start-guide/setup), merge
+the new view names into the existing imports and replace the posts `<Resource>`
+inside `<Admin>`:
+
+```tsx title="src/App.tsx"
+import { Resource } from "@chelone/react";
+import { PostCreate, PostEdit, PostList, PostShow } from "./posts";
+
 <Resource name="posts" list={PostList} edit={PostEdit} create={PostCreate} show={PostShow} />
 ```
