@@ -79,6 +79,7 @@ function mountProbe<TResult>(
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
+  const spy = vi.spyOn(dataProvider, "getManyReference");
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [{ path: "/", component: { render: () => null } }],
@@ -106,17 +107,20 @@ function mountProbe<TResult>(
   });
 
   const wrapper = mount(Harness, { global: { plugins: [router] } });
+  // Only the data queries: the many controller's inner list controller keeps
+  // its own disabled observer on the matching getList key.
   const observerCount = (): number =>
     queryClient
       .getQueryCache()
       .getAll()
+      .filter((query) => query.queryKey[1] === "getManyReference")
       .reduce((sum, query) => sum + query.getObserversCount(), 0);
   return {
     wrapper,
     capture,
     record,
     observerCount,
-    spy: vi.spyOn(dataProvider, "getManyReference"),
+    spy,
   };
 }
 
@@ -227,7 +231,9 @@ describe("useReferenceManyFieldController", () => {
   });
 
   it("with no record id fetches nothing", async () => {
-    const { capture, spy, observerCount } = mountMany({}, { title: "no id" });
+    // A record with no id key: LooseRecord requires one, so the fixture is cast.
+    const noId = { title: "no id" } as unknown as RecordValue;
+    const { capture, spy, observerCount } = mountMany({}, noId);
     await nextTick();
     expect(capture.result?.data).toEqual([]);
     expect(capture.result?.total).toBe(0);

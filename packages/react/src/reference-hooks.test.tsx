@@ -67,10 +67,13 @@ function makeHarness(record?: Record<string, unknown>) {
       <RecordContextProvider value={record}>{children}</RecordContextProvider>
     </CheloneProvider>
   );
+  // Only the data queries: the many controller's inner list controller keeps
+  // its own disabled observer on the matching getList key.
   const observerCount = (): number =>
     queryClient
       .getQueryCache()
       .getAll()
+      .filter((query) => query.queryKey[1] === "getManyReference")
       .reduce((sum, query) => sum + query.getObserversCount(), 0);
   return {
     wrapper,
