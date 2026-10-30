@@ -174,8 +174,8 @@ describe("<DeleteButton>", () => {
     // Accepting the dialog dispatches the delete.
     await wrapper.find('[data-slot="confirm-accept"]').trigger("click");
     await vi.waitFor(() => expect(deleteSpy).toHaveBeenCalledTimes(1));
-    expect(deleteSpy.mock.calls[0][0]).toBe("posts");
-    expect(deleteSpy.mock.calls[0][1]).toMatchObject({ id: 2 });
+    expect(deleteSpy.mock.calls[0]![0]).toBe("posts");
+    expect(deleteSpy.mock.calls[0]![1]).toMatchObject({ id: 2 });
     // Dialog closes after a successful delete.
     await vi.waitFor(() =>
       expect(wrapper.find('[data-slot="confirm"]').exists()).toBe(false),

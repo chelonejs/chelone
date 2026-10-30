@@ -476,7 +476,9 @@ function mountApiKey(
           { dataProvider, queryClient },
           {
             default: () =>
-              h(Host, null, { default: () => h(ApiKeyInput, props) }),
+              h(Host, null, {
+                default: () => h(ApiKeyInput, props as never),
+              }),
           },
         );
     },

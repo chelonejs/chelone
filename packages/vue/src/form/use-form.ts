@@ -100,9 +100,9 @@ function registrySchema<TFormData>(
   return entry?.schema as FormSchema<TFormData>;
 }
 
-export function useForm<
-  TFormData = Record<string, unknown>,
->(options: UseFormOptions<TFormData>): UseFormReturn<TFormData> {
+export function useForm<TFormData = Record<string, unknown>>(
+  options: UseFormOptions<TFormData>,
+): UseFormReturn<TFormData> {
   const ctx = useCheloneContext();
   // Resource is optional for a form — it only sources the default schema. An
   // explicit `resource` option wins over the ambient `<Resource>` name.

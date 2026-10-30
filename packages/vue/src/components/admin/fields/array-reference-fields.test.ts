@@ -177,8 +177,8 @@ describe("FileField", () => {
     );
     const links = w.findAll('[data-slot="file-field"] a');
     expect(links).toHaveLength(2);
-    expect(links[0].attributes("href")).toBe("a.pdf");
-    expect(links[1].text()).toBe("B");
+    expect(links[0]!.attributes("href")).toBe("a.pdf");
+    expect(links[1]!.text()).toBe("B");
   });
 
   it("renders the empty placeholder for a nullish value", () => {
@@ -218,7 +218,7 @@ describe("ImageField", () => {
     );
     const imgs = w.findAll('[data-slot="image-field"] img');
     expect(imgs).toHaveLength(2);
-    expect(imgs[1].attributes("src")).toBe("2.png");
+    expect(imgs[1]!.attributes("src")).toBe("2.png");
   });
 
   it("renders the empty placeholder for a nullish value", () => {

@@ -6,7 +6,7 @@
  * assert DOM structure/roles/values + behavior, never styling.
  */
 
-import { fakeDataProvider } from "@chelone/core";
+import { fakeDataProvider, type LooseRecord } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -64,7 +64,7 @@ function mountInForm(
   {
     record,
     records = {},
-  }: { record: FormValues; records?: Record<string, unknown[]> },
+  }: { record: FormValues; records?: Record<string, LooseRecord[]> },
 ) {
   const captured: Captured = {};
   const queryClient = new QueryClient({
@@ -178,10 +178,10 @@ describe("<DatagridInput>", () => {
     // 3 body rows carrying the choice text.
     expect(wrapper.find("tbody").text()).toContain("Tech");
 
-    await boxes[1].setValue(true); // first choice (tech)
+    await boxes[1]!.setValue(true); // first choice (tech)
     await nextTick();
     expect(captured.values?.().tags).toEqual(["tech"]);
-    await boxes[3].setValue(true); // people
+    await boxes[3]!.setValue(true); // people
     await nextTick();
     expect(captured.values?.().tags).toEqual(["tech", "people"]);
   });
@@ -193,7 +193,7 @@ describe("<DatagridInput>", () => {
     );
     await flushPromises();
 
-    const header = wrapper.findAll('input[type="checkbox"]')[0];
+    const header = wrapper.findAll('input[type="checkbox"]')[0]!;
     await header.setValue(true);
     await nextTick();
     expect(captured.values?.().tags).toEqual(["tech", "lifestyle", "people"]);
@@ -244,13 +244,13 @@ describe("<ArrayInput>", () => {
     await flushPromises();
 
     expect(wrapper.findAll('[data-slot="array-input-row"]')).toHaveLength(2);
-    const remove = wrapper.findAll('[data-slot="array-input-remove"]')[0];
+    const remove = wrapper.findAll('[data-slot="array-input-remove"]')[0]!;
     await remove.trigger("click");
     await nextTick();
     expect(wrapper.findAll('[data-slot="array-input-row"]')).toHaveLength(1);
     const items = captured.values?.().items as Array<{ name: string }>;
     expect(items).toHaveLength(1);
-    expect(items[0].name).toBe("B");
+    expect(items[0]!.name).toBe("B");
   });
 
   it("edits a nested field through the row scope", async () => {
@@ -262,7 +262,7 @@ describe("<ArrayInput>", () => {
     await wrapper.find('input[type="text"]').setValue("Renamed");
     await nextTick();
     const items = captured.values?.().items as Array<{ name: string }>;
-    expect(items[0].name).toBe("Renamed");
+    expect(items[0]!.name).toBe("Renamed");
   });
 });
 
@@ -319,7 +319,7 @@ describe("<ReferenceArrayInput>", () => {
     expect(boxes).toHaveLength(4);
     expect(wrapper.find("tbody").text()).toContain("Tech");
 
-    await boxes[2].setValue(true); // News (id 2)
+    await boxes[2]!.setValue(true); // News (id 2)
     await nextTick();
     expect(captured.values?.().tag_ids).toEqual([2]);
   });
@@ -377,8 +377,8 @@ describe("<FileInput>", () => {
 
     const links = wrapper.findAll("a");
     expect(links).toHaveLength(2);
-    expect(links[0].attributes("title")).toBe("Cover");
-    expect(links[1].attributes("title")).toBe("Plan");
+    expect(links[0]!.attributes("title")).toBe("Cover");
+    expect(links[1]!.attributes("title")).toBe("Plan");
   });
 
   it("removes a file on its remove button", async () => {
@@ -407,11 +407,11 @@ describe("<FileInput>", () => {
       '[data-slot="file-input-preview"] button',
     );
     expect(removeButtons).toHaveLength(2);
-    await removeButtons[0].trigger("click");
+    await removeButtons[0]!.trigger("click");
     await nextTick();
     const links = wrapper.findAll("a");
     expect(links).toHaveLength(1);
-    expect(links[0].attributes("title")).toBe("Plan");
+    expect(links[0]!.attributes("title")).toBe("Plan");
   });
 
   it("selecting a file sets the value", async () => {
