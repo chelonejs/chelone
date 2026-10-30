@@ -1,6 +1,12 @@
 <script lang="ts">
+import type { EditFormControllerOptions, Identifier } from "@chelone/core";
+
 /** Props for {@link Edit}. */
-export interface EditProps {
+export interface EditProps
+  extends Pick<
+    EditFormControllerOptions<Record<string, unknown>>,
+    "validate" | "schema" | "sanitizeEmptyValues" | "onSuccess"
+  > {
   resource?: string;
   id?: Identifier;
   title?: string;
@@ -28,7 +34,7 @@ export interface EditProps {
  * child works with no `<SimpleForm>` in between.
  */
 
-import type { FieldErrors, Identifier } from "@chelone/core";
+import type { FieldErrors } from "@chelone/core";
 import { computed, watch } from "vue";
 import { useEditController } from "../../../controllers/use-edit-controller";
 import { useForm } from "../../../form/use-form";
@@ -58,8 +64,23 @@ const redirect = useRedirectOptional();
 const form = useForm<Record<string, unknown>>({
   resource,
   record: edit.record as Record<string, unknown> | undefined,
+  // Read per call: the form captures its options once, props stay live.
+  // The form captures its options once: always hand it this wrapper, so a
+  // `validate` set after setup still runs, as of the live prop.
+  validate: (values) => props.validate?.(values),
+  schema: props.schema,
+  sanitizeEmptyValues: props.sanitizeEmptyValues,
+  getRecord: () => edit.record as Record<string, unknown> | undefined,
+  // Rebaselined to the SERVER record in `onSaved` (as React's composed form
+  // does), so `onSuccess` sees the reconciled form.
+  resetOnSuccess: false,
   onSubmit: async (data): Promise<FieldErrors | undefined> => {
-    const errors = await edit.save(data);
+    const errors = await edit.save(data, {
+      onSaved: async (saved) => {
+        form.reset(saved as Record<string, unknown>);
+        await props.onSuccess?.(saved as Record<string, unknown>);
+      },
+    });
     if (!errors && props.redirectOnSave) {
       redirect("list", resource);
     }

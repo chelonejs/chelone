@@ -22,9 +22,9 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { useEditContext } from "../../../record-view-context";
 import {
@@ -176,5 +176,119 @@ describe("<Edit>", () => {
       const { data } = await dataProvider.getOne("posts", { id: 1 });
       expect((data as unknown as { title: string }).title).toBe("Updated");
     });
+  });
+  it("validate on <Edit> blocks a save that fails it", async () => {
+    const dataProvider = makeDataProvider();
+    const update = vi.spyOn(dataProvider, "update");
+    function Submit() {
+      const { save } = useSaveContext();
+      return (
+        <button type="button" onClick={() => save?.({ title: "" })}>
+          save
+        </button>
+      );
+    }
+    render(
+      <Providers dataProvider={dataProvider}>
+        <Edit
+          validate={(values) =>
+            values.title ? undefined : { title: "Title is required" }
+          }
+        >
+          <TextInput source="title" />
+          <Submit />
+        </Edit>
+      </Providers>,
+    );
+    await waitFor(() =>
+      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
+        "Original",
+      ),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await screen.findByText("Title is required");
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("validate on <Edit> reads the latest render, not the first", async () => {
+    const dataProvider = makeDataProvider();
+    const update = vi.spyOn(dataProvider, "update");
+    function Submit() {
+      const { save } = useSaveContext();
+      return (
+        <button type="button" onClick={() => save?.({ title: "Next" })}>
+          save
+        </button>
+      );
+    }
+    function Page() {
+      const [strict, setStrict] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setStrict(true)}>
+            strict
+          </button>
+          <Edit validate={() => (strict ? { title: "Too strict" } : undefined)}>
+            <TextInput source="title" />
+            <Submit />
+          </Edit>
+        </>
+      );
+    }
+    render(
+      <Providers dataProvider={dataProvider}>
+        <Page />
+      </Providers>,
+    );
+    await waitFor(() =>
+      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
+        "Original",
+      ),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "strict" }));
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await screen.findByText("Too strict");
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("validate added to <Edit> after mount blocks a save", async () => {
+    const dataProvider = makeDataProvider();
+    const update = vi.spyOn(dataProvider, "update");
+    function Submit() {
+      const { save } = useSaveContext();
+      return (
+        <button type="button" onClick={() => save?.({ title: "Next" })}>
+          save
+        </button>
+      );
+    }
+    function Page() {
+      const [strict, setStrict] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setStrict(true)}>
+            strict
+          </button>
+          <Edit validate={strict ? () => ({ title: "Too strict" }) : undefined}>
+            <TextInput source="title" />
+            <Submit />
+          </Edit>
+        </>
+      );
+    }
+    render(
+      <Providers dataProvider={dataProvider}>
+        <Page />
+      </Providers>,
+    );
+    await waitFor(() =>
+      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
+        "Original",
+      ),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "strict" }));
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await screen.findByText("Too strict");
+    expect(update).not.toHaveBeenCalled();
   });
 });
