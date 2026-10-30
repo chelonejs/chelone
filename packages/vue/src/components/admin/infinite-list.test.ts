@@ -76,10 +76,15 @@ class FakeObserver {
 const live = () =>
   FakeObserver.instances.filter((o) => o.disconnect.mock.calls.length === 0);
 
-/** The one observer still connected. */
+/** The one observer still connected; fails when there are none or several. */
 function liveObserver(): FakeObserver {
-  const [observer] = live();
-  if (!observer) throw new Error("no live IntersectionObserver");
+  const observers = live();
+  const [observer] = observers;
+  if (!observer || observers.length !== 1) {
+    throw new Error(
+      `expected 1 live IntersectionObserver, got ${observers.length}`,
+    );
+  }
   return observer;
 }
 
@@ -161,6 +166,9 @@ describe("InfinitePagination", () => {
 
     const observer = liveObserver();
     expect(observer.options?.rootMargin).toBe("0px 0px 100px 0px");
+    expect(observer.observe).toHaveBeenCalledWith(
+      wrapper.find('[data-slot="infinite-pagination-sentinel"]').element,
+    );
     observer.trigger(false);
     expect(list.fetchNextPage).not.toHaveBeenCalled();
     observer.trigger(true);
@@ -195,7 +203,7 @@ describe("InfinitePagination", () => {
 });
 
 describe("InfiniteList", () => {
-  function mountList(capture: { list?: ListContextValue }) {
+  function mountList(capture: { list?: ListContextValue } = {}) {
     const probe = defineComponent({
       setup() {
         capture.list = useListContext();
@@ -223,17 +231,19 @@ describe("InfiniteList", () => {
 
   const rows = (wrapper: ReturnType<typeof mountList>) =>
     wrapper.findAll('input[aria-label="Select row"]').length;
-  const loadMore = (wrapper: ReturnType<typeof mountList>) =>
-    wrapper.findAll("button").find((b) => b.text() === "Load more");
+  async function clickLoadMore(wrapper: ReturnType<typeof mountList>) {
+    const button = wrapper.find(BUTTON);
+    expect(button.text()).toBe("Load more");
+    await button.trigger("click");
+  }
 
   it("loads page 1 and Load more appends page 2 to the DataTable", async () => {
-    const capture: { list?: ListContextValue } = {};
-    const wrapper = mountList(capture);
+    const wrapper = mountList();
     await vi.waitFor(() => expect(wrapper.text()).toContain("t2"));
     expect(wrapper.text()).not.toContain("t3");
     expect(rows(wrapper)).toBe(2);
 
-    await loadMore(wrapper)?.trigger("click");
+    await clickLoadMore(wrapper);
 
     await vi.waitFor(() => expect(wrapper.text()).toContain("t4"));
     expect(wrapper.text()).toContain("t1");
@@ -248,7 +258,7 @@ describe("InfiniteList", () => {
     await wrapper.find('input[aria-label="Select row"]').setValue(true);
     expect(capture.list?.selectedIds).toEqual([1]);
 
-    await loadMore(wrapper)?.trigger("click");
+    await clickLoadMore(wrapper);
     await vi.waitFor(() => expect(wrapper.text()).toContain("t4"));
 
     expect(capture.list?.selectedIds).toEqual([1]);

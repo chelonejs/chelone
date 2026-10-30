@@ -17,6 +17,7 @@ interface InfinitePaginationProps {
   offset?: number;
   /** Load the next page when the end of the list scrolls into view. */
   autoLoad?: boolean;
+  /** Classes for the root element. */
   className?: string;
 }
 
@@ -30,12 +31,15 @@ function InfinitePagination({
     useInfiniteListContext();
   const sentinelRef = useRef<HTMLDivElement>(null);
   // The latest `fetchNextPage`, so the observer need not be rebuilt when the
-  // list result (and with it the callback's identity) changes.
+  // list result (and with it the callback's identity) changes. Written in an
+  // effect, not during render, so a discarded render cannot leave it stale.
   const fetchRef = useRef(fetchNextPage);
-  fetchRef.current = fetchNextPage;
+  useEffect(() => {
+    fetchRef.current = fetchNextPage;
+  }, [fetchNextPage]);
 
   const canObserve = typeof IntersectionObserver !== "undefined";
-  const canLoad = hasNextPage === true && !isFetchingNextPage;
+  const canLoad = !!hasNextPage && !isFetchingNextPage;
   const observing = autoLoad && canObserve && canLoad;
 
   // Rebuilt after each page lands: an observer only reports a change, so one
@@ -49,7 +53,8 @@ function InfinitePagination({
           void fetchRef.current();
         }
       },
-      { rootMargin: `0px 0px ${offset}px 0px` },
+      // A non-finite offset would make the margin string invalid and throw.
+      { rootMargin: `0px 0px ${Number.isFinite(offset) ? offset : 0}px 0px` },
     );
     observer.observe(sentinel);
     return () => observer.disconnect();

@@ -36,7 +36,7 @@ const observing = computed(
   () =>
     props.autoLoad &&
     canObserve &&
-    list.hasNextPage === true &&
+    !!list.hasNextPage &&
     !list.isFetchingNextPage,
 );
 
@@ -52,7 +52,8 @@ watch(
           void list.fetchNextPage();
         }
       },
-      { rootMargin: `0px 0px ${offset}px 0px` },
+      // A non-finite offset would make the margin string invalid and throw.
+      { rootMargin: `0px 0px ${Number.isFinite(offset) ? offset : 0}px 0px` },
     );
     observer.observe(target);
     onCleanup(() => observer.disconnect());

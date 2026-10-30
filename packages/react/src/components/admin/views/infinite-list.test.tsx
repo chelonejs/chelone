@@ -32,7 +32,12 @@ import { DataTable } from "../list/data-table";
 import { InfinitePagination } from "../list/infinite-pagination";
 import { InfiniteList } from "./infinite-list";
 
-afterEach(cleanup);
+const queryClients: QueryClient[] = [];
+
+afterEach(() => {
+  cleanup();
+  for (const client of queryClients.splice(0)) client.clear();
+});
 
 const POSTS = [
   { id: 1, title: "Echo" },
@@ -57,12 +62,14 @@ function mount(node: ReactNode) {
     locale: "en",
     messages: { en: defineMessages({ "ra.page.list": "{name}" }) },
   });
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  queryClients.push(queryClient);
   render(
     <CheloneProvider
       dataProvider={dataProvider}
-      queryClient={
-        new QueryClient({ defaultOptions: { queries: { retry: false } } })
-      }
+      queryClient={queryClient}
       i18n={i18n}
     >
       <ResourceRegistryProvider registry={registry}>
@@ -82,7 +89,7 @@ function mount(node: ReactNode) {
 const page = (
   <InfiniteList perPage={2}>
     <DataTable bulkActionButtons={<span>bulk</span>}>
-      <DataTable.Col source="title" />
+      <DataTable.Col source="title" label="Title" />
     </DataTable>
     <InfinitePagination autoLoad={false} />
   </InfiniteList>
@@ -95,15 +102,17 @@ const checked = () =>
 describe("<InfiniteList>", () => {
   it("loads page 1 and Load more appends page 2 to the DataTable", async () => {
     mount(page);
-    expect(await screen.findByText("Echo")).toBeTruthy();
+    await screen.findByText("Echo");
     expect(screen.getByText("Delta")).toBeTruthy();
     expect(screen.queryByText("Charlie")).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Load more" }));
 
-    expect(await screen.findByText("Charlie")).toBeTruthy();
+    await screen.findByText("Charlie");
     expect(screen.getByText("Echo")).toBeTruthy();
+    expect(screen.getByText("Delta")).toBeTruthy();
     expect(screen.getByText("Bravo")).toBeTruthy();
+    expect(screen.queryByText("Alpha")).toBeNull();
   });
 
   it("a column header click sorts on the server and restarts at page 1", async () => {
@@ -112,26 +121,29 @@ describe("<InfiniteList>", () => {
     fireEvent.click(screen.getByRole("button", { name: "Load more" }));
     await screen.findByText("Charlie");
 
-    fireEvent.click(
-      document.querySelector('button[data-field="title"]') as HTMLElement,
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Title" }));
 
     // Server-side ascending order, back on the first page: Echo is gone.
     await waitFor(() => expect(screen.queryByText("Echo")).toBeNull());
     expect(screen.getByText("Alpha")).toBeTruthy();
     expect(screen.getByText("Bravo")).toBeTruthy();
     expect(screen.queryByText("Charlie")).toBeNull();
+    expect(screen.queryByText("Delta")).toBeNull();
 
     const params = getList.mock.calls.at(-1)?.[1];
     expect(params?.pagination).toMatchObject({ page: 1 });
-    expect([params?.sort].flat()[0]).toEqual({ field: "title", order: "ASC" });
+    expect([params?.sort].flat()).toEqual([{ field: "title", order: "ASC" }]);
   });
 
   it("selected rows stay selected after loading more", async () => {
     mount(page);
     await screen.findByText("Echo");
 
-    fireEvent.click(rowBoxes()[0] as HTMLElement);
+    const [first] = await screen.findAllByRole("checkbox", {
+      name: "Select row",
+    });
+    expect(first).toBeDefined();
+    fireEvent.click(first as HTMLElement);
     await waitFor(() => expect(checked()).toEqual([true, false]));
 
     fireEvent.click(screen.getByRole("button", { name: "Load more" }));

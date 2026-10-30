@@ -21,17 +21,26 @@ import { InfinitePagination } from "./infinite-pagination";
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  FakeObserver.instances = [];
 });
 
-function Providers({ children }: { children: ReactNode }) {
+const queryClient = new QueryClient();
+
+function Providers({
+  children,
+  messages = {},
+}: {
+  children: ReactNode;
+  messages?: Record<string, string>;
+}) {
   const i18n = createI18n({
     locale: "en",
-    messages: { en: defineMessages({}) },
+    messages: { en: defineMessages(messages) },
   });
   return (
     <CheloneProvider
       dataProvider={fakeDataProvider({})}
-      queryClient={new QueryClient()}
+      queryClient={queryClient}
       i18n={i18n}
     >
       {children}
@@ -77,16 +86,24 @@ function makeList(overrides: Record<string, unknown> = {}): StubList {
   } as unknown as StubList;
 }
 
-function tree(value: ListContextValue, node: ReactNode) {
+function tree(
+  value: ListContextValue,
+  node: ReactNode,
+  messages?: Record<string, string>,
+) {
   return (
-    <Providers>
+    <Providers messages={messages}>
       <ListContextProvider value={value}>{node}</ListContextProvider>
     </Providers>
   );
 }
 
-function wrap(value: ListContextValue, node: ReactNode) {
-  return render(tree(value, node));
+function wrap(
+  value: ListContextValue,
+  node: ReactNode,
+  messages?: Record<string, string>,
+) {
+  return render(tree(value, node, messages));
 }
 
 /** An `IntersectionObserver` double that records every instance it creates. */
@@ -162,29 +179,14 @@ describe("<InfinitePagination>", () => {
   });
 
   it("uses the catalog labels when they exist", () => {
-    const i18n = createI18n({
-      locale: "en",
-      messages: {
-        en: defineMessages({
-          "chelone.navigation.load_more": "Plus",
-          "chelone.navigation.no_more_rows": "Fin",
-        }),
-      },
-    });
-    const node = (value: ListContextValue) => (
-      <CheloneProvider
-        dataProvider={fakeDataProvider({})}
-        queryClient={new QueryClient()}
-        i18n={i18n}
-      >
-        <ListContextProvider value={value}>
-          <InfinitePagination />
-        </ListContextProvider>
-      </CheloneProvider>
-    );
-    const { rerender } = render(node(makeList()));
+    const messages = {
+      "chelone.navigation.load_more": "Plus",
+      "chelone.navigation.no_more_rows": "Fin",
+    };
+    const node = <InfinitePagination />;
+    const { rerender } = wrap(makeList(), node, messages);
     expect(screen.getByRole("button", { name: "Plus" })).toBeTruthy();
-    rerender(node(makeList({ hasNextPage: false })));
+    rerender(tree(makeList({ hasNextPage: false }), node, messages));
     expect(screen.getByText("Fin")).toBeTruthy();
   });
 
@@ -196,6 +198,10 @@ describe("<InfinitePagination>", () => {
     expect(FakeObserver.instances).toHaveLength(1);
     const observer = firstObserver();
     expect(observer.options?.rootMargin).toBe("0px 0px 100px 0px");
+    expect(observer.observe).toHaveBeenCalledTimes(1);
+    expect(observer.observe).toHaveBeenCalledWith(
+      document.querySelector('[aria-hidden="true"]'),
+    );
 
     act(() => observer.trigger(false));
     expect(value.fetchNextPage).not.toHaveBeenCalled();
@@ -231,6 +237,7 @@ describe("<InfinitePagination>", () => {
   it("keeps Load more visible when autoLoad is on", () => {
     stubObserver();
     wrap(makeList(), <InfinitePagination />);
+    expect(FakeObserver.instances).toHaveLength(1);
     expect(screen.getByRole("button", { name: "Load more" })).toBeTruthy();
   });
 
@@ -242,9 +249,11 @@ describe("<InfinitePagination>", () => {
   });
 
   it("creates no observer without IntersectionObserver and still shows the button", () => {
+    stubObserver();
     vi.stubGlobal("IntersectionObserver", undefined);
     const value = makeList();
     wrap(value, <InfinitePagination />);
+    expect(FakeObserver.instances).toHaveLength(0);
     fireEvent.click(screen.getByRole("button", { name: "Load more" }));
     expect(value.fetchNextPage).toHaveBeenCalledTimes(1);
   });
