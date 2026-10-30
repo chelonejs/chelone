@@ -38,20 +38,18 @@ interface ChoicesProps {
  * searchable. Wrap in `<ReferenceArrayInput>` to select from related resources.
  *
  * @example
- * import { Edit, SimpleForm, SelectArrayInput } from '@/components/admin';
+ * import { Edit, SelectArrayInput } from '@/components/admin';
  *
  * const PostEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <SelectArrayInput
- *         source="tags"
- *         choices={[
- *           { id: 'tech', name: 'Tech' },
- *           { id: 'lifestyle', name: 'Lifestyle' },
- *           { id: 'people', name: 'People' },
- *         ]}
- *       />
- *     </SimpleForm>
+ *     <SelectArrayInput
+ *       source="tags"
+ *       choices={[
+ *         { id: 'tech', name: 'Tech' },
+ *         { id: 'lifestyle', name: 'Lifestyle' },
+ *         { id: 'people', name: 'People' },
+ *       ]}
+ *     />
  *   </Edit>
  * );
  */

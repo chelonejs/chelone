@@ -29,13 +29,11 @@ import type { InputProps } from "../input-props";
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date input type="date"}
  *
  * @example
- * import { Edit, SimpleForm, DateInput } from '@/components/admin';
+ * import { Edit, DateInput } from '@/components/admin';
  *
  * const PostEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <DateInput source="published_at" />
- *     </SimpleForm>
+ *     <DateInput source="published_at" />
  *   </Edit>
  * );
  */

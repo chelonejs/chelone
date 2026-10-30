@@ -18,13 +18,11 @@ import type { InputProps } from "../input-props";
  * / `<FieldLegend>` for the label + error slots.
  *
  * @example
- * import { Edit, SimpleForm, RatingInput } from '@/components/admin';
+ * import { Edit, RatingInput } from '@/components/admin';
  *
  * const ReviewEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <RatingInput source="rating" allowHalf max={5} />
- *     </SimpleForm>
+ *     <RatingInput source="rating" allowHalf max={5} />
  *   </Edit>
  * );
  */

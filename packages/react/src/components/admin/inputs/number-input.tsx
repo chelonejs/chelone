@@ -20,15 +20,13 @@ import type { InputProps } from "../input-props";
  * still triggers.
  *
  * @example
- * import { Edit, SimpleForm, NumberInput, TextInput } from '@/components/admin';
+ * import { Edit, NumberInput, TextInput } from '@/components/admin';
  *
  * const ProductEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <TextInput source="name" />
- *       <NumberInput source="price" step={0.01} min={0} />
- *       <NumberInput source="quantity" min={0} />
- *     </SimpleForm>
+ *     <TextInput source="name" />
+ *     <NumberInput source="price" step={0.01} min={0} />
+ *     <NumberInput source="quantity" min={0} />
  *   </Edit>
  * );
  */
