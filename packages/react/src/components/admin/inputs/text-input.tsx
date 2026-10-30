@@ -29,14 +29,12 @@ type TextInputProps = InputProps & {
  * `<Input>` or `<Textarea>` component depending on the `multiline` prop.
  *
  * @example
- * import { Edit, SimpleForm, TextInput } from '@/components/admin';
+ * import { Edit, TextInput } from '@/components/admin';
  *
  * const PostEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <TextInput source="title" />
- *       <TextInput source="description" multiline rows={4} />
- *     </SimpleForm>
+ *     <TextInput source="title" />
+ *     <TextInput source="description" multiline rows={4} />
  *   </Edit>
  * );
  */

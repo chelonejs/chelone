@@ -57,14 +57,12 @@ interface ReferenceInputProps {
  * options; changing them after mount requires a `key` remount.
  *
  * @example
- * import { Edit, SimpleForm, TextInput, ReferenceInput } from '@/components/admin';
+ * import { Edit, TextInput, ReferenceInput } from '@/components/admin';
  *
  * const ContactEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <TextInput source="first_name" />
- *       <ReferenceInput source="company_id" reference="companies" />
- *     </SimpleForm>
+ *     <TextInput source="first_name" />
+ *     <ReferenceInput source="company_id" reference="companies" />
  *   </Edit>
  * );
  */
