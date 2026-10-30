@@ -28,17 +28,17 @@ export interface ReferenceArrayFieldProps {
  * `<ReferenceArrayField>` — displays multiple related records by following an
  * array of foreign keys. The Vue port of `@chelone/react`'s
  * `fields/reference-array-field.tsx`. Reads the id array at `source`, fetches the
- * referenced records with `useGetMany`, drops them in a client-side `ListContext`,
+ * referenced records with `useGetManyAggregate`, drops them in a client-side `ListContext`,
  * publishes the reference resource, and renders its default slot.
  *
  * Rebridge note (mirrors the React twin): chelone has no `ReferenceArrayFieldBase`
- * — composes `useFieldValue` + `useGetMany` + client-side `useList` +
+ * — composes `useFieldValue` + `useGetManyAggregate` + client-side `useList` +
  * `provideListContext` + `provideResourceContext`.
  */
 
 import type { ResourceRecord } from "@chelone/core";
 import { computed } from "vue";
-import { useGetMany } from "../../../data/queries";
+import { useGetManyAggregate } from "../../../data/queries";
 import { useFieldValue } from "../../../record/use-field-value";
 import { provideListContext } from "../../../list/list-context";
 import { provideResourceContext } from "../../../resource-context";
@@ -52,7 +52,7 @@ const ids = computed<Identifier[]>(() =>
   Array.isArray(value.value) ? (value.value as Identifier[]) : [],
 );
 
-const query = useGetMany(
+const query = useGetManyAggregate(
   props.reference,
   () => ({ ids: ids.value }),
   { enabled: () => ids.value.length > 0 },
