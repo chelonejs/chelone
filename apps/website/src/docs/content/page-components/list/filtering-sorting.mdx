@@ -1,11 +1,14 @@
 ---
 title: "Filtering & Sorting"
-description: "Add a filter bar and let column headers sort — all synced to the URL."
+description: "Add a filter bar and let column headers sort, all synced to the URL."
 ---
 
 The list controller keeps the active **filters** and the **sort** in the URL, so
-every view is a shareable link and the browser back button walks the history.
-You wire the UI; the controller owns the state and re-fetches when it changes.
+every view is a shareable link. A change replaces the current history entry
+instead of pushing a new one, so the back button leaves the list rather than
+undoing a filter or a sort. You wire the UI; the controller owns the state and
+re-fetches when it changes. See [URL sync](/docs/page-components/list/overview#url-sync)
+for the params.
 
 ## Sorting
 
@@ -14,11 +17,17 @@ header to sort ascending, click again for descending. Opt a column out with
 `disableSort`, or set its default order with `sortByOrder`:
 
 ```tsx
-<DataTable>
-  <DataTable.Col source="title" />
-  <DataTable.NumberCol source="views" sortByOrder="DESC" />
-  <DataTable.Col source="published" disableSort />
-</DataTable>
+import { DataTable } from "@chelone/react";
+
+export function PostTable() {
+  return (
+    <DataTable>
+      <DataTable.Col source="title" />
+      <DataTable.NumberCol source="views" sortByOrder="DESC" />
+      <DataTable.Col source="published" disableSort />
+    </DataTable>
+  );
+}
 ```
 
 For a standalone control, `<SortButton>` exposes a menu of sortable fields:
@@ -26,7 +35,7 @@ For a standalone control, `<SortButton>` exposes a menu of sortable fields:
 ```tsx
 import { SortButton } from "@chelone/react";
 
-<SortButton fields={["title", "views"]} />;
+export const PostSort = () => <SortButton fields={["title", "views"]} />;
 ```
 
 ## Filtering
@@ -44,6 +53,7 @@ import {
   FilterButton,
   FilterForm,
   List,
+  ListPagination,
   TextInput,
 } from "@chelone/react";
 
@@ -66,19 +76,85 @@ export function PostList() {
         <DataTable.Col source="title" />
         <DataTable.NumberCol source="views" />
       </DataTable>
+      <ListPagination />
     </List>
   );
 }
 ```
 
-Type in the search box in the preview above — the list re-queries as the filter
-value changes, and the query lands in the URL.
+Type in the search box in the preview above. The list re-queries about half a
+second after you stop typing, and the query lands in the URL.
+
+## Debounce
+
+Filter inputs do not re-query on every keystroke. A change is held for 500 ms
+and a newer one restarts the wait, so typing a word sends one request. The delay
+belongs to the list controller. Change it with `debounceMs` on
+`useListController`. The `debounce` prop on `<FilterLiveForm>` is advisory and
+does not change it. Changing a filter also sends the list back to page 1.
+
+## Default filters
+
+`<List>` does not take filter defaults. Seed them with `filterDefaultValues` on
+`useListController` and provide the result with `ListContextProvider`. The
+defaults apply when neither the URL nor the store holds saved list params, so
+the first visit uses them and a later visit restores what the user left. A seeded
+filter shows in the form even when it is not `alwaysOn`. `ListView` reads the
+resource from context, so render this inside a `<Resource>`:
+
+```tsx title="src/posts.tsx"
+import {
+  BooleanInput,
+  DataTable,
+  FilterButton,
+  FilterForm,
+  ListContextProvider,
+  ListPagination,
+  ListView,
+  TextInput,
+  useListController,
+} from "@chelone/react";
+
+const postFilters = [
+  <TextInput key="q" source="q" label="Search" alwaysOn />,
+  <BooleanInput key="published" source="published" label="Published" />,
+];
+
+export function PostList() {
+  const controller = useListController("posts", {
+    filterDefaultValues: { published: true },
+  });
+
+  return (
+    <ListContextProvider value={controller}>
+      <ListView
+        actions={
+          <>
+            <FilterForm filters={postFilters} />
+            <FilterButton filters={postFilters} />
+          </>
+        }
+      >
+        <DataTable>
+          <DataTable.Col source="title" />
+          <DataTable.NumberCol source="views" />
+        </DataTable>
+        <ListPagination />
+      </ListView>
+    </ListContextProvider>
+  );
+}
+```
 
 ## Tips
 
 - A filter input's `source` is passed to the data provider's `getList` as a
   filter key; how the value narrows the result set is the provider's job.
-- `alwaysOn` inputs can't also carry a `defaultValue` — pin the input **or**
-  seed a default filter, not both.
+- `alwaysOn` inputs can't also carry a `defaultValue`. Pin the input **or**
+  seed a default filter with `filterDefaultValues`, not both.
+- Empty values (`""`, `null`, `undefined`) are dropped from the filter, so
+  clearing an input removes its key.
+- To filter without showing a control, pass `filter` to `useListController`. It
+  is merged over the user filter on every fetch and is not written to the URL.
 - Sorting and filtering compose: a filtered list still sorts by any column
   header, and both survive a page reload because they live in the URL.
