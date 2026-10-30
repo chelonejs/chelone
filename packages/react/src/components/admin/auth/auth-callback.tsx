@@ -11,9 +11,8 @@
  * - `useHandleAuthCallback` is the P6 auth-gate resolver: it returns
  *   `{ settled, error }` and OWNS the success redirect (via `useRedirect`), so
  *   this component only branches on `error` and otherwise shows the loader.
- * - shadmin renders a full `<Loading>` feedback component; chelone has no such
- *   component yet, so the loading branch is a `<Spinner>` (already `role=
- *   "status"`). Swap in `<Loading>` once the feedback block lands.
+ * - shadmin renders a full `<Loading>` feedback component; the loading branch
+ *   here is a bare `<Spinner>` (already `role="status"`) with no delay.
  *
  * @example
  * <Admin authCallbackPage={AuthCallback} authProvider={authProvider}>…</Admin>

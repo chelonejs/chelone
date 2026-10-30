@@ -15,8 +15,7 @@
  *   OWN `ShellErrorBoundary`; the inner one here isolates content-area crashes.
  * - No `<SkipNavigationButton>` (a BUTTONS-wave component); the `id="main-content"`
  *   anchor is kept so a skip-nav button can target it once it lands.
- * - The Suspense fallback is a minimal inline node (the shadcn `<Loading>` page
- *   is a FEEDBACK-wave component, not yet ported).
+ * - The Suspense fallback is a minimal inline node, not the delayed `<Loading>`.
  * - `CoreLayoutProps` (a shadmin-core type) does not exist in chelone; the slot
  *   contract is simply `{ children }`.
  */
