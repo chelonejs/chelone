@@ -12,14 +12,16 @@
  *                                     store / i18n / auth / notifications /
  *                                     resources — NOT reimplemented here)
  *         └ ResourceRegistryProvider (the runtime resource registry, W1-T5)
- *             └ BasenameProvider     (the app basename, default '')
+ *             └ BasenameProvider     (link-building prefix; see below)
  *                 └ RouterWrapper    (join a host router, else create one)
  *                     └ children
  *
  * `RouterWrapper` sits INSIDE the adapter/registry providers (they are pure
  * context, safe above a router) but wraps the children so the shell renders
- * within a router. The basename context is set for link-building; the created
- * router (when there is no host) applies the basename itself (parity §0a-12).
+ * within a router. Exactly one party owns the basename (parity §0a-12): a
+ * created router applies it to every absolute link and navigate, so the
+ * `BasenameProvider` is `''` there; under a host router nothing else prefixes,
+ * so the provider carries it.
  */
 
 import type {
@@ -71,7 +73,12 @@ export interface AdminContextProps<
    * `<Admin>`, `adapter` here (the low-level name).
    */
   adapter?: RouterAdapter;
-  /** The app basename (default `''`). */
+  /**
+   * The URL prefix the app is served under (default `''`). When `<Admin>`
+   * creates its router, that router applies it. Under a host router, it is the
+   * path the host mounts `<Admin>` at, relative to the host router's own
+   * basename; Chelone prepends it to the links it builds.
+   */
   basename?: string;
   /**
    * An existing runtime resource registry. Omit to have the provider create one
@@ -84,6 +91,8 @@ export interface AdminContextProps<
 /**
  * Wrap `children` in the created-or-joined router. Separated so it runs INSIDE
  * the adapter provider (it calls `useRouterAdapter`), keeping the JSX flat.
+ * `useInRouterContext` is read ABOVE `RouterWrapper`, so it reports whether a
+ * host router exists, not whether the created one does.
  */
 function AdminRouterWrapper({
   basename,
@@ -92,8 +101,13 @@ function AdminRouterWrapper({
   basename: string;
   children: ReactNode;
 }) {
-  const { RouterWrapper } = useRouterAdapter();
-  return <RouterWrapper basename={basename}>{children}</RouterWrapper>;
+  const { RouterWrapper, useInRouterContext } = useRouterAdapter();
+  const inHostRouter = useInRouterContext();
+  return (
+    <BasenameProvider basename={inHostRouter ? basename : ""}>
+      <RouterWrapper basename={basename}>{children}</RouterWrapper>
+    </BasenameProvider>
+  );
 }
 
 /**
@@ -137,12 +151,10 @@ export function AdminContext<TResources extends ResourceMap = ResourceMap>({
         resources={resources}
       >
         <ResourceRegistryProvider registry={registry}>
-          <BasenameProvider basename={basename}>
-            <AdminRouterWrapper basename={basename}>
-              <AuthErrorWatcher />
-              {children}
-            </AdminRouterWrapper>
-          </BasenameProvider>
+          <AdminRouterWrapper basename={basename}>
+            <AuthErrorWatcher />
+            {children}
+          </AdminRouterWrapper>
         </ResourceRegistryProvider>
       </CheloneProvider>
     </RouterAdapterProvider>

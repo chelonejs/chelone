@@ -29,7 +29,7 @@
       "name": "basename",
       "type": "string",
       "optional": true,
-      "comment": "The app basename (default `''`)."
+      "comment": "The URL prefix the app is served under (default `''`). When `<Admin>`\ncreates its router, that router applies it. Under a host router, it is the\npath the host mounts `<Admin>` at, relative to the host router's own\nbasename; Chelone prepends it to the links it builds."
     },
     {
       "name": "catchAll",
