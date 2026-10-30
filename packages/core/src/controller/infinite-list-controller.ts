@@ -123,14 +123,23 @@ export function createInfiniteListController<
   let fetchingNext: Promise<void> | null = null;
   let fetchingPrevious: Promise<void> | null = null;
 
+  /** Sort and filter of a request: the infinite fetch and `selectAll` share them. */
+  const requestParams = (
+    s: Pick<ListControllerState<TRecord>, "sort" | "filter">,
+  ) => ({
+    // A single object when there is exactly one key (adapter compat).
+    sort: s.sort.length === 1 ? s.sort[0] : s.sort,
+    // The permanent filter merges OVER the user filter.
+    filter: { ...s.filter, ...(options.filter ?? {}) },
+  });
+
   const buildOptions = () => {
     const s = inner.getSnapshot();
-    applied = paramsOf();
+    applied = s;
     return {
       ...getInfiniteListOptions(ctx, resource, {
         pagination: { page: s.page, perPage: s.perPage },
-        sort: s.sort.length === 1 ? s.sort[0] : s.sort,
-        filter: { ...s.filter, ...(options.filter ?? {}) },
+        ...requestParams(s),
       }),
       retry: false,
       enabled: options.enabled ?? true,
@@ -204,6 +213,8 @@ export function createInfiniteListController<
       unsubscribeInner();
       observer = null;
       applied = null;
+      lastPages = undefined;
+      lastRows = undefined;
       fetchingNext = null;
       fetchingPrevious = null;
     };
@@ -258,8 +269,7 @@ export function createInfiniteListController<
       const result = await ctx.queryClient.fetchQuery({
         ...getListOptions(ctx, resource, {
           pagination: { page: 1, perPage: limit },
-          sort: s.sort.length === 1 ? s.sort[0] : s.sort,
-          filter: { ...s.filter, ...(options.filter ?? {}) },
+          ...requestParams(s),
         }),
         retry: false,
       });

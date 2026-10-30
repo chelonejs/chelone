@@ -31,8 +31,13 @@ function makeCtx() {
     notifications: createNotificationStore(),
   };
 }
-const settled = async (c: { getSnapshot: () => { isPending: boolean } }) =>
-  vi.waitFor(() => expect(c.getSnapshot().isPending).toBe(false));
+const settled = async (c: {
+  getSnapshot: () => { isPending: boolean; isFetching: boolean };
+}) =>
+  vi.waitFor(() => {
+    expect(c.getSnapshot().isPending).toBe(false);
+    expect(c.getSnapshot().isFetching).toBe(false);
+  });
 
 /** Construction is inert: attach explicitly, as a vanilla consumer would. */
 const attach = (c: { subscribe: (cb: () => void) => () => void }) =>
@@ -259,7 +264,9 @@ describe("createInfiniteListController", () => {
     const c = createInfiniteListController(ctx, "posts", {});
     attach(c);
     await settled(c);
-    vi.spyOn(ctx.dataProvider, "getList").mockRejectedValue(new Error("boom"));
+    vi.spyOn(ctx.dataProvider, "getList").mockRejectedValueOnce(
+      new Error("boom"),
+    );
     await c.fetchNextPage();
     await vi.waitFor(() => expect(c.getSnapshot().error).toBeTruthy());
     expect(ids(c)).toEqual(range(1, 10));
@@ -339,19 +346,25 @@ describe("createInfiniteListController", () => {
     const getList = vi
       .spyOn(ctx.dataProvider, "getList")
       .mockRejectedValueOnce(new Error("posts list is down"));
+    // Pinned, so a changed default cannot move the controller off this entry.
+    const params = {
+      pagination: { page: 1, perPage: 10 },
+      sort: { field: "id", order: "ASC" } as const,
+      filter: {},
+    };
     // A plain posts list failed and left its error in the cache.
+    const failed = getListOptions(ctx, "posts", params);
     await ctx.queryClient
-      .fetchQuery({
-        ...getListOptions(ctx, "posts", {
-          pagination: { page: 1, perPage: 10 },
-          sort: { field: "id", order: "ASC" },
-          filter: {},
-        }),
-        retry: false,
-      })
+      .fetchQuery({ ...failed, retry: false })
       .catch(() => {});
+    expect(ctx.queryClient.getQueryState(failed.queryKey)?.status).toBe(
+      "error",
+    );
     getList.mockRestore();
-    const c = createInfiniteListController(ctx, "posts", {});
+    const c = createInfiniteListController(ctx, "posts", {
+      perPage: 10,
+      sort: params.sort,
+    });
     attach(c);
     await settled(c);
     expect(c.getSnapshot().error).toBeNull();
@@ -360,18 +373,21 @@ describe("createInfiniteListController", () => {
     c.destroy();
   });
 
-  it("selectAll announces a provider failure once", async () => {
+  it("selectAll announces a provider failure once and keeps the selection", async () => {
     const ctx = makeCtx();
     const c = createInfiniteListController(ctx, "posts", {});
     attach(c);
     await settled(c);
-    vi.spyOn(ctx.dataProvider, "getList").mockRejectedValue(new Error("boom"));
+    c.select([3]);
+    vi.spyOn(ctx.dataProvider, "getList").mockRejectedValueOnce(
+      new Error("boom"),
+    );
     await c.selectAll({ limit: 10 });
     const errors = ctx.notifications
       .getSnapshot()
       .filter((n) => n.type === "error");
     expect(errors.map((n) => n.message)).toEqual(["boom"]);
-    expect(c.getSnapshot().selectedIds).toEqual([]);
+    expect(c.getSnapshot().selectedIds).toEqual([3]);
     c.destroy();
   });
 });
