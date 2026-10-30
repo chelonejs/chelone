@@ -84,9 +84,9 @@ function resolve(
   if (Number.isNaN(count)) return interpolate(value.other, params);
   const category = new Intl.PluralRules(locale).select(count);
   return interpolate(value[category] ?? value.other, {
-    count: raw,
-    smart_count: raw,
     ...params,
+    count: params?.count ?? raw,
+    smart_count: params?.smart_count ?? raw,
   });
 }
 

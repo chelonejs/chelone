@@ -68,6 +68,20 @@ describe("createI18n", () => {
     );
   });
 
+  it("an undefined or null count falls back to smart_count in the text too", () => {
+    const i18n = createI18n({
+      locale: "en",
+      messages: { en: { "items.selected": { other: "{count} selected" } } },
+    });
+    const erased: AnyCheloneI18n = i18n;
+    expect(
+      erased.translate("items.selected", { count: undefined, smart_count: 3 }),
+    ).toBe("3 selected");
+    expect(
+      erased.translate("items.selected", { count: null, smart_count: 3 }),
+    ).toBe("3 selected");
+  });
+
   it("count wins over smart_count", () => {
     const i18n: AnyCheloneI18n = make();
     expect(
