@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { listKey, manyKey, manyKeyPrefix, oneKey, resourceKey } from "./keys";
+import {
+  infiniteListKey,
+  infiniteListKeyPrefix,
+  listKey,
+  manyKey,
+  manyKeyPrefix,
+  oneKey,
+  resourceKey,
+} from "./keys";
 
 describe("query keys", () => {
   it("follows the [resource, operation, params] scheme", () => {
@@ -31,5 +39,27 @@ describe("query keys", () => {
 
   it("listKey defaults params to an empty object", () => {
     expect(listKey("posts")).toEqual(["posts", "getList", {}]);
+  });
+
+  it('infiniteListKey is [resource, "getInfiniteList", params] and sits under resourceKey', () => {
+    const params = { pagination: { page: 1, perPage: 10 } };
+    expect(infiniteListKey("posts", params)).toEqual([
+      "posts",
+      "getInfiniteList",
+      params,
+    ]);
+    const root = resourceKey("posts");
+    expect(infiniteListKey("posts", params).slice(0, root.length)).toEqual(
+      root,
+    );
+  });
+
+  it("infiniteListKeyPrefix is the partial key every infiniteListKey of the resource starts with", () => {
+    const prefix = infiniteListKeyPrefix("posts");
+    expect(prefix).toEqual(["posts", "getInfiniteList"]);
+    const key = infiniteListKey("posts", {
+      pagination: { page: 1, perPage: 2 },
+    });
+    expect(key.slice(0, prefix.length)).toEqual(prefix);
   });
 });

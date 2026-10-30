@@ -1,7 +1,7 @@
-import type { QueryClient } from "@tanstack/query-core";
+import type { InfiniteData, QueryClient } from "@tanstack/query-core";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
-import { manyKeyPrefix, oneKey } from "./keys";
+import { infiniteListKeyPrefix, manyKeyPrefix, oneKey } from "./keys";
 import type { GetListResult } from "./types";
 
 /**
@@ -14,14 +14,51 @@ import type { GetListResult } from "./types";
  * object — so the pre-apply snapshot stays a valid rollback target).
  */
 
-/** Partial-match key covering every `getList` cache variant of a resource. */
-function listQueryKey(resource: string) {
-  return [resource, "getList"] as const;
+/** Partial-match keys of the caches holding one `GetListResult` per query (not one per page). */
+function singleResultListKeyPrefixes(resource: string) {
+  return [
+    [resource, "getList"],
+    [resource, "getManyReference"],
+  ] as const;
+}
+
+/** Filters ids out of a page; `undefined` when it holds none, so the cached object is kept. */
+function withoutIds(
+  page: GetListResult,
+  idSet: Set<string>,
+): GetListResult | undefined {
+  const kept = page.data.filter(
+    (record) => !idSet.has(String((record as ResourceRecord).id)),
+  );
+  return kept.length === page.data.length ? undefined : { ...page, data: kept };
+}
+
+/** Shallow-merges `data` into the matching rows; `undefined` when none match. */
+function withPatchedRows(
+  page: GetListResult,
+  idSet: Set<string>,
+  data: Record<string, unknown>,
+): GetListResult | undefined {
+  let changed = false;
+  const nextData = page.data.map((record) => {
+    if (idSet.has(String((record as ResourceRecord).id))) {
+      changed = true;
+      return { ...record, ...data };
+    }
+    return record;
+  });
+  return changed ? { ...page, data: nextData } : undefined;
+}
+
+/** `total` after `removed` rows left; stays at 0 if a stale total is lower than the rows removed. */
+function lowerTotal(total: number | undefined, removed: number) {
+  return total == null ? total : Math.max(0, total - removed);
 }
 
 /**
  * Optimistically remove records: drop each `getOne` entry and filter the id(s)
- * out of every cached `getList` page (decrementing its `total` when known).
+ * out of every cached `getList`, `getManyReference` and `getInfiniteList` page
+ * (decrementing `total` when known).
  */
 export function removeRecordsFromCache(
   queryClient: QueryClient,
@@ -32,28 +69,46 @@ export function removeRecordsFromCache(
   for (const id of ids) {
     queryClient.removeQueries({ queryKey: oneKey(resource, { id }) });
   }
-  const lists = queryClient.getQueriesData<GetListResult>({
-    queryKey: listQueryKey(resource),
-  });
-  for (const [key, value] of lists) {
+  for (const queryKey of singleResultListKeyPrefixes(resource)) {
+    for (const [key, value] of queryClient.getQueriesData<GetListResult>({
+      queryKey,
+    })) {
+      if (!value) continue;
+      const next = withoutIds(value, idSet);
+      if (!next) continue;
+      const removed = value.data.length - next.data.length;
+      queryClient.setQueryData<GetListResult>(key, {
+        ...next,
+        total: lowerTotal(value.total, removed),
+      });
+    }
+  }
+  const infinite = queryClient.getQueriesData<
+    InfiniteData<GetListResult, unknown>
+  >({ queryKey: infiniteListKeyPrefix(resource) });
+  for (const [key, value] of infinite) {
     if (!value) continue;
-    const kept = value.data.filter(
-      (record) => !idSet.has(String((record as ResourceRecord).id)),
+    const kept = value.pages.map((page) => withoutIds(page, idSet) ?? page);
+    // `total` counts the whole list, so every page drops by the rows removed across all pages.
+    const removed = value.pages.reduce(
+      (n, page, i) => n + page.data.length - (kept[i]?.data.length ?? 0),
+      0,
     );
-    if (kept.length === value.data.length) continue;
-    const removed = value.data.length - kept.length;
-    queryClient.setQueryData<GetListResult>(key, {
+    if (removed === 0) continue;
+    queryClient.setQueryData<InfiniteData<GetListResult, unknown>>(key, {
       ...value,
-      data: kept,
-      total: value.total == null ? value.total : value.total - removed,
+      pages: kept.map((page) => ({
+        ...page,
+        total: lowerTotal(page.total, removed),
+      })),
     });
   }
 }
 
 /**
  * Optimistically patch records: shallow-merge `data` into each matching
- * `getOne` entry and every matching row of every cached `getList` page and
- * `getMany` entry.
+ * `getOne` entry and every matching row of every cached `getList`,
+ * `getManyReference`, `getInfiniteList` page and `getMany` entry.
  */
 export function updateRecordsInCache(
   queryClient: QueryClient,
@@ -69,25 +124,28 @@ export function updateRecordsInCache(
       queryClient.setQueryData(key, { ...previous, ...data });
     }
   }
-  const lists = queryClient.getQueriesData<GetListResult>({
-    queryKey: listQueryKey(resource),
-  });
-  for (const [key, value] of lists) {
-    if (!value) continue;
-    let changed = false;
-    const nextData = value.data.map((record) => {
-      if (idSet.has(String((record as ResourceRecord).id))) {
-        changed = true;
-        return { ...record, ...data };
-      }
-      return record;
-    });
-    if (changed) {
-      queryClient.setQueryData<GetListResult>(key, {
-        ...value,
-        data: nextData,
-      });
+  for (const queryKey of singleResultListKeyPrefixes(resource)) {
+    for (const [key, value] of queryClient.getQueriesData<GetListResult>({
+      queryKey,
+    })) {
+      if (!value) continue;
+      const next = withPatchedRows(value, idSet, data);
+      if (next) queryClient.setQueryData<GetListResult>(key, next);
     }
+  }
+  const infinite = queryClient.getQueriesData<
+    InfiniteData<GetListResult, unknown>
+  >({ queryKey: infiniteListKeyPrefix(resource) });
+  for (const [key, value] of infinite) {
+    if (!value) continue;
+    const pages = value.pages.map(
+      (page) => withPatchedRows(page, idSet, data) ?? page,
+    );
+    if (pages.every((page, i) => page === value.pages[i])) continue;
+    queryClient.setQueryData<InfiniteData<GetListResult, unknown>>(key, {
+      ...value,
+      pages,
+    });
   }
   patchManyEntries(queryClient, resource, idSet, data);
 }

@@ -90,6 +90,7 @@ export { fetchUtils } from "./data/fetch-utils";
 export { getManyAggregateOptions } from "./data/get-many-aggregate";
 export { HttpError } from "./data/http-error";
 export {
+  infiniteListKey,
   listKey,
   manyKey,
   manyReferenceKey,
@@ -107,6 +108,7 @@ export {
 } from "./data/mutation-options";
 export type { DataContext } from "./data/query-options";
 export {
+  getInfiniteListOptions,
   getListOptions,
   getManyOptions,
   getManyReferenceOptions,
@@ -130,6 +132,7 @@ export type {
   GetManyResult,
   GetOneParams,
   GetOneResult,
+  InfiniteListParams,
   PageInfo,
   PagePagination,
   Pagination,
