@@ -83,10 +83,7 @@ export function getInfiniteListOptions<
       }
       if (total != null) {
         // Rows before the first loaded page count as loaded: the query may start past page 1.
-        const skipped = Math.max(
-          0,
-          ((allPageParams[0] ?? page) - 1) * perPage,
-        );
+        const skipped = Math.max(0, ((allPageParams[0] ?? page) - 1) * perPage);
         const loaded = allPages.reduce((n, p) => n + p.data.length, skipped);
         return loaded < total ? lastPageParam + 1 : undefined;
       }
