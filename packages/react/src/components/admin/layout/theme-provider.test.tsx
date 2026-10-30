@@ -21,6 +21,21 @@ import { CheloneProvider } from "../../../context";
 import { ThemeProvider } from "./theme-provider";
 import { useTheme } from "./use-theme";
 
+/** A provider harness with no store configured. */
+function WrapWithoutStore({ children }: { children: ReactNode }) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return (
+    <CheloneProvider
+      dataProvider={fakeDataProvider({})}
+      queryClient={queryClient}
+    >
+      {children}
+    </CheloneProvider>
+  );
+}
+
 /** Minimal provider harness — ThemeProvider only needs the store. */
 function Wrap({
   store,
@@ -45,6 +60,7 @@ function Wrap({
 
 afterEach(() => {
   cleanup();
+  localStorage.clear();
   document.documentElement.classList.remove("light", "dark");
 });
 
@@ -114,6 +130,29 @@ describe("<ThemeProvider>", () => {
       </Wrap>,
     );
     // The persisted "dark" wins over the "system" default on remount.
+    expect(screen.getByTestId("mode").textContent).toBe("dark");
+  });
+
+  it("without a store the mode persists to localStorage", () => {
+    const { unmount } = render(
+      <WrapWithoutStore>
+        <ThemeProvider defaultTheme="light" storageKey="theme">
+          <Probe />
+        </ThemeProvider>
+      </WrapWithoutStore>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "go dark" }));
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(localStorage.getItem("theme")).toBe("dark");
+    unmount();
+
+    render(
+      <WrapWithoutStore>
+        <ThemeProvider defaultTheme="light" storageKey="theme">
+          <Probe />
+        </ThemeProvider>
+      </WrapWithoutStore>,
+    );
     expect(screen.getByTestId("mode").textContent).toBe("dark");
   });
 });

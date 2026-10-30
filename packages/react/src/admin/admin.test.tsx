@@ -13,7 +13,13 @@
 
 import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { Layout } from "../components/admin/layout/layout";
@@ -41,6 +47,8 @@ beforeAll(() => {
 
 afterEach(() => {
   cleanup();
+  localStorage.clear();
+  document.documentElement.classList.remove("light", "dark");
 });
 
 const dataProvider = fakeDataProvider({});
@@ -277,6 +285,28 @@ describe("<Admin> — optional services", () => {
     );
 
     expect(screen.getByText("dash")).toBeTruthy();
+  });
+
+  it("the default layout's theme toggle sets the dark class", async () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Admin dataProvider={dataProvider} queryClient={makeQueryClient()}>
+          <Admin.Layout>
+            <Layout />
+          </Admin.Layout>
+          <Admin.Dashboard>
+            <div>dash</div>
+          </Admin.Dashboard>
+        </Admin>
+      </MemoryRouter>,
+    );
+
+    fireEvent.keyDown(screen.getByRole("button", { name: /toggle theme/i }), {
+      key: "Enter",
+    });
+    fireEvent.click(await screen.findByRole("menuitem", { name: /dark/i }));
+
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
   });
 
   it("without i18n, a default label keeps its {_} text and fills its placeholders", () => {

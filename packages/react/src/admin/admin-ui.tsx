@@ -31,6 +31,7 @@ import {
   useState,
 } from "react";
 import { LoginPage } from "../components/admin/auth/login-page";
+import { ThemeProvider } from "../components/admin/layout/theme-provider";
 import { CheloneProvider, useCheloneContext } from "../context";
 import { useRegisterResources } from "../resource/registry-hooks";
 import type {
@@ -276,7 +277,11 @@ export function AdminUI<TResources extends ResourceMap = ResourceMap>({
   const Content = render ?? DefaultShellContent;
   return (
     <AdminUIContext.Provider value={content}>
-      <Content />
+      {/* Wraps the loading, login and layout branches alike, as Vue's shell
+          does. A `<ThemeProvider>` above `<Admin>` is shadowed by this one. */}
+      <ThemeProvider>
+        <Content />
+      </ThemeProvider>
     </AdminUIContext.Provider>
   );
 }
