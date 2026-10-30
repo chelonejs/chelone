@@ -1,0 +1,53 @@
+{
+  "name": "ReferenceManyCount",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name applied to the count's `<span>`."
+    },
+    {
+      "name": "error",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered when the lookup rejects. Nothing by default."
+    },
+    {
+      "name": "filter",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": "Permanent filter merged into the lookup, so only matching rows are counted."
+    },
+    {
+      "name": "loading",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered while the count is loading. Nothing by default."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record whose id is matched. Defaults to the ambient record."
+    },
+    {
+      "name": "reference",
+      "type": "string",
+      "optional": false,
+      "comment": "The referenced resource holding the reverse FK (e.g. `\"books\"`)."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": true,
+      "comment": "The field on the current record the `target` matches. Default `\"id\"`."
+    },
+    {
+      "name": "target",
+      "type": "string",
+      "optional": false,
+      "comment": "The FK field on the reference pointing back at this record (e.g. `\"author_id\"`)."
+    }
+  ]
+}

@@ -2,6 +2,12 @@
   "name": "Input",
   "props": [
     {
+      "name": "alwaysOn",
+      "type": "boolean",
+      "optional": true,
+      "comment": "As a `<FilterForm>`/`<FilterButton>` filter: always shown, never in the\nadd-filter menu. Read off the element by the filter layer, never by the input."
+    },
+    {
       "name": "defaultValue",
       "type": "unknown",
       "optional": true,

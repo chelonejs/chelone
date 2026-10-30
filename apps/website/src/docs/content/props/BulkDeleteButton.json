@@ -38,6 +38,12 @@
       "comment": ""
     },
     {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "comment": "`\"undoable\"` deletes optimistically with an Undo notification (no confirm\ndialog): the rows vanish now and the server call is deferred until the\nUndo window closes. Default (`\"pessimistic\"`) is confirm-gated."
+    },
+    {
       "name": "onClick",
       "type": "(e: MouseEvent<HTMLButtonElement>) => void",
       "optional": true,

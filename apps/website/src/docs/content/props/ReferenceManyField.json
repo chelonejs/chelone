@@ -8,6 +8,12 @@
       "comment": "The list-rendering children (a datagrid, `SingleFieldList`, etc.)."
     },
     {
+      "name": "debounce",
+      "type": "number",
+      "optional": true,
+      "comment": "Debounce delay in ms for debounced `setFilters` calls. Default 500."
+    },
+    {
       "name": "filter",
       "type": "FilterPayload",
       "optional": true,
@@ -17,7 +23,7 @@
       "name": "perPage",
       "type": "number",
       "optional": true,
-      "comment": "Page size for the related list."
+      "comment": "Page size for the related list. Default 25."
     },
     {
       "name": "record",
@@ -35,13 +41,19 @@
       "name": "sort",
       "type": "SortPayload",
       "optional": true,
-      "comment": "Sort applied to the related list."
+      "comment": "Initial sort of the related list. Default id ascending."
     },
     {
       "name": "source",
       "type": "string",
       "optional": true,
       "comment": "The field on the current record the `target` matches. Default `\"id\"`."
+    },
+    {
+      "name": "storeKey",
+      "type": "string | false",
+      "optional": true,
+      "comment": "KV namespace for the list params and selection. Default `${reference}.${target}.${id}`; `false` keeps them in memory."
     },
     {
       "name": "target",
