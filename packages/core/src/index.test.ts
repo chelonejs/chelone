@@ -19,6 +19,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.savedQueriesKey).toBeTypeOf("function");
   });
 
+  it("exports the infinite list controller", () => {
+    expect(barrel.createInfiniteListController).toBeTypeOf("function");
+  });
+
   it("exports the reference-many and reference-one controllers", () => {
     expect(barrel.createReferenceManyController).toBeTypeOf("function");
     expect(barrel.createReferenceOneController).toBeTypeOf("function");

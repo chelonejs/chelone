@@ -22,6 +22,11 @@ export type {
 } from "./controller/client-list-controller";
 export { createClientListController } from "./controller/client-list-controller";
 export type {
+  InfiniteListController,
+  InfiniteListControllerState,
+} from "./controller/infinite-list-controller";
+export { createInfiniteListController } from "./controller/infinite-list-controller";
+export type {
   ListController,
   ListControllerContext,
   ListControllerOptions,
