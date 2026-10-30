@@ -32,26 +32,68 @@ import { BooleanInput, NumberInput, TextInput } from "@chelone/react";
 ## Validation comes from the schema
 
 When a resource is registered with a Zod schema, the form validates against it
-on submit — no per-input `validate` props. The schema is the single source of
-truth for both the record type and the form rules. You can still pass a
-per-input `validate` for one-off rules on top.
+on submit, so most inputs need no `validate` prop. The schema is the single
+source of truth for both the record type and the form rules. Pass a per-input
+`validate` for a one-off rule on top.
+
+## Shared props
+
+Every input accepts the props of `InputProps`, on top of its own:
+
+| Prop | Effect |
+| --- | --- |
+| `source` | The record property to bind, relative to the ambient source scope. Required. |
+| `label`, `helperText` | A string is translated and a node renders as is. `label={false}` renders no label. |
+| `validate` | One validator or an array, such as `required()` from `@chelone/core`. They run in order and the first error wins. |
+| `format` | Turns the stored value into the value the control shows. |
+| `parse` | Turns the control's value into the value written to the form. |
+| `defaultValue` | Seeds the input when the record has no value for `source`. |
+| `alwaysOn` | In a `<FilterForm>` or `<FilterButton>`, keeps the filter shown instead of putting it in the add-filter menu. Do not combine it with `defaultValue`: set `filterDefaultValues` on `<List>`. |
+| `readOnly` | The control shows its value and takes no edits. |
+| `disabled` | Disables the control. |
+| `isRequired` | Forces the required marker. A `required()` validator sets it by itself. |
+| `onChange`, `onBlur` | Called after the value is written or the blur is recorded. |
+
+`format` and `parse` run in opposite directions, so pass them as a pair:
+
+```tsx
+import { required } from "@chelone/core";
+import { TextInput } from "@chelone/react";
+
+<TextInput
+  source="slug"
+  validate={required()}
+  format={(value: string) => value?.replace(/-/g, " ")}
+  parse={(value) => String(value).replace(/\s+/g, "-")}
+  defaultValue="untitled"
+/>;
+```
 
 ## The input families
 
-- **Text & numbers** — `<TextInput>`, `<NumberInput>`, `<PasswordInput>`,
-  `<CurrencyInput>`, `<DateInput>`, `<DateTimeInput>`, `<TimeInput>`,
-  `<PhoneInput>`.
-- **Choices** — `<SelectInput>`, `<AutocompleteInput>`,
+- **Text & numbers**: `<TextInput>`, `<NumberInput>`, `<PasswordInput>`,
+  `<ResettableTextInput>`, `<SearchInput>`, `<CurrencyInput>`, `<DateInput>`,
+  `<DateTimeInput>`, `<TimeInput>`, `<DurationInput>`, `<PhoneInput>`,
+  `<ColorInput>`, `<CronInput>`, `<RatingInput>`.
+- **Choices**: `<SelectInput>`, `<AutocompleteInput>`,
   `<RadioButtonGroupInput>`, `<CheckboxGroupInput>`, `<BooleanInput>`,
   `<NullableBooleanInput>`.
-- **References** — `<ReferenceInput>` (pick one related record),
+- **References**: `<ReferenceInput>` (pick one related record),
   `<ReferenceArrayInput>` / `<SelectArrayInput>` / `<AutocompleteArrayInput>`
   (pick many).
-- **Files & arrays** — `<FileInput>`, `<ImageInput>`, `<ArrayInput>`,
-  `<TextArrayInput>`.
+- **Files & arrays**: `<FileInput>`, `<ImageInput>`, `<ArrayInput>`,
+  `<TextArrayInput>`, `<DatagridInput>`.
+- **SaaS**: `<ApiKeyInput>`, `<SubscriptionPlanPicker>`,
+  `<WebhookEndpointInput>`.
+- **Forms and buttons**: `<TabbedForm>` and `<WizardForm>` lay inputs out in
+  tabs or steps, and `<FilterForm>` holds a list's filter inputs. The buttons
+  act on the form or the record: `<SaveButton>`, `<CancelButton>`,
+  `<DeleteButton>`, `<CreateButton>`, `<EditButton>`, `<ShowButton>`, and
+  `<BulkDeleteButton>`, `<BulkExportButton>`, `<BulkUpdateButton>` for a list's
+  selection.
 
-Browse the full reference in the sidebar — every input documents its `source`,
-its control-specific props, and a live example.
+Each page in the sidebar is a props reference for one component: its props, with
+the types read from the source.
 
 ## Inputs vs fields
 

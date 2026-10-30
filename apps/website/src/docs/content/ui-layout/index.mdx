@@ -1,0 +1,113 @@
+---
+title: "UI & Layout"
+description: "The app shell, the pages around your resources, and the pieces they are built from."
+index: true
+---
+
+Chelone's UI components are the pieces of the **admin shell**: the layout that
+frames every screen, the pages for login, loading and failure, and the menu
+items and buttons inside them. `<Admin>` has a named **slot** for each page, and
+each page has a default component you can pass in or replace.
+
+## Admin slots
+
+Fill a slot with a child (`<Admin.Layout>`) or with the matching prop
+(`layout={...}`). The prop wins when both are given. Every slot is optional and
+has no built-in default: an empty slot renders nothing, so pass the component
+from this table to turn the page on.
+
+| Slot | Component | When it renders |
+| --- | --- | --- |
+| `layout` | [`<Layout>`](/docs/ui-layout/layout) | Wraps every authenticated screen: sidebar, app bar and content area. |
+| `loginPage` | [`<LoginPage>`](/docs/ui-layout/login-page) | While unauthenticated, when `requireAuth` is set. |
+| `dashboard` | Your own component | The index route. Without one, the index redirects to the first resource you can list. |
+| `error` | [`<Error>`](/docs/ui-layout/error) | When rendering throws. |
+| `ready` | [`<Ready>`](/docs/ui-layout/ready) | When no resource or custom route is registered. |
+| `loading` | [`<Loading>`](/docs/ui-layout/loading) | While the auth check or an async `<Admin>` child is pending. |
+| `accessDenied` | [`<AccessDenied>`](/docs/ui-layout/access-denied) | At `/access-denied`. |
+| `authenticationError` | [`<AuthenticationError>`](/docs/ui-layout/authentication-error) | At `/authentication-error`. |
+| `authCallback` | [`<AuthCallback>`](/docs/ui-layout/auth-callback) | At `/auth-callback`, the redirect target of an OAuth login. |
+
+`<Admin>` has two more slots with no component here: `catchAll`, the 404 route,
+and `title`, the app title.
+
+```tsx
+import {
+  AccessDenied,
+  Admin,
+  AuthCallback,
+  AuthenticationError,
+  Layout,
+  Loading,
+  LoginPage,
+  Ready,
+} from "@chelone/react";
+
+<Admin dataProvider={dataProvider} queryClient={queryClient} requireAuth>
+  <Admin.Layout>
+    <Layout />
+  </Admin.Layout>
+  <Admin.LoginPage>
+    <LoginPage />
+  </Admin.LoginPage>
+  <Admin.Loading>
+    <Loading />
+  </Admin.Loading>
+  <Admin.Ready>
+    <Ready />
+  </Admin.Ready>
+  <Admin.AccessDenied>
+    <AccessDenied />
+  </Admin.AccessDenied>
+  <Admin.AuthenticationError>
+    <AuthenticationError />
+  </Admin.AuthenticationError>
+  <Admin.AuthCallback>
+    <AuthCallback />
+  </Admin.AuthCallback>
+</Admin>;
+```
+
+The `error` slot gets the boundary's `{ error, errorInfo, resetErrorBoundary }`,
+so pass a render function: `<Admin.Error>{(props) => <Error {...props} />}</Admin.Error>`.
+
+## Layout overrides
+
+`<Layout>` renders `<AppSidebar>` around `<Menu>`, then `<AppBar>` above the
+content, inside its own error boundary. Four props swap a part. The first three
+take a component, not an element:
+
+| Prop | Replaces | Default |
+| --- | --- | --- |
+| `appBar` | The bar above the content. | [`<AppBar>`](/docs/ui-layout/app-bar) |
+| `menu` | The navigation inside the sidebar. | [`<Menu>`](/docs/ui-layout/menu) |
+| `sidebar` | The sidebar that holds the menu. | [`<AppSidebar>`](/docs/ui-layout/app-sidebar) |
+| `error` | The fallback when the content area throws. A node renders as is. A function receives `{ error, errorInfo, resetErrorBoundary }`. | The built-in fallback. |
+
+```tsx
+import { Admin, Layout, Menu } from "@chelone/react";
+
+const MyMenu = () => (
+  <Menu>
+    <Menu.DashboardItem />
+    <Menu.ResourceItem name="posts" />
+    <Menu.Item to="/reports" label="Reports" />
+  </Menu>
+);
+
+<Admin.Layout>
+  <Layout menu={MyMenu} />
+</Admin.Layout>;
+```
+
+The `Menu.*` parts are listed on the [`<Menu>`](/docs/ui-layout/menu) page.
+
+## The rest of the section
+
+The other pages are the parts these are built from: the sidebar items
+(`<ResourceMenuItem>`, `<MenuItemLink>`, `<DashboardMenuItem>`), the app-bar
+controls (`<UserMenu>`, `<ThemeModeToggle>`, `<SidebarToggleButton>`,
+`<TitlePortal>`), the auth pieces (`<LoginForm>`, `<AuthLayout>`, `<Logout>`,
+`<CanAccess>`) and feedback (`<Notification>`, `<Confirm>`,
+`<LinearProgress>`). Each is a props reference, read from the source, with no
+live examples.
