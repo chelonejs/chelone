@@ -156,7 +156,11 @@ function ArrayInput(props: ArrayInputProps): ReactNode {
           data-slot="array-input-add"
           onClick={() => array.add()}
         >
-          {addLabel ?? translate("ra.action.add", { _: "Add" })}
+          {addLabel == null
+            ? translate("ra.action.add", { _: "Add" })
+            : typeof addLabel === "string"
+              ? translate(addLabel, { _: addLabel })
+              : addLabel}
         </Button>
       </div>
       <InputHelperText helperText={helperText} />

@@ -32,6 +32,7 @@ import { TextInput } from "./text-input";
 const messages = {
   en: defineMessages({
     "ra.action.add": "Add",
+    "orders.add_item": "Add an item",
     "ra.action.remove": "Remove",
     "ra.action.move_up": "Move up",
     "ra.action.move_down": "Move down",
@@ -175,6 +176,18 @@ describe("<ArrayInputRow>", () => {
 
     fireEvent.click(nth(screen.getAllByRole("button", { name: "Remove" }), 0));
     expect(await submit()).toEqual({ tags: ["b", "c", ""] });
+  });
+
+  it("translates a string addLabel", () => {
+    setup(
+      <ArrayInput source="tags" addLabel="orders.add_item">
+        <Rows>
+          <TextInput source="" label="Tag" />
+        </Rows>
+      </ArrayInput>,
+      { defaultValues: { tags: [] } },
+    );
+    expect(screen.getByRole("button", { name: "Add an item" })).toBeTruthy();
   });
 
   it("throws outside an <ArrayInput>", () => {
