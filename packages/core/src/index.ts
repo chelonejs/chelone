@@ -62,6 +62,17 @@ export {
   createShowController,
 } from "./controller/record-controllers";
 export type {
+  ReferenceManyController,
+  ReferenceManyControllerOptions,
+} from "./controller/reference-many-controller";
+export { createReferenceManyController } from "./controller/reference-many-controller";
+export type {
+  ReferenceOneController,
+  ReferenceOneControllerOptions,
+  ReferenceOneControllerState,
+} from "./controller/reference-one-controller";
+export { createReferenceOneController } from "./controller/reference-one-controller";
+export type {
   SavedQueriesController,
   SavedQueriesControllerOptions,
   SavedQueriesState,
