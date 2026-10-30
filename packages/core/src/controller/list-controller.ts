@@ -32,8 +32,9 @@ export interface ListControllerState<TRecord> {
 }
 
 /**
- * Several list params applied as one change (one fetch, one URL write).
- * Every key is optional; an omitted key stays as it is.
+ * Several list params applied as one change: one state update, one persisted
+ * write and one query reconfiguration. Every key is optional; an omitted key
+ * stays as it is.
  */
 export interface ListParamsPatch {
   /** Replaces the user filter; empty values are stripped. */
@@ -57,7 +58,7 @@ export interface ListController<TRecord>
     displayedFilters?: Record<string, boolean>,
     debounced?: boolean,
   ): void;
-  /** Applies a {@link ListParamsPatch} with one refetch and one persisted write. Never debounced. */
+  /** Applies a {@link ListParamsPatch} as one change (one persisted write, one query update; a fetch only if the query changes). An empty patch does nothing. Never debounced. */
   setParams(patch: ListParamsPatch): void;
   showFilter(name: string, defaultValue?: unknown): void;
   hideFilter(name: string): void;
@@ -338,7 +339,9 @@ export function createListController<
 
   const setParams = (patch: ListParamsPatch): void => {
     if (destroyed) return;
-    applyParams(listParamsFromPatch(patch));
+    const next = listParamsFromPatch<TRecord>(patch);
+    if (Object.keys(next).length === 0) return;
+    applyParams(next);
   };
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;

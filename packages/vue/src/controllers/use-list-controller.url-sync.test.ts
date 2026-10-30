@@ -187,19 +187,24 @@ describe("useListController — URL sync (R1)", () => {
     const replace = vi.spyOn(router, "replace");
 
     capture.result?.setParams({
-      filter: { title: "t1" },
+      filter: { title: "t01" },
       sort: { field: "views", order: "DESC" },
       perPage: 5,
     });
     await flushPromises();
     await vi.waitFor(() => expect(capture.result?.perPage).toBe(5));
     await settled(() => capture.result);
+    await vi.waitFor(() =>
+      expect(currentQuery(router).filter).toBe(
+        JSON.stringify({ title: "t01" }),
+      ),
+    );
 
     expect(replace).toHaveBeenCalledTimes(1);
     const query = currentQuery(router);
-    expect(query.filter).toBe(JSON.stringify({ title: "t1" }));
     expect(query.sort).toBe("views");
     expect(query.order).toBe("DESC");
     expect(query.perPage).toBe("5");
+    expect(capture.result?.data?.map((p) => p.id)).toEqual([1]);
   });
 });

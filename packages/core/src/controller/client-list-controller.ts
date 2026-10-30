@@ -305,7 +305,9 @@ export function createClientListController<
 
   const setParams = (patch: ListParamsPatch): void => {
     if (destroyed) return;
-    store.setState(listParamsFromPatch<TRecord>(patch));
+    const next = listParamsFromPatch<TRecord>(patch);
+    if (Object.keys(next).length === 0) return;
+    store.setState(next);
     recompute();
   };
 

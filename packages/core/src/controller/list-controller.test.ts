@@ -442,6 +442,7 @@ describe("createListController", () => {
         sort: { field: "views", order: "DESC" },
         perPage: 5,
       });
+      await settled(c);
       // Later notifications are the fetch lifecycle; none shows a half-applied patch.
       const distinct = new Set(seen.map((s) => JSON.stringify(s)));
       expect(distinct.size).toBe(1);
@@ -455,10 +456,24 @@ describe("createListController", () => {
 
     it("setParams is not debounced", () => {
       vi.useFakeTimers();
-      const c = createListController(makeCtx(), "posts", {});
+      const c = createListController(makeCtx(), "posts", { debounceMs: 300 });
       c.setParams({ filter: { title: "t0" } });
       expect(c.getSnapshot().filter).toEqual({ title: "t0" });
       vi.useRealTimers();
+      c.destroy();
+    });
+
+    it("setParams with an empty patch does not write or notify", () => {
+      const ctx = makeCtx();
+      const writes = vi.spyOn(ctx.store, "setItem");
+      const c = createListController(ctx, "posts", {});
+      const listener = vi.fn();
+      c.subscribe(listener);
+      listener.mockClear();
+      writes.mockClear();
+      c.setParams({});
+      expect(writes).not.toHaveBeenCalled();
+      expect(listener).not.toHaveBeenCalled();
       c.destroy();
     });
 

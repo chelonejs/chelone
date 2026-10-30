@@ -389,11 +389,24 @@ describe("createClientListController", () => {
       expect(s.page).toBe(2);
     });
 
+    it("setParams with an empty patch changes nothing", () => {
+      const c = createClientListController<Row>({ data, page: 1 });
+      const before = c.getSnapshot();
+      c.setParams({});
+      expect(c.getSnapshot()).toBe(before);
+    });
+
     it("setParams does nothing after destroy", () => {
       const c = createClientListController<Row>({ data });
       c.destroy();
-      c.setParams({ filter: { category: "a" } });
-      expect(c.getSnapshot().total).toBe(4);
+      c.setParams({ filter: { category: "a" }, perPage: 1 });
+      c.setPage(2);
+      c.setFilters({ category: "b" });
+      const s = c.getSnapshot();
+      expect(s.total).toBe(4);
+      expect(s.filter).toEqual({});
+      expect(s.page).toBe(1);
+      expect(s.perPage).toBe(1000);
     });
   });
 });
