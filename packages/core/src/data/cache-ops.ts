@@ -1,7 +1,7 @@
 import type { InfiniteData, QueryClient } from "@tanstack/query-core";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
-import { manyKeyPrefix, oneKey } from "./keys";
+import { infiniteListKeyPrefix, manyKeyPrefix, oneKey } from "./keys";
 import type { GetListResult } from "./types";
 
 /**
@@ -20,11 +20,6 @@ function flatListQueryKeys(resource: string) {
     [resource, "getList"],
     [resource, "getManyReference"],
   ] as const;
-}
-
-/** Partial-match key covering every `getInfiniteList` cache variant of a resource. */
-function infiniteQueryKey(resource: string) {
-  return [resource, "getInfiniteList"] as const;
 }
 
 /** Filters ids out of a page; `undefined` when it holds none, so the cached object is kept. */
@@ -84,7 +79,7 @@ export function removeRecordsFromCache(
   }
   const infinite = queryClient.getQueriesData<
     InfiniteData<GetListResult, unknown>
-  >({ queryKey: infiniteQueryKey(resource) });
+  >({ queryKey: infiniteListKeyPrefix(resource) });
   for (const [key, value] of infinite) {
     if (!value) continue;
     const pages = value.pages.map((page) => withoutIds(page, idSet));
@@ -138,7 +133,7 @@ export function updateRecordsInCache(
   }
   const infinite = queryClient.getQueriesData<
     InfiniteData<GetListResult, unknown>
-  >({ queryKey: infiniteQueryKey(resource) });
+  >({ queryKey: infiniteListKeyPrefix(resource) });
   for (const [key, value] of infinite) {
     if (!value) continue;
     const pages = value.pages.map((page) => withPatchedRows(page, idSet, data));

@@ -33,6 +33,10 @@ export interface GetListParams {
   filter?: FilterPayload;
   meta?: unknown;
 }
+/** `GetListParams` that must page by number: a cursor cannot be walked page by page. */
+export type InfiniteListParams = Omit<GetListParams, "pagination"> & {
+  pagination: PagePagination;
+};
 export interface GetListResult<TRecord extends ResourceRecord = LooseRecord> {
   data: TRecord[];
   /** Optional — cursor backends often cannot count. */

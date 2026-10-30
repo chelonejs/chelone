@@ -93,7 +93,7 @@ export {
   deleteMutationOptions,
   updateMutationOptions,
 } from "./data/mutation-options";
-export type { DataContext, InfiniteListParams } from "./data/query-options";
+export type { DataContext } from "./data/query-options";
 export {
   getInfiniteListOptions,
   getListOptions,
@@ -119,6 +119,7 @@ export type {
   GetManyResult,
   GetOneParams,
   GetOneResult,
+  InfiniteListParams,
   PageInfo,
   PagePagination,
   Pagination,

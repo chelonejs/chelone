@@ -5,9 +5,9 @@ import { defineResources } from "../resource/registry";
 import { fakeDataProvider } from "./fake-provider";
 import { oneKey } from "./keys";
 import {
+  getInfiniteListOptions,
   getListOptions,
   getManyOptions,
-  getInfiniteListOptions,
   getManyReferenceOptions,
   getOneOptions,
 } from "./query-options";
@@ -181,7 +181,7 @@ describe("getInfiniteListOptions", () => {
       [5, 4],
       [3, 2],
     ]);
-    expectTypeOf(result.pages[0].data).toEqualTypeOf<
+    expectTypeOf(result.pages[0]?.data).toEqualTypeOf<
       { id: number; title: string }[]
     >();
   });

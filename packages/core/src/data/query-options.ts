@@ -16,7 +16,7 @@ import type {
   GetManyReferenceParams,
   GetManyReferenceResult,
   GetOneParams,
-  PagePagination,
+  InfiniteListParams,
 } from "./types";
 
 /** Everything the data runtime needs — framework adapters provide this via their own context. */
@@ -49,11 +49,6 @@ export function getListOptions<
     },
   };
 }
-
-/** `GetListParams` that must page by number: a cursor cannot be walked page by page. */
-export type InfiniteListParams = Omit<GetListParams, "pagination"> & {
-  pagination: PagePagination;
-};
 
 /**
  * One query that gathers pages: an infinite observer or `fetchInfiniteQuery`
@@ -98,6 +93,7 @@ export function getInfiniteListOptions<
       _firstPage: GetListResult<RecordOf<TResources, TName>>,
       _allPages: GetListResult<RecordOf<TResources, TName>>[],
       firstPageParam: number,
+      _allPageParams: number[],
     ): number | undefined =>
       firstPageParam > 1 ? firstPageParam - 1 : undefined,
   };
