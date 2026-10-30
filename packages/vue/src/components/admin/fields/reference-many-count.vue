@@ -32,19 +32,23 @@ export interface ReferenceManyCountProps {
  * renders as `0`. No `link` prop and no number formatting.
  */
 
-import { computed, inject } from "vue";
-import { foreignKeyOf } from "../../../controllers/use-controller-for-id";
+import type { Identifier } from "@chelone/core";
+import { computed } from "vue";
 import { useGetManyReference } from "../../../data/queries";
-import { RecordContextKey } from "../../../record/record-context";
+import { useFieldValue } from "../../../record/use-field-value";
 
 const props = defineProps<ReferenceManyCountProps>();
 
-// Read through `props` and the ambient ref inside a computed, so a `record`
-// prop or an async ambient record lands live.
-const ambient = inject(RecordContextKey, null);
-const id = computed(() =>
-  foreignKeyOf(props.record ?? ambient?.value, props.source ?? "id"),
-);
+// `useFieldValue` reads `record` inside its computed, so the getter makes a
+// `record` prop land live; with no prop it falls back to the ambient record,
+// which is a ref and lands live too. `source` follows deep paths, as in React.
+const fieldValue = useFieldValue({
+  source: props.source ?? "id",
+  get record() {
+    return props.record;
+  },
+});
+const id = computed(() => fieldValue.value as Identifier | null | undefined);
 
 const query = useGetManyReference(
   props.reference,

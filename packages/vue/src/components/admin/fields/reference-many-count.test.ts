@@ -154,6 +154,16 @@ describe("ReferenceManyCount", () => {
     });
   });
 
+  it("follows a deep source path on the record", async () => {
+    const props = { source: "author.id" };
+    const { wrapper } = mountAdmin(() =>
+      h(withRecord({ id: 7, author: { id: 1 } }, props)),
+    );
+    await vi.waitFor(() => {
+      expect(countOf(wrapper).text()).toBe("3");
+    });
+  });
+
   it("picks up an ambient record that arrives late", async () => {
     const record = ref<RecordValue>(undefined);
     // The sibling fetches; once it shows, the lookup round trip is over.

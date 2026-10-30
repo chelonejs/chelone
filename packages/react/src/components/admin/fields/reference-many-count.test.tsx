@@ -97,7 +97,7 @@ const countText = (container: HTMLElement) => countOf(container)?.textContent;
 
 /** Mounts a `<ReferenceManyCount>` over the books of the ambient record. */
 function renderCount(
-  record: { id: number },
+  record: { id: number; author?: { id: number } },
   props: Partial<ReferenceManyCountProps> = {},
   setup?: (spy: ReturnType<typeof makeProviders>["manyReferenceSpy"]) => void,
 ) {
@@ -169,6 +169,16 @@ describe("<ReferenceManyCount>", () => {
     );
     await waitFor(() => {
       expect(countText(container)).toBe("2");
+    });
+  });
+
+  it("follows a deep source path on the record", async () => {
+    const { container } = renderCount(
+      { id: 7, author: { id: 1 } },
+      { source: "author.id" },
+    );
+    await waitFor(() => {
+      expect(countText(container)).toBe("3");
     });
   });
 
