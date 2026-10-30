@@ -17,7 +17,7 @@ import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
-import type { ChelonStore } from "../store/store";
+import type { CheloneStore } from "../store/store";
 import { resolveNotificationKey } from "./translate-fallback";
 
 export interface ShowControllerState<TRecord> {
@@ -51,7 +51,7 @@ export interface RecordControllerContext<
   notifications?: NotificationStore;
   translate?: (key: string) => string;
   /** Keyed KV store — the delete controller cleans `${resource}.selectedIds` through it. */
-  store?: ChelonStore;
+  store?: CheloneStore;
 }
 
 export interface ShowControllerOptions {

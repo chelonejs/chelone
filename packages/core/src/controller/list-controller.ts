@@ -11,7 +11,7 @@ import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
-import type { ChelonStore } from "../store/store";
+import type { CheloneStore } from "../store/store";
 
 export interface ListControllerState<TRecord> {
   page: number;
@@ -72,7 +72,7 @@ export interface ListController<TRecord>
 export interface ListControllerContext<
   TResources extends ResourceMap = ResourceMap,
 > extends DataContext<TResources> {
-  store?: ChelonStore;
+  store?: CheloneStore;
   notifications?: NotificationStore;
   translate?: (key: string) => string;
 }

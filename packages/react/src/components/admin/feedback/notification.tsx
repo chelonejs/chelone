@@ -24,7 +24,7 @@
 import { commitAllUndoables, hasPendingUndoables } from "@chelone/core";
 import { useEffect, useRef } from "react";
 import { Toaster, type ToasterProps, toast } from "sonner";
-import { useChelonNotifications } from "../../../context";
+import { useCheloneNotifications } from "../../../context";
 import { useTranslate } from "../../../i18n-hooks";
 import { useNotifications } from "../../../notification-hooks";
 import { useTheme } from "../layout/use-theme";
@@ -49,7 +49,7 @@ import { useTheme } from "../layout/use-theme";
  * };
  */
 function Notification(props: ToasterProps) {
-  const store = useChelonNotifications();
+  const store = useCheloneNotifications();
   const notifications = useNotifications();
   const translate = useTranslate();
   const [theme] = useTheme();

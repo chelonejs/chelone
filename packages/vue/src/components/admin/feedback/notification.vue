@@ -51,7 +51,7 @@ interface LiveToast {
 
 import { commitAllUndoables, hasPendingUndoables } from "@chelone/core";
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { useChelonNotifications } from "../../../context";
+import { useCheloneNotifications } from "../../../context";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useNotifications } from "../../../notification-hooks";
 
@@ -59,7 +59,7 @@ const props = withDefaults(defineProps<NotificationProps>(), {
   duration: 5000,
 });
 
-const store = useChelonNotifications();
+const store = useCheloneNotifications();
 const notifications = useNotifications();
 const translate = useTranslate();
 

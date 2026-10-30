@@ -10,7 +10,7 @@
  * `{ _: message }` fallback behavior without smuggling a default arg.
  */
 
-import { type AnyChelonI18n, createI18n } from "@chelone/core";
+import { type AnyCheloneI18n, createI18n } from "@chelone/core";
 import { useCheloneContext } from "../context";
 
 /** The translate signature the components consume. */
@@ -21,7 +21,7 @@ export type Translate = (
 
 // No i18n: an empty catalog echoes the key, and for a missing key honours the
 // polyglot `{ _: default }` convention, placeholders filled in, as with a real one.
-const echoI18n: AnyChelonI18n = createI18n({
+const echoI18n: AnyCheloneI18n = createI18n({
   locale: "en",
   messages: { en: {} },
 });

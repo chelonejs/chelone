@@ -1,5 +1,5 @@
 import type {
-  ChelonFormApi,
+  CheloneFormApi,
   FieldErrors,
   TranslatableMessage,
 } from "@chelone/core";
@@ -24,7 +24,7 @@ describe("form hook result types (P4 lesson: type symmetry)", () => {
   it("UseFormResult is generic in the form data type, never any", () => {
     type Result = UseFormResult<{ title: string }>;
     expectTypeOf<Result["form"]>().toEqualTypeOf<
-      ChelonFormApi<{ title: string }>
+      CheloneFormApi<{ title: string }>
     >();
     expectTypeOf<Result["form"]["state"]["values"]>().toEqualTypeOf<{
       title: string;
@@ -43,7 +43,7 @@ describe("form hook result types (P4 lesson: type symmetry)", () => {
     type Result = UseEditFormResult<Post>;
     expectTypeOf<Result["record"]>().toEqualTypeOf<Post | undefined>();
     expectTypeOf<Result["form"]>().toEqualTypeOf<
-      ChelonFormApi<Partial<Post>>
+      CheloneFormApi<Partial<Post>>
     >();
     expectTypeOf<Result["saving"]>().toBeBoolean();
     expectTypeOf<Result["isPending"]>().toBeBoolean();
@@ -56,7 +56,7 @@ describe("form hook result types (P4 lesson: type symmetry)", () => {
     type Result = UseCreateFormResult<Post>;
     expectTypeOf<Result["record"]>().toEqualTypeOf<Partial<Post>>();
     expectTypeOf<Result["form"]>().toEqualTypeOf<
-      ChelonFormApi<Partial<Post>>
+      CheloneFormApi<Partial<Post>>
     >();
     expectTypeOf<Result>().toMatchTypeOf<FormStateSlices>();
     expectTypeOf<Result>().not.toBeAny();

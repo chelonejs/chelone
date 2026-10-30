@@ -6,7 +6,7 @@
  */
 
 import {
-  type ChelonStore,
+  type CheloneStore,
   createStore,
   fakeDataProvider,
   type SavedQuery,
@@ -40,7 +40,7 @@ const savedValue = (title: string, perPage = 10) => ({
   perPage,
 });
 
-const seeded = (): ChelonStore => {
+const seeded = (): CheloneStore => {
   const store = createStore();
   store.setItem<SavedQuery[]>("posts.savedQueries", [
     { label: "Hello posts", value: savedValue("hello", 10) },
@@ -50,7 +50,7 @@ const seeded = (): ChelonStore => {
 };
 
 function mountAdmin(
-  store: ChelonStore | undefined,
+  store: CheloneStore | undefined,
   render: () => VNodeChild,
   dataProvider = fakeDataProvider({}),
 ) {
@@ -99,7 +99,7 @@ function makeList(state: ListState = {}) {
 }
 
 /** Mounts `<SavedQueriesList>` under the `posts` resource over a stubbed list. */
-function mountStub(store: ChelonStore, state: ListState = {}, props = {}) {
+function mountStub(store: CheloneStore, state: ListState = {}, props = {}) {
   const { list, setParams } = makeList(state);
   const Host = defineComponent({
     setup() {
@@ -129,7 +129,7 @@ const button = (
         : name.test(b.text()) || name.test(b.attributes("aria-label") ?? ""),
     );
 
-const labels = (store: ChelonStore) =>
+const labels = (store: CheloneStore) =>
   store.getItem<SavedQuery[]>("posts.savedQueries")?.map((q) => q.label);
 
 describe("useSavedQueries", () => {

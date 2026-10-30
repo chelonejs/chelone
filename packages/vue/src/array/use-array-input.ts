@@ -23,7 +23,7 @@ import type {
   ArrayBinding,
   ArrayBindingUpdateOptions,
   ArrayRow,
-  ChelonFieldState,
+  CheloneFieldState,
   SourceScope,
   TranslatableMessage,
 } from "@chelone/core";
@@ -118,7 +118,7 @@ export function useArrayInput(
 
   // The array field's own state (min-length errors, touched/dirty) — a separate
   // subscription over the field binding, refcounting the SAME field mount.
-  const fieldState = useSubscribable<ChelonFieldState<UnknownFormValues>>(
+  const fieldState = useSubscribable<CheloneFieldState<UnknownFormValues>>(
     binding.field,
   );
 

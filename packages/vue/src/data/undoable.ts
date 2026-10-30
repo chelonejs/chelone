@@ -9,7 +9,7 @@
  * in the core handle — this composable is only the notification wiring.
  *
  * Idiom translation from the React twin: React reads the query client with
- * `useQueryClient()` and the store with `useChelonNotifications()`; Vue reads both
+ * `useQueryClient()` and the store with `useCheloneNotifications()`; Vue reads both
  * off the ambient `<Admin>` context (`ctx.queryClient` + `ctx.notifications`) so
  * the returned `runUndoable` closure captures the SAME `dataProvider` /
  * `queryClient` the rest of the adapter uses. The composable never throws at call

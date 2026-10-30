@@ -2,7 +2,7 @@
 /**
  * `<UserMenuInner>` — the identity-reading body of `<UserMenu>`, mounted only
  * when an `authProvider` is present (the guard lives in `user-menu.vue`). Split
- * out because `useGetIdentity` calls `useChelonAuthProvider`, which throws
+ * out because `useGetIdentity` calls `useCheloneAuthProvider`, which throws
  * without a provider — a composable cannot be called conditionally, so the read
  * is isolated behind the parent's `v-if` (parity with the React twin's
  * `<UserMenuInner>` mounted past the provider guard).

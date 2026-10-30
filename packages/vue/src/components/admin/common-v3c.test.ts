@@ -9,7 +9,7 @@
  */
 
 import {
-  type AnyChelonI18n,
+  type AnyCheloneI18n,
   createI18n,
   fakeDataProvider,
 } from "@chelone/core";
@@ -24,7 +24,7 @@ import InputHelperText from "./common/input-helper-text.vue";
 import KeyboardShortcut from "./common/keyboard-shortcut.vue";
 
 interface HarnessOptions {
-  i18n?: AnyChelonI18n;
+  i18n?: AnyCheloneI18n;
   resource?: string;
 }
 

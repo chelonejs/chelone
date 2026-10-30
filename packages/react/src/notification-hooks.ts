@@ -1,6 +1,6 @@
 import type { Notification, NotificationStore } from "@chelone/core";
 import { useSyncExternalStore } from "react";
-import { useChelonNotifications } from "./context";
+import { useCheloneNotifications } from "./context";
 
 /**
  * `useNotify` throws without a store: pushing a notification nowhere is a
@@ -8,7 +8,7 @@ import { useChelonNotifications } from "./context";
  * `<Notification>` in the default layout renders nothing when none is wired.
  */
 function useRequiredNotifications(caller: string): NotificationStore {
-  const notifications = useChelonNotifications();
+  const notifications = useCheloneNotifications();
   if (!notifications) {
     throw new Error(
       `${caller}: pass a notification store to <CheloneProvider notifications={createNotificationStore()}>.`,
@@ -23,7 +23,7 @@ const getEmptyQueue = () => emptyQueue;
 
 /** Reactive snapshot of the notification queue (i18n keys — translate in UI). */
 export function useNotifications(): readonly Notification[] {
-  const store = useChelonNotifications();
+  const store = useCheloneNotifications();
   return useSyncExternalStore(
     store ? store.subscribe : noSubscribe,
     store ? store.getSnapshot : getEmptyQueue,

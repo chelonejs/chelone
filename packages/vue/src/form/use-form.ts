@@ -21,7 +21,7 @@
  */
 
 import type {
-  ChelonFormApi,
+  CheloneFormApi,
   FieldErrors,
   FormController,
   FormControllerOptions,
@@ -77,7 +77,7 @@ export interface UseFormOptions<TFormData> {
 /** The narrow reactive surface `useForm` exposes to a view. */
 export interface UseFormReturn<TFormData> {
   /** The wrapped FormApi — field bindings hang off it (see `useInput`). */
-  form: ChelonFormApi<TFormData>;
+  form: CheloneFormApi<TFormData>;
   /** The live form values (whole-values view; re-emits per keystroke by design). */
   values: ComputedRef<TFormData>;
   /** The submit pipeline (validate → save → server-error map → reset). */

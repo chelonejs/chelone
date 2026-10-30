@@ -3,7 +3,7 @@
  * action buttons. The Vue twin of `@chelone/react`'s
  * `layout/use-menu-access.ts`.
  *
- * Chelone's `useCanAccess` calls `useChelonAuthProvider()`, which THROWS when no
+ * Chelone's `useCanAccess` calls `useCheloneAuthProvider()`, which THROWS when no
  * `authProvider` is configured. A no-auth app must still render its resource menu
  * + buttons, so this reads the provider OPTIONALLY (`useCheloneContext`) and only
  * runs the access query when a provider WITH a `canAccess` method exists. With no

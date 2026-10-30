@@ -1,9 +1,9 @@
-import { type AnyChelonI18n, createI18n } from "@chelone/core";
+import { type AnyCheloneI18n, createI18n } from "@chelone/core";
 import { useCallback, useMemo, useSyncExternalStore } from "react";
-import { useCheloneContext, useChelonI18n } from "./context";
+import { useCheloneContext, useCheloneI18n } from "./context";
 
 function useI18nVersion(): string {
-  const i18n = useChelonI18n();
+  const i18n = useCheloneI18n();
   return useSyncExternalStore(
     useCallback((cb: () => void) => i18n.subscribe(cb), [i18n]),
     () => i18n.getLocale(),
@@ -16,7 +16,7 @@ export function useLocale(): string {
 }
 
 export function useSetLocale(): (locale: string) => void {
-  const i18n = useChelonI18n();
+  const i18n = useCheloneI18n();
   return useCallback((locale: string) => i18n.setLocale(locale), [i18n]);
 }
 
@@ -24,7 +24,7 @@ type Translate = (key: string, params?: Record<string, unknown>) => string;
 
 // No i18n: an empty catalog echoes the key, and for a missing key honours the
 // polyglot `{ _: default }` convention, placeholders filled in, as with a real one.
-const echoI18n: AnyChelonI18n = createI18n({
+const echoI18n: AnyCheloneI18n = createI18n({
   locale: "en",
   messages: { en: {} },
 });

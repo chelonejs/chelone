@@ -1,7 +1,7 @@
 import { startUndoableMutation, type UndoableHandle } from "@chelone/core";
 import { type QueryKey, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { useChelonNotifications } from "./context";
+import { useCheloneNotifications } from "./context";
 
 /**
  * The caller-facing options for {@link useUndoable}'s `runUndoable`. The adapter
@@ -41,7 +41,7 @@ export interface RunUndoableOptions {
  * (0 calls on undo, 1 on commit, rollback-on-error) live in the core handle;
  * this hook is only the notification wiring.
  *
- * Uses the OPTIONAL notification store (`useChelonNotifications`) rather than
+ * Uses the OPTIONAL notification store (`useCheloneNotifications`) rather than
  * the throwing `useNotify`, so a component that merely CALLS this hook without
  * ever running an undoable mutation (e.g. `useDelete` in pessimistic mode)
  * works with no notification store. An actual undoable mutation does require
@@ -50,7 +50,7 @@ export interface RunUndoableOptions {
  */
 export function useUndoable(): (options: RunUndoableOptions) => UndoableHandle {
   const queryClient = useQueryClient();
-  const store = useChelonNotifications();
+  const store = useCheloneNotifications();
   return useCallback(
     (options: RunUndoableOptions) => {
       if (!store) {

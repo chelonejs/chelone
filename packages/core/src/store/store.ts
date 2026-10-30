@@ -14,7 +14,7 @@ export interface StoreAdapter {
  * reference-stable snapshots (useSyncExternalStore-compatible); the adapter
  * is a write-through persistence layer, hydrated lazily per key.
  */
-export interface ChelonStore {
+export interface CheloneStore {
   getItem<T>(key: string): T | undefined;
   setItem<T>(key: string, value: T): void;
   removeItem(key: string): void;
@@ -22,7 +22,7 @@ export interface ChelonStore {
   keys(): string[];
 }
 
-export function createStore(adapter?: StoreAdapter): ChelonStore {
+export function createStore(adapter?: StoreAdapter): CheloneStore {
   const cache = new Map<string, unknown>();
   const hydrated = new Set<string>();
   const subscribers = new Map<string, Set<() => void>>();

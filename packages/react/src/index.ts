@@ -677,11 +677,11 @@ export {
 export type { CheloneProviderProps } from "./context";
 export {
   CheloneProvider,
-  useChelonAuthProvider,
+  useCheloneAuthProvider,
   useCheloneContext,
-  useChelonI18n,
-  useChelonNotifications,
-  useChelonStore,
+  useCheloneI18n,
+  useCheloneNotifications,
+  useCheloneStore,
 } from "./context";
 export type {
   UseCreateControllerResult,

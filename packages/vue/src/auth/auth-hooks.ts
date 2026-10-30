@@ -9,7 +9,7 @@
  * The V3-a app shell ported the three the shell needs (`useGetIdentity` /
  * `useAuthState` / `useLogout`); the V3-c auth wave adds the login mutation
  * (`useLogin`) and the access check (`useCanAccess`) the login page + gate
- * consume. `useChelonAuthProvider` throws when no provider is configured (parity
+ * consume. `useCheloneAuthProvider` throws when no provider is configured (parity
  * with the React twin), so every one of these must run past an authProvider
  * guard — `<UserMenu>` mounts its identity-reading body only when a provider is
  * present, exactly as the React twin isolates the read.
@@ -22,11 +22,11 @@ import {
   identityQueryOptions,
 } from "@chelone/core";
 import { useMutation, useQuery } from "@tanstack/vue-query";
-import { useChelonAuthProvider } from "../context";
+import { useCheloneAuthProvider } from "../context";
 
 /** Read the authenticated user's identity (`getIdentity`) as a vue-query query. */
 export function useGetIdentity() {
-  return useQuery(identityQueryOptions(useChelonAuthProvider()));
+  return useQuery(identityQueryOptions(useCheloneAuthProvider()));
 }
 
 /**
@@ -34,7 +34,7 @@ export function useGetIdentity() {
  * query. Never rejects — a `checkAuth` rejection maps to `authenticated: false`.
  */
 export function useAuthState() {
-  return useQuery(authStateQueryOptions(useChelonAuthProvider()));
+  return useQuery(authStateQueryOptions(useCheloneAuthProvider()));
 }
 
 /**
@@ -44,7 +44,7 @@ export function useAuthState() {
  * notification (the form `save` contract must resolve, never reject).
  */
 export function useLogin() {
-  const authProvider = useChelonAuthProvider();
+  const authProvider = useCheloneAuthProvider();
   return useMutation({
     mutationFn: (params: Record<string, unknown>) => authProvider.login(params),
   });
@@ -52,7 +52,7 @@ export function useLogin() {
 
 /** A logout mutation — calls the provider's `logout(params)` on `mutate(...)`. */
 export function useLogout() {
-  const authProvider = useChelonAuthProvider();
+  const authProvider = useCheloneAuthProvider();
   return useMutation({
     mutationFn: (params?: unknown) => authProvider.logout(params),
   });
@@ -65,5 +65,5 @@ export function useLogout() {
  * `canAccessQueryOptions`).
  */
 export function useCanAccess(params: CanAccessParams) {
-  return useQuery(canAccessQueryOptions(useChelonAuthProvider(), params));
+  return useQuery(canAccessQueryOptions(useCheloneAuthProvider(), params));
 }

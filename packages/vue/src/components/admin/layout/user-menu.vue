@@ -16,7 +16,7 @@ export interface UserMenuProps {
  *
  * Chelone divergence (mirrored from the React twin): with NO `authProvider` the
  * menu renders nothing (the presence check reads `useCheloneContext`). Because
- * `useGetIdentity` calls `useChelonAuthProvider` (which throws without a
+ * `useGetIdentity` calls `useCheloneAuthProvider` (which throws without a
  * provider), the identity read is isolated in `<UserMenuInner>`, mounted only
  * past the provider guard via `v-if` — a composable cannot be called
  * conditionally, so the guard lives in the parent's template.

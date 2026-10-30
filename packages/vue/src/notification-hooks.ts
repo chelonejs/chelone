@@ -12,14 +12,14 @@
 
 import type { Notification, NotificationStore } from "@chelone/core";
 import { computed, onScopeDispose, type Ref, shallowRef } from "vue";
-import { useChelonNotifications } from "./context";
+import { useCheloneNotifications } from "./context";
 
 /**
  * Reactive snapshot of the pending notification queue (i18n keys — translate in
  * the UI). Degrades to a stable empty list when no store was provided.
  */
 export function useNotifications(): Readonly<Ref<readonly Notification[]>> {
-  const store = useChelonNotifications();
+  const store = useCheloneNotifications();
   if (!store) {
     return computed(() => [] as readonly Notification[]);
   }
@@ -33,7 +33,7 @@ export function useNotifications(): Readonly<Ref<readonly Notification[]>> {
 
 /** Stable `notify` action off the shared store — throws when none was provided. */
 export function useNotify(): NotificationStore["notify"] {
-  const store = useChelonNotifications();
+  const store = useCheloneNotifications();
   if (!store) {
     throw new Error(
       "useNotify: pass a notification store to <Admin notifications={createNotificationStore()}>.",

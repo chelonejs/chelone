@@ -1,5 +1,5 @@
 import type { UpdateMetaOptions } from "@tanstack/form-core";
-import type { ChelonFormApi } from "./form-controller";
+import type { CheloneFormApi } from "./form-controller";
 import {
   createFieldBinding,
   type FieldBinding,
@@ -195,7 +195,7 @@ const isPlainRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
 export function createArrayBinding<TRecord>(
-  form: ChelonFormApi<TRecord>,
+  form: CheloneFormApi<TRecord>,
   options: ArrayBindingOptions,
 ): ArrayBinding<TRecord> {
   const { source } = options;

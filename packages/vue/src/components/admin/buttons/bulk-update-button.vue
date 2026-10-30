@@ -49,7 +49,7 @@ export interface BulkUpdateButtonProps {
 
 import { type Identifier, updateRecordsInCache } from "@chelone/core";
 import { computed } from "vue";
-import { useCheloneContext, useChelonNotifications } from "../../../context";
+import { useCheloneContext, useCheloneNotifications } from "../../../context";
 import { useUpdateMany } from "../../../data/mutations";
 import { useUndoable } from "../../../data/undoable";
 import { useRefresh } from "../../../data/use-refresh";
@@ -71,7 +71,7 @@ if (!resource) {
 }
 const list = useListContext();
 const translate = useTranslate();
-const notifications = useChelonNotifications();
+const notifications = useCheloneNotifications();
 const ctx = useCheloneContext();
 const runUndoable = useUndoable();
 const refresh = useRefresh();

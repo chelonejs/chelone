@@ -207,9 +207,9 @@ export {
 } from "./form/edit-create-form";
 export type {
   AsyncValidator,
-  ChelonFormApi,
-  ChelonFormOptions,
-  ChelonFormState,
+  CheloneFormApi,
+  CheloneFormOptions,
+  CheloneFormState,
   FieldErrors,
   FormController,
   FormControllerOptions,
@@ -229,8 +229,8 @@ export type {
 } from "./form/form-groups";
 export { createFormGroups, reduceGroupState } from "./form/form-groups";
 export type {
-  ChelonFieldApi,
-  ChelonFieldState,
+  CheloneFieldApi,
+  CheloneFieldState,
   FieldBinding,
   FieldBindingOptions,
   FieldBindingUpdateOptions,
@@ -272,7 +272,7 @@ export {
   required,
 } from "./form/validators";
 export { defaultMessages } from "./i18n/default-messages";
-export type { AnyChelonI18n, ChelonI18n } from "./i18n/i18n";
+export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";
 export { createI18n } from "./i18n/i18n";
 export type {
   ExtractParams,
@@ -318,5 +318,5 @@ export type { RouterPort, Unsubscribe } from "./router/port";
 export { localStorageAdapter, memoryStoreAdapter } from "./store/adapters";
 export type { MicroStore, MicroStoreOptions } from "./store/micro-store";
 export { createMicroStore } from "./store/micro-store";
-export type { ChelonStore, StoreAdapter } from "./store/store";
+export type { CheloneStore, StoreAdapter } from "./store/store";
 export { createStore } from "./store/store";

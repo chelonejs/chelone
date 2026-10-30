@@ -9,7 +9,7 @@
     },
     {
       "name": "form",
-      "type": "ChelonFormApi<TFormData>",
+      "type": "CheloneFormApi<TFormData>",
       "optional": false,
       "comment": "The form to expose — `useForm`/`useEditForm`/`useCreateForm`'s `.form`."
     },

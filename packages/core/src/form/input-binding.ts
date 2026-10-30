@@ -9,7 +9,7 @@ import {
 } from "@tanstack/form-core";
 import type {
   AsyncValidator,
-  ChelonFormApi,
+  CheloneFormApi,
   SyncValidator,
 } from "./form-controller";
 import { isThenable } from "./save-pipeline";
@@ -47,9 +47,9 @@ type FieldAsync<TRecord> =
  * The wrapped FieldApi, generic in the DATA type only (the T1 strategy):
  * source paths are composed at runtime (`items[0].sku`), so the name/value
  * generics are pinned to their widest legal instantiations and the form
- * slots mirror {@link ChelonFormApi} exactly.
+ * slots mirror {@link CheloneFormApi} exactly.
  */
-export type ChelonFieldApi<TRecord> = FieldApi<
+export type CheloneFieldApi<TRecord> = FieldApi<
   TRecord,
   DeepKeys<TRecord>,
   FieldData<TRecord>,
@@ -75,8 +75,8 @@ export type ChelonFieldApi<TRecord> = FieldApi<
   never // TParentSubmitMeta
 >;
 
-/** FieldApi options matching {@link ChelonFieldApi}'s instantiation. */
-type ChelonFieldOptions<TRecord> = FieldApiOptions<
+/** FieldApi options matching {@link CheloneFieldApi}'s instantiation. */
+type CheloneFieldOptions<TRecord> = FieldApiOptions<
   TRecord,
   DeepKeys<TRecord>,
   FieldData<TRecord>,
@@ -103,7 +103,7 @@ type ChelonFieldOptions<TRecord> = FieldApiOptions<
 >;
 
 /** The field state snapshot type — what {@link FieldBinding.getSnapshot} returns. */
-export type ChelonFieldState<TRecord> = ChelonFieldApi<TRecord>["state"];
+export type CheloneFieldState<TRecord> = CheloneFieldApi<TRecord>["state"];
 
 /**
  * The third validator argument (ra's `props` slot): always carries the final
@@ -165,7 +165,7 @@ export type FieldBindingUpdateOptions = Omit<FieldBindingOptions, "source">;
  */
 export interface FieldBinding<TRecord> {
   /** The wrapped FieldApi — the full form-core surface for advanced use. */
-  field: ChelonFieldApi<TRecord>;
+  field: CheloneFieldApi<TRecord>;
   /** The final field path this binding is attached to. */
   readonly source: string;
   /**
@@ -176,7 +176,7 @@ export interface FieldBinding<TRecord> {
    */
   subscribe(listener: () => void): () => void;
   /** The current field state — `field.store.state` (reference-stable until a write). */
-  getSnapshot(): ChelonFieldState<TRecord>;
+  getSnapshot(): CheloneFieldState<TRecord>;
   /** The input-facing value: `format(raw)` — never `null`/`undefined` under the default format. */
   getValue(): unknown;
   /** Writes `parse(input)` through `handleChange` (marks touched+dirty, validates per revalidation mode). */
@@ -213,7 +213,7 @@ interface BindingValidators {
 }
 
 export function createFieldBinding<TRecord>(
-  form: ChelonFormApi<TRecord>,
+  form: CheloneFormApi<TRecord>,
   options: FieldBindingOptions,
 ): FieldBinding<TRecord> {
   const { source } = options;
@@ -303,19 +303,19 @@ export function createFieldBinding<TRecord>(
    * while the slot is a hole (`undefined`). Re-evaluated on every attach and
    * update, which is also what re-seeds a reopened hole after a reset.
    */
-  const buildOptions = (): ChelonFieldOptions<TRecord> => ({
+  const buildOptions = (): CheloneFieldOptions<TRecord> => ({
     form,
     name,
     defaultValue: (current.defaultValue !== undefined &&
     form.getFieldValue(name) === undefined
       ? current.defaultValue
-      : undefined) as ChelonFieldOptions<TRecord>["defaultValue"],
-    validators: bindingValidators as ChelonFieldOptions<TRecord>["validators"],
+      : undefined) as CheloneFieldOptions<TRecord>["defaultValue"],
+    validators: bindingValidators as CheloneFieldOptions<TRecord>["validators"],
   });
 
   // INERT: binds the derived field store only — nothing registers on the
   // form, no seeding, no validation. Safe in a discarded React render.
-  const field: ChelonFieldApi<TRecord> = new FieldApi(buildOptions());
+  const field: CheloneFieldApi<TRecord> = new FieldApi(buildOptions());
 
   let destroyed = false;
   /** Non-undefined exactly while attached (mount cleanup). */

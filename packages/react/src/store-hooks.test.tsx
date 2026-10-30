@@ -1,5 +1,5 @@
 import {
-  type ChelonStore,
+  type CheloneStore,
   createStore,
   fakeDataProvider,
   localStorageAdapter,
@@ -12,7 +12,7 @@ import { CheloneProvider } from "./context";
 import { useStore, useStoreItem } from "./store-hooks";
 
 /** A minimal provider whose only exercised service is the KV store. */
-function providerWrapper(store: ChelonStore) {
+function providerWrapper(store: CheloneStore) {
   return ({ children }: { children: ReactNode }) => (
     <CheloneProvider
       dataProvider={fakeDataProvider({})}

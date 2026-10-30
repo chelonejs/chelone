@@ -30,7 +30,7 @@
  *   unmount aborts it and clears the map.
  */
 import {
-  type ChelonFormApi,
+  type CheloneFormApi,
   createFieldBinding,
   createFormController,
   createNotificationStore,
@@ -951,7 +951,7 @@ describe("P5 gate: churn", () => {
     });
     const form = controller.form;
     const binding = createFieldBinding(
-      form as ChelonFormApi<{ title: string }>,
+      form as CheloneFormApi<{ title: string }>,
       { source: "title" },
     );
     const noop = () => {};
