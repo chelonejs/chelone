@@ -200,4 +200,21 @@ describe("<ThemeProvider>", () => {
     rerender(tree(createStore()));
     expect(screen.getByTestId("instance").textContent).toBe(before);
   });
+
+  it("without a store a new storageKey reads the mode stored under it", () => {
+    localStorage.setItem("a", "dark");
+    localStorage.setItem("b", "light");
+    const tree = (storageKey: string) => (
+      <WrapWithoutStore>
+        <ThemeProvider storageKey={storageKey}>
+          <Probe />
+        </ThemeProvider>
+      </WrapWithoutStore>
+    );
+    const { rerender } = render(tree("a"));
+    expect(screen.getByTestId("mode").textContent).toBe("dark");
+    rerender(tree("b"));
+    expect(screen.getByTestId("mode").textContent).toBe("light");
+    expect(document.documentElement.classList.contains("light")).toBe(true);
+  });
 });

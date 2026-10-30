@@ -91,16 +91,23 @@ function useMode(
     () => store?.getItem<Theme>(key),
     () => undefined,
   );
-  const [localMode, setLocalMode] = useState<Theme>(
-    () => readStoredMode(key) ?? defaultTheme,
-  );
+  const [local, setLocal] = useState(() => ({
+    key,
+    mode: readStoredMode(key) ?? defaultTheme,
+  }));
+  // A new `key` starts from what is stored under it, not the old key's mode.
+  let localMode = local.mode;
+  if (local.key !== key) {
+    localMode = readStoredMode(key) ?? defaultTheme;
+    setLocal({ key, mode: localMode });
+  }
 
   const setMode = useCallback(
     (next: Theme) => {
       if (store) {
         store.setItem(key, next);
       } else {
-        setLocalMode(next);
+        setLocal({ key, mode: next });
         writeStoredMode(key, next);
       }
     },
