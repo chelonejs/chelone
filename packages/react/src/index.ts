@@ -850,6 +850,16 @@ export {
   useShowContext,
 } from "./record-view-context";
 export type {
+  UseReferenceManyFieldControllerOptions,
+  UseReferenceManyFieldControllerResult,
+  UseReferenceOneFieldControllerOptions,
+  UseReferenceOneFieldControllerResult,
+} from "./reference-hooks";
+export {
+  useReferenceManyFieldController,
+  useReferenceOneFieldController,
+} from "./reference-hooks";
+export type {
   ResourceContextProviderProps,
   ResourceContextValue,
   ResourceProps,

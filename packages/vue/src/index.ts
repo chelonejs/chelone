@@ -114,6 +114,10 @@ export type {
   UseInfiniteListControllerReturn,
   UseListControllerOptions,
   UseListControllerReturn,
+  UseReferenceManyFieldControllerOptions,
+  UseReferenceManyFieldControllerReturn,
+  UseReferenceOneFieldControllerOptions,
+  UseReferenceOneFieldControllerReturn,
   UseShowControllerOptions,
   UseShowControllerReturn,
 } from "./controllers";
@@ -123,6 +127,8 @@ export {
   useEditController,
   useInfiniteListController,
   useListController,
+  useReferenceManyFieldController,
+  useReferenceOneFieldController,
   useShowController,
 } from "./controllers";
 export { useInfiniteGetList } from "./data/infinite-queries";

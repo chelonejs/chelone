@@ -25,6 +25,16 @@ export type {
 } from "./use-list-controller";
 export { useListController } from "./use-list-controller";
 export type {
+  UseReferenceManyFieldControllerOptions,
+  UseReferenceManyFieldControllerReturn,
+} from "./use-reference-many-field-controller";
+export { useReferenceManyFieldController } from "./use-reference-many-field-controller";
+export type {
+  UseReferenceOneFieldControllerOptions,
+  UseReferenceOneFieldControllerReturn,
+} from "./use-reference-one-field-controller";
+export { useReferenceOneFieldController } from "./use-reference-one-field-controller";
+export type {
   UseShowControllerOptions,
   UseShowControllerReturn,
 } from "./use-show-controller";
