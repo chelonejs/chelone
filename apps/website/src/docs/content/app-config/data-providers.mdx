@@ -188,19 +188,23 @@ export const authProvider: Pick<AuthProvider, "checkError"> = {
 ```
 
 The rejection value is read for hints, so it does not have to be the original
-error. A fresh `Error` works too, and so does any object. These keys are read:
+error. Any object works, and so does a fresh `Error`, but an `Error` always
+carries a `message`, so its text becomes the notification. To get the default
+notice, reject with an object that has no `message` key. These keys are read:
 
 - `redirectTo`: where to send the user. Without it, a logout goes to the login
   page. A value starting with `http` suppresses the notification.
 - `logoutUser`: `false` keeps the session and shows a "not authorized" notice,
   and still redirects when `redirectTo` is set. It defaults to `true`.
 - `message`: the notification text or a translation key. `false` shows no
-  notification. Without it, the notice is `chelone.notification.logged_out` on a
-  logout and `chelone.notification.not_authorized` otherwise.
+  notification. With no `message` key, the notice is
+  `chelone.notification.logged_out` on a logout and
+  `chelone.notification.not_authorized` otherwise.
 
 ```ts
 throw { redirectTo: "/sign-in", message: "Your session timed out" };
 throw { logoutUser: false, message: false };
+throw new Error("Unauthorized"); // notifies "Unauthorized", not the default
 ```
 
 Resolving from `checkError` leaves an ordinary data error alone.
