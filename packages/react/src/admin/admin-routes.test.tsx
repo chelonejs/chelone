@@ -179,6 +179,96 @@ describe("AdminRoutes — no-flash auth gate (§0a-7/16)", () => {
     await waitFor(() => expect(logout).toHaveBeenCalled());
   });
 
+  it("requireAuth with no login slot renders the default LoginPage", async () => {
+    const authProvider = makeAuthProvider({
+      checkAuth: async () => {
+        throw new Error("nope");
+      },
+    });
+    render(
+      <MemoryRouter initialEntries={["/posts"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          authProvider={authProvider}
+          requireAuth
+        >
+          <Resource
+            name="posts"
+            list={() => <div data-testid="posts-list" />}
+          />
+        </Admin>
+      </MemoryRouter>,
+    );
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Sign in" })).toBeDefined(),
+    );
+    expect(screen.queryByTestId("posts-list")).toBeNull();
+  });
+
+  it("a login slot replaces the default LoginPage", async () => {
+    const authProvider = makeAuthProvider({
+      checkAuth: async () => {
+        throw new Error("nope");
+      },
+    });
+    render(
+      <MemoryRouter initialEntries={["/posts"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          authProvider={authProvider}
+          requireAuth
+        >
+          <Resource
+            name="posts"
+            list={() => <div data-testid="posts-list" />}
+          />
+          <Admin.LoginPage>
+            <div data-testid="custom-login">custom login</div>
+          </Admin.LoginPage>
+        </Admin>
+      </MemoryRouter>,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("custom-login")).toBeDefined(),
+    );
+    expect(screen.queryByRole("button", { name: "Sign in" })).toBeNull();
+  });
+
+  it("an explicit null loginPage prop opts out of both the child and the default", async () => {
+    const logout = vi.fn(async () => {});
+    const authProvider = makeAuthProvider({
+      checkAuth: async () => {
+        throw new Error("nope");
+      },
+      logout,
+    });
+    render(
+      <MemoryRouter initialEntries={["/posts"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          authProvider={authProvider}
+          loginPage={null}
+          requireAuth
+        >
+          <Resource
+            name="posts"
+            list={() => <div data-testid="posts-list" />}
+          />
+          <Admin.LoginPage>
+            <div data-testid="custom-login">custom login</div>
+          </Admin.LoginPage>
+        </Admin>
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(logout).toHaveBeenCalled());
+    expect(screen.queryByTestId("custom-login")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Sign in" })).toBeNull();
+    expect(screen.queryByTestId("posts-list")).toBeNull();
+  });
+
   it("no authProvider → never gates (appless demo shortcut §0a-16)", async () => {
     render(
       <MemoryRouter initialEntries={["/posts"]}>
