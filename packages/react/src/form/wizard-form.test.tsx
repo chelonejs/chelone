@@ -527,10 +527,7 @@ describe("<WizardForm> inside <Edit>", () => {
     renderInEditRoute(
       dataProvider,
       <Edit title={false}>
-        <WizardForm
-          save={ownSave}
-          defaultValues={{ title: "Mine" }}
-        >
+        <WizardForm save={ownSave} defaultValues={{ title: "Mine" }}>
           <WizardForm.Step name="one">
             <TextInput source="title" />
             <SubmitOwn />
