@@ -12,16 +12,17 @@ each page has a default component you can pass in or replace.
 ## Admin slots
 
 Fill a slot with a child (`<Admin.Layout>`) or with the matching prop
-(`layout={...}`). The prop wins when both are given. Every slot is optional and
-has no built-in default: an empty slot renders nothing, so pass the component
-from this table to turn the page on.
+(`layout={...}`). The prop wins when both are given. Every slot is optional. An
+empty slot has no built-in page, except `error`, which falls back to a plain
+error message with the stack. An empty `layout` renders the routes with no shell.
+Pass the component from this table to turn a page on.
 
 | Slot | Component | When it renders |
 | --- | --- | --- |
 | `layout` | [`<Layout>`](/docs/ui-layout/layout) | Wraps every authenticated screen: sidebar, app bar and content area. |
 | `loginPage` | [`<LoginPage>`](/docs/ui-layout/login-page) | While unauthenticated, when `requireAuth` is set. |
-| `dashboard` | Your own component | The index route. Without one, the index redirects to the first resource you can list. |
-| `error` | [`<Error>`](/docs/ui-layout/error) | When rendering throws. |
+| `dashboard` | Your own component | The index route. Without one, the index redirects to the first resource that has a list. If your `authProvider` denies `list` on that resource, the index renders blank. |
+| `error` | Any element, such as a page of your own | When rendering throws. |
 | `ready` | [`<Ready>`](/docs/ui-layout/ready) | When no resource or custom route is registered. |
 | `loading` | [`<Loading>`](/docs/ui-layout/loading) | While the auth check or an async `<Admin>` child is pending. |
 | `accessDenied` | [`<AccessDenied>`](/docs/ui-layout/access-denied) | At `/access-denied`. |
@@ -68,8 +69,14 @@ import {
 </Admin>;
 ```
 
-The `error` slot gets the boundary's `{ error, errorInfo, resetErrorBoundary }`,
-so pass a render function: `<Admin.Error>{(props) => <Error {...props} />}</Admin.Error>`.
+An element in the `error` slot renders as is, so it gets no props. To use
+[`<Error>`](/docs/ui-layout/error), which needs the boundary's
+`{ error, errorInfo, resetErrorBoundary }`, pass a render function to
+`Layout`'s `error` prop:
+
+```tsx
+<Layout error={(props) => <Error {...props} />} />
+```
 
 ## Layout overrides
 
@@ -82,7 +89,7 @@ take a component, not an element:
 | `appBar` | The bar above the content. | [`<AppBar>`](/docs/ui-layout/app-bar) |
 | `menu` | The navigation inside the sidebar. | [`<Menu>`](/docs/ui-layout/menu) |
 | `sidebar` | The sidebar that holds the menu. | [`<AppSidebar>`](/docs/ui-layout/app-sidebar) |
-| `error` | The fallback when the content area throws. A node renders as is. A function receives `{ error, errorInfo, resetErrorBoundary }`. | The built-in fallback. |
+| `error` | The fallback when the content area throws. A node renders as is. A function receives `{ error, errorInfo, resetErrorBoundary }`. | The built-in fallback: the message and the stack. |
 
 ```tsx
 import { Admin, Layout, Menu } from "@chelone/react";

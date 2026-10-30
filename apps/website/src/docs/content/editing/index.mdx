@@ -38,7 +38,7 @@ source of truth for both the record type and the form rules. Pass a per-input
 
 ## Shared props
 
-Every input accepts the props of `InputProps`, on top of its own:
+Most inputs accept the props of `InputProps`, on top of their own:
 
 | Prop | Effect |
 | --- | --- |
@@ -48,11 +48,17 @@ Every input accepts the props of `InputProps`, on top of its own:
 | `format` | Turns the stored value into the value the control shows. |
 | `parse` | Turns the control's value into the value written to the form. |
 | `defaultValue` | Seeds the input when the record has no value for `source`. |
-| `alwaysOn` | In a `<FilterForm>` or `<FilterButton>`, keeps the filter shown instead of putting it in the add-filter menu. Do not combine it with `defaultValue`: set `filterDefaultValues` on `<List>`. |
+| `alwaysOn` | In a `<FilterForm>` or `<FilterButton>`, keeps the filter shown instead of putting it in the add-filter menu. Do not combine it with `defaultValue`: seed the filter with the `filterDefaultValues` option of `useListController` (see [Advanced List](/docs/page-components/list/advanced)). |
 | `readOnly` | The control shows its value and takes no edits. |
 | `disabled` | Disables the control. |
 | `isRequired` | Forces the required marker. A `required()` validator sets it by itself. |
 | `onChange`, `onBlur` | Called after the value is written or the blur is recorded. |
+
+Some inputs differ. `<ReferenceInput>` takes no `validate`: set it on the child
+input. `<BooleanInput>` omits `type`, `onChange` and `onBlur`.
+`<ReferenceArrayInput>`, `<ArrayInput>`, `<DatagridInput>`, `<ApiKeyInput>` and
+`<SubscriptionPlanPicker>` declare their own props instead. The component's page
+lists exactly what it takes.
 
 `format` and `parse` run in opposite directions, so pass them as a pair:
 
@@ -63,7 +69,7 @@ import { TextInput } from "@chelone/react";
 <TextInput
   source="slug"
   validate={required()}
-  format={(value: string) => value?.replace(/-/g, " ")}
+  format={(value) => String(value ?? "").replace(/-/g, " ")}
   parse={(value) => String(value).replace(/\s+/g, "-")}
   defaultValue="untitled"
 />;
