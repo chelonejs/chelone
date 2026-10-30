@@ -1,11 +1,13 @@
 import type { QueryClient } from "@tanstack/query-core";
 import type { Identifier } from "../resource/identifier";
 import type { RecordOf, ResourceMap } from "../resource/registry";
-import { listKey, manyKey, oneKey } from "./keys";
+import { listKey, manyKey, manyReferenceKey, oneKey } from "./keys";
 import type {
   DataProvider,
   GetListParams,
   GetManyParams,
+  GetManyReferenceParams,
+  GetManyReferenceResult,
   GetOneParams,
 } from "./types";
 
@@ -40,6 +42,7 @@ export function getListOptions<
   };
 }
 
+/** One record by id, cached under `oneKey`. */
 export function getOneOptions<
   TResources extends ResourceMap,
   TName extends keyof TResources & string,
@@ -53,6 +56,7 @@ export function getOneOptions<
   };
 }
 
+/** Records for an array of ids, seeded into `oneKey`. Resolves to the rows only. */
 export function getManyOptions<
   TResources extends ResourceMap,
   TName extends keyof TResources & string,
@@ -63,6 +67,31 @@ export function getManyOptions<
       const result = await ctx.dataProvider.getMany(resource, params);
       seedRecords(ctx.queryClient, resource, result.data);
       return result.data;
+    },
+  };
+}
+
+/**
+ * Records whose `params.target` field equals `params.id` (the FK on the
+ * referenced-FROM side). Keeps the whole `GetManyReferenceResult` (rows and
+ * `total`) and seeds each row into the `oneKey` cache.
+ */
+export function getManyReferenceOptions<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(
+  ctx: DataContext<TResources>,
+  resource: TName,
+  params: GetManyReferenceParams,
+) {
+  return {
+    queryKey: manyReferenceKey(resource, params),
+    queryFn: async (): Promise<
+      GetManyReferenceResult<RecordOf<TResources, TName>>
+    > => {
+      const result = await ctx.dataProvider.getManyReference(resource, params);
+      seedRecords(ctx.queryClient, resource, result.data);
+      return result;
     },
   };
 }

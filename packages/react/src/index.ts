@@ -770,6 +770,7 @@ export {
   useDelete,
   useGetList,
   useGetMany,
+  useGetManyReference,
   useGetOne,
   useUpdate,
 } from "./hooks";

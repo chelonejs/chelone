@@ -1,10 +1,15 @@
 import { QueryClient } from "@tanstack/query-core";
-import { describe, expect, expectTypeOf, it } from "vitest";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { z } from "zod";
 import { defineResources } from "../resource/registry";
 import { fakeDataProvider } from "./fake-provider";
 import { oneKey } from "./keys";
-import { getListOptions, getManyOptions, getOneOptions } from "./query-options";
+import {
+  getListOptions,
+  getManyOptions,
+  getManyReferenceOptions,
+  getOneOptions,
+} from "./query-options";
 
 const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
@@ -38,6 +43,12 @@ describe("query option factories", () => {
       id: 1,
       title: "a",
     });
+    expect(
+      c.queryClient.getQueryData(oneKey("posts", { id: 2 })),
+    ).toMatchObject({
+      id: 2,
+      title: "b",
+    });
   });
 
   it("getOneOptions caches the record under the stringified-id key", async () => {
@@ -57,5 +68,78 @@ describe("query option factories", () => {
     expect(
       c.queryClient.getQueryData(oneKey("posts", { id: 2 })),
     ).toMatchObject({ id: 2 });
+  });
+});
+
+describe("getManyReferenceOptions", () => {
+  const refResources = defineResources({
+    comments: {
+      schema: z.object({
+        id: z.number(),
+        post_id: z.number(),
+        body: z.string(),
+      }),
+    },
+  });
+  const refCtx = () => ({
+    dataProvider: fakeDataProvider<typeof refResources>({
+      comments: [
+        { id: 1, post_id: 1, body: "a" },
+        { id: 2, post_id: 2, body: "b" },
+        { id: 3, post_id: 1, body: "c" },
+      ],
+    }),
+    queryClient: new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    }),
+  });
+  const params = () => ({
+    target: "post_id",
+    id: 1,
+    pagination: { page: 1, perPage: 10 },
+  });
+
+  it("getManyReferenceOptions calls getManyReference with the target, id and paging and returns the typed list result", async () => {
+    const c = refCtx();
+    const spy = vi.spyOn(c.dataProvider, "getManyReference");
+    const result = await c.queryClient.fetchQuery(
+      getManyReferenceOptions(c, "comments", params()),
+    );
+    expect(spy).toHaveBeenCalledWith("comments", params());
+    expect(result.data.map((r) => r.body)).toEqual(["a", "c"]);
+    expect(result.total).toBe(2);
+    expectTypeOf(result.data).toEqualTypeOf<
+      { id: number; post_id: number; body: string }[]
+    >();
+  });
+
+  it("getManyReferenceOptions seeds oneKey slots for every returned row", async () => {
+    const c = refCtx();
+    await c.queryClient.fetchQuery(
+      getManyReferenceOptions(c, "comments", params()),
+    );
+    expect(
+      c.queryClient.getQueryData(oneKey("comments", { id: 1 })),
+    ).toMatchObject({ id: 1, body: "a" });
+    expect(
+      c.queryClient.getQueryData(oneKey("comments", { id: 3 })),
+    ).toMatchObject({ id: 3, body: "c" });
+    expect(
+      c.queryClient.getQueryData(oneKey("comments", { id: 2 })),
+    ).toBeUndefined();
+  });
+
+  it("getManyReferenceOptions rejects with the provider error and caches nothing", async () => {
+    const c = refCtx();
+    const boom = new Error("boom");
+    vi.spyOn(c.dataProvider, "getManyReference").mockRejectedValue(boom);
+    const options = getManyReferenceOptions(c, "comments", params());
+    await expect(c.queryClient.fetchQuery(options)).rejects.toBe(boom);
+    expect(c.queryClient.getQueryData(options.queryKey)).toBeUndefined();
+    for (const id of [1, 2, 3]) {
+      expect(
+        c.queryClient.getQueryData(oneKey("comments", { id })),
+      ).toBeUndefined();
+    }
   });
 });

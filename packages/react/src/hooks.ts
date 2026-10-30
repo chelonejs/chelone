@@ -4,9 +4,11 @@ import {
   deleteMutationOptions,
   type GetListParams,
   type GetManyParams,
+  type GetManyReferenceParams,
   type GetOneParams,
   getListOptions,
   getManyOptions,
+  getManyReferenceOptions,
   getOneOptions,
   type MutationModeOptions,
   type RecordOf,
@@ -54,6 +56,21 @@ export function useGetMany<
 ) {
   const ctx = useCheloneContext<TResources>();
   return useQuery({ ...getManyOptions(ctx, resource, params), ...options });
+}
+
+export function useGetManyReference<
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(
+  resource: TName,
+  params: GetManyReferenceParams,
+  options: { enabled?: boolean; staleTime?: number } = {},
+) {
+  const ctx = useCheloneContext<TResources>();
+  return useQuery({
+    ...getManyReferenceOptions(ctx, resource, params),
+    ...options,
+  });
 }
 
 export function useCreate<
@@ -153,6 +170,11 @@ export function createCheloneHooks<TResources extends ResourceMap>() {
       params: GetManyParams,
       options?: { enabled?: boolean; staleTime?: number },
     ) => useGetMany<TResources, TName>(resource, params, options),
+    useGetManyReference: <TName extends keyof TResources & string>(
+      resource: TName,
+      params: GetManyReferenceParams,
+      options?: { enabled?: boolean; staleTime?: number },
+    ) => useGetManyReference<TResources, TName>(resource, params, options),
     useCreate: <TName extends keyof TResources & string>(resource: TName) =>
       useCreate<TResources, TName>(resource),
     useUpdate: <TName extends keyof TResources & string>(

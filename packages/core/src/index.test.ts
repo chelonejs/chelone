@@ -41,6 +41,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.rootSourceScope).toBeTypeOf("object");
   });
 
+  it("exports the data query option factories", () => {
+    expect(barrel.getManyReferenceOptions).toBeTypeOf("function");
+  });
+
   it("exports the P5 validators", () => {
     expect(barrel.composeValidators).toBeTypeOf("function");
     expect(barrel.isRequired).toBeTypeOf("function");
