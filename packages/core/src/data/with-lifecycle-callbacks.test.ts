@@ -82,7 +82,10 @@ describe("withLifecycleCallbacks", () => {
   it("before<Verb> rewrites the params the provider receives, for each of the nine verbs", async () => {
     for (const verb of verbs) {
       const stub = stubProvider();
-      const before = vi.fn((params: object) => ({ ...params, rewritten: true }));
+      const before = vi.fn((params: object) => ({
+        ...params,
+        rewritten: true,
+      }));
       const wrapped = withLifecycleCallbacks(asProvider(stub), [
         handler("posts", { [`before${cap(verb)}`]: before }),
       ]);
@@ -195,13 +198,7 @@ describe("withLifecycleCallbacks", () => {
 
     const result = await wrapped.getOne("posts", { id: 1 });
 
-    expect(log).toEqual([
-      "before1",
-      "before2",
-      "provider",
-      "after1",
-      "after2",
-    ]);
+    expect(log).toEqual(["before1", "before2", "provider", "after1", "after2"]);
     expect(stub.getOne).toHaveBeenCalledWith("posts", {
       id: 1,
       tags: ["b1", "b2"],
