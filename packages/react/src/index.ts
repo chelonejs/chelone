@@ -632,6 +632,10 @@ export {
   ListPagination,
   type ListPaginationProps,
 } from "./components/admin/list/list-pagination";
+export {
+  SavedQueriesList,
+  type SavedQueriesListProps,
+} from "./components/admin/list/saved-queries-list";
 // P7e component surface — the CRUD view shells (List/Create/Edit/Show). Each
 // wires a composed controller (useListController/useCreateForm/useEditForm/
 // useShowController) and publishes the ambient context stack its descendants
@@ -932,6 +936,10 @@ export {
   SaveContextProvider,
   useSaveContext,
 } from "./save-context";
+export {
+  type UseSavedQueriesResult,
+  useSavedQueries,
+} from "./saved-queries-hooks";
 export type {
   CheloneRouterHandle,
   CreateCheloneRouterOptions,
