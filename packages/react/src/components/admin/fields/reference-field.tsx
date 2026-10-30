@@ -1,7 +1,7 @@
 import type { Identifier } from "@chelone/core";
 import type { MouseEvent, ReactNode } from "react";
 import type { UnknownRecord } from "@/lib/unknown-types";
-import { useGetOne } from "../../../hooks";
+import { useGetManyAggregate } from "../../../hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentation } from "../../../label";
 import { RecordContextProvider } from "../../../record/record-context";
@@ -23,14 +23,15 @@ interface ReferenceFieldProps<
   children?: ReactNode;
   /**
    * Render-prop alternative to `children`: receives the resolved referenced
-   * record (or `undefined` while loading / on error).
+   * record. Called only after the reference resolves; loading, error and empty
+   * states use their respective props.
    */
   render?: (referenceRecord: UnknownRecord | undefined) => ReactNode;
   /** A `CreatePathType` (`"show"`/`"edit"`/…) or `false` to disable linking. */
   link?: LinkToType;
   /** A class name applied to the link wrapper. */
   className?: string;
-  /** Rendered when the FK is null/undefined. A string is translated. */
+  /** Rendered when the FK is null/undefined or its record is missing. A string is translated. */
   empty?: ReactNode;
   /** Rendered while the referenced record is loading. */
   loading?: ReactNode;
@@ -52,7 +53,7 @@ const stopPropagation = (e: MouseEvent<HTMLAnchorElement>) =>
  *
  * Rebridge note (chelone): chelone does not carry ra-core's
  * `ReferenceFieldBase`/`useReferenceFieldContext` stack. This field resolves the
- * single record directly with `useGetOne`, publishes it via
+ * single record directly with `useGetManyAggregate`, publishes it via
  * `RecordContextProvider`, and links through the router adapter's `Link` +
  * `useGetPathForRecord` (which infers a `show`/`edit` link when `link` is
  * omitted, matching ra-core). The default representation comes from
@@ -94,13 +95,13 @@ function ReferenceField<RecordType extends UnknownRecord = UnknownRecord>(
   const definition = useResourceDefinition({ resource: reference });
   const { Link } = useRouterAdapter();
 
-  // Fetch only when a FK is present — `useGetOne` requires an id.
-  const { data, isPending, error } = useGetOne(
+  // Fetch only when a FK is present, batching with other reference fields.
+  const { data, isPending, error } = useGetManyAggregate(
     reference,
-    { id: id as Identifier },
+    { ids: id != null ? [id] : [] },
     { enabled: id != null },
   );
-  const referenceRecord = data as UnknownRecord | undefined;
+  const referenceRecord = data?.[0] as UnknownRecord | undefined;
 
   // Compute the link path unconditionally (Rules of Hooks): the hook owns the
   // `link==null` inference (show → edit → none, gated on the reference's

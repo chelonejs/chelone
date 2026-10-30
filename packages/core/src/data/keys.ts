@@ -35,6 +35,11 @@ export function manyKey(
   ] as const;
 }
 
+/** Partial-match key covering every `getMany` cache variant of a resource. */
+export function manyKeyPrefix(resource: string) {
+  return [resource, "getMany"] as const;
+}
+
 export function manyReferenceKey(
   resource: string,
   params: GetManyReferenceParams,

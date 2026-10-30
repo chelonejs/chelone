@@ -1,14 +1,14 @@
 /**
  * P7d-T3 — `<ReferenceField>` ported onto chelone data hooks.
  *
- * Resolves a single referenced record (via `useGetOne`) off the FK at `source`,
+ * Resolves a single referenced record (via `useGetManyAggregate`) off the FK at `source`,
  * publishes it in a `RecordContext`, and renders the child field (or the
  * reference's record representation). Optionally wraps the output in a link to
  * the referenced record's page.
  *
  * Rebridge note: chelone has no `ReferenceFieldBase`/`useReferenceFieldContext`
  * (shadmin's ra-core-derived controller stack). The field is built directly on
- * `useGetOne` + `useGetRecordRepresentation` + `RecordContextProvider`, and the
+ * `useGetManyAggregate` + `useGetRecordRepresentation` + `RecordContextProvider`, and the
  * link uses the router adapter's `Link` + `useCreatePath`.
  */
 import {
@@ -21,7 +21,8 @@ import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { Admin } from "../../../admin/admin";
 import { CheloneProvider } from "../../../context";
 import { RecordContextProvider } from "../../../record/record-context";
 import { ResourceRegistryProvider } from "../../../resource";
@@ -74,9 +75,106 @@ function makeProviders() {
   return Providers;
 }
 
+function renderUnderAdmin(
+  children: ReactNode,
+  dataProvider = fakeDataProvider({ authors: structuredClone(authors) }),
+) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  render(
+    <MemoryRouter>
+      <Admin
+        dataProvider={dataProvider}
+        queryClient={queryClient}
+        i18n={createI18n({
+          locale: "en",
+          messages: { en: defineMessages({}) },
+        })}
+        dashboard={children}
+      />
+    </MemoryRouter>,
+  );
+}
+
 afterEach(cleanup);
 
 describe("<ReferenceField>", () => {
+  it("three rows over two authors make one getMany call with each id once and no getOne call", async () => {
+    const dataProvider = fakeDataProvider({
+      authors: structuredClone(authors),
+    });
+    const getMany = vi.spyOn(dataProvider, "getMany");
+    const getOne = vi.spyOn(dataProvider, "getOne");
+    renderUnderAdmin(
+      [
+        { id: 10, author_id: 1 },
+        { id: 11, author_id: 2 },
+        { id: 12, author_id: 1 },
+      ].map((record) => (
+        <RecordContextProvider key={record.id} value={record}>
+          <ReferenceField source="author_id" reference="authors" link={false} />
+        </RecordContextProvider>
+      )),
+      dataProvider,
+    );
+    await waitFor(() => {
+      expect(screen.getAllByText("Jane Doe")).toHaveLength(2);
+      expect(screen.getByText("John Smith")).toBeTruthy();
+    });
+    expect(getMany).toHaveBeenCalledTimes(1);
+    expect(getMany).toHaveBeenCalledWith(
+      "authors",
+      expect.objectContaining({ ids: expect.arrayContaining([1, 2]) }),
+    );
+    expect(getMany.mock.calls[0]?.[1].ids).toHaveLength(2);
+    expect(getOne).not.toHaveBeenCalled();
+  });
+
+  it("renders the empty node when the provider omits the id", async () => {
+    const dataProvider = fakeDataProvider({
+      authors: structuredClone(authors),
+    });
+    const getMany = vi
+      .spyOn(dataProvider, "getMany")
+      .mockResolvedValue({ data: [] });
+    renderUnderAdmin(
+      <ReferenceField
+        source="author_id"
+        reference="authors"
+        record={{ author_id: 99 }}
+        empty={<span>No author</span>}
+        error={<span>Lookup failed</span>}
+      />,
+      dataProvider,
+    );
+    expect(await screen.findByText("No author")).toBeTruthy();
+    expect(screen.queryByText("Lookup failed")).toBeNull();
+    expect(getMany).toHaveBeenCalledExactlyOnceWith("authors", { ids: [99] });
+  });
+
+  it("renders the error node when the batch rejects", async () => {
+    const dataProvider = fakeDataProvider({
+      authors: structuredClone(authors),
+    });
+    const getMany = vi
+      .spyOn(dataProvider, "getMany")
+      .mockRejectedValue(new Error("Offline"));
+    renderUnderAdmin(
+      <ReferenceField
+        source="author_id"
+        reference="authors"
+        record={{ author_id: 1 }}
+        empty={<span>No author</span>}
+        error={<span>Lookup failed</span>}
+      />,
+      dataProvider,
+    );
+    expect(await screen.findByText("Lookup failed")).toBeTruthy();
+    expect(screen.queryByText("No author")).toBeNull();
+    expect(getMany).toHaveBeenCalledExactlyOnceWith("authors", { ids: [1] });
+  });
+
   it("renders the referenced record's representation once loaded", async () => {
     const Providers = makeProviders();
     render(
@@ -152,6 +250,7 @@ describe("<ReferenceField>", () => {
     expect(screen.queryByRole("link")).toBeNull();
   });
 
+  // Explicit links override view-capability inference; only omitted links use hasEdit.
   it("links to the edit path when link='edit' is explicit", async () => {
     const Providers = makeProviders();
     render(

@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/query-core";
 import { describe, expect, it } from "vitest";
 import { removeRecordsFromCache, updateRecordsInCache } from "./cache-ops";
-import { listKey, oneKey } from "./keys";
+import { listKey, manyKey, oneKey } from "./keys";
 import type { GetListResult } from "./types";
 
 function makeClient() {
@@ -100,5 +100,24 @@ describe("updateRecordsInCache", () => {
     const before = qc.getQueryData<GetListResult>(listKey("posts", listParams));
     updateRecordsInCache(qc, "posts", [2], { title: "Patched" });
     expect(before?.data.find((r) => r.id === 2)?.title).toBe("Two");
+  });
+
+  it("patches matching records in every getMany cache entry", () => {
+    const qc = makeClient();
+    const both = manyKey("authors", { ids: [1, 2] });
+    const other = manyKey("authors", { ids: [3] });
+    const before = [
+      { id: 1, name: "Ann" },
+      { id: 2, name: "Bob" },
+    ];
+    qc.setQueryData(both, before);
+    qc.setQueryData(other, [{ id: 3, name: "Cy" }]);
+    updateRecordsInCache(qc, "authors", [1], { name: "New" });
+    expect(qc.getQueryData(both)).toEqual([
+      { id: 1, name: "New" },
+      { id: 2, name: "Bob" },
+    ]);
+    expect(qc.getQueryData(other)).toEqual([{ id: 3, name: "Cy" }]);
+    expect(before[0]?.name).toBe("Ann");
   });
 });
