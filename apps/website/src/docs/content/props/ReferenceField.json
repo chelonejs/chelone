@@ -17,7 +17,7 @@
       "name": "empty",
       "type": "ReactNode",
       "optional": true,
-      "comment": "Rendered when the FK is null/undefined. A string is translated."
+      "comment": "Rendered when the FK is null/undefined or its record is missing. A string is translated."
     },
     {
       "name": "error",
@@ -53,7 +53,7 @@
       "name": "render",
       "type": "(referenceRecord: UnknownRecord | undefined) => ReactNode",
       "optional": true,
-      "comment": "Render-prop alternative to `children`: receives the resolved referenced\nrecord (or `undefined` while loading / on error)."
+      "comment": "Render-prop alternative to `children`: receives the resolved referenced\nrecord. Called only after the reference resolves; loading, error and empty\nstates use their respective props."
     },
     {
       "name": "source",

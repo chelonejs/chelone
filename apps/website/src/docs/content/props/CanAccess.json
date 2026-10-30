@@ -1,0 +1,41 @@
+{
+  "name": "CanAccess",
+  "props": [
+    {
+      "name": "accessDenied",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered when access is denied. Defaults to `null`."
+    },
+    {
+      "name": "action",
+      "type": "string",
+      "optional": false,
+      "comment": "The action to check (`'list' | 'create' | 'edit' | 'show' | 'delete'` or custom)."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "Rendered when access is granted."
+    },
+    {
+      "name": "loading",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered while the access check is pending. Defaults to `null`."
+    },
+    {
+      "name": "record",
+      "type": "unknown",
+      "optional": true,
+      "comment": "Optional record the grant is scoped to (record-level predicates)."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": false,
+      "comment": "The resource to check (e.g. `'posts'`)."
+    }
+  ]
+}
