@@ -21,26 +21,24 @@ import {
   useReferenceOneFieldController,
 } from "./use-reference-one-field-controller";
 
+const commentSchema = z.object({
+  id: z.number(),
+  post_id: z.number(),
+  body: z.string(),
+});
+const profileSchema = z.object({
+  id: z.number(),
+  post_id: z.number(),
+  bio: z.string(),
+});
 const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
-  comments: {
-    schema: z.object({
-      id: z.number(),
-      post_id: z.number(),
-      body: z.string(),
-    }),
-  },
-  profiles: {
-    schema: z.object({
-      id: z.number(),
-      post_id: z.number(),
-      bio: z.string(),
-    }),
-  },
+  comments: { schema: commentSchema },
+  profiles: { schema: profileSchema },
 });
 type Resources = typeof resources;
-type Comment = { id: number; post_id: number; body: string };
-type Profile = { id: number; post_id: number; bio: string };
+type Comment = z.infer<typeof commentSchema>;
+type Profile = z.infer<typeof profileSchema>;
 
 const comments: Comment[] = [
   { id: 1, post_id: 1, body: "a" },
@@ -65,21 +63,24 @@ const profiles: Profile[] = [
 function mountProbe<TResult>(
   useProbe: () => TResult,
   initialRecord?: RecordValue,
+  failWith?: Error,
 ) {
   const capture: { result?: TResult } = {};
   const record: Ref<RecordValue> = ref(initialRecord);
   const dataProvider = fakeDataProvider<Resources>({
-    posts: [
+    posts: structuredClone([
       { id: 1, title: "one" },
       { id: 2, title: "two" },
-    ],
+    ]),
     comments: structuredClone(comments),
     profiles: structuredClone(profiles),
   });
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
-  const spy = vi.spyOn(dataProvider, "getManyReference");
+  const referenceSpy = vi.spyOn(dataProvider, "getManyReference");
+  // Before mount: the first fetch starts during setup.
+  if (failWith) referenceSpy.mockRejectedValueOnce(failWith);
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [{ path: "/", component: { render: () => null } }],
@@ -107,20 +108,21 @@ function mountProbe<TResult>(
   });
 
   const wrapper = mount(Harness, { global: { plugins: [router] } });
-  // Only the data queries: the many controller's inner list controller keeps
-  // its own disabled observer on the matching getList key.
-  const observerCount = (): number =>
+  const countObservers = (keyPart?: string): number =>
     queryClient
       .getQueryCache()
       .getAll()
-      .filter((query) => query.queryKey[1] === "getManyReference")
+      .filter((query) => keyPart === undefined || query.queryKey[1] === keyPart)
       .reduce((sum, query) => sum + query.getObserversCount(), 0);
   return {
     wrapper,
     capture,
     record,
-    observerCount,
-    spy,
+    // Every observer, the many controller's inner list observer included.
+    observerCount: () => countObservers(),
+    // Only the observers that fetch.
+    dataObserverCount: () => countObservers("getManyReference"),
+    referenceSpy,
   };
 }
 
@@ -130,6 +132,7 @@ const mountMany = (
     "reference" | "target"
   > = {},
   record?: RecordValue,
+  failWith?: Error,
 ) =>
   mountProbe<UseReferenceManyFieldControllerReturn<Comment>>(
     () =>
@@ -139,6 +142,7 @@ const mountMany = (
         ...options,
       }),
     record,
+    failWith,
   );
 
 const mountOne = (
@@ -147,6 +151,7 @@ const mountOne = (
     "reference" | "target"
   > = {},
   record?: RecordValue,
+  failWith?: Error,
 ) =>
   mountProbe<UseReferenceOneFieldControllerReturn<Profile>>(
     () =>
@@ -156,29 +161,38 @@ const mountOne = (
         ...options,
       }),
     record,
+    failWith,
   );
 
 describe("useReferenceManyFieldController", () => {
   it("lists the rows that point at the ambient record and reports total", async () => {
-    const { capture, spy } = mountMany({ perPage: 2 }, { id: 1 });
+    const { capture, referenceSpy } = mountMany({ perPage: 2 }, { id: 1 });
     expect(capture.result?.isPending).toBe(true);
     await vi.waitFor(() => expect(capture.result?.isPending).toBe(false));
     expect(capture.result?.data?.map((row) => row.id)).toEqual([1, 2]);
     expect(capture.result?.total).toBe(5);
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(
+    expect(referenceSpy).toHaveBeenCalledTimes(1);
+    expect(referenceSpy).toHaveBeenCalledWith(
       "comments",
       expect.objectContaining({ target: "post_id", id: 1 }),
     );
   });
 
+  it("exposes a getManyReference rejection as error", async () => {
+    const { capture } = mountMany({}, { id: 1 }, new Error("boom"));
+    await vi.waitFor(() =>
+      expect(capture.result?.error).toEqual(new Error("boom")),
+    );
+    expect(capture.result?.data).toBeUndefined();
+  });
+
   it("setPage, setSort and setFilters reach getManyReference", async () => {
-    const { capture, spy } = mountMany({ perPage: 2 }, { id: 1 });
+    const { capture, referenceSpy } = mountMany({ perPage: 2 }, { id: 1 });
     await vi.waitFor(() => expect(capture.result?.isPending).toBe(false));
 
     capture.result?.setPage(2);
     await vi.waitFor(() =>
-      expect(spy).toHaveBeenLastCalledWith(
+      expect(referenceSpy).toHaveBeenLastCalledWith(
         "comments",
         expect.objectContaining({ pagination: { page: 2, perPage: 2 } }),
       ),
@@ -189,7 +203,7 @@ describe("useReferenceManyFieldController", () => {
 
     capture.result?.setSort({ field: "body", order: "DESC" });
     await vi.waitFor(() =>
-      expect(spy).toHaveBeenLastCalledWith(
+      expect(referenceSpy).toHaveBeenLastCalledWith(
         "comments",
         expect.objectContaining({
           sort: { field: "body", order: "DESC" },
@@ -203,49 +217,57 @@ describe("useReferenceManyFieldController", () => {
 
     capture.result?.setFilters({ body: "c" });
     await vi.waitFor(() =>
-      expect(spy).toHaveBeenLastCalledWith(
+      expect(referenceSpy).toHaveBeenLastCalledWith(
         "comments",
         expect.objectContaining({ filter: { body: "c" } }),
       ),
     );
+    await vi.waitFor(() =>
+      expect(capture.result?.data?.map((row) => row.body)).toEqual(["c"]),
+    );
+    expect(capture.result?.total).toBe(1);
   });
 
   it("follows a record that arrives late or changes and releases the previous subscription", async () => {
-    const { capture, record, spy, observerCount } = mountMany();
-    expect(spy).not.toHaveBeenCalled();
-    expect(observerCount()).toBe(0);
+    const { capture, record, referenceSpy, observerCount, dataObserverCount } =
+      mountMany();
+    expect(referenceSpy).not.toHaveBeenCalled();
+    expect(dataObserverCount()).toBe(0);
 
     record.value = { id: 1 };
     await vi.waitFor(() => expect(capture.result?.total).toBe(5));
-    expect(observerCount()).toBe(1);
+    const attached = observerCount();
+    expect(dataObserverCount()).toBe(1);
 
     record.value = { id: 2 };
     await vi.waitFor(() => expect(capture.result?.total).toBe(1));
     expect(capture.result?.data?.map((row) => row.id)).toEqual([6]);
-    expect(spy).toHaveBeenLastCalledWith(
+    expect(referenceSpy).toHaveBeenLastCalledWith(
       "comments",
       expect.objectContaining({ id: 2 }),
     );
-    // The first controller's observer is gone; only the new one remains.
-    expect(observerCount()).toBe(1);
+    expect(referenceSpy).toHaveBeenCalledTimes(2);
+    // The first controller's observers are gone; only the new one's remain.
+    expect(dataObserverCount()).toBe(1);
+    expect(observerCount()).toBe(attached);
   });
 
   it("with no record id fetches nothing", async () => {
     // A record with no id key: LooseRecord requires one, so the fixture is cast.
     const noId = { title: "no id" } as unknown as RecordValue;
-    const { capture, spy, observerCount } = mountMany({}, noId);
+    const { capture, referenceSpy, dataObserverCount } = mountMany({}, noId);
     await nextTick();
     expect(capture.result?.data).toEqual([]);
     expect(capture.result?.total).toBe(0);
     expect(capture.result?.isPending).toBe(false);
-    expect(spy).not.toHaveBeenCalled();
-    expect(observerCount()).toBe(0);
+    expect(referenceSpy).not.toHaveBeenCalled();
+    expect(dataObserverCount()).toBe(0);
   });
 
   it("scope disposal releases every observer", async () => {
     const { wrapper, capture, observerCount } = mountMany({}, { id: 1 });
     await vi.waitFor(() => expect(capture.result?.isPending).toBe(false));
-    expect(observerCount()).toBe(1);
+    expect(observerCount()).toBeGreaterThan(0);
     wrapper.unmount();
     expect(observerCount()).toBe(0);
   });
@@ -253,7 +275,7 @@ describe("useReferenceManyFieldController", () => {
 
 describe("useReferenceOneFieldController", () => {
   it("resolves the first matching row", async () => {
-    const { capture, spy } = mountOne({}, { id: 1 });
+    const { capture, referenceSpy } = mountOne({}, { id: 1 });
     expect(capture.result?.isPending).toBe(true);
     await vi.waitFor(() => expect(capture.result?.isPending).toBe(false));
     expect(capture.result?.referenceRecord).toMatchObject({
@@ -261,7 +283,8 @@ describe("useReferenceOneFieldController", () => {
       bio: "first",
     });
     expect(capture.result?.error).toBeNull();
-    expect(spy).toHaveBeenCalledWith(
+    expect(referenceSpy).toHaveBeenCalledTimes(1);
+    expect(referenceSpy).toHaveBeenCalledWith(
       "profiles",
       expect.objectContaining({
         target: "post_id",
@@ -278,8 +301,25 @@ describe("useReferenceOneFieldController", () => {
     expect(capture.result?.error).toBeNull();
   });
 
+  it("fetches nothing without a record", async () => {
+    const { capture, referenceSpy, observerCount } = mountOne();
+    await nextTick();
+    expect(capture.result?.isPending).toBe(false);
+    expect(capture.result?.referenceRecord).toBeUndefined();
+    expect(referenceSpy).not.toHaveBeenCalled();
+    expect(observerCount()).toBe(0);
+  });
+
+  it("exposes a getManyReference rejection as error", async () => {
+    const { capture } = mountOne({}, { id: 1 }, new Error("boom"));
+    await vi.waitFor(() =>
+      expect(capture.result?.error).toEqual(new Error("boom")),
+    );
+    expect(capture.result?.referenceRecord).toBeUndefined();
+  });
+
   it("follows a record that arrives late or changes", async () => {
-    const { capture, record, observerCount } = mountOne();
+    const { capture, record, referenceSpy, observerCount } = mountOne();
     expect(capture.result?.referenceRecord).toBeUndefined();
 
     record.value = { id: 1 };
@@ -291,6 +331,7 @@ describe("useReferenceOneFieldController", () => {
     await vi.waitFor(() =>
       expect(capture.result?.referenceRecord).toMatchObject({ bio: "other" }),
     );
+    expect(referenceSpy).toHaveBeenCalledTimes(2);
     expect(observerCount()).toBe(1);
   });
 });

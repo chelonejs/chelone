@@ -3,6 +3,7 @@ import {
   createReferenceOneController,
   type FilterPayload,
   type Identifier,
+  type ListControllerContext,
   type ListControllerState,
   type MicroStore,
   type RecordOf,
@@ -74,33 +75,60 @@ export type UseReferenceOneFieldControllerResult<TRecord> =
       keyof MicroStore<ReferenceOneControllerState<TRecord>>
     >;
 
-/** The value `source` names on the record, read as a foreign-key id. */
-function sourceId(
+/** The foreign key `source` holds on the record; anything but a string or number reads as no key. */
+function foreignKeyOf(
   record: RecordContextValue,
   source: string,
-): Identifier | null | undefined {
-  return (record as Record<string, unknown> | undefined)?.[source] as
-    | Identifier
-    | null
-    | undefined;
+): Identifier | undefined {
+  const value = (record as Record<string, unknown> | undefined)?.[source];
+  return typeof value === "string" || typeof value === "number"
+    ? value
+    : undefined;
 }
 
 /**
- * Holds one inert controller per id. A new id builds a new controller in the
- * render phase (construction is inert, so a discarded render leaves only
- * garbage); `useSyncExternalStore` then moves its subscription over and the
- * old controller releases on its last unsubscribe. No destroy effect, for the
- * reason `useListController` gives.
+ * The bridge both hooks share: resolves the record's foreign key, holds one
+ * inert controller per key, and binds the current one with
+ * `useSyncExternalStore`.
+ *
+ * A new key builds a new controller in the render phase. Construction is inert,
+ * so a discarded render leaves only garbage; `setHeld` during render is React's
+ * documented way to derive state from props, and React re-renders at once with
+ * the new controller. `useSyncExternalStore` then moves its subscription over
+ * and the old controller releases on its last unsubscribe. No destroy effect,
+ * for the reason `useListController` gives.
  */
-function useControllerForId<TController>(
-  id: Identifier | null | undefined,
-  create: (id: Identifier | null | undefined) => TController,
-): TController {
-  const [held, setHeld] = useState(() => ({ id, controller: create(id) }));
-  if (Object.is(held.id, id)) return held.controller;
-  const next = { id, controller: create(id) };
-  setHeld(next);
-  return next.controller;
+function useReferenceFieldBridge<
+  TResources extends ResourceMap,
+  TState,
+  TController extends MicroStore<TState>,
+>(
+  options: ReferenceFieldControllerOptions<string>,
+  create: (
+    ctx: ListControllerContext<TResources>,
+    id: Identifier | undefined,
+  ) => TController,
+): { controller: TController; snapshot: TState } {
+  const ctx = useCheloneContext<TResources>();
+  const record = useRecordContext({ record: options.record });
+  const id = foreignKeyOf(record, options.source ?? "id");
+
+  const [held, setHeld] = useState(() => ({
+    id,
+    controller: create(toControllerContext(ctx), id),
+  }));
+  let controller = held.controller;
+  if (!Object.is(held.id, id)) {
+    controller = create(toControllerContext(ctx), id);
+    setHeld({ id, controller });
+  }
+
+  const snapshot = useSyncExternalStore(
+    controller.subscribe,
+    controller.getSnapshot,
+    controller.getSnapshot,
+  );
+  return { controller, snapshot };
 }
 
 /**
@@ -120,33 +148,21 @@ export function useReferenceManyFieldController<
   options: UseReferenceManyFieldControllerOptions<TName>,
 ): UseReferenceManyFieldControllerResult<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
-  const ctx = useCheloneContext<TResources>();
-  const record = useRecordContext({ record: options.record });
-  const id = sourceId(record, options.source ?? "id");
-
-  const controller = useControllerForId<ReferenceManyController<TRecord>>(
-    id,
-    (value) =>
-      createReferenceManyController(
-        toControllerContext(ctx),
-        options.reference,
-        {
-          target: options.target,
-          id: value,
-          filter: options.filter,
-          sort: options.sort,
-          perPage: options.perPage,
-          storeKey: options.storeKey,
-          debounceMs: options.debounce,
-          enabled: options.enabled,
-        },
-      ),
-  );
-
-  const snapshot = useSyncExternalStore(
-    controller.subscribe,
-    controller.getSnapshot,
-    controller.getSnapshot,
+  const { controller, snapshot } = useReferenceFieldBridge<
+    TResources,
+    ListControllerState<TRecord>,
+    ReferenceManyController<TRecord>
+  >(options, (ctx, id) =>
+    createReferenceManyController(ctx, options.reference, {
+      target: options.target,
+      id,
+      filter: options.filter,
+      sort: options.sort,
+      perPage: options.perPage,
+      storeKey: options.storeKey,
+      debounceMs: options.debounce,
+      enabled: options.enabled,
+    }),
   );
 
   return useMemo(
@@ -181,30 +197,18 @@ export function useReferenceOneFieldController<
   options: UseReferenceOneFieldControllerOptions<TName>,
 ): UseReferenceOneFieldControllerResult<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
-  const ctx = useCheloneContext<TResources>();
-  const record = useRecordContext({ record: options.record });
-  const id = sourceId(record, options.source ?? "id");
-
-  const controller = useControllerForId<ReferenceOneController<TRecord>>(
-    id,
-    (value) =>
-      createReferenceOneController(
-        toControllerContext(ctx),
-        options.reference,
-        {
-          target: options.target,
-          id: value,
-          sort: options.sort,
-          filter: options.filter,
-          enabled: options.enabled,
-        },
-      ),
-  );
-
-  const snapshot = useSyncExternalStore(
-    controller.subscribe,
-    controller.getSnapshot,
-    controller.getSnapshot,
+  const { controller, snapshot } = useReferenceFieldBridge<
+    TResources,
+    ReferenceOneControllerState<TRecord>,
+    ReferenceOneController<TRecord>
+  >(options, (ctx, id) =>
+    createReferenceOneController(ctx, options.reference, {
+      target: options.target,
+      id,
+      sort: options.sort,
+      filter: options.filter,
+      enabled: options.enabled,
+    }),
   );
 
   return useMemo(

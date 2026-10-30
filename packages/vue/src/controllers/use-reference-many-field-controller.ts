@@ -31,7 +31,7 @@ import {
 import { useCheloneContext } from "../context";
 import { RecordContextKey, type RecordValue } from "../record/record-context";
 import { toControllerContext } from "./controller-context";
-import { sourceId, useControllerForId } from "./use-controller-for-id";
+import { foreignKeyOf, useControllerForId } from "./use-controller-for-id";
 
 export interface UseReferenceManyFieldControllerOptions<
   TName extends string = string,
@@ -66,6 +66,12 @@ export type UseReferenceManyFieldControllerReturn<TRecord> =
       keyof MicroStore<ListControllerState<TRecord>>
     >;
 
+/**
+ * The rows of `reference` whose `target` equals `record[source]`, paged by the
+ * server. Returns a reactive view of the controller state plus its stable
+ * actions. A record without a usable id (absent, or not a string or number)
+ * fetches nothing and reads as an empty, settled list.
+ */
 export function useReferenceManyFieldController<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
@@ -75,16 +81,17 @@ export function useReferenceManyFieldController<
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
   const ambient = inject(RecordContextKey, null);
+  const controllerCtx = toControllerContext(ctx);
   const source = options.source ?? "id";
   const id = computed(() =>
-    sourceId(toValue(options.record) ?? ambient?.value, source),
+    foreignKeyOf(toValue(options.record) ?? ambient?.value, source),
   );
 
   const bound = useControllerForId<
     ListControllerState<TRecord>,
     ReferenceManyController<TRecord>
   >(id, (value) =>
-    createReferenceManyController(toControllerContext(ctx), options.reference, {
+    createReferenceManyController(controllerCtx, options.reference, {
       target: options.target,
       id: value,
       filter: options.filter,

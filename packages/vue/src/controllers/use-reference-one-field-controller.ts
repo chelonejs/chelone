@@ -29,7 +29,7 @@ import {
 import { useCheloneContext } from "../context";
 import { RecordContextKey, type RecordValue } from "../record/record-context";
 import { toControllerContext } from "./controller-context";
-import { sourceId, useControllerForId } from "./use-controller-for-id";
+import { foreignKeyOf, useControllerForId } from "./use-controller-for-id";
 
 export interface UseReferenceOneFieldControllerOptions<
   TName extends string = string,
@@ -58,6 +58,10 @@ export type UseReferenceOneFieldControllerReturn<TRecord> =
       keyof MicroStore<ReferenceOneControllerState<TRecord>>
     >;
 
+/**
+ * The first row of `reference` whose `target` equals `record[source]`. A record
+ * without a usable id fetches nothing and reads as settled with no record.
+ */
 export function useReferenceOneFieldController<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
@@ -67,16 +71,17 @@ export function useReferenceOneFieldController<
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
   const ambient = inject(RecordContextKey, null);
+  const controllerCtx = toControllerContext(ctx);
   const source = options.source ?? "id";
   const id = computed(() =>
-    sourceId(toValue(options.record) ?? ambient?.value, source),
+    foreignKeyOf(toValue(options.record) ?? ambient?.value, source),
   );
 
   const bound = useControllerForId<
     ReferenceOneControllerState<TRecord>,
     ReferenceOneController<TRecord>
   >(id, (value) =>
-    createReferenceOneController(toControllerContext(ctx), options.reference, {
+    createReferenceOneController(controllerCtx, options.reference, {
       target: options.target,
       id: value,
       sort: options.sort,

@@ -8,7 +8,6 @@
 
 import type { Identifier, MicroStore } from "@chelone/core";
 import {
-  type EffectScope,
   effectScope,
   onScopeDispose,
   type Ref,
@@ -18,18 +17,29 @@ import {
 import type { RecordValue } from "../record/record-context";
 import { useStore } from "../store/use-store";
 
-export type SourceId = Identifier | null | undefined;
+export type SourceId = Identifier | undefined;
 
 export interface BoundController<TController, TState> {
   controller: TController;
   state: Readonly<Ref<TState>>;
 }
 
-/** The value `source` names on the record, read as a foreign-key id. */
-export function sourceId(record: RecordValue, source: string): SourceId {
-  return (record as Record<string, unknown> | undefined)?.[source] as SourceId;
+/** The foreign key `source` holds on the record; anything but a string or number reads as no key. */
+export function foreignKeyOf(record: RecordValue, source: string): SourceId {
+  const value = (record as Record<string, unknown> | undefined)?.[source];
+  return typeof value === "string" || typeof value === "number"
+    ? value
+    : undefined;
 }
 
+/**
+ * Builds `create(id)` inside a scope of its own and keeps it bound to `id`:
+ * when `id` changes the new controller is built and bound first, then the
+ * previous scope stops, so a `create` that throws leaves the old binding live
+ * and leaks nothing. The returned ref swaps synchronously on a change, so no
+ * frame reads the previous record's rows. Call it from `setup`: the last
+ * binding stops with the caller's scope.
+ */
 export function useControllerForId<
   TState,
   TController extends MicroStore<TState>,
@@ -37,26 +47,33 @@ export function useControllerForId<
   id: Readonly<Ref<SourceId>>,
   create: (id: SourceId) => TController,
 ): Readonly<Ref<BoundController<TController, TState>>> {
-  let scope: EffectScope;
-  const bind = (value: SourceId): BoundController<TController, TState> => {
-    scope = effectScope();
-    // `run` returns undefined only for a stopped scope, and this one is new.
-    return scope.run(() => {
-      const controller = create(value);
-      return { controller, state: useStore<TState>(controller) };
-    }) as BoundController<TController, TState>;
+  const bind = (value: SourceId) => {
+    const scope = effectScope();
+    try {
+      // `run` returns undefined only for a stopped scope, and this one is new.
+      const bound = scope.run(() => {
+        const controller = create(value);
+        return { controller, state: useStore<TState>(controller) };
+      }) as BoundController<TController, TState>;
+      return { scope, bound };
+    } catch (error) {
+      scope.stop();
+      throw error;
+    }
   };
 
-  const bound = shallowRef(bind(id.value));
-  // Sync flush: the swap must not leave a frame reading the previous record's rows.
+  let current = bind(id.value);
+  const bound = shallowRef(current.bound);
   watch(
     id,
     (next) => {
-      scope.stop();
-      bound.value = bind(next);
+      const previous = current;
+      current = bind(next);
+      bound.value = current.bound;
+      previous.scope.stop();
     },
     { flush: "sync" },
   );
-  onScopeDispose(() => scope.stop());
+  onScopeDispose(() => current.scope.stop());
   return bound;
 }

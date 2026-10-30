@@ -67,25 +67,26 @@ function makeHarness(record?: Record<string, unknown>) {
       <RecordContextProvider value={record}>{children}</RecordContextProvider>
     </CheloneProvider>
   );
-  // Only the data queries: the many controller's inner list controller keeps
-  // its own disabled observer on the matching getList key.
-  const observerCount = (): number =>
+  const observerCount = (keyPart?: string): number =>
     queryClient
       .getQueryCache()
       .getAll()
-      .filter((query) => query.queryKey[1] === "getManyReference")
+      .filter((query) => keyPart === undefined || query.queryKey[1] === keyPart)
       .reduce((sum, query) => sum + query.getObserversCount(), 0);
   return {
     wrapper,
     dataProvider,
-    observerCount,
-    spy: vi.spyOn(dataProvider, "getManyReference"),
+    // Every observer, the many controller's inner list observer included.
+    observerCount: () => observerCount(),
+    // Only the observers that fetch.
+    dataObserverCount: () => observerCount("getManyReference"),
+    referenceSpy: vi.spyOn(dataProvider, "getManyReference"),
   };
 }
 
 describe("useReferenceManyFieldController", () => {
   it("lists the rows that point at the ambient record and reports total", async () => {
-    const { wrapper, spy } = makeHarness({ id: 1, title: "one" });
+    const { wrapper, referenceSpy } = makeHarness({ id: 1, title: "one" });
     const { result } = renderHook(
       () =>
         useReferenceManyFieldController<R, "comments">({
@@ -99,15 +100,32 @@ describe("useReferenceManyFieldController", () => {
     await waitFor(() => expect(result.current.isPending).toBe(false));
     expect(result.current.data?.map((row) => row.id)).toEqual([1, 2]);
     expect(result.current.total).toBe(5);
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(
+    expect(referenceSpy).toHaveBeenCalledTimes(1);
+    expect(referenceSpy).toHaveBeenCalledWith(
       "comments",
       expect.objectContaining({ target: "post_id", id: 1 }),
     );
   });
 
+  it("exposes a getManyReference rejection as error", async () => {
+    const { wrapper, referenceSpy } = makeHarness({ id: 1 });
+    referenceSpy.mockRejectedValueOnce(new Error("boom"));
+    const { result } = renderHook(
+      () =>
+        useReferenceManyFieldController<R, "comments">({
+          reference: "comments",
+          target: "post_id",
+        }),
+      { wrapper },
+    );
+    await waitFor(() =>
+      expect(result.current.error).toEqual(new Error("boom")),
+    );
+    expect(result.current.data).toBeUndefined();
+  });
+
   it("setPage, setSort and setFilters reach getManyReference", async () => {
-    const { wrapper, spy } = makeHarness({ id: 1 });
+    const { wrapper, referenceSpy } = makeHarness({ id: 1 });
     const { result } = renderHook(
       () =>
         useReferenceManyFieldController<R, "comments">({
@@ -121,7 +139,7 @@ describe("useReferenceManyFieldController", () => {
 
     act(() => result.current.setPage(2));
     await waitFor(() =>
-      expect(spy).toHaveBeenLastCalledWith(
+      expect(referenceSpy).toHaveBeenLastCalledWith(
         "comments",
         expect.objectContaining({ pagination: { page: 2, perPage: 2 } }),
       ),
@@ -132,7 +150,7 @@ describe("useReferenceManyFieldController", () => {
 
     act(() => result.current.setSort({ field: "body", order: "DESC" }));
     await waitFor(() =>
-      expect(spy).toHaveBeenLastCalledWith(
+      expect(referenceSpy).toHaveBeenLastCalledWith(
         "comments",
         expect.objectContaining({
           sort: { field: "body", order: "DESC" },
@@ -146,15 +164,20 @@ describe("useReferenceManyFieldController", () => {
 
     act(() => result.current.setFilters({ body: "c" }));
     await waitFor(() =>
-      expect(spy).toHaveBeenLastCalledWith(
+      expect(referenceSpy).toHaveBeenLastCalledWith(
         "comments",
         expect.objectContaining({ filter: { body: "c" } }),
       ),
     );
+    await waitFor(() =>
+      expect(result.current.data?.map((row) => row.body)).toEqual(["c"]),
+    );
+    expect(result.current.total).toBe(1);
   });
 
   it("follows a record whose id changes and releases the previous controller", async () => {
-    const { wrapper, spy, observerCount } = makeHarness();
+    const { wrapper, referenceSpy, observerCount, dataObserverCount } =
+      makeHarness();
     const { result, rerender } = renderHook(
       ({ record }: RecordProps) =>
         useReferenceManyFieldController<R, "comments">({
@@ -165,21 +188,24 @@ describe("useReferenceManyFieldController", () => {
       { wrapper, initialProps: { record: { id: 1 } } as RecordProps },
     );
     await waitFor(() => expect(result.current.total).toBe(5));
-    expect(observerCount()).toBe(1);
+    const attached = observerCount();
+    expect(dataObserverCount()).toBe(1);
 
     rerender({ record: { id: 2 } });
     await waitFor(() => expect(result.current.total).toBe(1));
     expect(result.current.data?.map((row) => row.id)).toEqual([6]);
-    expect(spy).toHaveBeenLastCalledWith(
+    expect(referenceSpy).toHaveBeenLastCalledWith(
       "comments",
       expect.objectContaining({ id: 2 }),
     );
-    // The first controller's observer is gone; only the new one remains.
-    expect(observerCount()).toBe(1);
+    expect(referenceSpy).toHaveBeenCalledTimes(2);
+    // The first controller's observers are gone; only the new one's remain.
+    expect(dataObserverCount()).toBe(1);
+    expect(observerCount()).toBe(attached);
   });
 
   it("with no record id fetches nothing", async () => {
-    const { wrapper, spy, observerCount } = makeHarness();
+    const { wrapper, referenceSpy, dataObserverCount } = makeHarness();
     const { result, rerender } = renderHook(
       ({ record }: RecordProps) =>
         useReferenceManyFieldController<R, "comments">({
@@ -192,13 +218,13 @@ describe("useReferenceManyFieldController", () => {
     expect(result.current.data).toEqual([]);
     expect(result.current.total).toBe(0);
     expect(result.current.isPending).toBe(false);
-    expect(spy).not.toHaveBeenCalled();
-    expect(observerCount()).toBe(0);
+    expect(referenceSpy).not.toHaveBeenCalled();
+    expect(dataObserverCount()).toBe(0);
 
     // A record that arrives late is picked up.
     rerender({ record: { id: 1 } });
     await waitFor(() => expect(result.current.total).toBe(5));
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(referenceSpy).toHaveBeenCalledTimes(1);
   });
 
   it("unmount releases every observer", async () => {
@@ -212,7 +238,7 @@ describe("useReferenceManyFieldController", () => {
       { wrapper },
     );
     await waitFor(() => expect(result.current.isPending).toBe(false));
-    expect(observerCount()).toBe(1);
+    expect(observerCount()).toBeGreaterThan(0);
     unmount();
     expect(observerCount()).toBe(0);
   });
@@ -226,7 +252,7 @@ describe("useReferenceManyFieldController", () => {
 
 describe("useReferenceOneFieldController", () => {
   it("resolves the first matching row", async () => {
-    const { wrapper, spy } = makeHarness({ id: 1 });
+    const { wrapper, referenceSpy } = makeHarness({ id: 1 });
     const { result } = renderHook(
       () =>
         useReferenceOneFieldController<R, "profiles">({
@@ -242,7 +268,8 @@ describe("useReferenceOneFieldController", () => {
       bio: "first",
     });
     expect(result.current.error).toBeNull();
-    expect(spy).toHaveBeenCalledWith(
+    expect(referenceSpy).toHaveBeenCalledTimes(1);
+    expect(referenceSpy).toHaveBeenCalledWith(
       "profiles",
       expect.objectContaining({
         target: "post_id",
@@ -267,8 +294,41 @@ describe("useReferenceOneFieldController", () => {
     expect(result.current.error).toBeNull();
   });
 
+  it("fetches nothing without a record", () => {
+    const { wrapper, referenceSpy, observerCount } = makeHarness();
+    const { result } = renderHook(
+      () =>
+        useReferenceOneFieldController<R, "profiles">({
+          reference: "profiles",
+          target: "post_id",
+        }),
+      { wrapper },
+    );
+    expect(result.current.isPending).toBe(false);
+    expect(result.current.referenceRecord).toBeUndefined();
+    expect(referenceSpy).not.toHaveBeenCalled();
+    expect(observerCount()).toBe(0);
+  });
+
+  it("exposes a getManyReference rejection as error", async () => {
+    const { wrapper, referenceSpy } = makeHarness({ id: 1 });
+    referenceSpy.mockRejectedValueOnce(new Error("boom"));
+    const { result } = renderHook(
+      () =>
+        useReferenceOneFieldController<R, "profiles">({
+          reference: "profiles",
+          target: "post_id",
+        }),
+      { wrapper },
+    );
+    await waitFor(() =>
+      expect(result.current.error).toEqual(new Error("boom")),
+    );
+    expect(result.current.referenceRecord).toBeUndefined();
+  });
+
   it("follows a record whose id changes", async () => {
-    const { wrapper, observerCount } = makeHarness();
+    const { wrapper, referenceSpy, observerCount } = makeHarness();
     const { result, rerender } = renderHook(
       ({ record }: RecordProps) =>
         useReferenceOneFieldController<R, "profiles">({
@@ -286,6 +346,7 @@ describe("useReferenceOneFieldController", () => {
     await waitFor(() =>
       expect(result.current.referenceRecord).toMatchObject({ bio: "other" }),
     );
+    expect(referenceSpy).toHaveBeenCalledTimes(2);
     expect(observerCount()).toBe(1);
   });
 });
