@@ -65,6 +65,7 @@ export {
   removeRecordsFromCache,
   updateRecordsInCache,
 } from "./data/cache-ops";
+export { combineDataProviders } from "./data/combine-data-providers";
 export { ValidationError } from "./data/errors";
 export { fakeDataProvider } from "./data/fake-provider";
 export type {
