@@ -10,10 +10,16 @@ import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore } from "../store/micro-store";
 import {
+  createErrorAnnouncer,
   createListController,
+  DEFAULT_SELECT_ALL_LIMIT,
   type ListController,
   type ListControllerContext,
   type ListControllerState,
+  notifyFetchError,
+  notifySelectAllLimit,
+  pageFlags,
+  resetPageTarget,
 } from "./list-controller";
 
 export interface ReferenceManyControllerOptions {
@@ -44,12 +50,6 @@ export interface ReferenceManyControllerOptions {
 export type ReferenceManyController<TRecord> = ListController<TRecord>;
 
 const DEFAULT_PER_PAGE = 25;
-const DEFAULT_SELECT_ALL_LIMIT = 250;
-
-function errorMessageKey(error: unknown): string {
-  const message = error instanceof Error ? error.message : "";
-  return message || "chelone.notification.http_error";
-}
 
 /**
  * A server-paged list of the rows whose `target` equals `id`, read through
@@ -175,18 +175,10 @@ export function createReferenceManyController<
       if (destroyed) return;
       inner.select(result.data.map((record) => (record as ResourceRecord).id));
       mirror();
-      if (result.data.length === limit) {
-        ctx.notifications?.notify("chelone.message.select_all_limit_reached", {
-          type: "warning",
-          messageArgs: { max: limit },
-        });
-      }
+      notifySelectAllLimit(ctx.notifications, result.data.length, limit);
     } catch (error) {
       if (destroyed) return;
-      ctx.notifications?.notify(errorMessageKey(error), {
-        type: "error",
-        messageArgs: { _: String(error) },
-      });
+      notifyFetchError(ctx.notifications, error);
     }
   };
 
@@ -195,66 +187,31 @@ export function createReferenceManyController<
     void observer?.refetch();
   };
 
-  // Only a SETTLED result may reset the page, so a reset-induced refetch
-  // (isFetching) can never re-trigger a reset.
   const maybeResetPage = (): void => {
-    const s = store.getSnapshot();
-    if (s.page <= 0) {
-      inner.setPage(1);
-      mirror();
-      return;
-    }
-    if (s.isPending || s.isFetching) return;
-    if (s.total !== undefined) {
-      const lastPage = Math.max(Math.ceil(s.total / s.perPage), 1);
-      if (s.page > lastPage) {
-        inner.setPage(lastPage);
-        mirror();
-      }
-      return;
-    }
-    if (s.page > 1 && s.data !== undefined && s.data.length === 0) {
-      inner.setPage(1);
-      mirror();
-    }
+    const target = resetPageTarget(store.getSnapshot());
+    if (target === undefined) return;
+    inner.setPage(target);
+    mirror();
   };
 
-  let lastNotifiedError: unknown = null;
+  // query-core clears `error` while a refetch is in flight, so the announcer
+  // is never re-armed: the same error is not announced twice.
+  const errors = createErrorAnnouncer(ctx.notifications);
   const onResult = (
     result: QueryObserverResult<ReferenceResult, Error>,
   ): void => {
     const list = result.data;
     const { page, perPage } = store.getSnapshot();
-    const total = list?.total;
-    const pageInfo = list?.pageInfo;
-    let hasNextPage: boolean | undefined;
-    let hasPreviousPage: boolean | undefined;
-    if (pageInfo) {
-      hasNextPage = pageInfo.hasNextPage;
-      hasPreviousPage = pageInfo.hasPreviousPage;
-    } else if (total !== undefined) {
-      hasNextPage = page * perPage < total;
-      hasPreviousPage = page > 1;
-    }
     store.setState({
       data: list?.data,
-      total,
-      pageInfo,
+      total: list?.total,
+      pageInfo: list?.pageInfo,
       isPending: result.isPending,
       isFetching: result.isFetching,
       error: result.error ?? null,
-      hasNextPage,
-      hasPreviousPage,
+      ...pageFlags(page, perPage, list?.total, list?.pageInfo),
     });
-    // query-core clears `error` while a refetch is in flight; the marker
-    // survives that so the same error is not announced twice.
-    if (result.error && result.error !== lastNotifiedError) {
-      lastNotifiedError = result.error;
-      ctx.notifications?.notify(errorMessageKey(result.error), {
-        type: "error",
-        messageArgs: { _: String(result.error) },
-      });
-    }
+    errors.announce(result.error);
     maybeResetPage();
   };
 

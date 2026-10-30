@@ -101,7 +101,7 @@ interface PersistedListParams {
 
 const DEFAULT_PER_PAGE = 10;
 const DEFAULT_DEBOUNCE_MS = 500;
-const DEFAULT_SELECT_ALL_LIMIT = 250;
+export const DEFAULT_SELECT_ALL_LIMIT = 250;
 const DEFAULT_SORT: SortPayload[] = [{ field: "id", order: "ASC" }];
 
 function normalizeSort(
@@ -154,9 +154,94 @@ export function listParamsFromPatch<TRecord>(
   return next;
 }
 
-function errorMessageKey(error: unknown): string {
+export function errorMessageKey(error: unknown): string {
   const message = error instanceof Error ? error.message : "";
   return message || "chelone.notification.http_error";
+}
+
+/** Notifies a failed fetch under its message, falling back to the generic http error. */
+export function notifyFetchError(
+  notifications: NotificationStore | undefined,
+  error: unknown,
+): void {
+  notifications?.notify(errorMessageKey(error), {
+    type: "error",
+    messageArgs: { _: String(error) },
+  });
+}
+
+/** Warns that `selectAll` stopped at `limit` rows. A short result is complete and stays quiet. */
+export function notifySelectAllLimit(
+  notifications: NotificationStore | undefined,
+  count: number,
+  limit: number,
+): void {
+  if (count !== limit) return;
+  notifications?.notify("chelone.message.select_all_limit_reached", {
+    type: "warning",
+    messageArgs: { max: limit },
+  });
+}
+
+/**
+ * Notifies a distinct error once however many results carry it. `rearm`
+ * forgets the last one, so a controller that wants the same error announced
+ * again after a success can say so.
+ */
+export function createErrorAnnouncer(
+  notifications: NotificationStore | undefined,
+): { announce(error: unknown): void; rearm(): void } {
+  let last: unknown = null;
+  return {
+    announce(error) {
+      if (!error || error === last) return;
+      last = error;
+      notifyFetchError(notifications, error);
+    },
+    rearm() {
+      last = null;
+    },
+  };
+}
+
+/** `hasNextPage`/`hasPreviousPage` from the provider's `pageInfo` or, failing that, the total. */
+export function pageFlags(
+  page: number,
+  perPage: number,
+  total: number | undefined,
+  pageInfo: PageInfo | undefined,
+): Pick<ListControllerState<unknown>, "hasNextPage" | "hasPreviousPage"> {
+  if (pageInfo) {
+    return {
+      hasNextPage: pageInfo.hasNextPage,
+      hasPreviousPage: pageInfo.hasPreviousPage,
+    };
+  }
+  if (total !== undefined) {
+    return { hasNextPage: page * perPage < total, hasPreviousPage: page > 1 };
+  }
+  return { hasNextPage: undefined, hasPreviousPage: undefined };
+}
+
+/**
+ * The page an out-of-range state should move to, or undefined when it is in
+ * range. Only a SETTLED result may move past page 1, so a reset-induced
+ * refetch can never trigger another reset.
+ */
+export function resetPageTarget(
+  s: Pick<
+    ListControllerState<unknown>,
+    "page" | "perPage" | "total" | "data" | "isPending" | "isFetching"
+  >,
+): number | undefined {
+  if (s.page <= 0) return 1;
+  if (s.isPending || s.isFetching) return undefined;
+  if (s.total !== undefined) {
+    const lastPage = Math.max(Math.ceil(s.total / s.perPage), 1);
+    return s.page > lastPage ? lastPage : undefined;
+  }
+  if (s.page > 1 && s.data !== undefined && s.data.length === 0) return 1;
+  return undefined;
 }
 
 /**
@@ -444,18 +529,10 @@ export function createListController<
       writeSelection(
         result.data.map((record) => (record as ResourceRecord).id),
       );
-      if (result.data.length === limit) {
-        ctx.notifications?.notify("chelone.message.select_all_limit_reached", {
-          type: "warning",
-          messageArgs: { max: limit },
-        });
-      }
+      notifySelectAllLimit(ctx.notifications, result.data.length, limit);
     } catch (error) {
       if (destroyed) return;
-      ctx.notifications?.notify(errorMessageKey(error), {
-        type: "error",
-        messageArgs: { _: String(error) },
-      });
+      notifyFetchError(ctx.notifications, error);
     }
   };
 
@@ -467,60 +544,29 @@ export function createListController<
   };
 
   // --- out-of-range page resets (recon rule 2) ---
-  // Guarded: only a SETTLED result may trigger a reset, so a reset-induced
-  // refetch (isFetching) can never re-trigger a reset — no ping-pong.
+  // Guarded by resetPageTarget: only a SETTLED result may trigger a reset, so
+  // a reset-induced refetch (isFetching) can never re-trigger one — no ping-pong.
   const maybeResetPage = (): void => {
-    const s = store.getSnapshot();
-    if (s.page <= 0) {
-      setPage(1);
-      return;
-    }
-    if (s.isPending || s.isFetching) return;
-    if (s.total !== undefined) {
-      const lastPage = Math.max(Math.ceil(s.total / s.perPage), 1);
-      if (s.page > lastPage) setPage(lastPage);
-      return;
-    }
-    if (s.page > 1 && s.data !== undefined && s.data.length === 0) setPage(1);
+    const target = resetPageTarget(store.getSnapshot());
+    if (target !== undefined) setPage(target);
   };
 
   // --- observer result -> state (the observer NEVER gets setOptions from here) ---
-  let lastNotifiedError: unknown = null;
+  const errors = createErrorAnnouncer(ctx.notifications);
   const onResult = (result: QueryObserverResult<ListResult, Error>): void => {
     const list = result.data;
     const { page, perPage } = store.getSnapshot();
-    const total = list?.total;
-    const pageInfo = list?.pageInfo;
-    let hasNextPage: boolean | undefined;
-    let hasPreviousPage: boolean | undefined;
-    if (pageInfo) {
-      hasNextPage = pageInfo.hasNextPage;
-      hasPreviousPage = pageInfo.hasPreviousPage;
-    } else if (total !== undefined) {
-      hasNextPage = page * perPage < total;
-      hasPreviousPage = page > 1;
-    }
     store.setState({
       data: list?.data,
-      total,
-      pageInfo,
+      total: list?.total,
+      pageInfo: list?.pageInfo,
       isPending: result.isPending,
       isFetching: result.isFetching,
       error: result.error ?? null,
-      hasNextPage,
-      hasPreviousPage,
+      ...pageFlags(page, perPage, list?.total, list?.pageInfo),
     });
-    if (result.error) {
-      if (result.error !== lastNotifiedError) {
-        lastNotifiedError = result.error;
-        ctx.notifications?.notify(errorMessageKey(result.error), {
-          type: "error",
-          messageArgs: { _: String(result.error) },
-        });
-      }
-    } else {
-      lastNotifiedError = null;
-    }
+    if (result.error) errors.announce(result.error);
+    else errors.rearm();
     maybeResetPage();
   };
 
