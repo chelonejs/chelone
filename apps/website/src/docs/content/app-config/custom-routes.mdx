@@ -10,32 +10,42 @@ render either inside the layout or standalone.
 
 ## Adding routes
 
-Drop `<CustomRoutes>` among your `<Resource>`s and give it `<Route>` children:
+Drop `<CustomRoutes>` among your `<Resource>`s and give it `<Route>` children.
+Under the default react-router adapter these are react-router `<Route>`s:
 
 ```tsx title="src/App.tsx"
-import { Admin, CustomRoutes, Resource } from "@chelone/react";
+import { Admin, CustomRoutes, Layout, Resource } from "@chelone/react";
 import { Route } from "react-router";
-import { SettingsPage } from "./settings";
 import { AboutPage } from "./about";
+import { dataProvider, queryClient } from "./providers";
+import { PostList } from "./posts";
+import { SettingsPage } from "./settings";
 
-<Admin dataProvider={dataProvider} queryClient={queryClient}>
-  <Admin.Layout>
-    <Layout />
-  </Admin.Layout>
+export function App() {
+  return (
+    <Admin dataProvider={dataProvider} queryClient={queryClient}>
+      <Admin.Layout>
+        <Layout />
+      </Admin.Layout>
 
-  <Resource name="posts" list={PostList} />
+      <Resource name="posts" list={PostList} />
 
-  {/* inside the layout — has the sidebar, app bar, and auth gate */}
-  <CustomRoutes>
-    <Route path="/settings" element={<SettingsPage />} />
-  </CustomRoutes>
+      {/* inside the layout — has the sidebar, app bar, and auth gate */}
+      <CustomRoutes>
+        <Route path="/settings" element={<SettingsPage />} />
+      </CustomRoutes>
 
-  {/* standalone — no layout, auth-agnostic */}
-  <CustomRoutes noLayout>
-    <Route path="/about" element={<AboutPage />} />
-  </CustomRoutes>
-</Admin>;
+      {/* standalone — no layout, auth-agnostic */}
+      <CustomRoutes noLayout>
+        <Route path="/about" element={<AboutPage />} />
+      </CustomRoutes>
+    </Admin>
+  );
+}
 ```
+
+Under another router adapter, use that adapter's own `Route` instead (see
+[Admin](/docs/app-config/admin#swapping-the-router)).
 
 ## Layout vs standalone
 
@@ -51,15 +61,24 @@ You can mix both — one `<CustomRoutes>` for in-shell pages, another with
 
 ## Linking to a custom route
 
-Use the router adapter's navigation — `useNavigate`, `useRedirect`, or a
-`<Link>` — so links work under whichever router adapter the admin runs on:
+Use the router adapter's navigation, `useRedirect` or `useNavigate`, so links
+work under whichever router adapter the admin runs on. A function passed to
+`useRedirect` returns the raw path, which gets the app `basename` prepended:
 
 ```tsx
-import { useNavigate } from "@chelone/react";
+import { useRedirect } from "@chelone/react";
 
-const navigate = useNavigate();
-navigate("/settings");
+export function SettingsButton() {
+  const redirect = useRedirect();
+  return (
+    <button type="button" onClick={() => redirect(() => "/settings")}>
+      Settings
+    </button>
+  );
+}
 ```
+
+`useNavigate` takes the path directly: `navigate("/settings")`.
 
 ## Props
 
@@ -69,5 +88,6 @@ navigate("/settings");
 
 - `noLayout` routes render outside the auth gate — put anything that must stay
   public (a login page, a marketing page) here.
-- Custom routes are matched alongside the resource routes; a custom route can
-  override a resource path by declaring it first.
+- With-layout custom routes always win over resource routes, wherever the
+  `<CustomRoutes>` sits among the children. A custom route can override a resource
+  path, and its position does not matter.

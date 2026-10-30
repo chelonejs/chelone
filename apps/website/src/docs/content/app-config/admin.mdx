@@ -7,7 +7,8 @@ registry: "admin"
 `<Admin>` is the root of a Chelone app. It layers the whole provider stack — the
 **data provider**, the **query client**, optional **i18n**, **notifications**,
 **store**, **auth**, and the **resource registry** — then renders the resources
-and routes you declare as children. Wrap it in a router and you have an admin.
+and routes you declare as children. It joins the router your app already runs, or
+creates its own, so a wrapper router is optional.
 
 ## The minimal admin
 
@@ -15,7 +16,6 @@ and routes you declare as children. Wrap it in a router and you have an admin.
 import { fakeDataProvider } from "@chelone/core";
 import { Admin, Layout, Resource } from "@chelone/react";
 import { QueryClient } from "@tanstack/react-query";
-import { BrowserRouter } from "react-router";
 import { PostList } from "./posts";
 
 const queryClient = new QueryClient();
@@ -23,20 +23,19 @@ const dataProvider = fakeDataProvider({ posts: [] });
 
 export function App() {
   return (
-    <BrowserRouter>
-      <Admin dataProvider={dataProvider} queryClient={queryClient}>
-        <Admin.Layout>
-          <Layout />
-        </Admin.Layout>
-        <Resource name="posts" list={PostList} />
-      </Admin>
-    </BrowserRouter>
+    <Admin dataProvider={dataProvider} queryClient={queryClient}>
+      <Admin.Layout>
+        <Layout />
+      </Admin.Layout>
+      <Resource name="posts" list={PostList} />
+    </Admin>
   );
 }
 ```
 
 `dataProvider` and `queryClient` are the only required props. The rest are opt-in
-services you add as the app grows.
+services you add as the app grows. With no host router, `<Admin>` creates a
+browser router for you.
 
 ## The full stack
 
@@ -52,31 +51,33 @@ import {
 } from "@chelone/core";
 import { Admin, Layout, Resource } from "@chelone/react";
 import { QueryClient } from "@tanstack/react-query";
-import { BrowserRouter } from "react-router";
 import { makeI18n } from "./i18n";
+import { PostEdit, PostList } from "./posts";
 import { resources } from "./resources";
 
 const queryClient = new QueryClient();
-const dataProvider = fakeDataProvider(seed);
+const dataProvider = fakeDataProvider({ posts: [] });
 const i18n = makeI18n();
 const notifications = createNotificationStore();
 const store = createStore();
 
-<BrowserRouter>
-  <Admin
-    dataProvider={dataProvider}
-    queryClient={queryClient}
-    i18n={i18n}
-    notifications={notifications}
-    store={store}
-    resources={resources}
-  >
-    <Admin.Layout>
-      <Layout />
-    </Admin.Layout>
-    <Resource name="posts" list={PostList} edit={PostEdit} />
-  </Admin>
-</BrowserRouter>;
+export function App() {
+  return (
+    <Admin
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+      i18n={i18n}
+      notifications={notifications}
+      store={store}
+      resources={resources}
+    >
+      <Admin.Layout>
+        <Layout />
+      </Admin.Layout>
+      <Resource name="posts" list={PostList} edit={PostEdit} />
+    </Admin>
+  );
+}
 ```
 
 ## The `resources` prop and schema validation
@@ -88,25 +89,102 @@ each resource's Zod schema and validate against it on submit. See
 
 ## The layout slot
 
-`<Admin.Layout>` is the opt-in shell — sidebar, app bar, toaster. Omit it for a
+`<Admin.Layout>` is the opt-in shell: sidebar, app bar, toaster. Omit it for a
 headless admin, or pass your own layout element. Other slots (`<Admin.Dashboard>`,
 `<Admin.LoginPage>`, and the auth/error pages) follow the same pattern.
 
+Each slot also has a prop of the same lowercase name (`layout`, `dashboard`,
+`loginPage`, `catchAll`, and so on). When both are given, the prop wins over the
+slot child:
+
+```tsx
+import { Admin, Resource } from "@chelone/react";
+import { Home, OldHome } from "./home";
+import { dataProvider, queryClient } from "./providers";
+import { PostList } from "./posts";
+
+export function App() {
+  return (
+    <Admin
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+      dashboard={<Home />}
+    >
+      <Admin.Dashboard>
+        <OldHome />
+      </Admin.Dashboard>
+      <Resource name="posts" list={PostList} />
+    </Admin>
+  );
+}
+```
+
+Here `<Home />` renders at the index route and `<OldHome />` never does.
+
+## Auth, basename and permissions
+
+- `requireAuth` gates the whole shell on `authProvider`. While the auth check is in
+  flight the loading page shows, never the layout. An unauthenticated visitor gets
+  the login page. Without an `authProvider` the gate is open.
+- `basename` is the URL prefix the app is served under, such as `/admin`. A router
+  `<Admin>` creates applies it for you. Under a host router, set the same
+  `basename` on that router too.
+- The children can be a function that receives the `permissions` prop, so resources
+  can depend on who is signed in. It may return a promise, and the loading page
+  shows until it resolves.
+
+```tsx title="src/App.tsx"
+import { Admin, Resource } from "@chelone/react";
+import { authProvider, dataProvider, queryClient } from "./providers";
+import { PostList } from "./posts";
+import { UserList } from "./users";
+
+export function App({ permissions }: { permissions: string }) {
+  return (
+    <Admin
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+      authProvider={authProvider}
+      requireAuth
+      basename="/admin"
+      permissions={permissions}
+    >
+      {(role) => (
+        <>
+          <Resource name="posts" list={PostList} />
+          {role === "admin" ? (
+            <Resource name="users" list={UserList} />
+          ) : null}
+        </>
+      )}
+    </Admin>
+  );
+}
+```
+
 ## Swapping the router
 
-`<Admin>` defaults to the react-router adapter. Pass `router={tanstackRouterAdapter}`
-(or a custom adapter) to run under TanStack Router instead — the components speak
-the adapter's navigation contract, not a specific router.
+`<Admin>` defaults to the react-router adapter. Pass a different adapter on
+`router` to run under another router. The components speak the adapter's
+navigation contract, not a specific router.
+
+`@chelone/react/tanstack-router` ships a TanStack Router adapter. It is a
+reference adapter that shows the router seam is neutral, not a second maintained
+router. It creates its own TanStack router on memory history, so the browser URL
+bar does not follow navigation, and it does not join an existing TanStack router.
+Its custom routes must use the adapter's own `Route`, not react-router's:
 
 ```tsx title="src/App.tsx"
 import { fakeDataProvider } from "@chelone/core";
-import { Admin, Layout, Resource } from "@chelone/react";
+import { Admin, CustomRoutes, Layout, Resource } from "@chelone/react";
 import { tanstackRouterAdapter } from "@chelone/react/tanstack-router";
 import { QueryClient } from "@tanstack/react-query";
 import { PostList } from "./posts";
+import { SettingsPage } from "./settings";
 
 const queryClient = new QueryClient();
 const dataProvider = fakeDataProvider({ posts: [] });
+const { Route } = tanstackRouterAdapter;
 
 export function App() {
   return (
@@ -119,14 +197,17 @@ export function App() {
         <Layout />
       </Admin.Layout>
       <Resource name="posts" list={PostList} />
+      <CustomRoutes>
+        <Route path="/settings" element={<SettingsPage />} />
+      </CustomRoutes>
     </Admin>
   );
 }
 ```
 
-The adapter creates its own TanStack router, so there is no `<BrowserRouter>` here.
-It lives on its own entry so `@chelone/react` loads without `@tanstack/react-router`,
-an optional peer. Install that peer only when you use this adapter.
+The adapter lives on its own entry so `@chelone/react` loads without
+`@tanstack/react-router`, an optional peer. Install that peer only when you use
+this adapter.
 
 ## Props
 
@@ -134,8 +215,8 @@ an optional peer. Install that peer only when you use this adapter.
 
 ## Tips
 
-- With the default react-router adapter, `<Admin>` must render inside a router
-  (`<BrowserRouter>`, or your framework's router) — it joins the host router
-  rather than creating its own.
+- With the default react-router adapter, `<Admin>` joins a router above it
+  (`<BrowserRouter>`, or your framework's router) and creates its own browser
+  router when there is none.
 - Create the `QueryClient` and the data provider at module scope (stable across
   renders), not inside the component body.
