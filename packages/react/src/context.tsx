@@ -112,7 +112,7 @@ export function useChelonI18n(): AnyChelonI18n {
 /**
  * Optional-returning by design: notifications are an optional service, and
  * some consumers (e.g. controllers) degrade gracefully without one. Hooks
- * that REQUIRE the store (useNotify/useNotifications) throw on undefined.
+ * that REQUIRE the store (useNotify) throw on undefined.
  */
 export function useChelonNotifications(): NotificationStore | undefined {
   return useCheloneContext().notifications;
