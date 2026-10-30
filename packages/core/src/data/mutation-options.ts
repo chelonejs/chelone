@@ -1,6 +1,6 @@
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { patchManyEntries } from "./cache-ops";
-import { oneKey, resourceKey } from "./keys";
+import { manyKeyPrefix, oneKey, resourceKey } from "./keys";
 import type { DataContext } from "./query-options";
 import type { CreateParams, DeleteParams, UpdateParams } from "./types";
 
@@ -63,9 +63,11 @@ export function updateMutationOptions<
         ctx.queryClient.setQueryData(key, merged);
       }
       // Reference fields read the getMany entries, not oneKey.
-      const manyKeyPrefix = [resource, "getMany"];
+      await ctx.queryClient.cancelQueries({
+        queryKey: manyKeyPrefix(resource),
+      });
       const manySnapshot = ctx.queryClient.getQueriesData({
-        queryKey: manyKeyPrefix,
+        queryKey: manyKeyPrefix(resource),
       });
       patchManyEntries(
         ctx.queryClient,

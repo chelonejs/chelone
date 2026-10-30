@@ -124,6 +124,48 @@ describe("mutation option factories", () => {
     ]);
   });
 
+  it("optimistic update cancels an in-flight getMany so its result cannot overwrite the patch", async () => {
+    const c = seed();
+    const key = manyKey("posts", { ids: [1] });
+    c.queryClient.setQueryData(key, [
+      { id: 1, title: "a", at: new Date(2026, 0, 1) },
+    ]);
+    let resolveFetch!: (records: unknown[]) => void;
+    const inFlight = c.queryClient.fetchQuery({
+      queryKey: key,
+      queryFn: () =>
+        new Promise<unknown[]>((resolve) => {
+          resolveFetch = resolve;
+        }),
+      staleTime: 0,
+    });
+    inFlight.catch(() => undefined);
+    await vi.waitFor(() => expect(resolveFetch).toBeTypeOf("function"));
+    let resolveUpdate!: () => void;
+    const gated: DataProvider<R> = {
+      ...c.dataProvider,
+      update: (resource, params) =>
+        new Promise((resolve) => {
+          resolveUpdate = () =>
+            resolve(c.dataProvider.update(resource, params) as never);
+        }),
+    };
+    const ctx = { dataProvider: gated, queryClient: c.queryClient };
+    const observer = new MutationObserver(
+      c.queryClient,
+      updateMutationOptions(ctx, "posts", { mutationMode: "optimistic" }),
+    );
+    const done = observer.mutate({ id: 1, data: { title: "patched" } });
+    await vi.waitFor(() => expect(resolveUpdate).toBeTypeOf("function"));
+    resolveFetch([{ id: 1, title: "stale", at: new Date(2026, 0, 1) }]);
+    await inFlight.catch(() => undefined);
+    expect(c.queryClient.getQueryData(key)).toMatchObject([
+      { id: 1, title: "patched" },
+    ]);
+    resolveUpdate();
+    await done;
+  });
+
   it("optimistic delete removes the cache entry and restores it on error", async () => {
     const c = seed();
     await c.queryClient.fetchQuery(getOneOptions(c, "posts", { id: 1 }));

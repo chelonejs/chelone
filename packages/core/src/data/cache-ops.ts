@@ -1,7 +1,7 @@
 import type { QueryClient } from "@tanstack/query-core";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
-import { oneKey } from "./keys";
+import { manyKeyPrefix, oneKey } from "./keys";
 import type { GetListResult } from "./types";
 
 /**
@@ -103,7 +103,7 @@ export function patchManyEntries(
   data: Record<string, unknown>,
 ): void {
   const manys = queryClient.getQueriesData<ResourceRecord[]>({
-    queryKey: [resource, "getMany"],
+    queryKey: manyKeyPrefix(resource),
   });
   for (const [key, value] of manys) {
     if (!value) continue;
