@@ -127,9 +127,9 @@ Here `<Home />` renders at the index route and `<OldHome />` never does.
   flight the loading page shows, never the layout. An unauthenticated visitor gets
   the login page. Without an `authProvider` the gate is open.
 - `basename` is the URL prefix the app is served under. A router `<Admin>` creates
-  applies it, and Chelone also prepends it to the links it builds. Those two
-  prefixes currently stack, so links come out as `/admin/admin/posts`. Leave
-  `basename` unset until that is fixed.
+  applies it, so links and redirects come out prefixed once. Under a host router,
+  set it to the path the host mounts `<Admin>` at, relative to the host router's
+  own `basename`, and Chelone prepends it to the links it builds.
 - The children can be a function that receives the `permissions` prop, so resources
   can depend on who is signed in. It may return a promise, and the loading page
   shows until it resolves. A `ready` slot, if you set one, shows in its place

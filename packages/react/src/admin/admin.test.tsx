@@ -21,7 +21,15 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { Layout } from "../components/admin/layout/layout";
 import { ThemeProvider } from "../components/admin/layout/theme-provider";
 import { CheloneProvider, useCheloneContext } from "../context";
@@ -34,6 +42,7 @@ import {
 import { Resource } from "../resource/resource";
 import { useRouterAdapter } from "../router/adapter";
 import { useBasename } from "../router/context";
+import { useRedirect } from "../router/nav-hooks";
 import { reactRouterAdapter } from "../router/react-router-adapter";
 import { tanstackRouterAdapter } from "../router/tanstack-router-adapter";
 import { Admin } from "./admin";
@@ -387,6 +396,103 @@ describe("<Admin> — optional services", () => {
     } finally {
       error.mockRestore();
     }
+  });
+});
+
+describe("<Admin> — basename prefixes each link once", () => {
+  function Redirector() {
+    const redirect = useRedirect();
+    return (
+      <button type="button" onClick={() => redirect("list", "settings")}>
+        go to settings
+      </button>
+    );
+  }
+
+  // jsdom's AbortSignal is not undici's, so react-router's `new Request(url,
+  // { signal })` throws and no navigation of a created data router completes.
+  // A bare Request stand-in lets the navigation land in window.location.
+  beforeEach(() => {
+    vi.stubGlobal(
+      "Request",
+      class {
+        method = "GET";
+        signal: unknown;
+        constructor(
+          public url: string,
+          init?: { method?: string; signal?: unknown },
+        ) {
+          this.method = init?.method ?? "GET";
+          this.signal = init?.signal;
+        }
+      },
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    window.history.pushState({}, "", "/");
+  });
+
+  it("a created router with basename links a resource menu item to /admin/posts once", async () => {
+    // The created router applies '/admin' itself, so the URL must sit under it.
+    window.history.pushState({}, "", "/admin");
+    render(
+      <Admin
+        dataProvider={dataProvider}
+        queryClient={makeQueryClient()}
+        basename="/admin"
+      >
+        <Admin.Layout>
+          <Layout />
+        </Admin.Layout>
+        <Resource name="posts" list={List} />
+      </Admin>,
+    );
+
+    const link = await screen.findByRole("link", { name: /posts/i });
+    expect(link.getAttribute("href")).toBe("/admin/posts");
+  });
+
+  it("a created router with basename redirects to /admin/settings once", async () => {
+    window.history.pushState({}, "", "/admin");
+    render(
+      <Admin
+        dataProvider={dataProvider}
+        queryClient={makeQueryClient()}
+        basename="/admin"
+      >
+        <Admin.Dashboard>
+          <Redirector />
+        </Admin.Dashboard>
+      </Admin>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /go to settings/i }));
+
+    await waitFor(() =>
+      expect(window.location.pathname).toBe("/admin/settings"),
+    );
+  });
+
+  it("under a host router, basename is the mount path and prefixes links once", async () => {
+    render(
+      <MemoryRouter initialEntries={["/admin"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          basename="/admin"
+        >
+          <Admin.Layout>
+            <Layout />
+          </Admin.Layout>
+          <Resource name="posts" list={List} />
+        </Admin>
+      </MemoryRouter>,
+    );
+
+    const link = await screen.findByRole("link", { name: /posts/i });
+    expect(link.getAttribute("href")).toBe("/admin/posts");
   });
 });
 
