@@ -85,7 +85,9 @@ and the selection are handed to the descendants through the list context; the
 anything more (default filters, a permanent filter, a default sort, a
 different store key) call `useListController` yourself and provide the result
 with `ListContextProvider`. `ListView` is the same title, actions and body
-layout `<List>` renders:
+layout `<List>` renders. It reads the resource from context, not from the
+controller, so render the component inside a `<Resource>` or a
+`ResourceContextProvider`, or `ListView` throws:
 
 ```tsx title="src/posts.tsx"
 import {
@@ -133,15 +135,20 @@ a link you can share.
 - The params are `filter` and `displayedFilters` (both JSON), `sort`, `order`
   (`ASC` or `DESC`), `page` and `perPage`. Malformed values are ignored. The URL
   carries the primary sort only.
-- Opening a URL that carries any of these seeds the first fetch from it. A clean
-  URL keeps the defaults.
+- Opening a URL that carries a custom param seeds the first fetch from it. A
+  param is custom when it sets a filter with at least one key, a `sort` or
+  `order`, a `perPage`, or a `page` other than 1. A URL without one, such as
+  `/posts`, `/posts?page=1`, `/posts?filter={}` or one with only
+  `displayedFilters`, is treated as clean: the saved params, then the defaults,
+  apply, even though the address bar shows the URL.
 - A change to page, sort, filters or page size replaces the current history
   entry. It does not push a new one, so the back button leaves the list rather
   than stepping through each page or keystroke. The mount itself writes nothing:
   a clean URL stays clean until the user changes something.
 - If the location changes after the list has mounted (a followed link, or back
-  and forward between two URLs of the same list) the params re-seed from the new
-  URL.
+  and forward between two URLs of the same list) a URL with custom params
+  re-seeds the list from it. A URL without any leaves the list as it is, so
+  following a plain link to `/posts` does not reset a filtered list.
 - The params are also saved in the store under `<resource>.listParams`. When the
   URL carries no list params, the list restores the saved ones, then falls back
   to the options (`perPage`, `sort`, `filterDefaultValues`). Pass

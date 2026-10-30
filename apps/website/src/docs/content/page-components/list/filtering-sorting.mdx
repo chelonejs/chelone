@@ -99,7 +99,8 @@ does not change it. Changing a filter also sends the list back to page 1.
 `useListController` and provide the result with `ListContextProvider`. The
 defaults apply when neither the URL nor the store holds saved list params, so
 the first visit uses them and a later visit restores what the user left. A seeded
-filter shows in the form even when it is not `alwaysOn`:
+filter shows in the form even when it is not `alwaysOn`. `ListView` reads the
+resource from context, so render this inside a `<Resource>`:
 
 ```tsx title="src/posts.tsx"
 import {

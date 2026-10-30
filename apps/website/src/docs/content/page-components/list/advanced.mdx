@@ -67,6 +67,8 @@ export function PostList() {
 Call `useListController(resource, options)` when `<List>`'s props are not
 enough, and provide the result with `ListContextProvider`. The options are read
 once, when the list mounts. Give the component a `key` to change them later.
+`ListView` reads the resource from context, so render it inside a `<Resource>`
+or a `ResourceContextProvider`.
 
 | Option | Default | Effect |
 | --- | --- | --- |
