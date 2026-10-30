@@ -19,11 +19,11 @@
 3. Add the token as the repository Actions secret `NPM_TOKEN`. In Actions > Release >
    Run workflow, select `main` and run it manually to open the version PR.
 4. Review the versions and changelogs, then merge that PR to `main`.
-   The workflow builds, checks the package tarballs, and publishes all three to npm.
+   The workflow lints, typechecks, tests, builds, checks tarballs, and publishes all three.
    pnpm applies `publishConfig` and replaces `workspace:*` with the package version.
 5. Check the workflow result and the three npm package versions.
 
 For later releases, add and merge a changeset, then merge the resulting version PR.
-Regular PRs need no changeset. The workflow runs only in `chelonejs/chelone`, on pushes
-to `main` or manual runs. It requests no provenance while the repository is private.
+Regular PRs need no changeset. The workflow runs only in `chelonejs/chelone` on `main`,
+on pushes or manual runs. It requests no provenance while the repository is private.
 The npm organization, token, and secret require maintainer setup and cannot be verified here.

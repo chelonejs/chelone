@@ -9,7 +9,7 @@
     "lint": "biome check .",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "pnpm build && pnpm --filter \"./packages/*\" run check:pack && changeset publish"
+    "release": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm --filter \"./packages/*\" run check:pack && changeset publish"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
