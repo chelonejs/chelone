@@ -499,6 +499,7 @@ describe("<TabbedForm> inside <Edit>", () => {
     const update = vi.spyOn(dataProvider, "update");
     // Required by the props, but inside <Edit> the view's own save runs.
     const ownSave = vi.fn(async () => undefined);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     renderInEditRoute(
       dataProvider,
       <Edit title={false}>
@@ -531,9 +532,13 @@ describe("<TabbedForm> inside <Edit>", () => {
       body: "Body",
     });
     expect(ownSave).not.toHaveBeenCalled();
+    // A nested standalone form lands here too, so its dropped save is named.
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(/<TabbedForm>.*ignored.*save/),
+    );
   });
 
-  it("warns that form options other than save are ignored inside Edit", async () => {
+  it("warns that form options are ignored inside Edit", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     renderInEditRoute(
       fakeDataProvider({ posts: [{ id: 1, title: "Original" }] }),

@@ -33,11 +33,12 @@ function AmbientFormScope({
   options: object;
   children: FormScopeProps<unknown>["children"];
 }) {
-  // The ambient form was built by the view, so `validate`, `schema`, `onSuccess`
-  // and the rest cannot reach it from here. `save` is a required prop, so it is
-  // not worth a warning.
+  // The ambient form was built by the view, so `save`, `validate`, `schema`,
+  // `onSuccess` and the rest cannot reach it from here. `save` is named too: a
+  // standalone form nested in a view (a quick-create dialog) lands here and its
+  // own save is never called.
   const ignored = Object.entries(options)
-    .filter(([key, value]) => key !== "save" && value !== undefined)
+    .filter(([, value]) => value !== undefined)
     .map(([key]) => key)
     .join(", ");
   useEffect(() => {
