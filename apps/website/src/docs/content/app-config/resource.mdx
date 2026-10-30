@@ -1,6 +1,6 @@
 ---
 title: "Resource"
-description: "Declare an entity, its CRUD views, its routes — and its Zod schema."
+description: "Declare an entity, its CRUD views and its routes. Its Zod schema comes from defineResources."
 registry: "resource"
 ---
 
@@ -25,15 +25,16 @@ import { PostCreate, PostEdit, PostList, PostShow } from "./posts";
 ```
 
 This registers four routes — `/posts`, `/posts/create`, `/posts/:id`,
-`/posts/:id/show` — and tells the sidebar the resource has a list, and the list
-rows they can be edited/shown.
+`/posts/:id/show` — and tells the sidebar the resource has a list. Because the
+resource also has edit and show views, the list rows link to them.
 
 ## Point at a Zod schema
 
-The other half of a resource is its **schema**. Register it with
-`defineResources`, then hand the registry to `<Admin resources={…}>`. Because the
-resource carries a schema, its Create/Edit forms validate against it
-automatically — no per-input `validate` props:
+The other half of a resource is its **schema**. `<Resource>` has no `schema` prop:
+the schema comes from `defineResources`, keyed by the resource name. Hand the
+registry to `<Admin resources={…}>`. Because the resource carries a schema, its
+Create/Edit forms validate against it automatically — no per-input `validate`
+props:
 
 ```tsx title="src/resources/index.ts"
 import { defineResources } from "@chelone/core";
@@ -53,9 +54,22 @@ export const resources = defineResources({
 ```
 
 ```tsx title="src/App.tsx"
-<Admin dataProvider={dataProvider} queryClient={queryClient} resources={resources}>
-  <Resource name="posts" list={PostList} edit={PostEdit} />
-</Admin>
+import { Admin, Resource } from "@chelone/react";
+import { dataProvider, queryClient } from "./providers";
+import { PostEdit, PostList } from "./posts";
+import { resources } from "./resources";
+
+export function App() {
+  return (
+    <Admin
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+      resources={resources}
+    >
+      <Resource name="posts" list={PostList} edit={PostEdit} />
+    </Admin>
+  );
+}
 ```
 
 The schema is the single source of truth: it types the records **and** drives
@@ -74,6 +88,10 @@ function, or a node) — used in titles and breadcrumbs. `icon` sets the menu ic
 and `options.group` buckets the resource under a sidebar group.
 
 ```tsx
+import { Resource } from "@chelone/react";
+import { FileText } from "lucide-react";
+import { PostList } from "./posts";
+
 <Resource
   name="posts"
   list={PostList}
