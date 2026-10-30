@@ -174,6 +174,12 @@ function openPicker() {
   if (!isDisabled.value) fileInputRef.value?.click();
 }
 
+// A template `as` cast spanning lines is a parse error for vue-tsc, so the key lives here.
+function fileKey(file: LooseRecord, index: number): string | number {
+  const named = file as { rawFile?: { name?: string }; src?: string };
+  return named.rawFile?.name ?? named.src ?? index;
+}
+
 function onRemove(file: LooseRecord) {
   if (props.multiple) {
     setValue(files.value.filter((stateFile) => !shallowEqual(stateFile, file)));
@@ -235,11 +241,7 @@ function onRemove(file: LooseRecord) {
     >
       <FileInputPreview
         v-for="(file, index) in files"
-        :key="
-          (file as { rawFile?: { name?: string } }).rawFile?.name ??
-          (file as { src?: string }).src ??
-          index
-        "
+        :key="fileKey(file, index)"
         :file="file"
         @remove="onRemove(file)"
       >

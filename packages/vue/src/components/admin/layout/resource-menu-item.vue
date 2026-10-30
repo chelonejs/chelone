@@ -68,7 +68,7 @@ const { canAccess, isPending: isAccessPending } = useMenuAccess(
     :to="to"
     :label="label"
     :icon="icon"
-    :class="class"
+    :class="props.class"
     :on-click="onClick"
   />
 </template>

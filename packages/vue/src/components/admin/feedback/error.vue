@@ -94,7 +94,7 @@ function goBack(): void {
     :error-info="errorInfo"
     :reset-error-boundary="resetErrorBoundary"
   />
-  <div v-else class="flex flex-col items-center md:p-16 gap-5" :class="class">
+  <div v-else class="flex flex-col items-center md:p-16 gap-5" :class="props.class">
     <Title
       v-if="title"
       :default-title="typeof title === 'string' ? title : undefined"

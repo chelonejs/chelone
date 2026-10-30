@@ -71,7 +71,7 @@ const text = computed(() => translate(props.label, { _: props.label }));
       :as="RouterLink"
       :to="to"
       :is-active="isActive"
-      :class="class"
+      :class="props.class"
       @click="onClick?.()"
     >
       <component :is="icon" v-if="icon" />

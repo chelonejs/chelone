@@ -56,7 +56,7 @@ const names = computed(
 </script>
 
 <template>
-  <SidebarGroup v-if="names.length > 0" :class="class">
+  <SidebarGroup v-if="names.length > 0" :class="props.class">
     <SidebarGroupLabel v-if="label">{{ label }}</SidebarGroupLabel>
     <SidebarGroupContent>
       <SidebarMenu :class="menuClass">
