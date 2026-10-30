@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
 
@@ -22,24 +23,32 @@ const isExternal = (id: string) =>
 // through them, and the build must inline them as relative paths.
 const src = fileURLToPath(new URL("./src", import.meta.url));
 
-const dist = fileURLToPath(new URL("./dist", import.meta.url));
+// `build-registry.mjs` writes the shadcn registry output to `dist/r`.
+const REGISTRY_FOLDER = "r";
 
 // `emptyOutDir` is off because `dist/r` holds the registry output, so stale
-// files are removed here instead, sparing only that folder.
-const cleanDist: Plugin = {
-  name: "clean-dist-except-registry",
-  buildStart() {
-    if (!existsSync(dist)) return;
-    for (const entry of readdirSync(dist, { withFileTypes: true })) {
-      if (entry.name !== "r") {
-        rmSync(`${dist}/${entry.name}`, { recursive: true, force: true });
+// files are removed here instead, sparing only that folder. The folder comes
+// from the resolved config, so it is the one Vite writes to.
+const cleanDist = (): Plugin => {
+  let outDir = "";
+  return {
+    name: "clean-dist-except-registry",
+    configResolved(config) {
+      outDir = resolve(config.root, config.build.outDir);
+    },
+    buildStart() {
+      if (!existsSync(outDir)) return;
+      for (const entry of readdirSync(outDir, { withFileTypes: true })) {
+        if (entry.name !== REGISTRY_FOLDER) {
+          rmSync(`${outDir}/${entry.name}`, { recursive: true, force: true });
+        }
       }
-    }
-  },
+    },
+  };
 };
 
 export default defineConfig({
-  plugins: [cleanDist],
+  plugins: [cleanDist()],
   resolve: {
     alias: {
       "@/components": `${src}/components`,
