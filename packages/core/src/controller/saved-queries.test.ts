@@ -148,6 +148,15 @@ describe("saved queries", () => {
     expect(store.getItem("posts.savedQueries")).toEqual([query("B")]);
   });
 
+  it("remove trims the label the way save does", () => {
+    const controller = createSavedQueriesController({}, "posts");
+    controller.save(" Foo ", value());
+
+    controller.remove("  Foo ");
+
+    expect(controller.getSnapshot().queries).toEqual([]);
+  });
+
   it("two controllers on one store follow each other through the store key", () => {
     const store = createStore();
     const first = createSavedQueriesController({ store }, "posts");

@@ -156,9 +156,10 @@ export function createSavedQueriesController(
   };
 
   const remove = (label: string): void => {
+    const trimmed = label.trim();
     const { queries } = store.getSnapshot();
-    if (!queries.some((query) => query.label === label)) return;
-    write(queries.filter((query) => query.label !== label));
+    if (!queries.some((query) => query.label === trimmed)) return;
+    write(queries.filter((query) => query.label !== trimmed));
   };
 
   return { ...store, save, remove };

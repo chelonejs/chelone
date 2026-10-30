@@ -36,19 +36,6 @@ export {
   serializeListParams,
 } from "./controller/list-params";
 export type {
-  SavedQueriesController,
-  SavedQueriesControllerOptions,
-  SavedQueriesState,
-  SavedQuery,
-  SavedQueryValue,
-} from "./controller/saved-queries";
-export {
-  createSavedQueriesController,
-  extractValidSavedQueries,
-  isSavedQueryActive,
-  savedQueriesKey,
-} from "./controller/saved-queries";
-export type {
   CreateController,
   CreateControllerOptions,
   CreateControllerState,
@@ -74,6 +61,19 @@ export {
   createEditController,
   createShowController,
 } from "./controller/record-controllers";
+export type {
+  SavedQueriesController,
+  SavedQueriesControllerOptions,
+  SavedQueriesState,
+  SavedQuery,
+  SavedQueryValue,
+} from "./controller/saved-queries";
+export {
+  createSavedQueriesController,
+  extractValidSavedQueries,
+  isSavedQueryActive,
+  savedQueriesKey,
+} from "./controller/saved-queries";
 export { resolveNotificationKey } from "./controller/translate-fallback";
 export {
   removeRecordsFromCache,
