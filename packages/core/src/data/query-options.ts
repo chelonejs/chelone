@@ -1,11 +1,13 @@
 import type { QueryClient } from "@tanstack/query-core";
 import type { Identifier } from "../resource/identifier";
 import type { RecordOf, ResourceMap } from "../resource/registry";
-import { listKey, manyKey, oneKey } from "./keys";
+import { listKey, manyKey, manyReferenceKey, oneKey } from "./keys";
 import type {
   DataProvider,
   GetListParams,
   GetManyParams,
+  GetManyReferenceParams,
+  GetManyReferenceResult,
   GetOneParams,
 } from "./types";
 
@@ -63,6 +65,26 @@ export function getManyOptions<
       const result = await ctx.dataProvider.getMany(resource, params);
       seedRecords(ctx.queryClient, resource, result.data);
       return result.data;
+    },
+  };
+}
+
+export function getManyReferenceOptions<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(
+  ctx: DataContext<TResources>,
+  resource: TName,
+  params: GetManyReferenceParams,
+) {
+  return {
+    queryKey: manyReferenceKey(resource, params),
+    queryFn: async (): Promise<
+      GetManyReferenceResult<RecordOf<TResources, TName>>
+    > => {
+      const result = await ctx.dataProvider.getManyReference(resource, params);
+      seedRecords(ctx.queryClient, resource, result.data);
+      return result;
     },
   };
 }
