@@ -49,23 +49,125 @@ works with zero backend.
 
 ## Writing your own
 
-Any object that satisfies the interface is a valid provider. A thin REST adapter
-maps each method to a `fetch`:
+Any object that satisfies the interface is a valid provider. `fetchUtils` is a
+thin layer over `fetch` for the REST case: `fetchJson` sends the request and
+parses the body, and `queryParameters` builds the query string.
 
 ```ts
+import { fetchUtils } from "@chelone/core";
 import type { DataProvider } from "@chelone/core";
 
+const { fetchJson, queryParameters } = fetchUtils;
+
+// Each verb is generic in the resource name, so TypeScript cannot match a
+// parsed body to the record type: `as never` hands that check to your backend.
 export const dataProvider: DataProvider = {
-  async getList(resource, params) {
-    const res = await fetch(`/api/${resource}?${toQuery(params)}`);
-    return { data: await res.json(), total: Number(res.headers.get("X-Total")) };
+  async getList(resource, { pagination, sort, filter }) {
+    const query = queryParameters({ ...pagination, sort, filter });
+    const { json, headers } = await fetchJson(`/api/${resource}?${query}`);
+    if (!Array.isArray(json)) throw new Error(`Expected a list from ${resource}`);
+    // `total` is optional: leave it out when the backend sends no count.
+    const count = headers.get("X-Total");
+    return {
+      data: json as never,
+      total: count === null ? undefined : Number(count),
+    };
   },
   async getOne(resource, { id }) {
-    const res = await fetch(`/api/${resource}/${id}`);
-    return { data: await res.json() };
+    const { json } = await fetchJson(`/api/${resource}/${id}`);
+    return { data: json as never };
   },
   // …create / update / delete / getMany / …
 };
+```
+
+`fetchJson(url, options)` takes the options of `fetch` plus a `token`, which it
+sends as `Authorization: Bearer <token>`. It resolves
+`{ status, statusText, headers, body, json }` on a 2xx. `queryParameters` skips
+`undefined` and `null`, repeats the key for an array, writes a `Date` as an ISO
+string, and JSON-encodes any other object.
+
+## HttpError
+
+`fetchJson` rejects a non-2xx response with an `HttpError`. It carries the
+`status` and the parsed response `body`, so the auth provider can tell an expired
+session from any other failure. Rejecting from `checkError` logs the user out, so
+reject on a 401 or 403:
+
+```ts
+import { HttpError } from "@chelone/core";
+import type { AuthProvider } from "@chelone/core";
+
+export const authProvider: Pick<AuthProvider, "checkError"> = {
+  async checkError(error) {
+    if (
+      error instanceof HttpError &&
+      (error.status === 401 || error.status === 403)
+    ) {
+      throw error;
+    }
+  },
+};
+```
+
+A network failure is not an `HttpError`: `fetchJson` rejects it with the error
+`fetch` threw.
+
+## Combining providers
+
+When resources live in different backends, `combineDataProviders` takes a
+matcher that picks the provider for each resource. The matcher runs on every
+call, and a resource it returns nothing for rejects with an error.
+
+```ts
+import { combineDataProviders } from "@chelone/core";
+import { catalogProvider } from "./catalogProvider";
+import { billingProvider } from "./billingProvider";
+
+export const dataProvider = combineDataProviders((resource) => {
+  switch (resource) {
+    case "invoices":
+    case "payments":
+      return billingProvider;
+    default:
+      return catalogProvider;
+  }
+});
+```
+
+## Lifecycle callbacks
+
+`withLifecycleCallbacks` wraps a provider with `before` and `after` hooks for
+any of the nine verbs, such as `beforeCreate` or `afterGetOne`. Each handler
+names a `resource`, or `"*"` for every resource. Handlers run in array order,
+the `before` chain feeds the provider, and the `after` chain feeds the caller.
+Every callback must return the value, since `undefined` does not mean unchanged.
+Each callback also receives the wrapped provider as its last argument; calling it
+does not re-enter the callbacks.
+
+```ts
+import { withLifecycleCallbacks } from "@chelone/core";
+import { baseProvider } from "./baseProvider";
+
+export const dataProvider = withLifecycleCallbacks(baseProvider, [
+  {
+    resource: "posts",
+    beforeCreate: (params) => ({
+      ...params,
+      data: { ...params.data, createdAt: new Date().toISOString() },
+    }),
+    afterGetOne: (result) => ({
+      ...result,
+      data: {
+        ...result.data,
+        title:
+          typeof result.data.title === "string"
+            ? result.data.title.trim()
+            : result.data.title,
+      },
+    }),
+  },
+]);
 ```
 
 ## Using the provider
@@ -86,3 +188,6 @@ await dataProvider.getOne("posts", { id: 1 });
   control.
 - Errors are thrown/rejected promises; the query cache surfaces them to the
   view, and `checkError` on the auth provider can react to 401/403.
+- Reference fields share one `getMany` per resource: they read through
+  `useGetManyAggregate`, which batches reads started in the same tick into a
+  single call, so a list of fifty posts asks for its authors once.

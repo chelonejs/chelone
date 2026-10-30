@@ -43,7 +43,8 @@ function PublishButton({ id }: { id: number }) {
 ```
 
 The full set: `useCreate`, `useUpdate`, `useDelete` for writes, and `useGetOne`,
-`useGetList`, `useGetMany` for reads — each a thin, typed wrapper over the data
+`useGetList`, `useGetMany`, `useGetManyReference`, and `useGetManyAggregate` for
+reads — each a thin, typed wrapper over the data
 provider plus the query cache. For a fully-typed set bound to your registry, call
 `createCheloneHooks<typeof resources>()` once and use its members.
 
