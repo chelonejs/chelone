@@ -7,10 +7,10 @@
  * (`aria-hidden`); the button carries the accessible label.
  */
 
-import { type FunctionalComponent, h, type VNodeChild } from "vue";
+import { type FunctionalComponent, h, type VNode } from "vue";
 
 /** A shared `<svg>` shell with the lucide stroke recipe around `children`. */
-function icon(children: () => VNodeChild): FunctionalComponent {
+function icon(children: () => VNode[]): FunctionalComponent {
   const cmp: FunctionalComponent = () =>
     h(
       "svg",

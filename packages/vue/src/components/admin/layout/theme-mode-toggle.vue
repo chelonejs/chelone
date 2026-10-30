@@ -28,7 +28,7 @@ const CYCLE: readonly Theme[] = ["light", "dark", "system"];
 
 function cycle(): void {
   const index = CYCLE.indexOf(theme.value);
-  setTheme(CYCLE[(index + 1) % CYCLE.length]);
+  setTheme(CYCLE[(index + 1) % CYCLE.length] ?? "system");
 }
 
 const label = computed(() =>

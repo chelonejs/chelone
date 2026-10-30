@@ -23,7 +23,7 @@ export interface ThemeProviderProps {
  */
 
 import { provide, ref, watchEffect } from "vue";
-import { type Theme, ThemeContextKey, resolveTheme } from "./theme-context";
+import { ThemeContextKey, resolveTheme } from "./theme-context";
 
 const props = withDefaults(defineProps<ThemeProviderProps>(), {
   defaultTheme: "system",

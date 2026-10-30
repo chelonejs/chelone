@@ -50,6 +50,7 @@ export interface SubscriptionPlanPickerProps {
 
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
+import { cn } from "../../../lib/utils";
 import { Button } from "../../ui";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { FieldDescription, FieldError } from "../../ui/field";
@@ -112,13 +113,15 @@ function onSelect(plan: SubscriptionPlan) {
         :data-recommended="recommendedPlanId === plan.id ? 'true' : 'false'"
         role="radio"
         :aria-checked="currentId === plan.id"
-        :class="[
-          'transition',
-          currentId === plan.id && 'border-primary ring-2 ring-primary',
-          recommendedPlanId === plan.id &&
-            currentId !== plan.id &&
-            'border-primary/50',
-        ]"
+        :class="
+          cn(
+            'transition',
+            currentId === plan.id && 'border-primary ring-2 ring-primary',
+            recommendedPlanId === plan.id &&
+              currentId !== plan.id &&
+              'border-primary/50',
+          )
+        "
       >
         <CardHeader>
           <CardTitle class="flex items-center justify-between">
