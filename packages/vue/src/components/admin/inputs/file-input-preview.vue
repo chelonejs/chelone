@@ -21,7 +21,7 @@ export interface FileInputPreviewProps {
 import { onScopeDispose } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { provideRecordContext } from "../../../record/record-context";
-import { Button } from "../../ui";
+import Button from "../../ui/button.vue";
 
 const props = defineProps<FileInputPreviewProps>();
 const emit = defineEmits<{ remove: [] }>();

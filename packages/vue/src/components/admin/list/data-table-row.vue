@@ -24,7 +24,7 @@ import {
 import { useResourceContext } from "../../../resource-context";
 import { useRouterAdapterOptional } from "../../../router/adapter";
 import { useCreatePath } from "../../../router/nav-composables";
-import { Checkbox } from "../../ui";
+import Checkbox from "../../ui/checkbox.vue";
 import { TableCell, TableRow } from "../../ui/table";
 import { DataTablePassKey } from "./data-table-context";
 
