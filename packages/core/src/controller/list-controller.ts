@@ -184,12 +184,17 @@ export function notifySelectAllLimit(
   });
 }
 
+/**
+ * Fetches one page with `limit` (default 250), applies its ids, then warns at
+ * the limit. Fetch, apply and warning failures use `notifyFetchError`.
+ * Destruction skips the fetch or suppresses its result and failure notification.
+ */
 export async function runSelectAll(
   notifications: NotificationStore | undefined,
   fetchPage: (limit: number) => Promise<ResourceRecord[]>,
-  limit = DEFAULT_SELECT_ALL_LIMIT,
   apply: (ids: Identifier[]) => void,
   isDestroyed: () => boolean,
+  limit = DEFAULT_SELECT_ALL_LIMIT,
 ): Promise<void> {
   if (isDestroyed()) return;
   try {
@@ -548,9 +553,9 @@ export function createListController<
         });
         return result.data;
       },
-      opts?.limit,
       writeSelection,
       () => destroyed,
+      opts?.limit,
     );
 
   const refetch = (): void => {

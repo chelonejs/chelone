@@ -225,12 +225,12 @@ export function createReferenceManyController<
         });
         return result.data;
       },
-      opts?.limit,
       (ids) => {
         inner.select(ids);
         mirror();
       },
       () => destroyed,
+      opts?.limit,
     );
   };
 

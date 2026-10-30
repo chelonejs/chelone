@@ -31,9 +31,9 @@ export interface InfiniteListController<TRecord>
       ListController<TRecord>,
       keyof MicroStore<ListControllerState<TRecord>>
     > {
-  /** Appends the next page. Does nothing without a next page or while one is loading. */
+  /** Appends the next page. Shares an ongoing next-page load; waits for other loads. Does nothing without a next page. */
   fetchNextPage(): Promise<void>;
-  /** Prepends the page before the first loaded one. Does nothing without one or while one is loading. */
+  /** Prepends the previous page. Shares an ongoing previous-page load; waits for other loads. Does nothing without a previous page. */
   fetchPreviousPage(): Promise<void>;
 }
 
@@ -306,12 +306,12 @@ export function createInfiniteListController<
         });
         return result.data;
       },
-      opts?.limit,
       (ids) => {
         inner.select(ids);
         mirror();
       },
       () => destroyed,
+      opts?.limit,
     );
 
   return {
