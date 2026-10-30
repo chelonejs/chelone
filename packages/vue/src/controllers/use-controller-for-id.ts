@@ -7,13 +7,7 @@
  */
 
 import type { Identifier, MicroStore } from "@chelone/core";
-import {
-  effectScope,
-  onScopeDispose,
-  type Ref,
-  shallowRef,
-  watch,
-} from "vue";
+import { effectScope, onScopeDispose, type Ref, shallowRef, watch } from "vue";
 import type { RecordValue } from "../record/record-context";
 import { useStore } from "../store/use-store";
 
