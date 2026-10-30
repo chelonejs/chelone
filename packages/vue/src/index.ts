@@ -112,6 +112,10 @@ export type {
   UseEditControllerReturn,
   UseListControllerOptions,
   UseListControllerReturn,
+  UseReferenceManyFieldControllerOptions,
+  UseReferenceManyFieldControllerReturn,
+  UseReferenceOneFieldControllerOptions,
+  UseReferenceOneFieldControllerReturn,
   UseShowControllerOptions,
   UseShowControllerReturn,
 } from "./controllers";
@@ -120,6 +124,8 @@ export {
   useCreateController,
   useEditController,
   useListController,
+  useReferenceManyFieldController,
+  useReferenceOneFieldController,
   useShowController,
 } from "./controllers";
 // --- supporting composables the vertical is built on ----------------------
