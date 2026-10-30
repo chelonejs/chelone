@@ -22,4 +22,11 @@ describe("<Ready>", () => {
     expect(screen.getByRole("link", { name: /Demo/i })).toBeTruthy();
     expect(screen.getByRole("link", { name: /GitHub/i })).toBeTruthy();
   });
+
+  it("the GitHub link points at chelonejs/chelone", () => {
+    render(<Ready />);
+    expect(
+      screen.getByRole("link", { name: /GitHub/i }).getAttribute("href"),
+    ).toBe("https://github.com/chelonejs/chelone");
+  });
 });
