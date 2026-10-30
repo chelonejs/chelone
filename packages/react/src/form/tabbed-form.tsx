@@ -44,10 +44,9 @@ import {
   useMemo,
   useState,
 } from "react";
-import { CheloneFormProvider } from "../form-context";
-import { type UseFormOptions, useForm } from "../form-hooks";
 import { useRouterAdapter } from "../router/adapter";
 import { useLocation, useParams } from "../router/nav-hooks";
+import { FormScope, type OptionalSaveFormOptions } from "./form-scope";
 import {
   FormGroupProvider,
   FormGroupsProvider,
@@ -221,7 +220,8 @@ function tabHref(base: string, path: string): string {
   return path === "" ? base : `${base}/${path}`;
 }
 
-export interface TabbedFormProps<TFormData> extends UseFormOptions<TFormData> {
+export interface TabbedFormProps<TFormData>
+  extends OptionalSaveFormOptions<TFormData> {
   /**
    * Sync the active tab with the URL (default `true`): each tab is a nested
    * route (deep-linkable, back-button aware). `false` → a local `useState` tab.
@@ -238,32 +238,34 @@ interface TabbedFormComponent {
 }
 
 /**
- * A tabbed form. Provide `<TabbedForm.Tab name label>` children (in order); a
- * single `save` (via {@link UseFormOptions}) submits the whole form. Wires the
- * ambient form + FormGroups registry, then either the URL-synced or the local
- * shell per `syncWithLocation`.
+ * A tabbed form. Provide `<TabbedForm.Tab name label>` children (in order). A
+ * form given `save` builds its own form and the single `save` submits every
+ * tab; without `save` it drives the form of the view above it (`<Edit>`,
+ * `<Create>`) and the other form options are ignored. Wires the FormGroups
+ * registry, then either the URL-synced or the local shell per `syncWithLocation`.
  */
 function TabbedFormImpl<TFormData>({
   children,
   syncWithLocation = true,
   ...formOptions
 }: TabbedFormProps<TFormData>): ReactElement {
-  const { form, submit } = useForm<TFormData>(formOptions);
   const tabs = useMemo(() => collectTabs(children), [children]);
   return (
-    <CheloneFormProvider form={form} submit={submit}>
-      <FormGroupsProvider>
-        {syncWithLocation ? (
-          <UrlSyncedShell tabs={tabs} submit={submit}>
-            {children}
-          </UrlSyncedShell>
-        ) : (
-          <LocalShell tabs={tabs} submit={submit}>
-            {children}
-          </LocalShell>
-        )}
-      </FormGroupsProvider>
-    </CheloneFormProvider>
+    <FormScope<TFormData> name="TabbedForm" options={formOptions}>
+      {(submit) => (
+        <FormGroupsProvider>
+          {syncWithLocation ? (
+            <UrlSyncedShell tabs={tabs} submit={submit}>
+              {children}
+            </UrlSyncedShell>
+          ) : (
+            <LocalShell tabs={tabs} submit={submit}>
+              {children}
+            </LocalShell>
+          )}
+        </FormGroupsProvider>
+      )}
+    </FormScope>
   );
 }
 
