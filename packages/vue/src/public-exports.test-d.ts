@@ -39,6 +39,7 @@ import type {
   ToolbarProps,
   ValidationErrorProps,
 } from "./index";
+import * as barrel from "./index";
 
 describe("@chelone/vue public exports", () => {
   it("exports each component's props type", () => {
@@ -76,5 +77,10 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<TimeInputProps>().toHaveProperty("source");
     expectTypeOf<ToolbarProps>().toBeObject();
     expectTypeOf<ValidationErrorProps>().toBeObject();
+  });
+
+  it("keeps internal helpers out of the barrel", () => {
+    expectTypeOf(barrel).not.toHaveProperty("areIdsEqual");
+    expectTypeOf(barrel).not.toHaveProperty("WebhookEndpointFieldEndpoint");
   });
 });

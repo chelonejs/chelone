@@ -183,7 +183,6 @@ export type {
   TranslateLabelOptions,
 } from "./label/use-translate-label";
 export { useTranslateLabel } from "./label/use-translate-label";
-export { areIdsEqual } from "./lib/are-ids-equal";
 export { shallowEqual } from "./lib/shallow-equal";
 export { cn } from "./lib/utils";
 export { useInfiniteListContext } from "./list/infinite-list-context";

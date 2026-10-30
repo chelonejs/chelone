@@ -165,7 +165,6 @@ export type {
 export { default as UsageMeterField } from "./admin/fields/usage-meter-field.vue";
 export type {
   DeliveryStatus,
-  WebhookEndpoint as WebhookEndpointFieldEndpoint,
   WebhookEndpointFieldProps,
 } from "./admin/fields/webhook-endpoint-field.vue";
 export { default as WebhookEndpointField } from "./admin/fields/webhook-endpoint-field.vue";
