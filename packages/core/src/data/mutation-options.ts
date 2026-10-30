@@ -1,5 +1,5 @@
 import type { RecordOf, ResourceMap } from "../resource/registry";
-import { patchManyEntries } from "./cache-ops";
+import { patchManyEntries, removeManyEntries } from "./cache-ops";
 import { manyKeyPrefix, oneKey, resourceKey } from "./keys";
 import type { DataContext } from "./query-options";
 import type { CreateParams, DeleteParams, UpdateParams } from "./types";
@@ -17,9 +17,36 @@ export interface MutationModeOptions {
 }
 
 function invalidateResource(ctx: DataContext<ResourceMap>, resource: string) {
-  // ponytail: optimistic mode invalidates list caches instead of patching them;
-  // per-list optimistic patching arrives with controllers (P4) if profiling demands.
+  // ponytail: optimistic mode invalidates list caches instead of patching them
+  // (only the getOne and getMany entries are patched); per-list optimistic
+  // patching arrives with controllers (P4) if profiling demands.
   return ctx.queryClient.invalidateQueries({ queryKey: resourceKey(resource) });
+}
+
+type ManySnapshot = Array<[readonly unknown[], unknown]>;
+
+interface OptimisticContext {
+  previous?: unknown;
+  key?: readonly unknown[];
+  manySnapshot?: ManySnapshot;
+}
+
+/** Cancels in-flight `getMany` fetches so they cannot overwrite the patch, then snapshots the entries. */
+async function snapshotManyEntries(
+  ctx: DataContext<ResourceMap>,
+  resource: string,
+): Promise<ManySnapshot> {
+  await ctx.queryClient.cancelQueries({ queryKey: manyKeyPrefix(resource) });
+  return ctx.queryClient.getQueriesData({ queryKey: manyKeyPrefix(resource) });
+}
+
+function restoreManyEntries(
+  ctx: DataContext<ResourceMap>,
+  snapshot: ManySnapshot | undefined,
+) {
+  for (const [key, value] of snapshot ?? []) {
+    ctx.queryClient.setQueryData(key, value);
+  }
 }
 
 export function createMutationOptions<
@@ -63,12 +90,7 @@ export function updateMutationOptions<
         ctx.queryClient.setQueryData(key, merged);
       }
       // Reference fields read the getMany entries, not oneKey.
-      await ctx.queryClient.cancelQueries({
-        queryKey: manyKeyPrefix(resource),
-      });
-      const manySnapshot = ctx.queryClient.getQueriesData({
-        queryKey: manyKeyPrefix(resource),
-      });
+      const manySnapshot = await snapshotManyEntries(ctx, resource);
       patchManyEntries(
         ctx.queryClient,
         resource,
@@ -80,20 +102,12 @@ export function updateMutationOptions<
     onError: (
       _error: unknown,
       _params: UpdateParams<RecordOf<TResources, TName>>,
-      context:
-        | {
-            previous?: unknown;
-            key?: readonly unknown[];
-            manySnapshot?: Array<[readonly unknown[], unknown]>;
-          }
-        | undefined,
+      context: OptimisticContext | undefined,
     ) => {
       if (context?.key && context.previous !== undefined) {
         ctx.queryClient.setQueryData(context.key, context.previous);
       }
-      for (const [manyEntryKey, value] of context?.manySnapshot ?? []) {
-        ctx.queryClient.setQueryData(manyEntryKey, value);
-      }
+      restoreManyEntries(ctx, context?.manySnapshot);
     },
     onSettled: () => invalidateResource(ctx, resource),
   };
@@ -120,16 +134,24 @@ export function deleteMutationOptions<
       const previous =
         ctx.queryClient.getQueryData<RecordOf<TResources, TName>>(key);
       ctx.queryClient.removeQueries({ queryKey: key });
-      return { previous, key };
+      // Reference fields read the getMany entries, not oneKey.
+      const manySnapshot = await snapshotManyEntries(ctx, resource);
+      removeManyEntries(
+        ctx.queryClient,
+        resource,
+        new Set([String(params.id)]),
+      );
+      return { previous, key, manySnapshot };
     },
     onError: (
       _error: unknown,
       _params: DeleteParams<RecordOf<TResources, TName>>,
-      context: { previous?: unknown; key?: readonly unknown[] } | undefined,
+      context: OptimisticContext | undefined,
     ) => {
       if (context?.key && context.previous !== undefined) {
         ctx.queryClient.setQueryData(context.key, context.previous);
       }
+      restoreManyEntries(ctx, context?.manySnapshot);
     },
     onSettled: () => invalidateResource(ctx, resource),
   };

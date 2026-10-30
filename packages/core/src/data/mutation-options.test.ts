@@ -197,6 +197,77 @@ describe("mutation option factories", () => {
     ).toMatchObject({ id: 1 });
   });
 
+  it("optimistic delete removes the id from getMany entries and restores them on error", async () => {
+    const c = seed();
+    const key = manyKey("posts", { ids: [1, 2] });
+    const original = [
+      { id: 1, title: "a", at: new Date(2026, 0, 1) },
+      { id: 2, title: "b", at: new Date(2026, 0, 2) },
+    ];
+    c.queryClient.setQueryData(key, original);
+    let rejectDelete!: (e: Error) => void;
+    const failing: DataProvider<R> = {
+      ...c.dataProvider,
+      delete: () =>
+        new Promise((_resolve, reject) => {
+          rejectDelete = reject;
+        }),
+    };
+    const ctx = { dataProvider: failing, queryClient: c.queryClient };
+    const observer = new MutationObserver(
+      c.queryClient,
+      deleteMutationOptions(ctx, "posts", { mutationMode: "optimistic" }),
+    );
+    const done = observer.mutate({ id: 1 });
+    await vi.waitFor(() => expect(rejectDelete).toBeTypeOf("function"));
+    expect(c.queryClient.getQueryData(key)).toEqual([original[1]]);
+    rejectDelete(new Error("nope"));
+    await expect(done).rejects.toThrow();
+    expect(c.queryClient.getQueryData(key)).toEqual(original);
+  });
+
+  it("optimistic delete keeps the id out of getMany entries after success", async () => {
+    const c = seed();
+    const key = manyKey("posts", { ids: [1, 2] });
+    const second = { id: 2, title: "b", at: new Date(2026, 0, 2) };
+    c.queryClient.setQueryData(key, [
+      { id: 1, title: "a", at: new Date(2026, 0, 1) },
+      second,
+    ]);
+    const observer = new MutationObserver(
+      c.queryClient,
+      deleteMutationOptions(c, "posts", { mutationMode: "optimistic" }),
+    );
+    await observer.mutate({ id: 1 });
+    expect(c.queryClient.getQueryData(key)).toEqual([second]);
+  });
+
+  it("pessimistic delete does NOT touch getMany entries before resolution", async () => {
+    const c = seed();
+    const key = manyKey("posts", { ids: [1] });
+    const original = [{ id: 1, title: "a", at: new Date(2026, 0, 1) }];
+    c.queryClient.setQueryData(key, original);
+    let resolveDelete!: () => void;
+    const gated: DataProvider<R> = {
+      ...c.dataProvider,
+      delete: (resource, params) =>
+        new Promise((resolve) => {
+          resolveDelete = () =>
+            resolve(c.dataProvider.delete(resource, params) as never);
+        }),
+    };
+    const ctx = { dataProvider: gated, queryClient: c.queryClient };
+    const observer = new MutationObserver(
+      c.queryClient,
+      deleteMutationOptions(ctx, "posts"),
+    );
+    const done = observer.mutate({ id: 1 });
+    await vi.waitFor(() => expect(resolveDelete).toBeTypeOf("function"));
+    expect(c.queryClient.getQueryData(key)).toEqual(original);
+    resolveDelete();
+    await done;
+  });
+
   it("pessimistic update does NOT touch the cache before resolution", async () => {
     const c = seed();
     await c.queryClient.fetchQuery(getOneOptions(c, "posts", { id: 1 }));
