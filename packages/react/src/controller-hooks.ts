@@ -118,7 +118,7 @@ function seedListFromQuery(
 }
 
 /** Structurally one context: both controller families need the same services. */
-function toControllerContext<TResources extends ResourceMap>(
+export function toControllerContext<TResources extends ResourceMap>(
   ctx: CheloneContextValue<TResources>,
 ): ListControllerContext<TResources> & RecordControllerContext<TResources> {
   const { dataProvider, queryClient, store, notifications, i18n } = ctx;
