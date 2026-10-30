@@ -3,21 +3,40 @@ title: "Advanced List"
 description: "Drop to the controller, build custom layouts, and handle selection yourself."
 ---
 
-`<List>` is a thin wrapper over the **list controller**. When the default
-DataTable layout isn't enough, reach for the controller directly — everything
+`<List>` is a thin wrapper over `useListController`. When the default
+DataTable layout isn't enough, reach for the controller directly: everything
 `<List>` renders is built on the same context you can read.
 
 ## Read the controller
 
-`useListContext` returns the full list state: the fetched `data`, the `total`,
-the `isPending` flag, the current `sort`, the `filterValues`, the selection, and
-the actions that mutate them. Build any layout on top of it:
+`useListContext` returns the full list state:
+
+- `data`, `total`, `isPending`, `isFetching`, `error`
+- `page`, `perPage`, `hasNextPage`, `hasPreviousPage`
+- `filter` (the user filter, not `filterValues`), `displayedFilters`
+- `sort`, an array of `{ field, order }` entries. Read `sort[0]` for the primary
+  one.
+- `selectedIds`
+- the actions that change them: `setPage`, `setPerPage`, `setSort`,
+  `setFilters`, `setParams`, `showFilter`, `hideFilter`, `select`, `toggleItem`,
+  `unselectAll`, `selectAll` and `refetch`
+
+Build any layout on top of it. The context is not generic, so cast it to the
+shape of your resource:
 
 ```tsx
-import { List, useListContext } from "@chelone/react";
+import {
+  List,
+  ListPagination,
+  type UseListControllerResult,
+  useListContext,
+} from "@chelone/react";
+
+type Post = { id: number; title: string };
 
 function PostGallery() {
-  const { data, total, isPending } = useListContext();
+  const { data, total, isPending } =
+    useListContext() as UseListControllerResult<Post>;
   if (isPending) return <p>Loading…</p>;
   return (
     <>
@@ -33,33 +52,175 @@ function PostGallery() {
   );
 }
 
-<List>
-  <PostGallery />
-</List>;
+export function PostList() {
+  return (
+    <List>
+      <PostGallery />
+      <ListPagination />
+    </List>
+  );
+}
 ```
+
+## Controller options
+
+Call `useListController(resource, options)` when `<List>`'s props are not
+enough, and provide the result with `ListContextProvider`. The options are read
+once, when the list mounts. Give the component a `key` to change them later.
+`ListView` reads the resource from context, so render it inside a `<Resource>`
+or a `ResourceContextProvider`.
+
+| Option | Default | Effect |
+| --- | --- | --- |
+| `perPage` | `10` | Initial page size. |
+| `sort` | `{ field: "id", order: "ASC" }` | Initial sort. Pass an array for a multi-field sort. |
+| `filter` | none | A permanent filter, merged over the user filter on every fetch. Not shown in the URL or the filter form. |
+| `filterDefaultValues` | none | Seeds the user filter when no URL or saved params set one. |
+| `debounceMs` | `500` | How long a filter input change waits before it re-queries. |
+| `storeKey` | the resource name | Namespace for the saved list params and selection. `false` turns persistence off. |
+| `syncWithLocation` | `true` | Read and write the list params in the URL. See [URL sync](/docs/page-components/list/overview#url-sync). |
+| `enabled` | `true` | Set `false` to hold the fetch. |
+
+```tsx
+import {
+  DataTable,
+  ListContextProvider,
+  ListPagination,
+  ListView,
+  useListController,
+} from "@chelone/react";
+
+export function TopPostList() {
+  const controller = useListController("posts", {
+    perPage: 25,
+    sort: [
+      { field: "views", order: "DESC" },
+      { field: "title", order: "ASC" },
+    ],
+    filter: { published: true },
+    storeKey: "top-posts",
+  });
+
+  return (
+    <ListContextProvider value={controller}>
+      <ListView title="Top posts">
+        <DataTable>
+          <DataTable.Col source="title" />
+          <DataTable.NumberCol source="views" />
+        </DataTable>
+        <ListPagination />
+      </ListView>
+    </ListContextProvider>
+  );
+}
+```
+
+## Change several params at once
+
+`setPage`, `setPerPage`, `setSort` and `setFilters` each change one thing.
+`setParams` applies `filter`, `displayedFilters`, `sort`, `perPage` and `page`
+as one change: one state update, one saved write and one fetch. Every key is
+optional, and an omitted key stays as it is. A patch with a `filter`, `sort` or
+`perPage` returns to page 1 unless it names a `page`. `setParams` is never
+debounced, and its `filter` replaces the user filter wholesale (empty values
+are dropped):
+
+```tsx
+import { useListContext } from "@chelone/react";
+
+export function TopViewedButton() {
+  const { setParams } = useListContext();
+  return (
+    <button
+      type="button"
+      onClick={() =>
+        setParams({
+          filter: { published: true },
+          sort: { field: "views", order: "DESC" },
+          perPage: 25,
+        })
+      }
+    >
+      Most viewed
+    </button>
+  );
+}
+```
+
+[`<SavedQueriesList>`](/docs/viewing/saved-queries-list) is built on
+`setParams`: it stores named filter and sort sets and applies one with a click.
 
 ## Selection
 
-The list context tracks selected row ids and the actions to change them —
-`selectedIds`, `toggleItem`, `unselectAll`. A `<DataTable>` wires its checkboxes
-to these automatically; in a custom layout you drive them yourself and render a
-bulk toolbar (e.g. `<BulkDeleteButton>` / `<BulkExportButton>`) when the
-selection is non-empty.
+The list context tracks selected row ids and the actions to change them:
+`selectedIds`, `select(ids)`, `toggleItem(id)`, `unselectAll()` and
+`selectAll()`. The selection is saved in the store under
+`<resource>.selectedIds`. A `<DataTable>` wires its checkboxes to these when it
+has `bulkActionButtons`. In a custom layout you drive them yourself and render
+a bulk toolbar when the selection is non-empty.
+
+`selectAll` fetches the ids of every row that matches the current filter and
+sort, not only the visible page, and selects them. It stops at 250 rows by
+default, then shows a warning notification. Pass `selectAll({ limit: 1000 })`
+to raise the limit:
+
+```tsx
+import { BulkDeleteButton, useListContext } from "@chelone/react";
+
+export function SelectionBar() {
+  const { selectedIds, total, selectAll, unselectAll } = useListContext();
+  if (selectedIds.length === 0) return null;
+  return (
+    <div className="flex items-center gap-2">
+      <span>{selectedIds.length} selected</span>
+      {selectedIds.length < (total ?? 0) && (
+        <button type="button" onClick={() => selectAll()}>
+          Select all {total}
+        </button>
+      )}
+      <button type="button" onClick={unselectAll}>
+        Clear
+      </button>
+      <BulkDeleteButton />
+    </div>
+  );
+}
+```
 
 ## A list without a Resource
 
 You don't need a full `<Resource>` to show a list. `useList` builds the same
-list context over an **in-memory** array — no data provider, no fetch — for
-embedded records, choice arrays, or any data you already hold:
+list context over an **in-memory** array: no data provider, no fetch, and no
+URL sync. Use it for embedded records, choice arrays, or any data you already
+hold. It filters, sorts and pages the array on the client, with a default
+`perPage` of 1000:
 
 ```tsx
-import { ListContextProvider, useList } from "@chelone/react";
+import {
+  ListContextProvider,
+  type UseListControllerResult,
+  useList,
+  useListContext,
+} from "@chelone/react";
 
-function EmbeddedList({ rows }: { rows: MyRow[] }) {
-  const listContext = useList({ data: rows });
+type Row = { id: number; name: string };
+
+function RowNames() {
+  const { data } = useListContext() as UseListControllerResult<Row>;
+  return (
+    <ul>
+      {data?.map((row) => (
+        <li key={row.id}>{row.name}</li>
+      ))}
+    </ul>
+  );
+}
+
+export function EmbeddedList({ rows }: { rows: Row[] }) {
+  const listContext = useList<Row>({ data: rows });
   return (
     <ListContextProvider value={listContext}>
-      {/* any list-context consumer renders here */}
+      <RowNames />
     </ListContextProvider>
   );
 }
@@ -71,3 +232,5 @@ function EmbeddedList({ rows }: { rows: MyRow[] }) {
   only when you need a fundamentally different layout.
 - `useList` and `useListController` return the **same** shape, so a component
   written against `useListContext` works under either.
+- To append pages instead of replacing them, use
+  [`<InfiniteList>`](/docs/page-components/list/infinite-list).

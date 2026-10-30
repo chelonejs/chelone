@@ -19,7 +19,7 @@
  *
  * Plain DOM assertions (no jest-dom) so the website needs no extra matcher dep.
  */
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
@@ -129,6 +129,19 @@ describe("PreviewProvider — live admin previews render against the fixture pro
       </PreviewProvider>,
     );
     expect(await screen.findByText("On Computable Numbers")).toBeTruthy();
+  });
+
+  it("pages the <List> demo past its first 10 rows", async () => {
+    renderInHostRouter(
+      <PreviewProvider mode="view">
+        <ListBasicDemo />
+      </PreviewProvider>,
+    );
+    expect(await screen.findByText("On Computable Numbers")).toBeTruthy();
+    expect(screen.getByText("1-10 of 30")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(await screen.findByText("11-20 of 30")).toBeTruthy();
+    expect(screen.queryByText("On Computable Numbers")).toBeNull();
   });
 
   it("renders the page-components <Edit> demo for id=1 (view mode)", async () => {
