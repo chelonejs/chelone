@@ -92,6 +92,12 @@ describe("@chelone/core barrel", () => {
     expect(barrel.getManyAggregateOptions).toBeTypeOf("function");
   });
 
+  it("exports HttpError and the fetchUtils REST helpers", () => {
+    expect(barrel.HttpError).toBeTypeOf("function");
+    expect(barrel.fetchUtils.fetchJson).toBeTypeOf("function");
+    expect(barrel.fetchUtils.queryParameters).toBeTypeOf("function");
+  });
+
   it("does NOT leak internal save-pipeline / hydration helpers", () => {
     expect("sanitizeEmptyValues" in barrel).toBe(false);
     expect("toFormErrorMapValue" in barrel).toBe(false);
