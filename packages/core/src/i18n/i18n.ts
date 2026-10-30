@@ -78,14 +78,16 @@ function resolve(
   params?: Record<string, unknown>,
 ): string {
   if (typeof value === "string") return interpolate(value, params);
-  const count =
-    typeof params?.count === "number"
-      ? params.count
-      : Number(params?.count ?? Number.NaN);
-  const category = Number.isNaN(count)
-    ? "other"
-    : new Intl.PluralRules(locale).select(count);
-  return interpolate(value[category] ?? value.other, params);
+  // `smart_count` is the polyglot/ra name every caller passes; `count` wins.
+  const raw = params?.count ?? params?.smart_count;
+  const count = typeof raw === "number" ? raw : Number(raw ?? Number.NaN);
+  if (Number.isNaN(count)) return interpolate(value.other, params);
+  const category = new Intl.PluralRules(locale).select(count);
+  return interpolate(value[category] ?? value.other, {
+    ...params,
+    count: params?.count ?? raw,
+    smart_count: params?.smart_count ?? raw,
+  });
 }
 
 export function createI18n<const TCatalog extends MessageCatalog>(options: {
