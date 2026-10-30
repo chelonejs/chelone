@@ -18,13 +18,11 @@ import type { InputProps } from "../input-props";
  * browser's `<input type="color">`.
  *
  * @example
- * import { Edit, SimpleForm, ColorInput } from '@/components/admin';
+ * import { Edit, ColorInput } from '@/components/admin';
  *
  * const BrandEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <ColorInput source="color" swatches={["#3b82f6", "#22c55e"]} />
- *     </SimpleForm>
+ *     <ColorInput source="color" swatches={["#3b82f6", "#22c55e"]} />
  *   </Edit>
  * );
  */

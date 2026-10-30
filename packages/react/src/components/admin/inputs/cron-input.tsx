@@ -14,7 +14,7 @@ import { describeCron } from "./cron-utils";
  * Edits a 5-field cron expression and previews its human meaning live.
  *
  * @example
- * import { Edit, SimpleForm, CronInput } from '@chelone/react';
+ * import { CronInput } from '@chelone/react';
  *
  * <CronInput source="schedule" />
  */

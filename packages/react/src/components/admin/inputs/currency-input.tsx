@@ -20,13 +20,11 @@ import type { InputProps } from "../input-props";
  * app locale from chelone's `useLocaleState()` when omitted.
  *
  * @example
- * import { Edit, SimpleForm, CurrencyInput } from '@chelone/react';
+ * import { Edit, CurrencyInput } from '@chelone/react';
  *
  * const OrderEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <CurrencyInput source="total" currency="USD" />
- *     </SimpleForm>
+ *     <CurrencyInput source="total" currency="USD" />
  *   </Edit>
  * );
  */

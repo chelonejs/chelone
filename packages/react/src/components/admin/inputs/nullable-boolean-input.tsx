@@ -46,13 +46,11 @@ interface NullableBooleanInputProps extends InputProps {
  * "No"), customizable via `nullLabel` / `trueLabel` / `falseLabel`.
  *
  * @example
- * import { Edit, SimpleForm, NullableBooleanInput } from '@/components/admin';
+ * import { Edit, NullableBooleanInput } from '@/components/admin';
  *
  * const PostEdit = () => (
  *   <Edit>
- *     <SimpleForm>
- *       <NullableBooleanInput source="is_published" />
- *     </SimpleForm>
+ *     <NullableBooleanInput source="is_published" />
  *   </Edit>
  * );
  */

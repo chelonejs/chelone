@@ -3,7 +3,7 @@ import type { UseArrayInputResult } from "../../../array-hooks";
 
 /**
  * Ambient context carrying the FULL {@link UseArrayInputResult} an `<ArrayInput>`
- * built, so a form iterator (P7e `<SimpleFormIterator>`) can read `rows`, `add`,
+ * built, so a form iterator can read `rows`, `add`,
  * `insert`, `clear`, etc. WITHOUT constructing a second array binding.
  *
  * `<ArrayInput>` owns the single `useArrayInput` binding (one binding per
