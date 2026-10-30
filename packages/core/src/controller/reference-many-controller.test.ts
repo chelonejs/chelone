@@ -2,6 +2,7 @@ import { QueryClient } from "@tanstack/query-core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { fakeDataProvider } from "../data/fake-provider";
+import { getListOptions } from "../data/query-options";
 import { createNotificationStore } from "../notification/notification-store";
 import { defineResources } from "../resource/registry";
 import { createStore } from "../store/store";
@@ -501,5 +502,73 @@ describe("createReferenceManyController", () => {
       expect.objectContaining({ pagination: { page: 2, perPage: 10 } }),
     );
     c.destroy();
+  });
+
+  it("a cached getList failure with the same params is not announced beside a working reference list", async () => {
+    const ctx = makeCtx();
+    vi.spyOn(ctx.dataProvider, "getList").mockRejectedValue(
+      new Error("comments list is down"),
+    );
+    // A plain comments list failed and left its error in the cache.
+    await ctx.queryClient
+      .fetchQuery({
+        ...getListOptions(ctx, "comments", {
+          pagination: { page: 1, perPage: 25 },
+          sort: { field: "id", order: "ASC" },
+          filter: {},
+        }),
+        retry: false,
+      })
+      .catch(() => {});
+    const c = createReferenceManyController(ctx, "comments", {
+      target: "postId",
+      id: 1,
+    });
+    attach(c);
+    await settled(c);
+    expect(c.getSnapshot().error).toBeNull();
+    expect(c.getSnapshot().data).toHaveLength(25);
+    expect(ctx.notifications.getSnapshot()).toEqual([]);
+    c.destroy();
+  });
+
+  it("a debounced setFilters on a detached controller lands in the snapshot and in selectAll", async () => {
+    const ctx = makeCtx();
+    const { ref } = spies(ctx);
+    const c = createReferenceManyController(ctx, "comments", {
+      target: "postId",
+      id: 1,
+      debounceMs: 20,
+    });
+    c.setFilters({ score: 1 }, undefined, true);
+    expect(c.getSnapshot().filter).toEqual({});
+    await vi.waitFor(() =>
+      expect(c.getSnapshot().filter).toEqual({ score: 1 }),
+    );
+    await c.selectAll();
+    expect(ref).toHaveBeenLastCalledWith(
+      "comments",
+      expect.objectContaining({ filter: { score: 1 } }),
+    );
+    expect(c.getSnapshot().selectedIds).toHaveLength(10);
+    c.destroy();
+  });
+
+  it("a pending debounced filter is dropped by a later setParams filter and by destroy", async () => {
+    const ctx = makeCtx();
+    const c = createReferenceManyController(ctx, "comments", {
+      target: "postId",
+      id: 1,
+      debounceMs: 20,
+    });
+    c.setFilters({ score: 1 }, undefined, true);
+    c.setParams({ filter: { score: 2 } });
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    expect(c.getSnapshot().filter).toEqual({ score: 2 });
+
+    c.setFilters({ score: 0 }, undefined, true);
+    c.destroy();
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    expect(c.getSnapshot().filter).toEqual({ score: 2 });
   });
 });

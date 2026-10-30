@@ -11,10 +11,12 @@ import { createMicroStore } from "../store/micro-store";
 import {
   createErrorAnnouncer,
   createListController,
+  DEFAULT_DEBOUNCE_MS,
   DEFAULT_SELECT_ALL_LIMIT,
   type ListController,
   type ListControllerContext,
   type ListControllerState,
+  type ListParamsPatch,
   notifyFetchError,
   notifySelectAllLimit,
   pageFlags,
@@ -83,14 +85,20 @@ export function createReferenceManyController<
       ? false
       : `${reference}.${target}.${targetValue}`);
 
-  const inner = createListController(ctx, reference, {
-    perPage: options.perPage ?? DEFAULT_PER_PAGE,
-    sort: options.sort,
-    filterDefaultValues: options.filterDefaultValues,
-    debounceMs: options.debounceMs,
-    storeKey,
-    enabled: false,
-  });
+  // The inner controller still observes the `getList` entry that matches its
+  // params, so it gets no notifications: a cached `getList` failure is not
+  // this reference list's error.
+  const inner = createListController(
+    { ...ctx, notifications: undefined },
+    reference,
+    {
+      perPage: options.perPage ?? DEFAULT_PER_PAGE,
+      sort: options.sort,
+      filterDefaultValues: options.filterDefaultValues,
+      storeKey,
+      enabled: false,
+    },
+  );
 
   const initial = inner.getSnapshot();
   const store = createMicroStore<ListControllerState<TRecord>>(
@@ -111,6 +119,7 @@ export function createReferenceManyController<
   let destroyed = false;
   store.onDestroy(() => {
     destroyed = true;
+    clearDebounce();
     inner.destroy();
   });
 
@@ -170,6 +179,42 @@ export function createReferenceManyController<
       action(...args);
       mirror();
     };
+
+  // The debounce lives here, not in the inner controller: detached, nothing
+  // subscribes to the inner store, so only this timer can mirror its late write.
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  function clearDebounce(): void {
+    if (debounceTimer === undefined) return;
+    clearTimeout(debounceTimer);
+    debounceTimer = undefined;
+  }
+
+  const setFilters = (
+    filter: FilterPayload,
+    displayedFilters?: Record<string, boolean>,
+    debounced = false,
+  ): void => {
+    if (destroyed) return;
+    clearDebounce();
+    const apply = (): void => {
+      inner.setFilters(filter, displayedFilters);
+      mirror();
+    };
+    if (!debounced) {
+      apply();
+      return;
+    }
+    debounceTimer = setTimeout(() => {
+      debounceTimer = undefined;
+      apply();
+    }, options.debounceMs ?? DEFAULT_DEBOUNCE_MS);
+  };
+
+  const setParams = (patch: ListParamsPatch): void => {
+    // A pending debounced filter would overwrite this patch's filter.
+    if (patch.filter !== undefined) clearDebounce();
+    through(inner.setParams)(patch);
+  };
 
   const selectAll = async (opts?: { limit?: number }): Promise<void> => {
     if (destroyed || targetValue === undefined) return;
@@ -243,6 +288,7 @@ export function createReferenceManyController<
     return () => {
       unsubscribeObserver?.();
       unsubscribeInner();
+      clearDebounce();
       observer = null;
       reconfigure = null;
     };
@@ -253,8 +299,8 @@ export function createReferenceManyController<
     setPage: through(inner.setPage),
     setPerPage: through(inner.setPerPage),
     setSort: through(inner.setSort),
-    setFilters: through(inner.setFilters),
-    setParams: through(inner.setParams),
+    setFilters,
+    setParams,
     showFilter: through(inner.showFilter),
     hideFilter: through(inner.hideFilter),
     select: through(inner.select),

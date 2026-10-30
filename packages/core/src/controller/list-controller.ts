@@ -100,7 +100,7 @@ interface PersistedListParams {
 }
 
 const DEFAULT_PER_PAGE = 10;
-const DEFAULT_DEBOUNCE_MS = 500;
+export const DEFAULT_DEBOUNCE_MS = 500;
 export const DEFAULT_SELECT_ALL_LIMIT = 250;
 const DEFAULT_SORT: SortPayload[] = [{ field: "id", order: "ASC" }];
 
