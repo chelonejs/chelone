@@ -116,6 +116,17 @@ describe("useListController — URL sync (R1)", () => {
     expect(r?.data?.map((p) => p.id)).toEqual([25]);
   });
 
+  it("a deep-linked sort on the default sort field keeps its order", async () => {
+    const router = await makeRouter("/?sort=title&order=ASC");
+    const { capture } = mountList(router, {
+      resource: "posts",
+      sort: { field: "title", order: "ASC" },
+    });
+    await settled(() => capture.result);
+
+    expect(capture.result?.sort).toEqual([{ field: "title", order: "ASC" }]);
+  });
+
   it("pushes a setFilters change to the URL (filter JSON-encoded)", async () => {
     const router = await makeRouter("/");
     const { capture } = mountList(router, { resource: "posts" });

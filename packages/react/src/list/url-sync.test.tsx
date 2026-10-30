@@ -139,6 +139,19 @@ describe("useListController URL-sync (syncWithLocation)", () => {
     expect(result.current.sort).toEqual([{ field: "title", order: "DESC" }]);
   });
 
+  it("a deep-linked sort on the default sort field keeps its order", () => {
+    const { adapter } = makeMockAdapter("?sort=title&order=ASC");
+    const { wrapper } = makeWrapper(adapter);
+    const { result } = renderHook(
+      () =>
+        useListController<typeof resources, "posts">("posts", {
+          sort: { field: "title", order: "ASC" },
+        }),
+      { wrapper },
+    );
+    expect(result.current.sort).toEqual([{ field: "title", order: "ASC" }]);
+  });
+
   it("pushes a param change to the URL with replace:true", async () => {
     const { adapter, navigate } = makeMockAdapter();
     const { wrapper } = makeWrapper(adapter);
