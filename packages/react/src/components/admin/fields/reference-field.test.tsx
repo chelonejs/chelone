@@ -1,14 +1,14 @@
 /**
  * P7d-T3 — `<ReferenceField>` ported onto chelone data hooks.
  *
- * Resolves a single referenced record (via `useGetOne`) off the FK at `source`,
+ * Resolves a single referenced record (via `useGetManyAggregate`) off the FK at `source`,
  * publishes it in a `RecordContext`, and renders the child field (or the
  * reference's record representation). Optionally wraps the output in a link to
  * the referenced record's page.
  *
  * Rebridge note: chelone has no `ReferenceFieldBase`/`useReferenceFieldContext`
  * (shadmin's ra-core-derived controller stack). The field is built directly on
- * `useGetOne` + `useGetRecordRepresentation` + `RecordContextProvider`, and the
+ * `useGetManyAggregate` + `useGetRecordRepresentation` + `RecordContextProvider`, and the
  * link uses the router adapter's `Link` + `useCreatePath`.
  */
 import {
@@ -122,7 +122,12 @@ describe("<ReferenceField>", () => {
       expect(screen.getAllByText("Jane Doe")).toHaveLength(2);
       expect(screen.getByText("John Smith")).toBeTruthy();
     });
-    expect(getMany).toHaveBeenCalledExactlyOnceWith("authors", { ids: [1, 2] });
+    expect(getMany).toHaveBeenCalledTimes(1);
+    expect(getMany).toHaveBeenCalledWith(
+      "authors",
+      expect.objectContaining({ ids: expect.arrayContaining([1, 2]) }),
+    );
+    expect(getMany.mock.calls[0]?.[1].ids).toHaveLength(2);
     expect(getOne).not.toHaveBeenCalled();
   });
 
@@ -245,6 +250,7 @@ describe("<ReferenceField>", () => {
     expect(screen.queryByRole("link")).toBeNull();
   });
 
+  // Explicit links override view-capability inference; only omitted links use hasEdit.
   it("links to the edit path when link='edit' is explicit", async () => {
     const Providers = makeProviders();
     render(

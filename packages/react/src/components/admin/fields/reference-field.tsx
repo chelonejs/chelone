@@ -23,14 +23,15 @@ interface ReferenceFieldProps<
   children?: ReactNode;
   /**
    * Render-prop alternative to `children`: receives the resolved referenced
-   * record (or `undefined` while loading / on error).
+   * record. Called only after the reference resolves; loading, error and empty
+   * states use their respective props.
    */
   render?: (referenceRecord: UnknownRecord | undefined) => ReactNode;
   /** A `CreatePathType` (`"show"`/`"edit"`/…) or `false` to disable linking. */
   link?: LinkToType;
   /** A class name applied to the link wrapper. */
   className?: string;
-  /** Rendered when the FK is null/undefined. A string is translated. */
+  /** Rendered when the FK is null/undefined or its record is missing. A string is translated. */
   empty?: ReactNode;
   /** Rendered while the referenced record is loading. */
   loading?: ReactNode;
