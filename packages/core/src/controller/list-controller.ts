@@ -31,6 +31,21 @@ export interface ListControllerState<TRecord> {
   hasPreviousPage: boolean | undefined;
 }
 
+/**
+ * Several list params applied as one change (one fetch, one URL write).
+ * Every key is optional; an omitted key stays as it is.
+ */
+export interface ListParamsPatch {
+  /** Replaces the user filter; empty values are stripped. */
+  filter?: FilterPayload;
+  displayedFilters?: Record<string, boolean>;
+  /** Replaces wholesale; a single payload never toggles the order. */
+  sort?: SortPayload | SortPayload[];
+  perPage?: number;
+  /** Defaults to 1 when the patch holds `filter`, `sort` or `perPage`. */
+  page?: number;
+}
+
 export interface ListController<TRecord>
   extends MicroStore<ListControllerState<TRecord>> {
   setPage(page: number): void;
@@ -42,6 +57,8 @@ export interface ListController<TRecord>
     displayedFilters?: Record<string, boolean>,
     debounced?: boolean,
   ): void;
+  /** Applies a {@link ListParamsPatch} with one refetch and one persisted write. Never debounced. */
+  setParams(patch: ListParamsPatch): void;
   showFilter(name: string, defaultValue?: unknown): void;
   hideFilter(name: string): void;
   select(ids: Identifier[]): void;
@@ -288,6 +305,27 @@ export function createListController<
     });
   };
 
+  const setParams = (patch: ListParamsPatch): void => {
+    if (destroyed) return;
+    const next: Partial<ListControllerState<TRecord>> = {};
+    if (patch.filter !== undefined) next.filter = removeEmpty(patch.filter);
+    if (patch.displayedFilters !== undefined) {
+      next.displayedFilters = { ...patch.displayedFilters };
+    }
+    if (patch.sort !== undefined) next.sort = normalizeSort(patch.sort, []);
+    if (patch.perPage !== undefined) next.perPage = patch.perPage;
+    if (patch.page !== undefined) {
+      next.page = patch.page;
+    } else if (
+      patch.filter !== undefined ||
+      patch.sort !== undefined ||
+      patch.perPage !== undefined
+    ) {
+      next.page = 1;
+    }
+    applyParams(next);
+  };
+
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
   const clearDebounce = (): void => {
     if (debounceTimer !== undefined) {
@@ -508,6 +546,7 @@ export function createListController<
     setPerPage,
     setSort,
     setFilters,
+    setParams,
     showFilter,
     hideFilter,
     select,
