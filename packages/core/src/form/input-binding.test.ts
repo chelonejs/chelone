@@ -475,10 +475,10 @@ describe("createFieldBinding — validator wiring (ra submit-then-change semanti
     expect(spy).toHaveBeenCalledTimes(1);
     binding.setValue("ok");
     // The latched sync slot clears the stale error immediately; the async
-    // re-check runs behind form-core's debounce timer (setTimeout 0).
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    // re-check runs behind form-core's debounce timer (setTimeout 0), which a
+    // loaded CI box can hold past any fixed sleep.
+    await vi.waitFor(() => expect(spy).toHaveBeenCalledTimes(2));
     expect(errors()).toEqual([]);
-    expect(spy).toHaveBeenCalledTimes(2);
     await controller.submit();
     expect(save).toHaveBeenCalledTimes(1);
   });
