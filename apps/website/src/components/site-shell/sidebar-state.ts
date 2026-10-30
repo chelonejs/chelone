@@ -3,11 +3,10 @@
  *
  * shadcn's `SidebarProvider` writes the `sidebar_state` cookie on toggle but
  * relies on the server reading it back into `defaultOpen` — which a client-only
- * SPA never does, so the state was lost on reload. And docs/demo each mount
- * their own `SidebarProvider`, so client-nav between them reset it.
+ * SPA never does, so the state was lost on reload.
  *
  * This module-level store is the single source of truth: it outlives any one
- * route's React tree (so docs ⇄ demo navigation keeps the same value) and seeds
+ * route's React tree (so docs navigation keeps the same value) and seeds
  * from / writes to the same `sidebar_state` cookie shadcn uses (so it survives
  * reloads). `SiteShell` consumes it via `useSyncExternalStore` and drives
  * `SidebarProvider` as a controlled value.

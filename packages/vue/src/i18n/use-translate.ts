@@ -5,11 +5,16 @@
  * echo (`key => key`) so components (a label, a `<ValidationError>`) still
  * render readable text in tests / i18n-less setups instead of throwing.
  *
- * Core's `translate` echoes the key on a miss (no polyglot `_` default), so a
- * missing translation renders the key/message verbatim — matching ra-core's
- * `{ _: message }` fallback behavior without smuggling a default arg.
+ * The fallback is a core i18n over an empty catalog: it echoes the key on a
+ * miss, and honours the polyglot `{ _: message }` default (placeholders filled
+ * in) exactly as a real instance does, so ra-core style labels still read well.
  */
 
+import {
+  type AnyCheloneI18n,
+  createI18n,
+  type MessageCatalog,
+} from "@chelone/core";
 import { useCheloneContext } from "../context";
 
 /** The translate signature the components consume. */
@@ -18,16 +23,17 @@ export type Translate = (
   params?: Record<string, unknown>,
 ) => string;
 
+// No i18n: an empty catalog echoes the key, and for a missing key honours the
+// polyglot `{ _: default }` convention, placeholders filled in, as with a real one.
+const echoI18n: AnyCheloneI18n = createI18n<MessageCatalog>({
+  locale: "en",
+  messages: { en: {} },
+});
+
 /** A bound `translate` over the ambient i18n, or an echo when none is present. */
 export function useTranslate(): Translate {
   const { i18n } = useCheloneContext();
-  // No i18n → echo the key, but honor the polyglot/ra `{ _: default }`
-  // convention so a fallback (e.g. a button's aria-label) renders readable text
-  // instead of a raw dotted key. Core's `translate` already honors `_`.
-  if (!i18n) {
-    return (key: string, params?: Record<string, unknown>) =>
-      typeof params?._ === "string" ? params._ : key;
-  }
+  const active = i18n ?? echoI18n;
   return (key: string, params?: Record<string, unknown>) =>
-    i18n.translate(key, params);
+    active.translate(key, params);
 }

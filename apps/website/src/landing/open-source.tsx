@@ -1,11 +1,22 @@
 import { cn } from "@/lib/utils";
+import registry from "../../../../packages/react/registry.json" with {
+  type: "json",
+};
 import { insetCard } from "./constants";
 import { Reveal } from "./reveal";
 import { BezelPanel, Heading, Lead, Section } from "./section";
 
 const stats = [
-  { value: "40+", label: "Components" },
-  { value: "15+", label: "Blocks" },
+  {
+    value: registry.items.filter((item) => item.type === "registry:component")
+      .length,
+    label: "Components",
+  },
+  {
+    value: registry.items.filter((item) => item.type === "registry:block")
+      .length,
+    label: "Blocks",
+  },
   { value: "100%", label: "Open source (MIT)" },
 ];
 
