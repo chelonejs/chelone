@@ -96,6 +96,7 @@ afterEach(() => {
 function stubList(overrides: Record<string, unknown> = {}) {
   return reactive({
     data: [{ id: 1 }],
+    error: null as Error | null,
     isPending: false,
     hasNextPage: true,
     isFetchingNextPage: false,
