@@ -42,6 +42,7 @@ export function getListOptions<
   };
 }
 
+/** One record by id, cached under `oneKey`. */
 export function getOneOptions<
   TResources extends ResourceMap,
   TName extends keyof TResources & string,
@@ -55,6 +56,7 @@ export function getOneOptions<
   };
 }
 
+/** Records for an array of ids, seeded into `oneKey`. Resolves to the rows only. */
 export function getManyOptions<
   TResources extends ResourceMap,
   TName extends keyof TResources & string,
@@ -69,6 +71,11 @@ export function getManyOptions<
   };
 }
 
+/**
+ * Records whose `params.target` field equals `params.id` (the FK on the
+ * referenced-FROM side). Keeps the whole `GetManyReferenceResult` (rows and
+ * `total`) and seeds each row into the `oneKey` cache.
+ */
 export function getManyReferenceOptions<
   TResources extends ResourceMap,
   TName extends keyof TResources & string,

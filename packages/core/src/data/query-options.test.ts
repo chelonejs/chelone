@@ -43,6 +43,12 @@ describe("query option factories", () => {
       id: 1,
       title: "a",
     });
+    expect(
+      c.queryClient.getQueryData(oneKey("posts", { id: 2 })),
+    ).toMatchObject({
+      id: 2,
+      title: "b",
+    });
   });
 
   it("getOneOptions caches the record under the stringified-id key", async () => {
@@ -83,21 +89,23 @@ describe("getManyReferenceOptions", () => {
         { id: 3, post_id: 1, body: "c" },
       ],
     }),
-    queryClient: new QueryClient(),
+    queryClient: new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    }),
   });
-  const params = {
+  const params = () => ({
     target: "post_id",
     id: 1,
     pagination: { page: 1, perPage: 10 },
-  };
+  });
 
   it("getManyReferenceOptions calls getManyReference with the target, id and paging and returns the typed list result", async () => {
     const c = refCtx();
     const spy = vi.spyOn(c.dataProvider, "getManyReference");
     const result = await c.queryClient.fetchQuery(
-      getManyReferenceOptions(c, "comments", params),
+      getManyReferenceOptions(c, "comments", params()),
     );
-    expect(spy).toHaveBeenCalledWith("comments", params);
+    expect(spy).toHaveBeenCalledWith("comments", params());
     expect(result.data.map((r) => r.body)).toEqual(["a", "c"]);
     expect(result.total).toBe(2);
     expectTypeOf(result.data).toEqualTypeOf<
@@ -108,7 +116,7 @@ describe("getManyReferenceOptions", () => {
   it("getManyReferenceOptions seeds oneKey slots for every returned row", async () => {
     const c = refCtx();
     await c.queryClient.fetchQuery(
-      getManyReferenceOptions(c, "comments", params),
+      getManyReferenceOptions(c, "comments", params()),
     );
     expect(
       c.queryClient.getQueryData(oneKey("comments", { id: 1 })),
@@ -125,11 +133,13 @@ describe("getManyReferenceOptions", () => {
     const c = refCtx();
     const boom = new Error("boom");
     vi.spyOn(c.dataProvider, "getManyReference").mockRejectedValue(boom);
-    const options = getManyReferenceOptions(c, "comments", params);
+    const options = getManyReferenceOptions(c, "comments", params());
     await expect(c.queryClient.fetchQuery(options)).rejects.toBe(boom);
     expect(c.queryClient.getQueryData(options.queryKey)).toBeUndefined();
-    expect(
-      c.queryClient.getQueryData(oneKey("comments", { id: 1 })),
-    ).toBeUndefined();
+    for (const id of [1, 2, 3]) {
+      expect(
+        c.queryClient.getQueryData(oneKey("comments", { id })),
+      ).toBeUndefined();
+    }
   });
 });

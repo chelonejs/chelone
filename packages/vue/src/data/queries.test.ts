@@ -7,7 +7,7 @@
 
 import { defineResources, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { defineComponent, h, type Ref, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
@@ -101,10 +101,11 @@ describe("useGetManyReference", () => {
   it("useGetManyReference does not fetch while enabled is false", async () => {
     const enabled = ref(false);
     const { rows, getManyReference } = mountProbe({ id: ref(1), enabled });
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await flushPromises();
     expect(getManyReference).not.toHaveBeenCalled();
     expect(rows()).toEqual([]);
     enabled.value = true;
     await vi.waitFor(() => expect(rows()).toEqual(["x", "z"]));
+    expect(getManyReference).toHaveBeenCalledTimes(1);
   });
 });

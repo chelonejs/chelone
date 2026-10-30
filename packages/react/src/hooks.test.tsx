@@ -129,19 +129,21 @@ describe("react hooks", () => {
   it("useGetManyReference does not fetch while enabled is false", async () => {
     const { wrapper, dataProvider } = makeWrapper();
     const spy = vi.spyOn(dataProvider, "getManyReference");
-    const { result } = renderHook(
-      () =>
+    const { result, rerender } = renderHook(
+      ({ enabled }) =>
         useGetManyReference<R, "comments">(
           "comments",
           { target: "post_id", id: 1 },
-          { enabled: false },
+          { enabled },
         ),
-      { wrapper },
+      { wrapper, initialProps: { enabled: false } },
     );
-    await new Promise((resolve) => setTimeout(resolve, 20));
     expect(spy).not.toHaveBeenCalled();
     expect(result.current.fetchStatus).toBe("idle");
     expect(result.current.data).toBeUndefined();
+    rerender({ enabled: true });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it("createCheloneHooks binds useGetManyReference to the registry type and rejects an unknown resource", async () => {

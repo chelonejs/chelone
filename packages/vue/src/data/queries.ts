@@ -1,9 +1,10 @@
 /**
  * Data-fetch composables over `@tanstack/vue-query` — the Vue twin of
- * `@chelone/react`'s `hooks.ts` (`useGetOne` / `useGetList`), the ONE reference
- * path the V1 vertical needs (a `<ReferenceField>` resolves a to-one record; a
- * `<ReferenceInput>` fetches choices). Both wrap core's framework-agnostic
- * `getOneOptions` / `getListOptions` (queryKey + queryFn) and hand them to
+ * `@chelone/react`'s `hooks.ts` (`useGetOne` / `useGetMany` / `useGetList` /
+ * `useGetManyReference`). A `<ReferenceField>` resolves a to-one record, a
+ * `<ReferenceInput>` fetches choices. Each wraps core's framework-agnostic
+ * `getOneOptions` / `getManyOptions` / `getListOptions` /
+ * `getManyReferenceOptions` (queryKey + queryFn) and hands them to
  * vue-query's `useQuery`, reusing the SAME `dataProvider` + `queryClient`
  * `<Admin>` provides (it installs the vue-query client under `VUE_QUERY_CLIENT`).
  *
