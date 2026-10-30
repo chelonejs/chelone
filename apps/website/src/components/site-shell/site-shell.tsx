@@ -15,11 +15,7 @@ import {
 interface SiteShellProps {
   /** The sidebar element — pass `<SiteSidebar>` (already contains SidebarRail). */
   sidebar: ReactNode;
-  /**
-   * Breadcrumb rendered in the inset header.
-   * Also wrapped in `id="breadcrumb"` so the Demo's ra-core breadcrumb portal
-   * has a mount target.
-   */
+  /** Breadcrumb rendered in the inset header. */
   breadcrumb?: ReactNode;
   /** Right-aligned action buttons / controls in the inset header. */
   actions?: ReactNode;
@@ -27,7 +23,7 @@ interface SiteShellProps {
 }
 
 /**
- * Top-level shell shared by Docs and Demo.
+ * Top-level shell for the docs.
  *
  * Renders:
  *   SidebarProvider
@@ -45,8 +41,8 @@ export function SiteShell({
   actions,
   children,
 }: SiteShellProps) {
-  // Controlled by the shared, persisted store so docs ⇄ demo navigation keeps
-  // the same open/collapsed state and it survives reloads (see sidebar-state).
+  // The persisted store keeps the open/collapsed state across docs navigation
+  // and reloads (see sidebar-state).
   const open = useSyncExternalStore(
     subscribeSidebar,
     getSidebarOpen,
@@ -55,7 +51,7 @@ export function SiteShell({
   return (
     // h-svh + overflow-hidden locks the shell to the viewport so the sidebar
     // (fixed) and the inset header stay put; scrolling is delegated to the
-    // content region below. SiteNav is hidden on /docs and /demo, so this owns
+    // content region below. SiteNav is hidden on /docs, so this owns
     // the full viewport there — the landing page (which needs document scroll)
     // never mounts SiteShell.
     <SidebarProvider

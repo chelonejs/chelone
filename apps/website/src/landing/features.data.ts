@@ -69,7 +69,7 @@ export const features: Feature[] = [
   },
   {
     title: "Authentication",
-    description: "Secure auth flows and user management",
+    description: "Secure auth flows",
     icon: KeyRound,
     size: "single",
     col: 3,
