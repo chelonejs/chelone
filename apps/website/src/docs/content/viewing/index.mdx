@@ -12,10 +12,20 @@ view, or any component under a record context, and they Just Work.
 
 ## How a field reads the record
 
-A field takes a `source` — the record property to display — and pulls its value
-from context via `useFieldValue`. It doesn't fetch, doesn't own state, and
-doesn't care where the record came from. That's why the same `<TextField>` works
-in a list row and a detail page:
+A field takes a `source`, the record property to display, and reads its value
+from context via `useFieldValue`. The plain fields (`<TextField>`,
+`<NumberField>`, `<DateField>` and the rest) only read: they fetch nothing and
+hold no state, so the same `<TextField>` works in a list row and a detail page.
+
+Two kinds of field do more:
+
+- The Reference fields fetch through the data provider.
+  `<ReferenceField>` and `<ReferenceArrayField>` call `getMany`,
+  `<ReferenceManyField>` and `<ReferenceManyCount>` call `getManyReference`,
+  and `<ReferenceOneField>` looks up the one related record. Each shows a loading
+  state while it waits and needs a data provider, so render it under `<Admin>`.
+- `<ApiKeyField>` keeps state: whether the key is revealed, and whether it was
+  just copied.
 
 <ComponentPreview name="viewing/fields-overview" />
 
@@ -30,21 +40,50 @@ import { BooleanField, NumberField, ReferenceField, TextField } from "@chelone/r
 <BooleanField source="published" />
 ```
 
+## Fields in a DataTable
+
+A `<DataTable.Col>` renders one cell per row, with each row's record in
+context. Put a field in the column's `field` prop or its children. A column with
+only a `source` prints the raw value, and a column with a `source` is sortable
+by its header:
+
+```tsx
+import { DataTable, List, ReferenceField, TextField } from "@chelone/react";
+
+<List>
+  <DataTable>
+    <DataTable.Col source="title" field={TextField} />
+    <DataTable.NumberCol source="views" />
+    <DataTable.Col label="Author">
+      <ReferenceField source="author_id" reference="authors" />
+    </DataTable.Col>
+  </DataTable>
+</List>
+```
+
 ## The field families
 
-- **Text & numbers** — `<TextField>`, `<NumberField>`, `<CurrencyField>`,
-  `<DateField>`, `<EmailField>`, `<UrlField>`, `<PhoneField>`.
-- **Booleans & chips** — `<BooleanField>`, `<BadgeField>`, `<ChipField>`,
+- **Text & numbers**: `<TextField>`, `<NumberField>`, `<CurrencyField>`,
+  `<DateField>`, `<DurationField>`, `<EmailField>`, `<UrlField>`,
+  `<PhoneField>`, `<ColorField>`, `<CronField>`, `<RatingField>`.
+- **Booleans & chips**: `<BooleanField>`, `<BadgeField>`, `<ChipField>`,
   `<SelectField>`.
-- **References** — `<ReferenceField>` (a foreign key → one record),
-  `<ReferenceManyField>` / `<ReferenceArrayField>` (a record → many),
-  `<ReferenceOneField>`.
-- **Composite** — `<RecordField>` (labelled row for a `<Show>`),
-  `<ArrayField>`, `<FunctionField>` (render anything from the record),
-  `<WrapperField>`.
+- **References**: `<ReferenceField>` (a foreign key to one record),
+  `<ReferenceManyField>` / `<ReferenceArrayField>` (a record to many),
+  `<ReferenceOneField>`, `<ReferenceManyCount>` (how many related records).
+- **Composite**: `<RecordField>` (labelled row for a `<Show>`),
+  `<ArrayField>`, `<TextArrayField>`, `<FunctionField>` (render anything from the
+  record), `<WrapperField>`.
+- **Files & media**: `<FileField>`, `<ImageField>`.
+- **SaaS**: `<ApiKeyField>`, `<SubscriptionPlanField>`, `<UsageMeterField>`,
+  `<WebhookEndpointField>`.
+- **List controls**: the components that sit around a `<DataTable>` rather than
+  inside a cell: `<BulkActionsToolbar>`, `<ExportButton>`, `<FilterButton>`,
+  `<FilterLiveForm>`, `<SortButton>`, `<ListPagination>`,
+  `<InfinitePagination>`, `<SavedQueriesList>`.
 
-Browse the full reference in the sidebar — every field below documents its
-`source`, formatting props, and a live example.
+Each page in the sidebar is a props reference for one component: its props, with
+the types read from the source. The pages have no live examples.
 
 ## Fields vs inputs
 
