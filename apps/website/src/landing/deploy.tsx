@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+import { links } from "./constants";
 import { Reveal, RevealItem } from "./reveal";
 import {
   BezelPanel,
@@ -47,6 +49,17 @@ export function Deploy() {
 
         {/* Terminal */}
         <Reveal delay={0.1}>
+          <p className="mb-4 text-sm text-muted-foreground">
+            First, configure the <code>@chelone</code> registry in{" "}
+            <code>components.json</code> using the{" "}
+            <Link
+              to={`${links.install}#add-the-ui-components`}
+              className="underline underline-offset-4 hover:text-foreground"
+            >
+              installation guide
+            </Link>
+            .
+          </p>
           <BezelPanel>
             <WindowChrome title="Terminal">
               <div className="bg-zinc-950 p-5 font-mono text-sm leading-relaxed">

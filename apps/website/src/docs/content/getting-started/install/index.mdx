@@ -18,10 +18,15 @@ the first release, tracked in the repository's
 ## Install the engine
 
 Add the React adapter, its required router and TanStack peers, and Zod for
-resource schemas. `@chelone/react` pulls in `@chelone/core` automatically:
+resource schemas. `@chelone/react` depends on `@chelone/core`, whose required
+TanStack peers are included here for package managers that do not install peers
+automatically:
 
 ```bash
-npm install @chelone/react react-router@^7.0.0 @tanstack/react-query@^5.0.0 @tanstack/react-store@^0.11.0 zod@^3.24.0
+npm install @chelone/react zod@^3.24.0 \
+  react-router@^7.0.0 \
+  @tanstack/react-query@^5.0.0 @tanstack/react-store@^0.11.0 \
+  @tanstack/form-core@^1.33.0 @tanstack/query-core@^5.0.0
 ```
 
 Your app must also have React and React DOM installed. The peer ranges declared
@@ -35,6 +40,13 @@ by `@chelone/react` are:
 | `@tanstack/react-query` | `^5.0.0` | Yes |
 | `@tanstack/react-store` | `^0.11.0` | Yes |
 | `@tanstack/react-router` | `^1.0.0` | Only for the optional reference adapter |
+
+`@chelone/core` also requires these peers:
+
+| Peer | Range |
+| --- | --- |
+| `@tanstack/form-core` | `^1.33.0` |
+| `@tanstack/query-core` | `^5.0.0` |
 
 ## Add the UI components
 
@@ -76,8 +88,16 @@ on Windows. If you hit problems, use a WSL terminal.
 
 ## Mount an admin
 
-Chelone runs as a client-side single-page app. Wrap your admin in a router and
-the `<Admin>` provider, then declare a `<Resource>` per entity:
+Chelone runs as a client-side single-page app. The example below imports
+`fakeDataProvider` from `@chelone/core`. Declare it as a direct dependency so
+that import resolves with pnpm and Yarn Plug'n'Play:
+
+```bash
+npm install @chelone/core
+```
+
+Wrap your admin in a router and the `<Admin>` provider, then declare a
+`<Resource>` per entity:
 
 ```tsx title="src/App.tsx"
 import { fakeDataProvider } from "@chelone/core";
