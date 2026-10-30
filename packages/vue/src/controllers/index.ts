@@ -15,6 +15,11 @@ export type {
 } from "./use-edit-controller";
 export { useEditController } from "./use-edit-controller";
 export type {
+  UseInfiniteListControllerOptions,
+  UseInfiniteListControllerReturn,
+} from "./use-infinite-list-controller";
+export { useInfiniteListController } from "./use-infinite-list-controller";
+export type {
   UseListControllerOptions,
   UseListControllerReturn,
 } from "./use-list-controller";
