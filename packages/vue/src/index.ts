@@ -237,4 +237,8 @@ export {
   useRouterAdapterOptional,
   vueRouterAdapter,
 } from "./router";
+export {
+  type UseSavedQueriesReturn,
+  useSavedQueries,
+} from "./store/use-saved-queries";
 export { useStore, useStoreSelector } from "./store/use-store";

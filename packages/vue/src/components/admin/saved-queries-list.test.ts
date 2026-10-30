@@ -1,0 +1,335 @@
+/**
+ * `useSavedQueries` and `<SavedQueriesList>`: named list queries persisted in
+ * the KV store, applied to the ambient list with one `setParams` call. Mounted
+ * under a real `<Admin>`; assertions are on DOM, roles, the store and
+ * data-provider calls.
+ */
+
+import {
+  type ChelonStore,
+  createStore,
+  fakeDataProvider,
+  type SavedQuery,
+} from "@chelone/core";
+import { QueryClient } from "@tanstack/vue-query";
+import { type DOMWrapper, mount, type VueWrapper } from "@vue/test-utils";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { defineComponent, h, reactive, type VNodeChild } from "vue";
+import { createMemoryHistory, createRouter } from "vue-router";
+import Admin from "../../admin/admin.vue";
+import {
+  type ListContextValue,
+  provideListContext,
+} from "../../list/list-context";
+import { provideResourceContext } from "../../resource-context";
+import { useSavedQueries } from "../../store/use-saved-queries";
+import SavedQueriesList from "./list/saved-queries-list.vue";
+import List from "./view/list.vue";
+
+const mounted: VueWrapper[] = [];
+// A form only submits from a click while it is attached to the document.
+afterEach(() => {
+  for (const wrapper of mounted.splice(0)) wrapper.unmount();
+});
+
+const savedValue = (title: string, perPage = 10) => ({
+  filter: { title },
+  displayedFilters: { title: true },
+  sort: [{ field: "id", order: "DESC" as const }],
+  perPage,
+});
+
+const seeded = (): ChelonStore => {
+  const store = createStore();
+  store.setItem<SavedQuery[]>("posts.savedQueries", [
+    { label: "Hello posts", value: savedValue("hello", 10) },
+    { label: "World posts", value: savedValue("world", 25) },
+  ]);
+  return store;
+};
+
+function mountAdmin(
+  store: ChelonStore,
+  render: () => VNodeChild,
+  dataProvider = fakeDataProvider({}),
+) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [{ path: "/", component: { render: () => null } }],
+  });
+  const Harness = defineComponent({
+    setup() {
+      // An empty layout node keeps the default chrome out of the DOM.
+      return () =>
+        h(
+          Admin,
+          { dataProvider, queryClient, store },
+          { default: render, layout: () => h("div") },
+        );
+    },
+  });
+  const wrapper = mount(Harness, {
+    global: { plugins: [router] },
+    attachTo: document.body,
+  });
+  mounted.push(wrapper);
+  return wrapper;
+}
+
+type ListState = Partial<
+  Pick<ListContextValue, "filter" | "displayedFilters" | "sort" | "perPage">
+>;
+
+/** A list context stub; `setParams` is a spy and the state is reactive. */
+function makeList(state: ListState = {}) {
+  const setParams = vi.fn();
+  const list = reactive({
+    filter: {},
+    displayedFilters: {},
+    sort: [{ field: "id", order: "DESC" }],
+    perPage: 10,
+    ...state,
+    setParams,
+  }) as unknown as ListContextValue;
+  return { list, setParams };
+}
+
+/** Mounts `<SavedQueriesList>` over a stubbed list of the `posts` resource. */
+function mountStub(store: ChelonStore, state: ListState = {}, props = {}) {
+  const { list, setParams } = makeList(state);
+  const Host = defineComponent({
+    setup() {
+      provideResourceContext("posts");
+      provideListContext(list);
+      return () => h(SavedQueriesList, props);
+    },
+  });
+  const wrapper = mountAdmin(store, () => h(Host));
+  return { wrapper, setParams };
+}
+
+const button = (
+  wrapper: VueWrapper | DOMWrapper<Element>,
+  name: RegExp | string,
+) =>
+  wrapper
+    .findAll("button")
+    .find((b) =>
+      typeof name === "string"
+        ? b.text() === name || b.attributes("aria-label") === name
+        : name.test(b.text()) || name.test(b.attributes("aria-label") ?? ""),
+    );
+
+const labels = (store: ChelonStore) =>
+  store.getItem<SavedQuery[]>("posts.savedQueries")?.map((q) => q.label);
+
+describe("useSavedQueries", () => {
+  it("returns the persisted queries and updates on save and remove", async () => {
+    const store = seeded();
+    let api: ReturnType<typeof useSavedQueries> | undefined;
+    const Probe = defineComponent({
+      setup() {
+        api = useSavedQueries("posts");
+        return () => h("div");
+      },
+    });
+    mountAdmin(store, () => h(Probe));
+    expect(api?.queries.value.map((q) => q.label)).toEqual([
+      "Hello posts",
+      "World posts",
+    ]);
+
+    api?.save("Third", savedValue("third"));
+    expect(api?.queries.value.map((q) => q.label)).toEqual([
+      "Hello posts",
+      "World posts",
+      "Third",
+    ]);
+    expect(labels(store)).toEqual(["Hello posts", "World posts", "Third"]);
+
+    api?.remove("Hello posts");
+    expect(api?.queries.value.map((q) => q.label)).toEqual([
+      "World posts",
+      "Third",
+    ]);
+  });
+
+  it("follows a change written to the store by another instance", async () => {
+    const store = createStore();
+    const apis: ReturnType<typeof useSavedQueries>[] = [];
+    const Probe = defineComponent({
+      setup() {
+        apis.push(useSavedQueries("posts"));
+        return () => h("div");
+      },
+    });
+    mountAdmin(store, () => [h(Probe), h(Probe)]);
+
+    apis[0]?.save("Shared", savedValue("shared"));
+    expect(apis[1]?.queries.value.map((q) => q.label)).toEqual(["Shared"]);
+    apis[1]?.remove("Shared");
+    expect(apis[0]?.queries.value).toEqual([]);
+  });
+});
+
+describe("SavedQueriesList", () => {
+  it("lists the saved queries of the resource", () => {
+    const store = seeded();
+    store.setItem<SavedQuery[]>("comments.savedQueries", [
+      { label: "Other resource", value: savedValue("x") },
+    ]);
+    const { wrapper } = mountStub(store);
+    expect(button(wrapper, "Hello posts")).toBeDefined();
+    expect(button(wrapper, "World posts")).toBeDefined();
+    expect(wrapper.text()).not.toContain("Other resource");
+  });
+
+  it("lists the queries of an explicit resource prop", () => {
+    const store = createStore();
+    store.setItem<SavedQuery[]>("comments.savedQueries", [
+      { label: "Other resource", value: savedValue("x") },
+    ]);
+    const { wrapper } = mountStub(store, {}, { resource: "comments" });
+    expect(button(wrapper, "Other resource")).toBeDefined();
+  });
+
+  it("clicking a query calls setParams once with its filter, displayedFilters, sort and perPage", async () => {
+    const { wrapper, setParams } = mountStub(seeded());
+    await button(wrapper, "World posts")?.trigger("click");
+    expect(setParams).toHaveBeenCalledTimes(1);
+    expect(setParams).toHaveBeenCalledWith({
+      filter: { title: "world" },
+      displayedFilters: { title: true },
+      sort: [{ field: "id", order: "DESC" }],
+      perPage: 25,
+    });
+  });
+
+  it("marks the query matching the list with aria-pressed and clicking it clears the filter", async () => {
+    const { wrapper, setParams } = mountStub(seeded(), {
+      filter: { title: "hello" },
+      perPage: 10,
+    });
+    const active = button(wrapper, "Hello posts");
+    expect(active?.attributes("aria-pressed")).toBe("true");
+    expect(button(wrapper, "World posts")?.attributes("aria-pressed")).toBe(
+      "false",
+    );
+
+    await active?.trigger("click");
+    expect(setParams).toHaveBeenCalledTimes(1);
+    expect(setParams).toHaveBeenCalledWith({ filter: {} });
+  });
+
+  it("saves the current params under the typed name", async () => {
+    const store = createStore();
+    const { wrapper } = mountStub(store, {
+      filter: { title: "draft" },
+      displayedFilters: { title: true },
+      perPage: 5,
+    });
+    await button(wrapper, "Save current query")?.trigger("click");
+    await wrapper
+      .find('input[aria-label="Query name"]')
+      .setValue("  My drafts ");
+    await button(wrapper, "Save")?.trigger("click");
+
+    expect(store.getItem("posts.savedQueries")).toEqual([
+      {
+        label: "My drafts",
+        value: {
+          filter: { title: "draft" },
+          displayedFilters: { title: true },
+          sort: [{ field: "id", order: "DESC" }],
+          perPage: 5,
+        },
+      },
+    ]);
+    // The form closes and the new query is listed.
+    expect(wrapper.find('input[aria-label="Query name"]').exists()).toBe(false);
+    expect(button(wrapper, "My drafts")).toBeDefined();
+  });
+
+  it("offers no save while the filter is empty or a saved query already matches", () => {
+    const empty = mountStub(seeded(), { filter: {} });
+    expect(button(empty.wrapper, "Save current query")).toBeUndefined();
+
+    const matching = mountStub(seeded(), {
+      filter: { title: "hello" },
+      perPage: 10,
+    });
+    expect(button(matching.wrapper, "Save current query")).toBeUndefined();
+
+    const fresh = mountStub(seeded(), { filter: { title: "other" } });
+    expect(button(fresh.wrapper, "Save current query")).toBeDefined();
+  });
+
+  it("cannot save a blank name", async () => {
+    const store = createStore();
+    const { wrapper } = mountStub(store, { filter: { title: "draft" } });
+    await button(wrapper, "Save current query")?.trigger("click");
+    expect(button(wrapper, "Save")?.attributes("disabled")).toBeDefined();
+    await wrapper.find('input[aria-label="Query name"]').setValue("   ");
+    expect(button(wrapper, "Save")?.attributes("disabled")).toBeDefined();
+    await button(wrapper, "Save")?.trigger("click");
+    expect(store.getItem("posts.savedQueries")).toBeUndefined();
+
+    await button(wrapper, "Cancel")?.trigger("click");
+    expect(wrapper.find('input[aria-label="Query name"]').exists()).toBe(false);
+  });
+
+  it("remove deletes only that query from the store", async () => {
+    const store = seeded();
+    const { wrapper, setParams } = mountStub(store);
+    await button(wrapper, /Remove.*Hello posts/)?.trigger("click");
+    expect(labels(store)).toEqual(["World posts"]);
+    expect(button(wrapper, "Hello posts")).toBeUndefined();
+    expect(button(wrapper, "World posts")).toBeDefined();
+    expect(setParams).not.toHaveBeenCalled();
+  });
+});
+
+describe("SavedQueriesList under List", () => {
+  it("applying a query makes one getList call with its filter", async () => {
+    const dataProvider = fakeDataProvider({
+      posts: [
+        { id: 1, title: "hello" },
+        { id: 2, title: "world" },
+      ],
+    });
+    const getList = vi.spyOn(dataProvider, "getList");
+    const store = createStore();
+    store.setItem<SavedQuery[]>("posts.savedQueries", [
+      {
+        label: "Only hello",
+        value: {
+          ...savedValue("hello", 25),
+          sort: [{ field: "id", order: "ASC" }],
+        },
+      },
+    ]);
+    const wrapper = mountAdmin(
+      store,
+      () =>
+        h(List, { resource: "posts" }, { default: () => h(SavedQueriesList) }),
+      dataProvider,
+    );
+    await vi.waitFor(() => expect(getList).toHaveBeenCalledTimes(1));
+    expect(getList.mock.calls[0]?.[1].filter).toEqual({});
+
+    await button(wrapper, "Only hello")?.trigger("click");
+    await vi.waitFor(() =>
+      expect(button(wrapper, "Only hello")?.attributes("aria-pressed")).toBe(
+        "true",
+      ),
+    );
+    await vi.waitFor(() => expect(getList).toHaveBeenCalledTimes(2));
+    expect(getList.mock.calls[1]?.[1].filter).toEqual({ title: "hello" });
+    // Let any extra fetch surface before asserting there was none.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(getList).toHaveBeenCalledTimes(2);
+  });
+});
