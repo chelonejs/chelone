@@ -128,10 +128,13 @@ export function App() {
 ## Install for Vue
 
 `@chelone/vue` is the Vue 3 adapter. It sits on the same `@chelone/core` engine
-as the React adapter and uses `vue-router` 4. Add it with its peers and Zod:
+as the React adapter and uses `vue-router` 4. Add it with its peers and Zod.
+`@chelone/core` is listed directly because the examples below import
+`fakeDataProvider` from it, which pnpm and Yarn Plug'n'Play only resolve for a
+direct dependency:
 
 ```bash
-npm install @chelone/vue zod@^3.24.0 \
+npm install @chelone/vue @chelone/core zod@^3.24.0 \
   vue@^3.4.0 vue-router@^4.0.0 \
   @tanstack/vue-query@^5.0.0 \
   @tanstack/form-core@^1.33.0 @tanstack/query-core@^5.0.0
@@ -145,9 +148,12 @@ The peer ranges declared by `@chelone/vue` are:
 | `vue-router` | `^4.0.0` |
 | `@tanstack/vue-query` | `^5.0.0` |
 
-`@chelone/core` requires `@tanstack/form-core` and `@tanstack/query-core`, listed
-in the table above. If you import `fakeDataProvider`, also install
-`@chelone/core` directly.
+`@chelone/core` also requires these peers:
+
+| Peer | Range |
+| --- | --- |
+| `@tanstack/form-core` | `^1.33.0` |
+| `@tanstack/query-core` | `^5.0.0` |
 
 The Vue components ship inside the `@chelone/vue` package. There is no
 `shadcn-vue` registry yet, so there is nothing to add with a CLI and no source
@@ -170,6 +176,16 @@ const router = createRouter({
 });
 
 createApp(App).use(router).use(VueQueryPlugin).mount("#app");
+
+// `<Admin>` adds the resource routes while it mounts, after the first
+// navigation has already resolved. Re-resolve the current URL so `/posts`
+// matches.
+router.isReady().then(() => {
+  const current = router.currentRoute.value;
+  if (current.matched.length === 0) {
+    void router.replace(current.fullPath);
+  }
+});
 ```
 
 ```vue title="src/App.vue"
