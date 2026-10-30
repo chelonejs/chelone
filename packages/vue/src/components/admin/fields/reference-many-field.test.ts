@@ -90,7 +90,7 @@ const Probe = defineComponent({
         h(
           "ul",
           (list.data ?? []).map((row) =>
-            h("li", String((row as { title: string }).title)),
+            h("li", String((row as unknown as { title: string }).title)),
           ),
         ),
         h("output", `page ${list.page}`),
