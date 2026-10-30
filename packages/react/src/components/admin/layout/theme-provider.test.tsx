@@ -15,11 +15,26 @@ import {
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { type ReactNode, useState } from "react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { ThemeProvider } from "./theme-provider";
 import { useTheme } from "./use-theme";
+
+/** A provider harness with no store configured. */
+function WrapWithoutStore({ children }: { children: ReactNode }) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return (
+    <CheloneProvider
+      dataProvider={fakeDataProvider({})}
+      queryClient={queryClient}
+    >
+      {children}
+    </CheloneProvider>
+  );
+}
 
 /** Minimal provider harness — ThemeProvider only needs the store. */
 function Wrap({
@@ -45,6 +60,8 @@ function Wrap({
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
+  localStorage.clear();
   document.documentElement.classList.remove("light", "dark");
 });
 
@@ -115,5 +132,89 @@ describe("<ThemeProvider>", () => {
     );
     // The persisted "dark" wins over the "system" default on remount.
     expect(screen.getByTestId("mode").textContent).toBe("dark");
+  });
+
+  it("without a store the mode persists to localStorage", () => {
+    const { unmount } = render(
+      <WrapWithoutStore>
+        <ThemeProvider defaultTheme="light" storageKey="theme">
+          <Probe />
+        </ThemeProvider>
+      </WrapWithoutStore>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "go dark" }));
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(localStorage.getItem("theme")).toBe("dark");
+    unmount();
+
+    render(
+      <WrapWithoutStore>
+        <ThemeProvider defaultTheme="light" storageKey="theme">
+          <Probe />
+        </ThemeProvider>
+      </WrapWithoutStore>,
+    );
+    expect(screen.getByTestId("mode").textContent).toBe("dark");
+  });
+
+  it("renders and still switches the mode when storage is blocked", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new DOMException("blocked", "SecurityError");
+    });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("full", "QuotaExceededError");
+    });
+    render(
+      <WrapWithoutStore>
+        <ThemeProvider defaultTheme="light">
+          <Probe />
+        </ThemeProvider>
+      </WrapWithoutStore>,
+    );
+    expect(screen.getByTestId("mode").textContent).toBe("light");
+    fireEvent.click(screen.getByRole("button", { name: "go dark" }));
+    expect(screen.getByTestId("mode").textContent).toBe("dark");
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+  });
+
+  it("keeps its children mounted when a store appears", () => {
+    const queryClient = new QueryClient();
+    const dataProvider = fakeDataProvider({});
+    function Instance() {
+      const [id] = useState(() => Math.random());
+      return <span data-testid="instance">{id}</span>;
+    }
+    const tree = (store?: CheloneStore) => (
+      <CheloneProvider
+        dataProvider={dataProvider}
+        queryClient={queryClient}
+        store={store}
+      >
+        <ThemeProvider defaultTheme="light">
+          <Instance />
+        </ThemeProvider>
+      </CheloneProvider>
+    );
+    const { rerender } = render(tree());
+    const before = screen.getByTestId("instance").textContent;
+    rerender(tree(createStore()));
+    expect(screen.getByTestId("instance").textContent).toBe(before);
+  });
+
+  it("without a store a new storageKey reads the mode stored under it", () => {
+    localStorage.setItem("a", "dark");
+    localStorage.setItem("b", "light");
+    const tree = (storageKey: string) => (
+      <WrapWithoutStore>
+        <ThemeProvider storageKey={storageKey}>
+          <Probe />
+        </ThemeProvider>
+      </WrapWithoutStore>
+    );
+    const { rerender } = render(tree("a"));
+    expect(screen.getByTestId("mode").textContent).toBe("dark");
+    rerender(tree("b"));
+    expect(screen.getByTestId("mode").textContent).toBe("light");
+    expect(document.documentElement.classList.contains("light")).toBe(true);
   });
 });
