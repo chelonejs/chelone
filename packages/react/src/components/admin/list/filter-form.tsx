@@ -82,7 +82,7 @@ function FilterFormBase(props: FilterFormBaseProps) {
       .forEach((filter) => {
         if (filter.props.alwaysOn && filter.props.defaultValue) {
           throw new Error(
-            "Cannot use alwaysOn and defaultValue on a filter input. Please pass filterDefaultValues to useListController instead.",
+            "Cannot use alwaysOn and defaultValue on a filter input. Please use useListController({ filterDefaultValues }) instead.",
           );
         }
       });
