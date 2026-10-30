@@ -15,8 +15,8 @@ import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import {
-  type ChelonFormApi,
-  type ChelonFormState,
+  type CheloneFormApi,
+  type CheloneFormState,
   createFormController,
   type FormController,
   type FormControllerOptions,
@@ -152,12 +152,12 @@ export interface CreateFormControllerOptions<TRecord>
 
 export interface EditFormControllerState<TRecord>
   extends EditControllerState<TRecord> {
-  form: ChelonFormState<Partial<TRecord>>;
+  form: CheloneFormState<Partial<TRecord>>;
 }
 
 export interface CreateFormControllerState<TRecord>
   extends CreateControllerState<TRecord> {
-  form: ChelonFormState<Partial<TRecord>>;
+  form: CheloneFormState<Partial<TRecord>>;
 }
 
 /**
@@ -168,7 +168,7 @@ export interface CreateFormControllerState<TRecord>
  * sub-snapshots with identity caching (uSES-safe).
  */
 export interface EditFormController<TRecord> {
-  form: ChelonFormApi<Partial<TRecord>>;
+  form: CheloneFormApi<Partial<TRecord>>;
   /** The composed P4 edit controller — imperative `save` with call-time options lives here. */
   recordController: EditController<TRecord>;
   submit(): Promise<void>;
@@ -178,7 +178,7 @@ export interface EditFormController<TRecord> {
 }
 
 export interface CreateFormController<TRecord> {
-  form: ChelonFormApi<Partial<TRecord>>;
+  form: CheloneFormApi<Partial<TRecord>>;
   /** The composed P4 create controller. */
   recordController: CreateController<TRecord>;
   submit(): Promise<void>;
@@ -212,15 +212,15 @@ function composeControllers<TFormData, TRecordState extends object>(
   formController: FormController<TFormData>,
   recordStore: RecordStoreSlice<TRecordState>,
   onAttach?: () => () => void,
-): ComposedLifecycle<TRecordState & { form: ChelonFormState<TFormData> }> {
+): ComposedLifecycle<TRecordState & { form: CheloneFormState<TFormData> }> {
   let destroyed = false;
   let attachTeardown: (() => void) | undefined;
   const active = new Set<symbol>();
 
-  let lastFormState: ChelonFormState<TFormData> | undefined;
+  let lastFormState: CheloneFormState<TFormData> | undefined;
   let lastRecordState: TRecordState | undefined;
   let cachedSnapshot:
-    | (TRecordState & { form: ChelonFormState<TFormData> })
+    | (TRecordState & { form: CheloneFormState<TFormData> })
     | undefined;
 
   return {

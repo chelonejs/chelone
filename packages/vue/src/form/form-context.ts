@@ -9,12 +9,12 @@
  * `useForm`, in `setup`) under a typed `InjectionKey` and reads it with `inject`,
  * so the inject site is fully typed with no cast. A React context cannot be
  * generic, so — exactly as the React twin does — providers widen their
- * `ChelonFormApi<TFormData>` to the erased `Record<string, unknown>` shape;
+ * `CheloneFormApi<TFormData>` to the erased `Record<string, unknown>` shape;
  * field paths are runtime strings and values `unknown`, so nothing downstream
  * needs the precise type back.
  */
 
-import type { ChelonFormApi, SourceScope } from "@chelone/core";
+import type { CheloneFormApi, SourceScope } from "@chelone/core";
 import { rootSourceScope } from "@chelone/core";
 import { type InjectionKey, inject, provide } from "vue";
 
@@ -27,7 +27,7 @@ type UnknownFormValues = Record<string, unknown>;
  * buttons). Provided by `useForm`.
  */
 export interface CheloneFormContextValue {
-  form: ChelonFormApi<UnknownFormValues>;
+  form: CheloneFormApi<UnknownFormValues>;
   submit: (() => Promise<void>) | undefined;
 }
 
@@ -40,12 +40,12 @@ export const CheloneFormContextKey: InjectionKey<CheloneFormContextValue> =
 
 /** Provide the ambient form to the subtree (called by `useForm` in `setup`). */
 export function provideCheloneForm<TFormData>(value: {
-  form: ChelonFormApi<TFormData>;
+  form: CheloneFormApi<TFormData>;
   submit?: () => Promise<void>;
 }): void {
   provide(CheloneFormContextKey, {
     // Erasure cast only — the runtime object is untouched.
-    form: value.form as unknown as ChelonFormApi<UnknownFormValues>,
+    form: value.form as unknown as CheloneFormApi<UnknownFormValues>,
     submit: value.submit,
   });
 }

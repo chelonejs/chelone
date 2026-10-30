@@ -50,7 +50,7 @@ export interface BulkDeleteButtonProps {
 
 import { type Identifier, removeRecordsFromCache } from "@chelone/core";
 import { computed, ref } from "vue";
-import { useCheloneContext, useChelonNotifications } from "../../../context";
+import { useCheloneContext, useCheloneNotifications } from "../../../context";
 import { useDeleteMany } from "../../../data/mutations";
 import { useUndoable } from "../../../data/undoable";
 import { useRefresh } from "../../../data/use-refresh";
@@ -75,7 +75,7 @@ if (!resource) {
 }
 const list = useListContext();
 const translate = useTranslate();
-const notifications = useChelonNotifications();
+const notifications = useCheloneNotifications();
 const ctx = useCheloneContext();
 const runUndoable = useUndoable();
 const refresh = useRefresh();

@@ -1,5 +1,5 @@
 import { useCallback, useSyncExternalStore } from "react";
-import { useChelonStore } from "./context";
+import { useCheloneStore } from "./context";
 
 /**
  * Subscribe to a single store key. Per-key notification means writes to other
@@ -11,7 +11,7 @@ export function useStoreItem<T>(
   key: string,
   defaultValue?: T,
 ): [T | undefined, (value: T) => void] {
-  const store = useChelonStore();
+  const store = useCheloneStore();
   const value = useSyncExternalStore(
     useCallback((cb: () => void) => store.subscribe(key, cb), [store, key]),
     () => store.getItem<T>(key) ?? defaultValue,

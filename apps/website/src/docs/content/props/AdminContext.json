@@ -33,7 +33,7 @@
     },
     {
       "name": "i18n",
-      "type": "AnyChelonI18n",
+      "type": "AnyCheloneI18n",
       "optional": true,
       "comment": "The optional i18n instance (translations)."
     },
@@ -63,7 +63,7 @@
     },
     {
       "name": "store",
-      "type": "ChelonStore",
+      "type": "CheloneStore",
       "optional": true,
       "comment": "The optional KV store (preferences / list scroll)."
     }

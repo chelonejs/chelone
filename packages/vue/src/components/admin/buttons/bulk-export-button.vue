@@ -28,7 +28,7 @@ export interface BulkExportButtonProps {
  */
 
 import { computed } from "vue";
-import { useChelonNotifications, useCheloneContext } from "../../../context";
+import { useCheloneNotifications, useCheloneContext } from "../../../context";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useListContext } from "../../../list/list-context";
 import { useResourceContext } from "../../../resource-context";
@@ -46,7 +46,7 @@ if (!resource) {
 }
 const list = useListContext();
 const { dataProvider } = useCheloneContext();
-const notifications = useChelonNotifications();
+const notifications = useCheloneNotifications();
 const translate = useTranslate();
 
 const label = computed(() =>

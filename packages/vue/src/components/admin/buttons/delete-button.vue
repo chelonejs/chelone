@@ -63,7 +63,7 @@ export interface DeleteButtonProps {
 
 import { type Identifier, removeRecordsFromCache } from "@chelone/core";
 import { computed, inject, ref } from "vue";
-import { useCheloneContext, useChelonNotifications } from "../../../context";
+import { useCheloneContext, useCheloneNotifications } from "../../../context";
 import { useDelete } from "../../../data/mutations";
 import { useUndoable } from "../../../data/undoable";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -93,7 +93,7 @@ const injectedRecord = inject(RecordContextKey, null);
 const record = computed(() => props.record ?? injectedRecord?.value);
 const translate = useTranslate();
 const redirect = useRedirect();
-const notifications = useChelonNotifications();
+const notifications = useCheloneNotifications();
 const ctx = useCheloneContext();
 const runUndoable = useUndoable();
 const deleteMutation = useDelete(resource as string);

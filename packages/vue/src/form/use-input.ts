@@ -19,7 +19,7 @@
  */
 
 import type {
-  ChelonFieldState,
+  CheloneFieldState,
   FieldBinding,
   TranslatableMessage,
   Validator,
@@ -115,7 +115,7 @@ export function useInput(options: UseInputOptions): UseInputReturn {
 
   // 4R: subscribing mounts the field (seed default + register + onMount) on
   // `setup`; `onScopeDispose` unmounts it on teardown.
-  const state = useSubscribable<ChelonFieldState<UnknownFormValues>>(binding);
+  const state = useSubscribable<CheloneFieldState<UnknownFormValues>>(binding);
   const format = options.format ?? defaultFormat;
 
   return {

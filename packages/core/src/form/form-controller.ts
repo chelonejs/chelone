@@ -28,7 +28,7 @@ export type AsyncValidator<TRecord> =
  * wire validators (schema, form-level fn — T2) without changing this public
  * type, while `DeepKeys`-based member signatures stay precise in TRecord.
  */
-export type ChelonFormApi<TRecord> = FormApi<
+export type CheloneFormApi<TRecord> = FormApi<
   TRecord,
   SyncValidator<TRecord>, // onMount
   SyncValidator<TRecord>, // onChange
@@ -43,8 +43,8 @@ export type ChelonFormApi<TRecord> = FormApi<
   never // TSubmitMeta
 >;
 
-/** FormApi options matching {@link ChelonFormApi}'s instantiation. */
-export type ChelonFormOptions<TRecord> = FormOptions<
+/** FormApi options matching {@link CheloneFormApi}'s instantiation. */
+export type CheloneFormOptions<TRecord> = FormOptions<
   TRecord,
   SyncValidator<TRecord>,
   SyncValidator<TRecord>,
@@ -60,7 +60,7 @@ export type ChelonFormOptions<TRecord> = FormOptions<
 >;
 
 /** The form state snapshot type — what {@link FormController.getSnapshot} returns. */
-export type ChelonFormState<TRecord> = ChelonFormApi<TRecord>["state"];
+export type CheloneFormState<TRecord> = CheloneFormApi<TRecord>["state"];
 
 /**
  * What the P4 record controllers' `save` resolves with on `ValidationError`:
@@ -141,7 +141,7 @@ export interface FormControllerOptions<TRecord> {
    * default invalid-form notification, and `validators.onDynamic` is
    * composed after `schema` + `validate` (first error wins per field).
    */
-  formOptions?: Omit<ChelonFormOptions<TRecord>, "defaultValues">;
+  formOptions?: Omit<CheloneFormOptions<TRecord>, "defaultValues">;
 }
 
 /**
@@ -160,7 +160,7 @@ export interface FormController<TRecord> {
    * The wrapped FormApi — the full form-core surface for field bindings (T3)
    * and advanced imperative use.
    */
-  form: ChelonFormApi<TRecord>;
+  form: CheloneFormApi<TRecord>;
   /**
    * Refcounted subscription (uSES-compatible): registers `listener` with
    * `form.store` and mounts the form on the 0 -> 1 transition. Returns an
@@ -169,7 +169,7 @@ export interface FormController<TRecord> {
    */
   subscribe(listener: () => void): () => void;
   /** The current form state — `form.store.state` (reference-stable until a write). */
-  getSnapshot(): ChelonFormState<TRecord>;
+  getSnapshot(): CheloneFormState<TRecord>;
   /**
    * The submit pipeline: clears the stale server-error channel (so a
    * resubmit without edits re-reaches the server), runs validation
@@ -277,7 +277,7 @@ export function createFormController<TRecord>(
     await options.onSuccess?.(data as TRecord);
   };
 
-  const onSubmitInvalid: ChelonFormOptions<TRecord>["onSubmitInvalid"] = (
+  const onSubmitInvalid: CheloneFormOptions<TRecord>["onSubmitInvalid"] = (
     props,
   ) => {
     // Client-side invalid submit: surface a displayable form-level error
@@ -286,7 +286,7 @@ export function createFormController<TRecord>(
     userFormOptions?.onSubmitInvalid?.(props);
   };
 
-  const formOptions: ChelonFormOptions<TRecord> = {
+  const formOptions: CheloneFormOptions<TRecord> = {
     ...userFormOptions,
     defaultValues: options.defaultValues,
     validators: dynamicValidator
@@ -304,7 +304,7 @@ export function createFormController<TRecord>(
   };
   // INERT: creates stores + binds methods; no timers/listeners/validation
   // (ground truth #1) — safe to run in a discarded React render.
-  const form: ChelonFormApi<TRecord> = new FormApi(formOptions);
+  const form: CheloneFormApi<TRecord> = new FormApi(formOptions);
 
   let destroyed = false;
   /** Non-undefined exactly while attached (mount cleanup). */
