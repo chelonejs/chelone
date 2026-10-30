@@ -46,7 +46,13 @@ function mount(node: ReactNode) {
   const dataProvider = fakeDataProvider({ posts: structuredClone(POSTS) });
   const getList = vi.spyOn(dataProvider, "getList");
   const registry = createResourceRegistry();
-  registry.register({ name: "posts", hasList: true });
+  registry.register({
+    name: "posts",
+    hasList: true,
+    hasCreate: false,
+    hasEdit: false,
+    hasShow: false,
+  });
   const i18n = createI18n({
     locale: "en",
     messages: { en: defineMessages({ "ra.page.list": "{name}" }) },
