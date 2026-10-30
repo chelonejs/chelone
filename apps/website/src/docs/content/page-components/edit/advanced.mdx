@@ -4,49 +4,129 @@ description: "Drop to the edit controller, transform values, and guard unsaved c
 ---
 
 `<Edit>` wraps the **edit-form controller** (`useEditForm`). When you need
-control the view doesn't expose — a bespoke layout, a save side-effect, a
-transform before persist — read the controller directly.
+control the view doesn't expose — a bespoke layout, a transform before persist,
+a different redirect — read the controller directly.
 
 ## The edit controller
 
 `useEditForm(resource, { id })` fetches the record, builds the form store, and
 returns the `form`, the `record`, and a `submit` handler. The `<Edit>` view is a
-thin shell over it; a custom edit page reads the same pieces:
+thin shell over it; a custom edit page reads the same pieces.
+
+Under an `<Edit>`, `useEditContext` reads what the view published. Give it the
+record type to type `record`:
 
 ```tsx
-import { useEditForm, useEditContext } from "@chelone/react";
+import { useEditContext } from "@chelone/react";
 
-function CustomEdit() {
-  const { record, isPending } = useEditContext();
+function EditHeading() {
+  const { record, isPending } = useEditContext<{ title: string }>();
   if (isPending) return <p>Loading…</p>;
   return <h1>Editing “{record?.title}”</h1>;
 }
 ```
 
-`useEditContext` reads the context an ancestor `<Edit>` published; `useEditForm`
-constructs a fresh controller when you're building the whole page yourself.
+`useEditContext` reads the context an ancestor `<Edit>` published and throws
+without one; `useEditForm` constructs a fresh controller when you're building the
+whole page yourself.
 
 ## Transforming values before save
 
 To reshape the form values before they hit the data provider (compute a slug,
-stamp a timestamp, drop a UI-only field), transform in a custom submit and call
-the mutation hook — the form context feeds you the values, `useUpdate` persists
-them.
+stamp a timestamp, drop a UI-only field), pass `transform` to `useEditForm`. The
+controller runs it inside the save pipeline, after validation, and sends what it
+returns. The second argument carries `previousData`, the record as fetched.
+Server `ValidationError`s, the notification, the form reset and the redirect all
+keep working, which a hand-written `useUpdate` submit would have to redo.
+
+`<Edit>` has no `transform` prop, so a page that transforms builds its own
+shell: mount the form provider yourself and render the inputs once the record
+has loaded.
+
+```tsx
+import {
+  CheloneFormProvider,
+  SaveButton,
+  TextInput,
+  useEditForm,
+  useParams,
+} from "@chelone/react";
+
+function PostEditWithSlug() {
+  const { id } = useParams();
+  const { form, submit, isPending } = useEditForm("posts", {
+    id: id as string,
+    transform: (data, { previousData } = {}) => ({
+      ...data,
+      slug: String(data.title ?? previousData?.title ?? "")
+        .toLowerCase()
+        .replace(/\s+/g, "-"),
+    }),
+  });
+  if (isPending) return <p>Loading…</p>;
+  return (
+    <CheloneFormProvider form={form} submit={submit}>
+      <TextInput source="title" />
+      <SaveButton />
+    </CheloneFormProvider>
+  );
+}
+```
+
+`useEditForm` also takes `onRedirect`. A save redirects to the list by default;
+pass `onRedirect: () => {}` to stay on the page.
+
+The controller reads its options once, on mount. Remount it with a `key` to
+change them.
 
 ## Guarding unsaved changes
 
-`useWarnWhenUnsavedChanges` blocks navigation away from a dirty form (via the
-router adapter's blocker). Wire it inside the form to prompt before a user
-loses edits:
+`useWarnWhenUnsavedChanges(enable)` watches the form it sits in and blocks
+navigation away from it while it holds unsaved changes. A successful save
+clears the block. It also asks the browser to confirm when the tab closes or
+reloads.
+
+The hook renders nothing. It returns `{ isBlocked, proceed, cancel }`, and the
+dialog is yours: show one while `isBlocked` is true, call `proceed` to discard
+the changes and continue, or `cancel` to stay. Call it from a component inside
+`<Edit>`:
 
 ```tsx
-import { useWarnWhenUnsavedChanges } from "@chelone/react";
+import {
+  Confirm,
+  Edit,
+  TextInput,
+  useWarnWhenUnsavedChanges,
+} from "@chelone/react";
 
-function GuardUnsaved() {
-  useWarnWhenUnsavedChanges(true);
-  return null;
+function UnsavedChangesDialog() {
+  const { isBlocked, proceed, cancel } = useWarnWhenUnsavedChanges(true);
+  return (
+    <Confirm
+      isOpen={isBlocked}
+      title="Discard unsaved changes?"
+      content="Your edits will be lost if you leave this page."
+      onConfirm={proceed}
+      onClose={cancel}
+    />
+  );
+}
+
+export function PostEdit() {
+  return (
+    <Edit>
+      <TextInput source="title" />
+      <UnsavedChangesDialog />
+    </Edit>
+  );
 }
 ```
+
+Navigation inside the form's own route is allowed, except to its `/show` view.
+The optional second argument sets the form's route root explicitly. When the
+host router cannot block navigation (a declarative `<BrowserRouter>` around
+`<Admin>`), the hook logs a warning and returns a decision that never blocks;
+the tab-close prompt still works.
 
 ## Form context
 
