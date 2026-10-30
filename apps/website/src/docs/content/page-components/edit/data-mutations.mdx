@@ -91,8 +91,9 @@ changes relative to the server call:
 | `"optimistic"` | The cached record (and the entries reference fields read) is patched or removed first. An error restores it. The resource's queries are invalidated when the call settles either way. | Immediate. |
 | `"undoable"` | Patched or removed first. | Held back until the undo window closes. An "Undo" notification cancels it. |
 
-Only optimistic mode patches the cache ahead of the server; pessimistic mode
-just invalidates and refetches.
+Pessimistic mode never touches the cache ahead of the server: it only
+invalidates and refetches. Optimistic and undoable modes write to the cache
+first.
 
 ```tsx
 import { useDelete, useUpdate } from "@chelone/react";

@@ -54,7 +54,7 @@ import {
 
 function PostEditWithSlug() {
   const { id } = useParams();
-  const { form, submit, isPending } = useEditForm("posts", {
+  const { form, submit, record, error } = useEditForm("posts", {
     id: id as string,
     transform: (data, { previousData } = {}) => ({
       ...data,
@@ -63,7 +63,8 @@ function PostEditWithSlug() {
         .replace(/\s+/g, "-"),
     }),
   });
-  if (isPending) return <p>Loading…</p>;
+  if (error) return <p>Could not load the post.</p>;
+  if (!record) return <p>Loading…</p>;
   return (
     <CheloneFormProvider form={form} submit={submit}>
       <TextInput source="title" />
@@ -74,7 +75,9 @@ function PostEditWithSlug() {
 ```
 
 `useEditForm` also takes `onRedirect`. A save redirects to the list by default;
-pass `onRedirect: () => {}` to stay on the page.
+pass `onRedirect: () => {}` to stay on the page. That also silences the redirect
+to the list after a failed load, so render the `error` yourself, as the example
+does.
 
 The controller reads its options once, on mount. Remount it with a `key` to
 change them.
