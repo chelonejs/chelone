@@ -8,6 +8,12 @@
       "port": 4273
     },
     {
+      "name": "vue-demo",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "apps/vue-demo", "dev", "--port", "5473"],
+      "port": 5473
+    },
+    {
       "name": "website",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--dir", "apps/website", "dev", "--port", "5373"],

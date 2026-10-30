@@ -15,7 +15,9 @@ permissions:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    # runner-hub's pool (x86_64 cion, aarch64 Oracle boxes) while the repo is private:
+    # it serves only private repos, so this goes back to ubuntu-latest when chelone is public.
+    runs-on: [self-hosted, chelone]
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
