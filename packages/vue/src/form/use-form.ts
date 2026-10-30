@@ -70,6 +70,12 @@ export interface UseFormOptions<TFormData> {
   validate?: FormLevelValidate<TFormData>;
   /** ra parity: nullify/strip empty top-level values before save. Default false. */
   sanitizeEmptyValues?: boolean;
+  /**
+   * The sanitize baseline (ra: "the record"): an emptied key that exists on it
+   * is sent as `null`, any other is omitted. Read live at save time, so an edit
+   * view can return the record that hydrated after setup.
+   */
+  getRecord?: () => Partial<TFormData> | undefined;
   /** Rebaseline the form from the saved values on success (D5). Default true. */
   resetOnSuccess?: boolean;
 }
@@ -119,6 +125,7 @@ export function useForm<TFormData = Record<string, unknown>>(
       schema,
       validate: options.validate,
       sanitizeEmptyValues: options.sanitizeEmptyValues,
+      getRecord: options.getRecord,
       resetOnSuccess: options.resetOnSuccess,
       // Adapt the caller's save to the P4 `Promise<FieldErrors | undefined>`
       // contract: a nullish/void resolution is success.

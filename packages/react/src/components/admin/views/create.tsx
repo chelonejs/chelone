@@ -19,7 +19,7 @@
  */
 
 import type { CreateFormControllerOptions } from "@chelone/core";
-import { type ReactNode, useCallback, useMemo } from "react";
+import { type ReactNode, useCallback, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { CheloneFormProvider } from "../../../form-context";
 import { useCreateForm } from "../../../form-hooks";
@@ -37,6 +37,10 @@ import {
   type SaveContextValue,
 } from "../../../save-context";
 
+/**
+ * `validate` and `onSuccess` run as of the latest render. `schema` and
+ * `sanitizeEmptyValues` are read once, at mount: remount with a `key` to change them.
+ */
 export interface CreateProps
   extends Pick<
     CreateFormControllerOptions<Record<string, unknown>>,
@@ -87,12 +91,16 @@ function Create(props: CreateProps) {
     );
   }
 
+  // The controller captures its options once, so these go through a ref to
+  // keep running the callbacks of the latest render.
+  const latest = useRef({ validate, onSuccess });
+  latest.current = { validate, onSuccess };
   const controller = useCreateForm(resource, {
     record,
-    validate,
+    validate: validate && ((values) => latest.current.validate?.(values)),
     schema,
     sanitizeEmptyValues,
-    onSuccess,
+    onSuccess: onSuccess && ((saved) => latest.current.onSuccess?.(saved)),
   });
   const { form, submit } = controller;
 

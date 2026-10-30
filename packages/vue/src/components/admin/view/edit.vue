@@ -64,9 +64,12 @@ const redirect = useRedirectOptional();
 const form = useForm<Record<string, unknown>>({
   resource,
   record: edit.record as Record<string, unknown> | undefined,
-  validate: props.validate,
+  // Read per call: the form captures its options once, props stay live.
+  // Read per call: the form captures its options once, props stay live.
+  validate: props.validate && ((values) => props.validate?.(values)),
   schema: props.schema,
   sanitizeEmptyValues: props.sanitizeEmptyValues,
+  getRecord: () => edit.record as Record<string, unknown> | undefined,
   onSubmit: async (data): Promise<FieldErrors | undefined> => {
     const errors = await edit.save(data, { onSaved: props.onSuccess });
     if (!errors && props.redirectOnSave) {

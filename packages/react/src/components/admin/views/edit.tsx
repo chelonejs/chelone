@@ -27,7 +27,7 @@
  */
 
 import type { EditFormControllerOptions, Identifier } from "@chelone/core";
-import { type ReactNode, useCallback, useMemo } from "react";
+import { type ReactNode, useCallback, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { CheloneFormProvider } from "../../../form-context";
 import { useEditForm } from "../../../form-hooks";
@@ -45,6 +45,10 @@ import {
   type SaveContextValue,
 } from "../../../save-context";
 
+/**
+ * `validate` and `onSuccess` run as of the latest render. `schema` and
+ * `sanitizeEmptyValues` are read once, at mount: remount with a `key` to change them.
+ */
 export interface EditProps
   extends Pick<
     EditFormControllerOptions<Record<string, unknown>>,
@@ -97,12 +101,16 @@ function Edit(props: EditProps) {
   const params = useParams();
   const id = idProp ?? (params.id as Identifier);
 
+  // The controller captures its options once, so these go through a ref to
+  // keep running the callbacks of the latest render.
+  const latest = useRef({ validate, onSuccess });
+  latest.current = { validate, onSuccess };
   const controller = useEditForm(resource, {
     id,
-    validate,
+    validate: validate && ((values) => latest.current.validate?.(values)),
     schema,
     sanitizeEmptyValues,
-    onSuccess,
+    onSuccess: onSuccess && ((record) => latest.current.onSuccess?.(record)),
   });
   const { form, submit, record } = controller;
 

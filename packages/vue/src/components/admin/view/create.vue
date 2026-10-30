@@ -59,9 +59,11 @@ const redirect = useRedirectOptional();
 useForm<Record<string, unknown>>({
   resource,
   record: props.record,
-  validate: props.validate,
+  // Read per call: the form captures its options once, props stay live.
+  validate: props.validate && ((values) => props.validate?.(values)),
   schema: props.schema,
   sanitizeEmptyValues: props.sanitizeEmptyValues,
+  getRecord: () => props.record,
   onSubmit: async (data): Promise<FieldErrors | undefined> => {
     const errors = await create.save(data, { onSaved: props.onSuccess });
     if (!errors && props.redirectOnSave) {

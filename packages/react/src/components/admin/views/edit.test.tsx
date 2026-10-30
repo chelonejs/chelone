@@ -22,7 +22,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
@@ -207,6 +207,47 @@ describe("<Edit>", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: "save" }));
     await screen.findByText("Title is required");
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("validate on <Edit> reads the latest render, not the first", async () => {
+    const dataProvider = makeDataProvider();
+    const update = vi.spyOn(dataProvider, "update");
+    function Submit() {
+      const { save } = useSaveContext();
+      return (
+        <button type="button" onClick={() => save?.({ title: "Next" })}>
+          save
+        </button>
+      );
+    }
+    function Page() {
+      const [strict, setStrict] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setStrict(true)}>
+            strict
+          </button>
+          <Edit validate={() => (strict ? { title: "Too strict" } : undefined)}>
+            <TextInput source="title" />
+            <Submit />
+          </Edit>
+        </>
+      );
+    }
+    render(
+      <Providers dataProvider={dataProvider}>
+        <Page />
+      </Providers>,
+    );
+    await waitFor(() =>
+      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
+        "Original",
+      ),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "strict" }));
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await screen.findByText("Too strict");
     expect(update).not.toHaveBeenCalled();
   });
 });
