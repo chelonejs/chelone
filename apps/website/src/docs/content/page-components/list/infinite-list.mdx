@@ -1,0 +1,79 @@
+---
+title: "Infinite List"
+description: "Load more records on scroll or on demand while keeping previously loaded rows visible."
+registry: "infinite-list"
+---
+
+`<InfiniteList>` fetches a resource page by page and appends each loaded page to
+the rows already displayed. It uses the same layout and props as
+[`<List>`](/docs/page-components/list/overview), and publishes the accumulated
+records through the list context so a `<DataTable>` can render them.
+
+Use it for feeds or browsing where users keep scrolling through records. Use
+`<List>` with `<ListPagination>` when users need to move between distinct pages.
+The infinite list's filters and sort stay in the store; they are not synced
+with the URL. Changing the filter, sort, or page size starts a new query and
+resets the accumulated rows.
+
+## Example
+
+Place [`<InfinitePagination>`](/docs/viewing/infinite-pagination) after the table
+inside `<InfiniteList>`. It reads the infinite list context and loads the next
+page automatically as the end of the list approaches the viewport.
+
+```tsx title="src/posts.tsx"
+import {
+  DataTable,
+  InfiniteList,
+  InfinitePagination,
+} from "@chelone/react";
+
+export function PostList() {
+  return (
+    <InfiniteList perPage={25}>
+      <DataTable>
+        <DataTable.Col source="id" />
+        <DataTable.Col source="title" />
+      </DataTable>
+      <InfinitePagination />
+    </InfiniteList>
+  );
+}
+```
+
+Register the page on a resource inside your `<Admin>` so the list reads the
+resource from context:
+
+```tsx
+<Resource name="posts" list={PostList} />
+```
+
+## Loading more rows
+
+`<InfinitePagination>` defaults to `autoLoad={true}` and `offset={250}`. It uses
+`IntersectionObserver` to load the next page when a sentinel at the end of the
+list comes within 250 pixels of the viewport. Increase `offset` to start loading
+earlier.
+
+A **Load more** button remains available as a manual fallback and is disabled
+while the next page loads. Browsers without `IntersectionObserver` use the
+button. To load only when the user clicks, turn off automatic loading:
+
+```tsx
+<InfinitePagination autoLoad={false} />
+```
+
+The control renders nothing while the first page loads. After all rows have
+loaded, it shows **No more rows**. If a page load fails, automatic loading stops
+and the user can retry with **Load more**.
+
+## Props
+
+`<InfiniteList>` accepts the same props as `<List>`. `perPage` sets the number
+of rows fetched for each page.
+
+<PropsTable name="List" />
+
+`<InfinitePagination>` controls when the next page loads:
+
+<PropsTable name="InfinitePagination" />
