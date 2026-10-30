@@ -1441,6 +1441,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/inputs/array-input-row.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/inputs/array-input.tsx",
           "type": "registry:component"
         },
@@ -2976,6 +2980,24 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "array-input-row",
+      "type": "registry:component",
+      "title": "Array Input Row",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/array-input-row.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/array-input-context",
+        "@chelone/button"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "array-input",
       "type": "registry:component",
       "title": "Array Input",
@@ -2987,6 +3009,7 @@
       ],
       "registryDependencies": [
         "@chelone/array-input-context",
+        "@chelone/button",
         "@chelone/field",
         "@chelone/field-label-text",
         "@chelone/input-helper-text",
