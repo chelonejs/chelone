@@ -84,6 +84,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.computeDefinition).toBeTypeOf("function");
   });
 
+  it("exports the getMany batcher", () => {
+    expect(barrel.getManyAggregateOptions).toBeTypeOf("function");
+  });
+
   it("does NOT leak internal save-pipeline / hydration helpers", () => {
     expect("sanitizeEmptyValues" in barrel).toBe(false);
     expect("toFormErrorMapValue" in barrel).toBe(false);
