@@ -170,6 +170,18 @@ describe("ReferenceField", () => {
   });
 });
 
+const ListStatus = defineComponent({
+  setup() {
+    const list = useListContext();
+    return () =>
+      list.error
+        ? h("p", { role: "alert" }, "Lookup failed")
+        : list.isPending
+          ? h("p", { role: "status" }, "Loading")
+          : h(TagList);
+  },
+});
+
 const TagList = defineComponent({
   setup() {
     const list = useListContext();
@@ -184,6 +196,198 @@ const TagList = defineComponent({
 });
 
 describe("ReferenceArrayField", () => {
+  it("lists only records returned for its requested ids", async () => {
+    const dataProvider = makeProvider();
+    const getMany = vi
+      .spyOn(dataProvider, "getMany")
+      .mockResolvedValue({ data: [{ id: 1, name: "Tech" }] });
+    const wrapper = await mountAdmin(
+      () =>
+        h(
+          ReferenceArrayField,
+          {
+            source: "tag_ids",
+            reference: "tags",
+            record: { id: 10, tag_ids: [1, 99] },
+          },
+          { default: () => h(ListStatus) },
+        ),
+      dataProvider,
+    );
+    await vi.waitFor(() =>
+      expect(wrapper.findAll("li").map((item) => item.text())).toEqual([
+        "Tech",
+      ]),
+    );
+    expect(getMany).toHaveBeenCalledTimes(1);
+    expect(getMany).toHaveBeenCalledWith(
+      "tags",
+      expect.objectContaining({ ids: expect.arrayContaining([1, 99]) }),
+    );
+    expect(getMany.mock.calls[0]?.[1].ids).toHaveLength(2);
+  });
+
+  it.each([
+    { label: "missing", record: {} },
+    { label: "undefined", record: { tag_ids: undefined } },
+    { label: "null", record: { tag_ids: null } },
+    { label: "empty", record: { tag_ids: [] } },
+    { label: "string", record: { tag_ids: "invalid" } },
+    { label: "object", record: { tag_ids: {} } },
+  ])("does not fetch a $label FK array", async ({ record }) => {
+    const dataProvider = makeProvider();
+    const getMany = vi.spyOn(dataProvider, "getMany");
+    const wrapper = await mountAdmin(
+      () => [
+        h("section", { "aria-label": "Empty tags" }, [
+          h(
+            ReferenceArrayField,
+            {
+              source: "tag_ids",
+              reference: "tags",
+              record: { id: 10, ...record },
+            },
+            { default: () => h(ListStatus) },
+          ),
+        ]),
+        h(ReferenceField, {
+          source: "tag_id",
+          reference: "tags",
+          record: { id: 10, tag_id: 3 },
+        }),
+      ],
+      dataProvider,
+    );
+    // The sibling's result proves the aggregate batch has flushed.
+    await vi.waitFor(() => expect(wrapper.text()).toBe("Lifestyle"));
+    const field = wrapper.get('[aria-label="Empty tags"]');
+    expect(field.find("ul").exists()).toBe(true);
+    expect(field.findAll("li")).toHaveLength(0);
+    expect(field.find('[role="status"]').exists()).toBe(false);
+    expect(getMany).toHaveBeenCalledTimes(1);
+    expect(getMany).toHaveBeenCalledWith(
+      "tags",
+      expect.objectContaining({ ids: [3] }),
+    );
+  });
+
+  it("exposes a rejected batch and clears its error when the FK array becomes empty", async () => {
+    const dataProvider = makeProvider();
+    const getMany = vi
+      .spyOn(dataProvider, "getMany")
+      .mockRejectedValue(new Error("Offline"));
+    const record = ref({ id: 10, tag_ids: [1] });
+    const Row = defineComponent({
+      setup() {
+        provideRecordContext(record);
+        return () =>
+          h(
+            ReferenceArrayField,
+            { source: "tag_ids", reference: "tags" },
+            { default: () => h(ListStatus) },
+          );
+      },
+    });
+    const wrapper = await mountAdmin(() => h(Row), dataProvider);
+    expect(wrapper.get('[role="status"]').text()).toBe("Loading");
+    await vi.waitFor(() =>
+      expect(wrapper.get('[role="alert"]').text()).toBe("Lookup failed"),
+    );
+    record.value.tag_ids = [];
+    await vi.waitFor(() => {
+      expect(wrapper.find("ul").exists()).toBe(true);
+      expect(wrapper.find('[role="alert"]').exists()).toBe(false);
+      expect(wrapper.find('[role="status"]').exists()).toBe(false);
+      expect(wrapper.findAll("li")).toHaveLength(0);
+    });
+    expect(getMany).toHaveBeenCalledTimes(1);
+  });
+
+  it("shares batches across sources and scalar fields while isolating resources", async () => {
+    const dataProvider = makeProvider();
+    const getMany = vi.spyOn(dataProvider, "getMany");
+    const getOne = vi.spyOn(dataProvider, "getOne");
+    const wrapper = await mountAdmin(
+      () => [
+        h("section", { "aria-label": "Primary tags" }, [
+          h(
+            ReferenceArrayField,
+            {
+              source: "tag_ids",
+              reference: "tags",
+              record: { id: 10, tag_ids: [1, 1, 2] },
+            },
+            { default: () => h(ListStatus) },
+          ),
+        ]),
+        h("section", { "aria-label": "Other tags" }, [
+          h(
+            ReferenceArrayField,
+            {
+              source: "other_tag_ids",
+              reference: "tags",
+              record: { id: 10, other_tag_ids: [2, 3] },
+            },
+            { default: () => h(TagList) },
+          ),
+        ]),
+        h("section", { "aria-label": "Single tag" }, [
+          h(ReferenceField, {
+            source: "tag_id",
+            reference: "tags",
+            record: { id: 10, tag_id: 3 },
+          }),
+        ]),
+        h("section", { "aria-label": "Authors" }, [
+          h(
+            ReferenceArrayField,
+            {
+              source: "author_ids",
+              reference: "authors",
+              record: { id: 10, author_ids: [1] },
+            },
+            { default: () => h(TagList) },
+          ),
+        ]),
+      ],
+      dataProvider,
+    );
+    await vi.waitFor(() => {
+      expect(
+        wrapper
+          .get('[aria-label="Primary tags"]')
+          .findAll("li")
+          .map((item) => item.text()),
+      ).toEqual(["Tech", "News"]);
+      expect(
+        wrapper
+          .get('[aria-label="Other tags"]')
+          .findAll("li")
+          .map((item) => item.text()),
+      ).toEqual(["News", "Lifestyle"]);
+      expect(wrapper.get('[aria-label="Single tag"]').text()).toBe("Lifestyle");
+      expect(
+        wrapper
+          .get('[aria-label="Authors"]')
+          .findAll("li")
+          .map((item) => item.text()),
+      ).toEqual(["Jane Doe"]);
+    });
+    expect(getMany).toHaveBeenCalledTimes(2);
+    expect(getMany).toHaveBeenCalledWith(
+      "tags",
+      expect.objectContaining({ ids: expect.arrayContaining([1, 2, 3]) }),
+    );
+    expect(
+      getMany.mock.calls.find(([resource]) => resource === "tags")?.[1].ids,
+    ).toHaveLength(3);
+    expect(getMany).toHaveBeenCalledWith(
+      "authors",
+      expect.objectContaining({ ids: [1] }),
+    );
+    expect(getOne).not.toHaveBeenCalled();
+  });
+
   it("two fields with overlapping ids make one getMany call and each lists only its own records", async () => {
     const dataProvider = makeProvider();
     const getMany = vi.spyOn(dataProvider, "getMany");
