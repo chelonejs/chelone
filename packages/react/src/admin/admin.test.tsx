@@ -283,9 +283,7 @@ describe("<Admin> — optional services", () => {
     function Greeting() {
       const translate = useTranslate();
       return (
-        <div>
-          {translate("app.greet", { _: "Hello {name}", name: "Ada" })}
-        </div>
+        <div>{translate("app.greet", { _: "Hello {name}", name: "Ada" })}</div>
       );
     }
     render(
