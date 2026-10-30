@@ -3,7 +3,18 @@ import { z } from "zod";
 import { defineResources } from "../resource/registry";
 import { combineDataProviders } from "./combine-data-providers";
 import { fakeDataProvider } from "./fake-provider";
-import type { DataProvider } from "./types";
+import type {
+  CreateParams,
+  DataProvider,
+  DeleteManyParams,
+  DeleteParams,
+  GetListParams,
+  GetManyParams,
+  GetManyReferenceParams,
+  GetOneParams,
+  UpdateManyParams,
+  UpdateParams,
+} from "./types";
 
 const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
@@ -24,16 +35,39 @@ const verbs = [
 ] as const;
 type Verb = (typeof verbs)[number];
 
-const paramsFor: Record<Verb, Record<string, unknown>> = {
-  getList: { filter: { q: "a" } },
-  getOne: { id: 1 },
-  create: { data: { title: "a" } },
-  update: { id: 1, data: { title: "a" } },
-  delete: { id: 1 },
-  getMany: { ids: [1] },
-  getManyReference: { target: "postId", id: 1 },
-  updateMany: { ids: [1], data: { title: "a" } },
-  deleteMany: { ids: [1] },
+type Name = keyof Resources & string;
+
+// `id` exists on both records, so one params object fits either resource.
+const paramsFor = {
+  getList: { filter: { q: "a" } } satisfies GetListParams,
+  getOne: { id: 1 } satisfies GetOneParams,
+  create: { data: { id: 5 } } satisfies CreateParams,
+  update: { id: 1, data: { id: 5 } } satisfies UpdateParams,
+  delete: { id: 1 } satisfies DeleteParams,
+  getMany: { ids: [1] } satisfies GetManyParams,
+  getManyReference: {
+    target: "postId",
+    id: 1,
+  } satisfies GetManyReferenceParams,
+  updateMany: { ids: [1], data: { id: 5 } } satisfies UpdateManyParams,
+  deleteMany: { ids: [1] } satisfies DeleteManyParams,
+};
+
+/** Each verb called through the typed `DataProvider` contract, no casts. */
+const callers: Record<
+  Verb,
+  (dp: DataProvider<Resources>, resource: Name) => Promise<unknown>
+> = {
+  getList: (dp, r) => dp.getList(r, paramsFor.getList),
+  getOne: (dp, r) => dp.getOne(r, paramsFor.getOne),
+  create: (dp, r) => dp.create(r, paramsFor.create),
+  update: (dp, r) => dp.update(r, paramsFor.update),
+  delete: (dp, r) => dp.delete(r, paramsFor.delete),
+  getMany: (dp, r) => dp.getMany(r, paramsFor.getMany),
+  getManyReference: (dp, r) =>
+    dp.getManyReference(r, paramsFor.getManyReference),
+  updateMany: (dp, r) => dp.updateMany(r, paramsFor.updateMany),
+  deleteMany: (dp, r) => dp.deleteMany(r, paramsFor.deleteMany),
 };
 
 /** A provider whose every verb is a spy resolving `{ data: label }`. */
@@ -53,14 +87,10 @@ describe("combineDataProviders", () => {
     );
 
     for (const verb of verbs) {
-      const call = dp[verb] as unknown as (
-        resource: string,
-        params: unknown,
-      ) => Promise<unknown>;
-      await expect(call("posts", paramsFor[verb])).resolves.toEqual({
+      await expect(callers[verb](dp, "posts")).resolves.toEqual({
         data: "posts",
       });
-      await expect(call("comments", paramsFor[verb])).resolves.toEqual({
+      await expect(callers[verb](dp, "comments")).resolves.toEqual({
         data: "comments",
       });
 
@@ -124,11 +154,7 @@ describe("combineDataProviders", () => {
     for (const none of [undefined, null]) {
       const dp = combineDataProviders<Resources>(() => none);
       for (const verb of verbs) {
-        const call = dp[verb] as unknown as (
-          resource: string,
-          params: unknown,
-        ) => Promise<unknown>;
-        const rejection = call("comments", paramsFor[verb]);
+        const rejection = callers[verb](dp, "comments");
         await expect(rejection).rejects.toBeInstanceOf(Error);
         await expect(rejection).rejects.toThrow(/"comments"/);
       }
@@ -141,20 +167,21 @@ describe("combineDataProviders", () => {
       throw boom;
     });
 
-    let pending: Promise<unknown> | undefined;
-    expect(() => {
-      pending = dp.getOne("posts", { id: 1 });
-    }).not.toThrow();
-    await expect(pending).rejects.toBe(boom);
+    for (const verb of verbs) {
+      const pending = callers[verb](dp, "posts");
+      await expect(pending).rejects.toBe(boom);
+    }
   });
 
   it("a provider rejection reaches the caller as the same error instance", async () => {
     const failure = new Error("backend down");
     const { provider, spies } = spyProvider("x");
-    spies.getList.mockRejectedValueOnce(failure);
     const dp = combineDataProviders<Resources>(() => provider);
 
-    await expect(dp.getList("posts", {})).rejects.toBe(failure);
+    for (const verb of verbs) {
+      spies[verb].mockRejectedValueOnce(failure);
+      await expect(callers[verb](dp, "posts")).rejects.toBe(failure);
+    }
   });
 
   it("forwards only the nine verbs, not custom properties of the chosen provider", () => {
