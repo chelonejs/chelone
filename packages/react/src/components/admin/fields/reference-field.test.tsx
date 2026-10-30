@@ -126,6 +126,50 @@ describe("<ReferenceField>", () => {
     expect(getOne).not.toHaveBeenCalled();
   });
 
+  it("renders the empty node when the provider omits the id", async () => {
+    const dataProvider = fakeDataProvider({
+      authors: structuredClone(authors),
+    });
+    const getMany = vi
+      .spyOn(dataProvider, "getMany")
+      .mockResolvedValue({ data: [] });
+    renderUnderAdmin(
+      <ReferenceField
+        source="author_id"
+        reference="authors"
+        record={{ author_id: 99 }}
+        empty={<span>No author</span>}
+        error={<span>Lookup failed</span>}
+      />,
+      dataProvider,
+    );
+    expect(await screen.findByText("No author")).toBeTruthy();
+    expect(screen.queryByText("Lookup failed")).toBeNull();
+    expect(getMany).toHaveBeenCalledExactlyOnceWith("authors", { ids: [99] });
+  });
+
+  it("renders the error node when the batch rejects", async () => {
+    const dataProvider = fakeDataProvider({
+      authors: structuredClone(authors),
+    });
+    const getMany = vi
+      .spyOn(dataProvider, "getMany")
+      .mockRejectedValue(new Error("Offline"));
+    renderUnderAdmin(
+      <ReferenceField
+        source="author_id"
+        reference="authors"
+        record={{ author_id: 1 }}
+        empty={<span>No author</span>}
+        error={<span>Lookup failed</span>}
+      />,
+      dataProvider,
+    );
+    expect(await screen.findByText("Lookup failed")).toBeTruthy();
+    expect(screen.queryByText("No author")).toBeNull();
+    expect(getMany).toHaveBeenCalledExactlyOnceWith("authors", { ids: [1] });
+  });
+
   it("renders the referenced record's representation once loaded", async () => {
     const Providers = makeProviders();
     render(

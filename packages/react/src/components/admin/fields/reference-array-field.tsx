@@ -7,7 +7,7 @@ import type {
 import type { ReactNode } from "react";
 import type { UnknownRecord } from "@/lib/unknown-types";
 import { ListContextProvider } from "../../../form";
-import { useGetMany } from "../../../hooks";
+import { useGetManyAggregate } from "../../../hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { ResourceContextProvider } from "../../../resource";
 import { useList } from "../../../use-list";
@@ -37,12 +37,12 @@ const emptyIds: Identifier[] = [];
  * Displays multiple related records by following an array of foreign keys.
  *
  * Reads the id array at `source`, fetches the referenced records (via
- * `useGetMany`), drops them in a client-side `ListContext`, and renders its
+ * `useGetManyAggregate`), drops them in a client-side `ListContext`, and renders its
  * children. To be used with `RecordField` or `DataTable.Col`, or anywhere a
  * `RecordContext` is available.
  *
  * Rebridge note (chelone): chelone has no ra-core `ReferenceArrayFieldBase`.
- * This field resolves the ids with `useGetMany`, then reuses the same
+ * This field resolves the ids with `useGetManyAggregate`, then reuses the same
  * client-side `useList` + `ListContextProvider` as `ArrayField`. The reference
  * resource is published via `ResourceContextProvider` for child fields.
  *
@@ -69,7 +69,7 @@ function ReferenceArrayField<RecordType extends UnknownRecord = UnknownRecord>(
   const value = useFieldValue({ source, record });
   const ids = (Array.isArray(value) ? value : emptyIds) as Identifier[];
 
-  const { data, isPending, isFetching, error } = useGetMany(
+  const { data, isPending, isFetching, error } = useGetManyAggregate(
     reference,
     { ids },
     { enabled: ids.length > 0 },

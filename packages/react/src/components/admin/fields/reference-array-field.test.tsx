@@ -16,7 +16,9 @@ import {
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { MemoryRouter } from "react-router";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { Admin } from "../../../admin/admin";
 import { CheloneProvider } from "../../../context";
 import { useListContext } from "../../../form";
 import { RecordContextProvider } from "../../../record/record-context";
@@ -84,6 +86,56 @@ function TagList() {
 afterEach(cleanup);
 
 describe("<ReferenceArrayField>", () => {
+  it("two fields with overlapping ids make one getMany call and each lists only its own records", async () => {
+    const dataProvider = fakeDataProvider({ tags: structuredClone(tags) });
+    const getMany = vi.spyOn(dataProvider, "getMany");
+    render(
+      <MemoryRouter>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={
+            new QueryClient({ defaultOptions: { queries: { retry: false } } })
+          }
+          i18n={createI18n({
+            locale: "en",
+            messages: { en: defineMessages({}) },
+          })}
+          dashboard={
+            <>
+              <ReferenceArrayField
+                source="tag_ids"
+                reference="tags"
+                record={{ tag_ids: [1, 2] }}
+              >
+                <TagList />
+              </ReferenceArrayField>
+              <ReferenceArrayField
+                source="tag_ids"
+                reference="tags"
+                record={{ tag_ids: [2, 3] }}
+              >
+                <TagList />
+              </ReferenceArrayField>
+            </>
+          }
+        />
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        screen
+          .getAllByRole("list")
+          .map((list) =>
+            Array.from(list.querySelectorAll("li"), (item) => item.textContent),
+          ),
+      ).toEqual([
+        ["Tech", "News"],
+        ["News", "Lifestyle"],
+      ]);
+    });
+    expect(getMany).toHaveBeenCalledExactlyOnceWith("tags", { ids: [1, 2, 3] });
+  });
+
   it("resolves the array of FKs and lists the referenced records", async () => {
     const Providers = makeProviders();
     render(
