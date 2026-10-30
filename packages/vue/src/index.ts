@@ -110,6 +110,8 @@ export type {
   UseCreateControllerReturn,
   UseEditControllerOptions,
   UseEditControllerReturn,
+  UseInfiniteListControllerOptions,
+  UseInfiniteListControllerReturn,
   UseListControllerOptions,
   UseListControllerReturn,
   UseShowControllerOptions,
@@ -119,9 +121,11 @@ export {
   toControllerContext,
   useCreateController,
   useEditController,
+  useInfiniteListController,
   useListController,
   useShowController,
 } from "./controllers";
+export { useInfiniteGetList } from "./data/infinite-queries";
 // --- supporting composables the vertical is built on ----------------------
 export {
   useDelete,
@@ -174,6 +178,7 @@ export { useTranslateLabel } from "./label/use-translate-label";
 export { areIdsEqual } from "./lib/are-ids-equal";
 export { shallowEqual } from "./lib/shallow-equal";
 export { cn } from "./lib/utils";
+export { useInfiniteListContext } from "./list/infinite-list-context";
 export type { ListContextValue } from "./list/list-context";
 export {
   ListContextKey,
