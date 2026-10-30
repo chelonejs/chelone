@@ -2,10 +2,11 @@ import type { FilterPayload, SortPayload } from "../data/types";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
 import { createMicroStore } from "../store/micro-store";
-import type {
-  ListController,
-  ListControllerState,
-  ListParamsPatch,
+import {
+  type ListController,
+  type ListControllerState,
+  type ListParamsPatch,
+  listParamsFromPatch,
 } from "./list-controller";
 
 /**
@@ -304,23 +305,7 @@ export function createClientListController<
 
   const setParams = (patch: ListParamsPatch): void => {
     if (destroyed) return;
-    const next: Partial<ListControllerState<TRecord>> = {};
-    if (patch.filter !== undefined) next.filter = removeEmpty(patch.filter);
-    if (patch.displayedFilters !== undefined) {
-      next.displayedFilters = { ...patch.displayedFilters };
-    }
-    if (patch.sort !== undefined) next.sort = normalizeSort(patch.sort);
-    if (patch.perPage !== undefined) next.perPage = patch.perPage;
-    if (patch.page !== undefined) {
-      next.page = patch.page;
-    } else if (
-      patch.filter !== undefined ||
-      patch.sort !== undefined ||
-      patch.perPage !== undefined
-    ) {
-      next.page = 1;
-    }
-    store.setState(next);
+    store.setState(listParamsFromPatch<TRecord>(patch));
     recompute();
   };
 

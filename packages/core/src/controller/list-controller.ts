@@ -122,6 +122,37 @@ function removeEmpty(filter: FilterPayload): FilterPayload {
   return result;
 }
 
+/**
+ * Turns a {@link ListParamsPatch} into the state slice it changes. Shared with
+ * the client controller so the page-reset rule lives in one place.
+ */
+export function listParamsFromPatch<TRecord>(
+  patch: ListParamsPatch,
+): Partial<
+  Pick<
+    ListControllerState<TRecord>,
+    "page" | "perPage" | "sort" | "filter" | "displayedFilters"
+  >
+> {
+  const next: Partial<ListControllerState<TRecord>> = {};
+  if (patch.filter !== undefined) next.filter = removeEmpty(patch.filter);
+  if (patch.displayedFilters !== undefined) {
+    next.displayedFilters = { ...patch.displayedFilters };
+  }
+  if (patch.sort !== undefined) next.sort = normalizeSort(patch.sort, []);
+  if (patch.perPage !== undefined) next.perPage = patch.perPage;
+  if (patch.page !== undefined) {
+    next.page = patch.page;
+  } else if (
+    patch.filter !== undefined ||
+    patch.sort !== undefined ||
+    patch.perPage !== undefined
+  ) {
+    next.page = 1;
+  }
+  return next;
+}
+
 function errorMessageKey(error: unknown): string {
   const message = error instanceof Error ? error.message : "";
   return message || "chelone.notification.http_error";
@@ -307,23 +338,7 @@ export function createListController<
 
   const setParams = (patch: ListParamsPatch): void => {
     if (destroyed) return;
-    const next: Partial<ListControllerState<TRecord>> = {};
-    if (patch.filter !== undefined) next.filter = removeEmpty(patch.filter);
-    if (patch.displayedFilters !== undefined) {
-      next.displayedFilters = { ...patch.displayedFilters };
-    }
-    if (patch.sort !== undefined) next.sort = normalizeSort(patch.sort, []);
-    if (patch.perPage !== undefined) next.perPage = patch.perPage;
-    if (patch.page !== undefined) {
-      next.page = patch.page;
-    } else if (
-      patch.filter !== undefined ||
-      patch.sort !== undefined ||
-      patch.perPage !== undefined
-    ) {
-      next.page = 1;
-    }
-    applyParams(next);
+    applyParams(listParamsFromPatch(patch));
   };
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
