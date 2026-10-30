@@ -58,7 +58,7 @@ function lowerTotal(total: number | undefined, removed: number) {
 /**
  * Optimistically remove records: drop each `getOne` entry and filter the id(s)
  * out of every cached `getList`, `getManyReference` and `getInfiniteList` page
- * (decrementing `total` when known).
+ * (decrementing `total` when known) and `getMany` entry.
  */
 export function removeRecordsFromCache(
   queryClient: QueryClient,
@@ -103,6 +103,7 @@ export function removeRecordsFromCache(
       })),
     });
   }
+  removeManyEntries(queryClient, resource, idSet);
 }
 
 /**
@@ -174,5 +175,27 @@ export function patchManyEntries(
       return record;
     });
     if (changed) queryClient.setQueryData<ResourceRecord[]>(key, next);
+  }
+}
+
+/**
+ * Drop the matching records from every cached `getMany` entry (what
+ * `ReferenceField` and `ReferenceArrayField` read through). An entry that
+ * holds none of the ids keeps its cached object.
+ */
+export function removeManyEntries(
+  queryClient: QueryClient,
+  resource: string,
+  idSet: Set<string>,
+): void {
+  const manys = queryClient.getQueriesData<ResourceRecord[]>({
+    queryKey: manyKeyPrefix(resource),
+  });
+  for (const [key, value] of manys) {
+    if (!value) continue;
+    const kept = value.filter((record) => !idSet.has(String(record.id)));
+    if (kept.length !== value.length) {
+      queryClient.setQueryData<ResourceRecord[]>(key, kept);
+    }
   }
 }
