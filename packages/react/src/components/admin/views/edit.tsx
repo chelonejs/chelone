@@ -101,16 +101,17 @@ function Edit(props: EditProps) {
   const params = useParams();
   const id = idProp ?? (params.id as Identifier);
 
-  // The controller captures its options once, so these go through a ref to
-  // keep running the callbacks of the latest render.
+  // The controller captures its options once, so it always gets these two
+  // wrappers (a callback added after mount still runs) and they read the
+  // latest render's callbacks through the ref.
   const latest = useRef({ validate, onSuccess });
   latest.current = { validate, onSuccess };
   const controller = useEditForm(resource, {
     id,
-    validate: validate && ((values) => latest.current.validate?.(values)),
+    validate: (values) => latest.current.validate?.(values),
     schema,
     sanitizeEmptyValues,
-    onSuccess: onSuccess && ((record) => latest.current.onSuccess?.(record)),
+    onSuccess: (record) => latest.current.onSuccess?.(record),
   });
   const { form, submit, record } = controller;
 

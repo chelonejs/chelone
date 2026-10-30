@@ -250,4 +250,45 @@ describe("<Edit>", () => {
     await screen.findByText("Too strict");
     expect(update).not.toHaveBeenCalled();
   });
+
+  it("validate added to <Edit> after mount blocks a save", async () => {
+    const dataProvider = makeDataProvider();
+    const update = vi.spyOn(dataProvider, "update");
+    function Submit() {
+      const { save } = useSaveContext();
+      return (
+        <button type="button" onClick={() => save?.({ title: "Next" })}>
+          save
+        </button>
+      );
+    }
+    function Page() {
+      const [strict, setStrict] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setStrict(true)}>
+            strict
+          </button>
+          <Edit validate={strict ? () => ({ title: "Too strict" }) : undefined}>
+            <TextInput source="title" />
+            <Submit />
+          </Edit>
+        </>
+      );
+    }
+    render(
+      <Providers dataProvider={dataProvider}>
+        <Page />
+      </Providers>,
+    );
+    await waitFor(() =>
+      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
+        "Original",
+      ),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "strict" }));
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await screen.findByText("Too strict");
+    expect(update).not.toHaveBeenCalled();
+  });
 });

@@ -244,4 +244,40 @@ describe("<Create>", () => {
     fireEvent.click(screen.getByRole("button", { name: "save" }));
     await waitFor(() => expect(seen).toEqual(["second"]));
   });
+
+  it("onSuccess added to <Create> after mount is called", async () => {
+    const seen: string[] = [];
+    function Submit() {
+      const { save } = useSaveContext();
+      return (
+        <button type="button" onClick={() => save?.({ title: "created" })}>
+          save
+        </button>
+      );
+    }
+    function Page() {
+      const [listening, setListening] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setListening(true)}>
+            listen
+          </button>
+          <Create
+            onSuccess={listening ? () => void seen.push("saved") : undefined}
+          >
+            <TextInput source="title" />
+            <Submit />
+          </Create>
+        </>
+      );
+    }
+    render(
+      <Providers>
+        <Page />
+      </Providers>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "listen" }));
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await waitFor(() => expect(seen).toEqual(["saved"]));
+  });
 });

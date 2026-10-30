@@ -65,13 +65,22 @@ const form = useForm<Record<string, unknown>>({
   resource,
   record: edit.record as Record<string, unknown> | undefined,
   // Read per call: the form captures its options once, props stay live.
-  // Read per call: the form captures its options once, props stay live.
-  validate: props.validate && ((values) => props.validate?.(values)),
+  // The form captures its options once: always hand it this wrapper, so a
+  // `validate` set after setup still runs, as of the live prop.
+  validate: (values) => props.validate?.(values),
   schema: props.schema,
   sanitizeEmptyValues: props.sanitizeEmptyValues,
   getRecord: () => edit.record as Record<string, unknown> | undefined,
+  // Rebaselined to the SERVER record in `onSaved` (as React's composed form
+  // does), so `onSuccess` sees the reconciled form.
+  resetOnSuccess: false,
   onSubmit: async (data): Promise<FieldErrors | undefined> => {
-    const errors = await edit.save(data, { onSaved: props.onSuccess });
+    const errors = await edit.save(data, {
+      onSaved: async (saved) => {
+        form.reset(saved as Record<string, unknown>);
+        await props.onSuccess?.(saved as Record<string, unknown>);
+      },
+    });
     if (!errors && props.redirectOnSave) {
       redirect("list", resource);
     }
