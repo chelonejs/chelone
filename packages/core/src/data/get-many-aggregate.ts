@@ -1,4 +1,4 @@
-import { hashKey } from "@tanstack/query-core";
+import { hashKey, type QueryClient } from "@tanstack/query-core";
 import type { Identifier } from "../resource/identifier";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { manyKey, oneKey } from "./keys";
@@ -6,6 +6,7 @@ import type { DataContext } from "./query-options";
 import type { DataProvider, GetManyParams } from "./types";
 
 interface Caller {
+  queryClient: QueryClient;
   ids: Identifier[];
   resolve: (records: Array<{ id: Identifier }>) => void;
   reject: (error: unknown) => void;
@@ -18,7 +19,11 @@ interface Batch {
   callers: Caller[];
 }
 
-/** One pending batch per resource and meta, per provider. A flushed batch leaves the map. */
+/**
+ * One pending batch per resource and meta, per provider. A flushed batch leaves
+ * the map. Contexts that share a provider share a batch, so the flush seeds the
+ * cache of every caller's `queryClient`.
+ */
 const pending = new WeakMap<object, Map<string, Batch>>();
 
 function flush(ctx: DataContext<never>, batchKey: string, batch: Batch): void {
@@ -37,27 +42,37 @@ async function settle(ctx: DataContext<never>, batch: Batch): Promise<void> {
     const params: GetManyParams = { ids: [...batch.ids.values()] };
     if (batch.meta !== undefined) params.meta = batch.meta;
     const result = await provider.getMany(batch.resource, params);
+    const queryClients = new Set(batch.callers.map((c) => c.queryClient));
     const byId = new Map<string, { id: Identifier }>();
     for (const record of result.data) {
       byId.set(String(record.id), record);
-      ctx.queryClient.setQueryData(
-        oneKey(batch.resource, { id: record.id }),
-        record,
-      );
+      for (const queryClient of queryClients) {
+        queryClient.setQueryData(
+          oneKey(batch.resource, { id: record.id }),
+          record,
+        );
+      }
     }
     for (const caller of batch.callers) {
-      const own: Array<{ id: Identifier }> = [];
+      const own = new Map<string, { id: Identifier }>();
       for (const id of caller.ids) {
         const record = byId.get(String(id));
-        if (record) own.push(record);
+        if (record) own.set(String(id), record);
       }
-      caller.resolve(own);
+      caller.resolve([...own.values()]);
     }
   } catch (error) {
     for (const caller of batch.callers) caller.reject(error);
   }
 }
 
+/**
+ * Joins the pending batch for this provider, resource and `meta`, opening it
+ * and scheduling its `setTimeout(0)` flush if there is none. Resolves once the
+ * flush has the provider's answer, with this caller's own records in its own id
+ * order, repeated ids once and ids the provider omitted left out. Rejects with
+ * the batch's error.
+ */
 function enqueue(
   ctx: DataContext<never>,
   resource: string,
@@ -86,7 +101,13 @@ function enqueue(
   }
   const target = batch;
   return new Promise((resolve, reject) => {
-    target.callers.push({ ids: params.ids, resolve, reject });
+    // Copied: the caller may reuse its array before the flush runs.
+    target.callers.push({
+      queryClient: ctx.queryClient,
+      ids: [...params.ids],
+      resolve,
+      reject,
+    });
   });
 }
 
