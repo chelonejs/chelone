@@ -55,10 +55,12 @@ parses the body, and `queryParameters` builds the query string.
 
 ```ts
 import { fetchUtils } from "@chelone/core";
-import type { DataProvider, LooseRecord } from "@chelone/core";
+import type { DataProvider } from "@chelone/core";
 
 const { fetchJson, queryParameters } = fetchUtils;
 
+// Each verb is generic in the resource name, so TypeScript cannot match a
+// parsed body to the record type: `as never` hands that check to your backend.
 export const dataProvider: DataProvider = {
   async getList(resource, { pagination, sort, filter }) {
     const query = queryParameters({ ...pagination, sort, filter });
@@ -67,13 +69,13 @@ export const dataProvider: DataProvider = {
     // `total` is optional: leave it out when the backend sends no count.
     const count = headers.get("X-Total");
     return {
-      data: json as LooseRecord[],
+      data: json as never,
       total: count === null ? undefined : Number(count),
     };
   },
   async getOne(resource, { id }) {
     const { json } = await fetchJson(`/api/${resource}/${id}`);
-    return { data: json as LooseRecord };
+    return { data: json as never };
   },
   // …create / update / delete / getMany / …
 };
