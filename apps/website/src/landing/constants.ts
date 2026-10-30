@@ -19,5 +19,5 @@ export const links = {
   demo: "/demo/",
   docs: "/docs",
   dataProviders: "/docs/app-config/data-providers",
-  github: "https://github.com/TurtIeSocks/chelone",
+  github: "https://github.com/chelonejs/chelone",
 } as const;

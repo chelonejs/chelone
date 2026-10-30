@@ -53,7 +53,7 @@ import {
         </a>
       </div>
       <div class="text-xl">
-        <a href="https://github.com/chelone-dev/chelone">
+        <a href="https://github.com/chelonejs/chelone">
           <GithubMark class="inline mr-4 size-10" />
           GitHub
         </a>

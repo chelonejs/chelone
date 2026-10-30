@@ -70,7 +70,7 @@ function Ready() {
           </a>
         </div>
         <div className="text-xl">
-          <a href="https://github.com/chelone-dev/chelone">
+          <a href="https://github.com/chelonejs/chelone">
             <GithubMark className="inline mr-4 size-10" />
             GitHub
           </a>
