@@ -17,6 +17,7 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./tanstack-router": "./src/tanstack-router.ts",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -27,6 +28,10 @@
       ".": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
+      },
+      "./tanstack-router": {
+        "types": "./dist/tanstack-router.d.ts",
+        "default": "./dist/tanstack-router.js"
       },
       "./package.json": "./package.json"
     }

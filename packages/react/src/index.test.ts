@@ -163,9 +163,11 @@ describe("@chelone/react barrel — P6 shell + router surface (W1)", () => {
     expect(barrel.useStore).toBe(barrel.useStoreItem);
   });
 
-  it("exports the RouterAdapter interface + both adapters + injection", () => {
+  it("exports the RouterAdapter interface + the react-router adapter + injection", () => {
     expect(barrel.reactRouterAdapter).toBeTypeOf("object");
-    expect(barrel.tanstackRouterAdapter).toBeTypeOf("object");
+    // The optional @tanstack/react-router peer must not load with the barrel.
+    expect("tanstackRouterAdapter" in barrel).toBe(false);
+    expect(Reflect.get(barrel, "tanstackRouterAdapter")).toBeUndefined();
     expect(barrel.RouterAdapterContext).toBeTypeOf("object");
     expect(barrel.RouterAdapterProvider).toBeTypeOf("function");
     expect(barrel.useRouterAdapter).toBeTypeOf("function");

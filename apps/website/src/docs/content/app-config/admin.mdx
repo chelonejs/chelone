@@ -98,6 +98,16 @@ headless admin, or pass your own layout element. Other slots (`<Admin.Dashboard>
 (or a custom adapter) to run under TanStack Router instead — the components speak
 the adapter's navigation contract, not a specific router.
 
+```tsx
+import { Admin } from "@chelone/react";
+import { tanstackRouterAdapter } from "@chelone/react/tanstack-router";
+
+<Admin dataProvider={dataProvider} router={tanstackRouterAdapter} />;
+```
+
+The adapter lives on its own entry so `@chelone/react` loads without
+`@tanstack/react-router`, an optional peer. Install it only when you use this adapter.
+
 ## Props
 
 <PropsTable name="Admin" />
