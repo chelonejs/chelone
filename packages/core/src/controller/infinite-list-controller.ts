@@ -7,19 +7,16 @@ import {
 import type { infiniteListKey } from "../data/keys";
 import { getInfiniteListOptions, getListOptions } from "../data/query-options";
 import type { GetListResult } from "../data/types";
-import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import {
   createErrorAnnouncer,
   createListController,
-  DEFAULT_SELECT_ALL_LIMIT,
   type ListController,
   type ListControllerContext,
   type ListControllerOptions,
   type ListControllerState,
-  notifyFetchError,
-  notifySelectAllLimit,
+  runSelectAll,
 } from "./list-controller";
 
 export interface InfiniteListControllerState<TRecord>
@@ -34,9 +31,9 @@ export interface InfiniteListController<TRecord>
       ListController<TRecord>,
       keyof MicroStore<ListControllerState<TRecord>>
     > {
-  /** Appends the next page. Does nothing without a next page or while one is loading. */
+  /** Appends the next page. Shares an ongoing next-page load; waits for other loads. Does nothing without a next page. */
   fetchNextPage(): Promise<void>;
-  /** Prepends the page before the first loaded one. Does nothing without one or while one is loading. */
+  /** Prepends the previous page. Shares an ongoing previous-page load; waits for other loads. Does nothing without a previous page. */
   fetchPreviousPage(): Promise<void>;
 }
 
@@ -293,29 +290,29 @@ export function createInfiniteListController<
     void track("refetch", observer.refetch().then(swallow, swallow));
   };
 
-  const selectAll = async (opts?: { limit?: number }): Promise<void> => {
-    if (destroyed) return;
-    const limit = opts?.limit ?? DEFAULT_SELECT_ALL_LIMIT;
-    // The inner snapshot is the source of truth: a debounced filter may have
-    // landed in it while detached.
-    const s = inner.getSnapshot();
-    try {
-      const result = await ctx.queryClient.fetchQuery({
-        ...getListOptions(ctx, resource, {
-          pagination: { page: 1, perPage: limit },
-          ...requestParams(s),
-        }),
-        retry: false,
-      });
-      if (destroyed) return;
-      inner.select(result.data.map((record) => (record as ResourceRecord).id));
-      mirror();
-      notifySelectAllLimit(ctx.notifications, result.data.length, limit);
-    } catch (error) {
-      if (destroyed) return;
-      notifyFetchError(ctx.notifications, error);
-    }
-  };
+  const selectAll = (opts?: { limit?: number }): Promise<void> =>
+    runSelectAll(
+      ctx.notifications,
+      async (limit) => {
+        // The inner snapshot is the source of truth: a debounced filter may have
+        // landed in it while detached.
+        const s = inner.getSnapshot();
+        const result = await ctx.queryClient.fetchQuery({
+          ...getListOptions(ctx, resource, {
+            pagination: { page: 1, perPage: limit },
+            ...requestParams(s),
+          }),
+          retry: false,
+        });
+        return result.data;
+      },
+      (ids) => {
+        inner.select(ids);
+        mirror();
+      },
+      () => destroyed,
+      opts?.limit,
+    );
 
   return {
     ...store,

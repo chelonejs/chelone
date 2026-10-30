@@ -185,6 +185,30 @@ export function notifySelectAllLimit(
 }
 
 /**
+ * Fetches one page with `limit` (default 250), applies its ids, then warns at
+ * the limit. Fetch, apply and warning failures use `notifyFetchError`.
+ * Destruction skips the fetch or suppresses its result and failure notification.
+ */
+export async function runSelectAll(
+  notifications: NotificationStore | undefined,
+  fetchPage: (limit: number) => Promise<ResourceRecord[]>,
+  apply: (ids: Identifier[]) => void,
+  isDestroyed: () => boolean,
+  limit = DEFAULT_SELECT_ALL_LIMIT,
+): Promise<void> {
+  if (isDestroyed()) return;
+  try {
+    const rows = await fetchPage(limit);
+    if (isDestroyed()) return;
+    apply(rows.map((record) => record.id));
+    notifySelectAllLimit(notifications, rows.length, limit);
+  } catch (error) {
+    if (isDestroyed()) return;
+    notifyFetchError(notifications, error);
+  }
+}
+
+/**
  * Notifies a distinct error OBJECT once however many results carry it (a new
  * Error with the same message is a new failure and is announced). `rearm`
  * forgets the last one, so a controller that wants the same error announced
@@ -514,29 +538,25 @@ export function createListController<
     writeSelection([]);
   };
 
-  const selectAll = async (opts?: { limit?: number }): Promise<void> => {
-    if (destroyed) return;
-    const limit = opts?.limit ?? DEFAULT_SELECT_ALL_LIMIT;
-    const s = store.getSnapshot();
-    try {
-      const result = await ctx.queryClient.fetchQuery({
-        ...getListOptions(ctx, resource, {
-          pagination: { page: 1, perPage: limit },
-          sort: s.sort.length === 1 ? s.sort[0] : s.sort,
-          filter: { ...s.filter, ...(options.filter ?? {}) },
-        }),
-        retry: false,
-      });
-      if (destroyed) return;
-      writeSelection(
-        result.data.map((record) => (record as ResourceRecord).id),
-      );
-      notifySelectAllLimit(ctx.notifications, result.data.length, limit);
-    } catch (error) {
-      if (destroyed) return;
-      notifyFetchError(ctx.notifications, error);
-    }
-  };
+  const selectAll = (opts?: { limit?: number }): Promise<void> =>
+    runSelectAll(
+      ctx.notifications,
+      async (limit) => {
+        const s = store.getSnapshot();
+        const result = await ctx.queryClient.fetchQuery({
+          ...getListOptions(ctx, resource, {
+            pagination: { page: 1, perPage: limit },
+            sort: s.sort.length === 1 ? s.sort[0] : s.sort,
+            filter: { ...s.filter, ...(options.filter ?? {}) },
+          }),
+          retry: false,
+        });
+        return result.data;
+      },
+      writeSelection,
+      () => destroyed,
+      opts?.limit,
+    );
 
   const refetch = (): void => {
     if (destroyed) return;
