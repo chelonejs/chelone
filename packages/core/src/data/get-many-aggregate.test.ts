@@ -155,6 +155,44 @@ describe("getManyAggregateOptions", () => {
     expect((results[1] as PromiseRejectedResult).reason).toBe(error);
   });
 
+  it("a provider that throws synchronously rejects every caller", async () => {
+    const c = setup();
+    const error = new Error("sync boom");
+    c.getMany.mockImplementation(() => {
+      throw error;
+    });
+
+    const results = await Promise.allSettled([
+      c.queryClient.fetchQuery(
+        getManyAggregateOptions(c, "posts", { ids: [1] }),
+      ),
+      c.queryClient.fetchQuery(
+        getManyAggregateOptions(c, "posts", { ids: [2] }),
+      ),
+    ]);
+
+    expect(results).toEqual([
+      { status: "rejected", reason: error },
+      { status: "rejected", reason: error },
+    ]);
+  });
+
+  it("a malformed provider result rejects every caller instead of leaving them pending", async () => {
+    const c = setup();
+    c.getMany.mockResolvedValue({ data: undefined } as never);
+
+    const results = await Promise.allSettled([
+      c.queryClient.fetchQuery(
+        getManyAggregateOptions(c, "posts", { ids: [1] }),
+      ),
+      c.queryClient.fetchQuery(
+        getManyAggregateOptions(c, "posts", { ids: [2] }),
+      ),
+    ]);
+
+    expect(results.map((r) => r.status)).toEqual(["rejected", "rejected"]);
+  });
+
   it("an empty id list resolves [] and sends no request", async () => {
     const c = setup();
 

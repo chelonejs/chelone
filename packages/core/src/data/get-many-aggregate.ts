@@ -23,32 +23,39 @@ const pending = new WeakMap<object, Map<string, Batch>>();
 
 function flush(ctx: DataContext<never>, batchKey: string, batch: Batch): void {
   pending.get(ctx.dataProvider)?.delete(batchKey);
-  const provider = ctx.dataProvider as DataProvider<ResourceMap>;
-  const params: GetManyParams = { ids: [...batch.ids.values()] };
-  if (batch.meta !== undefined) params.meta = batch.meta;
-  provider.getMany(batch.resource, params).then(
-    (result) => {
-      const byId = new Map<string, { id: Identifier }>();
-      for (const record of result.data) {
-        byId.set(String(record.id), record);
-        ctx.queryClient.setQueryData(
-          oneKey(batch.resource, { id: record.id }),
-          record,
-        );
+  void settle(ctx, batch);
+}
+
+/**
+ * Every failure on the way, a synchronous throw from the provider or a
+ * malformed result included, rejects the whole batch. Rejecting a caller that
+ * already resolved is a no-op.
+ */
+async function settle(ctx: DataContext<never>, batch: Batch): Promise<void> {
+  try {
+    const provider = ctx.dataProvider as DataProvider<ResourceMap>;
+    const params: GetManyParams = { ids: [...batch.ids.values()] };
+    if (batch.meta !== undefined) params.meta = batch.meta;
+    const result = await provider.getMany(batch.resource, params);
+    const byId = new Map<string, { id: Identifier }>();
+    for (const record of result.data) {
+      byId.set(String(record.id), record);
+      ctx.queryClient.setQueryData(
+        oneKey(batch.resource, { id: record.id }),
+        record,
+      );
+    }
+    for (const caller of batch.callers) {
+      const own: Array<{ id: Identifier }> = [];
+      for (const id of caller.ids) {
+        const record = byId.get(String(id));
+        if (record) own.push(record);
       }
-      for (const caller of batch.callers) {
-        const own: Array<{ id: Identifier }> = [];
-        for (const id of caller.ids) {
-          const record = byId.get(String(id));
-          if (record) own.push(record);
-        }
-        caller.resolve(own);
-      }
-    },
-    (error: unknown) => {
-      for (const caller of batch.callers) caller.reject(error);
-    },
-  );
+      caller.resolve(own);
+    }
+  } catch (error) {
+    for (const caller of batch.callers) caller.reject(error);
+  }
 }
 
 function enqueue(
