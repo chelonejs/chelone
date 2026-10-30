@@ -73,12 +73,14 @@ async function fetchJson(
 }
 
 function encodeValue(value: unknown): string {
+  if (value instanceof Date) return value.toISOString();
   return typeof value === "object" ? JSON.stringify(value) : String(value);
 }
 
 /**
  * Builds a query string (no leading `?`). Skips `undefined` and `null`,
- * repeats the key for an array, JSON-encodes a plain object.
+ * repeats the key for an array, writes a `Date` as its ISO string and
+ * JSON-encodes any other object.
  */
 function queryParameters(params: Record<string, unknown>): string {
   const parts: string[] = [];

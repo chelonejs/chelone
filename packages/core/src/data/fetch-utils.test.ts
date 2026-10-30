@@ -221,6 +221,13 @@ describe("queryParameters", () => {
     );
   });
 
+  it("queryParameters encodes a Date as its bare ISO string, without JSON quotes", () => {
+    expect(queryParameters({ since: new Date(0), ids: [new Date(0)] })).toBe(
+      `since=${encodeURIComponent("1970-01-01T00:00:00.000Z")}` +
+        `&ids=${encodeURIComponent("1970-01-01T00:00:00.000Z")}`,
+    );
+  });
+
   it("queryParameters returns an empty string when nothing is left", () => {
     expect(queryParameters({})).toBe("");
     expect(queryParameters({ a: undefined, b: null })).toBe("");
