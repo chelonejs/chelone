@@ -140,39 +140,46 @@ export function createSavedQueriesController(
 
   /** The raw value the state was last derived from, to skip no-op resyncs. */
   let lastRaw: unknown = kv?.getItem(key);
-  /** True while `write` is inside `kv.setItem`: that notification is ours. */
-  let writing = false;
   const store = createMicroStore<SavedQueriesState>(
     { queries: extractValidSavedQueries(lastRaw) },
     {
       onSubscribed: () => {
         if (!kv) return;
-        const sync = (): void => {
-          if (writing) return;
-          const raw = kv.getItem(key);
-          if (raw === lastRaw) return;
-          lastRaw = raw;
-          store.setState({ queries: extractValidSavedQueries(raw) });
-        };
-        sync();
-        return kv.subscribe(key, sync);
+        resync();
+        return kv.subscribe(key, resync);
       },
     },
   );
 
-  const write = (queries: SavedQuery[]): void => {
-    if (kv) {
-      // A throwing `setItem` leaves state and `lastRaw` as they were. Reading
-      // back covers stores that clone on write; `sync` skips our own write.
-      writing = true;
-      try {
-        kv.setItem(key, queries);
-      } finally {
-        writing = false;
-      }
-      lastRaw = kv.getItem(key);
-    }
+  /** Brings state in line with the store; a no-op when nothing changed. */
+  function resync(): void {
+    if (!kv) return;
+    const raw = kv.getItem(key);
+    if (raw === lastRaw) return;
+    lastRaw = raw;
+    const queries = extractValidSavedQueries(raw);
+    if (isDeepEqual(queries, store.getSnapshot().queries)) return;
     store.setState({ queries });
+  }
+
+  /**
+   * Detached, nothing keeps state current, so every action starts from the
+   * store: a stale snapshot would write over another controller's queries.
+   */
+  const current = (): SavedQuery[] => {
+    resync();
+    return store.getSnapshot().queries;
+  };
+
+  const write = (queries: SavedQuery[]): void => {
+    if (!kv) {
+      store.setState({ queries });
+      return;
+    }
+    // A throwing `setItem` changes nothing. Re-reading afterwards covers
+    // stores that clone on write and a store notification that wrote again.
+    kv.setItem(key, queries);
+    resync();
   };
 
   const save = (label: string, value: SavedQueryValue): void => {
@@ -180,7 +187,7 @@ export function createSavedQueriesController(
     if (!trimmed) return;
     if (!isSavedQueryValue(value)) return;
     const next: SavedQuery = { label: trimmed, value: structuredClone(value) };
-    const { queries } = store.getSnapshot();
+    const queries = current();
     const index = queries.findIndex((query) => query.label === trimmed);
     write(
       index === -1
@@ -191,7 +198,7 @@ export function createSavedQueriesController(
 
   const remove = (label: string): void => {
     const trimmed = label.trim();
-    const { queries } = store.getSnapshot();
+    const queries = current();
     if (!queries.some((query) => query.label === trimmed)) return;
     write(queries.filter((query) => query.label !== trimmed));
   };

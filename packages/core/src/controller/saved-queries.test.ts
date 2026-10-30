@@ -298,6 +298,47 @@ describe("saved queries", () => {
     expect(second.getSnapshot().queries).toEqual([query("Mine")]);
   });
 
+  it("a detached controller builds on the store, not on its stale snapshot", () => {
+    const store = createStore();
+    const stale = createSavedQueriesController({ store }, "posts");
+    const other = createSavedQueriesController({ store }, "posts");
+    other.save("Mine", value());
+    other.save("Theirs", value());
+
+    stale.save("Drafts", value());
+    expect(store.getItem(savedQueriesKey("posts"))).toEqual([
+      query("Mine"),
+      query("Theirs"),
+      query("Drafts"),
+    ]);
+
+    other.remove("Theirs");
+    stale.remove("Theirs");
+    stale.remove("Mine");
+    expect(stale.getSnapshot().queries).toEqual([query("Drafts")]);
+    expect(store.getItem(savedQueriesKey("posts"))).toEqual([query("Drafts")]);
+  });
+
+  it("a save made inside another controller's store notification leaves both in step with the store", () => {
+    const store = createStore();
+    const a = createSavedQueriesController({ store }, "posts");
+    const b = createSavedQueriesController({ store }, "posts");
+    a.subscribe(() => {});
+    let reentered = false;
+    b.subscribe(() => {
+      if (reentered) return;
+      reentered = true;
+      b.save("From B", value());
+    });
+
+    a.save("From A", value());
+
+    const stored = store.getItem(savedQueriesKey("posts"));
+    expect(stored).toEqual([query("From A"), query("From B")]);
+    expect(a.getSnapshot().queries).toEqual(stored);
+    expect(b.getSnapshot().queries).toEqual(stored);
+  });
+
   it("follows an external write to the store key while attached", () => {
     const store = createStore();
     const controller = createSavedQueriesController({ store }, "posts");
