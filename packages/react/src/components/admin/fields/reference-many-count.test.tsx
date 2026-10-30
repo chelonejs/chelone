@@ -233,7 +233,7 @@ describe("<ReferenceManyCount>", () => {
   it("renders nothing when the provider returns no total", async () => {
     const { Providers, manyReferenceSpy } = makeProviders();
     manyReferenceSpy.mockResolvedValue({
-      data: [books[0]],
+      data: [],
     });
     const { container } = render(
       <Providers>

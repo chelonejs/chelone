@@ -87,15 +87,16 @@ function withRecord(
   });
 }
 
+const countOf = (wrapper: ReturnType<typeof mountAdmin>["wrapper"]) =>
+  wrapper.find('[data-slot="reference-many-count"]');
+
 describe("ReferenceManyCount", () => {
   it("renders the total of rows whose target equals the record id", async () => {
     const { wrapper } = mountAdmin(() =>
       h(withRecord({ id: 1, name: "Jane" })),
     );
     await vi.waitFor(() => {
-      expect(
-        wrapper.find('[data-slot="reference-many-count"]').text(),
-      ).toBe("3");
+      expect(countOf(wrapper).text()).toBe("3");
     });
   });
 
@@ -104,9 +105,7 @@ describe("ReferenceManyCount", () => {
       h(withRecord({ id: 1 })),
     );
     await vi.waitFor(() => {
-      expect(wrapper.find('[data-slot="reference-many-count"]').exists()).toBe(
-        true,
-      );
+      expect(countOf(wrapper).exists()).toBe(true);
     });
     expect(manyReferenceSpy).toHaveBeenCalledTimes(1);
     expect(manyReferenceSpy).toHaveBeenCalledWith(
@@ -124,9 +123,7 @@ describe("ReferenceManyCount", () => {
       h(withRecord({ id: 1 }, { filter: { year: 2022 } })),
     );
     await vi.waitFor(() => {
-      expect(
-        wrapper.find('[data-slot="reference-many-count"]').text(),
-      ).toBe("1");
+      expect(countOf(wrapper).text()).toBe("1");
     });
     expect(manyReferenceSpy).toHaveBeenCalledWith(
       "books",
@@ -137,25 +134,15 @@ describe("ReferenceManyCount", () => {
   it("renders 0 for a record with no related rows", async () => {
     const { wrapper } = mountAdmin(() => h(withRecord({ id: 99 })));
     await vi.waitFor(() => {
-      expect(
-        wrapper.find('[data-slot="reference-many-count"]').text(),
-      ).toBe("0");
+      expect(countOf(wrapper).text()).toBe("0");
     });
   });
 
   it("matches target against the source field of the record prop over the ambient record", async () => {
-    const { wrapper } = mountAdmin(() =>
-      h(
-        withRecord(
-          { id: 1 },
-          { source: "author_key", record: { id: 7, author_key: 2 } },
-        ),
-      ),
-    );
+    const props = { source: "author_key", record: { id: 7, author_key: 2 } };
+    const { wrapper } = mountAdmin(() => h(withRecord({ id: 1 }, props)));
     await vi.waitFor(() => {
-      expect(
-        wrapper.find('[data-slot="reference-many-count"]').text(),
-      ).toBe("2");
+      expect(countOf(wrapper).text()).toBe("2");
     });
   });
 
@@ -169,36 +156,27 @@ describe("ReferenceManyCount", () => {
 
     record.value = { id: 2 };
     await vi.waitFor(() => {
-      expect(
-        wrapper.find('[data-slot="reference-many-count"]').text(),
-      ).toBe("2");
+      expect(countOf(wrapper).text()).toBe("2");
     });
   });
 
   it("renders the loading text while pending and the error text when the lookup rejects", async () => {
     let reject: (reason: Error) => void = () => {};
+    const pending = new Promise<never>((_, rej) => {
+      reject = rej;
+    });
     const { wrapper } = mountAdmin(
       () => h(withRecord({ id: 1 }, { loading: "counting", error: "failed" })),
-      (spy) =>
-        spy.mockImplementation(
-          () =>
-            new Promise((_, rej) => {
-              reject = rej;
-            }),
-        ),
+      (spy) => spy.mockReturnValue(pending),
     );
     expect(wrapper.text()).toBe("counting");
-    expect(wrapper.find('[data-slot="reference-many-count"]').exists()).toBe(
-      false,
-    );
+    expect(countOf(wrapper).exists()).toBe(false);
 
     reject(new Error("boom"));
     await vi.waitFor(() => {
       expect(wrapper.text()).toBe("failed");
     });
-    expect(wrapper.find('[data-slot="reference-many-count"]').exists()).toBe(
-      false,
-    );
+    expect(countOf(wrapper).exists()).toBe(false);
   });
 
   it("renders nothing and fetches nothing without a record id", async () => {
@@ -218,16 +196,14 @@ describe("ReferenceManyCount", () => {
   it("renders nothing when the provider returns no total", async () => {
     const { wrapper, manyReferenceSpy } = mountAdmin(
       () => h(withRecord({ id: 1 }, { loading: "counting" })),
-      (spy) => spy.mockResolvedValue({ data: [books[0]] }),
+      (spy) => spy.mockResolvedValue({ data: [] }),
     );
     await vi.waitFor(() => {
       expect(manyReferenceSpy).toHaveBeenCalled();
     });
     await new Promise((resolve) => setTimeout(resolve, 20));
     expect(wrapper.text()).toBe("");
-    expect(wrapper.find('[data-slot="reference-many-count"]').exists()).toBe(
-      false,
-    );
+    expect(countOf(wrapper).exists()).toBe(false);
   });
 
   it("in a DataTable column counts each row on its own", async () => {
