@@ -1,6 +1,6 @@
 ---
 title: "Data Export"
-description: "Let users download the list — or a selection — as CSV."
+description: "Let users download the list, or a selection, as CSV."
 ---
 
 Chelone ships a CSV exporter and two buttons that call it: `<ExportButton>` for
@@ -10,11 +10,17 @@ rows.
 ## Export the list
 
 Drop an `<ExportButton>` into the list header `actions`. It re-fetches the list
-with the current filters and sort (ignoring pagination), converts the records to
-CSV, and triggers a download:
+with the current filters and primary sort (ignoring pagination), converts the
+records to CSV, and triggers a download of `<resource>.csv`:
 
 ```tsx title="src/posts.tsx"
-import { CreateButton, DataTable, ExportButton, List } from "@chelone/react";
+import {
+  CreateButton,
+  DataTable,
+  ExportButton,
+  List,
+  ListPagination,
+} from "@chelone/react";
 
 export function PostList() {
   return (
@@ -30,38 +36,114 @@ export function PostList() {
         <DataTable.Col source="title" />
         <DataTable.NumberCol source="views" />
       </DataTable>
+      <ListPagination />
     </List>
   );
 }
 ```
 
+The button is disabled while the list is empty. It fetches at most `maxResults`
+rows, `1000` by default, so a longer list is cut off after the first 1000 in the
+current sort order. Raise the cap with `<ExportButton maxResults={5000} />`.
+
 ## Export a selection
 
-When rows are selected, the `<DataTable>`'s bulk-actions toolbar can host a
-`<BulkExportButton>`, which exports only the checked records.
+`<BulkExportButton>` exports only the checked rows. It reads the selected ids
+from the list context and loads them with `dataProvider.getMany`. Put it in the
+`<DataTable>`'s `bulkActionButtons`. A table without `bulkActionButtons` has no
+checkboxes, so the button has nothing to export:
+
+```tsx title="src/posts.tsx"
+import {
+  BulkDeleteButton,
+  BulkExportButton,
+  DataTable,
+  List,
+  ListPagination,
+} from "@chelone/react";
+
+export function PostList() {
+  return (
+    <List>
+      <DataTable
+        bulkActionButtons={
+          <>
+            <BulkExportButton />
+            <BulkDeleteButton />
+          </>
+        }
+      >
+        <DataTable.Col source="title" />
+        <DataTable.NumberCol source="views" />
+      </DataTable>
+      <ListPagination />
+    </List>
+  );
+}
+```
+
+## The CSV format
+
+The default exporter, `defaultExporter`, writes one column per top-level key.
+The columns are the union of the keys of every fetched record, in the order they
+first appear, so a record that lacks a key leaves that cell empty. A nested
+object or array is written as JSON in a single cell. `null` and `undefined`
+become empty cells, and a cell with a comma, a quote or a line break is quoted.
+
+```text
+id,title,author_id,meta
+1,On Computable Numbers,1,"{""tags"":[""math"",""logic""]}"
+```
+
+The export is the record as the provider returns it, so a reference field
+exports its foreign key, not the referenced record's label.
 
 ## Custom export logic
 
-The button accepts an `exporter` prop — a function that receives the records and
-does whatever you need (reshape columns, fetch related data, hand off to a
-different serializer). The default is `defaultExporter`, which flattens each
-record and calls `downloadCSV`. The CSV helpers are exported so you can build on
-them:
+Both buttons accept an `exporter` prop. An exporter is a function with the
+signature `(data, dataProvider, resource)`: the fetched records, the data
+provider (for follow-up fetches), and the resource name. It may be async. Use it
+to reshape columns, fetch related data, or hand off to a different serializer.
+The CSV helpers are exported so you can build on them:
 
 ```tsx
-import { downloadCSV, recordsToCSV, type Exporter } from "@chelone/react";
+import {
+  downloadCSV,
+  type Exporter,
+  ExportButton,
+  recordsToCSV,
+} from "@chelone/react";
 
-const exportPosts: Exporter = (records) => {
-  const rows = records.map((r) => ({ Title: r.title, Views: r.views }));
-  downloadCSV(recordsToCSV(rows), "posts");
+const exportPosts: Exporter = async (posts, dataProvider, resource) => {
+  const authorIds = [...new Set(posts.map((post) => post.author_id as number))];
+  const { data: authors } = await dataProvider.getMany("authors", {
+    ids: authorIds,
+  });
+  const names = new Map(authors.map((author) => [author.id, author.name]));
+
+  const rows = posts.map((post) => ({
+    id: post.id,
+    title: post.title,
+    author: names.get(post.author_id as number),
+  }));
+  downloadCSV(recordsToCSV(rows), resource);
 };
 
-<ExportButton exporter={exportPosts} />;
+export const PostExportButton = () => <ExportButton exporter={exportPosts} />;
 ```
+
+`recordsToCSV` takes records with an `id`, so keep `id` on each row.
+`downloadCSV(csv, filename)` appends `.csv` to the name and does nothing when
+there is no `document`. Pass the same `exporter` to `<BulkExportButton>` to
+reshape a selection the same way.
 
 ## Tips
 
-- `<ExportButton>` exports the **filtered** list, not just the visible page — it
-  issues its own fetch with the active filters and sort.
-- For very large datasets, page through the data inside a custom `exporter`
-  rather than pulling everything into one request.
+- `<ExportButton>` exports the **filtered** list, not just the visible page. It
+  issues its own fetch with the list's `filter` and primary sort.
+- A permanent `filter` passed to `useListController` is not part of the list's
+  `filter` state, so the export does not apply it.
+- Only the first sort field is sent, so a multi-field sort exports by its
+  primary field.
+- For lists beyond `maxResults`, page through the data inside a custom
+  `exporter` rather than raising the cap into one very large request.
