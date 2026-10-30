@@ -6,7 +6,7 @@
 // that resolves to no file. Any other `@/` specifier fails the run instead of
 // shipping.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
-import { dirname, join, relative, resolve } from "node:path"
+import { dirname, join, relative, resolve, sep } from "node:path"
 import { argv, exit } from "node:process"
 
 const FOLDERS = new Set(["components", "lib", "hooks"])
@@ -36,7 +36,8 @@ function rewrite(file, root, source) {
       unresolved.push(`@/${path}`)
       return match
     }
-    const target = relative(dirname(file), join(root, folder, ...rest))
+    // Specifiers use `/` on every platform; relative() returns `\` on Windows.
+    const target = relative(dirname(file), join(root, folder, ...rest)).split(sep).join("/")
     const specifier = target.startsWith(".") ? target : `./${target}`
     return `${lead}${quote}${specifier}${quote}`
   })
