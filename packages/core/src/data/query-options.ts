@@ -1,14 +1,22 @@
 import type { QueryClient } from "@tanstack/query-core";
 import type { Identifier } from "../resource/identifier";
 import type { RecordOf, ResourceMap } from "../resource/registry";
-import { listKey, manyKey, manyReferenceKey, oneKey } from "./keys";
+import {
+  infiniteListKey,
+  listKey,
+  manyKey,
+  manyReferenceKey,
+  oneKey,
+} from "./keys";
 import type {
   DataProvider,
   GetListParams,
+  GetListResult,
   GetManyParams,
   GetManyReferenceParams,
   GetManyReferenceResult,
   GetOneParams,
+  InfiniteListParams,
 } from "./types";
 
 /** Everything the data runtime needs — framework adapters provide this via their own context. */
@@ -39,6 +47,57 @@ export function getListOptions<
       seedRecords(ctx.queryClient, resource, result.data);
       return result;
     },
+  };
+}
+
+/**
+ * One query that gathers pages: an infinite observer or `fetchInfiniteQuery`
+ * consumes it. The page param is the page number; rows are seeded into
+ * `oneKey` like `getListOptions` does.
+ */
+export function getInfiniteListOptions<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(ctx: DataContext<TResources>, resource: TName, params: InfiniteListParams) {
+  const { page, perPage } = params.pagination;
+  return {
+    queryKey: infiniteListKey(resource, params),
+    queryFn: async ({ pageParam }: { pageParam: number }) => {
+      const result = await ctx.dataProvider.getList(resource, {
+        ...params,
+        pagination: { page: pageParam, perPage },
+      });
+      seedRecords(ctx.queryClient, resource, result.data);
+      return result;
+    },
+    initialPageParam: page,
+    getNextPageParam: (
+      lastPage: GetListResult<RecordOf<TResources, TName>>,
+      allPages: GetListResult<RecordOf<TResources, TName>>[],
+      lastPageParam: number,
+      allPageParams: number[],
+    ): number | undefined => {
+      const { pageInfo, total } = lastPage;
+      if (pageInfo?.hasNextPage !== undefined) {
+        return pageInfo.hasNextPage ? lastPageParam + 1 : undefined;
+      }
+      if (total != null) {
+        // Rows before the first loaded page count as loaded: the query may start past page 1.
+        const skipped = Math.max(0, ((allPageParams[0] ?? page) - 1) * perPage);
+        const loaded = allPages.reduce((n, p) => n + p.data.length, skipped);
+        return loaded < total ? lastPageParam + 1 : undefined;
+      }
+      // An empty page ends the list even when perPage is 0 or negative.
+      const { length } = lastPage.data;
+      return length > 0 && length >= perPage ? lastPageParam + 1 : undefined;
+    },
+    getPreviousPageParam: (
+      _firstPage: GetListResult<RecordOf<TResources, TName>>,
+      _allPages: GetListResult<RecordOf<TResources, TName>>[],
+      firstPageParam: number,
+      _allPageParams: number[],
+    ): number | undefined =>
+      firstPageParam > 1 ? firstPageParam - 1 : undefined,
   };
 }
 

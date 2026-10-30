@@ -72,6 +72,11 @@ describe("@chelone/core barrel", () => {
     expect(barrel.choices).toBeTypeOf("function");
   });
 
+  it("exports the infinite list key and options factory", () => {
+    expect(barrel.infiniteListKey).toBeTypeOf("function");
+    expect(barrel.getInfiniteListOptions).toBeTypeOf("function");
+  });
+
   it("exports the P5 choices controller", () => {
     expect(barrel.createChoicesController).toBeTypeOf("function");
   });
