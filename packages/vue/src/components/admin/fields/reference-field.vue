@@ -15,13 +15,10 @@
  */
 
 import type { Identifier, LooseRecord } from "@chelone/core";
-import { computed, provide, ref, watch } from "vue";
+import { computed } from "vue";
 import { useGetManyAggregate } from "../../../data/queries";
 import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
-import {
-  RecordContextKey,
-  type RecordValue,
-} from "../../../record/record-context";
+import { provideRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 
 const props = defineProps<{
@@ -45,11 +42,7 @@ const referenceRecord = computed(
 );
 
 // Publish the referenced record so a default-slot child field reads it.
-const recordRef = ref<RecordValue>(referenceRecord.value);
-watch(referenceRecord, (next) => {
-  recordRef.value = next;
-});
-provide(RecordContextKey, recordRef);
+provideRecordContext(referenceRecord);
 
 const getRepresentation = useGetRecordRepresentation(props.reference);
 const representation = computed(() =>
