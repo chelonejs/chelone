@@ -57,9 +57,12 @@ export function PostList() {
 }
 ```
 
-The `q` filter is an `alwaysOn` full-text search — Chelone forwards it to your
-data provider's `getList` under `filter.q`, and the list refreshes as the user
-types. The `author_id` filter is optional: the `<FilterButton>` dropdown toggles
+The `q` filter is an `alwaysOn` search — Chelone forwards it to your data
+provider's `getList` under `filter.q`. The wrapper from
+[Setup](/docs/getting-started/quick-start-guide/setup) matches a case-insensitive
+substring of the post's title or body before pagination. Type `On` to find
+"On Computable Numbers". A production provider must implement its own `q`
+search. The `author_id` filter is optional: the `<FilterButton>` dropdown toggles
 it on, and because it's a `<ReferenceInput>` its `<SelectInput>` is already
 populated with the authors.
 
@@ -105,7 +108,7 @@ import { AuthorList } from "./authors";
   <Admin.Layout>
     <Layout />
   </Admin.Layout>
-  <Resource name="posts" icon={StickyNote} list={PostList} edit={PostEdit} />
+  <Resource name="posts" icon={StickyNote} list={PostList} edit={PostEdit} create={PostCreate} show={PostShow} />
   <Resource name="authors" icon={Users} list={AuthorList} />
 </Admin>;
 ```

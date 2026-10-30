@@ -43,17 +43,49 @@ so every controller and hook infers the concrete record type from here.
 
 Chelone talks to your API through a **Data Provider** adapter. For this guide we
 use the in-memory `fakeDataProvider`, seeded with a few posts and authors — no
-server required:
+server required. It matches filters by equality, so a wrapper adds the `q`
+search used later in the guide. This search supports the page pagination used
+by `<List>`:
 
 ```tsx title="src/data-provider.ts"
-import { fakeDataProvider } from "@chelone/core";
+import { type DataProvider, fakeDataProvider } from "@chelone/core";
 
-export const dataProvider = fakeDataProvider({
+const baseDataProvider = fakeDataProvider({
   posts: [
     { id: 1, title: "On Computable Numbers", body: "…", author_id: 1, views: 120, published: true },
   ],
   authors: [{ id: 1, name: "Ada Lovelace" }],
 });
+
+export const dataProvider: DataProvider = {
+  ...baseDataProvider,
+  async getList(resource, params) {
+    const { q, ...filter } = params.filter ?? {};
+    if (resource !== "posts" || typeof q !== "string" || q === "") {
+      return baseDataProvider.getList(resource, { ...params, filter });
+    }
+
+    const result = await baseDataProvider.getList(resource, {
+      ...params,
+      filter,
+      pagination: undefined,
+    });
+    const search = q.toLowerCase();
+    const data = result.data.filter((post) =>
+      [post.title, post.body].some((value) =>
+        String(value ?? "").toLowerCase().includes(search),
+      ),
+    );
+    const pagination = params.pagination;
+    const pageData = pagination && "page" in pagination
+      ? data.slice(
+          (pagination.page - 1) * pagination.perPage,
+          pagination.page * pagination.perPage,
+        )
+      : data;
+    return { data: pageData, total: data.length };
+  },
+};
 ```
 
 ## Mount the admin

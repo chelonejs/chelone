@@ -22,7 +22,8 @@ import { TextInput } from "@chelone/react";
 ## The full edit form
 
 Compose inputs directly as `<Edit>` children — Chelone has no `<SimpleForm>`
-wrapper; the view IS the form:
+wrapper; the view IS the form. Keep `PostList` and merge the new imported names
+into the existing `@chelone/react` import in `src/posts.tsx`:
 
 <ComponentPreview name="getting-started/quick-start-guide/post-edit" />
 
@@ -63,12 +64,14 @@ validation, from one source of truth.
 
 ## Create and show views
 
-Add these exports to `src/posts.tsx`, alongside `PostList` and `PostEdit`. The
-create form includes all required fields from `postSchema` and a `<SaveButton>`:
+Add these exports to `src/posts.tsx`, alongside `PostList` and `PostEdit`. Merge
+`Create`, `SaveButton`, and `Show` into the existing `@chelone/react` import;
+keep `TextField` from the list and the inputs from the edit form. The create form
+includes all required fields from `postSchema` and a `<SaveButton>`:
 
 ```tsx title="src/posts.tsx"
-import { Create, SaveButton, Show, TextField } from "@chelone/react";
-// Keep ReferenceInput, SelectInput and TextInput from the edit form above.
+import { Create, SaveButton, Show } from "@chelone/react";
+// Keep TextField, ReferenceInput, SelectInput and TextInput already imported.
 
 export function PostCreate() {
   return (
@@ -93,8 +96,9 @@ export function PostShow() {
 }
 ```
 
-In the `App` from [Setup](/docs/getting-started/quick-start-guide/setup), import
-the new views and replace the posts `<Resource>` inside `<Admin>`:
+In the `App` from [Setup](/docs/getting-started/quick-start-guide/setup), merge
+the new view names into the existing imports and replace the posts `<Resource>`
+inside `<Admin>`:
 
 ```tsx title="src/App.tsx"
 import { Resource } from "@chelone/react";
