@@ -1,7 +1,9 @@
 /**
  * `<ReferenceManyCount>` shows how many rows of `reference` point at a record,
  * read from the `total` of a one-row `getManyReference` page. Mounted over a
- * seeded `fakeDataProvider` with spies on the provider and DOM assertions only.
+ * seeded `fakeDataProvider`: DOM assertions, plus spies on `getManyReference`
+ * for what the provider is asked and stubs where a case needs a rejection or a
+ * missing `total`.
  */
 import {
   createI18n,
@@ -32,7 +34,10 @@ import { RouterAdapterProvider } from "../../../router/adapter";
 import { reactRouterAdapter } from "../../../router/react-router-adapter";
 import { useList } from "../../../use-list";
 import { DataTable } from "../list/data-table";
-import { ReferenceManyCount } from "./reference-many-count";
+import {
+  ReferenceManyCount,
+  type ReferenceManyCountProps,
+} from "./reference-many-count";
 
 const books = [
   { id: 1, title: "Hello", author_id: 1, year: 2020 },
@@ -55,13 +60,15 @@ function makeProviders() {
     defaultOptions: { queries: { retry: false } },
   });
   const registry = createResourceRegistry();
-  registry.register({
-    name: "books",
-    hasList: true,
-    hasCreate: false,
-    hasEdit: false,
-    hasShow: false,
-  });
+  for (const name of ["books", "authors"]) {
+    registry.register({
+      name,
+      hasList: true,
+      hasCreate: false,
+      hasEdit: false,
+      hasShow: false,
+    });
+  }
   function Providers({ children }: { children: ReactNode }) {
     return (
       <CheloneProvider
@@ -86,34 +93,42 @@ function makeProviders() {
 const countOf = (container: HTMLElement) =>
   container.querySelector('[data-slot="reference-many-count"]');
 
+const countText = (container: HTMLElement) => countOf(container)?.textContent;
+
+/** Mounts a `<ReferenceManyCount>` over the books of the ambient record. */
+function renderCount(
+  record: { id: number },
+  props: Partial<ReferenceManyCountProps> = {},
+  setup?: (spy: ReturnType<typeof makeProviders>["manyReferenceSpy"]) => void,
+) {
+  const providers = makeProviders();
+  setup?.(providers.manyReferenceSpy);
+  const { Providers } = providers;
+  const count = (
+    <ReferenceManyCount reference="books" target="author_id" {...props} />
+  );
+  const result = render(
+    <Providers>
+      <RecordContextProvider value={record}>{count}</RecordContextProvider>
+    </Providers>,
+  );
+  return { ...providers, ...result };
+}
+
 afterEach(cleanup);
 
 describe("<ReferenceManyCount>", () => {
   it("renders the total of rows whose target equals the record id", async () => {
-    const { Providers } = makeProviders();
-    const { container } = render(
-      <Providers>
-        <RecordContextProvider value={{ id: 1, name: "Jane" }}>
-          <ReferenceManyCount reference="books" target="author_id" />
-        </RecordContextProvider>
-      </Providers>,
-    );
+    const { container } = renderCount({ id: 1 });
     await waitFor(() => {
-      expect(countOf(container)?.textContent).toBe("3");
+      expect(countText(container)).toBe("3");
     });
   });
 
   it("asks the provider for one row only", async () => {
-    const { Providers, manyReferenceSpy } = makeProviders();
-    const { container } = render(
-      <Providers>
-        <RecordContextProvider value={{ id: 1 }}>
-          <ReferenceManyCount reference="books" target="author_id" />
-        </RecordContextProvider>
-      </Providers>,
-    );
+    const { container, manyReferenceSpy } = renderCount({ id: 1 });
     await waitFor(() => {
-      expect(countOf(container)?.textContent).toBe("3");
+      expect(countText(container)).toBe("3");
     });
     expect(manyReferenceSpy).toHaveBeenCalledTimes(1);
     expect(manyReferenceSpy).toHaveBeenCalledWith(
@@ -127,20 +142,12 @@ describe("<ReferenceManyCount>", () => {
   });
 
   it("the filter prop narrows the count", async () => {
-    const { Providers, manyReferenceSpy } = makeProviders();
-    const { container } = render(
-      <Providers>
-        <RecordContextProvider value={{ id: 1 }}>
-          <ReferenceManyCount
-            reference="books"
-            target="author_id"
-            filter={{ year: 2022 }}
-          />
-        </RecordContextProvider>
-      </Providers>,
+    const { container, manyReferenceSpy } = renderCount(
+      { id: 1 },
+      { filter: { year: 2022 } },
     );
     await waitFor(() => {
-      expect(countOf(container)?.textContent).toBe("1");
+      expect(countText(container)).toBe("1");
     });
     expect(manyReferenceSpy).toHaveBeenCalledWith(
       "books",
@@ -149,63 +156,41 @@ describe("<ReferenceManyCount>", () => {
   });
 
   it("renders 0 for a record with no related rows", async () => {
-    const { Providers } = makeProviders();
-    const { container } = render(
-      <Providers>
-        <RecordContextProvider value={{ id: 99 }}>
-          <ReferenceManyCount reference="books" target="author_id" />
-        </RecordContextProvider>
-      </Providers>,
-    );
+    const { container } = renderCount({ id: 99 });
     await waitFor(() => {
-      expect(countOf(container)?.textContent).toBe("0");
+      expect(countText(container)).toBe("0");
     });
   });
 
-  it("matches target against the source field of the record, and takes a record prop over the ambient one", async () => {
-    const { Providers } = makeProviders();
-    const { container } = render(
-      <Providers>
-        <RecordContextProvider value={{ id: 1 }}>
-          <ReferenceManyCount
-            reference="books"
-            target="author_id"
-            source="author_key"
-            record={{ id: 7, author_key: 2 }}
-          />
-        </RecordContextProvider>
-      </Providers>,
+  it("matches target against the source field of the record prop over the ambient record", async () => {
+    const { container } = renderCount(
+      { id: 1 },
+      { source: "author_key", record: { id: 7, author_key: 2 } },
     );
     await waitFor(() => {
-      expect(countOf(container)?.textContent).toBe("2");
+      expect(countText(container)).toBe("2");
     });
   });
 
   it("renders the loading node while pending and the error node when the lookup rejects", async () => {
-    const { Providers, manyReferenceSpy } = makeProviders();
-    let reject: (reason: Error) => void = () => {};
-    manyReferenceSpy.mockImplementation(
-      () =>
-        new Promise((_, rej) => {
-          reject = rej;
-        }),
-    );
-    const { container } = render(
-      <Providers>
-        <RecordContextProvider value={{ id: 1 }}>
-          <ReferenceManyCount
-            reference="books"
-            target="author_id"
-            loading={<i>counting</i>}
-            error={<b>failed</b>}
-          />
-        </RecordContextProvider>
-      </Providers>,
+    const rejects: Array<(reason: Error) => void> = [];
+    const { container } = renderCount(
+      { id: 1 },
+      { loading: <i>counting</i>, error: <b>failed</b> },
+      (spy) =>
+        spy.mockImplementation(
+          () =>
+            new Promise((_, reject) => {
+              rejects.push(reject);
+            }),
+        ),
     );
     expect(screen.getByText("counting")).toBeTruthy();
     expect(countOf(container)).toBeNull();
 
-    reject(new Error("boom"));
+    for (const reject of rejects) {
+      reject(new Error("boom"));
+    }
     await waitFor(() => {
       expect(screen.getByText("failed")).toBeTruthy();
     });
@@ -222,31 +207,49 @@ describe("<ReferenceManyCount>", () => {
           target="author_id"
           loading={<i>counting</i>}
         />
-      </Providers>,
-    );
-    // Let a stray fetch settle before asserting there was none.
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(container.textContent).toBe("");
-    expect(manyReferenceSpy).not.toHaveBeenCalled();
-  });
-
-  it("renders nothing when the provider returns no total", async () => {
-    const { Providers, manyReferenceSpy } = makeProviders();
-    manyReferenceSpy.mockResolvedValue({
-      data: [],
-    });
-    const { container } = render(
-      <Providers>
-        <RecordContextProvider value={{ id: 1 }}>
+        {/* The sibling fetches: once it shows, the round trip is over. */}
+        <RecordContextProvider value={{ id: 2 }}>
           <ReferenceManyCount reference="books" target="author_id" />
         </RecordContextProvider>
       </Providers>,
     );
     await waitFor(() => {
-      expect(manyReferenceSpy).toHaveBeenCalled();
+      expect(countText(container)).toBe("2");
     });
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(container.textContent).toBe("");
+    expect(container.textContent).toBe("2");
+    expect(manyReferenceSpy).toHaveBeenCalledTimes(1);
+    expect(manyReferenceSpy).toHaveBeenCalledWith(
+      "books",
+      expect.objectContaining({ id: 2 }),
+    );
+  });
+
+  it("renders nothing when the provider returns no total", async () => {
+    const { Providers, manyReferenceSpy } = makeProviders();
+    // Record 1 gets a page without a total; record 2 is the sibling that shows
+    // when the round trip is over.
+    manyReferenceSpy.mockImplementation(async (_resource, params) =>
+      params.id === 1 ? { data: [] } : { data: [], total: 2 },
+    );
+    const { container } = render(
+      <Providers>
+        <RecordContextProvider value={{ id: 1 }}>
+          <ReferenceManyCount
+            reference="books"
+            target="author_id"
+            loading={<i>counting</i>}
+          />
+        </RecordContextProvider>
+        <RecordContextProvider value={{ id: 2 }}>
+          <ReferenceManyCount reference="books" target="author_id" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    // The loading node of record 1 is gone and it rendered no count.
+    await waitFor(() => {
+      expect(container.textContent).toBe("2");
+    });
+    expect(manyReferenceSpy).toHaveBeenCalledTimes(2);
   });
 
   it("in a DataTable column counts each row on its own", async () => {
@@ -276,10 +279,15 @@ describe("<ReferenceManyCount>", () => {
         <AuthorTable />
       </Providers>,
     );
-    const rowCells = (name: string) =>
-      within(screen.getByText(name).closest("tr") as HTMLElement)
+    const rowCells = (name: string) => {
+      const row = screen.getByText(name).closest("tr");
+      if (!row) {
+        throw new Error(`"${name}" is not inside a table row`);
+      }
+      return within(row)
         .getAllByRole("cell")
         .map((cell) => cell.textContent);
+    };
     await waitFor(() => {
       expect(rowCells("Jane")).toEqual(["Jane", "3"]);
     });

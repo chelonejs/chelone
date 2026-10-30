@@ -71,7 +71,8 @@ function ReferenceManyCount<RecordType extends UnknownRecord = UnknownRecord>(
     reference,
     {
       target,
-      id: id as Identifier,
+      // Never sent: the query is disabled without an id.
+      id: id ?? "",
       pagination: { page: 1, perPage: 1 },
       filter,
     },

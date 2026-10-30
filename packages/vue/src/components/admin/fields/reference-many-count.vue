@@ -32,7 +32,6 @@ export interface ReferenceManyCountProps {
  * renders as `0`. No `link` prop and no number formatting.
  */
 
-import type { Identifier } from "@chelone/core";
 import { computed, inject } from "vue";
 import { foreignKeyOf } from "../../../controllers/use-controller-for-id";
 import { useGetManyReference } from "../../../data/queries";
@@ -51,7 +50,8 @@ const query = useGetManyReference(
   props.reference,
   () => ({
     target: props.target,
-    id: id.value as Identifier,
+    // Never sent: the query is disabled without an id.
+    id: id.value ?? "",
     pagination: { page: 1, perPage: 1 },
     filter: props.filter,
   }),

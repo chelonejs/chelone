@@ -8,7 +8,7 @@
 import { type DataProvider, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, type Ref, ref, type VNodeChild } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../../admin/admin.vue";
@@ -35,6 +35,13 @@ const books = [
 
 const spyOnManyReference = (dataProvider: DataProvider) =>
   vi.spyOn(dataProvider, "getManyReference");
+
+const mounted: Array<{ unmount: () => void }> = [];
+afterEach(() => {
+  for (const wrapper of mounted.splice(0)) {
+    wrapper.unmount();
+  }
+});
 
 function mountAdmin(
   render: () => VNodeChild,
@@ -66,6 +73,7 @@ function mountAdmin(
     },
   });
   const wrapper = mount(Harness, { global: { plugins: [router] } });
+  mounted.push(wrapper);
   return { wrapper, manyReferenceSpy };
 }
 
@@ -148,15 +156,19 @@ describe("ReferenceManyCount", () => {
 
   it("picks up an ambient record that arrives late", async () => {
     const record = ref<RecordValue>(undefined);
-    const { wrapper, manyReferenceSpy } = mountAdmin(() =>
+    // The sibling fetches; once it shows, the lookup round trip is over.
+    const { wrapper, manyReferenceSpy } = mountAdmin(() => [
       h(withRecord(record)),
-    );
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(manyReferenceSpy).not.toHaveBeenCalled();
+      h(withRecord({ id: 1 })),
+    ]);
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toBe("3");
+    });
+    expect(manyReferenceSpy).toHaveBeenCalledTimes(1);
 
     record.value = { id: 2 };
     await vi.waitFor(() => {
-      expect(countOf(wrapper).text()).toBe("2");
+      expect(wrapper.text()).toBe("23");
     });
   });
 
@@ -180,30 +192,43 @@ describe("ReferenceManyCount", () => {
   });
 
   it("renders nothing and fetches nothing without a record id", async () => {
-    const { wrapper, manyReferenceSpy } = mountAdmin(() =>
+    // The sibling fetches; once it shows, the lookup round trip is over.
+    const { wrapper, manyReferenceSpy } = mountAdmin(() => [
       h(ReferenceManyCount, {
         reference: "books",
         target: "author_id",
         loading: "counting",
       }),
+      h(withRecord({ id: 2 })),
+    ]);
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toBe("2");
+    });
+    expect(manyReferenceSpy).toHaveBeenCalledTimes(1);
+    expect(manyReferenceSpy).toHaveBeenCalledWith(
+      "books",
+      expect.objectContaining({ id: 2 }),
     );
-    // Let a stray fetch settle before asserting there was none.
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(wrapper.text()).toBe("");
-    expect(manyReferenceSpy).not.toHaveBeenCalled();
   });
 
   it("renders nothing when the provider returns no total", async () => {
+    // Record 1 gets a page without a total; record 2 is the sibling that shows
+    // when the round trip is over.
     const { wrapper, manyReferenceSpy } = mountAdmin(
-      () => h(withRecord({ id: 1 }, { loading: "counting" })),
-      (spy) => spy.mockResolvedValue({ data: [] }),
+      () => [
+        h(withRecord({ id: 1 }, { loading: "counting" })),
+        h(withRecord({ id: 2 })),
+      ],
+      (spy) =>
+        spy.mockImplementation(async (_resource, params) =>
+          params.id === 1 ? { data: [] } : { data: [], total: 2 },
+        ),
     );
+    // The loading text of record 1 is gone and it rendered no count.
     await vi.waitFor(() => {
-      expect(manyReferenceSpy).toHaveBeenCalled();
+      expect(wrapper.text()).toBe("2");
     });
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(wrapper.text()).toBe("");
-    expect(countOf(wrapper).exists()).toBe(false);
+    expect(manyReferenceSpy).toHaveBeenCalledTimes(2);
   });
 
   it("in a DataTable column counts each row on its own", async () => {
