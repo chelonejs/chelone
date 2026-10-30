@@ -4,7 +4,14 @@
 // this copies it into the website's static output at `build/client/r/` after
 // the SSG build.
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+} from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,17 +26,37 @@ execFileSync("pnpm", ["--filter", "@chelone/react", "registry:build"], {
   stdio: "inherit",
 });
 
-// `shadcn build` exits 0 on error, so check the files the site links to.
-for (const file of ["registry.json", "admin.json"]) {
-  if (!existsSync(resolve(registryDist, file))) {
+// `shadcn build` exits 0 on error, so check every item the registry declares,
+// plus registry.json itself, and that each file parses.
+const source = JSON.parse(
+  readFileSync(resolve(registryDist, "../../registry.json"), "utf8"),
+);
+const required = [
+  "registry.json",
+  ...source.items.map((item) => `${item.name}.json`),
+];
+for (const file of required) {
+  const path = resolve(registryDist, file);
+  if (!existsSync(path)) {
     throw new Error(
       `[copy-registry] registry build produced no ${file} in ${registryDist}`,
     );
   }
+  try {
+    JSON.parse(readFileSync(path, "utf8"));
+  } catch (error) {
+    throw new Error(
+      `[copy-registry] ${path} is not valid JSON: ${error.message}`,
+    );
+  }
 }
 
+// Copy beside the destination, then swap, so a failed copy keeps the old output.
+const staging = `${dest}.tmp`;
+rmSync(staging, { recursive: true, force: true });
+mkdirSync(dirname(dest), { recursive: true });
+cpSync(registryDist, staging, { recursive: true });
 rmSync(dest, { recursive: true, force: true });
-mkdirSync(dest, { recursive: true });
-cpSync(registryDist, dest, { recursive: true });
+renameSync(staging, dest);
 
 console.log(`[copy-registry] copied ${registryDist} → ${dest}`);
