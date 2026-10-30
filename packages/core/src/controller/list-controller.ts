@@ -184,6 +184,25 @@ export function notifySelectAllLimit(
   });
 }
 
+export async function runSelectAll(
+  notifications: NotificationStore | undefined,
+  fetchPage: (limit: number) => Promise<ResourceRecord[]>,
+  limit = DEFAULT_SELECT_ALL_LIMIT,
+  apply: (ids: Identifier[]) => void,
+  isDestroyed: () => boolean,
+): Promise<void> {
+  if (isDestroyed()) return;
+  try {
+    const rows = await fetchPage(limit);
+    if (isDestroyed()) return;
+    apply(rows.map((record) => record.id));
+    notifySelectAllLimit(notifications, rows.length, limit);
+  } catch (error) {
+    if (isDestroyed()) return;
+    notifyFetchError(notifications, error);
+  }
+}
+
 /**
  * Notifies a distinct error OBJECT once however many results carry it (a new
  * Error with the same message is a new failure and is announced). `rearm`
@@ -514,29 +533,25 @@ export function createListController<
     writeSelection([]);
   };
 
-  const selectAll = async (opts?: { limit?: number }): Promise<void> => {
-    if (destroyed) return;
-    const limit = opts?.limit ?? DEFAULT_SELECT_ALL_LIMIT;
-    const s = store.getSnapshot();
-    try {
-      const result = await ctx.queryClient.fetchQuery({
-        ...getListOptions(ctx, resource, {
-          pagination: { page: 1, perPage: limit },
-          sort: s.sort.length === 1 ? s.sort[0] : s.sort,
-          filter: { ...s.filter, ...(options.filter ?? {}) },
-        }),
-        retry: false,
-      });
-      if (destroyed) return;
-      writeSelection(
-        result.data.map((record) => (record as ResourceRecord).id),
-      );
-      notifySelectAllLimit(ctx.notifications, result.data.length, limit);
-    } catch (error) {
-      if (destroyed) return;
-      notifyFetchError(ctx.notifications, error);
-    }
-  };
+  const selectAll = (opts?: { limit?: number }): Promise<void> =>
+    runSelectAll(
+      ctx.notifications,
+      async (limit) => {
+        const s = store.getSnapshot();
+        const result = await ctx.queryClient.fetchQuery({
+          ...getListOptions(ctx, resource, {
+            pagination: { page: 1, perPage: limit },
+            sort: s.sort.length === 1 ? s.sort[0] : s.sort,
+            filter: { ...s.filter, ...(options.filter ?? {}) },
+          }),
+          retry: false,
+        });
+        return result.data;
+      },
+      opts?.limit,
+      writeSelection,
+      () => destroyed,
+    );
 
   const refetch = (): void => {
     if (destroyed) return;

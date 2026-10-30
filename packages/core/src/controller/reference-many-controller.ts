@@ -12,15 +12,13 @@ import {
   createErrorAnnouncer,
   createListController,
   DEFAULT_DEBOUNCE_MS,
-  DEFAULT_SELECT_ALL_LIMIT,
   type ListController,
   type ListControllerContext,
   type ListControllerState,
   type ListParamsPatch,
-  notifyFetchError,
-  notifySelectAllLimit,
   pageFlags,
   resetPageTarget,
+  runSelectAll,
 } from "./list-controller";
 
 export interface ReferenceManyControllerOptions {
@@ -217,21 +215,23 @@ export function createReferenceManyController<
   };
 
   const selectAll = async (opts?: { limit?: number }): Promise<void> => {
-    if (destroyed || targetValue === undefined) return;
-    const limit = opts?.limit ?? DEFAULT_SELECT_ALL_LIMIT;
-    try {
-      const result = await ctx.queryClient.fetchQuery({
-        ...queryFor(targetValue, 1, limit),
-        retry: false,
-      });
-      if (destroyed) return;
-      inner.select(result.data.map((record) => record.id));
-      mirror();
-      notifySelectAllLimit(ctx.notifications, result.data.length, limit);
-    } catch (error) {
-      if (destroyed) return;
-      notifyFetchError(ctx.notifications, error);
-    }
+    if (targetValue === undefined) return;
+    return runSelectAll(
+      ctx.notifications,
+      async (limit) => {
+        const result = await ctx.queryClient.fetchQuery({
+          ...queryFor(targetValue, 1, limit),
+          retry: false,
+        });
+        return result.data;
+      },
+      opts?.limit,
+      (ids) => {
+        inner.select(ids);
+        mirror();
+      },
+      () => destroyed,
+    );
   };
 
   const refetch = (): void => {
