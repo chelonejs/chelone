@@ -12,25 +12,28 @@
 
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, relative } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import {
   computeItemRegistryDeps,
   granularizeBlock,
 } from "./granularize-block.mjs";
 import { parseCssVars } from "./parse-css-vars.mjs";
-import {
+
+// Run from the package that owns the registry; its config lives beside it.
+const repoRoot = process.cwd();
+const {
   AUTHOR,
   baseStyles,
   blocks,
   categoriesForGranular,
   registryMetadata,
   themes,
-} from "./registry.config.mjs";
+} = await import(
+  pathToFileURL(join(repoRoot, "scripts", "registry.config.mjs")).href
+);
 
-const scriptDir = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(scriptDir, "..");
 const registryPath = join(repoRoot, "registry.json");
 
 const SOURCE_EXTS = new Set([".ts", ".tsx"]);
