@@ -11,7 +11,13 @@
  * Run via `pnpm run props:generate` from the www-v2 workspace (chained after
  * typedoc).
  */
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import {
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  readdirSync,
+  unlinkSync,
+} from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -176,6 +182,16 @@ for (const { componentName, iface } of walk(doc)) {
     JSON.stringify({ name: componentName, props }, null, 2) + "\n",
   );
   written++;
+}
+
+for (const entry of readdirSync(propsDir, { withFileTypes: true })) {
+  if (
+    entry.isFile() &&
+    entry.name.endsWith(".json") &&
+    !seen.has(entry.name.slice(0, -5))
+  ) {
+    unlinkSync(resolve(propsDir, entry.name));
+  }
 }
 
 console.log(`Wrote ${written} prop files to ${propsDir}`);
