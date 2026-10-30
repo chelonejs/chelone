@@ -625,6 +625,10 @@ export {
   type FilterFormProps,
 } from "./components/admin/list/filter-form";
 export {
+  InfinitePagination,
+  type InfinitePaginationProps,
+} from "./components/admin/list/infinite-pagination";
+export {
   ListPagination,
   type ListPaginationProps,
 } from "./components/admin/list/list-pagination";
@@ -646,6 +650,10 @@ export {
   EditView,
   type EditViewProps,
 } from "./components/admin/views/edit";
+export {
+  InfiniteList,
+  type InfiniteListProps,
+} from "./components/admin/views/infinite-list";
 export {
   List,
   type ListProps,
