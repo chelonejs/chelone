@@ -14,12 +14,25 @@ import {
 } from "../form-context";
 import { type UseFormOptions, useForm } from "../form-hooks";
 
-/** The form options of a form that may borrow its view's form, so `save` is optional. */
-export type OptionalSaveFormOptions<TFormData> = Omit<
-  UseFormOptions<TFormData>,
-  "save"
-> &
-  Partial<Pick<UseFormOptions<TFormData>, "save">>;
+/**
+ * The form options of a form that may borrow its view's form. With `save` it
+ * builds its own form and takes every option; without it the view owns the
+ * form, so the options belong on the view (`<Edit validate>`), not here.
+ */
+export type OptionalSaveFormOptions<TFormData> =
+  | UseFormOptions<TFormData>
+  | ({ save?: undefined } & {
+      [K in Exclude<keyof UseFormOptions<TFormData>, "save">]?: never;
+    });
+
+/**
+ * The same options as one flat shape, `save` optional. Component props extend
+ * this so the generated props docs list every option; the component's call
+ * signature intersects it with {@link OptionalSaveFormOptions} to enforce the rule.
+ */
+export interface OptionalSaveFormProps<TFormData>
+  extends Omit<UseFormOptions<TFormData>, "save">,
+    Partial<Pick<UseFormOptions<TFormData>, "save">> {}
 
 export interface FormScopeProps<TFormData> {
   /** The calling component's name, for the missing-save error. */
