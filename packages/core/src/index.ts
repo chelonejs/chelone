@@ -36,6 +36,19 @@ export {
   serializeListParams,
 } from "./controller/list-params";
 export type {
+  SavedQueriesController,
+  SavedQueriesControllerOptions,
+  SavedQueriesState,
+  SavedQuery,
+  SavedQueryValue,
+} from "./controller/saved-queries";
+export {
+  createSavedQueriesController,
+  extractValidSavedQueries,
+  isSavedQueryActive,
+  savedQueriesKey,
+} from "./controller/saved-queries";
+export type {
   CreateController,
   CreateControllerOptions,
   CreateControllerState,
