@@ -1,4 +1,8 @@
-import { type AnyCheloneI18n, createI18n } from "@chelone/core";
+import {
+  type AnyCheloneI18n,
+  createI18n,
+  type MessageCatalog,
+} from "@chelone/core";
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { useCheloneContext, useCheloneI18n } from "./context";
 
@@ -24,7 +28,7 @@ type Translate = (key: string, params?: Record<string, unknown>) => string;
 
 // No i18n: an empty catalog echoes the key, and for a missing key honours the
 // polyglot `{ _: default }` convention, placeholders filled in, as with a real one.
-const echoI18n: AnyCheloneI18n = createI18n({
+const echoI18n: AnyCheloneI18n = createI18n<MessageCatalog>({
   locale: "en",
   messages: { en: {} },
 });
