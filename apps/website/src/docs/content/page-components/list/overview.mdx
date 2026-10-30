@@ -5,15 +5,14 @@ description: "The page that fetches and displays a page of records for a resourc
 
 The `<List>` view is where users browse a resource. It runs the list controller
 for the ambient `<Resource>`, fetches the current page of records, and publishes
-them through a **list context** that every descendant reads — the `<DataTable>`,
+them through a **list context** that every descendant reads: the `<DataTable>`,
 the pagination, the filter bar. You compose what to show; `<List>` owns the
-fetch, the URL-synced query state (page, sort, filters), and the loading/empty
-handling.
+fetch and the URL-synced query state (page, sort, filters).
 
 ## A live list
 
-Here is the `posts` list, running against the in-memory provider — a real
-`<DataTable>` over seeded records:
+Here is the `posts` list, running against the in-memory provider: a real
+`<DataTable>` over 30 seeded records, paged ten at a time by `<ListPagination>`.
 
 <ComponentPreview name="page-components/list/basic" />
 
@@ -23,6 +22,7 @@ import {
   DataTable,
   EditButton,
   List,
+  ListPagination,
   ReferenceField,
   TextField,
 } from "@chelone/react";
@@ -45,36 +45,115 @@ export function PostList() {
           <EditButton />
         </DataTable.Col>
       </DataTable>
+      <ListPagination />
     </List>
   );
 }
 ```
 
+`<List>` renders only what you give it. Without
+[`<ListPagination>`](/docs/viewing/list-pagination) the list stays on page 1 and
+the user cannot reach the other pages or change the page size.
+
 Wire it onto the resource so `/posts` renders it:
 
 ```tsx
-<Resource name="posts" list={PostList} />
+import { Resource } from "@chelone/react";
+import { PostList } from "./posts";
+
+<Resource name="posts" list={PostList} />;
 ```
+
+Clicking a row opens its edit page: `<DataTable>` defaults `rowClick` to
+`"edit"`. Pass `rowClick="show"`, a path, a function, or `false` to change it.
 
 ## How it works
 
 `<List>` reads the resource from the surrounding `<Resource>` context (or from a
-`resource` prop) and calls the list controller. The controller keeps the query —
-current page, `perPage`, sort field and order, and the active filters — in sync
-with the URL, so a shared link reproduces the exact view. The fetched records,
-the loading flag, and the selection are handed to the descendants through the
-list context; the `<DataTable>` renders the rows, and its column headers drive
-sorting.
+`resource` prop) and calls `useListController`. The controller keeps the query
+(current page, `perPage`, sort, and the active filters) in sync with the URL, so
+a shared link reproduces the exact view. The fetched records, the loading flag,
+and the selection are handed to the descendants through the list context; the
+`<DataTable>` renders the rows, and its column headers drive sorting.
 
 ## Props
 
 <PropsTable name="List" />
 
+`<List>` takes `resource`, `perPage`, `title`, `actions`, `component`,
+`className` and `children`. Nothing else is forwarded to the controller. For
+anything more (default filters, a permanent filter, a default sort, a
+different store key) call `useListController` yourself and provide the result
+with `ListContextProvider`. `ListView` is the same title, actions and body
+layout `<List>` renders:
+
+```tsx title="src/posts.tsx"
+import {
+  DataTable,
+  ListContextProvider,
+  ListPagination,
+  ListView,
+  useListController,
+} from "@chelone/react";
+
+export function PublishedPostList() {
+  const controller = useListController("posts", {
+    perPage: 25,
+    sort: { field: "views", order: "DESC" },
+    filterDefaultValues: { published: true },
+  });
+
+  return (
+    <ListContextProvider value={controller}>
+      <ListView title="Published posts">
+        <DataTable>
+          <DataTable.Col source="title" />
+          <DataTable.NumberCol source="views" />
+        </DataTable>
+        <ListPagination />
+      </ListView>
+    </ListContextProvider>
+  );
+}
+```
+
+See [Advanced](/docs/page-components/list/advanced) for every controller
+option. For a feed that appends pages instead of replacing them, use
+[`<InfiniteList>`](/docs/page-components/list/infinite-list).
+
+## URL sync
+
+The controller writes the list query to the URL and reads it back, so a list is
+a link you can share.
+
+- On by default for a top-level list, and active whenever the list renders
+  under a router (inside `<Admin>` it does). Pass
+  `useListController("posts", { syncWithLocation: false })` for an embedded or
+  reference list that should keep its query out of the URL.
+- The params are `filter` and `displayedFilters` (both JSON), `sort`, `order`
+  (`ASC` or `DESC`), `page` and `perPage`. Malformed values are ignored. The URL
+  carries the primary sort only.
+- Opening a URL that carries any of these seeds the first fetch from it. A clean
+  URL keeps the defaults.
+- A change to page, sort, filters or page size replaces the current history
+  entry. It does not push a new one, so the back button leaves the list rather
+  than stepping through each page or keystroke. The mount itself writes nothing:
+  a clean URL stays clean until the user changes something.
+- If the location changes after the list has mounted (a followed link, or back
+  and forward between two URLs of the same list) the params re-seed from the new
+  URL.
+- The params are also saved in the store under `<resource>.listParams`. When the
+  URL carries no list params, the list restores the saved ones, then falls back
+  to the options (`perPage`, `sort`, `filterDefaultValues`). Pass
+  `storeKey: "other"` to namespace them, or `storeKey: false` to turn the
+  persistence off.
+
 ## Tips
 
 - A `<List>` **must** be inside a `<ResourceContextProvider>` (a `<Resource>`
   supplies one) or be given an explicit `resource` prop, or it throws.
-- The children are usually a single `<DataTable>`, but any component that reads
-  the list context works — build your own layout on top of `useListContext`.
-- `perPage` sets the page size for the fetch; the pagination control lets the
-  user change it at runtime.
+- The children are usually a `<DataTable>` and a `<ListPagination>`, but any
+  component that reads the list context works. Build your own layout on top of
+  `useListContext`.
+- `perPage` sets the initial page size. A page size the user picked, or one in
+  the URL, wins over it.

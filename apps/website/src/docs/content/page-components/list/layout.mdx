@@ -1,69 +1,144 @@
 ---
 title: "List Layout"
-description: "Arrange the list header, actions, and table — or replace the DataTable entirely."
+description: "Arrange the list header, actions, and table, or replace the DataTable entirely."
 ---
 
-`<List>` renders a thin shell — a **title**, a **header actions** slot, and its
-**children** — then hands the fetched records to whatever you put inside. The
-default child is a `<DataTable>`, but the layout is yours to shape.
+`<List>` renders a thin shell: a **title**, a **header actions** slot, and its
+**children**. It has no default child. Whatever you put inside is all the user
+sees, so a list needs a `<DataTable>` (or your own component) and usually a
+`<ListPagination>`.
 
 ## The header
 
 `<List>` shows a title (the resource label, pluralized) and an `actions` slot on
-the right. Pass `actions` to fill it — typically the create / export / filter
-buttons — or `actions={false}` to omit it. Pass `title` to override the heading,
+the right. Pass `actions` to fill it, typically the create / export / filter
+buttons, or `actions={false}` to omit it. Pass `title` to override the heading,
 or `title={false}` to drop it:
 
 ```tsx
-import { CreateButton, ExportButton, List, DataTable } from "@chelone/react";
+import {
+  CreateButton,
+  DataTable,
+  ExportButton,
+  List,
+  ListPagination,
+} from "@chelone/react";
 
-<List
-  title="All posts"
-  actions={
-    <>
-      <CreateButton />
-      <ExportButton />
-    </>
-  }
->
-  <DataTable>{/* … */}</DataTable>
-</List>;
+export function PostList() {
+  return (
+    <List
+      title="All posts"
+      actions={
+        <>
+          <CreateButton />
+          <ExportButton />
+        </>
+      }
+    >
+      <DataTable>
+        <DataTable.Col source="title" />
+      </DataTable>
+      <ListPagination />
+    </List>
+  );
+}
 ```
 
 ## The table body
 
 Inside `<List>`, a `<DataTable>` renders one `<DataTable.Col>` per column. A
 column either points at a `source` (and renders that value), wraps a field
-component, or supplies a `render` function:
+component, or supplies a `render` function. `render` receives the row record
+with every value typed `unknown`, so narrow a value before you use it:
 
 ```tsx
-<DataTable>
-  {/* value straight from the record */}
-  <DataTable.Col source="title" />
-  {/* right-aligned numeric column */}
-  <DataTable.NumberCol source="views" />
-  {/* a field component reading the row record */}
-  <DataTable.Col label="Author">
-    <ReferenceField source="author_id" reference="authors">
-      <TextField source="name" />
-    </ReferenceField>
-  </DataTable.Col>
-  {/* an inline render for a computed cell */}
-  <DataTable.Col label="Excerpt" render={(record) => record.body.slice(0, 40)} />
-</DataTable>
+import {
+  DataTable,
+  ReferenceField,
+  TextField,
+} from "@chelone/react";
+
+export function PostTable() {
+  return (
+    <DataTable>
+      {/* value straight from the record */}
+      <DataTable.Col source="title" />
+      {/* right-aligned numeric column */}
+      <DataTable.NumberCol source="views" />
+      {/* a field component reading the row record */}
+      <DataTable.Col label="Author">
+        <ReferenceField source="author_id" reference="authors">
+          <TextField source="name" />
+        </ReferenceField>
+      </DataTable.Col>
+      {/* an inline render for a computed cell */}
+      <DataTable.Col
+        label="Excerpt"
+        render={(record) => String(record.body ?? "").slice(0, 40)}
+      />
+    </DataTable>
+  );
+}
 ```
+
+## Bulk actions
+
+A `<DataTable>` shows no checkboxes and no bulk toolbar by default.
+`bulkActionButtons` defaults to `false`. Pass the buttons you want and the table
+adds a selection column; the toolbar appears once at least one row is selected:
+
+```tsx
+import {
+  BulkDeleteButton,
+  BulkExportButton,
+  DataTable,
+  List,
+  ListPagination,
+} from "@chelone/react";
+
+export function PostList() {
+  return (
+    <List>
+      <DataTable
+        bulkActionButtons={
+          <>
+            <BulkExportButton />
+            <BulkDeleteButton />
+          </>
+        }
+      >
+        <DataTable.Col source="title" />
+        <DataTable.NumberCol source="views" />
+      </DataTable>
+      <ListPagination />
+    </List>
+  );
+}
+```
+
+For a toolbar of your own, pass `bulkActionsToolbar` instead. It replaces
+`bulkActionButtons`, and a `<BulkActionsToolbar>` is the stock shell to put your
+buttons in.
 
 ## Replace the table
 
 `<List>` only requires that its child reads the list context. To build a custom
-layout — cards, a gallery, a grid — read the records with `useListContext`
-directly and render them however you like:
+layout (cards, a gallery, a grid) read the records with `useListContext`
+directly and render them however you like. The context is not generic, so its
+records are typed `{ id }` only. Cast the result to the shape of your resource:
 
 ```tsx
-import { List, useListContext } from "@chelone/react";
+import {
+  List,
+  ListPagination,
+  type UseListControllerResult,
+  useListContext,
+} from "@chelone/react";
+
+type Post = { id: number; title: string };
 
 function PostCards() {
-  const { data, isPending } = useListContext();
+  const { data, isPending } = useListContext() as UseListControllerResult<Post>;
   if (isPending) return <p>Loading…</p>;
   return (
     <div className="grid grid-cols-3 gap-4">
@@ -76,9 +151,14 @@ function PostCards() {
   );
 }
 
-<List>
-  <PostCards />
-</List>;
+export function PostList() {
+  return (
+    <List>
+      <PostCards />
+      <ListPagination />
+    </List>
+  );
+}
 ```
 
 ## Props
@@ -88,6 +168,8 @@ function PostCards() {
 ## Tips
 
 - The `component` prop swaps the element wrapping the children (default
-  `"div"`) — pass a `Card` or any layout component to frame the body.
-- Bulk selection lives in the list context too; a `<DataTable>` renders a
-  bulk-actions toolbar when rows are selected.
+  `"div"`). Pass a layout component that accepts `className` and `children` to
+  frame the body.
+- Selection lives in the list context too (`selectedIds`, `toggleItem`,
+  `unselectAll`). See [Advanced](/docs/page-components/list/advanced) for a bulk
+  toolbar in a custom layout.

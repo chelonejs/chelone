@@ -3,6 +3,7 @@ import {
   FilterButton,
   FilterForm,
   List,
+  ListPagination,
   TextInput,
 } from "@chelone/react";
 
@@ -29,6 +30,7 @@ export default function ListFiltersDemo() {
         <DataTable.Col source="title" />
         <DataTable.NumberCol source="views" />
       </DataTable>
+      <ListPagination />
     </List>
   );
 }
