@@ -9,13 +9,14 @@
  * `<router-view>` there). The `#sidebar` / `#app-bar` slots override the sidebar
  * and header for a custom shell without re-implementing the frame.
  *
- * Vue divergences from the React twin: no `<Notification>` toaster (a feedback-
- * wave component) and no error boundary yet — the content mounts directly. The
- * `#main-content` anchor is kept for a future skip-nav target.
+ * Vue divergences from the React twin: no error boundary yet — the content
+ * mounts directly. The `#main-content` anchor is kept for a future skip-nav
+ * target.
  */
 
 import AppBar from "./app-bar.vue";
 import AppSidebar from "./app-sidebar.vue";
+import Notification from "../feedback/notification.vue";
 import { SidebarProvider } from "../../ui/sidebar";
 </script>
 
@@ -36,5 +37,6 @@ import { SidebarProvider } from "../../ui/sidebar";
         <slot />
       </div>
     </main>
+    <Notification />
   </SidebarProvider>
 </template>
