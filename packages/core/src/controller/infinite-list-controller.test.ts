@@ -2,6 +2,7 @@ import { QueryClient } from "@tanstack/query-core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { fakeDataProvider } from "../data/fake-provider";
+import { getListOptions } from "../data/query-options";
 import { createNotificationStore } from "../notification/notification-store";
 import { defineResources } from "../resource/registry";
 import { createStore } from "../store/store";
@@ -331,5 +332,46 @@ describe("createInfiniteListController", () => {
     c.toggleItem(1);
     await c.fetchNextPage();
     expect(c.getSnapshot()).toBe(snap);
+  });
+
+  it("a cached getList failure with the same params is not announced beside a working infinite list", async () => {
+    const ctx = makeCtx();
+    const getList = vi
+      .spyOn(ctx.dataProvider, "getList")
+      .mockRejectedValueOnce(new Error("posts list is down"));
+    // A plain posts list failed and left its error in the cache.
+    await ctx.queryClient
+      .fetchQuery({
+        ...getListOptions(ctx, "posts", {
+          pagination: { page: 1, perPage: 10 },
+          sort: { field: "id", order: "ASC" },
+          filter: {},
+        }),
+        retry: false,
+      })
+      .catch(() => {});
+    getList.mockRestore();
+    const c = createInfiniteListController(ctx, "posts", {});
+    attach(c);
+    await settled(c);
+    expect(c.getSnapshot().error).toBeNull();
+    expect(ids(c)).toEqual(range(1, 10));
+    expect(ctx.notifications.getSnapshot()).toEqual([]);
+    c.destroy();
+  });
+
+  it("selectAll announces a provider failure once", async () => {
+    const ctx = makeCtx();
+    const c = createInfiniteListController(ctx, "posts", {});
+    attach(c);
+    await settled(c);
+    vi.spyOn(ctx.dataProvider, "getList").mockRejectedValue(new Error("boom"));
+    await c.selectAll({ limit: 10 });
+    const errors = ctx.notifications
+      .getSnapshot()
+      .filter((n) => n.type === "error");
+    expect(errors.map((n) => n.message)).toEqual(["boom"]);
+    expect(c.getSnapshot().selectedIds).toEqual([]);
+    c.destroy();
   });
 });

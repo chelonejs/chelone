@@ -4,17 +4,21 @@ import {
   type InfiniteQueryObserverResult,
 } from "@tanstack/query-core";
 import type { infiniteListKey } from "../data/keys";
-import { getInfiniteListOptions } from "../data/query-options";
+import { getInfiniteListOptions, getListOptions } from "../data/query-options";
 import type { GetListResult } from "../data/types";
+import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import {
   createErrorAnnouncer,
   createListController,
+  DEFAULT_SELECT_ALL_LIMIT,
   type ListController,
   type ListControllerContext,
   type ListControllerOptions,
   type ListControllerState,
+  notifyFetchError,
+  notifySelectAllLimit,
 } from "./list-controller";
 
 export interface InfiniteListControllerState<TRecord>
@@ -67,10 +71,14 @@ export function createInfiniteListController<
   type TRecord = RecordOf<TResources, TName>;
   type Page = GetListResult<TRecord>;
 
-  const inner = createListController(ctx, resource, {
-    ...options,
-    enabled: false,
-  });
+  // The inner controller still observes the `getList` entry that matches its
+  // params, so it gets no notifications: a cached `getList` failure is not
+  // this infinite list's error. Errors and `selectAll` are announced here.
+  const inner = createListController(
+    { ...ctx, notifications: undefined },
+    resource,
+    { ...options, enabled: false },
+  );
 
   const paramsOf = (): ParamsSlice => {
     const { page, perPage, sort, filter, displayedFilters, selectedIds } =
@@ -240,6 +248,31 @@ export function createInfiniteListController<
     return started;
   };
 
+  const selectAll = async (opts?: { limit?: number }): Promise<void> => {
+    if (destroyed) return;
+    const limit = opts?.limit ?? DEFAULT_SELECT_ALL_LIMIT;
+    // The inner snapshot is the source of truth: a debounced filter may have
+    // landed in it while detached.
+    const s = inner.getSnapshot();
+    try {
+      const result = await ctx.queryClient.fetchQuery({
+        ...getListOptions(ctx, resource, {
+          pagination: { page: 1, perPage: limit },
+          sort: s.sort.length === 1 ? s.sort[0] : s.sort,
+          filter: { ...s.filter, ...(options.filter ?? {}) },
+        }),
+        retry: false,
+      });
+      if (destroyed) return;
+      inner.select(result.data.map((record) => (record as ResourceRecord).id));
+      mirror();
+      notifySelectAllLimit(ctx.notifications, result.data.length, limit);
+    } catch (error) {
+      if (destroyed) return;
+      notifyFetchError(ctx.notifications, error);
+    }
+  };
+
   return {
     ...store,
     setPage: through(inner.setPage),
@@ -252,10 +285,7 @@ export function createInfiniteListController<
     select: through(inner.select),
     toggleItem: through(inner.toggleItem),
     unselectAll: through(inner.unselectAll),
-    selectAll: async (opts) => {
-      await inner.selectAll(opts);
-      if (!destroyed) mirror();
-    },
+    selectAll,
     refetch: () => {
       if (destroyed) return;
       // Detached there is no observer: the next attach loads current params anyway.
