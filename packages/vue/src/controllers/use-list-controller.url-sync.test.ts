@@ -6,6 +6,7 @@
  *  - a deep-linked route SEEDS the initial params (filter/sort/page/perPage);
  *  - a param change PUSHES the full query back to the URL (`replace`);
  *  - a clean URL stays clean on mount (no spurious push);
+ *  - a later location change (back/forward, a followed link) re-seeds the params;
  *  - `syncWithLocation: false` neither reads nor writes the URL.
  */
 
@@ -115,6 +116,17 @@ describe("useListController — URL sync (R1)", () => {
     expect(r?.data?.map((p) => p.id)).toEqual([25]);
   });
 
+  it("a deep-linked sort on the default sort field keeps its order", async () => {
+    const router = await makeRouter("/?sort=title&order=ASC");
+    const { capture } = mountList(router, {
+      resource: "posts",
+      sort: { field: "title", order: "ASC" },
+    });
+    await settled(() => capture.result);
+
+    expect(capture.result?.sort).toEqual([{ field: "title", order: "ASC" }]);
+  });
+
   it("pushes a setFilters change to the URL (filter JSON-encoded)", async () => {
     const router = await makeRouter("/");
     const { capture } = mountList(router, { resource: "posts" });
@@ -148,6 +160,38 @@ describe("useListController — URL sync (R1)", () => {
 
     expect(router.currentRoute.value.fullPath).toBe("/");
     expect(currentQuery(router)).toEqual({});
+  });
+
+  it("a later location change re-seeds the params (back/forward)", async () => {
+    const router = await makeRouter("/?page=2&perPage=5");
+    const { capture } = mountList(router, { resource: "posts" });
+    await settled(() => capture.result);
+
+    await router.push("/?page=4&perPage=5");
+    await vi.waitFor(() => expect(capture.result?.page).toBe(4));
+    await vi.waitFor(() =>
+      expect(capture.result?.data?.map((p) => p.id)).toEqual([
+        16, 17, 18, 19, 20,
+      ]),
+    );
+
+    router.back();
+    await vi.waitFor(() => expect(capture.result?.page).toBe(2));
+    await settled(() => capture.result);
+  });
+
+  it("its own push does not re-seed or navigate again", async () => {
+    const router = await makeRouter("/");
+    const { capture } = mountList(router, { resource: "posts" });
+    await settled(() => capture.result);
+    const replace = vi.spyOn(router, "replace");
+
+    capture.result?.setPage(2);
+    await vi.waitFor(() => expect(currentQuery(router).page).toBe("2"));
+    await flushPromises();
+    await settled(() => capture.result);
+    expect(capture.result?.page).toBe(2);
+    expect(replace).toHaveBeenCalledTimes(1);
   });
 
   it("syncWithLocation:false leaves the URL untouched on a param change", async () => {

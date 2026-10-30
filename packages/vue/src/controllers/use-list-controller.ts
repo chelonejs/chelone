@@ -24,20 +24,16 @@
 
 import {
   createListController,
-  type FilterPayload,
-  hasCustomParams,
   type ListController,
   type ListControllerOptions,
   type ListControllerState,
-  type ListParamsQuery,
+  listPatchFromSearch,
   type MicroStore,
-  parseListParams,
   type RecordOf,
   type ResourceMap,
-  type SortPayload,
-  serializeListParams,
+  serializeListState,
 } from "@chelone/core";
-import { computed, onScopeDispose, reactive } from "vue";
+import { computed, onScopeDispose, reactive, watch } from "vue";
 import { useCheloneContext } from "../context";
 import { useRequiredResource } from "../resource-context";
 import { useRouterAdapterOptional } from "../router/adapter";
@@ -51,8 +47,9 @@ export interface UseListControllerOptions extends ListControllerOptions {
   /**
    * Sync list params (filter / sort / page / perPage / displayedFilters) to the
    * URL query string, ra-core `useListParams`-style: the initial params are
-   * SEEDED from the location on mount (deep-linkable) and every param change is
-   * PUSHED back with `replace: true`. Default `true` for a top-level resource
+   * SEEDED from the location on mount (deep-linkable), re-seeded when the
+   * location changes later (back/forward, a followed link), and every param
+   * change is PUSHED back with `replace: true`. Default `true` for a top-level resource
    * list. Set `false` for an embedded / reference list (mirrors ra-core's
    * `disableSyncWithLocation`) to keep the pure store/KV behavior.
    *
@@ -61,56 +58,6 @@ export interface UseListControllerOptions extends ListControllerOptions {
    * the store/KV behavior is used regardless of this flag.
    */
   syncWithLocation?: boolean;
-}
-
-/** The URL-shaped param slice of the list-controller state (multi-sort -> primary). */
-function listStateToQuery(s: {
-  page: number;
-  perPage: number;
-  sort: SortPayload[];
-  filter: FilterPayload;
-  displayedFilters: Record<string, boolean>;
-}): ListParamsQuery {
-  const primary = s.sort[0];
-  return {
-    filter: s.filter,
-    displayedFilters: s.displayedFilters,
-    sort: primary?.field,
-    order: primary?.order,
-    page: s.page,
-    perPage: s.perPage,
-  };
-}
-
-/** The subset of list-controller actions {@link seedListFromQuery} drives. */
-interface ListSeedTarget {
-  setFilters(
-    filter: FilterPayload,
-    displayedFilters?: Record<string, boolean>,
-  ): void;
-  setSort(sort: SortPayload): void;
-  setPerPage(perPage: number): void;
-  setPage(page: number): void;
-}
-
-/**
- * Seed a freshly-constructed (INERT, unattached) list controller from a
- * deep-linked URL query, BEFORE `useStore` attaches (the first subscriber is
- * what fetches), so the FIRST fetch already uses the URL params. Order matters:
- * filter/sort/perPage each reset `page` to 1, so `setPage` runs LAST.
- */
-function seedListFromQuery(
-  target: ListSeedTarget,
-  query: ListParamsQuery,
-): void {
-  if (query.filter !== undefined || query.displayedFilters !== undefined) {
-    target.setFilters(query.filter ?? {}, query.displayedFilters);
-  }
-  if (query.sort !== undefined) {
-    target.setSort({ field: query.sort, order: query.order ?? "ASC" });
-  }
-  if (query.perPage !== undefined) target.setPerPage(query.perPage);
-  if (query.page !== undefined) target.setPage(query.page);
 }
 
 /**
@@ -149,37 +96,41 @@ export function useListController<
   // Deep-link seed (URL -> state): apply BEFORE `useStore` subscribes (the first
   // subscriber triggers the fetch), and only when the URL carries custom params,
   // so a clean URL falls back to the option/KV defaults (ra-core semantics).
-  if (syncEnabled && location) {
-    const query = parseListParams(location.value.search);
-    if (hasCustomParams(query)) seedListFromQuery(controller, query);
-  }
+  const seed = location ? listPatchFromSearch(location.value.search) : null;
+  if (seed) controller.setParams(seed);
 
   // The single subscribe seam: mounts the controller's observer (4R acquire),
   // releases it on scope disposal (4R release). `state` is a read-only ref that
   // swaps whole snapshots on every controller mutation.
   const state = useStore(controller);
 
-  // Push param changes -> URL (state -> URL, one-way after the init seed). Seed
-  // `lastPushed` from the CURRENT (post-seed) state so the mount itself never
-  // pushes — a clean URL stays clean until the user changes a param, then the
+  // Push param changes -> URL. Seed `lastPushed` from the CURRENT (post-seed)
+  // state so the mount itself never pushes — a clean URL stays clean until the user changes a param, then the
   // full query is written (`replace`, ra-core `useListParams`-style). The
   // controller notifies on EVERY change (incl. data/isPending); the search-diff
   // guard makes non-param changes a no-op and naturally covers the DEBOUNCED
   // `setFilters` path (the URL updates when the debounced state settles). The
   // live `pathname` is read from the reactive `location` on each push.
-  if (syncEnabled && navigate && location) {
-    let lastPushed = serializeListParams(
-      listStateToQuery(controller.getSnapshot()),
-    );
+  if (navigate && location) {
+    let lastPushed = serializeListState(controller.getSnapshot());
     const unsubscribe = controller.subscribe(() => {
-      const search = serializeListParams(
-        listStateToQuery(controller.getSnapshot()),
-      );
+      const search = serializeListState(controller.getSnapshot());
       if (search === lastPushed) return;
       lastPushed = search;
       navigate(`${location.value.pathname}${search}`, { replace: true });
     });
     onScopeDispose(unsubscribe);
+
+    // URL -> state after mount: back/forward or a followed link re-seeds the
+    // params. Our own push comes back as `lastPushed` and is skipped.
+    watch(
+      () => location.value.search,
+      (search) => {
+        if (search === lastPushed) return;
+        const patch = listPatchFromSearch(search);
+        if (patch) controller.setParams(patch);
+      },
+    );
   }
 
   // A `reactive` facade: state fields as live computed getters (unwrapped on
