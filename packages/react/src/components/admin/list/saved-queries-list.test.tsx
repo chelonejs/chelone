@@ -11,6 +11,7 @@ import {
   defineMessages,
   fakeDataProvider,
   type SavedQuery,
+  type SavedQueryValue,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import {
@@ -24,7 +25,11 @@ import {
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
-import { ListContextProvider, type ListContextValue } from "../../../form";
+import {
+  ListContextProvider,
+  type ListContextValue,
+  useListContext,
+} from "../../../form";
 import {
   ResourceContextProvider,
   ResourceRegistryProvider,
@@ -35,10 +40,10 @@ import { SavedQueriesList } from "./saved-queries-list";
 
 afterEach(cleanup);
 
-const savedValue = (title: string, perPage = 10) => ({
+const savedValue = (title: string, perPage = 10): SavedQueryValue => ({
   filter: { title },
   displayedFilters: { title: true },
-  sort: [{ field: "id", order: "DESC" as const }],
+  sort: [{ field: "id", order: "DESC" }],
   perPage,
 });
 
@@ -47,11 +52,15 @@ function providers(store: ChelonStore) {
     locale: "en",
     messages: { en: defineMessages({}) },
   });
+  // Built once per mount helper: a provider or client recreated on render would
+  // discard the query cache.
+  const dataProvider = fakeDataProvider({});
+  const queryClient = new QueryClient();
   return function Providers({ children }: { children: ReactNode }) {
     return (
       <CheloneProvider
-        dataProvider={fakeDataProvider({})}
-        queryClient={new QueryClient()}
+        dataProvider={dataProvider}
+        queryClient={queryClient}
         i18n={i18n}
         store={store}
       >
@@ -111,6 +120,20 @@ describe("useSavedQueries", () => {
   });
 });
 
+/** The rows of the ambient list, to wait on a settled fetch. */
+function Rows() {
+  const { data } = useListContext();
+  return (
+    <ul>
+      {(data ?? []).map((row) => (
+        <li key={String(row.id)}>
+          {String((row as { title?: unknown }).title)}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function makeList(overrides: Partial<ListContextValue> = {}): ListContextValue {
   return {
     page: 1,
@@ -149,13 +172,18 @@ function mountList(
   ui: ReactNode = <SavedQueriesList />,
 ) {
   const Providers = providers(store);
-  return render(
+  const tree = (value: ListContextValue) => (
     <Providers>
       <ResourceContextProvider value="posts">
-        <ListContextProvider value={list}>{ui}</ListContextProvider>
+        <ListContextProvider value={value}>{ui}</ListContextProvider>
       </ResourceContextProvider>
-    </Providers>,
+    </Providers>
   );
+  const view = render(tree(list));
+  return {
+    ...view,
+    setList: (next: ListContextValue) => view.rerender(tree(next)),
+  };
 }
 
 const seeded = (): ChelonStore => {
@@ -176,7 +204,7 @@ describe("<SavedQueriesList>", () => {
     mountList(makeList(), store);
     expect(screen.getByRole("button", { name: "Hello posts" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "World posts" })).toBeTruthy();
-    expect(screen.queryByText("Other resource")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Other resource" })).toBeNull();
   });
 
   it("lists the queries of an explicit resource prop", () => {
@@ -247,23 +275,75 @@ describe("<SavedQueriesList>", () => {
     expect(screen.getByRole("button", { name: "My drafts" })).toBeTruthy();
   });
 
-  it("offers no save while the filter is empty or a saved query already matches", () => {
+  it("offers no save while the filter is empty", () => {
     mountList(makeList({ filter: {} }), seeded());
     expect(
       screen.queryByRole("button", { name: "Save current query" }),
     ).toBeNull();
-    cleanup();
+  });
 
+  it("offers no save while a saved query already matches", () => {
     mountList(makeList({ filter: { title: "hello" }, perPage: 10 }), seeded());
     expect(
       screen.queryByRole("button", { name: "Save current query" }),
     ).toBeNull();
-    cleanup();
+  });
 
+  it("offers save for a filter no saved query matches", () => {
     mountList(makeList({ filter: { title: "other" }, perPage: 10 }), seeded());
     expect(
       screen.getByRole("button", { name: "Save current query" }),
     ).toBeTruthy();
+  });
+
+  it("closes the name form when the list stops being saveable", () => {
+    const view = mountList(
+      makeList({ filter: { title: "draft" } }),
+      createStore(),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Save current query" }));
+    expect(screen.getByRole("textbox", { name: "Query name" })).toBeTruthy();
+
+    view.setList(makeList({ filter: {} }));
+    expect(screen.queryByRole("textbox", { name: "Query name" })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Save current query" }),
+    ).toBeNull();
+  });
+
+  it("saving an existing name replaces that query", () => {
+    const store = seeded();
+    mountList(makeList({ filter: { title: "fresh" }, perPage: 10 }), store);
+    fireEvent.click(screen.getByRole("button", { name: "Save current query" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Query name" }), {
+      target: { value: "Hello posts" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    const saved = store.getItem<SavedQuery[]>("posts.savedQueries");
+    expect(saved?.map((q) => q.label)).toEqual(["Hello posts", "World posts"]);
+    expect(saved?.[0]?.value.filter).toEqual({ title: "fresh" });
+  });
+
+  it("saves and removes under an explicit resource prop", () => {
+    const store = createStore();
+    mountList(
+      makeList({ filter: { title: "draft" } }),
+      store,
+      <SavedQueriesList resource="comments" />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Save current query" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Query name" }), {
+      target: { value: "Mine" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    expect(
+      store.getItem<SavedQuery[]>("comments.savedQueries")?.map((q) => q.label),
+    ).toEqual(["Mine"]);
+    expect(store.getItem("posts.savedQueries")).toBeUndefined();
+
+    fireEvent.click(screen.getByRole("button", { name: /Remove.*Mine/ }));
+    expect(store.getItem<SavedQuery[]>("comments.savedQueries")).toEqual([]);
   });
 
   it("cannot save a blank name", () => {
@@ -271,11 +351,11 @@ describe("<SavedQueriesList>", () => {
     mountList(makeList({ filter: { title: "draft" } }), store);
     fireEvent.click(screen.getByRole("button", { name: "Save current query" }));
     const save = screen.getByRole("button", { name: "Save" });
-    expect((save as HTMLButtonElement).disabled).toBe(true);
+    expect(save).toHaveProperty("disabled", true);
     fireEvent.change(screen.getByRole("textbox", { name: "Query name" }), {
       target: { value: "   " },
     });
-    expect((save as HTMLButtonElement).disabled).toBe(true);
+    expect(save).toHaveProperty("disabled", true);
     fireEvent.click(save);
     expect(store.getItem("posts.savedQueries")).toBeUndefined();
 
@@ -296,6 +376,20 @@ describe("<SavedQueriesList>", () => {
     expect(screen.queryByRole("button", { name: "Hello posts" })).toBeNull();
     expect(screen.getByRole("button", { name: "World posts" })).toBeTruthy();
     expect(list.setParams).not.toHaveBeenCalled();
+  });
+
+  it("removing the active query leaves the list params and offers to save again", () => {
+    const store = seeded();
+    const list = makeList({ filter: { title: "hello" }, perPage: 10 });
+    mountList(list, store);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Remove.*Hello posts/ }),
+    );
+    expect(list.setParams).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Hello posts" })).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Save current query" }),
+    ).toBeTruthy();
   });
 
   it("under <List> applying a query makes one getList call with its filter", async () => {
@@ -320,10 +414,11 @@ describe("<SavedQueriesList>", () => {
       locale: "en",
       messages: { en: defineMessages({}) },
     });
+    const queryClient = new QueryClient();
     render(
       <CheloneProvider
         dataProvider={dataProvider}
-        queryClient={new QueryClient()}
+        queryClient={queryClient}
         i18n={i18n}
         store={store}
       >
@@ -331,28 +426,34 @@ describe("<SavedQueriesList>", () => {
           <ResourceContextProvider value="posts">
             <List>
               <SavedQueriesList />
+              <Rows />
             </List>
           </ResourceContextProvider>
         </ResourceRegistryProvider>
       </CheloneProvider>,
     );
-    await vi.waitFor(() => expect(getList).toHaveBeenCalledTimes(1));
-    expect(getList.mock.calls[0]?.[1].filter).toEqual({});
+    await vi.waitFor(() =>
+      expect(screen.getAllByRole("listitem")).toHaveLength(2),
+    );
+    expect(getList).toHaveBeenCalledTimes(1);
+    expect(getList.mock.calls[0]?.[1]?.filter).toEqual({});
 
     fireEvent.click(screen.getByRole("button", { name: "Only hello" }));
+    // The filtered page has rendered, so the fetch has settled.
     await vi.waitFor(() =>
       expect(
-        screen
-          .getByRole("button", { name: "Only hello" })
-          .getAttribute("aria-pressed"),
-      ).toBe("true"),
+        screen.getAllByRole("listitem").map((li) => li.textContent),
+      ).toEqual(["hello"]),
     );
-    await vi.waitFor(() => expect(getList).toHaveBeenCalledTimes(2));
-    expect(getList.mock.calls[1]?.[1].filter).toEqual({ title: "hello" });
-    // Let any extra fetch surface before asserting there was none.
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 50));
-    });
+    expect(
+      screen
+        .getByRole("button", { name: "Only hello" })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
     expect(getList).toHaveBeenCalledTimes(2);
+    const params = getList.mock.calls[1]?.[1];
+    expect(params?.filter).toEqual({ title: "hello" });
+    expect(params?.sort).toEqual({ field: "id", order: "ASC" });
+    expect(params?.pagination).toEqual({ page: 1, perPage: 25 });
   });
 });

@@ -9,9 +9,10 @@ import { useChelonStore } from "../context";
 import { useStore } from "./use-store";
 
 export interface UseSavedQueriesReturn {
-  queries: Readonly<Ref<SavedQuery[]>>;
+  queries: Readonly<Ref<readonly SavedQuery[]>>;
   /** Trims the label and ignores a blank one; a same-label query is replaced. */
   save(label: string, value: SavedQueryValue): void;
+  /** Trims the label; a label no query has is ignored. */
   remove(label: string): void;
 }
 

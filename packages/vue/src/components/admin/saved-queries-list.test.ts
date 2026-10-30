@@ -14,12 +14,13 @@ import {
 import { QueryClient } from "@tanstack/vue-query";
 import { type DOMWrapper, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h, reactive, type VNodeChild } from "vue";
+import { defineComponent, h, nextTick, reactive, type VNodeChild } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../admin/admin.vue";
 import {
   type ListContextValue,
   provideListContext,
+  useListContext,
 } from "../../list/list-context";
 import { provideResourceContext } from "../../resource-context";
 import { useSavedQueries } from "../../store/use-saved-queries";
@@ -97,7 +98,7 @@ function makeList(state: ListState = {}) {
   return { list, setParams };
 }
 
-/** Mounts `<SavedQueriesList>` over a stubbed list of the `posts` resource. */
+/** Mounts `<SavedQueriesList>` under the `posts` resource over a stubbed list. */
 function mountStub(store: ChelonStore, state: ListState = {}, props = {}) {
   const { list, setParams } = makeList(state);
   const Host = defineComponent({
@@ -108,9 +109,14 @@ function mountStub(store: ChelonStore, state: ListState = {}, props = {}) {
     },
   });
   const wrapper = mountAdmin(store, () => h(Host));
-  return { wrapper, setParams };
+  return { wrapper, setParams, list };
 }
 
+/**
+ * The first button whose text, or `aria-label`, equals `name` (a string) or
+ * matches it (a regex). The remove buttons are icon-only, so only their label
+ * names them.
+ */
 const button = (
   wrapper: VueWrapper | DOMWrapper<Element>,
   name: RegExp | string,
@@ -155,6 +161,7 @@ describe("useSavedQueries", () => {
       "World posts",
       "Third",
     ]);
+    expect(labels(store)).toEqual(["World posts", "Third"]);
   });
 
   it("follows a change written to the store by another instance", async () => {
@@ -253,18 +260,71 @@ describe("SavedQueriesList", () => {
     expect(button(wrapper, "My drafts")).toBeDefined();
   });
 
-  it("offers no save while the filter is empty or a saved query already matches", () => {
-    const empty = mountStub(seeded(), { filter: {} });
-    expect(button(empty.wrapper, "Save current query")).toBeUndefined();
+  it("offers no save while the filter is empty", () => {
+    const { wrapper } = mountStub(seeded(), { filter: {} });
+    expect(button(wrapper, "Save current query")).toBeUndefined();
+  });
 
-    const matching = mountStub(seeded(), {
+  it("offers no save while a saved query already matches", () => {
+    const { wrapper } = mountStub(seeded(), {
       filter: { title: "hello" },
       perPage: 10,
     });
-    expect(button(matching.wrapper, "Save current query")).toBeUndefined();
+    expect(button(wrapper, "Save current query")).toBeUndefined();
+  });
 
-    const fresh = mountStub(seeded(), { filter: { title: "other" } });
-    expect(button(fresh.wrapper, "Save current query")).toBeDefined();
+  it("offers save for a filter no saved query matches", () => {
+    const { wrapper } = mountStub(seeded(), { filter: { title: "other" } });
+    expect(button(wrapper, "Save current query")).toBeDefined();
+  });
+
+  it("closes the name form when the list stops being saveable", async () => {
+    const { wrapper, list } = mountStub(createStore(), {
+      filter: { title: "draft" },
+    });
+    await button(wrapper, "Save current query")?.trigger("click");
+    expect(wrapper.find('input[aria-label="Query name"]').exists()).toBe(true);
+
+    list.filter = {};
+    await nextTick();
+    expect(wrapper.find('input[aria-label="Query name"]').exists()).toBe(false);
+    expect(button(wrapper, "Save current query")).toBeUndefined();
+  });
+
+  it("saving an existing name replaces that query", async () => {
+    const store = seeded();
+    const { wrapper } = mountStub(store, {
+      filter: { title: "fresh" },
+      perPage: 10,
+    });
+    await button(wrapper, "Save current query")?.trigger("click");
+    await wrapper
+      .find('input[aria-label="Query name"]')
+      .setValue("Hello posts");
+    await button(wrapper, "Save")?.trigger("click");
+
+    const saved = store.getItem<SavedQuery[]>("posts.savedQueries");
+    expect(saved?.map((q) => q.label)).toEqual(["Hello posts", "World posts"]);
+    expect(saved?.[0]?.value.filter).toEqual({ title: "fresh" });
+  });
+
+  it("saves and removes under an explicit resource prop", async () => {
+    const store = createStore();
+    const { wrapper } = mountStub(
+      store,
+      { filter: { title: "draft" } },
+      { resource: "comments" },
+    );
+    await button(wrapper, "Save current query")?.trigger("click");
+    await wrapper.find('input[aria-label="Query name"]').setValue("Mine");
+    await button(wrapper, "Save")?.trigger("click");
+    expect(
+      store.getItem<SavedQuery[]>("comments.savedQueries")?.map((q) => q.label),
+    ).toEqual(["Mine"]);
+    expect(store.getItem("posts.savedQueries")).toBeUndefined();
+
+    await button(wrapper, /Remove.*Mine/)?.trigger("click");
+    expect(store.getItem<SavedQuery[]>("comments.savedQueries")).toEqual([]);
   });
 
   it("cannot save a blank name", async () => {
@@ -292,6 +352,19 @@ describe("SavedQueriesList", () => {
   });
 });
 
+describe("SavedQueriesList removal", () => {
+  it("removing the active query leaves the list params and offers to save again", async () => {
+    const { wrapper, setParams } = mountStub(seeded(), {
+      filter: { title: "hello" },
+      perPage: 10,
+    });
+    await button(wrapper, /Remove.*Hello posts/)?.trigger("click");
+    expect(setParams).not.toHaveBeenCalled();
+    expect(button(wrapper, "Hello posts")).toBeUndefined();
+    expect(button(wrapper, "Save current query")).toBeDefined();
+  });
+});
+
 describe("SavedQueriesList under List", () => {
   it("applying a query makes one getList call with its filter", async () => {
     const dataProvider = fakeDataProvider({
@@ -311,25 +384,44 @@ describe("SavedQueriesList under List", () => {
         },
       },
     ]);
+    const Rows = defineComponent({
+      setup() {
+        const list = useListContext();
+        return () =>
+          h(
+            "ul",
+            (list.data ?? []).map((row) =>
+              h("li", String((row as unknown as { title: string }).title)),
+            ),
+          );
+      },
+    });
     const wrapper = mountAdmin(
       store,
       () =>
-        h(List, { resource: "posts" }, { default: () => h(SavedQueriesList) }),
+        h(
+          List,
+          { resource: "posts" },
+          { default: () => [h(SavedQueriesList), h(Rows)] },
+        ),
       dataProvider,
     );
-    await vi.waitFor(() => expect(getList).toHaveBeenCalledTimes(1));
-    expect(getList.mock.calls[0]?.[1].filter).toEqual({});
+    await vi.waitFor(() => expect(wrapper.findAll("li")).toHaveLength(2));
+    expect(getList).toHaveBeenCalledTimes(1);
+    expect(getList.mock.calls[0]?.[1]?.filter).toEqual({});
 
     await button(wrapper, "Only hello")?.trigger("click");
+    // The filtered page has rendered, so the fetch has settled.
     await vi.waitFor(() =>
-      expect(button(wrapper, "Only hello")?.attributes("aria-pressed")).toBe(
-        "true",
-      ),
+      expect(wrapper.findAll("li").map((li) => li.text())).toEqual(["hello"]),
     );
-    await vi.waitFor(() => expect(getList).toHaveBeenCalledTimes(2));
-    expect(getList.mock.calls[1]?.[1].filter).toEqual({ title: "hello" });
-    // Let any extra fetch surface before asserting there was none.
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(button(wrapper, "Only hello")?.attributes("aria-pressed")).toBe(
+      "true",
+    );
     expect(getList).toHaveBeenCalledTimes(2);
+    const params = getList.mock.calls[1]?.[1];
+    expect(params?.filter).toEqual({ title: "hello" });
+    expect(params?.sort).toEqual({ field: "id", order: "ASC" });
+    expect(params?.pagination).toEqual({ page: 1, perPage: 25 });
   });
 });

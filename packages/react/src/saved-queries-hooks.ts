@@ -8,9 +8,10 @@ import { useMemo, useSyncExternalStore } from "react";
 import { useCheloneContext } from "./context";
 
 export interface UseSavedQueriesResult {
-  queries: SavedQuery[];
+  queries: readonly SavedQuery[];
   /** Trims the label and ignores a blank one; a same-label query is replaced. */
   save(label: string, value: SavedQueryValue): void;
+  /** Trims the label; a label no query has is ignored. */
   remove(label: string): void;
 }
 

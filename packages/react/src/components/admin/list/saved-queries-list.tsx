@@ -55,10 +55,12 @@ function SavedQueriesList({
   };
 
   const current: SavedQueryValue = { filter, displayedFilters, sort, perPage };
-  const hasActive = queries.some((query) =>
-    isSavedQueryActive(query.value, current),
-  );
-  const canSave = Object.keys(filter).length > 0 && !hasActive;
+  const entries = queries.map((query) => ({
+    ...query,
+    active: isSavedQueryActive(query.value, current),
+  }));
+  const canSave =
+    Object.keys(filter).length > 0 && !entries.some((entry) => entry.active);
 
   const closeForm = () => {
     setNaming(false);
@@ -66,7 +68,8 @@ function SavedQueriesList({
   };
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    if (!name.trim()) return;
+    // The list may have changed while the form was open.
+    if (!canSave || !name.trim()) return;
     save(name, current);
     closeForm();
   };
@@ -76,8 +79,7 @@ function SavedQueriesList({
       data-slot="saved-queries-list"
       className={cn("flex flex-wrap items-center gap-2", className)}
     >
-      {queries.map(({ label, value }) => {
-        const active = isSavedQueryActive(value, current);
+      {entries.map(({ label, value, active }) => {
         return (
           <span key={label} className="inline-flex items-center">
             <Button
@@ -114,7 +116,7 @@ function SavedQueriesList({
           </span>
         );
       })}
-      {naming ? (
+      {naming && canSave ? (
         <form className="flex items-center gap-2" onSubmit={submit}>
           <Input
             id={nameId}

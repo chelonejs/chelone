@@ -65,16 +65,20 @@ const current = computed<SavedQueryValue>(() => ({
   sort: toRaw(list.sort),
   perPage: list.perPage,
 }));
-const isActive = (value: SavedQueryValue) =>
-  isSavedQueryActive(value, current.value);
+const entries = computed(() =>
+  queries.value.map((query) => ({
+    ...query,
+    active: isSavedQueryActive(query.value, current.value),
+  })),
+);
 const canSave = computed(
   () =>
     Object.keys(list.filter).length > 0 &&
-    !queries.value.some((query) => isActive(query.value)),
+    !entries.value.some((entry) => entry.active),
 );
 
-function apply(value: SavedQueryValue) {
-  if (isActive(value)) {
+function apply(value: SavedQueryValue, active: boolean) {
+  if (active) {
     list.setParams({ filter: {} });
     return;
   }
@@ -92,7 +96,8 @@ function closeForm() {
 }
 
 function submit() {
-  if (!name.value.trim()) return;
+  // The list may have changed while the form was open.
+  if (!canSave.value || !name.value.trim()) return;
   save(name.value, current.value);
   closeForm();
 }
@@ -104,15 +109,15 @@ function submit() {
     :class="cn('flex flex-wrap items-center gap-2', props.class)"
   >
     <span
-      v-for="query in queries"
+      v-for="query in entries"
       :key="query.label"
       class="inline-flex items-center"
     >
       <Button
         size="sm"
-        :variant="isActive(query.value) ? 'default' : 'outline'"
-        :aria-pressed="isActive(query.value)"
-        @click="apply(query.value)"
+        :variant="query.active ? 'default' : 'outline'"
+        :aria-pressed="query.active"
+        @click="apply(query.value, query.active)"
       >
         {{ query.label }}
       </Button>
@@ -126,7 +131,7 @@ function submit() {
       </Button>
     </span>
     <form
-      v-if="naming"
+      v-if="naming && canSave"
       class="flex items-center gap-2"
       @submit.prevent="submit"
     >
