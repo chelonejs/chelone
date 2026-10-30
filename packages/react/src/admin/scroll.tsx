@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useRef } from "react";
-import { useChelonStore } from "../context";
+import { useCheloneStore } from "../context";
 import { useLocation } from "../router/nav-hooks";
 
 /** How the location `state` carries the scroll intent (set by `useRedirect`). */
@@ -90,7 +90,7 @@ export function RestoreScrollPosition({
   debounce = 250,
   children,
 }: RestoreScrollPositionProps): React.ReactNode {
-  const store = useChelonStore();
+  const store = useCheloneStore();
   const location = useLocation();
   const wantsTop = scrollToTopRequested(location.state);
   const key = scrollKey(storeKey);

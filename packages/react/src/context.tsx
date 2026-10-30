@@ -1,7 +1,7 @@
 import type {
-  AnyChelonI18n,
+  AnyCheloneI18n,
   AuthProvider,
-  ChelonStore,
+  CheloneStore,
   DataContext,
   DataProvider,
   NotificationStore,
@@ -14,8 +14,8 @@ import { createContext, type ReactNode, useContext, useMemo } from "react";
 export interface CheloneContextValue<
   TResources extends ResourceMap = ResourceMap,
 > extends DataContext<TResources> {
-  store?: ChelonStore;
-  i18n?: AnyChelonI18n;
+  store?: CheloneStore;
+  i18n?: AnyCheloneI18n;
   authProvider?: AuthProvider;
   notifications?: NotificationStore;
   /**
@@ -32,8 +32,8 @@ export interface CheloneProviderProps<
 > {
   dataProvider: DataProvider<TResources>;
   queryClient: QueryClient;
-  store?: ChelonStore;
-  i18n?: AnyChelonI18n;
+  store?: CheloneStore;
+  i18n?: AnyCheloneI18n;
   authProvider?: AuthProvider;
   notifications?: NotificationStore;
   /** The resource registry — enables registry-schema form validation (D6). */
@@ -91,19 +91,19 @@ export function useCheloneContext<
   return ctx as CheloneContextValue<TResources>;
 }
 
-export function useChelonStore(): ChelonStore {
+export function useCheloneStore(): CheloneStore {
   const { store } = useCheloneContext();
   if (!store) {
-    throw new Error("useChelonStore: pass a store to <CheloneProvider>.");
+    throw new Error("useCheloneStore: pass a store to <CheloneProvider>.");
   }
   return store;
 }
 
-export function useChelonI18n(): AnyChelonI18n {
+export function useCheloneI18n(): AnyCheloneI18n {
   const { i18n } = useCheloneContext();
   if (!i18n) {
     throw new Error(
-      "useChelonI18n: pass an i18n instance to <CheloneProvider>.",
+      "useCheloneI18n: pass an i18n instance to <CheloneProvider>.",
     );
   }
   return i18n;
@@ -114,15 +114,15 @@ export function useChelonI18n(): AnyChelonI18n {
  * some consumers (e.g. controllers) degrade gracefully without one. Hooks
  * that REQUIRE the store (useNotify/useNotifications) throw on undefined.
  */
-export function useChelonNotifications(): NotificationStore | undefined {
+export function useCheloneNotifications(): NotificationStore | undefined {
   return useCheloneContext().notifications;
 }
 
-export function useChelonAuthProvider(): AuthProvider {
+export function useCheloneAuthProvider(): AuthProvider {
   const { authProvider } = useCheloneContext();
   if (!authProvider) {
     throw new Error(
-      "useChelonAuthProvider: pass an authProvider to <CheloneProvider>.",
+      "useCheloneAuthProvider: pass an authProvider to <CheloneProvider>.",
     );
   }
   return authProvider;

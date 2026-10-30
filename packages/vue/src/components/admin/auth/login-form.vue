@@ -28,12 +28,12 @@ export interface LoginFormProps {
  *
  * Vue-specific divergence: the React twin uses a `useNotify()` composable;
  * `@chelone/vue` reads the notification store directly off the context
- * (`useChelonNotifications`), the same idiom the delete/bulk buttons use. The
+ * (`useCheloneNotifications`), the same idiom the delete/bulk buttons use. The
  * store is optional — errors are simply not surfaced when none is configured.
  */
 
 import { required } from "@chelone/core";
-import { useChelonNotifications } from "../../../context";
+import { useCheloneNotifications } from "../../../context";
 import { useForm } from "../../../form/use-form";
 import { useTranslate } from "../../../i18n/use-translate";
 import { cn } from "../../../lib/utils";
@@ -50,7 +50,7 @@ interface LoginValues extends Record<string, unknown> {
 const props = defineProps<LoginFormProps>();
 
 const login = useLogin();
-const notifications = useChelonNotifications();
+const notifications = useCheloneNotifications();
 const translate = useTranslate();
 
 function getErrorMessage(error: unknown): string | undefined {

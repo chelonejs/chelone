@@ -44,7 +44,7 @@ export interface ReferenceArrayInputProps {
  * here a `useSubscribable` over `form.store` driving a `watch`.
  */
 
-import type { ChelonFormApi } from "@chelone/core";
+import type { CheloneFormApi } from "@chelone/core";
 import { watch } from "vue";
 import {
   provideChoicesContext,
@@ -81,7 +81,7 @@ provideChoicesContext(choicesContext);
 // through the child's `useInput`.
 const { form } = useCheloneFormContext();
 const source = useWrappedSource(props.source);
-const store = (form as ChelonFormApi<Record<string, unknown>>).store;
+const store = (form as CheloneFormApi<Record<string, unknown>>).store;
 const fieldValue = useSubscribable<unknown>({
   getSnapshot: () => form.getFieldValue(source),
   subscribe: (listener) => subscribeStore(store, listener),

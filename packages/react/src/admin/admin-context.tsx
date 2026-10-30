@@ -23,9 +23,9 @@
  */
 
 import type {
-  AnyChelonI18n,
+  AnyCheloneI18n,
   AuthProvider,
-  ChelonStore,
+  CheloneStore,
   DataProvider,
   NotificationStore,
   ResourceMap,
@@ -56,9 +56,9 @@ export interface AdminContextProps<
   /** The React Query client (required — factory-created at the app root). */
   queryClient: QueryClient;
   /** The optional KV store (preferences / list scroll). */
-  store?: ChelonStore;
+  store?: CheloneStore;
   /** The optional i18n instance (translations). */
-  i18n?: AnyChelonI18n;
+  i18n?: AnyCheloneI18n;
   /** The optional auth provider (gates the shell when `requireAuth`). */
   authProvider?: AuthProvider;
   /** The optional notification store (i18n-key notifications). */

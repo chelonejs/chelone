@@ -48,7 +48,7 @@ import {
   createEditFormController,
   type FormControllerContext,
 } from "./edit-create-form";
-import { type ChelonFormApi, createFormController } from "./form-controller";
+import { type CheloneFormApi, createFormController } from "./form-controller";
 import { createFieldBinding } from "./input-binding";
 
 const resources = defineResources({
@@ -182,7 +182,7 @@ describe("probe A: churn with async validation in flight", () => {
     const form = controller.form;
     const { validator, resolvers } = makeAsyncValidator();
     const binding = createFieldBinding(
-      form as ChelonFormApi<{ title: string }>,
+      form as CheloneFormApi<{ title: string }>,
       { source: "title", validate: validator },
     );
 
@@ -274,7 +274,7 @@ describe("probe B: post-destroy no-ops", () => {
     });
     const form = controller.form;
     const binding = createFieldBinding(
-      form as ChelonFormApi<{ title: string }>,
+      form as CheloneFormApi<{ title: string }>,
       { source: "title" },
     );
     const off = binding.subscribe(noop);
@@ -301,7 +301,7 @@ describe("probe B: post-destroy no-ops", () => {
     });
     const form = controller.form;
     const binding = createArrayBinding(
-      form as ChelonFormApi<{ tags: string[] }>,
+      form as CheloneFormApi<{ tags: string[] }>,
       { source: "tags", scalar: true },
     );
     const off = binding.subscribe(noop);
@@ -468,7 +468,7 @@ describe("probe C: composed edit-form lifecycle churn", () => {
       "posts",
       { id: 1 },
     );
-    const form = controller.form as ChelonFormApi<{
+    const form = controller.form as CheloneFormApi<{
       id: number;
       title: string;
     }>;
@@ -517,7 +517,7 @@ describe("probe D: detached mutations mount/observe/time nothing", () => {
     });
     const form = controller.form;
     const binding = createFieldBinding(
-      form as ChelonFormApi<{ title: string }>,
+      form as CheloneFormApi<{ title: string }>,
       { source: "title" },
     );
     // Never subscribed.
@@ -535,7 +535,7 @@ describe("probe D: detached mutations mount/observe/time nothing", () => {
     });
     const form = controller.form;
     const binding = createArrayBinding(
-      form as ChelonFormApi<{ tags: string[] }>,
+      form as CheloneFormApi<{ tags: string[] }>,
       { source: "tags", scalar: true },
     );
     // Never subscribed.
@@ -668,7 +668,7 @@ describe("probe F: overlapping submits", () => {
     });
     const off = controller.subscribe(noop);
     const binding = createFieldBinding(
-      controller.form as ChelonFormApi<{ title: string }>,
+      controller.form as CheloneFormApi<{ title: string }>,
       { source: "title" },
     );
     const offF = binding.subscribe(noop);

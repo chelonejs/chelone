@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { type AnyChelonI18n, createI18n } from "./i18n";
+import { type AnyCheloneI18n, createI18n } from "./i18n";
 import { defineMessages } from "./messages";
 
 const en = defineMessages({
@@ -73,7 +73,7 @@ describe("createI18n", () => {
   it("honors the polyglot `_` fallback for keys missing from the catalog", () => {
     // The catalog-erased view: what components hold, and the surface that
     // accepts an arbitrary `ra.*` key plus a `{ _: default }` param.
-    const i18n: AnyChelonI18n = make();
+    const i18n: AnyCheloneI18n = make();
     // Missing key + string `_` → the fallback, not the echoed key.
     expect(i18n.translate("ra.auth.sign_in", { _: "Sign in" })).toBe("Sign in");
     // Fallback is interpolated with the same params.

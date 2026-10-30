@@ -11,7 +11,7 @@
  */
 
 import {
-  type AnyChelonI18n,
+  type AnyCheloneI18n,
   type AuthProvider,
   createI18n,
   createNotificationStore,
@@ -66,7 +66,7 @@ function Wrap({
 }: {
   authProvider: AuthProvider;
   notifications?: NotificationStore;
-  i18n?: AnyChelonI18n;
+  i18n?: AnyCheloneI18n;
   children: ReactNode;
 }) {
   const queryClient = new QueryClient({

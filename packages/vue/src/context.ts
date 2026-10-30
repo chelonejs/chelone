@@ -15,9 +15,9 @@
  */
 
 import type {
-  AnyChelonI18n,
+  AnyCheloneI18n,
   AuthProvider,
-  ChelonStore,
+  CheloneStore,
   DataProvider,
   NotificationStore,
   ResourceMap,
@@ -34,9 +34,9 @@ export interface CheloneContextValue<
   /** The vue-query client (P2 — factory-created at the app root or by `<Admin>`). */
   queryClient: QueryClient;
   /** The optional KV store (preferences / list scroll). */
-  store?: ChelonStore;
+  store?: CheloneStore;
   /** The optional i18n instance (translations). */
-  i18n?: AnyChelonI18n;
+  i18n?: AnyCheloneI18n;
   /** The optional auth provider (gates the shell when `requireAuth`). */
   authProvider?: AuthProvider;
   /** The optional notification store (i18n-key notifications). */
@@ -79,19 +79,19 @@ export function useCheloneContext<
 }
 
 /** The i18n instance — throws when none was provided (parity with the React twin). */
-export function useChelonI18n(): AnyChelonI18n {
+export function useCheloneI18n(): AnyCheloneI18n {
   const { i18n } = useCheloneContext();
   if (!i18n) {
-    throw new Error("useChelonI18n: pass an i18n instance to <Admin>.");
+    throw new Error("useCheloneI18n: pass an i18n instance to <Admin>.");
   }
   return i18n;
 }
 
 /** The KV store — throws when none was provided (parity with the React twin). */
-export function useChelonStore(): ChelonStore {
+export function useCheloneStore(): CheloneStore {
   const { store } = useCheloneContext();
   if (!store) {
-    throw new Error("useChelonStore: pass a store to <Admin>.");
+    throw new Error("useCheloneStore: pass a store to <Admin>.");
   }
   return store;
 }
@@ -100,15 +100,15 @@ export function useChelonStore(): ChelonStore {
  * The notification store, or `undefined`. Optional by design — controllers
  * degrade gracefully without one; hooks that REQUIRE it throw at their own site.
  */
-export function useChelonNotifications(): NotificationStore | undefined {
+export function useCheloneNotifications(): NotificationStore | undefined {
   return useCheloneContext().notifications;
 }
 
 /** The auth provider — throws when none was provided (parity with the React twin). */
-export function useChelonAuthProvider(): AuthProvider {
+export function useCheloneAuthProvider(): AuthProvider {
   const { authProvider } = useCheloneContext();
   if (!authProvider) {
-    throw new Error("useChelonAuthProvider: pass an authProvider to <Admin>.");
+    throw new Error("useCheloneAuthProvider: pass an authProvider to <Admin>.");
   }
   return authProvider;
 }

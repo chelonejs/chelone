@@ -3,7 +3,7 @@
  * `@chelone/react`'s `admin/auth-gate.tsx`:
  *
  * - `useAuthGate(requireAuth)` — the no-flash gate state. Reuses the P3 auth
- *   query (`authStateQueryOptions` via `useChelonAuthProvider`) but adds the two
+ *   query (`authStateQueryOptions` via `useCheloneAuthProvider`) but adds the two
  *   shell-specific concerns the raw `useAuthState()` does not: the `enabled`
  *   gating (`requireAuth` — no query when the shell doesn't gate) and the
  *   NO-AUTHPROVIDER shortcut (`authProvider == null` → frozen authenticated, so

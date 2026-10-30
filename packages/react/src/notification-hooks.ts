@@ -1,14 +1,14 @@
 import type { Notification, NotificationStore } from "@chelone/core";
 import { useSyncExternalStore } from "react";
-import { useChelonNotifications } from "./context";
+import { useCheloneNotifications } from "./context";
 
 /**
  * Chosen semantic: BOTH notification hooks throw without a store — consistent
- * with useChelonStore/useChelonI18n/useChelonAuthProvider. Rendering or
+ * with useCheloneStore/useCheloneI18n/useCheloneAuthProvider. Rendering or
  * pushing notifications requires wiring `notifications` on <CheloneProvider>.
  */
 function useRequiredNotifications(caller: string): NotificationStore {
-  const notifications = useChelonNotifications();
+  const notifications = useCheloneNotifications();
   if (!notifications) {
     throw new Error(
       `${caller}: pass a notification store to <CheloneProvider notifications={createNotificationStore()}>.`,

@@ -8,9 +8,9 @@ export interface AdminProps<TResources extends ResourceMap = ResourceMap> {
   /** The optional auth provider. */
   authProvider?: AuthProvider;
   /** The optional i18n instance. */
-  i18n?: AnyChelonI18n;
+  i18n?: AnyCheloneI18n;
   /** The optional KV store. */
-  store?: ChelonStore;
+  store?: CheloneStore;
   /** The optional notification store. */
   notifications?: NotificationStore;
   /**
@@ -74,9 +74,9 @@ export interface AdminProps<TResources extends ResourceMap = ResourceMap> {
  */
 
 import type {
-  AnyChelonI18n,
+  AnyCheloneI18n,
   AuthProvider,
-  ChelonStore,
+  CheloneStore,
   DataProvider,
   NotificationStore,
   ResourceMap,

@@ -34,7 +34,7 @@ function makeRouter(): Router {
 }
 
 /** Chelone-owned route records only (ignore the base `/` and any host routes). */
-function chelonRoutePaths(router: Router): string[] {
+function cheloneRoutePaths(router: Router): string[] {
   return router
     .getRoutes()
     .filter((r) => typeof r.name === "string" && r.name.startsWith("chelone-"))
@@ -85,7 +85,7 @@ describe("registry + route table — lifecycle under churn (PATTERN GATE)", () =
       show.value = true;
       await flushPromises();
       expect(capture.registry?.definitions.posts).toBeDefined();
-      expect(chelonRoutePaths(router)).toEqual(["/posts", "/posts/:id"]);
+      expect(cheloneRoutePaths(router)).toEqual(["/posts", "/posts/:id"]);
       expect(router.hasRoute("chelone-posts-list")).toBe(true);
       expect(router.hasRoute("chelone-posts-edit")).toBe(true);
 
@@ -93,7 +93,7 @@ describe("registry + route table — lifecycle under churn (PATTERN GATE)", () =
       show.value = false;
       await flushPromises();
       expect(capture.registry?.definitions.posts).toBeUndefined();
-      expect(chelonRoutePaths(router)).toEqual([]);
+      expect(cheloneRoutePaths(router)).toEqual([]);
       expect(router.hasRoute("chelone-posts-list")).toBe(false);
       expect(router.hasRoute("chelone-posts-edit")).toBe(false);
     }
@@ -136,7 +136,7 @@ describe("registry + route table — lifecycle under churn (PATTERN GATE)", () =
       .getRoutes()
       .filter((r) => r.name === "chelone-posts-list");
     expect(listRoutes).toHaveLength(1);
-    expect(chelonRoutePaths(router)).toEqual(["/posts"]);
+    expect(cheloneRoutePaths(router)).toEqual(["/posts"]);
     wrapper.unmount();
   });
 
@@ -173,7 +173,7 @@ describe("registry + route table — lifecycle under churn (PATTERN GATE)", () =
     });
     const wrapper = mount(Harness, { global: { plugins: [router] } });
     await flushPromises();
-    expect(chelonRoutePaths(router)).toEqual(["/authors", "/posts"]);
+    expect(cheloneRoutePaths(router)).toEqual(["/authors", "/posts"]);
 
     // Churn them out of phase — each toggle's route table must match exactly
     // the resources currently mounted, never leaking the other's routes.
@@ -184,14 +184,14 @@ describe("registry + route table — lifecycle under churn (PATTERN GATE)", () =
       const expected: string[] = [];
       if (showAuthors.value) expected.push("/authors");
       if (showPosts.value) expected.push("/posts");
-      expect(chelonRoutePaths(router)).toEqual(expected);
+      expect(cheloneRoutePaths(router)).toEqual(expected);
     }
 
     // Settle both ON and confirm the exact live set — no orphans from the churn.
     showPosts.value = true;
     showAuthors.value = true;
     await flushPromises();
-    expect(chelonRoutePaths(router)).toEqual(["/authors", "/posts"]);
+    expect(cheloneRoutePaths(router)).toEqual(["/authors", "/posts"]);
     wrapper.unmount();
   });
 
@@ -221,12 +221,12 @@ describe("registry + route table — lifecycle under churn (PATTERN GATE)", () =
       await flushPromises();
     }
     // At least `authors` is always present pre-unmount.
-    expect(chelonRoutePaths(router).length).toBeGreaterThanOrEqual(1);
+    expect(cheloneRoutePaths(router).length).toBeGreaterThanOrEqual(1);
 
     wrapper.unmount();
     await flushPromises();
     // Admin's onScopeDispose removed every route it added — clean slate.
-    expect(chelonRoutePaths(router)).toEqual([]);
+    expect(cheloneRoutePaths(router)).toEqual([]);
     expect(router.getRoutes().map((r) => r.path)).toEqual(["/"]);
   });
 });
