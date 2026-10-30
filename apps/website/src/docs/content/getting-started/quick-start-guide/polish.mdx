@@ -8,18 +8,23 @@ custom menu icon, and a dashboard home page.
 
 ## Adding search and filters to the list
 
-The list already sorts and paginates. To let users search, you add filter
-inputs and surface them from the list's **actions** slot with a `<FilterButton>`.
+The list controller already sorts and paginates. To show pagination controls,
+render `<ListPagination />` below the table. To let users search, add filter
+inputs to the list's **actions** slot with `<FilterForm>` and `<FilterButton>`.
 
 Chelone has no react-admin `filters` prop on `<List>` — filtering is plain
-composition. Declare an array of filter inputs, then render a `<FilterButton>`
-(and any always-on inputs) in the list's `actions`:
+composition. Declare an array of filter inputs, then render `<FilterForm>` for
+the visible inputs and `<FilterButton>` to toggle optional filters. Merge the
+imports into `src/posts.tsx` and replace `PostList`; keep the create, edit, and
+show views from the previous step:
 
 ```tsx title="src/posts.tsx"
 import {
   DataTable,
   FilterButton,
+  FilterForm,
   List,
+  ListPagination,
   ReferenceInput,
   SearchInput,
   SelectInput,
@@ -34,11 +39,19 @@ const postFilters = [
 
 export function PostList() {
   return (
-    <List actions={<FilterButton filters={postFilters} />}>
+    <List
+      actions={
+        <>
+          <FilterForm filters={postFilters} />
+          <FilterButton filters={postFilters} />
+        </>
+      }
+    >
       <DataTable>
         <DataTable.Col source="title" />
         {/* …the other columns… */}
       </DataTable>
+      <ListPagination />
     </List>
   );
 }
@@ -50,6 +63,9 @@ types. The `author_id` filter is optional: the `<FilterButton>` dropdown toggles
 it on, and because it's a `<ReferenceInput>` its `<SelectInput>` is already
 populated with the authors.
 
+`FilterButton` toggles visibility; `FilterForm` renders the search box and any
+enabled filters. Both use the same `postFilters` array.
+
 :::tip
 Filters are "search-as-you-type" — every keystroke updates the list's filter
 state and refetches. The `label` prop customises any input's label.
@@ -59,15 +75,33 @@ state and refetches. The `label` prop customises any input's label.
 
 The sidebar shows a default icon for every resource. Pass an `icon` to a
 `<Resource>` to change it — any React component works, so a Lucide icon drops
-straight in:
+straight in. First define an authors list:
 
-```tsx title="src/App.tsx" {2,7}
+```tsx title="src/authors.tsx"
+import { DataTable, List, ListPagination } from "@chelone/react";
+
+export function AuthorList() {
+  return (
+    <List>
+      <DataTable>
+        <DataTable.Col source="name" />
+      </DataTable>
+      <ListPagination />
+    </List>
+  );
+}
+```
+
+The following `App.tsx` snippets update the `App` from
+[Setup](/docs/getting-started/quick-start-guide/setup): keep its `dataProvider`,
+`queryClient`, `resources`, view imports, and surrounding `<BrowserRouter>`.
+
+```tsx title="src/App.tsx" {2,9,10}
 import { Admin, Layout, Resource } from "@chelone/react";
 import { StickyNote, Users } from "lucide-react";
-
+import { AuthorList } from "./authors";
 // …
-
-<Admin dataProvider={dataProvider} resources={resources}>
+<Admin dataProvider={dataProvider} queryClient={queryClient} resources={resources}>
   <Admin.Layout>
     <Layout />
   </Admin.Layout>
@@ -82,32 +116,23 @@ By default `<Admin>` shows the first resource's list as the home page. To show
 your own component instead, pass it as the `dashboard` prop:
 
 ```tsx title="src/dashboard.tsx"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 export function Dashboard() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Welcome to the administration</CardTitle>
-      </CardHeader>
-      <CardContent>
-        Manage posts and authors from the sidebar.
-      </CardContent>
-    </Card>
+    <section>
+      <h1>Welcome to the administration</h1>
+      <p>Manage posts and authors from the sidebar.</p>
+    </section>
   );
 }
 ```
 
-```tsx title="src/App.tsx" {3}
+```tsx title="src/App.tsx" {4}
+import { Admin } from "@chelone/react";
 import { Dashboard } from "./dashboard";
 
-<Admin dataProvider={dataProvider} resources={resources} dashboard={<Dashboard />}>
+<Admin dataProvider={dataProvider} queryClient={queryClient} resources={resources} dashboard={<Dashboard />}>
   {/* …resources… */}
 </Admin>;
 ```
-
-`Card` and the other UI primitives come from the shadcn components you pulled in
-with the registry — they live in your own `@/components/ui`, so restyle them
-however you like.
 
 Next: [auth & production](/docs/getting-started/quick-start-guide/auth-production).

@@ -26,6 +26,7 @@ export const postSchema = z.object({
 
 export const resources = defineResources({
   posts: { schema: postSchema },
+  authors: { schema: z.object({ id: z.number(), name: z.string() }) },
 });
 ```
 
@@ -44,10 +45,10 @@ Chelone talks to your API through a **Data Provider** adapter. For this guide we
 use the in-memory `fakeDataProvider`, seeded with a few posts and authors — no
 server required:
 
-```tsx title="src/App.tsx"
+```tsx title="src/data-provider.ts"
 import { fakeDataProvider } from "@chelone/core";
 
-const dataProvider = fakeDataProvider({
+export const dataProvider = fakeDataProvider({
   posts: [
     { id: 1, title: "On Computable Numbers", body: "…", author_id: 1, views: 120, published: true },
   ],
@@ -61,10 +62,10 @@ Wrap everything in a router and `<Admin>`, pass the `resources` registry, and ad
 the opt-in shadcn shell:
 
 ```tsx title="src/App.tsx"
-import { fakeDataProvider } from "@chelone/core";
 import { Admin, Layout, Resource } from "@chelone/react";
 import { QueryClient } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router";
+import { dataProvider } from "./data-provider";
 import { resources } from "./resources";
 import { PostList } from "./posts";
 
