@@ -9,12 +9,7 @@
  */
 
 import type { AuthProvider } from "@chelone/core";
-import {
-  createI18n,
-  createNotificationStore,
-  defineMessages,
-  fakeDataProvider,
-} from "@chelone/core";
+import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
@@ -196,11 +191,6 @@ describe("AdminRoutes — no-flash auth gate (§0a-7/16)", () => {
           dataProvider={dataProvider}
           queryClient={makeQueryClient()}
           authProvider={authProvider}
-          notifications={createNotificationStore()}
-          i18n={createI18n({
-            locale: "en",
-            messages: { en: defineMessages({ "ra.auth.sign_in": "Sign in" }) },
-          })}
           requireAuth
         >
           <Resource
@@ -244,6 +234,39 @@ describe("AdminRoutes — no-flash auth gate (§0a-7/16)", () => {
       expect(screen.getByTestId("custom-login")).toBeDefined(),
     );
     expect(screen.queryByRole("button", { name: "Sign in" })).toBeNull();
+  });
+
+  it("an explicit null loginPage prop opts out of both the child and the default", async () => {
+    const logout = vi.fn(async () => {});
+    const authProvider = makeAuthProvider({
+      checkAuth: async () => {
+        throw new Error("nope");
+      },
+      logout,
+    });
+    render(
+      <MemoryRouter initialEntries={["/posts"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          authProvider={authProvider}
+          loginPage={null}
+          requireAuth
+        >
+          <Resource
+            name="posts"
+            list={() => <div data-testid="posts-list" />}
+          />
+          <Admin.LoginPage>
+            <div data-testid="custom-login">custom login</div>
+          </Admin.LoginPage>
+        </Admin>
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(logout).toHaveBeenCalled());
+    expect(screen.queryByTestId("custom-login")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Sign in" })).toBeNull();
+    expect(screen.queryByTestId("posts-list")).toBeNull();
   });
 
   it("no authProvider → never gates (appless demo shortcut §0a-16)", async () => {

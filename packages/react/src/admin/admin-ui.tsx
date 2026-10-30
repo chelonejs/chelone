@@ -16,15 +16,22 @@
  * partition + registration + slot-override that feed it.
  */
 
-import type { ResourceMap } from "@chelone/core";
+import {
+  createI18n,
+  createNotificationStore,
+  defaultMessages,
+  type ResourceMap,
+} from "@chelone/core";
 import {
   createContext,
   type ReactElement,
   type ReactNode,
   useContext,
   useMemo,
+  useState,
 } from "react";
 import { LoginPage } from "../components/admin/auth/login-page";
+import { CheloneProvider, useCheloneContext } from "../context";
 import { useRegisterResources } from "../resource/registry-hooks";
 import type {
   AdminChildrenStatus,
@@ -87,6 +94,34 @@ export function useAdminUI(): AdminUIContent {
     );
   }
   return ctx;
+}
+
+/**
+ * The built-in `loginPage`. `<LoginPage>` needs an i18n instance and a
+ * notification store, which `<Admin>` leaves optional. When the app supplied
+ * either, use it; otherwise fill the gap for this subtree only, so the minimal
+ * `<Admin requireAuth>` setup shows a working form instead of crashing.
+ */
+function DefaultLoginPage(): ReactNode {
+  const ctx = useCheloneContext();
+  const [fallbackI18n] = useState(() =>
+    createI18n({ locale: "en", messages: { en: defaultMessages } }),
+  );
+  const [fallbackNotifications] = useState(() => createNotificationStore());
+  if (ctx.i18n && ctx.notifications) return <LoginPage />;
+  return (
+    <CheloneProvider
+      dataProvider={ctx.dataProvider}
+      queryClient={ctx.queryClient}
+      store={ctx.store}
+      authProvider={ctx.authProvider}
+      resources={ctx.resources}
+      i18n={ctx.i18n ?? fallbackI18n}
+      notifications={ctx.notifications ?? fallbackNotifications}
+    >
+      <LoginPage />
+    </CheloneProvider>
+  );
 }
 
 /**
@@ -194,8 +229,12 @@ export function AdminUI<TResources extends ResourceMap = ResourceMap>({
         title,
         layout,
         // Default so `requireAuth` never lands on a blank screen; a prop or
-        // `<Admin.LoginPage>` child still wins.
-        loginPage: loginPage ?? rawParts.slots.loginPage ?? <LoginPage />,
+        // `<Admin.LoginPage>` child still wins, and an explicit `null` prop
+        // opts out (only `undefined` is unset, as in `mergeSlots`).
+        loginPage:
+          loginPage !== undefined
+            ? loginPage
+            : (rawParts.slots.loginPage ?? <DefaultLoginPage />),
         dashboard,
         catchAll,
         error,
