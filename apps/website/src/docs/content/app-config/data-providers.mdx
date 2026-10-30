@@ -10,24 +10,88 @@ root. The provider is just an object with nine async methods.
 
 ## The contract
 
+The types below are the ones in `@chelone/core`, trimmed to the shape. Every
+method is generic in the resource name, so a typed registry checks `resource`
+and types the records in the result.
+
 ```ts
+type Pagination =
+  | { page: number; perPage: number }
+  | { cursor: string | null; limit: number };
+
+type SortPayload = { field: string; order: "ASC" | "DESC" };
+
+interface PageInfo {
+  nextCursor?: string | null;
+  prevCursor?: string | null;
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
+}
+
+interface GetListParams {
+  pagination?: Pagination;
+  sort?: SortPayload | SortPayload[]; // an array sorts by each key in order
+  filter?: Record<string, unknown>;
+  meta?: unknown;
+}
+
+interface GetListResult {
+  data: Record[];
+  total?: number; // optional
+  pageInfo?: PageInfo;
+}
+
 interface DataProvider {
-  getList(resource, params): Promise<{ data; total }>;
-  getOne(resource, params): Promise<{ data }>;
-  getMany(resource, params): Promise<{ data }>;
-  getManyReference(resource, params): Promise<{ data; total }>;
-  create(resource, params): Promise<{ data }>;
-  update(resource, params): Promise<{ data }>;
-  updateMany(resource, params): Promise<{ data }>;
-  delete(resource, params): Promise<{ data }>;
-  deleteMany(resource, params): Promise<{ data }>;
+  getList(resource, params: GetListParams): Promise<GetListResult>;
+  getOne(resource, params: { id; meta? }): Promise<{ data }>;
+  getMany(resource, params: { ids; meta? }): Promise<{ data: Record[] }>;
+  getManyReference(
+    resource,
+    params: {
+      target: string; // the foreign-key field on `resource`
+      id: Identifier; // the value `target` must equal
+      pagination?: Pagination;
+      sort?: SortPayload | SortPayload[];
+      filter?: Record<string, unknown>;
+      meta?: unknown;
+    },
+  ): Promise<GetListResult>;
+  create(resource, params: { data; meta? }): Promise<{ data }>;
+  update(resource, params: { id; data; previousData?; meta? }): Promise<{ data }>;
+  updateMany(resource, params: { ids; data; meta? }): Promise<{ data: Identifier[] }>;
+  delete(resource, params: { id; previousData?; meta? }): Promise<{ data }>;
+  deleteMany(resource, params: { ids; meta? }): Promise<{ data: Identifier[] }>;
 }
 ```
 
-Each method takes the resource name and a typed params object and returns a
-promise. `getList` receives pagination, sort, and filter; `create`/`update`
-receive the record data. That's the whole surface — implement it once and the
-entire admin works against your backend.
+- `pagination` is `{ page, perPage }` for an offset backend or
+  `{ cursor, limit }` for a keyset one. The list views and
+  `useInfiniteGetList` always page by number, so a provider behind them has to
+  accept `{ page, perPage }`. A cursor reaches the provider only from your own
+  `getList` call.
+- `sort` is one `{ field, order }` or an array of them, the first being the
+  primary key.
+- `meta` is yours: Chelone does not read it, so it can carry anything the
+  backend needs that has no param of its own.
+- `updateMany` and `deleteMany` resolve with the ids they touched, not records.
+- `getOne`, `create`, `update` and `delete` resolve one record in `data`;
+  `getList`, `getMany` and `getManyReference` resolve an array.
+
+### Optional `total`
+
+`total` is the count of every match, not of the page. A backend that cannot
+count, as a cursor API often cannot, leaves it out. Pagination then adapts:
+
+- `ListPagination` shows the range (`1-25`) without `of N`.
+- Whether a next page exists comes from `pageInfo.hasNextPage` and
+  `pageInfo.hasPreviousPage` when the result carries `pageInfo`. With neither
+  `pageInfo` nor `total`, the list controller cannot tell, and
+  `hasNextPage` stays `undefined`.
+- `useInfiniteGetList` asks for the next page while `pageInfo.hasNextPage` is
+  true. With no `pageInfo` it compares the rows loaded so far to `total`, and
+  with no `total` either it stops at the first page that comes back shorter
+  than `perPage` or empty.
+- `ReferenceManyCount` reads `total` and renders nothing when it is missing.
 
 ## The in-memory provider
 
@@ -44,8 +108,13 @@ const dataProvider = fakeDataProvider({
 });
 ```
 
-It filters, sorts, paginates, and mutates the seed in place, so a full CRUD flow
-works with zero backend.
+It copies the seed, so the arrays you pass in are never touched, and it
+mutates its own copy: a record you create, update, or delete stays changed for
+the life of the provider. Filtering is exact equality on each key (`===`) and
+sorting accepts one key or an array. A `getList` without `pagination` returns
+every row. A `{ page, perPage }` call returns `total`; a `{ cursor, limit }`
+call also returns `pageInfo`, with the cursor as a stringified offset. A full
+CRUD flow works with zero backend.
 
 ## Writing your own
 
@@ -81,9 +150,17 @@ export const dataProvider: DataProvider = {
 };
 ```
 
-`fetchJson(url, options)` takes the options of `fetch` plus a `token`, which it
-sends as `Authorization: Bearer <token>`. It resolves
-`{ status, statusText, headers, body, json }` on a 2xx. `queryParameters` skips
+`fetchJson(url, options)` takes the options of `fetch` plus a `token`. It sets
+these headers unless you already did:
+
+- `Accept: application/json`, always.
+- `Content-Type: application/json`, when `body` is a string.
+
+A non-empty `token` is sent as `Authorization: Bearer <token>` and wins over an
+`Authorization` header in `options.headers`; an empty `token` is ignored. It
+resolves `{ status, statusText, headers, body, json }` on a 2xx, where `body` is
+the response text and `json` is the parsed body, or `undefined` when the text is
+not JSON. `queryParameters` skips
 `undefined` and `null`, repeats the key for an array, writes a `Date` as an ISO
 string, and JSON-encodes any other object.
 
@@ -104,14 +181,104 @@ export const authProvider: Pick<AuthProvider, "checkError"> = {
       error instanceof HttpError &&
       (error.status === 401 || error.status === 403)
     ) {
+      throw { message: "chelone.notification.logged_out" };
+    }
+  },
+};
+```
+
+The rejection value is read for hints, so it does not have to be the original
+error. A fresh `Error` works too, and so does any object. These keys are read:
+
+- `redirectTo`: where to send the user. Without it, a logout goes to the login
+  page. A value starting with `http` suppresses the notification.
+- `logoutUser`: `false` keeps the session and shows a "not authorized" notice,
+  and still redirects when `redirectTo` is set. It defaults to `true`.
+- `message`: the notification text or a translation key. `false` shows no
+  notification. Without it, the notice is `chelone.notification.logged_out` on a
+  logout and `chelone.notification.not_authorized` otherwise.
+
+```ts
+throw { redirectTo: "/sign-in", message: "Your session timed out" };
+throw { logoutUser: false, message: false };
+```
+
+Resolving from `checkError` leaves an ordinary data error alone.
+
+A network failure is not an `HttpError`: `fetchJson` rejects it with the error
+`fetch` threw.
+
+## Server-side validation
+
+Reject a `create` or `update` with a `ValidationError` and the form shows the
+messages next to the fields instead of a generic error notification. The
+constructor takes a message and a `fieldErrors` object that maps a field's
+source path to one message or an array of them.
+
+```ts
+import { ValidationError } from "@chelone/core";
+import type { DataProvider } from "@chelone/core";
+
+export const dataProvider: Pick<DataProvider, "create"> = {
+  async create(resource, { data }) {
+    try {
+      const { json } = await fetchJson(`/api/${resource}`, {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      return { data: json as never };
+    } catch (error) {
+      if (error instanceof HttpError && error.status === 422) {
+        const { errors } = error.body as {
+          errors: Record<string, string | string[]>;
+        };
+        throw new ValidationError("Validation failed", errors);
+      }
       throw error;
     }
   },
 };
 ```
 
-A network failure is not an `HttpError`: `fetchJson` rejects it with the error
-`fetch` threw.
+The record controllers resolve `save` with the `fieldErrors` on a
+`ValidationError` and raise no error notification. Any other rejection
+notifies.
+
+## Reverse relations
+
+`getManyReference` fetches the records of `resource` whose `target` field equals
+`id`: the "many" side of a one-to-many. `target` is the foreign key on the
+records you fetch, so `getManyReference("posts", { target: "author_id", id: 1 })`
+returns the posts of author 1. It takes the same `pagination`, `sort`, `filter`
+and `meta` as `getList` and returns the same `{ data, total?, pageInfo? }`.
+
+```ts
+async getManyReference(resource, { target, id, pagination, sort, filter }) {
+  const query = queryParameters({
+    ...pagination,
+    sort,
+    filter: { ...filter, [target]: id },
+  });
+  const { json, headers } = await fetchJson(`/api/${resource}?${query}`);
+  const count = headers.get("X-Total");
+  return {
+    data: json as never,
+    total: count === null ? undefined : Number(count),
+  };
+},
+```
+
+Three fields read through it:
+
+- `ReferenceManyField` shows the matching rows, one server page at a time, with
+  `sort` and `filter` forwarded.
+- `ReferenceManyCount` shows the `total` of a one-row page, so a cell can show a
+  count while the provider sends a single row.
+- `ReferenceOneField` takes the first match, for a one-to-one relation.
+
+All three take `reference` (the resource) and `target` (the foreign key), plus
+an optional `source`, the field on the current record that `target` matches. It
+defaults to `id`. Outside a field, `useGetManyReference` makes the same call.
 
 ## Combining providers
 
@@ -184,10 +351,15 @@ await dataProvider.getOne("posts", { id: 1 });
 
 ## Tips
 
-- Return `{ data, total }` from `getList` — `total` drives the pagination
-  control.
+- Return `{ data, total }` from `getList` when the backend can count: `total`
+  drives the page numbers. Without it, send `pageInfo` so the next and previous
+  buttons still work.
 - Errors are thrown/rejected promises; the query cache surfaces them to the
   view, and `checkError` on the auth provider can react to 401/403.
 - Reference fields share one `getMany` per resource: they read through
   `useGetManyAggregate`, which batches reads started in the same tick into a
   single call, so a list of fifty posts asks for its authors once.
+- `useGetManyReference(resource, params)` reads `getManyReference` and
+  `useInfiniteGetList(resource, params)` reads `getList` page by page, with
+  `fetchNextPage` appending the next one. Its `params.pagination` must be
+  `{ page, perPage }`.
