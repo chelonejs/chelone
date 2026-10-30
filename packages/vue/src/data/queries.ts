@@ -1,9 +1,10 @@
 /**
  * Data-fetch composables over `@tanstack/vue-query` — the Vue twin of
  * `@chelone/react`'s `hooks.ts` (`useGetOne` / `useGetMany` / `useGetList` /
- * `useGetManyReference`). A `<ReferenceField>` resolves a to-one record, a
- * `<ReferenceInput>` fetches choices. Each wraps core's framework-agnostic
- * `getOneOptions` / `getManyOptions` / `getListOptions` /
+ * `useGetManyAggregate` / `useGetManyReference`). A `<ReferenceField>`
+ * resolves a to-one record, a `<ReferenceInput>` fetches choices. Each wraps
+ * core's framework-agnostic `getOneOptions` / `getManyOptions` /
+ * `getManyAggregateOptions` / `getListOptions` /
  * `getManyReferenceOptions` (queryKey + queryFn) and hands them to
  * vue-query's `useQuery`, reusing the SAME `dataProvider` + `queryClient`
  * `<Admin>` provides (it installs the vue-query client under `VUE_QUERY_CLIENT`).
@@ -21,6 +22,7 @@ import {
   type GetManyReferenceParams,
   type GetOneParams,
   getListOptions,
+  getManyAggregateOptions,
   getManyOptions,
   getManyReferenceOptions,
   getOneOptions,
@@ -65,6 +67,27 @@ export function useGetMany<
   return useQuery(
     computed(() => ({
       ...getManyOptions(ctx, resource, toValue(params)),
+      enabled: options.enabled === undefined ? true : toValue(options.enabled),
+    })),
+  );
+}
+
+/**
+ * Same result as `useGetMany`, but reads started in the same tick by any
+ * component reach the data provider as one `getMany` per resource.
+ */
+export function useGetManyAggregate<
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(
+  resource: TName,
+  params: MaybeRefOrGetter<GetManyParams>,
+  options: { enabled?: MaybeRefOrGetter<boolean> } = {},
+) {
+  const ctx = useCheloneContext<TResources>();
+  return useQuery(
+    computed(() => ({
+      ...getManyAggregateOptions(ctx, resource, toValue(params)),
       enabled: options.enabled === undefined ? true : toValue(options.enabled),
     })),
   );

@@ -132,6 +132,7 @@ export {
 export {
   useGetList,
   useGetMany,
+  useGetManyAggregate,
   useGetManyReference,
   useGetOne,
 } from "./data/queries";

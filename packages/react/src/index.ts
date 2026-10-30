@@ -770,6 +770,7 @@ export {
   useDelete,
   useGetList,
   useGetMany,
+  useGetManyAggregate,
   useGetManyReference,
   useGetOne,
   useUpdate,
