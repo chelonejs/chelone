@@ -1,6 +1,12 @@
 <script lang="ts">
+import type { EditFormControllerOptions, Identifier } from "@chelone/core";
+
 /** Props for {@link Edit}. */
-export interface EditProps {
+export interface EditProps
+  extends Pick<
+    EditFormControllerOptions<Record<string, unknown>>,
+    "validate" | "schema" | "sanitizeEmptyValues" | "onSuccess"
+  > {
   resource?: string;
   id?: Identifier;
   title?: string;
@@ -28,7 +34,7 @@ export interface EditProps {
  * child works with no `<SimpleForm>` in between.
  */
 
-import type { FieldErrors, Identifier } from "@chelone/core";
+import type { FieldErrors } from "@chelone/core";
 import { computed, watch } from "vue";
 import { useEditController } from "../../../controllers/use-edit-controller";
 import { useForm } from "../../../form/use-form";
@@ -58,8 +64,11 @@ const redirect = useRedirectOptional();
 const form = useForm<Record<string, unknown>>({
   resource,
   record: edit.record as Record<string, unknown> | undefined,
+  validate: props.validate,
+  schema: props.schema,
+  sanitizeEmptyValues: props.sanitizeEmptyValues,
   onSubmit: async (data): Promise<FieldErrors | undefined> => {
-    const errors = await edit.save(data);
+    const errors = await edit.save(data, { onSaved: props.onSuccess });
     if (!errors && props.redirectOnSave) {
       redirect("list", resource);
     }

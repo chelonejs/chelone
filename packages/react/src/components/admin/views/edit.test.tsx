@@ -24,7 +24,7 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { useEditContext } from "../../../record-view-context";
 import {
@@ -176,5 +176,37 @@ describe("<Edit>", () => {
       const { data } = await dataProvider.getOne("posts", { id: 1 });
       expect((data as unknown as { title: string }).title).toBe("Updated");
     });
+  });
+  it("validate on <Edit> blocks a save that fails it", async () => {
+    const dataProvider = makeDataProvider();
+    const update = vi.spyOn(dataProvider, "update");
+    function Submit() {
+      const { save } = useSaveContext();
+      return (
+        <button type="button" onClick={() => save?.({ title: "" })}>
+          save
+        </button>
+      );
+    }
+    render(
+      <Providers dataProvider={dataProvider}>
+        <Edit
+          validate={(values) =>
+            values.title ? undefined : { title: "Title is required" }
+          }
+        >
+          <TextInput source="title" />
+          <Submit />
+        </Edit>
+      </Providers>,
+    );
+    await waitFor(() =>
+      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
+        "Original",
+      ),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await screen.findByText("Title is required");
+    expect(update).not.toHaveBeenCalled();
   });
 });

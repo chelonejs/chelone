@@ -46,7 +46,11 @@ import {
 } from "react";
 import { useRouterAdapter } from "../router/adapter";
 import { useLocation, useParams } from "../router/nav-hooks";
-import { FormScope, type OptionalSaveFormOptions } from "./form-scope";
+import {
+  FormScope,
+  type OptionalSaveFormOptions,
+  type OptionalSaveFormProps,
+} from "./form-scope";
 import {
   FormGroupProvider,
   FormGroupsProvider,
@@ -221,7 +225,7 @@ function tabHref(base: string, path: string): string {
 }
 
 export interface TabbedFormProps<TFormData>
-  extends OptionalSaveFormOptions<TFormData> {
+  extends OptionalSaveFormProps<TFormData> {
   /**
    * Sync the active tab with the URL (default `true`): each tab is a nested
    * route (deep-linkable, back-button aware). `false` → a local `useState` tab.
@@ -232,7 +236,9 @@ export interface TabbedFormProps<TFormData>
 }
 
 interface TabbedFormComponent {
-  <TFormData>(props: TabbedFormProps<TFormData>): ReactElement;
+  <TFormData>(
+    props: TabbedFormProps<TFormData> & OptionalSaveFormOptions<TFormData>,
+  ): ReactElement;
   /** The tab slot: `<TabbedForm.Tab name label>`. */
   Tab: typeof TabbedFormTab;
 }
@@ -241,14 +247,15 @@ interface TabbedFormComponent {
  * A tabbed form. Provide `<TabbedForm.Tab name label>` children (in order). A
  * form given `save` builds its own form and the single `save` submits every
  * tab; without `save` it drives the form of the view above it (`<Edit>`,
- * `<Create>`) and the other form options are ignored. Wires the FormGroups
+ * `<Create>`), which takes the other form options. Wires the FormGroups
  * registry, then either the URL-synced or the local shell per `syncWithLocation`.
  */
 function TabbedFormImpl<TFormData>({
   children,
   syncWithLocation = true,
   ...formOptions
-}: TabbedFormProps<TFormData>): ReactElement {
+}: TabbedFormProps<TFormData> &
+  OptionalSaveFormOptions<TFormData>): ReactElement {
   const tabs = useMemo(() => collectTabs(children), [children]);
   return (
     <FormScope<TFormData> name="TabbedForm" options={formOptions}>

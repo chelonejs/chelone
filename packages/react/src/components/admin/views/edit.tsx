@@ -26,7 +26,7 @@
  *   from the record representation (chelone controllers don't carry it).
  */
 
-import type { Identifier } from "@chelone/core";
+import type { EditFormControllerOptions, Identifier } from "@chelone/core";
 import { type ReactNode, useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { CheloneFormProvider } from "../../../form-context";
@@ -45,7 +45,11 @@ import {
   type SaveContextValue,
 } from "../../../save-context";
 
-export interface EditProps {
+export interface EditProps
+  extends Pick<
+    EditFormControllerOptions<Record<string, unknown>>,
+    "validate" | "schema" | "sanitizeEmptyValues" | "onSuccess"
+  > {
   /** Override the ambient resource (defaults to the `<Resource>` context). */
   resource?: string;
   /** Override the record id (defaults to the `:id` route param). */
@@ -73,7 +77,16 @@ export interface EditProps {
  * );
  */
 function Edit(props: EditProps) {
-  const { resource: resourceProp, id: idProp, children, ...viewProps } = props;
+  const {
+    resource: resourceProp,
+    id: idProp,
+    validate,
+    schema,
+    sanitizeEmptyValues,
+    onSuccess,
+    children,
+    ...viewProps
+  } = props;
   const contextResource = useResourceContext();
   const resource = resourceProp ?? contextResource;
   if (!resource) {
@@ -84,7 +97,13 @@ function Edit(props: EditProps) {
   const params = useParams();
   const id = idProp ?? (params.id as Identifier);
 
-  const controller = useEditForm(resource, { id });
+  const controller = useEditForm(resource, {
+    id,
+    validate,
+    schema,
+    sanitizeEmptyValues,
+    onSuccess,
+  });
   const { form, submit, record } = controller;
 
   const getRecordRepresentation = useGetRecordRepresentation(resource);

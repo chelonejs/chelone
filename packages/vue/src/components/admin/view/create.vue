@@ -1,6 +1,12 @@
 <script lang="ts">
+import type { CreateFormControllerOptions } from "@chelone/core";
+
 /** Props for {@link Create}. */
-export interface CreateProps {
+export interface CreateProps
+  extends Pick<
+    CreateFormControllerOptions<Record<string, unknown>>,
+    "validate" | "schema" | "sanitizeEmptyValues" | "onSuccess"
+  > {
   resource?: string;
   record?: Record<string, unknown>;
   title?: string;
@@ -53,8 +59,11 @@ const redirect = useRedirectOptional();
 useForm<Record<string, unknown>>({
   resource,
   record: props.record,
+  validate: props.validate,
+  schema: props.schema,
+  sanitizeEmptyValues: props.sanitizeEmptyValues,
   onSubmit: async (data): Promise<FieldErrors | undefined> => {
-    const errors = await create.save(data);
+    const errors = await create.save(data, { onSaved: props.onSuccess });
     if (!errors && props.redirectOnSave) {
       redirect("list", resource);
     }

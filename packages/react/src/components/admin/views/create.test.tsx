@@ -24,7 +24,7 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { useCreateContext } from "../../../record-view-context";
 import {
@@ -181,5 +181,33 @@ describe("<Create>", () => {
         data.some((r) => (r as { title?: string }).title === "created"),
       ).toBe(true);
     });
+  });
+
+  it("validate on <Create> blocks a save that fails it", async () => {
+    const dataProvider = makeDataProvider();
+    const create = vi.spyOn(dataProvider, "create");
+    function Submit() {
+      const { save } = useSaveContext();
+      return (
+        <button type="button" onClick={() => save?.({ title: "" })}>
+          save
+        </button>
+      );
+    }
+    render(
+      <Providers dataProvider={dataProvider}>
+        <Create
+          validate={(values) =>
+            values.title ? undefined : { title: "Title is required" }
+          }
+        >
+          <TextInput source="title" />
+          <Submit />
+        </Create>
+      </Providers>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await screen.findByText("Title is required");
+    expect(create).not.toHaveBeenCalled();
   });
 });

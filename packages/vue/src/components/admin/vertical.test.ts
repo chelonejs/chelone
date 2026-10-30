@@ -314,3 +314,68 @@ describe("<SaveButton> in <Edit>", () => {
     expect(persisted.data.title).toBe("Edited Title");
   });
 });
+
+describe("form options on the view", () => {
+  // The registry schema accepts "Brand New", so only `validate` can block it.
+  const reject = () => ({ title: "Rejected by validate" });
+
+  it("validate on <Create> blocks a save that fails it", async () => {
+    const dataProvider = makeProvider();
+    const createSpy = vi.spyOn(dataProvider, "create");
+
+    const { wrapper } = mountAdmin(
+      () =>
+        h(
+          Create,
+          { resource: "posts", redirectOnSave: false, validate: reject },
+          {
+            default: () => h(TextInput, { source: "title" }),
+            toolbar: () => h(SaveButton),
+          },
+        ),
+      dataProvider,
+    );
+    await flushPromises();
+
+    await wrapper.find('input[type="text"]').setValue("Brand New");
+    await nextTick();
+    await wrapper.find('[data-slot="save-button"]').trigger("click");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Rejected by validate");
+    expect(createSpy).not.toHaveBeenCalled();
+  });
+
+  it("validate on <Edit> blocks a save that fails it", async () => {
+    const dataProvider = makeProvider();
+    const updateSpy = vi.spyOn(dataProvider, "update");
+
+    const { wrapper } = mountAdmin(
+      () =>
+        h(
+          Edit,
+          { resource: "posts", id: 1, redirectOnSave: false, validate: reject },
+          {
+            default: () => h(TextInput, { source: "title" }),
+            toolbar: () => h(SaveButton),
+          },
+        ),
+      dataProvider,
+    );
+
+    await vi.waitFor(() => {
+      const input = wrapper.find('input[type="text"]');
+      expect((input.element as HTMLInputElement | undefined)?.value).toBe(
+        "Hello World",
+      );
+    });
+
+    await wrapper.find('input[type="text"]').setValue("Edited Title");
+    await nextTick();
+    await wrapper.find('[data-slot="save-button"]').trigger("click");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Rejected by validate");
+    expect(updateSpy).not.toHaveBeenCalled();
+  });
+});

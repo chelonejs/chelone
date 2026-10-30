@@ -28,7 +28,11 @@ import {
   useState,
 } from "react";
 import { useCheloneFormContext } from "../form-context";
-import { FormScope, type OptionalSaveFormOptions } from "./form-scope";
+import {
+  FormScope,
+  type OptionalSaveFormOptions,
+  type OptionalSaveFormProps,
+} from "./form-scope";
 import {
   FormGroupProvider,
   FormGroupsProvider,
@@ -186,13 +190,15 @@ function collectStepNames(children: ReactNode): string[] {
 }
 
 export interface WizardFormProps<TFormData>
-  extends OptionalSaveFormOptions<TFormData> {
+  extends OptionalSaveFormProps<TFormData> {
   /** `<WizardForm.Step>` elements (and any non-step chrome — toolbars, etc.). */
   children: ReactNode;
 }
 
 interface WizardFormComponent {
-  <TFormData>(props: WizardFormProps<TFormData>): ReactElement;
+  <TFormData>(
+    props: WizardFormProps<TFormData> & OptionalSaveFormOptions<TFormData>,
+  ): ReactElement;
   /** The step slot: `<WizardForm.Step name="...">`. */
   Step: typeof WizardFormStep;
 }
@@ -201,14 +207,15 @@ interface WizardFormComponent {
  * A multi-step form. Provide `<WizardForm.Step name>` children (in order) plus
  * any step-nav chrome. A form given `save` builds its own form and the single
  * `save` submits every step; without `save` it drives the form of the view above
- * it (`<Edit>`, `<Create>`) and the other form options are ignored. Wires the
+ * it (`<Edit>`, `<Create>`), which takes the other form options. Wires the
  * FormGroups registry, drives the local step index, and CSS-hides inactive steps
  * so every field stays mounted.
  */
 function WizardFormImpl<TFormData>({
   children,
   ...formOptions
-}: WizardFormProps<TFormData>): ReactElement {
+}: WizardFormProps<TFormData> &
+  OptionalSaveFormOptions<TFormData>): ReactElement {
   // Step names are structural (children order); recompute only when they change.
   const stepNames = useMemo(() => collectStepNames(children), [children]);
   return (

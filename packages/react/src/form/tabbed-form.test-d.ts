@@ -1,6 +1,10 @@
 import type { FieldErrors } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
-import type { TabbedFormProps, UseTabbedFormResult } from "./tabbed-form";
+import type {
+  TabbedForm,
+  TabbedFormProps,
+  UseTabbedFormResult,
+} from "./tabbed-form";
 
 interface FormValues {
   title?: string;
@@ -8,6 +12,9 @@ interface FormValues {
 }
 
 const okSave = async (): Promise<FieldErrors | undefined> => undefined;
+
+/** The props the component accepts: the flat props gated by the save rule. */
+type TabbedFormCallProps = Parameters<typeof TabbedForm<FormValues>>[0];
 
 describe("TabbedForm types", () => {
   it("TabbedFormProps is generic in the form-data shape", () => {
@@ -23,6 +30,22 @@ describe("TabbedForm types", () => {
   it("save is optional: a form inside a view needs none", () => {
     const props: TabbedFormProps<FormValues> = { children: null };
     expectTypeOf(props.save).toBeNullable();
+  });
+
+  it("validate without save is a type error: the view owns the form", () => {
+    const validate = () => undefined;
+    // @ts-expect-error a form that drives its view's form takes no options
+    const props: TabbedFormCallProps = { validate, children: null };
+    expectTypeOf(props).toBeObject();
+  });
+
+  it("validate with save compiles", () => {
+    const props: TabbedFormCallProps = {
+      save: okSave,
+      validate: () => undefined,
+      children: null,
+    };
+    expectTypeOf(props).toBeObject();
   });
 
   it("syncWithLocation is an optional boolean", () => {

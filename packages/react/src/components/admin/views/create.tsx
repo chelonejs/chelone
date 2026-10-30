@@ -18,6 +18,7 @@
  * the resource label (`ra.page.create`).
  */
 
+import type { CreateFormControllerOptions } from "@chelone/core";
 import { type ReactNode, useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { CheloneFormProvider } from "../../../form-context";
@@ -36,7 +37,11 @@ import {
   type SaveContextValue,
 } from "../../../save-context";
 
-export interface CreateProps {
+export interface CreateProps
+  extends Pick<
+    CreateFormControllerOptions<Record<string, unknown>>,
+    "validate" | "schema" | "sanitizeEmptyValues" | "onSuccess"
+  > {
   /** Override the ambient resource (defaults to the `<Resource>` context). */
   resource?: string;
   /** Seed values for the not-yet-created record. */
@@ -64,7 +69,16 @@ export interface CreateProps {
  * );
  */
 function Create(props: CreateProps) {
-  const { resource: resourceProp, record, children, ...viewProps } = props;
+  const {
+    resource: resourceProp,
+    record,
+    validate,
+    schema,
+    sanitizeEmptyValues,
+    onSuccess,
+    children,
+    ...viewProps
+  } = props;
   const contextResource = useResourceContext();
   const resource = resourceProp ?? contextResource;
   if (!resource) {
@@ -73,7 +87,13 @@ function Create(props: CreateProps) {
     );
   }
 
-  const controller = useCreateForm(resource, record ? { record } : undefined);
+  const controller = useCreateForm(resource, {
+    record,
+    validate,
+    schema,
+    sanitizeEmptyValues,
+    onSuccess,
+  });
   const { form, submit } = controller;
 
   const translate = useTranslate();
