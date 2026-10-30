@@ -15,7 +15,7 @@ import {
   fakeDataProvider,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
@@ -224,7 +224,9 @@ describe("<ReferenceOneField>", () => {
       </Providers>,
     );
     expect(screen.getByText("Loading bio")).toBeTruthy();
-    reject(new Error("boom"));
+    await act(async () => {
+      reject(new Error("boom"));
+    });
     await waitFor(() => {
       expect(screen.getByText("Bio failed")).toBeTruthy();
     });

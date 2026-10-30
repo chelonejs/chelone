@@ -1,8 +1,8 @@
 /**
  * `<ReferenceOneField>` resolves its record through `getManyReference` (one row)
  * via `useReferenceOneFieldController`. Each case mounts the field under a real
- * `<Admin>` over a seeded `fakeDataProvider` and asserts the DOM and the
- * data-provider calls.
+ * `<Admin>` over a seeded `fakeDataProvider` and asserts the DOM; the first
+ * case also asserts the data-provider calls.
  */
 
 import { fakeDataProvider, type LooseRecord } from "@chelone/core";
@@ -59,21 +59,20 @@ function mountField(
   record: Record<string, unknown>,
   props: Record<string, unknown> = {},
 ) {
-  return mountAdmin(dataProvider, () =>
-    h(
-      defineComponent({
-        setup() {
-          provideRecordContext(record);
-          return () =>
-            h(
-              ReferenceOneField,
-              { reference: "bios", target: "author_id", ...props },
-              { default: () => h(TextField, { source: "body" }) },
-            );
-        },
-      }),
-    ),
-  );
+  // Defined once: a component type built inside the slot would be new on every
+  // Admin render and remount the field.
+  const Host = defineComponent({
+    setup() {
+      provideRecordContext(record);
+      return () =>
+        h(
+          ReferenceOneField,
+          { reference: "bios", target: "author_id", ...props },
+          { default: () => h(TextField, { source: "body" }) },
+        );
+    },
+  });
+  return mountAdmin(dataProvider, () => h(Host));
 }
 
 describe("ReferenceOneField", () => {
@@ -146,29 +145,40 @@ describe("ReferenceOneField", () => {
     expect(w.text()).not.toContain("No bio");
   });
 
+  it("renders the empty text when the lookup finds no related record", async () => {
+    const dataProvider = makeProvider();
+    const getManyReference = vi.spyOn(dataProvider, "getManyReference");
+    const w = mountField(
+      dataProvider,
+      { id: 99, name: "Nobody" },
+      { empty: "No bio" },
+    );
+    await vi.waitFor(() => {
+      expect(w.text()).toContain("No bio");
+    });
+    expect(getManyReference).toHaveBeenCalledTimes(1);
+  });
+
   it("resolves a record that arrives late", async () => {
     const record = ref<LooseRecord | undefined>(undefined);
     const dataProvider = makeProvider();
     const getManyReference = vi.spyOn(dataProvider, "getManyReference");
-    const w = mountAdmin(dataProvider, () =>
-      h(
-        defineComponent({
-          setup() {
-            return () =>
-              h(
-                ReferenceOneField,
-                {
-                  reference: "bios",
-                  target: "author_id",
-                  empty: "No bio",
-                  record: record.value,
-                },
-                { default: () => h(TextField, { source: "body" }) },
-              );
-          },
-        }),
-      ),
-    );
+    const Host = defineComponent({
+      setup() {
+        return () =>
+          h(
+            ReferenceOneField,
+            {
+              reference: "bios",
+              target: "author_id",
+              empty: "No bio",
+              record: record.value,
+            },
+            { default: () => h(TextField, { source: "body" }) },
+          );
+      },
+    });
+    const w = mountAdmin(dataProvider, () => h(Host));
     await nextTick();
     expect(w.text()).toContain("No bio");
     expect(getManyReference).not.toHaveBeenCalled();

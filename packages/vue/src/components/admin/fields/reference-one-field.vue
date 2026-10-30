@@ -79,7 +79,6 @@ watch(referenceRecord, (next) => {
 provideRecordContext(recordRef);
 provideResourceContext(props.reference);
 
-const isLoading = computed(() => query.isPending);
 const isError = computed(() => !referenceRecord.value && query.error != null);
 
 const representation = computed(() =>
@@ -92,7 +91,7 @@ const emptyText = computed(() =>
 </script>
 
 <template>
-  <template v-if="isLoading">
+  <template v-if="query.isPending">
     <span v-if="props.loading" data-slot="reference-one-field">{{
       props.loading
     }}</span>
