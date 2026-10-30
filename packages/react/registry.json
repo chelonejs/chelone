@@ -1661,6 +1661,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/saved-queries-list.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/views/create.tsx",
           "type": "registry:component"
         },
@@ -4061,6 +4065,25 @@
         "@chelone/select"
       ],
       "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "saved-queries-list",
+      "type": "registry:component",
+      "title": "Saved Queries List",
+      "files": [
+        {
+          "path": "src/components/admin/list/saved-queries-list.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/input",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

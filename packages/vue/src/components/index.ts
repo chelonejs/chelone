@@ -290,6 +290,7 @@ export { default as DataTableRow } from "./admin/list/data-table-row.vue";
 export { default as FilterForm } from "./admin/list/filter-form.vue";
 export { default as InfinitePagination } from "./admin/list/infinite-pagination.vue";
 export { default as ListPagination } from "./admin/list/list-pagination.vue";
+export { default as SavedQueriesList } from "./admin/list/saved-queries-list.vue";
 export { default as Create } from "./admin/view/create.vue";
 export { default as Edit } from "./admin/view/edit.vue";
 // --- admin: views ---------------------------------------------------------
