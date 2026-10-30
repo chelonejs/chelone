@@ -88,6 +88,7 @@ export type { DataContext } from "./data/query-options";
 export {
   getListOptions,
   getManyOptions,
+  getManyReferenceOptions,
   getOneOptions,
 } from "./data/query-options";
 export type {

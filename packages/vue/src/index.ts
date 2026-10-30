@@ -129,7 +129,12 @@ export {
   useUpdate,
   useUpdateMany,
 } from "./data/mutations";
-export { useGetList, useGetMany, useGetOne } from "./data/queries";
+export {
+  useGetList,
+  useGetMany,
+  useGetManyReference,
+  useGetOne,
+} from "./data/queries";
 export type { RunUndoableOptions } from "./data/undoable";
 export { useUndoable } from "./data/undoable";
 export { useLoading, useRefresh } from "./data/use-refresh";
