@@ -1,5 +1,6 @@
-// @ts-nocheck — VERBATIM shadcn color-picker (P7b-T1). Chelone's shared
-// tsconfig sets `noUncheckedIndexedAccess: true` (a chelone divergence for its
+// @ts-nocheck — VERBATIM shadcn color-picker (P7b-T1).
+// file-size-guard: vendored shadcn registry component, kept token-identical to upstream so registry diffs stay clean.
+// Chelone's shared tsconfig sets `noUncheckedIndexedAccess: true` (a chelone divergence for its
 // OWN authored code); shadcn's tsconfig does not, so this vendored file's
 // regex-`match[n]` / hex-`body[n]` accesses — already runtime-guarded by the
 // preceding `if (!match) return null` / `body.length === N` checks — trip 50
