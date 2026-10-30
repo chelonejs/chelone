@@ -2,10 +2,16 @@
   "name": "ArrayInput",
   "props": [
     {
+      "name": "addLabel",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Label for the add-row button; a string is translated."
+    },
+    {
       "name": "children",
       "type": "ReactNode",
       "optional": false,
-      "comment": "The form iterator that renders the rows — typically\n`<SimpleFormIterator>`. It reads the array result via the ambient\n`<ArrayInput>` context."
+      "comment": "The iterator that renders the rows: map `useArrayInputResult().rows` to\n`<ArrayInputRow>`s."
     },
     {
       "name": "className",

@@ -1,0 +1,17 @@
+{
+  "name": "ArrayInputRow",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The nested inputs, repeated per row."
+    },
+    {
+      "name": "row",
+      "type": "ArrayRow",
+      "optional": false,
+      "comment": "The stable-id row this wrapper scopes and controls."
+    }
+  ]
+}
