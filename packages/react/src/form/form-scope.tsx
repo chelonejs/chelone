@@ -1,52 +1,41 @@
 /**
  * Chooses the form a multi-section form (`<TabbedForm>`, `<WizardForm>`) drives.
- * Inside a view that already provides one (`<Edit>`, `<Create>`) the ambient
- * form is used as is, so the record hydration and the view's save pipeline
- * stay in effect. Standalone, it builds its own from `options` and provides it.
+ * Given a `save`, it builds and provides its own form from the options, even
+ * inside a view (a quick-create dialog on an edit page). Without one it uses the
+ * ambient form of the view above it (`<Edit>`, `<Create>`), so the record
+ * hydration and the view's save pipeline stay in effect. With neither, it throws.
  */
 
-import { type ReactNode, useCallback, useEffect } from "react";
+import { type ReactNode, useCallback } from "react";
 import {
   type CheloneFormContextValue,
   CheloneFormProvider,
   useOptionalCheloneFormContext,
 } from "../form-context";
 import { type UseFormOptions, useForm } from "../form-hooks";
-import { warning } from "../util/warning";
+
+/** The form options of a form that may borrow its view's form, so `save` is optional. */
+export type OptionalSaveFormOptions<TFormData> = Omit<
+  UseFormOptions<TFormData>,
+  "save"
+> &
+  Partial<Pick<UseFormOptions<TFormData>, "save">>;
 
 export interface FormScopeProps<TFormData> {
-  /** The calling component's name, for the ignored-options warning. */
+  /** The calling component's name, for the missing-save error. */
   name: string;
-  options: UseFormOptions<TFormData>;
+  options: OptionalSaveFormOptions<TFormData>;
   /** Receives the submit pipeline of whichever form is in effect. */
   children: (submit: () => Promise<void>) => ReactNode;
 }
 
 function AmbientFormScope({
   ambient: { form, submit },
-  name,
-  options,
   children,
 }: {
   ambient: CheloneFormContextValue;
-  name: string;
-  options: object;
   children: FormScopeProps<unknown>["children"];
 }) {
-  // The ambient form was built by the view, so `save`, `validate`, `schema`,
-  // `onSuccess` and the rest cannot reach it from here. `save` is named too: a
-  // standalone form nested in a view (a quick-create dialog) lands here and its
-  // own save is never called.
-  const ignored = Object.entries(options)
-    .filter(([, value]) => value !== undefined)
-    .map(([key]) => key)
-    .join(", ");
-  useEffect(() => {
-    warning(
-      ignored,
-      `<${name}> inside a view uses the view's form, so these options are ignored: ${ignored}.`,
-    );
-  }, [name, ignored]);
   const fallback = useCallback(() => form.handleSubmit(), [form]);
   return <>{children(submit ?? fallback)}</>;
 }
@@ -54,7 +43,10 @@ function AmbientFormScope({
 function OwnFormScope<TFormData>({
   options,
   children,
-}: FormScopeProps<TFormData>) {
+}: {
+  options: UseFormOptions<TFormData>;
+  children: FormScopeProps<TFormData>["children"];
+}) {
   const { form, submit } = useForm<TFormData>(options);
   return (
     <CheloneFormProvider form={form} submit={submit}>
@@ -63,11 +55,24 @@ function OwnFormScope<TFormData>({
   );
 }
 
-export function FormScope<TFormData>(props: FormScopeProps<TFormData>) {
+export function FormScope<TFormData>({
+  name,
+  options,
+  children,
+}: FormScopeProps<TFormData>) {
   const ambient = useOptionalCheloneFormContext();
-  return ambient ? (
-    <AmbientFormScope ambient={ambient} {...props} />
-  ) : (
-    <OwnFormScope {...props} />
+  const { save } = options;
+  if (save) {
+    return (
+      <OwnFormScope<TFormData> options={{ ...options, save }}>
+        {children}
+      </OwnFormScope>
+    );
+  }
+  if (ambient) {
+    return <AmbientFormScope ambient={ambient}>{children}</AmbientFormScope>;
+  }
+  throw new Error(
+    `<${name}> needs a \`save\` prop outside a view that provides a form (<Edit>, <Create>).`,
   );
 }

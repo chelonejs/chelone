@@ -15,7 +15,14 @@ describe("TabbedForm types", () => {
       save: okSave,
       children: null,
     };
-    expectTypeOf(props.save).parameter(0).toEqualTypeOf<FormValues>();
+    expectTypeOf(props.save).toEqualTypeOf<
+      ((data: FormValues) => Promise<FieldErrors | undefined>) | undefined
+    >();
+  });
+
+  it("save is optional: a form inside a view needs none", () => {
+    const props: TabbedFormProps<FormValues> = { children: null };
+    expectTypeOf(props.save).toBeNullable();
   });
 
   it("syncWithLocation is an optional boolean", () => {

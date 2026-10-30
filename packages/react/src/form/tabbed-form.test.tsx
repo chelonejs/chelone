@@ -497,13 +497,10 @@ describe("<TabbedForm> inside <Edit>", () => {
       posts: [{ id: 1, title: "Original", body: "Body" }],
     });
     const update = vi.spyOn(dataProvider, "update");
-    // Required by the props, but inside <Edit> the view's own save runs.
-    const ownSave = vi.fn(async () => undefined);
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     renderInEditRoute(
       dataProvider,
       <Edit title={false}>
-        <TabbedForm save={ownSave} syncWithLocation={false}>
+        <TabbedForm syncWithLocation={false}>
           <TabbedForm.Tab name="one">
             <TextInput source="title" />
           </TabbedForm.Tab>
@@ -531,36 +528,61 @@ describe("<TabbedForm> inside <Edit>", () => {
       title: "Updated",
       body: "Body",
     });
-    expect(ownSave).not.toHaveBeenCalled();
-    // A nested standalone form lands here too, so its dropped save is named.
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringMatching(/<TabbedForm>.*ignored.*save/),
-    );
   });
 
-  it("warns that form options are ignored inside Edit", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  it("a TabbedForm given save inside Edit builds its own form", async () => {
+    const dataProvider = fakeDataProvider({
+      posts: [{ id: 1, title: "Original" }],
+    });
+    const update = vi.spyOn(dataProvider, "update");
+    const ownSave = vi.fn(async (_values: unknown) => undefined);
+    function SubmitOwn() {
+      const { submit } = useTabbedFormContext();
+      return (
+        <button type="button" onClick={() => submit()}>
+          Submit own
+        </button>
+      );
+    }
     renderInEditRoute(
-      fakeDataProvider({ posts: [{ id: 1, title: "Original" }] }),
+      dataProvider,
       <Edit title={false}>
         <TabbedForm
-          save={vi.fn(async () => undefined)}
-          validate={() => ({ title: "required" })}
+          save={ownSave}
+          defaultValues={{ title: "Mine" }}
           syncWithLocation={false}
         >
           <TabbedForm.Tab name="one">
             <TextInput source="title" />
+            <SubmitOwn />
           </TabbedForm.Tab>
         </TabbedForm>
       </Edit>,
     );
     await waitFor(() =>
       expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
-        "Original",
+        "Mine",
       ),
     );
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringMatching(/<TabbedForm>.*ignored.*validate/),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Submit own" }));
+    await waitFor(() => expect(ownSave).toHaveBeenCalledTimes(1));
+    expect(ownSave.mock.calls[0]?.[0]).toEqual({ title: "Mine" });
+    expect(update).not.toHaveBeenCalled();
+  });
+});
+
+describe("<TabbedForm> outside a view", () => {
+  it("throws a clear error when save is missing", () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const Wrapper = makeProviders();
+    expect(() =>
+      render(
+        <Wrapper>
+          <TabbedForm syncWithLocation={false}>
+            <TabbedForm.Tab name="one">{null}</TabbedForm.Tab>
+          </TabbedForm>
+        </Wrapper>,
+      ),
+    ).toThrow(/<TabbedForm>.*save/);
   });
 });
