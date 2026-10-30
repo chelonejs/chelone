@@ -167,7 +167,11 @@ function mountAggregateProbes(
         Admin,
         { dataProvider, queryClient },
         {
-          default: () => h("div", probes.map((Probe) => h(Probe))),
+          default: () =>
+            h(
+              "div",
+              probes.map((Probe) => h(Probe)),
+            ),
           layout: () => h("div"),
         },
       ),
