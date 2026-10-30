@@ -1381,6 +1381,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/fields/reference-many-count.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/fields/reference-many-field.tsx",
           "type": "registry:component"
         },
@@ -2711,6 +2715,21 @@
       "registryDependencies": ["@chelone/lib-unknown-types"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-many-count",
+      "type": "registry:component",
+      "title": "Reference Many Count",
+      "files": [
+        {
+          "path": "src/components/admin/fields/reference-many-count.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-unknown-types"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
