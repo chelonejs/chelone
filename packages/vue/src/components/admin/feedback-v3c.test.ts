@@ -197,6 +197,16 @@ describe("presentational feedback", () => {
     expect(wrapper.text()).toContain("Welcome to Chelone");
   });
 
+  it("<Ready> links GitHub to chelonejs/chelone", () => {
+    const wrapper = mountFeedback(() => h(Ready));
+    const github = wrapper
+      .findAll("a")
+      .find((link) => /GitHub/i.test(link.text()));
+    expect(github?.attributes("href")).toBe(
+      "https://github.com/chelonejs/chelone",
+    );
+  });
+
   it("<Error> renders the heading + error message", () => {
     const wrapper = mountFeedback(() =>
       h(ErrorPage, { error: new globalThis.Error("boom") }),
