@@ -26,7 +26,9 @@ import { CreateButton, ExportButton, List, DataTable } from "@chelone/react";
     </>
   }
 >
-  <DataTable>{/* … */}</DataTable>
+  <DataTable>
+    <DataTable.Col source="title" />
+  </DataTable>
 </List>;
 ```
 
