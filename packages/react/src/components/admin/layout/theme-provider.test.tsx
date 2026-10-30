@@ -15,8 +15,8 @@ import {
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { type ReactNode, useState } from "react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { ThemeProvider } from "./theme-provider";
 import { useTheme } from "./use-theme";
@@ -60,6 +60,7 @@ function Wrap({
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   localStorage.clear();
   document.documentElement.classList.remove("light", "dark");
 });
@@ -154,5 +155,49 @@ describe("<ThemeProvider>", () => {
       </WrapWithoutStore>,
     );
     expect(screen.getByTestId("mode").textContent).toBe("dark");
+  });
+
+  it("renders and still switches the mode when storage is blocked", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new DOMException("blocked", "SecurityError");
+    });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("full", "QuotaExceededError");
+    });
+    render(
+      <WrapWithoutStore>
+        <ThemeProvider defaultTheme="light">
+          <Probe />
+        </ThemeProvider>
+      </WrapWithoutStore>,
+    );
+    expect(screen.getByTestId("mode").textContent).toBe("light");
+    fireEvent.click(screen.getByRole("button", { name: "go dark" }));
+    expect(screen.getByTestId("mode").textContent).toBe("dark");
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+  });
+
+  it("keeps its children mounted when a store appears", () => {
+    const queryClient = new QueryClient();
+    const dataProvider = fakeDataProvider({});
+    function Instance() {
+      const [id] = useState(() => Math.random());
+      return <span data-testid="instance">{id}</span>;
+    }
+    const tree = (store?: CheloneStore) => (
+      <CheloneProvider
+        dataProvider={dataProvider}
+        queryClient={queryClient}
+        store={store}
+      >
+        <ThemeProvider defaultTheme="light">
+          <Instance />
+        </ThemeProvider>
+      </CheloneProvider>
+    );
+    const { rerender } = render(tree());
+    const before = screen.getByTestId("instance").textContent;
+    rerender(tree(createStore()));
+    expect(screen.getByTestId("instance").textContent).toBe(before);
   });
 });
