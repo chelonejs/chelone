@@ -53,25 +53,47 @@ function isSavedQueryValue(value: unknown): value is SavedQueryValue {
     Array.isArray(value.sort) &&
     value.sort.every(isSortPayload) &&
     typeof value.perPage === "number" &&
-    Number.isFinite(value.perPage)
+    Number.isInteger(value.perPage) &&
+    value.perPage > 0
   );
 }
 
-/** Corrupt storage never reaches a component: non-arrays give `[]`, bad entries are dropped. */
+/**
+ * Reads whatever storage holds: non-arrays give `[]`, malformed entries are
+ * dropped, labels are trimmed, and a repeated label keeps its first entry.
+ */
 export function extractValidSavedQueries(raw: unknown): SavedQuery[] {
   if (!Array.isArray(raw)) return [];
-  return raw.filter(
-    (entry): entry is SavedQuery =>
-      isRecord(entry) &&
-      typeof entry.label === "string" &&
-      entry.label.trim() !== "" &&
-      isSavedQueryValue(entry.value),
-  );
+  const seen = new Set<string>();
+  const queries: SavedQuery[] = [];
+  for (const entry of raw) {
+    if (!isRecord(entry) || typeof entry.label !== "string") continue;
+    const label = entry.label.trim();
+    if (!label || seen.has(label) || !isSavedQueryValue(entry.value)) continue;
+    seen.add(label);
+    queries.push({ label, value: entry.value });
+  }
+  return queries;
 }
 
-/** Structural equality; object key order is irrelevant, array order is not. */
+const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+  if (!isRecord(value)) return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+};
+
+/**
+ * Structural equality; object key order is irrelevant, array order is not.
+ * Only plain objects, arrays and dates compare by content: any other class
+ * instance is equal to itself alone.
+ */
 function isDeepEqual(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) return true;
+  if (a instanceof Date || b instanceof Date) {
+    return (
+      a instanceof Date && b instanceof Date && a.getTime() === b.getTime()
+    );
+  }
   if (Array.isArray(a) || Array.isArray(b)) {
     return (
       Array.isArray(a) &&
@@ -80,7 +102,7 @@ function isDeepEqual(a: unknown, b: unknown): boolean {
       a.every((item, index) => isDeepEqual(item, b[index]))
     );
   }
-  if (!isRecord(a) || !isRecord(b)) return false;
+  if (!isPlainObject(a) || !isPlainObject(b)) return false;
   const keys = Object.keys(a);
   return (
     keys.length === Object.keys(b).length &&
@@ -118,12 +140,15 @@ export function createSavedQueriesController(
 
   /** The raw value the state was last derived from, to skip no-op resyncs. */
   let lastRaw: unknown = kv?.getItem(key);
+  /** True while `write` is inside `kv.setItem`: that notification is ours. */
+  let writing = false;
   const store = createMicroStore<SavedQueriesState>(
     { queries: extractValidSavedQueries(lastRaw) },
     {
       onSubscribed: () => {
         if (!kv) return;
         const sync = (): void => {
+          if (writing) return;
           const raw = kv.getItem(key);
           if (raw === lastRaw) return;
           lastRaw = raw;
@@ -136,15 +161,24 @@ export function createSavedQueriesController(
   );
 
   const write = (queries: SavedQuery[]): void => {
-    // Set before the store write so an attached `sync` sees nothing to do.
-    lastRaw = queries;
-    kv?.setItem(key, queries);
+    if (kv) {
+      // A throwing `setItem` leaves state and `lastRaw` as they were. Reading
+      // back covers stores that clone on write; `sync` skips our own write.
+      writing = true;
+      try {
+        kv.setItem(key, queries);
+      } finally {
+        writing = false;
+      }
+      lastRaw = kv.getItem(key);
+    }
     store.setState({ queries });
   };
 
   const save = (label: string, value: SavedQueryValue): void => {
     const trimmed = label.trim();
     if (!trimmed) return;
+    if (!isSavedQueryValue(value)) return;
     const next: SavedQuery = { label: trimmed, value: structuredClone(value) };
     const { queries } = store.getSnapshot();
     const index = queries.findIndex((query) => query.label === trimmed);

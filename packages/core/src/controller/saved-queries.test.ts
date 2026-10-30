@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import type { SortPayload } from "../data/types";
 import { createStore } from "../store/store";
 import {
   createSavedQueriesController,
@@ -59,6 +60,91 @@ describe("saved queries", () => {
     ).toEqual([good]);
   });
 
+  it("extractValidSavedQueries trims labels and keeps the first of a duplicate label", () => {
+    const first = value({ perPage: 10 });
+    expect(
+      extractValidSavedQueries([
+        { label: "  Foo ", value: first },
+        { label: "Foo", value: value({ perPage: 50 }) },
+        { label: "Bar", value: value() },
+      ]),
+    ).toEqual([query("Foo", first), query("Bar")]);
+  });
+
+  it("extractValidSavedQueries drops a perPage that is not a positive integer", () => {
+    expect(
+      extractValidSavedQueries([
+        { label: "zero", value: value({ perPage: 0 }) },
+        { label: "negative", value: value({ perPage: -5 }) },
+        { label: "fraction", value: value({ perPage: 2.5 }) },
+        { label: "nan", value: value({ perPage: Number.NaN }) },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("a stored label with surrounding whitespace can be replaced and removed", () => {
+    const store = createStore();
+    store.setItem(savedQueriesKey("posts"), [
+      { label: " Foo ", value: value() },
+    ]);
+    const controller = createSavedQueriesController({ store }, "posts");
+
+    controller.save("Foo", value({ perPage: 50 }));
+    expect(controller.getSnapshot().queries).toEqual([
+      query("Foo", value({ perPage: 50 })),
+    ]);
+
+    controller.remove("Foo");
+    expect(controller.getSnapshot().queries).toEqual([]);
+  });
+
+  it("save ignores a value that is not a valid saved query value", () => {
+    const store = createStore();
+    const controller = createSavedQueriesController({ store }, "posts");
+    const listener = vi.fn();
+    controller.subscribe(listener);
+
+    controller.save("Bad", value({ perPage: 0 }));
+    controller.save("Worse", { filter: 1 } as unknown as SavedQueryValue);
+
+    expect(controller.getSnapshot().queries).toEqual([]);
+    expect(store.getItem(savedQueriesKey("posts"))).toBeUndefined();
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it("a failing store write leaves the state unchanged and rethrows", () => {
+    const store = createStore();
+    const controller = createSavedQueriesController({ store }, "posts");
+    controller.subscribe(() => {});
+    controller.save("A", value());
+    const setItem = vi.spyOn(store, "setItem").mockImplementationOnce(() => {
+      throw new Error("quota");
+    });
+
+    expect(() => controller.save("B", value())).toThrow("quota");
+    expect(controller.getSnapshot().queries).toEqual([query("A")]);
+
+    setItem.mockRestore();
+    controller.save("B", value());
+    expect(controller.getSnapshot().queries).toEqual([query("A"), query("B")]);
+  });
+
+  it("a store that clones on write does not notify the controller twice per save", () => {
+    const inner = createStore();
+    const store: typeof inner = {
+      ...inner,
+      setItem: (key, item) => inner.setItem(key, structuredClone(item)),
+    };
+    const controller = createSavedQueriesController({ store }, "posts");
+    const listener = vi.fn();
+    controller.subscribe(listener);
+
+    controller.save("A", value());
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(controller.getSnapshot().queries).toEqual([query("A")]);
+  });
+
   it("save appends a query and persists it under the savedQueries key", () => {
     const store = createStore();
     const controller = createSavedQueriesController({ store }, "posts");
@@ -71,7 +157,7 @@ describe("saved queries", () => {
       query("Big pages", value({ perPage: 100 })),
     ];
     expect(controller.getSnapshot().queries).toEqual(expected);
-    expect(store.getItem("posts.savedQueries")).toEqual(expected);
+    expect(store.getItem(savedQueriesKey("posts"))).toEqual(expected);
   });
 
   it("save trims the label", () => {
@@ -96,9 +182,10 @@ describe("saved queries", () => {
       query("A", value({ perPage: 50 })),
       query("B"),
     ]);
-    expect(store.getItem("posts.savedQueries")).toEqual(
-      controller.getSnapshot().queries,
-    );
+    expect(store.getItem(savedQueriesKey("posts"))).toEqual([
+      query("A", value({ perPage: 50 })),
+      query("B"),
+    ]);
   });
 
   it("save with a blank label stores nothing", () => {
@@ -111,7 +198,7 @@ describe("saved queries", () => {
     controller.save("", value());
 
     expect(controller.getSnapshot().queries).toEqual([]);
-    expect(store.getItem("posts.savedQueries")).toBeUndefined();
+    expect(store.getItem(savedQueriesKey("posts"))).toBeUndefined();
     expect(listener).not.toHaveBeenCalled();
   });
 
@@ -120,12 +207,16 @@ describe("saved queries", () => {
       { store: createStore() },
       "posts",
     );
-    const live = value({ filter: { status: "draft", tags: ["a"] } });
+    const entry: SortPayload = { field: "title", order: "ASC" };
+    const live = value({
+      filter: { status: "draft", tags: ["a"] },
+      sort: [entry],
+    });
 
     controller.save("Drafts", live);
     live.filter.status = "published";
     (live.filter.tags as string[]).push("b");
-    live.sort[0]!.order = "DESC";
+    entry.order = "DESC";
     live.displayedFilters.status = false;
 
     expect(controller.getSnapshot().queries).toEqual([
@@ -138,14 +229,13 @@ describe("saved queries", () => {
     const controller = createSavedQueriesController({ store }, "posts");
     controller.save("A", value());
     controller.save("B", value());
-    const before = controller.getSnapshot().queries;
 
     controller.remove("Nope");
-    expect(controller.getSnapshot().queries).toBe(before);
+    expect(controller.getSnapshot().queries).toEqual([query("A"), query("B")]);
 
     controller.remove("A");
     expect(controller.getSnapshot().queries).toEqual([query("B")]);
-    expect(store.getItem("posts.savedQueries")).toEqual([query("B")]);
+    expect(store.getItem(savedQueriesKey("posts"))).toEqual([query("B")]);
   });
 
   it("remove trims the label the way save does", () => {
@@ -157,27 +247,55 @@ describe("saved queries", () => {
     expect(controller.getSnapshot().queries).toEqual([]);
   });
 
+  it("remove with a blank or unknown label does not notify subscribers", () => {
+    const store = createStore();
+    const controller = createSavedQueriesController({ store }, "posts");
+    controller.save("A", value());
+    const listener = vi.fn();
+    controller.subscribe(listener);
+
+    controller.remove("Nope");
+    controller.remove("   ");
+    controller.remove("");
+
+    expect(listener).not.toHaveBeenCalled();
+    expect(controller.getSnapshot().queries).toEqual([query("A")]);
+  });
+
   it("two controllers on one store follow each other through the store key", () => {
     const store = createStore();
     const first = createSavedQueriesController({ store }, "posts");
     const second = createSavedQueriesController({ store }, "posts");
-    const listener = vi.fn();
-    const unsubscribe = second.subscribe(listener);
+    const firstListener = vi.fn();
+    const secondListener = vi.fn();
+    first.subscribe(firstListener);
+    second.subscribe(secondListener);
 
     first.save("Drafts", value());
 
     expect(second.getSnapshot().queries).toEqual([query("Drafts")]);
-    expect(listener).toHaveBeenCalledTimes(1);
+    expect(secondListener).toHaveBeenCalledTimes(1);
+    expect(firstListener).toHaveBeenCalledTimes(1);
 
     second.remove("Drafts");
-    expect(first.getSnapshot().queries).toEqual([query("Drafts")]);
 
+    expect(first.getSnapshot().queries).toEqual([]);
+    expect(firstListener).toHaveBeenCalledTimes(2);
+    expect(secondListener).toHaveBeenCalledTimes(2);
+  });
+
+  it("a detached controller picks up the store on its next attach", () => {
+    const store = createStore();
+    const first = createSavedQueriesController({ store }, "posts");
+    const second = createSavedQueriesController({ store }, "posts");
+    const unsubscribe = second.subscribe(() => {});
     unsubscribe();
-    // Detached: the store write is picked up on the next attach.
+
     first.save("Mine", value());
+
     expect(second.getSnapshot().queries).toEqual([]);
     second.subscribe(() => {});
-    expect(second.getSnapshot().queries).toEqual(first.getSnapshot().queries);
+    expect(second.getSnapshot().queries).toEqual([query("Mine")]);
   });
 
   it("follows an external write to the store key while attached", () => {
@@ -185,7 +303,7 @@ describe("saved queries", () => {
     const controller = createSavedQueriesController({ store }, "posts");
     controller.subscribe(() => {});
 
-    store.setItem("posts.savedQueries", [query("From another tab")]);
+    store.setItem(savedQueriesKey("posts"), [query("From another tab")]);
 
     expect(controller.getSnapshot().queries).toEqual([
       query("From another tab"),
@@ -200,10 +318,10 @@ describe("saved queries", () => {
 
     controller.save("Drafts", value());
 
-    expect(store.getItem("posts-dashboard.savedQueries")).toEqual([
+    expect(store.getItem(savedQueriesKey("posts-dashboard"))).toEqual([
       query("Drafts"),
     ]);
-    expect(store.getItem("posts.savedQueries")).toBeUndefined();
+    expect(store.getItem(savedQueriesKey("posts"))).toBeUndefined();
   });
 
   it("savedQueriesKey appends .savedQueries to the store key", () => {
@@ -224,6 +342,24 @@ describe("saved queries", () => {
         perPage: 25,
       }),
     ).toBe(true);
+  });
+
+  it("isSavedQueryActive treats filter array order and class instances strictly", () => {
+    const saved = value({ filter: { tags: ["a", "b"] } });
+    const current = (filter: SavedQueryValue["filter"]) =>
+      value({ filter, sort: saved.sort, perPage: saved.perPage });
+
+    expect(isSavedQueryActive(saved, current({ tags: ["a", "b"] }))).toBe(true);
+    expect(isSavedQueryActive(saved, current({ tags: ["b", "a"] }))).toBe(
+      false,
+    );
+
+    const sinceOf = (since: unknown) =>
+      value({ filter: { since }, sort: saved.sort, perPage: saved.perPage });
+    const day = sinceOf(new Date(0));
+    expect(isSavedQueryActive(day, sinceOf(new Date(0)))).toBe(true);
+    expect(isSavedQueryActive(day, sinceOf(new Date(1)))).toBe(false);
+    expect(isSavedQueryActive(day, sinceOf({}))).toBe(false);
   });
 
   it("isSavedQueryActive is false when sort order, perPage or a filter value differs", () => {
