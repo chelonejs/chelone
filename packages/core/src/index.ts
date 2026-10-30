@@ -135,6 +135,11 @@ export {
   startUndoableMutation,
 } from "./data/undoable";
 export type {
+  LifecycleCallbacks,
+  LifecycleHandler,
+} from "./data/with-lifecycle-callbacks";
+export { withLifecycleCallbacks } from "./data/with-lifecycle-callbacks";
+export type {
   ArrayBinding,
   ArrayBindingOptions,
   ArrayBindingUpdateOptions,

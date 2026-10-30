@@ -98,6 +98,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.fetchUtils.queryParameters).toBeTypeOf("function");
   });
 
+  it("exports withLifecycleCallbacks", () => {
+    expect(barrel.withLifecycleCallbacks).toBeTypeOf("function");
+  });
+
   it("does NOT leak internal save-pipeline / hydration helpers", () => {
     expect("sanitizeEmptyValues" in barrel).toBe(false);
     expect("toFormErrorMapValue" in barrel).toBe(false);
