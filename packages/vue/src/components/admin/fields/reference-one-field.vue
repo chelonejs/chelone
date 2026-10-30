@@ -15,9 +15,9 @@ export interface ReferenceOneFieldProps {
   source?: string;
   /** The record whose id is matched. Defaults to the ambient record. */
   record?: LooseRecord;
-  /** Sort applied to the reference lookup (the first match is used). */
+  /** Sort applied to the reference lookup (the first match is used). Read when the record id changes; remount with a `key` to change it otherwise. */
   sort?: SortPayload;
-  /** Permanent filter merged into the reference lookup. */
+  /** Permanent filter merged into the reference lookup. Read when the record id changes; remount with a `key` to change it otherwise. */
   filter?: FilterPayload;
   /** Rendered when no related record exists. A string is translated. */
   empty?: string;
@@ -41,47 +41,35 @@ export interface ReferenceOneFieldProps {
  * `RecordContext`, so a child field (`<TextField source="body" />`) reads it
  * ambiently too. Distinct `empty` / `loading` / `error` states mirror the twin.
  *
- * Rebridge note: chelone has no `ReferenceOneFieldBase`; the one-to-one lookup is
- * `useGetList({ filter: { [target]: id }, perPage: 1 })`, the first match published.
+ * Rebridge note: chelone has no `ReferenceOneFieldBase`; the lookup is
+ * `useReferenceOneFieldController`, which reads the first match through
+ * `getManyReference` as a page of one. `sort` and `filter` are read when the
+ * record id changes, not on every prop change.
  */
 
-import type { Identifier } from "@chelone/core";
-import { computed, inject, ref, watch } from "vue";
-import { useGetList } from "../../../data/queries";
+import { computed, ref, watch } from "vue";
+import { useReferenceOneFieldController } from "../../../controllers";
 import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
-import {
-  RecordContextKey,
-  type RecordValue,
-} from "../../../record/record-context";
+import type { RecordValue } from "../../../record/record-context";
 import { provideRecordContext } from "../../../record/record-context";
 import { provideResourceContext } from "../../../resource-context";
 import { useTranslate } from "../../../i18n/use-translate";
 
 const props = defineProps<ReferenceOneFieldProps>();
 
-const injectedRecord = inject(RecordContextKey, null);
-const record = computed(() => props.record ?? injectedRecord?.value);
-
-const id = computed(
-  () => record.value?.[props.source ?? "id"] as Identifier | undefined,
-);
-
 const translate = useTranslate();
 const getRepresentation = useGetRecordRepresentation(props.reference);
 
-const query = useGetList(
-  props.reference,
-  () => ({
-    filter: { ...props.filter, [props.target]: id.value },
-    sort: props.sort,
-    pagination: { page: 1, perPage: 1 },
-  }),
-  { enabled: () => id.value != null },
-);
+const query = useReferenceOneFieldController({
+  reference: props.reference,
+  target: props.target,
+  source: props.source,
+  record: () => props.record,
+  sort: props.sort,
+  filter: props.filter,
+});
 
-const referenceRecord = computed(() =>
-  id.value != null ? query.data.value?.data?.[0] : undefined,
-);
+const referenceRecord = computed(() => query.referenceRecord);
 
 // Publish the referenced record so a default-slot child field reads it ambiently.
 const recordRef = ref<RecordValue>(referenceRecord.value);
@@ -91,8 +79,7 @@ watch(referenceRecord, (next) => {
 provideRecordContext(recordRef);
 provideResourceContext(props.reference);
 
-const isLoading = computed(() => id.value != null && query.isPending.value);
-const isError = computed(() => !referenceRecord.value && query.error.value != null);
+const isError = computed(() => !referenceRecord.value && query.error != null);
 
 const representation = computed(() =>
   referenceRecord.value ? getRepresentation(referenceRecord.value) : null,
@@ -104,7 +91,7 @@ const emptyText = computed(() =>
 </script>
 
 <template>
-  <template v-if="isLoading">
+  <template v-if="query.isPending">
     <span v-if="props.loading" data-slot="reference-one-field">{{
       props.loading
     }}</span>
