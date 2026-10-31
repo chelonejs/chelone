@@ -94,6 +94,7 @@ import { QueryClient, VUE_QUERY_CLIENT } from "@tanstack/vue-query";
 import { onScopeDispose, provide, useSlots, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import AdminShell from "./admin-shell.vue";
+import type { ErrorFallbackProps } from "./default-error-fallback.vue";
 import { provideCheloneContext } from "../context";
 import { provideVueRouterAdapter } from "../router/vue-router-adapter";
 import { provideHasDashboard } from "./has-dashboard";
@@ -116,6 +117,8 @@ defineSlots<{
   dashboard?: () => unknown;
   /** The unauthenticated login screen (`requireAuth`) — default `<LoginPage>`. */
   login?: () => unknown;
+  /** Replaces the default fallback shown when a route view throws. */
+  error?: (props: ErrorFallbackProps) => unknown;
 }>();
 
 // --- Seam 1: the reactive resource registry -------------------------------
@@ -285,5 +288,6 @@ onScopeDispose(() => {
     <template v-if="$slots.layout" #layout><slot name="layout" /></template>
     <template v-if="$slots.dashboard" #dashboard><slot name="dashboard" /></template>
     <template v-if="$slots.login" #login><slot name="login" /></template>
+    <template v-if="$slots.error" #error="errorProps"><slot name="error" v-bind="errorProps" /></template>
   </AdminShell>
 </template>

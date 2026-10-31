@@ -18,6 +18,7 @@ import type {
   DateTimeInputProps,
   DurationInputProps,
   EditProps,
+  ErrorFallbackProps,
   FilterFormProps,
   InfiniteListProps,
   InfinitePaginationProps,
@@ -59,6 +60,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<DateInputProps>().toHaveProperty("source");
     expectTypeOf<DateTimeInputProps>().toHaveProperty("source");
     expectTypeOf<DurationInputProps>().toHaveProperty("source");
+    expectTypeOf<ErrorFallbackProps>().toHaveProperty("error");
     expectTypeOf<EditProps>().toBeObject();
     expectTypeOf<FilterFormProps>().toBeObject();
     expectTypeOf<InfiniteListProps>().toBeObject();

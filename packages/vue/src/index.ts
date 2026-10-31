@@ -21,6 +21,8 @@ export {
   useAuthGate,
   useHandleAuthCallback,
 } from "./admin/auth-gate";
+export type { ErrorFallbackProps } from "./admin/default-error-fallback.vue";
+export { default as DefaultErrorFallback } from "./admin/default-error-fallback.vue";
 export {
   HasDashboardKey,
   provideHasDashboard,
@@ -42,6 +44,7 @@ export {
   useResourceDefinitions,
   useResourceRegistry,
 } from "./admin/resource-registry";
+export { default as ShellErrorBoundary } from "./admin/shell-error-boundary.vue";
 // --- array-input slice (iterator machinery consumed by array inputs) -------
 export type {
   ArrayFieldState,
