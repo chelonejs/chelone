@@ -2293,6 +2293,7 @@
       "registryDependencies": [
         "@chelone/array-input-row",
         "@chelone/button",
+        "@chelone/confirm",
         "@chelone/field",
         "@chelone/label-text",
         "@chelone/validation-error"
