@@ -250,6 +250,7 @@ export type { SourceScope } from "./form/source";
 export {
   composeSource,
   createArraySourceScope,
+  createLocaleSourceScope,
   createRowSourceScope,
   rootSourceScope,
 } from "./form/source";
@@ -288,6 +289,15 @@ export type {
   TranslateParams,
 } from "./i18n/messages";
 export { defineMessages } from "./i18n/messages";
+export type {
+  TranslatableController,
+  TranslatableOptions,
+  TranslatableState,
+} from "./i18n/translatable";
+export {
+  createTranslatableController,
+  getRecordForLocale,
+} from "./i18n/translatable";
 export type {
   Notification,
   NotificationStore,
