@@ -30,7 +30,7 @@ export type TabbedFormProps<TFormData> = OptionalSaveFormProps<TFormData> & {
  * catch-all, and the tabs are paths under the form's base: the current pathname
  * minus a trailing `/<params['*']>`. A tab's segment is its `path`, else its
  * `name` for every tab after the first, else `''` for the first. The active tab
- * is the first whose path matches the pathname, else the first tab.
+ * is the first whose path equals the pathname, else the first tab.
  */
 import { computed, Fragment, ref, shallowRef, useSlots, type VNode } from "vue";
 import { useRouter } from "vue-router";
@@ -147,15 +147,19 @@ function tabPath(tab: TabDescriptor): string {
     : `${base.value}/${encodeSegment(tab.path)}`;
 }
 
+const samePath = (path: string) => path.replace(/\/+$/, "").toLowerCase();
+
 const selected = ref<string>();
 const activeTab = computed(() => {
   const names = tabs.value.map((tab) => tab.name);
   if (syncWithLocation) {
-    // Matched decoded on both sides: a tab path may hold characters that
-    // the pathname carries percent-encoded.
-    const pathname = decode(location?.value.pathname ?? "");
+    // Compared literally and decoded on both sides, like `matchPath` on a
+    // pattern without params (case-insensitive, a trailing slash ignored): a
+    // record id or tab path is data, and `matchPath` would read a `?`, a
+    // leading `:` or a trailing `*` in it as pattern syntax.
+    const here = samePath(decode(location?.value.pathname ?? ""));
     const matched = tabs.value.find(
-      (tab) => adapter?.matchPath(decode(tabPath(tab)), pathname) != null,
+      (tab) => samePath(decode(tabPath(tab))) === here,
     );
     return matched?.name ?? names[0] ?? "";
   }

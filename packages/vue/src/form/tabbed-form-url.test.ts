@@ -67,7 +67,7 @@ const ShowPage = defineComponent({
 async function mountAt(
   path: string,
   form: () => unknown,
-  { basename }: { basename?: string } = {},
+  { basename, id = 1 }: { basename?: string; id?: number | string } = {},
 ) {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -85,9 +85,7 @@ async function mountAt(
   const wrapper = mount(Admin, {
     props: {
       dataProvider: fakeDataProvider({
-        posts: [
-          { id: 1, title: "Hello World", body: "First body", views: "7" },
-        ],
+        posts: [{ id, title: "Hello World", body: "First body", views: "7" }],
       }),
       queryClient: new QueryClient({
         defaultOptions: { queries: { retry: false } },
@@ -210,6 +208,26 @@ describe("<TabbedForm> synced with the URL", () => {
     await flushPromises();
     expect(router.currentRoute.value.fullPath).toBe("/posts/1/a%20b");
     expect(visibleTabs(wrapper)).toEqual(["extra"]);
+  });
+
+  it("a record id with pattern characters still matches its tabs literally", async () => {
+    const { wrapper, router } = await mountAt(
+      "/posts/a%3Fb/extra",
+      () => h(TabbedForm, null, threeTabs()),
+      { id: "a?b" },
+    );
+
+    expect(visibleTabs(wrapper)).toEqual(["extra"]);
+    expect(header(wrapper, "main").attributes("href")).toBe("/posts/a%3Fb");
+
+    await header(wrapper, "more").trigger("click");
+    await flushPromises();
+    expect(router.currentRoute.value.fullPath).toBe("/posts/a%3Fb/more");
+    expect(visibleTabs(wrapper)).toEqual(["more"]);
+
+    await header(wrapper, "main").trigger("click");
+    await flushPromises();
+    expect(visibleTabs(wrapper)).toEqual(["main"]);
   });
 
   it("clicking a header pushes the tab path and keeps values typed in other tabs", async () => {
