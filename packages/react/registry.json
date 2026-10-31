@@ -1154,6 +1154,7 @@
         "@chelone/skeleton",
         "@chelone/switch",
         "@chelone/table",
+        "@chelone/tabs",
         "@chelone/textarea",
         "@chelone/tooltip",
         "@chelone/ui-spinner",
@@ -1762,6 +1763,10 @@
         },
         {
           "path": "src/components/admin/views/show.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/views/tabbed-show-layout.tsx",
           "type": "registry:component"
         },
         {
@@ -4565,6 +4570,25 @@
       ],
       "registryDependencies": ["@chelone/lib-utils"],
       "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "tabbed-show-layout",
+      "type": "registry:component",
+      "title": "Tabbed Show Layout",
+      "files": [
+        {
+          "path": "src/components/admin/views/tabbed-show-layout.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/labeled",
+        "@chelone/lib-utils",
+        "@chelone/tabs"
+      ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

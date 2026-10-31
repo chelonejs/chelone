@@ -47,6 +47,7 @@ export type {
   UseTabbedFormResult,
 } from "./tabbed-form";
 export { TabbedForm, useTabbedFormContext } from "./tabbed-form";
+export { useSplatPathBase } from "./use-splat-path-base";
 export type { WarnWhenUnsavedChangesDecision } from "./warn-unsaved-changes";
 export { useWarnWhenUnsavedChanges } from "./warn-unsaved-changes";
 export type {

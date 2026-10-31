@@ -45,7 +45,7 @@ import {
   useState,
 } from "react";
 import { useRouterAdapter } from "../router/adapter";
-import { useLocation, useParams } from "../router/nav-hooks";
+import { useLocation } from "../router/nav-hooks";
 import {
   FormScope,
   type OptionalSaveFormOptions,
@@ -56,6 +56,7 @@ import {
   FormGroupsProvider,
   useFormGroup,
 } from "./group-hooks";
+import { useSplatPathBase } from "./use-splat-path-base";
 
 /** The headless tabbed-form controller surface. */
 export interface UseTabbedFormResult {
@@ -199,24 +200,6 @@ function collectTabs(children: ReactNode): TabDescriptor[] {
     index += 1;
   }
   return tabs;
-}
-
-/**
- * The base pathname a URL-synced TabbedForm's tabs resolve against: the current
- * pathname MINUS the parent route's `*` remainder (ra's `useSplatPathBase`).
- * Mounted under `/posts/1/*` at `/posts/1/two`, the splat is `two` and the base
- * is `/posts/1`; at `/posts/1` the splat is `''` and the base is `/posts/1`.
- */
-function useSplatPathBase(): string {
-  const location = useLocation();
-  const params = useParams();
-  const splat = params["*"] ?? "";
-  if (splat === "") return location.pathname;
-  // Strip a trailing `/<splat>` (guard the regex-significant chars in `splat`).
-  const suffix = `/${splat}`;
-  return location.pathname.endsWith(suffix)
-    ? location.pathname.slice(0, location.pathname.length - suffix.length)
-    : location.pathname;
 }
 
 /** The absolute path a tab links to (`base` for the index tab, else `base/seg`). */
