@@ -120,6 +120,38 @@ describe("createClientListController", () => {
       expect(s.data?.map((r) => r.id)).toEqual([4, 3]);
     });
 
+    it("sorts by the next key when the first key ties", () => {
+      const rows = [
+        { id: 1, a: 1, b: 2 },
+        { id: 2, a: 1, b: 1 },
+        { id: 3, a: 0, b: 9 },
+      ];
+      const c = createClientListController({
+        data: rows,
+        sort: [
+          { field: "a", order: "ASC" },
+          { field: "b", order: "ASC" },
+        ],
+      });
+      expect(c.getSnapshot().data?.map((r) => r.id)).toEqual([3, 2, 1]);
+    });
+
+    it("applies each key's own order", () => {
+      const rows = [
+        { id: 1, a: 1, b: 1 },
+        { id: 2, a: 1, b: 2 },
+        { id: 3, a: 0, b: 9 },
+      ];
+      const c = createClientListController({
+        data: rows,
+        sort: [
+          { field: "a", order: "ASC" },
+          { field: "b", order: "DESC" },
+        ],
+      });
+      expect(c.getSnapshot().data?.map((r) => r.id)).toEqual([3, 2, 1]);
+    });
+
     it("does not mutate the source array when sorting", () => {
       const source = structuredClone(data);
       const c = createClientListController<Row>({
@@ -197,6 +229,60 @@ describe("createClientListController", () => {
       c.setPage(2);
       expect(c.getSnapshot().hasNextPage).toBe(false);
       expect(c.getSnapshot().hasPreviousPage).toBe(true);
+    });
+
+    it("setData that shrinks the list moves the page to the last page", () => {
+      const six: Row[] = Array.from({ length: 6 }, (_, i) => ({
+        ...(data[0] as Row),
+        id: i + 1,
+      }));
+      const c = createClientListController<Row>({ data: six, perPage: 2 });
+      c.setPage(3);
+      c.setData(six.slice(0, 2));
+      const s = c.getSnapshot();
+      expect(s.page).toBe(1);
+      expect(s.total).toBe(2);
+      expect(s.data?.map((r) => r.id)).toEqual([1, 2]);
+      expect(s.hasPreviousPage).toBe(false);
+    });
+
+    it("setPage past the last page lands on the last page", () => {
+      const c = createClientListController<Row>({ data, perPage: 2 });
+      c.setPage(9);
+      const s = c.getSnapshot();
+      expect(s.page).toBe(2);
+      expect(s.data?.map((r) => r.id)).toEqual([3, 4]);
+    });
+
+    it("setPage below 1 lands on page 1", () => {
+      const c = createClientListController<Row>({ data, perPage: 2 });
+      c.setPage(0);
+      const s = c.getSnapshot();
+      expect(s.page).toBe(1);
+      expect(s.data?.map((r) => r.id)).toEqual([1, 2]);
+    });
+
+    it("an empty list stays on page 1", () => {
+      const c = createClientListController<Row>({ data, perPage: 2, page: 2 });
+      c.setData([]);
+      const s = c.getSnapshot();
+      expect(s.page).toBe(1);
+      expect(s.total).toBe(0);
+      expect(s.data).toEqual([]);
+    });
+
+    it("a pending source keeps the requested page", () => {
+      const c = createClientListController<Row>({
+        data: undefined,
+        isPending: true,
+        perPage: 2,
+        page: 3,
+      });
+      expect(c.getSnapshot().page).toBe(3);
+      c.setPage(5);
+      expect(c.getSnapshot().page).toBe(5);
+      c.setData(undefined);
+      expect(c.getSnapshot().page).toBe(5);
     });
 
     it("setPerPage resets page to 1", () => {
