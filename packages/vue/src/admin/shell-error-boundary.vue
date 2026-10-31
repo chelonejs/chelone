@@ -8,7 +8,7 @@
  * change, and the boundary has no `key`: the wrapped layout and its form state
  * survive every navigation.
  *
- * Only errors from setup, render and the creation and mount hooks are
+ * Only errors from setup, render and the creation, mount and update hooks are
  * captured, as in React: a failed event handler or watcher propagates and
  * leaves the page usable. Returning `false` stops a captured error here, so
  * `app.config.errorHandler` does not see it.
@@ -37,12 +37,16 @@ const CAPTURED_SOURCES = new Set([
   "created hook",
   "beforeMount hook",
   "mounted hook",
+  "beforeUpdate hook",
+  "updated",
   "0",
   "1",
   "bc",
   "c",
   "bm",
   "m",
+  "bu",
+  "u",
 ]);
 
 function isCapturedSource(info: string) {

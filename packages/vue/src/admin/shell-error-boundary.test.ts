@@ -1,8 +1,13 @@
 import { fakeDataProvider } from "@chelone/core";
 import { enableAutoUnmount, flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h, onBeforeUnmount, ref } from "vue";
-import { createMemoryHistory, createRouter, RouterView } from "vue-router";
+import { defineComponent, h, onBeforeUnmount, onUpdated, ref } from "vue";
+import {
+  createMemoryHistory,
+  createRouter,
+  RouterView,
+  useRoute,
+} from "vue-router";
 import Admin from "./admin.vue";
 import Resource from "./resource.vue";
 
@@ -236,5 +241,25 @@ describe("shell error boundary", () => {
     expect(text).toContain("boom");
     expect(text).not.toContain("secondary");
     expect(handled).toEqual([new Error("secondary")]);
+  });
+
+  it("an error thrown by an updated hook shows the fallback", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const Updating = defineComponent({
+      setup() {
+        const route = useRoute();
+        onUpdated(() => {
+          throw new Error("update broke");
+        });
+        return () => h("div", { "data-testid": "posts" }, route.fullPath);
+      },
+    });
+    const { wrapper, router } = await mountAdmin(Updating);
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false);
+
+    await router.push("/posts?page=2");
+    await flushPromises();
+
+    expect(wrapper.get('[role="alert"]').text()).toContain("update broke");
   });
 });
