@@ -4,6 +4,8 @@ import { defineComponent, h, ref } from "vue";
 import {
   createMemoryHistory,
   createRouter,
+  isNavigationFailure,
+  NavigationFailureType,
   type RouteRecordRaw,
 } from "vue-router";
 import type { RouterBlocker } from "./adapter";
@@ -25,10 +27,8 @@ async function mountBlocker(
   opts: { provideAdapter?: boolean } = {},
 ) {
   const { provideAdapter = true } = opts;
-  const router = createRouter({
-    history: createMemoryHistory(),
-    routes: ROUTES,
-  });
+  const history = createMemoryHistory();
+  const router = createRouter({ history, routes: ROUTES });
   await router.push("/");
   await router.isReady();
 
@@ -48,7 +48,7 @@ async function mountBlocker(
     },
   });
   const wrapper = mount(Root, { global: { plugins: [router] } });
-  return { router, wrapper, blocker, canBlock };
+  return { router, history, wrapper, blocker, canBlock };
 }
 
 describe("useBlocker — vue-router adapter", () => {
@@ -152,11 +152,35 @@ describe("useBlocker — vue-router adapter", () => {
     const second = router.push("/posts/2");
     await flushPromises();
 
-    expect(await first).toBeTruthy();
+    expect(
+      isNavigationFailure(await first, NavigationFailureType.cancelled),
+    ).toBe(true);
     expect(await second).toBeUndefined();
     expect(router.currentRoute.value.fullPath).toBe("/posts/2");
     expect(blocker.state.value).toBe("unblocked");
     expect(blocker.location.value).toBeNull();
+  });
+
+  it("a second back navigation while blocked leaves the URL and the route in step", async () => {
+    const flag = ref(false);
+    const { router, history, blocker } = await mountBlocker(flag);
+    await router.push("/posts");
+    await router.push("/posts/1");
+    flag.value = true;
+
+    router.go(-1);
+    await flushPromises();
+    expect(blocker.location.value?.pathname).toBe("/posts");
+
+    router.go(-1);
+    await flushPromises();
+    expect(blocker.location.value?.pathname).toBe("/");
+
+    blocker.proceed();
+    await flushPromises();
+
+    expect(router.currentRoute.value.fullPath).toBe("/");
+    expect(history.location).toBe("/");
   });
 
   it("the guard is removed when the scope is disposed", async () => {

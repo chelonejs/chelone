@@ -161,8 +161,11 @@ export const vueRouterAdapter: RouterAdapter = {
     };
 
     const stopGuard = router.beforeEach((to, from) => {
-      // A new navigation while one is held cancels the held one.
-      release(false);
+      // A new navigation while one is held supersedes it. Resolve the held
+      // guard `true` so vue-router's own pending-location check fails it as
+      // cancelled: a `false` aborts it, and for a popstate navigation
+      // vue-router then rewinds history, leaving the URL out of step.
+      release(true);
 
       const nextLocation = parseLocation(to.fullPath);
       const blocks =
