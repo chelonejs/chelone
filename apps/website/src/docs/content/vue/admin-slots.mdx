@@ -115,15 +115,17 @@ Dashboard entry.
 ## Error
 
 `#error` is a scoped slot. It receives `{ error, info, reset }`: the thrown
-error, Vue's description of where it was thrown, and a function that clears the
-error and renders the view again.
+error, Vue's `info` for where it was thrown, and a function that clears the
+error and renders the view again. In a dev build `info` reads like
+`render function`. In a production build it is an error-reference link such as
+`https://vuejs.org/error-reference/#runtime-1`, so show it only in development.
 
 ```vue title="src/App.vue"
 <Admin :data-provider="dataProvider">
   <Resource name="posts" :list="PostList" />
 
   <template #error="{ error, info, reset }">
-    <p>{{ error.message }} ({{ info }})</p>
+    <p>{{ error.message }}</p>
     <button type="button" @click="reset()">Retry</button>
   </template>
 </Admin>
@@ -144,7 +146,10 @@ Four slots add a route when they are given:
 
 - `#catchAll` never renders at the index, which the dashboard or the
   first-resource redirect owns.
-- A catch-all route the host router already has wins over `#catchAll`.
+- With no `basename`, a catch-all route the host router already has wins over
+  `#catchAll`. With a `basename`, `#catchAll` sits at `/admin/:pathMatch(.*)*`
+  and ranks above a host `/:pathMatch(.*)*`, so it handles every path under
+  the `basename`.
 - The paths sit under `basename`: with `basename="/admin"`, the callback is
   `/admin/auth-callback`.
 
