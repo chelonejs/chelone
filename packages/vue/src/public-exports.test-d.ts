@@ -35,11 +35,13 @@ import type {
   ListNoResultsProps,
   ListPaginationProps,
   ListProps,
+  LoadingIndicatorProps,
   LoadingPageProps,
   NullableBooleanInputProps,
   NumberInputProps,
   PasswordInputProps,
   PhoneInputProps,
+  PlaceholderProps,
   ReferenceFieldProps,
   ReferenceInputProps,
   ResettableTextInputProps,
@@ -95,11 +97,13 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<ListProps>().toBeObject();
     expectTypeOf<ListNoResultsProps>().toBeObject();
     expectTypeOf<ListPaginationProps>().toBeObject();
+    expectTypeOf<LoadingIndicatorProps>().toBeObject();
     expectTypeOf<LoadingPageProps>().toBeObject();
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");
     expectTypeOf<NumberInputProps>().toHaveProperty("source");
     expectTypeOf<PasswordInputProps>().toHaveProperty("source");
     expectTypeOf<PhoneInputProps>().toHaveProperty("source");
+    expectTypeOf<PlaceholderProps>().toBeObject();
     expectTypeOf<ReferenceFieldProps>().toHaveProperty("source");
     expectTypeOf<ReferenceInputProps>().toHaveProperty("source");
     expectTypeOf<ResettableTextInputProps>().toHaveProperty("source");
