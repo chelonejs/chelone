@@ -16,17 +16,15 @@ export interface AuthLayoutProps {
  * Renders a centered single-column form by default; fill the `#aside` slot to
  * opt into a two-column layout with brand/marketing content on the left.
  *
- * Chelone divergence (deliberate — T1 auth precedes T2 feedback): the React twin
- * mounts `<Notification />` at the root so a login-form error has a sink even
- * outside the main `<Layout>`. `<Notification>` is a V3-c T2 (feedback)
- * deliverable, so this layout instead exposes a `#notification` slot for an app
- * (or T2) to mount the toast sink into. Login errors still ENQUEUE to the
- * notification store regardless — once the sink mounts, they surface. The
- * `title` / `subtitle` are plain strings here (the React twin allows arbitrary
- * `ReactNode`); pass richer heading content via the default slot instead.
+ * Like the React twin, it mounts `<Notification />` so a login-form error has a
+ * sink even outside the main `<Layout>`; fill the `#notification` slot to
+ * replace it. The `title` / `subtitle` are plain strings here (the React twin
+ * allows arbitrary `ReactNode`); pass richer heading content via the default
+ * slot instead.
  */
 
 import { cn } from "../../../lib/utils";
+import Notification from "../feedback/notification.vue";
 
 const props = defineProps<AuthLayoutProps>();
 
@@ -35,7 +33,7 @@ defineSlots<{
   default: () => unknown;
   /** Left-pane brand content; when filled, the layout becomes two-column. */
   aside?: () => unknown;
-  /** A toast/notification sink (the V3-c T2 `<Notification>` mounts here). */
+  /** Replaces the default `<Notification />` toast region. */
   notification?: () => unknown;
 }>();
 </script>
@@ -81,6 +79,8 @@ defineSlots<{
         </div>
       </div>
     </div>
-    <slot name="notification" />
+    <slot name="notification">
+      <Notification />
+    </slot>
   </div>
 </template>

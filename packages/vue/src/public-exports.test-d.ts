@@ -10,6 +10,8 @@ import type {
   ColorInputProps,
   CreateProps,
   CurrencyInputProps,
+  DataTableColProps,
+  DataTableNumberColProps,
   DataTableProps,
   DateInputProps,
   DateTimeInputProps,
@@ -50,6 +52,8 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<ColorInputProps>().toHaveProperty("source");
     expectTypeOf<CreateProps>().toBeObject();
     expectTypeOf<CurrencyInputProps>().toHaveProperty("source");
+    expectTypeOf<DataTableColProps>().toBeObject();
+    expectTypeOf<DataTableNumberColProps>().toHaveProperty("source");
     expectTypeOf<DataTableProps>().toBeObject();
     expectTypeOf<DateInputProps>().toHaveProperty("source");
     expectTypeOf<DateTimeInputProps>().toHaveProperty("source");

@@ -25,6 +25,7 @@ import Admin from "../../admin/admin.vue";
 import AccessDenied from "./auth/access-denied.vue";
 import AuthCallback from "./auth/auth-callback.vue";
 import AuthError from "./auth/auth-error.vue";
+import AuthLayout from "./auth/auth-layout.vue";
 import AuthenticationError from "./auth/authentication-error.vue";
 import LoginForm from "./auth/login-form.vue";
 import LoginPage from "./auth/login-page.vue";
@@ -125,6 +126,8 @@ describe("<LoginForm>", () => {
 
   it("pushes an error notification when the login rejects", async () => {
     const notifications = createNotificationStore();
+    // The default layout's <Notification> drains the store, so watch the push.
+    const notify = vi.spyOn(notifications, "notify");
     const login = vi.fn(async () => {
       throw new Error("bad credentials");
     });
@@ -137,10 +140,9 @@ describe("<LoginForm>", () => {
     await wrapper.find('input[type="password"]').setValue("pw");
     await wrapper.find("form").trigger("submit");
 
-    await vi.waitFor(() => expect(notifications.getSnapshot().length).toBe(1));
-    const note = notifications.getSnapshot()[0]!;
-    expect(note.type).toBe("error");
-    expect(note.message).toBe("bad credentials");
+    await vi.waitFor(() => expect(notify).toHaveBeenCalledTimes(1));
+    expect(notify.mock.calls[0]![0]).toBe("bad credentials");
+    expect(notify.mock.calls[0]![1]).toMatchObject({ type: "error" });
   });
 });
 
@@ -170,6 +172,57 @@ describe("<LoginPage>", () => {
 
     await flushPromises();
     expect(router.currentRoute.value.path).toBe("/login");
+  });
+});
+
+describe("<LoginPage> notifications", () => {
+  it("<LoginPage> shows a failed sign-in as a toast", async () => {
+    const notifications = createNotificationStore();
+    const { wrapper } = mountAdmin(() => h(LoginPage), {
+      authProvider: makeAuthProvider({
+        checkAuth: async () => {
+          throw new Error("nope");
+        },
+        login: async () => {
+          throw new Error("bad credentials");
+        },
+      }),
+      notifications,
+    });
+    await flushPromises();
+
+    await wrapper.find('input[type="email"]').setValue("a@b.c");
+    await wrapper.find('input[type="password"]').setValue("pw");
+    await wrapper.find("form").trigger("submit");
+
+    await vi.waitFor(() =>
+      expect(wrapper.find('[data-slot="notification-toast"]').text()).toContain(
+        "bad credentials",
+      ),
+    );
+  });
+
+  it("<AuthLayout> renders its #notification slot in place of the default toast region", () => {
+    // A custom #layout keeps the default shell's own <Notification> out of the DOM.
+    const wrapper = mount(Admin, {
+      props: { dataProvider: fakeDataProvider({}) },
+      slots: {
+        default: () =>
+          h(
+            AuthLayout,
+            {},
+            {
+              default: () => h("p", "form"),
+              notification: () => h("div", { "data-test": "custom-sink" }),
+            },
+          ),
+        layout: () => h("div", "custom shell"),
+      },
+      global: { plugins: [makeRouter()] },
+    });
+
+    expect(wrapper.find('[data-test="custom-sink"]').exists()).toBe(true);
+    expect(wrapper.find('[data-slot="notification"]').exists()).toBe(false);
   });
 });
 

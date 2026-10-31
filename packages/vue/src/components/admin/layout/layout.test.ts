@@ -6,8 +6,9 @@
  * `theme-provider.test.tsx`, translated to the Vue mount harness.
  */
 
+import { createNotificationStore } from "@chelone/core";
 import { flushPromises, mount } from "@vue/test-utils";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import Admin from "../../../admin/admin.vue";
@@ -121,6 +122,61 @@ describe("<Layout> shell (via <Admin> default slot)", () => {
     await nextTick();
     expect(document.documentElement.classList.contains("dark")).toBe(true);
     expect(document.documentElement.classList.contains("light")).toBe(false);
+  });
+});
+
+describe("<Layout> notifications (via <Admin> default slot)", () => {
+  function mountDefaultLayout() {
+    const notifications = createNotificationStore();
+    const wrapper = mount(Admin, {
+      props: { dataProvider, notifications },
+      slots: {
+        default: () => h(Resource, { name: "posts", list: Blank }),
+      },
+      global: { plugins: [makeRouter()] },
+    });
+    return { wrapper, notifications };
+  }
+
+  it("a notification pushed to the store shows as a toast in the default layout", async () => {
+    const { wrapper, notifications } = mountDefaultLayout();
+    await flushPromises();
+
+    notifications.notify("Post saved", { type: "success" });
+    await flushPromises();
+
+    const toast = wrapper.find('[data-slot="notification-toast"]');
+    expect(toast.exists()).toBe(true);
+    expect(toast.text()).toContain("Post saved");
+  });
+
+  it("an undoable notification in the default layout commits when its toast closes", async () => {
+    const { wrapper, notifications } = mountDefaultLayout();
+    await flushPromises();
+    const onClose = vi.fn();
+
+    notifications.notify("Post deleted", {
+      undoable: true,
+      autoHideDuration: 5000,
+      undo: vi.fn(),
+      onClose,
+    });
+    await flushPromises();
+    await wrapper.find('[data-slot="notification-close"]').trigger("click");
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("mounts no toast region when <Admin> is given a #layout slot", async () => {
+    const wrapper = mount(Admin, {
+      props: { dataProvider },
+      slots: { layout: () => h("div", "custom shell") },
+      global: { plugins: [makeRouter()] },
+    });
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("custom shell");
+    expect(wrapper.find('[data-slot="notification"]').exists()).toBe(false);
   });
 });
 
