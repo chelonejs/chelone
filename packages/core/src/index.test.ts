@@ -57,6 +57,12 @@ describe("@chelone/core barrel", () => {
     expect(barrel.rootSourceScope).toBeTypeOf("object");
   });
 
+  it("exports the translatable controller and helpers", () => {
+    expect(barrel.createTranslatableController).toBeTypeOf("function");
+    expect(barrel.getRecordForLocale).toBeTypeOf("function");
+    expect(barrel.createLocaleSourceScope).toBeTypeOf("function");
+  });
+
   it("exports the data query option factories", () => {
     expect(barrel.getManyReferenceOptions).toBeTypeOf("function");
   });
