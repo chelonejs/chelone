@@ -1,0 +1,23 @@
+{
+  "name": "SingleFieldList",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered once per record, inside that record's context."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "render",
+      "type": "(record: RecordType, index: number) => ReactNode",
+      "optional": true,
+      "comment": "Renders each record; wins over `children`."
+    }
+  ]
+}
