@@ -21,6 +21,10 @@ export type {
   ClientListLoadingState,
 } from "./controller/client-list-controller";
 export { createClientListController } from "./controller/client-list-controller";
+export {
+  isFilterSelected,
+  toggleFilterValue,
+} from "./controller/filter-toggle";
 export type {
   InfiniteListController,
   InfiniteListControllerState,
