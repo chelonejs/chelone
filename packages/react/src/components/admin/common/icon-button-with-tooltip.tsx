@@ -44,7 +44,7 @@ function IconButtonWithTooltip({
     typeof label === "string" ? translate(label, { _: label }) : label;
 
   return (
-    <Tooltip open={open}>
+    <Tooltip open={open} onOpenChange={setOpen}>
       <TooltipTrigger asChild>
         <Button
           variant="ghost"

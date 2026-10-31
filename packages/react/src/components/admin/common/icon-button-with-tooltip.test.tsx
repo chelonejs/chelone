@@ -90,6 +90,21 @@ describe("<IconButtonWithTooltip>", () => {
     await waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull());
   });
 
+  it("opens on focus and closes on Escape", async () => {
+    render(
+      <Providers>
+        <IconButtonWithTooltip label="Plain words">
+          {icon}
+        </IconButtonWithTooltip>
+      </Providers>,
+    );
+    const button = screen.getByRole("button");
+    fireEvent.focus(button);
+    await screen.findByRole("tooltip");
+    fireEvent.keyDown(button, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("tooltip")).toBeNull());
+  });
+
   it("closes the tooltip and calls onClick when clicked", async () => {
     const onClick = vi.fn();
     render(
