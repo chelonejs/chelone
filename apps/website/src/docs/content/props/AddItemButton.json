@@ -17,7 +17,7 @@
       "name": "label",
       "type": "ReactNode",
       "optional": true,
-      "comment": "Replaces the default \"Add\" label; a string is translated."
+      "comment": "Replaces the default \"Add\" label; a string is translated. Falls back to\nthe enclosing `<ArrayInput addLabel>`."
     },
     {
       "name": "onClick",
