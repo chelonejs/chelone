@@ -25,6 +25,7 @@ import type {
   FilterListItemProps,
   FilterListProps,
   FilterListSectionProps,
+  HideOnScrollProps,
   InfiniteListProps,
   InfinitePaginationProps,
   ListNoResultsProps,
@@ -51,6 +52,7 @@ import type {
   TextInputProps,
   TimeInputProps,
   ToolbarProps,
+  TopToolbarProps,
   ValidationErrorProps,
 } from "./index";
 import * as barrel from "./index";
@@ -75,6 +77,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<EditProps>().toBeObject();
     expectTypeOf<FilterFormEntry>().toHaveProperty("component");
     expectTypeOf<FilterFormProps>().toBeObject();
+    expectTypeOf<HideOnScrollProps>().toHaveProperty("threshold");
     expectTypeOf<InfiniteListProps>().toBeObject();
     expectTypeOf<FilterListItemProps>().toHaveProperty("value");
     expectTypeOf<FilterListProps>().toHaveProperty("label");
@@ -103,6 +106,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<TextInputProps>().toHaveProperty("source");
     expectTypeOf<TimeInputProps>().toHaveProperty("source");
     expectTypeOf<ToolbarProps>().toBeObject();
+    expectTypeOf<TopToolbarProps>().toBeObject();
     expectTypeOf<ValidationErrorProps>().toBeObject();
   });
 

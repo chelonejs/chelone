@@ -271,6 +271,8 @@ export type { AppSidebarProps } from "./admin/layout/app-sidebar.vue";
 export { default as AppSidebar } from "./admin/layout/app-sidebar.vue";
 export type { DashboardMenuItemProps } from "./admin/layout/dashboard-menu-item.vue";
 export { default as DashboardMenuItem } from "./admin/layout/dashboard-menu-item.vue";
+export type { HideOnScrollProps } from "./admin/layout/hide-on-scroll.vue";
+export { default as HideOnScroll } from "./admin/layout/hide-on-scroll.vue";
 export { default as Layout } from "./admin/layout/layout.vue";
 export { default as Menu } from "./admin/layout/menu.vue";
 export type { MenuItemLinkProps } from "./admin/layout/menu-item-link.vue";
@@ -298,6 +300,8 @@ export { default as Title } from "./admin/layout/title.vue";
 export type { TitlePortalProps } from "./admin/layout/title-portal.vue";
 export { default as TitlePortal } from "./admin/layout/title-portal.vue";
 export { TITLE_PORTAL_ID } from "./admin/layout/title-portal-id";
+export type { TopToolbarProps } from "./admin/layout/top-toolbar.vue";
+export { default as TopToolbar } from "./admin/layout/top-toolbar.vue";
 export type { UserMenuProps } from "./admin/layout/user-menu.vue";
 export { default as UserMenu } from "./admin/layout/user-menu.vue";
 // --- admin: list ----------------------------------------------------------
