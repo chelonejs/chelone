@@ -48,24 +48,28 @@ const { form, values, reset } = useForm<Record<string, unknown>>({
   onSubmit: () => undefined,
 });
 
-// Guards, as in React's `useFilterForm`. `hasJustBeenModifiedByUser` is set when
-// a user edit pushes and consumed by the next filter change, so the debounced
-// echo of that push never clobbers fresher typing. `isReflecting` marks our own
-// `reset` so the values watcher below ignores the change it causes.
-let hasJustBeenModifiedByUser = false;
+// `isReflecting` marks our own `reset` so the values watcher below ignores the
+// change it causes. `pendingPush` is what we last handed to the debounced
+// `setFilters`; until the filter changes, `list.filter` is stale and a push is
+// compared against it instead. Unlike React's `hasJustBeenModifiedByUser`, no
+// reflect is skipped after an edit: core coalesces our pushes into one timer, so
+// the filter that lands is always the latest push and reflects as a no-op, while
+// a change from elsewhere (which cancels our timer) must reach the inputs.
 let isReflecting = false;
+let pendingPush: string | null = null;
 
 // Push value changes into the list surface (debounced by core), merged over the
-// current filter so a filter this form has no input for survives. Skip a no-op
-// push (the seeded initial value already equals the live filter) to avoid an
-// echo refetch on mount. `flush: "sync"` lets `isReflecting` bracket the reset.
+// current filter so a filter this form has no input for survives. Skip a push
+// equal to what the list holds (or is about to hold) to avoid an echo refetch.
+// `flush: "sync"` lets `isReflecting` bracket the reset.
 watch(
   () => values.value,
   (next) => {
     if (isReflecting) return;
     const merged = mergeFilterValues(list.filter ?? {}, next);
-    if (JSON.stringify(merged) === JSON.stringify(list.filter ?? {})) return;
-    hasJustBeenModifiedByUser = true;
+    const json = JSON.stringify(merged);
+    if (json === (pendingPush ?? JSON.stringify(list.filter ?? {}))) return;
+    pendingPush = json;
     list.setFilters(merged, undefined, true);
   },
   { deep: true, flush: "sync" },
@@ -78,10 +82,7 @@ watch(
 watch(
   () => JSON.stringify(list.filter ?? {}),
   () => {
-    if (hasJustBeenModifiedByUser) {
-      hasJustBeenModifiedByUser = false;
-      return;
-    }
+    pendingPush = null;
     const incoming = (list.filter ?? {}) as Record<string, unknown>;
     const current = form.store.state.values as Record<string, unknown>;
     const next = getFilterFormValues(

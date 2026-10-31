@@ -231,6 +231,51 @@ describe("<FilterForm>", () => {
     );
   });
 
+  const inputValue = (wrapper: ReturnType<typeof mountFilterForm>["wrapper"]) =>
+    (wrapper.find('input[data-slot="input"]').element as HTMLInputElement)
+      .value;
+  const pastDebounce = () => new Promise((r) => setTimeout(r, 700));
+
+  it("typing back to the current filter cancels the push still waiting", async () => {
+    const { capture, wrapper } = mountFilterForm();
+    await settled(capture);
+    capture.list?.setFilters({ title: "t05" });
+    await vi.waitFor(() => expect(inputValue(wrapper)).toBe("t05"));
+    await flushPromises();
+
+    const input = wrapper.find('input[data-slot="input"]');
+    await input.setValue("t05x");
+    await input.setValue("t05");
+    await pastDebounce();
+
+    expect(capture.list?.filter).toEqual({ title: "t05" });
+    expect(inputValue(wrapper)).toBe("t05");
+  });
+
+  it("an edit that leaves the filter unchanged does not hide a later external change", async () => {
+    const { capture, wrapper } = mountFilterForm();
+    await settled(capture);
+
+    const input = wrapper.find('input[data-slot="input"]');
+    await input.setValue("a");
+    await input.setValue("");
+    capture.list?.setFilters({ title: "t07" });
+
+    await vi.waitFor(() => expect(inputValue(wrapper)).toBe("t07"));
+  });
+
+  it("an external change made while an edit is waiting wins over the edit", async () => {
+    const { capture, wrapper } = mountFilterForm();
+    await settled(capture);
+
+    await wrapper.find('input[data-slot="input"]').setValue("abc");
+    capture.list?.setFilters({ views: 3 });
+
+    await vi.waitFor(() => expect(inputValue(wrapper)).toBe(""));
+    await pastDebounce();
+    expect(capture.list?.filter).toEqual({ views: 3 });
+  });
+
   it("an external filter change fills the matching input", async () => {
     const { capture, wrapper } = mountFilterForm();
     await settled(capture);
