@@ -1,0 +1,35 @@
+{
+  "name": "FilterListItem",
+  "props": [
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "isSelected",
+      "type": "(value: FilterPayload, filters: FilterPayload) => boolean",
+      "optional": true,
+      "comment": "Replaces `isFilterSelected`."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "A string is translated with itself as the fallback; an element renders as it is."
+    },
+    {
+      "name": "toggleFilter",
+      "type": "(value: FilterPayload, filters: FilterPayload) => FilterPayload",
+      "optional": true,
+      "comment": "Replaces `toggleFilterValue`; returns the filters to set."
+    },
+    {
+      "name": "value",
+      "type": "FilterPayload",
+      "optional": false,
+      "comment": "The filter this item sets, and removes again once the list holds it."
+    }
+  ]
+}
