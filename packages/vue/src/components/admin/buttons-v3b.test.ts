@@ -10,11 +10,14 @@
  */
 
 import {
+  type CheloneStore,
   createI18n,
   createNotificationStore,
+  createStore,
   defaultMessages,
   defineResources,
   fakeDataProvider,
+  type NotificationStore,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
@@ -65,7 +68,17 @@ function makeRouter(): Router {
   });
 }
 
-function mountAdmin(render: () => VNodeChild, router: Router = makeRouter()) {
+function mountAdmin(
+  render: () => VNodeChild,
+  {
+    router = makeRouter(),
+    ...adminProps
+  }: Partial<{
+    router: Router;
+    store: CheloneStore;
+    notifications: NotificationStore;
+  }> = {},
+) {
   const dataProvider = fakeDataProvider<Resources>({
     posts: structuredClone(seed),
   });
@@ -74,7 +87,12 @@ function mountAdmin(render: () => VNodeChild, router: Router = makeRouter()) {
   });
   const Harness = defineComponent({
     setup() {
-      return () => h(Admin, { dataProvider, queryClient }, { default: render });
+      return () =>
+        h(
+          Admin,
+          { dataProvider, queryClient, ...adminProps },
+          { default: render },
+        );
     },
   });
   const wrapper = mount(Harness, { global: { plugins: [router] } });
@@ -153,7 +171,7 @@ describe("<CancelButton>", () => {
     const router = makeRouter();
     await router.push("/posts");
     await router.push("/posts/create");
-    const { wrapper } = mountAdmin(() => h(CancelButton), router);
+    const { wrapper } = mountAdmin(() => h(CancelButton), { router });
 
     await wrapper.find('[data-slot="cancel-button"]').trigger("click");
     await vi.waitFor(() =>
@@ -233,6 +251,94 @@ describe("<DeleteButton>", () => {
       expect(wrapper.text()).toContain("Element deleted");
     });
     expect(wrapper.text()).not.toContain("notification.deleted");
+  });
+
+  it("a deleted row leaves the list selection", async () => {
+    const capture: { list?: ListContextValue } = {};
+    const { wrapper } = mountAdmin(
+      () =>
+        h(
+          List,
+          { resource: "posts" },
+          {
+            default: () => [
+              h(listProbe(capture)),
+              h(
+                withRecord({ id: 2, title: "t2" }, () =>
+                  h(DeleteButton, { resource: "posts", redirect: false }),
+                ),
+              ),
+            ],
+          },
+        ),
+      { store: createStore() },
+    );
+    await settled(capture);
+    capture.list?.select([1, 2]);
+    await vi.waitFor(() => expect(capture.list?.selectedIds).toEqual([1, 2]));
+
+    await wrapper.find('[data-slot="delete-button"]').trigger("click");
+    await wrapper.find('[data-slot="confirm-accept"]').trigger("click");
+
+    await vi.waitFor(() => expect(capture.list?.selectedIds).toEqual([1]));
+  });
+
+  it("a failed delete toasts http_error and stays on the page", async () => {
+    const notifications = createNotificationStore();
+    const notify = vi.spyOn(notifications, "notify");
+    const router = makeRouter();
+    const { wrapper, dataProvider } = mountAdmin(
+      () =>
+        h(
+          withRecord({ id: 2, title: "t2" }, () =>
+            h(DeleteButton, { resource: "posts", redirect: "show" }),
+          ),
+        ),
+      { notifications, router },
+    );
+    await router.push("/posts/2");
+    vi.spyOn(dataProvider, "delete").mockRejectedValue(new Error("boom"));
+
+    await wrapper.find('[data-slot="delete-button"]').trigger("click");
+    await wrapper.find('[data-slot="confirm-accept"]').trigger("click");
+
+    await vi.waitFor(() =>
+      expect(notify).toHaveBeenCalledWith(
+        "chelone.notification.http_error",
+        expect.objectContaining({ type: "error" }),
+      ),
+    );
+    expect(router.currentRoute.value.fullPath).toBe("/posts/2");
+  });
+
+  it("a successful delete redirects to the list by default and to a non-list redirect prop", async () => {
+    const list = mountAdmin(() =>
+      h(
+        withRecord({ id: 2, title: "t2" }, () =>
+          h(DeleteButton, { resource: "posts" }),
+        ),
+      ),
+    );
+    await list.router.push("/posts/2");
+    await list.wrapper.find('[data-slot="delete-button"]').trigger("click");
+    await list.wrapper.find('[data-slot="confirm-accept"]').trigger("click");
+    await vi.waitFor(() =>
+      expect(list.router.currentRoute.value.fullPath).toBe("/posts"),
+    );
+
+    const show = mountAdmin(() =>
+      h(
+        withRecord({ id: 3, title: "t3" }, () =>
+          h(DeleteButton, { resource: "posts", redirect: "show" }),
+        ),
+      ),
+    );
+    await show.router.push("/posts/3");
+    await show.wrapper.find('[data-slot="delete-button"]').trigger("click");
+    await show.wrapper.find('[data-slot="confirm-accept"]').trigger("click");
+    await vi.waitFor(() =>
+      expect(show.router.currentRoute.value.fullPath).toBe("/posts/3/show"),
+    );
   });
 
   it("does nothing when the dialog is cancelled", async () => {

@@ -46,9 +46,12 @@ export interface DeleteButtonProps {
  * twin of `@chelone/react`'s `buttons/delete-button.tsx`, rebridged onto
  * chelone's Vue delete stack:
  *
- * - chelone has NO baked-in delete controller (React's `useDeleteController`),
- *   so this wires the pieces itself: the `useDelete(resource)` vue-query
- *   mutation on confirm, then a `useRedirect(redirect)` + a success `notify`.
+ * - on confirm it runs `useDeleteController(...).deleteOne(id, { previousData })`.
+ *   The controller's default success owns the `deleted` toast, the redirect
+ *   request and the removal of the id from the list selection; a provider error
+ *   toasts `http_error` and resolves, so a failed delete stays on the page. The
+ *   controller's `onRedirect` is fed `useRedirect`, honouring the `redirect`
+ *   prop: any value but `false` redirects, `false` stays put.
  * - the delete is gated by the `<Confirm>` dialog (V3-c): the button click opens
  *   it; confirming dispatches the delete; cancelling / dismissing closes it. This
  *   replaced the V3-b `window.confirm(...)` placeholder now that the Vue
@@ -56,15 +59,13 @@ export interface DeleteButtonProps {
  * - R2: gated by `useMenuAccess` — the button hides while the `delete` access
  *   check is pending and when denied (allow when access control is unconfigured).
  *
- * On confirm it dispatches the pessimistic delete, notifies
- * `chelone.notification.deleted`, and (by default) redirects to the list.
  * `deleteMutationOptions` invalidates the resource caches on settle.
  */
 
 import { type Identifier, removeRecordsFromCache } from "@chelone/core";
 import { computed, inject, ref } from "vue";
-import { useCheloneContext, useCheloneNotifications } from "../../../context";
-import { useDelete } from "../../../data/mutations";
+import { useCheloneContext } from "../../../context";
+import { useDeleteController } from "../../../controllers";
 import { useUndoable } from "../../../data/undoable";
 import { useTranslate } from "../../../i18n/use-translate";
 import { RecordContextKey } from "../../../record/record-context";
@@ -93,10 +94,19 @@ const injectedRecord = inject(RecordContextKey, null);
 const record = computed(() => props.record ?? injectedRecord?.value);
 const translate = useTranslate();
 const redirect = useRedirect();
-const notifications = useCheloneNotifications();
 const ctx = useCheloneContext();
 const runUndoable = useUndoable();
-const deleteMutation = useDelete(resource as string);
+// The controller requests its default list redirect only after a successful
+// delete; the button answers it with the `redirect` prop's own destination.
+let deletedId: Identifier | undefined;
+const { saving, deleteOne } = useDeleteController({
+  resource: resource as string,
+  onRedirect: () => {
+    if (props.redirect !== false && deletedId != null) {
+      redirect(props.redirect, resource as string, deletedId);
+    }
+  },
+});
 
 const { canAccess, isPending: isAccessPending } = useMenuAccess(
   computed(() => ({
@@ -107,7 +117,6 @@ const { canAccess, isPending: isAccessPending } = useMenuAccess(
 );
 const show = computed(() => !isAccessPending.value && canAccess.value);
 
-const saving = computed(() => deleteMutation.isPending.value);
 const label = computed(() =>
   translate("ra.action.delete", { _: props.label ?? "Delete" }),
 );
@@ -154,15 +163,9 @@ async function onConfirm(): Promise<void> {
     open.value = false;
     return;
   }
-  await deleteMutation.mutateAsync({ id, previousData: current });
+  deletedId = id;
+  await deleteOne(id, { previousData: current });
   open.value = false;
-  notifications?.notify("chelone.notification.deleted", {
-    type: "info",
-    messageArgs: { smart_count: 1 },
-  });
-  if (props.redirect !== false) {
-    redirect(props.redirect, resource as string, id);
-  }
 }
 </script>
 
