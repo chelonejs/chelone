@@ -69,9 +69,9 @@ describe("<LoadingIndicator>", () => {
       </Providers>,
     );
     startQuery();
-    expect(
-      (await screen.findByRole("status")).getAttribute("aria-label"),
-    ).toBe("Loading");
+    expect((await screen.findByRole("status")).getAttribute("aria-label")).toBe(
+      "Loading",
+    );
   });
 
   it("removes the spinner when the query settles", async () => {
@@ -113,8 +113,8 @@ describe("<LoadingIndicator>", () => {
       </Providers>,
     );
     startQuery();
-    expect(
-      (await screen.findByRole("status")).getAttribute("aria-label"),
-    ).toBe("Chargement");
+    expect((await screen.findByRole("status")).getAttribute("aria-label")).toBe(
+      "Chargement",
+    );
   });
 });
