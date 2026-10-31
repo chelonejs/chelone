@@ -1,13 +1,10 @@
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router";
 import { navTree } from "./nav-content";
-import { fallbackIcon, SECTION_META } from "./section-meta";
+import { fallbackIcon, GUIDE_SECTIONS, SECTION_META } from "./section-meta";
 import type { DocNode } from "./types";
 
 const ease = "cubic-bezier(0.32,0.72,0,1)";
-
-// Guide sections aren't components — keep the directory to the library itself.
-const GUIDE_SECTIONS = new Set(["getting-started", "app-config"]);
 
 /**
  * The routable slug for a component node. A leaf is its own page; a split-page
