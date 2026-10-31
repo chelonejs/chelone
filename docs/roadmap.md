@@ -56,17 +56,19 @@
 
 ## shadmin-only extras (issue #225)
 
-shadmin ships pieces that Chelone has not built. Some are `ra-core` parity gaps (guessers, preferences, Configurable, Inspector: R7 and R8, see the parity report), so building them closes those gaps. The rest are not in `ra-core` at all. Each gets a call: kept (built as slices, React first, a Vue slice after each) or dropped. The test: does it belong in a headless admin engine, does it fit the Zod registry and the framework-free core, and can it ship without a backend the project does not own (charter §3).
+shadmin ships pieces that Chelone has not built. Some are `ra-core` parity gaps (guessers, preferences, Configurable, Inspector: R7 and R8, see the parity report), so building them closes those gaps. The rest are not in `ra-core` at all. Each gets a call: kept (built as slices) or dropped. The test: does it belong in a headless admin engine, does it fit the Zod registry and the framework-free core, and can it ship without a backend the project does not own (charter §3).
 
 ### Kept
+
+Slice order follows the parity rule: shared behaviour lands in vanilla core first, then each adapter reads it. A piece with no core logic lands in both adapters in the same pull request.
 
 | Piece | Call | Slices |
 |---|---|---|
 | `ListGuesser`, `EditGuesser`, `ShowGuesser` | Keep. Drive them from the Zod registry (typed inference), not from sniffing data values. Same work as R8. | Core: registry schema to field descriptors. Then React guessers, then Vue guessers. |
 | `ColumnsButton` | Keep. Closes the biggest DataTable gap in the parity report. Needs `usePreference` on the existing store. | Core: preference store keys. Then React `ColumnsButton`, then Vue. |
-| Inspector and `Configurable` | Keep, after `ColumnsButton`. Same system as R7. | React `Configurable` + `Inspector`, then Vue. |
-| `SimpleFormConfigurable` | Keep, after `Configurable`. Reuses the Inspector. | React, then Vue. |
-| Command menu (widget) | Keep. Navigates the resource registry and honours access control, so it is engine-shaped. | React, then Vue. |
+| Inspector and `Configurable` | Keep, after `ColumnsButton`. Same system as R7. | Core: preference editor state (which keys a component exposes, edit mode on or off). Then React `Configurable` + `Inspector`, then Vue. |
+| `SimpleFormConfigurable` | Keep, after `Configurable`. Reuses the Inspector. | Core: form preference keys. Then React, then Vue. |
+| Command menu (widget) | Keep. Navigates the resource registry and honours access control, so it is engine-shaped. | Core: searchable list of resources the user can access. Then React, then Vue. |
 | Data provider devtools (widget) | Keep. Shows the calls a data provider makes, to debug an app. No call log exists yet. | Core: a call-log wrapper around the data provider. Then React panel, then Vue. |
 
 ### Dropped
