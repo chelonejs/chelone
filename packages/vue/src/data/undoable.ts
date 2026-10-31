@@ -38,7 +38,7 @@ export interface RunUndoableOptions {
   applyOptimistic: () => void;
   /** The DEFERRED dataProvider call — invoked once at commit, never on undo. */
   commit: () => Promise<unknown>;
-  /** i18n KEY for the undoable notification (e.g. `ra.notification.deleted`). */
+  /** i18n KEY for the undoable notification (e.g. `chelone.notification.deleted`). */
   message: string;
   messageArgs?: Record<string, unknown>;
   type?: "info" | "success" | "warning" | "error";
@@ -46,7 +46,7 @@ export interface RunUndoableOptions {
   autoHideDuration?: number;
   /**
    * REPLACES the default commit-error handling. The default rolls the cache back
-   * (done by the core handle) and notifies `ra.notification.http_error`.
+   * (done by the core handle) and notifies `chelone.notification.http_error`.
    */
   onCommitError?: (error: unknown) => void;
 }
@@ -82,7 +82,7 @@ export function useUndoable(): (options: RunUndoableOptions) => UndoableHandle {
           if (options.onCommitError) {
             options.onCommitError(error);
           } else {
-            store.notify("ra.notification.http_error", {
+            store.notify("chelone.notification.http_error", {
               type: "error",
               messageArgs: { _: String(error) },
             });

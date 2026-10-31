@@ -103,10 +103,10 @@ async function onClick(event: MouseEvent): Promise<void> {
           ids: undoableIds,
           data,
         }),
-      message: "ra.notification.updated",
+      message: "chelone.notification.updated",
       messageArgs: { smart_count: undoableIds.length },
       onCommitError: () => {
-        notifications?.notify("ra.notification.http_error", { type: "error" });
+        notifications?.notify("chelone.notification.http_error", { type: "error" });
         refresh();
       },
     });
@@ -124,14 +124,14 @@ async function onClick(event: MouseEvent): Promise<void> {
 
   try {
     await updateMany.mutateAsync({ ids, data: props.data ?? {} });
-    notifications?.notify("ra.notification.updated", {
+    notifications?.notify("chelone.notification.updated", {
       type: "info",
       messageArgs: { smart_count: ids.length },
     });
     list.unselectAll();
   } catch (error) {
     console.error(error);
-    notifications?.notify("ra.notification.http_error", { type: "error" });
+    notifications?.notify("chelone.notification.http_error", { type: "error" });
   }
 }
 </script>
