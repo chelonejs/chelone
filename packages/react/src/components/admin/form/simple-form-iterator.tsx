@@ -16,7 +16,10 @@ import { cn } from "@/lib/utils";
 import { IteratorRowProvider, useIteratorItem } from "../../../array-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { Confirm } from "../feedback/confirm";
-import { useArrayInputResult } from "../inputs/array-input-context";
+import {
+  useArrayInputAddLabel,
+  useArrayInputResult,
+} from "../inputs/array-input-context";
 
 interface IteratorButtonProps {
   /** Extra classes on the button. */
@@ -28,7 +31,10 @@ interface IteratorButtonProps {
 }
 
 interface AddItemButtonProps extends IteratorButtonProps {
-  /** Replaces the default "Add" label; a string is translated. */
+  /**
+   * Replaces the default "Add" label; a string is translated. Falls back to
+   * the enclosing `<ArrayInput addLabel>`.
+   */
   label?: ReactNode;
 }
 
@@ -74,6 +80,8 @@ function AddItemButton({
   ...rest
 }: AddItemButtonProps): ReactNode {
   const translate = useTranslate();
+  const addLabel = useArrayInputAddLabel();
+  const shown = label ?? addLabel;
   return (
     <Button
       type="button"
@@ -84,11 +92,11 @@ function AddItemButton({
       {...rest}
     >
       <Plus aria-hidden="true" className="size-4" />
-      {label == null
+      {shown == null
         ? translate("ra.action.add", { _: "Add" })
-        : typeof label === "string"
-          ? translate(label, { _: label })
-          : label}
+        : typeof shown === "string"
+          ? translate(shown, { _: shown })
+          : shown}
     </Button>
   );
 }

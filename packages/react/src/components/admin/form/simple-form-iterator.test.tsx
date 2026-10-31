@@ -349,6 +349,30 @@ describe("SimpleFormIterator", () => {
     expect(await submit()).toEqual({ tags: ["b", ""] });
   });
 
+  it("uses the ArrayInput addLabel for its Add button, translated when it is a key", () => {
+    setup<{ tags: string[]; more: string[] }>(
+      <>
+        <ArrayInput source="tags" label="Tags" addLabel="Add a tag">
+          <SimpleFormIterator>
+            <TextInput source="" label="Tag" />
+          </SimpleFormIterator>
+        </ArrayInput>
+        <ArrayInput source="more" label="More" addLabel="ra.action.remove">
+          <SimpleFormIterator>
+            <TextInput source="" label="Tag" />
+          </SimpleFormIterator>
+        </ArrayInput>
+      </>,
+      { defaultValues: { tags: [], more: [] } },
+    );
+    expect(screen.getAllByRole("button", { name: "Add a tag" })).toHaveLength(
+      1,
+    );
+    expect(screen.queryByRole("button", { name: "Add" })).toBeNull();
+    // A string label is translated, as the built-in button does.
+    expect(screen.getAllByRole("button", { name: "Remove" })).toHaveLength(1);
+  });
+
   it("keeps focus on the same input after a reorder", () => {
     setup<{ tags: string[] }>(
       <ArrayInput source="tags" label="Tags">

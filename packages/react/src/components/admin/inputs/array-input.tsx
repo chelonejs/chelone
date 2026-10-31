@@ -10,7 +10,10 @@ import { ValidationError } from "../../../field-error-display";
 import { useTranslate } from "../../../i18n-hooks";
 import { useResourceContext } from "../../../resource";
 import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
-import { ArrayInputResultContext } from "./array-input-context";
+import {
+  ArrayInputAddLabelContext,
+  ArrayInputResultContext,
+} from "./array-input-context";
 
 interface ArrayInputProps {
   /** The array field path RELATIVE to the ambient source scope. */
@@ -159,7 +162,9 @@ function ArrayInput(props: ArrayInputProps): ReactNode {
         </FieldLabel>
       )}
       <ArrayInputResultContext.Provider value={array}>
-        <ArrayInputProvider array={array}>{children}</ArrayInputProvider>
+        <ArrayInputAddLabelContext.Provider value={addLabel}>
+          <ArrayInputProvider array={array}>{children}</ArrayInputProvider>
+        </ArrayInputAddLabelContext.Provider>
       </ArrayInputResultContext.Provider>
       {!childOwnsAddButton(children) && (
         <div>
