@@ -1,0 +1,77 @@
+{
+  "name": "SimpleFormIterator",
+  "props": [
+    {
+      "name": "addButton",
+      "type": "ReactElement<IteratorButtonProps, string | JSXElementConstructor<any>>",
+      "optional": true,
+      "comment": "Replaces the default Add button; it is cloned with the add `onClick`."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The inputs repeated in every row."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra classes on the iterator root."
+    },
+    {
+      "name": "disableAdd",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hides the Add button."
+    },
+    {
+      "name": "disableClear",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hides the clear button."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hides every control (add, clear, remove, reorder)."
+    },
+    {
+      "name": "disableRemove",
+      "type": "boolean | (index: number) => boolean",
+      "optional": true,
+      "comment": "Hides the remove button, and the clear button with it. A function decides\nper row index."
+    },
+    {
+      "name": "disableReordering",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hides the reorder buttons."
+    },
+    {
+      "name": "getItemLabel",
+      "type": "boolean | (index: number) => ReactNode",
+      "optional": true,
+      "comment": "A label per row. `true` numbers the rows from 1; a function returns the\nlabel for a row index; `false` renders none."
+    },
+    {
+      "name": "inline",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Lays a row's inputs out in one line from the `sm` breakpoint up."
+    },
+    {
+      "name": "removeButton",
+      "type": "ReactElement<IteratorButtonProps, string | JSXElementConstructor<any>>",
+      "optional": true,
+      "comment": "Replaces the default remove button; it is cloned with the remove `onClick`."
+    },
+    {
+      "name": "reOrderButtons",
+      "type": "ReactElement<unknown, string | JSXElementConstructor<any>>",
+      "optional": true,
+      "comment": "Replaces the default reorder buttons; it reads the row via `useIteratorItem`."
+    }
+  ]
+}

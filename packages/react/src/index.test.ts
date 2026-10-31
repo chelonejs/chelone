@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 // fail `tsc` (the react test script runs with `--typecheck`), locking the type
 // surface the same way the runtime assertions below lock the value surface.
 import type {
+  AddItemButtonProps,
   AdminContextProps,
   AdminProps,
   AdminUIProps,
@@ -33,6 +34,8 @@ import type {
   PasswordInputProps,
   RecordContextProviderProps,
   RecordContextValue,
+  RemoveItemButtonProps,
+  ReOrderButtonsProps,
   ResettableTextInputProps,
   ResourceProps,
   RouterAdapter,
@@ -41,6 +44,7 @@ import type {
   SaveHandler,
   ShowContextProviderProps,
   ShowContextValue,
+  SimpleFormIteratorProps,
   TabbedFormProps,
   TagProps,
   TextArrayInputProps,
@@ -321,6 +325,15 @@ describe("@chelone/react barrel — P7c reference + array inputs (T2)", () => {
   });
 });
 
+describe("@chelone/react barrel — SimpleFormIterator", () => {
+  it("exports the iterator and its add, remove and reorder buttons", () => {
+    expect(barrel.SimpleFormIterator).toBeTypeOf("function");
+    expect(barrel.AddItemButton).toBeTypeOf("function");
+    expect(barrel.RemoveItemButton).toBeTypeOf("function");
+    expect(barrel.ReOrderButtons).toBeTypeOf("function");
+  });
+});
+
 describe("@chelone/react barrel — UseXResult symmetry (every hook's result type is exported)", () => {
   // Type-only assertion: referencing each result/props type forces the barrel to
   // export it. A dropped `export type` line here fails `tsc --typecheck`. The
@@ -354,6 +367,10 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
       | NumberInputProps
       | PartitionedChildren
       | PasswordInputProps
+      | AddItemButtonProps
+      | RemoveItemButtonProps
+      | ReOrderButtonsProps
+      | SimpleFormIteratorProps
       | RecordContextProviderProps
       | RecordContextValue
       | ResettableTextInputProps

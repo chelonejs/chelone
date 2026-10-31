@@ -1,0 +1,17 @@
+{
+  "name": "ReOrderButtons",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra classes on the button group."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Disables both buttons."
+    }
+  ]
+}
