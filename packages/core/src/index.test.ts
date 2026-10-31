@@ -127,6 +127,18 @@ describe("@chelone/core barrel", () => {
     expect(barrel.combineDataProviders).toBeTypeOf("function");
   });
 
+  it("exports the realtime wrapper, topics and event publisher", () => {
+    expect(barrel.realtimeDataProvider).toBeTypeOf("function");
+    expect(barrel.isRealtimeDataProvider).toBeTypeOf("function");
+    expect(barrel.assertRealtimeDataProvider).toBeTypeOf("function");
+    expect(barrel.addEventsForMutations).toBeTypeOf("function");
+    expect(barrel.resourceTopic).toBeTypeOf("function");
+    expect(barrel.recordTopic).toBeTypeOf("function");
+    expect(barrel.lockResourceTopic).toBeTypeOf("function");
+    expect(barrel.lockTopic).toBeTypeOf("function");
+    expect(barrel.LockConflictError).toBeTypeOf("function");
+  });
+
   it("does NOT leak internal save-pipeline / hydration helpers", () => {
     expect("sanitizeEmptyValues" in barrel).toBe(false);
     expect("toFormErrorMapValue" in barrel).toBe(false);
