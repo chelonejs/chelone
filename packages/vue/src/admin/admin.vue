@@ -103,6 +103,7 @@ import AdminShell from "./admin-shell.vue";
 import type { ErrorFallbackProps } from "./default-error-fallback.vue";
 import { provideCheloneContext } from "../context";
 import { type CustomRoute, toRouteRecord } from "./custom-routes";
+import { slotRouteRecords } from "./slot-routes";
 import { provideVueRouterAdapter } from "../router/vue-router-adapter";
 import { provideHasDashboard } from "./has-dashboard";
 import {
@@ -130,7 +131,17 @@ defineSlots<{
   ready?: () => unknown;
   /** Replaces the default fallback shown when a route view throws. */
   error?: (props: ErrorFallbackProps) => unknown;
+  /** Mounted at `/auth-callback`, outside the layout and the auth gate. */
+  authCallback?: () => unknown;
+  /** Mounted at `/authentication-error`, inside the layout. */
+  authenticationError?: () => unknown;
+  /** Mounted at `/access-denied`, inside the layout. */
+  accessDenied?: () => unknown;
+  /** Mounted for any path no other route owns, inside the layout. */
+  catchAll?: () => unknown;
 }>();
+
+const slots = useSlots();
 
 // --- Seam 1: the reactive resource registry -------------------------------
 const registry = createResourceRegistry();
@@ -143,7 +154,7 @@ if (props.resources) {
 // Provide whether a `#dashboard` slot was given so the sidebar `<Menu>` renders
 // a "Dashboard" entry ONLY when a dashboard exists (parity with React's
 // `HasDashboardContext`). Slot presence is stable per mount.
-provideHasDashboard(useSlots().dashboard != null);
+provideHasDashboard(slots.dashboard != null);
 
 // --- Seam 3: the vue-query client -----------------------------------------
 const queryClient = props.queryClient ?? new QueryClient();
@@ -254,9 +265,21 @@ async function resolveWaitingLocation() {
 for (const route of props.customRoutes ?? []) {
   onScopeDispose(router.addRoute(toRouteRecord(route, basename)));
 }
-// An admin with only custom routes registers no resource, so nothing else
-// re-resolves a deep link to one.
-if (props.customRoutes?.length) void resolveWaitingLocation();
+// Page slots add a route only when given. `#catchAll` ranks after every other
+// route by specificity, and a host catch-all added earlier still wins.
+const slotRoutes = slotRouteRecords(
+  {
+    authCallback: slots.authCallback,
+    authenticationError: slots.authenticationError,
+    accessDenied: slots.accessDenied,
+    catchAll: slots.catchAll,
+  },
+  basename,
+);
+for (const route of slotRoutes) onScopeDispose(router.addRoute(route));
+// An admin with only custom or slot routes registers no resource, so nothing
+// else re-resolves a deep link to one.
+if (props.customRoutes?.length || slotRoutes.length) void resolveWaitingLocation();
 
 // Reactively reconcile the vue-router table with the registry: reading
 // `Object.keys(definitions)` tracks the shallow-reactive key set, so this
