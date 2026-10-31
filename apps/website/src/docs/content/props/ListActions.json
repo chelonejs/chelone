@@ -1,0 +1,41 @@
+{
+  "name": "ListActions",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Replaces the whole row of default buttons."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "exporter",
+      "type": "false | Exporter",
+      "optional": true,
+      "comment": "Runs on export; `false` hides the export button."
+    },
+    {
+      "name": "filters",
+      "type": "ReactNode[]",
+      "optional": true,
+      "comment": "Filter inputs for the filter button. Defaults to the ambient `FilterContext`."
+    },
+    {
+      "name": "hasCreate",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Show the create button. Defaults to the resource's `hasCreate`."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
