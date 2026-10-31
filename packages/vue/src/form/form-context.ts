@@ -62,6 +62,11 @@ export function useCheloneFormContext(): CheloneFormContextValue {
   return ctx;
 }
 
+/** The ambient form context, or `null` when no `useForm` provider is above. */
+export function useOptionalCheloneFormContext(): CheloneFormContextValue | null {
+  return inject(CheloneFormContextKey, null);
+}
+
 /**
  * The provide/inject key for the ambient source scope (ra's SourceContext).
  * Composed inputs (iterator rows, grouped inputs — a later wave) prefix their
