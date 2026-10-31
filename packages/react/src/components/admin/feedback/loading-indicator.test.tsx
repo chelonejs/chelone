@@ -89,6 +89,21 @@ describe("<LoadingIndicator>", () => {
     await waitFor(() => expect(screen.queryByRole("status")).toBeNull());
   });
 
+  it("takes the button out of the tab order and accessibility tree while loading", async () => {
+    const { Providers, startQuery } = setup();
+    render(
+      <Providers>
+        <LoadingIndicator />
+      </Providers>,
+    );
+    startQuery();
+    await screen.findByRole("status");
+    expect(screen.queryByRole("button", { name: "Refresh" })).toBeNull();
+    const hidden = screen.getByLabelText("Refresh");
+    expect(hidden.getAttribute("tabindex")).toBe("-1");
+    expect(hidden.getAttribute("aria-hidden")).toBe("true");
+  });
+
   it("refreshes the queries and calls onClick when the button is clicked", () => {
     const { Providers, queryClient } = setup();
     const invalidate = vi.spyOn(queryClient, "invalidateQueries");

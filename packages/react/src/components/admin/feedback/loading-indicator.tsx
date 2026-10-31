@@ -39,8 +39,10 @@ function LoadingIndicator({ className, onClick }: LoadingIndicatorProps) {
         onClick={handleClick}
         className={cn(
           "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-          loading && "opacity-0",
+          loading && "pointer-events-none opacity-0",
         )}
+        tabIndex={loading ? -1 : undefined}
+        aria-hidden={loading || undefined}
       >
         <RotateCw />
       </IconButtonWithTooltip>
