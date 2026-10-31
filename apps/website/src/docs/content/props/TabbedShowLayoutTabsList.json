@@ -1,0 +1,17 @@
+{
+  "name": "TabbedShowLayoutTabsList",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "tabs",
+      "type": "TabbedShowLayoutTabDescriptor[]",
+      "optional": true,
+      "comment": "Filled in by `<TabbedShowLayout>`."
+    }
+  ]
+}
