@@ -1,0 +1,242 @@
+---
+title: "Forms"
+description: "Split a Vue form into tabs or steps with TabbedForm and WizardForm, and guard unsaved changes."
+---
+
+`<TabbedForm>` splits one form across tabs and `<WizardForm>` across sequential
+steps. Vue exports the tabs and steps as components of their own, named
+`<TabbedFormTab>` and `<WizardFormStep>`, and not as dotted properties of the
+form. The [React forms](/docs/page-components/edit/layout) use the dotted
+children; the rest of this page is the Vue version. Wiring `<Admin>`
+is covered on the [setup page](/docs/vue/setup).
+
+## Tabs
+
+A `<TabbedFormTab>` takes `name`, an optional `label` (defaults to `name`) and an
+optional `path`. Put the tabs inside `<TabbedForm>`, and the form inside `<Edit>`
+or `<Create>`:
+
+```vue title="src/resources/PostEdit.vue"
+<script setup lang="ts">
+import {
+  Edit,
+  TabbedForm,
+  TabbedFormTab,
+  TextInput,
+  Toolbar,
+} from "@chelone/vue";
+</script>
+
+<template>
+  <Edit resource="posts">
+    <TabbedForm>
+      <TabbedFormTab name="summary" label="Summary">
+        <TextInput source="title" />
+      </TabbedFormTab>
+      <TabbedFormTab name="body" label="Body">
+        <TextInput source="body" />
+      </TabbedFormTab>
+    </TabbedForm>
+    <template #toolbar>
+      <Toolbar />
+    </template>
+  </Edit>
+</template>
+```
+
+- With no `save` prop, `<TabbedForm>` drives the form the view already built:
+  the record hydration, the schema validation and the save pipeline stay in
+  effect.
+- Form options belong on the view, not on the tabs. `<Edit>` takes `validate`,
+  `schema`, `sanitizeEmptyValues` and `onSuccess`; `<Create>` takes the same four.
+- `<TabbedForm>` renders no toolbar. Put `<Toolbar>` in the view's `#toolbar`
+  slot, as above.
+- Every tab stays mounted and the inactive ones are hidden, so one save submits
+  all of them and a failing input on a hidden tab still blocks the save.
+- A tab header shows a dot while its inputs are invalid.
+
+### Tabs and the URL
+
+Tabs follow the URL by default, so a tab can be deep-linked and Back restores
+the previous one:
+
+- The first tab sits at the form's own path, such as `/posts/3`.
+- Every later tab sits at `<path>/<name>`, such as `/posts/3/body`.
+- Pass `path` on a tab to replace the name in that segment.
+
+Pass `:sync-with-location="false"` to keep the active tab in local state and
+leave the URL alone. The prop is read once, when the form is set up:
+
+```vue
+<TabbedForm :sync-with-location="false">
+  <TabbedFormTab name="summary" label="Summary">
+    <TextInput source="title" />
+  </TabbedFormTab>
+  <TabbedFormTab name="body" label="Body">
+    <TextInput source="body" />
+  </TabbedFormTab>
+</TabbedForm>
+```
+
+### Tabs from data
+
+Tabs and steps rendered with `v-for` work like written-out ones:
+
+```vue
+<TabbedForm>
+  <TabbedFormTab v-for="tab in tabs" :key="tab.name" :name="tab.name" :label="tab.label">
+    <TextInput v-for="field in tab.fields" :key="field" :source="field" />
+  </TabbedFormTab>
+</TabbedForm>
+```
+
+### Switching tabs from code
+
+`useTabbedFormContext()` returns the tab controller. Call it from a component
+inside `<TabbedForm>`; it throws outside one.
+
+| Member | What it is |
+| --- | --- |
+| `activeTab` | A `Ref` holding the name of the visible tab. |
+| `goToTab(name)` | Shows the named tab. An unknown name is ignored. |
+| `syncWithLocation` | Whether the tabs follow the URL. |
+| `submit()` | Submits the whole form, every tab included. |
+
+```vue title="src/resources/NextTabButton.vue"
+<script setup lang="ts">
+import { useTabbedFormContext } from "@chelone/vue";
+
+const { activeTab, goToTab } = useTabbedFormContext();
+</script>
+
+<template>
+  <button v-if="activeTab === 'summary'" type="button" @click="goToTab('body')">
+    Next: Body
+  </button>
+</template>
+```
+
+## Steps
+
+`<WizardForm>` takes `<WizardFormStep name>` children and composes under `<Edit>`
+or `<Create>` the same way, with the same rule for form options. It renders no
+step buttons. A component of your own inside `<WizardForm>` calls
+`useWizardFormContext()` and draws them:
+
+| Member | What it is |
+| --- | --- |
+| `currentStep` | A `Ref` holding the zero-based index of the visible step. |
+| `hasNext` | A `Ref` that is true while a step follows the current one. |
+| `hasPrev` | A `Ref` that is true while a step precedes the current one. |
+| `next()` | Validates the current step, then advances. |
+| `prev()` | Goes back one step. Does nothing on the first step. |
+| `goToStep(index)` | Jumps to a step, clamped to the steps that exist. |
+| `submit()` | Submits the whole form, every step included. |
+
+`useWizardFormContext()` throws outside a `<WizardForm>`.
+
+`next()` validates the fields of the current step only, and returns a promise
+that resolves `false` when validation blocks it. It also resolves `false` when
+there is no next step.
+
+```vue title="src/resources/StepNav.vue"
+<script setup lang="ts">
+import { SaveButton, useWizardFormContext } from "@chelone/vue";
+
+const { hasNext, hasPrev, next, prev } = useWizardFormContext();
+</script>
+
+<template>
+  <div class="flex gap-2">
+    <button type="button" :disabled="!hasPrev" @click="prev()">Back</button>
+    <button v-if="hasNext" type="button" @click="next()">Next</button>
+    <SaveButton v-else />
+  </div>
+</template>
+```
+
+```vue title="src/resources/PostEdit.vue"
+<script setup lang="ts">
+import { Edit, TextInput, WizardForm, WizardFormStep } from "@chelone/vue";
+import StepNav from "./StepNav.vue";
+</script>
+
+<template>
+  <Edit resource="posts">
+    <WizardForm>
+      <WizardFormStep name="summary">
+        <TextInput source="title" />
+      </WizardFormStep>
+      <WizardFormStep name="body">
+        <TextInput source="body" />
+      </WizardFormStep>
+      <StepNav />
+    </WizardForm>
+  </Edit>
+</template>
+```
+
+`hasNext` and `hasPrev` are refs, so a template reads them unwrapped, as above,
+and a script reads `.value`.
+
+## Guarding unsaved changes
+
+`useWarnWhenUnsavedChanges(enable, formRootPathname?)` watches the form it sits
+in and blocks navigation away from it while it holds unsaved changes. It also
+asks the browser to confirm when the tab closes or reloads.
+
+- `enable` is a boolean, a ref or a getter.
+- `formRootPathname` is optional, and takes the same three forms. It sets the
+  form's route root explicitly.
+- It returns `{ isBlocked, proceed, cancel }`. `isBlocked` is a `Ref` that is
+  true while a navigation waits for an answer. `proceed` discards the changes
+  and continues; `cancel` stays on the form.
+
+The hook renders nothing, so the dialog is yours. It reads the form, so call it
+from a component inside `<Edit>`:
+
+```vue title="src/resources/UnsavedChangesDialog.vue"
+<script setup lang="ts">
+import { Confirm, useWarnWhenUnsavedChanges } from "@chelone/vue";
+
+const { isBlocked, proceed, cancel } = useWarnWhenUnsavedChanges(true);
+</script>
+
+<template>
+  <Confirm
+    :is-open="isBlocked"
+    title="Discard unsaved changes?"
+    content="Your edits will be lost if you leave this page."
+    @confirm="proceed"
+    @close="cancel"
+  />
+</template>
+```
+
+```vue title="src/resources/PostEdit.vue"
+<script setup lang="ts">
+import { Edit, TextInput } from "@chelone/vue";
+import UnsavedChangesDialog from "./UnsavedChangesDialog.vue";
+</script>
+
+<template>
+  <Edit resource="posts">
+    <TextInput source="title" />
+    <UnsavedChangesDialog />
+  </Edit>
+</template>
+```
+
+`<Confirm>` emits `confirm` and `close`, so the dialog listens with `@confirm`
+and `@close`.
+
+- Navigation inside the form's own path is allowed, except to its `/show` view.
+- A successful save clears the block until the next edit.
+- An edit reverted to the original value does not block.
+- Closing or reloading the tab prompts through the browser.
+- The vue-router adapter that `<Admin>` installs can always block navigation.
+  The hook logs a warning and skips the navigation block only when no router
+  adapter sits above it, and the tab-close prompt still works then.
+
+The [React guide](/docs/page-components/edit/advanced) covers the same hook for
+`@chelone/react`.
