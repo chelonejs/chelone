@@ -1,0 +1,41 @@
+{
+  "name": "ShowTab",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The fields to show. Each element is wrapped in a `<Labeled>`."
+    },
+    {
+      "name": "contentClassName",
+      "type": "string",
+      "optional": true,
+      "comment": "Class names for the element wrapping this tab's fields."
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "optional": true,
+      "comment": "Shown after the label as `(count)`."
+    },
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Shown before the label."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": false,
+      "comment": "The tab label. Translated with itself as the fallback."
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "optional": true,
+      "comment": "The URL segment under the show route. Defaults to the tab's index for\nevery tab after the first, and `\"\"` (the show route itself) for the first."
+    }
+  ]
+}

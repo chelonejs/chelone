@@ -45,8 +45,11 @@ import type {
   SaveHandler,
   ShowContextProviderProps,
   ShowContextValue,
+  ShowTabProps,
   SimpleFormIteratorProps,
   TabbedFormProps,
+  TabbedShowLayoutProps,
+  TabbedShowLayoutTabsListProps,
   TagProps,
   TextArrayInputProps,
   TextInputProps,
@@ -484,5 +487,15 @@ describe("@chelone/react barrel — P7g feedback + common", () => {
   it("exports Labeled and its props type", () => {
     expect(barrel.Labeled).toBeTypeOf("function");
     expectTypeOf<LabeledProps>().toHaveProperty("htmlFor");
+  });
+
+  it("exports TabbedShowLayout, ShowTab, TabbedShowLayoutTabsList and their props types", () => {
+    expect(barrel.TabbedShowLayout).toBeTypeOf("function");
+    expect(barrel.TabbedShowLayout.Tab).toBe(barrel.ShowTab);
+    expect(barrel.TabbedShowLayoutTabsList).toBeTypeOf("function");
+    expect(barrel.useSplatPathBase).toBeTypeOf("function");
+    expectTypeOf<TabbedShowLayoutProps>().toHaveProperty("syncWithLocation");
+    expectTypeOf<ShowTabProps>().toHaveProperty("contentClassName");
+    expectTypeOf<TabbedShowLayoutTabsListProps>().toHaveProperty("tabs");
   });
 });
