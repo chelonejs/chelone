@@ -6,7 +6,7 @@ import {
 } from "@chelone/core";
 import { computed, type Ref } from "vue";
 import { useCheloneContext } from "../context";
-import { useStore } from "./use-store";
+import { useMicroStore } from "./use-micro-store";
 
 export interface UseSavedQueriesReturn {
   queries: Readonly<Ref<readonly SavedQuery[]>>;
@@ -35,7 +35,7 @@ export function useSavedQueries(
     resource,
     options,
   );
-  const state = useStore(controller);
+  const state = useMicroStore(controller);
   return {
     queries: computed(() => state.value.queries),
     save: controller.save,

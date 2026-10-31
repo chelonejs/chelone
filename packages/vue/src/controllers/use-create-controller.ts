@@ -3,7 +3,7 @@
  * the twin of `@chelone/react`'s `useCreateController` (`controller-hooks.ts`).
  * A create has NOTHING to fetch (`isPending` is false from birth); the only
  * acquired resource is the shared update/create `MutationObserver`, attached on
- * mount and released on scope disposal through `useStore`'s 4R lifecycle.
+ * mount and released on scope disposal through `useMicroStore`'s 4R lifecycle.
  *
  * `save` is the controller's own create pipeline over `ctx.queryClient` (the
  * vue-query client `<Admin>` provides): validate → persist → notify, resolving
@@ -24,7 +24,7 @@ import {
 import { computed, reactive } from "vue";
 import { useCheloneContext } from "../context";
 import { useRequiredResource } from "../resource-context";
-import { useStore } from "../store/use-store";
+import { useMicroStore } from "../store/use-micro-store";
 import { toControllerContext } from "./controller-context";
 
 /** Options for {@link useCreateController}: the core create options + a resource override. */
@@ -58,7 +58,7 @@ export function useCreateController<
     options,
   );
 
-  const state = useStore(controller);
+  const state = useMicroStore(controller);
 
   return reactive({
     record: computed(() => state.value.record),
