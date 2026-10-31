@@ -65,7 +65,8 @@ function Labeled(props: LabeledProps): ReactElement {
     child.type === Labeled ||
     child.type === RecordField;
   const resolvedLabel = label ?? childProps.label;
-  const showLabel = !labelsItself && resolvedLabel !== false;
+  const showLabel =
+    !labelsItself && label !== false && childProps.label !== false;
 
   return createElement(
     component,

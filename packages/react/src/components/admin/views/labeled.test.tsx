@@ -81,6 +81,9 @@ describe("<Labeled>", () => {
         <Labeled>
           <TextField source="title" label={false} />
         </Labeled>
+        <Labeled label="Custom">
+          <TextField source="title" label={false} />
+        </Labeled>
         <Labeled source="title">
           <span>native</span>
         </Labeled>
@@ -96,6 +99,7 @@ describe("<Labeled>", () => {
       { wrapper: wrap() },
     );
     expect(screen.queryByText("Title")).toBeNull();
+    expect(screen.queryByText("Custom")).toBeNull();
     // Only the inner Labeled and the RecordField label themselves.
     expect(screen.getAllByText("Inner")).toHaveLength(1);
     expect(screen.getAllByText("Own")).toHaveLength(1);
