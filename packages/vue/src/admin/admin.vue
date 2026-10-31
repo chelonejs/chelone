@@ -211,7 +211,11 @@ async function resolveWaitingLocation() {
     resolving = false;
   }
   const current = router.currentRoute.value;
-  if (current.matched.length === 0) void router.replace(current.fullPath);
+  // The index is left alone: `<NavigateToFirstResource>` redirects it, and
+  // re-resolving "/" would cancel that redirect's pending navigation.
+  if (current.matched.length === 0 && current.path !== "/") {
+    void router.replace(current.fullPath);
+  }
 }
 
 // Reactively reconcile the vue-router table with the registry: reading

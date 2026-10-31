@@ -132,11 +132,13 @@ describe("<Admin> route resolution", () => {
   it("the index redirect still lands when the router has no index route", async () => {
     const router = makeRouter();
     await router.push("/");
+    const replace = vi.spyOn(router, "replace");
 
     mountAdmin(router, () => [h(Resource, { name: "posts", list: PostEdit })]);
 
     await vi.waitFor(() =>
       expect(router.currentRoute.value.path).toBe("/posts"),
     );
+    expect(replacesOf(replace, "/")).toHaveLength(0);
   });
 });
