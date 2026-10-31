@@ -131,6 +131,21 @@ describe("memoryTransport", () => {
     expect(calls).toEqual(["first", "second", "third", "second", "third"]);
   });
 
+  it("a subscriber unsubscribed by an earlier callback during dispatch is not called", async () => {
+    const transport = memoryTransport();
+    const second = vi.fn();
+    let unsubscribeSecond = () => {};
+    transport.subscribe("t", () => unsubscribeSecond());
+    unsubscribeSecond = transport.subscribe("t", second);
+    const third = vi.fn();
+    transport.subscribe("t", third);
+
+    await transport.publish("t", { type: "created", payload: 1 });
+
+    expect(second).not.toHaveBeenCalled();
+    expect(third).toHaveBeenCalledTimes(1);
+  });
+
   it("delayMs delays dispatch and honours an unsubscribe during the delay", async () => {
     vi.useFakeTimers();
     try {

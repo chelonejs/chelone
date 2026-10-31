@@ -83,7 +83,12 @@ export function memoryTransport({
       publishedEvents.push(full);
       if (delayMs) await new Promise((resolve) => setTimeout(resolve, delayMs));
       // Looked up after the delay, so an unsubscribe during it is honoured.
-      for (const { callback } of [...(subscribers.get(topic) ?? [])]) {
+      // The copy keeps a mid-dispatch unsubscribe from skipping a neighbour;
+      // the live check keeps an unsubscribed callback from being called.
+      const live = subscribers.get(topic);
+      for (const subscription of [...(live ?? [])]) {
+        if (!live?.has(subscription)) continue;
+        const { callback } = subscription;
         try {
           callback(full);
         } catch (cause) {
