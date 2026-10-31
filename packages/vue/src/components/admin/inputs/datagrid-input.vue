@@ -28,7 +28,7 @@ import type { Identifier } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { useTranslate } from "../../../i18n/use-translate";
-import { Checkbox } from "../../ui";
+import Checkbox from "../../ui/checkbox.vue";
 import { FieldDescription, FieldError } from "../../ui/field";
 import {
   Table,

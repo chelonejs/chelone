@@ -33,6 +33,7 @@ import type {
   SavedQueriesListProps,
   SearchInputProps,
   ShowProps,
+  Subscribable,
   TextFieldProps,
   TextInputProps,
   TimeInputProps,
@@ -77,6 +78,12 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<TimeInputProps>().toHaveProperty("source");
     expectTypeOf<ToolbarProps>().toBeObject();
     expectTypeOf<ValidationErrorProps>().toBeObject();
+  });
+
+  it("exports the subscription helpers registry components import", () => {
+    expectTypeOf(barrel).toHaveProperty("useSubscribable");
+    expectTypeOf(barrel).toHaveProperty("subscribeStore");
+    expectTypeOf<Subscribable<number>>().toBeObject();
   });
 
   it("keeps internal helpers out of the barrel", () => {

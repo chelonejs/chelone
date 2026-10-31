@@ -171,6 +171,8 @@ export {
   useSourceScope,
   useWrappedSource,
 } from "./form";
+export type { Subscribable } from "./form/subscribe-ref";
+export { subscribeStore, useSubscribable } from "./form/subscribe-ref";
 export type { Translate } from "./i18n/use-translate";
 export { useTranslate } from "./i18n/use-translate";
 export { humanize, humanizeField, pluralize } from "./label/inflection";
