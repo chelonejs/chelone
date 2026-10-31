@@ -1,0 +1,41 @@
+{
+  "name": "LoadingInput",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "fullWidth",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "helperText",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "size",
+      "type": "\"default\" | \"sm\"",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "timeout",
+      "type": "number",
+      "optional": true,
+      "comment": "Milliseconds before the spinner replaces the empty placeholder. Defaults to 1000."
+    }
+  ]
+}
