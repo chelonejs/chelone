@@ -28,6 +28,7 @@ const {
   baseStyles,
   blocks,
   categoriesForGranular,
+  engine,
   registryMetadata,
   themes,
 } = await import(
@@ -36,7 +37,7 @@ const {
 
 const registryPath = join(repoRoot, "registry.json");
 
-const SOURCE_EXTS = new Set([".ts", ".tsx"]);
+const SOURCE_EXTS = new Set(engine.sourceExtensions);
 const CSS_EXTS = new Set([".css"]);
 const DEFAULT_EXCLUDED_DIRS = new Set(["__screenshots__", "__fixtures__"]);
 
@@ -309,7 +310,7 @@ const main = async () => {
     if (prior) {
       throw new Error(
         `Duplicate registry item name "${item.name}" (${prior} and ${item.type}). ` +
-          `Basename collision — rename or relocate one source file, or add a UI_NAME_OVERRIDES entry.`,
+          `Basename collision — rename or relocate one source file, or add an engine.itemNames entry.`,
       );
     }
     seenNames.set(item.name, item.type);

@@ -102,6 +102,29 @@ export const blocks = [
 ];
 
 /**
+ * What the shared registry scripts (scripts/registry) assume about this package.
+ *
+ * - package: the npm package the engine relatives collapse onto at emit time.
+ * - sourceExtensions: the file extensions walked and resolved as source.
+ * - implicitDependencies: npm packages every consumer has; left out of item
+ *   `dependencies`.
+ * - cli: the registry CLI `pnpm exec <cli> build` runs.
+ * - itemNames: a path under `src` without its extension, mapped to the item
+ *   name it gets. Use it where two files share a basename (the flat item name)
+ *   and generate would otherwise fail on the duplicate. Applies to the file's
+ *   own item and to every dep that resolves onto it.
+ */
+export const engine = {
+  package: "@chelone/react",
+  sourceExtensions: [".ts", ".tsx"],
+  implicitDependencies: ["react", "react-dom"],
+  cli: "shadcn",
+  // `spinner` collides with admin/feedback/spinner (the app-facing
+  // `@chelone/spinner` wrapper), so the ui primitive ships as `ui-spinner`.
+  itemNames: { "components/ui/spinner": "ui-spinner" },
+};
+
+/**
  * Standalone `registry:theme` items. Chelone ships no scoped `.theme-*` palettes
  * (only the base `:root` / `.dark` tokens in src/index.css, which the base style
  * below carries), so there are none.
