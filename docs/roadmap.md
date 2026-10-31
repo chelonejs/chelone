@@ -51,10 +51,25 @@
 ### R10. Realtime / enterprise
 - realtime (`useSubscribe`/live queries/locks), audit-log, ra-tree, calendar. Large, ecosystem-scale, deferred (was always post-v1 per the charter). Effort XL.
 
+## Tier 4 — opt-in add-ons (planned)
+
+shadmin ships these on top of its admin; Chelone has none yet. Each add-on pulls in heavy dependencies, so each lands as its own opt-in entry point that `@chelone/core` and the base adapters never import. Slices are filed later, React first with a Vue slice after each (parity rule). Rich text (tiptap) is left out for now.
+
+| Add-on | Scope | Slices | Status |
+|---|---|---|---|
+| A1. Maps | Draw and show shapes, geocoding, OSM import, coordinate inputs. Built on MapLibre and deck.gl, not shadmin's Leaflet and Geoman | not yet filed | planned |
+| A2. JSON editing | Monaco input and field | not yet filed | planned |
+| A3. Markdown | MDX editor input and field | not yet filed | planned |
+| A4. Block editor | Block document input and field | not yet filed | planned |
+| A5. CSV import | `useCsvImport` and an import button for a list | not yet filed | planned |
+| A6. Supabase | Data provider, auth provider, and the login, forgot password and set password pages | not yet filed | planned |
+
+Replace "not yet filed" with the slice issue numbers as they are filed, and move the status to "shipped" when the React and Vue slices are closed.
+
 ## Sequencing
 
 **STATUS 2026-07-10 — TIER 1 COMPLETE. ✅ R1 URL-synced lists · ✅ R2 permissions/access-control · ✅ R3 undoable mutations.** All three closed in BOTH adapters, core stayed framework-free (external react/vue/router import grep = empty across all additions), core 590 / react 1241 / vue 493 green, vue-demo builds. R1 browser-verified (deep-link seed + page-push). R2 security semantics verified both directions (checkError-reject→logout, resolve→stay; fail-open-when-unconfigured). R3 data-integrity verified by spy counts (server 0× on undo, 1× on commit; rollback on undo + commit-error; beforeunload commit). The gate that held: parity work ADDS to core (additive vanilla), invariant = core stays REACT/framework-FREE, not zero-core-change.
 
 **STATUS — TIER 2 COMPLETE. ✅ R4 infinite list + saved queries · ✅ R5 data-provider power tools · ✅ R6 server-side reverse-relation fields.** Each landed in both adapters on the framework-free core; PRs are listed under each item.
 
-**Next:** Tier 3 (R7 to R10) stays deferred. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open v1 work is the first npm release (#8).
+**Next:** Tier 3 (R7 to R10) stays deferred; Tier 4 add-ons (A1 to A6) await slicing. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open v1 work is the first npm release (#8).
