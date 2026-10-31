@@ -31,7 +31,7 @@ export interface CurrencyInputProps {
 
 import type { Validator } from "@chelone/core";
 import { computed, ref, watch } from "vue";
-import { useCheloneContext } from "../../../context";
+import { useLocale } from "../../../i18n/use-locale";
 import { useInput } from "../../../form/use-input";
 import { cn } from "../../../lib/utils";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
@@ -51,10 +51,8 @@ const props = withDefaults(
   { storeAsMinorUnits: false, label: undefined },
 );
 
-const { i18n } = useCheloneContext();
-const locale = computed(
-  () => props.displayLocale ?? i18n?.getLocale() ?? "en",
-);
+const appLocale = useLocale();
+const locale = computed(() => props.displayLocale ?? appLocale.value);
 
 const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source: props.source,
