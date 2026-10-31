@@ -1,0 +1,67 @@
+/**
+ * The select and toggle rules behind a one-click list filter (ra-core's
+ * `FilterListItem` and `ToggleFilterButton`), pure so both adapters share them.
+ *
+ * Chelone divergence: arrays compare for deep equality, not lodash's
+ * contains-all rule.
+ */
+
+type Filters = Record<string, unknown>;
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+  if (typeof value !== "object" || value === null) return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+};
+
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (Array.isArray(a)) {
+    return (
+      Array.isArray(b) &&
+      a.length === b.length &&
+      a.every((item, i) => deepEqual(item, b[i]))
+    );
+  }
+  if (a instanceof Date) return b instanceof Date && +a === +b;
+  if (isPlainObject(a)) {
+    if (!isPlainObject(b)) return false;
+    const keys = Object.keys(a);
+    return (
+      keys.length === Object.keys(b).length &&
+      keys.every((key) => key in b && deepEqual(a[key], b[key]))
+    );
+  }
+  return false;
+}
+
+// Nested plain objects match partially: `{ range: { gte: 1 } }` is held by
+// `{ range: { gte: 1, lte: 9 } }`.
+function matches(expected: unknown, actual: unknown): boolean {
+  if (isPlainObject(expected)) {
+    return (
+      isPlainObject(actual) &&
+      Object.keys(expected).every(
+        (key) =>
+          expected[key] === undefined || matches(expected[key], actual[key]),
+      )
+    );
+  }
+  return deepEqual(expected, actual);
+}
+
+/** True when every defined key of `value` is held by `filters`. */
+export function isFilterSelected(value: Filters, filters: Filters): boolean {
+  return matches(value, filters);
+}
+
+/**
+ * Selecting a value merges it into the filters; toggling a selected one drops
+ * its keys and keeps the rest. Neither argument is mutated.
+ */
+export function toggleFilterValue(value: Filters, filters: Filters): Filters {
+  if (!isFilterSelected(value, filters)) return { ...filters, ...value };
+  const next = { ...filters };
+  for (const key of Object.keys(value)) delete next[key];
+  return next;
+}
