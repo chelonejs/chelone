@@ -1,0 +1,11 @@
+{
+  "name": "ListNoResults",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
