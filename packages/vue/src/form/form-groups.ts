@@ -93,7 +93,8 @@ export function provideFormGroup(name: MaybeRefOrGetter<string>): void {
 
 /** The ambient group name as a ref, `undefined` outside a `<FormGroupProvider>`. */
 export function useFormGroupName(): Readonly<Ref<string | undefined>> {
-  return computed(() => inject(FormGroupNameKey, undefined)?.value);
+  const name = inject(FormGroupNameKey, undefined);
+  return computed(() => name?.value);
 }
 
 /**

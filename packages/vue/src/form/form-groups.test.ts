@@ -19,6 +19,7 @@ import FormGroupProvider from "./form-group-provider.vue";
 import {
   provideFormGroups,
   useFormGroup,
+  useFormGroupName,
   useFormGroups,
   useOptionalFormGroups,
 } from "./form-groups";
@@ -294,5 +295,26 @@ describe("form groups", () => {
     capture.inputs.title?.setValue("changed");
     await flushPromises();
     expect(stateOf(capture).value.isDirty).toBe(true);
+  });
+  it("useFormGroupName resolves the ambient name when first read after setup", async () => {
+    const capture: Capture = { inputs: {} };
+    const groupName = ref("main");
+    let name: Readonly<Ref<string | undefined>> | undefined;
+    const NameProbe = defineComponent({
+      setup() {
+        name = useFormGroupName();
+        return () => null;
+      },
+    });
+    mountForm(capture, () =>
+      h(FormGroupProvider, { name: groupName.value }, () => h(NameProbe)),
+    );
+    await nextTick();
+    // First read happens outside setup, where no instance is active.
+    expect(name?.value).toBe("main");
+
+    groupName.value = "other";
+    await nextTick();
+    expect(name?.value).toBe("other");
   });
 });
