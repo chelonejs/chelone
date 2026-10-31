@@ -93,19 +93,22 @@ export function useGetManyAggregate<
   );
 }
 
-/** Fetch a page of records, reactively. */
+/**
+ * Fetch a page of records, reactively. `resource` may be a ref or getter, so a
+ * changing resource re-keys the query.
+ */
 export function useGetList<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
 >(
-  resource: TName,
+  resource: MaybeRefOrGetter<TName>,
   params: MaybeRefOrGetter<GetListParams> = {},
   options: { enabled?: MaybeRefOrGetter<boolean> } = {},
 ) {
   const ctx = useCheloneContext<TResources>();
   return useQuery(
     computed(() => ({
-      ...getListOptions(ctx, resource, toValue(params)),
+      ...getListOptions(ctx, toValue(resource), toValue(params)),
       enabled: options.enabled === undefined ? true : toValue(options.enabled),
     })),
   );
