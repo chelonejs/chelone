@@ -1,7 +1,7 @@
 import { createMicroStore, type MicroStore } from "@chelone/core";
 import { describe, expect, it, vi } from "vitest";
 import { effectScope, nextTick, type Ref, watch } from "vue";
-import { useStore, useStoreSelector } from "./use-store";
+import { useMicroStore, useMicroStoreSelector } from "./use-micro-store";
 
 interface CounterState {
   count: number;
@@ -26,12 +26,12 @@ function makeStore(initial: CounterState): {
   return { store, acquire, release };
 }
 
-describe("useStore — MicroStore reactivity bridge", () => {
+describe("useMicroStore — MicroStore reactivity bridge", () => {
   it("(a) first subscribe fires onSubscribed (4R acquire)", () => {
     const { store, acquire } = makeStore({ count: 0, label: "a" });
     const scope = effectScope();
     scope.run(() => {
-      const state = useStore(store);
+      const state = useMicroStore(store);
       expect(state.value).toEqual({ count: 0, label: "a" });
     });
     // Bridge subscribed on setup -> 0->1 transition -> acquire ran exactly once.
@@ -43,7 +43,7 @@ describe("useStore — MicroStore reactivity bridge", () => {
     const { store, acquire, release } = makeStore({ count: 0, label: "a" });
     const scope = effectScope();
     scope.run(() => {
-      useStore(store);
+      useMicroStore(store);
     });
     expect(acquire).toHaveBeenCalledTimes(1);
     expect(release).not.toHaveBeenCalled();
@@ -57,7 +57,7 @@ describe("useStore — MicroStore reactivity bridge", () => {
     const scope = effectScope();
     let state!: Ref<CounterState>;
     scope.run(() => {
-      state = useStore(store) as Ref<CounterState>;
+      state = useMicroStore(store) as Ref<CounterState>;
     });
     expect(state.value.count).toBe(0);
 
@@ -83,7 +83,7 @@ describe("useStore — MicroStore reactivity bridge", () => {
     const scope = effectScope();
     const seen: number[] = [];
     scope.run(() => {
-      const count = useStoreSelector(store, (s) => s.count);
+      const count = useMicroStoreSelector(store, (s) => s.count);
       watch(count, (c) => seen.push(c));
     });
 
@@ -110,7 +110,7 @@ describe("useStore — MicroStore reactivity bridge", () => {
     const scope = effectScope();
     const emissions: Array<{ count: number }> = [];
     scope.run(() => {
-      const slice = useStoreSelector(store, (s) => ({ count: s.count }));
+      const slice = useMicroStoreSelector(store, (s) => ({ count: s.count }));
       watch(slice, (v) => emissions.push(v));
     });
 
@@ -129,14 +129,14 @@ describe("useStore — MicroStore reactivity bridge", () => {
   it("(b') release fires once even across acquire/detach re-entry", () => {
     const { store, acquire, release } = makeStore({ count: 0, label: "a" });
     const first = effectScope();
-    first.run(() => useStore(store));
+    first.run(() => useMicroStore(store));
     first.stop();
     expect(acquire).toHaveBeenCalledTimes(1);
     expect(release).toHaveBeenCalledTimes(1);
 
     // Re-subscribe after detach re-invokes acquire (attach/detach re-entry).
     const second = effectScope();
-    second.run(() => useStore(store));
+    second.run(() => useMicroStore(store));
     expect(acquire).toHaveBeenCalledTimes(2);
     second.stop();
     expect(release).toHaveBeenCalledTimes(2);

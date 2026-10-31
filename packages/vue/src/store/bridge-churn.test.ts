@@ -1,5 +1,5 @@
 /**
- * PATTERN GATE (V1-a) — the Vue reactivity bridge (`useStore`) under churn.
+ * PATTERN GATE (V1-a) — the Vue reactivity bridge (`useMicroStore`) under churn.
  *
  * The bridge introduces a NEW lifecycle: `MicroStore.subscribe()` acquired in
  * `setup`, released via `onScopeDispose`. A subtle leak hides here — a scope
@@ -19,7 +19,7 @@ import { createMicroStore, type MicroStore } from "@chelone/core";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { defineComponent, effectScope, h, type Ref } from "vue";
-import { useStore } from "./use-store";
+import { useMicroStore } from "./use-micro-store";
 
 interface CounterState {
   count: number;
@@ -64,7 +64,7 @@ function instrumentedStore(initial: CounterState): {
   return { store, acquire, release, live: () => liveCount };
 }
 
-describe("useStore bridge — 4R lifecycle under churn (PATTERN GATE)", () => {
+describe("useMicroStore bridge — 4R lifecycle under churn (PATTERN GATE)", () => {
   it("(1) mount/unmount 200x via effectScope: acquire==release==200, live==0 throughout", () => {
     const { store, acquire, release, live } = instrumentedStore({
       count: 0,
@@ -74,7 +74,7 @@ describe("useStore bridge — 4R lifecycle under churn (PATTERN GATE)", () => {
     for (let i = 0; i < CYCLES; i++) {
       const scope = effectScope();
       scope.run(() => {
-        useStore(store);
+        useMicroStore(store);
       });
       // Exactly one live subscription while mounted; acquire fired once total
       // per fresh attach (0->1 each cycle since the prior cycle detached).
@@ -97,7 +97,7 @@ describe("useStore bridge — 4R lifecycle under churn (PATTERN GATE)", () => {
     });
     const Consumer = defineComponent({
       setup() {
-        const state = useStore(store);
+        const state = useMicroStore(store);
         return () => h("div", state.value.count);
       },
     });
@@ -124,7 +124,7 @@ describe("useStore bridge — 4R lifecycle under churn (PATTERN GATE)", () => {
       // onScopeDispose registers on the INNERMOST active scope.
       const child = effectScope();
       child.run(() => {
-        useStore(store);
+        useMicroStore(store);
       });
       expect(live()).toBe(1);
       expect(acquire).toHaveBeenCalledTimes(1);
@@ -149,8 +149,8 @@ describe("useStore bridge — 4R lifecycle under churn (PATTERN GATE)", () => {
         mid.run(() => {
           const inner = effectScope();
           inner.run(() => {
-            useStore(store);
-            useStore(store); // two subscriptions in the same leaf scope
+            useMicroStore(store);
+            useMicroStore(store); // two subscriptions in the same leaf scope
           });
         });
       });
@@ -174,7 +174,7 @@ describe("useStore bridge — 4R lifecycle under churn (PATTERN GATE)", () => {
     const scope = effectScope();
     let state!: Ref<CounterState>;
     scope.run(() => {
-      state = useStore(store) as Ref<CounterState>;
+      state = useMicroStore(store) as Ref<CounterState>;
     });
     // Mutate while mounted — the ref tracks the store.
     store.setState({ count: 7 });
@@ -199,10 +199,10 @@ describe("useStore bridge — 4R lifecycle under churn (PATTERN GATE)", () => {
     });
     const first = effectScope();
     const second = effectScope();
-    first.run(() => useStore(store));
+    first.run(() => useMicroStore(store));
     // Second subscriber does NOT re-acquire — core fires onSubscribed only on
     // the true 0->1 edge.
-    second.run(() => useStore(store));
+    second.run(() => useMicroStore(store));
     expect(live()).toBe(2);
     expect(acquire).toHaveBeenCalledTimes(1);
     expect(release).not.toHaveBeenCalled();

@@ -158,6 +158,8 @@ export { useUndoable } from "./data/undoable";
 export { useLoading, useRefresh } from "./data/use-refresh";
 export type {
   CheloneFormContextValue,
+  FormGroupProviderProps,
+  FormGroupsProviderProps,
   FormSubmit,
   UseFormOptions,
   UseFormReturn,
@@ -166,13 +168,22 @@ export type {
 } from "./form";
 export {
   CheloneFormContextKey,
+  FormGroupProvider,
+  FormGroupsProvider,
   firstFieldError,
   provideCheloneForm,
+  provideFormGroup,
+  provideFormGroups,
   provideSourceScope,
   SourceScopeKey,
   useCheloneFormContext,
   useForm,
+  useFormGroup,
+  useFormGroupName,
+  useFormGroups,
   useInput,
+  useOptionalFormGroups,
+  useRegisterFieldGroup,
   useSourceScope,
   useWrappedSource,
 } from "./form";
@@ -248,8 +259,8 @@ export {
   useRouterAdapterOptional,
   vueRouterAdapter,
 } from "./router";
+export { useMicroStore, useMicroStoreSelector } from "./store/use-micro-store";
 export {
   type UseSavedQueriesReturn,
   useSavedQueries,
 } from "./store/use-saved-queries";
-export { useStore, useStoreSelector } from "./store/use-store";

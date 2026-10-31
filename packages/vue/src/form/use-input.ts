@@ -28,6 +28,7 @@ import { createFieldBinding, defaultFormat, isRequired } from "@chelone/core";
 import { type ComputedRef, computed, useId } from "vue";
 import { firstFieldError } from "./field-error";
 import { useCheloneFormContext, useSourceScope } from "./form-context";
+import { useRegisterFieldGroup } from "./form-groups";
 import { useSubscribable } from "./subscribe-ref";
 
 /** The erased form-data shape the ambient form carries. */
@@ -104,6 +105,7 @@ export function useInput(options: UseInputOptions): UseInputReturn {
   const scope = useSourceScope();
   const source = scope.getSource(options.source);
   const generatedId = useId();
+  useRegisterFieldGroup(source);
 
   const binding: FieldBinding<UnknownFormValues> = createFieldBinding(form, {
     source,
