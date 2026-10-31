@@ -55,13 +55,30 @@ export function isFilterSelected(value: Filters, filters: Filters): boolean {
   return matches(value, filters);
 }
 
+// Drops only the leaves `value` holds, so a nested value leaves the sibling
+// sub-keys another control set; a parent left empty goes with its last leaf.
+function omitValue(filters: Filters, value: Filters): Filters {
+  const next = { ...filters };
+  for (const key of Object.keys(value)) {
+    if (value[key] === undefined) continue;
+    const held = next[key];
+    if (isPlainObject(value[key]) && isPlainObject(held)) {
+      const rest = omitValue(held, value[key]);
+      if (Object.keys(rest).length > 0) next[key] = rest;
+      else delete next[key];
+    } else {
+      delete next[key];
+    }
+  }
+  return next;
+}
+
 /**
  * Selecting a value merges it into the filters; toggling a selected one drops
- * its keys and keeps the rest. Neither argument is mutated.
+ * the keys it holds, down to nested sub-keys, and keeps the rest. Neither
+ * argument is mutated.
  */
 export function toggleFilterValue(value: Filters, filters: Filters): Filters {
   if (!isFilterSelected(value, filters)) return { ...filters, ...value };
-  const next = { ...filters };
-  for (const key of Object.keys(value)) delete next[key];
-  return next;
+  return omitValue(filters, value);
 }

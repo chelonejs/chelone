@@ -67,6 +67,18 @@ describe("toggleFilterValue", () => {
     ).toEqual({ q: "x" });
   });
 
+  it("removes only the nested sub-keys a selected value holds", () => {
+    expect(
+      toggleFilterValue(
+        { range: { gte: 1 } },
+        { range: { gte: 1, lte: 9 }, q: "x" },
+      ),
+    ).toEqual({ range: { lte: 9 }, q: "x" });
+    expect(
+      toggleFilterValue({ range: { gte: 1 } }, { range: { gte: 1 }, q: "x" }),
+    ).toEqual({ q: "x" });
+  });
+
   it("leaves its arguments unchanged", () => {
     const value = { status: "draft", range: { gte: 1 } };
     const filters = { status: "draft", range: { gte: 1, lte: 9 }, q: "x" };
