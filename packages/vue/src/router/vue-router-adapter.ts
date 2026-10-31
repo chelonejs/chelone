@@ -34,14 +34,26 @@ import {
   type PathMatch,
   parseLocation,
 } from "@chelone/core";
-import { type ComputedRef, computed, provide } from "vue";
+import {
+  type ComputedRef,
+  computed,
+  onScopeDispose,
+  provide,
+  type Ref,
+  ref,
+  shallowReadonly,
+  shallowRef,
+  toValue,
+} from "vue";
 import type { HistoryState } from "vue-router";
-import { useRoute, useRouter } from "vue-router";
+import { type Router, useRoute, useRouter } from "vue-router";
 import {
   type AdapterNavigate,
   type AdapterNavigateOpts,
   type RouterAdapter,
   RouterAdapterKey,
+  type RouterBlocker,
+  type ShouldBlock,
   type UseMatchArgs,
 } from "./adapter";
 
@@ -82,6 +94,30 @@ function toNeutralParams(
     out[key] = Array.isArray(value) ? value.join("/") : value;
   }
   return out;
+}
+
+/**
+ * Per router, which navigation a blocker guard saw most recently. vue-router
+ * keeps running a superseded navigation through the remaining guards until its
+ * own cancelled check, so a later blocker would otherwise hold it. `to` is the
+ * same object in every guard of one navigation, so a `to` already seen that is
+ * not `latest` is superseded.
+ */
+const navigations = new WeakMap<
+  Router,
+  { seen: WeakSet<object>; latest: object | null }
+>();
+
+function isSuperseded(router: Router, to: object): boolean {
+  let tracker = navigations.get(router);
+  if (!tracker) {
+    tracker = { seen: new WeakSet(), latest: null };
+    navigations.set(router, tracker);
+  }
+  if (tracker.seen.has(to)) return tracker.latest !== to;
+  tracker.seen.add(to);
+  tracker.latest = to;
+  return false;
 }
 
 /** The vue-router-backed default adapter. */
@@ -133,6 +169,94 @@ export const vueRouterAdapter: RouterAdapter = {
   },
 
   matchPath,
+
+  useBlocker(shouldBlock: ShouldBlock): RouterBlocker {
+    const router = useRouter();
+    const state: Ref<RouterBlocker["state"]["value"]> = ref("unblocked");
+    // Shallow: `URLSearchParams` must stay a real instance, not a reactive proxy.
+    const location = shallowRef<CheloneLocation | null>(null);
+    // Settles the held guard: `true` lets the navigation through, `false`
+    // cancels it. Non-null only while `state` is `blocked`.
+    let settle: ((proceed: boolean) => void) | null = null;
+
+    const release = (proceed: boolean) => {
+      settle?.(proceed);
+      settle = null;
+    };
+
+    const stopGuard = router.beforeEach((to, from) => {
+      // Let vue-router fail a navigation superseded elsewhere as cancelled,
+      // without touching what this blocker holds for the live one.
+      if (isSuperseded(router, to)) return true;
+
+      // A new navigation while one is held supersedes it. Resolve the held
+      // guard `true` so vue-router's own pending-location check fails it as
+      // cancelled: a `false` aborts it, and for a popstate navigation
+      // vue-router then rewinds history, leaving the URL out of step.
+      release(true);
+
+      const nextLocation = parseLocation(to.fullPath);
+      const blocks =
+        typeof shouldBlock === "function"
+          ? shouldBlock({
+              currentLocation: parseLocation(from.fullPath),
+              nextLocation,
+            })
+          : toValue(shouldBlock);
+      if (!blocks) {
+        state.value = "unblocked";
+        location.value = null;
+        return true;
+      }
+
+      location.value = nextLocation;
+      state.value = "blocked";
+      return new Promise<boolean>((resolve) => {
+        settle = resolve;
+      });
+    });
+
+    // `afterEach` runs for a failed navigation too, so `proceeding` always ends.
+    const stopAfter = router.afterEach(() => {
+      if (state.value !== "proceeding") return;
+      state.value = "unblocked";
+      location.value = null;
+    });
+    const stopError = router.onError(() => {
+      if (state.value !== "proceeding") return;
+      state.value = "unblocked";
+      location.value = null;
+    });
+
+    onScopeDispose(() => {
+      release(false);
+      state.value = "unblocked";
+      location.value = null;
+      stopGuard();
+      stopAfter();
+      stopError();
+    });
+
+    return {
+      state: shallowReadonly(state),
+      location: shallowReadonly(location),
+      proceed() {
+        if (state.value !== "blocked") return;
+        state.value = "proceeding";
+        release(true);
+      },
+      reset() {
+        if (state.value !== "blocked") return;
+        state.value = "unblocked";
+        location.value = null;
+        release(false);
+      },
+    };
+  },
+
+  useCanBlock(): boolean {
+    return true;
+  },
 };
 
 /**
