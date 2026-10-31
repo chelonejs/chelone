@@ -3,7 +3,7 @@
 > A framework-agnostic, type-safe, SSR/RSC-capable **headless admin engine**, distributed
 > shadcn-style (own-your-source registry) with thin per-framework adapters.
 
-**Status:** Draft for review · **Date:** 2026-06-23 · **Supersedes:** the in-place shadmin
+**Status:** Draft for review · **Date:** 2026-06-23 (amended 2026-10-31, see §12) · **Supersedes:** the in-place shadmin
 modernization RFC (abandoned in favor of greenfield — see §1).
 
 ---
@@ -57,7 +57,7 @@ framework-agnostic engine it inspired).
 ## 3. Non-goals (v1)
 
 - **No Vue/Svelte adapters in v1.** The architecture *permits* them (boundary lint-enforced);
-  we don't *build* them until demanded.
+  we don't *build* them until demanded. (Amended: `@chelone/vue` is built, see §12.)
 - **Not RSC-first end-to-end.** Admin is inherently interactive; RSC wins the read path, not
   the whole app.
 - **No ra-enterprise gap-fill in v1.** (AccordionForm, LongForm, MultiLevelMenu,
@@ -73,7 +73,7 @@ framework-agnostic engine it inspired).
 |---|----------|--------|
 | 1 | Build strategy | **Greenfield** new repo. Copy website+docs+demo wholesale; components = rebridge reference; clean-room the core; park shadmin. |
 | 2 | Deployment ceiling | Framework-agnostic core + **TanStack Start** recommended default. SSR/RSC via server data-entry. Server-shell + client-islands. |
-| 3 | Agnostic scope | **React-first.** Core↔adapter boundary **lint-enforced**. Vue/Svelte possible, unbuilt. |
+| 3 | Agnostic scope | **React-first.** Core↔adapter boundary **lint-enforced**. Vue/Svelte possible. Amended: Vue is built, see §12. |
 | 4 | Substrate | **TanStack** everything: Query (`query-core`) · Router (adapter) · Form (`form-core`) · Start (reference). |
 | 5 | Form state | **TanStack Form** in the vanilla core. No react-hook-form. |
 | 6 | Type model | **Zod resource registry, opt-in + loose fallback.** Non-`any` base record. Typed-by-default in practice. |
@@ -101,7 +101,7 @@ chelone/ (monorepo)
                          the shadcn components (rebridged from shadmin); router default adapters
     @chelone/start       (post-v1) server data-entry: createServerFn dataProvider, dehydrate/
                          hydrate, Drizzle+drizzle-zod reference
-    @chelone/vue         (later, unbuilt) — proves the boundary held
+    @chelone/vue         (later; built ahead of v1, see §12) — proves the boundary held
   apps/
     website              landing + docs + demo (copied wholesale from shadmin), CONSUMES packages
 ```
@@ -111,7 +111,9 @@ chelone/ (monorepo)
 `@chelone/core` **may** import `@tanstack/query-core`, `@tanstack/form-core`, `zod`. It **may
 not** import `react`, `react-dom`, `react-hook-form`, or `react-router`. A Biome
 `noRestrictedImports` rule (the same mechanism shadmin uses for its ra-core seam) enforces this
-in CI. **This one rule is what keeps Vue/Svelte possible without building them.**
+in CI. **This one rule is what keeps Vue/Svelte possible without building them.** (Amended: the
+rule also bans React imports in the Vue adapter, through the `packages/core/**` and
+`packages/vue/**` overrides in `biome.json`, see §12.)
 
 ### 5.3 Core subsystems
 
@@ -120,7 +122,7 @@ in CI. **This one rule is what keeps Vue/Svelte possible without building them.*
 | **Resource registry** | `defineResources({ posts: postSchema })` → typed registry. Resource name literal → record type inference. Opt-in: no schema = loose fallback. | The `<Resource>` declarative model + definition registry. | `RaRecord extends Record<string, any>` → strict base (`unknown` index). |
 | **Data** | `DataProvider` contract (9 promise CRUD verbs) on `@tanstack/query-core`. Query-key scheme `[resource, op, params]`. Server-callable (no React/browser coupling). Adapters: server-fn (default), REST, GraphQL. | The contract + query-key conventions + cache cross-population + mutation modes. | Proxy-only/context-only access → add a server data entry (dehydrate/hydrate). |
 | **Store** | Vanilla reactive store with `useSyncExternalStore`-compatible snapshot + server snapshot. No import-time `window`. | `getItem/setItem/subscribe` shape. | `useState`-subscribe → `useSyncExternalStore`; import-time localStorage branch → SSR-safe adapter. |
-| **i18n** | Reactive locale state, **typed message keys** (`as const` → literal union + interpolation typing), server-renderable `t()`. Polyglot/i18next as the engine. | Polyglot translation engine. | Imperative-closure + full-remount-on-locale-change (`key` bump) + untyped keys. |
+| **i18n** | Reactive locale state, **typed message keys** (`as const` → literal union + interpolation typing), server-renderable `t()`. Polyglot/i18next as the engine (amended: core's own engine, see §12). | Polyglot's `smart_count` plural name; the engine itself is core's own (amended, see §12). | Imperative-closure + full-remount-on-locale-change (`key` bump) + untyped keys. |
 | **Controllers** | `list/edit/create/show` as **framework-neutral observable stores** (pagination, sort, filter, selection, URL/store sync, auth gating). React adapter bridges via `useSyncExternalStore`. | The orchestration logic (hundreds of edge-case fixes). | React-hook packaging → vanilla store + adapter. |
 | **Form** | `@tanstack/form-core` for form state. Field arrays, iterators, translatable inputs built **once** in core. Zod validation. | — | react-hook-form entirely. |
 | **Auth** | `AuthProvider` contract + a **free** access-control provider (CASL-style adapter). | The contract + query-wrapped hooks. | Un-paywall RBAC (it's Enterprise in react-admin). |
@@ -178,7 +180,7 @@ Each phase ships green and dogfoods against the (copied) reference components.
   server data-entry (dehydrate/hydrate, `createServerFn` adapter).
 - **P7 — Reference app.** Copy website/docs/demo; rebuild the registry pipeline; wire the app
   as a consumer of the published packages.
-- **Post-v1.** ra-enterprise gap-fill; `@chelone/start` reference stack; Vue/Svelte adapter.
+- **Post-v1.** ra-enterprise gap-fill; `@chelone/start` reference stack; Vue/Svelte adapter (amended: the Vue adapter is built, see §12).
 
 ---
 
@@ -187,7 +189,7 @@ Each phase ships green and dogfoods against the (copied) reference components.
 - **v1 = ra-core parity on the Chelone core** — everything shadmin does today, rebuilt clean on
   `@chelone/core`.
 - **Deferred post-v1:** ra-enterprise gap-fill (AccordionForm, LongForm, MultiLevelMenu,
-  ReferenceManyInput, DualListInput, RBAC enforcement) and any 2nd-framework adapter.
+  ReferenceManyInput, DualListInput, RBAC enforcement) and any 2nd-framework adapter (amended: the Vue adapter is built, see §12).
 
 ---
 
@@ -246,3 +248,23 @@ decisions — cheap now, expensive later. They become phase commitments:
 Findings backing this charter (build tooling, slot pattern, ra-core surface, ra-core internals,
 portfolio inventory, ra-enterprise gap, modern landscape) were gathered 2026-06-23 across the
 shadmin and react-admin repos plus web research. See the brainstorming session transcript.
+
+---
+
+## 12. Amendments (2026-10-31)
+
+The decision record (§4) is amended, not rewritten, so its history stays readable. Where a
+section above is out of date, it carries a pointer here.
+
+- **`@chelone/vue` is built.** It was built ahead of the v1 non-goal in §3, and the boundary
+  held: core takes no React imports. Design: `docs/vue-adapter-design.md`. Gaps against
+  `ra-core`: `docs/parity-report.md`. Svelte is not started.
+- **The boundary rule covers core and the Vue adapter.** `biome.json` has two
+  `noRestrictedImports` overrides: `packages/core/**` (no React or router imports) and
+  `packages/vue/**` (no React, `react-router`, or `@chelone/react`). Both adapters subscribe to
+  core independently. Two gaps: there is no override for `packages/react/**`, so nothing lints
+  that package against Vue imports; and Biome lints only `.ts`, `.tsx` and JSON files, so a
+  `.vue` component is not checked by these overrides and `vue-tsc` does not enforce them.
+- **i18n uses core's own engine.** Core interpolates messages itself instead of using Polyglot or
+  i18next, and keeps Polyglot's `smart_count` name for plural counts. Core still depends on Zod
+  only (§3), so that rule holds.
