@@ -371,5 +371,13 @@ export type { ListProps } from "./admin/view/list.vue";
 export { default as List } from "./admin/view/list.vue";
 export type { ShowProps } from "./admin/view/show.vue";
 export { default as Show } from "./admin/view/show.vue";
+export type {
+  TabbedShowLayoutProps,
+  TabbedShowLayoutTabDescriptor,
+  TabbedShowLayoutTabsSlotProps,
+} from "./admin/view/tabbed-show-layout.vue";
+export { default as TabbedShowLayout } from "./admin/view/tabbed-show-layout.vue";
+export type { TabbedShowLayoutTabProps } from "./admin/view/tabbed-show-layout-tab.vue";
+export { default as TabbedShowLayoutTab } from "./admin/view/tabbed-show-layout-tab.vue";
 // --- ui primitives --------------------------------------------------------
 export * from "./ui";

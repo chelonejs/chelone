@@ -29,6 +29,7 @@ export type { FormGroupsProviderProps } from "./form-groups-provider.vue";
 export { default as FormGroupsProvider } from "./form-groups-provider.vue";
 export type { OptionalSaveFormProps } from "./form-scope";
 export { useFormScope } from "./form-scope";
+export { decodePath, splatBase } from "./splat-base";
 export type { TabbedFormProps } from "./tabbed-form.vue";
 export { default as TabbedForm } from "./tabbed-form.vue";
 export type { UseTabbedFormResult } from "./tabbed-form-context";

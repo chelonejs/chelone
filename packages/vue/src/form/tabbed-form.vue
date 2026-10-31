@@ -42,6 +42,7 @@ import { useFormScope } from "./form-scope";
 import { provideFormGroups } from "./form-groups";
 import TabbedFormHeader from "./tabbed-form-header.vue";
 import TabbedFormTab from "./tabbed-form-tab.vue";
+import { decodePath, splatBase } from "./splat-base";
 import { provideTabbedForm } from "./tabbed-form-context";
 
 const props = withDefaults(defineProps<TabbedFormProps<TFormData>>(), {
@@ -110,32 +111,10 @@ const params = syncWithLocation ? adapter?.useParams() : undefined;
 const navigate = syncWithLocation ? adapter?.useNavigate() : undefined;
 const router = syncWithLocation ? useRouter() : undefined;
 
-function decode(path: string): string {
-  try {
-    return decodeURIComponent(path);
-  } catch {
-    return path;
-  }
-}
-
-/**
- * Where the form's own route ends, as the encoded pathname minus the trailing
- * segments of the splat. The pathname is percent-encoded and the splat is
- * decoded, so whole segments are dropped rather than a textual suffix.
- */
-const base = computed(() => {
-  const pathname = location?.value.pathname ?? "";
-  const splat = params?.value["*"] ?? "";
-  if (splat === "") return pathname.replace(/\/+$/, "");
-  const count = splat.split("/").length;
-  const segments = pathname.split("/");
-  const tail = segments.slice(-count).join("/");
-  const own =
-    segments.length > count && decode(tail) === splat
-      ? segments.slice(0, -count).join("/")
-      : pathname;
-  return own.replace(/\/+$/, "");
-});
+/** Where the form's own route ends: the pathname minus the splat's segments. */
+const base = computed(() =>
+  splatBase(location?.value.pathname ?? "", params?.value["*"] ?? ""),
+);
 
 const encodeSegment = (segment: string) =>
   segment.split("/").map(encodeURIComponent).join("/");
@@ -157,9 +136,9 @@ const activeTab = computed(() => {
     // pattern without params (case-insensitive, a trailing slash ignored): a
     // record id or tab path is data, and `matchPath` would read a `?`, a
     // leading `:` or a trailing `*` in it as pattern syntax.
-    const here = samePath(decode(location?.value.pathname ?? ""));
+    const here = samePath(decodePath(location?.value.pathname ?? ""));
     const matched = tabs.value.find(
-      (tab) => samePath(decode(tabPath(tab))) === here,
+      (tab) => samePath(decodePath(tabPath(tab))) === here,
     );
     return matched?.name ?? names[0] ?? "";
   }
