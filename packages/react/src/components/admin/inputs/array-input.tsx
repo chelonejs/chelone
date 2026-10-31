@@ -1,5 +1,5 @@
 import type { Validator } from "@chelone/core";
-import type { ReactNode } from "react";
+import { Children, type ReactNode } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,20 @@ interface ArrayInputProps {
   children: ReactNode;
 }
 
+/**
+ * True when a direct child carries the static `ownsAddButton` marker (a
+ * `<SimpleFormIterator>`), so the built-in Add button would be a second one. A
+ * wrapper component around the iterator does not carry the marker.
+ */
+function childOwnsAddButton(children: ReactNode): boolean {
+  return Children.toArray(children).some(
+    (child) =>
+      typeof child === "object" &&
+      "type" in child &&
+      (child.type as { ownsAddButton?: boolean }).ownsAddButton === true,
+  );
+}
+
 /** Detects a `required()`-tagged validator on the raw `validate` prop. */
 function hasRequiredValidator(validate: ArrayInputProps["validate"]): boolean {
   if (!validate) return false;
@@ -64,7 +78,8 @@ function hasRequiredValidator(validate: ArrayInputProps["validate"]): boolean {
  * iterator result to its child iterator through the
  * ambient array-input context. Requires an iterator child that maps the rows to
  * `<ArrayInputRow>`s, which scope each row's inputs and render its remove and
- * reorder controls. `<ArrayInput>` renders the add button.
+ * reorder controls. `<ArrayInput>` renders the add button unless its direct
+ * child is a `<SimpleFormIterator>`, which brings its own.
  *
  * @example
  * import {
@@ -146,21 +161,23 @@ function ArrayInput(props: ArrayInputProps): ReactNode {
       <ArrayInputResultContext.Provider value={array}>
         <ArrayInputProvider array={array}>{children}</ArrayInputProvider>
       </ArrayInputResultContext.Provider>
-      <div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          data-slot="array-input-add"
-          onClick={() => array.add()}
-        >
-          {addLabel == null
-            ? translate("ra.action.add", { _: "Add" })
-            : typeof addLabel === "string"
-              ? translate(addLabel, { _: addLabel })
-              : addLabel}
-        </Button>
-      </div>
+      {!childOwnsAddButton(children) && (
+        <div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            data-slot="array-input-add"
+            onClick={() => array.add()}
+          >
+            {addLabel == null
+              ? translate("ra.action.add", { _: "Add" })
+              : typeof addLabel === "string"
+                ? translate(addLabel, { _: addLabel })
+                : addLabel}
+          </Button>
+        </div>
+      )}
       <InputHelperText helperText={helperText} />
       <FieldError>
         {invalid && error ? <ValidationError error={error} /> : null}
