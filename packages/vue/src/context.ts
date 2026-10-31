@@ -78,6 +78,17 @@ export function useCheloneContext<
   return ctx as CheloneContextValue<TResources>;
 }
 
+/**
+ * The raw dataProvider off `<Admin>` (the Vue twin of `@chelone/react`'s
+ * `useDataProvider`), returned verbatim for imperative calls.
+ */
+export function useDataProvider<
+  TResources extends ResourceMap = ResourceMap,
+  TProvider extends DataProvider<TResources> = DataProvider<TResources>,
+>(): TProvider {
+  return useCheloneContext<TResources>().dataProvider as TProvider;
+}
+
 /** The i18n instance — throws when none was provided (parity with the React twin). */
 export function useCheloneI18n(): AnyCheloneI18n {
   const { i18n } = useCheloneContext();

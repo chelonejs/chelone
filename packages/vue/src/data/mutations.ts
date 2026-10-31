@@ -16,6 +16,7 @@
  */
 
 import {
+  createMutationOptions,
   type DeleteManyParams,
   type DeleteParams,
   deleteMutationOptions,
@@ -32,6 +33,20 @@ import {
 import { useMutation } from "@tanstack/vue-query";
 import { useCheloneContext } from "../context";
 import { useUndoable } from "./undoable";
+
+/**
+ * Create mutation for `resource` — the Vue twin of `@chelone/react`'s
+ * `useCreate(resource)`. Call `.mutateAsync({ data })` to dispatch; the
+ * resource's caches are invalidated on settle. Takes no mutation mode (create
+ * has no record to patch optimistically), as React's does not.
+ */
+export function useCreate<
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(resource: TName) {
+  const ctx = useCheloneContext<TResources>();
+  return useMutation(createMutationOptions(ctx, resource));
+}
 
 /**
  * Update-one mutation for `resource`. Returns vue-query's mutation object; call
