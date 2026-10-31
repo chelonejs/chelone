@@ -3,6 +3,8 @@ import { enableAutoUnmount, flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
 import { defineComponent, h, markRaw } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
+import AppSidebar from "../components/admin/layout/app-sidebar.vue";
+import Layout from "../components/admin/layout/layout.vue";
 import { useRedirect } from "../router/nav-composables";
 import Admin from "./admin.vue";
 import Resource from "./resource.vue";
@@ -25,6 +27,15 @@ function makeRouter() {
   });
 }
 
+// The sidebar brand shares the dashboard menu item's href, so match by label.
+function dashboardLink(wrapper: ReturnType<typeof mount>) {
+  const link = wrapper
+    .findAll('a[href="/app/admin/"]')
+    .find((a) => a.text().includes("Dashboard"));
+  if (!link) throw new Error("no Dashboard menu link");
+  return link;
+}
+
 describe("<Admin> basename", () => {
   it("a resource menu link carries the basename once", async () => {
     const router = makeRouter();
@@ -42,6 +53,42 @@ describe("<Admin> basename", () => {
     expect(
       wrapper.findAll("a").map((link) => link.attributes("href")),
     ).toContain("/app/admin/posts");
+  });
+
+  it("the sidebar brand links to the basename root", async () => {
+    const router = makeRouter();
+    await router.push("/admin");
+    const wrapper = mount(Admin, {
+      props: { dataProvider: fakeDataProvider({}), basename: "/admin" },
+      slots: {
+        default: () => h(Resource, { name: "posts", list: Posts }),
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
+
+    const brand = wrapper.findAll("a").find((a) => a.text() === "Chelone");
+    expect(brand?.attributes("href")).toBe("/app/admin/");
+  });
+
+  it("an explicit brandTo is used as given", async () => {
+    const router = makeRouter();
+    await router.push("/admin");
+    const wrapper = mount(Admin, {
+      props: { dataProvider: fakeDataProvider({}), basename: "/admin" },
+      slots: {
+        default: () => h(Resource, { name: "posts", list: Posts }),
+        layout: () =>
+          h(Layout, null, {
+            sidebar: () => h(AppSidebar, { brandTo: "/outside" }),
+          }),
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
+
+    const brand = wrapper.findAll("a").find((a) => a.text() === "Chelone");
+    expect(brand?.attributes("href")).toBe("/app/outside");
   });
 
   it.each([
@@ -141,7 +188,7 @@ describe("<Admin> basename", () => {
       await flushPromises();
       expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(false);
     }
-    await wrapper.get('a[href="/app/admin/"]').trigger("click");
+    await dashboardLink(wrapper).trigger("click");
     await flushPromises();
     expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
     await router.push("/admin/?page=2#top");
@@ -149,7 +196,7 @@ describe("<Admin> basename", () => {
 
     expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
     expect(router.currentRoute.value.path).toBe("/admin/");
-    expect(wrapper.get('a[href="/app/admin/"]').text()).toContain("Dashboard");
+    expect(dashboardLink(wrapper).text()).toContain("Dashboard");
   });
 
   it.each([
@@ -232,9 +279,7 @@ describe("<Admin> basename", () => {
     await flushPromises();
 
     expect(router.currentRoute.value.path).toBe(start);
-    expect(wrapper.get('a[href="/app/admin/"]').attributes("data-active")).toBe(
-      "true",
-    );
+    expect(dashboardLink(wrapper).attributes("data-active")).toBe("true");
     expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
   });
 
