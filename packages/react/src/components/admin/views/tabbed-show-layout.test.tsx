@@ -125,6 +125,14 @@ describe("<TabbedShowLayout>", () => {
     });
   });
 
+  it("TabbedShowLayout switches tabs when the show URL ends in a slash", () => {
+    renderAt("/posts/1/show/", twoTabs());
+    clickTab("Details");
+    expect(currentLocation.pathname).toBe("/posts/1/show/1");
+    expect(screen.getByText("Lorem ipsum")).toBeTruthy();
+    expect(screen.queryByText("Hello World")).toBeNull();
+  });
+
   it("TabbedShowLayout opens the tab named by the URL on load", () => {
     renderAt(
       "/posts/1/show/extra",

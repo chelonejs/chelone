@@ -163,7 +163,9 @@ function TabbedShowLayoutImpl({
   const location = useLocation();
   const navigate = useNavigate();
   const { matchPath } = useRouterAdapter();
-  const splatBase = useSplatPathBase();
+  // The shared hook returns the pathname as is when the splat is empty, so a
+  // show URL ending in `/` would build tab paths like `/posts/1/show//1`.
+  const splatBase = useSplatPathBase().replace(/\/+$/, "");
 
   const tabElements = flattenChildren(children).filter(isShowTab);
   const segments = tabElements.map((tab, index) =>
