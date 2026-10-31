@@ -179,6 +179,13 @@ export type {
 } from "./data/with-lifecycle-callbacks";
 export { withLifecycleCallbacks } from "./data/with-lifecycle-callbacks";
 export type {
+  ApplicationUpdateSnapshot,
+  ApplicationUpdateStoreOptions,
+} from "./environment/application-update-store";
+export { createApplicationUpdateStore } from "./environment/application-update-store";
+export type { OfflineSnapshot } from "./environment/offline-store";
+export { createOfflineStore } from "./environment/offline-store";
+export type {
   ArrayBinding,
   ArrayBindingOptions,
   ArrayBindingUpdateOptions,

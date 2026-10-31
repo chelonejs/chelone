@@ -133,6 +133,11 @@ describe("@chelone/core barrel", () => {
     expect(barrel.combineDataProviders).toBeTypeOf("function");
   });
 
+  it("exports the environment stores", () => {
+    expect(barrel.createOfflineStore).toBeTypeOf("function");
+    expect(barrel.createApplicationUpdateStore).toBeTypeOf("function");
+  });
+
   it("does NOT leak internal save-pipeline / hydration helpers", () => {
     expect("sanitizeEmptyValues" in barrel).toBe(false);
     expect("toFormErrorMapValue" in barrel).toBe(false);
