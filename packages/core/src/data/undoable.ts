@@ -1,4 +1,8 @@
-import type { QueryClient, QueryKey } from "@tanstack/query-core";
+import {
+  partialMatchKey,
+  type QueryClient,
+  type QueryKey,
+} from "@tanstack/query-core";
 
 /**
  * A snapshot of the query cache taken BEFORE an optimistic apply: an array of
@@ -100,6 +104,32 @@ function restore(queryClient: QueryClient, snapshot: UndoableSnapshot) {
   }
 }
 
+/** Query-key partial matching is one-way, so overlap is a prefix match either way round. */
+function keysOverlap(a: QueryKey[], b: QueryKey[]): boolean {
+  return a.some((x) =>
+    b.some((y) => partialMatchKey(x, y) || partialMatchKey(y, x)),
+  );
+}
+
+/**
+ * The later entries a rollback of `entry` must unwind and replay: those whose
+ * keys overlap `entry`'s, or those of an earlier included entry. Others never
+ * saw its change, and restoring their snapshot would revert unrelated cache.
+ */
+function entriesToReplay(
+  later: OpenUndoable[],
+  entry: OpenUndoable,
+): OpenUndoable[] {
+  const affectedKeys = [...entry.queryKeys];
+  const affected: OpenUndoable[] = [];
+  for (const other of later) {
+    if (!keysOverlap(affectedKeys, other.queryKeys)) continue;
+    affected.push(other);
+    affectedKeys.push(...other.queryKeys);
+  }
+  return affected;
+}
+
 /** Drops committed entries from the front: nothing earlier can roll back over them any more. */
 function dropSettledPrefix(order: OpenUndoable[]) {
   while (order[0]?.committed) order.shift();
@@ -147,7 +177,7 @@ export function startUndoableMutation<TResult = unknown>(
   const rollback = () => {
     const open = order;
     const index = open.indexOf(entry);
-    const later = open.slice(index + 1);
+    const later = entriesToReplay(open.slice(index + 1), entry);
     open.splice(index, 1);
     // Unwind newest first down to this entry's pre-apply state, then replay
     // the later ones so their changes survive.

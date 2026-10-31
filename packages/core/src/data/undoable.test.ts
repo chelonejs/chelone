@@ -271,6 +271,25 @@ describe("startUndoableMutation", () => {
     expect(ids(qc)).toEqual([1, 3]);
   });
 
+  it("undoing an undoable leaves a later one on unrelated keys alone", () => {
+    const qc = seedPosts();
+    const comments = startUndoableMutation({
+      queryClient: qc,
+      queryKeys: [["comments"]],
+      applyOptimistic: () => {},
+      commit: () => Promise.resolve({}),
+    });
+    deletePost(qc, 2);
+    qc.setQueryData(listKey("posts"), {
+      data: [{ id: 1 }, { id: 3 }, { id: 4 }],
+      total: 3,
+    });
+
+    comments.undo();
+
+    expect(ids(qc)).toEqual([1, 3, 4]);
+  });
+
   it("undoing an earlier undoable keeps a later committed one's change", async () => {
     const qc = seedPosts();
     const first = deletePost(qc, 1);
