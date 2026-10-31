@@ -316,7 +316,10 @@ export {
 export type { DataTableNumberColProps } from "./admin/list/data-table-number-col.vue";
 export { default as DataTableNumberCol } from "./admin/list/data-table-number-col.vue";
 export { default as DataTableRow } from "./admin/list/data-table-row.vue";
-export type { FilterFormProps } from "./admin/list/filter-form.vue";
+export type {
+  FilterFormEntry,
+  FilterFormProps,
+} from "./admin/list/filter-form.vue";
 export { default as FilterForm } from "./admin/list/filter-form.vue";
 export type { InfinitePaginationProps } from "./admin/list/infinite-pagination.vue";
 export { default as InfinitePagination } from "./admin/list/infinite-pagination.vue";

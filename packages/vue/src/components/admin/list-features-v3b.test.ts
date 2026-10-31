@@ -15,11 +15,12 @@ import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import { z } from "zod";
 import Admin from "../../admin/admin.vue";
 import { type ListContextValue, useListContext } from "../../list/list-context";
+import FilterButton from "./buttons/filter-button.vue";
 import TextField from "./fields/text-field.vue";
 import TextInput from "./inputs/text-input.vue";
 import DataTable from "./list/data-table.vue";
 import DataTableCol from "./list/data-table-col.vue";
-import FilterForm from "./list/filter-form.vue";
+import FilterForm, { type FilterFormEntry } from "./list/filter-form.vue";
 import ListPagination from "./list/list-pagination.vue";
 import List from "./view/list.vue";
 import Show from "./view/show.vue";
@@ -300,6 +301,161 @@ describe("<FilterForm>", () => {
           .value,
       ).toBe("t07"),
     );
+  });
+});
+
+describe("<FilterForm> filters prop", () => {
+  const entries: FilterFormEntry[] = [
+    { source: "title", label: "Title", component: TextInput },
+    { source: "views", label: "Views", component: TextInput },
+  ];
+
+  function mountEntries(
+    filters: FilterFormEntry[],
+    slot?: () => unknown,
+    withButton = false,
+  ) {
+    const capture: { list?: ListContextValue } = {};
+    const { wrapper } = mountAdmin(() =>
+      h(
+        List,
+        { resource: "posts" },
+        {
+          default: () => [
+            h(listProbe(capture)),
+            withButton ? h(FilterButton, { filters }) : null,
+            h(FilterForm, { filters }, slot ? { default: slot } : undefined),
+          ],
+        },
+      ),
+    );
+    return { capture, wrapper };
+  }
+
+  const field = (
+    wrapper: ReturnType<typeof mountEntries>["wrapper"],
+    source: string,
+  ) => wrapper.find(`.filter-field[data-source="${source}"]`);
+
+  it("an alwaysOn entry renders with no remove button", async () => {
+    const { capture, wrapper } = mountEntries([
+      { source: "title", component: TextInput, alwaysOn: true },
+      { source: "views", component: TextInput },
+    ]);
+    await settled(capture);
+
+    expect(field(wrapper, "title").exists()).toBe(true);
+    expect(field(wrapper, "title").find("input").exists()).toBe(true);
+    expect(field(wrapper, "title").find("button").exists()).toBe(false);
+    expect(field(wrapper, "views").exists()).toBe(false);
+  });
+
+  it("choosing an entry in FilterButton renders its input", async () => {
+    const { capture, wrapper } = mountEntries(entries, undefined, true);
+    await settled(capture);
+    expect(field(wrapper, "title").exists()).toBe(false);
+
+    await wrapper
+      .find('[data-slot="filter-button"] .add-filter')
+      .trigger("click");
+    await wrapper.find('[data-field="title"]').trigger("click");
+
+    await vi.waitFor(() => expect(field(wrapper, "title").exists()).toBe(true));
+    expect(field(wrapper, "title").text()).toContain("Title");
+    expect(field(wrapper, "views").exists()).toBe(false);
+  });
+
+  it("an entry with a value in the list filter renders without being displayed", async () => {
+    const { capture, wrapper } = mountEntries(entries);
+    await settled(capture);
+
+    capture.list?.setFilters({ views: "3" });
+
+    await vi.waitFor(() => expect(field(wrapper, "views").exists()).toBe(true));
+    expect(capture.list?.displayedFilters?.views).toBeFalsy();
+    expect(field(wrapper, "title").exists()).toBe(false);
+  });
+
+  it("the remove button hides the entry and clears its filter", async () => {
+    const { capture, wrapper } = mountEntries(entries);
+    await settled(capture);
+    capture.list?.setFilters({ title: "t05" }, { title: true });
+    await vi.waitFor(() => expect(field(wrapper, "title").exists()).toBe(true));
+    await flushPromises();
+
+    const remove = field(wrapper, "title").find("button");
+    expect(remove.attributes("title")).toBe("Remove filter");
+    await remove.trigger("click");
+
+    await vi.waitFor(() =>
+      expect(field(wrapper, "title").exists()).toBe(false),
+    );
+    expect(capture.list?.displayedFilters?.title).toBeFalsy();
+    expect(capture.list?.filter).toEqual({});
+  });
+
+  it("alwaysOn with defaultValue throws", () => {
+    expect(() =>
+      mountEntries([
+        {
+          source: "title",
+          component: TextInput,
+          alwaysOn: true,
+          defaultValue: "x",
+        },
+      ]),
+    ).toThrow(
+      "Cannot use alwaysOn and defaultValue on a filter input. Please use useListController({ filterDefaultValues }) instead.",
+    );
+  });
+
+  it("slotted inputs still render and drive the filter", async () => {
+    const { capture, wrapper } = mountEntries(
+      [{ source: "views", component: TextInput, alwaysOn: true }],
+      () => h(TextInput, { source: "title" }),
+    );
+    await settled(capture);
+
+    const inputs = wrapper.findAll('input[data-slot="input"]');
+    expect(inputs).toHaveLength(2);
+    // The entry's input comes first; the slotted one sits outside any filter-field.
+    expect(field(wrapper, "views").find("input").element).toBe(
+      inputs[0]?.element,
+    );
+    expect(inputs[1]?.element.closest(".filter-field")).toBeNull();
+
+    await inputs[1]?.setValue("t05");
+    await vi.waitFor(
+      () => expect(capture.list?.filter).toEqual({ title: "t05" }),
+      { timeout: 2000 },
+    );
+  });
+});
+
+describe("<FilterButton> with FilterForm entries", () => {
+  it("the menu leaves out alwaysOn entries", async () => {
+    const capture: { list?: ListContextValue } = {};
+    const filters: FilterFormEntry[] = [
+      { source: "title", component: TextInput, alwaysOn: true },
+      { source: "views", component: TextInput },
+    ];
+    const { wrapper } = mountAdmin(() =>
+      h(
+        List,
+        { resource: "posts" },
+        {
+          default: () => [h(listProbe(capture)), h(FilterButton, { filters })],
+        },
+      ),
+    );
+    await settled(capture);
+
+    await wrapper
+      .find('[data-slot="filter-button"] .add-filter')
+      .trigger("click");
+
+    expect(wrapper.find('[data-field="views"]').exists()).toBe(true);
+    expect(wrapper.find('[data-field="title"]').exists()).toBe(false);
   });
 });
 

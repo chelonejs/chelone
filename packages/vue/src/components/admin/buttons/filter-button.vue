@@ -11,8 +11,8 @@ export interface FilterButtonEntry {
 
 /** Props for {@link FilterButton}. */
 export interface FilterButtonProps {
-  /** The optional (non-alwaysOn) filters the dropdown can toggle. */
-  filters: FilterButtonEntry[];
+  /** The filters the dropdown can toggle; `alwaysOn` entries are skipped. */
+  filters: (FilterButtonEntry & { alwaysOn?: boolean })[];
   /** Extra CSS class appended to the wrapper. */
   class?: string;
 }
@@ -29,10 +29,9 @@ export interface FilterButtonProps {
  * Divergences from the React twin (deliberate):
  * - filters are described declaratively via the `filters` prop (an array of
  *   `{ source, label }`) rather than discovered from cloned React filter
- *   elements — Vue has no `cloneElement` / `useFilterContext`. The Vue
- *   `<FilterForm>` is currently slot-based (it does not yet read
- *   `displayedFilters`); this button drives the controller's displayed-filter
- *   state so a future `displayedFilters`-aware form consumes it.
+ *   elements — Vue has no `cloneElement` / `useFilterContext`. The same array
+ *   can feed `<FilterForm :filters>`, which renders the filters this button
+ *   shows; `alwaysOn` entries are skipped here, as in React.
  * - the saved-queries feature is dropped (chelone has no saved-queries stack).
  *
  * Renders nothing when there are no togglable filters AND no active filter
@@ -57,6 +56,8 @@ const props = defineProps<FilterButtonProps>();
 
 const list = useListContext();
 const translate = useTranslate();
+
+const togglable = computed(() => props.filters.filter((e) => !e.alwaysOn));
 
 const hasFilterValues = computed(
   () => Object.keys(list.filter ?? {}).length > 0,
@@ -89,7 +90,7 @@ function onRemoveAll(): void {
 
 <template>
   <div
-    v-if="filters.length > 0 || hasFilterValues"
+    v-if="togglable.length > 0 || hasFilterValues"
     class="inline-block"
     :class="props.class"
     data-slot="filter-button"
@@ -108,7 +109,7 @@ function onRemoveAll(): void {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" class="w-56">
         <DropdownMenuItem
-          v-for="entry in filters"
+          v-for="entry in togglable"
           :key="entry.source"
           class="new-filter-item"
           :data-field="entry.source"
@@ -119,7 +120,7 @@ function onRemoveAll(): void {
           {{ entry.label ?? humanizeSource(entry.source) }}
         </DropdownMenuItem>
         <DropdownMenuSeparator
-          v-if="hasFilterValues && filters.length > 0"
+          v-if="hasFilterValues && togglable.length > 0"
         />
         <DropdownMenuItem
           v-if="hasFilterValues"
