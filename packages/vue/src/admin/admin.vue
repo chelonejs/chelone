@@ -191,6 +191,29 @@ function addResourceRoutes(
   return removers;
 }
 
+/** True while a re-resolve is waiting on `router.isReady()`, so one replace serves all callers. */
+let resolving = false;
+
+/**
+ * vue-router resolves its first location when the app installs it, before any
+ * resource route exists, so a deep link matches nothing. Once the router is
+ * ready, replace an unmatched location with itself so it resolves against the
+ * routes added since. A failed first navigation rejects `isReady()` and is left alone.
+ */
+async function resolveWaitingLocation() {
+  if (resolving) return;
+  resolving = true;
+  try {
+    await router.isReady();
+  } catch {
+    return;
+  } finally {
+    resolving = false;
+  }
+  const current = router.currentRoute.value;
+  if (current.matched.length === 0) void router.replace(current.fullPath);
+}
+
 // Reactively reconcile the vue-router table with the registry: reading
 // `Object.keys(definitions)` tracks the shallow-reactive key set, so this
 // re-runs whenever a `<Resource>` registers or unregisters. Removed resources
@@ -208,12 +231,16 @@ watchEffect(() => {
   }
 
   // Add routes for newly registered resources.
+  let added = false;
   for (const name of names) {
     if (routeRemovers.has(name)) continue;
     const definition = definitions[name];
     if (!definition) continue;
     routeRemovers.set(name, addResourceRoutes(name, definition));
+    added = true;
   }
+
+  if (added) void resolveWaitingLocation();
 });
 
 // Remove every added route when the admin scope tears down.
