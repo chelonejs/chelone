@@ -5,6 +5,11 @@ export interface TabbedFormTabProps {
   name: string;
   /** The tab header label. Defaults to `name`. */
   label?: string;
+  /**
+   * The URL segment under the form base when the tabs are URL-synced. Defaults
+   * to `name` for every tab after the first and to `''` for the first.
+   */
+  path?: string;
 }
 </script>
 

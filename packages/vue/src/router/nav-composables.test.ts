@@ -28,6 +28,7 @@ const ROUTES: RouteRecordRaw[] = [
   { path: "/posts/create", component: Blank },
   { path: "/posts/:id", component: Blank },
   { path: "/posts/:id/show", component: Blank },
+  { path: "/files/:pathMatch(.*)*", component: Blank },
 ];
 
 /**
@@ -146,6 +147,20 @@ describe("nav-composables — vue-router adapter bridge", () => {
 
     await router.push("/posts/99");
     expect(params.value.id).toBe("99");
+  });
+
+  it("useParams exposes the catch-all under * joined with a slash", async () => {
+    const { router, captured: params } = await mountConsumer(
+      () => useParams(),
+      { start: "/files/a/b" },
+    );
+    expect(params.value["*"]).toBe("a/b");
+
+    await router.push("/files/c");
+    expect(params.value["*"]).toBe("c");
+
+    await router.push("/files");
+    expect(params.value["*"]).toBe("");
   });
 
   it("useMatch matches the current pathname against a pattern", async () => {

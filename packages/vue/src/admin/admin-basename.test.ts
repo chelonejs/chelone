@@ -78,8 +78,8 @@ describe("<Admin> basename", () => {
     expect(router.getRoutes().map(({ path }) => path)).toEqual(
       expect.arrayContaining([
         "/admin/posts",
-        "/admin/posts/create",
-        "/admin/posts/:id",
+        "/admin/posts/create/:pathMatch(.*)*",
+        "/admin/posts/:id/:pathMatch(.*)*",
         "/admin/posts/:id/show",
       ]),
     );
