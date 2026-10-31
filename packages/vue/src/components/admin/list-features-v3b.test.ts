@@ -8,7 +8,7 @@
 
 import { defineResources, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
@@ -175,6 +175,130 @@ describe("<FilterForm>", () => {
     await vi.waitFor(
       () => expect(capture.list?.filter).toEqual({ title: "t05" }),
       { timeout: 2000 },
+    );
+  });
+
+  function mountFilterForm() {
+    const capture: { list?: ListContextValue } = {};
+    const { wrapper } = mountAdmin(() =>
+      h(
+        List,
+        { resource: "posts" },
+        {
+          default: () => [
+            h(listProbe(capture)),
+            h(FilterForm, null, {
+              default: () => h(TextInput, { source: "title" }),
+            }),
+          ],
+        },
+      ),
+    );
+    return { capture, wrapper };
+  }
+
+  it("typing keeps a filter the form has no input for", async () => {
+    const { capture, wrapper } = mountFilterForm();
+    await settled(capture);
+
+    capture.list?.setFilters({ views: 3 });
+    await vi.waitFor(() => expect(capture.list?.filter).toEqual({ views: 3 }));
+    // Let the URL sync settle: it re-seeds the list from the URL otherwise.
+    await flushPromises();
+
+    await wrapper.find('input[data-slot="input"]').setValue("t05");
+
+    await vi.waitFor(
+      () => expect(capture.list?.filter).toEqual({ views: 3, title: "t05" }),
+      { timeout: 2000 },
+    );
+  });
+
+  it("clearing the list filter elsewhere empties the inputs", async () => {
+    const { capture, wrapper } = mountFilterForm();
+    await settled(capture);
+
+    const input = wrapper.find('input[data-slot="input"]');
+    await input.setValue("t05");
+    await vi.waitFor(
+      () => expect(capture.list?.filter).toEqual({ title: "t05" }),
+      { timeout: 2000 },
+    );
+
+    capture.list?.setFilters({});
+    await vi.waitFor(() =>
+      expect((input.element as HTMLInputElement).value).toBe(""),
+    );
+  });
+
+  const inputValue = (wrapper: ReturnType<typeof mountFilterForm>["wrapper"]) =>
+    (wrapper.find('input[data-slot="input"]').element as HTMLInputElement)
+      .value;
+  const pastDebounce = () => new Promise((r) => setTimeout(r, 700));
+
+  it("typing back to the current filter cancels the push still waiting", async () => {
+    const { capture, wrapper } = mountFilterForm();
+    await settled(capture);
+    capture.list?.setFilters({ title: "t05" });
+    await vi.waitFor(() => expect(inputValue(wrapper)).toBe("t05"));
+    await flushPromises();
+
+    const input = wrapper.find('input[data-slot="input"]');
+    await input.setValue("t05x");
+    await input.setValue("t05");
+    await pastDebounce();
+
+    expect(capture.list?.filter).toEqual({ title: "t05" });
+    expect(inputValue(wrapper)).toBe("t05");
+  });
+
+  it("an edit that leaves the filter unchanged does not hide a later external change", async () => {
+    const { capture, wrapper } = mountFilterForm();
+    await settled(capture);
+
+    const input = wrapper.find('input[data-slot="input"]');
+    await input.setValue("a");
+    await input.setValue("");
+    capture.list?.setFilters({ title: "t07" });
+
+    await vi.waitFor(() => expect(inputValue(wrapper)).toBe("t07"));
+  });
+
+  it("an external change made while an edit is waiting wins over the edit", async () => {
+    const { capture, wrapper } = mountFilterForm();
+    await settled(capture);
+
+    await wrapper.find('input[data-slot="input"]').setValue("abc");
+    capture.list?.setFilters({ views: 3 });
+
+    await vi.waitFor(() => expect(inputValue(wrapper)).toBe(""));
+    await pastDebounce();
+    expect(capture.list?.filter).toEqual({ views: 3 });
+  });
+
+  it("an external call that leaves the filter as it was still empties an edit it cancelled", async () => {
+    const { capture, wrapper } = mountFilterForm();
+    await settled(capture);
+
+    await wrapper.find('input[data-slot="input"]').setValue("abc");
+    capture.list?.setFilters({});
+
+    await vi.waitFor(() => expect(inputValue(wrapper)).toBe(""));
+    await pastDebounce();
+    expect(capture.list?.filter).toEqual({});
+  });
+
+  it("an external filter change fills the matching input", async () => {
+    const { capture, wrapper } = mountFilterForm();
+    await settled(capture);
+
+    capture.list?.setFilters({ title: "t07" });
+
+    await vi.waitFor(() =>
+      expect(
+        (wrapper.find('input[data-slot="input"]').element as HTMLInputElement)
+          .value,
+      ).toBe("t07"),
     );
   });
 });

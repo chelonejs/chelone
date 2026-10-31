@@ -165,16 +165,20 @@ function applyFilterAndSort<TRecord>(
   }
   result = result.filter(filterCallback);
   // Sort a COPY — never mutate the source array.
-  const primary = sort[0];
-  if (primary?.field) {
+  const keys = sort.filter((entry) => entry.field);
+  if (keys.length > 0) {
     result = [...result].sort((a, b) => {
-      const av = getByPath(a, primary.field);
-      const bv = getByPath(b, primary.field);
-      if (av === bv) return 0;
-      if (av == null) return primary.order === "ASC" ? -1 : 1;
-      if (bv == null) return primary.order === "ASC" ? 1 : -1;
-      if (av > bv) return primary.order === "ASC" ? 1 : -1;
-      return primary.order === "ASC" ? -1 : 1;
+      for (const { field, order } of keys) {
+        const asc = order === "ASC";
+        const av = getByPath(a, field);
+        const bv = getByPath(b, field);
+        if (av === bv || (av == null && bv == null)) continue;
+        if (av == null) return asc ? -1 : 1;
+        if (bv == null) return asc ? 1 : -1;
+        if (av > bv) return asc ? 1 : -1;
+        if (av < bv) return asc ? -1 : 1;
+      }
+      return 0;
     });
   }
   return result;
@@ -243,13 +247,16 @@ export function createClientListController<
       filterCallback,
     );
     const total = filteredAndSorted.length;
-    const start = (s.page - 1) * s.perPage;
+    const lastPage = Math.max(Math.ceil(total / s.perPage), 1);
+    const page = Math.min(Math.max(s.page, 1), lastPage);
+    const start = (page - 1) * s.perPage;
     const paginated = filteredAndSorted.slice(start, start + s.perPage);
     store.setState({
+      page,
       data: paginated,
       total,
-      hasNextPage: s.page * s.perPage < total,
-      hasPreviousPage: s.page > 1,
+      hasNextPage: page * s.perPage < total,
+      hasPreviousPage: page > 1,
     });
   };
 
