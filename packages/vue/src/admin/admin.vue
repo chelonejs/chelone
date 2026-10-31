@@ -80,13 +80,14 @@ export interface AdminProps<TResources extends ResourceMap = ResourceMap> {
  * slot always renders — that is where `<Resource>` markers live and register.
  */
 
-import type {
-  AnyCheloneI18n,
-  AuthProvider,
-  CheloneStore,
-  DataProvider,
-  NotificationStore,
-  ResourceMap,
+import {
+  type AnyCheloneI18n,
+  type AuthProvider,
+  type CheloneStore,
+  type DataProvider,
+  joinBasename,
+  type NotificationStore,
+  type ResourceMap,
 } from "@chelone/core";
 import { BasenameKey } from "../router/adapter";
 import { QueryClient, VUE_QUERY_CLIENT } from "@tanstack/vue-query";
@@ -165,7 +166,7 @@ function addResourceRoutes(
   if (definition.create) {
     removers.push(
       router.addRoute({
-        path: `/${name}/create`,
+        path: joinBasename(`/${name}/create`, basename),
         name: `chelone-${name}-create`,
         component: definition.create,
       }),
@@ -174,7 +175,7 @@ function addResourceRoutes(
   if (definition.show) {
     removers.push(
       router.addRoute({
-        path: `/${name}/:id/show`,
+        path: joinBasename(`/${name}/:id/show`, basename),
         name: `chelone-${name}-show`,
         component: definition.show,
       }),
@@ -183,7 +184,7 @@ function addResourceRoutes(
   if (definition.edit) {
     removers.push(
       router.addRoute({
-        path: `/${name}/:id`,
+        path: joinBasename(`/${name}/:id`, basename),
         name: `chelone-${name}-edit`,
         component: definition.edit,
       }),
@@ -192,7 +193,7 @@ function addResourceRoutes(
   if (definition.list) {
     removers.push(
       router.addRoute({
-        path: `/${name}`,
+        path: joinBasename(`/${name}`, basename),
         name: `chelone-${name}-list`,
         component: definition.list,
       }),

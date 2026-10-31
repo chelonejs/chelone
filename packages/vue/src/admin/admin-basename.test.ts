@@ -42,4 +42,46 @@ describe("<Admin> basename", () => {
       "/app/admin/posts",
     );
   });
+
+  it.each(["/admin", "/admin/"])(
+    "the resource routes are added under the basename (%s)",
+    async (basename) => {
+      const router = makeRouter();
+      await router.push("/admin");
+      mount(Admin, {
+        props: { dataProvider: fakeDataProvider({}), basename },
+        slots: {
+          default: () =>
+            h(Resource, {
+              name: "posts",
+              list: Posts,
+              create: Blank,
+              edit: Blank,
+              show: Blank,
+            }),
+          dashboard: () => h("section", "dashboard"),
+        },
+        global: { plugins: [router] },
+      });
+      await flushPromises();
+
+      for (const [path, name] of [
+        ["/admin/posts", "chelone-posts-list"],
+        ["/admin/posts/create", "chelone-posts-create"],
+        ["/admin/posts/42", "chelone-posts-edit"],
+        ["/admin/posts/42/show", "chelone-posts-show"],
+      ] as const) {
+        expect(router.resolve(path).name).toBe(name);
+      }
+      expect(router.getRoutes().map(({ path }) => path)).toEqual(
+        expect.arrayContaining([
+          "/admin/posts",
+          "/admin/posts/create",
+          "/admin/posts/:id",
+          "/admin/posts/:id/show",
+        ]),
+      );
+      expect(router.resolve("/posts").matched).toEqual([]);
+    },
+  );
 });
