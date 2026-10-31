@@ -22,6 +22,7 @@ export interface SidebarProps {
  * (and the `peer`-based `<main>` width transition) key off.
  */
 
+import { onBeforeUnmount, watch } from "vue";
 import { cn } from "../../../lib/utils";
 import { useSidebar } from "./sidebar-context";
 
@@ -31,11 +32,63 @@ const props = withDefaults(defineProps<SidebarProps>(), {
   side: "left",
 });
 
-const { state } = useSidebar();
+const { state, isMobile, openMobile, setOpenMobile } = useSidebar();
+
+// Below the md breakpoint the sidebar is a drawer, closed by Escape or a
+// backdrop click. Same dependency-free pattern as `admin/feedback/confirm.vue`:
+// inline, no `<Teleport>`, the keydown listener bound only while it is open.
+function onKeydown(event: KeyboardEvent): void {
+  if (event.key === "Escape") setOpenMobile(false);
+}
+
+watch(
+  () => isMobile.value && openMobile.value,
+  (open) => {
+    if (typeof document === "undefined") return;
+    if (open) document.addEventListener("keydown", onKeydown);
+    else document.removeEventListener("keydown", onKeydown);
+  },
+  { immediate: true },
+);
+
+onBeforeUnmount(() => {
+  if (typeof document !== "undefined")
+    document.removeEventListener("keydown", onKeydown);
+});
 </script>
 
 <template>
+  <template v-if="isMobile">
+    <div
+      v-if="openMobile"
+      class="fixed inset-0 z-50 text-sidebar-foreground"
+      data-slot="sidebar-drawer-root"
+    >
+      <div
+        class="absolute inset-0 bg-black/50"
+        data-slot="sidebar-backdrop"
+        @click="setOpenMobile(false)"
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Sidebar"
+        :class="
+          cn(
+            'absolute inset-y-0 flex h-svh w-[--sidebar-width] flex-col bg-sidebar shadow-lg',
+            side === 'right' ? 'right-0' : 'left-0',
+            props.class,
+          )
+        "
+        :data-side="side"
+        data-slot="sidebar-drawer"
+      >
+        <slot />
+      </div>
+    </div>
+  </template>
   <div
+    v-else
     class="group peer hidden text-sidebar-foreground md:block"
     :data-state="state"
     :data-collapsible="state === 'collapsed' ? collapsible : ''"

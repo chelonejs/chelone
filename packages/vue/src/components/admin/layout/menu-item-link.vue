@@ -44,13 +44,20 @@ export interface MenuItemLinkProps {
  * is a prop invoked on click rather than a synthetic-event handler.
  */
 
-import { computed } from "vue";
+import { computed, inject } from "vue";
 import { RouterLink } from "vue-router";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useBasename, useMatch } from "../../../router";
-import { SidebarMenuButton, SidebarMenuItem } from "../../ui/sidebar";
+import {
+  SidebarContextKey,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "../../ui/sidebar";
 
 const props = defineProps<MenuItemLinkProps>();
+
+// Optional: a menu item can render outside a `<SidebarProvider>` (a custom shell).
+const sidebar = inject(SidebarContextKey, null);
 
 const translate = useTranslate();
 const basename = useBasename();
@@ -63,6 +70,11 @@ const basename = useBasename();
 const match = useMatch({ path: props.to, end: props.to === `${basename}/` });
 const isActive = computed(() => match.value != null);
 const text = computed(() => translate(props.label, { _: props.label }));
+
+function onClick(): void {
+  props.onClick?.();
+  if (sidebar?.openMobile.value) sidebar.setOpenMobile(false);
+}
 </script>
 
 <template>
@@ -72,7 +84,7 @@ const text = computed(() => translate(props.label, { _: props.label }));
       :to="to"
       :is-active="isActive"
       :class="props.class"
-      @click="onClick?.()"
+      @click="onClick"
     >
       <component :is="icon" v-if="icon" />
       <slot name="icon" />
