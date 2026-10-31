@@ -114,8 +114,11 @@ const npmRoot = (importPath) => {
 const stripExt = (rel) => rel.replace(/\.(tsx?|vue)$/, "");
 
 // A ui item's name: its file (or subdir) basename, unless itemNames renames it.
+// A subdir is one item, so its rename may be keyed on the dir or on its barrel.
 const uiItemName = (segment) =>
-  ITEM_NAMES.get(`components/ui/${segment}`) ?? segment;
+  ITEM_NAMES.get(`components/ui/${segment}`) ??
+  ITEM_NAMES.get(`components/ui/${segment}/index`) ??
+  segment;
 
 // The flat `components/ui/index` barrel re-exports the primitives; it is no
 // item, and a shipped file importing it would copy it (and so every primitive)
@@ -144,9 +147,12 @@ export const fileToItemRef = (absFile, repoRoot) => {
   if (isUiBarrel(absFile, repoRoot)) return null;
 
   // itemNames overrides every rule below, for the file's own item and for every
-  // dep that resolves onto it.
+  // dep that resolves onto it. Files inside a ui subdir are left to the ui rule
+  // below, which names the subdir's one item.
   const named = ITEM_NAMES.get(noExt);
-  if (named) return { kind: "ours", name: named };
+  if (named && !/^components\/ui\/[^/]+\//.test(noExt)) {
+    return { kind: "ours", name: named };
+  }
 
   // ui/ files are OUR items (the primitive layer ships in this registry). A flat
   // file (`ui/button.tsx`) is one item named after its basename. A ui SUBDIR

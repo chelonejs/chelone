@@ -288,3 +288,30 @@ it("build accepts a .vue item whose template text looks like an import", () => {
   expect(build.status, build.stderr).toBe(0);
   expect(build.stdout).toContain("Gate passed.");
 });
+
+it("itemNames keyed on a ui subdir's index renames the one item the subdir ships as", () => {
+  const fixture = generatorFixture(
+    {
+      "src/components/ui/color-picker/index.ts":
+        'export { default as ColorPicker } from "./color-picker.vue";\n',
+      "src/components/ui/color-picker/color-picker.vue":
+        '<template><input type="color" /></template>\n',
+      "src/components/ui/color-picker/color-picker.types.ts":
+        "export type Color = string;\n",
+    },
+    {
+      ...vueEngine,
+      itemNames: { "components/ui/color-picker/index": "picker" },
+    },
+  );
+
+  expect(fixture.stderr).toBe("");
+  expect(fixture.item("color-picker")).toBeUndefined();
+  expect(
+    fixture.item("picker").files.map((file: { path: string }) => file.path),
+  ).toEqual([
+    "src/components/ui/color-picker/color-picker.types.ts",
+    "src/components/ui/color-picker/color-picker.vue",
+    "src/components/ui/color-picker/index.ts",
+  ]);
+});
