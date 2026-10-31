@@ -147,6 +147,28 @@ describe("subscribeLiveResource", () => {
     expect(invalidate).toHaveBeenCalledTimes(2);
   });
 
+  it("keeps holding while the committed server call is in flight", async () => {
+    const { ctx, emit, flush, invalidate } = setup();
+    subscribeLiveResource(ctx, "posts");
+    let finish: () => void = () => {};
+    const handle = startUndoableMutation({
+      queryClient: ctx.queryClient,
+      queryKeys: [["posts"]],
+      applyOptimistic: () => {},
+      commit: () => new Promise<void>((resolve) => (finish = resolve)),
+    });
+
+    const committed = handle.commit();
+    await emit("resource/posts");
+    await flush();
+    expect(invalidate).not.toHaveBeenCalled();
+
+    finish();
+    await committed;
+    await flush();
+    expect(invalidate).toHaveBeenCalledTimes(1);
+  });
+
   it("replays held events when the undoable mutation is undone", async () => {
     const { ctx, emit, flush, invalidate } = setup();
     subscribeLiveResource(ctx, "posts");

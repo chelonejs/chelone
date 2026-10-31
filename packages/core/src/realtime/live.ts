@@ -1,6 +1,6 @@
 import { lockKey, locksKey, resourceKey } from "../data/keys";
 import type { DataContext } from "../data/query-options";
-import { hasPendingUndoables, onUndoablesSettled } from "../data/undoable";
+import { hasUnsettledUndoables, onUndoablesSettled } from "../data/undoable";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceMap } from "../resource/registry";
 import { assertRealtimeDataProvider } from "./realtime-data-provider";
@@ -68,7 +68,7 @@ function subscribeLive<TResources extends ResourceMap>(
 
   const onEvent = () => {
     if (stopped) return;
-    if (spec.holdWhileUndoable && hasPendingUndoables()) {
+    if (spec.holdWhileUndoable && hasUnsettledUndoables()) {
       holdForUndoable();
       return;
     }

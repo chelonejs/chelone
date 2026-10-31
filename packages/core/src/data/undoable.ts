@@ -69,10 +69,12 @@ export interface UndoableHandle<TResult = unknown> {
  */
 const pendingUndoables = new Set<UndoableHandle<unknown>>();
 const settledListeners = new Set<() => void>();
+/** Committed undoables whose deferred server call has not settled yet. */
+let inFlightCommits = 0;
 
 /** Calls the listeners once no undoable is pending: after an undo, or after a commit's server call settles. */
 function notifySettled() {
-  if (pendingUndoables.size > 0) return;
+  if (hasUnsettledUndoables()) return;
   for (const listener of [...settledListeners]) listener();
 }
 
@@ -218,6 +220,7 @@ export function startUndoableMutation<TResult = unknown>(
       if (state === "undone") return Promise.resolve(undefined);
       state = "committed";
       pendingUndoables.delete(handle);
+      inFlightCommits += 1;
       commitPromise = commit().then(
         (result) => {
           entry.committed = true;
@@ -232,7 +235,11 @@ export function startUndoableMutation<TResult = unknown>(
         },
       );
       // A separate branch, so the caller still sees the rejection.
-      commitPromise.then(notifySettled, notifySettled);
+      const settle = () => {
+        inFlightCommits -= 1;
+        notifySettled();
+      };
+      commitPromise.then(settle, settle);
       return commitPromise;
     },
   };
@@ -244,6 +251,11 @@ export function startUndoableMutation<TResult = unknown>(
 /** True while at least one undoable mutation is still awaiting commit/undo. */
 export function hasPendingUndoables(): boolean {
   return pendingUndoables.size > 0;
+}
+
+/** True while an undoable is pending or its committed server call is still in flight. */
+export function hasUnsettledUndoables(): boolean {
+  return pendingUndoables.size > 0 || inFlightCommits > 0;
 }
 
 /** Runs `listener` each time the last pending undoable mutation settles. */
