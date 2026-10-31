@@ -183,6 +183,54 @@ describe("useBlocker — vue-router adapter", () => {
     expect(history.location).toBe("/");
   });
 
+  it("a superseded navigation does not block again in a second blocker", async () => {
+    const flag = ref(false);
+    const history = createMemoryHistory();
+    const router = createRouter({ history, routes: ROUTES });
+    await router.push("/");
+    await router.isReady();
+
+    let first!: RouterBlocker;
+    let second!: RouterBlocker;
+    const Child = defineComponent({
+      setup() {
+        first = useBlocker(flag);
+        second = useBlocker(flag);
+        return () => h("div");
+      },
+    });
+    const Root = defineComponent({
+      setup() {
+        provideVueRouterAdapter();
+        return () => h(Child);
+      },
+    });
+    mount(Root, { global: { plugins: [router] } });
+    await router.push("/posts");
+    await router.push("/posts/1");
+    flag.value = true;
+
+    router.go(-1);
+    await flushPromises();
+    expect(first.location.value?.pathname).toBe("/posts");
+
+    router.go(-1);
+    await flushPromises();
+    expect(first.location.value?.pathname).toBe("/");
+    expect(second.state.value).toBe("unblocked");
+    expect(second.location.value).toBeNull();
+
+    first.proceed();
+    await flushPromises();
+    // The second blocker holds the live navigation, not the superseded one.
+    expect(second.location.value?.pathname).toBe("/");
+    second.proceed();
+    await flushPromises();
+
+    expect(router.currentRoute.value.fullPath).toBe("/");
+    expect(history.location).toBe("/");
+  });
+
   it("the guard is removed when the scope is disposed", async () => {
     const { router, wrapper, blocker } = await mountBlocker(true);
 

@@ -46,7 +46,7 @@ import {
   toValue,
 } from "vue";
 import type { HistoryState } from "vue-router";
-import { useRoute, useRouter } from "vue-router";
+import { type Router, useRoute, useRouter } from "vue-router";
 import {
   type AdapterNavigate,
   type AdapterNavigateOpts,
@@ -94,6 +94,30 @@ function toNeutralParams(
     out[key] = Array.isArray(value) ? value.join("/") : value;
   }
   return out;
+}
+
+/**
+ * Per router, which navigation a blocker guard saw most recently. vue-router
+ * keeps running a superseded navigation through the remaining guards until its
+ * own cancelled check, so a later blocker would otherwise hold it. `to` is the
+ * same object in every guard of one navigation, so a `to` already seen that is
+ * not `latest` is superseded.
+ */
+const navigations = new WeakMap<
+  Router,
+  { seen: WeakSet<object>; latest: object | null }
+>();
+
+function isSuperseded(router: Router, to: object): boolean {
+  let tracker = navigations.get(router);
+  if (!tracker) {
+    tracker = { seen: new WeakSet(), latest: null };
+    navigations.set(router, tracker);
+  }
+  if (tracker.seen.has(to)) return tracker.latest !== to;
+  tracker.seen.add(to);
+  tracker.latest = to;
+  return false;
 }
 
 /** The vue-router-backed default adapter. */
@@ -161,6 +185,10 @@ export const vueRouterAdapter: RouterAdapter = {
     };
 
     const stopGuard = router.beforeEach((to, from) => {
+      // Let vue-router fail a navigation superseded elsewhere as cancelled,
+      // without touching what this blocker holds for the live one.
+      if (isSuperseded(router, to)) return true;
+
       // A new navigation while one is held supersedes it. Resolve the held
       // guard `true` so vue-router's own pending-location check fails it as
       // cancelled: a `false` aborts it, and for a popstate navigation
