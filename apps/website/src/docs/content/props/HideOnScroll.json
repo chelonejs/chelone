@@ -1,0 +1,11 @@
+{
+  "name": "HideOnScroll",
+  "props": [
+    {
+      "name": "threshold",
+      "type": "number",
+      "optional": true,
+      "comment": "Scroll offset in pixels a downward scroll must pass before hiding."
+    }
+  ]
+}
