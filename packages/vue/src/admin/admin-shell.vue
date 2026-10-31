@@ -18,12 +18,14 @@
  * `<Admin>` behavior where an override owned its own theming.
  */
 
+import { joinBasename } from "@chelone/core";
 import { computed, useSlots } from "vue";
 import { START_LOCATION, useRoute, useRouter } from "vue-router";
 import Layout from "../components/admin/layout/layout.vue";
 import ThemeProvider from "../components/admin/layout/theme-provider.vue";
 import LoginPage from "../components/admin/auth/login-page.vue";
 import Spinner from "../components/ui/spinner.vue";
+import { useBasename } from "../router/adapter";
 import { useWatchDataErrors } from "../auth/permissions-hooks";
 import { useAuthGate } from "./auth-gate";
 import NavigateToFirstResource from "./navigate-to-first-resource.vue";
@@ -42,14 +44,17 @@ defineSlots<{
 const gate = useAuthGate(props.requireAuth);
 const slots = useSlots();
 
-// The index is the path `/` exactly: `<Admin>` has no `basename` prop yet.
+// The index is the basename root, with or without a trailing slash.
 // Before the first navigation settles the router sits on `START_LOCATION`,
 // whose path is also `/`, so a deep link would flash the dashboard. `useRoute()`
 // wraps the location in a proxy, so compare the router's own object.
 const route = useRoute();
 const router = useRouter();
+const indexPath = joinBasename("/", useBasename());
 const isIndex = computed(
-  () => router.currentRoute.value !== START_LOCATION && route.path === "/",
+  () =>
+    router.currentRoute.value !== START_LOCATION &&
+    (route.path === indexPath || route.path === `${indexPath}/`),
 );
 
 // R2 — wire `checkError` → auto-logout into the data-error path. Mounted here

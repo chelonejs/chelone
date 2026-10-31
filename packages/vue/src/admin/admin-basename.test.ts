@@ -3,6 +3,7 @@ import { enableAutoUnmount, flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
+import { useRedirect } from "../router/nav-composables";
 import Admin from "./admin.vue";
 import Resource from "./resource.vue";
 
@@ -84,4 +85,62 @@ describe("<Admin> basename", () => {
       expect(router.resolve("/posts").matched).toEqual([]);
     },
   );
+
+  it("useRedirect to a list lands under the basename once", async () => {
+    const router = makeRouter();
+    await router.push("/outside");
+    const RedirectButton = defineComponent({
+      setup() {
+        const redirect = useRedirect();
+        return () =>
+          h("button", { onClick: () => redirect("list", "posts") }, "Go");
+      },
+    });
+    const wrapper = mount(Admin, {
+      props: { dataProvider: fakeDataProvider({}), basename: "/admin" },
+      slots: {
+        default: () => [
+          h(Resource, { name: "posts", list: Posts }),
+          h(RedirectButton),
+        ],
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
+
+    await wrapper.get("button").trigger("click");
+    await flushPromises();
+
+    expect(router.currentRoute.value.path).toBe("/admin/posts");
+    expect(router.currentRoute.value.name).toBe("chelone-posts-list");
+    expect(router.resolve(router.currentRoute.value).href).toBe("/app/admin/posts");
+    expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
+  });
+
+  it("the #dashboard slot shows at the basename index only", async () => {
+    const router = makeRouter();
+    await router.push("/admin");
+    const wrapper = mount(Admin, {
+      props: { dataProvider: fakeDataProvider({}), basename: "/admin" },
+      slots: {
+        default: () => h(Resource, { name: "posts", list: Posts }),
+        dashboard: () => h("section", { "data-testid": "dashboard" }, "DASH"),
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
+    for (const path of ["/admin/posts", "/outside", "/"]) {
+      await router.push(path);
+      await flushPromises();
+      expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(false);
+    }
+    await router.push("/admin/?page=2#top");
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
+    expect(router.currentRoute.value.path).toBe("/admin/");
+    expect(wrapper.get('a[href="/app/admin/"]').text()).toContain("Dashboard");
+  });
 });
