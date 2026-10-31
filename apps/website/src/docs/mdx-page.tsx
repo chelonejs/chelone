@@ -5,7 +5,7 @@ import { InstallCommand } from "./mdx/install-command";
 import { introSlugToSection, navTree } from "./nav-content";
 import { findGroup } from "./nav-sequence";
 import { PrevNext } from "./prev-next";
-import { installFor } from "./registry";
+import { installFor, vueInstallFor } from "./registry";
 
 interface GuideModule {
   default: ComponentType;
@@ -56,6 +56,7 @@ export default function MdxPage() {
   const title = mod.frontmatter?.title;
   const description = mod.frontmatter?.description;
   const install = installFor(mod.frontmatter?.registry);
+  const vue = vueInstallFor(mod.frontmatter?.registry);
   const Content = mod.default;
   return (
     <article className="prose prose-neutral dark:prose-invert">
@@ -68,7 +69,7 @@ export default function MdxPage() {
       {install && (
         <div className="not-prose mb-8">
           <p className="mb-2 text-sm font-semibold">Installation</p>
-          <InstallCommand install={install} />
+          <InstallCommand install={install} vue={vue} />
         </div>
       )}
       <Content />
