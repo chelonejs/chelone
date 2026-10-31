@@ -305,6 +305,7 @@ export type { BulkActionsToolbarProps } from "./admin/list/bulk-actions-toolbar.
 export { default as BulkActionsToolbar } from "./admin/list/bulk-actions-toolbar.vue";
 export type { DataTableProps } from "./admin/list/data-table.vue";
 export { default as DataTable } from "./admin/list/data-table.vue";
+export type { DataTableColProps } from "./admin/list/data-table-col.vue";
 export { default as DataTableCol } from "./admin/list/data-table-col.vue";
 export {
   type DataTablePass,
@@ -312,6 +313,8 @@ export {
   PassProvider,
   useDataTablePass,
 } from "./admin/list/data-table-context";
+export type { DataTableNumberColProps } from "./admin/list/data-table-number-col.vue";
+export { default as DataTableNumberCol } from "./admin/list/data-table-number-col.vue";
 export { default as DataTableRow } from "./admin/list/data-table-row.vue";
 export type { FilterFormProps } from "./admin/list/filter-form.vue";
 export { default as FilterForm } from "./admin/list/filter-form.vue";
