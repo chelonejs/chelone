@@ -169,6 +169,7 @@ export type {
   UseInputOptions,
   UseInputReturn,
   UseTabbedFormResult,
+  WarnWhenUnsavedChangesDecision,
 } from "./form";
 export {
   CheloneFormContextKey,
@@ -193,6 +194,7 @@ export {
   useRegisterFieldGroup,
   useSourceScope,
   useTabbedFormContext,
+  useWarnWhenUnsavedChanges,
   useWrappedSource,
 } from "./form";
 export type { Subscribable } from "./form/subscribe-ref";

@@ -43,3 +43,5 @@ export type {
 export { useForm } from "./use-form";
 export type { UseInputOptions, UseInputReturn } from "./use-input";
 export { useInput } from "./use-input";
+export type { WarnWhenUnsavedChangesDecision } from "./use-warn-when-unsaved-changes";
+export { useWarnWhenUnsavedChanges } from "./use-warn-when-unsaved-changes";
