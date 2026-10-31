@@ -32,15 +32,36 @@ const REPRESENTATIVE_ITEMS = [
   "spinner",
 ];
 
-// Keeps module-resolution errors (TS2307 module not found, TS2305 no exported
-// member) reported against a copied .vue or .ts file. The tsconfig pins rootDir
-// to src, so copied files are always reported with a `src/` prefix.
+// Keeps module-resolution errors reported against a copied .vue or .ts file:
+// TS2307 module not found, TS2305 no exported member, and the three codes a
+// `.vue` import reports instead. Every `.vue` module has a default export, so a
+// missing named import comes back as TS2614 (or TS2724 when a close name
+// exists) and a missing default as TS1192. The tsconfig pins rootDir to src, so
+// copied files are always reported with a `src/` prefix.
+const SOURCE_DIAGNOSTIC = /^src\/.+\.(vue|ts)\(\d+,\d+\): error TS\d+:/;
+
 export const filterResolutionErrors = (compilerOutput) =>
   compilerOutput
     .split("\n")
     .filter((line) =>
-      /^src\/.+\.(vue|ts)\(\d+,\d+\): error TS(2307|2305):/.test(line),
+      /^src\/.+\.(vue|ts)\(\d+,\d+\): error TS(2307|2305|2614|2724|1192):/.test(
+        line,
+      ),
     );
+
+// vue-tsc exits non-zero on ordinary type noise, so a non-zero exit alone is not
+// a failure. A compiler that never spawned, or that failed without reporting one
+// source diagnostic (a bad tsconfig, no inputs), checked nothing and must not
+// read as a pass.
+export const compilerRunFailure = ({ code, status, output }) => {
+  if (code || status === null || status === undefined) {
+    return `vue-tsc did not run (${code ?? "no exit status"})`;
+  }
+  if (status !== 0 && !output.split("\n").some((l) => SOURCE_DIAGNOSTIC.test(l))) {
+    return `vue-tsc exited ${status} with no diagnostics on copied files:\n${output}`;
+  }
+  return null;
+};
 
 const loadItem = (name) => {
   try {
@@ -150,6 +171,7 @@ const main = () => {
   );
 
   let compilerOutput = "";
+  let run = { status: 0 };
   try {
     compilerOutput = execFileSync(
       join(pkgRoot, "node_modules", ".bin", "vue-tsc"),
@@ -158,6 +180,15 @@ const main = () => {
     );
   } catch (err) {
     compilerOutput = `${err.stdout ?? ""}${err.stderr ?? ""}`;
+    run = { code: err.code, status: err.status };
+  }
+
+  const crash = compilerRunFailure({ ...run, output: compilerOutput });
+  if (crash) {
+    console.error(
+      `\nLocal linked-consumer check FAILED: ${crash}\nScratch left at ${scratchDir} for inspection.`,
+    );
+    process.exit(1);
   }
 
   const resolutionErrors = filterResolutionErrors(compilerOutput);
