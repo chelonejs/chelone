@@ -87,6 +87,34 @@ describe("memoryTransport", () => {
     expect(listener).toHaveBeenCalledExactlyOnceWith(expected);
   });
 
+  it("a throwing error handler does not stop later subscribers or error listeners", async () => {
+    const transport = memoryTransport({
+      onError: () => {
+        throw new Error("option handler");
+      },
+    });
+    const first = vi.fn(() => {
+      throw new Error("first");
+    });
+    const later = vi.fn();
+    const throwingListener = vi.fn(() => {
+      throw new Error("listener");
+    });
+    const laterListener = vi.fn();
+    transport.onError(throwingListener);
+    transport.onError(laterListener);
+    transport.subscribe("t", first);
+    transport.subscribe("t", later);
+    transport.subscribe("t", first);
+
+    await expect(
+      transport.publish("t", { type: "created", payload: 1 }),
+    ).resolves.toBeUndefined();
+
+    expect(later).toHaveBeenCalledTimes(1);
+    expect(laterListener).toHaveBeenCalledTimes(2);
+  });
+
   it("a callback that unsubscribes during dispatch does not skip the next subscriber", async () => {
     const transport = memoryTransport();
     const calls: string[] = [];

@@ -57,8 +57,12 @@ export function memoryTransport({
   let status: RealtimeConnectionStatus = "connected";
 
   const report = (error: RealtimeTransportError) => {
-    onError?.(error);
-    for (const listener of [...errorListeners]) listener(error);
+    // A throwing error handler must not break the isolation it reports on.
+    for (const handler of [...(onError ? [onError] : []), ...errorListeners]) {
+      try {
+        handler(error);
+      } catch {}
+    }
   };
 
   return {
