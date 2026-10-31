@@ -63,7 +63,7 @@ export function useUpdate<
           params.data as Record<string, unknown>,
         ),
       commit: () => ctx.dataProvider.update(resource, params),
-      message: "ra.notification.updated",
+      message: "chelone.notification.updated",
       messageArgs: { smart_count: 1 },
     });
   };
@@ -100,7 +100,7 @@ export function useDelete<
       applyOptimistic: () =>
         removeRecordsFromCache(ctx.queryClient, resource, [params.id]),
       commit: () => ctx.dataProvider.delete(resource, params),
-      message: "ra.notification.deleted",
+      message: "chelone.notification.deleted",
       messageArgs: { smart_count: 1 },
     });
   };
@@ -147,7 +147,7 @@ export function useDeleteMany<
       applyOptimistic: () =>
         removeRecordsFromCache(ctx.queryClient, resource, params.ids),
       commit: () => ctx.dataProvider.deleteMany(resource, params),
-      message: "ra.notification.deleted",
+      message: "chelone.notification.deleted",
       messageArgs: { smart_count: params.ids.length },
     });
   };
@@ -195,7 +195,7 @@ export function useUpdateMany<
           params.data as Record<string, unknown>,
         ),
       commit: () => ctx.dataProvider.updateMany(resource, params),
-      message: "ra.notification.updated",
+      message: "chelone.notification.updated",
       messageArgs: { smart_count: params.ids.length },
     });
   };

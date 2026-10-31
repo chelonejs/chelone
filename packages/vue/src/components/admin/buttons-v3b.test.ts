@@ -9,7 +9,13 @@
  * vue-router (the Task-5 controller harness).
  */
 
-import { defineResources, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  createNotificationStore,
+  defaultMessages,
+  defineResources,
+  fakeDataProvider,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -30,6 +36,7 @@ import RefreshButton from "./buttons/refresh-button.vue";
 import ShowButton from "./buttons/show-button.vue";
 import SidebarToggleButton from "./buttons/sidebar-toggle-button.vue";
 import SortButton from "./buttons/sort-button.vue";
+import Notification from "./feedback/notification.vue";
 import List from "./view/list.vue";
 
 const resources = defineResources({
@@ -180,6 +187,52 @@ describe("<DeleteButton>", () => {
     await vi.waitFor(() =>
       expect(wrapper.find('[data-slot="confirm"]').exists()).toBe(false),
     );
+  });
+
+  it("a confirmed delete toasts Element deleted from defaultMessages", async () => {
+    const i18n = createI18n({
+      locale: "en",
+      messages: { en: defaultMessages },
+    });
+    const dataProvider = fakeDataProvider<Resources>({
+      posts: structuredClone(seed),
+    });
+    const Harness = defineComponent({
+      setup() {
+        return () =>
+          h(
+            Admin,
+            {
+              dataProvider,
+              i18n,
+              notifications: createNotificationStore(),
+              queryClient: new QueryClient({
+                defaultOptions: { queries: { retry: false } },
+              }),
+            },
+            {
+              default: () => [
+                h(
+                  withRecord({ id: 2, title: "t2" }, () =>
+                    h(DeleteButton, { resource: "posts", redirect: false }),
+                  ),
+                ),
+                h(Notification),
+              ],
+              layout: () => h("div"),
+            },
+          );
+      },
+    });
+    const wrapper = mount(Harness, { global: { plugins: [makeRouter()] } });
+
+    await wrapper.find('[data-slot="delete-button"]').trigger("click");
+    await wrapper.find('[data-slot="confirm-accept"]').trigger("click");
+
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toContain("Element deleted");
+    });
+    expect(wrapper.text()).not.toContain("notification.deleted");
   });
 
   it("does nothing when the dialog is cancelled", async () => {
