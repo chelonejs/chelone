@@ -17,67 +17,103 @@ import {
   type TranslatableMessage,
 } from "@chelone/core";
 import {
+  computed,
   type InjectionKey,
   inject,
+  type MaybeRefOrGetter,
   onScopeDispose,
   provide,
   type Ref,
   shallowRef,
+  toValue,
+  watch,
+  watchEffect,
 } from "vue";
 import { useCheloneFormContext } from "./form-context";
 import { subscribeStore } from "./subscribe-ref";
 
-const FormGroupsKey: InjectionKey<FormGroups> = Symbol("chelone-form-groups");
-const FormGroupNameKey: InjectionKey<string> = Symbol(
+const FormGroupsKey: InjectionKey<Readonly<Ref<FormGroups>>> = Symbol(
+  "chelone-form-groups",
+);
+const FormGroupNameKey: InjectionKey<Readonly<Ref<string>>> = Symbol(
   "chelone-form-group-name",
 );
 
 /**
- * Provides one {@link FormGroups} registry to the subtree and returns it. Made
- * with `createFormGroups()` unless an external registry is passed.
+ * Provides one {@link FormGroups} registry to the subtree and returns the one
+ * in effect now. Made with `createFormGroups()` unless an external registry is
+ * passed. Pass a ref or getter to follow a changing prop: consumers switch to
+ * the new registry.
  */
-export function provideFormGroups(groups?: FormGroups): FormGroups {
-  const registry = groups ?? createFormGroups();
+export function provideFormGroups(
+  groups?: MaybeRefOrGetter<FormGroups | undefined>,
+): FormGroups {
+  let created: FormGroups | undefined;
+  const registry = computed(() => {
+    const given = toValue(groups);
+    if (given) return given;
+    created ??= createFormGroups();
+    return created;
+  });
   provide(FormGroupsKey, registry);
-  return registry;
+  return registry.value;
+}
+
+/** The ambient registry as a ref, so consumers can follow a swapped registry. */
+function useFormGroupsRef(): Readonly<Ref<FormGroups>> | undefined {
+  return inject(FormGroupsKey, null) ?? undefined;
 }
 
 /** The ambient {@link FormGroups} registry; throws without a provider. */
 export function useFormGroups(): FormGroups {
-  const registry = inject(FormGroupsKey, null);
+  const registry = useFormGroupsRef();
   if (!registry) {
     throw new Error(
       "useFormGroups: no <FormGroupsProvider> found above this component.",
     );
   }
-  return registry;
+  return registry.value;
 }
 
 /** The ambient registry, or `undefined` so `useInput` never throws outside a grouped form. */
 export function useOptionalFormGroups(): FormGroups | undefined {
-  return inject(FormGroupsKey, null) ?? undefined;
-}
-
-/** Scopes every `useInput` below into the group `name`. */
-export function provideFormGroup(name: string): void {
-  provide(FormGroupNameKey, name);
-}
-
-/** The ambient group name, or `undefined` outside a `<FormGroupProvider>`. */
-export function useFormGroupName(): string | undefined {
-  return inject(FormGroupNameKey, undefined);
+  return useFormGroupsRef()?.value;
 }
 
 /**
- * Registers `source` into the ambient group in setup and unregisters on scope
- * disposal. Does nothing without a registry or a group name.
+ * Scopes every `useInput` below into the group `name`. Pass a ref or getter to
+ * follow a changing prop: inputs move to the new group.
+ */
+export function provideFormGroup(name: MaybeRefOrGetter<string>): void {
+  provide(
+    FormGroupNameKey,
+    computed(() => toValue(name)),
+  );
+}
+
+/** The ambient group name as a ref, `undefined` outside a `<FormGroupProvider>`. */
+export function useFormGroupName(): Readonly<Ref<string | undefined>> {
+  return computed(() => inject(FormGroupNameKey, undefined)?.value);
+}
+
+/**
+ * Registers `source` into the ambient group in setup, re-registers when the
+ * group or registry changes, and unregisters on scope disposal. Does nothing
+ * without a registry or a group name.
  */
 export function useRegisterFieldGroup(source: string): void {
-  const registry = useOptionalFormGroups();
-  const group = useFormGroupName();
-  if (!registry || group === undefined) return;
-  registry.register(group, source);
-  onScopeDispose(() => registry.unregister(group, source));
+  const registry = useFormGroupsRef();
+  const group = inject(FormGroupNameKey, undefined);
+  if (!registry || !group) return;
+  watchEffect(
+    (onCleanup) => {
+      const target = registry.value;
+      const name = group.value;
+      target.register(name, source);
+      onCleanup(() => target.unregister(name, source));
+    },
+    { flush: "sync" },
+  );
 }
 
 type DisplayError = string | TranslatableMessage;
@@ -115,16 +151,20 @@ function sameGroupState(a: GroupState, b: GroupState): boolean {
 
 /**
  * The reactive aggregated state of the named group (tab/step badge), reduced
- * over the ambient form's `fieldMeta` for the group's current members.
+ * over the ambient form's `fieldMeta` for the group's current members. Pass a
+ * ref or getter for `name` to follow a changing prop.
  */
-export function useFormGroup(name: string): Readonly<Ref<GroupState>> {
-  const registry = useFormGroups();
+export function useFormGroup(
+  name: MaybeRefOrGetter<string>,
+): Readonly<Ref<GroupState>> {
+  useFormGroups();
+  const registry = useFormGroupsRef() as Readonly<Ref<FormGroups>>;
   const { form } = useCheloneFormContext();
 
   const reduce = (): GroupState =>
     reduceGroupState(
       form.store.state.fieldMeta as Parameters<typeof reduceGroupState>[0],
-      registry.getMembers(name),
+      registry.value.getMembers(toValue(name)),
     );
 
   const state = shallowRef<GroupState>(reduce());
@@ -134,10 +174,18 @@ export function useFormGroup(name: string): Readonly<Ref<GroupState>> {
   };
 
   const stopStore = subscribeStore(form.store, refresh);
-  const stopRegistry = registry.subscribe(refresh);
+  // Re-subscribes when the registry is swapped; refreshes when `name` changes.
+  const stopWatch = watch(
+    [registry, () => toValue(name)],
+    (_, __, onCleanup) => {
+      onCleanup(registry.value.subscribe(refresh));
+      refresh();
+    },
+    { immediate: true, flush: "sync" },
+  );
   onScopeDispose(() => {
     stopStore();
-    stopRegistry();
+    stopWatch();
   });
   return state;
 }

@@ -1,4 +1,8 @@
-import type { FormGroups, GroupState } from "@chelone/core";
+import {
+  createFormGroups,
+  type FormGroups,
+  type GroupState,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -52,7 +56,7 @@ const Badge = defineComponent({
   props: { name: { type: String, required: true } },
   setup(props, { attrs }) {
     const capture = attrs.capture as Capture;
-    capture.state = useFormGroup(props.name);
+    capture.state = useFormGroup(() => props.name);
     return () => null;
   },
 });
@@ -219,5 +223,76 @@ describe("form groups", () => {
     );
     await nextTick();
     expect(registryOf(capture).getMembers("title")).toEqual([]);
+  });
+  it("an input moves to the new group when the FormGroupProvider name changes", async () => {
+    const capture: Capture = { inputs: {} };
+    const groupName = ref("a");
+    mountForm(capture, () =>
+      h(FormGroupsProvider, null, () => [
+        h(RegistryProbe, { capture }),
+        h(FormGroupProvider, { name: groupName.value }, () =>
+          h(Input, { source: "title", capture }),
+        ),
+      ]),
+    );
+    await nextTick();
+    expect(registryOf(capture).getMembers("a")).toEqual(["title"]);
+
+    groupName.value = "b";
+    await nextTick();
+    expect(registryOf(capture).getMembers("a")).toEqual([]);
+    expect(registryOf(capture).getMembers("b")).toEqual(["title"]);
+  });
+
+  it("useFormGroup follows its name when the badge's name prop changes", async () => {
+    const capture: Capture = { inputs: {} };
+    const required = (value: unknown) => (value ? undefined : "required");
+    const tab = ref("a");
+    mountForm(
+      capture,
+      () =>
+        h(FormGroupsProvider, null, () => [
+          h(FormGroupProvider, { name: "b" }, () =>
+            h(Input, { source: "title", capture, validate: required }),
+          ),
+          h(Badge, { name: tab.value, capture }),
+        ]),
+      { id: 1, title: "", views: 0 },
+    );
+    await flushPromises();
+    await capture.form?.submit();
+    await flushPromises();
+    expect(stateOf(capture).value.isValid).toBe(true);
+
+    tab.value = "b";
+    await flushPromises();
+    expect(stateOf(capture).value.isValid).toBe(false);
+    expect(stateOf(capture).value.errors).toEqual({ title: "required" });
+  });
+
+  it("inputs and badges switch to the registry passed as the groups prop", async () => {
+    const capture: Capture = { inputs: {} };
+    const first = createFormGroups();
+    const second = createFormGroups();
+    const groups = ref(first);
+    mountForm(capture, () =>
+      h(FormGroupsProvider, { groups: groups.value }, () => [
+        h(FormGroupProvider, { name: "main" }, () =>
+          h(Input, { source: "title", capture }),
+        ),
+        h(Badge, { name: "main", capture }),
+      ]),
+    );
+    await nextTick();
+    expect(first.getMembers("main")).toEqual(["title"]);
+
+    groups.value = second;
+    await nextTick();
+    expect(first.getMembers("main")).toEqual([]);
+    expect(second.getMembers("main")).toEqual(["title"]);
+
+    capture.inputs.title?.setValue("changed");
+    await flushPromises();
+    expect(stateOf(capture).value.isDirty).toBe(true);
   });
 });

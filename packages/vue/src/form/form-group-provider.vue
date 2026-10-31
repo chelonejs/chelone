@@ -14,7 +14,7 @@ export interface FormGroupProviderProps {
 import { provideFormGroup } from "./form-groups";
 
 const props = defineProps<FormGroupProviderProps>();
-provideFormGroup(props.name);
+provideFormGroup(() => props.name);
 </script>
 
 <template>
