@@ -8,6 +8,7 @@ import type { MetaEntry } from "@/docs/types";
 // ships none of them, so they have no content dirs and no _meta entry.
 export default [
   { dir: "getting-started", title: "Getting Started" },
+  { dir: "vue", title: "Vue" },
   { dir: "app-config", title: "App Config" },
   { dir: "page-components", title: "Page Components" },
   { dir: "viewing", title: "Viewing" },

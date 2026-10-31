@@ -1,5 +1,6 @@
 import {
   Boxes,
+  Layers,
   LayoutDashboard,
   type LucideIcon,
   PanelsTopLeft,
@@ -27,6 +28,10 @@ export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
       icon: LayoutDashboard,
       blurb: "List, Create, Edit, and Show — the screens of every CRUD app.",
     },
+    vue: {
+      icon: Layers,
+      blurb: "Wire Admin into your vue-router and build with the Vue adapter.",
+    },
     viewing: {
       icon: Table2,
       blurb: "Tables, fields, and read-only views for presenting records.",
@@ -40,5 +45,8 @@ export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
       blurb: "App shell, sidebar, and theming.",
     },
   };
+
+// Guide sections aren't components — keep the directory to the library itself.
+export const GUIDE_SECTIONS = new Set(["getting-started", "vue", "app-config"]);
 
 export const fallbackIcon = Boxes;
