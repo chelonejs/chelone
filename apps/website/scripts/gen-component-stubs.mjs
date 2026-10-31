@@ -127,6 +127,7 @@ const STUBS = [
   { slug: "search-input", section: "editing", component: "SearchInput", registry: "search-input", title: "SearchInput", desc: "A text input styled for list search/filtering." },
   { slug: "select-array-input", section: "editing", component: "SelectArrayInput", registry: "select-array-input", title: "SelectArrayInput", desc: "A multi-select dropdown for choosing several values." },
   { slug: "select-input", section: "editing", component: "SelectInput", registry: "select-input", title: "SelectInput", desc: "A single-select dropdown over a list of choices." },
+  { slug: "simple-form-iterator", section: "editing", component: "SimpleFormIterator", registry: "simple-form-iterator", title: "SimpleFormIterator", desc: "The ready-made row UI for an ArrayInput: add, remove, reorder and a confirmed clear." },
   { slug: "subscription-plan-picker", section: "editing", component: "SubscriptionPlanPicker", registry: "subscription-plan-picker", title: "SubscriptionPlanPicker", desc: "Chooses a subscription plan from a set of cards." },
   { slug: "text-array-input", section: "editing", component: "TextArrayInput", registry: "text-array-input", title: "TextArrayInput", desc: "Edits an array of strings as removable tags." },
   { slug: "text-input", section: "editing", component: "TextInput", registry: "text-input", title: "TextInput", desc: "A text input bound to a record field via source." },
