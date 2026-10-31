@@ -21,6 +21,7 @@ export {
   useAuthGate,
   useHandleAuthCallback,
 } from "./admin/auth-gate";
+export type { CustomRoute } from "./admin/custom-routes";
 export type { ErrorFallbackProps } from "./admin/default-error-fallback.vue";
 export { default as DefaultErrorFallback } from "./admin/default-error-fallback.vue";
 export {
