@@ -28,6 +28,11 @@ export {
   useRedirect,
   useRedirectOptional,
 } from "./nav-composables";
+export type {
+  LinkToType,
+  UseGetPathForRecordOptions,
+} from "./use-get-path-for-record";
+export { useGetPathForRecord } from "./use-get-path-for-record";
 export {
   provideVueRouterAdapter,
   vueRouterAdapter,

@@ -30,11 +30,15 @@ export type { ResourceProps } from "./admin/resource.vue";
 export { default as Resource } from "./admin/resource.vue";
 export type {
   ResourceDefinition,
+  ResourceDefinitionView,
   ResourceRegistry,
+  UseResourceDefinitionOptions,
 } from "./admin/resource-registry";
 export {
   createResourceRegistry,
   ResourceRegistryKey,
+  useResourceDefinition,
+  useResourceDefinitions,
   useResourceRegistry,
 } from "./admin/resource-registry";
 // --- array-input slice (iterator machinery consumed by array inputs) -------
@@ -230,9 +234,11 @@ export {
 export type {
   AdapterNavigate,
   AdapterNavigateOpts,
+  LinkToType,
   Redirect,
   RedirectTo,
   RouterAdapter,
+  UseGetPathForRecordOptions,
   UseMatchArgs,
 } from "./router";
 export {
@@ -241,6 +247,7 @@ export {
   RouterAdapterKey,
   useBasename,
   useCreatePath,
+  useGetPathForRecord,
   useLocation,
   useMatch,
   useNavigate,

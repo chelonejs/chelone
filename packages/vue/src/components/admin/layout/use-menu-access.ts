@@ -37,9 +37,14 @@ export interface MenuAccessResult {
   isPending: ComputedRef<boolean>;
 }
 
-/** Resolve `canAccess` for a menu item / button, tolerating a missing authProvider. */
+/**
+ * Resolve `canAccess` for a menu item / button, tolerating a missing authProvider.
+ * `enabled` (default true) skips the access query while false, so a caller that
+ * does not need the answer fires no `canAccess` call; `isPending` is then false.
+ */
 export function useMenuAccess(
   params: MaybeRefOrGetter<CanAccessParams>,
+  enabled: MaybeRefOrGetter<boolean> = true,
 ): MenuAccessResult {
   const { authProvider } = useCheloneContext();
   // Access control is only "configured" when a provider AND a `canAccess` method
@@ -54,7 +59,7 @@ export function useMenuAccess(
         authProvider ?? ({} as NonNullable<typeof authProvider>),
         toValue(params),
       ),
-      enabled: hasControl,
+      enabled: hasControl && toValue(enabled),
     })),
   );
 
@@ -65,6 +70,8 @@ export function useMenuAccess(
     canAccess: computed(() =>
       !hasControl ? true : (query.data.value ?? false),
     ),
-    isPending: computed(() => (!hasControl ? false : query.isPending.value)),
+    isPending: computed(() =>
+      !hasControl || !toValue(enabled) ? false : query.isPending.value,
+    ),
   };
 }
