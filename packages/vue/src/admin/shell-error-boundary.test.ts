@@ -1,7 +1,7 @@
 import { fakeDataProvider } from "@chelone/core";
 import { enableAutoUnmount, flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, onBeforeUnmount, ref } from "vue";
 import { createMemoryHistory, createRouter, RouterView } from "vue-router";
 import Admin from "./admin.vue";
 import Resource from "./resource.vue";
@@ -31,9 +31,11 @@ const Comments = defineComponent({
 async function mountAdmin(
   list: ReturnType<typeof defineComponent>,
   slots: Record<string, (props: never) => unknown> = {},
+  errorHandler?: (error: unknown) => void,
+  path = "/posts",
 ) {
   const router = makeRouter();
-  await router.push("/posts");
+  await router.push(path);
   const wrapper = mount(Admin, {
     props: { dataProvider: fakeDataProvider({}) },
     slots: {
@@ -44,7 +46,7 @@ async function mountAdmin(
       dashboard: () => h("section", "dashboard"),
       ...slots,
     },
-    global: { plugins: [router] },
+    global: { plugins: [router], config: { errorHandler } },
   });
   await flushPromises();
   return { wrapper, router };
@@ -155,5 +157,84 @@ describe("shell error boundary", () => {
     const { wrapper } = await mountAdmin(Posts, { layout: () => h(Broken) });
 
     expect(wrapper.get('[role="alert"]').text()).toContain("boom");
+  });
+
+  it("an error from an event handler propagates and keeps the layout", async () => {
+    const handled: unknown[] = [];
+    const Deleting = defineComponent({
+      setup: () => () =>
+        h(
+          "button",
+          {
+            "data-testid": "delete",
+            onClick: async () => {
+              throw new Error("forbidden");
+            },
+          },
+          "Delete",
+        ),
+    });
+    const { wrapper } = await mountAdmin(Deleting, {}, (error) =>
+      handled.push(error),
+    );
+
+    await wrapper.get('[data-testid="delete"]').trigger("click");
+    await flushPromises();
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="delete"]').exists()).toBe(true);
+    expect(handled).toEqual([new Error("forbidden")]);
+  });
+
+  it("an error thrown by the #error slot propagates instead of looping", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const handled: unknown[] = [];
+    const { wrapper } = await mountAdmin(
+      Broken,
+      {
+        error: ({ error }: { error: Error }) =>
+          h(
+            defineComponent({
+              props: { error: { type: Object, required: true } },
+              setup: () => () => {
+                throw new Error("fallback broke");
+              },
+            }),
+            { error },
+          ),
+      },
+      (error) => handled.push(error),
+    );
+
+    expect(handled).toEqual([new Error("fallback broke")]);
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false);
+  });
+
+  it("the first error is the one shown", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const handled: unknown[] = [];
+    const crash = ref(false);
+    const Chart = defineComponent({
+      setup() {
+        onBeforeUnmount(() => {
+          throw new Error("secondary");
+        });
+        return () => h("div");
+      },
+    });
+    const Crashing = defineComponent({
+      setup: () => () => [h(Chart), crash.value ? h(Broken) : null],
+    });
+    const { wrapper } = await mountAdmin(Crashing, {}, (error) =>
+      handled.push(error),
+    );
+
+    crash.value = true;
+    await flushPromises();
+
+    const text = wrapper.get('[role="alert"]').text();
+    expect(text).toContain("boom");
+    expect(text).not.toContain("secondary");
+    expect(handled).toEqual([new Error("secondary")]);
   });
 });

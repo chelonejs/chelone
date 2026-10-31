@@ -8,8 +8,10 @@
  * change, and the boundary has no `key`: the wrapped layout and its form state
  * survive every navigation.
  *
- * Returning `false` stops the error here, so `app.config.errorHandler` does not
- * see a captured error.
+ * Only errors from setup, render and the creation and mount hooks are
+ * captured, as in React: a failed event handler or watcher propagates and
+ * leaves the page usable. Returning `false` stops a captured error here, so
+ * `app.config.errorHandler` does not see it.
  */
 
 import { onErrorCaptured, shallowRef, watch } from "vue";
@@ -27,7 +29,30 @@ defineSlots<{
 
 const captured = shallowRef<{ error: Error; info: string } | null>(null);
 
+// Vue names the source in dev builds and links `#runtime-<code>` in production.
+const CAPTURED_SOURCES = new Set([
+  "setup function",
+  "render function",
+  "beforeCreate hook",
+  "created hook",
+  "beforeMount hook",
+  "mounted hook",
+  "0",
+  "1",
+  "bc",
+  "c",
+  "bm",
+  "m",
+]);
+
+function isCapturedSource(info: string) {
+  return CAPTURED_SOURCES.has(info.split("#runtime-").pop() ?? info);
+}
+
 onErrorCaptured((error, _instance, info) => {
+  // Later errors, such as one thrown by the fallback itself or by the tree
+  // unmounting, propagate so the first cause stays on screen and no loop starts.
+  if (captured.value || !isCapturedSource(info)) return;
   // A rethrow of a non-Error still needs a message to show.
   captured.value = {
     error: error instanceof Error ? error : new Error(String(error)),
