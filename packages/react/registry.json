@@ -1661,6 +1661,18 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/filter-list-item.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/filter-list-section.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/filter-list.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/infinite-pagination.tsx",
           "type": "registry:component"
         },
@@ -4088,6 +4100,50 @@
         "@chelone/lib-utils"
       ],
       "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "filter-list-item",
+      "type": "registry:component",
+      "title": "Filter List Item",
+      "files": [
+        {
+          "path": "src/components/admin/list/filter-list-item.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "filter-list-section",
+      "type": "registry:component",
+      "title": "Filter List Section",
+      "files": [
+        {
+          "path": "src/components/admin/list/filter-list-section.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "filter-list",
+      "type": "registry:component",
+      "title": "Filter List",
+      "files": [
+        {
+          "path": "src/components/admin/list/filter-list.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/filter-list-section"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
