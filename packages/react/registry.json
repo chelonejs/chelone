@@ -3825,7 +3825,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils"],
-      "categories": ["chelone", "components"],
+      "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
