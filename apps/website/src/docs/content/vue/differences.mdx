@@ -39,7 +39,7 @@ The full prop list for `<Admin>` and `<Resource>` is on the
 | ----- | --- | ---------- |
 | `<TabbedForm.Tab>` and `<WizardForm.Step>` are statics on the form. | `TabbedFormTab` and `WizardFormStep` are separate components, imported from `@chelone/vue`. | [Tabbed Form](/docs/editing/tabbed-form), [Wizard Form](/docs/editing/wizard-form) |
 | `useStoreItem(key, default)` returns `[value, setter]` and follows a changing key. | `useStoreItem` returns `[Ref, setter]`. The key and default are read once, in `setup`. | None |
-| A field or input `label` is a `ReactNode`. | `label` is a string, or `false` to hide it. Custom label markup goes in the default slot. | [Text Input](/docs/editing/text-input) |
+| A field or input `label` is a `ReactNode`. | `label` is a string, or `false` to hide it. An input takes no label markup. `<FieldLabelText>` renders its default slot as the label, for a label you build yourself. | [Text Input](/docs/editing/text-input) |
 | `<FilterForm>` selects the displayed filters with `alwaysOn` and a remove control per input. | `<FilterForm>` shows the inputs slotted into it. There is no `alwaysOn` and no displayed-filter selection. | [Filter Form](/docs/editing/filter-form) |
 
 ## Components

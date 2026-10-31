@@ -41,6 +41,7 @@ it("the Vue components the differences page names are exported by @chelone/vue",
     "Notification",
     "ThemeModeToggle",
     "FilterForm",
+    "FieldLabelText",
     "TabbedFormTab",
     "WizardFormStep",
   ]) {
