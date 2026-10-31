@@ -63,7 +63,7 @@ Build **`@chelone/vue`** — a full, shipped Vue 3 adapter mirroring `@chelone/r
 **Router adapter — vue-router over `RouterPort`.** Core's `RouterPort` is framework-agnostic. Vue supplies a `RouterAdapter` (same shape React's provides), injected via provide/inject (mirrors `RouterAdapterContext`):
 - Composables components consume: `useNavigate`/`useLocation`/`useParams`/`useRedirect`/`useCreatePath`, wrapping vue-router's `useRouter`/`useRoute`.
 - `<Admin>` generates vue-router route records from registered resources.
-- Unsaved-changes `block()` → vue-router `onBeforeRouteLeave` guard (analog of react-router's blocker).
+- Unsaved-changes `block()` → a vue-router `router.beforeEach` guard inside `useBlocker` (analog of react-router's blocker). Not `onBeforeRouteLeave`: the predicate needs the next location, and a form may sit outside a route component.
 - vue-router = default adapter; a second Vue router (TanStack Router Vue) is a reference slot, mirroring React.
 
 ## Section C — Component port + phase plan
