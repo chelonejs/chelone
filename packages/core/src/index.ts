@@ -317,10 +317,10 @@ export type {
   RealtimeDataProvider,
   RealtimeDataProviderOptions,
   RealtimeEvent,
-  RealtimeEventPayload,
   RealtimeEventType,
   RealtimeTransport,
   RealtimeTransportError,
+  RealtimeTransportErrorKind,
   SubscriptionCallback,
   UnlockParams,
 } from "./realtime/types";

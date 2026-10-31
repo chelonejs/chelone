@@ -3,14 +3,16 @@ import type { DataProvider } from "../data/types";
 import { addEventsForMutations } from "./add-events-for-mutations";
 import type { RealtimeEvent } from "./types";
 
-type Published = [topic: string, event: RealtimeEvent];
+type Published = [topic: string, event: Omit<RealtimeEvent, "topic">];
 
 const setup = (overrides: Partial<DataProvider> = {}) => {
   const published: Published[] = [];
   const publisher = {
-    publish: vi.fn(async (topic: string, event: RealtimeEvent) => {
-      published.push([topic, event]);
-    }),
+    publish: vi.fn(
+      async (topic: string, event: Omit<RealtimeEvent, "topic">) => {
+        published.push([topic, event]);
+      },
+    ),
   };
   const base = {
     create: vi.fn(async () => ({ data: { id: 7, title: "new" } })),

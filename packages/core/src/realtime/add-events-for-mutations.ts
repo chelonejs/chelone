@@ -8,7 +8,7 @@ export interface AddEventsForMutationsOptions {
   onError?: (error: unknown) => void;
 }
 
-type TopicEvent = readonly [topic: string, event: RealtimeEvent];
+type TopicEvent = readonly [topic: string, event: Omit<RealtimeEvent, "topic">];
 
 /**
  * Publishes after each successful write, so other clients can refresh. The

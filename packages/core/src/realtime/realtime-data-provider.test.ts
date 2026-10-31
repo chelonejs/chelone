@@ -6,12 +6,13 @@ import {
   isRealtimeDataProvider,
   realtimeDataProvider,
 } from "./realtime-data-provider";
-import type {
-  Lock,
-  LockProvider,
-  RealtimeConnectionStatus,
-  RealtimeEvent,
-  RealtimeTransport,
+import {
+  type Lock,
+  LockConflictError,
+  type LockProvider,
+  type RealtimeConnectionStatus,
+  type RealtimeEvent,
+  type RealtimeTransport,
 } from "./types";
 
 const verbs = [
@@ -32,7 +33,7 @@ const baseProvider = () =>
   ) as unknown as DataProvider;
 
 const baseTransport = (): RealtimeTransport => ({
-  subscribe: vi.fn(async () => () => {}),
+  subscribe: vi.fn(() => () => {}),
   publish: vi.fn(async () => {}),
 });
 
@@ -44,10 +45,10 @@ const aLock: Lock = {
 };
 
 const lockProvider = (): LockProvider => ({
-  lock: vi.fn(async () => ({ data: aLock })),
-  unlock: vi.fn(async () => ({ data: aLock })),
-  getLock: vi.fn(async () => ({ data: aLock })),
-  getLocks: vi.fn(async () => ({ data: [aLock] })),
+  lock: vi.fn(async () => aLock),
+  unlock: vi.fn(async () => aLock),
+  getLock: vi.fn(async () => aLock),
+  getLocks: vi.fn(async () => [aLock]),
 });
 
 describe("realtimeDataProvider", () => {
@@ -76,16 +77,17 @@ describe("realtimeDataProvider", () => {
   it("subscribe and publish go through the transport", async () => {
     const unsubscribe = vi.fn();
     const transport: RealtimeTransport = {
-      subscribe: vi.fn(async () => unsubscribe),
+      subscribe: vi.fn(() => unsubscribe),
       publish: vi.fn(async () => {}),
     };
     const dp = realtimeDataProvider(baseProvider(), transport);
     const callback = vi.fn();
-    const event: RealtimeEvent = { type: "created", payload: { ids: [1] } };
+    const event: Omit<RealtimeEvent, "topic"> = {
+      type: "created",
+      payload: { ids: [1] },
+    };
 
-    await expect(dp.subscribe("resource/posts", callback)).resolves.toBe(
-      unsubscribe,
-    );
+    expect(dp.subscribe("resource/posts", callback)).toBe(unsubscribe);
     await dp.publish("resource/posts", event);
 
     expect(transport.subscribe).toHaveBeenCalledWith(
@@ -120,14 +122,12 @@ describe("realtimeDataProvider", () => {
       locks,
     });
 
-    await expect(dp.lock("posts", { id: 1, identity: "ada" })).resolves.toEqual(
-      { data: aLock },
+    await expect(dp.lock("posts", { id: 1, identity: "ada" })).resolves.toBe(
+      aLock,
     );
     await dp.unlock("posts", { id: 1, identity: "ada" });
     await dp.getLock("posts", { id: 1 });
-    await expect(dp.getLocks("posts", {})).resolves.toEqual({
-      data: [aLock],
-    });
+    await expect(dp.getLocks("posts", {})).resolves.toEqual([aLock]);
 
     expect(locks.lock).toHaveBeenCalledWith("posts", {
       id: 1,
@@ -205,5 +205,16 @@ describe("assertRealtimeDataProvider", () => {
         "useSubscribe",
       ),
     ).not.toThrow();
+  });
+});
+
+describe("LockConflictError", () => {
+  it("carries the existing lock and names the record and holder", () => {
+    const error = new LockConflictError(aLock);
+
+    expect(error).toBeInstanceOf(Error);
+    expect(error.kind).toBe("LockConflictError");
+    expect(error.existingLock).toBe(aLock);
+    expect(error.message).toBe("Resource posts/1 is locked by ada");
   });
 });

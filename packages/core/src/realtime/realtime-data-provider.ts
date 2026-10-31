@@ -42,8 +42,8 @@ export function realtimeDataProvider<
   const provider: RealtimeDataProvider<TResources> = {
     ...base,
     ...lockMethods,
-    subscribe: async (topic, callback) => transport.subscribe(topic, callback),
-    publish: async (topic, event) => transport.publish(topic, event),
+    subscribe: (topic, callback) => transport.subscribe(topic, callback),
+    publish: (topic, event) => transport.publish(topic, event),
   };
   if (transport.onReconnect) {
     provider.onReconnect = transport.onReconnect.bind(transport);
