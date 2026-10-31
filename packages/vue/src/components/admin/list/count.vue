@@ -34,14 +34,13 @@ import { useTranslate } from "../../../i18n/use-translate";
 import { cn } from "../../../lib/utils";
 import { useResourceContext } from "../../../resource-context";
 import { useCreatePath } from "../../../router";
-import Spinner from "../../ui/spinner.vue";
 import { CircleXIcon } from "../buttons/icons";
-import { useTimeout } from "../feedback/use-timeout";
+import CountSpinner from "./count-spinner.vue";
 
 const props = withDefaults(defineProps<CountProps>(), { timeout: 1000 });
 
-const resource = useResourceContext(props);
-if (!resource) {
+const ambientResource = useResourceContext();
+if (!props.resource && !ambientResource) {
   throw new Error(
     "<Count> components should be used inside a <Resource> component or provided the resource prop.",
   );
@@ -49,6 +48,8 @@ if (!resource) {
 
 const translate = useTranslate();
 const createPath = useCreatePath();
+// Read through `props` so a bound `resource` that changes refetches and relinks.
+const resource = computed(() => (props.resource ?? ambientResource) as string);
 const { data, isPending, error } = useGetList(
   resource,
   computed(() => ({
@@ -57,18 +58,15 @@ const { data, isPending, error } = useGetList(
     pagination: { page: 1, perPage: 1 },
   })),
 );
-const timedOut = useTimeout(props.timeout);
 
 const to = computed(
   () =>
-    `${createPath({ type: "list", resource })}${serializeListParams({ filter: props.filter })}`,
+    `${createPath({ type: "list", resource: resource.value })}${serializeListParams({ filter: props.filter })}`,
 );
 </script>
 
 <template>
-  <template v-if="isPending">
-    <Spinner v-if="timedOut" :class="props.class" />
-  </template>
+  <CountSpinner v-if="isPending" :timeout="timeout" :class="props.class" />
   <span
     v-else-if="error"
     role="img"

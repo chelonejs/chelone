@@ -957,6 +957,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/count-spinner.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/count.vue",
           "type": "registry:component"
         },
@@ -3404,6 +3408,20 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "count-spinner",
+      "type": "registry:component",
+      "title": "Count Spinner",
+      "files": [
+        {
+          "path": "src/components/admin/list/count-spinner.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/ui-spinner", "@chelone/use-timeout"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "count",
       "type": "registry:component",
       "title": "Count",
@@ -3415,9 +3433,8 @@
       ],
       "registryDependencies": [
         "@chelone/button-icons",
-        "@chelone/lib-utils",
-        "@chelone/ui-spinner",
-        "@chelone/use-timeout"
+        "@chelone/count-spinner",
+        "@chelone/lib-utils"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "devDependencies": ["vue-router"],
