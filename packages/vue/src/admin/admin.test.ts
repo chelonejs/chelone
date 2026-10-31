@@ -209,6 +209,69 @@ describe("<Admin> / <Resource> — self-registration + reactive routes + slots",
     expect(wrapper.findComponent({ name: "RouterView" }).exists()).toBe(true);
   });
 
+  const Posts = defineComponent({
+    setup: () => () => h("div", { "data-testid": "posts" }, "posts list"),
+  });
+
+  function mountWithDashboard(router: Router) {
+    return mount(Admin, {
+      props: { dataProvider },
+      slots: {
+        default: () => h(Resource, { name: "posts", list: Posts }),
+        dashboard: () => h("section", { "data-testid": "dashboard" }, "DASH"),
+      },
+      global: { plugins: [router] },
+    });
+  }
+
+  it("the #dashboard slot renders at the index location", async () => {
+    const router = makeRouter();
+    await router.push("/");
+
+    const wrapper = mountWithDashboard(router);
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
+  });
+
+  it("the #dashboard slot is absent on a resource route", async () => {
+    const router = makeRouter();
+    const wrapper = mountWithDashboard(router);
+    await flushPromises();
+    await router.push("/posts");
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(false);
+    expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
+  });
+
+  it("the #dashboard slot returns when the location goes back to the index", async () => {
+    const router = makeRouter();
+    const wrapper = mountWithDashboard(router);
+    await flushPromises();
+    await router.push("/posts");
+    await flushPromises();
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(false);
+
+    await router.push("/");
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
+  });
+
+  it("the #dashboard slot is absent until the first navigation settles", async () => {
+    const router = makeRouter();
+
+    // The router has not finished its first navigation: its location is still
+    // the start location, whose path is "/" whatever the real URL is.
+    const wrapper = mountWithDashboard(router);
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(false);
+
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
+  });
+
   it("unregisters the resource and tears down its routes when the <Resource> unmounts", async () => {
     const router = makeRouter();
     const show = ref(true);

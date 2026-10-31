@@ -18,6 +18,8 @@
  * `<Admin>` behavior where an override owned its own theming.
  */
 
+import { computed } from "vue";
+import { START_LOCATION, useRoute, useRouter } from "vue-router";
 import Layout from "../components/admin/layout/layout.vue";
 import ThemeProvider from "../components/admin/layout/theme-provider.vue";
 import LoginPage from "../components/admin/auth/login-page.vue";
@@ -30,13 +32,23 @@ const props = defineProps<{ requireAuth: boolean }>();
 defineSlots<{
   /** Override the default shell chrome (wins over the route view). */
   layout?: () => unknown;
-  /** The index/dashboard content (rendered before the route view by default). */
+  /** The index/dashboard content (rendered before the route view at the index path only). */
   dashboard?: () => unknown;
   /** The unauthenticated login screen (default `<LoginPage>`). */
   login?: () => unknown;
 }>();
 
 const gate = useAuthGate(props.requireAuth);
+
+// The index is the path `/` exactly: `<Admin>` has no `basename` prop yet.
+// Before the first navigation settles the router sits on `START_LOCATION`,
+// whose path is also `/`, so a deep link would flash the dashboard. `useRoute()`
+// wraps the location in a proxy, so compare the router's own object.
+const route = useRoute();
+const router = useRouter();
+const isIndex = computed(
+  () => router.currentRoute.value !== START_LOCATION && route.path === "/",
+);
 
 // R2 — wire `checkError` → auto-logout into the data-error path. Mounted here
 // (inside `<Admin>`'s provided context + vue-query client) so the watcher's
@@ -62,7 +74,7 @@ useWatchDataErrors();
   <slot v-else name="layout">
     <ThemeProvider>
       <Layout>
-        <slot name="dashboard" />
+        <slot v-if="isIndex" name="dashboard" />
         <router-view />
       </Layout>
     </ThemeProvider>
