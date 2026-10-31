@@ -30,3 +30,4 @@ export {
 export type { SidebarProviderProps } from "./sidebar-provider.vue";
 export { default as SidebarProvider } from "./sidebar-provider.vue";
 export { default as SidebarTrigger } from "./sidebar-trigger.vue";
+export { useIsMobile } from "./use-is-mobile";

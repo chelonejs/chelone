@@ -68,6 +68,7 @@ export {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useIsMobile,
   useSidebar,
 } from "./sidebar";
 export { default as Skeleton } from "./skeleton.vue";
