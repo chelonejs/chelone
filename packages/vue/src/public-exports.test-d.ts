@@ -24,6 +24,7 @@ import type {
   FilterFormProps,
   InfiniteListProps,
   InfinitePaginationProps,
+  ListNoResultsProps,
   ListPaginationProps,
   ListProps,
   LoadingPageProps,
@@ -39,6 +40,9 @@ import type {
   SavedQueriesListProps,
   SearchInputProps,
   ShowProps,
+  SimpleListItemProps,
+  SimpleListLoadingProps,
+  SimpleListProps,
   Subscribable,
   TextFieldProps,
   TextInputProps,
@@ -71,6 +75,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<InfiniteListProps>().toBeObject();
     expectTypeOf<InfinitePaginationProps>().toBeObject();
     expectTypeOf<ListProps>().toBeObject();
+    expectTypeOf<ListNoResultsProps>().toBeObject();
     expectTypeOf<ListPaginationProps>().toBeObject();
     expectTypeOf<LoadingPageProps>().toBeObject();
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");
@@ -85,6 +90,9 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<SavedQueriesListProps>().toBeObject();
     expectTypeOf<SearchInputProps>().toBeObject();
     expectTypeOf<ShowProps>().toBeObject();
+    expectTypeOf<SimpleListItemProps>().toBeObject();
+    expectTypeOf<SimpleListLoadingProps>().toBeObject();
+    expectTypeOf<SimpleListProps>().toBeObject();
     expectTypeOf<TextFieldProps>().toHaveProperty("source");
     expectTypeOf<TextInputProps>().toHaveProperty("source");
     expectTypeOf<TimeInputProps>().toHaveProperty("source");
