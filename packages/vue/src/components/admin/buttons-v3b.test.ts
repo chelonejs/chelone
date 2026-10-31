@@ -341,6 +341,42 @@ describe("<DeleteButton>", () => {
     );
   });
 
+  it("disables the button and the confirm while the delete is in flight", async () => {
+    const { wrapper, dataProvider } = mountAdmin(() =>
+      h(
+        withRecord({ id: 2, title: "t2" }, () =>
+          h(DeleteButton, { resource: "posts", redirect: false }),
+        ),
+      ),
+    );
+    let release: () => void = () => {};
+    const deleteSpy = vi.spyOn(dataProvider, "delete").mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = () => resolve({ data: { id: 2, title: "t2" } });
+        }),
+    );
+
+    await wrapper.find('[data-slot="delete-button"]').trigger("click");
+    await wrapper.find('[data-slot="confirm-accept"]').trigger("click");
+
+    await vi.waitFor(() => {
+      expect(
+        wrapper.find('[data-slot="confirm-accept"]').attributes("disabled"),
+      ).toBeDefined();
+      expect(
+        wrapper.find('[data-slot="delete-button"]').attributes("disabled"),
+      ).toBeDefined();
+    });
+    await wrapper.find('[data-slot="confirm-accept"]').trigger("click");
+    expect(deleteSpy).toHaveBeenCalledTimes(1);
+
+    release();
+    await vi.waitFor(() =>
+      expect(wrapper.find('[data-slot="confirm"]').exists()).toBe(false),
+    );
+  });
+
   it("does nothing when the dialog is cancelled", async () => {
     const { wrapper, dataProvider } = mountAdmin(() =>
       h(

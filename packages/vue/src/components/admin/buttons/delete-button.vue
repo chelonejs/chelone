@@ -99,7 +99,8 @@ const runUndoable = useUndoable();
 // The controller requests its default list redirect only after a successful
 // delete; the button answers it with the `redirect` prop's own destination.
 let deletedId: Identifier | undefined;
-const { saving, deleteOne } = useDeleteController({
+// Keep the reactive object: destructuring `saving` would freeze it at `false`.
+const controller = useDeleteController({
   resource: resource as string,
   onRedirect: () => {
     if (props.redirect !== false && deletedId != null) {
@@ -164,7 +165,7 @@ async function onConfirm(): Promise<void> {
     return;
   }
   deletedId = id;
-  await deleteOne(id, { previousData: current });
+  await controller.deleteOne(id, { previousData: current });
   open.value = false;
 }
 </script>
@@ -174,7 +175,7 @@ async function onConfirm(): Promise<void> {
     v-if="show"
     type="button"
     :variant="variant"
-    :disabled="saving"
+    :disabled="controller.saving"
     :class="classes"
     :aria-label="label"
     data-slot="delete-button"
@@ -186,7 +187,7 @@ async function onConfirm(): Promise<void> {
   <Confirm
     v-if="show"
     :is-open="open"
-    :loading="saving"
+    :loading="controller.saving"
     :title="confirmTitle"
     :content="confirmContent"
     :confirm-color="confirmColor"
