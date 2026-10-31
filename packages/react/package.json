@@ -41,8 +41,8 @@
     "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only",
     "test": "vitest run --typecheck",
     "typecheck": "tsc --noEmit",
-    "registry:generate": "node scripts/generate-registry.mjs",
-    "registry:build": "node scripts/build-registry.mjs",
+    "registry:generate": "node ../../scripts/registry/generate-registry.mjs",
+    "registry:build": "node ../../scripts/registry/build-registry.mjs",
     "registry:test-local": "node scripts/test-registry-local.mjs"
   },
   "dependencies": {

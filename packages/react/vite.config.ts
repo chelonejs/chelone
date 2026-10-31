@@ -23,7 +23,7 @@ const isExternal = (id: string) =>
 // through them, and the build must inline them as relative paths.
 const src = fileURLToPath(new URL("./src", import.meta.url));
 
-// `build-registry.mjs` writes the shadcn registry output to `dist/r`.
+// `scripts/registry/build-registry.mjs` writes the shadcn registry output to `dist/r`.
 const REGISTRY_FOLDER = "r";
 
 // `emptyOutDir` is off because `dist/r` holds the registry output, so stale
