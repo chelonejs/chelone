@@ -96,8 +96,12 @@ export {
   default as Loading,
   default as LoadingPage,
 } from "./admin/feedback/loading.vue";
+export type { LoadingIndicatorProps } from "./admin/feedback/loading-indicator.vue";
+export { default as LoadingIndicator } from "./admin/feedback/loading-indicator.vue";
 export type { NotificationProps } from "./admin/feedback/notification.vue";
 export { default as Notification } from "./admin/feedback/notification.vue";
+export type { PlaceholderProps } from "./admin/feedback/placeholder.vue";
+export { default as Placeholder } from "./admin/feedback/placeholder.vue";
 export { default as Ready } from "./admin/feedback/ready.vue";
 export type {
   SpinnerContentProps,
