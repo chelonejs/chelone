@@ -233,9 +233,14 @@ export {
 // HasDashboardContext / ShellErrorBoundary, the store-backed theme, and the
 // chelone notification store. `<Layout>` is the `<Admin.Layout>` slot's default.
 export {
+  IconButtonWithTooltip,
+  type IconButtonWithTooltipProps,
+} from "./components/admin/common/icon-button-with-tooltip";
+export {
   KeyboardShortcut,
   type KeyboardShortcutProps,
 } from "./components/admin/common/keyboard-shortcut";
+export { Link, type LinkProps } from "./components/admin/common/link";
 export {
   Confirm,
   type ConfirmProps,
