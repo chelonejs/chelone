@@ -29,7 +29,7 @@ Build **`@chelone/vue`** — a full, shipped Vue 3 adapter mirroring `@chelone/r
 
 **Topology.** New `packages/vue` = `@chelone/vue`, sibling to `packages/{core,react}`. Depends on `@chelone/core` (`workspace:*`, unchanged). Peers: `vue`, `vue-router`, `@tanstack/vue-query` (+ `@tanstack/vue-store` if used for forms — see below). Same monorepo, registry-generator, and boundary discipline as `@chelone/react`.
 
-**Two subscribe seams, both trivial because core owns its state:**
+**Three subscribe seams, all trivial because core owns its state:**
 
 1. **Controller/store state** → Chelone's own `MicroStore<T>`. Vue bridge (~15 lines):
    ```ts
