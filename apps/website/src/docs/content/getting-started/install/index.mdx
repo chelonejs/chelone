@@ -176,32 +176,21 @@ The CLI copies the Vue components into your project so you can edit them.
 `@chelone/vue` still exports the same components if you prefer to import them
 from the package.
 
-Install the router and the Vue Query plugin on your app, then mount `<Admin>`
-with a `<Resource>` per entity. `<Admin>` builds the resource routes as each
-`<Resource>` registers:
+Install the router on your app, then mount `<Admin>` with a `<Resource>` per
+entity. `<Admin>` builds the resource routes as each `<Resource>` registers, so
+the router starts with none:
 
 ```ts title="src/main.ts"
-import { VueQueryPlugin } from "@tanstack/vue-query";
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [{ path: "/", redirect: "/posts" }],
+  routes: [],
 });
 
-createApp(App).use(router).use(VueQueryPlugin).mount("#app");
-
-// `<Admin>` adds the resource routes while it mounts, after the first
-// navigation has already resolved. Re-resolve the current URL so `/posts`
-// matches.
-router.isReady().then(() => {
-  const current = router.currentRoute.value;
-  if (current.matched.length === 0) {
-    void router.replace(current.fullPath);
-  }
-});
+createApp(App).use(router).mount("#app");
 ```
 
 ```vue title="src/App.vue"
@@ -222,9 +211,10 @@ const dataProvider = fakeDataProvider({ posts: [] });
 </template>
 ```
 
-The rest of these docs are written for React. Vue reference pages are not
-written yet; the [Vue demo](https://github.com/chelonejs/chelone/tree/main/apps/vue-demo)
-in the repository is the working reference.
+The [Vue setup page](/docs/vue/setup) covers how `<Admin>` joins your router and
+the props it takes. The rest of these docs are written for React; the
+[Vue demo](https://github.com/chelonejs/chelone/tree/main/apps/vue-demo) in the
+repository is a working reference.
 
 Next step: the [Quick Start Guide](/docs/getting-started/quick-start-guide/setup)
 builds a real CRUD admin from a Zod schema.

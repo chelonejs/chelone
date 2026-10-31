@@ -1,0 +1,157 @@
+---
+title: "Setup"
+description: "Wire <Admin> to the vue-router your app already creates, and register resources with <Resource>."
+---
+
+`<Admin>` never creates a router. It takes the one your app installs, reads it
+with `useRouter()`, and adds the resource routes to it while it mounts. This page
+shows the wiring and the props `<Admin>` and `<Resource>` take.
+
+Packages and the shadcn-vue registry are covered once, on the
+[install page](/docs/getting-started/install#install-for-vue).
+
+## Create the router
+
+Create the router with no routes and install it. `<Admin>` fills it in:
+
+```ts title="src/main.ts"
+import { createApp } from "vue";
+import { createRouter, createWebHistory } from "vue-router";
+import App from "./App.vue";
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [],
+});
+
+createApp(App).use(router).mount("#app");
+```
+
+- A deep link such as `/posts/3` matches nothing when the router installs,
+  because the routes do not exist yet. `<Admin>` resolves it again once the
+  routes are added, so `main.ts` needs no code to re-resolve the first location.
+- The index redirects to the first resource that has a list view, once the auth
+  provider (if any) allows listing it. Pass a `#dashboard` slot to `<Admin>` and
+  the index renders the dashboard instead.
+
+### Vue Query
+
+`<Admin>` creates a `QueryClient` when `queryClient` is omitted and provides it
+to everything under it, so `VueQueryPlugin` is optional. Code that uses
+`@tanstack/vue-query` outside `<Admin>` installs the plugin with a client and
+passes that same client to `<Admin>`:
+
+```ts title="src/main.ts"
+import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
+
+export const queryClient = new QueryClient();
+
+createApp(App)
+  .use(router)
+  .use(VueQueryPlugin, { queryClient })
+  .mount("#app");
+```
+
+Then give `<Admin>` `:query-client="queryClient"`.
+
+## Mount Admin
+
+```vue title="src/App.vue"
+<script setup lang="ts">
+import { fakeDataProvider } from "@chelone/core";
+import { Admin, Resource } from "@chelone/vue";
+import { QueryClient } from "@tanstack/vue-query";
+import { makeI18n } from "./i18n";
+import PostCreate from "./resources/PostCreate.vue";
+import PostEdit from "./resources/PostEdit.vue";
+import PostList from "./resources/PostList.vue";
+import { resources } from "./resources/schema";
+
+const dataProvider = fakeDataProvider({ posts: [] });
+const queryClient = new QueryClient();
+const i18n = makeI18n();
+</script>
+
+<template>
+  <Admin
+    :data-provider="dataProvider"
+    :query-client="queryClient"
+    :registry="resources"
+    :i18n="i18n"
+  >
+    <Resource
+      name="posts"
+      :list="PostList"
+      :edit="PostEdit"
+      :create="PostCreate"
+    />
+  </Admin>
+</template>
+```
+
+Each `<Resource>` takes components, not render functions: `:list="PostList"`.
+
+## Routes a resource adds
+
+Each `<Resource>` adds a route per view it is given, as it registers:
+
+| View   | Path                    | Route name              |
+| ------ | ----------------------- | ----------------------- |
+| list   | `/{name}`               | `chelone-{name}-list`   |
+| create | `/{name}/create/...`    | `chelone-{name}-create` |
+| show   | `/{name}/:id/show`      | `chelone-{name}-show`   |
+| edit   | `/{name}/:id/...`       | `chelone-{name}-edit`   |
+
+A resource with no `create` view adds no create route, and so on. The routes are
+removed when the `<Resource>` unregisters.
+
+## Basename
+
+`basename` is the path `<Admin>` sits at, relative to the history base given to
+`createWebHistory`. To serve the app under `/app` and mount `<Admin>` at
+`/admin`:
+
+```ts
+createRouter({ history: createWebHistory("/app"), routes: [] });
+```
+
+```vue
+<Admin basename="/admin" :data-provider="dataProvider">
+```
+
+The admin is then served at `/app/admin`. `basename` starts with a slash,
+trailing slashes are removed, and it is read once: remount `<Admin>` to change it.
+
+## Admin props
+
+| Prop             | Description                                                                                   |
+| ---------------- | --------------------------------------------------------------------------------------------- |
+| `dataProvider`   | Required. The data provider.                                                                  |
+| `queryClient`    | An existing vue-query client. Omit it and `<Admin>` creates one.                              |
+| `basename`       | The path `<Admin>` sits at, relative to the history base. Defaults to `''`.                   |
+| `authProvider`   | The auth provider.                                                                            |
+| `i18n`           | The i18n instance.                                                                            |
+| `store`          | The key-value store for preferences.                                                          |
+| `notifications`  | The notification store.                                                                       |
+| `registry`       | The Zod registry, the output of `defineResources`. Its schemas are the default form validators. |
+| `resources`      | An array of view definitions to register without a `<Resource>` child.                        |
+| `customRoutes`   | Extra routes under `basename`, ahead of any resource route. Read once.                        |
+| `requireAuth`    | Gate the shell behind authentication. Defaults to `false`.                                    |
+
+`registry` is the prop React calls `resources`. In Vue `resources` is the array
+of view definitions (list, create, edit components), not the schema registry.
+
+The generated props tables elsewhere in these docs read the React package only,
+which is why this one is written by hand.
+
+## Resource props
+
+| Prop                   | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| `name`                 | The resource name, the registry key and route base. |
+| `list`                 | The list view component.                       |
+| `create`               | The create view component.                     |
+| `edit`                 | The edit view component.                       |
+| `show`                 | The show view component.                       |
+| `icon`                 | The menu and breadcrumb icon.                  |
+| `recordRepresentation` | How a record renders as a label.               |
