@@ -29,14 +29,13 @@ export interface CurrencyFieldProps {
  * nothing).
  *
  * Idiom translation from the twin: the React field resolves the app locale via
- * `useLocale()` (`displayLocale ?? appLocale`). The Vue package ships no
- * `useLocale` composable (no i18n-provider locale surface yet), so the locale
- * comes from the `displayLocale` prop only, defaulting to the host's locale —
- * matching the `locales` convention of `<NumberField>` / `<DateField>`.
+ * `useLocale()`; here `useLocale()` is a ref, so the field formats with
+ * `displayLocale ?? appLocale` and re-formats on `i18n.setLocale`.
  */
 
 import { computed } from "vue";
 import { useFieldValue } from "../../../record/use-field-value";
+import { useLocale } from "../../../i18n/use-locale";
 import { useTranslate } from "../../../i18n/use-translate";
 
 const props = defineProps<CurrencyFieldProps>();
@@ -48,6 +47,7 @@ const value = useFieldValue({
 });
 
 const translate = useTranslate();
+const appLocale = useLocale();
 
 const emptyText = computed(() =>
   props.empty ? translate(props.empty, { _: props.empty }) : null,
@@ -70,7 +70,7 @@ const formatted = computed<string | null>(() => {
   if (raw == null) return null;
   const { amount, code } = normalize(raw);
   const major = props.storeAsMinorUnits ? amount / 100 : amount;
-  return new Intl.NumberFormat(props.displayLocale, {
+  return new Intl.NumberFormat(props.displayLocale ?? appLocale.value, {
     style: "currency",
     currency: code,
     ...props.options,
