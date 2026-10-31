@@ -1,0 +1,17 @@
+{
+  "name": "LoadingIndicator",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "optional": true,
+      "comment": "Called after the queries are refreshed."
+    }
+  ]
+}

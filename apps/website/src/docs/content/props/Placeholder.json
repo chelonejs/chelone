@@ -1,0 +1,17 @@
+{
+  "name": "Placeholder",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Content to show. Defaults to a non-breaking space."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Merged after the default `inline-flex bg-muted` classes."
+    }
+  ]
+}
