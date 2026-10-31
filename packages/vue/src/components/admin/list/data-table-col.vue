@@ -37,7 +37,7 @@ import { cn } from "../../../lib/utils";
 import { useListContext } from "../../../list/list-context";
 import { RecordContextKey } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
-import { Button } from "../../ui";
+import Button from "../../ui/button.vue";
 import { TableCell, TableHead } from "../../ui/table";
 import { ChevronDownIcon } from "../buttons/icons";
 import FieldLabelText from "../common/field-label-text.vue";
