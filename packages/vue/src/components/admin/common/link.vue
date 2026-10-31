@@ -12,7 +12,9 @@ export interface LinkProps extends RouterLinkProps {
 /**
  * `<Link>` — the admin navigation link, the Vue twin of `@chelone/react`'s
  * `common/link.tsx`. A vue-router `<RouterLink>` (a real `<a>`) with the shared
- * link styling; `to` and the other `RouterLink` props pass straight through.
+ * link styling; `to` and the other `RouterLink` props pass straight through,
+ * and the default slot receives `RouterLink`'s slot props (`href`, `navigate`,
+ * `isActive`, ...), so `custom` works.
  *
  * @example
  * <Link to="/posts">Posts</Link>
@@ -28,7 +30,8 @@ const props = defineProps<LinkProps>();
   <RouterLink
     v-bind="{ ...props, class: undefined }"
     :class="cn('text-primary underline-offset-4 hover:underline', props.class)"
+    v-slot="slotProps"
   >
-    <slot />
+    <slot v-bind="slotProps" />
   </RouterLink>
 </template>

@@ -17,7 +17,7 @@ afterEach(() => {
   for (const wrapper of mounted.splice(0)) wrapper.unmount();
 });
 
-function mountLink(props: LinkProps) {
+function mountLink(props: LinkProps, slot?: (slotProps: any) => unknown) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -35,7 +35,7 @@ function mountLink(props: LinkProps) {
             queryClient: new QueryClient(),
           },
           {
-            default: () => h(Link, props, { default: () => "Posts" }),
+            default: () => h(Link, props, { default: slot ?? (() => "Posts") }),
             layout: () => h("div"),
           },
         );
@@ -76,6 +76,25 @@ describe("<Link>", () => {
     const { router } = mountLink({ to: "/posts" });
     await router.isReady();
     await flushPromises();
+    anchor().click();
+    await flushPromises();
+    expect(router.currentRoute.value.path).toBe("/posts");
+  });
+
+  it("hands RouterLink's slot props to the default slot", async () => {
+    const { router } = mountLink(
+      { to: "/posts", custom: true },
+      ({ href, navigate, isActive }) =>
+        h(
+          "a",
+          { href, "data-active": String(isActive), onClick: navigate },
+          "Posts",
+        ),
+    );
+    await router.isReady();
+    await flushPromises();
+    expect(anchor().getAttribute("href")).toBe("/posts");
+    expect(anchor().getAttribute("data-active")).toBe("false");
     anchor().click();
     await flushPromises();
     expect(router.currentRoute.value.path).toBe("/posts");
