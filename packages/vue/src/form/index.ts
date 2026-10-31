@@ -10,6 +10,7 @@ export {
   provideSourceScope,
   SourceScopeKey,
   useCheloneFormContext,
+  useOptionalCheloneFormContext,
   useSourceScope,
   useWrappedSource,
 } from "./form-context";
@@ -26,6 +27,14 @@ export {
 } from "./form-groups";
 export type { FormGroupsProviderProps } from "./form-groups-provider.vue";
 export { default as FormGroupsProvider } from "./form-groups-provider.vue";
+export type { OptionalSaveFormProps } from "./form-scope";
+export { useFormScope } from "./form-scope";
+export type { TabbedFormProps } from "./tabbed-form.vue";
+export { default as TabbedForm } from "./tabbed-form.vue";
+export type { UseTabbedFormResult } from "./tabbed-form-context";
+export { useTabbedFormContext } from "./tabbed-form-context";
+export type { TabbedFormTabProps } from "./tabbed-form-tab.vue";
+export { default as TabbedFormTab } from "./tabbed-form-tab.vue";
 export type {
   FormSubmit,
   UseFormOptions,
