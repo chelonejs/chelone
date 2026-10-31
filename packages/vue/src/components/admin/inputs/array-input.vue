@@ -21,6 +21,26 @@ export interface ArrayInputProps {
   itemDefaults?: Record<string, unknown>;
   /** Label for the add-row button. Absent → translated "Add". */
   addLabel?: string;
+  /** Hides every row control: add, clear, remove and reorder. */
+  disabled?: boolean;
+  /** Hides the Add button. */
+  disableAdd?: boolean;
+  /** Hides the clear button. */
+  disableClear?: boolean;
+  /**
+   * Hides the remove buttons, and the clear button with them. A function
+   * decides per row index.
+   */
+  disableRemove?: boolean | ((index: number) => boolean);
+  /** Hides the move up / move down buttons. */
+  disableReordering?: boolean;
+  /** Lays a row's inputs out in one line from the `sm` breakpoint up. */
+  inline?: boolean;
+  /**
+   * A label per row. `true` numbers rows from 1; a function returns the label
+   * for a row index; `false` renders none.
+   */
+  getItemLabel?: boolean | ((index: number) => string);
   /** Root element class passthrough. */
   class?: string;
 }
@@ -39,14 +59,20 @@ export interface ArrayInputProps {
  * chelone-native structure: rather than delegating to a separate
  * `<SimpleFormIterator>` child (React's split), the iterator is folded in here
  * and each row is an `<ArrayInputRow>` that scopes its slot + renders
- * remove/reorder controls. An "Add" button appends a row.
+ * remove/reorder controls. An "Add" button appends a row, and a clear button
+ * empties the array after a `<Confirm>`.
+ *
+ * Scoped slots replace the defaults: `#add-button` gets `{ add }`, and
+ * `#remove-button` and `#reorder-buttons` get `{ index, remove, reOrder }` per
+ * row, where `reOrder(to)` moves that row to the index `to`.
  */
 
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { provideArrayInput, useArrayInput } from "../../../array";
 import { useTranslate } from "../../../i18n/use-translate";
 import Button from "../../ui/button.vue";
 import { FieldDescription, FieldError, FieldLabel } from "../../ui/field";
+import Confirm from "../feedback/confirm.vue";
 import ValidationError from "../common/validation-error.vue";
 import ArrayInputRow from "./array-input-row.vue";
 import { humanizeSource } from "./label-text";
@@ -69,7 +95,7 @@ const array = useArrayInput({
 // Provide the iterator + array source scope to the rows below.
 provideArrayInput(array);
 
-const { rows, fieldState } = array;
+const { rows, total, fieldState } = array;
 const invalid = fieldState.invalid;
 const error = fieldState.error;
 const labelText = computed(() =>
@@ -79,8 +105,32 @@ const addLabelText = computed(
   () => props.addLabel ?? translate("ra.action.add", { _: "Add" }),
 );
 
+const clearLabel = computed(() =>
+  translate("ra.action.clear_array_input", { _: "Clear the array" }),
+);
+const clearMessage = computed(() =>
+  translate("ra.message.clear_array_input", {
+    _: "Are you sure you want to clear the whole array?",
+  }),
+);
+const confirmOpen = ref(false);
+const showClear = computed(
+  () =>
+    !props.disabled &&
+    total.value > 0 &&
+    !props.disableClear &&
+    !props.disableRemove,
+);
+const showActions = computed(
+  () => !props.disabled && (!props.disableAdd || showClear.value),
+);
+
 function onAdd() {
   array.add();
+}
+function onClear() {
+  array.clear();
+  confirmOpen.value = false;
 }
 </script>
 
@@ -95,20 +145,55 @@ function onAdd() {
       {{ labelText }}
     </FieldLabel>
     <div data-slot="array-input-rows" class="flex flex-col gap-3">
-      <ArrayInputRow v-for="row in rows" :key="row.id" :row="row">
+      <ArrayInputRow
+        v-for="row in rows"
+        :key="row.id"
+        :row="row"
+        :disabled="disabled"
+        :disable-remove="disableRemove"
+        :disable-reordering="disableReordering"
+        :inline="inline"
+        :get-item-label="getItemLabel"
+      >
         <slot />
+        <template v-if="$slots['remove-button']" #remove-button="slotProps">
+          <slot name="remove-button" v-bind="slotProps" />
+        </template>
+        <template v-if="$slots['reorder-buttons']" #reorder-buttons="slotProps">
+          <slot name="reorder-buttons" v-bind="slotProps" />
+        </template>
       </ArrayInputRow>
     </div>
-    <div>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        data-slot="array-input-add"
-        @click="onAdd"
-      >
-        {{ addLabelText }}
-      </Button>
+    <div v-if="showActions" class="flex items-center gap-2">
+      <slot v-if="!disableAdd" name="add-button" :add="onAdd">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          data-slot="array-input-add"
+          @click="onAdd"
+        >
+          {{ addLabelText }}
+        </Button>
+      </slot>
+      <template v-if="showClear">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          data-slot="array-input-clear"
+          @click="confirmOpen = true"
+        >
+          {{ clearLabel }}
+        </Button>
+        <Confirm
+          :is-open="confirmOpen"
+          :title="clearLabel"
+          :content="clearMessage"
+          @close="confirmOpen = false"
+          @confirm="onClear"
+        />
+      </template>
     </div>
     <FieldDescription v-if="helperText">{{ helperText }}</FieldDescription>
     <FieldError v-if="invalid">
