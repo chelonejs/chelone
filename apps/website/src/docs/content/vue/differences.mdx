@@ -51,6 +51,7 @@ The full prop list for `<Admin>` and `<Resource>` is on the
 | `<FileInput>` and `<ImageInput>` use `react-dropzone`. | They use native drag and drop. The value shape is the same: `{ rawFile, src, title }` for a dropped file. | [File Input](/docs/editing/file-input), [Image Input](/docs/editing/image-input) |
 | `<Notification>` renders through sonner. | `<Notification>` is a dependency-free toaster, a stack at the bottom centre with its own close button. | [Notification](/docs/ui-layout/notification) |
 | `<ThemeModeToggle>` opens a dropdown of modes. | `<ThemeModeToggle>` is one button. Each click cycles light, dark, system. | [Theme Mode Toggle](/docs/ui-layout/theme-mode-toggle) |
+| `<IconButtonWithTooltip>` shows a styled tooltip. | `<IconButtonWithTooltip>` shows the native `title`, because the Vue `ui` slice has no `Tooltip`. Its `label` is also the `aria-label`; a `#label` slot stands in for a non-string label. | [Icon Button With Tooltip](/docs/ui-layout/icon-button-with-tooltip) |
 
 Theme storage differs too: the Vue `<ThemeProvider>` always uses `localStorage`
 and `useTheme()` returns `Ref`s. The note under
