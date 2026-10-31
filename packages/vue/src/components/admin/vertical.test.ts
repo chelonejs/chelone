@@ -8,7 +8,12 @@
  * Task 5 controller tests.
  */
 
-import { defineResources, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  defaultMessages,
+  defineResources,
+  fakeDataProvider,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -273,6 +278,40 @@ describe("<SaveButton> in <Create>", () => {
     expect(createSpy.mock.calls[0]?.[1]).toMatchObject({
       data: expect.objectContaining({ title: "Brand New" }),
     });
+  });
+});
+
+describe("<SaveButton> in <Create>", () => {
+  it("the button reads Save with no catalog entry for its label", async () => {
+    const i18n = createI18n({
+      locale: "en",
+      messages: { en: defaultMessages },
+    });
+    const queryClient = new QueryClient();
+    const Harness = defineComponent({
+      setup() {
+        return () =>
+          h(
+            Admin,
+            { dataProvider: makeProvider(), queryClient, i18n },
+            {
+              default: () =>
+                h(
+                  Create,
+                  { resource: "posts", redirectOnSave: false },
+                  {
+                    default: () => h(TextInput, { source: "title" }),
+                    toolbar: () => h(SaveButton),
+                  },
+                ),
+            },
+          );
+      },
+    });
+    const wrapper = mount(Harness, { global: { plugins: [makeRouter()] } });
+    await flushPromises();
+
+    expect(wrapper.find('[data-slot="save-button"]').text()).toBe("Save");
   });
 });
 

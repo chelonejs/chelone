@@ -56,9 +56,9 @@ export interface DeleteButtonProps {
  * - R2: gated by `useMenuAccess` — the button hides while the `delete` access
  *   check is pending and when denied (allow when access control is unconfigured).
  *
- * On confirm it dispatches the pessimistic delete, notifies `ra.notification.
- * deleted`, and (by default) redirects to the list. `deleteMutationOptions`
- * invalidates the resource caches on settle.
+ * On confirm it dispatches the pessimistic delete, notifies
+ * `chelone.notification.deleted`, and (by default) redirects to the list.
+ * `deleteMutationOptions` invalidates the resource caches on settle.
  */
 
 import { type Identifier, removeRecordsFromCache } from "@chelone/core";
@@ -131,7 +131,7 @@ function onClick(): void {
           id,
           previousData: current,
         }),
-      message: "ra.notification.deleted",
+      message: "chelone.notification.deleted",
       messageArgs: { smart_count: 1 },
     });
     // Redirect optimistically — the row is already gone from the cache.
@@ -156,7 +156,7 @@ async function onConfirm(): Promise<void> {
   }
   await deleteMutation.mutateAsync({ id, previousData: current });
   open.value = false;
-  notifications?.notify("ra.notification.deleted", {
+  notifications?.notify("chelone.notification.deleted", {
     type: "info",
     messageArgs: { smart_count: 1 },
   });
