@@ -239,6 +239,21 @@ describe("createListController", () => {
     c.destroy();
   });
 
+  it("hideFilter applies the pending debounced edits to the other filters", () => {
+    vi.useFakeTimers();
+    const c = createListController(makeCtx(), "posts", { debounceMs: 300 });
+    c.showFilter("title");
+    c.showFilter("views");
+    c.setFilters({ title: "t", views: "3" }, undefined, true);
+    c.hideFilter("title");
+    expect(c.getSnapshot().filter).toEqual({ views: "3" });
+    expect(c.getSnapshot().displayedFilters).toEqual({ views: true });
+    vi.advanceTimersByTime(1000);
+    expect(c.getSnapshot().filter).toEqual({ views: "3" });
+    vi.useRealTimers();
+    c.destroy();
+  });
+
   it("hideFilter removes a dotted source from a nested filter, keeping its siblings", () => {
     const c = createListController(makeCtx(), "posts", {});
     c.setFilters(

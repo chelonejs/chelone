@@ -494,11 +494,15 @@ export function createListController<
   };
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let pendingFilters:
+    | { filter: FilterPayload; displayedFilters?: Record<string, boolean> }
+    | undefined;
   const clearDebounce = (): void => {
     if (debounceTimer !== undefined) {
       clearTimeout(debounceTimer);
       debounceTimer = undefined;
     }
+    pendingFilters = undefined;
   };
   store.onDestroy(clearDebounce);
 
@@ -513,8 +517,10 @@ export function createListController<
       applyFilters(filter, displayedFilters);
       return;
     }
+    pendingFilters = { filter, displayedFilters };
     debounceTimer = setTimeout(() => {
       debounceTimer = undefined;
+      pendingFilters = undefined;
       if (destroyed) return;
       applyFilters(filter, displayedFilters);
     }, options.debounceMs ?? DEFAULT_DEBOUNCE_MS);
@@ -535,12 +541,22 @@ export function createListController<
 
   const hideFilter = (name: string): void => {
     if (destroyed) return;
-    // A debounced filter still pending would bring the removed value back.
-    clearDebounce();
     const s = store.getSnapshot();
-    const filter = removeFilterPath(s.filter, name);
-    const { [name]: _shown, ...displayedFilters } = s.displayedFilters;
-    applyParams({ filter, displayedFilters });
+    // A debounced filter still pending would bring the removed value back, so
+    // it lands now, minus the hidden filter, rather than being dropped.
+    const pending = pendingFilters;
+    clearDebounce();
+    const filter = removeFilterPath(
+      pending ? removeEmpty(pending.filter) : s.filter,
+      name,
+    );
+    const { [name]: _shown, ...displayedFilters } =
+      pending?.displayedFilters ?? s.displayedFilters;
+    applyParams({
+      filter,
+      displayedFilters,
+      ...(pending ? { page: 1 } : {}),
+    });
   };
 
   // --- selection: KV-backed when available (cross-instance sync), else local ---
