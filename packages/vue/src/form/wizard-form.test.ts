@@ -7,7 +7,7 @@ import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick } from "vue";
+import { defineComponent, h, nextTick, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../admin/admin.vue";
 import SaveButton from "../components/admin/buttons/save-button.vue";
@@ -178,6 +178,82 @@ describe("<WizardForm>", () => {
 
     captured.wizard?.goToStep(1);
     expect(captured.wizard?.currentStep.value).toBe(1);
+  });
+
+  it("two next calls made before the first resolves advance one step, not two", async () => {
+    const captured: Captured = {};
+    const { wrapper } = mountWizard(captured);
+    await flushPromises();
+
+    await step(wrapper, "one").get("input").setValue("a title");
+    const results = await Promise.all([
+      captured.wizard?.next(),
+      captured.wizard?.next(),
+    ]);
+
+    expect(results.filter(Boolean)).toHaveLength(1);
+    expect(captured.wizard?.currentStep.value).toBe(1);
+  });
+
+  it("a prev made while next is validating is not overwritten", async () => {
+    const captured: Captured = {};
+    const { wrapper } = mountWizard(captured);
+    await flushPromises();
+
+    captured.wizard?.goToStep(1);
+    const pending = captured.wizard?.next();
+    captured.wizard?.prev();
+
+    expect(await pending).toBe(false);
+    expect(captured.wizard?.currentStep.value).toBe(0);
+    expect(step(wrapper, "one").attributes("hidden")).toBeUndefined();
+  });
+
+  it("goToStep rounds a fractional index and sends NaN to the first step", async () => {
+    const captured: Captured = {};
+    const { wrapper } = mountWizard(captured);
+    await flushPromises();
+
+    captured.wizard?.goToStep(1.5);
+    await nextTick();
+    expect(captured.wizard?.currentStep.value).toBe(1);
+    expect(step(wrapper, "two").attributes("hidden")).toBeUndefined();
+
+    captured.wizard?.goToStep(Number.NaN);
+    expect(captured.wizard?.currentStep.value).toBe(0);
+  });
+
+  it("keeps a step visible when the last step is removed", async () => {
+    const captured: Captured = {};
+    const showThree = ref(true);
+    const { wrapper } = mountAdmin(() =>
+      h(WizardForm, { save: async () => undefined }, () => [
+        h(WizardFormStep, { name: "one" }, () => [
+          h(TextInput, { source: "title" }),
+        ]),
+        h(WizardFormStep, { name: "two" }, () => [
+          h(TextInput, { source: "body" }),
+        ]),
+        ...(showThree.value
+          ? [
+              h(WizardFormStep, { name: "three" }, () => [
+                h(TextInput, { source: "slug" }),
+              ]),
+            ]
+          : []),
+        h(makeProbe(captured)),
+      ]),
+    );
+    await flushPromises();
+    captured.wizard?.goToStep(2);
+    await nextTick();
+
+    showThree.value = false;
+    await flushPromises();
+
+    expect(captured.wizard?.currentStep.value).toBe(1);
+    expect(captured.wizard?.hasNext.value).toBe(false);
+    expect(step(wrapper, "two").attributes("hidden")).toBeUndefined();
   });
 
   it("a value typed on a step survives navigating away and back", async () => {

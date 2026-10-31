@@ -48,29 +48,37 @@ export function useWizardForm(
   submit: () => Promise<void>,
   validateStep: (stepName: string) => Promise<boolean>,
 ): UseWizardFormResult {
-  const currentStep = ref(0);
   const lastIndex = computed(() => Math.max(0, toValue(stepNames).length - 1));
 
+  // NaN goes to the first step; a fraction rounds down to a real step.
   const clamp = (index: number): number =>
-    Math.min(Math.max(index, 0), lastIndex.value);
+    Number.isNaN(index)
+      ? 0
+      : Math.min(Math.max(Math.trunc(index), 0), lastIndex.value);
+
+  // Clamped on read, so removing the last step while on it shows the new last.
+  const selected = ref(0);
+  const currentStep = computed(() => clamp(selected.value));
 
   return {
     currentStep,
     hasNext: computed(() => currentStep.value < lastIndex.value),
     hasPrev: computed(() => currentStep.value > 0),
     goToStep(index) {
-      currentStep.value = clamp(index);
+      selected.value = clamp(index);
     },
     prev() {
-      currentStep.value = clamp(currentStep.value - 1);
+      selected.value = clamp(currentStep.value - 1);
     },
     async next() {
       const index = currentStep.value;
       if (index >= lastIndex.value) return false;
       const stepName = toValue(stepNames)[index];
       const valid = stepName === undefined || (await validateStep(stepName));
-      if (!valid) return false;
-      currentStep.value = clamp(currentStep.value + 1);
+      // The user moved (a second next, a prev, goToStep) while validating:
+      // advancing from the stale index would skip or undo that move.
+      if (!valid || currentStep.value !== index) return false;
+      selected.value = clamp(index + 1);
       return true;
     },
     submit,
