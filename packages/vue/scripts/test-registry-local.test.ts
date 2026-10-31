@@ -1,5 +1,16 @@
 // @vitest-environment node
-import { expect, it } from "vitest";
+import { spawnSync } from "node:child_process";
+import {
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  symlinkSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { afterEach, expect, it } from "vitest";
 // @ts-expect-error -- an untyped .mjs script
 import {
   compilerRunFailure,
@@ -57,4 +68,33 @@ it("a compiler run that exited 0, or reported source diagnostics, is not a failu
         "src/lib/utils.ts(1,1): error TS2709: Cannot use namespace 'X' as a type.\n",
     }),
   ).toBeNull();
+});
+
+const scratch: string[] = [];
+
+afterEach(() => {
+  for (const dir of scratch.splice(0)) {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+it("the script runs when invoked through a symlinked checkout", () => {
+  const root = mkdtempSync(join(tmpdir(), "registry-local-"));
+  scratch.push(root);
+  mkdirSync(join(root, "real", "scripts"), { recursive: true });
+  copyFileSync(
+    fileURLToPath(new URL("./test-registry-local.mjs", import.meta.url)),
+    join(root, "real", "scripts", "test-registry-local.mjs"),
+  );
+  symlinkSync(join(root, "real"), join(root, "link"));
+
+  // No dist/r beside the copy, so a script that runs must report it.
+  const run = spawnSync(
+    process.execPath,
+    [join(root, "link", "scripts", "test-registry-local.mjs")],
+    { encoding: "utf8" },
+  );
+
+  expect(run.status).toBe(1);
+  expect(run.stderr).toMatch(/Missing dist item/);
 });

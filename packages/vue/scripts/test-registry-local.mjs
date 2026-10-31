@@ -10,7 +10,13 @@
 // Run: pnpm registry:build && pnpm registry:test-local
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -205,4 +211,11 @@ const main = () => {
   );
 };
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) main();
+// import.meta.url is built from the real path of the main module, while
+// process.argv[1] is not resolved, so a symlinked checkout needs realpath.
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href
+) {
+  main();
+}
