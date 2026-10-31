@@ -55,3 +55,12 @@ jobs:
           }
       - name: Registry builds
         run: pnpm --dir packages/react registry:build
+      - name: Vue registry is up to date
+        run: |
+          pnpm --dir packages/vue registry:generate
+          git diff --exit-code packages/vue/registry.json || {
+            echo "::error::Vue registry.json is stale. Run pnpm --dir packages/vue registry:generate and commit it."
+            exit 1
+          }
+      - name: Vue registry builds
+        run: pnpm --dir packages/vue registry:build
