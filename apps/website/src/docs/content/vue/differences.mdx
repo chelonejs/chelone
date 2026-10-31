@@ -1,0 +1,62 @@
+---
+title: "Differences from React"
+description: "Where @chelone/vue departs from the React pages, so you know which code does not carry over."
+---
+
+Most pages in these docs show React code. `@chelone/vue` has the same
+components, controllers and hooks, so a page still describes the behaviour. This
+page lists where the Vue code is written differently. Setup is on the
+[Vue setup page](/docs/vue/setup).
+
+The general mapping:
+
+- Props are kebab-case in templates: `:data-provider`, `:query-client`.
+- A React callback prop such as `onConfirm` is an emitted event: `@confirm`.
+- A `ReactNode` prop is a slot: `#layout`, `#dashboard`, `#error`.
+- A component prop takes the component itself, not a render function:
+  `:list="PostList"`.
+- A composable returns `Ref`s where the React hook returns plain values.
+
+## The admin
+
+| React | Vue | React page |
+| ----- | --- | ---------- |
+| `<Admin router={...}>` swaps the router adapter. | There is no `router` prop and no router swap. `<Admin>` uses the vue-router the app installs. | [Swapping the router](/docs/app-config/admin#swapping-the-router) |
+| The children can be a function that receives `permissions`. | The default slot takes no arguments. | [Auth, basename and permissions](/docs/app-config/admin#auth-basename-and-permissions) |
+| `<Admin.Title>` and the `title` prop set the admin title. | There is no `<Admin.Title>` and no `title` slot. | [Admin](/docs/app-config/admin) |
+| With no layout given, `<Admin>` renders the routes with no layout. | A default layout renders when no `#layout` slot is given. | [The layout slot](/docs/app-config/admin#the-layout-slot) |
+| The Zod registry prop is `resources`. | The Zod registry prop is `registry`. `resources` is an array of view definitions, the way to register a resource without a `<Resource>` child. | [The resources prop](/docs/app-config/admin#the-resources-prop-and-schema-validation) |
+| `<CustomRoutes>` children add routes. | `customRoutes` is an array prop, read once. | [Custom Routes](/docs/app-config/custom-routes) |
+| The error fallback receives `{ error, errorInfo, resetErrorBoundary }`. | The `#error` slot receives `{ error, info, reset }`. `info` is Vue's description of where the error was thrown. | [Error](/docs/ui-layout/error) |
+| `ResourceDefinition` takes `options`, so resources group in the menu and carry a label override. | `ResourceDefinition` has no `options`: the menu is one flat group, and a resource label comes from the translation key or the humanized name. | [Resource](/docs/app-config/resource) |
+
+The full prop list for `<Admin>` and `<Resource>` is on the
+[Vue setup page](/docs/vue/setup#admin-props).
+
+## Forms and hooks
+
+| React | Vue | React page |
+| ----- | --- | ---------- |
+| `<TabbedForm.Tab>` and `<WizardForm.Step>` are statics on the form. | `TabbedFormTab` and `WizardFormStep` are separate components, imported from `@chelone/vue`. | [Tabbed Form](/docs/editing/tabbed-form), [Wizard Form](/docs/editing/wizard-form) |
+| `useStoreItem(key, default)` returns `[value, setter]` and follows a changing key. | `useStoreItem` returns `[Ref, setter]`. The key and default are read once, in `setup`. | None |
+| A field or input `label` is a `ReactNode`. | `label` is a string, or `false` to hide it. Custom label markup goes in the default slot. | [Text Input](/docs/editing/text-input) |
+| `<FilterForm>` selects the displayed filters with `alwaysOn` and a remove control per input. | `<FilterForm>` shows the inputs slotted into it. There is no `alwaysOn` and no displayed-filter selection. | [Filter Form](/docs/editing/filter-form) |
+
+## Components
+
+| React | Vue | React page |
+| ----- | --- | ---------- |
+| `<Confirm>` takes `onConfirm` and `onClose`. | `<Confirm>` emits `confirm` and `close`. | [Confirm](/docs/ui-layout/confirm) |
+| `<BooleanField>` takes `TrueIcon` and `FalseIcon`. | `<BooleanField>` has no `TrueIcon` or `FalseIcon` props. It draws a built-in check or cross, styled through `class`. | [Boolean Field](/docs/viewing/boolean-field) |
+| `<FileInput>` and `<ImageInput>` use `react-dropzone`. | They use native drag and drop. The value shape is the same: `{ rawFile, src, title }` for a dropped file. | [File Input](/docs/editing/file-input), [Image Input](/docs/editing/image-input) |
+| `<Notification>` renders through sonner. | `<Notification>` is a dependency-free toaster, a stack at the bottom centre with its own close button. | [Notification](/docs/ui-layout/notification) |
+| `<ThemeModeToggle>` opens a dropdown of modes. | `<ThemeModeToggle>` is one button. Each click cycles light, dark, system. | [Theme Mode Toggle](/docs/ui-layout/theme-mode-toggle) |
+
+Theme storage differs too: the Vue `<ThemeProvider>` always uses `localStorage`
+and `useTheme()` returns `Ref`s. The note under
+[Themes](/docs/app-config/themes) has the details.
+
+## What this page leaves out
+
+The list is the differences you write differently. Port details with no API
+effect, such as how a dropdown menu positions itself, are not listed.
