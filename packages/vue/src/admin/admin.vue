@@ -5,6 +5,13 @@ export interface AdminProps<TResources extends ResourceMap = ResourceMap> {
   dataProvider: DataProvider<TResources>;
   /** An existing vue-query client. Omit to have `<Admin>` create one. */
   queryClient?: QueryClient;
+  /**
+   * The path the host mounts `<Admin>` at, relative to the host router's own
+   * history base (default `''`). Starts with a slash when non-empty. Chelone
+   * prepends it to links and resource routes; vue-router applies its history
+   * base separately. Remount `<Admin>` to change it.
+   */
+  basename?: string;
   /** The optional auth provider. */
   authProvider?: AuthProvider;
   /** The optional i18n instance. */
@@ -81,6 +88,7 @@ import type {
   NotificationStore,
   ResourceMap,
 } from "@chelone/core";
+import { BasenameKey } from "../router/adapter";
 import { QueryClient, VUE_QUERY_CLIENT } from "@tanstack/vue-query";
 import { onScopeDispose, provide, useSlots, watchEffect } from "vue";
 import { useRouter } from "vue-router";
@@ -95,6 +103,8 @@ import {
 } from "./resource-registry";
 
 const props = defineProps<AdminProps<TResources>>();
+const basename = props.basename ?? "";
+provide(BasenameKey, basename);
 
 defineSlots<{
   /** The resource markers (`<Resource>`) — always rendered so they register. */
