@@ -5,6 +5,13 @@ export interface AdminProps<TResources extends ResourceMap = ResourceMap> {
   dataProvider: DataProvider<TResources>;
   /** An existing vue-query client. Omit to have `<Admin>` create one. */
   queryClient?: QueryClient;
+  /**
+   * The path the host mounts `<Admin>` at, relative to the host router's own
+   * history base (default `''`). Starts with a slash when non-empty. Chelone
+   * prepends it to links and resource routes; vue-router applies its history
+   * base separately. Trailing slashes are removed. Remount `<Admin>` to change it.
+   */
+  basename?: string;
   /** The optional auth provider. */
   authProvider?: AuthProvider;
   /** The optional i18n instance. */
@@ -73,14 +80,16 @@ export interface AdminProps<TResources extends ResourceMap = ResourceMap> {
  * slot always renders — that is where `<Resource>` markers live and register.
  */
 
-import type {
-  AnyCheloneI18n,
-  AuthProvider,
-  CheloneStore,
-  DataProvider,
-  NotificationStore,
-  ResourceMap,
+import {
+  type AnyCheloneI18n,
+  type AuthProvider,
+  type CheloneStore,
+  type DataProvider,
+  joinBasename,
+  type NotificationStore,
+  type ResourceMap,
 } from "@chelone/core";
+import { BasenameKey } from "../router/adapter";
 import { QueryClient, VUE_QUERY_CLIENT } from "@tanstack/vue-query";
 import { onScopeDispose, provide, useSlots, watchEffect } from "vue";
 import { useRouter } from "vue-router";
@@ -95,6 +104,8 @@ import {
 } from "./resource-registry";
 
 const props = defineProps<AdminProps<TResources>>();
+const basename = (props.basename ?? "").replace(/\/+$/, "");
+provide(BasenameKey, basename);
 
 defineSlots<{
   /** The resource markers (`<Resource>`) — always rendered so they register. */
@@ -155,7 +166,7 @@ function addResourceRoutes(
   if (definition.create) {
     removers.push(
       router.addRoute({
-        path: `/${name}/create`,
+        path: joinBasename(`/${name}/create`, basename),
         name: `chelone-${name}-create`,
         component: definition.create,
       }),
@@ -164,7 +175,7 @@ function addResourceRoutes(
   if (definition.show) {
     removers.push(
       router.addRoute({
-        path: `/${name}/:id/show`,
+        path: joinBasename(`/${name}/:id/show`, basename),
         name: `chelone-${name}-show`,
         component: definition.show,
       }),
@@ -173,7 +184,7 @@ function addResourceRoutes(
   if (definition.edit) {
     removers.push(
       router.addRoute({
-        path: `/${name}/:id`,
+        path: joinBasename(`/${name}/:id`, basename),
         name: `chelone-${name}-edit`,
         component: definition.edit,
       }),
@@ -182,7 +193,7 @@ function addResourceRoutes(
   if (definition.list) {
     removers.push(
       router.addRoute({
-        path: `/${name}`,
+        path: joinBasename(`/${name}`, basename),
         name: `chelone-${name}-list`,
         component: definition.list,
       }),
@@ -211,9 +222,15 @@ async function resolveWaitingLocation() {
     resolving = false;
   }
   const current = router.currentRoute.value;
+  const indexPath = joinBasename("/", basename).toLowerCase();
+  const currentPath = current.path.toLowerCase();
   // The index is left alone: `<NavigateToFirstResource>` redirects it, and
-  // re-resolving "/" would cancel that redirect's pending navigation.
-  if (current.matched.length === 0 && current.path !== "/") {
+  // re-resolving the basename root would cancel that pending navigation.
+  if (
+    current.matched.length === 0 &&
+    currentPath !== indexPath &&
+    currentPath !== `${indexPath}/`
+  ) {
     void router.replace(current.fullPath);
   }
 }
