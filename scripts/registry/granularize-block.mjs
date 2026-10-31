@@ -54,7 +54,7 @@ const parseImports = (src) => {
 
 // Parse the NAMED symbols an `import … from "<spec>"` statement pulls from a
 // given specifier — used by the barrel-export guard to verify every engine
-// symbol a copied component needs is actually exported by @chelone/react.
+// symbol a copied component needs is actually exported by the engine package.
 // Returns a flat list of the imported source names (drops `as` aliases, keeps
 // the exported name). Default and namespace imports are returned as a sentinel.
 const parseImportedSymbols = (src, targetSpec) => {
@@ -80,7 +80,7 @@ const parseImportedSymbols = (src, targetSpec) => {
   return [...symbols];
 };
 
-// Collects every named symbol EXPORTED by the @chelone/react barrel
+// Collects every named symbol EXPORTED by the engine package's barrel
 // (src/index.ts). Handles `export { a, b as c }` and `export type { … }` blocks
 // (with or without a trailing `from "…"`). No `export *` is used in the barrel,
 // so a flat name set is a complete public-API surface.
@@ -232,9 +232,9 @@ export const granularizeBlock = ({
   extraRegistryDependencies = [],
   extraDependencies = [],
 }) => {
-  // The @chelone/react public-API surface — every ENGINE symbol a copied
+  // The engine package's public-API surface — every ENGINE symbol a copied
   // component imports MUST be re-exported here, or the emit-time rewrite
-  // (relative -> "@chelone/react") produces an unresolvable bare import. The
+  // (relative -> the engine package) produces an unresolvable bare import. The
   // guard below fails generate loud on any gap so we never ship a broken item.
   const barrelExports = parseBarrelExports(repoRoot);
   const missingBarrelSymbols = [];
@@ -297,7 +297,7 @@ export const granularizeBlock = ({
       for (const imp of imports) {
         // Class A — ENGINE relative. Resolves to a src/ file OUTSIDE the shipped
         // surface (components/, lib/, hooks/). The emit-time content rewrite
-        // turns the specifier into a bare `@chelone/react`, so declare that npm
+        // turns the specifier into the bare engine package, so declare that npm
         // dep here (collapsing every engine import in the file to the one dep),
         // and verify each imported symbol IS on the barrel's public surface.
         if (isEngineRelative(imp, absFile, repoRoot)) {
@@ -328,7 +328,7 @@ export const granularizeBlock = ({
         }
         const pkg = npmRoot(imp);
         if (IMPLICIT_DEPENDENCIES.has(pkg)) continue;
-        // @chelone/core + @chelone/react are the real published-target npm deps
+        // @chelone/core + the engine package are the real published-target npm deps
         // the copied source needs (see WORKSPACE_NPM_DEPS). Declare them
         // verbatim even though the local manifest lists them as workspace:*.
         if (WORKSPACE_NPM_DEPS.has(pkg)) {
@@ -369,8 +369,8 @@ export const granularizeBlock = ({
     const unique = [...new Set(missingBarrelSymbols)].sort();
     throw new Error(
       `Engine seam: copied component imports ${unique.length} symbol(s) NOT ` +
-        `exported by the @chelone/react barrel (src/index.ts). The emit-time ` +
-        `rewrite would produce an unresolvable "@chelone/react" import. Add ` +
+        `exported by the ${ENGINE_PACKAGE} barrel (src/index.ts). The emit-time ` +
+        `rewrite would produce an unresolvable "${ENGINE_PACKAGE}" import. Add ` +
         `each to the barrel:\n  ${unique.join("\n  ")}`,
     );
   }
@@ -385,7 +385,7 @@ export const granularizeBlock = ({
 // `@chelone/<basename>` dep — UNLESS that exact file is already bundled inside
 // this SAME item (then it resolves internally, no dep needed). Shadcn-upstream
 // refs (bare stock hooks) are returned as bare names. ENGINE relatives (class A)
-// are ignored here — they collapse onto the `@chelone/react` npm dep, handled by
+// are ignored here — they collapse onto the engine package's npm dep, handled by
 // the emit-time rewrite in build-registry.mjs, NOT a registryDependency.
 //
 // This is the SAME import-graph resolution the granular items use, applied
@@ -400,7 +400,7 @@ export const computeItemRegistryDeps = ({ files, repoRoot, blockName }) => {
     const absFile = resolve(repoRoot, file);
     const src = importSource(file, readFileSync(absFile, "utf8"));
     for (const imp of parseImports(src)) {
-      // Class A engine relatives → @chelone/react npm dep (emit-time rewrite),
+      // Class A engine relatives → engine package npm dep (emit-time rewrite),
       // never a registryDependency. Skip.
       if (isEngineRelative(imp, absFile, repoRoot)) continue;
 

@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { spawnSync } from "node:child_process";
 import {
+  chmodSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -14,6 +15,10 @@ import { afterEach, expect, it } from "vitest";
 
 const generateScript = fileURLToPath(
   new URL("../../../scripts/registry/generate-registry.mjs", import.meta.url),
+);
+
+const buildScript = fileURLToPath(
+  new URL("../../../scripts/registry/build-registry.mjs", import.meta.url),
 );
 
 const fixtures: string[] = [];
@@ -36,7 +41,7 @@ const vueEngine: Engine = {
   package: "@chelone/vue",
   sourceExtensions: [".ts", ".vue"],
   implicitDependencies: ["vue"],
-  cli: "shadcn-vue",
+  cli: "fake-registry",
   itemNames: {},
 };
 
@@ -90,6 +95,24 @@ const uiSource = {
     "<template><section><slot /></section></template>\n",
 };
 
+// Stands in for `shadcn-vue build <registry> -o <dir>`: one dist/r file per
+// item, each file carrying its source as `content`.
+const fakeRegistryCli = `#!/usr/bin/env node
+const { readFileSync, writeFileSync } = require("node:fs");
+const { join } = require("node:path");
+const registry = JSON.parse(readFileSync(process.argv[3], "utf8"));
+for (const item of registry.items) {
+  const files = item.files.map((file) => ({
+    ...file,
+    content: readFileSync(file.path, "utf8"),
+  }));
+  writeFileSync(
+    join(process.argv[5], item.name + ".json"),
+    JSON.stringify({ ...item, files }),
+  );
+}
+`;
+
 function generatorFixture(
   sources: Record<string, string>,
   engine: Engine = vueEngine,
@@ -100,6 +123,7 @@ function generatorFixture(
     "package.json": JSON.stringify({ name: "fixture", dependencies: {} }),
     "components.json": JSON.stringify(componentsJson),
     "scripts/registry.config.mjs": config(engine),
+    "node_modules/.bin/fake-registry": fakeRegistryCli,
     ...engineSource,
     ...sources,
   };
@@ -107,6 +131,7 @@ function generatorFixture(
     mkdirSync(dirname(join(root, path)), { recursive: true });
     writeFileSync(join(root, path), content);
   }
+  chmodSync(join(root, "node_modules/.bin/fake-registry"), 0o755);
   const result = spawnSync(process.execPath, [generateScript], {
     cwd: root,
     encoding: "utf8",
@@ -114,6 +139,12 @@ function generatorFixture(
   return {
     status: result.status,
     stderr: result.stderr,
+    build() {
+      return spawnSync(process.execPath, [buildScript], {
+        cwd: root,
+        encoding: "utf8",
+      });
+    },
     item(name: string) {
       const registry = JSON.parse(
         readFileSync(join(root, "registry.json"), "utf8"),
@@ -233,4 +264,27 @@ it("an engine symbol missing from src/index.ts fails generate", () => {
 
   expect(fixture.status).not.toBe(0);
   expect(fixture.stderr).toContain("useMissing");
+});
+
+it("build accepts a .vue item whose template text looks like an import", () => {
+  const fixture = generatorFixture({
+    ...uiSource,
+    ...engineSource,
+    "src/components/admin/greeting.vue": [
+      '<script setup lang="ts">',
+      'import Button from "@/components/ui/button.vue";',
+      "</script>",
+      "<template>",
+      "  <p>{{ 'import Card from \"@/components/ui/card.vue\"' }}</p>",
+      "  <p>{{ 'import { useThing } from \"../../use-thing\"' }}</p>",
+      "</template>",
+      "",
+    ].join("\n"),
+  });
+  expect(fixture.status).toBe(0);
+
+  const build = fixture.build();
+
+  expect(build.status, build.stderr).toBe(0);
+  expect(build.stdout).toContain("Gate passed.");
 });

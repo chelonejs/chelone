@@ -27,6 +27,7 @@ import path from "node:path";
 import {
   CLI,
   ENGINE_PACKAGE,
+  importSource,
   isEngineRelative,
   resolveSpecifier,
   rewriteEngineImports,
@@ -202,7 +203,7 @@ const validateNoEngineEscapes = async () => {
     for (const file of item.files) {
       if (typeof file.content !== "string") continue;
       const sourceAbs = path.resolve(cwd, file.path);
-      for (const m of file.content.matchAll(IMPORT_SPEC_RE)) {
+      for (const m of importSource(file.path, file.content).matchAll(IMPORT_SPEC_RE)) {
         const spec = m[1];
         if (!spec.startsWith(".") && !spec.startsWith("@/")) continue;
         if (isEngineRelative(spec, sourceAbs, cwd)) {
@@ -262,7 +263,7 @@ const validateNoAliasEscapes = async (registry) => {
     for (const file of item.files) {
       if (typeof file.content !== "string") continue;
       const sourceAbs = path.resolve(cwd, file.path);
-      for (const m of file.content.matchAll(IMPORT_SPEC_RE)) {
+      for (const m of importSource(file.path, file.content).matchAll(IMPORT_SPEC_RE)) {
         const spec = m[1];
         if (!spec.startsWith("@/")) continue; // only alias imports here
         // ENGINE `@/` imports are validateNoEngineEscapes's domain; skip.
