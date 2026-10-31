@@ -450,6 +450,17 @@ describe("createClientListController", () => {
     });
   });
 
+  describe("hideFilter with a dotted source", () => {
+    it("removes the nested value and drops an emptied parent", () => {
+      const c = createClientListController<Row>({
+        data,
+        filter: { author: { name: "x" }, category: "a" },
+      });
+      c.hideFilter("author.name");
+      expect(c.getSnapshot().filter).toEqual({ category: "a" });
+    });
+  });
+
   describe("setParams", () => {
     it("setParams filters, sorts and pages the in-memory data in one change", () => {
       const c = createClientListController<Row>({ data, page: 2, perPage: 1 });

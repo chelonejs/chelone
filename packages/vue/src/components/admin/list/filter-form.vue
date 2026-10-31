@@ -1,7 +1,25 @@
 <script lang="ts">
+import type { Component } from "vue";
+import type { FilterButtonEntry } from "../buttons/filter-button.vue";
+
+/** A filter input `<FilterForm>` renders once it is shown. */
+export interface FilterFormEntry extends FilterButtonEntry {
+  /** The input component, given `source`, `label` and `props`. */
+  component: Component;
+  /** Extra props for `component`. */
+  props?: Record<string, unknown>;
+  /** Always shown, with no remove button, and left out of `<FilterButton>`. */
+  alwaysOn?: boolean;
+}
+
 /** Props for {@link FilterForm}. */
 export interface FilterFormProps {
   resource?: string;
+  /**
+   * Filters rendered before the slot while shown: `alwaysOn`, in
+   * `displayedFilters`, or holding a value in the list filter.
+   */
+  filters?: FilterFormEntry[];
 }
 </script>
 
@@ -17,10 +35,9 @@ export interface FilterFormProps {
  * surface through `setFilters(values, undefined, true)` — core owns the
  * debounce, so keystrokes coalesce into one refetch.
  *
- * Divergences from the React twin (deliberate): the alwaysOn / displayedFilters
- * / valued shown-filter selection and the per-input remove control are React-
- * cloneElement machinery that don't translate; here the author simply slots the
- * inputs they want shown. A `resource` prop sources the form's default schema
+ * Divergences from the React twin (deliberate): entries are declared as
+ * `{ source, component, props }` in the `filters` prop rather than cloned
+ * elements, and inputs the author slots in always render after them. A `resource` prop sources the form's default schema
  * (else the ambient `<Resource>`); validation never gates anything (the form is
  * never submitted — its values are read live).
  */
@@ -31,14 +48,57 @@ import {
   mergeFilterValues,
 } from "@chelone/core";
 import { watch } from "vue";
+import { useTranslate } from "../../../i18n/use-translate";
 import { useForm } from "../../../form/use-form";
 import { useListContext } from "../../../list/list-context";
 import { useResourceContext } from "../../../resource-context";
+import { MinusCircleIcon } from "./list-icons";
 
 const props = defineProps<FilterFormProps>();
 
 const list = useListContext();
 const resource = props.resource ?? useResourceContext();
+const translate = useTranslate();
+
+function assertNoAlwaysOnDefault(): void {
+  for (const entry of props.filters ?? []) {
+    if (entry.alwaysOn && entry.defaultValue) {
+      throw new Error(
+        "Cannot use alwaysOn and defaultValue on a filter input. Please use useListController({ filterDefaultValues }) instead.",
+      );
+    }
+  }
+}
+assertNoAlwaysOnDefault();
+watch(() => props.filters, assertNoAlwaysOnDefault);
+
+function isEmptyValue(value: unknown): boolean {
+  if (value === "" || value == null) return true;
+  // A non-empty leaf anywhere makes the value non-empty.
+  if (typeof value === "object") {
+    return Object.values(value).every(isEmptyValue);
+  }
+  return false;
+}
+
+function valueAt(record: unknown, source: string): unknown {
+  let current = record;
+  for (const key of source.split(".")) {
+    if (current == null || typeof current !== "object") return undefined;
+    current = (current as Record<string, unknown>)[key];
+  }
+  return current;
+}
+
+function isShown(entry: FilterFormEntry): boolean {
+  return (
+    !!entry.alwaysOn ||
+    !!(list.displayedFilters as Record<string, boolean> | undefined)?.[
+      entry.source
+    ] ||
+    !isEmptyValue(valueAt(list.filter, entry.source))
+  );
+}
 
 // Seed the form from the current list filter; a no-op submit — the form is never
 // submitted, its live values drive `setFilters` instead.
@@ -108,6 +168,29 @@ watch(
     class="flex flex-col sm:flex-row justify-start items-end gap-x-2 gap-y-3 flex-wrap"
     @submit.prevent
   >
+    <template v-for="entry in filters" :key="entry.source">
+      <div
+        v-if="isShown(entry)"
+        class="filter-field flex flex-row gap-2 relative w-full sm:w-auto"
+        :data-source="entry.source"
+      >
+        <component
+          :is="entry.component"
+          :source="entry.source"
+          :label="entry.label"
+          v-bind="entry.props"
+        />
+        <button
+          v-if="!entry.alwaysOn"
+          type="button"
+          class="hide-filter inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-md mt-auto hover:bg-accent hover:text-accent-foreground"
+          :title="translate('ra.action.remove_filter', { _: 'Remove filter' })"
+          @click="list.hideFilter(entry.source)"
+        >
+          <MinusCircleIcon />
+        </button>
+      </div>
+    </template>
     <slot />
   </form>
 </template>

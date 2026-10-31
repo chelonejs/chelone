@@ -124,6 +124,42 @@ function removeEmpty(filter: FilterPayload): FilterPayload {
 }
 
 /**
+ * Returns `filter` without the value at `path`: the flat key of that name and,
+ * for a dotted path, the nested value, pruning parents it leaves empty. Never
+ * mutates `filter`. Shared with the client controller.
+ */
+export function removeFilterPath(
+  filter: FilterPayload,
+  path: string,
+): FilterPayload {
+  const { [path]: _flat, ...rest } = filter;
+  const keys = path.split(".");
+  if (keys.length === 1) return rest;
+  const prune = (
+    node: Record<string, unknown>,
+    depth: number,
+  ): Record<string, unknown> => {
+    const key = keys[depth] as string;
+    const child = node[key];
+    if (depth === keys.length - 1) {
+      const { [key]: _removed, ...others } = node;
+      return others;
+    }
+    if (child == null || typeof child !== "object" || Array.isArray(child)) {
+      return node;
+    }
+    const pruned = prune(child as Record<string, unknown>, depth + 1);
+    if (pruned === child) return node;
+    if (Object.keys(pruned).length === 0) {
+      const { [key]: _emptied, ...others } = node;
+      return others;
+    }
+    return { ...node, [key]: pruned };
+  };
+  return prune(rest, 0) as FilterPayload;
+}
+
+/**
  * Turns a {@link ListParamsPatch} into the state slice it changes. Shared with
  * the client controller so the page-reset rule lives in one place.
  */
@@ -458,11 +494,15 @@ export function createListController<
   };
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let pendingFilters:
+    | { filter: FilterPayload; displayedFilters?: Record<string, boolean> }
+    | undefined;
   const clearDebounce = (): void => {
     if (debounceTimer !== undefined) {
       clearTimeout(debounceTimer);
       debounceTimer = undefined;
     }
+    pendingFilters = undefined;
   };
   store.onDestroy(clearDebounce);
 
@@ -477,8 +517,10 @@ export function createListController<
       applyFilters(filter, displayedFilters);
       return;
     }
+    pendingFilters = { filter, displayedFilters };
     debounceTimer = setTimeout(() => {
       debounceTimer = undefined;
+      pendingFilters = undefined;
       if (destroyed) return;
       applyFilters(filter, displayedFilters);
     }, options.debounceMs ?? DEFAULT_DEBOUNCE_MS);
@@ -500,9 +542,21 @@ export function createListController<
   const hideFilter = (name: string): void => {
     if (destroyed) return;
     const s = store.getSnapshot();
-    const { [name]: _value, ...filter } = s.filter;
-    const { [name]: _shown, ...displayedFilters } = s.displayedFilters;
-    applyParams({ filter, displayedFilters });
+    // A debounced filter still pending would bring the removed value back, so
+    // it lands now, minus the hidden filter, rather than being dropped.
+    const pending = pendingFilters;
+    clearDebounce();
+    const filter = removeFilterPath(
+      pending ? removeEmpty(pending.filter) : s.filter,
+      name,
+    );
+    const { [name]: _shown, ...displayedFilters } =
+      pending?.displayedFilters ?? s.displayedFilters;
+    applyParams({
+      filter,
+      displayedFilters,
+      ...(pending ? { page: 1 } : {}),
+    });
   };
 
   // --- selection: KV-backed when available (cross-instance sync), else local ---

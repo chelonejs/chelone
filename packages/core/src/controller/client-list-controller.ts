@@ -7,6 +7,7 @@ import {
   type ListControllerState,
   type ListParamsPatch,
   listParamsFromPatch,
+  removeFilterPath,
 } from "./list-controller";
 
 /**
@@ -334,7 +335,7 @@ export function createClientListController<
   const hideFilter = (name: string): void => {
     if (destroyed) return;
     const s = store.getSnapshot();
-    const { [name]: _value, ...filter } = s.filter;
+    const filter = removeFilterPath(s.filter, name);
     const { [name]: _shown, ...displayedFilters } = s.displayedFilters;
     store.setState({ filter, displayedFilters, page: 1 });
     recompute();
