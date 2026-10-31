@@ -108,6 +108,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/ui/sidebar/use-is-mobile.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/ui/skeleton.vue",
           "type": "registry:component"
         },
@@ -321,6 +325,10 @@
         },
         {
           "path": "src/components/ui/sidebar/sidebar.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/sidebar/use-is-mobile.ts",
           "type": "registry:ui"
         }
       ],

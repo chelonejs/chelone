@@ -8,7 +8,7 @@
 
 import { createNotificationStore } from "@chelone/core";
 import { flushPromises, mount } from "@vue/test-utils";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import Admin from "../../../admin/admin.vue";
@@ -203,5 +203,140 @@ describe("<ThemeProvider> + <ThemeModeToggle> in isolation", () => {
     await toggle.trigger("click");
     await nextTick();
     expect(localStorage.getItem("test-theme")).toBe("system");
+  });
+});
+
+describe("<Layout> sidebar by viewport width", () => {
+  const originalMatchMedia = window.matchMedia;
+  const originalInnerWidth = window.innerWidth;
+
+  // jsdom has no real viewport and no matchMedia: stub both, as the viewport the
+  // test wants.
+  function setViewport(width: number): void {
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      value: width,
+    });
+    window.matchMedia = ((query: string) => ({
+      matches: width < 768,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    })) as unknown as typeof window.matchMedia;
+  }
+
+  afterEach(() => {
+    window.matchMedia = originalMatchMedia;
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      value: originalInnerWidth,
+    });
+  });
+
+  async function mountLayout() {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [
+        { path: "/", component: Blank },
+        { path: "/posts", component: Blank },
+        { path: "/comments", component: Blank },
+      ],
+    });
+    const wrapper = mount(Admin, {
+      props: { dataProvider },
+      slots: {
+        default: () => [
+          h(Resource, { name: "posts", list: Blank }),
+          h(Resource, { name: "comments", list: Blank }),
+        ],
+      },
+      global: { plugins: [router] },
+      attachTo: document.body,
+    });
+    await flushPromises();
+    return { wrapper, router };
+  }
+
+  it("the sidebar trigger opens the sidebar as a drawer with the resource menu", async () => {
+    setViewport(500);
+    const { wrapper } = await mountLayout();
+
+    expect(wrapper.find('[data-slot="sidebar-drawer"]').exists()).toBe(false);
+
+    await wrapper.find('[data-slot="sidebar-trigger"]').trigger("click");
+
+    const drawer = wrapper.find('[data-slot="sidebar-drawer"]');
+    expect(drawer.exists()).toBe(true);
+    expect(drawer.attributes("role")).toBe("dialog");
+    expect(drawer.attributes("aria-modal")).toBe("true");
+    expect(drawer.attributes("aria-label")).toBe("Sidebar");
+    const hrefs = drawer
+      .findAll('[data-slot="sidebar-menu-button"]')
+      .map((el) => el.attributes("href"));
+    expect(hrefs).toContain("/posts");
+    expect(hrefs).toContain("/comments");
+    wrapper.unmount();
+  });
+
+  it("clicking a menu link navigates and closes the drawer", async () => {
+    setViewport(500);
+    const { wrapper, router } = await mountLayout();
+
+    await wrapper.find('[data-slot="sidebar-trigger"]').trigger("click");
+    const link = wrapper
+      .find('[data-slot="sidebar-drawer"]')
+      .find('[href="/posts"]');
+    await link.trigger("click");
+    await flushPromises();
+
+    expect(router.currentRoute.value.path).toBe("/posts");
+    expect(wrapper.find('[data-slot="sidebar-drawer"]').exists()).toBe(false);
+    wrapper.unmount();
+  });
+
+  it("Escape and a backdrop click close the drawer", async () => {
+    setViewport(500);
+    const { wrapper } = await mountLayout();
+    const trigger = wrapper.find('[data-slot="sidebar-trigger"]');
+
+    await trigger.trigger("click");
+    expect(wrapper.find('[data-slot="sidebar-drawer"]').exists()).toBe(true);
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    await nextTick();
+    expect(wrapper.find('[data-slot="sidebar-drawer"]').exists()).toBe(false);
+
+    await trigger.trigger("click");
+    expect(wrapper.find('[data-slot="sidebar-drawer"]').exists()).toBe(true);
+    await wrapper.find('[data-slot="sidebar-backdrop"]').trigger("click");
+    expect(wrapper.find('[data-slot="sidebar-drawer"]').exists()).toBe(false);
+    wrapper.unmount();
+  });
+
+  it("on a wide viewport the trigger collapses the sidebar and no drawer renders", async () => {
+    setViewport(1280);
+    const { wrapper } = await mountLayout();
+
+    const sidebar = wrapper.find('[data-slot="sidebar"]');
+    expect(sidebar.attributes("data-state")).toBe("expanded");
+
+    await wrapper.find('[data-slot="sidebar-trigger"]').trigger("click");
+
+    expect(wrapper.find('[data-slot="sidebar"]').attributes("data-state")).toBe(
+      "collapsed",
+    );
+    expect(wrapper.find('[data-slot="sidebar-drawer"]').exists()).toBe(false);
+    wrapper.unmount();
+  });
+
+  it("without matchMedia the sidebar renders as the desktop column", async () => {
+    // @ts-expect-error jsdom ships without matchMedia; keep it that way.
+    window.matchMedia = undefined;
+    const { wrapper } = await mountLayout();
+
+    await wrapper.find('[data-slot="sidebar-trigger"]').trigger("click");
+
+    expect(wrapper.find('[data-slot="sidebar"]').exists()).toBe(true);
+    expect(wrapper.find('[data-slot="sidebar-drawer"]').exists()).toBe(false);
+    wrapper.unmount();
   });
 });
