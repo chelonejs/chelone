@@ -1,0 +1,193 @@
+---
+title: "Admin Slots"
+description: "Override the pages <Admin> renders with named slots, and add routes with customRoutes."
+---
+
+React overrides `<Admin>` pages with `<Admin.X>` children or props. In Vue each
+override is a named slot: a `<template #name>` block inside `<Admin>`. Routes
+that are not a resource view go in the `customRoutes` prop. Set-up of the router
+and `<Admin>` itself is on the [setup page](/docs/vue/setup).
+
+## The slots
+
+| Slot                  | React                                                | Renders                                                       |
+| --------------------- | ---------------------------------------------------- | ------------------------------------------------------------- |
+| `#default`            | `<Resource>` children                                | The `<Resource>` markers                                      |
+| `#layout`             | `<Admin.Layout>`                                     | The authenticated frame, in place of the default `<Layout>`   |
+| `#dashboard`          | `<Admin.Dashboard>`                                  | The index page                                                |
+| `#login`              | `<Admin.LoginPage>` (the `loginPage` prop)           | The signed-out screen                                         |
+| `#loading`            | `<Admin.Loading>`                                    | The pending auth check                                        |
+| `#ready`              | `<Admin.Ready>`                                      | An admin with no resources                                    |
+| `#error`              | `<Admin.Error>`                                      | A route view that throws                                      |
+| `#authCallback`       | `<Admin.AuthCallback>`                               | `/auth-callback`                                              |
+| `#authenticationError`| `<Admin.AuthenticationError>`                        | `/authentication-error`                                       |
+| `#accessDenied`       | `<Admin.AccessDenied>`                               | `/access-denied`                                              |
+| `#catchAll`           | `<Admin.CatchAll>`                                   | A path no route owns                                          |
+
+React also has `<Admin.Title>`. Vue has no slot for it.
+
+```vue title="src/App.vue"
+<template>
+  <Admin :data-provider="dataProvider" require-auth>
+    <Resource name="posts" :list="PostList" />
+
+    <template #dashboard>
+      <Dashboard />
+    </template>
+    <template #catchAll>
+      <NotFound />
+    </template>
+  </Admin>
+</template>
+```
+
+## Default slot
+
+The default slot holds the `<Resource>` markers. `<Admin>` always renders it,
+because a `<Resource>` registers itself, and adds its routes, as it renders.
+
+## Layout
+
+Without `#layout`, `<Admin>` renders the default `<Layout>` with the sidebar and
+app bar around the route view. React is the other way round: with no
+`<Admin.Layout>` it renders the routes with no layout at all.
+
+`#layout` replaces both the default `<Layout>` and the `<router-view>`, so the
+slot renders `<router-view />` itself:
+
+```vue title="src/App.vue"
+<Admin :data-provider="dataProvider">
+  <Resource name="posts" :list="PostList" />
+
+  <template #layout>
+    <MyHeader />
+    <router-view />
+  </template>
+</Admin>
+```
+
+- The slot gets no `<ThemeProvider>`. Wrap it in one if the layout needs the
+  theme.
+- The error boundary still wraps it, and the index still redirects to the first
+  resource.
+
+To keep the frame and change a part of it, render the `<Layout>` component the
+registry installs inside `#layout`. It takes `#sidebar` and `#app-bar` slots,
+and renders the `<router-view />` you pass as its default slot:
+
+```vue title="src/App.vue"
+<script setup lang="ts">
+import Layout from "@/components/admin/layout/layout.vue";
+</script>
+
+<template>
+  <Admin :data-provider="dataProvider">
+    <Resource name="posts" :list="PostList" />
+
+    <template #layout>
+      <Layout>
+        <template #sidebar>
+          <MySidebar />
+        </template>
+        <router-view />
+      </Layout>
+    </template>
+  </Admin>
+</template>
+```
+
+See [Layout](/docs/ui-layout/layout) for the React twin.
+
+## Dashboard
+
+`#dashboard` renders above the route view at the index only, inside the default
+layout. It stops the redirect to the first resource, and the sidebar menu gains a
+Dashboard entry.
+
+## Login, loading and ready
+
+- `#login` shows when `requireAuth` is set and the user is signed out. The
+  default is `<LoginPage>`. React names it `loginPage`.
+- `#loading` replaces the spinner while the `requireAuth` check is pending.
+- `#ready` renders alone while no resource is registered and no `customRoutes`
+  are given.
+
+## Error
+
+`#error` is a scoped slot. It receives `{ error, info, reset }`: the thrown
+error, Vue's `info` for where it was thrown, and a function that clears the
+error and renders the view again. In a dev build `info` reads like
+`render function`. In a production build it is an error-reference link such as
+`https://vuejs.org/error-reference/#runtime-1`, so show it only in development.
+
+```vue title="src/App.vue"
+<Admin :data-provider="dataProvider">
+  <Resource name="posts" :list="PostList" />
+
+  <template #error="{ error, info, reset }">
+    <p>{{ error.message }}</p>
+    <button type="button" @click="reset()">Retry</button>
+  </template>
+</Admin>
+```
+
+React's fallback receives `{ error, errorInfo, resetErrorBoundary }`.
+
+## Page slots
+
+Four slots add a route when they are given:
+
+| Slot                  | Path                    | Layout and auth gate                      |
+| --------------------- | ----------------------- | ----------------------------------------- |
+| `#authCallback`       | `/auth-callback`        | Outside both                              |
+| `#authenticationError`| `/authentication-error` | Inside the layout, behind `requireAuth`   |
+| `#accessDenied`       | `/access-denied`        | Inside the layout, behind `requireAuth`   |
+| `#catchAll`           | any path no route owns  | Inside the layout, behind `requireAuth`   |
+
+- `#catchAll` never renders at the index, which the dashboard or the
+  first-resource redirect owns.
+- With no `basename`, a catch-all route the host router already has wins over
+  `#catchAll`. With a `basename`, `#catchAll` sits at `/admin/:pathMatch(.*)*`
+  and ranks above a host `/:pathMatch(.*)*`, so it handles every path under
+  the `basename`.
+- The paths sit under `basename`: with `basename="/admin"`, the callback is
+  `/admin/auth-callback`.
+
+## Custom routes
+
+`customRoutes` is an array of routes, in place of React's `<CustomRoutes>`
+children:
+
+```vue title="src/App.vue"
+<script setup lang="ts">
+import type { CustomRoute } from "@chelone/vue";
+import AboutPage from "./AboutPage.vue";
+import SettingsPage from "./SettingsPage.vue";
+
+const customRoutes: CustomRoute[] = [
+  { path: "/settings", component: SettingsPage },
+  { path: "/about", component: AboutPage, noLayout: true },
+];
+</script>
+
+<template>
+  <Admin :data-provider="dataProvider" :custom-routes="customRoutes">
+    <Resource name="posts" :list="PostList" />
+  </Admin>
+</template>
+```
+
+| Field      | Description                                                       |
+| ---------- | ----------------------------------------------------------------- |
+| `path`     | The path relative to `basename`.                                  |
+| `component`| The page component.                                               |
+| `name`     | The route name.                                                   |
+| `noLayout` | Render outside the layout and the auth gate. Defaults to `false`. |
+
+- A route renders inside the layout, behind `requireAuth`, unless it sets
+  `noLayout`.
+- `customRoutes` is read once, at setup. Remount `<Admin>` to change it.
+- The routes are added before the resource routes, so a custom route at a
+  resource's path wins.
+
+See [Custom Routes](/docs/app-config/custom-routes) for the React form.
