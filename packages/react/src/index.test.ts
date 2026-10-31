@@ -26,9 +26,11 @@ import type {
   GetRecordRepresentation,
   GetResourceLabel,
   HandleAuthCallbackResult,
+  IconButtonWithTooltipProps,
   InputFieldError,
   InputProps,
   LabeledProps,
+  LinkProps,
   ListContextValue,
   NumberInputProps,
   PartitionedChildren,
@@ -366,7 +368,9 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
       | GetResourceLabel
       | HandleAuthCallbackResult
       | InputFieldError
+      | IconButtonWithTooltipProps
       | InputProps
+      | LinkProps
       | ListContextValue
       | NumberInputProps
       | PartitionedChildren
@@ -432,6 +436,8 @@ describe("@chelone/react barrel — P7e layout chrome (T3)", () => {
     expect(barrel.TitlePortal).toBeTypeOf("function");
     expect(barrel.Logout).toBeTypeOf("function");
     expect(barrel.KeyboardShortcut).toBeTypeOf("function");
+    expect(barrel.Link).toBeTypeOf("function");
+    expect(barrel.IconButtonWithTooltip).toBeTypeOf("function");
     expect(barrel.useTheme).toBeTypeOf("function");
     expect(barrel.useResolvedTheme).toBeTypeOf("function");
     expect(barrel.ThemeProviderContext).toBeTypeOf("object");
