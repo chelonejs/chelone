@@ -1,0 +1,41 @@
+{
+  "name": "SimpleListItem",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "linkType",
+      "type": "false | \"show\" | \"edit\"",
+      "optional": true,
+      "comment": "Where the row links to. `edit` by default, `show` when the resource has no\nedit view, and a plain row when it has neither. `false` renders a plain row."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Defaults to nothing: without one the row is not linked."
+    },
+    {
+      "name": "rowIndex",
+      "type": "number",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

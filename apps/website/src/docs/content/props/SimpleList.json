@@ -1,0 +1,65 @@
+{
+  "name": "SimpleList",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered with no records, in place of `ListNoResults`."
+    },
+    {
+      "name": "leftAvatar",
+      "type": "FunctionToElement<RecordType>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "leftIcon",
+      "type": "FunctionToElement<RecordType>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "linkType",
+      "type": "false | \"show\" | \"edit\"",
+      "optional": true,
+      "comment": "Where each row links to; see `SimpleListItem`."
+    },
+    {
+      "name": "loading",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered while the list is pending, in place of `SimpleListLoading`."
+    },
+    {
+      "name": "primaryText",
+      "type": "FunctionToElement<RecordType>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "rightIcon",
+      "type": "FunctionToElement<RecordType>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "secondaryText",
+      "type": "FunctionToElement<RecordType>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "tertiaryText",
+      "type": "FunctionToElement<RecordType>",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
