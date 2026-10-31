@@ -71,3 +71,9 @@ it("unresolvedDocLinks reports a missing page and accepts a page, a section and 
     "/docs/vue/not-written-yet",
   ]);
 });
+
+it("unresolvedDocLinks rejects a folder that holds no page", () => {
+  expect(
+    unresolvedDocLinks("[g](/docs/getting-started/quick-start-guide/demos)"),
+  ).toEqual(["/docs/getting-started/quick-start-guide/demos"]);
+});
