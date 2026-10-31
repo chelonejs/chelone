@@ -37,7 +37,8 @@
     "test": "vitest run --typecheck",
     "typecheck": "vue-tsc --noEmit",
     "registry:generate": "node ../../scripts/registry/generate-registry.mjs",
-    "registry:build": "node ../../scripts/registry/build-registry.mjs"
+    "registry:build": "node ../../scripts/registry/build-registry.mjs",
+    "registry:test-local": "node scripts/test-registry-local.mjs"
   },
   "dependencies": {
     "@chelone/core": "workspace:*",
