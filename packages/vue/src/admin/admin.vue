@@ -97,13 +97,19 @@ import {
 } from "@chelone/core";
 import { BasenameKey } from "../router/adapter";
 import { QueryClient, VUE_QUERY_CLIENT } from "@tanstack/vue-query";
-import { onScopeDispose, provide, useSlots, watchEffect } from "vue";
+import {
+  onBeforeUpdate,
+  onScopeDispose,
+  provide,
+  useSlots,
+  watchEffect,
+} from "vue";
 import { useRouter } from "vue-router";
 import AdminShell from "./admin-shell.vue";
 import type { ErrorFallbackProps } from "./default-error-fallback.vue";
 import { provideCheloneContext } from "../context";
 import { type CustomRoute, toRouteRecord } from "./custom-routes";
-import { slotRouteRecords } from "./slot-routes";
+import { CATCH_ALL_META, createSlotRoutes } from "./slot-routes";
 import { provideVueRouterAdapter } from "../router/vue-router-adapter";
 import { provideHasDashboard } from "./has-dashboard";
 import {
@@ -251,8 +257,9 @@ async function resolveWaitingLocation() {
   const currentPath = current.path.toLowerCase();
   // The index is left alone: `<NavigateToFirstResource>` redirects it, and
   // re-resolving the basename root would cancel that pending navigation.
+  // A `#catchAll` match is as good as none: a resource may have registered since.
   if (
-    current.matched.length === 0 &&
+    current.matched.every((record) => record.meta[CATCH_ALL_META] === true) &&
     currentPath !== indexPath &&
     currentPath !== `${indexPath}/`
   ) {
@@ -266,20 +273,17 @@ for (const route of props.customRoutes ?? []) {
   onScopeDispose(router.addRoute(toRouteRecord(route, basename)));
 }
 // Page slots add a route only when given. `#catchAll` ranks after every other
-// route by specificity, and a host catch-all added earlier still wins.
-const slotRoutes = slotRouteRecords(
-  {
-    authCallback: slots.authCallback,
-    authenticationError: slots.authenticationError,
-    accessDenied: slots.accessDenied,
-    catchAll: slots.catchAll,
-  },
-  basename,
-);
-for (const route of slotRoutes) onScopeDispose(router.addRoute(route));
+// route by specificity, and a host catch-all added earlier still wins. A slot
+// that appears or goes after mount adds or removes its route on the next update.
+const slotRoutes = createSlotRoutes(router, slots, basename);
+onScopeDispose(slotRoutes.dispose);
+const hasSlotRoutes = slotRoutes.sync();
+onBeforeUpdate(() => {
+  if (slotRoutes.sync()) void resolveWaitingLocation();
+});
 // An admin with only custom or slot routes registers no resource, so nothing
 // else re-resolves a deep link to one.
-if (props.customRoutes?.length || slotRoutes.length) void resolveWaitingLocation();
+if (props.customRoutes?.length || hasSlotRoutes) void resolveWaitingLocation();
 
 // Reactively reconcile the vue-router table with the registry: reading
 // `Object.keys(definitions)` tracks the shallow-reactive key set, so this

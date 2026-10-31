@@ -2,7 +2,7 @@ import { type AuthProvider, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { enableAutoUnmount, flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin, { type AdminProps } from "./admin.vue";
 import Resource from "./resource.vue";
@@ -234,5 +234,86 @@ describe("<Admin> page slots as routes", () => {
     expect(outside.wrapper.find("[data-testid=auth-callback]").exists()).toBe(
       false,
     );
+  });
+
+  it("#catchAll yields to a resource that registers after the location resolved", async () => {
+    const Comment = defineComponent({
+      setup: () => () => h("div", { "data-testid": "comment" }, "comment"),
+    });
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: "/", component: Blank }],
+    });
+    await router.push("/comments/9");
+    const showComments = ref(false);
+    const Harness = defineComponent({
+      setup: () => () =>
+        h(
+          Admin,
+          {
+            dataProvider: fakeDataProvider({}),
+            queryClient: new QueryClient(),
+          },
+          {
+            default: () =>
+              showComments.value
+                ? h(Resource, { name: "comments", edit: Comment })
+                : null,
+            catchAll: page("catch-all"),
+          },
+        ),
+    });
+    const wrapper = mount(Harness, { global: { plugins: [router] } });
+    await flushPromises();
+    expect(wrapper.find("[data-testid=catch-all]").exists()).toBe(true);
+
+    showComments.value = true;
+
+    await vi.waitFor(() =>
+      expect(wrapper.find("[data-testid=comment]").exists()).toBe(true),
+    );
+    expect(wrapper.find("[data-testid=catch-all]").exists()).toBe(false);
+  });
+
+  it("a slot given or removed after mount adds or removes its route", async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [
+        { path: "/", component: Blank },
+        { path: "/:pathMatch(.*)*", component: HostNotFound },
+      ],
+    });
+    await router.push("/access-denied");
+    const given = ref(false);
+    const Harness = defineComponent({
+      setup: () => () =>
+        h(
+          Admin,
+          {
+            dataProvider: fakeDataProvider({}),
+            queryClient: new QueryClient(),
+          },
+          {
+            default: () => h(Resource, { name: "posts", list: Posts }),
+            ...(given.value ? { accessDenied: page("access-denied") } : {}),
+          },
+        ),
+    });
+    const wrapper = mount(Harness, { global: { plugins: [router] } });
+    await flushPromises();
+    expect(wrapper.find("[data-testid=access-denied]").exists()).toBe(false);
+
+    given.value = true;
+    await flushPromises();
+    await router.replace("/access-denied?again");
+    await flushPromises();
+    expect(wrapper.find("[data-testid=access-denied]").exists()).toBe(true);
+
+    given.value = false;
+    await flushPromises();
+    await router.replace("/access-denied");
+    await flushPromises();
+    expect(wrapper.find("[data-testid=access-denied]").exists()).toBe(false);
+    expect(wrapper.find("[data-testid=host-404]").exists()).toBe(true);
   });
 });
