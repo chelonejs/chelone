@@ -14,7 +14,8 @@ interface LoadingIndicatorProps {
 /**
  * A refresh button that shows a spinner over itself while any query or
  * mutation is in flight. The button fades out instead of unmounting, so the
- * layout does not shift.
+ * layout does not shift. The wrapper is 16px; the larger icon button is centred
+ * on it and overflows, so the spinner lands on the icon.
  *
  * @example
  * import { LoadingIndicator } from "@chelone/react";
@@ -36,14 +37,17 @@ function LoadingIndicator({ className, onClick }: LoadingIndicatorProps) {
       <IconButtonWithTooltip
         label="ra.action.refresh"
         onClick={handleClick}
-        className={cn(loading && "opacity-0")}
+        className={cn(
+          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+          loading && "opacity-0",
+        )}
       >
         <RotateCw />
       </IconButtonWithTooltip>
       {loading && (
         <Spinner
           aria-label={translate("ra.page.loading", { _: "Loading" })}
-          className="absolute inset-0 m-auto"
+          className="absolute inset-0"
         />
       )}
     </div>
