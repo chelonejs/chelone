@@ -25,6 +25,11 @@ export interface FilterFormProps {
  * never submitted — its values are read live).
  */
 
+import {
+  filterFormReflectShape,
+  getFilterFormValues,
+  mergeFilterValues,
+} from "@chelone/core";
 import { watch } from "vue";
 import { useForm } from "../../../form/use-form";
 import { useListContext } from "../../../list/list-context";
@@ -37,22 +42,63 @@ const resource = props.resource ?? useResourceContext();
 
 // Seed the form from the current list filter; a no-op submit — the form is never
 // submitted, its live values drive `setFilters` instead.
-const { values } = useForm<Record<string, unknown>>({
+const { form, values, reset } = useForm<Record<string, unknown>>({
   resource,
   record: { ...(list.filter ?? {}) } as Record<string, unknown>,
   onSubmit: () => undefined,
 });
 
-// Push value changes into the list surface (debounced by core). Skip a no-op set
-// (the seeded initial value already equals the live filter) to avoid an echo
-// refetch on mount.
+// `isReflecting` marks our own `reset` so the values watcher below ignores the
+// change it causes. `pendingPush` is what we last handed to the debounced
+// `setFilters`; until the filter changes, `list.filter` is stale and a push is
+// compared against it instead. Unlike React's `hasJustBeenModifiedByUser`, no
+// reflect is skipped after an edit: core coalesces our pushes into one timer, so
+// the filter that lands is always the latest push and reflects as a no-op, while
+// a change from elsewhere (which cancels our timer) must reach the inputs.
+let isReflecting = false;
+let pendingPush: string | null = null;
+
+// Push value changes into the list surface (debounced by core), merged over the
+// current filter so a filter this form has no input for survives. Skip a push
+// equal to what the list holds (or is about to hold) to avoid an echo refetch.
+// `flush: "sync"` lets `isReflecting` bracket the reset.
 watch(
   () => values.value,
   (next) => {
-    if (JSON.stringify(next) === JSON.stringify(list.filter ?? {})) return;
-    list.setFilters(next, undefined, true);
+    if (isReflecting) return;
+    const merged = mergeFilterValues(list.filter ?? {}, next);
+    const json = JSON.stringify(merged);
+    if (json === (pendingPush ?? JSON.stringify(list.filter ?? {}))) return;
+    pendingPush = json;
+    list.setFilters(merged, undefined, true);
   },
-  { deep: true },
+  { deep: true, flush: "sync" },
+);
+
+// Reflect EXTERNAL filter changes (saved queries, the URL, "remove all
+// filters") back into the inputs. Watches the filter's identity, not its JSON:
+// every `setFilters` stores a fresh object, and one that leaves the filter as it
+// was still cancels our queued push, which the inputs must then drop. The reset carries a value for every current
+// and registered key, because form-core re-applies a field's current value when
+// a reset omits its key.
+watch(
+  () => list.filter,
+  () => {
+    pendingPush = null;
+    const incoming = (list.filter ?? {}) as Record<string, unknown>;
+    const current = form.store.state.values as Record<string, unknown>;
+    const next = getFilterFormValues(
+      filterFormReflectShape(current, form.store.state.fieldMeta, incoming),
+      incoming,
+    );
+    if (JSON.stringify(next) === JSON.stringify(current)) return;
+    isReflecting = true;
+    try {
+      reset(next);
+    } finally {
+      isReflecting = false;
+    }
+  },
 );
 </script>
 
