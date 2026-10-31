@@ -13,11 +13,6 @@ import { createI18n, defaultMessages, defineMessages } from "@chelone/core";
 const en = defineMessages({
   ...defaultMessages,
 
-  // The SaveButton's default label lives in the `chelone.action.*` namespace,
-  // which `defaultMessages` does not carry — supply it so the button reads
-  // "Save" (not the raw key).
-  "chelone.action.save": "Save",
-
   // Pages
   "ra.page.list": "{name}",
   "ra.page.create": "Create {name}",

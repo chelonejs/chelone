@@ -100,10 +100,10 @@ function onClick(event: MouseEvent): void {
       applyOptimistic: () =>
         removeRecordsFromCache(ctx.queryClient, resource as string, ids),
       commit: () => ctx.dataProvider.deleteMany(resource as string, { ids }),
-      message: "ra.notification.deleted",
+      message: "chelone.notification.deleted",
       messageArgs: { smart_count: ids.length },
       onCommitError: () => {
-        notifications?.notify("ra.notification.http_error", { type: "error" });
+        notifications?.notify("chelone.notification.http_error", { type: "error" });
         refresh();
       },
     });
@@ -126,7 +126,7 @@ async function onConfirm(): Promise<void> {
   try {
     await deleteMany.mutateAsync({ ids });
     open.value = false;
-    notifications?.notify("ra.notification.deleted", {
+    notifications?.notify("chelone.notification.deleted", {
       type: "info",
       messageArgs: { smart_count: ids.length },
     });
@@ -134,7 +134,7 @@ async function onConfirm(): Promise<void> {
   } catch (error) {
     open.value = false;
     console.error(error);
-    notifications?.notify("ra.notification.http_error", { type: "error" });
+    notifications?.notify("chelone.notification.http_error", { type: "error" });
   }
 }
 </script>

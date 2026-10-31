@@ -296,7 +296,7 @@ describe("undoable <BulkDeleteButton>", () => {
     // Rolled back to all three rows.
     expect(cachedIds(queryClient)).toEqual([1, 2, 3]);
     expect(notify).toHaveBeenCalledWith(
-      "ra.notification.http_error",
+      "chelone.notification.http_error",
       expect.objectContaining({ type: "error" }),
     );
   });
@@ -569,6 +569,41 @@ describe("undoable useDelete / useUpdate composables", () => {
     expect(cachedRow(queryClient, 1)?.views).toBe(10);
     expect(updSpy).not.toHaveBeenCalled();
   });
+
+  it("the undoable notifications use the chelone.notification keys", async () => {
+    const capture: { list?: ListContextValue } = {};
+    const probes: {
+      del?: ReturnType<typeof useDelete>;
+      up?: ReturnType<typeof useUpdate>;
+    } = {};
+    const notifications = createNotificationStore();
+    const notify = vi.spyOn(notifications, "notify");
+    const probe = defineComponent({
+      setup() {
+        probes.del = useDelete("posts", { mutationMode: "undoable" });
+        probes.up = useUpdate("posts", { mutationMode: "undoable" });
+        return () => null;
+      },
+    });
+    mountAdmin(
+      () =>
+        h(
+          List,
+          { resource: "posts" },
+          { default: () => [h(listProbe(capture)), h(probe)] },
+        ),
+      notifications,
+    );
+    await settled(capture);
+
+    probes.up?.mutate({ id: 1, data: { views: 99 }, previousData: { id: 1 } });
+    probes.del?.mutate({ id: 2, previousData: { id: 2 } });
+
+    expect(notify.mock.calls.map(([message]) => message)).toEqual([
+      "chelone.notification.updated",
+      "chelone.notification.deleted",
+    ]);
+  });
 });
 
 describe("<Notification> undoable render", () => {
@@ -600,7 +635,7 @@ describe("<Notification> undoable render", () => {
     const wrapper = mountNotification();
     const undo = vi.fn();
     const onClose = vi.fn();
-    store.notify("ra.notification.deleted", {
+    store.notify("chelone.notification.deleted", {
       undoable: true,
       autoHideDuration: 5000,
       undo,
@@ -620,7 +655,7 @@ describe("<Notification> undoable render", () => {
     const wrapper = mountNotification();
     const undo = vi.fn();
     const onClose = vi.fn();
-    store.notify("ra.notification.deleted", {
+    store.notify("chelone.notification.deleted", {
       undoable: true,
       autoHideDuration: 5000,
       undo,
@@ -639,7 +674,7 @@ describe("<Notification> undoable render", () => {
       const wrapper = mountNotification();
       const undo = vi.fn();
       const onClose = vi.fn();
-      store.notify("ra.notification.deleted", {
+      store.notify("chelone.notification.deleted", {
         undoable: true,
         autoHideDuration: 5000,
         undo,
