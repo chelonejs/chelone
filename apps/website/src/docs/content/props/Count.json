@@ -1,0 +1,41 @@
+{
+  "name": "Count",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "filter",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "link",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Link the count to the resource's list, filtered by `filter`."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource to count. Defaults to the ambient resource."
+    },
+    {
+      "name": "sort",
+      "type": "SortPayload",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "timeout",
+      "type": "number",
+      "optional": true,
+      "comment": "Milliseconds a pending count waits before showing a spinner. Default 1000."
+    }
+  ]
+}

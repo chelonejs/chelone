@@ -329,6 +329,12 @@ export type {
   FilterFormProps,
 } from "./admin/list/filter-form.vue";
 export { default as FilterForm } from "./admin/list/filter-form.vue";
+export type { FilterListProps } from "./admin/list/filter-list.vue";
+export { default as FilterList } from "./admin/list/filter-list.vue";
+export type { FilterListItemProps } from "./admin/list/filter-list-item.vue";
+export { default as FilterListItem } from "./admin/list/filter-list-item.vue";
+export type { FilterListSectionProps } from "./admin/list/filter-list-section.vue";
+export { default as FilterListSection } from "./admin/list/filter-list-section.vue";
 export type { InfinitePaginationProps } from "./admin/list/infinite-pagination.vue";
 export { default as InfinitePagination } from "./admin/list/infinite-pagination.vue";
 export type { ListNoResultsProps } from "./admin/list/list-no-results.vue";
@@ -350,6 +356,8 @@ export { default as Edit } from "./admin/view/edit.vue";
 // --- admin: views ---------------------------------------------------------
 export type { InfiniteListProps } from "./admin/view/infinite-list.vue";
 export { default as InfiniteList } from "./admin/view/infinite-list.vue";
+export type { LabeledProps } from "./admin/view/labeled.vue";
+export { default as Labeled } from "./admin/view/labeled.vue";
 export type { ListProps } from "./admin/view/list.vue";
 export { default as List } from "./admin/view/list.vue";
 export type { ShowProps } from "./admin/view/show.vue";
