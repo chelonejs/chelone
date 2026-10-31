@@ -16,6 +16,7 @@
   "dependencies": {
     "@chelone/core": "workspace:*",
     "@chelone/react": "workspace:*",
+    "@chelone/vue": "workspace:*",
     "@fontsource-variable/inter": "^5.2.8",
     "@react-router/node": "^7.0.0",
     "@tanstack/react-query": "^5.0.0",

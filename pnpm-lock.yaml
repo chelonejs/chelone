@@ -133,6 +133,9 @@ importers:
       '@chelone/react':
         specifier: workspace:*
         version: link:../../packages/react
+      '@chelone/vue':
+        specifier: workspace:*
+        version: link:../../packages/vue
       '@fontsource-variable/inter':
         specifier: ^5.2.8
         version: 5.2.8
