@@ -172,7 +172,7 @@ function applyFilterAndSort<TRecord>(
         const asc = order === "ASC";
         const av = getByPath(a, field);
         const bv = getByPath(b, field);
-        if (av === bv) continue;
+        if (av === bv || (av == null && bv == null)) continue;
         if (av == null) return asc ? -1 : 1;
         if (bv == null) return asc ? 1 : -1;
         if (av > bv) return asc ? 1 : -1;

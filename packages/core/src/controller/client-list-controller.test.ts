@@ -152,6 +152,21 @@ describe("createClientListController", () => {
       expect(c.getSnapshot().data?.map((r) => r.id)).toEqual([3, 2, 1]);
     });
 
+    it("treats null and undefined as tied on a key and moves to the next", () => {
+      const rows: { id: number; a?: null; b: number }[] = [
+        { id: 2, a: undefined, b: 1 },
+        { id: 1, a: null, b: 2 },
+      ];
+      const c = createClientListController({
+        data: rows,
+        sort: [
+          { field: "a", order: "ASC" },
+          { field: "b", order: "ASC" },
+        ],
+      });
+      expect(c.getSnapshot().data?.map((r) => r.id)).toEqual([2, 1]);
+    });
+
     it("does not mutate the source array when sorting", () => {
       const source = structuredClone(data);
       const c = createClientListController<Row>({
