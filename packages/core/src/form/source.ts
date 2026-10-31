@@ -67,3 +67,36 @@ export function createRowSourceScope(
     getLabel: (source) => parent.getLabel(source),
   };
 }
+
+/**
+ * The scope a translatable group provides for one locale: each child source
+ * gains the locale as a trailing member (`title` -> `title.fr`). Labels pass
+ * through so every locale shares one translation key.
+ *
+ * A translatable group has no value of its own, so a sourceless child has
+ * nothing to bind and throws.
+ *
+ * The locale is appended to the full path, so it composes under array and row
+ * scopes, but an array input inside a translatable group does not: the array
+ * resolves to `items.fr` while its rows resolve to `items[0].name.fr`.
+ */
+export function createLocaleSourceScope(
+  parent: SourceScope,
+  locale: string,
+): SourceScope {
+  const requireSource = (source: string): void => {
+    if (!source) {
+      throw new Error("Children of a translatable group must have a source");
+    }
+  };
+  return {
+    getSource: (source) => {
+      requireSource(source);
+      return parent.getSource(`${source}.${locale}`);
+    },
+    getLabel: (source) => {
+      requireSource(source);
+      return parent.getLabel(source);
+    },
+  };
+}
