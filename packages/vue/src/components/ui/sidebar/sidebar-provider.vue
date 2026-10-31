@@ -25,6 +25,7 @@ import {
   SidebarContextKey,
   type SidebarState,
 } from "./sidebar-context";
+import { useIsMobile } from "./use-is-mobile";
 
 const props = withDefaults(defineProps<SidebarProviderProps>(), {
   defaultOpen: true,
@@ -32,10 +33,7 @@ const props = withDefaults(defineProps<SidebarProviderProps>(), {
 
 const open = ref(props.defaultOpen);
 const openMobile = ref(false);
-// The mobile breakpoint is a runtime concern the host app can wire to a media
-// query; the V3-a slice defaults to desktop (drawer disabled). Kept as a ref so
-// a later wave can drive it from a resize listener without a contract change.
-const isMobile = ref(false);
+const isMobile = useIsMobile();
 const state = computed<SidebarState>(() =>
   open.value ? "expanded" : "collapsed",
 );
