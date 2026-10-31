@@ -10,16 +10,17 @@
 //   const granular = granularizeBlock({ files, packageJson, repoRoot, blockName });
 //   items.push(...granular);
 
-import { readFileSync, statSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
 
 import {
   ENGINE_PACKAGE,
+  IMPLICIT_DEPENDENCIES,
+  ITEM_NAMES,
+  importSource,
   isEngineRelative,
   resolveSpecifier,
 } from "./engine-seam.mjs";
-
-const SOURCE_EXTS = [".tsx", ".ts"];
 
 // hooks/ files authored in THIS repo (resolve to `@chelone/<name>` items).
 // Anything not listed resolves to a shadcn-upstream hook reference by bare name
@@ -29,26 +30,12 @@ const SOURCE_EXTS = [".tsx", ".ts"];
 // package — leave it a bare stock-shadcn dep instead).
 const OUR_HOOK_ITEMS = new Set();
 
-// ui/ items whose flat basename collides with an admin basename, remapped to a
-// `ui-<base>` install name so both ship unambiguously. `spinner` is the only
-// collision today: admin/feedback/spinner.tsx (the app-facing `@chelone/spinner`
-// wrapper) vs ui/spinner.tsx (the primitive, `@chelone/ui-spinner`). This map
-// is applied to BOTH an item's own name and any dep that resolves onto it, so
-// the admin wrapper's `@/components/ui/spinner` import points at `ui-spinner`.
-const UI_NAME_OVERRIDES = new Map([["spinner", "ui-spinner"]]);
-
-// NPM packages every React project already has — omitting them from item
-// `dependencies` keeps the registry JSON noise-free.
-const IMPLICIT_NPM = new Set(["react", "react-dom"]);
-
-// The workspace seam. `@chelone/core` (vanilla engine) and `@chelone/react`
-// (React adapter) are the REAL published-target deps a registry consumer
-// installs from npm — keep the name verbatim. They are unpublished 0.0.0 today,
-// which is why live consumer-install E2E (test-registry.sh) is deferred until
-// they ship; the emitted registry items are correct now and need no change on
-// publish. Listed here so bare imports of them map to npm `dependencies`
-// regardless of whether the local package.json declares them as workspace:*.
-const WORKSPACE_NPM_DEPS = new Set(["@chelone/core", "@chelone/react"]);
+// The workspace seam. `@chelone/core` (vanilla engine) and the configured
+// engine package (the framework adapter) are the REAL published-target deps a
+// registry consumer installs from npm — keep the names verbatim. Listed here so
+// bare imports of them map to npm `dependencies` regardless of whether the
+// local package.json declares them as workspace:*.
+const WORKSPACE_NPM_DEPS = new Set(["@chelone/core", ENGINE_PACKAGE]);
 
 const stripComments = (src) =>
   src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
@@ -67,7 +54,7 @@ const parseImports = (src) => {
 
 // Parse the NAMED symbols an `import … from "<spec>"` statement pulls from a
 // given specifier — used by the barrel-export guard to verify every engine
-// symbol a copied component needs is actually exported by @chelone/react.
+// symbol a copied component needs is actually exported by the engine package.
 // Returns a flat list of the imported source names (drops `as` aliases, keeps
 // the exported name). Default and namespace imports are returned as a sentinel.
 const parseImportedSymbols = (src, targetSpec) => {
@@ -93,7 +80,7 @@ const parseImportedSymbols = (src, targetSpec) => {
   return [...symbols];
 };
 
-// Collects every named symbol EXPORTED by the @chelone/react barrel
+// Collects every named symbol EXPORTED by the engine package's barrel
 // (src/index.ts). Handles `export { a, b as c }` and `export type { … }` blocks
 // (with or without a trailing `from "…"`). No `export *` is used in the barrel,
 // so a flat name set is a complete public-API surface.
@@ -115,40 +102,7 @@ const parseBarrelExports = (repoRoot) => {
   return exported;
 };
 
-const tryResolveFile = (basePath) => {
-  for (const ext of SOURCE_EXTS) {
-    const candidate = `${basePath}${ext}`;
-    try {
-      if (statSync(candidate).isFile()) return candidate;
-    } catch {
-      // not a file
-    }
-  }
-  try {
-    if (statSync(basePath).isFile()) return basePath;
-  } catch {
-    // not a file
-  }
-  for (const ext of SOURCE_EXTS) {
-    const candidate = join(basePath, `index${ext}`);
-    try {
-      if (statSync(candidate).isFile()) return candidate;
-    } catch {
-      // not a file
-    }
-  }
-  return null;
-};
-
-export const resolveImport = (importPath, sourceFile, repoRoot) => {
-  if (importPath.startsWith(".")) {
-    return tryResolveFile(resolve(dirname(sourceFile), importPath));
-  }
-  if (importPath.startsWith("@/")) {
-    return tryResolveFile(join(repoRoot, "src", importPath.slice(2)));
-  }
-  return null;
-};
+export const resolveImport = resolveSpecifier;
 
 const npmRoot = (importPath) => {
   if (importPath.startsWith("@")) {
@@ -157,7 +111,28 @@ const npmRoot = (importPath) => {
   return importPath.split("/")[0];
 };
 
-const applyUiOverride = (name) => UI_NAME_OVERRIDES.get(name) ?? name;
+const stripExt = (rel) => rel.replace(/\.(tsx?|vue)$/, "");
+
+// A ui item's name: its file (or subdir) basename, unless itemNames renames it.
+// A subdir is one item, so its rename may be keyed on the dir or on its barrel.
+const uiItemName = (segment) =>
+  ITEM_NAMES.get(`components/ui/${segment}`) ??
+  ITEM_NAMES.get(`components/ui/${segment}/index`) ??
+  segment;
+
+// The flat `components/ui/index` barrel re-exports the primitives; it is no
+// item, and a shipped file importing it would copy it (and so every primitive)
+// into a consumer. Importing the barrel is a mistake to fix at the import.
+const isUiBarrel = (absFile, repoRoot) =>
+  stripExt(relative(join(repoRoot, "src"), absFile)) === "components/ui/index";
+
+const assertNotUiBarrel = (resolved, importer, repoRoot) => {
+  if (!isUiBarrel(resolved, repoRoot)) return;
+  throw new Error(
+    `${relative(repoRoot, importer)} imports the ui barrel (src/components/ui/index). ` +
+      `Import the primitive from its own file instead.`,
+  );
+};
 
 // Maps an absolute file path under src/ to a registry item reference.
 // Returns null when the file shouldn't be tracked (index barrels, type modules,
@@ -167,7 +142,17 @@ export const fileToItemRef = (absFile, repoRoot) => {
   const rel = relative(join(repoRoot, "src"), absFile);
   if (rel.startsWith("..")) return null;
 
-  const noExt = rel.replace(/\.(tsx?|ts)$/, "");
+  const noExt = stripExt(rel);
+
+  if (isUiBarrel(absFile, repoRoot)) return null;
+
+  // itemNames overrides every rule below, for the file's own item and for every
+  // dep that resolves onto it. Files inside a ui subdir are left to the ui rule
+  // below, which names the subdir's one item.
+  const named = ITEM_NAMES.get(noExt);
+  if (named && !/^components\/ui\/[^/]+\//.test(noExt)) {
+    return { kind: "ours", name: named };
+  }
 
   // ui/ files are OUR items (the primitive layer ships in this registry). A flat
   // file (`ui/button.tsx`) is one item named after its basename. A ui SUBDIR
@@ -175,17 +160,17 @@ export const fileToItemRef = (absFile, repoRoot) => {
   // represented by its `index` barrel — the internal component/types files are
   // pulled in with it, not emitted as their own items. Resolving an import onto
   // any file in the subdir (or the barrel) yields the single dir-name item.
-  // Colliding basenames are remapped via UI_NAME_OVERRIDES.
+  // Colliding basenames are remapped via itemNames.
   if (noExt.startsWith("components/ui/")) {
     const sub = noExt.slice("components/ui/".length);
     const segments = sub.split("/");
     if (segments.length === 1) {
-      return { kind: "ours", name: applyUiOverride(segments[0]) };
+      return { kind: "ours", name: uiItemName(segments[0]) };
     }
     // Inside a ui subdir: only the barrel represents the item; skip the
     // internal component/types files so the dir emits exactly one item.
     if (segments[segments.length - 1] === "index") {
-      return { kind: "ours", name: applyUiOverride(segments[0]) };
+      return { kind: "ours", name: uiItemName(segments[0]) };
     }
     return null;
   }
@@ -225,11 +210,11 @@ export const fileToItemRef = (absFile, repoRoot) => {
 const uiSubdirOwner = (absFile, repoRoot) => {
   const rel = relative(join(repoRoot, "src"), absFile);
   if (rel.startsWith("..")) return null;
-  const noExt = rel.replace(/\.(tsx?|ts)$/, "");
+  const noExt = stripExt(rel);
   if (!noExt.startsWith("components/ui/")) return null;
   const segments = noExt.slice("components/ui/".length).split("/");
   if (segments.length < 2) return null;
-  return applyUiOverride(segments[0]);
+  return uiItemName(segments[0]);
 };
 
 const titleFromName = (name) =>
@@ -253,9 +238,9 @@ export const granularizeBlock = ({
   extraRegistryDependencies = [],
   extraDependencies = [],
 }) => {
-  // The @chelone/react public-API surface — every ENGINE symbol a copied
+  // The engine package's public-API surface — every ENGINE symbol a copied
   // component imports MUST be re-exported here, or the emit-time rewrite
-  // (relative -> "@chelone/react") produces an unresolvable bare import. The
+  // (relative -> the engine package) produces an unresolvable bare import. The
   // guard below fails generate loud on any gap so we never ship a broken item.
   const barrelExports = parseBarrelExports(repoRoot);
   const missingBarrelSymbols = [];
@@ -312,13 +297,13 @@ export const granularizeBlock = ({
 
     for (const file of group.files) {
       const absFile = resolve(repoRoot, file);
-      const src = readFileSync(absFile, "utf8");
+      const src = importSource(file, readFileSync(absFile, "utf8"));
       const imports = parseImports(src);
 
       for (const imp of imports) {
         // Class A — ENGINE relative. Resolves to a src/ file OUTSIDE the shipped
         // surface (components/, lib/, hooks/). The emit-time content rewrite
-        // turns the specifier into a bare `@chelone/react`, so declare that npm
+        // turns the specifier into the bare engine package, so declare that npm
         // dep here (collapsing every engine import in the file to the one dep),
         // and verify each imported symbol IS on the barrel's public surface.
         if (isEngineRelative(imp, absFile, repoRoot)) {
@@ -336,6 +321,7 @@ export const granularizeBlock = ({
 
         const resolved = resolveImport(imp, absFile, repoRoot);
         if (resolved) {
+          assertNotUiBarrel(resolved, absFile, repoRoot);
           if (groupAbs.has(resolve(resolved))) continue; // intra-item file
           const depRef = fileToItemRef(resolved, repoRoot);
           if (!depRef) continue;
@@ -347,8 +333,8 @@ export const granularizeBlock = ({
           continue;
         }
         const pkg = npmRoot(imp);
-        if (IMPLICIT_NPM.has(pkg)) continue;
-        // @chelone/core + @chelone/react are the real published-target npm deps
+        if (IMPLICIT_DEPENDENCIES.has(pkg)) continue;
+        // @chelone/core + the engine package are the real published-target npm deps
         // the copied source needs (see WORKSPACE_NPM_DEPS). Declare them
         // verbatim even though the local manifest lists them as workspace:*.
         if (WORKSPACE_NPM_DEPS.has(pkg)) {
@@ -389,8 +375,8 @@ export const granularizeBlock = ({
     const unique = [...new Set(missingBarrelSymbols)].sort();
     throw new Error(
       `Engine seam: copied component imports ${unique.length} symbol(s) NOT ` +
-        `exported by the @chelone/react barrel (src/index.ts). The emit-time ` +
-        `rewrite would produce an unresolvable "@chelone/react" import. Add ` +
+        `exported by the ${ENGINE_PACKAGE} barrel (src/index.ts). The emit-time ` +
+        `rewrite would produce an unresolvable "${ENGINE_PACKAGE}" import. Add ` +
         `each to the barrel:\n  ${unique.join("\n  ")}`,
     );
   }
@@ -405,7 +391,7 @@ export const granularizeBlock = ({
 // `@chelone/<basename>` dep — UNLESS that exact file is already bundled inside
 // this SAME item (then it resolves internally, no dep needed). Shadcn-upstream
 // refs (bare stock hooks) are returned as bare names. ENGINE relatives (class A)
-// are ignored here — they collapse onto the `@chelone/react` npm dep, handled by
+// are ignored here — they collapse onto the engine package's npm dep, handled by
 // the emit-time rewrite in build-registry.mjs, NOT a registryDependency.
 //
 // This is the SAME import-graph resolution the granular items use, applied
@@ -418,14 +404,15 @@ export const computeItemRegistryDeps = ({ files, repoRoot, blockName }) => {
 
   for (const file of files) {
     const absFile = resolve(repoRoot, file);
-    const src = readFileSync(absFile, "utf8");
+    const src = importSource(file, readFileSync(absFile, "utf8"));
     for (const imp of parseImports(src)) {
-      // Class A engine relatives → @chelone/react npm dep (emit-time rewrite),
+      // Class A engine relatives → engine package npm dep (emit-time rewrite),
       // never a registryDependency. Skip.
       if (isEngineRelative(imp, absFile, repoRoot)) continue;
 
       const resolved = resolveImport(imp, absFile, repoRoot);
       if (!resolved) continue; // bare npm import — handled as a dependency elsewhere
+      assertNotUiBarrel(resolved, absFile, repoRoot);
       if (bundledAbs.has(resolve(resolved))) continue; // intra-item file, resolves internally
 
       const depRef = fileToItemRef(resolved, repoRoot);
