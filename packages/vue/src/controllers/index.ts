@@ -1,5 +1,5 @@
 // Controller composables — the Vue bridges over the vanilla core controllers
-// (`createListController` / `createEditController` / `createCreateController`),
+// (`createListController` / `createEditController` / `createCreateController` / `createDeleteController`),
 // each wrapping the controller through the `useMicroStore` reactivity bridge and
 // driving fetch via the `@tanstack/vue-query` client `<Admin>` provides.
 
@@ -9,6 +9,11 @@ export type {
   UseCreateControllerReturn,
 } from "./use-create-controller";
 export { useCreateController } from "./use-create-controller";
+export type {
+  UseDeleteControllerOptions,
+  UseDeleteControllerReturn,
+} from "./use-delete-controller";
+export { useDeleteController } from "./use-delete-controller";
 export type {
   UseEditControllerOptions,
   UseEditControllerReturn,

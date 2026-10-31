@@ -119,6 +119,8 @@ export {
 export type {
   UseCreateControllerOptions,
   UseCreateControllerReturn,
+  UseDeleteControllerOptions,
+  UseDeleteControllerReturn,
   UseEditControllerOptions,
   UseEditControllerReturn,
   UseInfiniteListControllerOptions,
@@ -135,6 +137,7 @@ export type {
 export {
   toControllerContext,
   useCreateController,
+  useDeleteController,
   useEditController,
   useInfiniteListController,
   useListController,
