@@ -313,6 +313,13 @@ export type {
 export { createNotificationStore } from "./notification/notification-store";
 export type { AddEventsForMutationsOptions } from "./realtime/add-events-for-mutations";
 export { addEventsForMutations } from "./realtime/add-events-for-mutations";
+export type { InMemoryLockProviderOptions } from "./realtime/in-memory-lock-provider";
+export { inMemoryLockProvider } from "./realtime/in-memory-lock-provider";
+export type {
+  MemoryTransport,
+  MemoryTransportOptions,
+} from "./realtime/memory-transport";
+export { memoryTransport } from "./realtime/memory-transport";
 export {
   assertRealtimeDataProvider,
   isRealtimeDataProvider,
