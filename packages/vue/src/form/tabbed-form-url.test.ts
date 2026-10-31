@@ -9,7 +9,7 @@ import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { enableAutoUnmount, flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../admin/admin.vue";
 import Resource from "../admin/resource.vue";
@@ -174,6 +174,44 @@ describe("<TabbedForm> synced with the URL", () => {
     expect(header(wrapper, "more").attributes("href")).toBe("/posts/1/more");
   });
 
+  it("tabs from a v-for after a written tab are not the first tab", async () => {
+    const { wrapper, router } = await mountAt("/posts/1/more", () =>
+      h(TabbedForm, null, () => [
+        h(TabbedFormTab, { name: "main" }),
+        ["extra", "more"].map((name) => h(TabbedFormTab, { name })),
+      ]),
+    );
+
+    expect(visibleTabs(wrapper)).toEqual(["more"]);
+    expect(
+      wrapper.findAll('[role="tab"]').map((tab) => tab.attributes("href")),
+    ).toEqual(["/posts/1", "/posts/1/extra", "/posts/1/more"]);
+
+    await header(wrapper, "extra").trigger("click");
+    await flushPromises();
+    expect(router.currentRoute.value.fullPath).toBe("/posts/1/extra");
+    expect(visibleTabs(wrapper)).toEqual(["extra"]);
+  });
+
+  it("a tab path that needs percent-encoding can be deep-linked and clicked", async () => {
+    const { wrapper, router } = await mountAt("/posts/1/a%20b", () =>
+      h(TabbedForm, null, threeTabs({ extra: "a b" })),
+    );
+
+    expect(visibleTabs(wrapper)).toEqual(["extra"]);
+    expect(header(wrapper, "main").attributes("href")).toBe("/posts/1");
+    expect(header(wrapper, "extra").attributes("href")).toBe("/posts/1/a%20b");
+
+    await header(wrapper, "more").trigger("click");
+    await flushPromises();
+    expect(visibleTabs(wrapper)).toEqual(["more"]);
+
+    await header(wrapper, "extra").trigger("click");
+    await flushPromises();
+    expect(router.currentRoute.value.fullPath).toBe("/posts/1/a%20b");
+    expect(visibleTabs(wrapper)).toEqual(["extra"]);
+  });
+
   it("clicking a header pushes the tab path and keeps values typed in other tabs", async () => {
     const { wrapper, router } = await mountAt("/posts/1", () =>
       h(TabbedForm, null, threeTabs()),
@@ -284,6 +322,21 @@ describe("<TabbedForm> synced with the URL", () => {
 
     expect(visibleTabs(wrapper)).toEqual(["more"]);
     expect(router.currentRoute.value.fullPath).toBe("/posts/1/extra");
+  });
+
+  it("syncWithLocation is read once, so a later change keeps the local tabs working", async () => {
+    const sync = ref(false);
+    const { wrapper, router } = await mountAt("/posts/1", () =>
+      h(TabbedForm, { syncWithLocation: sync.value }, threeTabs()),
+    );
+
+    sync.value = true;
+    await flushPromises();
+    await header(wrapper, "more").trigger("click");
+    await flushPromises();
+
+    expect(visibleTabs(wrapper)).toEqual(["more"]);
+    expect(router.currentRoute.value.fullPath).toBe("/posts/1");
   });
 
   it("a deep link to the show view still renders the show route", async () => {

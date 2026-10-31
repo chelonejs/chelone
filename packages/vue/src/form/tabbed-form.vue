@@ -60,12 +60,17 @@ interface TabDescriptor {
   path: string;
 }
 
-/** Flatten fragments so a `v-for` of tabs is read like written-out ones. */
-function collectTabs(nodes: VNode[]): TabDescriptor[] {
-  const tabs: TabDescriptor[] = [];
+/**
+ * Flatten fragments so a `v-for` of tabs is read like written-out ones. `tabs`
+ * is shared across the recursion: a tab's default path depends on its index.
+ */
+function collectTabs(
+  nodes: VNode[],
+  tabs: TabDescriptor[] = [],
+): TabDescriptor[] {
   for (const node of nodes) {
     if (node.type === Fragment && Array.isArray(node.children)) {
-      tabs.push(...collectTabs(node.children as VNode[]));
+      collectTabs(node.children as VNode[], tabs);
     } else if (node.type === TabbedFormTab) {
       const name = String(node.props?.name);
       const path = node.props?.path;
@@ -95,37 +100,62 @@ function readTabs(): TabDescriptor[] {
 
 // A tab's label can change without its name or path; the header reads the
 // fresh label from `readTabs()` each render, so only name and path gate `tabs`.
-const adapter = props.syncWithLocation
+// The mode decides which router composables run, so it is read once.
+const syncWithLocation = props.syncWithLocation;
+const adapter = syncWithLocation
   ? useRouterAdapter()
   : useRouterAdapterOptional();
-const location = props.syncWithLocation ? adapter?.useLocation() : undefined;
-const params = props.syncWithLocation ? adapter?.useParams() : undefined;
-const navigate = props.syncWithLocation ? adapter?.useNavigate() : undefined;
-const router = props.syncWithLocation ? useRouter() : undefined;
+const location = syncWithLocation ? adapter?.useLocation() : undefined;
+const params = syncWithLocation ? adapter?.useParams() : undefined;
+const navigate = syncWithLocation ? adapter?.useNavigate() : undefined;
+const router = syncWithLocation ? useRouter() : undefined;
 
-/** The pathname minus a trailing `/<splat>`: where the form's own route ends. */
+function decode(path: string): string {
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return path;
+  }
+}
+
+/**
+ * Where the form's own route ends, as the encoded pathname minus the trailing
+ * segments of the splat. The pathname is percent-encoded and the splat is
+ * decoded, so whole segments are dropped rather than a textual suffix.
+ */
 const base = computed(() => {
   const pathname = location?.value.pathname ?? "";
   const splat = params?.value["*"] ?? "";
-  const suffix = `/${splat}`;
+  if (splat === "") return pathname.replace(/\/+$/, "");
+  const count = splat.split("/").length;
+  const segments = pathname.split("/");
+  const tail = segments.slice(-count).join("/");
   const own =
-    splat !== "" && pathname.endsWith(suffix)
-      ? pathname.slice(0, -suffix.length)
+    segments.length > count && decode(tail) === splat
+      ? segments.slice(0, -count).join("/")
       : pathname;
   return own.replace(/\/+$/, "");
 });
 
+const encodeSegment = (segment: string) =>
+  segment.split("/").map(encodeURIComponent).join("/");
+
+/** The encoded path a tab lives at: what a header links to and `goToTab` pushes. */
 function tabPath(tab: TabDescriptor): string {
-  return tab.path === "" ? base.value || "/" : `${base.value}/${tab.path}`;
+  return tab.path === ""
+    ? base.value || "/"
+    : `${base.value}/${encodeSegment(tab.path)}`;
 }
 
 const selected = ref<string>();
 const activeTab = computed(() => {
   const names = tabs.value.map((tab) => tab.name);
-  if (props.syncWithLocation) {
-    const pathname = location?.value.pathname ?? "";
+  if (syncWithLocation) {
+    // Matched decoded on both sides: a tab path may hold characters that
+    // the pathname carries percent-encoded.
+    const pathname = decode(location?.value.pathname ?? "");
     const matched = tabs.value.find(
-      (tab) => adapter?.matchPath(tabPath(tab), pathname) != null,
+      (tab) => adapter?.matchPath(decode(tabPath(tab)), pathname) != null,
     );
     return matched?.name ?? names[0] ?? "";
   }
@@ -142,11 +172,11 @@ function tabHref(tab: TabDescriptor): string | undefined {
 
 provideTabbedForm({
   activeTab,
-  syncWithLocation: props.syncWithLocation,
+  syncWithLocation,
   goToTab(name) {
     const tab = tabs.value.find((candidate) => candidate.name === name);
     if (!tab) return;
-    if (props.syncWithLocation) navigate?.(tabPath(tab));
+    if (syncWithLocation) navigate?.(tabPath(tab));
     else selected.value = name;
   },
   submit,
