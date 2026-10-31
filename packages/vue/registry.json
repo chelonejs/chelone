@@ -3341,6 +3341,7 @@
           "type": "registry:component"
         }
       ],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3373,8 +3374,11 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
         "@chelone/checkbox",
         "@chelone/data-table-context",
+        "@chelone/list-icons",
         "@chelone/table"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
@@ -3393,9 +3397,11 @@
       ],
       "registryDependencies": [
         "@chelone/bulk-actions-toolbar",
+        "@chelone/button",
         "@chelone/checkbox",
         "@chelone/data-table-context",
         "@chelone/data-table-row",
+        "@chelone/list-icons",
         "@chelone/list-pagination",
         "@chelone/table"
       ],
