@@ -38,6 +38,7 @@ import type { FieldErrors } from "@chelone/core";
 import { computed, watch } from "vue";
 import { useEditController } from "../../../controllers/use-edit-controller";
 import { useForm } from "../../../form/use-form";
+import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
 import { provideRecordContext } from "../../../record/record-context";
 import { useRedirectOptional } from "../../../router/nav-composables";
 import {
@@ -60,6 +61,9 @@ provideResourceContext(resource);
 
 const edit = useEditController({ resource, id: props.id });
 const redirect = useRedirectOptional();
+const getRecordRepresentation = useGetRecordRepresentation(resource);
+// Empty until the record loads; computed so the heading follows the hydration.
+const defaultTitle = computed(() => getRecordRepresentation(edit.record));
 
 const form = useForm<Record<string, unknown>>({
   resource,
@@ -104,7 +108,7 @@ watch(
   <div data-slot="edit">
     <div class="flex justify-between items-start flex-wrap gap-2 my-2">
       <h2 v-if="title !== ''" class="text-2xl font-bold tracking-tight">
-        {{ title ?? resource }}
+        {{ title ?? defaultTitle }}
       </h2>
       <slot name="actions" />
     </div>

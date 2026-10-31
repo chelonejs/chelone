@@ -26,6 +26,7 @@ export interface ShowProps {
 import type { Identifier } from "@chelone/core";
 import { computed } from "vue";
 import { useShowController } from "../../../controllers/use-show-controller";
+import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
 import { provideRecordContext } from "../../../record/record-context";
 import {
   provideResourceContext,
@@ -43,6 +44,9 @@ if (!resource) {
 provideResourceContext(resource);
 
 const show = useShowController({ resource, id: props.id });
+const getRecordRepresentation = useGetRecordRepresentation(resource);
+// Empty until the record loads; computed so the heading follows the hydration.
+const defaultTitle = computed(() => getRecordRepresentation(show.record));
 
 // Publish the record for slotted display fields (reactive — hydrates async).
 provideRecordContext(
@@ -54,7 +58,7 @@ provideRecordContext(
   <div data-slot="show">
     <div class="flex justify-between items-start flex-wrap gap-2 my-2">
       <h2 v-if="title !== ''" class="text-2xl font-bold tracking-tight">
-        {{ title ?? resource }}
+        {{ title ?? defaultTitle }}
       </h2>
       <slot name="actions" />
     </div>
