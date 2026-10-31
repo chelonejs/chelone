@@ -323,10 +323,18 @@ export type {
 export { default as FilterForm } from "./admin/list/filter-form.vue";
 export type { InfinitePaginationProps } from "./admin/list/infinite-pagination.vue";
 export { default as InfinitePagination } from "./admin/list/infinite-pagination.vue";
+export type { ListNoResultsProps } from "./admin/list/list-no-results.vue";
+export { default as ListNoResults } from "./admin/list/list-no-results.vue";
 export type { ListPaginationProps } from "./admin/list/list-pagination.vue";
 export { default as ListPagination } from "./admin/list/list-pagination.vue";
 export type { SavedQueriesListProps } from "./admin/list/saved-queries-list.vue";
 export { default as SavedQueriesList } from "./admin/list/saved-queries-list.vue";
+export type { SimpleListProps } from "./admin/list/simple-list.vue";
+export { default as SimpleList } from "./admin/list/simple-list.vue";
+export type { SimpleListItemProps } from "./admin/list/simple-list-item.vue";
+export { default as SimpleListItem } from "./admin/list/simple-list-item.vue";
+export type { SimpleListLoadingProps } from "./admin/list/simple-list-loading.vue";
+export { default as SimpleListLoading } from "./admin/list/simple-list-loading.vue";
 export type { CreateProps } from "./admin/view/create.vue";
 export { default as Create } from "./admin/view/create.vue";
 export type { EditProps } from "./admin/view/edit.vue";
