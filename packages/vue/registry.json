@@ -1077,6 +1077,14 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/view/tabbed-show-layout-tab.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/view/tabbed-show-layout.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/lib/are-ids-equal.ts",
           "type": "registry:lib"
         },
@@ -3907,6 +3915,38 @@
         }
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "tabbed-show-layout-tab",
+      "type": "registry:component",
+      "title": "Tabbed Show Layout Tab",
+      "files": [
+        {
+          "path": "src/components/admin/view/tabbed-show-layout-tab.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/labeled", "@chelone/lib-utils"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "tabbed-show-layout",
+      "type": "registry:component",
+      "title": "Tabbed Show Layout",
+      "files": [
+        {
+          "path": "src/components/admin/view/tabbed-show-layout.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/tabbed-show-layout-tab"
+      ],
+      "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
