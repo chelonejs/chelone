@@ -8,7 +8,7 @@
  * Idiom translation from the React twin: React holds the controller in `useState`
  * (constructed once), bridges it with `useSyncExternalStore`, and re-derives the
  * `ChoicesContextValue` object per render via `useMemo(snapshot)`. Vue constructs
- * the controller once in `setup`, bridges it with {@link useStore} (the MicroStore
+ * the controller once in `setup`, bridges it with {@link useMicroStore} (the MicroStore
  * reactivity seam — subscribe drives the 4R acquire, `onScopeDispose` releases),
  * and returns ONE object whose data fields are GETTERS over the store ref, so a
  * plain property read tracks the store exactly where a consumer reads it. The
@@ -27,7 +27,7 @@ import type {
 } from "@chelone/core";
 import { createChoicesController } from "@chelone/core";
 import { type CheloneContextValue, useCheloneContext } from "../context";
-import { useStore } from "../store/use-store";
+import { useMicroStore } from "../store/use-micro-store";
 import type { ChoicesContextValue } from "./choices-context";
 import type { ChoiceRecord } from "./use-choices";
 
@@ -55,7 +55,7 @@ function toChoicesContext<TResources extends ResourceMap>(
 
 /**
  * Vue bridge for the vanilla choices controller (reference input). Constructs
- * the controller INERTLY, then {@link useStore} subscribes on `setup` (the 4R
+ * the controller INERTLY, then {@link useMicroStore} subscribes on `setup` (the 4R
  * acquire — both QueryObservers attach) and releases on scope disposal.
  *
  * Returns a {@link ChoicesContextValue} whose data fields are reactive getters
@@ -78,7 +78,7 @@ export function useReferenceInput<
 
   // Bridge + 4R: subscribe on setup (acquire both observers), release on
   // scope disposal. `state.value` is the reactive controller snapshot.
-  const state = useStore(controller);
+  const state = useMicroStore(controller);
 
   // Getters make each property read track `state.value` at the consumer's read
   // site — the Vue analog of React re-deriving the object per render.

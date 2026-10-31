@@ -7,7 +7,7 @@
  *
  * The seam is identical to {@link useEditController}: the controller owns the
  * vanilla `query-core` observer over the vue-query `QueryClient` `<Admin>`
- * provides; `useStore` is the single subscribe bridge (4R acquire on mount,
+ * provides; `useMicroStore` is the single subscribe bridge (4R acquire on mount,
  * release on scope disposal).
  *
  * The record `id` defaults to the ambient `:id` route param (read through the
@@ -29,7 +29,7 @@ import { computed, reactive } from "vue";
 import { useCheloneContext } from "../context";
 import { useRequiredResource } from "../resource-context";
 import { useRouterAdapterOptional } from "../router/adapter";
-import { useStore } from "../store/use-store";
+import { useMicroStore } from "../store/use-micro-store";
 import { toControllerContext } from "./controller-context";
 
 /** Options for {@link useShowController}: the core show options (id optional) + a resource override. */
@@ -73,7 +73,7 @@ export function useShowController<
     { ...options, id },
   );
 
-  const state = useStore(controller);
+  const state = useMicroStore(controller);
 
   return reactive({
     record: computed(() => state.value.record),

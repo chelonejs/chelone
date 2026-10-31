@@ -33,16 +33,16 @@ Build **`@chelone/vue`** — a full, shipped Vue 3 adapter mirroring `@chelone/r
 
 1. **Controller/store state** → Chelone's own `MicroStore<T>`. Vue bridge (~15 lines):
    ```ts
-   function useStore<T>(store: MicroStore<T>) {
+   function useMicroStore<T>(store: MicroStore<T>) {
      const state = shallowRef(store.getSnapshot())
      const stop = store.subscribe(() => { state.value = store.getSnapshot() })
      onScopeDispose(stop)   // 4R release on scope teardown
      return state           // subscribe() fires onSubscribed → 4R acquire
    }
    ```
-   The **4R lifecycle maps 1:1**: `subscribe` → `onSubscribed` (acquire); `onScopeDispose` → unsub (release). Vue's component/`effectScope` disposal replaces React's `useSyncExternalStore` teardown. A selector variant (`useStoreSelector(store, sel)`) memoizes with `computed`.
+   The **4R lifecycle maps 1:1**: `subscribe` → `onSubscribed` (acquire); `onScopeDispose` → unsub (release). Vue's component/`effectScope` disposal replaces React's `useSyncExternalStore` teardown. A selector variant (`useMicroStoreSelector(store, sel)`) memoizes with `computed`.
 
-2. **Form state** → `form-core` (vanilla; React bridges via `@tanstack/react-store`). Vue bridges via `@tanstack/vue-store` **or**, if that binding is awkward, subscribes to form-core's own store with the *same* `useStore` pattern (form-core exposes `subscribe`). No new coupling either way.
+2. **Form state** → `form-core` (vanilla; React bridges via `@tanstack/react-store`). Vue bridges via `@tanstack/vue-store` **or**, if that binding is awkward, subscribes to form-core's own store with the *same* `useMicroStore` pattern (form-core exposes `subscribe`). No new coupling either way.
 
 **Data layer** → `@tanstack/vue-query` over the same `query-core` keys / `dataProvider`. **i18n/errors** → unchanged (core emits `TranslatableMessage` / keys; Vue renders them).
 
@@ -77,7 +77,7 @@ Build **`@chelone/vue`** — a full, shipped Vue 3 adapter mirroring `@chelone/r
 
 | Phase | Deliverable | Gate |
 |---|---|---|
-| **V1** first milestone | Bridge (`useStore` + form bridge) + vue-router `RouterAdapter` + `<Admin>`/`<Resource>` + composables & components for ONE full vertical: List/DataTable, Edit/Create, ~3 inputs + ReferenceInput, TextField/ReferenceField, SaveButton/Toolbar | **Runnable Vue admin, full CRUD vs `fakeDataProvider`, browser-verified** (Claude Preview) — the Vue analog of P7's e2e probe. Core untouched (or justified fix + React green). |
+| **V1** first milestone | Bridge (`useMicroStore` + form bridge) + vue-router `RouterAdapter` + `<Admin>`/`<Resource>` + composables & components for ONE full vertical: List/DataTable, Edit/Create, ~3 inputs + ReferenceInput, TextField/ReferenceField, SaveButton/Toolbar | **Runnable Vue admin, full CRUD vs `fakeDataProvider`, browser-verified** (Claude Preview) — the Vue analog of P7's e2e probe. Core untouched (or justified fix + React green). |
 | **V2** | Remaining ~31 inputs + ~30 fields (composables + SFCs) | surface breadth |
 | **V3** | List/datatable features + CRUD view shells + layout chrome (AppBar/Sidebar/Menu/Theme/UserMenu) + auth pages + all buttons + feedback/common | **v1 surface parity with `@chelone/react`** |
 | **V4** | shadcn-vue registry pipeline (`npx shadcn-vue add @chelone/…`) | installable; reuses the engine-seam + `@/`-alias-deps handling already solved for the React registry |
@@ -95,7 +95,7 @@ Every Vue component has a finished React twin as its reference — disciplined t
 
 1. **shadcn-vue ≠ shadcn/ui 1:1.** reka-ui props/components differ from radix in places — some `ui/` primitives need adaptation, not copy. Confirm the shadcn-vue component set covers what the admin surface needs (combobox/command, sidebar, field, data-table primitives).
 2. **V2/V3 are the real volume.** A full component surface is large regardless of the reference twin.
-3. **`@tanstack/vue-store` fit for form-core.** If the binding is awkward, fall back to bridging form-core's own `subscribe` with the `useStore` pattern (no blocker either way).
+3. **`@tanstack/vue-store` fit for form-core.** If the binding is awkward, fall back to bridging form-core's own `subscribe` with the `useMicroStore` pattern (no blocker either way).
 4. **Vue registry via shadcn-vue CLI.** The shadcn-vue registry format/CLI differs from shadcn; the engine-seam + `@/`-alias-dep handling ports conceptually but needs new plumbing (V4).
 5. **SFC re-authoring fidelity.** Translating TSX logic to `<script setup>` per component risks subtle behavior drift — the browser probe per phase + the React twin as oracle mitigate.
 

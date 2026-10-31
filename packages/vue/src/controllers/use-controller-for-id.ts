@@ -1,7 +1,7 @@
 /**
  * Shared by the reference-field composables: one controller per resolved
  * record id, rebuilt when the id changes. Each controller lives in its own
- * effect scope with its own `useStore` subscription, so stopping that scope is
+ * effect scope with its own `useMicroStore` subscription, so stopping that scope is
  * the 4R release: the old controller's observer detaches the moment the id
  * moves on, and the last scope disposal releases the final one.
  */
@@ -9,7 +9,7 @@
 import type { Identifier, MicroStore } from "@chelone/core";
 import { effectScope, onScopeDispose, type Ref, shallowRef, watch } from "vue";
 import type { RecordValue } from "../record/record-context";
-import { useStore } from "../store/use-store";
+import { useMicroStore } from "../store/use-micro-store";
 
 export type SourceId = Identifier | undefined;
 
@@ -49,7 +49,7 @@ export function useControllerForId<
       // `run` returns undefined only for a stopped scope, and this one is new.
       const bound = scope.run(() => {
         const controller = create(value);
-        return { controller, state: useStore<TState>(controller) };
+        return { controller, state: useMicroStore<TState>(controller) };
       }) as BoundController<TController, TState>;
       return { scope, bound };
     } catch (error) {

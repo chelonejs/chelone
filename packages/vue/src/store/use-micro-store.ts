@@ -31,7 +31,7 @@ import {
  * proxying controller state. The returned `computed` view is genuinely
  * read-only (no cast) and does not re-proxy the snapshot.
  */
-export function useStore<T>(store: MicroStore<T>): Readonly<Ref<T>> {
+export function useMicroStore<T>(store: MicroStore<T>): Readonly<Ref<T>> {
   const state = shallowRef<T>(store.getSnapshot());
   const unsubscribe = store.subscribe(() => {
     state.value = store.getSnapshot();
@@ -68,7 +68,7 @@ function shallowEqual(a: unknown, b: unknown): boolean {
 }
 
 /**
- * Selector variant of {@link useStore}: subscribe to `store`, project each
+ * Selector variant of {@link useMicroStore}: subscribe to `store`, project each
  * snapshot through `selector`, and only re-emit when the *selected slice*
  * changes under shallow equality. This is the Vue analog of React's
  * `useSyncExternalStoreWithSelector` — it lets a component depend on one field
@@ -79,9 +79,9 @@ function shallowEqual(a: unknown, b: unknown): boolean {
  * propagate on every store mutation. The shallow-equal guard below holds the
  * previous slice and only reassigns the backing ref when the projection
  * actually differs — so downstream watchers/renders fire solely on slice change.
- * The 4R acquire/release maps to scope disposal exactly as in {@link useStore}.
+ * The 4R acquire/release maps to scope disposal exactly as in {@link useMicroStore}.
  */
-export function useStoreSelector<T, S>(
+export function useMicroStoreSelector<T, S>(
   store: MicroStore<T>,
   selector: (state: T) => S,
 ): ComputedRef<S> {
