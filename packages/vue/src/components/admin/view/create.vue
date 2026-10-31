@@ -32,8 +32,11 @@ export interface CreateProps
  */
 
 import type { FieldErrors } from "@chelone/core";
+import { computed } from "vue";
 import { useCreateController } from "../../../controllers/use-create-controller";
 import { useForm } from "../../../form/use-form";
+import { useTranslate } from "../../../i18n/use-translate";
+import { useGetResourceLabel } from "../../../label/use-get-resource-label";
 import { useRedirectOptional } from "../../../router/nav-composables";
 import {
   provideResourceContext,
@@ -55,6 +58,12 @@ provideResourceContext(resource);
 
 const create = useCreateController({ resource, record: props.record });
 const redirect = useRedirectOptional();
+const translate = useTranslate();
+const getResourceLabel = useGetResourceLabel();
+// Computed so a locale change re-titles the page; `translate` reads the locale.
+const defaultTitle = computed(() =>
+  translate("ra.page.create", { name: getResourceLabel(resource, 1) }),
+);
 
 const form = useForm<Record<string, unknown>>({
   resource,
@@ -87,7 +96,7 @@ const form = useForm<Record<string, unknown>>({
   <div data-slot="create">
     <div class="flex justify-between items-start flex-wrap gap-2 my-2">
       <h2 v-if="title !== ''" class="text-2xl font-bold tracking-tight">
-        {{ title ?? resource }}
+        {{ title ?? defaultTitle }}
       </h2>
       <slot name="actions" />
     </div>

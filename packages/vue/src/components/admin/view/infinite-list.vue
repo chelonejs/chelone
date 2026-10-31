@@ -17,6 +17,9 @@ export interface InfiniteListProps {
  */
 
 import { useInfiniteListController } from "../../../controllers/use-infinite-list-controller";
+import { computed } from "vue";
+import { useTranslate } from "../../../i18n/use-translate";
+import { useGetResourceLabel } from "../../../label/use-get-resource-label";
 import {
   type ListContextValue,
   provideListContext,
@@ -41,13 +44,20 @@ const controller = useInfiniteListController({
   perPage: props.perPage,
 });
 provideListContext(controller as ListContextValue);
+
+const translate = useTranslate();
+const getResourceLabel = useGetResourceLabel();
+// Computed so a locale change re-titles the page; `translate` reads the locale.
+const defaultTitle = computed(() =>
+  translate("ra.page.list", { name: getResourceLabel(resource, 2) }),
+);
 </script>
 
 <template>
   <div data-slot="list">
     <div class="flex justify-between items-start flex-wrap gap-2 my-2">
       <h2 v-if="title !== ''" class="text-2xl font-bold tracking-tight mb-2">
-        {{ title ?? resource }}
+        {{ title ?? defaultTitle }}
       </h2>
       <div class="flex items-center gap-2">
         <slot name="actions" />
