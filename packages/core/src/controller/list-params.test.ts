@@ -99,6 +99,43 @@ describe("parseListParams", () => {
     expect(parsed.sort).toBe("id");
   });
 
+  it("ignores a filter that is not a JSON object", () => {
+    for (const json of ["null", "5", '"ab"', "[1]"]) {
+      const parsed = parseListParams(
+        `?filter=${encodeURIComponent(json)}&sort=id`,
+      );
+      expect(parsed.filter, json).toBeUndefined();
+      expect(parsed.sort).toBe("id");
+    }
+  });
+
+  it("ignores displayedFilters that are not a JSON object", () => {
+    for (const json of ["null", "[true]", "true", '"q"']) {
+      const parsed = parseListParams(
+        `?displayedFilters=${encodeURIComponent(json)}&sort=id`,
+      );
+      expect(parsed.displayedFilters, json).toBeUndefined();
+      expect(parsed.sort).toBe("id");
+    }
+  });
+
+  it("ignores a page or perPage below 1", () => {
+    for (const value of ["0", "-2", "-5"]) {
+      const parsed = parseListParams(`?page=${value}&perPage=${value}&sort=id`);
+      expect(parsed.page, `page=${value}`).toBeUndefined();
+      expect(parsed.perPage, `perPage=${value}`).toBeUndefined();
+      expect(parsed.sort).toBe("id");
+    }
+  });
+
+  it("keeps a page or perPage of 1 or more", () => {
+    expect(parseListParams("?page=1&perPage=1")).toEqual({
+      page: 1,
+      perPage: 1,
+    });
+    expect(parseListParams("?page=2.7").page).toBe(2);
+  });
+
   it("ignores non-numeric page and perPage", () => {
     const parsed = parseListParams("?page=abc&perPage=xyz");
     expect(parsed.page).toBeUndefined();
@@ -235,5 +272,17 @@ describe("listPatchFromSearch", () => {
     ["a perPage", "?perPage=25", { perPage: 25 }],
   ])("reads %s", (_, search, patch) => {
     expect(listPatchFromSearch(search)).toEqual(patch);
+  });
+
+  it("returns null instead of throwing for filter=null", () => {
+    expect(listPatchFromSearch("?filter=null")).toBeNull();
+  });
+
+  it("keeps the valid params of a URL with a malformed filter", () => {
+    expect(listPatchFromSearch("?filter=null&page=2")).toEqual({ page: 2 });
+  });
+
+  it("ignores a string filter instead of spreading it into an object", () => {
+    expect(listPatchFromSearch('?filter="ab"&perPage=0')).toBeNull();
   });
 });
