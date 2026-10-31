@@ -1,6 +1,7 @@
 import { QueryClient } from "@tanstack/query-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { oneKey } from "./keys";
+import { removeRecordsFromCache } from "./cache-ops";
+import { listKey, oneKey } from "./keys";
 import {
   commitAllUndoables,
   hasPendingUndoables,
@@ -197,6 +198,107 @@ describe("startUndoableMutation", () => {
       title: "one",
     });
     expect(qc.getQueryData(oneKey("posts", { id: 2 }))).toBeUndefined();
+  });
+
+  const seedPosts = () => {
+    const qc = makeClient();
+    qc.setQueryData(listKey("posts"), {
+      data: [{ id: 1 }, { id: 2 }, { id: 3 }],
+      total: 3,
+    });
+    return qc;
+  };
+  const ids = (qc: QueryClient) =>
+    (
+      qc.getQueryData(listKey("posts")) as { data: Array<{ id: number }> }
+    ).data.map((record) => record.id);
+  /** Deletes one row the way the adapters do: the resource root as `queryKeys`. */
+  const deletePost = (
+    qc: QueryClient,
+    id: number,
+    commit: () => Promise<unknown> = () => Promise.resolve({ id }),
+  ) =>
+    startUndoableMutation({
+      queryClient: qc,
+      queryKeys: [["posts"]],
+      applyOptimistic: () => removeRecordsFromCache(qc, "posts", [id]),
+      commit,
+    });
+
+  it("undoing the first of two overlapping undoables keeps the second's optimistic change", async () => {
+    const qc = seedPosts();
+    const first = deletePost(qc, 1);
+    const second = deletePost(qc, 2);
+
+    first.undo();
+    expect(ids(qc)).toEqual([1, 3]);
+
+    await second.commit();
+    expect(ids(qc)).toEqual([1, 3]);
+  });
+
+  it("undoing two overlapping undoables in start order restores the original cache", () => {
+    const qc = seedPosts();
+    const first = deletePost(qc, 1);
+    const second = deletePost(qc, 2);
+
+    first.undo();
+    second.undo();
+
+    expect(ids(qc)).toEqual([1, 2, 3]);
+  });
+
+  it("undoing two overlapping undoables newest first restores the original cache", () => {
+    const qc = seedPosts();
+    const first = deletePost(qc, 1);
+    const second = deletePost(qc, 2);
+
+    second.undo();
+    first.undo();
+
+    expect(ids(qc)).toEqual([1, 2, 3]);
+  });
+
+  it("a failed commit keeps a later pending undoable's optimistic change", async () => {
+    const qc = seedPosts();
+    const first = deletePost(qc, 1, () => Promise.reject(new Error("boom")));
+    const second = deletePost(qc, 2);
+
+    await expect(first.commit()).rejects.toThrow("boom");
+
+    expect(ids(qc)).toEqual([1, 3]);
+    await second.commit();
+    expect(ids(qc)).toEqual([1, 3]);
+  });
+
+  it("undoing an undoable leaves a later one on unrelated keys alone", () => {
+    const qc = seedPosts();
+    const comments = startUndoableMutation({
+      queryClient: qc,
+      queryKeys: [["comments"]],
+      applyOptimistic: () => {},
+      commit: () => Promise.resolve({}),
+    });
+    deletePost(qc, 2);
+    qc.setQueryData(listKey("posts"), {
+      data: [{ id: 1 }, { id: 3 }, { id: 4 }],
+      total: 3,
+    });
+
+    comments.undo();
+
+    expect(ids(qc)).toEqual([1, 3, 4]);
+  });
+
+  it("undoing an earlier undoable keeps a later committed one's change", async () => {
+    const qc = seedPosts();
+    const first = deletePost(qc, 1);
+    const second = deletePost(qc, 2);
+
+    await second.commit();
+    first.undo();
+
+    expect(ids(qc)).toEqual([1, 3]);
   });
 });
 

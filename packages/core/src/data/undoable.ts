@@ -1,4 +1,8 @@
-import type { QueryClient, QueryKey } from "@tanstack/query-core";
+import {
+  partialMatchKey,
+  type QueryClient,
+  type QueryKey,
+} from "@tanstack/query-core";
 
 /**
  * A snapshot of the query cache taken BEFORE an optimistic apply: an array of
@@ -65,6 +69,72 @@ export interface UndoableHandle<TResult = unknown> {
  */
 const pendingUndoables = new Set<UndoableHandle<unknown>>();
 
+/** One undoable's place in its client's start order. */
+interface OpenUndoable {
+  queryKeys: QueryKey[];
+  applyOptimistic: () => void;
+  /** Taken before this entry's optimistic apply; retaken whenever an earlier rollback re-applies it. */
+  snapshot: UndoableSnapshot;
+  /** The commit resolved: the entry only stays so an earlier rollback can re-apply it. */
+  committed: boolean;
+}
+
+/**
+ * Per client, the undoables in start order that are pending, mid-commit, or
+ * committed behind an earlier one that has not settled. Handles snapshot the
+ * whole resource, so a rollback must replay the later ones over its own
+ * restore instead of overwriting their changes.
+ */
+const openUndoables = new WeakMap<QueryClient, OpenUndoable[]>();
+
+function takeSnapshot(
+  queryClient: QueryClient,
+  queryKeys: QueryKey[],
+): UndoableSnapshot {
+  // Partial-match each key (like ra-core's getQueriesData) so nested variants are covered.
+  return queryKeys.reduce<UndoableSnapshot>(
+    (acc, queryKey) => acc.concat(queryClient.getQueriesData({ queryKey })),
+    [],
+  );
+}
+
+function restore(queryClient: QueryClient, snapshot: UndoableSnapshot) {
+  for (const [key, value] of snapshot) {
+    queryClient.setQueryData(key, value);
+  }
+}
+
+/** Query-key partial matching is one-way, so overlap is a prefix match either way round. */
+function keysOverlap(a: QueryKey[], b: QueryKey[]): boolean {
+  return a.some((x) =>
+    b.some((y) => partialMatchKey(x, y) || partialMatchKey(y, x)),
+  );
+}
+
+/**
+ * The later entries a rollback of `entry` must unwind and replay: those whose
+ * keys overlap `entry`'s, or those of an earlier included entry. Others never
+ * saw its change, and restoring their snapshot would revert unrelated cache.
+ */
+function entriesToReplay(
+  later: OpenUndoable[],
+  entry: OpenUndoable,
+): OpenUndoable[] {
+  const affectedKeys = [...entry.queryKeys];
+  const affected: OpenUndoable[] = [];
+  for (const other of later) {
+    if (!keysOverlap(affectedKeys, other.queryKeys)) continue;
+    affected.push(other);
+    affectedKeys.push(...other.queryKeys);
+  }
+  return affected;
+}
+
+/** Drops committed entries from the front: nothing earlier can roll back over them any more. */
+function dropSettledPrefix(order: OpenUndoable[]) {
+  while (order[0]?.committed) order.shift();
+}
+
 /**
  * Start an undoable mutation: snapshot the affected cache, cancel outgoing
  * refetches, apply the optimistic change, and return a handle whose `undo()` /
@@ -75,12 +145,13 @@ export function startUndoableMutation<TResult = unknown>(
 ): UndoableHandle<TResult> {
   const { queryClient, queryKeys, applyOptimistic, commit } = config;
 
-  // 1. Snapshot the affected cache BEFORE the optimistic apply. Partial-match
-  //    each key (like ra-core's getQueriesData) so nested variants are covered.
-  const snapshot: UndoableSnapshot = queryKeys.reduce<UndoableSnapshot>(
-    (acc, queryKey) => acc.concat(queryClient.getQueriesData({ queryKey })),
-    [],
-  );
+  // 1. Snapshot the affected cache BEFORE the optimistic apply.
+  const entry: OpenUndoable = {
+    queryKeys,
+    applyOptimistic,
+    snapshot: takeSnapshot(queryClient, queryKeys),
+    committed: false,
+  };
 
   // 2. Cancel any outgoing refetches so they can't clobber the optimistic
   //    state. Fire-and-forget — the cancellation is requested synchronously,
@@ -93,13 +164,31 @@ export function startUndoableMutation<TResult = unknown>(
   // 3. Apply the optimistic mutation to the cache immediately.
   applyOptimistic();
 
+  let order = openUndoables.get(queryClient);
+  if (!order) {
+    order = [];
+    openUndoables.set(queryClient, order);
+  }
+  order.push(entry);
+
   let state: UndoableState = "pending";
   let commitPromise: Promise<TResult | undefined> | undefined;
 
   const rollback = () => {
-    for (const [key, value] of snapshot) {
-      queryClient.setQueryData(key, value);
+    const open = order;
+    const index = open.indexOf(entry);
+    const later = entriesToReplay(open.slice(index + 1), entry);
+    open.splice(index, 1);
+    // Unwind newest first down to this entry's pre-apply state, then replay
+    // the later ones so their changes survive.
+    for (const other of [...later].reverse())
+      restore(queryClient, other.snapshot);
+    restore(queryClient, entry.snapshot);
+    for (const other of later) {
+      other.snapshot = takeSnapshot(queryClient, other.queryKeys);
+      other.applyOptimistic();
     }
+    dropSettledPrefix(open);
   };
 
   const handle: UndoableHandle<TResult> = {
@@ -121,12 +210,19 @@ export function startUndoableMutation<TResult = unknown>(
       if (state === "undone") return Promise.resolve(undefined);
       state = "committed";
       pendingUndoables.delete(handle);
-      commitPromise = commit().catch((error: unknown) => {
-        // Server rejected the committed mutation — roll the cache back to the
-        // snapshot and re-throw so the adapter can notify the error.
-        rollback();
-        throw error;
-      });
+      commitPromise = commit().then(
+        (result) => {
+          entry.committed = true;
+          dropSettledPrefix(order);
+          return result;
+        },
+        (error: unknown) => {
+          // Server rejected the committed mutation — roll the cache back to the
+          // snapshot and re-throw so the adapter can notify the error.
+          rollback();
+          throw error;
+        },
+      );
       return commitPromise;
     },
   };
