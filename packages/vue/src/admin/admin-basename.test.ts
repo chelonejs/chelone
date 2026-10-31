@@ -127,7 +127,7 @@ describe("<Admin> basename", () => {
         "/admin/posts",
         "/admin/posts/create/:pathMatch(.*)*",
         "/admin/posts/:id/:pathMatch(.*)*",
-        "/admin/posts/:id/show",
+        "/admin/posts/:id/show/:pathMatch(.*)*",
       ]),
     );
     expect(router.resolve("/posts").matched).toEqual([]);

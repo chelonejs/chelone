@@ -94,7 +94,7 @@ describe("<Admin> / <Resource> — self-registration + reactive routes + slots",
         "/posts",
         "/posts/create/:pathMatch(.*)*",
         "/posts/:id/:pathMatch(.*)*",
-        "/posts/:id/show",
+        "/posts/:id/show/:pathMatch(.*)*",
       ]),
     );
   });
