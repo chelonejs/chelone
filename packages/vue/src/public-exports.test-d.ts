@@ -9,6 +9,7 @@ import type {
   BooleanInputProps,
   BulkActionsToolbarProps,
   ColorInputProps,
+  CountProps,
   CreateProps,
   CurrencyInputProps,
   CustomRoute,
@@ -25,6 +26,7 @@ import type {
   FilterListItemProps,
   FilterListProps,
   FilterListSectionProps,
+  FilterLiveSearchProps,
   HideOnScrollProps,
   InfiniteListProps,
   InfinitePaginationProps,
@@ -47,6 +49,7 @@ import type {
   SimpleListItemProps,
   SimpleListLoadingProps,
   SimpleListProps,
+  SingleFieldListProps,
   Subscribable,
   TextFieldProps,
   TextInputProps,
@@ -74,9 +77,11 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<DateTimeInputProps>().toHaveProperty("source");
     expectTypeOf<DurationInputProps>().toHaveProperty("source");
     expectTypeOf<ErrorFallbackProps>().toHaveProperty("error");
+    expectTypeOf<CountProps>().toBeObject();
     expectTypeOf<EditProps>().toBeObject();
     expectTypeOf<FilterFormEntry>().toHaveProperty("component");
     expectTypeOf<FilterFormProps>().toBeObject();
+    expectTypeOf<FilterLiveSearchProps>().toBeObject();
     expectTypeOf<HideOnScrollProps>().toHaveProperty("threshold");
     expectTypeOf<InfiniteListProps>().toBeObject();
     expectTypeOf<FilterListItemProps>().toHaveProperty("value");
@@ -102,6 +107,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<SimpleListItemProps>().toBeObject();
     expectTypeOf<SimpleListLoadingProps>().toBeObject();
     expectTypeOf<SimpleListProps>().toBeObject();
+    expectTypeOf<SingleFieldListProps>().toBeObject();
     expectTypeOf<TextFieldProps>().toHaveProperty("source");
     expectTypeOf<TextInputProps>().toHaveProperty("source");
     expectTypeOf<TimeInputProps>().toHaveProperty("source");

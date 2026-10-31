@@ -307,6 +307,8 @@ export { default as UserMenu } from "./admin/layout/user-menu.vue";
 // --- admin: list ----------------------------------------------------------
 export type { BulkActionsToolbarProps } from "./admin/list/bulk-actions-toolbar.vue";
 export { default as BulkActionsToolbar } from "./admin/list/bulk-actions-toolbar.vue";
+export type { CountProps } from "./admin/list/count.vue";
+export { default as Count } from "./admin/list/count.vue";
 export type { DataTableProps } from "./admin/list/data-table.vue";
 export { default as DataTable } from "./admin/list/data-table.vue";
 export type { DataTableColProps } from "./admin/list/data-table-col.vue";
@@ -331,6 +333,8 @@ export type { FilterListItemProps } from "./admin/list/filter-list-item.vue";
 export { default as FilterListItem } from "./admin/list/filter-list-item.vue";
 export type { FilterListSectionProps } from "./admin/list/filter-list-section.vue";
 export { default as FilterListSection } from "./admin/list/filter-list-section.vue";
+export type { FilterLiveSearchProps } from "./admin/list/filter-live-search.vue";
+export { default as FilterLiveSearch } from "./admin/list/filter-live-search.vue";
 export type { InfinitePaginationProps } from "./admin/list/infinite-pagination.vue";
 export { default as InfinitePagination } from "./admin/list/infinite-pagination.vue";
 export type { ListNoResultsProps } from "./admin/list/list-no-results.vue";
@@ -345,6 +349,11 @@ export type { SimpleListItemProps } from "./admin/list/simple-list-item.vue";
 export { default as SimpleListItem } from "./admin/list/simple-list-item.vue";
 export type { SimpleListLoadingProps } from "./admin/list/simple-list-loading.vue";
 export { default as SimpleListLoading } from "./admin/list/simple-list-loading.vue";
+export type {
+  SingleFieldListItemSlotProps,
+  SingleFieldListProps,
+} from "./admin/list/single-field-list.vue";
+export { default as SingleFieldList } from "./admin/list/single-field-list.vue";
 export type { CreateProps } from "./admin/view/create.vue";
 export { default as Create } from "./admin/view/create.vue";
 export type { EditProps } from "./admin/view/edit.vue";
