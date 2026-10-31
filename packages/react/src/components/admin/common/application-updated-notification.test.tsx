@@ -64,11 +64,9 @@ describe("<ApplicationUpdatedNotification>", () => {
     );
     const alert = screen.getByRole("alert");
     expect(alert.textContent).toContain(
-      "ra.notification.application_update_available",
+      "A new version of the application is available",
     );
-    expect(
-      screen.getByRole("button", { name: "ra.action.reload" }),
-    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Reload" })).toBeTruthy();
   });
 
   it("reloads the page when the button is clicked", () => {

@@ -2,7 +2,7 @@
  * `<ApplicationUpdatedNotification>` — a card telling the user a new version
  * of the app is available, with a reload button. Ported from shadmin
  * `common/application-updated-notification.tsx`; `<Translate>` is rewired to
- * `translate(key, { _: key })`.
+ * `translate(key, { _: english })`; custom labels fall back to themselves.
  */
 
 import { Sparkles } from "lucide-react";
@@ -32,11 +32,8 @@ function ApplicationUpdatedNotification({
   ...rest
 }: ApplicationUpdatedNotificationProps) {
   const translate = useTranslate();
-  const messageKey =
-    message ??
-    notificationText ??
-    "ra.notification.application_update_available";
-  const buttonKey = buttonLabel ?? updateText ?? "ra.action.reload";
+  const messageText = message ?? notificationText;
+  const buttonText = buttonLabel ?? updateText;
   return (
     <Card
       role="alert"
@@ -48,10 +45,16 @@ function ApplicationUpdatedNotification({
     >
       <Sparkles className="size-4 shrink-0" />
       <span className="text-sm">
-        {translate(messageKey, { _: messageKey })}
+        {messageText
+          ? translate(messageText, { _: messageText })
+          : translate("ra.notification.application_update_available", {
+              _: "A new version of the application is available",
+            })}
       </span>
       <Button size="sm" onClick={onReload ?? (() => window.location.reload())}>
-        {translate(buttonKey, { _: buttonKey })}
+        {buttonText
+          ? translate(buttonText, { _: buttonText })
+          : translate("ra.action.reload", { _: "Reload" })}
       </Button>
     </Card>
   );
