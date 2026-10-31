@@ -28,8 +28,10 @@ import type {
   FilterListSectionProps,
   FilterLiveSearchProps,
   HideOnScrollProps,
+  IconButtonWithTooltipProps,
   InfiniteListProps,
   InfinitePaginationProps,
+  LinkProps,
   ListNoResultsProps,
   ListPaginationProps,
   ListProps,
@@ -83,11 +85,13 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<FilterFormProps>().toBeObject();
     expectTypeOf<FilterLiveSearchProps>().toBeObject();
     expectTypeOf<HideOnScrollProps>().toHaveProperty("threshold");
+    expectTypeOf<IconButtonWithTooltipProps>().toHaveProperty("label");
     expectTypeOf<InfiniteListProps>().toBeObject();
     expectTypeOf<FilterListItemProps>().toHaveProperty("value");
     expectTypeOf<FilterListProps>().toHaveProperty("label");
     expectTypeOf<FilterListSectionProps>().toHaveProperty("label");
     expectTypeOf<InfinitePaginationProps>().toBeObject();
+    expectTypeOf<LinkProps>().toHaveProperty("to");
     expectTypeOf<ListProps>().toBeObject();
     expectTypeOf<ListNoResultsProps>().toBeObject();
     expectTypeOf<ListPaginationProps>().toBeObject();

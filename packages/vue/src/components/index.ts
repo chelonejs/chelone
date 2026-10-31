@@ -68,10 +68,14 @@ export { default as Toolbar } from "./admin/buttons/toolbar.vue";
 // --- admin: common (V3-c) -------------------------------------------------
 export type { FieldLabelTextProps } from "./admin/common/field-label-text.vue";
 export { default as FieldLabelText } from "./admin/common/field-label-text.vue";
+export type { IconButtonWithTooltipProps } from "./admin/common/icon-button-with-tooltip.vue";
+export { default as IconButtonWithTooltip } from "./admin/common/icon-button-with-tooltip.vue";
 export type { InputHelperTextProps } from "./admin/common/input-helper-text.vue";
 export { default as InputHelperText } from "./admin/common/input-helper-text.vue";
 export type { KeyboardShortcutProps } from "./admin/common/keyboard-shortcut.vue";
 export { default as KeyboardShortcut } from "./admin/common/keyboard-shortcut.vue";
+export type { LinkProps } from "./admin/common/link.vue";
+export { default as Link } from "./admin/common/link.vue";
 export type { ValidationErrorProps } from "./admin/common/validation-error.vue";
 export { default as ValidationError } from "./admin/common/validation-error.vue";
 // --- admin: feedback (V3-c) -----------------------------------------------
