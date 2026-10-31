@@ -223,6 +223,8 @@ export type { ImageInputProps } from "./admin/inputs/image-input.vue";
 export { default as ImageInput } from "./admin/inputs/image-input.vue";
 export { default as ImageInputThumbnail } from "./admin/inputs/image-input-thumbnail.vue";
 export { humanizeSource } from "./admin/inputs/label-text";
+export type { LoadingInputProps } from "./admin/inputs/loading-input.vue";
+export { default as LoadingInput } from "./admin/inputs/loading-input.vue";
 export type { NullableBooleanInputProps } from "./admin/inputs/nullable-boolean-input.vue";
 export { default as NullableBooleanInput } from "./admin/inputs/nullable-boolean-input.vue";
 export type { NumberInputProps } from "./admin/inputs/number-input.vue";
@@ -363,6 +365,8 @@ export { default as Create } from "./admin/view/create.vue";
 export type { EditProps } from "./admin/view/edit.vue";
 export { default as Edit } from "./admin/view/edit.vue";
 // --- admin: views ---------------------------------------------------------
+export type { CardContentInnerProps } from "./admin/view/card-content-inner.vue";
+export { default as CardContentInner } from "./admin/view/card-content-inner.vue";
 export type { InfiniteListProps } from "./admin/view/infinite-list.vue";
 export { default as InfiniteList } from "./admin/view/infinite-list.vue";
 export type { LabeledProps } from "./admin/view/labeled.vue";
