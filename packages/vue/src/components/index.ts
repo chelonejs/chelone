@@ -352,6 +352,8 @@ export { default as Edit } from "./admin/view/edit.vue";
 // --- admin: views ---------------------------------------------------------
 export type { InfiniteListProps } from "./admin/view/infinite-list.vue";
 export { default as InfiniteList } from "./admin/view/infinite-list.vue";
+export type { LabeledProps } from "./admin/view/labeled.vue";
+export { default as Labeled } from "./admin/view/labeled.vue";
 export type { ListProps } from "./admin/view/list.vue";
 export { default as List } from "./admin/view/list.vue";
 export type { ShowProps } from "./admin/view/show.vue";
