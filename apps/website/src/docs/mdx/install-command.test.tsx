@@ -55,6 +55,12 @@ describe("InstallCommand", () => {
     expect(
       screen.getByRole("link", { name: /registry/i }).getAttribute("href"),
     ).toBe("/docs/getting-started/install#install-for-vue");
+    expect(
+      screen.getByRole("link", { name: /registry/i }).parentElement
+        ?.textContent,
+    ).toBe(
+      "Add the Chelone registry to your Vue components.json first, as described in the Vue registry setup.",
+    );
   });
 
   it("without a Vue command, no framework switch renders", () => {

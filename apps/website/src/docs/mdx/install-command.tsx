@@ -105,7 +105,7 @@ export function InstallCommand({ install, vue }: InstallCommandProps) {
 
       {showVue && (
         <p className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
-          Add the Chelone registry to your Vue <code>components.json</code>
+          Add the Chelone registry to your Vue <code>components.json</code>{" "}
           first, as described in the{" "}
           <Link
             to="/docs/getting-started/install#install-for-vue"
