@@ -15,7 +15,7 @@ A headless admin engine: a vanilla-TypeScript core with thin React and Vue adapt
 - Test first. Tests use vitest and run with `--typecheck`; a run passes only when the summary shows `Type Errors  no errors` and the command exits 0.
 - Test from the outside: mount the component under `<Admin>` (see the harnesses in `packages/vue/src/components/admin/inputs/*.test.ts` and `packages/react/src/components/admin/inputs/*.test.tsx`) and assert DOM, roles and data-provider calls. jsdom applies no CSS, so never assert styling.
 - A package that imports a dependency declares it in its own `package.json`. pnpm hoisting can hide a missing one locally; CI's fresh install will not.
-- After adding, moving or removing a React component file, run `pnpm --dir packages/react registry:generate` and commit `registry.json`. CI fails on a stale one.
+- After adding, moving or removing a React or Vue component file, run `pnpm --dir packages/react registry:generate` or `pnpm --dir packages/vue registry:generate` and commit that package's `registry.json`. CI fails on a stale one.
 - Comment only what would surprise the next reader.
 - Commits: a conventional prefix (`feat:`, `fix:`, `test:`, `chore:`, `docs:`, `refactor:`) and a body that says why. Pull request bodies: a short bullet list of what changed, no em dashes, no bold.
 
@@ -30,6 +30,7 @@ pnpm typecheck   # tsc, vue-tsc, react-router typegen
 pnpm test        # vitest --typecheck in every package
 pnpm build       # demo, vue-demo, website
 pnpm --dir packages/react registry:build
+pnpm --dir packages/vue registry:build
 ```
 
 `registry:build` checks its own output, because `shadcn build` exits 0 on error. Never pipe it through `tail`.

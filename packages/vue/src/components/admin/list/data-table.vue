@@ -64,7 +64,7 @@ import {
   TableRow,
 } from "../../ui/table";
 import BulkActionsToolbar from "./bulk-actions-toolbar.vue";
-import { Button } from "../../ui";
+import Button from "../../ui/button.vue";
 import {
   DataTableRowsKey,
   PassProvider,
