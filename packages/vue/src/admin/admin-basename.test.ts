@@ -1,7 +1,7 @@
 import { fakeDataProvider } from "@chelone/core";
 import { enableAutoUnmount, flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, markRaw } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { useRedirect } from "../router/nav-composables";
 import Admin from "./admin.vue";
@@ -143,4 +143,80 @@ describe("<Admin> basename", () => {
     expect(router.currentRoute.value.path).toBe("/admin/");
     expect(wrapper.get('a[href="/app/admin/"]').text()).toContain("Dashboard");
   });
+
+  it.each(["/admin", "/admin/"])(
+    "the first-resource redirect lands under the basename (%s)",
+    async (start) => {
+      // The host need not register an index record for Admin's mount path.
+      const router = createRouter({
+        history: createMemoryHistory("/app"),
+        routes: [{ path: "/", component: Blank }],
+      });
+      await router.push(start);
+      const wrapper = mount(Admin, {
+        props: {
+          dataProvider: fakeDataProvider({}),
+          basename: "/admin",
+          resources: [{ name: "posts", list: markRaw(Posts) }],
+        },
+        global: { plugins: [router] },
+      });
+      await flushPromises();
+
+      expect(router.currentRoute.value.path).toBe("/admin/posts");
+      expect(router.currentRoute.value.name).toBe("chelone-posts-list");
+      expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
+    },
+  );
+
+  it.each([undefined, ""])(
+    "an empty basename leaves every path as before (%s)",
+    async (basename) => {
+      const router = makeRouter();
+      await router.push("/");
+      const RedirectButton = defineComponent({
+        setup() {
+          const redirect = useRedirect();
+          return () =>
+            h("button", { onClick: () => redirect("list", "posts") }, "Go");
+        },
+      });
+      const wrapper = mount(Admin, {
+        props: { dataProvider: fakeDataProvider({}), basename },
+        slots: {
+          default: () => [
+            h(Resource, {
+              name: "posts",
+              list: Posts,
+              create: Blank,
+              edit: Blank,
+              show: Blank,
+            }),
+            h(RedirectButton),
+          ],
+          dashboard: () => h("section", { "data-testid": "dashboard" }, "DASH"),
+        },
+        global: { plugins: [router] },
+      });
+      await flushPromises();
+
+      expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
+      expect(wrapper.get('a[href="/app/posts"]').text()).toContain("Posts");
+      for (const [path, name] of [
+        ["/posts", "chelone-posts-list"],
+        ["/posts/create", "chelone-posts-create"],
+        ["/posts/42", "chelone-posts-edit"],
+        ["/posts/42/show", "chelone-posts-show"],
+      ] as const) {
+        await router.push(path);
+        expect(router.currentRoute.value.name).toBe(name);
+      }
+      await wrapper.get("button").trigger("click");
+      await flushPromises();
+
+      expect(router.currentRoute.value.path).toBe("/posts");
+      expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
+      expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(false);
+    },
+  );
 });
