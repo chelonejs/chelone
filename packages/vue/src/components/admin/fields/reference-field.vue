@@ -1,10 +1,17 @@
 <script lang="ts">
+import type { LinkToType } from "../../../router";
+
 /** Props for {@link ReferenceField}. */
 export interface ReferenceFieldProps {
   source: string;
   reference: string;
   record?: LooseRecord;
   empty?: string;
+  /**
+   * Where the value links. Omit to infer the referenced record's show page, else
+   * its edit page, else no link; `false` renders no link.
+   */
+  link?: LinkToType;
 }
 </script>
 
@@ -19,19 +26,31 @@ export interface ReferenceFieldProps {
  *
  * Rebridge note (mirrors the React twin): Chelone carries no
  * `ReferenceFieldBase` stack — this field resolves the single record directly
- * with `useGetManyAggregate` and publishes it via `provideRecordContext`. Linking to the
- * referenced record's page is deferred to a later wave (the V1 vertical only
- * needs the resolved representation).
+ * with `useGetManyAggregate` and publishes it via `provideRecordContext`.
+ *
+ * The content is wrapped in a `<RouterLink>` to the referenced record when
+ * `useGetPathForRecord` yields a path. The link stops click propagation so a
+ * `<DataTable>` row click does not also fire.
+ *
+ * The content is wrapped in a `<RouterLink>` to the referenced record when
+ * `useGetPathForRecord` yields a path; the link stops click propagation so a
+ * `<DataTable>` row click does not also fire.
  */
 
 import type { Identifier, LooseRecord } from "@chelone/core";
 import { computed } from "vue";
+import { RouterLink } from "vue-router";
 import { useGetManyAggregate } from "../../../data/queries";
 import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
 import { provideRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
+import { useGetPathForRecord } from "../../../router";
 
-const props = defineProps<ReferenceFieldProps>();
+// An explicit `undefined` default keeps Vue from casting an absent `link` to
+// `false` (the prop's type includes a boolean), which would disable inference.
+const props = withDefaults(defineProps<ReferenceFieldProps>(), {
+  link: undefined,
+});
 
 const fk = useFieldValue({ source: props.source, record: props.record });
 const id = computed(() => fk.value as Identifier | null | undefined);
@@ -49,6 +68,12 @@ const referenceRecord = computed(
 // Publish the referenced record so a default-slot child field reads it.
 provideRecordContext(referenceRecord);
 
+const path = useGetPathForRecord({
+  resource: () => props.reference,
+  record: referenceRecord,
+  link: computed(() => props.link),
+});
+
 const getRepresentation = useGetRecordRepresentation(props.reference);
 const representation = computed(() =>
   referenceRecord.value ? getRepresentation(referenceRecord.value) : null,
@@ -61,7 +86,12 @@ const representation = computed(() =>
   </template>
   <template v-else-if="query.isPending.value" />
   <template v-else-if="referenceRecord">
-    <slot>
+    <RouterLink v-if="path" :to="path" @click.stop>
+      <slot>
+        <span data-slot="reference-field">{{ representation }}</span>
+      </slot>
+    </RouterLink>
+    <slot v-else>
       <span data-slot="reference-field">{{ representation }}</span>
     </slot>
   </template>

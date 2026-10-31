@@ -19,10 +19,15 @@
 
 import {
   type Component,
+  type ComputedRef,
+  computed,
   type InjectionKey,
   inject,
+  type MaybeRefOrGetter,
   shallowReactive,
+  toValue,
 } from "vue";
+import { useResourceContext } from "../resource-context";
 
 /**
  * A registered resource: its name (the registry key + route base) plus the view
@@ -105,4 +110,63 @@ export function useResourceRegistry(): ResourceRegistry {
     );
   }
   return registry;
+}
+
+/**
+ * Read the whole reactive definition map (resource-name → definition). A
+ * template or computed that reads it re-runs when a `<Resource>` registers or
+ * unregisters.
+ */
+export function useResourceDefinitions(): ResourceRegistry["definitions"] {
+  return useResourceRegistry().definitions;
+}
+
+/** Options `useResourceDefinition` accepts to target / override a definition. */
+export interface UseResourceDefinitionOptions {
+  /** Target a specific resource; defaults to the ambient `<Resource>`. */
+  resource?: string;
+  hasList?: boolean;
+  hasCreate?: boolean;
+  hasEdit?: boolean;
+  hasShow?: boolean;
+  recordRepresentation?: unknown;
+}
+
+/** A resource's definition with the four `has*` view flags resolved. */
+export type ResourceDefinitionView = Partial<ResourceDefinition> & {
+  hasList: boolean;
+  hasCreate: boolean;
+  hasEdit: boolean;
+  hasShow: boolean;
+};
+
+/**
+ * The definition of one resource — the `resource` option or else the ambient
+ * one — with `hasList` / `hasCreate` / `hasEdit` / `hasShow` true when the
+ * resource registered that view component (parity: ra-core's
+ * `useResourceDefinition`, whose flags the Vue registry derives from the view
+ * components it stores). An explicit option wins over the registry entry; an
+ * unregistered resource yields all-false flags plus any override.
+ */
+export function useResourceDefinition(
+  options?: MaybeRefOrGetter<UseResourceDefinitionOptions | undefined>,
+): ComputedRef<ResourceDefinitionView> {
+  const definitions = useResourceDefinitions();
+  const ambient = useResourceContext();
+
+  return computed(() => {
+    const opts = toValue(options);
+    const resource = opts?.resource ?? ambient;
+    const base = resource ? definitions[resource] : undefined;
+    return {
+      ...base,
+      hasList: opts?.hasList ?? base?.list != null,
+      hasCreate: opts?.hasCreate ?? base?.create != null,
+      hasEdit: opts?.hasEdit ?? base?.edit != null,
+      hasShow: opts?.hasShow ?? base?.show != null,
+      ...(opts?.recordRepresentation !== undefined && {
+        recordRepresentation: opts.recordRepresentation,
+      }),
+    };
+  });
 }
