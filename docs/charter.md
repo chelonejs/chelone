@@ -112,8 +112,8 @@ chelone/ (monorepo)
 not** import `react`, `react-dom`, `react-hook-form`, or `react-router`. A Biome
 `noRestrictedImports` rule (the same mechanism shadmin uses for its ra-core seam) enforces this
 in CI. **This one rule is what keeps Vue/Svelte possible without building them.** (Amended: the
-rule covers both adapters, through the `packages/core/**` and `packages/vue/**` overrides in
-`biome.json`, see §12.)
+rule also bans React imports in the Vue adapter, through the `packages/core/**` and
+`packages/vue/**` overrides in `biome.json`, see §12.)
 
 ### 5.3 Core subsystems
 
@@ -122,7 +122,7 @@ rule covers both adapters, through the `packages/core/**` and `packages/vue/**` 
 | **Resource registry** | `defineResources({ posts: postSchema })` → typed registry. Resource name literal → record type inference. Opt-in: no schema = loose fallback. | The `<Resource>` declarative model + definition registry. | `RaRecord extends Record<string, any>` → strict base (`unknown` index). |
 | **Data** | `DataProvider` contract (9 promise CRUD verbs) on `@tanstack/query-core`. Query-key scheme `[resource, op, params]`. Server-callable (no React/browser coupling). Adapters: server-fn (default), REST, GraphQL. | The contract + query-key conventions + cache cross-population + mutation modes. | Proxy-only/context-only access → add a server data entry (dehydrate/hydrate). |
 | **Store** | Vanilla reactive store with `useSyncExternalStore`-compatible snapshot + server snapshot. No import-time `window`. | `getItem/setItem/subscribe` shape. | `useState`-subscribe → `useSyncExternalStore`; import-time localStorage branch → SSR-safe adapter. |
-| **i18n** | Reactive locale state, **typed message keys** (`as const` → literal union + interpolation typing), server-renderable `t()`. Polyglot/i18next as the engine (amended: core's own engine, see §12). | Polyglot translation engine. | Imperative-closure + full-remount-on-locale-change (`key` bump) + untyped keys. |
+| **i18n** | Reactive locale state, **typed message keys** (`as const` → literal union + interpolation typing), server-renderable `t()`. Polyglot/i18next as the engine (amended: core's own engine, see §12). | Polyglot's `smart_count` plural name; the engine itself is core's own (amended, see §12). | Imperative-closure + full-remount-on-locale-change (`key` bump) + untyped keys. |
 | **Controllers** | `list/edit/create/show` as **framework-neutral observable stores** (pagination, sort, filter, selection, URL/store sync, auth gating). React adapter bridges via `useSyncExternalStore`. | The orchestration logic (hundreds of edge-case fixes). | React-hook packaging → vanilla store + adapter. |
 | **Form** | `@tanstack/form-core` for form state. Field arrays, iterators, translatable inputs built **once** in core. Zod validation. | — | react-hook-form entirely. |
 | **Auth** | `AuthProvider` contract + a **free** access-control provider (CASL-style adapter). | The contract + query-wrapped hooks. | Un-paywall RBAC (it's Enterprise in react-admin). |
@@ -189,7 +189,7 @@ Each phase ships green and dogfoods against the (copied) reference components.
 - **v1 = ra-core parity on the Chelone core** — everything shadmin does today, rebuilt clean on
   `@chelone/core`.
 - **Deferred post-v1:** ra-enterprise gap-fill (AccordionForm, LongForm, MultiLevelMenu,
-  ReferenceManyInput, DualListInput, RBAC enforcement) and any 2nd-framework adapter.
+  ReferenceManyInput, DualListInput, RBAC enforcement) and any 2nd-framework adapter (amended: the Vue adapter is built, see §12).
 
 ---
 
@@ -259,9 +259,12 @@ section above is out of date, it carries a pointer here.
 - **`@chelone/vue` is built.** It was built ahead of the v1 non-goal in §3, and the boundary
   held: core takes no React imports. Design: `docs/vue-adapter-design.md`. Gaps against
   `ra-core`: `docs/parity-report.md`. Svelte is not started.
-- **The boundary rule covers both adapters.** `biome.json` has two `noRestrictedImports`
-  overrides: `packages/core/**` (no React or router imports) and `packages/vue/**` (no React,
-  `react-router`, or `@chelone/react`). Both adapters subscribe to core independently.
+- **The boundary rule covers core and the Vue adapter.** `biome.json` has two
+  `noRestrictedImports` overrides: `packages/core/**` (no React or router imports) and
+  `packages/vue/**` (no React, `react-router`, or `@chelone/react`). Both adapters subscribe to
+  core independently. Two gaps: there is no override for `packages/react/**`, so nothing lints
+  that package against Vue imports; and Biome lints only `.ts`, `.tsx` and JSON files, so a
+  `.vue` component is not checked by these overrides and `vue-tsc` does not enforce them.
 - **i18n uses core's own engine.** Core interpolates messages itself instead of using Polyglot or
   i18next, and keeps Polyglot's `smart_count` name for plural counts. Core still depends on Zod
   only (§3), so that rule holds.
