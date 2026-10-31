@@ -2,18 +2,20 @@
 /**
  * `<PostList>` — the posts list page, the Vue twin of `apps/demo`'s `PostList`.
  * A `<DataTable>` over the ambient list controller: Title, Author (resolved
- * through a `<ReferenceField>` → the author's `name`), Views, Published, plus a
- * per-row `<EditLink>` into the edit page.
+ * through a `<ReferenceField>` → the author's `name`), Views (a
+ * `<DataTableNumberCol>`), Published, plus a per-row `<EditButton>` into the
+ * edit page.
  */
 
 import {
   DataTable,
   DataTableCol,
+  DataTableNumberCol,
+  EditButton,
   List,
   ReferenceField,
   TextField,
 } from "@chelone/vue";
-import EditLink from "./EditLink.vue";
 </script>
 
 <template>
@@ -25,10 +27,10 @@ import EditLink from "./EditLink.vue";
           <TextField source="name" />
         </ReferenceField>
       </DataTableCol>
-      <DataTableCol source="views" label="Views" />
+      <DataTableNumberCol source="views" label="Views" />
       <DataTableCol source="published" label="Published" />
       <DataTableCol label="">
-        <EditLink />
+        <EditButton />
       </DataTableCol>
     </DataTable>
   </List>
