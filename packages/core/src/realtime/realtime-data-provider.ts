@@ -40,7 +40,19 @@ export function realtimeDataProvider<
   };
 
   const provider: RealtimeDataProvider<TResources> = {
+    // A class instance keeps its verbs on the prototype, which a spread
+    // skips; the nine are delegated by name and the spread keeps any extras.
     ...base,
+    getList: (resource, params) => base.getList(resource, params),
+    getOne: (resource, params) => base.getOne(resource, params),
+    create: (resource, params) => base.create(resource, params),
+    update: (resource, params) => base.update(resource, params),
+    delete: (resource, params) => base.delete(resource, params),
+    getMany: (resource, params) => base.getMany(resource, params),
+    getManyReference: (resource, params) =>
+      base.getManyReference(resource, params),
+    updateMany: (resource, params) => base.updateMany(resource, params),
+    deleteMany: (resource, params) => base.deleteMany(resource, params),
     ...lockMethods,
     subscribe: (topic, callback) => transport.subscribe(topic, callback),
     publish: (topic, event) => transport.publish(topic, event),

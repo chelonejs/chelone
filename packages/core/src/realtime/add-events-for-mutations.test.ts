@@ -135,6 +135,47 @@ describe("addEventsForMutations", () => {
     expect(onError).toHaveBeenCalledWith(failure);
   });
 
+  it("a throwing onError does not fail the mutation", async () => {
+    const publish = vi.fn(async () => {
+      throw new Error("socket closed");
+    });
+    const onError = vi.fn(() => {
+      throw new Error("logger broke");
+    });
+    const { base } = setup();
+    const dp = addEventsForMutations(base, { publish }, { onError });
+
+    await expect(dp.create("posts", { data: {} })).resolves.toEqual({
+      data: { id: 7, title: "new" },
+    });
+
+    expect(onError).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the reads of a provider written as a class", async () => {
+    class Api {
+      async getList() {
+        return { data: [], total: 0 };
+      }
+      async create() {
+        return { data: { id: 7 } };
+      }
+    }
+    const published: string[] = [];
+    const dp = addEventsForMutations(new Api() as unknown as DataProvider, {
+      publish: async (topic) => {
+        published.push(topic);
+      },
+    });
+
+    await expect(dp.getList("posts", {})).resolves.toEqual({
+      data: [],
+      total: 0,
+    });
+    await dp.create("posts", { data: {} });
+    expect(published).toEqual(["resource/posts"]);
+  });
+
   it("leaves reads untouched", async () => {
     const { dp, base, publisher } = setup();
 

@@ -74,6 +74,28 @@ describe("realtimeDataProvider", () => {
     expect(base.getOne).toHaveBeenCalledWith("posts", { id: 1 });
   });
 
+  it("keeps the verbs of a provider written as a class", async () => {
+    class Api {
+      async getList() {
+        return { verb: "getList" };
+      }
+      async getOne() {
+        return { verb: "getOne" };
+      }
+    }
+    const dp = realtimeDataProvider(
+      new Api() as unknown as DataProvider,
+      baseTransport(),
+    );
+
+    await expect(dp.getList("posts", { filter: {} })).resolves.toEqual({
+      verb: "getList",
+    });
+    await expect(dp.getOne("posts", { id: 1 })).resolves.toEqual({
+      verb: "getOne",
+    });
+  });
+
   it("subscribe and publish go through the transport", async () => {
     const unsubscribe = vi.fn();
     const transport: RealtimeTransport = {

@@ -27,7 +27,12 @@ export function addEventsForMutations<TProvider extends DataProvider>(
         try {
           await publisher.publish(topic, event);
         } catch (error) {
-          onError?.(error);
+          try {
+            onError?.(error);
+          } catch {
+            // The write is already committed: a throwing handler must not
+            // report it as failed.
+          }
         }
       }),
     );
@@ -48,7 +53,14 @@ export function addEventsForMutations<TProvider extends DataProvider>(
   ];
 
   const wrapped: DataProvider = {
+    // The spread skips a class instance's prototype verbs, so the reads are
+    // delegated by name; the five writes below replace theirs.
     ...base,
+    getList: (resource, params) => base.getList(resource, params),
+    getOne: (resource, params) => base.getOne(resource, params),
+    getMany: (resource, params) => base.getMany(resource, params),
+    getManyReference: (resource, params) =>
+      base.getManyReference(resource, params),
     create: async (resource, params) => {
       const result = await base.create(resource, params);
       await publishAll([
