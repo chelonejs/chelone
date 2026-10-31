@@ -13,7 +13,14 @@
  * slot content" pattern.
  */
 
-import { defineComponent, type InjectionKey, inject, provide } from "vue";
+import type { CreatePathType, Identifier, LooseRecord } from "@chelone/core";
+import {
+  defineComponent,
+  type InjectionKey,
+  inject,
+  provide,
+  type Ref,
+} from "vue";
 
 /** Which pass a `<DataTableCol>` is rendering in. */
 export type DataTablePass = "header" | "data";
@@ -42,3 +49,34 @@ export const PassProvider = defineComponent({
     return () => slots.default?.();
   },
 });
+
+/** What a row click does: a link type, `"expand"`, `"toggleSelection"` or nothing. */
+export type DataTableRowClick =
+  | "edit"
+  | "show"
+  | "expand"
+  | "toggleSelection"
+  | false
+  | ((
+      record: LooseRecord,
+      id: Identifier,
+    ) => CreatePathType | "expand" | "toggleSelection" | false);
+
+/**
+ * Row behaviour `<DataTable>` shares with its `<DataTableRow>`s. The expanded
+ * ids live in `<DataTable>` so the header's expand-all button and every row's
+ * toggle act on the same state.
+ */
+export interface DataTableRowsContext {
+  rowClick: Ref<DataTableRowClick>;
+  /** True when the `#expand` slot is passed. */
+  expandEnabled: Ref<boolean>;
+  expandedIds: Ref<Identifier[]>;
+  toggleExpand: (id: Identifier) => void;
+  /** Whether the record can expand (true when no `isRowExpandable` is set). */
+  canExpand: (record: LooseRecord) => boolean;
+}
+
+export const DataTableRowsKey: InjectionKey<DataTableRowsContext> = Symbol(
+  "chelone-data-table-rows",
+);

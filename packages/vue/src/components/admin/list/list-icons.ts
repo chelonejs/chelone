@@ -50,3 +50,9 @@ export const ChevronLeftIcon: FunctionalComponent = icon(() => [
 export const ChevronRightIcon: FunctionalComponent = icon(() => [
   h("path", { d: "m9 18 6-6-6-6" }),
 ]);
+
+/** Stacked up/down chevrons — the expand-all rows control. */
+export const ChevronsUpDownIcon: FunctionalComponent = icon(() => [
+  h("path", { d: "m7 15 5 5 5-5" }),
+  h("path", { d: "m7 9 5-5 5 5" }),
+]);
