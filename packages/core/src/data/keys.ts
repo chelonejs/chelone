@@ -59,3 +59,20 @@ export function manyReferenceKey(
 ) {
   return [resource, "getManyReference", params] as const;
 }
+
+export function lockKey(
+  resource: string,
+  params: { id: Identifier; meta?: unknown },
+) {
+  return [
+    resource,
+    "getLock",
+    params.meta === undefined
+      ? { id: String(params.id) }
+      : { id: String(params.id), meta: params.meta },
+  ] as const;
+}
+
+export function locksKey(resource: string) {
+  return [resource, "getLocks"] as const;
+}

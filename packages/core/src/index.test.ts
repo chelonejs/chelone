@@ -145,6 +145,18 @@ describe("@chelone/core barrel", () => {
     expect(barrel.LockConflictError).toBeTypeOf("function");
   });
 
+  it("exports the live query subscribers and lock keys", () => {
+    expect(barrel.subscribeLiveResource).toBeTypeOf("function");
+    expect(barrel.subscribeLiveRecord).toBeTypeOf("function");
+    expect(barrel.subscribeLiveRecords).toBeTypeOf("function");
+    expect(barrel.subscribeLiveLock).toBeTypeOf("function");
+    expect(barrel.subscribeLiveLocks).toBeTypeOf("function");
+    expect(barrel.getLockOptions).toBeTypeOf("function");
+    expect(barrel.getLocksOptions).toBeTypeOf("function");
+    expect(barrel.lockKey).toBeTypeOf("function");
+    expect(barrel.locksKey).toBeTypeOf("function");
+  });
+
   it("exports the in-memory transport and lock provider", () => {
     expect(barrel.memoryTransport).toBeTypeOf("function");
     expect(barrel.inMemoryLockProvider).toBeTypeOf("function");
