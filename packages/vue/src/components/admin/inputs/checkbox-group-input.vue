@@ -23,7 +23,7 @@ export interface CheckboxGroupInputProps extends ChoiceInputBaseProps {
 
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
-import { Checkbox } from "../../ui";
+import Checkbox from "../../ui/checkbox.vue";
 import { FieldDescription, FieldError, FieldLabel } from "../../ui/field";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";

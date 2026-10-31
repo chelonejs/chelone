@@ -31,7 +31,7 @@ export interface DataTableProps {
 import type { Identifier, LooseRecord } from "@chelone/core";
 import { computed, useSlots } from "vue";
 import { useListContext } from "../../../list/list-context";
-import { Checkbox } from "../../ui";
+import Checkbox from "../../ui/checkbox.vue";
 import {
   Table,
   TableBody,

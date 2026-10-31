@@ -45,7 +45,7 @@ export interface ArrayInputProps {
 import { computed } from "vue";
 import { provideArrayInput, useArrayInput } from "../../../array";
 import { useTranslate } from "../../../i18n/use-translate";
-import { Button } from "../../ui";
+import Button from "../../ui/button.vue";
 import { FieldDescription, FieldError, FieldLabel } from "../../ui/field";
 import ValidationError from "../common/validation-error.vue";
 import ArrayInputRow from "./array-input-row.vue";

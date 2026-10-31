@@ -27,7 +27,7 @@ export interface SelectArrayInputProps extends ChoiceInputBaseProps {
 import { computed, ref } from "vue";
 import { useInput } from "../../../form/use-input";
 import { useTranslate } from "../../../i18n/use-translate";
-import { Checkbox } from "../../ui";
+import Checkbox from "../../ui/checkbox.vue";
 import { Field, FieldDescription, FieldError, FieldLabel } from "../../ui/field";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";

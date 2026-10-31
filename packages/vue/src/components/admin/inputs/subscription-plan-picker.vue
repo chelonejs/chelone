@@ -51,7 +51,7 @@ export interface SubscriptionPlanPickerProps {
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { cn } from "../../../lib/utils";
-import { Button } from "../../ui";
+import Button from "../../ui/button.vue";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { FieldDescription, FieldError } from "../../ui/field";
 import ValidationError from "../common/validation-error.vue";
