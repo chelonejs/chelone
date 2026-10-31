@@ -74,11 +74,12 @@ export interface AdminProps<TResources extends ResourceMap = ResourceMap> {
  *    React's `<QueryClientProvider>`.
  * 4. **The router adapter + reactive route build.** Installs the vue-router
  *    adapter and, via a `watchEffect` over the registry, adds/removes vue-router
- *    route records (`/{name}`, `/{name}/create`, `/{name}/:id`,
- *    `/{name}/:id/show`) as resources register/unregister — the reactive analog
+ *    route records (`/{name}`, `/{name}/create/:pathMatch(.*)*`,
+ *    `/{name}/:id/:pathMatch(.*)*`, `/{name}/:id/show`) as resources register/unregister — the reactive analog
  *    of React's declarative `<AdminRoutes>` resource route table. vue-router
  *    ranks by specificity, so a static `create` route naturally beats the `:id`
- *    edit route without a hand-maintained declaration order.
+ *    edit route without a hand-maintained declaration order. The edit and create
+ *    routes take a trailing catch-all so a `<TabbedForm>` tab can live in the URL.
  *
  * Named slots `#layout` / `#dashboard` override the default shell; `#login` is
  * reserved for the auth gate (a later V1 wave). The `#layout` slot, when given,
@@ -197,7 +198,7 @@ function addResourceRoutes(
   if (definition.create) {
     removers.push(
       router.addRoute({
-        path: joinBasename(`/${name}/create`, basename),
+        path: joinBasename(`/${name}/create/:pathMatch(.*)*`, basename),
         name: `chelone-${name}-create`,
         component: definition.create,
       }),
@@ -215,7 +216,7 @@ function addResourceRoutes(
   if (definition.edit) {
     removers.push(
       router.addRoute({
-        path: joinBasename(`/${name}/:id`, basename),
+        path: joinBasename(`/${name}/:id/:pathMatch(.*)*`, basename),
         name: `chelone-${name}-edit`,
         component: definition.edit,
       }),

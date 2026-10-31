@@ -85,7 +85,10 @@ describe("registry + route table — lifecycle under churn (PATTERN GATE)", () =
       show.value = true;
       await flushPromises();
       expect(capture.registry?.definitions.posts).toBeDefined();
-      expect(cheloneRoutePaths(router)).toEqual(["/posts", "/posts/:id"]);
+      expect(cheloneRoutePaths(router)).toEqual([
+        "/posts",
+        "/posts/:id/:pathMatch(.*)*",
+      ]);
       expect(router.hasRoute("chelone-posts-list")).toBe(true);
       expect(router.hasRoute("chelone-posts-edit")).toBe(true);
 

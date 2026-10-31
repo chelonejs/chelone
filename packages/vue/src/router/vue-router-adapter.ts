@@ -15,7 +15,8 @@
  *   react-router's declarative-router churn the React twin defends against), so
  *   no latest-ref dance is needed.
  * - `useParams`: `route.params` (`string | string[]`) → `Record<string,
- *   string | undefined>`, catch-all arrays joined with `/`.
+ *   string | undefined>`, catch-all arrays joined with `/`, with `pathMatch`
+ *   also exposed under `*`.
  * - `useMatch` / `matchPath`: core's dependency-free `matchPath` over the
  *   reactive `route.path`. `useMatch`'s `end` toggle (default exact; `end:
  *   false` also matches descendants, for a parent list that stays active on a
@@ -93,6 +94,9 @@ function toNeutralParams(
     const value = params[key];
     out[key] = Array.isArray(value) ? value.join("/") : value;
   }
+  // `RouterPort.getParams` documents a splat under `*`; vue-router's own name
+  // for a catch-all is `pathMatch`, so expose it under both.
+  if ("pathMatch" in out) out["*"] = out.pathMatch;
   return out;
 }
 

@@ -92,8 +92,8 @@ describe("<Admin> / <Resource> — self-registration + reactive routes + slots",
     expect(paths(router)).toEqual(
       expect.arrayContaining([
         "/posts",
-        "/posts/create",
-        "/posts/:id",
+        "/posts/create/:pathMatch(.*)*",
+        "/posts/:id/:pathMatch(.*)*",
         "/posts/:id/show",
       ]),
     );
