@@ -1,0 +1,59 @@
+{
+  "name": "Labeled",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactElement",
+      "optional": false,
+      "comment": "The one field (or input) to label."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "component",
+      "type": "ElementType",
+      "optional": true,
+      "comment": "The wrapper element. Defaults to `div`."
+    },
+    {
+      "name": "fullWidth",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "htmlFor",
+      "type": "string",
+      "optional": true,
+      "comment": "Makes the label a `<label>` for the control with this id."
+    },
+    {
+      "name": "isRequired",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Overrides the child's `label`; `false` renders no label."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Overrides the child's `resource` when resolving the label."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": true,
+      "comment": "Overrides the child's `source` when resolving the label."
+    }
+  ]
+}
