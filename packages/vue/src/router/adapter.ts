@@ -21,7 +21,7 @@
  */
 
 import type { CheloneLocation, NavigateOpts, PathMatch } from "@chelone/core";
-import { type ComputedRef, type InjectionKey, inject } from "vue";
+import { type ComputedRef, type InjectionKey, inject, type Ref } from "vue";
 
 /** The nav options a caller may pass. Mirrors the React twin's `AdapterNavigate`. */
 export interface AdapterNavigateOpts {
@@ -45,6 +45,31 @@ export interface UseMatchArgs {
 }
 
 /**
+ * What `useBlocker` returns. The Vue twin of the React `RouterBlocker`, with
+ * `state` / `location` as readonly refs because Vue has no render phase to
+ * re-read a snapshot. `proceed` / `reset` are plain functions that do nothing
+ * unless `state` is `"blocked"`, so callers never guard on presence.
+ */
+export interface RouterBlocker {
+  state: Readonly<Ref<"blocked" | "unblocked" | "proceeding">>;
+  /** The pending target while `blocked` / `proceeding`; else `null`. */
+  location: Readonly<Ref<CheloneLocation | null>>;
+  /** Let the blocked navigation through. */
+  proceed: () => void;
+  /** Cancel the blocked navigation. */
+  reset: () => void;
+}
+
+/** What `useBlocker` accepts: a flag, a ref to one, or a predicate. */
+export type ShouldBlock =
+  | boolean
+  | Ref<boolean>
+  | ((args: {
+      currentLocation: CheloneLocation;
+      nextLocation: CheloneLocation;
+    }) => boolean);
+
+/**
  * The reactive router contract. Every reader returns a `ComputedRef` so a
  * component that consumes it updates when the route changes; the navigator and
  * `matchPath` are plain (a function / a pure util). Implementing every member
@@ -62,6 +87,13 @@ export interface RouterAdapter {
   useMatch(pattern: string | UseMatchArgs): ComputedRef<PathMatch | null>;
   /** Dependency-free path matcher (returns the neutral `PathMatch`). */
   matchPath(pattern: string, pathname: string): PathMatch | null;
+  /**
+   * Hold a navigation while `shouldBlock`, until `proceed()` or `reset()`.
+   * Must run in a setup or effect scope: the guard goes with the scope.
+   */
+  useBlocker(shouldBlock: ShouldBlock): RouterBlocker;
+  /** Whether the router can block navigation (drives `warnWhenUnsaved`). */
+  useCanBlock(): boolean;
 }
 
 /**

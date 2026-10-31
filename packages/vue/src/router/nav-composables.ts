@@ -18,6 +18,8 @@ import {
 import type { ComputedRef } from "vue";
 import {
   type AdapterNavigate,
+  type RouterBlocker,
+  type ShouldBlock,
   type UseMatchArgs,
   useBasename,
   useRouterAdapter,
@@ -44,6 +46,16 @@ export function useMatch(
   pattern: string | UseMatchArgs,
 ): ComputedRef<PathMatch | null> {
   return useRouterAdapter().useMatch(pattern);
+}
+
+/** Hold navigation while `shouldBlock`, via the adapter. */
+export function useBlocker(shouldBlock: ShouldBlock): RouterBlocker {
+  return useRouterAdapter().useBlocker(shouldBlock);
+}
+
+/** Whether the router can block navigation, via the adapter. */
+export function useCanBlock(): boolean {
+  return useRouterAdapter().useCanBlock();
 }
 
 // Re-export the basename composable so all router composables import from here.
