@@ -44,6 +44,8 @@ Build **`@chelone/vue`** — a full, shipped Vue 3 adapter mirroring `@chelone/r
 
 2. **Form state** → `form-core` (vanilla; React bridges via `@tanstack/react-store`). Vue bridges via `@tanstack/vue-store` **or**, if that binding is awkward, subscribes to form-core's own store with the *same* `useMicroStore` pattern (form-core exposes `subscribe`). No new coupling either way.
 
+3. **KV store** → `CheloneStore` has per-key `subscribe`, so `useStoreItem<T>(key, defaultValue?)` returns a `[Readonly<Ref<T | undefined>>, setter]` tuple, the shape of React's `useStoreItem` with a `Ref` for the value. It subscribes to its key only and unsubscribes with `onScopeDispose`. `useStore` is the same function under ra-core's name.
+
 **Data layer** → `@tanstack/vue-query` over the same `query-core` keys / `dataProvider`. **i18n/errors** → unchanged (core emits `TranslatableMessage` / keys; Vue renders them).
 
 ## Section B — Composition + router
