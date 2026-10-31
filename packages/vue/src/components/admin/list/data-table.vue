@@ -1,4 +1,7 @@
 <script lang="ts">
+import type { Identifier, LooseRecord } from "@chelone/core";
+import type { DataTableRowClick } from "./data-table-context";
+
 /** Props for {@link DataTable}. */
 export interface DataTableProps {
   class?: string;
@@ -6,6 +9,18 @@ export interface DataTableProps {
   bulkActions?: boolean;
   /** Render `<ListPagination>` below the table (default true). */
   pagination?: boolean;
+  /**
+   * What a row click does: `"edit"` (default), `"show"`, `"expand"`,
+   * `"toggleSelection"`, `false` (inert), or a function of `(record, id)`
+   * returning one of those or any other link type (`false` = do nothing).
+   */
+  rowClick?: DataTableRowClick;
+  /** Allow only one expanded row at a time (also hides the expand-all button). */
+  expandSingle?: boolean;
+  /** Which records can expand; a rejected row gets no toggle. All can by default. */
+  isRowExpandable?: (record: LooseRecord) => boolean;
+  /** A class for a body row, computed from its record and index. */
+  rowClass?: (record: LooseRecord, rowIndex: number) => string | false | undefined;
 }
 </script>
 
@@ -28,9 +43,17 @@ export interface DataTableProps {
  * The named export `DataTableCol` is the Vue equivalent of `DataTable.Col`.
  */
 
-import type { Identifier, LooseRecord } from "@chelone/core";
-import { computed, useSlots } from "vue";
+import {
+  Comment,
+  computed,
+  Fragment,
+  provide,
+  ref,
+  useSlots,
+  type VNode,
+} from "vue";
 import { useListContext } from "../../../list/list-context";
+import { useResourceContext } from "../../../resource-context";
 import Checkbox from "../../ui/checkbox.vue";
 import {
   Table,
@@ -41,13 +64,18 @@ import {
   TableRow,
 } from "../../ui/table";
 import BulkActionsToolbar from "./bulk-actions-toolbar.vue";
-import { PassProvider } from "./data-table-context";
+import { Button } from "../../ui";
+import {
+  DataTableRowsKey,
+  PassProvider,
+} from "./data-table-context";
 import DataTableRow from "./data-table-row.vue";
+import { ChevronsUpDownIcon } from "./list-icons";
 import ListPagination from "./list-pagination.vue";
 
 const props = withDefaults(
   defineProps<DataTableProps>(),
-  { bulkActions: false, pagination: true },
+  { bulkActions: false, pagination: true, rowClick: "edit", expandSingle: false },
 );
 
 const slots = useSlots();
@@ -57,8 +85,34 @@ const hasBulkActions = computed(
   () => props.bulkActions || slots.bulkActions != null,
 );
 
+const resource = useResourceContext();
+const expandEnabled = computed(() => slots.expand != null);
+const expandedIds = ref<Identifier[]>([]);
+
+const canExpand = (record: LooseRecord): boolean =>
+  props.isRowExpandable?.(record) ?? true;
+
+function toggleExpand(id: Identifier) {
+  if (expandedIds.value.includes(id)) {
+    expandedIds.value = expandedIds.value.filter((x) => x !== id);
+  } else {
+    expandedIds.value = props.expandSingle ? [id] : [...expandedIds.value, id];
+  }
+}
+
+provide(DataTableRowsKey, {
+  rowClick: computed(() => props.rowClick),
+  expandEnabled,
+  expandedIds,
+  toggleExpand,
+  canExpand,
+});
+
 const rows = computed<LooseRecord[]>(() => (list.data ?? []) as LooseRecord[]);
 const isEmpty = computed(() => !list.isPending && rows.value.length === 0);
+
+const rowId = (record: LooseRecord): Identifier =>
+  (record as { id: Identifier }).id;
 
 const rowKey = (record: LooseRecord): string =>
   String((record as { id?: unknown }).id);
@@ -75,6 +129,37 @@ const allSelected = computed(() => {
     selectableIds.value.every((id) => selected.includes(id))
   );
 });
+
+// The expand-all button collapses when a row on this page is open, else opens
+// every expandable row on the page. Ids of rows that left the page (paging,
+// filtering, deletion) don't count.
+const anyExpanded = computed(() =>
+  rows.value.some((r) => expandedIds.value.includes(rowId(r))),
+);
+
+function handleToggleExpandAll() {
+  expandedIds.value = anyExpanded.value
+    ? []
+    : rows.value.filter(canExpand).map(rowId);
+}
+
+// The expand panel spans every column: the leading cells plus one per column
+// child. Counted from the slot on each render, so a column that comes or goes
+// after mount is picked up (as React's `Children.count` does).
+const countVNodes = (nodes: VNode[]): number =>
+  nodes.reduce(
+    (n, node) =>
+      node.type === Comment
+        ? n
+        : node.type === Fragment
+          ? n + countVNodes((node.children ?? []) as VNode[])
+          : n + 1,
+    0,
+  );
+const columnCount = (): number =>
+  countVNodes(slots.default?.() ?? []) +
+  (hasBulkActions.value ? 1 : 0) +
+  (expandEnabled.value ? 1 : 0);
 
 function handleToggleSelectAll(checked: boolean) {
   const selected = list.selectedIds ?? [];
@@ -100,6 +185,18 @@ function handleToggleSelectAll(checked: boolean) {
               @update:model-value="handleToggleSelectAll"
             />
           </TableHead>
+          <TableHead v-if="expandEnabled" class="w-8">
+            <Button
+              v-if="!expandSingle"
+              variant="ghost"
+              size="icon"
+              class="size-7"
+              :aria-label="anyExpanded ? 'Collapse all rows' : 'Expand all rows'"
+              @click.stop="handleToggleExpandAll"
+            >
+              <ChevronsUpDownIcon />
+            </Button>
+          </TableHead>
           <PassProvider pass="header">
             <slot />
           </PassProvider>
@@ -113,14 +210,32 @@ function handleToggleSelectAll(checked: boolean) {
           <TableCell data-slot="data-table-empty">No results found.</TableCell>
         </TableRow>
         <template v-else>
-          <DataTableRow
-            v-for="record in rows"
-            :key="rowKey(record)"
-            :record="record"
-            :has-bulk-actions="hasBulkActions"
-          >
-            <slot />
-          </DataTableRow>
+          <template v-for="(record, index) in rows" :key="rowKey(record)">
+            <DataTableRow
+              :record="record"
+              :has-bulk-actions="hasBulkActions"
+              :class="rowClass?.(record, index) || undefined"
+            >
+              <slot />
+            </DataTableRow>
+            <TableRow
+              v-if="
+                expandEnabled &&
+                canExpand(record) &&
+                expandedIds.includes(rowId(record))
+              "
+              data-slot="data-table-expand-panel"
+            >
+              <TableCell :colspan="columnCount()">
+                <slot
+                  name="expand"
+                  :id="rowId(record)"
+                  :record="record"
+                  :resource="resource ?? ''"
+                />
+              </TableCell>
+            </TableRow>
+          </template>
         </template>
       </TableBody>
     </Table>
