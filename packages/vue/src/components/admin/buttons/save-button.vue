@@ -34,7 +34,7 @@ import Button from "../../ui/button.vue";
 
 const props = withDefaults(
   defineProps<SaveButtonProps>(),
-  { label: "chelone.action.save", alwaysEnable: false, variant: "default" },
+  { label: "ra.action.save", alwaysEnable: false, variant: "default" },
 );
 
 const { form, submit } = useCheloneFormContext();
@@ -65,7 +65,12 @@ const disabled = computed(() => {
   );
 });
 
-const displayedLabel = computed(() => translate(props.label));
+// An uncatalogued default key still reads "Save"; a custom literal label stays itself.
+const displayedLabel = computed(() =>
+  translate(props.label, {
+    _: props.label === "ra.action.save" ? "Save" : props.label,
+  }),
+);
 
 async function onClick() {
   if (submit) await submit();

@@ -70,7 +70,7 @@ async function onClick(): Promise<void> {
     await exporter(data, dataProvider, resource as string);
   } catch (error) {
     console.error(error);
-    notifications?.notify("ra.notification.http_error", { type: "error" });
+    notifications?.notify("chelone.notification.http_error", { type: "error" });
   }
 }
 </script>
