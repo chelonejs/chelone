@@ -1,0 +1,3697 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "Chelone",
+  "homepage": "https://chelone.dev/",
+  "items": [
+    {
+      "name": "ui",
+      "type": "registry:block",
+      "title": "Chelone UI Primitives",
+      "categories": ["chelone", "ui"],
+      "description": "The shadcn/ui primitive layer Chelone components compose (button, card, dialog, field, sidebar, table, …), shipped verbatim so consumers can install a single primitive or the whole set.",
+      "registryDependencies": ["@chelone/lib-utils"],
+      "files": [
+        {
+          "path": "src/components/ui/avatar.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/badge.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/button-variants.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/card.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/checkbox.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/context.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/dropdown-menu-content.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/dropdown-menu-item.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/dropdown-menu-trigger.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/dropdown-menu.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/parts.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/field.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/native-select.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/sidebar/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/sidebar/sidebar-context.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/sidebar/sidebar-menu-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/sidebar/sidebar-parts.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/sidebar/sidebar-provider.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/sidebar/sidebar-trigger.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/sidebar/sidebar.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/skeleton.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/spinner.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/switch.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/table.ts",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "Avatar",
+      "files": [
+        {
+          "path": "src/components/ui/avatar.ts",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "Badge",
+      "files": [
+        {
+          "path": "src/components/ui/badge.ts",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "button-variants",
+      "type": "registry:ui",
+      "title": "Button Variants",
+      "files": [
+        {
+          "path": "src/components/ui/button-variants.ts",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "files": [
+        {
+          "path": "src/components/ui/button.vue",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/button-variants"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "title": "Card",
+      "files": [
+        {
+          "path": "src/components/ui/card.ts",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "title": "Checkbox",
+      "files": [
+        {
+          "path": "src/components/ui/checkbox.vue",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "title": "Dropdown Menu",
+      "files": [
+        {
+          "path": "src/components/ui/dropdown-menu/context.ts",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/dropdown-menu-content.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/dropdown-menu-item.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/dropdown-menu-trigger.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/dropdown-menu.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/index.ts",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/dropdown-menu/parts.ts",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "field",
+      "type": "registry:ui",
+      "title": "Field",
+      "files": [
+        {
+          "path": "src/components/ui/field.ts",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "title": "Input",
+      "files": [
+        {
+          "path": "src/components/ui/input.vue",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "native-select",
+      "type": "registry:ui",
+      "title": "Native Select",
+      "files": [
+        {
+          "path": "src/components/ui/native-select.vue",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "sidebar",
+      "type": "registry:ui",
+      "title": "Sidebar",
+      "files": [
+        {
+          "path": "src/components/ui/sidebar/index.ts",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/sidebar/sidebar-context.ts",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/sidebar/sidebar-menu-button.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/sidebar/sidebar-parts.ts",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/sidebar/sidebar-provider.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/sidebar/sidebar-trigger.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/sidebar/sidebar.vue",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "files": [
+        {
+          "path": "src/components/ui/skeleton.vue",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "ui-spinner",
+      "type": "registry:ui",
+      "title": "Ui Spinner",
+      "files": [
+        {
+          "path": "src/components/ui/spinner.vue",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "switch",
+      "type": "registry:ui",
+      "title": "Switch",
+      "files": [
+        {
+          "path": "src/components/ui/switch.vue",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "table",
+      "type": "registry:ui",
+      "title": "Table",
+      "files": [
+        {
+          "path": "src/components/ui/table.ts",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "admin",
+      "type": "registry:block",
+      "title": "Chelone Admin",
+      "categories": ["chelone", "dashboard"],
+      "description": "The Chelone admin component surface (Admin, List, Edit, DataTable, TextField, TextInput, the auth pages, layout, buttons, fields, inputs, and views) wired onto the @chelone/vue composables. Granularizes so each component installs on its own.",
+      "registryDependencies": [
+        "@chelone/avatar",
+        "@chelone/badge",
+        "@chelone/button",
+        "@chelone/button-variants",
+        "@chelone/card",
+        "@chelone/checkbox",
+        "@chelone/dropdown-menu",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/native-select",
+        "@chelone/sidebar",
+        "@chelone/skeleton",
+        "@chelone/switch",
+        "@chelone/table",
+        "@chelone/ui-spinner"
+      ],
+      "files": [
+        {
+          "path": "src/components/admin/auth/access-denied.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/auth-callback.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/auth-error.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/auth-layout.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/authentication-error.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/can-access.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/icons.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/login-form.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/login-page.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/logout.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/bulk-delete-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/bulk-export-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/bulk-update-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/cancel-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/create-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/delete-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/edit-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/export-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/export.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/filter-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/icons.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/list-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/refresh-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/save-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/show-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/sidebar-toggle-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/sort-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/toolbar.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/common/field-label-text.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/common/input-helper-text.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/common/keyboard-shortcut.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/common/validation-error.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/confirm.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/error.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/icons.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/linear-progress.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/loading.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/notification.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/ready.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/spinner.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/use-timeout.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/api-key-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/array-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/badge-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/boolean-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/chip-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/color-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/cron-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/currency-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/date-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/duration-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/email-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/file-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/function-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/get-path.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/image-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/number-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/phone-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/rating-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/record-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/reference-array-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/reference-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/reference-many-count.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/reference-many-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/reference-one-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/select-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/subscription-plan-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/text-array-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/text-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/url-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/usage-meter-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/webhook-endpoint-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/wrapper-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/api-key-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/array-input-row.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/array-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/autocomplete-array-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/autocomplete-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/boolean-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/checkbox-group-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/choice-input-props.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/color-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/cron-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/cron-utils.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/currency-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/datagrid-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/date-input-format.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/date-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/date-time-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/duration-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/duration-utils.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/file-input-preview.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/file-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/image-input-thumbnail.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/image-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/label-text.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/nullable-boolean-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/number-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/password-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/phone-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/radio-button-group-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/rating-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/reference-array-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/reference-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/resettable-text-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/search-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/select-array-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/select-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/subscription-plan-picker.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/text-array-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/text-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/time-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/use-choice-input.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/webhook-endpoint-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/app-bar.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/app-sidebar.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/dashboard-menu-item.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/icons.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/layout.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/menu-item-link.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/menu.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/resource-menu-item-group.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/resource-menu-item.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/theme-context.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/theme-mode-toggle.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/theme-provider.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/title-portal-id.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/title-portal.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/title.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/use-menu-access.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/user-menu-inner.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/user-menu.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/bulk-actions-toolbar.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/data-table-col.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/data-table-context.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/data-table-number-col.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/data-table-row.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/data-table.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/filter-form.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/infinite-pagination.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/list-icons.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/list-pagination.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/saved-queries-list.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/view/create.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/view/edit.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/view/infinite-list.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/view/list.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/view/show.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/lib/are-ids-equal.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "src/lib/shallow-equal.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "src/lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "cssVars": {
+        "light": {
+          "radius": "0.625rem",
+          "background": "oklch(1 0 0)",
+          "foreground": "oklch(0.145 0 0)",
+          "card": "oklch(1 0 0)",
+          "card-foreground": "oklch(0.145 0 0)",
+          "popover": "oklch(1 0 0)",
+          "popover-foreground": "oklch(0.145 0 0)",
+          "primary": "oklch(0.205 0 0)",
+          "primary-foreground": "oklch(0.985 0 0)",
+          "secondary": "oklch(0.97 0 0)",
+          "secondary-foreground": "oklch(0.205 0 0)",
+          "muted": "oklch(0.97 0 0)",
+          "muted-foreground": "oklch(0.556 0 0)",
+          "accent": "oklch(0.97 0 0)",
+          "accent-foreground": "oklch(0.205 0 0)",
+          "destructive": "oklch(0.577 0.245 27.325)",
+          "border": "oklch(0.922 0 0)",
+          "input": "oklch(0.922 0 0)",
+          "ring": "oklch(0.708 0 0)",
+          "chart-1": "oklch(0.646 0.222 41.116)",
+          "chart-2": "oklch(0.6 0.118 184.704)",
+          "chart-3": "oklch(0.398 0.07 227.392)",
+          "chart-4": "oklch(0.828 0.189 84.429)",
+          "chart-5": "oklch(0.769 0.188 70.08)",
+          "sidebar": "oklch(0.985 0 0)",
+          "sidebar-foreground": "oklch(0.145 0 0)",
+          "sidebar-primary": "oklch(0.205 0 0)",
+          "sidebar-primary-foreground": "oklch(0.985 0 0)",
+          "sidebar-accent": "oklch(0.97 0 0)",
+          "sidebar-accent-foreground": "oklch(0.205 0 0)",
+          "sidebar-border": "oklch(0.922 0 0)",
+          "sidebar-ring": "oklch(0.708 0 0)"
+        },
+        "dark": {
+          "background": "oklch(0.145 0 0)",
+          "foreground": "oklch(0.985 0 0)",
+          "card": "oklch(0.205 0 0)",
+          "card-foreground": "oklch(0.985 0 0)",
+          "popover": "oklch(0.205 0 0)",
+          "popover-foreground": "oklch(0.985 0 0)",
+          "primary": "oklch(0.922 0 0)",
+          "primary-foreground": "oklch(0.205 0 0)",
+          "secondary": "oklch(0.269 0 0)",
+          "secondary-foreground": "oklch(0.985 0 0)",
+          "muted": "oklch(0.269 0 0)",
+          "muted-foreground": "oklch(0.708 0 0)",
+          "accent": "oklch(0.269 0 0)",
+          "accent-foreground": "oklch(0.985 0 0)",
+          "destructive": "oklch(0.704 0.191 22.216)",
+          "border": "oklch(1 0 0 / 10%)",
+          "input": "oklch(1 0 0 / 15%)",
+          "ring": "oklch(0.556 0 0)",
+          "chart-1": "oklch(0.488 0.243 264.376)",
+          "chart-2": "oklch(0.696 0.17 162.48)",
+          "chart-3": "oklch(0.769 0.188 70.08)",
+          "chart-4": "oklch(0.627 0.265 303.9)",
+          "chart-5": "oklch(0.645 0.246 16.439)",
+          "sidebar": "oklch(0.205 0 0)",
+          "sidebar-foreground": "oklch(0.985 0 0)",
+          "sidebar-primary": "oklch(0.488 0.243 264.376)",
+          "sidebar-primary-foreground": "oklch(0.985 0 0)",
+          "sidebar-accent": "oklch(0.269 0 0)",
+          "sidebar-accent-foreground": "oklch(0.985 0 0)",
+          "sidebar-border": "oklch(1 0 0 / 10%)",
+          "sidebar-ring": "oklch(0.556 0 0)"
+        }
+      },
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "access-denied",
+      "type": "registry:component",
+      "title": "Access Denied",
+      "files": [
+        {
+          "path": "src/components/admin/auth/access-denied.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/auth-icons", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "auth-callback",
+      "type": "registry:component",
+      "title": "Auth Callback",
+      "files": [
+        {
+          "path": "src/components/admin/auth/auth-callback.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/auth-error", "@chelone/ui-spinner"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "auth-error",
+      "type": "registry:component",
+      "title": "Auth Error",
+      "files": [
+        {
+          "path": "src/components/admin/auth/auth-error.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/auth-icons",
+        "@chelone/button-variants",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "auth-layout",
+      "type": "registry:component",
+      "title": "Auth Layout",
+      "files": [
+        {
+          "path": "src/components/admin/auth/auth-layout.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/notification"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "authentication-error",
+      "type": "registry:component",
+      "title": "Authentication Error",
+      "files": [
+        {
+          "path": "src/components/admin/auth/authentication-error.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/access-denied", "@chelone/auth-icons"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "can-access",
+      "type": "registry:component",
+      "title": "Can Access",
+      "files": [
+        {
+          "path": "src/components/admin/auth/can-access.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/use-menu-access"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "auth-icons",
+      "type": "registry:component",
+      "title": "Auth Icons",
+      "files": [
+        {
+          "path": "src/components/admin/auth/icons.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "login-form",
+      "type": "registry:component",
+      "title": "Login Form",
+      "files": [
+        {
+          "path": "src/components/admin/auth/login-form.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-input",
+        "@chelone/ui-spinner"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "login-page",
+      "type": "registry:component",
+      "title": "Login Page",
+      "files": [
+        {
+          "path": "src/components/admin/auth/login-page.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/auth-layout", "@chelone/login-form"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "logout",
+      "type": "registry:component",
+      "title": "Logout",
+      "files": [
+        {
+          "path": "src/components/admin/auth/logout.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/dropdown-menu",
+        "@chelone/layout-icons",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bulk-delete-button",
+      "type": "registry:component",
+      "title": "Bulk Delete Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/bulk-delete-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/confirm"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bulk-export-button",
+      "type": "registry:component",
+      "title": "Bulk Export Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/bulk-export-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/export"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bulk-update-button",
+      "type": "registry:component",
+      "title": "Bulk Update Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/bulk-update-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/button-icons"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "cancel-button",
+      "type": "registry:component",
+      "title": "Cancel Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/cancel-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/button-icons"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "create-button",
+      "type": "registry:component",
+      "title": "Create Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/create-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button-icons",
+        "@chelone/button-variants",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "delete-button",
+      "type": "registry:component",
+      "title": "Delete Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/delete-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/confirm",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "edit-button",
+      "type": "registry:component",
+      "title": "Edit Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/edit-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button-icons",
+        "@chelone/button-variants",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "export-button",
+      "type": "registry:component",
+      "title": "Export Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/export-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/export"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "export",
+      "type": "registry:component",
+      "title": "Export",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/export.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "filter-button",
+      "type": "registry:component",
+      "title": "Filter Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/filter-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/dropdown-menu",
+        "@chelone/label-text"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "button-icons",
+      "type": "registry:component",
+      "title": "Button Icons",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/icons.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "list-button",
+      "type": "registry:component",
+      "title": "List Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/list-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button-icons",
+        "@chelone/button-variants"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "refresh-button",
+      "type": "registry:component",
+      "title": "Refresh Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/refresh-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/button-icons"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "save-button",
+      "type": "registry:component",
+      "title": "Save Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/save-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "show-button",
+      "type": "registry:component",
+      "title": "Show Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/show-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button-icons",
+        "@chelone/button-variants",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "sidebar-toggle-button",
+      "type": "registry:component",
+      "title": "Sidebar Toggle Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/sidebar-toggle-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/sidebar"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "sort-button",
+      "type": "registry:component",
+      "title": "Sort Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/sort-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/dropdown-menu",
+        "@chelone/label-text"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "toolbar",
+      "type": "registry:component",
+      "title": "Toolbar",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/toolbar.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/save-button"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "field-label-text",
+      "type": "registry:component",
+      "title": "Field Label Text",
+      "files": [
+        {
+          "path": "src/components/admin/common/field-label-text.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "input-helper-text",
+      "type": "registry:component",
+      "title": "Input Helper Text",
+      "files": [
+        {
+          "path": "src/components/admin/common/input-helper-text.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/field"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "keyboard-shortcut",
+      "type": "registry:component",
+      "title": "Keyboard Shortcut",
+      "files": [
+        {
+          "path": "src/components/admin/common/keyboard-shortcut.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "validation-error",
+      "type": "registry:component",
+      "title": "Validation Error",
+      "files": [
+        {
+          "path": "src/components/admin/common/validation-error.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "confirm",
+      "type": "registry:component",
+      "title": "Confirm",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/confirm.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button-variants",
+        "@chelone/feedback-icons",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "error",
+      "type": "registry:component",
+      "title": "Error",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/error.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/feedback-icons", "@chelone/title"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "feedback-icons",
+      "type": "registry:component",
+      "title": "Feedback Icons",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/icons.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "linear-progress",
+      "type": "registry:component",
+      "title": "Linear Progress",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/linear-progress.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/use-timeout"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "loading",
+      "type": "registry:component",
+      "title": "Loading",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/loading.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/spinner", "@chelone/use-timeout"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "notification",
+      "type": "registry:component",
+      "title": "Notification",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/notification.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "ready",
+      "type": "registry:component",
+      "title": "Ready",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/ready.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/feedback-icons"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "spinner",
+      "type": "registry:component",
+      "title": "Spinner",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/spinner.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/ui-spinner"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-timeout",
+      "type": "registry:component",
+      "title": "Use Timeout",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/use-timeout.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "api-key-field",
+      "type": "registry:component",
+      "title": "Api Key Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/api-key-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "array-field",
+      "type": "registry:component",
+      "title": "Array Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/array-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "badge-field",
+      "type": "registry:component",
+      "title": "Badge Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/badge-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/badge"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "boolean-field",
+      "type": "registry:component",
+      "title": "Boolean Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/boolean-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "chip-field",
+      "type": "registry:component",
+      "title": "Chip Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/chip-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/badge", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "color-field",
+      "type": "registry:component",
+      "title": "Color Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/color-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "cron-field",
+      "type": "registry:component",
+      "title": "Cron Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/cron-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/cron-utils", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "currency-field",
+      "type": "registry:component",
+      "title": "Currency Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/currency-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "date-field",
+      "type": "registry:component",
+      "title": "Date Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/date-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "duration-field",
+      "type": "registry:component",
+      "title": "Duration Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/duration-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/duration-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "email-field",
+      "type": "registry:component",
+      "title": "Email Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/email-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "file-field",
+      "type": "registry:component",
+      "title": "File Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/file-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/get-path", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "function-field",
+      "type": "registry:component",
+      "title": "Function Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/function-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "get-path",
+      "type": "registry:component",
+      "title": "Get Path",
+      "files": [
+        {
+          "path": "src/components/admin/fields/get-path.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "image-field",
+      "type": "registry:component",
+      "title": "Image Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/image-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/get-path", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "number-field",
+      "type": "registry:component",
+      "title": "Number Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/number-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "phone-field",
+      "type": "registry:component",
+      "title": "Phone Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/phone-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "libphonenumber-js"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rating-field",
+      "type": "registry:component",
+      "title": "Rating Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/rating-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "record-field",
+      "type": "registry:component",
+      "title": "Record Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/record-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/label-text",
+        "@chelone/lib-utils",
+        "@chelone/text-field"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-array-field",
+      "type": "registry:component",
+      "title": "Reference Array Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/reference-array-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-field",
+      "type": "registry:component",
+      "title": "Reference Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/reference-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-many-count",
+      "type": "registry:component",
+      "title": "Reference Many Count",
+      "files": [
+        {
+          "path": "src/components/admin/fields/reference-many-count.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-many-field",
+      "type": "registry:component",
+      "title": "Reference Many Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/reference-many-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-one-field",
+      "type": "registry:component",
+      "title": "Reference One Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/reference-one-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "select-field",
+      "type": "registry:component",
+      "title": "Select Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/select-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "subscription-plan-field",
+      "type": "registry:component",
+      "title": "Subscription Plan Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/subscription-plan-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/subscription-plan-picker"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "text-array-field",
+      "type": "registry:component",
+      "title": "Text Array Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/text-array-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/badge", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "text-field",
+      "type": "registry:component",
+      "title": "Text Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/text-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "url-field",
+      "type": "registry:component",
+      "title": "Url Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/url-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "usage-meter-field",
+      "type": "registry:component",
+      "title": "Usage Meter Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/usage-meter-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "webhook-endpoint-field",
+      "type": "registry:component",
+      "title": "Webhook Endpoint Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/webhook-endpoint-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "wrapper-field",
+      "type": "registry:component",
+      "title": "Wrapper Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/wrapper-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "api-key-input",
+      "type": "registry:component",
+      "title": "Api Key Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/api-key-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "array-input-row",
+      "type": "registry:component",
+      "title": "Array Input Row",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/array-input-row.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "array-input",
+      "type": "registry:component",
+      "title": "Array Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/array-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/array-input-row",
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "autocomplete-array-input",
+      "type": "registry:component",
+      "title": "Autocomplete Array Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/autocomplete-array-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/choice-input-props",
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/lib-are-ids-equal",
+        "@chelone/use-choice-input",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "autocomplete-input",
+      "type": "registry:component",
+      "title": "Autocomplete Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/autocomplete-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/choice-input-props",
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/lib-are-ids-equal",
+        "@chelone/use-choice-input",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "boolean-input",
+      "type": "registry:component",
+      "title": "Boolean Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/boolean-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/switch",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "checkbox-group-input",
+      "type": "registry:component",
+      "title": "Checkbox Group Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/checkbox-group-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/checkbox",
+        "@chelone/choice-input-props",
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/use-choice-input",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "choice-input-props",
+      "type": "registry:component",
+      "title": "Choice Input Props",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/choice-input-props.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "color-input",
+      "type": "registry:component",
+      "title": "Color Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/color-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/lib-utils",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "cron-input",
+      "type": "registry:component",
+      "title": "Cron Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/cron-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/cron-utils",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/label-text",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "cron-utils",
+      "type": "registry:component",
+      "title": "Cron Utils",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/cron-utils.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["cronstrue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "currency-input",
+      "type": "registry:component",
+      "title": "Currency Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/currency-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/label-text",
+        "@chelone/lib-utils",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "datagrid-input",
+      "type": "registry:component",
+      "title": "Datagrid Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/datagrid-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/checkbox",
+        "@chelone/choice-input-props",
+        "@chelone/field",
+        "@chelone/table",
+        "@chelone/use-choice-input",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "date-input-format",
+      "type": "registry:component",
+      "title": "Date Input Format",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/date-input-format.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "date-input",
+      "type": "registry:component",
+      "title": "Date Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/date-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/date-input-format",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/label-text",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "date-time-input",
+      "type": "registry:component",
+      "title": "Date Time Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/date-time-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/date-input-format",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/label-text",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "duration-input",
+      "type": "registry:component",
+      "title": "Duration Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/duration-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/duration-utils",
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/lib-utils",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "duration-utils",
+      "type": "registry:component",
+      "title": "Duration Utils",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/duration-utils.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "file-input-preview",
+      "type": "registry:component",
+      "title": "File Input Preview",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/file-input-preview.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "file-input",
+      "type": "registry:component",
+      "title": "File Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/file-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/file-input-preview",
+        "@chelone/label-text",
+        "@chelone/lib-shallow-equal",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "image-input-thumbnail",
+      "type": "registry:component",
+      "title": "Image Input Thumbnail",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/image-input-thumbnail.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "image-input",
+      "type": "registry:component",
+      "title": "Image Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/image-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/file-input",
+        "@chelone/image-input-thumbnail"
+      ],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "label-text",
+      "type": "registry:component",
+      "title": "Label Text",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/label-text.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "nullable-boolean-input",
+      "type": "registry:component",
+      "title": "Nullable Boolean Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/nullable-boolean-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/lib-utils",
+        "@chelone/native-select",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "number-input",
+      "type": "registry:component",
+      "title": "Number Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/number-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/label-text",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "password-input",
+      "type": "registry:component",
+      "title": "Password Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/password-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-input"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "phone-input",
+      "type": "registry:component",
+      "title": "Phone Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/phone-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/label-text",
+        "@chelone/lib-utils",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "libphonenumber-js"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "radio-button-group-input",
+      "type": "registry:component",
+      "title": "Radio Button Group Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/radio-button-group-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/choice-input-props",
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/use-choice-input",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rating-input",
+      "type": "registry:component",
+      "title": "Rating Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/rating-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-array-input",
+      "type": "registry:component",
+      "title": "Reference Array Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/reference-array-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/autocomplete-array-input"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-input",
+      "type": "registry:component",
+      "title": "Reference Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/reference-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/native-select",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "resettable-text-input",
+      "type": "registry:component",
+      "title": "Resettable Text Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/resettable-text-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-input"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "search-input",
+      "type": "registry:component",
+      "title": "Search Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/search-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-input"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "select-array-input",
+      "type": "registry:component",
+      "title": "Select Array Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/select-array-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/checkbox",
+        "@chelone/choice-input-props",
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/use-choice-input",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "select-input",
+      "type": "registry:component",
+      "title": "Select Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/select-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/choice-input-props",
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/use-choice-input",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "subscription-plan-picker",
+      "type": "registry:component",
+      "title": "Subscription Plan Picker",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/subscription-plan-picker.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/lib-utils",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "text-array-input",
+      "type": "registry:component",
+      "title": "Text Array Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/text-array-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/label-text",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "text-input",
+      "type": "registry:component",
+      "title": "Text Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/text-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/label-text",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "time-input",
+      "type": "registry:component",
+      "title": "Time Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/time-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/date-input-format",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/label-text",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-choice-input",
+      "type": "registry:component",
+      "title": "Use Choice Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/use-choice-input.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "webhook-endpoint-input",
+      "type": "registry:component",
+      "title": "Webhook Endpoint Input",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/webhook-endpoint-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/checkbox",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/label-text",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "app-bar",
+      "type": "registry:component",
+      "title": "App Bar",
+      "files": [
+        {
+          "path": "src/components/admin/layout/app-bar.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/sidebar",
+        "@chelone/theme-mode-toggle",
+        "@chelone/title-portal",
+        "@chelone/user-menu"
+      ],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "app-sidebar",
+      "type": "registry:component",
+      "title": "App Sidebar",
+      "files": [
+        {
+          "path": "src/components/admin/layout/app-sidebar.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/menu", "@chelone/sidebar"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "dashboard-menu-item",
+      "type": "registry:component",
+      "title": "Dashboard Menu Item",
+      "files": [
+        {
+          "path": "src/components/admin/layout/dashboard-menu-item.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/layout-icons",
+        "@chelone/menu-item-link"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "layout-icons",
+      "type": "registry:component",
+      "title": "Layout Icons",
+      "files": [
+        {
+          "path": "src/components/admin/layout/icons.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "layout",
+      "type": "registry:component",
+      "title": "Layout",
+      "files": [
+        {
+          "path": "src/components/admin/layout/layout.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/app-bar",
+        "@chelone/app-sidebar",
+        "@chelone/notification",
+        "@chelone/sidebar"
+      ],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "menu-item-link",
+      "type": "registry:component",
+      "title": "Menu Item Link",
+      "files": [
+        {
+          "path": "src/components/admin/layout/menu-item-link.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/sidebar"],
+      "dependencies": ["@chelone/vue"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "menu",
+      "type": "registry:component",
+      "title": "Menu",
+      "files": [
+        {
+          "path": "src/components/admin/layout/menu.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/dashboard-menu-item",
+        "@chelone/resource-menu-item-group",
+        "@chelone/sidebar"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "resource-menu-item-group",
+      "type": "registry:component",
+      "title": "Resource Menu Item Group",
+      "files": [
+        {
+          "path": "src/components/admin/layout/resource-menu-item-group.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/resource-menu-item",
+        "@chelone/sidebar"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "resource-menu-item",
+      "type": "registry:component",
+      "title": "Resource Menu Item",
+      "files": [
+        {
+          "path": "src/components/admin/layout/resource-menu-item.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/layout-icons",
+        "@chelone/menu-item-link",
+        "@chelone/skeleton",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "theme-context",
+      "type": "registry:component",
+      "title": "Theme Context",
+      "files": [
+        {
+          "path": "src/components/admin/layout/theme-context.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "theme-mode-toggle",
+      "type": "registry:component",
+      "title": "Theme Mode Toggle",
+      "files": [
+        {
+          "path": "src/components/admin/layout/theme-mode-toggle.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/theme-context"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "theme-provider",
+      "type": "registry:component",
+      "title": "Theme Provider",
+      "files": [
+        {
+          "path": "src/components/admin/layout/theme-provider.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/theme-context"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "title-portal-id",
+      "type": "registry:component",
+      "title": "Title Portal Id",
+      "files": [
+        {
+          "path": "src/components/admin/layout/title-portal-id.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "title-portal",
+      "type": "registry:component",
+      "title": "Title Portal",
+      "files": [
+        {
+          "path": "src/components/admin/layout/title-portal.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/title-portal-id"
+      ],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "title",
+      "type": "registry:component",
+      "title": "Title",
+      "files": [
+        {
+          "path": "src/components/admin/layout/title.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/title-portal-id"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-menu-access",
+      "type": "registry:component",
+      "title": "Use Menu Access",
+      "files": [
+        {
+          "path": "src/components/admin/layout/use-menu-access.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "devDependencies": ["@tanstack/vue-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "user-menu-inner",
+      "type": "registry:component",
+      "title": "User Menu Inner",
+      "files": [
+        {
+          "path": "src/components/admin/layout/user-menu-inner.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/avatar",
+        "@chelone/button",
+        "@chelone/dropdown-menu",
+        "@chelone/logout",
+        "@chelone/skeleton"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "user-menu",
+      "type": "registry:component",
+      "title": "User Menu",
+      "files": [
+        {
+          "path": "src/components/admin/layout/user-menu.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/user-menu-inner"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bulk-actions-toolbar",
+      "type": "registry:component",
+      "title": "Bulk Actions Toolbar",
+      "files": [
+        {
+          "path": "src/components/admin/list/bulk-actions-toolbar.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/list-icons"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-table-col",
+      "type": "registry:component",
+      "title": "Data Table Col",
+      "files": [
+        {
+          "path": "src/components/admin/list/data-table-col.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/data-table-context",
+        "@chelone/field-label-text",
+        "@chelone/lib-utils",
+        "@chelone/table"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-table-context",
+      "type": "registry:component",
+      "title": "Data Table Context",
+      "files": [
+        {
+          "path": "src/components/admin/list/data-table-context.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-table-number-col",
+      "type": "registry:component",
+      "title": "Data Table Number Col",
+      "files": [
+        {
+          "path": "src/components/admin/list/data-table-number-col.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/data-table-col",
+        "@chelone/lib-utils",
+        "@chelone/number-field"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-table-row",
+      "type": "registry:component",
+      "title": "Data Table Row",
+      "files": [
+        {
+          "path": "src/components/admin/list/data-table-row.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/checkbox",
+        "@chelone/data-table-context",
+        "@chelone/list-icons",
+        "@chelone/table"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-table",
+      "type": "registry:component",
+      "title": "Data Table",
+      "files": [
+        {
+          "path": "src/components/admin/list/data-table.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/bulk-actions-toolbar",
+        "@chelone/button",
+        "@chelone/checkbox",
+        "@chelone/data-table-context",
+        "@chelone/data-table-row",
+        "@chelone/list-icons",
+        "@chelone/list-pagination",
+        "@chelone/table"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "filter-form",
+      "type": "registry:component",
+      "title": "Filter Form",
+      "files": [
+        {
+          "path": "src/components/admin/list/filter-form.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "infinite-pagination",
+      "type": "registry:component",
+      "title": "Infinite Pagination",
+      "files": [
+        {
+          "path": "src/components/admin/list/infinite-pagination.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "list-icons",
+      "type": "registry:component",
+      "title": "List Icons",
+      "files": [
+        {
+          "path": "src/components/admin/list/list-icons.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "list-pagination",
+      "type": "registry:component",
+      "title": "List Pagination",
+      "files": [
+        {
+          "path": "src/components/admin/list/list-pagination.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/list-icons",
+        "@chelone/native-select"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "saved-queries-list",
+      "type": "registry:component",
+      "title": "Saved Queries List",
+      "files": [
+        {
+          "path": "src/components/admin/list/saved-queries-list.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/input",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "create",
+      "type": "registry:component",
+      "title": "Create",
+      "files": [
+        {
+          "path": "src/components/admin/view/create.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "edit",
+      "type": "registry:component",
+      "title": "Edit",
+      "files": [
+        {
+          "path": "src/components/admin/view/edit.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "infinite-list",
+      "type": "registry:component",
+      "title": "Infinite List",
+      "files": [
+        {
+          "path": "src/components/admin/view/infinite-list.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "list",
+      "type": "registry:component",
+      "title": "List",
+      "files": [
+        {
+          "path": "src/components/admin/view/list.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "show",
+      "type": "registry:component",
+      "title": "Show",
+      "files": [
+        {
+          "path": "src/components/admin/view/show.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lib-are-ids-equal",
+      "type": "registry:lib",
+      "title": "Lib Are Ids Equal",
+      "files": [
+        {
+          "path": "src/lib/are-ids-equal.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "categories": ["chelone", "library"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lib-shallow-equal",
+      "type": "registry:lib",
+      "title": "Lib Shallow Equal",
+      "files": [
+        {
+          "path": "src/lib/shallow-equal.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "categories": ["chelone", "library"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lib-utils",
+      "type": "registry:lib",
+      "title": "Lib Utils",
+      "files": [
+        {
+          "path": "src/lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "categories": ["chelone", "library"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "style-chelone",
+      "type": "registry:base",
+      "title": "Chelone",
+      "description": "Chelone's base configuration: the vanilla shadcn New York style with the neutral base color, Lucide icons, and CSS-variable theming. Install first to set sensible components.json defaults, then add Chelone components.",
+      "config": {
+        "style": "new-york",
+        "tailwind": {
+          "config": "",
+          "css": "src/index.css",
+          "baseColor": "neutral",
+          "cssVariables": true,
+          "prefix": ""
+        },
+        "iconLibrary": "lucide",
+        "aliases": {
+          "components": "@/components",
+          "utils": "@/lib/utils",
+          "ui": "@/components/ui",
+          "lib": "@/lib"
+        }
+      },
+      "cssVars": {
+        "light": {
+          "radius": "0.625rem",
+          "background": "oklch(1 0 0)",
+          "foreground": "oklch(0.145 0 0)",
+          "card": "oklch(1 0 0)",
+          "card-foreground": "oklch(0.145 0 0)",
+          "popover": "oklch(1 0 0)",
+          "popover-foreground": "oklch(0.145 0 0)",
+          "primary": "oklch(0.205 0 0)",
+          "primary-foreground": "oklch(0.985 0 0)",
+          "secondary": "oklch(0.97 0 0)",
+          "secondary-foreground": "oklch(0.205 0 0)",
+          "muted": "oklch(0.97 0 0)",
+          "muted-foreground": "oklch(0.556 0 0)",
+          "accent": "oklch(0.97 0 0)",
+          "accent-foreground": "oklch(0.205 0 0)",
+          "destructive": "oklch(0.577 0.245 27.325)",
+          "border": "oklch(0.922 0 0)",
+          "input": "oklch(0.922 0 0)",
+          "ring": "oklch(0.708 0 0)",
+          "chart-1": "oklch(0.646 0.222 41.116)",
+          "chart-2": "oklch(0.6 0.118 184.704)",
+          "chart-3": "oklch(0.398 0.07 227.392)",
+          "chart-4": "oklch(0.828 0.189 84.429)",
+          "chart-5": "oklch(0.769 0.188 70.08)",
+          "sidebar": "oklch(0.985 0 0)",
+          "sidebar-foreground": "oklch(0.145 0 0)",
+          "sidebar-primary": "oklch(0.205 0 0)",
+          "sidebar-primary-foreground": "oklch(0.985 0 0)",
+          "sidebar-accent": "oklch(0.97 0 0)",
+          "sidebar-accent-foreground": "oklch(0.205 0 0)",
+          "sidebar-border": "oklch(0.922 0 0)",
+          "sidebar-ring": "oklch(0.708 0 0)"
+        },
+        "dark": {
+          "background": "oklch(0.145 0 0)",
+          "foreground": "oklch(0.985 0 0)",
+          "card": "oklch(0.205 0 0)",
+          "card-foreground": "oklch(0.985 0 0)",
+          "popover": "oklch(0.205 0 0)",
+          "popover-foreground": "oklch(0.985 0 0)",
+          "primary": "oklch(0.922 0 0)",
+          "primary-foreground": "oklch(0.205 0 0)",
+          "secondary": "oklch(0.269 0 0)",
+          "secondary-foreground": "oklch(0.985 0 0)",
+          "muted": "oklch(0.269 0 0)",
+          "muted-foreground": "oklch(0.708 0 0)",
+          "accent": "oklch(0.269 0 0)",
+          "accent-foreground": "oklch(0.985 0 0)",
+          "destructive": "oklch(0.704 0.191 22.216)",
+          "border": "oklch(1 0 0 / 10%)",
+          "input": "oklch(1 0 0 / 15%)",
+          "ring": "oklch(0.556 0 0)",
+          "chart-1": "oklch(0.488 0.243 264.376)",
+          "chart-2": "oklch(0.696 0.17 162.48)",
+          "chart-3": "oklch(0.769 0.188 70.08)",
+          "chart-4": "oklch(0.627 0.265 303.9)",
+          "chart-5": "oklch(0.645 0.246 16.439)",
+          "sidebar": "oklch(0.205 0 0)",
+          "sidebar-foreground": "oklch(0.985 0 0)",
+          "sidebar-primary": "oklch(0.488 0.243 264.376)",
+          "sidebar-primary-foreground": "oklch(0.985 0 0)",
+          "sidebar-accent": "oklch(0.269 0 0)",
+          "sidebar-accent-foreground": "oklch(0.985 0 0)",
+          "sidebar-border": "oklch(1 0 0 / 10%)",
+          "sidebar-ring": "oklch(0.556 0 0)"
+        }
+      },
+      "files": [],
+      "author": "Chelone <https://chelone.dev>"
+    }
+  ]
+}

@@ -10,7 +10,8 @@
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "!dist/r"
   ],
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -34,7 +35,9 @@
     "build": "vite build && vue-tsc -p tsconfig.build.json && node ../../scripts/dts-extensions.mjs dist",
     "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only",
     "test": "vitest run --typecheck",
-    "typecheck": "vue-tsc --noEmit"
+    "typecheck": "vue-tsc --noEmit",
+    "registry:generate": "node ../../scripts/registry/generate-registry.mjs",
+    "registry:build": "node ../../scripts/registry/build-registry.mjs"
   },
   "dependencies": {
     "@chelone/core": "workspace:*",
@@ -53,6 +56,7 @@
     "@vue/test-utils": "^2.4.0",
     "jsdom": "^26.0.0",
     "publint": "^0.3.0",
+    "shadcn-vue": "2.9.0",
     "vite": "^7.0.0",
     "vitest": "^3.0.0",
     "vue": "^3.4.0",
