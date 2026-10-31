@@ -156,6 +156,10 @@ describe("<Admin> basename", () => {
       routes: [{ path: "/", component: Blank }],
     });
     await router.push(start);
+    const navigations: Array<{ path: string; failed: boolean }> = [];
+    router.afterEach((to, _from, failure) => {
+      navigations.push({ path: to.path, failed: failure != null });
+    });
     const wrapper = mount(Admin, {
       props: {
         dataProvider: fakeDataProvider({}),
@@ -169,6 +173,7 @@ describe("<Admin> basename", () => {
     expect(router.currentRoute.value.path).toBe("/admin/posts");
     expect(router.currentRoute.value.name).toBe("chelone-posts-list");
     expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
+    expect(navigations).toEqual([{ path: "/admin/posts", failed: false }]);
   });
 
   it.each([
