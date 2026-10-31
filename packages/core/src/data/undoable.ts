@@ -68,6 +68,13 @@ export interface UndoableHandle<TResult = unknown> {
  * the optimistic cache.
  */
 const pendingUndoables = new Set<UndoableHandle<unknown>>();
+const settledListeners = new Set<() => void>();
+
+/** Calls the listeners once no undoable is pending: after an undo, or after a commit's server call settles. */
+function notifySettled() {
+  if (pendingUndoables.size > 0) return;
+  for (const listener of [...settledListeners]) listener();
+}
 
 /** One undoable's place in its client's start order. */
 interface OpenUndoable {
@@ -200,6 +207,7 @@ export function startUndoableMutation<TResult = unknown>(
       state = "undone";
       pendingUndoables.delete(handle);
       rollback();
+      notifySettled();
     },
     commit() {
       // Idempotent: a second commit returns the first call's promise.
@@ -223,6 +231,8 @@ export function startUndoableMutation<TResult = unknown>(
           throw error;
         },
       );
+      // A separate branch, so the caller still sees the rejection.
+      commitPromise.then(notifySettled, notifySettled);
       return commitPromise;
     },
   };
@@ -234,6 +244,14 @@ export function startUndoableMutation<TResult = unknown>(
 /** True while at least one undoable mutation is still awaiting commit/undo. */
 export function hasPendingUndoables(): boolean {
   return pendingUndoables.size > 0;
+}
+
+/** Runs `listener` each time the last pending undoable mutation settles. */
+export function onUndoablesSettled(listener: () => void): () => void {
+  settledListeners.add(listener);
+  return () => {
+    settledListeners.delete(listener);
+  };
 }
 
 /**

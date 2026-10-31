@@ -128,17 +128,79 @@ describe("subscribeLiveResource", () => {
     expect(invalidate).not.toHaveBeenCalled();
   });
 
-  it("drops events while an undoable mutation is pending", async () => {
+  it("holds events while an undoable mutation is pending and replays them once it commits", async () => {
     const { ctx, emit, flush, invalidate } = setup();
     subscribeLiveResource(ctx, "posts");
     const handle = openUndoable(ctx.queryClient);
 
     await emit("resource/posts");
+    await emit("resource/posts");
     await flush();
     expect(invalidate).not.toHaveBeenCalled();
 
     await handle.commit();
+    await flush();
+    expect(invalidate).toHaveBeenCalledTimes(1);
+
     await emit("resource/posts");
+    await flush();
+    expect(invalidate).toHaveBeenCalledTimes(2);
+  });
+
+  it("replays held events when the undoable mutation is undone", async () => {
+    const { ctx, emit, flush, invalidate } = setup();
+    subscribeLiveResource(ctx, "posts");
+    const handle = openUndoable(ctx.queryClient);
+
+    await emit("resource/posts");
+    handle.undo();
+    await flush();
+
+    expect(invalidate).toHaveBeenCalledTimes(1);
+  });
+
+  it("waits for every pending undoable mutation before replaying", async () => {
+    const { ctx, emit, flush, invalidate } = setup();
+    subscribeLiveResource(ctx, "posts");
+    const first = openUndoable(ctx.queryClient);
+    const second = openUndoable(ctx.queryClient);
+
+    await emit("resource/posts");
+    first.undo();
+    await flush();
+    expect(invalidate).not.toHaveBeenCalled();
+
+    second.undo();
+    await flush();
+    expect(invalidate).toHaveBeenCalledTimes(1);
+  });
+
+  it("stop discards events held for a pending undoable mutation", async () => {
+    const { ctx, emit, flush, invalidate } = setup();
+    const live = subscribeLiveResource(ctx, "posts");
+    const handle = openUndoable(ctx.queryClient);
+
+    await emit("resource/posts");
+    live.stop();
+    handle.undo();
+    await flush();
+
+    expect(invalidate).not.toHaveBeenCalled();
+  });
+
+  it("resume keeps a missed event when an undoable mutation is pending", async () => {
+    const { ctx, emit, flush, invalidate } = setup();
+    let paused = true;
+    const live = subscribeLiveResource(ctx, "posts", { paused: () => paused });
+
+    await emit("resource/posts");
+    const handle = openUndoable(ctx.queryClient);
+    paused = false;
+    live.resume();
+    await flush();
+    expect(invalidate).not.toHaveBeenCalled();
+
+    handle.undo();
     await flush();
     expect(invalidate).toHaveBeenCalledTimes(1);
   });
@@ -221,6 +283,16 @@ describe("subscribeLiveRecords", () => {
     expect(invalidate).not.toHaveBeenCalled();
     expect(() => live.stop()).not.toThrow();
   });
+
+  it("an empty id list ignores reconnects", async () => {
+    const { ctx, transport, flush, invalidate } = setup();
+    subscribeLiveRecords(ctx, "posts", []);
+
+    transport.simulateReconnect();
+    await flush();
+
+    expect(invalidate).not.toHaveBeenCalled();
+  });
 });
 
 describe("subscribeLiveLock", () => {
@@ -236,6 +308,18 @@ describe("subscribeLiveLock", () => {
     expect(stale(oneKey("posts", { id: 1 }))).toBe(false);
     expect(stale(listKey("posts"))).toBe(false);
   });
+
+  it("invalidates its lock query on reconnect", async () => {
+    const { ctx, transport, flush, stale } = setup();
+    subscribeLiveLock(ctx, "posts", 1);
+
+    transport.simulateReconnect();
+    await flush();
+
+    expect(stale(lockKey("posts", { id: 1 }))).toBe(true);
+    expect(stale(locksKey("posts"))).toBe(false);
+    expect(stale(listKey("posts"))).toBe(false);
+  });
 });
 
 describe("subscribeLiveLocks", () => {
@@ -249,5 +333,17 @@ describe("subscribeLiveLocks", () => {
     expect(stale(locksKey("posts"))).toBe(true);
     expect(stale(lockKey("posts", { id: 1 }))).toBe(false);
     expect(stale(oneKey("posts", { id: 1 }))).toBe(false);
+  });
+
+  it("invalidates the locks query on reconnect", async () => {
+    const { ctx, transport, flush, stale } = setup();
+    subscribeLiveLocks(ctx, "posts");
+
+    transport.simulateReconnect();
+    await flush();
+
+    expect(stale(locksKey("posts"))).toBe(true);
+    expect(stale(lockKey("posts", { id: 1 }))).toBe(false);
+    expect(stale(listKey("posts"))).toBe(false);
   });
 });

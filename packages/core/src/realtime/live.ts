@@ -1,6 +1,6 @@
 import { lockKey, locksKey, resourceKey } from "../data/keys";
 import type { DataContext } from "../data/query-options";
-import { hasPendingUndoables } from "../data/undoable";
+import { hasPendingUndoables, onUndoablesSettled } from "../data/undoable";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceMap } from "../resource/registry";
 import { assertRealtimeDataProvider } from "./realtime-data-provider";
@@ -27,11 +27,10 @@ export interface LiveOptions {
 interface LiveSpec {
   caller: string;
   topics: string[];
-  reconnect: boolean;
   invalidate: () => void;
   options?: LiveOptions;
-  /** Drop events while an undoable mutation is pending: a refetch would restore its optimistic delete. */
-  dropWhileUndoable: boolean;
+  /** Hold events while an undoable mutation is pending: a refetch would restore its optimistic delete. */
+  holdWhileUndoable: boolean;
 }
 
 function subscribeLive<TResources extends ResourceMap>(
@@ -54,12 +53,25 @@ function subscribeLive<TResources extends ResourceMap>(
     });
   };
 
-  // An undoable commit invalidates the resource when it settles, so a dropped
-  // event loses nothing.
-  const dropped = () => spec.dropWhileUndoable && hasPendingUndoables();
+  let stopWaiting: Unsubscribe | undefined;
+
+  // Nothing invalidates when an undoable settles, so a held event is replayed
+  // then. The replay goes back through `onEvent`, which re-checks `paused`.
+  const holdForUndoable = () => {
+    if (stopWaiting) return;
+    stopWaiting = onUndoablesSettled(() => {
+      stopWaiting?.();
+      stopWaiting = undefined;
+      onEvent();
+    });
+  };
 
   const onEvent = () => {
-    if (dropped()) return;
+    if (stopped) return;
+    if (spec.holdWhileUndoable && hasPendingUndoables()) {
+      holdForUndoable();
+      return;
+    }
     if (spec.options?.paused?.()) {
       missed = true;
       return;
@@ -70,19 +82,22 @@ function subscribeLive<TResources extends ResourceMap>(
   const unsubscribes: Unsubscribe[] = spec.topics.map((topic) =>
     dataProvider.subscribe(topic, onEvent),
   );
-  if (spec.reconnect && dataProvider.onReconnect) {
+  // A subscription with no topics has nothing to catch up on.
+  if (spec.topics.length > 0 && dataProvider.onReconnect) {
     unsubscribes.push(dataProvider.onReconnect(onEvent));
   }
 
   return {
     stop() {
       stopped = true;
+      stopWaiting?.();
+      stopWaiting = undefined;
       for (const unsubscribe of unsubscribes.splice(0)) unsubscribe();
     },
     resume() {
       if (stopped || !missed) return;
       missed = false;
-      if (!dropped()) schedule();
+      onEvent();
     },
   };
 }
@@ -105,10 +120,9 @@ export function subscribeLiveResource<TResources extends ResourceMap>(
   return subscribeLive(ctx, {
     caller: "subscribeLiveResource",
     topics: [resourceTopic(resource)],
-    reconnect: true,
     invalidate: () => invalidateResource(ctx, resource),
     options,
-    dropWhileUndoable: true,
+    holdWhileUndoable: true,
   });
 }
 
@@ -122,10 +136,9 @@ export function subscribeLiveRecord<TResources extends ResourceMap>(
   return subscribeLive(ctx, {
     caller: "subscribeLiveRecord",
     topics: [recordTopic(resource, id)],
-    reconnect: true,
     invalidate: () => invalidateResource(ctx, resource),
     options,
-    dropWhileUndoable: true,
+    holdWhileUndoable: true,
   });
 }
 
@@ -140,10 +153,9 @@ export function subscribeLiveRecords<TResources extends ResourceMap>(
     caller: "subscribeLiveRecords",
     // `1` and `"1"` give the same topic; listen once.
     topics: [...new Set(ids.map((id) => recordTopic(resource, id)))],
-    reconnect: true,
     invalidate: () => invalidateResource(ctx, resource),
     options,
-    dropWhileUndoable: true,
+    holdWhileUndoable: true,
   });
 }
 
@@ -156,12 +168,11 @@ export function subscribeLiveLock<TResources extends ResourceMap>(
   return subscribeLive(ctx, {
     caller: "subscribeLiveLock",
     topics: [lockTopic(resource, id)],
-    reconnect: false,
     invalidate: () =>
       void ctx.queryClient.invalidateQueries({
         queryKey: lockKey(resource, { id }),
       }),
-    dropWhileUndoable: false,
+    holdWhileUndoable: false,
   });
 }
 
@@ -173,9 +184,8 @@ export function subscribeLiveLocks<TResources extends ResourceMap>(
   return subscribeLive(ctx, {
     caller: "subscribeLiveLocks",
     topics: [lockResourceTopic(resource)],
-    reconnect: false,
     invalidate: () =>
       void ctx.queryClient.invalidateQueries({ queryKey: locksKey(resource) }),
-    dropWhileUndoable: false,
+    holdWhileUndoable: false,
   });
 }
