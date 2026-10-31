@@ -104,7 +104,7 @@ import {
   useSlots,
   watchEffect,
 } from "vue";
-import { useRouter } from "vue-router";
+import { START_LOCATION, useRouter } from "vue-router";
 import AdminShell from "./admin-shell.vue";
 import type { ErrorFallbackProps } from "./default-error-fallback.vue";
 import { provideCheloneContext } from "../context";
@@ -267,6 +267,21 @@ async function resolveWaitingLocation() {
   }
 }
 
+/**
+ * A slot route added or removed can change what the current location matches:
+ * a removed record stays in `currentRoute` and would keep mounting a page that
+ * renders nothing. Replace the location with itself when it now resolves to a
+ * different record. Before the first navigation settles there is nothing to redo.
+ */
+function resolveCurrentLocationAgain() {
+  const current = router.currentRoute.value;
+  if (current === START_LOCATION) return;
+  const next = router.resolve(current.fullPath);
+  if (next.matched.at(-1) !== current.matched.at(-1)) {
+    void router.replace(current.fullPath);
+  }
+}
+
 // Added before any resource route: vue-router ranks equal paths by insertion
 // order, so a custom route at a resource's path wins.
 for (const route of props.customRoutes ?? []) {
@@ -279,7 +294,7 @@ const slotRoutes = createSlotRoutes(router, slots, basename);
 onScopeDispose(slotRoutes.dispose);
 const hasSlotRoutes = slotRoutes.sync();
 onBeforeUpdate(() => {
-  if (slotRoutes.sync()) void resolveWaitingLocation();
+  if (slotRoutes.sync()) resolveCurrentLocationAgain();
 });
 // An admin with only custom or slot routes registers no resource, so nothing
 // else re-resolves a deep link to one.

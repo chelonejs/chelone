@@ -305,13 +305,9 @@ describe("<Admin> page slots as routes", () => {
 
     given.value = true;
     await flushPromises();
-    await router.replace("/access-denied?again");
-    await flushPromises();
     expect(wrapper.find("[data-testid=access-denied]").exists()).toBe(true);
 
     given.value = false;
-    await flushPromises();
-    await router.replace("/access-denied");
     await flushPromises();
     expect(wrapper.find("[data-testid=access-denied]").exists()).toBe(false);
     expect(wrapper.find("[data-testid=host-404]").exists()).toBe(true);

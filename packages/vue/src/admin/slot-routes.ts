@@ -61,14 +61,17 @@ export function createSlotRoutes(
 ) {
   const removers = new Map<PageSlotName, () => void>();
 
-  /** Returns whether a route was added. */
+  /** Returns whether a route was added or removed. */
   function sync(): boolean {
-    let added = false;
+    let changed = false;
     for (const { name, path, noLayout } of PAGE_SLOTS) {
       const given = slots[name] != null;
       if (!given) {
-        removers.get(name)?.();
-        removers.delete(name);
+        if (removers.has(name)) {
+          removers.get(name)?.();
+          removers.delete(name);
+          changed = true;
+        }
       } else if (!removers.has(name)) {
         const route: CustomRoute = {
           path,
@@ -87,10 +90,10 @@ export function createSlotRoutes(
               : record,
           ),
         );
-        added = true;
+        changed = true;
       }
     }
-    return added;
+    return changed;
   }
 
   function dispose() {
