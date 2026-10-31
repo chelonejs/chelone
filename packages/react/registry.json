@@ -1293,11 +1293,19 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/feedback/loading-indicator.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/feedback/loading.tsx",
           "type": "registry:component"
         },
         {
           "path": "src/components/admin/feedback/notification.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/placeholder.tsx",
           "type": "registry:component"
         },
         {
@@ -2375,6 +2383,25 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "loading-indicator",
+      "type": "registry:component",
+      "title": "Loading Indicator",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/loading-indicator.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/icon-button-with-tooltip",
+        "@chelone/lib-utils",
+        "@chelone/ui-spinner"
+      ],
+      "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "loading",
       "type": "registry:component",
       "title": "Loading",
@@ -2401,6 +2428,20 @@
       ],
       "registryDependencies": ["@chelone/use-theme"],
       "dependencies": ["@chelone/core", "@chelone/react", "sonner"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "placeholder",
+      "type": "registry:component",
+      "title": "Placeholder",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/placeholder.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

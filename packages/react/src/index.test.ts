@@ -475,6 +475,8 @@ describe("@chelone/react barrel — P7g feedback + common", () => {
     expect(barrel.LoadingPage).toBeTypeOf("function");
     expect(barrel.LinearProgress).toBeTypeOf("function");
     expect(barrel.Spinner).toBeTypeOf("function");
+    expect(barrel.LoadingIndicator).toBeTypeOf("function");
+    expect(barrel.Placeholder).toBeTypeOf("function");
   });
 
   it("exports the error / ready splash + title", () => {

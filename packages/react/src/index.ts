@@ -264,7 +264,15 @@ export {
   type LoadingPageProps,
   type LoadingProps,
 } from "./components/admin/feedback/loading";
+export {
+  LoadingIndicator,
+  type LoadingIndicatorProps,
+} from "./components/admin/feedback/loading-indicator";
 export { Notification } from "./components/admin/feedback/notification";
+export {
+  Placeholder,
+  type PlaceholderProps,
+} from "./components/admin/feedback/placeholder";
 export { Ready } from "./components/admin/feedback/ready";
 export {
   Spinner,
