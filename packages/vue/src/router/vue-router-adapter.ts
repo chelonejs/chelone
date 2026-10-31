@@ -34,7 +34,17 @@ import {
   type PathMatch,
   parseLocation,
 } from "@chelone/core";
-import { type ComputedRef, computed, provide } from "vue";
+import {
+  type ComputedRef,
+  computed,
+  onScopeDispose,
+  provide,
+  type Ref,
+  ref,
+  shallowReadonly,
+  shallowRef,
+  toValue,
+} from "vue";
 import type { HistoryState } from "vue-router";
 import { useRoute, useRouter } from "vue-router";
 import {
@@ -42,6 +52,8 @@ import {
   type AdapterNavigateOpts,
   type RouterAdapter,
   RouterAdapterKey,
+  type RouterBlocker,
+  type ShouldBlock,
   type UseMatchArgs,
 } from "./adapter";
 
@@ -133,6 +145,87 @@ export const vueRouterAdapter: RouterAdapter = {
   },
 
   matchPath,
+
+  useBlocker(shouldBlock: ShouldBlock): RouterBlocker {
+    const router = useRouter();
+    const state: Ref<RouterBlocker["state"]["value"]> = ref("unblocked");
+    // Shallow: `URLSearchParams` must stay a real instance, not a reactive proxy.
+    const location = shallowRef<CheloneLocation | null>(null);
+    // Settles the held guard: `true` lets the navigation through, `false`
+    // cancels it. Non-null only while `state` is `blocked`.
+    let settle: ((proceed: boolean) => void) | null = null;
+
+    const release = (proceed: boolean) => {
+      settle?.(proceed);
+      settle = null;
+    };
+
+    const stopGuard = router.beforeEach((to, from) => {
+      // A new navigation while one is held cancels the held one.
+      release(false);
+
+      const nextLocation = parseLocation(to.fullPath);
+      const blocks =
+        typeof shouldBlock === "function"
+          ? shouldBlock({
+              currentLocation: parseLocation(from.fullPath),
+              nextLocation,
+            })
+          : toValue(shouldBlock);
+      if (!blocks) {
+        state.value = "unblocked";
+        location.value = null;
+        return true;
+      }
+
+      location.value = nextLocation;
+      state.value = "blocked";
+      return new Promise<boolean>((resolve) => {
+        settle = resolve;
+      });
+    });
+
+    // `afterEach` runs for a failed navigation too, so `proceeding` always ends.
+    const stopAfter = router.afterEach(() => {
+      if (state.value !== "proceeding") return;
+      state.value = "unblocked";
+      location.value = null;
+    });
+    const stopError = router.onError(() => {
+      if (state.value !== "proceeding") return;
+      state.value = "unblocked";
+      location.value = null;
+    });
+
+    onScopeDispose(() => {
+      release(false);
+      state.value = "unblocked";
+      location.value = null;
+      stopGuard();
+      stopAfter();
+      stopError();
+    });
+
+    return {
+      state: shallowReadonly(state),
+      location: shallowReadonly(location),
+      proceed() {
+        if (state.value !== "blocked") return;
+        state.value = "proceeding";
+        release(true);
+      },
+      reset() {
+        if (state.value !== "blocked") return;
+        state.value = "unblocked";
+        location.value = null;
+        release(false);
+      },
+    };
+  },
+
+  useCanBlock(): boolean {
+    return true;
+  },
 };
 
 /**

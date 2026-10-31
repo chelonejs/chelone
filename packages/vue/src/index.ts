@@ -222,6 +222,8 @@ export type {
   Redirect,
   RedirectTo,
   RouterAdapter,
+  RouterBlocker,
+  ShouldBlock,
   UseMatchArgs,
 } from "./router";
 export {
@@ -229,6 +231,8 @@ export {
   provideVueRouterAdapter,
   RouterAdapterKey,
   useBasename,
+  useBlocker,
+  useCanBlock,
   useCreatePath,
   useLocation,
   useMatch,

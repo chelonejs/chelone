@@ -9,6 +9,8 @@ export type {
   AdapterNavigate,
   AdapterNavigateOpts,
   RouterAdapter,
+  RouterBlocker,
+  ShouldBlock,
   UseMatchArgs,
 } from "./adapter";
 export {
@@ -20,6 +22,8 @@ export {
 } from "./adapter";
 export type { Redirect, RedirectTo } from "./nav-composables";
 export {
+  useBlocker,
+  useCanBlock,
   useCreatePath,
   useLocation,
   useMatch,
