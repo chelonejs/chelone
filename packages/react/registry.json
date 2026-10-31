@@ -1265,11 +1265,19 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/common/icon-button-with-tooltip.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/common/input-helper-text.tsx",
           "type": "registry:component"
         },
         {
           "path": "src/components/admin/common/keyboard-shortcut.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/common/link.tsx",
           "type": "registry:component"
         },
         {
@@ -1722,6 +1730,10 @@
         },
         {
           "path": "src/components/admin/views/infinite-list.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/views/labeled.tsx",
           "type": "registry:component"
         },
         {
@@ -2251,6 +2263,21 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "icon-button-with-tooltip",
+      "type": "registry:component",
+      "title": "Icon Button With Tooltip",
+      "files": [
+        {
+          "path": "src/components/admin/common/icon-button-with-tooltip.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/tooltip"],
+      "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "input-helper-text",
       "type": "registry:component",
       "title": "Input Helper Text",
@@ -2276,6 +2303,21 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "link",
+      "type": "registry:component",
+      "title": "Link",
+      "files": [
+        {
+          "path": "src/components/admin/common/link.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4369,6 +4411,24 @@
       ],
       "registryDependencies": ["@chelone/list"],
       "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "labeled",
+      "type": "registry:component",
+      "title": "Labeled",
+      "files": [
+        {
+          "path": "src/components/admin/views/labeled.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field-label-text",
+        "@chelone/lib-utils",
+        "@chelone/record-field"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

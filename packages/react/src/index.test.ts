@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 // Type-only imports from the barrel: a dropped `export type` line makes these
 // fail `tsc` (the react test script runs with `--typecheck`), locking the type
 // surface the same way the runtime assertions below lock the value surface.
@@ -26,8 +26,11 @@ import type {
   GetRecordRepresentation,
   GetResourceLabel,
   HandleAuthCallbackResult,
+  IconButtonWithTooltipProps,
   InputFieldError,
   InputProps,
+  LabeledProps,
+  LinkProps,
   ListContextValue,
   NumberInputProps,
   PartitionedChildren,
@@ -362,7 +365,9 @@ describe("@chelone/react barrel — UseXResult symmetry (every hook's result typ
       | GetResourceLabel
       | HandleAuthCallbackResult
       | InputFieldError
+      | IconButtonWithTooltipProps
       | InputProps
+      | LinkProps
       | ListContextValue
       | NumberInputProps
       | PartitionedChildren
@@ -428,6 +433,8 @@ describe("@chelone/react barrel — P7e layout chrome (T3)", () => {
     expect(barrel.TitlePortal).toBeTypeOf("function");
     expect(barrel.Logout).toBeTypeOf("function");
     expect(barrel.KeyboardShortcut).toBeTypeOf("function");
+    expect(barrel.Link).toBeTypeOf("function");
+    expect(barrel.IconButtonWithTooltip).toBeTypeOf("function");
     expect(barrel.useTheme).toBeTypeOf("function");
     expect(barrel.useResolvedTheme).toBeTypeOf("function");
     expect(barrel.ThemeProviderContext).toBeTypeOf("object");
@@ -478,5 +485,10 @@ describe("@chelone/react barrel — P7g feedback + common", () => {
 
   it("exports the useTimeout compat hook", () => {
     expect(barrel.useTimeout).toBeTypeOf("function");
+  });
+
+  it("exports Labeled and its props type", () => {
+    expect(barrel.Labeled).toBeTypeOf("function");
+    expectTypeOf<LabeledProps>().toHaveProperty("htmlFor");
   });
 });
