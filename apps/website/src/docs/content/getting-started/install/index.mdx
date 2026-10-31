@@ -155,10 +155,26 @@ The peer ranges declared by `@chelone/vue` are:
 | `@tanstack/form-core` | `^1.33.0` |
 | `@tanstack/query-core` | `^5.0.0` |
 
-The Vue components ship inside the `@chelone/vue` package. There is no
-`shadcn-vue` registry yet, so there is nothing to add with a CLI and no source
-is copied into your project. A registry (`npx shadcn-vue add @chelone/...`) is
-planned in the [Vue adapter design](https://github.com/chelonejs/chelone/blob/main/docs/vue-adapter-design.md).
+Add the Chelone registry to your `components.json`, keeping the rest of your
+shadcn-vue configuration:
+
+```json title="components.json"
+{
+  "registries": {
+    "@chelone": "https://chelone.dev/r/vue/{name}.json"
+  }
+}
+```
+
+Then add the full admin surface:
+
+```bash
+npx shadcn-vue@latest add @chelone/admin
+```
+
+The CLI copies the Vue components into your project so you can edit them.
+`@chelone/vue` still exports the same components if you prefer to import them
+from the package.
 
 Install the router and the Vue Query plugin on your app, then mount `<Admin>`
 with a `<Resource>` per entity. `<Admin>` builds the resource routes as each
