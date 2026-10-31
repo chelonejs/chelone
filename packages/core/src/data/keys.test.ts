@@ -3,6 +3,8 @@ import {
   infiniteListKey,
   infiniteListKeyPrefix,
   listKey,
+  lockKey,
+  locksKey,
   manyKey,
   manyKeyPrefix,
   oneKey,
@@ -61,5 +63,27 @@ describe("query keys", () => {
       pagination: { page: 1, perPage: 2 },
     });
     expect(key.slice(0, prefix.length)).toEqual(prefix);
+  });
+});
+
+describe("lockKey", () => {
+  it("sits under the resource root with a string id", () => {
+    expect(lockKey("posts", { id: 1 })).toEqual([
+      "posts",
+      "getLock",
+      { id: "1" },
+    ]);
+    expect(lockKey("posts", { id: 1 })).toEqual(lockKey("posts", { id: "1" }));
+    expect(lockKey("posts", { id: 1, meta: { a: 1 } })).toEqual([
+      "posts",
+      "getLock",
+      { id: "1", meta: { a: 1 } },
+    ]);
+  });
+});
+
+describe("locksKey", () => {
+  it("sits under the resource root", () => {
+    expect(locksKey("posts")).toEqual(["posts", "getLocks"]);
   });
 });
