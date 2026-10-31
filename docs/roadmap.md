@@ -56,7 +56,7 @@
 
 ## shadmin-only extras (issue #225)
 
-shadmin ships pieces that are not in `ra-core`. Each gets a call: kept (built as slices, React first, a Vue slice after each) or dropped. The test: does it belong in a headless admin engine, does it fit the Zod registry and the framework-free core, and can it ship without a backend the project does not own (charter §3).
+shadmin ships pieces that Chelone has not built. Some are `ra-core` parity gaps (guessers, preferences, Configurable, Inspector: R7 and R8, see the parity report), so building them closes those gaps. The rest are not in `ra-core` at all. Each gets a call: kept (built as slices, React first, a Vue slice after each) or dropped. The test: does it belong in a headless admin engine, does it fit the Zod registry and the framework-free core, and can it ship without a backend the project does not own (charter §3).
 
 ### Kept
 
@@ -67,7 +67,7 @@ shadmin ships pieces that are not in `ra-core`. Each gets a call: kept (built as
 | Inspector and `Configurable` | Keep, after `ColumnsButton`. Same system as R7. | React `Configurable` + `Inspector`, then Vue. |
 | `SimpleFormConfigurable` | Keep, after `Configurable`. Reuses the Inspector. | React, then Vue. |
 | Command menu (widget) | Keep. Navigates the resource registry and honours access control, so it is engine-shaped. | React, then Vue. |
-| Data provider devtools (widget) | Keep. Reads the call log of the data provider wrappers that already exist. | Core: call log. Then React panel, then Vue. |
+| Data provider devtools (widget) | Keep. Shows the calls a data provider makes, to debug an app. No call log exists yet. | Core: a call-log wrapper around the data provider. Then React panel, then Vue. |
 
 ### Dropped
 
@@ -92,4 +92,4 @@ Dropped pieces can come back through a new issue that names a consumer.
 
 **STATUS — TIER 2 COMPLETE. ✅ R4 infinite list + saved queries · ✅ R5 data-provider power tools · ✅ R6 server-side reverse-relation fields.** Each landed in both adapters on the framework-free core; PRs are listed under each item.
 
-**Next:** Tier 3 (R7 to R10) stays deferred. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open v1 work is the first npm release (#8).
+**Next:** Tier 3 stays deferred, except R7 and R8, which #225 keeps (slices to be filed), and the tree and calendar part of R10, which #225 drops. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open v1 work is the first npm release (#8).
