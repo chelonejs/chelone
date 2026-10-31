@@ -57,11 +57,13 @@ function mount({
   dataProvider = fakeDataProvider({ posts: POSTS }),
   url = "/posts",
   edit = true,
+  show = true,
 }: {
   list: () => ReactNode;
   dataProvider?: Provider;
   url?: string;
   edit?: boolean;
+  show?: boolean;
 }) {
   const View = () => null;
   return render(
@@ -81,7 +83,7 @@ function mount({
           name="posts"
           list={list}
           edit={edit ? View : undefined}
-          show={View}
+          show={show ? View : undefined}
         />
       </Admin>
     </MemoryRouter>,
@@ -188,6 +190,21 @@ describe("<SimpleList>", () => {
     ]);
   });
 
+  it("renders plain rows when the resource has neither an edit nor a show view", async () => {
+    mount({
+      edit: false,
+      show: false,
+      list: () => (
+        <List>
+          <SimpleList<Post> primaryText={(r) => r.title} />
+        </List>
+      ),
+    });
+
+    expect(await screen.findAllByRole("listitem")).toHaveLength(2);
+    expect(screen.queryAllByRole("link")).toHaveLength(0);
+  });
+
   it("renders plain rows with no link when linkType is false", async () => {
     mount({
       list: () => (
@@ -242,6 +259,27 @@ describe("<SimpleList>", () => {
 
     expect(await screen.findByText("Nothing posted yet")).toBeTruthy();
     expect(screen.queryByText("No results found")).toBeNull();
+  });
+
+  it("renders nothing for an empty prop of null", async () => {
+    function Settled() {
+      const { isPending } = useListContext();
+      return isPending ? null : <span>settled</span>;
+    }
+    mount({
+      dataProvider: fakeDataProvider({ posts: [] }),
+      list: () => (
+        <List>
+          <Settled />
+          <div data-testid="body">
+            <SimpleList<Post> primaryText={(r) => r.title} empty={null} />
+          </div>
+        </List>
+      ),
+    });
+
+    await screen.findByText("settled");
+    expect(screen.getByTestId("body").textContent).toBe("");
   });
 });
 

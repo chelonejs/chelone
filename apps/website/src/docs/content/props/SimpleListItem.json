@@ -17,7 +17,7 @@
       "name": "linkType",
       "type": "false | \"show\" | \"edit\"",
       "optional": true,
-      "comment": "Where the row links to. `edit` by default, or `show` when the resource has\nno edit view. `false` renders a plain row."
+      "comment": "Where the row links to. `edit` by default, `show` when the resource has no\nedit view, and a plain row when it has neither. `false` renders a plain row."
     },
     {
       "name": "record",

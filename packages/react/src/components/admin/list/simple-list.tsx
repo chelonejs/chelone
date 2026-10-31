@@ -54,19 +54,21 @@ function SimpleList<RecordType extends ResourceRecord = ResourceRecord>({
   const resource = useResourceContext();
 
   if (isPending) {
-    return (
-      loading ?? (
-        <SimpleListLoading
-          className={className}
-          hasLeftAvatarOrIcon={!!leftIcon || !!leftAvatar}
-          hasRightAvatarOrIcon={!!rightIcon}
-          hasSecondaryText={!!secondaryText}
-          hasTertiaryText={!!tertiaryText}
-        />
-      )
+    return loading !== undefined ? (
+      loading
+    ) : (
+      <SimpleListLoading
+        className={className}
+        hasLeftAvatarOrIcon={!!leftIcon || !!leftAvatar}
+        hasRightAvatarOrIcon={!!rightIcon}
+        hasSecondaryText={!!secondaryText}
+        hasTertiaryText={!!tertiaryText}
+      />
     );
   }
-  if (!data || data.length === 0) return empty ?? <ListNoResults />;
+  if (!data || data.length === 0) {
+    return empty !== undefined ? empty : <ListNoResults />;
+  }
 
   return (
     <ul className={cn("flex flex-col", className)}>

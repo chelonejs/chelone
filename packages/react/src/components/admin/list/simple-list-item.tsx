@@ -18,8 +18,8 @@ export interface SimpleListItemProps<
   /** Defaults to nothing: without one the row is not linked. */
   resource?: string;
   /**
-   * Where the row links to. `edit` by default, or `show` when the resource has
-   * no edit view. `false` renders a plain row.
+   * Where the row links to. `edit` by default, `show` when the resource has no
+   * edit view, and a plain row when it has neither. `false` renders a plain row.
    */
   linkType?: "edit" | "show" | false;
   rowIndex?: number;
@@ -41,10 +41,13 @@ function SimpleListItem<RecordType extends ResourceRecord = ResourceRecord>({
 }: SimpleListItemProps<RecordType>) {
   const { Link } = useRouterAdapter();
   const createPath = useCreatePath();
-  const { hasEdit } = useResourceDefinition({ resource });
+  const { hasEdit, hasShow } = useResourceDefinition({ resource });
   if (!record) return null;
 
-  const type = linkType ?? (hasEdit === false ? "show" : "edit");
+  // A resource that registers neither view has no route to link to.
+  const type =
+    linkType ??
+    (hasEdit !== false ? "edit" : hasShow !== false ? "show" : false);
   if (type === false || !resource) {
     return (
       <li className={className} data-row-index={rowIndex}>
