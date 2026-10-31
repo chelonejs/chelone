@@ -714,6 +714,10 @@ export {
   type InfiniteListProps,
 } from "./components/admin/views/infinite-list";
 export {
+  Labeled,
+  type LabeledProps,
+} from "./components/admin/views/labeled";
+export {
   List,
   type ListProps,
   ListView,
