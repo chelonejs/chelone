@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   composeSource,
   createArraySourceScope,
+  createLocaleSourceScope,
   createRowSourceScope,
   rootSourceScope,
 } from "./source";
@@ -60,5 +61,33 @@ describe("array + row scopes", () => {
     const tag2 = createRowSourceScope(tags, 2);
     expect(tag2.getSource("")).toBe("tags[2]");
     expect(tag2.getLabel("")).toBe("tags");
+  });
+});
+
+describe("createLocaleSourceScope", () => {
+  it("createLocaleSourceScope appends the locale to a source and passes labels through", () => {
+    const fr = createLocaleSourceScope(rootSourceScope, "fr");
+    expect(fr.getSource("title")).toBe("title.fr");
+    expect(fr.getLabel("title")).toBe("title");
+  });
+
+  it("createLocaleSourceScope composes with an array row scope", () => {
+    const row0 = createRowSourceScope(
+      createArraySourceScope(rootSourceScope, "items"),
+      0,
+    );
+    const fr = createLocaleSourceScope(row0, "fr");
+    expect(fr.getSource("name")).toBe("items[0].name.fr");
+    expect(fr.getLabel("name")).toBe("items.name");
+  });
+
+  it("createLocaleSourceScope throws on an empty source", () => {
+    const fr = createLocaleSourceScope(rootSourceScope, "fr");
+    expect(() => fr.getSource("")).toThrow(
+      "Children of a translatable group must have a source",
+    );
+    expect(() => fr.getLabel("")).toThrow(
+      "Children of a translatable group must have a source",
+    );
   });
 });
