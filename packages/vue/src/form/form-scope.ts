@@ -56,7 +56,8 @@ export function useFormScope<TFormData>(
       sanitizeEmptyValues: props.sanitizeEmptyValues,
       getRecord: () => props.getRecord?.(),
       resetOnSuccess: props.resetOnSuccess,
-      onSubmit: save,
+      // Same for `save`: a parent that swaps the prop gets the latest handler.
+      onSubmit: (data) => (props.save ?? save)(data),
     });
     return submit;
   }

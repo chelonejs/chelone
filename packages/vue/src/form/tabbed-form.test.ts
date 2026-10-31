@@ -9,7 +9,7 @@ import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick } from "vue";
+import { defineComponent, h, nextTick, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../admin/admin.vue";
 import SaveButton from "../components/admin/buttons/save-button.vue";
@@ -223,6 +223,33 @@ describe("<TabbedForm>", () => {
 
     expect(save).not.toHaveBeenCalled();
     expect(wrapper.text()).toContain("Rejected by validate");
+  });
+
+  it("with save, submit runs the latest save prop, not the first", async () => {
+    const first = vi.fn(async () => undefined);
+    const second = vi.fn(async () => undefined);
+    const current = ref(first);
+    const captured: Captured = {};
+    mountAdmin(() =>
+      h(
+        TabbedForm,
+        {
+          save: current.value,
+          syncWithLocation: false,
+          record: { title: "a", body: "b" },
+        },
+        twoTabs(() => [h(makeProbe(captured))]),
+      ),
+    );
+    await flushPromises();
+
+    current.value = second;
+    await nextTick();
+    await captured.tabbed?.submit();
+    await flushPromises();
+
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledTimes(1);
   });
 
   it("inside Edit the tabs show the record and Save calls update", async () => {
