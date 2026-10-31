@@ -13,6 +13,19 @@ export {
   useSourceScope,
   useWrappedSource,
 } from "./form-context";
+export type { FormGroupProviderProps } from "./form-group-provider.vue";
+export { default as FormGroupProvider } from "./form-group-provider.vue";
+export {
+  provideFormGroup,
+  provideFormGroups,
+  useFormGroup,
+  useFormGroupName,
+  useFormGroups,
+  useOptionalFormGroups,
+  useRegisterFieldGroup,
+} from "./form-groups";
+export type { FormGroupsProviderProps } from "./form-groups-provider.vue";
+export { default as FormGroupsProvider } from "./form-groups-provider.vue";
 export type {
   FormSubmit,
   UseFormOptions,
