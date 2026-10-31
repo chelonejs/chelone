@@ -79,7 +79,14 @@
                   "react-dom": "@chelone/core must not import react-dom.",
                   "react-hook-form": "@chelone/core uses @tanstack/form-core, not react-hook-form.",
                   "react-router": "@chelone/core must not own a router; it owns the vanilla RouterPort seam and injects a RouterAdapter from @chelone/react.",
-                  "@tanstack/react-router": "@chelone/core must not own a router; the tanstackRouterAdapter lives in @chelone/react. Core exposes the vanilla RouterPort + pure path utils only."
+                  "@tanstack/react-router": "@chelone/core must not own a router; the tanstackRouterAdapter lives in @chelone/react. Core exposes the vanilla RouterPort + pure path utils only.",
+                  "vue": "@chelone/core is vanilla TS; put Vue code in @chelone/vue.",
+                  "vue-router": "@chelone/core must not own a router; the vue-router RouterAdapter lives in @chelone/vue.",
+                  "@tanstack/vue-query": "@chelone/core uses @tanstack/query-core directly; the Vue query bridge belongs in @chelone/vue.",
+                  "@tanstack/vue-store": "@chelone/core is vanilla TS; the Vue reactivity bridge belongs in @chelone/vue.",
+                  "@tanstack/vue-form": "@chelone/core wraps @tanstack/form-core directly; the Vue form bridge belongs in @chelone/vue.",
+                  "@tanstack/react-query": "@chelone/core uses @tanstack/query-core directly; the React query bridge belongs in @chelone/react.",
+                  "@tanstack/vue-router": "@chelone/core must not own a router; Vue router adapters belong in @chelone/vue."
                 }
               }
             }
