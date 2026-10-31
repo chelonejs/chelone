@@ -124,6 +124,10 @@ defineSlots<{
   dashboard?: () => unknown;
   /** The unauthenticated login screen (`requireAuth`) — default `<LoginPage>`. */
   login?: () => unknown;
+  /** Replaces the spinner shown while the `requireAuth` check is pending. */
+  loading?: () => unknown;
+  /** Rendered alone when no resource is registered and no `customRoutes` are given. */
+  ready?: () => unknown;
   /** Replaces the default fallback shown when a route view throws. */
   error?: (props: ErrorFallbackProps) => unknown;
 }>();
@@ -298,12 +302,17 @@ onScopeDispose(() => {
   <slot />
   <!-- The shell + auth gate live in <AdminShell>, rendered INSIDE this provided
        context so its auth composables can inject the Chelone context + query
-       client. #layout / #dashboard / #login are forwarded through (each only
+       client. #layout / #dashboard / #login / #loading / #ready are forwarded through (each only
        when given, so the shell's own fallbacks apply otherwise). -->
-  <AdminShell :require-auth="props.requireAuth ?? false">
+  <AdminShell
+    :require-auth="props.requireAuth ?? false"
+    :has-custom-routes="!!props.customRoutes?.length"
+  >
     <template v-if="$slots.layout" #layout><slot name="layout" /></template>
     <template v-if="$slots.dashboard" #dashboard><slot name="dashboard" /></template>
     <template v-if="$slots.login" #login><slot name="login" /></template>
+    <template v-if="$slots.loading" #loading><slot name="loading" /></template>
+    <template v-if="$slots.ready" #ready><slot name="ready" /></template>
     <template v-if="$slots.error" #error="errorProps"><slot name="error" v-bind="errorProps" /></template>
   </AdminShell>
 </template>

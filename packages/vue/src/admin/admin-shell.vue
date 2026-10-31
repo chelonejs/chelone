@@ -31,9 +31,13 @@ import { useAuthGate } from "./auth-gate";
 import { NO_LAYOUT_META } from "./custom-routes";
 import type { ErrorFallbackProps } from "./default-error-fallback.vue";
 import NavigateToFirstResource from "./navigate-to-first-resource.vue";
+import { useResourceDefinitions } from "./resource-registry";
 import ShellErrorBoundary from "./shell-error-boundary.vue";
 
-const props = defineProps<{ requireAuth: boolean }>();
+const props = defineProps<{
+  requireAuth: boolean;
+  hasCustomRoutes: boolean;
+}>();
 
 defineSlots<{
   /** Override the default shell chrome (wins over the route view). */
@@ -42,6 +46,10 @@ defineSlots<{
   dashboard?: () => unknown;
   /** The unauthenticated login screen (default `<LoginPage>`). */
   login?: () => unknown;
+  /** Replaces the spinner shown while the `requireAuth` check is pending. */
+  loading?: () => unknown;
+  /** Rendered alone when no resource is registered and no custom route is given. */
+  ready?: () => unknown;
   /** Replaces the default fallback shown when the layout branch throws. */
   error?: (props: ErrorFallbackProps) => unknown;
 }>();
@@ -57,6 +65,14 @@ const slots = useSlots();
 const route = useRoute();
 const router = useRouter();
 const isNoLayout = computed(() => route.meta[NO_LAYOUT_META] === true);
+// Read live, so a `<Resource>` that registers later hides `#ready`. A plain
+// function, not a `computed`: `useSlots()` is not reactive, so a computed would
+// never see `#ready` come or go. The render calls it afresh each time.
+const definitions = useResourceDefinitions();
+const showReady = () =>
+  slots.ready != null &&
+  !props.hasCustomRoutes &&
+  Object.keys(definitions).length === 0;
 const indexPath = joinBasename("/", useBasename()).toLowerCase();
 const isIndex = computed(() => {
   const path = route.path.toLowerCase();
@@ -74,9 +90,13 @@ useWatchDataErrors();
 </script>
 
 <template>
-  <!-- A noLayout match comes first: it renders in every auth state, as React
-       mounts no-layout routes outside the gate. -->
-  <ShellErrorBoundary v-if="isNoLayout">
+  <!-- The empty state comes first, ahead of the auth gate, as in React. -->
+  <ThemeProvider v-if="showReady()">
+    <slot name="ready" />
+  </ThemeProvider>
+  <!-- A noLayout match renders in every auth state, as React mounts no-layout
+       routes outside the gate. -->
+  <ShellErrorBoundary v-else-if="isNoLayout">
     <ThemeProvider>
       <router-view />
     </ThemeProvider>
@@ -85,9 +105,11 @@ useWatchDataErrors();
     </template>
   </ShellErrorBoundary>
   <ThemeProvider v-else-if="requireAuth && gate.isPending.value">
-    <div class="flex min-h-screen flex-col justify-center items-center">
-      <Spinner class="size-9" />
-    </div>
+    <slot name="loading">
+      <div class="flex min-h-screen flex-col justify-center items-center">
+        <Spinner class="size-9" />
+      </div>
+    </slot>
   </ThemeProvider>
   <slot
     v-else-if="requireAuth && !gate.authenticated.value"
