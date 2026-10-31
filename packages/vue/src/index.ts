@@ -169,7 +169,10 @@ export type {
   UseInputOptions,
   UseInputReturn,
   UseTabbedFormResult,
+  UseWizardFormResult,
   WarnWhenUnsavedChangesDecision,
+  WizardFormProps,
+  WizardFormStepProps,
 } from "./form";
 export {
   CheloneFormContextKey,
@@ -195,7 +198,11 @@ export {
   useSourceScope,
   useTabbedFormContext,
   useWarnWhenUnsavedChanges,
+  useWizardForm,
+  useWizardFormContext,
   useWrappedSource,
+  WizardForm,
+  WizardFormStep,
 } from "./form";
 export type { Subscribable } from "./form/subscribe-ref";
 export { subscribeStore, useSubscribable } from "./form/subscribe-ref";
