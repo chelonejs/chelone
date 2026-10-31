@@ -124,6 +124,42 @@ function removeEmpty(filter: FilterPayload): FilterPayload {
 }
 
 /**
+ * Returns `filter` without the value at `path`: the flat key of that name and,
+ * for a dotted path, the nested value, pruning parents it leaves empty. Never
+ * mutates `filter`. Shared with the client controller.
+ */
+export function removeFilterPath(
+  filter: FilterPayload,
+  path: string,
+): FilterPayload {
+  const { [path]: _flat, ...rest } = filter;
+  const keys = path.split(".");
+  if (keys.length === 1) return rest;
+  const prune = (
+    node: Record<string, unknown>,
+    depth: number,
+  ): Record<string, unknown> => {
+    const key = keys[depth] as string;
+    const child = node[key];
+    if (depth === keys.length - 1) {
+      const { [key]: _removed, ...others } = node;
+      return others;
+    }
+    if (child == null || typeof child !== "object" || Array.isArray(child)) {
+      return node;
+    }
+    const pruned = prune(child as Record<string, unknown>, depth + 1);
+    if (pruned === child) return node;
+    if (Object.keys(pruned).length === 0) {
+      const { [key]: _emptied, ...others } = node;
+      return others;
+    }
+    return { ...node, [key]: pruned };
+  };
+  return prune(rest, 0) as FilterPayload;
+}
+
+/**
  * Turns a {@link ListParamsPatch} into the state slice it changes. Shared with
  * the client controller so the page-reset rule lives in one place.
  */
@@ -499,8 +535,10 @@ export function createListController<
 
   const hideFilter = (name: string): void => {
     if (destroyed) return;
+    // A debounced filter still pending would bring the removed value back.
+    clearDebounce();
     const s = store.getSnapshot();
-    const { [name]: _value, ...filter } = s.filter;
+    const filter = removeFilterPath(s.filter, name);
     const { [name]: _shown, ...displayedFilters } = s.displayedFilters;
     applyParams({ filter, displayedFilters });
   };

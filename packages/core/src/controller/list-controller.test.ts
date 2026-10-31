@@ -226,6 +226,39 @@ describe("createListController", () => {
     c.destroy();
   });
 
+  it("hideFilter cancels a pending debounced setFilters", () => {
+    vi.useFakeTimers();
+    const c = createListController(makeCtx(), "posts", { debounceMs: 300 });
+    c.showFilter("title");
+    c.setFilters({ title: "abc" }, undefined, true);
+    c.hideFilter("title");
+    vi.advanceTimersByTime(1000);
+    expect(c.getSnapshot().filter).toEqual({});
+    expect(c.getSnapshot().displayedFilters).toEqual({});
+    vi.useRealTimers();
+    c.destroy();
+  });
+
+  it("hideFilter removes a dotted source from a nested filter, keeping its siblings", () => {
+    const c = createListController(makeCtx(), "posts", {});
+    c.setFilters(
+      { author: { name: "x", id: 1 }, title: "t" },
+      { "author.name": true },
+    );
+    c.hideFilter("author.name");
+    expect(c.getSnapshot().filter).toEqual({ author: { id: 1 }, title: "t" });
+    expect(c.getSnapshot().displayedFilters).toEqual({});
+    c.destroy();
+  });
+
+  it("hideFilter drops a parent object left empty by a dotted source", () => {
+    const c = createListController(makeCtx(), "posts", {});
+    c.setFilters({ author: { name: "x" } }, { "author.name": true });
+    c.hideFilter("author.name");
+    expect(c.getSnapshot().filter).toEqual({});
+    c.destroy();
+  });
+
   it("storeKey: false keeps params and selection out of the KV store", async () => {
     const ctx = makeCtx();
     const c = createListController(ctx, "posts", { storeKey: false });

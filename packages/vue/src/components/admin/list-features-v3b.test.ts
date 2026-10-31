@@ -394,6 +394,29 @@ describe("<FilterForm> filters prop", () => {
     expect(capture.list?.filter).toEqual({});
   });
 
+  it("the remove button clears a nested source and a pending edit", async () => {
+    const { capture, wrapper } = mountEntries([
+      { source: "title", component: TextInput },
+      { source: "author.name", component: TextInput },
+    ]);
+    await settled(capture);
+    capture.list?.setFilters(
+      { author: { name: "x" } },
+      { "author.name": true },
+    );
+    await vi.waitFor(() =>
+      expect(field(wrapper, "author.name").exists()).toBe(true),
+    );
+    await flushPromises();
+
+    await field(wrapper, "author.name").find("button").trigger("click");
+
+    await vi.waitFor(() =>
+      expect(field(wrapper, "author.name").exists()).toBe(false),
+    );
+    expect(capture.list?.filter).toEqual({});
+  });
+
   it("alwaysOn with defaultValue throws", () => {
     expect(() =>
       mountEntries([
