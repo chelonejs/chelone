@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 // Builds registry.json into dist/r/<name>.json (one file per item) + a copy of
-// registry.json, via the pinned shadcn CLI. Run: pnpm registry:build.
+// registry.json, via the package's pinned registry CLI (`engine.cli`: shadcn or
+// shadcn-vue). Run: pnpm registry:build.
 //
-// CRITICAL: `shadcn build` EXITS 0 ON ERROR. The real gate is not the CLI exit
+// CRITICAL: the CLI EXITS 0 ON ERROR. The real gate is not the CLI exit
 // code — it's that dist/r holds one valid, non-empty JSON per item plus
 // registry.json, and that no @chelone/<x> dep dangles. We assert all of that
 // here after the CLI runs, so a partial/failed build fails loud. Never pipe the
@@ -24,6 +25,7 @@ import os from "node:os";
 import path from "node:path";
 
 import {
+  CLI,
   ENGINE_PACKAGE,
   isEngineRelative,
   resolveSpecifier,
@@ -118,7 +120,7 @@ const verifyOutput = async (registry) => {
 
   if (problems.length > 0) {
     throw new Error(
-      `Registry build gate failed (shadcn exits 0 on error — this is the real check):\n  ${problems.join("\n  ")}`,
+      `Registry build gate failed (the CLI exits 0 on error — this is the real check):\n  ${problems.join("\n  ")}`,
     );
   }
 };
@@ -127,9 +129,9 @@ const verifyOutput = async (registry) => {
 //
 // shadcn's `build` copies each source file's RAW content into dist/r/<item>.json
 // files[].content — INCLUDING the deep engine relatives (`../../../form-hooks`)
-// that 404 in a consumer (the engine is the npm package @chelone/react, not
+// that 404 in a consumer (the engine is an npm package, not
 // present as sibling files). This pass rewrites every ENGINE-relative specifier
-// in shipped content to the bare `@chelone/react`, and adds that npm dependency
+// in shipped content to the bare engine package, and adds that npm dependency
 // to any item whose content changed. Class-B sibling relatives (another shipped
 // components/lib/hooks file) are LEFT ALONE — they resolve fine because shadcn
 // preserves the src/… structure in the consumer. Runs over EVERY dist/r item
@@ -223,7 +225,7 @@ const validateNoEngineEscapes = async () => {
 
 // CONTENT-AWARE ALIAS-RESOLUTION VALIDATOR (the @/ monolith gap).
 //
-// validateNoEngineEscapes guards ENGINE relatives → @chelone/react. It does NOT
+// validateNoEngineEscapes guards ENGINE relatives → the engine package. It does NOT
 // guard `@/`-alias imports that resolve to ANOTHER emitted registry item (the
 // primitive layer): the `admin` monolith shipped 132 files importing 26+
 // `@/components/ui/*` primitives while declaring registryDependencies:undefined
@@ -318,10 +320,12 @@ const run = async () => {
       JSON.stringify({ ...registry, items: autoBuiltItems }, null, 2),
     );
 
-    // shadcn 4.x renamed `registry:build` -> `build` (same args).
+    // shadcn 4.x renamed `registry:build` -> `build` (same args); shadcn-vue
+    // takes the same. Both log an invalid item and exit 0 — verifyOutput below
+    // is the gate.
     execFileSync(
       "pnpm",
-      ["exec", "shadcn", "build", tempRegistryPath, "-o", outputDir],
+      ["exec", CLI, "build", tempRegistryPath, "-o", outputDir],
       { cwd, stdio: "inherit" },
     );
 
@@ -362,7 +366,7 @@ const run = async () => {
     );
   }
 
-  // Rewrite engine relatives -> "@chelone/react" in shipped content BEFORE the
+  // Rewrite engine relatives -> the engine package in shipped content BEFORE the
   // registry.json copy + validators, so dist reflects the installable form.
   const { filesRewritten, itemsWithEngineDep } = await rewriteEmittedItems();
 
