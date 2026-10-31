@@ -981,11 +981,27 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/list-no-results.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/list-pagination.vue",
           "type": "registry:component"
         },
         {
           "path": "src/components/admin/list/saved-queries-list.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/simple-list-item.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/simple-list-loading.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/simple-list.vue",
           "type": "registry:component"
         },
         {
@@ -3462,6 +3478,21 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "list-no-results",
+      "type": "registry:component",
+      "title": "List No Results",
+      "files": [
+        {
+          "path": "src/components/admin/list/list-no-results.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "list-pagination",
       "type": "registry:component",
       "title": "List Pagination",
@@ -3495,6 +3526,60 @@
         "@chelone/button",
         "@chelone/input",
         "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "simple-list-item",
+      "type": "registry:component",
+      "title": "Simple List Item",
+      "files": [
+        {
+          "path": "src/components/admin/list/simple-list-item.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "simple-list-loading",
+      "type": "registry:component",
+      "title": "Simple List Loading",
+      "files": [
+        {
+          "path": "src/components/admin/list/simple-list-loading.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/skeleton",
+        "@chelone/use-timeout"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "simple-list",
+      "type": "registry:component",
+      "title": "Simple List",
+      "files": [
+        {
+          "path": "src/components/admin/list/simple-list.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/list-no-results",
+        "@chelone/simple-list-item",
+        "@chelone/simple-list-loading"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
