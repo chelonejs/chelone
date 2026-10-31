@@ -21,12 +21,17 @@ interface HostOptions {
   enable?: Ref<boolean>;
   formRootPathname?: string;
   withRouter?: boolean;
+  onSubmit?: () => Promise<Record<string, string> | undefined>;
+  resetOnSuccess?: boolean;
 }
 
 const mounted: VueWrapper[] = [];
 
 async function mountHost(opts: HostOptions = {}) {
-  const { enable = ref(true), formRootPathname = "/posts/1" } = opts;
+  const { enable = ref(true) } = opts;
+  // An explicit `undefined` must reach the hook, so no destructuring default.
+  const formRootPathname =
+    "formRootPathname" in opts ? opts.formRootPathname : "/posts/1";
   const { withRouter = true } = opts;
 
   const router = createRouter({
@@ -51,7 +56,8 @@ async function mountHost(opts: HostOptions = {}) {
     setup() {
       captured.form = useForm<Post>({
         record: { title: "original" },
-        onSubmit: async () => undefined,
+        onSubmit: opts.onSubmit ?? (async () => undefined),
+        resetOnSuccess: opts.resetOnSuccess,
       });
       return () => h(Warn);
     },
@@ -248,5 +254,75 @@ describe("useWarnWhenUnsavedChanges", () => {
     }).not.toThrow();
     expect(warn).toHaveBeenCalledTimes(1);
     expect(fireBeforeUnload()).toBe(true);
+  });
+
+  it("a save the server rejected keeps blocking navigation and beforeunload", async () => {
+    const { router, decision, edit, form } = await mountHost({
+      onSubmit: async () => ({ title: "taken" }),
+    });
+    await edit("changed");
+
+    await form().submit();
+    await flushPromises();
+
+    expect(fireBeforeUnload()).toBe(true);
+    void go(router, "/posts");
+    await flushPromises();
+    expect(decision().isBlocked.value).toBe(true);
+  });
+
+  it("an edit made after a successful save blocks again", async () => {
+    const { router, decision, edit, form } = await mountHost();
+    await edit("changed");
+    await form().submit();
+    await flushPromises();
+    expect(fireBeforeUnload()).toBe(false);
+
+    await edit("changed after save");
+
+    expect(fireBeforeUnload()).toBe(true);
+    void go(router, "/posts");
+    await flushPromises();
+    expect(decision().isBlocked.value).toBe(true);
+  });
+
+  it("an edit after a save that did not rebaseline blocks again", async () => {
+    const { router, decision, edit, form } = await mountHost({
+      resetOnSuccess: false,
+    });
+    await edit("changed");
+    await form().submit();
+    await flushPromises();
+    expect(fireBeforeUnload()).toBe(false);
+
+    await edit("changed after save");
+
+    void go(router, "/posts");
+    await flushPromises();
+    expect(decision().isBlocked.value).toBe(true);
+  });
+
+  it("the default form root is the pathname the form mounted at", async () => {
+    const { router, decision, edit } = await mountHost({
+      formRootPathname: undefined,
+    });
+    await edit("changed");
+
+    await go(router, "/posts/1/tab");
+    await go(router, "/posts/1");
+
+    expect(decision().isBlocked.value).toBe(false);
+    expect(router.currentRoute.value.fullPath).toBe("/posts/1");
+  });
+
+  it("a path that only shares a prefix with the form root counts as leaving", async () => {
+    const { router, decision, edit } = await mountHost();
+    await edit("changed");
+
+    void go(router, "/posts/12");
+    await flushPromises();
+
+    expect(decision().isBlocked.value).toBe(true);
+    expect(router.currentRoute.value.fullPath).toBe("/posts/1");
   });
 });

@@ -5,8 +5,7 @@
  *
  * 1. **Router block** (SPA navigation) on the adapter's `useBlocker`. The dirty
  *    signal is `!isDefaultValue`, NOT the sticky `isDirty` (which stays true
- *    after an edit-then-revert). `isSubmitSuccessful` clears the block after a
- *    save, covering the redirect-in-onSuccess same-tick race.
+ *    after an edit-then-revert). A save clears the block until the next edit.
  * 2. **`beforeunload`** (tab close / reload) — pure DOM, so it works without a
  *    router.
  *
@@ -38,17 +37,21 @@ export interface WarnWhenUnsavedChangesDecision {
   cancel: () => void;
 }
 
+/** Whether `pathname` is `base` or sits under it, on a `/` boundary. */
+function isUnder(pathname: string, base: string): boolean {
+  return pathname === base || pathname.startsWith(`${base}/`);
+}
+
 /**
  * A path under the form root is inside the form, except `${root}/show`, which
- * counts as leaving it (ra-core parity).
+ * counts as leaving it (ra-core parity). `/posts/12` is not under `/posts/1`.
  */
 function isNavigatingAwayFromForm(
   nextPathname: string,
   formRoot: string,
 ): boolean {
-  const insideForm = nextPathname.startsWith(formRoot);
-  const isShowView = nextPathname.startsWith(`${formRoot}/show`);
-  return !insideForm || isShowView;
+  const root = formRoot.replace(/\/+$/, "");
+  return !isUnder(nextPathname, root) || isUnder(nextPathname, `${root}/show`);
 }
 
 export function useWarnWhenUnsavedChanges(
@@ -57,21 +60,35 @@ export function useWarnWhenUnsavedChanges(
 ): WarnWhenUnsavedChangesDecision {
   const { form } = useCheloneFormContext();
 
-  const formState = shallowRef({
-    isDefaultValue: form.store.state.isDefaultValue,
-    isSubmitSuccessful: form.store.state.isSubmitSuccessful,
-  });
+  // `isSubmitSuccessful` is true after any submit that did not throw, including
+  // one the server rejected with field errors, and form-core never clears it on
+  // a later edit. So read it once, when it turns true: the save counts only if
+  // the form was valid then, and only while the values are still the ones saved.
+  let savedValues: unknown;
+  let wasSubmitSuccessful = false;
+  const readFormState = () => {
+    const { isDefaultValue, isSubmitSuccessful, isValid, values } =
+      form.store.state;
+    if (!isSubmitSuccessful) savedValues = undefined;
+    else if (!wasSubmitSuccessful) savedValues = isValid ? values : undefined;
+    wasSubmitSuccessful = isSubmitSuccessful;
+    return {
+      isDefaultValue,
+      isSaved: savedValues !== undefined && values === savedValues,
+    };
+  };
+  const formState = shallowRef(readFormState());
   onScopeDispose(
     subscribeStore(form.store, () => {
-      const { isDefaultValue, isSubmitSuccessful } = form.store.state;
+      const next = readFormState();
       const current = formState.value;
       if (
-        current.isDefaultValue === isDefaultValue &&
-        current.isSubmitSuccessful === isSubmitSuccessful
+        current.isDefaultValue === next.isDefaultValue &&
+        current.isSaved === next.isSaved
       ) {
         return;
       }
-      formState.value = { isDefaultValue, isSubmitSuccessful };
+      formState.value = next;
     }),
   );
 
@@ -79,7 +96,7 @@ export function useWarnWhenUnsavedChanges(
     () =>
       toValue(enable) &&
       !formState.value.isDefaultValue &&
-      !formState.value.isSubmitSuccessful,
+      !formState.value.isSaved,
   );
 
   if (typeof window !== "undefined") {
@@ -111,19 +128,17 @@ export function useWarnWhenUnsavedChanges(
     );
   });
 
+  // Fixed at setup, like ra-core's `initialLocation`: re-reading it per
+  // navigation would move the root as the user steps between tabs of the form.
+  const mountedPathname = adapter?.useLocation().value.pathname;
+
   const blocker =
     adapter && canBlock
       ? adapter.useBlocker(
-          ({
-            currentLocation,
-            nextLocation,
-          }: {
-            currentLocation: CheloneLocation;
-            nextLocation: CheloneLocation;
-          }) => {
+          ({ nextLocation }: { nextLocation: CheloneLocation }) => {
             if (!shouldBlock.value) return false;
-            const formRoot =
-              toValue(formRootPathname) ?? currentLocation.pathname;
+            const formRoot = toValue(formRootPathname) ?? mountedPathname;
+            if (formRoot === undefined) return false;
             return isNavigatingAwayFromForm(nextLocation.pathname, formRoot);
           },
         )
