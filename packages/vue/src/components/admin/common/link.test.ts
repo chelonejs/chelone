@@ -17,7 +17,10 @@ afterEach(() => {
   for (const wrapper of mounted.splice(0)) wrapper.unmount();
 });
 
-function mountLink(props: LinkProps, slot?: (slotProps: any) => unknown) {
+function mountLink(
+  props: LinkProps,
+  slot?: (slotProps: Record<string, unknown>) => unknown,
+) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
