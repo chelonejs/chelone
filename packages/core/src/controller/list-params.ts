@@ -68,28 +68,35 @@ export function serializeListParams(params: ListParamsQuery): string {
   return encoded ? `?${encoded}` : "";
 }
 
-/** Parse a JSON-encoded object param; returns `undefined` on absence or bad JSON. */
-function parseJsonParam<T>(raw: string | null): T | undefined {
+/**
+ * Parse a JSON-encoded object param; returns `undefined` on absence, bad JSON,
+ * or JSON that is not a plain object (`null`, an array, a primitive).
+ */
+function parseJsonObjectParam<T>(raw: string | null): T | undefined {
   if (raw === null) return undefined;
   try {
-    return JSON.parse(raw) as T;
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed))
+      return undefined;
+    return parsed as T;
   } catch {
     return undefined;
   }
 }
 
-/** Parse a decimal integer param; returns `undefined` on absence or non-numeric input. */
-function parseIntParam(raw: string | null): number | undefined {
+/** Parse a positive integer param; returns `undefined` on absence, non-numeric input, or a value below 1. */
+function parsePositiveIntParam(raw: string | null): number | undefined {
   if (raw === null) return undefined;
   const parsed = Number.parseInt(raw, 10);
-  return Number.isNaN(parsed) ? undefined : parsed;
+  return parsed >= 1 ? parsed : undefined;
 }
 
 /**
  * Parse a query string (with or without a leading `?`) into URL-shaped list
- * params. Malformed values are ignored, never trusted or thrown: bad JSON on
- * `filter`/`displayedFilters`, non-numeric `page`/`perPage`, and an `order`
- * outside `ASC`/`DESC` are simply omitted. `order` is upper-cased first.
+ * params. Malformed values are ignored, never trusted or thrown: bad JSON, or
+ * JSON that is not an object, on `filter`/`displayedFilters`; a non-numeric
+ * `page`/`perPage`, or one below 1; and an `order` outside `ASC`/`DESC` are
+ * simply omitted. `order` is upper-cased first.
  */
 export function parseListParams(search: string): ListParamsQuery {
   const params = new URLSearchParams(
@@ -97,10 +104,10 @@ export function parseListParams(search: string): ListParamsQuery {
   );
   const result: ListParamsQuery = {};
 
-  const filter = parseJsonParam<FilterPayload>(params.get("filter"));
+  const filter = parseJsonObjectParam<FilterPayload>(params.get("filter"));
   if (filter !== undefined) result.filter = filter;
 
-  const displayedFilters = parseJsonParam<Record<string, boolean>>(
+  const displayedFilters = parseJsonObjectParam<Record<string, boolean>>(
     params.get("displayedFilters"),
   );
   if (displayedFilters !== undefined)
@@ -115,10 +122,10 @@ export function parseListParams(search: string): ListParamsQuery {
     if (isSortOrder(order)) result.order = order;
   }
 
-  const page = parseIntParam(params.get("page"));
+  const page = parsePositiveIntParam(params.get("page"));
   if (page !== undefined) result.page = page;
 
-  const perPage = parseIntParam(params.get("perPage"));
+  const perPage = parsePositiveIntParam(params.get("perPage"));
   if (perPage !== undefined) result.perPage = perPage;
 
   return result;
