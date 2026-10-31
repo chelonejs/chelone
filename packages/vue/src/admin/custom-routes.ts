@@ -24,7 +24,7 @@ export function toRouteRecord(
   basename: string,
 ): RouteRecordRaw {
   return {
-    path: joinBasename(route.path, basename),
+    path: joinBasename(`/${route.path}`, basename),
     name: route.name,
     component: route.component,
     meta: route.noLayout ? { [NO_LAYOUT_META]: true } : {},

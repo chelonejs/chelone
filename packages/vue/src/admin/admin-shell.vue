@@ -76,9 +76,14 @@ useWatchDataErrors();
 <template>
   <!-- A noLayout match comes first: it renders in every auth state, as React
        mounts no-layout routes outside the gate. -->
-  <ThemeProvider v-if="isNoLayout">
-    <router-view />
-  </ThemeProvider>
+  <ShellErrorBoundary v-if="isNoLayout">
+    <ThemeProvider>
+      <router-view />
+    </ThemeProvider>
+    <template v-if="slots.error" #error="errorProps">
+      <slot name="error" v-bind="errorProps" />
+    </template>
+  </ShellErrorBoundary>
   <ThemeProvider v-else-if="requireAuth && gate.isPending.value">
     <div class="flex min-h-screen flex-col justify-center items-center">
       <Spinner class="size-9" />

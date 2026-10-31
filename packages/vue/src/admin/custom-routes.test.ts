@@ -34,6 +34,9 @@ function authProvider(checkAuth: AuthProvider["checkAuth"]): AuthProvider {
 async function mountAt(
   path: string,
   props: Partial<AdminProps> & { customRoutes: CustomRoute[] },
+  slots: Record<string, () => unknown> = {
+    default: () => h(Resource, { name: "posts", list: Posts }),
+  },
 ) {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -48,10 +51,7 @@ async function mountAt(
       }),
       ...props,
     },
-    slots: {
-      default: () => h(Resource, { name: "posts", list: Posts }),
-      dashboard: () => h("section", "dashboard"),
-    },
+    slots: { dashboard: () => h("section", "dashboard"), ...slots },
     global: { plugins: [router] },
   });
   await flushPromises();
@@ -148,5 +148,43 @@ describe("<Admin customRoutes>", () => {
     wrapper.unmount();
 
     expect(router.hasRoute("terms")).toBe(false);
+  });
+
+  it("a deep link to a custom route resolves in an admin with no resources", async () => {
+    const { wrapper } = await mountAt(
+      "/terms",
+      { customRoutes: [{ path: "/terms", component: Terms, noLayout: true }] },
+      {},
+    );
+
+    expect(wrapper.find("[data-testid=terms]").exists()).toBe(true);
+  });
+
+  it("a path without a leading slash is relative to the root", async () => {
+    const { wrapper, router } = await mountAt("/terms", {
+      customRoutes: [
+        { path: "terms", component: Terms, name: "terms", noLayout: true },
+      ],
+    });
+
+    expect(router.resolve({ name: "terms" }).path).toBe("/terms");
+    expect(wrapper.find("[data-testid=terms]").exists()).toBe(true);
+  });
+
+  it("an error in a noLayout custom route shows the fallback", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const Broken = markRaw(
+      defineComponent({
+        setup: () => () => {
+          throw new Error("boom");
+        },
+      }),
+    );
+    const { wrapper } = await mountAt("/terms", {
+      customRoutes: [{ path: "/terms", component: Broken, noLayout: true }],
+    });
+
+    const alert = wrapper.get('[role="alert"][data-chelone="error-boundary"]');
+    expect(alert.text()).toContain("boom");
   });
 });

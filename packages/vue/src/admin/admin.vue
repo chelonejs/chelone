@@ -164,12 +164,6 @@ provideCheloneContext({
 provideVueRouterAdapter();
 const router = useRouter();
 
-// Added before any resource route: vue-router ranks equal paths by insertion
-// order, so a custom route at a resource's path wins.
-for (const route of props.customRoutes ?? []) {
-  onScopeDispose(router.addRoute(toRouteRecord(route, basename)));
-}
-
 /** Per-resource route removers (`router.addRoute` returns an unregister fn). */
 const routeRemovers = new Map<string, Array<() => void>>();
 
@@ -250,6 +244,15 @@ async function resolveWaitingLocation() {
     void router.replace(current.fullPath);
   }
 }
+
+// Added before any resource route: vue-router ranks equal paths by insertion
+// order, so a custom route at a resource's path wins.
+for (const route of props.customRoutes ?? []) {
+  onScopeDispose(router.addRoute(toRouteRecord(route, basename)));
+}
+// An admin with only custom routes registers no resource, so nothing else
+// re-resolves a deep link to one.
+if (props.customRoutes?.length) void resolveWaitingLocation();
 
 // Reactively reconcile the vue-router table with the registry: reading
 // `Object.keys(definitions)` tracks the shallow-reactive key set, so this
