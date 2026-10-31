@@ -9,6 +9,7 @@ import type {
   AdminUIProps,
   AuthenticatedProps,
   AuthGateState,
+  CardContentInnerProps,
   CheloneRouterHandle,
   ColorInputProps,
   CreateCheloneRouterOptions,
@@ -32,6 +33,7 @@ import type {
   LabeledProps,
   LinkProps,
   ListContextValue,
+  LoadingInputProps,
   NumberInputProps,
   PartitionedChildren,
   PasswordInputProps,
@@ -495,6 +497,16 @@ describe("@chelone/react barrel — P7g feedback + common", () => {
   it("exports Labeled and its props type", () => {
     expect(barrel.Labeled).toBeTypeOf("function");
     expectTypeOf<LabeledProps>().toHaveProperty("htmlFor");
+  });
+
+  it("exports CardContentInner and its props type", () => {
+    expect(barrel.CardContentInner).toBeTypeOf("function");
+    expectTypeOf<CardContentInnerProps>().toHaveProperty("className");
+  });
+
+  it("exports LoadingInput and its props type", () => {
+    expect(barrel.LoadingInput).toBeTypeOf("function");
+    expectTypeOf<LoadingInputProps>().toHaveProperty("timeout");
   });
 
   it("exports TabbedShowLayout, ShowTab, TabbedShowLayoutTabsList and their props types", () => {
