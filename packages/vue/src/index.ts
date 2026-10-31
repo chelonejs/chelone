@@ -281,3 +281,4 @@ export {
   type UseSavedQueriesReturn,
   useSavedQueries,
 } from "./store/use-saved-queries";
+export { useStore, useStoreItem } from "./store/use-store-item";
