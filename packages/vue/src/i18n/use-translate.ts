@@ -8,6 +8,9 @@
  * The fallback is a core i18n over an empty catalog: it echoes the key on a
  * miss, and honours the polyglot `{ _: message }` default (placeholders filled
  * in) exactly as a real instance does, so ra-core style labels still read well.
+ *
+ * The returned `translate` reads the reactive locale from `useLocale`, so
+ * anything calling it re-evaluates on `i18n.setLocale`.
  */
 
 import {
@@ -16,6 +19,7 @@ import {
   type MessageCatalog,
 } from "@chelone/core";
 import { useCheloneContext } from "../context";
+import { useLocale } from "./use-locale";
 
 /** The translate signature the components consume. */
 export type Translate = (
@@ -34,6 +38,10 @@ const echoI18n: AnyCheloneI18n = createI18n<MessageCatalog>({
 export function useTranslate(): Translate {
   const { i18n } = useCheloneContext();
   const active = i18n ?? echoI18n;
-  return (key: string, params?: Record<string, unknown>) =>
-    active.translate(key, params);
+  const locale = useLocale();
+  return (key: string, params?: Record<string, unknown>) => {
+    // Read first so a computed or template calling `translate` tracks the locale.
+    void locale.value;
+    return active.translate(key, params);
+  };
 }
