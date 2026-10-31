@@ -162,6 +162,29 @@ describe("createLockSession", () => {
     expect(onError).toHaveBeenCalledWith(failure);
   });
 
+  it("keeps working after an onError that throws", async () => {
+    const { locks, dataProvider } = setup();
+    const session = createLockSession({
+      dataProvider,
+      resource: "posts",
+      id: 1,
+      getIdentity: async () => "ada",
+      onError: () => {
+        throw new Error("handler bug");
+      },
+    });
+    await locks.lock("posts", { id: 1, identity: "grace" });
+    await session.start();
+    await session.stop();
+
+    await locks.unlock("posts", { id: 1, identity: "grace" });
+    await session.start();
+
+    expect(session.store.getSnapshot().lock).toMatchObject({ identity: "ada" });
+    await session.stop();
+    await expect(locks.getLock("posts", { id: 1 })).resolves.toBeNull();
+  });
+
   it("a failing getIdentity sets error and takes no lock", async () => {
     const failure = new Error("not signed in");
     const { dataProvider, onError } = setup();

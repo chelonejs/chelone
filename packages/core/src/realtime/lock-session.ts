@@ -60,7 +60,8 @@ export function createLockSession({
   let queue: Promise<void> = Promise.resolve();
 
   const enqueue = (step: () => Promise<void>): Promise<void> => {
-    queue = queue.then(step);
+    // A throwing `onError` or store subscriber must not wedge every later step.
+    queue = queue.then(step).catch(() => {});
     return queue;
   };
 
