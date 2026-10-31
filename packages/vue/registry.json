@@ -3420,7 +3420,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

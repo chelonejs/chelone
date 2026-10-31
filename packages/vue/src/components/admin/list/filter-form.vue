@@ -25,6 +25,11 @@ export interface FilterFormProps {
  * never submitted — its values are read live).
  */
 
+import {
+  filterFormReflectShape,
+  getFilterFormValues,
+  mergeFilterValues,
+} from "@chelone/core";
 import { watch } from "vue";
 import { useForm } from "../../../form/use-form";
 import { useListContext } from "../../../list/list-context";
@@ -37,22 +42,60 @@ const resource = props.resource ?? useResourceContext();
 
 // Seed the form from the current list filter; a no-op submit — the form is never
 // submitted, its live values drive `setFilters` instead.
-const { values } = useForm<Record<string, unknown>>({
+const { form, values, reset } = useForm<Record<string, unknown>>({
   resource,
   record: { ...(list.filter ?? {}) } as Record<string, unknown>,
   onSubmit: () => undefined,
 });
 
-// Push value changes into the list surface (debounced by core). Skip a no-op set
-// (the seeded initial value already equals the live filter) to avoid an echo
-// refetch on mount.
+// Guards, as in React's `useFilterForm`. `hasJustBeenModifiedByUser` is set when
+// a user edit pushes and consumed by the next filter change, so the debounced
+// echo of that push never clobbers fresher typing. `isReflecting` marks our own
+// `reset` so the values watcher below ignores the change it causes.
+let hasJustBeenModifiedByUser = false;
+let isReflecting = false;
+
+// Push value changes into the list surface (debounced by core), merged over the
+// current filter so a filter this form has no input for survives. Skip a no-op
+// push (the seeded initial value already equals the live filter) to avoid an
+// echo refetch on mount. `flush: "sync"` lets `isReflecting` bracket the reset.
 watch(
   () => values.value,
   (next) => {
-    if (JSON.stringify(next) === JSON.stringify(list.filter ?? {})) return;
-    list.setFilters(next, undefined, true);
+    if (isReflecting) return;
+    const merged = mergeFilterValues(list.filter ?? {}, next);
+    if (JSON.stringify(merged) === JSON.stringify(list.filter ?? {})) return;
+    hasJustBeenModifiedByUser = true;
+    list.setFilters(merged, undefined, true);
   },
-  { deep: true },
+  { deep: true, flush: "sync" },
+);
+
+// Reflect EXTERNAL filter changes (saved queries, the URL, "remove all
+// filters") back into the inputs. The reset carries a value for every current
+// and registered key, because form-core re-applies a field's current value when
+// a reset omits its key.
+watch(
+  () => JSON.stringify(list.filter ?? {}),
+  () => {
+    if (hasJustBeenModifiedByUser) {
+      hasJustBeenModifiedByUser = false;
+      return;
+    }
+    const incoming = (list.filter ?? {}) as Record<string, unknown>;
+    const current = form.store.state.values as Record<string, unknown>;
+    const next = getFilterFormValues(
+      filterFormReflectShape(current, form.store.state.fieldMeta, incoming),
+      incoming,
+    );
+    if (JSON.stringify(next) === JSON.stringify(current)) return;
+    isReflecting = true;
+    try {
+      reset(next);
+    } finally {
+      isReflecting = false;
+    }
+  },
 );
 </script>
 
