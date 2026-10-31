@@ -31,10 +31,12 @@ app.mount("#app");
 
 // <Admin> registered its resource routes during mount. If the initial URL had
 // no match yet (it resolved before those routes existed), re-run navigation to
-// the current location so the freshly-added route now resolves.
+// the current location so the freshly-added route now resolves. The index is
+// left alone: <Admin> redirects it, and re-resolving "/" here would cancel that
+// redirect's pending navigation.
 router.isReady().then(() => {
   const current = router.currentRoute.value;
-  if (current.matched.length === 0) {
+  if (current.matched.length === 0 && current.path !== "/") {
     void router.replace(current.fullPath);
   }
 });
