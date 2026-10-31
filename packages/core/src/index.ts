@@ -117,6 +117,8 @@ export { HttpError } from "./data/http-error";
 export {
   infiniteListKey,
   listKey,
+  lockKey,
+  locksKey,
   manyKey,
   manyReferenceKey,
   oneKey,
@@ -319,6 +321,15 @@ export type { AddEventsForMutationsOptions } from "./realtime/add-events-for-mut
 export { addEventsForMutations } from "./realtime/add-events-for-mutations";
 export type { InMemoryLockProviderOptions } from "./realtime/in-memory-lock-provider";
 export { inMemoryLockProvider } from "./realtime/in-memory-lock-provider";
+export type { LiveOptions, LiveSubscription } from "./realtime/live";
+export {
+  subscribeLiveLock,
+  subscribeLiveLocks,
+  subscribeLiveRecord,
+  subscribeLiveRecords,
+  subscribeLiveResource,
+} from "./realtime/live";
+export { getLockOptions, getLocksOptions } from "./realtime/lock-options";
 export type {
   MemoryTransport,
   MemoryTransportOptions,
