@@ -28,7 +28,9 @@ import Spinner from "../components/ui/spinner.vue";
 import { useBasename } from "../router/adapter";
 import { useWatchDataErrors } from "../auth/permissions-hooks";
 import { useAuthGate } from "./auth-gate";
+import type { ErrorFallbackProps } from "./default-error-fallback.vue";
 import NavigateToFirstResource from "./navigate-to-first-resource.vue";
+import ShellErrorBoundary from "./shell-error-boundary.vue";
 
 const props = defineProps<{ requireAuth: boolean }>();
 
@@ -39,6 +41,8 @@ defineSlots<{
   dashboard?: () => unknown;
   /** The unauthenticated login screen (default `<LoginPage>`). */
   login?: () => unknown;
+  /** Replaces the default fallback shown when the layout branch throws. */
+  error?: (props: ErrorFallbackProps) => unknown;
 }>();
 
 const gate = useAuthGate(props.requireAuth);
@@ -85,13 +89,18 @@ useWatchDataErrors();
     <!-- Beside the #layout slot, not inside it, so a custom layout still
          redirects. A dashboard owns the index instead. -->
     <NavigateToFirstResource v-if="isIndex && !slots.dashboard" />
-    <slot name="layout">
-      <ThemeProvider>
-        <Layout>
-          <slot v-if="isIndex" name="dashboard" />
-          <router-view />
-        </Layout>
-      </ThemeProvider>
-    </slot>
+    <ShellErrorBoundary>
+      <slot name="layout">
+        <ThemeProvider>
+          <Layout>
+            <slot v-if="isIndex" name="dashboard" />
+            <router-view />
+          </Layout>
+        </ThemeProvider>
+      </slot>
+      <template v-if="slots.error" #error="errorProps">
+        <slot name="error" v-bind="errorProps" />
+      </template>
+    </ShellErrorBoundary>
   </template>
 </template>
