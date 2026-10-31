@@ -18,7 +18,7 @@
  * `<Admin>` behavior where an override owned its own theming.
  */
 
-import { computed } from "vue";
+import { computed, useSlots } from "vue";
 import { START_LOCATION, useRoute, useRouter } from "vue-router";
 import Layout from "../components/admin/layout/layout.vue";
 import ThemeProvider from "../components/admin/layout/theme-provider.vue";
@@ -26,6 +26,7 @@ import LoginPage from "../components/admin/auth/login-page.vue";
 import Spinner from "../components/ui/spinner.vue";
 import { useWatchDataErrors } from "../auth/permissions-hooks";
 import { useAuthGate } from "./auth-gate";
+import NavigateToFirstResource from "./navigate-to-first-resource.vue";
 
 const props = defineProps<{ requireAuth: boolean }>();
 
@@ -39,6 +40,7 @@ defineSlots<{
 }>();
 
 const gate = useAuthGate(props.requireAuth);
+const slots = useSlots();
 
 // The index is the path `/` exactly: `<Admin>` has no `basename` prop yet.
 // Before the first navigation settles the router sits on `START_LOCATION`,
@@ -71,12 +73,17 @@ useWatchDataErrors();
       <LoginPage />
     </ThemeProvider>
   </slot>
-  <slot v-else name="layout">
-    <ThemeProvider>
-      <Layout>
-        <slot v-if="isIndex" name="dashboard" />
-        <router-view />
-      </Layout>
-    </ThemeProvider>
-  </slot>
+  <template v-else>
+    <!-- Beside the #layout slot, not inside it, so a custom layout still
+         redirects. A dashboard owns the index instead. -->
+    <NavigateToFirstResource v-if="isIndex && !slots.dashboard" />
+    <slot name="layout">
+      <ThemeProvider>
+        <Layout>
+          <slot v-if="isIndex" name="dashboard" />
+          <router-view />
+        </Layout>
+      </ThemeProvider>
+    </slot>
+  </template>
 </template>

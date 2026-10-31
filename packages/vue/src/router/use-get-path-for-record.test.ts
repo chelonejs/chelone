@@ -126,12 +126,15 @@ describe("useGetPathForRecord", () => {
   });
 
   it("an explicit link fires no canAccess call", async () => {
-    const canAccess = vi.fn(async () => true);
+    const canAccess = vi.fn(async (_params: { action: string }) => true);
     const capture = await mountProbe(
       { resource: "posts", record: { id: 1 }, link: "show" },
       makeAuthProvider({ canAccess }),
     );
     expect(capture.result?.value).toBe("/posts/1/show");
-    expect(canAccess).not.toHaveBeenCalled();
+    // The index redirect asks for list access; the link must ask for no other.
+    for (const [params] of canAccess.mock.calls) {
+      expect(params).toMatchObject({ action: "list" });
+    }
   });
 });

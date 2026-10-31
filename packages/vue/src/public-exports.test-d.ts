@@ -3,6 +3,7 @@
  * ships its props type next to it, as `@chelone/react` does.
  */
 import { describe, expectTypeOf, it } from "vitest";
+import type { Ref } from "vue";
 import type {
   AdminProps,
   BooleanInputProps,
@@ -88,6 +89,13 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf(barrel).toHaveProperty("useSubscribable");
     expectTypeOf(barrel).toHaveProperty("subscribeStore");
     expectTypeOf<Subscribable<number>>().toBeObject();
+  });
+
+  it("useStore is useStoreItem and returns a ref and a setter", () => {
+    expectTypeOf(barrel.useStore).toEqualTypeOf(barrel.useStoreItem);
+    expectTypeOf(barrel.useStoreItem<boolean>).returns.toEqualTypeOf<
+      [Readonly<Ref<boolean | undefined>>, (value: boolean) => void]
+    >();
   });
 
   it("keeps internal helpers out of the barrel", () => {

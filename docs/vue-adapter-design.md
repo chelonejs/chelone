@@ -29,7 +29,7 @@ Build **`@chelone/vue`** — a full, shipped Vue 3 adapter mirroring `@chelone/r
 
 **Topology.** New `packages/vue` = `@chelone/vue`, sibling to `packages/{core,react}`. Depends on `@chelone/core` (`workspace:*`, unchanged). Peers: `vue`, `vue-router`, `@tanstack/vue-query` (+ `@tanstack/vue-store` if used for forms — see below). Same monorepo, registry-generator, and boundary discipline as `@chelone/react`.
 
-**Two subscribe seams, both trivial because core owns its state:**
+**Three subscribe seams, all trivial because core owns its state:**
 
 1. **Controller/store state** → Chelone's own `MicroStore<T>`. Vue bridge (~15 lines):
    ```ts
@@ -43,6 +43,8 @@ Build **`@chelone/vue`** — a full, shipped Vue 3 adapter mirroring `@chelone/r
    The **4R lifecycle maps 1:1**: `subscribe` → `onSubscribed` (acquire); `onScopeDispose` → unsub (release). Vue's component/`effectScope` disposal replaces React's `useSyncExternalStore` teardown. A selector variant (`useMicroStoreSelector(store, sel)`) memoizes with `computed`.
 
 2. **Form state** → `form-core` (vanilla; React bridges via `@tanstack/react-store`). Vue bridges via `@tanstack/vue-store` **or**, if that binding is awkward, subscribes to form-core's own store with the *same* `useMicroStore` pattern (form-core exposes `subscribe`). No new coupling either way.
+
+3. **KV store** → `CheloneStore` has per-key `subscribe`, so `useStoreItem<T>(key, defaultValue?)` returns a `[Readonly<Ref<T | undefined>>, setter]` tuple, the shape of React's `useStoreItem` with a `Ref` for the value. It subscribes to its key only and unsubscribes with `onScopeDispose`. `useStore` is the same function under ra-core's name.
 
 **Data layer** → `@tanstack/vue-query` over the same `query-core` keys / `dataProvider`. **i18n/errors** → unchanged (core emits `TranslatableMessage` / keys; Vue renders them).
 
