@@ -22,6 +22,9 @@ import type {
   ErrorFallbackProps,
   FilterFormEntry,
   FilterFormProps,
+  FilterListItemProps,
+  FilterListProps,
+  FilterListSectionProps,
   HideOnScrollProps,
   InfiniteListProps,
   InfinitePaginationProps,
@@ -76,6 +79,9 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<FilterFormProps>().toBeObject();
     expectTypeOf<HideOnScrollProps>().toHaveProperty("threshold");
     expectTypeOf<InfiniteListProps>().toBeObject();
+    expectTypeOf<FilterListItemProps>().toHaveProperty("value");
+    expectTypeOf<FilterListProps>().toHaveProperty("label");
+    expectTypeOf<FilterListSectionProps>().toHaveProperty("label");
     expectTypeOf<InfinitePaginationProps>().toBeObject();
     expectTypeOf<ListProps>().toBeObject();
     expectTypeOf<ListNoResultsProps>().toBeObject();
