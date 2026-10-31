@@ -746,6 +746,14 @@ export {
   ShowView,
   type ShowViewProps,
 } from "./components/admin/views/show";
+export {
+  ShowTab,
+  type ShowTabProps,
+  TabbedShowLayout,
+  type TabbedShowLayoutProps,
+  TabbedShowLayoutTabsList,
+  type TabbedShowLayoutTabsListProps,
+} from "./components/admin/views/tabbed-show-layout";
 export type { CheloneProviderProps } from "./context";
 export {
   CheloneProvider,
@@ -814,6 +822,7 @@ export {
   useListContext,
   useOptionalFormGroups,
   useRegisterFieldGroup,
+  useSplatPathBase,
   useTabbedFormContext,
   useWarnWhenUnsavedChanges,
   useWatch,

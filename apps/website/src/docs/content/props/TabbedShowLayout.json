@@ -1,0 +1,47 @@
+{
+  "name": "TabbedShowLayout",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "`<TabbedShowLayout.Tab>` elements, directly or inside Fragments."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "divider",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered between a tab's fields, not after the last."
+    },
+    {
+      "name": "spacing",
+      "type": "number",
+      "optional": true,
+      "comment": "The gap between a tab's fields, in units of 4px. Defaults to 4."
+    },
+    {
+      "name": "syncWithLocation",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Follow the URL (default `true`): the active tab comes from the location\nunder the show route and a change navigates there, keeping the query\nstring. `false` keeps the active tab in local state."
+    },
+    {
+      "name": "tabs",
+      "type": "ReactElement<unknown, string | JSXElementConstructor<any>>",
+      "optional": true,
+      "comment": "Replaces the default `<TabbedShowLayoutTabsList>`."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "optional": true,
+      "comment": "The active tab's URL segment. Overrides both modes."
+    }
+  ]
+}
