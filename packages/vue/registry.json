@@ -965,6 +965,14 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/count-spinner.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/count.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/data-table-col.vue",
           "type": "registry:component"
         },
@@ -1001,6 +1009,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/filter-live-search.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/infinite-pagination.vue",
           "type": "registry:component"
         },
@@ -1030,6 +1042,14 @@
         },
         {
           "path": "src/components/admin/list/simple-list.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/single-field-list-record.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/single-field-list.vue",
           "type": "registry:component"
         },
         {
@@ -3426,6 +3446,40 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "count-spinner",
+      "type": "registry:component",
+      "title": "Count Spinner",
+      "files": [
+        {
+          "path": "src/components/admin/list/count-spinner.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/ui-spinner", "@chelone/use-timeout"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "count",
+      "type": "registry:component",
+      "title": "Count",
+      "files": [
+        {
+          "path": "src/components/admin/list/count.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button-icons",
+        "@chelone/count-spinner",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "data-table-col",
       "type": "registry:component",
       "title": "Data Table Col",
@@ -3585,6 +3639,21 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "filter-live-search",
+      "type": "registry:component",
+      "title": "Filter Live Search",
+      "files": [
+        {
+          "path": "src/components/admin/list/filter-live-search.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/filter-form", "@chelone/search-input"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "infinite-pagination",
       "type": "registry:component",
       "title": "Infinite Pagination",
@@ -3715,6 +3784,39 @@
         "@chelone/list-no-results",
         "@chelone/simple-list-item",
         "@chelone/simple-list-loading"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "single-field-list-record",
+      "type": "registry:component",
+      "title": "Single Field List Record",
+      "files": [
+        {
+          "path": "src/components/admin/list/single-field-list-record.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "single-field-list",
+      "type": "registry:component",
+      "title": "Single Field List",
+      "files": [
+        {
+          "path": "src/components/admin/list/single-field-list.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/lib-utils",
+        "@chelone/single-field-list-record"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
