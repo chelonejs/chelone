@@ -1,0 +1,35 @@
+{
+  "name": "ListToolbar",
+  "props": [
+    {
+      "name": "actions",
+      "type": "false | ReactElement<unknown, string | JSXElementConstructor<any>>",
+      "optional": true,
+      "comment": "The right-hand element; `false` renders none. Defaults to `<ListActions>`."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "exporter",
+      "type": "false | Exporter",
+      "optional": true,
+      "comment": "Handed to the actions element; `false` hides the export button."
+    },
+    {
+      "name": "filters",
+      "type": "ReactElement<unknown, string | JSXElementConstructor<any>> | ReactNode[]",
+      "optional": true,
+      "comment": "Filter inputs: an array, or an element whose children are the inputs."
+    },
+    {
+      "name": "hasCreate",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Handed to the actions element."
+    }
+  ]
+}
