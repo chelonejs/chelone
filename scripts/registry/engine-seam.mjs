@@ -1,4 +1,4 @@
-// The engine seam: chelone packs the ENGINE (@chelone/react hooks — context,
+// The engine seam: chelone packs the ENGINE (the adapter's hooks — context,
 // resource, i18n-hooks, form-hooks, record/*, router/*, form/*, list/*, util/*,
 // label/*, choices-hooks, compat-hooks, controller-hooks, auth-hooks,
 // array-hooks, store-hooks, notification-hooks, save-context,
@@ -7,14 +7,15 @@
 // component SOURCE imports the engine via DEEP RELATIVE paths like
 // `import { useInput } from "../../../form-hooks"`. That is fine for the package
 // build, but the registry COPIES a component file into a consumer where the
-// engine files are NOT present (the engine is the npm package @chelone/react) —
+// engine files are NOT present (the engine is the npm package named by
+// `engine.package` in the package's registry.config.mjs) —
 // so those relatives 404 (TS2307). This module is the shadmin-core→ra-core seam
 // analog (registry landmine #7).
 //
 // CLASS DISTINCTION (the fix hinges on this):
 //   (A) ENGINE relatives  — a relative/`@/` import from a shipped component file
 //       resolving to a src/ file NOT under components/, lib/, or hooks/. THESE
-//       ARE THE BUG. Rewrite the specifier to the bare `@chelone/react`.
+//       ARE THE BUG. Rewrite the specifier to the bare engine package.
 //   (B) SIBLING relatives  — resolve to another SHIPPED file under components/,
 //       lib/, or hooks/. These resolve fine in a consumer because shadcn
 //       preserves the src/components/admin/… structure, so the relative depth
@@ -24,17 +25,37 @@
 // The rewrite happens at EMIT time (dist/r content), NOT in the source: the
 // source keeps its relatives (rewriting the source would risk an
 // index.ts<->components circular self-import). generate-registry declares
-// `@chelone/react` as an npm dependency on every item whose content will be
+// the engine package as an npm dependency on every item whose content will be
 // rewritten; build-registry performs the actual content rewrite so it reaches
 // the final dist/r/<item>.json files[].content regardless of AUTO/MANUAL.
 
-import { readFileSync, statSync } from "node:fs";
+import { statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
-const SOURCE_EXTS = [".tsx", ".ts"];
+// Run from the package that owns the registry; its config lives beside it.
+const { engine } = await import(
+  pathToFileURL(join(process.cwd(), "scripts", "registry.config.mjs")).href
+);
+
+const SOURCE_EXTS = engine.sourceExtensions;
 
 // The bare npm package the engine relatives collapse onto.
-export const ENGINE_PACKAGE = "@chelone/react";
+export const ENGINE_PACKAGE = engine.package;
+
+export const IMPLICIT_DEPENDENCIES = new Set(engine.implicitDependencies);
+export const ITEM_NAMES = new Map(Object.entries(engine.itemNames));
+export const CLI = engine.cli;
+
+const SCRIPT_BLOCK_RE = /(<script\b[^>]*>)([\s\S]*?)(<\/script>)/g;
+
+// The part of a source file that holds imports: a `.vue` file's `<script>`
+// blocks (a template string that looks like an import must not count), any
+// other file whole.
+export const importSource = (file, content) =>
+  file.endsWith(".vue")
+    ? [...content.matchAll(SCRIPT_BLOCK_RE)].map((m) => m[2]).join("\n")
+    : content;
 
 const tryResolveFile = (basePath) => {
   for (const ext of SOURCE_EXTS) {
@@ -101,17 +122,24 @@ export const isEngineRelative = (importPath, sourceFile, repoRoot) => {
 const IMPORT_SPEC_RE =
   /(\bfrom\s+|^\s*(?:import|export)\s+)["']([^"']+)["']/gm;
 
-// Rewrite every ENGINE-relative specifier in `content` to `@chelone/react`.
+// Rewrite every ENGINE-relative specifier in `content` to the engine package.
 // `sourceFile` is the ORIGINAL absolute source path (used to resolve relatives).
 // Returns { content, rewrote } — rewrote is true if any specifier changed.
 export const rewriteEngineImports = (content, sourceFile, repoRoot) => {
   let rewrote = false;
-  const next = content.replace(IMPORT_SPEC_RE, (full, lead, spec) => {
-    if (isEngineRelative(spec, sourceFile, repoRoot)) {
-      rewrote = true;
-      return `${lead}"${ENGINE_PACKAGE}"`;
-    }
-    return full;
-  });
+  const rewrite = (code) =>
+    code.replace(IMPORT_SPEC_RE, (full, lead, spec) => {
+      if (isEngineRelative(spec, sourceFile, repoRoot)) {
+        rewrote = true;
+        return `${lead}"${ENGINE_PACKAGE}"`;
+      }
+      return full;
+    });
+  const next = sourceFile.endsWith(".vue")
+    ? content.replace(
+        SCRIPT_BLOCK_RE,
+        (_block, open, code, close) => `${open}${rewrite(code)}${close}`,
+      )
+    : rewrite(content);
   return { content: next, rewrote };
 };
