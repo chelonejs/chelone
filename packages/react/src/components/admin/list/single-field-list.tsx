@@ -46,13 +46,13 @@ function SingleFieldList<RecordType extends ResourceRecord = ResourceRecord>({
     <div className={cn("flex gap-2", className)}>
       {(data as RecordType[]).map((record, index) => (
         <RecordContextProvider<RecordType> key={record.id} value={record}>
-          {render ? (
-            render(record, index)
-          ) : (
-            (children ?? (
-              <Badge variant="outline">{getRecordRepresentation(record)}</Badge>
-            ))
-          )}
+          {render
+            ? render(record, index)
+            : (children ?? (
+                <Badge variant="outline">
+                  {getRecordRepresentation(record)}
+                </Badge>
+              ))}
         </RecordContextProvider>
       ))}
     </div>

@@ -21,10 +21,7 @@ import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
-import {
-  ResourceContextProvider,
-  ResourceRegistryProvider,
-} from "../../../resource";
+import { ResourceRegistryProvider } from "../../../resource";
 import { RouterAdapterProvider } from "../../../router/adapter";
 import { reactRouterAdapter } from "../../../router/react-router-adapter";
 import { Count, type CountProps } from "./count";
