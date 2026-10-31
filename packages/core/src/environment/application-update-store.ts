@@ -67,10 +67,10 @@ export function createApplicationUpdateStore(
         : `${location.origin}/index.html`);
     if (url === undefined) return;
     const { fetchOptions } = options;
-    const init =
-      typeof fetchOptions === "function" ? fetchOptions() : fetchOptions;
     let text: string;
     try {
+      const init =
+        typeof fetchOptions === "function" ? fetchOptions() : fetchOptions;
       const response = await fetch(url, { ...init, cache: "no-store" });
       if (!response.ok) return;
       text = await response.text();

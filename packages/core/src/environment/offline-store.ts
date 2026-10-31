@@ -5,7 +5,7 @@ export interface OfflineSnapshot {
 }
 
 const readIsOffline = (): boolean =>
-  typeof navigator !== "undefined" && !navigator.onLine;
+  typeof navigator !== "undefined" && navigator.onLine === false;
 
 /**
  * Whether the browser reports itself offline. Reads `navigator.onLine` rather

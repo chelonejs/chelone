@@ -97,6 +97,20 @@ describe("createApplicationUpdateStore", () => {
     expect(store.getSnapshot()).toEqual({ hasNewVersion: false });
   });
 
+  it("ignores a fetchOptions function that throws", async () => {
+    const fetchMock = stubFetch("v1");
+    const store = createApplicationUpdateStore({
+      interval: 1000,
+      fetchOptions: () => {
+        throw new Error("token not ready");
+      },
+    });
+    store.subscribe(() => {});
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(store.getSnapshot()).toEqual({ hasNewVersion: false });
+  });
+
   it("sends cache no-store over a caller cache option", async () => {
     const fetchMock = stubFetch("v1");
     const store = createApplicationUpdateStore({

@@ -38,6 +38,11 @@ describe("createOfflineStore", () => {
     expect(createOfflineStore().getSnapshot()).toEqual({ isOffline: false });
   });
 
+  it("reports online when navigator has no onLine property", () => {
+    vi.stubGlobal("navigator", {});
+    expect(createOfflineStore().getSnapshot()).toEqual({ isOffline: false });
+  });
+
   it("follows the offline and online events while subscribed", () => {
     const navigator = { onLine: true };
     vi.stubGlobal("navigator", navigator);
