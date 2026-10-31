@@ -311,6 +311,37 @@ export type {
   NotifyOptions,
 } from "./notification/notification-store";
 export { createNotificationStore } from "./notification/notification-store";
+export type { AddEventsForMutationsOptions } from "./realtime/add-events-for-mutations";
+export { addEventsForMutations } from "./realtime/add-events-for-mutations";
+export {
+  assertRealtimeDataProvider,
+  isRealtimeDataProvider,
+  realtimeDataProvider,
+} from "./realtime/realtime-data-provider";
+export {
+  lockResourceTopic,
+  lockTopic,
+  recordTopic,
+  resourceTopic,
+} from "./realtime/topics";
+export type {
+  GetLockParams,
+  GetLocksParams,
+  Lock,
+  LockParams,
+  LockProvider,
+  RealtimeConnectionStatus,
+  RealtimeDataProvider,
+  RealtimeDataProviderOptions,
+  RealtimeEvent,
+  RealtimeEventType,
+  RealtimeTransport,
+  RealtimeTransportError,
+  RealtimeTransportErrorKind,
+  SubscriptionCallback,
+  UnlockParams,
+} from "./realtime/types";
+export { LockConflictError } from "./realtime/types";
 export type { Identifier } from "./resource/identifier";
 export type { LooseRecord, ResourceRecord } from "./resource/record";
 export type {
