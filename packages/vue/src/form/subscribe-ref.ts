@@ -1,17 +1,17 @@
 /**
  * `useSubscribable` — the Vue reactivity bridge for form-core's own controllers
  * (`FormController` / `FieldBinding`). It is the SAME shallowRef + subscribe +
- * onScopeDispose pattern as the V1-a `useStore` (store/use-store.ts), narrowed
+ * onScopeDispose pattern as the V1-a `useMicroStore` (store/use-micro-store.ts), narrowed
  * to the minimal readable shape form-core exposes.
  *
- * Why a sibling helper instead of reusing `useStore`:
- * - `useStore<T>` is typed to `MicroStore<T>`, which requires `getSnapshot` +
+ * Why a sibling helper instead of reusing `useMicroStore`:
+ * - `useMicroStore<T>` is typed to `MicroStore<T>`, which requires `getSnapshot` +
  *   `setState` + `subscribe` + `destroy` + `onDestroy`. The P4 record/list
  *   controllers are built on `createMicroStore`, so they satisfy it. The form
  *   controllers are NOT — a `FormController`/`FieldBinding` wraps a
  *   `@tanstack/form-core` store and exposes only the `useSyncExternalStore`
  *   contract (`subscribe` + `getSnapshot`), never `setState`/`onDestroy`. So
- *   they cannot be passed to `useStore` without a lie of a cast.
+ *   they cannot be passed to `useMicroStore` without a lie of a cast.
  * - Subscribing THROUGH the controller/binding is also load-bearing, not
  *   incidental: `FormController.subscribe` runs `form.mount()` on the 0->1
  *   transition (and unmounts on the last unsubscribe); `FieldBinding.subscribe`

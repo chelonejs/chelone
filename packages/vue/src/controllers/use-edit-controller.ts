@@ -6,7 +6,7 @@
  *
  * The seam is identical to {@link useListController}: the controller owns the
  * vanilla `query-core` observers over the vue-query `QueryClient` `<Admin>`
- * provides; `useStore` is the single subscribe bridge (4R acquire on mount,
+ * provides; `useMicroStore` is the single subscribe bridge (4R acquire on mount,
  * release on scope disposal). `save` is the controller's own `save` — at this
  * layer it is the raw core save pipeline (validate → persist → notify, resolving
  * server field errors); the FORM reconciliation (`form.reset(saved)`, field-
@@ -33,7 +33,7 @@ import { computed, reactive } from "vue";
 import { useCheloneContext } from "../context";
 import { useRequiredResource } from "../resource-context";
 import { useRouterAdapterOptional } from "../router/adapter";
-import { useStore } from "../store/use-store";
+import { useMicroStore } from "../store/use-micro-store";
 import { toControllerContext } from "./controller-context";
 
 /** Options for {@link useEditController}: the core edit options (id optional) + a resource override. */
@@ -77,7 +77,7 @@ export function useEditController<
     { ...options, id },
   );
 
-  const state = useStore(controller);
+  const state = useMicroStore(controller);
 
   return reactive({
     record: computed(() => state.value.record),

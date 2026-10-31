@@ -2,7 +2,7 @@
  * `useInfiniteListController` — the Vue bridge for the vanilla core infinite
  * list controller, the twin of `@chelone/react`'s hook (`infinite-hooks.ts`)
  * and the sibling of `useListController`: one controller built at `setup`
- * (construction is INERT), attached by `useStore` on mount and released on
+ * (construction is INERT), attached by `useMicroStore` on mount and released on
  * scope disposal, behind a `reactive` facade of state and stable actions.
  *
  * Filters and sort live in the store only: the composable never reads or
@@ -21,7 +21,7 @@ import {
 import { computed, reactive } from "vue";
 import { useCheloneContext } from "../context";
 import { useRequiredResource } from "../resource-context";
-import { useStore } from "../store/use-store";
+import { useMicroStore } from "../store/use-micro-store";
 import { toControllerContext } from "./controller-context";
 
 /** Options for {@link useInfiniteListController}: the core list options + a resource override. */
@@ -60,7 +60,7 @@ export function useInfiniteListController<
 
   const controller: InfiniteListController<TRecord> =
     createInfiniteListController(toControllerContext(ctx), resource, options);
-  const state = useStore(controller);
+  const state = useMicroStore(controller);
 
   const facade: UseInfiniteListControllerReturn<TRecord> = reactive({
     data: computed(() => state.value.data),

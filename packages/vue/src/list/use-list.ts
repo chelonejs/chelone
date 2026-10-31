@@ -11,7 +11,7 @@
  * `createClientListController` with `useSyncExternalStore` and reflects `data` /
  * `filter` / loading PROP changes back into the controller through effects
  * (keyed by content, guarded against the mount seed). Vue binds it through the
- * same {@link useStore} seam and reflects reactive-source changes with `watch`
+ * same {@link useMicroStore} seam and reflects reactive-source changes with `watch`
  * (skip-on-mount by default — construction already seeded the source). The data
  * watcher is registered BEFORE the loading watcher so that on the tick an async
  * source resolves (`data` populates AND `isPending` flips false together),
@@ -28,7 +28,7 @@ import {
   type SortPayload,
 } from "@chelone/core";
 import { computed, type MaybeRefOrGetter, reactive, toValue, watch } from "vue";
-import { useStore } from "../store/use-store";
+import { useMicroStore } from "../store/use-micro-store";
 import type { ListContextValue } from "./list-context";
 
 /** Options for {@link useList} — the client-side list composable. */
@@ -77,7 +77,7 @@ export function useList<TRecord extends ResourceRecord = ResourceRecord>(
 
   // The single subscribe seam (4R acquire on first subscribe, release on scope
   // disposal). `state` swaps whole snapshots on every controller mutation.
-  const state = useStore(controller);
+  const state = useMicroStore(controller);
 
   // Reflect external `data` changes FIRST (registered before the loading watch)
   // so a resolving source sets the data before the loading recompute publishes.

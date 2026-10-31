@@ -1,6 +1,6 @@
 // Controller composables — the Vue bridges over the vanilla core controllers
 // (`createListController` / `createEditController` / `createCreateController`),
-// each wrapping the controller through the `useStore` reactivity bridge and
+// each wrapping the controller through the `useMicroStore` reactivity bridge and
 // driving fetch via the `@tanstack/vue-query` client `<Admin>` provides.
 
 export { toControllerContext } from "./controller-context";
