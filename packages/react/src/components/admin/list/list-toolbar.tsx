@@ -23,12 +23,26 @@ interface ListToolbarProps {
   hasCreate?: boolean;
 }
 
+/** The toolbar's own props that the element has not set itself. */
+function defaultsFor(
+  element: ReactElement,
+  candidates: Record<string, unknown>,
+): Record<string, unknown> {
+  const own = element.props as Record<string, unknown>;
+  return Object.fromEntries(
+    Object.entries(candidates).filter(
+      ([key, value]) => value !== undefined && own[key] === undefined,
+    ),
+  );
+}
+
 /**
  * The bar above a list: the filter form on the left and the actions on the
  * right. Publishes the filters on `FilterContext` for its subtree.
  *
  * A custom `actions` element is cloned with `exporter`, `hasCreate` and
- * `filters`, setting only those the toolbar itself was given.
+ * `filters`, setting only those the toolbar was given and the element has not
+ * set itself.
  *
  * @example
  * <List actions={<ListToolbar filters={[<TextInput key="q" source="q" alwaysOn />]} />} />
@@ -49,11 +63,10 @@ function ListToolbar(props: ListToolbarProps) {
 
   const actionsElement =
     actions === false ? null : actions ? (
-      cloneElement(actions as ReactElement<Record<string, unknown>>, {
-        ...(exporter !== undefined ? { exporter } : {}),
-        ...(hasCreate !== undefined ? { hasCreate } : {}),
-        ...(filters ? { filters } : {}),
-      })
+      cloneElement(
+        actions as ReactElement<Record<string, unknown>>,
+        defaultsFor(actions, { exporter, hasCreate, filters }),
+      )
     ) : (
       <ListActions exporter={exporter} hasCreate={hasCreate} />
     );

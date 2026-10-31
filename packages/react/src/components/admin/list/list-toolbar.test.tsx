@@ -214,6 +214,20 @@ describe("<ListToolbar>", () => {
     );
   });
 
+  it("lets props set on a custom actions element win over the toolbar's", async () => {
+    mount(
+      <ListToolbar
+        filters={alwaysOn}
+        exporter={() => {}}
+        hasCreate
+        actions={<ListActions exporter={false} hasCreate={false} />}
+      />,
+    );
+    await screen.findByRole("textbox");
+    expect(screen.queryByRole("link", { name: "Create" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Export" })).toBeNull();
+  });
+
   it("children of the actions element read the filters through FilterContext", async () => {
     mount(
       <ListToolbar
