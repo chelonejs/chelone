@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import type { DataProvider } from "../data/types";
 import { addEventsForMutations } from "./add-events-for-mutations";
-import type { RealtimeEvent } from "./types";
+import { isRealtimeDataProvider } from "./realtime-data-provider";
+import type { RealtimeDataProvider, RealtimeEvent } from "./types";
 
 type Published = [topic: string, event: Omit<RealtimeEvent, "topic">];
 
@@ -174,6 +175,29 @@ describe("addEventsForMutations", () => {
     });
     await dp.create("posts", { data: {} });
     expect(published).toEqual(["resource/posts"]);
+  });
+
+  it("keeps a RealtimeDataProvider written as a class realtime", async () => {
+    class Api {
+      readonly subscribed: string[] = [];
+      subscribe(topic: string) {
+        this.subscribed.push(topic);
+        return () => {};
+      }
+      async publish() {}
+      async create() {
+        return { data: { id: 7 } };
+      }
+    }
+    const api = new Api();
+    const dp = addEventsForMutations(
+      api as unknown as RealtimeDataProvider,
+      api,
+    );
+
+    expect(isRealtimeDataProvider(dp)).toBe(true);
+    dp.subscribe("resource/posts", () => {});
+    expect(api.subscribed).toEqual(["resource/posts"]);
   });
 
   it("leaves reads untouched", async () => {

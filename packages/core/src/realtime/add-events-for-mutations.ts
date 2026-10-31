@@ -1,5 +1,6 @@
 import type { DataProvider } from "../data/types";
 import type { Identifier } from "../resource/identifier";
+import { copyMembers } from "./copy-members";
 import { recordTopic, resourceTopic } from "./topics";
 import type { RealtimeEvent, RealtimeTransport } from "./types";
 
@@ -53,14 +54,7 @@ export function addEventsForMutations<TProvider extends DataProvider>(
   ];
 
   const wrapped: DataProvider = {
-    // The spread skips a class instance's prototype verbs, so the reads are
-    // delegated by name; the five writes below replace theirs.
-    ...base,
-    getList: (resource, params) => base.getList(resource, params),
-    getOne: (resource, params) => base.getOne(resource, params),
-    getMany: (resource, params) => base.getMany(resource, params),
-    getManyReference: (resource, params) =>
-      base.getManyReference(resource, params),
+    ...copyMembers(base),
     create: async (resource, params) => {
       const result = await base.create(resource, params);
       await publishAll([

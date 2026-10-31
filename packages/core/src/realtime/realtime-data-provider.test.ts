@@ -96,6 +96,24 @@ describe("realtimeDataProvider", () => {
     });
   });
 
+  it("keeps a custom method on the prototype of a class provider, bound to it", async () => {
+    class Api {
+      readonly banned: string[] = [];
+      async banUser(name: string) {
+        this.banned.push(name);
+        return this.banned.length;
+      }
+    }
+    const api = new Api();
+    const dp = realtimeDataProvider(
+      api as unknown as DataProvider,
+      baseTransport(),
+    ) as unknown as Api;
+
+    await expect(dp.banUser("eve")).resolves.toBe(1);
+    expect(api.banned).toEqual(["eve"]);
+  });
+
   it("subscribe and publish go through the transport", async () => {
     const unsubscribe = vi.fn();
     const transport: RealtimeTransport = {
