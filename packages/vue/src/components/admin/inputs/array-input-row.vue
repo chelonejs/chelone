@@ -5,6 +5,19 @@ import type { ArrayRow } from "@chelone/core";
 export interface ArrayInputRowProps {
   /** The stable-id row this wrapper scopes + controls. */
   row: ArrayRow;
+  /** Hides this row's remove and reorder controls. */
+  disabled?: boolean;
+  /** Hides the remove button. A function decides per row index. */
+  disableRemove?: boolean | ((index: number) => boolean);
+  /** Hides the move up / move down buttons. */
+  disableReordering?: boolean;
+  /** Lays the row's inputs out in one line from the `sm` breakpoint up. */
+  inline?: boolean;
+  /**
+   * A label for the row. `true` numbers rows from 1; a function returns the
+   * label for the row index; `false` renders none.
+   */
+  getItemLabel?: boolean | ((index: number) => string);
 }
 </script>
 
@@ -23,9 +36,12 @@ export interface ArrayInputRowProps {
  * iterator from its ANCESTOR `<ArrayInput>` — it does not consume its own
  * provide. Keyed by `row.id` (not the index) in the parent so Vue reuses the
  * instance through reorders, preserving focus + DOM identity.
+ *
+ * The `#remove-button` and `#reorder-buttons` scoped slots (`{ index, remove,
+ * reOrder }`) replace the default controls.
  */
 
-import { inject } from "vue";
+import { computed, inject } from "vue";
 import { ArrayInputContextKey, provideIteratorRow } from "../../../array";
 import { useTranslate } from "../../../i18n/use-translate";
 import Button from "../../ui/button.vue";
@@ -45,8 +61,24 @@ if (!array) {
   );
 }
 
+const removable = computed(() =>
+  typeof props.disableRemove === "function"
+    ? !props.disableRemove(props.row.index)
+    : !props.disableRemove,
+);
+const itemLabel = computed(() =>
+  typeof props.getItemLabel === "function"
+    ? props.getItemLabel(props.row.index)
+    : props.getItemLabel === true
+      ? String(props.row.index + 1)
+      : null,
+);
+
 function remove() {
   array?.remove(props.row.index);
+}
+function reOrder(to: number) {
+  array?.reOrder(props.row.index, to);
 }
 function moveUp() {
   if (props.row.index > 0) array?.reOrder(props.row.index, props.row.index - 1);
@@ -60,43 +92,71 @@ function moveDown() {
 
 <template>
   <div data-slot="array-input-row" class="flex items-start gap-2">
-    <div class="flex flex-1 flex-col gap-2">
+    <span
+      v-if="itemLabel != null"
+      data-slot="array-input-row-label"
+      class="min-w-6 pt-2 text-muted-foreground text-sm"
+    >
+      {{ itemLabel }}
+    </span>
+    <div
+      class="flex flex-1 flex-col gap-2"
+      :class="inline && 'sm:flex-row sm:items-start'"
+    >
       <slot />
     </div>
-    <div class="flex shrink-0 items-center gap-1 pt-1">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        class="size-7"
-        :disabled="row.index === 0"
-        :aria-label="translate('ra.action.move_up', { _: 'Move up' })"
-        @click="moveUp"
-      >
-        <span aria-hidden="true">↑</span>
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        class="size-7"
-        :disabled="array != null && row.index >= array.total.value - 1"
-        :aria-label="translate('ra.action.move_down', { _: 'Move down' })"
-        @click="moveDown"
-      >
-        <span aria-hidden="true">↓</span>
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        class="size-7"
-        :aria-label="translate('ra.action.remove', { _: 'Remove' })"
-        data-slot="array-input-remove"
-        @click="remove"
-      >
-        <span aria-hidden="true">×</span>
-      </Button>
+    <div v-if="!disabled" class="flex shrink-0 items-center gap-1 pt-1">
+      <template v-if="!disableReordering">
+        <slot
+          name="reorder-buttons"
+          :index="row.index"
+          :remove="remove"
+          :re-order="reOrder"
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            class="size-7"
+            :disabled="row.index === 0"
+            :aria-label="translate('ra.action.move_up', { _: 'Move up' })"
+            @click="moveUp"
+          >
+            <span aria-hidden="true">↑</span>
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            class="size-7"
+            :disabled="array != null && row.index >= array.total.value - 1"
+            :aria-label="translate('ra.action.move_down', { _: 'Move down' })"
+            @click="moveDown"
+          >
+            <span aria-hidden="true">↓</span>
+          </Button>
+        </slot>
+      </template>
+      <template v-if="removable">
+        <slot
+          name="remove-button"
+          :index="row.index"
+          :remove="remove"
+          :re-order="reOrder"
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            class="size-7"
+            :aria-label="translate('ra.action.remove', { _: 'Remove' })"
+            data-slot="array-input-remove"
+            @click="remove"
+          >
+            <span aria-hidden="true">×</span>
+          </Button>
+        </slot>
+      </template>
     </div>
   </div>
 </template>
