@@ -8,11 +8,11 @@
  * Chelone context + a static record, and asserts the observable DOM.
  */
 
-import { fakeDataProvider } from "@chelone/core";
+import { createI18n, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import { type Component, defineComponent, h } from "vue";
+import { type Component, defineComponent, h, nextTick } from "vue";
 import { provideCheloneContext } from "../../../context";
 import { provideRecordContext } from "../../../record/record-context";
 import ApiKeyField from "./api-key-field.vue";
@@ -82,6 +82,29 @@ describe("CurrencyField", () => {
       { cents: 1999 },
     );
     expect(w.get('[data-slot="currency-field"]').text()).toBe("$19.99");
+  });
+
+  it("CurrencyField formats with the app locale when displayLocale is absent", async () => {
+    const i18n = createI18n({
+      locale: "en-US",
+      messages: { "en-US": {}, "de-DE": {} },
+    });
+    const Harness = defineComponent({
+      setup() {
+        provideCheloneContext({ ...makeContext(), i18n });
+        provideRecordContext({ price: 1234.5 });
+        return () => h(CurrencyField, { source: "price", currency: "EUR" });
+      },
+    });
+    const w = mount(Harness);
+    expect(w.get('[data-slot="currency-field"]').text()).toBe("€1,234.50");
+
+    i18n.setLocale("de-DE");
+    await nextTick();
+
+    expect(w.get('[data-slot="currency-field"]').text()).toBe(
+      "1.234,50\u00a0€",
+    );
   });
 
   it("renders the empty placeholder for a nullish value", () => {

@@ -8,7 +8,12 @@
  * money as number/composite, duration as an ISO-8601 string).
  */
 
-import { fakeDataProvider, required } from "@chelone/core";
+import {
+  type AnyCheloneI18n,
+  createI18n,
+  fakeDataProvider,
+  required,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -46,7 +51,11 @@ interface Captured {
   values?: () => Record<string, unknown>;
 }
 
-function mountInForm(render: () => unknown, record: FormValues) {
+function mountInForm(
+  render: () => unknown,
+  record: FormValues,
+  i18n?: AnyCheloneI18n,
+) {
   const captured: Captured = {};
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -71,7 +80,7 @@ function mountInForm(render: () => unknown, record: FormValues) {
       return () =>
         h(
           Admin,
-          { dataProvider, queryClient },
+          { dataProvider, queryClient, i18n },
           { default: () => h(FormHost, null, { default: render }) },
         );
     },
@@ -404,6 +413,25 @@ describe("<CurrencyInput>", () => {
     );
     await flushPromises();
     expect(wrapper.text()).toContain("€");
+  });
+
+  it("CurrencyInput follows the app locale after setLocale", async () => {
+    const i18n = createI18n({
+      locale: "en-US",
+      messages: { "en-US": {}, "ar-AE": {} },
+    }) as AnyCheloneI18n;
+    const { wrapper } = mountInForm(
+      () => h(CurrencyInput, { source: "price", currency: "AED" }),
+      { id: 1, price: 10 },
+      i18n,
+    );
+    await flushPromises();
+    expect(wrapper.text()).toContain("AED");
+
+    i18n.setLocale("ar-AE");
+    await nextTick();
+
+    expect(wrapper.text()).toContain("د.إ.");
   });
 
   it("surfaces a validation error after submit", async () => {
