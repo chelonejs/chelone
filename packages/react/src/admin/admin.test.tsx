@@ -494,6 +494,46 @@ describe("<Admin> — basename prefixes each link once", () => {
     const link = await screen.findByRole("link", { name: /posts/i });
     expect(link.getAttribute("href")).toBe("/admin/posts");
   });
+
+  it("a created router with basename links the sidebar brand to /admin/ once", async () => {
+    window.history.pushState({}, "", "/admin");
+    render(
+      <Admin
+        dataProvider={dataProvider}
+        queryClient={makeQueryClient()}
+        basename="/admin"
+      >
+        <Admin.Layout>
+          <Layout />
+        </Admin.Layout>
+        <Resource name="posts" list={List} />
+      </Admin>,
+    );
+
+    // The created router renders its own root, `basename` alone, as `/admin`.
+    const brand = await screen.findByRole("link", { name: /chelone/i });
+    expect(brand.getAttribute("href")).toMatch(/^\/admin\/?$/);
+  });
+
+  it("under a host router, the sidebar brand links to the mount path", async () => {
+    render(
+      <MemoryRouter initialEntries={["/admin"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          basename="/admin"
+        >
+          <Admin.Layout>
+            <Layout />
+          </Admin.Layout>
+          <Resource name="posts" list={List} />
+        </Admin>
+      </MemoryRouter>,
+    );
+
+    const brand = await screen.findByRole("link", { name: /chelone/i });
+    expect(brand.getAttribute("href")).toBe("/admin/");
+  });
 });
 
 describe("<Admin> — slot statics", () => {

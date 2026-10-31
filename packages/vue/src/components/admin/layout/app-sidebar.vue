@@ -3,7 +3,10 @@
 export interface AppSidebarProps {
   /** Brand label in the sidebar header. Defaults to `"Chelone"`. */
   brand?: string;
-  /** Where the brand links to. Defaults to `"/"`. */
+  /**
+   * Where the brand links to, used as given (not prefixed with the basename).
+   * Defaults to the dashboard under the basename.
+   */
   brandTo?: string;
 }
 </script>
@@ -17,7 +20,9 @@ export interface AppSidebarProps {
  * default slot for a fully custom nav tree).
  */
 
+import { computed } from "vue";
 import { RouterLink } from "vue-router";
+import { useBasename } from "../../../router";
 import {
   Sidebar,
   SidebarContent,
@@ -29,10 +34,12 @@ import {
 } from "../../ui/sidebar";
 import Menu from "./menu.vue";
 
-withDefaults(defineProps<AppSidebarProps>(), {
+const props = withDefaults(defineProps<AppSidebarProps>(), {
   brand: "Chelone",
-  brandTo: "/",
 });
+
+const basename = useBasename();
+const to = computed(() => props.brandTo ?? `${basename}/`);
 </script>
 
 <template>
@@ -40,7 +47,7 @@ withDefaults(defineProps<AppSidebarProps>(), {
     <SidebarHeader>
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton :as="RouterLink" :to="brandTo" size="lg">
+          <SidebarMenuButton :as="RouterLink" :to="to" size="lg">
             <slot name="brand-icon">
               <svg
                 viewBox="0 0 24 24"

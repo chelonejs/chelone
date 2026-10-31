@@ -20,6 +20,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useBasename } from "../../../router";
 import { useRouterAdapter } from "../../../router/adapter";
 import { Menu } from "./menu";
 
@@ -47,7 +48,10 @@ export interface AppSidebarProps {
   brand?: ReactNode;
   /** Brand icon rendered before the label. Defaults to the `Shell` icon. */
   brandIcon?: ReactNode;
-  /** Where the brand links to. Defaults to `"/"`. */
+  /**
+   * Where the brand links to, used as given (not prefixed with the basename).
+   * Defaults to the dashboard under the basename.
+   */
   brandTo?: string;
 }
 
@@ -68,9 +72,10 @@ function AppSidebar({
   appBarAlwaysOn: _appBarAlwaysOn,
   brand = "Chelone",
   brandIcon,
-  brandTo = "/",
+  brandTo,
 }: AppSidebarProps) {
   const { Link } = useRouterAdapter();
+  const basename = useBasename();
   return (
     <Sidebar
       variant="floating"
@@ -89,7 +94,7 @@ function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <Link to={brandTo}>
+              <Link to={brandTo ?? `${basename}/`}>
                 {brandIcon ?? <Shell className="size-5!" />}
                 <span className="text-base font-semibold">{brand}</span>
               </Link>

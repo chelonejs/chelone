@@ -23,7 +23,7 @@
       "name": "brandTo",
       "type": "string",
       "optional": true,
-      "comment": "Where the brand links to. Defaults to `\"/\"`."
+      "comment": "Where the brand links to, used as given (not prefixed with the basename).\nDefaults to the dashboard under the basename."
     },
     {
       "name": "children",
