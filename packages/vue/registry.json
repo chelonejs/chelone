@@ -885,6 +885,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/layout/hide-on-scroll.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/layout/icons.ts",
           "type": "registry:component"
         },
@@ -930,6 +934,10 @@
         },
         {
           "path": "src/components/admin/layout/title.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/top-toolbar.vue",
           "type": "registry:component"
         },
         {
@@ -2285,6 +2293,7 @@
       "registryDependencies": [
         "@chelone/array-input-row",
         "@chelone/button",
+        "@chelone/confirm",
         "@chelone/field",
         "@chelone/label-text",
         "@chelone/validation-error"
@@ -3070,6 +3079,20 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "hide-on-scroll",
+      "type": "registry:component",
+      "title": "Hide On Scroll",
+      "files": [
+        {
+          "path": "src/components/admin/layout/hide-on-scroll.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "layout-icons",
       "type": "registry:component",
       "title": "Layout Icons",
@@ -3261,6 +3284,20 @@
         "@chelone/title-portal-id"
       ],
       "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "top-toolbar",
+      "type": "registry:component",
+      "title": "Top Toolbar",
+      "files": [
+        {
+          "path": "src/components/admin/layout/top-toolbar.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
