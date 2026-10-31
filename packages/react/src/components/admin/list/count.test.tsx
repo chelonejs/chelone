@@ -19,7 +19,7 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, type MockInstance, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { ResourceRegistryProvider } from "../../../resource";
 import { RouterAdapterProvider } from "../../../router/adapter";
@@ -27,6 +27,8 @@ import { reactRouterAdapter } from "../../../router/react-router-adapter";
 import { Count, type CountProps } from "./count";
 
 afterEach(cleanup);
+
+type GetListSpy = MockInstance<ReturnType<typeof fakeDataProvider>["getList"]>;
 
 const posts = [
   { id: 1, title: "Alpha", status: "draft" },
@@ -41,7 +43,7 @@ function mount(
     setup,
   }: {
     wrapper?: (children: ReactNode) => ReactNode;
-    setup?: (getList: ReturnType<typeof vi.spyOn>) => void;
+    setup?: (getList: GetListSpy) => void;
   } = {},
 ) {
   const dataProvider = fakeDataProvider({ posts: structuredClone(posts) });

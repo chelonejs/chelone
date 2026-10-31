@@ -85,10 +85,8 @@ describe("<SingleFieldList>", () => {
 
   it("render wins over children and receives the record and its index", () => {
     const { container } = mount(
-      <SingleFieldList
-        render={(record, index) => (
-          <span>{`${index}:${(record as { name: string }).name}`}</span>
-        )}
+      <SingleFieldList<{ id: number; name: string }>
+        render={(record, index) => <span>{`${index}:${record.name}`}</span>}
       >
         <RecordName />
       </SingleFieldList>,
