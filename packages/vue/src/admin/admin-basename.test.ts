@@ -39,52 +39,52 @@ describe("<Admin> basename", () => {
     });
     await flushPromises();
 
-    expect(wrapper.findAll("a").map((link) => link.attributes("href"))).toContain(
-      "/app/admin/posts",
-    );
+    expect(
+      wrapper.findAll("a").map((link) => link.attributes("href")),
+    ).toContain("/app/admin/posts");
   });
 
-  it.each(["/admin", "/admin/"])(
-    "the resource routes are added under the basename (%s)",
-    async (basename) => {
-      const router = makeRouter();
-      await router.push("/admin");
-      mount(Admin, {
-        props: { dataProvider: fakeDataProvider({}), basename },
-        slots: {
-          default: () =>
-            h(Resource, {
-              name: "posts",
-              list: Posts,
-              create: Blank,
-              edit: Blank,
-              show: Blank,
-            }),
-          dashboard: () => h("section", "dashboard"),
-        },
-        global: { plugins: [router] },
-      });
-      await flushPromises();
+  it.each([
+    "/admin",
+    "/admin/",
+  ])("the resource routes are added under the basename (%s)", async (basename) => {
+    const router = makeRouter();
+    await router.push("/admin");
+    mount(Admin, {
+      props: { dataProvider: fakeDataProvider({}), basename },
+      slots: {
+        default: () =>
+          h(Resource, {
+            name: "posts",
+            list: Posts,
+            create: Blank,
+            edit: Blank,
+            show: Blank,
+          }),
+        dashboard: () => h("section", "dashboard"),
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
 
-      for (const [path, name] of [
-        ["/admin/posts", "chelone-posts-list"],
-        ["/admin/posts/create", "chelone-posts-create"],
-        ["/admin/posts/42", "chelone-posts-edit"],
-        ["/admin/posts/42/show", "chelone-posts-show"],
-      ] as const) {
-        expect(router.resolve(path).name).toBe(name);
-      }
-      expect(router.getRoutes().map(({ path }) => path)).toEqual(
-        expect.arrayContaining([
-          "/admin/posts",
-          "/admin/posts/create",
-          "/admin/posts/:id",
-          "/admin/posts/:id/show",
-        ]),
-      );
-      expect(router.resolve("/posts").matched).toEqual([]);
-    },
-  );
+    for (const [path, name] of [
+      ["/admin/posts", "chelone-posts-list"],
+      ["/admin/posts/create", "chelone-posts-create"],
+      ["/admin/posts/42", "chelone-posts-edit"],
+      ["/admin/posts/42/show", "chelone-posts-show"],
+    ] as const) {
+      expect(router.resolve(path).name).toBe(name);
+    }
+    expect(router.getRoutes().map(({ path }) => path)).toEqual(
+      expect.arrayContaining([
+        "/admin/posts",
+        "/admin/posts/create",
+        "/admin/posts/:id",
+        "/admin/posts/:id/show",
+      ]),
+    );
+    expect(router.resolve("/posts").matched).toEqual([]);
+  });
 
   it("useRedirect to a list lands under the basename once", async () => {
     const router = makeRouter();
@@ -113,7 +113,9 @@ describe("<Admin> basename", () => {
 
     expect(router.currentRoute.value.path).toBe("/admin/posts");
     expect(router.currentRoute.value.name).toBe("chelone-posts-list");
-    expect(router.resolve(router.currentRoute.value).href).toBe("/app/admin/posts");
+    expect(router.resolve(router.currentRoute.value).href).toBe(
+      "/app/admin/posts",
+    );
     expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
   });
 
@@ -144,79 +146,79 @@ describe("<Admin> basename", () => {
     expect(wrapper.get('a[href="/app/admin/"]').text()).toContain("Dashboard");
   });
 
-  it.each(["/admin", "/admin/"])(
-    "the first-resource redirect lands under the basename (%s)",
-    async (start) => {
-      // The host need not register an index record for Admin's mount path.
-      const router = createRouter({
-        history: createMemoryHistory("/app"),
-        routes: [{ path: "/", component: Blank }],
-      });
-      await router.push(start);
-      const wrapper = mount(Admin, {
-        props: {
-          dataProvider: fakeDataProvider({}),
-          basename: "/admin",
-          resources: [{ name: "posts", list: markRaw(Posts) }],
-        },
-        global: { plugins: [router] },
-      });
-      await flushPromises();
+  it.each([
+    "/admin",
+    "/admin/",
+  ])("the first-resource redirect lands under the basename (%s)", async (start) => {
+    // The host need not register an index record for Admin's mount path.
+    const router = createRouter({
+      history: createMemoryHistory("/app"),
+      routes: [{ path: "/", component: Blank }],
+    });
+    await router.push(start);
+    const wrapper = mount(Admin, {
+      props: {
+        dataProvider: fakeDataProvider({}),
+        basename: "/admin",
+        resources: [{ name: "posts", list: markRaw(Posts) }],
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
 
-      expect(router.currentRoute.value.path).toBe("/admin/posts");
-      expect(router.currentRoute.value.name).toBe("chelone-posts-list");
-      expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
-    },
-  );
+    expect(router.currentRoute.value.path).toBe("/admin/posts");
+    expect(router.currentRoute.value.name).toBe("chelone-posts-list");
+    expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
+  });
 
-  it.each([undefined, ""])(
-    "an empty basename leaves every path as before (%s)",
-    async (basename) => {
-      const router = makeRouter();
-      await router.push("/");
-      const RedirectButton = defineComponent({
-        setup() {
-          const redirect = useRedirect();
-          return () =>
-            h("button", { onClick: () => redirect("list", "posts") }, "Go");
-        },
-      });
-      const wrapper = mount(Admin, {
-        props: { dataProvider: fakeDataProvider({}), basename },
-        slots: {
-          default: () => [
-            h(Resource, {
-              name: "posts",
-              list: Posts,
-              create: Blank,
-              edit: Blank,
-              show: Blank,
-            }),
-            h(RedirectButton),
-          ],
-          dashboard: () => h("section", { "data-testid": "dashboard" }, "DASH"),
-        },
-        global: { plugins: [router] },
-      });
-      await flushPromises();
+  it.each([
+    undefined,
+    "",
+  ])("an empty basename leaves every path as before (%s)", async (basename) => {
+    const router = makeRouter();
+    await router.push("/");
+    const RedirectButton = defineComponent({
+      setup() {
+        const redirect = useRedirect();
+        return () =>
+          h("button", { onClick: () => redirect("list", "posts") }, "Go");
+      },
+    });
+    const wrapper = mount(Admin, {
+      props: { dataProvider: fakeDataProvider({}), basename },
+      slots: {
+        default: () => [
+          h(Resource, {
+            name: "posts",
+            list: Posts,
+            create: Blank,
+            edit: Blank,
+            show: Blank,
+          }),
+          h(RedirectButton),
+        ],
+        dashboard: () => h("section", { "data-testid": "dashboard" }, "DASH"),
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
 
-      expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
-      expect(wrapper.get('a[href="/app/posts"]').text()).toContain("Posts");
-      for (const [path, name] of [
-        ["/posts", "chelone-posts-list"],
-        ["/posts/create", "chelone-posts-create"],
-        ["/posts/42", "chelone-posts-edit"],
-        ["/posts/42/show", "chelone-posts-show"],
-      ] as const) {
-        await router.push(path);
-        expect(router.currentRoute.value.name).toBe(name);
-      }
-      await wrapper.get("button").trigger("click");
-      await flushPromises();
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
+    expect(wrapper.get('a[href="/app/posts"]').text()).toContain("Posts");
+    for (const [path, name] of [
+      ["/posts", "chelone-posts-list"],
+      ["/posts/create", "chelone-posts-create"],
+      ["/posts/42", "chelone-posts-edit"],
+      ["/posts/42/show", "chelone-posts-show"],
+    ] as const) {
+      await router.push(path);
+      expect(router.currentRoute.value.name).toBe(name);
+    }
+    await wrapper.get("button").trigger("click");
+    await flushPromises();
 
-      expect(router.currentRoute.value.path).toBe("/posts");
-      expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
-      expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(false);
-    },
-  );
+    expect(router.currentRoute.value.path).toBe("/posts");
+    expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(false);
+  });
 });
