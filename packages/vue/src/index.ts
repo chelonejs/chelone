@@ -115,6 +115,7 @@ export {
   useCheloneI18n,
   useCheloneNotifications,
   useCheloneStore,
+  useDataProvider,
 } from "./context";
 export type {
   UseCreateControllerOptions,
@@ -145,9 +146,11 @@ export {
   useReferenceOneFieldController,
   useShowController,
 } from "./controllers";
-export { useInfiniteGetList } from "./data/infinite-queries";
 // --- supporting composables the vertical is built on ----------------------
+export { createCheloneHooks } from "./data/create-chelone-hooks";
+export { useInfiniteGetList } from "./data/infinite-queries";
 export {
+  useCreate,
   useDelete,
   useDeleteMany,
   useUpdate,
