@@ -76,11 +76,13 @@ watch(
 );
 
 // Reflect EXTERNAL filter changes (saved queries, the URL, "remove all
-// filters") back into the inputs. The reset carries a value for every current
+// filters") back into the inputs. Watches the filter's identity, not its JSON:
+// every `setFilters` stores a fresh object, and one that leaves the filter as it
+// was still cancels our queued push, which the inputs must then drop. The reset carries a value for every current
 // and registered key, because form-core re-applies a field's current value when
 // a reset omits its key.
 watch(
-  () => JSON.stringify(list.filter ?? {}),
+  () => list.filter,
   () => {
     pendingPush = null;
     const incoming = (list.filter ?? {}) as Record<string, unknown>;

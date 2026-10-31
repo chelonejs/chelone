@@ -276,6 +276,18 @@ describe("<FilterForm>", () => {
     expect(capture.list?.filter).toEqual({ views: 3 });
   });
 
+  it("an external call that leaves the filter as it was still empties an edit it cancelled", async () => {
+    const { capture, wrapper } = mountFilterForm();
+    await settled(capture);
+
+    await wrapper.find('input[data-slot="input"]').setValue("abc");
+    capture.list?.setFilters({});
+
+    await vi.waitFor(() => expect(inputValue(wrapper)).toBe(""));
+    await pastDebounce();
+    expect(capture.list?.filter).toEqual({});
+  });
+
   it("an external filter change fills the matching input", async () => {
     const { capture, wrapper } = mountFilterForm();
     await settled(capture);
