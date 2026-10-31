@@ -44,18 +44,21 @@ defineSlots<{
 const gate = useAuthGate(props.requireAuth);
 const slots = useSlots();
 
-// The index is the basename root, with or without a trailing slash.
+// Match the basename root with vue-router's default case-insensitive rule,
+// with or without a trailing slash.
 // Before the first navigation settles the router sits on `START_LOCATION`,
 // whose path is also `/`, so a deep link would flash the dashboard. `useRoute()`
 // wraps the location in a proxy, so compare the router's own object.
 const route = useRoute();
 const router = useRouter();
-const indexPath = joinBasename("/", useBasename());
-const isIndex = computed(
-  () =>
+const indexPath = joinBasename("/", useBasename()).toLowerCase();
+const isIndex = computed(() => {
+  const path = route.path.toLowerCase();
+  return (
     router.currentRoute.value !== START_LOCATION &&
-    (route.path === indexPath || route.path === `${indexPath}/`),
-);
+    (path === indexPath || path === `${indexPath}/`)
+  );
+});
 
 // R2 — wire `checkError` → auto-logout into the data-error path. Mounted here
 // (inside `<Admin>`'s provided context + vue-query client) so the watcher's

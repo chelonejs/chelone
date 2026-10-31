@@ -187,6 +187,8 @@ describe("<Admin> basename", () => {
   it.each([
     "/admin",
     "/admin/",
+    "/Admin",
+    "/ADMIN/",
   ])("the first-resource redirect lands under the basename (%s)", async (start) => {
     // The host need not register an index record for Admin's mount path.
     const router = createRouter({
@@ -212,6 +214,28 @@ describe("<Admin> basename", () => {
     expect(router.currentRoute.value.name).toBe("chelone-posts-list");
     expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
     expect(navigations).toEqual([{ path: "/admin/posts", failed: false }]);
+  });
+
+  it.each([
+    "/Admin",
+    "/ADMIN/",
+  ])("a mixed-case basename index shows the dashboard (%s)", async (start) => {
+    const router = makeRouter();
+    await router.push(start);
+    const wrapper = mount(Admin, {
+      props: { dataProvider: fakeDataProvider({}), basename: "/admin" },
+      slots: {
+        dashboard: () => h("section", { "data-testid": "dashboard" }, "DASH"),
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
+
+    expect(router.currentRoute.value.path).toBe(start);
+    expect(wrapper.get('a[href="/app/admin/"]').attributes("data-active")).toBe(
+      "true",
+    );
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
   });
 
   it.each([

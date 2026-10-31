@@ -222,13 +222,14 @@ async function resolveWaitingLocation() {
     resolving = false;
   }
   const current = router.currentRoute.value;
-  const indexPath = joinBasename("/", basename);
+  const indexPath = joinBasename("/", basename).toLowerCase();
+  const currentPath = current.path.toLowerCase();
   // The index is left alone: `<NavigateToFirstResource>` redirects it, and
   // re-resolving the basename root would cancel that pending navigation.
   if (
     current.matched.length === 0 &&
-    current.path !== indexPath &&
-    current.path !== `${indexPath}/`
+    currentPath !== indexPath &&
+    currentPath !== `${indexPath}/`
   ) {
     void router.replace(current.fullPath);
   }
