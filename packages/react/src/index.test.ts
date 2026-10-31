@@ -413,6 +413,11 @@ describe("@chelone/react barrel — P7e layout chrome (T3)", () => {
     expect(barrel.Notification).toBeTypeOf("function");
   });
 
+  it("exports TopToolbar and HideOnScroll", () => {
+    expect(barrel.TopToolbar).toBeTypeOf("function");
+    expect(barrel.HideOnScroll).toBeTypeOf("function");
+  });
+
   it("exports the layout sub-components + theme hooks", () => {
     expect(barrel.MenuItemLink).toBeTypeOf("function");
     expect(barrel.DashboardMenuItem).toBeTypeOf("function");
