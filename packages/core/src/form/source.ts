@@ -75,6 +75,10 @@ export function createRowSourceScope(
  *
  * A translatable group has no value of its own, so a sourceless child has
  * nothing to bind and throws.
+ *
+ * The locale is appended to the full path, so it composes under array and row
+ * scopes, but an array input inside a translatable group does not: the array
+ * resolves to `items.fr` while its rows resolve to `items[0].name.fr`.
  */
 export function createLocaleSourceScope(
   parent: SourceScope,

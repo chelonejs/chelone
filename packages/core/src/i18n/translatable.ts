@@ -59,13 +59,34 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return proto === Object.prototype || proto === null;
 }
 
-function pick(node: unknown, locale: string): unknown {
-  if (Array.isArray(node)) return node.map((item) => pick(item, locale));
+function pick(
+  node: unknown,
+  locale: string,
+  locales: readonly string[] | undefined,
+  isRoot: boolean,
+): unknown {
+  if (Array.isArray(node)) {
+    return node.map((item) => pick(item, locale, locales, false));
+  }
   if (!isPlainObject(node)) return node;
-  if (Object.hasOwn(node, locale)) return pick(node[locale], locale);
+  if (!isRoot && isTranslationMap(node, locale, locales)) {
+    return pick(node[locale], locale, locales, false);
+  }
   return Object.fromEntries(
-    Object.entries(node).map(([key, value]) => [key, pick(value, locale)]),
+    Object.entries(node).map(([key, value]) => [
+      key,
+      pick(value, locale, locales, false),
+    ]),
   );
+}
+
+function isTranslationMap(
+  node: Record<string, unknown>,
+  locale: string,
+  locales: readonly string[] | undefined,
+): boolean {
+  if (!Object.hasOwn(node, locale)) return false;
+  return !locales || Object.keys(node).every((key) => locales.includes(key));
 }
 
 /**
@@ -73,10 +94,17 @@ function pick(node: unknown, locale: string): unknown {
  * replaced by its value at that key, at any depth and inside arrays. Nodes
  * without the key are kept as they are, so a record missing the locale still
  * shows the translatable object.
+ *
+ * The record itself is never replaced. A locale code can equal a field name
+ * (`id` is Indonesian), so pass `locales` to also keep objects that have other
+ * keys, such as a nested `{ id, name }` reference, from being read as a map.
  */
 export function getRecordForLocale<T extends object | null | undefined>(
   record: T,
   locale: string,
+  locales?: readonly string[],
 ): T extends object ? Record<string, unknown> : T {
-  return pick(record, locale) as T extends object ? Record<string, unknown> : T;
+  return pick(record, locale, locales, true) as T extends object
+    ? Record<string, unknown>
+    : T;
 }

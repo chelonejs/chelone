@@ -97,4 +97,22 @@ describe("getRecordForLocale", () => {
     expect(getRecordForLocale(null, "fr")).toBeNull();
     expect(getRecordForLocale(undefined, "fr")).toBeUndefined();
   });
+
+  it("getRecordForLocale never replaces the record itself, even when a field is named like the locale", () => {
+    const record = { id: 1, title: { en: "a", id: "b" } };
+    expect(getRecordForLocale(record, "id")).toEqual({ id: 1, title: "b" });
+  });
+
+  it("getRecordForLocale only picks from objects whose keys are all listed locales when locales are given", () => {
+    const record = {
+      id: 1,
+      author: { id: 7, name: "Ada" },
+      title: { en: "a", id: "b" },
+    };
+    expect(getRecordForLocale(record, "id", ["en", "id"])).toEqual({
+      id: 1,
+      author: { id: 7, name: "Ada" },
+      title: "b",
+    });
+  });
 });
