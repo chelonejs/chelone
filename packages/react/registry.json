@@ -1425,6 +1425,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/form/simple-form-iterator.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/form/toolbar.tsx",
           "type": "registry:component"
         },
@@ -2944,6 +2948,27 @@
         "@chelone/lib-unknown-types"
       ],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "simple-form-iterator",
+      "type": "registry:component",
+      "title": "Simple Form Iterator",
+      "files": [
+        {
+          "path": "src/components/admin/form/simple-form-iterator.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/array-input-context",
+        "@chelone/button",
+        "@chelone/confirm",
+        "@chelone/lib-utils",
+        "@chelone/tooltip"
+      ],
+      "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {

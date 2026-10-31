@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, type ReactNode, useContext } from "react";
 import type { UseArrayInputResult } from "../../../array-hooks";
 
 /**
@@ -29,4 +29,20 @@ function useArrayInputResult(): UseArrayInputResult {
   return ctx;
 }
 
-export { ArrayInputResultContext, useArrayInputResult };
+/**
+ * The `<ArrayInput addLabel>` the iterator's Add button falls back to, so the
+ * label survives when `<ArrayInput>` skips its own Add button for a
+ * `<SimpleFormIterator>`. `undefined` outside an `<ArrayInput>`.
+ */
+const ArrayInputAddLabelContext = createContext<ReactNode>(undefined);
+
+function useArrayInputAddLabel(): ReactNode {
+  return useContext(ArrayInputAddLabelContext);
+}
+
+export {
+  ArrayInputAddLabelContext,
+  ArrayInputResultContext,
+  useArrayInputAddLabel,
+  useArrayInputResult,
+};

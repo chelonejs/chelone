@@ -401,6 +401,16 @@ export {
   WrapperField,
   type WrapperFieldProps,
 } from "./components/admin/fields/wrapper-field";
+export {
+  AddItemButton,
+  type AddItemButtonProps,
+  RemoveItemButton,
+  type RemoveItemButtonProps,
+  ReOrderButtons,
+  type ReOrderButtonsProps,
+  SimpleFormIterator,
+  type SimpleFormIteratorProps,
+} from "./components/admin/form/simple-form-iterator";
 export { Toolbar, type ToolbarProps } from "./components/admin/form/toolbar";
 // P7b component surface — simple text-like inputs (ported from shadmin onto
 // useInput + ui/field + <ValidationError>). The `ui/` primitives are NOT
