@@ -1,7 +1,7 @@
 /**
  * `useListController` — the Vue bridge for the vanilla core list controller, the
  * twin of `@chelone/react`'s `useListController` (`controller-hooks.ts`). It
- * wraps `createListController` (unchanged core) through the Task-2 `useStore`
+ * wraps `createListController` (unchanged core) through the Task-2 `useMicroStore`
  * reactivity bridge and returns a `reactive` view of controller state plus the
  * controller's stable actions.
  *
@@ -11,13 +11,13 @@
  * `@tanstack/vue-query` `QueryClient` and provides it on the Chelone context;
  * `toControllerContext` hands it to `createListController`, whose observer reads
  * and writes that client's cache. So there is no `useQuery` hook in the seam —
- * the controller drives the query, and `useStore` is the single subscribe seam
+ * the controller drives the query, and `useMicroStore` is the single subscribe seam
  * that turns the controller's `MicroStore` snapshots into Vue reactivity (the
  * 4R acquire fires on the first `store.subscribe`, release on scope disposal).
  *
  * Binding pattern (mirrors the React twin): the controller is constructed ONCE
  * at `setup` (construction is INERT — no subscriptions, no fetch until the first
- * subscriber), and `useStore` attaches on mount / releases on unmount. `ctx` /
+ * subscriber), and `useMicroStore` attaches on mount / releases on unmount. `ctx` /
  * `resource` / `options` are read once at `setup`; to target a different
  * resource, mount a fresh instance (the Vue analog of React's remount-with-key).
  */
@@ -37,7 +37,7 @@ import { computed, onScopeDispose, reactive, watch } from "vue";
 import { useCheloneContext } from "../context";
 import { useRequiredResource } from "../resource-context";
 import { useRouterAdapterOptional } from "../router/adapter";
-import { useStore } from "../store/use-store";
+import { useMicroStore } from "../store/use-micro-store";
 import { toControllerContext } from "./controller-context";
 
 /** Options for {@link useListController}: the core list options + a resource override. */
@@ -93,7 +93,7 @@ export function useListController<
     options,
   );
 
-  // Deep-link seed (URL -> state): apply BEFORE `useStore` subscribes (the first
+  // Deep-link seed (URL -> state): apply BEFORE `useMicroStore` subscribes (the first
   // subscriber triggers the fetch), and only when the URL carries custom params,
   // so a clean URL falls back to the option/KV defaults (ra-core semantics).
   const seed = location ? listPatchFromSearch(location.value.search) : null;
@@ -102,7 +102,7 @@ export function useListController<
   // The single subscribe seam: mounts the controller's observer (4R acquire),
   // releases it on scope disposal (4R release). `state` is a read-only ref that
   // swaps whole snapshots on every controller mutation.
-  const state = useStore(controller);
+  const state = useMicroStore(controller);
 
   // Push param changes -> URL. Seed `lastPushed` from the CURRENT (post-seed)
   // state so the mount itself never pushes — a clean URL stays clean until the user changes a param, then the

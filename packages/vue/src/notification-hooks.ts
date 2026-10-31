@@ -3,7 +3,7 @@
  * `notification-hooks.ts` (`useNotifications` / `useNotify`). React reads the
  * store with `useSyncExternalStore`; Vue bridges the same
  * `subscribe`/`getSnapshot` seam into a `shallowRef` released on scope disposal
- * (the pattern established by `store/use-store.ts`).
+ * (the pattern established by `store/use-micro-store.ts`).
  *
  * Both adapters degrade `useNotifications` to an empty snapshot without a store
  * (so `<Notification>` renders nothing) and throw from `useNotify`: pushing a
