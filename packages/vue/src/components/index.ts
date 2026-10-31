@@ -360,13 +360,13 @@ export type {
   SingleFieldListProps,
 } from "./admin/list/single-field-list.vue";
 export { default as SingleFieldList } from "./admin/list/single-field-list.vue";
+// --- admin: views ---------------------------------------------------------
+export type { CardContentInnerProps } from "./admin/view/card-content-inner.vue";
+export { default as CardContentInner } from "./admin/view/card-content-inner.vue";
 export type { CreateProps } from "./admin/view/create.vue";
 export { default as Create } from "./admin/view/create.vue";
 export type { EditProps } from "./admin/view/edit.vue";
 export { default as Edit } from "./admin/view/edit.vue";
-// --- admin: views ---------------------------------------------------------
-export type { CardContentInnerProps } from "./admin/view/card-content-inner.vue";
-export { default as CardContentInner } from "./admin/view/card-content-inner.vue";
 export type { InfiniteListProps } from "./admin/view/infinite-list.vue";
 export { default as InfiniteList } from "./admin/view/infinite-list.vue";
 export type { LabeledProps } from "./admin/view/labeled.vue";
