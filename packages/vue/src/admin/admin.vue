@@ -9,7 +9,7 @@ export interface AdminProps<TResources extends ResourceMap = ResourceMap> {
    * The path the host mounts `<Admin>` at, relative to the host router's own
    * history base (default `''`). Starts with a slash when non-empty. Chelone
    * prepends it to links and resource routes; vue-router applies its history
-   * base separately. Remount `<Admin>` to change it.
+   * base separately. Trailing slashes are removed. Remount `<Admin>` to change it.
    */
   basename?: string;
   /** The optional auth provider. */
@@ -104,7 +104,7 @@ import {
 } from "./resource-registry";
 
 const props = defineProps<AdminProps<TResources>>();
-const basename = props.basename ?? "";
+const basename = (props.basename ?? "").replace(/\/+$/, "");
 provide(BasenameKey, basename);
 
 defineSlots<{

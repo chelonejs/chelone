@@ -119,11 +119,14 @@ describe("<Admin> basename", () => {
     expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
   });
 
-  it("the #dashboard slot shows at the basename index only", async () => {
+  it.each([
+    "/admin",
+    "/admin/",
+  ])("the #dashboard slot shows at the basename index only (%s)", async (basename) => {
     const router = makeRouter();
     await router.push("/admin");
     const wrapper = mount(Admin, {
-      props: { dataProvider: fakeDataProvider({}), basename: "/admin" },
+      props: { dataProvider: fakeDataProvider({}), basename },
       slots: {
         default: () => h(Resource, { name: "posts", list: Posts }),
         dashboard: () => h("section", { "data-testid": "dashboard" }, "DASH"),
@@ -138,12 +141,47 @@ describe("<Admin> basename", () => {
       await flushPromises();
       expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(false);
     }
+    await wrapper.get('a[href="/app/admin/"]').trigger("click");
+    await flushPromises();
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
     await router.push("/admin/?page=2#top");
     await flushPromises();
 
     expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
     expect(router.currentRoute.value.path).toBe("/admin/");
     expect(wrapper.get('a[href="/app/admin/"]').text()).toContain("Dashboard");
+  });
+
+  it.each([
+    "/posts",
+    "posts",
+  ])("a function redirect with a trailing basename reaches the resource (%s)", async (target) => {
+    const router = makeRouter();
+    await router.push("/outside");
+    const RedirectButton = defineComponent({
+      setup() {
+        const redirect = useRedirect();
+        return () =>
+          h("button", { onClick: () => redirect(() => target) }, "Go");
+      },
+    });
+    const wrapper = mount(Admin, {
+      props: { dataProvider: fakeDataProvider({}), basename: "/admin/" },
+      slots: {
+        default: () => [
+          h(Resource, { name: "posts", list: Posts }),
+          h(RedirectButton),
+        ],
+      },
+      global: { plugins: [router] },
+    });
+    await flushPromises();
+    await wrapper.get("button").trigger("click");
+    await flushPromises();
+
+    expect(router.currentRoute.value.path).toBe("/admin/posts");
+    expect(router.currentRoute.value.name).toBe("chelone-posts-list");
+    expect(wrapper.find("[data-testid=posts]").exists()).toBe(true);
   });
 
   it.each([
