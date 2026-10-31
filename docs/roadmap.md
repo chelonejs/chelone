@@ -41,15 +41,50 @@
 
 ### R7. Preferences / Configurable / Inspector
 - The whole `usePreference` + `Configurable` + `Inspector` (in-app "customize this component" panel) system. Big, cohesive, deferred by charter. Effort L.
+- **Call (#225):** kept; see "shadmin-only extras".
 
 ### R8. Guessers / inference — reframe as a Chelone EXTENSION
 - ra-core's guessers sniff data values/name-heuristics to infer views. Chelone deliberately skipped them. BUT the Zod registry is a *better* substrate: a schema→view scaffolder (`z.infer` field types → default List/Edit/Show columns) would be *typed* inference, not data-sniffing — arguably surpassing ra-core. Frame as a NEW extension feature, not a port. Effort M–L.
+- **Call (#225):** kept; see "shadmin-only extras".
 
 ### R9. i18n depth
 - Translatable multi-locale field editing (`useTranslatable`/`TranslatableContext`), async/lazy locale loading, `resolveBrowserLocale`, `mergeTranslations`, a `<Translate>` component. Effort M.
 
 ### R10. Realtime / enterprise
 - realtime (`useSubscribe`/live queries/locks), audit-log, ra-tree, calendar. Large, ecosystem-scale, deferred (was always post-v1 per the charter). Effort XL.
+- **Call (#225):** tree and calendar lists dropped; see "shadmin-only extras".
+
+## shadmin-only extras (issue #225)
+
+shadmin ships pieces that are not in `ra-core`. Each gets a call: kept (built as slices, React first, a Vue slice after each) or dropped. The test: does it belong in a headless admin engine, does it fit the Zod registry and the framework-free core, and can it ship without a backend the project does not own (charter §3).
+
+### Kept
+
+| Piece | Call | Slices |
+|---|---|---|
+| `ListGuesser`, `EditGuesser`, `ShowGuesser` | Keep. Drive them from the Zod registry (typed inference), not from sniffing data values. Same work as R8. | Core: registry schema to field descriptors. Then React guessers, then Vue guessers. |
+| `ColumnsButton` | Keep. Closes the biggest DataTable gap in the parity report. Needs `usePreference` on the existing store. | Core: preference store keys. Then React `ColumnsButton`, then Vue. |
+| Inspector and `Configurable` | Keep, after `ColumnsButton`. Same system as R7. | React `Configurable` + `Inspector`, then Vue. |
+| `SimpleFormConfigurable` | Keep, after `Configurable`. Reuses the Inspector. | React, then Vue. |
+| Command menu (widget) | Keep. Navigates the resource registry and honours access control, so it is engine-shaped. | React, then Vue. |
+| Data provider devtools (widget) | Keep. Reads the call log of the data provider wrappers that already exist. | Core: call log. Then React panel, then Vue. |
+
+### Dropped
+
+| Piece | Why |
+|---|---|
+| Tree and calendar lists | Ecosystem-scale (R10), same class as ra-enterprise (charter §3). No consumer asked for them. Reopen with a concrete resource shape. |
+| Collaboration: presence bar, comment threads | Needs realtime transport and storage. Chelone is not a backend (charter §3). Realtime stays in R10. |
+| Approval buttons: dual approval, status transitions | Domain workflow. An app builds it from `useUpdate` and `useCanAccess`. A generic version would encode one workflow. |
+| Kanban board, pivot grid, record timeline, diff viewer, in-place editor | App-level views, not engine parts. Each needs its own design and a heavy dependency. File one issue per widget if a consumer needs it. |
+| Permission matrix, approval queue, job monitor | Tied to a specific backend or workflow model. R2 covers the access axis they would sit on. |
+| Dashboard charts | A chart library choice belongs to the app. |
+| Theme studio, layout builder | Design tooling. The shadcn registry already lets an app own its theme and layout source. |
+| Onboarding tour | Product-specific, with a third-party dependency. |
+| i18n key editor | A translation workflow tool. R9 covers the i18n depth the engine needs. |
+| Assistant | Needs a model backend and prompts. Out of scope for a headless engine. |
+
+Dropped pieces can come back through a new issue that names a consumer.
 
 ## Sequencing
 
