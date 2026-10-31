@@ -97,12 +97,19 @@ import {
 } from "@chelone/core";
 import { BasenameKey } from "../router/adapter";
 import { QueryClient, VUE_QUERY_CLIENT } from "@tanstack/vue-query";
-import { onScopeDispose, provide, useSlots, watchEffect } from "vue";
-import { useRouter } from "vue-router";
+import {
+  onBeforeUpdate,
+  onScopeDispose,
+  provide,
+  useSlots,
+  watchEffect,
+} from "vue";
+import { START_LOCATION, useRouter } from "vue-router";
 import AdminShell from "./admin-shell.vue";
 import type { ErrorFallbackProps } from "./default-error-fallback.vue";
 import { provideCheloneContext } from "../context";
 import { type CustomRoute, toRouteRecord } from "./custom-routes";
+import { CATCH_ALL_META, createSlotRoutes } from "./slot-routes";
 import { provideVueRouterAdapter } from "../router/vue-router-adapter";
 import { provideHasDashboard } from "./has-dashboard";
 import {
@@ -130,7 +137,17 @@ defineSlots<{
   ready?: () => unknown;
   /** Replaces the default fallback shown when a route view throws. */
   error?: (props: ErrorFallbackProps) => unknown;
+  /** Mounted at `/auth-callback`, outside the layout and the auth gate. */
+  authCallback?: () => unknown;
+  /** Mounted at `/authentication-error`, inside the layout. */
+  authenticationError?: () => unknown;
+  /** Mounted at `/access-denied`, inside the layout. */
+  accessDenied?: () => unknown;
+  /** Mounted for any path no other route owns, inside the layout. */
+  catchAll?: () => unknown;
 }>();
+
+const slots = useSlots();
 
 // --- Seam 1: the reactive resource registry -------------------------------
 const registry = createResourceRegistry();
@@ -143,7 +160,7 @@ if (props.resources) {
 // Provide whether a `#dashboard` slot was given so the sidebar `<Menu>` renders
 // a "Dashboard" entry ONLY when a dashboard exists (parity with React's
 // `HasDashboardContext`). Slot presence is stable per mount.
-provideHasDashboard(useSlots().dashboard != null);
+provideHasDashboard(slots.dashboard != null);
 
 // --- Seam 3: the vue-query client -----------------------------------------
 const queryClient = props.queryClient ?? new QueryClient();
@@ -240,11 +257,27 @@ async function resolveWaitingLocation() {
   const currentPath = current.path.toLowerCase();
   // The index is left alone: `<NavigateToFirstResource>` redirects it, and
   // re-resolving the basename root would cancel that pending navigation.
+  // A `#catchAll` match is as good as none: a resource may have registered since.
   if (
-    current.matched.length === 0 &&
+    current.matched.every((record) => record.meta[CATCH_ALL_META] === true) &&
     currentPath !== indexPath &&
     currentPath !== `${indexPath}/`
   ) {
+    void router.replace(current.fullPath);
+  }
+}
+
+/**
+ * A slot route added or removed can change what the current location matches:
+ * a removed record stays in `currentRoute` and would keep mounting a page that
+ * renders nothing. Replace the location with itself when it now resolves to a
+ * different record. Before the first navigation settles there is nothing to redo.
+ */
+function resolveCurrentLocationAgain() {
+  const current = router.currentRoute.value;
+  if (current === START_LOCATION) return;
+  const next = router.resolve(current.fullPath);
+  if (next.matched.at(-1) !== current.matched.at(-1)) {
     void router.replace(current.fullPath);
   }
 }
@@ -254,9 +287,18 @@ async function resolveWaitingLocation() {
 for (const route of props.customRoutes ?? []) {
   onScopeDispose(router.addRoute(toRouteRecord(route, basename)));
 }
-// An admin with only custom routes registers no resource, so nothing else
-// re-resolves a deep link to one.
-if (props.customRoutes?.length) void resolveWaitingLocation();
+// Page slots add a route only when given. `#catchAll` ranks after every other
+// route by specificity, and a host catch-all added earlier still wins. A slot
+// that appears or goes after mount adds or removes its route on the next update.
+const slotRoutes = createSlotRoutes(router, slots, basename);
+onScopeDispose(slotRoutes.dispose);
+const hasSlotRoutes = slotRoutes.sync();
+onBeforeUpdate(() => {
+  if (slotRoutes.sync()) resolveCurrentLocationAgain();
+});
+// An admin with only custom or slot routes registers no resource, so nothing
+// else re-resolves a deep link to one.
+if (props.customRoutes?.length || hasSlotRoutes) void resolveWaitingLocation();
 
 // Reactively reconcile the vue-router table with the registry: reading
 // `Object.keys(definitions)` tracks the shallow-reactive key set, so this
