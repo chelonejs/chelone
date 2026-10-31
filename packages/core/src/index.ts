@@ -179,6 +179,13 @@ export type {
 } from "./data/with-lifecycle-callbacks";
 export { withLifecycleCallbacks } from "./data/with-lifecycle-callbacks";
 export type {
+  ApplicationUpdateSnapshot,
+  ApplicationUpdateStoreOptions,
+} from "./environment/application-update-store";
+export { createApplicationUpdateStore } from "./environment/application-update-store";
+export type { OfflineSnapshot } from "./environment/offline-store";
+export { createOfflineStore } from "./environment/offline-store";
+export type {
   ArrayBinding,
   ArrayBindingOptions,
   ArrayBindingUpdateOptions,
@@ -250,6 +257,7 @@ export type { SourceScope } from "./form/source";
 export {
   composeSource,
   createArraySourceScope,
+  createLocaleSourceScope,
   createRowSourceScope,
   rootSourceScope,
 } from "./form/source";
@@ -288,6 +296,15 @@ export type {
   TranslateParams,
 } from "./i18n/messages";
 export { defineMessages } from "./i18n/messages";
+export type {
+  TranslatableController,
+  TranslatableOptions,
+  TranslatableState,
+} from "./i18n/translatable";
+export {
+  createTranslatableController,
+  getRecordForLocale,
+} from "./i18n/translatable";
 export type {
   Notification,
   NotificationStore,

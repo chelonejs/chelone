@@ -57,6 +57,12 @@ describe("@chelone/core barrel", () => {
     expect(barrel.rootSourceScope).toBeTypeOf("object");
   });
 
+  it("exports the translatable controller and helpers", () => {
+    expect(barrel.createTranslatableController).toBeTypeOf("function");
+    expect(barrel.getRecordForLocale).toBeTypeOf("function");
+    expect(barrel.createLocaleSourceScope).toBeTypeOf("function");
+  });
+
   it("exports the data query option factories", () => {
     expect(barrel.getManyReferenceOptions).toBeTypeOf("function");
   });
@@ -125,6 +131,11 @@ describe("@chelone/core barrel", () => {
 
   it("exports combineDataProviders", () => {
     expect(barrel.combineDataProviders).toBeTypeOf("function");
+  });
+
+  it("exports the environment stores", () => {
+    expect(barrel.createOfflineStore).toBeTypeOf("function");
+    expect(barrel.createApplicationUpdateStore).toBeTypeOf("function");
   });
 
   it("does NOT leak internal save-pipeline / hydration helpers", () => {
