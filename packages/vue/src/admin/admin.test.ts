@@ -259,6 +259,19 @@ describe("<Admin> / <Resource> — self-registration + reactive routes + slots",
     expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
   });
 
+  it("the #dashboard slot is absent until the first navigation settles", async () => {
+    const router = makeRouter();
+
+    // The router has not finished its first navigation: its location is still
+    // the start location, whose path is "/" whatever the real URL is.
+    const wrapper = mountWithDashboard(router);
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(false);
+
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid=dashboard]").exists()).toBe(true);
+  });
+
   it("unregisters the resource and tears down its routes when the <Resource> unmounts", async () => {
     const router = makeRouter();
     const show = ref(true);
