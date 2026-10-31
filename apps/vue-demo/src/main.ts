@@ -6,10 +6,11 @@
  *
  * `<Admin>` builds the resource routes REACTIVELY (`/posts`, `/posts/create`,
  * `/posts/:id`, `/authors`, …) as each `<Resource>` registers — so the router
- * here only needs a root route that redirects to the first resource. The
- * dynamically-added routes may not exist yet when the initial `/` navigation
- * resolves, so we re-resolve the current location once the app is mounted (and
- * `<Admin>` has registered the routes) to land on the real page.
+ * here starts with none, and `<Admin>` redirects the index to the first
+ * resource itself. The dynamically-added routes may not exist yet when the
+ * initial navigation resolves, so we re-resolve the current location once the
+ * app is mounted (and `<Admin>` has registered the routes) to land on the real
+ * page.
  */
 
 import { VueQueryPlugin } from "@tanstack/vue-query";
@@ -20,11 +21,7 @@ import "./index.css";
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    // The landing redirect. `/posts` is added dynamically by <Admin>; the
-    // post-mount re-resolve below makes the initial hit land on it.
-    { path: "/", redirect: "/posts" },
-  ],
+  routes: [],
 });
 
 const app = createApp(App);

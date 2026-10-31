@@ -26,6 +26,7 @@ export {
   provideHasDashboard,
   useHasDashboard,
 } from "./admin/has-dashboard";
+export { default as NavigateToFirstResource } from "./admin/navigate-to-first-resource.vue";
 export type { ResourceProps } from "./admin/resource.vue";
 export { default as Resource } from "./admin/resource.vue";
 export type {
