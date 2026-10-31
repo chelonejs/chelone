@@ -65,14 +65,14 @@ const slots = useSlots();
 const route = useRoute();
 const router = useRouter();
 const isNoLayout = computed(() => route.meta[NO_LAYOUT_META] === true);
-// Read live, so a `<Resource>` that registers later hides `#ready`.
+// Read live, so a `<Resource>` that registers later hides `#ready`. A plain
+// function, not a `computed`: `useSlots()` is not reactive, so a computed would
+// never see `#ready` come or go. The render calls it afresh each time.
 const definitions = useResourceDefinitions();
-const showReady = computed(
-  () =>
-    slots.ready != null &&
-    !props.hasCustomRoutes &&
-    Object.keys(definitions).length === 0,
-);
+const showReady = () =>
+  slots.ready != null &&
+  !props.hasCustomRoutes &&
+  Object.keys(definitions).length === 0;
 const indexPath = joinBasename("/", useBasename()).toLowerCase();
 const isIndex = computed(() => {
   const path = route.path.toLowerCase();
@@ -91,7 +91,7 @@ useWatchDataErrors();
 
 <template>
   <!-- The empty state comes first, ahead of the auth gate, as in React. -->
-  <ThemeProvider v-if="showReady">
+  <ThemeProvider v-if="showReady()">
     <slot name="ready" />
   </ThemeProvider>
   <!-- A noLayout match renders in every auth state, as React mounts no-layout

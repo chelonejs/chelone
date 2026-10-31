@@ -113,6 +113,35 @@ describe("<Admin> #ready", () => {
     expect(wrapper.find("main").exists()).toBe(true);
   });
 
+  it("a #ready slot given after mount shows, and removing it restores the layout", async () => {
+    const given = ref(false);
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: "/", component: Blank }],
+    });
+    await router.push("/");
+    const Host = defineComponent({
+      setup: () => () =>
+        h(
+          Admin,
+          { dataProvider: fakeDataProvider({}) },
+          given.value ? { ready } : {},
+        ),
+    });
+    const wrapper = mount(Host, { global: { plugins: [router] } });
+    await flushPromises();
+    expect(wrapper.find("main").exists()).toBe(true);
+
+    given.value = true;
+    await flushPromises();
+    expect(wrapper.find("[data-testid=ready]").exists()).toBe(true);
+
+    given.value = false;
+    await flushPromises();
+    expect(wrapper.find("[data-testid=ready]").exists()).toBe(false);
+    expect(wrapper.find("main").exists()).toBe(true);
+  });
+
   it("no #ready slot leaves the layout as before", async () => {
     const wrapper = await mountAdmin({}, {});
 
