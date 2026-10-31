@@ -186,6 +186,7 @@ export type {
 } from "./form";
 export {
   CheloneFormContextKey,
+  decodePath,
   FormGroupProvider,
   FormGroupsProvider,
   firstFieldError,
@@ -194,6 +195,7 @@ export {
   provideFormGroups,
   provideSourceScope,
   SourceScopeKey,
+  splatBase,
   TabbedForm,
   TabbedFormTab,
   useCheloneFormContext,
