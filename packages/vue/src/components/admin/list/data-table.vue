@@ -43,7 +43,15 @@ export interface DataTableProps {
  * The named export `DataTableCol` is the Vue equivalent of `DataTable.Col`.
  */
 
-import { computed, onMounted, onUpdated, provide, ref, useSlots } from "vue";
+import {
+  Comment,
+  computed,
+  Fragment,
+  provide,
+  ref,
+  useSlots,
+  type VNode,
+} from "vue";
 import { useListContext } from "../../../list/list-context";
 import { useResourceContext } from "../../../resource-context";
 import Checkbox from "../../ui/checkbox.vue";
@@ -122,9 +130,12 @@ const allSelected = computed(() => {
   );
 });
 
-// The expand-all button collapses when anything is open, else opens every
-// expandable row on the page.
-const anyExpanded = computed(() => expandedIds.value.length > 0);
+// The expand-all button collapses when a row on this page is open, else opens
+// every expandable row on the page. Ids of rows that left the page (paging,
+// filtering, deletion) don't count.
+const anyExpanded = computed(() =>
+  rows.value.some((r) => expandedIds.value.includes(rowId(r))),
+);
 
 function handleToggleExpandAll() {
   expandedIds.value = anyExpanded.value
@@ -132,14 +143,23 @@ function handleToggleExpandAll() {
     : rows.value.filter(canExpand).map(rowId);
 }
 
-// The expand panel spans every column; the columns are the header's cells.
-const headerRow = ref<{ $el: HTMLElement } | null>(null);
-const columnCount = ref(1);
-function measureColumns() {
-  columnCount.value = headerRow.value?.$el.children.length || 1;
-}
-onMounted(measureColumns);
-onUpdated(measureColumns);
+// The expand panel spans every column: the leading cells plus one per column
+// child. Counted from the slot on each render, so a column that comes or goes
+// after mount is picked up (as React's `Children.count` does).
+const countVNodes = (nodes: VNode[]): number =>
+  nodes.reduce(
+    (n, node) =>
+      node.type === Comment
+        ? n
+        : node.type === Fragment
+          ? n + countVNodes((node.children ?? []) as VNode[])
+          : n + 1,
+    0,
+  );
+const columnCount = (): number =>
+  countVNodes(slots.default?.() ?? []) +
+  (hasBulkActions.value ? 1 : 0) +
+  (expandEnabled.value ? 1 : 0);
 
 function handleToggleSelectAll(checked: boolean) {
   const selected = list.selectedIds ?? [];
@@ -157,7 +177,7 @@ function handleToggleSelectAll(checked: boolean) {
   <div :class="props.class" data-slot="data-table">
     <Table>
       <TableHeader>
-        <TableRow ref="headerRow">
+        <TableRow>
           <TableHead v-if="hasBulkActions" class="w-8">
             <Checkbox
               :model-value="allSelected"
@@ -206,7 +226,7 @@ function handleToggleSelectAll(checked: boolean) {
               "
               data-slot="data-table-expand-panel"
             >
-              <TableCell :colspan="columnCount">
+              <TableCell :colspan="columnCount()">
                 <slot
                   name="expand"
                   :id="rowId(record)"

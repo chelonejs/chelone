@@ -13,7 +13,7 @@ import {
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
 import Admin from "../../../admin/admin.vue";
@@ -260,6 +260,46 @@ describe("<DataTable> expandable rows", () => {
     expect(wrapper.find('[data-slot="data-table-expand-panel"]').exists()).toBe(
       false,
     );
+  });
+
+  it("the expand-all button ignores expanded rows that left the page", async () => {
+    const { wrapper, capture, ready } = mountTable({}, { expand });
+    await ready();
+
+    await toggle(wrapper, 0)?.trigger("click");
+    capture.list?.setFilters({ title: "beta" }, {});
+    await vi.waitFor(() =>
+      expect(wrapper.findAll('[data-slot="data-table-row"]')).toHaveLength(1),
+    );
+
+    await wrapper.find('button[aria-label="Expand all rows"]').trigger("click");
+    expect(wrapper.text()).toContain("panel posts 2 beta");
+  });
+
+  it("the expand panel spans a column added after mount", async () => {
+    const showExtra = ref(false);
+    const { wrapper, ready } = mountTable(
+      {},
+      {
+        expand,
+        default: () => [
+          h(DataTableCol, { source: "title" }),
+          showExtra.value
+            ? h(DataTableCol, { source: "title", label: "x" })
+            : null,
+        ],
+      },
+    );
+    await ready();
+    await toggle(wrapper, 0)?.trigger("click");
+    const span = () =>
+      wrapper
+        .find('[data-slot="data-table-expand-panel"] td')
+        .attributes("colspan");
+    expect(span()).toBe("2");
+
+    showExtra.value = true;
+    await vi.waitFor(() => expect(span()).toBe("3"));
   });
 
   it("clicking a row toggle does not navigate", async () => {
