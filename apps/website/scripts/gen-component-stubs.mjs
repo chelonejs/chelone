@@ -127,6 +127,7 @@ const STUBS = [
   { slug: "search-input", section: "editing", component: "SearchInput", registry: "search-input", title: "SearchInput", desc: "A text input styled for list search/filtering." },
   { slug: "select-array-input", section: "editing", component: "SelectArrayInput", registry: "select-array-input", title: "SelectArrayInput", desc: "A multi-select dropdown for choosing several values." },
   { slug: "select-input", section: "editing", component: "SelectInput", registry: "select-input", title: "SelectInput", desc: "A single-select dropdown over a list of choices." },
+  { slug: "simple-form-iterator", section: "editing", component: "SimpleFormIterator", registry: "simple-form-iterator", title: "SimpleFormIterator", desc: "The ready-made row UI for an ArrayInput: add, remove, reorder and a confirmed clear." },
   { slug: "subscription-plan-picker", section: "editing", component: "SubscriptionPlanPicker", registry: "subscription-plan-picker", title: "SubscriptionPlanPicker", desc: "Chooses a subscription plan from a set of cards." },
   { slug: "text-array-input", section: "editing", component: "TextArrayInput", registry: "text-array-input", title: "TextArrayInput", desc: "Edits an array of strings as removable tags." },
   { slug: "text-input", section: "editing", component: "TextInput", registry: "text-input", title: "TextInput", desc: "A text input bound to a record field via source." },
@@ -158,6 +159,7 @@ const STUBS = [
   { slug: "confirm", section: "ui-layout", component: "Confirm", registry: "confirm", title: "Confirm", desc: "A confirmation dialog for destructive actions." },
   { slug: "dashboard-menu-item", section: "ui-layout", component: "DashboardMenuItem", registry: "dashboard-menu-item", title: "DashboardMenuItem", desc: "The sidebar entry that links to the dashboard." },
   { slug: "error", section: "ui-layout", component: "Error", registry: "error", title: "Error", desc: "The fallback UI rendered by the admin error boundary." },
+  { slug: "hide-on-scroll", section: "ui-layout", component: "HideOnScroll", registry: "hide-on-scroll", title: "HideOnScroll", desc: "Hides its wrapper on a downward scroll past a threshold and shows it again on any upward scroll." },
   { slug: "keyboard-shortcut", section: "ui-layout", component: "KeyboardShortcut", registry: "keyboard-shortcut", title: "KeyboardShortcut", desc: "Displays a shortcut as styled key glyphs. Display only: it does not register a handler." },
   { slug: "layout", section: "ui-layout", component: "Layout", registry: "layout", title: "Layout", desc: "The default admin shell: app bar, sidebar, and content area." },
   { slug: "linear-progress", section: "ui-layout", component: "LinearProgress", registry: "linear-progress", title: "LinearProgress", desc: "A thin progress bar that appears after a 1 second delay. Pass `value` for a determinate bar." },
@@ -177,6 +179,7 @@ const STUBS = [
   { slug: "theme-mode-toggle", section: "ui-layout", component: "ThemeModeToggle", registry: "theme-mode-toggle", title: "ThemeModeToggle", desc: "A dropdown that switches between light, dark and system themes." },
   { slug: "title", section: "ui-layout", component: "Title", registry: "title", title: "Title", desc: "Portals a page title into the app bar's `<TitlePortal>` slot." },
   { slug: "title-portal", section: "ui-layout", component: "TitlePortal", registry: "title-portal", title: "TitlePortal", desc: "The app-bar slot that renders each view's title." },
+  { slug: "top-toolbar", section: "ui-layout", component: "TopToolbar", registry: "top-toolbar", title: "TopToolbar", desc: "A right-aligned row of view actions, for the `actions` prop of `<List>`." },
   { slug: "toolbar", section: "ui-layout", component: "Toolbar", registry: "toolbar", title: "Toolbar", desc: "The form action bar holding the save/delete buttons." },
   { slug: "user-menu", section: "ui-layout", component: "UserMenu", registry: "user-menu", title: "UserMenu", desc: "The app-bar dropdown for the signed-in user." },
 ];

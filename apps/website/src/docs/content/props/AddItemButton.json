@@ -1,0 +1,29 @@
+{
+  "name": "AddItemButton",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra classes on the button."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Disables the button."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Replaces the default \"Add\" label; a string is translated. Falls back to\nthe enclosing `<ArrayInput addLabel>`."
+    },
+    {
+      "name": "onClick",
+      "type": "MouseEventHandler<HTMLButtonElement>",
+      "optional": true,
+      "comment": "Click handler; `<SimpleFormIterator>` wires this when it clones the element."
+    }
+  ]
+}

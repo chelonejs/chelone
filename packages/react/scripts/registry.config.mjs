@@ -34,6 +34,7 @@ const LAYOUT_NAMES = new Set([
   "app-bar",
   "app-sidebar",
   "dashboard-menu-item",
+  "hide-on-scroll",
   "layout",
   "menu",
   "menu-item-link",

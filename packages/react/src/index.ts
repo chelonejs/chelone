@@ -401,6 +401,16 @@ export {
   WrapperField,
   type WrapperFieldProps,
 } from "./components/admin/fields/wrapper-field";
+export {
+  AddItemButton,
+  type AddItemButtonProps,
+  RemoveItemButton,
+  type RemoveItemButtonProps,
+  ReOrderButtons,
+  type ReOrderButtonsProps,
+  SimpleFormIterator,
+  type SimpleFormIteratorProps,
+} from "./components/admin/form/simple-form-iterator";
 export { Toolbar, type ToolbarProps } from "./components/admin/form/toolbar";
 // P7b component surface — simple text-like inputs (ported from shadmin onto
 // useInput + ui/field + <ValidationError>). The `ui/` primitives are NOT
@@ -558,6 +568,10 @@ export {
   DashboardMenuItem,
   type DashboardMenuItemProps,
 } from "./components/admin/layout/dashboard-menu-item";
+export {
+  HideOnScroll,
+  type HideOnScrollProps,
+} from "./components/admin/layout/hide-on-scroll";
 export { Layout, type LayoutProps } from "./components/admin/layout/layout";
 export { Menu, type MenuProps } from "./components/admin/layout/menu";
 export {
@@ -592,6 +606,10 @@ export {
   type TitlePortalProps,
 } from "./components/admin/layout/title-portal";
 export { TITLE_PORTAL_ID } from "./components/admin/layout/title-portal-id";
+export {
+  TopToolbar,
+  type TopToolbarProps,
+} from "./components/admin/layout/top-toolbar";
 export {
   useResolvedTheme,
   useTheme,
