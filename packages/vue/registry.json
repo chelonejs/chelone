@@ -3428,6 +3428,7 @@
           "type": "registry:component"
         }
       ],
+      "registryDependencies": ["@chelone/filter-button", "@chelone/list-icons"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
