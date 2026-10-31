@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 // Type-only imports from the barrel: a dropped `export type` line makes these
 // fail `tsc` (the react test script runs with `--typecheck`), locking the type
 // surface the same way the runtime assertions below lock the value surface.
@@ -29,6 +29,7 @@ import type {
   IconButtonWithTooltipProps,
   InputFieldError,
   InputProps,
+  LabeledProps,
   LinkProps,
   ListContextValue,
   NumberInputProps,
@@ -484,5 +485,10 @@ describe("@chelone/react barrel — P7g feedback + common", () => {
 
   it("exports the useTimeout compat hook", () => {
     expect(barrel.useTimeout).toBeTypeOf("function");
+  });
+
+  it("exports Labeled and its props type", () => {
+    expect(barrel.Labeled).toBeTypeOf("function");
+    expectTypeOf<LabeledProps>().toHaveProperty("htmlFor");
   });
 });

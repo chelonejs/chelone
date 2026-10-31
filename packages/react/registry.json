@@ -1733,6 +1733,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/views/labeled.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/views/list.tsx",
           "type": "registry:component"
         },
@@ -4407,6 +4411,24 @@
       ],
       "registryDependencies": ["@chelone/list"],
       "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "labeled",
+      "type": "registry:component",
+      "title": "Labeled",
+      "files": [
+        {
+          "path": "src/components/admin/views/labeled.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field-label-text",
+        "@chelone/lib-utils",
+        "@chelone/record-field"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
