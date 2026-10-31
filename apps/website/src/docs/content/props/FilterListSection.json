@@ -1,0 +1,17 @@
+{
+  "name": "FilterListSection",
+  "props": [
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": false,
+      "comment": "Translated with itself as the fallback."
+    }
+  ]
+}
