@@ -11,6 +11,7 @@ import type {
   ColorInputProps,
   CreateProps,
   CurrencyInputProps,
+  CustomRoute,
   DataTableColProps,
   DataTableNumberColProps,
   DataTableProps,
@@ -49,6 +50,8 @@ import * as barrel from "./index";
 describe("@chelone/vue public exports", () => {
   it("exports each component's props type", () => {
     expectTypeOf<AdminProps>().toHaveProperty("dataProvider");
+    expectTypeOf<AdminProps>().toHaveProperty("customRoutes");
+    expectTypeOf<CustomRoute>().toHaveProperty("path");
     expectTypeOf<BooleanInputProps>().toHaveProperty("source");
     expectTypeOf<BulkActionsToolbarProps>().toBeObject();
     expectTypeOf<ColorInputProps>().toHaveProperty("source");

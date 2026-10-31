@@ -14,7 +14,7 @@
  * exactly the prior default chrome, so the ungated app is unchanged.
  *
  * `ThemeProvider` wraps only the DEFAULT branches (loading / login / layout
- * fallback); a caller-provided `#layout` slot stays bare, preserving the prior
+ * fallback / noLayout route); a caller-provided `#layout` slot stays bare, preserving the prior
  * `<Admin>` behavior where an override owned its own theming.
  */
 
@@ -28,6 +28,7 @@ import Spinner from "../components/ui/spinner.vue";
 import { useBasename } from "../router/adapter";
 import { useWatchDataErrors } from "../auth/permissions-hooks";
 import { useAuthGate } from "./auth-gate";
+import { NO_LAYOUT_META } from "./custom-routes";
 import type { ErrorFallbackProps } from "./default-error-fallback.vue";
 import NavigateToFirstResource from "./navigate-to-first-resource.vue";
 import ShellErrorBoundary from "./shell-error-boundary.vue";
@@ -55,6 +56,7 @@ const slots = useSlots();
 // wraps the location in a proxy, so compare the router's own object.
 const route = useRoute();
 const router = useRouter();
+const isNoLayout = computed(() => route.meta[NO_LAYOUT_META] === true);
 const indexPath = joinBasename("/", useBasename()).toLowerCase();
 const isIndex = computed(() => {
   const path = route.path.toLowerCase();
@@ -72,7 +74,17 @@ useWatchDataErrors();
 </script>
 
 <template>
-  <ThemeProvider v-if="requireAuth && gate.isPending.value">
+  <!-- A noLayout match comes first: it renders in every auth state, as React
+       mounts no-layout routes outside the gate. -->
+  <ShellErrorBoundary v-if="isNoLayout">
+    <ThemeProvider>
+      <router-view />
+    </ThemeProvider>
+    <template v-if="slots.error" #error="errorProps">
+      <slot name="error" v-bind="errorProps" />
+    </template>
+  </ShellErrorBoundary>
+  <ThemeProvider v-else-if="requireAuth && gate.isPending.value">
     <div class="flex min-h-screen flex-col justify-center items-center">
       <Spinner class="size-9" />
     </div>

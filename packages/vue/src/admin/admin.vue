@@ -37,6 +37,12 @@ export interface AdminProps<TResources extends ResourceMap = ResourceMap> {
    */
   resources?: ResourceDefinition[];
   /**
+   * Extra routes mounted under `basename`, ahead of any resource route, so one at
+   * a resource's path wins. A `noLayout` route renders outside the layout and the
+   * auth gate; the rest render inside the layout, behind the gate. Read once at setup.
+   */
+  customRoutes?: CustomRoute[];
+  /**
    * Gate the shell behind authentication (the no-flash auth gate). When `true`
    * (and an `authProvider` is configured), the shell renders a loading spinner
    * while the auth check is pending and the `#login` slot (default
@@ -96,6 +102,7 @@ import { useRouter } from "vue-router";
 import AdminShell from "./admin-shell.vue";
 import type { ErrorFallbackProps } from "./default-error-fallback.vue";
 import { provideCheloneContext } from "../context";
+import { type CustomRoute, toRouteRecord } from "./custom-routes";
 import { provideVueRouterAdapter } from "../router/vue-router-adapter";
 import { provideHasDashboard } from "./has-dashboard";
 import {
@@ -237,6 +244,15 @@ async function resolveWaitingLocation() {
     void router.replace(current.fullPath);
   }
 }
+
+// Added before any resource route: vue-router ranks equal paths by insertion
+// order, so a custom route at a resource's path wins.
+for (const route of props.customRoutes ?? []) {
+  onScopeDispose(router.addRoute(toRouteRecord(route, basename)));
+}
+// An admin with only custom routes registers no resource, so nothing else
+// re-resolves a deep link to one.
+if (props.customRoutes?.length) void resolveWaitingLocation();
 
 // Reactively reconcile the vue-router table with the registry: reading
 // `Object.keys(definitions)` tracks the shallow-reactive key set, so this
