@@ -145,6 +145,11 @@ describe("@chelone/core barrel", () => {
     expect(barrel.LockConflictError).toBeTypeOf("function");
   });
 
+  it("exports the in-memory transport and lock provider", () => {
+    expect(barrel.memoryTransport).toBeTypeOf("function");
+    expect(barrel.inMemoryLockProvider).toBeTypeOf("function");
+  });
+
   it("exports the environment stores", () => {
     expect(barrel.createOfflineStore).toBeTypeOf("function");
     expect(barrel.createApplicationUpdateStore).toBeTypeOf("function");
