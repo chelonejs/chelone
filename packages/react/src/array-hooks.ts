@@ -178,8 +178,8 @@ export function useArrayInput(
   // The scope children bind under: the array's own (scoped) path. An iterator
   // row layers `createRowSourceScope` on top of this (see IteratorRowProvider).
   const scope = useMemo(
-    () => createArraySourceScope(parentScope, source),
-    [parentScope, source],
+    () => createArraySourceScope(parentScope, options.source),
+    [parentScope, options.source],
   );
 
   return useMemo(

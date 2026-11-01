@@ -444,4 +444,25 @@ describe("TranslatableInputs", () => {
       items: [{ name: { en: "a", fr: "c" } }],
     });
   });
+
+  it("an ArrayInput inside it binds its rows under items.locale", async () => {
+    const { wrapper, saved, submit } = mountInForm(
+      () =>
+        h(TranslatableInputs, { locales: ["en", "fr"] }, () =>
+          h(ArrayInput, { source: "items", label: "Items" }, () =>
+            h(TextInput, { source: "name", label: "Name" }),
+          ),
+        ),
+      { items: { en: [{ name: "a" }], fr: [{ name: "b" }] } },
+    );
+    await flushPromises();
+
+    expect(valueIn(wrapper, "fr")).toBe("b");
+    await inputIn(wrapper, "fr").setValue("c");
+    await submit();
+
+    expect(saved.mock.lastCall?.[0]).toEqual({
+      items: { en: [{ name: "a" }], fr: [{ name: "c" }] },
+    });
+  });
 });

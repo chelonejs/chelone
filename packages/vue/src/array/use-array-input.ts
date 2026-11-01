@@ -128,7 +128,7 @@ export function useArrayInput(
 
   // The scope children bind under: the array's own (scoped) path. An iterator
   // row layers `createRowSourceScope` on top (see provideIteratorRow).
-  const scope = createArraySourceScope(parentScope, source);
+  const scope = createArraySourceScope(parentScope, options.source);
 
   const error = computed(() => firstFieldError(fieldState.value.meta.errorMap));
 
