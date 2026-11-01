@@ -713,6 +713,10 @@ export {
   type BulkActionsToolbarProps,
 } from "./components/admin/list/bulk-actions-toolbar";
 export {
+  BulkEditDrawer,
+  type BulkEditDrawerProps,
+} from "./components/admin/list/bulk-edit-drawer";
+export {
   Count,
   type CountProps,
 } from "./components/admin/list/count";
