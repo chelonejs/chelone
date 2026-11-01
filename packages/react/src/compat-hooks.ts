@@ -1,6 +1,17 @@
-import type { DataProvider, ResourceMap } from "@chelone/core";
+import {
+  createOfflineStore,
+  type DataProvider,
+  type ResourceMap,
+} from "@chelone/core";
 import { notifyManager, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useCheloneContext } from "./context";
 import { useLocale, useSetLocale } from "./i18n-hooks";
 
@@ -151,4 +162,18 @@ export function useIsMobile(): boolean {
   }, []);
 
   return !!isMobile;
+}
+
+/**
+ * `true` while the browser reports itself offline. Reads `navigator.onLine` on
+ * the client, so a page opened offline is offline from the first render; the
+ * server snapshot is `false` (no `navigator` to ask).
+ */
+export function useIsOffline(): boolean {
+  const store = useMemo(() => createOfflineStore(), []);
+  return useSyncExternalStore(
+    store.subscribe,
+    () => store.getSnapshot().isOffline,
+    () => false,
+  );
 }
