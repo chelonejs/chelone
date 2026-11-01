@@ -178,6 +178,10 @@ export {
   type CancelButtonProps,
 } from "./components/admin/buttons/cancel-button";
 export {
+  CloneButton,
+  type CloneButtonProps,
+} from "./components/admin/buttons/clone-button";
+export {
   CreateButton,
   type CreateButtonProps,
 } from "./components/admin/buttons/create-button";
