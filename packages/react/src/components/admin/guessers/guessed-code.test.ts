@@ -196,6 +196,32 @@ describe("printGuessedView", () => {
     expect(code.endsWith(");\n\nSkipped: meta (record schema)")).toBe(true);
   });
 
+  it("escapes a source that holds a quote in every opening tag", () => {
+    const quoted = { ...published, source: 'a"b' };
+    expect(printGuessedView("List", "posts", [quoted])).toContain(
+      '<DataTable.Col source={"a\\"b"}>',
+    );
+    expect(printGuessedView("Show", "posts", [quoted])).toContain(
+      '<RecordField source={"a\\"b"}>',
+    );
+  });
+
+  it("prints the described label on the column, row and input", () => {
+    const headline = { ...title, label: "Headline" };
+    expect(printGuessedView("List", "posts", [headline])).toContain(
+      '<DataTable.Col source="title" label="Headline" />',
+    );
+    expect(printGuessedView("Show", "posts", [headline])).toContain(
+      '<RecordField source="title" label="Headline" />',
+    );
+    expect(printGuessedView("Edit", "posts", [headline])).toContain(
+      '<TextInput source="title" label="Headline" />',
+    );
+    expect(
+      printGuessedView("List", "posts", [{ ...published, label: "Live" }]),
+    ).toContain('<DataTable.Col source="published" label="Live">');
+  });
+
   it("prints no Skipped line when every field is supported", () => {
     expect(printGuessedView("Show", "posts", [title])).not.toContain("Skipped");
   });

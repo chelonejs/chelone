@@ -25,6 +25,15 @@ function attribute(name: string, value: unknown): string {
   return `${name}={${literal(value)}}`;
 }
 
+/** `source`, then the `.describe()` label when the schema has one. */
+function labelledAttributes(field: FieldDescriptor): string[] {
+  const attributes = [attribute("source", field.source)];
+  if (field.label !== undefined) {
+    attributes.push(attribute("label", field.label));
+  }
+  return attributes;
+}
+
 function fieldAttributes(field: FieldDescriptor): string[] {
   const attributes = [attribute("source", field.source)];
   if (field.reference !== undefined) {
@@ -38,7 +47,7 @@ function fieldAttributes(field: FieldDescriptor): string[] {
 }
 
 function inputAttributes(field: FieldDescriptor): string[] {
-  const attributes = [attribute("source", field.source)];
+  const attributes = labelledAttributes(field);
   if (field.reference !== undefined) {
     attributes.push(attribute("reference", field.reference));
   }
@@ -48,6 +57,9 @@ function inputAttributes(field: FieldDescriptor): string[] {
 
 const tag = (name: string, attributes: string[]) =>
   `<${name} ${attributes.join(" ")} />`;
+
+const openTag = (name: string, attributes: string[]) =>
+  `<${name} ${attributes.join(" ")}>`;
 
 /** `posts` and `blog-posts` become `Posts` and `BlogPosts`. */
 function pascalCase(resource: string): string {
@@ -71,11 +83,11 @@ function printList(fields: FieldDescriptor[]): Printed {
   const components = new Set(["List", "DataTable"]);
   const columns = fields.flatMap((field) => {
     if (field.kind === "text" || !field.field) {
-      return [tag("DataTable.Col", [attribute("source", field.source)])];
+      return [tag("DataTable.Col", labelledAttributes(field))];
     }
     components.add(field.field);
     return [
-      `<DataTable.Col source="${field.source}">`,
+      openTag("DataTable.Col", labelledAttributes(field)),
       ...indent([tag(field.field, fieldAttributes(field))], 1),
       "</DataTable.Col>",
     ];
@@ -102,7 +114,7 @@ function printEdit(fields: FieldDescriptor[]): Printed {
       }
       components.add("AutocompleteInput");
       return [
-        `<${field.input} ${inputAttributes(field).join(" ")}>`,
+        openTag(field.input, inputAttributes(field)),
         ...indent(["<AutocompleteInput />"], 1),
         `</${field.input}>`,
       ];
@@ -117,11 +129,11 @@ function printShow(fields: FieldDescriptor[]): Printed {
   const components = new Set(["Show", "RecordField"]);
   const rows = fields.flatMap((field) => {
     if (field.kind === "text" || !field.field) {
-      return [tag("RecordField", [attribute("source", field.source)])];
+      return [tag("RecordField", labelledAttributes(field))];
     }
     components.add(field.field);
     return [
-      `<RecordField source="${field.source}">`,
+      openTag("RecordField", labelledAttributes(field)),
       ...indent([tag(field.field, fieldAttributes(field))], 1),
       "</RecordField>",
     ];
