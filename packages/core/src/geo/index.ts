@@ -23,4 +23,21 @@ export {
   isGeoGeometry,
   isGeoJsonValue,
 } from "./geojson";
+export type { ShapeLayerSpec, ShapeStyle } from "./map-layers";
+export {
+  asFeatureCollection,
+  DEFAULT_SHAPE_STYLE,
+  shapeLayerSpecs,
+} from "./map-layers";
+export type {
+  MapStyleInput,
+  MapStyleSpec,
+  RasterTileStyleOptions,
+} from "./map-style";
+export {
+  expandTileUrl,
+  latLngToLngLat,
+  lngLatToLatLng,
+  rasterTileStyle,
+} from "./map-style";
 export { mapMessages } from "./messages";
