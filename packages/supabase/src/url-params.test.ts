@@ -28,6 +28,24 @@ describe("readSupabaseUrlParams", () => {
     ).toEqual(expected);
   });
 
+  it("reads the tokens from the hash when the search holds other params", () => {
+    expect(
+      readSupabaseUrlParams({
+        search: "?next=/posts",
+        hash: "#access_token=at&refresh_token=rt&type=recovery",
+      }),
+    ).toEqual({ accessToken: "at", refreshToken: "rt", type: "recovery" });
+  });
+
+  it("reads the tokens that follow a hash route", () => {
+    expect(
+      readSupabaseUrlParams({
+        search: "",
+        hash: "#/auth-callback#access_token=at&refresh_token=rt&type=recovery",
+      }),
+    ).toEqual({ accessToken: "at", refreshToken: "rt", type: "recovery" });
+  });
+
   it("returns null for a key that is missing", () => {
     expect(
       readSupabaseUrlParams({ search: "?type=recovery", hash: "" }),

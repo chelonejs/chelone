@@ -10,22 +10,32 @@ export interface UrlLocation {
 }
 
 // Supabase puts the tokens in the query or, for the implicit flow, in the hash.
-// A hash router leaves the query after a `?` inside the hash.
-const searchString = ({ search, hash }: UrlLocation) => {
-  if (search !== "") return search;
+// The search can hold other params, so a key falls back through the places it
+// can sit: the search, the query inside a hash route (`#/route?key=...`), and
+// whatever follows the last `#` (`#key=...` or `#/route#key=...`).
+const sources = ({ search, hash }: UrlLocation) => {
   const queryStart = hash.indexOf("?");
-  return queryStart === -1 ? hash : hash.slice(queryStart + 1);
+  return [
+    search,
+    queryStart === -1 ? "" : hash.slice(queryStart + 1),
+    hash.slice(hash.lastIndexOf("#") + 1),
+  ].map((source) => new URLSearchParams(source));
 };
 
 export function readSupabaseUrlParams(
   location: UrlLocation = window.location,
 ): SupabaseUrlParams {
-  const params = new URLSearchParams(
-    searchString(location).replace(/^[?#]/, ""),
-  );
+  const found = sources(location);
+  const read = (key: string) => {
+    for (const params of found) {
+      const value = params.get(key);
+      if (value !== null) return value;
+    }
+    return null;
+  };
   return {
-    accessToken: params.get("access_token"),
-    refreshToken: params.get("refresh_token"),
-    type: params.get("type"),
+    accessToken: read("access_token"),
+    refreshToken: read("refresh_token"),
+    type: read("type"),
   };
 }
