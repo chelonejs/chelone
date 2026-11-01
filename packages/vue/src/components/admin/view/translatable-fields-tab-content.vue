@@ -32,12 +32,12 @@ export interface TranslatableFieldsTabContentProps {
   class?: string;
 }
 
-/** The element vnodes of a slot, looking through fragments (`v-for`). */
-function elementNodes(nodes: VNode[], out: VNode[] = []): VNode[] {
+/** The vnodes of a slot, text included, looking through fragments (`v-for`). */
+function flatNodes(nodes: VNode[], out: VNode[] = []): VNode[] {
   for (const node of nodes) {
-    if (node.type === Comment || node.type === Text) continue;
+    if (node.type === Comment) continue;
     if (node.type === Fragment && Array.isArray(node.children)) {
-      elementNodes(node.children as VNode[], out);
+      flatNodes(node.children as VNode[], out);
     } else {
       out.push(node);
     }
@@ -68,8 +68,8 @@ export default defineComponent({
     provideSourceScope(createLocaleSourceScope(useSourceScope(), props.locale));
 
     return () => {
-      const nodes = slots.default?.() ?? [];
-      const elements = elementNodes(nodes);
+      const nodes = flatNodes(slots.default?.() ?? []);
+      const labelEach = nodes.filter((node) => node.type !== Text).length > 1;
       return h(
         "div",
         {
@@ -80,13 +80,15 @@ export default defineComponent({
           hidden: hidden.value,
           class: cn("flex-1 outline-none", props.class),
         },
-        elements.length > 1
-          ? elements.map((element, index) =>
-              h(
-                Labeled,
-                { key: element.key ?? index },
-                { default: () => element },
-              ),
+        labelEach
+          ? nodes.map((node, index) =>
+              node.type === Text
+                ? node
+                : h(
+                    Labeled,
+                    { key: node.key ?? index },
+                    { default: () => node },
+                  ),
             )
           : nodes,
       );

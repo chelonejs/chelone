@@ -187,6 +187,19 @@ describe("TranslatableFields", () => {
     expect(panel(wrapper, "fr").text()).toContain("Monde");
   });
 
+  it("TranslatableFields keeps text between labeled children", async () => {
+    const { wrapper } = await mountFields(() =>
+      h(TranslatableFields, { locales: ["en", "fr"] }, () => [
+        h(TextField, { source: "title" }),
+        " and ",
+        h(TextField, { source: "body" }),
+      ]),
+    );
+    for (const locale of ["en", "fr"]) {
+      expect(panel(wrapper, locale).text()).toContain(" and ");
+    }
+  });
+
   it("TranslatableFields shows no label for a single child", async () => {
     const { wrapper } = await mountFields(titles, {
       messages: { "resources.posts.fields.title": "Headline" },
