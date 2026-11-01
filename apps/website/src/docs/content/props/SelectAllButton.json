@@ -1,0 +1,41 @@
+{
+  "name": "SelectAllButton",
+  "props": [
+    {
+      "name": "asChild",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "limit",
+      "type": "number",
+      "optional": true,
+      "comment": "The most rows to select."
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "size",
+      "type": "\"default\" | \"sm\" | \"lg\" | \"icon\" | \"xs\" | \"icon-xs\" | \"icon-sm\" | \"icon-lg\" | null",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "variant",
+      "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | null",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
