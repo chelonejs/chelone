@@ -497,6 +497,10 @@ export {
   type TranslatableInputsTabsProps,
 } from "./components/admin/form/translatable-inputs-tabs";
 export {
+  EditGuesser,
+  type EditGuesserProps,
+} from "./components/admin/guessers/edit-guesser";
+export {
   GuesserEmpty,
   type GuesserEmptyProps,
 } from "./components/admin/guessers/guesser-empty";
