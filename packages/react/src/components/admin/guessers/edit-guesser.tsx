@@ -1,7 +1,9 @@
 import { type ComponentType, useEffect, useRef } from "react";
 import { useResourceContext } from "../../../resource";
 import { Toolbar } from "../form/toolbar";
+import { AutocompleteArrayInput } from "../inputs/autocomplete-array-input";
 import { AutocompleteInput } from "../inputs/autocomplete-input";
+import { ReferenceArrayInput } from "../inputs/reference-array-input";
 import { ReferenceInput } from "../inputs/reference-input";
 import { Edit, type EditProps } from "../views/edit";
 import { guessInputComponents } from "./guess-components";
@@ -70,8 +72,20 @@ function EditGuesser({
               source={field.source}
               reference={field.reference ?? ""}
             >
-              <AutocompleteInput />
+              <AutocompleteInput {...(label !== undefined && { label })} />
             </ReferenceInput>
+          );
+        }
+        // The reference inputs take no `label`: it goes on the child input.
+        if (field.input === "ReferenceArrayInput") {
+          return (
+            <ReferenceArrayInput
+              key={field.source}
+              source={field.source}
+              reference={field.reference ?? ""}
+            >
+              <AutocompleteArrayInput {...(label !== undefined && { label })} />
+            </ReferenceArrayInput>
           );
         }
         const Input = guessInputComponents[field.input] as ComponentType<
@@ -81,11 +95,7 @@ function EditGuesser({
           <Input
             key={field.source}
             source={field.source}
-            {...(label !== undefined &&
-              field.input !== "ReferenceArrayInput" && { label })}
-            {...(field.reference !== undefined && {
-              reference: field.reference,
-            })}
+            {...(label !== undefined && { label })}
             {...(field.choices && { choices: field.choices })}
           />
         );

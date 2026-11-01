@@ -3535,11 +3535,13 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/autocomplete-array-input",
         "@chelone/autocomplete-input",
         "@chelone/edit",
         "@chelone/guess-components",
         "@chelone/guessed-code",
         "@chelone/guesser-empty",
+        "@chelone/reference-array-input",
         "@chelone/reference-input",
         "@chelone/toolbar",
         "@chelone/use-guessed-resource"

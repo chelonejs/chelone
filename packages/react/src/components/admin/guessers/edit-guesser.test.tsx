@@ -73,6 +73,7 @@ function mount(
       >
         <Resource name="posts" edit={Page} />
         <Resource name="authors" />
+        <Resource name="tags" />
       </Admin>
     </MemoryRouter>
   );
@@ -152,6 +153,46 @@ describe("EditGuesser", () => {
     await waitFor(() => expect(trigger.textContent).toContain("Ada"));
     fireEvent.click(trigger);
     expect(await screen.findByText("Grace")).toBeTruthy();
+  });
+
+  it("labels a reference from the schema describe text", async () => {
+    mount(
+      defineResources({
+        posts: {
+          schema: z.object({
+            id: z.number(),
+            author_id: z.number().describe("Writer"),
+          }),
+          references: { author_id: "authors" },
+        },
+        authors: { schema: z.object({ id: z.number(), name: z.string() }) },
+      }),
+    );
+    expect(await screen.findByText("Writer")).toBeTruthy();
+    expect(screen.queryByText("Author id")).toBeNull();
+  });
+
+  it("labels a referenceArray from the schema describe text", async () => {
+    mount(
+      defineResources({
+        posts: {
+          schema: z.object({
+            id: z.number(),
+            tag_ids: z.array(z.number()).describe("Labels"),
+          }),
+          references: { tag_ids: "tags" },
+        },
+        tags: { schema: z.object({ id: z.number(), name: z.string() }) },
+      }),
+      { enableLog: false },
+      fakeDataProvider({
+        ...seed(),
+        posts: [{ id: 1, title: "Alpha", tag_ids: [1] }],
+        tags: [{ id: 1, name: "News" }],
+      }),
+    );
+    expect(await screen.findByText("Labels")).toBeTruthy();
+    expect(screen.queryByText("Tag ids")).toBeNull();
   });
 
   it("blocks a save that breaks the registry schema", async () => {
