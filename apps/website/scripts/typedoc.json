@@ -1,6 +1,9 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["../../../packages/react/src/index.ts"],
+  "entryPoints": [
+    "../../../packages/react/src/index.ts",
+    "../../../packages/react/src/monaco.ts"
+  ],
   "tsconfig": "../../../packages/react/tsconfig.json",
   "json": "./public-api.typedoc.json",
   "excludePrivate": true,
