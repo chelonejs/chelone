@@ -569,11 +569,19 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/feedback/loading-indicator.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/feedback/loading.vue",
           "type": "registry:component"
         },
         {
           "path": "src/components/admin/feedback/notification.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/placeholder.vue",
           "type": "registry:component"
         },
         {
@@ -1800,6 +1808,26 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "loading-indicator",
+      "type": "registry:component",
+      "title": "Loading Indicator",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/loading-indicator.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button-icons",
+        "@chelone/icon-button-with-tooltip",
+        "@chelone/lib-utils",
+        "@chelone/ui-spinner"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "loading",
       "type": "registry:component",
       "title": "Loading",
@@ -1825,6 +1853,20 @@
         }
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "placeholder",
+      "type": "registry:component",
+      "title": "Placeholder",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/placeholder.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
