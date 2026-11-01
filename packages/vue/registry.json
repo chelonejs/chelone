@@ -855,6 +855,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/guessers/list-guesser.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/guessers/use-guessed-resource.ts",
           "type": "registry:component"
         },
@@ -2980,6 +2984,29 @@
           "type": "registry:component"
         }
       ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "list-guesser",
+      "type": "registry:component",
+      "title": "List Guesser",
+      "files": [
+        {
+          "path": "src/components/admin/guessers/list-guesser.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/data-table",
+        "@chelone/data-table-col",
+        "@chelone/guess-components",
+        "@chelone/guessed-code",
+        "@chelone/guesser-empty",
+        "@chelone/list",
+        "@chelone/use-guessed-resource"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
