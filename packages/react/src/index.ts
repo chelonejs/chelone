@@ -451,6 +451,22 @@ export {
   type SimpleFormIteratorProps,
 } from "./components/admin/form/simple-form-iterator";
 export { Toolbar, type ToolbarProps } from "./components/admin/form/toolbar";
+export {
+  TranslatableInputs,
+  type TranslatableInputsProps,
+} from "./components/admin/form/translatable-inputs";
+export {
+  TranslatableInputsTab,
+  type TranslatableInputsTabProps,
+} from "./components/admin/form/translatable-inputs-tab";
+export {
+  TranslatableInputsTabContent,
+  type TranslatableInputsTabContentProps,
+} from "./components/admin/form/translatable-inputs-tab-content";
+export {
+  TranslatableInputsTabs,
+  type TranslatableInputsTabsProps,
+} from "./components/admin/form/translatable-inputs-tabs";
 // P7b component surface — simple text-like inputs (ported from shadmin onto
 // useInput + ui/field + <ValidationError>). The `ui/` primitives are NOT
 // barrel-exported (they are registry/consumer-facing via the `@/` alias,
@@ -968,6 +984,23 @@ export {
   useUnselect,
 } from "./list/list-slice-hooks";
 export { useGetListLive, useGetManyLive, useGetOneLive } from "./live-hooks";
+export type {
+  LockCallParams,
+  UseGetLockOptions,
+  UseLockOnMountOptions,
+  UseLockOnMountResult,
+  UseLockResult,
+  UseUnlockResult,
+} from "./lock-hooks";
+export {
+  useGetLock,
+  useGetLockLive,
+  useGetLocks,
+  useGetLocksLive,
+  useLock,
+  useLockOnMount,
+  useUnlock,
+} from "./lock-hooks";
 export { useNotifications, useNotify } from "./notification-hooks";
 export type { UseSubscribeOptions } from "./realtime-hooks";
 export {

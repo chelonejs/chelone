@@ -1,0 +1,41 @@
+{
+  "name": "TranslatableInputs",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultLocale",
+      "type": "string",
+      "optional": true,
+      "comment": "Ignored when it is not one of `locales`. Defaults to the app locale when listed, else the first locale."
+    },
+    {
+      "name": "groupKey",
+      "type": "string",
+      "optional": true,
+      "comment": "Prefix that keeps the ids and form group of two groups apart. Defaults to `\"\"`."
+    },
+    {
+      "name": "locales",
+      "type": "readonly string[]",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "selector",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Replaces the default `<TranslatableInputsTabs>` locale selector."
+    }
+  ]
+}
