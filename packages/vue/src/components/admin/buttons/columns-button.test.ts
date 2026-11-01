@@ -11,7 +11,7 @@ import {
   fakeDataProvider,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
-import { type DOMWrapper, mount, type VueWrapper } from "@vue/test-utils";
+import { mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
@@ -109,7 +109,7 @@ const switchFor = (w: VueWrapper, label: string) =>
 const rowButton = (w: VueWrapper, label: string, name: string) =>
   rowFor(w, label).get(`button[aria-label="${name}"]`);
 const panel = (w: VueWrapper) => w.find('[role="menu"]');
-const disabled = (button: DOMWrapper<Element>) =>
+const disabled = (button: { element: Element }) =>
   (button.element as HTMLButtonElement).disabled;
 const checked = (w: VueWrapper, label: string) =>
   (switchFor(w, label).element as HTMLInputElement).checked;
