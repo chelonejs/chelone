@@ -63,6 +63,7 @@ import type {
   UseFilterFormResult,
   UseRecordContextOptions,
   UseResourceTranslationOptions,
+  UseSubscribeOptions,
   UseTabbedFormResult,
   UseWatchOptions,
   UseWizardFormResult,
@@ -246,6 +247,22 @@ describe("@chelone/react barrel — P6 form leftovers + SSR seam (W2)", () => {
     expect(barrel.hydrate).toBeTypeOf("function");
     expect(barrel.HydrationBoundary).toBeTypeOf("function");
     expect(barrel.createCheloneRouter).toBeTypeOf("function");
+  });
+});
+
+describe("@chelone/react barrel — realtime hooks", () => {
+  it("exports the realtime and live hooks", () => {
+    expect(barrel.useSubscribe).toBeTypeOf("function");
+    expect(barrel.useSubscribeCallback).toBeTypeOf("function");
+    expect(barrel.useSubscribeToRecord).toBeTypeOf("function");
+    expect(barrel.useSubscribeToRecordList).toBeTypeOf("function");
+    expect(barrel.usePublish).toBeTypeOf("function");
+    expect(barrel.useOnReconnect).toBeTypeOf("function");
+    expect(barrel.useRealtimeStatus).toBeTypeOf("function");
+    expect(barrel.useGetListLive).toBeTypeOf("function");
+    expect(barrel.useGetOneLive).toBeTypeOf("function");
+    expect(barrel.useGetManyLive).toBeTypeOf("function");
+    expectTypeOf<UseSubscribeOptions>().toHaveProperty("enabled");
   });
 });
 

@@ -37,10 +37,7 @@ function setup(transportOverride?: RealtimeTransport) {
   const wrapperFor =
     (provider: DataProvider) =>
     ({ children }: { children: ReactNode }) => (
-      <CheloneProvider
-        dataProvider={provider}
-        queryClient={new QueryClient()}
-      >
+      <CheloneProvider dataProvider={provider} queryClient={new QueryClient()}>
         {children}
       </CheloneProvider>
     );
@@ -282,7 +279,9 @@ describe("useRealtimeStatus", () => {
     const { wrapper, transport } = setup();
     transport.setStatus("reconnecting");
     const { result } = renderHook(() => useRealtimeStatus(), { wrapper });
-    expect(result.current.status).toBe("reconnecting" satisfies RealtimeConnectionStatus);
+    expect(result.current.status).toBe(
+      "reconnecting" satisfies RealtimeConnectionStatus,
+    );
 
     act(() => transport.setStatus("connected"));
     expect(result.current.status).toBe("connected");

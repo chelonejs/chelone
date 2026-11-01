@@ -17,11 +17,7 @@ type LiveReadOptions = { enabled?: boolean; staleTime?: number };
 export function useGetListLive<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
->(
-  resource: TName,
-  params: GetListParams = {},
-  options: LiveReadOptions = {},
-) {
+>(resource: TName, params: GetListParams = {}, options: LiveReadOptions = {}) {
   const { dataProvider, queryClient } = useCheloneContext<TResources>();
   const result = useGetList<TResources, TName>(resource, params, options);
   const live = options.enabled !== false;
@@ -70,14 +66,14 @@ export function useGetManyLive<
   const result = useGetMany<TResources, TName>(resource, params, options);
   const live = options.enabled !== false;
   // A new array holding the same ids must not resubscribe. `1` and `"1"` share a topic, so the key sorts as text.
-  const idsKey = params.ids.map(String).sort().join(",");
+  const idsKey = JSON.stringify(params.ids.map(String).sort());
 
   useEffect(() => {
     if (!live) return;
     const subscription = subscribeLiveRecords(
       { dataProvider, queryClient },
       resource,
-      idsKey === "" ? [] : idsKey.split(","),
+      JSON.parse(idsKey) as string[],
     );
     return () => subscription.stop();
   }, [dataProvider, queryClient, resource, idsKey, live]);
