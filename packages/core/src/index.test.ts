@@ -19,6 +19,15 @@ describe("@chelone/core barrel", () => {
     expect(barrel.savedQueriesKey).toBeTypeOf("function");
   });
 
+  it("exports the lock session, status store and unread counter", () => {
+    expect(barrel.createLockSession).toBeTypeOf("function");
+    expect(barrel.resolveLockIdentity).toBeTypeOf("function");
+    expect(barrel.createRealtimeStatusStore).toBeTypeOf("function");
+    expect(barrel.unreadKey).toBeTypeOf("function");
+    expect(barrel.subscribeUnreadCount).toBeTypeOf("function");
+    expect(barrel.clearUnread).toBeTypeOf("function");
+  });
+
   it("exports the infinite list controller", () => {
     expect(barrel.createInfiniteListController).toBeTypeOf("function");
   });
