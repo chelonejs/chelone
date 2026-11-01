@@ -251,18 +251,18 @@ describe("supabaseDataProvider", () => {
       await expect(posts.create("posts", { data: {} })).rejects.toThrow(
         "not implemented",
       );
-      await expect(
-        posts.update("posts", { id: 1, data: {} }),
-      ).rejects.toThrow("not implemented");
+      await expect(posts.update("posts", { id: 1, data: {} })).rejects.toThrow(
+        "not implemented",
+      );
       await expect(posts.delete("posts", { id: 1 })).rejects.toThrow(
         "not implemented",
       );
       await expect(
         posts.updateMany("posts", { ids: [1], data: {} }),
       ).rejects.toThrow("not implemented");
-      await expect(
-        posts.deleteMany("posts", { ids: [1] }),
-      ).rejects.toThrow("not implemented");
+      await expect(posts.deleteMany("posts", { ids: [1] })).rejects.toThrow(
+        "not implemented",
+      );
     });
   });
 });
