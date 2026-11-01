@@ -420,6 +420,8 @@ export { matchPath } from "./router/match";
 export type { CreatePathParams, CreatePathType } from "./router/paths";
 export { createPath, joinBasename, removeDoubleSlashes } from "./router/paths";
 export type { RouterPort, Unsubscribe } from "./router/port";
+export type { RecordFromLocationOptions } from "./router/record-from-location";
+export { getRecordFromLocation } from "./router/record-from-location";
 export { localStorageAdapter, memoryStoreAdapter } from "./store/adapters";
 export type { MicroStore, MicroStoreOptions } from "./store/micro-store";
 export { createMicroStore } from "./store/micro-store";
