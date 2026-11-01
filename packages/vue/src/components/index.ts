@@ -190,6 +190,15 @@ export type {
 export { default as WebhookEndpointField } from "./admin/fields/webhook-endpoint-field.vue";
 export type { WrapperFieldProps } from "./admin/fields/wrapper-field.vue";
 export { default as WrapperField } from "./admin/fields/wrapper-field.vue";
+// --- admin: form (translatable inputs) -----------------------------------
+export type { TranslatableInputsProps } from "./admin/form/translatable-inputs.vue";
+export { default as TranslatableInputs } from "./admin/form/translatable-inputs.vue";
+export type { TranslatableInputsTabProps } from "./admin/form/translatable-inputs-tab.vue";
+export { default as TranslatableInputsTab } from "./admin/form/translatable-inputs-tab.vue";
+export type { TranslatableInputsTabContentProps } from "./admin/form/translatable-inputs-tab-content.vue";
+export { default as TranslatableInputsTabContent } from "./admin/form/translatable-inputs-tab-content.vue";
+export type { TranslatableInputsTabsProps } from "./admin/form/translatable-inputs-tabs.vue";
+export { default as TranslatableInputsTabs } from "./admin/form/translatable-inputs-tabs.vue";
 export type { ApiKeyInputProps } from "./admin/inputs/api-key-input.vue";
 // --- admin: inputs --------------------------------------------------------
 export { default as ApiKeyInput } from "./admin/inputs/api-key-input.vue";
