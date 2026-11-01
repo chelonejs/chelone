@@ -8,7 +8,14 @@
  */
 
 import { createNotificationStore, createStore } from "@chelone/core";
-import { Admin, Layout, Menu, MenuLive, Resource } from "@chelone/react";
+import {
+  Admin,
+  Layout,
+  Menu,
+  MenuLive,
+  Resource,
+  useResourceDefinitions,
+} from "@chelone/react";
 import { QueryClient } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router";
 import { makeI18n } from "./i18n";
@@ -59,6 +66,10 @@ const store = createStore();
 // The panel is repeated here because the badge clears while /posts is open:
 // adding a post from any other page is the only way to see it.
 function DemoMenu() {
+  const definitions = useResourceDefinitions();
+  const others = Object.entries(definitions).filter(
+    ([name, { hasList }]) => hasList && name !== "posts",
+  );
   return (
     <>
       <div className="px-4 pt-2 text-sm">
@@ -67,10 +78,9 @@ function DemoMenu() {
         />
       </div>
       <Menu>
-        <Menu.ResourceItem name="authors" />
-        <Menu.ResourceItem name="products" />
-        <Menu.ResourceItem name="customers" />
-        <Menu.ResourceItem name="orders" />
+        {others.map(([name]) => (
+          <Menu.ResourceItem key={name} name={name} />
+        ))}
       </Menu>
       <div className="px-4 pt-2">
         <SimulateOtherUser />
