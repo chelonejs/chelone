@@ -38,6 +38,8 @@ import type {
   ListLiveProps,
   ListProps,
   LoadingInputProps,
+  LockOnMountProps,
+  LockStatusProps,
   MenuLiveItemLinkProps,
   MenuLiveProps,
   NumberInputProps,
@@ -333,6 +335,13 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
     expect(barrel.ShowLive).toBeTypeOf("function");
     expectTypeOf<EditLiveProps>().toEqualTypeOf<EditProps>();
     expectTypeOf<ShowLiveProps>().toEqualTypeOf<ShowProps>();
+  });
+
+  it("exports LockOnMount and LockStatus", () => {
+    expect(barrel.LockOnMount).toBeTypeOf("function");
+    expect(barrel.LockStatus).toBeTypeOf("function");
+    expectTypeOf<LockOnMountProps>().toHaveProperty("lockedBy");
+    expectTypeOf<LockStatusProps>().toHaveProperty("renderFree");
   });
 
   it("exports the lock hooks", () => {
