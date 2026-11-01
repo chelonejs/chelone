@@ -1,5 +1,7 @@
 import type { AuthProvider, UserIdentity } from "@chelone/core";
 import type { Provider, SupabaseClient, User } from "@supabase/supabase-js";
+import { setPasswordPath } from "./paths";
+import { readSupabaseUrlParams } from "./url-params";
 
 export type SupabaseOAuthProvider =
   | "apple"
@@ -24,11 +26,31 @@ export interface SupabaseAuthProviderOptions {
   getIdentity?: (user: User) => UserIdentity | Promise<UserIdentity>;
   /** Receives the signed-in user; `getPermissions` resolves its result. */
   getPermissions?: (user: User) => unknown;
-  /** Where the OAuth provider sends the user back; `login` params win. */
+  /**
+   * Where the OAuth provider sends the user back; `login` params win.
+   * Also the path prefix of the set-password redirect `handleCallback` returns.
+   */
   redirectTo?: string;
 }
 
-export type SupabaseAuthProvider = AuthProvider;
+export interface SetPasswordParams {
+  access_token: string;
+  refresh_token: string;
+  password: string;
+}
+
+export interface ResetPasswordParams {
+  email: string;
+  /** Where the email link sends the user; point it at the app's `/auth-callback`. */
+  redirectTo?: string;
+  captchaToken?: string;
+}
+
+export type SupabaseAuthProvider = AuthProvider &
+  Required<Pick<AuthProvider, "handleCallback">> & {
+    setPassword(params: SetPasswordParams): Promise<void>;
+    resetPassword(params: ResetPasswordParams): Promise<void>;
+  };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -101,6 +123,37 @@ export function supabaseAuthProvider(
       const { data } = await auth.getUser();
       if (!data.user) return undefined;
       return options.getPermissions?.(data.user);
+    },
+
+    async setPassword({ access_token, refresh_token, password }) {
+      const session = await auth.setSession({ access_token, refresh_token });
+      if (session.error) throw session.error;
+      const { error } = await auth.updateUser({ password });
+      if (error) throw error;
+    },
+
+    async resetPassword({ email, ...rest }) {
+      const { error } = await auth.resetPasswordForEmail(email, rest);
+      if (error) throw error;
+    },
+
+    async handleCallback() {
+      const { accessToken, refreshToken, type } = readSupabaseUrlParams();
+      // Anything else is an OAuth return, which supabase-js reads from the URL itself.
+      if (type !== "recovery" && type !== "invite") return;
+      if (!accessToken || !refreshToken) {
+        throw new Error(
+          "Missing access_token or refresh_token for a recovery or invite link",
+        );
+      }
+      const params = new URLSearchParams({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        type,
+      });
+      return {
+        redirectTo: `${options.redirectTo ?? ""}${setPasswordPath}?${params}`,
+      };
     },
   };
 }
