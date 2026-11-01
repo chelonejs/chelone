@@ -1826,6 +1826,22 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/views/translatable-fields-tab-content.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/views/translatable-fields-tab.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/views/translatable-fields-tabs.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/views/translatable-fields.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/lib/are-ids-equal.ts",
           "type": "registry:lib"
         },
@@ -4869,6 +4885,73 @@
         "@chelone/labeled",
         "@chelone/lib-utils",
         "@chelone/tabs"
+      ],
+      "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "translatable-fields-tab-content",
+      "type": "registry:component",
+      "title": "Translatable Fields Tab Content",
+      "files": [
+        {
+          "path": "src/components/admin/views/translatable-fields-tab-content.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/labeled", "@chelone/tabs"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "translatable-fields-tab",
+      "type": "registry:component",
+      "title": "Translatable Fields Tab",
+      "files": [
+        {
+          "path": "src/components/admin/views/translatable-fields-tab.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/tabs"],
+      "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "translatable-fields-tabs",
+      "type": "registry:component",
+      "title": "Translatable Fields Tabs",
+      "files": [
+        {
+          "path": "src/components/admin/views/translatable-fields-tabs.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/tabs",
+        "@chelone/translatable-fields-tab"
+      ],
+      "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "translatable-fields",
+      "type": "registry:component",
+      "title": "Translatable Fields",
+      "files": [
+        {
+          "path": "src/components/admin/views/translatable-fields.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/tabs",
+        "@chelone/translatable-fields-tab-content",
+        "@chelone/translatable-fields-tabs"
       ],
       "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],

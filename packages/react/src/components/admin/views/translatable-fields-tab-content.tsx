@@ -1,11 +1,5 @@
 import { createLocaleSourceScope, getRecordForLocale } from "@chelone/core";
-import {
-  Children,
-  Fragment,
-  isValidElement,
-  type ReactNode,
-  useMemo,
-} from "react";
+import { Children, isValidElement, type ReactNode, useMemo } from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { SourceContextProvider, useSourceContext } from "../../../form-context";
 import {
@@ -61,11 +55,11 @@ export function TranslatableFieldsTabContent({
       <RecordContextProvider value={localeRecord}>
         <SourceContextProvider scope={scope}>
           {labelEach
-            ? items.map((item, index) =>
+            ? items.map((item) =>
                 isValidElement(item) ? (
-                  <Labeled key={item.key ?? index}>{item}</Labeled>
+                  <Labeled key={item.key}>{item}</Labeled>
                 ) : (
-                  <Fragment key={`text-${index}`}>{item}</Fragment>
+                  item
                 ),
               )
             : children}

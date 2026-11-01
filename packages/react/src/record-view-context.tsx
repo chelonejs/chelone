@@ -132,6 +132,11 @@ export function useShowContext<
   return context as ShowContextValue<RecordType>;
 }
 
+/** The ambient show surface, or `null` outside a `<ShowContextProvider>`. */
+export function useOptionalShowContext(): ShowContextValue | null {
+  return useContext(ShowContext);
+}
+
 /* -------------------------------------------------------------------------- */
 /* Create                                                                     */
 /* -------------------------------------------------------------------------- */

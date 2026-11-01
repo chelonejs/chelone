@@ -4,6 +4,7 @@ import {
   RecordContextProvider,
   useRecordContext,
 } from "../../../record/record-context";
+import { useOptionalShowContext } from "../../../record-view-context";
 import { ResourceContextProvider, useResourceContext } from "../../../resource";
 import {
   TranslatableContextProvider,
@@ -48,7 +49,10 @@ export function TranslatableFields({
 }: TranslatableFieldsProps) {
   const record = useRecordContext({ record: recordProp });
   const resource = useResourceContext({ resource: resourceProp });
+  const showContext = useOptionalShowContext();
   const translatable = useTranslatable({ locales, defaultLocale });
+  // `<Show>` renders its children before the record has loaded
+  if (!record && showContext) return null;
   if (!record) {
     throw new Error(
       "<TranslatableFields> needs a record: pass a record prop or render it inside a RecordContextProvider",

@@ -125,4 +125,190 @@ describe("TranslatableFields", () => {
       "translatable-header-fr",
     );
   });
+
+  it("TranslatableFields reads a nested translatable value inside an array item", () => {
+    function Rows() {
+      const { data = [] } = useListContext();
+      return (
+        <>
+          {(data as { id: number }[]).map((row) => (
+            <RecordContextProvider key={row.id} value={row}>
+              <TranslatableFields
+                locales={["en", "fr"]}
+                groupKey={`row${row.id}`}
+              >
+                <TextField source="details.label" />
+              </TranslatableFields>
+            </RecordContextProvider>
+          ))}
+        </>
+      );
+    }
+    mount(
+      <ArrayField source="items">
+        <Rows />
+      </ArrayField>,
+      {
+        record: {
+          id: 1,
+          items: [
+            { id: 10, details: { label: { en: "One", fr: "Un" } } },
+            { id: 20, details: { label: { en: "Two", fr: "Deux" } } },
+          ],
+        },
+      },
+    );
+    expect(
+      within(panel("translatable-content-row10en")).getByText("One"),
+    ).toBeTruthy();
+    expect(
+      within(panel("translatable-content-row10fr")).getByText("Un"),
+    ).toBeTruthy();
+    expect(
+      within(panel("translatable-content-row20fr")).getByText("Deux"),
+    ).toBeTruthy();
+  });
+
+  it("TranslatableFields labels several children with their resource field labels", () => {
+    mount(
+      <TranslatableFields locales={["en", "fr"]}>
+        <TextField source="title" />
+        <TextField source="body" />
+      </TranslatableFields>,
+      { messages: { "resources.posts.fields.title": "Headline" } },
+    );
+    for (const locale of ["en", "fr"]) {
+      const scope = within(panel(`translatable-content-${locale}`));
+      expect(scope.getByText("Headline")).toBeTruthy();
+      expect(scope.getByText("Body")).toBeTruthy();
+    }
+    expect(
+      within(panel("translatable-content-fr")).getByText("Bonjour"),
+    ).toBeTruthy();
+    expect(
+      within(panel("translatable-content-fr")).getByText("Monde"),
+    ).toBeTruthy();
+  });
+
+  it("TranslatableFields shows no label for a single child", () => {
+    mount(
+      <TranslatableFields locales={["en", "fr"]}>
+        <TextField source="title" />
+      </TranslatableFields>,
+      { messages: { "resources.posts.fields.title": "Headline" } },
+    );
+    expect(screen.queryByText("Headline")).toBeNull();
+    expect(screen.queryByText("Title")).toBeNull();
+    expect(document.querySelector("label")).toBeNull();
+  });
+
+  it("TranslatableFields record prop shows that record instead of the ambient one", () => {
+    mount(
+      <TranslatableFields
+        locales={["en", "fr"]}
+        record={{ id: 2, title: { en: "Other", fr: "Autre" } }}
+      >
+        <TextField source="title" />
+      </TranslatableFields>,
+    );
+    expect(
+      within(panel("translatable-content-en")).getByText("Other"),
+    ).toBeTruthy();
+    expect(screen.queryByText("Hello")).toBeNull();
+  });
+
+  it("TranslatableFields throws without a record", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() =>
+      mount(
+        <TranslatableFields locales={["en", "fr"]}>
+          <TextField source="title" />
+        </TranslatableFields>,
+        { record: null },
+      ),
+    ).toThrow(/needs a record/);
+    error.mockRestore();
+  });
+
+  it("TranslatableFields throws without a resource", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() =>
+      mount(
+        <TranslatableFields locales={["en", "fr"]}>
+          <TextField source="title" />
+        </TranslatableFields>,
+        { resource: null },
+      ),
+    ).toThrow(/needs a resource/);
+    error.mockRestore();
+  });
+
+  it("TranslatableFields labels a tab from ra.locales when translated and capitalizes the code otherwise", () => {
+    mount(
+      <TranslatableFields locales={["en", "fr"]}>
+        <TextField source="title" />
+      </TranslatableFields>,
+      { messages: { "ra.locales.en": "English" } },
+    );
+    expect(screen.getByRole("tab", { name: "English" })).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "Fr" })).toBeTruthy();
+  });
+
+  it("TranslatableFields selector prop replaces the default tabs", () => {
+    mount(
+      <TranslatableFields
+        locales={["en", "fr"]}
+        selector={<div data-testid="custom-selector" />}
+      >
+        <TextField source="title" />
+      </TranslatableFields>,
+    );
+    expect(screen.getByTestId("custom-selector")).toBeTruthy();
+    expect(screen.queryByRole("tablist")).toBeNull();
+    expect(screen.getByText("Hello")).toBeTruthy();
+    expect(screen.getByText("Bonjour")).toBeTruthy();
+  });
+
+  it("TranslatableFields inside Show shows each locale of the loaded record", async () => {
+    const registry = createResourceRegistry();
+    registry.register({ name: "posts", hasList: true, hasShow: true });
+    render(
+      <CheloneProvider
+        dataProvider={fakeDataProvider({ posts: [post] })}
+        queryClient={
+          new QueryClient({ defaultOptions: { queries: { retry: false } } })
+        }
+        i18n={makeI18n()}
+      >
+        <ResourceRegistryProvider registry={registry}>
+          <RouterAdapterProvider adapter={reactRouterAdapter}>
+            <MemoryRouter initialEntries={["/1/show"]}>
+              <ResourceContextProvider value="posts">
+                <Routes>
+                  <Route
+                    path=":id/show"
+                    element={
+                      <Show title={false}>
+                        <TranslatableFields locales={["en", "fr"]}>
+                          <TextField source="title" />
+                        </TranslatableFields>
+                      </Show>
+                    }
+                  />
+                </Routes>
+              </ResourceContextProvider>
+            </MemoryRouter>
+          </RouterAdapterProvider>
+        </ResourceRegistryProvider>
+      </CheloneProvider>,
+    );
+    await waitFor(() =>
+      expect(
+        within(panel("translatable-content-en")).getByText("Hello"),
+      ).toBeTruthy(),
+    );
+    expect(
+      within(panel("translatable-content-fr")).getByText("Bonjour"),
+    ).toBeTruthy();
+  });
 });
