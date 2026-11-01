@@ -397,7 +397,7 @@ describe("<DataTable> columns", () => {
     expect(publishes()).toHaveLength(1);
     expect(store.getItem("posts.datatable_columns")).toEqual([
       { id: "title", source: "title", label: "Headline" },
-      { id: "views", source: "views" },
+      { id: "views", source: "views", defaultHidden: true },
     ]);
     rerender(
       <TableHarness store={store} defaultHiddenColumns={["views"]}>
