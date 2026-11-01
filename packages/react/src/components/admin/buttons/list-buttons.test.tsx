@@ -34,6 +34,7 @@ import {
   type ListContextValue,
   useListContext,
 } from "../../../form";
+import { useListFilterContext } from "../../../list/list-slice-hooks";
 import {
   ResourceContextProvider,
   ResourceRegistryProvider,
@@ -73,7 +74,8 @@ function makeDataProvider() {
 }
 
 function Probe() {
-  const { filterValues, selectedIds } = useListContext();
+  const { filterValues } = useListFilterContext();
+  const { selectedIds } = useListContext();
   return (
     <>
       <output data-testid="filters">{JSON.stringify(filterValues)}</output>
@@ -97,7 +99,13 @@ function ListHarness({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
   const registry = createResourceRegistry();
-  registry.register({ name: "posts", hasList: true });
+  registry.register({
+    name: "posts",
+    hasList: true,
+    hasCreate: true,
+    hasEdit: true,
+    hasShow: true,
+  });
   return (
     <CheloneProvider
       dataProvider={dataProvider}
