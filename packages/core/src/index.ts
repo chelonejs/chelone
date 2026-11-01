@@ -97,6 +97,8 @@ export {
   createEditController,
   createShowController,
 } from "./controller/record-controllers";
+export type { RecordTreeNode } from "./controller/record-tree";
+export { buildRecordTree } from "./controller/record-tree";
 export type {
   ReferenceManyController,
   ReferenceManyControllerOptions,
