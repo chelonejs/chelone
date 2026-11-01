@@ -36,7 +36,7 @@ export default defineConfig({
     },
   },
   build: {
-    lib: { entry: "src/index.ts", formats: ["es"] },
+    lib: { entry: ["src/index.ts", "src/monaco.ts"], formats: ["es"] },
     outDir: "dist",
     sourcemap: false,
     minify: false,
