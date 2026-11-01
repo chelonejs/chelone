@@ -38,6 +38,8 @@ import type {
   ListLiveProps,
   ListProps,
   LoadingInputProps,
+  MenuLiveItemLinkProps,
+  MenuLiveProps,
   NumberInputProps,
   PartitionedChildren,
   PasswordInputProps,
@@ -317,6 +319,13 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
   it("exports ListLive", () => {
     expect(barrel.ListLive).toBeTypeOf("function");
     expectTypeOf<ListLiveProps>().toEqualTypeOf<ListProps>();
+  });
+
+  it("exports MenuLive", () => {
+    expect(barrel.MenuLive).toBeTypeOf("function");
+    expect(barrel.MenuLiveItemLink).toBeTypeOf("function");
+    expectTypeOf<MenuLiveProps>().toHaveProperty("items");
+    expectTypeOf<MenuLiveItemLinkProps>().toHaveProperty("resource");
   });
 
   it("exports EditLive and ShowLive", () => {

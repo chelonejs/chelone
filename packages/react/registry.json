@@ -1818,6 +1818,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/realtime/menu-live.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/realtime/show-live.tsx",
           "type": "registry:component"
         },
@@ -4893,6 +4897,21 @@
         }
       ],
       "registryDependencies": ["@chelone/list"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "menu-live",
+      "type": "registry:component",
+      "title": "Menu Live",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/menu-live.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/badge"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
