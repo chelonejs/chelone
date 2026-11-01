@@ -107,7 +107,7 @@ describe("buildRecordTree", () => {
     ];
     const tree = buildRecordTree(records, "parent");
     expect(shape(tree)).toEqual([{ id: 1, children: [leaf(2)] }]);
-    expect(tree[0].record.label).toBe("first");
+    expect(tree[0]?.record.label).toBe("first");
   });
 
   it("reads a dotted parentSource", () => {
