@@ -124,7 +124,22 @@ export {
 export { resolveNotificationKey } from "./controller/translate-fallback";
 export { matchCsvHeaders } from "./csv/match-headers";
 export { parseCsvWith } from "./csv/parse-with";
-export type { CsvParseError, CsvParser, ParsedCsv } from "./csv/types";
+export { csvErrorRows, runCsvImport } from "./csv/run-import";
+export type {
+  CsvImportError,
+  CsvImportReport,
+  CsvParseError,
+  CsvParser,
+  CsvRow,
+  CsvRowValidation,
+  CsvTransform,
+  ParsedCsv,
+} from "./csv/types";
+export {
+  applyCsvMapping,
+  csvSchemaFields,
+  validateCsvRows,
+} from "./csv/validate-rows";
 export {
   removeRecordsFromCache,
   updateRecordsInCache,
