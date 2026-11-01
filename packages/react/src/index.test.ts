@@ -36,6 +36,7 @@ import type {
   LabeledProps,
   LinkProps,
   ListContextValue,
+  ListGuesserProps,
   ListLiveProps,
   ListProps,
   LoadingInputProps,
@@ -622,5 +623,12 @@ describe("@chelone/react barrel — guessers", () => {
     expectTypeOf<GuesserEmptyProps>().toHaveProperty("title");
     expectTypeOf<GuesserEmptyProps>().toHaveProperty("message");
     expectTypeOf<GuesserEmptyProps>().toHaveProperty("resource");
+  });
+
+  it("exports ListGuesser", () => {
+    expect(barrel.ListGuesser).toBeTypeOf("function");
+    expectTypeOf<ListGuesserProps>().toHaveProperty("enableLog");
+    expectTypeOf<ListGuesserProps>().toHaveProperty("perPage");
+    expectTypeOf<ListGuesserProps>().not.toHaveProperty("children");
   });
 });
