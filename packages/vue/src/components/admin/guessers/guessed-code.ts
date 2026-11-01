@@ -124,7 +124,9 @@ export function printGuessedView(
 
   const skipped = fields
     .filter(isSkipped)
-    .map((field) => `Skipped: ${field.source} (${field.reason ?? "no component"})`);
+    .map(
+      (field) => `Skipped: ${field.source} (${field.reason ?? "no component"})`,
+    );
 
   return [
     `Guessed ${view} for "${resource}":`,

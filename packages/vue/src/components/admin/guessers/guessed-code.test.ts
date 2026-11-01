@@ -210,7 +210,9 @@ describe("printGuessedView", () => {
       }),
     );
 
-    expect(text.endsWith("</template>\n\nSkipped: meta (object schema)\nSkipped: tags (array of objects)")).toBe(true);
+    expect(text.split("</template>\n")[1]).toBe(
+      "\nSkipped: meta (object schema)\nSkipped: tags (array of objects)",
+    );
     expect(text).not.toContain('source="meta"');
     expect(text).not.toContain('source="tags"');
   });
