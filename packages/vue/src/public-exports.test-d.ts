@@ -21,6 +21,7 @@ import type {
   DateInputProps,
   DateTimeInputProps,
   DurationInputProps,
+  EditLiveProps,
   EditProps,
   ErrorFallbackProps,
   FilterFormEntry,
@@ -35,6 +36,7 @@ import type {
   InfinitePaginationProps,
   LinkProps,
   ListActionsProps,
+  ListLiveProps,
   ListNoResultsProps,
   ListPaginationProps,
   ListProps,
@@ -57,6 +59,7 @@ import type {
   SavedQueriesListProps,
   SearchInputProps,
   SelectAllButtonProps,
+  ShowLiveProps,
   ShowProps,
   SimpleListItemProps,
   SimpleListLoadingProps,
@@ -95,6 +98,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<ErrorFallbackProps>().toHaveProperty("error");
     expectTypeOf<CountProps>().toBeObject();
     expectTypeOf<EditProps>().toBeObject();
+    expectTypeOf<EditLiveProps>().toEqualTypeOf<EditProps>();
     expectTypeOf<FilterFormEntry>().toHaveProperty("component");
     expectTypeOf<FilterFormProps>().toBeObject();
     expectTypeOf<FilterLiveSearchProps>().toBeObject();
@@ -108,6 +112,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<LinkProps>().toHaveProperty("to");
     expectTypeOf<ListActionsProps>().toBeObject();
     expectTypeOf<ListProps>().toBeObject();
+    expectTypeOf<ListLiveProps>().toEqualTypeOf<ListProps>();
     expectTypeOf<ListNoResultsProps>().toBeObject();
     expectTypeOf<ListPaginationProps>().toBeObject();
     expectTypeOf<ListToolbarProps>().toBeObject();
@@ -133,6 +138,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<SearchInputProps>().toBeObject();
     expectTypeOf<SelectAllButtonProps>().toHaveProperty("limit");
     expectTypeOf<ShowProps>().toBeObject();
+    expectTypeOf<ShowLiveProps>().toEqualTypeOf<ShowProps>();
     expectTypeOf<SimpleListItemProps>().toBeObject();
     expectTypeOf<SimpleListLoadingProps>().toBeObject();
     expectTypeOf<SimpleListProps>().toBeObject();

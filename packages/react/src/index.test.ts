@@ -18,6 +18,8 @@ import type {
   CustomRoutesProps,
   EditContextProviderProps,
   EditContextValue,
+  EditLiveProps,
+  EditProps,
   ErrorFallbackProps,
   FilterContextProviderProps,
   FilterContextType,
@@ -51,6 +53,8 @@ import type {
   SaveHandler,
   ShowContextProviderProps,
   ShowContextValue,
+  ShowLiveProps,
+  ShowProps,
   ShowTabProps,
   SimpleFormIteratorProps,
   TabbedFormProps,
@@ -313,6 +317,13 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
   it("exports ListLive", () => {
     expect(barrel.ListLive).toBeTypeOf("function");
     expectTypeOf<ListLiveProps>().toEqualTypeOf<ListProps>();
+  });
+
+  it("exports EditLive and ShowLive", () => {
+    expect(barrel.EditLive).toBeTypeOf("function");
+    expect(barrel.ShowLive).toBeTypeOf("function");
+    expectTypeOf<EditLiveProps>().toEqualTypeOf<EditProps>();
+    expectTypeOf<ShowLiveProps>().toEqualTypeOf<ShowProps>();
   });
 
   it("exports the lock hooks", () => {
