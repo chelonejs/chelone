@@ -1,0 +1,23 @@
+{
+  "name": "RefreshIconButton",
+  "props": [
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "A message key, translated with itself as the fallback."
+    },
+    {
+      "name": "onClick",
+      "type": "(event: MouseEvent<HTMLButtonElement>) => void",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
