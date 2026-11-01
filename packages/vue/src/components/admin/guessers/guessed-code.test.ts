@@ -228,6 +228,36 @@ describe("printGuessedView", () => {
     expect(text.endsWith("</template>")).toBe(true);
   });
 
+  it("prints the described label on the column, record field and input", () => {
+    const fields = fieldsOf(
+      {
+        title: z.string().describe("Headline"),
+        views: z.number().describe("Page views"),
+        tag_ids: z.array(z.string()).describe("Tags"),
+        note: z.string(),
+      },
+      { tag_ids: "tags" },
+    );
+
+    const list = printGuessedView("List", "posts", fields);
+    expect(list).toContain('<DataTableCol source="title" label="Headline" />');
+    expect(list).toContain(
+      '<DataTableCol source="views" label="Page views"><NumberField source="views" /></DataTableCol>',
+    );
+    expect(list).toContain('<DataTableCol source="note" />');
+
+    expect(printGuessedView("Show", "posts", fields)).toContain(
+      '<RecordField source="title" label="Headline" />',
+    );
+
+    const edit = printGuessedView("Edit", "posts", fields);
+    expect(edit).toContain('<TextInput source="title" label="Headline" />');
+    expect(edit).toContain('<NumberInput source="views" label="Page views" />');
+    expect(edit).toContain(
+      '<ReferenceArrayInput source="tag_ids" reference="tags" />',
+    );
+  });
+
   it("prints showTime on a dateTime field", () => {
     const fields = fieldsOf({ at: z.string().datetime() });
 

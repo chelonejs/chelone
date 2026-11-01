@@ -38,9 +38,21 @@ const attrText = (text: string) =>
 const bound = (name: string, value: unknown) =>
   `:${name}="${attrText(literal(value))}"`;
 
-/** `source`, then `reference`, `choices` and, for a field, `fieldProps`. */
-function attrs(field: FieldDescriptor, withFieldProps: boolean): string {
-  const parts = [`source="${attrText(field.source)}"`];
+/** The `source` and, when the schema described one, the `label` of a column, record field or input. */
+const sourceAttrs = (field: FieldDescriptor, withLabel = true) =>
+  `source="${attrText(field.source)}"${
+    withLabel && field.label !== undefined
+      ? ` label="${attrText(field.label)}"`
+      : ""
+  }`;
+
+/** `source`, then `label` for an input, `reference`, `choices` and, for a field, `fieldProps`. */
+function attrs(
+  field: FieldDescriptor,
+  withFieldProps: boolean,
+  withLabel = false,
+): string {
+  const parts = [sourceAttrs(field, withLabel)];
   if (field.reference !== undefined) {
     parts.push(`reference="${attrText(field.reference)}"`);
   }
@@ -88,11 +100,11 @@ export function printGuessedView(
     for (const field of supported) {
       const col = use("DataTableCol");
       if (field.kind === "text") {
-        lines.push(`      <${col} source="${attrText(field.source)}" />`);
+        lines.push(`      <${col} ${sourceAttrs(field)} />`);
       } else {
         const component = use(field.field as string);
         lines.push(
-          `      <${col} source="${attrText(field.source)}"><${component} ${attrs(field, true)} /></${col}>`,
+          `      <${col} ${sourceAttrs(field)}><${component} ${attrs(field, true)} /></${col}>`,
         );
       }
     }
@@ -101,7 +113,11 @@ export function printGuessedView(
     lines.push("  <Edit>");
     for (const field of supported) {
       if (field.primary || field.input === undefined) continue;
-      lines.push(`    <${use(field.input)} ${attrs(field, false)} />`);
+      // ReferenceArrayInput declares no `label` prop.
+      const label = field.input !== "ReferenceArrayInput";
+      lines.push(
+        `    <${use(field.input)} ${attrs(field, false, label)} />`,
+      );
     }
     lines.push(`    <${use("Toolbar")} />`, "  </Edit>");
   } else {
@@ -109,11 +125,11 @@ export function printGuessedView(
     for (const field of supported) {
       const wrapper = use("RecordField");
       if (field.kind === "text") {
-        lines.push(`    <${wrapper} source="${attrText(field.source)}" />`);
+        lines.push(`    <${wrapper} ${sourceAttrs(field)} />`);
       } else {
         const component = use(field.field as string);
         lines.push(
-          `    <${wrapper} source="${attrText(field.source)}"><${component} ${attrs(field, true)} /></${wrapper}>`,
+          `    <${wrapper} ${sourceAttrs(field)}><${component} ${attrs(field, true)} /></${wrapper}>`,
         );
       }
     }
