@@ -285,6 +285,13 @@ export {
   defaultFormat,
   defaultParse,
 } from "./form/input-binding";
+export type { JsonShape } from "./form/json-text";
+export {
+  detectJsonShape,
+  formatJsonValue,
+  fromJsonText,
+  toJsonText,
+} from "./form/json-text";
 export type { SourceScope } from "./form/source";
 export {
   composeSource,
