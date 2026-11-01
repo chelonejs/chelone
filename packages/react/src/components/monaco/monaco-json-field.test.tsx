@@ -116,6 +116,32 @@ describe("<MonacoJsonField />", () => {
     expect((await screen.findByTestId("editor")).textContent).toBe("null");
   });
 
+  it("shows the empty node instead of the editor for a missing value", async () => {
+    render(
+      <MonacoJsonField
+        source="missing"
+        empty="No metadata"
+        record={{ id: 1 }}
+      />,
+      { wrapper: wrap() },
+    );
+    expect(await screen.findByText("No metadata")).toBeTruthy();
+    expect(screen.queryByTestId("editor")).toBeNull();
+  });
+
+  it("ignores empty when the value is present", async () => {
+    render(
+      <MonacoJsonField
+        source="meta"
+        empty="No metadata"
+        record={{ meta: { a: 1 } }}
+      />,
+      { wrapper: wrap() },
+    );
+    await screen.findByTestId("editor");
+    expect(screen.queryByText("No metadata")).toBeNull();
+  });
+
   it("uses the fixed height when autoHeight is false", async () => {
     hoisted.contentHeight = 999;
     const { unmount } = render(

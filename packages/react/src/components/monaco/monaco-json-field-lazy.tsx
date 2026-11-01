@@ -2,6 +2,7 @@ import Editor, { loader } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTranslate } from "../../i18n-hooks";
 import { useFieldValue } from "../../record/use-field-value";
 import {
   useAutoHeight,
@@ -27,6 +28,7 @@ function toText(value: unknown): string {
 export default function MonacoJsonFieldLazy({
   source,
   record,
+  empty,
   defaultValue,
   height = DEFAULT_HEIGHT,
   autoHeight = true,
@@ -35,6 +37,7 @@ export default function MonacoJsonFieldLazy({
   monacoOptions,
 }: MonacoJsonFieldProps) {
   const value = useFieldValue({ source, record, defaultValue });
+  const translate = useTranslate();
   const container = useRef<HTMLDivElement>(null);
   const [instance, setInstance] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -46,6 +49,14 @@ export default function MonacoJsonFieldLazy({
     maxHeight,
   );
   useMonacoLayout(instance, container);
+
+  if (value == null && empty) {
+    return (
+      <span className={className}>
+        {typeof empty === "string" ? translate(empty, { _: empty }) : empty}
+      </span>
+    );
+  }
 
   return (
     <div
