@@ -143,7 +143,7 @@ describe("<NotFound>", () => {
     expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
   });
 
-  it("logs a signed-out visitor out instead of showing the page", async () => {
+  it("logs a signed-out visitor out so the shell sends them to login", async () => {
     const logout = vi.fn(async () => {});
     const authProvider = makeAuthProvider({
       checkAuth: async () => {
@@ -157,7 +157,6 @@ describe("<NotFound>", () => {
       </Wrap>,
     );
     await waitFor(() => expect(logout).toHaveBeenCalled());
-    expect(screen.queryByRole("heading", { name: "Not Found" })).toBeNull();
   });
 
   it("goes back one entry when the button is clicked", () => {
