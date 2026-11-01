@@ -26,7 +26,11 @@ import {
 import { useLocale } from "./use-locale";
 
 export interface UseTranslatableOptions {
-  /** Rebuilds the controller when its entries change, not when the array does. */
+  /**
+   * Rebuilds the controller when its entries change, not when the array does.
+   * Changing to an empty list is rejected as at setup, but a watcher cannot
+   * throw to the caller: Vue reports the error and the previous locales stay.
+   */
   locales: MaybeRefOrGetter<readonly string[]>;
   /**
    * Ignored when it is not one of `locales`. Without it the start locale is the

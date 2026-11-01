@@ -1,6 +1,6 @@
 import { type AnyCheloneI18n, createI18n } from "@chelone/core";
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import { type CheloneContextValue, provideCheloneContext } from "../context";
 import {
@@ -22,7 +22,11 @@ function makeI18n(locale: string): AnyCheloneI18n {
 }
 
 /** Mount `child` under a context that carries `i18n` (or none). */
-function mountWith(i18n: AnyCheloneI18n | undefined, child: () => unknown) {
+function mountWith(
+  i18n: AnyCheloneI18n | undefined,
+  child: () => unknown,
+  errorHandler?: (error: unknown) => void,
+) {
   const Child = defineComponent({ setup: child as never });
   const Host = defineComponent({
     setup() {
@@ -30,19 +34,24 @@ function mountWith(i18n: AnyCheloneI18n | undefined, child: () => unknown) {
       return () => h(Child);
     },
   });
-  return mount(Host);
+  return mount(Host, { global: { config: { errorHandler } } });
 }
 
 /** Render the selected locale; `result` hands back what the composable returned. */
 function mountTranslatable(
   i18n: AnyCheloneI18n | undefined,
   use: () => TranslatableContext,
+  errorHandler?: (error: unknown) => void,
 ) {
   const holder: { result?: TranslatableContext } = {};
-  const wrapper = mountWith(i18n, () => {
-    holder.result = use();
-    return () => h("p", holder.result?.selectedLocale.value);
-  });
+  const wrapper = mountWith(
+    i18n,
+    () => {
+      holder.result = use();
+      return () => h("p", holder.result?.selectedLocale.value);
+    },
+    errorHandler,
+  );
   return { wrapper, result: () => holder.result as TranslatableContext };
 }
 
@@ -105,6 +114,25 @@ describe("useTranslatable", () => {
 
     expect(wrapper.text()).toBe("en");
     expect(result().locales).toEqual(["en", "de"]);
+  });
+
+  it("useTranslatable reports an empty locales list and keeps the previous locales", async () => {
+    const errors: unknown[] = [];
+    const locales = ref(["en", "fr"]);
+    const { wrapper, result } = mountTranslatable(
+      makeI18n("en"),
+      () => useTranslatable({ locales }),
+      (error) => errors.push(error),
+    );
+    result().selectLocale("fr");
+
+    locales.value = [];
+    await nextTick();
+
+    expect(errors).toHaveLength(1);
+    expect(String(errors[0])).toContain("at least one locale");
+    expect(result().locales).toEqual(["en", "fr"]);
+    expect(wrapper.text()).toBe("fr");
   });
 
   it("useTranslatable works without an i18n instance", () => {
