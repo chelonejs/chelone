@@ -4,6 +4,7 @@ export default [
   { slug: "admin", title: "Admin" },
   { slug: "resource", title: "Resource" },
   { slug: "data-providers", title: "Data Providers" },
+  { slug: "realtime", title: "Realtime" },
   { slug: "security", title: "Security" },
   { slug: "themes", title: "Themes" },
   { slug: "translation", title: "Translation" },

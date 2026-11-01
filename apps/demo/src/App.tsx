@@ -4,18 +4,23 @@
  * (data / query / i18n / notifications / store / resource-registry / router),
  * and each `<Resource>` declares its CRUD routes + views. Every view is built
  * from the ported `@chelone/react` components over the in-memory
- * `fakeDataProvider` — no server.
+ * `fakeDataProvider` wrapped for realtime (`realtime.ts`) — no server.
  */
 
+import { createNotificationStore, createStore } from "@chelone/core";
 import {
-  createNotificationStore,
-  createStore,
-  fakeDataProvider,
-} from "@chelone/core";
-import { Admin, Layout, Resource } from "@chelone/react";
+  Admin,
+  Layout,
+  Menu,
+  MenuLive,
+  Resource,
+  useResourceDefinitions,
+} from "@chelone/react";
 import { QueryClient } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router";
 import { makeI18n } from "./i18n";
+import { dataProvider } from "./realtime";
+import { SimulateOtherUser } from "./realtime-sim";
 import { resources } from "./resources";
 import {
   AuthorCreate,
@@ -42,7 +47,6 @@ import {
   ProductList,
   ProductShow,
 } from "./resources/products";
-import { seedData } from "./seed";
 
 // One QueryClient for the app lifetime (module scope — stable across renders).
 const queryClient = new QueryClient({
@@ -52,14 +56,38 @@ const queryClient = new QueryClient({
   },
 });
 
-// The in-memory provider, seeded once (it mutates its data in place).
-const dataProvider = fakeDataProvider(seedData());
-
 // The i18n instance, notification store (the Layout toaster reads it), and the
 // KV store (list scroll / preferences) — the services a real app configures.
 const i18n = makeI18n();
 const notifications = createNotificationStore();
 const store = createStore();
+
+// Posts get a live unread badge; the other resources keep their plain links.
+// The panel is repeated here because the badge clears while /posts is open:
+// adding a post from any other page is the only way to see it.
+function DemoMenu() {
+  const definitions = useResourceDefinitions();
+  const others = Object.entries(definitions).filter(
+    ([name, { hasList }]) => hasList && name !== "posts",
+  );
+  return (
+    <>
+      <div className="px-4 pt-2 text-sm">
+        <MenuLive
+          items={[{ to: "/posts", resource: "posts", label: "Posts" }]}
+        />
+      </div>
+      <Menu>
+        {others.map(([name]) => (
+          <Menu.ResourceItem key={name} name={name} />
+        ))}
+      </Menu>
+      <div className="px-4 pt-2">
+        <SimulateOtherUser />
+      </div>
+    </>
+  );
+}
 
 export function App() {
   return (
@@ -77,7 +105,7 @@ export function App() {
       >
         {/* Opt-in shadcn shell (sidebar + app bar + toaster). */}
         <Admin.Layout>
-          <Layout />
+          <Layout menu={DemoMenu} />
         </Admin.Layout>
 
         {/* QUICKSTART: `posts` carries a Zod schema (see resources/index.ts →
