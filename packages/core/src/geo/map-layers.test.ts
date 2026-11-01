@@ -21,7 +21,11 @@ describe("shapeLayerSpecs", () => {
     expect(layers.every((layer) => layer.source === "shape")).toBe(true);
     expect(layers.map((layer) => layer.filter)).toEqual([
       ["==", ["geometry-type"], "Polygon"],
-      ["==", ["geometry-type"], "LineString"],
+      [
+        "any",
+        ["==", ["geometry-type"], "LineString"],
+        ["==", ["geometry-type"], "Polygon"],
+      ],
       ["==", ["geometry-type"], "Point"],
     ]);
   });

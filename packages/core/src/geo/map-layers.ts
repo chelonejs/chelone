@@ -27,13 +27,15 @@ export interface ShapeLayerSpec {
   id: string;
   type: "fill" | "line" | "circle";
   source: string;
-  filter: ["==", ["geometry-type"], "Polygon" | "LineString" | "Point"];
+  filter: unknown[];
   paint: Record<string, string | number>;
 }
 
 /**
  * Fill, line and point layers for one GeoJSON source. `geometry-type` returns
  * the base type for the Multi types too, so they need no filter of their own.
+ * The line layer also matches Polygon, so `color`, `weight` and `opacity` give
+ * polygons an outline.
  */
 export function shapeLayerSpecs(
   sourceId: string,
@@ -55,7 +57,11 @@ export function shapeLayerSpecs(
       id: `${sourceId}-line`,
       type: "line",
       source: sourceId,
-      filter: ["==", ["geometry-type"], "LineString"],
+      filter: [
+        "any",
+        ["==", ["geometry-type"], "LineString"],
+        ["==", ["geometry-type"], "Polygon"],
+      ],
       paint: {
         "line-color": color,
         "line-width": style.weight ?? DEFAULT_SHAPE_STYLE.weight,
