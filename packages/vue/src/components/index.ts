@@ -66,6 +66,8 @@ export { default as SortButton } from "./admin/buttons/sort-button.vue";
 export type { ToolbarProps } from "./admin/buttons/toolbar.vue";
 export { default as Toolbar } from "./admin/buttons/toolbar.vue";
 // --- admin: common (V3-c) -------------------------------------------------
+export type { ApplicationUpdatedNotificationProps } from "./admin/common/application-updated-notification.vue";
+export { default as ApplicationUpdatedNotification } from "./admin/common/application-updated-notification.vue";
 export type { FieldLabelTextProps } from "./admin/common/field-label-text.vue";
 export { default as FieldLabelText } from "./admin/common/field-label-text.vue";
 export type { IconButtonWithTooltipProps } from "./admin/common/icon-button-with-tooltip.vue";
@@ -100,6 +102,8 @@ export type { LoadingIndicatorProps } from "./admin/feedback/loading-indicator.v
 export { default as LoadingIndicator } from "./admin/feedback/loading-indicator.vue";
 export type { NotificationProps } from "./admin/feedback/notification.vue";
 export { default as Notification } from "./admin/feedback/notification.vue";
+export type { OfflineProps } from "./admin/feedback/offline.vue";
+export { default as Offline } from "./admin/feedback/offline.vue";
 export type { PlaceholderProps } from "./admin/feedback/placeholder.vue";
 export { default as Placeholder } from "./admin/feedback/placeholder.vue";
 export { default as Ready } from "./admin/feedback/ready.vue";
