@@ -76,3 +76,28 @@ it("no shipped file imports the ui barrel", () => {
 
   expect(offenders).toEqual([]);
 });
+
+it("guess-components imports each component from its own file, not a barrel", () => {
+  const source = readFileSync(
+    join(packageRoot, "src/components/admin/guessers/guess-components.ts"),
+    "utf8",
+  );
+  const specifiers = [...source.matchAll(/from\s+["']([^"']+)["']/g)].map(
+    (match) => match[1] as string,
+  );
+  const barrels = specifiers.filter(
+    (spec) =>
+      /\/(?:ui|components)(?:\/index)?$/.test(spec) ||
+      /^\.{1,2}(?:\/\.\.)*$/.test(spec) ||
+      /\/index$/.test(spec),
+  );
+
+  expect(specifiers).toContain("../fields/text-field.vue");
+  expect(barrels).toEqual([]);
+});
+
+it("the guessers icons ship as guesser-icons, apart from the other icons.ts items", () => {
+  expect(item("guesser-icons")?.files.map((f) => f.path)).toEqual([
+    "src/components/admin/guessers/icons.ts",
+  ]);
+});
