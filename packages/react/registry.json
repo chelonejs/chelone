@@ -1515,6 +1515,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/guessers/edit-guesser.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/guessers/guess-components.ts",
           "type": "registry:component"
         },
@@ -3515,6 +3519,30 @@
         "@chelone/tabs",
         "@chelone/translatable-inputs-tab-content",
         "@chelone/translatable-inputs-tabs"
+      ],
+      "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "edit-guesser",
+      "type": "registry:component",
+      "title": "Edit Guesser",
+      "files": [
+        {
+          "path": "src/components/admin/guessers/edit-guesser.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/autocomplete-input",
+        "@chelone/edit",
+        "@chelone/guess-components",
+        "@chelone/guessed-code",
+        "@chelone/guesser-empty",
+        "@chelone/reference-input",
+        "@chelone/toolbar",
+        "@chelone/use-guessed-resource"
       ],
       "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],
