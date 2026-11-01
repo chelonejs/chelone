@@ -792,6 +792,12 @@ export {
   type ListLiveProps,
 } from "./components/admin/realtime/list-live";
 export {
+  MenuLive,
+  MenuLiveItemLink,
+  type MenuLiveItemLinkProps,
+  type MenuLiveProps,
+} from "./components/admin/realtime/menu-live";
+export {
   ShowLive,
   type ShowLiveProps,
 } from "./components/admin/realtime/show-live";

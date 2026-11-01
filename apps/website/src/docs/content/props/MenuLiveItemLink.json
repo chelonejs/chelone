@@ -1,0 +1,41 @@
+{
+  "name": "MenuLiveItemLink",
+  "props": [
+    {
+      "name": "badgeLabel",
+      "type": "(count: number) => ReactNode",
+      "optional": true,
+      "comment": "Formats the badge text. Defaults to the count, `99+` above 99."
+    },
+    {
+      "name": "events",
+      "type": "RealtimeEventType[]",
+      "optional": true,
+      "comment": "Event types that count as new. Defaults to `[\"created\"]`."
+    },
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Icon rendered before `label`."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "Link text."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": false,
+      "comment": "Resource whose events are counted."
+    },
+    {
+      "name": "to",
+      "type": "string",
+      "optional": false,
+      "comment": "Target path. The count clears while the current route is `to` or below it."
+    }
+  ]
+}
