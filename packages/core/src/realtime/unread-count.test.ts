@@ -63,7 +63,7 @@ describe("subscribeUnreadCount", () => {
     await emit("updated");
     await emit("deleted");
 
-    expect(store.getItem(unreadKey("posts"))).toBe(2);
+    expect(store.getItem(unreadKey("posts", ["created", "updated"]))).toBe(2);
   });
 
   it("keeps each event list's count under its own key", async () => {
