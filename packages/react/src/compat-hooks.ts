@@ -1,4 +1,6 @@
 import {
+  type ApplicationUpdateStoreOptions,
+  createApplicationUpdateStore,
   createOfflineStore,
   type DataProvider,
   type ResourceMap,
@@ -14,6 +16,7 @@ import {
 } from "react";
 import { useCheloneContext } from "./context";
 import { useLocale, useSetLocale } from "./i18n-hooks";
+import { useEvent } from "./util/use-event";
 
 /**
  * The raw dataProvider off `<CheloneProvider>` (ra `useDataProvider` parity).
@@ -174,6 +177,53 @@ export function useIsOffline(): boolean {
   return useSyncExternalStore(
     store.subscribe,
     () => store.getSnapshot().isOffline,
+    () => false,
+  );
+}
+
+// Bundler-replaced dev/prod flag; mirrors `feedback/error.tsx`.
+declare const process: { env?: { NODE_ENV?: string } } | undefined;
+
+const IS_DEV =
+  (typeof process !== "undefined" ? process.env?.NODE_ENV : undefined) !==
+  "production";
+
+/**
+ * `true` once the deployed page's body differs from the first one fetched, so
+ * a new build is live (ra `useCheckForApplicationUpdate` parity). `disabled`
+ * defaults to `true` outside production, so a dev server never polls.
+ *
+ * The poll restarts only when `url`, `interval` or `disabled` change:
+ * `fetchOptions` and `onNewVersionAvailable` are read at each use, so an
+ * inline object or callback is safe.
+ */
+export function useCheckForApplicationUpdate(
+  options: ApplicationUpdateStoreOptions = {},
+): boolean {
+  const { url, interval, disabled = IS_DEV } = options;
+  const readFetchOptions = useEvent(() => {
+    const { fetchOptions } = options;
+    return (
+      (typeof fetchOptions === "function" ? fetchOptions() : fetchOptions) ?? {}
+    );
+  });
+  const onNewVersionAvailable = useEvent(() => {
+    options.onNewVersionAvailable?.();
+  });
+  const store = useMemo(
+    () =>
+      createApplicationUpdateStore({
+        url,
+        interval,
+        disabled,
+        fetchOptions: readFetchOptions,
+        onNewVersionAvailable,
+      }),
+    [url, interval, disabled, readFetchOptions, onNewVersionAvailable],
+  );
+  return useSyncExternalStore(
+    store.subscribe,
+    () => store.getSnapshot().hasNewVersion,
     () => false,
   );
 }
