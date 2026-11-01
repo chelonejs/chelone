@@ -48,11 +48,10 @@ export function useDataTableColumns({
   const subscribe = useCallback(
     (callback: () => void) => {
       if (!store) return noSubscribe();
-      const unsubscribers = [keys.hidden, keys.order, keys.columns].map((key) =>
-        store.subscribe(key, callback),
-      );
+      const watched = [keys.hidden, keys.order, keys.columns];
+      const stops = watched.map((key) => store.subscribe(key, callback));
       return () => {
-        for (const unsubscribe of unsubscribers) unsubscribe();
+        for (const stop of stops) stop();
       };
     },
     [store, keys],
