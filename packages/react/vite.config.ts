@@ -58,7 +58,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: ["src/index.ts", "src/tanstack-router.ts"],
+      entry: ["src/index.ts", "src/tanstack-router.ts", "src/monaco.ts"],
       formats: ["es"],
     },
     outDir: "dist",

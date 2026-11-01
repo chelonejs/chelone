@@ -18,6 +18,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./tanstack-router": "./src/tanstack-router.ts",
+    "./monaco": "./src/monaco.ts",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -32,6 +33,10 @@
       "./tanstack-router": {
         "types": "./dist/tanstack-router.d.ts",
         "default": "./dist/tanstack-router.js"
+      },
+      "./monaco": {
+        "types": "./dist/monaco.d.ts",
+        "default": "./dist/monaco.js"
       },
       "./package.json": "./package.json"
     }
@@ -66,15 +71,23 @@
     "vaul": "^1.1.2"
   },
   "peerDependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
+    "monaco-editor": "^0.57.0",
     "react": "^18 || ^19",
     "react-dom": "^18 || ^19",
     "react-router": "^7.0.0"
   },
   "peerDependenciesMeta": {
+    "@monaco-editor/react": {
+      "optional": true
+    },
     "@tanstack/react-router": {
+      "optional": true
+    },
+    "monaco-editor": {
       "optional": true
     },
     "react-router": {
@@ -83,6 +96,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.0",
+    "@monaco-editor/react": "^4.7.0",
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
@@ -90,6 +104,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "jsdom": "^26.0.0",
+    "monaco-editor": "^0.57.0",
     "publint": "^0.3.0",
     "react": "^19",
     "react-dom": "^19",
