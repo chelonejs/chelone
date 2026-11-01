@@ -6,6 +6,7 @@ import { describe, expectTypeOf, it } from "vitest";
 import type { Ref } from "vue";
 import type {
   AdminProps,
+  ApplicationUpdatedNotificationProps,
   BooleanInputProps,
   BulkActionsToolbarProps,
   ColorInputProps,
@@ -41,6 +42,7 @@ import type {
   LoadingPageProps,
   NullableBooleanInputProps,
   NumberInputProps,
+  OfflineProps,
   PasswordInputProps,
   PhoneInputProps,
   PlaceholderProps,
@@ -71,6 +73,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<AdminProps>().toHaveProperty("dataProvider");
     expectTypeOf<AdminProps>().toHaveProperty("customRoutes");
     expectTypeOf<CustomRoute>().toHaveProperty("path");
+    expectTypeOf<ApplicationUpdatedNotificationProps>().toBeObject();
     expectTypeOf<BooleanInputProps>().toHaveProperty("source");
     expectTypeOf<BulkActionsToolbarProps>().toBeObject();
     expectTypeOf<ColorInputProps>().toHaveProperty("source");
@@ -105,6 +108,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<LoadingPageProps>().toBeObject();
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");
     expectTypeOf<NumberInputProps>().toHaveProperty("source");
+    expectTypeOf<OfflineProps>().toBeObject();
     expectTypeOf<PasswordInputProps>().toHaveProperty("source");
     expectTypeOf<PhoneInputProps>().toHaveProperty("source");
     expectTypeOf<PlaceholderProps>().toBeObject();
