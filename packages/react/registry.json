@@ -1515,6 +1515,22 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/guessers/guess-components.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/guessers/guessed-code.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/guessers/guesser-empty.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/guessers/use-guessed-resource.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/input-props.ts",
           "type": "registry:component"
         },
@@ -3497,6 +3513,83 @@
         "@chelone/translatable-inputs-tabs"
       ],
       "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "guess-components",
+      "type": "registry:component",
+      "title": "Guess Components",
+      "files": [
+        {
+          "path": "src/components/admin/guessers/guess-components.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/boolean-field",
+        "@chelone/boolean-input",
+        "@chelone/date-field",
+        "@chelone/date-input",
+        "@chelone/date-time-input",
+        "@chelone/email-field",
+        "@chelone/number-field",
+        "@chelone/number-input",
+        "@chelone/reference-array-field",
+        "@chelone/reference-array-input",
+        "@chelone/reference-field",
+        "@chelone/reference-input",
+        "@chelone/select-field",
+        "@chelone/select-input",
+        "@chelone/text-array-field",
+        "@chelone/text-array-input",
+        "@chelone/text-field",
+        "@chelone/text-input",
+        "@chelone/url-field"
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "guessed-code",
+      "type": "registry:component",
+      "title": "Guessed Code",
+      "files": [
+        {
+          "path": "src/components/admin/guessers/guessed-code.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "guesser-empty",
+      "type": "registry:component",
+      "title": "Guesser Empty",
+      "files": [
+        {
+          "path": "src/components/admin/guessers/guesser-empty.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-guessed-resource",
+      "type": "registry:component",
+      "title": "Use Guessed Resource",
+      "files": [
+        {
+          "path": "src/components/admin/guessers/use-guessed-resource.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

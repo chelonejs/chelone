@@ -492,6 +492,10 @@ export {
   TranslatableInputsTabs,
   type TranslatableInputsTabsProps,
 } from "./components/admin/form/translatable-inputs-tabs";
+export {
+  GuesserEmpty,
+  type GuesserEmptyProps,
+} from "./components/admin/guessers/guesser-empty";
 // P7b component surface — simple text-like inputs (ported from shadmin onto
 // useInput + ui/field + <ValidationError>). The `ui/` primitives are NOT
 // barrel-exported (they are registry/consumer-facing via the `@/` alias,
