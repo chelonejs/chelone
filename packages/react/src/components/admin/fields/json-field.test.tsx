@@ -85,4 +85,12 @@ describe("<JsonField />", () => {
     expect(pre?.classList.contains("extra")).toBe(true);
     expect(pre?.classList.contains("font-mono")).toBe(true);
   });
+
+  it("puts className on the empty span", () => {
+    const { getByText } = render(
+      <JsonField source="meta" empty="myapp.empty" className="extra" />,
+      { wrapper: wrap({ id: 1, meta: null }) },
+    );
+    expect(getByText("no data").classList.contains("extra")).toBe(true);
+  });
 });

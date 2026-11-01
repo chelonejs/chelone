@@ -51,7 +51,7 @@ function JsonField<RecordType extends UnknownRecord = UnknownRecord>({
     }
 
     return (
-      <span {...sanitizeFieldRestProps(rest)}>
+      <span className={className} {...sanitizeFieldRestProps(rest)}>
         {typeof empty === "string" ? translate(empty, { _: empty }) : empty}
       </span>
     );
