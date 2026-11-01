@@ -270,6 +270,9 @@ importers:
       '@tanstack/query-core':
         specifier: ^5.0.0
         version: 5.101.2
+      '@types/node':
+        specifier: ^22.20.0
+        version: 22.20.0
       '@types/papaparse':
         specifier: ^5.5.2
         version: 5.5.2
