@@ -963,6 +963,23 @@ export {
   useUnselect,
 } from "./list/list-slice-hooks";
 export { useGetListLive, useGetManyLive, useGetOneLive } from "./live-hooks";
+export type {
+  LockCallParams,
+  UseGetLockOptions,
+  UseLockOnMountOptions,
+  UseLockOnMountResult,
+  UseLockResult,
+  UseUnlockResult,
+} from "./lock-hooks";
+export {
+  useGetLock,
+  useGetLockLive,
+  useGetLocks,
+  useGetLocksLive,
+  useLock,
+  useLockOnMount,
+  useUnlock,
+} from "./lock-hooks";
 export { useNotifications, useNotify } from "./notification-hooks";
 export type { UseSubscribeOptions } from "./realtime-hooks";
 export {
