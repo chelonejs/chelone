@@ -201,6 +201,24 @@ describe("@chelone/core barrel", () => {
     });
   });
 
+  it("exports the geocoding and road snapping contracts with no ready-made provider", () => {
+    for (const name of [
+      "geocodeQueryOptions",
+      "reverseGeocodeQueryOptions",
+      "createThrottle",
+      "createNominatimProvider",
+      "createOsrmProvider",
+    ] as const) {
+      expect(barrel[name]).toBeTypeOf("function");
+    }
+    expect(() =>
+      barrel.createNominatimProvider({} as { endpoint: string }),
+    ).toThrow(TypeError);
+    expect(() => barrel.createOsrmProvider({} as { endpoint: string })).toThrow(
+      TypeError,
+    );
+  });
+
   it("gives mapMessages the placeholders the map components pass", () => {
     const text = (key: keyof typeof barrel.mapMessages) =>
       String(barrel.mapMessages[key]);

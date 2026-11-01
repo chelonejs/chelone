@@ -11,6 +11,16 @@ export { latitude, longitude, toCoordinate } from "./coordinates";
 export type { EditorSnapshotFeature, EditorStyles } from "./editor";
 export { editorStyles, fromEditorFeatures, toEditorFeatures } from "./editor";
 export type {
+  GeocodeQuery,
+  GeocodeQueryOptions,
+  GeocodeRequestOptions,
+  GeocodeResult,
+  GeocodeSearchOptions,
+  GeocodingProvider,
+  ReverseGeocodeQueryOptions,
+} from "./geocoding";
+export { geocodeQueryOptions, reverseGeocodeQueryOptions } from "./geocoding";
+export type {
   GeoBBox,
   GeoFeature,
   GeoFeatureCollection,
@@ -51,9 +61,15 @@ export {
   rasterTileStyle,
 } from "./map-style";
 export { mapMessages } from "./messages";
+export type { NominatimProviderOptions } from "./nominatim";
+export { createNominatimProvider } from "./nominatim";
 export type {
   FeaturesToShapeOptions,
   ShapeValue,
   ShapeValueKind,
 } from "./shape-value";
 export { featuresToShape, heldFeatures, shapeToFeatures } from "./shape-value";
+export type { OsrmProviderOptions, RoutingProvider } from "./snap-to-roads";
+export { createOsrmProvider } from "./snap-to-roads";
+export type { Throttle, ThrottleOptions } from "./throttle";
+export { createThrottle } from "./throttle";

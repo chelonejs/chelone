@@ -357,6 +357,16 @@ export {
   toEditorFeatures,
 } from "./geo/editor";
 export type {
+  GeocodeQuery,
+  GeocodeQueryOptions,
+  GeocodeRequestOptions,
+  GeocodeResult,
+  GeocodeSearchOptions,
+  GeocodingProvider,
+  ReverseGeocodeQueryOptions,
+} from "./geo/geocoding";
+export { geocodeQueryOptions, reverseGeocodeQueryOptions } from "./geo/geocoding";
+export type {
   GeoBBox,
   GeoFeature,
   GeoFeatureCollection,
@@ -397,6 +407,8 @@ export {
   rasterTileStyle,
 } from "./geo/map-style";
 export { mapMessages } from "./geo/messages";
+export type { NominatimProviderOptions } from "./geo/nominatim";
+export { createNominatimProvider } from "./geo/nominatim";
 export type {
   FeaturesToShapeOptions,
   ShapeValue,
@@ -407,6 +419,10 @@ export {
   heldFeatures,
   shapeToFeatures,
 } from "./geo/shape-value";
+export type { OsrmProviderOptions, RoutingProvider } from "./geo/snap-to-roads";
+export { createOsrmProvider } from "./geo/snap-to-roads";
+export type { Throttle, ThrottleOptions } from "./geo/throttle";
+export { createThrottle } from "./geo/throttle";
 export { defaultMessages } from "./i18n/default-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";
 export { createI18n } from "./i18n/i18n";
