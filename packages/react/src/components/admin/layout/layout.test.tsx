@@ -16,7 +16,7 @@ import {
   fakeDataProvider,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -110,6 +110,46 @@ describe("<Layout>", () => {
     expect(
       screen.getByRole("button", { name: /toggle sidebar/i }),
     ).toBeTruthy();
+  });
+
+  it("renders the skip link before the sidebar menu", () => {
+    render(
+      <Providers>
+        <Layout>
+          <div>content</div>
+        </Layout>
+      </Providers>,
+    );
+    const skip = screen.getByRole("button", { name: "Skip to content" });
+    const menuLink = screen.getByRole("link", { name: /posts/i });
+    const toggle = screen.getByRole("button", { name: /toggle sidebar/i });
+    for (const later of [menuLink, toggle]) {
+      expect(
+        skip.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    }
+  });
+
+  it("skip link focus target is the content area, not the app bar", () => {
+    render(
+      <Providers>
+        <Layout>
+          <button type="button">First control</button>
+        </Layout>
+      </Providers>,
+    );
+    const target = document.getElementById("main-content") as HTMLElement;
+    expect(target.contains(screen.getByText("First control"))).toBe(true);
+    expect(
+      target.contains(screen.getByRole("button", { name: /toggle sidebar/i })),
+    ).toBe(false);
+    expect(
+      target.contains(screen.getByRole("button", { name: "Skip to content" })),
+    ).toBe(false);
+    const focus = vi.spyOn(target, "focus");
+    fireEvent.click(screen.getByRole("button", { name: "Skip to content" }));
+    expect(focus).toHaveBeenCalledTimes(1);
+    expect(target.hasAttribute("tabindex")).toBe(false);
   });
 
   it("renders the brand default", () => {
