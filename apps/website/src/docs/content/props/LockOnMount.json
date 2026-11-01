@@ -1,0 +1,53 @@
+{
+  "name": "LockOnMount",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "Shown only while this component holds the lock."
+    },
+    {
+      "name": "id",
+      "type": "Identifier",
+      "optional": true,
+      "comment": "Defaults to the id of the record context."
+    },
+    {
+      "name": "identity",
+      "type": "Identifier",
+      "optional": true,
+      "comment": "Defaults to the auth provider's identity."
+    },
+    {
+      "name": "loading",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Shown while the lock is requested. Defaults to a `Skeleton`."
+    },
+    {
+      "name": "lockedBy",
+      "type": "(lock: Lock) => ReactNode",
+      "optional": true,
+      "comment": "Shown when another identity holds the lock. Defaults to an `Alert` naming the holder."
+    },
+    {
+      "name": "meta",
+      "type": "Record<string, unknown>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "onLockError",
+      "type": "(error: Error) => void",
+      "optional": true,
+      "comment": "Called with a failed lock or release. A new function every render never relocks."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Defaults to the resource context."
+    }
+  ]
+}

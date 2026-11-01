@@ -1835,6 +1835,14 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/realtime/lock-on-mount.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/realtime/lock-status.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/realtime/menu-live.tsx",
           "type": "registry:component"
         },
@@ -4990,6 +4998,36 @@
         }
       ],
       "registryDependencies": ["@chelone/list"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lock-on-mount",
+      "type": "registry:component",
+      "title": "Lock On Mount",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/lock-on-mount.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/alert", "@chelone/skeleton"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lock-status",
+      "type": "registry:component",
+      "title": "Lock Status",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/lock-status.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/badge"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
