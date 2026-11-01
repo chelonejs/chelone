@@ -330,9 +330,9 @@ describe("TranslatableInputs", () => {
     await flushPromises();
 
     await vi.waitFor(() =>
-      expect(
-        wrapper.find('[data-chelone-tab-error="content"]').exists(),
-      ).toBe(true),
+      expect(wrapper.find('[data-chelone-tab-error="content"]').exists()).toBe(
+        true,
+      ),
     );
     expect(wrapper.find('[data-chelone-tab-error="other"]').exists()).toBe(
       false,
