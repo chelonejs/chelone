@@ -47,6 +47,7 @@ import type {
   PasswordInputProps,
   PhoneInputProps,
   PlaceholderProps,
+  PrevNextButtonsProps,
   ReferenceFieldProps,
   ReferenceInputProps,
   RefreshIconButtonProps,
@@ -68,6 +69,7 @@ import type {
   ToggleFilterButtonProps,
   ToolbarProps,
   TopToolbarProps,
+  UsePrevNextControllerOptions,
   ValidationErrorProps,
 } from "./index";
 import * as barrel from "./index";
@@ -117,6 +119,10 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<PasswordInputProps>().toHaveProperty("source");
     expectTypeOf<PhoneInputProps>().toHaveProperty("source");
     expectTypeOf<PlaceholderProps>().toBeObject();
+    expectTypeOf<PrevNextButtonsProps>().toHaveProperty("linkType");
+    expectTypeOf<PrevNextButtonsProps>().toHaveProperty("class");
+    expectTypeOf<UsePrevNextControllerOptions>().toHaveProperty("record");
+    expectTypeOf(barrel.usePrevNextController).toBeFunction();
     expectTypeOf<RefreshIconButtonProps>().toBeObject();
     expectTypeOf<ReferenceFieldProps>().toHaveProperty("source");
     expectTypeOf<ReferenceInputProps>().toHaveProperty("source");
