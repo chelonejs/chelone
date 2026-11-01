@@ -44,6 +44,7 @@ import type {
   ListToolbarProps,
   LoadingIndicatorProps,
   LoadingPageProps,
+  LocalesMenuButtonProps,
   NullableBooleanInputProps,
   NumberInputProps,
   OfflineProps,
@@ -120,6 +121,9 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<ListPaginationProps>().toBeObject();
     expectTypeOf<ListToolbarProps>().toBeObject();
     expectTypeOf<LoadingIndicatorProps>().toBeObject();
+    expectTypeOf<LocalesMenuButtonProps>().toHaveProperty("languages");
+    expectTypeOf<LocalesMenuButtonProps>().toHaveProperty("class");
+    expectTypeOf(barrel.useLocales).toBeFunction();
     expectTypeOf<LoadingPageProps>().toBeObject();
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");
     expectTypeOf<NumberInputProps>().toHaveProperty("source");
