@@ -48,4 +48,22 @@ describe("matchCsvHeaders", () => {
     expect(result).toEqual({ name: "Name" });
     expect("age" in result).toBe(false);
   });
+
+  it("pairs a field named like an Object.prototype member", () => {
+    const result = matchCsvHeaders(
+      ["constructor", "toString", "__proto__"],
+      ["Constructor", "toString", "__proto__"],
+    );
+
+    expect(Object.keys(result)).toEqual([
+      "constructor",
+      "toString",
+      "__proto__",
+    ]);
+    expect(Object.getOwnPropertyDescriptor(result, "__proto__")?.value).toBe(
+      "__proto__",
+    );
+    expect(result.constructor).toBe("Constructor");
+    expect(result.toString).toBe("toString");
+  });
 });

@@ -14,17 +14,18 @@ export function matchCsvHeaders(
   const free = headers
     .map((header) => ({ header, name: normalise(header) }))
     .filter(({ name }) => name !== "");
-  const result: Record<string, string> = {};
+  // A Map, so a field named "constructor" or "__proto__" is an ordinary key.
+  const result = new Map<string, string>();
 
   const pass = (matches: (field: string, header: string) => boolean) => {
     for (const field of fields) {
-      if (field in result) continue;
+      if (result.has(field)) continue;
       const name = normalise(field);
       if (name === "") continue;
       const index = free.findIndex((entry) => matches(name, entry.name));
       const found = free[index];
       if (!found) continue;
-      result[field] = found.header;
+      result.set(field, found.header);
       free.splice(index, 1);
     }
   };
@@ -33,5 +34,5 @@ export function matchCsvHeaders(
   pass((field, header) => header.includes(field));
   pass((field, header) => field.includes(header));
 
-  return result;
+  return Object.fromEntries(result);
 }

@@ -30,6 +30,7 @@ export interface CsvParser {
       code: string;
       message: string;
       row?: number | undefined;
+      index?: number | undefined;
     }>;
     meta: { fields?: string[] | undefined };
   };

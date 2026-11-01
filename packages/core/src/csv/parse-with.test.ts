@@ -88,6 +88,14 @@ describe("parseCsvWith", () => {
     ]);
   });
 
+  it("counts the row of a quote error after skipping blank lines", () => {
+    const { errors } = parseCsvWith(Papa, 'a,b\n\n1,2\n3,"oops\n4,5');
+
+    expect(errors).toEqual([
+      { code: "MissingQuotes", row: 2, message: "Quoted field unterminated" },
+    ]);
+  });
+
   it("accepts a one-column file without an error", () => {
     expect(parseCsvWith(Papa, "name\nAda\nBob")).toEqual({
       headers: ["name"],

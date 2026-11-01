@@ -1,24 +1,31 @@
 import type { CsvParseError, CsvParser, ParsedCsv } from "./types";
 
+const OPTIONS = { header: true, skipEmptyLines: true } as const;
+
 // papaparse reports a one-column file as an undetectable delimiter, but a
 // single column is valid CSV.
 const IGNORED_CODES = new Set(["UndetectableDelimiter"]);
 
-// Papaparse counts FieldMismatch rows from 0 but reports quote errors against
-// the header-inclusive 0-based index, which is already the 1-based data row.
-const toRow = (type: string, row: number | undefined) =>
-  row === undefined ? undefined : type === "FieldMismatch" ? row + 1 : row;
-
 export function parseCsvWith(parser: CsvParser, text: string): ParsedCsv {
-  const result = parser.parse(text, { header: true, skipEmptyLines: true });
+  const result = parser.parse(text, OPTIONS);
+  const body = text.replace(/^﻿/, "");
+
+  // papaparse counts a FieldMismatch row from 0 after dropping blank lines,
+  // but counts a quote error against its raw rows, blank lines included. For
+  // those, the data rows in the text up to the error's index end on its row.
+  const rowOf = (error: (typeof result.errors)[number]) => {
+    if (error.row === undefined) return undefined;
+    if (error.type === "FieldMismatch") return error.row + 1;
+    if (error.index === undefined) return error.row;
+    return parser.parse(body.slice(0, error.index), OPTIONS).data.length;
+  };
 
   const errors: CsvParseError[] = [];
-  for (const { type, code, message, row } of result.errors) {
-    if (IGNORED_CODES.has(code)) continue;
-    const mapped = toRow(type, row);
-    errors.push(
-      mapped === undefined ? { code, message } : { code, row: mapped, message },
-    );
+  for (const error of result.errors) {
+    if (IGNORED_CODES.has(error.code)) continue;
+    const { code, message } = error;
+    const row = rowOf(error);
+    errors.push(row === undefined ? { code, message } : { code, row, message });
   }
 
   const headers = result.meta.fields ?? [];
