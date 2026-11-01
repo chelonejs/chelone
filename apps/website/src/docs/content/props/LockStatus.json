@@ -1,0 +1,29 @@
+{
+  "name": "LockStatus",
+  "props": [
+    {
+      "name": "id",
+      "type": "Identifier",
+      "optional": true,
+      "comment": "Defaults to the id of the record context."
+    },
+    {
+      "name": "renderFree",
+      "type": "() => ReactNode",
+      "optional": true,
+      "comment": "Rendered when the record is free. Defaults to nothing."
+    },
+    {
+      "name": "renderLock",
+      "type": "(lock: Lock) => ReactNode",
+      "optional": true,
+      "comment": "Replaces the default badge naming the holder."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Defaults to the resource context."
+    }
+  ]
+}
