@@ -58,6 +58,9 @@ function inputAttributes(field: FieldDescriptor): string[] {
 const tag = (name: string, attributes: string[]) =>
   `<${name} ${attributes.join(" ")} />`;
 
+const childTag = (name: string, attributes: string[]) =>
+  attributes.length === 0 ? `<${name} />` : tag(name, attributes);
+
 const openTag = (name: string, attributes: string[]) =>
   `<${name} ${attributes.join(" ")}>`;
 
@@ -109,13 +112,27 @@ function printEdit(fields: FieldDescriptor[]): Printed {
     .flatMap((field) => {
       if (!field.input) return [];
       components.add(field.input);
-      if (field.kind !== "reference") {
-        return [tag(field.input, inputAttributes(field))];
+      // The reference inputs have no `label`: it goes on the child input.
+      const wrapper =
+        field.kind === "reference"
+          ? { child: "AutocompleteInput", always: true }
+          : field.kind === "referenceArray"
+            ? { child: "AutocompleteArrayInput", always: false }
+            : undefined;
+      if (!wrapper) return [tag(field.input, inputAttributes(field))];
+      const attributes = [
+        attribute("source", field.source),
+        attribute("reference", field.reference),
+      ];
+      if (!wrapper.always && field.label === undefined) {
+        return [tag(field.input, attributes)];
       }
-      components.add("AutocompleteInput");
+      components.add(wrapper.child);
+      const childAttributes =
+        field.label === undefined ? [] : [attribute("label", field.label)];
       return [
-        openTag(field.input, inputAttributes(field)),
-        ...indent(["<AutocompleteInput />"], 1),
+        openTag(field.input, attributes),
+        ...indent([childTag(wrapper.child, childAttributes)], 1),
         `</${field.input}>`,
       ];
     });
