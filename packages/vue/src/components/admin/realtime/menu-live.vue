@@ -98,7 +98,6 @@ export const MenuLiveItemLink = defineComponent({
         RouterLink,
         {
           to: props.to,
-          "data-active": match.value ? "true" : undefined,
           class:
             "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent",
         },
