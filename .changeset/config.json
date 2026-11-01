@@ -2,7 +2,9 @@
   "$schema": "https://unpkg.com/@changesets/config@4.0.1/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "fixed": [["@chelone/core", "@chelone/react", "@chelone/vue"]],
+  "fixed": [
+    ["@chelone/core", "@chelone/react", "@chelone/vue", "@chelone/supabase"]
+  ],
   "linked": [],
   "access": "public",
   "baseBranch": "main",

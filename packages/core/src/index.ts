@@ -21,6 +21,16 @@ export type {
   ClientListLoadingState,
 } from "./controller/client-list-controller";
 export { createClientListController } from "./controller/client-list-controller";
+export type { DataTableColumnInfo } from "./controller/data-table-columns";
+export {
+  arrangeColumns,
+  columnLabelMatches,
+  dataTableColumnKeys,
+  defaultDataTableStoreKey,
+  getDataTableColumnId,
+  moveColumn,
+  toggleHiddenColumn,
+} from "./controller/data-table-columns";
 export {
   isFilterSelected,
   toggleFilterValue,
@@ -112,6 +122,9 @@ export {
   savedQueriesKey,
 } from "./controller/saved-queries";
 export { resolveNotificationKey } from "./controller/translate-fallback";
+export { matchCsvHeaders } from "./csv/match-headers";
+export { parseCsvWith } from "./csv/parse-with";
+export type { CsvParseError, CsvParser, ParsedCsv } from "./csv/types";
 export {
   removeRecordsFromCache,
   updateRecordsInCache,
@@ -272,6 +285,13 @@ export {
   defaultFormat,
   defaultParse,
 } from "./form/input-binding";
+export type { JsonShape } from "./form/json-text";
+export {
+  detectJsonShape,
+  formatJsonValue,
+  fromJsonText,
+  toJsonText,
+} from "./form/json-text";
 export type { SourceScope } from "./form/source";
 export {
   composeSource,
@@ -303,6 +323,32 @@ export {
   regex,
   required,
 } from "./form/validators";
+export { aspectLockedBBox, bboxToPolygon, polygonToBBox } from "./geo/bbox";
+export { geoBounds } from "./geo/bounds";
+export { latitude, longitude, toCoordinate } from "./geo/coordinates";
+export type {
+  GeoBBox,
+  GeoFeature,
+  GeoFeatureCollection,
+  GeoGeometry,
+  GeoGeometryCollection,
+  GeoJsonValue,
+  GeoLineString,
+  GeoMultiLineString,
+  GeoMultiPoint,
+  GeoMultiPolygon,
+  GeoPoint,
+  GeoPolygon,
+  GeoPosition,
+} from "./geo/geojson";
+export {
+  isGeoBBox,
+  isGeoFeature,
+  isGeoFeatureCollection,
+  isGeoGeometry,
+  isGeoJsonValue,
+} from "./geo/geojson";
+export { mapMessages } from "./geo/messages";
 export { defaultMessages } from "./i18n/default-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";
 export { createI18n } from "./i18n/i18n";

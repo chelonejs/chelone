@@ -1,0 +1,165 @@
+// GeoJSON (RFC 7946) written by hand: core takes no `@types/geojson`.
+
+/** `[longitude, latitude]` with an optional altitude and further members. */
+export type GeoPosition = [
+  longitude: number,
+  latitude: number,
+  ...rest: number[],
+];
+
+/** `[west, south, east, north]`. */
+export type GeoBBox = [
+  west: number,
+  south: number,
+  east: number,
+  north: number,
+];
+
+interface GeoGeometryBase {
+  bbox?: GeoBBox;
+}
+
+export interface GeoPoint extends GeoGeometryBase {
+  type: "Point";
+  coordinates: GeoPosition;
+}
+
+export interface GeoMultiPoint extends GeoGeometryBase {
+  type: "MultiPoint";
+  coordinates: GeoPosition[];
+}
+
+export interface GeoLineString extends GeoGeometryBase {
+  type: "LineString";
+  coordinates: GeoPosition[];
+}
+
+export interface GeoMultiLineString extends GeoGeometryBase {
+  type: "MultiLineString";
+  coordinates: GeoPosition[][];
+}
+
+export interface GeoPolygon extends GeoGeometryBase {
+  type: "Polygon";
+  coordinates: GeoPosition[][];
+}
+
+export interface GeoMultiPolygon extends GeoGeometryBase {
+  type: "MultiPolygon";
+  coordinates: GeoPosition[][][];
+}
+
+export interface GeoGeometryCollection extends GeoGeometryBase {
+  type: "GeometryCollection";
+  geometries: GeoGeometry[];
+}
+
+export type GeoGeometry =
+  | GeoPoint
+  | GeoMultiPoint
+  | GeoLineString
+  | GeoMultiLineString
+  | GeoPolygon
+  | GeoMultiPolygon
+  | GeoGeometryCollection;
+
+export interface GeoFeature {
+  type: "Feature";
+  geometry: GeoGeometry | null;
+  properties: Record<string, unknown> | null;
+  id?: string | number;
+  bbox?: GeoBBox;
+}
+
+export interface GeoFeatureCollection {
+  type: "FeatureCollection";
+  features: GeoFeature[];
+  bbox?: GeoBBox;
+}
+
+/** What a map input stores: a geometry, a Feature or a FeatureCollection. */
+export type GeoJsonValue = GeoGeometry | GeoFeature | GeoFeatureCollection;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function isPosition(value: unknown): value is GeoPosition {
+  return (
+    Array.isArray(value) && value.length >= 2 && value.every(isFiniteNumber)
+  );
+}
+
+/** Checks `depth` levels of arrays above the positions (0 is a position). */
+function isNested(value: unknown, depth: number): boolean {
+  if (depth === 0) return isPosition(value);
+  return (
+    Array.isArray(value) && value.every((item) => isNested(item, depth - 1))
+  );
+}
+
+/** Array depth above the positions, per geometry type. */
+const COORDINATE_DEPTH: Record<string, number> = {
+  Point: 0,
+  MultiPoint: 1,
+  LineString: 1,
+  MultiLineString: 2,
+  Polygon: 2,
+  MultiPolygon: 3,
+};
+
+/** True for exactly four finite numbers. */
+export function isGeoBBox(value: unknown): value is GeoBBox {
+  return (
+    Array.isArray(value) && value.length === 4 && value.every(isFiniteNumber)
+  );
+}
+
+function hasValidBBox(value: Record<string, unknown>): boolean {
+  return value.bbox === undefined || isGeoBBox(value.bbox);
+}
+
+export function isGeoGeometry(value: unknown): value is GeoGeometry {
+  if (!isRecord(value) || !hasValidBBox(value)) return false;
+  if (value.type === "GeometryCollection") {
+    return (
+      Array.isArray(value.geometries) && value.geometries.every(isGeoGeometry)
+    );
+  }
+  const depth =
+    typeof value.type === "string" &&
+    Object.hasOwn(COORDINATE_DEPTH, value.type)
+      ? COORDINATE_DEPTH[value.type]
+      : undefined;
+  return depth !== undefined && isNested(value.coordinates, depth);
+}
+
+export function isGeoFeature(value: unknown): value is GeoFeature {
+  if (!isRecord(value) || value.type !== "Feature" || !hasValidBBox(value)) {
+    return false;
+  }
+  if (value.geometry !== null && !isGeoGeometry(value.geometry)) return false;
+  return value.properties === null || isRecord(value.properties);
+}
+
+export function isGeoFeatureCollection(
+  value: unknown,
+): value is GeoFeatureCollection {
+  return (
+    isRecord(value) &&
+    value.type === "FeatureCollection" &&
+    hasValidBBox(value) &&
+    Array.isArray(value.features) &&
+    value.features.every(isGeoFeature)
+  );
+}
+
+export function isGeoJsonValue(value: unknown): value is GeoJsonValue {
+  return (
+    isGeoGeometry(value) || isGeoFeature(value) || isGeoFeatureCollection(value)
+  );
+}

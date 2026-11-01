@@ -28,6 +28,18 @@ describe("@chelone/core barrel", () => {
     expect(barrel.clearUnread).toBeTypeOf("function");
   });
 
+  it("exports the CSV parser mapping and header matcher", () => {
+    expect(barrel.parseCsvWith).toBeTypeOf("function");
+    expect(barrel.matchCsvHeaders).toBeTypeOf("function");
+  });
+
+  it("exports the JSON text helpers", () => {
+    expect(barrel.detectJsonShape).toBeTypeOf("function");
+    expect(barrel.toJsonText).toBeTypeOf("function");
+    expect(barrel.fromJsonText).toBeTypeOf("function");
+    expect(barrel.formatJsonValue).toBeTypeOf("function");
+  });
+
   it("exports describeResource", () => {
     expect(barrel.describeResource).toBeTypeOf("function");
   });
@@ -113,6 +125,44 @@ describe("@chelone/core barrel", () => {
     expect(barrel.defaultMessages["chelone.message.invalid_form"]).toBeTypeOf(
       "string",
     );
+  });
+
+  it("exports the geo helpers and a mapMessages catalog that shares no key with defaultMessages", () => {
+    expect(barrel.isGeoGeometry).toBeTypeOf("function");
+    expect(barrel.isGeoFeature).toBeTypeOf("function");
+    expect(barrel.isGeoFeatureCollection).toBeTypeOf("function");
+    expect(barrel.isGeoJsonValue).toBeTypeOf("function");
+    expect(barrel.isGeoBBox).toBeTypeOf("function");
+    expect(barrel.geoBounds).toBeTypeOf("function");
+    expect(barrel.bboxToPolygon).toBeTypeOf("function");
+    expect(barrel.polygonToBBox).toBeTypeOf("function");
+    expect(barrel.aspectLockedBBox).toBeTypeOf("function");
+    expect(barrel.toCoordinate).toBeTypeOf("function");
+    expect(barrel.latitude).toBeTypeOf("function");
+    expect(barrel.longitude).toBeTypeOf("function");
+    expect(barrel.mapMessages).toBeTypeOf("object");
+    expect(barrel.mapMessages["chelone.map.no_coordinates"]).toBeTypeOf(
+      "string",
+    );
+    expect(barrel.mapMessages["chelone.validation.latitude"]).toBeTypeOf(
+      "string",
+    );
+    const shared = Object.keys(barrel.mapMessages).filter(
+      (key) => key in barrel.defaultMessages,
+    );
+    expect(shared).toEqual([]);
+  });
+
+  it("gives mapMessages the placeholders the map components pass", () => {
+    const text = (key: keyof typeof barrel.mapMessages) =>
+      String(barrel.mapMessages[key]);
+    expect(text("chelone.map.simplify.tolerance")).toContain("{value}");
+    expect(text("chelone.map.osm.subtracted")).toContain("{area}");
+    expect(text("chelone.map.osm.added")).toContain("{area}");
+    expect(text("chelone.validation.minVertices")).toContain("{min}");
+    expect(text("chelone.validation.maxVertices")).toContain("{max}");
+    expect(text("chelone.validation.minArea")).toContain("{min}");
+    expect(text("chelone.validation.minArea")).toContain("{area}");
   });
 
   it("exports the P6 router primitives (path utils + location parser + matcher)", () => {
