@@ -223,6 +223,15 @@ export {
   useLocaleState,
   useSetLocale,
 } from "./i18n/use-locale";
+export type {
+  TranslatableContext,
+  UseTranslatableOptions,
+} from "./i18n/use-translatable";
+export {
+  provideTranslatable,
+  useTranslatable,
+  useTranslatableContext,
+} from "./i18n/use-translatable";
 export type { Translate } from "./i18n/use-translate";
 export { useTranslate } from "./i18n/use-translate";
 export { humanize, humanizeField, pluralize } from "./label/inflection";
