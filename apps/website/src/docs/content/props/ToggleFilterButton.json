@@ -1,0 +1,29 @@
+{
+  "name": "ToggleFilterButton",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "A string is translated with itself as the fallback; an element renders as it is."
+    },
+    {
+      "name": "size",
+      "type": "\"default\" | \"sm\" | \"lg\" | \"icon\"",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "value",
+      "type": "FilterPayload",
+      "optional": false,
+      "comment": "The filter this button sets, and removes again once the list holds it."
+    }
+  ]
+}
