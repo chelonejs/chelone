@@ -47,7 +47,9 @@
     "@arethetypeswrong/cli": "^0.18.0",
     "@tanstack/form-core": "^1.33.0",
     "@tanstack/query-core": "^5.0.0",
+    "@types/papaparse": "^5.5.2",
     "jsdom": "^26.1.0",
+    "papaparse": "^5.7.0",
     "publint": "^0.3.0",
     "vite": "^7.0.0",
     "vitest": "^3.0.0"

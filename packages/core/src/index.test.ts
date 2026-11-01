@@ -28,6 +28,11 @@ describe("@chelone/core barrel", () => {
     expect(barrel.clearUnread).toBeTypeOf("function");
   });
 
+  it("exports the CSV parser mapping and header matcher", () => {
+    expect(barrel.parseCsvWith).toBeTypeOf("function");
+    expect(barrel.matchCsvHeaders).toBeTypeOf("function");
+  });
+
   it("exports the infinite list controller", () => {
     expect(barrel.createInfiniteListController).toBeTypeOf("function");
   });
