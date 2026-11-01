@@ -161,6 +161,7 @@ const STUBS = [
   { slug: "auth-layout", section: "ui-layout", component: "AuthLayout", registry: "auth-layout", title: "AuthLayout", desc: "The centred shell that wraps the login/auth pages." },
   { slug: "authentication-error", section: "ui-layout", component: "AuthenticationError", registry: "authentication-error", title: "AuthenticationError", desc: "The page shown when the session is invalid or expired." },
   { slug: "can-access", section: "ui-layout", component: "CanAccess", registry: "can-access", title: "CanAccess", desc: "Renders children when the current user may perform an action on a resource, optionally scoped to a record." },
+  { slug: "check-for-application-update", section: "ui-layout", component: "CheckForApplicationUpdate", registry: "check-for-application-update", title: "CheckForApplicationUpdate", desc: "Polls the deployed page and shows a notification once a new build is live. Renders nothing until then." },
   { slug: "confirm", section: "ui-layout", component: "Confirm", registry: "confirm", title: "Confirm", desc: "A confirmation dialog for destructive actions." },
   { slug: "dashboard-menu-item", section: "ui-layout", component: "DashboardMenuItem", registry: "dashboard-menu-item", title: "DashboardMenuItem", desc: "The sidebar entry that links to the dashboard." },
   { slug: "error", section: "ui-layout", component: "Error", registry: "error", title: "Error", desc: "The fallback UI rendered by the admin error boundary." },
