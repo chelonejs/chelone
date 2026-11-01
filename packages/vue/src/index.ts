@@ -260,6 +260,11 @@ export {
   provideListContext,
   useListContext,
 } from "./list/list-context";
+export type {
+  UseDataTableColumnsOptions,
+  UseDataTableColumnsResult,
+} from "./list/use-data-table-columns";
+export { useDataTableColumns } from "./list/use-data-table-columns";
 export type { UseListOptions } from "./list/use-list";
 export { useList } from "./list/use-list";
 // --- notification composables (reactive queue + notify action) ------------
