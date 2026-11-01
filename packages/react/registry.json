@@ -1470,6 +1470,22 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/form/translatable-inputs-tab-content.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/form/translatable-inputs-tab.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/form/translatable-inputs-tabs.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/form/translatable-inputs.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/input-props.ts",
           "type": "registry:component"
         },
@@ -3208,6 +3224,73 @@
         "@chelone/lib-utils",
         "@chelone/save-button"
       ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "translatable-inputs-tab-content",
+      "type": "registry:component",
+      "title": "Translatable Inputs Tab Content",
+      "files": [
+        {
+          "path": "src/components/admin/form/translatable-inputs-tab-content.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/tabs"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "translatable-inputs-tab",
+      "type": "registry:component",
+      "title": "Translatable Inputs Tab",
+      "files": [
+        {
+          "path": "src/components/admin/form/translatable-inputs-tab.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/tabs"],
+      "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "translatable-inputs-tabs",
+      "type": "registry:component",
+      "title": "Translatable Inputs Tabs",
+      "files": [
+        {
+          "path": "src/components/admin/form/translatable-inputs-tabs.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/tabs",
+        "@chelone/translatable-inputs-tab"
+      ],
+      "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "translatable-inputs",
+      "type": "registry:component",
+      "title": "Translatable Inputs",
+      "files": [
+        {
+          "path": "src/components/admin/form/translatable-inputs.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/tabs",
+        "@chelone/translatable-inputs-tab-content",
+        "@chelone/translatable-inputs-tabs"
+      ],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
