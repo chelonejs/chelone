@@ -137,6 +137,44 @@ describe("printGuessedView", () => {
     );
   });
 
+  it("puts a reference's label on the AutocompleteInput child", () => {
+    const code = printGuessedView("Edit", "posts", [
+      { ...authorId, label: "Author" },
+    ]);
+    expect(code).toContain(
+      [
+        '    <ReferenceInput source="authorId" reference="users">',
+        '      <AutocompleteInput label="Author" />',
+        "    </ReferenceInput>",
+      ].join("\n"),
+    );
+  });
+
+  it("puts a referenceArray's label on an AutocompleteArrayInput child", () => {
+    const tagIds: FieldDescriptor = {
+      source: "tagIds",
+      kind: "referenceArray",
+      primary: false,
+      field: "ReferenceArrayField",
+      input: "ReferenceArrayInput",
+      reference: "tags",
+    };
+    expect(printGuessedView("Edit", "posts", [tagIds])).toContain(
+      '<ReferenceArrayInput source="tagIds" reference="tags" />',
+    );
+    const code = printGuessedView("Edit", "posts", [
+      { ...tagIds, label: "Tags" },
+    ]);
+    expect(code).toContain(
+      [
+        '    <ReferenceArrayInput source="tagIds" reference="tags">',
+        '      <AutocompleteArrayInput label="Tags" />',
+        "    </ReferenceArrayInput>",
+      ].join("\n"),
+    );
+    expect(code.split("\n")[2]).toContain("AutocompleteArrayInput");
+  });
+
   it("prints choices on a select input", () => {
     expect(printGuessedView("Edit", "posts", [status])).toContain(
       '<SelectInput source="status" choices={[{ id: "draft", name: "draft" }, { id: 2, name: "2" }]} />',
