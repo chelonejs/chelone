@@ -510,18 +510,24 @@ describe("useLockOnMount", () => {
   it("takes no lock without a resource, an id or an identity", async () => {
     const { dataProvider, locks } = setup();
     const lock = vi.spyOn(dataProvider, "lock");
+    const onLockError = vi.fn();
     const cases: ProbeOptions[] = [
       { id: ref(1), identity: ref("ann") },
       { resource: ref("posts"), identity: ref("ann") },
       { resource: ref("posts"), id: ref(1) },
     ];
     for (const options of cases) {
-      const wrapper = mountUnderAdmin(dataProvider, probeWith(options));
+      const wrapper = mountUnderAdmin(
+        dataProvider,
+        probeWith({ ...options, onLockError }),
+      );
       await flushPromises();
       expect(holder(wrapper, "lock")).toBe("none");
       expect(holder(wrapper, "locking")).toBe("false");
+      expect(holder(wrapper, "error")).toBe("");
     }
 
+    expect(onLockError).not.toHaveBeenCalled();
     expect(lock).not.toHaveBeenCalled();
     expect(await locks.getLock("posts", { id: 1 })).toBeNull();
   });

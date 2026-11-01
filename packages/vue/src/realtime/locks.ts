@@ -178,7 +178,8 @@ const idleLockState: LockSessionState = {
 /**
  * Holds a record's lock for as long as the component lives. A changing
  * resource, id or identity releases the old lock and takes the new one. With
- * no resource or id it takes nothing.
+ * no resource, id or identity (explicit, or from the auth provider) it takes
+ * nothing and reports no error.
  */
 export function useLockOnMount({
   resource,
@@ -215,6 +216,8 @@ export function useLockOnMount({
     const recordId = resolvedId.value;
     const holder = resolvedIdentity.value;
     if (resourceName === undefined || recordId == null) return;
+    // No one to lock for: a quiet no-op, like a missing resource or id.
+    if (holder === undefined && !authProvider?.getIdentity) return;
     assertRealtimeDataProvider(dataProvider, "useLockOnMount");
 
     const session = createLockSession({
