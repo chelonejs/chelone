@@ -127,12 +127,10 @@ describe("validateCsvRows", () => {
   });
 
   it("marks only its own row invalid when the schema throws", async () => {
-    const schema = z
-      .object({ title: z.string() })
-      .refine((row) => {
-        if (row.title === "bad") throw new Error("Refine blew up");
-        return true;
-      });
+    const schema = z.object({ title: z.string() }).refine((row) => {
+      if (row.title === "bad") throw new Error("Refine blew up");
+      return true;
+    });
 
     expect(
       await validateCsvRows([{ Title: "Pen" }, { Title: "bad" }], {
