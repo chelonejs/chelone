@@ -29,6 +29,8 @@ export type { BulkUpdateButtonProps } from "./admin/buttons/bulk-update-button.v
 export { default as BulkUpdateButton } from "./admin/buttons/bulk-update-button.vue";
 export type { CancelButtonProps } from "./admin/buttons/cancel-button.vue";
 export { default as CancelButton } from "./admin/buttons/cancel-button.vue";
+export type { CloneButtonProps } from "./admin/buttons/clone-button.vue";
+export { default as CloneButton } from "./admin/buttons/clone-button.vue";
 export type { CreateButtonProps } from "./admin/buttons/create-button.vue";
 export { default as CreateButton } from "./admin/buttons/create-button.vue";
 export type {

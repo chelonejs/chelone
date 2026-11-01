@@ -31,12 +31,13 @@ export interface CreateProps
  * `<SaveButton>` child work directly.
  */
 
-import type { FieldErrors } from "@chelone/core";
+import { type FieldErrors, getRecordFromLocation } from "@chelone/core";
 import { computed } from "vue";
 import { useCreateController } from "../../../controllers/use-create-controller";
 import { useForm } from "../../../form/use-form";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useGetResourceLabel } from "../../../label/use-get-resource-label";
+import { useRouterAdapterOptional } from "../../../router/adapter";
 import { useRedirectOptional } from "../../../router/nav-composables";
 import {
   provideResourceContext,
@@ -56,7 +57,16 @@ if (!resource) {
 }
 provideResourceContext(resource);
 
-const create = useCreateController({ resource, record: props.record });
+// The location's `?source=` JSON (what `<CloneButton>` writes) seeds the form,
+// read once at setup like `record`. Its keys win over `record`. Skipped without
+// a router adapter.
+const adapter = useRouterAdapterOptional();
+const recordFromLocation = adapter
+  ? getRecordFromLocation(adapter.useLocation().value)
+  : null;
+const seed = { ...props.record, ...recordFromLocation };
+
+const create = useCreateController({ resource, record: seed });
 const redirect = useRedirectOptional();
 const translate = useTranslate();
 const getResourceLabel = useGetResourceLabel();
@@ -67,13 +77,13 @@ const defaultTitle = computed(() =>
 
 const form = useForm<Record<string, unknown>>({
   resource,
-  record: props.record,
+  record: seed,
   // The form captures its options once: always hand it this wrapper, so a
   // `validate` set after setup still runs, as of the live prop.
   validate: (values) => props.validate?.(values),
   schema: props.schema,
   sanitizeEmptyValues: props.sanitizeEmptyValues,
-  getRecord: () => props.record,
+  getRecord: () => seed,
   // Rebaselined to the SERVER record in `onSaved` (as React's composed form
   // does), so `onSuccess` sees the reconciled form.
   resetOnSuccess: false,
