@@ -5,14 +5,16 @@
 
 import {
   type AnyCheloneI18n,
+  type CheloneStore,
   createI18n,
+  createStore,
   defineResources,
   fakeDataProvider,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, nextTick, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
 import Admin from "../../../admin/admin.vue";
@@ -20,6 +22,7 @@ import {
   type ListContextValue,
   useListContext,
 } from "../../../list/list-context";
+import { useDataTableColumns } from "../../../list/use-data-table-columns";
 import List from "../view/list.vue";
 import DataTable from "./data-table.vue";
 import DataTableCol from "./data-table-col.vue";
@@ -36,11 +39,22 @@ const seed = [
   { id: 2, title: "beta", views: 10 },
 ];
 
+const memoryRouter = () =>
+  createRouter({
+    history: createMemoryHistory(),
+    routes: [{ path: "/", component: { render: () => null } }],
+  });
+
 type Capture = { list?: ListContextValue };
 
 function mountTable(
   columns: () => unknown[],
-  options: { i18n?: AnyCheloneI18n } = {},
+  options: {
+    i18n?: AnyCheloneI18n;
+    store?: CheloneStore;
+    tableProps?: Record<string, unknown>;
+    tableSlots?: Record<string, () => unknown>;
+  } = {},
 ) {
   const capture: Capture = {};
   const dataProvider = fakeDataProvider<typeof resources>({
@@ -49,10 +63,7 @@ function mountTable(
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
-  const router = createRouter({
-    history: createMemoryHistory(),
-    routes: [{ path: "/", component: { render: () => null } }],
-  });
+  const router = memoryRouter();
   const probe = defineComponent({
     setup() {
       capture.list = useListContext();
@@ -64,7 +75,12 @@ function mountTable(
       return () =>
         h(
           Admin,
-          { dataProvider, queryClient, i18n: options.i18n },
+          {
+            dataProvider,
+            queryClient,
+            i18n: options.i18n,
+            store: options.store,
+          },
           {
             default: () =>
               h(
@@ -73,7 +89,10 @@ function mountTable(
                 {
                   default: () => [
                     h(probe),
-                    h(DataTable, null, { default: () => columns() }),
+                    h(DataTable, options.tableProps ?? null, {
+                      default: () => columns(),
+                      ...options.tableSlots,
+                    }),
                   ],
                 },
               ),
@@ -211,5 +230,273 @@ describe("<DataTableNumberCol>", () => {
     expect(cell.text()).toBe("$1,234.50");
     expect(cell.classes()).toContain("text-right");
     expect(wrapper.find("th").classes()).toContain("text-right");
+  });
+});
+
+const headerTexts = (wrapper: ReturnType<typeof mountTable>["wrapper"]) =>
+  wrapper.findAll("th").map((th) => th.text());
+const firstRowTexts = (wrapper: ReturnType<typeof mountTable>["wrapper"]) =>
+  wrapper
+    .findAll("tbody tr")[0]
+    ?.findAll("td")
+    .map((td) => td.text());
+
+const threeColumns = () => [
+  h(DataTableCol, { source: "id" }),
+  h(DataTableCol, { source: "title" }),
+  h(DataTableCol, { source: "views" }),
+];
+
+describe("<DataTable> columns", () => {
+  it("hides the columns whose ids are in the store", async () => {
+    const store = createStore();
+    store.setItem("posts.datatable", ["title"]);
+    const { wrapper, settled } = mountTable(threeColumns, { store });
+    await settled();
+
+    expect(headerTexts(wrapper)).toEqual(["Id", "Views"]);
+    expect(firstRowTexts(wrapper)).toEqual(["1", "1234.5"]);
+
+    store.setItem("posts.datatable", ["id"]);
+    await nextTick();
+
+    expect(headerTexts(wrapper)).toEqual(["Title", "Views"]);
+    expect(firstRowTexts(wrapper)).toEqual(["alpha", "1234.5"]);
+  });
+
+  it("shows defaultHiddenColumns until a choice is stored", async () => {
+    const store = createStore();
+    const { wrapper, settled } = mountTable(threeColumns, {
+      store,
+      tableProps: { defaultHiddenColumns: ["views"] },
+    });
+    await settled();
+
+    expect(headerTexts(wrapper)).toEqual(["Id", "Title"]);
+
+    store.setItem("posts.datatable", []);
+    await nextTick();
+
+    expect(headerTexts(wrapper)).toEqual(["Id", "Title", "Views"]);
+  });
+
+  it("renders the columns in the stored order in the header and in every row", async () => {
+    const store = createStore();
+    store.setItem("posts.datatable_columnOrder", ["views", "id"]);
+    const { wrapper, settled } = mountTable(threeColumns, { store });
+    await settled();
+
+    expect(headerTexts(wrapper)).toEqual(["Views", "Id", "Title"]);
+    for (const row of wrapper.findAll("tbody tr")) {
+      expect(row.findAll("td")).toHaveLength(3);
+    }
+    expect(firstRowTexts(wrapper)).toEqual(["1234.5", "1", "alpha"]);
+  });
+
+  it("keeps a column with no id in place and always visible", async () => {
+    const store = createStore();
+    store.setItem("posts.datatable", ["title"]);
+    store.setItem("posts.datatable_columnOrder", ["views", "title", "id"]);
+    const { wrapper, settled } = mountTable(
+      () => [
+        h(DataTableCol, { source: "id" }),
+        h(DataTableCol, {}, { default: () => "anon" }),
+        h(DataTableCol, { source: "title" }),
+        h(DataTableCol, { source: "views" }),
+      ],
+      { store },
+    );
+    await settled();
+
+    expect(firstRowTexts(wrapper)).toEqual(["1234.5", "anon", "1"]);
+  });
+
+  it("reads columns produced by v-for and skips v-if comments", async () => {
+    const store = createStore();
+    store.setItem("posts.datatable", ["title"]);
+    const { wrapper, settled } = mountTable(
+      () => [
+        ["id", "title", "views"].map((source) =>
+          h(DataTableCol, { source, key: source }),
+        ),
+        null,
+        false,
+      ],
+      { store },
+    );
+    await settled();
+
+    expect(headerTexts(wrapper)).toEqual(["Id", "Views"]);
+  });
+
+  it("publishes its columns once and again when a column is added", async () => {
+    const store = createStore();
+    const setItem = vi.spyOn(store, "setItem");
+    const extra = ref(false);
+    const { settled } = mountTable(
+      () => [
+        h(DataTableCol, { source: "id" }),
+        h(DataTableCol, { label: "Actions" }),
+        ...(extra.value ? [h(DataTableCol, { source: "title" })] : []),
+      ],
+      { store, tableProps: { defaultHiddenColumns: ["Actions"] } },
+    );
+    await settled();
+
+    const columnWrites = () =>
+      setItem.mock.calls.filter(([key]) => key === "posts.datatable_columns");
+    expect(columnWrites()).toHaveLength(1);
+    expect(store.getItem("posts.datatable_columns")).toEqual([
+      { id: "id", source: "id", defaultHidden: false },
+      { id: "Actions", label: "Actions", defaultHidden: true },
+    ]);
+
+    extra.value = true;
+    await nextTick();
+    await nextTick();
+
+    expect(columnWrites()).toHaveLength(2);
+    expect(store.getItem("posts.datatable_columns")).toHaveLength(3);
+  });
+
+  it("renders every column and writes nothing when no store is provided", async () => {
+    const { wrapper, settled } = mountTable(threeColumns);
+    await settled();
+
+    expect(headerTexts(wrapper)).toEqual(["Id", "Title", "Views"]);
+    expect(firstRowTexts(wrapper)).toEqual(["1", "alpha", "1234.5"]);
+  });
+
+  it("reads and writes the keys of the storeKey prop", async () => {
+    const store = createStore();
+    store.setItem("custom", ["id"]);
+    store.setItem("custom_columnOrder", ["views"]);
+    const { wrapper, settled } = mountTable(threeColumns, {
+      store,
+      tableProps: { storeKey: "custom" },
+    });
+    await settled();
+
+    expect(headerTexts(wrapper)).toEqual(["Views", "Title"]);
+    expect(store.getItem("custom_columns")).toHaveLength(3);
+    expect(store.getItem("posts.datatable_columns")).toBeUndefined();
+  });
+
+  it("sizes the expand panel to the visible columns", async () => {
+    const store = createStore();
+    store.setItem("posts.datatable", ["title"]);
+    const { wrapper, settled } = mountTable(threeColumns, {
+      store,
+      tableProps: { rowClick: "expand" },
+      tableSlots: { expand: () => "details" },
+    });
+    await settled();
+
+    await wrapper.findAll("tbody tr")[0]?.trigger("click");
+
+    // 2 visible columns + the expand toggle column
+    expect(
+      wrapper
+        .find('[data-slot="data-table-expand-panel"] td')
+        .attributes("colspan"),
+    ).toBe("3");
+  });
+});
+
+describe("useDataTableColumns", () => {
+  function mountHook(
+    store: CheloneStore,
+    options: { defaultHiddenColumns?: string[] } = {},
+  ) {
+    let hook: ReturnType<typeof useDataTableColumns> | undefined;
+    const probe = defineComponent({
+      setup() {
+        hook = useDataTableColumns({ storeKey: "t", ...options });
+        return () => null;
+      },
+    });
+    const dataProvider = fakeDataProvider<typeof resources>({
+      posts: structuredClone(seed),
+    });
+    mount(Admin, {
+      props: { dataProvider, store },
+      slots: { default: () => h(probe) },
+      global: { plugins: [memoryRouter()] },
+    });
+    if (!hook) throw new Error("hook not set up");
+    return hook;
+  }
+
+  it("toggle, move and reset write the store keys and notify subscribers", async () => {
+    const store = createStore();
+    const hook = mountHook(store);
+    hook.publish([{ id: "a" }, { id: "b" }, { id: "c" }]);
+    expect(hook.columns.value.map((c) => c.id)).toEqual(["a", "b", "c"]);
+
+    hook.toggle("b");
+    expect(store.getItem("t")).toEqual(["b"]);
+    expect(hook.hidden.value).toEqual(["b"]);
+    hook.toggle("b");
+    expect(hook.hidden.value).toEqual([]);
+
+    hook.move("b", 1);
+    expect(store.getItem("t_columnOrder")).toEqual(["a", "c", "b"]);
+    expect(hook.order.value).toEqual(["a", "c", "b"]);
+
+    hook.toggle("a");
+    hook.reset();
+    expect(store.getItem("t")).toBeUndefined();
+    expect(store.getItem("t_columnOrder")).toBeUndefined();
+    expect(hook.hidden.value).toEqual([]);
+    expect(hook.order.value).toEqual([]);
+    expect(hook.columns.value).toHaveLength(3);
+  });
+
+  it("a toggle on a table with defaultHiddenColumns keeps the other default hidden ids", () => {
+    const store = createStore();
+    const hook = mountHook(store, { defaultHiddenColumns: ["a", "b"] });
+    expect(hook.hidden.value).toEqual(["a", "b"]);
+
+    hook.toggle("a");
+
+    expect(store.getItem("t")).toEqual(["b"]);
+    expect(hook.hidden.value).toEqual(["b"]);
+
+    hook.reset();
+    expect(hook.hidden.value).toEqual(["a", "b"]);
+  });
+
+  it("returns the defaults and no-op setters without a store", () => {
+    const dataProvider = fakeDataProvider<typeof resources>({
+      posts: structuredClone(seed),
+    });
+    let hook: ReturnType<typeof useDataTableColumns> | undefined;
+    mount(Admin, {
+      props: { dataProvider },
+      global: { plugins: [memoryRouter()] },
+      slots: {
+        default: () =>
+          h(
+            defineComponent({
+              setup() {
+                hook = useDataTableColumns({
+                  storeKey: "t",
+                  defaultHiddenColumns: ["a"],
+                });
+                return () => null;
+              },
+            }),
+          ),
+      },
+    });
+
+    hook?.toggle("b");
+    hook?.move("a", 1);
+    hook?.publish([{ id: "a" }]);
+    hook?.reset();
+
+    expect(hook?.hidden.value).toEqual(["a"]);
+    expect(hook?.order.value).toEqual([]);
+    expect(hook?.columns.value).toEqual([]);
   });
 });
