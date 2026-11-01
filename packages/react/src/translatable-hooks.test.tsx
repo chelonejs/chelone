@@ -67,6 +67,14 @@ describe("useTranslatable", () => {
     expect(result.current.selectedLocale).toBe("de");
   });
 
+  it("falls back to the app locale when defaultLocale is not listed", () => {
+    const { result } = renderHook(
+      () => useTranslatable({ locales: ["en", "fr"], defaultLocale: "de" }),
+      { wrapper: makeWrapper(appI18n("fr")) },
+    );
+    expect(result.current.selectedLocale).toBe("fr");
+  });
+
   it("starts on the first locale when the app locale is not listed", () => {
     const { result } = renderHook(
       () => useTranslatable({ locales: ["fr", "de"] }),

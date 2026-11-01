@@ -36,12 +36,11 @@ export interface TranslatableContextValue {
 export function useTranslatable(
   options: UseTranslatableOptions,
 ): TranslatableContextValue {
+  const { locales: requested } = options;
   const appLocale = useCheloneContext().i18n?.getLocale();
-  const defaultLocale =
-    options.defaultLocale ??
-    (appLocale !== undefined && options.locales.includes(appLocale)
-      ? appLocale
-      : undefined);
+  const defaultLocale = [options.defaultLocale, appLocale].find(
+    (candidate) => candidate !== undefined && requested.includes(candidate),
+  );
   // Keyed by value: an inline `["en", "fr"]` is a new array every render.
   const localesKey = JSON.stringify(options.locales);
   // biome-ignore lint/correctness/useExhaustiveDependencies(defaultLocale): only the first render's start locale counts, a later app locale change must not move the tab
