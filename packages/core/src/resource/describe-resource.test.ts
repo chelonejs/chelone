@@ -111,7 +111,9 @@ describe("describeResource", () => {
     };
     const fields = fieldsOf(wrapped);
     expect(fields?.map((f) => f.kind)).toEqual([
-      ...Object.keys(wrapped).slice(0, -1).map(() => "text"),
+      ...Object.keys(wrapped)
+        .slice(0, -1)
+        .map(() => "text"),
       "email",
     ]);
   });
@@ -174,9 +176,7 @@ describe("describeResource", () => {
       bigint: z.bigint(),
       union: z.union([z.string(), z.number()]),
     });
-    expect(
-      fields?.map((f) => [f.kind, f.reason, f.field, f.input]),
-    ).toEqual([
+    expect(fields?.map((f) => [f.kind, f.reason, f.field, f.input])).toEqual([
       ["unsupported", "object schema", undefined, undefined],
       ["unsupported", "record schema", undefined, undefined],
       ["unsupported", "tuple schema", undefined, undefined],
