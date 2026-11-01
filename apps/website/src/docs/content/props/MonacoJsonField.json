@@ -1,0 +1,107 @@
+{
+  "name": "MonacoJsonField",
+  "props": [
+    {
+      "name": "autoHeight",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Grow with the content up to `maxHeight`. Defaults to true."
+    },
+    {
+      "name": "cellClassName",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the cell element when used inside `<DataTable>`."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the root element."
+    },
+    {
+      "name": "defaultValue",
+      "type": "unknown",
+      "optional": true,
+      "comment": "Shown when the record has no value at `source`."
+    },
+    {
+      "name": "empty",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The node to display when the field value is empty. Defaults to nothing.\nA string is translated; a ReactNode renders as-is."
+    },
+    {
+      "name": "headerClassName",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the header cell element when used inside `<DataTable>`."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "optional": true,
+      "comment": "Editor height in pixels when `autoHeight` is false. Defaults to 200."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Label to use as column header when using `<DataTable>` or `<SimpleShowLayout>`.\nDefaults to the capitalized field name. Set to `false` to disable the label."
+    },
+    {
+      "name": "maxHeight",
+      "type": "number",
+      "optional": true,
+      "comment": "Tallest the editor grows to when `autoHeight` is on. Defaults to 400."
+    },
+    {
+      "name": "monacoOptions",
+      "type": "IStandaloneEditorConstructionOptions",
+      "optional": true,
+      "comment": "Merged over the read-only defaults, so it can override any of them."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record to render. Defaults to the ambient `RecordContext` value."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource name. Defaults to the ambient `ResourceContext` value."
+    },
+    {
+      "name": "sortable",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Disable the header click handler when used inside `<DataTable>`."
+    },
+    {
+      "name": "sortBy",
+      "type": "string",
+      "optional": true,
+      "comment": "The field to sort by when this column head is clicked, if sortable."
+    },
+    {
+      "name": "sortByOrder",
+      "type": "SortOrder",
+      "optional": true,
+      "comment": "The order used for sorting when this column head is clicked, if sortable."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "Name of the property to display (dot/bracket path)."
+    },
+    {
+      "name": "textAlign",
+      "type": "TextAlign",
+      "optional": true,
+      "comment": "The text alignment for the cell content, when used inside `<DataTable>`."
+    }
+  ]
+}
