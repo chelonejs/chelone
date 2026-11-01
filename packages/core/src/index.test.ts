@@ -33,6 +33,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.matchCsvHeaders).toBeTypeOf("function");
   });
 
+  it("exports the CSV import controller", () => {
+    expect(barrel.createCsvImportController).toBeTypeOf("function");
+  });
+
   it("exports the CSV import pipeline", () => {
     expect(barrel.applyCsvMapping).toBeTypeOf("function");
     expect(barrel.csvSchemaFields).toBeTypeOf("function");
@@ -173,6 +177,32 @@ describe("@chelone/core barrel", () => {
       (value) => typeof value === "string" && /^https?:/.test(value),
     );
     expect(urls).toEqual([]);
+  });
+
+  it("exports the shape codecs, the editor helpers and the geometry constraints", () => {
+    for (const name of [
+      "shapeToFeatures",
+      "heldFeatures",
+      "featuresToShape",
+      "toEditorFeatures",
+      "fromEditorFeatures",
+      "editorStyles",
+      "geoAreaM2",
+      "hasSelfIntersection",
+      "countVertices",
+      "minVertices",
+      "maxVertices",
+      "minAreaM2",
+      "noSelfIntersection",
+    ] as const) {
+      expect(barrel[name]).toBeTypeOf("function");
+    }
+    const polygon = barrel.bboxToPolygon([0, 0, 1, 1]);
+    expect(barrel.countVertices(polygon)).toBe(4);
+    expect(barrel.minVertices(5)(polygon, {}, {})).toEqual({
+      message: "chelone.validation.minVertices",
+      args: { min: 5 },
+    });
   });
 
   it("gives mapMessages the placeholders the map components pass", () => {
