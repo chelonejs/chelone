@@ -35,10 +35,8 @@ export interface MenuLiveProps {
 const MAX_COUNT = 99;
 
 interface SharedSubscription {
-  /** Each mounted link's event types; the subscription counts their union. */
-  holders: Map<symbol, string>;
-  counted: string;
-  stop?: () => void;
+  holders: number;
+  stop: () => void;
 }
 
 const subscriptions = new WeakMap<
@@ -47,62 +45,51 @@ const subscriptions = new WeakMap<
 >();
 
 /**
- * Two links for one resource share a store key, so they must share one
- * subscription: one each would add 1 per event apiece.
+ * Links for one resource share a store key, so links with the same events
+ * share one subscription: one each would add 1 per event apiece. Links with
+ * different events on one resource still show one combined count.
  */
 function acquire(
   dataProvider: RealtimeDataProvider,
   store: CheloneStore,
   resource: string,
-  holder: symbol,
-  events: string,
+  eventsKey: string,
 ): () => void {
   let byProvider = subscriptions.get(store);
   if (!byProvider) {
     byProvider = new WeakMap();
     subscriptions.set(store, byProvider);
   }
-  let byResource = byProvider.get(dataProvider);
-  if (!byResource) {
-    byResource = new Map();
-    byProvider.set(dataProvider, byResource);
-  }
-
-  const sync = (shared: SharedSubscription) => {
-    const union = [...new Set([...shared.holders.values()].flatMap(split))];
-    const counted = union.join(",");
-    if (shared.stop && counted === shared.counted) return;
-    if (shared.stop) shared.stop();
-    shared.counted = counted;
-    shared.stop = subscribeUnreadCount({
-      dataProvider,
-      store,
-      resource,
-      events: union.length ? (union as RealtimeEventType[]) : undefined,
-    });
-  };
-
-  let shared = byResource.get(resource);
+  let shared = byProvider.get(dataProvider);
   if (!shared) {
-    shared = { holders: new Map(), counted: "" };
-    byResource.set(resource, shared);
+    shared = new Map();
+    byProvider.set(dataProvider, shared);
   }
-  shared.holders.set(holder, events);
-  sync(shared);
+  const subscriptionsForProvider = shared;
+  const key = `${resource}\0${eventsKey}`;
 
-  const entry = shared;
+  let entry = subscriptionsForProvider.get(key);
+  if (!entry) {
+    entry = {
+      holders: 0,
+      stop: subscribeUnreadCount({
+        dataProvider,
+        store,
+        resource,
+        events: eventsKey.split(",") as RealtimeEventType[],
+      }),
+    };
+    subscriptionsForProvider.set(key, entry);
+  }
+  entry.holders++;
+
+  const held = entry;
   return () => {
-    entry.holders.delete(holder);
-    if (entry.holders.size === 0) {
-      entry.stop?.();
-      byResource.delete(resource);
-    } else {
-      sync(entry);
-    }
+    if (--held.holders > 0) return;
+    held.stop();
+    subscriptionsForProvider.delete(key);
   };
 }
-
-const split = (events: string) => (events ? events.split(",") : []);
 
 /**
  * A menu link with a badge counting the resource's new records since the user
@@ -132,13 +119,7 @@ function MenuLiveItemLink({
 
   useEffect(
     () =>
-      acquire(
-        dataProvider as RealtimeDataProvider,
-        store,
-        resource,
-        Symbol(),
-        eventsKey,
-      ),
+      acquire(dataProvider as RealtimeDataProvider, store, resource, eventsKey),
     [dataProvider, store, resource, eventsKey],
   );
 
