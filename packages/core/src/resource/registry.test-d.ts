@@ -1,7 +1,11 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import type { LooseRecord } from "./record";
-import { defineResources, type RecordOf } from "./registry";
+import {
+  defineResources,
+  type RecordOf,
+  type ResourceConfig,
+} from "./registry";
 
 const postSchema = z.object({ id: z.number(), title: z.string() });
 type Post = z.infer<typeof postSchema>;
@@ -23,5 +27,18 @@ describe("RecordOf", () => {
 
   it("defineResources preserves literal keys", () => {
     expectTypeOf<keyof R>().toEqualTypeOf<"posts" | "comments">();
+  });
+});
+
+describe("ResourceConfig", () => {
+  it("accepts a references map of source to resource name", () => {
+    expectTypeOf<ResourceConfig["references"]>().toEqualTypeOf<
+      { [source: string]: string } | undefined
+    >();
+    const config: ResourceConfig = {
+      schema: postSchema,
+      references: { authorId: "users" },
+    };
+    expectTypeOf(config).toExtend<ResourceConfig>();
   });
 });
