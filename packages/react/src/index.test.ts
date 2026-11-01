@@ -18,6 +18,7 @@ import type {
   CustomRoutesProps,
   EditContextProviderProps,
   EditContextValue,
+  EditGuesserProps,
   EditLiveProps,
   EditProps,
   ErrorFallbackProps,
@@ -623,6 +624,13 @@ describe("@chelone/react barrel — guessers", () => {
     expectTypeOf<GuesserEmptyProps>().toHaveProperty("title");
     expectTypeOf<GuesserEmptyProps>().toHaveProperty("message");
     expectTypeOf<GuesserEmptyProps>().toHaveProperty("resource");
+  });
+
+  it("exports EditGuesser", () => {
+    expect(barrel.EditGuesser).toBeTypeOf("function");
+    expectTypeOf<EditGuesserProps>().toHaveProperty("enableLog");
+    expectTypeOf<EditGuesserProps>().toHaveProperty("id");
+    expectTypeOf<EditGuesserProps>().not.toHaveProperty("children");
   });
 
   it("exports ListGuesser", () => {
