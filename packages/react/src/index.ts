@@ -186,6 +186,10 @@ export {
   type CloneButtonProps,
 } from "./components/admin/buttons/clone-button";
 export {
+  ColumnsButton,
+  type ColumnsButtonProps,
+} from "./components/admin/buttons/columns-button";
+export {
   CreateButton,
   type CreateButtonProps,
 } from "./components/admin/buttons/create-button";
