@@ -298,6 +298,16 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
     expect(barrel.useGetManyLive).toBeTypeOf("function");
     expectTypeOf<UseSubscribeOptions>().toHaveProperty("enabled");
   });
+
+  it("exports the lock hooks", () => {
+    expect(barrel.useLock).toBeTypeOf("function");
+    expect(barrel.useUnlock).toBeTypeOf("function");
+    expect(barrel.useGetLock).toBeTypeOf("function");
+    expect(barrel.useGetLocks).toBeTypeOf("function");
+    expect(barrel.useGetLockLive).toBeTypeOf("function");
+    expect(barrel.useGetLocksLive).toBeTypeOf("function");
+    expect(barrel.useLockOnMount).toBeTypeOf("function");
+  });
 });
 
 describe("@chelone/react barrel — P7a compat leaf utils", () => {
