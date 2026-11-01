@@ -35,7 +35,16 @@ import { subscribeStore } from "./subscribe-ref";
 const FormGroupsKey: InjectionKey<Readonly<Ref<FormGroups>>> = Symbol(
   "chelone-form-groups",
 );
-const FormGroupNameKey: InjectionKey<Readonly<Ref<string>>> = Symbol(
+/**
+ * The groups a `provideFormGroup` scopes inputs into: its own `name` (the
+ * innermost) and every enclosing provider's, outermost first.
+ */
+interface FormGroupScope {
+  name: string;
+  names: readonly string[];
+}
+
+const FormGroupNameKey: InjectionKey<Readonly<Ref<FormGroupScope>>> = Symbol(
   "chelone-form-group-name",
 );
 
@@ -82,36 +91,48 @@ export function useOptionalFormGroups(): FormGroups | undefined {
 
 /**
  * Scopes every `useInput` below into the group `name`. Pass a ref or getter to
- * follow a changing prop: inputs move to the new group.
+ * follow a changing prop: inputs move to the new group. A nested scope adds to
+ * the groups above it rather than replacing them, so an input joins every
+ * enclosing group.
  */
 export function provideFormGroup(name: MaybeRefOrGetter<string>): void {
+  const parent = inject(FormGroupNameKey, undefined);
   provide(
     FormGroupNameKey,
-    computed(() => toValue(name)),
+    computed<FormGroupScope>(() => {
+      const own = toValue(name);
+      const above = parent?.value.names ?? [];
+      return {
+        name: own,
+        names: above.includes(own) ? above : [...above, own],
+      };
+    }),
   );
 }
 
-/** The ambient group name as a ref, `undefined` outside a `<FormGroupProvider>`. */
+/** The innermost ambient group name as a ref, `undefined` outside a `<FormGroupProvider>`. */
 export function useFormGroupName(): Readonly<Ref<string | undefined>> {
-  const name = inject(FormGroupNameKey, undefined);
-  return computed(() => name?.value);
+  const scope = inject(FormGroupNameKey, undefined);
+  return computed(() => scope?.value.name);
 }
 
 /**
- * Registers `source` into the ambient group in setup, re-registers when the
- * group or registry changes, and unregisters on scope disposal. Does nothing
+ * Registers `source` into every enclosing group in setup, re-registers when the
+ * groups or registry change, and unregisters on scope disposal. Does nothing
  * without a registry or a group name.
  */
 export function useRegisterFieldGroup(source: string): void {
   const registry = useFormGroupsRef();
-  const group = inject(FormGroupNameKey, undefined);
-  if (!registry || !group) return;
+  const scope = inject(FormGroupNameKey, undefined);
+  if (!registry || !scope) return;
   watchEffect(
     (onCleanup) => {
       const target = registry.value;
-      const name = group.value;
-      target.register(name, source);
-      onCleanup(() => target.unregister(name, source));
+      const names = scope.value.names;
+      for (const name of names) target.register(name, source);
+      onCleanup(() => {
+        for (const name of names) target.unregister(name, source);
+      });
     },
     { flush: "sync" },
   );

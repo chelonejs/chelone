@@ -26,6 +26,8 @@ import type { ReactNode } from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
+import { TabbedForm, useTabbedFormContext } from "../../../form/tabbed-form";
+import { useWizardFormContext, WizardForm } from "../../../form/wizard-form";
 import { CheloneFormProvider } from "../../../form-context";
 import { useForm } from "../../../form-hooks";
 import {
@@ -299,6 +301,99 @@ describe("TranslatableInputs", () => {
       "text-destructive",
     );
     expect(panel("translatable-content-fr").hidden).toBe(true);
+  });
+
+  it("inside a WizardForm step, an empty required translation keeps the wizard on that step", async () => {
+    const wizard: { current: ReturnType<typeof useWizardFormContext> | null } =
+      { current: null };
+    function Capture() {
+      wizard.current = useWizardFormContext();
+      return null;
+    }
+    render(
+      <CheloneProvider
+        dataProvider={fakeDataProvider({})}
+        queryClient={new QueryClient()}
+        i18n={makeI18n()}
+      >
+        <WizardForm save={async () => undefined}>
+          <Capture />
+          <WizardForm.Step name="names">
+            <TranslatableInputs locales={["en", "fr"]}>
+              <TextInput source="name" label="Name" validate={required()} />
+            </TranslatableInputs>
+          </WizardForm.Step>
+          <WizardForm.Step name="done">
+            <div>Done</div>
+          </WizardForm.Step>
+        </WizardForm>
+      </CheloneProvider>,
+    );
+
+    await act(async () => {
+      await wizard.current?.next();
+    });
+
+    expect(wizard.current?.currentStep).toBe(0);
+    await waitFor(() =>
+      expect(screen.getByRole("tab", { name: "En" }).className).toContain(
+        "text-destructive",
+      ),
+    );
+  });
+
+  it("inside a TabbedForm tab, an invalid translation marks the tab invalid while each locale tab shows only its own validity", async () => {
+    const tabbed: { current: ReturnType<typeof useTabbedFormContext> | null } =
+      { current: null };
+    function Capture() {
+      tabbed.current = useTabbedFormContext();
+      return null;
+    }
+    render(
+      <RouterAdapterProvider adapter={reactRouterAdapter}>
+        <CheloneProvider
+          dataProvider={fakeDataProvider({})}
+          queryClient={new QueryClient()}
+          i18n={makeI18n()}
+        >
+          <TabbedForm
+            save={async () => undefined}
+            syncWithLocation={false}
+            defaultValues={{ name: { en: "Hello", fr: "" } }}
+          >
+            <Capture />
+            <TabbedForm.Tab name="content" label="Content">
+              <TranslatableInputs locales={["en", "fr"]}>
+                <TextInput source="name" label="Name" validate={required()} />
+              </TranslatableInputs>
+            </TabbedForm.Tab>
+            <TabbedForm.Tab name="other" label="Other">
+              <div>Other</div>
+            </TabbedForm.Tab>
+          </TabbedForm>
+        </CheloneProvider>
+      </RouterAdapterProvider>,
+    );
+    expect(document.querySelector("[data-chelone-tab-error]")).toBeNull();
+
+    await act(async () => {
+      await tabbed.current?.submit();
+    });
+
+    await waitFor(() =>
+      expect(
+        document.querySelector('[data-chelone-tab-error="content"]'),
+      ).not.toBeNull(),
+    );
+    expect(
+      document.querySelector('[data-chelone-tab-error="other"]'),
+    ).toBeNull();
+    expect(screen.getByRole("tab", { name: "Fr" }).className).toContain(
+      "text-destructive",
+    );
+    expect(screen.getByRole("tab", { name: "En" }).className).not.toContain(
+      "text-destructive",
+    );
   });
 
   it("works in Create with no record", async () => {

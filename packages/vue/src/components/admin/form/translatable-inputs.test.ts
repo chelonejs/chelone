@@ -19,7 +19,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../../admin/admin.vue";
+import TabbedForm from "../../../form/tabbed-form.vue";
+import { useTabbedFormContext } from "../../../form/tabbed-form-context";
+import TabbedFormTab from "../../../form/tabbed-form-tab.vue";
 import { type UseFormReturn, useForm } from "../../../form/use-form";
+import { useWizardFormContext } from "../../../form/use-wizard-form";
+import WizardForm from "../../../form/wizard-form.vue";
+import WizardFormStep from "../../../form/wizard-form-step.vue";
 import SaveButton from "../buttons/save-button.vue";
 import ArrayInput from "../inputs/array-input.vue";
 import TextInput from "../inputs/text-input.vue";
@@ -250,6 +256,89 @@ describe("TranslatableInputs", () => {
     );
     expect(tab(wrapper, "en").classes()).not.toContain("text-destructive");
     expect(panel(wrapper, "fr").attributes("hidden")).toBeDefined();
+  });
+
+  it("inside a WizardForm step, an empty required translation keeps the wizard on that step", async () => {
+    let wizard: ReturnType<typeof useWizardFormContext> | undefined;
+    const Probe = defineComponent({
+      setup() {
+        wizard = useWizardFormContext();
+        return () => null;
+      },
+    });
+    const wrapper = mountAdmin(() =>
+      h(WizardForm, { save: async () => undefined }, () => [
+        h(Probe),
+        h(WizardFormStep, { name: "names" }, () =>
+          h(TranslatableInputs, { locales: ["en", "fr"] }, () =>
+            h(TextInput, {
+              source: "name",
+              label: "Name",
+              validate: required(),
+            }),
+          ),
+        ),
+        h(WizardFormStep, { name: "done" }, () => h("div", "Done")),
+      ]),
+    );
+    await flushPromises();
+
+    expect(await wizard?.next()).toBe(false);
+    await flushPromises();
+
+    expect(wizard?.currentStep.value).toBe(0);
+    expect(tab(wrapper, "en").classes()).toContain("text-destructive");
+  });
+
+  it("inside a TabbedForm tab, an invalid translation marks the tab invalid while each locale tab shows only its own validity", async () => {
+    let tabbed: ReturnType<typeof useTabbedFormContext> | undefined;
+    const Probe = defineComponent({
+      setup() {
+        tabbed = useTabbedFormContext();
+        return () => null;
+      },
+    });
+    const wrapper = mountAdmin(() =>
+      h(
+        TabbedForm,
+        {
+          save: async () => undefined,
+          syncWithLocation: false,
+          record: { name: { en: "Hello", fr: "" } },
+        },
+        () => [
+          h(Probe),
+          h(TabbedFormTab, { name: "content", label: "Content" }, () =>
+            h(TranslatableInputs, { locales: ["en", "fr"] }, () =>
+              h(TextInput, {
+                source: "name",
+                label: "Name",
+                validate: required(),
+              }),
+            ),
+          ),
+          h(TabbedFormTab, { name: "other", label: "Other" }, () =>
+            h("div", "Other"),
+          ),
+        ],
+      ),
+    );
+    await flushPromises();
+    expect(wrapper.find("[data-chelone-tab-error]").exists()).toBe(false);
+
+    await tabbed?.submit();
+    await flushPromises();
+
+    await vi.waitFor(() =>
+      expect(wrapper.find('[data-chelone-tab-error="content"]').exists()).toBe(
+        true,
+      ),
+    );
+    expect(wrapper.find('[data-chelone-tab-error="other"]').exists()).toBe(
+      false,
+    );
+    expect(tab(wrapper, "fr").classes()).toContain("text-destructive");
+    expect(tab(wrapper, "en").classes()).not.toContain("text-destructive");
   });
 
   it("works in Create with no record", async () => {
