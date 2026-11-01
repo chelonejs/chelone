@@ -21,6 +21,14 @@ export interface DataTableProps {
   isRowExpandable?: (record: LooseRecord) => boolean;
   /** A class for a body row, computed from its record and index. */
   rowClass?: (record: LooseRecord, rowIndex: number) => string | false | undefined;
+  /**
+   * The store key of the hidden column ids; the order and the published
+   * columns are kept under keys derived from it. Defaults to
+   * `"<resource>.datatable"`.
+   */
+  storeKey?: string;
+  /** Column ids hidden until a choice is stored. */
+  defaultHiddenColumns?: string[];
 }
 </script>
 
@@ -44,6 +52,13 @@ export interface DataTableProps {
  */
 
 import {
+  arrangeColumns,
+  type DataTableColumnInfo,
+  defaultDataTableStoreKey,
+  getDataTableColumnId,
+} from "@chelone/core";
+import {
+  cloneVNode,
   Comment,
   computed,
   Fragment,
@@ -53,6 +68,7 @@ import {
   type VNode,
 } from "vue";
 import { useListContext } from "../../../list/list-context";
+import { useDataTableColumns } from "../../../list/use-data-table-columns";
 import { useResourceContext } from "../../../resource-context";
 import Checkbox from "../../ui/checkbox.vue";
 import {
@@ -66,6 +82,7 @@ import {
 import BulkActionsToolbar from "./bulk-actions-toolbar.vue";
 import Button from "../../ui/button.vue";
 import {
+  ColumnsOutlet,
   DataTableRowsKey,
   PassProvider,
 } from "./data-table-context";
@@ -143,21 +160,85 @@ function handleToggleExpandAll() {
     : rows.value.filter(canExpand).map(rowId);
 }
 
-// The expand panel spans every column: the leading cells plus one per column
-// child. Counted from the slot on each render, so a column that comes or goes
-// after mount is picked up (as React's `Children.count` does).
-const countVNodes = (nodes: VNode[]): number =>
-  nodes.reduce(
-    (n, node) =>
-      node.type === Comment
-        ? n
-        : node.type === Fragment
-          ? n + countVNodes((node.children ?? []) as VNode[])
-          : n + 1,
-    0,
+// The columns are the default slot's nodes, flattened through the fragments
+// `v-for` makes and without the comments `v-if` leaves. A node whose `source`
+// and `label` props are not strings (a wrapper that does not forward them) has
+// no id: it keeps its place and is always shown.
+const flattenVNodes = (nodes: VNode[]): VNode[] =>
+  nodes.flatMap((node) =>
+    node.type === Comment
+      ? []
+      : node.type === Fragment
+        ? flattenVNodes((node.children ?? []) as VNode[])
+        : [node],
   );
+
+const columnProps = (node: VNode) =>
+  (node.props ?? {}) as { source?: unknown; label?: unknown };
+
+const { hidden, order, publish } = useDataTableColumns({
+  storeKey: () => props.storeKey ?? defaultDataTableStoreKey(resource ?? ""),
+  defaultHiddenColumns: () => props.defaultHiddenColumns,
+});
+
+const declare = (nodes: VNode[], ids: (string | undefined)[]) => {
+  const defaults = props.defaultHiddenColumns ?? [];
+  const seen = new Set<string>();
+  const declared: DataTableColumnInfo[] = [];
+  nodes.forEach((node, index) => {
+    const id = ids[index];
+    if (id === undefined || seen.has(id)) return;
+    seen.add(id);
+    const { source, label } = columnProps(node);
+    declared.push({
+      id,
+      ...(typeof source === "string" && { source }),
+      ...(typeof label === "string" && { label }),
+      defaultHidden: defaults.includes(id),
+    });
+  });
+  return declared;
+};
+
+// What the last render saw, kept for the header outlet's `report`. A slot can
+// only be called while rendering, and a write to the store must not happen
+// there.
+let declaredColumns: DataTableColumnInfo[] = [];
+
+// Called from a render function, so the store refs it reads are tracked there.
+function arrangedColumns(): VNode[] {
+  const nodes = flattenVNodes(slots.default?.() ?? []);
+  const ids = nodes.map((node) => getDataTableColumnId(columnProps(node)));
+  declaredColumns = declare(nodes, ids);
+  const shown = arrangeColumns(ids, {
+    hidden: hidden.value,
+    order: order.value,
+  });
+  // A column keeps its component instance when its position changes: the
+  // columns read their props once, so a reused instance would show another
+  // column's data. A key the author set is kept.
+  const taken = new Map<string, number>();
+  return shown.map((index) => {
+    const node = nodes[index] as VNode;
+    if (node.key != null) return node;
+    const id = ids[index];
+    const base = id === undefined ? `index:${index}` : `id:${id}`;
+    const count = taken.get(base) ?? 0;
+    taken.set(base, count + 1);
+    return cloneVNode(node, { key: count === 0 ? base : `${base}:${count}` });
+  });
+}
+
+// The template passes `() => arrangedColumns()` to each outlet, not the function
+// itself: a new function prop on every render makes an outlet re-render when
+// the parent hands the table new slot content.
+const reportColumns = () => publish(declaredColumns);
+
+// The expand panel spans every shown column: the leading cells plus one per
+// column child. Counted from the slot on each render, so a column that comes
+// or goes after mount is picked up (as React's `Children.count` does).
 const columnCount = (): number =>
-  countVNodes(slots.default?.() ?? []) +
+  arrangedColumns().length +
   (hasBulkActions.value ? 1 : 0) +
   (expandEnabled.value ? 1 : 0);
 
@@ -198,7 +279,10 @@ function handleToggleSelectAll(checked: boolean) {
             </Button>
           </TableHead>
           <PassProvider pass="header">
-            <slot />
+            <ColumnsOutlet
+              :render="() => arrangedColumns()"
+              :report="reportColumns"
+            />
           </PassProvider>
         </TableRow>
       </TableHeader>
@@ -216,7 +300,7 @@ function handleToggleSelectAll(checked: boolean) {
               :has-bulk-actions="hasBulkActions"
               :class="rowClass?.(record, index) || undefined"
             >
-              <slot />
+              <ColumnsOutlet :render="() => arrangedColumns()" />
             </DataTableRow>
             <TableRow
               v-if="
