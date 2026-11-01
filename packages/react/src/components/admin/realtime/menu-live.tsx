@@ -1,0 +1,165 @@
+import {
+  type CheloneStore,
+  clearUnread,
+  type RealtimeDataProvider,
+  type RealtimeEventType,
+  subscribeUnreadCount,
+  unreadKey,
+} from "@chelone/core";
+import { type ReactNode, useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
+import { useCheloneContext, useCheloneStore } from "../../../context";
+import { useMatch } from "../../../router";
+import { useRouterAdapter } from "../../../router/adapter";
+import { useStoreItem } from "../../../store-hooks";
+
+export interface MenuLiveItemLinkProps {
+  /** Target path. The count clears while the current route is `to` or below it. */
+  to: string;
+  /** Resource whose events are counted. */
+  resource: string;
+  /** Link text. */
+  label: ReactNode;
+  /** Icon rendered before `label`. */
+  icon?: ReactNode;
+  /** Event types that count as new. Defaults to `["created"]`. */
+  events?: RealtimeEventType[];
+  /** Formats the badge text. Defaults to the count, `99+` above 99. */
+  badgeLabel?: (count: number) => ReactNode;
+}
+
+export interface MenuLiveProps {
+  items: MenuLiveItemLinkProps[];
+}
+
+const MAX_COUNT = 99;
+
+interface SharedSubscription {
+  holders: number;
+  stop: () => void;
+}
+
+const subscriptions = new WeakMap<
+  CheloneStore,
+  WeakMap<object, Map<string, SharedSubscription>>
+>();
+
+/**
+ * Links for one resource share a store key, so links with the same events
+ * share one subscription: one each would add 1 per event apiece. Links with
+ * different events on one resource still show one combined count.
+ */
+function acquire(
+  dataProvider: RealtimeDataProvider,
+  store: CheloneStore,
+  resource: string,
+  eventsKey: string,
+): () => void {
+  let byProvider = subscriptions.get(store);
+  if (!byProvider) {
+    byProvider = new WeakMap();
+    subscriptions.set(store, byProvider);
+  }
+  let shared = byProvider.get(dataProvider);
+  if (!shared) {
+    shared = new Map();
+    byProvider.set(dataProvider, shared);
+  }
+  const subscriptionsForProvider = shared;
+  const key = `${resource}\0${eventsKey}`;
+
+  let entry = subscriptionsForProvider.get(key);
+  if (!entry) {
+    entry = {
+      holders: 0,
+      stop: subscribeUnreadCount({
+        dataProvider,
+        store,
+        resource,
+        events: eventsKey.split(",") as RealtimeEventType[],
+      }),
+    };
+    subscriptionsForProvider.set(key, entry);
+  }
+  entry.holders++;
+
+  const held = entry;
+  return () => {
+    if (--held.holders > 0) return;
+    held.stop();
+    subscriptionsForProvider.delete(key);
+  };
+}
+
+/**
+ * A menu link with a badge counting the resource's new records since the user
+ * last opened it. The count is kept in the store, so it survives a reload when
+ * the store has an adapter. Needs a realtime data provider.
+ *
+ * @example
+ * import { MenuLiveItemLink } from "@chelone/react";
+ *
+ * <MenuLiveItemLink to="/posts" resource="posts" label="Posts" />
+ */
+function MenuLiveItemLink({
+  to,
+  resource,
+  label,
+  icon,
+  events,
+  badgeLabel,
+}: MenuLiveItemLinkProps) {
+  const { dataProvider } = useCheloneContext();
+  const store = useCheloneStore();
+  const { Link } = useRouterAdapter();
+  const [count = 0] = useStoreItem<number>(unreadKey(resource));
+  const active = useMatch({ path: to, end: false }) !== null;
+  // Joined so an inline `events` array does not resubscribe each render.
+  const eventsKey = (events ?? ["created"]).join(",");
+
+  useEffect(
+    () =>
+      acquire(dataProvider as RealtimeDataProvider, store, resource, eventsKey),
+    [dataProvider, store, resource, eventsKey],
+  );
+
+  useEffect(() => {
+    if (active && count > 0) clearUnread(store, resource);
+  }, [active, count, store, resource]);
+
+  return (
+    <Link to={to} className="flex items-center gap-2">
+      {icon}
+      {label}
+      {count > 0 && (
+        <Badge data-testid="menu-live-badge" className="ml-auto">
+          {badgeLabel
+            ? badgeLabel(count)
+            : count > MAX_COUNT
+              ? `${MAX_COUNT}+`
+              : count}
+        </Badge>
+      )}
+    </Link>
+  );
+}
+
+/**
+ * A `nav` of {@link MenuLiveItemLink}s.
+ *
+ * @example
+ * import { MenuLive } from "@chelone/react";
+ *
+ * <MenuLive items={[{ to: "/posts", resource: "posts", label: "Posts" }]} />
+ */
+function MenuLive({ items }: MenuLiveProps) {
+  return (
+    <nav>
+      {items.map((item) => (
+        <MenuLiveItemLink key={item.to} {...item} />
+      ))}
+    </nav>
+  );
+}
+
+export { MenuLive, MenuLiveItemLink };
