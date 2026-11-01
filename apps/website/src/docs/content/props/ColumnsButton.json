@@ -15,7 +15,7 @@
     },
     {
       "name": "size",
-      "type": "\"default\" | \"sm\" | \"lg\" | \"icon\" | \"xs\" | \"icon-xs\" | \"icon-sm\" | \"icon-lg\" | null",
+      "type": "\"default\" | \"xs\" | \"sm\" | \"lg\" | \"icon\" | \"icon-xs\" | \"icon-sm\" | \"icon-lg\" | null",
       "optional": true,
       "comment": ""
     },
