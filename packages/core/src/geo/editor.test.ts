@@ -48,19 +48,27 @@ describe("toEditorFeatures", () => {
         type: "Feature",
         id: "editor-1",
         geometry: point,
-        properties: { name: "p", mode: "point", "chelone:id": "a" },
+        properties: {
+          mode: "point",
+          "chelone:id": "a",
+          "chelone:properties": { name: "p" },
+        },
       },
       {
         type: "Feature",
         id: "editor-2",
         geometry: line,
-        properties: { mode: "linestring", "chelone:id": 7 },
+        properties: {
+          mode: "linestring",
+          "chelone:id": 7,
+          "chelone:properties": {},
+        },
       },
       {
         type: "Feature",
         id: "editor-3",
         geometry: polygon,
-        properties: { mode: "polygon" },
+        properties: { mode: "polygon", "chelone:properties": {} },
       },
     ]);
   });
@@ -140,7 +148,6 @@ describe("fromEditorFeatures", () => {
           "closingPoint",
           "snappingPoint",
           "coordinatePoint",
-          "edited",
         ] as const
       ).map((flag, index) => ({
         type: "Feature" as const,
@@ -163,6 +170,54 @@ describe("fromEditorFeatures", () => {
         properties: { name: "area" },
       },
     ]);
+  });
+
+  it("fromEditorFeatures keeps a feature the editor marks edited while it is dragged", () => {
+    const [dragged] = toEditorFeatures(
+      [{ type: "Feature", id: "a", geometry: polygon, properties: { k: 1 } }],
+      ids(),
+    );
+    const snapshot = [
+      {
+        ...dragged,
+        properties: { ...dragged?.properties, edited: true, selected: true },
+      },
+    ];
+    expect(fromEditorFeatures(snapshot as never)).toEqual([
+      { type: "Feature", id: "a", geometry: polygon, properties: { k: 1 } },
+    ]);
+  });
+
+  it("fromEditorFeatures keeps user properties named like the editor's own", () => {
+    const source: GeoFeature[] = [
+      {
+        type: "Feature",
+        id: "a",
+        geometry: polygon,
+        properties: {
+          mode: "bus",
+          edited: true,
+          selectionPoint: true,
+          selected: 1,
+        },
+      },
+    ];
+    const editor = toEditorFeatures(source, ids());
+    expect(editor[0]?.properties).toMatchObject({ mode: "polygon" });
+    expect(fromEditorFeatures(editor)).toEqual(source);
+  });
+
+  it("fromEditorFeatures strips the radius a circle writes into a drawn feature", () => {
+    expect(
+      fromEditorFeatures([
+        {
+          type: "Feature",
+          id: "c",
+          geometry: polygon,
+          properties: { mode: "circle", radiusKilometers: 2 },
+        },
+      ]),
+    ).toEqual([{ type: "Feature", geometry: polygon, properties: {} }]);
   });
 
   it("fromEditorFeatures leaves no id on a feature the editor made", () => {
@@ -302,6 +357,10 @@ describe("terra-draw", () => {
     for (const [constant, name] of Object.entries(NAMES)) {
       expect(bundle).toContain(`${constant}:"${name}"`);
     }
+  });
+
+  it("pins the circle radius property to the installed source", () => {
+    expect(bundle).toContain("radiusKilometers:");
   });
 
   it("pins the names editor.ts uses to that list", () => {

@@ -1,11 +1,17 @@
 import type { Validator } from "../form/validators";
 import { isEmpty } from "../form/validators";
+import { bboxToPolygon } from "./bbox";
 import type { GeoGeometry, GeoPosition } from "./geojson";
 import { isGeoJsonValue } from "./geojson";
 import { geoAreaM2, hasSelfIntersection } from "./geometry-math";
 
-/** The geometry of each member of a geometry, Feature or FeatureCollection. */
+/**
+ * The geometry of each member of a geometry, Feature or FeatureCollection. A
+ * BBox is the rectangle it covers.
+ */
 function members(value: unknown): GeoGeometry[] {
+  const box = bboxToPolygon(value);
+  if (box) return [box];
   if (!isGeoJsonValue(value)) return [];
   if (value.type === "FeatureCollection") {
     return value.features.flatMap((feature) => members(feature));
@@ -55,7 +61,7 @@ function geometryVertices(geometry: GeoGeometry): number {
 }
 
 /**
- * Vertices of a geometry, Feature or FeatureCollection. A polygon ring counts
+ * Vertices of a geometry, Feature, FeatureCollection or BBox. A polygon ring counts
  * its distinct vertices, so a triangle is 3. `0` for anything else.
  */
 export function countVertices(value: unknown): number {

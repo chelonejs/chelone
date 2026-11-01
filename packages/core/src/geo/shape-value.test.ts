@@ -326,17 +326,22 @@ describe("featuresToShape", () => {
     const prev = feature(square(0), {
       id: "abc",
       properties: { name: "keep" },
-      bbox: [0, 0, 1, 1],
     });
     const next = featuresToShape("Feature", [feature(square(5))], prev);
     expect(next).toEqual({
       type: "Feature",
       id: "abc",
       properties: { name: "keep" },
-      bbox: [0, 0, 1, 1],
       geometry: square(5),
     });
     expect(prev.geometry).toEqual(square(0));
+  });
+
+  it("featuresToShape drops the previous Feature's bbox, which no longer fits", () => {
+    const prev = feature(square(0), { id: "abc", bbox: [0, 0, 1, 1] });
+    const next = featuresToShape("Feature", [feature(square(5))], prev);
+    expect(next).not.toHaveProperty("bbox");
+    expect(next).toMatchObject({ id: "abc", geometry: square(5) });
   });
 
   it("featuresToShape adds empty properties to a Feature with no previous one", () => {

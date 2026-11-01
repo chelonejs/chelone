@@ -30,16 +30,26 @@ const HELPER_FLAGS = [
   EDITOR_PROPERTIES.closingPoint,
   EDITOR_PROPERTIES.snappingPoint,
   EDITOR_PROPERTIES.coordinatePoint,
-  EDITOR_PROPERTIES.edited,
   EDITOR_PROPERTIES.currentlyDrawing,
 ];
 
-/** Properties the editor adds to a user's own feature. */
-const EDITOR_OWN_PROPERTIES: readonly string[] =
-  Object.values(EDITOR_PROPERTIES);
+/**
+ * Properties the editor adds to a user's own feature. `radiusKilometers` is
+ * written by its circle mode and is a literal in its source, not a constant.
+ */
+const EDITOR_OWN_PROPERTIES: readonly string[] = [
+  ...Object.values(EDITOR_PROPERTIES),
+  "radiusKilometers",
+];
 
 /** Where the editor keeps the id a feature had before it went in. */
 const SOURCE_ID = "chelone:id";
+
+/**
+ * Where the editor keeps the properties a feature had before it went in, so
+ * none of them can be mistaken for its own flags.
+ */
+const SOURCE_PROPERTIES = "chelone:properties";
 
 const MODES = {
   Point: "point",
@@ -51,7 +61,8 @@ const MODES = {
  * Copies of the features the editor can hold, each with a fresh `id` from
  * `getId` and a `properties.mode` naming its drawing mode. The editor refuses
  * an id its own strategy did not make, so the source `id` moves to
- * `properties["chelone:id"]`. Features it cannot hold are left out.
+ * `properties["chelone:id"]`, and the source properties move whole to
+ * `properties["chelone:properties"]`. Features it cannot hold are left out.
  */
 export function toEditorFeatures(
   features: GeoFeature[],
@@ -70,13 +81,17 @@ export function toEditorFeatures(
       continue;
     }
     const properties: Record<string, unknown> = {
-      ...feature.properties,
       mode: MODES[geometry.type],
+      [SOURCE_PROPERTIES]: { ...feature.properties },
     };
     if (feature.id !== undefined) properties[SOURCE_ID] = feature.id;
     result.push({ type: "Feature", id: getId(), geometry, properties });
   }
   return result;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /** What `getSnapshot()` of the editor returns, as far as core reads it. */
@@ -90,8 +105,9 @@ export interface EditorSnapshotFeature {
 /**
  * The user's features in an editor snapshot: its helper features (selection
  * points, midpoints, closing points, snapping points and a feature still being
- * drawn) are dropped, its own properties are stripped, and `id` comes back
- * from `chelone:id`. A feature the editor made has no `id`.
+ * drawn) are dropped, and `id` and `properties` come back from `chelone:id`
+ * and `chelone:properties`. A feature the editor made has no `id`, and keeps
+ * its properties but for the editor's own.
  */
 export function fromEditorFeatures(
   snapshot: readonly EditorSnapshotFeature[],
@@ -101,11 +117,17 @@ export function fromEditorFeatures(
     const source: Record<string, unknown> = { ...entry.properties };
     if (HELPER_FLAGS.some((flag) => source[flag])) continue;
     if (!isGeoGeometry(entry.geometry)) continue;
-    const properties = Object.fromEntries(
-      Object.entries(source).filter(
-        ([key]) => key !== SOURCE_ID && !EDITOR_OWN_PROPERTIES.includes(key),
-      ),
-    );
+    const kept = source[SOURCE_PROPERTIES];
+    const properties = isPlainObject(kept)
+      ? { ...kept }
+      : Object.fromEntries(
+          Object.entries(source).filter(
+            ([key]) =>
+              key !== SOURCE_ID &&
+              key !== SOURCE_PROPERTIES &&
+              !EDITOR_OWN_PROPERTIES.includes(key),
+          ),
+        );
     const feature: GeoFeature = {
       type: "Feature",
       geometry: entry.geometry,

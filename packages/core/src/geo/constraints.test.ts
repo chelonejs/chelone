@@ -115,6 +115,10 @@ describe("countVertices", () => {
     expect(countVertices(collection(triangle, degreeSquare))).toBe(7);
   });
 
+  it("countVertices counts the four corners of a BBox", () => {
+    expect(countVertices([0, 0, 1, 1])).toBe(4);
+  });
+
   it("countVertices is 0 for a null geometry and for anything else", () => {
     expect(countVertices(feature(null))).toBe(0);
     expect(countVertices(null)).toBe(0);
@@ -177,6 +181,14 @@ describe("minAreaM2", () => {
     expect(
       run(minAreaM2(1e12), { type: "Point", coordinates: [0, 0] }),
     ).toBeUndefined();
+  });
+
+  it("minAreaM2 checks a BBox value as the rectangle it covers", () => {
+    expect(run(minAreaM2(1e9), [0, 0, 0.0001, 0.0001])).toMatchObject({
+      message: "chelone.validation.minArea",
+      args: { min: 1e9 },
+    });
+    expect(run(minAreaM2(1e10), [0, 0, 1, 1])).toBeUndefined();
   });
 
   it("minAreaM2 sums the polygons of a GeometryCollection", () => {

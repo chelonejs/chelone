@@ -236,9 +236,12 @@ export function featuresToShape(
     case "Feature": {
       const geometry = lastGeometry(features);
       if (!geometry) return null;
-      return isGeoFeature(prev)
-        ? { ...prev, geometry }
-        : { type: "Feature", geometry, properties: {} };
+      if (!isGeoFeature(prev)) {
+        return { type: "Feature", geometry, properties: {} };
+      }
+      // The old bbox no longer contains the new geometry.
+      const { bbox: _bbox, ...rest } = prev;
+      return { ...rest, geometry };
     }
     case "FeatureCollection": {
       const all = [...features, ...heldFeatures(kind, prev)];
