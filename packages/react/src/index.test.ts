@@ -28,6 +28,7 @@ import type {
   FormGroupsProviderProps,
   GetRecordRepresentation,
   GetResourceLabel,
+  GuesserEmptyProps,
   HandleAuthCallbackResult,
   IconButtonWithTooltipProps,
   InputFieldError,
@@ -612,5 +613,14 @@ describe("@chelone/react barrel — P7g feedback + common", () => {
     expectTypeOf<TabbedShowLayoutProps>().toHaveProperty("syncWithLocation");
     expectTypeOf<ShowTabProps>().toHaveProperty("contentClassName");
     expectTypeOf<TabbedShowLayoutTabsListProps>().toHaveProperty("tabs");
+  });
+});
+
+describe("@chelone/react barrel — guessers", () => {
+  it("exports GuesserEmpty", () => {
+    expect(barrel.GuesserEmpty).toBeTypeOf("function");
+    expectTypeOf<GuesserEmptyProps>().toHaveProperty("title");
+    expectTypeOf<GuesserEmptyProps>().toHaveProperty("message");
+    expectTypeOf<GuesserEmptyProps>().toHaveProperty("resource");
   });
 });
