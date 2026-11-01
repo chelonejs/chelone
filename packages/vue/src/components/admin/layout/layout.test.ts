@@ -125,6 +125,69 @@ describe("<Layout> shell (via <Admin> default slot)", () => {
   });
 });
 
+describe("<Layout> skip link (via <Admin> default slot)", () => {
+  async function mountDefaultLayout() {
+    const router = makeRouter();
+    await router.push("/");
+    const wrapper = mount(Admin, {
+      props: { dataProvider },
+      slots: {
+        default: () => h(Resource, { name: "posts", list: Blank }),
+      },
+      global: { plugins: [router] },
+      attachTo: document.body,
+    });
+    await flushPromises();
+    return wrapper;
+  }
+
+  it("renders the skip link before the app bar", async () => {
+    const wrapper = await mountDefaultLayout();
+
+    const skip = wrapper.get('[data-slot="skip-navigation-button"]').element;
+    const appBar = wrapper.get('[data-slot="app-bar"]').element;
+    expect(
+      skip.compareDocumentPosition(appBar) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    wrapper.unmount();
+  });
+
+  it("renders the skip link before the sidebar menu", async () => {
+    const wrapper = await mountDefaultLayout();
+
+    const skip = wrapper.get('[data-slot="skip-navigation-button"]').element;
+    for (const slot of ["sidebar-menu-button", "sidebar-trigger"]) {
+      const later = wrapper.get(`[data-slot="${slot}"]`).element;
+      expect(
+        skip.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    }
+    wrapper.unmount();
+  });
+
+  it("skip link focus target is the content area, not the app bar", async () => {
+    const wrapper = await mountDefaultLayout();
+    const target = document.getElementById("main-content") as HTMLElement;
+
+    expect(target.contains(wrapper.get('[data-slot="app-bar"]').element)).toBe(
+      false,
+    );
+    expect(
+      target.contains(
+        wrapper.get('[data-slot="skip-navigation-button"]').element,
+      ),
+    ).toBe(false);
+    expect(target.textContent).toContain("blank");
+
+    const focus = vi.spyOn(target, "focus");
+    await wrapper.get('[data-slot="skip-navigation-button"]').trigger("click");
+
+    expect(focus).toHaveBeenCalledTimes(1);
+    expect(target.hasAttribute("tabindex")).toBe(false);
+    wrapper.unmount();
+  });
+});
+
 describe("<Layout> notifications (via <Admin> default slot)", () => {
   function mountDefaultLayout() {
     const notifications = createNotificationStore();
