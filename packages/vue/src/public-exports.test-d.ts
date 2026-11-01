@@ -83,6 +83,7 @@ import type {
   ToggleFilterButtonProps,
   ToolbarProps,
   TopToolbarProps,
+  TreeListProps,
   UpdateButtonProps,
   UsePrevNextControllerOptions,
   ValidationErrorProps,
@@ -183,6 +184,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<ToggleFilterButtonProps>().toHaveProperty("value");
     expectTypeOf<ToolbarProps>().toBeObject();
     expectTypeOf<TopToolbarProps>().toBeObject();
+    expectTypeOf<TreeListProps>().toHaveProperty("parentSource");
     expectTypeOf<UpdateButtonProps>().toHaveProperty("data");
     expectTypeOf<UpdateButtonProps>().toHaveProperty("mutationMode");
     expectTypeOf<ValidationErrorProps>().toBeObject();
@@ -209,6 +211,10 @@ describe("@chelone/vue public exports", () => {
     type Result = ReturnType<typeof barrel.useDataTableColumns>;
     expectTypeOf<Result>().toHaveProperty("toggle");
     expectTypeOf<Result>().toHaveProperty("columns");
+  });
+
+  it("TreeList ships beside its props", () => {
+    expectTypeOf(barrel.TreeList).not.toBeAny();
   });
 
   it("keeps internal helpers out of the barrel", () => {
