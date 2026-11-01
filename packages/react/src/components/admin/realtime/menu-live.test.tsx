@@ -206,6 +206,80 @@ describe("<MenuLiveItemLink>", () => {
     expect(badge()?.textContent).toBe("1");
   });
 
+  it("a deleted link beside a default link on the same resource counts only deleted events", async () => {
+    const { Providers, emit } = setup();
+    render(
+      <Providers>
+        <MenuLiveItemLink to="/posts" resource="posts" label="Posts" />
+        <MenuLiveItemLink
+          to="/trash"
+          resource="posts"
+          label="Trash"
+          events={["deleted"]}
+        />
+      </Providers>,
+    );
+    await emit("resource/posts", "created");
+    await emit("resource/posts", "created");
+    await emit("resource/posts", "deleted");
+
+    const posts = screen.getByRole("link", { name: /posts/i });
+    const trash = screen.getByRole("link", { name: /trash/i });
+    expect(posts.textContent).toContain("2");
+    expect(trash.textContent).toContain("1");
+    expect(trash.textContent).not.toContain("3");
+  });
+
+  it("shares one subscription between links whose events differ only in order", async () => {
+    const { Providers, subscribe, emit } = setup();
+    render(
+      <Providers>
+        <MenuLiveItemLink
+          to="/a"
+          resource="posts"
+          label="A"
+          events={["deleted", "created"]}
+        />
+        <MenuLiveItemLink
+          to="/b"
+          resource="posts"
+          label="B"
+          events={["created", "deleted"]}
+        />
+      </Providers>,
+    );
+    await emit("resource/posts", "created");
+    expect(
+      screen.getAllByTestId("menu-live-badge").map((b) => b.textContent),
+    ).toEqual(["1", "1"]);
+    expect(subscribe).toHaveBeenCalledTimes(1);
+  });
+
+  it("opening one link's route clears only that link's count", async () => {
+    const { Providers, store, emit } = setup("/other");
+    render(
+      <Providers>
+        <MenuLiveItemLink to="/posts" resource="posts" label="Posts" />
+        <MenuLiveItemLink
+          to="/trash"
+          resource="posts"
+          label="Trash"
+          events={["deleted"]}
+        />
+      </Providers>,
+    );
+    await emit("resource/posts", "created");
+    await emit("resource/posts", "deleted");
+
+    fireEvent.click(screen.getByRole("link", { name: /trash/i }));
+
+    expect(store.getItem("realtime.unread.posts")).toBe(1);
+    expect(store.getItem("realtime.unread.posts.deleted")).toBe(0);
+    expect(screen.getByRole("link", { name: /posts/i }).textContent).toContain(
+      "1",
+    );
+  });
+
   it("an inline events array does not resubscribe", async () => {
     const { Providers, subscribe } = setup();
     const link = (
