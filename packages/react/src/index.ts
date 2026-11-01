@@ -254,6 +254,10 @@ export {
   type ToggleFilterButtonProps,
 } from "./components/admin/buttons/toggle-filter-button";
 export {
+  UpdateButton,
+  type UpdateButtonProps,
+} from "./components/admin/buttons/update-button";
+export {
   ApplicationUpdatedNotification,
   type ApplicationUpdatedNotificationProps,
 } from "./components/admin/common/application-updated-notification";
