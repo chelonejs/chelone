@@ -560,6 +560,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/skip-navigation-button.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/sort-button.vue",
           "type": "registry:component"
         },
@@ -569,6 +573,10 @@
         },
         {
           "path": "src/components/admin/buttons/toolbar.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/update-button.vue",
           "type": "registry:component"
         },
         {
@@ -1838,6 +1846,21 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "skip-navigation-button",
+      "type": "registry:component",
+      "title": "Skip Navigation Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/skip-navigation-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "sort-button",
       "type": "registry:component",
       "title": "Sort Button",
@@ -1888,6 +1911,26 @@
       ],
       "registryDependencies": ["@chelone/lib-utils", "@chelone/save-button"],
       "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "update-button",
+      "type": "registry:component",
+      "title": "Update Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/update-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/confirm",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -3632,7 +3675,8 @@
         "@chelone/app-bar",
         "@chelone/app-sidebar",
         "@chelone/notification",
-        "@chelone/sidebar"
+        "@chelone/sidebar",
+        "@chelone/skip-navigation-button"
       ],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"

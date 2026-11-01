@@ -71,6 +71,7 @@ import type {
   SimpleListLoadingProps,
   SimpleListProps,
   SingleFieldListProps,
+  SkipNavigationButtonProps,
   Subscribable,
   TextFieldProps,
   TextInputProps,
@@ -78,6 +79,7 @@ import type {
   ToggleFilterButtonProps,
   ToolbarProps,
   TopToolbarProps,
+  UpdateButtonProps,
   UsePrevNextControllerOptions,
   ValidationErrorProps,
 } from "./index";
@@ -154,6 +156,8 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<SelectAllButtonProps>().toHaveProperty("limit");
     expectTypeOf<ShowProps>().toBeObject();
     expectTypeOf<ShowLiveProps>().toEqualTypeOf<ShowProps>();
+    expectTypeOf<SkipNavigationButtonProps>().toHaveProperty("label");
+    expectTypeOf<SkipNavigationButtonProps>().toHaveProperty("class");
     expectTypeOf<SimpleListItemProps>().toBeObject();
     expectTypeOf<SimpleListLoadingProps>().toBeObject();
     expectTypeOf<SimpleListProps>().toBeObject();
@@ -164,6 +168,8 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<ToggleFilterButtonProps>().toHaveProperty("value");
     expectTypeOf<ToolbarProps>().toBeObject();
     expectTypeOf<TopToolbarProps>().toBeObject();
+    expectTypeOf<UpdateButtonProps>().toHaveProperty("data");
+    expectTypeOf<UpdateButtonProps>().toHaveProperty("mutationMode");
     expectTypeOf<ValidationErrorProps>().toBeObject();
   });
 

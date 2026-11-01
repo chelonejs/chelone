@@ -69,12 +69,16 @@ export type { ShowButtonProps } from "./admin/buttons/show-button.vue";
 export { default as ShowButton } from "./admin/buttons/show-button.vue";
 export type { SidebarToggleButtonProps } from "./admin/buttons/sidebar-toggle-button.vue";
 export { default as SidebarToggleButton } from "./admin/buttons/sidebar-toggle-button.vue";
+export type { SkipNavigationButtonProps } from "./admin/buttons/skip-navigation-button.vue";
+export { default as SkipNavigationButton } from "./admin/buttons/skip-navigation-button.vue";
 export type { SortButtonProps } from "./admin/buttons/sort-button.vue";
 export { default as SortButton } from "./admin/buttons/sort-button.vue";
 export type { ToggleFilterButtonProps } from "./admin/buttons/toggle-filter-button.vue";
 export { default as ToggleFilterButton } from "./admin/buttons/toggle-filter-button.vue";
 export type { ToolbarProps } from "./admin/buttons/toolbar.vue";
 export { default as Toolbar } from "./admin/buttons/toolbar.vue";
+export type { UpdateButtonProps } from "./admin/buttons/update-button.vue";
+export { default as UpdateButton } from "./admin/buttons/update-button.vue";
 // --- admin: common (V3-c) -------------------------------------------------
 export type { ApplicationUpdatedNotificationProps } from "./admin/common/application-updated-notification.vue";
 export { default as ApplicationUpdatedNotification } from "./admin/common/application-updated-notification.vue";
