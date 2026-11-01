@@ -30,6 +30,7 @@ export function TranslatableInputsTab({
       {...rest}
       value={locale}
       id={`translatable-header-${groupKey}${locale}`}
+      aria-controls={`translatable-content-${groupKey}${locale}`}
       className={cn(!isValid && "text-destructive", className)}
     >
       {children ?? translate(`ra.locales.${locale}`, { _: fallback })}

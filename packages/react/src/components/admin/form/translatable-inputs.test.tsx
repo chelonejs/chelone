@@ -268,6 +268,13 @@ describe("TranslatableInputs", () => {
     expect(screen.getByRole("tab", { name: "Fr" }).id).toBe(
       "translatable-header-fr",
     );
+    const controls = screen
+      .getByRole("tab", { name: "Fr" })
+      .getAttribute("aria-controls");
+    expect(controls).toBe("translatable-content-fr");
+    expect(document.getElementById(controls ?? "")).toBe(
+      panel("translatable-content-fr"),
+    );
   });
 
   it("marks a locale tab invalid when a hidden input fails validation", async () => {
