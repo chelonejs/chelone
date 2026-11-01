@@ -16,6 +16,34 @@ export {
 } from "./auth/auth-options";
 export type { AuthProvider, CanAccessParams, UserIdentity } from "./auth/types";
 export type {
+  CalendarLabels,
+  CalendarRange,
+  CalendarView,
+  CalendarWeekStart,
+} from "./controller/calendar-dates";
+export {
+  calendarDayKey,
+  calendarDays,
+  calendarLabels,
+  calendarRange,
+  parseCalendarDate,
+  shiftCalendarAnchor,
+} from "./controller/calendar-dates";
+export type {
+  CalendarAgendaGroup,
+  CalendarEvent,
+  ToCalendarEventsOptions,
+} from "./controller/calendar-events";
+export {
+  calendarEventsInHour,
+  calendarEventsOnDay,
+  calendarRangeFilter,
+  groupCalendarAgenda,
+  moveCalendarEvent,
+  omitCalendarRangeFilter,
+  toCalendarEvents,
+} from "./controller/calendar-events";
+export type {
   ClientListController,
   ClientListControllerOptions,
   ClientListLoadingState,
