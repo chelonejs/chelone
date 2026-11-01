@@ -1,0 +1,23 @@
+{
+  "name": "GuesserEmpty",
+  "props": [
+    {
+      "name": "message",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Replaces the default message. A string is translated, with itself as the fallback."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource named in the default message. Falls back to the resource context."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Replaces the default title. A string is translated, with itself as the fallback."
+    }
+  ]
+}
