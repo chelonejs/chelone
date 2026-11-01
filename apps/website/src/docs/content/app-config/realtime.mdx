@@ -275,13 +275,13 @@ Every hook above has a composable of the same name in `@chelone/vue`:
 - Arguments that can change take `MaybeRefOrGetter`: pass a value, a ref or a
   getter. This covers `topic` of `useSubscribe`, `resource` and `id` of
   `useSubscribeToRecord`, `resource` of `useSubscribeToRecordList`, `resource`
-  and `params` of `useGetListLive`, `useGetOneLive` and `useGetManyLive`,
-  `params` of `useGetLock` and `useGetLockLive`, the `enabled` option, and the
-  `resource`, `id` and `identity` options of `useLockOnMount`. A change
-  resubscribes or refetches.
-- `resource` of `useGetLock`, `useGetLocks`, `useGetLockLive` and
-  `useGetLocksLive` is a plain string, so those composables read one resource
-  for the life of the component.
+  and `params` of `useGetListLive`, `params` of `useGetOneLive`,
+  `useGetManyLive`, `useGetLock` and `useGetLockLive`, the `enabled` option,
+  and the `resource`, `id` and `identity` options of `useLockOnMount`. A
+  change resubscribes or refetches.
+- `resource` of `useGetOneLive`, `useGetManyLive`, `useGetLock`, `useGetLocks`,
+  `useGetLockLive` and `useGetLocksLive` is a plain string, so those
+  composables read one resource for the life of the component.
 - The values they return are refs: `status` and `lastError` of
   `useRealtimeStatus`, `lock`, `isLocking` and `lockError` of
   `useLockOnMount`, and `isLoading` and `error` of `useLock` and `useUnlock`.
@@ -352,7 +352,8 @@ import {
 `EditLive` holds events while the form has unsaved edits and replays one
 refetch once it is saved or reset, as the React component does. The Vue demo
 (`apps/vue-demo/src/realtime.ts`) wires it all with `ListLive` on the posts
-list and `EditLive` inside `LockOnMount` on the edit page.
+list and `LockOnMount` inside `EditLive` on the edit page, so the lock
+reads the record `EditLive` provides.
 
 ## The transport contract
 
