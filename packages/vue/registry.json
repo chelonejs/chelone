@@ -509,7 +509,15 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/refresh-icon-button.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/save-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/select-all-button.vue",
           "type": "registry:component"
         },
         {
@@ -525,11 +533,19 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/toggle-filter-button.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/toolbar.vue",
           "type": "registry:component"
         },
         {
           "path": "src/components/admin/common/application-updated-notification.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/common/check-for-application-update.vue",
           "type": "registry:component"
         },
         {
@@ -1604,12 +1620,42 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "refresh-icon-button",
+      "type": "registry:component",
+      "title": "Refresh Icon Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/refresh-icon-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/button-icons"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "save-button",
       "type": "registry:component",
       "title": "Save Button",
       "files": [
         {
           "path": "src/components/admin/buttons/save-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "select-all-button",
+      "type": "registry:component",
+      "title": "Select All Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/select-all-button.vue",
           "type": "registry:component"
         }
       ],
@@ -1678,6 +1724,25 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "toggle-filter-button",
+      "type": "registry:component",
+      "title": "Toggle Filter Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/toggle-filter-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/button-variants"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "toolbar",
       "type": "registry:component",
       "title": "Toolbar",
@@ -1707,6 +1772,21 @@
         "@chelone/icons",
         "@chelone/lib-utils"
       ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "check-for-application-update",
+      "type": "registry:component",
+      "title": "Check For Application Update",
+      "files": [
+        {
+          "path": "src/components/admin/common/check-for-application-update.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/application-updated-notification"],
       "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"

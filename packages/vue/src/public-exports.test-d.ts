@@ -9,6 +9,7 @@ import type {
   ApplicationUpdatedNotificationProps,
   BooleanInputProps,
   BulkActionsToolbarProps,
+  CheckForApplicationUpdateProps,
   ColorInputProps,
   CountProps,
   CreateProps,
@@ -50,11 +51,13 @@ import type {
   PlaceholderProps,
   ReferenceFieldProps,
   ReferenceInputProps,
+  RefreshIconButtonProps,
   ResettableTextInputProps,
   ResourceProps,
   SaveButtonProps,
   SavedQueriesListProps,
   SearchInputProps,
+  SelectAllButtonProps,
   ShowLiveProps,
   ShowProps,
   SimpleListItemProps,
@@ -65,6 +68,7 @@ import type {
   TextFieldProps,
   TextInputProps,
   TimeInputProps,
+  ToggleFilterButtonProps,
   ToolbarProps,
   TopToolbarProps,
   ValidationErrorProps,
@@ -79,6 +83,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<ApplicationUpdatedNotificationProps>().toBeObject();
     expectTypeOf<BooleanInputProps>().toHaveProperty("source");
     expectTypeOf<BulkActionsToolbarProps>().toBeObject();
+    expectTypeOf<CheckForApplicationUpdateProps>().toHaveProperty("url");
     expectTypeOf<ColorInputProps>().toHaveProperty("source");
     expectTypeOf<CreateProps>().toBeObject();
     expectTypeOf<CurrencyInputProps>().toHaveProperty("source");
@@ -117,6 +122,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<PasswordInputProps>().toHaveProperty("source");
     expectTypeOf<PhoneInputProps>().toHaveProperty("source");
     expectTypeOf<PlaceholderProps>().toBeObject();
+    expectTypeOf<RefreshIconButtonProps>().toBeObject();
     expectTypeOf<ReferenceFieldProps>().toHaveProperty("source");
     expectTypeOf<ReferenceInputProps>().toHaveProperty("source");
     expectTypeOf<ResettableTextInputProps>().toHaveProperty("source");
@@ -124,6 +130,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<SaveButtonProps>().toBeObject();
     expectTypeOf<SavedQueriesListProps>().toBeObject();
     expectTypeOf<SearchInputProps>().toBeObject();
+    expectTypeOf<SelectAllButtonProps>().toHaveProperty("limit");
     expectTypeOf<ShowProps>().toBeObject();
     expectTypeOf<ShowLiveProps>().toEqualTypeOf<ShowProps>();
     expectTypeOf<SimpleListItemProps>().toBeObject();
@@ -133,6 +140,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<TextFieldProps>().toHaveProperty("source");
     expectTypeOf<TextInputProps>().toHaveProperty("source");
     expectTypeOf<TimeInputProps>().toHaveProperty("source");
+    expectTypeOf<ToggleFilterButtonProps>().toHaveProperty("value");
     expectTypeOf<ToolbarProps>().toBeObject();
     expectTypeOf<TopToolbarProps>().toBeObject();
     expectTypeOf<ValidationErrorProps>().toBeObject();
