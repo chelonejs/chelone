@@ -1798,7 +1798,15 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/realtime/edit-live.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/realtime/list-live.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/realtime/show-live.tsx",
           "type": "registry:component"
         },
         {
@@ -4776,6 +4784,22 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "edit-live",
+      "type": "registry:component",
+      "title": "Edit Live",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/edit-live.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/edit"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "devDependencies": ["@tanstack/react-store"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "list-live",
       "type": "registry:component",
       "title": "List Live",
@@ -4786,6 +4810,21 @@
         }
       ],
       "registryDependencies": ["@chelone/list"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "show-live",
+      "type": "registry:component",
+      "title": "Show Live",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/show-live.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/show"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"

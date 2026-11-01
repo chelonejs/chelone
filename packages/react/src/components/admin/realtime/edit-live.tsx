@@ -1,0 +1,98 @@
+import {
+  type CheloneFormApi,
+  type Identifier,
+  type LiveSubscription,
+  subscribeLiveRecord,
+} from "@chelone/core";
+import { useSelector } from "@tanstack/react-store";
+import { type RefObject, useEffect, useRef } from "react";
+import { useCheloneContext } from "../../../context";
+import { useCheloneFormContext } from "../../../form-context";
+import { useResourceContext } from "../../../resource";
+import { useParams } from "../../../router";
+import { Edit, type EditProps } from "../views/edit";
+
+export type EditLiveProps = EditProps;
+
+/**
+ * An `<Edit>` that refetches the record when it changes or the connection
+ * returns. A change that arrives while the form has unsaved edits is held, and
+ * one refetch runs when the form is saved or reset. Needs a realtime data
+ * provider.
+ *
+ * @example
+ * import { EditLive, TextInput } from "@chelone/react";
+ *
+ * export const PostEdit = () => (
+ *   <EditLive>
+ *     <TextInput source="title" />
+ *   </EditLive>
+ * );
+ */
+function EditLive(props: EditLiveProps) {
+  const contextResource = useResourceContext();
+  const resource = props.resource ?? contextResource;
+  const params = useParams();
+  const id = props.id ?? (params.id as Identifier | undefined);
+  const { dataProvider, queryClient } = useCheloneContext();
+
+  const subscriptionRef = useRef<LiveSubscription | null>(null);
+  // Set by `<LiveFormSync>`, which mounts once the record has loaded.
+  const formRef = useRef<CheloneFormApi<Record<string, unknown>> | null>(null);
+
+  // Subscribed here, not under `<Edit>`, so an event between mount and the
+  // record arriving is heard. It is held until the record has loaded: the
+  // query ignores an invalidation while its first fetch is in flight.
+  useEffect(() => {
+    // `<Edit>` throws the missing-resource error during this same render.
+    if (!resource || id === undefined) return;
+    const subscription = subscribeLiveRecord(
+      { dataProvider, queryClient },
+      resource,
+      id,
+      {
+        paused: () => formRef.current?.store.state.isDefaultValue !== true,
+      },
+    );
+    subscriptionRef.current = subscription;
+    return () => {
+      subscription.stop();
+      subscriptionRef.current = null;
+    };
+  }, [dataProvider, queryClient, resource, id]);
+
+  return (
+    <Edit {...props}>
+      {props.children}
+      <LiveFormSync formRef={formRef} subscriptionRef={subscriptionRef} />
+    </Edit>
+  );
+}
+
+/** Lets the subscription read the form, and replays held events once it is mounted and clean. @internal */
+function LiveFormSync({
+  formRef,
+  subscriptionRef,
+}: {
+  formRef: RefObject<CheloneFormApi<Record<string, unknown>> | null>;
+  subscriptionRef: RefObject<LiveSubscription | null>;
+}) {
+  const { form } = useCheloneFormContext();
+  // The same dirty signal `useWarnWhenUnsavedChanges` uses.
+  const isDefaultValue = useSelector(form.store, (s) => s.isDefaultValue);
+
+  useEffect(() => {
+    formRef.current = form;
+    return () => {
+      formRef.current = null;
+    };
+  }, [form, formRef]);
+
+  useEffect(() => {
+    if (isDefaultValue) subscriptionRef.current?.resume();
+  }, [isDefaultValue, subscriptionRef]);
+
+  return null;
+}
+
+export { EditLive };
