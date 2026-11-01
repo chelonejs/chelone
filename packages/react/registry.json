@@ -5472,6 +5472,102 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "monaco",
+      "type": "registry:block",
+      "title": "Chelone Monaco",
+      "categories": ["chelone", "fields"],
+      "docs": "Monaco runs its editor and JSON workers on the main thread unless the app sets MonacoEnvironment.getWorker. With Vite, import the workers with ?worker (editor.worker and json.worker from monaco-editor/esm/vs/...) and assign getWorker on self before the first render. Without it Monaco logs a console warning and still works.",
+      "description": "The opt-in Monaco add-on: MonacoJsonField shows a JSON value in a read-only Monaco editor. Monaco loads in its own chunk, so nothing reaches the base bundle until the field renders. Installs monaco-editor and @monaco-editor/react.",
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils",
+        "@chelone/skeleton",
+        "@chelone/use-theme"
+      ],
+      "dependencies": [
+        "@chelone/react",
+        "@monaco-editor/react",
+        "monaco-editor"
+      ],
+      "files": [
+        {
+          "path": "src/components/monaco/internal/monaco-shared.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/monaco/monaco-json-field-lazy.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/monaco/monaco-json-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "monaco-shared",
+      "type": "registry:component",
+      "title": "Monaco Shared",
+      "files": [
+        {
+          "path": "src/components/monaco/internal/monaco-shared.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/skeleton",
+        "@chelone/use-theme"
+      ],
+      "dependencies": ["monaco-editor"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "monaco-json-field-lazy",
+      "type": "registry:component",
+      "title": "Monaco Json Field Lazy",
+      "files": [
+        {
+          "path": "src/components/monaco/monaco-json-field-lazy.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/monaco-json-field",
+        "@chelone/monaco-shared"
+      ],
+      "dependencies": [
+        "@chelone/react",
+        "@monaco-editor/react",
+        "monaco-editor"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "monaco-json-field",
+      "type": "registry:component",
+      "title": "Monaco Json Field",
+      "files": [
+        {
+          "path": "src/components/monaco/monaco-json-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/monaco-shared"
+      ],
+      "dependencies": ["monaco-editor"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "style-chelone",
       "type": "registry:base",
       "title": "Chelone",
