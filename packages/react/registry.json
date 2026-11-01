@@ -1423,6 +1423,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/fields/json-field.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/fields/number-field.tsx",
           "type": "registry:component"
         },
@@ -3109,6 +3113,25 @@
         "@chelone/lib-utils"
       ],
       "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "json-field",
+      "type": "registry:component",
+      "title": "Json Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/json-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
