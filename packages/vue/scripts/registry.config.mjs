@@ -123,7 +123,7 @@ export const engine = {
   sourceExtensions: [".ts", ".vue"],
   implicitDependencies: ["vue"],
   cli: "shadcn-vue",
-  // The four `icons.ts` files share a basename, and `spinner` collides with
+  // The five `icons.ts` files share a basename, and `spinner` collides with
   // admin/feedback/spinner (the app-facing `@chelone/spinner` wrapper), so the
   // ui primitive ships as `ui-spinner`.
   itemNames: {
@@ -131,6 +131,7 @@ export const engine = {
     "components/admin/auth/icons": "auth-icons",
     "components/admin/layout/icons": "layout-icons",
     "components/admin/feedback/icons": "feedback-icons",
+    "components/admin/guessers/icons": "guesser-icons",
     "components/ui/spinner": "ui-spinner",
   },
 };
