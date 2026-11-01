@@ -155,28 +155,26 @@ describe("ListGuesser", () => {
     expect(getList).not.toHaveBeenCalled();
   });
 
-  describe("logging", () => {
-    const resources = () =>
-      defineResources({
-        posts: { schema: z.object({ id: z.number(), title: z.string() }) },
-      });
-
-    it("logs the generated code once per resource when enableLog is on", async () => {
-      const log = vi.spyOn(console, "log").mockImplementation(() => {});
-      const { rerender } = mount(resources(), { enableLog: true });
-      await screen.findByText("Alpha");
-      rerender({ enableLog: true, perPage: 5 });
-      await screen.findByText("Alpha");
-      expect(log).toHaveBeenCalledTimes(1);
-      expect(log.mock.calls[0]?.[0]).toContain('Guessed List for "posts"');
+  const postsResources = () =>
+    defineResources({
+      posts: { schema: z.object({ id: z.number(), title: z.string() }) },
     });
 
-    it("logs nothing when enableLog is false", async () => {
-      const log = vi.spyOn(console, "log").mockImplementation(() => {});
-      mount(resources(), { enableLog: false });
-      await screen.findByText("Alpha");
-      expect(log).not.toHaveBeenCalled();
-    });
+  it("logs the generated code once per resource when enableLog is on", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const { rerender } = mount(postsResources(), { enableLog: true });
+    await screen.findByText("Alpha");
+    rerender({ enableLog: true, perPage: 5 });
+    await screen.findByText("Alpha");
+    expect(log).toHaveBeenCalledTimes(1);
+    expect(log.mock.calls[0]?.[0]).toContain('Guessed List for "posts"');
+  });
+
+  it("logs nothing when enableLog is false", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    mount(postsResources(), { enableLog: false });
+    await screen.findByText("Alpha");
+    expect(log).not.toHaveBeenCalled();
   });
 
   it("passes perPage and title through to List", async () => {
