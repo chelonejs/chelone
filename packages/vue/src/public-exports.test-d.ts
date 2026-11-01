@@ -9,6 +9,7 @@ import type {
   ApplicationUpdatedNotificationProps,
   BooleanInputProps,
   BulkActionsToolbarProps,
+  CheckForApplicationUpdateProps,
   ColorInputProps,
   CountProps,
   CreateProps,
@@ -79,6 +80,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<ApplicationUpdatedNotificationProps>().toBeObject();
     expectTypeOf<BooleanInputProps>().toHaveProperty("source");
     expectTypeOf<BulkActionsToolbarProps>().toBeObject();
+    expectTypeOf<CheckForApplicationUpdateProps>().toHaveProperty("url");
     expectTypeOf<ColorInputProps>().toHaveProperty("source");
     expectTypeOf<CreateProps>().toBeObject();
     expectTypeOf<CurrencyInputProps>().toHaveProperty("source");

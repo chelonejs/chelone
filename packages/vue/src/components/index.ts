@@ -74,6 +74,8 @@ export { default as Toolbar } from "./admin/buttons/toolbar.vue";
 // --- admin: common (V3-c) -------------------------------------------------
 export type { ApplicationUpdatedNotificationProps } from "./admin/common/application-updated-notification.vue";
 export { default as ApplicationUpdatedNotification } from "./admin/common/application-updated-notification.vue";
+export type { CheckForApplicationUpdateProps } from "./admin/common/check-for-application-update.vue";
+export { default as CheckForApplicationUpdate } from "./admin/common/check-for-application-update.vue";
 export type { FieldLabelTextProps } from "./admin/common/field-label-text.vue";
 export { default as FieldLabelText } from "./admin/common/field-label-text.vue";
 export type { IconButtonWithTooltipProps } from "./admin/common/icon-button-with-tooltip.vue";
