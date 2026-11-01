@@ -115,9 +115,7 @@ export function printGuessedView(
       if (field.primary || field.input === undefined) continue;
       // ReferenceArrayInput declares no `label` prop.
       const label = field.input !== "ReferenceArrayInput";
-      lines.push(
-        `    <${use(field.input)} ${attrs(field, false, label)} />`,
-      );
+      lines.push(`    <${use(field.input)} ${attrs(field, false, label)} />`);
     }
     lines.push(`    <${use("Toolbar")} />`, "  </Edit>");
   } else {
