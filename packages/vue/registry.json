@@ -1223,6 +1223,18 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/tree-list-context.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/tree-list-node.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/tree-list.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/realtime/edit-live.vue",
           "type": "registry:component"
         },
@@ -4643,6 +4655,60 @@
         "@chelone/badge",
         "@chelone/lib-utils",
         "@chelone/single-field-list-record"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "tree-list-context",
+      "type": "registry:component",
+      "title": "Tree List Context",
+      "files": [
+        {
+          "path": "src/components/admin/list/tree-list-context.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "tree-list-node",
+      "type": "registry:component",
+      "title": "Tree List Node",
+      "files": [
+        {
+          "path": "src/components/admin/list/tree-list-node.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button-icons",
+        "@chelone/list-icons",
+        "@chelone/tree-list-context"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "tree-list",
+      "type": "registry:component",
+      "title": "Tree List",
+      "files": [
+        {
+          "path": "src/components/admin/list/tree-list.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/list-no-results",
+        "@chelone/simple-list-loading",
+        "@chelone/tree-list-context",
+        "@chelone/tree-list-node"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
