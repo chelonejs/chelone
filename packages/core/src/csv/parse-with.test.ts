@@ -24,18 +24,16 @@ describe("parseCsvWith", () => {
     expect(errors).toEqual([]);
   });
 
-  it.each([
-    ["semicolon", ";"],
-    ["tab", "\t"],
-    ["pipe", "|"],
-  ])("detects a %s delimiter", (_name, delimiter) => {
-    const text = `a${delimiter}b\n1${delimiter}2`;
+  it("detects a semicolon, tab or pipe delimiter", () => {
+    for (const delimiter of [";", "\t", "|"]) {
+      const text = `a${delimiter}b\n1${delimiter}2`;
 
-    expect(parseCsvWith(Papa, text)).toEqual({
-      headers: ["a", "b"],
-      rows: [{ a: "1", b: "2" }],
-      errors: [],
-    });
+      expect(parseCsvWith(Papa, text)).toEqual({
+        headers: ["a", "b"],
+        rows: [{ a: "1", b: "2" }],
+        errors: [],
+      });
+    }
   });
 
   it("drops a byte order mark", () => {
