@@ -55,9 +55,11 @@ const seed = () => ({
 
 async function mountButton({
   button,
+  extraMessages = {},
   dataProvider = fakeDataProvider(seed()),
   authProvider,
 }: {
+  extraMessages?: Record<string, string>;
   button: () => VNodeChild;
   dataProvider?: DataProvider;
   authProvider?: AuthProvider;
@@ -92,7 +94,10 @@ async function mountButton({
           authProvider,
           queryClient,
           notifications,
-          i18n: createI18n({ locale: "en", messages: { en: messages } }),
+          i18n: createI18n({
+            locale: "en",
+            messages: { en: { ...messages, ...extraMessages } },
+          }),
         },
         { default: () => h(Resource, { name: "posts", edit: PostEdit }) },
       ),
@@ -437,5 +442,33 @@ describe("<UpdateButton>", () => {
       expect(wrapper.find(dialogSelector).exists()).toBe(false),
     );
     expect(onParentClick).not.toHaveBeenCalled();
+  });
+
+  it("uses a resource-specific label key before the default", async () => {
+    const { wrapper } = await mountButton({
+      button: () => updateButton(),
+      extraMessages: { "resources.posts.action.update": "Reset views" },
+    });
+
+    expect((await findUpdate(wrapper)).text()).toBe("Reset views");
+  });
+
+  it("fills the singular resource name into the confirm copy", async () => {
+    const { wrapper } = await mountButton({
+      button: () => updateButton({ mutationMode: "pessimistic" }),
+      extraMessages: {
+        "ra.message.bulk_update_title": "Update {name}?",
+        "ra.message.bulk_update_content": "Patch this {name}.",
+      },
+    });
+
+    await (await findUpdate(wrapper)).trigger("click");
+
+    expect(wrapper.get('[data-slot="confirm-title"]').text()).toBe(
+      "Update Post?",
+    );
+    expect(wrapper.get('[data-slot="confirm-content"]').text()).toBe(
+      "Patch this Post.",
+    );
   });
 });

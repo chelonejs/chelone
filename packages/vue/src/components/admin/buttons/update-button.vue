@@ -61,6 +61,7 @@ import { computed, inject, ref } from "vue";
 import { useCheloneNotifications } from "../../../context";
 import { useUpdate } from "../../../data/mutations";
 import { useTranslate } from "../../../i18n/use-translate";
+import { humanize, pluralize } from "../../../label/inflection";
 import { RecordContextKey } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 import Button from "../../ui/button.vue";
@@ -106,9 +107,28 @@ const show = computed(
     !isAccessPending.value &&
     canAccess.value,
 );
-const label = computed(
-  () => props.label ?? translate("ra.action.update", { _: "Update" }),
-);
+// An explicit `label` wins; otherwise `resources.<name>.action.update` falls back
+// to `ra.action.update`, then to "Update".
+const label = computed(() => {
+  if (props.label) return props.label;
+  const base = translate("ra.action.update", { _: "Update" });
+  return resource
+    ? translate(`resources.${resource}.action.update`, { _: base })
+    : base;
+});
+// Singular resource name for `%{name}` in the confirm copy, as the React twin does.
+const confirmOptions = computed(() => ({
+  smart_count: 1,
+  name: translate(`resources.${resource}.forcedCaseName`, {
+    smart_count: 1,
+    _: humanize(
+      translate(`resources.${resource}.name`, {
+        smart_count: 1,
+        _: resource ? pluralize(resource, 1) : "",
+      }),
+    ),
+  }),
+}));
 
 const open = ref(false);
 
@@ -170,7 +190,7 @@ async function onConfirm(): Promise<void> {
     :title="confirmTitle"
     :content="confirmContent"
     :confirm-color="confirmColor"
-    :translate-options="{ smart_count: 1 }"
+    :translate-options="confirmOptions"
     @confirm="onConfirm"
     @close="open = false"
   />
