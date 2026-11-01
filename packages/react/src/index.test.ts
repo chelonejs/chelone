@@ -250,22 +250,6 @@ describe("@chelone/react barrel — P6 form leftovers + SSR seam (W2)", () => {
   });
 });
 
-describe("@chelone/react barrel — realtime hooks", () => {
-  it("exports the realtime and live hooks", () => {
-    expect(barrel.useSubscribe).toBeTypeOf("function");
-    expect(barrel.useSubscribeCallback).toBeTypeOf("function");
-    expect(barrel.useSubscribeToRecord).toBeTypeOf("function");
-    expect(barrel.useSubscribeToRecordList).toBeTypeOf("function");
-    expect(barrel.usePublish).toBeTypeOf("function");
-    expect(barrel.useOnReconnect).toBeTypeOf("function");
-    expect(barrel.useRealtimeStatus).toBeTypeOf("function");
-    expect(barrel.useGetListLive).toBeTypeOf("function");
-    expect(barrel.useGetOneLive).toBeTypeOf("function");
-    expect(barrel.useGetManyLive).toBeTypeOf("function");
-    expectTypeOf<UseSubscribeOptions>().toHaveProperty("enabled");
-  });
-});
-
 describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () => {
   it("exports the small ra/shadcn compat hooks", () => {
     expect(barrel.useDataProvider).toBeTypeOf("function");
@@ -289,6 +273,20 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
     expect(barrel.useFormContext).toBe(barrel.useCheloneFormContext);
     expect(barrel.useController).toBe(barrel.useInput);
     expect(barrel.useFieldArray).toBe(barrel.useArrayInput);
+  });
+
+  it("exports the realtime and live hooks", () => {
+    expect(barrel.useSubscribe).toBeTypeOf("function");
+    expect(barrel.useSubscribeCallback).toBeTypeOf("function");
+    expect(barrel.useSubscribeToRecord).toBeTypeOf("function");
+    expect(barrel.useSubscribeToRecordList).toBeTypeOf("function");
+    expect(barrel.usePublish).toBeTypeOf("function");
+    expect(barrel.useOnReconnect).toBeTypeOf("function");
+    expect(barrel.useRealtimeStatus).toBeTypeOf("function");
+    expect(barrel.useGetListLive).toBeTypeOf("function");
+    expect(barrel.useGetOneLive).toBeTypeOf("function");
+    expect(barrel.useGetManyLive).toBeTypeOf("function");
+    expectTypeOf<UseSubscribeOptions>().toHaveProperty("enabled");
   });
 });
 
