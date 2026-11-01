@@ -350,27 +350,29 @@ describe("TranslatableInputs", () => {
       return null;
     }
     render(
-      <CheloneProvider
-        dataProvider={fakeDataProvider({})}
-        queryClient={new QueryClient()}
-        i18n={makeI18n()}
-      >
-        <TabbedForm
-          save={async () => undefined}
-          syncWithLocation={false}
-          defaultValues={{ name: { en: "Hello", fr: "" } }}
+      <RouterAdapterProvider adapter={reactRouterAdapter}>
+        <CheloneProvider
+          dataProvider={fakeDataProvider({})}
+          queryClient={new QueryClient()}
+          i18n={makeI18n()}
         >
-          <Capture />
-          <TabbedForm.Tab name="content" label="Content">
-            <TranslatableInputs locales={["en", "fr"]}>
-              <TextInput source="name" label="Name" validate={required()} />
-            </TranslatableInputs>
-          </TabbedForm.Tab>
-          <TabbedForm.Tab name="other" label="Other">
-            <div>Other</div>
-          </TabbedForm.Tab>
-        </TabbedForm>
-      </CheloneProvider>,
+          <TabbedForm
+            save={async () => undefined}
+            syncWithLocation={false}
+            defaultValues={{ name: { en: "Hello", fr: "" } }}
+          >
+            <Capture />
+            <TabbedForm.Tab name="content" label="Content">
+              <TranslatableInputs locales={["en", "fr"]}>
+                <TextInput source="name" label="Name" validate={required()} />
+              </TranslatableInputs>
+            </TabbedForm.Tab>
+            <TabbedForm.Tab name="other" label="Other">
+              <div>Other</div>
+            </TabbedForm.Tab>
+          </TabbedForm>
+        </CheloneProvider>
+      </RouterAdapterProvider>,
     );
     expect(document.querySelector("[data-chelone-tab-error]")).toBeNull();
 
