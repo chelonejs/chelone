@@ -271,7 +271,13 @@ describe("TranslatableFields", () => {
 
   it("TranslatableFields inside Show shows each locale of the loaded record", async () => {
     const registry = createResourceRegistry();
-    registry.register({ name: "posts", hasList: true, hasShow: true });
+    registry.register({
+      name: "posts",
+      hasList: true,
+      hasCreate: true,
+      hasEdit: true,
+      hasShow: true,
+    });
     render(
       <CheloneProvider
         dataProvider={fakeDataProvider({ posts: [post] })}
