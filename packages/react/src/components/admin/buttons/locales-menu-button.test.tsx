@@ -159,4 +159,32 @@ describe("<LocalesMenuButton>", () => {
       screen.getByRole("button", { name: "Switch language" }),
     ).toBeTruthy();
   });
+
+  it("renders nothing without an i18n instance even with the languages prop", () => {
+    const { container } = render(
+      <Wrap>
+        <LocalesMenuButton
+          languages={[
+            { locale: "en", name: "English" },
+            { locale: "fr", name: "Français" },
+          ]}
+        />
+      </Wrap>,
+    );
+    expect(container.innerHTML).toBe("");
+  });
+
+  it("leaves out a language the i18n has no catalog for", () => {
+    const { container } = render(
+      <Wrap i18n={makeI18n(["en", "fr"])}>
+        <LocalesMenuButton
+          languages={[
+            { locale: "en", name: "English" },
+            { locale: "en-GB", name: "English (UK)" },
+          ]}
+        />
+      </Wrap>,
+    );
+    expect(container.innerHTML).toBe("");
+  });
 });

@@ -18,13 +18,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useLocaleState, useLocales } from "../../../compat-hooks";
+import { useCheloneContext } from "../../../context";
 import { useTranslate } from "../../../i18n-hooks";
 
 export interface LocalesMenuButtonProps {
   ref?: Ref<HTMLButtonElement>;
   /** Shown in the trigger instead of the upper-cased current locale code. */
   icon?: ReactNode;
-  /** Replaces the languages listed by `useLocales()`. */
+  /**
+   * Replaces the languages listed by `useLocales()`. Codes the i18n instance has
+   * no catalog for are left out, since choosing one would throw.
+   */
   languages?: { locale: string; name: string }[];
 }
 
@@ -50,14 +54,19 @@ function LocalesMenuButton({
   icon,
   languages: languagesProp,
 }: LocalesMenuButtonProps = {}) {
+  const i18n = useCheloneContext().i18n;
   const defaultLanguages = useLocales();
-  const languages = languagesProp ?? defaultLanguages;
+  if (!i18n) return null;
+  const registered = new Set(i18n.getLocales());
+  const languages = (languagesProp ?? defaultLanguages).filter(({ locale }) =>
+    registered.has(locale),
+  );
   if (languages.length <= 1) return null;
   return <LocalesMenu ref={ref} icon={icon} languages={languages} />;
 }
 
 // Split out so `useLocaleState`, which throws without i18n, only runs once there
-// are languages to switch between.
+// is an i18n instance and languages to switch between.
 function LocalesMenu({
   ref,
   icon,

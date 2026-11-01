@@ -11,7 +11,7 @@
       "name": "languages",
       "type": "{ locale: string; name: string }[]",
       "optional": true,
-      "comment": "Replaces the languages listed by `useLocales()`."
+      "comment": "Replaces the languages listed by `useLocales()`. Codes the i18n instance has\nno catalog for are left out, since choosing one would throw."
     },
     {
       "name": "ref",
