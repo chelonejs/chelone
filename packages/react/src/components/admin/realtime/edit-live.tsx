@@ -51,7 +51,10 @@ function EditLive(props: EditLiveProps) {
       resource,
       id,
       {
-        paused: () => formRef.current?.store.state.isDefaultValue !== true,
+        paused: () => {
+          const state = formRef.current?.store.state;
+          return !state || !isClean(state);
+        },
       },
     );
     subscriptionRef.current = subscription;
@@ -69,6 +72,16 @@ function EditLive(props: EditLiveProps) {
   );
 }
 
+/**
+ * Dirty is `!isDefaultValue`, the signal `useWarnWhenUnsavedChanges` uses. A
+ * touched form also counts: a refetch keeps a touched form's values, so a
+ * change applied while it is touched (even typed back to the record's value)
+ * would be dropped and never replayed.
+ */
+function isClean(state: { isDefaultValue: boolean; isTouched: boolean }) {
+  return state.isDefaultValue && !state.isTouched;
+}
+
 /** Lets the subscription read the form, and replays held events once it is mounted and clean. @internal */
 function LiveFormSync({
   formRef,
@@ -78,8 +91,7 @@ function LiveFormSync({
   subscriptionRef: RefObject<LiveSubscription | null>;
 }) {
   const { form } = useCheloneFormContext();
-  // The same dirty signal `useWarnWhenUnsavedChanges` uses.
-  const isDefaultValue = useSelector(form.store, (s) => s.isDefaultValue);
+  const clean = useSelector(form.store, isClean);
 
   useEffect(() => {
     formRef.current = form;
@@ -89,8 +101,8 @@ function LiveFormSync({
   }, [form, formRef]);
 
   useEffect(() => {
-    if (isDefaultValue) subscriptionRef.current?.resume();
-  }, [isDefaultValue, subscriptionRef]);
+    if (clean) subscriptionRef.current?.resume();
+  }, [clean, subscriptionRef]);
 
   return null;
 }

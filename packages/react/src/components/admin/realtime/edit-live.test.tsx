@@ -205,6 +205,25 @@ describe("<EditLive>", () => {
     await waitFor(() => expect(titleInput().value).toBe("Saved"));
   });
 
+  it("holds a change while the form is touched, even if the typed value matches the record", async () => {
+    const { Providers, changeTitle, getOne } = setup();
+    render(
+      <Providers>
+        <EditLive>{Fields}</EditLive>
+      </Providers>,
+    );
+    await waitFor(() => expect(titleInput().value).toBe("Original"));
+    fireEvent.change(titleInput(), { target: { value: "Typed" } });
+    fireEvent.change(titleInput(), { target: { value: "Original" } });
+
+    await changeTitle("Changed");
+    await settle();
+    expect(getOne).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "reset" }));
+    await waitFor(() => expect(titleInput().value).toBe("Changed"));
+  });
+
   it("ignores events of other records", async () => {
     const { Providers, changeTitle, getOne } = setup();
     render(
