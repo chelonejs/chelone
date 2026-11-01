@@ -161,6 +161,20 @@ describe("@chelone/core barrel", () => {
     expect(shared).toEqual([]);
   });
 
+  it("exports the map style and layer helpers and no default tile URL", () => {
+    expect(barrel.expandTileUrl).toBeTypeOf("function");
+    expect(barrel.rasterTileStyle).toBeTypeOf("function");
+    expect(barrel.latLngToLngLat).toBeTypeOf("function");
+    expect(barrel.lngLatToLatLng).toBeTypeOf("function");
+    expect(barrel.shapeLayerSpecs).toBeTypeOf("function");
+    expect(barrel.asFeatureCollection).toBeTypeOf("function");
+    expect(barrel.DEFAULT_SHAPE_STYLE.color).toBe("#3388ff");
+    const urls = Object.values(barrel).filter(
+      (value) => typeof value === "string" && /^https?:/.test(value),
+    );
+    expect(urls).toEqual([]);
+  });
+
   it("gives mapMessages the placeholders the map components pass", () => {
     const text = (key: keyof typeof barrel.mapMessages) =>
       String(barrel.mapMessages[key]);
