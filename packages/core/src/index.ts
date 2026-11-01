@@ -395,6 +395,14 @@ export {
   subscribeUnreadCount,
   unreadKey,
 } from "./realtime/unread-count";
+export type {
+  FieldComponentName,
+  FieldDescriptor,
+  FieldKind,
+  InputComponentName,
+  ResourceDescriptor,
+} from "./resource/describe-resource";
+export { describeResource } from "./resource/describe-resource";
 export type { Identifier } from "./resource/identifier";
 export type { LooseRecord, ResourceRecord } from "./resource/record";
 export type {

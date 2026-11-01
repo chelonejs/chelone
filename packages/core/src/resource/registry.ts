@@ -1,9 +1,14 @@
 import type { z } from "zod";
 import type { LooseRecord } from "./record";
 
-/** Per-resource configuration. In P1 this is just an optional Zod schema. */
+/** Per-resource configuration: an optional Zod schema and the references its fields hold. */
 export interface ResourceConfig<TSchema extends z.ZodTypeAny = z.ZodTypeAny> {
   schema?: TSchema;
+  /**
+   * Field name to the resource it points at. A reference is declared here and
+   * never inferred from a name suffix.
+   */
+  references?: { [source: string]: string };
 }
 
 /** A map of resource-name → config. The registry's shape. */
