@@ -6,6 +6,7 @@ import { describe, expectTypeOf, it } from "vitest";
 import type { Ref } from "vue";
 import type {
   AdminProps,
+  ApplicationUpdatedNotificationProps,
   BooleanInputProps,
   BulkActionsToolbarProps,
   ColorInputProps,
@@ -32,13 +33,16 @@ import type {
   InfiniteListProps,
   InfinitePaginationProps,
   LinkProps,
+  ListActionsProps,
   ListNoResultsProps,
   ListPaginationProps,
   ListProps,
+  ListToolbarProps,
   LoadingIndicatorProps,
   LoadingPageProps,
   NullableBooleanInputProps,
   NumberInputProps,
+  OfflineProps,
   PasswordInputProps,
   PhoneInputProps,
   PlaceholderProps,
@@ -69,6 +73,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<AdminProps>().toHaveProperty("dataProvider");
     expectTypeOf<AdminProps>().toHaveProperty("customRoutes");
     expectTypeOf<CustomRoute>().toHaveProperty("path");
+    expectTypeOf<ApplicationUpdatedNotificationProps>().toBeObject();
     expectTypeOf<BooleanInputProps>().toHaveProperty("source");
     expectTypeOf<BulkActionsToolbarProps>().toBeObject();
     expectTypeOf<ColorInputProps>().toHaveProperty("source");
@@ -94,13 +99,16 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<FilterListSectionProps>().toHaveProperty("label");
     expectTypeOf<InfinitePaginationProps>().toBeObject();
     expectTypeOf<LinkProps>().toHaveProperty("to");
+    expectTypeOf<ListActionsProps>().toBeObject();
     expectTypeOf<ListProps>().toBeObject();
     expectTypeOf<ListNoResultsProps>().toBeObject();
     expectTypeOf<ListPaginationProps>().toBeObject();
+    expectTypeOf<ListToolbarProps>().toBeObject();
     expectTypeOf<LoadingIndicatorProps>().toBeObject();
     expectTypeOf<LoadingPageProps>().toBeObject();
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");
     expectTypeOf<NumberInputProps>().toHaveProperty("source");
+    expectTypeOf<OfflineProps>().toBeObject();
     expectTypeOf<PasswordInputProps>().toHaveProperty("source");
     expectTypeOf<PhoneInputProps>().toHaveProperty("source");
     expectTypeOf<PlaceholderProps>().toBeObject();

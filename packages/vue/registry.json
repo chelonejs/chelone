@@ -529,11 +529,19 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/common/application-updated-notification.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/common/field-label-text.vue",
           "type": "registry:component"
         },
         {
           "path": "src/components/admin/common/icon-button-with-tooltip.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/common/icons.ts",
           "type": "registry:component"
         },
         {
@@ -578,6 +586,10 @@
         },
         {
           "path": "src/components/admin/feedback/notification.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/offline.vue",
           "type": "registry:component"
         },
         {
@@ -1029,6 +1041,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/list-actions.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/list-icons.ts",
           "type": "registry:component"
         },
@@ -1038,6 +1054,10 @@
         },
         {
           "path": "src/components/admin/list/list-pagination.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/list-toolbar.vue",
           "type": "registry:component"
         },
         {
@@ -1660,6 +1680,26 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "application-updated-notification",
+      "type": "registry:component",
+      "title": "Application Updated Notification",
+      "files": [
+        {
+          "path": "src/components/admin/common/application-updated-notification.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/icons",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "field-label-text",
       "type": "registry:component",
       "title": "Field Label Text",
@@ -1685,6 +1725,19 @@
       ],
       "registryDependencies": ["@chelone/button"],
       "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "icons",
+      "type": "registry:component",
+      "title": "Icons",
+      "files": [
+        {
+          "path": "src/components/admin/common/icons.ts",
+          "type": "registry:component"
+        }
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1853,6 +1906,21 @@
         }
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "offline",
+      "type": "registry:component",
+      "title": "Offline",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/offline.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/feedback-icons", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3746,6 +3814,27 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "list-actions",
+      "type": "registry:component",
+      "title": "List Actions",
+      "files": [
+        {
+          "path": "src/components/admin/list/list-actions.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/create-button",
+        "@chelone/export",
+        "@chelone/export-button",
+        "@chelone/filter-button",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "list-icons",
       "type": "registry:component",
       "title": "List Icons",
@@ -3790,6 +3879,25 @@
         "@chelone/native-select"
       ],
       "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "list-toolbar",
+      "type": "registry:component",
+      "title": "List Toolbar",
+      "files": [
+        {
+          "path": "src/components/admin/list/list-toolbar.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/export",
+        "@chelone/filter-form",
+        "@chelone/lib-utils",
+        "@chelone/list-actions"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
