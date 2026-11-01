@@ -18,9 +18,11 @@ import {
   BooleanInput,
   Create,
   DataTable,
-  Edit,
   EditButton,
-  List,
+  EditLive,
+  ListLive,
+  LockOnMount,
+  LockStatus,
   NumberField,
   NumberInput,
   RecordField,
@@ -34,6 +36,7 @@ import {
   Toolbar,
 } from "@chelone/react";
 import { z } from "zod";
+import { SimulateOtherUser } from "../realtime-sim";
 
 /** The record shape + the form validator, in one place. */
 export const postSchema = z.object({
@@ -47,7 +50,7 @@ export const postSchema = z.object({
 
 export function PostList() {
   return (
-    <List>
+    <ListLive actions={<SimulateOtherUser />}>
       <DataTable>
         <DataTable.Col source="title" />
         <DataTable.Col label="Author">
@@ -63,22 +66,25 @@ export function PostList() {
           <EditButton />
         </DataTable.Col>
       </DataTable>
-    </List>
+    </ListLive>
   );
 }
 
 export function PostEdit() {
   return (
-    <Edit>
-      <TextInput source="title" />
-      <TextInput source="body" multiline />
-      <ReferenceInput source="author_id" reference="authors">
-        <SelectInput optionText="name" />
-      </ReferenceInput>
-      <NumberInput source="views" min={0} />
-      <BooleanInput source="published" />
-      <Toolbar />
-    </Edit>
+    <EditLive>
+      <LockStatus />
+      <LockOnMount identity="you">
+        <TextInput source="title" />
+        <TextInput source="body" multiline />
+        <ReferenceInput source="author_id" reference="authors">
+          <SelectInput optionText="name" />
+        </ReferenceInput>
+        <NumberInput source="views" min={0} />
+        <BooleanInput source="published" />
+        <Toolbar />
+      </LockOnMount>
+    </EditLive>
   );
 }
 

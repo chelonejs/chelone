@@ -1,0 +1,330 @@
+---
+title: "Realtime"
+description: "Live lists, record locks and unread badges over a transport you supply."
+---
+
+Realtime lets one user's change refresh what another user is looking at. A
+**transport** carries events between clients; Chelone turns each event into a
+refetch. It adds three things to a data provider: `subscribe` and `publish`
+for events, and `lock`, `unlock`, `getLock` and `getLocks` for editing locks.
+
+The React examples below use `@chelone/react`. The demo wires all of it in
+`apps/demo/src/realtime.ts`, with a panel that plays "another user".
+
+## Wrapping a provider
+
+`realtimeDataProvider` adds the realtime members to any data provider.
+`addEventsForMutations` makes the provider publish after each successful write.
+
+```ts
+import {
+  addEventsForMutations,
+  inMemoryLockProvider,
+  memoryTransport,
+  realtimeDataProvider,
+} from "@chelone/core";
+import { baseProvider } from "./baseProvider";
+
+export const transport = memoryTransport();
+export const locks = inMemoryLockProvider({ publisher: transport });
+
+export const dataProvider = addEventsForMutations(
+  realtimeDataProvider(baseProvider, transport, { locks }),
+  transport,
+);
+```
+
+Pass the result to `<Admin dataProvider>` as usual.
+
+- `realtimeDataProvider(base, transport, { locks })` keeps every method of
+  `base` and adds `subscribe` and `publish` from the transport. The optional
+  transport members (`onReconnect`, `onStatusChange`, `getStatus`, `onError`)
+  are copied only when the transport has them.
+- `locks` is optional. Without it, the lock methods reject with an error that
+  says no `LockProvider` was configured.
+- `addEventsForMutations(provider, publisher)` publishes after `create`,
+  `update`, `delete`, `updateMany` and `deleteMany`. The write resolves after
+  the publishes settle and never fails because of them. Pass
+  `{ onError }` to hear a rejected publish.
+- Leave out `addEventsForMutations` when your server already publishes events
+  for every write, such as a database change feed. Publishing twice refetches
+  twice.
+
+### Combined providers
+
+`realtimeDataProvider` must wrap the result of `combineDataProviders`, not the
+other way round. `combineDataProviders` returns an object with only the nine
+verbs, so it drops `subscribe`, `publish` and the lock methods of any provider
+it combines.
+
+```ts
+const combined = combineDataProviders((resource) =>
+  resource === "invoices" ? billingProvider : catalogProvider,
+);
+
+export const dataProvider = addEventsForMutations(
+  realtimeDataProvider(combined, transport, { locks }),
+  transport,
+);
+```
+
+`isRealtimeDataProvider(dataProvider)` is true for a provider that went
+through `realtimeDataProvider`. Every live hook and component throws a message
+naming itself and asking you to wrap the provider when it is not.
+
+## Topics and event payloads
+
+An event goes to a topic, and a subscriber listens on one. The topic helpers
+in `@chelone/core` build the names, so none is written by hand.
+
+| Helper | Topic | Carries |
+| --- | --- | --- |
+| `resourceTopic("posts")` | `resource/posts` | Creates, and the ids of any write |
+| `recordTopic("posts", 1)` | `resource/posts/1` | Writes to one record |
+| `lockResourceTopic("posts")` | `lock/posts` | Every lock taken or released on the resource |
+| `lockTopic("posts", 1)` | `lock/posts/1` | The lock of one record |
+
+`1` and `"1"` give the same topic.
+
+An event is `{ topic, type, payload, meta? }`. `type` is `"created"`,
+`"updated"`, `"deleted"`, `"locked"` or `"unlocked"`, or any string of your own.
+`addEventsForMutations` publishes these payloads:
+
+| Write | Topic | Type | Payload |
+| --- | --- | --- | --- |
+| `create` | resource | `created` | `{ ids: [id] }` |
+| `update` | record | `updated` | `{ id, data }` |
+| `update` | resource | `updated` | `{ ids: [id] }` |
+| `delete` | record | `deleted` | `{ id, previousData }` |
+| `delete` | resource | `deleted` | `{ ids: [id] }` |
+| `updateMany`, `deleteMany` | resource | `updated`, `deleted` | `{ ids }` |
+| `updateMany`, `deleteMany` | each record | `updated`, `deleted` | `{ id }` |
+
+A lock event has type `locked` or `unlocked` and a `Lock` as its payload:
+`{ resource, recordId, identity, createdAt }`.
+
+## The hooks
+
+All of these read the data provider from context and throw when it is not a
+realtime one.
+
+| Hook | Does |
+| --- | --- |
+| `useSubscribe(topic, callback, { enabled })` | Calls `callback` for each event on `topic`. A new `callback` every render does not resubscribe. |
+| `useSubscribeToRecord(resource, id, callback)` | `useSubscribe` for one record; waits while `id` is `null` or `undefined`. |
+| `useSubscribeToRecordList(resource, callback)` | `useSubscribe` for the resource topic. |
+| `useSubscribeCallback()` | Returns `subscribe(topic, callback)`, for subscribing outside an effect. |
+| `usePublish()` | Returns `publish(topic, event)`. |
+| `useOnReconnect(callback)` | Calls `callback` after the transport reconnects. Does nothing when the transport cannot say. |
+| `useRealtimeStatus()` | Returns `{ status, lastError }`; `status` is `"idle"` when the transport reports neither. |
+| `useGetListLive`, `useGetOneLive`, `useGetManyLive` | The plain read hook, refetching when its data changes or the connection returns. |
+| `useGetLockLive`, `useGetLocksLive` | The lock read hooks, refetching when a lock is taken or released. |
+
+```tsx
+import { useRealtimeStatus, useSubscribeToRecordList } from "@chelone/react";
+
+function PostsWatcher() {
+  const { status } = useRealtimeStatus();
+  useSubscribeToRecordList("posts", (event) => {
+    console.log(event.type, event.payload);
+  });
+  return <span>{status}</span>;
+}
+```
+
+## The components
+
+Each component wraps its plain version and adds a subscription, so swap the
+import and the view stays live. All need a realtime data provider.
+
+```tsx
+import { DataTable, EditLive, ListLive, TextInput } from "@chelone/react";
+
+export const PostList = () => (
+  <ListLive>
+    <DataTable>
+      <DataTable.Col source="title" />
+    </DataTable>
+  </ListLive>
+);
+
+export const PostEdit = () => (
+  <EditLive>
+    <TextInput source="title" />
+  </EditLive>
+);
+```
+
+### ListLive
+
+A `<List>` that refetches when a record in its resource changes or the
+connection returns. It takes the props of `<List>`.
+
+<PropsTable name="ListLive" />
+
+### ShowLive
+
+A `<Show>` that refetches when its record changes or the connection returns.
+It takes the props of `<Show>`.
+
+<PropsTable name="ShowLive" />
+
+### EditLive
+
+An `<Edit>` that refetches the record when it changes or the connection
+returns. A change that arrives while the form has unsaved edits is held, and
+one refetch runs when the form is saved or reset, so a user's typing is never
+overwritten. It takes the props of `<Edit>`.
+
+<PropsTable name="EditLive" />
+
+### MenuLive
+
+A `nav` of `MenuLiveItemLink`s. Each link carries a badge counting the
+resource's new records since the user last opened it. The count lives in the
+store, so it survives a reload when the store has an adapter, and clears while
+the current route is the link's `to` or below it.
+
+```tsx
+<MenuLive items={[{ to: "/posts", resource: "posts", label: "Posts" }]} />
+```
+
+<PropsTable name="MenuLive" />
+
+### MenuLiveItemLink
+
+One link of `MenuLive`, for use on its own.
+
+<PropsTable name="MenuLiveItemLink" />
+
+### LockOnMount
+
+Locks a record while mounted and renders its children once it holds the lock.
+While the lock is requested it shows `loading`; when another identity holds the
+lock it shows `lockedBy`, which defaults to an alert reading `Locked by <identity>`.
+
+```tsx
+<EditLive>
+  <LockOnMount identity="you">
+    <TextInput source="title" />
+  </LockOnMount>
+</EditLive>
+```
+
+<PropsTable name="LockOnMount" />
+
+### LockStatus
+
+Shows who holds a record's lock, and updates when it is taken or released. A
+free record renders `renderFree`, which defaults to nothing.
+
+<PropsTable name="LockStatus" />
+
+## Locks
+
+A **lock** marks a record as being edited by an identity, so a second editor
+can be told to wait. Chelone does not enforce it on writes: the lock lives in
+a `LockProvider`, and your server decides what a lock blocks.
+
+```ts
+interface LockProvider {
+  lock(resource, params: { id; identity; meta? }): Promise<Lock>;
+  unlock(resource, params: { id; identity; meta? }): Promise<Lock>;
+  getLock(resource, params: { id; meta? }): Promise<Lock | null>;
+  getLocks(resource, params?: { meta? }): Promise<Lock[]>;
+}
+```
+
+- `lock` rejects with `LockConflictError` when another identity holds the
+  record. The error's `existingLock` is that lock. Locking again as the holder
+  resolves with the existing lock.
+- `unlock` rejects with `LockConflictError` when another identity holds the
+  record, and with a plain error when nobody does.
+- `getLock` resolves `null` for a free record.
+- `inMemoryLockProvider({ publisher })` keeps locks in a `Map` and announces
+  each lock and unlock on `lockTopic` and `lockResourceTopic`. Without a
+  `publisher` it is silent, and `LockStatus` does not update on its own.
+  It is for tests and demos: locks do not outlive the page or reach another
+  browser.
+
+`identity` defaults to the identity from the auth provider. Pass it explicitly
+when the app has none.
+
+The hooks `useLock()` and `useUnlock()` return `{ lock, isLoading, error }` and
+`{ unlock, isLoading, error }`. `useLockOnMount(options)` holds a lock while the
+component is mounted and returns `{ lock, isLocking, lockError }`. Changing the
+resource, id or identity releases the old lock before it takes the next.
+`useGetLock` and `useGetLocks` read locks without subscribing.
+
+## The transport contract
+
+A transport is what connects clients. Only `subscribe` and `publish` are
+required.
+
+```ts
+interface RealtimeTransport {
+  subscribe(topic, callback): Unsubscribe;
+  publish(topic, event): Promise<void>;
+  onReconnect?(callback): Unsubscribe;
+  onStatusChange?(callback: (status) => void): Unsubscribe;
+  getStatus?(): "connected" | "reconnecting" | "disconnected" | "idle";
+  onError?(callback: (error: RealtimeTransportError) => void): Unsubscribe;
+}
+```
+
+- `subscribe` calls `callback` with the full event, topic included, and returns
+  a function that stops it.
+- `onReconnect` lets a view catch up on events it missed while offline. The live
+  components and hooks refetch when it fires.
+- `onStatusChange` and `getStatus` feed `useRealtimeStatus`. A transport with
+  `onStatusChange` but no `getStatus` reads as `"disconnected"` until it speaks.
+- `onError` reports `connect_failed`, `auth_failed`, `send_failed`,
+  `parse_failed` and `handler_threw`, each with `retrying` set.
+
+A transport that needs a client library, such as a WebSocket, server-sent
+events or a hosted pub/sub service, is the app's to supply. Chelone ships none:
+write one that implements the interface above and pass it to
+`realtimeDataProvider`.
+
+### The in-memory transport
+
+`memoryTransport()` routes events inside one process, with no server and no
+library. Use it for tests and demos.
+
+```ts
+const transport = memoryTransport({ delayMs: 50, onError: console.error });
+
+transport.publishedEvents; // every event published so far, in order
+transport.setStatus("reconnecting");
+transport.simulateReconnect(); // calls every onReconnect listener
+```
+
+- `delayMs` waits between recording a publish and delivering it.
+- A subscriber that throws goes to `onError` as `handler_threw`; the other
+  subscribers still run.
+- It starts as `"connected"`.
+
+## How events reach the query cache
+
+An event invalidates queries. It does not patch them: the payload is never
+written into the cache, so a view always shows what the data provider returns.
+The `payload.data` of an `updated` event is for your own subscribers.
+
+- `ListLive`, `ShowLive`, `EditLive` and the `use*Live` hooks subscribe to a
+  topic and, on an event, invalidate every query under the resource: lists,
+  single records and references. Active queries refetch.
+- Lock queries are left out of that invalidation. They have their own
+  subscribers on the lock topics.
+- Events in the same tick fold into one invalidation, however many arrive.
+- Events are held while an undoable mutation is pending, because a refetch would
+  bring back its optimistic delete. They are replayed once it settles.
+- `EditLive` holds events while the form has unsaved edits, and replays one
+  invalidation once the form is saved or reset.
+- A reconnect invalidates the same queries, since events may have been missed.
+
+## Tips
+
+- Create the transport, lock provider and data provider at module scope, next to
+  the `QueryClient`, so they are stable across renders.
+- Publish from the server where you can. `addEventsForMutations` only reports
+  writes made through this client's provider.
