@@ -127,41 +127,57 @@ describe("<Layout> shell (via <Admin> default slot)", () => {
 
 describe("<Layout> skip link (via <Admin> default slot)", () => {
   async function mountDefaultLayout() {
+    const router = makeRouter();
+    await router.push("/");
     const wrapper = mount(Admin, {
       props: { dataProvider },
       slots: {
         default: () => h(Resource, { name: "posts", list: Blank }),
       },
-      global: { plugins: [makeRouter()] },
+      global: { plugins: [router] },
       attachTo: document.body,
     });
     await flushPromises();
     return wrapper;
   }
 
-  it("renders the skip link before the app bar", async () => {
+  it("renders the skip link before the sidebar menu and the app bar", async () => {
     const wrapper = await mountDefaultLayout();
 
-    const main = wrapper.get("main");
-    const skip = main.get('[data-slot="skip-navigation-button"]');
-    const appBar = main.get('[data-slot="app-bar"]');
-    expect(main.element.firstElementChild).toBe(skip.element);
-    expect(
-      skip.element.compareDocumentPosition(appBar.element) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    const skip = wrapper.get('[data-slot="skip-navigation-button"]').element;
+    const later = [
+      wrapper.get('[data-slot="sidebar-menu-button"]').element,
+      wrapper.get('[data-slot="sidebar-trigger"]').element,
+      wrapper.get('[data-slot="app-bar"]').element,
+    ];
+    for (const element of later) {
+      expect(
+        skip.compareDocumentPosition(element) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    }
     wrapper.unmount();
   });
 
-  it("skip link focus target is its main element", async () => {
+  it("skip link focus target is the content area, not the app bar", async () => {
     const wrapper = await mountDefaultLayout();
-    const main = wrapper.get("main").element;
-    const focus = vi.spyOn(main, "focus");
+    const target = document.getElementById("main-content") as HTMLElement;
 
+    expect(target.contains(wrapper.get('[data-slot="app-bar"]').element)).toBe(
+      false,
+    );
+    expect(
+      target.contains(
+        wrapper.get('[data-slot="skip-navigation-button"]').element,
+      ),
+    ).toBe(false);
+    expect(target.textContent).toContain("blank");
+
+    const focus = vi.spyOn(target, "focus");
     await wrapper.get('[data-slot="skip-navigation-button"]').trigger("click");
 
-    expect(main.id).toBe("main-content");
     expect(focus).toHaveBeenCalledTimes(1);
+    expect(target.hasAttribute("tabindex")).toBe(false);
     wrapper.unmount();
   });
 });
