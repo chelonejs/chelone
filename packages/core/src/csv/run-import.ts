@@ -86,11 +86,18 @@ export async function runCsvImport(options: {
   };
 }
 
-/** One flat row per error, `rowIndex` and `reason` first, for the error download. */
+/**
+ * One flat row per error, `rowIndex` and `reason` first, for the error
+ * download. A row field named `rowIndex` or `reason` loses to the real values.
+ */
 export function csvErrorRows(report: CsvImportReport): CsvRow[] {
   return report.errors.map(({ rowIndex, reason, row }) => ({
     rowIndex,
     reason,
-    ...row,
+    ...Object.fromEntries(
+      Object.entries(row).filter(
+        ([key]) => key !== "rowIndex" && key !== "reason",
+      ),
+    ),
   }));
 }

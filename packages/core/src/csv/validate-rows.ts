@@ -53,7 +53,7 @@ const issuePath = (
 /**
  * Maps each row, runs `transform`, then the schema, and returns one verdict
  * per row. A valid row carries the schema's output, so a coercion shows in it.
- * A transform that throws makes only its own row invalid.
+ * A transform or schema that throws makes only its own row invalid.
  */
 export async function validateCsvRows(
   rows: Array<Record<string, unknown>>,
@@ -76,7 +76,14 @@ export async function validateCsvRows(
       }
       if (!schema) return { ok: true, row };
 
-      const result = await schema["~standard"].validate(row);
+      let result: Awaited<
+        ReturnType<StandardSchemaV1["~standard"]["validate"]>
+      >;
+      try {
+        result = await schema["~standard"].validate(row);
+      } catch (error) {
+        return { ok: false, row, issues: [message(error)] };
+      }
       if (!result.issues) return { ok: true, row: result.value as CsvRow };
       return {
         ok: false,

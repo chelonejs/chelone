@@ -126,6 +126,25 @@ describe("validateCsvRows", () => {
     ]);
   });
 
+  it("marks only its own row invalid when the schema throws", async () => {
+    const schema = z
+      .object({ title: z.string() })
+      .refine((row) => {
+        if (row.title === "bad") throw new Error("Refine blew up");
+        return true;
+      });
+
+    expect(
+      await validateCsvRows([{ Title: "Pen" }, { Title: "bad" }], {
+        mapping: { title: "Title" },
+        schema,
+      }),
+    ).toEqual([
+      { ok: true, row: { title: "Pen" } },
+      { ok: false, row: { title: "bad" }, issues: ["Refine blew up"] },
+    ]);
+  });
+
   it("accepts every row when there is no schema", async () => {
     expect(
       await validateCsvRows([{ Title: "Pen" }, { Title: "" }], {

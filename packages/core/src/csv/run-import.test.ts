@@ -169,4 +169,24 @@ describe("csvErrorRows", () => {
       price: "x",
     });
   });
+
+  it("keeps the real rowIndex and reason when the row has fields of those names", () => {
+    const report: CsvImportReport = {
+      total: 1,
+      created: 0,
+      failed: 1,
+      errors: [
+        {
+          rowIndex: 2,
+          row: { reason: "Refund", rowIndex: "x", amount: "" },
+          reason: "amount: Required",
+        },
+      ],
+      aborted: false,
+    };
+
+    expect(csvErrorRows(report)).toEqual([
+      { rowIndex: 2, reason: "amount: Required", amount: "" },
+    ]);
+  });
 });
