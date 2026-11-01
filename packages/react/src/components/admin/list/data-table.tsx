@@ -232,13 +232,14 @@ function DataTable(props: DataTableProps) {
                     <DataTableRenderContext.Provider value="data">
                       {createElement(
                         BodyComponent as ComponentType<{
-                          children: ReactNode;
+                          children?: ReactNode;
                           rowClassName?: (
                             record: UnknownRecord,
                             rowIndex: number,
                           ) => string | undefined;
                         }>,
-                        { rowClassName, children: visibleChildren },
+                        { rowClassName },
+                        visibleChildren,
                       )}
                     </DataTableRenderContext.Provider>
                   </Table>

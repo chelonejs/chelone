@@ -91,10 +91,7 @@ const ROWS = [
 ];
 
 interface TableHarnessProps
-  extends Pick<
-    DataTableProps,
-    "storeKey" | "defaultHiddenColumns" | "expand"
-  > {
+  extends Pick<DataTableProps, "storeKey" | "defaultHiddenColumns" | "expand"> {
   children: ReactNode;
   data?: Array<{ id: number } & Record<string, unknown>>;
   perPage?: number;
