@@ -531,6 +531,11 @@ describe("@chelone/react barrel — P7g feedback + common", () => {
     expect(barrel.ApplicationUpdatedNotification).toBeTypeOf("function");
   });
 
+  it("exports the application update check", () => {
+    expect(barrel.useCheckForApplicationUpdate).toBeTypeOf("function");
+    expect(barrel.CheckForApplicationUpdate).toBeTypeOf("function");
+  });
+
   it("exports the useTimeout compat hook", () => {
     expect(barrel.useTimeout).toBeTypeOf("function");
   });
