@@ -58,9 +58,9 @@ export function createThrottle(options: ThrottleOptions): Throttle {
       return new Promise<void>((resolve, reject) => {
         const onAbort = () => reject(abortError());
         signal.addEventListener("abort", onAbort, { once: true });
-        turn.then(resolve, reject).finally(() =>
-          signal.removeEventListener("abort", onAbort),
-        );
+        turn
+          .then(resolve, reject)
+          .finally(() => signal.removeEventListener("abort", onAbort));
       });
     },
   };

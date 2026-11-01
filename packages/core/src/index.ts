@@ -365,7 +365,10 @@ export type {
   GeocodingProvider,
   ReverseGeocodeQueryOptions,
 } from "./geo/geocoding";
-export { geocodeQueryOptions, reverseGeocodeQueryOptions } from "./geo/geocoding";
+export {
+  geocodeQueryOptions,
+  reverseGeocodeQueryOptions,
+} from "./geo/geocoding";
 export type {
   GeoBBox,
   GeoFeature,

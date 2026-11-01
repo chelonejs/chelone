@@ -58,18 +58,18 @@ describe("createThrottle", () => {
   it("rejects at once for an already aborted signal", async () => {
     const c = clock();
     const throttle = createThrottle({ minIntervalMs: 1000, ...c });
-    await expect(
-      throttle.wait(AbortSignal.abort()),
-    ).rejects.toMatchObject({ name: "AbortError" });
+    await expect(throttle.wait(AbortSignal.abort())).rejects.toMatchObject({
+      name: "AbortError",
+    });
   });
 
   it("an aborted waiter frees its slot for the next caller", async () => {
     const c = clock();
     const throttle = createThrottle({ minIntervalMs: 1000, ...c });
     await throttle.wait();
-    await expect(
-      throttle.wait(AbortSignal.abort()),
-    ).rejects.toMatchObject({ name: "AbortError" });
+    await expect(throttle.wait(AbortSignal.abort())).rejects.toMatchObject({
+      name: "AbortError",
+    });
     await throttle.wait();
     expect(c.slept).toEqual([1000]);
   });
