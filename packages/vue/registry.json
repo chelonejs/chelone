@@ -1181,6 +1181,22 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/view/translatable-fields-tab-content.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/view/translatable-fields-tab.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/view/translatable-fields-tabs.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/view/translatable-fields.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/lib/are-ids-equal.ts",
           "type": "registry:lib"
         },
@@ -4451,6 +4467,73 @@
       "registryDependencies": [
         "@chelone/lib-utils",
         "@chelone/tabbed-show-layout-tab"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "translatable-fields-tab-content",
+      "type": "registry:component",
+      "title": "Translatable Fields Tab Content",
+      "files": [
+        {
+          "path": "src/components/admin/view/translatable-fields-tab-content.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/labeled", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "translatable-fields-tab",
+      "type": "registry:component",
+      "title": "Translatable Fields Tab",
+      "files": [
+        {
+          "path": "src/components/admin/view/translatable-fields-tab.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "translatable-fields-tabs",
+      "type": "registry:component",
+      "title": "Translatable Fields Tabs",
+      "files": [
+        {
+          "path": "src/components/admin/view/translatable-fields-tabs.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/translatable-fields-tab"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "translatable-fields",
+      "type": "registry:component",
+      "title": "Translatable Fields",
+      "files": [
+        {
+          "path": "src/components/admin/view/translatable-fields.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/translatable-fields-tab-content",
+        "@chelone/translatable-fields-tabs"
       ],
       "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "components"],

@@ -517,6 +517,7 @@ describe("@chelone/react barrel — P7e layout chrome (T3)", () => {
     expect(barrel.ThemeModeToggle).toBeTypeOf("function");
     expect(barrel.LocalesMenuButton).toBeTypeOf("function");
     expect(barrel.SidebarToggleButton).toBeTypeOf("function");
+    expect(barrel.SkipNavigationButton).toBeTypeOf("function");
     expect(barrel.TitlePortal).toBeTypeOf("function");
     expect(barrel.Logout).toBeTypeOf("function");
     expect(barrel.KeyboardShortcut).toBeTypeOf("function");
