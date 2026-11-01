@@ -214,6 +214,9 @@ export type { TranslatableInputsTabContentProps } from "./admin/form/translatabl
 export { default as TranslatableInputsTabContent } from "./admin/form/translatable-inputs-tab-content.vue";
 export type { TranslatableInputsTabsProps } from "./admin/form/translatable-inputs-tabs.vue";
 export { default as TranslatableInputsTabs } from "./admin/form/translatable-inputs-tabs.vue";
+// --- admin: guessers ------------------------------------------------------
+export type { GuesserEmptyProps } from "./admin/guessers/guesser-empty.vue";
+export { default as GuesserEmpty } from "./admin/guessers/guesser-empty.vue";
 export type { ApiKeyInputProps } from "./admin/inputs/api-key-input.vue";
 // --- admin: inputs --------------------------------------------------------
 export { default as ApiKeyInput } from "./admin/inputs/api-key-input.vue";

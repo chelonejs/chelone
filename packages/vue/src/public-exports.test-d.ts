@@ -197,6 +197,12 @@ describe("@chelone/vue public exports", () => {
     >();
   });
 
+  it("useDataTableColumns returns refs and setters", () => {
+    type Result = ReturnType<typeof barrel.useDataTableColumns>;
+    expectTypeOf<Result>().toHaveProperty("toggle");
+    expectTypeOf<Result>().toHaveProperty("columns");
+  });
+
   it("keeps internal helpers out of the barrel", () => {
     expectTypeOf(barrel).not.toHaveProperty("areIdsEqual");
     expectTypeOf(barrel).not.toHaveProperty("WebhookEndpointFieldEndpoint");

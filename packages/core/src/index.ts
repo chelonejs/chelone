@@ -97,6 +97,8 @@ export {
   createEditController,
   createShowController,
 } from "./controller/record-controllers";
+export type { RecordTreeNode } from "./controller/record-tree";
+export { buildRecordTree } from "./controller/record-tree";
 export type {
   ReferenceManyController,
   ReferenceManyControllerOptions,
@@ -124,7 +126,22 @@ export {
 export { resolveNotificationKey } from "./controller/translate-fallback";
 export { matchCsvHeaders } from "./csv/match-headers";
 export { parseCsvWith } from "./csv/parse-with";
-export type { CsvParseError, CsvParser, ParsedCsv } from "./csv/types";
+export { csvErrorRows, runCsvImport } from "./csv/run-import";
+export type {
+  CsvImportError,
+  CsvImportReport,
+  CsvParseError,
+  CsvParser,
+  CsvRow,
+  CsvRowValidation,
+  CsvTransform,
+  ParsedCsv,
+} from "./csv/types";
+export {
+  applyCsvMapping,
+  csvSchemaFields,
+  validateCsvRows,
+} from "./csv/validate-rows";
 export {
   removeRecordsFromCache,
   updateRecordsInCache,
