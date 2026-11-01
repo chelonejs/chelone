@@ -42,9 +42,9 @@ const props = withDefaults(defineProps<ListActionsProps>(), {
 const resource = useResourceContext(props);
 const definition = useResourceDefinition(() => ({ resource: props.resource }));
 
-const showFilters = computed(() =>
-  (props.filters ?? []).some((entry) => !entry.alwaysOn),
-);
+// <FilterButton> hides itself when nothing is togglable and no filter is
+// active, and shows for an active alwaysOn filter so it can clear it.
+const showFilters = computed(() => (props.filters ?? []).length > 0);
 const showCreate = computed(
   () => props.hasCreate ?? definition.value.hasCreate,
 );

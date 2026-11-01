@@ -103,6 +103,19 @@ describe("<ListActions>", () => {
     expect(inList(withOptional.wrapper).filterButton.exists()).toBe(true);
   });
 
+  it("offers to clear an active alwaysOn filter", async () => {
+    const { wrapper } = await mountActions(() =>
+      h(ListToolbar, { filters: alwaysOn }),
+    );
+    expect(inList(wrapper).filterButton.exists()).toBe(false);
+
+    await wrapper.find('[data-slot="list"] input').setValue("hello");
+
+    await vi.waitFor(() =>
+      expect(inList(wrapper).filterButton.exists()).toBe(true),
+    );
+  });
+
   it("hides the create button when the resource has no create view", async () => {
     const { wrapper } = await mountActions(() => h(ListActions), {
       hasCreate: false,
