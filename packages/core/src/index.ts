@@ -236,6 +236,13 @@ export {
   getFilterFormValues,
   mergeFilterValues,
 } from "./form/filter-form-values";
+export type { JsonShape } from "./form/json-text";
+export {
+  detectJsonShape,
+  formatJsonValue,
+  fromJsonText,
+  toJsonText,
+} from "./form/json-text";
 export type {
   AsyncValidator,
   CheloneFormApi,
