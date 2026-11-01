@@ -331,6 +331,16 @@ export {
 } from "./realtime/live";
 export { getLockOptions, getLocksOptions } from "./realtime/lock-options";
 export type {
+  LockSession,
+  LockSessionDataProvider,
+  LockSessionOptions,
+  LockSessionState,
+} from "./realtime/lock-session";
+export {
+  createLockSession,
+  resolveLockIdentity,
+} from "./realtime/lock-session";
+export type {
   MemoryTransport,
   MemoryTransportOptions,
 } from "./realtime/memory-transport";
@@ -340,6 +350,8 @@ export {
   isRealtimeDataProvider,
   realtimeDataProvider,
 } from "./realtime/realtime-data-provider";
+export type { RealtimeStatusState } from "./realtime/status-store";
+export { createRealtimeStatusStore } from "./realtime/status-store";
 export {
   lockResourceTopic,
   lockTopic,
@@ -364,6 +376,12 @@ export type {
   UnlockParams,
 } from "./realtime/types";
 export { LockConflictError } from "./realtime/types";
+export type { SubscribeUnreadCountOptions } from "./realtime/unread-count";
+export {
+  clearUnread,
+  subscribeUnreadCount,
+  unreadKey,
+} from "./realtime/unread-count";
 export type { Identifier } from "./resource/identifier";
 export type { LooseRecord, ResourceRecord } from "./resource/record";
 export type {
