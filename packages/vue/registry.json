@@ -84,6 +84,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/ui/sheet.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/ui/sidebar/index.ts",
           "type": "registry:component"
         },
@@ -313,6 +317,20 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "sheet",
+      "type": "registry:ui",
+      "title": "Sheet",
+      "files": [
+        {
+          "path": "src/components/ui/sheet.vue",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "sidebar",
       "type": "registry:ui",
       "title": "Sidebar",
@@ -428,6 +446,7 @@
         "@chelone/field",
         "@chelone/input",
         "@chelone/native-select",
+        "@chelone/sheet",
         "@chelone/sidebar",
         "@chelone/skeleton",
         "@chelone/switch",
@@ -1065,6 +1084,10 @@
         },
         {
           "path": "src/components/admin/list/bulk-actions-toolbar.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/bulk-edit-drawer.vue",
           "type": "registry:component"
         },
         {
@@ -3977,6 +4000,21 @@
         "@chelone/list-icons"
       ],
       "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bulk-edit-drawer",
+      "type": "registry:component",
+      "title": "Bulk Edit Drawer",
+      "files": [
+        {
+          "path": "src/components/admin/list/bulk-edit-drawer.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/sheet"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

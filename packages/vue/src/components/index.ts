@@ -353,6 +353,8 @@ export { default as UserMenu } from "./admin/layout/user-menu.vue";
 // --- admin: list ----------------------------------------------------------
 export type { BulkActionsToolbarProps } from "./admin/list/bulk-actions-toolbar.vue";
 export { default as BulkActionsToolbar } from "./admin/list/bulk-actions-toolbar.vue";
+export type { BulkEditDrawerProps } from "./admin/list/bulk-edit-drawer.vue";
+export { default as BulkEditDrawer } from "./admin/list/bulk-edit-drawer.vue";
 export type { CountProps } from "./admin/list/count.vue";
 export { default as Count } from "./admin/list/count.vue";
 export type { DataTableProps } from "./admin/list/data-table.vue";
