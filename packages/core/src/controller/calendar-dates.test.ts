@@ -31,6 +31,7 @@ describe("parseCalendarDate", () => {
     expect(parseCalendarDate("")).toBeUndefined();
     expect(parseCalendarDate("not a date")).toBeUndefined();
     expect(parseCalendarDate("2026-02-30")).toBeUndefined();
+    expect(parseCalendarDate("0050-03-01")?.getFullYear()).toBe(50);
     expect(parseCalendarDate(Number.NaN)).toBeUndefined();
     expect(parseCalendarDate(new Date(Number.NaN))).toBeUndefined();
     expect(parseCalendarDate(null)).toBeUndefined();

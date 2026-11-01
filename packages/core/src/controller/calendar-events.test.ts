@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { calendarRange } from "./calendar-dates";
 import {
   type CalendarEvent,
@@ -197,6 +197,37 @@ describe("moveCalendarEvent", () => {
     );
     expect(moved.start).toEqual(new Date(2026, 4, 11, 15));
     expect(moved.end).toEqual(new Date(2026, 4, 14, 10));
+  });
+});
+
+describe("moveCalendarEvent across a daylight saving change", () => {
+  const previousTz = process.env.TZ;
+  beforeAll(() => {
+    process.env.TZ = "America/New_York";
+  });
+  afterAll(() => {
+    if (previousTz === undefined) delete process.env.TZ;
+    else process.env.TZ = previousTz;
+  });
+
+  it("keeps an all-day event ending at midnight", () => {
+    // New York springs forward on 2026-03-08 and falls back on 2026-11-01.
+    const allDay = event(1, new Date(2026, 2, 7), new Date(2026, 2, 8));
+    const spring = moveCalendarEvent(
+      allDay,
+      new Date(2026, 2, 7),
+      new Date(2026, 2, 8),
+    );
+    expect(spring.start).toEqual(new Date(2026, 2, 8));
+    expect(spring.end).toEqual(new Date(2026, 2, 9));
+
+    const fall = moveCalendarEvent(
+      allDay,
+      new Date(2026, 2, 7),
+      new Date(2026, 10, 1),
+    );
+    expect(fall.start).toEqual(new Date(2026, 10, 1));
+    expect(fall.end).toEqual(new Date(2026, 10, 2));
   });
 });
 

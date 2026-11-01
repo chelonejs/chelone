@@ -48,9 +48,15 @@ export function parseCalendarDate(value: unknown): Date | undefined {
         Number(dateOnly[2]),
         Number(dateOnly[3]),
       ];
-      date = new Date(year, month - 1, day);
+      // `new Date(50, ...)` reads the year as 1950, so set the year apart.
+      date = new Date(2000, 0, 1);
+      date.setFullYear(year, month - 1, day);
       // `new Date(2026, 1, 30)` rolls over into March: reject it instead.
-      if (date.getMonth() !== month - 1 || date.getDate() !== day) {
+      if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+      ) {
         return undefined;
       }
     } else {

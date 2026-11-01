@@ -146,27 +146,31 @@ const wholeDaysBetween = (from: Date, to: Date) =>
       86_400_000,
   );
 
-/** Shifts the start by the whole days between the two days, keeping its time of day; the end keeps the duration in milliseconds. */
+const addDays = (date: Date, days: number): Date =>
+  new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() + days,
+    date.getHours(),
+    date.getMinutes(),
+    date.getSeconds(),
+    date.getMilliseconds(),
+  );
+
+/**
+ * Shifts the start and the end by the whole days between the two days, each
+ * keeping its time of day. Adding the duration in milliseconds instead would
+ * move an all-day event's end off midnight when the move crosses a daylight
+ * saving change.
+ */
 export function moveCalendarEvent<R>(
   event: CalendarEvent<R>,
   fromDay: Date,
   toDay: Date,
 ): { start: Date; end?: Date } {
-  const { start, end } = event;
-  const shifted = new Date(
-    start.getFullYear(),
-    start.getMonth(),
-    start.getDate() + wholeDaysBetween(fromDay, toDay),
-    start.getHours(),
-    start.getMinutes(),
-    start.getSeconds(),
-    start.getMilliseconds(),
-  );
-  if (!end) return { start: shifted };
-  return {
-    start: shifted,
-    end: new Date(shifted.getTime() + (end.getTime() - start.getTime())),
-  };
+  const days = wholeDaysBetween(fromDay, toDay);
+  const start = addDays(event.start, days);
+  return event.end ? { start, end: addDays(event.end, days) } : { start };
 }
 
 export function calendarRangeFilter(
