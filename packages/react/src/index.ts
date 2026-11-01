@@ -107,6 +107,7 @@ export {
   useReferenceInput,
 } from "./choices-hooks";
 export {
+  useCheckForApplicationUpdate,
   useDataProvider,
   useIsMobile,
   useIsOffline,
@@ -243,6 +244,10 @@ export {
   ApplicationUpdatedNotification,
   type ApplicationUpdatedNotificationProps,
 } from "./components/admin/common/application-updated-notification";
+export {
+  CheckForApplicationUpdate,
+  type CheckForApplicationUpdateProps,
+} from "./components/admin/common/check-for-application-update";
 // P7e component surface — the layout chrome (Layout/AppBar/AppSidebar/Menu/
 // ThemeProvider/UserMenu/Notification + their sub-components). Ported from
 // shadmin `admin/layout` + `feedback/notification` onto @chelone/react's
