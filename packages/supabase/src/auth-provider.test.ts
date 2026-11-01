@@ -280,9 +280,9 @@ describe("supabaseAuthProvider", () => {
         redirectTo: "https://app.test/auth-callback",
         captchaToken: "captcha",
       });
-      await expect(
-        provider.resetPassword({ email: "a@b.co" }),
-      ).rejects.toThrow("Rate limited");
+      await expect(provider.resetPassword({ email: "a@b.co" })).rejects.toThrow(
+        "Rate limited",
+      );
     });
   });
 
