@@ -79,6 +79,7 @@ import type {
   ToggleFilterButtonProps,
   ToolbarProps,
   TopToolbarProps,
+  UpdateButtonProps,
   UsePrevNextControllerOptions,
   ValidationErrorProps,
 } from "./index";
@@ -167,6 +168,8 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<ToggleFilterButtonProps>().toHaveProperty("value");
     expectTypeOf<ToolbarProps>().toBeObject();
     expectTypeOf<TopToolbarProps>().toBeObject();
+    expectTypeOf<UpdateButtonProps>().toHaveProperty("data");
+    expectTypeOf<UpdateButtonProps>().toHaveProperty("mutationMode");
     expectTypeOf<ValidationErrorProps>().toBeObject();
   });
 

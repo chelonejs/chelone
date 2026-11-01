@@ -77,6 +77,8 @@ export type { ToggleFilterButtonProps } from "./admin/buttons/toggle-filter-butt
 export { default as ToggleFilterButton } from "./admin/buttons/toggle-filter-button.vue";
 export type { ToolbarProps } from "./admin/buttons/toolbar.vue";
 export { default as Toolbar } from "./admin/buttons/toolbar.vue";
+export type { UpdateButtonProps } from "./admin/buttons/update-button.vue";
+export { default as UpdateButton } from "./admin/buttons/update-button.vue";
 // --- admin: common (V3-c) -------------------------------------------------
 export type { ApplicationUpdatedNotificationProps } from "./admin/common/application-updated-notification.vue";
 export { default as ApplicationUpdatedNotification } from "./admin/common/application-updated-notification.vue";
