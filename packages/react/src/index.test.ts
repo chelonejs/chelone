@@ -33,6 +33,8 @@ import type {
   LabeledProps,
   LinkProps,
   ListContextValue,
+  ListLiveProps,
+  ListProps,
   LoadingInputProps,
   NumberInputProps,
   PartitionedChildren,
@@ -298,6 +300,11 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
     expect(barrel.useGetOneLive).toBeTypeOf("function");
     expect(barrel.useGetManyLive).toBeTypeOf("function");
     expectTypeOf<UseSubscribeOptions>().toHaveProperty("enabled");
+  });
+
+  it("exports ListLive", () => {
+    expect(barrel.ListLive).toBeTypeOf("function");
+    expectTypeOf<ListLiveProps>().toEqualTypeOf<ListProps>();
   });
 
   it("exports the lock hooks", () => {
