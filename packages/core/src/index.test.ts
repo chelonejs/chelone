@@ -28,6 +28,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.clearUnread).toBeTypeOf("function");
   });
 
+  it("exports describeResource", () => {
+    expect(barrel.describeResource).toBeTypeOf("function");
+  });
+
   it("exports the infinite list controller", () => {
     expect(barrel.createInfiniteListController).toBeTypeOf("function");
   });
