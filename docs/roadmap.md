@@ -57,4 +57,10 @@
 
 **STATUS — TIER 2 COMPLETE. ✅ R4 infinite list + saved queries · ✅ R5 data-provider power tools · ✅ R6 server-side reverse-relation fields.** Each landed in both adapters on the framework-free core; PRs are listed under each item.
 
+**STATUS — SHADMIN SHELL, FEEDBACK AND COMMON PIECES COMPLETE (#264). ✅ shell · ✅ feedback · ✅ common.** Each is built in BOTH adapters, as a React component and its Vue twin:
+- Shell: `Layout`, `AppBar`, `AppSidebar`, `Menu` and its items, `UserMenu`, `ThemeProvider`, `ThemeModeToggle`, `HideOnScroll`, `Title`/`TitlePortal`, `SkipNavigationButton`, `LocalesMenuButton`.
+- Auth pages: `LoginPage`, `LoginForm`, `LoginWithEmail` (takes an `onSubmit` for a custom backend), `AuthLayout`, `AuthCallback`, `AuthError`, `AuthenticationError`, `AccessDenied`, `Logout`, `CanAccess`.
+- Feedback: `Confirm`, `Error`, `Loading`, `LoadingIndicator`, `LinearProgress`, `Notification`, `NotFound` (for the catch-all route), `Offline`, `Placeholder`, `Ready`, `Spinner`.
+- Common: `Link`, `IconButtonWithTooltip`, `KeyboardShortcut`, `FieldLabelText`, `InputHelperText`, `CheckForApplicationUpdate`, `ApplicationUpdatedNotification`.
+
 **Next:** Tier 3 (R7 to R10) stays deferred. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open v1 work is the first npm release (#8).
