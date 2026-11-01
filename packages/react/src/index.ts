@@ -109,6 +109,7 @@ export {
 export {
   useDataProvider,
   useIsMobile,
+  useIsOffline,
   useLoading,
   useLocaleState,
   useRefresh,
@@ -238,6 +239,10 @@ export {
   ToggleFilterButton,
   type ToggleFilterButtonProps,
 } from "./components/admin/buttons/toggle-filter-button";
+export {
+  ApplicationUpdatedNotification,
+  type ApplicationUpdatedNotificationProps,
+} from "./components/admin/common/application-updated-notification";
 // P7e component surface — the layout chrome (Layout/AppBar/AppSidebar/Menu/
 // ThemeProvider/UserMenu/Notification + their sub-components). Ported from
 // shadmin `admin/layout` + `feedback/notification` onto @chelone/react's
@@ -281,6 +286,10 @@ export {
   type LoadingIndicatorProps,
 } from "./components/admin/feedback/loading-indicator";
 export { Notification } from "./components/admin/feedback/notification";
+export {
+  Offline,
+  type OfflineProps,
+} from "./components/admin/feedback/offline";
 export {
   Placeholder,
   type PlaceholderProps,
