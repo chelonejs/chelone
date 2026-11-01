@@ -45,7 +45,7 @@ const vueEngine: Engine = {
   itemNames: {},
 };
 
-const config = (engine: Engine) => `
+const config = (engine: Engine, adminExtras = "") => `
 export const registryMetadata = { name: "Fixture", homepage: "https://example.test" };
 export const AUTHOR = "Fixture";
 export const categoriesForGranular = () => ["fixture"];
@@ -65,6 +65,7 @@ export const blocks = [
     title: "Admin",
     granularize: true,
     sourceDirs: [{ path: "src/components/admin", recursive: true }],
+    ${adminExtras}
   },
 ];
 export const engine = ${JSON.stringify(engine)};
@@ -116,13 +117,16 @@ for (const item of registry.items) {
 function generatorFixture(
   sources: Record<string, string>,
   engine: Engine = vueEngine,
+  options: { packageJson?: object; adminExtras?: string } = {},
 ) {
   const root = mkdtempSync(join(tmpdir(), "registry-scripts-"));
   fixtures.push(root);
   const files: Record<string, string> = {
-    "package.json": JSON.stringify({ name: "fixture", dependencies: {} }),
+    "package.json": JSON.stringify(
+      options.packageJson ?? { name: "fixture", dependencies: {} },
+    ),
     "components.json": JSON.stringify(componentsJson),
-    "scripts/registry.config.mjs": config(engine),
+    "scripts/registry.config.mjs": config(engine, options.adminExtras),
     "node_modules/.bin/fake-registry": fakeRegistryCli,
     ...engineSource,
     ...sources,
@@ -314,4 +318,114 @@ it("itemNames keyed on a ui subdir's index renames the one item the subdir ships
     "src/components/ui/color-picker/color-picker.vue",
     "src/components/ui/color-picker/index.ts",
   ]);
+});
+
+const importsMap = (...packages: string[]) => ({
+  "src/components/admin/map.vue": [
+    '<script setup lang="ts">',
+    ...packages.map((pkg, i) => `import dep${i} from "${pkg}";`),
+    "</script>",
+    "<template><p /></template>",
+    "",
+  ].join("\n"),
+});
+
+const optionalPeer = {
+  peerDependencies: { "maplibre-gl": "^5.0.0" },
+  peerDependenciesMeta: { "maplibre-gl": { optional: true } },
+};
+
+it("an import of an optional peer becomes an item dependency", () => {
+  const fixture = generatorFixture(importsMap("maplibre-gl"), vueEngine, {
+    packageJson: { name: "fixture", ...optionalPeer },
+  });
+
+  expect(fixture.stderr).toBe("");
+  expect(fixture.item("map").dependencies).toEqual(["maplibre-gl"]);
+  expect(fixture.item("map").devDependencies).toBeUndefined();
+});
+
+it("an optional peer also listed in devDependencies is a dependency and not a devDependency", () => {
+  const fixture = generatorFixture(importsMap("maplibre-gl"), vueEngine, {
+    packageJson: {
+      name: "fixture",
+      ...optionalPeer,
+      devDependencies: { "maplibre-gl": "^5.0.0" },
+    },
+  });
+
+  expect(fixture.item("map").dependencies).toEqual(["maplibre-gl"]);
+  expect(fixture.item("map").devDependencies).toBeUndefined();
+});
+
+it("a regular dependency wins over an optional peer of the same name", () => {
+  const fixture = generatorFixture(importsMap("maplibre-gl"), vueEngine, {
+    packageJson: {
+      name: "fixture",
+      ...optionalPeer,
+      dependencies: { "maplibre-gl": "^5.0.0" },
+      devDependencies: { "maplibre-gl": "^5.0.0" },
+    },
+  });
+
+  expect(fixture.item("map").dependencies).toEqual(["maplibre-gl"]);
+  expect(fixture.item("map").devDependencies).toBeUndefined();
+});
+
+it("a required peer listed in devDependencies stays a devDependency", () => {
+  const fixture = generatorFixture(importsMap("maplibre-gl"), vueEngine, {
+    packageJson: {
+      name: "fixture",
+      peerDependencies: { "maplibre-gl": "^5.0.0" },
+      peerDependenciesMeta: { "maplibre-gl": { optional: false } },
+      devDependencies: { "maplibre-gl": "^5.0.0" },
+    },
+  });
+
+  expect(fixture.item("map").dependencies).toBeUndefined();
+  expect(fixture.item("map").devDependencies).toEqual(["maplibre-gl"]);
+});
+
+const mapAndDraw = {
+  ...importsMap("maplibre-gl"),
+  "src/components/admin/draw.vue": [
+    '<script setup lang="ts">',
+    'import { TerraDraw } from "terra-draw";',
+    'import maplibre from "maplibre-gl";',
+    "</script>",
+    "<template><p /></template>",
+    "",
+  ].join("\n"),
+};
+
+const mapAndDrawPeers = {
+  name: "fixture",
+  peerDependencies: { "maplibre-gl": "^5.0.0", "terra-draw": "^1.0.0" },
+  peerDependenciesMeta: {
+    "maplibre-gl": { optional: true },
+    "terra-draw": { optional: true },
+  },
+};
+
+it("inferDependencies gives the block item the union of its granular dependencies", () => {
+  const fixture = generatorFixture(mapAndDraw, vueEngine, {
+    packageJson: mapAndDrawPeers,
+    adminExtras: "inferDependencies: true,",
+  });
+
+  expect(fixture.stderr).toBe("");
+  expect(fixture.item("admin").dependencies).toEqual([
+    "maplibre-gl",
+    "terra-draw",
+  ]);
+});
+
+it("a block without inferDependencies gets no dependencies", () => {
+  const fixture = generatorFixture(mapAndDraw, vueEngine, {
+    packageJson: mapAndDrawPeers,
+  });
+
+  expect(fixture.stderr).toBe("");
+  expect(fixture.item("map").dependencies).toEqual(["maplibre-gl"]);
+  expect(fixture.item("admin").dependencies).toBeUndefined();
 });

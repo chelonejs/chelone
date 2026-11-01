@@ -111,6 +111,12 @@ const npmRoot = (importPath) => {
   return importPath.split("/")[0];
 };
 
+const isOptionalPeer = (packageJson, pkg) =>
+  Boolean(
+    packageJson.peerDependencies?.[pkg] &&
+      packageJson.peerDependenciesMeta?.[pkg]?.optional === true,
+  );
+
 const stripExt = (rel) => rel.replace(/\.(tsx?|vue)$/, "");
 
 // A ui item's name: its file (or subdir) basename, unless itemNames renames it.
@@ -341,7 +347,13 @@ export const granularizeBlock = ({
           npmDeps.add(pkg);
           continue;
         }
-        if (packageJson.dependencies?.[pkg]) {
+        // An optional peer is how an add-on keeps its packages off the base
+        // install, so a consumer of the item needs it as a dependency. It beats
+        // devDependencies because an add-on lists its peers there to test them.
+        if (
+          packageJson.dependencies?.[pkg] ||
+          isOptionalPeer(packageJson, pkg)
+        ) {
           npmDeps.add(pkg);
         } else if (packageJson.devDependencies?.[pkg]) {
           npmDevDeps.add(pkg);

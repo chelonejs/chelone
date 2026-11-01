@@ -70,6 +70,11 @@ export const categoriesForGranular = (name, type) => {
  *   subdirectories.
  * - extraFiles: additional files (libs, hooks) that don't live in a sourceDir.
  * - granularize: also emit one flat `@chelone/<basename>` item per file.
+ * - inferDependencies: set the block item's `dependencies` to the sorted union
+ *   of its granular items' `dependencies`, replacing any explicit list. An
+ *   import of an optional peer (peerDependenciesMeta) counts as a dependency,
+ *   so an add-on keeps its packages off the base install and its item still
+ *   lists them. Without the flag the block keeps its explicit `dependencies`.
  */
 export const blocks = [
   {
