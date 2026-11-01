@@ -1290,6 +1290,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/update-button.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/common/application-updated-notification.tsx",
           "type": "registry:component"
         },
@@ -2501,6 +2505,25 @@
         }
       ],
       "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "update-button",
+      "type": "registry:component",
+      "title": "Update Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/update-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/confirm",
+        "@chelone/use-menu-access"
+      ],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
