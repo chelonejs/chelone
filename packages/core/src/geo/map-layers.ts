@@ -1,9 +1,5 @@
 import type { GeoFeatureCollection } from "./geojson";
-import {
-  isGeoFeature,
-  isGeoFeatureCollection,
-  isGeoGeometry,
-} from "./geojson";
+import { isGeoFeature, isGeoFeatureCollection, isGeoGeometry } from "./geojson";
 
 export interface ShapeStyle {
   color?: string;
