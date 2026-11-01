@@ -20,6 +20,7 @@ import {
   useIsMobile,
   useLoading,
   useLocaleState,
+  useLocales,
   useRefresh,
 } from "./compat-hooks";
 import { CheloneProvider } from "./context";
@@ -140,6 +141,54 @@ describe("useLoading", () => {
       await gated;
     });
     await waitFor(() => expect(result.current).toBe(false));
+  });
+});
+
+describe("useLocales", () => {
+  it("names each locale in its own language", () => {
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(() => useLocales(), { wrapper });
+    expect(result.current).toEqual([
+      { locale: "en", name: "English" },
+      { locale: "fr", name: "français" },
+      { locale: "de", name: "Deutsch" },
+    ]);
+  });
+
+  it("keeps the code as the name for a tag Intl rejects", () => {
+    const i18n = createI18n({
+      locale: "en",
+      messages: { en: defaultMessages, "not a tag!": defaultMessages },
+    });
+    const { result } = renderHook(() => useLocales(), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <CheloneProvider
+          dataProvider={makeProvider()}
+          queryClient={new QueryClient()}
+          i18n={i18n}
+        >
+          {children}
+        </CheloneProvider>
+      ),
+    });
+    expect(result.current).toEqual([
+      { locale: "en", name: "English" },
+      { locale: "not a tag!", name: "not a tag!" },
+    ]);
+  });
+
+  it("is empty without an i18n instance", () => {
+    const { result } = renderHook(() => useLocales(), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <CheloneProvider
+          dataProvider={makeProvider()}
+          queryClient={new QueryClient()}
+        >
+          {children}
+        </CheloneProvider>
+      ),
+    });
+    expect(result.current).toEqual([]);
   });
 });
 

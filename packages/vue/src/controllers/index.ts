@@ -30,6 +30,11 @@ export type {
 } from "./use-list-controller";
 export { useListController } from "./use-list-controller";
 export type {
+  UsePrevNextControllerOptions,
+  UsePrevNextControllerReturn,
+} from "./use-prev-next-controller";
+export { usePrevNextController } from "./use-prev-next-controller";
+export type {
   UseReferenceManyFieldControllerOptions,
   UseReferenceManyFieldControllerReturn,
 } from "./use-reference-many-field-controller";

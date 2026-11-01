@@ -1093,6 +1093,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/prev-next-buttons.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/saved-queries-list.vue",
           "type": "registry:component"
         },
@@ -4077,6 +4081,29 @@
         "@chelone/lib-utils",
         "@chelone/list-actions"
       ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "prev-next-buttons",
+      "type": "registry:component",
+      "title": "Prev Next Buttons",
+      "files": [
+        {
+          "path": "src/components/admin/list/prev-next-buttons.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-variants",
+        "@chelone/feedback-icons",
+        "@chelone/lib-utils",
+        "@chelone/list-icons",
+        "@chelone/skeleton"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "devDependencies": ["vue-router"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
