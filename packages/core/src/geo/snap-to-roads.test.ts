@@ -87,6 +87,29 @@ describe("createOsrmProvider", () => {
     ).resolves.toBeNull();
   });
 
+  it("returns null when the trace is split into several matchings", async () => {
+    const piece = (coordinates: GeoPosition[]) => ({
+      geometry: { type: "LineString", coordinates },
+    });
+    const provider = createOsrmProvider({
+      endpoint: ENDPOINT,
+      fetch: stubFetch({
+        code: "Ok",
+        matchings: [
+          piece([
+            [0, 0],
+            [1, 1],
+          ]),
+          piece([
+            [5, 5],
+            [6, 6],
+          ]),
+        ],
+      }),
+    });
+    await expect(provider.snapToRoad(twoPoints)).resolves.toBeNull();
+  });
+
   it("returns null on a network error", async () => {
     const provider = createOsrmProvider({
       endpoint: ENDPOINT,

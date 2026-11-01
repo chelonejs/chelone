@@ -59,7 +59,10 @@ export function createOsrmProvider(
         if (!response.ok) return null;
         const body = (await response.json()) as OsrmMatchResponse;
         if (body?.code !== "Ok") return null;
-        const geometry = body.matchings?.[0]?.geometry;
+        // A trace OSRM could not join comes back as several pieces; one of
+        // them is not the whole line, so the caller keeps its own.
+        if (body.matchings?.length !== 1) return null;
+        const geometry = body.matchings[0]?.geometry;
         if (
           geometry?.type !== "LineString" ||
           !Array.isArray(geometry.coordinates)
