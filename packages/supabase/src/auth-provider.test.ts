@@ -1,5 +1,5 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { supabaseAuthProvider } from "./auth-provider";
 
 // The provider only touches `client.auth`, so a partial fake stands in for the client.
@@ -205,6 +205,143 @@ describe("supabaseAuthProvider", () => {
       expect(getPermissions).toHaveBeenCalledWith(signedIn);
       await expect(provider.getPermissions?.()).resolves.toBeUndefined();
       expect(getPermissions).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("setPassword", () => {
+    it("sets the session, then updates the user, and rejects with the first error", async () => {
+      const calls: string[] = [];
+      const setSession = vi.fn().mockImplementation(async () => {
+        calls.push("setSession");
+        return { error: null };
+      });
+      const updateUser = vi.fn().mockImplementation(async () => {
+        calls.push("updateUser");
+        return { error: null };
+      });
+      const provider = supabaseAuthProvider(
+        fakeClient({ setSession, updateUser }),
+      );
+
+      await expect(
+        provider.setPassword({
+          access_token: "at",
+          refresh_token: "rt",
+          password: "new-pw",
+        }),
+      ).resolves.toBeUndefined();
+      expect(setSession).toHaveBeenCalledWith({
+        access_token: "at",
+        refresh_token: "rt",
+      });
+      expect(updateUser).toHaveBeenCalledWith({ password: "new-pw" });
+      expect(calls).toEqual(["setSession", "updateUser"]);
+
+      setSession.mockResolvedValueOnce({ error: new Error("Bad session") });
+      updateUser.mockClear();
+      await expect(
+        provider.setPassword({
+          access_token: "at",
+          refresh_token: "rt",
+          password: "new-pw",
+        }),
+      ).rejects.toThrow("Bad session");
+      expect(updateUser).not.toHaveBeenCalled();
+
+      updateUser.mockResolvedValueOnce({ error: new Error("Weak password") });
+      await expect(
+        provider.setPassword({
+          access_token: "at",
+          refresh_token: "rt",
+          password: "pw",
+        }),
+      ).rejects.toThrow("Weak password");
+    });
+  });
+
+  describe("resetPassword", () => {
+    it("passes the email and the remaining params to resetPasswordForEmail and rejects with its error", async () => {
+      const resetPasswordForEmail = vi
+        .fn()
+        .mockResolvedValueOnce({ error: null })
+        .mockResolvedValueOnce({ error: new Error("Rate limited") });
+      const provider = supabaseAuthProvider(
+        fakeClient({ resetPasswordForEmail }),
+      );
+
+      await expect(
+        provider.resetPassword({
+          email: "a@b.co",
+          redirectTo: "https://app.test/auth-callback",
+          captchaToken: "captcha",
+        }),
+      ).resolves.toBeUndefined();
+      expect(resetPasswordForEmail).toHaveBeenCalledWith("a@b.co", {
+        redirectTo: "https://app.test/auth-callback",
+        captchaToken: "captcha",
+      });
+      await expect(provider.resetPassword({ email: "a@b.co" })).rejects.toThrow(
+        "Rate limited",
+      );
+    });
+  });
+
+  describe("handleCallback", () => {
+    const visit = (search: string, hash = "") =>
+      vi.stubGlobal("window", { location: { search, hash } });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it("redirects a recovery link to set-password with the tokens encoded", async () => {
+      visit("?access_token=a+b%26c&refresh_token=r%3Dt&type=recovery");
+      const provider = supabaseAuthProvider(fakeClient({}));
+
+      await expect(provider.handleCallback()).resolves.toEqual({
+        redirectTo:
+          "/set-password?access_token=a+b%26c&refresh_token=r%3Dt&type=recovery",
+      });
+    });
+
+    it("prefixes the redirect with the redirectTo option", async () => {
+      visit("?access_token=at&refresh_token=rt&type=recovery");
+      const provider = supabaseAuthProvider(fakeClient({}), {
+        redirectTo: "/admin",
+      });
+
+      await expect(provider.handleCallback()).resolves.toEqual({
+        redirectTo:
+          "/admin/set-password?access_token=at&refresh_token=rt&type=recovery",
+      });
+    });
+
+    it("redirects an invite link the same way", async () => {
+      visit("", "#access_token=at&refresh_token=rt&type=invite");
+      const provider = supabaseAuthProvider(fakeClient({}));
+
+      await expect(provider.handleCallback()).resolves.toEqual({
+        redirectTo:
+          "/set-password?access_token=at&refresh_token=rt&type=invite",
+      });
+    });
+
+    it("rejects a recovery link with a missing token", async () => {
+      const provider = supabaseAuthProvider(fakeClient({}));
+      const message =
+        "Missing access_token or refresh_token for a recovery or invite link";
+
+      visit("?refresh_token=rt&type=recovery");
+      await expect(provider.handleCallback()).rejects.toThrow(message);
+      visit("", "#access_token=at&type=invite");
+      await expect(provider.handleCallback()).rejects.toThrow(message);
+    });
+
+    it("resolves with nothing for an OAuth return", async () => {
+      visit("", "#access_token=at&refresh_token=rt&provider_token=pt");
+      const provider = supabaseAuthProvider(fakeClient({}));
+
+      await expect(provider.handleCallback()).resolves.toBeUndefined();
     });
   });
 });
