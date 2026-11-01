@@ -28,7 +28,7 @@ gaps) · **partial** (core path works, structural feature(s) missing) · **gap**
 | **DataTable logic + Export** | near-parity | per-column sort, toggle-select, select-page, select-all-across-pages, expandable rows, rowClick, empty/loading gating; downloadCSV; ExportButton + BulkExportButton | shift-click range select; `isRowSelectable`; columns-visibility inspector (deferred, biggest DataTable gap); jsonexport nested flattening; fetchRelatedRecords/getRelatedIds; ExporterContext | Dep-free `recordsToCSV` + SSR-guarded downloadCSV; `size` density; select-all pushed into vanilla `@chelone/core` controller |
 | **Resource registry + admin shell + base types** | extended-beyond | Resource marker + definition/registry, resource context, CoreAdmin/Context/UI three-tier shell, CustomRoutes, HasDashboard, title, record-representation + resource-label, RaRecord/Identifier | UserMenuContext/useUserMenu (minor UI, deferred); useFirstResourceWithListAccess simplified to first-candidate check (partial) | **Zod registry** (`defineResources`, `RecordOf` via `z.infer`, schema-as-form-validator); vanilla SSR-safe `useSyncExternalStore` registry; slot-marker composable `<Admin>`; strict `unknown`-over-`any` base types |
 | **Inference / Guessers** | gap | — (none) | Entire ra-core inference stack: data-value sniffing, name-heuristic reference inference, `InferredElement` JSX representation, `ListGuesser`/`EditGuesser`/`ShowGuesser` | Zod registry gives typed records + validation but drives **no** view inference (not an autoform); charter-deferred area |
-| **Realtime / enterprise / misc** | partial | optimistic + pessimistic modes present | undoable mode (OSS, seam-only); withLifecycleCallbacks/combineDataProviders/addRefreshAuth; useUnique; export relation-fetch; guessers; realtime/tree/calendar/audit (all deferred) | none — pure deferred/missing catalogue (Zod registry substitutes for guessers, not additive) |
+| **Realtime / enterprise / misc** | partial | optimistic + pessimistic modes present; **realtime built in both adapters** (engine in core: transport, `realtimeDataProvider`, lock provider; live hooks, `ListLive`/`ShowLive`/`EditLive`/`MenuLive`, `LockOnMount`/`LockStatus`) | undoable mode (OSS, seam-only); withLifecycleCallbacks/combineDataProviders/addRefreshAuth; useUnique; export relation-fetch; guessers; tree/calendar/audit (deferred) | none — pure deferred/missing catalogue (Zod registry substitutes for guessers, not additive) |
 
 Verdict tally: **extended-beyond ×1, near-parity ×6, partial ×5, gap ×1, near-parity(realtime-misc counted partial) ×1.**
 
@@ -82,8 +82,10 @@ it carries a **second framework**, Vue, with zero core changes).
 - **Undoable mutation mode** — the pessimistic/optimistic/**undoable** third mode +
   undo event emitter + undo toast (this one is ra-core **OSS**, not enterprise —
   the most notable deferral); Chelone uses confirm dialogs instead.
-- **Realtime** (subscribe/live/locks), **ra-tree**, **calendar/scheduler**,
-  **audit-log** — all ra-**enterprise**; absent in this ra-core OSS checkout too.
+- **ra-tree**, **calendar/scheduler**, **audit-log** — ra-**enterprise**; absent in
+  this ra-core OSS checkout too.
+- **Realtime** (subscribe/live/locks) is **built**, no longer deferred: the engine is
+  in `@chelone/core` and both adapters expose it (see `docs/charter.md` §12).
 
 **Unported v1 simplifications (not charter, just not-yet-built):**
 - List: URL param sync, infinite list, saved queries.

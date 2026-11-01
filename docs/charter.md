@@ -61,7 +61,7 @@ framework-agnostic engine it inspired).
 - **Not RSC-first end-to-end.** Admin is inherently interactive; RSC wins the read path, not
   the whole app.
 - **No ra-enterprise gap-fill in v1.** (AccordionForm, LongForm, MultiLevelMenu,
-  ReferenceManyInput, DualListInput, RBAC enforcement — deferred to post-parity.)
+  ReferenceManyInput, DualListInput, RBAC enforcement — deferred to post-parity.) (Amended: realtime and record locks are built, see §12.)
 - **Not a backend or ORM.** The core depends on **Zod only**; Drizzle/Prisma are reference
   integrations, not dependencies.
 
@@ -268,3 +268,8 @@ section above is out of date, it carries a pointer here.
 - **i18n uses core's own engine.** Core interpolates messages itself instead of using Polyglot or
   i18next, and keeps Polyglot's `smart_count` name for plural counts. Core still depends on Zod
   only (§3), so that rule holds.
+- **Realtime and record locks moved into v1 scope (2026-10-31).** They were ra-enterprise
+  gap-fill, deferred in §3. The engine (transport, `realtimeDataProvider`, lock provider) is in
+  `@chelone/core`, framework-free, and `@chelone/react` and `@chelone/vue` both expose live
+  hooks, live views and `LockOnMount`/`LockStatus`. Audit-log, ra-tree and calendar stay
+  deferred. Guide: `apps/website/src/docs/content/app-config/realtime.mdx`.
