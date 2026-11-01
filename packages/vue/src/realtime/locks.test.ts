@@ -31,7 +31,10 @@ import {
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
 import Admin from "../admin/admin.vue";
-import { provideRecordContext } from "../record/record-context";
+import {
+  provideRecordContext,
+  type RecordValue,
+} from "../record/record-context";
 import { provideResourceContext } from "../resource-context";
 import {
   useGetLock,
@@ -592,5 +595,60 @@ describe("useLockOnMount", () => {
       identity: "ann",
     });
     expect(holder(wrapper, "lock")).toBe("ann");
+  });
+
+  it("takes the lock once an ambient record that was not loaded at setup arrives", async () => {
+    const { dataProvider, locks } = setup();
+    const record = ref<RecordValue>(undefined);
+    const Scope = defineComponent({
+      setup() {
+        provideResourceContext("posts");
+        provideRecordContext(record);
+        return () => h(probeWith({ identity: ref("ann") }));
+      },
+    });
+    const wrapper = mountUnderAdmin(dataProvider, Scope);
+    await flushPromises();
+    expect(holder(wrapper, "locking")).toBe("false");
+    expect(await locks.getLock("posts", { id: 1 })).toBeNull();
+
+    record.value = { id: 1, title: "a" };
+    await flushPromises();
+
+    expect(holder(wrapper, "lock")).toBe("ann");
+    expect(await locks.getLock("posts", { id: 1 })).toMatchObject({
+      identity: "ann",
+    });
+  });
+
+  it("holds the lock when the identity changes while the first lock is in flight", async () => {
+    let open: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      open = resolve;
+    });
+    const { dataProvider, locks } = setup((inMemory) => ({
+      ...inMemory,
+      lock: async (resource, params) => {
+        await gate;
+        return inMemory.lock(resource, params);
+      },
+    }));
+    const identity = ref<Identifier | undefined>("ann");
+    const wrapper = mountUnderAdmin(
+      dataProvider,
+      probeWith({ resource: ref("posts"), id: ref(1), identity }),
+    );
+    await flushPromises();
+
+    identity.value = "bob";
+    await nextTick();
+    open();
+    await flushPromises();
+
+    expect(holder(wrapper, "error")).toBe("");
+    expect(holder(wrapper, "lock")).toBe("bob");
+    expect(await locks.getLock("posts", { id: 1 })).toMatchObject({
+      identity: "bob",
+    });
   });
 });

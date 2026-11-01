@@ -14,9 +14,15 @@ import {
   subscribeLiveLocks,
 } from "@chelone/core";
 import { useMutation, useQuery } from "@tanstack/vue-query";
-import { computed, type MaybeRefOrGetter, toValue, watchEffect } from "vue";
+import {
+  computed,
+  inject,
+  type MaybeRefOrGetter,
+  toValue,
+  watchEffect,
+} from "vue";
 import { useCheloneContext } from "../context";
-import { useRecordContext } from "../record/record-context";
+import { RecordContextKey } from "../record/record-context";
 import { useResourceContext } from "../resource-context";
 import { useMicroStore } from "../store/use-micro-store";
 
@@ -182,40 +188,62 @@ export function useLockOnMount({
   onLockError,
 }: UseLockOnMountOptions = {}) {
   const { dataProvider, authProvider } = useCheloneContext();
-  // Both contexts are read once: `useRecordContext` returns a snapshot.
   const ambientResource = useResourceContext();
-  const ambientId = useRecordContext()?.id as Identifier | undefined;
+  // The injected ref, not `useRecordContext()`'s snapshot: an Edit view
+  // publishes its record after the fetch lands.
+  const ambientRecord = inject(RecordContextKey, null);
+
+  // Computeds, so a refetched record with the same id does not relock.
+  const resolvedResource = computed(() => toValue(resource) ?? ambientResource);
+  const resolvedId = computed(
+    () => toValue(id) ?? (ambientRecord?.value?.id as Identifier | undefined),
+  );
+  const resolvedIdentity = computed(() => toValue(identity));
 
   // The session changes with the id, but `useMicroStore` binds one store for
   // the component's life, so each session is mirrored into this one.
   const mirror = createMicroStore<LockSessionState>(idleLockState);
   const state = useMicroStore(mirror);
 
+  // Each session has its own queue, so a new one starts only once the
+  // previous one has released: otherwise its lock could land before that
+  // release, which would then free the lock it just took.
+  let previous: Promise<void> = Promise.resolve();
+
   watchEffect((onCleanup) => {
-    const resolvedResource = toValue(resource) ?? ambientResource;
-    const resolvedId = toValue(id) ?? ambientId;
-    const resolvedIdentity = toValue(identity);
-    if (resolvedResource === undefined || resolvedId == null) return;
+    const resourceName = resolvedResource.value;
+    const recordId = resolvedId.value;
+    const holder = resolvedIdentity.value;
+    if (resourceName === undefined || recordId == null) return;
     assertRealtimeDataProvider(dataProvider, "useLockOnMount");
 
     const session = createLockSession({
       dataProvider,
-      resource: resolvedResource,
-      id: resolvedId,
-      getIdentity: () => resolveLockIdentity(authProvider, resolvedIdentity),
+      resource: resourceName,
+      id: recordId,
+      getIdentity: () => resolveLockIdentity(authProvider, holder),
       meta,
       onError: onLockError,
     });
-    const unsubscribe = session.store.subscribe(() =>
-      mirror.setState(session.store.getSnapshot()),
-    );
-    void session.start();
-    mirror.setState(session.store.getSnapshot());
+    let cancelled = false;
+    let unsubscribe = () => {};
+    mirror.setState({ ...idleLockState, isLocking: true });
+
+    const turn = previous;
+    void turn.then(() => {
+      if (cancelled) return;
+      unsubscribe = session.store.subscribe(() =>
+        mirror.setState(session.store.getSnapshot()),
+      );
+      void session.start();
+      mirror.setState(session.store.getSnapshot());
+    });
 
     onCleanup(() => {
+      cancelled = true;
       unsubscribe();
       mirror.setState(idleLockState);
-      void session.stop();
+      previous = turn.then(() => session.stop());
     });
   });
 
