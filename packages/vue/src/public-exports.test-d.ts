@@ -10,6 +10,7 @@ import type {
   BooleanInputProps,
   BulkActionsToolbarProps,
   CheckForApplicationUpdateProps,
+  CloneButtonProps,
   ColorInputProps,
   CountProps,
   CreateProps,
@@ -86,6 +87,8 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<BooleanInputProps>().toHaveProperty("source");
     expectTypeOf<BulkActionsToolbarProps>().toBeObject();
     expectTypeOf<CheckForApplicationUpdateProps>().toHaveProperty("url");
+    expectTypeOf<CloneButtonProps>().toHaveProperty("record");
+    expectTypeOf<CloneButtonProps>().toHaveProperty("class");
     expectTypeOf<ColorInputProps>().toHaveProperty("source");
     expectTypeOf<CreateProps>().toBeObject();
     expectTypeOf<CurrencyInputProps>().toHaveProperty("source");
