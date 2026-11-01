@@ -177,8 +177,8 @@ const columnProps = (node: VNode) =>
   (node.props ?? {}) as { source?: unknown; label?: unknown };
 
 const { hidden, order, publish } = useDataTableColumns({
-  storeKey: props.storeKey ?? defaultDataTableStoreKey(resource ?? ""),
-  defaultHiddenColumns: props.defaultHiddenColumns,
+  storeKey: () => props.storeKey ?? defaultDataTableStoreKey(resource ?? ""),
+  defaultHiddenColumns: () => props.defaultHiddenColumns,
 });
 
 const declare = (nodes: VNode[], ids: (string | undefined)[]) => {

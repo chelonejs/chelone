@@ -52,7 +52,7 @@ function mountTable(
   options: {
     i18n?: AnyCheloneI18n;
     store?: CheloneStore;
-    tableProps?: Record<string, unknown>;
+    tableProps?: () => Record<string, unknown>;
     tableSlots?: Record<string, () => unknown>;
   } = {},
 ) {
@@ -89,7 +89,7 @@ function mountTable(
                 {
                   default: () => [
                     h(probe),
-                    h(DataTable, options.tableProps ?? null, {
+                    h(DataTable, options.tableProps?.() ?? null, {
                       default: () => columns(),
                       ...options.tableSlots,
                     }),
@@ -268,7 +268,7 @@ describe("<DataTable> columns", () => {
     const store = createStore();
     const { wrapper, settled } = mountTable(threeColumns, {
       store,
-      tableProps: { defaultHiddenColumns: ["views"] },
+      tableProps: () => ({ defaultHiddenColumns: ["views"] }),
     });
     await settled();
 
@@ -339,7 +339,7 @@ describe("<DataTable> columns", () => {
         h(DataTableCol, { label: "Actions" }),
         ...(extra.value ? [h(DataTableCol, { source: "title" })] : []),
       ],
-      { store, tableProps: { defaultHiddenColumns: ["Actions"] } },
+      { store, tableProps: () => ({ defaultHiddenColumns: ["Actions"] }) },
     );
     await settled();
 
@@ -373,7 +373,7 @@ describe("<DataTable> columns", () => {
     store.setItem("custom_columnOrder", ["views"]);
     const { wrapper, settled } = mountTable(threeColumns, {
       store,
-      tableProps: { storeKey: "custom" },
+      tableProps: () => ({ storeKey: "custom" }),
     });
     await settled();
 
@@ -382,12 +382,60 @@ describe("<DataTable> columns", () => {
     expect(store.getItem("posts.datatable_columns")).toBeUndefined();
   });
 
+  it("follows a storeKey that changes while mounted", async () => {
+    const store = createStore();
+    store.setItem("a", ["id"]);
+    store.setItem("b", ["views"]);
+    const key = ref("a");
+    const { wrapper, settled } = mountTable(threeColumns, {
+      store,
+      tableProps: () => ({ storeKey: key.value }),
+    });
+    await settled();
+    expect(headerTexts(wrapper)).toEqual(["Title", "Views"]);
+
+    key.value = "b";
+    await vi.waitFor(() =>
+      expect(headerTexts(wrapper)).toEqual(["Id", "Title"]),
+    );
+
+    expect(store.getItem("b_columns")).toHaveLength(3);
+    store.setItem("b", ["title"]);
+    await vi.waitFor(() =>
+      expect(headerTexts(wrapper)).toEqual(["Id", "Views"]),
+    );
+  });
+
+  it("follows defaultHiddenColumns that change while mounted", async () => {
+    const store = createStore();
+    const defaults = ref(["views"]);
+    const { wrapper, settled } = mountTable(threeColumns, {
+      store,
+      tableProps: () => ({ defaultHiddenColumns: defaults.value }),
+    });
+    await settled();
+    expect(headerTexts(wrapper)).toEqual(["Id", "Title"]);
+
+    defaults.value = ["title"];
+    await vi.waitFor(() =>
+      expect(headerTexts(wrapper)).toEqual(["Id", "Views"]),
+    );
+
+    await vi.waitFor(() =>
+      expect(store.getItem("posts.datatable_columns")).toEqual([
+        { id: "id", source: "id", defaultHidden: false },
+        { id: "title", source: "title", defaultHidden: true },
+        { id: "views", source: "views", defaultHidden: false },
+      ]),
+    );
+  });
+
   it("sizes the expand panel to the visible columns", async () => {
     const store = createStore();
     store.setItem("posts.datatable", ["title"]);
     const { wrapper, settled } = mountTable(threeColumns, {
       store,
-      tableProps: { rowClick: "expand" },
+      tableProps: () => ({ rowClick: "expand" }),
       tableSlots: { expand: () => "details" },
     });
     await settled();

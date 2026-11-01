@@ -4,14 +4,21 @@ import {
   moveColumn,
   toggleHiddenColumn,
 } from "@chelone/core";
-import { onScopeDispose, type Ref, shallowRef } from "vue";
+import {
+  computed,
+  type MaybeRefOrGetter,
+  type Ref,
+  shallowRef,
+  toValue,
+  watch,
+} from "vue";
 import { useCheloneContext } from "../context";
 
 export interface UseDataTableColumnsOptions {
   /** The store key of the hidden ids; the order and columns keys derive from it. */
-  storeKey: string;
+  storeKey: MaybeRefOrGetter<string>;
   /** Hidden until a choice is stored under `storeKey`. */
-  defaultHiddenColumns?: readonly string[];
+  defaultHiddenColumns?: MaybeRefOrGetter<readonly string[] | undefined>;
 }
 
 export interface UseDataTableColumnsResult {
@@ -33,69 +40,78 @@ export interface UseDataTableColumnsResult {
  * outside it. Built on the context's optional store, not `useCheloneStore`:
  * with no store it returns the defaults and setters that do nothing.
  *
- * The options are read once, in `setup`.
+ * Both options may be refs or getters: a new `storeKey` re-reads and
+ * resubscribes, a new `defaultHiddenColumns` applies until a choice is stored.
  */
-export function useDataTableColumns({
-  storeKey,
-  defaultHiddenColumns = [],
-}: UseDataTableColumnsOptions): UseDataTableColumnsResult {
+export function useDataTableColumns(
+  options: UseDataTableColumnsOptions,
+): UseDataTableColumnsResult {
   const { store } = useCheloneContext();
-  const keys = dataTableColumnKeys(storeKey);
+  const keys = computed(() => dataTableColumnKeys(toValue(options.storeKey)));
+  const defaults = computed(() => toValue(options.defaultHiddenColumns) ?? []);
 
-  const readHidden = () =>
-    store?.getItem<string[]>(keys.hidden) ?? defaultHiddenColumns;
-  const readOrder = () => store?.getItem<string[]>(keys.order) ?? [];
-  const readColumns = () =>
-    store?.getItem<DataTableColumnInfo[]>(keys.columns) ?? [];
-
-  const hidden = shallowRef(readHidden());
-  const order = shallowRef(readOrder());
-  const columns = shallowRef(readColumns());
-
+  // Bumped by a write to any of the three keys; the refs below re-read on it.
+  // A new key set re-reads them through `keys` itself.
+  const version = shallowRef(0);
   if (store) {
-    const unsubscribers = [
-      store.subscribe(keys.hidden, () => {
-        hidden.value = readHidden();
-      }),
-      store.subscribe(keys.order, () => {
-        order.value = readOrder();
-      }),
-      store.subscribe(keys.columns, () => {
-        columns.value = readColumns();
-      }),
-    ];
-    onScopeDispose(() => {
-      for (const unsubscribe of unsubscribers) unsubscribe();
-    });
+    watch(
+      keys,
+      ({ hidden, order, columns }, _previous, onCleanup) => {
+        const bump = () => {
+          version.value++;
+        };
+        const unsubscribers = [hidden, order, columns].map((key) =>
+          store.subscribe(key, bump),
+        );
+        onCleanup(() => {
+          for (const unsubscribe of unsubscribers) unsubscribe();
+        });
+      },
+      { immediate: true },
+    );
   }
+
+  const hidden = computed(() => {
+    version.value;
+    return store?.getItem<string[]>(keys.value.hidden) ?? defaults.value;
+  });
+  const order = computed(() => {
+    version.value;
+    return store?.getItem<string[]>(keys.value.order) ?? [];
+  });
+  const columns = computed(() => {
+    version.value;
+    return store?.getItem<DataTableColumnInfo[]>(keys.value.columns) ?? [];
+  });
 
   return {
     columns,
     hidden,
     order,
     toggle: (id) => {
-      store?.setItem(keys.hidden, toggleHiddenColumn(readHidden(), id));
+      store?.setItem(keys.value.hidden, toggleHiddenColumn(hidden.value, id));
     },
     move: (id, direction) => {
       store?.setItem(
-        keys.order,
+        keys.value.order,
         moveColumn(
-          readOrder(),
-          readColumns().map((column) => column.id),
+          order.value,
+          columns.value.map((column) => column.id),
           id,
           direction,
         ),
       );
     },
     reset: () => {
-      store?.removeItem(keys.hidden);
-      store?.removeItem(keys.order);
+      store?.removeItem(keys.value.hidden);
+      store?.removeItem(keys.value.order);
     },
     publish: (next) => {
       if (!store) return;
       const unchanged =
-        JSON.stringify(next) === JSON.stringify(store.getItem(keys.columns));
-      if (!unchanged) store.setItem(keys.columns, next);
+        JSON.stringify(next) ===
+        JSON.stringify(store.getItem(keys.value.columns));
+      if (!unchanged) store.setItem(keys.value.columns, next);
     },
   };
 }
