@@ -14,7 +14,7 @@ import {
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, type VNode } from "vue";
+import { defineComponent, h, nextTick, ref, type VNode } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
 import Admin from "../../../admin/admin.vue";
@@ -24,6 +24,7 @@ import LockStatus from "./lock-status.vue";
 
 const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  tags: { schema: z.object({ id: z.number(), name: z.string() }) },
 });
 type Resources = typeof resources;
 
@@ -31,7 +32,10 @@ function setup() {
   const transport = memoryTransport();
   const locks = inMemoryLockProvider({ publisher: transport });
   const dataProvider = realtimeDataProvider(
-    fakeDataProvider<Resources>({ posts: [{ id: 1, title: "a" }] }),
+    fakeDataProvider<Resources>({
+      posts: [{ id: 1, title: "a" }],
+      tags: [{ id: 1, name: "t" }],
+    }),
     transport,
     { locks },
   );
@@ -178,5 +182,39 @@ describe("<LockStatus>", () => {
     await flushPromises();
 
     expect(text(wrapper)).toBe("Locked by ann");
+  });
+
+  it("follows a resource prop that changes", async () => {
+    const { dataProvider, locks } = setup();
+    await locks.lock("posts", { id: 1, identity: "ann" });
+    const resource = ref<string | undefined>("posts");
+    const wrapper = mountUnderAdmin(dataProvider, () =>
+      inHost(h(LockStatus, { resource: resource.value, id: 1 })),
+    );
+    await flushPromises();
+    expect(text(wrapper)).toBe("Locked by ann");
+
+    resource.value = "tags";
+    await nextTick();
+    await flushPromises();
+    expect(text(wrapper)).toBe("");
+  });
+
+  it("starts fetching once a resource appears", async () => {
+    const { dataProvider, locks } = setup();
+    await locks.lock("tags", { id: 1, identity: "bob" });
+    const getLock = vi.spyOn(dataProvider, "getLock");
+    const resource = ref<string | undefined>();
+    const wrapper = mountUnderAdmin(dataProvider, () =>
+      inHost(h(LockStatus, { resource: resource.value, id: 1 })),
+    );
+    await flushPromises();
+    expect(getLock).not.toHaveBeenCalled();
+
+    resource.value = "tags";
+    await nextTick();
+    await flushPromises();
+    expect(getLock).toHaveBeenCalledWith("tags", { id: 1 });
+    expect(text(wrapper)).toBe("Locked by bob");
   });
 });
