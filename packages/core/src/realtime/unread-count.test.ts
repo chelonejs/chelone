@@ -21,7 +21,9 @@ describe("unreadKey", () => {
   });
 
   it("gives each other event list its own key, whatever its order", () => {
-    expect(unreadKey("posts", ["deleted"])).toBe("realtime.unread.posts.deleted");
+    expect(unreadKey("posts", ["deleted"])).toBe(
+      "realtime.unread.posts.deleted",
+    );
     expect(unreadKey("posts", ["deleted", "created"])).toBe(
       "realtime.unread.posts.created+deleted",
     );
