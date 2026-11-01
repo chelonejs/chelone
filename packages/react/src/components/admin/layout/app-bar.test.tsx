@@ -2,7 +2,7 @@
  * P7e-T3 tests: `<AppBar>` — the layout header.
  *
  * Renders the sidebar toggle, the title portal, the default toolbar
- * (`<ThemeModeToggle>`) and the user menu. Asserts: the toggle + theme toggle
+ * (`<LocalesMenuButton>` + `<ThemeModeToggle>`) and the user menu. Asserts: the toggle + theme toggle
  * render; a `toolbar` prop overrides the default cluster; `userMenu={false}`
  * suppresses the user menu; `children` replace the whole default layout.
  */
@@ -21,20 +21,29 @@ import { AppBar } from "./app-bar";
 
 afterEach(cleanup);
 
-function makeI18n() {
+const enMessages = defineMessages({
+  "ra.action.open_menu": "Open menu",
+  "ra.action.close_menu": "Close menu",
+  "ra.action.toggle_theme": "Toggle theme",
+  "ra.action.change_locale": "Change locale",
+});
+
+function makeI18n(locales: string[] = ["en"]) {
   return createI18n({
     locale: "en",
-    messages: {
-      en: defineMessages({
-        "ra.action.open_menu": "Open menu",
-        "ra.action.close_menu": "Close menu",
-        "ra.action.toggle_theme": "Toggle theme",
-      }),
-    },
+    messages: Object.fromEntries(
+      locales.map((code) => [code, code === "en" ? enMessages : {}]),
+    ),
   });
 }
 
-function Wrap({ children }: { children: ReactNode }) {
+function Wrap({
+  children,
+  locales,
+}: {
+  children: ReactNode;
+  locales?: string[];
+}) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -42,7 +51,7 @@ function Wrap({ children }: { children: ReactNode }) {
     <CheloneProvider
       dataProvider={fakeDataProvider({})}
       queryClient={queryClient}
-      i18n={makeI18n()}
+      i18n={makeI18n(locales)}
     >
       <RouterAdapterProvider adapter={reactRouterAdapter}>
         <MemoryRouter>
@@ -90,5 +99,33 @@ describe("<AppBar>", () => {
     expect(
       screen.queryByRole("button", { name: /toggle sidebar/i }),
     ).toBeNull();
+  });
+
+  it("shows the locales menu when the i18n has two locales", () => {
+    render(
+      <Wrap locales={["en", "fr"]}>
+        <AppBar />
+      </Wrap>,
+    );
+    expect(screen.getByRole("button", { name: "Change locale" })).toBeTruthy();
+  });
+
+  it("shows no locales menu with one locale", () => {
+    render(
+      <Wrap>
+        <AppBar />
+      </Wrap>,
+    );
+    expect(screen.queryByRole("button", { name: "Change locale" })).toBeNull();
+  });
+
+  it("toolbar prop replaces the locales menu and the theme toggle", () => {
+    render(
+      <Wrap locales={["en", "fr"]}>
+        <AppBar toolbar={<button type="button">Custom Tool</button>} />
+      </Wrap>,
+    );
+    expect(screen.queryByRole("button", { name: "Change locale" })).toBeNull();
+    expect(screen.queryByText("Toggle theme")).toBeNull();
   });
 });

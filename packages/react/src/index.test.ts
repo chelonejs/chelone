@@ -266,6 +266,7 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
     expect(barrel.useRefresh).toBeTypeOf("function");
     expect(barrel.useLoading).toBeTypeOf("function");
     expect(barrel.useLocaleState).toBeTypeOf("function");
+    expect(barrel.useLocales).toBeTypeOf("function");
     expect(barrel.useIsMobile).toBeTypeOf("function");
     expect(barrel.useIsOffline).toBeTypeOf("function");
   });
@@ -460,6 +461,7 @@ describe("@chelone/react barrel — P7e layout chrome (T3)", () => {
     expect(barrel.ResourceMenuItem).toBeTypeOf("function");
     expect(barrel.ResourceMenuItemGroup).toBeTypeOf("function");
     expect(barrel.ThemeModeToggle).toBeTypeOf("function");
+    expect(barrel.LocalesMenuButton).toBeTypeOf("function");
     expect(barrel.SidebarToggleButton).toBeTypeOf("function");
     expect(barrel.TitlePortal).toBeTypeOf("function");
     expect(barrel.Logout).toBeTypeOf("function");
