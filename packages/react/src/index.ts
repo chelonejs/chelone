@@ -729,6 +729,10 @@ export {
   type ListToolbarProps,
 } from "./components/admin/list/list-toolbar";
 export {
+  PrevNextButtons,
+  type PrevNextButtonsProps,
+} from "./components/admin/list/prev-next-buttons";
+export {
   SavedQueriesList,
   type SavedQueriesListProps,
 } from "./components/admin/list/saved-queries-list";
@@ -963,6 +967,10 @@ export {
   useUnselect,
 } from "./list/list-slice-hooks";
 export { useNotifications, useNotify } from "./notification-hooks";
+export {
+  type UsePrevNextControllerOptions,
+  usePrevNextController,
+} from "./prev-next-hooks";
 export type {
   RecordContextProviderProps,
   RecordContextValue,

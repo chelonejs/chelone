@@ -1754,6 +1754,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/prev-next-buttons.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/saved-queries-list.tsx",
           "type": "registry:component"
         },
@@ -4559,6 +4563,25 @@
         "@chelone/list-actions"
       ],
       "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "prev-next-buttons",
+      "type": "registry:component",
+      "title": "Prev Next Buttons",
+      "files": [
+        {
+          "path": "src/components/admin/list/prev-next-buttons.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/skeleton"
+      ],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
