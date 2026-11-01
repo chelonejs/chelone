@@ -8,6 +8,7 @@
     "typecheck": "turbo run typecheck",
     "format": "biome check --write .",
     "lint": "biome check .",
+    "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm --filter \"./packages/*\" run check:pack && changeset publish"
