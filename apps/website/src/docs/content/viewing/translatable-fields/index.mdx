@@ -24,7 +24,8 @@ stored.
 
 Inside a `<Show>` it uses the ambient record and resource. Pass `record` or
 `resource` to use it elsewhere. Without a record it throws, except under a
-`<Show>` whose record has not loaded yet, where it renders nothing.
+`<Show>` whose record has not loaded yet, where the React component renders
+nothing. See [Vue](#vue) for the difference.
 
 ## Every locale stays mounted
 
@@ -82,6 +83,9 @@ from `useTranslatableContext()`.
 - The tabs are native `<button role="tab">` elements, not Radix tabs.
 - `provideTranslatable(translatable)` takes the place of
   `<TranslatableContextProvider>`.
+- While a `<Show>` record is still loading, the component still renders the tab
+  strip, over empty panels, instead of nothing. It throws only when there is no
+  record context at all.
 
 ```vue
 <script setup lang="ts">
