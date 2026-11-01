@@ -53,16 +53,28 @@ export function idFilter(
 ): Array<[string, string]> {
   const [only] = primaryKey;
   if (isSingle(primaryKey) && only !== undefined) {
-    const values = ids.map((id) => quoteValue(String(id)));
+    const [first] = ids;
     const value =
-      values.length === 1 ? `eq.${values[0]}` : `in.(${values.join(",")})`;
+      ids.length === 1 && first !== undefined
+        ? `eq.${first}`
+        : `in.(${ids.map((id) => quoteValue(String(id))).join(",")})`;
     return [[only, value]];
+  }
+
+  // `or=()` is a parse error: use a group that no row satisfies.
+  if (ids.length === 0 && only !== undefined) {
+    return [["and", `(${only}.is.null,${only}.not.is.null)`]];
   }
 
   const groups = ids.map((id) => {
     const row = decodeId(id, primaryKey);
     return primaryKey
-      .map((column) => `${column}.eq.${quoteValue(String(row[column]))}`)
+      .map((column) => {
+        const part = row[column];
+        return part === null
+          ? `${column}.is.null`
+          : `${column}.eq.${quoteValue(String(part))}`;
+      })
       .join(",");
   });
   return groups.length === 1
@@ -82,7 +94,15 @@ export function withoutVirtualId(
   record: Row,
   primaryKey: readonly string[],
 ): Row {
-  if (primaryKey.includes("id")) return record;
+  if (primaryKey.includes("id")) {
+    // The virtual id replaced a real `id` column; the encoding kept its value.
+    try {
+      const { id } = decodeId(record.id as Identifier, primaryKey);
+      return { ...record, id };
+    } catch {
+      return record;
+    }
+  }
   const { id: _virtual, ...rest } = record;
   return rest;
 }

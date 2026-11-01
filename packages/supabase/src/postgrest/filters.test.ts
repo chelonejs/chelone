@@ -67,6 +67,18 @@ describe("buildFilters", () => {
     ]);
   });
 
+  it("an object under a key@op key is the operand, not a path", () => {
+    expect(build({ "meta@cs": { tag: "x" } })).toEqual([
+      ["meta", 'cs.{"tag":"x"}'],
+    ]);
+  });
+
+  it("quotes cs, cd and ov items that Postgres reads as array syntax", () => {
+    expect(build({ "tags@cs": ["a{b", "", "c d", "NULL", "e"] })).toEqual([
+      ["tags", 'cs.{"a{b","","c d","NULL",e}'],
+    ]);
+  });
+
   it("skips undefined values", () => {
     expect(build({ a: undefined, b: 1 })).toEqual([["b", "eq.1"]]);
   });

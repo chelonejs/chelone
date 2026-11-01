@@ -44,9 +44,18 @@ type Term = {
 
 const RESERVED = /[,()"\\]/;
 
+const escapeQuotes = (value: string) => `"${value.replace(/["\\]/g, "\\$&")}"`;
+
 /** Double-quotes a value that holds a character PostgREST reads as syntax. */
 export function quoteValue(value: string): string {
-  return RESERVED.test(value) ? `"${value.replace(/["\\]/g, "\\$&")}"` : value;
+  return value === "" || RESERVED.test(value) ? escapeQuotes(value) : value;
+}
+
+/** Double-quotes an item of a Postgres array literal when its syntax needs it. */
+function quoteArrayItem(value: string): string {
+  return value === "" || /[,{}"\\\s]|^null$/i.test(value)
+    ? escapeQuotes(value)
+    : value;
 }
 
 export function buildFilters(
@@ -87,7 +96,7 @@ function terms(
         t.group ? `${t.key}${t.value}` : `${t.key}.${t.value}`,
       );
       out.push({ key: name, value: `(${inner.join(",")})`, group: true });
-    } else if (isPlainObject(value)) {
+    } else if (isPlainObject(value) && at === -1) {
       out.push(...terms(value, defaultOp, column, quoted));
     } else if (op === "like" || op === "ilike") {
       for (const word of String(value).trim().split(/\s+/)) {
@@ -117,10 +126,15 @@ function operand(op: PostgrestOperator, value: unknown, quoted: boolean) {
     if (op === "neq") return "not.is.null";
   }
   if (Array.isArray(value)) {
-    const items = value.map((item) => quoteValue(scalar(item))).join(",");
-    if (op === "in") return `in.(${items})`;
-    if (op === "cs" || op === "cd" || op === "ov") return `${op}.{${items}}`;
-    return `${op}.${items}`;
+    const strings = value.map(scalar);
+    if (op === "in") return `in.(${strings.map(quoteValue).join(",")})`;
+    if (op === "cs" || op === "cd" || op === "ov") {
+      return `${op}.{${strings.map(quoteArrayItem).join(",")}}`;
+    }
+    return `${op}.${strings.join(",")}`;
+  }
+  if (isPlainObject(value)) {
+    return `${op}.${format(JSON.stringify(value), quoted)}`;
   }
   return `${op}.${format(scalar(value), quoted)}`;
 }

@@ -58,8 +58,24 @@ describe("idFilter", () => {
     ]);
   });
 
-  it("quotes values that hold a reserved character", () => {
+  it("quotes values in an in list but not after a lone eq", () => {
     expect(idFilter(["a,b", "c"], ["id"])).toEqual([["id", 'in.("a,b",c)']]);
+    expect(idFilter(["a,b"], ["id"])).toEqual([["id", "eq.a,b"]]);
+  });
+
+  it("a null part of a compound key uses is.null", () => {
+    const key = ["a", "b"];
+
+    expect(idFilter([encodeId({ a: 1, b: null }, key)], key)).toEqual([
+      ["and", "(a.eq.1,b.is.null)"],
+    ]);
+  });
+
+  it("no ids on a compound key gives a group that matches no row", () => {
+    expect(idFilter([], ["a", "b"])).toEqual([
+      ["and", "(a.is.null,a.not.is.null)"],
+    ]);
+    expect(idFilter([], ["id"])).toEqual([["id", "in.()"]]);
   });
 });
 
@@ -74,6 +90,16 @@ describe("withVirtualId and withoutVirtualId", () => {
       id: '[1,"s"]',
     });
     expect(withVirtualId({ id: 3 }, ["id"])).toEqual({ id: 3 });
+  });
+
+  it("a compound key that includes id gets its real id back", () => {
+    const key = ["id", "version"];
+    const record = { id: 1, version: 2, name: "n" };
+    const virtual = withVirtualId(record, key);
+
+    expect(virtual).toEqual({ id: "[1,2]", version: 2, name: "n" });
+    expect(withoutVirtualId(virtual, key)).toEqual(record);
+    expect(withoutVirtualId(record, key)).toEqual(record);
   });
 
   it("withoutVirtualId drops the added id and leaves id alone for an id key", () => {
