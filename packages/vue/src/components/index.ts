@@ -373,6 +373,12 @@ export type {
 } from "./admin/list/single-field-list.vue";
 export { default as SingleFieldList } from "./admin/list/single-field-list.vue";
 // --- admin: views ---------------------------------------------------------
+export type { EditLiveProps } from "./admin/realtime/edit-live.vue";
+export { default as EditLive } from "./admin/realtime/edit-live.vue";
+export type { ListLiveProps } from "./admin/realtime/list-live.vue";
+export { default as ListLive } from "./admin/realtime/list-live.vue";
+export type { ShowLiveProps } from "./admin/realtime/show-live.vue";
+export { default as ShowLive } from "./admin/realtime/show-live.vue";
 export type { CardContentInnerProps } from "./admin/view/card-content-inner.vue";
 export { default as CardContentInner } from "./admin/view/card-content-inner.vue";
 export type { CreateProps } from "./admin/view/create.vue";

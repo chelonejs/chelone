@@ -1085,6 +1085,18 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/realtime/edit-live.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/realtime/list-live.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/realtime/show-live.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/view/card-content-inner.vue",
           "type": "registry:component"
         },
@@ -4003,6 +4015,51 @@
         "@chelone/lib-utils",
         "@chelone/single-field-list-record"
       ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "edit-live",
+      "type": "registry:component",
+      "title": "Edit Live",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/edit-live.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/edit"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "list-live",
+      "type": "registry:component",
+      "title": "List Live",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/list-live.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/list"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "show-live",
+      "type": "registry:component",
+      "title": "Show Live",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/show-live.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/show"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"

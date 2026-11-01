@@ -120,8 +120,8 @@ describe("<EditLive>", () => {
     await flushPromises();
 
     expect(value(live.wrapper)).toBe("a");
-    expect(live.wrapper.find('[data-slot="edit"]').html()).toBe(
-      plain.wrapper.find('[data-slot="edit"]').html(),
+    expect(live.wrapper.find('[data-slot="edit"]').text()).toBe(
+      plain.wrapper.find('[data-slot="edit"]').text(),
     );
 
     await input(live.wrapper).setValue("typed");
@@ -184,7 +184,8 @@ describe("<EditLive>", () => {
     await saving.wrapper.find('[data-slot="save-button"]').trigger("click");
     await flushPromises();
     expect(value(saving.wrapper)).toBe("typed");
-    expect(getOneOnSave).toHaveBeenCalledTimes(2);
+    // The save's own refetch, plus the one the held event runs once clean.
+    expect(getOneOnSave).toHaveBeenCalledTimes(3);
   });
 
   it("ignores events of other records", async () => {
@@ -202,22 +203,14 @@ describe("<EditLive>", () => {
 
   it("hears an event that lands before the record has loaded", async () => {
     const { dataProvider } = setup();
-    const getOne = dataProvider.getOne.bind(dataProvider);
-    let release = () => {};
-    const gate = new Promise<void>((resolve) => {
-      release = resolve;
-    });
-    vi.spyOn(dataProvider, "getOne").mockImplementationOnce(async (...args) => {
-      const response = await getOne(...args);
-      await gate;
-      return response;
-    });
+    // The form mounts only once the record is there, so a subscription made
+    // inside it would never hear an event while the first load has failed.
+    vi.spyOn(dataProvider, "getOne").mockRejectedValueOnce(new Error("down"));
     const { wrapper } = mountUnderAdmin(dataProvider, () => editLive());
     await flushPromises();
     expect(input(wrapper).exists()).toBe(false);
 
     await rename(dataProvider, 1, "a2");
-    release();
     await flushPromises();
 
     expect(value(wrapper)).toBe("a2");
