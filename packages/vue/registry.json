@@ -572,6 +572,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/update-button.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/common/application-updated-notification.vue",
           "type": "registry:component"
         },
@@ -1888,6 +1892,26 @@
       ],
       "registryDependencies": ["@chelone/lib-utils", "@chelone/save-button"],
       "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "update-button",
+      "type": "registry:component",
+      "title": "Update Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/update-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/confirm",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
