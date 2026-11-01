@@ -125,6 +125,47 @@ describe("<Layout> shell (via <Admin> default slot)", () => {
   });
 });
 
+describe("<Layout> skip link (via <Admin> default slot)", () => {
+  async function mountDefaultLayout() {
+    const wrapper = mount(Admin, {
+      props: { dataProvider },
+      slots: {
+        default: () => h(Resource, { name: "posts", list: Blank }),
+      },
+      global: { plugins: [makeRouter()] },
+      attachTo: document.body,
+    });
+    await flushPromises();
+    return wrapper;
+  }
+
+  it("renders the skip link before the app bar", async () => {
+    const wrapper = await mountDefaultLayout();
+
+    const main = wrapper.get("main");
+    const skip = main.get('[data-slot="skip-navigation-button"]');
+    const appBar = main.get('[data-slot="app-bar"]');
+    expect(main.element.firstElementChild).toBe(skip.element);
+    expect(
+      skip.element.compareDocumentPosition(appBar.element) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    wrapper.unmount();
+  });
+
+  it("skip link focus target is its main element", async () => {
+    const wrapper = await mountDefaultLayout();
+    const main = wrapper.get("main").element;
+    const focus = vi.spyOn(main, "focus");
+
+    await wrapper.get('[data-slot="skip-navigation-button"]').trigger("click");
+
+    expect(main.id).toBe("main-content");
+    expect(focus).toHaveBeenCalledTimes(1);
+    wrapper.unmount();
+  });
+});
+
 describe("<Layout> notifications (via <Admin> default slot)", () => {
   function mountDefaultLayout() {
     const notifications = createNotificationStore();

@@ -63,6 +63,7 @@ import type {
   SelectAllButtonProps,
   ShowLiveProps,
   ShowProps,
+  SkipNavigationButtonProps,
   SimpleListItemProps,
   SimpleListLoadingProps,
   SimpleListProps,
@@ -146,6 +147,8 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<SelectAllButtonProps>().toHaveProperty("limit");
     expectTypeOf<ShowProps>().toBeObject();
     expectTypeOf<ShowLiveProps>().toEqualTypeOf<ShowProps>();
+    expectTypeOf<SkipNavigationButtonProps>().toHaveProperty("label");
+    expectTypeOf<SkipNavigationButtonProps>().toHaveProperty("class");
     expectTypeOf<SimpleListItemProps>().toBeObject();
     expectTypeOf<SimpleListLoadingProps>().toBeObject();
     expectTypeOf<SimpleListProps>().toBeObject();

@@ -9,13 +9,16 @@
  * `<router-view>` there). The `#sidebar` / `#app-bar` slots override the sidebar
  * and header for a custom shell without re-implementing the frame.
  *
- * Vue divergences from the React twin: no error boundary yet — the content
- * mounts directly. The `#main-content` anchor is kept for a future skip-nav
- * target.
+ * `<main id="main-content">` is the target of the `<SkipNavigationButton>` that
+ * opens it, ahead of the app bar.
+ *
+ * Vue divergence from the React twin: no error boundary yet — the content
+ * mounts directly.
  */
 
 import AppBar from "./app-bar.vue";
 import AppSidebar from "./app-sidebar.vue";
+import SkipNavigationButton from "../buttons/skip-navigation-button.vue";
 import Notification from "../feedback/notification.vue";
 import { SidebarProvider } from "../../ui/sidebar";
 </script>
@@ -30,6 +33,7 @@ import { SidebarProvider } from "../../ui/sidebar";
       data-slot="layout-main"
       class="ml-auto flex h-svh w-full max-w-full flex-1 flex-col"
     >
+      <SkipNavigationButton />
       <slot name="app-bar">
         <AppBar />
       </slot>
