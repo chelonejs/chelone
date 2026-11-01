@@ -8,8 +8,9 @@ Realtime lets one user's change refresh what another user is looking at. A
 refetch. It adds three things to a data provider: `subscribe` and `publish`
 for events, and `lock`, `unlock`, `getLock` and `getLocks` for editing locks.
 
-The React examples below use `@chelone/react`. The demo wires all of it in
-`apps/demo/src/realtime.ts`, with a panel that plays "another user".
+The examples below use `@chelone/react`; the [Vue](#vue) section lists what
+differs in `@chelone/vue`. Both demos wire all of it in `src/realtime.ts`, with
+a panel that plays "another user".
 
 ## Wrapping a provider
 
@@ -255,6 +256,103 @@ The hooks `useLock()` and `useUnlock()` return `{ lock, isLoading, error }` and
 component is mounted and returns `{ lock, isLocking, lockError }`. Changing the
 resource, id or identity releases the old lock before it takes the next.
 `useGetLock` and `useGetLocks` read locks without subscribing.
+
+## Vue
+
+`@chelone/vue` has the same engine, wrapping and components. Wrapping a
+provider is identical, since it lives in `@chelone/core`; pass the result to
+`<Admin :data-provider>`. What differs is the shape of the API.
+
+### Composables
+
+Every hook above has a composable of the same name in `@chelone/vue`:
+`useSubscribe`, `useSubscribeToRecord`, `useSubscribeToRecordList`,
+`useSubscribeCallback`, `usePublish`, `useOnReconnect`, `useRealtimeStatus`,
+`useGetListLive`, `useGetOneLive`, `useGetManyLive`, `useGetLock`,
+`useGetLocks`, `useGetLockLive`, `useGetLocksLive`, `useLock`, `useUnlock` and
+`useLockOnMount`.
+
+- Arguments that can change take `MaybeRefOrGetter`: pass a value, a ref or a
+  getter. This covers `topic` of `useSubscribe`, `resource` and `id` of
+  `useSubscribeToRecord`, `resource` of `useSubscribeToRecordList`, `resource`
+  and `params` of `useGetListLive`, `useGetOneLive` and `useGetManyLive`,
+  `params` of `useGetLock` and `useGetLockLive`, the `enabled` option, and the
+  `resource`, `id` and `identity` options of `useLockOnMount`. A change
+  resubscribes or refetches.
+- `resource` of `useGetLock`, `useGetLocks`, `useGetLockLive` and
+  `useGetLocksLive` is a plain string, so those composables read one resource
+  for the life of the component.
+- The values they return are refs: `status` and `lastError` of
+  `useRealtimeStatus`, `lock`, `isLocking` and `lockError` of
+  `useLockOnMount`, and `isLoading` and `error` of `useLock` and `useUnlock`.
+  The `lock` and `unlock` of those two are plain functions.
+- `useSubscribe` reads its callback when it subscribes. A Vue callback closes
+  over live refs, so it needs no latest-callback wrapper.
+
+```vue
+<script setup lang="ts">
+import { useRealtimeStatus, useSubscribeToRecordList } from "@chelone/vue";
+
+const { status } = useRealtimeStatus();
+useSubscribeToRecordList("posts", (event) => {
+  console.log(event.type, event.payload);
+});
+</script>
+
+<template>
+  <span>{{ status }}</span>
+</template>
+```
+
+### Components
+
+`ListLive`, `ShowLive`, `EditLive`, `MenuLive`, `MenuLiveItemLink`,
+`LockOnMount` and `LockStatus` are exported from `@chelone/vue` with the same
+props as their React twins. Slots stand in for the render props.
+
+| Component | Slots |
+| --- | --- |
+| `ListLive`, `ShowLive`, `EditLive` | The slots of `List`, `Show` and `Edit`, passed through, such as `#actions` and `#toolbar`. |
+| `MenuLiveItemLink` | `#icon` replaces the `icon` prop, for markup. |
+| `LockOnMount` | Default once the lock is held; `#loading` while it is requested; `#locked-by="{ lock }"` when another identity holds it. |
+| `LockStatus` | `#lock="{ lock }"` replaces the default badge; `#free` renders when the record is free. |
+
+`MenuLive` takes `items` like the React component.
+
+```vue
+<script setup lang="ts">
+import {
+  DataTable,
+  DataTableCol,
+  EditLive,
+  ListLive,
+  LockOnMount,
+  LockStatus,
+  TextInput,
+} from "@chelone/vue";
+</script>
+
+<template>
+  <ListLive resource="posts">
+    <DataTable>
+      <DataTableCol source="title" />
+    </DataTable>
+  </ListLive>
+
+  <EditLive resource="posts">
+    <template #actions><LockStatus /></template>
+    <LockOnMount identity="you">
+      <template #locked-by="{ lock }">Held by {{ lock.identity }}</template>
+      <TextInput source="title" />
+    </LockOnMount>
+  </EditLive>
+</template>
+```
+
+`EditLive` holds events while the form has unsaved edits and replays one
+refetch once it is saved or reset, as the React component does. The Vue demo
+(`apps/vue-demo/src/realtime.ts`) wires it all with `ListLive` on the posts
+list and `EditLive` inside `LockOnMount` on the edit page.
 
 ## The transport contract
 

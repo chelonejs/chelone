@@ -49,7 +49,8 @@
 - Translatable multi-locale field editing (`useTranslatable`/`TranslatableContext`), async/lazy locale loading, `resolveBrowserLocale`, `mergeTranslations`, a `<Translate>` component. Effort M.
 
 ### R10. Realtime / enterprise
-- realtime (`useSubscribe`/live queries/locks), audit-log, ra-tree, calendar. Large, ecosystem-scale, deferred (was always post-v1 per the charter). Effort XL.
+- **Realtime, live views and record locks are built in both adapters** (the engine is in `@chelone/core`; `useSubscribe`, `ListLive`/`ShowLive`/`EditLive`/`MenuLive`, `LockOnMount`/`LockStatus` in React and Vue; both demos wire it). Guide: `apps/website/src/docs/content/app-config/realtime.mdx`.
+- Still deferred: audit-log, ra-tree, calendar. Large, ecosystem-scale, post-v1.
 
 ## Sequencing
 
@@ -63,4 +64,4 @@
 - Feedback: `Confirm`, `Error`, `Loading`, `LoadingIndicator`, `LinearProgress`, `Notification`, `NotFound` (for the catch-all route), `Offline`, `Placeholder`, `Ready`, `Spinner`.
 - Common: `Link`, `IconButtonWithTooltip`, `KeyboardShortcut`, `FieldLabelText`, `InputHelperText`, `CheckForApplicationUpdate`, `ApplicationUpdatedNotification`.
 
-**Next:** Tier 3 (R7 to R10) stays deferred. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open v1 work is the first npm release (#8).
+**Next:** Tier 3 (R7 to R9, and the audit-log, ra-tree and calendar part of R10) stays deferred. Realtime, live views and record locks from R10 are built. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open v1 work is the first npm release (#8).

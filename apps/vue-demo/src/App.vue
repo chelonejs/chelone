@@ -5,7 +5,7 @@
  * resource-registry / router adapter) and each `<Resource>` declares its CRUD
  * views; `<Admin>` reactively builds the vue-router routes from them. Every view
  * is built from the `@chelone/vue` components over the in-memory
- * `fakeDataProvider` — no server.
+ * `fakeDataProvider`, wrapped for realtime (`realtime.ts`) — no server.
  *
  * No `#layout` override: `<Admin>` renders its DEFAULT shell — the `<Layout>`
  * (a `<Sidebar>` with a resource `<Menu>` linking each registered resource + an
@@ -15,21 +15,22 @@
  * render no DOM).
  */
 
-import { fakeDataProvider } from "@chelone/core";
+import { createNotificationStore } from "@chelone/core";
 import { Admin, Resource } from "@chelone/vue";
 import { QueryClient } from "@tanstack/vue-query";
 import { makeI18n } from "./i18n";
+import { dataProvider } from "./realtime";
 import AuthorList from "./resources/AuthorList.vue";
 import PostCreate from "./resources/PostCreate.vue";
 import PostEdit from "./resources/PostEdit.vue";
 import PostList from "./resources/PostList.vue";
 import { resources } from "./resources/schema";
-import { seedData } from "./seed";
 
-// The in-memory provider, seeded once (it mutates its data in place), plus a
-// retry-off query client and the English i18n catalog — the services a real app
-// configures. Module scope keeps them stable for the app lifetime.
-const dataProvider = fakeDataProvider(seedData());
+// A retry-off query client, the English i18n catalog and a notification store
+// (the simulated user's failed lock reports through it) — the services a real
+// app configures. Module scope keeps them stable for the app lifetime. The
+// realtime data provider is built in `realtime.ts`.
+const notifications = createNotificationStore();
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: false, staleTime: 5 * 60 * 1000 },
@@ -45,6 +46,7 @@ const i18n = makeI18n();
     :query-client="queryClient"
     :registry="resources"
     :i18n="i18n"
+    :notifications="notifications"
   >
     <!-- QUICKSTART: `posts` carries a Zod schema (resources/schema.ts). The
          Edit/Create forms validate against it automatically (the D6
