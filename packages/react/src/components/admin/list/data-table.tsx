@@ -1,4 +1,11 @@
-import type { Identifier, SortPayload } from "@chelone/core";
+import {
+  arrangeColumns,
+  type DataTableColumnInfo,
+  defaultDataTableStoreKey,
+  getDataTableColumnId,
+  type Identifier,
+  type SortPayload,
+} from "@chelone/core";
 import {
   ArrowDownAZ,
   ArrowUpZA,
@@ -16,9 +23,11 @@ import {
   type ReactNode,
   use,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
+import { useDataTableColumns } from "../../../data-table-columns-hooks";
 import { useListContext } from "../../../form";
 import type { UnknownRecord } from "../../../lib/unknown-types";
 import { cn } from "../../../lib/utils";
@@ -54,9 +63,9 @@ import { BulkActionsToolbar } from "./bulk-actions-toolbar";
 
 /**
  * Which render pass a `DataTable.Col` is inside. Chelone drops ra-core's
- * `"columnsSelector"` pass (the columns-visibility inspector is deferred), so a
- * column renders as a header cell in the head pass and a body cell in the data
- * pass.
+ * `"columnsSelector"` pass: the table publishes its columns to the store and
+ * `ColumnsButton` reads them there, so a column renders as a header cell in
+ * the head pass and a body cell in the data pass.
  */
 type DataTableRenderPass = "header" | "data";
 const DataTableRenderContext = createContext<DataTableRenderPass>("data");
@@ -98,10 +107,10 @@ const useDataTableHasBulk = () => use(DataTableBulkContext);
  *
  * Ported from shadmin's `<DataTable>`, rewired off chelone's single
  * `useListContext` (chelone has no `DataTableBase` / `useDataTable*Context`
- * substrate — the table reads the list-controller result directly). Deferred
- * pieces relative to shadmin: the columns-visibility inspector
- * (`ColumnsSelector`, column-rank persistence) and the ra `useStore`-backed
- * hidden-columns state. `bulkActionButtons` defaults to `false` here — the
+ * substrate — the table reads the list-controller result directly). The table
+ * hides and orders its columns from the store and publishes them there (see
+ * `useDataTableColumns`); the picker UI is `ColumnsButton`, outside the table.
+ * `bulkActionButtons` defaults to `false` here — the
  * default delete/export/select-all buttons live in a later wave; pass your own
  * bulk children (or a `bulkActionsToolbar`) to enable selection.
  *
@@ -130,9 +139,45 @@ function DataTable(props: DataTableProps) {
     body: BodyComponent = DataTableBody,
     head: HeadComponent = DataTableHead,
     rowClick,
+    storeKey,
+    defaultHiddenColumns,
   } = props;
 
   const { data, isPending } = useListContext();
+  const resource = useResourceContext();
+  const { hidden, order, publish } = useDataTableColumns({
+    storeKey: storeKey ?? defaultDataTableStoreKey(resource ?? ""),
+    defaultHiddenColumns,
+  });
+
+  const elements = Children.toArray(children);
+  // A child that is not an element (text, a Fragment's contents) has no id: it
+  // stays in place and is always shown.
+  const columnProps = elements.map((child) =>
+    isValidElement<DataTableColumnProps>(child) ? child.props : undefined,
+  );
+  const ids = columnProps.map((p) => p && getDataTableColumnId(p));
+  const visibleChildren = arrangeColumns(ids, { hidden, order }).map(
+    (index) => elements[index],
+  );
+
+  const published = new Map<string, DataTableColumnInfo>();
+  columnProps.forEach((p, index) => {
+    const id = ids[index];
+    if (!p || id === undefined || published.has(id)) return;
+    published.set(id, {
+      id,
+      source: p.source,
+      ...(typeof p.label === "string" ? { label: p.label } : {}),
+      defaultHidden: p.defaultHidden,
+    });
+  });
+  const publishedJson = JSON.stringify([...published.values()]);
+  // After mount, never during render, so server rendering writes nothing.
+  useEffect(() => {
+    publish(JSON.parse(publishedJson));
+  }, [publish, publishedJson]);
+
   const hasBulkActions = !!bulkActionsToolbar || bulkActionButtons !== false;
 
   const [expandedIds, setExpandedIds] = useState<Identifier[]>([]);
@@ -160,7 +205,7 @@ function DataTable(props: DataTableProps) {
     [expand, expandedIds, toggleExpand, expandSingle, isRowExpandable],
   );
 
-  const nbColumns = Children.count(children);
+  const nbColumns = visibleChildren.length;
 
   return (
     <DataTableRowClickContext.Provider value={rowClick ?? "edit"}>
@@ -182,7 +227,7 @@ function DataTable(props: DataTableProps) {
                 <div className={cn("rounded-md border", className)}>
                   <Table>
                     <DataTableRenderContext.Provider value="header">
-                      <HeadComponent>{children}</HeadComponent>
+                      <HeadComponent>{visibleChildren}</HeadComponent>
                     </DataTableRenderContext.Provider>
                     <DataTableRenderContext.Provider value="data">
                       {createElement(
@@ -193,7 +238,7 @@ function DataTable(props: DataTableProps) {
                             rowIndex: number,
                           ) => string | undefined;
                         }>,
-                        { rowClassName, children },
+                        { rowClassName, children: visibleChildren },
                       )}
                     </DataTableRenderContext.Provider>
                   </Table>
@@ -725,6 +770,8 @@ interface DataTableColumnProps {
   label?: ReactNode;
   disableSort?: boolean;
   sortByOrder?: SortPayload["order"];
+  /** Hidden until a choice is stored, unless the table sets `defaultHiddenColumns`. */
+  defaultHidden?: boolean;
 }
 
 interface DataTableNumberColumnProps extends DataTableColumnProps {
@@ -768,6 +815,13 @@ interface DataTableProps {
   hover?: boolean;
   /** Row density. `"small"` tightens cell padding; `"medium"` (default) is standard. */
   size?: DataTableSize;
+  /**
+   * Store key prefix for the hidden, ordered and published columns. Default
+   * `"<resource>.datatable"`.
+   */
+  storeKey?: string;
+  /** Ids of the columns hidden until a choice is stored. */
+  defaultHiddenColumns?: string[];
   /** Override the table body component. */
   body?: ComponentType<{
     children: ReactNode;

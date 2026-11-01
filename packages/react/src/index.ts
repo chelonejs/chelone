@@ -1213,6 +1213,11 @@ export {
   HydrationBoundary,
   hydrate,
 } from "./ssr";
+export type {
+  UseDataTableColumnsOptions,
+  UseDataTableColumnsResult,
+} from "./data-table-columns-hooks";
+export { useDataTableColumns } from "./data-table-columns-hooks";
 export { useStore, useStoreItem } from "./store-hooks";
 export type {
   TranslatableContextProviderProps,
