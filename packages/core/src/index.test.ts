@@ -33,6 +33,14 @@ describe("@chelone/core barrel", () => {
     expect(barrel.matchCsvHeaders).toBeTypeOf("function");
   });
 
+  it("exports the CSV import pipeline", () => {
+    expect(barrel.applyCsvMapping).toBeTypeOf("function");
+    expect(barrel.csvSchemaFields).toBeTypeOf("function");
+    expect(barrel.validateCsvRows).toBeTypeOf("function");
+    expect(barrel.runCsvImport).toBeTypeOf("function");
+    expect(barrel.csvErrorRows).toBeTypeOf("function");
+  });
+
   it("exports the JSON text helpers", () => {
     expect(barrel.detectJsonShape).toBeTypeOf("function");
     expect(barrel.toJsonText).toBeTypeOf("function");
