@@ -7,7 +7,7 @@
  * T1's `<AppBar>` now renders both the `<UserMenu>` and the `<Title>` target.
  */
 
-import type { AuthProvider } from "@chelone/core";
+import { type AuthProvider, createI18n } from "@chelone/core";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h } from "vue";
@@ -15,6 +15,7 @@ import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import Admin from "../../../admin/admin.vue";
 import Resource from "../../../admin/resource.vue";
 import type { CheloneContextValue } from "../../../context";
+import AppBar from "./app-bar.vue";
 import Title from "./title.vue";
 import { TITLE_PORTAL_ID } from "./title-portal-id";
 
@@ -107,5 +108,69 @@ describe("<AppBar> integration (title + user menu)", () => {
     await wrapper.get('[data-slot="dropdown-menu-item"]').trigger("click");
     await flushPromises();
     expect(logout).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("<AppBar>", () => {
+  const i18nWith = (...locales: string[]) =>
+    createI18n({
+      locale: locales[0] ?? "en",
+      messages: Object.fromEntries(locales.map((code) => [code, {}])),
+    });
+
+  const changeLocale = () =>
+    wrapper?.find('button[aria-label="Change locale"]').exists() ?? false;
+
+  it("shows the locales menu when the i18n has two locales", async () => {
+    wrapper = mount(Admin, {
+      props: { dataProvider, i18n: i18nWith("en", "fr") },
+      slots: {
+        default: () => [h(Resource, { name: "posts", list: PostList })],
+      },
+      global: { plugins: [makeRouter()] },
+    });
+    await flushPromises();
+
+    expect(changeLocale()).toBe(true);
+    expect(wrapper.find('button[aria-label="Toggle theme"]').exists()).toBe(
+      true,
+    );
+  });
+
+  it("shows no locales menu with one locale", async () => {
+    wrapper = mount(Admin, {
+      props: { dataProvider, i18n: i18nWith("en") },
+      slots: {
+        default: () => [h(Resource, { name: "posts", list: PostList })],
+      },
+      global: { plugins: [makeRouter()] },
+    });
+    await flushPromises();
+
+    expect(changeLocale()).toBe(false);
+    expect(wrapper.find('button[aria-label="Toggle theme"]').exists()).toBe(
+      true,
+    );
+  });
+
+  it("toolbar slot replaces the locales menu and the theme toggle", async () => {
+    wrapper = mount(Admin, {
+      props: { dataProvider, i18n: i18nWith("en", "fr") },
+      slots: {
+        layout: () =>
+          h(AppBar, null, {
+            start: () => h("span"),
+            toolbar: () => h("button", { type: "button" }, "Custom Tool"),
+          }),
+      },
+      global: { plugins: [makeRouter()] },
+    });
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Custom Tool");
+    expect(changeLocale()).toBe(false);
+    expect(wrapper.find('button[aria-label="Toggle theme"]').exists()).toBe(
+      false,
+    );
   });
 });

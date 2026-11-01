@@ -227,6 +227,7 @@ export { subscribeStore, useSubscribable } from "./form/subscribe-ref";
 export {
   useLocale,
   useLocaleState,
+  useLocales,
   useSetLocale,
 } from "./i18n/use-locale";
 export type {

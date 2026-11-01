@@ -55,6 +55,8 @@ export type {
 export { default as FilterButton } from "./admin/buttons/filter-button.vue";
 export type { ListButtonProps } from "./admin/buttons/list-button.vue";
 export { default as ListButton } from "./admin/buttons/list-button.vue";
+export type { LocalesMenuButtonProps } from "./admin/buttons/locales-menu-button.vue";
+export { default as LocalesMenuButton } from "./admin/buttons/locales-menu-button.vue";
 export type { RefreshButtonProps } from "./admin/buttons/refresh-button.vue";
 export { default as RefreshButton } from "./admin/buttons/refresh-button.vue";
 export type { RefreshIconButtonProps } from "./admin/buttons/refresh-icon-button.vue";
