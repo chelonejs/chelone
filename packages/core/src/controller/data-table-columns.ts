@@ -90,10 +90,7 @@ export function moveColumn(
 }
 
 function fold(text: string): string {
-  return text
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase();
+  return text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
 export function columnLabelMatches(label: string, query: string): boolean {
