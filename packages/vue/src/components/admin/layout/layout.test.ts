@@ -141,19 +141,25 @@ describe("<Layout> skip link (via <Admin> default slot)", () => {
     return wrapper;
   }
 
-  it("renders the skip link before the sidebar menu and the app bar", async () => {
+  it("renders the skip link before the app bar", async () => {
     const wrapper = await mountDefaultLayout();
 
     const skip = wrapper.get('[data-slot="skip-navigation-button"]').element;
-    const later = [
-      wrapper.get('[data-slot="sidebar-menu-button"]').element,
-      wrapper.get('[data-slot="sidebar-trigger"]').element,
-      wrapper.get('[data-slot="app-bar"]').element,
-    ];
-    for (const element of later) {
+    const appBar = wrapper.get('[data-slot="app-bar"]').element;
+    expect(
+      skip.compareDocumentPosition(appBar) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    wrapper.unmount();
+  });
+
+  it("renders the skip link before the sidebar menu", async () => {
+    const wrapper = await mountDefaultLayout();
+
+    const skip = wrapper.get('[data-slot="skip-navigation-button"]').element;
+    for (const slot of ["sidebar-menu-button", "sidebar-trigger"]) {
+      const later = wrapper.get(`[data-slot="${slot}"]`).element;
       expect(
-        skip.compareDocumentPosition(element) &
-          Node.DOCUMENT_POSITION_FOLLOWING,
+        skip.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
     }
     wrapper.unmount();
