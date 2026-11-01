@@ -174,6 +174,7 @@ const STUBS = [
   { slug: "list-button", section: "ui-layout", component: "ListButton", registry: "list-button", title: "ListButton", desc: "Links back to the list view of the current resource." },
   { slug: "loading", section: "ui-layout", component: "Loading", registry: "loading", title: "Loading", desc: "A centred loading indicator with a deferred appearance." },
   { slug: "loading-indicator", section: "ui-layout", component: "LoadingIndicator", registry: "loading-indicator", title: "LoadingIndicator", desc: "A refresh button that shows a spinner over itself while any query or mutation is in flight." },
+  { slug: "locales-menu-button", section: "ui-layout", component: "LocalesMenuButton", registry: "locales-menu-button", title: "LocalesMenuButton", desc: "The app-bar menu that switches the interface language, with each language named in its own." },
   { slug: "login-form", section: "ui-layout", component: "LoginForm", registry: "login-form", title: "LoginForm", desc: "The email/password sign-in form." },
   { slug: "login-page", section: "ui-layout", component: "LoginPage", registry: "login-page", title: "LoginPage", desc: "The full login page wrapping the login form in the auth layout." },
   { slug: "logout", section: "ui-layout", component: "Logout", registry: "logout", title: "Logout", desc: "The user-menu item that signs the user out." },

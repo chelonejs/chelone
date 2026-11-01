@@ -113,6 +113,7 @@ export {
   useIsOffline,
   useLoading,
   useLocaleState,
+  useLocales,
   useRefresh,
   useTimeout,
 } from "./compat-hooks";
@@ -212,6 +213,10 @@ export {
   ListButton,
   type ListButtonProps,
 } from "./components/admin/buttons/list-button";
+export {
+  LocalesMenuButton,
+  type LocalesMenuButtonProps,
+} from "./components/admin/buttons/locales-menu-button";
 export {
   RefreshButton,
   type RefreshButtonProps,
