@@ -165,6 +165,8 @@ export {
 } from "./data/queries";
 export type { RunUndoableOptions } from "./data/undoable";
 export { useUndoable } from "./data/undoable";
+export type { UseCheckForApplicationUpdateOptions } from "./data/use-check-for-application-update";
+export { useCheckForApplicationUpdate } from "./data/use-check-for-application-update";
 export { useIsOffline } from "./data/use-is-offline";
 export { useLoading, useRefresh } from "./data/use-refresh";
 export type {
