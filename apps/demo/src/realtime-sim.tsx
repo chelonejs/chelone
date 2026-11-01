@@ -5,7 +5,7 @@
  */
 
 import type { Identifier } from "@chelone/core";
-import { useNotify } from "@chelone/react";
+import { useGetLockLive, useNotify } from "@chelone/react";
 import { dataProvider, locks } from "./realtime";
 
 const buttonClass =
@@ -18,6 +18,8 @@ export interface SimulateOtherUserProps {
 
 export function SimulateOtherUser({ postId = 1 }: SimulateOtherUserProps) {
   const notify = useNotify();
+  const { data: lock } = useGetLockLive("posts", { id: postId });
+  const heldByAlice = lock?.identity === "alice";
 
   const addPost = () =>
     dataProvider.create("posts", {
@@ -30,18 +32,20 @@ export function SimulateOtherUser({ postId = 1 }: SimulateOtherUserProps) {
       },
     });
 
-  const lockPost = () =>
-    locks
-      .lock("posts", { id: postId, identity: "alice" })
-      .catch((error: Error) => notify(error.message, { type: "error" }));
+  // The same button releases alice's lock, so the demo can always free a post.
+  const toggleLock = () =>
+    (heldByAlice ? locks.unlock : locks.lock)("posts", {
+      id: postId,
+      identity: "alice",
+    }).catch((error: Error) => notify(error.message, { type: "error" }));
 
   return (
-    <div className="flex items-center gap-2" data-testid="simulate-other-user">
+    <div className="flex flex-wrap items-center gap-2">
       <button type="button" className={buttonClass} onClick={addPost}>
         Another user adds a post
       </button>
-      <button type="button" className={buttonClass} onClick={lockPost}>
-        Another user locks post {String(postId)}
+      <button type="button" className={buttonClass} onClick={toggleLock}>
+        Another user {heldByAlice ? "unlocks" : "locks"} post {String(postId)}
       </button>
     </div>
   );

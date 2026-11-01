@@ -13,6 +13,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router";
 import { makeI18n } from "./i18n";
 import { dataProvider } from "./realtime";
+import { SimulateOtherUser } from "./realtime-sim";
 import { resources } from "./resources";
 import {
   AuthorCreate,
@@ -55,6 +56,8 @@ const notifications = createNotificationStore();
 const store = createStore();
 
 // Posts get a live unread badge; the other resources keep their plain links.
+// The panel is repeated here because the badge clears while /posts is open:
+// adding a post from any other page is the only way to see it.
 function DemoMenu() {
   return (
     <>
@@ -69,6 +72,9 @@ function DemoMenu() {
         <Menu.ResourceItem name="customers" />
         <Menu.ResourceItem name="orders" />
       </Menu>
+      <div className="px-4 pt-2">
+        <SimulateOtherUser />
+      </div>
     </>
   );
 }
