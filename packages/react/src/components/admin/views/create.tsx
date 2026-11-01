@@ -18,8 +18,18 @@
  * the resource label (`ra.page.create`).
  */
 
-import type { CreateFormControllerOptions } from "@chelone/core";
-import { type ReactNode, useCallback, useMemo, useRef } from "react";
+import {
+  type CreateFormControllerOptions,
+  getRecordFromLocation,
+} from "@chelone/core";
+import {
+  type ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { cn } from "@/lib/utils";
 import { CheloneFormProvider } from "../../../form-context";
 import { useCreateForm } from "../../../form-hooks";
@@ -32,14 +42,30 @@ import {
   useCreateContext,
 } from "../../../record-view-context";
 import { useResourceContext } from "../../../resource";
+import { RouterAdapterContext } from "../../../router/adapter";
 import {
   SaveContextProvider,
   type SaveContextValue,
 } from "../../../save-context";
 
+// Adapter presence is mount-stable (see `useRedirectOptional`), so the
+// conditional `useLocation` call keeps hook order. The location is read once:
+// the form is seeded at mount, like `record`.
+function useRecordFromLocationOnce(): Record<string, unknown> | null {
+  const adapter = useContext(RouterAdapterContext);
+  // biome-ignore lint/correctness/useHookAtTopLevel: adapter presence is mount-stable.
+  const location = adapter ? adapter.useLocation() : null;
+  const [seed] = useState(() =>
+    location ? getRecordFromLocation(location) : null,
+  );
+  return seed;
+}
+
 /**
  * `validate` and `onSuccess` run as of the latest render. `schema` and
  * `sanitizeEmptyValues` are read once, at mount: remount with a `key` to change them.
+ * The location's `?source=` JSON (what `<CloneButton>` writes) also seeds the
+ * form at mount, and its keys win over `record`.
  */
 export interface CreateProps
   extends Pick<
@@ -91,13 +117,15 @@ function Create(props: CreateProps) {
     );
   }
 
+  const recordFromLocation = useRecordFromLocationOnce();
+
   // The controller captures its options once, so it always gets these two
   // wrappers (a callback added after mount still runs) and they read the
   // latest render's callbacks through the ref.
   const latest = useRef({ validate, onSuccess });
   latest.current = { validate, onSuccess };
   const controller = useCreateForm(resource, {
-    record,
+    record: recordFromLocation ? { ...record, ...recordFromLocation } : record,
     validate: (values) => latest.current.validate?.(values),
     schema,
     sanitizeEmptyValues,

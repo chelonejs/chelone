@@ -1214,6 +1214,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/clone-button.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/create-button.tsx",
           "type": "registry:component"
         },
@@ -2131,6 +2135,25 @@
       ],
       "registryDependencies": ["@chelone/button"],
       "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "clone-button",
+      "type": "registry:component",
+      "title": "Clone Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/clone-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
