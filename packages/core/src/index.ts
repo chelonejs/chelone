@@ -350,6 +350,23 @@ export {
   isGeoGeometry,
   isGeoJsonValue,
 } from "./geo/geojson";
+export type { ShapeLayerSpec, ShapeStyle } from "./geo/map-layers";
+export {
+  asFeatureCollection,
+  DEFAULT_SHAPE_STYLE,
+  shapeLayerSpecs,
+} from "./geo/map-layers";
+export type {
+  MapStyleInput,
+  MapStyleSpec,
+  RasterTileStyleOptions,
+} from "./geo/map-style";
+export {
+  expandTileUrl,
+  latLngToLngLat,
+  lngLatToLatLng,
+  rasterTileStyle,
+} from "./geo/map-style";
 export { mapMessages } from "./geo/messages";
 export { defaultMessages } from "./i18n/default-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";
