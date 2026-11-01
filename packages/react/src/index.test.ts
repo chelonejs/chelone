@@ -63,6 +63,7 @@ import type {
   UseFilterFormResult,
   UseRecordContextOptions,
   UseResourceTranslationOptions,
+  UseSubscribeOptions,
   UseTabbedFormResult,
   UseWatchOptions,
   UseWizardFormResult,
@@ -235,6 +236,16 @@ describe("@chelone/react barrel — P6 form leftovers + SSR seam (W2)", () => {
     expect(barrel.useWizardFormContext).toBeTypeOf("function");
   });
 
+  it("exports the translatable hooks", () => {
+    expect(barrel.useTranslatable).toBeTypeOf("function");
+    expect(barrel.TranslatableContextProvider).toBeTypeOf("function");
+    expect(barrel.useTranslatableContext).toBeTypeOf("function");
+    expectTypeOf<barrel.UseTranslatableOptions>().toHaveProperty("locales");
+    expectTypeOf<barrel.TranslatableContextValue>().toHaveProperty(
+      "selectedLocale",
+    );
+  });
+
   it("exports TabbedForm (W2-T5)", () => {
     expect(barrel.TabbedForm).toBeTypeOf("function");
     expect(barrel.TabbedForm.Tab).toBeTypeOf("function");
@@ -272,6 +283,20 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
     expect(barrel.useFormContext).toBe(barrel.useCheloneFormContext);
     expect(barrel.useController).toBe(barrel.useInput);
     expect(barrel.useFieldArray).toBe(barrel.useArrayInput);
+  });
+
+  it("exports the realtime and live hooks", () => {
+    expect(barrel.useSubscribe).toBeTypeOf("function");
+    expect(barrel.useSubscribeCallback).toBeTypeOf("function");
+    expect(barrel.useSubscribeToRecord).toBeTypeOf("function");
+    expect(barrel.useSubscribeToRecordList).toBeTypeOf("function");
+    expect(barrel.usePublish).toBeTypeOf("function");
+    expect(barrel.useOnReconnect).toBeTypeOf("function");
+    expect(barrel.useRealtimeStatus).toBeTypeOf("function");
+    expect(barrel.useGetListLive).toBeTypeOf("function");
+    expect(barrel.useGetOneLive).toBeTypeOf("function");
+    expect(barrel.useGetManyLive).toBeTypeOf("function");
+    expectTypeOf<UseSubscribeOptions>().toHaveProperty("enabled");
   });
 });
 
