@@ -1798,6 +1798,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/realtime/list-live.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/views/card-content-inner.tsx",
           "type": "registry:component"
         },
@@ -4783,6 +4787,21 @@
         }
       ],
       "registryDependencies": ["@chelone/badge", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "list-live",
+      "type": "registry:component",
+      "title": "List Live",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/list-live.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/list"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
