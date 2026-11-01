@@ -396,6 +396,18 @@ export type { EditLiveProps } from "./admin/realtime/edit-live.vue";
 export { default as EditLive } from "./admin/realtime/edit-live.vue";
 export type { ListLiveProps } from "./admin/realtime/list-live.vue";
 export { default as ListLive } from "./admin/realtime/list-live.vue";
+export type { LockOnMountProps } from "./admin/realtime/lock-on-mount.vue";
+export { default as LockOnMount } from "./admin/realtime/lock-on-mount.vue";
+export type { LockStatusProps } from "./admin/realtime/lock-status.vue";
+export { default as LockStatus } from "./admin/realtime/lock-status.vue";
+export type {
+  MenuLiveItemLinkProps,
+  MenuLiveProps,
+} from "./admin/realtime/menu-live.vue";
+export {
+  default as MenuLive,
+  MenuLiveItemLink,
+} from "./admin/realtime/menu-live.vue";
 export type { ShowLiveProps } from "./admin/realtime/show-live.vue";
 export { default as ShowLive } from "./admin/realtime/show-live.vue";
 export type { CardContentInnerProps } from "./admin/view/card-content-inner.vue";

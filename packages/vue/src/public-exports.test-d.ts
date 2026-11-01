@@ -43,6 +43,10 @@ import type {
   ListToolbarProps,
   LoadingIndicatorProps,
   LoadingPageProps,
+  LockOnMountProps,
+  LockStatusProps,
+  MenuLiveItemLinkProps,
+  MenuLiveProps,
   NullableBooleanInputProps,
   NumberInputProps,
   OfflineProps,
@@ -118,6 +122,10 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<ListToolbarProps>().toBeObject();
     expectTypeOf<LoadingIndicatorProps>().toBeObject();
     expectTypeOf<LoadingPageProps>().toBeObject();
+    expectTypeOf<LockOnMountProps>().toHaveProperty("onLockError");
+    expectTypeOf<LockStatusProps>().toHaveProperty("resource");
+    expectTypeOf<MenuLiveItemLinkProps>().toHaveProperty("resource");
+    expectTypeOf<MenuLiveProps>().toHaveProperty("items");
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");
     expectTypeOf<NumberInputProps>().toHaveProperty("source");
     expectTypeOf<OfflineProps>().toBeObject();
