@@ -46,9 +46,7 @@ const RESERVED = /[,()"\\]/;
 
 /** Double-quotes a value that holds a character PostgREST reads as syntax. */
 export function quoteValue(value: string): string {
-  return RESERVED.test(value)
-    ? `"${value.replace(/["\\]/g, "\\$&")}"`
-    : value;
+  return RESERVED.test(value) ? `"${value.replace(/["\\]/g, "\\$&")}"` : value;
 }
 
 export function buildFilters(
