@@ -87,7 +87,7 @@ function mount({
                 </BulkEditDrawer>
               }
             >
-              <DataTable bulkActionButtons={<></>}>
+              <DataTable bulkActionButtons={<span />}>
                 <DataTable.Col source="title" />
               </DataTable>
             </List>
