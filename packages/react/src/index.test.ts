@@ -541,6 +541,7 @@ describe("@chelone/react barrel — P7e auth pages (T4)", () => {
   it("exports the auth-page components", () => {
     expect(barrel.LoginPage).toBeTypeOf("function");
     expect(barrel.LoginForm).toBeTypeOf("function");
+    expect(barrel.LoginWithEmail).toBeTypeOf("function");
     expect(barrel.AuthCallback).toBeTypeOf("function");
     expect(barrel.AuthLayout).toBeTypeOf("function");
   });
@@ -569,6 +570,7 @@ describe("@chelone/react barrel — P7g feedback + common", () => {
 
   it("exports the error / ready splash + title", () => {
     expect(barrel.Error).toBeTypeOf("function");
+    expect(barrel.NotFound).toBeTypeOf("function");
     expect(barrel.Ready).toBeTypeOf("function");
     expect(barrel.Title).toBeTypeOf("function");
   });

@@ -1194,6 +1194,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/auth/login-with-email.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/auth/logout.tsx",
           "type": "registry:component"
         },
@@ -1335,6 +1339,10 @@
         },
         {
           "path": "src/components/admin/feedback/loading.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/not-found.tsx",
           "type": "registry:component"
         },
         {
@@ -2101,6 +2109,28 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "login-with-email",
+      "type": "registry:component",
+      "title": "Login With Email",
+      "files": [
+        {
+          "path": "src/components/admin/auth/login-with-email.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/password-input",
+        "@chelone/text-input",
+        "@chelone/ui-spinner"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "devDependencies": ["@tanstack/react-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "logout",
       "type": "registry:component",
       "title": "Logout",
@@ -2697,6 +2727,26 @@
       ],
       "registryDependencies": ["@chelone/spinner"],
       "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "not-found",
+      "type": "registry:component",
+      "title": "Not Found",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/not-found.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/loading",
+        "@chelone/title"
+      ],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
