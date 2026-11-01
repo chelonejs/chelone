@@ -154,6 +154,15 @@ const locale = useLocale();         // "en"
 const setLocale = useSetLocale();   // setLocale("fr")
 ```
 
+## Translatable records
+
+Catalogs localize the interface. To localize the data, a translatable record
+stores `{ en, fr }` under each translated field, for example
+`{ name: { en: "Chair", fr: "Chaise" } }`. Edit those fields with
+[TranslatableInputs](/docs/editing/translatable-inputs) and show them with
+[TranslatableFields](/docs/viewing/translatable-fields). Both take the list of
+locales to show; the app locale only picks the tab selected first.
+
 ## Tips
 
 - `setLocale` throws on an **unregistered** locale — register every locale in
