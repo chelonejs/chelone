@@ -93,6 +93,22 @@ export const ArrowUpDownIcon = paths(
 /** Chevron-down — `<SortButton>` trigger affordance. */
 export const ChevronDownIcon = paths("m6 9 6 6 6-6");
 
+/** Chevron-up — `<ColumnsButton>` move up. */
+export const ChevronUpIcon = paths("m18 15-6-6-6 6");
+
+/** Columns-3 — `<ColumnsButton>`. */
+export const ColumnsIcon = icon(() => [
+  h("rect", { width: "18", height: "18", x: "3", y: "3", rx: "2" }),
+  h("path", { d: "M9 3v18" }),
+  h("path", { d: "M15 3v18" }),
+]);
+
+/** Search — `<ColumnsButton>` search box. */
+export const SearchIcon = icon(() => [
+  h("circle", { cx: "11", cy: "11", r: "8" }),
+  h("path", { d: "m21 21-4.3-4.3" }),
+]);
+
 /** Filter funnel — `<FilterButton>`. */
 export const FilterIcon = paths("M22 3H2l8 9.46V19l4 2v-8.54L22 3z");
 
