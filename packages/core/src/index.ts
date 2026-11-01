@@ -50,6 +50,18 @@ export {
   serializeListState,
 } from "./controller/list-params";
 export type {
+  PrevNextOptions,
+  PrevNextPage,
+  PrevNextParams,
+  PrevNextResolution,
+  PrevNextStoredParams,
+} from "./controller/prev-next";
+export {
+  canUseCachedPage,
+  getPrevNextParams,
+  resolvePrevNext,
+} from "./controller/prev-next";
+export type {
   CreateController,
   CreateControllerOptions,
   CreateControllerState,
