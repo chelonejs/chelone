@@ -1274,6 +1274,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/skip-navigation-button.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/sort-button.tsx",
           "type": "registry:component"
         },
@@ -2417,6 +2421,21 @@
         "@chelone/sidebar",
         "@chelone/tooltip"
       ],
+      "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "skip-navigation-button",
+      "type": "registry:component",
+      "title": "Skip Navigation Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/skip-navigation-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
       "dependencies": ["@chelone/react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
@@ -4274,7 +4293,8 @@
         "@chelone/lib-utils",
         "@chelone/menu",
         "@chelone/notification",
-        "@chelone/sidebar"
+        "@chelone/sidebar",
+        "@chelone/skip-navigation-button"
       ],
       "dependencies": ["@chelone/react"],
       "categories": ["chelone", "layout"],

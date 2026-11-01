@@ -13,8 +13,9 @@
  *   in-house `ShellErrorBoundary` / `DefaultErrorFallback` (the `error` slot
  *   overrides the fallback). The P6 shell already wraps this `<Layout>` in its
  *   OWN `ShellErrorBoundary`; the inner one here isolates content-area crashes.
- * - No `<SkipNavigationButton>` (a BUTTONS-wave component); the `id="main-content"`
- *   anchor is kept so a skip-nav button can target it once it lands.
+ * - `<SkipNavigationButton>` comes first in the DOM, ahead of the sidebar it
+ *   skips (WCAG 2.4.1). `id="main-content"` sits on the content area below the
+ *   app bar, so the next Tab after a skip lands on the first control there.
  * - The Suspense fallback is a minimal inline node, not the delayed `<Loading>`.
  * - `CoreLayoutProps` (a shadmin-core type) does not exist in chelone; the slot
  *   contract is simply `{ children }`.
@@ -25,6 +26,7 @@ import { Suspense } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { type ErrorFallbackProps, ShellErrorBoundary } from "../../../admin";
+import { SkipNavigationButton } from "../buttons/skip-navigation-button";
 import { Notification } from "../feedback/notification";
 import { AppBar, type AppBarProps } from "./app-bar";
 import { AppSidebar, type AppSidebarProps } from "./app-sidebar";
@@ -69,11 +71,11 @@ function Layout(props: LayoutProps) {
 
   return (
     <SidebarProvider>
+      <SkipNavigationButton />
       <SidebarComponent>
         <MenuComponent />
       </SidebarComponent>
       <main
-        id="main-content"
         className={cn(
           "ml-auto w-full max-w-full",
           "peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon)-1rem)]",
@@ -83,11 +85,13 @@ function Layout(props: LayoutProps) {
         )}
       >
         <AppBarComponent />
-        <ShellErrorBoundary fallback={error}>
-          <Suspense fallback={<div className="px-4 py-2">Loading…</div>}>
-            <div className="flex flex-1 flex-col px-4">{children}</div>
-          </Suspense>
-        </ShellErrorBoundary>
+        <div id="main-content" className="flex flex-1 flex-col">
+          <ShellErrorBoundary fallback={error}>
+            <Suspense fallback={<div className="px-4 py-2">Loading…</div>}>
+              <div className="flex flex-1 flex-col px-4">{children}</div>
+            </Suspense>
+          </ShellErrorBoundary>
+        </div>
       </main>
       <Notification />
     </SidebarProvider>
