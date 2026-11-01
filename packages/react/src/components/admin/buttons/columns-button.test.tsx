@@ -291,14 +291,14 @@ describe("<ColumnsButton>", () => {
       children: [
         <DataTable.Col
           key="a"
-          source="author_id"
+          source="first_name"
           label={<b>Who</b>}
           render={() => "x"}
         />,
       ],
     });
     open();
-    expect(switches()).toEqual([{ name: "Author id", on: true }]);
+    expect(switches()).toEqual([{ name: "First name", on: true }]);
   });
 
   it("is disabled before a table has published columns", () => {
