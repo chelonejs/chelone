@@ -70,7 +70,7 @@ function ColumnsButton({
   const searchId = useId();
   const [query, setQuery] = useState("");
 
-  const byId = new Map(columns.map((column) => [column.id, column]));
+  const empty = columns.length === 0;
   const columnIds = columns.map((column) => column.id);
   const arranged = arrangeColumns(columnIds, { hidden: [], order });
   const rows = arranged.flatMap((index) => {
@@ -99,11 +99,7 @@ function ColumnsButton({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          variant={variant}
-          disabled={byId.size === 0}
-          {...buttonProps}
-        >
+        <Button variant={variant} disabled={empty} {...buttonProps}>
           <Columns3 />
           {translate("ra.action.select_columns", { _: "Columns" })}
         </Button>
