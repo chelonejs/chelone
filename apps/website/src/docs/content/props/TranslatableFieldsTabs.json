@@ -1,0 +1,17 @@
+{
+  "name": "TranslatableFieldsTabs",
+  "props": [
+    {
+      "name": "groupKey",
+      "type": "string",
+      "optional": true,
+      "comment": "Prefix that keeps the ids of two groups apart. Defaults to `\"\"`."
+    },
+    {
+      "name": "variant",
+      "type": "\"default\" | \"line\" | null",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
