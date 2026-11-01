@@ -45,6 +45,10 @@ import type {
   LoadingIndicatorProps,
   LoadingPageProps,
   LocalesMenuButtonProps,
+  LockOnMountProps,
+  LockStatusProps,
+  MenuLiveItemLinkProps,
+  MenuLiveProps,
   NullableBooleanInputProps,
   NumberInputProps,
   OfflineProps,
@@ -125,6 +129,10 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<LocalesMenuButtonProps>().toHaveProperty("class");
     expectTypeOf(barrel.useLocales).toBeFunction();
     expectTypeOf<LoadingPageProps>().toBeObject();
+    expectTypeOf<LockOnMountProps>().toHaveProperty("onLockError");
+    expectTypeOf<LockStatusProps>().toHaveProperty("resource");
+    expectTypeOf<MenuLiveItemLinkProps>().toHaveProperty("resource");
+    expectTypeOf<MenuLiveProps>().toHaveProperty("items");
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");
     expectTypeOf<NumberInputProps>().toHaveProperty("source");
     expectTypeOf<OfflineProps>().toBeObject();

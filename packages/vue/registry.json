@@ -12,6 +12,10 @@
       "registryDependencies": ["@chelone/lib-utils"],
       "files": [
         {
+          "path": "src/components/ui/alert.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/ui/avatar.ts",
           "type": "registry:component"
         },
@@ -128,6 +132,20 @@
           "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "alert",
+      "type": "registry:ui",
+      "title": "Alert",
+      "files": [
+        {
+          "path": "src/components/ui/alert.ts",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -399,6 +417,7 @@
       "categories": ["chelone", "dashboard"],
       "description": "The Chelone admin component surface (Admin, List, Edit, DataTable, TextField, TextInput, the auth pages, layout, buttons, fields, inputs, and views) wired onto the @chelone/vue composables. Granularizes so each component installs on its own.",
       "registryDependencies": [
+        "@chelone/alert",
         "@chelone/avatar",
         "@chelone/badge",
         "@chelone/button",
@@ -1138,6 +1157,18 @@
         },
         {
           "path": "src/components/admin/realtime/list-live.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/realtime/lock-on-mount.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/realtime/lock-status.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/realtime/menu-live.vue",
           "type": "registry:component"
         },
         {
@@ -4320,6 +4351,52 @@
       ],
       "registryDependencies": ["@chelone/list"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lock-on-mount",
+      "type": "registry:component",
+      "title": "Lock On Mount",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/lock-on-mount.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/alert", "@chelone/skeleton"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lock-status",
+      "type": "registry:component",
+      "title": "Lock Status",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/lock-status.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/badge"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "menu-live",
+      "type": "registry:component",
+      "title": "Menu Live",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/menu-live.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/badge"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "devDependencies": ["vue-router"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
