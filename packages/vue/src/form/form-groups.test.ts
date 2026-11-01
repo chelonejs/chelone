@@ -296,6 +296,51 @@ describe("form groups", () => {
     await flushPromises();
     expect(stateOf(capture).value.isDirty).toBe(true);
   });
+  it("an input under nested FormGroupProviders registers into every enclosing group", async () => {
+    const capture: Capture = { inputs: {} };
+    const required = (value: unknown) => (value ? undefined : "required");
+    const states: Record<string, Readonly<Ref<GroupState>>> = {};
+    let name: Readonly<Ref<string | undefined>> | undefined;
+    const NamedBadge = defineComponent({
+      props: { name: { type: String, required: true } },
+      setup(props) {
+        states[props.name] = useFormGroup(() => props.name);
+        return () => null;
+      },
+    });
+    const NameProbe = defineComponent({
+      setup() {
+        name = useFormGroupName();
+        return () => null;
+      },
+    });
+    mountForm(
+      capture,
+      () =>
+        h(FormGroupsProvider, null, () => [
+          h(RegistryProbe, { capture }),
+          h(FormGroupProvider, { name: "outer" }, () =>
+            h(FormGroupProvider, { name: "inner" }, () => [
+              h(Input, { source: "title", capture, validate: required }),
+              h(NameProbe),
+            ]),
+          ),
+          h(NamedBadge, { name: "outer" }),
+          h(NamedBadge, { name: "inner" }),
+        ]),
+      { id: 1, title: "", views: 0 },
+    );
+    await flushPromises();
+    expect(registryOf(capture).getMembers("outer")).toEqual(["title"]);
+    expect(registryOf(capture).getMembers("inner")).toEqual(["title"]);
+
+    await capture.form?.submit();
+    await flushPromises();
+    expect(states.outer?.value.isValid).toBe(false);
+    expect(states.inner?.value.isValid).toBe(false);
+    expect(name?.value).toBe("inner");
+  });
+
   it("useFormGroupName resolves the ambient name when first read after setup", async () => {
     const capture: Capture = { inputs: {} };
     const groupName = ref("main");

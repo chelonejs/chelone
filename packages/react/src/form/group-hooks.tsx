@@ -81,8 +81,18 @@ export function useOptionalFormGroups(): FormGroups | undefined {
   return useContext(FormGroupsContext) ?? undefined;
 }
 
-/** The ambient group name a `<FormGroupProvider>` scopes inputs into. */
-const FormGroupNameContext = createContext<string | undefined>(undefined);
+/**
+ * The groups a `<FormGroupProvider>` scopes inputs into: its own `name` (the
+ * innermost) and every enclosing provider's, outermost first.
+ */
+interface FormGroupScope {
+  name: string;
+  names: readonly string[];
+}
+
+const FormGroupNameContext = createContext<FormGroupScope | undefined>(
+  undefined,
+);
 
 export interface FormGroupProviderProps {
   /** The group name inputs below auto-register into (tab/step name). */
@@ -95,35 +105,52 @@ export interface FormGroupProviderProps {
  * final source on mount and unregisters on unmount. Nest under
  * `<FormGroupsProvider>`. A tab header renders `useFormGroup(name)` for the
  * matching validity badge.
+ *
+ * Nested providers add to the groups above them rather than replace them, so
+ * an input joins every enclosing group, and a step or tab still sees fields
+ * that a nested provider (a locale tab) narrows further.
  */
 export function FormGroupProvider({ name, children }: FormGroupProviderProps) {
+  const parent = useContext(FormGroupNameContext);
+  const scope = useMemo<FormGroupScope>(
+    () => ({
+      name,
+      names: parent?.names.includes(name)
+        ? parent.names
+        : [...(parent?.names ?? []), name],
+    }),
+    [parent, name],
+  );
   return (
-    <FormGroupNameContext.Provider value={name}>
+    <FormGroupNameContext.Provider value={scope}>
       {children}
     </FormGroupNameContext.Provider>
   );
 }
 
-/** The ambient group name, or `undefined` outside a `<FormGroupProvider>`. */
+/** The innermost ambient group name, or `undefined` outside a `<FormGroupProvider>`. */
 export function useFormGroupName(): string | undefined {
-  return useContext(FormGroupNameContext);
+  return useContext(FormGroupNameContext)?.name;
 }
 
 /**
- * Registers `source` into the ambient group (name from `<FormGroupProvider>`)
- * on mount and unregisters on unmount — a no-op when there is no ambient group
- * or no registry. `useInput` calls this so grouped inputs join their badge
- * automatically. Registration is de-duped by the registry, so StrictMode's
- * double-invoke and per-render churn never leak members.
+ * Registers `source` into every enclosing group (names from the
+ * `<FormGroupProvider>`s above) on mount and unregisters on unmount — a no-op
+ * when there is no ambient group or no registry. `useInput` calls this so
+ * grouped inputs join their badge automatically. Registration is de-duped by
+ * the registry, so StrictMode's double-invoke and per-render churn never leak
+ * members.
  */
 export function useRegisterFieldGroup(source: string): void {
   const registry = useOptionalFormGroups();
-  const group = useFormGroupName();
+  const names = useContext(FormGroupNameContext)?.names;
   useEffect(() => {
-    if (!registry || group === undefined) return;
-    registry.register(group, source);
-    return () => registry.unregister(group, source);
-  }, [registry, group, source]);
+    if (!registry || names === undefined) return;
+    for (const group of names) registry.register(group, source);
+    return () => {
+      for (const group of names) registry.unregister(group, source);
+    };
+  }, [registry, names, source]);
 }
 
 /** Value-equality for a reduced {@link GroupState} — skips unchanged badge renders. */

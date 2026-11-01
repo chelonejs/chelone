@@ -16,6 +16,7 @@ import {
   FormGroupProvider,
   FormGroupsProvider,
   useFormGroup,
+  useFormGroupName,
   useFormGroups,
 } from "./group-hooks";
 
@@ -234,6 +235,55 @@ describe("FormGroupsProvider + useFormGroup", () => {
     });
     // body no longer a member — its meta must not be aggregated.
     expect(groupState.current?.errors.body).toBeUndefined();
+  });
+
+  it("an input under nested FormGroupProviders registers into every enclosing group", async () => {
+    const badges: Record<
+      "outer" | "inner",
+      ReturnType<typeof useFormGroup> | null
+    > = { outer: null, inner: null };
+    const names: { current: string | undefined } = { current: undefined };
+    function Badge({ name }: { name: "outer" | "inner" }) {
+      badges[name] = useFormGroup(name);
+      return null;
+    }
+    function Probe() {
+      useInput({ source: "title", validate: required() });
+      names.current = useFormGroupName();
+      return null;
+    }
+    const latestForm: {
+      current: ReturnType<typeof useForm<FormValues>> | null;
+    } = { current: null };
+    function Host() {
+      const form = useForm<FormValues>({ save: okSave });
+      latestForm.current = form;
+      return (
+        <CheloneFormProvider form={form.form} submit={form.submit}>
+          <FormGroupsProvider>
+            <FormGroupProvider name="outer">
+              <FormGroupProvider name="inner">
+                <Probe />
+              </FormGroupProvider>
+            </FormGroupProvider>
+            <Badge name="outer" />
+            <Badge name="inner" />
+          </FormGroupsProvider>
+        </CheloneFormProvider>
+      );
+    }
+    const Wrapper = makeWrapper();
+    render(
+      <Wrapper>
+        <Host />
+      </Wrapper>,
+    );
+    await act(async () => {
+      await latestForm.current?.submit();
+    });
+    expect(badges.outer?.isValid).toBe(false);
+    expect(badges.inner?.isValid).toBe(false);
+    expect(names.current).toBe("inner");
   });
 
   it("survives StrictMode double-invoke without duplicate registration", async () => {
