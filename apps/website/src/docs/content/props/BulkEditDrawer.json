@@ -1,0 +1,41 @@
+{
+  "name": "BulkEditDrawer",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "The inputs to edit with; their values become the patch for every row."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Trigger text. Default `\"Edit selected\"`."
+    },
+    {
+      "name": "onSuccess",
+      "type": "(diff: Record<string, unknown>, ids: Identifier[]) => void",
+      "optional": true,
+      "comment": "Runs after a successful update with the sent fields and the updated ids."
+    },
+    {
+      "name": "side",
+      "type": "\"left\" | \"right\" | \"top\" | \"bottom\"",
+      "optional": true,
+      "comment": "Edge the sheet slides in from. Default `\"right\"`."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": "Sheet heading. Default `label`."
+    }
+  ]
+}
