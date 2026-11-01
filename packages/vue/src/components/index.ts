@@ -412,5 +412,13 @@ export type {
 export { default as TabbedShowLayout } from "./admin/view/tabbed-show-layout.vue";
 export type { TabbedShowLayoutTabProps } from "./admin/view/tabbed-show-layout-tab.vue";
 export { default as TabbedShowLayoutTab } from "./admin/view/tabbed-show-layout-tab.vue";
+export type { TranslatableFieldsProps } from "./admin/view/translatable-fields.vue";
+export { default as TranslatableFields } from "./admin/view/translatable-fields.vue";
+export type { TranslatableFieldsTabProps } from "./admin/view/translatable-fields-tab.vue";
+export { default as TranslatableFieldsTab } from "./admin/view/translatable-fields-tab.vue";
+export type { TranslatableFieldsTabContentProps } from "./admin/view/translatable-fields-tab-content.vue";
+export { default as TranslatableFieldsTabContent } from "./admin/view/translatable-fields-tab-content.vue";
+export type { TranslatableFieldsTabsProps } from "./admin/view/translatable-fields-tabs.vue";
+export { default as TranslatableFieldsTabs } from "./admin/view/translatable-fields-tabs.vue";
 // --- ui primitives --------------------------------------------------------
 export * from "./ui";
