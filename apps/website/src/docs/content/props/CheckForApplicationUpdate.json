@@ -1,0 +1,41 @@
+{
+  "name": "CheckForApplicationUpdate",
+  "props": [
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Never fetch. Defaults to `true` outside production."
+    },
+    {
+      "name": "fetchOptions",
+      "type": "RequestInit | () => RequestInit",
+      "optional": true,
+      "comment": "Read at each check. `cache: \"no-store\"` always overrides it."
+    },
+    {
+      "name": "interval",
+      "type": "number",
+      "optional": true,
+      "comment": "Milliseconds between checks. Defaults to one hour."
+    },
+    {
+      "name": "notification",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Shown once a new build is found. Defaults to `<ApplicationUpdatedNotification />`."
+    },
+    {
+      "name": "onNewVersionAvailable",
+      "type": "() => void",
+      "optional": true,
+      "comment": "Called once, when the first change is seen."
+    },
+    {
+      "name": "url",
+      "type": "string",
+      "optional": true,
+      "comment": "Page to fingerprint. Defaults to `${location.origin}/index.html`, read at each check."
+    }
+  ]
+}
