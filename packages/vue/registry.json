@@ -519,6 +519,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/columns-button.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/create-button.vue",
           "type": "registry:component"
         },
@@ -848,6 +852,10 @@
         },
         {
           "path": "src/components/admin/guessers/icons.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/guessers/list-guesser.vue",
           "type": "registry:component"
         },
         {
@@ -1637,6 +1645,27 @@
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "devDependencies": ["vue-router"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "columns-button",
+      "type": "registry:component",
+      "title": "Columns Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/columns-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/dropdown-menu",
+        "@chelone/input",
+        "@chelone/switch"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2955,6 +2984,29 @@
           "type": "registry:component"
         }
       ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "list-guesser",
+      "type": "registry:component",
+      "title": "List Guesser",
+      "files": [
+        {
+          "path": "src/components/admin/guessers/list-guesser.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/data-table",
+        "@chelone/data-table-col",
+        "@chelone/guess-components",
+        "@chelone/guessed-code",
+        "@chelone/guesser-empty",
+        "@chelone/list",
+        "@chelone/use-guessed-resource"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

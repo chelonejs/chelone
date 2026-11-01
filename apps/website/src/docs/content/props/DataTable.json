@@ -32,6 +32,12 @@
       "comment": ""
     },
     {
+      "name": "defaultHiddenColumns",
+      "type": "string[]",
+      "optional": true,
+      "comment": "Ids of the columns hidden until a choice is stored."
+    },
+    {
       "name": "expand",
       "type": "ReactElement<unknown, string | JSXElementConstructor<any>> | ComponentType<{ id: Identifier; record: UnknownRecord; resource: string }>",
       "optional": true,
@@ -78,6 +84,12 @@
       "type": "DataTableSize",
       "optional": true,
       "comment": "Row density. `\"small\"` tightens cell padding; `\"medium\"` (default) is standard."
+    },
+    {
+      "name": "storeKey",
+      "type": "string",
+      "optional": true,
+      "comment": "Store key prefix for the hidden, ordered and published columns. Default\n`\"<resource>.datatable\"`."
     }
   ]
 }
