@@ -193,8 +193,8 @@ const idleStore = {
 /**
  * Holds a record's lock while the component is mounted. Resource and id come
  * from the options or the contexts; with either missing it takes no lock.
- * Changing the data provider, resource, id or identity releases the old lock
- * before it takes the next.
+ * Changing the data provider, resource, id or identity releases the old lock,
+ * even one still in flight, before it takes the next.
  */
 export function useLockOnMount({
   resource: resourceOption,
@@ -227,10 +227,27 @@ export function useLockOnMount({
     });
   }, [dataProvider, resource, id, identity, reportError]);
 
+  // Releases still in flight. A session has its own queue, so the next one waits here
+  // or its lock would reach the provider before the old lock is released.
+  const releasing = useRef<Promise<void> | null>(null);
+
   useEffect(() => {
     if (!session) return;
-    void session.start();
-    return () => void session.stop();
+    let cancelled = false;
+    const start = () => {
+      if (!cancelled) void session.start();
+    };
+    if (releasing.current) void releasing.current.then(start);
+    else start();
+    return () => {
+      cancelled = true;
+      const stopped = Promise.all([releasing.current, session.stop()]).then(
+        () => {
+          if (releasing.current === stopped) releasing.current = null;
+        },
+      );
+      releasing.current = stopped;
+    };
   }, [session]);
 
   const store = session?.store ?? idleStore;

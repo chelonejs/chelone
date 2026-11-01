@@ -456,4 +456,36 @@ describe("useLockOnMount", () => {
     expect(calls).toEqual(["lock 1", "unlock 1", "lock 2"]);
     expect((await locks.getLocks("posts")).map((l) => l.recordId)).toEqual([2]);
   });
+
+  it("waits for a lock still in flight to be released before taking the next", async () => {
+    const { wrapper, locks } = setup();
+    const calls: string[] = [];
+    let land: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      land = resolve;
+    });
+    const lock = locks.lock.bind(locks);
+    const unlock = locks.unlock.bind(locks);
+    vi.spyOn(locks, "lock").mockImplementation(async (resource, params) => {
+      calls.push(`lock ${String(params.id)} ${String(params.identity)}`);
+      if (params.identity === "ann") await gate;
+      return lock(resource, params);
+    });
+    vi.spyOn(locks, "unlock").mockImplementation((resource, params) => {
+      calls.push(`unlock ${String(params.id)} ${String(params.identity)}`);
+      return unlock(resource, params);
+    });
+
+    const { result, rerender } = renderHook(
+      ({ identity }) => useLockOnMount({ resource: "posts", id: 1, identity }),
+      { wrapper, initialProps: { identity: "ann" } },
+    );
+    await waitFor(() => expect(calls).toEqual(["lock 1 ann"]));
+    rerender({ identity: "bob" });
+    land();
+
+    await waitFor(() => expect(result.current.lock?.identity).toBe("bob"));
+    expect(calls).toEqual(["lock 1 ann", "unlock 1 ann", "lock 1 bob"]);
+    expect(result.current.lockError).toBeNull();
+  });
 });
