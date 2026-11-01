@@ -18,8 +18,12 @@ import {
   defineComponent,
   type InjectionKey,
   inject,
+  onMounted,
+  onUpdated,
+  type PropType,
   provide,
   type Ref,
+  type VNode,
 } from "vue";
 
 /** Which pass a `<DataTableCol>` is rendering in. */
@@ -47,6 +51,28 @@ export const PassProvider = defineComponent({
   setup(props, { slots }) {
     provide(DataTablePassKey, props.pass);
     return () => slots.default?.();
+  },
+});
+
+/**
+ * Renders the columns `<DataTable>` chose to show. A slot is called inside the
+ * component that renders it, so the filter and reorder run in `render` here,
+ * and a column added or a store write re-renders only this outlet.
+ *
+ * `report` runs after the outlet mounts and after each update, never during
+ * render, so the header outlet can publish the declared columns without a
+ * write in the render path.
+ */
+export const ColumnsOutlet = defineComponent({
+  name: "DataTableColumnsOutlet",
+  props: {
+    render: { type: Function as PropType<() => VNode[]>, required: true },
+    report: { type: Function as PropType<() => void>, default: undefined },
+  },
+  setup(props) {
+    onMounted(() => props.report?.());
+    onUpdated(() => props.report?.());
+    return () => props.render();
   },
 });
 
