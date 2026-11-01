@@ -21,6 +21,16 @@ export type {
   ClientListLoadingState,
 } from "./controller/client-list-controller";
 export { createClientListController } from "./controller/client-list-controller";
+export type { DataTableColumnInfo } from "./controller/data-table-columns";
+export {
+  arrangeColumns,
+  columnLabelMatches,
+  dataTableColumnKeys,
+  defaultDataTableStoreKey,
+  getDataTableColumnId,
+  moveColumn,
+  toggleHiddenColumn,
+} from "./controller/data-table-columns";
 export {
   isFilterSelected,
   toggleFilterValue,
