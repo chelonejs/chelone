@@ -1262,6 +1262,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/common/application-updated-notification.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/common/field-label-text.tsx",
           "type": "registry:component"
         },
@@ -1303,6 +1307,10 @@
         },
         {
           "path": "src/components/admin/feedback/notification.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/feedback/offline.tsx",
           "type": "registry:component"
         },
         {
@@ -2290,6 +2298,25 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "application-updated-notification",
+      "type": "registry:component",
+      "title": "Application Updated Notification",
+      "files": [
+        {
+          "path": "src/components/admin/common/application-updated-notification.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "field-label-text",
       "type": "registry:component",
       "title": "Field Label Text",
@@ -2461,6 +2488,20 @@
       ],
       "registryDependencies": ["@chelone/use-theme"],
       "dependencies": ["@chelone/core", "@chelone/react", "sonner"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "offline",
+      "type": "registry:component",
+      "title": "Offline",
+      "files": [
+        {
+          "path": "src/components/admin/feedback/offline.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

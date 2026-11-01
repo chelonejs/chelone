@@ -266,6 +266,7 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
     expect(barrel.useLoading).toBeTypeOf("function");
     expect(barrel.useLocaleState).toBeTypeOf("function");
     expect(barrel.useIsMobile).toBeTypeOf("function");
+    expect(barrel.useIsOffline).toBeTypeOf("function");
   });
 
   it("exports the RHF→chelone form shim (runnable useWatch + rename aliases)", () => {
@@ -498,6 +499,11 @@ describe("@chelone/react barrel — P7g feedback + common", () => {
     expect(barrel.Error).toBeTypeOf("function");
     expect(barrel.Ready).toBeTypeOf("function");
     expect(barrel.Title).toBeTypeOf("function");
+  });
+
+  it("exports the offline and application-updated banners", () => {
+    expect(barrel.Offline).toBeTypeOf("function");
+    expect(barrel.ApplicationUpdatedNotification).toBeTypeOf("function");
   });
 
   it("exports the useTimeout compat hook", () => {
