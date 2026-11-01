@@ -283,6 +283,17 @@ const main = async () => {
       for (const g of granular) {
         g.categories = categoriesForGranular(g.name, g.type);
       }
+      if (block.inferDependencies) {
+        const union = new Set(granular.flatMap((g) => g.dependencies ?? []));
+        // Rebuilt so `dependencies` sits before `files`, as an explicit list does.
+        const { files, cssVars, dependencies: _explicit, ...head } = builtBlock;
+        items[items.indexOf(builtBlock)] = {
+          ...head,
+          ...(union.size > 0 && { dependencies: [...union].sort() }),
+          files,
+          ...(cssVars && { cssVars }),
+        };
+      }
       items.push(...granular);
     }
   }
