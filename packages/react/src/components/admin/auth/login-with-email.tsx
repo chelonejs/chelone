@@ -7,11 +7,14 @@
  * Chelone divergences:
  * - The spinner also shows while an `onSubmit` handler runs, not only for the
  *   `loading` prop.
+ * - The login mutation is built inline rather than with `useLogin()`, so the
+ *   form renders with `onSubmit` and no `authProvider`.
  * - The error-to-message rule is a copy of `<LoginForm>`'s, to keep that file
  *   out of the change.
  */
 
 import { required } from "@chelone/core";
+import { useMutation } from "@tanstack/react-query";
 import { LogIn } from "lucide-react";
 import { useCallback } from "react";
 import { PasswordInput } from "@/components/admin/inputs/password-input";
@@ -19,7 +22,7 @@ import { TextInput } from "@/components/admin/inputs/text-input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
-import { useLogin } from "../../../auth-hooks";
+import { useCheloneContext } from "../../../context";
 import { CheloneFormProvider } from "../../../form-context";
 import { useForm } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
@@ -80,7 +83,20 @@ function LoginWithEmail(props: LoginWithEmailProps) {
     submitLabel,
     className,
   } = props;
-  const login = useLogin();
+  const { authProvider } = useCheloneContext();
+  // `useLogin()` throws without an authProvider, which would crash the form
+  // for a custom backend that signs in through `onSubmit` alone. The same
+  // mutation, built here, only needs the provider when a submit uses it.
+  const login = useMutation({
+    mutationFn: (params: Record<string, unknown>) => {
+      if (!authProvider) {
+        throw new Error(
+          "LoginWithEmail: pass an onSubmit or an authProvider to <CheloneProvider>.",
+        );
+      }
+      return authProvider.login(params);
+    },
+  });
   const notify = useNotify();
   const translate = useTranslate();
 

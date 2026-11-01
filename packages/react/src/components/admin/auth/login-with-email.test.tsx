@@ -59,7 +59,7 @@ function Wrap({
   notifications,
   children,
 }: {
-  authProvider: AuthProvider;
+  authProvider?: AuthProvider;
   notifications?: NotificationStore;
   children: ReactNode;
 }) {
@@ -140,6 +140,22 @@ describe("<LoginWithEmail>", () => {
       password: "hunter2",
     });
     expect(login).not.toHaveBeenCalled();
+  });
+
+  it("renders and submits through onSubmit when there is no authProvider", async () => {
+    const onSubmit = vi.fn(async () => {});
+    render(
+      <Wrap>
+        <LoginWithEmail onSubmit={onSubmit} />
+      </Wrap>,
+    );
+    fillAndSubmit("user@example.com", "hunter2");
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect(onSubmit).toHaveBeenCalledWith({
+      email: "user@example.com",
+      password: "hunter2",
+    });
   });
 
   it("notifies an error when login rejects", async () => {
