@@ -122,6 +122,9 @@ export {
   savedQueriesKey,
 } from "./controller/saved-queries";
 export { resolveNotificationKey } from "./controller/translate-fallback";
+export { matchCsvHeaders } from "./csv/match-headers";
+export { parseCsvWith } from "./csv/parse-with";
+export type { CsvParseError, CsvParser, ParsedCsv } from "./csv/types";
 export {
   removeRecordsFromCache,
   updateRecordsInCache,
