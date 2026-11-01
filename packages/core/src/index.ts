@@ -346,7 +346,20 @@ export {
 } from "./form/validators";
 export { aspectLockedBBox, bboxToPolygon, polygonToBBox } from "./geo/bbox";
 export { geoBounds } from "./geo/bounds";
+export {
+  countVertices,
+  maxVertices,
+  minAreaM2,
+  minVertices,
+  noSelfIntersection,
+} from "./geo/constraints";
 export { latitude, longitude, toCoordinate } from "./geo/coordinates";
+export type { EditorSnapshotFeature, EditorStyles } from "./geo/editor";
+export {
+  editorStyles,
+  fromEditorFeatures,
+  toEditorFeatures,
+} from "./geo/editor";
 export type {
   GeoBBox,
   GeoFeature,
@@ -369,6 +382,7 @@ export {
   isGeoGeometry,
   isGeoJsonValue,
 } from "./geo/geojson";
+export { geoAreaM2, hasSelfIntersection } from "./geo/geometry-math";
 export type { ShapeLayerSpec, ShapeStyle } from "./geo/map-layers";
 export {
   asFeatureCollection,
@@ -387,6 +401,16 @@ export {
   rasterTileStyle,
 } from "./geo/map-style";
 export { mapMessages } from "./geo/messages";
+export type {
+  FeaturesToShapeOptions,
+  ShapeValue,
+  ShapeValueKind,
+} from "./geo/shape-value";
+export {
+  featuresToShape,
+  heldFeatures,
+  shapeToFeatures,
+} from "./geo/shape-value";
 export { defaultMessages } from "./i18n/default-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";
 export { createI18n } from "./i18n/i18n";

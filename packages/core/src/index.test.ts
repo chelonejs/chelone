@@ -179,6 +179,32 @@ describe("@chelone/core barrel", () => {
     expect(urls).toEqual([]);
   });
 
+  it("exports the shape codecs, the editor helpers and the geometry constraints", () => {
+    for (const name of [
+      "shapeToFeatures",
+      "heldFeatures",
+      "featuresToShape",
+      "toEditorFeatures",
+      "fromEditorFeatures",
+      "editorStyles",
+      "geoAreaM2",
+      "hasSelfIntersection",
+      "countVertices",
+      "minVertices",
+      "maxVertices",
+      "minAreaM2",
+      "noSelfIntersection",
+    ] as const) {
+      expect(barrel[name]).toBeTypeOf("function");
+    }
+    const polygon = barrel.bboxToPolygon([0, 0, 1, 1]);
+    expect(barrel.countVertices(polygon)).toBe(4);
+    expect(barrel.minVertices(5)(polygon, {}, {})).toEqual({
+      message: "chelone.validation.minVertices",
+      args: { min: 5 },
+    });
+  });
+
   it("gives mapMessages the placeholders the map components pass", () => {
     const text = (key: keyof typeof barrel.mapMessages) =>
       String(barrel.mapMessages[key]);

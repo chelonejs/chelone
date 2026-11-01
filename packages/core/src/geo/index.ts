@@ -1,6 +1,15 @@
 export { aspectLockedBBox, bboxToPolygon, polygonToBBox } from "./bbox";
 export { geoBounds } from "./bounds";
+export {
+  countVertices,
+  maxVertices,
+  minAreaM2,
+  minVertices,
+  noSelfIntersection,
+} from "./constraints";
 export { latitude, longitude, toCoordinate } from "./coordinates";
+export type { EditorSnapshotFeature, EditorStyles } from "./editor";
+export { editorStyles, fromEditorFeatures, toEditorFeatures } from "./editor";
 export type {
   GeoBBox,
   GeoFeature,
@@ -23,6 +32,7 @@ export {
   isGeoGeometry,
   isGeoJsonValue,
 } from "./geojson";
+export { geoAreaM2, hasSelfIntersection } from "./geometry-math";
 export type { ShapeLayerSpec, ShapeStyle } from "./map-layers";
 export {
   asFeatureCollection,
@@ -41,3 +51,9 @@ export {
   rasterTileStyle,
 } from "./map-style";
 export { mapMessages } from "./messages";
+export type {
+  FeaturesToShapeOptions,
+  ShapeValue,
+  ShapeValueKind,
+} from "./shape-value";
+export { featuresToShape, heldFeatures, shapeToFeatures } from "./shape-value";
