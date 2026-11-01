@@ -1,0 +1,35 @@
+{
+  "name": "LoginWithEmail",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra class names applied to the `<form>` element."
+    },
+    {
+      "name": "loading",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Disables the button and shows a spinner from outside the form."
+    },
+    {
+      "name": "onSubmit",
+      "type": "(values: LoginWithEmailValues) => void | Promise<void>",
+      "optional": true,
+      "comment": "Called with the credentials instead of `authProvider.login`. A rejection\nis shown as an error notification."
+    },
+    {
+      "name": "redirectTo",
+      "type": "string",
+      "optional": true,
+      "comment": "Path the user is redirected to after a successful sign in. Passed to\n`authProvider.login`; ignored when `onSubmit` is set."
+    },
+    {
+      "name": "submitLabel",
+      "type": "string",
+      "optional": true,
+      "comment": "Button text. Defaults to the translated `ra.auth.sign_in`."
+    }
+  ]
+}

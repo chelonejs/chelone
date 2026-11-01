@@ -153,6 +153,10 @@ export {
   LoginPage,
   type LoginPageProps,
 } from "./components/admin/auth/login-page";
+export {
+  LoginWithEmail,
+  type LoginWithEmailProps,
+} from "./components/admin/auth/login-with-email";
 export { Logout, type LogoutProps } from "./components/admin/auth/logout";
 // P7g component surface — the CRUD action buttons + form toolbar + Confirm
 // dialog (ported from shadmin `admin/buttons` + `admin/feedback` onto chelone's
@@ -307,6 +311,10 @@ export {
   LoadingIndicator,
   type LoadingIndicatorProps,
 } from "./components/admin/feedback/loading-indicator";
+export {
+  NotFound,
+  type NotFoundProps,
+} from "./components/admin/feedback/not-found";
 export { Notification } from "./components/admin/feedback/notification";
 export {
   Offline,
