@@ -172,7 +172,7 @@ describe("EditGuesser", () => {
     expect(update).toHaveBeenCalledWith(
       "posts",
       expect.objectContaining({
-        id: 1,
+        id: "1",
         data: expect.objectContaining({ title: "Omega" }),
       }),
     );
