@@ -156,10 +156,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.shapeLayerSpecs).toBeTypeOf("function");
     expect(barrel.asFeatureCollection).toBeTypeOf("function");
     expect(barrel.DEFAULT_SHAPE_STYLE.color).toBe("#3388ff");
-    const tileNames = Object.keys(barrel).filter((name) =>
-      /tile.?url/i.test(name),
+    const urls = Object.values(barrel).filter(
+      (value) => typeof value === "string" && /^https?:/.test(value),
     );
-    expect(tileNames).toEqual([]);
+    expect(urls).toEqual([]);
   });
 
   it("gives mapMessages the placeholders the map components pass", () => {
