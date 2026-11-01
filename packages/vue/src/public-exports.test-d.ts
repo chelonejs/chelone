@@ -47,8 +47,10 @@ import type {
   LocalesMenuButtonProps,
   LockOnMountProps,
   LockStatusProps,
+  LoginWithEmailProps,
   MenuLiveItemLinkProps,
   MenuLiveProps,
+  NotFoundProps,
   NullableBooleanInputProps,
   NumberInputProps,
   OfflineProps,
@@ -133,8 +135,15 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<LoadingPageProps>().toBeObject();
     expectTypeOf<LockOnMountProps>().toHaveProperty("onLockError");
     expectTypeOf<LockStatusProps>().toHaveProperty("resource");
+    expectTypeOf<LoginWithEmailProps>().toHaveProperty("onSubmit");
+    expectTypeOf<LoginWithEmailProps>().toHaveProperty("loading");
+    expectTypeOf<LoginWithEmailProps>().toHaveProperty("redirectTo");
+    expectTypeOf<LoginWithEmailProps>().toHaveProperty("submitLabel");
+    expectTypeOf<LoginWithEmailProps>().toHaveProperty("class");
     expectTypeOf<MenuLiveItemLinkProps>().toHaveProperty("resource");
     expectTypeOf<MenuLiveProps>().toHaveProperty("items");
+    expectTypeOf<NotFoundProps>().toHaveProperty("title");
+    expectTypeOf<NotFoundProps>().toHaveProperty("class");
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");
     expectTypeOf<NumberInputProps>().toHaveProperty("source");
     expectTypeOf<OfflineProps>().toBeObject();

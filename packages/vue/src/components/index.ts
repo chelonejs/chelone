@@ -18,6 +18,11 @@ export type { LoginFormProps } from "./admin/auth/login-form.vue";
 export { default as LoginForm } from "./admin/auth/login-form.vue";
 export type { LoginPageProps } from "./admin/auth/login-page.vue";
 export { default as LoginPage } from "./admin/auth/login-page.vue";
+export type {
+  LoginWithEmailProps,
+  LoginWithEmailValues,
+} from "./admin/auth/login-with-email.vue";
+export { default as LoginWithEmail } from "./admin/auth/login-with-email.vue";
 export type { LogoutProps } from "./admin/auth/logout.vue";
 export { default as Logout } from "./admin/auth/logout.vue";
 // --- admin: buttons + form ------------------------------------------------
@@ -116,6 +121,8 @@ export {
 } from "./admin/feedback/loading.vue";
 export type { LoadingIndicatorProps } from "./admin/feedback/loading-indicator.vue";
 export { default as LoadingIndicator } from "./admin/feedback/loading-indicator.vue";
+export type { NotFoundProps } from "./admin/feedback/not-found.vue";
+export { default as NotFound } from "./admin/feedback/not-found.vue";
 export type { NotificationProps } from "./admin/feedback/notification.vue";
 export { default as Notification } from "./admin/feedback/notification.vue";
 export type { OfflineProps } from "./admin/feedback/offline.vue";
