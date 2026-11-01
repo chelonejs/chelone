@@ -6,6 +6,7 @@
     "build": "turbo run build",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
+    "format": "biome check --write .",
     "lint": "biome check .",
     "changeset": "changeset",
     "version-packages": "changeset version",
