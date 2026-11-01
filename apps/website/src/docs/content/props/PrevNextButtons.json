@@ -1,0 +1,59 @@
+{
+  "name": "PrevNextButtons",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "filter",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": "Merged over the stored filter, like a list's permanent filter."
+    },
+    {
+      "name": "filterDefaultValues",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": "The stored filter when no params are stored."
+    },
+    {
+      "name": "limit",
+      "type": "number",
+      "optional": true,
+      "comment": "Rows fetched when the cached page cannot serve. Default 1000."
+    },
+    {
+      "name": "linkType",
+      "type": "\"show\" | \"edit\"",
+      "optional": true,
+      "comment": "Which page the neighbour links point at. Default `\"edit\"`."
+    },
+    {
+      "name": "meta",
+      "type": "unknown",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "ref",
+      "type": "Ref<HTMLElement>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "sort",
+      "type": "SortPayload | SortPayload[]",
+      "optional": true,
+      "comment": "Sort used when no params are stored. Default `id ASC`."
+    },
+    {
+      "name": "storeKey",
+      "type": "string | false",
+      "optional": true,
+      "comment": "KV namespace the list persisted its params under. `false` ignores them. Default: the resource name."
+    }
+  ]
+}
