@@ -46,7 +46,8 @@
 - ra-core's guessers sniff data values/name-heuristics to infer views. Chelone deliberately skipped them. BUT the Zod registry is a *better* substrate: a schema→view scaffolder (`z.infer` field types → default List/Edit/Show columns) would be *typed* inference, not data-sniffing — arguably surpassing ra-core. Frame as a NEW extension feature, not a port. Effort M–L.
 
 ### R9. i18n depth
-- Translatable multi-locale field editing (`useTranslatable`/`TranslatableContext`), async/lazy locale loading, `resolveBrowserLocale`, `mergeTranslations`, a `<Translate>` component. Effort M.
+- **Deferred:** async/lazy locale loading, `getLocales`, `resolveBrowserLocale`, `mergeTranslations`, a `<Translate>` component. Effort M.
+- **Shipped:** translatable inputs and fields in both adapters (`TranslatableInputs`, `TranslatableFields`, `useTranslatable` and the translatable context), on the framework-free `createTranslatableController` in `@chelone/core`. Guides: `apps/website/src/docs/content/editing/translatable-inputs/index.mdx` and `apps/website/src/docs/content/viewing/translatable-fields/index.mdx`.
 
 ### R10. Realtime / enterprise
 - **Realtime, live views and record locks are built in both adapters** (the engine is in `@chelone/core`; `useSubscribe`, `ListLive`/`ShowLive`/`EditLive`/`MenuLive`, `LockOnMount`/`LockStatus` in React and Vue; both demos wire it). Guide: `apps/website/src/docs/content/app-config/realtime.mdx`.

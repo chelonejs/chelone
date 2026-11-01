@@ -1,0 +1,104 @@
+---
+title: "TranslatableInputs"
+description: "Edits one field in several locales, one tab per locale. A child input with source name binds name.en and name.fr."
+registry: "translatable-inputs"
+---
+
+`<TranslatableInputs>` edits the same field in several locales. Put it inside a
+`<Create>` or `<Edit>` view, list the locales, and give it the inputs to repeat.
+Each locale gets a tab, and each tab renders the children with the locale
+appended to their `source`.
+
+```tsx
+import { TextInput, TranslatableInputs } from "@chelone/react";
+
+<TranslatableInputs locales={["en", "fr"]}>
+  <TextInput source="name" />
+</TranslatableInputs>
+```
+
+The `<TextInput source="name" />` binds `name.en` in the first tab and
+`name.fr` in the second, so the record holds `{ name: { en: "...", fr: "..." } }`.
+See [Translation](/docs/app-config/translation) for how translatable records are
+stored.
+
+## Every locale stays mounted
+
+A hidden tab is not unmounted. Every locale's inputs stay registered with the
+form, so all of them validate and all of them submit, whichever tab is showing.
+A tab header turns red while any input of its locale is invalid, even when that
+panel is hidden.
+
+## The start locale
+
+`defaultLocale` picks the tab selected first. Without it, or when it is not one
+of `locales`, the start locale is the app locale when that is listed, and the
+first locale otherwise. Only the first render counts: a later change of the app
+locale does not move the selected tab.
+
+## Props
+
+<PropsTable name="TranslatableInputs" />
+
+## The parts
+
+`<TranslatableInputs>` is built from three parts, each exported on its own. The
+`selector` prop replaces `<TranslatableInputsTabs>` when you want a different
+locale picker, for example a select.
+
+### TranslatableInputsTabs
+
+The default locale selector: one tab per locale of the ambient translatable
+context.
+
+<PropsTable name="TranslatableInputsTabs" />
+
+### TranslatableInputsTab
+
+The header of one locale. Its label is `ra.locales.<locale>` from the catalog,
+or the capitalised locale code when that key is missing.
+
+<PropsTable name="TranslatableInputsTab" />
+
+### TranslatableInputsTabContent
+
+The panel of one locale. It renders the children with the locale applied to
+their `source`.
+
+<PropsTable name="TranslatableInputsTabContent" />
+
+## Building your own
+
+`useTranslatable({ locales, defaultLocale })` returns the state behind the
+component: `locales`, `selectedLocale`, `selectLocale` and `getRecordForLocale`.
+`<TranslatableContextProvider value={...}>` shares it with the tree below, and
+`useTranslatableContext()` reads it back. Use them to write a custom selector or
+an input that follows the selected locale. `useTranslatableContext` throws
+outside a provider.
+
+<PropsTable name="TranslatableContextProvider" />
+
+The read-only twin is [TranslatableFields](/docs/viewing/translatable-fields).
+
+## Vue
+
+`@chelone/vue` ships the same components with these differences:
+
+- The `#selector` slot replaces the default locale selector, in place of the
+  `selector` prop.
+- The tabs are native `<button role="tab">` elements, not Radix tabs.
+- `useTranslatable` returns refs, and `provideTranslatable(translatable)` takes
+  the place of `<TranslatableContextProvider>`. `useTranslatableContext()` reads
+  it back.
+
+```vue
+<script setup lang="ts">
+import { TextInput, TranslatableInputs } from "@chelone/vue";
+</script>
+
+<template>
+  <TranslatableInputs :locales="['en', 'fr']">
+    <TextInput source="name" />
+  </TranslatableInputs>
+</template>
+```

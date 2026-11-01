@@ -1,0 +1,96 @@
+---
+title: "TranslatableFields"
+description: "Shows one field in several locales, one tab per locale. A child field with source title reads title.en and title.fr."
+registry: "translatable-fields"
+---
+
+`<TranslatableFields>` is the read-only twin of
+[TranslatableInputs](/docs/editing/translatable-inputs). List the locales and
+give it the fields to repeat. Each locale gets a tab, and each tab renders the
+children against that locale's value.
+
+```tsx
+import { TextField, TranslatableFields } from "@chelone/react";
+
+<TranslatableFields locales={["en", "fr"]}>
+  <TextField source="title" />
+</TranslatableFields>
+```
+
+The `<TextField source="title" />` reads `title.en` in the first tab and
+`title.fr` in the second, from a record shaped `{ title: { en, fr } }`. See
+[Translation](/docs/app-config/translation) for how translatable records are
+stored.
+
+Inside a `<Show>` it uses the ambient record and resource. Pass `record` or
+`resource` to use it elsewhere. Without a record it throws, except under a
+`<Show>` whose record has not loaded yet, where it renders nothing.
+
+## Every locale stays mounted
+
+A hidden tab is not unmounted, so the fields of every locale are in the page
+whichever tab is showing.
+
+## The start locale
+
+`defaultLocale` picks the tab selected first. Without it, or when it is not one
+of `locales`, the start locale is the app locale when that is listed, and the
+first locale otherwise.
+
+## Props
+
+<PropsTable name="TranslatableFields" />
+
+## The parts
+
+The `selector` prop replaces `<TranslatableFieldsTabs>` when you want a
+different locale picker.
+
+### TranslatableFieldsTabs
+
+The default locale selector: one tab per locale of the ambient translatable
+context.
+
+<PropsTable name="TranslatableFieldsTabs" />
+
+### TranslatableFieldsTab
+
+The header of one locale. Its label is `ra.locales.<locale>` from the catalog,
+or the capitalised locale code when that key is missing.
+
+<PropsTable name="TranslatableFieldsTab" />
+
+### TranslatableFieldsTabContent
+
+The panel of one locale. It renders the children against that locale's value.
+
+<PropsTable name="TranslatableFieldsTabContent" />
+
+## Reading the selected locale
+
+`useTranslatable`, `TranslatableContextProvider` and `useTranslatableContext`
+are the same ones [TranslatableInputs](/docs/editing/translatable-inputs)
+documents. A custom selector reads `selectedLocale` and calls `selectLocale`
+from `useTranslatableContext()`.
+
+## Vue
+
+`@chelone/vue` ships the same components with these differences:
+
+- The `#selector` slot replaces the default locale selector, in place of the
+  `selector` prop.
+- The tabs are native `<button role="tab">` elements, not Radix tabs.
+- `provideTranslatable(translatable)` takes the place of
+  `<TranslatableContextProvider>`.
+
+```vue
+<script setup lang="ts">
+import { TextField, TranslatableFields } from "@chelone/vue";
+</script>
+
+<template>
+  <TranslatableFields :locales="['en', 'fr']">
+    <TextField source="title" />
+  </TranslatableFields>
+</template>
+```
