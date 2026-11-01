@@ -52,6 +52,13 @@ The full prop list for `<Admin>` and `<Resource>` is on the
 | `<Notification>` renders through sonner. | `<Notification>` is a dependency-free toaster, a stack at the bottom centre with its own close button. | [Notification](/docs/ui-layout/notification) |
 | `<ThemeModeToggle>` opens a dropdown of modes. | `<ThemeModeToggle>` is one button. Each click cycles light, dark, system. | [Theme Mode Toggle](/docs/ui-layout/theme-mode-toggle) |
 | `<IconButtonWithTooltip>` shows a styled tooltip. | `<IconButtonWithTooltip>` shows the native `title`, because the Vue `ui` slice has no `Tooltip`. Its `label` is also the `aria-label`; a `#label` slot stands in for a non-string label. | [Icon Button With Tooltip](/docs/ui-layout/icon-button-with-tooltip) |
+| `<SimpleList>` takes function props such as `primaryText`. | `<SimpleList>` takes scoped slots such as `#primary-text`, each given `{ record, id }`. | [Simple List](/docs/viewing/simple-list) |
+| `<SimpleFormIterator>` is a child of `<ArrayInput>`. | There is no `<SimpleFormIterator>`. `<ArrayInput>` takes `disableAdd`, `disableRemove`, `inline` and the rest as props, with the `#add-button`, `#remove-button` and `#reorder-buttons` slots. | [Simple Form Iterator](/docs/editing/simple-form-iterator) |
+| `<TabbedShowLayout>`, `<TranslatableInputs>` and `<TranslatableFields>` draw their tabs with `ui/tabs`. | They draw native buttons with `role="tab"`. The tab child of `<TabbedShowLayout>` is `TabbedShowLayoutTab`, imported from `@chelone/vue`. | [Tabbed Show Layout](/docs/viewing/tabbed-show-layout), [Translatable Inputs](/docs/editing/translatable-inputs), [Translatable Fields](/docs/viewing/translatable-fields) |
+| `<TranslatableInputs>` and `<TranslatableFields>` take a `selector` element. | They take a `#selector` slot. | [Translatable Inputs](/docs/editing/translatable-inputs), [Translatable Fields](/docs/viewing/translatable-fields) |
+| `<RefreshIconButton>` shows a styled tooltip. | `<RefreshIconButton>` shows the native `title`, and its label is also the `aria-label`. | [Refresh Icon Button](/docs/ui-layout/refresh-icon-button) |
+| `<BulkEditDrawer>` opens a `Sheet`. | `<BulkEditDrawer>` opens an inline panel that is not teleported. | [Bulk Edit Drawer](/docs/editing/bulk-edit-drawer) |
+| `<FilterLiveSearch>` builds on `FilterLiveForm`. | `<FilterLiveSearch>` builds on `<FilterForm>`, because Vue has no `FilterLiveForm`. | [Filter Live Search](/docs/viewing/filter-live-search) |
 
 Theme storage differs too: the Vue `<ThemeProvider>` always uses `localStorage`
 and `useTheme()` returns `Ref`s. The note under
