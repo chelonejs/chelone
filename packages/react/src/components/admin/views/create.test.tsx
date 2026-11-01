@@ -59,9 +59,13 @@ function makeDataProvider() {
 function Providers({
   children,
   dataProvider = makeDataProvider(),
+  initialEntries,
+  withRouter = true,
 }: {
   children: ReactNode;
   dataProvider?: ReturnType<typeof makeDataProvider>;
+  initialEntries?: string[];
+  withRouter?: boolean;
 }) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -74,6 +78,9 @@ function Providers({
     hasEdit: true,
     hasShow: true,
   });
+  const resourced = (
+    <ResourceContextProvider value="posts">{children}</ResourceContextProvider>
+  );
   return (
     <CheloneProvider
       dataProvider={dataProvider}
@@ -81,13 +88,15 @@ function Providers({
       i18n={makeI18n()}
     >
       <ResourceRegistryProvider registry={registry}>
-        <RouterAdapterProvider adapter={reactRouterAdapter}>
-          <MemoryRouter>
-            <ResourceContextProvider value="posts">
-              {children}
-            </ResourceContextProvider>
-          </MemoryRouter>
-        </RouterAdapterProvider>
+        {withRouter ? (
+          <RouterAdapterProvider adapter={reactRouterAdapter}>
+            <MemoryRouter initialEntries={initialEntries}>
+              {resourced}
+            </MemoryRouter>
+          </RouterAdapterProvider>
+        ) : (
+          resourced
+        )}
       </ResourceRegistryProvider>
     </CheloneProvider>
   );
@@ -279,5 +288,60 @@ describe("<Create>", () => {
     fireEvent.click(screen.getByRole("button", { name: "listen" }));
     fireEvent.click(screen.getByRole("button", { name: "save" }));
     await waitFor(() => expect(seen).toEqual(["saved"]));
+  });
+});
+
+describe("<Create> location seed", () => {
+  const cloneUrl = (record: unknown) =>
+    `/posts/create?source=${encodeURIComponent(JSON.stringify(record))}`;
+  const titleValue = () =>
+    (screen.getByLabelText(/title/i) as HTMLInputElement).value;
+
+  it("seeds the form from the source search param", () => {
+    render(
+      <Providers initialEntries={[cloneUrl({ title: "cloned" })]}>
+        <Create>
+          <TextInput source="title" />
+        </Create>
+      </Providers>,
+    );
+    expect(titleValue()).toBe("cloned");
+  });
+
+  it("location keys win over the record prop", () => {
+    render(
+      <Providers initialEntries={[cloneUrl({ title: "from url" })]}>
+        <Create record={{ title: "from prop", body: "kept" }}>
+          <TextInput source="title" />
+          <TextInput source="body" />
+        </Create>
+      </Providers>,
+    );
+    expect(titleValue()).toBe("from url");
+    expect((screen.getByLabelText(/body/i) as HTMLInputElement).value).toBe(
+      "kept",
+    );
+  });
+
+  it("a malformed source param leaves the form empty", () => {
+    render(
+      <Providers initialEntries={["/posts/create?source={oops"]}>
+        <Create>
+          <TextInput source="title" />
+        </Create>
+      </Providers>,
+    );
+    expect(titleValue()).toBe("");
+  });
+
+  it("renders without a router adapter", () => {
+    render(
+      <Providers withRouter={false}>
+        <Create record={{ title: "seed" }}>
+          <TextInput source="title" />
+        </Create>
+      </Providers>,
+    );
+    expect(titleValue()).toBe("seed");
   });
 });
