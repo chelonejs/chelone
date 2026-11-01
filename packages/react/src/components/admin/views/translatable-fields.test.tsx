@@ -217,6 +217,24 @@ describe("TranslatableFields", () => {
     expect(screen.queryByText("Hello")).toBeNull();
   });
 
+  it("TranslatableFields keeps a nested object whose key equals a locale code", () => {
+    mount(
+      <TranslatableFields locales={["en", "id"]}>
+        <TextField source="author.name" />
+      </TranslatableFields>,
+      {
+        record: {
+          id: 1,
+          title: { en: "Hi", id: "Halo" },
+          author: { id: 3, name: "Ann" },
+        },
+      },
+    );
+    expect(
+      within(panel("translatable-content-id")).getByText("Ann"),
+    ).toBeTruthy();
+  });
+
   it("TranslatableFields throws without a record", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() =>

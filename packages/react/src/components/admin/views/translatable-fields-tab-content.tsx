@@ -29,7 +29,7 @@ export function TranslatableFieldsTabContent({
   className,
   children,
 }: TranslatableFieldsTabContentProps) {
-  const { selectedLocale } = useTranslatableContext();
+  const { locales, selectedLocale } = useTranslatableContext();
   const record = useRecordContext();
   const parent = useSourceContext();
   const scope = useMemo(
@@ -37,8 +37,8 @@ export function TranslatableFieldsTabContent({
     [parent, locale],
   );
   const localeRecord = useMemo(
-    () => getRecordForLocale(record, locale),
-    [record, locale],
+    () => getRecordForLocale(record, locale, locales),
+    [record, locale, locales],
   );
   const items = Children.toArray(children);
   const labelEach = items.length > 1;
