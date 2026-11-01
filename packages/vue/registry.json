@@ -560,6 +560,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/skip-navigation-button.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/sort-button.vue",
           "type": "registry:component"
         },
@@ -1833,6 +1837,21 @@
         "@chelone/button-icons",
         "@chelone/sidebar"
       ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "skip-navigation-button",
+      "type": "registry:component",
+      "title": "Skip Navigation Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/skip-navigation-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
       "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
@@ -3632,7 +3651,8 @@
         "@chelone/app-bar",
         "@chelone/app-sidebar",
         "@chelone/notification",
-        "@chelone/sidebar"
+        "@chelone/sidebar",
+        "@chelone/skip-navigation-button"
       ],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
