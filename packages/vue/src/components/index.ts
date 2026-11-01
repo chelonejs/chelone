@@ -36,6 +36,8 @@ export type { CancelButtonProps } from "./admin/buttons/cancel-button.vue";
 export { default as CancelButton } from "./admin/buttons/cancel-button.vue";
 export type { CloneButtonProps } from "./admin/buttons/clone-button.vue";
 export { default as CloneButton } from "./admin/buttons/clone-button.vue";
+export type { ColumnsButtonProps } from "./admin/buttons/columns-button.vue";
+export { default as ColumnsButton } from "./admin/buttons/columns-button.vue";
 export type { CreateButtonProps } from "./admin/buttons/create-button.vue";
 export { default as CreateButton } from "./admin/buttons/create-button.vue";
 export type {
