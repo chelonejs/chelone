@@ -473,6 +473,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/clone-button.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/create-button.vue",
           "type": "registry:component"
         },
@@ -1476,6 +1480,26 @@
       ],
       "registryDependencies": ["@chelone/button", "@chelone/button-icons"],
       "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "clone-button",
+      "type": "registry:component",
+      "title": "Clone Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/clone-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button-icons",
+        "@chelone/button-variants",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "devDependencies": ["vue-router"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },

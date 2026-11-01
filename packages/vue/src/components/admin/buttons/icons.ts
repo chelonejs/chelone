@@ -43,6 +43,12 @@ export const PencilIcon = paths(
   "m15 5 4 4",
 );
 
+/** Copy — `<CloneButton>`. */
+export const CopyIcon = icon(() => [
+  h("rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2" }),
+  h("path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" }),
+]);
+
 /** Eye — `<ShowButton>`. */
 export const EyeIcon = icon(() => [
   h("path", { d: "M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" }),
