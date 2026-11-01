@@ -2,13 +2,13 @@
  * `<AppBar>` — the header at the top of the admin layout. Ported from shadmin
  * `layout/app-bar.tsx`; the sub-component seams are rewired to `@chelone/react`.
  *
- * Chelone divergence: the default right-side toolbar is just `<ThemeModeToggle>`.
- * shadmin's cluster also has `<LocalesMenuButton>` + `<RefreshButton>`; those are
- * BUTTONS-wave components ported later. The `toolbar` prop remains the override
- * seam — pass a node to supply the full action cluster when those land.
+ * Chelone divergence: the default right-side toolbar is `<LocalesMenuButton>` +
+ * `<ThemeModeToggle>`. shadmin's cluster also has `<RefreshButton>`, which stays
+ * out. The `toolbar` prop remains the override seam for the whole cluster.
  */
 
 import type { HTMLAttributes, ReactNode } from "react";
+import { LocalesMenuButton } from "@/components/admin/buttons/locales-menu-button";
 import { SidebarToggleButton } from "@/components/admin/buttons/sidebar-toggle-button";
 import { cn } from "@/lib/utils";
 import { ThemeModeToggle } from "./theme-mode-toggle";
@@ -22,7 +22,7 @@ export type AppBarProps = HTMLAttributes<HTMLElement> & {
    */
   children?: ReactNode;
   /**
-   * Replaces the default right-side action cluster (`<ThemeModeToggle>`). Pass a
+   * Replaces the default right-side action cluster (`<LocalesMenuButton>` + `<ThemeModeToggle>`). Pass a
    * node to supply custom actions, or omit to keep the default.
    */
   toolbar?: ReactNode;
@@ -68,7 +68,14 @@ function AppBar({
           <SidebarToggleButton />
           <div className="flex items-center min-w-0" id="breadcrumb" />
           <TitlePortal />
-          {toolbar !== undefined ? toolbar : <ThemeModeToggle />}
+          {toolbar !== undefined ? (
+            toolbar
+          ) : (
+            <>
+              <LocalesMenuButton />
+              <ThemeModeToggle />
+            </>
+          )}
           {userMenu !== false && (userMenu ?? <UserMenu />)}
         </>
       )}
