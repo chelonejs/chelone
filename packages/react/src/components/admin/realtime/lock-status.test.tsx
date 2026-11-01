@@ -23,6 +23,7 @@ function setup() {
   const dataProvider = realtimeDataProvider(fakeDataProvider({}), transport, {
     locks,
   });
+  const realGetLock = locks.getLock.bind(locks);
   const getLock = vi.spyOn(locks, "getLock");
   const i18n = createI18n({
     locale: "en",
@@ -41,7 +42,7 @@ function setup() {
       {children}
     </CheloneProvider>
   );
-  return { locks, getLock, Providers };
+  return { locks, getLock, realGetLock, Providers };
 }
 
 describe("<LockStatus>", () => {
@@ -79,6 +80,53 @@ describe("<LockStatus>", () => {
     );
 
     expect(await screen.findByText("Available")).toBeTruthy();
+  });
+
+  it("does not render renderFree while the lock is still loading", async () => {
+    const { locks, getLock, realGetLock, Providers } = setup();
+    await locks.lock("posts", { id: 1, identity: "ann" });
+    let release: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    getLock.mockImplementation(async (resource, params) => {
+      await gate;
+      return realGetLock(resource, params);
+    });
+
+    render(
+      <LockStatus
+        resource="posts"
+        id={1}
+        renderFree={() => <p>Available</p>}
+      />,
+      { wrapper: Providers },
+    );
+
+    await waitFor(() => expect(getLock).toHaveBeenCalled());
+    expect(screen.queryByText("Available")).toBeNull();
+
+    release();
+    expect(await screen.findByText("Locked by ann")).toBeTruthy();
+    expect(screen.queryByText("Available")).toBeNull();
+  });
+
+  it("does not render renderFree when the lock fetch fails", async () => {
+    const { getLock, Providers } = setup();
+    getLock.mockRejectedValue(new Error("lock service down"));
+
+    const { container } = render(
+      <LockStatus
+        resource="posts"
+        id={1}
+        renderFree={() => <p>Available</p>}
+      />,
+      { wrapper: Providers },
+    );
+
+    await waitFor(() => expect(getLock).toHaveBeenCalled());
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(container.textContent).toBe("");
   });
 
   it("renderLock replaces the default badge", async () => {

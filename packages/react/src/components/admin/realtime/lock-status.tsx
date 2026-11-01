@@ -40,7 +40,7 @@ function LockStatus({
 
   // The hook needs a resource and an id to build its query; with `enabled`
   // false it neither fetches nor subscribes, so the casts are never read.
-  const { data: lock } = useGetLockLive(
+  const { data: lock, isSuccess } = useGetLockLive(
     resource as string,
     { id: id as Identifier },
     { enabled },
@@ -59,7 +59,8 @@ function LockStatus({
       )
     );
   }
-  return renderFree?.() ?? null;
+  // Only a settled `null` is free: while loading or after a failed fetch the holder is unknown.
+  return isSuccess ? (renderFree?.() ?? null) : null;
 }
 
 export { LockStatus };
