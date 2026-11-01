@@ -473,6 +473,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/clone-button.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/create-button.vue",
           "type": "registry:component"
         },
@@ -502,6 +506,14 @@
         },
         {
           "path": "src/components/admin/buttons/list-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/locales-menu-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/locales-menu.vue",
           "type": "registry:component"
         },
         {
@@ -1480,6 +1492,26 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "clone-button",
+      "type": "registry:component",
+      "title": "Clone Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/clone-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button-icons",
+        "@chelone/button-variants",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "create-button",
       "type": "registry:component",
       "title": "Create Button",
@@ -1622,6 +1654,41 @@
       "dependencies": ["@chelone/vue"],
       "devDependencies": ["vue-router"],
       "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "locales-menu-button",
+      "type": "registry:component",
+      "title": "Locales Menu Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/locales-menu-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/locales-menu"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "locales-menu",
+      "type": "registry:component",
+      "title": "Locales Menu",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/locales-menu.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/dropdown-menu",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -3434,6 +3501,7 @@
       ],
       "registryDependencies": [
         "@chelone/lib-utils",
+        "@chelone/locales-menu-button",
         "@chelone/sidebar",
         "@chelone/theme-mode-toggle",
         "@chelone/title-portal",

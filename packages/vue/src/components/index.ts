@@ -29,6 +29,8 @@ export type { BulkUpdateButtonProps } from "./admin/buttons/bulk-update-button.v
 export { default as BulkUpdateButton } from "./admin/buttons/bulk-update-button.vue";
 export type { CancelButtonProps } from "./admin/buttons/cancel-button.vue";
 export { default as CancelButton } from "./admin/buttons/cancel-button.vue";
+export type { CloneButtonProps } from "./admin/buttons/clone-button.vue";
+export { default as CloneButton } from "./admin/buttons/clone-button.vue";
 export type { CreateButtonProps } from "./admin/buttons/create-button.vue";
 export { default as CreateButton } from "./admin/buttons/create-button.vue";
 export type {
@@ -53,6 +55,8 @@ export type {
 export { default as FilterButton } from "./admin/buttons/filter-button.vue";
 export type { ListButtonProps } from "./admin/buttons/list-button.vue";
 export { default as ListButton } from "./admin/buttons/list-button.vue";
+export type { LocalesMenuButtonProps } from "./admin/buttons/locales-menu-button.vue";
+export { default as LocalesMenuButton } from "./admin/buttons/locales-menu-button.vue";
 export type { RefreshButtonProps } from "./admin/buttons/refresh-button.vue";
 export { default as RefreshButton } from "./admin/buttons/refresh-button.vue";
 export type { RefreshIconButtonProps } from "./admin/buttons/refresh-icon-button.vue";
