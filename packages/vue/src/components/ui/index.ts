@@ -45,6 +45,8 @@ export {
 } from "./field";
 export { default as Input } from "./input.vue";
 export { default as NativeSelect } from "./native-select.vue";
+export type { SheetProps } from "./sheet.vue";
+export { default as Sheet } from "./sheet.vue";
 // --- sidebar primitive family --------------------------------------------
 export type {
   SidebarContext,

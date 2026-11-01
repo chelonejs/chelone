@@ -9,6 +9,7 @@ import type {
   ApplicationUpdatedNotificationProps,
   BooleanInputProps,
   BulkActionsToolbarProps,
+  BulkEditDrawerProps,
   CheckForApplicationUpdateProps,
   CloneButtonProps,
   ColorInputProps,
@@ -95,6 +96,7 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<ApplicationUpdatedNotificationProps>().toBeObject();
     expectTypeOf<BooleanInputProps>().toHaveProperty("source");
     expectTypeOf<BulkActionsToolbarProps>().toBeObject();
+    expectTypeOf<BulkEditDrawerProps>().toHaveProperty("label");
     expectTypeOf<CheckForApplicationUpdateProps>().toHaveProperty("url");
     expectTypeOf<CloneButtonProps>().toHaveProperty("record");
     expectTypeOf<CloneButtonProps>().toHaveProperty("class");
