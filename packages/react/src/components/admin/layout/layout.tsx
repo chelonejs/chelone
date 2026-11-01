@@ -13,8 +13,6 @@
  *   in-house `ShellErrorBoundary` / `DefaultErrorFallback` (the `error` slot
  *   overrides the fallback). The P6 shell already wraps this `<Layout>` in its
  *   OWN `ShellErrorBoundary`; the inner one here isolates content-area crashes.
- * - No `<SkipNavigationButton>` (a BUTTONS-wave component); the `id="main-content"`
- *   anchor is kept so a skip-nav button can target it once it lands.
  * - The Suspense fallback is a minimal inline node, not the delayed `<Loading>`.
  * - `CoreLayoutProps` (a shadmin-core type) does not exist in chelone; the slot
  *   contract is simply `{ children }`.
@@ -25,6 +23,7 @@ import { Suspense } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { type ErrorFallbackProps, ShellErrorBoundary } from "../../../admin";
+import { SkipNavigationButton } from "../buttons/skip-navigation-button";
 import { Notification } from "../feedback/notification";
 import { AppBar, type AppBarProps } from "./app-bar";
 import { AppSidebar, type AppSidebarProps } from "./app-sidebar";
@@ -82,6 +81,7 @@ function Layout(props: LayoutProps) {
           "flex h-svh flex-col",
         )}
       >
+        <SkipNavigationButton />
         <AppBarComponent />
         <ShellErrorBoundary fallback={error}>
           <Suspense fallback={<div className="px-4 py-2">Loading…</div>}>

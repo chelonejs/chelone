@@ -242,6 +242,10 @@ export {
   type SidebarToggleButtonProps,
 } from "./components/admin/buttons/sidebar-toggle-button";
 export {
+  SkipNavigationButton,
+  type SkipNavigationButtonProps,
+} from "./components/admin/buttons/skip-navigation-button";
+export {
   SortButton,
   type SortButtonProps,
 } from "./components/admin/buttons/sort-button";

@@ -188,6 +188,7 @@ const STUBS = [
   { slug: "resource-menu-item", section: "ui-layout", component: "ResourceMenuItem", registry: "resource-menu-item", title: "ResourceMenuItem", desc: "A sidebar menu entry generated from a resource." },
   { slug: "resource-menu-item-group", section: "ui-layout", component: "ResourceMenuItemGroup", registry: "resource-menu-item-group", title: "ResourceMenuItemGroup", desc: "Groups related resource menu items under a heading." },
   { slug: "sidebar-toggle-button", section: "ui-layout", component: "SidebarToggleButton", registry: "sidebar-toggle-button", title: "SidebarToggleButton", desc: "Collapses or expands the navigation sidebar." },
+  { slug: "skip-navigation-button", section: "ui-layout", component: "SkipNavigationButton", registry: "skip-navigation-button", title: "SkipNavigationButton", desc: "An off-screen button that lets keyboard users jump past the menu to the page content." },
   { slug: "theme-mode-toggle", section: "ui-layout", component: "ThemeModeToggle", registry: "theme-mode-toggle", title: "ThemeModeToggle", desc: "A dropdown that switches between light, dark and system themes." },
   { slug: "title", section: "ui-layout", component: "Title", registry: "title", title: "Title", desc: "Portals a page title into the app bar's `<TitlePortal>` slot." },
   { slug: "title-portal", section: "ui-layout", component: "TitlePortal", registry: "title-portal", title: "TitlePortal", desc: "The app-bar slot that renders each view's title." },

@@ -16,7 +16,7 @@ import {
   fakeDataProvider,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -110,6 +110,38 @@ describe("<Layout>", () => {
     expect(
       screen.getByRole("button", { name: /toggle sidebar/i }),
     ).toBeTruthy();
+  });
+
+  it("renders the skip link before the app bar", () => {
+    render(
+      <Providers>
+        <Layout>
+          <div>content</div>
+        </Layout>
+      </Providers>,
+    );
+    const skip = screen.getByRole("button", { name: "Skip to content" });
+    const toggle = screen.getByRole("button", { name: /toggle sidebar/i });
+    expect(
+      skip.compareDocumentPosition(toggle) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(document.querySelector("main")?.firstElementChild).toBe(skip);
+  });
+
+  it("skip link focus target is its main element", () => {
+    render(
+      <Providers>
+        <Layout>
+          <div>content</div>
+        </Layout>
+      </Providers>,
+    );
+    const main = document.querySelector("main") as HTMLElement;
+    const focus = vi.spyOn(main, "focus");
+    fireEvent.click(screen.getByRole("button", { name: "Skip to content" }));
+    expect(main.id).toBe("main-content");
+    expect(focus).toHaveBeenCalledTimes(1);
+    expect(main.hasAttribute("tabindex")).toBe(false);
   });
 
   it("renders the brand default", () => {

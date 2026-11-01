@@ -1,0 +1,35 @@
+{
+  "name": "SkipNavigationButton",
+  "props": [
+    {
+      "name": "asChild",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "An i18n key (contains a dot) or literal text. Default `ra.navigation.skip_nav`."
+    },
+    {
+      "name": "ref",
+      "type": "Ref<HTMLButtonElement>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "size",
+      "type": "\"default\" | \"sm\" | \"lg\" | \"icon\" | \"xs\" | \"icon-xs\" | \"icon-sm\" | \"icon-lg\" | null",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "variant",
+      "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | null",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
