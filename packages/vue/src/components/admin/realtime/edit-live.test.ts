@@ -59,9 +59,21 @@ const ResetButton = defineComponent({
 const fields = () => [h(TextInput, { source: "title" }), h(ResetButton)];
 const toolbar = () => h(SaveButton);
 
+function makeRouter() {
+  return createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: "/", component: { render: () => null } },
+      { path: "/posts", component: { render: () => null } },
+      { path: "/posts/:id", component: { render: () => null } },
+    ],
+  });
+}
+
 function mountUnderAdmin(
   dataProvider: ReturnType<typeof setup>["dataProvider"],
   render: () => unknown,
+  router = makeRouter(),
 ) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -73,13 +85,6 @@ function mountUnderAdmin(
         { dataProvider, queryClient },
         { default: render, layout: () => h("div") },
       ),
-  });
-  const router = createRouter({
-    history: createMemoryHistory(),
-    routes: [
-      { path: "/", component: { render: () => null } },
-      { path: "/posts", component: { render: () => null } },
-    ],
   });
   const wrapper = mount(Harness, { global: { plugins: [router] } });
   return { wrapper, router };
@@ -186,6 +191,36 @@ describe("<EditLive>", () => {
     expect(value(saving.wrapper)).toBe("typed");
     // The save's own refetch, plus the one the held event runs once clean.
     expect(getOneOnSave).toHaveBeenCalledTimes(3);
+  });
+
+  it("keeps listening to the record the form was opened on when the route id changes", async () => {
+    const { dataProvider } = setup();
+    const getOne = vi.spyOn(dataProvider, "getOne");
+    const router = makeRouter();
+    await router.push("/posts/1");
+    const { wrapper } = mountUnderAdmin(
+      dataProvider,
+      () =>
+        h(
+          EditLive,
+          { resource: "posts", redirectOnSave: false },
+          { default: fields, toolbar },
+        ),
+      router,
+    );
+    await flushPromises();
+    expect(value(wrapper)).toBe("a");
+
+    // <Edit> reads its id once, so the form stays on record 1.
+    await router.push("/posts/2");
+    await flushPromises();
+    await rename(dataProvider, 2, "b2");
+    await flushPromises();
+    expect(getOne).toHaveBeenCalledTimes(1);
+
+    await rename(dataProvider, 1, "a2");
+    await flushPromises();
+    expect(value(wrapper)).toBe("a2");
   });
 
   it("ignores events of other records", async () => {

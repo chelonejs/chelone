@@ -42,10 +42,20 @@ function setup() {
   return { transport, dataProvider };
 }
 
+function makeRouter() {
+  return createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: "/", component: { render: () => null } },
+      { path: "/posts/:id/show", component: { render: () => null } },
+    ],
+  });
+}
+
 function mountUnderAdmin(
   dataProvider: ReturnType<typeof setup>["dataProvider"],
   render: () => unknown,
-  path = "/",
+  router = makeRouter(),
 ) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -58,14 +68,6 @@ function mountUnderAdmin(
         { default: render, layout: () => h("div") },
       ),
   });
-  const router = createRouter({
-    history: createMemoryHistory(),
-    routes: [
-      { path: "/", component: { render: () => null } },
-      { path: "/posts/:id/show", component: { render: () => null } },
-    ],
-  });
-  void router.push(path);
   return mount(Harness, { global: { plugins: [router] } });
 }
 
@@ -146,10 +148,12 @@ describe("<ShowLive>", () => {
   it("takes the id from the id prop over the route param", async () => {
     const { transport, dataProvider } = setup();
     const getOne = vi.spyOn(dataProvider, "getOne");
+    const router = makeRouter();
+    await router.push("/posts/2/show");
     const wrapper = mountUnderAdmin(
       dataProvider,
       () => showLive({ id: 1 }),
-      "/posts/2/show",
+      router,
     );
     await flushPromises();
     expect(wrapper.find('[data-slot="show"]').text()).toContain("a");
@@ -158,6 +162,31 @@ describe("<ShowLive>", () => {
       type: "updated",
       payload: null,
     });
+    await flushPromises();
+    expect(getOne).toHaveBeenCalledTimes(1);
+
+    await rename(dataProvider, 1, "a2");
+    await flushPromises();
+    expect(wrapper.find('[data-slot="show"]').text()).toContain("a2");
+  });
+
+  it("keeps listening to the record it opened on when the route id changes", async () => {
+    const { dataProvider } = setup();
+    const getOne = vi.spyOn(dataProvider, "getOne");
+    const router = makeRouter();
+    await router.push("/posts/1/show");
+    const wrapper = mountUnderAdmin(
+      dataProvider,
+      () => h(ShowLive, { resource: "posts" }, { default: fields }),
+      router,
+    );
+    await flushPromises();
+    expect(wrapper.find('[data-slot="show"]').text()).toContain("a");
+
+    // <Show> reads its id once, so the page stays on record 1.
+    await router.push("/posts/2/show");
+    await flushPromises();
+    await rename(dataProvider, 2, "b2");
     await flushPromises();
     expect(getOne).toHaveBeenCalledTimes(1);
 

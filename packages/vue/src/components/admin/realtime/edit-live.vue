@@ -65,16 +65,17 @@ if (!(props.resource ?? ambientResource)) {
     "<Edit>: no resource. Pass a `resource` prop or render inside a <Resource>.",
   );
 }
-const routeParams = useRouterAdapterOptional()?.useParams();
+// Fixed at setup, as `<Edit>` fixes its own: a route that moves to another record
+// reuses this component, and the subscription must stay on the record shown.
+const liveResource = props.resource ?? ambientResource;
+const liveId = props.id ?? useRouterAdapterOptional()?.useParams().value.id;
 
 const formIsDirty = ref(false);
 let subscription: LiveSubscription | undefined;
 
 watchEffect((onCleanup) => {
-  const resource = props.resource ?? ambientResource;
-  const id = props.id ?? routeParams?.value.id;
-  if (!resource || id === undefined) return;
-  const live = subscribeLiveRecord(ctx, resource, id, {
+  if (!liveResource || liveId === undefined) return;
+  const live = subscribeLiveRecord(ctx, liveResource, liveId, {
     paused: () => formIsDirty.value,
   });
   subscription = live;

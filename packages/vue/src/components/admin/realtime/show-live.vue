@@ -30,13 +30,14 @@ if (!(props.resource ?? ambientResource)) {
     "<Show>: no resource. Pass a `resource` prop or render inside a <Resource>.",
   );
 }
-const routeParams = useRouterAdapterOptional()?.useParams();
+// Fixed at setup, as `<Show>` fixes its own: a route that moves to another record
+// reuses this component, and the subscription must stay on the record shown.
+const liveResource = props.resource ?? ambientResource;
+const liveId = props.id ?? useRouterAdapterOptional()?.useParams().value.id;
 
 watchEffect((onCleanup) => {
-  const resource = props.resource ?? ambientResource;
-  const id = props.id ?? routeParams?.value.id;
-  if (!resource || id === undefined) return;
-  onCleanup(subscribeLiveRecord(ctx, resource, id).stop);
+  if (!liveResource || liveId === undefined) return;
+  onCleanup(subscribeLiveRecord(ctx, liveResource, liveId).stop);
 });
 </script>
 
