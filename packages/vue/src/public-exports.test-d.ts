@@ -10,6 +10,7 @@ import type {
   BooleanInputProps,
   BulkActionsToolbarProps,
   CheckForApplicationUpdateProps,
+  CloneButtonProps,
   ColorInputProps,
   CountProps,
   CreateProps,
@@ -43,6 +44,7 @@ import type {
   ListToolbarProps,
   LoadingIndicatorProps,
   LoadingPageProps,
+  LocalesMenuButtonProps,
   LockOnMountProps,
   LockStatusProps,
   MenuLiveItemLinkProps,
@@ -90,6 +92,8 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<BooleanInputProps>().toHaveProperty("source");
     expectTypeOf<BulkActionsToolbarProps>().toBeObject();
     expectTypeOf<CheckForApplicationUpdateProps>().toHaveProperty("url");
+    expectTypeOf<CloneButtonProps>().toHaveProperty("record");
+    expectTypeOf<CloneButtonProps>().toHaveProperty("class");
     expectTypeOf<ColorInputProps>().toHaveProperty("source");
     expectTypeOf<CreateProps>().toBeObject();
     expectTypeOf<CurrencyInputProps>().toHaveProperty("source");
@@ -121,6 +125,9 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<ListPaginationProps>().toBeObject();
     expectTypeOf<ListToolbarProps>().toBeObject();
     expectTypeOf<LoadingIndicatorProps>().toBeObject();
+    expectTypeOf<LocalesMenuButtonProps>().toHaveProperty("languages");
+    expectTypeOf<LocalesMenuButtonProps>().toHaveProperty("class");
+    expectTypeOf(barrel.useLocales).toBeFunction();
     expectTypeOf<LoadingPageProps>().toBeObject();
     expectTypeOf<LockOnMountProps>().toHaveProperty("onLockError");
     expectTypeOf<LockStatusProps>().toHaveProperty("resource");
