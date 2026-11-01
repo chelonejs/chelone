@@ -840,6 +840,22 @@ export {
   TabbedShowLayoutTabsList,
   type TabbedShowLayoutTabsListProps,
 } from "./components/admin/views/tabbed-show-layout";
+export {
+  TranslatableFields,
+  type TranslatableFieldsProps,
+} from "./components/admin/views/translatable-fields";
+export {
+  TranslatableFieldsTab,
+  type TranslatableFieldsTabProps,
+} from "./components/admin/views/translatable-fields-tab";
+export {
+  TranslatableFieldsTabContent,
+  type TranslatableFieldsTabContentProps,
+} from "./components/admin/views/translatable-fields-tab-content";
+export {
+  TranslatableFieldsTabs,
+  type TranslatableFieldsTabsProps,
+} from "./components/admin/views/translatable-fields-tabs";
 export type { CheloneProviderProps } from "./context";
 export {
   CheloneProvider,
@@ -1062,6 +1078,7 @@ export {
   ShowContextProvider,
   useCreateContext,
   useEditContext,
+  useOptionalShowContext,
   useShowContext,
 } from "./record-view-context";
 export type {

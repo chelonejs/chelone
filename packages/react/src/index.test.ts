@@ -252,6 +252,14 @@ describe("@chelone/react barrel — P6 form leftovers + SSR seam (W2)", () => {
     );
   });
 
+  it("exports the translatable field components", () => {
+    expect(barrel.TranslatableFields).toBeTypeOf("function");
+    expect(barrel.TranslatableFieldsTabs).toBeTypeOf("function");
+    expect(barrel.TranslatableFieldsTab).toBeTypeOf("function");
+    expect(barrel.TranslatableFieldsTabContent).toBeTypeOf("function");
+    expectTypeOf<barrel.TranslatableFieldsProps>().toHaveProperty("locales");
+  });
+
   it("exports TabbedForm (W2-T5)", () => {
     expect(barrel.TabbedForm).toBeTypeOf("function");
     expect(barrel.TabbedForm.Tab).toBeTypeOf("function");
