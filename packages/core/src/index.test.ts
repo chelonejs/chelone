@@ -115,7 +115,7 @@ describe("@chelone/core barrel", () => {
     );
   });
 
-it("exports the geo helpers and a mapMessages catalog that shares no key with defaultMessages", () => {
+  it("exports the geo helpers and a mapMessages catalog that shares no key with defaultMessages", () => {
     expect(barrel.isGeoGeometry).toBeTypeOf("function");
     expect(barrel.isGeoFeature).toBeTypeOf("function");
     expect(barrel.isGeoFeatureCollection).toBeTypeOf("function");

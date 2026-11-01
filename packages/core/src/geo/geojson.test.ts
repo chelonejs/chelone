@@ -35,9 +35,9 @@ describe("isGeoGeometry", () => {
       isGeoGeometry({ type: "MultiLineString", coordinates: [line] }),
     ).toBe(true);
     expect(isGeoGeometry({ type: "Polygon", coordinates: square })).toBe(true);
-    expect(
-      isGeoGeometry({ type: "MultiPolygon", coordinates: [square] }),
-    ).toBe(true);
+    expect(isGeoGeometry({ type: "MultiPolygon", coordinates: [square] })).toBe(
+      true,
+    );
     expect(
       isGeoGeometry({
         type: "GeometryCollection",

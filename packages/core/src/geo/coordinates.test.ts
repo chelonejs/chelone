@@ -60,9 +60,9 @@ describe("latitude", () => {
   });
 
   it("uses a message factory", () => {
-    expect(
-      latitude(({ value }) => `bad ${String(value)}`)(100, {}, {}),
-    ).toBe("bad 100");
+    expect(latitude(({ value }) => `bad ${String(value)}`)(100, {}, {})).toBe(
+      "bad 100",
+    );
   });
 
   it("returns the same shape as minLength", () => {
