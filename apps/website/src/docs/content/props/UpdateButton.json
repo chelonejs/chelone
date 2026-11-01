@@ -1,0 +1,107 @@
+{
+  "name": "UpdateButton",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "confirmColor",
+      "type": "\"primary\" | \"warning\"",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "confirmContent",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "confirmTitle",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "contentTranslateOptions",
+      "type": "object",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "data",
+      "type": "Partial<LooseRecord>",
+      "optional": false,
+      "comment": "The fields to patch onto the record."
+    },
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "comment": "`\"undoable\"` (default) patches the record now with an Undo notification and\nno dialog; the server call is deferred until the Undo window closes.\n`\"pessimistic\"` and `\"optimistic\"` ask for confirmation first, and\n`\"optimistic\"` closes the dialog on confirm."
+    },
+    {
+      "name": "onClick",
+      "type": "MouseEventHandler<HTMLButtonElement>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "onError",
+      "type": "(error: unknown) => void",
+      "optional": true,
+      "comment": "Receives the error of a failed confirmed update."
+    },
+    {
+      "name": "onSuccess",
+      "type": "(data: LooseRecord) => void",
+      "optional": true,
+      "comment": "Receives the updated record. Runs only for a confirmed update, not for an undoable one."
+    },
+    {
+      "name": "record",
+      "type": "LooseRecord",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "ref",
+      "type": "Ref<HTMLButtonElement>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "titleTranslateOptions",
+      "type": "object",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "variant",
+      "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\"",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
