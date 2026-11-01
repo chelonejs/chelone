@@ -74,11 +74,13 @@ const ROWS = [{ id: 1, title: "Beta", views: 10, author: "Ann", tags: "x" }];
 function Page({
   children,
   button,
+  defaultHiddenColumns,
   withTable = true,
   noResource = false,
 }: {
   children?: ReactNode;
   button?: ColumnsButtonProps;
+  defaultHiddenColumns?: string[];
   withTable?: boolean;
   noResource?: boolean;
 }) {
@@ -87,7 +89,11 @@ function Page({
     <ResourceContextProvider value={noResource ? undefined : "posts"}>
       <ListContextProvider value={list as unknown as ListContextValue}>
         <ColumnsButton {...button} />
-        {withTable ? <DataTable>{children}</DataTable> : null}
+        {withTable ? (
+          <DataTable defaultHiddenColumns={defaultHiddenColumns}>
+            {children}
+          </DataTable>
+        ) : null}
       </ListContextProvider>
     </ResourceContextProvider>
   );
@@ -187,6 +193,22 @@ describe("<ColumnsButton>", () => {
     toggleSwitch("Views");
     expect(headers()).toEqual(["Title", "Views"]);
     expect(store.getItem("posts.datatable")).toEqual(["author"]);
+  });
+
+  it("shows the columns the table hides through defaultHiddenColumns as off", () => {
+    const { store } = renderPage({
+      defaultHiddenColumns: ["views"],
+      children: [col("title"), col("views")],
+    });
+    expect(headers()).toEqual(["Title"]);
+    open();
+    expect(switches()).toEqual([
+      { name: "Title", on: true },
+      { name: "Views", on: false },
+    ]);
+    toggleSwitch("Views");
+    expect(headers()).toEqual(["Title", "Views"]);
+    expect(store.getItem("posts.datatable")).toEqual([]);
   });
 
   it("Reset restores the default hidden columns and the declared order", () => {
