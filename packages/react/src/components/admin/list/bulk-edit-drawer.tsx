@@ -6,6 +6,10 @@
  * react-hook-form `dirtyFields`: the diff is read with core's
  * `getDirtyFormValues`.
  *
+ * Flat sources only: a nested source (`address.city`, `tags[1]`) is refused
+ * with an error, since the empty form would send a partial object that
+ * overwrites the stored one on every row.
+ *
  * The apply path mirrors `<BulkUpdateButton>` pessimistic mode against the raw
  * `dataProvider.updateMany(resource, { ids, data })`: notify
  * `chelone.notification.updated`, `unselectAll`, `useRefresh`.
@@ -39,7 +43,11 @@ import { useNotify } from "../../../notification-hooks";
 import { useResourceContext } from "../../../resource";
 
 interface BulkEditDrawerProps {
-  /** The inputs to edit with; their values become the patch for every row. */
+  /**
+   * The inputs to edit with; their values become the patch for every row. Flat
+   * sources only: applying with a dirty nested source (`address.city`,
+   * `tags[1]`) notifies an error and calls nothing.
+   */
   children: ReactNode;
   /** Trigger text. Default `"Edit selected"`. */
   label?: string;
@@ -111,6 +119,21 @@ function BulkEditDrawer(props: BulkEditDrawerProps) {
         resource: name,
         onSuccess: done,
       } = latest.current;
+      // The form starts empty, so a dirty `address.city` holds only the typed
+      // subfield; `updateMany` would replace the stored `address` with it.
+      const nested = Object.entries(form.store.state.fieldMeta).find(
+        ([path, meta]) => meta?.isDirty && /[.[]/.test(path),
+      );
+      if (nested) {
+        notify("ra.message.bulk_edit_nested_source", {
+          type: "error",
+          messageArgs: {
+            source: nested[0],
+            _: "Bulk edit takes flat sources only, but {source} is nested.",
+          },
+        });
+        return undefined;
+      }
       const diff = getDirtyFormValues(
         form.store.state.values,
         form.store.state.fieldMeta,

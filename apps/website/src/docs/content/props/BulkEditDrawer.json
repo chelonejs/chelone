@@ -5,7 +5,7 @@
       "name": "children",
       "type": "ReactNode",
       "optional": false,
-      "comment": "The inputs to edit with; their values become the patch for every row."
+      "comment": "The inputs to edit with; their values become the patch for every row. Flat\nsources only: applying with a dirty nested source (`address.city`,\n`tags[1]`) notifies an error and calls nothing."
     },
     {
       "name": "disabled",

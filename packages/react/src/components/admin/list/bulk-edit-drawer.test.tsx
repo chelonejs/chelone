@@ -22,6 +22,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import {
@@ -50,9 +51,11 @@ const seed = () => ({
 function mount({
   dataProvider = fakeDataProvider(seed()),
   messages = {},
+  inputs,
   ...drawerProps
 }: Partial<BulkEditDrawerProps> & {
   dataProvider?: DataProvider;
+  inputs?: ReactNode;
   messages?: Record<string, string | { one?: string; other: string }>;
 } = {}) {
   const notifications = createNotificationStore();
@@ -81,9 +84,13 @@ function mount({
             <List
               actions={
                 <BulkEditDrawer {...drawerProps}>
-                  <TextInput source="title" />
-                  <NumberInput source="views" />
-                  <TextInput source="status" defaultValue="draft" />
+                  {inputs ?? (
+                    <>
+                      <TextInput source="title" />
+                      <NumberInput source="views" />
+                      <TextInput source="status" defaultValue="draft" />
+                    </>
+                  )}
                 </BulkEditDrawer>
               }
             >
@@ -325,5 +332,42 @@ describe("<BulkEditDrawer>", () => {
     expect(
       screen.getByRole("heading", { name: "Edit many posts" }),
     ).toBeTruthy();
+  });
+
+  it("a nested source is refused with an error instead of overwriting the stored object", async () => {
+    const dataProvider = fakeDataProvider({
+      posts: [
+        { id: 1, title: "Alpha", address: { city: "Paris", zip: "75001" } },
+        { id: 2, title: "Beta", address: { city: "Nice", zip: "06000" } },
+      ],
+    });
+    const updateMany = vi.spyOn(dataProvider, "updateMany");
+    const { notify } = mount({
+      dataProvider,
+      inputs: <TextInput source="address.city" />,
+    });
+    await selectRows(0, 1);
+
+    fireEvent.click(await findTrigger());
+    fireEvent.change(await screen.findByLabelText(/city/i), {
+      target: { value: "Lyon" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /^apply/i }));
+
+    await waitFor(() =>
+      expect(notify).toHaveBeenCalledWith(
+        "ra.message.bulk_edit_nested_source",
+        expect.objectContaining({
+          type: "error",
+          messageArgs: expect.objectContaining({ source: "address.city" }),
+        }),
+      ),
+    );
+    expect(updateMany).not.toHaveBeenCalled();
+    // The sheet stays open with the typed value, and the selection survives.
+    expect((screen.getByLabelText(/city/i) as HTMLInputElement).value).toBe(
+      "Lyon",
+    );
+    expect((await findTrigger()).disabled).toBe(false);
   });
 });
