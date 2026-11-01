@@ -3,7 +3,12 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick } from "vue";
 import { type CheloneContextValue, provideCheloneContext } from "../context";
-import { useLocale, useLocaleState, useSetLocale } from "./use-locale";
+import {
+  useLocale,
+  useLocaleState,
+  useLocales,
+  useSetLocale,
+} from "./use-locale";
 import { useTranslate } from "./use-translate";
 
 const dataProvider = {
@@ -77,6 +82,40 @@ describe("useLocale", () => {
     wrapper.unmount();
 
     expect(release).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("useLocales", () => {
+  /** The `useLocales()` result for `i18n`, read from inside a component. */
+  function localesWith(i18n: AnyCheloneI18n | undefined) {
+    let result: ReturnType<typeof useLocales> = [];
+    mountWith(i18n, () => {
+      result = useLocales();
+      return () => h("p");
+    });
+    return result;
+  }
+
+  it("useLocales names each locale in its own language", () => {
+    expect(localesWith(makeI18n())).toEqual([
+      { locale: "en", name: "English" },
+      { locale: "fr", name: "français" },
+    ]);
+  });
+
+  it("useLocales keeps the code as the name for a tag Intl rejects", () => {
+    const i18n = createI18n({
+      locale: "en",
+      messages: { en: { greeting: "Hello" }, "not a tag!": {} },
+    }) as AnyCheloneI18n;
+    expect(localesWith(i18n)).toEqual([
+      { locale: "en", name: "English" },
+      { locale: "not a tag!", name: "not a tag!" },
+    ]);
+  });
+
+  it("useLocales is empty without an i18n instance", () => {
+    expect(localesWith(undefined)).toEqual([]);
   });
 });
 

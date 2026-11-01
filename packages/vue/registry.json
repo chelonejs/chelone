@@ -509,6 +509,14 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/locales-menu-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/locales-menu.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/refresh-button.vue",
           "type": "registry:component"
         },
@@ -1662,6 +1670,41 @@
       "dependencies": ["@chelone/vue"],
       "devDependencies": ["vue-router"],
       "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "locales-menu-button",
+      "type": "registry:component",
+      "title": "Locales Menu Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/locales-menu-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/locales-menu"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "locales-menu",
+      "type": "registry:component",
+      "title": "Locales Menu",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/locales-menu.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/dropdown-menu",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -3474,6 +3517,7 @@
       ],
       "registryDependencies": [
         "@chelone/lib-utils",
+        "@chelone/locales-menu-button",
         "@chelone/sidebar",
         "@chelone/theme-mode-toggle",
         "@chelone/title-portal",
