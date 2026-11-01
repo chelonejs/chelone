@@ -112,7 +112,7 @@ describe("<Layout>", () => {
     ).toBeTruthy();
   });
 
-  it("renders the skip link before the app bar", () => {
+  it("renders the skip link before the sidebar menu", () => {
     render(
       <Providers>
         <Layout>
@@ -121,27 +121,35 @@ describe("<Layout>", () => {
       </Providers>,
     );
     const skip = screen.getByRole("button", { name: "Skip to content" });
+    const menuLink = screen.getByRole("link", { name: /posts/i });
     const toggle = screen.getByRole("button", { name: /toggle sidebar/i });
-    expect(
-      skip.compareDocumentPosition(toggle) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-    expect(document.querySelector("main")?.firstElementChild).toBe(skip);
+    for (const later of [menuLink, toggle]) {
+      expect(
+        skip.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    }
   });
 
-  it("skip link focus target is its main element", () => {
+  it("skip link focus target is the content area, not the app bar", () => {
     render(
       <Providers>
         <Layout>
-          <div>content</div>
+          <button type="button">First control</button>
         </Layout>
       </Providers>,
     );
-    const main = document.querySelector("main") as HTMLElement;
-    const focus = vi.spyOn(main, "focus");
+    const target = document.getElementById("main-content") as HTMLElement;
+    expect(target.contains(screen.getByText("First control"))).toBe(true);
+    expect(
+      target.contains(screen.getByRole("button", { name: /toggle sidebar/i })),
+    ).toBe(false);
+    expect(
+      target.contains(screen.getByRole("button", { name: "Skip to content" })),
+    ).toBe(false);
+    const focus = vi.spyOn(target, "focus");
     fireEvent.click(screen.getByRole("button", { name: "Skip to content" }));
-    expect(main.id).toBe("main-content");
     expect(focus).toHaveBeenCalledTimes(1);
-    expect(main.hasAttribute("tabindex")).toBe(false);
+    expect(target.hasAttribute("tabindex")).toBe(false);
   });
 
   it("renders the brand default", () => {
