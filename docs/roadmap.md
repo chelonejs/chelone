@@ -53,6 +53,17 @@
 - **Realtime, live views and record locks are built in both adapters** (the engine is in `@chelone/core`; `useSubscribe`, `ListLive`/`ShowLive`/`EditLive`/`MenuLive`, `LockOnMount`/`LockStatus` in React and Vue; both demos wire it). Guide: `apps/website/src/docs/content/app-config/realtime.mdx`.
 - Still deferred: audit-log, ra-tree, calendar. Large, ecosystem-scale, post-v1.
 
+## Opt-in add-ons (#224)
+
+Heavy editors and integrations ship as opt-in subpaths, so an app that does not use one never installs its dependencies. Each add-on lands in both adapters. The registry marks the dependencies as optional peers (#393, shared by every add-on).
+
+- **Maps** (in progress): map fields and inputs on MapLibre with Terra Draw. Imports from `@chelone/react/maps`, `@chelone/react/maps/draw` and `@chelone/react/maps/osm`, and the same three under `@chelone/vue`. Issues #388 to #392 and #444 to #466.
+- **JSON editing** (in progress): `JsonField` in the base adapters, and `MonacoJsonInput` and `MonacoJsonField` from `/monaco`. Issues #394 to #401.
+- **Markdown** (in progress): `MdxInput` and `MdxField` from `/mdx-editor`. Issues #402 to #406.
+- **CSV import** (in progress): `CsvImport` and `useCsvImport` from `/csv-import`. Issues #407 to #411 and #424.
+- **Supabase** (in progress): the `@chelone/supabase` package, and the `/supabase` subpath for the login, reset and set password pages. Issues #412 to #423, #425 and #426.
+- **Dropped:** the block editor and the tiptap rich text input, both left out with tiptap.
+
 ## Sequencing
 
 **STATUS 2026-07-10 — TIER 1 COMPLETE. ✅ R1 URL-synced lists · ✅ R2 permissions/access-control · ✅ R3 undoable mutations.** All three closed in BOTH adapters, core stayed framework-free (external react/vue/router import grep = empty across all additions), core 590 / react 1241 / vue 493 green, vue-demo builds. R1 browser-verified (deep-link seed + page-push). R2 security semantics verified both directions (checkError-reject→logout, resolve→stay; fail-open-when-unconfigured). R3 data-integrity verified by spy counts (server 0× on undo, 1× on commit; rollback on undo + commit-error; beforeunload commit). The gate that held: parity work ADDS to core (additive vanilla), invariant = core stays REACT/framework-FREE, not zero-core-change.
@@ -65,4 +76,4 @@
 - Feedback: `Confirm`, `Error`, `Loading`, `LoadingIndicator`, `LinearProgress`, `Notification`, `NotFound` (for the catch-all route), `Offline`, `Placeholder`, `Ready`, `Spinner`.
 - Common: `Link`, `IconButtonWithTooltip`, `KeyboardShortcut`, `FieldLabelText`, `InputHelperText`, `CheckForApplicationUpdate`, `ApplicationUpdatedNotification`.
 
-**Next:** Tier 3 (R7 to R9, and the audit-log, ra-tree and calendar part of R10) stays deferred. Realtime, live views and record locks from R10 are built. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open v1 work is the first npm release (#8).
+**Next:** Tier 3 (R7 to R9, and the audit-log, ra-tree and calendar part of R10) stays deferred. Realtime, live views and record locks from R10 are built. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open work is the first npm release (#8) and the opt-in add-ons (#224).
