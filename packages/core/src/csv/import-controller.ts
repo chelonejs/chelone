@@ -17,13 +17,13 @@ export interface CsvImportController {
   loadParsed(parsed: ParsedCsv, fileName?: string): void;
   /** Maps `field` to a CSV header; `""` leaves it unmapped. */
   setMapping(field: string, header: string): void;
-  /** Resolves `true` when the step changed and `false` when a gate held. */
-  next(): Promise<boolean>;
   /**
-   * Goes back one step. Does nothing on the first step, while an import runs,
-   * or once one has finished: a second run would create the rows again, so
-   * `reset()` is the way to start over.
+   * Resolves `true` when the step changed and `false` when a gate held. Once an
+   * import has created rows, preview does not lead to commit again, since a
+   * second run would create them twice; `reset()` or a new file starts afresh.
    */
+  next(): Promise<boolean>;
+  /** Goes back one step. Does nothing on the first step or while an import runs. */
   back(): void;
   /** Stops a running import before its next batch; the rows already created stay. */
   cancel(): void;
@@ -66,6 +66,8 @@ export function createCsvImportController(
   // Bumped by reset and by each new import, so a stale import settles into nothing.
   let generation = 0;
   let busy = false;
+  // Set when a finished import created rows; see `next()` in the interface.
+  let created = false;
   let abort: AbortController | undefined;
 
   const startImport = () => {
@@ -104,6 +106,7 @@ export function createCsvImportController(
         return;
       }
       if (run !== generation) return;
+      if (report.created > 0) created = true;
       store.setState({ status: "done", report });
       options.onComplete?.(report);
     })();
@@ -117,7 +120,7 @@ export function createCsvImportController(
       case "map":
         return s.requiredFields.every((field) => !!s.mapping[field]);
       case "preview":
-        return s.validations.some((v) => v.ok);
+        return !created && s.validations.some((v) => v.ok);
       case "commit":
         return false;
     }
@@ -132,6 +135,7 @@ export function createCsvImportController(
       const fields =
         explicitFields.length > 0 ? explicitFields : parsed.headers;
       mappingSettled = Object.keys(initialMapping).length > 0;
+      created = false;
       store.setState({
         ...initial(),
         fileName: fileName ?? null,
@@ -195,7 +199,7 @@ export function createCsvImportController(
 
     back() {
       const s = state();
-      if (s.status === "running" || s.status === "done" || busy) return;
+      if (s.status === "running" || busy) return;
       const previous = STEPS[STEPS.indexOf(s.step) - 1];
       if (!previous) return;
       store.setState({
@@ -216,6 +220,7 @@ export function createCsvImportController(
       abort?.abort();
       abort = undefined;
       busy = false;
+      created = false;
       mappingSettled = Object.keys(initialMapping).length > 0;
       store.setState(initial());
     },

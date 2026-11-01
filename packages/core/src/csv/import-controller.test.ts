@@ -268,8 +268,8 @@ describe("createCsvImportController", () => {
 
     await settled(controller);
     controller.back();
-    expect(state().step).toBe("commit");
-    expect(state().status).toBe("done");
+    expect(state().step).toBe("preview");
+    expect(state().status).toBe("idle");
   });
 
   it("back after a cancelled import does not let the rows be created again", async () => {
@@ -280,8 +280,9 @@ describe("createCsvImportController", () => {
     await settled(controller);
     controller.back();
 
+    expect(state().step).toBe("preview");
     expect(await controller.next()).toBe(false);
-    expect(state().step).toBe("commit");
+    expect(state().step).toBe("preview");
     expect(create).toHaveBeenCalledTimes(1);
   });
 
