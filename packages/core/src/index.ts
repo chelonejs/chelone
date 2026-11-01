@@ -97,6 +97,8 @@ export {
   createEditController,
   createShowController,
 } from "./controller/record-controllers";
+export type { RecordTreeNode } from "./controller/record-tree";
+export { buildRecordTree } from "./controller/record-tree";
 export type {
   ReferenceManyController,
   ReferenceManyControllerOptions,
@@ -124,7 +126,22 @@ export {
 export { resolveNotificationKey } from "./controller/translate-fallback";
 export { matchCsvHeaders } from "./csv/match-headers";
 export { parseCsvWith } from "./csv/parse-with";
-export type { CsvParseError, CsvParser, ParsedCsv } from "./csv/types";
+export { csvErrorRows, runCsvImport } from "./csv/run-import";
+export type {
+  CsvImportError,
+  CsvImportReport,
+  CsvParseError,
+  CsvParser,
+  CsvRow,
+  CsvRowValidation,
+  CsvTransform,
+  ParsedCsv,
+} from "./csv/types";
+export {
+  applyCsvMapping,
+  csvSchemaFields,
+  validateCsvRows,
+} from "./csv/validate-rows";
 export {
   removeRecordsFromCache,
   updateRecordsInCache,
@@ -348,6 +365,23 @@ export {
   isGeoGeometry,
   isGeoJsonValue,
 } from "./geo/geojson";
+export type { ShapeLayerSpec, ShapeStyle } from "./geo/map-layers";
+export {
+  asFeatureCollection,
+  DEFAULT_SHAPE_STYLE,
+  shapeLayerSpecs,
+} from "./geo/map-layers";
+export type {
+  MapStyleInput,
+  MapStyleSpec,
+  RasterTileStyleOptions,
+} from "./geo/map-style";
+export {
+  expandTileUrl,
+  latLngToLngLat,
+  lngLatToLatLng,
+  rasterTileStyle,
+} from "./geo/map-style";
 export { mapMessages } from "./geo/messages";
 export { defaultMessages } from "./i18n/default-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";

@@ -35,3 +35,29 @@ export interface CsvParser {
     meta: { fields?: string[] | undefined };
   };
 }
+
+/** One CSV row after the mapping: field name to value. */
+export type CsvRow = Record<string, unknown>;
+
+/** Reshapes a mapped row before the schema sees it. `index` is the row's place in the file. */
+export type CsvTransform = (row: CsvRow, index: number) => CsvRow;
+
+/** The schema's verdict on one row. A valid row carries the schema's output, so coercions show. */
+export type CsvRowValidation =
+  | { ok: true; row: CsvRow }
+  | { ok: false; row: CsvRow; issues: string[] };
+
+/** A row the import did not create. `rowIndex` is 0-based in the file's data rows. */
+export interface CsvImportError {
+  rowIndex: number;
+  row: CsvRow;
+  reason: string;
+}
+
+export interface CsvImportReport {
+  total: number;
+  created: number;
+  failed: number;
+  errors: CsvImportError[];
+  aborted: boolean;
+}
