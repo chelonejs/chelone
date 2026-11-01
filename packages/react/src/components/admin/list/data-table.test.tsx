@@ -26,6 +26,7 @@ import {
   within,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
+import { renderToString } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
@@ -323,6 +324,19 @@ describe("<DataTable> columns", () => {
       </TableHarness>,
     );
     expect(headers()).toEqual(["Title"]);
+  });
+
+  it("hides a defaultHidden column on the first render, before anything is published", () => {
+    const store = createStore();
+    const html = renderToString(
+      <TableHarness store={store}>
+        <DataTable.Col source="title" />
+        <DataTable.Col source="views" defaultHidden />
+      </TableHarness>,
+    );
+    expect(html).toContain("Title");
+    expect(html).not.toContain("Views");
+    expect(store.getItem("posts.datatable_columns")).toBeUndefined();
   });
 
   it("renders the columns in the stored order", () => {

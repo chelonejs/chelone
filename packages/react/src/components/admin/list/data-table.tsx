@@ -145,10 +145,6 @@ function DataTable(props: DataTableProps) {
 
   const { data, isPending } = useListContext();
   const resource = useResourceContext();
-  const { hidden, order, publish } = useDataTableColumns({
-    storeKey: storeKey ?? defaultDataTableStoreKey(resource ?? ""),
-    defaultHiddenColumns,
-  });
 
   const elements = Children.toArray(children);
   // A child that is not an element (text, a Fragment's contents) has no id: it
@@ -157,6 +153,16 @@ function DataTable(props: DataTableProps) {
     isValidElement<DataTableColumnProps>(child) ? child.props : undefined,
   );
   const ids = columnProps.map((p) => p && getDataTableColumnId(p));
+  // Read from the children, not the published columns: those are only written
+  // after the first commit, which would show a defaultHidden column for a frame.
+  const childDefaultHidden = ids.filter(
+    (id, index): id is string =>
+      id !== undefined && !!columnProps[index]?.defaultHidden,
+  );
+  const { hidden, order, publish } = useDataTableColumns({
+    storeKey: storeKey ?? defaultDataTableStoreKey(resource ?? ""),
+    defaultHiddenColumns: defaultHiddenColumns ?? childDefaultHidden,
+  });
   const visibleChildren = arrangeColumns(ids, { hidden, order }).map(
     (index) => elements[index],
   );
