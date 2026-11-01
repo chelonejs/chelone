@@ -11,7 +11,6 @@ export default [
   { slug: "access-denied" },
   { slug: "authentication-error" },
   { slug: "auth-callback" },
-  { slug: "not-found" },
   { slug: "app-bar" },
   { slug: "app-sidebar" },
   { slug: "menu" },
