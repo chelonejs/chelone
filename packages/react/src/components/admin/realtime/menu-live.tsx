@@ -1,4 +1,5 @@
 import {
+  type CheloneStore,
   clearUnread,
   type RealtimeDataProvider,
   type RealtimeEventType,
@@ -33,6 +34,76 @@ export interface MenuLiveProps {
 
 const MAX_COUNT = 99;
 
+interface SharedSubscription {
+  /** Each mounted link's event types; the subscription counts their union. */
+  holders: Map<symbol, string>;
+  counted: string;
+  stop?: () => void;
+}
+
+const subscriptions = new WeakMap<
+  CheloneStore,
+  WeakMap<object, Map<string, SharedSubscription>>
+>();
+
+/**
+ * Two links for one resource share a store key, so they must share one
+ * subscription: one each would add 1 per event apiece.
+ */
+function acquire(
+  dataProvider: RealtimeDataProvider,
+  store: CheloneStore,
+  resource: string,
+  holder: symbol,
+  events: string,
+): () => void {
+  let byProvider = subscriptions.get(store);
+  if (!byProvider) {
+    byProvider = new WeakMap();
+    subscriptions.set(store, byProvider);
+  }
+  let byResource = byProvider.get(dataProvider);
+  if (!byResource) {
+    byResource = new Map();
+    byProvider.set(dataProvider, byResource);
+  }
+
+  const sync = (shared: SharedSubscription) => {
+    const union = [...new Set([...shared.holders.values()].flatMap(split))];
+    const counted = union.join(",");
+    if (shared.stop && counted === shared.counted) return;
+    if (shared.stop) shared.stop();
+    shared.counted = counted;
+    shared.stop = subscribeUnreadCount({
+      dataProvider,
+      store,
+      resource,
+      events: union.length ? (union as RealtimeEventType[]) : undefined,
+    });
+  };
+
+  let shared = byResource.get(resource);
+  if (!shared) {
+    shared = { holders: new Map(), counted: "" };
+    byResource.set(resource, shared);
+  }
+  shared.holders.set(holder, events);
+  sync(shared);
+
+  const entry = shared;
+  return () => {
+    entry.holders.delete(holder);
+    if (entry.holders.size === 0) {
+      entry.stop?.();
+      byResource.delete(resource);
+    } else {
+      sync(entry);
+    }
+  };
+}
+
+const split = (events: string) => (events ? events.split(",") : []);
+
 /**
  * A menu link with a badge counting the resource's new records since the user
  * last opened it. The count is kept in the store, so it survives a reload when
@@ -57,16 +128,19 @@ function MenuLiveItemLink({
   const [count = 0] = useStoreItem<number>(unreadKey(resource));
   const active = useMatch({ path: to, end: false }) !== null;
   // Joined so an inline `events` array does not resubscribe each render.
-  const eventsKey = events?.join(",");
+  const eventsKey = (events ?? ["created"]).join(",");
 
-  useEffect(() => {
-    return subscribeUnreadCount({
-      dataProvider: dataProvider as RealtimeDataProvider,
-      store,
-      resource,
-      events: eventsKey?.split(",") as RealtimeEventType[] | undefined,
-    });
-  }, [dataProvider, store, resource, eventsKey]);
+  useEffect(
+    () =>
+      acquire(
+        dataProvider as RealtimeDataProvider,
+        store,
+        resource,
+        Symbol(),
+        eventsKey,
+      ),
+    [dataProvider, store, resource, eventsKey],
+  );
 
   useEffect(() => {
     if (active && count > 0) clearUnread(store, resource);

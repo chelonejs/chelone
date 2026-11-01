@@ -175,6 +175,37 @@ describe("<MenuLiveItemLink>", () => {
     expect(badge()?.textContent).toBe("4");
   });
 
+  it("counts an event once when two links share a resource", async () => {
+    const { Providers, emit } = setup();
+    render(
+      <Providers>
+        <MenuLiveItemLink to="/posts" resource="posts" label="Posts" />
+        <MenuLiveItemLink to="/posts" resource="posts" label="Mobile posts" />
+      </Providers>,
+    );
+    await emit("resource/posts");
+    const badges = screen.getAllByTestId("menu-live-badge");
+    expect(badges.map((b) => b.textContent)).toEqual(["1", "1"]);
+  });
+
+  it("keeps counting after one of two links unmounts", async () => {
+    const { Providers, emit } = setup();
+    const both = (
+      <Providers>
+        <MenuLiveItemLink to="/posts" resource="posts" label="Posts" />
+        <MenuLiveItemLink to="/posts" resource="posts" label="Mobile posts" />
+      </Providers>
+    );
+    const { rerender } = render(both);
+    rerender(
+      <Providers>
+        <MenuLiveItemLink to="/posts" resource="posts" label="Posts" />
+      </Providers>,
+    );
+    await emit("resource/posts");
+    expect(badge()?.textContent).toBe("1");
+  });
+
   it("an inline events array does not resubscribe", async () => {
     const { Providers, subscribe } = setup();
     const link = (
