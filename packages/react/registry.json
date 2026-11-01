@@ -1246,7 +1246,15 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/refresh-icon-button.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/save-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/select-all-button.tsx",
           "type": "registry:component"
         },
         {
@@ -1259,6 +1267,10 @@
         },
         {
           "path": "src/components/admin/buttons/sort-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/toggle-filter-button.tsx",
           "type": "registry:component"
         },
         {
@@ -2228,6 +2240,21 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "refresh-icon-button",
+      "type": "registry:component",
+      "title": "Refresh Icon Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/refresh-icon-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/tooltip"],
+      "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "save-button",
       "type": "registry:component",
       "title": "Save Button",
@@ -2240,6 +2267,21 @@
       "registryDependencies": ["@chelone/button", "@chelone/ui-spinner"],
       "dependencies": ["@chelone/react", "lucide-react"],
       "devDependencies": ["@tanstack/react-store"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "select-all-button",
+      "type": "registry:component",
+      "title": "Select All Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/select-all-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2294,6 +2336,21 @@
         "use-mobile"
       ],
       "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "toggle-filter-button",
+      "type": "registry:component",
+      "title": "Toggle Filter Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/toggle-filter-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
