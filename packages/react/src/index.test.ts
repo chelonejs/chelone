@@ -60,6 +60,7 @@ import type {
   SaveHandler,
   ShowContextProviderProps,
   ShowContextValue,
+  ShowGuesserProps,
   ShowLiveProps,
   ShowProps,
   ShowTabProps,
@@ -638,5 +639,12 @@ describe("@chelone/react barrel — guessers", () => {
     expectTypeOf<ListGuesserProps>().toHaveProperty("enableLog");
     expectTypeOf<ListGuesserProps>().toHaveProperty("perPage");
     expectTypeOf<ListGuesserProps>().not.toHaveProperty("children");
+  });
+
+  it("exports ShowGuesser", () => {
+    expect(barrel.ShowGuesser).toBeTypeOf("function");
+    expectTypeOf<ShowGuesserProps>().toHaveProperty("enableLog");
+    expectTypeOf<ShowGuesserProps>().toHaveProperty("id");
+    expectTypeOf<ShowGuesserProps>().not.toHaveProperty("children");
   });
 });
