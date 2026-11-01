@@ -71,6 +71,8 @@ export {
   getPrevNextParams,
   resolvePrevNext,
 } from "./controller/prev-next";
+export type { RecordTreeNode } from "./controller/record-tree";
+export { buildRecordTree } from "./controller/record-tree";
 export type {
   CreateController,
   CreateControllerOptions,
