@@ -259,6 +259,16 @@ export { useList } from "./list/use-list";
 // --- notification composables (reactive queue + notify action) ------------
 export { useNotifications, useNotify } from "./notification-hooks";
 export { useGetListLive, useGetManyLive, useGetOneLive } from "./realtime/live";
+export type { UseLockOnMountOptions } from "./realtime/locks";
+export {
+  useGetLock,
+  useGetLockLive,
+  useGetLocks,
+  useGetLocksLive,
+  useLock,
+  useLockOnMount,
+  useUnlock,
+} from "./realtime/locks";
 export type { UseSubscribeOptions } from "./realtime/subscribe";
 export {
   useOnReconnect,
