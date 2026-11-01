@@ -217,6 +217,7 @@ export type {
   ChoicesControllerState,
 } from "./form/choices-controller";
 export { createChoicesController } from "./form/choices-controller";
+export { getDirtyFormValues } from "./form/dirty-values";
 export type {
   CreateFormController,
   CreateFormControllerOptions,

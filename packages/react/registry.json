@@ -1150,6 +1150,7 @@
         "@chelone/progress",
         "@chelone/radio-group",
         "@chelone/select",
+        "@chelone/sheet",
         "@chelone/sidebar",
         "@chelone/skeleton",
         "@chelone/switch",
@@ -1747,6 +1748,10 @@
         },
         {
           "path": "src/components/admin/list/bulk-actions-toolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/bulk-edit-drawer.tsx",
           "type": "registry:component"
         },
         {
@@ -4633,6 +4638,21 @@
       ],
       "registryDependencies": ["@chelone/button", "@chelone/card"],
       "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bulk-edit-drawer",
+      "type": "registry:component",
+      "title": "Bulk Edit Drawer",
+      "files": [
+        {
+          "path": "src/components/admin/list/bulk-edit-drawer.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/sheet"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
