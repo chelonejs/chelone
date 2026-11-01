@@ -209,7 +209,6 @@ describe("@chelone/core barrel", () => {
     for (const name of [
       "geocodeQueryOptions",
       "reverseGeocodeQueryOptions",
-      "createThrottle",
       "createNominatimProvider",
       "createOsrmProvider",
     ] as const) {

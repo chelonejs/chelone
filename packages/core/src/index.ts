@@ -456,8 +456,6 @@ export {
 } from "./geo/shape-value";
 export type { OsrmProviderOptions, RoutingProvider } from "./geo/snap-to-roads";
 export { createOsrmProvider } from "./geo/snap-to-roads";
-export type { Throttle, ThrottleOptions } from "./geo/throttle";
-export { createThrottle } from "./geo/throttle";
 export { defaultMessages } from "./i18n/default-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";
 export { createI18n } from "./i18n/i18n";

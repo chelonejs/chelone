@@ -71,5 +71,3 @@ export type {
 export { featuresToShape, heldFeatures, shapeToFeatures } from "./shape-value";
 export type { OsrmProviderOptions, RoutingProvider } from "./snap-to-roads";
 export { createOsrmProvider } from "./snap-to-roads";
-export type { Throttle, ThrottleOptions } from "./throttle";
-export { createThrottle } from "./throttle";
