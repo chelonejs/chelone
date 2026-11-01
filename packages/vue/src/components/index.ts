@@ -36,6 +36,8 @@ export type { CancelButtonProps } from "./admin/buttons/cancel-button.vue";
 export { default as CancelButton } from "./admin/buttons/cancel-button.vue";
 export type { CloneButtonProps } from "./admin/buttons/clone-button.vue";
 export { default as CloneButton } from "./admin/buttons/clone-button.vue";
+export type { ColumnsButtonProps } from "./admin/buttons/columns-button.vue";
+export { default as ColumnsButton } from "./admin/buttons/columns-button.vue";
 export type { CreateButtonProps } from "./admin/buttons/create-button.vue";
 export { default as CreateButton } from "./admin/buttons/create-button.vue";
 export type {
@@ -217,6 +219,8 @@ export { default as TranslatableInputsTabs } from "./admin/form/translatable-inp
 // --- admin: guessers ------------------------------------------------------
 export type { GuesserEmptyProps } from "./admin/guessers/guesser-empty.vue";
 export { default as GuesserEmpty } from "./admin/guessers/guesser-empty.vue";
+export type { ListGuesserProps } from "./admin/guessers/list-guesser.vue";
+export { default as ListGuesser } from "./admin/guessers/list-guesser.vue";
 export type { ApiKeyInputProps } from "./admin/inputs/api-key-input.vue";
 // --- admin: inputs --------------------------------------------------------
 export { default as ApiKeyInput } from "./admin/inputs/api-key-input.vue";

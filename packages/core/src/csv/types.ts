@@ -1,3 +1,6 @@
+import type { StandardSchemaV1 } from "@tanstack/form-core";
+import type { DataProvider } from "../data/types";
+
 /** One problem the parser found. `row` is the 1-based data row (the header row is not counted). */
 export interface CsvParseError {
   code: string;
@@ -60,4 +63,40 @@ export interface CsvImportReport {
   failed: number;
   errors: CsvImportError[];
   aborted: boolean;
+}
+
+export type CsvImportStep = "upload" | "map" | "preview" | "commit";
+
+/** What the wizard shows. `mapping` is field name to CSV header, `""` for a field left unmapped. */
+export interface CsvImportState {
+  step: CsvImportStep;
+  fileName: string | null;
+  headers: string[];
+  rows: Array<Record<string, string>>;
+  parseError: string | null;
+  fields: string[];
+  requiredFields: string[];
+  mapping: Record<string, string>;
+  validations: CsvRowValidation[];
+  /** `total` counts the valid rows the import will create. */
+  progress: { current: number; total: number };
+  status: "idle" | "running" | "done" | "failed";
+  report: CsvImportReport | null;
+  error: Error | null;
+}
+
+export interface CsvImportOptions {
+  dataProvider: DataProvider;
+  resource: string;
+  schema?: StandardSchemaV1;
+  /** Overrides the schema's keys. Without either, the CSV headers are the fields. */
+  fields?: string[];
+  /** Overrides the schema's non-optional keys. */
+  requiredFields?: string[];
+  /** A starting field to header mapping. When non-empty it replaces the auto-match. */
+  mapping?: Record<string, string>;
+  transform?: CsvTransform;
+  batchSize?: number;
+  onComplete?: (report: CsvImportReport) => void;
+  onError?: (error: Error) => void;
 }

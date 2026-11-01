@@ -13,6 +13,7 @@ import type {
   CheckForApplicationUpdateProps,
   CloneButtonProps,
   ColorInputProps,
+  ColumnsButtonProps,
   CountProps,
   CreateProps,
   CurrencyInputProps,
@@ -101,6 +102,9 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<CloneButtonProps>().toHaveProperty("record");
     expectTypeOf<CloneButtonProps>().toHaveProperty("class");
     expectTypeOf<ColorInputProps>().toHaveProperty("source");
+    expectTypeOf<ColumnsButtonProps>().toHaveProperty("resource");
+    expectTypeOf<ColumnsButtonProps>().toHaveProperty("storeKey");
+    expectTypeOf<ColumnsButtonProps>().toHaveProperty("class");
     expectTypeOf<CreateProps>().toBeObject();
     expectTypeOf<CurrencyInputProps>().toHaveProperty("source");
     expectTypeOf<DataTableColProps>().toBeObject();
@@ -195,6 +199,10 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf(barrel.useStoreItem<boolean>).returns.toEqualTypeOf<
       [Readonly<Ref<boolean | undefined>>, (value: boolean) => void]
     >();
+  });
+
+  it("ColumnsButton ships beside its props", () => {
+    expectTypeOf(barrel.ColumnsButton).not.toBeAny();
   });
 
   it("useDataTableColumns returns refs and setters", () => {
