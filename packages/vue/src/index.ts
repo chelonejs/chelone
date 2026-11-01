@@ -165,6 +165,7 @@ export {
 } from "./data/queries";
 export type { RunUndoableOptions } from "./data/undoable";
 export { useUndoable } from "./data/undoable";
+export { useIsOffline } from "./data/use-is-offline";
 export { useLoading, useRefresh } from "./data/use-refresh";
 export type {
   CheloneFormContextValue,
