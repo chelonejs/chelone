@@ -118,6 +118,36 @@ export function useLocaleState(): [string, (locale: string) => void] {
 }
 
 /**
+ * The locales the i18n instance registers, each named in its own language
+ * ("Deutsch", not "German") so a user lost in the wrong language can find theirs.
+ *
+ * `getLocales()` returns bare codes. A code `Intl` rejects keeps the code as its
+ * name. Without an i18n instance the list is empty rather than throwing, so
+ * `<AppBar>` keeps rendering in an app that never passed one.
+ */
+export function useLocales(): { locale: string; name: string }[] {
+  const i18n = useCheloneContext().i18n;
+  return useMemo(
+    () =>
+      (i18n?.getLocales() ?? []).map((locale) => ({
+        locale,
+        name: localeName(locale),
+      })),
+    [i18n],
+  );
+}
+
+function localeName(locale: string): string {
+  try {
+    return (
+      new Intl.DisplayNames([locale], { type: "language" }).of(locale) ?? locale
+    );
+  } catch {
+    return locale;
+  }
+}
+
+/**
  * Returns `false`, then flips to `true` once `delay` ms have elapsed since the
  * timer (re)started (ra `useTimeout` parity). The timer restarts whenever
  * `delay` or any entry of `dependencies` changes; `dependencies` defaults to a
