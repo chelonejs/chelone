@@ -1,0 +1,17 @@
+{
+  "name": "TranslatableContextProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "value",
+      "type": "TranslatableContextValue",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}
