@@ -354,7 +354,8 @@ describe("<DataTable> columns", () => {
         <DataTable.Col source="views" />
       </TableHarness>,
     );
-    expect(headers()).toEqual(["Flag", "Views"]);
+    // Flag keeps its slot in the middle, Views takes the first, Title is hidden.
+    expect(headers()).toEqual(["Views", "Flag"]);
     store.setItem("posts.datatable", []);
     cleanup();
     render(
@@ -547,7 +548,7 @@ describe("useDataTableColumns", () => {
     expect(store.getItem("t")).toEqual(["b"]);
   });
 
-  it("returns the defaults and no-op setters without a store", () => {
+  it("shows every column and ignores the setters without a store", () => {
     render(
       <Providers>
         <Probe defaults={["a"]} />
@@ -557,6 +558,6 @@ describe("useDataTableColumns", () => {
     click("toggle b");
     click("move c up");
     click("reset");
-    expect(state()).toEqual({ columns: [], hidden: ["a"], order: [] });
+    expect(state()).toEqual({ columns: [], hidden: [], order: [] });
   });
 });

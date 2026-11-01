@@ -75,13 +75,15 @@ export function useDataTableColumns({
     ) ?? NO_COLUMNS;
 
   const hidden = useMemo<readonly string[]>(() => {
+    // Without a store nothing can show a hidden column again, so show them all.
+    if (!store) return NO_IDS;
     if (storedHidden) return storedHidden;
     if (defaultHiddenColumns) return defaultHiddenColumns;
     const hiddenByDefault = columns
       .filter((column) => column.defaultHidden)
       .map((column) => column.id);
     return hiddenByDefault.length > 0 ? hiddenByDefault : NO_IDS;
-  }, [storedHidden, defaultHiddenColumns, columns]);
+  }, [store, storedHidden, defaultHiddenColumns, columns]);
 
   const toggle = useCallback(
     (id: string) => store?.setItem(keys.hidden, toggleHiddenColumn(hidden, id)),
