@@ -32,6 +32,16 @@ const registry = defineResources({
     }),
     references: { authorId: "users" },
   },
+  lists: {
+    schema: z.object({
+      id: z.number(),
+      topicIds: z.array(z.number()).describe("Subjects"),
+    }),
+    references: { topicIds: "topics" },
+  },
+  topics: {
+    schema: z.object({ id: z.number(), name: z.string() }),
+  },
   tags: {},
   users: {
     schema: z.object({ id: z.number(), name: z.string() }),
@@ -49,6 +59,8 @@ const seed = {
       meta: { weight: 2 },
     },
   ],
+  lists: [{ id: 1, topicIds: [] }],
+  topics: [{ id: 1, name: "Maths" }],
   users: [
     { id: 3, name: "Ada" },
     { id: 4, name: "Grace" },
@@ -150,6 +162,14 @@ describe("EditGuesser", () => {
         "Grace",
       ]),
     );
+  });
+
+  it("labels a reference array from the schema describe text", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { wrapper } = await mountLoaded({ resource: "lists", id: 1 });
+
+    expect(labels(wrapper)).toEqual(["Subjects"]);
+    expect(warn).not.toHaveBeenCalled();
   });
 
   it("renders a select with the schema's choices", async () => {

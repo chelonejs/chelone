@@ -2925,6 +2925,7 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/autocomplete-array-input",
         "@chelone/edit",
         "@chelone/guess-components",
         "@chelone/guessed-code",
