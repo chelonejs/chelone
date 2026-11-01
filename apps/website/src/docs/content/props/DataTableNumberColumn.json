@@ -26,6 +26,12 @@
       "comment": ""
     },
     {
+      "name": "defaultHidden",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hidden until a choice is stored, unless the table sets `defaultHiddenColumns`."
+    },
+    {
       "name": "disableSort",
       "type": "boolean",
       "optional": true,
