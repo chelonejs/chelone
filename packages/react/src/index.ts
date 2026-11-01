@@ -1085,6 +1085,16 @@ export {
   hydrate,
 } from "./ssr";
 export { useStore, useStoreItem } from "./store-hooks";
+export type {
+  TranslatableContextProviderProps,
+  TranslatableContextValue,
+  UseTranslatableOptions,
+} from "./translatable-hooks";
+export {
+  TranslatableContextProvider,
+  useTranslatable,
+  useTranslatableContext,
+} from "./translatable-hooks";
 export type { RunUndoableOptions } from "./undoable-hooks";
 export { useUndoable } from "./undoable-hooks";
 export type { UseListOptions, UseListResult } from "./use-list";
