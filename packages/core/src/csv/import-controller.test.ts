@@ -268,8 +268,66 @@ describe("createCsvImportController", () => {
 
     await settled(controller);
     controller.back();
+    expect(state().step).toBe("commit");
+    expect(state().status).toBe("done");
+  });
+
+  it("back after a cancelled import does not let the rows be created again", async () => {
+    const { controller, state, create } = setup({ batchSize: 1 });
+    await toPreview(controller, goodRows);
+    await controller.next();
+    controller.cancel();
+    await settled(controller);
+    controller.back();
+
+    expect(await controller.next()).toBe(false);
+    expect(state().step).toBe("commit");
+    expect(create).toHaveBeenCalledTimes(1);
+  });
+
+  it("setMapping while the rows are being validated is ignored", async () => {
+    const { controller, state } = setup();
+    controller.loadParsed(parsed(goodRows));
+    await controller.next();
+    const moving = controller.next();
+    controller.setMapping("email", "Name");
+    await moving;
+    expect(state().mapping).toEqual({ name: "Name", email: "Email" });
+    expect(state().validations.every((v) => v.ok)).toBe(true);
+  });
+
+  it("a validation that was reset away does not unblock the one that replaced it", async () => {
+    const gates: Array<() => void> = [];
+    const gated = {
+      "~standard": {
+        version: 1,
+        vendor: "test",
+        validate: (value: unknown) =>
+          new Promise((resolve) => {
+            gates.push(() => resolve({ value }));
+          }),
+      },
+    } as unknown as CsvImportOptions["schema"];
+    const { controller, state } = setup({ schema: gated });
+    const rows = [{ a: "1" }];
+
+    controller.loadParsed(parsed(rows));
+    await controller.next();
+    const stale = controller.next();
+    controller.reset();
+    controller.loadParsed(parsed(rows));
+    await controller.next();
+    const current = controller.next();
+
+    gates[0]?.();
+    expect(await stale).toBe(false);
+    expect(await controller.next()).toBe(false);
+    controller.back();
+    expect(state().step).toBe("map");
+
+    gates[1]?.();
+    expect(await current).toBe(true);
     expect(state().step).toBe("preview");
-    expect(state().status).toBe("idle");
   });
 
   it("reset returns to the initial state", async () => {

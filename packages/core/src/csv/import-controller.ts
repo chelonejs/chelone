@@ -19,7 +19,11 @@ export interface CsvImportController {
   setMapping(field: string, header: string): void;
   /** Resolves `true` when the step changed and `false` when a gate held. */
   next(): Promise<boolean>;
-  /** Goes back one step. Does nothing on the first step or while an import runs. */
+  /**
+   * Goes back one step. Does nothing on the first step, while an import runs,
+   * or once one has finished: a second run would create the rows again, so
+   * `reset()` is the way to start over.
+   */
   back(): void;
   /** Stops a running import before its next batch; the rows already created stay. */
   cancel(): void;
@@ -139,6 +143,9 @@ export function createCsvImportController(
     },
 
     setMapping(field, header) {
+      // Validation reads the mapping it started with, so an edit now would show
+      // in the store but not in the preview or the import.
+      if (busy) return;
       mappingSettled = true;
       store.setState((prev) => ({
         mapping: { ...prev.mapping, [field]: header },
@@ -176,7 +183,8 @@ export function createCsvImportController(
           if (run !== generation) return false;
           store.setState({ validations, step: "preview" });
         } finally {
-          busy = false;
+          // A reset cleared `busy` already; it may belong to a newer validation.
+          if (run === generation) busy = false;
         }
       } else {
         store.setState({ step: "commit" });
@@ -187,7 +195,7 @@ export function createCsvImportController(
 
     back() {
       const s = state();
-      if (s.status === "running" || busy) return;
+      if (s.status === "running" || s.status === "done" || busy) return;
       const previous = STEPS[STEPS.indexOf(s.step) - 1];
       if (!previous) return;
       store.setState({
