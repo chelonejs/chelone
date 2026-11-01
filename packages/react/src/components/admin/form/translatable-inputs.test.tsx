@@ -412,4 +412,31 @@ describe("TranslatableInputs", () => {
       items: [{ name: { en: "a", fr: "c" } }],
     });
   });
+
+  it("an ArrayInput inside it binds its rows under items.locale", async () => {
+    const { submit } = setup<{
+      items: { en: { name: string }[]; fr: { name: string }[] };
+    }>(
+      <TranslatableInputs locales={["en", "fr"]}>
+        <ArrayInput source="items" label="Items">
+          <SimpleFormIterator>
+            <TextInput source="name" label="Name" />
+          </SimpleFormIterator>
+        </ArrayInput>
+      </TranslatableInputs>,
+      {
+        defaultValues: {
+          items: { en: [{ name: "a" }], fr: [{ name: "b" }] },
+        },
+      },
+    );
+    const fr = within(panel("translatable-content-fr")).getByLabelText(
+      "Name",
+    ) as HTMLInputElement;
+    expect(fr.value).toBe("b");
+    fireEvent.change(fr, { target: { value: "c" } });
+    expect(await submit()).toEqual({
+      items: { en: [{ name: "a" }], fr: [{ name: "c" }] },
+    });
+  });
 });

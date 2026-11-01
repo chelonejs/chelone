@@ -81,6 +81,30 @@ describe("createLocaleSourceScope", () => {
     expect(fr.getLabel("name")).toBe("items.name");
   });
 
+  it("a dotted source in a locale scope keeps the locale at the end", () => {
+    const fr = createLocaleSourceScope(rootSourceScope, "fr");
+    expect(fr.getSource("address.city")).toBe("address.city.fr");
+    expect(fr.getLabel("address.city")).toBe("address.city");
+  });
+
+  it("an array scope inside a locale scope binds itself and its rows under the per-locale array", () => {
+    const fr = createLocaleSourceScope(rootSourceScope, "fr");
+    const items = createArraySourceScope(fr, "items");
+    const row0 = createRowSourceScope(items, 0);
+    expect(items.getSource("")).toBe("items.fr");
+    expect(row0.getSource("name")).toBe("items.fr[0].name");
+    expect(row0.getSource("")).toBe("items.fr[0]");
+  });
+
+  it("an array scope inside a locale scope keeps labels index-free and locale-free", () => {
+    const fr = createLocaleSourceScope(rootSourceScope, "fr");
+    const items = createArraySourceScope(fr, "items");
+    const row0 = createRowSourceScope(items, 0);
+    expect(items.getLabel("")).toBe("items");
+    expect(row0.getLabel("name")).toBe("items.name");
+    expect(row0.getLabel("")).toBe("items");
+  });
+
   it("createLocaleSourceScope throws on an empty source", () => {
     const fr = createLocaleSourceScope(rootSourceScope, "fr");
     expect(() => fr.getSource("")).toThrow(
