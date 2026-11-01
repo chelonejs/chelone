@@ -32,9 +32,11 @@ import type {
   InfiniteListProps,
   InfinitePaginationProps,
   LinkProps,
+  ListActionsProps,
   ListNoResultsProps,
   ListPaginationProps,
   ListProps,
+  ListToolbarProps,
   LoadingIndicatorProps,
   LoadingPageProps,
   NullableBooleanInputProps,
@@ -94,9 +96,11 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<FilterListSectionProps>().toHaveProperty("label");
     expectTypeOf<InfinitePaginationProps>().toBeObject();
     expectTypeOf<LinkProps>().toHaveProperty("to");
+    expectTypeOf<ListActionsProps>().toBeObject();
     expectTypeOf<ListProps>().toBeObject();
     expectTypeOf<ListNoResultsProps>().toBeObject();
     expectTypeOf<ListPaginationProps>().toBeObject();
+    expectTypeOf<ListToolbarProps>().toBeObject();
     expectTypeOf<LoadingIndicatorProps>().toBeObject();
     expectTypeOf<LoadingPageProps>().toBeObject();
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");

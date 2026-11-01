@@ -345,10 +345,14 @@ export type { FilterLiveSearchProps } from "./admin/list/filter-live-search.vue"
 export { default as FilterLiveSearch } from "./admin/list/filter-live-search.vue";
 export type { InfinitePaginationProps } from "./admin/list/infinite-pagination.vue";
 export { default as InfinitePagination } from "./admin/list/infinite-pagination.vue";
+export type { ListActionsProps } from "./admin/list/list-actions.vue";
+export { default as ListActions } from "./admin/list/list-actions.vue";
 export type { ListNoResultsProps } from "./admin/list/list-no-results.vue";
 export { default as ListNoResults } from "./admin/list/list-no-results.vue";
 export type { ListPaginationProps } from "./admin/list/list-pagination.vue";
 export { default as ListPagination } from "./admin/list/list-pagination.vue";
+export type { ListToolbarProps } from "./admin/list/list-toolbar.vue";
+export { default as ListToolbar } from "./admin/list/list-toolbar.vue";
 export type { SavedQueriesListProps } from "./admin/list/saved-queries-list.vue";
 export { default as SavedQueriesList } from "./admin/list/saved-queries-list.vue";
 export type { SimpleListProps } from "./admin/list/simple-list.vue";
