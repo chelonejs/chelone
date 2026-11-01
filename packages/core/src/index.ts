@@ -122,12 +122,16 @@ export {
   savedQueriesKey,
 } from "./controller/saved-queries";
 export { resolveNotificationKey } from "./controller/translate-fallback";
+export { createCsvImportController } from "./csv/import-controller";
 export { matchCsvHeaders } from "./csv/match-headers";
 export { parseCsvWith } from "./csv/parse-with";
 export { csvErrorRows, runCsvImport } from "./csv/run-import";
 export type {
   CsvImportError,
+  CsvImportOptions,
   CsvImportReport,
+  CsvImportState,
+  CsvImportStep,
   CsvParseError,
   CsvParser,
   CsvRow,
