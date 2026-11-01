@@ -188,6 +188,66 @@ describe("<MenuLiveItemLink>", () => {
     expect(env.store.getItem("realtime.unread.posts")).toBe(2);
   });
 
+  it("a deleted link beside a default link on the same resource counts only deleted events", async () => {
+    const env = setup();
+    const { wrapper } = mountUnderAdmin(env, () => [
+      postsLink(),
+      postsLink({ to: "/trash", label: "Trash", events: ["deleted"] }),
+    ]);
+    await flushPromises();
+
+    created(env.transport, 2);
+    env.transport.publish("resource/posts", {
+      type: "deleted",
+      payload: { ids: [1] },
+    });
+    await flushPromises();
+
+    const [posts, trash] = wrapper.findAll("a");
+    expect(posts?.find('[data-testid="menu-live-badge"]').text()).toBe("2");
+    expect(trash?.find('[data-testid="menu-live-badge"]').text()).toBe("1");
+    expect(env.store.getItem("realtime.unread.posts")).toBe(2);
+    expect(env.store.getItem("realtime.unread.posts.deleted")).toBe(1);
+  });
+
+  it("two default links on the same resource add 1 per created event", async () => {
+    const env = setup();
+    mountUnderAdmin(env, () => [
+      postsLink(),
+      postsLink({ to: "/mobile", label: "Mobile posts" }),
+    ]);
+    await flushPromises();
+
+    created(env.transport, 2);
+    await flushPromises();
+
+    expect(env.store.getItem("realtime.unread.posts")).toBe(2);
+  });
+
+  it("opening one link's route clears only that link's count", async () => {
+    const env = setup();
+    const { wrapper, router } = mountUnderAdmin(env, () => [
+      postsLink(),
+      postsLink({ to: "/trash", label: "Trash", events: ["deleted"] }),
+    ]);
+    await flushPromises();
+
+    created(env.transport);
+    env.transport.publish("resource/posts", {
+      type: "deleted",
+      payload: { ids: [1] },
+    });
+    await flushPromises();
+
+    await router.push("/trash");
+    await flushPromises();
+
+    const [posts, trash] = wrapper.findAll("a");
+    expect(posts?.find('[data-testid="menu-live-badge"]').text()).toBe("1");
+    expect(trash?.find('[data-testid="menu-live-badge"]').exists()).toBe(false);
+    expect(env.store.getItem("realtime.unread.posts.deleted")).toBe(0);
+  });
+
   it("renders the icon slot", async () => {
     const env = setup();
     const { wrapper } = mountUnderAdmin(env, () =>

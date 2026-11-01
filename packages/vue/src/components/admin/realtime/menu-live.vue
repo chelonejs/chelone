@@ -1,7 +1,9 @@
 <script lang="ts">
 import {
   assertRealtimeDataProvider,
+  type CheloneStore,
   clearUnread,
+  type RealtimeDataProvider,
   type RealtimeEventType,
   subscribeUnreadCount,
   unreadKey,
@@ -12,13 +14,13 @@ import {
   defineComponent,
   h,
   type PropType,
+  shallowRef,
   watchEffect,
 } from "vue";
 import { RouterLink } from "vue-router";
 import { useCheloneContext, useCheloneStore } from "../../../context";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useMatch } from "../../../router";
-import { useStoreItem } from "../../../store/use-store-item";
 import { Badge } from "../../ui/badge";
 
 /** Props for {@link MenuLiveItemLink}, and the shape of one `<MenuLive>` item. */
@@ -40,6 +42,67 @@ export interface MenuLiveItemLinkProps {
 /** Props for {@link MenuLive}. */
 export interface MenuLiveProps {
   items: MenuLiveItemLinkProps[];
+}
+
+interface SharedSubscription {
+  holders: number;
+  stop: () => void;
+}
+
+const subscriptions = new WeakMap<
+  CheloneStore,
+  WeakMap<object, Map<string, SharedSubscription>>
+>();
+
+const toEventsKey = (events: RealtimeEventType[]): string =>
+  [...new Set(events)].sort().join(",");
+const fromEventsKey = (eventsKey: string): RealtimeEventType[] =>
+  eventsKey.split(",").filter(Boolean) as RealtimeEventType[];
+
+/**
+ * Links with the same resource and events share a store key, so they share
+ * one subscription: one each would add 1 per event apiece.
+ */
+function acquire(
+  dataProvider: RealtimeDataProvider,
+  store: CheloneStore,
+  resource: string,
+  eventsKey: string,
+): () => void {
+  let byProvider = subscriptions.get(store);
+  if (!byProvider) {
+    byProvider = new WeakMap();
+    subscriptions.set(store, byProvider);
+  }
+  let shared = byProvider.get(dataProvider);
+  if (!shared) {
+    shared = new Map();
+    byProvider.set(dataProvider, shared);
+  }
+  const subscriptionsForProvider = shared;
+  const key = `${resource}\0${eventsKey}`;
+
+  let entry = subscriptionsForProvider.get(key);
+  if (!entry) {
+    entry = {
+      holders: 0,
+      stop: subscribeUnreadCount({
+        dataProvider,
+        store,
+        resource,
+        events: fromEventsKey(eventsKey),
+      }),
+    };
+    subscriptionsForProvider.set(key, entry);
+  }
+  entry.holders++;
+
+  const held = entry;
+  return () => {
+    if (--held.holders > 0) return;
+    held.stop();
+    subscriptionsForProvider.delete(key);
+  };
 }
 
 /**
@@ -68,27 +131,33 @@ export const MenuLiveItemLink = defineComponent({
     const { dataProvider } = useCheloneContext();
     const store = useCheloneStore();
     const translate = useTranslate();
-    const [count] = useStoreItem<number>(unreadKey(props.resource), 0);
     // `end: false`, so `/posts` is active on `/posts/1` but not on `/posts-archive`.
     const match = useMatch({ path: props.to, end: false });
 
-    const eventsKey = computed(() => props.events.join(","));
+    const eventsKey = computed(() => toEventsKey(props.events));
+    const events = computed(() => fromEventsKey(eventsKey.value));
+
+    const count = shallowRef<number | undefined>(undefined);
     watchEffect((onCleanup) => {
-      assertRealtimeDataProvider(dataProvider, "<MenuLiveItemLink>");
-      void eventsKey.value;
+      const key = unreadKey(props.resource, events.value);
+      const read = () => store.getItem<number>(key) ?? 0;
+      count.value = read();
       onCleanup(
-        subscribeUnreadCount({
-          dataProvider,
-          store,
-          resource: props.resource,
-          events: props.events,
+        store.subscribe(key, () => {
+          count.value = read();
         }),
       );
     });
 
+    watchEffect((onCleanup) => {
+      assertRealtimeDataProvider(dataProvider, "<MenuLiveItemLink>");
+      onCleanup(acquire(dataProvider, store, props.resource, eventsKey.value));
+    });
+
     // Also runs when an event lands while the route is active.
     watchEffect(() => {
-      if (match.value && count.value) clearUnread(store, props.resource);
+      if (match.value && count.value)
+        clearUnread(store, props.resource, events.value);
     });
 
     return () => {

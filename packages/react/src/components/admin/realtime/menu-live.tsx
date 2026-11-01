@@ -34,6 +34,11 @@ export interface MenuLiveProps {
 
 const MAX_COUNT = 99;
 
+const toEventsKey = (events: RealtimeEventType[] = ["created"]): string =>
+  [...new Set(events)].sort().join(",");
+const fromEventsKey = (eventsKey: string): RealtimeEventType[] =>
+  eventsKey.split(",").filter(Boolean) as RealtimeEventType[];
+
 interface SharedSubscription {
   holders: number;
   stop: () => void;
@@ -45,9 +50,8 @@ const subscriptions = new WeakMap<
 >();
 
 /**
- * Links for one resource share a store key, so links with the same events
- * share one subscription: one each would add 1 per event apiece. Links with
- * different events on one resource still show one combined count.
+ * Links with the same resource and events share a store key, so they share
+ * one subscription: one each would add 1 per event apiece.
  */
 function acquire(
   dataProvider: RealtimeDataProvider,
@@ -76,7 +80,7 @@ function acquire(
         dataProvider,
         store,
         resource,
-        events: eventsKey.split(",") as RealtimeEventType[],
+        events: fromEventsKey(eventsKey),
       }),
     };
     subscriptionsForProvider.set(key, entry);
@@ -112,10 +116,13 @@ function MenuLiveItemLink({
   const { dataProvider } = useCheloneContext();
   const store = useCheloneStore();
   const { Link } = useRouterAdapter();
-  const [count = 0] = useStoreItem<number>(unreadKey(resource));
+  // Sorted and joined so an inline `events` array does not resubscribe each
+  // render, and a reordered one shares the subscription and the count.
+  const eventsKey = toEventsKey(events);
+  const [count = 0] = useStoreItem<number>(
+    unreadKey(resource, fromEventsKey(eventsKey)),
+  );
   const active = useMatch({ path: to, end: false }) !== null;
-  // Joined so an inline `events` array does not resubscribe each render.
-  const eventsKey = (events ?? ["created"]).join(",");
 
   useEffect(
     () =>
@@ -124,8 +131,9 @@ function MenuLiveItemLink({
   );
 
   useEffect(() => {
-    if (active && count > 0) clearUnread(store, resource);
-  }, [active, count, store, resource]);
+    if (active && count > 0)
+      clearUnread(store, resource, fromEventsKey(eventsKey));
+  }, [active, count, store, resource, eventsKey]);
 
   return (
     <Link to={to} className="flex items-center gap-2">
