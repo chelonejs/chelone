@@ -100,6 +100,14 @@ describe("<ApplicationUpdatedNotification>", () => {
     expect(reload).not.toHaveBeenCalled();
   });
 
+  it("emits reload once when the listener is attached with .once", async () => {
+    const onReloadOnce = vi.fn();
+    await mountNotification({ onReloadOnce });
+    button()?.click();
+    expect(onReloadOnce).toHaveBeenCalledTimes(1);
+    expect(reload).not.toHaveBeenCalled();
+  });
+
   it("takes notificationText and updateText as aliases", async () => {
     await mountNotification({
       notificationText: "New build out",

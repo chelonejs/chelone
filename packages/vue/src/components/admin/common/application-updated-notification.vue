@@ -39,7 +39,8 @@ const emit = defineEmits<{ reload: [] }>();
 
 const translate = useTranslate();
 // Declared emits are stripped from `$attrs`, so the vnode props are the only
-// place to tell whether a parent attached `@reload`.
+// place to tell whether a parent attached `@reload`. `@reload.once` compiles to
+// `onReloadOnce`, which `emit` also honours.
 const instance = getCurrentInstance();
 
 const messageText = computed(() => props.message ?? props.notificationText);
@@ -52,7 +53,8 @@ const cardClass = computed(() =>
 );
 
 function onReload(): void {
-  if (instance?.vnode.props?.onReload) emit("reload");
+  const listeners = instance?.vnode.props;
+  if (listeners?.onReload || listeners?.onReloadOnce) emit("reload");
   else window.location.reload();
 }
 </script>
