@@ -33,6 +33,13 @@ const ADDONS = [
     packages: ["maplibre-gl"],
   },
   {
+    name: "maps-draw",
+    subpath: "maps/draw",
+    folder: "src/components/maps-draw",
+    entry: "src/maps-draw.ts",
+    packages: ["terra-draw", "terra-draw-maplibre-gl-adapter"],
+  },
+  {
     name: "addon-csv-import",
     subpath: "csv-import",
     folder: "src/components/admin/csv-import",
