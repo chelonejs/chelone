@@ -5,6 +5,7 @@ import {
   checkError,
   identityQueryOptions,
   permissionsQueryOptions,
+  type UserIdentity,
 } from "@chelone/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
@@ -13,6 +14,40 @@ import { type Redirect, useRedirectOptional } from "./router/nav-hooks";
 
 export function useGetIdentity() {
   return useQuery(identityQueryOptions(useCheloneAuthProvider()));
+}
+
+/** The result of {@link useOptionalIdentity}. */
+export interface UseOptionalIdentityResult {
+  /** The signed-in identity (`undefined` until resolved, or when unavailable). */
+  identity: UserIdentity | undefined;
+  /** Whether the identity query is in flight (always `false` when unavailable). */
+  isPending: boolean;
+}
+
+/**
+ * Read the signed-in identity without requiring an `authProvider`. Unlike
+ * {@link useGetIdentity}, which THROWS without a provider, this resolves to
+ * `{ identity: undefined, isPending: false }` when there is no provider or it
+ * has no `getIdentity`, and when `getIdentity` rejects. It shares
+ * {@link useGetIdentity}'s query key, so both read one cached call.
+ */
+export function useOptionalIdentity(): UseOptionalIdentityResult {
+  const { authProvider } = useCheloneContext();
+  const hasGetIdentity = authProvider?.getIdentity != null;
+  const query = useQuery({
+    // A stub provider satisfies the option factory's type when none is
+    // configured; the query is disabled in that case so it never runs.
+    ...identityQueryOptions(
+      authProvider ?? ({} as NonNullable<typeof authProvider>),
+    ),
+    enabled: hasGetIdentity,
+  });
+
+  // A disabled query reports `isPending: true`; a rejected one has no data.
+  if (!hasGetIdentity || query.isError) {
+    return { identity: undefined, isPending: false };
+  }
+  return { identity: query.data, isPending: query.isPending };
 }
 
 export function useCanAccess(params: CanAccessParams) {
