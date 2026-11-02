@@ -43,6 +43,7 @@ export default defineConfig({
         "src/mdx-editor.ts",
         "src/maps.ts",
         "src/csv-import.ts",
+        "src/supabase.ts",
       ],
       formats: ["es"],
     },
