@@ -93,6 +93,8 @@ interface Mounted {
   notifications: NotificationStore;
   value: () => unknown;
   dirty: () => boolean;
+  /** Sets the field from outside the operator, as another input on the form would. */
+  set: (value: unknown) => Promise<void>;
 }
 
 function mount(
@@ -102,12 +104,14 @@ function mount(
 ): Mounted {
   const notifications = createNotificationStore();
   const state = { value: initial as unknown, dirty: false };
+  let setField: (value: unknown) => void = () => {};
   function Host() {
     const form = useForm<{ area: unknown }>({
       defaultValues: { area: initial },
       save: async () => undefined,
     });
     state.value = useSelector(form.form.store, (s) => s.values.area);
+    setField = (value) => form.form.setFieldValue("area", value);
     state.dirty = useSelector(
       form.form.store,
       (s) => s.fieldMeta.area?.isDirty ?? false,
@@ -134,6 +138,7 @@ function mount(
     notifications,
     value: () => state.value,
     dirty: () => state.dirty,
+    set: (value) => act(async () => setField(value)),
   };
 }
 
@@ -314,6 +319,26 @@ describe("OsmFeatureSubtract", () => {
     await act(async () => finish(collection(rightHalf)));
     expect(m.value()).toEqual(field);
     expect(m.notifications.getSnapshot()).toEqual([]);
+  });
+
+  it("writes nothing when the polygon changed while the request ran", async () => {
+    let finish: (value: ReturnType<typeof collection>) => void = () => {};
+    fetchMock.mockReturnValue(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const m = mount(<OsmFeatureSubtract source="area" presets={["water"]} />);
+    await click();
+    const redrawn = rect(5, 5, 6, 6);
+    await m.set(redrawn);
+    await act(async () => finish(collection(rightHalf)));
+
+    expect(m.value()).toEqual(redrawn);
+    expect(m.notifications.getSnapshot()).toEqual([]);
+    expect((screen.getByRole("button") as HTMLButtonElement).disabled).toBe(
+      false,
+    );
   });
 
   it("ignores an AbortError", async () => {

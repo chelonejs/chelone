@@ -532,6 +532,24 @@ describe("ShapeInput refine", () => {
     ).toEqual([square(5)]);
   });
 
+  it("calls onCommit with the refined value after the drawn one", async () => {
+    const onCommit = vi.fn();
+    const { draw } = await mountShapeInput(
+      <PolygonInput
+        source="shape"
+        label="Area"
+        onCommit={onCommit}
+        refine={async () => square(5) as never}
+      />,
+    );
+    await drawWith(draw, "Draw a polygon", "polygon", square(1));
+
+    expect(onCommit.mock.calls.map(([value]) => value)).toEqual([
+      square(1),
+      square(5),
+    ]);
+  });
+
   it("is not called on hydration or reset", async () => {
     const refine = vi.fn<Refine>(async () => square(5) as never);
     const { form } = await mountShapeInput(

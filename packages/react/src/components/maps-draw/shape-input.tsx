@@ -84,7 +84,7 @@ export interface ShapeInputProps {
   aspectRatio?: number;
   /** Frame the first value on the map. The user's own edits never refit. Defaults to true. */
   fitBounds?: boolean;
-  /** Called with the stored value after each drawing or edit has been written to the form. */
+  /** Called with the stored value after each drawing or edit has been written to the form, and again after `refine` writes a changed one. */
   onCommit?: (value: ShapeValue | null) => void;
   /**
    * Adjusts the value after the user's own drawing or edit, such as snapping a
@@ -335,6 +335,7 @@ export function ShapeInput({
       written.current = result;
       now.field.onChange(result);
       now.field.onBlur();
+      now.onCommit?.(result);
     } catch {
       // A failed refinement keeps the value as the user drew it.
     }

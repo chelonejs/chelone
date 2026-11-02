@@ -85,6 +85,8 @@ export function OsmFeatureOperator({
   const notify = useNotify();
   const queryClient = useQueryClient();
   const { field } = useInput({ source, format: (v: unknown) => v ?? null });
+  const current = useRef<unknown>(field.value);
+  current.current = field.value;
   const [running, setRunning] = useState(false);
   const controller = useRef<AbortController | null>(null);
   useEffect(() => () => controller.current?.abort(), []);
@@ -115,6 +117,9 @@ export function OsmFeatureOperator({
         { provider, signal: abort.signal },
       );
       if (abort.signal.aborted) return;
+      // The user may have edited the polygon while the request ran; the
+      // answer was worked out for the old one and must not replace the new.
+      if (current.current !== value) return;
       const matches = found?.features ?? [];
       if (matches.length === 0) {
         notify("chelone.map.osm.no_match", { type: "info" });
