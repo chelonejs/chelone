@@ -64,7 +64,8 @@ export function useGeoJsonSource(
 
   useEffect(() => {
     const now = latest.current;
-    map.addSource(sourceId, { type: "geojson", data: now.data });
+    // MapLibre types a feature's geometry as non-null once `@types/geojson` resolves.
+    map.addSource(sourceId, { type: "geojson", data: now.data as never });
     for (const spec of now.specs) map.addLayer(spec as never);
     applied.current = { data: now.data, specsKey: now.specsKey };
     const ids = now.specs.map((spec) => spec.id);
