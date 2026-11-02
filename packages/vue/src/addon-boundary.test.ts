@@ -126,16 +126,6 @@ describe("add-on boundary", () => {
     }
   });
 
-  it("the granular monaco-json-field item depends on its lazy file", () => {
-    const registry = readJson(resolve(root, "registry.json"));
-    const item = registry.items.find(
-      (i: { name: string }) => i.name === "monaco-json-field",
-    );
-    expect(item?.registryDependencies).toContain(
-      "@chelone/monaco-json-field-lazy",
-    );
-  });
-
   it("the monaco registry item lists its npm packages under dependencies", () => {
     const registry = readJson(resolve(root, "registry.json"));
     const items: {

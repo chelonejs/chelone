@@ -5584,7 +5584,6 @@
       "registryDependencies": [
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types",
-        "@chelone/monaco-json-field-lazy",
         "@chelone/monaco-shared"
       ],
       "dependencies": ["monaco-editor"],
