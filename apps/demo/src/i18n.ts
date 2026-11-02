@@ -1,4 +1,9 @@
-import { createI18n, defaultMessages, defineMessages } from "@chelone/core";
+import {
+  createI18n,
+  defaultMessages,
+  defineMessages,
+  mapMessages,
+} from "@chelone/core";
 
 /**
  * The demo's i18n catalog. The ported shadcn components translate `ra.*` keys
@@ -13,10 +18,12 @@ import { createI18n, defaultMessages, defineMessages } from "@chelone/core";
  * keyed by Intl.PluralRules categories (react-admin's `a |||| b` form).
  *
  * `defaultMessages` (the `chelone.*` keys the CORE controllers emit — save
- * notifications, validation messages) is merged underneath.
+ * notifications, validation messages) is merged underneath, and `mapMessages`
+ * (the maps add-on's labels) next to it.
  */
 const en = defineMessages({
   ...defaultMessages,
+  ...mapMessages,
 
   // Pages
   "ra.page.list": "{name}",
