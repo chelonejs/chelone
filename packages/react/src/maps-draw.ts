@@ -10,6 +10,10 @@ export {
   type DrawToolbarProps,
 } from "./components/maps-draw/draw-toolbar";
 export {
+  type CutResult,
+  cutFeatures,
+} from "./components/maps-draw/geometry-ops";
+export {
   ShapeInput,
   type ShapeInputProps,
 } from "./components/maps-draw/shape-input";
