@@ -59,6 +59,8 @@ The full prop list for `<Admin>` and `<Resource>` is on the
 | `<RefreshIconButton>` shows a styled tooltip. | `<RefreshIconButton>` shows the native `title`, and its label is also the `aria-label`. | [Refresh Icon Button](/docs/ui-layout/refresh-icon-button) |
 | `<BulkEditDrawer>` opens a `Sheet`. | `<BulkEditDrawer>` opens an inline panel that is not teleported. | [Bulk Edit Drawer](/docs/editing/bulk-edit-drawer) |
 | `<FilterLiveSearch>` builds on `FilterLiveForm`. | `<FilterLiveSearch>` builds on `<FilterForm>`, because Vue has no `FilterLiveForm`. | [Filter Live Search](/docs/viewing/filter-live-search) |
+| `<ColumnsButton>` opens a `Popover`. | `<ColumnsButton>` shows its panel inside a `DropdownMenu`. The panel holds plain rows, so it stays open while you switch several columns. | [Columns Button](/docs/viewing/columns-button) |
+| `<TreeList>` takes the `onSelect`, `loading` and `empty` props. | `<TreeList>` emits `select` and takes the `#loading` and `#empty` slots. With no `select` listener a row navigates, as React does with no `onSelect`. | [Tree List](/docs/viewing/tree-list) |
 
 Theme storage differs too: the Vue `<ThemeProvider>` always uses `localStorage`
 and `useTheme()` returns `Ref`s. The note under
