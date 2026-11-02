@@ -12,8 +12,8 @@ export function TechLogos() {
           Built on tools you <span className="text-brand-gradient">trust</span>
         </Heading>
         <Lead>
-          Chelone leverages first-class libraries, acclaimed by the React
-          community for their robustness, documentation and performance.
+          Chelone leverages first-class libraries, acclaimed by the React and
+          Vue communities for their robustness, documentation and performance.
         </Lead>
       </Reveal>
 
