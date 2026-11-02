@@ -1,0 +1,325 @@
+---
+title: "Supabase"
+description: "Sign users in with Supabase Auth and read and write tables through PostgREST."
+---
+
+`@chelone/supabase` gives an admin two providers for a Supabase project: an
+auth provider over Supabase Auth and a data provider over the project's
+PostgREST API. The package is framework-free, so the same code serves
+`@chelone/react` and `@chelone/vue`. Only the callback page wiring in
+[Recovery and invite links](#recovery-and-invite-links) differs.
+
+This page covers the package. The login, forgot password and set password
+pages are a separate part of the Supabase integration and have their own guide.
+
+## Install
+
+```bash
+pnpm add @chelone/supabase @supabase/supabase-js
+```
+
+`@supabase/supabase-js` is a peer dependency (`^2.48.1`), so your app owns the
+version. Create the client once and share it with both providers:
+
+```ts title="src/supabase.ts"
+import { createClient } from "@supabase/supabase-js";
+
+export const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY,
+);
+```
+
+## Auth provider
+
+`supabaseAuthProvider(client, options?)` returns an
+[auth provider](/docs/app-config/security) backed by `client.auth`.
+
+```tsx
+import { supabaseAuthProvider } from "@chelone/supabase";
+import { supabase } from "./supabase";
+
+<Admin authProvider={supabaseAuthProvider(supabase)} requireAuth>
+  ...
+</Admin>;
+```
+
+In Vue, pass the same value as the `authProvider` prop of `<Admin>`.
+
+| Method          | What it does                                                                         |
+| --------------- | ------------------------------------------------------------------------------------ |
+| `login`         | `{ email, password }` calls `signInWithPassword`; `{ provider }` starts OAuth. Any other params throw. |
+| `logout`        | `signOut`.                                                                           |
+| `checkAuth`     | Rejects when `getSession` returns no session.                                        |
+| `checkError`    | Rejects on a 401, a 403, or a 400 `AuthSessionMissingError`, which logs the user out. |
+| `getIdentity`   | Reads the signed-in user, see [Identity](#identity).                                 |
+| `getPermissions`| Resolves `options.getPermissions(user)`, or `undefined` without that option.         |
+| `setPassword`   | `{ access_token, refresh_token, password }`: sets the session, then the password.    |
+| `resetPassword` | `{ email, redirectTo?, captchaToken? }`: sends the reset email.                      |
+| `handleCallback`| Resolves a recovery or invite link, see below.                                       |
+
+### Options
+
+- `getIdentity(user)` replaces the identity read from the user's metadata. It
+  may return a promise.
+- `getPermissions(user)` receives the signed-in user. Its result is what
+  `getPermissions` resolves.
+- `redirectTo` is where the OAuth provider sends the user back. A
+  `redirectTo` passed to `login` wins. It is also the path prefix of the
+  set-password redirect that `handleCallback` returns.
+
+```ts
+supabaseAuthProvider(supabase, {
+  redirectTo: `${window.location.origin}/auth-callback`,
+  getPermissions: (user) => user.app_metadata.role,
+});
+```
+
+### OAuth sign-in
+
+Pass the provider name to `login`:
+
+```ts
+await authProvider.login({ provider: "github" });
+```
+
+`SupabaseOAuthProvider` lists the names the type accepts: `apple`, `azure`,
+`bitbucket`, `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`,
+`linkedin`, `notion`, `slack`, `spotify`, `twitch`, `twitter` and `workos`.
+Supabase sends the user to the provider and back to `redirectTo`. Set that URL
+to the app's `/auth-callback` route so `handleCallback` runs when the user
+returns.
+
+### Identity
+
+Without a `getIdentity` option, the identity is built from the user:
+
+- `id` is the user's `id`.
+- `fullName` is `user_metadata.full_name`, falling back to the email.
+- `avatar` is `user_metadata.avatar_url`.
+
+## Recovery and invite links
+
+A password recovery or invite email carries the user's tokens in a link. Both
+need the same setup:
+
+1. In the Supabase dashboard, under Authentication, URL Configuration, add the
+   app's `/auth-callback` route to the redirect URLs, for example
+   `https://admin.example.com/auth-callback`. Pass the same URL as `redirectTo`
+   to `resetPassword`.
+2. Mount the callback page. Chelone's gate ignores a redirect on a `checkAuth`
+   rejection, so an unauthenticated user cannot be redirected to the callback
+   page. The route is public and sits outside the gate.
+
+In React, set the `authCallback` prop to an element:
+
+```tsx
+import { AuthCallback } from "@/components/admin/auth/auth-callback";
+
+<Admin
+  authProvider={supabaseAuthProvider(supabase)}
+  authCallback={<AuthCallback />}
+>
+  ...
+</Admin>;
+```
+
+In Vue, fill the `#authCallback` slot of `<Admin>` with your callback page. The
+route is `/auth-callback`, outside the layout and the auth gate.
+
+`handleCallback` reads `access_token`, `refresh_token` and `type` from the URL,
+whether they sit in the query or in the hash.
+
+- For `type` of `recovery` or `invite`, it returns a redirect to `/set-password`
+  (behind the `redirectTo` option, if set) with the tokens as query params.
+  `forgotPasswordPath` and `setPasswordPath` export the two paths.
+- For anything else it returns nothing. An OAuth return is read from the URL by
+  `supabase-js` itself.
+- A recovery or invite link without an access or refresh token is an error:
+  `handleCallback` rejects with "Missing access_token or refresh_token for a
+  recovery or invite link". The callback page shows it.
+
+`readSupabaseUrlParams(location?)` is the reader `handleCallback` uses. It
+returns `{ accessToken, refreshToken, type }`, each `null` when absent.
+
+## Messages
+
+The Supabase pages read their text from message keys. The package ships
+`supabaseEnglishMessages` and `supabaseFrenchMessages`. Merge them into the
+catalog you give `createI18n`, after `defaultMessages`:
+
+```ts title="src/i18n.ts"
+import { createI18n, defaultMessages } from "@chelone/core";
+import {
+  supabaseEnglishMessages,
+  supabaseFrenchMessages,
+} from "@chelone/supabase";
+
+export const i18n = createI18n({
+  locale: "en",
+  messages: {
+    en: { ...defaultMessages, ...supabaseEnglishMessages },
+    fr: { ...defaultMessages, ...supabaseFrenchMessages },
+  },
+  fallbackLocale: "en",
+});
+```
+
+Keys keep the `ra-supabase.` prefix (for example `ra-supabase.auth.email`), so
+a catalog written for `ra-supabase` carries over. `%{provider}` placeholders are
+written `{provider}`. See [Translation](/docs/app-config/translation) for the
+catalog itself.
+
+## Data provider
+
+`supabaseDataProvider(options)` is a [data provider](/docs/app-config/data-providers)
+over `<instanceUrl>/rest/v1`.
+
+```ts title="src/data-provider.ts"
+import { supabaseDataProvider } from "@chelone/supabase";
+import { supabase } from "./supabase";
+
+export const dataProvider = supabaseDataProvider({
+  instanceUrl: import.meta.env.VITE_SUPABASE_URL,
+  apiKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+  client: supabase,
+});
+```
+
+### Options
+
+- `instanceUrl` is the project URL.
+- `apiKey` is a legacy anon key or a `sb_publishable_` key.
+- `client` supplies the session. Each call sends the user's access token, so
+  row level security applies. With no `client`, or no session, no
+  `Authorization` header goes out and the key is the only credential.
+- `defaultListOp` is the operator for a filter key with no `@op` suffix. It
+  defaults to `eq`.
+- `primaryKeys` maps a resource to its key columns. A resource not listed is
+  keyed by `id`.
+- `schema` is a schema name, or a function returning one, for projects that
+  expose a schema other than `public`.
+- `sortOrder` sets where nulls go: `AscendingNullsLastDescendingNullsFirst` (the
+  default), `AscendingNullsFirstDescendingNullsLast`,
+  `AscendingNullsFirstDescendingNullsFirst` or
+  `AscendingNullsLastDescendingNullsLast`.
+
+### Content-Range
+
+`getList` asks PostgREST for an exact count and reads the total from the
+`Content-Range` response header. A missing header is an error. When the browser
+calls a project from another origin, the API must expose it with
+`Access-Control-Expose-Headers: Content-Range`. A total of `*` becomes an
+undefined total.
+
+### Meta
+
+Each call takes these keys in `meta`:
+
+- `meta.columns` is a column list, as a string or an array. The default is `*`.
+- `meta.embed` is a list of related tables. Each becomes `name(*)` in the
+  select, so `embed: ["comments"]` selects `*,comments(*)`.
+- `meta.schema` overrides the `schema` option for this call. Reads send it as
+  `Accept-Profile`, writes as `Content-Profile`.
+- `meta.nullsfirst` and `meta.nullslast` take `true` for every sort column or a
+  list of columns, and win over `sortOrder`.
+- `meta.headers` adds request headers and wins over the ones the provider sets.
+
+```tsx
+<List meta={{ columns: ["id", "title"], embed: ["author"] }} />
+```
+
+### Compound keys
+
+List the key columns in `primaryKeys`:
+
+```ts
+supabaseDataProvider({
+  instanceUrl,
+  apiKey,
+  client: supabase,
+  primaryKeys: { order_items: ["order_id", "line"] },
+});
+```
+
+Chelone needs one `id` per record. For a compound key the provider adds an `id`
+that is the JSON array of the key values, such as `[12,3]`, and removes it again
+before a write. A sort on `id` sorts on every key column. An `id` that does not
+decode to that many values is an error.
+
+### Filters
+
+A filter key is a column name, optionally followed by `@` and an operator:
+`field@op`. Without a suffix the key uses `defaultListOp`.
+
+```ts
+const filter = {
+  "status@in": ["draft", "review"],
+  "views@gte": 100,
+  "title@ilike": "launch",
+};
+```
+
+| Operator                          | PostgREST meaning                                   |
+| --------------------------------- | --------------------------------------------------- |
+| `eq`, `neq`                       | equal, not equal                                    |
+| `gt`, `gte`, `lt`, `lte`          | greater, greater or equal, less, less or equal      |
+| `like`, `ilike`                   | pattern match, case-insensitive pattern match       |
+| `match`, `imatch`                 | regular expression match, case-insensitive          |
+| `in`                              | one of a list                                       |
+| `is`                              | `null`, `true`, `false`                             |
+| `isdistinct`                      | not equal, treating `null` as a value               |
+| `fts`, `plfts`, `phfts`, `wfts`   | full-text search: default, plain, phrase, web       |
+| `cs`, `cd`, `ov`                  | contains, contained in, overlaps (arrays, ranges, JSON) |
+| `sl`, `sr`, `nxr`, `nxl`, `adj`   | range: left of, right of, no extend right, no extend left, adjacent |
+| `not`, `all`, `any`               | the PostgREST modifiers                             |
+
+- `like` and `ilike` split the value on spaces and add one condition per word,
+  each wrapped in `*`: a search for `launch plan` matches rows containing both
+  words.
+- An array value with `in` becomes `in.(a,b)`. With `cs`, `cd` or `ov` it
+  becomes a Postgres array literal, `{a,b}`. With another operator the items
+  join with commas.
+- `null` with `eq` becomes `is.null`, and with `neq` becomes `not.is.null`.
+- A `Date` becomes its ISO string. An object value on a key with an operator is
+  sent as JSON. An object value on a plain key nests the column path:
+  `{ author: { name: "Ada" } }` filters `author.name`.
+- A value of `undefined` is skipped.
+
+### or and and
+
+The keys `or` and `and` take an object of conditions and produce a PostgREST
+logic group. Values inside the group are quoted when they hold a comma,
+parenthesis, quote or backslash.
+
+```ts
+{
+  or: {
+    "status@eq": "draft",
+    "and": { "views@gte": 100, "views@lt": 500 },
+  },
+}
+```
+
+This sends `or=(status.eq.draft,and(views.gte.100,views.lt.500))`.
+
+### Errors
+
+A 401 or 403 from PostgREST is an `HttpError`. Chelone passes it to
+`checkError` on `supabaseAuthProvider`, which rethrows it and logs the user out.
+Pass `supabaseAuthProvider` to `<Admin>` alongside the data provider for this to
+apply.
+
+`getOne`, `update` and `delete` turn PostgREST's 406 for a missing row into a
+404.
+
+## What is not supported
+
+- Cursor pagination. A `getList` with a cursor throws "supabaseDataProvider does
+  not support cursor pagination". Use page and `perPage`.
+- `rpc/` resources. Only tables and views are read and written.
+- Guessers. `ListGuesser`, `EditGuesser` and `ShowGuesser` have no column
+  information to guess from, so write the fields and inputs.
+- A realtime transport. The package has no Supabase Realtime adapter. To add
+  live updates, supply your own transport as described in
+  [Realtime](/docs/app-config/realtime).
