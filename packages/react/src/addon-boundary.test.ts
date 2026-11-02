@@ -13,7 +13,14 @@ import { describe, expect, it } from "vitest";
 const root = fileURLToPath(new URL("..", import.meta.url));
 const src = resolve(root, "src");
 
-const ADDONS = [
+// `name` is the registry block; `subpath` is the package export when it differs.
+const ADDONS: {
+  name: string;
+  subpath?: string;
+  folder: string;
+  entry: string;
+  packages: string[];
+}[] = [
   {
     name: "monaco",
     folder: "src/components/monaco",
@@ -31,6 +38,13 @@ const ADDONS = [
     folder: "src/components/maps",
     entry: "src/maps.ts",
     packages: ["maplibre-gl"],
+  },
+  {
+    name: "addon-csv-import",
+    subpath: "csv-import",
+    folder: "src/components/admin/csv-import",
+    entry: "src/csv-import.ts",
+    packages: ["papaparse"],
   },
 ];
 
@@ -128,8 +142,8 @@ describe("add-on boundary", () => {
   });
 
   it("each add-on has a subpath export and a publishConfig export", () => {
-    for (const { name, entry } of ADDONS) {
-      const subpath = `./${name}`;
+    for (const { name, subpath: sub = name, entry } of ADDONS) {
+      const subpath = `./${sub}`;
       const file = entry.replace(/^src\//, "").replace(/\.ts$/, "");
       expect(pkg.exports[subpath]).toBe(`./${entry}`);
       expect(pkg.publishConfig.exports[subpath]).toEqual({
