@@ -382,6 +382,36 @@ describe("CommandMenu", () => {
     );
   });
 
+  it("hides a recent whose resource the user can no longer list", async () => {
+    let denied: string | undefined;
+    const { dataProvider } = searchProvider({
+      posts: [{ id: 1, title: "Alpha" }],
+    });
+    mount({
+      dataProvider,
+      menu: { searchDebounceMs: 0 },
+      authProvider: makeAuthProvider({
+        canAccess: async ({ resource }) => resource !== denied,
+      }),
+    });
+    await openMenu();
+    typeQuery("alp");
+    fireEvent.click(await screen.findByRole("option", { name: "Alpha" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await openMenu();
+    fireEvent.click(await screen.findByRole("option", { name: "Authors" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+
+    denied = "posts";
+    await openMenu();
+    const recent = await screen.findByText("Recent");
+    const group = within(recent.closest("[cmdk-group]") as HTMLElement);
+    expect(await group.findByRole("option", { name: "Authors" })).toBeTruthy();
+    await waitFor(() =>
+      expect(group.queryByRole("option", { name: "Alpha" })).toBeNull(),
+    );
+  });
+
   it("shows Refresh and the three theme actions", async () => {
     const { queryClient } = mount();
     const invalidate = vi.spyOn(queryClient, "invalidateQueries");

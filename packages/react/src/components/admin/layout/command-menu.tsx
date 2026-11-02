@@ -18,6 +18,7 @@
  */
 
 import {
+  canAccessQueryOptions,
   createCommandRegistry,
   getVisibleCommands,
   groupCommands,
@@ -27,6 +28,7 @@ import {
   rememberRecent,
   shouldHandleHotkey,
 } from "@chelone/core";
+import { useQueries } from "@tanstack/react-query";
 import { History, List, Monitor, Moon, RefreshCw, Sun } from "lucide-react";
 import {
   type ComponentType,
@@ -418,9 +420,10 @@ function MenuBody({
     ? Object.values(hitCounts).reduce((sum, count) => sum + count, 0)
     : 0;
 
+  const listable = useListableResources(recents.map((e) => e.resource));
   const openableRecents = recents.filter((entry) => {
     const definition = definitions[entry.resource];
-    if (!definition) return false;
+    if (!definition || !listable.has(entry.resource)) return false;
     return entry.type === "resource"
       ? definition.hasList
       : recordViewType(definition) !== undefined;
@@ -499,6 +502,29 @@ function MenuBody({
       </CommandList>
       <MenuFooter />
     </>
+  );
+}
+
+/**
+ * The subset of `names` the user may list, like `useMenuAccess` for a dynamic
+ * set. Pending counts as denied, so a saved recent never flashes before the
+ * check resolves.
+ */
+function useListableResources(names: string[]): Set<string> {
+  const { authProvider } = useCheloneContext();
+  const unique = [...new Set(names)];
+  const checked = authProvider?.canAccess != null;
+  const results = useQueries({
+    queries: unique.map((resource) => ({
+      ...canAccessQueryOptions(
+        authProvider ?? ({} as NonNullable<typeof authProvider>),
+        { resource, action: "list" },
+      ),
+      enabled: checked,
+    })),
+  });
+  return new Set(
+    unique.filter((_, index) => !checked || results[index]?.data === true),
   );
 }
 

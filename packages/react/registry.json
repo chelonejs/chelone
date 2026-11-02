@@ -4658,6 +4658,7 @@
         "use-mobile"
       ],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
