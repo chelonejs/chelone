@@ -11,6 +11,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { headingsPlugin } from "@mdxeditor/editor";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -27,10 +28,15 @@ import { useForm } from "../../form-hooks";
 import { ThemeProvider } from "../admin/layout/theme-provider";
 import { defaultInputPlugins } from "./default-plugins";
 import { MdxInput } from "./mdx-input";
+import { safeHtmlImagePlugin } from "./safe-html-image-plugin";
 
 const hoisted = vi.hoisted(() => ({
   setMarkdown: vi.fn(),
   plugins: undefined as unknown,
+  suppressHtmlProcessing: undefined as unknown,
+  onError: undefined as
+    | ((payload: { error: string; source: string }) => void)
+    | undefined,
   markdownProps: [] as string[],
 }));
 
@@ -44,6 +50,8 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
       className?: string;
       readOnly?: boolean;
       plugins?: unknown;
+      suppressHtmlProcessing?: boolean;
+      onError?: (payload: { error: string; source: string }) => void;
       onChange?: (markdown: string, initialMarkdownNormalize: boolean) => void;
       onBlur?: () => void;
     }
@@ -51,6 +59,8 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
     // Uncontrolled like the real editor: only the first `markdown` is read.
     const current = useRef(props.markdown);
     hoisted.plugins = props.plugins;
+    hoisted.suppressHtmlProcessing = props.suppressHtmlProcessing;
+    hoisted.onError = props.onError;
     hoisted.markdownProps.push(props.markdown);
     useImperativeHandle(ref, () => ({
       getMarkdown: () => current.current,
@@ -139,9 +149,21 @@ function setup<TFormData extends Record<string, unknown>>(
   return handle;
 }
 
+/** The editor gets the given list as is, with the inert `<img>` plugin last. */
+function expectPluginList(actual: unknown, given: unknown[]) {
+  const list = actual as unknown[];
+  expect(list).toHaveLength(given.length + 1);
+  given.forEach((plugin, index) => {
+    expect(list[index]).toBe(plugin);
+  });
+  expect(list[given.length]).toBe(safeHtmlImagePlugin);
+}
+
 beforeEach(() => {
   hoisted.setMarkdown.mockClear();
   hoisted.plugins = undefined;
+  hoisted.suppressHtmlProcessing = undefined;
+  hoisted.onError = undefined;
   hoisted.markdownProps = [];
 });
 afterEach(cleanup);
@@ -156,7 +178,7 @@ describe("<MdxInput />", () => {
 
   it("passes the input plugin preset with the toolbar", () => {
     setup(<MdxInput source="body" />, { defaultValues: { body: "x" } });
-    expect(hoisted.plugins).toBe(defaultInputPlugins);
+    expectPluginList(hoisted.plugins, defaultInputPlugins);
   });
 
   it("renders a custom label and helper text", () => {
@@ -291,12 +313,66 @@ describe("<MdxInput />", () => {
     expect(handle.form.getFieldMeta("body")?.isTouched).toBe(true);
   });
 
+  it("passes suppressHtmlProcessing to the editor by default", () => {
+    setup(<MdxInput source="body" />, {
+      defaultValues: { body: "<iframe></iframe>" },
+    });
+    expect(hoisted.suppressHtmlProcessing).toBe(true);
+  });
+
+  it("lets mdxProps turn HTML processing back on", () => {
+    setup(
+      <MdxInput source="body" mdxProps={{ suppressHtmlProcessing: false }} />,
+      { defaultValues: { body: "<b>x</b>" } },
+    );
+    expect(hoisted.suppressHtmlProcessing).toBe(false);
+  });
+
+  it("keeps HTML processing off when mdxProps sets the key to undefined", () => {
+    setup(
+      <MdxInput
+        source="body"
+        mdxProps={{ suppressHtmlProcessing: undefined }}
+      />,
+      { defaultValues: { body: "<b>x</b>" } },
+    );
+    expect(hoisted.suppressHtmlProcessing).toBe(true);
+  });
+
+  it("swaps the editor for a textarea holding the stored markdown when the editor reports a parse error", () => {
+    const body = "Intro\n\n<div>note</div>\n\nMore text";
+    setup(<MdxInput source="body" />, { defaultValues: { body } });
+
+    act(() => hoisted.onError?.({ error: "unsupported", source: body }));
+
+    expect(screen.queryByTestId("editor")).toBeNull();
+    const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
+    expect(textarea.value).toBe(body);
+  });
+
+  it("writes an edit made in the fallback textarea to the form", () => {
+    const body = "Intro\n\n<div>note</div>";
+    const handle = setup(<MdxInput source="body" />, {
+      defaultValues: { body },
+    });
+    act(() => hoisted.onError?.({ error: "unsupported", source: body }));
+
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: `${body}\n\nMore` },
+    });
+
+    expect(handle.form.getFieldValue("body")).toBe(`${body}\n\nMore`);
+    expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe(
+      `${body}\n\nMore`,
+    );
+  });
+
   it("lets mdxProps replace the plugins", () => {
-    const custom: never[] = [];
+    const custom = [headingsPlugin()];
     setup(<MdxInput source="body" mdxProps={{ plugins: custom }} />, {
       defaultValues: { body: "x" },
     });
-    expect(hoisted.plugins).toBe(custom);
+    expectPluginList(hoisted.plugins, custom);
   });
 
   it("adds the mdxeditor-dark class when the theme resolves dark", () => {
