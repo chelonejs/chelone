@@ -200,6 +200,10 @@ export {
   type DeleteButtonProps,
 } from "./components/admin/buttons/delete-button";
 export {
+  DualApprovalButton,
+  type DualApprovalButtonProps,
+} from "./components/admin/buttons/dual-approval-button";
+export {
   EditButton,
   type EditButtonProps,
 } from "./components/admin/buttons/edit-button";
@@ -259,6 +263,10 @@ export {
   SortButton,
   type SortButtonProps,
 } from "./components/admin/buttons/sort-button";
+export {
+  StatusTransitionButton,
+  type StatusTransitionButtonProps,
+} from "./components/admin/buttons/status-transition-button";
 export {
   ToggleFilterButton,
   type ToggleFilterButtonProps,
