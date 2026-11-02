@@ -45,6 +45,8 @@ export type {
   DeleteRedirect,
 } from "./admin/buttons/delete-button.vue";
 export { default as DeleteButton } from "./admin/buttons/delete-button.vue";
+export type { DualApprovalButtonProps } from "./admin/buttons/dual-approval-button.vue";
+export { default as DualApprovalButton } from "./admin/buttons/dual-approval-button.vue";
 export type { EditButtonProps } from "./admin/buttons/edit-button.vue";
 export { default as EditButton } from "./admin/buttons/edit-button.vue";
 export {
@@ -80,6 +82,8 @@ export type { SkipNavigationButtonProps } from "./admin/buttons/skip-navigation-
 export { default as SkipNavigationButton } from "./admin/buttons/skip-navigation-button.vue";
 export type { SortButtonProps } from "./admin/buttons/sort-button.vue";
 export { default as SortButton } from "./admin/buttons/sort-button.vue";
+export type { StatusTransitionButtonProps } from "./admin/buttons/status-transition-button.vue";
+export { default as StatusTransitionButton } from "./admin/buttons/status-transition-button.vue";
 export type { ToggleFilterButtonProps } from "./admin/buttons/toggle-filter-button.vue";
 export { default as ToggleFilterButton } from "./admin/buttons/toggle-filter-button.vue";
 export type { ToolbarProps } from "./admin/buttons/toolbar.vue";
