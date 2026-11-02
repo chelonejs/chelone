@@ -64,7 +64,10 @@ export interface CalendarHeaderSlotProps {
  * Emits `select-event` with the record when an event is activated; with no
  * listener attached, the event navigates to the record's edit or show page.
  * Emits `select-slot` with `{ startISO, endISO, allDay }` when an empty part of
- * a day is clicked. The `#event` slot replaces an event and the `#header` slot
+ * a day is clicked. With a `drop` listener attached, month-view events can be
+ * dragged to another day; `drop` carries the record and its new `{ start, end? }`
+ * as ISO strings and the list is not updated. A promise the listener returns is
+ * the caller's to handle. The `#event` slot replaces an event and the `#header` slot
  * the title and navigation.
  *
  * @example
@@ -101,6 +104,7 @@ import CalendarAgendaView from "./calendar-agenda-view.vue";
 import CalendarHeader from "./calendar-header.vue";
 import CalendarMonthView, {
   type CalendarEventSlotProps,
+  type CalendarDrop,
   type CalendarSlot,
 } from "./calendar-month-view.vue";
 import CalendarWeekView from "./calendar-week-view.vue";
@@ -121,6 +125,7 @@ const props = withDefaults(defineProps<CalendarListProps>(), {
 const emit = defineEmits<{
   selectEvent: [record: LooseRecord];
   selectSlot: [slot: CalendarSlot];
+  drop: [record: LooseRecord, range: CalendarDrop];
 }>();
 defineSlots<{
   /** Replaces an event in its day cell. */
@@ -143,6 +148,11 @@ const instance = getCurrentInstance();
 const hasListener = () => {
   const listeners = instance?.vnode.props;
   return !!(listeners?.onSelectEvent || listeners?.onSelectEventOnce);
+};
+// Events are draggable in the month only when something listens to `drop`.
+const hasDropListener = () => {
+  const listeners = instance?.vnode.props;
+  return !!(listeners?.onDrop || listeners?.onDropOnce);
 };
 
 const VIEWS: CalendarView[] = ["month", "week", "agenda"];
@@ -310,8 +320,10 @@ function onSelectEvent(record: LooseRecord) {
       :events="events"
       :href-for="hrefFor"
       :is-selectable="isSelectable"
+      :draggable="hasDropListener()"
       @select-event="onSelectEvent"
       @select-slot="emit('selectSlot', $event)"
+      @drop="(record, moved) => emit('drop', record, moved)"
     >
       <template v-if="$slots.event" #event="slotProps">
         <slot name="event" v-bind="slotProps" />

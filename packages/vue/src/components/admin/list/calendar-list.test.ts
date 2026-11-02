@@ -792,3 +792,205 @@ describe("<CalendarList> views", () => {
     ]);
   });
 });
+
+describe("<CalendarList> drag", () => {
+  const dataTransfer = () => ({
+    effectAllowed: "uninitialized",
+    dropEffect: "none",
+    setData: vi.fn(),
+    getData: vi.fn(),
+  });
+  const eventIn = (wrapper: VueWrapper, date: string, text: string) => {
+    const found = cell(wrapper, date)
+      .findAll("[data-slot=calendar-event]")
+      .find((node) => node.text() === text);
+    if (!found) throw new Error(`no event ${text} on ${date}`);
+    return found;
+  };
+  // The drag attributes sit on the list item around an event, so they cover a
+  // custom `#event` slot too.
+  const item = (node: { element: Element }) => {
+    const found = node.element.closest("li");
+    if (!found) throw new Error("event outside a list item");
+    return found;
+  };
+  const draggable = () => calendar({ titleSource: "name", onDrop: vi.fn() });
+
+  it("events are not draggable without a drop listener", async () => {
+    const { wrapper } = await mountList({
+      list: calendar({ titleSource: "name" }),
+    });
+
+    const event = eventIn(wrapper, "2026-05-04", "Kickoff");
+    expect(item(event).hasAttribute("draggable")).toBe(false);
+    const transfer = dataTransfer();
+    await event.trigger("dragstart", { dataTransfer: transfer });
+    expect(transfer.setData).not.toHaveBeenCalled();
+    expect(item(event).hasAttribute("data-dragging")).toBe(false);
+    await cell(wrapper, "2026-05-06").trigger("dragover", {
+      dataTransfer: transfer,
+    });
+    expect(cell(wrapper, "2026-05-06").attributes("data-over")).toBeUndefined();
+  });
+
+  it("dropping an event on another day emits drop with the moved ISO start and end", async () => {
+    const onDrop = vi.fn();
+    const { wrapper } = await mountList({
+      list: calendar({ titleSource: "name", onDrop }),
+    });
+
+    const event = eventIn(wrapper, "2026-05-04", "Kickoff");
+    expect(item(event).getAttribute("draggable")).toBe("true");
+    const transfer = dataTransfer();
+    await event.trigger("dragstart", { dataTransfer: transfer });
+    expect(item(event).hasAttribute("data-dragging")).toBe(true);
+    expect(transfer.effectAllowed).toBe("move");
+    expect(transfer.setData).toHaveBeenCalled();
+    await cell(wrapper, "2026-05-06").trigger("dragover", {
+      dataTransfer: transfer,
+    });
+    await cell(wrapper, "2026-05-06").trigger("drop", {
+      dataTransfer: transfer,
+    });
+    await event.trigger("dragend", { dataTransfer: transfer });
+
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onDrop.mock.calls[0]?.[0]).toMatchObject({ id: 1 });
+    expect(onDrop.mock.calls[0]?.[1]).toEqual({
+      start: new Date(2026, 4, 6, 9).toISOString(),
+      end: new Date(2026, 4, 6, 10).toISOString(),
+    });
+    expect(item(event).hasAttribute("data-dragging")).toBe(false);
+  });
+
+  it("an event with no end is dropped with no end", async () => {
+    const onDrop = vi.fn();
+    const { wrapper } = await mountList({
+      list: calendar({ titleSource: "name", onDrop }),
+    });
+
+    const transfer = dataTransfer();
+    await eventIn(wrapper, "2026-05-29", "Retro").trigger("dragstart", {
+      dataTransfer: transfer,
+    });
+    await cell(wrapper, "2026-06-02").trigger("drop", {
+      dataTransfer: transfer,
+    });
+
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onDrop.mock.calls[0]?.[0]).toMatchObject({ id: 3 });
+    expect(onDrop.mock.calls[0]?.[1]).toEqual({
+      start: new Date(2026, 5, 2, 15).toISOString(),
+    });
+    expect("end" in (onDrop.mock.calls[0]?.[1] as object)).toBe(false);
+  });
+
+  it("a multi-day event dragged from its second day moves by the day difference", async () => {
+    const onDrop = vi.fn();
+    const { wrapper } = await mountList({
+      list: calendar({ titleSource: "name", onDrop }),
+    });
+
+    const transfer = dataTransfer();
+    await eventIn(wrapper, "2026-05-13", "Conference").trigger("dragstart", {
+      dataTransfer: transfer,
+    });
+    await cell(wrapper, "2026-05-15").trigger("drop", {
+      dataTransfer: transfer,
+    });
+
+    expect(onDrop.mock.calls[0]?.[1]).toEqual({
+      start: new Date(2026, 4, 14).toISOString(),
+      end: new Date(2026, 4, 18).toISOString(),
+    });
+  });
+
+  it("dropping on the original day emits nothing", async () => {
+    const onDrop = vi.fn();
+    const { wrapper } = await mountList({
+      list: calendar({ titleSource: "name", onDrop }),
+    });
+
+    const transfer = dataTransfer();
+    await eventIn(wrapper, "2026-05-13", "Conference").trigger("dragstart", {
+      dataTransfer: transfer,
+    });
+    await cell(wrapper, "2026-05-13").trigger("drop", {
+      dataTransfer: transfer,
+    });
+
+    expect(onDrop).not.toHaveBeenCalled();
+  });
+
+  it("marks the target cell with data-over during a drag and clears it after", async () => {
+    const { wrapper } = await mountList({ list: draggable() });
+
+    const transfer = dataTransfer();
+    await eventIn(wrapper, "2026-05-04", "Kickoff").trigger("dragstart", {
+      dataTransfer: transfer,
+    });
+    await cell(wrapper, "2026-05-06").trigger("dragover", {
+      dataTransfer: transfer,
+    });
+    expect(cell(wrapper, "2026-05-06").attributes("data-over")).toBeDefined();
+    expect(cell(wrapper, "2026-05-07").attributes("data-over")).toBeUndefined();
+
+    await cell(wrapper, "2026-05-07").trigger("dragover", {
+      dataTransfer: transfer,
+    });
+    expect(cell(wrapper, "2026-05-06").attributes("data-over")).toBeUndefined();
+    expect(cell(wrapper, "2026-05-07").attributes("data-over")).toBeDefined();
+
+    await cell(wrapper, "2026-05-07").trigger("drop", {
+      dataTransfer: transfer,
+    });
+    expect(cell(wrapper, "2026-05-07").attributes("data-over")).toBeUndefined();
+
+    await eventIn(wrapper, "2026-05-04", "Kickoff").trigger("dragstart", {
+      dataTransfer: transfer,
+    });
+    await cell(wrapper, "2026-05-08").trigger("dragover", {
+      dataTransfer: transfer,
+    });
+    await eventIn(wrapper, "2026-05-04", "Kickoff").trigger("dragend", {
+      dataTransfer: transfer,
+    });
+    expect(cell(wrapper, "2026-05-08").attributes("data-over")).toBeUndefined();
+  });
+
+  it("an event in the event slot drags like the default one", async () => {
+    const onDrop = vi.fn();
+    const { wrapper } = await mountList({
+      list: calendar(
+        { titleSource: "name", onDrop },
+        { event: (info: { title: string }) => h("em", {}, info.title) },
+      ),
+    });
+
+    const custom = cell(wrapper, "2026-05-04").get("em");
+    expect(item(custom).getAttribute("draggable")).toBe("true");
+    const transfer = dataTransfer();
+    await custom.trigger("dragstart", { dataTransfer: transfer });
+    await cell(wrapper, "2026-05-06").trigger("drop", {
+      dataTransfer: transfer,
+    });
+
+    expect(onDrop.mock.calls[0]?.[0]).toMatchObject({ id: 1 });
+    expect(onDrop.mock.calls[0]?.[1]).toEqual({
+      start: new Date(2026, 4, 6, 9).toISOString(),
+      end: new Date(2026, 4, 6, 10).toISOString(),
+    });
+  });
+
+  it("a click on a draggable event still emits select-event", async () => {
+    const onSelectEvent = vi.fn();
+    const { wrapper } = await mountList({
+      list: calendar({ titleSource: "name", onDrop: vi.fn(), onSelectEvent }),
+    });
+
+    await eventIn(wrapper, "2026-05-04", "Kickoff").trigger("click");
+
+    expect(onSelectEvent).toHaveBeenCalledTimes(1);
+    expect(onSelectEvent.mock.calls[0]?.[0]).toMatchObject({ id: 1 });
+  });
+});
