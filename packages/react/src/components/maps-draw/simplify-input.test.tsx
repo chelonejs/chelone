@@ -117,6 +117,21 @@ const slider = () => screen.getByRole("slider");
 const key = (name: string) => fireEvent.keyDown(slider(), { key: name });
 
 describe("SimplifyInput", () => {
+  it("does not fit a value outside the longitude and latitude range", async () => {
+    await mount(<SimplifyInput source="shape" tolerance={0} />, {
+      type: "Point",
+      coordinates: [261845, 6250566],
+    });
+
+    expect(maps[0]?.fits).toHaveLength(0);
+  });
+
+  it("fits a value inside the range", async () => {
+    await mount(<SimplifyInput source="shape" tolerance={0} />, polygon());
+
+    expect(maps[0]?.fits).toHaveLength(1);
+  });
+
   it("keeps all 21 ring entries of a 20 vertex ring at tolerance 0", async () => {
     expect(bumpySquare()).toHaveLength(21);
     await mount(<SimplifyInput source="shape" tolerance={0} />, polygon());
