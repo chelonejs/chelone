@@ -61,6 +61,7 @@ The full prop list for `<Admin>` and `<Resource>` is on the
 | `<FilterLiveSearch>` builds on `FilterLiveForm`. | `<FilterLiveSearch>` builds on `<FilterForm>`, because Vue has no `FilterLiveForm`. | [Filter Live Search](/docs/viewing/filter-live-search) |
 | `<ColumnsButton>` opens a `Popover`. | `<ColumnsButton>` shows its panel inside a `DropdownMenu`. The panel holds plain rows, so it stays open while you switch several columns. | [Columns Button](/docs/viewing/columns-button) |
 | `<TreeList>` takes the `onSelect`, `loading` and `empty` props. | `<TreeList>` emits `select` and takes the `#loading` and `#empty` slots. With no `select` listener a row navigates, as React does with no `onSelect`. | [Tree List](/docs/viewing/tree-list) |
+| `<StatusTransitionButton>` takes an `onTransition` prop. `<DualApprovalButton>` takes only props. | `<StatusTransitionButton>` emits a `transition` event with the same `(from, to, record)` arguments. `<DualApprovalButton>` takes the same props. | [Status Transition Button](/docs/editing/status-transition-button), [Dual Approval Button](/docs/editing/dual-approval-button) |
 
 Theme storage differs too: the Vue `<ThemeProvider>` always uses `localStorage`
 and `useTheme()` returns `Ref`s. The note under
