@@ -1,4 +1,4 @@
-import type { GeoFeature } from "./geojson";
+import type { GeoFeature, GeoGeometry, GeoPosition } from "./geojson";
 import { isGeoGeometry } from "./geojson";
 import type { ShapeStyle } from "./map-layers";
 
@@ -57,12 +57,56 @@ const MODES = {
   Polygon: "polygon",
 } as const;
 
+/** Decimals the editor accepts in a position. */
+const EDITOR_DECIMALS = 9;
+
+/**
+ * A position as the editor accepts it: longitude wrapped into -180 to 180,
+ * both numbers rounded to 9 decimals, and any altitude dropped.
+ */
+function editorPosition([longitude, latitude]: GeoPosition): GeoPosition {
+  const wrapped =
+    longitude >= -180 && longitude <= 180
+      ? longitude
+      : ((((longitude + 180) % 360) + 360) % 360) - 180;
+  // `+ 0` turns a rounded -0 into 0
+  return [
+    Number(wrapped.toFixed(EDITOR_DECIMALS)) + 0,
+    Number(latitude.toFixed(EDITOR_DECIMALS)) + 0,
+  ];
+}
+
+function editorGeometry(
+  geometry: Extract<GeoGeometry, { type: "Point" | "LineString" | "Polygon" }>,
+): GeoGeometry {
+  switch (geometry.type) {
+    case "Point":
+      return { ...geometry, coordinates: editorPosition(geometry.coordinates) };
+    case "LineString":
+      return {
+        ...geometry,
+        coordinates: geometry.coordinates.map(editorPosition),
+      };
+    case "Polygon":
+      return {
+        ...geometry,
+        coordinates: geometry.coordinates.map((ring) =>
+          ring.map(editorPosition),
+        ),
+      };
+  }
+}
+
 /**
  * Copies of the features the editor can hold, each with a fresh `id` from
  * `getId` and a `properties.mode` naming its drawing mode. The editor refuses
  * an id its own strategy did not make, so the source `id` moves to
  * `properties["chelone:id"]`, and the source properties move whole to
  * `properties["chelone:properties"]`. Features it cannot hold are left out.
+ * The editor refuses a position with more than 9 decimals, an altitude or a
+ * longitude outside -180 to 180, so each copy's positions are rounded to 9
+ * decimals, cut to longitude and latitude, and wrapped. The source is not
+ * rewritten.
  */
 export function toEditorFeatures(
   features: GeoFeature[],
@@ -85,7 +129,12 @@ export function toEditorFeatures(
       [SOURCE_PROPERTIES]: { ...feature.properties },
     };
     if (feature.id !== undefined) properties[SOURCE_ID] = feature.id;
-    result.push({ type: "Feature", id: getId(), geometry, properties });
+    result.push({
+      type: "Feature",
+      id: getId(),
+      geometry: editorGeometry(geometry),
+      properties,
+    });
   }
   return result;
 }
