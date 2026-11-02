@@ -5940,11 +5940,21 @@
       "categories": ["chelone", "fields"],
       "docs": "MapCanvas loads the MapLibre stylesheet itself. The library ships no tile server, so mount MapsProvider once near the root with a mapStyle (rasterTileStyle({ tileUrl, attribution }) from @chelone/core, or a MapLibre style URL), or pass mapStyle to each map. Browsers cap live WebGL contexts near 16 per page, so keep long lists of maps short.",
       "description": "The opt-in maps add-on: MapCanvas and MapMarker wrap MapLibre GL, MapsProvider sets the basemap once, and LatLngField shows a point from two record fields. Installs maplibre-gl.",
-      "registryDependencies": ["@chelone/lib-utils"],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/lib-utils"
+      ],
       "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
       "files": [
         {
           "path": "src/components/maps/lat-lng-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps/lat-lng-input.tsx",
           "type": "registry:component"
         },
         {
@@ -5971,6 +5981,28 @@
       "registryDependencies": ["@chelone/lib-utils", "@chelone/map-canvas"],
       "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lat-lng-input",
+      "type": "registry:component",
+      "title": "Lat Lng Input",
+      "files": [
+        {
+          "path": "src/components/maps/lat-lng-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/lib-utils",
+        "@chelone/map-canvas"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
+      "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
