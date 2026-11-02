@@ -244,8 +244,10 @@ export const PostEdit = () => (
   built by `presenceTopic(resource, id)`, and listens on it for the others.
   The user comes from the auth provider's identity; `currentUser` replaces it.
 - It republishes the announce every 15 seconds (`heartbeatMs`) and drops a user
-  unheard for 30 seconds (`staleMs`). A closed tab leaves at once: it
-  announces its departure instead of waiting to go stale.
+  unheard for 30 seconds (`staleMs`). A user who leaves the view, by
+  navigating away within the app, leaves at once: the bar announces its
+  departure as it unmounts. A closed tab cannot announce, so it goes after
+  `staleMs`.
 - Stale time is measured by the receiver's clock, from when each announce
   arrives, so clocks that disagree between browsers do not matter.
 - A second tab of the same user is left out.
@@ -397,7 +399,8 @@ props as their React twins. Slots stand in for the render props.
 
 `usePresence` is a composable too. It takes the same options, each as a
 `MaybeRefOrGetter`, and returns `{ users }`, where `users` is a ref of the
-other users.
+users on the topic. Unlike the React hook, it does not filter out the current
+user's other tabs; `PresenceBar` does, so filter by id in a custom display.
 
 ```vue
 <script setup lang="ts">
