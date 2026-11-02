@@ -95,15 +95,15 @@ export interface ShapeInputProps {
    * reset, and a newer edit or an unmount aborts `signal`. A result that is
    * not null and differs is written, unless the field changed meanwhile. A
    * thrown error keeps the value as drawn. A null result is "nothing to
-   * change" unless `refineFailedMessage` is set.
+   * change" unless `refineFailedMessage` is set, which a throw also notifies.
    */
   refine?: (
     value: ShapeValue,
     options: { signal: AbortSignal },
   ) => Promise<ShapeValue | null> | ShapeValue | null;
   /**
-   * Message key notified as a warning when `refine` resolves to null, and the
-   * value is kept as drawn. `LineStringInput` sets it for
+   * Message key notified as a warning when `refine` resolves to null or throws
+   * (an abort excepted), and the value is kept as drawn. `LineStringInput` sets it for
    * `snapToRoads`.
    */
   refineFailedMessage?: string;
@@ -358,27 +358,32 @@ export function ShapeInput({
     if (!refineValue) return;
     const abort = new AbortController();
     refining.current = abort;
-    try {
-      const result = await refineValue(committed, { signal: abort.signal });
-      if (abort.signal.aborted) return;
+    const warnFailed = () => {
       const now = latest.current;
-      if (result === null) {
-        if (now.refineFailedMessage) {
-          now.notifications?.notify(now.refineFailedMessage, {
-            type: "warning",
-          });
-        }
-        return;
+      if (now.refineFailedMessage) {
+        now.notifications?.notify(now.refineFailedMessage, { type: "warning" });
       }
-      // Only an untouched field takes the result: anything else was edited since.
-      if (now.field.value !== committed || sameValue(result, committed)) return;
-      written.current = result;
-      now.field.onChange(result);
-      now.field.onBlur();
-      now.onCommit?.(result);
+    };
+    let result: ShapeValue | null;
+    try {
+      result = await refineValue(committed, { signal: abort.signal });
     } catch {
       // A failed refinement keeps the value as the user drew it.
+      if (!abort.signal.aborted) warnFailed();
+      return;
     }
+    if (abort.signal.aborted) return;
+    if (result === null) {
+      warnFailed();
+      return;
+    }
+    const now = latest.current;
+    // Only an untouched field takes the result: anything else was edited since.
+    if (now.field.value !== committed || sameValue(result, committed)) return;
+    written.current = result;
+    now.field.onChange(result);
+    now.field.onBlur();
+    now.onCommit?.(result);
   };
 
   const onEdit = (edit: TerraDrawEdit) => {

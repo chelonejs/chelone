@@ -941,6 +941,31 @@ describe("ShapeInput snap failure", () => {
     expect(storedValue()).toEqual(drawn);
   });
 
+  it("warns when the router throws and keeps the drawn line", async () => {
+    const notifications = createNotificationStore();
+    const { draw } = await mountShapeInput(
+      <LineStringInput
+        source="shape"
+        label="Route"
+        snapToRoads={{
+          name: "fake",
+          snapToRoad: async () => {
+            throw new Error("offline");
+          },
+        }}
+      />,
+      null,
+      {},
+      notifications,
+    );
+    await drawLine(draw);
+
+    expect(warnings(notifications)).toEqual([
+      { message: "chelone.map.snap_failed", type: "warning" },
+    ]);
+    expect(storedValue()).toEqual(drawn);
+  });
+
   it("stays quiet when a refine returns null and names no failure message", async () => {
     const notifications = createNotificationStore();
     const { draw } = await mountShapeInput(
