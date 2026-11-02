@@ -4,15 +4,17 @@ import {
   fromJsonText,
   toJsonText,
 } from "@chelone/core";
-import Editor, { loader, type Monaco } from "@monaco-editor/react";
+import Editor, { loader } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
+import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 import { ValidationError } from "../../field-error-display";
 import { useInput } from "../../form-hooks";
+import { useTranslate } from "../../i18n-hooks";
 import { useResourceContext } from "../../resource";
 import {
   useAutoHeight,
@@ -50,12 +52,14 @@ export default function MonacoJsonInputLazy({
   schema,
   schemaUri,
   allowComments,
+  showFormatButton = true,
   monacoOptions,
 }: MonacoJsonInputProps) {
   const resource = useResourceContext({ resource: resourceProp });
+  const translate = useTranslate();
   const [instance, setInstance] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const [monacoApi, setMonacoApi] = useState<Monaco | null>(null);
+  const [monacoApi, setMonacoApi] = useState<typeof monaco | null>(null);
 
   // Chelone has no `trigger`: when the error state flips on a dirty field,
   // re-write its value so validation runs against the new markers.
@@ -111,6 +115,15 @@ export default function MonacoJsonInputLazy({
     field.onChange(value);
   };
 
+  const onBlur = useRef(field.onBlur);
+  onBlur.current = field.onBlur;
+  useEffect(() => {
+    const subscription = instance?.onDidBlurEditorWidget(() =>
+      onBlur.current(),
+    );
+    return () => subscription?.dispose();
+  }, [instance]);
+
   const container = useRef<HTMLDivElement>(null);
   const theme = useMonacoTheme();
   const contentHeight = useAutoHeight(
@@ -129,6 +142,8 @@ export default function MonacoJsonInputLazy({
     enabled: jsonShape === "object",
   });
 
+  const locked = Boolean(readOnly || disabled);
+  const formatLabel = translate("chelone.action.format", { _: "Format" });
   const invalid = fieldState.invalid;
   const error = fieldState.error;
 
@@ -145,31 +160,50 @@ export default function MonacoJsonInputLazy({
         </FieldLabel>
       )}
       <div
-        id={id}
-        ref={container}
-        className={cn("overflow-hidden rounded-md border", editorClassName)}
+        className={cn(
+          "flex flex-col overflow-hidden rounded-md border",
+          editorClassName,
+        )}
       >
-        <Editor
-          language="json"
-          path={modelPath}
-          value={text}
-          theme={theme}
-          height={autoHeight ? contentHeight : height}
-          onChange={handleChange}
-          onMount={(mountedEditor, mountedMonaco) => {
-            setInstance(mountedEditor);
-            setMonacoApi(mountedMonaco);
-          }}
-          options={{
-            automaticLayout: false,
-            minimap: { enabled: false },
-            lineNumbers: "on",
-            wordWrap: "on",
-            tabSize: 2,
-            readOnly: readOnly || disabled,
-            ...monacoOptions,
-          }}
-        />
+        {showFormatButton && (
+          <div className="flex justify-end border-b px-1 py-0.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              aria-label={formatLabel}
+              disabled={locked}
+              onClick={() =>
+                void instance?.getAction("editor.action.formatDocument")?.run()
+              }
+            >
+              {formatLabel}
+            </Button>
+          </div>
+        )}
+        <div id={id} ref={container}>
+          <Editor
+            language="json"
+            path={modelPath}
+            value={text}
+            theme={theme}
+            height={autoHeight ? contentHeight : height}
+            onChange={handleChange}
+            onMount={(mountedEditor, mountedMonaco) => {
+              setInstance(mountedEditor);
+              setMonacoApi(mountedMonaco);
+            }}
+            options={{
+              automaticLayout: false,
+              minimap: { enabled: false },
+              lineNumbers: "on",
+              wordWrap: "on",
+              tabSize: 2,
+              readOnly: locked,
+              ...monacoOptions,
+            }}
+          />
+        </div>
       </div>
       <InputHelperText helperText={helperText} />
       <FieldError>

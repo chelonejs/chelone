@@ -1,4 +1,4 @@
-import type { Monaco } from "@monaco-editor/react";
+import type * as Monaco from "monaco-editor";
 import { useEffect } from "react";
 
 interface UseJsonSchemaOptions {
@@ -10,22 +10,33 @@ interface UseJsonSchemaOptions {
   enabled: boolean;
 }
 
+type JsonDefaults = typeof Monaco.json.jsonDefaults;
+
+/** `monaco.json` since 0.55; older builds expose it under `monaco.languages`. */
+function getJsonDefaults(monaco: typeof Monaco): JsonDefaults | undefined {
+  const legacy = (
+    monaco.languages as unknown as { json?: { jsonDefaults?: JsonDefaults } }
+  ).json;
+  return monaco.json?.jsonDefaults ?? legacy?.jsonDefaults;
+}
+
 /**
  * Registers a JSON Schema in Monaco's JSON diagnostics, matched by `fileMatch`
  * to this editor's model, and removes the entry on unmount. The diagnostics
  * options are shared by every editor, so other entries are left alone.
  */
 export function useJsonSchema(
-  monaco: Monaco | null,
+  monaco: typeof Monaco | null,
   { path, schema, schemaUri, allowComments, enabled }: UseJsonSchemaOptions,
 ): void {
   // Inline schemas are usually fresh literals: key the effect on their content.
   const schemaKey = schema ? JSON.stringify(schema) : undefined;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies(schema): schemaKey stands for it
   useEffect(() => {
-    if (!monaco || !enabled || (!schema && !schemaUri)) return;
-    const defaults = monaco.languages.json.jsonDefaults;
+    if (!monaco || !enabled || (!schemaKey && !schemaUri)) return;
+    const schema = schemaKey ? JSON.parse(schemaKey) : undefined;
+    const defaults = getJsonDefaults(monaco);
+    if (!defaults) return;
     const others = () =>
       (defaults.diagnosticsOptions.schemas ?? []).filter(
         (entry) => !entry.fileMatch?.includes(path),

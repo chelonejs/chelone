@@ -5502,6 +5502,11 @@
       "docs": "Monaco runs its editor and JSON workers on the main thread unless the app sets MonacoEnvironment.getWorker. With Vite, import the workers with ?worker (editor.worker and json.worker from monaco-editor/esm/vs/...) and assign getWorker on self before the first render. Without it Monaco logs a console warning and still works.",
       "description": "The opt-in Monaco add-on: MonacoJsonField shows a JSON value in a read-only Monaco editor. Monaco loads in its own chunk, so nothing reaches the base bundle until the field renders. Installs monaco-editor and @monaco-editor/react.",
       "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils",
@@ -5509,6 +5514,7 @@
         "@chelone/use-theme"
       ],
       "dependencies": [
+        "@chelone/core",
         "@chelone/react",
         "@monaco-editor/react",
         "monaco-editor"
@@ -5519,11 +5525,27 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/monaco/internal/use-json-schema.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/monaco/internal/use-monaco-markers.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/monaco/monaco-json-field-lazy.tsx",
           "type": "registry:component"
         },
         {
           "path": "src/components/monaco/monaco-json-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/monaco/monaco-json-input-lazy.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/monaco/monaco-json-input.tsx",
           "type": "registry:component"
         }
       ],
@@ -5543,6 +5565,34 @@
         "@chelone/lib-utils",
         "@chelone/skeleton",
         "@chelone/use-theme"
+      ],
+      "dependencies": ["monaco-editor"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-json-schema",
+      "type": "registry:component",
+      "title": "Use Json Schema",
+      "files": [
+        {
+          "path": "src/components/monaco/internal/use-json-schema.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["monaco-editor"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-monaco-markers",
+      "type": "registry:component",
+      "title": "Use Monaco Markers",
+      "files": [
+        {
+          "path": "src/components/monaco/internal/use-monaco-markers.ts",
+          "type": "registry:component"
+        }
       ],
       "dependencies": ["monaco-editor"],
       "categories": ["chelone", "components"],
@@ -5588,6 +5638,54 @@
       ],
       "dependencies": ["monaco-editor"],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "monaco-json-input-lazy",
+      "type": "registry:component",
+      "title": "Monaco Json Input Lazy",
+      "files": [
+        {
+          "path": "src/components/monaco/monaco-json-input-lazy.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/lib-utils",
+        "@chelone/monaco-json-input",
+        "@chelone/monaco-shared",
+        "@chelone/use-json-schema",
+        "@chelone/use-monaco-markers"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@monaco-editor/react",
+        "monaco-editor"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "monaco-json-input",
+      "type": "registry:component",
+      "title": "Monaco Json Input",
+      "files": [
+        {
+          "path": "src/components/monaco/monaco-json-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/input-props",
+        "@chelone/monaco-shared"
+      ],
+      "dependencies": ["monaco-editor"],
+      "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
     {

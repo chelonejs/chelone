@@ -1,4 +1,4 @@
-import type { Monaco } from "@monaco-editor/react";
+import type * as Monaco from "monaco-editor";
 import type { editor } from "monaco-editor";
 import { type RefObject, useEffect, useRef } from "react";
 
@@ -9,7 +9,7 @@ import { type RefObject, useEffect, useRef } from "react";
  */
 export function useMonacoMarkers(
   instance: editor.IStandaloneCodeEditor | null,
-  monaco: Monaco | null,
+  monaco: typeof Monaco | null,
   onChange: (markers: editor.IMarker[]) => void,
 ): RefObject<editor.IMarker[]> {
   const markers = useRef<editor.IMarker[]>([]);

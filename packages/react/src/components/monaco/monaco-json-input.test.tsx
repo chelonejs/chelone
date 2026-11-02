@@ -23,7 +23,7 @@ import { type ReactNode, useEffect } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../context";
 import { CheloneFormProvider } from "../../form-context";
-import { useForm } from "../../form-hooks";
+import { useForm, useInput } from "../../form-hooks";
 import { MonacoJsonInput } from "./monaco-json-input";
 
 vi.mock("monaco-editor", () => ({}));
@@ -48,6 +48,7 @@ const hoisted = vi.hoisted(() => ({
   diagnosticsOptions: {} as Record<string, unknown>,
   formatRun: vi.fn(),
   modelUri: "",
+  topLevelJson: false,
   editorOptions: undefined as Record<string, unknown> | undefined,
 }));
 
@@ -67,6 +68,14 @@ vi.mock("@monaco-editor/react", () => ({
     useEffect(() => {
       hoisted.modelUri = props.path ?? "";
       const uri = { toString: () => props.path ?? "" };
+      const jsonDefaults = {
+        get diagnosticsOptions() {
+          return hoisted.diagnosticsOptions;
+        },
+        setDiagnosticsOptions: (options: Record<string, unknown>) => {
+          hoisted.diagnosticsOptions = options;
+        },
+      };
       props.onMount?.(
         {
           getModel: () => ({ uri }),
@@ -95,17 +104,11 @@ vi.mock("@monaco-editor/react", () => ({
             },
           },
           languages: {
-            json: {
-              jsonDefaults: {
-                get diagnosticsOptions() {
-                  return hoisted.diagnosticsOptions;
-                },
-                setDiagnosticsOptions: (options: Record<string, unknown>) => {
-                  hoisted.diagnosticsOptions = options;
-                },
-              },
-            },
+            json: hoisted.topLevelJson
+              ? { deprecated: true }
+              : { jsonDefaults },
           },
+          ...(hoisted.topLevelJson && { json: { jsonDefaults } }),
         },
       );
     }, []);
@@ -197,6 +200,7 @@ beforeEach(() => {
   hoisted.diagnosticsOptions = {};
   hoisted.formatRun.mockReset();
   hoisted.editorOptions = undefined;
+  hoisted.topLevelJson = false;
 });
 afterEach(cleanup);
 
@@ -276,6 +280,20 @@ describe("<MonacoJsonInput />", () => {
     expect((hoisted.diagnosticsOptions as DiagnosticsOptions).schemas).toEqual(
       [],
     );
+  });
+
+  it("registers through monaco.json when the legacy languages.json is a stub", async () => {
+    hoisted.topLevelJson = true;
+    setup(
+      <MonacoJsonInput source="meta" id="m" schema={{ type: "object" }} />,
+      {
+        defaultValues: { meta: {} },
+      },
+    );
+    await editor();
+    expect(
+      (hoisted.diagnosticsOptions as DiagnosticsOptions).schemas,
+    ).toHaveLength(1);
   });
 
   it("keeps other editors' schemas when it registers and unregisters", async () => {
@@ -408,5 +426,92 @@ describe("<MonacoJsonInput />", () => {
     await submit(second.submitRef);
     expect(screen.getByRole("alert").textContent).toContain("Marker first");
     expect(validate).not.toHaveBeenCalled();
+  });
+
+  it("runs the format action from the Format button", async () => {
+    setup(<MonacoJsonInput source="meta" />, {
+      defaultValues: { meta: { a: 1 } },
+    });
+    await editor();
+    fireEvent.click(screen.getByRole("button", { name: "Format" }));
+    expect(hoisted.formatRun).toHaveBeenCalledTimes(1);
+  });
+
+  it("hides the Format button when showFormatButton is false", async () => {
+    setup(<MonacoJsonInput source="meta" showFormatButton={false} />, {
+      defaultValues: { meta: { a: 1 } },
+    });
+    await editor();
+    expect(screen.queryByRole("button", { name: "Format" })).toBeNull();
+  });
+
+  it("is read-only when readOnly or disabled is set", async () => {
+    setup(<MonacoJsonInput source="meta" />, {
+      defaultValues: { meta: { a: 1 } },
+    });
+    expect((await editor()).readOnly).toBe(false);
+    cleanup();
+
+    setup(<MonacoJsonInput source="meta" readOnly />, {
+      defaultValues: { meta: { a: 1 } },
+    });
+    expect((await editor()).readOnly).toBe(true);
+    cleanup();
+
+    setup(<MonacoJsonInput source="meta" disabled />, {
+      defaultValues: { meta: { a: 1 } },
+    });
+    expect((await editor()).readOnly).toBe(true);
+  });
+
+  it("lets monacoOptions override the editor defaults", async () => {
+    setup(
+      <MonacoJsonInput
+        source="meta"
+        readOnly
+        monacoOptions={{ readOnly: false }}
+      />,
+      { defaultValues: { meta: { a: 1 } } },
+    );
+    expect((await editor()).readOnly).toBe(false);
+  });
+
+  it("marks the field touched when the editor loses focus", async () => {
+    const touched = vi.fn();
+    function Probe() {
+      const { fieldState } = useInput({ source: "meta" });
+      touched(fieldState.isTouched);
+      return null;
+    }
+    setup(
+      <>
+        <MonacoJsonInput source="meta" />
+        <Probe />
+      </>,
+      { defaultValues: { meta: { a: 1 } } },
+    );
+    await editor();
+    expect(touched).toHaveBeenLastCalledWith(false);
+    act(() => {
+      for (const listener of hoisted.blurListeners) listener();
+    });
+    expect(touched).toHaveBeenLastCalledWith(true);
+  });
+
+  it("labels the editor container and renders the helper text", async () => {
+    setup(
+      <MonacoJsonInput
+        source="meta"
+        id="meta-input"
+        helperText="Raw settings"
+      />,
+      { defaultValues: { meta: { a: 1 } } },
+    );
+    await editor();
+    const label = screen.getByText("Meta").closest("label");
+    expect(label?.getAttribute("for")).toBe("meta-input");
+    const container = document.getElementById("meta-input");
+    expect(container?.contains(screen.getByTestId("editor"))).toBe(true);
+    expect(screen.getByText("Raw settings")).toBeTruthy();
   });
 });
