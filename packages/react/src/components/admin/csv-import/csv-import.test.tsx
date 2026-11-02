@@ -153,6 +153,58 @@ describe("<CsvImport>", () => {
     expect(screen.getByRole("heading", { name: "Upload" })).toBeDefined();
   });
 
+  it("says a dropped file of the wrong type was refused", async () => {
+    render(
+      <Providers dataProvider={makeProvider()}>
+        <CsvImport schema={schema} />
+      </Providers>,
+    );
+    openDialog();
+    const dropzone = screen.getByTestId("csv-file-input")
+      .parentElement as HTMLElement;
+    const file = new File(["title\nHello"], "posts.txt", {
+      type: "text/plain",
+    });
+
+    await act(async () => {
+      fireEvent.drop(dropzone, {
+        dataTransfer: { files: [file], types: ["Files"] },
+      });
+    });
+
+    await waitFor(() =>
+      expect(screen.getByText("Choose a .csv file")).toBeDefined(),
+    );
+    expect(nextButton().hasAttribute("disabled")).toBe(true);
+  });
+
+  it("warns when the file is not UTF-8", async () => {
+    render(
+      <Providers dataProvider={makeProvider()}>
+        <CsvImport schema={schema} />
+      </Providers>,
+    );
+    openDialog();
+    // "Caf\xe9" in Windows-1252, which is not valid UTF-8.
+    const bytes = new Uint8Array([
+      ...new TextEncoder().encode("title,views\nCaf"),
+      0xe9,
+      ...new TextEncoder().encode(",1\n"),
+    ]);
+    const input = screen.getByTestId("csv-file-input");
+    const file = new File([bytes], "posts.csv", { type: "text/csv" });
+
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [file] } });
+    });
+
+    await parsed(
+      "This file is not UTF-8, so some letters may be wrong. Save it as CSV UTF-8 and try again.",
+    );
+    expect(screen.getByText("1 rows parsed")).toBeDefined();
+    expect(nextButton().hasAttribute("disabled")).toBe(false);
+  });
+
   it("the map step selects the header that matches each schema field", async () => {
     render(
       <Providers dataProvider={makeProvider()}>
