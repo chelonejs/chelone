@@ -38,8 +38,8 @@ function registrySchema<TResources extends ResourceMap, TFormData>(
   ctx: FormControllerContext<TResources>,
   resource: keyof TResources & string,
 ): StandardSchemaV1<TFormData, unknown> | undefined {
-  // zod >= 3.24 implements Standard Schema; the registry types schemas as
-  // z.ZodTypeAny, so the widening to the form data type is a cast.
+  // The registry types schemas as a bare StandardSchemaV1, so the widening to
+  // the form data type is a cast.
   return ctx.resources?.[resource]?.schema as
     | StandardSchemaV1<TFormData, unknown>
     | undefined;
