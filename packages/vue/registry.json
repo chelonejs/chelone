@@ -5499,6 +5499,18 @@
       "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
       "files": [
         {
+          "path": "src/components/maps/bbox-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps/geo-json-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps/geo-json-view.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/maps/lat-lng-field.vue",
           "type": "registry:component"
         },
@@ -5511,10 +5523,70 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/maps/shape-fields.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps/use-geo-json-source.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/maps/use-map.ts",
           "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bbox-field",
+      "type": "registry:component",
+      "title": "Bbox Field",
+      "files": [
+        {
+          "path": "src/components/maps/bbox-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/geo-json-field"],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "geo-json-field",
+      "type": "registry:component",
+      "title": "Geo Json Field",
+      "files": [
+        {
+          "path": "src/components/maps/geo-json-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/geo-json-view",
+        "@chelone/lib-utils",
+        "@chelone/map-canvas"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "geo-json-view",
+      "type": "registry:component",
+      "title": "Geo Json View",
+      "files": [
+        {
+          "path": "src/components/maps/geo-json-view.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/use-geo-json-source",
+        "@chelone/use-map"
+      ],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -5571,6 +5643,36 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils", "@chelone/use-map"],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "shape-fields",
+      "type": "registry:component",
+      "title": "Shape Fields",
+      "files": [
+        {
+          "path": "src/components/maps/shape-fields.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/geo-json-field"],
+      "categories": ["chelone", "components"],
+      "dependencies": ["maplibre-gl"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-geo-json-source",
+      "type": "registry:component",
+      "title": "Use Geo Json Source",
+      "files": [
+        {
+          "path": "src/components/maps/use-geo-json-source.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/use-map"],
       "dependencies": ["@chelone/core", "maplibre-gl"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
