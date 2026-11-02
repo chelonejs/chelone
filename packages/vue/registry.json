@@ -4184,10 +4184,7 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": [
-        "@chelone/command",
-        "@chelone/command-menu-gate"
-      ],
+      "registryDependencies": ["@chelone/command", "@chelone/use-menu-access"],
       "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
