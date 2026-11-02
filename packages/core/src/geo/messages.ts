@@ -32,6 +32,8 @@ export const mapMessages = defineMessages({
   "chelone.map.osm.covered": "The polygon is already covered",
   "chelone.map.osm.subtracted": "Subtracted {area}",
   "chelone.map.osm.added": "Added {area}",
+  "chelone.map.osm.would_split":
+    "The result has more than one piece, so the polygon was left as it was",
   "chelone.map.osm.union_empty": "The union is empty",
   "chelone.map.osm.error": "OpenStreetMap request failed",
   "chelone.map.osm.rate_limited":

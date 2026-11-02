@@ -48,6 +48,23 @@ const isArea = (value: unknown): value is Area => {
 const isAbort = (error: unknown) =>
   (error as { name?: unknown } | null)?.name === "AbortError";
 
+/**
+ * `result` in the type of `value`, so it stays editable by the input that owns
+ * the field. `null` when a Polygon would have to hold several pieces.
+ */
+const inTypeOf = (value: Area, result: Area): Area | null => {
+  if (value.type === "MultiPolygon") {
+    return result.type === "Polygon"
+      ? { type: "MultiPolygon", coordinates: [result.coordinates] }
+      : result;
+  }
+  if (result.type === "Polygon") return result;
+  const [only, ...rest] = result.coordinates;
+  return only && rest.length === 0
+    ? { type: "Polygon", coordinates: only }
+    : null;
+};
+
 /** Square kilometres to 3 decimals, from a difference in square metres. */
 const km2 = (m2: number) => `${(Math.max(0, m2) / 1e6).toFixed(3)} km²`;
 
@@ -132,10 +149,15 @@ export function OsmFeatureOperator({
           notify("chelone.map.osm.covered", { type: "warning" });
           return;
         }
-        write(left);
+        const kept = inTypeOf(value, left);
+        if (!kept) {
+          notify("chelone.map.osm.would_split", { type: "warning" });
+          return;
+        }
+        write(kept);
         notify("chelone.map.osm.subtracted", {
           type: "success",
-          messageArgs: { area: km2(geoAreaM2(value) - geoAreaM2(left)) },
+          messageArgs: { area: km2(geoAreaM2(value) - geoAreaM2(kept)) },
         });
         return;
       }
@@ -147,10 +169,15 @@ export function OsmFeatureOperator({
         notify("chelone.map.osm.union_empty", { type: "warning" });
         return;
       }
-      write(merged);
+      const kept = inTypeOf(value, merged);
+      if (!kept) {
+        notify("chelone.map.osm.would_split", { type: "warning" });
+        return;
+      }
+      write(kept);
       notify("chelone.map.osm.added", {
         type: "success",
-        messageArgs: { area: km2(geoAreaM2(merged) - geoAreaM2(value)) },
+        messageArgs: { area: km2(geoAreaM2(kept) - geoAreaM2(value)) },
       });
     } catch (error) {
       if (abort.signal.aborted || isAbort(error)) return;
