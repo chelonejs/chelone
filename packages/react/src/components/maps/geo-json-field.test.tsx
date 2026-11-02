@@ -252,6 +252,18 @@ describe("GeoJsonField", () => {
     }
   });
 
+  it("shows the empty panel for coordinates outside the longitude and latitude range", async () => {
+    const { container } = await show({
+      geometry: { type: "Point", coordinates: [261845, 6250566] },
+    });
+
+    expect(
+      container.querySelector('[data-slot="geo-json-field-empty"]')
+        ?.textContent,
+    ).toBe("No geometry available");
+    expect(maps).toHaveLength(0);
+  });
+
   it("shows a custom emptyText", async () => {
     const { container } = await show(
       { geometry: null },

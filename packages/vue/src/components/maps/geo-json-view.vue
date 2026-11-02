@@ -14,23 +14,6 @@ export interface GeoJsonViewProps {
   /** The highest zoom a fit may reach, which also sets a single Point's zoom. Defaults to 18. */
   maxFitZoom?: number;
 }
-
-/**
- * Whether every corner is a valid longitude and latitude. MapLibre throws on a
- * latitude outside ±90, so a box failing this is never fitted.
- */
-export function isLngLatBox(
-  box: readonly number[] | null,
-): box is [number, number, number, number] {
-  if (!box) return false;
-  const [west = 0, south = 0, east = 0, north = 0] = box;
-  return (
-    Math.abs(west) <= 180 &&
-    Math.abs(east) <= 180 &&
-    Math.abs(south) <= 90 &&
-    Math.abs(north) <= 90
-  );
-}
 </script>
 
 <script setup lang="ts">
@@ -45,7 +28,7 @@ export function isLngLatBox(
  * </MapCanvas>
  */
 
-import { asFeatureCollection, geoBounds } from "@chelone/core";
+import { asFeatureCollection, geoBounds, isLngLatBox } from "@chelone/core";
 import { computed, toRaw, watch } from "vue";
 import { uniqueGeoJsonSourceId, useGeoJsonSource } from "./use-geo-json-source";
 import { useMap } from "./use-map";

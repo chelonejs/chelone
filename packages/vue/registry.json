@@ -6200,7 +6200,6 @@
       "registryDependencies": [
         "@chelone/draw-toolbar",
         "@chelone/field",
-        "@chelone/geo-json-view",
         "@chelone/geometry-ops",
         "@chelone/input-helper-text",
         "@chelone/label-text",
