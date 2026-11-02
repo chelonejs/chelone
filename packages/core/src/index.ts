@@ -401,7 +401,7 @@ export {
   required,
 } from "./form/validators";
 export { aspectLockedBBox, bboxToPolygon, polygonToBBox } from "./geo/bbox";
-export { geoBounds } from "./geo/bounds";
+export { geoBounds, isLngLatBox } from "./geo/bounds";
 export {
   countVertices,
   maxVertices,

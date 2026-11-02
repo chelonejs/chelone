@@ -40,3 +40,20 @@ export function geoBounds(value: GeoJsonValue): GeoBBox | null {
   walk(value);
   return bounds;
 }
+
+/**
+ * Whether every corner is a valid longitude and latitude. MapLibre throws on a
+ * latitude outside ±90, so a box failing this is never fitted.
+ */
+export function isLngLatBox(
+  box: readonly number[] | null,
+): box is [number, number, number, number] {
+  if (!box) return false;
+  const [west = 0, south = 0, east = 0, north = 0] = box;
+  return (
+    Math.abs(west) <= 180 &&
+    Math.abs(east) <= 180 &&
+    Math.abs(south) <= 90 &&
+    Math.abs(north) <= 90
+  );
+}
