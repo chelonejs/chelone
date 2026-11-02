@@ -5118,7 +5118,10 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/monaco-skeleton"],
+      "registryDependencies": [
+        "@chelone/monaco-json-field-lazy",
+        "@chelone/monaco-skeleton"
+      ],
       "dependencies": ["@chelone/core", "monaco-editor"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"

@@ -49,6 +49,10 @@ const parseImports = (src) => {
   for (const m of clean.matchAll(/^\s*import\s+["']([^"']+)["']/gm)) {
     imports.add(m[1]);
   }
+  // A lazy chunk is still a file the consumer needs installed.
+  for (const m of clean.matchAll(/\bimport\(\s*["']([^"']+)["']\s*\)/g)) {
+    imports.add(m[1]);
+  }
   return [...imports];
 };
 
