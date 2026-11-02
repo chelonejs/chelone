@@ -7,7 +7,7 @@ capability can be at parity even when it lives behind a different symbol.
 
 Verdict legend: **parity** (matches) · **near-parity** (matches with named minor
 gaps) · **partial** (core path works, structural feature(s) missing) · **gap**
-(area absent) · **extended-beyond** (reproduces ra-core AND adds surface).
+(area absent) · **covered** (met by a different mechanism) · **extended-beyond** (reproduces ra-core AND adds surface).
 
 ---
 
@@ -27,10 +27,10 @@ gaps) · **partial** (core path works, structural feature(s) missing) · **gap**
 | **Notification** | partial | useNotify, four types, messageArgs, read queue, reset, toast renderer (sonner) | undoable notifications (Undo button + beforeunload); autoHideDuration (incl. null=sticky); multiLine; ReactNode messages | Framework-agnostic vanilla store (Vue-reusable); `notify()` returns id; per-id `dismiss()` |
 | **DataTable logic + Export** | near-parity | per-column sort, toggle-select, select-page, select-all-across-pages, expandable rows, rowClick, empty/loading gating; downloadCSV; ExportButton + BulkExportButton | shift-click range select; `isRowSelectable`; columns-visibility inspector (deferred, biggest DataTable gap); jsonexport nested flattening; fetchRelatedRecords/getRelatedIds; ExporterContext | Dep-free `recordsToCSV` + SSR-guarded downloadCSV; `size` density; select-all pushed into vanilla `@chelone/core` controller |
 | **Resource registry + admin shell + base types** | extended-beyond | Resource marker + definition/registry, resource context, CoreAdmin/Context/UI three-tier shell, CustomRoutes, HasDashboard, title, record-representation + resource-label, RaRecord/Identifier | UserMenuContext/useUserMenu (minor UI, deferred); useFirstResourceWithListAccess simplified to first-candidate check (partial) | **Zod registry** (`defineResources`, `RecordOf` via `z.infer`, schema-as-form-validator); vanilla SSR-safe `useSyncExternalStore` registry; slot-marker composable `<Admin>`; strict `unknown`-over-`any` base types |
-| **Inference / Guessers** | gap | — (none) | Entire ra-core inference stack: data-value sniffing, name-heuristic reference inference, `InferredElement` JSX representation, `ListGuesser`/`EditGuesser`/`ShowGuesser` | Zod registry gives typed records + validation but drives **no** view inference (not an autoform); charter-deferred area |
-| **Realtime / enterprise / misc** | partial | optimistic + pessimistic modes present; **realtime built in both adapters** (engine in core: transport, `realtimeDataProvider`, lock provider; live hooks, `ListLive`/`ShowLive`/`EditLive`/`MenuLive`, `LockOnMount`/`LockStatus`) | undoable mode (OSS, seam-only); withLifecycleCallbacks/combineDataProviders/addRefreshAuth; useUnique; export relation-fetch; guessers; tree/calendar/audit (deferred) | none — pure deferred/missing catalogue (Zod registry substitutes for guessers, not additive) |
+| **Inference / Guessers** | covered | `ListGuesser`/`EditGuesser`/`ShowGuesser` and `GuesserEmpty` in both adapters, built from the resource's Zod schema via core `describeResource`; printed copy-me code, `enableLog` | ra-core's data-value sniffing, name-heuristic reference inference (references come from `references` config), `InferredElement` JSX representation | Schema-driven, not record-driven: the views are the same before any data loads, and edit validates against the same schema |
+| **Realtime / enterprise / misc** | partial | optimistic + pessimistic modes present; **realtime built in both adapters** (engine in core: transport, `realtimeDataProvider`, lock provider; live hooks, `ListLive`/`ShowLive`/`EditLive`/`MenuLive`, `LockOnMount`/`LockStatus`) | undoable mode (OSS, seam-only); withLifecycleCallbacks/combineDataProviders/addRefreshAuth; useUnique; export relation-fetch; tree/calendar/audit (deferred) | none — pure deferred/missing catalogue |
 
-Verdict tally: **extended-beyond ×1, near-parity ×6, partial ×5, gap ×1, near-parity(realtime-misc counted partial) ×1.**
+Verdict tally: **extended-beyond ×1, near-parity ×6, partial ×5, covered ×1, near-parity(realtime-misc counted partial) ×1.**
 
 ---
 
@@ -50,7 +50,7 @@ area (**resource registry + shell**) is genuinely extended beyond ra-core.
 It is **not** full parity because of a set of real, named gaps — some deliberate
 charter cuts, some simply unported v1 simplifications:
 
-- **Whole subsystems deferred:** guessers/inference (gap), preferences /
+- **Whole subsystems deferred:** preferences /
   Configurable / Inspector (gap), the permissions-object axis (gap).
 - **Structural feature gaps inside otherwise-strong areas:** no URL sync of list
   params (KV-only — no bookmarkable filtered lists), no infinite list, no saved
@@ -72,9 +72,6 @@ it carries a **second framework**, Vue, with zero core changes).
 ## 3. DEFERRED list — what ra-core / ra-enterprise has that Chelone intentionally lacks
 
 **Charter-deferred (by design, v1 out of scope):**
-- **Guessers / element inference** — the entire `inference/` stack + Guesser
-  components (Zod registry is the deliberate alternative, but is a validator, not
-  a view generator).
 - **Preferences / Configurable / Inspector** — `usePreference`,
   `PreferenceKeyContext`, `PreferencesEditorContext`, `<Configurable>`/`<Inspector>`.
 - **Permissions-object axis** — `getPermissions`/`usePermissions`/
@@ -146,7 +143,7 @@ pipeline, forms + validation, i18n, routing, store, notifications, DataTable,
 resource/shell/registry) is reproduced faithfully — several parts exactly, one
 whole area beyond ra-core — and the vanilla core/react split is validated by a
 second Vue adapter riding the unchanged core. The honest shortfall is a bounded,
-named set of gaps: a few deferred-by-charter subsystems (guessers, preferences/
+named set of gaps: a few deferred-by-charter subsystems (preferences/
 Inspector, the permissions-object axis), several unported structural features
 (list URL-sync, infinite list, saved queries, undoable mode, getManyAggregate
 batching, server-side reverse-relation fields), one unwired declared contract

@@ -75,10 +75,13 @@ export function App() {
 The schema is the single source of truth: it types the records **and** drives
 form validation.
 
+To get List, Edit and Show pages from the same schema, use the
+[guessers](/docs/app-config/guessers).
+
 :::note
-Pointing at a schema wires up **validation**, not default views. Chelone does not
-auto-generate List/Edit/Show from the schema — you write the views explicitly
-(a dozen lines, as in the [quick start](/docs/getting-started/quick-start-guide/setup)).
+Pointing at a schema wires up **validation**, not default views. The views are
+yours to write (a dozen lines, as in the [quick start](/docs/getting-started/quick-start-guide/setup)),
+unless you hand them to the guessers.
 :::
 
 ## Labels and menus
