@@ -16,7 +16,8 @@
 2. Add the token as the repository Actions secret `NPM_TOKEN`. The changesets step skips
    while the secret is unset, preventing an initial publish at `0.0.0`. In Actions > Release >
    Run workflow, select `main` and run it manually to open the Version Packages PR.
-3. Remove any not-on-npm note still in the docs in that same PR, so it goes out with the release.
+3. The docs already read as released: the install page has no not-on-npm note and the changelog
+   page is titled 0.1.0. They go live when merged to `main`, so run steps 2 and 4 soon after.
 4. Review the versions and changelogs, then merge the PR to `main`. Merging it publishes `0.1.0`.
    The workflow lints, typechecks, tests, builds, checks tarballs, and publishes all four.
    pnpm applies `publishConfig` and replaces `workspace:*` with the package version.
