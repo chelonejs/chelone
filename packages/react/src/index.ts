@@ -76,6 +76,7 @@ export {
 } from "./array-hooks";
 export type {
   LogoutIfAccessDenied,
+  UseOptionalIdentityResult,
   UsePermissionsResult,
 } from "./auth-hooks";
 export {
@@ -85,6 +86,7 @@ export {
   useLogin,
   useLogout,
   useLogoutIfAccessDenied,
+  useOptionalIdentity,
   usePermissions,
   useWatchDataErrors,
 } from "./auth-hooks";
@@ -827,6 +829,10 @@ export {
   SingleFieldList,
   type SingleFieldListProps,
 } from "./components/admin/list/single-field-list";
+export {
+  TreeList,
+  type TreeListProps,
+} from "./components/admin/list/tree-list";
 export {
   EditLive,
   type EditLiveProps,
