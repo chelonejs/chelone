@@ -29,7 +29,7 @@ function sourceFiles(folder: string): string[] {
 }
 
 describe("the maps entry", () => {
-  it("exports exactly MapCanvas, MapMarker, MapsProvider, useMap, useMapsConfig, LatLngField, LatLngInput, GeoJsonField, GeoJsonView, useGeoJsonSource, PointField, MultiPointField, LineStringField, MultiLineStringField, PolygonField, MultiPolygonField, GeometryCollectionField, FeatureField, FeatureCollectionField and BBoxField", async () => {
+  it("exports exactly MapCanvas, MapMarker, MapsProvider, useMap, useMapsConfig, LatLngField, LatLngInput, GeoJsonField, GeoJsonView, GeoJsonLayers, useGeoJsonSource, PointField, MultiPointField, LineStringField, MultiLineStringField, PolygonField, MultiPolygonField, GeometryCollectionField, FeatureField, FeatureCollectionField and BBoxField", async () => {
     const entry = await import("./maps");
     expect(Object.keys(entry).sort()).toEqual(
       [
@@ -37,6 +37,7 @@ describe("the maps entry", () => {
         "FeatureCollectionField",
         "FeatureField",
         "GeoJsonField",
+        "GeoJsonLayers",
         "GeoJsonView",
         "GeometryCollectionField",
         "LineStringField",
