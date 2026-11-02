@@ -1,0 +1,35 @@
+{
+  "name": "ColumnsButton",
+  "props": [
+    {
+      "name": "asChild",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource whose table to control. Defaults to the resource context."
+    },
+    {
+      "name": "size",
+      "type": "\"default\" | \"xs\" | \"sm\" | \"lg\" | \"icon\" | \"icon-xs\" | \"icon-sm\" | \"icon-lg\" | null",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "storeKey",
+      "type": "string",
+      "optional": true,
+      "comment": "The store key the table uses. Defaults to the resource's own key."
+    },
+    {
+      "name": "variant",
+      "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | null",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
