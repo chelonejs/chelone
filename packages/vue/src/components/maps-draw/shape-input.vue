@@ -57,6 +57,11 @@ export interface ShapeInputProps {
   mapStyle?: MapStyleInput;
   /** Partial over `DEFAULT_SHAPE_STYLE`. Read once. */
   shapeStyle?: ShapeStyle;
+  /**
+   * Width over height of a `BBox` value. The stored box grows around its centre
+   * to this ratio and never shrinks, and the rectangle on the map follows it.
+   */
+  aspectRatio?: number;
   /** Frame the first value on the map. The user's own edits never refit. Defaults to true. */
   fitBounds?: boolean;
   class?: string;
@@ -216,6 +221,7 @@ const props = withDefaults(defineProps<ShapeInputProps>(), {
   height: 300,
   mapStyle: undefined,
   shapeStyle: undefined,
+  aspectRatio: undefined,
   fitBounds: true,
 });
 
@@ -252,7 +258,9 @@ const legend = computed(() =>
 );
 
 function onEdit(edit: TerraDrawEdit) {
-  const next = featuresToShape(props.kind, edit.features, input.value.value);
+  const next = featuresToShape(props.kind, edit.features, input.value.value, {
+    aspectRatio: props.aspectRatio,
+  });
   written.current = next;
   input.setValue(next);
   input.blur();
