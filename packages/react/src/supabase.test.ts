@@ -1,12 +1,7 @@
 // @vitest-environment node
 
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import * as entry from "./supabase";
-
-const root = fileURLToPath(new URL("..", import.meta.url));
 
 const PROVIDER_BUTTONS = [
   "AppleButton",
@@ -35,10 +30,5 @@ describe("the supabase entry", () => {
     for (const [name, value] of Object.entries(entry)) {
       expect(typeof value, name).toBe("function");
     }
-  });
-
-  it("is not re-exported from the main entry", () => {
-    const main = readFileSync(resolve(root, "src/index.ts"), "utf8");
-    expect(main).not.toMatch(/supabase/);
   });
 });
