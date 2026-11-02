@@ -49,7 +49,7 @@ describe("the maps entry", () => {
     expect(main).not.toMatch(/components\/maps/);
   });
 
-  it("names no public tile, geocoding, Overpass or routing URL in a maps, maps-draw or maps-osm source file or any maps entry", () => {
+  it("no maps, maps-draw or maps-osm source file and no maps entry names a public tile, geocoding, Overpass or routing URL", () => {
     const files = [
       ...sourceFiles(resolve(src, "components/maps")),
       ...sourceFiles(resolve(src, "components/maps-draw")),

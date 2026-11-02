@@ -19,9 +19,14 @@ export interface LatLngFieldProps {
   className?: string;
 }
 
+/** MapLibre throws on a coordinate outside its range, so the field treats one as missing. */
+function inRange(value: number | null, limit: number): number | null {
+  return value !== null && Math.abs(value) <= limit ? value : null;
+}
+
 /**
- * Shows a point held in two record fields on a map. A missing, null or
- * non-numeric coordinate shows a text panel in its place; `0` is a position.
+ * Shows a point held in two record fields on a map. A missing, null,
+ * non-numeric or out-of-range coordinate shows a text panel in its place; `0` is a position.
  *
  * @example
  * <LatLngField latSource="latitude" lngSource="longitude" />
@@ -36,8 +41,14 @@ export function LatLngField({
   className,
 }: LatLngFieldProps) {
   const translate = useTranslate();
-  const lat = toCoordinate(useFieldValue({ source: latSource, record }));
-  const lng = toCoordinate(useFieldValue({ source: lngSource, record }));
+  const lat = inRange(
+    toCoordinate(useFieldValue({ source: latSource, record })),
+    90,
+  );
+  const lng = inRange(
+    toCoordinate(useFieldValue({ source: lngSource, record })),
+    180,
+  );
 
   if (lat === null || lng === null) {
     return (

@@ -364,6 +364,10 @@ describe("LatLngField", () => {
     ["undefined", { lat: 48.85 }],
     ["NaN", { lat: Number.NaN, lng: 2.35 }],
     ["text", { lat: "north", lng: 2.35 }],
+    ["a latitude above 90", { lat: 95, lng: 2.35 }],
+    ["a latitude below -90", { lat: -120, lng: 2.35 }],
+    ["a longitude above 180", { lat: 48.85, lng: 200 }],
+    ["a longitude below -180", { lat: 48.85, lng: -181 }],
   ])("shows the translated empty text for %s", (_label, record) => {
     const { container } = render(field({ record }), {
       wrapper: wrap(mapMessages as unknown as Record<string, string>),
