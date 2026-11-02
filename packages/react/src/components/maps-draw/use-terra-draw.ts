@@ -1,0 +1,292 @@
+import {
+  editorStyles,
+  fromEditorFeatures,
+  type GeoFeature,
+  type ShapeStyle,
+  toEditorFeatures,
+} from "@chelone/core";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  TerraDraw,
+  TerraDrawCircleMode,
+  TerraDrawLineStringMode,
+  TerraDrawPointMode,
+  TerraDrawPolygonMode,
+  TerraDrawRectangleMode,
+  TerraDrawRenderMode,
+  TerraDrawSelectMode,
+} from "terra-draw";
+import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
+import { useMap } from "../maps/map-canvas";
+
+/** A toolbar button that switches the editor's mode. */
+export type DrawTool =
+  | "draw-point"
+  | "draw-line"
+  | "draw-polygon"
+  | "draw-rectangle"
+  | "draw-circle"
+  | "edit"
+  | "move";
+
+const TOOL_MODES: Record<DrawTool, string> = {
+  "draw-point": "point",
+  "draw-line": "linestring",
+  "draw-polygon": "polygon",
+  "draw-rectangle": "rectangle",
+  "draw-circle": "circle",
+  edit: "select",
+  move: "select-move",
+};
+
+/** The Terra Draw mode a tool switches on. No tool, or `disabled`, is `render`. */
+export function toolMode(
+  tool: DrawTool | null | undefined,
+  disabled = false,
+): string {
+  return !tool || disabled ? "render" : TOOL_MODES[tool];
+}
+
+/** What the user did on the map: drew a shape, changed one, or removed one. */
+export interface TerraDrawEdit {
+  type: "draw" | "edit" | "delete";
+  /** The user's features after the edit. */
+  features: GeoFeature[];
+}
+
+export interface UseTerraDrawOptions {
+  /** The features to show and edit. The editor takes a new array when it differs from its own. */
+  features: GeoFeature[];
+  /** The active tool. Defaults to none. */
+  tool?: DrawTool | null;
+  /** Switches to the `render` mode, which shows the features and edits nothing. */
+  disabled?: boolean;
+  /** Snap to existing coordinates and lines. Read once. Defaults to true. */
+  snappable?: boolean;
+  /** Pixels within which the pointer grabs a vertex or snaps. Read once. Defaults to 20. */
+  snapDistance?: number;
+  /** Read once. */
+  shapeStyle?: ShapeStyle;
+  /** Called when a drawing or an edit finishes and when a feature is removed, never during a drag. The latest function is used. */
+  onEdit?: (edit: TerraDrawEdit) => void;
+}
+
+export interface UseTerraDrawResult {
+  /** The id of the selected feature, or `null`. */
+  selectedId: string | number | null;
+  /** Removes the selected feature, which calls `onEdit` with type `delete`. Changes with the selection. */
+  deleteSelected: () => void;
+}
+
+type SelectFlags = Record<string, { feature: Record<string, unknown> }>;
+
+/** The select modes name their flags by the `mode` property of the feature. */
+function selectFlags(kind: "edit" | "move", snappable: boolean): SelectFlags {
+  const area = {
+    feature:
+      kind === "edit"
+        ? {
+            draggable: false,
+            rotateable: true,
+            coordinates: {
+              midpoints: true,
+              draggable: true,
+              deletable: true,
+              snappable,
+            },
+          }
+        : { draggable: true, rotateable: true },
+  };
+  return {
+    // A point has one coordinate: dragging the feature is the edit.
+    point: { feature: { draggable: true } },
+    linestring: area,
+    polygon: area,
+    rectangle: area,
+    circle: area,
+  };
+}
+
+function buildModes(
+  snappable: boolean,
+  pointerDistance: number,
+  shapeStyle: ShapeStyle,
+) {
+  const styles = editorStyles(shapeStyle);
+  const snapping = snappable ? { toCoordinate: true, toLine: true } : undefined;
+  // The editor types a style as a hex string; `ShapeStyle` takes any CSS color.
+  const asStyles = (value: Record<string, string | number>) => value as never;
+  return [
+    new TerraDrawPointMode({
+      modeName: "point",
+      pointerDistance,
+      styles: asStyles(styles.point),
+    }),
+    new TerraDrawLineStringMode({
+      modeName: "linestring",
+      pointerDistance,
+      snapping,
+      styles: asStyles(styles.linestring),
+    }),
+    new TerraDrawPolygonMode({
+      modeName: "polygon",
+      pointerDistance,
+      snapping,
+      styles: asStyles(styles.polygon),
+    }),
+    new TerraDrawRectangleMode({
+      modeName: "rectangle",
+      pointerDistance,
+      styles: asStyles(styles.rectangle),
+    }),
+    new TerraDrawCircleMode({
+      modeName: "circle",
+      pointerDistance,
+      styles: asStyles(styles.circle),
+    }),
+    new TerraDrawSelectMode({
+      modeName: "select",
+      pointerDistance,
+      flags: selectFlags("edit", snappable),
+      styles: asStyles(styles.select),
+    }),
+    new TerraDrawSelectMode({
+      modeName: "select-move",
+      pointerDistance,
+      flags: selectFlags("move", snappable),
+      styles: asStyles(styles.select),
+    }),
+    new TerraDrawRenderMode({
+      modeName: "render",
+      styles: asStyles(styles.render),
+    }),
+  ];
+}
+
+function sameValue(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const left = a as Record<string, unknown>;
+  const right = b as Record<string, unknown>;
+  const keys = Object.keys(left).filter((key) => left[key] !== undefined);
+  const other = Object.keys(right).filter((key) => right[key] !== undefined);
+  return (
+    keys.length === other.length &&
+    keys.every((key) => sameValue(left[key], right[key]))
+  );
+}
+
+/**
+ * Runs one Terra Draw editor on the surrounding `MapCanvas` and keeps it equal
+ * to `features`. The caller owns the data: the editor only shows `features` and
+ * proposes edits through `onEdit`.
+ *
+ * Modes, snapping and styles are read once, when the editor is built: change
+ * `key` to rebuild. Terra Draw moves and restores the map's drag pan itself
+ * during its own drags, so nothing here touches `map.dragPan`. A selected line
+ * or polygon rotates with Terra Draw's key chord, `Control` and `r`.
+ *
+ * Needs the optional `terra-draw` and `terra-draw-maplibre-gl-adapter` peers.
+ */
+export function useTerraDraw({
+  features,
+  tool = null,
+  disabled = false,
+  snappable = true,
+  snapDistance = 20,
+  shapeStyle,
+  onEdit,
+}: UseTerraDrawOptions): UseTerraDrawResult {
+  const map = useMap();
+  const [draw, setDraw] = useState<TerraDraw | null>(null);
+  const [selectedId, setSelectedId] = useState<string | number | null>(null);
+  const latest = useRef({
+    snappable,
+    snapDistance,
+    shapeStyle,
+    onEdit,
+  });
+  latest.current = { snappable, snapDistance, shapeStyle, onEdit };
+  // True while this hook changes the store itself, so those events write nothing.
+  const syncing = useRef(false);
+  // The user's features as of the last sync or edit, to spot a removal that changed nothing.
+  const known = useRef<GeoFeature[]>(features);
+
+  useEffect(() => {
+    const now = latest.current;
+    const instance = new TerraDraw({
+      adapter: new TerraDrawMapLibreGLAdapter({ map }),
+      modes: buildModes(now.snappable, now.snapDistance, now.shapeStyle ?? {}),
+    });
+    let active = true;
+
+    const report = (type: TerraDrawEdit["type"]) => {
+      const edited = fromEditorFeatures(instance.getSnapshot());
+      known.current = edited;
+      latest.current.onEdit?.({ type, features: edited });
+    };
+
+    instance.on("ready", () => {
+      if (active) setDraw(instance);
+    });
+    instance.on("finish", (_id, context) => {
+      if (!active || syncing.current) return;
+      report(context.action === "draw" ? "draw" : "edit");
+    });
+    instance.on("change", (_ids, type) => {
+      if (!active || syncing.current || type !== "delete") return;
+      // Deselecting removes the editor's own selection points and midpoints,
+      // and cancelling a drawing removes a half-drawn feature: none of them
+      // changes the user's features.
+      const edited = fromEditorFeatures(instance.getSnapshot());
+      if (sameValue(edited, known.current)) return;
+      report("delete");
+    });
+    instance.on("select", (id) => {
+      if (active) setSelectedId(id);
+    });
+    instance.on("deselect", (id) => {
+      if (!active) return;
+      setSelectedId((current) => (current === id ? null : current));
+    });
+    instance.start();
+
+    return () => {
+      active = false;
+      setDraw(null);
+      setSelectedId(null);
+      // The canvas can remove the map first, and the adapter throws on a removed one.
+      try {
+        instance.stop();
+      } catch {}
+    };
+  }, [map]);
+
+  useEffect(() => {
+    if (!draw) return;
+    const edited = fromEditorFeatures(draw.getSnapshot());
+    if (sameValue(edited, features)) return;
+    syncing.current = true;
+    try {
+      draw.clear();
+      draw.addFeatures(
+        toEditorFeatures(features, () => draw.getFeatureId()) as never,
+      );
+    } finally {
+      syncing.current = false;
+    }
+    known.current = fromEditorFeatures(draw.getSnapshot());
+    setSelectedId(null);
+  }, [draw, features]);
+
+  useEffect(() => {
+    draw?.setMode(toolMode(tool, disabled));
+  }, [draw, tool, disabled]);
+
+  const deleteSelected = useCallback(() => {
+    if (draw && selectedId !== null) draw.removeFeatures([selectedId]);
+  }, [draw, selectedId]);
+
+  return { selectedId, deleteSelected };
+}
