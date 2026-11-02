@@ -39,6 +39,10 @@ export {
   WorkosButton,
 } from "./components/admin/supabase/social-auth-button";
 export {
+  SupabaseLoginPage,
+  type SupabaseLoginPageProps,
+} from "./components/admin/supabase/supabase-login-page";
+export {
   type UseResetPasswordOptions,
   type UseSetPasswordOptions,
   useResetPassword,

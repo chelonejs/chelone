@@ -6365,6 +6365,8 @@
         "@chelone/auth-layout",
         "@chelone/button",
         "@chelone/lib-utils",
+        "@chelone/login-form",
+        "@chelone/login-page",
         "@chelone/password-input",
         "@chelone/text-input",
         "@chelone/ui-spinner"
@@ -6393,6 +6395,10 @@
         },
         {
           "path": "src/components/admin/supabase/social-icons.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/supabase-login-page.tsx",
           "type": "registry:component"
         },
         {
@@ -6505,6 +6511,25 @@
           "type": "registry:component"
         }
       ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "supabase-login-page",
+      "type": "registry:component",
+      "title": "Supabase Login Page",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/supabase-login-page.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/login-form",
+        "@chelone/login-page",
+        "@chelone/social-auth-button"
+      ],
+      "dependencies": ["@chelone/react", "@chelone/supabase"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
