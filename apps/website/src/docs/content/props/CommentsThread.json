@@ -1,0 +1,41 @@
+{
+  "name": "CommentsThread",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "perPage",
+      "type": "number",
+      "optional": true,
+      "comment": "How many comments to fetch. Default 100."
+    },
+    {
+      "name": "record",
+      "type": "{ id?: Identifier | null }",
+      "optional": true,
+      "comment": "Defaults to the record context."
+    },
+    {
+      "name": "reference",
+      "type": "string",
+      "optional": false,
+      "comment": "The resource that holds the comments."
+    },
+    {
+      "name": "resolvable",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Adds a `Mark resolved` button to unresolved comments. Default false."
+    },
+    {
+      "name": "target",
+      "type": "string",
+      "optional": false,
+      "comment": "The field on a comment that holds the id of its parent record."
+    }
+  ]
+}

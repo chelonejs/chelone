@@ -13,6 +13,8 @@ import type {
   CardContentInnerProps,
   CheloneRouterHandle,
   ColorInputProps,
+  CommentRecord,
+  CommentsThreadProps,
   CreateCheloneRouterOptions,
   CreateContextProviderProps,
   CreateContextValue,
@@ -349,6 +351,12 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
     expect(barrel.LockStatus).toBeTypeOf("function");
     expectTypeOf<LockOnMountProps>().toHaveProperty("lockedBy");
     expectTypeOf<LockStatusProps>().toHaveProperty("renderFree");
+  });
+
+  it("exports CommentsThread", () => {
+    expect(barrel.CommentsThread).toBeTypeOf("function");
+    expectTypeOf<CommentsThreadProps>().toHaveProperty("resolvable");
+    expectTypeOf<CommentRecord>().toHaveProperty("body");
   });
 
   it("exports PresenceBar and usePresence", () => {
