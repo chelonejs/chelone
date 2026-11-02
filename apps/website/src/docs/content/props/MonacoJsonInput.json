@@ -1,0 +1,173 @@
+{
+  "name": "MonacoJsonInput",
+  "props": [
+    {
+      "name": "allowComments",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Tolerate comments and trailing commas in the text."
+    },
+    {
+      "name": "alwaysOn",
+      "type": "boolean",
+      "optional": true,
+      "comment": "As a `<FilterForm>`/`<FilterButton>` filter: always shown, never in the\nadd-filter menu. Read off the element by the filter layer, never by the input."
+    },
+    {
+      "name": "autoHeight",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Grow with the content between `minHeight` and `maxHeight`. Defaults to false."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Class for the field wrapper."
+    },
+    {
+      "name": "defaultValue",
+      "type": "unknown",
+      "optional": true,
+      "comment": "Input-level default, ra precedence (seeds only into an untouched hole)."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Native disabled state."
+    },
+    {
+      "name": "editorClassName",
+      "type": "string",
+      "optional": true,
+      "comment": "Class for the editor frame."
+    },
+    {
+      "name": "format",
+      "type": "(value: unknown) => unknown",
+      "optional": true,
+      "comment": "Read transform (raw form value → input value)."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "optional": true,
+      "comment": "Editor height in pixels when `autoHeight` is false. Defaults to 300."
+    },
+    {
+      "name": "helperText",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Helper text rendered below the input; a string is translated."
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "optional": true,
+      "comment": "Explicit element id; a generated `useId` value is used otherwise."
+    },
+    {
+      "name": "isRequired",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Forces the required marker; ORed with `required()` detection on `validate`."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The input label. A string is translated; a ReactNode renders as-is;\n`false` (or `\"\"`) renders no label."
+    },
+    {
+      "name": "maxHeight",
+      "type": "number",
+      "optional": true,
+      "comment": "Tallest the editor grows to when `autoHeight` is on. Defaults to 600."
+    },
+    {
+      "name": "minHeight",
+      "type": "number",
+      "optional": true,
+      "comment": "Shortest the editor gets when `autoHeight` is on. Defaults to 120."
+    },
+    {
+      "name": "monacoOptions",
+      "type": "IStandaloneEditorConstructionOptions",
+      "optional": true,
+      "comment": "Merged over the editor defaults, so it can override any of them."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "optional": true,
+      "comment": "Legacy field-name alias (ra parity); the wiring uses `source`."
+    },
+    {
+      "name": "onBlur",
+      "type": "(event: unknown) => void",
+      "optional": true,
+      "comment": "Chained AFTER the blur is recorded."
+    },
+    {
+      "name": "onChange",
+      "type": "(eventOrValue: unknown) => void",
+      "optional": true,
+      "comment": "Chained AFTER the parsed value is written to the form."
+    },
+    {
+      "name": "parse",
+      "type": "(value: unknown) => unknown",
+      "optional": true,
+      "comment": "Write transform (input value → stored value)."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Native read-only state."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient resource (used to resolve the default label key)."
+    },
+    {
+      "name": "schema",
+      "type": "object",
+      "optional": true,
+      "comment": "A JSON Schema the value is checked against. Object shape only."
+    },
+    {
+      "name": "schemaUri",
+      "type": "string",
+      "optional": true,
+      "comment": "A schema Monaco fetches from this URL. Ignored when `schema` is set."
+    },
+    {
+      "name": "showFormatButton",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Show the Format button. Defaults to true."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "The field path RELATIVE to the ambient source scope."
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "optional": true,
+      "comment": "The DOM input `type` (text inputs default to `\"text\"`)."
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "ra-contract validators — composed, first error wins."
+    }
+  ]
+}
