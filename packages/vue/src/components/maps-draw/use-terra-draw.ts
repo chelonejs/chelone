@@ -91,12 +91,6 @@ export interface UseTerraDrawResult {
   selectedId: Readonly<Ref<string | number | null>>;
   /** Removes the selected feature, which calls `onEdit` with type `delete`. */
   deleteSelected: () => void;
-  /**
-   * The features the editor refused (Terra Draw rejects coordinates with more
-   * than 9 decimals and shapes its mode finds invalid). They are not in the
-   * editor, so show them read-only; `onEdit` features still include them.
-   */
-  rejected: Readonly<Ref<GeoFeature[]>>;
 }
 
 type SelectFlags = Record<string, { feature: Record<string, unknown> }>;
@@ -228,7 +222,6 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
   const map = useMap();
   const draw = shallowRef<TerraDraw | null>(null);
   const selectedId = ref<string | number | null>(null);
-  const rejected = shallowRef<GeoFeature[]>([]);
   // True while this hook changes the store itself, so those events write nothing.
   let syncing = false;
   // The editor ids of the user's features as of the last sync or edit. Only the
@@ -261,11 +254,7 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
     const report = (type: TerraDrawEdit["type"]) => {
       const snapshot = built.getSnapshot();
       knownIds = userIds(snapshot);
-      // The refused features are not in the store but still belong to the value.
-      options.onEdit?.({
-        type,
-        features: [...fromEditorFeatures(snapshot), ...rejected.value],
-      });
+      options.onEdit?.({ type, features: fromEditorFeatures(snapshot) });
     };
 
     built.on("ready", () => {
@@ -296,7 +285,6 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
     active = false;
     draw.value = null;
     selectedId.value = null;
-    rejected.value = [];
     // The canvas can remove the map first, and the adapter throws on a removed one.
     try {
       instance?.stop();
@@ -312,25 +300,13 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
       knownIds = userIds(snapshot);
       // The caller's array may be reactive; the editor clones what it is given.
       const wanted = toRaw(next);
-      const editable = wanted.filter(
-        (feature) => !rejected.value.some((r) => sameValue(r, feature)),
-      );
-      if (sameValue(fromEditorFeatures(snapshot), editable)) return;
+      if (sameValue(fromEditorFeatures(snapshot), wanted)) return;
       syncing = true;
       try {
         current.clear();
-        const editorFeatures = toEditorFeatures(wanted, () =>
-          current.getFeatureId(),
+        current.addFeatures(
+          toEditorFeatures(wanted, () => current.getFeatureId()) as never,
         );
-        const results = current.addFeatures(editorFeatures as never);
-        // `toEditorFeatures` can split or drop features, so match the results
-        // to what the editor holds: a refused feature is one that is absent.
-        const held = fromEditorFeatures(current.getSnapshot());
-        rejected.value = results.every((result) => result.valid)
-          ? []
-          : wanted.filter(
-              (feature) => !held.some((h) => sameValue(h, feature)),
-            );
       } finally {
         syncing = false;
       }
@@ -355,5 +331,5 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
     }
   }
 
-  return { selectedId, deleteSelected, rejected };
+  return { selectedId, deleteSelected };
 }

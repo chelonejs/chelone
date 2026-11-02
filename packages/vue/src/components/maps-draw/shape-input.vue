@@ -124,6 +124,16 @@ const Editor = defineComponent({
   setup(props, { emit }) {
     const map = useMap();
 
+    // MapLibre structured-clones what it is given, which throws on a reactive proxy.
+    useGeoJsonSource(
+      uniqueGeoJsonSourceId(),
+      () => ({
+        type: "FeatureCollection" as const,
+        features: toRaw(props.held),
+      }),
+      () => props.shapeStyle ?? {},
+    );
+
     const controls = useTerraDraw({
       state: () => ({
         features: props.features,
@@ -134,17 +144,6 @@ const Editor = defineComponent({
       shapeStyle: props.shapeStyle,
       onEdit: (edit) => emit("edit", edit),
     });
-
-    // MapLibre structured-clones what it is given, which throws on a reactive proxy.
-    // The parts the editor refused draw here too, so they stay visible.
-    useGeoJsonSource(
-      uniqueGeoJsonSourceId(),
-      () => ({
-        type: "FeatureCollection" as const,
-        features: [...toRaw(props.held), ...controls.rejected.value],
-      }),
-      () => props.shapeStyle ?? {},
-    );
     emit("controls", controls);
     onBeforeUnmount(() => emit("controls", null));
 

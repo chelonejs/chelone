@@ -59,17 +59,6 @@ export class TerraDrawMapLibreGLAdapter {
   }
 }
 
-/**
- * Terra Draw rejects a feature whose coordinates carry more decimals than its
- * `coordinatePrecision`, 9 by default, and `addFeatures` reports `valid: false`.
- */
-function hasPrecision(coordinates: unknown): boolean {
-  if (typeof coordinates === "number") {
-    return (String(coordinates).split(".")[1] ?? "").length <= 9;
-  }
-  return Array.isArray(coordinates) && coordinates.every(hasPrecision);
-}
-
 export class TerraDraw {
   readonly options: { adapter: TerraDrawMapLibreGLAdapter; modes: FakeMode[] };
   readonly adapter: TerraDrawMapLibreGLAdapter;
@@ -146,18 +135,14 @@ export class TerraDraw {
   addFeatures(features: FakeFeature[]): { valid: boolean }[] {
     this.assertRunning();
     this.added.push(structuredClone(features));
-    const results = features.map((feature) => ({
-      valid: hasPrecision(feature.geometry.coordinates),
-    }));
-    const accepted = features.filter((_, index) => results[index]?.valid);
-    this.features.push(...structuredClone(accepted));
+    this.features.push(...structuredClone(features));
     this.fire(
       "change",
-      accepted.map((f) => f.id),
+      features.map((f) => f.id),
       "create",
       { origin: "api" },
     );
-    return results;
+    return features.map(() => ({ valid: true }));
   }
 
   removeFeatures(ids: FeatureId[]): void {
