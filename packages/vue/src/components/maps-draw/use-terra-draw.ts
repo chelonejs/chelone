@@ -103,7 +103,14 @@ export interface UseTerraDrawResult {
   selectedId: Readonly<Ref<string | number | null>>;
   /** Removes the selected feature, which calls `onEdit` with type `delete`. */
   deleteSelected: () => void;
+  /**
+   * The entries of `features` the editor refused, as given. They are not drawn
+   * and not in any `onEdit`: a caller that keeps them in its value adds them back.
+   */
+  refused: Readonly<Ref<GeoFeature[]>>;
 }
+
+const NONE_REFUSED: GeoFeature[] = [];
 
 type SelectFlags = Record<string, { feature: Record<string, unknown> }>;
 
@@ -234,6 +241,13 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
   const map = useMap();
   const draw = shallowRef<TerraDraw | null>(null);
   const selectedId = ref<string | number | null>(null);
+  // Read by the sync without rerunning it, so a plain variable beside the ref.
+  let refusedNow = NONE_REFUSED;
+  const refused = shallowRef<GeoFeature[]>(NONE_REFUSED);
+  const setRefused = (next: GeoFeature[]) => {
+    refusedNow = next.length ? next : NONE_REFUSED;
+    refused.value = refusedNow;
+  };
   // True while this hook changes the store itself, so those events write nothing.
   let syncing = false;
   // The editor ids of the user's features as of the last sync or edit. Only the
@@ -322,6 +336,7 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
     active = false;
     draw.value = null;
     selectedId.value = null;
+    setRefused(NONE_REFUSED);
     // The canvas can remove the map first, and the adapter throws on a removed one.
     try {
       instance?.stop();
@@ -337,17 +352,43 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
       knownIds = userIds(snapshot);
       // The caller's array may be reactive; the editor clones what it is given.
       const wanted = toRaw(next);
-      if (sameValue(fromEditorFeatures(snapshot), wanted)) return;
+      // A refused entry is never in the snapshot: leave it out of the comparison,
+      // but only while `wanted` still holds it.
+      const stillRefused = refusedNow.filter((entry) =>
+        wanted.some((feature) => sameValue(feature, entry)),
+      );
+      const drawn = wanted.filter(
+        (feature) => !stillRefused.some((entry) => sameValue(feature, entry)),
+      );
+      if (
+        stillRefused.length === refusedNow.length &&
+        sameValue(fromEditorFeatures(snapshot), drawn)
+      ) {
+        return;
+      }
+      // One editor feature per entry, or none where core cannot hold the entry.
+      const pairs = wanted.flatMap((feature) => {
+        const editor = toEditorFeatures([feature], () =>
+          current.getFeatureId(),
+        )[0];
+        return editor ? [{ feature, editor }] : [];
+      });
+      const refusedEntries: GeoFeature[] = [];
       syncing = true;
       try {
         current.clear();
-        current.addFeatures(
-          toEditorFeatures(wanted, () => current.getFeatureId()) as never,
+        const answers = current.addFeatures(
+          pairs.map((pair) => pair.editor) as never,
         );
+        answers.forEach((answer, i) => {
+          const pair = pairs[i];
+          if (!answer.valid && pair) refusedEntries.push(pair.feature);
+        });
       } finally {
         syncing = false;
       }
       knownIds = userIds(current.getSnapshot());
+      setRefused(refusedEntries);
       selectedId.value = null;
     },
     { immediate: true },
@@ -368,5 +409,5 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
     }
   }
 
-  return { selectedId, deleteSelected };
+  return { selectedId, deleteSelected, refused };
 }
