@@ -1,5 +1,4 @@
 <script lang="ts">
-import type { MapStyleInput } from "@chelone/core";
 import type { GeoJsonViewProps } from "./geo-json-view.vue";
 
 /** Props for {@link GeoJsonField}. */
@@ -11,15 +10,8 @@ export interface GeoJsonFieldProps
   record?: Record<string, unknown>;
   /** Used when the property is `undefined`. */
   defaultValue?: unknown;
-  /** In pixels, or any CSS length. Defaults to 300. */
-  height?: number | string;
-  /** Defaults to the style from `MapsProvider`. */
-  mapStyle?: MapStyleInput;
   /** Replaces the translation of `chelone.map.no_geometry`. */
   emptyText?: string;
-  /** Zoom with the mouse wheel. Defaults to false so the page still scrolls. */
-  scrollZoom?: boolean;
-  class?: string;
 }
 </script>
 
@@ -41,7 +33,6 @@ import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import { useFieldValue } from "../../record/use-field-value";
 import GeoJsonView from "./geo-json-view.vue";
-import MapCanvas from "./map-canvas.vue";
 
 const props = withDefaults(defineProps<GeoJsonFieldProps>(), {
   fitBounds: true,
@@ -88,18 +79,15 @@ const cssHeight = computed(() =>
     {{ props.emptyText ?? translate("chelone.map.no_geometry", { _: "No geometry available" }) }}
   </div>
   <div v-else data-slot="geo-json-field" :class="props.class">
-    <MapCanvas
+    <GeoJsonView
+      :data="geometry"
       :height="props.height"
       :map-style="props.mapStyle"
       :scroll-zoom="props.scrollZoom"
-    >
-      <GeoJsonView
-        :data="geometry"
-        :shape-style="props.shapeStyle"
-        :fit-bounds="props.fitBounds"
-        :fit-padding="props.fitPadding"
-        :max-fit-zoom="props.maxFitZoom"
-      />
-    </MapCanvas>
+      :shape-style="props.shapeStyle"
+      :fit-bounds="props.fitBounds"
+      :fit-padding="props.fitPadding"
+      :max-fit-zoom="props.maxFitZoom"
+    />
   </div>
 </template>

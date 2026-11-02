@@ -65,7 +65,7 @@ import { cn } from "../../lib/utils";
 import InputHelperText from "../admin/common/input-helper-text.vue";
 import ValidationError from "../admin/common/validation-error.vue";
 import { humanizeSource } from "../admin/inputs/label-text";
-import GeoJsonView from "../maps/geo-json-view.vue";
+import GeoJsonLayers from "../maps/geo-json-layers.vue";
 import MapCanvas from "../maps/map-canvas.vue";
 import Button from "../ui/button.vue";
 import { FieldError } from "../ui/field";
@@ -169,7 +169,7 @@ function onRange(event: Event) {
         :height="props.height"
         :map-style="props.mapStyle"
       >
-        <GeoJsonView :data="geometry" :shape-style="props.shapeStyle" />
+        <GeoJsonLayers :data="geometry" :shape-style="props.shapeStyle" />
       </MapCanvas>
       <div class="flex flex-wrap items-center gap-4">
         <div class="flex min-w-48 flex-1 flex-col gap-2">

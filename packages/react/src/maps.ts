@@ -6,6 +6,8 @@ export { BBoxField, type BBoxFieldProps } from "./components/maps/bbox-field";
 export {
   GeoJsonField,
   type GeoJsonFieldProps,
+  GeoJsonLayers,
+  type GeoJsonLayersProps,
   GeoJsonView,
   type GeoJsonViewProps,
   useGeoJsonSource,

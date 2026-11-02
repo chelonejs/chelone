@@ -63,6 +63,7 @@ The full prop list for `<Admin>` and `<Resource>` is on the
 | `<TreeList>` takes the `onSelect`, `loading` and `empty` props. | `<TreeList>` emits `select` and takes the `#loading` and `#empty` slots. With no `select` listener a row navigates, as React does with no `onSelect`. | [Tree List](/docs/viewing/tree-list) |
 | `<StatusTransitionButton>` takes an `onTransition` prop. `<DualApprovalButton>` takes only props. | `<StatusTransitionButton>` emits a `transition` event with the same `(from, to, record)` arguments. `<DualApprovalButton>` takes the same props. | [Status Transition Button](/docs/editing/status-transition-button), [Dual Approval Button](/docs/editing/dual-approval-button) |
 | `<CommandMenu>` composes cmdk's `Command` with a teleported dialog. | `<CommandMenu>` composes the native `ui/command` family with an inline dialog that is not teleported. | [Command Menu](/docs/ui-layout/command-menu) |
+| `useGeoJsonSource(map, sourceId, data, style)` takes plain values. | `useGeoJsonSource(sourceId, data, style)` takes refs or getters and reads the map from the surrounding `<MapCanvas>`. | None |
 
 Theme storage differs too: the Vue `<ThemeProvider>` always uses `localStorage`
 and `useTheme()` returns `Ref`s. The note under
