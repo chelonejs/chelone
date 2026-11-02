@@ -317,6 +317,36 @@ describe("GeocodingInput", () => {
     expect(field().value).toBe("12 Rue de Rivoli, Paris");
   });
 
+  it("clears the coordinates of an earlier pick when the address is retyped by hand", async () => {
+    await setup({
+      latSource: "latitude",
+      lngSource: "longitude",
+      bboxSource: "bbox",
+    });
+
+    type("Paris");
+    fireEvent.keyDown(field(), { key: "Enter" });
+    fireEvent.click(await screen.findByText("Paris, France"));
+    expect(probe("latitude")).toBe("48.8566|true");
+
+    type("12 Rue de Rivoli, Lyon");
+    fireEvent.blur(field());
+
+    expect(probe("address")).toBe('"12 Rue de Rivoli, Lyon"|true');
+    expect(probe("latitude")).toMatch(/^null\|/);
+    expect(probe("longitude")).toMatch(/^null\|/);
+    expect(probe("bbox")).toMatch(/^null\|/);
+  });
+
+  it("leaves the coordinates alone when the sources are not set", async () => {
+    await setup({}, { defaultValues: { ...emptyAddress, latitude: 1 } });
+
+    type("12 Rue de Rivoli, Lyon");
+    fireEvent.blur(field());
+
+    expect(probe("latitude")).toBe("1|false");
+  });
+
   it("leaves the form clean when the field is left unchanged", async () => {
     await setup();
 

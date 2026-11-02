@@ -50,8 +50,9 @@ const toText = (value: unknown) =>
  * the form with the result the user picks. A provider that allows typeahead
  * searches as the user types; any other searches on Enter or on the button.
  * Typed text reaches the form when the field loses focus, so an address no
- * provider finds can still be entered by hand; a pick writes the result's
- * `displayName` and its coordinates.
+ * provider finds can still be entered by hand, and clears `latSource`,
+ * `lngSource` and `bboxSource` so they never describe a different address; a
+ * pick writes the result's `displayName` and its coordinates.
  *
  * @example
  * <GeocodingInput
@@ -127,6 +128,14 @@ export function GeocodingInput({
     setOpen(true);
   };
 
+  // A hand-typed address no longer matches the position of an earlier pick.
+  const writeTyped = () => {
+    field.onChange(text);
+    if (latSource) form.setFieldValue(wrappedLat, null);
+    if (lngSource) form.setFieldValue(wrappedLng, null);
+    if (bboxSource) form.setFieldValue(wrappedBbox, null);
+  };
+
   const pick = (result: GeocodeResult) => {
     field.onChange(result.displayName);
     setText(result.displayName);
@@ -176,7 +185,7 @@ export function GeocodingInput({
             aria-invalid={fieldState.invalid || undefined}
             onValueChange={onType}
             onBlur={() => {
-              if (text !== saved) field.onChange(text);
+              if (text !== saved) writeTyped();
               field.onBlur();
             }}
             onKeyDown={(event) => {
