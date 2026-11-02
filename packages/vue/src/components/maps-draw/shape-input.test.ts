@@ -33,6 +33,7 @@ import {
 } from "./__fixtures__/fake-terra-draw";
 import DrawToolbar, { type DrawToolbarProps } from "./draw-toolbar.vue";
 import ShapeInput, { type ShapeInputProps } from "./shape-input.vue";
+import { MultiPolygonInput, PointInput, PolygonInput } from "./shape-inputs";
 import { toolMode } from "./use-terra-draw";
 
 vi.mock("maplibre-gl", () => import("../maps/__fixtures__/fake-maplibre"));
@@ -601,6 +602,168 @@ describe("ShapeInput", () => {
       });
     }
   });
+  it("passes snapDistance to every mode as pointerDistance", async () => {
+    const { draw } = await setup({ snapDistance: 35 });
+
+    const withDistance = draw().modes.filter((m) => m.modeName !== "render");
+    expect(withDistance).toHaveLength(7);
+    for (const mode of withDistance) {
+      expect(mode.options.pointerDistance, mode.modeName).toBe(35);
+    }
+  });
+});
+
+const field = (west: number, south: number, east: number, north: number) => ({
+  type: "Polygon",
+  coordinates: [
+    [
+      [west, south],
+      [east, south],
+      [east, north],
+      [west, north],
+      [west, south],
+    ],
+  ],
+});
+
+/** Draws `cutter` with the cut tool the way Terra Draw would. */
+async function drawCutter(
+  wrapper: VueWrapper,
+  draw: () => (typeof draws)[number],
+  cutter: Geometry,
+) {
+  await button(wrapper, "Cut a hole").trigger("click");
+  expect(draw().mode).toBe("polygon");
+  const id = draw().put(cutter, "polygon");
+  draw().emitFinish(id, "draw");
+  await flushPromises();
+}
+
+describe("ShapeInput cut tool", () => {
+  it("subtracts the finished polygon from the stored polygon, commits and removes the cutter", async () => {
+    const { draw, wrapper, commits, value } = await setup(
+      {},
+      field(0, 0, 10, 10),
+    );
+
+    await drawCutter(wrapper, draw, field(5, -5, 15, 5));
+
+    const stored = value() as { type: string; coordinates: number[][][] };
+    expect(stored.type).toBe("Polygon");
+    // An L: six corners and the closing position.
+    expect(stored.coordinates).toHaveLength(1);
+    expect(stored.coordinates[0]).toHaveLength(7);
+    expect(stored.coordinates[0]).toContainEqual([5, 5]);
+    expect(stored.coordinates[0]).not.toContainEqual([15, 5]);
+    expect(commits).toEqual([stored]);
+    expect(draw().mode).toBe("render");
+    expect(button(wrapper, "Cut a hole").attributes("aria-pressed")).toBe(
+      "false",
+    );
+    // The cutter is gone from the map: the store holds only the cut polygon.
+    expect(
+      draw()
+        .getSnapshot()
+        .map((f) => f.geometry),
+    ).toEqual([stored]);
+  });
+
+  it("commits nothing when the cutter misses every polygon", async () => {
+    const { draw, wrapper, commits, value, dirty } = await setup(
+      {},
+      field(0, 0, 10, 10),
+    );
+
+    await drawCutter(wrapper, draw, field(20, 20, 30, 30));
+
+    expect(value()).toEqual(field(0, 0, 10, 10));
+    expect(commits).toEqual([]);
+    expect(dirty()).toBe(false);
+    expect(draw().mode).toBe("render");
+    expect(button(wrapper, "Cut a hole").attributes("aria-pressed")).toBe(
+      "false",
+    );
+    expect(
+      draw()
+        .getSnapshot()
+        .map((f) => f.geometry),
+    ).toEqual([field(0, 0, 10, 10)]);
+  });
+
+  it("draws the polygon left with a hole after a cut on a read-only source", async () => {
+    const { draw, map, wrapper, value } = await setup(
+      { kind: "MultiPolygon" },
+      {
+        type: "MultiPolygon",
+        coordinates: [holed.coordinates, field(20, 0, 30, 10).coordinates],
+      },
+    );
+    expect(draw().added[0]?.map((f) => f.geometry)).toEqual([
+      field(20, 0, 30, 10),
+    ]);
+
+    await drawCutter(wrapper, draw, field(24, 4, 26, 6));
+
+    // A holed polygon is not for Terra Draw: both holed parts are read-only now.
+    expect(draw().getSnapshot()).toEqual([]);
+    const sources = Object.values(map().sources);
+    expect(sources).toHaveLength(1);
+    const data = sources[0]?.data as { features: GeoFeature[] };
+    const rings = data.features.map((f) =>
+      f.geometry?.type === "Polygon" ? f.geometry.coordinates.length : 0,
+    );
+    expect(rings).toEqual([2, 2]);
+    const stored = value() as { type: string; coordinates: unknown[] };
+    expect(stored.type).toBe("MultiPolygon");
+    expect(stored.coordinates).toHaveLength(2);
+  });
+
+  it("commits nothing when a cut would split a single polygon in two", async () => {
+    const { draw, wrapper, commits, value } = await setup(
+      {},
+      field(0, 0, 10, 10),
+    );
+
+    await drawCutter(wrapper, draw, field(4, -5, 6, 15));
+
+    expect(value()).toEqual(field(0, 0, 10, 10));
+    expect(commits).toEqual([]);
+  });
+});
+
+it("PolygonInput and MultiPolygonInput offer the cut tool and PointInput does not", async () => {
+  const names = async (input: () => ReturnType<typeof h>) => {
+    resetMaps();
+    resetDraws();
+    const Host = defineComponent({
+      setup() {
+        useForm<Values>({ record: { shape: null }, onSubmit: async () => {} });
+        return input;
+      },
+    });
+    const wrapper = mountUnderAdmin(() => h(Host));
+    await flushPromises();
+    const found = wrapper
+      .findAll('[role="toolbar"] button')
+      .map((b) => b.attributes("aria-label"));
+    wrapper.unmount();
+    mounted.length = 0;
+    return found;
+  };
+  for (const input of [PolygonInput, MultiPolygonInput]) {
+    expect(await names(() => h(input, { source: "shape" }))).toEqual([
+      "Draw a polygon",
+      "Draw a rectangle",
+      "Draw a circle",
+      "Cut a hole",
+      "Edit",
+      "Move",
+      "Delete",
+    ]);
+  }
+  expect(await names(() => h(PointInput, { source: "shape" }))).not.toContain(
+    "Cut a hole",
+  );
 });
 
 function mountToolbar(props: Partial<DrawToolbarProps> = {}) {

@@ -322,6 +322,7 @@ describe("PolygonInput", () => {
       "Draw a polygon",
       "Draw a rectangle",
       "Draw a circle",
+      "Cut a hole",
       "Edit",
       "Move",
       "Delete",
@@ -435,6 +436,7 @@ describe("GeometryCollectionInput", () => {
       "Draw a polygon",
       "Draw a rectangle",
       "Draw a circle",
+      "Cut a hole",
       "Edit",
       "Move",
       "Delete",
@@ -514,6 +516,7 @@ describe("GeoJsonInput", () => {
       "Draw a polygon",
       "Draw a rectangle",
       "Draw a circle",
+      "Cut a hole",
       "Edit",
       "Move",
       "Delete",
@@ -522,11 +525,26 @@ describe("GeoJsonInput", () => {
 });
 
 describe("toolsForShapes", () => {
+  it("adds cut after the polygon tools for a Polygon or MultiPolygon only", () => {
+    expect(toolsForShapes(["MultiPolygon", "Point"])).toEqual([
+      "draw-polygon",
+      "draw-rectangle",
+      "draw-circle",
+      "draw-point",
+      "cut",
+      "edit",
+      "move",
+      "delete",
+    ]);
+    expect(toolsForShapes(["LineString"])).not.toContain("cut");
+  });
+
   it("maps each shape to its draw tools, then edit, move and delete", () => {
     expect(toolsForShapes(["Polygon"])).toEqual([
       "draw-polygon",
       "draw-rectangle",
       "draw-circle",
+      "cut",
       "edit",
       "move",
       "delete",
@@ -565,6 +583,7 @@ describe("FeatureInput", () => {
       "Draw a polygon",
       "Draw a rectangle",
       "Draw a circle",
+      "Cut a hole",
       "Edit",
       "Move",
       "Delete",
@@ -664,6 +683,7 @@ describe("FeatureCollectionInput", () => {
       "Draw a polygon",
       "Draw a rectangle",
       "Draw a circle",
+      "Cut a hole",
       "Edit",
       "Move",
       "Delete",

@@ -10,6 +10,10 @@ export {
   default as DrawToolbar,
 } from "./components/maps-draw/draw-toolbar.vue";
 export {
+  type CutResult,
+  cutFeatures,
+} from "./components/maps-draw/geometry-ops";
+export {
   default as ShapeInput,
   type ShapeInputProps,
 } from "./components/maps-draw/shape-input.vue";
