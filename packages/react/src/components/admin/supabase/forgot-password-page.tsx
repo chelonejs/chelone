@@ -26,9 +26,12 @@ function ForgotPasswordPage({ children, ...rest }: ForgotPasswordPageProps) {
       title={translate("ra-supabase.reset_password.forgot_password", {
         _: "Forgot your password?",
       })}
-      subtitle={translate("ra-supabase.reset_password.forgot_password_details", {
-        _: "Enter your email to receive a link to reset your password.",
-      })}
+      subtitle={translate(
+        "ra-supabase.reset_password.forgot_password_details",
+        {
+          _: "Enter your email to receive a link to reset your password.",
+        },
+      )}
       {...rest}
     >
       {children ?? <ForgotPasswordForm />}

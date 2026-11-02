@@ -64,7 +64,10 @@ function makeWrapper(options: {
   const queryClient =
     options.queryClient ??
     new QueryClient({
-      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
     });
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
@@ -90,7 +93,9 @@ describe("useResetPassword", () => {
   it("useResetPassword calls authProvider.resetPassword with the email", async () => {
     const resetPassword = vi.fn(async () => {});
     const { result } = renderHook(() => useResetPassword(), {
-      wrapper: makeWrapper({ authProvider: makeAuthProvider({ resetPassword }) }),
+      wrapper: makeWrapper({
+        authProvider: makeAuthProvider({ resetPassword }),
+      }),
     });
 
     await act(async () => {
@@ -162,9 +167,9 @@ describe("useSetPassword", () => {
       wrapper: makeWrapper({ authProvider: makeAuthProvider() }),
     });
 
-    await expect(
-      act(() => result.current.mutateAsync(params)),
-    ).rejects.toThrow(/setPassword/);
+    await expect(act(() => result.current.mutateAsync(params))).rejects.toThrow(
+      /setPassword/,
+    );
   });
 });
 

@@ -170,7 +170,7 @@ export const blocks = [
     title: "Chelone Supabase",
     categories: ["chelone", "authentication"],
     description:
-      "The opt-in Supabase add-on: SocialAuthButton and one sign-in button per OAuth provider (Apple to WorkOS). Installs @chelone/supabase.",
+      "The opt-in Supabase add-on: SocialAuthButton and one sign-in button per OAuth provider (Apple to WorkOS), plus the forgot password and set password pages. Installs @chelone/supabase.",
     granularize: true,
     inferDependencies: true,
     sourceDirs: [{ path: "src/components/admin/supabase", recursive: true }],

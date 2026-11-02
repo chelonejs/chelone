@@ -41,8 +41,9 @@ export function useResetPassword(options: UseResetPasswordOptions = {}) {
           "useResetPassword: the auth provider has no resetPassword method. Use supabaseAuthProvider from @chelone/supabase.",
         );
       }
-      await (authProvider as { resetPassword: (p: unknown) => Promise<void> })
-        .resetPassword(params);
+      await (
+        authProvider as { resetPassword: (p: unknown) => Promise<void> }
+      ).resetPassword(params);
     },
     onSuccess: (...args) => {
       notify("ra-supabase.auth.password_reset", { type: "info" });
@@ -66,8 +67,9 @@ export function useSetPassword(options: UseSetPasswordOptions = {}) {
           "useSetPassword: the auth provider has no setPassword method. Use supabaseAuthProvider from @chelone/supabase.",
         );
       }
-      await (authProvider as { setPassword: (p: unknown) => Promise<void> })
-        .setPassword(params);
+      await (
+        authProvider as { setPassword: (p: unknown) => Promise<void> }
+      ).setPassword(params);
     },
     onSuccess: async (...args) => {
       await queryClient.invalidateQueries({ queryKey: ["auth"] });
