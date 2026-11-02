@@ -1263,6 +1263,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/realtime/presence-bar.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/realtime/show-live.vue",
           "type": "registry:component"
         },
@@ -4832,6 +4836,21 @@
       "registryDependencies": ["@chelone/badge"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "devDependencies": ["vue-router"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "presence-bar",
+      "type": "registry:component",
+      "title": "Presence Bar",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/presence-bar.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/avatar"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

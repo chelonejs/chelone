@@ -3,7 +3,7 @@
  * ships its props type next to it, as `@chelone/react` does.
  */
 
-import type { UserIdentity } from "@chelone/core";
+import type { PresenceUser, UserIdentity } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import type { ComputedRef, Ref } from "vue";
 import type {
@@ -61,6 +61,7 @@ import type {
   PasswordInputProps,
   PhoneInputProps,
   PlaceholderProps,
+  PresenceBarProps,
   PrevNextButtonsProps,
   ReferenceFieldProps,
   ReferenceInputProps,
@@ -87,6 +88,7 @@ import type {
   TopToolbarProps,
   TreeListProps,
   UpdateButtonProps,
+  UsePresenceOptions,
   UsePrevNextControllerOptions,
   ValidationErrorProps,
 } from "./index";
@@ -217,6 +219,21 @@ describe("@chelone/vue public exports", () => {
 
   it("TreeList ships beside its props", () => {
     expectTypeOf(barrel.TreeList).not.toBeAny();
+  });
+
+  it("PresenceBar and usePresence ship beside their types", () => {
+    expectTypeOf<PresenceBarProps>().toHaveProperty("maxAvatars");
+    expectTypeOf<PresenceBarProps>().toHaveProperty("currentUser");
+    expectTypeOf<PresenceBarProps["currentUser"]>().toEqualTypeOf<
+      PresenceUser | undefined
+    >();
+    expectTypeOf(barrel.PresenceBar).not.toBeAny();
+    expectTypeOf<UsePresenceOptions>().toHaveProperty("topic");
+    expectTypeOf(barrel.usePresence).returns.toEqualTypeOf<{
+      users: ComputedRef<PresenceUser[]>;
+    }>();
+    expectTypeOf(barrel.AvatarGroup).not.toBeAny();
+    expectTypeOf(barrel.AvatarGroupCount).not.toBeAny();
   });
 
   it("keeps internal helpers out of the barrel", () => {
