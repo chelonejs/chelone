@@ -20,6 +20,12 @@ const ADDONS = [
     entry: "src/monaco.ts",
     packages: ["@guolao/vue-monaco-editor", "monaco-editor"],
   },
+  {
+    name: "mdx-editor",
+    folder: "src/components/mdx-editor",
+    entry: "src/mdx-editor.ts",
+    packages: ["@milkdown/crepe", "@milkdown/kit"],
+  },
 ];
 
 const BASE_ENTRIES = ["src/index.ts"];
@@ -126,15 +132,15 @@ describe("add-on boundary", () => {
     }
   });
 
-  it("the monaco registry item lists its npm packages under dependencies", () => {
-    const registry = readJson(resolve(root, "registry.json"));
-    const items: {
-      name: string;
-      dependencies?: string[];
-      files?: { path: string }[];
-    }[] = registry.items;
+  for (const addon of ADDONS) {
+    it(`the ${addon.name} registry item lists its npm packages under dependencies`, () => {
+      const registry = readJson(resolve(root, "registry.json"));
+      const items: {
+        name: string;
+        dependencies?: string[];
+        files?: { path: string }[];
+      }[] = registry.items;
 
-    for (const addon of ADDONS) {
       const item = items.find((i) => i.name === addon.name);
       expect(item, `${addon.name} item`).toBeDefined();
       expect(item?.dependencies).toEqual(
@@ -149,6 +155,6 @@ describe("add-on boundary", () => {
         f.path.startsWith(addon.folder),
       );
       expect(leaked, "admin item files").toEqual([]);
-    }
-  });
+    });
+  }
 });

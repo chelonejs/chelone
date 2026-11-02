@@ -118,6 +118,19 @@ export const blocks = [
     followDynamicImports: true,
     sourceDirs: [{ path: "src/components/monaco", recursive: true }],
   },
+  {
+    name: "mdx-editor",
+    type: "registry:block",
+    title: "Chelone Markdown",
+    categories: ["chelone", "fields"],
+    description:
+      "The opt-in Markdown add-on: MdxField shows a markdown value in a read-only Milkdown Crepe editor, themed from the Chelone tokens. Installs @milkdown/crepe and @milkdown/kit.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [
+      { path: "src/components/mdx-editor", recursive: true, cssExtensions: true },
+    ],
+  },
 ];
 
 /**

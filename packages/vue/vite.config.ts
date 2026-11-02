@@ -36,8 +36,13 @@ export default defineConfig({
     },
   },
   build: {
-    lib: { entry: ["src/index.ts", "src/monaco.ts"], formats: ["es"] },
+    lib: {
+      entry: ["src/index.ts", "src/monaco.ts", "src/mdx-editor.ts"],
+      formats: ["es"],
+    },
     outDir: "dist",
+    // One stylesheet per module, imported by it, so the add-on theme loads only with the add-on.
+    cssCodeSplit: true,
     sourcemap: false,
     minify: false,
     rollupOptions: {
