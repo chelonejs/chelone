@@ -7,6 +7,10 @@ export {
   type LatLngFieldProps,
 } from "./components/maps/lat-lng-field.vue";
 export {
+  default as LatLngInput,
+  type LatLngInputProps,
+} from "./components/maps/lat-lng-input.vue";
+export {
   default as MapCanvas,
   type MapCanvasProps,
 } from "./components/maps/map-canvas.vue";

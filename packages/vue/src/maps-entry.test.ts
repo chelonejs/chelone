@@ -29,11 +29,12 @@ function sourceFiles(folder: string): string[] {
 }
 
 describe("the maps entry", () => {
-  it("exports exactly MapCanvas, MapMarker, MapsProvider, useMap, useMapMarker, useMapsConfig and LatLngField", async () => {
+  it("exports exactly MapCanvas, MapMarker, MapsProvider, useMap, useMapMarker, useMapsConfig, LatLngField and LatLngInput", async () => {
     const entry = await import("./maps");
     expect(Object.keys(entry).sort()).toEqual(
       [
         "LatLngField",
+        "LatLngInput",
         "MapCanvas",
         "MapMarker",
         "MapsProvider",
@@ -48,7 +49,13 @@ describe("the maps entry", () => {
     const registry = JSON.parse(
       readFileSync(resolve(root, "registry.json"), "utf8"),
     ) as { items: { name: string; dependencies?: string[] }[] };
-    for (const name of ["maps", "map-canvas", "use-map", "lat-lng-field"]) {
+    for (const name of [
+      "maps",
+      "map-canvas",
+      "use-map",
+      "lat-lng-field",
+      "lat-lng-input",
+    ]) {
       const item = registry.items.find((i) => i.name === name);
       expect(item?.dependencies, name).toContain("maplibre-gl");
     }

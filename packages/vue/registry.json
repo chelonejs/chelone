@@ -5488,11 +5488,22 @@
       "categories": ["chelone", "fields"],
       "docs": "MapCanvas loads the MapLibre stylesheet itself. The library ships no tile server, so mount MapsProvider once near the root with a mapStyle (rasterTileStyle({ tileUrl, attribution }) from @chelone/core, or a MapLibre style URL), or pass mapStyle to each map. Browsers cap live WebGL contexts near 16 per page, so keep long lists of maps short.",
       "description": "The opt-in maps add-on: MapCanvas and MapMarker wrap MapLibre GL, MapsProvider sets the basemap once, and LatLngField shows a point from two record fields. Installs maplibre-gl.",
-      "registryDependencies": ["@chelone/lib-utils"],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/label-text",
+        "@chelone/lib-utils",
+        "@chelone/validation-error"
+      ],
       "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
       "files": [
         {
           "path": "src/components/maps/lat-lng-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps/lat-lng-input.vue",
           "type": "registry:component"
         },
         {
@@ -5526,6 +5537,30 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "lat-lng-input",
+      "type": "registry:component",
+      "title": "Lat Lng Input",
+      "files": [
+        {
+          "path": "src/components/maps/lat-lng-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/label-text",
+        "@chelone/lib-utils",
+        "@chelone/map-canvas",
+        "@chelone/use-map",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "map-canvas",
       "type": "registry:component",
       "title": "Map Canvas",
@@ -5551,6 +5586,88 @@
         }
       ],
       "dependencies": ["@chelone/core", "maplibre-gl"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "addon-csv-import",
+      "type": "registry:block",
+      "title": "Chelone CSV Import",
+      "categories": ["chelone", "components"],
+      "description": "The opt-in CSV import add-on: CsvImport adds an Import button that opens a four-step sheet (upload, map columns, preview, import) and useCsvImport reads its state. Installs papaparse.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/export",
+        "@chelone/linear-progress",
+        "@chelone/native-select",
+        "@chelone/sheet",
+        "@chelone/table"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "papaparse"],
+      "files": [
+        {
+          "path": "src/components/admin/csv-import/csv-import.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/csv-import/upload-icon.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/csv-import/use-csv-import.ts",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "csv-import",
+      "type": "registry:component",
+      "title": "Csv Import",
+      "files": [
+        {
+          "path": "src/components/admin/csv-import/csv-import.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/export",
+        "@chelone/linear-progress",
+        "@chelone/native-select",
+        "@chelone/sheet",
+        "@chelone/table",
+        "@chelone/upload-icon",
+        "@chelone/use-csv-import"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "papaparse"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "upload-icon",
+      "type": "registry:component",
+      "title": "Upload Icon",
+      "files": [
+        {
+          "path": "src/components/admin/csv-import/upload-icon.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-csv-import",
+      "type": "registry:component",
+      "title": "Use Csv Import",
+      "files": [
+        {
+          "path": "src/components/admin/csv-import/use-csv-import.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

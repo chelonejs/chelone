@@ -32,6 +32,13 @@ const ADDONS = [
     entry: "src/maps.ts",
     packages: ["maplibre-gl"],
   },
+  {
+    name: "addon-csv-import",
+    subpath: "csv-import",
+    folder: "src/components/admin/csv-import",
+    entry: "src/csv-import.ts",
+    packages: ["papaparse"],
+  },
 ];
 
 const BASE_ENTRIES = ["src/index.ts"];
@@ -127,8 +134,8 @@ describe("add-on boundary", () => {
   });
 
   it("each add-on has a subpath export and a publishConfig export", () => {
-    for (const { name, entry } of ADDONS) {
-      const subpath = `./${name}`;
+    for (const { name, subpath: sub = name, entry } of ADDONS) {
+      const subpath = `./${sub}`;
       const file = entry.replace(/^src\//, "").replace(/\.ts$/, "");
       expect(pkg.exports[subpath]).toBe(`./${entry}`);
       expect(pkg.publishConfig.exports[subpath]).toEqual({
