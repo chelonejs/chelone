@@ -61,6 +61,7 @@ export interface GeocodeQuery<TData> {
   queryFn: (context: Pick<QueryFunctionContext, "signal">) => Promise<TData>;
   enabled: boolean;
   staleTime: number;
+  retry?: false;
 }
 
 const FIVE_MINUTES_MS = 5 * 60 * 1000;
@@ -92,6 +93,8 @@ export function geocodeQueryOptions(
       provider.search(trimmed, { signal, limit, countryCodes, viewBox }),
     enabled: trimmed.length >= minChars,
     staleTime,
+    // A rate-limited public service is not hit again; the caller reports the failure.
+    retry: false,
   };
 }
 
