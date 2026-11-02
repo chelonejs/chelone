@@ -1,3 +1,4 @@
+import type { UserIdentity } from "@chelone/core";
 import { describe, expect, expectTypeOf, it } from "vitest";
 // Type-only imports from the barrel: a dropped `export type` line makes these
 // fail `tsc` (the react test script runs with `--typecheck`), locking the type
@@ -646,5 +647,15 @@ describe("@chelone/react barrel — guessers", () => {
     expectTypeOf<ShowGuesserProps>().toHaveProperty("enableLog");
     expectTypeOf<ShowGuesserProps>().toHaveProperty("id");
     expectTypeOf<ShowGuesserProps>().not.toHaveProperty("children");
+  });
+
+  it("exports useOptionalIdentity", () => {
+    expect(barrel.useOptionalIdentity).toBeTypeOf("function");
+    expectTypeOf<
+      ReturnType<typeof barrel.useOptionalIdentity>
+    >().toEqualTypeOf<{
+      identity: UserIdentity | undefined;
+      isPending: boolean;
+    }>();
   });
 });
