@@ -75,6 +75,9 @@ import { DataTable, List, ReferenceField, TextField } from "@chelone/react";
   `<ArrayField>`, `<TextArrayField>`, `<FunctionField>` (render anything from the
   record), `<WrapperField>`.
 - **Files & media**: `<FileField>`, `<ImageField>`.
+- **JSON**: `<JsonField>` prints a JSON value as indented text and loads
+  nothing extra. `<MonacoJsonField>` shows it in a read-only Monaco editor and
+  is an add-on installed from the registry.
 - **SaaS**: `<ApiKeyField>`, `<SubscriptionPlanField>`, `<UsageMeterField>`,
   `<WebhookEndpointField>`.
 - **List controls**: the components that sit around a `<DataTable>` rather than
