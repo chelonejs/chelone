@@ -19,6 +19,7 @@
     ".": "./src/index.ts",
     "./package.json": "./package.json",
     "./monaco": "./src/monaco.ts",
+    "./supabase": "./src/supabase.ts",
     "./csv-import": "./src/csv-import.ts",
     "./maps": "./src/maps.ts",
     "./maps/draw": "./src/maps-draw.ts",
@@ -38,6 +39,10 @@
       "./monaco": {
         "types": "./dist/monaco.d.ts",
         "default": "./dist/monaco.js"
+      },
+      "./supabase": {
+        "types": "./dist/supabase.d.ts",
+        "default": "./dist/supabase.js"
       },
       "./csv-import": {
         "types": "./dist/csv-import.d.ts",
@@ -73,6 +78,7 @@
     "libphonenumber-js": "^1.13.8"
   },
   "peerDependencies": {
+    "@chelone/supabase": "workspace:*",
     "@guolao/vue-monaco-editor": "^1.6.0",
     "@milkdown/crepe": "^7.23.0",
     "@milkdown/kit": "^7.23.0",
@@ -86,6 +92,9 @@
     "vue-router": "^4.0.0"
   },
   "peerDependenciesMeta": {
+    "@chelone/supabase": {
+      "optional": true
+    },
     "@guolao/vue-monaco-editor": {
       "optional": true
     },
@@ -113,6 +122,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.0",
+    "@chelone/supabase": "workspace:*",
     "@guolao/vue-monaco-editor": "^1.6.0",
     "@milkdown/crepe": "^7.23.0",
     "@milkdown/kit": "^7.23.0",

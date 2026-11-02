@@ -44,6 +44,7 @@ export default defineConfig({
         "src/maps.ts",
         "src/maps-draw.ts",
         "src/csv-import.ts",
+        "src/supabase.ts",
       ],
       formats: ["es"],
     },

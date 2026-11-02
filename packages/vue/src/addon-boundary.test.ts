@@ -46,6 +46,13 @@ const ADDONS = [
     entry: "src/csv-import.ts",
     packages: ["papaparse"],
   },
+  {
+    name: "addon-supabase",
+    subpath: "supabase",
+    folder: "src/components/admin/supabase",
+    entry: "src/supabase.ts",
+    packages: ["@chelone/supabase"],
+  },
 ];
 
 const BASE_ENTRIES = ["src/index.ts"];
