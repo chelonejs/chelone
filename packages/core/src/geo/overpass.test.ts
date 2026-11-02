@@ -82,6 +82,40 @@ describe("createOverpassProvider", () => {
     expect((error as OverpassError).status).toBe(400);
   });
 
+  it("rejects a 200 answer whose remark reports a server timeout or memory limit", async () => {
+    const timedOut = createOverpassProvider({
+      endpoint: ENDPOINT,
+      fetch: stubFetch({
+        elements: [{ type: "way", id: 1 }],
+        remark:
+          'runtime error: Query timed out in "query" at line 2 after 25 seconds.',
+      }),
+    });
+    const timeout = await timedOut.query("q").catch((e: unknown) => e);
+    expect(timeout).toBeInstanceOf(OverpassTimeoutError);
+
+    const outOfMemory = createOverpassProvider({
+      endpoint: ENDPOINT,
+      fetch: stubFetch({
+        elements: [],
+        remark: 'runtime error: Query ran out of memory in "query" at line 5.',
+      }),
+    });
+    const memory = await outOfMemory.query("q").catch((e: unknown) => e);
+    expect(memory).toBeInstanceOf(OverpassError);
+    expect(memory).not.toBeInstanceOf(OverpassTimeoutError);
+    expect((memory as OverpassError).message).toContain("out of memory");
+  });
+
+  it("resolves a 200 answer whose remark is not a runtime error", async () => {
+    const answer = { elements: [], remark: "note: nothing to report" };
+    const provider = createOverpassProvider({
+      endpoint: ENDPOINT,
+      fetch: stubFetch(answer),
+    });
+    expect(await provider.query("q")).toEqual(answer);
+  });
+
   it("rejects with OverpassTimeoutError when the timeout fires even with a caller signal", async () => {
     vi.useFakeTimers();
     const provider = createOverpassProvider({

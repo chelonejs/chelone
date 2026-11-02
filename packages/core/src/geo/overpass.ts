@@ -35,6 +35,21 @@ export class OverpassTimeoutError extends OverpassError {
   }
 }
 
+/**
+ * A query that hits the server's time or memory limit still answers 200, with
+ * the elements found so far and a `remark`. That partial list must not pass
+ * for a complete one.
+ */
+function throwOnRuntimeError(answer: unknown): void {
+  const remark = (answer as { remark?: unknown } | null)?.remark;
+  if (typeof remark !== "string" || !/^runtime error/i.test(remark.trim())) {
+    return;
+  }
+  throw /timed out/i.test(remark)
+    ? new OverpassTimeoutError(`Overpass ${remark.trim()}`)
+    : new OverpassError(`Overpass ${remark.trim()}`);
+}
+
 export interface OverpassProviderOptions {
   /**
    * Overpass interpreter URL, such as `https://overpass-api.de/api/interpreter`.
@@ -95,7 +110,9 @@ export function createOverpassProvider(
             response.status,
           );
         }
-        return (await response.json()) as unknown;
+        const answer = (await response.json()) as unknown;
+        throwOnRuntimeError(answer);
+        return answer;
       } catch (error) {
         if (timedOut && !(error instanceof OverpassError)) {
           throw new OverpassTimeoutError();
