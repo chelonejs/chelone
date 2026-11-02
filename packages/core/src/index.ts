@@ -445,6 +445,33 @@ export { mapMessages } from "./geo/messages";
 export type { NominatimProviderOptions } from "./geo/nominatim";
 export { createNominatimProvider } from "./geo/nominatim";
 export type {
+  OsmElementType,
+  OsmPreset,
+  OsmPresetName,
+  OverpassQuerySources,
+} from "./geo/osm-presets";
+export {
+  buildOverpassQuery,
+  findPresetForTags,
+  OSM_PRESETS,
+} from "./geo/osm-presets";
+export type { OsmTagFilter, OsmTagInput } from "./geo/osm-tags";
+export { tagToFilter } from "./geo/osm-tags";
+export type {
+  OverpassProvider,
+  OverpassProviderOptions,
+  OverpassQuery,
+  OverpassQueryOptions,
+  OverpassRequestOptions,
+} from "./geo/overpass";
+export {
+  createOverpassProvider,
+  OverpassError,
+  OverpassRateLimitError,
+  OverpassTimeoutError,
+  overpassQueryOptions,
+} from "./geo/overpass";
+export type {
   FeaturesToShapeOptions,
   ShapeValue,
   ShapeValueKind,

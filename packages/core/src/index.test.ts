@@ -222,6 +222,28 @@ describe("@chelone/core barrel", () => {
     );
   });
 
+  it("exports the Overpass contract, the tag parser and the presets with no default server", () => {
+    for (const name of [
+      "createOverpassProvider",
+      "overpassQueryOptions",
+      "tagToFilter",
+      "buildOverpassQuery",
+      "findPresetForTags",
+      "OverpassError",
+      "OverpassRateLimitError",
+      "OverpassTimeoutError",
+    ] as const) {
+      expect(barrel[name]).toBeTypeOf("function");
+    }
+    expect(() =>
+      barrel.createOverpassProvider({} as { endpoint: string }),
+    ).toThrow(TypeError);
+    expect(barrel.OSM_PRESETS.roads.bufferLinesMeters).toBe(15);
+    expect(new barrel.OverpassRateLimitError()).toBeInstanceOf(
+      barrel.OverpassError,
+    );
+  });
+
   it("gives mapMessages the placeholders the map components pass", () => {
     const text = (key: keyof typeof barrel.mapMessages) =>
       String(barrel.mapMessages[key]);
