@@ -7,6 +7,10 @@ export {
   type LatLngFieldProps,
 } from "./components/maps/lat-lng-field";
 export {
+  LatLngInput,
+  type LatLngInputProps,
+} from "./components/maps/lat-lng-input";
+export {
   MapCanvas,
   type MapCanvasProps,
   MapMarker,

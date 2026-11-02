@@ -28,6 +28,8 @@ class FakeMap {
   readonly layers: { id: string; [key: string]: unknown }[] = [];
   readonly controls: unknown[] = [];
   readonly handlers: Record<string, Handler[]> = {};
+  /** Every `easeTo` call's options, oldest first. */
+  readonly eases: Record<string, unknown>[] = [];
   loaded = false;
   removed = false;
 
@@ -58,6 +60,11 @@ class FakeMap {
   /** Test hook: fire an event as MapLibre would, e.g. `map.emit("click", {...})`. */
   emit(type: string, event?: unknown): void {
     for (const handler of [...(this.handlers[type] ?? [])]) handler(event);
+  }
+
+  easeTo(options: Record<string, unknown>): this {
+    this.eases.push(options);
+    return this;
   }
 
   isStyleLoaded(): boolean {
