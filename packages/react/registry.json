@@ -5757,6 +5757,85 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "mdx-editor",
+      "type": "registry:block",
+      "title": "Chelone Markdown",
+      "categories": ["chelone", "fields"],
+      "docs": "Import the editor stylesheet once in the app: import \"@mdxeditor/editor/style.css\". The editor is imported statically, so split it with your own route-level lazy loading.",
+      "description": "The opt-in Markdown add-on: MdxField shows a markdown value in a read-only MDXEditor, with the field and input plugin presets. Installs @mdxeditor/editor.",
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils",
+        "@chelone/use-theme"
+      ],
+      "dependencies": ["@chelone/react", "@mdxeditor/editor"],
+      "files": [
+        {
+          "path": "src/components/mdx-editor/default-plugins.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/mdx-editor/mdx-editor-dark.css",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/mdx-editor/mdx-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "default-plugins",
+      "type": "registry:component",
+      "title": "Default Plugins",
+      "files": [
+        {
+          "path": "src/components/mdx-editor/default-plugins.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@mdxeditor/editor"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "mdx-editor-dark.css",
+      "type": "registry:component",
+      "title": "Mdx Editor Dark.css",
+      "files": [
+        {
+          "path": "src/components/mdx-editor/mdx-editor-dark.css",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "mdx-field",
+      "type": "registry:component",
+      "title": "Mdx Field",
+      "files": [
+        {
+          "path": "src/components/mdx-editor/mdx-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/default-plugins",
+        "@chelone/lib-field-types",
+        "@chelone/lib-unknown-types",
+        "@chelone/lib-utils",
+        "@chelone/mdx-editor-dark.css",
+        "@chelone/use-theme"
+      ],
+      "dependencies": ["@chelone/react", "@mdxeditor/editor"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "style-chelone",
       "type": "registry:base",
       "title": "Chelone",
