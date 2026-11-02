@@ -91,8 +91,23 @@ function hasArea(geometry: GeoGeometry): boolean {
 }
 
 /**
- * Each constraint skips empty values and a value that is not GeoJSON, and
- * fails when any member of a FeatureCollection fails.
+ * A Feature or FeatureCollection that `isGeoJsonValue` refuses. Its limits
+ * cannot be checked, so a constraint fails it instead of passing it. Any other
+ * value that is not GeoJSON is left to other validators.
+ */
+function isUnreadable(value: unknown): boolean {
+  if (typeof value !== "object" || value === null) return false;
+  const { type } = value as { type?: unknown };
+  return (
+    (type === "Feature" || type === "FeatureCollection") &&
+    !isGeoJsonValue(value)
+  );
+}
+
+/**
+ * Each constraint skips empty values and a value that is not GeoJSON, fails a
+ * Feature or FeatureCollection it cannot read, and fails when any member of a
+ * FeatureCollection fails.
  */
 function constraint(
   fails: (geometry: GeoGeometry) => boolean,
@@ -100,6 +115,7 @@ function constraint(
 ): Validator {
   return (value) => {
     if (isEmpty(value)) return undefined;
+    if (isUnreadable(value)) return failure();
     return members(value).some(fails) ? failure() : undefined;
   };
 }
@@ -125,6 +141,9 @@ export function maxVertices(max: number): Validator {
 export function minAreaM2(min: number): Validator {
   return (value) => {
     if (isEmpty(value)) return undefined;
+    if (isUnreadable(value)) {
+      return { message: "chelone.validation.minArea", args: { min, area: 0 } };
+    }
     for (const geometry of members(value)) {
       if (!hasArea(geometry)) continue;
       const area = areaM2(geometry);
