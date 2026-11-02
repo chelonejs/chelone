@@ -1,0 +1,200 @@
+---
+title: "Guessers"
+description: "List, edit and show pages generated from a resource's Zod schema."
+---
+
+`ListGuesser`, `EditGuesser` and `ShowGuesser` build a resource's pages from its
+Zod schema. Use them to get a working admin before you write the views, then copy
+the code they print and replace them one at a time.
+
+The examples use `@chelone/react`; [Vue](#vue) lists what differs in
+`@chelone/vue`.
+
+## Using the guessers
+
+Pass a guesser as the view prop of a `<Resource>`, and register the schema with
+`defineResources`:
+
+```tsx title="src/resources/index.ts"
+import { defineResources } from "@chelone/core";
+import { z } from "zod";
+
+export const postSchema = z.object({
+  id: z.number().optional(),
+  title: z.string().min(1).describe("Headline"),
+  body: z.string(),
+  published: z.boolean().optional(),
+  created_at: z.string().datetime().optional(),
+});
+
+export const resources = defineResources({
+  posts: { schema: postSchema },
+});
+```
+
+```tsx title="src/App.tsx"
+import {
+  Admin,
+  EditGuesser,
+  ListGuesser,
+  Resource,
+  ShowGuesser,
+} from "@chelone/react";
+import { dataProvider, queryClient } from "./providers";
+import { resources } from "./resources";
+
+export function App() {
+  return (
+    <Admin
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+      resources={resources}
+    >
+      <Resource
+        name="posts"
+        list={ListGuesser}
+        edit={EditGuesser}
+        show={ShowGuesser}
+      />
+    </Admin>
+  );
+}
+```
+
+A guesser reads the schema and never the records. The columns, inputs and rows
+are the same before any data loads, and a resource's pages do not change with
+what its API happens to return. A `.describe("Headline")` on a field becomes its
+label; without one the label comes from the field name.
+
+`EditGuesser` leaves out the `id` field. `<Edit>` validates against the same
+schema when the form saves.
+
+## Schema type to component
+
+`describeResource` in `@chelone/core` maps each field of the schema. Optional,
+nullable, default, branded and refined wrappers are unwrapped first.
+
+| Schema type                               | List column and show row | Edit input                                    |
+| ----------------------------------------- | ------------------------ | --------------------------------------------- |
+| `z.string()`                              | text column              | `TextInput`                                   |
+| `z.string().email()`                      | `EmailField`             | `TextInput`                                   |
+| `z.string().url()`                        | `UrlField`               | `TextInput`                                   |
+| `z.string().date()`                       | `DateField`              | `DateInput`                                   |
+| `z.string().datetime()`                   | `DateField` with `showTime` | `DateTimeInput`                            |
+| `z.number()`                              | `NumberField`            | `NumberInput`                                 |
+| `z.boolean()`                             | `BooleanField`           | `BooleanInput`                                |
+| `z.date()`                                | `DateField`              | `DateInput`                                   |
+| `z.enum([...])`, `z.nativeEnum(...)`, a union of string or number literals | `SelectField` | `SelectInput` with the values as choices |
+| `z.array(z.string())`                     | `TextArrayField`         | `TextArrayInput`                              |
+| a field listed in `references`            | `ReferenceField`         | `ReferenceInput`                              |
+| an array field listed in `references`     | `ReferenceArrayField`    | `ReferenceArrayInput`                         |
+
+A plain `z.string()` column is a bare `DataTable.Col`, and a bare `RecordField`
+in the show page.
+
+`describeResource` reads Zod 3 schemas. A Zod 4 schema describes as nothing, so
+the resource shows `GuesserEmpty`.
+
+## References
+
+A field is a reference only when you say so. List it under `references` on the
+resource config, keyed by field name, with the target resource as the value:
+
+```tsx title="src/resources/index.ts"
+export const resources = defineResources({
+  authors: { schema: authorSchema },
+  posts: {
+    schema: postSchema,
+    references: { author_id: "authors" },
+  },
+});
+```
+
+The guessers never read a field name for an `_id` suffix. `author_id` above is a
+reference because of the `references` entry, and a `category_id` with no entry is
+a plain number.
+
+## Fields that are left out
+
+A field the guessers cannot map is `unsupported`: an object, a record, an array
+of objects, or any other type the table does not list. The guesser leaves it out
+of the page and lists it in the console, with the reason.
+
+## The code in the console
+
+Each guesser prints the code you would write by hand to the console: the imports,
+then a component with one column, input or row per field. It prints once per
+resource, so a re-render does not repeat it. It is off in production builds, and
+`enableLog` switches it on or off:
+
+```tsx
+const PostList = () => <ListGuesser enableLog={false} />;
+
+<Resource name="posts" list={PostList} />;
+```
+
+Fields the guesser left out follow the code as `Skipped:` lines.
+
+## A resource with no schema
+
+A resource that has no schema in `defineResources`, or an `<Admin>` with no
+`resources`, shows `GuesserEmpty`. It names the resource and tells you to
+register a schema with `defineResources`. A guesser makes no data request in this
+state.
+
+## Vue
+
+`@chelone/vue` exports the same four components. Differences:
+
+- Pass the registry as the `registry` prop of `<Admin>`, not `resources`.
+- The printed code is a single-file component, with `<script setup>` and a
+  `<template>`.
+- `ReferenceInput` takes no autocomplete child, so the printed edit code has
+  none.
+
+```vue title="src/App.vue"
+<script setup lang="ts">
+import {
+  Admin,
+  EditGuesser,
+  ListGuesser,
+  Resource,
+  ShowGuesser,
+} from "@chelone/vue";
+import { dataProvider, queryClient } from "./providers";
+import { resources } from "./resources";
+</script>
+
+<template>
+  <Admin
+    :data-provider="dataProvider"
+    :query-client="queryClient"
+    :registry="resources"
+  >
+    <Resource
+      name="posts"
+      :list="ListGuesser"
+      :edit="EditGuesser"
+      :show="ShowGuesser"
+    />
+  </Admin>
+</template>
+```
+
+## Props
+
+### ListGuesser
+
+<PropsTable name="ListGuesser" />
+
+### EditGuesser
+
+<PropsTable name="EditGuesser" />
+
+### ShowGuesser
+
+<PropsTable name="ShowGuesser" />
+
+### GuesserEmpty
+
+<PropsTable name="GuesserEmpty" />
