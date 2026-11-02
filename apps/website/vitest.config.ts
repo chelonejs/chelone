@@ -40,6 +40,10 @@ export default defineConfig({
     // The docs engine's pure-logic tests (nav / nav-sequence / registry) run
     // under `node --test` (node:test), not vitest — exclude them here so vitest
     // owns the jsdom render tests and generator CLI tests (in node).
-    include: ["src/**/*.test.tsx", "scripts/**/*.test.ts"],
+    include: [
+      "src/**/*.test.tsx",
+      "src/landing/**/*.test.ts",
+      "scripts/**/*.test.ts",
+    ],
   },
 });
