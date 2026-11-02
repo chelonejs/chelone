@@ -290,6 +290,36 @@ describe("StatusTransitionButton", () => {
     await waitFor(() => expect(canAccess).toHaveBeenCalled());
     await screen.findByLabelText(/title/i);
     expect(screen.queryByRole("button", { name: "draft" })).toBeNull();
+
+    cleanup();
+    render(
+      <MemoryRouter initialEntries={["/posts"]}>
+        <Admin
+          dataProvider={fakeDataProvider({ posts: [post()] })}
+          queryClient={new QueryClient()}
+          notifications={createNotificationStore()}
+        >
+          <Resource
+            name="posts"
+            list={() => (
+              <div>
+                <p>No record in view</p>
+                <StatusTransitionButton
+                  resource="posts"
+                  transitions={transitions}
+                />
+              </div>
+            )}
+          />
+        </Admin>
+      </MemoryRouter>,
+    );
+
+    await screen.findByText("No record in view");
+    expect(screen.queryByRole("button", { name: /draft|-/ })).toBeNull();
+    expect(
+      document.querySelector('[data-slot="status-transition-trigger"]'),
+    ).toBeNull();
   });
 
   it("in undoable mode queues an Undo notification and calls onTransition without calling the server", async () => {
