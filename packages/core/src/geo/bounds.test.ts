@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { geoBounds } from "./bounds";
+import { geoBounds, isLngLatBox } from "./bounds";
 import type { GeoFeatureCollection } from "./geojson";
 
 describe("geoBounds", () => {
@@ -104,5 +104,24 @@ describe("geoBounds", () => {
         ],
       }),
     ).toEqual([3, 4, 3, 4]);
+  });
+});
+
+describe("isLngLatBox", () => {
+  it("accepts a box inside -180 to 180 and -90 to 90", () => {
+    expect(isLngLatBox([-180, -90, 180, 90])).toBe(true);
+    expect(isLngLatBox([2, 48, 3, 49])).toBe(true);
+  });
+
+  it("refuses null", () => {
+    expect(isLngLatBox(null)).toBe(false);
+  });
+
+  it("refuses a box outside -180 to 180 and -90 to 90", () => {
+    expect(isLngLatBox([261845, 6250566, 261845, 6250566])).toBe(false);
+    expect(isLngLatBox([0, -91, 1, 0])).toBe(false);
+    expect(isLngLatBox([0, 0, 1, 91])).toBe(false);
+    expect(isLngLatBox([-181, 0, 1, 1])).toBe(false);
+    expect(isLngLatBox([0, 0, 181, 1])).toBe(false);
   });
 });

@@ -146,6 +146,7 @@ describe("@chelone/core barrel", () => {
     expect(barrel.isGeoJsonValue).toBeTypeOf("function");
     expect(barrel.isGeoBBox).toBeTypeOf("function");
     expect(barrel.geoBounds).toBeTypeOf("function");
+    expect(barrel.isLngLatBox).toBeTypeOf("function");
     expect(barrel.bboxToPolygon).toBeTypeOf("function");
     expect(barrel.polygonToBBox).toBeTypeOf("function");
     expect(barrel.aspectLockedBBox).toBeTypeOf("function");
