@@ -519,10 +519,16 @@ importers:
       '@tanstack/vue-query':
         specifier: ^5.0.0
         version: 5.101.2(vue@3.5.39(typescript@5.9.3))
+      '@turf/buffer':
+        specifier: ^7.4.0
+        version: 7.4.0
       '@turf/difference':
         specifier: ^7.4.0
         version: 7.4.0
       '@turf/simplify':
+        specifier: ^7.4.0
+        version: 7.4.0
+      '@turf/union':
         specifier: ^7.4.0
         version: 7.4.0
       '@types/papaparse':
@@ -543,6 +549,9 @@ importers:
       monaco-editor:
         specifier: ^0.57.0
         version: 0.57.0
+      osm2geojson-lite:
+        specifier: ^2.0.1
+        version: 2.0.1
       papaparse:
         specifier: ^5.7.0
         version: 5.7.0

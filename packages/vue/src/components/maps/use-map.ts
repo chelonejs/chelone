@@ -2,6 +2,7 @@ import {
   type GeocodingProvider,
   latLngToLngLat,
   type MapStyleInput,
+  type OverpassProvider,
 } from "@chelone/core";
 import { type Map as MapLibreMap, Marker } from "maplibre-gl";
 import {
@@ -16,12 +17,14 @@ import {
   watch,
 } from "vue";
 
-/** The app-level map services. Later slices add Overpass and the router. */
+/** The app-level map services. A later slice adds the router. */
 export interface MapsConfig {
   /** The basemap: a MapLibre style URL, or an object from `rasterTileStyle`. */
   mapStyle?: MapStyleInput;
   /** The geocoding service. The library names none: the app passes a provider. */
   geocoder?: GeocodingProvider;
+  /** The Overpass service. The library names none: the app passes a provider. */
+  overpass?: OverpassProvider;
 }
 
 const MapsConfigKey: InjectionKey<MapsConfig> = Symbol("chelone-maps-config");
@@ -42,6 +45,7 @@ export const MapsProvider = defineComponent({
   props: {
     mapStyle: [String, Object] as PropType<MapStyleInput | undefined>,
     geocoder: Object as PropType<GeocodingProvider | undefined>,
+    overpass: Object as PropType<OverpassProvider | undefined>,
   },
   setup(props, { slots }) {
     // Getters, so a changed prop reaches the maps that read it later.
@@ -51,6 +55,9 @@ export const MapsProvider = defineComponent({
       },
       get geocoder() {
         return props.geocoder;
+      },
+      get overpass() {
+        return props.overpass;
       },
     });
     return () => slots.default?.();
