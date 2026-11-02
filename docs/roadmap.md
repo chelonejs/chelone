@@ -40,10 +40,10 @@
 ## Tier 3 — deferred / lower priority (charter-deferred or niche)
 
 ### R7. Preferences / Configurable / Inspector
-- The whole `usePreference` + `Configurable` + `Inspector` (in-app "customize this component" panel) system. Big, cohesive, deferred by charter. Effort L.
+- Dropped. The inspector, `Configurable` and `SimpleFormConfigurable` are not built, and `ColumnsButton` covers the usual reason for them. See [Shadmin extras (#225)](#shadmin-extras-225).
 
 ### R8. Guessers / inference — reframe as a Chelone EXTENSION
-- ra-core's guessers sniff data values/name-heuristics to infer views. Chelone deliberately skipped them. BUT the Zod registry is a *better* substrate: a schema→view scaffolder (`z.infer` field types → default List/Edit/Show columns) would be *typed* inference, not data-sniffing — arguably surpassing ra-core. Frame as a NEW extension feature, not a port. Effort M–L.
+- ra-core's guessers sniff data values/name-heuristics to infer views. Chelone deliberately skipped them. BUT the Zod registry is a *better* substrate: a schema→view scaffolder (`z.infer` field types → default List/Edit/Show columns) would be *typed* inference, not data-sniffing — arguably surpassing ra-core. Frame as a NEW extension feature, not a port. Effort M–L. The guessers are tracked in #225, see [Shadmin extras (#225)](#shadmin-extras-225).
 
 ### R9. i18n depth
 - **Deferred:** async/lazy locale loading, `getLocales`, `resolveBrowserLocale`, `mergeTranslations`, a `<Translate>` component. Effort M.
@@ -51,7 +51,7 @@
 
 ### R10. Realtime / enterprise
 - **Realtime, live views and record locks are built in both adapters** (the engine is in `@chelone/core`; `useSubscribe`, `ListLive`/`ShowLive`/`EditLive`/`MenuLive`, `LockOnMount`/`LockStatus` in React and Vue; both demos wire it). Guide: `apps/website/src/docs/content/app-config/realtime.mdx`.
-- Still deferred: audit-log, ra-tree, calendar. Large, ecosystem-scale, post-v1.
+- Still deferred: audit-log. Large, ecosystem-scale, post-v1. Tree list and calendar list moved to [Shadmin extras (#225)](#shadmin-extras-225).
 
 ## Opt-in add-ons (#224)
 
@@ -63,6 +63,20 @@ Heavy editors and integrations ship as opt-in subpaths, so an app that does not 
 - **CSV import** (in progress): `CsvImport` and `useCsvImport` from `/csv-import`. Issues #407 to #411 and #424.
 - **Supabase** (in progress): the `@chelone/supabase` package, and the `/supabase` subpath for the login, reset and set password pages. Issues #412 to #423, #425 and #426.
 - **Dropped:** the block editor and the tiptap rich text input, both left out with tiptap.
+
+## Shadmin extras (#225)
+
+Pieces of shadmin that Chelone keeps, with where each stands. Each lands in both adapters.
+
+- **Guessers, driven by the Zod registry** (built): typed inference of default views from the schema. Issues #378 to #387.
+- **`ColumnsButton`** (built): lets a user choose which list columns show. Issues #427 to #431, docs in #435.
+- **Tree list** (built): a list that renders records as a tree. Issues #432 to #434, docs in #435.
+- **Collaboration** (in progress): presence bar and comment threads on the realtime engine. Issues #475 to #480 and #488.
+- **Approval buttons** (in progress): approve and reject actions on a record. Issues #475 and #481 to #483, docs in #489.
+- **Command menu** (in progress): a keyboard-driven command palette. Issues #484 to #487 and #490.
+- **Calendar list** (post-v1): a list that renders records on a calendar. Issues #436 to #443.
+- **Dropped:** the inspector, `Configurable` and `SimpleFormConfigurable`. `ColumnsButton` covers the usual reason for them.
+- **Dropped:** the rest of the `widgets` folder. It is closer to finished app screens than admin building blocks.
 
 ## Sequencing
 
@@ -76,4 +90,4 @@ Heavy editors and integrations ship as opt-in subpaths, so an app that does not 
 - Feedback: `Confirm`, `Error`, `Loading`, `LoadingIndicator`, `LinearProgress`, `Notification`, `NotFound` (for the catch-all route), `Offline`, `Placeholder`, `Ready`, `Spinner`.
 - Common: `Link`, `IconButtonWithTooltip`, `KeyboardShortcut`, `FieldLabelText`, `InputHelperText`, `CheckForApplicationUpdate`, `ApplicationUpdatedNotification`.
 
-**Next:** Tier 3 (R7 to R9, and the audit-log, ra-tree and calendar part of R10) stays deferred. Realtime, live views and record locks from R10 are built. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open work is the first npm release (#8) and the opt-in add-ons (#224).
+**Next:** Tier 3 (R9, and the audit-log part of R10) stays deferred. R7 is dropped and R8 is tracked in #225. Realtime, live views and record locks from R10 are built. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open work is the first npm release (#8), the opt-in add-ons (#224) and the shadmin extras (#225).
