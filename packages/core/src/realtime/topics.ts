@@ -13,3 +13,7 @@ export const lockResourceTopic = (resource: string): string =>
 
 export const lockTopic = (resource: string, id: Identifier): string =>
   `lock/${resource}/${id}`;
+
+/** Who is on one record. `1` and `"1"` give the same topic. */
+export const presenceTopic = (resource: string, id: Identifier): string =>
+  `presence/${resource}/${id}`;

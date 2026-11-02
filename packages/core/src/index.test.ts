@@ -277,6 +277,13 @@ describe("@chelone/core barrel", () => {
     expect(barrel.LockConflictError).toBeTypeOf("function");
   });
 
+  it("exports the presence session and helpers", () => {
+    expect(barrel.createPresenceSession).toBeTypeOf("function");
+    expect(barrel.presenceTopic).toBeTypeOf("function");
+    expect(barrel.toPresenceUser).toBeTypeOf("function");
+    expect(barrel.getPresenceInitials).toBeTypeOf("function");
+  });
+
   it("exports the live query subscribers and lock keys", () => {
     expect(barrel.subscribeLiveResource).toBeTypeOf("function");
     expect(barrel.subscribeLiveRecord).toBeTypeOf("function");
