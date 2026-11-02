@@ -67,9 +67,11 @@ export function cutFeatures(
             type: "Polygon" as const,
             coordinates,
           }));
-    for (const part of parts) {
-      out.push({ ...feature, geometry: part });
-    }
+    // Only the first part keeps the `id`, which is unique within a collection.
+    parts.forEach((part, index) => {
+      const { id: _id, ...rest } = feature;
+      out.push({ ...(index === 0 ? feature : rest), geometry: part });
+    });
   }
   return { features: out, changed };
 }
