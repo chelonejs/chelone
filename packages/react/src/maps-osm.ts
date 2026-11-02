@@ -11,6 +11,19 @@ export {
   type MapWithSearchProps,
 } from "./components/maps-osm/map-with-search";
 export {
+  type FetchOsmFeaturesOptions,
+  fetchOsmFeatures,
+  osmToPolygons,
+} from "./components/maps-osm/osm-features";
+export {
+  subtractMask,
+  unionAll,
+} from "./components/maps-osm/osm-geometry-ops";
+export {
   type UseGeocodeOptions,
   useGeocode,
 } from "./components/maps-osm/use-geocode";
+export {
+  type UseOsmFeaturesOptions,
+  useOsmFeatures,
+} from "./components/maps-osm/use-osm-features";

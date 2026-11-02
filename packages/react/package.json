@@ -111,10 +111,13 @@
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
+    "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
     "@turf/simplify": "^7.4.0",
+    "@turf/union": "^7.4.0",
     "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
+    "osm2geojson-lite": "^2.0.1",
     "papaparse": "^5.4.0",
     "react": "^18 || ^19",
     "react-dom": "^18 || ^19",
@@ -135,16 +138,25 @@
     "@tanstack/react-router": {
       "optional": true
     },
+    "@turf/buffer": {
+      "optional": true
+    },
     "@turf/difference": {
       "optional": true
     },
     "@turf/simplify": {
       "optional": true
     },
+    "@turf/union": {
+      "optional": true
+    },
     "maplibre-gl": {
       "optional": true
     },
     "monaco-editor": {
+      "optional": true
+    },
+    "osm2geojson-lite": {
       "optional": true
     },
     "papaparse": {
@@ -169,14 +181,17 @@
     "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
     "@testing-library/react": "^16.0.0",
+    "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
     "@turf/simplify": "^7.4.0",
+    "@turf/union": "^7.4.0",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "jsdom": "^26.0.0",
     "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
+    "osm2geojson-lite": "^2.0.1",
     "papaparse": "^5.7.0",
     "publint": "^0.3.0",
     "react": "^19",
