@@ -46,7 +46,7 @@ interface EditorProps {
   readOnly: boolean;
   className?: string;
   mdxProps?: MdxEditorPassthrough;
-  onChange: (markdown: string) => void;
+  onChange: (markdown: string, initialMarkdownNormalize: boolean) => void;
   onBlur: (event: FocusEvent) => void;
 }
 
@@ -153,8 +153,13 @@ function MdxInput(props: MdxInputProps) {
   // `field` is a new object per render; the editor gets handlers that stay put.
   const fieldRef = useRef(field);
   fieldRef.current = field;
+  // On mount the editor re-serialises the starting markdown and reports it
+  // with `initialMarkdownNormalize`; that is not an edit, so it stays out of the
+  // form (no dirty state, no rewrite of stored markdown the user never touched).
   const handleChange = useCallback(
-    (markdown: string) => fieldRef.current.onChange(markdown),
+    (markdown: string, initialMarkdownNormalize: boolean) => {
+      if (!initialMarkdownNormalize) fieldRef.current.onChange(markdown);
+    },
     [],
   );
   const handleBlur = useCallback(

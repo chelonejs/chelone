@@ -44,7 +44,7 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
       className?: string;
       readOnly?: boolean;
       plugins?: unknown;
-      onChange?: (markdown: string) => void;
+      onChange?: (markdown: string, initialMarkdownNormalize: boolean) => void;
       onBlur?: () => void;
     }
   >(function MDXEditor(props, ref) {
@@ -59,9 +59,9 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
         hoisted.setMarkdown(value);
       },
     }));
-    const edit = (value: string) => {
+    const edit = (value: string, initialMarkdownNormalize = false) => {
       current.current = value;
-      props.onChange?.(value);
+      props.onChange?.(value, initialMarkdownNormalize);
     };
     return (
       <div
@@ -75,6 +75,9 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
         </button>
         <button type="button" onClick={() => edit("")}>
           clear
+        </button>
+        <button type="button" onClick={() => edit("- item", true)}>
+          normalize
         </button>
         <button type="button" onClick={() => props.onBlur?.()}>
           blur
@@ -221,6 +224,20 @@ describe("<MdxInput />", () => {
       await handle.submit();
     });
     expect(onData).toHaveBeenCalledWith({ body: "" });
+  });
+
+  it("leaves the form untouched when the editor normalizes the initial markdown", async () => {
+    const onData = vi.fn();
+    const handle = setup<{ body: string }>(<MdxInput source="body" />, {
+      defaultValues: { body: "* item" },
+      onData,
+    });
+    fireEvent.click(screen.getByText("normalize"));
+    expect(handle.form.getFieldMeta("body")?.isDirty).toBeFalsy();
+    await act(async () => {
+      await handle.submit();
+    });
+    expect(onData).toHaveBeenCalledWith({ body: "* item" });
   });
 
   it("calls setMarkdown when the form value changes from outside", () => {
