@@ -176,3 +176,22 @@ export function hasSelfIntersection(geometry: GeoGeometry): boolean {
       return false;
   }
 }
+
+type Area = Extract<GeoGeometry, { type: "Polygon" | "MultiPolygon" }>;
+
+/**
+ * `result` in the type of `value`, so it stays editable by the input that owns
+ * the field. `null` when a Polygon would have to hold several pieces.
+ */
+export const areaInTypeOf = (value: Area, result: Area): Area | null => {
+  if (value.type === "MultiPolygon") {
+    return result.type === "Polygon"
+      ? { type: "MultiPolygon", coordinates: [result.coordinates] }
+      : result;
+  }
+  if (result.type === "Polygon") return result;
+  const [only, ...rest] = result.coordinates;
+  return only && rest.length === 0
+    ? { type: "Polygon", coordinates: only }
+    : null;
+};
