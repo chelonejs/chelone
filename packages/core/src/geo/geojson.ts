@@ -15,8 +15,18 @@ export type GeoBBox = [
   north: number,
 ];
 
+/** `[west, south, min altitude, east, north, max altitude]`. */
+export type GeoBBox3D = [
+  west: number,
+  south: number,
+  minAltitude: number,
+  east: number,
+  north: number,
+  maxAltitude: number,
+];
+
 interface GeoGeometryBase {
-  bbox?: GeoBBox;
+  bbox?: GeoBBox | GeoBBox3D;
 }
 
 export interface GeoPoint extends GeoGeometryBase {
@@ -68,13 +78,13 @@ export interface GeoFeature {
   geometry: GeoGeometry | null;
   properties: Record<string, unknown> | null;
   id?: string | number;
-  bbox?: GeoBBox;
+  bbox?: GeoBBox | GeoBBox3D;
 }
 
 export interface GeoFeatureCollection {
   type: "FeatureCollection";
   features: GeoFeature[];
-  bbox?: GeoBBox;
+  bbox?: GeoBBox | GeoBBox3D;
 }
 
 /** What a map input stores: a geometry, a Feature or a FeatureCollection. */
@@ -119,8 +129,15 @@ export function isGeoBBox(value: unknown): value is GeoBBox {
   );
 }
 
+/** The `bbox` member of an object: 4 numbers, or 6 when it carries altitude. */
 function hasValidBBox(value: Record<string, unknown>): boolean {
-  return value.bbox === undefined || isGeoBBox(value.bbox);
+  const { bbox } = value;
+  if (bbox === undefined) return true;
+  return (
+    Array.isArray(bbox) &&
+    (bbox.length === 4 || bbox.length === 6) &&
+    bbox.every(isFiniteNumber)
+  );
 }
 
 export function isGeoGeometry(value: unknown): value is GeoGeometry {
@@ -143,7 +160,12 @@ export function isGeoFeature(value: unknown): value is GeoFeature {
     return false;
   }
   if (value.geometry !== null && !isGeoGeometry(value.geometry)) return false;
-  return value.properties === null || isRecord(value.properties);
+  // A missing `properties` reads as null; the stored value is not rewritten.
+  return (
+    value.properties === undefined ||
+    value.properties === null ||
+    isRecord(value.properties)
+  );
 }
 
 export function isGeoFeatureCollection(
