@@ -41,7 +41,8 @@ export function useGeoJsonSource(
   const specsKey = computed(() => JSON.stringify(specs()));
 
   const initial = specs();
-  map.addSource(sourceId, { type: "geojson", data: toValue(data) });
+  // MapLibre types a feature's geometry as non-null once `@types/geojson` resolves.
+  map.addSource(sourceId, { type: "geojson", data: toValue(data) as never });
   for (const spec of initial) map.addLayer(spec as never);
   const ids = initial.map((spec) => spec.id);
 
