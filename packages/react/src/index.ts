@@ -834,6 +834,11 @@ export {
   type TreeListProps,
 } from "./components/admin/list/tree-list";
 export {
+  type CommentRecord,
+  CommentsThread,
+  type CommentsThreadProps,
+} from "./components/admin/realtime/comments-thread";
+export {
   EditLive,
   type EditLiveProps,
 } from "./components/admin/realtime/edit-live";
