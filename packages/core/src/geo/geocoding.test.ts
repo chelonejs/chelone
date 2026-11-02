@@ -5,6 +5,7 @@ import {
   geocodeQueryOptions,
   reverseGeocodeQueryOptions,
 } from "./geocoding";
+import { createNominatimProvider } from "./nominatim";
 
 function fakeProvider(name = "fake") {
   const search = vi.fn<GeocodingProvider["search"]>(async () => []);
@@ -35,6 +36,50 @@ describe("geocodeQueryOptions", () => {
     const other = fakeProvider("other").provider;
     expect(geocodeQueryOptions(other, "Paris").queryKey).not.toEqual(
       geocodeQueryOptions(provider, "Paris").queryKey,
+    );
+  });
+
+  it("keys a search by the provider's cacheKey", () => {
+    const { provider } = fakeProvider("acme");
+    const keyed = { ...provider, cacheKey: "acme|fr" };
+    const searchKey = geocodeQueryOptions(keyed, "Paris").queryKey;
+    expect(searchKey).toContain("acme|fr");
+    expect(searchKey).not.toContain("acme");
+    expect(
+      geocodeQueryOptions({ ...provider, cacheKey: "acme|de" }, "Paris")
+        .queryKey,
+    ).not.toEqual(searchKey);
+
+    const reverseKey = reverseGeocodeQueryOptions(keyed, {
+      lat: 1,
+      lng: 2,
+    }).queryKey;
+    expect(reverseKey).toContain("acme|fr");
+    expect(reverseKey).not.toContain("acme");
+  });
+
+  it("two Nominatim providers in different languages do not share a key", () => {
+    const endpoint = "https://nominatim.example.test";
+    const english = createNominatimProvider({ endpoint, language: "en" });
+    const french = createNominatimProvider({ endpoint, language: "fr" });
+    expect(geocodeQueryOptions(english, "Paris").queryKey).not.toEqual(
+      geocodeQueryOptions(french, "Paris").queryKey,
+    );
+    expect(
+      reverseGeocodeQueryOptions(english, { lat: 1, lng: 2 }).queryKey,
+    ).not.toEqual(
+      reverseGeocodeQueryOptions(french, { lat: 1, lng: 2 }).queryKey,
+    );
+    const elsewhere = createNominatimProvider({
+      endpoint: "https://other.example.test",
+      language: "en",
+    });
+    expect(geocodeQueryOptions(english, "Paris").queryKey).not.toEqual(
+      geocodeQueryOptions(elsewhere, "Paris").queryKey,
+    );
+    const sameAgain = createNominatimProvider({ endpoint, language: "en" });
+    expect(geocodeQueryOptions(english, "Paris").queryKey).toEqual(
+      geocodeQueryOptions(sameAgain, "Paris").queryKey,
     );
   });
 
