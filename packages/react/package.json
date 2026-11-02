@@ -23,6 +23,7 @@
     "./monaco": "./src/monaco.ts",
     "./csv-import": "./src/csv-import.ts",
     "./maps": "./src/maps.ts",
+    "./supabase": "./src/supabase.ts",
     "./mdx-editor": "./src/mdx-editor.ts",
     "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-dark.css",
     "./package.json": "./package.json"
@@ -51,6 +52,10 @@
       "./maps": {
         "types": "./dist/maps.d.ts",
         "default": "./dist/maps.js"
+      },
+      "./supabase": {
+        "types": "./dist/supabase.d.ts",
+        "default": "./dist/supabase.js"
       },
       "./mdx-editor": {
         "types": "./dist/mdx-editor.d.ts",
@@ -90,6 +95,7 @@
     "vaul": "^1.1.2"
   },
   "peerDependencies": {
+    "@chelone/supabase": "workspace:*",
     "@mdxeditor/editor": "^4.3.4",
     "@monaco-editor/react": "^4.7.0",
     "@tanstack/react-query": "^5.0.0",
@@ -103,6 +109,9 @@
     "react-router": "^7.0.0"
   },
   "peerDependenciesMeta": {
+    "@chelone/supabase": {
+      "optional": true
+    },
     "@mdxeditor/editor": {
       "optional": true
     },
@@ -127,6 +136,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.0",
+    "@chelone/supabase": "workspace:*",
     "@mdxeditor/editor": "^4.3.4",
     "@monaco-editor/react": "^4.7.0",
     "@tanstack/react-query": "^5.0.0",
