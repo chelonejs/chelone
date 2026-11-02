@@ -6214,6 +6214,102 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "maps-osm",
+      "type": "registry:block",
+      "title": "Chelone Maps OpenStreetMap",
+      "categories": ["chelone", "fields"],
+      "docs": "The library names no geocoding service. Pass a provider to each component, or set geocoder on MapsProvider, for example createNominatimProvider({ endpoint }) from @chelone/core. A public Nominatim server has a usage policy and allows no search per keystroke, so the input searches on Enter or on its button.",
+      "description": "The opt-in maps add-on for pieces that call a network service: GeocodingInput searches an address with a geocoding provider and fills its coordinates, and MapWithSearch puts that search over a map. Installs maplibre-gl, and the maps block.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/label-text",
+        "@chelone/lat-lng-input",
+        "@chelone/lib-utils",
+        "@chelone/use-map",
+        "@chelone/validation-error",
+        "maps"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "files": [
+        {
+          "path": "src/components/maps-osm/geocoding-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/map-with-search.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/use-geocode.ts",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "geocoding-input",
+      "type": "registry:component",
+      "title": "Geocoding Input",
+      "files": [
+        {
+          "path": "src/components/maps-osm/geocoding-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/label-text",
+        "@chelone/lib-utils",
+        "@chelone/use-geocode",
+        "@chelone/use-map",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "map-with-search",
+      "type": "registry:component",
+      "title": "Map With Search",
+      "files": [
+        {
+          "path": "src/components/maps-osm/map-with-search.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/geocoding-input",
+        "@chelone/lat-lng-input",
+        "@chelone/lib-utils",
+        "@chelone/use-map"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "devDependencies": ["@tanstack/vue-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-geocode",
+      "type": "registry:component",
+      "title": "Use Geocode",
+      "files": [
+        {
+          "path": "src/components/maps-osm/use-geocode.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/use-map"],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "devDependencies": ["@tanstack/vue-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "addon-csv-import",
       "type": "registry:block",
       "title": "Chelone CSV Import",

@@ -23,6 +23,7 @@
     "./csv-import": "./src/csv-import.ts",
     "./maps": "./src/maps.ts",
     "./maps/draw": "./src/maps-draw.ts",
+    "./maps/osm": "./src/maps-osm.ts",
     "./mdx-editor": "./src/mdx-editor.ts",
     "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-theme.css"
   },
@@ -55,6 +56,10 @@
       "./maps/draw": {
         "types": "./dist/maps-draw.d.ts",
         "default": "./dist/maps-draw.js"
+      },
+      "./maps/osm": {
+        "types": "./dist/maps-osm.d.ts",
+        "default": "./dist/maps-osm.js"
       },
       "./mdx-editor": {
         "types": "./dist/mdx-editor.d.ts",
