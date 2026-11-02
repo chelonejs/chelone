@@ -278,16 +278,33 @@ describe("OsmFeatureSubtract", () => {
     expect(screen.queryByRole("status")).toBeNull();
   });
 
-  it("takes the provider from MapsProvider and throws an error naming provider and MapsProvider when neither is set", () => {
+  it("takes the provider from MapsProvider and throws an error naming provider and MapsProvider when neither is set", async () => {
     const other: OverpassProvider = { name: "other", query: async () => ({}) };
+    const providerOfLastCall = () => fetchMock.mock.lastCall?.[3].provider;
     fetchMock.mockResolvedValue(collection());
+
     mount(<OsmFeatureSubtract source="area" presets={["water"]} />);
+    await click();
+    expect(providerOfLastCall()).toBe(overpass);
     cleanup();
+
+    // The prop wins over MapsProvider.
+    mount(
+      <OsmFeatureSubtract source="area" presets={["water"]} provider={other} />,
+    );
+    await click();
+    expect(providerOfLastCall()).toBe(other);
+    cleanup();
+
+    // The prop alone is enough.
     mount(
       <OsmFeatureSubtract source="area" presets={["water"]} provider={other} />,
       field,
       {},
     );
+    await click();
+    expect(providerOfLastCall()).toBe(other);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
     cleanup();
 
     const quiet = vi.spyOn(console, "error").mockImplementation(() => {});
