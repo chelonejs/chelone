@@ -1,0 +1,38 @@
+---
+title: "MonacoJsonField"
+description: "Shows a JSON value in a read-only Monaco editor."
+registry: "monaco"
+---
+
+`<MonacoJsonField>` shows a JSON value, or a string of JSON, in a read-only
+Monaco editor with syntax highlighting and folding. Use it where the value is
+long enough to want a real editor, such as a show view.
+
+It is an add-on installed from the registry, with Monaco as an optional peer
+dependency. The [MonacoJsonInput page](/docs/editing/monaco-json-input) covers
+installing it and how Monaco loads.
+
+## In a show view
+
+```tsx
+import { RecordField, Show } from "@/components/admin";
+import { MonacoJsonField } from "@/components/monaco";
+
+export const IntegrationShow = () => (
+  <Show>
+    <RecordField source="settings">
+      <MonacoJsonField source="settings" maxHeight={320} />
+    </RecordField>
+  </Show>
+);
+```
+
+The editor grows with the content up to `maxHeight`. Set `autoHeight={false}` to
+use a fixed `height` instead.
+
+For a list cell, use [JsonField](/docs/viewing/json-field). It renders plain
+text in a `<pre>` and loads no editor, so a datagrid of many rows stays light.
+
+## Props
+
+<PropsTable name="MonacoJsonField" />

@@ -71,6 +71,7 @@ const STUBS = [
   { slug: "email-field", section: "viewing", component: "EmailField", registry: "email-field", title: "EmailField", desc: "Renders an email address as a mailto link." },
   { slug: "file-field", section: "viewing", component: "FileField", registry: "file-field", title: "FileField", desc: "Renders a file reference as a downloadable link." },
   { slug: "function-field", section: "viewing", component: "FunctionField", registry: "function-field", title: "FunctionField", desc: "Renders whatever a render function returns for the current record." },
+  { slug: "json-field", section: "viewing", component: "JsonField", registry: "json-field", title: "JsonField", desc: "Renders a JSON value as indented text in a <pre>, for objects, arrays and JSON strings." },
   { slug: "image-field", section: "viewing", component: "ImageField", registry: "image-field", title: "ImageField", desc: "Renders an image field as an <img> from its URL value." },
   { slug: "number-field", section: "viewing", component: "NumberField", registry: "number-field", title: "NumberField", desc: "Formats a numeric field using Intl.NumberFormat options." },
   { slug: "phone-field", section: "viewing", component: "PhoneField", registry: "phone-field", title: "PhoneField", desc: "Renders an E.164 phone number, formatted, as a `tel:` link. Set `link={false}` for plain text." },
