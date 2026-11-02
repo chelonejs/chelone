@@ -37,7 +37,12 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: ["src/index.ts", "src/monaco.ts", "src/mdx-editor.ts"],
+      entry: [
+        "src/index.ts",
+        "src/monaco.ts",
+        "src/mdx-editor.ts",
+        "src/maps.ts",
+      ],
       formats: ["es"],
     },
     outDir: "dist",
