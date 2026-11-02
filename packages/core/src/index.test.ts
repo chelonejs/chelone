@@ -329,6 +329,17 @@ describe("@chelone/core barrel", () => {
     expect(barrel.inMemoryLockProvider).toBeTypeOf("function");
   });
 
+  it("exports the command menu helpers", () => {
+    expect(barrel.matchesHotkey).toBeTypeOf("function");
+    expect(barrel.shouldHandleHotkey).toBeTypeOf("function");
+    expect(barrel.isTypingTarget).toBeTypeOf("function");
+    expect(barrel.rememberRecent).toBeTypeOf("function");
+    expect(barrel.recentsKey).toBe("command-menu.recents");
+    expect(barrel.createCommandRegistry).toBeTypeOf("function");
+    expect(barrel.getVisibleCommands).toBeTypeOf("function");
+    expect(barrel.groupCommands).toBeTypeOf("function");
+  });
+
   it("exports the environment stores", () => {
     expect(barrel.createOfflineStore).toBeTypeOf("function");
     expect(barrel.createApplicationUpdateStore).toBeTypeOf("function");
