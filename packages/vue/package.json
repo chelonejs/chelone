@@ -44,7 +44,7 @@
     }
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json && node ../../scripts/dts-extensions.mjs dist",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && node ../../scripts/strip-dts-css-imports.mjs dist && node ../../scripts/dts-extensions.mjs dist",
     "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only --exclude-entrypoints ./mdx-editor.css",
     "test": "vitest run --typecheck",
     "typecheck": "vue-tsc --noEmit",
