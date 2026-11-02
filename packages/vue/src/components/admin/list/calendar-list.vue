@@ -19,7 +19,10 @@ export interface CalendarListProps {
   colorMap?: Record<string, string>;
   /** The view shown first. Default `month`. */
   defaultView?: CalendarView;
-  /** The views offered. Only `month` exists yet, so the others are dropped. Default `["month"]`. */
+  /**
+   * The views offered. The first one is shown when `defaultView` is not among
+   * them. Default `["month", "week", "agenda"]`.
+   */
   views?: CalendarView[];
   /** 0 is Sunday, as in `Date#getDay`. Default 0. */
   weekStartsOn?: CalendarWeekStart;
@@ -53,7 +56,7 @@ export interface CalendarHeaderSlotProps {
 <script setup lang="ts">
 /**
  * `<CalendarList>` — the records of the ambient `<List>` as events in a month
- * grid. The Vue analog of `@chelone/react`'s `list/calendar-list.tsx`. It asks
+ * grid, or in a week of hour rows, or in an agenda. The Vue analog of `@chelone/react`'s `list/calendar-list.tsx`. It asks
  * the list for the visible range (and `perPage` records), so moving to another
  * month refetches; it removes that filter and restores `perPage` when it
  * unmounts. The filters the user set stay.
@@ -94,11 +97,13 @@ import { cn } from "../../../lib/utils";
 import { useListContext } from "../../../list/list-context";
 import { useResourceContext } from "../../../resource-context";
 import { useCreatePath, useNavigate } from "../../../router";
+import CalendarAgendaView from "./calendar-agenda-view.vue";
 import CalendarHeader from "./calendar-header.vue";
 import CalendarMonthView, {
   type CalendarEventSlotProps,
   type CalendarSlot,
 } from "./calendar-month-view.vue";
+import CalendarWeekView from "./calendar-week-view.vue";
 
 // A `false` in the union makes Vue cast an absent prop to `false`.
 const props = withDefaults(defineProps<CalendarListProps>(), {
@@ -109,7 +114,7 @@ const props = withDefaults(defineProps<CalendarListProps>(), {
   colorMap: undefined,
   rangeFilter: undefined,
   defaultView: "month",
-  views: () => ["month"],
+  views: () => ["month", "week", "agenda"],
   weekStartsOn: 0,
   perPage: 1000,
 });
@@ -140,15 +145,23 @@ const hasListener = () => {
   return !!(listeners?.onSelectEvent || listeners?.onSelectEventOnce);
 };
 
-// Only the month view exists yet.
-const available = computed<CalendarView[]>(() =>
-  props.views.filter((view) => view === "month"),
+const VIEWS: CalendarView[] = ["month", "week", "agenda"];
+// Offered in the order given, each once; none left means the month.
+const available = computed<CalendarView[]>(() => {
+  const offered = VIEWS.filter((name) => props.views.includes(name));
+  return offered.length > 0 ? offered : ["month"];
+});
+const view = ref<CalendarView>(
+  available.value.includes(props.defaultView)
+    ? props.defaultView
+    : available.value[0]!,
 );
-const view = ref<CalendarView>("month");
 function onViewChange(next: CalendarView) {
   if (available.value.includes(next)) view.value = next;
 }
-onViewChange(props.defaultView);
+watch(available, (offered) => {
+  if (!offered.includes(view.value)) view.value = offered[0]!;
+});
 
 const anchor = ref(new Date());
 const range = computed(() =>
@@ -251,6 +264,11 @@ const linkTo = (record: LooseRecord) =>
     ? createPath({ resource, id: record.id, type: type.value })
     : undefined;
 
+const hrefFor = (record: LooseRecord) =>
+  hasListener() ? undefined : linkTo(record);
+const isSelectable = (record: LooseRecord) =>
+  hasListener() || linkTo(record) !== undefined;
+
 function onSelectEvent(record: LooseRecord) {
   if (hasListener()) return emit("selectEvent", record);
   const to = linkTo(record);
@@ -273,15 +291,23 @@ function onSelectEvent(record: LooseRecord) {
       :onNavigate="onNavigate"
       :onViewChange="onViewChange"
     />
-    <CalendarHeader v-else :title="title" @navigate="onNavigate" />
+    <CalendarHeader
+      v-else
+      :title="title"
+      :view="view"
+      :views="available"
+      @navigate="onNavigate"
+      @view-change="onViewChange"
+    />
     <CalendarMonthView
+      v-if="view === 'month'"
       :days="days"
       :anchor="anchor"
       :weekdays="weekdays"
       :label="title"
       :events="events"
-      :href-for="(record) => (hasListener() ? undefined : linkTo(record))"
-      :is-selectable="(record) => hasListener() || linkTo(record) !== undefined"
+      :href-for="hrefFor"
+      :is-selectable="isSelectable"
       @select-event="onSelectEvent"
       @select-slot="emit('selectSlot', $event)"
     >
@@ -289,5 +315,34 @@ function onSelectEvent(record: LooseRecord) {
         <slot name="event" v-bind="slotProps" />
       </template>
     </CalendarMonthView>
+    <CalendarWeekView
+      v-else-if="view === 'week'"
+      :days="days"
+      :labels="labels"
+      :label="title"
+      :events="events"
+      :href-for="hrefFor"
+      :is-selectable="isSelectable"
+      @select-event="onSelectEvent"
+      @select-slot="emit('selectSlot', $event)"
+    >
+      <template v-if="$slots.event" #event="slotProps">
+        <slot name="event" v-bind="slotProps" />
+      </template>
+    </CalendarWeekView>
+    <CalendarAgendaView
+      v-else
+      :range="range"
+      :labels="labels"
+      :label="title"
+      :events="events"
+      :href-for="hrefFor"
+      :is-selectable="isSelectable"
+      @select-event="onSelectEvent"
+    >
+      <template v-if="$slots.event" #event="slotProps">
+        <slot name="event" v-bind="slotProps" />
+      </template>
+    </CalendarAgendaView>
   </div>
 </template>
