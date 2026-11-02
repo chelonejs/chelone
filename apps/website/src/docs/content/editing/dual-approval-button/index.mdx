@@ -1,0 +1,105 @@
+---
+title: "DualApprovalButton"
+description: "Records the signed-in user's approval on the record and sets its status once enough users have approved."
+registry: "dual-approval-button"
+---
+
+Records the signed-in user's approval on the current record. Each approval adds
+the user's id to the list in `approverSource`. The approval that reaches
+`required` sets `statusSource` to `approvedValue`; any earlier one sets it to
+`pendingValue`.
+
+## Usage
+
+```tsx title="src/resources/PostEdit.tsx"
+import {
+  DualApprovalButton,
+  Edit,
+  SaveButton,
+  TextInput,
+  Toolbar,
+} from "@chelone/react";
+
+export const PostEdit = () => (
+  <Edit>
+    <TextInput source="title" />
+    <Toolbar>
+      <SaveButton />
+      <DualApprovalButton required={2} />
+    </Toolbar>
+  </Edit>
+);
+```
+
+The button reads two fields from the record:
+
+```json
+{ "id": 1, "title": "Launch plan", "approvers": ["u1"], "status": "pending" }
+```
+
+- `approvers` is an array of user ids, at `approverSource` (default `approvers`).
+- `status` is a string, at `statusSource` (default `status`). Defaults are
+  `pending` and `approved`.
+
+With one entry in `approvers` and `required={2}`, the next approval writes
+`{ approvers: ["u1", "u2"], status: "approved" }`.
+
+### Vue
+
+The Vue button takes the same props. `<Edit>` has `#toolbar` and `#actions`
+slots in place of React's children and `actions` prop.
+
+```vue title="src/resources/PostEdit.vue"
+<script setup lang="ts">
+import {
+  DualApprovalButton,
+  Edit,
+  SaveButton,
+  TextInput,
+  Toolbar,
+} from "@chelone/vue";
+</script>
+
+<template>
+  <Edit resource="posts">
+    <TextInput source="title" />
+    <template #toolbar>
+      <Toolbar>
+        <SaveButton />
+        <DualApprovalButton :required="2" />
+      </Toolbar>
+    </template>
+  </Edit>
+</template>
+```
+
+## Who can approve
+
+- A user whose id is already in the list sees a disabled button.
+- Ids compare as strings, so `7` and `"7"` are the same approver.
+- Without a signed-in identity nobody can approve.
+- The button renders nothing without a record, a resource or `edit` access.
+
+## A UI control, not a security one
+
+The button is for the screen. It does not stop a determined user.
+
+- It writes the whole `approvers` list from the record on screen. Two approvers
+  acting at once can overwrite each other, and one approval is lost.
+- Anyone who can call the data provider can write `approvers` and `status`
+  directly.
+- The server must enforce the count and who may approve.
+
+## On the server or in a custom button
+
+`@chelone/core` exports the rules the button uses, so a server or a custom
+button can share them:
+
+- `getApprovalState(record, options)` returns `approvers`, `count`, `required`,
+  `hasApproved`, `isComplete` and `canApprove`.
+- `buildApprovalUpdate(record, options)` returns the patch the button sends, or
+  `null` when the user cannot approve.
+
+## Props
+
+<PropsTable name="DualApprovalButton" />
