@@ -17,7 +17,7 @@ A headless admin engine: a vanilla-TypeScript core with thin React and Vue adapt
 - A package that imports a dependency declares it in its own `package.json`. pnpm hoisting can hide a missing one locally; CI's fresh install will not.
 - After adding, moving or removing a React or Vue component file, run `pnpm --dir packages/react registry:generate` or `pnpm --dir packages/vue registry:generate` and commit that package's `registry.json`. CI fails on a stale one.
 - Comment only what would surprise the next reader.
-- Run `pnpm format` before every commit: `pnpm lint` fails on any file Biome would reformat.
+- Run `pnpm format` before every commit: `pnpm lint` fails on any file Biome would reformat. The pre-push hook in `.githooks/` runs `pnpm lint` and refuses the push when it fails; `pnpm install` turns it on.
 - Commits: a conventional prefix (`feat:`, `fix:`, `test:`, `chore:`, `docs:`, `refactor:`) and a body that says why. Pull request bodies: a short bullet list of what changed, no em dashes, no bold.
 
 ## Checks
