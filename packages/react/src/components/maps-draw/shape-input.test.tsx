@@ -674,6 +674,62 @@ describe("ShapeInput cut tool", () => {
   });
 });
 
+describe("ShapeInput cut tool on every kind", () => {
+  it("leaves a single-shape polygon alone when the cut would split it", async () => {
+    const onCommit = vi.fn();
+    const { draw } = await setup({ onCommit }, field(0, 0, 10, 10));
+
+    await drawCutter(draw, field(4, -5, 6, 15));
+
+    // Polygon holds one shape: storing either half would delete the other.
+    expect(value()).toEqual(field(0, 0, 10, 10));
+    expect(onCommit).not.toHaveBeenCalled();
+    expect(draw().mode).toBe("render");
+    expect(
+      draw()
+        .getSnapshot()
+        .map((f) => f.geometry),
+    ).toEqual([field(0, 0, 10, 10)]);
+  });
+
+  it("keeps both halves of a MultiPolygon cut in two", async () => {
+    const { draw } = await setup(
+      { kind: "MultiPolygon" },
+      { type: "MultiPolygon", coordinates: [field(0, 0, 10, 10).coordinates] },
+    );
+
+    await drawCutter(draw, field(4, -5, 6, 15));
+
+    expect(value().type).toBe("MultiPolygon");
+    expect(value().coordinates).toHaveLength(2);
+  });
+
+  it("cuts a polygon that already has a hole", async () => {
+    const { draw } = await setup({}, holed);
+
+    await drawCutter(draw, field(5, 5, 8, 8));
+
+    expect(value().type).toBe("Polygon");
+    expect(value().coordinates).toHaveLength(3);
+  });
+
+  it("cuts a held part of a MultiPolygon", async () => {
+    const { draw } = await setup(
+      { kind: "MultiPolygon" },
+      {
+        type: "MultiPolygon",
+        coordinates: [holed.coordinates, field(20, 0, 30, 10).coordinates],
+      },
+    );
+
+    await drawCutter(draw, field(5, 5, 8, 8));
+
+    expect(value().type).toBe("MultiPolygon");
+    const rings = value().coordinates.map((p: unknown[]) => p.length);
+    expect(rings.sort()).toEqual([1, 3]);
+  });
+});
+
 describe("ShapeInput", () => {
   it("draws the polygon left with a hole after a cut on a read-only source", async () => {
     const { draw, map } = await setup(

@@ -118,6 +118,15 @@ function defaultTools(kind: ShapeValueKind): readonly ToolbarTool[] {
   }
 }
 
+/** The kinds whose value keeps every feature, not just the last one drawn. */
+const HOLDS_MANY: ReadonlySet<ShapeValueKind> = new Set([
+  "MultiPoint",
+  "MultiLineString",
+  "MultiPolygon",
+  "GeometryCollection",
+  "FeatureCollection",
+]);
+
 interface EditorProps {
   features: GeoFeature[];
   held: GeoFeature[];
@@ -287,14 +296,23 @@ export function ShapeInput({
   const onEdit = (edit: TerraDrawEdit) => {
     const now = latest.current;
     let features = edit.features;
+    let prev = now.field.value;
     if (edit.type === "cut") {
       // The tool clears either way; a cut that touched nothing commits nothing.
       setTool(null);
-      const cut = cutFeatures(features, edit.cutter);
+      // The editor holds no polygon with a hole, so the held parts are cut too.
+      // The result then holds every part, and no held part is added back.
+      const cut = cutFeatures(
+        [...features, ...heldFeatures(now.kind, prev)],
+        edit.cutter,
+      );
       if (!cut.changed) return;
+      // A single-shape value stores the last feature: a split would lose the rest.
+      if (!HOLDS_MANY.has(now.kind) && cut.features.length > 1) return;
       features = cut.features;
+      if (HOLDS_MANY.has(now.kind)) prev = null;
     }
-    const next = featuresToShape(now.kind, features, now.field.value, {
+    const next = featuresToShape(now.kind, features, prev, {
       aspectRatio: now.aspectRatio,
     });
     written.current = next;
