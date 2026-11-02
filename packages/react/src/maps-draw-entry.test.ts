@@ -22,7 +22,7 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const src = resolve(root, "src");
 
 describe("the maps/draw entry", () => {
-  it("exports exactly ShapeInput, DrawToolbar, useTerraDraw, toolMode, toolsForShapes, cutFeatures, BBoxInput and the ten GeoJSON inputs from PointInput to FeatureCollectionInput", async () => {
+  it("exports exactly ShapeInput, DrawToolbar, useTerraDraw, toolMode, toolsForShapes, cutFeatures, simplifyGeo, SimplifyInput, BBoxInput and the ten GeoJSON inputs from PointInput to FeatureCollectionInput", async () => {
     const entry = await import("./maps-draw");
     expect(Object.keys(entry).sort()).toEqual(
       [
@@ -39,7 +39,9 @@ describe("the maps/draw entry", () => {
         "PointInput",
         "PolygonInput",
         "ShapeInput",
+        "SimplifyInput",
         "cutFeatures",
+        "simplifyGeo",
         "toolMode",
         "toolsForShapes",
         "useTerraDraw",
@@ -50,6 +52,12 @@ describe("the maps/draw entry", () => {
   it("also exports cutFeatures", async () => {
     const entry = await import("./maps-draw");
     expect(entry.cutFeatures).toBeTypeOf("function");
+  });
+
+  it("the maps/draw entry also exports SimplifyInput and simplifyGeo", async () => {
+    const entry = await import("./maps-draw");
+    expect(entry.SimplifyInput).toBeTypeOf("function");
+    expect(entry.simplifyGeo).toBeTypeOf("function");
   });
 
   it("the maps entry exports no Terra Draw name", async () => {
