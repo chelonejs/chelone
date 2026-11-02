@@ -31,19 +31,28 @@ const AppLayout = ({ children }) => (
 </Admin>;
 ```
 
-In Vue the default slot of `<CommandMenu>` holds the layout:
+In Vue the default slot of `<CommandMenu>` holds the layout. A `#layout` slot
+replaces the default shell, so the example passes `<router-view />` to
+`<Layout>` and wraps everything in a `<ThemeProvider>`. Without the provider the
+theme actions do nothing.
 
 ```vue
 <script setup lang="ts">
-import { Admin, CommandMenu, Layout } from "@chelone/vue";
+import { Admin, CommandMenu, Layout, Resource, ThemeProvider } from "@chelone/vue";
 </script>
 
 <template>
   <Admin :data-provider="dataProvider">
+    <Resource name="posts" :list="PostList" />
+
     <template #layout>
-      <CommandMenu>
-        <Layout />
-      </CommandMenu>
+      <ThemeProvider>
+        <CommandMenu>
+          <Layout>
+            <router-view />
+          </Layout>
+        </CommandMenu>
+      </ThemeProvider>
     </template>
   </Admin>
 </template>

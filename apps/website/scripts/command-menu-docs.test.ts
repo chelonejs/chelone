@@ -45,6 +45,8 @@ it("the page documents the hotkey bindings and the Vue differences", () => {
     "perResourceLimit",
     "chelone.command_menu.title",
     "<kbd>",
+    "<router-view />",
+    "<ThemeProvider>",
   ]) {
     expect(page, text).toContain(text);
   }
