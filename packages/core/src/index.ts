@@ -128,6 +128,17 @@ export {
 export type { RecordTreeNode } from "./controller/record-tree";
 export { buildRecordTree } from "./controller/record-tree";
 export type {
+  AllowedTransitions,
+  ApprovalOptions,
+  ApprovalState,
+  TransitionOptions,
+} from "./controller/record-workflow";
+export {
+  buildApprovalUpdate,
+  getAllowedTransitions,
+  getApprovalState,
+} from "./controller/record-workflow";
+export type {
   ReferenceManyController,
   ReferenceManyControllerOptions,
 } from "./controller/reference-many-controller";

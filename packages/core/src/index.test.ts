@@ -299,6 +299,12 @@ describe("@chelone/core barrel", () => {
     expect(barrel.LockConflictError).toBeTypeOf("function");
   });
 
+  it("exports the record workflow helpers", () => {
+    expect(barrel.getApprovalState).toBeTypeOf("function");
+    expect(barrel.buildApprovalUpdate).toBeTypeOf("function");
+    expect(barrel.getAllowedTransitions).toBeTypeOf("function");
+  });
+
   it("exports the presence session and helpers", () => {
     expect(barrel.createPresenceSession).toBeTypeOf("function");
     expect(barrel.presenceTopic).toBeTypeOf("function");
