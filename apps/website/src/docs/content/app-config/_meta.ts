@@ -3,6 +3,7 @@ import type { MetaEntry } from "@/docs/types";
 export default [
   { slug: "admin", title: "Admin" },
   { slug: "resource", title: "Resource" },
+  { slug: "guessers", title: "Guessers" },
   { slug: "data-providers", title: "Data Providers" },
   { slug: "realtime", title: "Realtime" },
   { slug: "supabase", title: "Supabase" },
