@@ -6,6 +6,8 @@ export type {
   SupabaseOAuthProvider,
 } from "./auth-provider";
 export { supabaseAuthProvider } from "./auth-provider";
+export type { SupabaseDataProviderOptions } from "./data-provider";
+export { supabaseDataProvider } from "./data-provider";
 export { supabaseEnglishMessages, supabaseFrenchMessages } from "./messages";
 export { forgotPasswordPath, setPasswordPath } from "./paths";
 export type { SupabaseUrlParams, UrlLocation } from "./url-params";

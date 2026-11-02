@@ -444,6 +444,9 @@ importers:
       '@arethetypeswrong/cli':
         specifier: ^0.18.0
         version: 0.18.5
+      '@guolao/vue-monaco-editor':
+        specifier: ^1.6.0
+        version: 1.6.0(monaco-editor@0.57.0)(vue@3.5.39(typescript@5.9.3))
       '@tanstack/vue-query':
         specifier: ^5.0.0
         version: 5.101.2(vue@3.5.39(typescript@5.9.3))
@@ -456,6 +459,9 @@ importers:
       jsdom:
         specifier: ^26.0.0
         version: 26.1.0
+      monaco-editor:
+        specifier: ^0.57.0
+        version: 0.57.0
       publint:
         specifier: ^0.3.0
         version: 0.3.25
@@ -1070,6 +1076,16 @@ packages:
 
   '@gerrit0/mini-shiki@3.23.0':
     resolution: {integrity: sha512-bEMORlG0cqdjVyCEuU0cDQbORWX+kYCeo0kV1lbxF5bt4r7SID2l9bqsxJEM0zndaxpOUT7riCyIVEuqq/Ynxg==}
+
+  '@guolao/vue-monaco-editor@1.6.0':
+    resolution: {integrity: sha512-w2IiJ6eJGGeuIgCK6EKZOAfhHTTUB5aZwslzwGbZ5e89Hb4avx6++GkLTW8p84Sng/arFMjLPPxSBI56cFudyQ==}
+    peerDependencies:
+      '@vue/composition-api': ^1.7.2
+      monaco-editor: '>=0.43.0'
+      vue: ^2.6.14 || >=3.0.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
 
   '@hono/node-server@1.19.14':
     resolution: {integrity: sha512-GwtvgtXxnWsucXvbQXkRgqksiH2Qed37H9xHZocE5sA3N8O8O8/8FA3uclQXxXVzc9XBZuEOMK7+r02FmSpHtw==}
@@ -6776,6 +6792,13 @@ snapshots:
       '@shikijs/themes': 3.23.0
       '@shikijs/types': 3.23.0
       '@shikijs/vscode-textmate': 10.0.2
+
+  '@guolao/vue-monaco-editor@1.6.0(monaco-editor@0.57.0)(vue@3.5.39(typescript@5.9.3))':
+    dependencies:
+      '@monaco-editor/loader': 1.7.0
+      monaco-editor: 0.57.0
+      vue: 3.5.39(typescript@5.9.3)
+      vue-demi: 0.14.10(vue@3.5.39(typescript@5.9.3))
 
   '@hono/node-server@1.19.14(hono@4.12.28)':
     dependencies:

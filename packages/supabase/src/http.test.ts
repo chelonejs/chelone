@@ -67,6 +67,20 @@ describe("supabaseRequest", () => {
     expect(sentHeaders(fetchMock).get("Accept-Profile")).toBe("billing");
   });
 
+  it("a schema sets Content-Profile instead of Accept-Profile on a write", async () => {
+    const fetchMock = stubFetch();
+
+    await supabaseRequest(
+      { baseUrl, apiKey: "k", schema: "billing" },
+      "/posts",
+      { method: "PATCH", body: "{}" },
+    );
+
+    const headers = sentHeaders(fetchMock);
+    expect(headers.get("Content-Profile")).toBe("billing");
+    expect(headers.has("Accept-Profile")).toBe(false);
+  });
+
   it("meta headers are merged last and win", async () => {
     const fetchMock = stubFetch();
 
