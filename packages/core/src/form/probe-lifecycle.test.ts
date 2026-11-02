@@ -196,8 +196,9 @@ describe("probe A: churn with async validation in flight", () => {
       // submit forces the validator to run and park.
       binding.setValue(`v${i}`);
       const submit = controller.submit();
-      await vi.waitFor(() =>
-        expect(validator.mock.calls.length).toBeGreaterThan(i),
+      await vi.waitFor(
+        () => expect(validator.mock.calls.length).toBeGreaterThan(i),
+        { interval: 5 },
       );
       const controllers = abortControllersOf(form, "title");
       expect(controllers.length, `cycle ${i}: parked`).toBeGreaterThanOrEqual(
@@ -222,9 +223,12 @@ describe("probe A: churn with async validation in flight", () => {
       expect(devtools.net(), `cycle ${i}: fully detached`).toBe(0);
 
       // Release the parked validator AFTER detach — the late result must be
-      // swallowed (no throw, no error channel resurrection).
-      resolvers.shift()?.("late-error");
+      // swallowed (no throw, no error channel resurrection). Every parked
+      // call is released: a cycle can park more than one, and a call left
+      // parked would leave `await submit` waiting on it.
+      for (const release of resolvers.splice(0)) release("late-error");
       await submit;
+      expect(resolvers, `cycle ${i}: nothing left parked`).toHaveLength(0);
     }
 
     // No accumulated instances / listeners / timers after 50 cycles.
@@ -235,8 +239,7 @@ describe("probe A: churn with async validation in flight", () => {
     binding.destroy();
     controller.destroy();
     expect(devtools.net()).toBe(0);
-    // 20s: 50 cycles of `vi.waitFor` outrun the 5s default on 2-core CI.
-  }, 20_000);
+  });
 });
 
 // ===========================================================================
