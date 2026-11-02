@@ -11,5 +11,9 @@
       "@chelone/core": ["../core/dist/index.d.ts"]
     }
   },
-  "exclude": ["src/**/*.test.ts", "src/**/*.test-d.ts"]
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test-d.ts",
+    "src/**/__fixtures__/**"
+  ]
 }

@@ -19,6 +19,7 @@
     ".": "./src/index.ts",
     "./package.json": "./package.json",
     "./monaco": "./src/monaco.ts",
+    "./maps": "./src/maps.ts",
     "./mdx-editor": "./src/mdx-editor.ts",
     "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-theme.css"
   },
@@ -35,6 +36,10 @@
       "./monaco": {
         "types": "./dist/monaco.d.ts",
         "default": "./dist/monaco.js"
+      },
+      "./maps": {
+        "types": "./dist/maps.d.ts",
+        "default": "./dist/maps.js"
       },
       "./mdx-editor": {
         "types": "./dist/mdx-editor.d.ts",
@@ -62,6 +67,7 @@
     "@milkdown/crepe": "^7.23.0",
     "@milkdown/kit": "^7.23.0",
     "@tanstack/vue-query": "^5.0.0",
+    "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
     "vue": "^3.4.0",
     "vue-router": "^4.0.0"
@@ -74,6 +80,9 @@
       "optional": true
     },
     "@milkdown/kit": {
+      "optional": true
+    },
+    "maplibre-gl": {
       "optional": true
     },
     "monaco-editor": {
@@ -89,6 +98,7 @@
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/test-utils": "^2.4.0",
     "jsdom": "^26.0.0",
+    "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
     "publint": "^0.3.0",
     "shadcn-vue": "2.9.0",
