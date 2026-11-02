@@ -23,16 +23,34 @@ describe("the maps/osm entry", () => {
 
   it("the maps/osm entry also exports fetchOsmFeatures, useOsmFeatures, osmToPolygons, unionAll and subtractMask", async () => {
     const entry = await import("./maps-osm");
+    expect(Object.keys(entry)).toEqual(
+      expect.arrayContaining([
+        "fetchOsmFeatures",
+        "osmToPolygons",
+        "subtractMask",
+        "unionAll",
+        "useOsmFeatures",
+      ]),
+    );
+  });
+
+  it("the maps/osm entry also exports the operators, ReverseGeocodeField and useReverseGeocode", async () => {
+    const entry = await import("./maps-osm");
     expect(Object.keys(entry).sort()).toEqual(
       [
         "GeocodingInput",
         "MapWithSearch",
+        "OsmFeatureAdd",
+        "OsmFeatureOperator",
+        "OsmFeatureSubtract",
+        "ReverseGeocodeField",
         "fetchOsmFeatures",
         "osmToPolygons",
         "subtractMask",
         "unionAll",
         "useGeocode",
         "useOsmFeatures",
+        "useReverseGeocode",
       ].sort(),
     );
   });

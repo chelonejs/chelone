@@ -3,6 +3,7 @@ import {
   latLngToLngLat,
   type MapStyleInput,
   type OverpassProvider,
+  type RoutingProvider,
 } from "@chelone/core";
 import { type Map as MapLibreMap, Marker } from "maplibre-gl";
 import {
@@ -17,7 +18,7 @@ import {
   watch,
 } from "vue";
 
-/** The app-level map services. A later slice adds the router. */
+/** The app-level map services. */
 export interface MapsConfig {
   /** The basemap: a MapLibre style URL, or an object from `rasterTileStyle`. */
   mapStyle?: MapStyleInput;
@@ -25,6 +26,8 @@ export interface MapsConfig {
   geocoder?: GeocodingProvider;
   /** The Overpass service. The library names none: the app passes a provider. */
   overpass?: OverpassProvider;
+  /** The routing service `LineStringInput` snaps drawn lines to roads with. The library names none. */
+  router?: RoutingProvider;
 }
 
 const MapsConfigKey: InjectionKey<MapsConfig> = Symbol("chelone-maps-config");
@@ -46,6 +49,7 @@ export const MapsProvider = defineComponent({
     mapStyle: [String, Object] as PropType<MapStyleInput | undefined>,
     geocoder: Object as PropType<GeocodingProvider | undefined>,
     overpass: Object as PropType<OverpassProvider | undefined>,
+    router: Object as PropType<RoutingProvider | undefined>,
   },
   setup(props, { slots }) {
     // Getters, so a changed prop reaches the maps that read it later.
@@ -58,6 +62,9 @@ export const MapsProvider = defineComponent({
       },
       get overpass() {
         return props.overpass;
+      },
+      get router() {
+        return props.router;
       },
     });
     return () => slots.default?.();

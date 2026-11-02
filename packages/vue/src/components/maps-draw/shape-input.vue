@@ -79,7 +79,32 @@ export interface ShapeInputProps {
   aspectRatio?: number;
   /** Frame the first value on the map. The user's own edits never refit. Defaults to true. */
   fitBounds?: boolean;
+  /**
+   * Adjusts the value after the user's own drawing or edit, such as snapping a
+   * line to roads. It runs once the edit is in the form, never on load or
+   * reset, and a newer edit or an unmount aborts `signal`. A result that is
+   * not null and differs is written, unless the field changed meanwhile. A
+   * thrown error keeps the value as drawn.
+   */
+  refine?: (
+    value: ShapeValue,
+    options: { signal: AbortSignal },
+  ) => Promise<ShapeValue | null> | ShapeValue | null;
   class?: string;
+}
+
+function sameValue(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const keysA = Object.keys(a);
+  if (keysA.length !== Object.keys(b).length) return false;
+  return keysA.every((key) =>
+    sameValue(
+      (a as Record<string, unknown>)[key],
+      (b as Record<string, unknown>)[key],
+    ),
+  );
 }
 
 /** What the last edit wrote, so the first shape the user draws is not framed. */
@@ -256,10 +281,11 @@ const props = withDefaults(defineProps<ShapeInputProps>(), {
   shapeStyle: undefined,
   aspectRatio: undefined,
   fitBounds: true,
+  refine: undefined,
 });
 
 const emit = defineEmits<{
-  /** After each drawing or edit has been written to the form, with the stored value. */
+  /** After each drawing or edit has been written to the form, with the stored value, and again after `refine` writes a changed one. */
   commit: [value: ShapeValue | null];
 }>();
 
@@ -303,7 +329,36 @@ const legend = computed(() =>
       }),
 );
 
+let refining: AbortController | null = null;
+onBeforeUnmount(() => refining?.abort());
+
+async function runRefine(committed: ShapeValue) {
+  const refineValue = props.refine;
+  if (!refineValue) return;
+  const abort = new AbortController();
+  refining = abort;
+  try {
+    const result = await refineValue(committed, { signal: abort.signal });
+    if (abort.signal.aborted || result === null) return;
+    // Only an untouched field takes the result: anything else was edited since.
+    if (
+      toRaw(input.value.value) !== toRaw(committed) ||
+      sameValue(result, committed)
+    ) {
+      return;
+    }
+    written.current = result;
+    input.setValue(result);
+    input.blur();
+    emit("commit", result);
+  } catch {
+    // A failed refinement keeps the value as the user drew it.
+  }
+}
+
 function onEdit(edit: TerraDrawEdit) {
+  // A newer edit makes any pending refinement stale, whatever the edit is.
+  refining?.abort();
   let features = edit.features;
   let prev = input.value.value;
   if (edit.type === "cut") {
@@ -329,6 +384,7 @@ function onEdit(edit: TerraDrawEdit) {
   input.blur();
   if (edit.type === "draw") tool.value = null;
   emit("commit", next);
+  if (next !== null) void runRefine(next);
 }
 </script>
 
