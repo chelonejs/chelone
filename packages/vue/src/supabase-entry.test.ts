@@ -27,10 +27,20 @@ const PROVIDER_BUTTONS = [
   "WorkosButton",
 ];
 
+const PASSWORD_RECOVERY = [
+  "ForgotPasswordForm",
+  "ForgotPasswordPage",
+  "SetPasswordForm",
+  "SetPasswordPage",
+  "useResetPassword",
+  "useSetPassword",
+  "useSupabaseUrlTokens",
+];
+
 describe("the supabase entry", () => {
-  it("the supabase entry exports SocialAuthButton and the provider buttons", () => {
+  it("the supabase entry exports SocialAuthButton, the provider buttons and the password recovery forms, pages and composables", () => {
     expect(Object.keys(entry).sort()).toEqual(
-      ["SocialAuthButton", ...PROVIDER_BUTTONS].sort(),
+      ["SocialAuthButton", ...PROVIDER_BUTTONS, ...PASSWORD_RECOVERY].sort(),
     );
     for (const component of Object.values(entry)) {
       expect(["object", "function"]).toContain(typeof component);
