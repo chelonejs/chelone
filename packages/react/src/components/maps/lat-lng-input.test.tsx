@@ -127,6 +127,18 @@ describe("LatLngInput", () => {
     expect(liveMarkers()[0]?.getLngLat()).toEqual({ lng: 2.35, lat: 48.85 });
   });
 
+  it("shows numeric strings from the record, as LatLngField does", async () => {
+    await setup({}, {
+      latitude: "48.85",
+      longitude: "2.35",
+    } as unknown as Coordinates);
+
+    expect(latField().value).toBe("48.85");
+    expect(lngField().value).toBe("2.35");
+    expect(liveMarkers()).toHaveLength(1);
+    expect(liveMarkers()[0]?.getLngLat()).toEqual({ lng: 2.35, lat: 48.85 });
+  });
+
   it("shows no marker while either coordinate is empty", async () => {
     const { map } = await setup(
       { defaultPosition: [10, 20] },

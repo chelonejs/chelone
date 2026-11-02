@@ -88,7 +88,7 @@ function useCoordinate(
   const { id, field, fieldState, isRequired } = useInput({
     source,
     parse: toCoordinate,
-    format: toText,
+    format: (value: unknown) => toText(toCoordinate(value)),
     validate: [range, ...validate],
   });
   const [draft, setDraft] = useState<string | null>(null);
