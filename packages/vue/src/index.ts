@@ -62,6 +62,7 @@ export {
   useArrayInput,
   useIteratorItem,
 } from "./array";
+export type { UseOptionalIdentityResult } from "./auth/auth-hooks";
 // --- auth composables (identity / auth-state / login / logout / access) ----
 export {
   useAuthState,
@@ -69,6 +70,7 @@ export {
   useGetIdentity,
   useLogin,
   useLogout,
+  useOptionalIdentity,
 } from "./auth/auth-hooks";
 // --- R2: permissions + logout-if-access-denied + data-error wiring ---------
 export type {

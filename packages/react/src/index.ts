@@ -76,6 +76,7 @@ export {
 } from "./array-hooks";
 export type {
   LogoutIfAccessDenied,
+  UseOptionalIdentityResult,
   UsePermissionsResult,
 } from "./auth-hooks";
 export {
@@ -85,6 +86,7 @@ export {
   useLogin,
   useLogout,
   useLogoutIfAccessDenied,
+  useOptionalIdentity,
   usePermissions,
   useWatchDataErrors,
 } from "./auth-hooks";
