@@ -6,8 +6,14 @@ import {
   RecordField,
   Show,
   TextInput,
+  useListContext,
 } from "@chelone/react";
-import { GeoJsonField, LatLngField } from "@chelone/react/maps";
+import {
+  GeoJsonField,
+  LatLngField,
+  MapCanvas,
+  MapMarker,
+} from "@chelone/react/maps";
 import {
   BBoxInput,
   LineStringInput,
@@ -19,10 +25,33 @@ import {
   OsmFeatureSubtract,
   ReverseGeocodeField,
 } from "@chelone/react/maps/osm";
+import type { Place } from "../seed";
+
+// One marker per place on the current page. The canvas reads its centre at
+// mount, so it waits for the first page of records.
+function PlacesMap() {
+  const { data } = useListContext();
+  const points = (data ?? []).flatMap((record) => {
+    const { id, lat, lng } = record as Place;
+    return typeof lat === "number" && typeof lng === "number"
+      ? [{ id, position: [lat, lng] as const }]
+      : [];
+  });
+  const first = points[0];
+  if (!first) return null;
+  return (
+    <MapCanvas center={first.position} zoom={11} className="mb-4">
+      {points.map(({ id, position }) => (
+        <MapMarker key={id} position={position} />
+      ))}
+    </MapCanvas>
+  );
+}
 
 export function PlaceList() {
   return (
     <List>
+      <PlacesMap />
       <DataTable>
         <DataTable.Col source="name" />
         <DataTable.Col source="address" />
