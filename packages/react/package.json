@@ -21,6 +21,7 @@
     ".": "./src/index.ts",
     "./tanstack-router": "./src/tanstack-router.ts",
     "./monaco": "./src/monaco.ts",
+    "./maps": "./src/maps.ts",
     "./mdx-editor": "./src/mdx-editor.ts",
     "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-dark.css",
     "./package.json": "./package.json"
@@ -41,6 +42,10 @@
       "./monaco": {
         "types": "./dist/monaco.d.ts",
         "default": "./dist/monaco.js"
+      },
+      "./maps": {
+        "types": "./dist/maps.d.ts",
+        "default": "./dist/maps.js"
       },
       "./mdx-editor": {
         "types": "./dist/mdx-editor.d.ts",
@@ -85,6 +90,7 @@
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
+    "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
     "react": "^18 || ^19",
     "react-dom": "^18 || ^19",
@@ -98,6 +104,9 @@
       "optional": true
     },
     "@tanstack/react-router": {
+      "optional": true
+    },
+    "maplibre-gl": {
       "optional": true
     },
     "monaco-editor": {
@@ -118,6 +127,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "jsdom": "^26.0.0",
+    "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
     "publint": "^0.3.0",
     "react": "^19",
