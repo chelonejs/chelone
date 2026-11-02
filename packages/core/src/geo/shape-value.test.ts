@@ -409,6 +409,20 @@ describe("featuresToShape", () => {
     });
   });
 
+  it("keeps a GeometryCollection inside a GeometryCollection through an edit", () => {
+    const inner: GeoGeometry = {
+      type: "GeometryCollection",
+      geometries: [point(0), point(1)],
+    };
+    const prev = { type: "GeometryCollection", geometries: [inner, point(2)] };
+    const editable = shapeToFeatures("GeometryCollection", prev);
+    expect(editable.map((f) => f.geometry)).toEqual([point(2)]);
+    expect(featuresToShape("GeometryCollection", editable, prev)).toEqual({
+      type: "GeometryCollection",
+      geometries: [point(2), inner],
+    });
+  });
+
   it("a FeatureCollection edit keeps its own members and drops its bbox", () => {
     const a = feature(point(0), { id: 1 });
     const b = feature(point(1), { id: 2 });

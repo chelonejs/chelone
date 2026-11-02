@@ -35,8 +35,8 @@ function wrap(geometry: GeoGeometry): GeoFeature {
 
 /**
  * One geometry per part of a Multi geometry or a GeometryCollection. A Multi
- * geometry inside a GeometryCollection stays whole, so it is held and written
- * back as it was.
+ * geometry or a GeometryCollection inside a GeometryCollection stays whole, so
+ * it is held and written back as it was.
  */
 function singles(geometry: GeoGeometry): GeoGeometry[] {
   switch (geometry.type) {
@@ -56,9 +56,7 @@ function singles(geometry: GeoGeometry): GeoGeometry[] {
         coordinates,
       }));
     case "GeometryCollection":
-      return geometry.geometries.flatMap((g) =>
-        g.type === "GeometryCollection" ? singles(g) : [g],
-      );
+      return geometry.geometries;
     default:
       return [geometry];
   }
