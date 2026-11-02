@@ -6205,6 +6205,7 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/react",
+        "@turf/difference",
         "lucide-react",
         "terra-draw",
         "terra-draw-maplibre-gl-adapter"
@@ -6216,6 +6217,10 @@
         },
         {
           "path": "src/components/maps-draw/draw-toolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-draw/geometry-ops.ts",
           "type": "registry:component"
         },
         {
@@ -6267,6 +6272,20 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "geometry-ops",
+      "type": "registry:component",
+      "title": "Geometry Ops",
+      "files": [
+        {
+          "path": "src/components/maps-draw/geometry-ops.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@turf/difference"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "shape-input",
       "type": "registry:component",
       "title": "Shape Input",
@@ -6281,6 +6300,7 @@
         "@chelone/field",
         "@chelone/field-label-text",
         "@chelone/geo-json-field",
+        "@chelone/geometry-ops",
         "@chelone/input-helper-text",
         "@chelone/lib-utils",
         "@chelone/map-canvas",
@@ -6412,6 +6432,8 @@
         "@chelone/auth-layout",
         "@chelone/button",
         "@chelone/lib-utils",
+        "@chelone/login-form",
+        "@chelone/login-page",
         "@chelone/password-input",
         "@chelone/text-input",
         "@chelone/ui-spinner"
@@ -6440,6 +6462,10 @@
         },
         {
           "path": "src/components/admin/supabase/social-icons.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/supabase-login-page.tsx",
           "type": "registry:component"
         },
         {
@@ -6552,6 +6578,25 @@
           "type": "registry:component"
         }
       ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "supabase-login-page",
+      "type": "registry:component",
+      "title": "Supabase Login Page",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/supabase-login-page.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/login-form",
+        "@chelone/login-page",
+        "@chelone/social-auth-button"
+      ],
+      "dependencies": ["@chelone/react", "@chelone/supabase"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

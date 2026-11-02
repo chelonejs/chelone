@@ -22,7 +22,7 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const src = resolve(root, "src");
 
 describe("the maps/draw entry", () => {
-  it("exports exactly ShapeInput, DrawToolbar, useTerraDraw, toolMode, toolsForShapes, BBoxInput and the ten GeoJSON inputs from PointInput to FeatureCollectionInput", async () => {
+  it("exports exactly ShapeInput, DrawToolbar, useTerraDraw, toolMode, toolsForShapes, cutFeatures, BBoxInput and the ten GeoJSON inputs from PointInput to FeatureCollectionInput", async () => {
     const entry = await import("./maps-draw");
     expect(Object.keys(entry).sort()).toEqual(
       [
@@ -39,11 +39,17 @@ describe("the maps/draw entry", () => {
         "PointInput",
         "PolygonInput",
         "ShapeInput",
+        "cutFeatures",
         "toolMode",
         "toolsForShapes",
         "useTerraDraw",
       ].sort(),
     );
+  });
+
+  it("also exports cutFeatures", async () => {
+    const entry = await import("./maps-draw");
+    expect(entry.cutFeatures).toBeTypeOf("function");
   });
 
   it("the maps entry exports no Terra Draw name", async () => {
