@@ -75,25 +75,44 @@ export function cutFeatures(
 }
 
 export interface SimplifyOptions {
-  /** In degrees. 0 keeps every vertex that is not a repeat. */
+  /** In degrees. At 0 or below the value comes back unchanged. */
   tolerance: number;
   /** Slower, and keeps more of the shape's detail at the same tolerance. */
   highQuality: boolean;
 }
 
+function simplifyInPlace(
+  value: GeoJsonValue,
+  options: SimplifyOptions,
+): GeoJsonValue {
+  if (value.type === "FeatureCollection") {
+    value.features = value.features.map(
+      (feature) => simplifyInPlace(feature, options) as GeoFeature,
+    );
+    return value;
+  }
+  // turf reads `geometry.type` without a null check.
+  if (value.type === "Feature" && !value.geometry) return value;
+  return simplify(value as never, {
+    tolerance: options.tolerance,
+    highQuality: options.highQuality,
+    mutate: true,
+  }) as unknown as GeoJsonValue;
+}
+
 /**
  * A thinned copy of a Geometry, Feature or FeatureCollection. Polygon rings stay
- * closed, and a Point or MultiPoint comes back equal. The input is not changed.
+ * closed, a Point or MultiPoint comes back equal, and a Feature without a
+ * geometry is kept. The input is not changed. Turf also drops collinear
+ * vertices at any tolerance above 0, so a tolerance of 0 or less skips it and
+ * returns a copy of the value.
  */
 export function simplifyGeo(
   value: GeoJsonValue,
-  { tolerance, highQuality }: SimplifyOptions,
+  options: SimplifyOptions,
 ): GeoJsonValue {
   // `mutate` lets turf skip its own clone, so the one made here is the only one.
   const copy = structuredClone(value);
-  return simplify(copy as never, {
-    tolerance,
-    highQuality,
-    mutate: true,
-  }) as unknown as GeoJsonValue;
+  if (options.tolerance <= 0) return copy;
+  return simplifyInPlace(copy, options);
 }

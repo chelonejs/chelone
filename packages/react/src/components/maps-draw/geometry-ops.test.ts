@@ -213,4 +213,38 @@ describe("simplifyGeo", () => {
       multi,
     );
   });
+
+  it("keeps a collinear vertex at tolerance 0", () => {
+    const polygon: GeoJsonValue = {
+      type: "Polygon",
+      coordinates: [
+        [
+          [0, 0],
+          [5, 0],
+          [10, 0],
+          [10, 10],
+          [0, 10],
+          [0, 0],
+        ],
+      ],
+    };
+    const result = simplifyGeo(polygon, { tolerance: 0, highQuality: false });
+    expect(result).toEqual(polygon);
+    expect(result).not.toBe(polygon);
+  });
+
+  it("passes a Feature with a null geometry through", () => {
+    const empty: GeoJsonValue = {
+      type: "Feature",
+      properties: null,
+      geometry: null,
+    };
+    const options = { tolerance: 0.01, highQuality: false };
+    expect(simplifyGeo(empty, options)).toEqual(empty);
+    const collection: GeoJsonValue = {
+      type: "FeatureCollection",
+      features: [empty, square(0, 0, 1, 1)],
+    };
+    expect(simplifyGeo(collection, options)).toEqual(collection);
+  });
 });

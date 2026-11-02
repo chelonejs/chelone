@@ -217,6 +217,41 @@ describe("SimplifyInput", () => {
     );
   });
 
+  it("does not change a ring with a collinear vertex at tolerance 0", async () => {
+    const ring: Position[] = [
+      [0, 0],
+      [5, 0],
+      [10, 0],
+      [10, 10],
+      [0, 10],
+      [0, 0],
+    ];
+    const { form } = await mount(
+      <SimplifyInput source="shape" tolerance={0} />,
+      polygon(ring),
+    );
+    expect(ringLength()).toBe(6);
+    expect(form().state.isDirty).toBe(false);
+  });
+
+  it("takes a reloaded value equal to the last write as the new original", async () => {
+    const { form } = await mount(<SimplifyInput source="shape" />, polygon());
+    expect(ringLength()).toBe(5);
+    const reloaded = JSON.parse(screen.getByTestId("value").textContent ?? "");
+    act(() => form().reset({ shape: reloaded }));
+    act(() => key("Home"));
+    expect(ringLength()).toBe(5);
+  });
+
+  it("shows a Feature with a null geometry without crashing", async () => {
+    await mount(<SimplifyInput source="shape" />, {
+      type: "Feature",
+      properties: null,
+      geometry: null,
+    });
+    expect(screen.getByRole("slider")).toBeTruthy();
+  });
+
   it("throws for a string value", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     await expect(

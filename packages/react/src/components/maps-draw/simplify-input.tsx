@@ -147,7 +147,8 @@ export function SimplifyInput({
 
   useEffect(() => {
     if (!isGeoJsonValue(value)) return;
-    if (original.current === null || !sameJson(value, written.current)) {
+    // By identity: a reload equal to the last write is still a new original.
+    if (original.current === null || value !== written.current) {
       original.current = value;
     }
     const next = simplifyGeo(original.current, {
