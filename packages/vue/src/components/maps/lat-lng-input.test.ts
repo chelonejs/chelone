@@ -18,6 +18,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../admin/admin.vue";
+import { provideResourceContext } from "../../resource-context";
 import { type UseFormReturn, useForm } from "../../form/use-form";
 import { liveMarkers, maps, resetFake } from "./__fixtures__/fake-maplibre";
 import LatLngInput, { type LatLngInputProps } from "./lat-lng-input.vue";
@@ -44,12 +45,21 @@ async function setup(
     onPositionChange?: (lat: number, lng: number) => void;
   } = {},
   record: Coordinates = { latitude: 48.85, longitude: 2.35 },
-  { loaded = true }: { loaded?: boolean } = {},
+  {
+    loaded = true,
+    resource,
+    messages = {},
+  }: {
+    loaded?: boolean;
+    resource?: string;
+    messages?: Record<string, unknown>;
+  } = {},
 ) {
   const onSubmit = vi.fn(async (_data: Coordinates) => undefined);
   let form: UseFormReturn<Coordinates> | undefined;
   const FormHost = defineComponent({
     setup() {
+      if (resource) provideResourceContext(resource);
       form = useForm<Coordinates>({ record, onSubmit });
       return () =>
         h(LatLngInput, {
@@ -74,7 +84,7 @@ async function setup(
               queryClient: new QueryClient(),
               i18n: createI18n({
                 locale: "en",
-                messages: { en: mapMessages },
+                messages: { en: { ...mapMessages, ...messages } },
               }),
             },
             { default: () => h(FormHost) },
@@ -124,6 +134,23 @@ const textOf = (input: ReturnType<typeof latField>) =>
   (input.element as HTMLInputElement).value;
 
 describe("LatLngInput", () => {
+  it("labels each coordinate from the resource's field translations", async () => {
+    const { wrapper } = await setup(
+      {},
+      { latitude: 48.85, longitude: 2.35 },
+      {
+        resource: "places",
+        messages: {
+          "resources.places.fields.latitude": "Breitengrad",
+          "resources.places.fields.longitude": "Längengrad",
+        },
+      },
+    );
+
+    const labels = wrapper.findAll("label").map((l) => l.text());
+    expect(labels).toEqual(["Breitengrad", "Längengrad"]);
+  });
+
   it("shows the record's coordinates in both text fields and one marker", async () => {
     const { wrapper } = await setup();
 

@@ -64,7 +64,7 @@ import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import InputHelperText from "../admin/common/input-helper-text.vue";
 import ValidationError from "../admin/common/validation-error.vue";
-import { humanizeSource } from "../admin/inputs/label-text";
+import FieldLabelText from "../admin/common/field-label-text.vue";
 import GeoJsonLayers from "../maps/geo-json-layers.vue";
 import MapCanvas from "../maps/map-canvas.vue";
 import Button from "../ui/button.vue";
@@ -130,13 +130,6 @@ const geometry = computed(() => {
 const invalid = computed(
   () => input.touched.value && input.error.value != null,
 );
-const legend = computed(() =>
-  props.label === false
-    ? null
-    : translate(props.label ?? humanizeSource(props.source), {
-        _: props.label ?? humanizeSource(props.source),
-      }),
-);
 const rangeId = `${input.id}-tolerance`;
 const toleranceText = computed(() =>
   translate("chelone.map.simplify.tolerance", {
@@ -159,8 +152,10 @@ function onRange(event: Event) {
     :class="cn('flex min-w-0 flex-col gap-3 border-0 p-0', props.class)"
     :data-invalid="invalid || undefined"
   >
-    <legend v-if="legend" class="mb-1.5 text-sm font-medium">
-      {{ legend }}<span v-if="input.isRequired"> *</span>
+    <legend v-if="props.label !== false" class="mb-1.5 text-sm font-medium">
+      <FieldLabelText
+        :label="props.label"
+        :source="props.source" /><span v-if="input.isRequired"> *</span>
     </legend>
     <template v-if="geometry">
       <MapCanvas
