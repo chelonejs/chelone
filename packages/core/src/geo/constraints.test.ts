@@ -164,6 +164,46 @@ describe("maxVertices", () => {
   });
 });
 
+describe("a value the constraints cannot read", () => {
+  const unreadable = {
+    type: "Feature",
+    geometry: { type: "Polygon", coordinates: "oops" },
+    properties: {},
+  };
+
+  it("maxVertices fails a value it cannot read", () => {
+    expect(run(maxVertices(1), unreadable)).toEqual({
+      message: "chelone.validation.maxVertices",
+      args: { max: 1 },
+    });
+  });
+
+  it("maxVertices fails a FeatureCollection holding a feature it cannot read", () => {
+    const value = {
+      type: "FeatureCollection",
+      features: [feature(triangle), unreadable],
+    };
+    expect(run(maxVertices(10), value)).toBeTruthy();
+  });
+
+  it("every constraint fails a value it cannot read", () => {
+    for (const validator of [
+      minVertices(3),
+      maxVertices(10),
+      minAreaM2(1),
+      noSelfIntersection(),
+    ]) {
+      expect(run(validator, unreadable)).toBeTruthy();
+    }
+  });
+
+  it("maxVertices enforces its limit on a Feature with no properties", () => {
+    const { properties: _, ...bare } = feature(triangle);
+    expect(run(maxVertices(1), bare)).toBeTruthy();
+    expect(run(maxVertices(3), bare)).toBeUndefined();
+  });
+});
+
 describe("minAreaM2", () => {
   it("minAreaM2 reports the rounded area in its args", () => {
     const result = run(minAreaM2(1e12), degreeSquare);
