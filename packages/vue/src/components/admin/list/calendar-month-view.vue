@@ -13,6 +13,12 @@ export interface CalendarSlot {
   allDay: boolean;
 }
 
+/** The new time span `drop` reports, as ISO strings. */
+export interface CalendarDrop {
+  start: string;
+  end?: string;
+}
+
 /** Props for {@link CalendarMonthView}. */
 export interface CalendarMonthViewProps {
   /** Every day of the grid, whole weeks, in order. */
@@ -28,6 +34,8 @@ export interface CalendarMonthViewProps {
   hrefFor: (record: LooseRecord) => string | undefined;
   /** Whether activating the event does anything: it is inert otherwise. */
   isSelectable: (record: LooseRecord) => boolean;
+  /** Whether events can be dragged to another day. */
+  draggable?: boolean;
 }
 </script>
 
@@ -36,17 +44,24 @@ export interface CalendarMonthViewProps {
  * `<CalendarMonthView>` — a grid of whole weeks with the events of each day in
  * its cell. An event that spans days shows in every cell it covers. Emits
  * `select-event` with the record and `select-slot` when an empty part of a cell
- * is clicked; a click on an event never reaches the cell.
+ * is clicked; a click on an event never reaches the cell. With `draggable`, an
+ * event can be dragged to another day, which emits `drop` with the record and
+ * its moved range; dropping on the day it was dragged from emits nothing.
  */
 
-import { calendarDayKey, calendarEventsOnDay } from "@chelone/core";
-import { computed, onBeforeUnmount, ref } from "vue";
+import {
+  calendarDayKey,
+  calendarEventsOnDay,
+  moveCalendarEvent,
+} from "@chelone/core";
+import { computed, onBeforeUnmount, ref, shallowRef } from "vue";
 import { cn } from "../../../lib/utils";
 
 const props = defineProps<CalendarMonthViewProps>();
 const emit = defineEmits<{
   selectEvent: [record: LooseRecord];
   selectSlot: [slot: CalendarSlot];
+  drop: [record: LooseRecord, range: CalendarDrop];
 }>();
 defineSlots<{
   event?(props: CalendarEventSlotProps): unknown;
@@ -107,6 +122,84 @@ function onEventClick(event: MouseEvent, record: LooseRecord) {
   emit("selectEvent", record);
 }
 
+// The event being dragged and the day cell it was picked up from: a multi-day
+// event shows in several cells, and the move is measured from that one.
+// Shallow, so the stored event stays the object the template compares against.
+const dragged = shallowRef<{ event: CalendarEvent<LooseRecord>; from: Date }>();
+const overKey = ref<string>();
+
+function onDragStart(
+  event: DragEvent,
+  calendarEvent: CalendarEvent<LooseRecord>,
+  from: Date,
+) {
+  const transfer = event.dataTransfer;
+  if (transfer) {
+    transfer.effectAllowed = "move";
+    // Firefox starts no drag without data.
+    transfer.setData("text/plain", String(calendarEvent.record.id ?? ""));
+  }
+  dragged.value = { event: calendarEvent, from };
+}
+
+function clearDrag() {
+  dragged.value = undefined;
+  overKey.value = undefined;
+}
+
+function onDragOver(event: DragEvent, day: Date) {
+  if (!dragged.value) return;
+  event.preventDefault();
+  if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
+  overKey.value = calendarDayKey(day);
+}
+
+function onDragLeave(event: DragEvent, day: Date) {
+  const into = event.relatedTarget;
+  // Moving onto a child of the cell fires dragleave on the cell first.
+  if (into instanceof Node && (event.currentTarget as Node).contains(into)) {
+    return;
+  }
+  if (overKey.value === calendarDayKey(day)) overKey.value = undefined;
+}
+
+function onDrop(event: DragEvent, day: Date) {
+  const current = dragged.value;
+  if (!current) return;
+  event.preventDefault();
+  clearDrag();
+  if (calendarDayKey(day) === calendarDayKey(current.from)) return;
+  const moved = moveCalendarEvent(current.event, current.from, day);
+  emit("drop", current.event.record, {
+    start: moved.start.toISOString(),
+    ...(moved.end ? { end: moved.end.toISOString() } : {}),
+  });
+}
+
+const cellDragProps = (day: Date) =>
+  props.draggable
+    ? {
+        "data-over": overKey.value === calendarDayKey(day) ? "" : undefined,
+        onDragover: (event: DragEvent) => onDragOver(event, day),
+        onDragleave: (event: DragEvent) => onDragLeave(event, day),
+        onDrop: (event: DragEvent) => onDrop(event, day),
+      }
+    : {};
+
+const eventDragProps = (calendarEvent: CalendarEvent<LooseRecord>, day: Date) =>
+  props.draggable
+    ? {
+        draggable: "true",
+        "data-dragging":
+          dragged.value?.event === calendarEvent &&
+          calendarDayKey(dragged.value.from) === calendarDayKey(day)
+            ? ""
+            : undefined,
+        onDragstart: (event: DragEvent) => onDragStart(event, calendarEvent, day),
+        onDragend: clearDrag,
+      }
+    : {};
+
 const tagFor = (event: CalendarEvent<LooseRecord>) =>
   props.hrefFor(event.record)
     ? "a"
@@ -147,6 +240,7 @@ const tagFor = (event: CalendarEvent<LooseRecord>) =>
             day.getMonth() !== anchor.getMonth() && 'bg-muted/40 text-muted-foreground',
           )
         "
+        v-bind="cellDragProps(day)"
         @click="selectSlot(day)"
       >
         <span data-slot="calendar-day-number" class="text-xs tabular-nums">
@@ -168,6 +262,7 @@ const tagFor = (event: CalendarEvent<LooseRecord>) =>
                 :style="event.color ? { backgroundColor: event.color } : undefined"
                 class="block w-full truncate rounded px-1.5 py-0.5 text-left text-xs"
                 :class="event.color ? 'text-white' : 'bg-primary text-primary-foreground'"
+                v-bind="eventDragProps(event, day)"
                 @click="onEventClick($event, event.record)"
               >
                 {{ event.title }}
