@@ -440,6 +440,8 @@ export {
   default as MenuLive,
   MenuLiveItemLink,
 } from "./admin/realtime/menu-live.vue";
+export type { PresenceBarProps } from "./admin/realtime/presence-bar.vue";
+export { default as PresenceBar } from "./admin/realtime/presence-bar.vue";
 export type { ShowLiveProps } from "./admin/realtime/show-live.vue";
 export { default as ShowLive } from "./admin/realtime/show-live.vue";
 export type { CardContentInnerProps } from "./admin/view/card-content-inner.vue";

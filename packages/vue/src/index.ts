@@ -282,6 +282,8 @@ export {
   useLockOnMount,
   useUnlock,
 } from "./realtime/locks";
+export type { UsePresenceOptions } from "./realtime/presence";
+export { usePresence } from "./realtime/presence";
 export type { UseSubscribeOptions } from "./realtime/subscribe";
 export {
   useOnReconnect,
