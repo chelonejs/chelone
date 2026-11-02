@@ -10,8 +10,8 @@ import {
   fakeDataProvider,
   type GeoLineString,
   mapMessages,
-  rasterTileStyle,
   type RoutingProvider,
+  rasterTileStyle,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";

@@ -15,11 +15,21 @@ export {
 // `osm2geojson-lite`, `@turf/buffer`, `@turf/union` and `@turf/difference`
 // peers.
 export {
+  OsmFeatureAdd,
+  type OsmFeatureAddProps,
+  OsmFeatureSubtract,
+  type OsmFeatureSubtractProps,
+} from "./components/maps-osm/osm-feature-operators";
+export {
   type FetchOsmFeaturesOptions,
   fetchOsmFeatures,
   osmToPolygons,
 } from "./components/maps-osm/osm-features";
 export { subtractMask, unionAll } from "./components/maps-osm/osm-geometry-ops";
+export {
+  default as ReverseGeocodeField,
+  type ReverseGeocodeFieldProps,
+} from "./components/maps-osm/reverse-geocode-field.vue";
 export {
   type UseGeocodeOptions,
   useGeocode,
@@ -28,3 +38,7 @@ export {
   type UseOsmFeaturesOptions,
   useOsmFeatures,
 } from "./components/maps-osm/use-osm-features";
+export {
+  type UseReverseGeocodeOptions,
+  useReverseGeocode,
+} from "./components/maps-osm/use-reverse-geocode";

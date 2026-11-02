@@ -250,7 +250,7 @@ import {
   heldFeatures,
   shapeToFeatures,
 } from "@chelone/core";
-import { onBeforeUnmount, ref, shallowRef, toRaw } from "vue";
+import { ref, shallowRef } from "vue";
 import { useInput } from "../../form/use-input";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
