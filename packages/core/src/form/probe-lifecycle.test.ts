@@ -156,7 +156,7 @@ const STALL_MS = 10_000;
  * a stalled await fails here first with a label instead of a bare timeout.
  */
 async function awaiting<T>(
-  cycle: number,
+  cycle: number | string,
   what: string,
   work: Promise<T>,
 ): Promise<T> {
@@ -215,6 +215,29 @@ describe("probe A: churn with async validation in flight", () => {
       { source: "title", validate: validator },
     );
 
+    // Latch the binding's async slot before the loop. On a binding's first
+    // validation the sync probe calls the validator inline, so `resolvers`
+    // fills before the submit's async validation timer has fired; detaching
+    // then clears that timer and `submit` never settles. Once latched, the
+    // validator runs only from that timer, so a parked call means it fired.
+    {
+      const offForm = controller.subscribe(noop);
+      const offField = binding.subscribe(noop);
+      const warmUp = controller.submit();
+      await awaiting(
+        "warm-up",
+        "vi.waitFor for the parked validator",
+        vi.waitFor(() => expect(resolvers.length).toBeGreaterThan(0), {
+          timeout: STALL_MS - 1_000,
+        }),
+      );
+      for (const release of resolvers.splice(0)) release(undefined);
+      await awaiting("warm-up", "await submit", warmUp);
+      offField();
+      offForm();
+      expect(resolvers, "warm-up: nothing left parked").toHaveLength(0);
+    }
+
     for (let i = 0; i < 50; i++) {
       const offForm = controller.subscribe(noop);
       const offField = binding.subscribe(noop);
@@ -232,7 +255,6 @@ describe("probe A: churn with async validation in flight", () => {
         i,
         "vi.waitFor for the parked validator",
         vi.waitFor(() => expect(resolvers.length).toBeGreaterThan(0), {
-          interval: 5,
           timeout: STALL_MS - 1_000,
         }),
       );
