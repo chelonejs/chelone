@@ -320,6 +320,20 @@ describe("GeocodingInput", () => {
     expect(input.element.value).toBe("Paris");
   });
 
+  it("closes the list when focus leaves the field", async () => {
+    const { wrapper } = await setup();
+    await type(wrapper, "Paris");
+    await field(wrapper).trigger("keydown", { key: "Enter" });
+    await settle();
+    expect(options(wrapper)).toHaveLength(2);
+
+    await field(wrapper).trigger("blur");
+
+    expect(wrapper.find('[role="listbox"]').exists()).toBe(false);
+    expect(field(wrapper).attributes("aria-expanded")).toBe("false");
+    expect(field(wrapper).element.value).toBe("Paris");
+  });
+
   it("keeps focus in the field while results change", async () => {
     const { provider } = fakeProvider({ typeahead: true });
     const { wrapper } = await setup({ provider, debounceMs: 0 });

@@ -165,6 +165,13 @@ function move(step: 1 | -1) {
   active.value = (active.value + step + count) % count;
 }
 
+// An option's mousedown is prevented, so a click on one never blurs the input.
+function onBlur() {
+  open.value = false;
+  active.value = -1;
+  blur();
+}
+
 function onKeydown(event: KeyboardEvent) {
   if (event.key === "ArrowDown" || event.key === "ArrowUp") {
     if (!showsOptions.value && !open.value) return;
@@ -228,7 +235,7 @@ const placeholderText = computed(
           :disabled="props.disabled"
           :aria-invalid="invalid"
           @update:model-value="onInput"
-          @blur="blur"
+          @blur="onBlur"
           @keydown="onKeydown"
         />
         <Button
