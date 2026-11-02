@@ -1,0 +1,163 @@
+---
+title: "MonacoJsonInput"
+description: "Edits a JSON value in a Monaco editor, with JSON Schema checks and error markers that block save."
+registry: "monaco"
+---
+
+`<MonacoJsonInput>` edits a JSON value in the Monaco editor. It is an add-on:
+it is not in the `@chelone/react` barrel, and Monaco is an optional peer
+dependency. See [Installing the add-on](#installing-the-add-on).
+
+## When to use it
+
+Use it for a field that holds a JSON document a user writes by hand, such as a
+settings object, a webhook payload template or a feature-flag config. You get
+syntax highlighting, completion from a JSON Schema, a Format button and error
+markers.
+
+For a short value, prefer a plain input such as
+[TextInput](/docs/editing/text-input). To show a JSON value without editing it,
+use [MonacoJsonField](/docs/viewing/monaco-json-field) or
+[JsonField](/docs/viewing/json-field).
+
+## A schema example
+
+Pass a JSON Schema in `schema`. Monaco offers completions from it and marks
+values that do not match.
+
+```tsx
+import { Edit } from "@/components/admin";
+import { MonacoJsonInput } from "@/components/monaco";
+
+const settingsSchema = {
+  type: "object",
+  properties: {
+    theme: { enum: ["light", "dark"] },
+    retries: { type: "integer", minimum: 0 },
+  },
+  required: ["theme"],
+};
+
+export const IntegrationEdit = () => (
+  <Edit>
+    <MonacoJsonInput source="settings" schema={settingsSchema} height={240} />
+  </Edit>
+);
+```
+
+Use `schemaUri` to have Monaco fetch the schema from a URL instead. `schema`
+wins when both are set. A schema applies to the object shape only.
+
+## String and object values
+
+The input reads the shape of the value when it first renders and keeps it:
+
+- An object or array, or an empty value, is edited as JSON. The form gets the
+  parsed value, so `{ "theme": "dark" }` is stored as an object.
+- A string is edited as typed and written back as a string. A column that holds
+  JSON text stays text.
+
+While the text is not valid JSON, the form keeps the last valid value.
+
+Set `allowComments` to accept comments and trailing commas in the text of an
+object value. They are stripped before the text is parsed, so the stored value
+never holds them. A string value is written back exactly as typed, comments
+included, so leave `allowComments` off for a column that other code parses as
+strict JSON.
+
+## Validation
+
+A Monaco error marker blocks save. That covers two kinds of error:
+
+- A syntax error, such as a missing comma or an unclosed brace.
+- A schema error, such as a value of the wrong type or a missing required
+  property.
+
+The message shows under the editor like any other input error. Warnings do not
+block save. The input also takes the usual `validate` prop, which runs after
+these checks.
+
+## Props
+
+<PropsTable name="MonacoJsonInput" />
+
+## Installing the add-on
+
+There are two ways in. Both give you `<MonacoJsonInput>` and
+[`<MonacoJsonField>`](/docs/viewing/monaco-json-field).
+
+The registry copies the components into your project, and the code samples on
+these pages import them from `@/components/monaco`:
+
+```bash
+npx shadcn add @chelone/monaco
+```
+
+It installs `monaco-editor` and the binding library for you.
+
+Or import from the npm subpath, and install the optional peers yourself. For
+React that is `@monaco-editor/react` and `monaco-editor`:
+
+```bash
+pnpm add @monaco-editor/react monaco-editor
+```
+
+```tsx
+import { MonacoJsonField, MonacoJsonInput } from "@chelone/react/monaco";
+```
+
+For Vue it is `@guolao/vue-monaco-editor` and `monaco-editor`:
+
+```bash
+pnpm add @guolao/vue-monaco-editor monaco-editor
+```
+
+```ts
+import { MonacoJsonField, MonacoJsonInput } from "@chelone/vue/monaco";
+```
+
+The main `@chelone/react` and `@chelone/vue` entries never import Monaco, so an
+app that does not use the add-on does not need these packages.
+
+## Loading Monaco
+
+- Monaco is bundled with your app, in a lazy chunk. Nothing reaches the base
+  bundle until the first `<MonacoJsonInput>` or `<MonacoJsonField>` renders, and
+  a skeleton holds the place until then.
+- It loads no script from a CDN.
+- The editor theme follows the Chelone theme provider: light in light mode,
+  dark in dark mode.
+- Workers run on the main thread unless the app sets
+  `self.MonacoEnvironment.getWorker`. Without it Monaco logs a console warning
+  and still works. Set it once, before the first render, for a smoother editor.
+
+With Vite, import the two workers with `?worker` and return the one that matches
+the label:
+
+```ts
+import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
+import JsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
+
+self.MonacoEnvironment = {
+  getWorker(_workerId, label) {
+    return label === "json" ? new JsonWorker() : new EditorWorker();
+  },
+};
+```
+
+Put it in your entry file, ahead of the render call.
+
+## Vue
+
+`@chelone/vue` has the same component, built on `@guolao/vue-monaco-editor`.
+These props are written differently:
+
+- `class` styles the field wrapper, where React has `className`.
+- `editor-class` styles the editor frame, where React has `editorClassName`.
+- `label` is a string, or `false` to hide it, and `helper-text` is a string.
+- It has no `id`, `resource`, `isRequired`, `format`, `parse` or `alwaysOn`
+  prop, and emits no events. The label is translated against the ambient
+  resource, and a `required()` validator sets the required marker.
+
+The Vue [differences page](/docs/vue/differences#add-ons) lists the same
+changes with the other add-on notes.
