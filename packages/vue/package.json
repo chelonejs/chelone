@@ -22,6 +22,7 @@
     "./supabase": "./src/supabase.ts",
     "./csv-import": "./src/csv-import.ts",
     "./maps": "./src/maps.ts",
+    "./maps/draw": "./src/maps-draw.ts",
     "./mdx-editor": "./src/mdx-editor.ts",
     "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-theme.css"
   },
@@ -50,6 +51,10 @@
       "./maps": {
         "types": "./dist/maps.d.ts",
         "default": "./dist/maps.js"
+      },
+      "./maps/draw": {
+        "types": "./dist/maps-draw.d.ts",
+        "default": "./dist/maps-draw.js"
       },
       "./mdx-editor": {
         "types": "./dist/mdx-editor.d.ts",
@@ -81,6 +86,8 @@
     "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
     "papaparse": "^5.4.0",
+    "terra-draw": "^1.39.0",
+    "terra-draw-maplibre-gl-adapter": "^1.5.0",
     "vue": "^3.4.0",
     "vue-router": "^4.0.0"
   },
@@ -105,6 +112,12 @@
     },
     "papaparse": {
       "optional": true
+    },
+    "terra-draw": {
+      "optional": true
+    },
+    "terra-draw-maplibre-gl-adapter": {
+      "optional": true
     }
   },
   "devDependencies": {
@@ -123,6 +136,8 @@
     "papaparse": "^5.7.0",
     "publint": "^0.3.0",
     "shadcn-vue": "2.9.0",
+    "terra-draw": "^1.39.0",
+    "terra-draw-maplibre-gl-adapter": "^1.5.0",
     "vite": "^7.0.0",
     "vitest": "^3.0.0",
     "vue": "^3.4.0",
