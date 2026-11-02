@@ -221,6 +221,83 @@ free record renders `renderFree`, which defaults to nothing.
 
 <PropsTable name="LockStatus" />
 
+### PresenceBar
+
+Shows avatars of the other users who have the same record open, and renders
+nothing when nobody else is there. Place it inside a record view such as
+`<Edit>`, where the resource and record contexts name the topic.
+
+```tsx
+import { Edit, PresenceBar, TextInput } from "@chelone/react";
+
+export const PostEdit = () => (
+  <Edit actions={<PresenceBar />}>
+    <TextInput source="title" />
+  </Edit>
+);
+```
+
+- Presence needs a realtime data provider. With `memoryTransport` it works for
+  one page only, such as two components in the same tab. Nothing reaches
+  another browser without a server transport, and Chelone ships none.
+- The bar announces the current user on `presence/<resource>/<id>`, a topic
+  built by `presenceTopic(resource, id)`, and listens on it for the others.
+  The user comes from the auth provider's identity; `currentUser` replaces it.
+- It republishes the announce every 15 seconds (`heartbeatMs`) and drops a user
+  unheard for 30 seconds (`staleMs`). A user who leaves the view, by
+  navigating away within the app, leaves at once: the bar announces its
+  departure as it unmounts. A closed tab cannot announce, so it goes after
+  `staleMs`.
+- Stale time is measured by the receiver's clock, from when each announce
+  arrives, so clocks that disagree between browsers do not matter.
+- A second tab of the same user is left out.
+
+<PropsTable name="PresenceBar" />
+
+`usePresence(options)` is the hook under the bar, for a custom display. It
+announces the current user and returns the other users as `PresenceUser`s
+(`{ id, name, avatar? }`) while the component is mounted. It takes `topic`,
+`user`, `heartbeatMs`, `staleMs` and `enabled`, and announces nothing when it
+has no topic or no user.
+
+### CommentsThread
+
+The comments on a record, and a box to add one. Comments are records of an
+ordinary resource: `reference` names that resource and `target` is the field on
+a comment that holds the id of its parent record. The parent is the record
+context, or `record` when you pass one.
+
+```tsx
+import { CommentsThread, Edit, TextInput } from "@chelone/react";
+
+export const PostEdit = () => (
+  <Edit>
+    <TextInput source="title" />
+    <CommentsThread reference="comments" target="postId" resolvable />
+  </Edit>
+);
+```
+
+A comment holds these fields, besides its `id` and the `target` field:
+
+| Field | Holds |
+| --- | --- |
+| `body` | The text |
+| `authorId` | The identity id of the author |
+| `authorName` | The name shown for the author |
+| `createdAt` | An ISO timestamp |
+| `resolvedAt` | An ISO timestamp, or `null` while unresolved |
+
+- The client sets `authorId`, `authorName` and `createdAt` as hints. The server
+  should set them from the session and the clock, and overwrite what the client
+  sent.
+- With a realtime data provider the thread refreshes on its own when a comment
+  is created or changed. With a plain one it updates only on refetch.
+- It offers no edit, delete or reply. `resolvable` adds a `Mark resolved`
+  button, which sets `resolvedAt`.
+
+<PropsTable name="CommentsThread" />
+
 ## Locks
 
 A **lock** marks a record as being edited by an identity, so a second editor
@@ -307,7 +384,7 @@ useSubscribeToRecordList("posts", (event) => {
 ### Components
 
 `ListLive`, `ShowLive`, `EditLive`, `MenuLive`, `MenuLiveItemLink`,
-`LockOnMount` and `LockStatus` are exported from `@chelone/vue` with the same
+`LockOnMount`, `LockStatus`, `PresenceBar` and `CommentsThread` are exported from `@chelone/vue` with the same
 props as their React twins. Slots stand in for the render props.
 
 | Component | Slots |
@@ -316,8 +393,14 @@ props as their React twins. Slots stand in for the render props.
 | `MenuLiveItemLink` | `#icon` replaces the `icon` prop, for markup. |
 | `LockOnMount` | Default once the lock is held; `#loading` while it is requested; `#locked-by="{ lock }"` when another identity holds it. |
 | `LockStatus` | `#lock="{ lock }"` replaces the default badge; `#free` renders when the record is free. |
+| `PresenceBar`, `CommentsThread` | None. |
 
 `MenuLive` takes `items` like the React component.
+
+`usePresence` is a composable too. It takes the same options, each as a
+`MaybeRefOrGetter`, and returns `{ users }`, where `users` is a ref of the
+users on the topic. Unlike the React hook, it does not filter out the current
+user's other tabs; `PresenceBar` does, so filter by id in a custom display.
 
 ```vue
 <script setup lang="ts">
@@ -345,6 +428,19 @@ import {
       <template #locked-by="{ lock }">Held by {{ lock.identity }}</template>
       <TextInput source="title" />
     </LockOnMount>
+  </EditLive>
+</template>
+```
+
+```vue
+<script setup lang="ts">
+import { EditLive, PresenceBar, TextInput } from "@chelone/vue";
+</script>
+
+<template>
+  <EditLive resource="posts">
+    <template #actions><PresenceBar /></template>
+    <TextInput source="title" />
   </EditLive>
 </template>
 ```
