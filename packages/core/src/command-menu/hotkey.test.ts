@@ -49,6 +49,51 @@ describe("matchesHotkey", () => {
     expect(matchesHotkey(press("/", { ctrlKey: true }), "alt+/")).toBe(false);
   });
 
+  it("matches Option and Shift chords by the physical key, as macOS reports them", () => {
+    // Option+/ produces "÷" and Option+K produces "˚" on a Mac layout.
+    expect(
+      matchesHotkey(press("÷", { altKey: true, code: "Slash" }), "alt+/"),
+    ).toBe(true);
+    expect(
+      matchesHotkey(press("˚", { altKey: true, code: "KeyK" }), "alt+k"),
+    ).toBe(true);
+    // Shift+1 produces "!" on a US layout.
+    expect(
+      matchesHotkey(
+        press("!", { metaKey: true, shiftKey: true, code: "Digit1" }),
+        "mod+shift+1",
+      ),
+    ).toBe(true);
+    // The physical key still has to be the bound one.
+    expect(
+      matchesHotkey(press("÷", { altKey: true, code: "Period" }), "alt+/"),
+    ).toBe(false);
+    // Modifiers still match exactly.
+    expect(matchesHotkey(press("÷", { code: "Slash" }), "alt+/")).toBe(false);
+  });
+
+  it("does not match a different letter on another layout by its physical key", () => {
+    // Dvorak: the physical K key types "t", so mod+k must not fire on it.
+    expect(
+      matchesHotkey(press("t", { metaKey: true, code: "KeyK" }), "mod+k"),
+    ).toBe(false);
+    expect(
+      matchesHotkey(press("t", { altKey: true, code: "KeyK" }), "alt+k"),
+    ).toBe(false);
+  });
+
+  it("matches the plus key", () => {
+    expect(matchesHotkey(press("+", { metaKey: true }), "mod++")).toBe(true);
+    expect(matchesHotkey(press("+"), "+")).toBe(true);
+    expect(
+      matchesHotkey(
+        press("+", { metaKey: true, shiftKey: true }),
+        "mod+shift++",
+      ),
+    ).toBe(true);
+    expect(matchesHotkey(press("=", { metaKey: true }), "mod++")).toBe(false);
+  });
+
   it("matches a bare key such as f1", () => {
     expect(matchesHotkey(press("F1"), "f1")).toBe(true);
     expect(matchesHotkey(press("F2"), "f1")).toBe(false);
