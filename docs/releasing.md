@@ -10,15 +10,14 @@
 
 ## First release
 
-1. Run `pnpm install --frozen-lockfile`, then `pnpm changeset`.
-   Select a package and bump type, write the release notes, and commit the changeset.
-   The fixed group releases `@chelone/core`, `@chelone/react`, `@chelone/vue`, and `@chelone/supabase`
-   at the same version. Apps remain unversioned.
-2. Merge the changeset to `main` before adding `NPM_TOKEN`. The changesets step skips
-   while the secret is unset, preventing an initial publish at `0.0.0`.
-3. Add the token as the repository Actions secret `NPM_TOKEN`. In Actions > Release >
-   Run workflow, select `main` and run it manually to open the version PR.
-4. Review the versions and changelogs, then merge that PR to `main`.
+1. The first changeset, `.changeset/first-release.md`, is already merged to `main`. Do not
+   add another. It bumps the fixed group `@chelone/core`, `@chelone/react`, `@chelone/vue`,
+   and `@chelone/supabase` to `0.1.0` together. Apps remain unversioned.
+2. Add the token as the repository Actions secret `NPM_TOKEN`. The changesets step skips
+   while the secret is unset, preventing an initial publish at `0.0.0`. In Actions > Release >
+   Run workflow, select `main` and run it manually to open the Version Packages PR.
+3. Remove any not-on-npm note still in the docs in that same PR, so it goes out with the release.
+4. Review the versions and changelogs, then merge the PR to `main`. Merging it publishes `0.1.0`.
    The workflow lints, typechecks, tests, builds, checks tarballs, and publishes all four.
    pnpm applies `publishConfig` and replaces `workspace:*` with the package version.
 5. Check the workflow result and the four npm package versions.

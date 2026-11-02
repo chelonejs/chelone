@@ -3,23 +3,33 @@ title: "Changelog"
 description: "Release notes and version history for Chelone."
 ---
 
-Chelone is pre-release. This page will track notable changes once the first
-version ships.
+Each release's notes are generated from its changesets into the `CHANGELOG.md`
+of each package. The four packages release together at one version.
 
-## v1 (unreleased)
+## 0.1.0
 
-The initial release, currently in development:
+The first release:
 
 - **`@chelone/core`** — the framework-agnostic headless engine: the data
   provider contract, the Zod-backed resource registry, the list / create / edit
   / show controllers, validation, i18n, and the store.
+  [Changelog](https://github.com/chelonejs/chelone/blob/main/packages/core/CHANGELOG.md).
 - **`@chelone/react`** — the React adapter: the controller hooks and the full
-  shadcn-native admin surface (views, fields, inputs, buttons, layout, auth).
+  shadcn-native admin surface (views, fields, inputs, buttons, layout, auth),
+  plus the opt-in add-ons (maps, JSON and Markdown editing, CSV import) as
+  subpath imports.
+  [Changelog](https://github.com/chelonejs/chelone/blob/main/packages/react/CHANGELOG.md).
 - **`@chelone/vue`** — the Vue 3 adapter on the same core, built on
-  `vue-router` 4 and `@tanstack/vue-query`.
-- **`@chelone` shadcn registry** — the React admin components distributed as
-  source (`packages/react/registry.json`), installable with the shadcn CLI. The
-  Vue components ship inside `@chelone/vue`.
+  `vue-router` 4 and `@tanstack/vue-query`, with the same add-ons.
+  [Changelog](https://github.com/chelonejs/chelone/blob/main/packages/vue/CHANGELOG.md).
+- **`@chelone/supabase`** — the Supabase data and auth providers.
+  [Changelog](https://github.com/chelonejs/chelone/blob/main/packages/supabase/CHANGELOG.md).
 
-Follow along on [GitHub](https://github.com/chelonejs/chelone) for progress
-toward the v1 release.
+Two shadcn registries distribute the admin components as source, installable
+with the shadcn CLI:
+
+- `https://chelone.dev/r` for React.
+- `https://chelone.dev/r/vue` for Vue.
+
+Follow [GitHub releases](https://github.com/chelonejs/chelone/releases) for
+later versions.
