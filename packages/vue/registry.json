@@ -867,6 +867,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/guessers/show-guesser.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/guessers/use-guessed-resource.ts",
           "type": "registry:component"
         },
@@ -3062,6 +3066,28 @@
         "@chelone/guessed-code",
         "@chelone/guesser-empty",
         "@chelone/list",
+        "@chelone/use-guessed-resource"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "show-guesser",
+      "type": "registry:component",
+      "title": "Show Guesser",
+      "files": [
+        {
+          "path": "src/components/admin/guessers/show-guesser.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/guess-components",
+        "@chelone/guessed-code",
+        "@chelone/guesser-empty",
+        "@chelone/record-field",
+        "@chelone/show",
         "@chelone/use-guessed-resource"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
