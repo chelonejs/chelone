@@ -2,11 +2,14 @@
 
 A framework-agnostic, type-safe, headless admin engine.
 
+Docs and live demos: https://chelone.dev
+
 | Package | What it is |
 | --- | --- |
 | `@chelone/core` | Vanilla-TS core: resource registry (Zod), data, list/record/form controllers, auth, i18n. No framework imports. |
 | `@chelone/react` | React adapter and the shadcn component registry. |
-| `@chelone/vue` | Vue 3 adapter. |
+| `@chelone/vue` | Vue 3 adapter and the shadcn-vue component registry. |
+| `@chelone/supabase` | Supabase data and auth providers for core. |
 
 | App | What it is |
 | --- | --- |
