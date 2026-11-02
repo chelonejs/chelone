@@ -164,7 +164,23 @@ export const blocks = [
     sourceDirs: [{ path: "src/components/maps-draw", recursive: true }],
   },
   {
-    name: "addon-csv-import",
+    name: "maps-osm",
+    type: "registry:block",
+    title: "Chelone Maps OpenStreetMap",
+    categories: ["chelone", "fields"],
+    description:
+      "The opt-in maps add-on for pieces that call a network service: GeocodingInput searches an address with a geocoding provider and fills its coordinates, and MapWithSearch puts that search over a map. Installs maplibre-gl, and the maps block.",
+    docs: "The library names no geocoding service. Pass a provider to each component, or set geocoder on MapsProvider, for example createNominatimProvider({ endpoint }) from @chelone/core. A public Nominatim server has a usage policy and allows no search per keystroke, so the input searches on Enter or on its button.",
+    granularize: true,
+    inferDependencies: true,
+    // MapWithSearch reaches maplibre-gl only through the maps block, so the
+    // import scan cannot see it.
+    itemDependencies: ["maplibre-gl"],
+    registryDependencies: ["maps"],
+    sourceDirs: [{ path: "src/components/maps-osm", recursive: true }],
+  },
+  {
+        name: "addon-csv-import",
     type: "registry:block",
     title: "Chelone CSV Import",
     categories: ["chelone", "components"],
