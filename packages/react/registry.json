@@ -5997,6 +5997,14 @@
       "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
       "files": [
         {
+          "path": "src/components/maps/bbox-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps/geo-json-field.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/maps/lat-lng-field.tsx",
           "type": "registry:component"
         },
@@ -6011,8 +6019,42 @@
         {
           "path": "src/components/maps/maps-provider.tsx",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps/shape-fields.tsx",
+          "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bbox-field",
+      "type": "registry:component",
+      "title": "Bbox Field",
+      "files": [
+        {
+          "path": "src/components/maps/bbox-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/geo-json-field"],
+      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "geo-json-field",
+      "type": "registry:component",
+      "title": "Geo Json Field",
+      "files": [
+        {
+          "path": "src/components/maps/geo-json-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/map-canvas"],
+      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
+      "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6079,6 +6121,21 @@
       ],
       "dependencies": ["@chelone/core", "maplibre-gl"],
       "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "shape-fields",
+      "type": "registry:component",
+      "title": "Shape Fields",
+      "files": [
+        {
+          "path": "src/components/maps/shape-fields.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/geo-json-field"],
+      "categories": ["chelone", "components"],
+      "dependencies": ["maplibre-gl"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
