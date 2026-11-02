@@ -33,7 +33,11 @@ function wrap(geometry: GeoGeometry): GeoFeature {
   return { type: "Feature", geometry, properties: {} };
 }
 
-/** One geometry per part of a Multi geometry or a GeometryCollection. */
+/**
+ * One geometry per part of a Multi geometry or a GeometryCollection. A Multi
+ * geometry inside a GeometryCollection stays whole, so it is held and written
+ * back as it was.
+ */
 function singles(geometry: GeoGeometry): GeoGeometry[] {
   switch (geometry.type) {
     case "MultiPoint":
@@ -52,7 +56,9 @@ function singles(geometry: GeoGeometry): GeoGeometry[] {
         coordinates,
       }));
     case "GeometryCollection":
-      return geometry.geometries.flatMap(singles);
+      return geometry.geometries.flatMap((g) =>
+        g.type === "GeometryCollection" ? singles(g) : [g],
+      );
     default:
       return [geometry];
   }
@@ -107,9 +113,7 @@ function split(kind: ShapeValueKind, value: unknown): Split {
         ? splitGeometries(singles(value))
         : NOTHING;
     case "Geometry":
-      return isGeoGeometry(value) && value.type !== "GeometryCollection"
-        ? splitGeometries([value])
-        : NOTHING;
+      return isGeoGeometry(value) ? splitGeometries([value]) : NOTHING;
     case "Feature":
       return isGeoFeature(value) ? splitFeatures([value]) : NOTHING;
     case "FeatureCollection":
@@ -138,7 +142,8 @@ export function shapeToFeatures(
 /**
  * The parts of a value the editor cannot hold: a Polygon with holes, and a
  * FeatureCollection feature with no geometry, a GeometryCollection or a Multi
- * geometry. {@link featuresToShape} puts them back.
+ * geometry, and a Multi geometry inside a GeometryCollection. The Geometry kind
+ * holds a GeometryCollection whole. {@link featuresToShape} puts them back.
  */
 export function heldFeatures(
   kind: ShapeValueKind,
@@ -202,7 +207,8 @@ function heldGeometries(kind: ShapeValueKind, prev: unknown): GeoGeometry[] {
  * The value to store for the editor's `features`, or `null` when none is left.
  * `prev` is the value being edited: its held parts come back, and a Feature
  * keeps its `id`, `properties` and other members. A single kind takes the
- * last feature, since a new drawing replaces the old shape.
+ * last feature, since a new drawing replaces the old shape. A FeatureCollection
+ * keeps its other members, such as `name` and `crs`, but not its `bbox`.
  */
 export function featuresToShape(
   kind: ShapeValueKind,
@@ -245,7 +251,10 @@ export function featuresToShape(
     }
     case "FeatureCollection": {
       const all = [...features, ...heldFeatures(kind, prev)];
-      return all.length ? { type: "FeatureCollection", features: all } : null;
+      if (!all.length) return null;
+      // The old bbox no longer contains the new features.
+      const { bbox: _bbox, ...rest } = isGeoFeatureCollection(prev) ? prev : {};
+      return { ...rest, type: "FeatureCollection", features: all };
     }
     case "BBox": {
       const polygon = lastGeometry(features, "Polygon");
