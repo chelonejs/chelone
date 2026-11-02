@@ -1867,6 +1867,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/realtime/comments-thread.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/realtime/edit-live.tsx",
           "type": "registry:component"
         },
@@ -5217,6 +5221,26 @@
         "@chelone/simple-list-loading"
       ],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "comments-thread",
+      "type": "registry:component",
+      "title": "Comments Thread",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/comments-thread.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/lib-utils",
+        "@chelone/textarea"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
