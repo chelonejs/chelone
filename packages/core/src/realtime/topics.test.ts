@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   lockResourceTopic,
   lockTopic,
+  presenceTopic,
   recordTopic,
   resourceTopic,
 } from "./topics";
@@ -19,5 +20,10 @@ describe("topic helpers", () => {
   it("lockResourceTopic and lockTopic format the lock topics", () => {
     expect(lockResourceTopic("posts")).toBe("lock/posts");
     expect(lockTopic("posts", 42)).toBe("lock/posts/42");
+  });
+
+  it('presenceTopic builds presence/resource/id and treats 1 and "1" alike', () => {
+    expect(presenceTopic("posts", 42)).toBe("presence/posts/42");
+    expect(presenceTopic("posts", 1)).toBe(presenceTopic("posts", "1"));
   });
 });
