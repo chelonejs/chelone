@@ -269,6 +269,50 @@ describe("createPresenceSession", () => {
     expect(vi.getTimerCount()).toBe(2);
   });
 
+  it("a throwing store subscriber does not stop the reply to a newcomer", () => {
+    const { transport, make } = setup();
+    const onError = vi.fn();
+    const first = make(ada, "tab-1", { onError });
+    first.start();
+    first.store.subscribe(() => {
+      throw new Error("render failed");
+    });
+
+    void transport.publish(topic, {
+      type: "presence",
+      payload: { sessionId: "tab-2", user: grace },
+    });
+
+    expect(
+      transport.publishedEvents.filter(
+        (event) =>
+          event.type === "presence" &&
+          (event.payload as { sessionId: string }).sessionId === "tab-1",
+      ),
+    ).toHaveLength(2);
+    expect(onError).toHaveBeenCalledWith(new Error("render failed"));
+  });
+
+  it("stop reports a throwing store subscriber to onError instead of throwing", () => {
+    vi.useFakeTimers();
+    const { transport, make } = setup();
+    const onError = vi.fn();
+    const session = make(ada, "tab-1", { onError });
+    session.start();
+    void transport.publish(topic, {
+      type: "presence",
+      payload: { sessionId: "tab-2", user: grace },
+    });
+    session.store.subscribe(() => {
+      throw new Error("render failed");
+    });
+
+    expect(() => session.stop()).not.toThrow();
+
+    expect(onError).toHaveBeenCalledWith(new Error("render failed"));
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it("start twice and stop before start do nothing", () => {
     const { transport, make } = setup();
     const session = make(ada, "tab-1");

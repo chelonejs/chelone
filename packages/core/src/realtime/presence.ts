@@ -124,8 +124,9 @@ export function createPresenceSession({
       } else if (type === "presence" && isPresenceUser(payload.user)) {
         const known = sessions.has(from);
         sessions.set(from, { user: payload.user, heardAt: now() });
-        refresh();
+        // Before the store, whose subscribers may throw: the newcomer must hear us.
         if (!known) announce();
+        refresh();
       }
     } catch (cause) {
       report(cause);
@@ -167,7 +168,11 @@ export function createPresenceSession({
       heartbeat = sweep = undefined;
       publish("presence_leave", { sessionId });
       sessions.clear();
-      store.setState({ users: [] });
+      try {
+        store.setState({ users: [] });
+      } catch (cause) {
+        report(cause);
+      }
     },
   };
 }
