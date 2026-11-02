@@ -394,6 +394,10 @@ export {
   type ImageFieldProps,
 } from "./components/admin/fields/image-field";
 export {
+  JsonField,
+  type JsonFieldProps,
+} from "./components/admin/fields/json-field";
+export {
   NumberField,
   type NumberFieldProps,
 } from "./components/admin/fields/number-field";
