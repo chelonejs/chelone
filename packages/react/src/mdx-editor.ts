@@ -8,3 +8,7 @@ export {
   MdxField,
   type MdxFieldProps,
 } from "./components/mdx-editor/mdx-field";
+export {
+  MdxInput,
+  type MdxInputProps,
+} from "./components/mdx-editor/mdx-input";
