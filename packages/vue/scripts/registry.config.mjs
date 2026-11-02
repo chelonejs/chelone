@@ -98,7 +98,13 @@ export const blocks = [
       "The Chelone admin component surface (Admin, List, Edit, DataTable, TextField, TextInput, the auth pages, layout, buttons, fields, inputs, and views) wired onto the @chelone/vue composables. Granularizes so each component installs on its own.",
     granularize: true,
     cssVarsFromFile: "src/index.css",
-    sourceDirs: [{ path: "src/components/admin", recursive: true }],
+    sourceDirs: [
+      {
+        path: "src/components/admin",
+        recursive: true,
+        excludeDirs: ["csv-import"],
+      },
+    ],
     extraFiles: [
       { path: "src/lib/are-ids-equal.ts", type: "registry:lib" },
       { path: "src/lib/shallow-equal.ts", type: "registry:lib" },
@@ -143,6 +149,17 @@ export const blocks = [
     inferDependencies: true,
     itemDependencies: ["maplibre-gl"],
     sourceDirs: [{ path: "src/components/maps", recursive: true }],
+  },
+  {
+    name: "addon-csv-import",
+    type: "registry:block",
+    title: "Chelone CSV Import",
+    categories: ["chelone", "components"],
+    description:
+      "The opt-in CSV import add-on: CsvImport adds an Import button that opens a four-step sheet (upload, map columns, preview, import) and useCsvImport reads its state. Installs papaparse.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [{ path: "src/components/admin/csv-import", recursive: true }],
   },
 ];
 
