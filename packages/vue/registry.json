@@ -5438,6 +5438,79 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "maps",
+      "type": "registry:block",
+      "title": "Chelone Maps",
+      "categories": ["chelone", "fields"],
+      "docs": "MapCanvas loads the MapLibre stylesheet itself. The library ships no tile server, so mount MapsProvider once near the root with a mapStyle (rasterTileStyle({ tileUrl, attribution }) from @chelone/core, or a MapLibre style URL), or pass mapStyle to each map. Browsers cap live WebGL contexts near 16 per page, so keep long lists of maps short.",
+      "description": "The opt-in maps add-on: MapCanvas and MapMarker wrap MapLibre GL, MapsProvider sets the basemap once, and LatLngField shows a point from two record fields. Installs maplibre-gl.",
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "files": [
+        {
+          "path": "src/components/maps/lat-lng-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps/map-canvas.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps/use-map.ts",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lat-lng-field",
+      "type": "registry:component",
+      "title": "Lat Lng Field",
+      "files": [
+        {
+          "path": "src/components/maps/lat-lng-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/map-canvas",
+        "@chelone/use-map"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "map-canvas",
+      "type": "registry:component",
+      "title": "Map Canvas",
+      "files": [
+        {
+          "path": "src/components/maps/map-canvas.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/use-map"],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-map",
+      "type": "registry:component",
+      "title": "Use Map",
+      "files": [
+        {
+          "path": "src/components/maps/use-map.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "style-chelone",
       "type": "registry:base",
       "title": "Chelone",

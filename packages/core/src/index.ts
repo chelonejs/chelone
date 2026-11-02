@@ -15,6 +15,23 @@ export {
   permissionsQueryOptions,
 } from "./auth/auth-options";
 export type { AuthProvider, CanAccessParams, UserIdentity } from "./auth/types";
+export type { HotkeyEvent, HotkeyTarget } from "./command-menu/hotkey";
+export {
+  isTypingTarget,
+  matchesHotkey,
+  shouldHandleHotkey,
+} from "./command-menu/hotkey";
+export type { RecentEntry } from "./command-menu/recents";
+export { recentsKey, rememberRecent } from "./command-menu/recents";
+export type {
+  CommandAction,
+  CommandRegistry,
+} from "./command-menu/registry";
+export {
+  createCommandRegistry,
+  getVisibleCommands,
+  groupCommands,
+} from "./command-menu/registry";
 export type {
   CalendarLabels,
   CalendarRange,
