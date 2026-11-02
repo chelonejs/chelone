@@ -25,9 +25,9 @@ export interface ParsedCsv {
 export interface CsvParser {
   parse(
     text: string,
-    options: { header: true; skipEmptyLines: true },
+    options: { header: false; skipEmptyLines: "greedy" },
   ): {
-    data: Array<Record<string, unknown>>;
+    data: string[][];
     errors: Array<{
       type: string;
       code: string;
@@ -35,7 +35,6 @@ export interface CsvParser {
       row?: number | undefined;
       index?: number | undefined;
     }>;
-    meta: { fields?: string[] | undefined };
   };
 }
 
