@@ -1257,6 +1257,14 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/calendar-agenda-view.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/calendar-event.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/calendar-header.vue",
           "type": "registry:component"
         },
@@ -1266,6 +1274,10 @@
         },
         {
           "path": "src/components/admin/list/calendar-month-view.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/calendar-week-view.vue",
           "type": "registry:component"
         },
         {
@@ -4549,6 +4561,38 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "calendar-agenda-view",
+      "type": "registry:component",
+      "title": "Calendar Agenda View",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-agenda-view.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/calendar-event",
+        "@chelone/calendar-month-view"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-event",
+      "type": "registry:component",
+      "title": "Calendar Event",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-event.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "calendar-header",
       "type": "registry:component",
       "title": "Calendar Header",
@@ -4559,7 +4603,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/list-icons"],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4574,8 +4618,10 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/calendar-agenda-view",
         "@chelone/calendar-header",
         "@chelone/calendar-month-view",
+        "@chelone/calendar-week-view",
         "@chelone/lib-utils"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
@@ -4593,6 +4639,24 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-week-view",
+      "type": "registry:component",
+      "title": "Calendar Week View",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-week-view.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/calendar-event",
+        "@chelone/calendar-month-view"
+      ],
       "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"

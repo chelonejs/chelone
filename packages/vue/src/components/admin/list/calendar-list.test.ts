@@ -455,3 +455,340 @@ describe("<CalendarList> month view", () => {
     expect(header.text()).toBe("month 6");
   });
 });
+
+// 10 to 16 May is the week of the fixed clock; the agenda runs 1 to 29 May.
+const SCHEDULE = [
+  ...MEETINGS,
+  {
+    id: 4,
+    name: "Standup",
+    starts_at: "2026-05-13T09:30:00",
+    ends_at: "2026-05-13T10:00:00",
+    kind: "work",
+  },
+  { id: 5, name: "Prep", starts_at: "2026-05-04T08:00:00", kind: "work" },
+];
+
+const hourCell = (wrapper: VueWrapper, date: string, hour: number) => {
+  const found = cells(wrapper).find(
+    (node) =>
+      node.attributes("data-date") === date &&
+      node.attributes("data-hour") === String(hour),
+  );
+  if (!found) throw new Error(`no cell for ${date} ${hour}h`);
+  return found;
+};
+const eventsInHour = (wrapper: VueWrapper, date: string, hour: number) =>
+  hourCell(wrapper, date, hour)
+    .findAll("[data-slot=calendar-event]")
+    .map((node) => node.text());
+const switcherButton = (wrapper: VueWrapper, text: string) => {
+  const found = wrapper
+    .findAll("[data-slot=calendar-view-switcher] button")
+    .find((node) => node.text() === text);
+  if (!found) throw new Error(`no view button ${text}`);
+  return found;
+};
+
+describe("<CalendarList> week view", () => {
+  const week = (props: Record<string, unknown> = {}) =>
+    calendar({ titleSource: "name", defaultView: "week", ...props });
+
+  it("renders 7 day headers and 24 hour rows", async () => {
+    const { wrapper } = await mountList({ list: week() });
+
+    expect(wrapper.find("[data-slot=calendar-week]").exists()).toBe(true);
+    expect(
+      wrapper.findAll('[role="columnheader"]').map((node) => node.text()),
+    ).toEqual([
+      "Sun 10",
+      "Mon 11",
+      "Tue 12",
+      "Wed 13",
+      "Thu 14",
+      "Fri 15",
+      "Sat 16",
+    ]);
+    expect(wrapper.findAll('[role="rowheader"]')).toHaveLength(24);
+    expect(wrapper.findAll('[role="rowheader"]')[0]?.text()).toBe("12 AM");
+    expect(wrapper.findAll('[role="rowheader"]')[13]?.text()).toBe("1 PM");
+    expect(cells(wrapper)).toHaveLength(7 * 24);
+    expect(cells(wrapper)[0]?.attributes("data-date")).toBe("2026-05-10");
+    expect(cells(wrapper).at(-1)?.attributes("data-date")).toBe("2026-05-16");
+  });
+
+  it("asks the data provider for the visible week", async () => {
+    const { getList, dataProvider } = providerWith();
+    await mountList({ list: week(), dataProvider });
+
+    expect(lastFilter(getList).filter).toEqual({
+      starts_at_gte: new Date(2026, 4, 10).toISOString(),
+      starts_at_lte: new Date(2026, 4, 16, 23, 59, 59, 999).toISOString(),
+    });
+  });
+
+  it("places an event in the cell of its start hour", async () => {
+    const { dataProvider } = providerWith(SCHEDULE);
+    const { wrapper } = await mountList({ list: week(), dataProvider });
+
+    expect(eventsInHour(wrapper, "2026-05-13", 9)).toEqual(["Standup"]);
+    expect(eventsInHour(wrapper, "2026-05-13", 10)).toEqual([]);
+    expect(eventsInHour(wrapper, "2026-05-12", 9)).toEqual([]);
+    // A multi-day event shows once, in the hour it starts.
+    expect(eventsInHour(wrapper, "2026-05-12", 0)).toEqual(["Conference"]);
+    expect(eventsInHour(wrapper, "2026-05-13", 0)).toEqual([]);
+    expect(wrapper.findAll("[data-slot=calendar-event]")).toHaveLength(2);
+  });
+
+  it("an empty hour cell emits select-slot with that hour and allDay false", async () => {
+    const onSelectSlot = vi.fn();
+    const { wrapper } = await mountList({ list: week({ onSelectSlot }) });
+
+    await hourCell(wrapper, "2026-05-14", 14).trigger("click");
+    expect(onSelectSlot).toHaveBeenCalledTimes(1);
+    expect(onSelectSlot).toHaveBeenCalledWith({
+      startISO: new Date(2026, 4, 14, 14).toISOString(),
+      endISO: new Date(2026, 4, 14, 15).toISOString(),
+      allDay: false,
+    });
+
+    await hourCell(wrapper, "2026-05-14", 23).trigger("click");
+    expect(onSelectSlot).toHaveBeenLastCalledWith({
+      startISO: new Date(2026, 4, 14, 23).toISOString(),
+      endISO: new Date(2026, 4, 15).toISOString(),
+      allDay: false,
+    });
+  });
+
+  it("an event click emits select-event and not select-slot", async () => {
+    const onSelectSlot = vi.fn();
+    const onSelectEvent = vi.fn();
+    const { dataProvider } = providerWith(SCHEDULE);
+    const { wrapper } = await mountList({
+      list: week({ onSelectSlot, onSelectEvent }),
+      dataProvider,
+    });
+
+    await hourCell(wrapper, "2026-05-13", 9)
+      .get("[data-slot=calendar-event]")
+      .trigger("click");
+    expect(onSelectEvent).toHaveBeenCalledTimes(1);
+    expect(onSelectEvent.mock.calls[0]?.[0]).toMatchObject({ id: 4 });
+    expect(onSelectSlot).not.toHaveBeenCalled();
+  });
+
+  it("without a listener an event links to the edit page", async () => {
+    const { dataProvider } = providerWith(SCHEDULE);
+    const { wrapper } = await mountList({ list: week(), dataProvider });
+
+    const link = hourCell(wrapper, "2026-05-13", 9).get(
+      "[data-slot=calendar-event]",
+    );
+    expect(link.attributes("href")).toBe("/meetings/4");
+  });
+
+  it("Next moves a week and refetches the new range", async () => {
+    const { getList, dataProvider } = providerWith();
+    const { wrapper } = await mountList({ list: week(), dataProvider });
+
+    await headerButton(wrapper, "Next").trigger("click");
+    await flushPromises();
+    expect(cells(wrapper)[0]?.attributes("data-date")).toBe("2026-05-17");
+    expect(lastFilter(getList).filter).toEqual({
+      starts_at_gte: new Date(2026, 4, 17).toISOString(),
+      starts_at_lte: new Date(2026, 4, 23, 23, 59, 59, 999).toISOString(),
+    });
+
+    await headerButton(wrapper, "Previous").trigger("click");
+    await headerButton(wrapper, "Previous").trigger("click");
+    await flushPromises();
+    expect(cells(wrapper)[0]?.attributes("data-date")).toBe("2026-05-03");
+  });
+});
+
+describe("<CalendarList> agenda view", () => {
+  const agenda = (props: Record<string, unknown> = {}) =>
+    calendar({ titleSource: "name", defaultView: "agenda", ...props });
+  const days = (wrapper: VueWrapper) =>
+    wrapper.findAll("[data-slot=calendar-agenda-day]");
+
+  it("groups events by day in start order", async () => {
+    const { dataProvider } = providerWith(SCHEDULE);
+    const { wrapper } = await mountList({ list: agenda(), dataProvider });
+
+    expect(wrapper.find("[data-slot=calendar-agenda]").exists()).toBe(true);
+    expect(days(wrapper).map((node) => node.attributes("data-date"))).toEqual([
+      "2026-05-04",
+      "2026-05-12",
+      "2026-05-13",
+      "2026-05-29",
+    ]);
+    expect(days(wrapper)[0]?.get("h3").text()).toBe("Monday, May 4");
+    expect(
+      days(wrapper).map((node) =>
+        node.findAll("[data-slot=calendar-event]").map((event) => event.text()),
+      ),
+    ).toEqual([["Prep", "Kickoff"], ["Conference"], ["Standup"], ["Retro"]]);
+  });
+
+  it("shows the empty label when the range holds no event", async () => {
+    const { dataProvider } = providerWith([]);
+    const { wrapper } = await mountList({ list: agenda(), dataProvider });
+
+    expect(days(wrapper)).toHaveLength(0);
+    expect(wrapper.get("[data-slot=calendar-agenda-empty]").text()).toBe(
+      "No events in this range",
+    );
+  });
+
+  it("Next moves a fortnight and refetches the new range", async () => {
+    const { getList, dataProvider } = providerWith();
+    const { wrapper } = await mountList({ list: agenda(), dataProvider });
+    expect(lastFilter(getList).filter).toEqual({
+      starts_at_gte: new Date(2026, 4, 1).toISOString(),
+      starts_at_lte: new Date(2026, 4, 29, 23, 59, 59, 999).toISOString(),
+    });
+
+    await headerButton(wrapper, "Next").trigger("click");
+    await flushPromises();
+    expect(lastFilter(getList).filter).toEqual({
+      starts_at_gte: new Date(2026, 4, 15).toISOString(),
+      starts_at_lte: new Date(2026, 5, 12, 23, 59, 59, 999).toISOString(),
+    });
+  });
+
+  it("an event click emits select-event", async () => {
+    const onSelectEvent = vi.fn();
+    const { wrapper } = await mountList({ list: agenda({ onSelectEvent }) });
+
+    await days(wrapper)[0]?.get("[data-slot=calendar-event]").trigger("click");
+    expect(onSelectEvent).toHaveBeenCalledTimes(1);
+    expect(onSelectEvent.mock.calls[0]?.[0]).toMatchObject({ id: 1 });
+  });
+});
+
+describe("<CalendarList> views", () => {
+  it("the switcher changes the view and marks the current one", async () => {
+    const { wrapper } = await mountList({
+      list: calendar({ titleSource: "name" }),
+    });
+    const pressed = () =>
+      wrapper
+        .findAll("[data-slot=calendar-view-switcher] button")
+        .filter((node) => node.attributes("aria-pressed") === "true")
+        .map((node) => node.text());
+
+    expect(
+      wrapper
+        .findAll("[data-slot=calendar-view-switcher] button")
+        .map((node) => node.text()),
+    ).toEqual(["Month", "Week", "Agenda"]);
+    expect(pressed()).toEqual(["Month"]);
+    expect(wrapper.find("[data-slot=calendar-month]").exists()).toBe(true);
+
+    await switcherButton(wrapper, "Week").trigger("click");
+    await flushPromises();
+    expect(pressed()).toEqual(["Week"]);
+    expect(wrapper.find("[data-slot=calendar-week]").exists()).toBe(true);
+    expect(wrapper.find("[data-slot=calendar-month]").exists()).toBe(false);
+
+    await switcherButton(wrapper, "Agenda").trigger("click");
+    await flushPromises();
+    expect(pressed()).toEqual(["Agenda"]);
+    expect(wrapper.find("[data-slot=calendar-agenda]").exists()).toBe(true);
+
+    await switcherButton(wrapper, "Month").trigger("click");
+    await flushPromises();
+    expect(pressed()).toEqual(["Month"]);
+    expect(title(wrapper)).toBe("May 2026");
+  });
+
+  it("changing the view refetches the range of the new view", async () => {
+    const { getList, dataProvider } = providerWith();
+    const { wrapper } = await mountList({ list: calendar(), dataProvider });
+
+    await switcherButton(wrapper, "Week").trigger("click");
+    await flushPromises();
+    expect(lastFilter(getList).filter.starts_at_gte).toBe(
+      new Date(2026, 4, 10).toISOString(),
+    );
+  });
+
+  it("the views prop limits the switcher and defaultView picks the first view", async () => {
+    const limited = await mountList({
+      list: calendar({ views: ["week", "agenda"], defaultView: "agenda" }),
+    });
+    expect(
+      limited.wrapper
+        .findAll("[data-slot=calendar-view-switcher] button")
+        .map((node) => node.text()),
+    ).toEqual(["Week", "Agenda"]);
+    expect(limited.wrapper.find("[data-slot=calendar-agenda]").exists()).toBe(
+      true,
+    );
+
+    // The default view is not offered: the first offered view is shown.
+    const fallback = await mountList({
+      list: calendar({ views: ["week", "agenda"] }),
+    });
+    expect(fallback.wrapper.find("[data-slot=calendar-week]").exists()).toBe(
+      true,
+    );
+    expect(fallback.wrapper.find("[data-slot=calendar-month]").exists()).toBe(
+      false,
+    );
+
+    // The order given is the order offered, and the first one opens.
+    const reordered = await mountList({
+      list: calendar({ views: ["agenda", "week"] }),
+    });
+    expect(
+      reordered.wrapper
+        .findAll("[data-slot=calendar-view-switcher] button")
+        .map((node) => node.text()),
+    ).toEqual(["Agenda", "Week"]);
+    expect(reordered.wrapper.find("[data-slot=calendar-agenda]").exists()).toBe(
+      true,
+    );
+
+    // One view needs no switcher.
+    const single = await mountList({ list: calendar({ views: ["month"] }) });
+    expect(
+      single.wrapper.find("[data-slot=calendar-view-switcher]").exists(),
+    ).toBe(false);
+  });
+
+  it("the event slot applies in the week and agenda views", async () => {
+    const { dataProvider } = providerWith(SCHEDULE);
+    const { wrapper } = await mountList({
+      list: calendar(
+        { titleSource: "name", defaultView: "week" },
+        {
+          event: (info: { title: string }) =>
+            h("em", { "data-testid": "custom-event" }, `custom ${info.title}`),
+        },
+      ),
+      dataProvider,
+    });
+
+    expect(wrapper.find("[data-slot=calendar-event]").exists()).toBe(false);
+    expect(
+      hourCell(wrapper, "2026-05-13", 9)
+        .get("[data-testid=custom-event]")
+        .text(),
+    ).toBe("custom Standup");
+
+    await switcherButton(wrapper, "Agenda").trigger("click");
+    await flushPromises();
+    expect(wrapper.find("[data-slot=calendar-event]").exists()).toBe(false);
+    expect(
+      wrapper.findAll("[data-testid=custom-event]").map((node) => node.text()),
+    ).toEqual([
+      "custom Prep",
+      "custom Kickoff",
+      "custom Conference",
+      "custom Standup",
+      "custom Retro",
+    ]);
+  });
+});
