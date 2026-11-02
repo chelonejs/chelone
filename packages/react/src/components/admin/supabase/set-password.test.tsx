@@ -140,6 +140,25 @@ describe("<SetPasswordForm>", () => {
     expect(setPassword).not.toHaveBeenCalled();
   });
 
+  it("correcting one field clears the mismatch error on the other", async () => {
+    render(
+      <Wrap>
+        <SetPasswordForm />
+      </Wrap>,
+    );
+
+    fill("hunter2", "hunter3");
+    await waitFor(() =>
+      expect(screen.getAllByText("Passwords do not match")).toHaveLength(2),
+    );
+
+    fireEvent.change(confirmField(), { target: { value: "hunter2" } });
+
+    await waitFor(() =>
+      expect(screen.queryAllByText("Passwords do not match")).toHaveLength(0),
+    );
+  });
+
   it("matching passwords call setPassword with both tokens and the password", async () => {
     const setPassword = vi.fn(async () => {});
     render(

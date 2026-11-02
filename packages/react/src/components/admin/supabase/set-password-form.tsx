@@ -40,16 +40,19 @@ const errorMessage = (error: unknown): string | undefined => {
   return undefined;
 };
 
-// Both fields carry it, so the user sees the error beside whichever they edit.
-const passwordsMatch = (_value: unknown, values: unknown) => {
-  const { password, confirmPassword } = values as Partial<SetPasswordValues>;
-  return password === confirmPassword
+// Form level, so editing either field re-checks both and clears a stale error.
+const validateMatch = (values: SetPasswordValues) =>
+  values.password === values.confirmPassword
     ? undefined
-    : {
-        message: "ra-supabase.validation.password_mismatch",
-        args: { _: "Passwords do not match" },
-      };
-};
+    : Object.fromEntries(
+        (["password", "confirmPassword"] as const).map((source) => [
+          source,
+          {
+            message: "ra-supabase.validation.password_mismatch",
+            args: { _: "Passwords do not match" },
+          },
+        ]),
+      );
 
 function SetPasswordForm({ className }: SetPasswordFormProps) {
   const { accessToken, refreshToken } = useSupabaseUrlTokens();
@@ -81,6 +84,7 @@ function SetPasswordForm({ className }: SetPasswordFormProps) {
 
   const { form, submit, isSubmitting } = useForm<SetPasswordValues>({
     defaultValues: { password: "", confirmPassword: "" },
+    validate: validateMatch,
     save,
     resetOnSuccess: false,
   });
@@ -127,7 +131,7 @@ function SetPasswordForm({ className }: SetPasswordFormProps) {
           source="password"
           autoComplete="new-password"
           autoFocus
-          validate={[required(), passwordsMatch]}
+          validate={required()}
         />
         <PasswordInput
           label={translate("ra-supabase.auth.confirm_password", {
@@ -135,7 +139,7 @@ function SetPasswordForm({ className }: SetPasswordFormProps) {
           })}
           source="confirmPassword"
           autoComplete="new-password"
-          validate={[required(), passwordsMatch]}
+          validate={required()}
         />
         <Button
           type="submit"
