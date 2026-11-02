@@ -74,7 +74,7 @@ Pieces of shadmin that Chelone keeps, with where each stands. Each lands in both
 - **Collaboration** (in progress): presence bar and comment threads on the realtime engine. Issues #475 to #480 and #488.
 - **Approval buttons** (in progress): approve and reject actions on a record. Issues #475 and #481 to #483, docs in #489.
 - **Command menu** (in progress): a keyboard-driven command palette. Issues #484 to #487 and #490.
-- **Calendar list** (post-v1): a list that renders records on a calendar. Issues #436 to #443.
+- **Calendar list** (post-v1): a list that renders records on a calendar. Issues #436 to #443. The framework-free calendar rules in `@chelone/core` (#436) are built; the adapter components are not.
 - **Dropped:** the inspector, `Configurable` and `SimpleFormConfigurable`. `ColumnsButton` covers the usual reason for them.
 - **Dropped:** the rest of the `widgets` folder. It is closer to finished app screens than admin building blocks.
 
