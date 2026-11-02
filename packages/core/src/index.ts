@@ -538,6 +538,18 @@ export type {
   MemoryTransportOptions,
 } from "./realtime/memory-transport";
 export { memoryTransport } from "./realtime/memory-transport";
+export type {
+  PresenceSession,
+  PresenceSessionDataProvider,
+  PresenceSessionOptions,
+  PresenceSessionState,
+  PresenceUser,
+} from "./realtime/presence";
+export {
+  createPresenceSession,
+  getPresenceInitials,
+  toPresenceUser,
+} from "./realtime/presence";
 export {
   assertRealtimeDataProvider,
   isRealtimeDataProvider,
@@ -548,6 +560,7 @@ export { createRealtimeStatusStore } from "./realtime/status-store";
 export {
   lockResourceTopic,
   lockTopic,
+  presenceTopic,
   recordTopic,
   resourceTopic,
 } from "./realtime/topics";
