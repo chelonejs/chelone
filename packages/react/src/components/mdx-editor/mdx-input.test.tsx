@@ -11,6 +11,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { headingsPlugin } from "@mdxeditor/editor";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -166,7 +167,9 @@ describe("<MdxInput />", () => {
 
   it("passes the input plugin preset with the toolbar", () => {
     setup(<MdxInput source="body" />, { defaultValues: { body: "x" } });
-    expect(hoisted.plugins).toBe(defaultInputPlugins);
+    expect(hoisted.plugins).toEqual(
+      expect.arrayContaining(defaultInputPlugins),
+    );
   });
 
   it("renders a custom label and helper text", () => {
@@ -356,11 +359,14 @@ describe("<MdxInput />", () => {
   });
 
   it("lets mdxProps replace the plugins", () => {
-    const custom: never[] = [];
+    const custom = [headingsPlugin()];
     setup(<MdxInput source="body" mdxProps={{ plugins: custom }} />, {
       defaultValues: { body: "x" },
     });
-    expect(hoisted.plugins).toBe(custom);
+    expect(hoisted.plugins).toEqual(expect.arrayContaining(custom));
+    expect(hoisted.plugins).not.toEqual(
+      expect.arrayContaining(defaultInputPlugins),
+    );
   });
 
   it("adds the mdxeditor-dark class when the theme resolves dark", () => {

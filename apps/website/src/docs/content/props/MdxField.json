@@ -35,7 +35,7 @@
       "name": "plugins",
       "type": "RealmPlugin[]",
       "optional": true,
-      "comment": "The editor plugins. Defaults to `defaultFieldPlugins`."
+      "comment": "The editor plugins. Defaults to `defaultFieldPlugins`. The field adds an\ninert `<img>` visitor to whatever list it gets, so `imagePlugin()` cannot\nrun the `onerror` of raw `<img>` HTML."
     },
     {
       "name": "record",

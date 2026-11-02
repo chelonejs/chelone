@@ -8,6 +8,7 @@ import {
   type RefObject,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -22,6 +23,7 @@ import { useResourceContext } from "../../resource";
 import type { InputProps } from "../admin/input-props";
 import { useResolvedTheme } from "../admin/layout/use-theme";
 import { defaultInputPlugins } from "./default-plugins";
+import { safeHtmlImagePlugin } from "./safe-html-image-plugin";
 import "./mdx-editor-dark.css";
 
 type MdxEditorPassthrough = Omit<
@@ -38,7 +40,8 @@ type MdxEditorPassthrough = Omit<
 interface MdxInputProps extends InputProps {
   className?: string;
   /**
-   * Extra `MDXEditor` props. `plugins` here replaces `defaultInputPlugins`.
+   * Extra `MDXEditor` props. `plugins` here replaces `defaultInputPlugins`;
+   * an inert `<img>` visitor is added to either list.
    * `suppressHtmlProcessing` defaults to `true`, so raw HTML stays text; set it
    * to `false` to render stored HTML live, where an
    * `<iframe src="javascript:...">` runs script as the editor mounts.
@@ -80,10 +83,17 @@ const Editor = memo(function Editor({
   onBlur,
   onError,
 }: EditorProps) {
+  // Added to the caller's list too, so `imagePlugin()` cannot run the
+  // `onerror` of raw `<img>` HTML.
+  const basePlugins = mdxProps?.plugins ?? defaultInputPlugins;
+  const plugins = useMemo(
+    () => [...basePlugins, safeHtmlImagePlugin],
+    [basePlugins],
+  );
   return (
     <MDXEditor
-      plugins={defaultInputPlugins}
       {...mdxProps}
+      plugins={plugins}
       // After the spread, so a key set to `undefined` keeps the safe default.
       suppressHtmlProcessing={mdxProps?.suppressHtmlProcessing ?? true}
       ref={editorRef}

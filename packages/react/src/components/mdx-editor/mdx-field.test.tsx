@@ -4,6 +4,7 @@
  */
 
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import { headingsPlugin } from "@mdxeditor/editor";
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -104,14 +105,19 @@ describe("<MdxField />", () => {
     const { unmount } = render(<MdxField source="body" />, {
       wrapper: wrap({ id: 1, body: "x" }),
     });
-    expect(hoisted.plugins).toBe(defaultFieldPlugins);
+    expect(hoisted.plugins).toEqual(
+      expect.arrayContaining(defaultFieldPlugins),
+    );
     unmount();
 
-    const custom: never[] = [];
+    const custom = [headingsPlugin()];
     render(<MdxField source="body" plugins={custom} />, {
       wrapper: wrap({ id: 1, body: "x" }),
     });
-    expect(hoisted.plugins).toBe(custom);
+    expect(hoisted.plugins).toEqual(expect.arrayContaining(custom));
+    expect(hoisted.plugins).not.toEqual(
+      expect.arrayContaining(defaultFieldPlugins),
+    );
   });
 
   it("renders a translated empty string as the markdown when the value is missing", () => {

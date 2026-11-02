@@ -4,7 +4,7 @@ import {
   type MDXEditorProps,
   type RealmPlugin,
 } from "@mdxeditor/editor";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import type { UnknownRecord } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
@@ -13,12 +13,17 @@ import { useFieldValue } from "../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../util/sanitize-field-rest-props";
 import { useResolvedTheme } from "../admin/layout/use-theme";
 import { defaultFieldPlugins } from "./default-plugins";
+import { safeHtmlImagePlugin } from "./safe-html-image-plugin";
 import "./mdx-editor-dark.css";
 
 interface MdxFieldProps<RecordType extends UnknownRecord = UnknownRecord>
   extends FieldProps<RecordType>,
     Omit<MDXEditorProps, "markdown" | "readOnly" | "ref"> {
-  /** The editor plugins. Defaults to `defaultFieldPlugins`. */
+  /**
+   * The editor plugins. Defaults to `defaultFieldPlugins`. The field adds an
+   * inert `<img>` visitor to whatever list it gets, so `imagePlugin()` cannot
+   * run the `onerror` of raw `<img>` HTML.
+   */
   plugins?: RealmPlugin[];
   /**
    * Keeps raw HTML in the markdown as text. Defaults to `true`, since a field
@@ -56,6 +61,10 @@ function MdxField<RecordType extends UnknownRecord = UnknownRecord>({
   const translate = useTranslate();
   const theme = useResolvedTheme();
   const editorRef = useRef<MDXEditorMethods>(null);
+  const safePlugins = useMemo(
+    () => [...plugins, safeHtmlImagePlugin],
+    [plugins],
+  );
   // The markdown the editor failed to parse. A different value gets a new try.
   const [failedMarkdown, setFailedMarkdown] = useState<string | null>(null);
 
@@ -97,7 +106,7 @@ function MdxField<RecordType extends UnknownRecord = UnknownRecord>({
       ref={editorRef}
       markdown={markdown}
       readOnly
-      plugins={plugins}
+      plugins={safePlugins}
       suppressHtmlProcessing={suppressHtmlProcessing}
       onError={(payload) => {
         setFailedMarkdown(markdown);
