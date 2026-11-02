@@ -80,7 +80,13 @@ function CommentsThread({
   const record = recordProp ?? contextRecord;
   const id = record?.id;
   const hasRecord = id !== undefined && id !== null;
-  const [draft, setDraft] = useState("");
+  // Keyed by the record, so a draft written for one record never posts to the next.
+  const [stored, setStored] = useState<{ id: unknown; text: string }>({
+    id,
+    text: "",
+  });
+  const draft = stored.id === id ? stored.text : "";
+  const setDraft = (text: string) => setStored({ id, text });
 
   const { data } = useGetList(
     reference,
@@ -111,17 +117,21 @@ function CommentsThread({
 
   const post = async () => {
     if (!canPost) return;
+    const sent = draft;
     try {
       await create({
         data: {
           [target]: id,
           authorId: identity?.id ?? "anonymous",
           authorName: identity?.fullName,
-          body: draft.trim(),
+          body: sent.trim(),
           createdAt: new Date().toISOString(),
         },
       });
-      setDraft("");
+      // Text typed while the post was in flight is not part of it.
+      setStored((current) =>
+        current.id === id && current.text === sent ? { id, text: "" } : current,
+      );
     } catch (error) {
       console.error(error);
       notify("chelone.notification.http_error", { type: "error" });

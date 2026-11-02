@@ -422,4 +422,58 @@ describe("CommentsThread", () => {
 
     expect(await screen.findByText("Plain")).toBeTruthy();
   });
+  it("CommentsThread keeps text typed while a post is in flight", async () => {
+    const { Providers, create } = setup();
+    let release: () => void = () => {};
+    create.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          release = () => resolve({ data: { id: 1 } } as never);
+        }),
+    );
+    render(<CommentsThread reference="comments" target="postId" />, {
+      wrapper: Providers,
+    });
+    const box = (await screen.findByPlaceholderText(
+      "Write a comment…",
+    )) as HTMLTextAreaElement;
+    fireEvent.change(box, { target: { value: "Hi" } });
+    fireEvent.keyDown(box, { key: "Enter", ctrlKey: true });
+    await waitFor(() => expect(create).toHaveBeenCalledTimes(1));
+    fireEvent.change(box, { target: { value: "Hi more" } });
+
+    await act(async () => release());
+    await waitFor(() => expect(create).toHaveBeenCalledTimes(1));
+    expect(box.value).toBe("Hi more");
+  });
+
+  it("CommentsThread drops an unsent draft when the record changes", async () => {
+    const { Providers, create } = setup();
+    const { rerender } = render(
+      <CommentsThread
+        reference="comments"
+        target="postId"
+        record={{ id: 7 }}
+      />,
+      { wrapper: Providers },
+    );
+    const box = (await screen.findByPlaceholderText(
+      "Write a comment…",
+    )) as HTMLTextAreaElement;
+    fireEvent.change(box, { target: { value: "For seven" } });
+
+    rerender(
+      <CommentsThread
+        reference="comments"
+        target="postId"
+        record={{ id: 8 }}
+      />,
+    );
+
+    expect(
+      (screen.getByPlaceholderText("Write a comment…") as HTMLTextAreaElement)
+        .value,
+    ).toBe("");
+    expect(create).not.toHaveBeenCalled();
+  });
 });
