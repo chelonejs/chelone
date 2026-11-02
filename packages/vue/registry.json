@@ -4803,6 +4803,7 @@
         "@chelone/textarea"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
+      "devDependencies": ["@tanstack/vue-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
