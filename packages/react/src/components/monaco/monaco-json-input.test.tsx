@@ -20,7 +20,15 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { type ReactNode, useEffect } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { CheloneProvider } from "../../context";
 import { CheloneFormProvider } from "../../form-context";
 import { useForm, useInput } from "../../form-hooks";
@@ -173,7 +181,9 @@ function setup<TFormData extends Record<string, unknown>>(
 }
 
 async function editor() {
-  return (await screen.findByTestId("editor")) as HTMLTextAreaElement;
+  return (await screen.findByTestId("editor", undefined, {
+    timeout: 5000,
+  })) as HTMLTextAreaElement;
 }
 
 function setMarkers(markers: Marker[]) {
@@ -194,6 +204,13 @@ async function submit(submitRef: { current: (() => Promise<void>) | null }) {
     await submitRef.current?.();
   });
 }
+
+// The first render of the lazy chunk pays for loading its module graph, which
+// can outlast a short wait when the whole suite runs in parallel. Load it once
+// up front so the tests only wait on rendering.
+beforeAll(async () => {
+  await import("./monaco-json-input-lazy");
+}, 30_000);
 
 beforeEach(() => {
   hoisted.markers = [];
