@@ -59,7 +59,7 @@
       "name": "mdxProps",
       "type": "MdxEditorPassthrough",
       "optional": true,
-      "comment": "Extra `MDXEditor` props. `plugins` here replaces `defaultInputPlugins`."
+      "comment": "Extra `MDXEditor` props. `plugins` here replaces `defaultInputPlugins`.\n`suppressHtmlProcessing` defaults to `true`, so raw HTML stays text; set it\nto `false` to render stored HTML live, where an\n`<iframe src=\"javascript:...\">` runs script as the editor mounts."
     },
     {
       "name": "name",
