@@ -289,7 +289,7 @@ describe("GeocodingInput", () => {
     expect(screen.queryByText("Searching...")).toBeNull();
   });
 
-  it("shows no results when the provider throws", async () => {
+  it("says the search failed when the provider throws", async () => {
     const { provider } = fakeProvider({
       search: async () => {
         throw new Error("offline");
@@ -300,7 +300,60 @@ describe("GeocodingInput", () => {
     type("Paris");
     fireEvent.keyDown(field(), { key: "Enter" });
 
-    expect(await screen.findByText("No results")).toBeTruthy();
+    expect(
+      await screen.findByText("The search failed, try again shortly"),
+    ).toBeTruthy();
+    expect(screen.queryByText("No results")).toBeNull();
+  });
+
+  it("writes typed text to the form on blur", async () => {
+    await setup();
+
+    type("12 Rue de Rivoli, Paris");
+    expect(probe("address")).toBe('""|false');
+    fireEvent.blur(field());
+
+    expect(probe("address")).toBe('"12 Rue de Rivoli, Paris"|true');
+    expect(field().value).toBe("12 Rue de Rivoli, Paris");
+  });
+
+  it("clears the coordinates of an earlier pick when the address is retyped by hand", async () => {
+    await setup({
+      latSource: "latitude",
+      lngSource: "longitude",
+      bboxSource: "bbox",
+    });
+
+    type("Paris");
+    fireEvent.keyDown(field(), { key: "Enter" });
+    fireEvent.click(await screen.findByText("Paris, France"));
+    expect(probe("latitude")).toBe("48.8566|true");
+
+    type("12 Rue de Rivoli, Lyon");
+    fireEvent.blur(field());
+
+    expect(probe("address")).toBe('"12 Rue de Rivoli, Lyon"|true');
+    expect(probe("latitude")).toMatch(/^null\|/);
+    expect(probe("longitude")).toMatch(/^null\|/);
+    expect(probe("bbox")).toMatch(/^null\|/);
+  });
+
+  it("leaves the coordinates alone when the sources are not set", async () => {
+    await setup({}, { defaultValues: { ...emptyAddress, latitude: 1 } });
+
+    type("12 Rue de Rivoli, Lyon");
+    fireEvent.blur(field());
+
+    expect(probe("latitude")).toBe("1|false");
+  });
+
+  it("leaves the form clean when the field is left unchanged", async () => {
+    await setup();
+
+    field().focus();
+    fireEvent.blur(field());
+
+    expect(probe("address")).toBe('""|false');
   });
 
   it("closes the list on Escape", async () => {
@@ -405,7 +458,9 @@ describe("GeocodingInput", () => {
 
     type("Paris");
     fireEvent.keyDown(field(), { key: "Enter" });
-    expect(await screen.findByText("No results")).toBeTruthy();
+    expect(
+      await screen.findByText("The search failed, try again shortly"),
+    ).toBeTruthy();
 
     fireEvent.keyDown(field(), { key: "Escape" });
     fireEvent.keyDown(field(), { key: "Enter" });
