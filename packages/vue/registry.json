@@ -624,6 +624,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/dual-approval-button.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/edit-button.vue",
           "type": "registry:component"
         },
@@ -685,6 +689,10 @@
         },
         {
           "path": "src/components/admin/buttons/sort-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/status-transition-button.vue",
           "type": "registry:component"
         },
         {
@@ -1835,6 +1843,21 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "dual-approval-button",
+      "type": "registry:component",
+      "title": "Dual Approval Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/dual-approval-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/use-menu-access"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "edit-button",
       "type": "registry:component",
       "title": "Edit Button",
@@ -2103,6 +2126,27 @@
         "@chelone/button-icons",
         "@chelone/dropdown-menu",
         "@chelone/label-text"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "status-transition-button",
+      "type": "registry:component",
+      "title": "Status Transition Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/status-transition-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/confirm",
+        "@chelone/dropdown-menu",
+        "@chelone/use-menu-access"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "buttons"],

@@ -27,6 +27,7 @@ import type {
   DataTableProps,
   DateInputProps,
   DateTimeInputProps,
+  DualApprovalButtonProps,
   DurationInputProps,
   EditLiveProps,
   EditProps,
@@ -81,6 +82,7 @@ import type {
   SimpleListProps,
   SingleFieldListProps,
   SkipNavigationButtonProps,
+  StatusTransitionButtonProps,
   Subscribable,
   TextFieldProps,
   TextInputProps,
@@ -119,6 +121,10 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<DataTableProps>().toBeObject();
     expectTypeOf<DateInputProps>().toHaveProperty("source");
     expectTypeOf<DateTimeInputProps>().toHaveProperty("source");
+    expectTypeOf<DualApprovalButtonProps>().toHaveProperty("required");
+    expectTypeOf<DualApprovalButtonProps>().toHaveProperty("approverSource");
+    expectTypeOf<DualApprovalButtonProps>().toHaveProperty("mutationMode");
+    expectTypeOf<DualApprovalButtonProps>().toHaveProperty("class");
     expectTypeOf<DurationInputProps>().toHaveProperty("source");
     expectTypeOf<ErrorFallbackProps>().toHaveProperty("error");
     expectTypeOf<CountProps>().toBeObject();
@@ -184,6 +190,10 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<SimpleListLoadingProps>().toBeObject();
     expectTypeOf<SimpleListProps>().toBeObject();
     expectTypeOf<SingleFieldListProps>().toBeObject();
+    expectTypeOf<StatusTransitionButtonProps>().toHaveProperty("transitions");
+    expectTypeOf<StatusTransitionButtonProps>().toHaveProperty("guards");
+    expectTypeOf<StatusTransitionButtonProps>().toHaveProperty("labels");
+    expectTypeOf<StatusTransitionButtonProps>().toHaveProperty("confirm");
     expectTypeOf<TextFieldProps>().toHaveProperty("source");
     expectTypeOf<TextInputProps>().toHaveProperty("source");
     expectTypeOf<TimeInputProps>().toHaveProperty("source");
@@ -207,6 +217,11 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf(barrel.useStoreItem<boolean>).returns.toEqualTypeOf<
       [Readonly<Ref<boolean | undefined>>, (value: boolean) => void]
     >();
+  });
+
+  it("DualApprovalButton and StatusTransitionButton ship beside their props", () => {
+    expectTypeOf(barrel.DualApprovalButton).not.toBeAny();
+    expectTypeOf(barrel.StatusTransitionButton).not.toBeAny();
   });
 
   it("ColumnsButton ships beside its props", () => {
