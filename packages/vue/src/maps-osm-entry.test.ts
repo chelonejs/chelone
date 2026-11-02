@@ -41,6 +41,7 @@ describe("the maps/osm entry", () => {
         "GeocodingInput",
         "MapWithSearch",
         "OsmFeatureAdd",
+        "OsmFeatureOperator",
         "OsmFeatureSubtract",
         "ReverseGeocodeField",
         "fetchOsmFeatures",

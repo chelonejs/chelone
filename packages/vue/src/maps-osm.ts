@@ -15,6 +15,10 @@ export {
 // `osm2geojson-lite`, `@turf/buffer`, `@turf/union` and `@turf/difference`
 // peers.
 export {
+  default as OsmFeatureOperator,
+  type OsmFeatureOperatorProps,
+} from "./components/maps-osm/osm-feature-operator.vue";
+export {
   OsmFeatureAdd,
   type OsmFeatureAddProps,
   OsmFeatureSubtract,
