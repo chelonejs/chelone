@@ -690,49 +690,44 @@ describe("ShapeInput cut tool", () => {
     ).toEqual([field(0, 0, 10, 10)]);
   });
 
-  it("keeps both parts of a split as a MultiPolygon when the kind can store one", async () => {
-    const { draw, wrapper, commits, value } = await setup(
-      { kind: "Geometry" },
-      field(0, 0, 10, 10),
+  it.each([
+    ["Polygon", field(0, 0, 10, 10)],
+    ["Geometry", field(0, 0, 10, 10)],
+    [
+      "Feature",
+      { type: "Feature", properties: {}, geometry: field(0, 0, 10, 10) },
+    ],
+    ["BBox", [0, 0, 10, 10]],
+  ])("commits nothing when a cut would split a %s value in two", async (kind, stored) => {
+    const { draw, wrapper, commits, value, dirty } = await setup(
+      { kind: kind as ShapeInputProps["kind"], tools: ["cut"] },
+      stored,
     );
 
     await drawCutter(wrapper, draw, field(4, -5, 6, 15));
 
-    const stored = value() as { type: string; coordinates: unknown[] };
-    expect(stored.type).toBe("MultiPolygon");
-    expect(stored.coordinates).toHaveLength(2);
-    expect(commits).toEqual([stored]);
+    expect(value()).toEqual(stored);
+    expect(commits).toEqual([]);
+    expect(dirty()).toBe(false);
+    expect(draw().mode).toBe("render");
   });
 
-  it("cuts a MultiPolygon held by a Geometry value", async () => {
-    const { draw, wrapper, value } = await setup(
+  it("commits nothing when a hole cut would split a MultiPolygon held by a Geometry value", async () => {
+    const stored = {
+      type: "MultiPolygon",
+      coordinates: [
+        field(0, 0, 10, 10).coordinates,
+        field(20, 0, 30, 10).coordinates,
+      ],
+    };
+    const { draw, wrapper, commits, value } = await setup(
       { kind: "Geometry" },
-      {
-        type: "MultiPolygon",
-        coordinates: [
-          field(0, 0, 10, 10).coordinates,
-          field(20, 0, 30, 10).coordinates,
-        ],
-      },
+      stored,
     );
 
     await drawCutter(wrapper, draw, field(24, 4, 26, 6));
 
-    const stored = value() as { type: string; coordinates: unknown[][] };
-    expect(stored.type).toBe("MultiPolygon");
-    // The second part now has a hole: an outer ring and an inner one.
-    expect(stored.coordinates.map((part) => part.length)).toEqual([1, 2]);
-  });
-
-  it("commits nothing when a cut would split a single polygon in two", async () => {
-    const { draw, wrapper, commits, value } = await setup(
-      {},
-      field(0, 0, 10, 10),
-    );
-
-    await drawCutter(wrapper, draw, field(4, -5, 6, 15));
-
-    expect(value()).toEqual(field(0, 0, 10, 10));
+    expect(value()).toEqual(stored);
     expect(commits).toEqual([]);
   });
 });

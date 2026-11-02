@@ -125,25 +125,6 @@ function defaultTools(kind: ShapeValueKind): readonly ToolbarTool[] {
   }
 }
 
-/** The parts of a split as one MultiPolygon feature, for the kinds that can store one. */
-function joinPolygons(
-  kind: ShapeValueKind,
-  parts: GeoFeature[],
-): GeoFeature[] | null {
-  if (kind !== "Geometry" && kind !== "Feature") return null;
-  const coordinates: Extract<
-    NonNullable<GeoFeature["geometry"]>,
-    { type: "Polygon" }
-  >["coordinates"][] = [];
-  for (const part of parts) {
-    if (part.geometry?.type !== "Polygon") return null;
-    coordinates.push(part.geometry.coordinates);
-  }
-  const [first] = parts;
-  if (!first) return null;
-  return [{ ...first, geometry: { type: "MultiPolygon", coordinates } }];
-}
-
 /**
  * Lives in the `MapCanvas` slot, where `useMap()` works. Runs the Terra Draw
  * editor, draws the read-only held parts, frames the first shape once, and
@@ -335,14 +316,9 @@ function onEdit(edit: TerraDrawEdit) {
       edit.cutter,
     );
     if (!cut.changed) return;
+    // A single-shape value stores the last feature: a split would lose the rest.
+    if (!HOLDS_MANY.has(props.kind) && cut.features.length > 1) return;
     features = cut.features;
-    if (!HOLDS_MANY.has(props.kind) && features.length > 1) {
-      // A Geometry or Feature stores one geometry: the parts join into a
-      // MultiPolygon. Other single kinds cannot store one, so the cut is dropped.
-      const joined = joinPolygons(props.kind, features);
-      if (!joined) return;
-      features = joined;
-    }
     if (HOLDS_MANY.has(props.kind)) prev = null;
   }
   const next = featuresToShape(props.kind, features, prev, {
