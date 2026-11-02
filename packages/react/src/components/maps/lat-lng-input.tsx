@@ -70,10 +70,15 @@ function toArray(
   return typeof validate === "function" ? [validate] : validate;
 }
 
+/** Digits with an optional sign and point: what a coordinate looks like while it is typed. */
+const TYPING = /^[+-]?\d*\.?\d*$/;
+
 /**
  * One coordinate's input binding. The form stores a number or `null`, so a
  * half-typed "-" or "1." would be wiped on the next render; `draft` keeps the
- * typed text while it still parses to the stored value.
+ * typed text while it still parses to the stored value. Text that cannot lead
+ * to a number ("12x", "1,5") is refused, and a leftover "-" is dropped on
+ * blur, so the field never shows text the form does not hold.
  */
 function useCoordinate(
   source: string,
@@ -100,8 +105,13 @@ function useCoordinate(
     stored,
     text,
     onType: (event: { target: { value: string } }) => {
+      if (!TYPING.test(event.target.value)) return;
       setDraft(event.target.value);
       field.onChange(event);
+    },
+    onBlur: () => {
+      if (draft !== null && toCoordinate(draft) === null) setDraft(null);
+      field.onBlur();
     },
   };
 }
@@ -245,7 +255,7 @@ export function LatLngInput({
               disabled={disabled}
               aria-invalid={input.fieldState.invalid || undefined}
               onChange={input.onType}
-              onBlur={input.field.onBlur}
+              onBlur={input.onBlur}
             />
             <FieldError>
               {input.fieldState.invalid && input.fieldState.error ? (

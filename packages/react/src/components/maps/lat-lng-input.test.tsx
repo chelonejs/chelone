@@ -212,6 +212,21 @@ describe("LatLngInput", () => {
     expect(latField().value).toBe("-1.5");
   });
 
+  it("refuses text that is not a number and drops a leftover sign on blur", async () => {
+    const { submit, save } = await setup();
+
+    fireEvent.change(latField(), { target: { value: "48.85x" } });
+    fireEvent.change(lngField(), { target: { value: "2,35" } });
+    expect(latField().value).toBe("48.85");
+    expect(lngField().value).toBe("2.35");
+
+    fireEvent.change(latField(), { target: { value: "-" } });
+    fireEvent.blur(latField());
+    expect(latField().value).toBe("");
+    await submit();
+    expect(save).toHaveBeenCalledWith({ latitude: null, longitude: 2.35 });
+  });
+
   it("shows the latitude error for 91 and the longitude error for -181", async () => {
     const { submit, save } = await setup();
 
