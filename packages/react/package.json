@@ -47,7 +47,7 @@
     }
   },
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.build.json && node scripts/rewrite-dts-aliases.mjs dist && node ../../scripts/dts-extensions.mjs dist",
+    "build": "vite build && tsc -p tsconfig.build.json && node scripts/rewrite-dts-aliases.mjs dist && node scripts/strip-dts-css-imports.mjs dist && node ../../scripts/dts-extensions.mjs dist",
     "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only",
     "test": "vitest run --typecheck",
     "typecheck": "tsc --noEmit",
