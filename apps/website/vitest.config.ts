@@ -16,6 +16,11 @@ export default defineConfig({
   esbuild: { jsx: "automatic" },
   resolve: {
     alias: [
+      // Website-only lib module; must precede the package-wide `@/lib/` alias.
+      {
+        find: /^@\/lib\/shiki-theme$/,
+        replacement: `${wwwSrc}/lib/shiki-theme`,
+      },
       { find: /^@\/components\//, replacement: `${reactPkgSrc}/components/` },
       { find: /^@\/hooks\//, replacement: `${reactPkgSrc}/hooks/` },
       // The website has no `lib/` beyond utils + shiki-theme; the package's
