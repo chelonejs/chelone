@@ -27,6 +27,29 @@ export {
   CardTitle,
 } from "./card";
 export { default as Checkbox } from "./checkbox.vue";
+// --- command primitive family ---------------------------------------------
+export type {
+  CommandContext,
+  CommandDialogProps,
+  CommandFilter,
+  CommandItemEntry,
+  CommandProps,
+} from "./command";
+export {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandKey,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+  defaultCommandFilter,
+  provideCommand,
+  useCommand,
+} from "./command";
 // --- dropdown-menu primitive family --------------------------------------
 export type {
   DropdownMenuContentProps,
