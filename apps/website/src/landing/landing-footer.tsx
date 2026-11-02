@@ -35,7 +35,7 @@ export function LandingFooter() {
         </nav>
 
         <p className="text-muted-foreground">
-          © 2026 Chelone. All rights reserved.
+          © 2026 Chelone contributors. MIT licensed.
         </p>
       </div>
     </footer>
