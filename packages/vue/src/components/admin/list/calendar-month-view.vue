@@ -46,7 +46,8 @@ export interface CalendarMonthViewProps {
  * `select-event` with the record and `select-slot` when an empty part of a cell
  * is clicked; a click on an event never reaches the cell. With `draggable`, an
  * event can be dragged to another day, which emits `drop` with the record and
- * its moved range; dropping on the day it was dragged from emits nothing.
+ * its moved range, whether it renders as the default element or in the `#event`
+ * slot; dropping on the day it was dragged from emits nothing.
  */
 
 import {
@@ -250,6 +251,7 @@ const tagFor = (event: CalendarEvent<LooseRecord>) =>
           <li
             v-for="(event, index) in eventsOn(day)"
             :key="index"
+            v-bind="eventDragProps(event, day)"
             @click.stop
           >
             <slot name="event" v-bind="{ ...event, day }">
@@ -262,7 +264,6 @@ const tagFor = (event: CalendarEvent<LooseRecord>) =>
                 :style="event.color ? { backgroundColor: event.color } : undefined"
                 class="block w-full truncate rounded px-1.5 py-0.5 text-left text-xs"
                 :class="event.color ? 'text-white' : 'bg-primary text-primary-foreground'"
-                v-bind="eventDragProps(event, day)"
                 @click="onEventClick($event, event.record)"
               >
                 {{ event.title }}

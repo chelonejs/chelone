@@ -807,6 +807,13 @@ describe("<CalendarList> drag", () => {
     if (!found) throw new Error(`no event ${text} on ${date}`);
     return found;
   };
+  // The drag attributes sit on the list item around an event, so they cover a
+  // custom `#event` slot too.
+  const item = (node: ReturnType<typeof eventIn>) => {
+    const found = node.element.closest("li");
+    if (!found) throw new Error("event outside a list item");
+    return found;
+  };
   const draggable = () => calendar({ titleSource: "name", onDrop: vi.fn() });
 
   it("events are not draggable without a drop listener", async () => {
@@ -815,11 +822,11 @@ describe("<CalendarList> drag", () => {
     });
 
     const event = eventIn(wrapper, "2026-05-04", "Kickoff");
-    expect(event.attributes("draggable")).toBeUndefined();
+    expect(item(event).hasAttribute("draggable")).toBe(false);
     const transfer = dataTransfer();
     await event.trigger("dragstart", { dataTransfer: transfer });
     expect(transfer.setData).not.toHaveBeenCalled();
-    expect(event.attributes("data-dragging")).toBeUndefined();
+    expect(item(event).hasAttribute("data-dragging")).toBe(false);
     await cell(wrapper, "2026-05-06").trigger("dragover", {
       dataTransfer: transfer,
     });
@@ -833,10 +840,10 @@ describe("<CalendarList> drag", () => {
     });
 
     const event = eventIn(wrapper, "2026-05-04", "Kickoff");
-    expect(event.attributes("draggable")).toBe("true");
+    expect(item(event).getAttribute("draggable")).toBe("true");
     const transfer = dataTransfer();
     await event.trigger("dragstart", { dataTransfer: transfer });
-    expect(event.attributes("data-dragging")).toBeDefined();
+    expect(item(event).hasAttribute("data-dragging")).toBe(true);
     expect(transfer.effectAllowed).toBe("move");
     expect(transfer.setData).toHaveBeenCalled();
     await cell(wrapper, "2026-05-06").trigger("dragover", {
@@ -853,7 +860,7 @@ describe("<CalendarList> drag", () => {
       start: new Date(2026, 4, 6, 9).toISOString(),
       end: new Date(2026, 4, 6, 10).toISOString(),
     });
-    expect(event.attributes("data-dragging")).toBeUndefined();
+    expect(item(event).hasAttribute("data-dragging")).toBe(false);
   });
 
   it("an event with no end is dropped with no end", async () => {
@@ -949,6 +956,30 @@ describe("<CalendarList> drag", () => {
       dataTransfer: transfer,
     });
     expect(cell(wrapper, "2026-05-08").attributes("data-over")).toBeUndefined();
+  });
+
+  it("an event in the event slot drags like the default one", async () => {
+    const onDrop = vi.fn();
+    const { wrapper } = await mountList({
+      list: calendar(
+        { titleSource: "name", onDrop },
+        { event: (info: { title: string }) => h("em", {}, info.title) },
+      ),
+    });
+
+    const custom = cell(wrapper, "2026-05-04").get("em");
+    expect(item(custom).getAttribute("draggable")).toBe("true");
+    const transfer = dataTransfer();
+    await custom.trigger("dragstart", { dataTransfer: transfer });
+    await cell(wrapper, "2026-05-06").trigger("drop", {
+      dataTransfer: transfer,
+    });
+
+    expect(onDrop.mock.calls[0]?.[0]).toMatchObject({ id: 1 });
+    expect(onDrop.mock.calls[0]?.[1]).toEqual({
+      start: new Date(2026, 4, 6, 9).toISOString(),
+      end: new Date(2026, 4, 6, 10).toISOString(),
+    });
   });
 
   it("a click on a draggable event still emits select-event", async () => {
