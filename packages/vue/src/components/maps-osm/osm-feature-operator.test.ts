@@ -8,6 +8,7 @@ import {
   createNotificationStore,
   fakeDataProvider,
   type GeoFeature,
+  type GeoMultiPolygon,
   type GeoPolygon,
   type MessageCatalog,
   mapMessages,
@@ -73,6 +74,15 @@ const rightHalf = rect(0.005, -1, 1, 1);
 const cover = rect(-1, -1, 1, 1);
 /** Sits beside `field`, to its east. */
 const neighbour = rect(0.01, 0, 0.02, 0.01);
+
+/** A strip across the middle of `field`; subtracting it leaves two pieces. */
+const stripe = rect(0.004, -1, 0.006, 1);
+/** Sits clear of `field`, to its east. */
+const apart = rect(0.02, 0, 0.03, 0.01);
+const multi = (...polygons: GeoPolygon[]): GeoMultiPolygon => ({
+  type: "MultiPolygon",
+  coordinates: polygons.map((p) => p.coordinates),
+});
 
 const overpass: OverpassProvider = {
   name: "fake",
@@ -386,6 +396,51 @@ describe("OsmFeatureSubtract", () => {
     expect(m.wrapper.find('[data-testid="mine"]').exists()).toBe(true);
     expect(m.button().find("svg").exists()).toBe(false);
   });
+
+  it("writes nothing and warns when the result would split a Polygon", async () => {
+    fetchMock.mockResolvedValue(collection(stripe));
+    const m = await setup(subtract());
+    await m.click();
+
+    expect(m.value()).toEqual(field);
+    expect(m.dirty()).toBe(false);
+    expect(m.pushed()).toEqual([
+      {
+        message: "chelone.map.osm.would_split",
+        type: "warning",
+        messageArgs: undefined,
+      },
+    ]);
+  });
+
+  it("writes a split result to a MultiPolygon field as a MultiPolygon", async () => {
+    fetchMock.mockResolvedValue(collection(stripe));
+    const m = await setup(subtract(), multi(field));
+    await m.click();
+
+    const written = m.value() as GeoMultiPolygon;
+    expect(written.type).toBe("MultiPolygon");
+    expect(written.coordinates).toHaveLength(2);
+    expect(m.pushed()[0]).toMatchObject({
+      message: "chelone.map.osm.subtracted",
+      type: "success",
+    });
+  });
+
+  it("writes a Polygon result to a MultiPolygon field as a one-part MultiPolygon", async () => {
+    fetchMock.mockResolvedValue(collection(rightHalf));
+    const m = await setup(subtract(), multi(field));
+    await m.click();
+
+    expect(m.value()).toEqual(multi(rect(0, 0, 0.005, 0.01)));
+    expect(m.pushed()).toEqual([
+      {
+        message: "chelone.map.osm.subtracted",
+        type: "success",
+        messageArgs: { area: "0.620 km²" },
+      },
+    ]);
+  });
 });
 
 describe("OsmFeatureAdd", () => {
@@ -413,6 +468,37 @@ describe("OsmFeatureAdd", () => {
     expect(m.value()).toEqual(field);
     expect(m.pushed().map((n) => [n.message, n.type])).toEqual([
       ["chelone.map.osm.no_match", "info"],
+    ]);
+  });
+
+  it("writes nothing and warns when the union of a Polygon has separate pieces", async () => {
+    fetchMock.mockResolvedValue(collection(apart));
+    const m = await setup(add());
+    await m.click();
+
+    expect(m.value()).toEqual(field);
+    expect(m.dirty()).toBe(false);
+    expect(m.pushed()).toEqual([
+      {
+        message: "chelone.map.osm.would_split",
+        type: "warning",
+        messageArgs: undefined,
+      },
+    ]);
+  });
+
+  it("writes a Polygon result to a MultiPolygon field as a one-part MultiPolygon", async () => {
+    fetchMock.mockResolvedValue(collection(neighbour));
+    const m = await setup(add(), multi(field));
+    await m.click();
+
+    expect(m.value()).toEqual(multi(rect(0, 0, 0.02, 0.01)));
+    expect(m.pushed()).toEqual([
+      {
+        message: "chelone.map.osm.added",
+        type: "success",
+        messageArgs: { area: "1.239 km²" },
+      },
     ]);
   });
 });

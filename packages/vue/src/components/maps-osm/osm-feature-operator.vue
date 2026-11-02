@@ -39,6 +39,7 @@ export interface OsmFeatureOperatorProps {
  */
 
 import {
+  areaInTypeOf,
   type GeoGeometry,
   geoAreaM2,
   geoBounds,
@@ -133,10 +134,15 @@ async function run() {
         notify("chelone.map.osm.covered", { type: "warning" });
         return;
       }
-      write(left);
+      const kept = areaInTypeOf(value, left);
+      if (!kept) {
+        notify("chelone.map.osm.would_split", { type: "warning" });
+        return;
+      }
+      write(kept);
       notify("chelone.map.osm.subtracted", {
         type: "success",
-        messageArgs: { area: km2(geoAreaM2(value) - geoAreaM2(left)) },
+        messageArgs: { area: km2(geoAreaM2(value) - geoAreaM2(kept)) },
       });
       return;
     }
@@ -148,10 +154,15 @@ async function run() {
       notify("chelone.map.osm.union_empty", { type: "warning" });
       return;
     }
-    write(merged);
+    const kept = areaInTypeOf(value, merged);
+    if (!kept) {
+      notify("chelone.map.osm.would_split", { type: "warning" });
+      return;
+    }
+    write(kept);
     notify("chelone.map.osm.added", {
       type: "success",
-      messageArgs: { area: km2(geoAreaM2(merged) - geoAreaM2(value)) },
+      messageArgs: { area: km2(geoAreaM2(kept) - geoAreaM2(value)) },
     });
   } catch (error) {
     if (abort.signal.aborted || isAbort(error)) return;
