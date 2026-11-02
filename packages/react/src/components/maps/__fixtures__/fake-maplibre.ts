@@ -22,14 +22,40 @@ function addHandler(
   handlers[type] = list;
 }
 
+/** A GeoJSON source as `map.getSource(id)` returns it. */
+class FakeSource {
+  /** What `addSource` was given. */
+  readonly spec: { data?: unknown; [key: string]: unknown };
+  /** Every `setData` argument, oldest first. */
+  readonly dataCalls: unknown[] = [];
+
+  constructor(spec: { data?: unknown; [key: string]: unknown }) {
+    this.spec = spec;
+  }
+
+  /** The data the source holds now: the last `setData`, else the one it was added with. */
+  get data(): unknown {
+    return this.dataCalls.length > 0
+      ? this.dataCalls[this.dataCalls.length - 1]
+      : this.spec.data;
+  }
+
+  setData(data: unknown): this {
+    this.dataCalls.push(data);
+    return this;
+  }
+}
+
 class FakeMap {
   readonly options: Record<string, unknown>;
-  readonly sources: Record<string, unknown> = {};
+  readonly sources: Record<string, FakeSource> = {};
   readonly layers: { id: string; [key: string]: unknown }[] = [];
   readonly controls: unknown[] = [];
   readonly handlers: Record<string, Handler[]> = {};
   /** Every `easeTo` call's options, oldest first. */
   readonly eases: Record<string, unknown>[] = [];
+  /** Every `fitBounds` call, oldest first. */
+  readonly fits: { bounds: unknown; options: Record<string, unknown> }[] = [];
   loaded = false;
   removed = false;
 
@@ -67,16 +93,21 @@ class FakeMap {
     return this;
   }
 
+  fitBounds(bounds: unknown, options: Record<string, unknown> = {}): this {
+    this.fits.push({ bounds, options });
+    return this;
+  }
+
   isStyleLoaded(): boolean {
     return this.loaded;
   }
 
-  addSource(id: string, source: unknown): this {
-    this.sources[id] = source;
+  addSource(id: string, source: { data?: unknown }): this {
+    this.sources[id] = new FakeSource(source);
     return this;
   }
 
-  getSource(id: string): unknown {
+  getSource(id: string): FakeSource | undefined {
     return this.sources[id];
   }
 
