@@ -4,6 +4,8 @@ import {
   type GeoBBox,
   type GeoFeature,
   type GeoFeatureCollection,
+  OSM_PRESETS,
+  type OsmPreset,
   type OsmPresetName,
   type OverpassProvider,
   type OverpassQuerySources,
@@ -35,6 +37,13 @@ export function osmToPolygons(
     renderTagged: true,
   }) as unknown as GeoFeatureCollection;
 
+  // `findPresetForTags` returns the first match, so a preset without a buffer
+  // must not shadow a later one that has it.
+  const bufferingPresets = presets.filter((name) => {
+    const preset: OsmPreset = OSM_PRESETS[name];
+    return preset.bufferLinesMeters !== undefined;
+  });
+
   const features: GeoFeature[] = [];
   for (const feature of converted.features) {
     const type = feature.geometry?.type;
@@ -43,7 +52,7 @@ export function osmToPolygons(
     } else if (type === "LineString" || type === "MultiLineString") {
       const meters = findPresetForTags(
         feature.properties ?? {},
-        presets,
+        bufferingPresets,
       )?.bufferLinesMeters;
       if (!meters) continue;
       // Core's GeoJSON types are hand-written, so turf needs the cast.
@@ -65,6 +74,7 @@ export function osmToPolygons(
 
 export interface FetchOsmFeaturesOptions {
   provider: OverpassProvider;
+  /** Stops this call waiting; a request shared with another caller goes on. */
   signal?: AbortSignal;
 }
 
@@ -86,17 +96,23 @@ export async function fetchOsmFeatures(
 ): Promise<GeoFeatureCollection | null> {
   if (!bbox || !hasOsmSources(sources)) return null;
   const query = buildOverpassQuery(sources, bbox);
-  const request = overpassQueryOptions(provider, query);
-  // `OverpassQueryOptions` takes no signal, so the caller's reaches the
-  // provider here, next to the query's own.
-  const answer = await queryClient.fetchQuery({
-    ...request,
-    queryFn: (context) =>
-      request.queryFn({
-        signal: signal
-          ? AbortSignal.any([signal, context.signal])
-          : context.signal,
-      }),
-  });
+  // The caller's `signal` stays out of the fetch: TanStack shares one
+  // in-flight fetch between callers, and an abort by one must not fail the
+  // others. It only stops this call from waiting.
+  signal?.throwIfAborted();
+  const fetching = queryClient.fetchQuery(
+    overpassQueryOptions(provider, query),
+  );
+  const answer = await (signal ? abortable(fetching, signal) : fetching);
   return osmToPolygons(answer, sources.presets ?? []);
+}
+
+function abortable<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(signal.reason);
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise
+      .then(resolve, reject)
+      .finally(() => signal.removeEventListener("abort", onAbort));
+  });
 }

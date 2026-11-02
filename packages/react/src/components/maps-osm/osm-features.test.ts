@@ -60,6 +60,16 @@ describe("osmToPolygons", () => {
     );
   });
 
+  it("buffers a line when a later named preset buffers it, even if an earlier one matches without buffering", () => {
+    // `highway` matches the road first and has no buffer; `roads` buffers it.
+    const result = osmToPolygons(fixture, ["highway", "roads"]);
+    expect(result.features.map((f) => f.properties?.id)).toContain("way/1003");
+    expect(
+      result.features.find((f) => f.properties?.id === "way/1003")?.geometry
+        ?.type,
+    ).toBe("Polygon");
+  });
+
   it("the converter puts OSM tags flat in feature properties", () => {
     const result = osmToPolygons(fixture, ["water"]);
     expect(result.features[0]?.properties).toMatchObject({
@@ -106,6 +116,28 @@ describe("fetchOsmFeatures", () => {
     expect(sent).toContain("(48.84,2.29,48.86,2.31)");
     expect(sent).toContain('"natural"');
     expect(result?.features.length).toBeGreaterThan(0);
+  });
+
+  it("rejects on the caller's abort without failing a shared request of another caller", async () => {
+    let finish: (answer: unknown) => void = () => {};
+    const query = vi.fn<OverpassProvider["query"]>(
+      () => new Promise((resolve) => (finish = resolve)),
+    );
+    const provider: OverpassProvider = { name: "slow", query };
+    const client = newClient();
+    const sources = { presets: ["water" as const] };
+    const abort = new AbortController();
+    const first = fetchOsmFeatures(client, bbox, sources, {
+      provider,
+      signal: abort.signal,
+    });
+    const second = fetchOsmFeatures(client, bbox, sources, { provider });
+    const firstResult = expect(first).rejects.toThrow();
+    abort.abort();
+    await firstResult;
+    finish(fixture);
+    expect((await second)?.features.length).toBeGreaterThan(0);
+    expect(query).toHaveBeenCalledTimes(1);
   });
 
   it("rejects with OverpassRateLimitError on a 429", async () => {
