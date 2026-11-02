@@ -283,6 +283,11 @@ const main = async () => {
       });
       for (const g of granular) {
         g.categories = categoriesForGranular(g.name, g.type);
+        if (block.itemDependencies?.length) {
+          g.dependencies = [
+            ...new Set([...(g.dependencies ?? []), ...block.itemDependencies]),
+          ].sort();
+        }
       }
       if (block.inferDependencies) {
         const union = new Set(granular.flatMap((g) => g.dependencies ?? []));

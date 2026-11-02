@@ -43,6 +43,21 @@ describe("the maps entry", () => {
     );
   });
 
+  it("lists maplibre-gl under dependencies of the maps block and each of its items", () => {
+    const registry = JSON.parse(
+      readFileSync(resolve(root, "registry.json"), "utf8"),
+    ) as { items: { name: string; dependencies?: string[] }[] };
+    for (const name of [
+      "maps",
+      "map-canvas",
+      "maps-provider",
+      "lat-lng-field",
+    ]) {
+      const item = registry.items.find((i) => i.name === name);
+      expect(item?.dependencies, name).toContain("maplibre-gl");
+    }
+  });
+
   it("is not re-exported from the main entry", () => {
     const main = readFileSync(resolve(src, "index.ts"), "utf8");
     expect(main).not.toMatch(/from\s+["']\.\/maps["']/);

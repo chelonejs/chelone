@@ -5926,7 +5926,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils", "@chelone/map-canvas"],
-      "dependencies": ["@chelone/core", "@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5955,7 +5955,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
