@@ -20,6 +20,10 @@ import { provideRecordContext } from "../../record/record-context";
 import CrepeEditor from "./internal/crepe-editor.vue";
 import MdxField, { type MdxFieldProps } from "./mdx-field.vue";
 
+// The real serializer normalizes: it ends the text with a newline.
+const serialize = (markdown: string) =>
+  markdown.endsWith("\n") ? markdown : `${markdown}\n`;
+
 type Listener = (ctx: unknown, markdown: string) => void;
 
 interface FakeCrepe {
@@ -52,15 +56,19 @@ vi.mock("@milkdown/crepe", () => {
     editor = {
       action: (fn: { markdown: string }) => {
         this.actions.push(fn);
-        this.markdown = fn.markdown;
-        // The real editor reports the new text back through `markdownUpdated`.
-        for (const l of this.listeners.markdownUpdated) l({}, fn.markdown);
+        this.markdown = serialize(fn.markdown);
+        // The real editor reports the new text back through `markdownUpdated`,
+        // after a debounce, so not before `action` returns.
+        const text = this.markdown;
+        void Promise.resolve().then(() => {
+          for (const l of this.listeners.markdownUpdated) l({}, text);
+        });
       },
     };
 
     constructor(config: Record<string, unknown>) {
       this.config = config;
-      this.markdown = String(config.defaultValue ?? "");
+      this.markdown = serialize(String(config.defaultValue ?? ""));
       hoisted.instances.push(this as unknown as FakeCrepe);
     }
     on(fn: (api: unknown) => void) {
@@ -150,6 +158,8 @@ describe("MdxField", () => {
     expect(crepe.config.defaultValue).toBe("# Hello");
     expect(crepe.created).toBe(1);
     expect(crepe.readonly).toEqual([true]);
+    // The editor holds "# Hello\n"; that is not a change to replace.
+    expect(crepe.actions).toEqual([]);
   });
 
   it("turns a non-string value into text", async () => {
@@ -221,13 +231,14 @@ describe("MdxField", () => {
     await flushPromises();
 
     await wrapper.setProps({ markdown: "two" });
+    await flushPromises();
     expect(only().actions).toEqual([{ markdown: "two" }]);
     expect(wrapper.emitted("change")).toBeUndefined();
 
     // A user edit still gets through, and so does the blur.
-    for (const l of only().listeners.markdownUpdated) l({}, "three");
+    for (const l of only().listeners.markdownUpdated) l({}, "three\n");
     for (const l of only().listeners.blur) l();
-    expect(wrapper.emitted("change")).toEqual([["three"]]);
+    expect(wrapper.emitted("change")).toEqual([["three\n"]]);
     expect(wrapper.emitted("blur")).toHaveLength(1);
   });
 
