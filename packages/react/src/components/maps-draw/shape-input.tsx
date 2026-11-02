@@ -61,6 +61,11 @@ export interface ShapeInputProps {
   mapStyle?: MapStyleInput;
   /** Partial over `DEFAULT_SHAPE_STYLE`. Read once. */
   shapeStyle?: ShapeStyle;
+  /**
+   * Width over height of a `BBox` value. The stored box grows around its centre
+   * to this ratio and never shrinks, and the rectangle on the map follows it.
+   */
+  aspectRatio?: number;
   /** Frame the first value on the map. The user's own edits never refit. Defaults to true. */
   fitBounds?: boolean;
   /** Called with the stored value after each drawing or edit has been written to the form. */
@@ -204,6 +209,7 @@ export function ShapeInput({
   height = 300,
   mapStyle,
   shapeStyle,
+  aspectRatio,
   fitBounds = true,
   onCommit,
   className,
@@ -229,12 +235,14 @@ export function ShapeInput({
   const [controls, setControls] = useState<UseTerraDrawResult | null>(null);
   // What the last edit wrote, so the first shape the user draws is not framed.
   const written = useRef<unknown>(undefined);
-  const latest = useRef({ field, kind, onCommit });
-  latest.current = { field, kind, onCommit };
+  const latest = useRef({ field, kind, aspectRatio, onCommit });
+  latest.current = { field, kind, aspectRatio, onCommit };
 
   const onEdit = (edit: TerraDrawEdit) => {
     const now = latest.current;
-    const next = featuresToShape(now.kind, edit.features, now.field.value);
+    const next = featuresToShape(now.kind, edit.features, now.field.value, {
+      aspectRatio: now.aspectRatio,
+    });
     written.current = next;
     now.field.onChange(next);
     now.field.onBlur();
