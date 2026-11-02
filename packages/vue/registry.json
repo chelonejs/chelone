@@ -40,6 +40,38 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/ui/command/command-dialog.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/command/command-group.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/command/command-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/command/command-item.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/command/command.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/command/context.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/command/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/command/parts.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/ui/dropdown-menu/context.ts",
           "type": "registry:component"
         },
@@ -233,6 +265,48 @@
       "files": [
         {
           "path": "src/components/ui/checkbox.vue",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "command",
+      "type": "registry:ui",
+      "title": "Command",
+      "files": [
+        {
+          "path": "src/components/ui/command/command-dialog.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/command/command-group.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/command/command-input.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/command/command-item.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/command/command.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/command/context.ts",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/command/index.ts",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/command/parts.ts",
           "type": "registry:ui"
         }
       ],
