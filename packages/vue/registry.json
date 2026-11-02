@@ -755,6 +755,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/fields/json-field.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/fields/number-field.vue",
           "type": "registry:component"
         },
@@ -2603,6 +2607,21 @@
         }
       ],
       "registryDependencies": ["@chelone/get-path", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "json-field",
+      "type": "registry:component",
+      "title": "Json Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/json-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
