@@ -1,0 +1,65 @@
+{
+  "name": "TreeList",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultExpanded",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Whether branches start open. Default `false`."
+    },
+    {
+      "name": "empty",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered with no records, in place of `ListNoResults`."
+    },
+    {
+      "name": "iconMap",
+      "type": "Record<string, ComponentType<{ className?: string }>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "iconSource",
+      "type": "string",
+      "optional": true,
+      "comment": "The field whose value picks a component from `iconMap`."
+    },
+    {
+      "name": "linkType",
+      "type": "false | \"show\" | \"edit\"",
+      "optional": true,
+      "comment": "Where a row links to when `onSelect` is not given. `edit` by default,\n`show` when the resource has no edit view, and an inert row when it has\nneither. `false` leaves rows inert."
+    },
+    {
+      "name": "loading",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered while the list is pending, in place of `SimpleListLoading`."
+    },
+    {
+      "name": "onSelect",
+      "type": "(record: LooseRecord) => void",
+      "optional": true,
+      "comment": "Called with the record when a row is selected, in place of navigating."
+    },
+    {
+      "name": "parentSource",
+      "type": "string",
+      "optional": false,
+      "comment": "The field holding the parent's id; a dotted path reads a nested value."
+    },
+    {
+      "name": "titleSource",
+      "type": "string",
+      "optional": true,
+      "comment": "The string field shown as the row title; the record representation otherwise."
+    }
+  ]
+}
