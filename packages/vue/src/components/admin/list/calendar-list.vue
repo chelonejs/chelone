@@ -148,7 +148,9 @@ const hasListener = () => {
 const VIEWS: CalendarView[] = ["month", "week", "agenda"];
 // Offered in the order given, each once; none left means the month.
 const available = computed<CalendarView[]>(() => {
-  const offered = VIEWS.filter((name) => props.views.includes(name));
+  const offered = props.views.filter(
+    (name, at) => VIEWS.includes(name) && props.views.indexOf(name) === at,
+  );
   return offered.length > 0 ? offered : ["month"];
 });
 const view = ref<CalendarView>(

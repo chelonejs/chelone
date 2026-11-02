@@ -738,6 +738,19 @@ describe("<CalendarList> views", () => {
       false,
     );
 
+    // The order given is the order offered, and the first one opens.
+    const reordered = await mountList({
+      list: calendar({ views: ["agenda", "week"] }),
+    });
+    expect(
+      reordered.wrapper
+        .findAll("[data-slot=calendar-view-switcher] button")
+        .map((node) => node.text()),
+    ).toEqual(["Agenda", "Week"]);
+    expect(reordered.wrapper.find("[data-slot=calendar-agenda]").exists()).toBe(
+      true,
+    );
+
     // One view needs no switcher.
     const single = await mountList({ list: calendar({ views: ["month"] }) });
     expect(
