@@ -35,6 +35,7 @@ import { MapsProvider } from "../maps/maps-provider";
 import {
   draws,
   type FakeFeature,
+  refuseFeatures,
   resetFake as resetDraws,
 } from "./__fixtures__/fake-terra-draw";
 import {
@@ -108,7 +109,10 @@ function ValueProbe({
 async function setup(
   props: Partial<ShapeInputProps> = {},
   shape: unknown = square(),
-  { ready = true }: { ready?: boolean } = {},
+  {
+    ready = true,
+    messages = mapMessages,
+  }: { ready?: boolean; messages?: Record<string, string> } = {},
 ) {
   let current: ReturnType<typeof useForm<Values>> | undefined;
   function FormHost() {
@@ -129,7 +133,7 @@ async function setup(
     <CheloneProvider
       dataProvider={fakeDataProvider({})}
       queryClient={new QueryClient()}
-      i18n={createI18n({ locale: "en", messages: { en: mapMessages } })}
+      i18n={createI18n({ locale: "en", messages: { en: messages } })}
     >
       <MapsProvider mapStyle={style}>
         <FormHost />
@@ -497,6 +501,100 @@ describe("ShapeInput", () => {
     expect(value()).toEqual({
       type: "MultiPolygon",
       coordinates: [square(30).coordinates, holed.coordinates],
+    });
+  });
+
+  describe("when the editor refuses a part", () => {
+    const refusedPart = {
+      type: "MultiPolygon",
+      coordinates: [square(0).coordinates, square(20).coordinates],
+    };
+    const NOT_SHOWN = "Part of this shape cannot be shown on the map";
+    const refuseSecondSquare = () =>
+      refuseFeatures((f) =>
+        JSON.stringify(f.geometry) === JSON.stringify(square(20))
+          ? "Feature is invalid"
+          : undefined,
+      );
+
+    it("keeps a part the editor refuses when another part is edited", async () => {
+      refuseSecondSquare();
+      const { draw } = await setup({ kind: "MultiPolygon" }, refusedPart);
+      // The refused square is not drawn.
+      expect(draw().getSnapshot()).toHaveLength(1);
+
+      fireEvent.click(button("Edit"));
+      await act(async () => {
+        const id = storedId(draw().features);
+        draw().replace(id, square(5));
+        draw().emitFinish(id, "dragFeature", "select");
+      });
+
+      expect(value()).toEqual({
+        type: "MultiPolygon",
+        coordinates: [square(5).coordinates, square(20).coordinates],
+      });
+    });
+
+    it("keeps a part the editor refuses when another part is deleted", async () => {
+      refuseSecondSquare();
+      const { draw } = await setup({ kind: "MultiPolygon" }, refusedPart);
+
+      await act(async () => draw().deleteFromStore(storedId(draw().features)));
+
+      expect(value()).toEqual({
+        type: "MultiPolygon",
+        coordinates: [square(20).coordinates],
+      });
+    });
+
+    it("does not redraw the editor after an edit that leaves the refused part alone", async () => {
+      refuseSecondSquare();
+      const { draw } = await setup({ kind: "MultiPolygon" }, refusedPart);
+
+      fireEvent.click(button("Edit"));
+      await act(async () => {
+        const id = storedId(draw().features);
+        draw().replace(id, square(5));
+        draw().emitFinish(id, "dragFeature", "select");
+      });
+
+      expect(draw().added).toHaveLength(1);
+    });
+
+    it("warns that part of the shape cannot be shown", async () => {
+      refuseSecondSquare();
+      await setup({ kind: "MultiPolygon" }, refusedPart);
+
+      expect(screen.getByText(NOT_SHOWN)).toBeTruthy();
+    });
+
+    it("words the warning in English when the app did not merge mapMessages", async () => {
+      refuseSecondSquare();
+      await setup({ kind: "MultiPolygon" }, refusedPart, { messages: {} });
+
+      expect(screen.getByText(NOT_SHOWN)).toBeTruthy();
+    });
+
+    it("shows no warning when the editor takes every part", async () => {
+      await setup({ kind: "MultiPolygon" }, refusedPart);
+
+      expect(screen.queryByText(NOT_SHOWN)).toBeNull();
+    });
+
+    it("drops the warning when the form resets to a shape the editor takes", async () => {
+      refuseSecondSquare();
+      const { form } = await setup({ kind: "MultiPolygon" }, refusedPart);
+      expect(screen.getByText(NOT_SHOWN)).toBeTruthy();
+
+      await act(async () =>
+        form().form.setFieldValue("shape", {
+          type: "MultiPolygon",
+          coordinates: [square(0).coordinates],
+        }),
+      );
+
+      expect(screen.queryByText(NOT_SHOWN)).toBeNull();
     });
   });
 
