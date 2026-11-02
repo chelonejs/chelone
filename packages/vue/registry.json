@@ -5963,6 +5963,10 @@
       ],
       "files": [
         {
+          "path": "src/components/maps-draw/bbox-input.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/maps-draw/draw-icons.ts",
           "type": "registry:component"
         },
@@ -5975,10 +5979,29 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/maps-draw/shape-inputs.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/maps-draw/use-terra-draw.ts",
           "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bbox-input",
+      "type": "registry:component",
+      "title": "Bbox Input",
+      "files": [
+        {
+          "path": "src/components/maps-draw/bbox-input.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/shape-input"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6040,6 +6063,24 @@
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "shape-inputs",
+      "type": "registry:component",
+      "title": "Shape Inputs",
+      "files": [
+        {
+          "path": "src/components/maps-draw/shape-inputs.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/shape-input",
+        "@chelone/use-terra-draw"
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
