@@ -219,6 +219,15 @@ describe("shapeToFeatures", () => {
     expect(heldFeatures("Geometry", multi)).toEqual([feature(multi)]);
   });
 
+  it("the Geometry kind holds a GeometryCollection", () => {
+    const collection: GeoGeometry = {
+      type: "GeometryCollection",
+      geometries: [point(0), square(2)],
+    };
+    expect(shapeToFeatures("Geometry", collection)).toEqual([]);
+    expect(heldFeatures("Geometry", collection)).toEqual([feature(collection)]);
+  });
+
   it("shapeToFeatures turns a BBox into one Polygon", () => {
     expect(shapeToFeatures("BBox", [0, 0, 1, 1])).toEqual([
       feature({ type: "Polygon", coordinates: [ring(0, 0)] }),
@@ -379,6 +388,60 @@ describe("featuresToShape", () => {
     expect(featuresToShape("FeatureCollection", [drawn], prev)).toEqual({
       type: "FeatureCollection",
       features: [drawn, held],
+    });
+  });
+
+  it("keeps a MultiPolygon inside a GeometryCollection through an edit", () => {
+    const multi: GeoGeometry = {
+      type: "MultiPolygon",
+      coordinates: [[ring(5, 5)], [ring(8, 8)]],
+    };
+    const prev = {
+      type: "GeometryCollection",
+      geometries: [multi, point(0)],
+    };
+    const editable = shapeToFeatures("GeometryCollection", prev);
+    expect(editable.map((f) => f.geometry)).toEqual([point(0)]);
+    expect(heldFeatures("GeometryCollection", prev)).toEqual([feature(multi)]);
+    expect(featuresToShape("GeometryCollection", editable, prev)).toEqual({
+      type: "GeometryCollection",
+      geometries: [point(0), multi],
+    });
+  });
+
+  it("keeps a GeometryCollection inside a GeometryCollection through an edit", () => {
+    const inner: GeoGeometry = {
+      type: "GeometryCollection",
+      geometries: [point(0), point(1)],
+    };
+    const prev = { type: "GeometryCollection", geometries: [inner, point(2)] };
+    const editable = shapeToFeatures("GeometryCollection", prev);
+    expect(editable.map((f) => f.geometry)).toEqual([point(2)]);
+    expect(featuresToShape("GeometryCollection", editable, prev)).toEqual({
+      type: "GeometryCollection",
+      geometries: [point(2), inner],
+    });
+  });
+
+  it("a FeatureCollection edit keeps its own members and drops its bbox", () => {
+    const a = feature(point(0), { id: 1 });
+    const b = feature(point(1), { id: 2 });
+    const prev = {
+      type: "FeatureCollection",
+      name: "sites",
+      crs: { type: "name", properties: { name: "EPSG:4326" } },
+      foreign: 7,
+      bbox: [0, 0, 1, 0],
+      features: [a, b],
+    };
+    const next = featuresToShape("FeatureCollection", [a], prev);
+    expect(next).not.toHaveProperty("bbox");
+    expect(next).toEqual({
+      type: "FeatureCollection",
+      name: "sites",
+      crs: { type: "name", properties: { name: "EPSG:4326" } },
+      foreign: 7,
+      features: [a],
     });
   });
 
