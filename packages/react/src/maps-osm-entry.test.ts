@@ -13,7 +13,7 @@ vi.mock(
 const src = resolve(fileURLToPath(new URL("..", import.meta.url)), "src");
 
 describe("the maps/osm entry", () => {
-  it("the maps/osm entry also exports fetchOsmFeatures, useOsmFeatures, osmToPolygons, unionAll and subtractMask", async () => {
+  it("the maps/osm entry also exports the three operators, ReverseGeocodeField and useReverseGeocode", async () => {
     const entry = await import("./maps-osm");
     expect(Object.keys(entry).sort()).toEqual(
       [
@@ -25,6 +25,11 @@ describe("the maps/osm entry", () => {
         "osmToPolygons",
         "unionAll",
         "subtractMask",
+        "OsmFeatureOperator",
+        "OsmFeatureSubtract",
+        "OsmFeatureAdd",
+        "ReverseGeocodeField",
+        "useReverseGeocode",
       ].sort(),
     );
   });

@@ -19,7 +19,7 @@ import { CheloneProvider } from "../../../context";
 import { CheloneFormProvider } from "../../../form-context";
 import { useForm } from "../../../form-hooks";
 import { maps } from "../../maps/__fixtures__/fake-maplibre";
-import { MapsProvider } from "../../maps/maps-provider";
+import { type MapsConfig, MapsProvider } from "../../maps/maps-provider";
 import { draws } from "./fake-terra-draw";
 
 const style = rasterTileStyle({
@@ -29,10 +29,14 @@ const style = rasterTileStyle({
 
 type Values = { shape: unknown };
 
-/** The input under test gets `source="shape"`; `input` is rendered as given. */
+/**
+ * The input under test gets `source="shape"`; `input` is rendered as given.
+ * `config` adds to what `MapsProvider` is given, such as a `router`.
+ */
 export async function mountShapeInput(
   input: ReactElement,
   shape: unknown = null,
+  config: Omit<MapsConfig, "mapStyle"> = {},
 ) {
   let current: ReturnType<typeof useForm<Values>> | undefined;
   function FormHost() {
@@ -55,7 +59,7 @@ export async function mountShapeInput(
       queryClient={new QueryClient()}
       i18n={createI18n({ locale: "en", messages: { en: mapMessages } })}
     >
-      <MapsProvider mapStyle={style}>
+      <MapsProvider mapStyle={style} {...config}>
         <FormHost />
       </MapsProvider>
     </CheloneProvider>,

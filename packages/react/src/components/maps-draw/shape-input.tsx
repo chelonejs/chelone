@@ -84,9 +84,34 @@ export interface ShapeInputProps {
   aspectRatio?: number;
   /** Frame the first value on the map. The user's own edits never refit. Defaults to true. */
   fitBounds?: boolean;
-  /** Called with the stored value after each drawing or edit has been written to the form. */
+  /** Called with the stored value after each drawing or edit has been written to the form, and again after `refine` writes a changed one. */
   onCommit?: (value: ShapeValue | null) => void;
+  /**
+   * Adjusts the value after the user's own drawing or edit, such as snapping a
+   * line to roads. It runs once the edit is in the form, never on load or
+   * reset, and a newer edit or an unmount aborts `signal`. A result that is
+   * not null and differs is written, unless the field changed meanwhile. A
+   * thrown error keeps the value as drawn.
+   */
+  refine?: (
+    value: ShapeValue,
+    options: { signal: AbortSignal },
+  ) => Promise<ShapeValue | null> | ShapeValue | null;
   className?: string;
+}
+
+function sameValue(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const keysA = Object.keys(a);
+  if (keysA.length !== Object.keys(b).length) return false;
+  return keysA.every((key) =>
+    sameValue(
+      (a as Record<string, unknown>)[key],
+      (b as Record<string, unknown>)[key],
+    ),
+  );
 }
 
 const AREA_TOOLS: ToolbarTool[] = [
@@ -246,6 +271,7 @@ export function ShapeInput({
   aspectRatio,
   fitBounds = true,
   onCommit,
+  refine,
   className,
 }: ShapeInputProps) {
   // The limits run before the caller's validators.
@@ -290,11 +316,35 @@ export function ShapeInput({
   const [controls, setControls] = useState<UseTerraDrawResult | null>(null);
   // What the last edit wrote, so the first shape the user draws is not framed.
   const written = useRef<unknown>(undefined);
-  const latest = useRef({ field, kind, aspectRatio, onCommit });
-  latest.current = { field, kind, aspectRatio, onCommit };
+  const latest = useRef({ field, kind, aspectRatio, onCommit, refine });
+  latest.current = { field, kind, aspectRatio, onCommit, refine };
+  const refining = useRef<AbortController | null>(null);
+  useEffect(() => () => refining.current?.abort(), []);
+
+  const runRefine = async (committed: ShapeValue) => {
+    const refineValue = latest.current.refine;
+    if (!refineValue) return;
+    const abort = new AbortController();
+    refining.current = abort;
+    try {
+      const result = await refineValue(committed, { signal: abort.signal });
+      if (abort.signal.aborted || result === null) return;
+      const now = latest.current;
+      // Only an untouched field takes the result: anything else was edited since.
+      if (now.field.value !== committed || sameValue(result, committed)) return;
+      written.current = result;
+      now.field.onChange(result);
+      now.field.onBlur();
+      now.onCommit?.(result);
+    } catch {
+      // A failed refinement keeps the value as the user drew it.
+    }
+  };
 
   const onEdit = (edit: TerraDrawEdit) => {
     const now = latest.current;
+    // A newer edit makes any pending refinement stale, whatever the edit is.
+    refining.current?.abort();
     let features = edit.features;
     let prev = now.field.value;
     if (edit.type === "cut") {
@@ -320,6 +370,7 @@ export function ShapeInput({
     now.field.onBlur();
     if (edit.type === "draw") setTool(null);
     now.onCommit?.(next);
+    if (next !== null) void runRefine(next);
   };
 
   const { selectedId, deleteSelected } = controls ?? NO_CONTROLS;
