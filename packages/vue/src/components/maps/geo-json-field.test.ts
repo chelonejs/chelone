@@ -5,7 +5,11 @@
  * map was asked to do.
  */
 
-import { fakeDataProvider, rasterTileStyle } from "@chelone/core";
+import {
+  fakeDataProvider,
+  type GeoJsonValue,
+  rasterTileStyle,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -14,6 +18,9 @@ import { provideCheloneContext } from "../../context";
 import { maps, resetFake } from "./__fixtures__/fake-maplibre";
 import BBoxField from "./bbox-field.vue";
 import GeoJsonField from "./geo-json-field.vue";
+import GeoJsonLayers from "./geo-json-layers.vue";
+import GeoJsonView from "./geo-json-view.vue";
+import MapCanvas from "./map-canvas.vue";
 import * as shapeFields from "./shape-fields";
 import {
   FeatureCollectionField,
@@ -286,6 +293,62 @@ describe("GeoJsonField", () => {
     await show(GeoJsonField, { record: {}, defaultValue: polygon });
 
     expect(map().fits).toHaveLength(1);
+  });
+});
+
+describe("GeoJsonView", () => {
+  it("renders its own map with the data", async () => {
+    const { wrapper } = await show(GeoJsonView, {
+      data: polygon,
+      height: 120,
+      class: "extra",
+      scrollZoom: true,
+    });
+
+    expect(maps).toHaveLength(1);
+    expect(map().options.scrollZoom).toBe(true);
+    expect(wrapper.find(".extra").exists()).toBe(true);
+    const [sourceId = ""] = Object.keys(map().sources);
+    expect(map().sources[sourceId]?.data).toEqual({
+      type: "FeatureCollection",
+      features: [{ type: "Feature", geometry: polygon, properties: {} }],
+    });
+    expect(map().fits[0]?.bounds).toEqual([10, 20, 14, 26]);
+  });
+
+  it("keeps the wheel for the page unless scrollZoom is set", async () => {
+    await show(GeoJsonView, { data: polygon });
+
+    expect(map().options.scrollZoom).toBe(false);
+  });
+});
+
+describe("GeoJsonLayers", () => {
+  it("draws on the surrounding MapCanvas", async () => {
+    await show(
+      defineComponent({
+        setup: () => () =>
+          h(MapCanvas, () =>
+            h(GeoJsonLayers, { data: polygon as GeoJsonValue }),
+          ),
+      }),
+      {},
+    );
+
+    expect(maps).toHaveLength(1);
+    expect(Object.keys(map().sources)).toHaveLength(1);
+    expect(map().fits).toHaveLength(1);
+  });
+
+  it("throws outside a MapCanvas", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      await expect(show(GeoJsonLayers, { data: polygon })).rejects.toThrow(
+        /MapCanvas/,
+      );
+    } finally {
+      warn.mockRestore();
+    }
   });
 });
 
