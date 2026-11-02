@@ -471,6 +471,9 @@ importers:
       jsdom:
         specifier: ^26.0.0
         version: 26.1.0
+      maplibre-gl:
+        specifier: ^6
+        version: 6.16.0
       monaco-editor:
         specifier: ^0.57.0
         version: 0.57.0
