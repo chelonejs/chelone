@@ -5525,6 +5525,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/monaco/internal/strip-json-comments.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/monaco/internal/use-json-schema.ts",
           "type": "registry:component"
         },
@@ -5567,6 +5571,19 @@
         "@chelone/use-theme"
       ],
       "dependencies": ["monaco-editor"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "strip-json-comments",
+      "type": "registry:component",
+      "title": "Strip Json Comments",
+      "files": [
+        {
+          "path": "src/components/monaco/internal/strip-json-comments.ts",
+          "type": "registry:component"
+        }
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5658,6 +5675,7 @@
         "@chelone/lib-utils",
         "@chelone/monaco-json-input",
         "@chelone/monaco-shared",
+        "@chelone/strip-json-comments",
         "@chelone/use-json-schema",
         "@chelone/use-monaco-markers"
       ],

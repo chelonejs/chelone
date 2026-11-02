@@ -1,16 +1,54 @@
 import type * as Monaco from "monaco-editor";
 import { useEffect } from "react";
 
-interface UseJsonSchemaOptions {
-  /** The editor's model uri: the schema applies to this model only. */
-  path: string;
-  schema?: object;
-  schemaUri?: string;
-  allowComments?: boolean;
-  enabled: boolean;
+type JsonDefaults = typeof Monaco.json.jsonDefaults;
+type Options = JsonDefaults["diagnosticsOptions"];
+type SchemaEntry = NonNullable<Options["schemas"]>[number];
+
+/** Every model path this add-on creates starts with this. */
+const MODEL_PREFIX = "inmemory://monaco-json-input/";
+
+interface Registration {
+  entry?: SchemaEntry;
+  allowComments: boolean;
+  remote: boolean;
 }
 
-type JsonDefaults = typeof Monaco.json.jsonDefaults;
+interface Shared {
+  /** The options as they were before the first editor registered. */
+  baseline: Options;
+  registrations: Map<string, Registration>;
+}
+
+// Monaco's JSON diagnostics options are one object for every editor on the
+// page, so the editors' needs are merged here and the baseline comes back when
+// the last one unregisters.
+const shared = new WeakMap<JsonDefaults, Shared>();
+
+function apply(defaults: JsonDefaults, state: Shared): void {
+  const current = defaults.diagnosticsOptions;
+  const { baseline } = state;
+  const registrations = [...state.registrations.values()];
+  const entries = registrations.flatMap((r) => (r.entry ? [r.entry] : []));
+  const comments = registrations.some((r) => r.allowComments);
+  const foreign = (current.schemas ?? []).filter(
+    (entry) => !entry.fileMatch?.some((m) => m.startsWith(MODEL_PREFIX)),
+  );
+  defaults.setDiagnosticsOptions({
+    ...current,
+    validate: registrations.length ? true : baseline.validate,
+    // Monaco reports schema violations as warnings unless told otherwise, and
+    // only errors block submit.
+    schemaValidation: entries.length ? "error" : baseline.schemaValidation,
+    enableSchemaRequest: registrations.some((r) => r.remote)
+      ? true
+      : baseline.enableSchemaRequest,
+    allowComments: comments ? true : baseline.allowComments,
+    trailingCommas: comments ? "ignore" : baseline.trailingCommas,
+    schemas: [...foreign, ...entries],
+  });
+  if (!registrations.length) shared.delete(defaults);
+}
 
 /** `monaco.json` since 0.55; older builds expose it under `monaco.languages`. */
 function getJsonDefaults(monaco: typeof Monaco): JsonDefaults | undefined {
@@ -20,10 +58,22 @@ function getJsonDefaults(monaco: typeof Monaco): JsonDefaults | undefined {
   return monaco.json?.jsonDefaults ?? legacy?.jsonDefaults;
 }
 
+interface UseJsonSchemaOptions {
+  /** The editor's model uri: the schema applies to this model only. */
+  path: string;
+  schema?: object;
+  schemaUri?: string;
+  allowComments?: boolean;
+  enabled: boolean;
+}
+
 /**
- * Registers a JSON Schema in Monaco's JSON diagnostics, matched by `fileMatch`
- * to this editor's model, and removes the entry on unmount. The diagnostics
- * options are shared by every editor, so other entries are left alone.
+ * Registers this editor's JSON Schema and comment tolerance in Monaco's JSON
+ * diagnostics, the schema matched by `fileMatch` to this editor's model, and
+ * undoes it on unmount. Other editors' entries and options are left alone.
+ *
+ * Comment tolerance is global in Monaco: while any editor allows comments, all
+ * of them stop marking comments as errors.
  */
 export function useJsonSchema(
   monaco: typeof Monaco | null,
@@ -33,36 +83,38 @@ export function useJsonSchema(
   const schemaKey = schema ? JSON.stringify(schema) : undefined;
 
   useEffect(() => {
-    if (!monaco || !enabled || (!schemaKey && !schemaUri)) return;
-    const schema = schemaKey ? JSON.parse(schemaKey) : undefined;
+    if (!monaco || !enabled) return;
+    if (!schemaKey && !schemaUri && !allowComments) return;
     const defaults = getJsonDefaults(monaco);
     if (!defaults) return;
-    const others = () =>
-      (defaults.diagnosticsOptions.schemas ?? []).filter(
-        (entry) => !entry.fileMatch?.includes(path),
-      );
-    const entry = schema
-      ? {
-          uri: path.replace(/\.json$/, ".schema.json"),
-          fileMatch: [path],
-          schema,
-        }
-      : { uri: schemaUri as string, fileMatch: [path] };
-    defaults.setDiagnosticsOptions({
-      ...defaults.diagnosticsOptions,
-      validate: true,
-      // Monaco reports schema violations as warnings unless told otherwise,
-      // and only errors block submit.
-      schemaValidation: "error",
-      enableSchemaRequest: schema ? undefined : true,
-      ...(allowComments && { allowComments: true, trailingCommas: "ignore" }),
-      schemas: [...others(), entry],
+
+    let state = shared.get(defaults);
+    if (!state) {
+      state = {
+        baseline: defaults.diagnosticsOptions,
+        registrations: new Map(),
+      };
+      shared.set(defaults, state);
+    }
+    const registered = state;
+    const inline = schemaKey ? JSON.parse(schemaKey) : undefined;
+    registered.registrations.set(path, {
+      entry: inline
+        ? {
+            uri: path.replace(/\.json$/, ".schema.json"),
+            fileMatch: [path],
+            schema: inline,
+          }
+        : schemaUri
+          ? { uri: schemaUri, fileMatch: [path] }
+          : undefined,
+      allowComments: Boolean(allowComments),
+      remote: !inline && Boolean(schemaUri),
     });
+    apply(defaults, registered);
     return () => {
-      defaults.setDiagnosticsOptions({
-        ...defaults.diagnosticsOptions,
-        schemas: others(),
-      });
+      registered.registrations.delete(path);
+      apply(defaults, registered);
     };
   }, [monaco, enabled, path, schemaKey, schemaUri, allowComments]);
 }

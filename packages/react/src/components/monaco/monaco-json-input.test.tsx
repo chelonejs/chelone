@@ -52,6 +52,16 @@ const hoisted = vi.hoisted(() => ({
   editorOptions: undefined as Record<string, unknown> | undefined,
 }));
 
+// One object for every editor, as in Monaco.
+const jsonDefaults = {
+  get diagnosticsOptions(): Record<string, unknown> {
+    return hoisted.diagnosticsOptions;
+  },
+  setDiagnosticsOptions(options: Record<string, unknown>) {
+    hoisted.diagnosticsOptions = options;
+  },
+};
+
 vi.mock("@monaco-editor/react", () => ({
   loader: { config: vi.fn() },
   default: function Editor(props: {
@@ -68,14 +78,6 @@ vi.mock("@monaco-editor/react", () => ({
     useEffect(() => {
       hoisted.modelUri = props.path ?? "";
       const uri = { toString: () => props.path ?? "" };
-      const jsonDefaults = {
-        get diagnosticsOptions() {
-          return hoisted.diagnosticsOptions;
-        },
-        setDiagnosticsOptions: (options: Record<string, unknown>) => {
-          hoisted.diagnosticsOptions = options;
-        },
-      };
       props.onMount?.(
         {
           getModel: () => ({ uri }),
@@ -240,16 +242,23 @@ describe("<MonacoJsonInput />", () => {
 
   it("keeps the last valid value while the text is invalid JSON", async () => {
     const onData = vi.fn();
-    const { submitRef } = setup(<MonacoJsonInput source="meta" />, {
-      defaultValues: { meta: { a: 1 } },
-      onData,
-    });
+    const onChange = vi.fn();
+    const { submitRef } = setup(
+      <MonacoJsonInput source="meta" onChange={onChange} />,
+      { defaultValues: { meta: { a: 1 } }, onData },
+    );
     const el = await editor();
     type(el, '{"a":2}');
     type(el, '{"a":2,');
     expect(el.value).toBe('{"a":2,');
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith({ a: 2 });
     await submit(submitRef);
-    expect(onData).toHaveBeenCalledWith({ meta: { a: 2 } });
+    expect(screen.getByRole("alert").textContent).toContain("Invalid JSON");
+    expect(onData).not.toHaveBeenCalled();
+    type(el, '{"a":3}');
+    await submit(submitRef);
+    expect(onData).toHaveBeenCalledWith({ meta: { a: 3 } });
   });
 
   it("writes null for blank text in object shape", async () => {
@@ -513,5 +522,129 @@ describe("<MonacoJsonInput />", () => {
     const container = document.getElementById("meta-input");
     expect(container?.contains(screen.getByTestId("editor"))).toBe(true);
     expect(screen.getByText("Raw settings")).toBeTruthy();
+  });
+
+  it("accepts comments and trailing commas when allowComments is set", async () => {
+    const onData = vi.fn();
+    const { submitRef } = setup(
+      <MonacoJsonInput source="meta" allowComments />,
+      {
+        defaultValues: { meta: { a: 1 } },
+        onData,
+      },
+    );
+    const el = await editor();
+    type(el, '{"a": 2, // note "x"\n "b": "// kept", /* c */}');
+    await submit(submitRef);
+    expect(onData).toHaveBeenCalledWith({ meta: { a: 2, b: "// kept" } });
+  });
+
+  it("blocks submit on text that is not JSON before Monaco reports a marker", async () => {
+    const onData = vi.fn();
+    const { submitRef } = setup(<MonacoJsonInput source="meta" />, {
+      defaultValues: { meta: { a: 1 } },
+      onData,
+    });
+    type(await editor(), '{"a":2,');
+    expect(hoisted.markers).toEqual([]);
+    await submit(submitRef);
+    expect(screen.getByRole("alert").textContent).toContain("Invalid JSON");
+    expect(onData).not.toHaveBeenCalled();
+  });
+
+  it("tolerates comments without a schema", async () => {
+    setup(<MonacoJsonInput source="meta" id="m" allowComments />, {
+      defaultValues: { meta: {} },
+    });
+    await editor();
+    const options = hoisted.diagnosticsOptions as DiagnosticsOptions;
+    expect(options.allowComments).toBe(true);
+    expect(options.trailingCommas).toBe("ignore");
+  });
+
+  it("puts Monaco's options back when the last editor unmounts", async () => {
+    hoisted.diagnosticsOptions = { validate: true, allowComments: false };
+    setup(
+      <MonacoJsonInput
+        source="meta"
+        id="a"
+        allowComments
+        schemaUri="https://x/s.json"
+      />,
+      { defaultValues: { meta: {} } },
+    );
+    await editor();
+    cleanup();
+    const options = hoisted.diagnosticsOptions as DiagnosticsOptions;
+    expect(options.allowComments).toBe(false);
+    expect(options.trailingCommas).toBeUndefined();
+    expect(options.enableSchemaRequest).toBeUndefined();
+    expect(options.schemas).toEqual([]);
+  });
+
+  it("keeps remote schema requests on while another editor has an inline schema", async () => {
+    setup(
+      <>
+        <MonacoJsonInput source="a" id="a" schemaUri="https://x/s.json" />
+        <MonacoJsonInput source="b" id="b" schema={{ type: "object" }} />
+      </>,
+      { defaultValues: { a: {}, b: {} } },
+    );
+    await waitFor(() =>
+      expect(
+        (hoisted.diagnosticsOptions as DiagnosticsOptions).schemas,
+      ).toHaveLength(2),
+    );
+    expect(
+      (hoisted.diagnosticsOptions as DiagnosticsOptions).enableSchemaRequest,
+    ).toBe(true);
+  });
+
+  it("passes format, parse, onChange and onBlur through useInput", async () => {
+    const onChange = vi.fn();
+    const onBlur = vi.fn();
+    const onData = vi.fn();
+    const { submitRef } = setup(
+      <MonacoJsonInput
+        source="meta"
+        parse={(v) => ({ wrapped: v })}
+        format={(v) => (v as { wrapped?: unknown })?.wrapped ?? v}
+        onChange={onChange}
+        onBlur={onBlur}
+      />,
+      { defaultValues: { meta: { a: 1 } }, onData },
+    );
+    type(await editor(), '{"a":2}');
+    expect(onChange).toHaveBeenCalledWith({ a: 2 });
+    act(() => {
+      for (const listener of hoisted.blurListeners) listener();
+    });
+    expect(onBlur).toHaveBeenCalledTimes(1);
+    await submit(submitRef);
+    expect(onData).toHaveBeenCalledWith({ meta: { wrapped: { a: 2 } } });
+  });
+
+  it("stores an object that looks like a DOM event as the object", async () => {
+    const onData = vi.fn();
+    const { submitRef } = setup(<MonacoJsonInput source="meta" />, {
+      defaultValues: { meta: {} },
+      onData,
+    });
+    type(await editor(), '{"target":{"value":1}}');
+    await submit(submitRef);
+    expect(onData).toHaveBeenCalledWith({ meta: { target: { value: 1 } } });
+  });
+
+  it("does not lock string shape from the user's own first edit", async () => {
+    const onData = vi.fn();
+    const { submitRef } = setup(<MonacoJsonInput source="meta" schema={{}} />, {
+      defaultValues: {} as { meta?: unknown },
+      onData,
+    });
+    const el = await editor();
+    type(el, '"abc"');
+    type(el, '"abcd"');
+    await submit(submitRef);
+    expect(onData).toHaveBeenCalledWith({ meta: "abcd" });
   });
 });
