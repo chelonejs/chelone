@@ -1,0 +1,135 @@
+---
+title: "MdxInput"
+description: "Edits a markdown string in a rich-text editor with a formatting toolbar."
+registry: "mdx-editor"
+---
+
+`<MdxInput>` edits a markdown string in a rich-text editor. It is an add-on: it
+is not in the `@chelone/react` barrel, and the editor is an optional peer
+dependency. See [Installing the add-on](#installing-the-add-on).
+
+## When to use it
+
+Use it for a field that holds formatted text a user writes, such as a post body,
+release notes or a help article. The user gets headings, lists, links, images
+and tables without typing markdown syntax, and the stored value stays plain
+markdown.
+
+For a short single-line value, prefer
+[TextInput](/docs/editing/text-input). To show the stored markdown without
+editing it, use [MdxField](/docs/viewing/mdx-field).
+
+## Example
+
+```tsx
+import { Edit } from "@/components/admin";
+import { MdxInput } from "@/components/mdx-editor";
+
+export const PostEdit = () => (
+  <Edit>
+    <MdxInput source="body" label="Body" helperText="Markdown is supported." />
+  </Edit>
+);
+```
+
+## Value contract
+
+The value is always a markdown string.
+
+- The form stores the editor's markdown text. Clearing the editor stores `""`,
+  not `null`. A value that is not a string reads as an empty editor.
+- MDX with JSX is not parsed. The name follows the editor, not the content.
+- The editor re-serializes the markdown it is given, so it may change markers or
+  line endings. That rewrite on first render is not an edit: the form stays
+  clean until the user types.
+- A form reset or `setValue` replaces the editor content.
+
+## Validation and read-only
+
+- The usual `validate` prop runs on the markdown string, and the message shows
+  under the editor like any other input error. `required()` sets the required
+  marker on the label, and `isRequired` forces it.
+- `disabled` and `readOnly` both make the editor read-only.
+- `defaultValue` seeds an empty record. It defaults to `""`.
+
+## Props
+
+<PropsTable name="MdxInput" />
+
+## Installing the add-on
+
+There are two ways in. Both give you `<MdxInput>` and
+[`<MdxField>`](/docs/viewing/mdx-field).
+
+The registry copies the components into your project, and the code samples on
+these pages import them from `@/components/mdx-editor`:
+
+```bash
+npx shadcn add @chelone/mdx-editor
+```
+
+It installs the editor packages for you.
+
+Or import from the npm subpath, and install the optional peers yourself. For
+React that is `@mdxeditor/editor`:
+
+```bash
+pnpm add @mdxeditor/editor
+```
+
+```tsx
+import { MdxField, MdxInput } from "@chelone/react/mdx-editor";
+```
+
+For Vue it is `@milkdown/crepe` and `@milkdown/kit`:
+
+```bash
+pnpm add @milkdown/crepe @milkdown/kit
+```
+
+```ts
+import { MdxField, MdxInput } from "@chelone/vue/mdx-editor";
+```
+
+The main `@chelone/react` and `@chelone/vue` entries never import the editor, so
+an app that does not use the add-on does not need these packages.
+
+## Styles
+
+React: import the editor's stylesheet once, in your entry file:
+
+```tsx
+import "@mdxeditor/editor/style.css";
+```
+
+From npm, also import `@chelone/react/mdx-editor.css` for the dark theme. The
+registry item ships that file with the component. The input adds the
+`mdxeditor-dark` class when the Chelone theme is dark.
+
+Vue: the add-on imports its own Crepe styles, so there is nothing to import. From
+npm, also import `@chelone/vue/mdx-editor.css` for the Chelone theme. The
+registry item ships that file with the component.
+
+## React and Vue
+
+The two packages use different editors. MDXEditor is React only, so the Vue
+add-on wraps Milkdown's Crepe editor. The value is a markdown string in both,
+and the component names are the same. What changes:
+
+- Toolbar: the React editor has a fixed toolbar above the text. The Vue editor
+  has a floating toolbar that appears over a selection.
+- Editor options: React takes `mdxProps`, extra `MDXEditor` props, and
+  `plugins` inside it replaces the default plugins. Vue takes `crepeConfig`,
+  with Crepe's `features` and `featureConfigs`. The code block and LaTeX
+  features stay off.
+- Theme: React adds the `mdxeditor-dark` class in dark mode. Vue maps Crepe's
+  colors onto the Chelone tokens in a theme file, which follows the theme with
+  no class of its own.
+- Props: `class` styles the field wrapper, where React has `className`. `label`
+  is a string, or `false` to hide it, and `helper-text` is a string.
+- Vue has no `id`, `resource`, `isRequired`, `format`, `parse`, `alwaysOn`,
+  `onChange` or `onBlur` prop. The label is translated against the ambient
+  resource, and a `required()` validator sets the required marker.
+
+The Vue [differences page](/docs/vue/differences#add-ons) lists the same
+changes with the other add-on notes.

@@ -69,11 +69,14 @@ and `useTheme()` returns `Ref`s. The note under
 ## Add-ons
 
 The Monaco components are an add-on, imported from `@chelone/vue/monaco` or
-installed from the registry as `@chelone/monaco`.
+installed from the registry as `@chelone/monaco`. The Markdown components are
+another, imported from `@chelone/vue/mdx-editor` or installed as
+`@chelone/mdx-editor`.
 
 | React | Vue | React page |
 | ----- | --- | ---------- |
 | `<MonacoJsonInput>` and `<MonacoJsonField>` use `@monaco-editor/react`, and take `className`. The input also takes `editorClassName`. | They use `@guolao/vue-monaco-editor`, and take `class`. The input also takes `editor-class`. `<MonacoJsonInput>` has no `id`, `resource`, `isRequired`, `format`, `parse` or `alwaysOn` prop and emits no events. | [Monaco Json Input](/docs/editing/monaco-json-input), [Monaco Json Field](/docs/viewing/monaco-json-field) |
+| `<MdxInput>` and `<MdxField>` use `@mdxeditor/editor`, with a fixed toolbar, `mdxProps` and `plugins`, and the `mdxeditor-dark` class. | They wrap Milkdown's Crepe editor, because MDXEditor is React only. The toolbar floats over a selection, `crepeConfig` replaces `mdxProps` and `plugins`, and a theme file replaces the dark class. They take `class`, and `<MdxInput>` has no `id`, `resource`, `isRequired`, `format`, `parse` or `alwaysOn` prop. | [Mdx Input](/docs/editing/mdx-input), [Mdx Field](/docs/viewing/mdx-field) |
 
 ## What this page leaves out
 

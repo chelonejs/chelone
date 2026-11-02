@@ -1,0 +1,42 @@
+---
+title: "MdxField"
+description: "Shows a markdown string as formatted text in a read-only editor."
+registry: "mdx-editor"
+---
+
+`<MdxField>` renders a markdown string as formatted text: headings, lists,
+links, images and tables. Use it where the value is long-form content, such as a
+show view.
+
+It is an add-on installed from the registry, with the editor as an optional peer
+dependency. The [MdxInput page](/docs/editing/mdx-input) covers installing it,
+the style import, and how the React and Vue editors differ.
+
+## In a show view
+
+```tsx
+import { RecordField, Show } from "@/components/admin";
+import { MdxField } from "@/components/mdx-editor";
+
+export const PostShow = () => (
+  <Show>
+    <RecordField source="body">
+      <MdxField source="body" empty="No content" />
+    </RecordField>
+  </Show>
+);
+```
+
+A missing value shows `empty`. A string is translated, and in React a node
+renders as-is. In Vue, the `#empty` slot replaces the editor.
+
+For a list cell, use [TextField](/docs/viewing/text-field). It prints plain text
+and loads no editor, so a datagrid of many rows stays light.
+
+## Props
+
+<PropsTable name="MdxField" />
+
+Vue takes `class`, `crepe-config`, `default-value` and `empty` besides `source`
+and `record`, and has none of the other props above. To edit the value, use
+[MdxInput](/docs/editing/mdx-input).
