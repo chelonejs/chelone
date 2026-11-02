@@ -19,6 +19,7 @@
     ".": "./src/index.ts",
     "./package.json": "./package.json",
     "./monaco": "./src/monaco.ts",
+    "./csv-import": "./src/csv-import.ts",
     "./maps": "./src/maps.ts",
     "./mdx-editor": "./src/mdx-editor.ts",
     "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-theme.css"
@@ -36,6 +37,10 @@
       "./monaco": {
         "types": "./dist/monaco.d.ts",
         "default": "./dist/monaco.js"
+      },
+      "./csv-import": {
+        "types": "./dist/csv-import.d.ts",
+        "default": "./dist/csv-import.js"
       },
       "./maps": {
         "types": "./dist/maps.d.ts",
@@ -69,6 +74,7 @@
     "@tanstack/vue-query": "^5.0.0",
     "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
+    "papaparse": "^5.4.0",
     "vue": "^3.4.0",
     "vue-router": "^4.0.0"
   },
@@ -87,6 +93,9 @@
     },
     "monaco-editor": {
       "optional": true
+    },
+    "papaparse": {
+      "optional": true
     }
   },
   "devDependencies": {
@@ -95,11 +104,13 @@
     "@milkdown/crepe": "^7.23.0",
     "@milkdown/kit": "^7.23.0",
     "@tanstack/vue-query": "^5.0.0",
+    "@types/papaparse": "^5.5.2",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/test-utils": "^2.4.0",
     "jsdom": "^26.0.0",
     "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
+    "papaparse": "^5.7.0",
     "publint": "^0.3.0",
     "shadcn-vue": "2.9.0",
     "vite": "^7.0.0",

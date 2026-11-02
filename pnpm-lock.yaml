@@ -355,6 +355,9 @@ importers:
       '@arethetypeswrong/cli':
         specifier: ^0.18.0
         version: 0.18.5
+      '@chelone/supabase':
+        specifier: workspace:*
+        version: link:../supabase
       '@mdxeditor/editor':
         specifier: ^4.3.4
         version: 4.3.4(@codemirror/language@6.13.1)(@lezer/highlight@1.2.5)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@5.9.3)(yjs@13.6.33)
@@ -468,6 +471,9 @@ importers:
       '@tanstack/vue-query':
         specifier: ^5.0.0
         version: 5.101.2(vue@3.5.39(typescript@5.9.3))
+      '@types/papaparse':
+        specifier: ^5.5.2
+        version: 5.5.2
       '@vitejs/plugin-vue':
         specifier: ^6.0.0
         version: 6.0.7(vite@7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(stylus@0.57.0)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
@@ -483,6 +489,9 @@ importers:
       monaco-editor:
         specifier: ^0.57.0
         version: 0.57.0
+      papaparse:
+        specifier: ^5.7.0
+        version: 5.7.0
       publint:
         specifier: ^0.3.0
         version: 0.3.25
