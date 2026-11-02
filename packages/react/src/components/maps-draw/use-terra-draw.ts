@@ -177,6 +177,19 @@ function sameValue(a: unknown, b: unknown): boolean {
   );
 }
 
+type Snapshot = ReturnType<TerraDraw["getSnapshot"]>;
+
+/** The ids of the user's features in a snapshot, helper features left out. */
+function userIds(snapshot: Snapshot): Set<string | number> {
+  const ids = new Set<string | number>();
+  for (const entry of snapshot) {
+    if (entry.id != null && fromEditorFeatures([entry]).length > 0) {
+      ids.add(entry.id);
+    }
+  }
+  return ids;
+}
+
 /**
  * Runs one Terra Draw editor on the surrounding `MapCanvas` and keeps it equal
  * to `features`. The caller owns the data: the editor only shows `features` and
@@ -210,8 +223,10 @@ export function useTerraDraw({
   latest.current = { snappable, snapDistance, shapeStyle, onEdit };
   // True while this hook changes the store itself, so those events write nothing.
   const syncing = useRef(false);
-  // The user's features as of the last sync or edit, to spot a removal that changed nothing.
-  const known = useRef<GeoFeature[]>(features);
+  // The editor ids of the user's features as of the last sync or edit. Only the
+  // removal of one of them is the user's: the editor deletes its own helper
+  // features, and a half-drawn one, while it draws, selects and drags.
+  const knownIds = useRef<Set<string | number>>(new Set());
 
   useEffect(() => {
     const now = latest.current;
@@ -222,9 +237,12 @@ export function useTerraDraw({
     let active = true;
 
     const report = (type: TerraDrawEdit["type"]) => {
-      const edited = fromEditorFeatures(instance.getSnapshot());
-      known.current = edited;
-      latest.current.onEdit?.({ type, features: edited });
+      const snapshot = instance.getSnapshot();
+      knownIds.current = userIds(snapshot);
+      latest.current.onEdit?.({
+        type,
+        features: fromEditorFeatures(snapshot),
+      });
     };
 
     instance.on("ready", () => {
@@ -234,13 +252,12 @@ export function useTerraDraw({
       if (!active || syncing.current) return;
       report(context.action === "draw" ? "draw" : "edit");
     });
-    instance.on("change", (_ids, type) => {
+    instance.on("change", (ids, type) => {
       if (!active || syncing.current || type !== "delete") return;
-      // Deselecting removes the editor's own selection points and midpoints,
-      // and cancelling a drawing removes a half-drawn feature: none of them
-      // changes the user's features.
-      const edited = fromEditorFeatures(instance.getSnapshot());
-      if (sameValue(edited, known.current)) return;
+      // A finishing drawing deletes its closing and snapping points before it
+      // fires `finish`, which reports the edit: only a removed user feature
+      // is a delete.
+      if (!ids.some((id) => knownIds.current.has(id))) return;
       report("delete");
     });
     instance.on("select", (id) => {
@@ -265,8 +282,9 @@ export function useTerraDraw({
 
   useEffect(() => {
     if (!draw) return;
-    const edited = fromEditorFeatures(draw.getSnapshot());
-    if (sameValue(edited, features)) return;
+    const snapshot = draw.getSnapshot();
+    knownIds.current = userIds(snapshot);
+    if (sameValue(fromEditorFeatures(snapshot), features)) return;
     syncing.current = true;
     try {
       draw.clear();
@@ -276,7 +294,7 @@ export function useTerraDraw({
     } finally {
       syncing.current = false;
     }
-    known.current = fromEditorFeatures(draw.getSnapshot());
+    knownIds.current = userIds(draw.getSnapshot());
     setSelectedId(null);
   }, [draw, features]);
 

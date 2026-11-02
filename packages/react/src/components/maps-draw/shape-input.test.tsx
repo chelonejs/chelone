@@ -261,6 +261,49 @@ describe("ShapeInput", () => {
     expect(value()).toBeNull();
   });
 
+  it("commits once for a drawing that deletes its closing point before it finishes", async () => {
+    const onCommit = vi.fn();
+    const { draw } = await setup({ onCommit }, null);
+    fireEvent.click(button("Draw a polygon"));
+
+    await act(async () => {
+      // Terra Draw ends a polygon by removing its closing and snapping points
+      // after the new feature has left `currentlyDrawing`, then fires `finish`.
+      const closing = draw().put(
+        { type: "Point", coordinates: [5, 5] },
+        "polygon",
+      );
+      draw().setProperty(closing, "closingPoint", true);
+      const id = draw().put(square(5), "polygon");
+      draw().emitChange([closing], "delete");
+      draw().emitFinish(id, "draw");
+    });
+
+    expect(onCommit).toHaveBeenCalledTimes(1);
+    expect(value()).toEqual(square(5));
+  });
+
+  it("commits once for a snapped vertex drag", async () => {
+    const onCommit = vi.fn();
+    const { draw } = await setup({ onCommit });
+    fireEvent.click(button("Edit"));
+
+    await act(async () => {
+      const id = storedId(draw().features);
+      const snapping = draw().put(
+        { type: "Point", coordinates: [1, 1] },
+        "polygon",
+      );
+      draw().setProperty(snapping, "snappingPoint", true);
+      draw().replace(id, square(2));
+      draw().emitChange([snapping], "delete");
+      draw().emitFinish(id, "dragCoordinate", "select");
+    });
+
+    expect(onCommit).toHaveBeenCalledTimes(1);
+    expect(value()).toEqual(square(2));
+  });
+
   it("ignores the changes of its own sync", async () => {
     const onCommit = vi.fn();
     const { draw, form } = await setup({ onCommit });
