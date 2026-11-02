@@ -1,13 +1,52 @@
 import type { GeoBBox, GeoJsonValue } from "./geojson";
 
+// A ring from `bboxToPolygon` runs east of 180, up to 180 + 360.
+const MAX_LONGITUDE = 540;
+
+/**
+ * The narrowest `[west, east]` arc over `longitudes`, which wraps (west greater
+ * than east) when going round the antimeridian beats the plain span. Left
+ * plain when a value is no longitude, such as a projected coordinate.
+ */
+function longitudeArc(
+  longitudes: ReadonlySet<number>,
+  west: number,
+  east: number,
+): [number, number] {
+  if (east - west <= 180 && east <= 180) return [west, east];
+  const wrapped = new Set<number>();
+  for (const longitude of longitudes) {
+    if (longitude < -180 || longitude > MAX_LONGITUDE) return [west, east];
+    wrapped.add(longitude > 180 ? longitude - 360 : longitude);
+  }
+  const sorted = [...wrapped].sort((x, y) => x - y);
+  const min = sorted[0] ?? west;
+  const max = sorted[sorted.length - 1] ?? east;
+  // The plain box leaves the gap across the antimeridian out; any wider gap
+  // inside it makes the arc round the other way narrower.
+  let widest = 360 - (max - min);
+  let arc: [number, number] = [min, max];
+  sorted.forEach((longitude, i) => {
+    const gap = longitude - (sorted[i - 1] ?? longitude);
+    if (gap > widest) {
+      widest = gap;
+      arc = [longitude, sorted[i - 1] ?? longitude];
+    }
+  });
+  return arc;
+}
+
 /**
  * `[west, south, east, north]` over every position of a geometry, Feature or
- * FeatureCollection; `null` when there is none. Altitude is ignored. Does not
- * handle boxes crossing the antimeridian.
+ * FeatureCollection; `null` when there is none. Altitude is ignored. When the
+ * longitudes are narrower going round the antimeridian, west is greater than
+ * east.
  */
 export function geoBounds(value: GeoJsonValue): GeoBBox | null {
   let bounds: GeoBBox | null = null;
+  const longitudes = new Set<number>();
   const extend = (longitude: number, latitude: number) => {
+    longitudes.add(longitude);
     if (!bounds) {
       bounds = [longitude, latitude, longitude, latitude];
       return;
@@ -38,7 +77,10 @@ export function geoBounds(value: GeoJsonValue): GeoBBox | null {
     }
   };
   walk(value);
-  return bounds;
+  if (!bounds) return null;
+  const [west, south, east, north] = bounds as GeoBBox;
+  const [arcWest, arcEast] = longitudeArc(longitudes, west, east);
+  return [arcWest, south, arcEast, north];
 }
 
 /**

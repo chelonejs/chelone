@@ -60,6 +60,13 @@ describe("polygonToBBox", () => {
     expect(polygon && polygonToBBox(polygon)).toEqual(bbox);
   });
 
+  it("round-trips a box across the antimeridian", () => {
+    const bbox: GeoBBox = [170, -10, -170, 10];
+    const polygon = bboxToPolygon(bbox);
+    expect(polygon).toEqual(rectangle(170, -10, 190, 10));
+    expect(polygon && polygonToBBox(polygon)).toEqual(bbox);
+  });
+
   it("returns null for any geometry that is not a Polygon", () => {
     expect(polygonToBBox({ type: "Point", coordinates: [1, 2] })).toBeNull();
     expect(

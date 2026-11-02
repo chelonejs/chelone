@@ -2,10 +2,14 @@ import { geoBounds } from "./bounds";
 import type { GeoBBox, GeoGeometry, GeoPolygon } from "./geojson";
 import { isGeoBBox } from "./geojson";
 
-/** The closed rectangle ring of a bbox; `null` unless it is four finite numbers. */
+/**
+ * The closed rectangle ring of a bbox; `null` unless it is four finite numbers.
+ * A box with west greater than east crosses 180: its ring runs east of 180.
+ */
 export function bboxToPolygon(bbox: unknown): GeoPolygon | null {
   if (!isGeoBBox(bbox)) return null;
-  const [west, south, east, north] = bbox;
+  const [west, south, rawEast, north] = bbox;
+  const east = west > rawEast ? rawEast + 360 : rawEast;
   return {
     type: "Polygon",
     coordinates: [
@@ -20,7 +24,7 @@ export function bboxToPolygon(bbox: unknown): GeoPolygon | null {
   };
 }
 
-/** The box around a Polygon; `null` for any other geometry. */
+/** The box around a Polygon, west greater than east across 180; `null` for any other geometry. */
 export function polygonToBBox(geometry: GeoGeometry): GeoBBox | null {
   return geometry.type === "Polygon" ? geoBounds(geometry) : null;
 }
