@@ -3,7 +3,7 @@ set -e
 
 root="$(git rev-parse --show-toplevel)"
 zero="0000000000000000000000000000000000000000"
-tmp="$(mktemp -d)"
+tmp="$(mktemp -d "$(git rev-parse --absolute-git-dir)/pre-push.XXXXXX")"
 trap 'git worktree remove --force "$tmp/tree" >/dev/null 2>&1 || true; rm -rf "$tmp"' EXIT
 
 # Lint each commit being pushed as committed, not the working tree, so an
