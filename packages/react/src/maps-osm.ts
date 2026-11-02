@@ -11,6 +11,14 @@ export {
   type MapWithSearchProps,
 } from "./components/maps-osm/map-with-search";
 export {
+  OsmFeatureAdd,
+  type OsmFeatureAddProps,
+  OsmFeatureOperator,
+  type OsmFeatureOperatorProps,
+  OsmFeatureSubtract,
+  type OsmFeatureSubtractProps,
+} from "./components/maps-osm/osm-feature-operator";
+export {
   type FetchOsmFeaturesOptions,
   fetchOsmFeatures,
   osmToPolygons,
@@ -20,6 +28,10 @@ export {
   unionAll,
 } from "./components/maps-osm/osm-geometry-ops";
 export {
+  ReverseGeocodeField,
+  type ReverseGeocodeFieldProps,
+} from "./components/maps-osm/reverse-geocode-field";
+export {
   type UseGeocodeOptions,
   useGeocode,
 } from "./components/maps-osm/use-geocode";
@@ -27,3 +39,7 @@ export {
   type UseOsmFeaturesOptions,
   useOsmFeatures,
 } from "./components/maps-osm/use-osm-features";
+export {
+  type UseReverseGeocodeOptions,
+  useReverseGeocode,
+} from "./components/maps-osm/use-reverse-geocode";

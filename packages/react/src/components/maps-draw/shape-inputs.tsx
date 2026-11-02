@@ -1,3 +1,5 @@
+import type { RoutingProvider } from "@chelone/core";
+import { useMapsConfig } from "../maps/maps-provider";
 import { ShapeInput, type ShapeInputProps } from "./shape-input";
 import type { DrawTool } from "./use-terra-draw";
 
@@ -73,12 +75,52 @@ export function MultiPointInput({
   return <ShapeInput {...props} kind="MultiPoint" tools={tools} />;
 }
 
-/** Edits a GeoJSON LineString. A new line replaces the old one. */
+export interface LineStringInputProps extends GeoJsonInputBaseProps {
+  /**
+   * Snap each line the user draws or edits to the road network. `true` uses the
+   * `router` of `MapsProvider`; a `RoutingProvider` is used as given. A saved
+   * line is left alone until the user edits it, and a failed snap keeps the
+   * drawn line. Takes the place of `refine`.
+   */
+  snapToRoads?: boolean | RoutingProvider;
+}
+
+/** A `refine` that snaps a line of two or more positions with `router`. */
+function snapRefine(router: RoutingProvider): ShapeInputProps["refine"] {
+  return (value, { signal }) => {
+    if (!("type" in value) || value.type !== "LineString") return null;
+    if (value.coordinates.length < 2) return null;
+    return router.snapToRoad(value, { signal });
+  };
+}
+
+/**
+ * Edits a GeoJSON LineString. A new line replaces the old one.
+ *
+ * @example
+ * <LineStringInput source="route" snapToRoads />
+ */
 export function LineStringInput({
   tools = LINE_TOOLS,
+  snapToRoads = false,
+  refine,
   ...props
-}: GeoJsonInputBaseProps) {
-  return <ShapeInput {...props} kind="LineString" tools={tools} />;
+}: LineStringInputProps) {
+  const { router: configured } = useMapsConfig();
+  const router = snapToRoads === true ? configured : snapToRoads || undefined;
+  if (snapToRoads === true && !router) {
+    throw new Error(
+      "LineStringInput needs a routing provider for `snapToRoads`: pass a RoutingProvider as the prop or set `router` on <MapsProvider>.",
+    );
+  }
+  return (
+    <ShapeInput
+      {...props}
+      kind="LineString"
+      tools={tools}
+      refine={router ? snapRefine(router) : refine}
+    />
+  );
 }
 
 /** Edits a GeoJSON MultiLineString. Each line is its own editable feature. */
