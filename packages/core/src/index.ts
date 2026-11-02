@@ -431,6 +431,7 @@ export {
 } from "./geo/geocoding";
 export type {
   GeoBBox,
+  GeoBBox3D,
   GeoFeature,
   GeoFeatureCollection,
   GeoGeometry,
