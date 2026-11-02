@@ -31,6 +31,7 @@ import { MdxInput } from "./mdx-input";
 const hoisted = vi.hoisted(() => ({
   setMarkdown: vi.fn(),
   plugins: undefined as unknown,
+  suppressHtmlProcessing: undefined as unknown,
   markdownProps: [] as string[],
 }));
 
@@ -44,6 +45,7 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
       className?: string;
       readOnly?: boolean;
       plugins?: unknown;
+      suppressHtmlProcessing?: boolean;
       onChange?: (markdown: string, initialMarkdownNormalize: boolean) => void;
       onBlur?: () => void;
     }
@@ -51,6 +53,7 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
     // Uncontrolled like the real editor: only the first `markdown` is read.
     const current = useRef(props.markdown);
     hoisted.plugins = props.plugins;
+    hoisted.suppressHtmlProcessing = props.suppressHtmlProcessing;
     hoisted.markdownProps.push(props.markdown);
     useImperativeHandle(ref, () => ({
       getMarkdown: () => current.current,
@@ -142,6 +145,7 @@ function setup<TFormData extends Record<string, unknown>>(
 beforeEach(() => {
   hoisted.setMarkdown.mockClear();
   hoisted.plugins = undefined;
+  hoisted.suppressHtmlProcessing = undefined;
   hoisted.markdownProps = [];
 });
 afterEach(cleanup);
@@ -289,6 +293,21 @@ describe("<MdxInput />", () => {
     expect(handle.form.getFieldMeta("body")?.isTouched).toBeFalsy();
     fireEvent.click(screen.getByText("blur"));
     expect(handle.form.getFieldMeta("body")?.isTouched).toBe(true);
+  });
+
+  it("passes suppressHtmlProcessing to the editor by default", () => {
+    setup(<MdxInput source="body" />, {
+      defaultValues: { body: "<iframe></iframe>" },
+    });
+    expect(hoisted.suppressHtmlProcessing).toBe(true);
+  });
+
+  it("lets mdxProps turn HTML processing back on", () => {
+    setup(
+      <MdxInput source="body" mdxProps={{ suppressHtmlProcessing: false }} />,
+      { defaultValues: { body: "<b>x</b>" } },
+    );
+    expect(hoisted.suppressHtmlProcessing).toBe(false);
   });
 
   it("lets mdxProps replace the plugins", () => {

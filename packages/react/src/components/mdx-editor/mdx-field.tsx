@@ -4,7 +4,7 @@ import {
   type MDXEditorProps,
   type RealmPlugin,
 } from "@mdxeditor/editor";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import type { UnknownRecord } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,13 @@ interface MdxFieldProps<RecordType extends UnknownRecord = UnknownRecord>
     Omit<MDXEditorProps, "markdown" | "readOnly" | "ref"> {
   /** The editor plugins. Defaults to `defaultFieldPlugins`. */
   plugins?: RealmPlugin[];
+  /**
+   * Keeps raw HTML in the markdown as text. Defaults to `true`, since a field
+   * shows records other people wrote. Pass `false` to render stored HTML live:
+   * an `<iframe src="javascript:...">` then runs script as the field mounts, and
+   * a `javascript:` link runs on click.
+   */
+  suppressHtmlProcessing?: boolean;
 }
 
 /**
@@ -41,12 +48,16 @@ function MdxField<RecordType extends UnknownRecord = UnknownRecord>({
   empty,
   className,
   plugins = defaultFieldPlugins,
+  suppressHtmlProcessing = true,
+  onError,
   ...rest
 }: MdxFieldProps<RecordType>) {
   const value = useFieldValue({ source, record });
   const translate = useTranslate();
   const theme = useResolvedTheme();
   const editorRef = useRef<MDXEditorMethods>(null);
+  // The markdown the editor failed to parse. A different value gets a new try.
+  const [failedMarkdown, setFailedMarkdown] = useState<string | null>(null);
 
   const emptyIsText = typeof empty === "string";
   const markdown =
@@ -68,6 +79,18 @@ function MdxField<RecordType extends UnknownRecord = UnknownRecord>({
 
   if (value == null && empty && !emptyIsText) return <>{empty}</>;
 
+  // On a parse error MDXEditor renders nothing, so show the value as text.
+  if (failedMarkdown === markdown) {
+    return (
+      <pre
+        data-slot="mdx-field-fallback"
+        className={cn("whitespace-pre-wrap break-words text-sm", className)}
+      >
+        {markdown}
+      </pre>
+    );
+  }
+
   return (
     <MDXEditor
       {...sanitizeFieldRestProps(rest)}
@@ -75,6 +98,11 @@ function MdxField<RecordType extends UnknownRecord = UnknownRecord>({
       markdown={markdown}
       readOnly
       plugins={plugins}
+      suppressHtmlProcessing={suppressHtmlProcessing}
+      onError={(payload) => {
+        setFailedMarkdown(markdown);
+        onError?.(payload);
+      }}
       className={cn(theme === "dark" && "mdxeditor-dark", className)}
     />
   );

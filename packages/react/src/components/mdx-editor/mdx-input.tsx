@@ -36,7 +36,12 @@ type MdxEditorPassthrough = Omit<
 
 interface MdxInputProps extends InputProps {
   className?: string;
-  /** Extra `MDXEditor` props. `plugins` here replaces `defaultInputPlugins`. */
+  /**
+   * Extra `MDXEditor` props. `plugins` here replaces `defaultInputPlugins`.
+   * `suppressHtmlProcessing` defaults to `true`, so raw HTML stays text; set it
+   * to `false` to render stored HTML live, where an
+   * `<iframe src="javascript:...">` runs script as the editor mounts.
+   */
   mdxProps?: MdxEditorPassthrough;
 }
 
@@ -75,6 +80,7 @@ const Editor = memo(function Editor({
   return (
     <MDXEditor
       plugins={defaultInputPlugins}
+      suppressHtmlProcessing
       {...mdxProps}
       ref={editorRef}
       markdown={initialMarkdown}

@@ -5,7 +5,7 @@
 
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../context";
@@ -17,6 +17,10 @@ import { MdxField } from "./mdx-field";
 const hoisted = vi.hoisted(() => ({
   setMarkdown: vi.fn(),
   plugins: undefined as unknown,
+  suppressHtmlProcessing: undefined as unknown,
+  onError: undefined as
+    | ((payload: { error: string; source: string }) => void)
+    | undefined,
 }));
 
 vi.mock("@mdxeditor/editor", async (importOriginal) => {
@@ -29,11 +33,15 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
       className?: string;
       readOnly?: boolean;
       plugins?: unknown;
+      suppressHtmlProcessing?: boolean;
+      onError?: (payload: { error: string; source: string }) => void;
     }
   >(function MDXEditor(props, ref) {
     // Uncontrolled like the real editor: only the first `markdown` is read.
     const current = useRef(props.markdown);
     hoisted.plugins = props.plugins;
+    hoisted.suppressHtmlProcessing = props.suppressHtmlProcessing;
+    hoisted.onError = props.onError;
     useImperativeHandle(ref, () => ({
       getMarkdown: () => current.current,
       setMarkdown: (value: string) => {
@@ -57,6 +65,8 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
 beforeEach(() => {
   hoisted.setMarkdown.mockClear();
   hoisted.plugins = undefined;
+  hoisted.suppressHtmlProcessing = undefined;
+  hoisted.onError = undefined;
 });
 afterEach(cleanup);
 
@@ -150,5 +160,54 @@ describe("<MdxField />", () => {
     expect(
       screen.getByTestId("editor").classList.contains("mdxeditor-dark"),
     ).toBe(false);
+  });
+
+  it("passes suppressHtmlProcessing to the editor by default", () => {
+    render(<MdxField source="body" />, {
+      wrapper: wrap({ id: 1, body: "<iframe></iframe>" }),
+    });
+    expect(hoisted.suppressHtmlProcessing).toBe(true);
+  });
+
+  it("lets a caller turn HTML processing back on", () => {
+    render(<MdxField source="body" suppressHtmlProcessing={false} />, {
+      wrapper: wrap({ id: 1, body: "<b>x</b>" }),
+    });
+    expect(hoisted.suppressHtmlProcessing).toBe(false);
+  });
+
+  it("shows the raw markdown as text when the editor reports a parse error", () => {
+    const body = "<img src=x>";
+    render(<MdxField source="body" />, { wrapper: wrap({ id: 1, body }) });
+    expect(screen.queryByTestId("editor")).not.toBeNull();
+
+    act(() => hoisted.onError?.({ error: "bad attribute", source: body }));
+
+    const fallback = document.querySelector('[data-slot="mdx-field-fallback"]');
+    expect(fallback?.tagName).toBe("PRE");
+    expect(fallback?.textContent).toBe(body);
+    expect(screen.queryByTestId("editor")).toBeNull();
+  });
+
+  it("calls a caller's onError as well as showing the fallback", () => {
+    const onError = vi.fn();
+    render(<MdxField source="body" onError={onError} />, {
+      wrapper: wrap({ id: 1, body: "<img src=x>" }),
+    });
+    const payload = { error: "bad", source: "<img src=x>" };
+    act(() => hoisted.onError?.(payload));
+    expect(onError).toHaveBeenCalledWith(payload);
+  });
+
+  it("tries the editor again when the value changes after a parse error", () => {
+    const { rerender } = render(
+      <MdxField source="body" record={{ id: 1, body: "<img src=x>" }} />,
+      { wrapper: wrap({}) },
+    );
+    act(() => hoisted.onError?.({ error: "bad", source: "<img src=x>" }));
+    expect(screen.queryByTestId("editor")).toBeNull();
+
+    rerender(<MdxField source="body" record={{ id: 1, body: "# Fixed" }} />);
+    expect(screen.getByTestId("editor").textContent).toBe("# Fixed");
   });
 });
