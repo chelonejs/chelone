@@ -22,10 +22,20 @@ const PROVIDER_BUTTONS = [
   "WorkosButton",
 ];
 
+const RECOVERY = [
+  "ForgotPasswordForm",
+  "ForgotPasswordPage",
+  "SetPasswordForm",
+  "SetPasswordPage",
+  "useResetPassword",
+  "useSetPassword",
+  "useSupabaseUrlTokens",
+];
+
 describe("the supabase entry", () => {
-  it("the supabase entry exports SocialAuthButton and the provider buttons", () => {
+  it("the supabase entry exports SocialAuthButton, the provider buttons and the password recovery pages and hooks", () => {
     expect(Object.keys(entry).sort()).toEqual(
-      ["SocialAuthButton", ...PROVIDER_BUTTONS].sort(),
+      ["SocialAuthButton", ...PROVIDER_BUTTONS, ...RECOVERY].sort(),
     );
     for (const [name, value] of Object.entries(entry)) {
       expect(typeof value, name).toBe("function");
