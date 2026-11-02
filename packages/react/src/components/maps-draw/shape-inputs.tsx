@@ -24,11 +24,13 @@ const DRAW_TOOLS: Record<GeometryShape, readonly DrawTool[]> = {
   MultiPolygon: ["draw-polygon", "draw-rectangle", "draw-circle"],
 };
 
+const CUT: readonly ToolbarTool[] = ["cut"];
 const AFTER_DRAW: readonly ToolbarTool[] = ["edit", "move", "delete"];
 
 /**
  * The toolbar for drawing `shapes`: each shape's draw tools in the order of
- * `shapes`, none twice, then `edit`, `move` and `delete`.
+ * `shapes`, none twice, `cut` when a polygon shape is in play, then `edit`,
+ * `move` and `delete`.
  */
 export function toolsForShapes(
   shapes: readonly GeometryShape[],
@@ -37,7 +39,10 @@ export function toolsForShapes(
   for (const shape of shapes) {
     for (const tool of DRAW_TOOLS[shape]) drawing.add(tool);
   }
-  return [...drawing, ...AFTER_DRAW];
+  const polygons = shapes.some(
+    (shape) => shape === "Polygon" || shape === "MultiPolygon",
+  );
+  return [...drawing, ...(polygons ? CUT : []), ...AFTER_DRAW];
 }
 
 const POINT_TOOLS: readonly ToolbarTool[] = ["draw-point", "move", "delete"];

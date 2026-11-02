@@ -104,4 +104,9 @@ describe("toolMode", () => {
     expect(toolMode("draw-polygon", true)).toBe("render");
     expect(toolMode("edit", true)).toBe("render");
   });
+
+  it("maps cut to the polygon mode", () => {
+    expect(toolMode("cut")).toBe("polygon");
+    expect(toolMode("cut", true)).toBe("render");
+  });
 });

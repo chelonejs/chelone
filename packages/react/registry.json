@@ -6158,6 +6158,7 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/react",
+        "@turf/difference",
         "lucide-react",
         "terra-draw",
         "terra-draw-maplibre-gl-adapter"
@@ -6169,6 +6170,10 @@
         },
         {
           "path": "src/components/maps-draw/draw-toolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-draw/geometry-ops.ts",
           "type": "registry:component"
         },
         {
@@ -6220,6 +6225,20 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "geometry-ops",
+      "type": "registry:component",
+      "title": "Geometry Ops",
+      "files": [
+        {
+          "path": "src/components/maps-draw/geometry-ops.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@turf/difference"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "shape-input",
       "type": "registry:component",
       "title": "Shape Input",
@@ -6234,6 +6253,7 @@
         "@chelone/field",
         "@chelone/field-label-text",
         "@chelone/geo-json-field",
+        "@chelone/geometry-ops",
         "@chelone/input-helper-text",
         "@chelone/lib-utils",
         "@chelone/map-canvas",

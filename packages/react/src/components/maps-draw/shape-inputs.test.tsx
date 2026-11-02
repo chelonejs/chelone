@@ -185,6 +185,7 @@ describe("PolygonInput", () => {
       "Draw a polygon",
       "Draw a rectangle",
       "Draw a circle",
+      "Cut a hole",
       "Edit",
       "Move",
       "Delete",
@@ -269,6 +270,7 @@ describe("GeometryCollectionInput", () => {
       "Draw a polygon",
       "Draw a rectangle",
       "Draw a circle",
+      "Cut a hole",
       "Edit",
       "Move",
       "Delete",
@@ -337,7 +339,14 @@ function toolbarNamesFor(shapes: string[]): string[] {
     LineString: ["Draw a line"],
     Polygon: ["Draw a polygon", "Draw a rectangle", "Draw a circle"],
   };
-  return [...shapes.flatMap((s) => labels[s] ?? []), "Edit", "Move", "Delete"];
+  const cut = shapes.includes("Polygon") ? ["Cut a hole"] : [];
+  return [
+    ...shapes.flatMap((s) => labels[s] ?? []),
+    ...cut,
+    "Edit",
+    "Move",
+    "Delete",
+  ];
 }
 
 describe("toolsForShapes", () => {
@@ -346,6 +355,7 @@ describe("toolsForShapes", () => {
       "draw-polygon",
       "draw-rectangle",
       "draw-circle",
+      "cut",
       "edit",
       "move",
       "delete",
@@ -357,6 +367,20 @@ describe("toolsForShapes", () => {
       "move",
       "delete",
     ]);
+  });
+
+  it("adds cut after the polygon tools for a Polygon or MultiPolygon only", () => {
+    expect(toolsForShapes(["MultiPolygon", "Point"])).toEqual([
+      "draw-polygon",
+      "draw-rectangle",
+      "draw-circle",
+      "draw-point",
+      "cut",
+      "edit",
+      "move",
+      "delete",
+    ]);
+    expect(toolsForShapes(["LineString"])).not.toContain("cut");
   });
 
   it("treats a Multi shape as its single shape and lists a tool once", () => {
@@ -384,6 +408,7 @@ describe("FeatureInput", () => {
       "Draw a polygon",
       "Draw a rectangle",
       "Draw a circle",
+      "Cut a hole",
       "Edit",
       "Move",
       "Delete",
