@@ -148,6 +148,35 @@ function makeAsyncValidator() {
   return { validator, resolvers };
 }
 
+const STALL_MS = 10_000;
+
+/**
+ * Settles with `work`, or fails naming the cycle and the await once `work` has
+ * not settled within STALL_MS. A slow runner finishes inside the test timeout;
+ * a stalled await fails here first with a label instead of a bare timeout.
+ */
+async function awaiting<T>(
+  cycle: number,
+  what: string,
+  work: Promise<T>,
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const stalled = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`did not settle in ${STALL_MS}ms`)),
+      STALL_MS,
+    );
+  });
+  try {
+    return await Promise.race([work, stalled]);
+  } catch (cause) {
+    const reason = cause instanceof Error ? cause.message : String(cause);
+    throw new Error(`cycle ${cycle}: ${what}: ${reason}`, { cause });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function makeCtx(): FormControllerContext<typeof resources> & {
   queryClient: QueryClient;
   notifications: ReturnType<typeof createNotificationStore>;
@@ -199,9 +228,14 @@ describe("probe A: churn with async validation in flight", () => {
       // Wait on THIS cycle's parked call (every earlier one was released), not
       // the cumulative call count: form-core runs the validator from a timer
       // that detach clears, so detaching before it fires strands `submit`.
-      await vi.waitFor(() => expect(resolvers.length).toBeGreaterThan(0), {
-        interval: 5,
-      });
+      await awaiting(
+        i,
+        "vi.waitFor for the parked validator",
+        vi.waitFor(() => expect(resolvers.length).toBeGreaterThan(0), {
+          interval: 5,
+          timeout: STALL_MS - 1_000,
+        }),
+      );
       const controllers = abortControllersOf(form, "title");
       expect(controllers.length, `cycle ${i}: parked`).toBeGreaterThanOrEqual(
         1,
@@ -229,7 +263,7 @@ describe("probe A: churn with async validation in flight", () => {
       // call is released: a cycle can park more than one, and a call left
       // parked would leave `await submit` waiting on it.
       for (const release of resolvers.splice(0)) release("late-error");
-      await submit;
+      await awaiting(i, "await submit", submit);
       expect(resolvers, `cycle ${i}: nothing left parked`).toHaveLength(0);
     }
 
@@ -241,7 +275,9 @@ describe("probe A: churn with async validation in flight", () => {
     binding.destroy();
     controller.destroy();
     expect(devtools.net()).toBe(0);
-  });
+    // 30s: a slow CI runner finishes inside it; `awaiting` fails a real stall
+    // at 10s, with the cycle and the await named.
+  }, 30_000);
 });
 
 // ===========================================================================
