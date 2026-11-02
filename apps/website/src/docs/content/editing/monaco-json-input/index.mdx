@@ -59,8 +59,11 @@ The input reads the shape of the value when it first renders and keeps it:
 
 While the text is not valid JSON, the form keeps the last valid value.
 
-Set `allowComments` to accept comments and trailing commas in the text. They are
-stripped before the value is parsed, so the stored value never holds them.
+Set `allowComments` to accept comments and trailing commas in the text of an
+object value. They are stripped before the text is parsed, so the stored value
+never holds them. A string value is written back exactly as typed, comments
+included, so leave `allowComments` off for a column that other code parses as
+strict JSON.
 
 ## Validation
 
@@ -152,7 +155,9 @@ These props are written differently:
 - `class` styles the field wrapper, where React has `className`.
 - `editor-class` styles the editor frame, where React has `editorClassName`.
 - `label` is a string, or `false` to hide it, and `helper-text` is a string.
-- It has no `id`, `format`, `parse` or `alwaysOn` prop, and emits no events.
+- It has no `id`, `resource`, `isRequired`, `format`, `parse` or `alwaysOn`
+  prop, and emits no events. The label is translated against the ambient
+  resource, and a `required()` validator sets the required marker.
 
 The Vue [differences page](/docs/vue/differences#add-ons) lists the same
 changes with the other add-on notes.
