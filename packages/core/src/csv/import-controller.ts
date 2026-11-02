@@ -118,7 +118,11 @@ export function createCsvImportController(
       case "upload":
         return s.rows.length > 0 && s.parseError === null;
       case "map":
-        return s.requiredFields.every((field) => !!s.mapping[field]);
+        // Without this, an unmapped schemaless file creates an empty record per row.
+        return (
+          s.requiredFields.every((field) => !!s.mapping[field]) &&
+          Object.values(s.mapping).some(Boolean)
+        );
       case "preview":
         return !created && s.validations.some((v) => v.ok);
       case "commit":
@@ -131,7 +135,12 @@ export function createCsvImportController(
 
     loadParsed(parsed, fileName) {
       if (state().status === "running" || busy) return;
-      const parseError = parsed.errors[0]?.message ?? null;
+      const first = parsed.errors[0];
+      const parseError = first
+        ? first.row === undefined
+          ? first.message
+          : `Row ${first.row}: ${first.message}`
+        : null;
       const fields =
         explicitFields.length > 0 ? explicitFields : parsed.headers;
       mappingSettled = Object.keys(initialMapping).length > 0;
