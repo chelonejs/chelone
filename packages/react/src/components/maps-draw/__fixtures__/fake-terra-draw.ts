@@ -132,17 +132,26 @@ export class TerraDraw {
     return this.features.map((feature) => structuredClone(feature));
   }
 
-  addFeatures(features: FakeFeature[]): { valid: boolean }[] {
+  addFeatures(
+    features: FakeFeature[],
+  ): { id?: FeatureId; valid: boolean; reason?: string }[] {
     this.assertRunning();
     this.added.push(structuredClone(features));
-    this.features.push(...structuredClone(features));
+    const answers = features.map((feature) => {
+      const reason = refusal?.(feature);
+      return reason === undefined
+        ? { id: feature.id, valid: true }
+        : { id: feature.id, valid: false, reason };
+    });
+    const accepted = features.filter((_, i) => answers[i]?.valid);
+    this.features.push(...structuredClone(accepted));
     this.fire(
       "change",
-      features.map((f) => f.id),
+      accepted.map((f) => f.id),
       "create",
       { origin: "api" },
     );
-    return features.map(() => ({ valid: true }));
+    return answers;
   }
 
   removeFeatures(ids: FeatureId[]): void {
@@ -229,8 +238,22 @@ export class TerraDraw {
 /** Every `TerraDraw` built since the last reset, oldest first. */
 export const draws: TerraDraw[] = [];
 
+let refusal: ((feature: FakeFeature) => string | undefined) | undefined;
+
+/**
+ * Makes every `addFeatures` of every instance refuse the features for which
+ * `decide` returns a reason, as Terra Draw does for a shape it cannot hold: they
+ * are not stored and answer `{ valid: false, reason }`. Cleared by `resetFake()`.
+ */
+export function refuseFeatures(
+  decide: (feature: FakeFeature) => string | undefined,
+): void {
+  refusal = decide;
+}
+
 export function resetFake(): void {
   draws.length = 0;
+  refusal = undefined;
 }
 
 /** The instances not stopped yet. */

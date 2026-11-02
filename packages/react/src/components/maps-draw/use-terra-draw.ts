@@ -88,7 +88,14 @@ export interface UseTerraDrawResult {
   selectedId: string | number | null;
   /** Removes the selected feature, which calls `onEdit` with type `delete`. Changes with the selection. */
   deleteSelected: () => void;
+  /**
+   * The entries of `features` the editor refused, as given. They are not drawn
+   * and not in any `onEdit`: a caller that keeps them in its value adds them back.
+   */
+  refused: GeoFeature[];
 }
+
+const NONE_REFUSED: GeoFeature[] = [];
 
 type SelectFlags = Record<string, { feature: Record<string, unknown> }>;
 
@@ -226,6 +233,9 @@ export function useTerraDraw({
   const map = useMap();
   const [draw, setDraw] = useState<TerraDraw | null>(null);
   const [selectedId, setSelectedId] = useState<string | number | null>(null);
+  const [refused, setRefused] = useState<GeoFeature[]>(NONE_REFUSED);
+  // The same list as `refused`, for the sync to read without rerunning.
+  const refusedRef = useRef<GeoFeature[]>(NONE_REFUSED);
   const latest = useRef({
     snappable,
     snapDistance,
@@ -311,6 +321,8 @@ export function useTerraDraw({
       active = false;
       setDraw(null);
       setSelectedId(null);
+      refusedRef.current = NONE_REFUSED;
+      setRefused(NONE_REFUSED);
       // The canvas can remove the map first, and the adapter throws on a removed one.
       try {
         instance.stop();
@@ -322,17 +334,43 @@ export function useTerraDraw({
     if (!draw) return;
     const snapshot = draw.getSnapshot();
     knownIds.current = userIds(snapshot);
-    if (sameValue(fromEditorFeatures(snapshot), features)) return;
+    // A refused entry is never in the snapshot: leave it out of the comparison,
+    // but only while `features` still holds it.
+    const stillRefused = refusedRef.current.filter((entry) =>
+      features.some((feature) => sameValue(feature, entry)),
+    );
+    const drawn = features.filter(
+      (feature) => !stillRefused.some((entry) => sameValue(feature, entry)),
+    );
+    if (
+      stillRefused.length === refusedRef.current.length &&
+      sameValue(fromEditorFeatures(snapshot), drawn)
+    ) {
+      return;
+    }
+    // One editor feature per entry, or none where core cannot hold the entry.
+    const pairs = features.map((feature) => ({
+      feature,
+      editor: toEditorFeatures([feature], () => draw.getFeatureId())[0],
+    }));
+    const sent = pairs.flatMap((pair) => (pair.editor ? [pair] : []));
+    const refusedNow: GeoFeature[] = [];
     syncing.current = true;
     try {
       draw.clear();
-      draw.addFeatures(
-        toEditorFeatures(features, () => draw.getFeatureId()) as never,
+      const answers = draw.addFeatures(
+        sent.map((pair) => pair.editor) as never,
       );
+      answers.forEach((answer, i) => {
+        const pair = sent[i];
+        if (!answer.valid && pair) refusedNow.push(pair.feature);
+      });
     } finally {
       syncing.current = false;
     }
     knownIds.current = userIds(draw.getSnapshot());
+    refusedRef.current = refusedNow.length ? refusedNow : NONE_REFUSED;
+    setRefused(refusedRef.current);
     setSelectedId(null);
   }, [draw, features]);
 
@@ -344,5 +382,5 @@ export function useTerraDraw({
     if (draw && selectedId !== null) draw.removeFeatures([selectedId]);
   }, [draw, selectedId]);
 
-  return { selectedId, deleteSelected };
+  return { selectedId, deleteSelected, refused };
 }

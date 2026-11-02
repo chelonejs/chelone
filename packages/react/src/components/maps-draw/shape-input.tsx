@@ -28,6 +28,7 @@ import { FieldError, FieldLegend, FieldSet } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 import { ValidationError } from "../../field-error-display";
 import { useInput } from "../../form-hooks";
+import { useTranslate } from "../../i18n-hooks";
 import { useGeoJsonSource } from "../maps/geo-json-field";
 import { MapCanvas, useMap } from "../maps/map-canvas";
 import { DrawToolbar } from "./draw-toolbar";
@@ -184,7 +185,7 @@ function Editor({
   );
   useGeoJsonSource(map, heldId, heldData, shapeStyle ?? {});
 
-  const { selectedId, deleteSelected } = useTerraDraw({
+  const { selectedId, deleteSelected, refused } = useTerraDraw({
     features,
     tool,
     disabled,
@@ -194,8 +195,8 @@ function Editor({
     onEdit,
   });
   useEffect(() => {
-    onControls({ selectedId, deleteSelected });
-  }, [selectedId, deleteSelected, onControls]);
+    onControls({ selectedId, deleteSelected, refused });
+  }, [selectedId, deleteSelected, refused, onControls]);
   useEffect(() => () => onControls(null), [onControls]);
   return null;
 }
@@ -234,6 +235,7 @@ function FitToShape({
 const NO_CONTROLS: UseTerraDrawResult = {
   selectedId: null,
   deleteSelected: () => {},
+  refused: [],
 };
 
 /**
@@ -295,6 +297,7 @@ export function ShapeInput({
       validate,
     ],
   );
+  const translate = useTranslate();
   const { field, fieldState, isRequired } = useInput({
     source,
     validate: validators,
@@ -314,6 +317,8 @@ export function ShapeInput({
 
   const [tool, setTool] = useState<DrawTool | null>(null);
   const [controls, setControls] = useState<UseTerraDrawResult | null>(null);
+  const controlsRef = useRef(controls);
+  controlsRef.current = controls;
   // What the last edit wrote, so the first shape the user draws is not framed.
   const written = useRef<unknown>(undefined);
   const latest = useRef({ field, kind, aspectRatio, onCommit, refine });
@@ -345,7 +350,12 @@ export function ShapeInput({
     const now = latest.current;
     // A newer edit makes any pending refinement stale, whatever the edit is.
     refining.current?.abort();
-    let features = edit.features;
+    // A part the editor refused is not in the edit: it stays in the value, as
+    // the held parts do. A single-shape value takes the new drawing instead.
+    const refused = HOLDS_MANY.has(now.kind)
+      ? (controlsRef.current?.refused ?? [])
+      : [];
+    let features = [...edit.features, ...refused];
     let prev = now.field.value;
     if (edit.type === "cut") {
       // The tool clears either way; a cut that touched nothing commits nothing.
@@ -373,7 +383,7 @@ export function ShapeInput({
     if (next !== null) void runRefine(next);
   };
 
-  const { selectedId, deleteSelected } = controls ?? NO_CONTROLS;
+  const { selectedId, deleteSelected, refused } = controls ?? NO_CONTROLS;
 
   return (
     <FieldSet
@@ -425,6 +435,14 @@ export function ShapeInput({
           />
         ) : null}
       </MapCanvas>
+      {refused.length > 0 ? (
+        <p
+          data-slot="shape-input-warning"
+          className="text-sm text-amber-600 dark:text-amber-500"
+        >
+          {translate("chelone.map.shape_not_shown")}
+        </p>
+      ) : null}
       <InputHelperText helperText={helperText} />
       <FieldError>
         {invalid && error ? <ValidationError error={error} /> : null}

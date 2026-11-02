@@ -7,6 +7,8 @@ import { defineMessages } from "../i18n/messages";
 export const mapMessages = defineMessages({
   "chelone.map.no_coordinates": "No coordinates",
   "chelone.map.no_geometry": "No geometry",
+  "chelone.map.shape_not_shown":
+    "Part of this shape cannot be shown on the map",
   "chelone.map.toolbar": "Map tools",
   "chelone.map.tool.draw_point": "Draw a point",
   "chelone.map.tool.draw_line": "Draw a line",
