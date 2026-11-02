@@ -690,34 +690,6 @@ describe("ShapeInput cut tool", () => {
     ).toEqual([field(0, 0, 10, 10)]);
   });
 
-  it("draws the polygon left with a hole after a cut on a read-only source", async () => {
-    const { draw, map, wrapper, value } = await setup(
-      { kind: "MultiPolygon" },
-      {
-        type: "MultiPolygon",
-        coordinates: [holed.coordinates, field(20, 0, 30, 10).coordinates],
-      },
-    );
-    expect(draw().added[0]?.map((f) => f.geometry)).toEqual([
-      field(20, 0, 30, 10),
-    ]);
-
-    await drawCutter(wrapper, draw, field(24, 4, 26, 6));
-
-    // A holed polygon is not for Terra Draw: both holed parts are read-only now.
-    expect(draw().getSnapshot()).toEqual([]);
-    const sources = Object.values(map().sources);
-    expect(sources).toHaveLength(1);
-    const data = sources[0]?.data as { features: GeoFeature[] };
-    const rings = data.features.map((f) =>
-      f.geometry?.type === "Polygon" ? f.geometry.coordinates.length : 0,
-    );
-    expect(rings).toEqual([2, 2]);
-    const stored = value() as { type: string; coordinates: unknown[] };
-    expect(stored.type).toBe("MultiPolygon");
-    expect(stored.coordinates).toHaveLength(2);
-  });
-
   it("keeps both parts of a split as a MultiPolygon when the kind can store one", async () => {
     const { draw, wrapper, commits, value } = await setup(
       { kind: "Geometry" },
@@ -762,6 +734,36 @@ describe("ShapeInput cut tool", () => {
 
     expect(value()).toEqual(field(0, 0, 10, 10));
     expect(commits).toEqual([]);
+  });
+});
+
+describe("ShapeInput", () => {
+  it("draws the polygon left with a hole after a cut on a read-only source", async () => {
+    const { draw, map, wrapper, value } = await setup(
+      { kind: "MultiPolygon" },
+      {
+        type: "MultiPolygon",
+        coordinates: [holed.coordinates, field(20, 0, 30, 10).coordinates],
+      },
+    );
+    expect(draw().added[0]?.map((f) => f.geometry)).toEqual([
+      field(20, 0, 30, 10),
+    ]);
+
+    await drawCutter(wrapper, draw, field(24, 4, 26, 6));
+
+    // A holed polygon is not for Terra Draw: both holed parts are read-only now.
+    expect(draw().getSnapshot()).toEqual([]);
+    const sources = Object.values(map().sources);
+    expect(sources).toHaveLength(1);
+    const data = sources[0]?.data as { features: GeoFeature[] };
+    const rings = data.features.map((f) =>
+      f.geometry?.type === "Polygon" ? f.geometry.coordinates.length : 0,
+    );
+    expect(rings).toEqual([2, 2]);
+    const stored = value() as { type: string; coordinates: unknown[] };
+    expect(stored.type).toBe("MultiPolygon");
+    expect(stored.coordinates).toHaveLength(2);
   });
 });
 
