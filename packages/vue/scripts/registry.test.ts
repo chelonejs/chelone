@@ -22,7 +22,9 @@ const isTest = (name: string) => /\.(test|spec|test-d|stories)\.ts$/.test(name);
 const walk = (dir: string): string[] =>
   readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = join(dir, entry.name);
-    if (entry.isDirectory()) return walk(full);
+    // Test stand-ins are never shipped; the generator skips them too.
+    if (entry.isDirectory())
+      return entry.name === "__fixtures__" ? [] : walk(full);
     return /\.(ts|vue)$/.test(entry.name) && !isTest(entry.name) ? [full] : [];
   });
 
