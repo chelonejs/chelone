@@ -49,6 +49,7 @@ import type {
   NumberInputProps,
   PartitionedChildren,
   PasswordInputProps,
+  PresenceBarProps,
   RecordContextProviderProps,
   RecordContextValue,
   RemoveItemButtonProps,
@@ -76,6 +77,7 @@ import type {
   TranslateLabelOptions,
   UseFieldValueOptions,
   UseFilterFormResult,
+  UsePresenceOptions,
   UseRecordContextOptions,
   UseResourceTranslationOptions,
   UseSubscribeOptions,
@@ -347,6 +349,13 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
     expect(barrel.LockStatus).toBeTypeOf("function");
     expectTypeOf<LockOnMountProps>().toHaveProperty("lockedBy");
     expectTypeOf<LockStatusProps>().toHaveProperty("renderFree");
+  });
+
+  it("exports PresenceBar and usePresence", () => {
+    expect(barrel.PresenceBar).toBeTypeOf("function");
+    expect(barrel.usePresence).toBeTypeOf("function");
+    expectTypeOf<PresenceBarProps>().toHaveProperty("maxAvatars");
+    expectTypeOf<UsePresenceOptions>().toHaveProperty("heartbeatMs");
   });
 
   it("exports the lock hooks", () => {
