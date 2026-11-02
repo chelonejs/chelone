@@ -512,6 +512,10 @@ export {
   ListGuesser,
   type ListGuesserProps,
 } from "./components/admin/guessers/list-guesser";
+export {
+  ShowGuesser,
+  type ShowGuesserProps,
+} from "./components/admin/guessers/show-guesser";
 // P7b component surface — simple text-like inputs (ported from shadmin onto
 // useInput + ui/field + <ValidationError>). The `ui/` primitives are NOT
 // barrel-exported (they are registry/consumer-facing via the `@/` alias,
