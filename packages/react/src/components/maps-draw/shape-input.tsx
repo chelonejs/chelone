@@ -4,6 +4,10 @@ import {
   geoBounds,
   heldFeatures,
   type MapStyleInput,
+  maxVertices,
+  minAreaM2,
+  minVertices,
+  noSelfIntersection,
   type ShapeStyle,
   type ShapeValue,
   type ShapeValueKind,
@@ -27,6 +31,7 @@ import { useInput } from "../../form-hooks";
 import { useGeoJsonSource } from "../maps/geo-json-field";
 import { MapCanvas, useMap } from "../maps/map-canvas";
 import { DrawToolbar } from "./draw-toolbar";
+import { cutFeatures } from "./geometry-ops";
 import {
   type DrawTool,
   type TerraDrawEdit,
@@ -44,11 +49,22 @@ export interface ShapeInputProps {
   /** The legend. A string is translated; `false` renders none. */
   label?: ReactNode | false;
   helperText?: ReactNode | false;
+  /** Runs after the limits below. */
   validate?: Validator | readonly Validator[];
+  /** Fewest vertices the shape may have; a polygon ring counts its distinct vertices. The shape is stored as drawn and the field is flagged. */
+  minVertices?: number;
+  /** Most vertices the shape may have. */
+  maxVertices?: number;
+  /** Smallest area in square metres a polygon may cover. */
+  minAreaM2?: number;
+  /** Set to false to flag a shape that crosses itself. Defaults to true, which checks nothing. */
+  allowSelfIntersection?: boolean;
   /** The toolbar buttons, in order. Defaults to the tools that suit `kind`. */
   tools?: readonly ToolbarTool[];
   /** Snap to existing coordinates and lines. Read once. Defaults to true. */
   snappable?: boolean;
+  /** Pixels within which the pointer grabs a vertex or snaps. Read once. Defaults to 20. */
+  snapDistance?: number;
   /** Shows the shape and hides the toolbar; pan and zoom still work. */
   disabled?: boolean;
   /** `[lat, lng]`. The map centre while the field is empty. Defaults to `[0, 0]`. */
@@ -77,6 +93,7 @@ const AREA_TOOLS: ToolbarTool[] = [
   "draw-polygon",
   "draw-rectangle",
   "draw-circle",
+  "cut",
   "edit",
   "move",
   "delete",
@@ -101,12 +118,22 @@ function defaultTools(kind: ShapeValueKind): readonly ToolbarTool[] {
   }
 }
 
+/** The kinds whose value keeps every feature, not just the last one drawn. */
+const HOLDS_MANY: ReadonlySet<ShapeValueKind> = new Set([
+  "MultiPoint",
+  "MultiLineString",
+  "MultiPolygon",
+  "GeometryCollection",
+  "FeatureCollection",
+]);
+
 interface EditorProps {
   features: GeoFeature[];
   held: GeoFeature[];
   tool: DrawTool | null;
   disabled: boolean;
   snappable: boolean;
+  snapDistance: number;
   shapeStyle: ShapeStyle | undefined;
   onEdit: (edit: TerraDrawEdit) => void;
   onControls: (controls: UseTerraDrawResult | null) => void;
@@ -119,6 +146,7 @@ function Editor({
   tool,
   disabled,
   snappable,
+  snapDistance,
   shapeStyle,
   onEdit,
   onControls,
@@ -136,6 +164,7 @@ function Editor({
     tool,
     disabled,
     snappable,
+    snapDistance,
     shapeStyle,
     onEdit,
   });
@@ -201,8 +230,13 @@ export function ShapeInput({
   label,
   helperText,
   validate,
+  minVertices: minVerticesLimit,
+  maxVertices: maxVerticesLimit,
+  minAreaM2: minAreaLimit,
+  allowSelfIntersection = true,
   tools,
   snappable = true,
+  snapDistance = 20,
   disabled = false,
   defaultCenter = [0, 0],
   zoom = 13,
@@ -214,9 +248,30 @@ export function ShapeInput({
   onCommit,
   className,
 }: ShapeInputProps) {
+  // The limits run before the caller's validators.
+  const validators = useMemo(
+    () => [
+      ...(minVerticesLimit === undefined
+        ? []
+        : [minVertices(minVerticesLimit)]),
+      ...(maxVerticesLimit === undefined
+        ? []
+        : [maxVertices(maxVerticesLimit)]),
+      ...(minAreaLimit === undefined ? [] : [minAreaM2(minAreaLimit)]),
+      ...(allowSelfIntersection ? [] : [noSelfIntersection()]),
+      ...(Array.isArray(validate) ? validate : validate ? [validate] : []),
+    ],
+    [
+      minVerticesLimit,
+      maxVerticesLimit,
+      minAreaLimit,
+      allowSelfIntersection,
+      validate,
+    ],
+  );
   const { field, fieldState, isRequired } = useInput({
     source,
-    validate,
+    validate: validators,
     format: (v: unknown) => v ?? null,
   });
   const invalid = fieldState.invalid;
@@ -240,7 +295,24 @@ export function ShapeInput({
 
   const onEdit = (edit: TerraDrawEdit) => {
     const now = latest.current;
-    const next = featuresToShape(now.kind, edit.features, now.field.value, {
+    let features = edit.features;
+    let prev = now.field.value;
+    if (edit.type === "cut") {
+      // The tool clears either way; a cut that touched nothing commits nothing.
+      setTool(null);
+      // The editor holds no polygon with a hole, so the held parts are cut too.
+      // The result then holds every part, and no held part is added back.
+      const cut = cutFeatures(
+        [...features, ...heldFeatures(now.kind, prev)],
+        edit.cutter,
+      );
+      if (!cut.changed) return;
+      // A single-shape value stores the last feature: a split would lose the rest.
+      if (!HOLDS_MANY.has(now.kind) && cut.features.length > 1) return;
+      features = cut.features;
+      if (HOLDS_MANY.has(now.kind)) prev = null;
+    }
+    const next = featuresToShape(now.kind, features, prev, {
       aspectRatio: now.aspectRatio,
     });
     written.current = next;
@@ -288,6 +360,7 @@ export function ShapeInput({
           tool={tool}
           disabled={disabled}
           snappable={snappable}
+          snapDistance={snapDistance}
           shapeStyle={shapeStyle}
           onEdit={onEdit}
           onControls={setControls}
