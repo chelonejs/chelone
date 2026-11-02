@@ -16,9 +16,11 @@ import {
   Resource,
   useResourceDefinitions,
 } from "@chelone/react";
+import { MapsProvider } from "@chelone/react/maps";
 import { QueryClient } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router";
 import { makeI18n } from "./i18n";
+import { mapsConfig } from "./maps-services";
 import { dataProvider } from "./realtime";
 import { SimulateOtherUser } from "./realtime-sim";
 import { resources } from "./resources";
@@ -40,6 +42,12 @@ import {
   OrderList,
   OrderShow,
 } from "./resources/orders";
+import {
+  PlaceCreate,
+  PlaceEdit,
+  PlaceList,
+  PlaceShow,
+} from "./resources/places";
 import { PostCreate, PostEdit, PostList, PostShow } from "./resources/posts";
 import {
   ProductCreate,
@@ -95,58 +103,69 @@ export function App() {
     // (and under Vite's `base` in dev), so its client routes live below that
     // prefix. Mirrors vite.config.ts `base: "/demo/"`.
     <BrowserRouter basename="/demo">
-      <Admin
-        dataProvider={dataProvider}
-        queryClient={queryClient}
-        i18n={i18n}
-        notifications={notifications}
-        store={store}
-        resources={resources}
-      >
-        {/* Opt-in shadcn shell (sidebar + app bar + toaster). */}
-        <Admin.Layout>
-          <Layout menu={DemoMenu} />
-        </Admin.Layout>
+      {/* The map services every maps view reads: the public OpenStreetMap
+          ones, which suit this demo only (see maps-services.ts). */}
+      <MapsProvider {...mapsConfig}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={queryClient}
+          i18n={i18n}
+          notifications={notifications}
+          store={store}
+          resources={resources}
+        >
+          {/* Opt-in shadcn shell (sidebar + app bar + toaster). */}
+          <Admin.Layout>
+            <Layout menu={DemoMenu} />
+          </Admin.Layout>
 
-        {/* QUICKSTART: `posts` carries a Zod schema (see resources/index.ts →
+          {/* QUICKSTART: `posts` carries a Zod schema (see resources/index.ts →
             resources/posts.tsx). The Edit/Create forms validate against it
             automatically (the D6 registry-schema default validator). */}
-        <Resource
-          name="posts"
-          list={PostList}
-          edit={PostEdit}
-          create={PostCreate}
-          show={PostShow}
-        />
-        <Resource
-          name="authors"
-          list={AuthorList}
-          edit={AuthorEdit}
-          create={AuthorCreate}
-          show={AuthorShow}
-        />
-        <Resource
-          name="products"
-          list={ProductList}
-          edit={ProductEdit}
-          create={ProductCreate}
-          show={ProductShow}
-        />
-        <Resource
-          name="customers"
-          list={CustomerList}
-          edit={CustomerEdit}
-          create={CustomerCreate}
-          show={CustomerShow}
-        />
-        <Resource
-          name="orders"
-          list={OrderList}
-          edit={OrderEdit}
-          create={OrderCreate}
-          show={OrderShow}
-        />
-      </Admin>
+          <Resource
+            name="posts"
+            list={PostList}
+            edit={PostEdit}
+            create={PostCreate}
+            show={PostShow}
+          />
+          <Resource
+            name="authors"
+            list={AuthorList}
+            edit={AuthorEdit}
+            create={AuthorCreate}
+            show={AuthorShow}
+          />
+          <Resource
+            name="products"
+            list={ProductList}
+            edit={ProductEdit}
+            create={ProductCreate}
+            show={ProductShow}
+          />
+          <Resource
+            name="customers"
+            list={CustomerList}
+            edit={CustomerEdit}
+            create={CustomerCreate}
+            show={CustomerShow}
+          />
+          <Resource
+            name="orders"
+            list={OrderList}
+            edit={OrderEdit}
+            create={OrderCreate}
+            show={OrderShow}
+          />
+          <Resource
+            name="places"
+            list={PlaceList}
+            edit={PlaceEdit}
+            create={PlaceCreate}
+            show={PlaceShow}
+          />
+        </Admin>
+      </MapsProvider>
     </BrowserRouter>
   );
 }

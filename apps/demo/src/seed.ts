@@ -59,6 +59,19 @@ export interface Order {
   [key: string]: unknown;
 }
 
+export interface Place {
+  id: number;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+  area: { type: "Polygon"; coordinates: number[][][] };
+  route: { type: "LineString"; coordinates: number[][] };
+  /** `[west, south, east, north]`. */
+  bbox: [number, number, number, number];
+  [key: string]: unknown;
+}
+
 /**
  * Pick element `i % arr.length` with a defined return type (satisfies
  * `noUncheckedIndexedAccess` without a non-null assertion). Throws only on an
@@ -166,6 +179,74 @@ const orders: Order[] = Array.from({ length: 16 }, (_, i) => {
   };
 });
 
+const placeSpots: ReadonlyArray<
+  readonly [name: string, address: string, lat: number, lng: number]
+> = [
+  ["Praça do Comércio", "Praça do Comércio, 1100-148 Lisboa", 38.7075, -9.1364],
+  [
+    "Castelo de São Jorge",
+    "R. de Santa Cruz do Castelo, Lisboa",
+    38.7139,
+    -9.1335,
+  ],
+  ["Torre de Belém", "Av. Brasília, 1400-038 Lisboa", 38.6916, -9.216],
+  [
+    "Mosteiro dos Jerónimos",
+    "Praça do Império, 1400-206 Lisboa",
+    38.6979,
+    -9.2068,
+  ],
+  [
+    "Parque Eduardo VII",
+    "Parque Eduardo VII, 1070-051 Lisboa",
+    38.7292,
+    -9.1536,
+  ],
+  [
+    "Oceanário de Lisboa",
+    "Esplanada D. Carlos I, 1990-005 Lisboa",
+    38.7634,
+    -9.0938,
+  ],
+  ["Estação do Oriente", "Av. Dom João II, 1990-233 Lisboa", 38.7677, -9.0993],
+  ["Jardim da Estrela", "Praça da Estrela, 1200-667 Lisboa", 38.7133, -9.1597],
+];
+
+// Every shape hangs off the place's point, so each page shows the map in the
+// same city. Longitude spans are wider than latitude's to look square at 38°N.
+const places: Place[] = placeSpots.map(([name, address, lat, lng], i) => {
+  const dLat = 0.0015;
+  const dLng = 0.0019;
+  return {
+    id: i + 1,
+    name,
+    address,
+    lat,
+    lng,
+    area: {
+      type: "Polygon",
+      coordinates: [
+        [
+          [lng - dLng, lat - dLat],
+          [lng + dLng, lat - dLat],
+          [lng + dLng, lat + dLat],
+          [lng - dLng, lat + dLat],
+          [lng - dLng, lat - dLat],
+        ],
+      ],
+    },
+    route: {
+      type: "LineString",
+      coordinates: [
+        [lng - dLng * 2, lat - dLat * 2],
+        [lng, lat - dLat],
+        [lng + dLng * 2, lat + dLat * 2],
+      ],
+    },
+    bbox: [lng - dLng * 3, lat - dLat * 3, lng + dLng * 3, lat + dLat * 3],
+  };
+});
+
 /** Build a fresh seed object (fakeDataProvider mutates its data in place). */
 export function seedData() {
   return {
@@ -174,6 +255,7 @@ export function seedData() {
     products: structuredClone(products),
     customers: structuredClone(customers),
     orders: structuredClone(orders),
+    places: structuredClone(places),
   };
 }
 
