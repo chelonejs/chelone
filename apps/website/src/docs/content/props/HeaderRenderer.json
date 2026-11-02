@@ -1,0 +1,35 @@
+{
+  "name": "HeaderRenderer",
+  "props": [
+    {
+      "name": "anchor",
+      "type": "Date",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "onNavigate",
+      "type": "(action: CalendarNavigation) => void",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "onViewChange",
+      "type": "(view: CalendarView) => void",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "range",
+      "type": "CalendarRange",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "view",
+      "type": "CalendarView",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}

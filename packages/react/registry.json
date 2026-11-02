@@ -1808,6 +1808,18 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/calendar-header.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/calendar-list.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/calendar-month-view.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/count.tsx",
           "type": "registry:component"
         },
@@ -4980,6 +4992,55 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/sheet"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-header",
+      "type": "registry:component",
+      "title": "Calendar Header",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-header.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-list",
+      "type": "registry:component",
+      "title": "Calendar List",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-list.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/calendar-header",
+        "@chelone/calendar-month-view",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-month-view",
+      "type": "registry:component",
+      "title": "Calendar Month View",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-month-view.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
