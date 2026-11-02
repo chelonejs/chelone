@@ -42,6 +42,10 @@ export {
   type SupabaseOAuthProvider,
 } from "./components/admin/supabase/social-auth-button.vue";
 export {
+  default as SupabaseLoginPage,
+  type SupabaseLoginPageProps,
+} from "./components/admin/supabase/supabase-login-page.vue";
+export {
   type UseResetPasswordOptions,
   type UseSetPasswordOptions,
   useResetPassword,

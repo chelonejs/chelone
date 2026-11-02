@@ -32,13 +32,14 @@ const PASSWORD_RECOVERY = [
   "ForgotPasswordPage",
   "SetPasswordForm",
   "SetPasswordPage",
+  "SupabaseLoginPage",
   "useResetPassword",
   "useSetPassword",
   "useSupabaseUrlTokens",
 ];
 
 describe("the supabase entry", () => {
-  it("the supabase entry exports SocialAuthButton, the provider buttons and the password recovery forms, pages and composables", () => {
+  it("the supabase entry exports SocialAuthButton, the provider buttons and the password recovery forms, pages and composables and the login page", () => {
     expect(Object.keys(entry).sort()).toEqual(
       ["SocialAuthButton", ...PROVIDER_BUTTONS, ...PASSWORD_RECOVERY].sort(),
     );
