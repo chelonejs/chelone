@@ -196,10 +196,12 @@ describe("probe A: churn with async validation in flight", () => {
       // submit forces the validator to run and park.
       binding.setValue(`v${i}`);
       const submit = controller.submit();
-      await vi.waitFor(
-        () => expect(validator.mock.calls.length).toBeGreaterThan(i),
-        { interval: 5 },
-      );
+      // Wait on THIS cycle's parked call (every earlier one was released), not
+      // the cumulative call count: form-core runs the validator from a timer
+      // that detach clears, so detaching before it fires strands `submit`.
+      await vi.waitFor(() => expect(resolvers.length).toBeGreaterThan(0), {
+        interval: 5,
+      });
       const controllers = abortControllersOf(form, "title");
       expect(controllers.length, `cycle ${i}: parked`).toBeGreaterThanOrEqual(
         1,
