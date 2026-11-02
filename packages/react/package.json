@@ -107,6 +107,7 @@
     "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
     "@turf/difference": "^7.4.0",
+    "@turf/simplify": "^7.4.0",
     "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
     "papaparse": "^5.4.0",
@@ -130,6 +131,9 @@
       "optional": true
     },
     "@turf/difference": {
+      "optional": true
+    },
+    "@turf/simplify": {
       "optional": true
     },
     "maplibre-gl": {
@@ -161,6 +165,7 @@
     "@tanstack/react-store": "^0.11.0",
     "@testing-library/react": "^16.0.0",
     "@turf/difference": "^7.4.0",
+    "@turf/simplify": "^7.4.0",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
