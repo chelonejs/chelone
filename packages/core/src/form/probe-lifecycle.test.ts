@@ -235,7 +235,8 @@ describe("probe A: churn with async validation in flight", () => {
     binding.destroy();
     controller.destroy();
     expect(devtools.net()).toBe(0);
-  });
+    // 20s: 50 cycles of `vi.waitFor` outrun the 5s default on 2-core CI.
+  }, 20_000);
 });
 
 // ===========================================================================
