@@ -18,7 +18,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json",
-    "./monaco": "./src/monaco.ts"
+    "./monaco": "./src/monaco.ts",
+    "./mdx-editor": "./src/mdx-editor.ts",
+    "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-theme.css"
   },
   "publishConfig": {
     "access": "public",
@@ -33,12 +35,17 @@
       "./monaco": {
         "types": "./dist/monaco.d.ts",
         "default": "./dist/monaco.js"
-      }
+      },
+      "./mdx-editor": {
+        "types": "./dist/mdx-editor.d.ts",
+        "default": "./dist/mdx-editor.js"
+      },
+      "./mdx-editor.css": "./dist/components/mdx-editor/mdx-editor-theme.css"
     }
   },
   "scripts": {
-    "build": "vite build && vue-tsc -p tsconfig.build.json && node ../../scripts/dts-extensions.mjs dist",
-    "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only",
+    "build": "vite build && vue-tsc -p tsconfig.build.json && node ../../scripts/strip-dts-css-imports.mjs dist && node ../../scripts/dts-extensions.mjs dist",
+    "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only --exclude-entrypoints ./mdx-editor.css",
     "test": "vitest run --typecheck",
     "typecheck": "vue-tsc --noEmit",
     "registry:generate": "node ../../scripts/registry/generate-registry.mjs",
@@ -52,6 +59,8 @@
   },
   "peerDependencies": {
     "@guolao/vue-monaco-editor": "^1.6.0",
+    "@milkdown/crepe": "^7.23.0",
+    "@milkdown/kit": "^7.23.0",
     "@tanstack/vue-query": "^5.0.0",
     "monaco-editor": "^0.57.0",
     "vue": "^3.4.0",
@@ -61,6 +70,12 @@
     "@guolao/vue-monaco-editor": {
       "optional": true
     },
+    "@milkdown/crepe": {
+      "optional": true
+    },
+    "@milkdown/kit": {
+      "optional": true
+    },
     "monaco-editor": {
       "optional": true
     }
@@ -68,6 +83,8 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.0",
     "@guolao/vue-monaco-editor": "^1.6.0",
+    "@milkdown/crepe": "^7.23.0",
+    "@milkdown/kit": "^7.23.0",
     "@tanstack/vue-query": "^5.0.0",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/test-utils": "^2.4.0",

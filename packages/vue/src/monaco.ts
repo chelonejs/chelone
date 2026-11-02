@@ -5,3 +5,7 @@ export {
   default as MonacoJsonField,
   type MonacoJsonFieldProps,
 } from "./components/monaco/monaco-json-field.vue";
+export {
+  default as MonacoJsonInput,
+  type MonacoJsonInputProps,
+} from "./components/monaco/monaco-json-input.vue";

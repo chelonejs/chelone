@@ -5,12 +5,16 @@
  */
 
 import Skeleton from "../../ui/skeleton.vue";
+
+// Without a `height` the placeholder keeps its default 120px.
+defineProps<{ height?: number }>();
 </script>
 
 <template>
   <Skeleton
     role="status"
     aria-label="Loading editor"
-    class="h-[120px] w-full border"
+    :class="`${height == null ? 'h-[120px] ' : ''}w-full border`"
+    :style="height == null ? undefined : { height: `${height}px` }"
   />
 </template>
