@@ -29,15 +29,28 @@ function sourceFiles(folder: string): string[] {
 }
 
 describe("the maps entry", () => {
-  it("exports exactly MapCanvas, MapMarker, MapsProvider, useMap, useMapMarker, useMapsConfig, LatLngField and LatLngInput", async () => {
+  it("exports exactly MapCanvas, MapMarker, MapsProvider, useMap, useMapMarker, useMapsConfig, LatLngField, LatLngInput, GeoJsonField, GeoJsonView, useGeoJsonSource, PointField, MultiPointField, LineStringField, MultiLineStringField, PolygonField, MultiPolygonField, GeometryCollectionField, FeatureField, FeatureCollectionField and BBoxField", async () => {
     const entry = await import("./maps");
     expect(Object.keys(entry).sort()).toEqual(
       [
+        "BBoxField",
+        "FeatureCollectionField",
+        "FeatureField",
+        "GeoJsonField",
+        "GeoJsonView",
+        "GeometryCollectionField",
         "LatLngField",
         "LatLngInput",
+        "LineStringField",
         "MapCanvas",
         "MapMarker",
         "MapsProvider",
+        "MultiLineStringField",
+        "MultiPointField",
+        "MultiPolygonField",
+        "PointField",
+        "PolygonField",
+        "useGeoJsonSource",
         "useMap",
         "useMapMarker",
         "useMapsConfig",
