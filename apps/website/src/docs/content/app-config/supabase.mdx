@@ -111,12 +111,15 @@ need the same setup:
    rejection, so an unauthenticated user cannot be redirected to the callback
    page. The route is public and sits outside the gate.
 
-In React, set `authCallbackPage`:
+In React, set the `authCallback` prop to an element:
 
 ```tsx
 import { AuthCallback } from "@/components/admin/auth/auth-callback";
 
-<Admin authProvider={supabaseAuthProvider(supabase)} authCallbackPage={AuthCallback}>
+<Admin
+  authProvider={supabaseAuthProvider(supabase)}
+  authCallback={<AuthCallback />}
+>
   ...
 </Admin>;
 ```
