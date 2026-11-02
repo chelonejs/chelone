@@ -40,7 +40,7 @@ const WORKSPACE_NPM_DEPS = new Set(["@chelone/core", ENGINE_PACKAGE]);
 const stripComments = (src) =>
   src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 
-const parseImports = (src) => {
+const parseImports = (src, { followDynamicImports = false } = {}) => {
   const clean = stripComments(src);
   const imports = new Set();
   for (const m of clean.matchAll(/\bfrom\s+["']([^"']+)["']/g)) {
@@ -48,6 +48,12 @@ const parseImports = (src) => {
   }
   for (const m of clean.matchAll(/^\s*import\s+["']([^"']+)["']/gm)) {
     imports.add(m[1]);
+  }
+  // A lazy chunk is still a file the consumer needs installed.
+  if (followDynamicImports) {
+    for (const m of clean.matchAll(/\bimport\(\s*["']([^"']+)["']\s*\)/g)) {
+      imports.add(m[1]);
+    }
   }
   return [...imports];
 };
@@ -243,6 +249,7 @@ export const granularizeBlock = ({
   blockName,
   extraRegistryDependencies = [],
   extraDependencies = [],
+  followDynamicImports = false,
 }) => {
   // The engine package's public-API surface — every ENGINE symbol a copied
   // component imports MUST be re-exported here, or the emit-time rewrite
@@ -304,7 +311,7 @@ export const granularizeBlock = ({
     for (const file of group.files) {
       const absFile = resolve(repoRoot, file);
       const src = importSource(file, readFileSync(absFile, "utf8"));
-      const imports = parseImports(src);
+      const imports = parseImports(src, { followDynamicImports });
 
       for (const imp of imports) {
         // Class A — ENGINE relative. Resolves to a src/ file OUTSIDE the shipped

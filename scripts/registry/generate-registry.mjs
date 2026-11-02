@@ -279,6 +279,7 @@ const main = async () => {
         packageJson,
         repoRoot,
         blockName: block.name,
+        followDynamicImports: block.followDynamicImports,
       });
       for (const g of granular) {
         g.categories = categoriesForGranular(g.name, g.type);
