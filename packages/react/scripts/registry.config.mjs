@@ -75,6 +75,9 @@ export const categoriesForGranular = (name, type) => {
  *   import of an optional peer (peerDependenciesMeta) counts as a dependency,
  *   so an add-on keeps its packages off the base install and its item still
  *   lists them. Without the flag the block keeps its explicit `dependencies`.
+ * - itemDependencies: npm packages added to every granular item of the block,
+ *   whether or not that file imports them, so a single installed item (a field
+ *   that only wraps a canvas) still declares the add-on's package.
  */
 export const blocks = [
   {
@@ -130,6 +133,19 @@ export const blocks = [
     sourceDirs: [
       { path: "src/components/mdx-editor", recursive: true, cssExtensions: true },
     ],
+  },
+  {
+    name: "maps",
+    type: "registry:block",
+    title: "Chelone Maps",
+    categories: ["chelone", "fields"],
+    description:
+      "The opt-in maps add-on: MapCanvas and MapMarker wrap MapLibre GL, MapsProvider sets the basemap once, and LatLngField shows a point from two record fields. Installs maplibre-gl.",
+    docs: "MapCanvas loads the MapLibre stylesheet itself. The library ships no tile server, so mount MapsProvider once near the root with a mapStyle (rasterTileStyle({ tileUrl, attribution }) from @chelone/core, or a MapLibre style URL), or pass mapStyle to each map. Browsers cap live WebGL contexts near 16 per page, so keep long lists of maps short.",
+    granularize: true,
+    inferDependencies: true,
+    itemDependencies: ["maplibre-gl"],
+    sourceDirs: [{ path: "src/components/maps", recursive: true }],
   },
 ];
 

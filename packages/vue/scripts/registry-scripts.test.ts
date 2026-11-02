@@ -429,3 +429,30 @@ it("a block without inferDependencies gets no dependencies", () => {
   expect(fixture.item("map").dependencies).toEqual(["maplibre-gl"]);
   expect(fixture.item("admin").dependencies).toBeUndefined();
 });
+
+it("itemDependencies lists its packages on every granular item and the block item", () => {
+  const fixture = generatorFixture(
+    {
+      ...mapAndDraw,
+      "src/components/admin/plain.vue":
+        "<template><p>no imports</p></template>\n",
+    },
+    vueEngine,
+    {
+      packageJson: mapAndDrawPeers,
+      adminExtras:
+        'inferDependencies: true, itemDependencies: ["maplibre-gl"],',
+    },
+  );
+
+  expect(fixture.stderr).toBe("");
+  expect(fixture.item("plain").dependencies).toEqual(["maplibre-gl"]);
+  expect(fixture.item("draw").dependencies).toEqual([
+    "maplibre-gl",
+    "terra-draw",
+  ]);
+  expect(fixture.item("admin").dependencies).toEqual([
+    "maplibre-gl",
+    "terra-draw",
+  ]);
+});
