@@ -34,7 +34,10 @@ export interface GeocodingInputProps {
  * A text field that searches an address with a geocoding provider and fills
  * the form with the result the user picks. A provider that allows typeahead
  * searches as the user types; any other searches on Enter or on the button.
- * Typing changes only what the field shows: the form is written on a pick.
+ * Typed text reaches the form when the field loses focus, so an address no
+ * provider finds can still be entered by hand, and clears `latSource`,
+ * `lngSource` and `bboxSource` so they never describe a different address; a
+ * pick writes the result's `displayName` and its coordinates.
  *
  * The list is a native `listbox` under a `combobox` input, since Vue's ui set
  * has no command component.
@@ -146,6 +149,14 @@ function runSearch() {
   open.value = true;
 }
 
+// A hand-typed address no longer matches the position of an earlier pick.
+function writeTyped() {
+  setValue(text.value);
+  if (wrappedLat) form.setFieldValue(wrappedLat, null);
+  if (wrappedLng) form.setFieldValue(wrappedLng, null);
+  if (wrappedBbox) form.setFieldValue(wrappedBbox, null);
+}
+
 function pick(result: GeocodeResult) {
   setValue(result.displayName);
   text.value = result.displayName;
@@ -169,6 +180,7 @@ function move(step: 1 | -1) {
 function onBlur() {
   open.value = false;
   active.value = -1;
+  if (text.value !== saved.value) writeTyped();
   blur();
 }
 
@@ -258,6 +270,13 @@ const placeholderText = computed(
           class="px-2 py-3 text-sm text-muted-foreground"
         >
           {{ translate("chelone.map.searching") }}
+        </p>
+        <p
+          v-else-if="search.isError.value"
+          role="alert"
+          class="px-2 py-3 text-sm text-muted-foreground"
+        >
+          {{ translate("chelone.map.search_failed") }}
         </p>
         <p
           v-else-if="results.length === 0"

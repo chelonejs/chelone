@@ -369,7 +369,7 @@ describe("GeocodingInput", () => {
     expect(wrapper.text()).not.toContain("Searching...");
   });
 
-  it("shows no results when the provider throws", async () => {
+  it("says the search failed when the provider throws", async () => {
     const { provider } = fakeProvider({
       search: async () => {
         throw new Error("offline");
@@ -381,7 +381,65 @@ describe("GeocodingInput", () => {
     await field(wrapper).trigger("keydown", { key: "Enter" });
     await settle();
 
-    expect(wrapper.text()).toContain("No results");
+    expect(wrapper.get('[role="alert"]').text()).toBe(
+      "The search failed, try again shortly",
+    );
+    expect(wrapper.text()).not.toContain("No results");
+  });
+
+  it("writes typed text to the form on blur", async () => {
+    const { wrapper, probe } = await setup();
+
+    await type(wrapper, "12 Rue de Rivoli, Paris");
+    expect(probe("address")).toBe('""|false');
+    await field(wrapper).trigger("blur");
+
+    expect(probe("address")).toBe('"12 Rue de Rivoli, Paris"|true');
+    expect(field(wrapper).element.value).toBe("12 Rue de Rivoli, Paris");
+  });
+
+  it("clears the coordinates of an earlier pick when the address is retyped by hand", async () => {
+    const { wrapper, probe } = await setup({
+      latSource: "latitude",
+      lngSource: "longitude",
+      bboxSource: "bbox",
+    });
+
+    await type(wrapper, "Paris");
+    await field(wrapper).trigger("keydown", { key: "Enter" });
+    await settle();
+    await optionNamed(wrapper, "Paris, France").trigger("click");
+    expect(probe("latitude")).toBe("48.8566|true");
+
+    await type(wrapper, "12 Rue de Rivoli, Lyon");
+    await field(wrapper).trigger("blur");
+
+    expect(probe("address")).toBe('"12 Rue de Rivoli, Lyon"|true');
+    expect(probe("latitude")).toMatch(/^null\|/);
+    expect(probe("longitude")).toMatch(/^null\|/);
+    expect(probe("bbox")).toMatch(/^null\|/);
+  });
+
+  it("leaves the coordinates alone when the sources are not set", async () => {
+    const { wrapper, probe } = await setup(
+      {},
+      { record: { ...emptyAddress, latitude: 1 } },
+    );
+
+    await type(wrapper, "12 Rue de Rivoli, Lyon");
+    await field(wrapper).trigger("blur");
+
+    expect(probe("address")).toBe('"12 Rue de Rivoli, Lyon"|true');
+    expect(probe("latitude")).toBe("1|false");
+  });
+
+  it("does not write the form when the field is blurred unchanged", async () => {
+    const { wrapper, probe } = await setup();
+
+    await field(wrapper).trigger("focus");
+    await field(wrapper).trigger("blur");
+
+    expect(probe("address")).toBe('""|false');
   });
 
   it("shows the type under each result", async () => {
@@ -483,7 +541,7 @@ describe("GeocodingInput", () => {
     await type(wrapper, "Paris");
     await field(wrapper).trigger("keydown", { key: "Enter" });
     await settle();
-    expect(wrapper.text()).toContain("No results");
+    expect(wrapper.text()).toContain("The search failed, try again shortly");
 
     await field(wrapper).trigger("keydown", { key: "Escape" });
     await field(wrapper).trigger("keydown", { key: "Enter" });
