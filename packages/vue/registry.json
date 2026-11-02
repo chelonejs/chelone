@@ -5876,6 +5876,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/maps/geo-json-layers.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/maps/geo-json-view.vue",
           "type": "registry:component"
         },
@@ -5931,13 +5935,27 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": [
-        "@chelone/geo-json-view",
-        "@chelone/lib-utils",
-        "@chelone/map-canvas"
-      ],
+      "registryDependencies": ["@chelone/geo-json-view", "@chelone/lib-utils"],
       "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "geo-json-layers",
+      "type": "registry:component",
+      "title": "Geo Json Layers",
+      "files": [
+        {
+          "path": "src/components/maps/geo-json-layers.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/use-geo-json-source",
+        "@chelone/use-map"
+      ],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -5951,8 +5969,8 @@
         }
       ],
       "registryDependencies": [
-        "@chelone/use-geo-json-source",
-        "@chelone/use-map"
+        "@chelone/geo-json-layers",
+        "@chelone/map-canvas"
       ],
       "dependencies": ["@chelone/core", "maplibre-gl"],
       "categories": ["chelone", "components"],
@@ -6070,7 +6088,7 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/field",
-        "@chelone/geo-json-view",
+        "@chelone/geo-json-layers",
         "@chelone/input-helper-text",
         "@chelone/label-text",
         "@chelone/lib-utils",
@@ -6246,7 +6264,7 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/field",
-        "@chelone/geo-json-view",
+        "@chelone/geo-json-layers",
         "@chelone/geometry-ops",
         "@chelone/input-helper-text",
         "@chelone/label-text",
