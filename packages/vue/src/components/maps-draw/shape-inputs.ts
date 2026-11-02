@@ -1,10 +1,15 @@
-import type { ShapeValue, ShapeValueKind } from "@chelone/core";
+import type {
+  RoutingProvider,
+  ShapeValue,
+  ShapeValueKind,
+} from "@chelone/core";
 import {
   type ComponentObjectPropsOptions,
   defineComponent,
   h,
   type SetupContext,
 } from "vue";
+import { useMapsConfig } from "../maps/use-map";
 import ShapeInput, { type ShapeInputProps } from "./shape-input.vue";
 import type { DrawTool } from "./use-terra-draw";
 
@@ -123,11 +128,61 @@ export const MultiPointInput = fixedKind(
   MULTI_POINT_TOOLS,
 );
 
-/** Edits a GeoJSON LineString. A new line replaces the old one. */
-export const LineStringInput = fixedKind(
-  "LineStringInput",
-  "LineString",
-  LINE_TOOLS,
+export interface LineStringInputProps extends GeoJsonInputBaseProps {
+  /**
+   * Snap each line the user draws or edits to the road network. `true` uses the
+   * `router` of `MapsProvider`; a `RoutingProvider` is used as given. A saved
+   * line is left alone until the user edits it, and a failed snap keeps the
+   * drawn line. Takes the place of `refine`.
+   */
+  snapToRoads?: boolean | RoutingProvider;
+}
+
+/** A `refine` that snaps a line of two or more positions with `router`. */
+function snapRefine(router: RoutingProvider): GeoJsonInputBaseProps["refine"] {
+  return (value, { signal }) => {
+    if (!("type" in value) || value.type !== "LineString") return null;
+    if (value.coordinates.length < 2) return null;
+    return router.snapToRoad(value, { signal });
+  };
+}
+
+/**
+ * Edits a GeoJSON LineString. A new line replaces the old one.
+ *
+ * @example
+ * <LineStringInput source="route" snap-to-roads />
+ */
+export const LineStringInput = defineComponent(
+  (props: LineStringInputProps, { emit }) => {
+    const config = useMapsConfig();
+    const router = (): RoutingProvider | undefined => {
+      const { snapToRoads } = props;
+      return snapToRoads === true ? config.router : snapToRoads || undefined;
+    };
+    if (props.snapToRoads === true && !router()) {
+      throw new Error(
+        "LineStringInput needs a routing provider for `snapToRoads`: pass a RoutingProvider as the prop or set `router` on <MapsProvider>.",
+      );
+    }
+    return () => {
+      const { snapToRoads: _snap, ...rest } = props;
+      const provider = router();
+      return renderShape(
+        provider ? { ...rest, refine: snapRefine(provider) } : rest,
+        emit,
+        "LineString",
+        LINE_TOOLS,
+      );
+    };
+  },
+  {
+    name: "LineStringInput",
+    props: propsOf<LineStringInputProps>({
+      snapToRoads: { type: [Boolean, Object], default: false },
+    }),
+    emits,
+  },
 );
 
 /** Edits a GeoJSON MultiLineString. Each line is its own editable feature. */
