@@ -103,7 +103,7 @@ export const blocks = [
       {
         path: "src/components/admin",
         recursive: true,
-        excludeDirs: ["csv-import"],
+        excludeDirs: ["csv-import", "supabase"],
       },
     ],
     extraFiles: [
@@ -163,6 +163,17 @@ export const blocks = [
     granularize: true,
     inferDependencies: true,
     sourceDirs: [{ path: "src/components/admin/csv-import", recursive: true }],
+  },
+  {
+    name: "addon-supabase",
+    type: "registry:block",
+    title: "Chelone Supabase",
+    categories: ["chelone", "authentication"],
+    description:
+      "The opt-in Supabase add-on: SocialAuthButton and one sign-in button per OAuth provider (Apple to WorkOS). Installs @chelone/supabase.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [{ path: "src/components/admin/supabase", recursive: true }],
   },
 ];
 
