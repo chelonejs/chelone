@@ -70,6 +70,8 @@ export const categoriesForGranular = (name, type) => {
  *   subdirectories.
  * - extraFiles: additional files (libs, hooks) that don't live in a sourceDir.
  * - granularize: also emit one flat `@chelone/<basename>` item per file.
+ * - followDynamicImports: also read `import("...")` when deriving a granular
+ *   item's dependencies, so an item that lazy-loads a sibling file lists it.
  * - inferDependencies: set the block item's `dependencies` to the sorted union
  *   of its granular items' `dependencies`, replacing any explicit list. An
  *   import of an optional peer (peerDependenciesMeta) counts as a dependency,
@@ -102,6 +104,19 @@ export const blocks = [
       { path: "src/lib/shallow-equal.ts", type: "registry:lib" },
       { path: "src/lib/utils.ts", type: "registry:lib" },
     ],
+  },
+  {
+    name: "monaco",
+    type: "registry:block",
+    title: "Chelone Monaco",
+    categories: ["chelone", "fields"],
+    description:
+      "The opt-in Monaco add-on: MonacoJsonField shows a JSON value in a read-only Monaco editor. Monaco loads in its own chunk, so nothing reaches the base bundle until the field renders. Installs monaco-editor and @guolao/vue-monaco-editor.",
+    docs: "Monaco runs its editor and JSON workers on the main thread unless the app sets MonacoEnvironment.getWorker. With Vite, import the workers with ?worker (editor.worker and json.worker from monaco-editor/esm/vs/...) and assign getWorker on self before the first render. Without it Monaco logs a console warning and still works.",
+    granularize: true,
+    inferDependencies: true,
+    followDynamicImports: true,
+    sourceDirs: [{ path: "src/components/monaco", recursive: true }],
   },
 ];
 
