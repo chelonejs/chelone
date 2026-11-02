@@ -148,6 +148,35 @@ function makeAsyncValidator() {
   return { validator, resolvers };
 }
 
+const STALL_MS = 10_000;
+
+/**
+ * Settles with `work`, or fails naming the cycle and the await once `work` has
+ * not settled within STALL_MS. A slow runner finishes inside the test timeout;
+ * a stalled await fails here first with a label instead of a bare timeout.
+ */
+async function awaiting<T>(
+  cycle: number | string,
+  what: string,
+  work: Promise<T>,
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const stalled = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`did not settle in ${STALL_MS}ms`)),
+      STALL_MS,
+    );
+  });
+  try {
+    return await Promise.race([work, stalled]);
+  } catch (cause) {
+    const reason = cause instanceof Error ? cause.message : String(cause);
+    throw new Error(`cycle ${cycle}: ${what}: ${reason}`, { cause });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function makeCtx(): FormControllerContext<typeof resources> & {
   queryClient: QueryClient;
   notifications: ReturnType<typeof createNotificationStore>;
@@ -186,6 +215,32 @@ describe("probe A: churn with async validation in flight", () => {
       { source: "title", validate: validator },
     );
 
+    // Latch the binding's async slot before the loop. On a binding's first
+    // validation the sync probe calls the validator inline, so `resolvers`
+    // fills before the submit's async validation timer has fired; detaching
+    // then clears that timer and `submit` never settles. Once latched, the
+    // validator runs only from that timer, so a parked call means it fired.
+    // Not covered: detaching during a binding's first validation. form-core
+    // 1.33.0 leaves a `submit()` in flight at unmount unsettled, so no cycle
+    // here can prove that case does not hang; it is an upstream behaviour.
+    {
+      const offForm = controller.subscribe(noop);
+      const offField = binding.subscribe(noop);
+      const warmUp = controller.submit();
+      await awaiting(
+        "warm-up",
+        "vi.waitFor for the parked validator",
+        vi.waitFor(() => expect(resolvers.length).toBeGreaterThan(0), {
+          timeout: STALL_MS - 1_000,
+        }),
+      );
+      for (const release of resolvers.splice(0)) release(undefined);
+      await awaiting("warm-up", "await submit", warmUp);
+      offField();
+      offForm();
+      expect(resolvers, "warm-up: nothing left parked").toHaveLength(0);
+    }
+
     for (let i = 0; i < 50; i++) {
       const offForm = controller.subscribe(noop);
       const offField = binding.subscribe(noop);
@@ -196,8 +251,15 @@ describe("probe A: churn with async validation in flight", () => {
       // submit forces the validator to run and park.
       binding.setValue(`v${i}`);
       const submit = controller.submit();
-      await vi.waitFor(() =>
-        expect(validator.mock.calls.length).toBeGreaterThan(i),
+      // Wait on THIS cycle's parked call (every earlier one was released), not
+      // the cumulative call count: form-core runs the validator from a timer
+      // that detach clears, so detaching before it fires strands `submit`.
+      await awaiting(
+        i,
+        "vi.waitFor for the parked validator",
+        vi.waitFor(() => expect(resolvers.length).toBeGreaterThan(0), {
+          timeout: STALL_MS - 1_000,
+        }),
       );
       const controllers = abortControllersOf(form, "title");
       expect(controllers.length, `cycle ${i}: parked`).toBeGreaterThanOrEqual(
@@ -222,9 +284,12 @@ describe("probe A: churn with async validation in flight", () => {
       expect(devtools.net(), `cycle ${i}: fully detached`).toBe(0);
 
       // Release the parked validator AFTER detach — the late result must be
-      // swallowed (no throw, no error channel resurrection).
-      resolvers.shift()?.("late-error");
-      await submit;
+      // swallowed (no throw, no error channel resurrection). Every parked
+      // call is released: a cycle can park more than one, and a call left
+      // parked would leave `await submit` waiting on it.
+      for (const release of resolvers.splice(0)) release("late-error");
+      await awaiting(i, "await submit", submit);
+      expect(resolvers, `cycle ${i}: nothing left parked`).toHaveLength(0);
     }
 
     // No accumulated instances / listeners / timers after 50 cycles.
@@ -235,8 +300,9 @@ describe("probe A: churn with async validation in flight", () => {
     binding.destroy();
     controller.destroy();
     expect(devtools.net()).toBe(0);
-    // 20s: 50 cycles of `vi.waitFor` outrun the 5s default on 2-core CI.
-  }, 20_000);
+    // 30s: a slow CI runner finishes inside it; `awaiting` fails a real stall
+    // at 10s, with the cycle and the await named.
+  }, 30_000);
 });
 
 // ===========================================================================
