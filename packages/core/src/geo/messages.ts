@@ -21,6 +21,7 @@ export const mapMessages = defineMessages({
   "chelone.map.search_button": "Search",
   "chelone.map.searching": "Searching...",
   "chelone.map.no_results": "No results",
+  "chelone.map.search_failed": "The search failed, try again shortly",
   "chelone.map.simplify.tolerance": "Tolerance: {value}",
   "chelone.map.simplify.default": "Default",
   "chelone.map.simplify.high": "High",
