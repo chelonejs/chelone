@@ -424,6 +424,11 @@ export { default as SingleFieldList } from "./admin/list/single-field-list.vue";
 export type { TreeListProps } from "./admin/list/tree-list.vue";
 export { default as TreeList } from "./admin/list/tree-list.vue";
 // --- admin: views ---------------------------------------------------------
+export type {
+  CommentRecord,
+  CommentsThreadProps,
+} from "./admin/realtime/comments-thread.vue";
+export { default as CommentsThread } from "./admin/realtime/comments-thread.vue";
 export type { EditLiveProps } from "./admin/realtime/edit-live.vue";
 export { default as EditLive } from "./admin/realtime/edit-live.vue";
 export type { ListLiveProps } from "./admin/realtime/list-live.vue";
