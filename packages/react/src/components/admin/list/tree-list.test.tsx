@@ -23,7 +23,7 @@ import {
   within,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { MemoryRouter, useLocation } from "react-router";
+import { HashRouter, MemoryRouter, useLocation } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Admin } from "../../../admin/admin";
 import { Resource } from "../../../resource";
@@ -58,7 +58,9 @@ function mount({
   }),
   edit = true,
   show = true,
+  hash = false,
 }: {
+  hash?: boolean;
   tree?: Partial<TreeListProps>;
   dataProvider?: DataProvider;
   queryClient?: QueryClient;
@@ -71,8 +73,9 @@ function mount({
       <TreeList parentSource="parent_id" {...tree} />
     </List>
   );
+  const Router = hash ? HashRouter : MemoryRouter;
   return render(
-    <MemoryRouter initialEntries={["/categories"]}>
+    <Router {...(hash ? {} : { initialEntries: ["/categories"] })}>
       <Path />
       <Admin
         dataProvider={dataProvider}
@@ -90,7 +93,7 @@ function mount({
           show={show ? View : undefined}
         />
       </Admin>
-    </MemoryRouter>,
+    </Router>,
   );
 }
 
@@ -251,6 +254,15 @@ describe("<TreeList>", () => {
     mount({ tree: { linkType: "show" } });
     await screen.findByRole("tree");
     expect(row("Root B").getAttribute("href")).toBe("/categories/4/show");
+  });
+
+  it("a row link follows the host router, so a hash router gives a hash href", async () => {
+    window.location.hash = "#/categories";
+    mount({ hash: true });
+    await screen.findByRole("tree");
+
+    expect(row("Root B").getAttribute("href")).toBe("#/categories/4");
+    window.location.hash = "";
   });
 
   it("linkType false leaves rows inert", async () => {

@@ -19,6 +19,7 @@ import { useGetRecordRepresentation } from "../../../label";
 import { cn } from "../../../lib/utils";
 import { useResourceContext, useResourceDefinition } from "../../../resource";
 import { useCreatePath, useNavigate } from "../../../router";
+import { useRouterAdapter } from "../../../router/adapter";
 import { ListNoResults } from "./list-no-results";
 import { SimpleListLoading } from "./simple-list-loading";
 
@@ -86,6 +87,7 @@ function TreeListNode({
   tree: TreeListState;
 }) {
   const translate = useTranslate();
+  const { Link } = useRouterAdapter();
   const { record, children } = node;
   const isBranch = children.length > 0;
   const open = isBranch && tree.isExpanded(record.id);
@@ -207,9 +209,9 @@ function TreeListNode({
           <span className="size-6 shrink-0" aria-hidden="true" />
         )}
         {href ? (
-          <a {...rowProps} href={href}>
+          <Link {...rowProps} to={href}>
             {rowContent}
-          </a>
+          </Link>
         ) : selectable ? (
           <button {...rowProps} type="button">
             {rowContent}
