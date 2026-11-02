@@ -2,10 +2,14 @@ import { geoBounds } from "./bounds";
 import type { GeoBBox, GeoGeometry, GeoPolygon } from "./geojson";
 import { isGeoBBox } from "./geojson";
 
-/** The closed rectangle ring of a bbox; `null` unless it is four finite numbers. */
+/**
+ * The closed rectangle ring of a bbox; `null` unless it is four finite numbers.
+ * A box with west greater than east crosses 180: its ring runs east of 180.
+ */
 export function bboxToPolygon(bbox: unknown): GeoPolygon | null {
   if (!isGeoBBox(bbox)) return null;
-  const [west, south, east, north] = bbox;
+  const [west, south, rawEast, north] = bbox;
+  const east = west > rawEast ? rawEast + 360 : rawEast;
   return {
     type: "Polygon",
     coordinates: [
@@ -20,13 +24,20 @@ export function bboxToPolygon(bbox: unknown): GeoPolygon | null {
   };
 }
 
-/** The box around a Polygon; `null` for any other geometry. */
+/** The box around a Polygon, west greater than east across 180; `null` for any other geometry. */
 export function polygonToBBox(geometry: GeoGeometry): GeoBBox | null {
-  return geometry.type === "Polygon" ? geoBounds(geometry) : null;
+  return geometry.type === "Polygon" ? geoBounds(geometry, "explicit") : null;
 }
 
 // Float noise from `w / h` must not count as a mismatch.
 const RATIO_TOLERANCE = 1e-9;
+
+const wrapLongitude = (longitude: number) =>
+  longitude > 180
+    ? longitude - 360
+    : longitude < -180
+      ? longitude + 360
+      : longitude;
 
 /**
  * Builds a polygon-to-bbox function whose box has width over height equal to
@@ -41,14 +52,24 @@ export function aspectLockedBBox(
     const bbox = polygonToBBox(geometry);
     if (!bbox || !Number.isFinite(ratio) || ratio <= 0) return bbox;
     const [west, south, east, north] = bbox;
-    const width = east - west;
+    // A box across 180 has west greater than east; measure it unwrapped.
+    const crossing = west > east;
+    const unwrappedEast = crossing ? east + 360 : east;
+    const width = unwrappedEast - west;
     const height = north - south;
     if (width <= 0 || height <= 0) return bbox;
     const current = width / height;
     if (Math.abs(current - ratio) <= RATIO_TOLERANCE * ratio) return bbox;
     if (current < ratio) {
       const grow = (height * ratio - width) / 2;
-      return [west - grow, south, east + grow, north];
+      if (!crossing) return [west - grow, south, east + grow, north];
+      if (width + 2 * grow >= 360) return [-180, south, 180, north];
+      return [
+        wrapLongitude(west - grow),
+        south,
+        wrapLongitude(unwrappedEast + grow),
+        north,
+      ];
     }
     const grow = (width / ratio - height) / 2;
     return [west, south - grow, east, north + grow];

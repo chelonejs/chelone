@@ -59,6 +59,12 @@ describe("subtractMask", () => {
     expect(subtractMask(input, [])).toBe(input);
   });
 
+  it("removes the overlap from a polygon across 180", () => {
+    const input = areaOf(square(170, 0, 190, 2));
+    const left = subtractMask(input, [square(180, -1, 195, 3)]);
+    expect(left && geoBounds(left)).toEqual([170, 0, 180, 2]);
+  });
+
   it("returns null when the mask covers the input", () => {
     const input = areaOf(square(1, 1, 2, 2));
     expect(subtractMask(input, [square(0, 0, 3, 3)])).toBeNull();

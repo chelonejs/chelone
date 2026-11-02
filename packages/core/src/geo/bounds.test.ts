@@ -107,6 +107,80 @@ describe("geoBounds", () => {
   });
 });
 
+describe("geoBounds across the antimeridian", () => {
+  it("geoBounds gives the narrow box for a polygon across 180", () => {
+    expect(
+      geoBounds({
+        type: "Polygon",
+        coordinates: [
+          [
+            [170, -10],
+            [190, -10],
+            [190, 10],
+            [170, 10],
+            [170, -10],
+          ],
+        ],
+      }),
+    ).toEqual([170, -10, -170, 10]);
+  });
+
+  it("gives the narrow box when the longitudes are written inside -180 to 180", () => {
+    expect(
+      geoBounds({
+        type: "MultiPoint",
+        coordinates: [
+          [170, 0],
+          [-175, 5],
+          [178, -5],
+        ],
+      }),
+    ).toEqual([170, -5, -175, 5]);
+  });
+
+  it("keeps the plain box when the points are not narrower across 180", () => {
+    expect(
+      geoBounds({
+        type: "MultiPoint",
+        coordinates: [
+          [-100, 0],
+          [0, 0],
+          [100, 0],
+        ],
+      }),
+    ).toEqual([-100, 0, 100, 0]);
+  });
+
+  it("keeps the plain box for a geometry that spans the whole world", () => {
+    expect(
+      geoBounds({
+        type: "Polygon",
+        coordinates: [
+          [
+            [-180, -90],
+            [180, -90],
+            [180, 90],
+            [-180, 90],
+            [-180, -90],
+          ],
+        ],
+      }),
+    ).toEqual([-180, -90, 180, 90]);
+  });
+
+  it("leaves coordinates that are not longitudes alone", () => {
+    expect(
+      geoBounds({
+        type: "MultiPoint",
+        coordinates: [
+          [261845, 6250566],
+          [-261845, 6250000],
+        ],
+      }),
+    ).toEqual([-261845, 6250000, 261845, 6250566]);
+  });
+});
+
 describe("isLngLatBox", () => {
   it("accepts a box inside -180 to 180 and -90 to 90", () => {
     expect(isLngLatBox([-180, -90, 180, 90])).toBe(true);

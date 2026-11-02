@@ -59,6 +59,8 @@ function boxesOverlap(a: GeoGeometry, b: GeoGeometry): boolean {
   const boxA = geoBounds(a);
   const boxB = geoBounds(b);
   if (!boxA || !boxB) return true;
+  // West greater than east means the box crosses 180; skip the shortcut.
+  if (boxA[0] > boxA[2] || boxB[0] > boxB[2]) return true;
   return (
     boxA[0] <= boxB[2] &&
     boxB[0] <= boxA[2] &&
