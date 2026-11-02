@@ -192,6 +192,52 @@ describe("<CsvImport>", () => {
     expect(heading()).toBe("Upload");
   });
 
+  it("says a dropped file of the wrong type was refused", async () => {
+    await importWith();
+    await openSheet();
+    const dropzone = document.querySelector(
+      '[data-slot="csv-import-dropzone"]',
+    ) as HTMLElement;
+    const file = new File(["title\nHello"], "posts.txt", {
+      type: "text/plain",
+    });
+    const drop = new Event("drop", { bubbles: true, cancelable: true });
+    Object.defineProperty(drop, "dataTransfer", { value: { files: [file] } });
+
+    dropzone.dispatchEvent(drop);
+    await flushPromises();
+
+    expect(text()).toContain("Choose a .csv file");
+    expect(nextButton()?.disabled).toBe(true);
+  });
+
+  it("warns when the file is not UTF-8", async () => {
+    await importWith();
+    await openSheet();
+    // "Caf\xe9" in Windows-1252, which is not valid UTF-8.
+    const bytes = new Uint8Array([
+      ...new TextEncoder().encode("title,views\nCaf"),
+      0xe9,
+      ...new TextEncoder().encode(",1\n"),
+    ]);
+    const input = document.querySelector<HTMLInputElement>(
+      '[data-testid="csv-file-input"]',
+    ) as HTMLInputElement;
+    const file = new File([bytes], "posts.csv", { type: "text/csv" });
+    Object.defineProperty(input, "files", {
+      value: [file],
+      configurable: true,
+    });
+
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+
+    await until(() => /rows parsed/.test(text()));
+    expect(text()).toContain(
+      "This file is not UTF-8, so some letters may be wrong. Save it as CSV UTF-8 and try again.",
+    );
+    expect(nextButton()?.disabled).toBe(false);
+  });
+
   it("the map step selects the header that matches each schema field", async () => {
     await importWith();
     await openSheet();
