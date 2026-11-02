@@ -220,6 +220,9 @@ describe("probe A: churn with async validation in flight", () => {
     // fills before the submit's async validation timer has fired; detaching
     // then clears that timer and `submit` never settles. Once latched, the
     // validator runs only from that timer, so a parked call means it fired.
+    // Not covered: detaching during a binding's first validation. form-core
+    // 1.33.0 leaves a `submit()` in flight at unmount unsettled, so no cycle
+    // here can prove that case does not hang; it is an upstream behaviour.
     {
       const offForm = controller.subscribe(noop);
       const offField = binding.subscribe(noop);
