@@ -26,6 +26,12 @@ const ADDONS = [
     entry: "src/mdx-editor.ts",
     packages: ["@mdxeditor/editor"],
   },
+  {
+    name: "maps",
+    folder: "src/components/maps",
+    entry: "src/maps.ts",
+    packages: ["maplibre-gl"],
+  },
 ];
 
 const BASE_ENTRIES = ["src/index.ts", "src/tanstack-router.ts"];

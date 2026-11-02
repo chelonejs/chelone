@@ -63,6 +63,7 @@ export default defineConfig({
         "src/tanstack-router.ts",
         "src/monaco.ts",
         "src/mdx-editor.ts",
+        "src/maps.ts",
       ],
       formats: ["es"],
     },

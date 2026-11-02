@@ -131,6 +131,18 @@ export const blocks = [
       { path: "src/components/mdx-editor", recursive: true, cssExtensions: true },
     ],
   },
+  {
+    name: "maps",
+    type: "registry:block",
+    title: "Chelone Maps",
+    categories: ["chelone", "fields"],
+    description:
+      "The opt-in maps add-on: MapCanvas and MapMarker wrap MapLibre GL, MapsProvider sets the basemap once, and LatLngField shows a point from two record fields. Installs maplibre-gl.",
+    docs: "MapCanvas loads the MapLibre stylesheet itself. The library ships no tile server, so mount MapsProvider once near the root with a mapStyle (rasterTileStyle({ tileUrl, attribution }) from @chelone/core, or a MapLibre style URL), or pass mapStyle to each map. Browsers cap live WebGL contexts near 16 per page, so keep long lists of maps short.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [{ path: "src/components/maps", recursive: true }],
+  },
 ];
 
 /**
