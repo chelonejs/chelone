@@ -33,8 +33,9 @@ export async function supabaseRequest(
   const session = client ? (await client.auth.getSession()).data.session : null;
   const headers = new Headers({ apikey: apiKey });
   const method = (init.method ?? "GET").toUpperCase();
-  if (schema && (method === "GET" || method === "HEAD")) {
-    headers.set("Accept-Profile", schema);
+  if (schema) {
+    const isRead = method === "GET" || method === "HEAD";
+    headers.set(isRead ? "Accept-Profile" : "Content-Profile", schema);
   }
   for (const source of [init.headers, extra]) {
     new Headers(source).forEach((value, name) => {

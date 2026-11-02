@@ -1,5 +1,7 @@
 import { HttpError } from "@chelone/core";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { supabaseAuthProvider } from "./auth-provider";
 import { supabaseDataProvider } from "./data-provider";
 
 const instanceUrl = "https://x.supabase.co";
@@ -245,24 +247,218 @@ describe("supabaseDataProvider", () => {
   });
 
   describe("writes", () => {
-    it("create, update, delete, updateMany and deleteMany are not implemented yet", async () => {
+    const sentBody = (fetchMock: ReturnType<typeof stubFetch>) =>
+      JSON.parse(String(fetchMock.mock.calls.at(-1)?.[1]?.body));
+    const sentMethod = (fetchMock: ReturnType<typeof stubFetch>) =>
+      fetchMock.mock.calls.at(-1)?.[1]?.method;
+    const compound = { primaryKeys: { post_tags: ["post_id", "tag_id"] } };
+
+    it("create POSTs the data and returns the representation", async () => {
+      const fetchMock = stubFetch(
+        respond({ id: 9, title: "a" }, { status: 201 }),
+      );
+
+      const result = await provider().create("posts", {
+        data: { title: "a" },
+      });
+
+      expect(result).toEqual({ data: { id: 9, title: "a" } });
+      expect(sentMethod(fetchMock)).toBe("POST");
+      expect(sentBody(fetchMock)).toEqual({ title: "a" });
+      const { url, headers } = lastCall(fetchMock);
+      expect(url.origin + url.pathname).toBe(`${instanceUrl}/rest/v1/posts`);
+      expect(headers.get("Prefer")).toBe("return=representation");
+      expect(headers.get("Accept")).toBe("application/vnd.pgrst.object+json");
+    });
+
+    it("create strips the virtual id of a compound-key resource and sets it on the result", async () => {
+      const fetchMock = stubFetch(
+        respond({ post_id: 1, tag_id: 2 }, { status: 201 }),
+      );
+
+      const result = await provider(compound).create("post_tags", {
+        data: { post_id: 1, tag_id: 2, id: "[1,2]" },
+      });
+
+      expect(sentBody(fetchMock)).toEqual({ post_id: 1, tag_id: 2 });
+      expect(result.data).toEqual({ post_id: 1, tag_id: 2, id: "[1,2]" });
+    });
+
+    it("a write sends Content-Profile for a schema", async () => {
+      const fetchMock = stubFetch(respond({ id: 1 }));
+      const posts = provider({ schema: "public" });
+
+      await posts.create("posts", { data: {} });
+      expect(lastCall(fetchMock).headers.get("Content-Profile")).toBe("public");
+      expect(lastCall(fetchMock).headers.has("Accept-Profile")).toBe(false);
+
+      await posts.update("posts", {
+        id: 1,
+        data: {},
+        previousData: { id: 1 },
+        meta: { schema: "billing" },
+      });
+      expect(lastCall(fetchMock).headers.get("Content-Profile")).toBe(
+        "billing",
+      );
+
+      await posts.delete("posts", { id: 1, meta: { schema: "billing" } });
+      expect(lastCall(fetchMock).headers.get("Content-Profile")).toBe(
+        "billing",
+      );
+    });
+
+    it("update PATCHes the id filter without the primary key in the body and returns the row", async () => {
+      const fetchMock = stubFetch(respond({ id: 7, title: "b" }));
+
+      const result = await provider().update("posts", {
+        id: 7,
+        data: { id: 7, title: "b" },
+        previousData: { id: 7, title: "a" },
+      });
+
+      expect(result).toEqual({ data: { id: 7, title: "b" } });
+      expect(sentMethod(fetchMock)).toBe("PATCH");
+      expect(sentBody(fetchMock)).toEqual({ title: "b" });
+      const { url, headers } = lastCall(fetchMock);
+      expect(url.searchParams.get("id")).toBe("eq.7");
+      expect(headers.get("Prefer")).toBe("return=representation");
+      expect(headers.get("Accept")).toBe("application/vnd.pgrst.object+json");
+    });
+
+    it("update of a missing row rejects with an HttpError with status 404", async () => {
+      stubFetch(respond({ code: "PGRST116" }, { status: 406 }));
+
+      const rejection = await provider()
+        .update("posts", { id: 7, data: {}, previousData: { id: 7 } })
+        .catch((e: unknown) => e);
+
+      expect(rejection).toBeInstanceOf(HttpError);
+      expect(rejection).toMatchObject({ status: 404 });
+    });
+
+    it("delete of a missing row rejects with an HttpError with status 404", async () => {
+      stubFetch(respond({ code: "PGRST116" }, { status: 406 }));
+
+      const rejection = await provider()
+        .delete("posts", { id: 7 })
+        .catch((e: unknown) => e);
+
+      expect(rejection).toBeInstanceOf(HttpError);
+      expect(rejection).toMatchObject({ status: 404 });
+    });
+
+    it("updateMany PATCHes the in filter and returns the ids", async () => {
+      const fetchMock = stubFetch(respond([{ id: 1 }, { id: 2 }]));
+
+      const result = await provider().updateMany("posts", {
+        ids: [1, 2, 3],
+        data: { status: "done" },
+      });
+
+      expect(result).toEqual({ data: [1, 2] });
+      expect(sentMethod(fetchMock)).toBe("PATCH");
+      expect(sentBody(fetchMock)).toEqual({ status: "done" });
+      const { url, headers } = lastCall(fetchMock);
+      expect(url.searchParams.get("id")).toBe("in.(1,2,3)");
+      expect(headers.get("Prefer")).toBe("return=representation");
+    });
+
+    it("delete DELETEs the id filter and returns the deleted row", async () => {
+      const fetchMock = stubFetch(respond({ id: 7, title: "a" }));
+
+      const result = await provider().delete("posts", { id: 7 });
+
+      expect(result).toEqual({ data: { id: 7, title: "a" } });
+      expect(sentMethod(fetchMock)).toBe("DELETE");
+      const { url, headers } = lastCall(fetchMock);
+      expect(url.searchParams.get("id")).toBe("eq.7");
+      expect(headers.get("Prefer")).toBe("return=representation");
+      expect(headers.get("Accept")).toBe("application/vnd.pgrst.object+json");
+    });
+
+    it("deleteMany DELETEs the in filter and returns the ids", async () => {
+      const fetchMock = stubFetch(respond([{ id: 1 }, { id: 2 }]));
+
+      const result = await provider().deleteMany("posts", { ids: [1, 2] });
+
+      expect(result).toEqual({ data: [1, 2] });
+      expect(sentMethod(fetchMock)).toBe("DELETE");
+      expect(lastCall(fetchMock).url.searchParams.get("id")).toBe("in.(1,2)");
+    });
+
+    it("updateMany and deleteMany with no ids make no request", async () => {
+      const fetchMock = stubFetch(respond([]));
       const posts = provider();
 
-      await expect(posts.create("posts", { data: {} })).rejects.toThrow(
-        "not implemented",
-      );
-      await expect(posts.update("posts", { id: 1, data: {} })).rejects.toThrow(
-        "not implemented",
-      );
-      await expect(posts.delete("posts", { id: 1 })).rejects.toThrow(
-        "not implemented",
-      );
       await expect(
-        posts.updateMany("posts", { ids: [1], data: {} }),
-      ).rejects.toThrow("not implemented");
-      await expect(posts.deleteMany("posts", { ids: [1] })).rejects.toThrow(
-        "not implemented",
+        posts.updateMany("posts", { ids: [], data: { a: 1 } }),
+      ).resolves.toEqual({ data: [] });
+      await expect(posts.deleteMany("posts", { ids: [] })).resolves.toEqual({
+        data: [],
+      });
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("a compound key filters on every key column for update and delete", async () => {
+      const fetchMock = stubFetch(
+        respond({ post_id: 1, tag_id: 2, note: "x" }),
       );
+      const postTags = provider(compound);
+
+      const updated = await postTags.update("post_tags", {
+        id: "[1,2]",
+        data: { id: "[1,2]", post_id: 1, tag_id: 2, note: "x" },
+        previousData: { id: "[1,2]" },
+      });
+      expect(sentBody(fetchMock)).toEqual({ note: "x" });
+      expect(lastCall(fetchMock).url.searchParams.get("and")).toBe(
+        "(post_id.eq.1,tag_id.eq.2)",
+      );
+      expect(updated.data).toMatchObject({ id: "[1,2]", note: "x" });
+
+      const deleted = await postTags.delete("post_tags", { id: "[1,2]" });
+      expect(lastCall(fetchMock).url.searchParams.get("and")).toBe(
+        "(post_id.eq.1,tag_id.eq.2)",
+      );
+      expect(deleted.data).toMatchObject({ id: "[1,2]" });
+
+      fetchMock.mockImplementation(async () =>
+        respond([
+          { post_id: 1, tag_id: 2 },
+          { post_id: 3, tag_id: 4 },
+        ]),
+      );
+      const many = await postTags.deleteMany("post_tags", {
+        ids: ["[1,2]", "[3,4]"],
+      });
+      expect(lastCall(fetchMock).url.searchParams.get("or")).toBe(
+        "(and(post_id.eq.1,tag_id.eq.2),and(post_id.eq.3,tag_id.eq.4))",
+      );
+      expect(many.data).toEqual(["[1,2]", "[3,4]"]);
+
+      await postTags.updateMany("post_tags", {
+        ids: ["[1,2]"],
+        data: { note: "y" },
+      });
+      expect(lastCall(fetchMock).url.searchParams.get("and")).toBe(
+        "(post_id.eq.1,tag_id.eq.2)",
+      );
+    });
+
+    it("a 401 from a write rejects with an HttpError that supabaseAuthProvider.checkError rejects on", async () => {
+      stubFetch(
+        respond({ message: "JWT expired", code: "PGRST301" }, { status: 401 }),
+      );
+
+      const rejection = await provider()
+        .create("posts", { data: {} })
+        .catch((e: unknown) => e);
+
+      expect(rejection).toBeInstanceOf(HttpError);
+      expect(rejection).toMatchObject({ status: 401 });
+      const auth = supabaseAuthProvider({ auth: {} } as SupabaseClient);
+      await expect(auth.checkError?.(rejection)).rejects.toBe(rejection);
     });
   });
 });
