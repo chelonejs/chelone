@@ -117,21 +117,19 @@ function CommentsThread({
 
   const post = async () => {
     if (!canPost) return;
-    const sent = draft;
     try {
       await create({
         data: {
           [target]: id,
           authorId: identity?.id ?? "anonymous",
           authorName: identity?.fullName,
-          body: sent.trim(),
+          body: draft.trim(),
           createdAt: new Date().toISOString(),
         },
       });
-      // Text typed while the post was in flight is not part of it.
-      setStored((current) =>
-        current.id === id && current.text === sent ? { id, text: "" } : current,
-      );
+      // The textarea is read-only while posting, so the draft is what was sent.
+      // A record change meanwhile keeps the new record's draft.
+      setStored((current) => (current.id === id ? { id, text: "" } : current));
     } catch (error) {
       console.error(error);
       notify("chelone.notification.http_error", { type: "error" });
@@ -238,6 +236,7 @@ function CommentsThread({
         <Textarea
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
+          readOnly={isPosting}
           onKeyDown={onKeyDown}
           placeholder={translate("chelone.comments.placeholder", {
             _: "Write a comment…",

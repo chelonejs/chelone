@@ -422,7 +422,7 @@ describe("CommentsThread", () => {
 
     expect(await screen.findByText("Plain")).toBeTruthy();
   });
-  it("CommentsThread keeps text typed while a post is in flight", async () => {
+  it("CommentsThread makes the textarea read-only while a post is in flight", async () => {
     const { Providers, create } = setup();
     let release: () => void = () => {};
     create.mockImplementationOnce(
@@ -437,14 +437,14 @@ describe("CommentsThread", () => {
     const box = (await screen.findByPlaceholderText(
       "Write a comment…",
     )) as HTMLTextAreaElement;
+    expect(box.readOnly).toBe(false);
     fireEvent.change(box, { target: { value: "Hi" } });
     fireEvent.keyDown(box, { key: "Enter", ctrlKey: true });
-    await waitFor(() => expect(create).toHaveBeenCalledTimes(1));
-    fireEvent.change(box, { target: { value: "Hi more" } });
 
+    await waitFor(() => expect(box.readOnly).toBe(true));
     await act(async () => release());
-    await waitFor(() => expect(create).toHaveBeenCalledTimes(1));
-    expect(box.value).toBe("Hi more");
+    await waitFor(() => expect(box.value).toBe(""));
+    expect(box.readOnly).toBe(false);
   });
 
   it("CommentsThread drops an unsent draft when the record changes", async () => {
