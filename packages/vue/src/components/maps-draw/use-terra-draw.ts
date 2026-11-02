@@ -35,6 +35,7 @@ export type DrawTool =
   | "draw-polygon"
   | "draw-rectangle"
   | "draw-circle"
+  | "cut"
   | "edit"
   | "move";
 
@@ -44,6 +45,8 @@ const TOOL_MODES: Record<DrawTool, string> = {
   "draw-polygon": "polygon",
   "draw-rectangle": "rectangle",
   "draw-circle": "circle",
+  // Draws like a polygon; the finished drawing is a cutter, not a feature.
+  cut: "polygon",
   edit: "select",
   move: "select-move",
 };
@@ -57,11 +60,20 @@ export function toolMode(
 }
 
 /** What the user did on the map: drew a shape, changed one, or removed one. */
-export interface TerraDrawEdit {
-  type: "draw" | "edit" | "delete";
-  /** The user's features after the edit. */
-  features: GeoFeature[];
-}
+export type TerraDrawEdit =
+  | {
+      type: "draw" | "edit" | "delete";
+      /** The user's features after the edit. */
+      features: GeoFeature[];
+    }
+  | {
+      /** A polygon finished while the `cut` tool was active. */
+      type: "cut";
+      /** The user's features without the cutter. */
+      features: GeoFeature[];
+      /** The finished polygon, which the editor no longer holds. */
+      cutter: GeoFeature;
+    };
 
 export interface UseTerraDrawOptions {
   /**
@@ -78,7 +90,7 @@ export interface UseTerraDrawOptions {
   };
   /** Snap to existing coordinates and lines. Read once. Defaults to true. */
   snappable?: boolean;
-  /** Pixels within which the pointer grabs a vertex or snaps. Read once. Defaults to 20. */
+  /** Pixels within which the pointer grabs a vertex or snaps; every mode's `pointerDistance`. Read once. Defaults to 20. */
   snapDistance?: number;
   /** Read once. */
   shapeStyle?: ShapeStyle;
@@ -251,7 +263,7 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
     instance = built;
     active = true;
 
-    const report = (type: TerraDrawEdit["type"]) => {
+    const report = (type: "draw" | "edit" | "delete") => {
       const snapshot = built.getSnapshot();
       knownIds = userIds(snapshot);
       options.onEdit?.({ type, features: fromEditorFeatures(snapshot) });
@@ -260,8 +272,33 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
     built.on("ready", () => {
       if (active) draw.value = built;
     });
-    built.on("finish", (_id, context) => {
+    // A cut drawing is reported as a cutter and leaves the store at once: when
+    // the cut changes nothing, the features stay equal and no sync would.
+    const reportCut = (id: string | number) => {
+      const snapshot = built.getSnapshot();
+      const [cutter] = fromEditorFeatures(snapshot.filter((e) => e.id === id));
+      const rest = snapshot.filter((e) => e.id !== id);
+      syncing = true;
+      try {
+        built.removeFeatures([id]);
+      } finally {
+        syncing = false;
+      }
+      knownIds = userIds(rest);
+      if (!cutter) return;
+      options.onEdit?.({
+        type: "cut",
+        features: fromEditorFeatures(rest),
+        cutter,
+      });
+    };
+
+    built.on("finish", (id, context) => {
       if (!active || syncing) return;
+      if (context.action === "draw" && options.state().tool === "cut") {
+        reportCut(id);
+        return;
+      }
       report(context.action === "draw" ? "draw" : "edit");
     });
     built.on("change", (ids, type) => {

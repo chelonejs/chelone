@@ -3,6 +3,10 @@ import {
   type GeoFeature,
   geoBounds,
   type MapStyleInput,
+  maxVertices,
+  minAreaM2,
+  minVertices,
+  noSelfIntersection,
   type ShapeStyle,
   type ShapeValue,
   type ShapeValueKind,
@@ -40,11 +44,22 @@ export interface ShapeInputProps {
   /** The legend. A string is translated; `false` renders none. */
   label?: string | false;
   helperText?: string | false;
+  /** Runs after the limits below. Read once. */
   validate?: Validator | readonly Validator[];
+  /** Fewest vertices the shape may have; a polygon ring counts its distinct vertices. The shape is stored as drawn and the field is flagged. Read once. */
+  minVertices?: number;
+  /** Most vertices the shape may have. Read once. */
+  maxVertices?: number;
+  /** Smallest area in square metres a polygon may cover. Read once. */
+  minAreaM2?: number;
+  /** Set to false to flag a shape that crosses itself. Defaults to true, which checks nothing. Read once. */
+  allowSelfIntersection?: boolean;
   /** The toolbar buttons, in order. Defaults to the tools that suit `kind`. */
   tools?: readonly ToolbarTool[];
   /** Snap to existing coordinates and lines. Read once. Defaults to true. */
   snappable?: boolean;
+  /** Pixels within which the pointer grabs a vertex or snaps. Read once. Defaults to 20. */
+  snapDistance?: number;
   /** Shows the shape and hides the toolbar; pan and zoom still work. */
   disabled?: boolean;
   /** `[lat, lng]`. The map centre while the field is empty. Defaults to `[0, 0]`. */
@@ -76,10 +91,20 @@ const AREA_TOOLS: ToolbarTool[] = [
   "draw-polygon",
   "draw-rectangle",
   "draw-circle",
+  "cut",
   "edit",
   "move",
   "delete",
 ];
+
+/** The kinds whose value keeps every feature, not just the last one drawn. */
+const HOLDS_MANY: ReadonlySet<ShapeValueKind> = new Set([
+  "MultiPoint",
+  "MultiLineString",
+  "MultiPolygon",
+  "GeometryCollection",
+  "FeatureCollection",
+]);
 
 /** The tools that make sense for what a field of `kind` holds. */
 function defaultTools(kind: ShapeValueKind): readonly ToolbarTool[] {
@@ -113,6 +138,7 @@ const Editor = defineComponent({
     tool: { type: String as PropType<DrawTool | null>, default: null },
     disabled: { type: Boolean, default: false },
     snappable: { type: Boolean, default: true },
+    snapDistance: { type: Number, default: 20 },
     shapeStyle: { type: Object as PropType<ShapeStyle>, default: undefined },
     fit: { type: Boolean, default: true },
     /** The field's current value, whatever it holds. */
@@ -146,6 +172,7 @@ const Editor = defineComponent({
         disabled: props.disabled,
       }),
       snappable: props.snappable,
+      snapDistance: props.snapDistance,
       shapeStyle: props.shapeStyle,
       onEdit: (edit) => emit("edit", edit),
     });
@@ -208,13 +235,19 @@ import { humanizeSource } from "../admin/inputs/label-text";
 import MapCanvas from "../maps/map-canvas.vue";
 import { FieldError } from "../ui/field";
 import DrawToolbar from "./draw-toolbar.vue";
+import { cutFeatures } from "./geometry-ops";
 
 const props = withDefaults(defineProps<ShapeInputProps>(), {
   label: undefined,
   helperText: undefined,
   validate: undefined,
+  minVertices: undefined,
+  maxVertices: undefined,
+  minAreaM2: undefined,
+  allowSelfIntersection: true,
   tools: undefined,
   snappable: true,
+  snapDistance: 20,
   disabled: false,
   defaultCenter: () => [0, 0],
   zoom: 13,
@@ -231,9 +264,22 @@ const emit = defineEmits<{
 }>();
 
 const translate = useTranslate();
+// The limits run before the caller's validators.
+// An array, not a composed validator: `useInput` finds `required()` in a list.
+const validators: Validator[] = [
+  ...(props.minVertices === undefined ? [] : [minVertices(props.minVertices)]),
+  ...(props.maxVertices === undefined ? [] : [maxVertices(props.maxVertices)]),
+  ...(props.minAreaM2 === undefined ? [] : [minAreaM2(props.minAreaM2)]),
+  ...(props.allowSelfIntersection ? [] : [noSelfIntersection()]),
+  ...(Array.isArray(props.validate)
+    ? props.validate
+    : props.validate
+      ? [props.validate]
+      : []),
+];
 const input = useInput({
   source: props.source,
-  validate: props.validate,
+  validate: validators,
   format: (v: unknown) => v ?? null,
 });
 
@@ -258,7 +304,24 @@ const legend = computed(() =>
 );
 
 function onEdit(edit: TerraDrawEdit) {
-  const next = featuresToShape(props.kind, edit.features, input.value.value, {
+  let features = edit.features;
+  let prev = input.value.value;
+  if (edit.type === "cut") {
+    // The tool clears either way; a cut that touched nothing commits nothing.
+    tool.value = null;
+    // The editor holds no polygon with a hole, so the held parts are cut too.
+    // The result then holds every part, and no held part is added back.
+    const cut = cutFeatures(
+      [...features, ...heldFeatures(props.kind, prev)],
+      edit.cutter,
+    );
+    if (!cut.changed) return;
+    // A single-shape value stores the last feature: a split would lose the rest.
+    if (!HOLDS_MANY.has(props.kind) && cut.features.length > 1) return;
+    features = cut.features;
+    if (HOLDS_MANY.has(props.kind)) prev = null;
+  }
+  const next = featuresToShape(props.kind, features, prev, {
     aspectRatio: props.aspectRatio,
   });
   written.current = next;
@@ -297,6 +360,7 @@ function onEdit(edit: TerraDrawEdit) {
         :tool="tool"
         :disabled="props.disabled"
         :snappable="props.snappable"
+        :snap-distance="props.snapDistance"
         :shape-style="props.shapeStyle"
         :fit="props.fitBounds"
         :get-value="() => input.value.value"
