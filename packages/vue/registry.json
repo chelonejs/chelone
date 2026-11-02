@@ -1257,6 +1257,18 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/calendar-header.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/calendar-list.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/calendar-month-view.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/count-spinner.vue",
           "type": "registry:component"
         },
@@ -4533,6 +4545,55 @@
       ],
       "registryDependencies": ["@chelone/button", "@chelone/sheet"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-header",
+      "type": "registry:component",
+      "title": "Calendar Header",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-header.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/list-icons"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-list",
+      "type": "registry:component",
+      "title": "Calendar List",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-list.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/calendar-header",
+        "@chelone/calendar-month-view",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-month-view",
+      "type": "registry:component",
+      "title": "Calendar Month View",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-month-view.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

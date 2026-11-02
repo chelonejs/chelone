@@ -12,6 +12,7 @@ import type {
   BooleanInputProps,
   BulkActionsToolbarProps,
   BulkEditDrawerProps,
+  CalendarListProps,
   CheckForApplicationUpdateProps,
   CloneButtonProps,
   ColorInputProps,
@@ -239,6 +240,14 @@ describe("@chelone/vue public exports", () => {
 
   it("TreeList ships beside its props", () => {
     expectTypeOf(barrel.TreeList).not.toBeAny();
+  });
+
+  it("CalendarList ships beside its props", () => {
+    expectTypeOf(barrel.CalendarList).not.toBeAny();
+    expectTypeOf<CalendarListProps>().toHaveProperty("startSource");
+    expectTypeOf<CalendarListProps["weekStartsOn"]>().toEqualTypeOf<
+      0 | 1 | 2 | 3 | 4 | 5 | 6 | undefined
+    >();
   });
 
   it("CommentsThread ships beside its props and the Textarea it uses", () => {
