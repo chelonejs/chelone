@@ -28,6 +28,7 @@ import { useForm } from "../../form-hooks";
 import { ThemeProvider } from "../admin/layout/theme-provider";
 import { defaultInputPlugins } from "./default-plugins";
 import { MdxInput } from "./mdx-input";
+import { safeHtmlImagePlugin } from "./safe-html-image-plugin";
 
 const hoisted = vi.hoisted(() => ({
   setMarkdown: vi.fn(),
@@ -148,6 +149,16 @@ function setup<TFormData extends Record<string, unknown>>(
   return handle;
 }
 
+/** The editor gets the given list as is, with the inert `<img>` plugin last. */
+function expectPluginList(actual: unknown, given: unknown[]) {
+  const list = actual as unknown[];
+  expect(list).toHaveLength(given.length + 1);
+  given.forEach((plugin, index) => {
+    expect(list[index]).toBe(plugin);
+  });
+  expect(list[given.length]).toBe(safeHtmlImagePlugin);
+}
+
 beforeEach(() => {
   hoisted.setMarkdown.mockClear();
   hoisted.plugins = undefined;
@@ -167,9 +178,7 @@ describe("<MdxInput />", () => {
 
   it("passes the input plugin preset with the toolbar", () => {
     setup(<MdxInput source="body" />, { defaultValues: { body: "x" } });
-    expect(hoisted.plugins).toEqual(
-      expect.arrayContaining(defaultInputPlugins),
-    );
+    expectPluginList(hoisted.plugins, defaultInputPlugins);
   });
 
   it("renders a custom label and helper text", () => {
@@ -363,10 +372,7 @@ describe("<MdxInput />", () => {
     setup(<MdxInput source="body" mdxProps={{ plugins: custom }} />, {
       defaultValues: { body: "x" },
     });
-    expect(hoisted.plugins).toEqual(expect.arrayContaining(custom));
-    expect(hoisted.plugins).not.toEqual(
-      expect.arrayContaining(defaultInputPlugins),
-    );
+    expectPluginList(hoisted.plugins, custom);
   });
 
   it("adds the mdxeditor-dark class when the theme resolves dark", () => {

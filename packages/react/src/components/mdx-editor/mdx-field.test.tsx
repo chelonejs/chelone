@@ -14,6 +14,7 @@ import { RecordContextProvider } from "../../record/record-context";
 import { ThemeProvider } from "../admin/layout/theme-provider";
 import { defaultFieldPlugins } from "./default-plugins";
 import { MdxField } from "./mdx-field";
+import { safeHtmlImagePlugin } from "./safe-html-image-plugin";
 
 const hoisted = vi.hoisted(() => ({
   setMarkdown: vi.fn(),
@@ -63,6 +64,16 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
   return { ...actual, MDXEditor };
 });
 
+/** The editor gets the given list as is, with the inert `<img>` plugin last. */
+function expectPluginList(actual: unknown, given: unknown[]) {
+  const list = actual as unknown[];
+  expect(list).toHaveLength(given.length + 1);
+  given.forEach((plugin, index) => {
+    expect(list[index]).toBe(plugin);
+  });
+  expect(list[given.length]).toBe(safeHtmlImagePlugin);
+}
+
 beforeEach(() => {
   hoisted.setMarkdown.mockClear();
   hoisted.plugins = undefined;
@@ -105,19 +116,14 @@ describe("<MdxField />", () => {
     const { unmount } = render(<MdxField source="body" />, {
       wrapper: wrap({ id: 1, body: "x" }),
     });
-    expect(hoisted.plugins).toEqual(
-      expect.arrayContaining(defaultFieldPlugins),
-    );
+    expectPluginList(hoisted.plugins, defaultFieldPlugins);
     unmount();
 
     const custom = [headingsPlugin()];
     render(<MdxField source="body" plugins={custom} />, {
       wrapper: wrap({ id: 1, body: "x" }),
     });
-    expect(hoisted.plugins).toEqual(expect.arrayContaining(custom));
-    expect(hoisted.plugins).not.toEqual(
-      expect.arrayContaining(defaultFieldPlugins),
-    );
+    expectPluginList(hoisted.plugins, custom);
   });
 
   it("renders a translated empty string as the markdown when the value is missing", () => {
