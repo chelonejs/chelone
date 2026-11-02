@@ -40,7 +40,7 @@ export interface CalendarMonthViewProps {
  */
 
 import { calendarDayKey, calendarEventsOnDay } from "@chelone/core";
-import { computed } from "vue";
+import { computed, onBeforeUnmount, ref } from "vue";
 import { cn } from "../../../lib/utils";
 
 const props = defineProps<CalendarMonthViewProps>();
@@ -60,7 +60,19 @@ const weeks = computed(() => {
   return rows;
 });
 
-const todayKey = computed(() => calendarDayKey(new Date()));
+// Re-read at each local midnight, so a calendar left open marks the new day.
+const todayKey = ref(calendarDayKey(new Date()));
+let midnightTimer: ReturnType<typeof setTimeout>;
+function scheduleMidnight() {
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  midnightTimer = setTimeout(() => {
+    todayKey.value = calendarDayKey(new Date());
+    scheduleMidnight();
+  }, midnight.getTime() - now.getTime());
+}
+scheduleMidnight();
+onBeforeUnmount(() => clearTimeout(midnightTimer));
 
 const eventsOn = (day: Date) => calendarEventsOnDay(props.events, day);
 

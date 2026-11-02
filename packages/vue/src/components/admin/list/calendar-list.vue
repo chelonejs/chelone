@@ -195,7 +195,11 @@ const rangeValue = computed(() =>
 );
 const rangeStartISO = computed(() => range.value.start.toISOString());
 const rangeEndISO = computed(() => range.value.end.toISOString());
-const originalPerPage = list.perPage;
+// A URL or store that already holds the calendar's own `perPage` (back from an
+// event's page, a reload) hides the list's real one: fall back to its default.
+const LIST_DEFAULT_PER_PAGE = 10;
+const originalPerPage =
+  list.perPage === props.perPage ? LIST_DEFAULT_PER_PAGE : list.perPage;
 let appliedKeys: string[] = [];
 
 const without = (filter: Record<string, unknown>, keys: string[]) =>

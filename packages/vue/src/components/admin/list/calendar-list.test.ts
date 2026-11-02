@@ -96,16 +96,18 @@ async function mountList({
   list,
   dataProvider = providerWith().dataProvider,
   edit = true,
+  path = "/meetings",
 }: {
   list: () => VNodeChild;
   dataProvider?: DataProvider;
   edit?: boolean;
+  path?: string;
 }) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [{ path: "/", component: { render: () => null } }],
   });
-  await router.push("/meetings");
+  await router.push(path);
   const MeetingList = defineComponent({
     setup: () => () => h(List, { resource: "meetings" }, { default: list }),
   });
@@ -282,6 +284,44 @@ describe("<CalendarList> month view", () => {
     expect(wrapper.find("[data-slot=calendar-header]").exists()).toBe(false);
     expect(listContext?.filter).toEqual({});
     expect(listContext?.perPage).toBe(initialPerPage);
+  });
+
+  it("restores the list default perPage when the URL already carried the calendar's own", async () => {
+    // Back from an event's page seeds perPage=1000 from the URL.
+    let listContext: ReturnType<typeof useListContext> | undefined;
+    const show = ref(true);
+    const Toggle = defineComponent({
+      setup() {
+        listContext = useListContext();
+        return () =>
+          show.value ? h(CalendarList, { startSource: "starts_at" }) : null;
+      },
+    });
+    const { wrapper } = await mountList({
+      list: () => h(Toggle),
+      path: "/meetings?perPage=1000",
+    });
+    expect(listContext?.perPage).toBe(1000);
+
+    show.value = false;
+    await flushPromises();
+    expect(wrapper.find("[data-slot=calendar-header]").exists()).toBe(false);
+    expect(listContext?.perPage).toBe(10);
+  });
+
+  it("moves the today mark to the next day at midnight", async () => {
+    vi.useRealTimers();
+    vi.useFakeTimers({ toFake: ["Date", "setTimeout", "clearTimeout"] });
+    vi.setSystemTime(new Date(2026, 4, 15, 23, 59));
+    const { wrapper } = await mountList({ list: calendar() });
+    const marked = () =>
+      cells(wrapper)
+        .filter((node) => node.attributes("aria-current") === "date")
+        .map((node) => node.attributes("data-date"));
+    expect(marked()).toEqual(["2026-05-15"]);
+
+    await vi.advanceTimersByTimeAsync(2 * 60 * 1000);
+    expect(marked()).toEqual(["2026-05-16"]);
   });
 
   it("keeps the filters the user set", async () => {
