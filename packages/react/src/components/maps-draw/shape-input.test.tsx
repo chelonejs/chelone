@@ -418,6 +418,12 @@ describe("ShapeInput", () => {
     expect(map().fits).toHaveLength(1);
   });
 
+  it("does not fit a value outside the longitude and latitude range", async () => {
+    const { map } = await setup({}, square(261845));
+
+    expect(map().fits).toHaveLength(0);
+  });
+
   it("does not fit a shape that the user draws first", async () => {
     const { draw, map } = await setup({}, null);
     expect(map().fits).toHaveLength(0);

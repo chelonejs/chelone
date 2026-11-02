@@ -4,6 +4,7 @@ import {
   type GeoJsonValue,
   geoBounds,
   isGeoJsonValue,
+  isLngLatBox,
   type MapStyleInput,
   type ShapeStyle,
   shapeLayerSpecs,
@@ -124,7 +125,7 @@ function GeoJsonLayers({
   // biome-ignore lint/correctness/useExhaustiveDependencies: boxKey stands for the box
   useEffect(() => {
     const now = latest.current;
-    if (!fitBounds || !now.box) return;
+    if (!fitBounds || !isLngLatBox(now.box)) return;
     map.fitBounds(now.box, {
       padding: now.fitPadding,
       maxZoom: now.maxFitZoom,
@@ -177,7 +178,7 @@ export function GeoJsonFieldBody({
   ...view
 }: FieldBodyProps) {
   const translate = useTranslate();
-  if (!isGeoJsonValue(value)) {
+  if (!isGeoJsonValue(value) || !isLngLatBox(geoBounds(value))) {
     return (
       <div
         data-slot="geo-json-field-empty"

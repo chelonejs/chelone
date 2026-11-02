@@ -1,5 +1,5 @@
 export { aspectLockedBBox, bboxToPolygon, polygonToBBox } from "./bbox";
-export { geoBounds } from "./bounds";
+export { geoBounds, isLngLatBox } from "./bounds";
 export {
   countVertices,
   maxVertices,

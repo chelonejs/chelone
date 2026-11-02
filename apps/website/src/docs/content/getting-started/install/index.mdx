@@ -20,12 +20,12 @@ the first release, tracked in the repository's
 ## Install the engine
 
 Add the React adapter, its required router and TanStack peers, and Zod for
-resource schemas. `@chelone/react` depends on `@chelone/core`, whose required
+resource schemas (Zod 3.25 or later, or Zod 4; either major works). `@chelone/react` depends on `@chelone/core`, whose required
 TanStack peers are included here for package managers that do not install peers
 automatically:
 
 ```bash
-npm install @chelone/react zod@^3.24.0 \
+npm install @chelone/react zod \
   react-router@^7.0.0 \
   @tanstack/react-query@^5.0.0 @tanstack/react-store@^0.11.0 \
   @tanstack/form-core@^1.33.0 @tanstack/query-core@^5.0.0
@@ -128,13 +128,13 @@ export function App() {
 ## Install for Vue
 
 `@chelone/vue` is the Vue 3 adapter. It sits on the same `@chelone/core` engine
-as the React adapter and uses `vue-router` 4. Add it with its peers and Zod.
+as the React adapter and uses `vue-router` 4. Add it with its peers and Zod (Zod 3.25 or later, or Zod 4).
 `@chelone/core` is listed directly because the examples below import
 `fakeDataProvider` from it, which pnpm and Yarn Plug'n'Play only resolve for a
 direct dependency:
 
 ```bash
-npm install @chelone/vue @chelone/core zod@^3.24.0 \
+npm install @chelone/vue @chelone/core zod \
   vue@^3.4.0 vue-router@^4.0.0 \
   @tanstack/vue-query@^5.0.0 \
   @tanstack/form-core@^1.33.0 @tanstack/query-core@^5.0.0

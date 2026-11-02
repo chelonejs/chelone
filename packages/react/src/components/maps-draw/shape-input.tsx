@@ -3,6 +3,7 @@ import {
   type GeoFeature,
   geoBounds,
   heldFeatures,
+  isLngLatBox,
   type MapStyleInput,
   maxVertices,
   minAreaM2,
@@ -224,7 +225,7 @@ function FitToShape({
     [features, held],
   );
   useEffect(() => {
-    if (fitted.current || !box) return;
+    if (fitted.current || !isLngLatBox(box)) return;
     fitted.current = true;
     if (value === written.current) return;
     map.fitBounds(box, { padding: 20, maxZoom: 18, duration: 0 });

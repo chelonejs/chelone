@@ -280,10 +280,6 @@ importers:
         version: 3.2.6(@types/debug@4.1.13)(@types/node@22.20.0)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)(stylus@0.57.0)(yaml@2.9.0)
 
   packages/core:
-    dependencies:
-      zod:
-        specifier: ^3.24.0
-        version: 3.25.76
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: ^0.18.0
@@ -318,6 +314,9 @@ importers:
       vitest:
         specifier: ^3.0.0
         version: 3.2.6(@types/debug@4.1.13)(@types/node@22.20.0)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)(stylus@0.57.0)(yaml@2.9.0)
+      zod:
+        specifier: ^3.25.0
+        version: 3.25.76
 
   packages/react:
     dependencies:
