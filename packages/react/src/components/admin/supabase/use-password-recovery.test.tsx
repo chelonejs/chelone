@@ -14,7 +14,7 @@ import {
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { MemoryRouter, useLocation } from "react-router";
+import { MemoryRouter, useLocation, useNavigate } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { RouterAdapterProvider } from "../../../router/adapter";
@@ -49,9 +49,16 @@ function makeAuthProvider(
 }
 
 let currentPath = "";
+let currentSearch = "";
+let currentHash = "";
+let goBack: () => void = () => {};
 function PathProbe() {
   const location = useLocation();
+  const navigate = useNavigate();
   currentPath = location.pathname;
+  currentSearch = location.search;
+  currentHash = location.hash;
+  goBack = () => navigate(-1);
   return null;
 }
 
@@ -71,7 +78,12 @@ function makeWrapper(options: {
     });
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
-      <MemoryRouter initialEntries={[options.initialEntry ?? "/start"]}>
+      <MemoryRouter
+        initialEntries={
+          options.initialEntry ? ["/start", options.initialEntry] : ["/start"]
+        }
+        initialIndex={options.initialEntry ? 1 : 0}
+      >
         <PathProbe />
         <RouterAdapterProvider adapter={reactRouterAdapter}>
           <CheloneProvider
@@ -194,5 +206,66 @@ describe("useSupabaseUrlTokens", () => {
       accessToken: "a2",
       refreshToken: "r2",
     });
+  });
+
+  it("removes the tokens from the URL after reading them", async () => {
+    renderHook(() => useSupabaseUrlTokens(), {
+      wrapper: makeWrapper({
+        initialEntry:
+          "/set-password?access_token=a1&refresh_token=r1&type=recovery&keep=1",
+      }),
+    });
+
+    await waitFor(() => expect(currentSearch).toBe("?keep=1"));
+    expect(currentPath).toBe("/set-password");
+
+    // The entry was replaced, so the token URL is not left behind it.
+    act(() => goBack());
+    await waitFor(() => expect(currentPath).toBe("/start"));
+  });
+
+  it("removes the tokens from the hash too", async () => {
+    renderHook(() => useSupabaseUrlTokens(), {
+      wrapper: makeWrapper({
+        initialEntry:
+          "/set-password#access_token=a2&refresh_token=r2&type=invite",
+      }),
+    });
+
+    await waitFor(() => expect(currentHash).toBe(""));
+    expect(currentPath).toBe("/set-password");
+  });
+
+  it("removes the tokens from a hash route's query", async () => {
+    renderHook(() => useSupabaseUrlTokens(), {
+      wrapper: makeWrapper({
+        initialEntry:
+          "/app#/set-password?access_token=a3&refresh_token=r3&type=recovery&keep=1",
+      }),
+    });
+
+    await waitFor(() => expect(currentHash).toBe("#/set-password?keep=1"));
+  });
+
+  it("removes the tokens from a hash route's query when nothing else remains", async () => {
+    renderHook(() => useSupabaseUrlTokens(), {
+      wrapper: makeWrapper({
+        initialEntry:
+          "/app#/set-password?access_token=a3&refresh_token=r3&type=recovery",
+      }),
+    });
+
+    await waitFor(() => expect(currentHash).toBe("#/set-password"));
+  });
+
+  it("keeps the tokens after the URL is cleaned", async () => {
+    const { result } = renderHook(() => useSupabaseUrlTokens(), {
+      wrapper: makeWrapper({
+        initialEntry: "/set-password?access_token=a1&refresh_token=r1",
+      }),
+    });
+
+    await waitFor(() => expect(currentSearch).toBe(""));
+    expect(result.current).toEqual({ accessToken: "a1", refreshToken: "r1" });
   });
 });
