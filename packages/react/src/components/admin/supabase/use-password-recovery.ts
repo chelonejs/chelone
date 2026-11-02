@@ -13,9 +13,10 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { useCheloneAuthProvider } from "../../../context";
 import { useNotify } from "../../../notification-hooks";
-import { useLocation, useRedirect } from "../../../router";
+import { useLocation, useNavigate, useRedirect } from "../../../router";
 
 export type UseResetPasswordOptions = Omit<
   UseMutationOptions<void, Error, ResetPasswordParams>,
@@ -79,11 +80,83 @@ export function useSetPassword(options: UseSetPasswordOptions = {}) {
   });
 }
 
-/** The access and refresh tokens a Supabase recovery or invite link carries. */
+const TOKEN_KEYS = ["access_token", "refresh_token", "type"];
+
+/** `query` without the token keys, or null when it had none. */
+function stripKeys(query: string): string | null {
+  const params = new URLSearchParams(query);
+  if (!TOKEN_KEYS.some((key) => params.has(key))) return null;
+  for (const key of TOKEN_KEYS) params.delete(key);
+  return params.toString();
+}
+
+/**
+ * The location's path with the token keys removed from every place
+ * `readSupabaseUrlParams` looks, or null when there is nothing to remove.
+ */
+function cleanedPath({
+  pathname,
+  search,
+  hash,
+}: {
+  pathname: string;
+  search: string;
+  hash: string;
+}): string | null {
+  const cleanSearch = stripKeys(search);
+  let cleanHash = hash;
+  let changed = cleanSearch !== null;
+
+  const fragmentStart = cleanHash.lastIndexOf("#");
+  const fragment = stripKeys(cleanHash.slice(fragmentStart + 1));
+  if (fragment !== null) {
+    cleanHash = `${cleanHash.slice(0, fragmentStart)}${fragment ? `#${fragment}` : ""}`;
+    changed = true;
+  }
+
+  const queryStart = cleanHash.indexOf("?");
+  if (queryStart !== -1) {
+    const queryEnd = cleanHash.indexOf("#", queryStart);
+    const end = queryEnd === -1 ? cleanHash.length : queryEnd;
+    const query = stripKeys(cleanHash.slice(queryStart + 1, end));
+    if (query !== null) {
+      cleanHash = `${cleanHash.slice(0, queryStart)}${query ? `?${query}` : ""}${cleanHash.slice(end)}`;
+      changed = true;
+    }
+  }
+
+  if (!changed) return null;
+  const searchPart = (cleanSearch ?? search).replace(/^\?/, "");
+  return `${pathname}${searchPart ? `?${searchPart}` : ""}${cleanHash}`;
+}
+
+/**
+ * The access and refresh tokens a Supabase recovery or invite link carries.
+ * Read once and kept for the page's life, then the history entry is replaced
+ * with the same path minus the tokens, so the refresh token does not stay in
+ * the browser history or reach the server's access log on a reload.
+ */
 export function useSupabaseUrlTokens(): {
   accessToken: string | null;
   refreshToken: string | null;
 } {
-  const { accessToken, refreshToken } = readSupabaseUrlParams(useLocation());
-  return { accessToken, refreshToken };
+  const location = useLocation();
+  const navigate = useNavigate();
+  const kept = useRef({ accessToken: null, refreshToken: null } as {
+    accessToken: string | null;
+    refreshToken: string | null;
+  });
+
+  const { accessToken, refreshToken } = readSupabaseUrlParams(location);
+  if (accessToken !== null || refreshToken !== null) {
+    kept.current = { accessToken, refreshToken };
+  }
+
+  const { pathname, search, hash } = location;
+  useEffect(() => {
+    const cleaned = cleanedPath({ pathname, search, hash });
+    if (cleaned !== null) navigate(cleaned, { replace: true });
+  }, [pathname, search, hash, navigate]);
+
+  return kept.current;
 }
