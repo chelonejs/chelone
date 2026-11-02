@@ -683,6 +683,16 @@ export {
   type AppSidebarProps,
 } from "./components/admin/layout/app-sidebar";
 export {
+  CommandMenu,
+  type CommandMenuProps,
+} from "./components/admin/layout/command-menu";
+export {
+  type CommandMenuAction,
+  type CommandMenuContextValue,
+  useCommandMenu,
+  useRegisterCommand,
+} from "./components/admin/layout/command-menu-context";
+export {
   DashboardMenuItem,
   type DashboardMenuItemProps,
 } from "./components/admin/layout/dashboard-menu-item";
