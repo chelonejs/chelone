@@ -35,12 +35,12 @@ export interface GeoJsonFieldProps
  * <GeoJsonField source="geometry" />
  */
 
-import { geoBounds, isGeoJsonValue } from "@chelone/core";
+import { geoBounds, isGeoJsonValue, isLngLatBox } from "@chelone/core";
 import { computed } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import { useFieldValue } from "../../record/use-field-value";
-import GeoJsonView, { isLngLatBox } from "./geo-json-view.vue";
+import GeoJsonView from "./geo-json-view.vue";
 import MapCanvas from "./map-canvas.vue";
 
 const props = withDefaults(defineProps<GeoJsonFieldProps>(), {

@@ -2,6 +2,7 @@
 import {
   type GeoFeature,
   geoBounds,
+  isLngLatBox,
   type MapStyleInput,
   maxVertices,
   minAreaM2,
@@ -20,7 +21,6 @@ import {
   toRaw,
   watch,
 } from "vue";
-import { isLngLatBox } from "../maps/geo-json-view.vue";
 import {
   uniqueGeoJsonSourceId,
   useGeoJsonSource,

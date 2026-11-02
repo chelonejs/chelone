@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
+import { z as z4 } from "zod/v4";
 import type { LooseRecord } from "./record";
 import {
   defineResources,
@@ -40,5 +41,21 @@ describe("ResourceConfig", () => {
       references: { authorId: "users" },
     };
     expectTypeOf(config).toExtend<ResourceConfig>();
+  });
+});
+
+describe("defineResources with Zod 4", () => {
+  it("defineResources accepts a Zod 4 schema and RecordOf infers its output", () => {
+    const schema = z4.object({
+      id: z4.number(),
+      title: z4.string(),
+      note: z4.string().optional(),
+    });
+    const zod4Resources = defineResources({ posts: { schema } });
+    expectTypeOf<RecordOf<typeof zod4Resources, "posts">>().toEqualTypeOf<{
+      id: number;
+      title: string;
+      note?: string | undefined;
+    }>();
   });
 });
