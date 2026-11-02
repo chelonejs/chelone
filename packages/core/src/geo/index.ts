@@ -64,6 +64,33 @@ export { mapMessages } from "./messages";
 export type { NominatimProviderOptions } from "./nominatim";
 export { createNominatimProvider } from "./nominatim";
 export type {
+  OsmElementType,
+  OsmPreset,
+  OsmPresetName,
+  OverpassQuerySources,
+} from "./osm-presets";
+export {
+  buildOverpassQuery,
+  findPresetForTags,
+  OSM_PRESETS,
+} from "./osm-presets";
+export type { OsmTagFilter, OsmTagInput } from "./osm-tags";
+export { tagToFilter } from "./osm-tags";
+export type {
+  OverpassProvider,
+  OverpassProviderOptions,
+  OverpassQuery,
+  OverpassQueryOptions,
+  OverpassRequestOptions,
+} from "./overpass";
+export {
+  createOverpassProvider,
+  OverpassError,
+  OverpassRateLimitError,
+  OverpassTimeoutError,
+  overpassQueryOptions,
+} from "./overpass";
+export type {
   FeaturesToShapeOptions,
   ShapeValue,
   ShapeValueKind,
