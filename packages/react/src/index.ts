@@ -856,6 +856,10 @@ export {
   type MenuLiveProps,
 } from "./components/admin/realtime/menu-live";
 export {
+  PresenceBar,
+  type PresenceBarProps,
+} from "./components/admin/realtime/presence-bar";
+export {
   ShowLive,
   type ShowLiveProps,
 } from "./components/admin/realtime/show-live";
@@ -1112,6 +1116,8 @@ export {
   useUnlock,
 } from "./lock-hooks";
 export { useNotifications, useNotify } from "./notification-hooks";
+export type { UsePresenceOptions } from "./presence-hooks";
+export { usePresence } from "./presence-hooks";
 export {
   type UsePrevNextControllerOptions,
   usePrevNextController,
