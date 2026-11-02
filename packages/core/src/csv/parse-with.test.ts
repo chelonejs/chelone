@@ -102,6 +102,51 @@ describe("parseCsvWith", () => {
     });
   });
 
+  it("skips a row of empty cells", () => {
+    const { rows, errors } = parseCsvWith(
+      Papa,
+      "a,b,c\n1,2,3\n,,\n , ,\n4,5\n6,7,8\n,,\n",
+    );
+
+    expect(rows).toEqual([
+      { a: "1", b: "2", c: "3" },
+      { a: "4", b: "5", c: "" },
+      { a: "6", b: "7", c: "8" },
+    ]);
+    expect(errors).toEqual([
+      {
+        code: "TooFewFields",
+        row: 2,
+        message: "Too few fields: expected 3 fields but parsed 2",
+      },
+    ]);
+  });
+
+  it("counts the row of a quote error after skipping a row of empty cells", () => {
+    const { errors } = parseCsvWith(Papa, 'a,b\n,\n1,2\n3,"oops\n4,5');
+
+    expect(errors).toEqual([
+      { code: "MissingQuotes", row: 2, message: "Quoted field unterminated" },
+    ]);
+  });
+
+  it("trims headers and names an empty one by its column", () => {
+    expect(parseCsvWith(Papa, "name , ,age,  \nAda,x,1,y")).toMatchObject({
+      headers: ["name", "column_2", "age", "column_4"],
+      rows: [{ name: "Ada", column_2: "x", age: "1", column_4: "y" }],
+    });
+  });
+
+  it("keeps the cell under a __proto__ header", () => {
+    const { headers, rows } = parseCsvWith(Papa, "__proto__,b\n1,2");
+
+    expect(headers).toEqual(["__proto__", "b"]);
+    expect(Object.keys(rows[0] ?? {})).toEqual(["__proto__", "b"]);
+    expect(Object.getOwnPropertyDescriptor(rows[0], "__proto__")?.value).toBe(
+      "1",
+    );
+  });
+
   it("returns no headers and no rows for empty text", () => {
     expect(parseCsvWith(Papa, "")).toEqual({
       headers: [],

@@ -25,7 +25,11 @@ export interface ParsedCsv {
 export interface CsvParser {
   parse(
     text: string,
-    options: { header: true; skipEmptyLines: true },
+    options: {
+      header: true;
+      skipEmptyLines: "greedy";
+      transformHeader: (header: string, index: number) => string;
+    },
   ): {
     data: Array<Record<string, unknown>>;
     errors: Array<{
