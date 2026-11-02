@@ -106,6 +106,14 @@ export {
 } from "./choices";
 // --- component vertical (ui slice + admin SFCs) ---------------------------
 export * from "./components";
+export type {
+  CommandMenuAction,
+  CommandMenuContextValue,
+} from "./components/admin/layout/command-menu-context";
+export {
+  useCommandMenu,
+  useRegisterCommand,
+} from "./components/admin/layout/command-menu-context";
 export type { MenuAccessResult } from "./components/admin/layout/use-menu-access";
 export { useMenuAccess } from "./components/admin/layout/use-menu-access";
 export type { CheloneContextValue } from "./context";
