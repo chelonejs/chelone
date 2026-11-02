@@ -6139,6 +6139,108 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "maps-draw",
+      "type": "registry:block",
+      "title": "Chelone Maps Draw",
+      "categories": ["chelone", "fields"],
+      "docs": "Everything here needs the maps block: mount MapsProvider once with a mapStyle, or pass mapStyle to each input. Terra Draw reads its modes, snapping and styles once when the input mounts, so change key to rebuild. Terra Draw rotates a selected line or polygon with Control and r.",
+      "description": "The opt-in map drawing add-on: ShapeInput draws and edits a GeoJSON value on a MapCanvas with Terra Draw, with a DrawToolbar for the tools. Installs terra-draw and terra-draw-maplibre-gl-adapter, and the maps block.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/geo-json-field",
+        "@chelone/input-helper-text",
+        "@chelone/lib-utils",
+        "@chelone/map-canvas",
+        "maps"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "lucide-react",
+        "terra-draw",
+        "terra-draw-maplibre-gl-adapter"
+      ],
+      "files": [
+        {
+          "path": "src/components/maps-draw/draw-toolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-draw/shape-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-draw/use-terra-draw.ts",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "draw-toolbar",
+      "type": "registry:component",
+      "title": "Draw Toolbar",
+      "files": [
+        {
+          "path": "src/components/maps-draw/draw-toolbar.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/use-terra-draw"
+      ],
+      "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "shape-input",
+      "type": "registry:component",
+      "title": "Shape Input",
+      "files": [
+        {
+          "path": "src/components/maps-draw/shape-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/draw-toolbar",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/geo-json-field",
+        "@chelone/input-helper-text",
+        "@chelone/lib-utils",
+        "@chelone/map-canvas",
+        "@chelone/use-terra-draw"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-terra-draw",
+      "type": "registry:component",
+      "title": "Use Terra Draw",
+      "files": [
+        {
+          "path": "src/components/maps-draw/use-terra-draw.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/map-canvas"],
+      "dependencies": [
+        "@chelone/core",
+        "terra-draw",
+        "terra-draw-maplibre-gl-adapter"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "addon-csv-import",
       "type": "registry:block",
       "title": "Chelone CSV Import",
