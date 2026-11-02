@@ -5590,6 +5590,88 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "addon-csv-import",
+      "type": "registry:block",
+      "title": "Chelone CSV Import",
+      "categories": ["chelone", "components"],
+      "description": "The opt-in CSV import add-on: CsvImport adds an Import button that opens a four-step sheet (upload, map columns, preview, import) and useCsvImport reads its state. Installs papaparse.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/export",
+        "@chelone/linear-progress",
+        "@chelone/native-select",
+        "@chelone/sheet",
+        "@chelone/table"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "papaparse"],
+      "files": [
+        {
+          "path": "src/components/admin/csv-import/csv-import.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/csv-import/upload-icon.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/csv-import/use-csv-import.ts",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "csv-import",
+      "type": "registry:component",
+      "title": "Csv Import",
+      "files": [
+        {
+          "path": "src/components/admin/csv-import/csv-import.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/export",
+        "@chelone/linear-progress",
+        "@chelone/native-select",
+        "@chelone/sheet",
+        "@chelone/table",
+        "@chelone/upload-icon",
+        "@chelone/use-csv-import"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "papaparse"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "upload-icon",
+      "type": "registry:component",
+      "title": "Upload Icon",
+      "files": [
+        {
+          "path": "src/components/admin/csv-import/upload-icon.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-csv-import",
+      "type": "registry:component",
+      "title": "Use Csv Import",
+      "files": [
+        {
+          "path": "src/components/admin/csv-import/use-csv-import.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "style-chelone",
       "type": "registry:base",
       "title": "Chelone",
