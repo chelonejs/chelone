@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createOverpassProvider,
   OverpassError,
+  type OverpassProvider,
   OverpassRateLimitError,
   OverpassTimeoutError,
   overpassQueryOptions,
@@ -182,9 +183,34 @@ describe("overpassQueryOptions", () => {
     fetch: stubFetch(),
   });
 
-  it("keys on the provider name and is disabled for an empty query", () => {
+  it("keys a provider without a cacheKey by its name", () => {
+    const custom: OverpassProvider = {
+      name: "acme",
+      query: async () => ({}),
+    };
+    expect(overpassQueryOptions(custom, "out;").queryKey).toEqual([
+      "overpass",
+      "acme",
+      "out;",
+    ]);
+    expect(
+      overpassQueryOptions({ ...custom, cacheKey: "acme|eu" }, "out;").queryKey,
+    ).toEqual(["overpass", "acme|eu", "out;"]);
+  });
+
+  it("two Overpass endpoints do not share a key", () => {
+    const other = createOverpassProvider({
+      endpoint: "https://other.example.test/api/interpreter",
+      fetch: stubFetch(),
+    });
+    expect(overpassQueryOptions(provider, "out;").queryKey).not.toEqual(
+      overpassQueryOptions(other, "out;").queryKey,
+    );
+  });
+
+  it("is disabled for an empty query", () => {
     const options = overpassQueryOptions(provider, "out;");
-    expect(options.queryKey).toEqual(["overpass", provider.name, "out;"]);
+    expect(options.queryKey).toContain("out;");
     expect(options.enabled).toBe(true);
     expect(options.staleTime).toBe(60 * 60 * 1000);
     expect(overpassQueryOptions(provider, "").enabled).toBe(false);
