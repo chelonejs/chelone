@@ -13,6 +13,8 @@ import type {
   CardContentInnerProps,
   CheloneRouterHandle,
   ColorInputProps,
+  CommandMenuContextValue,
+  CommandMenuProps,
   CommentRecord,
   CommentsThreadProps,
   CreateCheloneRouterOptions,
@@ -683,5 +685,14 @@ describe("@chelone/react barrel — guessers", () => {
       identity: UserIdentity | undefined;
       isPending: boolean;
     }>();
+  });
+
+  it("exports CommandMenu, useCommandMenu and useRegisterCommand", () => {
+    expect(barrel.CommandMenu).toBeTypeOf("function");
+    expect(barrel.useCommandMenu).toBeTypeOf("function");
+    expect(barrel.useRegisterCommand).toBeTypeOf("function");
+    expectTypeOf<CommandMenuProps>().toHaveProperty("hotkey");
+    expectTypeOf<CommandMenuProps>().toHaveProperty("actions");
+    expectTypeOf<CommandMenuContextValue>().toHaveProperty("registerCommand");
   });
 });

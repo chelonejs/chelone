@@ -5892,6 +5892,76 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "addon-supabase",
+      "type": "registry:block",
+      "title": "Chelone Supabase",
+      "categories": ["chelone", "authentication"],
+      "description": "The opt-in Supabase add-on: SocialAuthButton and one sign-in button per OAuth provider (Apple to WorkOS). Installs @chelone/supabase.",
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/supabase", "@chelone/vue"],
+      "files": [
+        {
+          "path": "src/components/admin/supabase/provider-buttons.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/social-auth-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/social-icons.ts",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "provider-buttons",
+      "type": "registry:component",
+      "title": "Provider Buttons",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/provider-buttons.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/social-auth-button",
+        "@chelone/social-icons"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "social-auth-button",
+      "type": "registry:component",
+      "title": "Social Auth Button",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/social-auth-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/supabase", "@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "social-icons",
+      "type": "registry:component",
+      "title": "Social Icons",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/social-icons.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "style-chelone",
       "type": "registry:base",
       "title": "Chelone",
