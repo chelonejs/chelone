@@ -11,8 +11,11 @@ import type { PostgrestOperator } from "./postgrest/filters";
 import { buildFilters } from "./postgrest/filters";
 import {
   decodeId,
+  encodeId,
   getPrimaryKey,
   idFilter,
+  removePrimaryKey,
+  withoutVirtualId,
   withVirtualId,
 } from "./postgrest/keys";
 import type {
@@ -48,9 +51,7 @@ type Pair = [string, string];
 
 const OBJECT_ACCEPT = "application/vnd.pgrst.object+json";
 
-const notImplemented = async (): Promise<never> => {
-  throw new Error("not implemented");
-};
+const RETURN_REPRESENTATION = { Prefer: "return=representation" };
 
 export function supabaseDataProvider({
   instanceUrl,
@@ -131,6 +132,41 @@ export function supabaseDataProvider({
     };
   }
 
+  /** A write that answers one row; PostgREST answers 406 when none matched. */
+  async function writeOne(
+    resource: string,
+    pairs: Pair[],
+    meta: SupabaseMeta,
+    init: RequestInit,
+  ) {
+    try {
+      const { json } = await request(resource, pairs, meta, {
+        ...init,
+        headers: { ...RETURN_REPRESENTATION, Accept: OBJECT_ACCEPT },
+      });
+      return json as Row;
+    } catch (error) {
+      if (error instanceof HttpError && error.status === 406) {
+        throw new HttpError(error.message, 404, error.body);
+      }
+      throw error;
+    }
+  }
+
+  async function writeMany(
+    resource: string,
+    pairs: Pair[],
+    meta: SupabaseMeta,
+    init: RequestInit,
+    primaryKey: readonly string[],
+  ) {
+    const { json } = await request(resource, pairs, meta, {
+      ...init,
+      headers: RETURN_REPRESENTATION,
+    });
+    return (json as Row[]).map((row) => encodeId(row, primaryKey));
+  }
+
   return {
     getList: list as DataProvider["getList"],
 
@@ -180,10 +216,84 @@ export function supabaseDataProvider({
       }) as never;
     },
 
-    create: notImplemented,
-    update: notImplemented,
-    delete: notImplemented,
-    updateMany: notImplemented,
-    deleteMany: notImplemented,
+    async create(resource, { data, meta }) {
+      const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+      const primaryKey = getPrimaryKey(resource, primaryKeys);
+      const row = await writeOne(resource, [], supabaseMeta, {
+        method: "POST",
+        body: JSON.stringify(withoutVirtualId(data as Row, primaryKey)),
+      });
+      return { data: withVirtualId(row, primaryKey) } as never;
+    },
+
+    async update(resource, { id, data, meta }) {
+      const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+      const primaryKey = getPrimaryKey(resource, primaryKeys);
+      const row = await writeOne(
+        resource,
+        idFilter([id], primaryKey),
+        supabaseMeta,
+        {
+          method: "PATCH",
+          body: JSON.stringify(
+            removePrimaryKey(
+              withoutVirtualId(data as Row, primaryKey),
+              primaryKey,
+            ),
+          ),
+        },
+      );
+      return { data: withVirtualId(row, primaryKey) } as never;
+    },
+
+    async updateMany(resource, { ids, data, meta }) {
+      if (ids.length === 0) return { data: [] };
+      const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+      const primaryKey = getPrimaryKey(resource, primaryKeys);
+      return {
+        data: await writeMany(
+          resource,
+          idFilter(ids, primaryKey),
+          supabaseMeta,
+          {
+            method: "PATCH",
+            body: JSON.stringify(
+              removePrimaryKey(
+                withoutVirtualId(data as Row, primaryKey),
+                primaryKey,
+              ),
+            ),
+          },
+          primaryKey,
+        ),
+      } as never;
+    },
+
+    async delete(resource, { id, meta }) {
+      const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+      const primaryKey = getPrimaryKey(resource, primaryKeys);
+      const row = await writeOne(
+        resource,
+        idFilter([id], primaryKey),
+        supabaseMeta,
+        { method: "DELETE" },
+      );
+      return { data: withVirtualId(row, primaryKey) } as never;
+    },
+
+    async deleteMany(resource, { ids, meta }) {
+      if (ids.length === 0) return { data: [] };
+      const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+      const primaryKey = getPrimaryKey(resource, primaryKeys);
+      return {
+        data: await writeMany(
+          resource,
+          idFilter(ids, primaryKey),
+          supabaseMeta,
+          { method: "DELETE" },
+          primaryKey,
+        ),
+      } as never;
+    },
   };
 }
