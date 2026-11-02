@@ -97,7 +97,6 @@ function fixedKind(
         renderShape(props, emit, kind, tools),
     {
       name,
-      inheritAttrs: false,
       props: propsOf<GeoJsonInputBaseProps>(),
       emits,
     },
@@ -183,7 +182,6 @@ export const GeoJsonInput = defineComponent(
     },
   {
     name: "GeoJsonInput",
-    inheritAttrs: false,
     props: propsOf<GeoJsonInputProps>({
       shapes: { type: Array, default: undefined },
       collection: { type: Boolean, default: false },
@@ -215,7 +213,6 @@ export const FeatureInput = defineComponent(
     },
   {
     name: "FeatureInput",
-    inheritAttrs: false,
     props: propsOf<FeatureInputProps>({
       shape: { type: String, default: undefined },
     }),
@@ -248,7 +245,6 @@ export const FeatureCollectionInput = defineComponent(
     },
   {
     name: "FeatureCollectionInput",
-    inheritAttrs: false,
     props: propsOf<FeatureCollectionInputProps>({
       allowedShapes: { type: Array, default: undefined },
     }),

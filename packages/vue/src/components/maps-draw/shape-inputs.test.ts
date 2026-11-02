@@ -361,6 +361,28 @@ describe("PolygonInput", () => {
   });
 });
 
+describe("attributes", () => {
+  it("fall through to the fieldset, as they do on ShapeInput", async () => {
+    const { wrapper } = await mountShapeInput(() =>
+      h(PointInput, { source: "shape", id: "loc", "data-testid": "loc" }),
+    );
+
+    const fieldset = wrapper.find('[data-slot="shape-input"]');
+    expect(fieldset.attributes("id")).toBe("loc");
+    expect(fieldset.attributes("data-testid")).toBe("loc");
+  });
+
+  it("fall through on BBoxInput too", async () => {
+    const { wrapper } = await mountShapeInput(() =>
+      h(BBoxInput, { source: "shape", id: "box" }),
+    );
+
+    expect(wrapper.find('[data-slot="shape-input"]').attributes("id")).toBe(
+      "box",
+    );
+  });
+});
+
 describe("MultiPolygonInput", () => {
   const parts = [square(0), square(10), square(20)];
   const multi = (...polygons: Geometry[]) => ({

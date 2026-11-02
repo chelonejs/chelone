@@ -29,7 +29,6 @@ export const BBoxInput = defineComponent(
       }),
   {
     name: "BBoxInput",
-    inheritAttrs: false,
     props: options as unknown as ComponentObjectPropsOptions<BBoxInputProps>,
     emits: { commit: (_value: ShapeValue | null) => true },
   },
