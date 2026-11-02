@@ -20,6 +20,12 @@ const ADDONS = [
     entry: "src/monaco.ts",
     packages: ["@guolao/vue-monaco-editor", "monaco-editor"],
   },
+  {
+    name: "mdx-editor",
+    folder: "src/components/mdx-editor",
+    entry: "src/mdx-editor.ts",
+    packages: ["@milkdown/crepe", "@milkdown/kit"],
+  },
 ];
 
 const BASE_ENTRIES = ["src/index.ts"];

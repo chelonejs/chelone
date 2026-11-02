@@ -5199,6 +5199,78 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "mdx-editor",
+      "type": "registry:block",
+      "title": "Chelone Markdown",
+      "categories": ["chelone", "fields"],
+      "description": "The opt-in Markdown add-on: MdxField shows a markdown value in a read-only Milkdown Crepe editor, themed from the Chelone tokens. Installs @milkdown/crepe and @milkdown/kit.",
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@milkdown/crepe",
+        "@milkdown/kit"
+      ],
+      "files": [
+        {
+          "path": "src/components/mdx-editor/internal/crepe-editor.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/mdx-editor/mdx-editor-theme.css",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/mdx-editor/mdx-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "crepe-editor",
+      "type": "registry:component",
+      "title": "Crepe Editor",
+      "files": [
+        {
+          "path": "src/components/mdx-editor/internal/crepe-editor.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/mdx-editor-theme.css"],
+      "dependencies": ["@milkdown/crepe", "@milkdown/kit"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "mdx-editor-theme.css",
+      "type": "registry:component",
+      "title": "Mdx Editor Theme.css",
+      "files": [
+        {
+          "path": "src/components/mdx-editor/mdx-editor-theme.css",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "mdx-field",
+      "type": "registry:component",
+      "title": "Mdx Field",
+      "files": [
+        {
+          "path": "src/components/mdx-editor/mdx-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/crepe-editor", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "style-chelone",
       "type": "registry:base",
       "title": "Chelone",
