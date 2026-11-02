@@ -5,3 +5,7 @@ export {
   MonacoJsonField,
   type MonacoJsonFieldProps,
 } from "./components/monaco/monaco-json-field";
+export {
+  MonacoJsonInput,
+  type MonacoJsonInputProps,
+} from "./components/monaco/monaco-json-input";
