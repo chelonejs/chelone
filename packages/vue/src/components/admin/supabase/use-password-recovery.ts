@@ -116,13 +116,6 @@ function cleanedPath({
   let cleanHash = hash;
   let changed = cleanSearch !== null;
 
-  const fragmentStart = cleanHash.lastIndexOf("#");
-  const fragment = stripKeys(cleanHash.slice(fragmentStart + 1));
-  if (fragment !== null) {
-    cleanHash = `${cleanHash.slice(0, fragmentStart)}${fragment ? `#${fragment}` : ""}`;
-    changed = true;
-  }
-
   const queryStart = cleanHash.indexOf("?");
   if (queryStart !== -1) {
     const queryEnd = cleanHash.indexOf("#", queryStart);
@@ -132,6 +125,14 @@ function cleanedPath({
       cleanHash = `${cleanHash.slice(0, queryStart)}${query ? `?${query}` : ""}${cleanHash.slice(end)}`;
       changed = true;
     }
+  }
+
+  // After the query step, so `#/route?access_token=...` is not read whole as a fragment.
+  const fragmentStart = cleanHash.lastIndexOf("#");
+  const fragment = stripKeys(cleanHash.slice(fragmentStart + 1));
+  if (fragment !== null) {
+    cleanHash = `${cleanHash.slice(0, fragmentStart)}${fragment ? `#${fragment}` : ""}`;
+    changed = true;
   }
 
   if (!changed) return null;

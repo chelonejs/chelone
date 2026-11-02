@@ -236,6 +236,28 @@ describe("useSupabaseUrlTokens", () => {
     expect(currentPath).toBe("/set-password");
   });
 
+  it("removes the tokens from a hash route's query", async () => {
+    renderHook(() => useSupabaseUrlTokens(), {
+      wrapper: makeWrapper({
+        initialEntry:
+          "/app#/set-password?access_token=a3&refresh_token=r3&type=recovery&keep=1",
+      }),
+    });
+
+    await waitFor(() => expect(currentHash).toBe("#/set-password?keep=1"));
+  });
+
+  it("removes the tokens from a hash route's query when nothing else remains", async () => {
+    renderHook(() => useSupabaseUrlTokens(), {
+      wrapper: makeWrapper({
+        initialEntry:
+          "/app#/set-password?access_token=a3&refresh_token=r3&type=recovery",
+      }),
+    });
+
+    await waitFor(() => expect(currentHash).toBe("#/set-password"));
+  });
+
   it("keeps the tokens after the URL is cleaned", async () => {
     const { result } = renderHook(() => useSupabaseUrlTokens(), {
       wrapper: makeWrapper({

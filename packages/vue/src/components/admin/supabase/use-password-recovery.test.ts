@@ -222,6 +222,26 @@ describe("useSupabaseUrlTokens", () => {
     expect(router.currentRoute.value.fullPath).toBe("/set-password");
   });
 
+  it("removes the tokens from a hash route's query", async () => {
+    const { router } = await setup(() => useSupabaseUrlTokens(), {
+      initialEntry:
+        "/app#/set-password?access_token=a3&refresh_token=r3&type=recovery&keep=1",
+    });
+
+    expect(router.currentRoute.value.fullPath).toBe(
+      "/app#/set-password?keep=1",
+    );
+  });
+
+  it("removes the tokens from a hash route's query when nothing else remains", async () => {
+    const { router } = await setup(() => useSupabaseUrlTokens(), {
+      initialEntry:
+        "/app#/set-password?access_token=a3&refresh_token=r3&type=recovery",
+    });
+
+    expect(router.currentRoute.value.fullPath).toBe("/app#/set-password");
+  });
+
   it("keeps the tokens after the URL is cleaned", async () => {
     const { result, router } = await setup(() => useSupabaseUrlTokens(), {
       initialEntry: "/set-password?access_token=a1&refresh_token=r1",
