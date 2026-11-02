@@ -43,6 +43,9 @@ pnpm --dir packages/vue registry:build
 
 Issues live in GitHub Issues on `chelonejs/chelone`, managed with the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
+- An issue that changes behaviour in one adapter carries an `Adapter reach:` line under `Touches:`: `React and Vue in this issue`, or the open issue that ports it to the other adapter, filed at the same time. Logic both adapters need moves to core in that issue.
+- An issue that renders stored or user-supplied content (markdown, HTML, URLs, file names) or reads a credential or token has an acceptance criterion with a named test that feeds it hostile input (a `javascript:` URL, a raw `<iframe>`, a token left in the URL) and pins that nothing runs or leaks.
+
 ### Triage labels
 
 The five default labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
