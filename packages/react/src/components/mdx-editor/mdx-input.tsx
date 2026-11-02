@@ -8,12 +8,14 @@ import {
   type RefObject,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { ValidationError } from "../../field-error-display";
 import { useInput } from "../../form-hooks";
@@ -21,6 +23,7 @@ import { useResourceContext } from "../../resource";
 import type { InputProps } from "../admin/input-props";
 import { useResolvedTheme } from "../admin/layout/use-theme";
 import { defaultInputPlugins } from "./default-plugins";
+import { safeHtmlImagePlugin } from "./safe-html-image-plugin";
 import "./mdx-editor-dark.css";
 
 type MdxEditorPassthrough = Omit<
@@ -36,7 +39,13 @@ type MdxEditorPassthrough = Omit<
 
 interface MdxInputProps extends InputProps {
   className?: string;
-  /** Extra `MDXEditor` props. `plugins` here replaces `defaultInputPlugins`. */
+  /**
+   * Extra `MDXEditor` props. `plugins` here replaces `defaultInputPlugins`;
+   * an inert `<img>` visitor is added to either list.
+   * `suppressHtmlProcessing` defaults to `true`, so raw HTML stays text; set it
+   * to `false` to render stored HTML live, where an
+   * `<iframe src="javascript:...">` runs script as the editor mounts.
+   */
   mdxProps?: MdxEditorPassthrough;
 }
 
@@ -48,6 +57,7 @@ interface EditorProps {
   mdxProps?: MdxEditorPassthrough;
   onChange: (markdown: string, initialMarkdownNormalize: boolean) => void;
   onBlur: (event: FocusEvent) => void;
+  onError: () => void;
 }
 
 function shallowEqual(
@@ -71,17 +81,28 @@ const Editor = memo(function Editor({
   mdxProps,
   onChange,
   onBlur,
+  onError,
 }: EditorProps) {
+  // Added to the caller's list too, so `imagePlugin()` cannot run the
+  // `onerror` of raw `<img>` HTML.
+  const basePlugins = mdxProps?.plugins ?? defaultInputPlugins;
+  const plugins = useMemo(
+    () => [...basePlugins, safeHtmlImagePlugin],
+    [basePlugins],
+  );
   return (
     <MDXEditor
-      plugins={defaultInputPlugins}
       {...mdxProps}
+      plugins={plugins}
+      // After the spread, so a key set to `undefined` keeps the safe default.
+      suppressHtmlProcessing={mdxProps?.suppressHtmlProcessing ?? true}
       ref={editorRef}
       markdown={initialMarkdown}
       readOnly={readOnly}
       className={cn(className, mdxProps?.className)}
       onChange={onChange}
       onBlur={onBlur}
+      onError={onError}
     />
   );
 }, editorPropsEqual);
@@ -91,6 +112,7 @@ function editorPropsEqual(prev: EditorProps, next: EditorProps) {
     prev.readOnly === next.readOnly &&
     prev.onChange === next.onChange &&
     prev.onBlur === next.onBlur &&
+    prev.onError === next.onError &&
     prev.initialMarkdown === next.initialMarkdown &&
     prev.className === next.className &&
     shallowEqual(prev.mdxProps, next.mdxProps)
@@ -167,6 +189,12 @@ function MdxInput(props: MdxInputProps) {
     [],
   );
 
+  // Markdown the editor cannot import (block HTML, once HTML processing is off)
+  // is dropped from its content without a sign, and the next keystroke would
+  // save that loss. The stored text goes in a plain textarea instead.
+  const [parseFailed, setParseFailed] = useState(false);
+  const handleError = useCallback(() => setParseFailed(true), []);
+
   // A reset or `setValue` changes the form value without the editor knowing.
   useEffect(() => {
     const editor = editorRef.current;
@@ -191,15 +219,28 @@ function MdxInput(props: MdxInputProps) {
         </FieldLabel>
       )}
       <div id={id}>
-        <Editor
-          editorRef={editorRef}
-          initialMarkdown={initialMarkdown}
-          readOnly={disabled === true || readOnly === true}
-          className={theme === "dark" ? "mdxeditor-dark" : undefined}
-          mdxProps={mdxProps}
-          onChange={handleChange}
-          onBlur={handleBlur}
-        />
+        {parseFailed ? (
+          <Textarea
+            data-slot="mdx-input-fallback"
+            value={value}
+            disabled={disabled === true}
+            readOnly={readOnly === true}
+            aria-invalid={invalid || undefined}
+            onChange={(event) => field.onChange(event.target.value)}
+            onBlur={(event) => field.onBlur(event)}
+          />
+        ) : (
+          <Editor
+            editorRef={editorRef}
+            initialMarkdown={initialMarkdown}
+            readOnly={disabled === true || readOnly === true}
+            className={theme === "dark" ? "mdxeditor-dark" : undefined}
+            mdxProps={mdxProps}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onError={handleError}
+          />
+        )}
       </div>
       <InputHelperText helperText={helperText} />
       <FieldError>

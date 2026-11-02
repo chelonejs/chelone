@@ -35,7 +35,7 @@
       "name": "plugins",
       "type": "RealmPlugin[]",
       "optional": true,
-      "comment": "The editor plugins. Defaults to `defaultFieldPlugins`."
+      "comment": "The editor plugins. Defaults to `defaultFieldPlugins`. The field adds an\ninert `<img>` visitor to whatever list it gets, so `imagePlugin()` cannot\nrun the `onerror` of raw `<img>` HTML."
     },
     {
       "name": "record",
@@ -72,6 +72,12 @@
       "type": "string",
       "optional": false,
       "comment": "Name of the property to display (dot/bracket path)."
+    },
+    {
+      "name": "suppressHtmlProcessing",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Keeps raw HTML in the markdown as text. Defaults to `true`, since a field\nshows records other people wrote. Pass `false` to render stored HTML live:\nan `<iframe src=\"javascript:...\">` then runs script as the field mounts, and\na `javascript:` link runs on click."
     },
     {
       "name": "textAlign",

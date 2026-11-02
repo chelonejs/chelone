@@ -5931,6 +5931,7 @@
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils",
+        "@chelone/textarea",
         "@chelone/use-theme"
       ],
       "dependencies": ["@chelone/react", "@mdxeditor/editor"],
@@ -5949,6 +5950,10 @@
         },
         {
           "path": "src/components/mdx-editor/mdx-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/mdx-editor/safe-html-image-plugin.ts",
           "type": "registry:component"
         }
       ],
@@ -5997,6 +6002,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils",
         "@chelone/mdx-editor-dark.css",
+        "@chelone/safe-html-image-plugin",
         "@chelone/use-theme"
       ],
       "dependencies": ["@chelone/react", "@mdxeditor/editor"],
@@ -6021,10 +6027,26 @@
         "@chelone/input-props",
         "@chelone/lib-utils",
         "@chelone/mdx-editor-dark.css",
+        "@chelone/safe-html-image-plugin",
+        "@chelone/textarea",
         "@chelone/use-theme"
       ],
       "dependencies": ["@chelone/react", "@mdxeditor/editor"],
       "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "safe-html-image-plugin",
+      "type": "registry:component",
+      "title": "Safe Html Image Plugin",
+      "files": [
+        {
+          "path": "src/components/mdx-editor/safe-html-image-plugin.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@mdxeditor/editor"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
