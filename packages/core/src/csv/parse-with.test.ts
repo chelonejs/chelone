@@ -147,6 +147,16 @@ describe("parseCsvWith", () => {
     );
   });
 
+  it("reads the header after leading rows of empty cells", () => {
+    for (const lead of ["\n", " , \n", ",\n,\n"]) {
+      expect(parseCsvWith(Papa, `${lead}name,age\nAda,36`)).toEqual({
+        headers: ["name", "age"],
+        rows: [{ name: "Ada", age: "36" }],
+        errors: [],
+      });
+    }
+  });
+
   it("returns no headers and no rows for empty text", () => {
     expect(parseCsvWith(Papa, "")).toEqual({
       headers: [],
