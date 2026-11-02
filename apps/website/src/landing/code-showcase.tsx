@@ -31,7 +31,7 @@ export const App = () => (
 export function CodeShowcase() {
   return (
     <Section>
-      <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
         {/* Copy */}
         <Reveal>
           <Heading>
