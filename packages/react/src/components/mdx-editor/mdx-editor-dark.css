@@ -1,0 +1,20 @@
+/* The editor's palette follows the Chelone tokens in dark mode. */
+.mdxeditor-dark {
+  --mdxeditor-bg-color: var(--background);
+  --mdxeditor-text-color: var(--foreground);
+  --mdxeditor-toolbar-bg-color: var(--card);
+
+  /* The editor reads these palette variables for its own surfaces. */
+  --basePageBg: var(--mdxeditor-bg-color);
+  --baseBase: var(--mdxeditor-toolbar-bg-color);
+  --baseBg: var(--mdxeditor-toolbar-bg-color);
+  --baseText: var(--mdxeditor-text-color);
+  --baseTextContrast: var(--mdxeditor-text-color);
+
+  background-color: var(--mdxeditor-bg-color);
+  color: var(--mdxeditor-text-color);
+}
+
+.mdxeditor-dark [role="toolbar"] {
+  background-color: var(--mdxeditor-toolbar-bg-color);
+}

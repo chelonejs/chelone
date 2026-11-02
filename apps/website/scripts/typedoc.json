@@ -2,7 +2,8 @@
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": [
     "../../../packages/react/src/index.ts",
-    "../../../packages/react/src/monaco.ts"
+    "../../../packages/react/src/monaco.ts",
+    "../../../packages/react/src/mdx-editor.ts"
   ],
   "tsconfig": "../../../packages/react/tsconfig.json",
   "json": "./public-api.typedoc.json",
