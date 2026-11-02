@@ -5098,9 +5098,14 @@
       "docs": "Monaco runs its editor and JSON workers on the main thread unless the app sets MonacoEnvironment.getWorker. With Vite, import the workers with ?worker (editor.worker and json.worker from monaco-editor/esm/vs/...) and assign getWorker on self before the first render. Without it Monaco logs a console warning and still works.",
       "description": "The opt-in Monaco add-on: MonacoJsonField shows a JSON value in a read-only Monaco editor. Monaco loads in its own chunk, so nothing reaches the base bundle until the field renders. Installs monaco-editor and @guolao/vue-monaco-editor.",
       "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
         "@chelone/lib-utils",
         "@chelone/skeleton",
-        "@chelone/theme-context"
+        "@chelone/theme-context",
+        "@chelone/validation-error"
       ],
       "dependencies": [
         "@chelone/core",
@@ -5118,11 +5123,31 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/monaco/internal/strip-json-comments.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/monaco/internal/use-json-schema.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/monaco/internal/use-monaco-markers.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/monaco/monaco-json-field-lazy.vue",
           "type": "registry:component"
         },
         {
           "path": "src/components/monaco/monaco-json-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/monaco/monaco-json-input-lazy.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/monaco/monaco-json-input.vue",
           "type": "registry:component"
         }
       ],
@@ -5154,6 +5179,47 @@
         }
       ],
       "registryDependencies": ["@chelone/skeleton"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "strip-json-comments",
+      "type": "registry:component",
+      "title": "Strip Json Comments",
+      "files": [
+        {
+          "path": "src/components/monaco/internal/strip-json-comments.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-json-schema",
+      "type": "registry:component",
+      "title": "Use Json Schema",
+      "files": [
+        {
+          "path": "src/components/monaco/internal/use-json-schema.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["monaco-editor"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-monaco-markers",
+      "type": "registry:component",
+      "title": "Use Monaco Markers",
+      "files": [
+        {
+          "path": "src/components/monaco/internal/use-monaco-markers.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["monaco-editor"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5196,6 +5262,56 @@
       ],
       "dependencies": ["@chelone/core", "monaco-editor"],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "monaco-json-input-lazy",
+      "type": "registry:component",
+      "title": "Monaco Json Input Lazy",
+      "files": [
+        {
+          "path": "src/components/monaco/monaco-json-input-lazy.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/lib-utils",
+        "@chelone/monaco-composables",
+        "@chelone/monaco-json-input",
+        "@chelone/strip-json-comments",
+        "@chelone/use-json-schema",
+        "@chelone/use-monaco-markers",
+        "@chelone/validation-error"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@guolao/vue-monaco-editor",
+        "monaco-editor"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "monaco-json-input",
+      "type": "registry:component",
+      "title": "Monaco Json Input",
+      "files": [
+        {
+          "path": "src/components/monaco/monaco-json-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/monaco-json-input-lazy",
+        "@chelone/monaco-skeleton"
+      ],
+      "dependencies": ["@chelone/core", "monaco-editor"],
+      "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
