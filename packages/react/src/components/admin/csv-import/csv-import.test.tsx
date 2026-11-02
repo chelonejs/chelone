@@ -178,6 +178,30 @@ describe("<CsvImport>", () => {
     expect(nextButton().hasAttribute("disabled")).toBe(true);
   });
 
+  it("loads the first file when several .csv files are dropped", async () => {
+    render(
+      <Providers dataProvider={makeProvider()}>
+        <CsvImport schema={schema} />
+      </Providers>,
+    );
+    openDialog();
+    const dropzone = screen.getByTestId("csv-file-input")
+      .parentElement as HTMLElement;
+    const first = new File([GOOD_CSV], "first.csv", { type: "text/csv" });
+    const second = new File(["title\nOther\n"], "second.csv", {
+      type: "text/csv",
+    });
+
+    await act(async () => {
+      fireEvent.drop(dropzone, {
+        dataTransfer: { files: [first, second], types: ["Files"] },
+      });
+    });
+
+    await parsed("2 rows parsed");
+    expect(screen.queryByText("Choose a .csv file")).toBeNull();
+  });
+
   it("warns when the file is not UTF-8", async () => {
     render(
       <Providers dataProvider={makeProvider()}>
