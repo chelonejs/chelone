@@ -8,7 +8,9 @@
 import {
   createI18n,
   fakeDataProvider,
+  type GeoLineString,
   mapMessages,
+  type RoutingProvider,
   rasterTileStyle,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
@@ -19,7 +21,7 @@ import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../admin/admin.vue";
 import { type UseFormReturn, useForm } from "../../form/use-form";
 import { resetFake as resetMaps } from "../maps/__fixtures__/fake-maplibre";
-import { MapsProvider } from "../maps/use-map";
+import { type MapsConfig, MapsProvider } from "../maps/use-map";
 import {
   draws,
   type FakeFeature,
@@ -27,6 +29,7 @@ import {
   type TerraDraw,
 } from "./__fixtures__/fake-terra-draw";
 import { BBoxInput } from "./bbox-input";
+import type { ShapeInputProps } from "./shape-input.vue";
 import {
   FeatureCollectionInput,
   FeatureInput,
@@ -119,7 +122,11 @@ const rect = (w: number, s: number, e: number, n: number): Geometry => ({
 });
 
 /** Mounts `input` as the only field of a form under Admin and the maps provider. */
-async function mountShapeInput(input: () => VNode, shape: unknown = null) {
+async function mountShapeInput(
+  input: () => VNode,
+  shape: unknown = null,
+  config: Omit<MapsConfig, "mapStyle"> = {},
+) {
   let current: UseFormReturn<Values> | undefined;
   const FormHost = defineComponent({
     setup() {
@@ -137,7 +144,7 @@ async function mountShapeInput(input: () => VNode, shape: unknown = null) {
   const Harness = defineComponent({
     setup() {
       return () =>
-        h(MapsProvider, { mapStyle: style }, () =>
+        h(MapsProvider, { mapStyle: style, ...config }, () =>
           h(
             Admin,
             {
@@ -170,6 +177,15 @@ async function mountShapeInput(input: () => VNode, shape: unknown = null) {
   return {
     wrapper,
     draw,
+    /** Writes `shape` the way code outside the input does. */
+    setField: (shape: unknown) => {
+      if (!current) throw new Error("form not mounted");
+      current.form.setFieldValue("shape", shape);
+    },
+    reset: (shape: unknown) => {
+      if (!current) throw new Error("form not mounted");
+      current.reset({ shape });
+    },
     value: () => {
       if (!current) throw new Error("form not mounted");
       return current.form.store.state.values.shape;
@@ -772,5 +788,251 @@ describe("BBoxInput", () => {
     const ring = (shown[0]?.geometry.coordinates as number[][][])[0] ?? [];
     const xs = ring.map((c) => c[0] as number);
     expect([Math.min(...xs), Math.max(...xs)]).toEqual([-2, 6]);
+  });
+});
+
+type Refine = NonNullable<ShapeInputProps["refine"]>;
+
+/** A `refine` the test settles by hand, one call at a time. */
+function pendingRefine() {
+  const calls: {
+    value: unknown;
+    signal: AbortSignal;
+    settle: (result: unknown) => void;
+  }[] = [];
+  const refine: Refine = (value, { signal }) =>
+    new Promise((resolve) => {
+      calls.push({ value, signal, settle: resolve as (r: unknown) => void });
+    });
+  return { refine: vi.fn(refine), calls };
+}
+
+describe("ShapeInput refine", () => {
+  it("writes a changed result and reseeds the draft", async () => {
+    const refine = vi.fn<Refine>(async () => square(5) as never);
+    const { wrapper, draw, value } = await mountShapeInput(() =>
+      h(PolygonInput, { source: "shape", label: "Area", refine }),
+    );
+    await drawWith(wrapper, draw, "Draw a polygon", "polygon", square(1));
+
+    expect(refine).toHaveBeenCalledTimes(1);
+    expect(refine.mock.calls[0]?.[0]).toEqual(square(1));
+    expect(refine.mock.calls[0]?.[1].signal).toBeInstanceOf(AbortSignal);
+    expect(value()).toEqual(square(5));
+    expect(draw().features.map((f) => f.geometry)).toEqual([square(5)]);
+  });
+
+  it("is not called on hydration or reset", async () => {
+    const refine = vi.fn<Refine>(async () => square(5) as never);
+    const { setField, reset, value } = await mountShapeInput(
+      () => h(PolygonInput, { source: "shape", label: "Area", refine }),
+      square(1),
+    );
+    reset(square(2));
+    await flushPromises();
+    setField(square(3));
+    await flushPromises();
+
+    expect(refine).not.toHaveBeenCalled();
+    expect(value()).toEqual(square(3));
+  });
+
+  it("aborts the older call when a newer commit arrives", async () => {
+    const { refine, calls } = pendingRefine();
+    const { wrapper, draw, value } = await mountShapeInput(() =>
+      h(PolygonInput, { source: "shape", label: "Area", refine }),
+    );
+    await drawWith(wrapper, draw, "Draw a polygon", "polygon", square(1));
+    await drawWith(wrapper, draw, "Draw a polygon", "polygon", square(2));
+
+    expect(calls).toHaveLength(2);
+    expect(calls[0]?.signal.aborted).toBe(true);
+    expect(calls[1]?.signal.aborted).toBe(false);
+
+    // The older answer arrives late and is dropped.
+    calls[0]?.settle(square(8));
+    await flushPromises();
+    expect(value()).toEqual(square(2));
+    calls[1]?.settle(square(9));
+    await flushPromises();
+    expect(value()).toEqual(square(9));
+  });
+
+  it("writes nothing when the field changed meanwhile", async () => {
+    const { refine, calls } = pendingRefine();
+    const { wrapper, draw, setField, value } = await mountShapeInput(() =>
+      h(PolygonInput, { source: "shape", label: "Area", refine }),
+    );
+    await drawWith(wrapper, draw, "Draw a polygon", "polygon", square(1));
+    setField(square(4));
+    await flushPromises();
+    calls[0]?.settle(square(9));
+    await flushPromises();
+
+    expect(value()).toEqual(square(4));
+  });
+
+  it("aborts the call on unmount and ignores a thrown error", async () => {
+    const { refine, calls } = pendingRefine();
+    const first = await mountShapeInput(() =>
+      h(PolygonInput, { source: "shape", label: "Area", refine }),
+    );
+    await drawWith(
+      first.wrapper,
+      first.draw,
+      "Draw a polygon",
+      "polygon",
+      square(1),
+    );
+    first.wrapper.unmount();
+    expect(calls[0]?.signal.aborted).toBe(true);
+
+    resetMaps();
+    resetDraws();
+    const failing = await mountShapeInput(() =>
+      h(PolygonInput, {
+        source: "shape",
+        label: "Area",
+        refine: async () => {
+          throw new Error("boom");
+        },
+      }),
+    );
+    await drawWith(
+      failing.wrapper,
+      failing.draw,
+      "Draw a polygon",
+      "polygon",
+      square(1),
+    );
+    expect(failing.value()).toEqual(square(1));
+  });
+});
+
+/** Snaps by shifting every position 1 degree east. */
+function fakeRouter(
+  snap?: (line: GeoLineString) => GeoLineString | null,
+): RoutingProvider & { snapToRoad: ReturnType<typeof vi.fn> } {
+  return {
+    name: "fake",
+    snapToRoad: vi.fn(async (l: GeoLineString) =>
+      snap
+        ? snap(l)
+        : ({
+            type: "LineString",
+            coordinates: l.coordinates.map(([x, y]) => [(x ?? 0) + 1, y ?? 0]),
+          } as GeoLineString),
+    ),
+  };
+}
+
+describe("LineStringInput with snapToRoads", () => {
+  it("snaps once after a drawn line", async () => {
+    const router = fakeRouter();
+    const { wrapper, draw, value } = await mountShapeInput(() =>
+      h(LineStringInput, {
+        source: "shape",
+        label: "Route",
+        snapToRoads: router,
+      }),
+    );
+    await drawWith(wrapper, draw, "Draw a line", "linestring", line(4));
+
+    expect(router.snapToRoad).toHaveBeenCalledTimes(1);
+    expect(router.snapToRoad.mock.calls[0]?.[0]).toEqual(line(4));
+    expect(router.snapToRoad.mock.calls[0]?.[1].signal).toBeInstanceOf(
+      AbortSignal,
+    );
+    expect(value()).toEqual({
+      type: "LineString",
+      coordinates: [
+        [5, 4],
+        [6, 5],
+      ],
+    });
+    // The write reseeds the draft without counting as a user edit.
+    expect(router.snapToRoad).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves a saved line alone on load", async () => {
+    const router = fakeRouter();
+    const { reset, value } = await mountShapeInput(
+      () =>
+        h(LineStringInput, {
+          source: "shape",
+          label: "Route",
+          snapToRoads: router,
+        }),
+      line(2),
+    );
+    reset(line(7));
+    await flushPromises();
+
+    expect(router.snapToRoad).not.toHaveBeenCalled();
+    expect(value()).toEqual(line(7));
+  });
+
+  it("true takes the router from MapsProvider and throws an error naming snapToRoads when there is none", async () => {
+    const router = fakeRouter();
+    const { wrapper, draw } = await mountShapeInput(
+      () =>
+        h(LineStringInput, {
+          source: "shape",
+          label: "Route",
+          snapToRoads: true,
+        }),
+      null,
+      { router },
+    );
+    await drawWith(wrapper, draw, "Draw a line", "linestring", line(4));
+    expect(router.snapToRoad).toHaveBeenCalledTimes(1);
+    wrapper.unmount();
+
+    const quiet = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await expect(
+      mountShapeInput(() =>
+        h(LineStringInput, {
+          source: "shape",
+          label: "Route",
+          snapToRoads: true,
+        }),
+      ),
+    ).rejects.toThrow(/snapToRoads.*MapsProvider/);
+    quiet.mockRestore();
+  });
+
+  it("keeps the drawn line when the snap fails", async () => {
+    const router = fakeRouter(() => null);
+    const { wrapper, draw, value } = await mountShapeInput(() =>
+      h(LineStringInput, {
+        source: "shape",
+        label: "Route",
+        snapToRoads: router,
+      }),
+    );
+    await drawWith(wrapper, draw, "Draw a line", "linestring", line(4));
+
+    expect(router.snapToRoad).toHaveBeenCalledTimes(1);
+    expect(value()).toEqual(line(4));
+  });
+
+  it("does not write when the snapped line is identical", async () => {
+    const router = fakeRouter((l) => ({
+      type: "LineString",
+      coordinates: l.coordinates.map(([x, y]) => [x ?? 0, y ?? 0]),
+    }));
+    const { wrapper, draw, value } = await mountShapeInput(() =>
+      h(LineStringInput, {
+        source: "shape",
+        label: "Route",
+        snapToRoads: router,
+      }),
+    );
+    await drawWith(wrapper, draw, "Draw a line", "linestring", line(4));
+    const written = value();
+    await flushPromises();
+
+    expect(router.snapToRoad).toHaveBeenCalledTimes(1);
+    expect(value()).toBe(written);
   });
 });
