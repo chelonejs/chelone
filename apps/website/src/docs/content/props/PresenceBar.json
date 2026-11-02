@@ -1,0 +1,41 @@
+{
+  "name": "PresenceBar",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "currentUser",
+      "type": "{ avatar?: string; id: string; name: string }",
+      "optional": true,
+      "comment": "Replaces the auth provider's identity as the user who is announced."
+    },
+    {
+      "name": "heartbeatMs",
+      "type": "number",
+      "optional": true,
+      "comment": "How often the announce is republished. Default 15000."
+    },
+    {
+      "name": "maxAvatars",
+      "type": "number",
+      "optional": true,
+      "comment": "How many avatars to show before the rest collapse into a `+N` count. Default 5."
+    },
+    {
+      "name": "staleMs",
+      "type": "number",
+      "optional": true,
+      "comment": "A user unheard for longer than this is dropped. Default 30000."
+    },
+    {
+      "name": "topic",
+      "type": "string",
+      "optional": true,
+      "comment": "Defaults to the presence topic of the resource and record contexts."
+    }
+  ]
+}
