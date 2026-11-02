@@ -6023,11 +6023,34 @@
       "title": "Chelone Supabase",
       "categories": ["chelone", "authentication"],
       "description": "The opt-in Supabase add-on: SocialAuthButton and one sign-in button per OAuth provider (Apple to WorkOS). Installs @chelone/supabase.",
-      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
-      "dependencies": ["@chelone/supabase", "@chelone/vue"],
+      "registryDependencies": [
+        "@chelone/auth-layout",
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/password-input",
+        "@chelone/text-input",
+        "@chelone/ui-spinner"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/supabase", "@chelone/vue"],
       "files": [
         {
+          "path": "src/components/admin/supabase/forgot-password-form.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/forgot-password-page.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/supabase/provider-buttons.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/set-password-form.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/set-password-page.vue",
           "type": "registry:component"
         },
         {
@@ -6037,8 +6060,52 @@
         {
           "path": "src/components/admin/supabase/social-icons.ts",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/use-password-recovery.ts",
+          "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "forgot-password-form",
+      "type": "registry:component",
+      "title": "Forgot Password Form",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/forgot-password-form.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-input",
+        "@chelone/ui-spinner",
+        "@chelone/use-password-recovery"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "forgot-password-page",
+      "type": "registry:component",
+      "title": "Forgot Password Page",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/forgot-password-page.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/auth-layout",
+        "@chelone/forgot-password-form"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6054,6 +6121,46 @@
       "registryDependencies": [
         "@chelone/social-auth-button",
         "@chelone/social-icons"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "set-password-form",
+      "type": "registry:component",
+      "title": "Set Password Form",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/set-password-form.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/password-input",
+        "@chelone/ui-spinner",
+        "@chelone/use-password-recovery"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "devDependencies": ["vue-router"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "set-password-page",
+      "type": "registry:component",
+      "title": "Set Password Page",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/set-password-page.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/auth-layout",
+        "@chelone/set-password-form"
       ],
       "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "components"],
@@ -6084,6 +6191,21 @@
           "type": "registry:component"
         }
       ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-password-recovery",
+      "type": "registry:component",
+      "title": "Use Password Recovery",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/use-password-recovery.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/supabase", "@chelone/vue"],
+      "devDependencies": ["@tanstack/vue-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
