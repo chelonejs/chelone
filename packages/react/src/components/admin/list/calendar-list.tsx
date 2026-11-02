@@ -30,6 +30,9 @@ import {
   type EventRendererProps,
 } from "./calendar-month-view";
 
+/** The list controller's own default, which core does not export. */
+const LIST_DEFAULT_PER_PAGE = 10;
+
 interface CalendarListProps<
   RecordType extends ResourceRecord = ResourceRecord,
 > {
@@ -142,15 +145,17 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
   // biome-ignore lint/correctness/useExhaustiveDependencies(startISO): a new range is the trigger; the range itself is read from `latest`.
   // biome-ignore lint/correctness/useExhaustiveDependencies(endISO): see startISO.
   useEffect(() => {
-    if (inSync) return;
     const current = latest.current;
     const values = current.rangeValues();
     const filter = current.list.filter as Record<string, unknown>;
+    // Recorded even when the list already holds the range, as it does after a
+    // reload on a list URL: the unmount still has to take it back.
     applied.current ??= {
       keys: new Set(),
       previousPerPage: current.list.perPage,
     };
     for (const key of Object.keys(values)) applied.current.keys.add(key);
+    if (inSync) return;
     current.list.setParams({
       filter: { ...filter, ...values },
       perPage: current.perPage,
@@ -165,7 +170,16 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
       const { list: current } = latest.current;
       const filter = { ...(current.filter as Record<string, unknown>) };
       for (const key of before.keys) delete filter[key];
-      current.setParams({ filter, perPage: before.previousPerPage });
+      // A perPage already ours on mount came from a URL this calendar wrote
+      // earlier, so the one it replaced is gone: fall back to the list default.
+      const { perPage: own } = latest.current;
+      current.setParams({
+        filter,
+        perPage:
+          before.previousPerPage === own
+            ? LIST_DEFAULT_PER_PAGE
+            : before.previousPerPage,
+      });
     },
     [],
   );

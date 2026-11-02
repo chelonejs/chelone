@@ -114,11 +114,14 @@ function mount(
     rows = MEETINGS,
     hasEdit = true,
     hasShow = true,
+    url = "/",
     provider = rangeProvider(rows),
   }: {
     rows?: EventRow[];
     hasEdit?: boolean;
     hasShow?: boolean;
+    /** The location the app opens on, e.g. a reloaded list URL that holds a range. */
+    url?: string;
     provider?: ReturnType<typeof rangeProvider>;
   } = {},
 ) {
@@ -143,7 +146,7 @@ function mount(
     >
       <ResourceRegistryProvider registry={registry}>
         <RouterAdapterProvider adapter={reactRouterAdapter}>
-          <MemoryRouter>
+          <MemoryRouter initialEntries={[url]}>
             <ResourceContextProvider value="meetings">
               {ui}
               <Location />
@@ -356,6 +359,36 @@ describe("<CalendarList> month view", () => {
     await waitFor(() =>
       expect(screen.getByTestId("params").textContent).toBe(
         JSON.stringify({ perPage: 25, filter: { kind: "work" } }),
+      ),
+    );
+  });
+
+  it.each([
+    [
+      "the visible month",
+      new Date(2026, 3, 26),
+      new Date(2026, 5, 6, 23, 59, 59, 999),
+    ],
+    [
+      "another month",
+      new Date(2026, 5, 28),
+      new Date(2026, 7, 1, 23, 59, 59, 999),
+    ],
+  ])("removes a range filter and perPage a reloaded URL held for %s", async (_name, start, end) => {
+    const filter = JSON.stringify({
+      start_gte: start.toISOString(),
+      start_lte: end.toISOString(),
+    });
+    mount(<Toggled />, {
+      url: `/?filter=${encodeURIComponent(filter)}&perPage=1000`,
+    });
+    await screen.findByText("Standup");
+
+    fireEvent.click(screen.getByRole("button", { name: "hide calendar" }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("params").textContent).toBe(
+        JSON.stringify({ perPage: 10, filter: {} }),
       ),
     );
   });
