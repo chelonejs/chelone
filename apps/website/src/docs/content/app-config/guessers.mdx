@@ -92,8 +92,9 @@ nullable, default, branded and refined wrappers are unwrapped first.
 A plain `z.string()` column is a bare `DataTable.Col`, and a bare `RecordField`
 in the show page.
 
-`describeResource` reads Zod 3 schemas. A Zod 4 schema describes as nothing, so
-the resource shows `GuesserEmpty`.
+The guessers read Zod 3 and Zod 4 schemas alike. A schema from another Standard
+Schema library validates forms but describes as nothing, so the resource shows
+`GuesserEmpty`.
 
 ## References
 
