@@ -134,6 +134,10 @@
         {
           "path": "src/components/ui/table.ts",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/textarea.vue",
+          "type": "registry:component"
         }
       ],
       "author": "Chelone <https://chelone.dev>"
@@ -429,6 +433,20 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "textarea",
+      "type": "registry:ui",
+      "title": "Textarea",
+      "files": [
+        {
+          "path": "src/components/ui/textarea.vue",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "admin",
       "type": "registry:block",
       "title": "Chelone Admin",
@@ -451,6 +469,7 @@
         "@chelone/skeleton",
         "@chelone/switch",
         "@chelone/table",
+        "@chelone/textarea",
         "@chelone/ui-spinner"
       ],
       "files": [
@@ -1240,6 +1259,10 @@
         },
         {
           "path": "src/components/admin/list/tree-list.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/realtime/comments-thread.vue",
           "type": "registry:component"
         },
         {
@@ -4758,6 +4781,26 @@
         "@chelone/simple-list-loading",
         "@chelone/tree-list-context",
         "@chelone/tree-list-node"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "comments-thread",
+      "type": "registry:component",
+      "title": "Comments Thread",
+      "files": [
+        {
+          "path": "src/components/admin/realtime/comments-thread.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/textarea"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],

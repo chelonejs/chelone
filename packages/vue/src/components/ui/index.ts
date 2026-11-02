@@ -91,3 +91,4 @@ export {
   TableHeader,
   TableRow,
 } from "./table";
+export { default as Textarea } from "./textarea.vue";
