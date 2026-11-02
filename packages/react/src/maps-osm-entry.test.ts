@@ -13,10 +13,19 @@ vi.mock(
 const src = resolve(fileURLToPath(new URL("..", import.meta.url)), "src");
 
 describe("the maps/osm entry", () => {
-  it("exports exactly GeocodingInput, MapWithSearch and useGeocode", async () => {
+  it("the maps/osm entry also exports fetchOsmFeatures, useOsmFeatures, osmToPolygons, unionAll and subtractMask", async () => {
     const entry = await import("./maps-osm");
     expect(Object.keys(entry).sort()).toEqual(
-      ["GeocodingInput", "MapWithSearch", "useGeocode"].sort(),
+      [
+        "GeocodingInput",
+        "MapWithSearch",
+        "useGeocode",
+        "fetchOsmFeatures",
+        "useOsmFeatures",
+        "osmToPolygons",
+        "unionAll",
+        "subtractMask",
+      ].sort(),
     );
   });
 

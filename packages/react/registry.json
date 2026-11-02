@@ -6395,7 +6395,15 @@
         "@chelone/maps-provider",
         "maps"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@turf/buffer",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl",
+        "osm2geojson-lite"
+      ],
       "files": [
         {
           "path": "src/components/maps-osm/geocoding-input.tsx",
@@ -6406,7 +6414,19 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/maps-osm/osm-features.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/osm-geometry-ops.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/maps-osm/use-geocode.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/use-osm-features.ts",
           "type": "registry:component"
         }
       ],
@@ -6456,6 +6476,45 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "osm-features",
+      "type": "registry:component",
+      "title": "Osm Features",
+      "files": [
+        {
+          "path": "src/components/maps-osm/osm-features.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/buffer",
+        "maplibre-gl",
+        "osm2geojson-lite"
+      ],
+      "devDependencies": ["@tanstack/react-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "osm-geometry-ops",
+      "type": "registry:component",
+      "title": "Osm Geometry Ops",
+      "files": [
+        {
+          "path": "src/components/maps-osm/osm-geometry-ops.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "use-geocode",
       "type": "registry:component",
       "title": "Use Geocode",
@@ -6466,6 +6525,25 @@
         }
       ],
       "registryDependencies": ["@chelone/maps-provider"],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "devDependencies": ["@tanstack/react-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-osm-features",
+      "type": "registry:component",
+      "title": "Use Osm Features",
+      "files": [
+        {
+          "path": "src/components/maps-osm/use-osm-features.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/maps-provider",
+        "@chelone/osm-features"
+      ],
       "dependencies": ["@chelone/core", "maplibre-gl"],
       "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],

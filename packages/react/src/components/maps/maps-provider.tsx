@@ -1,12 +1,18 @@
-import type { GeocodingProvider, MapStyleInput } from "@chelone/core";
+import type {
+  GeocodingProvider,
+  MapStyleInput,
+  OverpassProvider,
+} from "@chelone/core";
 import { createContext, type ReactNode, useContext, useMemo } from "react";
 
-/** The app-level map services. Later slices add Overpass and router. */
+/** The app-level map services. Later slices add router. */
 export interface MapsConfig {
   /** The basemap: a MapLibre style URL, or an object from `rasterTileStyle`. */
   mapStyle?: MapStyleInput;
   /** The geocoding service the `maps/osm` inputs search with. */
   geocoder?: GeocodingProvider;
+  /** The Overpass service the `maps/osm` operators query OpenStreetMap with. */
+  overpass?: OverpassProvider;
 }
 
 export interface MapsProviderProps extends MapsConfig {
@@ -28,8 +34,12 @@ export function MapsProvider({
   children,
   mapStyle,
   geocoder,
+  overpass,
 }: MapsProviderProps) {
-  const config = useMemo(() => ({ mapStyle, geocoder }), [mapStyle, geocoder]);
+  const config = useMemo(
+    () => ({ mapStyle, geocoder, overpass }),
+    [mapStyle, geocoder, overpass],
+  );
   return (
     <MapsConfigContext.Provider value={config}>
       {children}
