@@ -755,6 +755,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/fields/json-field.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/fields/number-field.vue",
           "type": "registry:component"
         },
@@ -2603,6 +2607,21 @@
         }
       ],
       "registryDependencies": ["@chelone/get-path", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "json-field",
+      "type": "registry:component",
+      "title": "Json Field",
+      "files": [
+        {
+          "path": "src/components/admin/fields/json-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
@@ -5043,6 +5062,114 @@
         }
       ],
       "categories": ["chelone", "library"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "monaco",
+      "type": "registry:block",
+      "title": "Chelone Monaco",
+      "categories": ["chelone", "fields"],
+      "docs": "Monaco runs its editor and JSON workers on the main thread unless the app sets MonacoEnvironment.getWorker. With Vite, import the workers with ?worker (editor.worker and json.worker from monaco-editor/esm/vs/...) and assign getWorker on self before the first render. Without it Monaco logs a console warning and still works.",
+      "description": "The opt-in Monaco add-on: MonacoJsonField shows a JSON value in a read-only Monaco editor. Monaco loads in its own chunk, so nothing reaches the base bundle until the field renders. Installs monaco-editor and @guolao/vue-monaco-editor.",
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/skeleton",
+        "@chelone/theme-context"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@guolao/vue-monaco-editor",
+        "monaco-editor"
+      ],
+      "files": [
+        {
+          "path": "src/components/monaco/internal/monaco-composables.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/monaco/internal/monaco-skeleton.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/monaco/monaco-json-field-lazy.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/monaco/monaco-json-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "monaco-composables",
+      "type": "registry:component",
+      "title": "Monaco Composables",
+      "files": [
+        {
+          "path": "src/components/monaco/internal/monaco-composables.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/theme-context"],
+      "dependencies": ["monaco-editor"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "monaco-skeleton",
+      "type": "registry:component",
+      "title": "Monaco Skeleton",
+      "files": [
+        {
+          "path": "src/components/monaco/internal/monaco-skeleton.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/skeleton"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "monaco-json-field-lazy",
+      "type": "registry:component",
+      "title": "Monaco Json Field Lazy",
+      "files": [
+        {
+          "path": "src/components/monaco/monaco-json-field-lazy.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/monaco-composables",
+        "@chelone/monaco-json-field"
+      ],
+      "dependencies": [
+        "@chelone/vue",
+        "@guolao/vue-monaco-editor",
+        "monaco-editor"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "monaco-json-field",
+      "type": "registry:component",
+      "title": "Monaco Json Field",
+      "files": [
+        {
+          "path": "src/components/monaco/monaco-json-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/monaco-json-field-lazy",
+        "@chelone/monaco-skeleton"
+      ],
+      "dependencies": ["@chelone/core", "monaco-editor"],
+      "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
