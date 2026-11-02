@@ -6168,6 +6168,54 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "addon-supabase",
+      "type": "registry:block",
+      "title": "Chelone Supabase",
+      "categories": ["chelone", "authentication"],
+      "description": "The opt-in Supabase add-on: SocialAuthButton and one sign-in button per OAuth provider (Apple to WorkOS). Installs @chelone/supabase.",
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/react", "@chelone/supabase"],
+      "files": [
+        {
+          "path": "src/components/admin/supabase/social-auth-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/social-icons.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "social-auth-button",
+      "type": "registry:component",
+      "title": "Social Auth Button",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/social-auth-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/social-icons"],
+      "dependencies": ["@chelone/react", "@chelone/supabase"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "social-icons",
+      "type": "registry:component",
+      "title": "Social Icons",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/social-icons.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "style-chelone",
       "type": "registry:base",
       "title": "Chelone",
