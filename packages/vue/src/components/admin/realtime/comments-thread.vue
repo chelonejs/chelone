@@ -38,11 +38,16 @@ export interface CommentsThreadProps {
  * With no record, or one without an id, it renders nothing and fetches nothing.
  */
 
-import { isRealtimeDataProvider, subscribeLiveResource } from "@chelone/core";
-import { computed, inject, ref, watchEffect } from "vue";
+import {
+  createMutationOptions,
+  isRealtimeDataProvider,
+  subscribeLiveResource,
+  updateMutationOptions,
+} from "@chelone/core";
+import { useMutation } from "@tanstack/vue-query";
+import { computed, inject, ref, watch, watchEffect } from "vue";
 import { useOptionalIdentity } from "../../../auth/auth-hooks";
 import { useCheloneContext, useCheloneNotifications } from "../../../context";
-import { useCreate, useUpdate } from "../../../data/mutations";
 import { useGetList } from "../../../data/queries";
 import { useTranslate } from "../../../i18n/use-translate";
 import { RecordContextKey } from "../../../record/record-context";
@@ -67,7 +72,7 @@ const recordId = computed(() => {
   return id === undefined || id === null || id === "" ? undefined : id;
 });
 
-const { data } = useGetList(
+const { data, isError, isSuccess } = useGetList(
   () => props.reference,
   () => ({
     filter: { [props.target]: recordId.value },
@@ -83,6 +88,13 @@ watchEffect((onCleanup) => {
   onCleanup(subscribeLiveResource(ctx, props.reference).stop);
 });
 
+// Notify once per failed load, so the empty state never stands in for an error.
+watch(isError, (failed) => {
+  if (failed) {
+    notifications?.notify("chelone.notification.http_error", { type: "error" });
+  }
+});
+
 const items = computed(() => (data.value?.data ?? []) as CommentRecord[]);
 const total = computed(() => data.value?.total ?? items.value.length);
 
@@ -95,8 +107,14 @@ function authorOf(comment: CommentRecord): string {
 }
 
 const draft = ref("");
-const create = useCreate(props.reference);
-const update = useUpdate(props.reference);
+// Built from the options, not `useCreate`/`useUpdate`, which bind the resource
+// once at setup while the list and the subscription follow `reference`.
+const create = useMutation(
+  computed(() => createMutationOptions(ctx, props.reference)),
+);
+const update = useMutation(
+  computed(() => updateMutationOptions(ctx, props.reference)),
+);
 const posting = computed(() => create.isPending.value);
 const canPost = computed(() => draft.value.trim() !== "" && !posting.value);
 
@@ -164,7 +182,14 @@ function timeOf(comment: CommentRecord) {
     data-slot="comments-thread"
     :class="props.class"
   >
-    <p v-if="items.length === 0" data-slot="comments-empty">
+    <p v-if="isError" data-slot="comments-error">
+      {{
+        translate("chelone.comments.load_failed", {
+          _: "Could not load the comments",
+        })
+      }}
+    </p>
+    <p v-else-if="isSuccess && items.length === 0" data-slot="comments-empty">
       {{ translate("chelone.comments.empty", { _: "No comments yet" }) }}
     </p>
     <Card

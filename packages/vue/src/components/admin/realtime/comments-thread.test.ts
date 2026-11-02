@@ -451,4 +451,86 @@ describe("CommentsThread", () => {
     await flushPromises();
     expect(cards(wrapper)).toHaveLength(3);
   });
+
+  it("CommentsThread says the comments failed to load instead of showing the empty state", async () => {
+    const { dataProvider } = setup();
+    vi.spyOn(dataProvider, "getList").mockRejectedValue(new Error("500"));
+    const notifications = createNotificationStore();
+    const wrapper = mountThread(dataProvider, {}, { notifications });
+    await flushPromises();
+
+    expect(wrapper.text()).not.toContain("No comments yet");
+    expect(wrapper.text()).toContain("Could not load the comments");
+    expect(notifications.getSnapshot().map((n) => n.message)).toEqual([
+      "chelone.notification.http_error",
+    ]);
+  });
+
+  it("CommentsThread does not show the empty state before the first load settles", async () => {
+    const { dataProvider } = setup();
+    vi.spyOn(dataProvider, "getList").mockImplementation(
+      () => new Promise(() => {}),
+    );
+    const wrapper = mountThread(dataProvider);
+    await flushPromises();
+
+    expect(wrapper.text()).not.toContain("No comments yet");
+  });
+
+  it("CommentsThread writes to the new resource when reference changes", async () => {
+    const { dataProvider } = setup();
+    const create = vi.spyOn(dataProvider, "create");
+    const update = vi.spyOn(dataProvider, "update");
+    const reference = ref<"comments" | "posts">("comments");
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const wrapper = mount(
+      defineComponent({
+        setup: () => () =>
+          h(
+            Admin,
+            { dataProvider, queryClient },
+            {
+              default: () =>
+                h(CommentsThread, {
+                  reference: reference.value,
+                  target: "id",
+                  resolvable: true,
+                  record: { id: 1 },
+                }),
+              layout: () => h("div"),
+            },
+          ),
+      }),
+      {
+        global: {
+          plugins: [
+            createRouter({
+              history: createMemoryHistory(),
+              routes: [{ path: "/", component: { render: () => null } }],
+            }),
+          ],
+        },
+      },
+    );
+    await flushPromises();
+
+    reference.value = "posts";
+    await flushPromises();
+    await wrapper.get("textarea").setValue("moved");
+    await wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Post")
+      ?.trigger("click");
+    await flushPromises();
+    await wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Mark resolved")
+      ?.trigger("click");
+    await flushPromises();
+
+    expect(create.mock.calls.map((call) => call[0])).toEqual(["posts"]);
+    expect(update.mock.calls.map((call) => call[0])).toEqual(["posts"]);
+  });
 });
