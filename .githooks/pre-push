@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+
+root="$(git rev-parse --show-toplevel)"
+zero="0000000000000000000000000000000000000000"
+tmp="$(mktemp -d)"
+trap 'git worktree remove --force "$tmp/tree" >/dev/null 2>&1 || true; rm -rf "$tmp"' EXIT
+
+# Lint each commit being pushed as committed, not the working tree, so an
+# unstaged `pnpm format` neither hides a bad commit nor blocks a clean one.
+while read -r _ local_sha _ _; do
+  [ "$local_sha" = "$zero" ] && continue
+  git worktree add --detach --quiet "$tmp/tree" "$local_sha"
+  if ! (cd "$tmp/tree" && "$root/node_modules/.bin/biome" check .); then
+    echo "pre-push: pnpm lint failed, run pnpm format and commit" >&2
+    exit 1
+  fi
+  git worktree remove --force "$tmp/tree"
+done
