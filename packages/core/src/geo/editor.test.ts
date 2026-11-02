@@ -124,6 +124,133 @@ describe("toEditorFeatures", () => {
     ];
     expect(toEditorFeatures(features, ids())).toEqual([]);
   });
+
+  it("rounds positions to 9 decimals", () => {
+    const features: GeoFeature[] = [
+      {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [4.360416666666667, 50.85] },
+        properties: {},
+      },
+      {
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [2.3355555555555583, 48.85],
+              [2.424444444444442, 48.85],
+              [2.424444444444442, 48.9],
+              [2.3355555555555583, 48.85],
+            ],
+          ],
+        },
+        properties: {},
+      },
+    ];
+    const [pointFeature, polygonFeature] = toEditorFeatures(features, ids());
+    expect(pointFeature?.geometry).toEqual({
+      type: "Point",
+      coordinates: [4.360416667, 50.85],
+    });
+    expect(polygonFeature?.geometry).toEqual({
+      type: "Polygon",
+      coordinates: [
+        [
+          [2.335555556, 48.85],
+          [2.424444444, 48.85],
+          [2.424444444, 48.9],
+          [2.335555556, 48.85],
+        ],
+      ],
+    });
+  });
+
+  it("drops an altitude from every position", () => {
+    const features: GeoFeature[] = [
+      {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [1, 2, 30] },
+        properties: {},
+      },
+      {
+        type: "Feature",
+        geometry: {
+          type: "LineString",
+          coordinates: [
+            [0, 0, 5, 6],
+            [1, 1, 7],
+          ],
+        },
+        properties: {},
+      },
+    ];
+    const [pointFeature, lineFeature] = toEditorFeatures(features, ids());
+    expect(pointFeature?.geometry).toEqual({
+      type: "Point",
+      coordinates: [1, 2],
+    });
+    expect(lineFeature?.geometry).toEqual({
+      type: "LineString",
+      coordinates: [
+        [0, 0],
+        [1, 1],
+      ],
+    });
+  });
+
+  it("wraps a longitude past 180 into range", () => {
+    const features: GeoFeature[] = [
+      {
+        type: "Feature",
+        geometry: {
+          type: "LineString",
+          coordinates: [
+            [190, 10],
+            [-190, 10],
+            [540.5, 10],
+            [180, 10],
+            [-180, 10],
+          ],
+        },
+        properties: {},
+      },
+    ];
+    expect(toEditorFeatures(features, ids())[0]?.geometry).toEqual({
+      type: "LineString",
+      coordinates: [
+        [-170, 10],
+        [170, 10],
+        [-179.5, 10],
+        [180, 10],
+        [-180, 10],
+      ],
+    });
+  });
+
+  it("leaves a value with 9 or fewer decimals equal after a round trip", () => {
+    const features: GeoFeature[] = [
+      {
+        type: "Feature",
+        id: "a",
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [4.360416667, 50.123456789],
+              [-0.000000001, 50.1],
+              [4.36, -50],
+              [4.360416667, 50.123456789],
+            ],
+          ],
+        },
+        properties: { name: "x" },
+      },
+    ];
+    expect(fromEditorFeatures(toEditorFeatures(features, ids()))).toEqual(
+      features,
+    );
+  });
 });
 
 describe("fromEditorFeatures", () => {
