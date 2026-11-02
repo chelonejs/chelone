@@ -1,0 +1,305 @@
+---
+title: "Supabase Pages"
+description: "Mount the Supabase login, forgot password and set password pages in a React or Vue admin."
+---
+
+The Supabase pages are an opt-in add-on to `@chelone/react` and
+`@chelone/vue`. They sign users in with email and OAuth, send a password reset
+email, and let a user choose a new password from the emailed link. They need
+the auth provider from [Supabase](/docs/app-config/supabase), so set that up
+first.
+
+The add-on imports the optional `@chelone/supabase` peer, so it has its own
+entry. The main entry of each adapter loads without it.
+
+## Install
+
+Import from the subpath:
+
+```tsx
+import {
+  ForgotPasswordPage,
+  SetPasswordPage,
+  SupabaseLoginPage,
+} from "@chelone/react/supabase";
+```
+
+Or copy the source into your app with the shadcn CLI, one component at a time:
+
+```bash
+npx shadcn add @chelone/supabase-login-page
+npx shadcn add @chelone/forgot-password-page
+npx shadcn add @chelone/set-password-page
+```
+
+Each command also pulls in what the page needs, such as the form, the provider
+buttons and `@chelone/supabase`. `@chelone/addon-supabase` installs the whole
+add-on in one go. Once copied, import from your own path, for example
+`@/components/admin/supabase/supabase-login-page`, instead of the subpath.
+
+The pages read their text from `ra-supabase.*` message keys. Merge the catalogs
+as shown in [Messages](/docs/app-config/supabase#messages).
+
+## Login page
+
+`<SupabaseLoginPage>` is `<LoginPage>` with a forgot password link and one
+OAuth button per provider. Pass it as the login page of `<Admin>`:
+
+```tsx title="src/App.tsx"
+import { Admin } from "@chelone/react";
+import { SupabaseLoginPage } from "@chelone/react/supabase";
+import { supabaseAuthProvider } from "@chelone/supabase";
+import { supabase } from "./supabase";
+
+<Admin
+  authProvider={supabaseAuthProvider(supabase)}
+  loginPage={<SupabaseLoginPage />}
+  requireAuth
+>
+  ...
+</Admin>;
+```
+
+`<SupabaseLoginPage>` has a static `path` of `/login`.
+
+| Prop                    | Type                       | What it does                                                              |
+| ----------------------- | -------------------------- | ------------------------------------------------------------------------- |
+| `providers`             | `SupabaseOAuthProvider[]`  | OAuth providers to show a button for, in order. The default is none.      |
+| `disableEmailPassword`  | `boolean`                  | Hides the email and password form, its divider and the forgot password link. |
+| `disableForgotPassword` | `boolean`                  | Hides the forgot password link.                                           |
+| `redirectTo`            | `string`                   | Path a successful sign-in redirects to. Forwarded to the form and the buttons. |
+| `children`              | `ReactNode`                | Custom content in place of the form, the link and the buttons.            |
+
+Other props go to the `<div>` of `<LoginPage>`.
+
+### Providers
+
+`providers` takes the names of `SupabaseOAuthProvider`. A divider labelled "or"
+sits between the form and the buttons.
+
+```tsx
+<SupabaseLoginPage providers={["github", "google"]} />
+```
+
+For an OAuth-only page, hide the form:
+
+```tsx
+<SupabaseLoginPage
+  providers={["google", "azure"]}
+  disableEmailPassword
+/>
+```
+
+The OAuth provider sends the user back to the URL the button passes as
+`redirectTo`. Set that URL to the app's `/auth-callback` route, as described in
+[Recovery and invite links](/docs/app-config/supabase#recovery-and-invite-links).
+
+## Forgot password and set password pages
+
+Both pages stand alone: they are for users who are not signed in. Mount them in
+`<CustomRoutes noLayout>`, which renders outside the layout and the auth gate.
+Each page has a static `path`, so the route cannot drift from the path the
+auth provider redirects to.
+
+```tsx title="src/App.tsx"
+import { Admin, CustomRoutes } from "@chelone/react";
+import {
+  ForgotPasswordPage,
+  SetPasswordPage,
+  SupabaseLoginPage,
+} from "@chelone/react/supabase";
+import { Route } from "react-router";
+
+<Admin
+  authProvider={supabaseAuthProvider(supabase)}
+  loginPage={<SupabaseLoginPage />}
+  authCallback={<AuthCallback />}
+  requireAuth
+>
+  <CustomRoutes noLayout>
+    <Route path={ForgotPasswordPage.path} element={<ForgotPasswordPage />} />
+    <Route path={SetPasswordPage.path} element={<SetPasswordPage />} />
+  </CustomRoutes>
+</Admin>;
+```
+
+| Page                  | `path`             | What it shows                                                        |
+| --------------------- | ------------------ | -------------------------------------------------------------------- |
+| `ForgotPasswordPage`  | `/forgot-password` | `<ForgotPasswordForm>`: an email field that sends the reset email.   |
+| `SetPasswordPage`     | `/set-password`    | `<SetPasswordForm>`: a password and a confirmation field.            |
+
+| Prop       | Type        | What it does                                              |
+| ---------- | ----------- | --------------------------------------------------------- |
+| `children` | `ReactNode` | Custom content in place of the default form.              |
+
+Both pages also take the props of a `<div>`, except `title`. The forms are
+exported too: `ForgotPasswordForm` and `SetPasswordForm` take a `className` for
+the `<form>`. The hooks they use are `useResetPassword`, `useSetPassword` and
+`useSupabaseUrlTokens`, for a form of your own.
+
+The login page links to `/forgot-password`. Mount the forgot password page at
+that path, or hide the link with `disableForgotPassword`.
+
+### The recovery flow
+
+1. On `/forgot-password`, the user enters an email. The form calls
+   `resetPassword` on the auth provider, which asks Supabase to send the email.
+2. The email link goes to the Supabase redirect URL, carrying the user's
+   tokens. That URL must be the app's `/auth-callback` route, for example
+   `https://admin.example.com/auth-callback`. Add it under Authentication, URL
+   Configuration in the Supabase dashboard.
+3. `/auth-callback` runs `handleCallback`. For a link of type `recovery` or
+   `invite` it redirects to `/set-password`, with `access_token` and
+   `refresh_token` as query params.
+4. `<SetPasswordPage>` reads the tokens from the URL. On submit it calls
+   `setPassword` with the tokens and the new password, which sets the session
+   and then the password.
+
+Step 3 needs the callback page mounted, which is the `authCallback` prop in
+React and the `#authCallback` slot in Vue. See
+[Recovery and invite links](/docs/app-config/supabase#recovery-and-invite-links).
+With a token missing from the link, `<SetPasswordForm>` shows a message and a
+Back to login link, and does not redirect.
+
+### Split screens
+
+None of the pages take an `aside` prop. For a split screen, compose
+[`<AuthLayout>`](/docs/ui-layout/auth-layout) with the form and pass the
+`aside` to it:
+
+```tsx
+import { AuthLayout } from "@/components/admin/auth/auth-layout";
+import { ForgotPasswordForm } from "@chelone/react/supabase";
+
+function ForgotPasswordSplit() {
+  return (
+    <AuthLayout
+      title="Forgot your password?"
+      aside={<img src="/hero.jpg" alt="" className="size-full object-cover" />}
+    >
+      <ForgotPasswordForm />
+    </AuthLayout>
+  );
+}
+```
+
+For the login page, put `<LoginForm>` and the provider buttons inside the
+layout the same way.
+
+## Provider buttons
+
+`<SocialAuthButton provider="github" />` is a button that calls `login` on the
+auth provider with that provider and a `redirectTo`. The auth provider turns
+that into `signInWithOAuth`. It takes the props of `<Button>`, except `onClick`
+and `variant`, plus:
+
+| Prop       | Type                     | What it does                                                      |
+| ---------- | ------------------------ | ----------------------------------------------------------------- |
+| `provider` | `SupabaseOAuthProvider`  | The OAuth provider to sign in with.                               |
+| `redirect` | `string`                 | Where the provider sends the user back. The default is the current URL. |
+| `children` | `ReactNode`              | The label.                                                        |
+
+A failed sign-in shows an error notification with the message.
+
+There is a ready-made button for each of the sixteen providers. It is a
+`<SocialAuthButton>` with the provider's icon and the label "Sign in with
+Name", from the `ra-supabase.auth.sign_in_with` key. It takes the props of
+`<SocialAuthButton>` except `provider`, and `children` replaces the icon and
+label.
+
+| Component         | `provider`  |
+| ----------------- | ----------- |
+| `AppleButton`     | `apple`     |
+| `AzureButton`     | `azure`     |
+| `BitbucketButton` | `bitbucket` |
+| `DiscordButton`   | `discord`   |
+| `FacebookButton`  | `facebook`  |
+| `GithubButton`    | `github`    |
+| `GitlabButton`    | `gitlab`    |
+| `GoogleButton`    | `google`    |
+| `KeycloakButton`  | `keycloak`  |
+| `LinkedinButton`  | `linkedin`  |
+| `NotionButton`    | `notion`    |
+| `SlackButton`     | `slack`     |
+| `SpotifyButton`   | `spotify`   |
+| `TwitchButton`    | `twitch`    |
+| `TwitterButton`   | `twitter`   |
+| `WorkosButton`    | `workos`    |
+
+```tsx
+<GithubButton redirect={`${window.location.origin}/auth-callback`} />
+<SocialAuthButton provider="keycloak">Company SSO</SocialAuthButton>
+```
+
+## Vue
+
+`@chelone/vue/supabase` exports the same names: the three pages, the two forms,
+`SocialAuthButton`, the sixteen provider buttons, `SupabaseOAuthProvider` and
+the three hooks.
+
+```ts
+import {
+  ForgotPasswordPage,
+  SetPasswordPage,
+  SupabaseLoginPage,
+} from "@chelone/vue/supabase";
+```
+
+The registry has one item per page and form, so
+`npx shadcn add @chelone/forgot-password-page` installs the Vue file when your
+project is set up for the Vue registry.
+
+A `.vue` component cannot carry a static `path`, so import the paths from
+`@chelone/supabase` and register the routes yourself. Fill the `#login` slot of
+`<Admin>` with the login page, and pass both pages to `customRoutes` with
+`noLayout: true`, which renders them outside the layout and the auth gate:
+
+```vue title="src/App.vue"
+<script setup lang="ts">
+import { Admin } from "@chelone/vue";
+import {
+  ForgotPasswordPage,
+  SetPasswordPage,
+  SupabaseLoginPage,
+} from "@chelone/vue/supabase";
+import {
+  forgotPasswordPath,
+  setPasswordPath,
+  supabaseAuthProvider,
+} from "@chelone/supabase";
+import { supabase } from "./supabase";
+import AuthCallback from "./AuthCallback.vue";
+
+const authProvider = supabaseAuthProvider(supabase);
+const customRoutes = [
+  { path: forgotPasswordPath, component: ForgotPasswordPage, noLayout: true },
+  { path: setPasswordPath, component: SetPasswordPage, noLayout: true },
+];
+</script>
+
+<template>
+  <Admin :auth-provider="authProvider" :custom-routes="customRoutes" require-auth>
+    <template #login>
+      <SupabaseLoginPage :providers="['github', 'google']" />
+    </template>
+    <template #authCallback>
+      <AuthCallback />
+    </template>
+  </Admin>
+</template>
+```
+
+The recovery flow is the same as in React.
+
+| Component            | Props                                                                                       | Slots                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `SupabaseLoginPage`  | `providers`, `disableEmailPassword`, `disableForgotPassword`, `redirectTo`, `class`         | default: custom content in place of the form, the link and the buttons |
+| `ForgotPasswordPage` | `class`                                                                                     | default: custom content in place of `<ForgotPasswordForm>`         |
+| `SetPasswordPage`    | `class`                                                                                     | default: custom content in place of `<SetPasswordForm>`            |
+| `SocialAuthButton`   | `provider`, `redirect`, `disabled`, `class`                                                 | default: the label                                                 |
+
+The provider buttons take the props of `SocialAuthButton` except `provider`
+(`ProviderButtonProps`), and their default slot replaces the icon and label.
+
+As in React, no page takes an `aside`. For a split screen, use `<AuthLayout>`
+with its `#aside` slot and the form in the default slot.
