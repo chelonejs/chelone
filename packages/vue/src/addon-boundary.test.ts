@@ -26,6 +26,12 @@ const ADDONS = [
     entry: "src/mdx-editor.ts",
     packages: ["@milkdown/crepe", "@milkdown/kit"],
   },
+  {
+    name: "maps",
+    folder: "src/components/maps",
+    entry: "src/maps.ts",
+    packages: ["maplibre-gl"],
+  },
 ];
 
 const BASE_ENTRIES = ["src/index.ts"];
