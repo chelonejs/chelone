@@ -154,7 +154,7 @@ describe("MapCanvas", () => {
       </MapCanvas>,
       { wrapper: wrap(mapMessages as unknown as Record<string, string>) },
     );
-    act(() => maps[0]?.emit("error", { error: new Error("404") }));
+    act(() => maps[0]?.failStyle(new Error("404")));
     await loaded();
 
     expect(
@@ -165,10 +165,26 @@ describe("MapCanvas", () => {
 
   it("falls back to the default text when no catalog has the load error key", async () => {
     render(<MapCanvas mapStyle={style} />, { wrapper: wrap() });
-    act(() => maps[0]?.emit("error", { error: new Error("blocked") }));
+    act(() => maps[0]?.failStyle(new Error("blocked")));
     await loaded();
 
     expect(screen.getByText("The map could not be loaded")).toBeTruthy();
+  });
+
+  it("shows the map when a tile fails during the first render and load follows", async () => {
+    const { container } = render(
+      <MapCanvas mapStyle={style}>
+        <p>child</p>
+      </MapCanvas>,
+      { wrapper: wrap() },
+    );
+    act(() => maps[0]?.emit("error", { error: new Error("tile 404") }));
+    await loaded();
+
+    expect(screen.getByText("child")).toBeTruthy();
+    expect(
+      container.querySelector('[data-slot="map-canvas-error"]'),
+    ).toBeNull();
   });
 
   it("keeps the map after an error once loaded", async () => {

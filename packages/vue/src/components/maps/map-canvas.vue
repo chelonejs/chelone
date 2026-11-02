@@ -80,13 +80,16 @@ onMounted(() => {
     scrollZoom: props.scrollZoom,
   });
   created = instance;
-  // An error before `load` (a bad style, a blocked tile server) means the map
-  // never becomes usable; one after it is a single failed tile.
+  // A bad style never fires `load`, so an error before it shows the panel. A
+  // tile that fails during the first render is followed by `load` on a map
+  // that works, which clears it; an error after `load` is ignored.
   instance.on("error", () => {
     if (created === instance && map.value === null) failed.value = true;
   });
   instance.on("load", () => {
-    if (created === instance) map.value = instance;
+    if (created !== instance) return;
+    failed.value = false;
+    map.value = instance;
   });
 });
 

@@ -91,14 +91,16 @@ export function MapCanvas({
     });
     let active = true;
     let loaded = false;
-    // An error before `load` (a bad style, a blocked tile server) means the
-    // map never becomes usable; one after it is a single failed tile.
+    // A bad style never fires `load`, so an error before it shows the panel.
+    // A tile that fails during the first render is followed by `load` on a
+    // map that works, which clears it; an error after `load` is ignored.
     created.on("error", () => {
       if (active && !loaded) setFailed(true);
     });
     created.on("load", () => {
       if (!active) return;
       loaded = true;
+      setFailed(false);
       setMap(created);
     });
     return () => {
