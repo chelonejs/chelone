@@ -75,6 +75,11 @@ export interface CommandContext {
   registerItem: (entry: CommandItemEntry) => () => void;
   /** Whether the item passes the filter (or is `forceMount`). */
   isVisible: (entry: CommandItemEntry) => boolean;
+  /**
+   * Whether the root and its first items have mounted. Items register on mount,
+   * so before this the registry is empty and says nothing about the list.
+   */
+  ready: Ref<boolean>;
   /** How many registered items show. */
   visibleCount: ComputedRef<number>;
   /** Whether any item of the group shows. */

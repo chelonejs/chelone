@@ -33,12 +33,12 @@ export const CommandList: FunctionalComponent<ClassProps> = (
 CommandList.props = ["class"];
 CommandList.displayName = "CommandList";
 
-/** Shown only while no item shows. */
+/** Shown only while no item shows, once the items have had the chance to register. */
 export const CommandEmpty: FunctionalComponent<ClassProps> = (
   props,
   { slots },
 ) =>
-  useCommand().visibleCount.value === 0
+  useCommand().ready.value && useCommand().visibleCount.value === 0
     ? h(
         "div",
         {

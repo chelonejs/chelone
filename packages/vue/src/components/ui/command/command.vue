@@ -22,7 +22,15 @@ export interface CommandProps {
  * with no re-ranking by score.
  */
 
-import { computed, ref, shallowRef, useId, watch } from "vue";
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  shallowRef,
+  useId,
+  watch,
+} from "vue";
 import { cn } from "../../../lib/utils";
 import {
   type CommandItemEntry,
@@ -41,6 +49,11 @@ const search = defineModel<string>({ default: "" });
 const listId = useId();
 const items = shallowRef<CommandItemEntry[]>([]);
 const requested = ref<string | null>(null);
+const rootRef = ref<HTMLElement | null>(null);
+const ready = ref(false);
+// Bumped when the DOM order of the items may have changed: a keyed re-sort
+// moves nodes without touching any state `activeId` reads.
+const orderVersion = ref(0);
 
 function score(entry: CommandItemEntry): number {
   const filter = props.filter ?? defaultCommandFilter;
@@ -74,6 +87,7 @@ function candidates(): CommandItemEntry[] {
 // The requested item stays active while it is still a candidate; otherwise the
 // first candidate is.
 const activeId = computed(() => {
+  orderVersion.value;
   const list = candidates();
   return (list.find((e) => e.id === requested.value) ?? list[0])?.id ?? null;
 });
@@ -81,6 +95,16 @@ const activeId = computed(() => {
 const visibleCount = computed(
   () => items.value.filter((e) => isVisible(e)).length,
 );
+
+let observer: MutationObserver | undefined;
+onMounted(() => {
+  ready.value = true;
+  if (rootRef.value && typeof MutationObserver !== "undefined") {
+    observer = new MutationObserver(() => orderVersion.value++);
+    observer.observe(rootRef.value, { childList: true, subtree: true });
+  }
+});
+onBeforeUnmount(() => observer?.disconnect());
 
 // Sync, so the next read of `activeId` already ignores the old request.
 watch(search, () => (requested.value = null), { flush: "sync" });
@@ -102,6 +126,7 @@ provideCommand({
     };
   },
   isVisible,
+  ready,
   visibleCount,
   groupHasVisible: (groupId) =>
     items.value.some((e) => e.groupId === groupId && isVisible(e)),
@@ -132,6 +157,7 @@ provideCommand({
 
 <template>
   <div
+    ref="rootRef"
     :class="
       cn(
         'flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',

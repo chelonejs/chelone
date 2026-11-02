@@ -18,7 +18,7 @@ provide(CommandGroupKey, groupId);
 
 <template>
   <div
-    v-show="ctx.groupHasVisible(groupId)"
+    v-show="!ctx.ready.value || ctx.groupHasVisible(groupId)"
     role="group"
     :aria-labelledby="heading ? headingId : undefined"
     :class="cn('overflow-hidden p-1 text-foreground', props.class)"

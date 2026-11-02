@@ -5,7 +5,7 @@
  * `display: none` the family sets, never from styling classes.
  */
 
-import { mount, type VueWrapper } from "@vue/test-utils";
+import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick, ref } from "vue";
 import {
@@ -204,6 +204,26 @@ describe("CommandGroup and CommandEmpty", () => {
     expect(groups()).toEqual([]);
   });
 
+  it("CommandEmpty and CommandGroup show the right state on the first render, before items register", async () => {
+    const w = palette();
+    expect(w.text()).not.toContain("No results");
+    const g = mount(
+      defineComponent({
+        render: () =>
+          h(Command, null, () => [
+            h(CommandGroup, { heading: "Fruit" }, () => [
+              h(CommandItem, { value: "Apple" }, () => "Apple"),
+            ]),
+          ]),
+      }),
+    );
+    wrappers.push(g);
+    expect(g.find('[role="group"]').isVisible()).toBe(true);
+    const none = palette([]);
+    await nextTick();
+    expect(none.text()).toContain("No results");
+  });
+
   it("CommandEmpty shows only when no item matches", async () => {
     const w = palette();
     await nextTick();
@@ -269,6 +289,33 @@ describe("Command keyboard and pointer", () => {
     expect(activeText(w)).toBe("Apple");
     await search(w, "ch");
     expect(activeText(w)).toBe("Cherry");
+  });
+
+  it("the default active item follows a reorder of the items", async () => {
+    const order = ref(["Apple", "Banana", "Cherry"]);
+    const w = mount(
+      defineComponent({
+        render: () =>
+          h(Command, null, () => [
+            h(CommandInput),
+            h(CommandList, null, () =>
+              order.value.map((value) =>
+                h(CommandItem, { key: value, value }, () => value),
+              ),
+            ),
+          ]),
+      }),
+      { attachTo: document.body },
+    );
+    wrappers.push(w);
+    await nextTick();
+    expect(activeText(w)).toBe("Apple");
+    order.value = ["Cherry", "Apple", "Banana"];
+    await flushPromises();
+    expect(activeText(w)).toBe("Cherry");
+    expect(w.find("input").attributes("aria-activedescendant")).toBe(
+      w.findAll('[role="option"]')[0]?.attributes("id"),
+    );
   });
 
   it("hovering an item makes it active", async () => {
