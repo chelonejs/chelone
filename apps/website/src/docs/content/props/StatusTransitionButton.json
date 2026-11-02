@@ -1,0 +1,65 @@
+{
+  "name": "StatusTransitionButton",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "confirm",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Ask for confirmation before the update."
+    },
+    {
+      "name": "guards",
+      "type": "Record<string, (record: Record<string, unknown>) => boolean>",
+      "optional": true,
+      "comment": "Predicates keyed `\"<from>-><to>\"`. A transition with no guard is allowed."
+    },
+    {
+      "name": "labels",
+      "type": "Record<string, string>",
+      "optional": true,
+      "comment": "Text for a state. A state with no entry shows as it is."
+    },
+    {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "comment": "Default `\"pessimistic\"`; `\"undoable\"` shows an Undo notification."
+    },
+    {
+      "name": "onTransition",
+      "type": "(from: string, to: string, record: LooseRecord) => void",
+      "optional": true,
+      "comment": "Runs once the update has resolved, or, in undoable mode, once the Undo\nnotification is queued. Not called when the update fails."
+    },
+    {
+      "name": "record",
+      "type": "LooseRecord",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": true,
+      "comment": "Record field holding the status. Default `\"status\"`."
+    },
+    {
+      "name": "transitions",
+      "type": "Record<string, readonly string[]>",
+      "optional": false,
+      "comment": "The states each state may move to."
+    }
+  ]
+}

@@ -154,6 +154,19 @@ export const blocks = [
     sourceDirs: [{ path: "src/components/maps", recursive: true }],
   },
   {
+    name: "maps-draw",
+    type: "registry:block",
+    title: "Chelone Maps Draw",
+    categories: ["chelone", "fields"],
+    description:
+      "The opt-in map drawing add-on: ShapeInput draws and edits a GeoJSON value on a MapCanvas with Terra Draw, with a DrawToolbar for the tools. Installs terra-draw and terra-draw-maplibre-gl-adapter, and the maps block.",
+    docs: "Everything here needs the maps block: mount MapsProvider once with a mapStyle, or pass mapStyle to each input. Terra Draw reads its modes, snapping and styles once when the input mounts, so change key to rebuild. Terra Draw rotates a selected line or polygon with Control and r.",
+    granularize: true,
+    inferDependencies: true,
+    registryDependencies: ["maps"],
+    sourceDirs: [{ path: "src/components/maps-draw", recursive: true }],
+  },
+  {
     name: "addon-csv-import",
     type: "registry:block",
     title: "Chelone CSV Import",

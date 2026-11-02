@@ -1,0 +1,59 @@
+{
+  "name": "DualApprovalButton",
+  "props": [
+    {
+      "name": "approvedValue",
+      "type": "unknown",
+      "optional": true,
+      "comment": "Status written once approvals reach `required`. Default `\"approved\"`."
+    },
+    {
+      "name": "approverSource",
+      "type": "string",
+      "optional": true,
+      "comment": "Record field holding the approver ids. Default `\"approvers\"`."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "comment": "Default `\"pessimistic\"`; `\"undoable\"` shows an Undo notification."
+    },
+    {
+      "name": "pendingValue",
+      "type": "unknown",
+      "optional": true,
+      "comment": "Status written while approvals are short of `required`. Default `\"pending\"`."
+    },
+    {
+      "name": "record",
+      "type": "LooseRecord",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "required",
+      "type": "number",
+      "optional": true,
+      "comment": "Approvals needed. Default 2."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "statusSource",
+      "type": "string",
+      "optional": true,
+      "comment": "Record field the status is written to. Default `\"status\"`."
+    }
+  ]
+}

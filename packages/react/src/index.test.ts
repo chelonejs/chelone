@@ -19,6 +19,7 @@ import type {
   CreateContextProviderProps,
   CreateContextValue,
   CustomRoutesProps,
+  DualApprovalButtonProps,
   EditContextProviderProps,
   EditContextValue,
   EditGuesserProps,
@@ -69,6 +70,7 @@ import type {
   ShowProps,
   ShowTabProps,
   SimpleFormIteratorProps,
+  StatusTransitionButtonProps,
   TabbedFormProps,
   TabbedShowLayoutProps,
   TabbedShowLayoutTabsListProps,
@@ -351,6 +353,13 @@ describe("@chelone/react barrel — small compat hooks + RHF shim (P7a-T6)", () 
     expect(barrel.LockStatus).toBeTypeOf("function");
     expectTypeOf<LockOnMountProps>().toHaveProperty("lockedBy");
     expectTypeOf<LockStatusProps>().toHaveProperty("renderFree");
+  });
+
+  it("exports DualApprovalButton and StatusTransitionButton", () => {
+    expect(barrel.DualApprovalButton).toBeTypeOf("function");
+    expect(barrel.StatusTransitionButton).toBeTypeOf("function");
+    expectTypeOf<DualApprovalButtonProps>().toHaveProperty("required");
+    expectTypeOf<StatusTransitionButtonProps>().toHaveProperty("transitions");
   });
 
   it("exports CommentsThread", () => {
