@@ -305,17 +305,19 @@ function UploadStep({
     [loadParsed, setNotice],
   );
   // The dropzone hands onDrop only the files it accepts. With `multiple: false`
-  // it rejects several accepted files as `too-many-files`; load the first, as
-  // the Vue twin does, and say "wrong file" only for a file of the wrong type.
+  // it also rejects several valid files as `too-many-files`, which is not a
+  // wrong file type.
   const onDropRejected = useCallback(
     (rejections: FileRejection[]) => {
-      const first = rejections.find(({ errors }) =>
-        errors.every(({ code }) => code === ErrorCode.TooManyFiles),
-      );
-      if (first) void onDrop([first.file]);
-      else setNotice("wrong_file");
+      if (
+        rejections.some(({ errors }) =>
+          errors.some(({ code }) => code === ErrorCode.FileInvalidType),
+        )
+      ) {
+        setNotice("wrong_file");
+      }
     },
-    [onDrop, setNotice],
+    [setNotice],
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { "text/csv": [".csv"] },

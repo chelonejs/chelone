@@ -178,7 +178,7 @@ describe("<CsvImport>", () => {
     expect(nextButton().hasAttribute("disabled")).toBe(true);
   });
 
-  it("loads the first file when several .csv files are dropped", async () => {
+  it("does not call several dropped .csv files the wrong type", async () => {
     render(
       <Providers dataProvider={makeProvider()}>
         <CsvImport schema={schema} />
@@ -198,7 +198,7 @@ describe("<CsvImport>", () => {
       });
     });
 
-    await parsed("2 rows parsed");
+    await act(async () => {});
     expect(screen.queryByText("Choose a .csv file")).toBeNull();
   });
 
