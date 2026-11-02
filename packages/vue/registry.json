@@ -534,6 +534,7 @@
         "@chelone/button-variants",
         "@chelone/card",
         "@chelone/checkbox",
+        "@chelone/command",
         "@chelone/dropdown-menu",
         "@chelone/field",
         "@chelone/input",
@@ -1149,6 +1150,30 @@
         },
         {
           "path": "src/components/admin/layout/app-sidebar.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/command-menu-content.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/command-menu-context.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/command-menu-gate.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/command-menu-logout.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/command-menu-record-search.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/command-menu.vue",
           "type": "registry:component"
         },
         {
@@ -4081,6 +4106,107 @@
       "dependencies": ["@chelone/vue"],
       "devDependencies": ["vue-router"],
       "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "command-menu-content",
+      "type": "registry:component",
+      "title": "Command Menu Content",
+      "files": [
+        {
+          "path": "src/components/admin/layout/command-menu-content.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/command",
+        "@chelone/command-menu-context",
+        "@chelone/command-menu-gate",
+        "@chelone/command-menu-logout",
+        "@chelone/command-menu-record-search",
+        "@chelone/layout-icons",
+        "@chelone/theme-context"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "command-menu-context",
+      "type": "registry:component",
+      "title": "Command Menu Context",
+      "files": [
+        {
+          "path": "src/components/admin/layout/command-menu-context.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "command-menu-gate",
+      "type": "registry:component",
+      "title": "Command Menu Gate",
+      "files": [
+        {
+          "path": "src/components/admin/layout/command-menu-gate.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/use-menu-access"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "command-menu-logout",
+      "type": "registry:component",
+      "title": "Command Menu Logout",
+      "files": [
+        {
+          "path": "src/components/admin/layout/command-menu-logout.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/command", "@chelone/layout-icons"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "command-menu-record-search",
+      "type": "registry:component",
+      "title": "Command Menu Record Search",
+      "files": [
+        {
+          "path": "src/components/admin/layout/command-menu-record-search.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/command", "@chelone/use-menu-access"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "command-menu",
+      "type": "registry:component",
+      "title": "Command Menu",
+      "files": [
+        {
+          "path": "src/components/admin/layout/command-menu.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/command",
+        "@chelone/command-menu-content",
+        "@chelone/command-menu-context",
+        "@chelone/sheet"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
