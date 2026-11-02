@@ -388,6 +388,28 @@ describe("CommandMenu record search", () => {
     await until(() => router.currentRoute.value.path === "/posts/1/show");
   });
 
+  it("CommandMenu sends no search request for a resource the user cannot list", async () => {
+    const dataProvider = searching();
+    await mountMenu({
+      dataProvider,
+      authProvider: authProvider({
+        canAccess: async ({ resource }) => resource !== "comments",
+      }),
+      props: { searchDebounceMs: 10 },
+    });
+    await openMenu();
+    await type("alp");
+
+    const getList = vi.mocked(dataProvider.getList);
+    await until(() => option("Alpha") !== undefined);
+    await flushPromises();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const searched = getList.mock.calls.map(([resource]) => resource);
+    expect(searched).toContain("posts");
+    expect(searched).not.toContain("comments");
+  });
+
   it("CommandMenu uses the searchFields entry as the filter key", async () => {
     const dataProvider = searching();
     await mountMenu({
