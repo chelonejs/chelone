@@ -45,12 +45,14 @@ import {
 import {
   type Component,
   computed,
+  nextTick,
   onBeforeUnmount,
   onMounted,
   onScopeDispose,
   provide,
   ref,
   shallowRef,
+  watch,
 } from "vue";
 import { useCheloneNotifications } from "../../../context";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -130,6 +132,14 @@ function onKeydown(event: KeyboardEvent): void {
 onMounted(() => window.addEventListener("keydown", onKeydown));
 onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 
+// CommandDialog focuses its own input on open; Sheet has no such step.
+const sheetCommand = ref<{ $el: HTMLElement } | null>(null);
+watch(isOpen, async (opened) => {
+  if (!opened || !isMobile.value) return;
+  await nextTick();
+  sheetCommand.value?.$el.querySelector("input")?.focus();
+});
+
 function onOpenChange(next: boolean): void {
   if (next) open();
   else close();
@@ -170,7 +180,7 @@ const description = computed(() =>
     :description="description"
     @update:open="onOpenChange"
   >
-    <Command class="-mx-4 h-auto">
+    <Command ref="sheetCommand" class="-mx-4 h-auto">
       <CommandMenuContent
         v-model:query="query"
         :resources="resources"

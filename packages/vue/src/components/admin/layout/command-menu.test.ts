@@ -641,6 +641,30 @@ describe("CommandMenu on a narrow screen", () => {
   });
 });
 
+describe("CommandMenu focus on a narrow screen", () => {
+  it("CommandMenu focuses the search box when it opens in the Sheet", async () => {
+    vi.stubGlobal("innerWidth", 500);
+    window.matchMedia = vi.fn(() => ({
+      matches: true,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    })) as unknown as typeof window.matchMedia;
+    try {
+      await mountMenu();
+      await openMenu();
+
+      expect(
+        document.body.querySelector('[data-slot="sheet-content"]'),
+      ).not.toBeNull();
+      await until(() => document.activeElement === input());
+      expect(document.activeElement).toBe(input());
+    } finally {
+      vi.unstubAllGlobals();
+      delete (window as { matchMedia?: unknown }).matchMedia;
+    }
+  });
+});
+
 // Used by the Log out test, which mounts twice.
 function wrapperUnmount(): void {
   for (const wrapper of mounted.splice(0)) wrapper.unmount();
