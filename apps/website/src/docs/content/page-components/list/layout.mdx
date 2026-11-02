@@ -120,6 +120,61 @@ For a toolbar of your own, pass `bulkActionsToolbar` instead. It replaces
 `bulkActionButtons`, and a `<BulkActionsToolbar>` is the stock shell to put your
 buttons in.
 
+## Let users choose columns
+
+Put a [`<ColumnsButton>`](/docs/viewing/columns-button) in the list `actions`
+and the user can show, hide and reorder the columns of the `<DataTable>` below
+it:
+
+```tsx
+import {
+  ColumnsButton,
+  CreateButton,
+  DataTable,
+  List,
+  ListPagination,
+} from "@chelone/react";
+
+export function PostList() {
+  return (
+    <List
+      actions={
+        <>
+          <ColumnsButton />
+          <CreateButton />
+        </>
+      }
+    >
+      <DataTable defaultHiddenColumns={["body"]}>
+        <DataTable.Col source="title" />
+        <DataTable.Col source="body" />
+        <DataTable.NumberCol source="views" />
+      </DataTable>
+      <ListPagination />
+    </List>
+  );
+}
+```
+
+The button needs a `store` on `<Admin>` and throws without one. The table
+publishes its columns into that store and the button reads them back, so the
+button stays disabled until a `<DataTable>` has mounted.
+
+- The hidden list is kept under `<resource>.datatable` and the order under
+  `<resource>.datatable_columnOrder`. A `localStorageAdapter` store keeps both
+  across reloads.
+- `defaultHiddenColumns` on `<DataTable>` lists the column ids hidden until the
+  user stores a choice. A column's id is its `source`, or its `label` when it
+  has a string one.
+- `storeKey` on `<DataTable>` replaces the `<resource>.datatable` prefix, for a
+  second table on one resource. Give `<ColumnsButton>` the same `storeKey`.
+- A column with no `source` and no string `label` has no id. It is always shown
+  and the panel does not list it.
+
+A list that is a tree rather than a table can use
+[`<TreeList>`](/docs/viewing/tree-list), which nests the records by a parent
+field.
+
 ## Replace the table
 
 `<List>` only requires that its child reads the list context. To build a custom
