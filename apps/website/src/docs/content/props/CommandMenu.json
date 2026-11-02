@@ -1,0 +1,59 @@
+{
+  "name": "CommandMenu",
+  "props": [
+    {
+      "name": "actions",
+      "type": "CommandMenuAction[]",
+      "optional": true,
+      "comment": "Extra commands. Use `useRegisterCommand` for ones that come and go."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered outside the dialog, so helpers can call `useRegisterCommand`."
+    },
+    {
+      "name": "hotkey",
+      "type": "false | string[]",
+      "optional": true,
+      "comment": "Bindings that toggle the menu, as `\"mod+k\"`. `false` for none."
+    },
+    {
+      "name": "perResourceLimit",
+      "type": "number",
+      "optional": true,
+      "comment": "Records fetched per resource for one search."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "recentsLimit",
+      "type": "number",
+      "optional": true,
+      "comment": "Recent picks kept."
+    },
+    {
+      "name": "resources",
+      "type": "string[]",
+      "optional": true,
+      "comment": "Names of the resources to list and search. Defaults to every resource."
+    },
+    {
+      "name": "searchDebounceMs",
+      "type": "number",
+      "optional": true,
+      "comment": "Wait after the last keystroke before records are searched."
+    },
+    {
+      "name": "searchFields",
+      "type": "Record<string, string>",
+      "optional": true,
+      "comment": "Filter key per resource for the record search. Defaults to `\"q\"`."
+    }
+  ]
+}
