@@ -44,6 +44,7 @@ async function setup(
     onPositionChange?: (lat: number, lng: number) => void;
   } = {},
   record: Coordinates = { latitude: 48.85, longitude: 2.35 },
+  { loaded = true }: { loaded?: boolean } = {},
 ) {
   const onSubmit = vi.fn(async (_data: Coordinates) => undefined);
   let form: UseFormReturn<Coordinates> | undefined;
@@ -87,7 +88,7 @@ async function setup(
   });
   mounted.push(wrapper);
   // Lets the fake map's microtask `load` fire and Vue render what follows.
-  await flushPromises();
+  if (loaded) await flushPromises();
   const current = () => {
     if (!form) throw new Error("form not mounted");
     return form;
@@ -350,5 +351,38 @@ describe("LatLngInput", () => {
     expect(textOf(latField(wrapper))).toBe("");
     await submit();
     expect(onSubmit).toHaveBeenCalledWith({ latitude: null, longitude: 2.35 });
+  });
+
+  it("puts back the text the field shows when a refused keystroke follows a map click", async () => {
+    const { wrapper, map } = await setup();
+
+    await latField(wrapper).setValue("12");
+    map().emit("click", { lngLat: { lng: 10.5, lat: 20.25 } });
+    await flushPromises();
+    expect(textOf(latField(wrapper))).toBe("20.25");
+
+    await latField(wrapper).setValue("20.25x");
+    expect(textOf(latField(wrapper))).toBe("20.25");
+  });
+
+  it("recentres the map when the values changed before the map loaded", async () => {
+    const { map, form } = await setup(
+      {},
+      { latitude: null, longitude: null },
+      { loaded: false },
+    );
+
+    form().reset({ latitude: 10, longitude: 20 });
+    await flushPromises();
+
+    expect(liveMarkers()[0]?.getLngLat()).toEqual({ lng: 20, lat: 10 });
+    expect(map().eases).toEqual([{ center: [20, 10] }]);
+  });
+
+  it("does not recentre on load when the values did not change", async () => {
+    const { map } = await setup({}, undefined, { loaded: false });
+    await flushPromises();
+
+    expect(map().eases).toEqual([]);
   });
 });

@@ -30,6 +30,11 @@ const MapBindings = defineComponent({
     },
     disabled: { type: Boolean, default: false },
     gesture: { type: Object as PropType<Gesture>, required: true },
+    /** The centre the map was built with; `MapCanvas` reads it once, before `load`. */
+    built: {
+      type: Array as unknown as PropType<readonly [number, number]>,
+      required: true,
+    },
   },
   emits: { place: (_lat: number, _lng: number) => true },
   setup(props, { emit }) {
@@ -42,6 +47,12 @@ const MapBindings = defineComponent({
     onBeforeUnmount(() => {
       map.off("click", onClick);
     });
+
+    // The slot renders after `load`, so the form may have moved on since the map was built.
+    const start = props.position;
+    if (start && positionKey(start) !== positionKey(props.built)) {
+      map.easeTo({ center: [start[1], start[0]] });
+    }
 
     watch(
       () => positionKey(props.position),
@@ -167,20 +178,21 @@ function useCoordinate(
   });
   const draft = ref<string | null>(null);
   const stored = computed(() => toCoordinate(input.value.value));
+  const text = computed(() =>
+    draft.value !== null && toCoordinate(draft.value) === stored.value
+      ? draft.value
+      : (input.value.value as string),
+  );
   return {
     ...input,
     stored,
     invalid: computed(() => input.touched.value && input.error.value != null),
-    text: computed(() =>
-      draft.value !== null && toCoordinate(draft.value) === stored.value
-        ? draft.value
-        : (input.value.value as string),
-    ),
+    text,
     onType(event: Event) {
       const element = event.target as HTMLInputElement;
       if (!TYPING.test(element.value)) {
         // The input is uncontrolled to Vue until its model changes, so put the old text back.
-        element.value = draft.value ?? (input.value.value as string);
+        element.value = text.value;
         return;
       }
       draft.value = element.value;
@@ -212,6 +224,9 @@ const position = computed(() => {
 });
 const center = computed(() => position.value ?? props.defaultPosition);
 const invalid = computed(() => lat.invalid.value || lng.invalid.value);
+
+// MapCanvas reads its centre once, when it mounts, so keep what it was given.
+const built = center.value;
 
 const gesture: Gesture = { current: null };
 
@@ -272,6 +287,7 @@ function place(rawLat: number, rawLng: number) {
     >
       <MapBindings
         :position="position"
+        :built="built"
         :disabled="props.disabled"
         :gesture="gesture"
         @place="place"
