@@ -14,10 +14,26 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const src = resolve(root, "src");
 
 describe("the maps/osm entry", () => {
-  it("the maps/osm entry exports exactly GeocodingInput, MapWithSearch and useGeocode", async () => {
+  it("the maps/osm entry exports GeocodingInput, MapWithSearch and useGeocode", async () => {
+    const entry = await import("./maps-osm");
+    expect(Object.keys(entry)).toEqual(
+      expect.arrayContaining(["GeocodingInput", "MapWithSearch", "useGeocode"]),
+    );
+  });
+
+  it("the maps/osm entry also exports fetchOsmFeatures, useOsmFeatures, osmToPolygons, unionAll and subtractMask", async () => {
     const entry = await import("./maps-osm");
     expect(Object.keys(entry).sort()).toEqual(
-      ["GeocodingInput", "MapWithSearch", "useGeocode"].sort(),
+      [
+        "GeocodingInput",
+        "MapWithSearch",
+        "fetchOsmFeatures",
+        "osmToPolygons",
+        "subtractMask",
+        "unionAll",
+        "useGeocode",
+        "useOsmFeatures",
+      ].sort(),
     );
   });
 
