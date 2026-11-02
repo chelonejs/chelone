@@ -1,66 +1,53 @@
 <script lang="ts">
-import type { GeoJsonValue, ShapeStyle } from "@chelone/core";
+import type { MapStyleInput } from "@chelone/core";
+import type { GeoJsonLayersProps } from "./geo-json-layers.vue";
 
 /** Props for {@link GeoJsonView}. */
-export interface GeoJsonViewProps {
-  /** A Geometry, Feature or FeatureCollection. */
-  data: GeoJsonValue;
-  /** Partial over `DEFAULT_SHAPE_STYLE`. */
-  shapeStyle?: ShapeStyle;
-  /** Frame the map around the data. Defaults to true. */
-  fitBounds?: boolean;
-  /** Pixels kept free around the fitted box. Defaults to 20. */
-  fitPadding?: number;
-  /** The highest zoom a fit may reach, which also sets a single Point's zoom. Defaults to 18. */
-  maxFitZoom?: number;
+export interface GeoJsonViewProps extends GeoJsonLayersProps {
+  /** In pixels, or any CSS length. Defaults to 300. */
+  height?: number | string;
+  /** Defaults to the style from `MapsProvider`. */
+  mapStyle?: MapStyleInput;
+  /** Zoom with the mouse wheel. Defaults to false so the page still scrolls. */
+  scrollZoom?: boolean;
+  class?: string;
 }
 </script>
 
 <script setup lang="ts">
 /**
- * Draws a Geometry, Feature or FeatureCollection on the surrounding
- * `MapCanvas` and frames the map around it. `GeoJsonField` and the drawing
- * inputs' read-only state use it.
+ * A map showing a Geometry, Feature or FeatureCollection, framed to fit it.
+ * `GeoJsonField` and the drawing inputs' read-only state use it. To draw on a
+ * `MapCanvas` you already have, use `GeoJsonLayers`.
  *
  * @example
- * <MapCanvas>
- *   <GeoJsonView :data="{ type: 'Point', coordinates: [2.35, 48.85] }" />
- * </MapCanvas>
+ * <GeoJsonView :data="{ type: 'Point', coordinates: [2.35, 48.85] }" />
  */
 
-import { asFeatureCollection, geoBounds, isLngLatBox } from "@chelone/core";
-import { computed, toRaw, watch } from "vue";
-import { uniqueGeoJsonSourceId, useGeoJsonSource } from "./use-geo-json-source";
-import { useMap } from "./use-map";
+import GeoJsonLayers from "./geo-json-layers.vue";
+import MapCanvas from "./map-canvas.vue";
 
 const props = withDefaults(defineProps<GeoJsonViewProps>(), {
   fitBounds: true,
   fitPadding: 20,
   maxFitZoom: 18,
+  scrollZoom: false,
 });
-
-const map = useMap();
-// MapLibre structured-clones what it is given, which throws on a reactive proxy.
-const value = computed(() => toRaw(props.data));
-const collection = computed(() => asFeatureCollection(value.value));
-useGeoJsonSource(uniqueGeoJsonSourceId(), collection, () => props.shapeStyle ?? {});
-
-const box = computed(() => geoBounds(value.value));
-// The box as text, so a new array with the same corners does not refit.
-const boxKey = computed(() => (box.value ? box.value.join(",") : ""));
-
-watch(
-  [() => props.fitBounds, boxKey],
-  () => {
-    if (!props.fitBounds || !isLngLatBox(box.value)) return;
-    map.fitBounds(box.value, {
-      padding: props.fitPadding,
-      maxZoom: props.maxFitZoom,
-      duration: 0,
-    });
-  },
-  { immediate: true },
-);
 </script>
 
-<template></template>
+<template>
+  <MapCanvas
+    :height="props.height"
+    :map-style="props.mapStyle"
+    :scroll-zoom="props.scrollZoom"
+    :class="props.class"
+  >
+    <GeoJsonLayers
+      :data="props.data"
+      :shape-style="props.shapeStyle"
+      :fit-bounds="props.fitBounds"
+      :fit-padding="props.fitPadding"
+      :max-fit-zoom="props.maxFitZoom"
+    />
+  </MapCanvas>
+</template>

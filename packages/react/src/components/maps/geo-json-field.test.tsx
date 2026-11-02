@@ -4,14 +4,19 @@
  * the providers and assert DOM and what the map was asked to do.
  */
 
-import { fakeDataProvider, rasterTileStyle } from "@chelone/core";
+import {
+  fakeDataProvider,
+  type GeoJsonValue,
+  rasterTileStyle,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../context";
 import { maps, resetFake } from "./__fixtures__/fake-maplibre";
-import { GeoJsonField } from "./geo-json-field";
+import { GeoJsonField, GeoJsonLayers } from "./geo-json-field";
+import { MapCanvas } from "./map-canvas";
 import { MapsProvider } from "./maps-provider";
 import * as shapeFields from "./shape-fields";
 import {
@@ -280,6 +285,33 @@ describe("GeoJsonField", () => {
     await show({}, { defaultValue: polygon });
 
     expect(map().fits).toHaveLength(1);
+  });
+});
+
+describe("GeoJsonLayers", () => {
+  it("draws on the surrounding map", async () => {
+    render(
+      <MapCanvas>
+        <GeoJsonLayers data={polygon as GeoJsonValue} />
+      </MapCanvas>,
+      { wrapper },
+    );
+    await loaded();
+
+    expect(maps).toHaveLength(1);
+    expect(Object.keys(map().sources)).toHaveLength(1);
+    expect(map().fits[0]?.bounds).toEqual([10, 20, 14, 26]);
+  });
+
+  it("throws outside a MapCanvas", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      expect(() =>
+        render(<GeoJsonLayers data={polygon as GeoJsonValue} />, { wrapper }),
+      ).toThrowError(/MapCanvas/);
+    } finally {
+      error.mockRestore();
+    }
   });
 });
 
