@@ -104,7 +104,9 @@ export function GeocodingInput({
     limit,
   });
   const results = search.data ?? [];
-  const searched = query.trim().length >= minChars;
+  // Not `query` itself: a typeahead search runs on the debounced value, so a query
+  // that has reached `minChars` may not have started yet.
+  const searched = search.isFetching || search.status !== "pending";
 
   const onType = (value: string) => {
     setText(value);
@@ -117,6 +119,8 @@ export function GeocodingInput({
   };
 
   const runSearch = () => {
+    // The same text keeps the same query key, which a failed search would never retry.
+    if (query === text && search.isError) void search.refetch();
     setQuery(text);
     setOpen(true);
   };

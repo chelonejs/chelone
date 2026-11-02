@@ -391,4 +391,55 @@ describe("GeocodingInput", () => {
     expect(signals[0]?.aborted).toBe(true);
     expect(signals[1]?.aborted).toBe(false);
   });
+
+  it("searches again on Enter after a failed search for the same text", async () => {
+    let calls = 0;
+    const { provider } = fakeProvider({
+      search: async () => {
+        calls += 1;
+        if (calls === 1) throw new Error("offline");
+        return [paris];
+      },
+    });
+    await setup({ provider });
+
+    type("Paris");
+    fireEvent.keyDown(field(), { key: "Enter" });
+    expect(await screen.findByText("No results")).toBeTruthy();
+
+    fireEvent.keyDown(field(), { key: "Escape" });
+    fireEvent.keyDown(field(), { key: "Enter" });
+
+    expect(await screen.findByText("Paris, France")).toBeTruthy();
+    expect(calls).toBe(2);
+  });
+
+  it("shows no list for a typeahead provider until the debounced search starts", async () => {
+    vi.useFakeTimers();
+    const { provider, search } = fakeProvider({ typeahead: true });
+    await setup({ provider, debounceMs: 300 });
+
+    type("Pa");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+    type("Par");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
+
+    // minChars is reached, but nothing has searched yet.
+    expect(search).not.toHaveBeenCalled();
+    expect(screen.queryByText("No results")).toBeNull();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(200);
+    });
+    expect(search).toHaveBeenCalledTimes(1);
+    // React Query notifies on a timer.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(screen.getByText("Paris, France")).toBeTruthy();
+  });
 });
