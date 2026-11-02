@@ -359,7 +359,12 @@ async function runRefine(committed: ShapeValue) {
 function onEdit(edit: TerraDrawEdit) {
   // A newer edit makes any pending refinement stale, whatever the edit is.
   refining?.abort();
-  let features = edit.features;
+  // A part the editor refused is not in the edit: it stays in the value, as
+  // the held parts do. A single-shape value takes the new drawing instead.
+  const refused = HOLDS_MANY.has(props.kind)
+    ? (controls.value?.refused.value ?? [])
+    : [];
+  let features = [...edit.features, ...refused];
   let prev = input.value.value;
   if (edit.type === "cut") {
     // The tool clears either way; a cut that touched nothing commits nothing.
@@ -425,6 +430,17 @@ function onEdit(edit: TerraDrawEdit) {
         @controls="controls = $event"
       />
     </MapCanvas>
+    <p
+      v-if="(controls?.refused.value.length ?? 0) > 0"
+      data-slot="shape-input-warning"
+      class="text-sm text-amber-600 dark:text-amber-500"
+    >
+      {{
+        translate("chelone.map.shape_not_shown", {
+          _: "Part of this shape cannot be shown on the map",
+        })
+      }}
+    </p>
     <InputHelperText :helper-text="props.helperText" />
     <FieldError v-if="invalid">
       <ValidationError :error="input.error.value" />

@@ -29,6 +29,7 @@ import { MapsProvider } from "../maps/use-map";
 import {
   draws,
   type FakeFeature,
+  refuseFeatures,
   resetFake as resetDraws,
 } from "./__fixtures__/fake-terra-draw";
 import DrawToolbar, { type DrawToolbarProps } from "./draw-toolbar.vue";
@@ -92,7 +93,10 @@ const holed: Geometry = {
   ],
 };
 
-function mountUnderAdmin(content: () => ReturnType<typeof h>) {
+function mountUnderAdmin(
+  content: () => ReturnType<typeof h>,
+  messages: Record<string, string> = mapMessages,
+) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [{ path: "/", component: { render: () => null } }],
@@ -108,7 +112,7 @@ function mountUnderAdmin(content: () => ReturnType<typeof h>) {
               queryClient: new QueryClient(),
               i18n: createI18n({
                 locale: "en",
-                messages: { en: mapMessages },
+                messages: { en: messages },
               }),
             },
             { default: content },
@@ -127,7 +131,10 @@ function mountUnderAdmin(content: () => ReturnType<typeof h>) {
 async function setup(
   props: Partial<ShapeInputProps> = {},
   shape: unknown = square(),
-  { ready = true }: { ready?: boolean } = {},
+  {
+    ready = true,
+    messages = mapMessages,
+  }: { ready?: boolean; messages?: Record<string, string> } = {},
 ) {
   let current: UseFormReturn<Values> | undefined;
   const commits: unknown[] = [];
@@ -147,7 +154,7 @@ async function setup(
         });
     },
   });
-  const wrapper = mountUnderAdmin(() => h(FormHost));
+  const wrapper = mountUnderAdmin(() => h(FormHost), messages);
   // Lets the fake map's microtask `load` fire and Vue render what follows.
   await flushPromises();
   const draw = () => {
@@ -501,6 +508,112 @@ describe("ShapeInput", () => {
     expect(value()).toEqual({
       type: "MultiPolygon",
       coordinates: [square(30).coordinates, holed.coordinates],
+    });
+  });
+
+  describe("when the editor refuses a part", () => {
+    const refusedPart = {
+      type: "MultiPolygon",
+      coordinates: [square(0).coordinates, square(20).coordinates],
+    };
+    const NOT_SHOWN = "Part of this shape cannot be shown on the map";
+    const refuseSecondSquare = () =>
+      refuseFeatures((f) =>
+        JSON.stringify(f.geometry) === JSON.stringify(square(20))
+          ? "Feature is invalid"
+          : undefined,
+      );
+
+    it("keeps a part the editor refuses when another part is edited", async () => {
+      refuseSecondSquare();
+      const { draw, wrapper, value } = await setup(
+        { kind: "MultiPolygon" },
+        refusedPart,
+      );
+      // The refused square is not drawn.
+      expect(draw().getSnapshot()).toHaveLength(1);
+
+      await button(wrapper, "Edit").trigger("click");
+      const id = storedId(draw().features);
+      draw().replace(id, square(5));
+      draw().emitFinish(id, "dragFeature", "select");
+      await flushPromises();
+
+      expect(value()).toEqual({
+        type: "MultiPolygon",
+        coordinates: [square(5).coordinates, square(20).coordinates],
+      });
+    });
+
+    it("keeps a part the editor refuses when another part is deleted", async () => {
+      refuseSecondSquare();
+      const { draw, value } = await setup(
+        { kind: "MultiPolygon" },
+        refusedPart,
+      );
+
+      draw().deleteFromStore(storedId(draw().features));
+      await flushPromises();
+
+      expect(value()).toEqual({
+        type: "MultiPolygon",
+        coordinates: [square(20).coordinates],
+      });
+    });
+
+    it("does not redraw the editor after an edit that leaves the refused part alone", async () => {
+      refuseSecondSquare();
+      const { draw, wrapper } = await setup(
+        { kind: "MultiPolygon" },
+        refusedPart,
+      );
+
+      await button(wrapper, "Edit").trigger("click");
+      const id = storedId(draw().features);
+      draw().replace(id, square(5));
+      draw().emitFinish(id, "dragFeature", "select");
+      await flushPromises();
+
+      expect(draw().added).toHaveLength(1);
+    });
+
+    it("warns that part of the shape cannot be shown", async () => {
+      refuseSecondSquare();
+      const { wrapper } = await setup({ kind: "MultiPolygon" }, refusedPart);
+
+      expect(wrapper.text()).toContain(NOT_SHOWN);
+    });
+
+    it("words the warning in English when the app did not merge mapMessages", async () => {
+      refuseSecondSquare();
+      const { wrapper } = await setup({ kind: "MultiPolygon" }, refusedPart, {
+        messages: {},
+      });
+
+      expect(wrapper.text()).toContain(NOT_SHOWN);
+    });
+
+    it("shows no warning when the editor takes every part", async () => {
+      const { wrapper } = await setup({ kind: "MultiPolygon" }, refusedPart);
+
+      expect(wrapper.text()).not.toContain(NOT_SHOWN);
+    });
+
+    it("drops the warning when the form resets to a shape the editor takes", async () => {
+      refuseSecondSquare();
+      const { wrapper, form } = await setup(
+        { kind: "MultiPolygon" },
+        refusedPart,
+      );
+      expect(wrapper.text()).toContain(NOT_SHOWN);
+
+      form().form.setFieldValue("shape", {
+        type: "MultiPolygon",
+        coordinates: [square(0).coordinates],
+      });
+      await flushPromises();
+
+      expect(wrapper.text()).not.toContain(NOT_SHOWN);
     });
   });
 
