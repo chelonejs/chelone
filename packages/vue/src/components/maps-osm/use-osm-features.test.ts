@@ -50,6 +50,34 @@ function run<T>(
 }
 
 describe("useOsmFeatures", () => {
+  it("follows a changed overpass prop of MapsProvider", async () => {
+    const a = fakeProvider();
+    const b = fakeProvider();
+    const overpass = ref<OverpassProvider>(a.provider);
+    const box = ref<Box>(bbox);
+    let result!: ReturnType<typeof useOsmFeatures>;
+    const Probe = defineComponent({
+      setup() {
+        result = useOsmFeatures(box, { presets: ["water"] });
+        return () => null;
+      },
+    });
+    mount(
+      defineComponent({
+        setup() {
+          provide(VUE_QUERY_CLIENT, newClient());
+          return () =>
+            h(MapsProvider, { overpass: overpass.value }, () => h(Probe));
+        },
+      }),
+    );
+    await vi.waitFor(() => expect(result.data.value).toBeDefined());
+    overpass.value = b.provider;
+    box.value = [2.3, 48.85, 2.32, 48.87];
+    await vi.waitFor(() => expect(b.spy).toHaveBeenCalledTimes(1));
+    expect(a.spy).toHaveBeenCalledTimes(1);
+  });
+
   it("is idle while the bbox is null or sources are empty", async () => {
     const { provider, spy } = fakeProvider();
     const noBbox = run(() =>

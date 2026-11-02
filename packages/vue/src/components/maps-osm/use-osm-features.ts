@@ -36,14 +36,18 @@ export function useOsmFeatures(
   sources: MaybeRefOrGetter<OverpassQuerySources>,
   options: UseOsmFeaturesOptions = {},
 ) {
-  const { overpass } = useMapsConfig();
-  const provider = options.provider ?? overpass;
-  if (!provider) {
+  const config = useMapsConfig();
+  // Read inside the computed too, so a changed `overpass` prop reaches the query.
+  const resolve = () => options.provider ?? config.overpass;
+  if (!resolve()) {
     throw new Error(
       "useOsmFeatures needs an Overpass provider: pass the `provider` option or set `overpass` on <MapsProvider>.",
     );
   }
   const request = computed(() => {
+    const provider = resolve();
+    if (!provider)
+      throw new Error("useOsmFeatures lost its Overpass provider.");
     const box = toValue(bbox);
     const wanted = toValue(sources);
     const active = box !== null && hasOsmSources(wanted);
