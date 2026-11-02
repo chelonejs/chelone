@@ -58,11 +58,17 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: ["src/index.ts", "src/tanstack-router.ts", "src/monaco.ts"],
+      entry: [
+        "src/index.ts",
+        "src/tanstack-router.ts",
+        "src/monaco.ts",
+        "src/mdx-editor.ts",
+      ],
       formats: ["es"],
     },
     outDir: "dist",
     emptyOutDir: false,
+    cssCodeSplit: true,
     sourcemap: false,
     minify: false,
     rollupOptions: {
