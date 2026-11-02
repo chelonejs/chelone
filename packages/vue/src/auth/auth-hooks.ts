@@ -20,13 +20,53 @@ import {
   type CanAccessParams,
   canAccessQueryOptions,
   identityQueryOptions,
+  type UserIdentity,
 } from "@chelone/core";
 import { useMutation, useQuery } from "@tanstack/vue-query";
-import { useCheloneAuthProvider } from "../context";
+import { type ComputedRef, computed } from "vue";
+import { useCheloneAuthProvider, useCheloneContext } from "../context";
 
 /** Read the authenticated user's identity (`getIdentity`) as a vue-query query. */
 export function useGetIdentity() {
   return useQuery(identityQueryOptions(useCheloneAuthProvider()));
+}
+
+export interface UseOptionalIdentityResult {
+  /** The signed-in identity (`undefined` until resolved, or when unavailable). */
+  identity: ComputedRef<UserIdentity | undefined>;
+  /** Whether the identity query is in flight (false when unavailable). */
+  isPending: ComputedRef<boolean>;
+}
+
+/**
+ * Read the signed-in identity without requiring an `authProvider` — the Vue twin
+ * of the React `useOptionalIdentity`. Unlike {@link useGetIdentity}, which
+ * THROWS without a provider, this yields `identity: undefined` and
+ * `isPending: false` when there is no provider or it has no `getIdentity`, and
+ * when `getIdentity` rejects. It shares `useGetIdentity`'s query key, so both
+ * read one cached call.
+ */
+export function useOptionalIdentity(): UseOptionalIdentityResult {
+  const { authProvider } = useCheloneContext();
+  const hasGetIdentity = authProvider?.getIdentity != null;
+  const query = useQuery({
+    // A stub provider satisfies the option factory's type when none is
+    // configured; the query is disabled in that case so it never runs.
+    ...identityQueryOptions(
+      authProvider ?? ({} as NonNullable<typeof authProvider>),
+    ),
+    enabled: hasGetIdentity,
+  });
+
+  return {
+    // A disabled query reports `isPending: true`; a rejected one has no data.
+    identity: computed(() =>
+      !hasGetIdentity || query.isError.value ? undefined : query.data.value,
+    ),
+    isPending: computed(() =>
+      !hasGetIdentity || query.isError.value ? false : query.isPending.value,
+    ),
+  };
 }
 
 /**

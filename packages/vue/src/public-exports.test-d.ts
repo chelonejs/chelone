@@ -2,8 +2,10 @@
  * The public surface of `@chelone/vue`: every component the barrel exports
  * ships its props type next to it, as `@chelone/react` does.
  */
+
+import type { UserIdentity } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
-import type { Ref } from "vue";
+import type { ComputedRef, Ref } from "vue";
 import type {
   AdminProps,
   ApplicationUpdatedNotificationProps,
@@ -220,5 +222,13 @@ describe("@chelone/vue public exports", () => {
   it("keeps internal helpers out of the barrel", () => {
     expectTypeOf(barrel).not.toHaveProperty("areIdsEqual");
     expectTypeOf(barrel).not.toHaveProperty("WebhookEndpointFieldEndpoint");
+  });
+
+  it("useOptionalIdentity returns identity and isPending as computed refs", () => {
+    type Result = ReturnType<typeof barrel.useOptionalIdentity>;
+    expectTypeOf<Result["identity"]>().toEqualTypeOf<
+      ComputedRef<UserIdentity | undefined>
+    >();
+    expectTypeOf<Result["isPending"]>().toEqualTypeOf<ComputedRef<boolean>>();
   });
 });
