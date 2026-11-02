@@ -49,7 +49,9 @@ const toText = (value: unknown) =>
  * A text field that searches an address with a geocoding provider and fills
  * the form with the result the user picks. A provider that allows typeahead
  * searches as the user types; any other searches on Enter or on the button.
- * Typing changes only what the field shows: the form is written on a pick.
+ * Typed text reaches the form when the field loses focus, so an address no
+ * provider finds can still be entered by hand; a pick writes the result's
+ * `displayName` and its coordinates.
  *
  * @example
  * <GeocodingInput
@@ -173,7 +175,10 @@ export function GeocodingInput({
             }
             aria-invalid={fieldState.invalid || undefined}
             onValueChange={onType}
-            onBlur={() => field.onBlur()}
+            onBlur={() => {
+              if (text !== saved) field.onChange(text);
+              field.onBlur();
+            }}
             onKeyDown={(event) => {
               if (event.key === "Escape" && open) {
                 event.stopPropagation();
@@ -201,6 +206,13 @@ export function GeocodingInput({
             {search.isFetching ? (
               <div className="px-2 py-3 text-sm text-muted-foreground">
                 {translate("chelone.map.searching")}
+              </div>
+            ) : search.isError ? (
+              <div
+                role="alert"
+                className="px-2 py-3 text-sm text-muted-foreground"
+              >
+                {translate("chelone.map.search_failed")}
               </div>
             ) : results.length === 0 ? (
               <div className="px-2 py-3 text-sm text-muted-foreground">

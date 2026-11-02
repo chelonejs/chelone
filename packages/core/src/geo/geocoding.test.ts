@@ -1,3 +1,4 @@
+import { QueryClient, QueryObserver } from "@tanstack/query-core";
 import { describe, expect, it, vi } from "vitest";
 import {
   type GeocodingProvider,
@@ -57,6 +58,30 @@ describe("geocodeQueryOptions", () => {
       countryCodes: ["fr"],
       viewBox: undefined,
     });
+  });
+
+  it("does not retry a failed search", async () => {
+    const { provider, search } = fakeProvider();
+    search.mockRejectedValue(new Error("429"));
+    // The default of 3 retries is what an app's own QueryClient brings.
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: 3, retryDelay: 1000 } },
+    });
+    const observer = new QueryObserver(
+      client,
+      geocodeQueryOptions(provider, "Paris"),
+    );
+    const unsubscribe = observer.subscribe(() => {});
+    try {
+      await vi.waitFor(
+        () => expect(observer.getCurrentResult().status).toBe("error"),
+        { timeout: 500 },
+      );
+      expect(search).toHaveBeenCalledTimes(1);
+    } finally {
+      unsubscribe();
+      client.clear();
+    }
   });
 });
 
