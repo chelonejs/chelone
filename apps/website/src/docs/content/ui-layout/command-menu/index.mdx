@@ -1,0 +1,272 @@
+---
+title: "CommandMenu"
+description: "A command palette that jumps to resources and records and runs actions, opened with a hotkey."
+registry: "command-menu"
+---
+
+`<CommandMenu>` is a command palette. A hotkey, `Ctrl+K` or `Cmd+K` by default,
+opens it. From there a user jumps to a resource or a record, or runs an action.
+It is built on the `command` primitive.
+
+## Mounting it
+
+Wrap the layout in `CommandMenu`, in the `Admin.Layout` slot. The children render outside the
+dialog, so any component under the layout can call `useCommandMenu` and
+`useRegisterCommand`.
+
+```tsx
+import { Admin, CommandMenu, Layout, Resource } from "@chelone/react";
+
+const AppLayout = ({ children }) => (
+  <CommandMenu>
+    <Layout>{children}</Layout>
+  </CommandMenu>
+);
+
+<Admin dataProvider={dataProvider}>
+  <Admin.Layout>
+    <AppLayout />
+  </Admin.Layout>
+  <Resource name="posts" list={PostList} />
+</Admin>;
+```
+
+In Vue the default slot of `<CommandMenu>` holds the layout. A `#layout` slot
+replaces the default shell, so the example passes `<router-view />` to
+`<Layout>` and wraps everything in a `<ThemeProvider>`. Without the provider the
+theme actions do nothing.
+
+```vue
+<script setup lang="ts">
+import { Admin, CommandMenu, Layout, Resource, ThemeProvider } from "@chelone/vue";
+</script>
+
+<template>
+  <Admin :data-provider="dataProvider">
+    <Resource name="posts" :list="PostList" />
+
+    <template #layout>
+      <ThemeProvider>
+        <CommandMenu>
+          <Layout>
+            <router-view />
+          </Layout>
+        </CommandMenu>
+      </ThemeProvider>
+    </template>
+  </Admin>
+</template>
+```
+
+## What the palette offers
+
+- The resources the user can list.
+- A record search per resource, once the user types.
+- Recent picks, while the search box is empty.
+- Actions: the built-in ones, `actions` and anything a component registers.
+
+A resource with no list view is left out, and so is one the user cannot list.
+The check is the resource's `list` access through `authProvider.canAccess`, the
+same one the sidebar menu uses.
+
+A record opens its show view, or its edit view when the resource has no show
+view. A resource with neither gets no record hits.
+
+### Record search
+
+The search sends `{ q: query }` as the filter to each resource's `getList`, with
+`perPage` set to `perResourceLimit` (default `5`). A resource whose backend
+filters on another key takes it in `searchFields`:
+
+```tsx
+<CommandMenu
+  searchFields={{ posts: "title_like", users: "name" }}
+  perResourceLimit={3}
+  resources={["posts", "users"]}
+>
+  <Layout>{children}</Layout>
+</CommandMenu>
+```
+
+`resources` limits which resources are listed and searched. Typing waits
+`searchDebounceMs` after the last keystroke before it fetches.
+
+## Hotkey
+
+`hotkey` toggles the menu. The default is `"mod+k"`. React takes a list of
+bindings, `hotkey={["mod+k", "alt+/"]}`. Vue takes one binding string,
+`hotkey="mod+k"`. `hotkey={false}` turns the hotkey off, and the menu then opens
+only through `useCommandMenu().open()`.
+
+| Binding | Fires on |
+| ------- | -------- |
+| `"mod+k"` | `Ctrl+K` or `Cmd+K` |
+| `"mod+shift+p"` | `Ctrl+Shift+P` or `Cmd+Shift+P` |
+| `"alt+/"` | `Alt+/`, `Option+/` on macOS |
+
+- `mod` is Ctrl or Meta.
+- Modifiers match exactly. `"mod+k"` does not fire on `Ctrl+Shift+K`, and a
+  binding without `mod` does not fire while Ctrl or Meta is down.
+- A binding with neither `mod` nor `alt` is ignored while the user types in an
+  input, a textarea, a select or an editable element. `"/"` never opens the menu
+  from a text field. `mod` and `alt` bindings work from a field.
+- Nothing fires during IME composition.
+
+## Actions
+
+The menu lists these built in actions:
+
+- Refresh, which refreshes the data on the page.
+- Switch to the light, dark or system theme, under a Theme heading.
+- Log out, only when the admin has an `authProvider`.
+
+### The `actions` prop
+
+`actions` adds commands that are always there:
+
+```tsx
+<CommandMenu
+  actions={[
+    {
+      id: "docs",
+      label: "Open the docs",
+      icon: <BookOpen />,
+      keywords: ["help"],
+      onSelect: () => window.open("https://example.com/docs", "_blank"),
+    },
+  ]}
+>
+  <Layout>{children}</Layout>
+</CommandMenu>
+```
+
+### `useRegisterCommand`
+
+`useRegisterCommand` lists a command only while the calling component is
+mounted, so a page can offer actions of its own:
+
+```tsx
+import { useRegisterCommand } from "@chelone/react";
+
+const PostList = () => {
+  useRegisterCommand({
+    id: "posts-export",
+    label: "Export posts",
+    group: "Posts",
+    keywords: ["download", "csv"],
+    shortcut: "E",
+    when: () => canExport(),
+    onSelect: () => exportPosts(),
+  });
+
+  return <List>{/* ... */}</List>;
+};
+```
+
+In Vue, call it in `setup`. It takes the action, a ref or a getter, so a label
+that changes re-registers:
+
+```vue
+<script setup lang="ts">
+import { useRegisterCommand } from "@chelone/vue";
+
+useRegisterCommand({
+  id: "posts-export",
+  label: "Export posts",
+  group: "Posts",
+  onSelect: () => exportPosts(),
+});
+</script>
+```
+
+A command has these fields:
+
+| Field | Type | Meaning |
+| ----- | ---- | ------- |
+| `id` | `string` | Unique key. Registering the same `id` again replaces the command. |
+| `label` | `ReactNode` in React, `string` in Vue | The row's text. |
+| `icon` | element in React, component in Vue | Shown before the label. |
+| `group` | `string` | The heading the command sits under. Defaults to `"actions"`. A `group` other than `actions` gets its own heading. |
+| `keywords` | `string[]` | Extra words the search matches. |
+| `shortcut` | `string` | Text shown at the end of the row. It is a hint: it registers no key. |
+| `when` | `() => boolean` | Hides the command when it returns `false` or throws. |
+| `onSelect` | `() => void` | Runs on select. In React it may return a promise. |
+
+In React the menu closes when `onSelect` settles, and a rejection raises an
+error notification. In Vue the menu closes first, and a thrown error or a
+rejected promise raises an error notification.
+
+`useCommandMenu` returns the menu's controls: `isOpen`, `open`, `close`,
+`toggle`, `setQuery`, `registerCommand` and `unregisterCommand`. Both hooks
+throw outside a `<CommandMenu>`.
+
+## Translation
+
+Each string goes through `translate` with an English default, so
+[i18n messages](/docs/app-config/translation) override it. The adapters use different
+keys, listed by adapter.
+
+React:
+
+| Key | English default |
+| --- | --------------- |
+| `chelone.command_menu.title` | Command menu |
+| `chelone.command_menu.description` | Jump to a page or record, or run an action. |
+| `chelone.command_menu.placeholder` | Search or run a command... |
+| `chelone.command_menu.empty` | No results found. |
+| `chelone.command_menu.group.recent` | Recent |
+| `chelone.command_menu.group.records` | Records |
+| `chelone.command_menu.group.resources` | Resources |
+| `chelone.command_menu.group.actions` | Actions |
+| `chelone.command_menu.group.theme` | Theme |
+| `chelone.command_menu.group.<name>` | The group name, for a group of your own |
+| `chelone.command_menu.action.refresh` | Refresh data |
+| `chelone.command_menu.action.theme_light` | Switch to light theme |
+| `chelone.command_menu.action.theme_dark` | Switch to dark theme |
+| `chelone.command_menu.action.theme_system` | Use system theme |
+| `chelone.command_menu.action.logout` | Log out |
+| `chelone.command_menu.footer.navigate` | Navigate |
+| `chelone.command_menu.footer.select` | Select |
+| `chelone.command_menu.footer.close` | Close |
+
+Vue:
+
+| Key | English default |
+| --- | --------------- |
+| `chelone.command_menu.title` | Command menu |
+| `chelone.command_menu.description` | Search resources and records, or run an action. |
+| `chelone.command_menu.placeholder` | Type a command or search... |
+| `chelone.command_menu.empty` | No results found. |
+| `chelone.command_menu.recent` | Recent |
+| `chelone.command_menu.resources` | Resources |
+| `chelone.command_menu.actions` | Actions |
+| `chelone.command_menu.theme` | Theme |
+| `chelone.command_menu.account` | Account |
+| `chelone.command_menu.refresh` | Refresh |
+| `chelone.command_menu.theme_light` | Light theme |
+| `chelone.command_menu.theme_dark` | Dark theme |
+| `chelone.command_menu.theme_system` | System theme |
+| `chelone.command_menu.navigate` | Navigate |
+| `chelone.command_menu.select` | Select |
+| `chelone.command_menu.close` | Close |
+
+The Vue `Log out` row uses `ra.auth.logout`. A Vue record group is headed by the
+resource's plural label.
+
+## Props
+
+<PropsTable name="CommandMenu" />
+
+The table shows the React props. The Vue defaults differ: `recentsLimit` is `5`
+and `searchDebounceMs` is `250`, where React keeps `10` and `200`.
+
+## In Vue
+
+- The Vue `command` primitive is native and dependency-free. It does not use
+  cmdk. Items keep their DOM order while the search filters them.
+- The dialog is inline, so it is not teleported.
+- The footer hints use plain `<kbd>` elements.
+- On a narrow screen the palette opens in a bottom sheet, as in React.
+
+The other differences are on the
+[Differences from React](/docs/vue/differences) page.
