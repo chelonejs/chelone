@@ -190,7 +190,7 @@ const cellDragProps = (day: Date) =>
 const eventDragProps = (calendarEvent: CalendarEvent<LooseRecord>, day: Date) =>
   props.draggable
     ? {
-        draggable: "true",
+        draggable: true,
         "data-dragging":
           dragged.value?.event === calendarEvent &&
           calendarDayKey(dragged.value.from) === calendarDayKey(day)

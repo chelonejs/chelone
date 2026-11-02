@@ -809,7 +809,7 @@ describe("<CalendarList> drag", () => {
   };
   // The drag attributes sit on the list item around an event, so they cover a
   // custom `#event` slot too.
-  const item = (node: ReturnType<typeof eventIn>) => {
+  const item = (node: { element: Element }) => {
     const found = node.element.closest("li");
     if (!found) throw new Error("event outside a list item");
     return found;
