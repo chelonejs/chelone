@@ -12,6 +12,8 @@ export {
 export {
   type CutResult,
   cutFeatures,
+  type SimplifyOptions,
+  simplifyGeo,
 } from "./components/maps-draw/geometry-ops";
 export {
   ShapeInput,
@@ -35,6 +37,11 @@ export {
   PolygonInput,
   toolsForShapes,
 } from "./components/maps-draw/shape-inputs";
+export {
+  SimplifyInput,
+  type SimplifyInputProps,
+  type SimplifyQuality,
+} from "./components/maps-draw/simplify-input";
 export {
   type DrawTool,
   type TerraDrawEdit,

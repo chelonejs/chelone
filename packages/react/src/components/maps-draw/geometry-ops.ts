@@ -1,5 +1,11 @@
-import { type GeoFeature, type GeoGeometry, geoAreaM2 } from "@chelone/core";
+import {
+  type GeoFeature,
+  type GeoGeometry,
+  type GeoJsonValue,
+  geoAreaM2,
+} from "@chelone/core";
 import { difference } from "@turf/difference";
+import { simplify } from "@turf/simplify";
 
 export interface CutResult {
   features: GeoFeature[];
@@ -66,4 +72,28 @@ export function cutFeatures(
     }
   }
   return { features: out, changed };
+}
+
+export interface SimplifyOptions {
+  /** In degrees. 0 keeps every vertex that is not a repeat. */
+  tolerance: number;
+  /** Slower, and keeps more of the shape's detail at the same tolerance. */
+  highQuality: boolean;
+}
+
+/**
+ * A thinned copy of a Geometry, Feature or FeatureCollection. Polygon rings stay
+ * closed, and a Point or MultiPoint comes back equal. The input is not changed.
+ */
+export function simplifyGeo(
+  value: GeoJsonValue,
+  { tolerance, highQuality }: SimplifyOptions,
+): GeoJsonValue {
+  // `mutate` lets turf skip its own clone, so the one made here is the only one.
+  const copy = structuredClone(value);
+  return simplify(copy as never, {
+    tolerance,
+    highQuality,
+    mutate: true,
+  }) as unknown as GeoJsonValue;
 }
