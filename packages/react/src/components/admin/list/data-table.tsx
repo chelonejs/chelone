@@ -159,9 +159,10 @@ function DataTable(props: DataTableProps) {
     (id, index): id is string =>
       id !== undefined && !!columnProps[index]?.defaultHidden,
   );
+  const hiddenByDefault = defaultHiddenColumns ?? childDefaultHidden;
   const { hidden, order, publish } = useDataTableColumns({
     storeKey: storeKey ?? defaultDataTableStoreKey(resource ?? ""),
-    defaultHiddenColumns: defaultHiddenColumns ?? childDefaultHidden,
+    defaultHiddenColumns: hiddenByDefault,
   });
   const visibleChildren = arrangeColumns(ids, { hidden, order }).map(
     (index) => elements[index],
@@ -175,7 +176,8 @@ function DataTable(props: DataTableProps) {
       id,
       source: p.source,
       ...(typeof p.label === "string" ? { label: p.label } : {}),
-      defaultHidden: p.defaultHidden,
+      // The picker reads these flags, so they must follow the table's own defaults.
+      ...(hiddenByDefault.includes(id) ? { defaultHidden: true } : {}),
     });
   });
   const publishedJson = JSON.stringify([...published.values()]);

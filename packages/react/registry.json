@@ -1223,6 +1223,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/columns-button.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/create-button.tsx",
           "type": "registry:component"
         },
@@ -2267,6 +2271,26 @@
         "@chelone/button",
         "@chelone/lib-utils",
         "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "columns-button",
+      "type": "registry:component",
+      "title": "Columns Button",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/columns-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/input",
+        "@chelone/popover",
+        "@chelone/switch"
       ],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
