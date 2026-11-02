@@ -5319,8 +5319,14 @@
       "type": "registry:block",
       "title": "Chelone Markdown",
       "categories": ["chelone", "fields"],
-      "description": "The opt-in Markdown add-on: MdxField shows a markdown value in a read-only Milkdown Crepe editor, themed from the Chelone tokens. Installs @milkdown/crepe and @milkdown/kit.",
-      "registryDependencies": ["@chelone/lib-utils"],
+      "description": "The opt-in Markdown add-on: MdxField shows a markdown value in a read-only Milkdown Crepe editor and MdxInput edits one, themed from the Chelone tokens. Installs @milkdown/crepe and @milkdown/kit.",
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/lib-utils",
+        "@chelone/validation-error"
+      ],
       "dependencies": [
         "@chelone/core",
         "@chelone/vue",
@@ -5338,6 +5344,10 @@
         },
         {
           "path": "src/components/mdx-editor/mdx-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/mdx-editor/mdx-input.vue",
           "type": "registry:component"
         }
       ],
@@ -5384,6 +5394,28 @@
       "registryDependencies": ["@chelone/crepe-editor", "@chelone/lib-utils"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "mdx-input",
+      "type": "registry:component",
+      "title": "Mdx Input",
+      "files": [
+        {
+          "path": "src/components/mdx-editor/mdx-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/crepe-editor",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/lib-utils",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
     {

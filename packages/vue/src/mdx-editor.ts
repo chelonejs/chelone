@@ -5,3 +5,7 @@ export {
   default as MdxField,
   type MdxFieldProps,
 } from "./components/mdx-editor/mdx-field.vue";
+export {
+  default as MdxInput,
+  type MdxInputProps,
+} from "./components/mdx-editor/mdx-input.vue";
