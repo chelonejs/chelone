@@ -189,6 +189,7 @@ describe("@chelone/core barrel", () => {
       "fromEditorFeatures",
       "editorStyles",
       "geoAreaM2",
+      "areaInTypeOf",
       "hasSelfIntersection",
       "countVertices",
       "minVertices",

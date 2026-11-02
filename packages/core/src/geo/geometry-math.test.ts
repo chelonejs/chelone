@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { GeoPolygon, GeoPosition } from "./geojson";
-import { geoAreaM2, hasSelfIntersection } from "./geometry-math";
+import { areaInTypeOf, geoAreaM2, hasSelfIntersection } from "./geometry-math";
 
 function square(west: number, south: number, size: number): GeoPosition[] {
   return [
@@ -174,5 +174,37 @@ describe("hasSelfIntersection", () => {
         ],
       }),
     ).toBe(false);
+  });
+});
+
+describe("areaInTypeOf", () => {
+  const polygon = (west: number): GeoPolygon => ({
+    type: "Polygon",
+    coordinates: [square(west, 0, 1)],
+  });
+  const multi = (...parts: GeoPolygon[]) => ({
+    type: "MultiPolygon" as const,
+    coordinates: parts.map((part) => part.coordinates),
+  });
+
+  it("unwraps a one-part MultiPolygon for a Polygon value and refuses two parts", () => {
+    expect(areaInTypeOf(polygon(0), multi(polygon(5)))).toEqual(polygon(5));
+    expect(areaInTypeOf(polygon(0), multi(polygon(5), polygon(8)))).toBeNull();
+    expect(areaInTypeOf(polygon(0), multi())).toBeNull();
+  });
+
+  it("keeps a Polygon result for a Polygon value", () => {
+    expect(areaInTypeOf(polygon(0), polygon(5))).toEqual(polygon(5));
+  });
+
+  it("wraps a Polygon result in a one-part MultiPolygon for a MultiPolygon value", () => {
+    expect(areaInTypeOf(multi(polygon(0)), polygon(5))).toEqual(
+      multi(polygon(5)),
+    );
+  });
+
+  it("keeps a MultiPolygon result for a MultiPolygon value", () => {
+    const result = multi(polygon(5), polygon(8));
+    expect(areaInTypeOf(multi(polygon(0)), result)).toEqual(result);
   });
 });

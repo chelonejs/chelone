@@ -452,7 +452,11 @@ export {
   isGeoGeometry,
   isGeoJsonValue,
 } from "./geo/geojson";
-export { geoAreaM2, hasSelfIntersection } from "./geo/geometry-math";
+export {
+  areaInTypeOf,
+  geoAreaM2,
+  hasSelfIntersection,
+} from "./geo/geometry-math";
 export type { ShapeLayerSpec, ShapeStyle } from "./geo/map-layers";
 export {
   asFeatureCollection,
