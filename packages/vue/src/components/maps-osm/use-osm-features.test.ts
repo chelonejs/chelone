@@ -129,6 +129,35 @@ describe("useOsmFeatures", () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
+  it("stays idle when enabled is false", async () => {
+    const { provider, spy } = fakeProvider();
+    const { result } = run(() =>
+      useOsmFeatures(
+        bbox,
+        { presets: ["water"] },
+        { provider, enabled: false },
+      ),
+    );
+    await flushPromises();
+    expect(result.fetchStatus.value).toBe("idle");
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it("refetches an answer older than staleTime", async () => {
+    const { provider, spy } = fakeProvider();
+    const client = newClient();
+    const options = { provider, staleTime: 0 };
+    const first = run(
+      () => useOsmFeatures(bbox, { presets: ["water"] }, options),
+      { client },
+    );
+    await vi.waitFor(() => expect(first.result.data.value).toBeDefined());
+    run(() => useOsmFeatures(bbox, { presets: ["water"] }, options), {
+      client,
+    });
+    await vi.waitFor(() => expect(spy).toHaveBeenCalledTimes(2));
+  });
+
   it("reuses the cached answer for the same query", async () => {
     const { provider, spy } = fakeProvider();
     const client = newClient();
