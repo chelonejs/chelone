@@ -1,6 +1,6 @@
-import type { GeoFeature } from "@chelone/core";
+import type { GeoFeature, GeoJsonValue } from "@chelone/core";
 import { describe, expect, it } from "vitest";
-import { cutFeatures } from "./geometry-ops";
+import { cutFeatures, simplifyGeo } from "./geometry-ops";
 
 function square(
   west: number,
@@ -106,5 +106,114 @@ describe("cutFeatures", () => {
     const result = cutFeatures([point, line], square(0, 0, 10, 10));
     expect(result.changed).toBe(false);
     expect(result.features).toEqual([point, line]);
+  });
+});
+
+/** A line with a small bump at every vertex between (0,0) and (10,0). */
+function bumpyLine(): [number, number][] {
+  const line: [number, number][] = [];
+  for (let x = 0; x <= 10; x++) line.push([x, x % 2 === 0 ? 0 : 0.001]);
+  return line;
+}
+
+describe("simplifyGeo", () => {
+  it("does not mutate its input", () => {
+    const input: GeoJsonValue = {
+      type: "LineString",
+      coordinates: bumpyLine(),
+    };
+    const before = JSON.stringify(input);
+    const result = simplifyGeo(input, { tolerance: 0.01, highQuality: false });
+    expect(JSON.stringify(input)).toBe(before);
+    expect(result).not.toBe(input);
+    expect(result.type === "LineString" && result.coordinates).toHaveLength(2);
+  });
+
+  it("simplifies a Feature and a FeatureCollection", () => {
+    const line: GeoJsonValue = { type: "LineString", coordinates: bumpyLine() };
+    const feature: GeoJsonValue = {
+      type: "Feature",
+      properties: { name: "a" },
+      geometry: line,
+    };
+    const options = { tolerance: 0.01, highQuality: true };
+    const simplified = simplifyGeo(feature, options);
+    expect(simplified).toEqual({
+      type: "Feature",
+      properties: { name: "a" },
+      geometry: {
+        type: "LineString",
+        coordinates: [
+          [0, 0],
+          [10, 0],
+        ],
+      },
+    });
+    const collection = simplifyGeo(
+      { type: "FeatureCollection", features: [feature, feature] },
+      options,
+    );
+    expect(collection.type).toBe("FeatureCollection");
+    if (collection.type !== "FeatureCollection") return;
+    expect(collection.features).toHaveLength(2);
+    for (const f of collection.features) {
+      expect(f.geometry).toEqual({
+        type: "LineString",
+        coordinates: [
+          [0, 0],
+          [10, 0],
+        ],
+      });
+    }
+  });
+
+  it("returns a Point unchanged", () => {
+    const point: GeoJsonValue = { type: "Point", coordinates: [2.35, 48.85] };
+    const result = simplifyGeo(point, { tolerance: 0.05, highQuality: false });
+    expect(result).toEqual(point);
+    const multi: GeoJsonValue = {
+      type: "MultiPoint",
+      coordinates: [
+        [0, 0],
+        [1, 1],
+      ],
+    };
+    expect(simplifyGeo(multi, { tolerance: 0.05, highQuality: false })).toEqual(
+      multi,
+    );
+  });
+
+  it("keeps a collinear vertex at tolerance 0", () => {
+    const polygon: GeoJsonValue = {
+      type: "Polygon",
+      coordinates: [
+        [
+          [0, 0],
+          [5, 0],
+          [10, 0],
+          [10, 10],
+          [0, 10],
+          [0, 0],
+        ],
+      ],
+    };
+    const result = simplifyGeo(polygon, { tolerance: 0, highQuality: false });
+    expect(result).toEqual(polygon);
+    expect(result).not.toBe(polygon);
+  });
+
+  it("passes a Feature with a null geometry through", () => {
+    const empty: GeoJsonValue = {
+      type: "Feature",
+      properties: null,
+      geometry: null,
+    };
+    const options = { tolerance: 0.01, highQuality: false };
+    expect(simplifyGeo(empty, options)).toEqual(empty);
+    const collection: GeoJsonValue = {
+      type: "FeatureCollection",
+      features: [empty, square(0, 0, 1, 1)],
+    };
+    expect(simplifyGeo(collection, options)).toEqual(collection);
   });
 });

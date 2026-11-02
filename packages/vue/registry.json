@@ -5959,6 +5959,7 @@
         "@chelone/core",
         "@chelone/vue",
         "@turf/difference",
+        "@turf/simplify",
         "terra-draw",
         "terra-draw-maplibre-gl-adapter"
       ],
@@ -5985,6 +5986,10 @@
         },
         {
           "path": "src/components/maps-draw/shape-inputs.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-draw/simplify-input.vue",
           "type": "registry:component"
         },
         {
@@ -6053,7 +6058,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/core", "@turf/difference"],
+      "dependencies": ["@chelone/core", "@turf/difference", "@turf/simplify"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6101,6 +6106,31 @@
       ],
       "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "simplify-input",
+      "type": "registry:component",
+      "title": "Simplify Input",
+      "files": [
+        {
+          "path": "src/components/maps-draw/simplify-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/geo-json-view",
+        "@chelone/geometry-ops",
+        "@chelone/input-helper-text",
+        "@chelone/label-text",
+        "@chelone/lib-utils",
+        "@chelone/map-canvas",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
