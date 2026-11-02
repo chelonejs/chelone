@@ -374,6 +374,8 @@ export type { BulkActionsToolbarProps } from "./admin/list/bulk-actions-toolbar.
 export { default as BulkActionsToolbar } from "./admin/list/bulk-actions-toolbar.vue";
 export type { BulkEditDrawerProps } from "./admin/list/bulk-edit-drawer.vue";
 export { default as BulkEditDrawer } from "./admin/list/bulk-edit-drawer.vue";
+export type { CalendarListProps } from "./admin/list/calendar-list.vue";
+export { default as CalendarList } from "./admin/list/calendar-list.vue";
 export type { CountProps } from "./admin/list/count.vue";
 export { default as Count } from "./admin/list/count.vue";
 export type { DataTableProps } from "./admin/list/data-table.vue";
