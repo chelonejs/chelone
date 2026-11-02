@@ -47,7 +47,10 @@ import { z } from "zod";
 const postSchema = z.object({
   title: z.string().min(1),
   views: z.coerce.number().int().nonnegative(),
-  published_at: z.coerce.date().optional(),
+  published_at: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.coerce.date().optional(),
+  ),
 });
 
 export function PostList() {
@@ -78,9 +81,9 @@ needs no `resource` prop. Pass `resource` to import into another one.
 
 | Prop             | Type                                       | Description                                                                                                          |
 | ---------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| `schema`         | Standard Schema                            | Its keys are the fields; its non-optional keys are required.                                                         |
-| `fields`         | `string[]`                                 | Overrides the schema's keys. Without either, the CSV headers are the fields.                                         |
-| `requiredFields` | `string[]`                                 | Overrides the schema's non-optional keys.                                                                            |
+| `schema`         | Standard Schema                            | Validates each row. For a Zod object, its keys are the fields and its non-optional keys are required.               |
+| `fields`         | `string[]`                                 | Overrides the schema's keys. Without either, the CSV headers are the fields. Sets `requiredFields` to none.          |
+| `requiredFields` | `string[]`                                 | Overrides the schema's non-optional keys. Pass it with `fields`, or no field is required.                            |
 | `mapping`        | `Record<string, string>`                   | A starting field to header mapping. When non-empty it replaces the automatic match.                                  |
 | `transform`      | `(row, index) => row`                      | Reshapes a mapped row before the schema sees it. `index` is the row's place in the file.                             |
 | `batchSize`      | `number`                                   | Rows created at once. Default `100`.                                                                                 |
@@ -90,6 +93,19 @@ needs no `resource` prop. Pass `resource` to import into another one.
 | `onComplete`     | `(report: CsvImportReport) => void`        | Called with the report when the import finishes.                                                                     |
 | `onError`        | `(error: Error) => void`                   | Called when the import fails outright.                                                                               |
 | `children`       | `ReactNode`                                | Rendered inside the import context, so a child can call `useCsvImport()`.                                            |
+
+Any Standard Schema (Zod, Valibot and others) validates rows, but only a Zod
+object lists its own keys. With another schema, pass `fields` and
+`requiredFields`, or the CSV headers become the fields and none is required.
+Passing `fields` alone has the same effect on `requiredFields`:
+
+```tsx
+<CsvImport
+  schema={postSchema}
+  fields={["title", "views"]}
+  requiredFields={["title"]}
+/>
+```
 
 The schema, `fields`, `requiredFields`, `mapping` and `batchSize` are read when
 the import is set up, which happens again only for another resource or data
@@ -132,6 +148,12 @@ const schema = z.object({
 Without `z.coerce`, `z.number()` rejects `"42"` and the preview marks the row
 invalid. `z.coerce.boolean()` turns any non-empty string, including `"false"`,
 into `true`, so parse booleans yourself as above.
+
+An empty cell arrives as `""`, not `undefined`, so `.optional()` does not skip
+it. `z.coerce.date()` turns `""` into an invalid date and rejects the row, and
+`z.coerce.number()` turns it into `0`. For an optional date or number, map
+`""` to `undefined` first, as the `published_at` field in the list example does
+with `z.preprocess`.
 
 ## Without a schema
 
