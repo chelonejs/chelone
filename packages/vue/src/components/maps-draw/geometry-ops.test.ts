@@ -67,6 +67,12 @@ describe("cutFeatures", () => {
     }
   });
 
+  it("gives only the first part of a split the feature's id", () => {
+    const base = { ...square(0, 0, 10, 10), id: "a" };
+    const result = cutFeatures([base], square(4, -5, 6, 15));
+    expect(result.features.map((f) => f.id)).toEqual(["a", undefined]);
+  });
+
   it("removes a polygon the cutter covers", () => {
     const result = cutFeatures([square(2, 2, 4, 4)], square(0, 0, 10, 10));
     expect(result).toEqual({ features: [], changed: true });

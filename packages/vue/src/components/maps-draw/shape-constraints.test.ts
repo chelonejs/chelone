@@ -10,6 +10,7 @@ import {
   fakeDataProvider,
   mapMessages,
   rasterTileStyle,
+  required,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
@@ -262,6 +263,21 @@ describe("ShapeInput", () => {
     await mountedInput.submit();
     expect(mountedInput.error()).toBe("Caller says no");
     expect(validate).toHaveBeenCalled();
+  });
+});
+
+describe("required", () => {
+  it("still marks the legend when a limit is set next to required()", async () => {
+    const mounted = await mountShapeInput(() =>
+      h(PolygonInput, {
+        source: "shape",
+        label: "Area",
+        minVertices: 3,
+        validate: [required()],
+      }),
+    );
+
+    expect(mounted.wrapper.find("legend").text()).toBe("Area *");
   });
 });
 

@@ -718,6 +718,40 @@ describe("ShapeInput cut tool", () => {
     expect(stored.coordinates).toHaveLength(2);
   });
 
+  it("keeps both parts of a split as a MultiPolygon when the kind can store one", async () => {
+    const { draw, wrapper, commits, value } = await setup(
+      { kind: "Geometry" },
+      field(0, 0, 10, 10),
+    );
+
+    await drawCutter(wrapper, draw, field(4, -5, 6, 15));
+
+    const stored = value() as { type: string; coordinates: unknown[] };
+    expect(stored.type).toBe("MultiPolygon");
+    expect(stored.coordinates).toHaveLength(2);
+    expect(commits).toEqual([stored]);
+  });
+
+  it("cuts a MultiPolygon held by a Geometry value", async () => {
+    const { draw, wrapper, value } = await setup(
+      { kind: "Geometry" },
+      {
+        type: "MultiPolygon",
+        coordinates: [
+          field(0, 0, 10, 10).coordinates,
+          field(20, 0, 30, 10).coordinates,
+        ],
+      },
+    );
+
+    await drawCutter(wrapper, draw, field(24, 4, 26, 6));
+
+    const stored = value() as { type: string; coordinates: unknown[][] };
+    expect(stored.type).toBe("MultiPolygon");
+    // The second part now has a hole: an outer ring and an inner one.
+    expect(stored.coordinates.map((part) => part.length)).toEqual([1, 2]);
+  });
+
   it("commits nothing when a cut would split a single polygon in two", async () => {
     const { draw, wrapper, commits, value } = await setup(
       {},
