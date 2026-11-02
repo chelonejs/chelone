@@ -47,7 +47,7 @@ describe("the maps/draw entry", () => {
     );
   });
 
-  it("the maps/draw entry also exports cutFeatures", async () => {
+  it("also exports cutFeatures", async () => {
     const entry = await import("./maps-draw");
     expect(entry.cutFeatures).toBeTypeOf("function");
   });
