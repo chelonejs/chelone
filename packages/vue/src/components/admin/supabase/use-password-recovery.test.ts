@@ -198,4 +198,57 @@ describe("useSupabaseUrlTokens", () => {
     expect(result.accessToken.value).toBe("a3");
     expect(result.refreshToken.value).toBe("r3");
   });
+
+  it("removes the tokens from the URL after reading them", async () => {
+    const { router } = await setup(() => useSupabaseUrlTokens(), {
+      initialEntry:
+        "/set-password?access_token=a1&refresh_token=r1&type=recovery&keep=1",
+    });
+
+    expect(router.currentRoute.value.fullPath).toBe("/set-password?keep=1");
+
+    // The entry was replaced, so the token URL is not left behind it.
+    router.back();
+    await flushPromises();
+    expect(router.currentRoute.value.fullPath).not.toContain("access_token");
+  });
+
+  it("removes the tokens from the hash too", async () => {
+    const { router } = await setup(() => useSupabaseUrlTokens(), {
+      initialEntry:
+        "/set-password#access_token=a2&refresh_token=r2&type=invite",
+    });
+
+    expect(router.currentRoute.value.fullPath).toBe("/set-password");
+  });
+
+  it("removes the tokens from a hash route's query", async () => {
+    const { router } = await setup(() => useSupabaseUrlTokens(), {
+      initialEntry:
+        "/app#/set-password?access_token=a3&refresh_token=r3&type=recovery&keep=1",
+    });
+
+    expect(router.currentRoute.value.fullPath).toBe(
+      "/app#/set-password?keep=1",
+    );
+  });
+
+  it("removes the tokens from a hash route's query when nothing else remains", async () => {
+    const { router } = await setup(() => useSupabaseUrlTokens(), {
+      initialEntry:
+        "/app#/set-password?access_token=a3&refresh_token=r3&type=recovery",
+    });
+
+    expect(router.currentRoute.value.fullPath).toBe("/app#/set-password");
+  });
+
+  it("keeps the tokens after the URL is cleaned", async () => {
+    const { result, router } = await setup(() => useSupabaseUrlTokens(), {
+      initialEntry: "/set-password?access_token=a1&refresh_token=r1",
+    });
+
+    expect(router.currentRoute.value.fullPath).toBe("/set-password");
+    expect(result.accessToken.value).toBe("a1");
+    expect(result.refreshToken.value).toBe("r1");
+  });
 });
