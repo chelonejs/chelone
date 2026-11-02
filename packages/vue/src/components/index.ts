@@ -167,6 +167,8 @@ export type { FunctionFieldProps } from "./admin/fields/function-field.vue";
 export { default as FunctionField } from "./admin/fields/function-field.vue";
 export type { ImageFieldProps } from "./admin/fields/image-field.vue";
 export { default as ImageField } from "./admin/fields/image-field.vue";
+export type { JsonFieldProps } from "./admin/fields/json-field.vue";
+export { default as JsonField } from "./admin/fields/json-field.vue";
 export type { NumberFieldProps } from "./admin/fields/number-field.vue";
 export { default as NumberField } from "./admin/fields/number-field.vue";
 export type { PhoneFieldProps } from "./admin/fields/phone-field.vue";
