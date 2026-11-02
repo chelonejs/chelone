@@ -109,7 +109,10 @@ function ValueProbe({
 async function setup(
   props: Partial<ShapeInputProps> = {},
   shape: unknown = square(),
-  { ready = true }: { ready?: boolean } = {},
+  {
+    ready = true,
+    messages = mapMessages,
+  }: { ready?: boolean; messages?: Record<string, string> } = {},
 ) {
   let current: ReturnType<typeof useForm<Values>> | undefined;
   function FormHost() {
@@ -130,7 +133,7 @@ async function setup(
     <CheloneProvider
       dataProvider={fakeDataProvider({})}
       queryClient={new QueryClient()}
-      i18n={createI18n({ locale: "en", messages: { en: mapMessages } })}
+      i18n={createI18n({ locale: "en", messages: { en: messages } })}
     >
       <MapsProvider mapStyle={style}>
         <FormHost />
@@ -556,6 +559,13 @@ describe("ShapeInput", () => {
     it("warns that part of the shape cannot be shown", async () => {
       refuseSecondSquare();
       await setup({ kind: "MultiPolygon" }, refusedPart);
+
+      expect(screen.getByText(NOT_SHOWN)).toBeTruthy();
+    });
+
+    it("words the warning in English when the app did not merge mapMessages", async () => {
+      refuseSecondSquare();
+      await setup({ kind: "MultiPolygon" }, refusedPart, { messages: {} });
 
       expect(screen.getByText(NOT_SHOWN)).toBeTruthy();
     });

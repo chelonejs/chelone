@@ -440,7 +440,9 @@ export function ShapeInput({
           data-slot="shape-input-warning"
           className="text-sm text-amber-600 dark:text-amber-500"
         >
-          {translate("chelone.map.shape_not_shown")}
+          {translate("chelone.map.shape_not_shown", {
+            _: "Part of this shape cannot be shown on the map",
+          })}
         </p>
       ) : null}
       <InputHelperText helperText={helperText} />
