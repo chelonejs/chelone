@@ -16,7 +16,7 @@ Each entry below needs the peer dependencies listed beside it, and only that ent
 | `@chelone/vue/mdx-editor` | `@milkdown/crepe`, `@milkdown/kit` |
 | `@chelone/vue/csv-import` | `papaparse` |
 | `@chelone/vue/maps` | `maplibre-gl` |
-| `@chelone/vue/maps/draw` | `terra-draw`, `terra-draw-maplibre-gl-adapter`, `@turf/difference`, `@turf/simplify` |
+| `@chelone/vue/maps/draw` | `maplibre-gl`, `terra-draw`, `terra-draw-maplibre-gl-adapter`, `@turf/difference`, `@turf/simplify` |
 | `@chelone/vue/maps/osm` | `maplibre-gl`, `osm2geojson-lite`, `@turf/buffer`, `@turf/difference`, `@turf/union` |
 | `@chelone/vue/supabase` | `@chelone/supabase` |
 

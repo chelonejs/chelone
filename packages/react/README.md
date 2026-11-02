@@ -17,7 +17,7 @@ Each entry below needs the peer dependencies listed beside it, and only that ent
 | `@chelone/react/mdx-editor` | `@mdxeditor/editor` |
 | `@chelone/react/csv-import` | `papaparse` |
 | `@chelone/react/maps` | `maplibre-gl` |
-| `@chelone/react/maps/draw` | `terra-draw`, `terra-draw-maplibre-gl-adapter`, `@turf/difference`, `@turf/simplify` |
+| `@chelone/react/maps/draw` | `maplibre-gl`, `terra-draw`, `terra-draw-maplibre-gl-adapter`, `@turf/difference`, `@turf/simplify` |
 | `@chelone/react/maps/osm` | `maplibre-gl`, `osm2geojson-lite`, `@turf/buffer`, `@turf/difference`, `@turf/union` |
 | `@chelone/react/supabase` | `@chelone/supabase` |
 
