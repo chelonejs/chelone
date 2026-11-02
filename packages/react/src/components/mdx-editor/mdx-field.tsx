@@ -26,7 +26,9 @@ interface MdxFieldProps<RecordType extends UnknownRecord = UnknownRecord>
  * Renders a markdown field value in a read-only MDXEditor.
  *
  * Needs the optional `@mdxeditor/editor` peer, and its stylesheet imported once
- * in the app (`@mdxeditor/editor/style.css`).
+ * in the app (`@mdxeditor/editor/style.css`). From npm, also import
+ * `@chelone/react/mdx-editor.css` for the dark theme; the registry item ships
+ * that file with the component.
  *
  * @example
  * import { MdxField } from "@chelone/react/mdx-editor";

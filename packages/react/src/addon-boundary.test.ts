@@ -158,4 +158,15 @@ describe("add-on boundary", () => {
       expect(leaked, "admin item files").toEqual([]);
     });
   }
+
+  it("the mdx-editor dark stylesheet is exported for npm users and survives tree shaking", () => {
+    const source = pkg.exports["./mdx-editor.css"];
+    expect(existsSync(resolve(root, source))).toBe(true);
+    expect(source.endsWith("mdx-editor-dark.css")).toBe(true);
+    expect(pkg.publishConfig.exports["./mdx-editor.css"]).toBe(
+      "./dist/components/mdx-editor/mdx-editor-dark.css",
+    );
+    // `sideEffects: false` lets a bundler drop `import "@chelone/react/mdx-editor.css"`.
+    expect(pkg.sideEffects).toContain("**/*.css");
+  });
 });

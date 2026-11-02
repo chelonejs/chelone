@@ -8,7 +8,9 @@
     "directory": "packages/react"
   },
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
     "dist",
     "!dist/r"
@@ -20,6 +22,7 @@
     "./tanstack-router": "./src/tanstack-router.ts",
     "./monaco": "./src/monaco.ts",
     "./mdx-editor": "./src/mdx-editor.ts",
+    "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-dark.css",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -43,12 +46,13 @@
         "types": "./dist/mdx-editor.d.ts",
         "default": "./dist/mdx-editor.js"
       },
+      "./mdx-editor.css": "./dist/components/mdx-editor/mdx-editor-dark.css",
       "./package.json": "./package.json"
     }
   },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && node scripts/rewrite-dts-aliases.mjs dist && node scripts/strip-dts-css-imports.mjs dist && node ../../scripts/dts-extensions.mjs dist",
-    "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only",
+    "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only --exclude-entrypoints ./mdx-editor.css",
     "test": "vitest run --typecheck",
     "typecheck": "tsc --noEmit",
     "registry:generate": "node ../../scripts/registry/generate-registry.mjs",
