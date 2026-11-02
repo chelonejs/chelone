@@ -6164,6 +6164,10 @@
       ],
       "files": [
         {
+          "path": "src/components/maps-draw/bbox-input.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/maps-draw/draw-toolbar.tsx",
           "type": "registry:component"
         },
@@ -6172,10 +6176,28 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/maps-draw/shape-inputs.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/maps-draw/use-terra-draw.ts",
           "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bbox-input",
+      "type": "registry:component",
+      "title": "Bbox Input",
+      "files": [
+        {
+          "path": "src/components/maps-draw/bbox-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/shape-input"],
+      "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6219,6 +6241,23 @@
       ],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "shape-inputs",
+      "type": "registry:component",
+      "title": "Shape Inputs",
+      "files": [
+        {
+          "path": "src/components/maps-draw/shape-inputs.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/shape-input",
+        "@chelone/use-terra-draw"
+      ],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6321,10 +6360,33 @@
       "type": "registry:block",
       "title": "Chelone Supabase",
       "categories": ["chelone", "authentication"],
-      "description": "The opt-in Supabase add-on: SocialAuthButton and one sign-in button per OAuth provider (Apple to WorkOS). Installs @chelone/supabase.",
-      "registryDependencies": ["@chelone/button"],
-      "dependencies": ["@chelone/react", "@chelone/supabase"],
+      "description": "The opt-in Supabase add-on: SocialAuthButton and one sign-in button per OAuth provider (Apple to WorkOS), plus the forgot password and set password pages. Installs @chelone/supabase.",
+      "registryDependencies": [
+        "@chelone/auth-layout",
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/password-input",
+        "@chelone/text-input",
+        "@chelone/ui-spinner"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "@chelone/supabase"],
       "files": [
+        {
+          "path": "src/components/admin/supabase/forgot-password-form.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/forgot-password-page.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/set-password-form.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/set-password-page.tsx",
+          "type": "registry:component"
+        },
         {
           "path": "src/components/admin/supabase/social-auth-button.tsx",
           "type": "registry:component"
@@ -6332,8 +6394,90 @@
         {
           "path": "src/components/admin/supabase/social-icons.tsx",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/supabase/use-password-recovery.ts",
+          "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "forgot-password-form",
+      "type": "registry:component",
+      "title": "Forgot Password Form",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/forgot-password-form.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-input",
+        "@chelone/ui-spinner",
+        "@chelone/use-password-recovery"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "forgot-password-page",
+      "type": "registry:component",
+      "title": "Forgot Password Page",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/forgot-password-page.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/auth-layout",
+        "@chelone/forgot-password-form"
+      ],
+      "dependencies": ["@chelone/react", "@chelone/supabase"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "set-password-form",
+      "type": "registry:component",
+      "title": "Set Password Form",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/set-password-form.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/password-input",
+        "@chelone/ui-spinner",
+        "@chelone/use-password-recovery"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "set-password-page",
+      "type": "registry:component",
+      "title": "Set Password Page",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/set-password-page.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/auth-layout",
+        "@chelone/set-password-form"
+      ],
+      "dependencies": ["@chelone/react", "@chelone/supabase"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6361,6 +6505,21 @@
           "type": "registry:component"
         }
       ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-password-recovery",
+      "type": "registry:component",
+      "title": "Use Password Recovery",
+      "files": [
+        {
+          "path": "src/components/admin/supabase/use-password-recovery.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/react", "@chelone/supabase"],
+      "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

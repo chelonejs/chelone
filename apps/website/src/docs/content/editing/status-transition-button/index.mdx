@@ -1,0 +1,107 @@
+---
+title: "StatusTransitionButton"
+description: "A menu of the states the current record may move to next, with optional guards and confirmation."
+registry: "status-transition-button"
+---
+
+A menu of the states the current record may move to next. Picking one patches
+the record's status field.
+
+## Usage
+
+```tsx title="src/resources/PostEdit.tsx"
+import {
+  Edit,
+  SaveButton,
+  StatusTransitionButton,
+  TextInput,
+  Toolbar,
+} from "@chelone/react";
+
+export const PostEdit = () => (
+  <Edit>
+    <TextInput source="title" />
+    <Toolbar>
+      <SaveButton />
+      <StatusTransitionButton
+        transitions={{ draft: ["review"], review: ["published", "draft"] }}
+        guards={{ "review->published": (record) => Boolean(record.approved) }}
+        labels={{ review: "In review" }}
+        confirm
+        onTransition={(from, to) => console.log(`${from} -> ${to}`)}
+      />
+    </Toolbar>
+  </Edit>
+);
+```
+
+- `transitions` maps each state to the states it may move to. A state missing
+  from the map has no moves.
+- `guards` are keyed `"<from>-><to>"`. A transition with no guard is allowed.
+- `confirm` asks for confirmation before the update.
+- `source` names the status field. Default `status`.
+
+### Vue
+
+`onTransition` is the `transition` event in Vue. It is called with
+`(from, to, record)`.
+
+```vue title="src/resources/PostEdit.vue"
+<script setup lang="ts">
+import {
+  Edit,
+  SaveButton,
+  StatusTransitionButton,
+  TextInput,
+  Toolbar,
+} from "@chelone/vue";
+
+const transitions = { draft: ["review"], review: ["published", "draft"] };
+const guards = {
+  "review->published": (record: Record<string, unknown>) =>
+    Boolean(record.approved),
+};
+const labels = { review: "In review" };
+</script>
+
+<template>
+  <Edit resource="posts">
+    <TextInput source="title" />
+    <template #toolbar>
+      <Toolbar>
+        <SaveButton />
+        <StatusTransitionButton
+          :transitions="transitions"
+          :guards="guards"
+          :labels="labels"
+          confirm
+          @transition="(from, to) => console.log(`${from} -> ${to}`)"
+        />
+      </Toolbar>
+    </template>
+  </Edit>
+</template>
+```
+
+## Behaviour
+
+- The trigger is disabled in a state with no allowed move.
+- A guard that returns `false` or throws blocks its move. The other moves from
+  that state stay available.
+- `onTransition` runs after the update resolves. It does not run when the update
+  fails.
+- `mutationMode` defaults to `pessimistic`. With `undoable` the move shows the
+  Undo notification, and `onTransition` runs once that notification is queued.
+- The button renders nothing without a record, a resource or `edit` access.
+
+The guards only hide moves in the UI. The server must reject a move it does not
+allow.
+
+## In a custom button
+
+`@chelone/core` exports `getAllowedTransitions(record, { source, transitions,
+guards })`. It returns `{ current, allowed }`, the same list the menu shows.
+
+## Props
+
+<PropsTable name="StatusTransitionButton" />
