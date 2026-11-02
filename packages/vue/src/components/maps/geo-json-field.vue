@@ -35,12 +35,12 @@ export interface GeoJsonFieldProps
  * <GeoJsonField source="geometry" />
  */
 
-import { isGeoJsonValue } from "@chelone/core";
+import { geoBounds, isGeoJsonValue } from "@chelone/core";
 import { computed } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import { useFieldValue } from "../../record/use-field-value";
-import GeoJsonView from "./geo-json-view.vue";
+import GeoJsonView, { isLngLatBox } from "./geo-json-view.vue";
 import MapCanvas from "./map-canvas.vue";
 
 const props = withDefaults(defineProps<GeoJsonFieldProps>(), {
@@ -60,9 +60,14 @@ const value = useFieldValue({
   },
   defaultValue: props.defaultValue,
 });
-const geometry = computed(() =>
-  isGeoJsonValue(value.value) ? value.value : null,
-);
+// Coordinates outside the longitude and latitude range, such as projected
+// metres, cannot be drawn: MapLibre throws, so they show the empty panel.
+const geometry = computed(() => {
+  const candidate = value.value;
+  return isGeoJsonValue(candidate) && isLngLatBox(geoBounds(candidate))
+    ? candidate
+    : null;
+});
 const cssHeight = computed(() =>
   typeof props.height === "number" ? `${props.height}px` : props.height,
 );

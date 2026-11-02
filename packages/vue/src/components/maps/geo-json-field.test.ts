@@ -248,7 +248,19 @@ describe("GeoJsonField", () => {
         [14, 26],
       ],
     };
-    for (const geometry of [null, "POINT(1 2)", 7, malformed, undefined]) {
+    const outOfRange = [
+      { type: "Point", coordinates: [10, 95] },
+      // Projected metres, not degrees.
+      { type: "Point", coordinates: [261845, 6250566] },
+    ];
+    for (const geometry of [
+      null,
+      "POINT(1 2)",
+      7,
+      malformed,
+      undefined,
+      ...outOfRange,
+    ]) {
       const { wrapper } = await show(GeoJsonField, { record: { geometry } });
       expect(wrapper.find('[data-slot="geo-json-field-empty"]').text()).toBe(
         "No geometry available",
@@ -348,7 +360,7 @@ describe("BBoxField", () => {
   });
 
   it("shows the empty state for a three-element array and null", async () => {
-    for (const bbox of [[10, 20, 14], null]) {
+    for (const bbox of [[10, 20, 14], null, [0, 0, 10, 95]]) {
       const { wrapper } = await show(BBoxField, { record: { bbox } }, "bbox");
       expect(wrapper.find('[data-slot="geo-json-field-empty"]').text()).toBe(
         "No geometry available",
