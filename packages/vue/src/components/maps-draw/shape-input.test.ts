@@ -503,6 +503,54 @@ describe("ShapeInput", () => {
     });
   });
 
+  it("keeps a part the editor rejects on the read-only source and in the value", async () => {
+    // Terra Draw refuses coordinates with more than 9 decimals.
+    const fine = 0.123456789012;
+    const rejected = square(fine);
+    const { draw, map, wrapper, value } = await setup(
+      { kind: "MultiPolygon" },
+      {
+        type: "MultiPolygon",
+        coordinates: [square(20).coordinates, rejected.coordinates],
+      },
+    );
+
+    expect(
+      draw()
+        .getSnapshot()
+        .map((f) => f.geometry),
+    ).toEqual([square(20)]);
+    const data = Object.values(map().sources)[0]?.data as {
+      features: GeoFeature[];
+    };
+    expect(data.features.map((f) => f.geometry)).toEqual([rejected]);
+
+    const clears = draw().clears;
+    await button(wrapper, "Edit").trigger("click");
+    const id = storedId(draw().features);
+    draw().replace(id, square(30));
+    draw().emitFinish(id, "dragFeature", "select");
+    await flushPromises();
+
+    expect(value()).toEqual({
+      type: "MultiPolygon",
+      coordinates: [square(30).coordinates, rejected.coordinates],
+    });
+    // The echo of that commit is not a reason to rebuild the store.
+    expect(draw().clears).toBe(clears);
+  });
+
+  it("shows a single shape the editor rejects on the read-only source", async () => {
+    const rejected = square(0.123456789012);
+    const { draw, map } = await setup({}, rejected);
+
+    expect(draw().features).toEqual([]);
+    const data = Object.values(map().sources)[0]?.data as {
+      features: GeoFeature[];
+    };
+    expect(data.features.map((f) => f.geometry)).toEqual([rejected]);
+  });
+
   it("never touches map.dragPan", async () => {
     const { draw, map, wrapper } = await setup();
     let touched = 0;
