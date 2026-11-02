@@ -498,6 +498,9 @@ importers:
       '@turf/difference':
         specifier: ^7.4.0
         version: 7.4.0
+      '@turf/simplify':
+        specifier: ^7.4.0
+        version: 7.4.0
       '@types/papaparse':
         specifier: ^5.5.2
         version: 5.5.2

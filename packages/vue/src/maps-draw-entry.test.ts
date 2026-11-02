@@ -39,7 +39,9 @@ describe("the maps/draw entry", () => {
         "PointInput",
         "PolygonInput",
         "ShapeInput",
+        "SimplifyInput",
         "cutFeatures",
+        "simplifyGeo",
         "toolMode",
         "toolsForShapes",
         "useTerraDraw",
@@ -50,6 +52,12 @@ describe("the maps/draw entry", () => {
   it("the maps/draw entry also exports cutFeatures", async () => {
     const entry = await import("./maps-draw");
     expect(entry.cutFeatures).toBeTypeOf("function");
+  });
+
+  it("the maps/draw entry also exports SimplifyInput and simplifyGeo", async () => {
+    const entry = await import("./maps-draw");
+    expect(entry.SimplifyInput).toBeTypeOf("object");
+    expect(entry.simplifyGeo).toBeTypeOf("function");
   });
 
   it("the maps entry exports no Terra Draw name", async () => {
