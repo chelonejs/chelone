@@ -165,6 +165,47 @@ describe("MapCanvas", () => {
     expect(wrapper.text()).toContain("child");
   });
 
+  it("shows the load error panel when the style fails before load", async () => {
+    const wrapper = mountMaps(
+      () =>
+        h(
+          MapCanvas,
+          { mapStyle: "https://styles.example.test/missing.json" },
+          () => h("p", "child"),
+        ),
+      { messages: mapMessages as unknown as Record<string, string> },
+    );
+    maps[0]?.emit("error", { error: new Error("404") });
+    await loaded();
+
+    expect(wrapper.get('[data-slot="map-canvas-error"]').text()).toBe(
+      "The map could not be loaded",
+    );
+    expect(wrapper.text()).not.toContain("child");
+  });
+
+  it("falls back to the default text when no catalog has the load error key", async () => {
+    const wrapper = mountMaps(() => h(MapCanvas, { mapStyle: style }));
+    maps[0]?.emit("error", { error: new Error("blocked") });
+    await loaded();
+
+    expect(wrapper.get('[data-slot="map-canvas-error"]').text()).toBe(
+      "The map could not be loaded",
+    );
+  });
+
+  it("keeps the map after an error once loaded", async () => {
+    const wrapper = mountMaps(() =>
+      h(MapCanvas, { mapStyle: style }, () => h("p", "child")),
+    );
+    await loaded();
+    maps[0]?.emit("error", { error: new Error("one tile 404") });
+    await loaded();
+
+    expect(wrapper.text()).toContain("child");
+    expect(wrapper.find('[data-slot="map-canvas-error"]').exists()).toBe(false);
+  });
+
   it("removes its map on unmount", async () => {
     const wrapper = mountMaps(() =>
       h(MapCanvas, { mapStyle: style }, () => h("p", "child")),

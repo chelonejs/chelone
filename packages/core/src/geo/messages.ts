@@ -5,6 +5,7 @@ import { defineMessages } from "../i18n/messages";
  * `{ ...defaultMessages, ...mapMessages }`. Shares no key with it.
  */
 export const mapMessages = defineMessages({
+  "chelone.map.load_failed": "The map could not be loaded",
   "chelone.map.no_coordinates": "No coordinates",
   "chelone.map.no_geometry": "No geometry",
   "chelone.map.shape_not_shown":

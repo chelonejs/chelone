@@ -25,7 +25,7 @@ export interface MapCanvasProps {
  * One MapLibre map. Center, zoom and style are read at mount: change `:key` to
  * rebuild. Browsers cap live WebGL contexts near 16 per page, and each canvas
  * holds one, so keep long lists of maps short. The default slot renders once
- * the map has loaded.
+ * the map has loaded; a map that fails to load shows a text panel instead.
  *
  * Needs the optional `maplibre-gl` peer.
  *
@@ -39,6 +39,7 @@ import { latLngToLngLat } from "@chelone/core";
 import { Map as MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
+import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import { provideMap, useMapsConfig } from "./use-map";
 
@@ -58,7 +59,9 @@ if (style === undefined) {
 }
 
 const container = ref<HTMLElement | null>(null);
+const translate = useTranslate();
 const map = shallowRef<MapLibreMap | null>(null);
+const failed = ref(false);
 let created: MapLibreMap | null = null;
 provideMap(map);
 
@@ -77,6 +80,11 @@ onMounted(() => {
     scrollZoom: props.scrollZoom,
   });
   created = instance;
+  // An error before `load` (a bad style, a blocked tile server) means the map
+  // never becomes usable; one after it is a single failed tile.
+  instance.on("error", () => {
+    if (created === instance && map.value === null) failed.value = true;
+  });
   instance.on("load", () => {
     if (created === instance) map.value = instance;
   });
@@ -97,6 +105,14 @@ onBeforeUnmount(() => {
     :class="cn('relative w-full overflow-hidden rounded-md', props.class)"
     :style="{ height: cssHeight }"
   >
-    <slot v-if="map" />
+    <div
+      v-if="failed"
+      data-slot="map-canvas-error"
+      role="alert"
+      class="flex h-full items-center justify-center text-sm text-muted-foreground"
+    >
+      {{ translate("chelone.map.load_failed", { _: "The map could not be loaded" }) }}
+    </div>
+    <slot v-else-if="map" />
   </div>
 </template>
