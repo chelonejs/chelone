@@ -1,0 +1,259 @@
+---
+title: "Data Import"
+description: "Let users create records from a CSV file, with column mapping and a preview."
+---
+
+`<CsvImport>` adds an Import button that opens a four-step dialog: upload a CSV
+file, map its columns to the resource's fields, preview the rows, and create
+them with `dataProvider.create`. It is an opt-in add-on, so the main
+`@chelone/react` entry loads without the CSV parser.
+
+## Install
+
+Install `papaparse`, then import from the `csv-import` subpath:
+
+```bash
+npm install papaparse
+```
+
+```tsx
+import { CsvImport, useCsvImport } from "@chelone/react/csv-import";
+```
+
+Or copy the add-on into your project with the shadcn CLI. It adds `papaparse`
+itself, along with `react-dropzone` and the UI pieces the dialog uses:
+
+```bash
+npx shadcn add @chelone/addon-csv-import
+```
+
+## Import into the list
+
+Drop a `<CsvImport>` into the list header `actions`, next to `<ExportButton>`.
+Pass a Standard Schema, such as a Zod object, to say which fields a row has and
+which are required:
+
+```tsx title="src/posts.tsx"
+import {
+  CreateButton,
+  DataTable,
+  ExportButton,
+  List,
+  ListPagination,
+} from "@chelone/react";
+import { CsvImport } from "@chelone/react/csv-import";
+import { z } from "zod";
+
+const postSchema = z.object({
+  title: z.string().min(1),
+  views: z.coerce.number().int().nonnegative(),
+  published_at: z.coerce.date().optional(),
+});
+
+export function PostList() {
+  return (
+    <List
+      actions={
+        <>
+          <CreateButton />
+          <ExportButton />
+          <CsvImport schema={postSchema} />
+        </>
+      }
+    >
+      <DataTable>
+        <DataTable.Col source="title" />
+        <DataTable.NumberCol source="views" />
+      </DataTable>
+      <ListPagination />
+    </List>
+  );
+}
+```
+
+`<CsvImport>` creates rows into the ambient resource, so inside `<List>` it
+needs no `resource` prop. Pass `resource` to import into another one.
+
+## Props
+
+| Prop             | Type                                       | Description                                                                                                          |
+| ---------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| `schema`         | Standard Schema                            | Its keys are the fields; its non-optional keys are required.                                                         |
+| `fields`         | `string[]`                                 | Overrides the schema's keys. Without either, the CSV headers are the fields.                                         |
+| `requiredFields` | `string[]`                                 | Overrides the schema's non-optional keys.                                                                            |
+| `mapping`        | `Record<string, string>`                   | A starting field to header mapping. When non-empty it replaces the automatic match.                                  |
+| `transform`      | `(row, index) => row`                      | Reshapes a mapped row before the schema sees it. `index` is the row's place in the file.                             |
+| `batchSize`      | `number`                                   | Rows created at once. Default `100`.                                                                                 |
+| `label`          | `string`                                   | The Import button's text.                                                                                            |
+| `icon`           | `ReactNode`                                | The Import button's icon.                                                                                            |
+| `resource`       | `string`                                   | The resource to create into. Defaults to the ambient resource.                                                       |
+| `onComplete`     | `(report: CsvImportReport) => void`        | Called with the report when the import finishes.                                                                     |
+| `onError`        | `(error: Error) => void`                   | Called when the import fails outright.                                                                               |
+| `children`       | `ReactNode`                                | Rendered inside the import context, so a child can call `useCsvImport()`.                                            |
+
+The schema, `fields`, `requiredFields`, `mapping` and `batchSize` are read when
+the import is set up, which happens again only for another resource or data
+provider. `transform`, `onComplete` and `onError` can change between renders.
+
+## The four steps
+
+1. Upload. Drop a `.csv` file on the drop area or click to choose one. The dialog
+   shows how many rows were parsed, or the parser's first error.
+2. Map columns. Each field has a select listing the file's headers. Chelone
+   matches them by name first, ignoring case, spaces, dashes and underscores,
+   then by a header that contains the field name or the other way round. Change
+   any pairing, or leave a field as "Not mapped".
+3. Preview. A table shows the first 50 rows as the schema returns them, so a
+   coercion is visible, with the issues for each row the schema rejects.
+4. Commit. Valid rows are created in batches with a progress bar. When it ends,
+   the dialog shows how many were created and how many failed.
+
+Next is disabled when it cannot go on:
+
+- on Upload, until a file parsed with no error and at least one row
+- on Map, while a required field is unmapped
+- on Preview, when no row is valid
+
+Invalid rows do not block the import. They are skipped and listed in the report.
+
+## Cells are strings
+
+CSV carries no types, so every cell arrives as a string. A schema that expects a
+number or a date must coerce it:
+
+```ts
+const schema = z.object({
+  views: z.coerce.number(), // "42" becomes 42
+  published_at: z.coerce.date(), // "2024-03-01" becomes a Date
+  active: z.enum(["true", "false"]).transform((value) => value === "true"),
+});
+```
+
+Without `z.coerce`, `z.number()` rejects `"42"` and the preview marks the row
+invalid. `z.coerce.boolean()` turns any non-empty string, including `"false"`,
+into `true`, so parse booleans yourself as above.
+
+## Without a schema
+
+A list with no `schema` and no `fields` takes the CSV headers as the fields and
+maps each to itself. Every row is valid, none is required, and the values reach
+`dataProvider.create` as the strings in the file.
+
+```tsx
+<CsvImport />
+```
+
+## Errors and the report
+
+A row can fail in the preview (the schema rejected it) or in the commit (the
+data provider's `create` threw). Either way it lands in the report as
+`{ rowIndex, row, reason }`. `rowIndex` is 0-based among the data rows, so the
+header line is not counted and the first record is `0`. A failed create keeps
+its row number like any other.
+
+When the report has errors, the final step shows a "Download error report"
+button. It downloads `import-errors.csv`, one line per failed row with
+`rowIndex` and `reason` first, then the row's fields. `onComplete` receives the
+same report:
+
+```tsx
+<CsvImport
+  schema={postSchema}
+  onComplete={(report) => {
+    console.log(`${report.created} of ${report.total} created`);
+  }}
+/>
+```
+
+`report.total` counts every row in the file. `report.failed` counts the rows in
+`report.errors`, both rejected and failed creates. `report.aborted` is `true`
+when the import was cancelled before its last batch, so `created + failed` can
+then be less than `total`.
+
+## Transform
+
+`transform` reshapes a row after the column mapping and before the schema. Use
+it to trim, rename values, or fill a default:
+
+```tsx
+<CsvImport
+  schema={postSchema}
+  transform={(row, index) => ({
+    ...row,
+    title: typeof row.title === "string" ? row.title.trim() : row.title,
+    status: "draft",
+  })}
+/>
+```
+
+If `transform` throws, only that row fails: the row is marked invalid with the
+error's message as its issue, and the rest go on.
+
+## A custom child
+
+`<CsvImport>` renders its `children` inside the import context. A child calls
+`useCsvImport()` to read the wizard's state and drive it:
+
+```tsx
+import { CsvImport, useCsvImport } from "@chelone/react/csv-import";
+
+function ImportStatus() {
+  const { state } = useCsvImport();
+  if (state.status !== "running") return null;
+  return (
+    <span>
+      {state.progress.current} of {state.progress.total}
+    </span>
+  );
+}
+
+export const PostImport = () => (
+  <CsvImport schema={postSchema}>
+    <ImportStatus />
+  </CsvImport>
+);
+```
+
+`useCsvImport()` returns `state` with the step, the headers, the mapping, the
+validations, the progress and the report, plus the actions `loadParsed`,
+`setMapping`, `next`, `back`, `cancel` and `reset`. It throws outside a
+`<CsvImport>`.
+
+## Vue
+
+`@chelone/vue` has the same add-on, on the same core controller. Install
+`papaparse` and import from `@chelone/vue/csv-import`:
+
+```vue title="src/PostList.vue"
+<script setup lang="ts">
+import { ExportButton, List } from "@chelone/vue";
+import { CsvImport } from "@chelone/vue/csv-import";
+import { z } from "zod";
+
+const postSchema = z.object({
+  title: z.string().min(1),
+  views: z.coerce.number().int().nonnegative(),
+});
+</script>
+
+<template>
+  <List>
+    <template #actions>
+      <ExportButton />
+      <CsvImport :schema="postSchema" />
+    </template>
+    <!-- ... -->
+  </List>
+</template>
+```
+
+The props are the same except `icon`, which is the `#icon` slot. The differences:
+
+- The wizard opens in a right-hand sheet, not a dialog, because `@chelone/vue`
+  has no dialog primitive.
+- The upload step is a native file input, with drag and drop on its wrapper.
+  `react-dropzone` is React-only.
+- The schema, fields, mapping, batch size, resource and data provider are read
+  once, when the component is set up.
+- The default slot renders inside the import context, so a child can call
+  `useCsvImport()` from `@chelone/vue/csv-import`.
