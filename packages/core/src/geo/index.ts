@@ -22,6 +22,7 @@ export type {
 export { geocodeQueryOptions, reverseGeocodeQueryOptions } from "./geocoding";
 export type {
   GeoBBox,
+  GeoBBox3D,
   GeoFeature,
   GeoFeatureCollection,
   GeoGeometry,
