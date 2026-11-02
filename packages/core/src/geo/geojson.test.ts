@@ -174,6 +174,50 @@ describe("isGeoJsonValue", () => {
   });
 });
 
+describe("GeoJSON other tools write", () => {
+  const point = { type: "Point", coordinates: [0, 0] };
+
+  it("accepts a Feature with no properties member", () => {
+    const feature = { type: "Feature", geometry: point };
+    expect(isGeoFeature(feature)).toBe(true);
+    expect(isGeoJsonValue(feature)).toBe(true);
+    expect("properties" in feature).toBe(false);
+  });
+
+  it("accepts a 3D bbox", () => {
+    const bbox = [0, 0, -5, 1, 1, 5];
+    expect(isGeoGeometry({ ...point, bbox })).toBe(true);
+    expect(isGeoJsonValue({ type: "Feature", geometry: point, bbox })).toBe(
+      true,
+    );
+    expect(
+      isGeoJsonValue({ type: "FeatureCollection", features: [], bbox }),
+    ).toBe(true);
+    expect(isGeoJsonValue({ ...point, bbox: [0, 0, 1, 1, 1] })).toBe(false);
+  });
+
+  it("keeps a FeatureCollection whose features lack properties", () => {
+    expect(
+      isGeoJsonValue({
+        type: "FeatureCollection",
+        features: [
+          { type: "Feature", geometry: point },
+          { type: "Feature", geometry: point, properties: {} },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it("still rejects properties that are neither an object nor null", () => {
+    expect(
+      isGeoFeature({ type: "Feature", geometry: point, properties: undefined }),
+    ).toBe(true);
+    expect(
+      isGeoFeature({ type: "Feature", geometry: point, properties: [] }),
+    ).toBe(false);
+  });
+});
+
 describe("isGeoBBox", () => {
   it("accepts four finite numbers", () => {
     expect(isGeoBBox([-10, -5, 10, 5])).toBe(true);
