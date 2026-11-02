@@ -64,6 +64,7 @@ export default defineConfig({
         "src/monaco.ts",
         "src/mdx-editor.ts",
         "src/maps.ts",
+        "src/csv-import.ts",
       ],
       formats: ["es"],
     },

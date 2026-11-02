@@ -16,6 +16,8 @@ import type {
   CloneButtonProps,
   ColorInputProps,
   ColumnsButtonProps,
+  CommentRecord,
+  CommentsThreadProps,
   CountProps,
   CreateProps,
   CurrencyInputProps,
@@ -219,6 +221,17 @@ describe("@chelone/vue public exports", () => {
 
   it("TreeList ships beside its props", () => {
     expectTypeOf(barrel.TreeList).not.toBeAny();
+  });
+
+  it("CommentsThread ships beside its props and the Textarea it uses", () => {
+    expectTypeOf<CommentsThreadProps>().toHaveProperty("reference");
+    expectTypeOf<CommentsThreadProps>().toHaveProperty("target");
+    expectTypeOf<CommentsThreadProps["resolvable"]>().toEqualTypeOf<
+      boolean | undefined
+    >();
+    expectTypeOf<CommentRecord>().toHaveProperty("body");
+    expectTypeOf(barrel.CommentsThread).not.toBeAny();
+    expectTypeOf(barrel.Textarea).not.toBeAny();
   });
 
   it("PresenceBar and usePresence ship beside their types", () => {
