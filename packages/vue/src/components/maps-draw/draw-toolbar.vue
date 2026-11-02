@@ -20,6 +20,7 @@ const LABELS: Record<DrawTool | "delete", string> = {
   "draw-polygon": "Draw a polygon",
   "draw-rectangle": "Draw a rectangle",
   "draw-circle": "Draw a circle",
+  cut: "Cut a hole",
   edit: "Edit",
   move: "Move",
   delete: "Delete",
