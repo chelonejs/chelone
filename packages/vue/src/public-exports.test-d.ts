@@ -5,7 +5,7 @@
 
 import type { PresenceUser, UserIdentity } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
-import type { ComputedRef, Ref } from "vue";
+import type { ComputedRef, MaybeRefOrGetter, Ref } from "vue";
 import type {
   AdminProps,
   ApplicationUpdatedNotificationProps,
@@ -16,6 +16,9 @@ import type {
   CloneButtonProps,
   ColorInputProps,
   ColumnsButtonProps,
+  CommandMenuAction,
+  CommandMenuContextValue,
+  CommandMenuProps,
   CommentRecord,
   CommentsThreadProps,
   CountProps,
@@ -262,6 +265,27 @@ describe("@chelone/vue public exports", () => {
     }>();
     expectTypeOf(barrel.AvatarGroup).not.toBeAny();
     expectTypeOf(barrel.AvatarGroupCount).not.toBeAny();
+  });
+
+  it("CommandMenu ships beside its props and its hooks", () => {
+    expectTypeOf<CommandMenuProps>().toHaveProperty("hotkey");
+    expectTypeOf<CommandMenuProps["hotkey"]>().toEqualTypeOf<
+      string | false | undefined
+    >();
+    expectTypeOf<CommandMenuProps>().toHaveProperty("actions");
+    expectTypeOf<CommandMenuProps["actions"]>().toEqualTypeOf<
+      CommandMenuAction[] | undefined
+    >();
+    expectTypeOf(barrel.CommandMenu).not.toBeAny();
+    expectTypeOf(
+      barrel.useCommandMenu,
+    ).returns.toEqualTypeOf<CommandMenuContextValue>();
+    expectTypeOf<CommandMenuContextValue["isOpen"]>().toEqualTypeOf<
+      Readonly<Ref<boolean>>
+    >();
+    expectTypeOf(barrel.useRegisterCommand)
+      .parameter(0)
+      .toEqualTypeOf<MaybeRefOrGetter<CommandMenuAction>>();
   });
 
   it("keeps internal helpers out of the barrel", () => {
