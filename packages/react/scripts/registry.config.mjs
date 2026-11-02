@@ -117,6 +117,20 @@ export const blocks = [
     inferDependencies: true,
     sourceDirs: [{ path: "src/components/monaco", recursive: true }],
   },
+  {
+    name: "mdx-editor",
+    type: "registry:block",
+    title: "Chelone Markdown",
+    categories: ["chelone", "fields"],
+    description:
+      "The opt-in Markdown add-on: MdxField shows a markdown value in a read-only MDXEditor, with the field and input plugin presets. Installs @mdxeditor/editor.",
+    docs: "Import the editor stylesheet once in the app: import \"@mdxeditor/editor/style.css\". The editor is imported statically, so split it with your own route-level lazy loading.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [
+      { path: "src/components/mdx-editor", recursive: true, cssExtensions: true },
+    ],
+  },
 ];
 
 /**
