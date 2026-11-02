@@ -151,6 +151,23 @@ describe("geoBounds across the antimeridian", () => {
     ).toEqual([-100, 0, 100, 0]);
   });
 
+  it("keeps the plain box for a geometry that spans the whole world", () => {
+    expect(
+      geoBounds({
+        type: "Polygon",
+        coordinates: [
+          [
+            [-180, -90],
+            [180, -90],
+            [180, 90],
+            [-180, 90],
+            [-180, -90],
+          ],
+        ],
+      }),
+    ).toEqual([-180, -90, 180, 90]);
+  });
+
   it("leaves coordinates that are not longitudes alone", () => {
     expect(
       geoBounds({
