@@ -1,0 +1,7 @@
+{
+  "packages/core": "0.1.1",
+  "packages/react": "0.1.1",
+  "packages/vue": "0.1.1",
+  "packages/supabase": "0.1.1",
+  "packages/rest": "0.1.1"
+}

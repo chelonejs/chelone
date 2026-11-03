@@ -1,29 +1,29 @@
 # Releasing
 
-## One-time setup
+Releases run from `.github/workflows/release.yml` with release-please, in `chelonejs/chelone` on
+`main` only.
 
-1. Create the `@chelone` npm organization and grant the publishing account access.
-2. Create an npm automation token with permission to publish all five packages.
-   Keep the repository Actions secret `NPM_TOKEN` unset until the first changeset merges.
-3. In Settings > Actions > General > Workflow permissions, allow GitHub Actions
-   to create and approve pull requests.
+Merge every pull request with an empty merge commit body: `gh pr merge <n> --merge --body ""`.
+release-please reads any commit body line that looks like a conventional commit as one more
+commit, so GitHub's default body, the pull request title, lists the change twice.
 
-## First release
+1. Every push to `main` updates one open release pull request. It bumps `@chelone/core`,
+   `@chelone/react`, `@chelone/vue`, `@chelone/supabase`, and `@chelone/rest` to one shared
+   version and writes each package's `CHANGELOG.md` from the conventional commits since the last
+   release. `feat`, `fix`, `perf`, `refactor`, and `revert` commits are listed; other types are
+   not. Apps stay unversioned.
+2. Review the versions and changelogs, editing the pull request's body and the `CHANGELOG.md`
+   files on its branch if an entry needs rewording. The GitHub release notes come from the body.
+3. Merge it.
+4. The next run tags `@chelone/<name>@<version>`, creates the GitHub releases, and publishes.
+   The publish job lints, typechecks, tests, builds, checks tarballs, packs each package with pnpm
+   (which applies `publishConfig` and replaces `workspace:*` with the version), and publishes the
+   tarballs with npm.
 
-1. The first changeset, `.changeset/first-release.md`, is already merged to `main`. Do not
-   add another. It bumps the fixed group `@chelone/core`, `@chelone/react`, `@chelone/vue`,
-   `@chelone/supabase`, and `@chelone/rest` to `0.1.0` together. Apps remain unversioned.
-2. Add the token as the repository Actions secret `NPM_TOKEN`. The changesets step skips
-   while the secret is unset, preventing an initial publish at `0.0.0`. In Actions > Release >
-   Run workflow, select `main` and run it manually to open the Version Packages PR.
-3. The docs already read as released: the install page has no not-on-npm note and the changelog
-   page is titled 0.1.0. They go live when merged to `main`, so run steps 2 and 4 soon after.
-4. Review the versions and changelogs, then merge the PR to `main`. Merging it publishes `0.1.0`.
-   The workflow lints, typechecks, tests, builds, checks tarballs, and publishes all five.
-   pnpm applies `publishConfig` and replaces `workspace:*` with the package version.
-5. Check the workflow result and the five npm package versions.
+Publishing uses npm trusted publishing: each package's trusted publisher on npmjs.com names
+`chelonejs/chelone` and `release.yml`, there is no npm token, and every version carries
+provenance. To retry a failed publish, run the Release workflow by hand on `main`: the publish job
+skips any version npm already has.
 
-For later releases, add and merge a changeset, then merge the resulting version PR.
-Regular PRs need no changeset. The workflow runs only in `chelonejs/chelone` on `main`,
-on pushes or manual runs. It requests no provenance while the repository is private.
-The npm organization, token, and secret require maintainer setup and cannot be verified here.
+A breaking change before 1.0 bumps the minor version. To force a version, add a `Release-As: x.y.z`
+footer to a commit.

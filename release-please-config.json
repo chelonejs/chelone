@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "bump-minor-pre-major": true,
+  "include-v-in-tag": false,
+  "tag-separator": "@",
+  "changelog-sections": [
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug Fixes" },
+    { "type": "perf", "section": "Performance" },
+    { "type": "refactor", "section": "Refactors" },
+    { "type": "revert", "section": "Reverts" },
+    { "type": "docs", "section": "Documentation", "hidden": true },
+    { "type": "test", "section": "Tests", "hidden": true },
+    { "type": "ci", "section": "CI", "hidden": true },
+    { "type": "chore", "section": "Chores", "hidden": true }
+  ],
+  "plugins": [
+    "node-workspace",
+    {
+      "type": "linked-versions",
+      "groupName": "chelone",
+      "components": [
+        "@chelone/core",
+        "@chelone/react",
+        "@chelone/vue",
+        "@chelone/supabase",
+        "@chelone/rest"
+      ]
+    }
+  ],
+  "packages": {
+    "packages/core": { "component": "@chelone/core" },
+    "packages/react": { "component": "@chelone/react" },
+    "packages/vue": { "component": "@chelone/vue" },
+    "packages/supabase": { "component": "@chelone/supabase" },
+    "packages/rest": { "component": "@chelone/rest" }
+  }
+}
