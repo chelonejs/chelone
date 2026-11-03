@@ -1,4 +1,4 @@
-import type { GeoLineString } from "./geojson";
+import type { GeoLineString, GeoPosition } from "./geojson";
 
 export interface RoutingProvider {
   name: string;
@@ -20,7 +20,7 @@ export interface OsrmProviderOptions {
   fetch?: typeof fetch;
 }
 
-/** The match service rejects a request with more coordinates than this. */
+/** The match service rejects a request with more coordinates than this; a longer line is matched in chunks. */
 const OSRM_MAX_POSITIONS = 100;
 
 interface OsrmMatchResponse {
@@ -41,42 +41,56 @@ export function createOsrmProvider(
   const doFetch: typeof fetch =
     options.fetch ?? ((input, init) => globalThis.fetch(input, init));
 
+  /** One match request; `null` when the server cannot match the chunk. */
+  async function matchChunk(
+    positions: GeoPosition[],
+    signal: AbortSignal | undefined,
+  ): Promise<GeoPosition[] | null> {
+    const path = positions.map(([lng, lat]) => `${lng},${lat}`).join(";");
+    try {
+      const response = await doFetch(
+        `${base}/match/v1/${profile}/${path}?geometries=geojson&overview=full`,
+        { signal },
+      );
+      if (!response.ok) return null;
+      const body = (await response.json()) as OsrmMatchResponse;
+      if (body?.code !== "Ok") return null;
+      // A trace OSRM could not join comes back as several pieces; one of
+      // them is not the whole line, so the caller keeps its own.
+      if (body.matchings?.length !== 1) return null;
+      const geometry = body.matchings[0]?.geometry;
+      if (
+        geometry?.type !== "LineString" ||
+        !Array.isArray(geometry.coordinates) ||
+        geometry.coordinates.length === 0
+      ) {
+        return null;
+      }
+      return geometry.coordinates as GeoPosition[];
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      return null;
+    }
+  }
+
   return {
     name: "osrm",
 
     async snapToRoad(line, requestOptions = {}) {
       const { signal } = requestOptions;
       const positions = line.coordinates;
-      if (positions.length < 2 || positions.length > OSRM_MAX_POSITIONS) {
-        return null;
+      if (positions.length < 2) return null;
+      // Chunks share their end points, so the snapped pieces meet there.
+      const joined: GeoPosition[] = [];
+      for (let start = 0; start < positions.length - 1; ) {
+        const end = Math.min(start + OSRM_MAX_POSITIONS, positions.length);
+        const piece = await matchChunk(positions.slice(start, end), signal);
+        if (!piece) return null;
+        // The shared end point is already the last position joined.
+        joined.push(...(start === 0 ? piece : piece.slice(1)));
+        start = end - 1;
       }
-      const path = positions.map(([lng, lat]) => `${lng},${lat}`).join(";");
-      try {
-        const response = await doFetch(
-          `${base}/match/v1/${profile}/${path}?geometries=geojson&overview=full`,
-          { signal },
-        );
-        if (!response.ok) return null;
-        const body = (await response.json()) as OsrmMatchResponse;
-        if (body?.code !== "Ok") return null;
-        // A trace OSRM could not join comes back as several pieces; one of
-        // them is not the whole line, so the caller keeps its own.
-        if (body.matchings?.length !== 1) return null;
-        const geometry = body.matchings[0]?.geometry;
-        if (
-          geometry?.type !== "LineString" ||
-          !Array.isArray(geometry.coordinates)
-        ) {
-          return null;
-        }
-        return {
-          type: "LineString",
-          coordinates: geometry.coordinates as GeoLineString["coordinates"],
-        };
-      } catch (error) {
-        if (signal?.aborted) throw error;
-        return null;
-      }
+      return { type: "LineString", coordinates: joined };
     },
   };
 }
