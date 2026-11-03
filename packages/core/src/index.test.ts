@@ -28,6 +28,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.clearUnread).toBeTypeOf("function");
   });
 
+  it("exports stripJsonComments", () => {
+    expect(barrel.stripJsonComments).toBeTypeOf("function");
+  });
+
   it("exports the CSV parser mapping and header matcher", () => {
     expect(barrel.parseCsvWith).toBeTypeOf("function");
     expect(barrel.matchCsvHeaders).toBeTypeOf("function");
