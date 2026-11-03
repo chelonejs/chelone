@@ -1,7 +1,7 @@
+import type { LooseRecord } from "@chelone/core";
 import type { ComponentProps, HTMLAttributes, ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -28,7 +28,7 @@ type BadgeProps = ComponentProps<typeof Badge>;
  *   </Show>
  * );
  */
-function TextArrayField<RecordType extends UnknownRecord = UnknownRecord>(
+function TextArrayField<RecordType extends LooseRecord = LooseRecord>(
   props: TextArrayFieldProps<RecordType>,
 ) {
   const {
@@ -71,7 +71,7 @@ function TextArrayField<RecordType extends UnknownRecord = UnknownRecord>(
   );
 }
 
-interface TextArrayFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface TextArrayFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   variant?: BadgeProps["variant"];

@@ -1,3 +1,4 @@
+import type { LooseRecord } from "@chelone/core";
 import {
   MDXEditor,
   type MDXEditorMethods,
@@ -6,7 +7,6 @@ import {
 } from "@mdxeditor/editor";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../i18n-hooks";
 import { useFieldValue } from "../../record/use-field-value";
@@ -16,7 +16,7 @@ import { defaultFieldPlugins } from "./default-plugins";
 import { safeHtmlImagePlugin } from "./safe-html-image-plugin";
 import "./mdx-editor-dark.css";
 
-interface MdxFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface MdxFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     Omit<MDXEditorProps, "markdown" | "readOnly" | "ref"> {
   /**
@@ -47,7 +47,7 @@ interface MdxFieldProps<RecordType extends UnknownRecord = UnknownRecord>
  *
  * <MdxField source="body" empty="No content" />
  */
-function MdxField<RecordType extends UnknownRecord = UnknownRecord>({
+function MdxField<RecordType extends LooseRecord = LooseRecord>({
   source,
   record,
   empty,

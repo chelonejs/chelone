@@ -1,6 +1,6 @@
+import type { LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
@@ -18,7 +18,7 @@ interface WebhookEndpoint {
 }
 
 interface WebhookEndpointFieldProps<
-  RecordType extends UnknownRecord = UnknownRecord,
+  RecordType extends LooseRecord = LooseRecord,
 > extends FieldProps<RecordType>,
     HTMLAttributes<HTMLSpanElement> {}
 
@@ -29,9 +29,7 @@ interface WebhookEndpointFieldProps<
  * @example
  * <WebhookEndpointField source="endpoint" />
  */
-function WebhookEndpointField<
-  RecordType extends UnknownRecord = UnknownRecord,
->({
+function WebhookEndpointField<RecordType extends LooseRecord = LooseRecord>({
   defaultValue,
   source,
   record,

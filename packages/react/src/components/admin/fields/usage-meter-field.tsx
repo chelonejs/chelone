@@ -1,13 +1,13 @@
+import type { LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import { Progress } from "@/components/ui/progress";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-interface UsageMeterFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface UsageMeterFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     Omit<HTMLAttributes<HTMLSpanElement>, "color"> {
   /** Sibling record field holding the limit/quota. Bar is only shown when set. */
@@ -30,7 +30,7 @@ const DEFAULT_THRESHOLDS = { warning: 0.8, critical: 1.0 };
  * @example
  * <UsageMeterField source="used" limitSource="limit" unit="GB" />
  */
-function UsageMeterField<RecordType extends UnknownRecord = UnknownRecord>({
+function UsageMeterField<RecordType extends LooseRecord = LooseRecord>({
   defaultValue,
   source,
   record,
