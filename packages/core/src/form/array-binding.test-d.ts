@@ -4,7 +4,7 @@ import {
   type ArrayRow,
   createArrayBinding,
 } from "./array-binding";
-import { createFormController } from "./form-controller";
+import { type CheloneFormApi, createFormController } from "./form-controller";
 import type { FieldBinding } from "./input-binding";
 
 interface Cart {
@@ -47,36 +47,31 @@ it("rows carry stable string ids and index-scoped helpers", () => {
   expectTypeOf(row.reOrder).returns.toBeVoid();
 });
 
-it("createArrayBinding accepts a path of its form's record", () => {
-  const controller = createFormController<Cart>({
+const typed = () =>
+  createFormController<Cart>({
     defaultValues: { items: [] },
     save: async () => undefined,
   });
+
+declare const looseForm: CheloneFormApi<Record<string, unknown>>;
+
+it("createArrayBinding accepts a path of its form's record", () => {
+  const controller = typed();
   createArrayBinding(controller.form, { source: "items" });
 });
 
 it("createArrayBinding accepts a bracket path", () => {
-  const controller = createFormController<Cart>({
-    defaultValues: { items: [] },
-    save: async () => undefined,
-  });
+  const controller = typed();
   createArrayBinding(controller.form, { source: "items[0].sku" });
 });
 
 it("createArrayBinding rejects a source that is not a path of the record", () => {
-  const controller = createFormController<Cart>({
-    defaultValues: { items: [] },
-    save: async () => undefined,
-  });
+  const controller = typed();
   // @ts-expect-error "nope" is not a path of Cart
   createArrayBinding(controller.form, { source: "nope" });
 });
 
 it("createArrayBinding takes any string for a Record<string, unknown> form", () => {
-  const controller = createFormController<Record<string, unknown>>({
-    defaultValues: {},
-    save: async () => undefined,
-  });
   const composed: string = "anything[3].goes";
-  createArrayBinding(controller.form, { source: composed });
+  createArrayBinding(looseForm, { source: composed });
 });
