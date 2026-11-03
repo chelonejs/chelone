@@ -1,4 +1,5 @@
 import type { FilterPayload, SortPayload } from "../data/types";
+import { getAtPath } from "../resource/get-at-path";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
 import { createMicroStore } from "../store/micro-store";
@@ -86,18 +87,6 @@ function removeEmpty(filter: FilterPayload): FilterPayload {
   return result;
 }
 
-/** Deep value read by dotted path (`nested.level`). No lodash dependency. */
-function getByPath(record: unknown, path: string): unknown {
-  if (record == null) return undefined;
-  if (!path.includes(".")) return (record as Record<string, unknown>)[path];
-  let current: unknown = record;
-  for (const segment of path.split(".")) {
-    if (current == null || typeof current !== "object") return undefined;
-    current = (current as Record<string, unknown>)[segment];
-  }
-  return current;
-}
-
 /**
  * Flatten a nested filter object into dotted keys (`{nested:{level:5}}` →
  * `{'nested.level':5}`), matching ra-core's `flattenObject`. Arrays and
@@ -130,7 +119,7 @@ function matchesFilter<TRecord>(
   flatFilter: Record<string, unknown>,
 ): boolean {
   return Object.entries(flatFilter).every(([filterName, filterValue]) => {
-    const recordValue = getByPath(record, filterName);
+    const recordValue = getAtPath(record, filterName);
     if (Array.isArray(recordValue)) {
       return Array.isArray(filterValue)
         ? recordValue.some((item) => filterValue.includes(item))
@@ -171,8 +160,8 @@ function applyFilterAndSort<TRecord>(
     result = [...result].sort((a, b) => {
       for (const { field, order } of keys) {
         const asc = order === "ASC";
-        const av = getByPath(a, field);
-        const bv = getByPath(b, field);
+        const av = getAtPath(a, field);
+        const bv = getAtPath(b, field);
         if (av === bv || (av == null && bv == null)) continue;
         if (av == null) return asc ? -1 : 1;
         if (bv == null) return asc ? 1 : -1;
