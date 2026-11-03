@@ -364,4 +364,121 @@ describe("undoable useDelete / useUpdate hooks", () => {
     });
     expect(update).toHaveBeenCalledTimes(1);
   });
+  it("an undoable update calls onSuccess at once with the patched record", () => {
+    const { wrapper, dataProvider } = makeUndoableWrapper();
+    const update = vi.spyOn(dataProvider, "update");
+    const onSuccess = vi.fn();
+    const { result } = renderHook(
+      () => useUpdate<R, "posts">("posts", { mutationMode: "undoable" }),
+      { wrapper },
+    );
+    const params = {
+      id: 1,
+      data: { title: "A!" },
+      previousData: { id: 1, title: "a" },
+    };
+    act(() => {
+      result.current.mutate(params, { onSuccess });
+    });
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+    expect(onSuccess).toHaveBeenCalledWith({ id: 1, title: "A!" }, params);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("an undoable update calls onError and onSettled when the commit fails", async () => {
+    const { wrapper, queryClient, dataProvider, notifications } =
+      makeUndoableWrapper();
+    const failure = new Error("boom");
+    vi.spyOn(dataProvider, "update").mockRejectedValue(failure);
+    const notify = vi.spyOn(notifications, "notify");
+    const onError = vi.fn(() => {
+      // Runs after the default rollback and error notification.
+      expect(cachedTitles(queryClient)).toEqual({ 1: "a", 2: "b" });
+      expect(notify).toHaveBeenCalledWith(
+        "chelone.notification.http_error",
+        expect.anything(),
+      );
+    });
+    const onSettled = vi.fn();
+    const { result } = renderHook(
+      () => useUpdate<R, "posts">("posts", { mutationMode: "undoable" }),
+      { wrapper },
+    );
+    const params = { id: 1, data: { title: "A!" } };
+    act(() => {
+      result.current.mutate(params, { onError, onSettled });
+    });
+    expect(onSettled).not.toHaveBeenCalled();
+    await act(async () => {
+      captureUndoable(notify).onClose?.();
+    });
+    await waitFor(() => expect(onSettled).toHaveBeenCalledTimes(1));
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(onError).toHaveBeenCalledWith(failure, params);
+    expect(onSettled).toHaveBeenCalledWith(params);
+  });
+
+  it("an undone update calls no callback after onSuccess", async () => {
+    const { wrapper, notifications } = makeUndoableWrapper();
+    const notify = vi.spyOn(notifications, "notify");
+    const onSuccess = vi.fn();
+    const onError = vi.fn();
+    const onSettled = vi.fn();
+    const { result } = renderHook(
+      () => useUpdate<R, "posts">("posts", { mutationMode: "undoable" }),
+      { wrapper },
+    );
+    act(() => {
+      result.current.mutate(
+        { id: 1, data: { title: "A!" } },
+        { onSuccess, onError, onSettled },
+      );
+    });
+    await act(async () => {
+      const options = captureUndoable(notify);
+      options.undo?.();
+      options.onClose?.();
+    });
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+    expect(onError).not.toHaveBeenCalled();
+    expect(onSettled).not.toHaveBeenCalled();
+  });
+
+  it("an onSettled that throws after a committed update neither rolls back nor calls onError", async () => {
+    const { wrapper, queryClient, dataProvider, notifications } =
+      makeUndoableWrapper();
+    const update = vi.spyOn(dataProvider, "update");
+    const notify = vi.spyOn(notifications, "notify");
+    const onError = vi.fn();
+    const onSettled = vi.fn(() => {
+      throw new Error("callback bug");
+    });
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { result } = renderHook(
+      () => useUpdate<R, "posts">("posts", { mutationMode: "undoable" }),
+      { wrapper },
+    );
+    act(() => {
+      result.current.mutate(
+        { id: 1, data: { title: "A!" } },
+        { onError, onSettled },
+      );
+    });
+    await act(async () => {
+      captureUndoable(notify).onClose?.();
+    });
+    await waitFor(() => expect(onSettled).toHaveBeenCalled());
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(logged).toHaveBeenCalledWith(new Error("callback bug"));
+    logged.mockRestore();
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(cachedTitles(queryClient)).toEqual({ 1: "A!", 2: "b" });
+    expect(notify).not.toHaveBeenCalledWith(
+      "chelone.notification.http_error",
+      expect.anything(),
+    );
+    expect(onError).not.toHaveBeenCalled();
+    expect(onSettled).toHaveBeenCalledTimes(1);
+  });
 });

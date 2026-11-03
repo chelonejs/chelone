@@ -1,8 +1,8 @@
+import type { LooseRecord } from "@chelone/core";
 import type * as React from "react";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
-import type { UnknownRecord, UnknownValue } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -28,7 +28,7 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
  *   </List>
  * );
  */
-const UrlFieldImpl = <RecordType extends UnknownRecord = UnknownRecord>(
+const UrlFieldImpl = <RecordType extends LooseRecord = LooseRecord>(
   inProps: UrlFieldProps<RecordType>,
 ) => {
   const {
@@ -90,7 +90,7 @@ UrlFieldImpl.displayName = "UrlFieldImpl";
 
 const UrlField = genericMemo(UrlFieldImpl);
 
-interface UrlFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface UrlFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "content"> {
   /** Content to display as the link text. Defaults to the URL value. */
@@ -107,7 +107,7 @@ const stopPropagation = (e: React.MouseEvent<HTMLAnchorElement>) =>
 // and other XSS-prone URLs from being rendered as live links.
 const SAFE_URL_PATTERN = /^(https?:|mailto:|tel:|\/|#)/i;
 
-const isSafeUrl = (value: UnknownValue): value is string => {
+const isSafeUrl = (value: unknown): value is string => {
   if (typeof value !== "string") return false;
   return SAFE_URL_PATTERN.test(value.trim());
 };
