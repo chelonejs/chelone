@@ -1,6 +1,6 @@
+import type { LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord, UnknownValue } from "@/lib/unknown-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
@@ -24,7 +24,7 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
  *   </Show>
  * );
  */
-function NumberField<RecordType extends UnknownRecord = UnknownRecord>({
+function NumberField<RecordType extends LooseRecord = LooseRecord>({
   defaultValue,
   source,
   record,
@@ -57,20 +57,20 @@ function NumberField<RecordType extends UnknownRecord = UnknownRecord>({
     <span {...sanitizeFieldRestProps(rest)}>
       {hasNumberFormat && typeof value === "number"
         ? value.toLocaleString(locales, options)
-        : (value as UnknownValue as string)}
+        : (value as string)}
     </span>
   );
 }
 
-interface NumberFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface NumberFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     HTMLAttributes<HTMLSpanElement> {
   locales?: string | string[];
   options?: object;
-  transform?: (value: UnknownValue) => UnknownValue;
+  transform?: (value: unknown) => unknown;
 }
 
-const defaultTransform = (value: UnknownValue): UnknownValue =>
+const defaultTransform = (value: unknown): unknown =>
   value && typeof value === "string" && !Number.isNaN(Number(value))
     ? +value
     : value;

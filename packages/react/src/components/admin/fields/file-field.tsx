@@ -1,6 +1,6 @@
+import type { LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord, UnknownValue } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -23,7 +23,7 @@ function getPath(record: unknown, path: string): unknown {
   return current;
 }
 
-interface FileFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface FileFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     HTMLAttributes<HTMLElement> {
   /** The path to the file url on each item, for an array of files. */
@@ -55,7 +55,7 @@ interface FileFieldProps<RecordType extends UnknownRecord = UnknownRecord>
  * // <div><a href="doc.pdf" title="Presentation">Presentation</a></div>
  * <FileField source="url" title="title" />
  */
-function FileField<RecordType extends UnknownRecord = UnknownRecord>(
+function FileField<RecordType extends LooseRecord = LooseRecord>(
   props: FileFieldProps<RecordType>,
 ) {
   const {
@@ -145,7 +145,7 @@ function FileField<RecordType extends UnknownRecord = UnknownRecord>(
       {...sanitizeFieldRestProps(rest as Record<string, unknown>)}
     >
       <a
-        href={(sourceValue as UnknownValue)?.toString()}
+        href={sourceValue?.toString()}
         title={titleValue}
         target={target}
         download={download}
