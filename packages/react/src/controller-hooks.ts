@@ -18,6 +18,7 @@ import {
   type ListControllerOptions,
   type ListControllerState,
   type LooseRecord,
+  listControllerActions,
   listPatchFromSearch,
   type MicroStore,
   type RecordControllerContext,
@@ -194,19 +195,8 @@ export function useListController<
   return useMemo(
     () => ({
       ...snapshot,
+      ...listControllerActions(controller),
       defaultPerPage: controller.defaultPerPage,
-      setPage: controller.setPage,
-      setPerPage: controller.setPerPage,
-      setSort: controller.setSort,
-      setFilters: controller.setFilters,
-      setParams: controller.setParams,
-      showFilter: controller.showFilter,
-      hideFilter: controller.hideFilter,
-      select: controller.select,
-      toggleItem: controller.toggleItem,
-      unselectAll: controller.unselectAll,
-      selectAll: controller.selectAll,
-      refetch: controller.refetch,
     }),
     [snapshot, controller],
   );

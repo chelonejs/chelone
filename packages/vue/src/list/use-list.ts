@@ -24,6 +24,7 @@ import {
   type ClientListLoadingState,
   createClientListController,
   type FilterPayload,
+  listControllerActions,
   type ResourceRecord,
   type SortPayload,
 } from "@chelone/core";
@@ -114,17 +115,6 @@ export function useList<TRecord extends ResourceRecord = ResourceRecord>(
     selectedIds: computed(() => state.value.selectedIds),
     hasNextPage: computed(() => state.value.hasNextPage),
     hasPreviousPage: computed(() => state.value.hasPreviousPage),
-    setPage: controller.setPage,
-    setPerPage: controller.setPerPage,
-    setSort: controller.setSort,
-    setFilters: controller.setFilters,
-    setParams: controller.setParams,
-    showFilter: controller.showFilter,
-    hideFilter: controller.hideFilter,
-    select: controller.select,
-    toggleItem: controller.toggleItem,
-    unselectAll: controller.unselectAll,
-    selectAll: controller.selectAll,
-    refetch: controller.refetch,
+    ...listControllerActions(controller),
   }) as ListContextValue;
 }
