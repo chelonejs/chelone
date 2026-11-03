@@ -241,6 +241,17 @@ describe("restDataProvider", () => {
     expect(url.searchParams.getAll("id")).toEqual(["1", "2"]);
     expect(result).toEqual({ data: [{ id: 1 }, { id: 2 }] });
   });
+  it("getMany with no ids resolves empty without a request", async () => {
+    const fetchMock = stubFetch(respond([{ id: 1 }]));
+
+    const result = await restDataProvider({ apiUrl }).getMany("posts", {
+      ids: [],
+    });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(result).toEqual({ data: [] });
+  });
+
   it("getMany with batchGetMany false calls getOne per id", async () => {
     const fetchMock = vi
       .fn()

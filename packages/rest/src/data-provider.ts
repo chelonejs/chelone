@@ -195,6 +195,8 @@ export function restDataProvider({
       return { data } as never;
     },
     async getMany(resource, { ids, meta }) {
+      // An empty id filter writes no parameter, so the request would list the whole resource.
+      if (ids.length === 0) return { data: [] };
       if (!batchGetMany) {
         const results = await Promise.all(
           ids.map((id) => provider.getOne(resource, { id, meta })),
