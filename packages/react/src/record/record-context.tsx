@@ -28,8 +28,13 @@ export type RecordContextValue<RecordType = LooseRecord> =
   | RecordType
   | undefined;
 
-/** Holds the current record. Default `undefined` (no ambient record). */
-export const RecordContext = createContext<RecordContextValue>(undefined);
+/**
+ * Holds the current record. Default `undefined` (no ambient record). Typed
+ * `unknown` because a typed record narrows only at the read edge
+ * (`useRecordContext<RecordType>()`); a concrete record (e.g. `{ id, title }`)
+ * has no string index signature so is not structurally a `LooseRecord`.
+ */
+export const RecordContext = createContext<unknown>(undefined);
 
 RecordContext.displayName = "RecordContext";
 
@@ -53,13 +58,7 @@ export function RecordContextProvider<RecordType = LooseRecord>({
   children,
 }: RecordContextProviderProps<RecordType>): ReactNode {
   return value ? (
-    // The context is erased to the loose default; a typed record narrows only
-    // at the read edge (`useRecordContext<RecordType>()`). Cast through
-    // `unknown` because a concrete record (e.g. `{ id, title }`) has no string
-    // index signature and so is not structurally a `LooseRecord`.
-    <RecordContext.Provider value={value as unknown as RecordContextValue}>
-      {children}
-    </RecordContext.Provider>
+    <RecordContext.Provider value={value}>{children}</RecordContext.Provider>
   ) : (
     children
   );

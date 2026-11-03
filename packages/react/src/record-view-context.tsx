@@ -62,11 +62,7 @@ export function EditContextProvider<RecordType = unknown>({
   value,
   children,
 }: EditContextProviderProps<RecordType>): ReactNode {
-  return (
-    <EditContext.Provider value={value as unknown as EditContextValue}>
-      {children}
-    </EditContext.Provider>
-  );
+  return <EditContext.Provider value={value}>{children}</EditContext.Provider>;
 }
 
 /**
@@ -109,11 +105,7 @@ export function ShowContextProvider<RecordType = unknown>({
   value,
   children,
 }: ShowContextProviderProps<RecordType>): ReactNode {
-  return (
-    <ShowContext.Provider value={value as unknown as ShowContextValue}>
-      {children}
-    </ShowContext.Provider>
-  );
+  return <ShowContext.Provider value={value}>{children}</ShowContext.Provider>;
 }
 
 /**
@@ -168,9 +160,7 @@ export function CreateContextProvider<RecordType = unknown>({
   children,
 }: CreateContextProviderProps<RecordType>): ReactNode {
   return (
-    <CreateContext.Provider value={value as unknown as CreateContextValue}>
-      {children}
-    </CreateContext.Provider>
+    <CreateContext.Provider value={value}>{children}</CreateContext.Provider>
   );
 }
 
