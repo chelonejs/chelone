@@ -2982,7 +2982,6 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/lib-unknown-types"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
@@ -3322,7 +3321,6 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/lib-unknown-types"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
@@ -3337,7 +3335,6 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/lib-unknown-types"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
@@ -3367,7 +3364,6 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/lib-unknown-types"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
@@ -3382,7 +3378,6 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/lib-unknown-types"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"

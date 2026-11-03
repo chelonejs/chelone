@@ -1,13 +1,12 @@
-import type { FilterPayload, SortPayload } from "@chelone/core";
+import type { FilterPayload, LooseRecord, SortPayload } from "@chelone/core";
 import type { ReactNode } from "react";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { ListContextProvider } from "../../../form";
 import type { RecordContextValue } from "../../../record/record-context";
 import { useReferenceManyFieldController } from "../../../reference-hooks";
 import { ResourceContextProvider } from "../../../resource";
 
 interface ReferenceManyFieldProps<
-  RecordType extends UnknownRecord = UnknownRecord,
+  RecordType extends LooseRecord = LooseRecord,
 > {
   /** The referenced resource holding the reverse FK (e.g. `"books"`). */
   reference: string;
@@ -61,7 +60,7 @@ interface ReferenceManyFieldProps<
  *   </Show>
  * );
  */
-function ReferenceManyField<RecordType extends UnknownRecord = UnknownRecord>(
+function ReferenceManyField<RecordType extends LooseRecord = LooseRecord>(
   props: ReferenceManyFieldProps<RecordType>,
 ) {
   const {

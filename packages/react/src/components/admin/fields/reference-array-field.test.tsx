@@ -134,7 +134,7 @@ describe("<ReferenceArrayField>", () => {
           <ReferenceArrayField
             source="tag_ids"
             reference="tags"
-            record={{ tag_ids: [1, 2] }}
+            record={{ id: 1, tag_ids: [1, 2] }}
           >
             <TagList />
           </ReferenceArrayField>
@@ -143,7 +143,7 @@ describe("<ReferenceArrayField>", () => {
           <ReferenceArrayField
             source="tag_ids"
             reference="tags"
-            record={{ tag_ids: [2, 3] }}
+            record={{ id: 1, tag_ids: [2, 3] }}
           >
             <TagList />
           </ReferenceArrayField>
@@ -184,7 +184,7 @@ describe("<ReferenceArrayField>", () => {
           <ReferenceArrayField
             source="tag_ids"
             reference="tags"
-            record={{ tag_ids: [1, 1, 2] }}
+            record={{ id: 1, tag_ids: [1, 1, 2] }}
           >
             <ListStatus />
           </ReferenceArrayField>
@@ -193,7 +193,7 @@ describe("<ReferenceArrayField>", () => {
           <ReferenceArrayField
             source="other_tag_ids"
             reference="tags"
-            record={{ other_tag_ids: [2, 3] }}
+            record={{ id: 1, other_tag_ids: [2, 3] }}
           >
             <TagList />
           </ReferenceArrayField>
@@ -202,7 +202,7 @@ describe("<ReferenceArrayField>", () => {
           <ReferenceField
             source="tag_id"
             reference="tags"
-            record={{ tag_id: 3 }}
+            record={{ id: 1, tag_id: 3 }}
             link={false}
           />
         </section>
@@ -210,7 +210,7 @@ describe("<ReferenceArrayField>", () => {
           <ReferenceArrayField
             source="author_ids"
             reference="authors"
-            record={{ author_ids: [1] }}
+            record={{ id: 1, author_ids: [1] }}
           >
             <TagList />
           </ReferenceArrayField>
@@ -254,12 +254,12 @@ describe("<ReferenceArrayField>", () => {
   });
 
   it.each([
-    { label: "missing", record: {} },
-    { label: "undefined", record: { tag_ids: undefined } },
-    { label: "null", record: { tag_ids: null } },
-    { label: "empty", record: { tag_ids: [] } },
-    { label: "string", record: { tag_ids: "invalid" } },
-    { label: "object", record: { tag_ids: {} } },
+    { label: "missing", record: { id: 1 } },
+    { label: "undefined", record: { id: 1, tag_ids: undefined } },
+    { label: "null", record: { id: 1, tag_ids: null } },
+    { label: "empty", record: { id: 1, tag_ids: [] } },
+    { label: "string", record: { id: 1, tag_ids: "invalid" } },
+    { label: "object", record: { id: 1, tag_ids: {} } },
   ])("does not fetch a $label FK array", async ({ record }) => {
     const dataProvider = fakeDataProvider({ tags: structuredClone(tags) });
     const getMany = vi.spyOn(dataProvider, "getMany");
@@ -277,7 +277,7 @@ describe("<ReferenceArrayField>", () => {
         <ReferenceField
           source="tag_id"
           reference="tags"
-          record={{ tag_id: 3 }}
+          record={{ id: 1, tag_id: 3 }}
           link={false}
         />
       </>,
@@ -305,7 +305,7 @@ describe("<ReferenceArrayField>", () => {
       <ReferenceArrayField
         source="tag_ids"
         reference="tags"
-        record={{ tag_ids: [1] }}
+        record={{ id: 1, tag_ids: [1] }}
       >
         <ListStatus />
       </ReferenceArrayField>,
@@ -319,7 +319,7 @@ describe("<ReferenceArrayField>", () => {
       <ReferenceArrayField
         source="tag_ids"
         reference="tags"
-        record={{ tag_ids: [] }}
+        record={{ id: 1, tag_ids: [] }}
       >
         <ListStatus />
       </ReferenceArrayField>,
@@ -342,7 +342,7 @@ describe("<ReferenceArrayField>", () => {
       <ReferenceArrayField
         source="tag_ids"
         reference="tags"
-        record={{ tag_ids: [1, 99] }}
+        record={{ id: 1, tag_ids: [1, 99] }}
       >
         <ListStatus />
       </ReferenceArrayField>,

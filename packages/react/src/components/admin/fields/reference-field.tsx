@@ -1,6 +1,5 @@
-import type { Identifier } from "@chelone/core";
+import type { Identifier, LooseRecord } from "@chelone/core";
 import type { MouseEvent, ReactNode } from "react";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { useGetManyAggregate } from "../../../hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentation } from "../../../label";
@@ -10,9 +9,7 @@ import { useResourceDefinition } from "../../../resource";
 import { type LinkToType, useGetPathForRecord } from "../../../router";
 import { useRouterAdapter } from "../../../router/adapter";
 
-interface ReferenceFieldProps<
-  RecordType extends UnknownRecord = UnknownRecord,
-> {
+interface ReferenceFieldProps<RecordType extends LooseRecord = LooseRecord> {
   /** The FK field on the current record (e.g. `"author_id"`). */
   source: string;
   /** The referenced resource the FK points at (e.g. `"authors"`). */
@@ -26,7 +23,7 @@ interface ReferenceFieldProps<
    * record. Called only after the reference resolves; loading, error and empty
    * states use their respective props.
    */
-  render?: (referenceRecord: UnknownRecord | undefined) => ReactNode;
+  render?: (referenceRecord: LooseRecord | undefined) => ReactNode;
   /** A `CreatePathType` (`"show"`/`"edit"`/…) or `false` to disable linking. */
   link?: LinkToType;
   /** A class name applied to the link wrapper. */
@@ -73,7 +70,7 @@ const stopPropagation = (e: MouseEvent<HTMLAnchorElement>) =>
  *   </List>
  * );
  */
-function ReferenceField<RecordType extends UnknownRecord = UnknownRecord>(
+function ReferenceField<RecordType extends LooseRecord = LooseRecord>(
   props: ReferenceFieldProps<RecordType>,
 ) {
   const {
@@ -101,7 +98,7 @@ function ReferenceField<RecordType extends UnknownRecord = UnknownRecord>(
     { ids: id != null ? [id] : [] },
     { enabled: id != null },
   );
-  const referenceRecord = data?.[0] as UnknownRecord | undefined;
+  const referenceRecord = data?.[0] as LooseRecord | undefined;
 
   // Compute the link path unconditionally (Rules of Hooks): the hook owns the
   // `link==null` inference (show → edit → none, gated on the reference's
