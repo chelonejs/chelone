@@ -16,6 +16,8 @@ export interface MonacoJsonFieldProps {
   autoHeight?: boolean;
   /** Tallest the editor grows to when `autoHeight` is on. Defaults to 400. */
   maxHeight?: number;
+  /** Shown instead of the editor when the value is missing; translated if it is a message key. */
+  empty?: string;
   class?: string;
   /** Merged over the read-only defaults, so it can override any of them. */
   monacoOptions?: editor.IStandaloneEditorConstructionOptions;
@@ -28,7 +30,7 @@ export interface MonacoJsonFieldProps {
  *
  * Monaco loads in a separate chunk on first render, so the base bundle carries
  * nothing. Needs the optional `monaco-editor` and `@guolao/vue-monaco-editor`
- * peers.
+ * peers. The `#empty` slot replaces the editor when the value is missing.
  *
  * @example
  * import { MonacoJsonField } from "@chelone/vue/monaco";
