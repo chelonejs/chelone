@@ -66,6 +66,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.describeResource).toBeTypeOf("function");
   });
 
+  it("exports the record path reader getAtPath", () => {
+    expect(barrel.getAtPath).toBeTypeOf("function");
+  });
+
   it("exports the infinite list controller", () => {
     expect(barrel.createInfiniteListController).toBeTypeOf("function");
   });
