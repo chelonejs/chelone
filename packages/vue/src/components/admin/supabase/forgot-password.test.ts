@@ -117,6 +117,14 @@ describe("<ForgotPasswordForm>", () => {
     expect(link?.attributes("href")).toBe("/login");
   });
 
+  it("marks the field as an email and focuses it", async () => {
+    const { wrapper } = mountIn(ForgotPasswordForm);
+    await flushPromises();
+
+    expect(emailInput(wrapper).attributes("autocomplete")).toBe("email");
+    expect(document.activeElement).toBe(emailInput(wrapper).element);
+  });
+
   it("an empty email shows Required and does not call resetPassword", async () => {
     const resetPassword = vi.fn(async () => {});
     const { wrapper } = mountIn(ForgotPasswordForm, {

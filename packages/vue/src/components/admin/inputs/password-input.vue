@@ -10,6 +10,8 @@ export interface PasswordInputProps {
   placeholder?: string;
   disabled?: boolean;
   readonly?: boolean;
+  autocomplete?: string;
+  autofocus?: boolean;
   inputClass?: string;
   class?: string;
 }
@@ -60,6 +62,8 @@ const toggleLabel = computed(() =>
       :placeholder="placeholder"
       :disabled="disabled"
       :readonly="readonly"
+      :autocomplete="autocomplete"
+      :autofocus="autofocus"
       :input-class="cn('pr-10', inputClass)"
     />
     <Button
