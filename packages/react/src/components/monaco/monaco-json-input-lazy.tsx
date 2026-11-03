@@ -3,6 +3,7 @@ import {
   detectJsonShape,
   fromJsonText,
   type JsonShape,
+  stripJsonComments,
   toJsonText,
 } from "@chelone/core";
 import Editor, { loader } from "@monaco-editor/react";
@@ -22,7 +23,6 @@ import {
   useMonacoLayout,
   useMonacoTheme,
 } from "./internal/monaco-shared";
-import { stripJsonComments } from "./internal/strip-json-comments";
 import { useJsonSchema } from "./internal/use-json-schema";
 import { useMonacoMarkers } from "./internal/use-monaco-markers";
 import type { MonacoJsonInputProps } from "./monaco-json-input";
