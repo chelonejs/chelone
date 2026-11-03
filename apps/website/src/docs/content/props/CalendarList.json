@@ -23,7 +23,7 @@
       "name": "defaultView",
       "type": "CalendarView",
       "optional": true,
-      "comment": "The view shown first. Only `month` exists yet."
+      "comment": "The view shown first; the first of `views` when it is not among them."
     },
     {
       "name": "endSource",
@@ -89,7 +89,7 @@
       "name": "views",
       "type": "readonly CalendarView[]",
       "optional": true,
-      "comment": "The views offered; the switcher is hidden while one remains. Only `month` exists yet."
+      "comment": "The views offered; the switcher is hidden while one remains."
     },
     {
       "name": "weekStartsOn",

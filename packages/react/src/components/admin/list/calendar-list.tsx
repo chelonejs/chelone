@@ -18,6 +18,7 @@ import { useGetRecordRepresentation } from "../../../label";
 import { useResourceContext, useResourceDefinition } from "../../../resource";
 import { useCreatePath, useNavigate } from "../../../router";
 import { useEvent } from "../../../util/use-event";
+import { CalendarAgendaView } from "./calendar-agenda-view";
 import {
   CalendarHeader,
   type CalendarNavigation,
@@ -29,6 +30,9 @@ import {
   type CalendarSlot,
   type EventRendererProps,
 } from "./calendar-month-view";
+import { CalendarWeekView } from "./calendar-week-view";
+
+const ALL_VIEWS: readonly CalendarView[] = ["month", "week", "agenda"];
 
 /** The list controller's own default, which core does not export. */
 const LIST_DEFAULT_PER_PAGE = 10;
@@ -44,9 +48,9 @@ interface CalendarListProps<
   colorSource?: string;
   /** Maps the value at `colorSource` to a CSS color. */
   colorMap?: Record<string, string>;
-  /** The view shown first. Only `month` exists yet. */
+  /** The view shown first; the first of `views` when it is not among them. @default "month" */
   defaultView?: CalendarView;
-  /** The views offered; the switcher is hidden while one remains. Only `month` exists yet. */
+  /** The views offered; the switcher is hidden while one remains. @default ["month", "week", "agenda"] */
   views?: readonly CalendarView[];
   /** 0 is Sunday. @default 0 */
   weekStartsOn?: CalendarWeekStart;
@@ -70,7 +74,8 @@ interface CalendarListProps<
 }
 
 /**
- * The records of the ambient list as events in a month grid. It sets the list
+ * The records of the ambient list as events in a month grid, a week of hour
+ * rows, or an agenda. It sets the list
  * filter to the visible range and `perPage` to cover it, and takes both back
  * on unmount so a `<DataTable>` of the same resource is not left on one month.
  *
@@ -86,7 +91,7 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
   colorSource,
   colorMap,
   defaultView = "month",
-  views = ["month"],
+  views = ALL_VIEWS,
   weekStartsOn = 0,
   perPage = 1000,
   rangeFilter,
@@ -105,11 +110,10 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
   const locale = useLocale();
   const getRecordRepresentation = useGetRecordRepresentation(resource);
 
-  // Only the month view exists in this slice.
-  const availableViews = useMemo<CalendarView[]>(() => {
-    const month = views.filter((name) => name === "month");
-    return month.length > 0 ? month : ["month"];
-  }, [views]);
+  const availableViews = useMemo<readonly CalendarView[]>(
+    () => (views.length > 0 ? views : ALL_VIEWS),
+    [views],
+  );
   const [chosenView, setView] = useState<CalendarView>(defaultView);
   const view = availableViews.includes(chosenView)
     ? chosenView
@@ -254,22 +258,32 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
     />
   );
 
+  const viewProps = {
+    range,
+    events,
+    busy: list.isPending,
+    label: calendarLabels(locale).title(view, anchor, range),
+    onSelectEvent: selectEvent,
+    eventRenderer,
+  };
+
   return (
     <div
       data-slot="calendar-list"
       className={cn("flex flex-col gap-3", className)}
     >
       {header}
-      <CalendarMonthView
-        range={range}
-        anchor={anchor}
-        events={events}
-        busy={list.isPending}
-        label={calendarLabels(locale).title(view, anchor, range)}
-        onSelectEvent={selectEvent}
-        onSelectSlot={onSelectSlot}
-        eventRenderer={eventRenderer}
-      />
+      {view === "week" ? (
+        <CalendarWeekView {...viewProps} onSelectSlot={onSelectSlot} />
+      ) : view === "agenda" ? (
+        <CalendarAgendaView {...viewProps} />
+      ) : (
+        <CalendarMonthView
+          {...viewProps}
+          anchor={anchor}
+          onSelectSlot={onSelectSlot}
+        />
+      )}
     </div>
   );
 }

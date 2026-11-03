@@ -24,26 +24,127 @@ interface EventRendererProps<
   day: Date;
 }
 
-/** A selected slot: the whole day, from its midnight to the next one. */
+/**
+ * A selected slot: a whole day in the month view, from its midnight to the
+ * next one, or one hour in the week view, ending at the next hour's start.
+ */
 interface CalendarSlot {
   startISO: string;
   endISO: string;
-  allDay: true;
+  allDay: boolean;
 }
 
-interface CalendarMonthViewProps<RecordType extends ResourceRecord> {
+/** What every view takes. */
+interface CalendarViewProps<RecordType extends ResourceRecord> {
   range: CalendarRange;
-  /** Days outside this month are muted. */
-  anchor: Date;
   events: readonly CalendarEventInfo<RecordType>[];
   busy: boolean;
   label: string;
   onSelectEvent: (event: CalendarEventInfo<RecordType>) => void;
-  onSelectSlot?: (slot: CalendarSlot) => void;
   eventRenderer?: (props: EventRendererProps<RecordType>) => ReactNode;
 }
 
+interface CalendarMonthViewProps<RecordType extends ResourceRecord>
+  extends CalendarViewProps<RecordType> {
+  /** Days outside this month are muted. */
+  anchor: Date;
+  onSelectSlot?: (slot: CalendarSlot) => void;
+}
+
 const WEEK = 7;
+
+/** Enter or Space on the cell itself selects its slot; a key pressed on an event button in it is that button's. @internal */
+function isSlotKey(event: KeyboardEvent): boolean {
+  if (event.target !== event.currentTarget) return false;
+  if (event.key !== "Enter" && event.key !== " ") return false;
+  event.preventDefault();
+  return true;
+}
+
+interface CalendarEventButtonProps<RecordType extends ResourceRecord> {
+  event: CalendarEventInfo<RecordType>;
+  view: CalendarView;
+  day: Date;
+  onSelectEvent: (event: CalendarEventInfo<RecordType>) => void;
+  eventRenderer?: (props: EventRendererProps<RecordType>) => ReactNode;
+}
+
+/** One event as a button, in a cell of any view. A click on it is not a click on the cell behind. @internal */
+function CalendarEventButton<RecordType extends ResourceRecord>({
+  event,
+  view,
+  day,
+  onSelectEvent,
+  eventRenderer,
+}: CalendarEventButtonProps<RecordType>) {
+  return (
+    <button
+      type="button"
+      data-color={event.color}
+      onClick={(click) => {
+        // The cell behind the event is a slot; the event is not.
+        click.stopPropagation();
+        onSelectEvent(event);
+      }}
+      className="block w-full cursor-pointer text-left"
+    >
+      {eventRenderer ? (
+        eventRenderer({ event, view, day })
+      ) : (
+        <span
+          className={cn(
+            "block truncate rounded px-1.5 py-0.5 text-xs",
+            event.color ? "text-white" : "bg-primary text-primary-foreground",
+          )}
+          style={event.color ? { backgroundColor: event.color } : undefined}
+        >
+          {event.title}
+        </span>
+      )}
+    </button>
+  );
+}
+
+interface CalendarCellEventsProps<RecordType extends ResourceRecord>
+  extends Pick<
+    CalendarEventButtonProps<RecordType>,
+    "view" | "day" | "onSelectEvent" | "eventRenderer"
+  > {
+  events: readonly CalendarEventInfo<RecordType>[];
+  /** Drawn above the events. */
+  children?: ReactNode;
+}
+
+/** The content of a cell: what `children` holds, then one button per event. @internal */
+function CalendarCellEvents<RecordType extends ResourceRecord>({
+  events,
+  children,
+  ...rest
+}: CalendarCellEventsProps<RecordType>) {
+  return (
+    <div className="flex h-full flex-col gap-1">
+      {children}
+      {events.map((event) => (
+        <CalendarEventButton
+          key={String(event.record.id)}
+          event={event}
+          {...rest}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** The labels, the days of the range and today's key, which the grid views share. @internal */
+function useCalendarGrid(range: CalendarRange) {
+  const locale = useLocale();
+  const labels = useMemo(() => calendarLabels(locale), [locale]);
+  return {
+    labels,
+    days: calendarDays(range),
+    todayKey: calendarDayKey(new Date()),
+  };
+}
 
 /** The whole weeks of a month as a grid: a weekday row, then one cell per day. @internal */
 function CalendarMonthView<RecordType extends ResourceRecord>({
@@ -56,10 +157,7 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
   onSelectSlot,
   eventRenderer,
 }: CalendarMonthViewProps<RecordType>) {
-  const locale = useLocale();
-  const labels = useMemo(() => calendarLabels(locale), [locale]);
-  const days = calendarDays(range);
-  const todayKey = calendarDayKey(new Date());
+  const { labels, days, todayKey } = useCalendarGrid(range);
   const weeks: Date[][] = [];
   for (let i = 0; i < days.length; i += WEEK) {
     weeks.push(days.slice(i, i + WEEK));
@@ -77,11 +175,7 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
     });
 
   const onCellKeyDown = (event: KeyboardEvent, day: Date) => {
-    // A key pressed on an event button is that button's, not the cell's.
-    if (event.target !== event.currentTarget) return;
-    if (event.key !== "Enter" && event.key !== " ") return;
-    event.preventDefault();
-    selectSlot(day);
+    if (isSlotKey(event)) selectSlot(day);
   };
 
   return (
@@ -131,7 +225,13 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
                     onSelectSlot && "cursor-pointer",
                   )}
                 >
-                  <div className="flex h-full flex-col gap-1">
+                  <CalendarCellEvents
+                    events={calendarEventsOnDay(events, day)}
+                    view="month"
+                    day={day}
+                    onSelectEvent={onSelectEvent}
+                    eventRenderer={eventRenderer}
+                  >
                     <span
                       className={cn(
                         "self-end text-xs",
@@ -141,40 +241,7 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
                     >
                       {labels.dayNumber(day)}
                     </span>
-                    {calendarEventsOnDay(events, day).map((event) => (
-                      <button
-                        key={String(event.record.id)}
-                        type="button"
-                        data-color={event.color}
-                        onClick={(click) => {
-                          // The cell behind the event is a slot; the event is not.
-                          click.stopPropagation();
-                          onSelectEvent(event);
-                        }}
-                        className="block w-full cursor-pointer text-left"
-                      >
-                        {eventRenderer ? (
-                          eventRenderer({ event, view: "month", day })
-                        ) : (
-                          <span
-                            className={cn(
-                              "block truncate rounded px-1.5 py-0.5 text-xs",
-                              event.color
-                                ? "text-white"
-                                : "bg-primary text-primary-foreground",
-                            )}
-                            style={
-                              event.color
-                                ? { backgroundColor: event.color }
-                                : undefined
-                            }
-                          >
-                            {event.title}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
+                  </CalendarCellEvents>
                 </td>
               );
             })}
@@ -186,9 +253,14 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
 }
 
 export {
+  CalendarCellEvents,
+  CalendarEventButton,
   type CalendarEventInfo,
   CalendarMonthView,
   type CalendarMonthViewProps,
   type CalendarSlot,
+  type CalendarViewProps,
   type EventRendererProps,
+  isSlotKey,
+  useCalendarGrid,
 };

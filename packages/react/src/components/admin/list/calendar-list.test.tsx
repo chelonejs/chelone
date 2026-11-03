@@ -116,6 +116,7 @@ function mount(
     hasShow = true,
     url = "/",
     provider = rangeProvider(rows),
+    messages = {},
   }: {
     rows?: EventRow[];
     hasEdit?: boolean;
@@ -123,6 +124,7 @@ function mount(
     /** The location the app opens on, e.g. a reloaded list URL that holds a range. */
     url?: string;
     provider?: ReturnType<typeof rangeProvider>;
+    messages?: Record<string, string>;
   } = {},
 ) {
   const registry = createResourceRegistry();
@@ -141,7 +143,7 @@ function mount(
       }
       i18n={createI18n({
         locale: "en",
-        messages: { en: defineMessages({}) },
+        messages: { en: defineMessages(messages) },
       })}
     >
       <ResourceRegistryProvider registry={registry}>
@@ -493,11 +495,330 @@ describe("<CalendarList> month view", () => {
   });
 
   it("hides the view switcher while one view remains", async () => {
-    mount(calendar({ views: ["month", "week", "agenda"] }));
+    mount(calendar({ views: ["month"] }));
     await screen.findByText("Standup");
 
     expect(screen.queryByRole("button", { name: "Week" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Month" })).toBeNull();
+  });
+});
+
+const hourCell = (date: Date) =>
+  screen
+    .getAllByRole("gridcell")
+    .find((el) => el.dataset.slotStart === date.toISOString()) as HTMLElement;
+
+describe("<CalendarList> week view", () => {
+  it("renders 7 day headers and 24 hour rows", async () => {
+    mount(calendar({ defaultView: "week" }));
+    await screen.findByText("Offsite");
+
+    const view = document.querySelector('[data-calendar-view="week"]');
+    expect(view).toBeTruthy();
+    const headers = screen.getAllByRole("columnheader");
+    expect(headers.map((el) => el.dataset.day)).toEqual([
+      "2026-05-10",
+      "2026-05-11",
+      "2026-05-12",
+      "2026-05-13",
+      "2026-05-14",
+      "2026-05-15",
+      "2026-05-16",
+    ]);
+    expect(headers[0]?.textContent).toContain("Sun");
+    expect(screen.getAllByRole("row")).toHaveLength(25);
+    const cells = screen.getAllByRole("gridcell");
+    expect(cells).toHaveLength(24 * 7);
+    expect(cells[0]?.dataset.slotStart).toBe(
+      new Date(2026, 4, 10, 0).toISOString(),
+    );
+    expect(cells[167]?.dataset.slotStart).toBe(
+      new Date(2026, 4, 16, 23).toISOString(),
+    );
+    expect(screen.getByText("May 10 – 16, 2026")).toBeTruthy();
+  });
+
+  it("places an event in the cell of its start hour", async () => {
+    mount(calendar({ defaultView: "week" }));
+    await screen.findByText("Offsite");
+
+    expect(
+      within(hourCell(new Date(2026, 4, 12, 9))).getByRole("button", {
+        name: "Offsite",
+      }),
+    ).toBeTruthy();
+    // It runs to the 14th, but the week view draws it at its start only.
+    expect(screen.getAllByRole("button", { name: "Offsite" })).toHaveLength(1);
+    expect(
+      within(hourCell(new Date(2026, 4, 12, 10))).queryByRole("button"),
+    ).toBeNull();
+  });
+
+  it("an empty hour cell calls onSelectSlot with that hour and allDay false", async () => {
+    const onSelectSlot = vi.fn();
+    mount(calendar({ defaultView: "week", onSelectSlot }));
+    await screen.findByText("Offsite");
+    const slot = {
+      startISO: new Date(2026, 4, 13, 14).toISOString(),
+      endISO: new Date(2026, 4, 13, 15).toISOString(),
+      allDay: false,
+    };
+
+    fireEvent.click(hourCell(new Date(2026, 4, 13, 14)));
+    expect(onSelectSlot).toHaveBeenLastCalledWith(slot);
+    fireEvent.keyDown(hourCell(new Date(2026, 4, 13, 14)), { key: "Enter" });
+    fireEvent.keyDown(hourCell(new Date(2026, 4, 13, 14)), { key: " " });
+    expect(onSelectSlot).toHaveBeenCalledTimes(3);
+    expect(onSelectSlot).toHaveBeenLastCalledWith(slot);
+    fireEvent.keyDown(hourCell(new Date(2026, 4, 13, 14)), { key: "a" });
+    expect(onSelectSlot).toHaveBeenCalledTimes(3);
+
+    // The last hour of a day ends at the next midnight.
+    fireEvent.click(hourCell(new Date(2026, 4, 13, 23)));
+    expect(onSelectSlot).toHaveBeenLastCalledWith({
+      startISO: new Date(2026, 4, 13, 23).toISOString(),
+      endISO: new Date(2026, 4, 14).toISOString(),
+      allDay: false,
+    });
+  });
+
+  it("an event click calls onSelectEvent and not onSelectSlot", async () => {
+    const onSelectEvent = vi.fn();
+    const onSelectSlot = vi.fn();
+    mount(calendar({ defaultView: "week", onSelectEvent, onSelectSlot }));
+    await screen.findByText("Offsite");
+
+    const event = screen.getByRole("button", { name: "Offsite" });
+    fireEvent.click(event);
+    fireEvent.keyDown(event, { key: "Enter" });
+
+    expect(onSelectEvent).toHaveBeenCalledTimes(1);
+    expect(onSelectEvent).toHaveBeenCalledWith(MEETINGS[1]);
+    expect(onSelectSlot).not.toHaveBeenCalled();
+  });
+
+  it("an event links to the edit page without onSelectEvent", async () => {
+    mount(calendar({ defaultView: "week" }));
+    await screen.findByText("Offsite");
+
+    fireEvent.click(screen.getByRole("button", { name: "Offsite" }));
+    expect(screen.getByTestId("location").textContent).toBe("/meetings/2");
+  });
+
+  it("Next moves a week and refetches the new range", async () => {
+    const { provider } = mount(calendar({ defaultView: "week" }));
+    await screen.findByText("Offsite");
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(await screen.findByText("Standup")).toBeTruthy();
+    expect(screen.queryByText("Offsite")).toBeNull();
+    expect(
+      screen.getAllByRole("columnheader").map((el) => el.dataset.day)[0],
+    ).toBe("2026-05-17");
+    expect(
+      within(hourCell(new Date(2026, 4, 20, 9))).getByRole("button", {
+        name: "Standup",
+      }),
+    ).toBeTruthy();
+    const params = provider.getList.mock.lastCall?.[1] as {
+      filter: Record<string, string>;
+    };
+    expect(params.filter).toEqual({
+      start_gte: new Date(2026, 4, 17).toISOString(),
+      start_lte: new Date(2026, 4, 23, 23, 59, 59, 999).toISOString(),
+    });
+  });
+});
+
+describe("<CalendarList> week view across a clock change", () => {
+  const zone = process.env.TZ;
+  afterEach(() => {
+    if (zone === undefined) delete process.env.TZ;
+    else process.env.TZ = zone;
+  });
+
+  it("leaves the hour a spring-forward day skips without a slot", async () => {
+    // 8 March 2026: New York goes from 02:00 straight to 03:00.
+    process.env.TZ = "America/New_York";
+    vi.setSystemTime(new Date(2026, 2, 8, 12));
+    const onSelectSlot = vi.fn();
+    mount(calendar({ defaultView: "week", onSelectSlot }), { rows: [] });
+    await screen.findByRole("grid");
+
+    const starts = screen
+      .getAllByRole("gridcell")
+      .map((el) => el.dataset.slotStart)
+      .filter((value) => value !== undefined);
+    expect(new Set(starts).size).toBe(starts.length);
+    const skipped = screen
+      .getAllByRole("gridcell")
+      .filter((el) => el.dataset.slotStart === undefined);
+    expect(skipped).toHaveLength(1);
+    fireEvent.click(skipped[0] as HTMLElement);
+    expect(onSelectSlot).not.toHaveBeenCalled();
+
+    fireEvent.click(hourCell(new Date(2026, 2, 8, 3)));
+    expect(onSelectSlot).toHaveBeenCalledTimes(1);
+    const slot = onSelectSlot.mock.lastCall?.[0] as {
+      startISO: string;
+      endISO: string;
+    };
+    expect(new Date(slot.endISO).getTime()).toBeGreaterThan(
+      new Date(slot.startISO).getTime(),
+    );
+  });
+});
+
+describe("<CalendarList> agenda view", () => {
+  it("groups events by day in start order", async () => {
+    mount(calendar({ defaultView: "agenda" }), {
+      rows: [
+        ...MEETINGS,
+        { id: 4, title: "Coffee", start: "2026-05-20T08:00:00", kind: "work" },
+      ],
+    });
+    await screen.findByText("Offsite");
+
+    expect(
+      document.querySelector('[data-calendar-view="agenda"]'),
+    ).toBeTruthy();
+    expect(
+      screen.getAllByRole("heading", { level: 3 }).map((el) => el.textContent),
+    ).toEqual(["Tuesday, May 12", "Wednesday, May 20"]);
+    const buttons = screen
+      .getAllByRole("button")
+      .map((el) => el.textContent)
+      .filter((name) => ["Offsite", "Coffee", "Standup"].includes(name ?? ""));
+    expect(buttons).toEqual(["Offsite", "Coffee", "Standup"]);
+    expect(screen.queryByText("Dentist")).toBeNull();
+  });
+
+  it("shows the empty label when the range holds no event", async () => {
+    mount(calendar({ defaultView: "agenda" }), { rows: [] });
+
+    expect(await screen.findByText("No events")).toBeTruthy();
+    expect(screen.queryAllByRole("heading", { level: 3 })).toHaveLength(0);
+  });
+
+  it("an event links to the edit page and calls onSelectEvent when given", async () => {
+    mount(calendar({ defaultView: "agenda" }));
+    await screen.findByText("Standup");
+    fireEvent.click(screen.getByRole("button", { name: "Standup" }));
+    expect(screen.getByTestId("location").textContent).toBe("/meetings/1");
+  });
+
+  it("Next moves a fortnight and refetches the new range", async () => {
+    const { provider } = mount(calendar({ defaultView: "agenda" }));
+    await screen.findByText("Standup");
+    expect(screen.queryByText("Dentist")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(await screen.findByText("Dentist")).toBeTruthy();
+    expect(screen.queryByText("Offsite")).toBeNull();
+    const params = provider.getList.mock.lastCall?.[1] as {
+      filter: Record<string, string>;
+    };
+    expect(params.filter).toEqual({
+      start_gte: new Date(2026, 4, 15).toISOString(),
+      start_lte: new Date(2026, 5, 12, 23, 59, 59, 999).toISOString(),
+    });
+  });
+});
+
+describe("<CalendarList> views", () => {
+  it("the switcher reads the older ra.calendar.<view> keys unless ra.calendar.view.<view> is set", async () => {
+    mount(calendar(), {
+      messages: {
+        "ra.calendar.month": "Mois",
+        "ra.calendar.week": "Semaine",
+        "ra.calendar.view.week": "Sem.",
+      },
+    });
+    await screen.findByText("Standup");
+
+    expect(screen.getByRole("button", { name: "Mois" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Sem." })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Agenda" })).toBeTruthy();
+  });
+
+  it("the switcher changes the view and marks the current one", async () => {
+    const { provider } = mount(calendar());
+    await screen.findByText("Standup");
+
+    const pressed = () =>
+      ["Month", "Week", "Agenda"].filter(
+        (name) =>
+          screen.getByRole("button", { name }).getAttribute("aria-pressed") ===
+          "true",
+      );
+    expect(pressed()).toEqual(["Month"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Week" }));
+    expect(pressed()).toEqual(["Week"]);
+    expect(document.querySelector('[data-calendar-view="week"]')).toBeTruthy();
+    expect(
+      document.querySelector('[data-slot="calendar-month-view"]'),
+    ).toBeNull();
+    await waitFor(() => {
+      const params = provider.getList.mock.lastCall?.[1] as {
+        filter: Record<string, string>;
+      };
+      expect(params.filter.start_gte).toBe(new Date(2026, 4, 10).toISOString());
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Agenda" }));
+    expect(pressed()).toEqual(["Agenda"]);
+    expect(
+      document.querySelector('[data-calendar-view="agenda"]'),
+    ).toBeTruthy();
+    await waitFor(() => {
+      const params = provider.getList.mock.lastCall?.[1] as {
+        filter: Record<string, string>;
+      };
+      expect(params.filter.start_gte).toBe(new Date(2026, 4, 1).toISOString());
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Month" }));
+    expect(pressed()).toEqual(["Month"]);
+    expect(screen.getAllByRole("gridcell")).toHaveLength(42);
+  });
+
+  it("the views prop limits the switcher and defaultView picks the first view", async () => {
+    mount(calendar({ views: ["week", "agenda"], defaultView: "month" }));
+    await screen.findByText("Offsite");
+
+    expect(screen.queryByRole("button", { name: "Month" })).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Week" }).getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(document.querySelector('[data-calendar-view="week"]')).toBeTruthy();
+    cleanup();
+
+    mount(calendar({ defaultView: "agenda" }));
+    await screen.findByText("Standup");
+    expect(
+      screen
+        .getByRole("button", { name: "Agenda" })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+  });
+
+  it("eventRenderer applies in the week and agenda views", async () => {
+    mount(
+      calendar({
+        defaultView: "week",
+        eventRenderer: ({ event, view }: EventRendererProps) => (
+          <i>{`${view}: ${event.title} (${event.record.id})`}</i>
+        ),
+      }),
+    );
+    expect(await screen.findByText("week: Offsite (2)")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Agenda" }));
+    expect(await screen.findByText("agenda: Offsite (2)")).toBeTruthy();
+    expect(screen.getByText("agenda: Standup (1)")).toBeTruthy();
   });
 });
 
