@@ -179,6 +179,7 @@ describe("@chelone/react barrel — P6 shell + router surface (W1)", () => {
 
   it("exports the label/representation/resource-translation compat layer (P7a-T2)", () => {
     expect(barrel.useGetRecordRepresentation).toBeTypeOf("function");
+    expect(barrel.useGetRecordRepresentationText).toBeTypeOf("function");
     expect(barrel.useGetResourceLabel).toBeTypeOf("function");
     expect(barrel.useTranslateLabel).toBeTypeOf("function");
     expect(barrel.useResourceTranslation).toBeTypeOf("function");
