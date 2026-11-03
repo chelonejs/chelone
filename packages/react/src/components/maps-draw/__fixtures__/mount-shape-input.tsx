@@ -9,6 +9,7 @@ import {
   createI18n,
   fakeDataProvider,
   mapMessages,
+  type NotificationStore,
   rasterTileStyle,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
@@ -31,12 +32,14 @@ type Values = { shape: unknown };
 
 /**
  * The input under test gets `source="shape"`; `input` is rendered as given.
- * `config` adds to what `MapsProvider` is given, such as a `router`.
+ * `config` adds to what `MapsProvider` is given, such as a `router`. A
+ * `notifications` store is wired into `CheloneProvider` when given.
  */
 export async function mountShapeInput(
   input: ReactElement,
   shape: unknown = null,
   config: Omit<MapsConfig, "mapStyle"> = {},
+  notifications?: NotificationStore,
 ) {
   let current: ReturnType<typeof useForm<Values>> | undefined;
   function FormHost() {
@@ -58,6 +61,7 @@ export async function mountShapeInput(
       dataProvider={fakeDataProvider({})}
       queryClient={new QueryClient()}
       i18n={createI18n({ locale: "en", messages: { en: mapMessages } })}
+      notifications={notifications}
     >
       <MapsProvider mapStyle={style} {...config}>
         <FormHost />
