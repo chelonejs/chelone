@@ -493,6 +493,25 @@ importers:
         specifier: ^3.24.0
         version: 3.25.76
 
+  packages/rest:
+    dependencies:
+      '@chelone/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@arethetypeswrong/cli':
+        specifier: ^0.18.0
+        version: 0.18.5
+      publint:
+        specifier: ^0.3.0
+        version: 0.3.25
+      vite:
+        specifier: ^7.0.0
+        version: 7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(stylus@0.57.0)(yaml@2.9.0)
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.6(@types/debug@4.1.13)(@types/node@22.20.0)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)(stylus@0.57.0)(yaml@2.9.0)
+
   packages/supabase:
     dependencies:
       '@chelone/core':
