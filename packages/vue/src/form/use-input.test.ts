@@ -18,16 +18,16 @@ const postSchema = z.object({
 });
 type Post = { id: number; title: string; views: number };
 
-interface Capture {
-  form?: UseFormReturn<Post>;
+interface Capture<T = Post> {
+  form?: UseFormReturn<T>;
   input?: UseInputReturn;
 }
 
-function mountInput(
-  formOptions: UseFormOptions<Post>,
+function mountInput<T>(
+  formOptions: UseFormOptions<T>,
   inputOptions: UseInputOptions,
 ) {
-  const capture: Capture = {};
+  const capture: Capture<T> = {};
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -40,7 +40,7 @@ function mountInput(
   });
   const FormProbe = defineComponent({
     setup() {
-      capture.form = useForm<Post>(formOptions);
+      capture.form = useForm<T>(formOptions);
       return () => h(InputProbe);
     },
   });
@@ -59,14 +59,14 @@ function mountInput(
   return { capture };
 }
 
-const input = (capture: Capture): UseInputReturn => {
+function input<T>(capture: Capture<T>): UseInputReturn {
   if (!capture.input) throw new Error("useInput did not run");
   return capture.input;
-};
-const form = (capture: Capture): UseFormReturn<Post> => {
+}
+function form<T>(capture: Capture<T>): UseFormReturn<T> {
   if (!capture.form) throw new Error("useForm did not run");
   return capture.form;
-};
+}
 
 describe("useInput", () => {
   it("two-way binds the field to the ambient form", async () => {
@@ -172,5 +172,30 @@ describe("useInput", () => {
 
     expect(typeof input(capture).id).toBe("string");
     expect(input(capture).id.length).toBeGreaterThan(0);
+  });
+
+  it("useInput with a dot-index source writes the field that the bracket source reads", async () => {
+    const { capture } = mountInput(
+      {
+        record: { id: 1, title: "x", views: 0, tags: [{ label: "start" }] },
+        onSubmit: async () => undefined,
+      },
+      { source: "tags.0.label" },
+    );
+    await nextTick();
+
+    // The name is the bracket spelling form-core addresses, so validators,
+    // errors and field groups match it too.
+    expect(input(capture).name).toBe("tags[0].label");
+    expect(input(capture).value.value).toBe("start");
+
+    input(capture).setValue("from-dot");
+    await nextTick();
+    expect(form(capture).form.state.values.tags?.[0]?.label).toBe("from-dot");
+
+    // The bracket spelling reads and writes the same field.
+    form(capture).form.setFieldValue("tags[0].label", "from-bracket");
+    await nextTick();
+    expect(input(capture).value.value).toBe("from-bracket");
   });
 });
