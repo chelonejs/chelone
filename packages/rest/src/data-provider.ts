@@ -3,6 +3,7 @@ import type {
   FetchJsonResult,
   GetListParams,
   GetListResult,
+  Identifier,
   LooseRecord,
   PageInfo,
 } from "@chelone/core";
@@ -20,6 +21,13 @@ export interface RestDataProviderOptions {
   updateMethod?: "PUT" | "PATCH";
   /** The query parameters for a list call. */
   listQuery?: (params: GetListParams) => Record<string, unknown>;
+  /** The query parameters for a `getMany` call; defaults to `{ id: ids }`. */
+  getManyQuery?: (ids: Identifier[]) => Record<string, unknown>;
+  /**
+   * `true` (the default) fetches many records in one request. `false` makes one
+   * `getOne` call per id, for an API with no multi-id filter.
+   */
+  batchGetMany?: boolean;
   /** Turns a list response into a page of records. */
   parseList?: (response: FetchJsonResult, resource: string) => GetListResult;
   /** Turns a single-record response into a record. */
@@ -94,10 +102,6 @@ export const defaultParseList = (
   };
 };
 
-const notYet = (verb: string) => async (): Promise<never> => {
-  throw new Error(`restDataProvider: ${verb} arrives in a later slice`);
-};
-
 export const defaultParseRecord = (
   response: FetchJsonResult,
   resource: string,
@@ -117,6 +121,8 @@ export function restDataProvider({
   credentials,
   updateMethod = "PUT",
   listQuery = defaultListQuery,
+  getManyQuery = (ids) => ({ id: ids }),
+  batchGetMany = true,
   parseList = defaultParseList,
   parseRecord: customParseRecord,
 }: RestDataProviderOptions): DataProvider {
@@ -144,7 +150,7 @@ export function restDataProvider({
     );
   };
 
-  return {
+  const provider: DataProvider = {
     async getList(resource, params) {
       const response = await request(resource, params.meta, {
         query: listQuery(params),
@@ -188,9 +194,39 @@ export function restDataProvider({
         : parseRecord(response, resource);
       return { data } as never;
     },
-    getMany: notYet("getMany"),
-    getManyReference: notYet("getManyReference"),
-    updateMany: notYet("updateMany"),
-    deleteMany: notYet("deleteMany"),
+    async getMany(resource, { ids, meta }) {
+      // An empty id filter writes no parameter, so the request would list the whole resource.
+      if (ids.length === 0) return { data: [] };
+      if (!batchGetMany) {
+        const results = await Promise.all(
+          ids.map((id) => provider.getOne(resource, { id, meta })),
+        );
+        return { data: results.map(({ data }) => data) } as never;
+      }
+      const response = await request(resource, meta, {
+        query: getManyQuery(ids),
+      });
+      return { data: parseList(response, resource).data } as never;
+    },
+    async getManyReference(resource, { target, id, filter, ...params }) {
+      return provider.getList(resource, {
+        ...params,
+        filter: { ...filter, [target]: id },
+      });
+    },
+    // REST has no standard bulk verb, so each id gets its own call.
+    async updateMany(resource, { ids, data, meta }) {
+      await Promise.all(
+        ids.map((id) => provider.update(resource, { id, data, meta })),
+      );
+      return { data: ids };
+    },
+    async deleteMany(resource, { ids, meta }) {
+      await Promise.all(
+        ids.map((id) => provider.delete(resource, { id, meta })),
+      );
+      return { data: ids };
+    },
   };
+  return provider;
 }
