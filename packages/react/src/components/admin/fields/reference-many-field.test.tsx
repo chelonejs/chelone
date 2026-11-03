@@ -1,4 +1,3 @@
-import type { LooseRecord } from "@chelone/core";
 /**
  * `<ReferenceManyField>` on chelone's `useReferenceManyFieldController`.
  *
@@ -481,8 +480,9 @@ describe("<ReferenceManyField>", () => {
           <ReferenceManyField
             reference="books"
             target="author_id"
-            // A draft has no id yet; the cast is the point of this test.
-            record={{ name: "Draft" } as unknown as LooseRecord}
+            // A draft holds no value for its key field yet.
+            source="draftKey"
+            record={{ id: 1, name: "Draft" }}
           >
             <Probe />
           </ReferenceManyField>
