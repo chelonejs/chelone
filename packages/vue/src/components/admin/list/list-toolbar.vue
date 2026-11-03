@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { Exporter } from "../buttons/export";
+import type { Exporter } from "@chelone/core";
 import type { FilterFormEntry } from "./filter-form.vue";
 
 /** Props for {@link ListToolbar}. */

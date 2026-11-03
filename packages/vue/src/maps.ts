@@ -11,6 +11,10 @@ export {
   type GeoJsonFieldProps,
 } from "./components/maps/geo-json-field.vue";
 export {
+  default as GeoJsonLayers,
+  type GeoJsonLayersProps,
+} from "./components/maps/geo-json-layers.vue";
+export {
   default as GeoJsonView,
   type GeoJsonViewProps,
 } from "./components/maps/geo-json-view.vue";

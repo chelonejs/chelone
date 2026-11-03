@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { FilterButtonEntry } from "../buttons/filter-button.vue";
-import type { Exporter } from "../buttons/export";
+import type { Exporter } from "@chelone/core";
 
 /** Props for {@link ListActions}. */
 export interface ListActionsProps {

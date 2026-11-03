@@ -5,8 +5,10 @@ import {
   type CsvTransform,
   createCsvImportController,
   csvErrorRows,
+  downloadCSV,
   type LooseRecord,
   parseCsvWith,
+  recordsToCSV,
 } from "@chelone/core";
 import { Upload } from "lucide-react";
 import Papa from "papaparse";
@@ -20,7 +22,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { useDropzone } from "react-dropzone";
+import { ErrorCode, type FileRejection, useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -43,10 +45,15 @@ import {
 import { useDataProvider } from "../../../compat-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useResourceContext } from "../../../resource";
-import { downloadCSV, recordsToCSV } from "../buttons/export";
 import { CsvImportContext, useCsvImport } from "./use-csv-import";
 
 const PREVIEW_ROWS = 50;
+
+// readAsText decodes UTF-8 and writes U+FFFD for each byte it cannot read.
+const REPLACEMENT_CHAR = "\uFFFD";
+
+/** What the upload step tells the user beside the file's own parse result. */
+type UploadNotice = "wrong_file" | "not_utf8" | null;
 
 // FileReader rather than Blob.text(), which jsdom does not implement.
 const readText = (file: File) =>
@@ -191,6 +198,8 @@ export function CsvImport({
 
 function CsvImportSteps({ onClose }: { onClose: () => void }) {
   const translate = useTranslate();
+  // Held here so it survives Back from the map step.
+  const [notice, setNotice] = useState<UploadNotice>(null);
   const { state, next, back, reset } = useCsvImport();
   const { step, status } = state;
   const busy = status === "running";
@@ -215,7 +224,9 @@ function CsvImportSteps({ onClose }: { onClose: () => void }) {
         <DialogTitle>{titles[step]}</DialogTitle>
       </DialogHeader>
       <div className="min-h-32">
-        {step === "upload" && <UploadStep />}
+        {step === "upload" && (
+          <UploadStep notice={notice} setNotice={setNotice} />
+        )}
         {step === "map" && <MapStep />}
         {step === "preview" && <PreviewStep />}
         {step === "commit" && <CommitStep />}
@@ -256,7 +267,13 @@ function CsvImportSteps({ onClose }: { onClose: () => void }) {
   );
 }
 
-function UploadStep() {
+function UploadStep({
+  notice,
+  setNotice,
+}: {
+  notice: UploadNotice;
+  setNotice: (notice: UploadNotice) => void;
+}) {
   const translate = useTranslate();
   const { state, loadParsed } = useCsvImport();
 
@@ -265,8 +282,11 @@ function UploadStep() {
       const file = files[0];
       if (!file) return;
       try {
-        loadParsed(parseCsvWith(Papa, await readText(file)), file.name);
+        const text = await readText(file);
+        setNotice(text.includes(REPLACEMENT_CHAR) ? "not_utf8" : null);
+        loadParsed(parseCsvWith(Papa, text), file.name);
       } catch (thrown) {
+        setNotice(null);
         loadParsed(
           {
             headers: [],
@@ -283,12 +303,28 @@ function UploadStep() {
         );
       }
     },
-    [loadParsed],
+    [loadParsed, setNotice],
+  );
+  // The dropzone hands onDrop only the files it accepts. With `multiple: false`
+  // it also rejects several valid files as `too-many-files`, which is not a
+  // wrong file type.
+  const onDropRejected = useCallback(
+    (rejections: FileRejection[]) => {
+      if (
+        rejections.some(({ errors }) =>
+          errors.some(({ code }) => code === ErrorCode.FileInvalidType),
+        )
+      ) {
+        setNotice("wrong_file");
+      }
+    },
+    [setNotice],
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { "text/csv": [".csv"] },
     multiple: false,
     onDrop,
+    onDropRejected,
   });
 
   return (
@@ -307,6 +343,20 @@ function UploadStep() {
         </p>
         {state.fileName && <p className="font-medium">{state.fileName}</p>}
       </div>
+      {notice === "wrong_file" && (
+        <p role="alert" className="text-sm text-destructive">
+          {translate("ra.csv_import.wrong_file", {
+            _: "Choose a .csv file",
+          })}
+        </p>
+      )}
+      {notice === "not_utf8" && (
+        <p role="status" className="text-sm text-destructive">
+          {translate("ra.csv_import.not_utf8", {
+            _: "This file is not UTF-8, so some letters may be wrong. Save it as CSV UTF-8 and try again.",
+          })}
+        </p>
+      )}
       {state.parseError !== null ? (
         <p role="alert" className="text-sm text-destructive">
           {state.parseError}

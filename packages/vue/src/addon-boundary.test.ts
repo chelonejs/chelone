@@ -40,6 +40,13 @@ const ADDONS = [
     packages: ["terra-draw", "terra-draw-maplibre-gl-adapter"],
   },
   {
+    name: "maps-osm",
+    subpath: "maps/osm",
+    folder: "src/components/maps-osm",
+    entry: "src/maps-osm.ts",
+    packages: ["maplibre-gl"],
+  },
+  {
     name: "addon-csv-import",
     subpath: "csv-import",
     folder: "src/components/admin/csv-import",

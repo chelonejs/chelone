@@ -60,6 +60,35 @@ describe("polygonToBBox", () => {
     expect(polygon && polygonToBBox(polygon)).toEqual(bbox);
   });
 
+  it("round-trips a box across the antimeridian", () => {
+    const bbox: GeoBBox = [170, -10, -170, 10];
+    const polygon = bboxToPolygon(bbox);
+    expect(polygon).toEqual(rectangle(170, -10, 190, 10));
+    expect(polygon && polygonToBBox(polygon)).toEqual(bbox);
+  });
+
+  it("keeps a box wider than 180 degrees on the side it was drawn", () => {
+    for (const bbox of [
+      [-100, -10, 100, 10],
+      [-170, -10, 170, 10],
+    ] satisfies GeoBBox[]) {
+      const polygon = bboxToPolygon(bbox);
+      expect(polygon && polygonToBBox(polygon)).toEqual(bbox);
+    }
+  });
+
+  it("round-trips a box across the antimeridian that is wider than 180 degrees", () => {
+    const bbox: GeoBBox = [100, -10, -100, 10];
+    const polygon = bboxToPolygon(bbox);
+    expect(polygon && polygonToBBox(polygon)).toEqual(bbox);
+  });
+
+  it("round-trips the whole world", () => {
+    const bbox: GeoBBox = [-180, -90, 180, 90];
+    const polygon = bboxToPolygon(bbox);
+    expect(polygon && polygonToBBox(polygon)).toEqual(bbox);
+  });
+
   it("returns null for any geometry that is not a Polygon", () => {
     expect(polygonToBBox({ type: "Point", coordinates: [1, 2] })).toBeNull();
     expect(
@@ -105,6 +134,18 @@ describe("aspectLockedBBox", () => {
     expect(east).toBeCloseTo(17, 9);
     expect(south).toBe(0);
     expect(north).toBe(10);
+  });
+
+  it("widens a box across the antimeridian to ratio 2 around its centre", () => {
+    expect(aspectLockedBBox(2)(rectangle(170, -10, 190, 10))).toEqual([
+      160, -10, -160, 10,
+    ]);
+  });
+
+  it("heightens a box across the antimeridian to ratio 1", () => {
+    expect(aspectLockedBBox(1)(rectangle(170, 0, 210, 10))).toEqual([
+      170, -15, -150, 25,
+    ]);
   });
 
   it("returns a Polygon that already matches unchanged", () => {

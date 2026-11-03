@@ -51,8 +51,7 @@ const emptyText = computed(() =>
     v-if="text != null"
     data-slot="json-field"
     :class="cn('font-mono text-sm whitespace-pre-wrap', props.class)"
-    >{{ text }}</pre
-  >
+    >{{ text }}</pre>
   <span v-else-if="emptyText != null" :class="props.class">{{
     emptyText
   }}</span>

@@ -9,6 +9,7 @@
 
 import {
   createI18n,
+  createNotificationStore,
   fakeDataProvider,
   type GeoFeature,
   mapMessages,
@@ -35,14 +36,21 @@ import { MapsProvider } from "../maps/maps-provider";
 import {
   draws,
   type FakeFeature,
+  refuseFeatures,
   resetFake as resetDraws,
 } from "./__fixtures__/fake-terra-draw";
 import {
   mountShapeInput,
+  storedValue,
   toolbarNames,
 } from "./__fixtures__/mount-shape-input";
 import { ShapeInput, type ShapeInputProps } from "./shape-input";
-import { MultiPolygonInput, PointInput, PolygonInput } from "./shape-inputs";
+import {
+  LineStringInput,
+  MultiPolygonInput,
+  PointInput,
+  PolygonInput,
+} from "./shape-inputs";
 
 vi.mock("maplibre-gl", () => import("../maps/__fixtures__/fake-maplibre"));
 vi.mock("terra-draw", () => import("./__fixtures__/fake-terra-draw"));
@@ -108,7 +116,10 @@ function ValueProbe({
 async function setup(
   props: Partial<ShapeInputProps> = {},
   shape: unknown = square(),
-  { ready = true }: { ready?: boolean } = {},
+  {
+    ready = true,
+    messages = mapMessages,
+  }: { ready?: boolean; messages?: Record<string, string> } = {},
 ) {
   let current: ReturnType<typeof useForm<Values>> | undefined;
   function FormHost() {
@@ -129,7 +140,7 @@ async function setup(
     <CheloneProvider
       dataProvider={fakeDataProvider({})}
       queryClient={new QueryClient()}
-      i18n={createI18n({ locale: "en", messages: { en: mapMessages } })}
+      i18n={createI18n({ locale: "en", messages: { en: messages } })}
     >
       <MapsProvider mapStyle={style}>
         <FormHost />
@@ -414,6 +425,12 @@ describe("ShapeInput", () => {
     expect(map().fits).toHaveLength(1);
   });
 
+  it("does not fit a value outside the longitude and latitude range", async () => {
+    const { map } = await setup({}, square(261845));
+
+    expect(map().fits).toHaveLength(0);
+  });
+
   it("does not fit a shape that the user draws first", async () => {
     const { draw, map } = await setup({}, null);
     expect(map().fits).toHaveLength(0);
@@ -491,6 +508,100 @@ describe("ShapeInput", () => {
     expect(value()).toEqual({
       type: "MultiPolygon",
       coordinates: [square(30).coordinates, holed.coordinates],
+    });
+  });
+
+  describe("when the editor refuses a part", () => {
+    const refusedPart = {
+      type: "MultiPolygon",
+      coordinates: [square(0).coordinates, square(20).coordinates],
+    };
+    const NOT_SHOWN = "Part of this shape cannot be shown on the map";
+    const refuseSecondSquare = () =>
+      refuseFeatures((f) =>
+        JSON.stringify(f.geometry) === JSON.stringify(square(20))
+          ? "Feature is invalid"
+          : undefined,
+      );
+
+    it("keeps a part the editor refuses when another part is edited", async () => {
+      refuseSecondSquare();
+      const { draw } = await setup({ kind: "MultiPolygon" }, refusedPart);
+      // The refused square is not drawn.
+      expect(draw().getSnapshot()).toHaveLength(1);
+
+      fireEvent.click(button("Edit"));
+      await act(async () => {
+        const id = storedId(draw().features);
+        draw().replace(id, square(5));
+        draw().emitFinish(id, "dragFeature", "select");
+      });
+
+      expect(value()).toEqual({
+        type: "MultiPolygon",
+        coordinates: [square(5).coordinates, square(20).coordinates],
+      });
+    });
+
+    it("keeps a part the editor refuses when another part is deleted", async () => {
+      refuseSecondSquare();
+      const { draw } = await setup({ kind: "MultiPolygon" }, refusedPart);
+
+      await act(async () => draw().deleteFromStore(storedId(draw().features)));
+
+      expect(value()).toEqual({
+        type: "MultiPolygon",
+        coordinates: [square(20).coordinates],
+      });
+    });
+
+    it("does not redraw the editor after an edit that leaves the refused part alone", async () => {
+      refuseSecondSquare();
+      const { draw } = await setup({ kind: "MultiPolygon" }, refusedPart);
+
+      fireEvent.click(button("Edit"));
+      await act(async () => {
+        const id = storedId(draw().features);
+        draw().replace(id, square(5));
+        draw().emitFinish(id, "dragFeature", "select");
+      });
+
+      expect(draw().added).toHaveLength(1);
+    });
+
+    it("warns that part of the shape cannot be shown", async () => {
+      refuseSecondSquare();
+      await setup({ kind: "MultiPolygon" }, refusedPart);
+
+      expect(screen.getByText(NOT_SHOWN)).toBeTruthy();
+    });
+
+    it("words the warning in English when the app did not merge mapMessages", async () => {
+      refuseSecondSquare();
+      await setup({ kind: "MultiPolygon" }, refusedPart, { messages: {} });
+
+      expect(screen.getByText(NOT_SHOWN)).toBeTruthy();
+    });
+
+    it("shows no warning when the editor takes every part", async () => {
+      await setup({ kind: "MultiPolygon" }, refusedPart);
+
+      expect(screen.queryByText(NOT_SHOWN)).toBeNull();
+    });
+
+    it("drops the warning when the form resets to a shape the editor takes", async () => {
+      refuseSecondSquare();
+      const { form } = await setup({ kind: "MultiPolygon" }, refusedPart);
+      expect(screen.getByText(NOT_SHOWN)).toBeTruthy();
+
+      await act(async () =>
+        form().form.setFieldValue("shape", {
+          type: "MultiPolygon",
+          coordinates: [square(0).coordinates],
+        }),
+      );
+
+      expect(screen.queryByText(NOT_SHOWN)).toBeNull();
     });
   });
 
@@ -713,6 +824,33 @@ describe("ShapeInput cut tool on every kind", () => {
     expect(value().coordinates).toHaveLength(3);
   });
 
+  it("a cut keeps the FeatureCollection's name and crs", async () => {
+    const crs = { type: "name", properties: { name: "EPSG:4326" } };
+    const { draw } = await setup(
+      { kind: "FeatureCollection" },
+      {
+        type: "FeatureCollection",
+        name: "sites",
+        crs,
+        features: [
+          {
+            type: "Feature",
+            geometry: field(0, 0, 10, 10),
+            properties: {},
+          },
+        ],
+      },
+    );
+
+    await drawCutter(draw, field(5, -5, 15, 5));
+
+    const stored = value();
+    expect(stored.name).toBe("sites");
+    expect(stored.crs).toEqual(crs);
+    expect(stored.features).toHaveLength(1);
+    expect(stored.features[0].geometry.coordinates[0]).toHaveLength(7);
+  });
+
   it("cuts a held part of a MultiPolygon", async () => {
     const { draw } = await setup(
       { kind: "MultiPolygon" },
@@ -783,4 +921,93 @@ it("PolygonInput and MultiPolygonInput offer the cut tool and PointInput does no
   resetDraws();
   await mountShapeInput(<PointInput source="shape" />);
   expect(toolbarNames()).not.toContain("Cut a hole");
+});
+
+describe("ShapeInput snap failure", () => {
+  const drawn = {
+    type: "LineString",
+    coordinates: [
+      [0, 0],
+      [1, 1],
+    ],
+  };
+  const failingRouter = {
+    name: "fake",
+    snapToRoad: vi.fn(async () => null),
+  };
+  const warnings = (
+    notifications: ReturnType<typeof createNotificationStore>,
+  ) =>
+    notifications.getSnapshot().map(({ message, type }) => ({ message, type }));
+
+  async function drawLine(draw: () => (typeof draws)[number]) {
+    fireEvent.click(button("Draw a line"));
+    await act(async () => {
+      const id = draw().put(drawn, "linestring");
+      draw().emitFinish(id, "draw", "linestring");
+    });
+  }
+
+  it("warns when snapping to roads fails and keeps the drawn line", async () => {
+    const notifications = createNotificationStore();
+    const { draw } = await mountShapeInput(
+      <LineStringInput
+        source="shape"
+        label="Route"
+        snapToRoads={failingRouter}
+      />,
+      null,
+      {},
+      notifications,
+    );
+    await drawLine(draw);
+
+    expect(warnings(notifications)).toEqual([
+      { message: "chelone.map.snap_failed", type: "warning" },
+    ]);
+    expect(storedValue()).toEqual(drawn);
+  });
+
+  it("warns when the router throws and keeps the drawn line", async () => {
+    const notifications = createNotificationStore();
+    const { draw } = await mountShapeInput(
+      <LineStringInput
+        source="shape"
+        label="Route"
+        snapToRoads={{
+          name: "fake",
+          snapToRoad: async () => {
+            throw new Error("offline");
+          },
+        }}
+      />,
+      null,
+      {},
+      notifications,
+    );
+    await drawLine(draw);
+
+    expect(warnings(notifications)).toEqual([
+      { message: "chelone.map.snap_failed", type: "warning" },
+    ]);
+    expect(storedValue()).toEqual(drawn);
+  });
+
+  it("stays quiet when a refine returns null and names no failure message", async () => {
+    const notifications = createNotificationStore();
+    const { draw } = await mountShapeInput(
+      <ShapeInput
+        source="shape"
+        kind="LineString"
+        label="Route"
+        refine={async () => null}
+      />,
+      null,
+      {},
+      notifications,
+    );
+    await drawLine(draw);
+
+    expect(warnings(notifications)).toEqual([]);
+  });
 });

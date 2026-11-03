@@ -1,7 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.2/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-  "files": { "includes": ["**/*.ts", "**/*.tsx", "**/*.json", "**/*.jsonc"] },
+  "files": {
+    "includes": ["**/*.ts", "**/*.tsx", "**/*.json", "**/*.jsonc", "**/*.vue"]
+  },
   "formatter": { "enabled": true, "indentStyle": "space" },
   "linter": { "enabled": true, "rules": { "recommended": true } },
   "overrides": [
@@ -116,6 +118,751 @@
           }
         }
       }
+    },
+    {
+      "includes": [
+        "packages/core/src/**",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@tanstack/react-form": "@chelone/core wraps @tanstack/form-core directly; the React bridge lives in @chelone/react (and never uses react-form — its useForm cannot accept an external FormApi).",
+                  "@tanstack/react-store": "@chelone/core is vanilla TS — the react-store uSES bridge belongs in @chelone/react.",
+                  "react": "@chelone/core is vanilla TS — no React. Put React code in @chelone/react.",
+                  "react-dom": "@chelone/core must not import react-dom.",
+                  "react-hook-form": "@chelone/core uses @tanstack/form-core, not react-hook-form.",
+                  "react-router": "@chelone/core must not own a router; it owns the vanilla RouterPort seam and injects a RouterAdapter from @chelone/react.",
+                  "@tanstack/react-router": "@chelone/core must not own a router; the tanstackRouterAdapter lives in @chelone/react. Core exposes the vanilla RouterPort + pure path utils only.",
+                  "vue": "@chelone/core is vanilla TS; put Vue code in @chelone/vue.",
+                  "vue-router": "@chelone/core must not own a router; the vue-router RouterAdapter lives in @chelone/vue.",
+                  "@tanstack/vue-query": "@chelone/core uses @tanstack/query-core directly; the Vue query bridge belongs in @chelone/vue.",
+                  "@tanstack/vue-store": "@chelone/core is vanilla TS; the Vue reactivity bridge belongs in @chelone/vue.",
+                  "@tanstack/vue-form": "@chelone/core wraps @tanstack/form-core directly; the Vue form bridge belongs in @chelone/vue.",
+                  "@tanstack/react-query": "@chelone/core uses @tanstack/query-core directly; the React query bridge belongs in @chelone/react.",
+                  "@tanstack/vue-router": "@chelone/core must not own a router; Vue router adapters belong in @chelone/vue."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "**",
+                      "!@tanstack/query-core",
+                      "!@tanstack/form-core",
+                      "!zod",
+                      "!zod/*",
+                      "!node:*",
+                      "!./**",
+                      "!../**",
+                      "!.",
+                      "!.."
+                    ],
+                    "message": "@chelone/core imports only its declared peers (@tanstack/query-core, @tanstack/form-core, zod), node:* and relative paths. Optional peers belong in an add-on."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/supabase/src/**",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**",
+                      "!@chelone/core",
+                      "!@supabase/supabase-js",
+                      "!@supabase/supabase-js/*",
+                      "!node:*",
+                      "!./**",
+                      "!../**",
+                      "!.",
+                      "!.."
+                    ],
+                    "message": "@chelone/supabase imports only its declared dependencies (@chelone/core, @supabase/supabase-js), node:* and relative paths."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/react/src/**",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/react/src/components/maps/**",
+        "packages/react/src/components/maps-draw/**",
+        "packages/react/src/components/maps-osm/**",
+        "packages/react/src/maps.ts",
+        "packages/react/src/maps-draw.ts",
+        "packages/react/src/maps-osm.ts",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/react/src/components/monaco/**",
+        "packages/react/src/monaco.ts",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/react/src/components/mdx-editor/**",
+        "packages/react/src/mdx-editor.ts",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/react/src/components/admin/supabase/**",
+        "packages/react/src/supabase.ts",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/react/src/components/admin/csv-import/**",
+        "packages/react/src/csv-import.ts",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/vue/src/**",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react-dom": "@chelone/vue must not import react-dom.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
+                  "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
+                  "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
+                  "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/vue/src/components/maps/**",
+        "packages/vue/src/components/maps-draw/**",
+        "packages/vue/src/components/maps-osm/**",
+        "packages/vue/src/maps.ts",
+        "packages/vue/src/maps-draw.ts",
+        "packages/vue/src/maps-osm.ts",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react-dom": "@chelone/vue must not import react-dom.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
+                  "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
+                  "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
+                  "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/vue/src/components/monaco/**",
+        "packages/vue/src/monaco.ts",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react-dom": "@chelone/vue must not import react-dom.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
+                  "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
+                  "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
+                  "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/vue/src/components/mdx-editor/**",
+        "packages/vue/src/mdx-editor.ts",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react-dom": "@chelone/vue must not import react-dom.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
+                  "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
+                  "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
+                  "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/vue/src/components/admin/supabase/**",
+        "packages/vue/src/supabase.ts",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react-dom": "@chelone/vue must not import react-dom.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
+                  "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
+                  "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
+                  "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/vue/src/components/admin/csv-import/**",
+        "packages/vue/src/csv-import.ts",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react-dom": "@chelone/vue must not import react-dom.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
+                  "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
+                  "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
+                  "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.vue"],
+      "formatter": {
+        "enabled": false
+      },
+      "assist": {
+        "enabled": false
+      },
+      "linter": {
+        "domains": {
+          "vue": "none"
+        },
+        "rules": {
+          "recommended": false
+        }
+      }
     }
-  ]
+  ],
+  "html": {
+    "experimentalFullSupportEnabled": true
+  }
 }

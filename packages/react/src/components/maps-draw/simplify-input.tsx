@@ -3,6 +3,7 @@ import {
   type GeoJsonValue,
   geoBounds,
   isGeoJsonValue,
+  isLngLatBox,
   type MapStyleInput,
   type ShapeStyle,
 } from "@chelone/core";
@@ -78,7 +79,7 @@ function Preview({
   latest.current = box;
   // biome-ignore lint/correctness/useExhaustiveDependencies: boxKey stands for the box
   useEffect(() => {
-    if (!latest.current) return;
+    if (!isLngLatBox(latest.current)) return;
     map.fitBounds(latest.current, { padding: 20, maxZoom: 18, duration: 0 });
   }, [map, boxKey]);
   return null;

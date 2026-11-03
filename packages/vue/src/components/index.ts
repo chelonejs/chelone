@@ -2,6 +2,12 @@
 // plus the `admin/` SFCs (list/datatable, edit/create, inputs, fields, buttons)
 // wired to the Task 5/6 controller + form composables.
 
+export {
+  defaultExporter,
+  downloadCSV,
+  type Exporter,
+  recordsToCSV,
+} from "@chelone/core";
 // --- admin: auth (V3-a app shell + V3-c auth pages) -----------------------
 export type { AccessDeniedProps } from "./admin/auth/access-denied.vue";
 export { default as AccessDenied } from "./admin/auth/access-denied.vue";
@@ -49,12 +55,6 @@ export type { DualApprovalButtonProps } from "./admin/buttons/dual-approval-butt
 export { default as DualApprovalButton } from "./admin/buttons/dual-approval-button.vue";
 export type { EditButtonProps } from "./admin/buttons/edit-button.vue";
 export { default as EditButton } from "./admin/buttons/edit-button.vue";
-export {
-  defaultExporter,
-  downloadCSV,
-  type Exporter,
-  recordsToCSV,
-} from "./admin/buttons/export";
 export type { ExportButtonProps } from "./admin/buttons/export-button.vue";
 export { default as ExportButton } from "./admin/buttons/export-button.vue";
 export type {
@@ -374,6 +374,8 @@ export type { BulkActionsToolbarProps } from "./admin/list/bulk-actions-toolbar.
 export { default as BulkActionsToolbar } from "./admin/list/bulk-actions-toolbar.vue";
 export type { BulkEditDrawerProps } from "./admin/list/bulk-edit-drawer.vue";
 export { default as BulkEditDrawer } from "./admin/list/bulk-edit-drawer.vue";
+export type { CalendarListProps } from "./admin/list/calendar-list.vue";
+export { default as CalendarList } from "./admin/list/calendar-list.vue";
 export type { CountProps } from "./admin/list/count.vue";
 export { default as Count } from "./admin/list/count.vue";
 export type { DataTableProps } from "./admin/list/data-table.vue";

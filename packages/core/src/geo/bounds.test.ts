@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { geoBounds } from "./bounds";
+import { geoBounds, isLngLatBox } from "./bounds";
 import type { GeoFeatureCollection } from "./geojson";
 
 describe("geoBounds", () => {
@@ -104,5 +104,98 @@ describe("geoBounds", () => {
         ],
       }),
     ).toEqual([3, 4, 3, 4]);
+  });
+});
+
+describe("geoBounds across the antimeridian", () => {
+  it("geoBounds gives the narrow box for a polygon across 180", () => {
+    expect(
+      geoBounds({
+        type: "Polygon",
+        coordinates: [
+          [
+            [170, -10],
+            [190, -10],
+            [190, 10],
+            [170, 10],
+            [170, -10],
+          ],
+        ],
+      }),
+    ).toEqual([170, -10, -170, 10]);
+  });
+
+  it("gives the narrow box when the longitudes are written inside -180 to 180", () => {
+    expect(
+      geoBounds({
+        type: "MultiPoint",
+        coordinates: [
+          [170, 0],
+          [-175, 5],
+          [178, -5],
+        ],
+      }),
+    ).toEqual([170, -5, -175, 5]);
+  });
+
+  it("keeps the plain box when the points are not narrower across 180", () => {
+    expect(
+      geoBounds({
+        type: "MultiPoint",
+        coordinates: [
+          [-100, 0],
+          [0, 0],
+          [100, 0],
+        ],
+      }),
+    ).toEqual([-100, 0, 100, 0]);
+  });
+
+  it("keeps the plain box for a geometry that spans the whole world", () => {
+    expect(
+      geoBounds({
+        type: "Polygon",
+        coordinates: [
+          [
+            [-180, -90],
+            [180, -90],
+            [180, 90],
+            [-180, 90],
+            [-180, -90],
+          ],
+        ],
+      }),
+    ).toEqual([-180, -90, 180, 90]);
+  });
+
+  it("leaves coordinates that are not longitudes alone", () => {
+    expect(
+      geoBounds({
+        type: "MultiPoint",
+        coordinates: [
+          [261845, 6250566],
+          [-261845, 6250000],
+        ],
+      }),
+    ).toEqual([-261845, 6250000, 261845, 6250566]);
+  });
+});
+
+describe("isLngLatBox", () => {
+  it("accepts a box inside -180 to 180 and -90 to 90", () => {
+    expect(isLngLatBox([-180, -90, 180, 90])).toBe(true);
+    expect(isLngLatBox([2, 48, 3, 49])).toBe(true);
+  });
+
+  it("refuses null", () => {
+    expect(isLngLatBox(null)).toBe(false);
+  });
+
+  it("refuses a box outside -180 to 180 and -90 to 90", () => {
+    expect(isLngLatBox([261845, 6250566, 261845, 6250566])).toBe(false);
+    expect(isLngLatBox([0, -91, 1, 0])).toBe(false);
+    expect(isLngLatBox([0, 0, 1, 91])).toBe(false);
+    expect(isLngLatBox([-181, 0, 1, 1])).toBe(false);
+    expect(isLngLatBox([0, 0, 181, 1])).toBe(false);
   });
 });

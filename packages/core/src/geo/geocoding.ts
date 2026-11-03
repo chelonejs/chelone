@@ -28,6 +28,11 @@ export interface GeocodeSearchOptions extends GeocodeRequestOptions {
 export interface GeocodingProvider {
   name: string;
   /**
+   * Stands in for `name` in query keys. Set it when two providers of one
+   * `name` can answer differently, such as by endpoint or language.
+   */
+  cacheKey?: string;
+  /**
    * Whether the service accepts a search per keystroke. When false or absent
    * an input should search on Enter or a button instead.
    */
@@ -61,6 +66,7 @@ export interface GeocodeQuery<TData> {
   queryFn: (context: Pick<QueryFunctionContext, "signal">) => Promise<TData>;
   enabled: boolean;
   staleTime: number;
+  retry?: false;
 }
 
 const FIVE_MINUTES_MS = 5 * 60 * 1000;
@@ -82,7 +88,7 @@ export function geocodeQueryOptions(
   return {
     queryKey: [
       "geocode",
-      provider.name,
+      provider.cacheKey ?? provider.name,
       trimmed,
       countryCodes ?? null,
       viewBox ?? null,
@@ -92,6 +98,8 @@ export function geocodeQueryOptions(
       provider.search(trimmed, { signal, limit, countryCodes, viewBox }),
     enabled: trimmed.length >= minChars,
     staleTime,
+    // A rate-limited public service is not hit again; the caller reports the failure.
+    retry: false,
   };
 }
 
@@ -104,7 +112,12 @@ export function reverseGeocodeQueryOptions(
 ): GeocodeQuery<GeocodeResult | null> {
   const { lat, lng } = position;
   return {
-    queryKey: ["reverse-geocode", provider.name, round5(lat), round5(lng)],
+    queryKey: [
+      "reverse-geocode",
+      provider.cacheKey ?? provider.name,
+      round5(lat),
+      round5(lng),
+    ],
     queryFn: ({ signal }) => provider.reverse(lat, lng, { signal }),
     enabled: Number.isFinite(lat) && Number.isFinite(lng),
     staleTime: options.staleTime ?? FIVE_MINUTES_MS,

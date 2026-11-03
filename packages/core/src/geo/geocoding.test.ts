@@ -1,9 +1,11 @@
+import { QueryClient, QueryObserver } from "@tanstack/query-core";
 import { describe, expect, it, vi } from "vitest";
 import {
   type GeocodingProvider,
   geocodeQueryOptions,
   reverseGeocodeQueryOptions,
 } from "./geocoding";
+import { createNominatimProvider } from "./nominatim";
 
 function fakeProvider(name = "fake") {
   const search = vi.fn<GeocodingProvider["search"]>(async () => []);
@@ -37,6 +39,50 @@ describe("geocodeQueryOptions", () => {
     );
   });
 
+  it("keys a search by the provider's cacheKey", () => {
+    const { provider } = fakeProvider("acme");
+    const keyed = { ...provider, cacheKey: "acme|fr" };
+    const searchKey = geocodeQueryOptions(keyed, "Paris").queryKey;
+    expect(searchKey).toContain("acme|fr");
+    expect(searchKey).not.toContain("acme");
+    expect(
+      geocodeQueryOptions({ ...provider, cacheKey: "acme|de" }, "Paris")
+        .queryKey,
+    ).not.toEqual(searchKey);
+
+    const reverseKey = reverseGeocodeQueryOptions(keyed, {
+      lat: 1,
+      lng: 2,
+    }).queryKey;
+    expect(reverseKey).toContain("acme|fr");
+    expect(reverseKey).not.toContain("acme");
+  });
+
+  it("two Nominatim providers in different languages do not share a key", () => {
+    const endpoint = "https://nominatim.example.test";
+    const english = createNominatimProvider({ endpoint, language: "en" });
+    const french = createNominatimProvider({ endpoint, language: "fr" });
+    expect(geocodeQueryOptions(english, "Paris").queryKey).not.toEqual(
+      geocodeQueryOptions(french, "Paris").queryKey,
+    );
+    expect(
+      reverseGeocodeQueryOptions(english, { lat: 1, lng: 2 }).queryKey,
+    ).not.toEqual(
+      reverseGeocodeQueryOptions(french, { lat: 1, lng: 2 }).queryKey,
+    );
+    const elsewhere = createNominatimProvider({
+      endpoint: "https://other.example.test",
+      language: "en",
+    });
+    expect(geocodeQueryOptions(english, "Paris").queryKey).not.toEqual(
+      geocodeQueryOptions(elsewhere, "Paris").queryKey,
+    );
+    const sameAgain = createNominatimProvider({ endpoint, language: "en" });
+    expect(geocodeQueryOptions(english, "Paris").queryKey).toEqual(
+      geocodeQueryOptions(sameAgain, "Paris").queryKey,
+    );
+  });
+
   it("honours a custom minChars", () => {
     const { provider } = fakeProvider();
     expect(geocodeQueryOptions(provider, "ab", { minChars: 2 }).enabled).toBe(
@@ -57,6 +103,30 @@ describe("geocodeQueryOptions", () => {
       countryCodes: ["fr"],
       viewBox: undefined,
     });
+  });
+
+  it("does not retry a failed search", async () => {
+    const { provider, search } = fakeProvider();
+    search.mockRejectedValue(new Error("429"));
+    // The default of 3 retries is what an app's own QueryClient brings.
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: 3, retryDelay: 1000 } },
+    });
+    const observer = new QueryObserver(
+      client,
+      geocodeQueryOptions(provider, "Paris"),
+    );
+    const unsubscribe = observer.subscribe(() => {});
+    try {
+      await vi.waitFor(
+        () => expect(observer.getCurrentResult().status).toBe("error"),
+        { timeout: 500 },
+      );
+      expect(search).toHaveBeenCalledTimes(1);
+    } finally {
+      unsubscribe();
+      client.clear();
+    }
   });
 });
 

@@ -1,5 +1,5 @@
 export { aspectLockedBBox, bboxToPolygon, polygonToBBox } from "./bbox";
-export { geoBounds } from "./bounds";
+export { geoBounds, isLngLatBox } from "./bounds";
 export {
   countVertices,
   maxVertices,
@@ -22,6 +22,7 @@ export type {
 export { geocodeQueryOptions, reverseGeocodeQueryOptions } from "./geocoding";
 export type {
   GeoBBox,
+  GeoBBox3D,
   GeoFeature,
   GeoFeatureCollection,
   GeoGeometry,
@@ -42,7 +43,11 @@ export {
   isGeoGeometry,
   isGeoJsonValue,
 } from "./geojson";
-export { geoAreaM2, hasSelfIntersection } from "./geometry-math";
+export {
+  areaInTypeOf,
+  geoAreaM2,
+  hasSelfIntersection,
+} from "./geometry-math";
 export type { ShapeLayerSpec, ShapeStyle } from "./map-layers";
 export {
   asFeatureCollection,

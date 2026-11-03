@@ -3,6 +3,7 @@ import {
   type GeoFeature,
   geoBounds,
   heldFeatures,
+  isLngLatBox,
   type MapStyleInput,
   maxVertices,
   minAreaM2,
@@ -26,8 +27,10 @@ import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
 import { FieldError, FieldLegend, FieldSet } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
+import { useCheloneNotifications } from "../../context";
 import { ValidationError } from "../../field-error-display";
 import { useInput } from "../../form-hooks";
+import { useTranslate } from "../../i18n-hooks";
 import { useGeoJsonSource } from "../maps/geo-json-field";
 import { MapCanvas, useMap } from "../maps/map-canvas";
 import { DrawToolbar } from "./draw-toolbar";
@@ -84,9 +87,41 @@ export interface ShapeInputProps {
   aspectRatio?: number;
   /** Frame the first value on the map. The user's own edits never refit. Defaults to true. */
   fitBounds?: boolean;
-  /** Called with the stored value after each drawing or edit has been written to the form. */
+  /** Called with the stored value after each drawing or edit has been written to the form, and again after `refine` writes a changed one. */
   onCommit?: (value: ShapeValue | null) => void;
+  /**
+   * Adjusts the value after the user's own drawing or edit, such as snapping a
+   * line to roads. It runs once the edit is in the form, never on load or
+   * reset, and a newer edit or an unmount aborts `signal`. A result that is
+   * not null and differs is written, unless the field changed meanwhile. A
+   * thrown error keeps the value as drawn. A null result is "nothing to
+   * change" unless `refineFailedMessage` is set, which a throw also notifies.
+   */
+  refine?: (
+    value: ShapeValue,
+    options: { signal: AbortSignal },
+  ) => Promise<ShapeValue | null> | ShapeValue | null;
+  /**
+   * Message key notified as a warning when `refine` resolves to null or throws
+   * (an abort excepted), and the value is kept as drawn. `LineStringInput` sets it for
+   * `snapToRoads`.
+   */
+  refineFailedMessage?: string;
   className?: string;
+}
+
+function sameValue(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const keysA = Object.keys(a);
+  if (keysA.length !== Object.keys(b).length) return false;
+  return keysA.every((key) =>
+    sameValue(
+      (a as Record<string, unknown>)[key],
+      (b as Record<string, unknown>)[key],
+    ),
+  );
 }
 
 const AREA_TOOLS: ToolbarTool[] = [
@@ -159,7 +194,7 @@ function Editor({
   );
   useGeoJsonSource(map, heldId, heldData, shapeStyle ?? {});
 
-  const { selectedId, deleteSelected } = useTerraDraw({
+  const { selectedId, deleteSelected, refused } = useTerraDraw({
     features,
     tool,
     disabled,
@@ -169,8 +204,8 @@ function Editor({
     onEdit,
   });
   useEffect(() => {
-    onControls({ selectedId, deleteSelected });
-  }, [selectedId, deleteSelected, onControls]);
+    onControls({ selectedId, deleteSelected, refused });
+  }, [selectedId, deleteSelected, refused, onControls]);
   useEffect(() => () => onControls(null), [onControls]);
   return null;
 }
@@ -198,7 +233,7 @@ function FitToShape({
     [features, held],
   );
   useEffect(() => {
-    if (fitted.current || !box) return;
+    if (fitted.current || !isLngLatBox(box)) return;
     fitted.current = true;
     if (value === written.current) return;
     map.fitBounds(box, { padding: 20, maxZoom: 18, duration: 0 });
@@ -209,6 +244,7 @@ function FitToShape({
 const NO_CONTROLS: UseTerraDrawResult = {
   selectedId: null,
   deleteSelected: () => {},
+  refused: [],
 };
 
 /**
@@ -246,6 +282,8 @@ export function ShapeInput({
   aspectRatio,
   fitBounds = true,
   onCommit,
+  refine,
+  refineFailedMessage,
   className,
 }: ShapeInputProps) {
   // The limits run before the caller's validators.
@@ -269,6 +307,7 @@ export function ShapeInput({
       validate,
     ],
   );
+  const translate = useTranslate();
   const { field, fieldState, isRequired } = useInput({
     source,
     validate: validators,
@@ -288,20 +327,82 @@ export function ShapeInput({
 
   const [tool, setTool] = useState<DrawTool | null>(null);
   const [controls, setControls] = useState<UseTerraDrawResult | null>(null);
+  const controlsRef = useRef(controls);
+  controlsRef.current = controls;
   // What the last edit wrote, so the first shape the user draws is not framed.
   const written = useRef<unknown>(undefined);
-  const latest = useRef({ field, kind, aspectRatio, onCommit });
-  latest.current = { field, kind, aspectRatio, onCommit };
+  const notifications = useCheloneNotifications();
+  const latest = useRef({
+    field,
+    kind,
+    aspectRatio,
+    onCommit,
+    refine,
+    refineFailedMessage,
+    notifications,
+  });
+  latest.current = {
+    field,
+    kind,
+    aspectRatio,
+    onCommit,
+    refine,
+    refineFailedMessage,
+    notifications,
+  };
+  const refining = useRef<AbortController | null>(null);
+  useEffect(() => () => refining.current?.abort(), []);
+
+  const runRefine = async (committed: ShapeValue) => {
+    const refineValue = latest.current.refine;
+    if (!refineValue) return;
+    const abort = new AbortController();
+    refining.current = abort;
+    const warnFailed = () => {
+      const now = latest.current;
+      if (now.refineFailedMessage) {
+        now.notifications?.notify(now.refineFailedMessage, { type: "warning" });
+      }
+    };
+    let result: ShapeValue | null;
+    try {
+      result = await refineValue(committed, { signal: abort.signal });
+    } catch {
+      // A failed refinement keeps the value as the user drew it.
+      if (!abort.signal.aborted) warnFailed();
+      return;
+    }
+    if (abort.signal.aborted) return;
+    if (result === null) {
+      warnFailed();
+      return;
+    }
+    const now = latest.current;
+    // Only an untouched field takes the result: anything else was edited since.
+    if (now.field.value !== committed || sameValue(result, committed)) return;
+    written.current = result;
+    now.field.onChange(result);
+    now.field.onBlur();
+    now.onCommit?.(result);
+  };
 
   const onEdit = (edit: TerraDrawEdit) => {
     const now = latest.current;
-    let features = edit.features;
-    let prev = now.field.value;
+    // A newer edit makes any pending refinement stale, whatever the edit is.
+    refining.current?.abort();
+    // A part the editor refused is not in the edit: it stays in the value, as
+    // the held parts do. A single-shape value takes the new drawing instead.
+    const refused = HOLDS_MANY.has(now.kind)
+      ? (controlsRef.current?.refused ?? [])
+      : [];
+    let features = [...edit.features, ...refused];
+    const prev = now.field.value;
+    let addHeld = true;
     if (edit.type === "cut") {
       // The tool clears either way; a cut that touched nothing commits nothing.
       setTool(null);
       // The editor holds no polygon with a hole, so the held parts are cut too.
-      // The result then holds every part, and no held part is added back.
+      // The result then holds every part, so `prev` only lends its own members.
       const cut = cutFeatures(
         [...features, ...heldFeatures(now.kind, prev)],
         edit.cutter,
@@ -310,19 +411,21 @@ export function ShapeInput({
       // A single-shape value stores the last feature: a split would lose the rest.
       if (!HOLDS_MANY.has(now.kind) && cut.features.length > 1) return;
       features = cut.features;
-      if (HOLDS_MANY.has(now.kind)) prev = null;
+      addHeld = false;
     }
     const next = featuresToShape(now.kind, features, prev, {
       aspectRatio: now.aspectRatio,
+      addHeld,
     });
     written.current = next;
     now.field.onChange(next);
     now.field.onBlur();
     if (edit.type === "draw") setTool(null);
     now.onCommit?.(next);
+    if (next !== null) void runRefine(next);
   };
 
-  const { selectedId, deleteSelected } = controls ?? NO_CONTROLS;
+  const { selectedId, deleteSelected, refused } = controls ?? NO_CONTROLS;
 
   return (
     <FieldSet
@@ -374,6 +477,16 @@ export function ShapeInput({
           />
         ) : null}
       </MapCanvas>
+      {refused.length > 0 ? (
+        <p
+          data-slot="shape-input-warning"
+          className="text-sm text-amber-600 dark:text-amber-500"
+        >
+          {translate("chelone.map.shape_not_shown", {
+            _: "Part of this shape cannot be shown on the map",
+          })}
+        </p>
+      ) : null}
       <InputHelperText helperText={helperText} />
       <FieldError>
         {invalid && error ? <ValidationError error={error} /> : null}

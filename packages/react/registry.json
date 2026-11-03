@@ -1248,10 +1248,6 @@
           "type": "registry:component"
         },
         {
-          "path": "src/components/admin/buttons/export.ts",
-          "type": "registry:component"
-        },
-        {
           "path": "src/components/admin/buttons/filter-button.tsx",
           "type": "registry:component"
         },
@@ -2258,8 +2254,8 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/button", "@chelone/export"],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2416,23 +2412,9 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/button", "@chelone/export"],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
-      "author": "Chelone <https://chelone.dev>"
-    },
-    {
-      "name": "export",
-      "type": "registry:component",
-      "title": "Export",
-      "files": [
-        {
-          "path": "src/components/admin/buttons/export.ts",
-          "type": "registry:component"
-        }
-      ],
-      "dependencies": ["@chelone/core"],
-      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -5193,12 +5175,11 @@
       ],
       "registryDependencies": [
         "@chelone/create-button",
-        "@chelone/export",
         "@chelone/export-button",
         "@chelone/filter-button",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5248,12 +5229,11 @@
         }
       ],
       "registryDependencies": [
-        "@chelone/export",
         "@chelone/filter-form",
         "@chelone/lib-utils",
         "@chelone/list-actions"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5796,10 +5776,6 @@
           "type": "registry:component"
         },
         {
-          "path": "src/components/monaco/internal/strip-json-comments.ts",
-          "type": "registry:component"
-        },
-        {
           "path": "src/components/monaco/internal/use-json-schema.ts",
           "type": "registry:component"
         },
@@ -5842,19 +5818,6 @@
         "@chelone/use-theme"
       ],
       "dependencies": ["monaco-editor"],
-      "categories": ["chelone", "components"],
-      "author": "Chelone <https://chelone.dev>"
-    },
-    {
-      "name": "strip-json-comments",
-      "type": "registry:component",
-      "title": "Strip Json Comments",
-      "files": [
-        {
-          "path": "src/components/monaco/internal/strip-json-comments.ts",
-          "type": "registry:component"
-        }
-      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5946,7 +5909,6 @@
         "@chelone/lib-utils",
         "@chelone/monaco-json-input",
         "@chelone/monaco-shared",
-        "@chelone/strip-json-comments",
         "@chelone/use-json-schema",
         "@chelone/use-monaco-markers"
       ],
@@ -5992,6 +5954,7 @@
         "@chelone/lib-field-types",
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils",
+        "@chelone/textarea",
         "@chelone/use-theme"
       ],
       "dependencies": ["@chelone/react", "@mdxeditor/editor"],
@@ -6010,6 +5973,10 @@
         },
         {
           "path": "src/components/mdx-editor/mdx-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/mdx-editor/safe-html-image-plugin.ts",
           "type": "registry:component"
         }
       ],
@@ -6058,6 +6025,7 @@
         "@chelone/lib-unknown-types",
         "@chelone/lib-utils",
         "@chelone/mdx-editor-dark.css",
+        "@chelone/safe-html-image-plugin",
         "@chelone/use-theme"
       ],
       "dependencies": ["@chelone/react", "@mdxeditor/editor"],
@@ -6082,10 +6050,26 @@
         "@chelone/input-props",
         "@chelone/lib-utils",
         "@chelone/mdx-editor-dark.css",
+        "@chelone/safe-html-image-plugin",
+        "@chelone/textarea",
         "@chelone/use-theme"
       ],
       "dependencies": ["@chelone/react", "@mdxeditor/editor"],
       "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "safe-html-image-plugin",
+      "type": "registry:component",
+      "title": "Safe Html Image Plugin",
+      "files": [
+        {
+          "path": "src/components/mdx-editor/safe-html-image-plugin.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@mdxeditor/editor"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6213,7 +6197,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils", "@chelone/maps-provider"],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6261,6 +6245,7 @@
         "@chelone/input-helper-text",
         "@chelone/lib-utils",
         "@chelone/map-canvas",
+        "@chelone/maps-provider",
         "@chelone/slider",
         "@chelone/toggle-group",
         "maps"
@@ -6389,9 +6374,11 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/maps-provider",
         "@chelone/shape-input",
         "@chelone/use-terra-draw"
       ],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6454,6 +6441,8 @@
         "@chelone/lat-lng-input",
         "@chelone/lib-utils",
         "@chelone/maps-provider",
+        "@chelone/skeleton",
+        "@chelone/ui-spinner",
         "maps"
       ],
       "dependencies": [
@@ -6462,6 +6451,7 @@
         "@turf/buffer",
         "@turf/difference",
         "@turf/union",
+        "lucide-react",
         "maplibre-gl",
         "osm2geojson-lite"
       ],
@@ -6475,6 +6465,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/maps-osm/osm-feature-operator.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/maps-osm/osm-features.ts",
           "type": "registry:component"
         },
@@ -6483,11 +6477,19 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/maps-osm/reverse-geocode-field.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/maps-osm/use-geocode.ts",
           "type": "registry:component"
         },
         {
           "path": "src/components/maps-osm/use-osm-features.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/use-reverse-geocode.ts",
           "type": "registry:component"
         }
       ],
@@ -6537,6 +6539,34 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "osm-feature-operator",
+      "type": "registry:component",
+      "title": "Osm Feature Operator",
+      "files": [
+        {
+          "path": "src/components/maps-osm/osm-feature-operator.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/maps-provider",
+        "@chelone/osm-features",
+        "@chelone/osm-geometry-ops",
+        "@chelone/ui-spinner"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "lucide-react",
+        "maplibre-gl"
+      ],
+      "devDependencies": ["@tanstack/react-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "osm-features",
       "type": "registry:component",
       "title": "Osm Features",
@@ -6576,6 +6606,25 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "reverse-geocode-field",
+      "type": "registry:component",
+      "title": "Reverse Geocode Field",
+      "files": [
+        {
+          "path": "src/components/maps-osm/reverse-geocode-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/skeleton",
+        "@chelone/use-reverse-geocode"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "use-geocode",
       "type": "registry:component",
       "title": "Use Geocode",
@@ -6611,6 +6660,22 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "use-reverse-geocode",
+      "type": "registry:component",
+      "title": "Use Reverse Geocode",
+      "files": [
+        {
+          "path": "src/components/maps-osm/use-reverse-geocode.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/maps-provider"],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "devDependencies": ["@tanstack/react-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "addon-csv-import",
       "type": "registry:block",
       "title": "Chelone CSV Import",
@@ -6619,7 +6684,6 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/dialog",
-        "@chelone/export",
         "@chelone/native-select",
         "@chelone/progress",
         "@chelone/table"
@@ -6656,7 +6720,6 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/dialog",
-        "@chelone/export",
         "@chelone/native-select",
         "@chelone/progress",
         "@chelone/table",

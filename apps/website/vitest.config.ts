@@ -16,6 +16,11 @@ export default defineConfig({
   esbuild: { jsx: "automatic" },
   resolve: {
     alias: [
+      // Website-only lib module; must precede the package-wide `@/lib/` alias.
+      {
+        find: /^@\/lib\/shiki-theme$/,
+        replacement: `${wwwSrc}/lib/shiki-theme`,
+      },
       { find: /^@\/components\//, replacement: `${reactPkgSrc}/components/` },
       { find: /^@\/hooks\//, replacement: `${reactPkgSrc}/hooks/` },
       // The website has no `lib/` beyond utils + shiki-theme; the package's
@@ -35,6 +40,10 @@ export default defineConfig({
     // The docs engine's pure-logic tests (nav / nav-sequence / registry) run
     // under `node --test` (node:test), not vitest — exclude them here so vitest
     // owns the jsdom render tests and generator CLI tests (in node).
-    include: ["src/**/*.test.tsx", "scripts/**/*.test.ts"],
+    include: [
+      "src/**/*.test.tsx",
+      "src/landing/**/*.test.ts",
+      "scripts/**/*.test.ts",
+    ],
   },
 });

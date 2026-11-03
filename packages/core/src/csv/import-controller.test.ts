@@ -77,8 +77,28 @@ describe("createCsvImportController", () => {
     expect(state()).toMatchObject({
       headers: ["Name"],
       rows: [],
-      parseError: "Too few fields",
+      parseError: "Row 2: Too few fields",
     });
+  });
+
+  it("names the row of a parse error", () => {
+    const { controller, state } = setup({ schema: undefined });
+    controller.loadParsed({
+      headers: ["a", "b", "c"],
+      rows: [{ a: "1", b: "2", c: "3" }],
+      errors: [
+        {
+          code: "TooFewFields",
+          row: 2,
+          message: "Too few fields: expected 3 fields but parsed 2",
+        },
+      ],
+    });
+
+    expect(state().parseError).toBe(
+      "Row 2: Too few fields: expected 3 fields but parsed 2",
+    );
+    expect(state().rows).toEqual([]);
   });
 
   it("next on upload stays put until a file with rows is loaded", async () => {
@@ -162,6 +182,21 @@ describe("createCsvImportController", () => {
     expect(state().step).toBe("map");
 
     controller.setMapping("email", "Other");
+    expect(await controller.next()).toBe(true);
+    expect(state().step).toBe("preview");
+  });
+
+  it("does not advance with no field mapped", async () => {
+    const { controller, state } = setup({ schema: undefined });
+    controller.loadParsed(parsed([{ a: "1", b: "2" }]));
+    await controller.next();
+    controller.setMapping("a", "");
+    controller.setMapping("b", "");
+
+    expect(await controller.next()).toBe(false);
+    expect(state().step).toBe("map");
+
+    controller.setMapping("b", "b");
     expect(await controller.next()).toBe(true);
     expect(state().step).toBe("preview");
   });

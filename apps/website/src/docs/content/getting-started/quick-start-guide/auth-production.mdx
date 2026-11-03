@@ -20,17 +20,17 @@ import type { AuthProvider } from "@chelone/core";
 
 export const authProvider: AuthProvider = {
   // Called when the user submits the login form.
-  async login({ username }) {
+  async login({ email }) {
     // Accept everyone for the tutorial; call your auth API here instead.
-    localStorage.setItem("username", String(username));
+    localStorage.setItem("email", String(email));
   },
   // Called when the user clicks logout.
   async logout() {
-    localStorage.removeItem("username");
+    localStorage.removeItem("email");
   },
   // Called on every navigation to confirm the user is still authenticated.
   async checkAuth() {
-    if (!localStorage.getItem("username")) {
+    if (!localStorage.getItem("email")) {
       throw new Error("Authentication required");
     }
   },
@@ -38,7 +38,7 @@ export const authProvider: AuthProvider = {
   async checkError(error) {
     const status = (error as { status?: number })?.status;
     if (status === 401 || status === 403) {
-      localStorage.removeItem("username");
+      localStorage.removeItem("email");
       throw new Error("Session expired");
     }
   },

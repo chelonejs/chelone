@@ -1,4 +1,3 @@
-import type { z } from "zod";
 import type { ResourceConfig } from "./registry";
 
 /** The field components both adapters export. Each adapter keeps one exhaustive map over this. */
@@ -64,61 +63,178 @@ export interface ResourceDescriptor {
 }
 
 /**
- * The parts of a Zod 3 `_def` this module reads. Read through `typeName`
- * rather than `instanceof`, so a schema built by another copy of zod still
- * describes. A Zod 4 schema has no `typeName` and describes as `undefined`.
+ * What this module reads from a schema, whichever Zod major built it. Zod 3 is
+ * read through `_def.typeName` and Zod 4 through `_zod.def.type`, rather than
+ * `instanceof`, so a schema built by another copy of zod still describes. A
+ * schema from any other Standard Schema library has neither and reads as
+ * `unknown`.
  */
-interface Def {
-  typeName?: string;
-  description?: string;
-  innerType?: z.ZodTypeAny;
-  schema?: z.ZodTypeAny;
-  type?: z.ZodTypeAny;
-  in?: z.ZodTypeAny;
-  checks?: { kind: string }[];
-  values?: readonly string[] | Record<string, string | number>;
-  options?: z.ZodTypeAny[];
+interface Node {
+  /** Lowercase, shared by both majors: `string`, `optional`, `enum`, `array`... */
+  type: string;
+  /** String format checks: `email`, `url`, `date`, `datetime`. */
+  formats: Set<string>;
+  /** An enum's declared entries; a native enum's include its reverse keys. */
+  entries?: Record<string, string | number>;
+  /** A union's members. */
+  options?: unknown[];
+  /** A literal's value. */
   value?: unknown;
-  shape?: () => Record<string, z.ZodTypeAny>;
+  /** An array's element schema. */
+  element?: unknown;
+  shape?: Record<string, unknown>;
+  /** The schema a wrapper (optional, default, pipe...) hands on to. */
+  inner?: unknown;
 }
 
-const defOf = (schema: z.ZodTypeAny): Def => schema._def as Def;
+type Bag = Record<string, unknown>;
+
+const bagOf = (value: unknown): Bag | undefined =>
+  typeof value === "object" && value !== null ? (value as Bag) : undefined;
+
+const stripZod = (typeName: string) =>
+  typeName.replace(/^Zod/, "").toLowerCase();
+
+const formatsOf = (checks: unknown, format: unknown) => {
+  const formats = new Set<string>();
+  if (typeof format === "string") formats.add(format);
+  if (Array.isArray(checks)) {
+    for (const check of checks) {
+      // A Zod 3 check is `{ kind }`; a Zod 4 check is a schema over `_zod.def`.
+      const legacy = bagOf(check)?.kind;
+      const modern = bagOf(bagOf(bagOf(check)?._zod)?.def)?.format;
+      for (const found of [legacy, modern]) {
+        if (typeof found === "string") formats.add(found);
+      }
+    }
+  }
+  return formats;
+};
+
+function readZod3(def: Bag): Node {
+  const typeName = typeof def.typeName === "string" ? def.typeName : "";
+  const node: Node = {
+    type: stripZod(typeName),
+    formats: formatsOf(def.checks, undefined),
+  };
+  switch (typeName) {
+    case "ZodOptional":
+    case "ZodNullable":
+    case "ZodDefault":
+    case "ZodCatch":
+    case "ZodReadonly":
+      node.inner = def.innerType;
+      break;
+    case "ZodBranded":
+      node.inner = def.type;
+      break;
+    case "ZodEffects":
+      node.inner = def.schema;
+      break;
+    case "ZodPipeline":
+      node.inner = def.in;
+      break;
+    case "ZodEnum":
+      node.entries = Object.fromEntries(
+        (def.values as string[]).map((value) => [value, value]),
+      );
+      break;
+    case "ZodNativeEnum":
+      node.type = "enum";
+      node.entries = def.values as Record<string, string | number>;
+      break;
+    case "ZodUnion":
+      node.options = def.options as unknown[];
+      break;
+    case "ZodLiteral":
+      node.value = def.value;
+      break;
+    case "ZodArray":
+      node.element = def.type;
+      break;
+    case "ZodObject":
+      if (typeof def.shape === "function") {
+        node.shape = (def.shape as () => Record<string, unknown>)();
+      }
+      break;
+  }
+  return node;
+}
+
+function readZod4(def: Bag): Node {
+  const type = typeof def.type === "string" ? def.type : "";
+  const node: Node = {
+    type,
+    formats: formatsOf(def.checks, def.format),
+  };
+  switch (type) {
+    case "optional":
+    case "nullable":
+    case "nonoptional":
+    case "default":
+    case "prefault":
+    case "catch":
+    case "readonly":
+      node.inner = def.innerType;
+      break;
+    case "pipe": {
+      // `z.preprocess(fn, schema)` is `fn` piped into `schema`: the field is the schema.
+      const into = bagOf(bagOf(bagOf(def.in)?._zod)?.def)?.type;
+      node.inner = into === "transform" ? def.out : def.in;
+      break;
+    }
+    case "enum":
+      node.entries = def.entries as Record<string, string | number>;
+      break;
+    case "union":
+      node.options = def.options as unknown[];
+      break;
+    case "literal":
+      node.value = (def.values as unknown[] | undefined)?.[0];
+      // A literal of several values is not one choice.
+      if ((def.values as unknown[] | undefined)?.length !== 1) {
+        node.type = "literals";
+      }
+      break;
+    case "array":
+      node.element = def.element;
+      break;
+    case "object":
+      node.shape = def.shape as Record<string, unknown>;
+      break;
+  }
+  return node;
+}
+
+function read(schema: unknown): Node {
+  const zod4 = bagOf(bagOf(bagOf(schema)?._zod)?.def);
+  if (zod4) return readZod4(zod4);
+  const zod3 = bagOf(bagOf(schema)?._def);
+  if (zod3) return readZod3(zod3);
+  return { type: "unknown", formats: new Set() };
+}
+
+const descriptionOf = (schema: unknown) => {
+  const description = bagOf(schema)?.description;
+  return typeof description === "string" ? description : undefined;
+};
 
 interface Unwrapped {
-  def: Def;
+  node: Node;
   label?: string;
 }
 
-function unwrap(schema: z.ZodTypeAny): Unwrapped {
+function unwrap(schema: unknown): Unwrapped {
   let current = schema;
   let label: string | undefined;
   // A wrapper cycle is not possible in Zod; the bound only guards a malformed def.
   for (let depth = 0; depth < 64; depth++) {
-    const def = defOf(current);
-    label ??= def.description;
-    let next: z.ZodTypeAny | undefined;
-    switch (def.typeName) {
-      case "ZodOptional":
-      case "ZodNullable":
-      case "ZodDefault":
-      case "ZodCatch":
-      case "ZodReadonly":
-        next = def.innerType;
-        break;
-      case "ZodBranded":
-        next = def.type;
-        break;
-      case "ZodEffects":
-        next = def.schema;
-        break;
-      case "ZodPipeline":
-        next = def.in;
-        break;
-    }
-    if (!next) return { def, label };
-    current = next;
+    const node = read(current);
+    label ??= descriptionOf(current);
+    if (node.inner === undefined) return { node, label };
+    current = node.inner;
   }
-  return { def: defOf(current), label };
+  return { node: read(current), label };
 }
 
 const unsupported = (reason: string) => ({
@@ -126,14 +242,10 @@ const unsupported = (reason: string) => ({
   reason,
 });
 
-const reasonOf = (typeName: string | undefined) =>
-  `${(typeName ?? "unknown").replace(/^Zod/, "").toLowerCase()} schema`;
-
 type Described = Omit<FieldDescriptor, "source" | "primary" | "label">;
 
-function describeString(def: Def): Described {
-  const kinds = new Set((def.checks ?? []).map((check) => check.kind));
-  if (kinds.has("datetime")) {
+function describeString({ formats }: Node): Described {
+  if (formats.has("datetime")) {
     return {
       kind: "dateTime",
       field: "DateField",
@@ -141,13 +253,13 @@ function describeString(def: Def): Described {
       fieldProps: { showTime: true },
     };
   }
-  if (kinds.has("date")) {
+  if (formats.has("date")) {
     return { kind: "date", field: "DateField", input: "DateInput" };
   }
-  if (kinds.has("email")) {
+  if (formats.has("email")) {
     return { kind: "email", field: "EmailField", input: "TextInput" };
   }
-  if (kinds.has("url")) {
+  if (formats.has("url")) {
     return { kind: "url", field: "UrlField", input: "TextInput" };
   }
   return { kind: "text", field: "TextField", input: "TextInput" };
@@ -165,23 +277,22 @@ function select(choices: { id: string | number; name: string }[]): Described {
 const toChoices = (ids: (string | number)[]) =>
   ids.map((id) => ({ id, name: String(id) }));
 
-function describeNativeEnum(def: Def): Described {
-  const enumObject = def.values as Record<string, string | number>;
+function describeEnum({ entries = {} }: Node): Described {
   // A numeric enum also maps each value back to its key; those keys point at a
   // number-valued entry in turn, which a declared key never does.
-  const ids = Object.keys(enumObject)
-    .filter((key) => typeof enumObject[enumObject[key] as string] !== "number")
-    .map((key) => enumObject[key] as string | number);
+  const ids = Object.keys(entries)
+    .filter((key) => typeof entries[entries[key] as string] !== "number")
+    .map((key) => entries[key] as string | number);
   return select(toChoices(ids));
 }
 
-function describeUnion(def: Def): Described {
+function describeUnion({ options = [] }: Node): Described {
   const ids: (string | number)[] = [];
-  for (const option of def.options ?? []) {
-    const { def: member } = unwrap(option);
+  for (const option of options) {
+    const { node: member } = unwrap(option);
     const value = member.value;
     if (
-      member.typeName !== "ZodLiteral" ||
+      member.type !== "literal" ||
       (typeof value !== "string" && typeof value !== "number")
     ) {
       return unsupported("union schema");
@@ -191,58 +302,54 @@ function describeUnion(def: Def): Described {
   return select(toChoices(ids));
 }
 
-function describeArray(def: Def): Described {
-  const element = def.type ? unwrap(def.type).def : undefined;
-  if (element?.typeName === "ZodString") {
+function describeArray({ element }: Node): Described {
+  const member = element === undefined ? undefined : unwrap(element).node;
+  if (member?.type === "string") {
     return {
       kind: "textArray",
       field: "TextArrayField",
       input: "TextArrayInput",
     };
   }
-  if (element?.typeName === "ZodObject") return unsupported("array of objects");
-  return unsupported(
-    `array of ${(element?.typeName ?? "unknown").replace(/^Zod/, "").toLowerCase()}s`,
-  );
+  if (member?.type === "object") return unsupported("array of objects");
+  return unsupported(`array of ${member?.type ?? "unknown"}s`);
 }
 
-function describeKind(def: Def): Described {
-  switch (def.typeName) {
-    case "ZodString":
-      return describeString(def);
-    case "ZodNumber":
+function describeKind(node: Node): Described {
+  switch (node.type) {
+    case "string":
+      return describeString(node);
+    case "number":
       return { kind: "number", field: "NumberField", input: "NumberInput" };
-    case "ZodBoolean":
+    case "boolean":
       return { kind: "boolean", field: "BooleanField", input: "BooleanInput" };
-    case "ZodDate":
+    case "date":
       return { kind: "date", field: "DateField", input: "DateInput" };
-    case "ZodEnum":
-      return select(toChoices([...(def.values as readonly string[])]));
-    case "ZodNativeEnum":
-      return describeNativeEnum(def);
-    case "ZodUnion":
-      return describeUnion(def);
-    case "ZodArray":
-      return describeArray(def);
+    case "enum":
+      return describeEnum(node);
+    case "union":
+      return describeUnion(node);
+    case "array":
+      return describeArray(node);
     default:
-      return unsupported(reasonOf(def.typeName));
+      return unsupported(`${node.type || "unknown"} schema`);
   }
 }
 
 function describeField(
   source: string,
-  schema: z.ZodTypeAny,
+  schema: unknown,
   references: ResourceConfig["references"],
 ): FieldDescriptor {
-  const { def, label } = unwrap(schema);
+  const { node, label } = unwrap(schema);
   const target =
     references && Object.hasOwn(references, source)
       ? references[source]
       : undefined;
   const described: Described =
     target === undefined
-      ? describeKind(def)
-      : def.typeName === "ZodArray"
+      ? describeKind(node)
+      : node.type === "array"
         ? {
             kind: "referenceArray",
             field: "ReferenceArrayField",
@@ -264,7 +371,7 @@ function describeField(
 }
 
 /**
- * Turns a resource's registered Zod schema into one descriptor per field, in
+ * Turns a resource's registered Zod schema (Zod 3 or Zod 4) into one descriptor per field, in
  * schema key order. Returns `undefined` when there is no schema to read or it
  * is not an object. Both adapters' guessers build their views from this, never
  * from fetched values.
@@ -274,15 +381,13 @@ export function describeResource(
   config: ResourceConfig | undefined,
 ): ResourceDescriptor | undefined {
   if (!config?.schema) return undefined;
-  const { def } = unwrap(config.schema);
-  if (def.typeName !== "ZodObject" || typeof def.shape !== "function") {
-    return undefined;
-  }
-  const shape = def.shape();
+  const { node } = unwrap(config.schema);
+  if (node.type !== "object" || !node.shape) return undefined;
+  const { shape } = node;
   return {
     resource,
     fields: Object.keys(shape).map((source) =>
-      describeField(source, shape[source] as z.ZodTypeAny, config.references),
+      describeField(source, shape[source], config.references),
     ),
   };
 }

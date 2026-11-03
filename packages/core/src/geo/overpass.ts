@@ -6,6 +6,11 @@ export interface OverpassRequestOptions {
 
 export interface OverpassProvider {
   name: string;
+  /**
+   * Stands in for `name` in query keys. Set it when two providers of one
+   * `name` can answer differently, such as by endpoint.
+   */
+  cacheKey?: string;
   /** Runs an Overpass QL query and resolves to the parsed JSON answer. */
   query(query: string, options?: OverpassRequestOptions): Promise<unknown>;
 }
@@ -78,6 +83,7 @@ export function createOverpassProvider(
 
   return {
     name: "overpass",
+    cacheKey: `overpass|${url}`,
 
     async query(query, { signal } = {}) {
       // Not `AbortSignal.timeout`: a caller's signal must not replace the
@@ -146,7 +152,7 @@ export function overpassQueryOptions(
   options: OverpassQueryOptions = {},
 ): OverpassQuery {
   return {
-    queryKey: ["overpass", provider.name, query],
+    queryKey: ["overpass", provider.cacheKey ?? provider.name, query],
     queryFn: ({ signal }) => provider.query(query, { signal }),
     enabled: query.trim() !== "",
     staleTime: options.staleTime ?? ONE_HOUR_MS,

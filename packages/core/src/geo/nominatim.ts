@@ -94,6 +94,7 @@ export function createNominatimProvider(
 
   return {
     name: "nominatim",
+    cacheKey: `nominatim|${base}|${language}`,
     typeahead: options.typeahead ?? false,
 
     async search(query: string, searchOptions: GeocodeSearchOptions = {}) {

@@ -4,6 +4,7 @@ import {
   type GeoJsonValue,
   geoBounds,
   isGeoJsonValue,
+  isLngLatBox,
   type MapStyleInput,
   type ShapeStyle,
   shapeLayerSpecs,
@@ -98,21 +99,36 @@ interface GeoJSONSourceLike {
   setData(data: GeoFeatureCollection): unknown;
 }
 
-interface LayersProps extends GeoJsonViewProps {
-  data: GeoFeatureCollection;
-  value: GeoJsonValue;
+/** Props for {@link GeoJsonLayers}: the framing options, and the data to draw. */
+export interface GeoJsonLayersProps
+  extends Pick<
+    GeoJsonViewProps,
+    "shapeStyle" | "fitBounds" | "fitPadding" | "maxFitZoom"
+  > {
+  /** A Geometry, Feature or FeatureCollection. */
+  data: GeoJsonValue;
 }
 
-function GeoJsonLayers({
-  data,
-  value,
+/**
+ * Draws a Geometry, Feature or FeatureCollection on the surrounding
+ * `MapCanvas` and frames the map around it. Throws outside a `MapCanvas`: use
+ * `GeoJsonView` for a map of its own.
+ *
+ * @example
+ * <MapCanvas>
+ *   <GeoJsonLayers data={{ type: "Point", coordinates: [2.35, 48.85] }} />
+ * </MapCanvas>
+ */
+export function GeoJsonLayers({
+  data: value,
   shapeStyle,
   fitBounds = true,
   fitPadding = 20,
   maxFitZoom = 18,
-}: LayersProps) {
+}: GeoJsonLayersProps) {
   const map = useMap();
   const sourceId = `geo-json-${useId()}`;
+  const data = useMemo(() => asFeatureCollection(value), [value]);
   useGeoJsonSource(map, sourceId, data, shapeStyle ?? {});
 
   const box = useMemo(() => geoBounds(value), [value]);
@@ -124,7 +140,7 @@ function GeoJsonLayers({
   // biome-ignore lint/correctness/useExhaustiveDependencies: boxKey stands for the box
   useEffect(() => {
     const now = latest.current;
-    if (!fitBounds || !now.box) return;
+    if (!fitBounds || !isLngLatBox(now.box)) return;
     map.fitBounds(now.box, {
       padding: now.fitPadding,
       maxZoom: now.maxFitZoom,
@@ -137,7 +153,8 @@ function GeoJsonLayers({
 
 /**
  * A map showing a Geometry, Feature or FeatureCollection, framed to fit it.
- * `GeoJsonField` and the drawing inputs' read-only state use it.
+ * `GeoJsonField` and the drawing inputs' read-only state use it. To draw on a
+ * `MapCanvas` you already have, use `GeoJsonLayers`.
  *
  * @example
  * <GeoJsonView data={{ type: "Point", coordinates: [2.35, 48.85] }} />
@@ -150,7 +167,6 @@ export function GeoJsonView({
   className,
   ...layers
 }: GeoJsonViewProps & { data: GeoJsonValue }) {
-  const collection = useMemo(() => asFeatureCollection(data), [data]);
   return (
     <MapCanvas
       height={height}
@@ -158,7 +174,7 @@ export function GeoJsonView({
       scrollZoom={scrollZoom}
       className={className}
     >
-      <GeoJsonLayers data={collection} value={data} {...layers} />
+      <GeoJsonLayers data={data} {...layers} />
     </MapCanvas>
   );
 }
@@ -177,7 +193,7 @@ export function GeoJsonFieldBody({
   ...view
 }: FieldBodyProps) {
   const translate = useTranslate();
-  if (!isGeoJsonValue(value)) {
+  if (!isGeoJsonValue(value) || !isLngLatBox(geoBounds(value))) {
     return (
       <div
         data-slot="geo-json-field-empty"

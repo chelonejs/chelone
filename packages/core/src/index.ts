@@ -180,6 +180,12 @@ export {
   savedQueriesKey,
 } from "./controller/saved-queries";
 export { resolveNotificationKey } from "./controller/translate-fallback";
+export {
+  defaultExporter,
+  downloadCSV,
+  type Exporter,
+  recordsToCSV,
+} from "./csv/export";
 export { createCsvImportController } from "./csv/import-controller";
 export { matchCsvHeaders } from "./csv/match-headers";
 export { parseCsvWith } from "./csv/parse-with";
@@ -401,7 +407,7 @@ export {
   required,
 } from "./form/validators";
 export { aspectLockedBBox, bboxToPolygon, polygonToBBox } from "./geo/bbox";
-export { geoBounds } from "./geo/bounds";
+export { geoBounds, isLngLatBox } from "./geo/bounds";
 export {
   countVertices,
   maxVertices,
@@ -431,6 +437,7 @@ export {
 } from "./geo/geocoding";
 export type {
   GeoBBox,
+  GeoBBox3D,
   GeoFeature,
   GeoFeatureCollection,
   GeoGeometry,
@@ -451,7 +458,11 @@ export {
   isGeoGeometry,
   isGeoJsonValue,
 } from "./geo/geojson";
-export { geoAreaM2, hasSelfIntersection } from "./geo/geometry-math";
+export {
+  areaInTypeOf,
+  geoAreaM2,
+  hasSelfIntersection,
+} from "./geo/geometry-math";
 export type { ShapeLayerSpec, ShapeStyle } from "./geo/map-layers";
 export {
   asFeatureCollection,
@@ -532,6 +543,7 @@ export {
   createTranslatableController,
   getRecordForLocale,
 } from "./i18n/translatable";
+export { stripJsonComments } from "./json/strip-json-comments";
 export type {
   Notification,
   NotificationStore,

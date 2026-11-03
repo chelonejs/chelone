@@ -45,7 +45,13 @@ export interface CsvImportProps {
  * `useCsvImport()`.
  */
 
-import { createCsvImportController, csvErrorRows, parseCsvWith } from "@chelone/core";
+import {
+  createCsvImportController,
+  csvErrorRows,
+  downloadCSV,
+  parseCsvWith,
+  recordsToCSV,
+} from "@chelone/core";
 import type { CsvImportState, CsvRow, LooseRecord } from "@chelone/core";
 import Papa from "papaparse";
 import { computed, onScopeDispose, provide, ref } from "vue";
@@ -65,11 +71,13 @@ import {
   TableHeader,
   TableRow,
 } from "../../ui/table";
-import { downloadCSV, recordsToCSV } from "../buttons/export";
 import { UploadIcon } from "./upload-icon";
 import { CsvImportKey, type CsvImportContextValue } from "./use-csv-import";
 
 const PREVIEW_ROWS = 50;
+
+// readAsText decodes UTF-8 and writes U+FFFD for each byte it cannot read.
+const REPLACEMENT_CHAR = "\uFFFD";
 
 const props = defineProps<CsvImportProps>();
 
@@ -114,13 +122,20 @@ provide(CsvImportKey, context);
 
 const open = ref(false);
 
+// What the upload step tells the user beside the file's own parse result.
+const notice = ref<"wrong_file" | "not_utf8" | null>(null);
+
 function onOpenChange(next: boolean) {
   open.value = next;
-  if (!next) controller.reset();
+  if (!next) {
+    controller.reset();
+    notice.value = null;
+  }
 }
 
 function onClose() {
   controller.reset();
+  notice.value = null;
   open.value = false;
 }
 
@@ -157,8 +172,11 @@ const readText = (file: File) =>
 
 async function loadFile(file: File) {
   try {
-    controller.loadParsed(parseCsvWith(Papa, await readText(file)), file.name);
+    const text = await readText(file);
+    notice.value = text.includes(REPLACEMENT_CHAR) ? "not_utf8" : null;
+    controller.loadParsed(parseCsvWith(Papa, text), file.name);
   } catch (thrown) {
+    notice.value = null;
     controller.loadParsed(
       {
         headers: [],
@@ -193,7 +211,9 @@ const isCsv = (file: File) =>
 function onDrop(event: DragEvent) {
   dragging.value = false;
   const file = event.dataTransfer?.files?.[0];
-  if (file && isCsv(file)) void loadFile(file);
+  if (!file) return;
+  if (isCsv(file)) void loadFile(file);
+  else notice.value = "wrong_file";
 }
 
 // Map step.
@@ -283,6 +303,16 @@ function downloadErrors() {
           </p>
           <p v-if="state.fileName" class="font-medium">{{ state.fileName }}</p>
         </div>
+        <p v-if="notice === 'wrong_file'" role="alert" class="text-sm text-destructive">
+          {{ translate("ra.csv_import.wrong_file", { _: "Choose a .csv file" }) }}
+        </p>
+        <p v-if="notice === 'not_utf8'" role="status" class="text-sm text-destructive">
+          {{
+            translate("ra.csv_import.not_utf8", {
+              _: "This file is not UTF-8, so some letters may be wrong. Save it as CSV UTF-8 and try again.",
+            })
+          }}
+        </p>
         <p
           v-if="state.parseError !== null"
           role="alert"

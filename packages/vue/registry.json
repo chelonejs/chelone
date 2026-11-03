@@ -637,10 +637,6 @@
           "type": "registry:component"
         },
         {
-          "path": "src/components/admin/buttons/export.ts",
-          "type": "registry:component"
-        },
-        {
           "path": "src/components/admin/buttons/filter-button.vue",
           "type": "registry:component"
         },
@@ -1257,6 +1253,30 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/calendar-agenda-view.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/calendar-event.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/calendar-header.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/calendar-list.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/calendar-month-view.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/calendar-week-view.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/count-spinner.vue",
           "type": "registry:component"
         },
@@ -1747,12 +1767,8 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": [
-        "@chelone/button",
-        "@chelone/button-icons",
-        "@chelone/export"
-      ],
-      "dependencies": ["@chelone/vue"],
+      "registryDependencies": ["@chelone/button", "@chelone/button-icons"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1912,27 +1928,9 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": [
-        "@chelone/button",
-        "@chelone/button-icons",
-        "@chelone/export"
-      ],
-      "dependencies": ["@chelone/vue"],
+      "registryDependencies": ["@chelone/button", "@chelone/button-icons"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "buttons"],
-      "author": "Chelone <https://chelone.dev>"
-    },
-    {
-      "name": "export",
-      "type": "registry:component",
-      "title": "Export",
-      "files": [
-        {
-          "path": "src/components/admin/buttons/export.ts",
-          "type": "registry:component"
-        }
-      ],
-      "dependencies": ["@chelone/core"],
-      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -4537,6 +4535,107 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "calendar-agenda-view",
+      "type": "registry:component",
+      "title": "Calendar Agenda View",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-agenda-view.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/calendar-event",
+        "@chelone/calendar-month-view"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-event",
+      "type": "registry:component",
+      "title": "Calendar Event",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-event.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-header",
+      "type": "registry:component",
+      "title": "Calendar Header",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-header.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/list-icons"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-list",
+      "type": "registry:component",
+      "title": "Calendar List",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-list.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/calendar-agenda-view",
+        "@chelone/calendar-header",
+        "@chelone/calendar-month-view",
+        "@chelone/calendar-week-view",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-month-view",
+      "type": "registry:component",
+      "title": "Calendar Month View",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-month-view.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "calendar-week-view",
+      "type": "registry:component",
+      "title": "Calendar Week View",
+      "files": [
+        {
+          "path": "src/components/admin/list/calendar-week-view.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/calendar-event",
+        "@chelone/calendar-month-view"
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "count-spinner",
       "type": "registry:component",
       "title": "Count Spinner",
@@ -4771,12 +4870,11 @@
       ],
       "registryDependencies": [
         "@chelone/create-button",
-        "@chelone/export",
         "@chelone/export-button",
         "@chelone/filter-button",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4839,11 +4937,11 @@
         }
       ],
       "registryDependencies": [
-        "@chelone/export",
         "@chelone/filter-form",
         "@chelone/lib-utils",
         "@chelone/list-actions"
       ],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5430,10 +5528,6 @@
           "type": "registry:component"
         },
         {
-          "path": "src/components/monaco/internal/strip-json-comments.ts",
-          "type": "registry:component"
-        },
-        {
           "path": "src/components/monaco/internal/use-json-schema.ts",
           "type": "registry:component"
         },
@@ -5486,19 +5580,6 @@
         }
       ],
       "registryDependencies": ["@chelone/skeleton"],
-      "categories": ["chelone", "components"],
-      "author": "Chelone <https://chelone.dev>"
-    },
-    {
-      "name": "strip-json-comments",
-      "type": "registry:component",
-      "title": "Strip Json Comments",
-      "files": [
-        {
-          "path": "src/components/monaco/internal/strip-json-comments.ts",
-          "type": "registry:component"
-        }
-      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5589,7 +5670,6 @@
         "@chelone/lib-utils",
         "@chelone/monaco-composables",
         "@chelone/monaco-json-input",
-        "@chelone/strip-json-comments",
         "@chelone/use-json-schema",
         "@chelone/use-monaco-markers",
         "@chelone/validation-error"
@@ -5734,9 +5814,9 @@
       "description": "The opt-in maps add-on: MapCanvas and MapMarker wrap MapLibre GL, MapsProvider sets the basemap once, and LatLngField shows a point from two record fields. Installs maplibre-gl.",
       "registryDependencies": [
         "@chelone/field",
+        "@chelone/field-label-text",
         "@chelone/input",
         "@chelone/input-helper-text",
-        "@chelone/label-text",
         "@chelone/lib-utils",
         "@chelone/validation-error"
       ],
@@ -5748,6 +5828,10 @@
         },
         {
           "path": "src/components/maps/geo-json-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps/geo-json-layers.vue",
           "type": "registry:component"
         },
         {
@@ -5806,13 +5890,27 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": [
-        "@chelone/geo-json-view",
-        "@chelone/lib-utils",
-        "@chelone/map-canvas"
-      ],
+      "registryDependencies": ["@chelone/geo-json-view", "@chelone/lib-utils"],
       "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "geo-json-layers",
+      "type": "registry:component",
+      "title": "Geo Json Layers",
+      "files": [
+        {
+          "path": "src/components/maps/geo-json-layers.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/use-geo-json-source",
+        "@chelone/use-map"
+      ],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -5826,8 +5924,8 @@
         }
       ],
       "registryDependencies": [
-        "@chelone/use-geo-json-source",
-        "@chelone/use-map"
+        "@chelone/geo-json-layers",
+        "@chelone/map-canvas"
       ],
       "dependencies": ["@chelone/core", "maplibre-gl"],
       "categories": ["chelone", "components"],
@@ -5864,9 +5962,9 @@
       ],
       "registryDependencies": [
         "@chelone/field",
+        "@chelone/field-label-text",
         "@chelone/input",
         "@chelone/input-helper-text",
-        "@chelone/label-text",
         "@chelone/lib-utils",
         "@chelone/map-canvas",
         "@chelone/use-map",
@@ -5887,7 +5985,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils", "@chelone/use-map"],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5945,9 +6043,9 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/field",
-        "@chelone/geo-json-view",
+        "@chelone/field-label-text",
+        "@chelone/geo-json-layers",
         "@chelone/input-helper-text",
-        "@chelone/label-text",
         "@chelone/lib-utils",
         "@chelone/map-canvas",
         "@chelone/use-geo-json-source",
@@ -6075,10 +6173,9 @@
       "registryDependencies": [
         "@chelone/draw-toolbar",
         "@chelone/field",
-        "@chelone/geo-json-view",
+        "@chelone/field-label-text",
         "@chelone/geometry-ops",
         "@chelone/input-helper-text",
-        "@chelone/label-text",
         "@chelone/lib-utils",
         "@chelone/map-canvas",
         "@chelone/use-geo-json-source",
@@ -6102,6 +6199,7 @@
       ],
       "registryDependencies": [
         "@chelone/shape-input",
+        "@chelone/use-map",
         "@chelone/use-terra-draw"
       ],
       "dependencies": ["@chelone/core"],
@@ -6121,10 +6219,10 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/field",
-        "@chelone/geo-json-view",
+        "@chelone/field-label-text",
+        "@chelone/geo-json-layers",
         "@chelone/geometry-ops",
         "@chelone/input-helper-text",
-        "@chelone/label-text",
         "@chelone/lib-utils",
         "@chelone/map-canvas",
         "@chelone/validation-error"
@@ -6153,6 +6251,267 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "maps-osm",
+      "type": "registry:block",
+      "title": "Chelone Maps OpenStreetMap",
+      "categories": ["chelone", "fields"],
+      "docs": "The library names no geocoding service. Pass a provider to each component, or set geocoder on MapsProvider, for example createNominatimProvider({ endpoint }) from @chelone/core. A public Nominatim server has a usage policy and allows no search per keystroke, so the input searches on Enter or on its button.",
+      "description": "The opt-in maps add-on for pieces that call a network service: GeocodingInput searches an address with a geocoding provider and fills its coordinates, and MapWithSearch puts that search over a map. Installs maplibre-gl, and the maps block.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/lat-lng-input",
+        "@chelone/lib-utils",
+        "@chelone/skeleton",
+        "@chelone/ui-spinner",
+        "@chelone/use-map",
+        "@chelone/validation-error",
+        "maps"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@turf/buffer",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl",
+        "osm2geojson-lite"
+      ],
+      "files": [
+        {
+          "path": "src/components/maps-osm/geocoding-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/map-with-search.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/osm-feature-operator.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/osm-feature-operators.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/osm-features.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/osm-geometry-ops.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/reverse-geocode-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/use-geocode.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/use-osm-features.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/maps-osm/use-reverse-geocode.ts",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "geocoding-input",
+      "type": "registry:component",
+      "title": "Geocoding Input",
+      "files": [
+        {
+          "path": "src/components/maps-osm/geocoding-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/lib-utils",
+        "@chelone/use-geocode",
+        "@chelone/use-map",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "map-with-search",
+      "type": "registry:component",
+      "title": "Map With Search",
+      "files": [
+        {
+          "path": "src/components/maps-osm/map-with-search.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/geocoding-input",
+        "@chelone/lat-lng-input",
+        "@chelone/lib-utils",
+        "@chelone/use-map"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "devDependencies": ["@tanstack/vue-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "osm-feature-operator",
+      "type": "registry:component",
+      "title": "Osm Feature Operator",
+      "files": [
+        {
+          "path": "src/components/maps-osm/osm-feature-operator.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/osm-features",
+        "@chelone/osm-geometry-ops",
+        "@chelone/ui-spinner",
+        "@chelone/use-map"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "devDependencies": ["@tanstack/vue-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "osm-feature-operators",
+      "type": "registry:component",
+      "title": "Osm Feature Operators",
+      "files": [
+        {
+          "path": "src/components/maps-osm/osm-feature-operators.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/osm-feature-operator"],
+      "categories": ["chelone", "components"],
+      "dependencies": ["maplibre-gl"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "osm-features",
+      "type": "registry:component",
+      "title": "Osm Features",
+      "files": [
+        {
+          "path": "src/components/maps-osm/osm-features.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/buffer",
+        "maplibre-gl",
+        "osm2geojson-lite"
+      ],
+      "devDependencies": ["@tanstack/vue-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "osm-geometry-ops",
+      "type": "registry:component",
+      "title": "Osm Geometry Ops",
+      "files": [
+        {
+          "path": "src/components/maps-osm/osm-geometry-ops.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reverse-geocode-field",
+      "type": "registry:component",
+      "title": "Reverse Geocode Field",
+      "files": [
+        {
+          "path": "src/components/maps-osm/reverse-geocode-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/skeleton",
+        "@chelone/use-reverse-geocode"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-geocode",
+      "type": "registry:component",
+      "title": "Use Geocode",
+      "files": [
+        {
+          "path": "src/components/maps-osm/use-geocode.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/use-map"],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "devDependencies": ["@tanstack/vue-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-osm-features",
+      "type": "registry:component",
+      "title": "Use Osm Features",
+      "files": [
+        {
+          "path": "src/components/maps-osm/use-osm-features.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/osm-features", "@chelone/use-map"],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "devDependencies": ["@tanstack/vue-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-reverse-geocode",
+      "type": "registry:component",
+      "title": "Use Reverse Geocode",
+      "files": [
+        {
+          "path": "src/components/maps-osm/use-reverse-geocode.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/use-map"],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "devDependencies": ["@tanstack/vue-query"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "addon-csv-import",
       "type": "registry:block",
       "title": "Chelone CSV Import",
@@ -6160,7 +6519,6 @@
       "description": "The opt-in CSV import add-on: CsvImport adds an Import button that opens a four-step sheet (upload, map columns, preview, import) and useCsvImport reads its state. Installs papaparse.",
       "registryDependencies": [
         "@chelone/button",
-        "@chelone/export",
         "@chelone/linear-progress",
         "@chelone/native-select",
         "@chelone/sheet",
@@ -6195,7 +6553,6 @@
       ],
       "registryDependencies": [
         "@chelone/button",
-        "@chelone/export",
         "@chelone/linear-progress",
         "@chelone/native-select",
         "@chelone/sheet",

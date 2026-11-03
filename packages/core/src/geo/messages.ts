@@ -5,8 +5,12 @@ import { defineMessages } from "../i18n/messages";
  * `{ ...defaultMessages, ...mapMessages }`. Shares no key with it.
  */
 export const mapMessages = defineMessages({
+  "chelone.map.load_failed": "The map could not be loaded",
   "chelone.map.no_coordinates": "No coordinates",
   "chelone.map.no_geometry": "No geometry",
+  "chelone.map.shape_not_shown":
+    "Part of this shape cannot be shown on the map",
+  "chelone.map.snap_failed": "The line could not be snapped to roads",
   "chelone.map.toolbar": "Map tools",
   "chelone.map.tool.draw_point": "Draw a point",
   "chelone.map.tool.draw_line": "Draw a line",
@@ -21,6 +25,7 @@ export const mapMessages = defineMessages({
   "chelone.map.search_button": "Search",
   "chelone.map.searching": "Searching...",
   "chelone.map.no_results": "No results",
+  "chelone.map.search_failed": "The search failed, try again shortly",
   "chelone.map.simplify.tolerance": "Tolerance: {value}",
   "chelone.map.simplify.default": "Default",
   "chelone.map.simplify.high": "High",
@@ -32,6 +37,8 @@ export const mapMessages = defineMessages({
   "chelone.map.osm.covered": "The polygon is already covered",
   "chelone.map.osm.subtracted": "Subtracted {area}",
   "chelone.map.osm.added": "Added {area}",
+  "chelone.map.osm.would_split":
+    "The result has more than one piece, so the polygon was left as it was",
   "chelone.map.osm.union_empty": "The union is empty",
   "chelone.map.osm.error": "OpenStreetMap request failed",
   "chelone.map.osm.rate_limited":

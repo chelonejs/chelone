@@ -7,7 +7,7 @@ A headless admin engine: a vanilla-TypeScript core with thin React and Vue adapt
 - `@chelone/core` is framework-free: no React, Vue, or router imports. Biome's `noRestrictedImports` fails the lint on them, and the override in `biome.json` says where each belongs.
 - `@chelone/vue` never imports `@chelone/react` or any React package; both adapters subscribe to core independently.
 - Parity: a feature lands in vanilla core, or in both adapters in the same pull request. A React-only change to shared behaviour is half a change. When a ticket names one adapter only, say so in the pull request.
-- Biome does not lint `.vue` files. For them, `vue-tsc` (the Vue package's `typecheck`) is the gate.
+- Biome checks `.vue` files for imports only (`noRestrictedImports`; no formatter, no other rule). `vue-tsc` (the Vue package's `typecheck`) is the gate for the rest. The import fences: core imports only `@tanstack/query-core`, `@tanstack/form-core`, `zod`, `node:*` and relative paths; `@chelone/supabase` only `@chelone/core` and `@supabase/supabase-js`; in both adapters each heavy optional peer (maps, monaco, mdx-editor, supabase, papaparse) is importable only from its add-on's `components/` folder and entry file. Test files are exempt.
 
 ## Working on a ticket
 
@@ -15,8 +15,10 @@ A headless admin engine: a vanilla-TypeScript core with thin React and Vue adapt
 - Test first. Tests use vitest and run with `--typecheck`; a run passes only when the summary shows `Type Errors  no errors` and the command exits 0.
 - Test from the outside: mount the component under `<Admin>` (see the harnesses in `packages/vue/src/components/admin/inputs/*.test.ts` and `packages/react/src/components/admin/inputs/*.test.tsx`) and assert DOM, roles and data-provider calls. jsdom applies no CSS, so never assert styling.
 - A package that imports a dependency declares it in its own `package.json`. pnpm hoisting can hide a missing one locally; CI's fresh install will not.
-- After adding, moving or removing a React or Vue component file, run `pnpm --dir packages/react registry:generate` or `pnpm --dir packages/vue registry:generate` and commit that package's `registry.json`. CI fails on a stale one.
+- After adding, moving or removing a React or Vue component file, or changing what one imports, run `pnpm --dir packages/react registry:generate` or `pnpm --dir packages/vue registry:generate` and commit that package's `registry.json`. CI fails on a stale one.
 - Comment only what would surprise the next reader.
+- Before writing a helper, search core and the other adapter for one. Logic both adapters need goes in core.
+- `pnpm check:duplication` (jscpd, counted per file pair against `duplication-baseline.json`) fails on new duplication and names both copies. Remove the copy instead. `pnpm check:duplication --update` is only for a pull request that removes or moves duplication, never to let a new clone through.
 - Run `pnpm format` before every commit: `pnpm lint` fails on any file Biome would reformat. The pre-push hook in `.githooks/` runs `pnpm lint` and refuses the push when it fails; `pnpm install` turns it on.
 - Commits: a conventional prefix (`feat:`, `fix:`, `test:`, `chore:`, `docs:`, `refactor:`) and a body that says why. Pull request bodies: a short bullet list of what changed, no em dashes, no bold.
 
@@ -42,6 +44,9 @@ pnpm --dir packages/vue registry:build
 ### Issue tracker
 
 Issues live in GitHub Issues on `chelonejs/chelone`, managed with the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+- An issue that changes behaviour in one adapter carries an `Adapter reach:` line under `Touches:`: `React and Vue in this issue`, or the open issue that ports it to the other adapter, filed at the same time. Logic both adapters need moves to core in that issue.
+- An issue that renders stored or user-supplied content (markdown, HTML, URLs, file names) or reads a credential or token has an acceptance criterion with a named test that feeds it hostile input (a `javascript:` URL, a raw `<iframe>`, a token left in the URL) and pins that nothing runs or leaks.
 
 ### Triage labels
 

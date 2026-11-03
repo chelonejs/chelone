@@ -2,6 +2,7 @@
 import {
   type GeoFeature,
   geoBounds,
+  isLngLatBox,
   type MapStyleInput,
   maxVertices,
   minAreaM2,
@@ -20,7 +21,6 @@ import {
   toRaw,
   watch,
 } from "vue";
-import { isLngLatBox } from "../maps/geo-json-view.vue";
 import {
   uniqueGeoJsonSourceId,
   useGeoJsonSource,
@@ -79,7 +79,32 @@ export interface ShapeInputProps {
   aspectRatio?: number;
   /** Frame the first value on the map. The user's own edits never refit. Defaults to true. */
   fitBounds?: boolean;
+  /**
+   * Adjusts the value after the user's own drawing or edit, such as snapping a
+   * line to roads. It runs once the edit is in the form, never on load or
+   * reset, and a newer edit or an unmount aborts `signal`. A result that is
+   * not null and differs is written, unless the field changed meanwhile. A
+   * thrown error keeps the value as drawn.
+   */
+  refine?: (
+    value: ShapeValue,
+    options: { signal: AbortSignal },
+  ) => Promise<ShapeValue | null> | ShapeValue | null;
   class?: string;
+}
+
+function sameValue(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const keysA = Object.keys(a);
+  if (keysA.length !== Object.keys(b).length) return false;
+  return keysA.every((key) =>
+    sameValue(
+      (a as Record<string, unknown>)[key],
+      (b as Record<string, unknown>)[key],
+    ),
+  );
 }
 
 /** What the last edit wrote, so the first shape the user draws is not framed. */
@@ -231,7 +256,7 @@ import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import InputHelperText from "../admin/common/input-helper-text.vue";
 import ValidationError from "../admin/common/validation-error.vue";
-import { humanizeSource } from "../admin/inputs/label-text";
+import FieldLabelText from "../admin/common/field-label-text.vue";
 import MapCanvas from "../maps/map-canvas.vue";
 import { FieldError } from "../ui/field";
 import DrawToolbar from "./draw-toolbar.vue";
@@ -256,10 +281,11 @@ const props = withDefaults(defineProps<ShapeInputProps>(), {
   shapeStyle: undefined,
   aspectRatio: undefined,
   fitBounds: true,
+  refine: undefined,
 });
 
 const emit = defineEmits<{
-  /** After each drawing or edit has been written to the form, with the stored value. */
+  /** After each drawing or edit has been written to the form, with the stored value, and again after `refine` writes a changed one. */
   commit: [value: ShapeValue | null];
 }>();
 
@@ -295,22 +321,50 @@ const written: Written = { current: undefined };
 const invalid = computed(
   () => input.touched.value && input.error.value != null,
 );
-const legend = computed(() =>
-  props.label === false
-    ? null
-    : translate(props.label ?? humanizeSource(props.source), {
-        _: props.label ?? humanizeSource(props.source),
-      }),
-);
+
+let refining: AbortController | null = null;
+onBeforeUnmount(() => refining?.abort());
+
+async function runRefine(committed: ShapeValue) {
+  const refineValue = props.refine;
+  if (!refineValue) return;
+  const abort = new AbortController();
+  refining = abort;
+  try {
+    const result = await refineValue(committed, { signal: abort.signal });
+    if (abort.signal.aborted || result === null) return;
+    // Only an untouched field takes the result: anything else was edited since.
+    if (
+      toRaw(input.value.value) !== toRaw(committed) ||
+      sameValue(result, committed)
+    ) {
+      return;
+    }
+    written.current = result;
+    input.setValue(result);
+    input.blur();
+    emit("commit", result);
+  } catch {
+    // A failed refinement keeps the value as the user drew it.
+  }
+}
 
 function onEdit(edit: TerraDrawEdit) {
-  let features = edit.features;
-  let prev = input.value.value;
+  // A newer edit makes any pending refinement stale, whatever the edit is.
+  refining?.abort();
+  // A part the editor refused is not in the edit: it stays in the value, as
+  // the held parts do. A single-shape value takes the new drawing instead.
+  const refused = HOLDS_MANY.has(props.kind)
+    ? (controls.value?.refused.value ?? [])
+    : [];
+  let features = [...edit.features, ...refused];
+  const prev = input.value.value;
+  let addHeld = true;
   if (edit.type === "cut") {
     // The tool clears either way; a cut that touched nothing commits nothing.
     tool.value = null;
     // The editor holds no polygon with a hole, so the held parts are cut too.
-    // The result then holds every part, and no held part is added back.
+    // The result then holds every part, so `prev` only lends its own members.
     const cut = cutFeatures(
       [...features, ...heldFeatures(props.kind, prev)],
       edit.cutter,
@@ -319,16 +373,18 @@ function onEdit(edit: TerraDrawEdit) {
     // A single-shape value stores the last feature: a split would lose the rest.
     if (!HOLDS_MANY.has(props.kind) && cut.features.length > 1) return;
     features = cut.features;
-    if (HOLDS_MANY.has(props.kind)) prev = null;
+    addHeld = false;
   }
   const next = featuresToShape(props.kind, features, prev, {
     aspectRatio: props.aspectRatio,
+    addHeld,
   });
   written.current = next;
   input.setValue(next);
   input.blur();
   if (edit.type === "draw") tool.value = null;
   emit("commit", next);
+  if (next !== null) void runRefine(next);
 }
 </script>
 
@@ -338,8 +394,10 @@ function onEdit(edit: TerraDrawEdit) {
     :class="cn('flex min-w-0 flex-col gap-3 border-0 p-0', props.class)"
     :data-invalid="invalid || undefined"
   >
-    <legend v-if="legend" class="mb-1.5 text-sm font-medium">
-      {{ legend }}<span v-if="input.isRequired"> *</span>
+    <legend v-if="props.label !== false && props.label !== ''" class="mb-1.5 text-sm font-medium">
+      <FieldLabelText
+        :label="props.label"
+        :source="props.source" /><span v-if="input.isRequired"> *</span>
     </legend>
     <DrawToolbar
       v-if="!props.disabled"
@@ -369,6 +427,17 @@ function onEdit(edit: TerraDrawEdit) {
         @controls="controls = $event"
       />
     </MapCanvas>
+    <p
+      v-if="(controls?.refused.value.length ?? 0) > 0"
+      data-slot="shape-input-warning"
+      class="text-sm text-amber-600 dark:text-amber-500"
+    >
+      {{
+        translate("chelone.map.shape_not_shown", {
+          _: "Part of this shape cannot be shown on the map",
+        })
+      }}
+    </p>
     <InputHelperText :helper-text="props.helperText" />
     <FieldError v-if="invalid">
       <ValidationError :error="input.error.value" />

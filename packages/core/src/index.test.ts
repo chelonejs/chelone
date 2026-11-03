@@ -28,9 +28,19 @@ describe("@chelone/core barrel", () => {
     expect(barrel.clearUnread).toBeTypeOf("function");
   });
 
+  it("exports stripJsonComments", () => {
+    expect(barrel.stripJsonComments).toBeTypeOf("function");
+  });
+
   it("exports the CSV parser mapping and header matcher", () => {
     expect(barrel.parseCsvWith).toBeTypeOf("function");
     expect(barrel.matchCsvHeaders).toBeTypeOf("function");
+  });
+
+  it("exports the CSV exporter", () => {
+    expect(barrel.recordsToCSV).toBeTypeOf("function");
+    expect(barrel.downloadCSV).toBeTypeOf("function");
+    expect(barrel.defaultExporter).toBeTypeOf("function");
   });
 
   it("exports the CSV import controller", () => {
@@ -146,6 +156,7 @@ describe("@chelone/core barrel", () => {
     expect(barrel.isGeoJsonValue).toBeTypeOf("function");
     expect(barrel.isGeoBBox).toBeTypeOf("function");
     expect(barrel.geoBounds).toBeTypeOf("function");
+    expect(barrel.isLngLatBox).toBeTypeOf("function");
     expect(barrel.bboxToPolygon).toBeTypeOf("function");
     expect(barrel.polygonToBBox).toBeTypeOf("function");
     expect(barrel.aspectLockedBBox).toBeTypeOf("function");
@@ -188,6 +199,7 @@ describe("@chelone/core barrel", () => {
       "fromEditorFeatures",
       "editorStyles",
       "geoAreaM2",
+      "areaInTypeOf",
       "hasSelfIntersection",
       "countVertices",
       "minVertices",
