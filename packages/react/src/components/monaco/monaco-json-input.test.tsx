@@ -53,6 +53,7 @@ const hoisted = vi.hoisted(() => ({
   markers: [] as { severity: number; message: string }[],
   markerListeners: new Set<(uris: { toString(): string }[]) => void>(),
   blurListeners: new Set<() => void>(),
+  contentListeners: new Set<() => void>(),
   diagnosticsOptions: {} as Record<string, unknown>,
   formatRun: vi.fn(),
   modelUri: "",
@@ -88,7 +89,15 @@ vi.mock("@monaco-editor/react", () => ({
       const uri = { toString: () => props.path ?? "" };
       props.onMount?.(
         {
-          getModel: () => ({ uri }),
+          getModel: () => ({
+            uri,
+            onDidChangeContent: (listener: () => void) => {
+              hoisted.contentListeners.add(listener);
+              return {
+                dispose: () => hoisted.contentListeners.delete(listener),
+              };
+            },
+          }),
           getContentHeight: () => 0,
           onDidContentSizeChange: () => ({ dispose() {} }),
           onDidBlurEditorWidget: (listener: () => void) => {
@@ -129,7 +138,10 @@ vi.mock("@monaco-editor/react", () => ({
         data-height={String(props.height)}
         readOnly={Boolean(props.options?.readOnly)}
         value={props.value ?? ""}
-        onChange={(event) => props.onChange?.(event.target.value)}
+        onChange={(event) => {
+          for (const listener of hoisted.contentListeners) listener();
+          props.onChange?.(event.target.value);
+        }}
       />
     );
   },
@@ -181,9 +193,12 @@ function setup<TFormData extends Record<string, unknown>>(
 }
 
 async function editor() {
-  return (await screen.findByTestId("editor", undefined, {
+  const el = (await screen.findByTestId("editor", undefined, {
     timeout: 5000,
   })) as HTMLTextAreaElement;
+  // The hook subscribes a render after the stub mounts.
+  await waitFor(() => expect(hoisted.contentListeners.size).toBe(1));
+  return el;
 }
 
 function setMarkers(markers: Marker[]) {
@@ -193,6 +208,11 @@ function setMarkers(markers: Marker[]) {
       listener([{ toString: () => hoisted.modelUri }]);
     }
   });
+}
+
+// React's `act` waits on `setImmediate`, so only the clock the hook reads is faked.
+function useClock() {
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
 }
 
 function type(el: HTMLTextAreaElement, value: string) {
@@ -216,12 +236,16 @@ beforeEach(() => {
   hoisted.markers = [];
   hoisted.markerListeners.clear();
   hoisted.blurListeners.clear();
+  hoisted.contentListeners.clear();
   hoisted.diagnosticsOptions = {};
   hoisted.formatRun.mockReset();
   hoisted.editorOptions = undefined;
   hoisted.topLevelJson = false;
 });
-afterEach(cleanup);
+afterEach(() => {
+  vi.useRealTimers();
+  cleanup();
+});
 
 describe("<MonacoJsonInput />", () => {
   it("renders an object value as pretty JSON text", async () => {
@@ -663,5 +687,69 @@ describe("<MonacoJsonInput />", () => {
     type(el, '"abcd"');
     await submit(submitRef);
     expect(onData).toHaveBeenCalledWith({ meta: "abcd" });
+  });
+
+  it("blocks Save on a schema error that arrives after the click", async () => {
+    const onData = vi.fn();
+    const { submitRef } = setup(<MonacoJsonInput source="meta" />, {
+      defaultValues: { meta: { a: 1 } },
+      onData,
+    });
+    const el = await editor();
+    useClock();
+    type(el, '{"a":"x"}');
+    const saving = submitRef.current?.();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+    expect(onData).not.toHaveBeenCalled();
+    setMarkers([{ severity: 8, message: "Expected a number" }]);
+    await act(async () => {
+      await saving;
+    });
+    expect(onData).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert").textContent).toContain(
+      "Expected a number",
+    );
+  });
+
+  it("saves a valid edit without waiting once its markers have arrived", async () => {
+    const onData = vi.fn();
+    const { submitRef } = setup(<MonacoJsonInput source="meta" />, {
+      defaultValues: { meta: { a: 1 } },
+      onData,
+    });
+    const el = await editor();
+    useClock();
+    type(el, '{"a":2}');
+    setMarkers([]);
+    const saving = submitRef.current?.();
+    // form-core starts an async validator on a zero-delay timer.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+      await saving;
+    });
+    expect(onData).toHaveBeenCalledWith({ meta: { a: 2 } });
+  });
+
+  it("saves a valid edit when no marker event comes", async () => {
+    const onData = vi.fn();
+    const { submitRef } = setup(<MonacoJsonInput source="meta" />, {
+      defaultValues: { meta: { a: 1 } },
+      onData,
+    });
+    const el = await editor();
+    useClock();
+    type(el, '{"a":2}');
+    const saving = submitRef.current?.();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(749);
+    });
+    expect(onData).not.toHaveBeenCalled();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+      await saving;
+    });
+    expect(onData).toHaveBeenCalledWith({ meta: { a: 2 } });
   });
 });

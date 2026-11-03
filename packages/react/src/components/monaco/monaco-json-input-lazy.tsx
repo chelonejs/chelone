@@ -7,6 +7,7 @@ import {
   toJsonText,
 } from "@chelone/core";
 import Editor, { loader } from "@monaco-editor/react";
+import type { editor } from "monaco-editor";
 import * as monaco from "monaco-editor";
 import { useEffect, useRef, useState } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
@@ -15,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 import { ValidationError } from "../../field-error-display";
+import { useCheloneFormContext } from "../../form-context";
 import { useInput } from "../../form-hooks";
 import { useTranslate } from "../../i18n-hooks";
 import { useResourceContext } from "../../resource";
@@ -70,13 +72,21 @@ export default function MonacoJsonInputLazy({
   // Chelone has no `trigger`: when the error state flips on a dirty field,
   // re-write its value so validation runs against the new markers.
   const revalidate = useRef<() => void>(() => {});
+  const checking = useRef(0);
   const hadError = useRef(false);
-  const markers = useMonacoMarkers(instance, monacoApi, (changed) => {
-    const hasError = changed.some((m) => m.severity >= ERROR_SEVERITY);
-    if (hasError === hadError.current) return;
-    hadError.current = hasError;
-    revalidate.current();
-  });
+  const { markers, settled } = useMonacoMarkers(
+    instance,
+    monacoApi,
+    (changed) => {
+      const hasError = changed.some((m) => m.severity >= ERROR_SEVERITY);
+      if (hasError === hadError.current) return;
+      hadError.current = hasError;
+      // A check waiting on `settled` reads these markers itself, and a rewrite
+      // now would cancel it mid-flight, letting the submit it belongs to pass.
+      if (checking.current > 0) return;
+      revalidate.current();
+    },
+  );
 
   // The text on screen, kept current outside render so the validator sees it.
   const textRef = useRef("");
@@ -87,9 +97,21 @@ export default function MonacoJsonInputLazy({
       textShape,
     );
 
-  const markerCheck = () =>
-    markers.current.find((marker) => marker.severity >= ERROR_SEVERITY)
-      ?.message;
+  // A save waits out Monaco's diagnostics delay so a schema error from the
+  // last edit is in the list before it is read. Re-checks while typing read
+  // what is there: waiting would hold a cleared error on screen and block Save.
+  const { form } = useCheloneFormContext();
+  const firstError = (list: editor.IMarker[]) =>
+    list.find((marker) => marker.severity >= ERROR_SEVERITY)?.message;
+  const markerCheck = () => {
+    if (!form.state.isSubmitting) return firstError(markers.current);
+    checking.current++;
+    return settled()
+      .then(firstError)
+      .finally(() => {
+        checking.current--;
+      });
+  };
   // Monaco's markers lag the text by its diagnostics delay, so the text's own
   // parse error is checked too: a stale marker list must not let bad text save.
   const syntaxCheck = () => {
