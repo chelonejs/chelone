@@ -69,6 +69,16 @@ Theme storage differs too: the Vue `<ThemeProvider>` always uses `localStorage`
 and `useTheme()` returns `Ref`s. The note under
 [Themes](/docs/app-config/themes) has the details.
 
+### Maps
+
+The maps add-on has three entries: `@chelone/vue/maps` for map display,
+`@chelone/vue/maps/draw` for the shape inputs and `@chelone/vue/maps/osm` for
+geocoding and OpenStreetMap import. They export the names of the React
+subpaths. The Vue `ui` slice lacks some of the components the React inputs build
+on, so `<GeocodingInput>` is a native combobox, `<SimplifyInput>` uses a native
+range input with two buttons for its quality, and `<DrawToolbar>` draws inline
+SVG icons. See [Maps](/docs/app-config/maps) for the guide.
+
 ## Add-ons
 
 The Monaco components are an add-on, imported from `@chelone/vue/monaco` or
