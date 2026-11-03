@@ -358,12 +358,13 @@ function onEdit(edit: TerraDrawEdit) {
     ? (controls.value?.refused.value ?? [])
     : [];
   let features = [...edit.features, ...refused];
-  let prev = input.value.value;
+  const prev = input.value.value;
+  let addHeld = true;
   if (edit.type === "cut") {
     // The tool clears either way; a cut that touched nothing commits nothing.
     tool.value = null;
     // The editor holds no polygon with a hole, so the held parts are cut too.
-    // The result then holds every part, and no held part is added back.
+    // The result then holds every part, so `prev` only lends its own members.
     const cut = cutFeatures(
       [...features, ...heldFeatures(props.kind, prev)],
       edit.cutter,
@@ -372,10 +373,11 @@ function onEdit(edit: TerraDrawEdit) {
     // A single-shape value stores the last feature: a split would lose the rest.
     if (!HOLDS_MANY.has(props.kind) && cut.features.length > 1) return;
     features = cut.features;
-    if (HOLDS_MANY.has(props.kind)) prev = null;
+    addHeld = false;
   }
   const next = featuresToShape(props.kind, features, prev, {
     aspectRatio: props.aspectRatio,
+    addHeld,
   });
   written.current = next;
   input.setValue(next);
