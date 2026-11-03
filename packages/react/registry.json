@@ -1248,10 +1248,6 @@
           "type": "registry:component"
         },
         {
-          "path": "src/components/admin/buttons/export.ts",
-          "type": "registry:component"
-        },
-        {
           "path": "src/components/admin/buttons/filter-button.tsx",
           "type": "registry:component"
         },
@@ -2246,8 +2242,8 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/button", "@chelone/export"],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2404,23 +2400,9 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/button", "@chelone/export"],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
-      "author": "Chelone <https://chelone.dev>"
-    },
-    {
-      "name": "export",
-      "type": "registry:component",
-      "title": "Export",
-      "files": [
-        {
-          "path": "src/components/admin/buttons/export.ts",
-          "type": "registry:component"
-        }
-      ],
-      "dependencies": ["@chelone/core"],
-      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -5132,12 +5114,11 @@
       ],
       "registryDependencies": [
         "@chelone/create-button",
-        "@chelone/export",
         "@chelone/export-button",
         "@chelone/filter-button",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5187,12 +5168,11 @@
         }
       ],
       "registryDependencies": [
-        "@chelone/export",
         "@chelone/filter-form",
         "@chelone/lib-utils",
         "@chelone/list-actions"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6661,7 +6641,6 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/dialog",
-        "@chelone/export",
         "@chelone/native-select",
         "@chelone/progress",
         "@chelone/table"
@@ -6698,7 +6677,6 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/dialog",
-        "@chelone/export",
         "@chelone/native-select",
         "@chelone/progress",
         "@chelone/table",

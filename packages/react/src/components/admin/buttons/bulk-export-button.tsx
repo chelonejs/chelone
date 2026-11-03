@@ -8,6 +8,7 @@
  * inside `<DataTable bulkActionsButtons>` / `<BulkActionsToolbar>`.
  */
 
+import { defaultExporter, type Exporter } from "@chelone/core";
 import { Download } from "lucide-react";
 import type { Ref } from "react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,6 @@ import { useListContext } from "../../../form";
 import { useGetResourceLabel, useResourceTranslation } from "../../../label";
 import { useNotify } from "../../../notification-hooks";
 import { useResourceContext } from "../../../resource";
-import { defaultExporter, type Exporter } from "./export";
 
 const defaultIcon = <Download className="size-4" />;
 
