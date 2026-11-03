@@ -7,7 +7,7 @@ import type {
   LooseRecord,
   PageInfo,
 } from "@chelone/core";
-import { fetchUtils } from "@chelone/core";
+import { fetchUtils, HttpError, ValidationError } from "@chelone/core";
 
 export interface RestDataProviderOptions {
   apiUrl: string;
@@ -32,6 +32,12 @@ export interface RestDataProviderOptions {
   parseList?: (response: FetchJsonResult, resource: string) => GetListResult;
   /** Turns a single-record response into a record. */
   parseRecord?: (response: FetchJsonResult, resource: string) => LooseRecord;
+  /**
+   * Turns an `HttpError` into the error a call rejects with, for every verb.
+   * Replaces the default, which turns a 422 with `{ errors: { field: message } }`
+   * from `create`, `update` and `updateMany` into a `ValidationError`.
+   */
+  toError?: (error: HttpError) => Error;
 }
 
 /** What a call can pass in `meta`. */
@@ -114,6 +120,23 @@ export const defaultParseRecord = (
   return response.json as LooseRecord;
 };
 
+const isFieldErrors = (
+  value: unknown,
+): value is Record<string, string | string[]> =>
+  isObject(value) &&
+  Object.values(value).every(
+    (entry) =>
+      typeof entry === "string" ||
+      (Array.isArray(entry) && entry.every((item) => typeof item === "string")),
+  );
+
+/** A 422 whose body carries `errors` becomes a `ValidationError`; anything else stays as it is. */
+const defaultToValidationError = (error: HttpError): Error => {
+  const errors = isObject(error.body) ? error.body.errors : undefined;
+  if (error.status !== 422 || !isFieldErrors(errors)) return error;
+  return new ValidationError(error.message, errors);
+};
+
 export function restDataProvider({
   apiUrl,
   path = encodeURIComponent,
@@ -125,6 +148,7 @@ export function restDataProvider({
   batchGetMany = true,
   parseList = defaultParseList,
   parseRecord: customParseRecord,
+  toError,
 }: RestDataProviderOptions): DataProvider {
   const baseUrl = apiUrl.replace(/\/+$/, "");
   const parseRecord = customParseRecord ?? defaultParseRecord;
@@ -132,7 +156,12 @@ export function restDataProvider({
   const request = async (
     resource: string,
     meta: unknown,
-    { id, query, ...init }: RequestInit & { id?: unknown; query?: object },
+    {
+      id,
+      query,
+      write,
+      ...init
+    }: RequestInit & { id?: unknown; query?: object; write?: boolean },
   ) => {
     const { headers: callHeaders, query: callQuery } = (meta ?? {}) as RestMeta;
     const merged = new Headers(
@@ -144,10 +173,16 @@ export function restDataProvider({
     const queryString = fetchUtils.queryParameters({ ...query, ...callQuery });
     const segment =
       id === undefined ? "" : `/${encodeURIComponent(String(id))}`;
-    return fetchUtils.fetchJson(
-      `${baseUrl}/${path(resource)}${segment}${queryString === "" ? "" : `?${queryString}`}`,
-      { ...init, headers: merged, credentials },
-    );
+    try {
+      return await fetchUtils.fetchJson(
+        `${baseUrl}/${path(resource)}${segment}${queryString === "" ? "" : `?${queryString}`}`,
+        { ...init, headers: merged, credentials },
+      );
+    } catch (error) {
+      if (!(error instanceof HttpError)) throw error;
+      if (toError) throw toError(error);
+      throw write ? defaultToValidationError(error) : error;
+    }
   };
 
   const provider: DataProvider = {
@@ -164,6 +199,7 @@ export function restDataProvider({
     async create(resource, { data, meta }) {
       const response = await request(resource, meta, {
         method: "POST",
+        write: true,
         body: JSON.stringify(data),
       });
       return { data: parseRecord(response, resource) } as never;
@@ -172,6 +208,7 @@ export function restDataProvider({
       const response = await request(resource, meta, {
         id,
         method: updateMethod,
+        write: true,
         body: JSON.stringify(data),
       });
       // A 204 has no body, so what the caller sent stands in for the saved record.
