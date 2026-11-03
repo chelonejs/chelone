@@ -4043,7 +4043,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },

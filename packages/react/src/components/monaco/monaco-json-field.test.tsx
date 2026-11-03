@@ -4,7 +4,7 @@
  * is an empty module.
  */
 
-import { createStore, fakeDataProvider } from "@chelone/core";
+import { createStore, fakeDataProvider, type LooseRecord } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -116,19 +116,17 @@ describe("<MonacoJsonField />", () => {
   });
 
   it("renders null for a missing value", async () => {
-    render(<MonacoJsonField source="missing" record={{ id: 1 }} />, {
+    const record: LooseRecord = { id: 1 };
+    render(<MonacoJsonField source="missing" record={record} />, {
       wrapper: wrap(),
     });
     expect((await screen.findByTestId("editor")).textContent).toBe("null");
   });
 
   it("shows the empty node instead of the editor for a missing value", async () => {
+    const record: LooseRecord = { id: 1 };
     render(
-      <MonacoJsonField
-        source="missing"
-        empty="No metadata"
-        record={{ id: 1 }}
-      />,
+      <MonacoJsonField source="missing" empty="No metadata" record={record} />,
       { wrapper: wrap() },
     );
     expect(await screen.findByText("No metadata")).toBeTruthy();
