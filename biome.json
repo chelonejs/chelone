@@ -1,23 +1,11 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.2/schema.json",
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true
-  },
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
     "includes": ["**/*.ts", "**/*.tsx", "**/*.json", "**/*.jsonc", "**/*.vue"]
   },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "space"
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true
-    }
-  },
+  "formatter": { "enabled": true, "indentStyle": "space" },
+  "linter": { "enabled": true, "rules": { "recommended": true } },
   "overrides": [
     {
       "includes": ["packages/react/src/components/ui/**"],
@@ -87,9 +75,9 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "@tanstack/react-form": "@chelone/core wraps @tanstack/form-core directly; the React bridge lives in @chelone/react (and never uses react-form \u2014 its useForm cannot accept an external FormApi).",
-                  "@tanstack/react-store": "@chelone/core is vanilla TS \u2014 the react-store uSES bridge belongs in @chelone/react.",
-                  "react": "@chelone/core is vanilla TS \u2014 no React. Put React code in @chelone/react.",
+                  "@tanstack/react-form": "@chelone/core wraps @tanstack/form-core directly; the React bridge lives in @chelone/react (and never uses react-form — its useForm cannot accept an external FormApi).",
+                  "@tanstack/react-store": "@chelone/core is vanilla TS — the react-store uSES bridge belongs in @chelone/react.",
+                  "react": "@chelone/core is vanilla TS — no React. Put React code in @chelone/react.",
                   "react-dom": "@chelone/core must not import react-dom.",
                   "react-hook-form": "@chelone/core uses @tanstack/form-core, not react-hook-form.",
                   "react-router": "@chelone/core must not own a router; it owns the vanilla RouterPort seam and injects a RouterAdapter from @chelone/react.",
@@ -117,12 +105,12 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "react": "@chelone/vue is a Vue adapter \u2014 no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
                   "react-dom": "@chelone/vue must not import react-dom.",
-                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort \u2014 never react-router.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
                   "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
                   "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
-                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) \u2014 never react-store.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
                   "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
                 }
               }
@@ -146,9 +134,9 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "@tanstack/react-form": "@chelone/core wraps @tanstack/form-core directly; the React bridge lives in @chelone/react (and never uses react-form \u2014 its useForm cannot accept an external FormApi).",
-                  "@tanstack/react-store": "@chelone/core is vanilla TS \u2014 the react-store uSES bridge belongs in @chelone/react.",
-                  "react": "@chelone/core is vanilla TS \u2014 no React. Put React code in @chelone/react.",
+                  "@tanstack/react-form": "@chelone/core wraps @tanstack/form-core directly; the React bridge lives in @chelone/react (and never uses react-form — its useForm cannot accept an external FormApi).",
+                  "@tanstack/react-store": "@chelone/core is vanilla TS — the react-store uSES bridge belongs in @chelone/react.",
+                  "react": "@chelone/core is vanilla TS — no React. Put React code in @chelone/react.",
                   "react-dom": "@chelone/core must not import react-dom.",
                   "react-hook-form": "@chelone/core uses @tanstack/form-core, not react-hook-form.",
                   "react-router": "@chelone/core must not own a router; it owns the vanilla RouterPort seam and injects a RouterAdapter from @chelone/react.",
@@ -526,12 +514,12 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "react": "@chelone/vue is a Vue adapter \u2014 no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
                   "react-dom": "@chelone/vue must not import react-dom.",
-                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort \u2014 never react-router.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
                   "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
                   "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
-                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) \u2014 never react-store.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
                   "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
                 },
                 "patterns": [
@@ -592,12 +580,12 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "react": "@chelone/vue is a Vue adapter \u2014 no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
                   "react-dom": "@chelone/vue must not import react-dom.",
-                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort \u2014 never react-router.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
                   "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
                   "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
-                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) \u2014 never react-store.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
                   "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
                 },
                 "patterns": [
@@ -644,12 +632,12 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "react": "@chelone/vue is a Vue adapter \u2014 no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
                   "react-dom": "@chelone/vue must not import react-dom.",
-                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort \u2014 never react-router.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
                   "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
                   "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
-                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) \u2014 never react-store.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
                   "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
                 },
                 "patterns": [
@@ -698,12 +686,12 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "react": "@chelone/vue is a Vue adapter \u2014 no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
                   "react-dom": "@chelone/vue must not import react-dom.",
-                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort \u2014 never react-router.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
                   "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
                   "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
-                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) \u2014 never react-store.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
                   "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
                 },
                 "patterns": [
@@ -756,12 +744,12 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "react": "@chelone/vue is a Vue adapter \u2014 no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
                   "react-dom": "@chelone/vue must not import react-dom.",
-                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort \u2014 never react-router.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
                   "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
                   "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
-                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) \u2014 never react-store.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
                   "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
                 },
                 "patterns": [
@@ -814,12 +802,12 @@
               "level": "error",
               "options": {
                 "paths": {
-                  "react": "@chelone/vue is a Vue adapter \u2014 no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
                   "react-dom": "@chelone/vue must not import react-dom.",
-                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort \u2014 never react-router.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
                   "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
                   "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
-                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) \u2014 never react-store.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
                   "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
                 },
                 "patterns": [
