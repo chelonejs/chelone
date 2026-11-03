@@ -7,6 +7,10 @@
 //   node scripts/release-tags.mjs --dry-run       print what it would do, change nothing
 //   node scripts/release-tags.mjs --remote <name> look for tags on <name> instead of origin
 //
+// Only the remote decides whether a tag exists: deleting a local tag changes
+// nothing. To see the output for a missing tag, point --remote at a repository
+// without it, such as a fresh `git init --bare` directory.
+//
 // A package with a tag on the remote and a release is skipped, so a rerun is
 // safe. A tag without a release (a run that failed in between) gets its release.
 import { spawnSync } from "node:child_process";
