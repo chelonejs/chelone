@@ -76,7 +76,7 @@ const options = () =>
 describe("<MonacoJsonField />", () => {
   // First, because `React.lazy` keeps the chunk once any test has resolved it.
   it("shows the loading skeleton until the editor chunk resolves", async () => {
-    render(<MonacoJsonField source="meta" record={{ meta: 1 }} />, {
+    render(<MonacoJsonField source="meta" record={{ id: 1, meta: 1 }} />, {
       wrapper: wrap(),
     });
     expect(screen.getByRole("status", { name: "Loading editor" })).toBeTruthy();
@@ -85,9 +85,12 @@ describe("<MonacoJsonField />", () => {
   });
 
   it("renders an object value as pretty JSON, read-only", async () => {
-    render(<MonacoJsonField source="meta" record={{ meta: { a: 1 } }} />, {
-      wrapper: wrap(),
-    });
+    render(
+      <MonacoJsonField source="meta" record={{ id: 1, meta: { a: 1 } }} />,
+      {
+        wrapper: wrap(),
+      },
+    );
     const editor = await screen.findByTestId("editor");
     expect(editor.textContent).toBe(JSON.stringify({ a: 1 }, null, 2));
     expect(editor.dataset.language).toBe("json");
@@ -103,9 +106,12 @@ describe("<MonacoJsonField />", () => {
   });
 
   it("renders a string value as given", async () => {
-    render(<MonacoJsonField source="raw" record={{ raw: '{"x":1}' }} />, {
-      wrapper: wrap(),
-    });
+    render(
+      <MonacoJsonField source="raw" record={{ id: 1, raw: '{"x":1}' }} />,
+      {
+        wrapper: wrap(),
+      },
+    );
     expect((await screen.findByTestId("editor")).textContent).toBe('{"x":1}');
   });
 
@@ -134,7 +140,7 @@ describe("<MonacoJsonField />", () => {
       <MonacoJsonField
         source="meta"
         empty="No metadata"
-        record={{ meta: { a: 1 } }}
+        record={{ id: 1, meta: { a: 1 } }}
       />,
       { wrapper: wrap() },
     );
@@ -147,7 +153,7 @@ describe("<MonacoJsonField />", () => {
     const { unmount } = render(
       <MonacoJsonField
         source="meta"
-        record={{ meta: 1 }}
+        record={{ id: 1, meta: 1 }}
         autoHeight={false}
         height={320}
       />,
@@ -157,7 +163,11 @@ describe("<MonacoJsonField />", () => {
     unmount();
 
     render(
-      <MonacoJsonField source="meta" record={{ meta: 1 }} autoHeight={false} />,
+      <MonacoJsonField
+        source="meta"
+        record={{ id: 1, meta: 1 }}
+        autoHeight={false}
+      />,
       { wrapper: wrap() },
     );
     expect((await screen.findByTestId("editor")).dataset.height).toBe("200");
@@ -166,7 +176,11 @@ describe("<MonacoJsonField />", () => {
   it("grows to the content height up to maxHeight when autoHeight is on", async () => {
     hoisted.contentHeight = 300;
     const { unmount } = render(
-      <MonacoJsonField source="meta" record={{ meta: 1 }} maxHeight={500} />,
+      <MonacoJsonField
+        source="meta"
+        record={{ id: 1, meta: 1 }}
+        maxHeight={500}
+      />,
       { wrapper: wrap() },
     );
     const editor = await screen.findByTestId("editor");
@@ -174,7 +188,11 @@ describe("<MonacoJsonField />", () => {
     unmount();
 
     render(
-      <MonacoJsonField source="meta" record={{ meta: 1 }} maxHeight={250} />,
+      <MonacoJsonField
+        source="meta"
+        record={{ id: 1, meta: 1 }}
+        maxHeight={250}
+      />,
       { wrapper: wrap() },
     );
     const capped = await screen.findByTestId("editor");
@@ -182,14 +200,14 @@ describe("<MonacoJsonField />", () => {
   });
 
   it("uses the dark editor theme when the theme resolves dark", async () => {
-    render(<MonacoJsonField source="meta" record={{ meta: 1 }} />, {
+    render(<MonacoJsonField source="meta" record={{ id: 1, meta: 1 }} />, {
       wrapper: wrap("dark"),
     });
     expect((await screen.findByTestId("editor")).dataset.theme).toBe("vs-dark");
   });
 
   it("uses the light editor theme otherwise", async () => {
-    render(<MonacoJsonField source="meta" record={{ meta: 1 }} />, {
+    render(<MonacoJsonField source="meta" record={{ id: 1, meta: 1 }} />, {
       wrapper: wrap("light"),
     });
     expect((await screen.findByTestId("editor")).dataset.theme).toBe("vs");
@@ -199,7 +217,7 @@ describe("<MonacoJsonField />", () => {
     render(
       <MonacoJsonField
         source="meta"
-        record={{ meta: 1 }}
+        record={{ id: 1, meta: 1 }}
         monacoOptions={{ wordWrap: "off", tabSize: 4 }}
       />,
       { wrapper: wrap() },

@@ -1,10 +1,10 @@
+import type { LooseRecord } from "@chelone/core";
 import type { editor } from "monaco-editor";
 import { lazy, Suspense } from "react";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { MonacoSkeleton } from "./internal/monaco-shared";
 
-interface MonacoJsonFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface MonacoJsonFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType> {
   /** Shown when the record has no value at `source`. */
   defaultValue?: unknown;
@@ -33,7 +33,7 @@ const SKELETON_HEIGHT = 120;
  *
  * <MonacoJsonField source="metadata" />
  */
-function MonacoJsonField<RecordType extends UnknownRecord = UnknownRecord>(
+function MonacoJsonField<RecordType extends LooseRecord = LooseRecord>(
   props: MonacoJsonFieldProps<RecordType>,
 ) {
   const { autoHeight = true, height } = props;
