@@ -445,6 +445,28 @@ describe("featuresToShape", () => {
     });
   });
 
+  it("keeps a FeatureCollection's own members and adds no held part when addHeld is false", () => {
+    const a = feature(point(0), { id: 1 });
+    const held = feature(null, { id: 2 });
+    const prev = {
+      type: "FeatureCollection",
+      name: "sites",
+      crs: { type: "name", properties: { name: "EPSG:4326" } },
+      bbox: [0, 0, 1, 0],
+      features: [a, held],
+    };
+    const next = featuresToShape("FeatureCollection", [a], prev, {
+      addHeld: false,
+    });
+    expect(next).toEqual({
+      type: "FeatureCollection",
+      name: "sites",
+      crs: { type: "name", properties: { name: "EPSG:4326" } },
+      features: [a],
+    });
+    expect(next).not.toHaveProperty("bbox");
+  });
+
   it("featuresToShape keeps a MultiPolygon part with a hole when another part is edited", () => {
     const prev = {
       type: "MultiPolygon",
