@@ -80,7 +80,7 @@ export interface LineStringInputProps extends GeoJsonInputBaseProps {
    * Snap each line the user draws or edits to the road network. `true` uses the
    * `router` of `MapsProvider`; a `RoutingProvider` is used as given. A saved
    * line is left alone until the user edits it, and a failed snap keeps the
-   * drawn line. Takes the place of `refine`.
+   * drawn line and warns. Takes the place of `refine`.
    */
   snapToRoads?: boolean | RoutingProvider;
 }
@@ -88,8 +88,9 @@ export interface LineStringInputProps extends GeoJsonInputBaseProps {
 /** A `refine` that snaps a line of two or more positions with `router`. */
 function snapRefine(router: RoutingProvider): ShapeInputProps["refine"] {
   return (value, { signal }) => {
-    if (!("type" in value) || value.type !== "LineString") return null;
-    if (value.coordinates.length < 2) return null;
+    // Not a line to snap: nothing to change, and no failure to report.
+    if (!("type" in value) || value.type !== "LineString") return value;
+    if (value.coordinates.length < 2) return value;
     return router.snapToRoad(value, { signal });
   };
 }
@@ -119,6 +120,7 @@ export function LineStringInput({
       kind="LineString"
       tools={tools}
       refine={router ? snapRefine(router) : refine}
+      refineFailedMessage={router ? "chelone.map.snap_failed" : undefined}
     />
   );
 }

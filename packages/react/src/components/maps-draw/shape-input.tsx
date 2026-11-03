@@ -27,6 +27,7 @@ import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
 import { FieldError, FieldLegend, FieldSet } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
+import { useCheloneNotifications } from "../../context";
 import { ValidationError } from "../../field-error-display";
 import { useInput } from "../../form-hooks";
 import { useTranslate } from "../../i18n-hooks";
@@ -93,12 +94,19 @@ export interface ShapeInputProps {
    * line to roads. It runs once the edit is in the form, never on load or
    * reset, and a newer edit or an unmount aborts `signal`. A result that is
    * not null and differs is written, unless the field changed meanwhile. A
-   * thrown error keeps the value as drawn.
+   * thrown error keeps the value as drawn. A null result is "nothing to
+   * change" unless `refineFailedMessage` is set, which a throw also notifies.
    */
   refine?: (
     value: ShapeValue,
     options: { signal: AbortSignal },
   ) => Promise<ShapeValue | null> | ShapeValue | null;
+  /**
+   * Message key notified as a warning when `refine` resolves to null or throws
+   * (an abort excepted), and the value is kept as drawn. `LineStringInput` sets it for
+   * `snapToRoads`.
+   */
+  refineFailedMessage?: string;
   className?: string;
 }
 
@@ -275,6 +283,7 @@ export function ShapeInput({
   fitBounds = true,
   onCommit,
   refine,
+  refineFailedMessage,
   className,
 }: ShapeInputProps) {
   // The limits run before the caller's validators.
@@ -322,8 +331,25 @@ export function ShapeInput({
   controlsRef.current = controls;
   // What the last edit wrote, so the first shape the user draws is not framed.
   const written = useRef<unknown>(undefined);
-  const latest = useRef({ field, kind, aspectRatio, onCommit, refine });
-  latest.current = { field, kind, aspectRatio, onCommit, refine };
+  const notifications = useCheloneNotifications();
+  const latest = useRef({
+    field,
+    kind,
+    aspectRatio,
+    onCommit,
+    refine,
+    refineFailedMessage,
+    notifications,
+  });
+  latest.current = {
+    field,
+    kind,
+    aspectRatio,
+    onCommit,
+    refine,
+    refineFailedMessage,
+    notifications,
+  };
   const refining = useRef<AbortController | null>(null);
   useEffect(() => () => refining.current?.abort(), []);
 
@@ -332,19 +358,32 @@ export function ShapeInput({
     if (!refineValue) return;
     const abort = new AbortController();
     refining.current = abort;
-    try {
-      const result = await refineValue(committed, { signal: abort.signal });
-      if (abort.signal.aborted || result === null) return;
+    const warnFailed = () => {
       const now = latest.current;
-      // Only an untouched field takes the result: anything else was edited since.
-      if (now.field.value !== committed || sameValue(result, committed)) return;
-      written.current = result;
-      now.field.onChange(result);
-      now.field.onBlur();
-      now.onCommit?.(result);
+      if (now.refineFailedMessage) {
+        now.notifications?.notify(now.refineFailedMessage, { type: "warning" });
+      }
+    };
+    let result: ShapeValue | null;
+    try {
+      result = await refineValue(committed, { signal: abort.signal });
     } catch {
       // A failed refinement keeps the value as the user drew it.
+      if (!abort.signal.aborted) warnFailed();
+      return;
     }
+    if (abort.signal.aborted) return;
+    if (result === null) {
+      warnFailed();
+      return;
+    }
+    const now = latest.current;
+    // Only an untouched field takes the result: anything else was edited since.
+    if (now.field.value !== committed || sameValue(result, committed)) return;
+    written.current = result;
+    now.field.onChange(result);
+    now.field.onBlur();
+    now.onCommit?.(result);
   };
 
   const onEdit = (edit: TerraDrawEdit) => {
