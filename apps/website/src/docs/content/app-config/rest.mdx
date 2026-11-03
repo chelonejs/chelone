@@ -194,6 +194,10 @@ export const dataProvider = restDataProvider({
     ...filter,
   }),
   parseList: ({ json }) => {
+    // Without `_page` json-server answers a bare array, as for a call with no pagination.
+    if (Array.isArray(json)) {
+      return { data: json, total: json.length };
+    }
     const { data, items, prev, next } = json as {
       data: Record<string, unknown>[];
       items: number;
@@ -214,7 +218,8 @@ export const dataProvider = restDataProvider({
 - `listQuery` renames the pagination keys. `filter` spreads last, so a filter
   field still becomes a plain parameter.
 - `parseList` turns `items` into `total`, and `prev` and `next` into
-  `pageInfo`.
+  `pageInfo`. A call with no pagination sends no `_page`, so json-server answers
+  with a bare array, which it returns as is.
 - Every record verb already fits: json-server answers `getOne`, `create`,
   `update` and `delete` with the record.
 - Check the shape against your json-server version: 0.17 returns an array and an
