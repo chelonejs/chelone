@@ -37,9 +37,9 @@ function CalendarHeader({
   const locale = useLocale();
   const labels = useMemo(() => calendarLabels(locale), [locale]);
   const viewLabels: Record<CalendarView, string> = {
-    month: translate("ra.calendar.month", { _: "Month" }),
-    week: translate("ra.calendar.week", { _: "Week" }),
-    agenda: translate("ra.calendar.agenda", { _: "Agenda" }),
+    month: translate("ra.calendar.view.month", { _: "Month" }),
+    week: translate("ra.calendar.view.week", { _: "Week" }),
+    agenda: translate("ra.calendar.view.agenda", { _: "Agenda" }),
   };
 
   return (
