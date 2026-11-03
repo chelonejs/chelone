@@ -15,4 +15,4 @@ const dataProvider = restDataProvider({
 });
 ```
 
-Docs: https://chelone.dev
+Options, the default requests and how to fit it to an existing API: https://chelone.dev/docs/app-config/rest
