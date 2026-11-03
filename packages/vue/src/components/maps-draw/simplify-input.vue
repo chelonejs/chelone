@@ -152,7 +152,7 @@ function onRange(event: Event) {
     :class="cn('flex min-w-0 flex-col gap-3 border-0 p-0', props.class)"
     :data-invalid="invalid || undefined"
   >
-    <legend v-if="props.label !== false" class="mb-1.5 text-sm font-medium">
+    <legend v-if="props.label !== false && props.label !== ''" class="mb-1.5 text-sm font-medium">
       <FieldLabelText
         :label="props.label"
         :source="props.source" /><span v-if="input.isRequired"> *</span>
