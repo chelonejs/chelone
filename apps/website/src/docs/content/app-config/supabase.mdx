@@ -215,7 +215,9 @@ undefined total.
 
 ### Meta
 
-Each call takes these keys in `meta`:
+Each data provider call takes these keys in `meta`. `<List>` and the list
+controller do not take `meta`. Pass it in the params of `useGetList`, or of
+`dataProvider.getList`:
 
 - `meta.columns` is a column list, as a string or an array. The default is `*`.
 - `meta.embed` is a list of related tables. Each becomes `name(*)` in the
@@ -227,7 +229,9 @@ Each call takes these keys in `meta`:
 - `meta.headers` adds request headers and wins over the ones the provider sets.
 
 ```tsx
-<List meta={{ columns: ["id", "title"], embed: ["author"] }} />
+const { data } = useGetList("posts", {
+  meta: { columns: ["id", "title"], embed: ["author"] },
+});
 ```
 
 ### Compound keys
