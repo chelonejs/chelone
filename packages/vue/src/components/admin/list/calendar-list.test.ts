@@ -196,18 +196,22 @@ describe("<CalendarList> month view", () => {
       {
         id: 9,
         name: "Residency",
-        starts_at: "2026-04-20T09:00:00",
-        ends_at: "2026-04-28T17:00:00",
+        start: "2026-04-20T09:00:00",
+        end: "2026-04-28T17:00:00",
       },
     ]);
     const { wrapper } = await mountList({
-      list: calendar({ titleSource: "name" }),
+      list: calendar({
+        startSource: "start",
+        endSource: "end",
+        titleSource: "name",
+      }),
       dataProvider,
     });
 
     expect(lastFilter(getList).filter).toEqual({
-      starts_at_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
-      ends_at_gte: new Date(2026, 3, 26).toISOString(),
+      start_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
+      end_gte: new Date(2026, 3, 26).toISOString(),
     });
     for (const day of ["2026-04-26", "2026-04-27", "2026-04-28"]) {
       expect(eventsIn(wrapper, day)).toEqual(["Residency"]);
