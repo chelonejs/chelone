@@ -229,14 +229,14 @@ describe("<LoginPage> notifications", () => {
 describe("error pages", () => {
   it("<AccessDenied> renders the translated primary + secondary text", () => {
     const { wrapper } = mountAdmin(() => h(AccessDenied));
-    expect(wrapper.text()).toContain("ra.page.access_denied");
-    expect(wrapper.text()).toContain("ra.message.access_denied");
+    expect(wrapper.text()).toContain("Access denied");
+    expect(wrapper.text()).toContain("You don't have the right permissions");
   });
 
   it("<AuthenticationError> renders the authentication-error text", () => {
     const { wrapper } = mountAdmin(() => h(AuthenticationError));
-    expect(wrapper.text()).toContain("ra.page.authentication_error");
-    expect(wrapper.text()).toContain("ra.message.authentication_error");
+    expect(wrapper.text()).toContain("Authentication error");
+    expect(wrapper.text()).toContain("credentials could not be checked");
   });
 
   it("<AuthError> renders an alert heading and links to /login", () => {

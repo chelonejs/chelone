@@ -225,15 +225,15 @@ describe("<CalendarList> month view", () => {
     const { getList, dataProvider } = providerWith();
     const { wrapper } = await mountList({ list: calendar(), dataProvider });
 
-    await headerButton(wrapper, "Next").trigger("click");
+    await headerButton(wrapper, "Go to next page").trigger("click");
     await flushPromises();
     expect(title(wrapper)).toBe("June 2026");
     expect(lastFilter(getList).filter.ends_at_gte).toBe(
       new Date(2026, 4, 31).toISOString(),
     );
 
-    await headerButton(wrapper, "Previous").trigger("click");
-    await headerButton(wrapper, "Previous").trigger("click");
+    await headerButton(wrapper, "Go to previous page").trigger("click");
+    await headerButton(wrapper, "Go to previous page").trigger("click");
     await flushPromises();
     expect(title(wrapper)).toBe("April 2026");
     expect(lastFilter(getList).filter.ends_at_gte).toBe(
@@ -244,8 +244,8 @@ describe("<CalendarList> month view", () => {
   it("Today returns to the current month", async () => {
     const { wrapper } = await mountList({ list: calendar() });
 
-    await headerButton(wrapper, "Next").trigger("click");
-    await headerButton(wrapper, "Next").trigger("click");
+    await headerButton(wrapper, "Go to next page").trigger("click");
+    await headerButton(wrapper, "Go to next page").trigger("click");
     expect(title(wrapper)).toBe("July 2026");
 
     await button(wrapper, "Today").trigger("click");
@@ -416,7 +416,7 @@ describe("<CalendarList> month view", () => {
       starts_at_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
     });
 
-    await headerButton(wrapper, "Next").trigger("click");
+    await headerButton(wrapper, "Go to next page").trigger("click");
     await flushPromises();
     expect(lastFilter(getList).filter).toEqual({
       kind: "work",
@@ -661,7 +661,7 @@ describe("<CalendarList> week view", () => {
     const { getList, dataProvider } = providerWith();
     const { wrapper } = await mountList({ list: week(), dataProvider });
 
-    await headerButton(wrapper, "Next").trigger("click");
+    await headerButton(wrapper, "Go to next page").trigger("click");
     await flushPromises();
     expect(cells(wrapper)[0]?.attributes("data-date")).toBe("2026-05-17");
     expect(lastFilter(getList).filter).toEqual({
@@ -669,8 +669,8 @@ describe("<CalendarList> week view", () => {
       starts_at_lte: new Date(2026, 4, 23, 23, 59, 59, 999).toISOString(),
     });
 
-    await headerButton(wrapper, "Previous").trigger("click");
-    await headerButton(wrapper, "Previous").trigger("click");
+    await headerButton(wrapper, "Go to previous page").trigger("click");
+    await headerButton(wrapper, "Go to previous page").trigger("click");
     await flushPromises();
     expect(cells(wrapper)[0]?.attributes("data-date")).toBe("2026-05-03");
   });
@@ -707,7 +707,7 @@ describe("<CalendarList> agenda view", () => {
 
     expect(days(wrapper)).toHaveLength(0);
     expect(wrapper.get("[data-slot=calendar-agenda-empty]").text()).toBe(
-      "No events in this range",
+      "No events",
     );
   });
 
@@ -719,7 +719,7 @@ describe("<CalendarList> agenda view", () => {
       starts_at_lte: new Date(2026, 4, 29, 23, 59, 59, 999).toISOString(),
     });
 
-    await headerButton(wrapper, "Next").trigger("click");
+    await headerButton(wrapper, "Go to next page").trigger("click");
     await flushPromises();
     expect(lastFilter(getList).filter).toEqual({
       ends_at_gte: new Date(2026, 4, 15).toISOString(),

@@ -7,21 +7,17 @@ Chelone localizes through a small i18n instance you build with `createI18n` and
 hand to `<Admin i18n={…}>`. A catalog is a flat map of keys to strings; the
 components translate `ra.*` keys (page titles, pagination, bulk-action labels,
 booleans, auth) and the core controllers emit `chelone.*` keys (save
-notifications, validation). `<Admin>` works without an `i18n` instance; see
+notifications, validation). An `<Admin>` with no `i18n` reads in English; see
 [Without i18n](#without-i18n).
 
 ## Building the i18n instance
 
 ```tsx title="src/i18n.ts"
-import { createI18n, defaultMessages, defineMessages } from "@chelone/core";
+import { createI18n, defineMessages, englishMessages } from "@chelone/core";
 
 const en = defineMessages({
-  ...defaultMessages, // the chelone.* core keys
-  "ra.action.save": "Save",
-  "ra.action.create": "Create",
-  "ra.page.list": "{name}",
-  "ra.boolean.true": "Yes",
-  "ra.boolean.false": "No",
+  ...englishMessages, // the English ra.* and chelone.* keys
+  "ra.page.list": "All {name}", // override or add your own
 });
 
 export function makeI18n() {
@@ -35,12 +31,16 @@ export function makeI18n() {
 
 `defineMessages` is an identity helper that gives you key/value type-checking.
 
-## What ships in `defaultMessages`
+## What ships in `englishMessages`
 
-`defaultMessages` holds only the `chelone.*` keys the core controllers emit
-(notifications, validation, auth and loading messages). **No `ra.*` English
-catalog ships.** Spread `defaultMessages` first, then write the `ra.*` labels
-your app needs yourself.
+`englishMessages` is the English catalog: every `ra.*` key the components
+translate, `defaultMessages` (the `chelone.*` keys the core controllers emit:
+notifications, validation, auth and loading messages) and `mapMessages` (the
+maps add-on's labels). Spread it first, then add or override entries. For
+another language, copy its keys and translate the values.
+
+`defaultMessages` alone holds only the `chelone.*` keys. Use it when you want
+to write every `ra.*` label yourself.
 
 The `ra.*` keys are the ones the components pass to `translate`. Most call it
 with an English default, so a missing key still reads as English (see
@@ -119,18 +119,22 @@ read as English without a catalog entry:
 translate("ra.action.cancel", { _: "Cancel" }); // "Cancel" when the key is missing
 ```
 
-Where a component passes no `_`, a partial catalog shows the raw
-`ra.page.list`-style key. Add the keys you see.
+Where a component passes no `_`, a catalog that lacks the key shows the raw
+`ra.page.list`-style key. `englishMessages` covers the keys the components
+translate; a catalog that does not spread it needs the keys you see.
 
 ## Without i18n
 
-`i18n` is optional on `<Admin>`. Without it, `useTranslate()` returns an echo:
-a key with no `_` default comes back as the key, and a key with one renders the
-default with placeholders filled in. Components that pass English defaults read
-as English; the rest show raw keys. In React, the built-in `<LoginPage>` is the exception:
-it supplies its own English catalog (`defaultMessages`) and notification store
-for its subtree, so `<Admin requireAuth>` shows a working form with no
-`i18n` or notification setup. Pass `i18n` to `<Admin>` to localize it.
+`i18n` is optional on `<Admin>`. Without it, `<Admin>` builds one instance from
+`englishMessages` with locale `en`, so a list's heading reads "Posts", not
+`ra.page.list`. An `i18n` you pass is used as is, with no English merged in:
+spread `englishMessages` into your catalog to extend it.
+
+A component mounted outside `<Admin>` has no instance, so `useTranslate()`
+echoes: a key with no `_` default comes back as the key, and a key with one
+renders the default with placeholders filled in. In React, the built-in
+`<LoginPage>` supplies its own English catalog (`defaultMessages`) and
+notification store for its subtree.
 
 ## Multiple locales
 

@@ -1,7 +1,15 @@
+import {
+  type AnyCheloneI18n,
+  createI18n,
+  defineMessages,
+  fakeDataProvider,
+} from "@chelone/core";
+import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { defineComponent, h, inject, nextTick, ref } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
+import List from "../components/admin/view/list.vue";
 import { CheloneContextKey, type CheloneContextValue } from "../context";
 import Admin from "./admin.vue";
 import Resource from "./resource.vue";
@@ -324,5 +332,37 @@ describe("<Admin> / <Resource> — self-registration + reactive routes + slots",
     wrapper.unmount();
     await flushPromises();
     expect(router.hasRoute("chelone-posts-list")).toBe(false);
+  });
+});
+
+describe("<Admin> — i18n", () => {
+  function mountList(i18n?: AnyCheloneI18n) {
+    const dataProvider = fakeDataProvider({
+      posts: [{ id: 1, title: "Alpha" }],
+    });
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    return mount(Admin, {
+      props: { dataProvider, queryClient, i18n },
+      slots: { default: () => h(List, { resource: "posts" }) },
+      global: { plugins: [makeRouter()] },
+    });
+  }
+
+  it("an Admin with no i18n titles a list with its resource name", async () => {
+    const wrapper = mountList();
+    await flushPromises();
+    expect(wrapper.find("h2").text()).toBe("Posts");
+  });
+
+  it("an Admin given an i18n uses it, not the English default", async () => {
+    const i18n = createI18n({
+      locale: "en",
+      messages: { en: defineMessages({ "ra.page.list": "All {name}" }) },
+    });
+    const wrapper = mountList(i18n);
+    await flushPromises();
+    expect(wrapper.find("h2").text()).toBe("All Posts");
   });
 });

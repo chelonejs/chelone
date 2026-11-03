@@ -128,7 +128,7 @@ describe("<DataTable> selection + <BulkActionsToolbar>", () => {
     const toolbar = wrapper.find('[data-slot="bulk-actions-toolbar"]');
     expect(toolbar.exists()).toBe(true);
     expect(wrapper.find('[data-slot="bulk-count"]').text()).toContain(
-      "1 rows selected",
+      "1 item selected",
     );
   });
 
@@ -384,7 +384,7 @@ describe("<FilterForm> filters prop", () => {
     await flushPromises();
 
     const remove = field(wrapper, "title").find("button");
-    expect(remove.attributes("title")).toBe("Remove filter");
+    expect(remove.attributes("title")).toBe("Remove this filter");
     await remove.trigger("click");
 
     await vi.waitFor(() =>
@@ -498,7 +498,7 @@ describe("<ListPagination>", () => {
 
     expect(wrapper.find('[data-slot="page-range"]').text()).toBe("1-10 of 25");
 
-    await wrapper.find('button[aria-label="Next"]').trigger("click");
+    await wrapper.find('button[aria-label="Go to next page"]').trigger("click");
     await vi.waitFor(() => expect(capture.list?.page).toBe(2));
     await vi.waitFor(() =>
       expect(wrapper.find('[data-slot="page-range"]').text()).toBe(
