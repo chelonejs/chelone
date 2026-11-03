@@ -92,7 +92,9 @@ import {
   type AnyCheloneI18n,
   type AuthProvider,
   type CheloneStore,
+  createI18n,
   type DataProvider,
+  englishMessages,
   joinBasename,
   type NotificationStore,
   type ResourceMap,
@@ -175,7 +177,10 @@ provideCheloneContext({
   dataProvider: props.dataProvider,
   queryClient,
   authProvider: props.authProvider,
-  i18n: props.i18n,
+  // Built once, and only when the app brings no i18n of its own.
+  i18n:
+    props.i18n ??
+    createI18n({ locale: "en", messages: { en: englishMessages } }),
   store: props.store,
   notifications: props.notifications,
   // Thread the zod registry so `useForm({ resource })` auto-resolves the

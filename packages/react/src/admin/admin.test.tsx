@@ -11,7 +11,12 @@
  * page slots reach the shell — not full routing.
  */
 
-import { createStore, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  createStore,
+  defineMessages,
+  fakeDataProvider,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -32,6 +37,8 @@ import {
 } from "vitest";
 import { Layout } from "../components/admin/layout/layout";
 import { ThemeProvider } from "../components/admin/layout/theme-provider";
+import { DataTable } from "../components/admin/list/data-table";
+import { List as ListView } from "../components/admin/views/list";
 import { CheloneProvider, useCheloneContext } from "../context";
 import { useTranslate } from "../i18n-hooks";
 import { useNotify } from "../notification-hooks";
@@ -311,9 +318,12 @@ describe("<Admin> — optional services", () => {
       </MemoryRouter>,
     );
 
-    fireEvent.keyDown(screen.getByRole("button", { name: /toggle theme/i }), {
-      key: "Enter",
-    });
+    fireEvent.keyDown(
+      screen.getByRole("button", { name: /toggle light\/dark/i }),
+      {
+        key: "Enter",
+      },
+    );
     fireEvent.click(await screen.findByRole("menuitem", { name: /dark/i }));
 
     expect(document.documentElement.classList.contains("dark")).toBe(true);
@@ -343,9 +353,12 @@ describe("<Admin> — optional services", () => {
       </CheloneProvider>,
     );
 
-    fireEvent.keyDown(screen.getByRole("button", { name: /toggle theme/i }), {
-      key: "Enter",
-    });
+    fireEvent.keyDown(
+      screen.getByRole("button", { name: /toggle light\/dark/i }),
+      {
+        key: "Enter",
+      },
+    );
     fireEvent.click(await screen.findByRole("menuitem", { name: /light/i }));
 
     expect(store.getItem("my-theme")).toBe("light");
@@ -540,5 +553,47 @@ describe("<Admin> — slot statics", () => {
   it("exposes the slot components as statics on Admin", () => {
     expect(Admin.Title).toBe(AdminTitle);
     expect(Admin.Dashboard).toBe(AdminDashboard);
+  });
+});
+
+describe("<Admin> — i18n", () => {
+  const PostList = () => (
+    <ListView>
+      <DataTable>
+        <DataTable.Col source="title" />
+      </DataTable>
+    </ListView>
+  );
+  const posts = fakeDataProvider({ posts: [{ id: 1, title: "Alpha" }] });
+
+  it("an Admin with no i18n titles a list with its resource name", async () => {
+    render(
+      <MemoryRouter initialEntries={["/posts"]}>
+        <Admin dataProvider={posts} queryClient={makeQueryClient()}>
+          <Resource name="posts" list={PostList} />
+        </Admin>
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole("heading", { name: "Posts" })).toBeTruthy();
+    expect(screen.queryByText("ra.page.list")).toBeNull();
+  });
+
+  it("an Admin given an i18n uses it, not the English default", async () => {
+    const i18n = createI18n({
+      locale: "en",
+      messages: { en: defineMessages({ "ra.page.list": "All {name}" }) },
+    });
+    render(
+      <MemoryRouter initialEntries={["/posts"]}>
+        <Admin dataProvider={posts} queryClient={makeQueryClient()} i18n={i18n}>
+          <Resource name="posts" list={PostList} />
+        </Admin>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole("heading", { name: "All Posts" }),
+    ).toBeTruthy();
   });
 });
