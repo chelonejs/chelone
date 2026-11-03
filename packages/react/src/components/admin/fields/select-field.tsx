@@ -1,7 +1,7 @@
+import type { LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import type { ChoiceRecord, OptionText } from "../../../choices-hooks";
 import { useChoices } from "../../../choices-hooks";
 import { useTranslate } from "../../../i18n-hooks";
@@ -34,7 +34,7 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
  * as choice labels. Set `translateChoice={false}` to opt out (e.g. inside a
  * `<ReferenceField>`, which defaults it to false).
  */
-const SelectFieldImpl = <RecordType extends UnknownRecord = UnknownRecord>(
+const SelectFieldImpl = <RecordType extends LooseRecord = LooseRecord>(
   props: SelectFieldProps<RecordType>,
 ) => {
   const {
@@ -87,7 +87,7 @@ SelectFieldImpl.displayName = "SelectFieldImpl";
 
 const SelectField = genericMemo(SelectFieldImpl);
 
-interface SelectFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface SelectFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     HTMLAttributes<HTMLSpanElement> {
   /** The list of choices to map the value against. */
