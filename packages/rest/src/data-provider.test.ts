@@ -470,6 +470,9 @@ describe("restDataProvider", () => {
       { message: "Unprocessable" },
       { errors: "bad" },
       { errors: { title: 5 } },
+      { message: "Title taken", errors: {} },
+      { message: "Title taken", errors: { title: [] } },
+      { message: "Title taken", errors: { title: "" } },
     ]) {
       stubFetch(respond(body, { status: 422 }));
       const error = await provider

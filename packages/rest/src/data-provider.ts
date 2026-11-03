@@ -120,17 +120,30 @@ export const defaultParseRecord = (
   return response.json as LooseRecord;
 };
 
+const isMessage = (value: unknown): value is string =>
+  typeof value === "string" && value !== "";
+
+// A form shows nothing for a ValidationError with no message, so one that
+// carries none stays an HttpError and the caller still notifies it.
 const isFieldErrors = (
   value: unknown,
-): value is Record<string, string | string[]> =>
-  isObject(value) &&
-  Object.values(value).every(
-    (entry) =>
-      typeof entry === "string" ||
-      (Array.isArray(entry) && entry.every((item) => typeof item === "string")),
+): value is Record<string, string | string[]> => {
+  if (!isObject(value)) return false;
+  const entries = Object.values(value);
+  return (
+    entries.every(
+      (entry) =>
+        typeof entry === "string" ||
+        (Array.isArray(entry) &&
+          entry.every((item) => typeof item === "string")),
+    ) &&
+    entries.some((entry) =>
+      Array.isArray(entry) ? entry.some(isMessage) : isMessage(entry),
+    )
   );
+};
 
-/** A 422 whose body carries `errors` becomes a `ValidationError`; anything else stays as it is. */
+/** A 422 whose body carries at least one field message in `errors` becomes a `ValidationError`; anything else stays as it is. */
 const defaultToValidationError = (error: HttpError): Error => {
   const errors = isObject(error.body) ? error.body.errors : undefined;
   if (error.status !== 422 || !isFieldErrors(errors)) return error;
