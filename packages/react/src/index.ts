@@ -1098,6 +1098,7 @@ export type {
 } from "./label";
 export {
   useGetRecordRepresentation,
+  useGetRecordRepresentationText,
   useGetResourceLabel,
   useResourceTranslation,
   useTranslateLabel,

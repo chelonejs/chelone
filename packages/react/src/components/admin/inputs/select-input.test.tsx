@@ -34,7 +34,7 @@ const messages = {
   en: defineMessages({ "chelone.validation.required": "Required" }),
 };
 
-function makeRegistry() {
+function makeRegistry(recordRepresentation?: unknown) {
   const registry = createResourceRegistry();
   registry.register({
     name: "authors",
@@ -42,13 +42,14 @@ function makeRegistry() {
     hasCreate: false,
     hasEdit: false,
     hasShow: false,
+    recordRepresentation,
   });
   return registry;
 }
 
-function makeWrapper() {
+function makeWrapper(recordRepresentation?: unknown) {
   const i18n = createI18n({ locale: "en", messages });
-  const registry = makeRegistry();
+  const registry = makeRegistry(recordRepresentation);
   return ({ children }: { children: ReactNode }) => (
     <CheloneProvider
       dataProvider={fakeDataProvider({})}
@@ -68,13 +69,15 @@ function setup<TFormData extends Record<string, unknown>>(
     defaultValues,
     save = async () => undefined,
     onData,
+    recordRepresentation,
   }: {
+    recordRepresentation?: unknown;
     defaultValues?: TFormData;
     save?: (data: TFormData) => Promise<FieldErrors | undefined>;
     onData?: (data: TFormData) => void;
   } = {},
 ) {
-  const Wrapper = makeWrapper();
+  const Wrapper = makeWrapper(recordRepresentation);
   const submitRef: { current: (() => Promise<void>) | null } = {
     current: null,
   };
@@ -200,30 +203,7 @@ describe("<SelectInput>", () => {
   });
 
   it("reads choices from an ambient reference ChoicesContext (no choices prop)", () => {
-    const referenceCtx = {
-      allChoices: [{ id: 7, name: "FromRef" }],
-      availableChoices: [{ id: 7, name: "FromRef" }],
-      selectedChoices: [],
-      total: 1,
-      isPending: false,
-      isFetching: false,
-      error: null,
-      page: 1,
-      perPage: 25,
-      sort: { field: "id", order: "DESC" as const },
-      filter: {},
-      hasNextPage: false,
-      hasPreviousPage: false,
-      resource: "authors",
-      source: "author_id",
-      isFromReference: true,
-      setPage: () => {},
-      setPerPage: () => {},
-      setSort: () => {},
-      setFilters: () => {},
-      setValue: () => {},
-      refetch: () => {},
-    };
+    const referenceCtx = referenceContext();
     setup(
       <ChoicesContextProvider value={referenceCtx}>
         <SelectInput />
@@ -233,4 +213,45 @@ describe("<SelectInput>", () => {
     fireEvent.click(screen.getByRole("combobox"));
     expect(screen.getByRole("option", { name: "FromRef" })).toBeTruthy();
   });
+
+  it("labels reference choices by name when recordRepresentation is an element", () => {
+    setup(
+      <ChoicesContextProvider value={referenceContext()}>
+        <SelectInput />
+      </ChoicesContextProvider>,
+      {
+        defaultValues: { author_id: "" },
+        recordRepresentation: <span>custom</span>,
+      },
+    );
+    fireEvent.click(screen.getByRole("combobox"));
+    expect(screen.getByRole("option", { name: "FromRef" })).toBeTruthy();
+  });
 });
+
+function referenceContext() {
+  return {
+    allChoices: [{ id: 7, name: "FromRef" }],
+    availableChoices: [{ id: 7, name: "FromRef" }],
+    selectedChoices: [],
+    total: 1,
+    isPending: false,
+    isFetching: false,
+    error: null,
+    page: 1,
+    perPage: 25,
+    sort: { field: "id", order: "DESC" as const },
+    filter: {},
+    hasNextPage: false,
+    hasPreviousPage: false,
+    resource: "authors",
+    source: "author_id",
+    isFromReference: true,
+    setPage: () => {},
+    setPerPage: () => {},
+    setSort: () => {},
+    setFilters: () => {},
+    setValue: () => {},
+    refetch: () => {},
+  };
+}
