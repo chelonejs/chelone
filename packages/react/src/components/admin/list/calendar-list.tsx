@@ -8,6 +8,7 @@ import {
   calendarRangeFilter,
   type ResourceRecord,
   shiftCalendarAnchor,
+  staleCalendarRangeKeys,
   toCalendarEvents,
 } from "@chelone/core";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
@@ -148,16 +149,20 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
     rangeFilter
       ? rangeFilter(range)
       : calendarRangeFilter(startSource, range, endSource);
+  const staleKeys = rangeFilter
+    ? []
+    : staleCalendarRangeKeys(startSource, endSource);
   const listFilter = list.filter as Record<string, unknown>;
   const inSync =
     list.perPage === perPage &&
+    staleKeys.every((key) => !(key in listFilter)) &&
     Object.entries(rangeValues()).every(
       ([key, value]) => listFilter[key] === value,
     );
 
   // What the range effect reads is the latest render's, without being a dependency.
-  const latest = useRef({ list, rangeValues, perPage });
-  latest.current = { list, rangeValues, perPage };
+  const latest = useRef({ list, rangeValues, perPage, staleKeys });
+  latest.current = { list, rangeValues, perPage, staleKeys };
   const applied = useRef<{
     keys: Set<string>;
     previousPerPage: number;
@@ -170,7 +175,8 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
   useEffect(() => {
     const current = latest.current;
     const values = current.rangeValues();
-    const filter = current.list.filter as Record<string, unknown>;
+    const filter = { ...(current.list.filter as Record<string, unknown>) };
+    for (const key of current.staleKeys) delete filter[key];
     // Recorded even when the list already holds the range, as it does after a
     // reload on a list URL: the unmount still has to take it back.
     applied.current ??= {

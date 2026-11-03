@@ -196,6 +196,18 @@ export function calendarRangeFilter(
   };
 }
 
+/**
+ * Keys an earlier default filter wrote that the current one no longer does: a
+ * list URL or store can still hold the start's lower bound, which would hide
+ * the event that starts before the range.
+ */
+export function staleCalendarRangeKeys(
+  startSource: string,
+  endSource?: string,
+): string[] {
+  return endSource ? [`${startSource}_gte`] : [];
+}
+
 export function omitCalendarRangeFilter(
   filter: Record<string, unknown>,
   startSource: string,

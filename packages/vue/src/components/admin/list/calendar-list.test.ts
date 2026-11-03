@@ -342,6 +342,35 @@ describe("<CalendarList> month view", () => {
     expect(listContext?.perPage).toBe(10);
   });
 
+  it("drops a starts_at_gte a list URL kept from before endSource bounded the end", async () => {
+    const stale = JSON.stringify({
+      starts_at_gte: new Date(2026, 3, 26).toISOString(),
+      starts_at_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
+      kind: "work",
+    });
+    const { getList, dataProvider } = providerWith();
+    let listContext: ReturnType<typeof useListContext> | undefined;
+    const Probe = defineComponent({
+      setup() {
+        listContext = useListContext();
+        return () => null;
+      },
+    });
+    await mountList({
+      list: () => h("div", [h(Probe), calendar()()]),
+      dataProvider,
+      path: `/meetings?filter=${encodeURIComponent(stale)}&perPage=1000`,
+    });
+
+    const expected = {
+      kind: "work",
+      starts_at_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
+      ends_at_gte: new Date(2026, 3, 26).toISOString(),
+    };
+    expect(lastFilter(getList).filter).toEqual(expected);
+    expect(listContext?.filter).toEqual(expected);
+  });
+
   it("moves the today mark to the next day at midnight", async () => {
     vi.useRealTimers();
     vi.useFakeTimers({ toFake: ["Date", "setTimeout", "clearTimeout"] });

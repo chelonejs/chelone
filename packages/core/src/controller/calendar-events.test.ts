@@ -8,6 +8,7 @@ import {
   groupCalendarAgenda,
   moveCalendarEvent,
   omitCalendarRangeFilter,
+  staleCalendarRangeKeys,
   toCalendarEvents,
 } from "./calendar-events";
 
@@ -249,6 +250,13 @@ describe("calendarRangeFilter", () => {
       starts_at_lte: "2026-05-30T23:59:59.999Z",
       ends_at_gte: "2026-04-26T00:00:00.000Z",
     });
+  });
+
+  it("staleCalendarRangeKeys names the start lower bound only once an endSource replaces it", () => {
+    expect(staleCalendarRangeKeys("starts_at")).toEqual([]);
+    expect(staleCalendarRangeKeys("starts_at", "ends_at")).toEqual([
+      "starts_at_gte",
+    ]);
   });
 
   it("omitCalendarRangeFilter removes only the range keys", () => {

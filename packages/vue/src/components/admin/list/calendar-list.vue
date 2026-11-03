@@ -88,6 +88,7 @@ import {
   calendarRangeFilter,
   type LooseRecord,
   shiftCalendarAnchor,
+  staleCalendarRangeKeys,
   toCalendarEvents,
 } from "@chelone/core";
 import {
@@ -235,10 +236,16 @@ const without = (filter: Record<string, unknown>, keys: string[]) =>
   Object.fromEntries(
     Object.entries(filter).filter(([key]) => !keys.includes(key)),
   );
+const staleKeys = computed(() =>
+  props.rangeFilter
+    ? []
+    : staleCalendarRangeKeys(props.startSource, props.endSource),
+);
 // A filter form that replaces the whole filter drops the range: ask again.
 const inSync = computed(
   () =>
     list.perPage === props.perPage &&
+    staleKeys.value.every((key) => !(key in list.filter)) &&
     Object.entries(rangeValue.value).every(
       ([key, value]) => list.filter[key] === value,
     ),
@@ -257,7 +264,7 @@ watch(
     if (inSync.value) return;
     const next = rangeValue.value;
     list.setParams({
-      filter: { ...without(list.filter, appliedKeys), ...next },
+      filter: { ...without(list.filter, [...appliedKeys, ...staleKeys.value]), ...next },
       perPage: props.perPage,
     });
     appliedKeys = Object.keys(next);

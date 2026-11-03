@@ -426,6 +426,28 @@ describe("<CalendarList> month view", () => {
     );
   });
 
+  it("drops a start_gte a list URL kept from before endSource bounded the end", async () => {
+    const stale = JSON.stringify({
+      start_gte: new Date(2026, 3, 26).toISOString(),
+      start_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
+      kind: "work",
+    });
+    mount(<Toggled />, {
+      url: `/?filter=${encodeURIComponent(stale)}&perPage=1000`,
+    });
+    await screen.findByText("Standup");
+
+    await waitFor(() =>
+      expect(
+        JSON.parse(screen.getByTestId("params").textContent ?? "{}").filter,
+      ).toEqual({
+        kind: "work",
+        start_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
+        end_gte: new Date(2026, 3, 26).toISOString(),
+      }),
+    );
+  });
+
   it("onSelectEvent receives the record and without it the event links to the edit page", async () => {
     const onSelectEvent = vi.fn();
     const first = mount(calendar({ onSelectEvent }));
