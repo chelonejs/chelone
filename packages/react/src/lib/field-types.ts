@@ -15,13 +15,13 @@
  *   consumer is not part of this wave.
  */
 
+import type { LooseRecord } from "@chelone/core";
 import type { ReactNode } from "react";
-import type { UnknownRecord } from "./unknown-types";
 
 export type SortOrder = "ASC" | "DESC";
 export type TextAlign = "left" | "center" | "right" | "justify" | "inherit";
 
-export interface FieldProps<RecordType extends UnknownRecord = UnknownRecord> {
+export interface FieldProps<RecordType extends LooseRecord = LooseRecord> {
   /** Name of the property to display (dot/bracket path). */
   source: string;
 
