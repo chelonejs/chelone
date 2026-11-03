@@ -3,7 +3,13 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [
-    ["@chelone/core", "@chelone/react", "@chelone/vue", "@chelone/supabase"]
+    [
+      "@chelone/core",
+      "@chelone/react",
+      "@chelone/vue",
+      "@chelone/supabase",
+      "@chelone/rest"
+    ]
   ],
   "linked": [],
   "access": "public",
