@@ -3,10 +3,11 @@
  * no host router) must build its browser router after commit: react-router's
  * browser history writes `window.history.replaceState` on creation, and a host
  * router that watches that call (TanStack's does) would setState mid-render.
+ * The wrapped `replaceState` records whether a render is in progress.
  */
 
 import { cleanup, render, screen } from "@testing-library/react";
-import { type ReactNode, useState } from "react";
+import * as React from "react";
 import type { createBrowserRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { reactRouterAdapter } from "./react-router-adapter";
@@ -28,33 +29,44 @@ vi.mock("react-router", async (importOriginal) => {
   };
 });
 
+type Dispatcher = { useState: { name: string } } | null;
+
+/**
+ * Whether a component is rendering right now. React keeps a dispatcher on its
+ * shared internals; outside a render its hooks are `throwInvalidHookError`
+ * (in commit phase too, which is why `H != null` alone is not enough).
+ */
+function isRendering(): boolean {
+  const internals = (
+    React as unknown as {
+      __CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE: {
+        H: Dispatcher;
+      };
+    }
+  ).__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+  const dispatcher = internals.H;
+  return (
+    dispatcher != null && dispatcher.useState.name !== "throwInvalidHookError"
+  );
+}
+
 const { RouterWrapper } = reactRouterAdapter;
 
 describe("CreatedDataRouter", () => {
   const originalReplaceState = window.history.replaceState;
-  let replaceStateCalls: number;
-  let hostSetState: (() => void) | undefined;
+  let replaceStateCalls: { duringRender: boolean }[];
 
   beforeEach(() => {
     created.length = 0;
     window.history.replaceState(null, "");
-    replaceStateCalls = 0;
-    hostSetState = undefined;
+    replaceStateCalls = [];
     window.history.replaceState = function (
       ...args: Parameters<History["replaceState"]>
     ) {
-      replaceStateCalls++;
-      hostSetState?.();
+      replaceStateCalls.push({ duringRender: isRendering() });
       return originalReplaceState.apply(this, args);
     };
   });
-
-  /** Stands in for a host router (TanStack's) that watches `replaceState`. */
-  function Host({ children }: { children: ReactNode }) {
-    const [, setTick] = useState(0);
-    hostSetState = () => setTick((n) => n + 1);
-    return <>{children}</>;
-  }
 
   afterEach(() => {
     cleanup();
@@ -62,22 +74,15 @@ describe("CreatedDataRouter", () => {
   });
 
   it("creating the router writes no history entry during render", () => {
-    // React reports a setState on another component during render by logging
-    // "Cannot update a component (`Host`) while rendering a different component".
-    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
-
     render(
-      <Host>
-        <RouterWrapper>
-          <p>admin content</p>
-        </RouterWrapper>
-      </Host>,
+      <RouterWrapper>
+        <p>admin content</p>
+      </RouterWrapper>,
     );
 
     expect(screen.getByText("admin content")).toBeTruthy();
-    expect(replaceStateCalls).toBeGreaterThan(0);
-    expect(errors).not.toHaveBeenCalled();
-    errors.mockRestore();
+    expect(replaceStateCalls.length).toBeGreaterThan(0);
+    expect(replaceStateCalls.filter((call) => call.duringRender)).toEqual([]);
   });
 
   it("a re-render keeps the same router and history", () => {
@@ -86,7 +91,7 @@ describe("CreatedDataRouter", () => {
         <p>first</p>
       </RouterWrapper>,
     );
-    const callsAfterMount = replaceStateCalls;
+    const callsAfterMount = replaceStateCalls.length;
 
     rerender(
       <RouterWrapper>
@@ -96,7 +101,7 @@ describe("CreatedDataRouter", () => {
 
     expect(screen.getByText("second")).toBeTruthy();
     expect(created).toHaveLength(1);
-    expect(replaceStateCalls).toBe(callsAfterMount);
+    expect(replaceStateCalls).toHaveLength(callsAfterMount);
   });
 
   it("unmounting disposes the router", () => {
