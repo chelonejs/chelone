@@ -16,6 +16,7 @@ import { loader, VueMonacoEditor } from "@guolao/vue-monaco-editor";
 import type { editor } from "monaco-editor";
 import * as monaco from "monaco-editor";
 import { computed, ref, shallowRef, watch } from "vue";
+import { useCheloneFormContext } from "../../form/form-context";
 import { useInput } from "../../form/use-input";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
@@ -71,15 +72,32 @@ const parseText = (source: string, textShape: JsonShape) =>
 // Chelone has no `trigger`: when the error state flips on a touched field,
 // re-write its value so validation runs against the new markers.
 let hadError = false;
-const markers = useMonacoMarkers(instance, monacoApi, (changed) => {
+let checking = 0;
+const { markers, settled } = useMonacoMarkers(instance, monacoApi, (changed) => {
   const hasError = changed.some((m) => m.severity >= ERROR_SEVERITY);
   if (hasError === hadError) return;
   hadError = hasError;
+  // A check waiting on `settled` reads these markers itself, and a rewrite
+  // now would cancel it mid-flight, letting the submit it belongs to pass.
+  if (checking > 0) return;
   if (touched.value) write(value.value);
 });
 
-const markerCheck = () =>
-  markers.value.find((marker) => marker.severity >= ERROR_SEVERITY)?.message;
+// A save waits out Monaco's diagnostics delay so a schema error from the last
+// edit is in the list before it is read. Re-checks while typing read what is
+// there: waiting would hold a cleared error on screen and block Save.
+const { form } = useCheloneFormContext();
+const firstError = (list: editor.IMarker[]) =>
+  list.find((marker) => marker.severity >= ERROR_SEVERITY)?.message;
+const markerCheck = async () => {
+  if (!form.state.isSubmitting) return firstError(markers.value);
+  checking++;
+  try {
+    return firstError(await settled());
+  } finally {
+    checking--;
+  }
+};
 // Monaco's markers lag the text by its diagnostics delay, so the text's own
 // parse error is checked too: a stale marker list must not let bad text save.
 const syntaxCheck = () => {

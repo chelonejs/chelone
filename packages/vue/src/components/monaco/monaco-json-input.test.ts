@@ -51,6 +51,7 @@ const hoisted = vi.hoisted(() => ({
   markers: [] as { severity: number; message: string }[],
   markerListeners: new Set<(uris: { toString(): string }[]) => void>(),
   blurListeners: new Set<() => void>(),
+  contentListeners: new Set<() => void>(),
   diagnosticsOptions: {} as Record<string, unknown>,
   formatRun: vi.fn(),
   modelUri: "",
@@ -88,7 +89,15 @@ vi.mock("@guolao/vue-monaco-editor", async () => {
           emit(
             "mount",
             {
-              getModel: () => ({ uri }),
+              getModel: () => ({
+                uri,
+                onDidChangeContent: (listener: () => void) => {
+                  hoisted.contentListeners.add(listener);
+                  return {
+                    dispose: () => hoisted.contentListeners.delete(listener),
+                  };
+                },
+              }),
               getContentHeight: () => 0,
               onDidContentSizeChange: () => ({ dispose() {} }),
               onDidBlurEditorWidget: (listener: () => void) => {
@@ -126,8 +135,10 @@ vi.mock("@guolao/vue-monaco-editor", async () => {
             "data-height": String(props.height),
             readonly: Boolean(props.options?.readOnly),
             value: props.value ?? "",
-            onInput: (event: Event) =>
-              emit("update:value", (event.target as HTMLTextAreaElement).value),
+            onInput: (event: Event) => {
+              for (const listener of hoisted.contentListeners) listener();
+              emit("update:value", (event.target as HTMLTextAreaElement).value);
+            },
           });
       },
     }),
@@ -205,6 +216,8 @@ async function editor(wrapper: VueWrapper) {
     expect(wrapper.find('[data-testid="editor"]').exists()).toBe(true),
   );
   await flushPromises();
+  // The hook subscribes a tick after the stub mounts.
+  await vi.waitFor(() => expect(hoisted.contentListeners.size).toBe(1));
   return wrapper.get<HTMLTextAreaElement>('[data-testid="editor"]');
 }
 
@@ -214,6 +227,15 @@ async function type(
 ) {
   await el.setValue(text);
   await flushPromises();
+  // Once a validator has gone async, form-core runs it on a zero-delay timer.
+  // Let that run, as the gap between a keystroke and a click would.
+  if (vi.isFakeTimers()) await vi.advanceTimersByTimeAsync(0);
+  else await new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+// Only the clock the hook reads is faked; the test utils flush on `setImmediate`.
+function useClock() {
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
 }
 
 const errorText = (wrapper: VueWrapper) =>
@@ -240,6 +262,7 @@ beforeEach(() => {
   hoisted.markers = [];
   hoisted.markerListeners.clear();
   hoisted.blurListeners.clear();
+  hoisted.contentListeners.clear();
   hoisted.diagnosticsOptions = {};
   hoisted.formatRun.mockReset();
   vi.stubGlobal(
@@ -259,6 +282,7 @@ afterEach(() => {
       // Already unmounted by the test.
     }
   }
+  vi.useRealTimers();
   vi.unstubAllGlobals();
 });
 
@@ -599,5 +623,57 @@ describe("MonacoJsonInput", () => {
     const container = document.getElementById(label.attributes("for") ?? "");
     expect(container?.contains(el.element)).toBe(true);
     expect(wrapper.text()).toContain("Raw settings");
+  });
+
+  it("blocks Save on a schema error that arrives after the click", async () => {
+    const onData = vi.fn();
+    const { wrapper, submit } = setup(input({ source: "meta" }), {
+      record: { meta: { a: 1 } },
+      onData,
+    });
+    const el = await editor(wrapper);
+    useClock();
+    await type(el, '{"a":"x"}');
+    const saving = submit();
+    await vi.advanceTimersByTimeAsync(500);
+    expect(onData).not.toHaveBeenCalled();
+    await setMarkers([{ severity: 8, message: "Expected a number" }]);
+    await saving;
+    expect(onData).not.toHaveBeenCalled();
+    expect(errorText(wrapper)).toContain("Expected a number");
+  });
+
+  it("saves a valid edit without waiting once its markers have arrived", async () => {
+    const onData = vi.fn();
+    const { wrapper, submit } = setup(input({ source: "meta" }), {
+      record: { meta: { a: 1 } },
+      onData,
+    });
+    const el = await editor(wrapper);
+    useClock();
+    await type(el, '{"a":2}');
+    await setMarkers([]);
+    const saving = submit();
+    // form-core starts an async validator on a zero-delay timer.
+    await vi.advanceTimersByTimeAsync(0);
+    await saving;
+    expect(onData).toHaveBeenCalledWith({ meta: { a: 2 } });
+  });
+
+  it("saves a valid edit when no marker event comes", async () => {
+    const onData = vi.fn();
+    const { wrapper, submit } = setup(input({ source: "meta" }), {
+      record: { meta: { a: 1 } },
+      onData,
+    });
+    const el = await editor(wrapper);
+    useClock();
+    await type(el, '{"a":2}');
+    const saving = submit();
+    await vi.advanceTimersByTimeAsync(749);
+    expect(onData).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    await saving;
+    expect(onData).toHaveBeenCalledWith({ meta: { a: 2 } });
   });
 });
