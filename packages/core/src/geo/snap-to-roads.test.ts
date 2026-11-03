@@ -60,17 +60,57 @@ describe("createOsrmProvider", () => {
     );
   });
 
-  it("returns null over 100 positions without fetching", async () => {
+  it("matches a line of more than 100 positions in chunks", async () => {
+    const many = Array.from(
+      { length: 250 },
+      (_, i): GeoPosition => [i / 10, 0],
+    );
+    // Echoes each chunk back shifted north, so the join is visible.
+    const fetchStub = vi.fn<typeof fetch>(async (input) => {
+      const path = String(input).split("/match/v1/driving/")[1] ?? "";
+      const coordinates = (path.split("?")[0] ?? "").split(";").map((pair) => {
+        const [lng, lat] = pair.split(",").map(Number);
+        return [lng, (lat ?? 0) + 1];
+      });
+      return new Response(
+        JSON.stringify({
+          code: "Ok",
+          matchings: [{ geometry: { type: "LineString", coordinates } }],
+        }),
+      );
+    });
+    const provider = createOsrmProvider({
+      endpoint: ENDPOINT,
+      fetch: fetchStub,
+    });
+    const snapped = await provider.snapToRoad(line(many));
+
+    // 250 positions: chunks of 100 sharing end points are 0-99, 99-198, 198-249.
+    expect(fetchStub).toHaveBeenCalledTimes(3);
+    expect(snapped?.coordinates).toEqual(many.map(([x]) => [x, 1]));
+  });
+
+  it("returns null when any chunk of a long line fails", async () => {
+    const many = Array.from(
+      { length: 150 },
+      (_, i): GeoPosition => [i / 10, 0],
+    );
+    const fetchStub = vi.fn<typeof fetch>(
+      async () => new Response(JSON.stringify({ code: "NoMatch" })),
+    );
+    const provider = createOsrmProvider({
+      endpoint: ENDPOINT,
+      fetch: fetchStub,
+    });
+    await expect(provider.snapToRoad(line(many))).resolves.toBeNull();
+  });
+
+  it("returns null for a line of fewer than two positions without fetching", async () => {
     const fetchStub = stubFetch({});
     const provider = createOsrmProvider({
       endpoint: ENDPOINT,
       fetch: fetchStub,
     });
-    const many = Array.from(
-      { length: 101 },
-      (_, i): GeoPosition => [i / 10, 0],
-    );
-    await expect(provider.snapToRoad(line(many))).resolves.toBeNull();
     await expect(provider.snapToRoad(line([[0, 0]]))).resolves.toBeNull();
     expect(fetchStub).not.toHaveBeenCalled();
   });

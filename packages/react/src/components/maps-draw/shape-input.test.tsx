@@ -9,6 +9,7 @@
 
 import {
   createI18n,
+  createNotificationStore,
   fakeDataProvider,
   type GeoFeature,
   mapMessages,
@@ -40,10 +41,16 @@ import {
 } from "./__fixtures__/fake-terra-draw";
 import {
   mountShapeInput,
+  storedValue,
   toolbarNames,
 } from "./__fixtures__/mount-shape-input";
 import { ShapeInput, type ShapeInputProps } from "./shape-input";
-import { MultiPolygonInput, PointInput, PolygonInput } from "./shape-inputs";
+import {
+  LineStringInput,
+  MultiPolygonInput,
+  PointInput,
+  PolygonInput,
+} from "./shape-inputs";
 
 vi.mock("maplibre-gl", () => import("../maps/__fixtures__/fake-maplibre"));
 vi.mock("terra-draw", () => import("./__fixtures__/fake-terra-draw"));
@@ -887,4 +894,93 @@ it("PolygonInput and MultiPolygonInput offer the cut tool and PointInput does no
   resetDraws();
   await mountShapeInput(<PointInput source="shape" />);
   expect(toolbarNames()).not.toContain("Cut a hole");
+});
+
+describe("ShapeInput snap failure", () => {
+  const drawn = {
+    type: "LineString",
+    coordinates: [
+      [0, 0],
+      [1, 1],
+    ],
+  };
+  const failingRouter = {
+    name: "fake",
+    snapToRoad: vi.fn(async () => null),
+  };
+  const warnings = (
+    notifications: ReturnType<typeof createNotificationStore>,
+  ) =>
+    notifications.getSnapshot().map(({ message, type }) => ({ message, type }));
+
+  async function drawLine(draw: () => (typeof draws)[number]) {
+    fireEvent.click(button("Draw a line"));
+    await act(async () => {
+      const id = draw().put(drawn, "linestring");
+      draw().emitFinish(id, "draw", "linestring");
+    });
+  }
+
+  it("warns when snapping to roads fails and keeps the drawn line", async () => {
+    const notifications = createNotificationStore();
+    const { draw } = await mountShapeInput(
+      <LineStringInput
+        source="shape"
+        label="Route"
+        snapToRoads={failingRouter}
+      />,
+      null,
+      {},
+      notifications,
+    );
+    await drawLine(draw);
+
+    expect(warnings(notifications)).toEqual([
+      { message: "chelone.map.snap_failed", type: "warning" },
+    ]);
+    expect(storedValue()).toEqual(drawn);
+  });
+
+  it("warns when the router throws and keeps the drawn line", async () => {
+    const notifications = createNotificationStore();
+    const { draw } = await mountShapeInput(
+      <LineStringInput
+        source="shape"
+        label="Route"
+        snapToRoads={{
+          name: "fake",
+          snapToRoad: async () => {
+            throw new Error("offline");
+          },
+        }}
+      />,
+      null,
+      {},
+      notifications,
+    );
+    await drawLine(draw);
+
+    expect(warnings(notifications)).toEqual([
+      { message: "chelone.map.snap_failed", type: "warning" },
+    ]);
+    expect(storedValue()).toEqual(drawn);
+  });
+
+  it("stays quiet when a refine returns null and names no failure message", async () => {
+    const notifications = createNotificationStore();
+    const { draw } = await mountShapeInput(
+      <ShapeInput
+        source="shape"
+        kind="LineString"
+        label="Route"
+        refine={async () => null}
+      />,
+      null,
+      {},
+      notifications,
+    );
+    await drawLine(draw);
+
+    expect(warnings(notifications)).toEqual([]);
+  });
 });
