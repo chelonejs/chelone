@@ -10,7 +10,11 @@ import {
   provideChoicesContext,
   useChoicesContext,
 } from "./choices-context";
-import { type UseChoicesResult, useChoices } from "./use-choices";
+import {
+  getChoicePath,
+  type UseChoicesResult,
+  useChoices,
+} from "./use-choices";
 import {
   type UseReferenceInputResult,
   useReferenceInput,
@@ -118,6 +122,15 @@ describe("useChoices", () => {
     const choice = { id: 1, "nested.level": "Flat", nested: { level: "Deep" } };
     expect(c.getChoiceText(choice)).toBe("Flat");
     expect(c.getChoiceValue(choice)).toBe("Flat");
+  });
+
+  it("an empty option path reads nothing, not the whole choice", () => {
+    const c = run({ optionText: "", optionValue: "", disableValue: "" });
+    expect(c.getChoiceText({ id: 7, name: "Seven" })).toBe("");
+    expect(c.getChoiceValue({ id: 7, name: "Seven" })).toBe(7);
+    expect(c.getDisableValue({ id: 7, name: "Seven" })).toBeUndefined();
+    // The exported reader keeps the same contract.
+    expect(getChoicePath({ id: 7, name: "Seven" }, "")).toBeUndefined();
   });
 });
 

@@ -230,6 +230,18 @@ describe("useChoices", () => {
     expect(result.current.getChoiceValue(choice)).toBe("Flat");
   });
 
+  it("an empty option path reads nothing, not the whole choice", () => {
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => useChoices({ optionText: "", optionValue: "", disableValue: "" }),
+      { wrapper },
+    );
+    const choice = { id: 7, name: "Seven" };
+    expect(result.current.getChoiceText(choice)).toBe("");
+    expect(result.current.getChoiceValue(choice)).toBe(7);
+    expect(result.current.getDisableValue(choice)).toBeUndefined();
+  });
+
   it("disables translation when translateChoice is false", () => {
     const { wrapper } = makeWrapper();
     const { result } = renderHook(

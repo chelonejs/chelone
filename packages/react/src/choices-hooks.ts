@@ -201,6 +201,14 @@ export interface UseChoicesResult {
 }
 
 /**
+ * Read a choice option path. An empty path reads nothing: core's `getAtPath`
+ * returns the record itself for `""`, which would render `[object Object]` as
+ * the label and submit the whole choice as the field value.
+ */
+const readChoicePath = (choice: ChoiceRecord, path: string): unknown =>
+  path === "" ? undefined : getAtPath(choice, path);
+
+/**
  * The choice accessors (ra's `useChoices`): text (string path or formatter,
  * translated with a `{_: name}` fallback so a non-key label renders as-is),
  * value (`optionValue` path or `id`), and disabled flag. Every path reads
@@ -220,7 +228,7 @@ export function useChoices(options: UseChoicesOptions = {}): UseChoicesResult {
     () => ({
       getChoiceText(choice) {
         if (typeof optionText === "function") return optionText(choice);
-        const raw = getAtPath(choice, optionText);
+        const raw = readChoicePath(choice, optionText);
         const text = raw == null ? "" : String(raw);
         if (!translateChoice) return text;
         // ra's `{_: name}` convention: translate the text as a key, but fall
@@ -230,11 +238,11 @@ export function useChoices(options: UseChoicesOptions = {}): UseChoicesResult {
         return translated === text ? text : translated;
       },
       getChoiceValue(choice) {
-        const value = getAtPath(choice, optionValue);
+        const value = readChoicePath(choice, optionValue);
         return value !== undefined ? value : choice.id;
       },
       getDisableValue(choice) {
-        return getAtPath(choice, disableValue);
+        return readChoicePath(choice, disableValue);
       },
     }),
     [optionText, optionValue, disableValue, translateChoice, translate],

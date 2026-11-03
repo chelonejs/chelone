@@ -48,9 +48,11 @@ export interface UseChoicesResult {
  * Read a choice path off a record with core's one path grammar
  * ({@link getAtPath}): dot members (`author.name`), bracket indices
  * (`tags[0].label`) and numeric-dot indices all resolve, and an own flat key
- * equal to the whole path wins. Public in the package barrel.
+ * equal to the whole path wins. An empty path reads nothing, where core's
+ * reader returns the record itself. Public in the package barrel.
  */
 export function getChoicePath(record: ChoiceRecord, path: string): unknown {
+  if (path === "") return undefined;
   return getAtPath(record, path);
 }
 
