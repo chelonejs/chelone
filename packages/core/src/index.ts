@@ -543,6 +543,7 @@ export {
   createTranslatableController,
   getRecordForLocale,
 } from "./i18n/translatable";
+export { stripJsonComments } from "./json/strip-json-comments";
 export type {
   Notification,
   NotificationStore,

@@ -9,6 +9,7 @@ import {
   detectJsonShape,
   fromJsonText,
   type JsonShape,
+  stripJsonComments,
   toJsonText,
 } from "@chelone/core";
 import { loader, VueMonacoEditor } from "@guolao/vue-monaco-editor";
@@ -28,7 +29,6 @@ import {
   useMonacoLayout,
   useMonacoTheme,
 } from "./internal/monaco-composables";
-import { stripJsonComments } from "./internal/strip-json-comments";
 import { useJsonSchema } from "./internal/use-json-schema";
 import { useMonacoMarkers } from "./internal/use-monaco-markers";
 import type { MonacoJsonInputProps } from "./monaco-json-input.vue";
