@@ -35,12 +35,37 @@ const resources = defineResources({
   users: { schema: z.object({ id: z.string(), name: z.string() }) },
 });
 
+/** The shape a jsonb column arrives as (the Supabase add-on's `Json`). */
+type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
+
+interface OpenCells {
+  id: number;
+  title: string;
+  data: Json;
+  maps: { [key: string]: string }[];
+}
+
+const openCells = defineResources({
+  logs: {
+    schema: z.object({
+      id: z.number(),
+      message: z.string(),
+      payload: z.any(),
+      tags: z.array(z.record(z.string(), z.string())),
+    }),
+  },
+});
+
 declare function acceptPostPath(source: SourcePath<Post>): void;
 declare function acceptPostRow(source: RowSourcePath<Post>): void;
 declare function acceptPostFilter(source: FilterSourceKey<Post>): void;
 declare function acceptPostSource(source: SourceProp<Post>): void;
 declare function acceptResourcePath(
   source: AnySourcePathOf<typeof resources>,
+): void;
+declare function acceptOpenSource(source: SourceProp<OpenCells>): void;
+declare function acceptOpenResource(
+  source: AnySourcePathOf<typeof openCells>,
 ): void;
 
 describe("SourcePath", () => {
@@ -163,5 +188,25 @@ describe("SourceProp", () => {
     acceptPostSource("published_at_gte");
     // @ts-expect-error "titel" is not a path of Post
     acceptPostSource("titel");
+  });
+});
+
+describe("an array item with no key set", () => {
+  it("SourceProp keeps rejecting a typo when an array item has a string index signature", () => {
+    acceptOpenSource("title");
+    acceptOpenSource("data");
+    acceptOpenSource("maps[0]");
+    // @ts-expect-error "titel" is still not a path of the record
+    acceptOpenSource("titel");
+    // @ts-expect-error an open array item names no row path, so it adds none
+    acceptOpenSource("anything");
+  });
+
+  it("AnySourcePathOf keeps rejecting a typo when a record holds a jsonb column or an any field", () => {
+    acceptOpenResource("message");
+    acceptOpenResource("payload");
+    acceptOpenResource("tags[0]");
+    // @ts-expect-error "mesage" is not a path of any registered resource
+    acceptOpenResource("mesage");
   });
 });

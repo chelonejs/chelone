@@ -27,6 +27,11 @@ type _PrevNesting = [never, 0, 1, 2];
  * The item type of every array reachable in `T`. Object members are walked up
  * to `_WalkDepth` levels; array nesting up to `_MaxArrayNesting`, so a
  * recursive record type terminates and the resulting path union stays small.
+ *
+ * The union is walked one member at a time (`T extends unknown` distributes,
+ * and object members are walked per key) because `any` absorbs a union: walked
+ * as one type, a single `any`-typed field would turn every array in the record
+ * into `any`.
  */
 type _ArrayItems<T, Walk extends number, Nesting extends number> = [
   Walk,
@@ -34,19 +39,34 @@ type _ArrayItems<T, Walk extends number, Nesting extends number> = [
   ? never
   : [Nesting] extends [0]
     ? never
-    : T extends readonly unknown[]
-      ? T extends readonly []
-        ? never
-        :
-            | NonNullable<T[number]>
-            | _ArrayItems<
-                NonNullable<T[number]>,
-                _PrevWalk[Walk],
-                _PrevNesting[Nesting]
-              >
-      : T extends object
-        ? _ArrayItems<T[keyof T], _PrevWalk[Walk], Nesting>
-        : never;
+    : T extends unknown
+      ? _ItemsOf<T, Walk, Nesting>
+      : never;
+
+type _ItemsOf<T, Walk extends number, Nesting extends number> = 0 extends 1 & T
+  ? never
+  : T extends readonly unknown[]
+    ? T extends readonly []
+      ? never
+      :
+          | _Row<NonNullable<T[number]>>
+          | _ArrayItems<
+              NonNullable<T[number]>,
+              _PrevWalk[Walk],
+              _PrevNesting[Nesting]
+            >
+    : T extends object
+      ? {
+          [K in keyof T]: _ArrayItems<T[K], _PrevWalk[Walk], Nesting>;
+        }[keyof T]
+      : never;
+
+/**
+ * The item type of an array, minus `any` (it names no key set) and minus any
+ * member that is itself an array: a row that is an array has no named path
+ * under it, and `Paths` of it is a wall of `[${number}]` patterns.
+ */
+type _Row<T> = Exclude<0 extends 1 & T ? never : T, readonly unknown[]>;
 
 /**
  * Every legal `source` path into `TRecord`: dotted object paths and bracket
@@ -84,6 +104,12 @@ export type SourceKey<TRecord> = unknown extends TRecord
  * Children of an `ArrayInput` bind a path relative to their row
  * (`createRowSourceScope`), so a root-only path type would reject every
  * iterator child.
+ *
+ * A row whose type names no keys contributes nothing, and it is filtered per
+ * member so it cannot poison the rest: a `z.record` column, a jsonb `Json`
+ * member and a `z.any()` field all give `Paths` = `string`, and one `string`
+ * here would swallow every other array's paths and let every typo through
+ * again. A record that wants its jsonb rows checked gives them a schema.
  */
 export type RowSourcePath<TRecord> = unknown extends TRecord
   ? string
@@ -91,7 +117,11 @@ export type RowSourcePath<TRecord> = unknown extends TRecord
     ? string
     : _ArrayItems<TRecord, _WalkDepth, _MaxArrayNesting> extends infer TItem
       ? TItem extends unknown
-        ? Paths<TItem, { arrays: "bracket" }>
+        ? Paths<TItem, { arrays: "bracket" }> extends infer TPath extends string
+          ? string extends TPath
+            ? never
+            : TPath
+          : never
         : never
       : never;
 
