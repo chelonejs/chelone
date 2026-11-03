@@ -7,7 +7,8 @@
 //   node scripts/release-tags.mjs --dry-run       print what it would do, change nothing
 //   node scripts/release-tags.mjs --remote <name> look for tags on <name> instead of origin
 //
-// A package whose tag is already on the remote is skipped, so a rerun is safe.
+// A package with a tag on the remote and a release is skipped, so a rerun is
+// safe. A tag without a release (a run that failed in between) gets its release.
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -66,6 +67,15 @@ function onNpm(name, version) {
   throw new Error(`npm view ${name}@${version} failed:\n${result.stderr}`);
 }
 
+// `gh release view` exits non-zero both for a missing release and for an API
+// or auth failure. Only the first means "no release".
+function releaseExists(tag) {
+  const result = run("gh", ["release", "view", tag, "--json", "tagName"]);
+  if (result.status === 0) return true;
+  if (/release not found/i.test(result.stderr)) return false;
+  throw new Error(`gh release view ${tag} failed:\n${result.stderr}`);
+}
+
 function readPackages() {
   const dir = path.join(root, "packages");
   return readdirSync(dir, { withFileTypes: true })
@@ -98,11 +108,15 @@ function main() {
 
   for (const { name, version, packageDir } of readPackages()) {
     const tag = `${name}@${version}`;
-    if (onRemote(remote, tag)) {
-      console.log(`${tag}: tag already exists on ${remote}, nothing to do`);
+    const tagged = onRemote(remote, tag);
+    // A tag with no release is a run that failed between the two; finish it.
+    if (tagged && releaseExists(tag)) {
+      console.log(
+        `${tag}: tag already exists on ${remote} and has a release, nothing to do`,
+      );
       continue;
     }
-    if (!onNpm(name, version)) {
+    if (!tagged && !onNpm(name, version)) {
       console.log(`${tag}: not on npm yet, skipping`);
       continue;
     }
@@ -115,18 +129,28 @@ function main() {
       );
     }
     const changelogLabel = `${path.relative(root, changelogPath)} section ${version}`;
+    const steps = tagged
+      ? "create a GitHub release"
+      : `tag HEAD, push to ${remote}, and create a GitHub release`;
 
     if (dryRun) {
       console.log(
-        `${tag}: would tag HEAD, push to ${remote}, and create a GitHub release from ${changelogLabel}`,
+        `${tag}: would ${steps} from ${changelogLabel}${tagged ? ` (tag already on ${remote})` : ""}`,
       );
       continue;
     }
 
-    // `changeset publish` already tags locally in CI; reuse that tag.
-    const localTag = run("git", ["rev-parse", "-q", "--verify", `refs/tags/${tag}`]);
-    if (localTag.status !== 0) runOrThrow("git", ["tag", tag, "HEAD"]);
-    runOrThrow("git", ["push", remote, `refs/tags/${tag}`]);
+    if (!tagged) {
+      // `changeset publish` already tags locally in CI; reuse that tag.
+      const localTag = run("git", [
+        "rev-parse",
+        "-q",
+        "--verify",
+        `refs/tags/${tag}`,
+      ]);
+      if (localTag.status !== 0) runOrThrow("git", ["tag", tag, "HEAD"]);
+      runOrThrow("git", ["push", remote, `refs/tags/${tag}`]);
+    }
     const notesFile = path.join(
       notesDir,
       `${name.replace(/[^\w.-]/g, "_")}-${version}.md`,
@@ -141,7 +165,8 @@ function main() {
       "--notes-file",
       notesFile,
     ]);
-    console.log(`${tag}: tagged, pushed, and released from ${changelogLabel}`);
+    const done = tagged ? "released" : "tagged, pushed, and released";
+    console.log(`${tag}: ${done} from ${changelogLabel}`);
   }
 }
 
