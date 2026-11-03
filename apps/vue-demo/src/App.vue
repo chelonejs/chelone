@@ -17,10 +17,14 @@
 
 import { createNotificationStore } from "@chelone/core";
 import { Admin, Resource } from "@chelone/vue";
+import { MapsProvider } from "@chelone/vue/maps";
 import { QueryClient } from "@tanstack/vue-query";
 import { makeI18n } from "./i18n";
+import { mapsConfig } from "./maps-services";
 import { dataProvider } from "./realtime";
 import AuthorList from "./resources/AuthorList.vue";
+import PlaceEdit from "./resources/PlaceEdit.vue";
+import PlaceList from "./resources/PlaceList.vue";
 import PostCreate from "./resources/PostCreate.vue";
 import PostEdit from "./resources/PostEdit.vue";
 import PostList from "./resources/PostList.vue";
@@ -41,22 +45,27 @@ const i18n = makeI18n();
 </script>
 
 <template>
-  <Admin
-    :data-provider="dataProvider"
-    :query-client="queryClient"
-    :registry="resources"
-    :i18n="i18n"
-    :notifications="notifications"
-  >
-    <!-- QUICKSTART: `posts` carries a Zod schema (resources/schema.ts). The
-         Edit/Create forms validate against it automatically (the D6
-         registry-schema default validator). -->
-    <Resource
-      name="posts"
-      :list="PostList"
-      :edit="PostEdit"
-      :create="PostCreate"
-    />
-    <Resource name="authors" :list="AuthorList" />
-  </Admin>
+  <!-- The map services every maps view reads: the public OpenStreetMap ones,
+       which suit this demo only (see maps-services.ts). -->
+  <MapsProvider v-bind="mapsConfig">
+    <Admin
+      :data-provider="dataProvider"
+      :query-client="queryClient"
+      :registry="resources"
+      :i18n="i18n"
+      :notifications="notifications"
+    >
+      <!-- QUICKSTART: `posts` carries a Zod schema (resources/schema.ts). The
+           Edit/Create forms validate against it automatically (the D6
+           registry-schema default validator). -->
+      <Resource
+        name="posts"
+        :list="PostList"
+        :edit="PostEdit"
+        :create="PostCreate"
+      />
+      <Resource name="authors" :list="AuthorList" />
+      <Resource name="places" :list="PlaceList" :edit="PlaceEdit" />
+    </Admin>
+  </MapsProvider>
 </template>

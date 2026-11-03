@@ -1,4 +1,9 @@
-import { createI18n, defaultMessages, defineMessages } from "@chelone/core";
+import {
+  createI18n,
+  defaultMessages,
+  defineMessages,
+  mapMessages,
+} from "@chelone/core";
 
 /**
  * The Vue demo's i18n catalog — the same `ra.*` namespace the ported shadcn
@@ -8,10 +13,12 @@ import { createI18n, defaultMessages, defineMessages } from "@chelone/core";
  * shows raw keys; the full English catalog makes every label read as English.
  *
  * `defaultMessages` (the `chelone.*` keys the CORE controllers emit — save
- * notifications, validation messages) is merged underneath.
+ * notifications, validation messages) is merged underneath, and `mapMessages`
+ * (the maps add-on's labels) next to it.
  */
 const en = defineMessages({
   ...defaultMessages,
+  ...mapMessages,
 
   // Pages
   "ra.page.list": "{name}",
