@@ -142,7 +142,7 @@ describe("<ReferenceField>", () => {
       <ReferenceField
         source="author_id"
         reference="authors"
-        record={{ author_id: 99 }}
+        record={{ id: 1, author_id: 99 }}
         empty={<span>No author</span>}
         error={<span>Lookup failed</span>}
       />,
@@ -164,7 +164,7 @@ describe("<ReferenceField>", () => {
       <ReferenceField
         source="author_id"
         reference="authors"
-        record={{ author_id: 1 }}
+        record={{ id: 1, author_id: 1 }}
         empty={<span>No author</span>}
         error={<span>Lookup failed</span>}
       />,

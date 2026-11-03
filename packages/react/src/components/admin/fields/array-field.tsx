@@ -1,6 +1,10 @@
-import type { FilterPayload, ResourceRecord, SortPayload } from "@chelone/core";
+import type {
+  FilterPayload,
+  LooseRecord,
+  ResourceRecord,
+  SortPayload,
+} from "@chelone/core";
 import type { ReactNode } from "react";
-import type { UnknownRecord, UnknownValue } from "@/lib/unknown-types";
 import { ListContextProvider } from "../../../form";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useList } from "../../../use-list";
@@ -34,16 +38,15 @@ import { useList } from "../../../use-list";
  *   </Show>
  * );
  */
-function ArrayField<RecordType extends UnknownRecord = UnknownRecord>(
+function ArrayField<RecordType extends LooseRecord = LooseRecord>(
   props: ArrayFieldProps<RecordType>,
 ) {
   const { children, perPage, sort, filter } = props;
-  const data =
-    (useFieldValue(props) as UnknownValue[] | undefined) ?? emptyArray;
+  const data = (useFieldValue(props) as unknown[] | undefined) ?? emptyArray;
   const listContext = useList({
     // The array holds arbitrary embedded records; the client controller is
     // record-shape-agnostic, so erase to the loose `ResourceRecord`.
-    data: data as unknown as ResourceRecord[],
+    data: data as ResourceRecord[],
     perPage,
     sort,
     filter,
@@ -54,15 +57,15 @@ function ArrayField<RecordType extends UnknownRecord = UnknownRecord>(
   );
 }
 
-const emptyArray: UnknownValue[] = [];
+const emptyArray: unknown[] = [];
 
-interface ArrayFieldProps<RecordType extends UnknownRecord = UnknownRecord> {
+interface ArrayFieldProps<RecordType extends LooseRecord = LooseRecord> {
   /** The field path to the array on the current record. */
   source: string;
   /** The record to read. Defaults to the ambient `RecordContext` value. */
   record?: RecordType;
   /** Returned when the resolved value is `undefined`. */
-  defaultValue?: UnknownValue;
+  defaultValue?: unknown;
   /** The resource name published on the list context. */
   resource?: string;
   /** Client-side page size for the embedded list. */

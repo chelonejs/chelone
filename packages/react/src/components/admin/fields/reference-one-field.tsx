@@ -1,6 +1,5 @@
-import type { FilterPayload, SortPayload } from "@chelone/core";
+import type { FilterPayload, LooseRecord, SortPayload } from "@chelone/core";
 import type { ReactNode } from "react";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentation } from "../../../label";
 import {
@@ -10,9 +9,7 @@ import {
 import { useReferenceOneFieldController } from "../../../reference-hooks";
 import { ResourceContextProvider } from "../../../resource";
 
-interface ReferenceOneFieldProps<
-  RecordType extends UnknownRecord = UnknownRecord,
-> {
+interface ReferenceOneFieldProps<RecordType extends LooseRecord = LooseRecord> {
   /** The referenced resource holding the one-to-one record (e.g. `"bios"`). */
   reference: string;
   /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
@@ -27,7 +24,7 @@ interface ReferenceOneFieldProps<
    * Render-prop alternative to `children`: receives the resolved referenced
    * record (or `undefined` while loading / on error).
    */
-  render?: (referenceRecord: UnknownRecord | undefined) => ReactNode;
+  render?: (referenceRecord: LooseRecord | undefined) => ReactNode;
   /** Sort applied to the reference lookup (the first match is used). Read when the record id changes; remount with a `key` to change it otherwise. */
   sort?: SortPayload;
   /** Permanent filter merged into the reference lookup. Read when the record id changes; remount with a `key` to change it otherwise. */
@@ -67,7 +64,7 @@ interface ReferenceOneFieldProps<
  *   </Show>
  * );
  */
-function ReferenceOneField<RecordType extends UnknownRecord = UnknownRecord>(
+function ReferenceOneField<RecordType extends LooseRecord = LooseRecord>(
   props: ReferenceOneFieldProps<RecordType>,
 ) {
   const {

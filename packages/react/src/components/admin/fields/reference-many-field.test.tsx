@@ -480,7 +480,9 @@ describe("<ReferenceManyField>", () => {
           <ReferenceManyField
             reference="books"
             target="author_id"
-            record={{ name: "Draft" }}
+            // A draft holds no value for its key field yet.
+            source="draftKey"
+            record={{ id: 1, name: "Draft" }}
           >
             <Probe />
           </ReferenceManyField>

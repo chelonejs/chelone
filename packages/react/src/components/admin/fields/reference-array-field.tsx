@@ -1,11 +1,11 @@
 import type {
   FilterPayload,
   Identifier,
+  LooseRecord,
   ResourceRecord,
   SortPayload,
 } from "@chelone/core";
 import type { ReactNode } from "react";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { ListContextProvider } from "../../../form";
 import { useGetManyAggregate } from "../../../hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -13,7 +13,7 @@ import { ResourceContextProvider } from "../../../resource";
 import { useList } from "../../../use-list";
 
 interface ReferenceArrayFieldProps<
-  RecordType extends UnknownRecord = UnknownRecord,
+  RecordType extends LooseRecord = LooseRecord,
 > {
   /** The FK-array field on the current record (e.g. `"tag_ids"`). */
   source: string;
@@ -63,7 +63,7 @@ const emptyIds: Identifier[] = [];
  *   </List>
  * );
  */
-function ReferenceArrayField<RecordType extends UnknownRecord = UnknownRecord>(
+function ReferenceArrayField<RecordType extends LooseRecord = LooseRecord>(
   props: ReferenceArrayFieldProps<RecordType>,
 ) {
   const { source, reference, record, children, sort, filter, perPage } = props;

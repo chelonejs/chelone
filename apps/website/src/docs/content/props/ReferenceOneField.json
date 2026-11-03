@@ -45,7 +45,7 @@
     },
     {
       "name": "render",
-      "type": "(referenceRecord: UnknownRecord | undefined) => ReactNode",
+      "type": "(referenceRecord: LooseRecord | undefined) => ReactNode",
       "optional": true,
       "comment": "Render-prop alternative to `children`: receives the resolved referenced\nrecord (or `undefined` while loading / on error)."
     },
