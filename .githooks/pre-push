@@ -17,7 +17,10 @@ while read -r _ local_sha _ _; do
   fi
   # A commit from before the check existed has no script or baseline to run.
   if [ -f "$tmp/tree/scripts/check-duplication.mjs" ] && [ -f "$tmp/tree/duplication-baseline.json" ] && [ -f "$tmp/tree/.jscpd.json" ]; then
-    if ! (cd "$tmp/tree" && JSCPD_BIN="$root/node_modules/.bin/jscpd" node scripts/check-duplication.mjs); then
+    # A checkout installed before the check existed has no jscpd; CI still runs it.
+    if [ ! -e "$root/node_modules/.bin/jscpd" ]; then
+      echo "pre-push: jscpd is not installed, skipping the duplication check (run pnpm install; CI still runs it)" >&2
+    elif ! (cd "$tmp/tree" && JSCPD_BIN="$root/node_modules/.bin/jscpd" node scripts/check-duplication.mjs); then
       echo "pre-push: pnpm check:duplication failed, remove the copy (see CLAUDE.md)" >&2
       exit 1
     fi
