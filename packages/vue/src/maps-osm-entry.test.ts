@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock(
   "maplibre-gl",
@@ -14,15 +14,25 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const src = resolve(root, "src");
 
 describe("the maps/osm entry", () => {
-  it("the maps/osm entry exports GeocodingInput, MapWithSearch and useGeocode", async () => {
-    const entry = await import("./maps-osm");
+  let osm: typeof import("./maps-osm");
+  let maps: typeof import("./maps");
+
+  // The cold import compiles every SFC and turf module behind the entry, which
+  // can outlast the 5 s test timeout on a busy runner.
+  beforeAll(async () => {
+    osm = await import("./maps-osm");
+    maps = await import("./maps");
+  }, 30_000);
+
+  it("the maps/osm entry exports GeocodingInput, MapWithSearch and useGeocode", () => {
+    const entry = osm;
     expect(Object.keys(entry)).toEqual(
       expect.arrayContaining(["GeocodingInput", "MapWithSearch", "useGeocode"]),
     );
   });
 
-  it("the maps/osm entry also exports fetchOsmFeatures, useOsmFeatures, osmToPolygons, unionAll and subtractMask", async () => {
-    const entry = await import("./maps-osm");
+  it("the maps/osm entry also exports fetchOsmFeatures, useOsmFeatures, osmToPolygons, unionAll and subtractMask", () => {
+    const entry = osm;
     expect(Object.keys(entry)).toEqual(
       expect.arrayContaining([
         "fetchOsmFeatures",
@@ -34,8 +44,8 @@ describe("the maps/osm entry", () => {
     );
   });
 
-  it("the maps/osm entry also exports the operators, ReverseGeocodeField and useReverseGeocode", async () => {
-    const entry = await import("./maps-osm");
+  it("the maps/osm entry also exports the operators, ReverseGeocodeField and useReverseGeocode", () => {
+    const entry = osm;
     expect(Object.keys(entry).sort()).toEqual(
       [
         "GeocodingInput",
@@ -55,9 +65,8 @@ describe("the maps/osm entry", () => {
     );
   });
 
-  it("the maps entry exports no geocoding name", async () => {
-    const entry = await import("./maps");
-    const osm = await import("./maps-osm");
+  it("the maps entry exports no geocoding name", () => {
+    const entry = maps;
     for (const name of Object.keys(osm)) {
       expect(Object.keys(entry), name).not.toContain(name);
     }
