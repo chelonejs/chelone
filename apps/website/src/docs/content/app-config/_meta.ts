@@ -6,6 +6,7 @@ export default [
   { slug: "guessers", title: "Guessers" },
   { slug: "data-providers", title: "Data Providers" },
   { slug: "realtime", title: "Realtime" },
+  { slug: "maps", title: "Maps" },
   { slug: "supabase", title: "Supabase" },
   { slug: "supabase-pages", title: "Supabase Pages" },
   { slug: "security", title: "Security" },
