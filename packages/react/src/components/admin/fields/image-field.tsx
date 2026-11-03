@@ -1,6 +1,6 @@
+import type { LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord, UnknownValue } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -23,10 +23,10 @@ function getPath(record: unknown, path: string): unknown {
   return current;
 }
 
-interface ImageFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface ImageFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     Omit<HTMLAttributes<HTMLSpanElement>, "defaultValue"> {
-  defaultValue?: UnknownValue;
+  defaultValue?: unknown;
   /** The path to the image url on each item, for an array of images. */
   src?: string;
   /** The path to the display title (or a literal label). */
@@ -50,7 +50,7 @@ interface ImageFieldProps<RecordType extends UnknownRecord = UnknownRecord>
  *   empty={<div className="size-8 rounded-full bg-muted">👤</div>}
  * />
  */
-function ImageField<RecordType extends UnknownRecord = UnknownRecord>(
+function ImageField<RecordType extends LooseRecord = LooseRecord>(
   props: ImageFieldProps<RecordType>,
 ) {
   const { src, defaultValue, source, record, empty, title, ...rest } = props;
@@ -117,11 +117,7 @@ function ImageField<RecordType extends UnknownRecord = UnknownRecord>(
       {...sanitizeFieldRestProps(rest as Record<string, unknown>)}
       className={cn("image-single", rest.className)}
     >
-      <img
-        title={titleValue}
-        alt={titleValue}
-        src={(value as UnknownValue)?.toString()}
-      />
+      <img title={titleValue} alt={titleValue} src={value?.toString()} />
     </span>
   );
 }

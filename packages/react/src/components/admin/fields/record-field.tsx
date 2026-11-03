@@ -1,3 +1,4 @@
+import type { LooseRecord } from "@chelone/core";
 import {
   createElement,
   type ElementType,
@@ -6,14 +7,13 @@ import {
 } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useRecordContext } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource";
 import { TextField } from "./text-field";
 
-interface RecordFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface RecordFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends Omit<FieldProps<RecordType>, "source" | "record">,
     Omit<HTMLAttributes<HTMLDivElement>, "className"> {
   children?: ReactNode;
@@ -45,7 +45,7 @@ interface RecordFieldProps<RecordType extends UnknownRecord = UnknownRecord>
  *   </Show>
  * );
  */
-function RecordField<RecordType extends UnknownRecord = UnknownRecord>(
+function RecordField<RecordType extends LooseRecord = LooseRecord>(
   props: RecordFieldProps<RecordType>,
 ) {
   const {
