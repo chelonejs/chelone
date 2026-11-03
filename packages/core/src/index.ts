@@ -654,6 +654,12 @@ export { getAtPath } from "./resource/get-at-path";
 export type { Identifier } from "./resource/identifier";
 export type { LooseRecord, ResourceRecord } from "./resource/record";
 export type {
+  Register,
+  RegisteredRecord,
+  RegisteredResourceName,
+  RegisteredResources,
+} from "./resource/register";
+export type {
   RecordOf,
   ResourceConfig,
   ResourceMap,
@@ -670,6 +676,16 @@ export {
   computeDefinition,
   createResourceRegistry,
 } from "./resource/registry-store";
+export type {
+  AnySourcePath,
+  AnySourcePathOf,
+  FilterSourceKey,
+  RowSourcePath,
+  SourceKey,
+  SourcePath,
+  SourceProp,
+  SourceValue,
+} from "./resource/source-path";
 export type { CheloneLocation, NavigateOpts } from "./router/location";
 export { parseLocation } from "./router/location";
 export type { PathMatch } from "./router/match";
