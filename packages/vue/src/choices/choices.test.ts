@@ -100,6 +100,25 @@ describe("useChoices", () => {
     const custom = run({ disableValue: "locked" });
     expect(custom.getDisableValue({ id: 1, name: "x", locked: 1 })).toBe(1);
   });
+
+  it("optionText reads a bracket path", () => {
+    const c = run({ optionText: "author[0].name" });
+    expect(c.getChoiceText({ id: 1, author: [{ name: "Ada" }] })).toBe("Ada");
+  });
+
+  it("optionValue reads a bracket path", () => {
+    const c = run({ optionValue: "refs[1].id" });
+    expect(
+      c.getChoiceValue({ id: 1, refs: [{ id: "first" }, { id: "second" }] }),
+    ).toBe("second");
+  });
+
+  it("a flat key that contains a dot still wins", () => {
+    const c = run({ optionText: "nested.level", optionValue: "nested.level" });
+    const choice = { id: 1, "nested.level": "Flat", nested: { level: "Deep" } };
+    expect(c.getChoiceText(choice)).toBe("Flat");
+    expect(c.getChoiceValue(choice)).toBe("Flat");
+  });
 });
 
 describe("useChoicesContext", () => {

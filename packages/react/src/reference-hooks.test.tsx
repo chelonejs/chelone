@@ -175,6 +175,41 @@ describe("useReferenceManyFieldController", () => {
     expect(result.current.total).toBe(1);
   });
 
+  it("the foreign key is read from a nested source", async () => {
+    const { wrapper, referenceSpy } = makeHarness();
+    const { result } = renderHook(
+      () =>
+        useReferenceManyFieldController<R, "comments">({
+          reference: "comments",
+          target: "post_id",
+          source: "author.id",
+          // The top-level id (99) matches nothing: total 5 proves the read.
+          record: { id: 99, author: { id: 1 } },
+        }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isPending).toBe(false));
+    expect(result.current.total).toBe(5);
+    expect(referenceSpy).toHaveBeenLastCalledWith(
+      "comments",
+      expect.objectContaining({ id: 1 }),
+    );
+
+    // The bracket grammar reads the same kind of path.
+    const bracketed = renderHook(
+      () =>
+        useReferenceManyFieldController<R, "comments">({
+          reference: "comments",
+          target: "post_id",
+          source: "tags[0].id",
+          record: { id: 99, tags: [{ id: 2 }] },
+        }),
+      { wrapper },
+    );
+    await waitFor(() => expect(bracketed.result.current.total).toBe(1));
+    expect(bracketed.result.current.data?.map((row) => row.id)).toEqual([6]);
+  });
+
   it("follows a record whose id changes and releases the previous controller", async () => {
     const { wrapper, referenceSpy, observerCount, dataObserverCount } =
       makeHarness();
@@ -276,6 +311,30 @@ describe("useReferenceOneFieldController", () => {
         id: 1,
         pagination: { page: 1, perPage: 1 },
       }),
+    );
+  });
+
+  it("the foreign key is read from a nested source", async () => {
+    const { wrapper, referenceSpy } = makeHarness();
+    const { result } = renderHook(
+      () =>
+        useReferenceOneFieldController<R, "profiles">({
+          reference: "profiles",
+          target: "post_id",
+          source: "author.id",
+          // The top-level id (99) matches no profile: the nested one does.
+          record: { id: 99, author: { id: 1 } },
+        }),
+      { wrapper },
+    );
+    await waitFor(() => expect(result.current.isPending).toBe(false));
+    expect(result.current.referenceRecord).toMatchObject({
+      id: 1,
+      bio: "first",
+    });
+    expect(referenceSpy).toHaveBeenCalledWith(
+      "profiles",
+      expect.objectContaining({ id: 1 }),
     );
   });
 

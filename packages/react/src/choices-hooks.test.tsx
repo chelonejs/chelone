@@ -193,6 +193,43 @@ describe("useChoices", () => {
     expect(result.current.getDisableValue({ id: 2 })).toBeFalsy();
   });
 
+  it("optionText reads a bracket path", () => {
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => useChoices({ optionText: "author[0].name" }),
+      { wrapper },
+    );
+    expect(
+      result.current.getChoiceText({ id: 1, author: [{ name: "Ada" }] }),
+    ).toBe("Ada");
+  });
+
+  it("optionValue reads a bracket path", () => {
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () => useChoices({ optionValue: "refs[1].id" }),
+      { wrapper },
+    );
+    expect(
+      result.current.getChoiceValue({
+        id: 1,
+        refs: [{ id: "first" }, { id: "second" }],
+      }),
+    ).toBe("second");
+  });
+
+  it("a flat key that contains a dot still wins", () => {
+    const { wrapper } = makeWrapper();
+    const { result } = renderHook(
+      () =>
+        useChoices({ optionText: "nested.level", optionValue: "nested.level" }),
+      { wrapper },
+    );
+    const choice = { id: 1, "nested.level": "Flat", nested: { level: "Deep" } };
+    expect(result.current.getChoiceText(choice)).toBe("Flat");
+    expect(result.current.getChoiceValue(choice)).toBe("Flat");
+  });
+
   it("disables translation when translateChoice is false", () => {
     const { wrapper } = makeWrapper();
     const { result } = renderHook(
