@@ -54,6 +54,13 @@ export const defaultListQuery = (
       .map(({ field, order }) => (order === "DESC" ? `-${field}` : field))
       .join(",");
   }
+  for (const key of Object.keys(filter ?? {})) {
+    if (key in query) {
+      throw new Error(
+        `restDataProvider: the filter key "${key}" collides with a pagination or sort parameter. Pass listQuery to rename one.`,
+      );
+    }
+  }
   return { ...query, ...filter };
 };
 
@@ -61,10 +68,10 @@ const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
 const headerTotal = (response: FetchJsonResult): number | undefined => {
-  const total = Number(response.headers.get("X-Total-Count"));
-  return response.headers.has("X-Total-Count") && Number.isFinite(total)
-    ? total
-    : undefined;
+  const header = response.headers.get("X-Total-Count")?.trim();
+  if (!header) return undefined;
+  const total = Number(header);
+  return Number.isFinite(total) ? total : undefined;
 };
 
 export const defaultParseList = (
@@ -91,8 +98,17 @@ const notYet = (verb: string) => async (): Promise<never> => {
   throw new Error(`restDataProvider: ${verb} arrives in a later slice`);
 };
 
-export const defaultParseRecord = (response: FetchJsonResult): LooseRecord =>
-  response.json as LooseRecord;
+export const defaultParseRecord = (
+  response: FetchJsonResult,
+  resource: string,
+): LooseRecord => {
+  if (!isObject(response.json)) {
+    throw new Error(
+      `restDataProvider: the ${resource} response is not a JSON object. Pass parseRecord to read it.`,
+    );
+  }
+  return response.json as LooseRecord;
+};
 
 export function restDataProvider({
   apiUrl,
@@ -102,9 +118,10 @@ export function restDataProvider({
   updateMethod = "PUT",
   listQuery = defaultListQuery,
   parseList = defaultParseList,
-  parseRecord = defaultParseRecord,
+  parseRecord: customParseRecord,
 }: RestDataProviderOptions): DataProvider {
   const baseUrl = apiUrl.replace(/\/+$/, "");
+  const parseRecord = customParseRecord ?? defaultParseRecord;
 
   const request = async (
     resource: string,
@@ -145,21 +162,30 @@ export function restDataProvider({
       });
       return { data: parseRecord(response, resource) } as never;
     },
-    async update(resource, { id, data, meta }) {
+    async update(resource, { id, data, meta, previousData }) {
       const response = await request(resource, meta, {
         id,
         method: updateMethod,
         body: JSON.stringify(data),
       });
+      // A 204 has no body, so what the caller sent stands in for the saved record.
+      if (response.body.trim() === "") {
+        return { data: { ...previousData, ...data, id } } as never;
+      }
       return { data: parseRecord(response, resource) } as never;
     },
     async delete(resource, { id, previousData, meta }) {
       const response = await request(resource, meta, { id, method: "DELETE" });
-      // A 204 has no body, so the caller's last copy stands in for the record.
-      const data =
-        response.body.trim() === ""
-          ? (previousData ?? { id })
-          : parseRecord(response, resource);
+      // Servers often answer a delete with a 204 or an acknowledgement such
+      // as `{"success":true}`; the caller's last copy then stands in for the record.
+      const body = response.json;
+      const isRecord = isObject(body) && "id" in body;
+      const useFallback =
+        response.body.trim() === "" ||
+        (customParseRecord === undefined && !isRecord);
+      const data = useFallback
+        ? (previousData ?? { id })
+        : parseRecord(response, resource);
       return { data } as never;
     },
     getMany: notYet("getMany"),

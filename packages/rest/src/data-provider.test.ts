@@ -232,4 +232,66 @@ describe("restDataProvider", () => {
       restDataProvider({ apiUrl }).getMany("posts", { ids: [1] }),
     ).rejects.toThrow("restDataProvider: getMany arrives in a later slice");
   });
+  it("update with an empty body resolves with the sent data merged over previousData", async () => {
+    stubFetch(new Response(null, { status: 204 }));
+
+    const result = await restDataProvider({ apiUrl }).update("posts", {
+      id: 5,
+      data: { title: "new" },
+      previousData: { id: 5, title: "old", body: "b" },
+    });
+
+    expect(result).toEqual({ data: { id: 5, title: "new", body: "b" } });
+  });
+
+  it("create, getOne and update reject a body that is not a JSON object and name parseRecord", async () => {
+    stubFetch(new Response("OK", { status: 200 }));
+    const provider = restDataProvider({ apiUrl });
+
+    await expect(
+      provider.create("posts", { data: { title: "t" } }),
+    ).rejects.toThrow(/posts.*parseRecord/);
+    await expect(provider.getOne("posts", { id: 1 })).rejects.toThrow(
+      /posts.*parseRecord/,
+    );
+    await expect(
+      provider.update("posts", { id: 1, data: { title: "t" } }),
+    ).rejects.toThrow(/posts.*parseRecord/);
+  });
+
+  it("delete resolves with previousData when the body is not a record with an id", async () => {
+    const previousData = { id: 5, title: "t" };
+    const provider = restDataProvider({ apiUrl });
+
+    for (const reply of [
+      respond({}),
+      respond({ success: true }),
+      new Response("OK", { status: 200 }),
+    ]) {
+      stubFetch(reply);
+      expect(await provider.delete("posts", { id: 5, previousData })).toEqual({
+        data: previousData,
+      });
+    }
+  });
+
+  it("getList rejects a filter that collides with a pagination or sort parameter and names listQuery", async () => {
+    const fetchMock = stubFetch(respond([]));
+
+    await expect(
+      restDataProvider({ apiUrl }).getList("posts", {
+        pagination: { page: 1, perPage: 5 },
+        filter: { perPage: 99 },
+      }),
+    ).rejects.toThrow(/perPage.*listQuery/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("getList ignores an empty X-Total-Count header", async () => {
+    stubFetch(respond([{ id: 1 }], { headers: { "X-Total-Count": "" } }));
+
+    const result = await restDataProvider({ apiUrl }).getList("posts", {});
+
+    expect(result).toEqual({ data: [{ id: 1 }] });
+  });
 });
