@@ -15,9 +15,11 @@ import {
   type RecordOf,
   type ResourceMap,
   removeRecordsFromCache,
+  type UndoableCallbacks,
   type UpdateParams,
   updateMutationOptions,
   updateRecordsInCache,
+  withUndoableCallbacks,
 } from "@chelone/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCheloneContext } from "./context";
@@ -113,8 +115,15 @@ export function useUpdate<
   // Undoable: patch the cache now, defer the update, notify with Undo. `mutate`
   // is fire-and-forget (the server call is withheld until the undo window
   // closes); `mutateAsync` resolves once the undoable is enqueued, not on the
-  // deferred server response.
-  const mutate = (params: UpdateParams<RecordOf<TResources, TName>>) => {
+  // deferred server response. The callbacks of `mutate`'s second argument are
+  // the undoable ones: see `UndoableCallbacks`.
+  const mutate = (
+    params: UpdateParams<RecordOf<TResources, TName>>,
+    callbacks: UndoableCallbacks<
+      RecordOf<TResources, TName>,
+      UpdateParams<RecordOf<TResources, TName>>
+    > = {},
+  ) => {
     runUndoable({
       queryKeys: [[resource]],
       applyOptimistic: () =>
@@ -124,10 +133,21 @@ export function useUpdate<
           [params.id],
           params.data as Record<string, unknown>,
         ),
-      commit: () => ctx.dataProvider.update(resource, params),
+      commit: withUndoableCallbacks(
+        () => ctx.dataProvider.update(resource, params),
+        params,
+        callbacks,
+      ),
       message: "chelone.notification.updated",
       messageArgs: { smart_count: 1 },
     });
+    callbacks.onSuccess?.(
+      { ...params.previousData, ...params.data, id: params.id } as RecordOf<
+        TResources,
+        TName
+      >,
+      params,
+    );
   };
   return {
     ...mutation,
@@ -149,15 +169,26 @@ export function useDelete<
   if (options.mutationMode !== "undoable") return mutation;
   // Undoable: remove the row now, defer the delete, notify with Undo. See
   // `useUpdate` for the `mutate`/`mutateAsync` semantics.
-  const mutate = (params: DeleteParams<RecordOf<TResources, TName>>) => {
+  const mutate = (
+    params: DeleteParams<RecordOf<TResources, TName>>,
+    callbacks: UndoableCallbacks<
+      RecordOf<TResources, TName> | undefined,
+      DeleteParams<RecordOf<TResources, TName>>
+    > = {},
+  ) => {
     runUndoable({
       queryKeys: [[resource]],
       applyOptimistic: () =>
         removeRecordsFromCache(queryClient, resource, [params.id]),
-      commit: () => ctx.dataProvider.delete(resource, params),
+      commit: withUndoableCallbacks(
+        () => ctx.dataProvider.delete(resource, params),
+        params,
+        callbacks,
+      ),
       message: "chelone.notification.deleted",
       messageArgs: { smart_count: 1 },
     });
+    callbacks.onSuccess?.(params.previousData, params);
   };
   return {
     ...mutation,

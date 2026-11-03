@@ -282,6 +282,7 @@ export type {
   UpdateResult,
 } from "./data/types";
 export type {
+  UndoableCallbacks,
   UndoableHandle,
   UndoableMutationConfig,
   UndoableSnapshot,
@@ -290,6 +291,7 @@ export {
   commitAllUndoables,
   hasPendingUndoables,
   startUndoableMutation,
+  withUndoableCallbacks,
 } from "./data/undoable";
 export type {
   LifecycleCallbacks,

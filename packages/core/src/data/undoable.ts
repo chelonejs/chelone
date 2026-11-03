@@ -248,6 +248,47 @@ export function startUndoableMutation<TResult = unknown>(
   return handle;
 }
 
+/**
+ * The callbacks an undoable `mutate` takes as its second argument. They are
+ * not TanStack Query's: the server call is deferred, so `onSuccess` fires with
+ * the optimistic result and `onError`/`onSettled` follow the deferred commit.
+ */
+export interface UndoableCallbacks<TData, TParams> {
+  /** Runs right after the optimistic cache change, not after the undo window. */
+  onSuccess?: (data: TData, params: TParams) => void;
+  /** Runs when the deferred commit fails, after the rollback and error notification. */
+  onError?: (error: unknown, params: TParams) => void;
+  /** Runs once the commit ends, whether it succeeded or failed. Never after an Undo. */
+  onSettled?: (params: TParams) => void;
+}
+
+/**
+ * Wrap a deferred `commit` so `onError` and `onSettled` run when it ends. The
+ * failure is rethrown, so the handle still rolls back and the adapter still
+ * notifies; the callbacks wait a macrotask to run after both.
+ */
+export function withUndoableCallbacks<TResult, TParams>(
+  commit: () => Promise<TResult>,
+  params: TParams,
+  callbacks: Pick<UndoableCallbacks<unknown, TParams>, "onError" | "onSettled">,
+): () => Promise<TResult> {
+  const { onError, onSettled } = callbacks;
+  if (!onError && !onSettled) return commit;
+  return async () => {
+    try {
+      const result = await commit();
+      onSettled?.(params);
+      return result;
+    } catch (error) {
+      setTimeout(() => {
+        onError?.(error, params);
+        onSettled?.(params);
+      }, 0);
+      throw error;
+    }
+  };
+}
+
 /** True while at least one undoable mutation is still awaiting commit/undo. */
 export function hasPendingUndoables(): boolean {
   return pendingUndoables.size > 0;
