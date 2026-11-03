@@ -7,7 +7,7 @@
  * `field`; here the admin inputs bind `:model-value` + `@update:model-value`.
  */
 
-import { computed } from "vue";
+import { computed, onMounted, useTemplateRef } from "vue";
 import { cn } from "../../lib/utils";
 
 const props = defineProps<{
@@ -16,6 +16,8 @@ const props = defineProps<{
   id?: string;
   disabled?: boolean;
   readonly?: boolean;
+  autocomplete?: string;
+  autofocus?: boolean;
   ariaInvalid?: boolean;
   class?: string;
 }>();
@@ -33,6 +35,14 @@ const classes = computed(() =>
   ),
 );
 
+const input = useTemplateRef<HTMLInputElement>("input");
+
+// The native `autofocus` attribute is ignored on an input added after page
+// load, so focus it ourselves, as React's `autoFocus` does.
+onMounted(() => {
+  if (props.autofocus) input.value?.focus();
+});
+
 function onInput(event: Event) {
   emit("update:modelValue", (event.target as HTMLInputElement).value);
 }
@@ -41,10 +51,12 @@ function onInput(event: Event) {
 <template>
   <input
     :id="id"
+    ref="input"
     :type="type ?? 'text'"
     :value="modelValue ?? ''"
     :disabled="disabled"
     :readonly="readonly"
+    :autocomplete="autocomplete"
     :aria-invalid="ariaInvalid || undefined"
     :class="classes"
     data-slot="input"
