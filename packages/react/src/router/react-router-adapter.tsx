@@ -355,15 +355,27 @@ function CreatedDataRouter({
     store.set(children);
   });
 
-  // Build the data router ONCE (lazy useState initializer — the created router
-  // owns history and must not be rebuilt on re-render). Its root element is the
-  // STABLE `LiveChildrenOutlet`; the actual children flow through the store.
-  const [router] = useState(() =>
-    createBrowserRouter(
+  // Build the data router ONCE per mount, after commit. `createBrowserRouter`
+  // writes `window.history.replaceState`, which a host router that watches the
+  // URL (TanStack's does) answers with a setState; doing that during render
+  // makes React warn. Nothing renders until the router exists (one frame at
+  // most: layout effects run before paint). The created router owns history and
+  // is disposed on unmount. Its root element is the STABLE `LiveChildrenOutlet`;
+  // the actual children flow through the store.
+  const [router, setRouter] = useState<ReturnType<
+    typeof createBrowserRouter
+  > | null>(null);
+  const basenameRef = useRef(basename);
+  basenameRef.current = basename;
+  useLayoutEffect(() => {
+    const created = createBrowserRouter(
       [{ path: "*", element: <LiveChildrenOutlet /> }],
-      basename ? { basename } : undefined,
-    ),
-  );
+      basenameRef.current ? { basename: basenameRef.current } : undefined,
+    );
+    setRouter(created);
+    return () => created.dispose();
+  }, []);
+  if (!router) return null;
   return (
     <LiveChildrenContext.Provider value={store}>
       <RouterProvider router={router} />
