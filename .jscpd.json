@@ -1,0 +1,13 @@
+{
+  "path": [
+    "packages/core/src",
+    "packages/react/src",
+    "packages/vue/src",
+    "packages/supabase/src"
+  ],
+  "format": ["typescript", "tsx", "vue"],
+  "minLines": 5,
+  "minTokens": 50,
+  "ignore": ["**/*.test.*", "**/__fixtures__/**", "**/components/ui/**"],
+  "gitignore": true
+}

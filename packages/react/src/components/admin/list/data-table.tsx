@@ -110,9 +110,8 @@ const useDataTableHasBulk = () => use(DataTableBulkContext);
  * substrate — the table reads the list-controller result directly). The table
  * hides and orders its columns from the store and publishes them there (see
  * `useDataTableColumns`); the picker UI is `ColumnsButton`, outside the table.
- * `bulkActionButtons` defaults to `false` here — the
- * default delete/export/select-all buttons live in a later wave; pass your own
- * bulk children (or a `bulkActionsToolbar`) to enable selection.
+ * `bulkActionButtons` defaults to `false`; pass your own bulk children (or a
+ * `bulkActionsToolbar`) to enable selection.
  *
  * @example
  * <List>
@@ -798,8 +797,7 @@ interface DataTableProps {
   ) => string | undefined;
   /**
    * Bulk-action children rendered in the selection toolbar. `false` (default)
-   * disables selection entirely — the shadmin default delete/export/select-all
-   * buttons are a later wave, so pass your own bulk children (or a
+   * disables selection entirely, so pass your own bulk children (or a
    * `bulkActionsToolbar`) to turn selection on.
    */
   bulkActionButtons?: ReactNode;

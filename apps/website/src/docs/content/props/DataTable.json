@@ -11,7 +11,7 @@
       "name": "bulkActionButtons",
       "type": "ReactNode",
       "optional": true,
-      "comment": "Bulk-action children rendered in the selection toolbar. `false` (default)\ndisables selection entirely — the shadmin default delete/export/select-all\nbuttons are a later wave, so pass your own bulk children (or a\n`bulkActionsToolbar`) to turn selection on."
+      "comment": "Bulk-action children rendered in the selection toolbar. `false` (default)\ndisables selection entirely, so pass your own bulk children (or a\n`bulkActionsToolbar`) to turn selection on."
     },
     {
       "name": "bulkActionsToolbar",

@@ -8,6 +8,7 @@
     "typecheck": "turbo run typecheck",
     "format": "biome check --write .",
     "lint": "biome check .",
+    "check:duplication": "node scripts/check-duplication.mjs",
     "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true",
     "changeset": "changeset",
     "version-packages": "changeset version",
@@ -16,6 +17,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
     "@changesets/cli": "^3.0.3",
+    "jscpd": "5.4.2",
     "turbo": "^2.0.0",
     "typescript": "^5.5.0"
   },

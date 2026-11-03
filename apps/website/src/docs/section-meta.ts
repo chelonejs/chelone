@@ -11,9 +11,7 @@ import {
 } from "lucide-react";
 
 // Per-section icon + one-line blurb (keyed by folder). Shared by the /docs
-// landing and each category index page. Only the six sections Chelone v1 ships
-// are listed — the dropped sections (widgets, leaflet, realtime, supabase, etc.)
-// have no content dirs and never render, so they get no entry here.
+// landing and each category index page.
 export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
   {
     "getting-started": {
