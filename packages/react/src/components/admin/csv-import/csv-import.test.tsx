@@ -6,6 +6,7 @@
 import {
   type CsvImportReport,
   type DataProvider,
+  downloadCSV,
   fakeDataProvider,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
@@ -24,12 +25,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { CheloneProvider } from "../../../context";
 import { ResourceContextProvider } from "../../../resource";
-import { downloadCSV } from "../buttons/export";
 import { CsvImport } from "./csv-import";
 import { useCsvImport } from "./use-csv-import";
 
-vi.mock("../buttons/export", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../buttons/export")>()),
+vi.mock("@chelone/core", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@chelone/core")>()),
   downloadCSV: vi.fn(),
 }));
 

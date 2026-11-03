@@ -2,6 +2,8 @@ import { expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import type {
   CheloneLocation,
+  Exporter,
+  LooseRecord,
   NavigateOpts,
   PathMatch,
   RouterPort,
@@ -28,4 +30,12 @@ it("re-exports the P6 router types from the root", () => {
   expectTypeOf<PathMatch["params"]>().toEqualTypeOf<Record<string, string>>();
   expectTypeOf<RouterPort["navigate"]>().toBeFunction();
   expectTypeOf<Unsubscribe>().toEqualTypeOf<() => void>();
+});
+
+it("re-exports the Exporter type from the root", () => {
+  expectTypeOf<Exporter>().toBeFunction();
+  expectTypeOf<Exporter>().parameters.toEqualTypeOf<
+    [data: LooseRecord[], dataProvider: DataProvider, resource: string]
+  >();
+  expectTypeOf<Exporter>().returns.toEqualTypeOf<void | Promise<void>>();
 });
