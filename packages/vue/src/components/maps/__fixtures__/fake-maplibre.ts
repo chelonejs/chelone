@@ -58,6 +58,7 @@ class FakeMap {
   readonly fits: { bounds: unknown; options: Record<string, unknown> }[] = [];
   loaded = false;
   removed = false;
+  private styleFailed = false;
 
   constructor(options: Record<string, unknown>) {
     this.options = options;
@@ -65,7 +66,7 @@ class FakeMap {
     // The real map loads its style over the network, so `load` is never
     // synchronous. A map removed first never fires it.
     queueMicrotask(() => {
-      if (this.removed) return;
+      if (this.removed || this.styleFailed) return;
       this.loaded = true;
       this.emit("load");
     });
@@ -86,6 +87,15 @@ class FakeMap {
   /** Test hook: fire an event as MapLibre would, e.g. `map.emit("click", {...})`. */
   emit(type: string, event?: unknown): void {
     for (const handler of [...(this.handlers[type] ?? [])]) handler(event);
+  }
+
+  /**
+   * Test hook: the style could not load, as with a 404 or a malformed style.
+   * Call it before the microtask: `error` fires and `load` never does.
+   */
+  failStyle(error: Error = new Error("style failed")): void {
+    this.styleFailed = true;
+    this.emit("error", { error });
   }
 
   easeTo(options: Record<string, unknown>): this {
