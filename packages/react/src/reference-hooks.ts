@@ -5,6 +5,7 @@ import {
   type Identifier,
   type ListControllerContext,
   type ListControllerState,
+  listControllerActions,
   type MicroStore,
   type RecordOf,
   type ReferenceManyController,
@@ -168,18 +169,7 @@ export function useReferenceManyFieldController<
   return useMemo(
     () => ({
       ...snapshot,
-      setPage: controller.setPage,
-      setPerPage: controller.setPerPage,
-      setSort: controller.setSort,
-      setFilters: controller.setFilters,
-      setParams: controller.setParams,
-      showFilter: controller.showFilter,
-      hideFilter: controller.hideFilter,
-      select: controller.select,
-      toggleItem: controller.toggleItem,
-      unselectAll: controller.unselectAll,
-      selectAll: controller.selectAll,
-      refetch: controller.refetch,
+      ...listControllerActions(controller),
     }),
     [snapshot, controller],
   );
