@@ -5859,9 +5859,9 @@
       "description": "The opt-in maps add-on: MapCanvas and MapMarker wrap MapLibre GL, MapsProvider sets the basemap once, and LatLngField shows a point from two record fields. Installs maplibre-gl.",
       "registryDependencies": [
         "@chelone/field",
+        "@chelone/field-label-text",
         "@chelone/input",
         "@chelone/input-helper-text",
-        "@chelone/label-text",
         "@chelone/lib-utils",
         "@chelone/validation-error"
       ],
@@ -6007,9 +6007,9 @@
       ],
       "registryDependencies": [
         "@chelone/field",
+        "@chelone/field-label-text",
         "@chelone/input",
         "@chelone/input-helper-text",
-        "@chelone/label-text",
         "@chelone/lib-utils",
         "@chelone/map-canvas",
         "@chelone/use-map",
@@ -6088,9 +6088,9 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/field",
+        "@chelone/field-label-text",
         "@chelone/geo-json-layers",
         "@chelone/input-helper-text",
-        "@chelone/label-text",
         "@chelone/lib-utils",
         "@chelone/map-canvas",
         "@chelone/use-geo-json-source",
@@ -6218,9 +6218,9 @@
       "registryDependencies": [
         "@chelone/draw-toolbar",
         "@chelone/field",
+        "@chelone/field-label-text",
         "@chelone/geometry-ops",
         "@chelone/input-helper-text",
-        "@chelone/label-text",
         "@chelone/lib-utils",
         "@chelone/map-canvas",
         "@chelone/use-geo-json-source",
@@ -6264,10 +6264,10 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/field",
+        "@chelone/field-label-text",
         "@chelone/geo-json-layers",
         "@chelone/geometry-ops",
         "@chelone/input-helper-text",
-        "@chelone/label-text",
         "@chelone/lib-utils",
         "@chelone/map-canvas",
         "@chelone/validation-error"
@@ -6305,8 +6305,8 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/field",
+        "@chelone/field-label-text",
         "@chelone/input",
-        "@chelone/label-text",
         "@chelone/lat-lng-input",
         "@chelone/lib-utils",
         "@chelone/skeleton",
@@ -6381,8 +6381,8 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/field",
+        "@chelone/field-label-text",
         "@chelone/input",
-        "@chelone/label-text",
         "@chelone/lib-utils",
         "@chelone/use-geocode",
         "@chelone/use-map",

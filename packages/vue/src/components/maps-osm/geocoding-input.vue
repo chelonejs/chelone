@@ -58,7 +58,7 @@ import { useInput } from "../../form/use-input";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import ValidationError from "../admin/common/validation-error.vue";
-import { humanizeSource } from "../admin/inputs/label-text";
+import FieldLabelText from "../admin/common/field-label-text.vue";
 import { useMapsConfig } from "../maps/use-map";
 import Button from "../ui/button.vue";
 import { Field, FieldError, FieldLabel } from "../ui/field";
@@ -203,13 +203,6 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 const invalid = computed(() => touched.value && error.value != null);
-const labelText = computed(() =>
-  props.label === false
-    ? null
-    : translate(props.label ?? humanizeSource(props.source), {
-        _: props.label ?? humanizeSource(props.source),
-      }),
-);
 const placeholderText = computed(
   () => props.placeholder ?? translate("chelone.map.search_placeholder"),
 );
@@ -221,8 +214,10 @@ const placeholderText = computed(
     :data-invalid="invalid"
     :class="cn(props.class)"
   >
-    <FieldLabel v-if="labelText != null" :html-for="id">
-      {{ labelText }}<span v-if="isRequired"> *</span>
+    <FieldLabel v-if="props.label !== false" :html-for="id">
+      <FieldLabelText
+        :label="props.label"
+        :source="props.source" /><span v-if="isRequired"> *</span>
     </FieldLabel>
     <div class="relative">
       <div class="flex gap-2">
@@ -237,7 +232,7 @@ const placeholderText = computed(
             showsOptions && active >= 0 ? optionId(active) : undefined
           "
           :aria-label="
-            labelText == null
+            props.label === false
               ? translate('chelone.map.search_placeholder')
               : undefined
           "
