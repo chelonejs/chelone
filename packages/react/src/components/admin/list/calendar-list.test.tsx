@@ -374,7 +374,7 @@ describe("<CalendarList> month view", () => {
       new Date(2026, 5, 28),
       new Date(2026, 7, 1, 23, 59, 59, 999),
     ],
-  ])("removes a range filter and perPage a reloaded URL held for %s", async (_name, start, end) => {
+  ])("removes a range filter a reloaded URL held for %s and falls back to perPage 10", async (_name, start, end) => {
     const filter = JSON.stringify({
       start_gte: start.toISOString(),
       start_lte: end.toISOString(),
@@ -386,6 +386,8 @@ describe("<CalendarList> month view", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "hide calendar" }));
 
+    // The URL's perPage 1000 replaced the <List perPage={25}>, which the
+    // calendar cannot read back: it falls back to the list default of 10.
     await waitFor(() =>
       expect(screen.getByTestId("params").textContent).toBe(
         JSON.stringify({ perPage: 10, filter: {} }),

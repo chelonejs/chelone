@@ -171,7 +171,8 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
       const filter = { ...(current.filter as Record<string, unknown>) };
       for (const key of before.keys) delete filter[key];
       // A perPage already ours on mount came from a URL this calendar wrote
-      // earlier, so the one it replaced is gone: fall back to the list default.
+      // earlier, so the one it replaced is gone: fall back to the list default,
+      // even for a <List perPage> that is not 10. Core does not expose it.
       const { perPage: own } = latest.current;
       current.setParams({
         filter,
