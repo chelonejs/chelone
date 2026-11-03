@@ -227,11 +227,137 @@ describe("restDataProvider", () => {
     expect((error as HttpError).status).toBe(403);
   });
 
-  it("the verbs of a later slice reject naming themselves", async () => {
-    await expect(
-      restDataProvider({ apiUrl }).getMany("posts", { ids: [1] }),
-    ).rejects.toThrow("restDataProvider: getMany arrives in a later slice");
+  it("getMany sends every id in one request", async () => {
+    const fetchMock = stubFetch(respond([{ id: 1 }, { id: 2 }]));
+
+    const result = await restDataProvider({ apiUrl }).getMany("posts", {
+      ids: [1, 2],
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const { url, method } = lastCall(fetchMock);
+    expect(method).toBe("GET");
+    expect(url.origin + url.pathname).toBe(`${apiUrl}/posts`);
+    expect(url.searchParams.getAll("id")).toEqual(["1", "2"]);
+    expect(result).toEqual({ data: [{ id: 1 }, { id: 2 }] });
   });
+  it("getMany with no ids resolves empty without a request", async () => {
+    const fetchMock = stubFetch(respond([{ id: 1 }]));
+
+    const result = await restDataProvider({ apiUrl }).getMany("posts", {
+      ids: [],
+    });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(result).toEqual({ data: [] });
+  });
+
+  it("getMany with batchGetMany false calls getOne per id", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockImplementation(async (url: string) =>
+        respond({ id: Number(url.split("/").at(-1)) }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await restDataProvider({
+      apiUrl,
+      batchGetMany: false,
+    }).getMany("posts", { ids: [1, 2] });
+
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      `${apiUrl}/posts/1`,
+      `${apiUrl}/posts/2`,
+    ]);
+    expect(result).toEqual({ data: [{ id: 1 }, { id: 2 }] });
+  });
+
+  it("getManyQuery changes the getMany parameters", async () => {
+    const fetchMock = stubFetch(respond([{ id: 1 }]));
+
+    await restDataProvider({
+      apiUrl,
+      getManyQuery: (ids) => ({ filter: `id:in:${ids.join("|")}` }),
+    }).getMany("posts", { ids: [1, 2] });
+
+    const { url } = lastCall(fetchMock);
+    expect(url.searchParams.get("filter")).toBe("id:in:1|2");
+    expect(url.searchParams.has("id")).toBe(false);
+  });
+
+  it("getManyReference filters the list by target", async () => {
+    const fetchMock = stubFetch(
+      respond([{ id: 1 }], { headers: { "X-Total-Count": "7" } }),
+    );
+
+    const result = await restDataProvider({ apiUrl }).getManyReference(
+      "comments",
+      {
+        target: "postId",
+        id: 5,
+        pagination: { page: 2, perPage: 10 },
+        sort: { field: "createdAt", order: "DESC" },
+        filter: { status: "approved" },
+      },
+    );
+
+    const { url } = lastCall(fetchMock);
+    expect(url.origin + url.pathname).toBe(`${apiUrl}/comments`);
+    expect(url.searchParams.get("postId")).toBe("5");
+    expect(url.searchParams.get("status")).toBe("approved");
+    expect(url.searchParams.get("page")).toBe("2");
+    expect(url.searchParams.get("perPage")).toBe("10");
+    expect(url.searchParams.get("sort")).toBe("-createdAt");
+    expect(result).toEqual({ data: [{ id: 1 }], total: 7 });
+  });
+
+  it("updateMany and deleteMany call each id and resolve with the ids", async () => {
+    const fetchMock = stubFetch(respond({ id: 1 }));
+    const provider = restDataProvider({ apiUrl });
+
+    const updated = await provider.updateMany("posts", {
+      ids: [1, 2],
+      data: { status: "published" },
+    });
+    expect(updated).toEqual({ data: [1, 2] });
+    expect(
+      fetchMock.mock.calls.map(([url, init]) => [url, init.method, init.body]),
+    ).toEqual([
+      [`${apiUrl}/posts/1`, "PUT", '{"status":"published"}'],
+      [`${apiUrl}/posts/2`, "PUT", '{"status":"published"}'],
+    ]);
+
+    fetchMock.mockClear();
+    const deleted = await provider.deleteMany("posts", { ids: [1, 2] });
+    expect(deleted).toEqual({ data: [1, 2] });
+    expect(
+      fetchMock.mock.calls.map(([url, init]) => [url, init.method]),
+    ).toEqual([
+      [`${apiUrl}/posts/1`, "DELETE"],
+      [`${apiUrl}/posts/2`, "DELETE"],
+    ]);
+  });
+
+  it("updateMany rejects when one call fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockImplementation(async (url: string) =>
+          url.endsWith("/2")
+            ? respond({ message: "nope" }, { status: 500 })
+            : respond({ id: 1 }),
+        ),
+    );
+
+    const error = await restDataProvider({ apiUrl })
+      .updateMany("posts", { ids: [1, 2], data: { status: "published" } })
+      .catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(HttpError);
+    expect((error as HttpError).status).toBe(500);
+  });
+
   it("update with an empty body resolves with the sent data merged over previousData", async () => {
     stubFetch(new Response(null, { status: 204 }));
 
