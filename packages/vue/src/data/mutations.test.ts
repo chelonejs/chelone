@@ -4,7 +4,13 @@
  * provider was asked and what the probe's mutation reports.
  */
 
-import { defineResources, fakeDataProvider } from "@chelone/core";
+import {
+  createNotificationStore,
+  defineResources,
+  fakeDataProvider,
+  type NotificationStore,
+  type NotifyOptions,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -13,7 +19,7 @@ import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
 import Admin from "../admin/admin.vue";
 import { useDataProvider } from "../context";
-import { useCreate } from "./mutations";
+import { useCreate, useDeleteMany, useUpdate } from "./mutations";
 import { useGetList } from "./queries";
 
 const resources = defineResources({
@@ -33,6 +39,7 @@ function seededDataProvider() {
 function mountUnderAdmin(
   dataProvider: ReturnType<typeof seededDataProvider>,
   Probe: Component,
+  notifications?: NotificationStore,
 ) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -41,7 +48,7 @@ function mountUnderAdmin(
     setup: () => () =>
       h(
         Admin,
-        { dataProvider, queryClient },
+        { dataProvider, queryClient, notifications },
         { default: () => h(Probe), layout: () => h("div") },
       ),
   });
@@ -139,5 +146,113 @@ describe("useDataProvider", () => {
     mountUnderAdmin(dataProvider, Probe);
     await flushPromises();
     expect(seen).toBe(dataProvider);
+  });
+});
+
+describe("undoable mutate callbacks", () => {
+  function setup<T>(use: () => T) {
+    const dataProvider = seededDataProvider();
+    const notifications = createNotificationStore();
+    const notify = vi.spyOn(notifications, "notify");
+    let mutation: T | undefined;
+    const Probe = defineComponent({
+      setup() {
+        mutation = use();
+        return () => h("div");
+      },
+    });
+    mountUnderAdmin(dataProvider, Probe, notifications);
+    const undoable = (): NotifyOptions => {
+      const call = notify.mock.calls.find((args) => args[1]?.undoable);
+      if (!call?.[1]) throw new Error("no undoable notification was enqueued");
+      return call[1];
+    };
+    return {
+      dataProvider,
+      notify,
+      undoable,
+      mutation: () => mutation as T,
+    };
+  }
+
+  const undoablePosts = () =>
+    useUpdate<Resources, "posts">("posts", { mutationMode: "undoable" });
+
+  it("an undoable update calls onSuccess at once with the patched record", async () => {
+    const { dataProvider, mutation } = setup(undoablePosts);
+    const update = vi.spyOn(dataProvider, "update");
+    await flushPromises();
+    const onSuccess = vi.fn();
+    const params = {
+      id: 1,
+      data: { title: "A!" },
+      previousData: { id: 1, title: "a" },
+    };
+
+    mutation().mutate(params, { onSuccess });
+
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+    expect(onSuccess).toHaveBeenCalledWith({ id: 1, title: "A!" }, params);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("an undoable update calls onError and onSettled when the commit fails", async () => {
+    const { dataProvider, notify, undoable, mutation } = setup(undoablePosts);
+    const failure = new Error("boom");
+    vi.spyOn(dataProvider, "update").mockRejectedValue(failure);
+    await flushPromises();
+    const onError = vi.fn(() => {
+      // Runs after the default error notification.
+      expect(notify).toHaveBeenCalledWith(
+        "chelone.notification.http_error",
+        expect.anything(),
+      );
+    });
+    const onSettled = vi.fn();
+    const params = { id: 1, data: { title: "A!" } };
+
+    mutation().mutate(params, { onError, onSettled });
+    expect(onSettled).not.toHaveBeenCalled();
+    undoable().onClose?.();
+    await vi.waitFor(() => expect(onSettled).toHaveBeenCalledTimes(1));
+
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(onError).toHaveBeenCalledWith(failure, params);
+    expect(onSettled).toHaveBeenCalledWith(params);
+  });
+
+  it("an undone update calls no callback after onSuccess", async () => {
+    const { undoable, mutation } = setup(undoablePosts);
+    await flushPromises();
+    const onSuccess = vi.fn();
+    const onError = vi.fn();
+    const onSettled = vi.fn();
+
+    mutation().mutate(
+      { id: 1, data: { title: "A!" } },
+      { onSuccess, onError, onSettled },
+    );
+    undoable().undo?.();
+    undoable().onClose?.();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+    expect(onError).not.toHaveBeenCalled();
+    expect(onSettled).not.toHaveBeenCalled();
+  });
+
+  it("an undoable deleteMany calls onSuccess with the ids", async () => {
+    const { dataProvider, mutation } = setup(() =>
+      useDeleteMany<Resources, "posts">("posts", { mutationMode: "undoable" }),
+    );
+    const deleteMany = vi.spyOn(dataProvider, "deleteMany");
+    await flushPromises();
+    const onSuccess = vi.fn();
+    const params = { ids: [1, 2] };
+
+    mutation().mutate(params, { onSuccess });
+
+    expect(onSuccess).toHaveBeenCalledWith([1, 2], params);
+    expect(deleteMany).not.toHaveBeenCalled();
   });
 });

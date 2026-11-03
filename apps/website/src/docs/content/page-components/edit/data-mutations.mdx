@@ -116,6 +116,20 @@ With `"undoable"`, `mutate` is fire and forget and `mutateAsync` resolves once
 the undoable is queued, not when the server answers. It needs the notification
 store `<Admin>` provides.
 
+An undoable `mutate` takes `{ onSuccess, onError, onSettled }` as its second
+argument. They run on the undoable's own timeline, not TanStack Query's:
+
+- `onSuccess(data, params)` runs at once, right after the cache change, before
+  the undo window. `data` is the patched record for an update, `previousData`
+  for a delete, and `params.ids` for the many variants.
+- `onError(error, params)` runs if the deferred call fails, after the cache is
+  rolled back and the error notification is shown.
+- `onSettled(params)` runs once the deferred call ends, whether it succeeded
+  or failed.
+- An Undo runs none of the three after `onSuccess`.
+
+`mutateAsync` takes no callbacks.
+
 An undoable `mutateAsync` is typed as resolving the record or nothing, so do
 not read its result. In practice it resolves nothing.
 

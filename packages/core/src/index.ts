@@ -282,16 +282,24 @@ export type {
   UpdateResult,
 } from "./data/types";
 export type {
+  UndoableCacheOptions,
   UndoableCallbacks,
+  UndoableDeleteCallbacks,
   UndoableHandle,
   UndoableMutationConfig,
+  UndoableSettler,
   UndoableSnapshot,
+  UndoableUpdateCallbacks,
+  UndoableUpdateManyCallbacks,
 } from "./data/undoable";
 export {
   commitAllUndoables,
   hasPendingUndoables,
+  patchedRecord,
   startUndoableMutation,
-  withUndoableCallbacks,
+  undoableCallbacks,
+  undoableDeleteOptions,
+  undoableUpdateOptions,
 } from "./data/undoable";
 export type {
   LifecycleCallbacks,

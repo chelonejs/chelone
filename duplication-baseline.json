@@ -132,7 +132,7 @@
   "packages/react/src/form/tabbed-form.tsx <-> packages/react/src/form/tabbed-form.tsx": 1,
   "packages/react/src/hooks.ts <-> packages/react/src/hooks.ts": 2,
   "packages/react/src/hooks.ts <-> packages/vue/src/data/create-chelone-hooks.ts": 1,
-  "packages/react/src/hooks.ts <-> packages/vue/src/data/mutations.ts": 4,
+  "packages/react/src/hooks.ts <-> packages/vue/src/data/mutations.ts": 3,
   "packages/react/src/infinite-hooks.ts <-> packages/vue/src/controllers/use-infinite-list-controller.ts": 1,
   "packages/react/src/label/inflection.ts <-> packages/vue/src/label/inflection.ts": 4,
   "packages/react/src/router/react-router-adapter.tsx <-> packages/react/src/ssr/router-factory.tsx": 1,
