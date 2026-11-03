@@ -15,9 +15,6 @@ export interface SetPasswordFormProps {
  *
  * With a token missing, the message stays on screen with a Back to login link
  * and no redirect (shared with the React twin).
- *
- * Vue divergence: no `autocomplete` or `autofocus` on the password fields,
- * since the Vue `<PasswordInput>` does not forward them to its `<input>`.
  */
 
 import { required } from "@chelone/core";
@@ -125,6 +122,8 @@ const linkClass =
     <PasswordInput
       :label="translate('ra.auth.password', { _: 'Password' })"
       source="password"
+      autocomplete="new-password"
+      autofocus
       :validate="required()"
     />
     <PasswordInput
@@ -134,6 +133,7 @@ const linkClass =
         })
       "
       source="confirmPassword"
+      autocomplete="new-password"
       :validate="required()"
     />
     <Button type="submit" class="cursor-pointer" :disabled="submitting">
