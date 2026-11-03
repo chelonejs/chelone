@@ -444,4 +444,41 @@ describe("undoable useDelete / useUpdate hooks", () => {
     expect(onError).not.toHaveBeenCalled();
     expect(onSettled).not.toHaveBeenCalled();
   });
+
+  it("an onSettled that throws after a committed update neither rolls back nor calls onError", async () => {
+    const { wrapper, queryClient, dataProvider, notifications } =
+      makeUndoableWrapper();
+    const update = vi.spyOn(dataProvider, "update");
+    const notify = vi.spyOn(notifications, "notify");
+    const onError = vi.fn();
+    const onSettled = vi.fn(() => {
+      throw new Error("callback bug");
+    });
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { result } = renderHook(
+      () => useUpdate<R, "posts">("posts", { mutationMode: "undoable" }),
+      { wrapper },
+    );
+    act(() => {
+      result.current.mutate(
+        { id: 1, data: { title: "A!" } },
+        { onError, onSettled },
+      );
+    });
+    await act(async () => {
+      captureUndoable(notify).onClose?.();
+    });
+    await waitFor(() => expect(onSettled).toHaveBeenCalled());
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(logged).toHaveBeenCalledWith(new Error("callback bug"));
+    logged.mockRestore();
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(cachedTitles(queryClient)).toEqual({ 1: "A!", 2: "b" });
+    expect(notify).not.toHaveBeenCalledWith(
+      "chelone.notification.http_error",
+      expect.anything(),
+    );
+    expect(onError).not.toHaveBeenCalled();
+    expect(onSettled).toHaveBeenCalledTimes(1);
+  });
 });

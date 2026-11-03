@@ -276,6 +276,17 @@ export type UndoableDeleteCallbacks<TRecord extends ResourceRecord> =
 export type UndoableUpdateManyCallbacks<TRecord extends ResourceRecord> =
   UndoableCallbacks<Identifier[], UpdateManyParams<TRecord>>;
 
+/** Runs `run` after the current microtasks; a throw is logged, not raised. */
+function later(run: () => void) {
+  setTimeout(() => {
+    try {
+      run();
+    } catch (error) {
+      console.error(error);
+    }
+  }, 0);
+}
+
 /** The calls an undoable `mutate` makes for its callbacks; see {@link undoableCallbacks}. */
 export interface UndoableSettler<TData> {
   /** Wraps the deferred `commit` so `onError` and `onSettled` run when it ends. */
@@ -296,18 +307,21 @@ export function undoableCallbacks<TData, TParams>(
   const { onSuccess, onError, onSettled } = callbacks;
   return {
     success: (data) => onSuccess?.(data, params),
+    // The callbacks run in a timer, never inside the commit's promise: one that
+    // throws must not read as a failed commit and roll the cache back.
     commit: (commit) => async () => {
+      let result: Awaited<ReturnType<typeof commit>>;
       try {
-        const result = await commit();
-        onSettled?.(params);
-        return result;
+        result = await commit();
       } catch (error) {
-        setTimeout(() => {
+        later(() => {
           onError?.(error, params);
           onSettled?.(params);
-        }, 0);
+        });
         throw error;
       }
+      later(() => onSettled?.(params));
+      return result;
     },
   };
 }
