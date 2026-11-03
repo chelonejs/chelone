@@ -348,6 +348,14 @@ describe("SimplifyInput", () => {
     expect(label.text()).toBe("Tolerance: 0.010");
   });
 
+  it("renders no legend for an empty label", async () => {
+    const { wrapper } = await mountInput(
+      simplifyInput({ label: "" }),
+      polygon(),
+    );
+    expect(wrapper.find("legend").exists()).toBe(false);
+  });
+
   it("renders a legend, the helper text and the slot", async () => {
     const { wrapper } = await mountInput(
       simplifyInput({ label: "Outline", helperText: "Thin it" }),

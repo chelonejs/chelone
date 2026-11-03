@@ -113,7 +113,7 @@ import { computed, ref } from "vue";
 import { useInput } from "../../form/use-input";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
-import { humanizeSource } from "../admin/inputs/label-text";
+import FieldLabelText from "../admin/common/field-label-text.vue";
 import InputHelperText from "../admin/common/input-helper-text.vue";
 import ValidationError from "../admin/common/validation-error.vue";
 import { Field, FieldError, FieldLabel } from "../ui/field";
@@ -261,7 +261,7 @@ function place(rawLat: number, rawLng: number) {
         :data-invalid="input.invalid.value || undefined"
       >
         <FieldLabel :html-for="input.id">
-          {{ humanizeSource(source) }}<span v-if="input.isRequired"> *</span>
+          <FieldLabelText :source="source" /><span v-if="input.isRequired"> *</span>
         </FieldLabel>
         <Input
           :id="input.id"

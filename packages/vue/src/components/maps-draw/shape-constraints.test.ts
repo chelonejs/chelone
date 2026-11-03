@@ -279,6 +279,18 @@ describe("required", () => {
 
     expect(mounted.wrapper.find("legend").text()).toBe("Area *");
   });
+
+  it("renders no legend for an empty label", async () => {
+    const mounted = await mountShapeInput(() =>
+      h(PolygonInput, {
+        source: "shape",
+        label: "",
+        validate: [required()],
+      }),
+    );
+
+    expect(mounted.wrapper.find("legend").exists()).toBe(false);
+  });
 });
 
 describe("toolMode", () => {
