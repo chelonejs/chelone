@@ -1,13 +1,13 @@
+import type { LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 import { describeCron } from "../inputs/cron-utils";
 
-interface CronFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface CronFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     HTMLAttributes<HTMLSpanElement> {
   /** When true, render the raw cron expression below the human phrase. */
@@ -22,7 +22,7 @@ interface CronFieldProps<RecordType extends UnknownRecord = UnknownRecord>
  * <CronField source="schedule" />
  * <CronField source="schedule" showExpression />
  */
-function CronField<RecordType extends UnknownRecord = UnknownRecord>({
+function CronField<RecordType extends LooseRecord = LooseRecord>({
   defaultValue,
   source,
   record,

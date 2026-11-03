@@ -1,11 +1,11 @@
+import type { LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { useLocale, useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-interface CurrencyFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface CurrencyFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     HTMLAttributes<HTMLSpanElement> {
   /** ISO-4217 currency code (e.g. 'USD'). Required when value is a plain number. */
@@ -31,7 +31,7 @@ interface CurrencyFieldProps<RecordType extends UnknownRecord = UnknownRecord>
  * <CurrencyField source="price" currency="USD" />
  * <CurrencyField source="cost" storeAsMinorUnits />
  */
-function CurrencyField<RecordType extends UnknownRecord = UnknownRecord>({
+function CurrencyField<RecordType extends LooseRecord = LooseRecord>({
   defaultValue,
   source,
   record,
