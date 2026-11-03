@@ -227,8 +227,9 @@ async function type(
 ) {
   await el.setValue(text);
   await flushPromises();
-  // Once a validator has gone async, form-core runs it on a zero-delay timer.
-  // Let that run, as the gap between a keystroke and a click would.
+  // After a submit that waited on markers, form-core keeps the field on its
+  // async validator, which runs on a zero-delay timer. Let it run, as the gap
+  // between a keystroke and a click would.
   if (vi.isFakeTimers()) await vi.advanceTimersByTimeAsync(0);
   else await new Promise((resolve) => setTimeout(resolve, 0));
 }

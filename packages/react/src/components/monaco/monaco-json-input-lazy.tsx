@@ -103,14 +103,14 @@ export default function MonacoJsonInputLazy({
   const { form } = useCheloneFormContext();
   const firstError = (list: editor.IMarker[]) =>
     list.find((marker) => marker.severity >= ERROR_SEVERITY)?.message;
-  const markerCheck = async () => {
+  const markerCheck = () => {
     if (!form.state.isSubmitting) return firstError(markers.current);
     checking.current++;
-    try {
-      return firstError(await settled());
-    } finally {
-      checking.current--;
-    }
+    return settled()
+      .then(firstError)
+      .finally(() => {
+        checking.current--;
+      });
   };
   // Monaco's markers lag the text by its diagnostics delay, so the text's own
   // parse error is checked too: a stale marker list must not let bad text save.

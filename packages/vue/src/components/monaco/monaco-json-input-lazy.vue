@@ -89,14 +89,14 @@ const { markers, settled } = useMonacoMarkers(instance, monacoApi, (changed) => 
 const { form } = useCheloneFormContext();
 const firstError = (list: editor.IMarker[]) =>
   list.find((marker) => marker.severity >= ERROR_SEVERITY)?.message;
-const markerCheck = async () => {
+const markerCheck = () => {
   if (!form.state.isSubmitting) return firstError(markers.value);
   checking++;
-  try {
-    return firstError(await settled());
-  } finally {
-    checking--;
-  }
+  return settled()
+    .then(firstError)
+    .finally(() => {
+      checking--;
+    });
 };
 // Monaco's markers lag the text by its diagnostics delay, so the text's own
 // parse error is checked too: a stale marker list must not let bad text save.
