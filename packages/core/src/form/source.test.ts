@@ -4,6 +4,7 @@ import {
   createArraySourceScope,
   createLocaleSourceScope,
   createRowSourceScope,
+  normalizeSource,
   rootSourceScope,
 } from "./source";
 
@@ -23,10 +24,40 @@ describe("composeSource", () => {
   });
 });
 
+describe("normalizeSource", () => {
+  it("normalizeSource turns a dot index into a bracket index", () => {
+    expect(normalizeSource("tags.0.label")).toBe("tags[0].label");
+    expect(normalizeSource("a.0.b")).toBe("a[0].b");
+    expect(normalizeSource("a.0.1.b")).toBe("a[0][1].b");
+    expect(normalizeSource("a[0].1.b")).toBe("a[0][1].b");
+    expect(normalizeSource("scores.2024")).toBe("scores[2024]");
+    expect(normalizeSource("a.0")).toBe("a[0]");
+  });
+
+  it("normalizeSource leaves bracket paths, a leading numeral and an empty string alone", () => {
+    expect(normalizeSource("tags[0].label")).toBe("tags[0].label");
+    expect(normalizeSource("coordinates.lat")).toBe("coordinates.lat");
+    expect(normalizeSource("0.a")).toBe("0.a");
+    expect(normalizeSource("")).toBe("");
+    // A numeral inside a bracket group is already an index.
+    expect(normalizeSource("a[0].b")).toBe("a[0].b");
+  });
+});
+
 describe("rootSourceScope", () => {
-  it("is the identity scope", () => {
+  it("is the identity scope for bracket and dot paths", () => {
     expect(rootSourceScope.getSource("title")).toBe("title");
+    expect(rootSourceScope.getSource("coordinates.lat")).toBe(
+      "coordinates.lat",
+    );
+    expect(rootSourceScope.getSource("tags[0].label")).toBe("tags[0].label");
     expect(rootSourceScope.getLabel("title")).toBe("title");
+  });
+
+  it("rootSourceScope normalizes a dot-index source", () => {
+    expect(rootSourceScope.getSource("tags.0.label")).toBe("tags[0].label");
+    // Labels are translation keys: they keep the spelling as written.
+    expect(rootSourceScope.getLabel("tags.0.label")).toBe("tags.0.label");
   });
 });
 
@@ -61,6 +92,17 @@ describe("array + row scopes", () => {
     const tag2 = createRowSourceScope(tags, 2);
     expect(tag2.getSource("")).toBe("tags[2]");
     expect(tag2.getLabel("")).toBe("tags");
+  });
+
+  it("an array scope normalizes a dot-index child source", () => {
+    const tags = createArraySourceScope(rootSourceScope, "tags");
+    expect(tags.getSource("0")).toBe("tags[0]");
+    expect(tags.getSource("0.label")).toBe("tags[0].label");
+    expect(tags.getLabel("0.label")).toBe("tags.0.label");
+
+    const row0 = createRowSourceScope(tags, 0);
+    expect(row0.getSource("0.label")).toBe("tags[0][0].label");
+    expect(row0.getLabel("0.label")).toBe("tags.0.label");
   });
 });
 
