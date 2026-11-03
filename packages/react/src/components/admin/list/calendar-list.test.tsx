@@ -116,6 +116,7 @@ function mount(
     hasShow = true,
     url = "/",
     provider = rangeProvider(rows),
+    messages = {},
   }: {
     rows?: EventRow[];
     hasEdit?: boolean;
@@ -123,6 +124,7 @@ function mount(
     /** The location the app opens on, e.g. a reloaded list URL that holds a range. */
     url?: string;
     provider?: ReturnType<typeof rangeProvider>;
+    messages?: Record<string, string>;
   } = {},
 ) {
   const registry = createResourceRegistry();
@@ -141,7 +143,7 @@ function mount(
       }
       i18n={createI18n({
         locale: "en",
-        messages: { en: defineMessages({}) },
+        messages: { en: defineMessages(messages) },
       })}
     >
       <ResourceRegistryProvider registry={registry}>
@@ -629,6 +631,45 @@ describe("<CalendarList> week view", () => {
   });
 });
 
+describe("<CalendarList> week view across a clock change", () => {
+  const zone = process.env.TZ;
+  afterEach(() => {
+    if (zone === undefined) delete process.env.TZ;
+    else process.env.TZ = zone;
+  });
+
+  it("leaves the hour a spring-forward day skips without a slot", async () => {
+    // 8 March 2026: New York goes from 02:00 straight to 03:00.
+    process.env.TZ = "America/New_York";
+    vi.setSystemTime(new Date(2026, 2, 8, 12));
+    const onSelectSlot = vi.fn();
+    mount(calendar({ defaultView: "week", onSelectSlot }), { rows: [] });
+    await screen.findByRole("grid");
+
+    const starts = screen
+      .getAllByRole("gridcell")
+      .map((el) => el.dataset.slotStart)
+      .filter((value) => value !== undefined);
+    expect(new Set(starts).size).toBe(starts.length);
+    const skipped = screen
+      .getAllByRole("gridcell")
+      .filter((el) => el.dataset.slotStart === undefined);
+    expect(skipped).toHaveLength(1);
+    fireEvent.click(skipped[0] as HTMLElement);
+    expect(onSelectSlot).not.toHaveBeenCalled();
+
+    fireEvent.click(hourCell(new Date(2026, 2, 8, 3)));
+    expect(onSelectSlot).toHaveBeenCalledTimes(1);
+    const slot = onSelectSlot.mock.lastCall?.[0] as {
+      startISO: string;
+      endISO: string;
+    };
+    expect(new Date(slot.endISO).getTime()).toBeGreaterThan(
+      new Date(slot.startISO).getTime(),
+    );
+  });
+});
+
 describe("<CalendarList> agenda view", () => {
   it("groups events by day in start order", async () => {
     mount(calendar({ defaultView: "agenda" }), {
@@ -687,6 +728,21 @@ describe("<CalendarList> agenda view", () => {
 });
 
 describe("<CalendarList> views", () => {
+  it("the switcher reads the older ra.calendar.<view> keys unless ra.calendar.view.<view> is set", async () => {
+    mount(calendar(), {
+      messages: {
+        "ra.calendar.month": "Mois",
+        "ra.calendar.week": "Semaine",
+        "ra.calendar.view.week": "Sem.",
+      },
+    });
+    await screen.findByText("Standup");
+
+    expect(screen.getByRole("button", { name: "Mois" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Sem." })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Agenda" })).toBeTruthy();
+  });
+
   it("the switcher changes the view and marks the current one", async () => {
     const { provider } = mount(calendar());
     await screen.findByText("Standup");

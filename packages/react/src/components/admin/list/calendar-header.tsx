@@ -36,10 +36,16 @@ function CalendarHeader({
   const translate = useTranslate();
   const locale = useLocale();
   const labels = useMemo(() => calendarLabels(locale), [locale]);
+  // `ra.calendar.<view>` is what the Vue header reads, so a catalog written for
+  // it keeps working; `ra.calendar.view.<view>` wins where both are set.
+  const viewLabel = (name: CalendarView, fallback: string) =>
+    translate(`ra.calendar.view.${name}`, {
+      _: translate(`ra.calendar.${name}`, { _: fallback }),
+    });
   const viewLabels: Record<CalendarView, string> = {
-    month: translate("ra.calendar.view.month", { _: "Month" }),
-    week: translate("ra.calendar.view.week", { _: "Week" }),
-    agenda: translate("ra.calendar.view.agenda", { _: "Agenda" }),
+    month: viewLabel("month", "Month"),
+    week: viewLabel("week", "Week"),
+    agenda: viewLabel("agenda", "Agenda"),
   };
 
   return (

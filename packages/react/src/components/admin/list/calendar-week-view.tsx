@@ -36,7 +36,12 @@ function CalendarWeekView<RecordType extends ResourceRecord>({
   const at = (day: Date, hour: number) =>
     new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour);
 
+  // The hour a spring-forward day skips rolls over into the next one: it has
+  // no slot of its own, and would otherwise share the next hour's start.
+  const exists = (day: Date, hour: number) => at(day, hour).getHours() === hour;
+
   const selectSlot = (day: Date, hour: number) =>
+    exists(day, hour) &&
     onSelectSlot?.({
       startISO: at(day, hour).toISOString(),
       endISO: at(day, hour + 1).toISOString(),
@@ -93,9 +98,12 @@ function CalendarWeekView<RecordType extends ResourceRecord>({
                   key={key}
                   // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: a gridcell in the ARIA grid pattern.
                   role="gridcell"
-                  data-slot-start={at(day, hour).toISOString()}
+                  data-slot-start={
+                    exists(day, hour) ? at(day, hour).toISOString() : undefined
+                  }
+                  aria-disabled={exists(day, hour) ? undefined : true}
                   data-today={key === todayKey}
-                  tabIndex={onSelectSlot ? 0 : undefined}
+                  tabIndex={onSelectSlot && exists(day, hour) ? 0 : undefined}
                   onClick={() => selectSlot(day, hour)}
                   onKeyDown={(event) => onCellKeyDown(event, day, hour)}
                   className={cn(
