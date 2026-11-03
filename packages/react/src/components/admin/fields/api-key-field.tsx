@@ -1,14 +1,14 @@
+import type { LooseRecord } from "@chelone/core";
 import { Copy, Eye, EyeOff } from "lucide-react";
 import { type HTMLAttributes, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-interface ApiKeyFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface ApiKeyFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     HTMLAttributes<HTMLSpanElement> {
   /** Record field with scope strings. Renders chips when set. */
@@ -28,7 +28,7 @@ interface ApiKeyFieldProps<RecordType extends UnknownRecord = UnknownRecord>
  * @example
  * <ApiKeyField source="apiKey" scopesSource="scopes" lastUsedSource="lastUsedAt" />
  */
-function ApiKeyField<RecordType extends UnknownRecord = UnknownRecord>({
+function ApiKeyField<RecordType extends LooseRecord = LooseRecord>({
   defaultValue,
   source,
   record,

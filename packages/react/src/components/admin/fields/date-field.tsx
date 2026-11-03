@@ -1,12 +1,12 @@
+import type { LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
-import type { UnknownRecord, UnknownValue } from "@/lib/unknown-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-function DateFieldImpl<RecordType extends UnknownRecord = UnknownRecord>(
+function DateFieldImpl<RecordType extends LooseRecord = LooseRecord>(
   inProps: DateFieldProps<RecordType>,
 ) {
   const {
@@ -99,17 +99,17 @@ DateFieldImpl.displayName = "DateFieldImpl";
  */
 const DateField = genericMemo(DateFieldImpl);
 
-interface DateFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface DateFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     HTMLAttributes<HTMLSpanElement> {
   locales?: Intl.LocalesArgument;
   options?: Intl.DateTimeFormatOptions;
   showTime?: boolean;
   showDate?: boolean;
-  transform?: (value: UnknownValue) => Date | undefined;
+  transform?: (value: unknown) => Date | undefined;
 }
 
-const defaultTransform = (value: UnknownValue): Date | undefined =>
+const defaultTransform = (value: unknown): Date | undefined =>
   value instanceof Date
     ? value
     : typeof value === "string" || typeof value === "number"

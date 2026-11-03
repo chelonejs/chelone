@@ -1,8 +1,8 @@
+import type { LooseRecord } from "@chelone/core";
 import type { ComponentProps } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { FieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -10,7 +10,7 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
 
 type BadgeProps = ComponentProps<typeof Badge>;
 
-function ChipFieldImpl<RecordType extends UnknownRecord = UnknownRecord>(
+function ChipFieldImpl<RecordType extends LooseRecord = LooseRecord>(
   inProps: ChipFieldProps<RecordType>,
 ) {
   const {
@@ -72,7 +72,7 @@ ChipFieldImpl.displayName = "ChipFieldImpl";
  */
 const ChipField = genericMemo(ChipFieldImpl);
 
-interface ChipFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface ChipFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     Omit<BadgeProps, "children"> {
   variant?: "default" | "outline" | "secondary" | "destructive";

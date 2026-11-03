@@ -1,11 +1,11 @@
+import type { LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-interface ColorFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface ColorFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     HTMLAttributes<HTMLSpanElement> {
   /** When false, hides the textual color value next to the chip. */
@@ -29,7 +29,7 @@ interface ColorFieldProps<RecordType extends UnknownRecord = UnknownRecord>
  *   </Show>
  * );
  */
-function ColorField<RecordType extends UnknownRecord = UnknownRecord>({
+function ColorField<RecordType extends LooseRecord = LooseRecord>({
   defaultValue,
   source,
   record,
