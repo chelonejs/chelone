@@ -822,6 +822,167 @@ describe("<CalendarList> views", () => {
   });
 });
 
+/** The part of a native `DataTransfer` the calendar touches; jsdom has none. */
+function stubTransfer() {
+  return { effectAllowed: "none", dropEffect: "none", setData: vi.fn() };
+}
+
+const eventIn = (day: string, name: string) =>
+  within(cell(day)).getByRole("button", { name });
+
+describe("<CalendarList> drag", () => {
+  it("events are not draggable without onDrop", async () => {
+    mount(calendar());
+    await screen.findByText("Standup");
+
+    expect(eventIn("2026-05-20", "Standup").hasAttribute("draggable")).toBe(
+      false,
+    );
+  });
+
+  it("dropping an event on another day calls onDrop with the moved ISO start and end", async () => {
+    const onDrop = vi.fn();
+    mount(calendar({ onDrop }));
+    await screen.findByText("Standup");
+
+    const dataTransfer = stubTransfer();
+    const offsite = eventIn("2026-05-13", "Offsite");
+    expect(offsite.getAttribute("draggable")).toBe("true");
+    fireEvent.dragStart(offsite, { dataTransfer });
+    expect(dataTransfer.effectAllowed).toBe("move");
+    expect(dataTransfer.setData).toHaveBeenCalledWith("text/plain", "2");
+    expect(offsite.hasAttribute("data-dragging")).toBe(true);
+
+    fireEvent.dragOver(cell("2026-05-20"), { dataTransfer });
+    fireEvent.drop(cell("2026-05-20"), { dataTransfer });
+    fireEvent.dragEnd(offsite, { dataTransfer });
+
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onDrop).toHaveBeenCalledWith(expect.objectContaining({ id: 2 }), {
+      start: new Date(2026, 4, 19, 9).toISOString(),
+      end: new Date(2026, 4, 21, 17).toISOString(),
+    });
+    expect(offsite.hasAttribute("data-dragging")).toBe(false);
+  });
+
+  it("an event with no end is dropped with no end", async () => {
+    const onDrop = vi.fn();
+    mount(calendar({ onDrop }));
+    await screen.findByText("Standup");
+
+    const dataTransfer = stubTransfer();
+    fireEvent.dragStart(eventIn("2026-05-20", "Standup"), { dataTransfer });
+    fireEvent.dragOver(cell("2026-05-22"), { dataTransfer });
+    fireEvent.drop(cell("2026-05-22"), { dataTransfer });
+
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onDrop.mock.calls[0]?.[1]).toStrictEqual({
+      start: new Date(2026, 4, 22, 9).toISOString(),
+    });
+  });
+
+  it("a multi-day event dragged from its second day moves by the day difference", async () => {
+    const onDrop = vi.fn();
+    mount(calendar({ onDrop }));
+    await screen.findByText("Standup");
+
+    const dataTransfer = stubTransfer();
+    fireEvent.dragStart(eventIn("2026-05-13", "Offsite"), { dataTransfer });
+    // Grabbed on the 13th, dropped on the 12th: one day back, so the start moves from the 12th to the 11th.
+    fireEvent.dragOver(cell("2026-05-12"), { dataTransfer });
+    fireEvent.drop(cell("2026-05-12"), { dataTransfer });
+
+    expect(onDrop.mock.calls[0]?.[1]).toStrictEqual({
+      start: new Date(2026, 4, 11, 9).toISOString(),
+      end: new Date(2026, 4, 13, 17).toISOString(),
+    });
+  });
+
+  it("dropping on the original day calls nothing", async () => {
+    const onDrop = vi.fn();
+    mount(calendar({ onDrop }));
+    await screen.findByText("Standup");
+
+    const dataTransfer = stubTransfer();
+    fireEvent.dragStart(eventIn("2026-05-13", "Offsite"), { dataTransfer });
+    fireEvent.dragOver(cell("2026-05-13"), { dataTransfer });
+    fireEvent.drop(cell("2026-05-13"), { dataTransfer });
+
+    expect(onDrop).not.toHaveBeenCalled();
+  });
+
+  it("marks the target cell with data-over during a drag and clears it after", async () => {
+    const onDrop = vi.fn();
+    mount(calendar({ onDrop }));
+    await screen.findByText("Standup");
+
+    const dataTransfer = stubTransfer();
+    expect(fireEvent.dragOver(cell("2026-05-22"), { dataTransfer })).toBe(true);
+    expect(cell("2026-05-22").hasAttribute("data-over")).toBe(false);
+
+    fireEvent.dragStart(eventIn("2026-05-20", "Standup"), { dataTransfer });
+    // preventDefault is what makes the cell a drop target.
+    expect(fireEvent.dragOver(cell("2026-05-22"), { dataTransfer })).toBe(
+      false,
+    );
+    expect(cell("2026-05-22").hasAttribute("data-over")).toBe(true);
+
+    fireEvent.dragLeave(cell("2026-05-22"), { dataTransfer });
+    expect(cell("2026-05-22").hasAttribute("data-over")).toBe(false);
+
+    fireEvent.dragOver(cell("2026-05-23"), { dataTransfer });
+    expect(cell("2026-05-23").hasAttribute("data-over")).toBe(true);
+    fireEvent.drop(cell("2026-05-23"), { dataTransfer });
+    expect(cell("2026-05-23").hasAttribute("data-over")).toBe(false);
+  });
+
+  it("dragend clears the drag, so a later drop calls nothing", async () => {
+    const onDrop = vi.fn();
+    mount(calendar({ onDrop }));
+    await screen.findByText("Standup");
+
+    const dataTransfer = stubTransfer();
+    const standup = eventIn("2026-05-20", "Standup");
+    fireEvent.dragStart(standup, { dataTransfer });
+    fireEvent.dragOver(cell("2026-05-22"), { dataTransfer });
+    fireEvent.dragEnd(standup, { dataTransfer });
+
+    expect(standup.hasAttribute("data-dragging")).toBe(false);
+    expect(cell("2026-05-22").hasAttribute("data-over")).toBe(false);
+    fireEvent.drop(cell("2026-05-22"), { dataTransfer });
+    expect(onDrop).not.toHaveBeenCalled();
+  });
+
+  it("a click on a draggable event still calls onSelectEvent", async () => {
+    const onSelectEvent = vi.fn();
+    mount(calendar({ onDrop: vi.fn(), onSelectEvent }));
+    await screen.findByText("Standup");
+
+    fireEvent.click(eventIn("2026-05-20", "Standup"));
+
+    expect(onSelectEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 1 }),
+    );
+  });
+
+  it("week and agenda events are not draggable", async () => {
+    mount(calendar({ onDrop: vi.fn(), defaultView: "week" }));
+    await screen.findAllByText("Offsite");
+    expect(
+      screen
+        .getAllByRole("button", { name: "Offsite" })[0]
+        ?.hasAttribute("draggable"),
+    ).toBe(false);
+
+    fireEvent.click(screen.getByRole("button", { name: "Agenda" }));
+    expect(
+      screen
+        .getAllByRole("button", { name: "Offsite" })[0]
+        ?.hasAttribute("draggable"),
+    ).toBe(false);
+  });
+});
+
 /** Shows the list params the calendar sets, and can drop the calendar to see them restored. */
 function Toggled() {
   const [shown, setShown] = useState(true);

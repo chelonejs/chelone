@@ -6,9 +6,17 @@ import {
   calendarDays,
   calendarEventsOnDay,
   calendarLabels,
+  moveCalendarEvent,
   type ResourceRecord,
 } from "@chelone/core";
-import { type KeyboardEvent, type ReactNode, useMemo } from "react";
+import {
+  type DragEvent,
+  type KeyboardEvent,
+  type ReactNode,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { cn } from "@/lib/utils";
 import { useLocale } from "../../../i18n-hooks";
 
@@ -44,11 +52,22 @@ interface CalendarViewProps<RecordType extends ResourceRecord> {
   eventRenderer?: (props: EventRendererProps<RecordType>) => ReactNode;
 }
 
+/** The new time span of a dragged event, as ISO strings. */
+interface CalendarDropRange {
+  start: string;
+  end?: string;
+}
+
 interface CalendarMonthViewProps<RecordType extends ResourceRecord>
   extends CalendarViewProps<RecordType> {
   /** Days outside this month are muted. */
   anchor: Date;
   onSelectSlot?: (slot: CalendarSlot) => void;
+  /** Makes events draggable to another day. */
+  onDropEvent?: (
+    event: CalendarEventInfo<RecordType>,
+    range: CalendarDropRange,
+  ) => void;
 }
 
 const WEEK = 7;
@@ -67,6 +86,16 @@ interface CalendarEventButtonProps<RecordType extends ResourceRecord> {
   day: Date;
   onSelectEvent: (event: CalendarEventInfo<RecordType>) => void;
   eventRenderer?: (props: EventRendererProps<RecordType>) => ReactNode;
+  /** Set in the month view with `onDrop`: the button becomes draggable. */
+  drag?: {
+    isDragging: (event: CalendarEventInfo<RecordType>, day: Date) => boolean;
+    onDragStart: (
+      event: DragEvent,
+      calendarEvent: CalendarEventInfo<RecordType>,
+      day: Date,
+    ) => void;
+    onDragEnd: () => void;
+  };
 }
 
 /** One event as a button, in a cell of any view. A click on it is not a click on the cell behind. @internal */
@@ -76,17 +105,26 @@ function CalendarEventButton<RecordType extends ResourceRecord>({
   day,
   onSelectEvent,
   eventRenderer,
+  drag,
 }: CalendarEventButtonProps<RecordType>) {
+  const dragging = drag?.isDragging(event, day) ?? false;
   return (
     <button
       type="button"
       data-color={event.color}
+      draggable={drag ? true : undefined}
+      data-dragging={dragging ? "" : undefined}
+      onDragStart={drag && ((e) => drag.onDragStart(e, event, day))}
+      onDragEnd={drag?.onDragEnd}
       onClick={(click) => {
         // The cell behind the event is a slot; the event is not.
         click.stopPropagation();
         onSelectEvent(event);
       }}
-      className="block w-full cursor-pointer text-left"
+      className={cn(
+        "block w-full cursor-pointer text-left",
+        dragging && "opacity-50",
+      )}
     >
       {eventRenderer ? (
         eventRenderer({ event, view, day })
@@ -108,7 +146,7 @@ function CalendarEventButton<RecordType extends ResourceRecord>({
 interface CalendarCellEventsProps<RecordType extends ResourceRecord>
   extends Pick<
     CalendarEventButtonProps<RecordType>,
-    "view" | "day" | "onSelectEvent" | "eventRenderer"
+    "view" | "day" | "onSelectEvent" | "eventRenderer" | "drag"
   > {
   events: readonly CalendarEventInfo<RecordType>[];
   /** Drawn above the events. */
@@ -156,6 +194,7 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
   onSelectEvent,
   onSelectSlot,
   eventRenderer,
+  onDropEvent,
 }: CalendarMonthViewProps<RecordType>) {
   const { labels, days, todayKey } = useCalendarGrid(range);
   const weeks: Date[][] = [];
@@ -176,6 +215,71 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
 
   const onCellKeyDown = (event: KeyboardEvent, day: Date) => {
     if (isSlotKey(event)) selectSlot(day);
+  };
+
+  // `dataTransfer.getData` is empty during `dragover`, so the grabbed event and
+  // the cell it came from are kept here: a multi-day event shows in several
+  // cells, and the move is measured from that one.
+  const grabbed = useRef<{
+    event: CalendarEventInfo<RecordType>;
+    from: Date;
+  } | null>(null);
+  const [draggingKey, setDraggingKey] = useState<string>();
+  const [overKey, setOverKey] = useState<string>();
+
+  const clearDrag = () => {
+    grabbed.current = null;
+    setDraggingKey(undefined);
+    setOverKey(undefined);
+  };
+
+  const drag = onDropEvent && {
+    isDragging: (event: CalendarEventInfo<RecordType>, day: Date) =>
+      draggingKey === `${event.record.id}@${calendarDayKey(day)}`,
+    onDragStart: (
+      e: DragEvent,
+      event: CalendarEventInfo<RecordType>,
+      from: Date,
+    ) => {
+      e.dataTransfer.effectAllowed = "move";
+      // Firefox starts no drag without data.
+      e.dataTransfer.setData("text/plain", String(event.record.id));
+      grabbed.current = { event, from };
+      setDraggingKey(`${event.record.id}@${calendarDayKey(from)}`);
+    },
+    onDragEnd: clearDrag,
+  };
+
+  const cellDragProps = (day: Date) => {
+    if (!onDropEvent) return {};
+    const key = calendarDayKey(day);
+    return {
+      "data-over": overKey === key ? "" : undefined,
+      onDragOver: (e: DragEvent) => {
+        if (!grabbed.current) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        setOverKey(key);
+      },
+      onDragLeave: (e: DragEvent) => {
+        // Moving onto a child of the cell fires dragleave on the cell first.
+        const into = e.relatedTarget;
+        if (into instanceof Node && e.currentTarget.contains(into)) return;
+        setOverKey((current) => (current === key ? undefined : current));
+      },
+      onDrop: (e: DragEvent) => {
+        const current = grabbed.current;
+        if (!current) return;
+        e.preventDefault();
+        clearDrag();
+        if (key === calendarDayKey(current.from)) return;
+        const moved = moveCalendarEvent(current.event, current.from, day);
+        onDropEvent(current.event, {
+          start: moved.start.toISOString(),
+          ...(moved.end ? { end: moved.end.toISOString() } : {}),
+        });
+      },
+    };
   };
 
   return (
@@ -219,6 +323,7 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
                   tabIndex={onSelectSlot ? 0 : undefined}
                   onClick={() => selectSlot(day)}
                   onKeyDown={(event) => onCellKeyDown(event, day)}
+                  {...cellDragProps(day)}
                   className={cn(
                     "h-24 border-r p-1 align-top last:border-r-0",
                     outside && "bg-muted/30 text-muted-foreground",
@@ -231,6 +336,7 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
                     day={day}
                     onSelectEvent={onSelectEvent}
                     eventRenderer={eventRenderer}
+                    drag={drag}
                   >
                     <span
                       className={cn(
@@ -254,6 +360,7 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
 
 export {
   CalendarCellEvents,
+  type CalendarDropRange,
   CalendarEventButton,
   type CalendarEventInfo,
   CalendarMonthView,

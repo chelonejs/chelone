@@ -25,6 +25,7 @@ import {
   type HeaderRendererProps,
 } from "./calendar-header";
 import {
+  type CalendarDropRange,
   type CalendarEventInfo,
   CalendarMonthView,
   type CalendarSlot,
@@ -66,6 +67,18 @@ interface CalendarListProps<
   onSelectEvent?: (record: RecordType) => void;
   /** An empty part of a day cell was clicked, or Enter or Space pressed on it. */
   onSelectSlot?: (slot: CalendarSlot) => void;
+  /**
+   * Makes month-view events draggable to another day. Called with the record
+   * and its moved ISO `start`, and `end` when the event had one; not called for
+   * a drop on the day it came from. The list is not updated here: save, and the
+   * list refetches. A rejection is left to the caller. Native drag and drop
+   * does not work on touch screens and has no keyboard form, so
+   * `onSelectEvent` stays the route to an edit form.
+   */
+  onDrop?: (
+    record: RecordType,
+    range: CalendarDropRange,
+  ) => Promise<void> | void;
   /** Replaces the coloured block inside each event button. */
   eventRenderer?: (props: EventRendererProps<RecordType>) => ReactNode;
   /** Replaces the header. */
@@ -98,6 +111,7 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
   linkType,
   onSelectEvent,
   onSelectSlot,
+  onDrop,
   eventRenderer,
   headerRenderer,
   className,
@@ -278,10 +292,13 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
       ) : view === "agenda" ? (
         <CalendarAgendaView {...viewProps} />
       ) : (
-        <CalendarMonthView
+        <CalendarMonthView<RecordType>
           {...viewProps}
           anchor={anchor}
           onSelectSlot={onSelectSlot}
+          onDropEvent={
+            onDrop && ((event, moved) => onDrop(event.record, moved))
+          }
         />
       )}
     </div>
@@ -290,6 +307,7 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
 
 export type { CalendarView };
 export {
+  type CalendarDropRange,
   type CalendarEventInfo,
   CalendarList,
   type CalendarListProps,

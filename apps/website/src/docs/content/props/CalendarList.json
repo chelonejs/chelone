@@ -50,6 +50,12 @@
       "comment": "Where an event links when `onSelectEvent` is unset: the edit page, else the show page. `false` makes it inert."
     },
     {
+      "name": "onDrop",
+      "type": "(record: RecordType, range: CalendarDropRange) => void | Promise<void>",
+      "optional": true,
+      "comment": "Makes month-view events draggable to another day. Called with the record\nand its moved ISO `start`, and `end` when the event had one; not called for\na drop on the day it came from. The list is not updated here: save, and the\nlist refetches. A rejection is left to the caller. Native drag and drop\ndoes not work on touch screens and has no keyboard form, so\n`onSelectEvent` stays the route to an edit form."
+    },
+    {
       "name": "onSelectEvent",
       "type": "(record: RecordType) => void",
       "optional": true,
