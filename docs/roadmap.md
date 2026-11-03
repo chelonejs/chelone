@@ -78,6 +78,10 @@ Pieces of shadmin that Chelone keeps, with where each stands. Each lands in both
 - **Dropped:** the inspector, `Configurable` and `SimpleFormConfigurable`. `ColumnsButton` covers the usual reason for them.
 - **Dropped:** the rest of the `widgets` folder. It is closer to finished app screens than admin building blocks.
 
+## Adapter duplication (#669)
+
+Every feature lives once per adapter, and the copies drift. [`headless-controllers.md`](headless-controllers.md) measures the duplication with jscpd, lists every React and Vue clone with where its logic should live, and ranks the moves into core controllers. The moves are filed from that note, each covering both adapters.
+
 ## Sequencing
 
 **STATUS 2026-07-10 — TIER 1 COMPLETE. ✅ R1 URL-synced lists · ✅ R2 permissions/access-control · ✅ R3 undoable mutations.** All three closed in BOTH adapters, core stayed framework-free (external react/vue/router import grep = empty across all additions), core 590 / react 1241 / vue 493 green, vue-demo builds. R1 browser-verified (deep-link seed + page-push). R2 security semantics verified both directions (checkError-reject→logout, resolve→stay; fail-open-when-unconfigured). R3 data-integrity verified by spy counts (server 0× on undo, 1× on commit; rollback on undo + commit-error; beforeunload commit). The gate that held: parity work ADDS to core (additive vanilla), invariant = core stays REACT/framework-FREE, not zero-core-change.
