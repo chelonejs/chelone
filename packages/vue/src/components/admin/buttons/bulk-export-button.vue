@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { Exporter } from "./export";
+import type { Exporter } from "@chelone/core";
 
 /** Props for {@link BulkExportButton}. */
 export interface BulkExportButtonProps {
@@ -33,7 +33,7 @@ import { useTranslate } from "../../../i18n/use-translate";
 import { useListContext } from "../../../list/list-context";
 import { useResourceContext } from "../../../resource-context";
 import Button from "../../ui/button.vue";
-import { defaultExporter } from "./export";
+import { defaultExporter } from "@chelone/core";
 import { DownloadIcon } from "./icons";
 
 const props = defineProps<BulkExportButtonProps>();

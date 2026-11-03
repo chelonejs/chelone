@@ -637,10 +637,6 @@
           "type": "registry:component"
         },
         {
-          "path": "src/components/admin/buttons/export.ts",
-          "type": "registry:component"
-        },
-        {
           "path": "src/components/admin/buttons/filter-button.vue",
           "type": "registry:component"
         },
@@ -1771,12 +1767,8 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": [
-        "@chelone/button",
-        "@chelone/button-icons",
-        "@chelone/export"
-      ],
-      "dependencies": ["@chelone/vue"],
+      "registryDependencies": ["@chelone/button", "@chelone/button-icons"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -1936,27 +1928,9 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": [
-        "@chelone/button",
-        "@chelone/button-icons",
-        "@chelone/export"
-      ],
-      "dependencies": ["@chelone/vue"],
+      "registryDependencies": ["@chelone/button", "@chelone/button-icons"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "buttons"],
-      "author": "Chelone <https://chelone.dev>"
-    },
-    {
-      "name": "export",
-      "type": "registry:component",
-      "title": "Export",
-      "files": [
-        {
-          "path": "src/components/admin/buttons/export.ts",
-          "type": "registry:component"
-        }
-      ],
-      "dependencies": ["@chelone/core"],
-      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -4896,12 +4870,11 @@
       ],
       "registryDependencies": [
         "@chelone/create-button",
-        "@chelone/export",
         "@chelone/export-button",
         "@chelone/filter-button",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4964,11 +4937,11 @@
         }
       ],
       "registryDependencies": [
-        "@chelone/export",
         "@chelone/filter-form",
         "@chelone/lib-utils",
         "@chelone/list-actions"
       ],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6546,7 +6519,6 @@
       "description": "The opt-in CSV import add-on: CsvImport adds an Import button that opens a four-step sheet (upload, map columns, preview, import) and useCsvImport reads its state. Installs papaparse.",
       "registryDependencies": [
         "@chelone/button",
-        "@chelone/export",
         "@chelone/linear-progress",
         "@chelone/native-select",
         "@chelone/sheet",
@@ -6581,7 +6553,6 @@
       ],
       "registryDependencies": [
         "@chelone/button",
-        "@chelone/export",
         "@chelone/linear-progress",
         "@chelone/native-select",
         "@chelone/sheet",
