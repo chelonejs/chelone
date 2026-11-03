@@ -15,9 +15,12 @@ while read -r _ local_sha _ _; do
     echo "pre-push: pnpm lint failed, run pnpm format and commit" >&2
     exit 1
   fi
-  if ! (cd "$tmp/tree" && JSCPD_BIN="$root/node_modules/.bin/jscpd" node scripts/check-duplication.mjs); then
-    echo "pre-push: pnpm check:duplication failed, remove the copy (see CLAUDE.md)" >&2
-    exit 1
+  # A commit from before the check existed has no script or baseline to run.
+  if [ -f "$tmp/tree/scripts/check-duplication.mjs" ] && [ -f "$tmp/tree/duplication-baseline.json" ] && [ -f "$tmp/tree/.jscpd.json" ]; then
+    if ! (cd "$tmp/tree" && JSCPD_BIN="$root/node_modules/.bin/jscpd" node scripts/check-duplication.mjs); then
+      echo "pre-push: pnpm check:duplication failed, remove the copy (see CLAUDE.md)" >&2
+      exit 1
+    fi
   fi
   git worktree remove --force "$tmp/tree"
 done
