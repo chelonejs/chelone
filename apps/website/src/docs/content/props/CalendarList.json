@@ -1,0 +1,101 @@
+{
+  "name": "CalendarList",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "colorMap",
+      "type": "Record<string, string>",
+      "optional": true,
+      "comment": "Maps the value at `colorSource` to a CSS color."
+    },
+    {
+      "name": "colorSource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultView",
+      "type": "CalendarView",
+      "optional": true,
+      "comment": "The view shown first. Only `month` exists yet."
+    },
+    {
+      "name": "endSource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "eventRenderer",
+      "type": "(props: EventRendererProps<RecordType>) => ReactNode",
+      "optional": true,
+      "comment": "Replaces the coloured block inside each event button."
+    },
+    {
+      "name": "headerRenderer",
+      "type": "(props: HeaderRendererProps) => ReactNode",
+      "optional": true,
+      "comment": "Replaces the header."
+    },
+    {
+      "name": "linkType",
+      "type": "string | false",
+      "optional": true,
+      "comment": "Where an event links when `onSelectEvent` is unset: the edit page, else the show page. `false` makes it inert."
+    },
+    {
+      "name": "onSelectEvent",
+      "type": "(record: RecordType) => void",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "onSelectSlot",
+      "type": "(slot: CalendarSlot) => void",
+      "optional": true,
+      "comment": "An empty part of a day cell was clicked, or Enter or Space pressed on it."
+    },
+    {
+      "name": "perPage",
+      "type": "number",
+      "optional": true,
+      "comment": "Records fetched per range, so a month is not cut off at the list default."
+    },
+    {
+      "name": "rangeFilter",
+      "type": "(range: CalendarRange) => Record<string, unknown>",
+      "optional": true,
+      "comment": "The list filter for the visible range, for a provider that names its\noperators otherwise. Default: `<startSource>_gte` and `<startSource>_lte`."
+    },
+    {
+      "name": "startSource",
+      "type": "string",
+      "optional": false,
+      "comment": "The field holding an event's start; also the field the default range filter is keyed on."
+    },
+    {
+      "name": "titleSource",
+      "type": "string",
+      "optional": true,
+      "comment": "The field holding an event's title; the record representation when unset or empty."
+    },
+    {
+      "name": "views",
+      "type": "readonly CalendarView[]",
+      "optional": true,
+      "comment": "The views offered; the switcher is hidden while one remains. Only `month` exists yet."
+    },
+    {
+      "name": "weekStartsOn",
+      "type": "CalendarWeekStart",
+      "optional": true,
+      "comment": "0 is Sunday."
+    }
+  ]
+}

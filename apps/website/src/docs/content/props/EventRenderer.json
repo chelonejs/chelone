@@ -1,0 +1,23 @@
+{
+  "name": "EventRenderer",
+  "props": [
+    {
+      "name": "day",
+      "type": "Date",
+      "optional": false,
+      "comment": "The day cell the event is drawn in; a multi-day event renders once per day."
+    },
+    {
+      "name": "event",
+      "type": "CalendarEventInfo<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "view",
+      "type": "CalendarView",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}
