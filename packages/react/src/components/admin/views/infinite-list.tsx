@@ -5,7 +5,6 @@
  * each loaded page, which `<InfinitePagination>` reads.
  */
 
-import type { ListContextValue } from "../../../form";
 import { ListContextProvider } from "../../../form";
 import { useInfiniteListController } from "../../../infinite-hooks";
 import { useResourceContext } from "../../../resource";
@@ -41,7 +40,7 @@ function InfiniteList(props: InfiniteListProps) {
   const controller = useInfiniteListController(resource, { perPage });
 
   return (
-    <ListContextProvider value={controller as unknown as ListContextValue}>
+    <ListContextProvider value={controller}>
       <ListView {...viewProps}>{children}</ListView>
     </ListContextProvider>
   );
