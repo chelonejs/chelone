@@ -127,6 +127,15 @@ describe("<SetPasswordForm>", () => {
     expect(saveButton(wrapper).text()).toBe("Save");
   });
 
+  it("marks both fields as a new password and focuses the first", async () => {
+    const { wrapper } = await mountIn(SetPasswordForm);
+
+    const [first, second] = passwordInputs(wrapper);
+    expect(first?.attributes("autocomplete")).toBe("new-password");
+    expect(second?.attributes("autocomplete")).toBe("new-password");
+    expect(document.activeElement).toBe(first?.element);
+  });
+
   it("mismatched passwords show the mismatch error on both fields and do not call setPassword", async () => {
     const setPassword = vi.fn(async () => {});
     const { wrapper } = await mountIn(SetPasswordForm, {

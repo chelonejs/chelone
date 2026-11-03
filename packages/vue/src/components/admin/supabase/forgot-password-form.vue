@@ -15,9 +15,6 @@ export interface ForgotPasswordFormProps {
  * A rejection from `resetPassword` becomes a warning notification carrying its
  * message, because the form `onSubmit` contract must resolve for provider
  * errors.
- *
- * Vue divergence: no `autocomplete` or `autofocus` on the email field, since
- * the Vue `<TextInput>` does not forward them to its `<input>`.
  */
 
 import { required } from "@chelone/core";
@@ -85,6 +82,8 @@ function handleSubmit(event: Event): void {
       :label="translate('ra-supabase.auth.email', { _: 'Email' })"
       source="email"
       type="email"
+      autocomplete="email"
+      autofocus
       :validate="required()"
     />
     <Button type="submit" class="cursor-pointer" :disabled="submitting">
