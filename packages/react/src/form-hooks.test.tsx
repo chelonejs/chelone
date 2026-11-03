@@ -457,6 +457,50 @@ describe("SourceContext", () => {
     );
     expect(rootSourceScope.getSource("x")).toBe("x");
   });
+
+  it("useInput with a dot-index source writes the field that the bracket source reads", async () => {
+    const save = vi.fn(async () => undefined);
+    const base = makeWrapper();
+    const Wrapper = base.wrapper;
+    const harness = makeFormHarness<{ tags: Array<{ label: string }> }>({
+      defaultValues: { tags: [{ label: "start" }] },
+      save,
+    });
+    const dot: { current: UseInputResult | null } = { current: null };
+    const bracket: { current: UseInputResult | null } = { current: null };
+    function DotInput() {
+      dot.current = useInput({ source: "tags.0.label" });
+      return null;
+    }
+    function BracketInput() {
+      bracket.current = useInput({ source: "tags[0].label" });
+      return null;
+    }
+    render(
+      <Wrapper>
+        <harness.FormHost>
+          <DotInput />
+          <BracketInput />
+        </harness.FormHost>
+      </Wrapper>,
+    );
+    await act(async () => {});
+
+    // Both spellings resolve to the same field name — the one form-core
+    // addresses, so validators, errors and field groups match it too.
+    expect(dot.current?.field.name).toBe("tags[0].label");
+    expect(bracket.current?.field.name).toBe("tags[0].label");
+    expect(dot.current?.field.value).toBe("start");
+
+    act(() => dot.current?.field.onChange("from-dot"));
+    expect(harness.latestForm.current?.form.state.values.tags[0]?.label).toBe(
+      "from-dot",
+    );
+    expect(bracket.current?.field.value).toBe("from-dot");
+
+    act(() => bracket.current?.field.onChange("from-bracket"));
+    expect(dot.current?.field.value).toBe("from-bracket");
+  });
 });
 
 describe("useFormController", () => {
