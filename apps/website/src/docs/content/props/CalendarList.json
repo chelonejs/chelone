@@ -77,7 +77,7 @@
       "name": "rangeFilter",
       "type": "(range: CalendarRange) => Record<string, unknown>",
       "optional": true,
-      "comment": "The list filter for the visible range, for a provider that names its\noperators otherwise. Default: `<startSource>_gte` and `<startSource>_lte`."
+      "comment": "The list filter for the visible range, for a provider that names its\noperators otherwise. Default: `<startSource>_gte` and `<startSource>_lte`,\nor with `endSource` set `<startSource>_lte` and `<endSource>_gte`, which\nalso fetches an event that starts before the range. A record with an empty\nend is then left out, so such data needs a custom `rangeFilter`."
     },
     {
       "name": "startSource",

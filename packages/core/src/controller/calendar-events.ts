@@ -173,24 +173,37 @@ export function moveCalendarEvent<R>(
   return event.end ? { start, end: addDays(event.end, days) } : { start };
 }
 
+/**
+ * The list filter that asks for a range. With an `endSource`, an event is kept
+ * when it starts before the range ends and ends after it starts, so one that
+ * began earlier and runs into the range is fetched; a record with an empty end
+ * is then left out. Without one, only the start is bounded, on both sides.
+ */
 export function calendarRangeFilter(
   startSource: string,
   range: CalendarRange,
+  endSource?: string,
 ): Record<string, string> {
+  if (endSource) {
+    return {
+      [`${startSource}_lte`]: range.end.toISOString(),
+      [`${endSource}_gte`]: range.start.toISOString(),
+    };
+  }
   return {
     [`${startSource}_gte`]: range.start.toISOString(),
     [`${startSource}_lte`]: range.end.toISOString(),
   };
 }
 
-export function omitCalendarRangeFilter<F extends Record<string, unknown>>(
-  filter: F,
+export function omitCalendarRangeFilter(
+  filter: Record<string, unknown>,
   startSource: string,
+  endSource?: string,
 ): Record<string, unknown> {
-  const {
-    [`${startSource}_gte`]: _gte,
-    [`${startSource}_lte`]: _lte,
-    ...rest
-  } = filter;
+  const rest = { ...filter };
+  delete rest[`${startSource}_gte`];
+  delete rest[`${startSource}_lte`];
+  if (endSource) delete rest[`${endSource}_gte`];
   return rest;
 }

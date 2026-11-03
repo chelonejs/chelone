@@ -59,7 +59,10 @@ interface CalendarListProps<
   perPage?: number;
   /**
    * The list filter for the visible range, for a provider that names its
-   * operators otherwise. Default: `<startSource>_gte` and `<startSource>_lte`.
+   * operators otherwise. Default: `<startSource>_gte` and `<startSource>_lte`,
+   * or with `endSource` set `<startSource>_lte` and `<endSource>_gte`, which
+   * also fetches an event that starts before the range. A record with an empty
+   * end is then left out, so such data needs a custom `rangeFilter`.
    */
   rangeFilter?: (range: CalendarRange) => Record<string, unknown>;
   /** Where an event links when `onSelectEvent` is unset: the edit page, else the show page. `false` makes it inert. */
@@ -142,7 +145,9 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
   const endISO = range.end.toISOString();
 
   const rangeValues = () =>
-    rangeFilter ? rangeFilter(range) : calendarRangeFilter(startSource, range);
+    rangeFilter
+      ? rangeFilter(range)
+      : calendarRangeFilter(startSource, range, endSource);
   const listFilter = list.filter as Record<string, unknown>;
   const inSync =
     list.perPage === perPage &&
