@@ -6,6 +6,7 @@
 //   node scripts/release-tags.mjs                 tag and release what is missing
 //   node scripts/release-tags.mjs --dry-run       print what it would do, change nothing
 //   node scripts/release-tags.mjs --remote <name> look for tags on <name> instead of origin
+//   node scripts/release-tags.mjs --wait <secs>   wait this long for npm to list a version (default 600)
 //
 // Only the remote decides whether a tag exists: deleting a local tag changes
 // nothing. To see the output for a missing tag, point --remote at a repository
@@ -13,6 +14,11 @@
 //
 // A package with a tag on the remote and a release is skipped, so a rerun is
 // safe. A tag without a release (a run that failed in between) gets its release.
+//
+// npm lists a new version a minute or more after `changeset publish` returns,
+// so an untagged version missing from npm is waited for. One still missing
+// after --wait fails the run once every other package is done, rather than
+// being skipped and leaving a green run with no tag.
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -71,6 +77,20 @@ function onNpm(name, version) {
   throw new Error(`npm view ${name}@${version} failed:\n${result.stderr}`);
 }
 
+function sleep(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function waitForNpm(name, version, waitMs) {
+  const deadline = Date.now() + waitMs;
+  while (!onNpm(name, version)) {
+    if (Date.now() >= deadline) return false;
+    console.log(`${name}@${version}: not on npm yet, checking again in 15s`);
+    sleep(15_000);
+  }
+  return true;
+}
+
 // `gh release view` exits non-zero both for a missing release and for an API
 // or auth failure. Only the first means "no release".
 function releaseExists(tag) {
@@ -106,6 +126,12 @@ function main() {
   const remoteFlag = args.indexOf("--remote");
   const remote = remoteFlag === -1 ? "origin" : args[remoteFlag + 1];
   if (!remote) throw new Error("--remote needs a remote name");
+  const waitFlag = args.indexOf("--wait");
+  const waitSecs = waitFlag === -1 ? 600 : Number(args[waitFlag + 1]);
+  if (!Number.isFinite(waitSecs) || waitSecs < 0) {
+    throw new Error("--wait needs a number of seconds");
+  }
+  const missing = [];
   const notesDir = dryRun
     ? null
     : mkdtempSync(path.join(tmpdir(), "release-notes-"));
@@ -120,8 +146,9 @@ function main() {
       );
       continue;
     }
-    if (!tagged && !onNpm(name, version)) {
-      console.log(`${tag}: not on npm yet, skipping`);
+    if (!tagged && !waitForNpm(name, version, waitSecs * 1000)) {
+      console.log(`${tag}: still not on npm after ${waitSecs}s`);
+      missing.push(tag);
       continue;
     }
 
@@ -171,6 +198,12 @@ function main() {
     ]);
     const done = tagged ? "released" : "tagged, pushed, and released";
     console.log(`${tag}: ${done} from ${changelogLabel}`);
+  }
+
+  if (missing.length > 0) {
+    throw new Error(
+      `not on npm, so not tagged or released: ${missing.join(", ")}`,
+    );
   }
 }
 
