@@ -29,7 +29,7 @@ export interface FileFieldProps {
  */
 
 import { computed } from "vue";
-import { getPath } from "./get-path";
+import { getAtPath } from "@chelone/core";
 import { cn } from "../../../lib/utils";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -79,10 +79,10 @@ const links = computed<FileLink[]>(() => {
   if (!Array.isArray(sourceValue.value)) return [];
   return sourceValue.value.map((file, index) => {
     const fileTitleValue = props.title
-      ? ((getPath(file, props.title) ?? props.title) as string)
+      ? ((getAtPath(file, props.title) ?? props.title) as string)
       : props.title;
     const srcValue = props.src
-      ? ((getPath(file, props.src) ?? props.title) as string)
+      ? ((getAtPath(file, props.src) ?? props.title) as string)
       : props.title;
     return { href: srcValue, title: fileTitleValue, key: srcValue ?? index };
   });

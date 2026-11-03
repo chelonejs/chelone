@@ -92,6 +92,30 @@ describe("<ImageField>", () => {
     expect(screen.getAllByRole("img").length).toBe(3);
   });
 
+  it("an array item's title and src read a bracket path", () => {
+    render(
+      <Providers>
+        <RecordContextProvider
+          value={{
+            id: 1,
+            pics: [
+              { meta: [{ name: "A" }], links: [{ href: "a.png" }] },
+              { meta: [{ name: "B" }], links: [{ href: "b.png" }] },
+            ],
+          }}
+        >
+          <ImageField source="pics" src="links[0].href" title="meta[0].name" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    const imgs = screen.getAllByRole("img");
+    expect(imgs.map((img) => img.getAttribute("src"))).toEqual([
+      "a.png",
+      "b.png",
+    ]);
+    expect(imgs.map((img) => img.getAttribute("title"))).toEqual(["A", "B"]);
+  });
+
   it("renders nothing when the value is null and no empty prop", () => {
     const { container } = render(
       <Providers>

@@ -1,27 +1,10 @@
-import type { LooseRecord } from "@chelone/core";
+import { getAtPath, type LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
-
-/**
- * Read a value at a dot path off `record`. Clean-room stand-in for
- * `lodash/get(record, path)` (chelone stays zero-lodash) — used only for the
- * per-item title/src lookups in the array branch.
- */
-function getPath(record: unknown, path: string): unknown {
-  if (record != null && typeof record === "object" && path in record) {
-    return (record as Record<string, unknown>)[path];
-  }
-  let current: unknown = record;
-  for (const key of path.split(".")) {
-    if (current == null || typeof current !== "object") return undefined;
-    current = (current as Record<string, unknown>)[key];
-  }
-  return current;
-}
 
 interface FileFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
@@ -46,7 +29,7 @@ interface FileFieldProps<RecordType extends LooseRecord = LooseRecord>
  *
  * Rebridge note (chelone): imports moved from `shadmin-core` to
  * `@chelone/react` (`useFieldValue`/`useTranslate`/`sanitizeFieldRestProps`);
- * `lodash/get` replaced by a local zero-dep `getPath`. Behavior is unchanged.
+ * `lodash/get` replaced by core's `getAtPath`. Behavior is unchanged.
  *
  * @example
  * import { FileField } from '@/components/admin';
@@ -112,10 +95,10 @@ function FileField<RecordType extends LooseRecord = LooseRecord>(
       >
         {sourceValue.map((file, index) => {
           const fileTitleValue = title
-            ? ((getPath(file, title) ?? title) as string)
+            ? ((getAtPath(file, title) ?? title) as string)
             : title;
           const srcValue = src
-            ? ((getPath(file, src) ?? title) as string)
+            ? ((getAtPath(file, src) ?? title) as string)
             : title;
 
           return (
