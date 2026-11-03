@@ -21,7 +21,7 @@
     },
     {
       "name": "conditionalClassName",
-      "type": "(record: UnknownRecord) => string | false | undefined",
+      "type": "(record: LooseRecord) => string | false | undefined",
       "optional": true,
       "comment": ""
     },
@@ -69,7 +69,7 @@
     },
     {
       "name": "render",
-      "type": "(record: UnknownRecord) => ReactNode",
+      "type": "(record: LooseRecord) => ReactNode",
       "optional": true,
       "comment": ""
     },

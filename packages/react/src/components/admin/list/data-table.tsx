@@ -4,6 +4,7 @@ import {
   defaultDataTableStoreKey,
   getDataTableColumnId,
   type Identifier,
+  type LooseRecord,
   type SortPayload,
 } from "@chelone/core";
 import {
@@ -29,7 +30,6 @@ import {
 } from "react";
 import { useDataTableColumns } from "../../../data-table-columns-hooks";
 import { useListContext } from "../../../form";
-import type { UnknownRecord } from "../../../lib/unknown-types";
 import { cn } from "../../../lib/utils";
 import { useListSortContext } from "../../../list/list-slice-hooks";
 import {
@@ -78,13 +78,13 @@ const useDataTableSizeContext = () => use(DataTableSizeContext);
 interface DataTableExpandContextValue {
   expand:
     | ReactElement
-    | ComponentType<{ id: Identifier; record: UnknownRecord; resource: string }>
+    | ComponentType<{ id: Identifier; record: LooseRecord; resource: string }>
     | null;
   expandedIds: Identifier[];
   toggleExpand: (id: Identifier) => void;
   setExpandedIds: (ids: Identifier[]) => void;
   expandSingle: boolean;
-  isRowExpandable?: (record: UnknownRecord) => boolean;
+  isRowExpandable?: (record: LooseRecord) => boolean;
 }
 const DataTableExpandContext =
   createContext<DataTableExpandContextValue | null>(null);
@@ -241,7 +241,7 @@ function DataTable(props: DataTableProps) {
                         BodyComponent as ComponentType<{
                           children?: ReactNode;
                           rowClassName?: (
-                            record: UnknownRecord,
+                            record: LooseRecord,
                             rowIndex: number,
                           ) => string | undefined;
                         }>,
@@ -334,7 +334,7 @@ function DataTableHead({ children }: { children: ReactNode }) {
 
 function ExpandAllButton() {
   const expandContext = useDataTableExpandContext();
-  const { data } = useListContext();
+  const { data } = useListContext<LooseRecord>();
   if (!expandContext || !data) return null;
   const allExpanded =
     data.length > 0 &&
@@ -345,9 +345,7 @@ function ExpandAllButton() {
     } else {
       const expandableIds = expandContext.isRowExpandable
         ? data
-            .filter((r) =>
-              expandContext.isRowExpandable?.(r as unknown as UnknownRecord),
-            )
+            .filter((r) => expandContext.isRowExpandable?.(r))
             .map((r) => r.id)
         : data.map((r) => r.id);
       expandContext.setExpandedIds(expandableIds);
@@ -377,12 +375,9 @@ function DataTableBody({
   rowClassName,
 }: {
   children: ReactNode;
-  rowClassName?: (
-    record: UnknownRecord,
-    rowIndex: number,
-  ) => string | undefined;
+  rowClassName?: (record: LooseRecord, rowIndex: number) => string | undefined;
 }) {
-  const { data } = useListContext();
+  const { data } = useListContext<LooseRecord>();
   const hasBulkActions = useDataTableHasBulk();
   const expandContext = useDataTableExpandContext();
   const resource = useResourceContext();
@@ -400,24 +395,19 @@ function DataTableBody({
             : createElement(
                 expandContext.expand as ComponentType<{
                   id: Identifier;
-                  record: UnknownRecord;
+                  record: LooseRecord;
                   resource: string;
                 }>,
                 {
                   id: record.id,
-                  record: record as unknown as UnknownRecord,
+                  record: record,
                   resource: resource ?? "",
                 },
               )
           : null;
         return (
           <RecordContextProvider value={record} key={key}>
-            <DataTableRow
-              className={rowClassName?.(
-                record as unknown as UnknownRecord,
-                rowIndex,
-              )}
-            >
+            <DataTableRow className={rowClassName?.(record, rowIndex)}>
               {children}
             </DataTableRow>
             {expandContext ? (
@@ -465,7 +455,7 @@ function DataTableRow({
   const definition = useResourceDefinition();
   const link =
     typeof rowClick === "function"
-      ? rowClick(record as unknown as UnknownRecord, record.id)
+      ? rowClick(record, record.id)
       : (rowClick as string | false | undefined);
   const path = useGetPathForRecord({
     resource,
@@ -503,8 +493,7 @@ function DataTableRow({
   const isExpanded = expandContext?.expandedIds.includes(record.id) ?? false;
   const canExpand =
     expandContext != null &&
-    (!expandContext.isRowExpandable ||
-      expandContext.isRowExpandable(record as unknown as UnknownRecord));
+    (!expandContext.isRowExpandable || expandContext.isRowExpandable(record));
   const expandLabel = isExpanded ? "Collapse row" : "Expand row";
   const clickable = rowClick !== false;
 
@@ -725,12 +714,12 @@ function DataTableCell(props: DataTableColumnProps) {
         size === "small" ? "px-2 py-1" : "px-3 py-2",
         className,
         cellClassName,
-        record && conditionalClassName?.(record as unknown as UnknownRecord),
+        record && conditionalClassName?.(record),
       )}
     >
       {children ??
         (render
-          ? record && render(record as unknown as UnknownRecord)
+          ? record && render(record)
           : field
             ? createElement(field, { source })
             : (sourceValue as ReactNode))}
@@ -770,9 +759,9 @@ interface DataTableColumnProps {
   className?: string;
   cellClassName?: string;
   headerClassName?: string;
-  conditionalClassName?: (record: UnknownRecord) => string | false | undefined;
+  conditionalClassName?: (record: LooseRecord) => string | false | undefined;
   children?: ReactNode;
-  render?: (record: UnknownRecord) => ReactNode;
+  render?: (record: LooseRecord) => ReactNode;
   field?: React.ElementType;
   source?: string;
   label?: ReactNode;
@@ -791,10 +780,7 @@ interface DataTableNumberColumnProps extends DataTableColumnProps {
 interface DataTableProps {
   children: ReactNode;
   className?: string;
-  rowClassName?: (
-    record: UnknownRecord,
-    rowIndex: number,
-  ) => string | undefined;
+  rowClassName?: (record: LooseRecord, rowIndex: number) => string | undefined;
   /**
    * Bulk-action children rendered in the selection toolbar. `false` (default)
    * disables selection entirely, so pass your own bulk children (or a
@@ -811,13 +797,13 @@ interface DataTableProps {
     | ReactElement
     | ComponentType<{
         id: Identifier;
-        record: UnknownRecord;
+        record: LooseRecord;
         resource: string;
       }>;
   /** Expanding a row collapses any previously-expanded one. Default `false`. */
   expandSingle?: boolean;
   /** Predicate deciding whether a given record can be expanded. */
-  isRowExpandable?: (record: UnknownRecord) => boolean;
+  isRowExpandable?: (record: LooseRecord) => boolean;
   /** Disable row hover highlighting. Default `true` (hover on). */
   hover?: boolean;
   /** Row density. `"small"` tightens cell padding; `"medium"` (default) is standard. */
@@ -833,7 +819,7 @@ interface DataTableProps {
   body?: ComponentType<{
     children: ReactNode;
     rowClassName?: (
-      record: UnknownRecord,
+      record: LooseRecord,
       rowIndex: number,
     ) => string | undefined;
   }>;
@@ -846,7 +832,7 @@ interface DataTableProps {
   rowClick?:
     | string
     | false
-    | ((record: UnknownRecord, id: Identifier) => string | false);
+    | ((record: LooseRecord, id: Identifier) => string | false);
 }
 
 export {

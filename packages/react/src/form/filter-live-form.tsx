@@ -75,14 +75,16 @@ export function ListContextProvider({
  * FilterLiveForm/useFilterForm use it to read the list's `filter` + push
  * `setFilters`.
  */
-export function useListContext(): ListContextValue {
+export function useListContext<
+  RecordType extends ResourceRecord = ResourceRecord,
+>(): UseListControllerResult<RecordType> {
   const ctx = useContext(ListContext);
   if (!ctx) {
     throw new Error(
       "useListContext: no <ListContextProvider> found above this component.",
     );
   }
-  return ctx;
+  return ctx as UseListControllerResult<RecordType>;
 }
 
 export { getFilterFormValues };

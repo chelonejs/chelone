@@ -20,7 +20,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { areIdsEqual } from "@/lib/are-ids-equal";
-import type { UnknownValue } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import type { ChoiceRecord, OptionText } from "../../../choices-hooks";
 import { useChoices, useChoicesContext } from "../../../choices-hooks";
@@ -167,7 +166,7 @@ function AutocompleteInput(props: AutocompleteInputProps) {
   const listboxId = React.useId();
 
   const isEqual = useCallback(
-    (choiceVal: UnknownValue, fieldVal: UnknownValue) =>
+    (choiceVal: unknown, fieldVal: unknown) =>
       isOptionEqualToValue
         ? isOptionEqualToValue(choiceVal, fieldVal)
         : areIdsEqual(choiceVal, fieldVal),
@@ -409,7 +408,7 @@ type AutocompleteInputProps = Omit<InputProps, "source"> &
     filterToQuery?: (searchText: string) => FilterPayload;
     placeholder?: string;
     /** Custom display text for the selected value in the trigger. */
-    inputText?: (option: UnknownValue) => string;
+    inputText?: (option: unknown) => string;
     /** When true, only show choices matching the current value. */
     limitChoicesToValue?: boolean;
     /** Cap the number of dropdown items shown. */
@@ -427,12 +426,9 @@ type AutocompleteInputProps = Omit<InputProps, "source"> &
     /** When true, Home/End keys scroll the listbox to first/last item. */
     handleHomeEndKeys?: boolean;
     /** Custom equality check between a choice value and the current value. */
-    isOptionEqualToValue?: (
-      option: UnknownValue,
-      value: UnknownValue,
-    ) => boolean;
+    isOptionEqualToValue?: (option: unknown, value: unknown) => boolean;
     /** Custom filter function; replaces default substring match. */
-    matchSuggestion?: (filter: string, choice: UnknownValue) => boolean;
+    matchSuggestion?: (filter: string, choice: unknown) => boolean;
     /** Gate controlling whether the dropdown opens at all. */
     shouldRenderSuggestions?: (filter: string) => boolean;
     /** Label of a "(none)" entry prepended when the field is not required. */
