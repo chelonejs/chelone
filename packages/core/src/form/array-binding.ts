@@ -1,4 +1,5 @@
 import type { UpdateMetaOptions } from "@tanstack/form-core";
+import type { LooseRecord } from "../resource/record";
 import type { CheloneFormApi } from "./form-controller";
 import {
   createFieldBinding,
@@ -34,8 +35,8 @@ export interface ArrayRow {
   reOrder(to: number): void;
 }
 
-export interface ArrayBindingOptions
-  extends Omit<FieldBindingOptions, "format" | "parse"> {
+export interface ArrayBindingOptions<TRecord = LooseRecord>
+  extends Omit<FieldBindingOptions<TRecord>, "format" | "parse"> {
   /**
    * Seed rows for a value hole (ra precedence: an existing record value,
    * including `[]`, always wins). Defaults to `[]` so positional ops always
@@ -60,7 +61,10 @@ export interface ArrayBindingOptions
 }
 
 /** `update()` payload: everything but the identity-defining source. */
-export type ArrayBindingUpdateOptions = Omit<ArrayBindingOptions, "source">;
+export type ArrayBindingUpdateOptions = Omit<
+  ArrayBindingOptions<LooseRecord>,
+  "source"
+>;
 
 /**
  * Vanilla array binding over a form-core array field — the useArrayInput
@@ -196,16 +200,16 @@ const isPlainRecord = (value: unknown): value is Record<string, unknown> =>
 
 export function createArrayBinding<TRecord>(
   form: CheloneFormApi<TRecord>,
-  options: ArrayBindingOptions,
+  options: ArrayBindingOptions<TRecord>,
 ): ArrayBinding<TRecord> {
   const { source } = options;
-  let current: ArrayBindingOptions = options;
+  let current: ArrayBindingUpdateOptions & { source: string } = options;
 
   // The single widening cast (see ArrayOpsApi).
   const api = form as unknown as ArrayOpsApi;
 
   /** The field-binding view of the current options (fresh seed array per call). */
-  const toFieldOptions = (): FieldBindingOptions => ({
+  const toFieldOptions = (): FieldBindingOptions<TRecord> => ({
     source,
     defaultValue: current.defaultValue ? [...current.defaultValue] : [],
     validate: current.validate,

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import type { SourcePath } from "../resource/source-path";
 import { type ArrayRow, createArrayBinding } from "./array-binding";
 import { createFormController } from "./form-controller";
 import { createFieldBinding } from "./input-binding";
@@ -446,7 +447,10 @@ describe("createArrayBinding — nested arrays", () => {
     ]);
     const childSource = composeSource(rowAt(binding, 1).name, "sku");
     expect(childSource).toBe("orders[0].items[1].sku");
-    const child = createFieldBinding(controller.form, { source: childSource });
+    // A composed string is a plain `string`; the form's own path type needs a cast.
+    const child = createFieldBinding(controller.form, {
+      source: childSource as SourcePath<OrderForm>,
+    });
     child.subscribe(() => {});
     expect(child.getValue()).toBe("b");
 
