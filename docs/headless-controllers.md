@@ -77,7 +77,7 @@ Totals: 34 `move to core` (937 cloned lines), 15 `controller` (620), 7 `keep` (7
 | 23 | `packages/react/src/components/admin/inputs/duration-utils.ts:33-40` | `packages/vue/src/components/admin/inputs/duration-utils.ts:34-41` | 8 | `move to core` | `compactDuration`; pure. |
 | 24 | `packages/react/src/components/admin/inputs/duration-utils.ts:51-64` | `packages/vue/src/components/admin/inputs/duration-utils.ts:44-57` | 14 | `move to core` | `relativeDuration`; pure. |
 | 25 | `packages/react/src/components/admin/layout/command-menu-context.ts:20-30` | `packages/vue/src/components/admin/layout/command-menu-context.ts:23-37` | 11 | `move to core` | `CommandMenuContextValue` type restates the controller surface. |
-| 26 | `packages/react/src/components/admin/supabase/use-password-recovery.ts:29-141` | `packages/vue/src/components/admin/supabase/use-password-recovery.ts:38-150` | 113 | `controller` | `cleanedPath` and `stripKeys` strip tokens from the URL. They belong in `@chelone/supabase`. See candidate 3. |
+| 26 | `packages/react/src/components/admin/supabase/use-password-recovery.ts:29-141` | `packages/vue/src/components/admin/supabase/use-password-recovery.ts:38-150` | 113 | `controller` | The clone spans most of `useResetPassword` and `useSetPassword`, which stay. Only `stripKeys` and `cleanedPath` (React 83-132, Vue 92-141, 50 lines) move, to `@chelone/supabase`. See candidate 5. |
 | 27 | `packages/react/src/components/maps-draw/geometry-ops.ts:1-120` | `packages/vue/src/components/maps-draw/geometry-ops.ts:1-120` | 120 | `move to core` | Byte-identical. Needs `@turf/*`. See the geometry section. |
 | 28 | `packages/react/src/components/maps-draw/use-terra-draw.ts:20-69` | `packages/vue/src/components/maps-draw/use-terra-draw.ts:29-78` | 50 | `move to core` | `DrawTool`, `toolMode`, `TerraDrawEdit`; pure types and a lookup. See candidate 1. |
 | 29 | `packages/react/src/components/maps-draw/use-terra-draw.ts:95-224` | `packages/vue/src/components/maps-draw/use-terra-draw.ts:110-240` | 130 | `controller` | `selectFlags`, `buildModes`, `sameValue`, `userIds`. `buildModes` imports `terra-draw`. See candidate 1. |
@@ -85,9 +85,9 @@ Totals: 34 `move to core` (937 cloned lines), 15 `controller` (620), 7 `keep` (7
 | 31 | `packages/react/src/components/maps-osm/osm-features.ts:14-118` | `packages/vue/src/components/maps-osm/osm-features.ts:14-118` | 105 | `move to core` | Identical except the `QueryClient` type import. Needs `@turf/buffer` and `osm2geojson-lite`. See the geometry section. |
 | 32 | `packages/react/src/components/maps-osm/osm-geometry-ops.ts:1-70` | `packages/vue/src/components/maps-osm/osm-geometry-ops.ts:1-70` | 70 | `move to core` | Byte-identical. Needs `@turf/*`. See the geometry section. |
 | 33 | `packages/react/src/components/monaco/internal/strip-json-comments.ts:2-56` | `packages/vue/src/components/monaco/internal/strip-json-comments.ts:2-56` | 55 | `move to core` | Byte-identical; no imports. |
-| 34 | `packages/react/src/components/monaco/internal/use-json-schema.ts:2-79` | `packages/vue/src/components/monaco/internal/use-json-schema.ts:8-86` | 78 | `controller` | Monaco diagnostics registry with module-level shared state. See candidate 4. |
-| 35 | `packages/react/src/components/monaco/internal/use-json-schema.ts:88-100` | `packages/vue/src/components/monaco/internal/use-json-schema.ts:100-112` | 13 | `controller` | Same registry, tail. See candidate 4. |
-| 36 | `packages/react/src/components/monaco/internal/use-json-schema.ts:100-114` | `packages/vue/src/components/monaco/internal/use-json-schema.ts:112-126` | 15 | `controller` | Same registry, tail. See candidate 4. |
+| 34 | `packages/react/src/components/monaco/internal/use-json-schema.ts:2-79` | `packages/vue/src/components/monaco/internal/use-json-schema.ts:8-86` | 78 | `controller` | Monaco diagnostics registry with module-level shared state. See candidate 3. |
+| 35 | `packages/react/src/components/monaco/internal/use-json-schema.ts:88-100` | `packages/vue/src/components/monaco/internal/use-json-schema.ts:100-112` | 13 | `controller` | Same registry, tail. See candidate 3. |
+| 36 | `packages/react/src/components/monaco/internal/use-json-schema.ts:100-114` | `packages/vue/src/components/monaco/internal/use-json-schema.ts:112-126` | 15 | `controller` | Same registry, tail. See candidate 3. |
 | 37 | `packages/react/src/controller-hooks.ts:68-77` | `packages/vue/src/controllers/controller-context.ts:21-30` | 10 | `keep` | Maps each adapter's own `CheloneContextValue` onto core's controller context. The input type is adapter-owned. |
 | 38 | `packages/react/src/controller-hooks.ts:196-208` | `packages/vue/src/controllers/use-infinite-list-controller.ts:81-93` | 13 | `keep` | Binds the same method list onto each framework's reactive shell. A core helper would save about 10 lines per hook. |
 | 39 | `packages/react/src/controller-hooks.ts:200-209` | `packages/vue/src/controllers/use-list-controller.ts:156-165` | 10 | `keep` | Same method binding for the list controller. |
@@ -101,29 +101,29 @@ Totals: 34 `move to core` (937 cloned lines), 15 `controller` (620), 7 `keep` (7
 | 47 | `packages/react/src/hooks.ts:122-131` | `packages/vue/src/data/mutations.ts:75-84` | 10 | `controller` | `useUpdate` undoable branch, tail. See candidate 7. |
 | 48 | `packages/react/src/hooks.ts:146-156` | `packages/vue/src/data/mutations.ts:106-116` | 11 | `controller` | `useDelete` undoable branch. See candidate 7. |
 | 49 | `packages/react/src/hooks.ts:201-208` | `packages/vue/src/data/create-chelone-hooks.ts:65-72` | 8 | `keep` | Typed forwarding wrappers in the hooks factory. |
-| 50 | `packages/react/src/infinite-hooks.ts:18-34` | `packages/vue/src/controllers/use-infinite-list-controller.ts:35-51` | 17 | `move to core` | Result type; same generic as row 200. |
+| 50 | `packages/react/src/infinite-hooks.ts:18-34` | `packages/vue/src/controllers/use-infinite-list-controller.ts:35-51` | 17 | `move to core` | Result type; same generic as row 41. |
 | 51 | `packages/react/src/infinite-hooks.ts:57-68` | `packages/vue/src/controllers/use-infinite-list-controller.ts:85-96` | 12 | `keep` | Bridge differs: render-phase `useState` in React, effect scope in Vue. |
 | 52 | `packages/react/src/label/inflection.ts:34-45` | `packages/vue/src/label/inflection.ts:15-26` | 12 | `move to core` | `humanize`; pure. |
 | 53 | `packages/react/src/label/inflection.ts:44-70` | `packages/vue/src/label/inflection.ts:37-64` | 27 | `move to core` | `humanizeField` and `pluralize`; pure. |
 | 54 | `packages/react/src/label/inflection.ts:70-80` | `packages/vue/src/label/inflection.ts:76-84` | 11 | `move to core` | `pluralize` rules; pure. |
 | 55 | `packages/react/src/label/inflection.ts:83-92` | `packages/vue/src/label/inflection.ts:64-73` | 10 | `move to core` | Irregular table; pure. |
-| 56 | `packages/react/src/undoable-hooks.ts:4-52` | `packages/vue/src/data/undoable.ts:23-61` | 49 | `controller` | `runUndoable` options and the notification wiring. See candidate 5. |
-| 57 | `packages/react/src/undoable-hooks.ts:58-87` | `packages/vue/src/data/undoable.ts:65-94` | 30 | `controller` | `runUndoable` body. See candidate 5. |
+| 56 | `packages/react/src/undoable-hooks.ts:4-52` | `packages/vue/src/data/undoable.ts:23-61` | 49 | `controller` | `runUndoable` options and the notification wiring. See candidate 4. |
+| 57 | `packages/react/src/undoable-hooks.ts:58-87` | `packages/vue/src/data/undoable.ts:65-94` | 30 | `controller` | `runUndoable` body. See candidate 4. |
 | 58 | `packages/react/src/util/shallow-equal.ts:16-27` | `packages/vue/src/lib/shallow-equal.ts:17-27` | 12 | `move to core` | `shallowEqual`; pure. |
 | 59 | `packages/react/src/util/shallow-equal.ts:31-43` | `packages/vue/src/lib/shallow-equal.ts:29-40` | 13 | `move to core` | `shallowEqual` tail. |
 
 ## Ranked controller candidates
 
-Ranked by cloned lines in the ledger rows the candidate covers, largest first. "Lines" is the whole file, or the line range when only part of a file moves. The last three rows are the files the issue asked to have measured that jscpd did not flag.
+Ranked by cloned lines that would move, largest first. A ledger row can span code that stays (row 26 is 113 lines, of which 50 move), so the count is the part inside the range that moves, and `keep` rows are left out. "Lines" is the whole file, or the line range when only part of a file moves. The last three rows are the files the issue asked to have measured that jscpd did not flag.
 
-| Rank | Candidate | React | Vue | Core module it becomes | React lines | Vue lines | Cloned lines |
+| Rank | Candidate | React | Vue | Core module it becomes | React lines | Vue lines | Cloned lines that move |
 |---|---|---|---|---|---|---|---|
-| 1 | `use-terra-draw` | `packages/react/src/components/maps-draw/use-terra-draw.ts:1-386` | `packages/vue/src/components/maps-draw/use-terra-draw.ts:1-413` | `packages/core/src/geo/terra-draw-editor.ts`, exported from the `@chelone/core/maps-draw` subpath | 386 | 413 | 188 |
+| 1 | `use-terra-draw` | `packages/react/src/components/maps-draw/use-terra-draw.ts:1-386` | `packages/vue/src/components/maps-draw/use-terra-draw.ts:1-413` | `packages/core/src/geo/terra-draw-editor.ts`, exported from the `@chelone/core/maps-draw` subpath | 386 | 413 | 175 |
 | 2 | access-denied handling (`useLogoutIfAccessDenied`, `useWatchDataErrors`) | `packages/react/src/auth-hooks.ts:139-272` | `packages/vue/src/auth/permissions-hooks.ts:93-223` | `packages/core/src/auth/access-denied.ts` | 134 | 131 | 127 |
-| 3 | `use-password-recovery` (token stripping) | `packages/react/src/components/admin/supabase/use-password-recovery.ts:83-163` | `packages/vue/src/components/admin/supabase/use-password-recovery.ts:92-176` | `packages/supabase/src/url-params.ts` (not core) | 81 of 163 | 85 of 176 | 113 |
-| 4 | `use-json-schema` | `packages/react/src/components/monaco/internal/use-json-schema.ts:1-120` | `packages/vue/src/components/monaco/internal/use-json-schema.ts:1-132` | `packages/core/src/json/monaco-json-schema.ts` | 120 | 132 | 106 |
-| 5 | `useUndoable` runner | `packages/react/src/undoable-hooks.ts:1-90` | `packages/vue/src/data/undoable.ts:1-95` | `packages/core/src/data/undoable-runner.ts` | 90 | 95 | 79 |
-| 6 | `useArrayInput` binding holder | `packages/react/src/array-hooks.ts:69-199` | `packages/vue/src/array/use-array-input.ts:67-148` | `packages/core/src/form/array-input-controller.ts` | 131 of 328 | 82 of 154 | 63 |
+| 3 | `use-json-schema` | `packages/react/src/components/monaco/internal/use-json-schema.ts:1-120` | `packages/vue/src/components/monaco/internal/use-json-schema.ts:1-132` | `packages/core/src/json/monaco-json-schema.ts` | 120 | 132 | 106 |
+| 4 | `useUndoable` runner | `packages/react/src/undoable-hooks.ts:1-90` | `packages/vue/src/data/undoable.ts:1-95` | `packages/core/src/data/undoable-runner.ts` | 90 | 95 | 79 |
+| 5 | `use-password-recovery` (token stripping) | `packages/react/src/components/admin/supabase/use-password-recovery.ts:83-132` | `packages/vue/src/components/admin/supabase/use-password-recovery.ts:92-141` | `packages/supabase/src/url-params.ts` (not core) | 50 of 163 | 50 of 176 | 50 |
+| 6 | `useArrayInput` binding holder | `packages/react/src/array-hooks.ts:69-199` | `packages/vue/src/array/use-array-input.ts:67-148` | `packages/core/src/form/array-input-controller.ts` | 131 of 328 | 82 of 154 | 49 |
 | 7 | undoable branches of `useUpdate` and `useDelete` | `packages/react/src/hooks.ts:96-156` | `packages/vue/src/data/mutations.ts:43-116` | `packages/core/src/data/undoable-mutations.ts` | 61 of 214 | 74 of 224 | 48 |
 | 8 | `duration-utils` | `packages/react/src/components/admin/inputs/duration-utils.ts:1-71` | `packages/vue/src/components/admin/inputs/duration-utils.ts:1-57` | `packages/core/src/form/duration.ts` | 71 | 57 | 33 |
 | 9 | `cron-utils` | `packages/react/src/components/admin/inputs/cron-utils.ts:1-33` | `packages/vue/src/components/admin/inputs/cron-utils.ts:1-36` | `packages/core/src/form/cron.ts` (`looksLikeCron` only) | 33 | 36 | 7 |
@@ -135,11 +135,11 @@ What each one is and what stays behind:
 
 1. `use-terra-draw`. In React, lines 1-211 are module-level code with no hook in it: the `DrawTool` type, `toolMode`, `selectFlags`, `buildModes`, `sameValue`, `userIds`. The hook proper is lines 213-386 (174 lines); in Vue it is lines 228-413 (186 lines). The core module holds the module-level code and a `createTerraDrawEditor` controller that owns the `TerraDraw` instance, the sync with `features`, `selectedId`, `refused`, `deleteSelected` and `destroy`. The hook keeps `useMap()` and the effect that attaches and releases the controller. It needs `terra-draw`, `terra-draw-maplibre-gl-adapter` and the map object, so it goes behind the subpath in the geometry section. `core/src/geo/editor.ts` already knows `terra-draw`'s property names, and `terra-draw` is already a core devDependency.
 2. Access-denied handling. Both copies hold a module-level `logoutTimer` debounce and the same `handleRedirect`, `isAuthQueryKey` and query and mutation cache subscription code. `@tanstack/query-core` is already a core peer, so `watchDataErrors(queryClient, handler)` needs nothing new. The hooks keep reading the auth provider and router from their own context.
-3. `use-password-recovery`. Lines 83-131 (React) and 92-140 (Vue) are `stripKeys` and `cleanedPath`: they remove `access_token`, `refresh_token` and `type` from the search, the hash query and the fragment so the refresh token does not stay in history. That is token handling, so one copy matters most here. Home is `@chelone/supabase`, not core: `url-params.ts` already holds `readSupabaseUrlParams`, and the package depends on core. `useResetPassword` and `useSetPassword` (about 25 lines each) stay, since each wraps its own query library. The filed issue needs the hostile-input test CLAUDE.md asks for: a token left in the URL after the hook runs.
-4. `use-json-schema`. Both copies hold the same `shared` map of Monaco diagnostics options, `apply` and `getJsonDefaults`. The core module exposes `registerJsonSchema(monaco, options)` returning an unregister function; the hook and the composable are each a `useEffect` or `watchEffect` around it. `monaco-editor` is imported as a type only, so core needs it as an optional peer for types at most.
-5. `useUndoable` runner. Core already has `startUndoableMutation`. What is left is the options type and the notification wiring (`undo`, `onClose`, the default error notification). The core runner takes the `QueryClient` and the notification store; the hook supplies them from context.
+3. `use-json-schema`. Both copies hold the same `shared` map of Monaco diagnostics options, `apply` and `getJsonDefaults`. The core module exposes `registerJsonSchema(monaco, options)` returning an unregister function; the hook and the composable are each a `useEffect` or `watchEffect` around it. `monaco-editor` is imported as a type only, so core needs it as an optional peer for types at most.
+4. `useUndoable` runner. Core already has `startUndoableMutation`. What is left is the options type and the notification wiring (`undo`, `onClose`, the default error notification). The core runner takes the `QueryClient` and the notification store; the hook supplies them from context.
+5. `use-password-recovery`. Lines 83-132 (React) and 92-141 (Vue) are `stripKeys` and `cleanedPath`: they remove `access_token`, `refresh_token` and `type` from the search, the hash query and the fragment so the refresh token does not stay in history. That is token handling, so one copy matters most here. Home is `@chelone/supabase`, not core: `url-params.ts` already holds `readSupabaseUrlParams`, and the package depends on core. `useResetPassword` and `useSetPassword` (about 25 lines each) stay, though jscpd's clone for this file (113 lines) spans them, since each wraps its own query library. The filed issue needs the hostile-input test CLAUDE.md asks for: a token left in the URL after the hook runs.
 6. `useArrayInput`. `ArrayBinding` is in core. The clone is the `ArrayBindingHolder`, `toBindingUpdate` and the per-render update. The two return objects differ on purpose (React plain values, Vue getters) and stay. Smallest win of the controllers that need design work.
-7. Undoable branches. `useUpdate` and `useDelete` each run the same optimistic-patch, deferred-commit and notification sequence. The core module holds one function per verb that builds the `runUndoable` options; each adapter calls it. Do after candidate 5.
+7. Undoable branches. `useUpdate` and `useDelete` each run the same optimistic-patch, deferred-commit and notification sequence. The core module holds one function per verb that builds the `runUndoable` options; each adapter calls it. Do after candidate 4.
 8. `duration-utils`. Pure. React and Vue declare the same four exports. The cloned lines are 33 of 71 and 57; moving the file removes both copies. The size gap (71 and 57) is comments.
 9. `cron-utils`. The files differ only in comments and `export` keywords, so moving them removes all 33 and 36 lines even though jscpd flags 7. `describeCron` wraps `cronstrue`, a direct dependency of both adapters. Move `looksLikeCron` and the regex, and leave the 6-line `describeCron` in the adapters, rather than give core a peer for it.
 10. `use-osm-features`. jscpd flagged nothing. The query is built by `buildOverpassQuery` and `overpassQueryOptions` in core. What is left in each hook is provider lookup, the throw when there is none, the `enabled` merge and the memoised `select`, all tied to the framework's query library. The conversion it calls, `osm-features.ts`, is in the geometry section. Keep.
@@ -224,13 +224,13 @@ Suggested order, cheapest and safest first. Each is one issue and one pull reque
 
 1. Delete the Vue CSV exporter copy.
 2. Pure moves from the table above, in groups of three or four.
-3. Candidates 8 and 9, then 2, 5 and 7.
-4. Candidate 3 in `@chelone/supabase`.
-5. Geometry subpaths (pilot first), then candidates 1 and 4.
+3. Candidates 8 and 9, then 2, 4 and 7.
+4. Candidate 5 in `@chelone/supabase`.
+5. Geometry subpaths (pilot first), then candidates 1 and 3.
 6. Candidate 6.
 7. Candidates 10 to 12: no issue.
 
 Two things this note does not settle:
 
-- Whether core gains a `monaco-editor` type dependency for candidate 4. A type-only import in core with an optional peer is the smallest option.
+- Whether core gains a `monaco-editor` type dependency for candidate 3. A type-only import in core with an optional peer is the smallest option.
 - Whether to run jscpd in CI. A threshold would need a baseline of 57 React-and-Vue clones to start from.
