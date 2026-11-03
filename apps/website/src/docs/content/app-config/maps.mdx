@@ -1,0 +1,574 @@
+---
+title: "Maps"
+description: "Opt-in map display, drawing and OpenStreetMap inputs, split by cost, over services you choose."
+---
+
+The maps add-on shows a point or a shape on a map, and edits GeoJSON by drawing.
+It is opt-in: the main entry and `@chelone/core` never import any of it, in
+`@chelone/react` and in `@chelone/vue`, so an app without maps loads none of its
+packages. The library also calls no service by default. You choose the
+basemap, the geocoder, the Overpass server and the road router, and each has a
+helper that builds it from a URL.
+
+The examples below use `@chelone/react`; the [Vue](#vue) section lists what
+differs in `@chelone/vue`.
+
+## Install
+
+There are two routes, and both give the same code.
+
+- Import from a subpath of the package: `@chelone/react/maps`,
+  `@chelone/react/maps/draw` and `@chelone/react/maps/osm`, or the same three
+  under `@chelone/vue`.
+- Copy the source with the shadcn registry: `npx shadcn add @chelone/maps`,
+  `npx shadcn add @chelone/maps-draw` or `npx shadcn add @chelone/maps-osm`.
+
+Three blocks and three subpaths split the add-on by cost.
+
+| Block                | Subpath                                         | What it costs                                        |
+| -------------------- | ----------------------------------------------- | ---------------------------------------------------- |
+| `@chelone/maps`      | `@chelone/react/maps` or `@chelone/vue/maps`    | Map display. Needs `maplibre-gl`.                    |
+| `@chelone/maps-draw` | `@chelone/react/maps/draw` or `@chelone/vue/maps/draw` | Everything on Terra Draw: the shape inputs, the toolbar and the simplify slider. |
+| `@chelone/maps-osm`  | `@chelone/react/maps/osm` or `@chelone/vue/maps/osm`   | The pieces that call a network service: geocoding and OpenStreetMap import. |
+
+`npx shadcn add @chelone/maps-draw` also installs `maps`, because the inputs
+render a map. `@chelone/maps-osm` does the same. Each block's items declare the
+packages they import, so the command adds the optional peers below for you. With
+the subpath route you install them yourself.
+
+`maps` never imports `maps/draw` or `maps/osm`, so an app that only shows maps
+never resolves `terra-draw`, the Turf packages or `osm2geojson-lite`.
+
+## Exports
+
+| Subpath                   | Exports |
+| ------------------------- | ------- |
+| `@chelone/react/maps`     | `MapCanvas`, `MapMarker`, `useMap`, `MapsProvider`, `useMapsConfig`, `LatLngField`, `LatLngInput`, `GeoJsonField`, `BBoxField`, and the aliases of `GeoJsonField`: `PointField`, `MultiPointField`, `LineStringField`, `MultiLineStringField`, `PolygonField`, `MultiPolygonField`, `GeometryCollectionField`, `FeatureField`, `FeatureCollectionField` |
+| `@chelone/react/maps/draw` | `ShapeInput`, `PointInput`, `MultiPointInput`, `LineStringInput`, `MultiLineStringInput`, `PolygonInput`, `MultiPolygonInput`, `GeometryCollectionInput`, `GeoJsonInput`, `FeatureInput`, `FeatureCollectionInput`, `BBoxInput`, `SimplifyInput`, `DrawToolbar`, `useTerraDraw`, `toolsForShapes` |
+| `@chelone/react/maps/osm` | `GeocodingInput`, `MapWithSearch`, `ReverseGeocodeField`, `OsmFeatureOperator`, `OsmFeatureSubtract`, `OsmFeatureAdd`, `fetchOsmFeatures`, `useOsmFeatures`, `useGeocode`, `useReverseGeocode` |
+
+`@chelone/vue/maps`, `@chelone/vue/maps/draw` and `@chelone/vue/maps/osm` export
+the same names. A name is imported from the subpath that exports it, as the
+examples below do.
+
+## Optional packages
+
+Each package is an optional peer of the adapter, so the install resolves it only
+when you use the subpath that needs it. An app that only shows maps installs
+`maplibre-gl` and nothing else.
+
+| Package                          | Version   | Licence      | Needed by                              |
+| -------------------------------- | --------- | ------------ | -------------------------------------- |
+| `maplibre-gl`                    | `^6`      | BSD-3-Clause | `maps`, `maps/draw` and `maps/osm`     |
+| `terra-draw`                     | `^1.39.0` | MIT          | `maps/draw`                            |
+| `terra-draw-maplibre-gl-adapter` | `^1.5.0`  | MIT          | `maps/draw`                            |
+| `@turf/difference`               | `^7.4.0`  | MIT          | `maps/draw` and `maps/osm`             |
+| `@turf/simplify`                 | `^7.4.0`  | MIT          | `maps/draw`                            |
+| `osm2geojson-lite`               | `^2.0.1`  | MIT          | `maps/osm`                             |
+| `@turf/buffer`                   | `^7.4.0`  | MIT          | `maps/osm`                             |
+| `@turf/union`                    | `^7.4.0`  | MIT          | `maps/osm`                             |
+
+```bash
+npm install maplibre-gl
+npm install terra-draw terra-draw-maplibre-gl-adapter @turf/difference @turf/simplify
+npm install osm2geojson-lite @turf/buffer @turf/union @turf/difference
+```
+
+`MapCanvas` loads the MapLibre stylesheet itself.
+
+## Messages
+
+The add-on's English text lives in `mapMessages` from `@chelone/core`. Spread it
+next to `defaultMessages`; the two share no key.
+
+```ts title="src/i18n.ts"
+import { defaultMessages, defineMessages, mapMessages } from "@chelone/core";
+
+export const en = defineMessages({
+  ...defaultMessages,
+  ...mapMessages,
+});
+```
+
+It adds two key families. See [Translation](/docs/app-config/translation) for
+building the i18n instance.
+
+- `chelone.map.*` holds the map text: load and empty states, the toolbar and the
+  label of each tool, the address search, the simplify slider and the
+  OpenStreetMap import messages.
+- `chelone.validation.*` holds the messages of the coordinate checks and of the
+  shape limits: `latitude`, `longitude`, `minVertices`, `maxVertices`, `minArea`
+  and `selfIntersection`.
+
+## Services the app chooses
+
+The library calls no service by default. Four inputs are yours to set, once with
+`MapsProvider` or per component with a prop.
+
+| Service         | `MapsProvider` prop | Component prop                          | Helper                    |
+| --------------- | ------------------- | --------------------------------------- | ------------------------- |
+| Map style       | `mapStyle`          | `mapStyle`                              | `rasterTileStyle`         |
+| Geocoder        | `geocoder`          | `provider`                              | `createNominatimProvider` |
+| Overpass server | `overpass`          | `provider`                              | `createOverpassProvider`  |
+| Road router     | `router`            | `snapToRoads` on `LineStringInput`      | `createOsrmProvider`      |
+
+The helpers come from `@chelone/core`. `rasterTileStyle` takes a tile URL
+template and an attribution. The other three take the `endpoint` of a server and
+return a provider. A prop on a component wins over `MapsProvider`.
+
+A component with no style, geocoder, Overpass provider or router throws an error
+that names the prop and `MapsProvider`, so a missing service fails on the first
+render and not on the first click.
+
+### A demo wiring example
+
+This wires the public OpenStreetMap services. The attribution is required by the
+tile terms: keep `© OpenStreetMap contributors` and the link to the
+[copyright page](https://www.openstreetmap.org/copyright) visible on the map.
+
+```tsx title="src/main.tsx"
+import {
+  createNominatimProvider,
+  createOsrmProvider,
+  createOverpassProvider,
+  rasterTileStyle,
+} from "@chelone/core";
+import { MapsProvider } from "@chelone/react/maps";
+import { Admin } from "@chelone/react";
+
+const mapStyle = rasterTileStyle({
+  tileUrl: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+  attribution:
+    '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+});
+const geocoder = createNominatimProvider({
+  endpoint: "https://nominatim.openstreetmap.org",
+});
+const overpass = createOverpassProvider({
+  endpoint: "https://overpass-api.de/api/interpreter",
+});
+const router = createOsrmProvider({
+  endpoint: "https://router.project-osrm.org",
+});
+
+export function App() {
+  return (
+    <MapsProvider
+      mapStyle={mapStyle}
+      geocoder={geocoder}
+      overpass={overpass}
+      router={router}
+    >
+      <Admin dataProvider={dataProvider}>{/* resources */}</Admin>
+    </MapsProvider>
+  );
+}
+```
+
+Each public service has a usage policy.
+
+- The OpenStreetMap tile servers allow light use and development. Heavy or bulk
+  use is not allowed.
+- Nominatim allows about one request per second and forbids search-as-you-type.
+  `createNominatimProvider` waits 1000 ms between requests by default.
+- The public Overpass instance limits query load. A query that is too heavy is
+  refused or cut short.
+- The OSRM demo server is for trying it out.
+
+These services suit demos and light use only, so production apps point each helper
+at their own server or a paid provider. The helpers take any compatible URL.
+
+## A first map
+
+`LatLngField` shows a point held in two record fields. `LatLngInput` edits them
+with a map and two text fields. Both take `zoom` and `height`; `LatLngInput` also
+takes `defaultPosition`, the `[lat, lng]` the map centres on while a coordinate
+is empty.
+
+```tsx title="src/places.tsx"
+import { Create, RecordField, SaveButton, Show } from "@chelone/react";
+import { LatLngField, LatLngInput } from "@chelone/react/maps";
+
+export function PlaceShow() {
+  return (
+    <Show>
+      <RecordField source="name" />
+      <LatLngField latSource="latitude" lngSource="longitude" zoom={14} height={240} />
+    </Show>
+  );
+}
+
+export function PlaceCreate() {
+  return (
+    <Create>
+      <LatLngInput
+        latSource="latitude"
+        lngSource="longitude"
+        defaultPosition={[48.8566, 2.3522]}
+        zoom={12}
+        height={320}
+      />
+      <SaveButton />
+    </Create>
+  );
+}
+```
+
+Click the map or drag the pin to set the point, or type the coordinates. A
+missing or out of range coordinate shows a text panel on the field, and `0` is a
+position.
+
+## Drawing a shape
+
+A shape input edits a GeoJSON value by drawing on a map. It comes from
+`maps/draw`.
+
+```tsx title="src/zones.tsx"
+import { Create, SaveButton } from "@chelone/react";
+import { PolygonInput } from "@chelone/react/maps/draw";
+
+export function ZoneCreate() {
+  return (
+    <Create>
+      <PolygonInput
+        source="area"
+        label="Delivery area"
+        minVertices={4}
+        maxVertices={50}
+        minAreaM2={10_000}
+        allowSelfIntersection={false}
+        snappable
+        snapDistance={24}
+        defaultCenter={[48.8566, 2.3522]}
+      />
+      <SaveButton />
+    </Create>
+  );
+}
+```
+
+- `minVertices` and `maxVertices` bound the number of vertices. A polygon ring
+  counts its distinct vertices.
+- `minAreaM2` is the smallest area in square metres a polygon may cover.
+- `allowSelfIntersection={false}` flags a shape that crosses itself. The default
+  is `true`, which checks nothing.
+- `snappable` snaps to existing coordinates and lines, and `snapDistance` is the
+  pixel radius for grabbing a vertex or snapping. They default to `true` and 20,
+  and are read once.
+
+An invalid shape is written and flagged, not dropped. The form holds what the
+user drew and the field shows the message, so a user can fix a shape and not
+draw it again.
+
+Every shape input takes the props of `ShapeInput` but for `kind`, which each
+input sets. Those include `label`, `helperText`, `validate`, `tools`,
+`disabled`, `defaultCenter`, `zoom`, `height`, `mapStyle`, `shapeStyle`,
+`fitBounds` and `onCommit`. Terra Draw reads its modes, snapping and styles once
+when the input mounts: change `key` to rebuild it.
+
+## The shape inputs
+
+Each input has default tools and a stored value. The tools are the toolbar
+buttons, in order: `draw-point`, `draw-line`, `draw-polygon`, `draw-rectangle`,
+`draw-circle`, `cut`, `edit`, `move` and `delete`. Pass `tools` to replace them.
+
+| Input                     | Default tools                                                                | Stored value                                                  |
+| ------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `PointInput`              | `draw-point`, `move`, `delete`                                               | A Point. A new point replaces the old one.                    |
+| `MultiPointInput`         | `draw-point`, `edit`, `move`, `delete`                                       | A MultiPoint. Each point is its own feature on the map.       |
+| `LineStringInput`         | `draw-line`, `edit`, `move`, `delete`                                        | A LineString. A new line replaces the old one.                |
+| `MultiLineStringInput`    | `draw-line`, `edit`, `move`, `delete`                                        | A MultiLineString, one feature per line.                      |
+| `PolygonInput`            | `draw-polygon`, `draw-rectangle`, `draw-circle`, `cut`, `edit`, `move`, `delete` | A Polygon. A new drawing replaces the old one.            |
+| `MultiPolygonInput`       | The same as `PolygonInput`                                                   | A MultiPolygon, one feature per part.                         |
+| `GeometryCollectionInput` | Every draw tool, then `cut`, `edit`, `move`, `delete`                        | A GeometryCollection. Every shape stays.                      |
+| `GeoJsonInput`            | The tools of its `shapes`                                                    | One geometry, or with `collection` a GeometryCollection.      |
+| `FeatureInput`            | The tools of its `shape`, `Polygon` by default                               | A Feature. An edit keeps its `id` and `properties`.           |
+| `FeatureCollectionInput`  | The tools of its `allowedShapes`                                             | A FeatureCollection. Each feature keeps its own `properties`. |
+| `BBoxInput`               | `draw-rectangle`, `edit`, `move`, `delete`                                   | A box, `[west, south, east, north]`.                          |
+| `SimplifyInput`           | None, it has a slider                                                        | The simplified Geometry, Feature or FeatureCollection.        |
+
+- `GeoJsonInput` takes `shapes`, a list of `Point`, `LineString` and `Polygon`
+  that defaults to all three, and `collection`. Without `collection` the value
+  is one geometry and a new drawing replaces the old one.
+- `FeatureCollectionInput` takes `allowedShapes`, a list of geometry types that
+  defaults to `Point`, `LineString` and `Polygon`.
+- `BBoxInput` takes `aspectRatio`, width over height. The stored box grows
+  around its centre to that ratio and never shrinks, and the rectangle on the map
+  follows it.
+- `SimplifyInput` reads the geometry from `source` and writes it back simplified
+  as the user moves a tolerance slider, in degrees, from the value it loaded.
+  It takes `tolerance`, `minTolerance`, `maxTolerance`, `step` and `quality`,
+  `Default` or `High`; `High` is slower and keeps more detail. It draws nothing.
+
+```tsx title="src/features.tsx"
+import { Edit, SaveButton } from "@chelone/react";
+import {
+  BBoxInput,
+  FeatureCollectionInput,
+  GeoJsonInput,
+  SimplifyInput,
+} from "@chelone/react/maps/draw";
+
+export function SiteEdit() {
+  return (
+    <Edit>
+      <GeoJsonInput source="geometry" shapes={["Point", "Polygon"]} />
+      <FeatureCollectionInput source="places" allowedShapes={["Point"]} />
+      <BBoxInput source="extent" aspectRatio={16 / 9} />
+      <SimplifyInput source="outline" tolerance={0.01} quality="High" />
+      <SaveButton />
+    </Edit>
+  );
+}
+```
+
+### Showing a stored value
+
+`GeoJsonField` shows any GeoJSON value from a record on a map, and `BBoxField`
+shows a box. The named aliases are the same component under the names of each
+GeoJSON type, so an app migrating from one field per type changes no import:
+`PointField`, `MultiPointField`, `LineStringField`, `MultiLineStringField`,
+`PolygonField`, `MultiPolygonField`, `GeometryCollectionField`, `FeatureField`
+and `FeatureCollectionField`.
+
+```tsx title="src/zones.tsx"
+import { Show } from "@chelone/react";
+import { BBoxField, PolygonField } from "@chelone/react/maps";
+
+export function ZoneShow() {
+  return (
+    <Show>
+      <PolygonField source="area" />
+      <BBoxField source="extent" />
+    </Show>
+  );
+}
+```
+
+### Drawing limits
+
+- Terra Draw holds one ring per polygon. A polygon with holes draws read-only
+  and stays in the value until a new drawing replaces it.
+- A Multi value edits as one feature per part. A part with a hole draws
+  read-only and stays in the value.
+- Rotate: a selected line or polygon rotates with Terra Draw's key chord in the
+  edit tool, `Control` and `r`. There is no toolbar button for it.
+
+## Snapping a line to roads
+
+`LineStringInput` takes `snapToRoads`: `true` uses the `router` of
+`MapsProvider`, and a `RoutingProvider` is used as given. It is a `maps/draw`
+export. A saved line is left alone until the user edits it, and a failed snap
+keeps the line as drawn and warns.
+
+```tsx title="src/routes.tsx"
+import { createOsrmProvider } from "@chelone/core";
+import { Create } from "@chelone/react";
+import { LineStringInput } from "@chelone/react/maps/draw";
+
+const router = createOsrmProvider({ endpoint: "https://router.project-osrm.org" });
+
+export function RouteCreate() {
+  return (
+    <Create>
+      <LineStringInput source="route" snapToRoads />
+      <LineStringInput source="alternative" snapToRoads={router} />
+    </Create>
+  );
+}
+```
+
+With `true` and no `router` on `MapsProvider`, the input throws an error that
+names `snapToRoads` and `MapsProvider`.
+
+## Geocoding
+
+A `GeocodingProvider` has a `name`, a `search` and a `reverse` method, and an
+optional `typeahead` flag. `createNominatimProvider` builds one for any
+Nominatim-compatible server. To use another service, write the contract.
+
+```ts title="src/geocoder.ts"
+import type { GeocodingProvider } from "@chelone/core";
+
+export const geocoder: GeocodingProvider = {
+  name: "my-geocoder",
+  // Set to true only when the service accepts a request per keystroke.
+  typeahead: false,
+  async search(query, { signal, limit = 10 } = {}) {
+    const response = await fetch(
+      `/api/geocode?q=${encodeURIComponent(query)}&limit=${limit}`,
+      { signal },
+    );
+    const hits: { label: string; lat: number; lng: number }[] =
+      await response.json();
+    return hits.map((hit) => ({
+      displayName: hit.label,
+      lat: hit.lat,
+      lng: hit.lng,
+    }));
+  },
+  async reverse(lat, lng, { signal } = {}) {
+    const response = await fetch(`/api/reverse?lat=${lat}&lng=${lng}`, {
+      signal,
+    });
+    if (!response.ok) return null;
+    const hit: { label: string } = await response.json();
+    return { displayName: hit.label, lat, lng };
+  },
+};
+```
+
+A result may also carry a `bbox` as `[west, south, east, north]`, a `type` and
+the `raw` hit. Set `cacheKey` when two providers of one `name` can answer
+differently.
+
+`GeocodingInput` is a text field that searches an address and fills the form with
+the result the user picks. `latSource`, `lngSource` and `bboxSource` name the
+form fields it writes. A provider that is not `typeahead`, such as the public
+Nominatim, searches on Enter or on the search button. A `typeahead` provider
+searches as the user types, after `debounceMs`. Text typed by hand is kept and
+clears the coordinates it would no longer describe.
+
+`MapWithSearch` puts that search over a map. Picking a result moves the marker,
+and clicking the map or dragging the pin writes the address of that spot.
+`ReverseGeocodeField` names a point held in two record fields, such as the
+address of a saved point.
+
+```tsx title="src/shops.tsx"
+import { Create, SaveButton } from "@chelone/react";
+import { GeocodingInput, MapWithSearch } from "@chelone/react/maps/osm";
+
+export function ShopCreate() {
+  return (
+    <Create>
+      <MapWithSearch
+        latSource="latitude"
+        lngSource="longitude"
+        addressSource="address"
+        height={400}
+      />
+      <GeocodingInput source="billing_address" label="Billing address" />
+      <SaveButton />
+    </Create>
+  );
+}
+```
+
+Both read the geocoder from `MapsProvider`, or take a `provider` prop.
+
+## Importing OpenStreetMap areas
+
+`OsmFeatureSubtract` and `OsmFeatureAdd` are buttons that edit the Polygon or
+MultiPolygon in a form field with areas from Overpass. Subtract removes the
+matching areas, such as lakes from a delivery area, and add merges them in. The
+request runs on the click, and the result is written like a user edit, so the
+form turns dirty and the validators run. A result that would split a Polygon
+into several pieces is refused with a warning and the polygon is left as it was.
+
+They take `presets`, `tags`, or both.
+
+- `presets` names a set of features: `water`, `buildings`, `forest`, `roads`,
+  and one preset for each of the OpenStreetMap keys `natural`, `building`,
+  `landuse`, `amenity`, `leisure`, `boundary`, `place`, `man_made`, `shop`,
+  `tourism`, `historic`, `highway`, `railway`, `waterway`, `barrier` and `power`.
+  Line features such as `roads` are buffered to a width so they can join a
+  polygon.
+- `tags` is a list of `key=value` filters, or `key=*` for any value, such as
+  `natural=wood` or `building=*`.
+
+```tsx title="src/zones.tsx"
+import { Edit, SaveButton } from "@chelone/react";
+import { PolygonInput } from "@chelone/react/maps/draw";
+import { OsmFeatureAdd, OsmFeatureSubtract } from "@chelone/react/maps/osm";
+
+export function ZoneEdit() {
+  return (
+    <Edit>
+      <PolygonInput source="area" />
+      <OsmFeatureSubtract source="area" presets={["water", "roads"]} />
+      <OsmFeatureAdd source="area" tags={["natural=wood", "leisure=*"]} />
+      <SaveButton />
+    </Edit>
+  );
+}
+```
+
+Both read the Overpass provider from `MapsProvider`, or take a `provider` prop.
+`fetchOsmFeatures` and `useOsmFeatures` run the same query without the button.
+
+## Costs and limits
+
+- Browsers allow about 16 WebGL contexts per page, and each map holds one, so
+  avoid a map per list row. Show a map on the show page and not in the list.
+- `MapCanvas` reads its centre, zoom and style once, when it mounts. Change `key`
+  to rebuild it.
+- jsdom has no WebGL, so tests mock `maplibre-gl`, as the library's own tests do.
+  Mount the component under `<Admin>` with the mock and assert what it renders.
+
+## Vue
+
+`@chelone/vue` has the same three subpaths, `@chelone/vue/maps`,
+`@chelone/vue/maps/draw` and `@chelone/vue/maps/osm`, and the same names. The
+entries are `maps.ts`, `maps-draw.ts` and `maps-osm.ts`. Vue wraps the same
+framework-free `maplibre-gl` and `terra-draw`, so the services, the props and
+the stored values are the same. `MapsProvider` is a component that takes the
+four services as props.
+
+The Vue `ui` slice lacks some of the components the React inputs build on, so
+native elements and inline icons replace them.
+
+- The address search is a native combobox.
+- The simplify tolerance is a native range input, and the two quality choices
+  are two buttons.
+- The draw toolbar uses inline SVG icons.
+
+See [Differences from React](/docs/vue/differences) for the rest of the Vue
+changes.
+
+```vue title="src/App.vue"
+<script setup lang="ts">
+import {
+  createNominatimProvider,
+  rasterTileStyle,
+} from "@chelone/core";
+import { MapsProvider } from "@chelone/vue/maps";
+
+const mapStyle = rasterTileStyle({
+  tileUrl: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+  attribution:
+    '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+});
+const geocoder = createNominatimProvider({
+  endpoint: "https://nominatim.openstreetmap.org",
+});
+</script>
+
+<template>
+  <MapsProvider :map-style="mapStyle" :geocoder="geocoder">
+    <RouterView />
+  </MapsProvider>
+</template>
+```
+
+```vue title="src/ZoneCreate.vue"
+<script setup lang="ts">
+import { Create, SaveButton } from "@chelone/vue";
+import { PolygonInput } from "@chelone/vue/maps/draw";
+import { MapWithSearch } from "@chelone/vue/maps/osm";
+</script>
+
+<template>
+  <Create>
+    <MapWithSearch lat-source="latitude" lng-source="longitude" address-source="address" />
+    <PolygonInput source="area" :min-vertices="4" />
+    <SaveButton />
+  </Create>
+</template>
+```
+
+## No props table
+
+This page has no props table. The props pages are generated from the main
+`@chelone/react` entry, which does not include the maps entry, and documenting
+the maps props would pull the optional packages into the website build. The
+props of each component are in its source and its type declarations.

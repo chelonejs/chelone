@@ -69,3 +69,15 @@ it("every docs link on the differences page resolves to a page", () => {
   expect(page).toContain("](/docs/vue/setup)");
   expect(page).toContain("](/docs/app-config/themes");
 });
+
+it("the differences page names the three Vue maps entries, the native combobox and the range input", () => {
+  expect(page).toMatch(/^### Maps$/m);
+  expect(page).toContain("`@chelone/vue/maps`");
+  expect(page).toContain("`@chelone/vue/maps/draw`");
+  expect(page).toContain("`@chelone/vue/maps/osm`");
+  const flat = page.replace(/\s+/g, " ");
+  expect(flat).toMatch(/native combobox/);
+  expect(flat).toMatch(/native range input/);
+  expect(flat).toMatch(/inline SVG icons/);
+  expect(page).toContain("](/docs/app-config/maps)");
+});
