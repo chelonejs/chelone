@@ -24,7 +24,6 @@
 import type { ReactElement, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useListController } from "../../../controller-hooks";
-import type { ListContextValue } from "../../../form";
 import { ListContextProvider, useListContext } from "../../../form";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetResourceLabel } from "../../../label";
@@ -74,7 +73,7 @@ function List(props: ListProps) {
   const controller = useListController(resource, { perPage });
 
   return (
-    <ListContextProvider value={controller as unknown as ListContextValue}>
+    <ListContextProvider value={controller}>
       <ListView {...viewProps}>{children}</ListView>
     </ListContextProvider>
   );
