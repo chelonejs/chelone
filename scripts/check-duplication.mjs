@@ -15,6 +15,10 @@ const baselinePath = path.join(root, "duplication-baseline.json");
 
 const SEPARATOR = " <-> ";
 
+// Not localeCompare: its order depends on the machine's ICU data, and a pair's
+// key must read the same on a laptop and on the CI runner.
+const byCodeUnit = (x, y) => (x < y ? -1 : x > y ? 1 : 0);
+
 function readClones() {
   const out = mkdtempSync(path.join(tmpdir(), "jscpd-"));
   try {
@@ -52,7 +56,7 @@ function groupByPair(clones) {
   const pairs = new Map();
   for (const clone of clones) {
     const [a, b] = [clone.first, clone.second].sort(
-      (x, y) => x.file.localeCompare(y.file) || x.start - y.start,
+      (x, y) => byCodeUnit(x.file, y.file) || x.start - y.start,
     );
     const key = `${a.file}${SEPARATOR}${b.file}`;
     const ranges = pairs.get(key) ?? [];
@@ -77,7 +81,7 @@ function writeBaseline(pairs) {
   const sorted = Object.fromEntries(
     [...pairs]
       .map(([key, ranges]) => [key, ranges.length])
-      .sort(([x], [y]) => x.localeCompare(y)),
+      .sort(([x], [y]) => byCodeUnit(x, y)),
   );
   writeFileSync(baselinePath, `${JSON.stringify(sorted, null, 2)}\n`);
 }
