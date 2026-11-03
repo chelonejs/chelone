@@ -31,7 +31,11 @@ export interface CalendarListProps {
   /**
    * The list filter that asks for the visible range. By default records whose
    * `startSource` falls in it: `${startSource}_gte` and `${startSource}_lte`.
-   * The keys it returns replace those.
+   * With `endSource` set, records that end in it or after it instead:
+   * `${startSource}_lte` and `${endSource}_gte`, which also fetches an event
+   * that starts before the range. A record with an empty end is then left out,
+   * so such data needs a custom `rangeFilter`. The keys it returns replace
+   * those.
    */
   rangeFilter?: (range: CalendarRange) => Record<string, unknown>;
   /**
@@ -84,6 +88,7 @@ import {
   calendarRangeFilter,
   type LooseRecord,
   shiftCalendarAnchor,
+  staleCalendarRangeKeys,
   toCalendarEvents,
 } from "@chelone/core";
 import {
@@ -216,7 +221,7 @@ const events = computed<CalendarEvent<LooseRecord>[]>(() =>
 const rangeValue = computed(() =>
   props.rangeFilter
     ? props.rangeFilter(range.value)
-    : calendarRangeFilter(props.startSource, range.value),
+    : calendarRangeFilter(props.startSource, range.value, props.endSource),
 );
 const rangeStartISO = computed(() => range.value.start.toISOString());
 const rangeEndISO = computed(() => range.value.end.toISOString());
@@ -231,22 +236,35 @@ const without = (filter: Record<string, unknown>, keys: string[]) =>
   Object.fromEntries(
     Object.entries(filter).filter(([key]) => !keys.includes(key)),
   );
+const staleKeys = computed(() =>
+  props.rangeFilter
+    ? []
+    : staleCalendarRangeKeys(props.startSource, props.endSource),
+);
 // A filter form that replaces the whole filter drops the range: ask again.
 const inSync = computed(
   () =>
     list.perPage === props.perPage &&
+    staleKeys.value.every((key) => !(key in list.filter)) &&
     Object.entries(rangeValue.value).every(
       ([key, value]) => list.filter[key] === value,
     ),
 );
 
 watch(
-  [rangeStartISO, rangeEndISO, () => props.startSource, () => props.perPage, inSync],
+  [
+    rangeStartISO,
+    rangeEndISO,
+    () => props.startSource,
+    () => props.endSource,
+    () => props.perPage,
+    inSync,
+  ],
   () => {
     if (inSync.value) return;
     const next = rangeValue.value;
     list.setParams({
-      filter: { ...without(list.filter, appliedKeys), ...next },
+      filter: { ...without(list.filter, [...appliedKeys, ...staleKeys.value]), ...next },
       perPage: props.perPage,
     });
     appliedKeys = Object.keys(next);

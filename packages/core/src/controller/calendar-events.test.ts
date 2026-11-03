@@ -8,6 +8,7 @@ import {
   groupCalendarAgenda,
   moveCalendarEvent,
   omitCalendarRangeFilter,
+  staleCalendarRangeKeys,
   toCalendarEvents,
 } from "./calendar-events";
 
@@ -232,22 +233,53 @@ describe("moveCalendarEvent across a daylight saving change", () => {
 });
 
 describe("calendarRangeFilter", () => {
-  it("builds the two range keys and omitCalendarRangeFilter removes only them", () => {
-    const range = {
-      start: new Date("2026-04-26T00:00:00.000Z"),
-      end: new Date("2026-05-30T23:59:59.999Z"),
-    };
-    const filter = calendarRangeFilter("starts_at", range);
-    expect(filter).toEqual({
+  const range = {
+    start: new Date("2026-04-26T00:00:00.000Z"),
+    end: new Date("2026-05-30T23:59:59.999Z"),
+  };
+
+  it("without an endSource bounds the start on both sides", () => {
+    expect(calendarRangeFilter("starts_at", range)).toEqual({
       starts_at_gte: "2026-04-26T00:00:00.000Z",
       starts_at_lte: "2026-05-30T23:59:59.999Z",
     });
+  });
 
-    const merged = { ...filter, status: "open", ends_at_gte: "x" };
+  it("with an endSource keeps an event that starts before the range and ends inside it", () => {
+    expect(calendarRangeFilter("starts_at", range, "ends_at")).toEqual({
+      starts_at_lte: "2026-05-30T23:59:59.999Z",
+      ends_at_gte: "2026-04-26T00:00:00.000Z",
+    });
+  });
+
+  it("staleCalendarRangeKeys names the start lower bound only once an endSource replaces it", () => {
+    expect(staleCalendarRangeKeys("starts_at")).toEqual([]);
+    expect(staleCalendarRangeKeys("starts_at", "ends_at")).toEqual([
+      "starts_at_gte",
+    ]);
+  });
+
+  it("omitCalendarRangeFilter removes only the range keys", () => {
+    const merged = {
+      ...calendarRangeFilter("starts_at", range),
+      status: "open",
+      ends_at_gte: "x",
+    };
     expect(omitCalendarRangeFilter(merged, "starts_at")).toEqual({
       status: "open",
       ends_at_gte: "x",
     });
     expect(Object.keys(merged)).toHaveLength(4);
+  });
+
+  it("omitCalendarRangeFilter with an endSource also removes the end key", () => {
+    const merged = {
+      ...calendarRangeFilter("starts_at", range, "ends_at"),
+      status: "open",
+      starts_at_gte: "kept?",
+    };
+    expect(omitCalendarRangeFilter(merged, "starts_at", "ends_at")).toEqual({
+      status: "open",
+    });
   });
 });

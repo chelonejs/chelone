@@ -62,7 +62,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-/** The fake provider matches filters by equality: this one reads `_gte` / `_lte` on `start`. */
+/** The fake provider matches filters by equality: this one reads `start_gte`, `start_lte` and `end_gte`. */
 function rangeProvider(rows: EventRow[]) {
   const base = fakeDataProvider({ meetings: rows });
   const getList = vi.fn(
@@ -70,10 +70,8 @@ function rangeProvider(rows: EventRow[]) {
       resource: string,
       params: Parameters<DataProvider["getList"]>[1],
     ) => {
-      const { start_gte, start_lte, ...rest } = (params.filter ?? {}) as Record<
-        string,
-        unknown
-      >;
+      const { start_gte, start_lte, end_gte, ...rest } = (params.filter ??
+        {}) as Record<string, unknown>;
       const all = await base.getList(resource, {
         ...params,
         filter: rest,
@@ -81,11 +79,15 @@ function rangeProvider(rows: EventRow[]) {
       });
       const inRange = all.data.filter((row) => {
         const time = new Date(String(row.start)).getTime();
+        // A real database drops a null end; the fixtures' single-time events end when they start.
+        const endTime = new Date(String(row.end ?? row.start)).getTime();
         return (
           (start_gte === undefined ||
             time >= new Date(String(start_gte)).getTime()) &&
           (start_lte === undefined ||
-            time <= new Date(String(start_lte)).getTime())
+            time <= new Date(String(start_lte)).getTime()) &&
+          (end_gte === undefined ||
+            endTime >= new Date(String(end_gte)).getTime())
         );
       });
       const { page, perPage } = params.pagination as {
@@ -219,10 +221,37 @@ describe("<CalendarList> month view", () => {
       { filter: Record<string, string>; pagination: { perPage: number } },
     ];
     expect(params.filter).toEqual({
-      start_gte: new Date(2026, 3, 26).toISOString(),
+      end_gte: new Date(2026, 3, 26).toISOString(),
       start_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
     });
     expect(params.pagination.perPage).toBe(1000);
+  });
+
+  it("fetches a multi-day event that starts before the visible range", async () => {
+    const { provider } = mount(calendar(), {
+      rows: [
+        {
+          id: 9,
+          title: "Residency",
+          start: "2026-04-20T09:00:00",
+          end: "2026-04-28T17:00:00",
+        },
+      ],
+    });
+    await screen.findAllByText("Residency");
+
+    const params = provider.getList.mock.lastCall?.[1] as {
+      filter: Record<string, string>;
+    };
+    expect(params.filter).toEqual({
+      start_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
+      end_gte: new Date(2026, 3, 26).toISOString(),
+    });
+    for (const day of ["2026-04-26", "2026-04-27", "2026-04-28"]) {
+      expect(
+        within(cell(day)).getByRole("button", { name: "Residency" }),
+      ).toBeTruthy();
+    }
   });
 
   it("marks the grid busy while the list is pending", async () => {
@@ -244,7 +273,7 @@ describe("<CalendarList> month view", () => {
       filter: Record<string, string>;
     };
     expect(june.filter).toEqual({
-      start_gte: new Date(2026, 4, 31).toISOString(),
+      end_gte: new Date(2026, 4, 31).toISOString(),
       start_lte: new Date(2026, 6, 4, 23, 59, 59, 999).toISOString(),
     });
 
@@ -255,7 +284,7 @@ describe("<CalendarList> month view", () => {
       const april = provider.getList.mock.lastCall?.[1] as {
         filter: Record<string, string>;
       };
-      expect(april.filter.start_gte).toBe(new Date(2026, 2, 29).toISOString());
+      expect(april.filter.end_gte).toBe(new Date(2026, 2, 29).toISOString());
     });
   });
 
@@ -308,8 +337,8 @@ describe("<CalendarList> month view", () => {
       JSON.stringify({
         perPage: 1000,
         filter: {
-          start_gte: new Date(2026, 3, 26).toISOString(),
           start_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
+          end_gte: new Date(2026, 3, 26).toISOString(),
         },
       }),
     );
@@ -344,7 +373,7 @@ describe("<CalendarList> month view", () => {
       filter: Record<string, string>;
     };
     expect(filtered.filter).toMatchObject({ kind: "work" });
-    expect(filtered.filter.start_gte).toBeDefined();
+    expect(filtered.filter.end_gte).toBeDefined();
 
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
     await waitFor(() => {
@@ -353,7 +382,7 @@ describe("<CalendarList> month view", () => {
       };
       expect(params.filter).toMatchObject({
         kind: "work",
-        start_gte: new Date(2026, 4, 31).toISOString(),
+        end_gte: new Date(2026, 4, 31).toISOString(),
       });
     });
 
@@ -378,7 +407,7 @@ describe("<CalendarList> month view", () => {
     ],
   ])("removes a range filter a reloaded URL held for %s and falls back to perPage 10", async (_name, start, end) => {
     const filter = JSON.stringify({
-      start_gte: start.toISOString(),
+      end_gte: start.toISOString(),
       start_lte: end.toISOString(),
     });
     mount(<Toggled />, {
@@ -394,6 +423,28 @@ describe("<CalendarList> month view", () => {
       expect(screen.getByTestId("params").textContent).toBe(
         JSON.stringify({ perPage: 10, filter: {} }),
       ),
+    );
+  });
+
+  it("drops a start_gte a list URL kept from before endSource bounded the end", async () => {
+    const stale = JSON.stringify({
+      start_gte: new Date(2026, 3, 26).toISOString(),
+      start_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
+      kind: "work",
+    });
+    mount(<Toggled />, {
+      url: `/?filter=${encodeURIComponent(stale)}&perPage=1000`,
+    });
+    await screen.findByText("Standup");
+
+    await waitFor(() =>
+      expect(
+        JSON.parse(screen.getByTestId("params").textContent ?? "{}").filter,
+      ).toEqual({
+        kind: "work",
+        start_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
+        end_gte: new Date(2026, 3, 26).toISOString(),
+      }),
     );
   });
 
@@ -625,7 +676,7 @@ describe("<CalendarList> week view", () => {
       filter: Record<string, string>;
     };
     expect(params.filter).toEqual({
-      start_gte: new Date(2026, 4, 17).toISOString(),
+      end_gte: new Date(2026, 4, 17).toISOString(),
       start_lte: new Date(2026, 4, 23, 23, 59, 59, 999).toISOString(),
     });
   });
@@ -721,7 +772,7 @@ describe("<CalendarList> agenda view", () => {
       filter: Record<string, string>;
     };
     expect(params.filter).toEqual({
-      start_gte: new Date(2026, 4, 15).toISOString(),
+      end_gte: new Date(2026, 4, 15).toISOString(),
       start_lte: new Date(2026, 5, 12, 23, 59, 59, 999).toISOString(),
     });
   });
@@ -765,7 +816,7 @@ describe("<CalendarList> views", () => {
       const params = provider.getList.mock.lastCall?.[1] as {
         filter: Record<string, string>;
       };
-      expect(params.filter.start_gte).toBe(new Date(2026, 4, 10).toISOString());
+      expect(params.filter.end_gte).toBe(new Date(2026, 4, 10).toISOString());
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Agenda" }));
@@ -777,7 +828,7 @@ describe("<CalendarList> views", () => {
       const params = provider.getList.mock.lastCall?.[1] as {
         filter: Record<string, string>;
       };
-      expect(params.filter.start_gte).toBe(new Date(2026, 4, 1).toISOString());
+      expect(params.filter.end_gte).toBe(new Date(2026, 4, 1).toISOString());
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Month" }));

@@ -186,9 +186,36 @@ describe("<CalendarList> month view", () => {
     const params = lastFilter(getList);
     expect(params.pagination.perPage).toBe(1000);
     expect(params.filter).toEqual({
-      starts_at_gte: new Date(2026, 3, 26).toISOString(),
+      ends_at_gte: new Date(2026, 3, 26).toISOString(),
       starts_at_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
     });
+  });
+
+  it("fetches a multi-day event that starts before the visible range", async () => {
+    const { getList, dataProvider } = providerWith([
+      {
+        id: 9,
+        name: "Residency",
+        start: "2026-04-20T09:00:00",
+        end: "2026-04-28T17:00:00",
+      },
+    ]);
+    const { wrapper } = await mountList({
+      list: calendar({
+        startSource: "start",
+        endSource: "end",
+        titleSource: "name",
+      }),
+      dataProvider,
+    });
+
+    expect(lastFilter(getList).filter).toEqual({
+      start_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
+      end_gte: new Date(2026, 3, 26).toISOString(),
+    });
+    for (const day of ["2026-04-26", "2026-04-27", "2026-04-28"]) {
+      expect(eventsIn(wrapper, day)).toEqual(["Residency"]);
+    }
   });
 
   it("Previous and Next move the month and refetch with the new range", async () => {
@@ -198,7 +225,7 @@ describe("<CalendarList> month view", () => {
     await headerButton(wrapper, "Next").trigger("click");
     await flushPromises();
     expect(title(wrapper)).toBe("June 2026");
-    expect(lastFilter(getList).filter.starts_at_gte).toBe(
+    expect(lastFilter(getList).filter.ends_at_gte).toBe(
       new Date(2026, 4, 31).toISOString(),
     );
 
@@ -206,7 +233,7 @@ describe("<CalendarList> month view", () => {
     await headerButton(wrapper, "Previous").trigger("click");
     await flushPromises();
     expect(title(wrapper)).toBe("April 2026");
-    expect(lastFilter(getList).filter.starts_at_gte).toBe(
+    expect(lastFilter(getList).filter.ends_at_gte).toBe(
       new Date(2026, 2, 29).toISOString(),
     );
   });
@@ -263,7 +290,12 @@ describe("<CalendarList> month view", () => {
         const perPageBefore = listContext.perPage;
         return () =>
           h("div", [
-            show.value ? h(CalendarList, { startSource: "starts_at" }) : null,
+            show.value
+              ? h(CalendarList, {
+                  startSource: "starts_at",
+                  endSource: "ends_at",
+                })
+              : null,
             h("span", { "data-testid": "per-page-before" }, perPageBefore),
           ]);
       },
@@ -277,7 +309,7 @@ describe("<CalendarList> month view", () => {
     );
     expect(initialPerPage).not.toBe(1000);
     expect(listContext?.perPage).toBe(1000);
-    expect(Object.keys(listContext?.filter ?? {})).toContain("starts_at_gte");
+    expect(Object.keys(listContext?.filter ?? {})).toContain("ends_at_gte");
 
     show.value = false;
     await flushPromises();
@@ -294,7 +326,12 @@ describe("<CalendarList> month view", () => {
       setup() {
         listContext = useListContext();
         return () =>
-          show.value ? h(CalendarList, { startSource: "starts_at" }) : null;
+          show.value
+            ? h(CalendarList, {
+                startSource: "starts_at",
+                endSource: "ends_at",
+              })
+            : null;
       },
     });
     const { wrapper } = await mountList({
@@ -307,6 +344,35 @@ describe("<CalendarList> month view", () => {
     await flushPromises();
     expect(wrapper.find("[data-slot=calendar-header]").exists()).toBe(false);
     expect(listContext?.perPage).toBe(10);
+  });
+
+  it("drops a starts_at_gte a list URL kept from before endSource bounded the end", async () => {
+    const stale = JSON.stringify({
+      starts_at_gte: new Date(2026, 3, 26).toISOString(),
+      starts_at_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
+      kind: "work",
+    });
+    const { getList, dataProvider } = providerWith();
+    let listContext: ReturnType<typeof useListContext> | undefined;
+    const Probe = defineComponent({
+      setup() {
+        listContext = useListContext();
+        return () => null;
+      },
+    });
+    await mountList({
+      list: () => h("div", [h(Probe), calendar()()]),
+      dataProvider,
+      path: `/meetings?filter=${encodeURIComponent(stale)}&perPage=1000`,
+    });
+
+    const expected = {
+      kind: "work",
+      starts_at_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
+      ends_at_gte: new Date(2026, 3, 26).toISOString(),
+    };
+    expect(lastFilter(getList).filter).toEqual(expected);
+    expect(listContext?.filter).toEqual(expected);
   });
 
   it("moves the today mark to the next day at midnight", async () => {
@@ -342,7 +408,7 @@ describe("<CalendarList> month view", () => {
     await flushPromises();
     expect(lastFilter(getList).filter).toEqual({
       kind: "work",
-      starts_at_gte: new Date(2026, 3, 26).toISOString(),
+      ends_at_gte: new Date(2026, 3, 26).toISOString(),
       starts_at_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
     });
 
@@ -350,7 +416,7 @@ describe("<CalendarList> month view", () => {
     await flushPromises();
     expect(lastFilter(getList).filter).toEqual({
       kind: "work",
-      starts_at_gte: new Date(2026, 4, 31).toISOString(),
+      ends_at_gte: new Date(2026, 4, 31).toISOString(),
       starts_at_lte: new Date(2026, 6, 4, 23, 59, 59, 999).toISOString(),
     });
   });
@@ -522,7 +588,7 @@ describe("<CalendarList> week view", () => {
     await mountList({ list: week(), dataProvider });
 
     expect(lastFilter(getList).filter).toEqual({
-      starts_at_gte: new Date(2026, 4, 10).toISOString(),
+      ends_at_gte: new Date(2026, 4, 10).toISOString(),
       starts_at_lte: new Date(2026, 4, 16, 23, 59, 59, 999).toISOString(),
     });
   });
@@ -595,7 +661,7 @@ describe("<CalendarList> week view", () => {
     await flushPromises();
     expect(cells(wrapper)[0]?.attributes("data-date")).toBe("2026-05-17");
     expect(lastFilter(getList).filter).toEqual({
-      starts_at_gte: new Date(2026, 4, 17).toISOString(),
+      ends_at_gte: new Date(2026, 4, 17).toISOString(),
       starts_at_lte: new Date(2026, 4, 23, 23, 59, 59, 999).toISOString(),
     });
 
@@ -645,14 +711,14 @@ describe("<CalendarList> agenda view", () => {
     const { getList, dataProvider } = providerWith();
     const { wrapper } = await mountList({ list: agenda(), dataProvider });
     expect(lastFilter(getList).filter).toEqual({
-      starts_at_gte: new Date(2026, 4, 1).toISOString(),
+      ends_at_gte: new Date(2026, 4, 1).toISOString(),
       starts_at_lte: new Date(2026, 4, 29, 23, 59, 59, 999).toISOString(),
     });
 
     await headerButton(wrapper, "Next").trigger("click");
     await flushPromises();
     expect(lastFilter(getList).filter).toEqual({
-      starts_at_gte: new Date(2026, 4, 15).toISOString(),
+      ends_at_gte: new Date(2026, 4, 15).toISOString(),
       starts_at_lte: new Date(2026, 5, 12, 23, 59, 59, 999).toISOString(),
     });
   });
@@ -709,7 +775,7 @@ describe("<CalendarList> views", () => {
 
     await switcherButton(wrapper, "Week").trigger("click");
     await flushPromises();
-    expect(lastFilter(getList).filter.starts_at_gte).toBe(
+    expect(lastFilter(getList).filter.ends_at_gte).toBe(
       new Date(2026, 4, 10).toISOString(),
     );
   });

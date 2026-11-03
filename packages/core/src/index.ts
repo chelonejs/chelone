@@ -58,6 +58,7 @@ export {
   groupCalendarAgenda,
   moveCalendarEvent,
   omitCalendarRangeFilter,
+  staleCalendarRangeKeys,
   toCalendarEvents,
 } from "./controller/calendar-events";
 export type {
