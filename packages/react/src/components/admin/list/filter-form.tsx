@@ -3,7 +3,6 @@ import * as React from "react";
 import { isValidElement, type ReactNode, useCallback, useEffect } from "react";
 import { FilterLiveForm } from "../../../form";
 import { useTranslate } from "../../../i18n-hooks";
-import type { UnknownValue } from "../../../lib/unknown-types";
 import { cn } from "../../../lib/utils";
 import { useFilterContext } from "../../../list/filter-context";
 import { useListFilterContext } from "../../../list/list-slice-hooks";
@@ -26,12 +25,12 @@ function getAtPath(record: unknown, source: string): unknown {
 interface FilterElementProps {
   source: string;
   alwaysOn?: boolean;
-  defaultValue?: UnknownValue;
+  defaultValue?: unknown;
   size?: string;
   label?: React.ReactNode;
   disabled?: boolean;
   resource?: string;
-  record?: Record<string, UnknownValue>;
+  record?: Record<string, unknown>;
   helperText?: React.ReactNode | false;
 }
 
@@ -134,12 +133,12 @@ interface FilterFormBaseProps {
   filters?: ReactNode[];
 }
 
-const isEmptyValue = (filterValue: UnknownValue): boolean => {
+const isEmptyValue = (filterValue: unknown): boolean => {
   if (filterValue === "" || filterValue == null) return true;
   // A non-empty leaf anywhere makes the value non-empty.
   if (typeof filterValue === "object") {
     return Object.keys(filterValue).every((key) =>
-      isEmptyValue((filterValue as Record<string, UnknownValue>)[key]),
+      isEmptyValue((filterValue as Record<string, unknown>)[key]),
     );
   }
   return false;

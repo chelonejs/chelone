@@ -3843,7 +3843,6 @@
         "@chelone/input-helper-text",
         "@chelone/input-props",
         "@chelone/lib-are-ids-equal",
-        "@chelone/lib-unknown-types",
         "@chelone/popover"
       ],
       "dependencies": [
@@ -3874,7 +3873,6 @@
         "@chelone/input-helper-text",
         "@chelone/input-props",
         "@chelone/lib-are-ids-equal",
-        "@chelone/lib-unknown-types",
         "@chelone/lib-utils",
         "@chelone/popover"
       ],
@@ -4138,7 +4136,6 @@
         "@chelone/field-label-text",
         "@chelone/input-helper-text",
         "@chelone/input-props",
-        "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
       "dependencies": ["@chelone/react", "lucide-react", "react-dropzone"],
@@ -5051,7 +5048,6 @@
         "@chelone/checkbox",
         "@chelone/collapsible",
         "@chelone/field-label-text",
-        "@chelone/lib-unknown-types",
         "@chelone/lib-utils",
         "@chelone/number-field",
         "@chelone/skeleton",
@@ -5072,11 +5068,7 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": [
-        "@chelone/button",
-        "@chelone/lib-unknown-types",
-        "@chelone/lib-utils"
-      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
       "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"

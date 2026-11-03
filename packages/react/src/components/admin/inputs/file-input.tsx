@@ -20,7 +20,6 @@ import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import type { UnknownValue } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
@@ -91,7 +90,7 @@ function FileInput(props: FileInputProps) {
   const translate = useTranslate();
 
   // turn a browser dropped file structure into expected structure
-  const transformFile = (file: UnknownValue) => {
+  const transformFile = (file: unknown) => {
     if (!(file instanceof File)) {
       return file;
     }
@@ -106,7 +105,7 @@ function FileInput(props: FileInputProps) {
     return transformedFile;
   };
 
-  const transformFiles = (files: UnknownValue) => {
+  const transformFiles = (files: unknown) => {
     if (!files) {
       return multiple ? [] : null;
     }
@@ -265,7 +264,7 @@ function FileInput(props: FileInputProps) {
               onRemove={onRemove(file as File | TransformedFile)}
               removeIcon={removeIcon}
             >
-              <RecordContextProvider value={file as UnknownValue}>
+              <RecordContextProvider value={file}>
                 {childrenElement}
               </RecordContextProvider>
             </FileInputPreview>

@@ -19,7 +19,6 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { areIdsEqual } from "@/lib/are-ids-equal";
-import type { UnknownValue } from "@/lib/unknown-types";
 import type { ChoiceRecord, OptionText } from "../../../choices-hooks";
 import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
@@ -38,7 +37,7 @@ interface ChoicesProps {
   translateChoice?: boolean;
 }
 
-const EMPTY_VALUES: UnknownValue[] = [];
+const EMPTY_VALUES: unknown[] = [];
 
 /**
  * Searchable dropdown for choosing multiple values, shown as removable badges.
@@ -126,7 +125,7 @@ function AutocompleteArrayInput(props: AutocompleteArrayInputProps) {
   });
 
   // `field.value` may be undefined; coalesce to a stable empty array.
-  const values: UnknownValue[] = Array.isArray(field.value)
+  const values: unknown[] = Array.isArray(field.value)
     ? field.value
     : EMPTY_VALUES;
 
@@ -168,7 +167,7 @@ function AutocompleteArrayInput(props: AutocompleteArrayInputProps) {
   }, [field.value, debouncedSetFilters]);
 
   const isEqual = useCallback(
-    (choiceVal: UnknownValue, fieldVal: UnknownValue) =>
+    (choiceVal: unknown, fieldVal: unknown) =>
       isOptionEqualToValue
         ? isOptionEqualToValue(choiceVal, fieldVal)
         : areIdsEqual(choiceVal, fieldVal),
@@ -419,7 +418,7 @@ type AutocompleteArrayInputProps = Omit<InputProps, "source"> &
     filterToQuery?: (searchText: string) => FilterPayload;
     placeholder?: string;
     /** Custom display text for badge labels. */
-    inputText?: (option: UnknownValue) => string;
+    inputText?: (option: unknown) => string;
     /** When true, only show already-selected choices in the dropdown. */
     limitChoicesToValue?: boolean;
     /** Cap the number of dropdown items shown. */
@@ -435,12 +434,9 @@ type AutocompleteArrayInputProps = Omit<InputProps, "source"> &
     /** When true, Home/End keys scroll the listbox to first/last item. */
     handleHomeEndKeys?: boolean;
     /** Custom equality check between a choice value and a selected value. */
-    isOptionEqualToValue?: (
-      option: UnknownValue,
-      value: UnknownValue,
-    ) => boolean;
+    isOptionEqualToValue?: (option: unknown, value: unknown) => boolean;
     /** Custom filter function; replaces default substring match. */
-    matchSuggestion?: (filter: string, choice: UnknownValue) => boolean;
+    matchSuggestion?: (filter: string, choice: unknown) => boolean;
     /** Gate controlling whether the dropdown opens at all. */
     shouldRenderSuggestions?: (filter: string) => boolean;
     /** Accepted for API parity; not rendered in the array variant. */

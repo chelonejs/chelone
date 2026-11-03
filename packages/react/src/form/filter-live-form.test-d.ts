@@ -1,4 +1,4 @@
-import type { FilterPayload } from "@chelone/core";
+import type { FilterPayload, ResourceRecord } from "@chelone/core";
 import { expectTypeOf, it } from "vitest";
 import type {
   FilterLiveFormProps,
@@ -6,7 +6,11 @@ import type {
   UseFilterFormOptions,
   UseFilterFormResult,
 } from "./filter-live-form";
-import { getFilterFormValues, useFilterForm } from "./filter-live-form";
+import {
+  getFilterFormValues,
+  useFilterForm,
+  useListContext,
+} from "./filter-live-form";
 
 it("useFilterForm accepts optional resource + debounce and returns the form surface", () => {
   expectTypeOf<UseFilterFormOptions>().toMatchTypeOf<{
@@ -42,5 +46,15 @@ it("ListContextValue carries the list filter surface FilterLiveForm reads", () =
 it("getFilterFormValues maps a form-values record to an all-keys-present record", () => {
   expectTypeOf(getFilterFormValues).returns.toEqualTypeOf<
     Record<string, unknown>
+  >();
+});
+
+it("useListContext types its rows from the generic", () => {
+  interface Post extends ResourceRecord {
+    title: string;
+  }
+  expectTypeOf(useListContext<Post>().data).toEqualTypeOf<Post[] | undefined>();
+  expectTypeOf(useListContext().data).toEqualTypeOf<
+    ResourceRecord[] | undefined
   >();
 });
