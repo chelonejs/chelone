@@ -8,12 +8,16 @@ import { type RefObject, useEffect, useRef } from "react";
  */
 export const MARKERS_SETTLE_MS = 750;
 
+// Monaco's JSON diagnostics adapter debounces validation by this long after an edit.
+export const MONACO_DIAGNOSTICS_DELAY_MS = 500;
+
 export interface MonacoMarkers {
   markers: RefObject<editor.IMarker[]>;
   /**
    * Resolves with the model's markers once they reflect the last edit: at once
-   * when a marker event came after it, else on the next marker event or
-   * `MARKERS_SETTLE_MS` after the edit, whichever is first.
+   * when a marker event at least `MONACO_DIAGNOSTICS_DELAY_MS` after it came,
+   * else on the next such event or `MARKERS_SETTLE_MS` after the edit,
+   * whichever is first.
    */
   settled: () => Promise<editor.IMarker[]>;
 }
@@ -48,8 +52,11 @@ export function useMonacoMarkers(
     const subscription = monaco.editor.onDidChangeMarkers((uris) => {
       if (!uris.some((uri) => uri.toString() === model.uri.toString())) return;
       markers.current = read();
-      fresh.current = true;
-      for (const release of [...waiting.current]) release();
+      // Markers carry no model version: one inside the delay predates the edit.
+      if (Date.now() - lastEditAt.current >= MONACO_DIAGNOSTICS_DELAY_MS) {
+        fresh.current = true;
+        for (const release of [...waiting.current]) release();
+      }
       onChangeRef.current(markers.current);
     });
     return () => {

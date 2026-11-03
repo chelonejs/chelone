@@ -27,6 +27,7 @@ import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../admin/admin.vue";
 import { type UseFormReturn, useForm } from "../../form/use-form";
 import { useInput } from "../../form/use-input";
+import { MONACO_DIAGNOSTICS_DELAY_MS } from "./internal/use-monaco-markers";
 import MonacoJsonInput, {
   type MonacoJsonInputProps,
 } from "./monaco-json-input.vue";
@@ -644,6 +645,27 @@ describe("MonacoJsonInput", () => {
     expect(errorText(wrapper)).toContain("Expected a number");
   });
 
+  it("blocks Save when a marker event inside the diagnostics delay reports no errors", async () => {
+    const onData = vi.fn();
+    const { wrapper, submit } = setup(input({ source: "meta" }), {
+      record: { meta: { a: 1 } },
+      onData,
+    });
+    const el = await editor(wrapper);
+    useClock();
+    await type(el, '{"a":"x"}');
+    await vi.advanceTimersByTimeAsync(100);
+    // Monaco computed this list from the text before the edit.
+    await setMarkers([]);
+    const saving = submit();
+    await vi.advanceTimersByTimeAsync(MONACO_DIAGNOSTICS_DELAY_MS - 100);
+    expect(onData).not.toHaveBeenCalled();
+    await setMarkers([{ severity: 8, message: "Expected a number" }]);
+    await saving;
+    expect(onData).not.toHaveBeenCalled();
+    expect(errorText(wrapper)).toContain("Expected a number");
+  });
+
   it("saves a valid edit without waiting once its markers have arrived", async () => {
     const onData = vi.fn();
     const { wrapper, submit } = setup(input({ source: "meta" }), {
@@ -653,6 +675,7 @@ describe("MonacoJsonInput", () => {
     const el = await editor(wrapper);
     useClock();
     await type(el, '{"a":2}');
+    await vi.advanceTimersByTimeAsync(MONACO_DIAGNOSTICS_DELAY_MS);
     await setMarkers([]);
     const saving = submit();
     // form-core starts an async validator on a zero-delay timer.

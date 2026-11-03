@@ -32,6 +32,7 @@ import {
 import { CheloneProvider } from "../../context";
 import { CheloneFormProvider } from "../../form-context";
 import { useForm, useInput } from "../../form-hooks";
+import { MONACO_DIAGNOSTICS_DELAY_MS } from "./internal/use-monaco-markers";
 import { MonacoJsonInput } from "./monaco-json-input";
 
 vi.mock("monaco-editor", () => ({}));
@@ -713,6 +714,35 @@ describe("<MonacoJsonInput />", () => {
     );
   });
 
+  it("blocks Save when a marker event inside the diagnostics delay reports no errors", async () => {
+    const onData = vi.fn();
+    const { submitRef } = setup(<MonacoJsonInput source="meta" />, {
+      defaultValues: { meta: { a: 1 } },
+      onData,
+    });
+    const el = await editor();
+    useClock();
+    type(el, '{"a":"x"}');
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
+    // Monaco computed this list from the text before the edit.
+    setMarkers([]);
+    const saving = submitRef.current?.();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(MONACO_DIAGNOSTICS_DELAY_MS - 100);
+    });
+    expect(onData).not.toHaveBeenCalled();
+    setMarkers([{ severity: 8, message: "Expected a number" }]);
+    await act(async () => {
+      await saving;
+    });
+    expect(onData).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert").textContent).toContain(
+      "Expected a number",
+    );
+  });
+
   it("saves a valid edit without waiting once its markers have arrived", async () => {
     const onData = vi.fn();
     const { submitRef } = setup(<MonacoJsonInput source="meta" />, {
@@ -722,6 +752,9 @@ describe("<MonacoJsonInput />", () => {
     const el = await editor();
     useClock();
     type(el, '{"a":2}');
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(MONACO_DIAGNOSTICS_DELAY_MS);
+    });
     setMarkers([]);
     const saving = submitRef.current?.();
     // form-core starts an async validator on a zero-delay timer.
