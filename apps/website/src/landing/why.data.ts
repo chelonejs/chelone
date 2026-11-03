@@ -30,7 +30,7 @@ export const whyReasons: WhyReason[] = [
   {
     title: "Headless core",
     description:
-      "Built on @chelone/core — a framework-agnostic engine of hooks and controllers that pairs with any React UI.",
+      "Built on @chelone/core — a framework-agnostic engine of hooks and controllers that pairs with any UI. React and Vue adapters ship.",
     icon: Plug,
   },
   {
