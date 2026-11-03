@@ -20,15 +20,22 @@ import {
   type DeleteManyParams,
   type DeleteParams,
   deleteMutationOptions,
+  type Identifier,
   type MutationModeOptions,
+  patchedRecord,
   type RecordOf,
   type ResourceMap,
-  removeRecordsFromCache,
   resourceKey,
+  type UndoableCallbacks,
+  type UndoableDeleteCallbacks,
+  type UndoableUpdateCallbacks,
+  type UndoableUpdateManyCallbacks,
   type UpdateManyParams,
   type UpdateParams,
+  undoableCallbacks,
+  undoableDeleteOptions,
+  undoableUpdateOptions,
   updateMutationOptions,
-  updateRecordsInCache,
 } from "@chelone/core";
 import { useMutation } from "@tanstack/vue-query";
 import { useCheloneContext } from "../context";
@@ -40,11 +47,14 @@ import { useUndoable } from "./undoable";
  * declaration-emittable: spreading vue-query's refs over a generic record type
  * would expand to `@vue/shared` types a `.d.ts` cannot name.
  */
-type Undoable<TMutation, TParams> = Omit<
+type Undoable<TMutation, TParams, TData> = Omit<
   TMutation,
   "mutate" | "mutateAsync"
 > & {
-  mutate: (params: TParams) => void;
+  mutate: (
+    params: TParams,
+    callbacks?: UndoableCallbacks<TData, TParams>,
+  ) => void;
   mutateAsync: (params: TParams) => Promise<void>;
 };
 
@@ -81,24 +91,28 @@ export function useUpdate<
   // closes); `mutateAsync` resolves once the undoable is enqueued, not on the
   // deferred server response. Only the two action functions are swapped — the
   // spread keeps the reactive state refs (`isPending`, …) as the same objects.
-  const mutate = (params: UpdateParams<RecordOf<TResources, TName>>) => {
+  // The callbacks of `mutate`'s second argument are the undoable ones: see
+  // `UndoableCallbacks`.
+  const mutate = (
+    params: UpdateParams<RecordOf<TResources, TName>>,
+    callbacks?: UndoableUpdateCallbacks<RecordOf<TResources, TName>>,
+  ) => {
+    const settle = undoableCallbacks(params, callbacks);
     runUndoable({
-      queryKeys: [[resource]],
-      applyOptimistic: () =>
-        updateRecordsInCache(
-          ctx.queryClient,
-          resource,
-          [params.id],
-          params.data as Record<string, unknown>,
-        ),
-      commit: () => ctx.dataProvider.update(resource, params),
-      message: "chelone.notification.updated",
-      messageArgs: { smart_count: 1 },
+      ...undoableUpdateOptions(
+        ctx.queryClient,
+        resource,
+        [params.id],
+        params.data,
+      ),
+      commit: settle.commit(() => ctx.dataProvider.update(resource, params)),
     });
+    settle.success(patchedRecord(params));
   };
   const undoable: Undoable<
     typeof mutation,
-    UpdateParams<RecordOf<TResources, TName>>
+    UpdateParams<RecordOf<TResources, TName>>,
+    RecordOf<TResources, TName>
   > = {
     ...mutation,
     mutate,
@@ -127,19 +141,21 @@ export function useDelete<
   if (options.mutationMode !== "undoable") return mutation;
   // Undoable: remove the row now, defer the delete, notify with Undo. See
   // `useUpdate` for the `mutate`/`mutateAsync` semantics.
-  const mutate = (params: DeleteParams<RecordOf<TResources, TName>>) => {
+  const mutate = (
+    params: DeleteParams<RecordOf<TResources, TName>>,
+    callbacks?: UndoableDeleteCallbacks<RecordOf<TResources, TName>>,
+  ) => {
+    const settle = undoableCallbacks(params, callbacks);
     runUndoable({
-      queryKeys: [[resource]],
-      applyOptimistic: () =>
-        removeRecordsFromCache(ctx.queryClient, resource, [params.id]),
-      commit: () => ctx.dataProvider.delete(resource, params),
-      message: "chelone.notification.deleted",
-      messageArgs: { smart_count: 1 },
+      ...undoableDeleteOptions(ctx.queryClient, resource, [params.id]),
+      commit: settle.commit(() => ctx.dataProvider.delete(resource, params)),
     });
+    settle.success(params.previousData);
   };
   const undoable: Undoable<
     typeof mutation,
-    DeleteParams<RecordOf<TResources, TName>>
+    DeleteParams<RecordOf<TResources, TName>>,
+    RecordOf<TResources, TName> | undefined
   > = {
     ...mutation,
     mutate,
@@ -178,15 +194,18 @@ export function useDeleteMany<
   });
   if (options.mutationMode !== "undoable") return mutation;
   // Undoable: remove the selected rows now, defer `deleteMany`, notify with Undo.
-  const mutate = (params: DeleteManyParams) => {
+  const mutate = (
+    params: DeleteManyParams,
+    callbacks?: UndoableCallbacks<Identifier[], DeleteManyParams>,
+  ) => {
+    const settle = undoableCallbacks(params, callbacks);
     runUndoable({
-      queryKeys: [[resource]],
-      applyOptimistic: () =>
-        removeRecordsFromCache(ctx.queryClient, resource, params.ids),
-      commit: () => ctx.dataProvider.deleteMany(resource, params),
-      message: "chelone.notification.deleted",
-      messageArgs: { smart_count: params.ids.length },
+      ...undoableDeleteOptions(ctx.queryClient, resource, params.ids),
+      commit: settle.commit(() =>
+        ctx.dataProvider.deleteMany(resource, params),
+      ),
     });
+    settle.success(params.ids);
   };
   return {
     ...mutation,
@@ -223,20 +242,23 @@ export function useUpdateMany<
   });
   if (options.mutationMode !== "undoable") return mutation;
   // Undoable: patch the selected rows now, defer `updateMany`, notify with Undo.
-  const mutate = (params: UpdateManyParams<RecordOf<TResources, TName>>) => {
+  const mutate = (
+    params: UpdateManyParams<RecordOf<TResources, TName>>,
+    callbacks?: UndoableUpdateManyCallbacks<RecordOf<TResources, TName>>,
+  ) => {
+    const settle = undoableCallbacks(params, callbacks);
     runUndoable({
-      queryKeys: [[resource]],
-      applyOptimistic: () =>
-        updateRecordsInCache(
-          ctx.queryClient,
-          resource,
-          params.ids,
-          params.data as Record<string, unknown>,
-        ),
-      commit: () => ctx.dataProvider.updateMany(resource, params),
-      message: "chelone.notification.updated",
-      messageArgs: { smart_count: params.ids.length },
+      ...undoableUpdateOptions(
+        ctx.queryClient,
+        resource,
+        params.ids,
+        params.data,
+      ),
+      commit: settle.commit(() =>
+        ctx.dataProvider.updateMany(resource, params),
+      ),
     });
+    settle.success(params.ids);
   };
   return {
     ...mutation,

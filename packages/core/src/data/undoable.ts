@@ -3,6 +3,10 @@ import {
   type QueryClient,
   type QueryKey,
 } from "@tanstack/query-core";
+import type { Identifier } from "../resource/identifier";
+import type { ResourceRecord } from "../resource/record";
+import { removeRecordsFromCache, updateRecordsInCache } from "./cache-ops";
+import type { DeleteParams, UpdateManyParams, UpdateParams } from "./types";
 
 /**
  * A snapshot of the query cache taken BEFORE an optimistic apply: an array of
@@ -246,6 +250,130 @@ export function startUndoableMutation<TResult = unknown>(
 
   pendingUndoables.add(handle);
   return handle;
+}
+
+/**
+ * The callbacks an undoable `mutate` takes as its second argument. They are
+ * not TanStack Query's: the server call is deferred, so `onSuccess` fires with
+ * the optimistic result and `onError`/`onSettled` follow the deferred commit.
+ */
+export interface UndoableCallbacks<TData, TParams> {
+  /** Runs right after the optimistic cache change, not after the undo window. */
+  onSuccess?: (data: TData, params: TParams) => void;
+  /** Runs when the deferred commit fails, after the rollback and error notification. */
+  onError?: (error: unknown, params: TParams) => void;
+  /** Runs once the commit ends, whether it succeeded or failed. Never after an Undo. */
+  onSettled?: (params: TParams) => void;
+}
+
+/** What an undoable `useUpdate` hands `onSuccess`: the patched record. */
+export type UndoableUpdateCallbacks<TRecord extends ResourceRecord> =
+  UndoableCallbacks<TRecord, UpdateParams<TRecord>>;
+/** What an undoable `useDelete` hands `onSuccess`: the previous record, when given. */
+export type UndoableDeleteCallbacks<TRecord extends ResourceRecord> =
+  UndoableCallbacks<TRecord | undefined, DeleteParams<TRecord>>;
+/** What an undoable `useUpdateMany` hands `onSuccess`: the ids. */
+export type UndoableUpdateManyCallbacks<TRecord extends ResourceRecord> =
+  UndoableCallbacks<Identifier[], UpdateManyParams<TRecord>>;
+
+/** Runs `run` after the current microtasks; a throw is logged, not raised. */
+function later(run: () => void) {
+  setTimeout(() => {
+    try {
+      run();
+    } catch (error) {
+      console.error(error);
+    }
+  }, 0);
+}
+
+/** The calls an undoable `mutate` makes for its callbacks; see {@link undoableCallbacks}. */
+export interface UndoableSettler<TData> {
+  /** Wraps the deferred `commit` so `onError` and `onSettled` run when it ends. */
+  commit<TResult>(commit: () => Promise<TResult>): () => Promise<TResult>;
+  /** Runs `onSuccess`: call it once the optimistic change is applied. */
+  success(data: TData): void;
+}
+
+/**
+ * Bind an undoable `mutate`'s callbacks to its `params`. The wrapped commit
+ * rethrows a failure, so the handle still rolls back and the adapter still
+ * notifies; the callbacks wait a macrotask to run after both.
+ */
+export function undoableCallbacks<TData, TParams>(
+  params: TParams,
+  callbacks: UndoableCallbacks<TData, TParams> = {},
+): UndoableSettler<TData> {
+  const { onSuccess, onError, onSettled } = callbacks;
+  return {
+    success: (data) => onSuccess?.(data, params),
+    // The callbacks run in a timer, never inside the commit's promise: one that
+    // throws must not read as a failed commit and roll the cache back.
+    commit: (commit) => async () => {
+      let result: Awaited<ReturnType<typeof commit>>;
+      try {
+        result = await commit();
+      } catch (error) {
+        later(() => {
+          onError?.(error, params);
+          onSettled?.(params);
+        });
+        throw error;
+      }
+      later(() => onSettled?.(params));
+      return result;
+    },
+  };
+}
+
+/** What an adapter's `runUndoable` needs besides the deferred `commit`. */
+export interface UndoableCacheOptions {
+  queryKeys: QueryKey[];
+  applyOptimistic: () => void;
+  message: string;
+  messageArgs: { smart_count: number };
+}
+
+/** Patch `ids` in the `resource` caches now; the notification reads "updated". */
+export function undoableUpdateOptions(
+  queryClient: QueryClient,
+  resource: string,
+  ids: Identifier[],
+  data: object,
+): UndoableCacheOptions {
+  return {
+    queryKeys: [[resource]],
+    applyOptimistic: () =>
+      updateRecordsInCache(
+        queryClient,
+        resource,
+        ids,
+        data as Record<string, unknown>,
+      ),
+    message: "chelone.notification.updated",
+    messageArgs: { smart_count: ids.length },
+  };
+}
+
+/** Remove `ids` from the `resource` caches now; the notification reads "deleted". */
+export function undoableDeleteOptions(
+  queryClient: QueryClient,
+  resource: string,
+  ids: Identifier[],
+): UndoableCacheOptions {
+  return {
+    queryKeys: [[resource]],
+    applyOptimistic: () => removeRecordsFromCache(queryClient, resource, ids),
+    message: "chelone.notification.deleted",
+    messageArgs: { smart_count: ids.length },
+  };
+}
+
+/** The record an undoable update shows at once: the previous one with the patch on top. */
+export function patchedRecord<TRecord extends ResourceRecord>(
+  params: UpdateParams<TRecord>,
+): TRecord {
+  return { ...params.previousData, ...params.data, id: params.id } as TRecord;
 }
 
 /** True while at least one undoable mutation is still awaiting commit/undo. */
