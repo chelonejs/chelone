@@ -36,9 +36,6 @@ import { CalendarWeekView } from "./calendar-week-view";
 
 const ALL_VIEWS: readonly CalendarView[] = ["month", "week", "agenda"];
 
-/** The list controller's own default, which core does not export. */
-const LIST_DEFAULT_PER_PAGE = 10;
-
 interface CalendarListProps<
   RecordType extends ResourceRecord = ResourceRecord,
 > {
@@ -201,13 +198,13 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
       for (const key of before.keys) delete filter[key];
       // A perPage already ours on mount came from a URL this calendar wrote
       // earlier, so the one it replaced is gone: fall back to the list default,
-      // even for a <List perPage> that is not 10. Core does not expose it.
+      // even for a <List perPage> that is not 10.
       const { perPage: own } = latest.current;
       current.setParams({
         filter,
         perPage:
           before.previousPerPage === own
-            ? LIST_DEFAULT_PER_PAGE
+            ? (current.defaultPerPage ?? 10)
             : before.previousPerPage,
       });
     },

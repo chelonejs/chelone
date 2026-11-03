@@ -93,7 +93,10 @@ export type {
   ListControllerState,
   ListParamsPatch,
 } from "./controller/list-controller";
-export { createListController } from "./controller/list-controller";
+export {
+  createListController,
+  listControllerActions,
+} from "./controller/list-controller";
 export type {
   ListParamsQuery,
   ListUrlState,

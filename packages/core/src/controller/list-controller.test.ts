@@ -173,6 +173,15 @@ describe("createListController", () => {
     vi.useRealTimers();
   });
 
+  it("exposes defaultPerPage from the perPage option, else 10", () => {
+    const own = createListController(makeCtx(), "posts", { perPage: 25 });
+    const fallback = createListController(makeCtx(), "posts", {});
+    expect(own.defaultPerPage).toBe(25);
+    expect(fallback.defaultPerPage).toBe(10);
+    own.destroy();
+    fallback.destroy();
+  });
+
   it("params persist to the KV store and rehydrate", async () => {
     const ctx = makeCtx();
     const c1 = createListController(ctx, "posts", {});

@@ -97,11 +97,13 @@ async function mountList({
   dataProvider = providerWith().dataProvider,
   edit = true,
   path = "/meetings",
+  perPage,
 }: {
   list: () => VNodeChild;
   dataProvider?: DataProvider;
   edit?: boolean;
   path?: string;
+  perPage?: number;
 }) {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -109,7 +111,8 @@ async function mountList({
   });
   await router.push(path);
   const MeetingList = defineComponent({
-    setup: () => () => h(List, { resource: "meetings" }, { default: list }),
+    setup: () => () =>
+      h(List, { resource: "meetings", perPage }, { default: list }),
   });
   const Harness = defineComponent({
     setup: () => () =>
@@ -318,7 +321,7 @@ describe("<CalendarList> month view", () => {
     expect(listContext?.perPage).toBe(initialPerPage);
   });
 
-  it("restores the list default perPage when the URL already carried the calendar's own", async () => {
+  it("restores the list's own perPage when the URL already carried the calendar's own", async () => {
     // Back from an event's page seeds perPage=1000 from the URL.
     let listContext: ReturnType<typeof useListContext> | undefined;
     const show = ref(true);
@@ -337,13 +340,14 @@ describe("<CalendarList> month view", () => {
     const { wrapper } = await mountList({
       list: () => h(Toggle),
       path: "/meetings?perPage=1000",
+      perPage: 25,
     });
     expect(listContext?.perPage).toBe(1000);
 
     show.value = false;
     await flushPromises();
     expect(wrapper.find("[data-slot=calendar-header]").exists()).toBe(false);
-    expect(listContext?.perPage).toBe(10);
+    expect(listContext?.perPage).toBe(25);
   });
 
   it("drops a starts_at_gte a list URL kept from before endSource bounded the end", async () => {

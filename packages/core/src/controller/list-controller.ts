@@ -49,6 +49,8 @@ export interface ListParamsPatch {
 
 export interface ListController<TRecord>
   extends MicroStore<ListControllerState<TRecord>> {
+  /** The `perPage` the list starts at when nothing is persisted or in the URL. Optional so other list controllers and fakes need not set it. */
+  readonly defaultPerPage?: number;
   setPage(page: number): void;
   setPerPage(perPage: number): void;
   /** Single payload on the SAME single-sorted field toggles order; anything else replaces. */
@@ -325,6 +327,32 @@ export function resetPageTarget(
  * action path and are guarded to run only on SETTLED results, so they
  * cannot ping-pong.
  */
+/**
+ * The actions of a list controller, for an adapter to spread next to its own
+ * reactive state. They are the same functions across state changes.
+ */
+export function listControllerActions(
+  controller: Omit<
+    ListController<unknown>,
+    keyof MicroStore<ListControllerState<unknown>> | "defaultPerPage"
+  >,
+) {
+  return {
+    setPage: controller.setPage,
+    setPerPage: controller.setPerPage,
+    setSort: controller.setSort,
+    setFilters: controller.setFilters,
+    setParams: controller.setParams,
+    showFilter: controller.showFilter,
+    hideFilter: controller.hideFilter,
+    select: controller.select,
+    toggleItem: controller.toggleItem,
+    unselectAll: controller.unselectAll,
+    selectAll: controller.selectAll,
+    refetch: controller.refetch,
+  };
+}
+
 export function createListController<
   TResources extends ResourceMap,
   TName extends keyof TResources & string,
@@ -684,6 +712,7 @@ export function createListController<
 
   return {
     ...store,
+    defaultPerPage: defaults.perPage,
     setPage,
     setPerPage,
     setSort,
