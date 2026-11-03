@@ -3,6 +3,10 @@
 Releases run from `.github/workflows/release.yml` with release-please, in `chelonejs/chelone` on
 `main` only.
 
+Merge every pull request with an empty merge commit body: `gh pr merge <n> --merge --body ""`.
+release-please reads any commit body line that looks like a conventional commit as one more
+commit, so GitHub's default body, the pull request title, lists the change twice.
+
 1. Every push to `main` updates one open release pull request. It bumps `@chelone/core`,
    `@chelone/react`, `@chelone/vue`, `@chelone/supabase`, and `@chelone/rest` to one shared
    version and writes each package's `CHANGELOG.md` from the conventional commits since the last
@@ -10,9 +14,7 @@ Releases run from `.github/workflows/release.yml` with release-please, in `chelo
    not. Apps stay unversioned.
 2. Review the versions and changelogs, editing the pull request's body and the `CHANGELOG.md`
    files on its branch if an entry needs rewording. The GitHub release notes come from the body.
-3. Merge it with an empty merge commit body (`gh pr merge <n> --merge --body ""`). release-please
-   reads every commit body line that looks like a conventional commit as another commit, so
-   GitHub's default body, the pull request title, lists the change twice.
+3. Merge it.
 4. The next run tags `@chelone/<name>@<version>`, creates the GitHub releases, and publishes.
    The publish job lints, typechecks, tests, builds, checks tarballs, packs each package with pnpm
    (which applies `publishConfig` and replaces `workspace:*` with the version), and publishes the
