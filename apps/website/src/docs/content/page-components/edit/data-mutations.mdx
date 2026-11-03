@@ -116,6 +116,9 @@ With `"undoable"`, `mutate` is fire and forget and `mutateAsync` resolves once
 the undoable is queued, not when the server answers. It needs the notification
 store `<Admin>` provides.
 
+An undoable `mutateAsync` is typed as resolving the record or nothing, so do
+not read its result. In practice it resolves nothing.
+
 `<Edit>` and `<Create>` are pessimistic only, and `useCreate` takes no mode.
 
 ## Deleting
