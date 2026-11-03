@@ -49,6 +49,8 @@ export interface ListParamsPatch {
 
 export interface ListController<TRecord>
   extends MicroStore<ListControllerState<TRecord>> {
+  /** The `perPage` the list starts at when nothing is persisted or in the URL. Optional so other list controllers and fakes need not set it. */
+  readonly defaultPerPage?: number;
   setPage(page: number): void;
   setPerPage(perPage: number): void;
   /** Single payload on the SAME single-sorted field toggles order; anything else replaces. */
@@ -684,6 +686,7 @@ export function createListController<
 
   return {
     ...store,
+    defaultPerPage: defaults.perPage,
     setPage,
     setPerPage,
     setSort,

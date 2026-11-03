@@ -150,6 +150,7 @@ export function useListController<
     selectedIds: computed(() => state.value.selectedIds),
     hasNextPage: computed(() => state.value.hasNextPage),
     hasPreviousPage: computed(() => state.value.hasPreviousPage),
+    defaultPerPage: controller.defaultPerPage,
     setPage: controller.setPage,
     setPerPage: controller.setPerPage,
     setSort: controller.setSort,

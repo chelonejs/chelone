@@ -194,6 +194,7 @@ export function useListController<
   return useMemo(
     () => ({
       ...snapshot,
+      defaultPerPage: controller.defaultPerPage,
       setPage: controller.setPage,
       setPerPage: controller.setPerPage,
       setSort: controller.setSort,
