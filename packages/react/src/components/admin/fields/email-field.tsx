@@ -1,14 +1,14 @@
+import type { LooseRecord } from "@chelone/core";
 import type React from "react";
 import type { AnchorHTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-function EmailFieldImpl<RecordType extends UnknownRecord = UnknownRecord>(
+function EmailFieldImpl<RecordType extends LooseRecord = LooseRecord>(
   inProps: EmailFieldProps<RecordType>,
 ) {
   const { className, empty, defaultValue, source, record, ...rest } = inProps;
@@ -61,7 +61,7 @@ EmailFieldImpl.displayName = "EmailFieldImpl";
  */
 const EmailField = genericMemo(EmailFieldImpl);
 
-interface EmailFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface EmailFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     AnchorHTMLAttributes<HTMLAnchorElement> {}
 

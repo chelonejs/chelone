@@ -1,3 +1,4 @@
+import type { LooseRecord } from "@chelone/core";
 import { Check, type LucideIcon, X } from "lucide-react";
 import {
   Tooltip,
@@ -5,7 +6,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { FieldProps } from "@/lib/field-types";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -25,7 +25,7 @@ import { useFieldValue } from "../../../record/use-field-value";
  *   </Show>
  * );
  */
-function BooleanField<RecordType extends UnknownRecord = UnknownRecord>({
+function BooleanField<RecordType extends LooseRecord = LooseRecord>({
   source,
   record,
   defaultValue,
@@ -91,7 +91,7 @@ function RenderLabel({
   return <p>{label}</p>;
 }
 
-interface BooleanFieldProps<RecordType extends UnknownRecord = UnknownRecord>
+interface BooleanFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType> {
   defaultValue?: unknown;
   TrueIcon?: LucideIcon | null;
