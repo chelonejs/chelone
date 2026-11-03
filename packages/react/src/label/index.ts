@@ -7,7 +7,10 @@
  */
 
 export type { GetRecordRepresentation } from "./use-get-record-representation";
-export { useGetRecordRepresentation } from "./use-get-record-representation";
+export {
+  useGetRecordRepresentation,
+  useGetRecordRepresentationText,
+} from "./use-get-record-representation";
 export type { GetResourceLabel } from "./use-get-resource-label";
 export { useGetResourceLabel } from "./use-get-resource-label";
 export type { UseResourceTranslationOptions } from "./use-resource-translation";

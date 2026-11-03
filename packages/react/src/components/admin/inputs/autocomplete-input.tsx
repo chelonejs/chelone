@@ -26,7 +26,7 @@ import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
-import { useGetRecordRepresentation } from "../../../label";
+import { useGetRecordRepresentationText } from "../../../label";
 import { useEvent } from "../../../util/use-event";
 import type { InputProps } from "../input-props";
 import { createDebounce } from "./create-debounce";
@@ -118,13 +118,11 @@ function AutocompleteInput(props: AutocompleteInputProps) {
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const getRecordRepresentation = useGetRecordRepresentation(resource);
+  const getRecordRepresentationText = useGetRecordRepresentationText(resource);
   const { getChoiceText, getChoiceValue } = useChoices({
     optionText:
       props.optionText ??
-      (isFromReference
-        ? (getRecordRepresentation as unknown as OptionText)
-        : "name"),
+      (isFromReference ? getRecordRepresentationText : "name"),
     optionValue: props.optionValue ?? "id",
     disableValue: props.disableValue,
     translateChoice: props.translateChoice ?? !isFromReference,
