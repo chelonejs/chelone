@@ -26,8 +26,8 @@ Pass a JSON Schema in `schema`. Monaco offers completions from it and marks
 values that do not match.
 
 ```tsx
-import { Edit } from "@/components/admin";
-import { MonacoJsonInput } from "@/components/monaco";
+import { Edit } from "@chelone/react";
+import { MonacoJsonInput } from "@/components/monaco/monaco-json-input";
 
 const settingsSchema = {
   type: "object",
@@ -87,7 +87,9 @@ There are two ways in. Both give you `<MonacoJsonInput>` and
 [`<MonacoJsonField>`](/docs/viewing/monaco-json-field).
 
 The registry copies the components into your project, and the code samples on
-these pages import them from `@/components/monaco`:
+these pages import them from the files it writes,
+`@/components/monaco/monaco-json-input` and
+`@/components/monaco/monaco-json-field`. There is no `index.ts` in that folder:
 
 ```bash
 npx shadcn add @chelone/monaco

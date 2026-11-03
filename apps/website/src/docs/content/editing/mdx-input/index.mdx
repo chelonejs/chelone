@@ -22,8 +22,8 @@ editing it, use [MdxField](/docs/viewing/mdx-field).
 ## Example
 
 ```tsx
-import { Edit } from "@/components/admin";
-import { MdxInput } from "@/components/mdx-editor";
+import { Edit } from "@chelone/react";
+import { MdxInput } from "@/components/mdx-editor/mdx-input";
 
 export const PostEdit = () => (
   <Edit>
@@ -62,7 +62,9 @@ There are two ways in. Both give you `<MdxInput>` and
 [`<MdxField>`](/docs/viewing/mdx-field).
 
 The registry copies the components into your project, and the code samples on
-these pages import them from `@/components/mdx-editor`:
+these pages import them from the files it writes,
+`@/components/mdx-editor/mdx-input` and `@/components/mdx-editor/mdx-field`.
+There is no `index.ts` in that folder:
 
 ```bash
 npx shadcn add @chelone/mdx-editor
