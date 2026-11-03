@@ -1,4 +1,4 @@
-import { HttpError } from "@chelone/core";
+import { HttpError, ValidationError } from "@chelone/core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { restDataProvider } from "./data-provider";
 
@@ -419,5 +419,113 @@ describe("restDataProvider", () => {
     const result = await restDataProvider({ apiUrl }).getList("posts", {});
 
     expect(result).toEqual({ data: [{ id: 1 }] });
+  });
+
+  it("a 422 with field errors rejects create with ValidationError", async () => {
+    stubFetch(
+      respond(
+        {
+          message: "Invalid",
+          errors: { title: "is required", tags: ["too short", "too long"] },
+        },
+        { status: 422 },
+      ),
+    );
+
+    const error = await restDataProvider({ apiUrl })
+      .create("posts", { data: {} })
+      .catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(ValidationError);
+    expect((error as ValidationError).message).toBe("Invalid");
+    expect((error as ValidationError).fieldErrors).toEqual({
+      title: "is required",
+      tags: ["too short", "too long"],
+    });
+  });
+
+  it("a 422 with field errors rejects update and updateMany with ValidationError", async () => {
+    stubFetch(respond({ errors: { title: "is required" } }, { status: 422 }));
+    const provider = restDataProvider({ apiUrl });
+
+    const updated = await provider
+      .update("posts", { id: 1, data: {} })
+      .catch((e: unknown) => e);
+    const updatedMany = await provider
+      .updateMany("posts", { ids: [1, 2], data: {} })
+      .catch((e: unknown) => e);
+
+    for (const error of [updated, updatedMany]) {
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).fieldErrors).toEqual({
+        title: "is required",
+      });
+    }
+  });
+
+  it("a 422 with no errors object stays an HttpError", async () => {
+    const provider = restDataProvider({ apiUrl });
+
+    for (const body of [
+      { message: "Unprocessable" },
+      { errors: "bad" },
+      { errors: { title: 5 } },
+      { message: "Title taken", errors: {} },
+      { message: "Title taken", errors: { title: [] } },
+      { message: "Title taken", errors: { title: "" } },
+    ]) {
+      stubFetch(respond(body, { status: 422 }));
+      const error = await provider
+        .create("posts", { data: {} })
+        .catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(HttpError);
+      expect((error as HttpError).status).toBe(422);
+    }
+  });
+
+  it("a 401 stays an HttpError with its status", async () => {
+    stubFetch(respond({ errors: { title: "is required" } }, { status: 401 }));
+
+    const error = await restDataProvider({ apiUrl })
+      .create("posts", { data: {} })
+      .catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(HttpError);
+    expect(error).not.toBeInstanceOf(ValidationError);
+    expect((error as HttpError).status).toBe(401);
+  });
+
+  it("a 422 from a read stays an HttpError", async () => {
+    stubFetch(respond({ errors: { title: "is required" } }, { status: 422 }));
+
+    const error = await restDataProvider({ apiUrl })
+      .getOne("posts", { id: 1 })
+      .catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(HttpError);
+  });
+
+  it("toError replaces the mapping", async () => {
+    class ApiError extends Error {}
+    const toError = vi.fn(
+      (error: HttpError) => new ApiError(`api ${error.status}`),
+    );
+    const provider = restDataProvider({ apiUrl, toError });
+
+    stubFetch(respond({ errors: { title: "is required" } }, { status: 422 }));
+    const created = await provider
+      .create("posts", { data: {} })
+      .catch((e: unknown) => e);
+    stubFetch(respond({ message: "nope" }, { status: 500 }));
+    const read = await provider
+      .getOne("posts", { id: 1 })
+      .catch((e: unknown) => e);
+
+    expect(created).toBeInstanceOf(ApiError);
+    expect(created).not.toBeInstanceOf(ValidationError);
+    expect((created as Error).message).toBe("api 422");
+    expect(read).toBeInstanceOf(ApiError);
+    expect((read as Error).message).toBe("api 500");
   });
 });
