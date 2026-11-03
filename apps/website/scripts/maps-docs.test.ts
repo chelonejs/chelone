@@ -196,6 +196,11 @@ it("every component the maps page names is exported by the same maps, maps/draw 
   }
 });
 
+it("the maps page says BBoxInput takes no tools prop", () => {
+  expect(flat).toMatch(/`BBoxInput` also leaves out `tools`/);
+  expect(flat).toMatch(/except on `BBoxInput`, which takes no `tools`/);
+});
+
 it("every maps page example imports a name from the subpath that exports it", () => {
   const examples = fences.filter((fence) =>
     ["ts", "tsx", "vue"].includes(fence.lang),

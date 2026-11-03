@@ -261,7 +261,7 @@ user drew and the field shows the message, so a user can fix a shape and not
 draw it again.
 
 Every shape input takes the props of `ShapeInput` but for `kind`, which each
-input sets. Those include `label`, `helperText`, `validate`, `tools`,
+input sets. `BBoxInput` also leaves out `tools`: its toolbar is fixed. Those include `label`, `helperText`, `validate`, `tools`,
 `disabled`, `defaultCenter`, `zoom`, `height`, `mapStyle`, `shapeStyle`,
 `fitBounds` and `onCommit`. Terra Draw reads its modes, snapping and styles once
 when the input mounts: change `key` to rebuild it.
@@ -270,7 +270,8 @@ when the input mounts: change `key` to rebuild it.
 
 Each input has default tools and a stored value. The tools are the toolbar
 buttons, in order: `draw-point`, `draw-line`, `draw-polygon`, `draw-rectangle`,
-`draw-circle`, `cut`, `edit`, `move` and `delete`. Pass `tools` to replace them.
+`draw-circle`, `cut`, `edit`, `move` and `delete`. Pass `tools` to replace them,
+except on `BBoxInput`, which takes no `tools`.
 
 | Input                     | Default tools                                                                | Stored value                                                  |
 | ------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------- |
