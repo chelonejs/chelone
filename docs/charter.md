@@ -108,7 +108,8 @@ chelone/ (monorepo)
 
 ### 5.2 The boundary rule (lint-enforced)
 
-`@chelone/core` **may** import `@tanstack/query-core`, `@tanstack/form-core`, `zod`. It **may
+`@chelone/core` **may** import `@tanstack/query-core`, `@tanstack/form-core`, `zod`, `dot.paths`
+(types-only, so a `dependencies` entry: core's published `.d.ts` imports it). It **may
 not** import `react`, `react-dom`, `react-hook-form`, or `react-router`. A Biome
 `noRestrictedImports` rule (the same mechanism shadmin uses for its ra-core seam) enforces this
 in CI. **This one rule is what keeps Vue/Svelte possible without building them.** (Amended: the
