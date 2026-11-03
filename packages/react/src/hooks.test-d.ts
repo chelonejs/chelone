@@ -1,0 +1,48 @@
+import { defineResources } from "@chelone/core";
+import { expectTypeOf, it } from "vitest";
+import { z } from "zod";
+import { useDelete, useUpdate } from "./hooks";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+type R = typeof resources;
+type Post = { id: number; title: string };
+
+// Type-only: the bodies below are checked, never run.
+it("an undoable useUpdate and useDelete type mutateAsync as the record or nothing", async () => {
+  const update = useUpdate<R, "posts">("posts", { mutationMode: "undoable" });
+  const del = useDelete<R, "posts">("posts", { mutationMode: "undoable" });
+
+  const updated = await update.mutateAsync({
+    id: 1,
+    data: { title: "x" },
+    previousData: { id: 1, title: "y" },
+  });
+  expectTypeOf(updated).toEqualTypeOf<Post | void>();
+  // @ts-expect-error an undoable mutateAsync may resolve nothing
+  const updatedPost: Post = updated;
+
+  const deleted = await del.mutateAsync({
+    id: 1,
+    previousData: { id: 1, title: "y" },
+  });
+  expectTypeOf(deleted).toEqualTypeOf<Post | void>();
+  // @ts-expect-error an undoable mutateAsync may resolve nothing
+  const deletedPost: Post = deleted;
+
+  void [updatedPost, deletedPost];
+});
+
+it("mutate still takes an onSuccess option on the update and delete results", () => {
+  const update = useUpdate<R, "posts">("posts", { mutationMode: "undoable" });
+  update.mutate(
+    { id: 1, data: { title: "x" }, previousData: { id: 1, title: "y" } },
+    { onSuccess: () => {} },
+  );
+  const del = useDelete<R, "posts">("posts");
+  del.mutate(
+    { id: 1, previousData: { id: 1, title: "y" } },
+    { onSuccess: () => {} },
+  );
+});

@@ -131,10 +131,10 @@ export function useUpdate<
   };
   return {
     ...mutation,
-    mutate: mutate as unknown as typeof mutation.mutate,
-    mutateAsync: (async (params: UpdateParams<RecordOf<TResources, TName>>) => {
+    mutate,
+    mutateAsync: async (params: UpdateParams<RecordOf<TResources, TName>>) => {
       mutate(params);
-    }) as unknown as typeof mutation.mutateAsync,
+    },
   };
 }
 
@@ -161,10 +161,10 @@ export function useDelete<
   };
   return {
     ...mutation,
-    mutate: mutate as unknown as typeof mutation.mutate,
-    mutateAsync: (async (params: DeleteParams<RecordOf<TResources, TName>>) => {
+    mutate,
+    mutateAsync: async (params: DeleteParams<RecordOf<TResources, TName>>) => {
       mutate(params);
-    }) as unknown as typeof mutation.mutateAsync,
+    },
   };
 }
 

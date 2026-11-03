@@ -35,6 +35,20 @@ import { useCheloneContext } from "../context";
 import { useUndoable } from "./undoable";
 
 /**
+ * A mutation whose `mutate` / `mutateAsync` are swapped for the undoable pair,
+ * the state refs untouched. Naming it keeps the hook's inferred type
+ * declaration-emittable: spreading vue-query's refs over a generic record type
+ * would expand to `@vue/shared` types a `.d.ts` cannot name.
+ */
+type Undoable<TMutation, TParams> = Omit<
+  TMutation,
+  "mutate" | "mutateAsync"
+> & {
+  mutate: (params: TParams) => void;
+  mutateAsync: (params: TParams) => Promise<void>;
+};
+
+/**
  * Create mutation for `resource` — the Vue twin of `@chelone/react`'s
  * `useCreate(resource)`. Call `.mutateAsync({ data })` to dispatch; the
  * resource's caches are invalidated on settle. Takes no mutation mode (create
@@ -66,7 +80,7 @@ export function useUpdate<
   // is fire-and-forget (the server call is withheld until the undo window
   // closes); `mutateAsync` resolves once the undoable is enqueued, not on the
   // deferred server response. Only the two action functions are swapped — the
-  // reactive state refs (`isPending`, …) stay the same objects.
+  // spread keeps the reactive state refs (`isPending`, …) as the same objects.
   const mutate = (params: UpdateParams<RecordOf<TResources, TName>>) => {
     runUndoable({
       queryKeys: [[resource]],
@@ -82,13 +96,17 @@ export function useUpdate<
       messageArgs: { smart_count: 1 },
     });
   };
-  mutation.mutate = mutate as unknown as typeof mutation.mutate;
-  mutation.mutateAsync = (async (
-    params: UpdateParams<RecordOf<TResources, TName>>,
-  ) => {
-    mutate(params);
-  }) as unknown as typeof mutation.mutateAsync;
-  return mutation;
+  const undoable: Undoable<
+    typeof mutation,
+    UpdateParams<RecordOf<TResources, TName>>
+  > = {
+    ...mutation,
+    mutate,
+    mutateAsync: async (params) => {
+      mutate(params);
+    },
+  };
+  return undoable;
 }
 
 /**
@@ -119,13 +137,17 @@ export function useDelete<
       messageArgs: { smart_count: 1 },
     });
   };
-  mutation.mutate = mutate as unknown as typeof mutation.mutate;
-  mutation.mutateAsync = (async (
-    params: DeleteParams<RecordOf<TResources, TName>>,
-  ) => {
-    mutate(params);
-  }) as unknown as typeof mutation.mutateAsync;
-  return mutation;
+  const undoable: Undoable<
+    typeof mutation,
+    DeleteParams<RecordOf<TResources, TName>>
+  > = {
+    ...mutation,
+    mutate,
+    mutateAsync: async (params) => {
+      mutate(params);
+    },
+  };
+  return undoable;
 }
 
 /**
@@ -166,11 +188,13 @@ export function useDeleteMany<
       messageArgs: { smart_count: params.ids.length },
     });
   };
-  mutation.mutate = mutate as unknown as typeof mutation.mutate;
-  mutation.mutateAsync = (async (params: DeleteManyParams) => {
-    mutate(params);
-  }) as unknown as typeof mutation.mutateAsync;
-  return mutation;
+  return {
+    ...mutation,
+    mutate,
+    mutateAsync: async (params: DeleteManyParams) => {
+      mutate(params);
+    },
+  };
 }
 
 /**
@@ -214,11 +238,13 @@ export function useUpdateMany<
       messageArgs: { smart_count: params.ids.length },
     });
   };
-  mutation.mutate = mutate as unknown as typeof mutation.mutate;
-  mutation.mutateAsync = (async (
-    params: UpdateManyParams<RecordOf<TResources, TName>>,
-  ) => {
-    mutate(params);
-  }) as unknown as typeof mutation.mutateAsync;
-  return mutation;
+  return {
+    ...mutation,
+    mutate,
+    mutateAsync: async (
+      params: UpdateManyParams<RecordOf<TResources, TName>>,
+    ) => {
+      mutate(params);
+    },
+  };
 }
