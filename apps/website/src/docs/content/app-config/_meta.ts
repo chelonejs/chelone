@@ -5,6 +5,7 @@ export default [
   { slug: "resource", title: "Resource" },
   { slug: "guessers", title: "Guessers" },
   { slug: "data-providers", title: "Data Providers" },
+  { slug: "rest", title: "REST" },
   { slug: "realtime", title: "Realtime" },
   { slug: "maps", title: "Maps" },
   { slug: "supabase", title: "Supabase" },

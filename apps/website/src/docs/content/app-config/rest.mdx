@@ -1,0 +1,309 @@
+---
+title: "REST"
+description: "restDataProvider: a data provider for a plain REST API, and how to fit it to one that is not."
+---
+
+`@chelone/rest` gives an admin a [data provider](/docs/app-config/data-providers)
+that talks to a plain REST API with `fetch`. The package is framework-free, so
+the same code serves `@chelone/react` and `@chelone/vue`.
+
+Its defaults are a convention. Build a new API to them and
+`restDataProvider({ apiUrl })` needs no other option. Fit it to an existing API
+with the options below.
+
+## Install and setup
+
+```bash
+pnpm add @chelone/rest
+```
+
+```tsx title="src/App.tsx"
+import { Admin, Resource } from "@chelone/react";
+import { restDataProvider } from "@chelone/rest";
+
+const dataProvider = restDataProvider({ apiUrl: "https://api.example.com" });
+
+export const App = () => (
+  <Admin dataProvider={dataProvider}>
+    <Resource name="posts" />
+  </Admin>
+);
+```
+
+```vue title="src/App.vue"
+<script setup lang="ts">
+import { Admin, Resource } from "@chelone/vue";
+import { restDataProvider } from "@chelone/rest";
+
+const dataProvider = restDataProvider({ apiUrl: "https://api.example.com" });
+</script>
+
+<template>
+  <Admin :data-provider="dataProvider">
+    <Resource name="posts" />
+  </Admin>
+</template>
+```
+
+`restDataProvider` returns the nine-method `DataProvider`, so it also works with
+`combineDataProviders` and `withLifecycleCallbacks`.
+
+## The default requests
+
+`apiUrl` has its trailing slashes removed. A resource name and an id are
+URL-encoded into the path. Bodies are JSON.
+
+| Verb               | Request                                              | Reads from the response                                  |
+| ------------------ | ---------------------------------------------------- | -------------------------------------------------------- |
+| `getList`          | `GET /posts?page=1&perPage=25&sort=-title&status=draft` | `parseList`, see [the list response](#the-list-response) |
+| `getOne`           | `GET /posts/1`                                       | The body, a JSON object                                  |
+| `getMany`          | `GET /posts?id=1&id=2`                               | `parseList`, keeping `data`                              |
+| `getManyReference` | `GET /posts?author_id=1&page=1&perPage=25`           | Same as `getList`, with `target: id` added to the filter |
+| `create`           | `POST /posts`, body is the record                    | The body, a JSON object                                  |
+| `update`           | `PUT /posts/1`, body is the record                   | The body, or the sent data merged over `previousData` on an empty body |
+| `delete`           | `DELETE /posts/1`                                    | The body when it is an object with an `id`, else `previousData`, or `{ id }` without it |
+| `updateMany`       | One `PUT /posts/<id>` per id                         | The ids                                                  |
+| `deleteMany`       | One `DELETE /posts/<id>` per id                      | The ids                                                  |
+
+So a server needs no bulk endpoint, and a `204 No Content` is a valid answer to
+`update` and `delete`.
+
+### The list query
+
+`getList` sends these query parameters, and `getManyReference` sends the same
+ones:
+
+- `page` and `perPage` for a `{ page, perPage }` pagination. A
+  `{ cursor, limit }` pagination sends `limit`, and `cursor` unless it is
+  `null`.
+- `sort`, a comma-separated list of fields in priority order. A field sorts
+  descending with a leading `-`: `sort=-published_at,title`.
+- Each key of `filter`, as is: `{ status: "draft" }` is `status=draft`. An array
+  repeats the key, a `Date` is an ISO string, and any other object is
+  JSON-encoded. `undefined` and `null` are skipped.
+
+A filter key named `page`, `perPage`, `limit`, `cursor` or `sort` would
+overwrite a parameter above, so the provider throws instead. Rename one with
+`listQuery`.
+
+### The list response
+
+`getList` accepts either body:
+
+```json
+[{ "id": 1, "title": "Hello" }]
+```
+
+```json
+{
+  "data": [{ "id": 1, "title": "Hello" }],
+  "total": 42,
+  "pageInfo": { "hasNextPage": true }
+}
+```
+
+- `total` is the number of every match, not of the page. It comes from
+  `body.total`, or from the `X-Total-Count` header when the body has none. A
+  browser hides that header from a cross-origin page unless the server sends
+  `Access-Control-Expose-Headers: X-Total-Count`.
+- `pageInfo` is read when it is an object. See
+  [Optional total](/docs/app-config/data-providers#optional-total) for what a
+  list does without `total`.
+- Any other body throws an error that names `parseList`.
+
+## Options
+
+`apiUrl` is the only required option.
+
+| Option           | Default                  | What it does                                                         |
+| ---------------- | ------------------------ | -------------------------------------------------------------------- |
+| `apiUrl`         | none                     | The base URL, with no resource in it.                                |
+| `path`           | `encodeURIComponent`     | `(resource) => string`: the URL segment of a resource.               |
+| `headers`        | none                     | A `HeadersInit`, or a function returning one or a promise of one.    |
+| `credentials`    | the `fetch` default      | `RequestCredentials`. `"include"` sends cookies.                     |
+| `updateMethod`   | `"PUT"`                  | `"PUT"` or `"PATCH"`: the verb `update` sends.                       |
+| `listQuery`      | `defaultListQuery`       | `(params) => query`: the query parameters of `getList`.              |
+| `getManyQuery`   | `(ids) => ({ id: ids })` | The query parameters of a batched `getMany`.                         |
+| `batchGetMany`   | `true`                   | `false` makes `getMany` call `getOne` once per id.                   |
+| `parseList`      | `defaultParseList`       | `(response, resource) => { data, total?, pageInfo? }`                |
+| `parseRecord`    | `defaultParseRecord`     | `(response, resource) => record`                                     |
+| `toError`        | 422 to `ValidationError` | `(error: HttpError) => Error`: the error a call rejects with.        |
+
+`response` in `parseList` and `parseRecord` is what `fetchUtils.fetchJson`
+resolves: `{ status, statusText, headers, body, json }`. `parseRecord` also
+reads the body of `create` and a non-empty `update`. Passing it makes `delete`
+parse every non-empty response with it, where by default `delete` falls back to
+`previousData` for a body that is not a record.
+
+```ts
+restDataProvider({
+  apiUrl: "https://api.example.com/v2",
+  path: (resource) => `admin/${resource}`, // GET /v2/admin/posts
+  updateMethod: "PATCH",
+  getManyQuery: (ids) => ({ ids: ids.join(",") }), // ?ids=1,2
+});
+```
+
+### Per-call `meta`
+
+`meta` is yours, and this provider reads two keys from it. Both apply to that
+call only and win over the options.
+
+- `meta.headers` is added to the call's headers.
+- `meta.query` is added to the call's query parameters.
+
+```tsx
+useGetList("posts", { meta: { query: { include: "author" } } });
+```
+
+## Fit it to an existing API
+
+Change only what differs. This example fits json-server 1.x, which pages with
+`_page` and `_per_page`, sorts with `_sort`, and answers a list with an object:
+
+```json
+{
+  "first": 1,
+  "prev": null,
+  "next": 2,
+  "last": 5,
+  "pages": 5,
+  "items": 50,
+  "data": [{ "id": "1", "title": "Hello" }]
+}
+```
+
+```ts
+import { restDataProvider } from "@chelone/rest";
+
+export const dataProvider = restDataProvider({
+  apiUrl: "http://localhost:3000",
+  listQuery: ({ pagination, sort, filter }) => ({
+    ...(pagination && "page" in pagination
+      ? { _page: pagination.page, _per_page: pagination.perPage }
+      : {}),
+    // json-server sorts descending with a leading "-", as the default does.
+    ...(sort === undefined
+      ? {}
+      : {
+          _sort: [sort]
+            .flat()
+            .map(({ field, order }) => (order === "DESC" ? `-${field}` : field))
+            .join(","),
+        }),
+    ...filter,
+  }),
+  parseList: ({ json }) => {
+    const { data, items, prev, next } = json as {
+      data: Record<string, unknown>[];
+      items: number;
+      prev: number | null;
+      next: number | null;
+    };
+    return {
+      data,
+      total: items,
+      pageInfo: { hasPreviousPage: prev !== null, hasNextPage: next !== null },
+    };
+  },
+  // Fetch each id with its own request rather than rely on a multi-id filter.
+  batchGetMany: false,
+});
+```
+
+- `listQuery` renames the pagination keys. `filter` spreads last, so a filter
+  field still becomes a plain parameter.
+- `parseList` turns `items` into `total`, and `prev` and `next` into
+  `pageInfo`.
+- Every record verb already fits: json-server answers `getOne`, `create`,
+  `update` and `delete` with the record.
+- Check the shape against your json-server version: 0.17 returns an array and an
+  `X-Total-Count` header, which the defaults read, and pages with `_page` and
+  `_limit`.
+
+## Auth
+
+### A bearer token
+
+`headers` may be a function. It runs on every call, so a refreshed token is
+picked up without building a new provider.
+
+```ts
+const dataProvider = restDataProvider({
+  apiUrl: "https://api.example.com",
+  headers: async () => ({ Authorization: `Bearer ${await getToken()}` }),
+});
+```
+
+A function and a `meta.headers` object combine: the call's headers win on a
+name both set.
+
+### A cookie session
+
+For a session cookie, send credentials with every request:
+
+```ts
+const dataProvider = restDataProvider({
+  apiUrl: "https://api.example.com",
+  credentials: "include",
+});
+```
+
+A cross-origin API must answer with `Access-Control-Allow-Credentials: true` and
+a specific `Access-Control-Allow-Origin`, not `*`.
+
+### Reacting to 401
+
+A non-2xx response rejects with an `HttpError`, so the auth provider's
+`checkError` can log the user out on a 401 or 403. See
+[HttpError](/docs/app-config/data-providers#httperror). A network failure
+rejects with the error `fetch` threw.
+
+## Validation errors
+
+`create`, `update` and `updateMany` turn a `422` into a `ValidationError`, which
+the form shows next to the fields. The body must have an `errors` object that
+maps a field to one message or an array of them:
+
+```json
+{
+  "errors": {
+    "title": "Title is required",
+    "tags": ["Too many tags", "Tags must be unique"]
+  }
+}
+```
+
+- The field is the form's source path, so `author.name` reaches a nested input.
+- A body with no message at all, such as `{ "errors": {} }`, stays an
+  `HttpError` and notifies as any other failure.
+- Any other status, and every other verb, rejects with the `HttpError`.
+
+See [Server-side validation](/docs/app-config/data-providers#server-side-validation)
+for how the form reads it.
+
+### `toError`
+
+`toError` replaces that default for every verb. It receives each `HttpError` and
+returns the error the call rejects with. Return the argument to leave an error
+alone. Because it replaces the default, a 422 in the `errors` shape above stays
+an `HttpError` unless `toError` converts it.
+
+```ts
+import { ValidationError } from "@chelone/core";
+import { restDataProvider } from "@chelone/rest";
+
+export const dataProvider = restDataProvider({
+  apiUrl: "https://api.example.com",
+  toError: (error) => {
+    const { violations } = (error.body ?? {}) as {
+      violations?: { propertyPath: string; message: string }[];
+    };
+    if (error.status !== 422 || !Array.isArray(violations)) return error;
+    return new ValidationError(
+      error.message,
+      Object.fromEntries(violations.map((v) => [v.propertyPath, v.message])),
+    );
+  },
+});
+```

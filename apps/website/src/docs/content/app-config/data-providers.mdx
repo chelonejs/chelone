@@ -93,6 +93,14 @@ count, as a cursor API often cannot, leaves it out. Pagination then adapts:
   than `perPage` or empty.
 - `ReferenceManyCount` reads `total` and renders nothing when it is missing.
 
+## The providers Chelone ships
+
+- `restDataProvider` from `@chelone/rest` talks to a plain REST API. See
+  [REST](/docs/app-config/rest).
+- `fakeDataProvider` from `@chelone/core` keeps records in memory, below.
+- `@chelone/supabase` reads and writes tables through PostgREST. See
+  [Supabase](/docs/app-config/supabase).
+
 ## The in-memory provider
 
 `fakeDataProvider` implements the full contract over an in-memory seed — no
