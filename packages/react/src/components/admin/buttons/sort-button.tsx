@@ -10,6 +10,7 @@
  * are mechanical import repoints.
  */
 
+import type { SourceProp } from "@chelone/core";
 import { ArrowUpDown, ChevronDown } from "lucide-react";
 import * as React from "react";
 import { memo } from "react";
@@ -42,7 +43,7 @@ const inverseOrder = (order: string): "ASC" | "DESC" =>
 const DEFAULT_SORT = { field: "id", order: "DESC" as const };
 
 interface SortButtonProps extends ButtonProps {
-  fields: string[];
+  fields: SourceProp[];
   icon?: React.ReactNode;
   label?: string;
   resource?: string;

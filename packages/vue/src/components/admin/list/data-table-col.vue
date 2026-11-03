@@ -1,9 +1,9 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 
 /** Props for {@link DataTableCol}. */
 export interface DataTableColProps {
-  source?: string;
+  source?: SourceProp;
   label?: string;
   /** Applied to both the header and the body cells. */
   class?: string;
