@@ -110,7 +110,6 @@ export const blocks = [
       { path: "src/lib/are-ids-equal.ts", type: "registry:lib" },
       { path: "src/lib/field-types.ts", type: "registry:lib" },
       { path: "src/lib/gen-memo.ts", type: "registry:lib" },
-      { path: "src/lib/unknown-types.ts", type: "registry:lib" },
       { path: "src/lib/utils.ts", type: "registry:lib" },
     ],
   },

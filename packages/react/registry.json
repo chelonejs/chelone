@@ -1992,10 +1992,6 @@
           "type": "registry:lib"
         },
         {
-          "path": "src/lib/unknown-types.ts",
-          "type": "registry:lib"
-        },
-        {
           "path": "src/lib/utils.ts",
           "type": "registry:lib"
         }
@@ -5685,7 +5681,7 @@
           "type": "registry:lib"
         }
       ],
-      "registryDependencies": ["@chelone/lib-unknown-types"],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "library"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5696,19 +5692,6 @@
       "files": [
         {
           "path": "src/lib/gen-memo.ts",
-          "type": "registry:lib"
-        }
-      ],
-      "categories": ["chelone", "library"],
-      "author": "Chelone <https://chelone.dev>"
-    },
-    {
-      "name": "lib-unknown-types",
-      "type": "registry:lib",
-      "title": "Lib Unknown Types",
-      "files": [
-        {
-          "path": "src/lib/unknown-types.ts",
           "type": "registry:lib"
         }
       ],
