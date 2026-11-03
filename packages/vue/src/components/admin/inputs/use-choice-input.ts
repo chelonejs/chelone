@@ -105,9 +105,7 @@ export function useChoiceInput(
   const { getChoiceText, getChoiceValue, getDisableValue } = useChoices({
     optionText:
       options.optionText ??
-      (isFromReference
-        ? (getRecordRepresentation as unknown as OptionText)
-        : options.defaultOptionText),
+      (isFromReference ? getRecordRepresentation : options.defaultOptionText),
     optionValue: options.optionValue,
     disableValue: options.disableValue,
     translateChoice: options.translateChoice ?? !isFromReference,

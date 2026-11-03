@@ -14,7 +14,10 @@ import { renderHook } from "@testing-library/react";
 import { isValidElement, type ReactNode } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { ResourceContextProvider, ResourceRegistryProvider } from "../resource";
-import { useGetRecordRepresentation } from "./use-get-record-representation";
+import {
+  useGetRecordRepresentation,
+  useGetRecordRepresentationText,
+} from "./use-get-record-representation";
 
 interface WrapperOpts {
   registry: ResourceRegistry;
@@ -127,5 +130,58 @@ describe("useGetRecordRepresentation", () => {
     const first = result.current;
     rerender();
     expect(result.current).toBe(first);
+  });
+});
+
+describe("useGetRecordRepresentationText", () => {
+  it("the text form reads a string path", () => {
+    const registry = registryWith("posts", "author.name");
+    const { result } = renderHook(
+      () => useGetRecordRepresentationText("posts"),
+      { wrapper: makeWrapper({ registry, resource: "posts" }) },
+    );
+    expect(result.current({ id: 1, author: { name: "Ada" } })).toBe("Ada");
+    expect(result.current({ id: 2, author: {} })).toBe("");
+  });
+
+  it("the text form uses a function's string result", () => {
+    const registry = registryWith(
+      "posts",
+      (r: { title: string }) => `Post: ${r.title}`,
+    );
+    const { result } = renderHook(
+      () => useGetRecordRepresentationText("posts"),
+      { wrapper: makeWrapper({ registry, resource: "posts" }) },
+    );
+    expect(result.current({ id: 1, title: "Hello" })).toBe("Post: Hello");
+  });
+
+  it("the text form falls back to the default chain for an element", () => {
+    const registry = registryWith("posts", <span>custom</span>);
+    const { result } = renderHook(
+      () => useGetRecordRepresentationText("posts"),
+      { wrapper: makeWrapper({ registry, resource: "posts" }) },
+    );
+    expect(result.current({ id: 1, name: "N" })).toBe("N");
+    expect(result.current({ id: 2, title: "T" })).toBe("T");
+    expect(result.current({ id: 3 })).toBe("#3");
+  });
+
+  it("the text form falls back to the default chain for a function returning an element", () => {
+    const registry = registryWith("posts", () => <b>bold</b>);
+    const { result } = renderHook(
+      () => useGetRecordRepresentationText("posts"),
+      { wrapper: makeWrapper({ registry, resource: "posts" }) },
+    );
+    expect(result.current({ id: 1, name: "N" })).toBe("N");
+  });
+
+  it("the text form uses a function's numeric result as a string", () => {
+    const registry = registryWith("posts", (r: { id: number }) => r.id * 2);
+    const { result } = renderHook(
+      () => useGetRecordRepresentationText("posts"),
+      { wrapper: makeWrapper({ registry, resource: "posts" }) },
+    );
+    expect(result.current({ id: 4 })).toBe("8");
   });
 });

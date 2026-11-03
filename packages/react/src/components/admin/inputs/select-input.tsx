@@ -18,7 +18,7 @@ import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
-import { useGetRecordRepresentation } from "../../../label";
+import { useGetRecordRepresentationText } from "../../../label";
 import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
 import type { InputProps } from "../input-props";
 
@@ -105,13 +105,10 @@ function SelectInput(props: SelectInputProps) {
     );
   }
 
-  const getRecordRepresentation = useGetRecordRepresentation(resource);
+  const getRecordRepresentationText = useGetRecordRepresentationText(resource);
   const { getChoiceText, getChoiceValue, getDisableValue } = useChoices({
     optionText:
-      optionText ??
-      (isFromReference
-        ? (getRecordRepresentation as unknown as OptionText)
-        : undefined),
+      optionText ?? (isFromReference ? getRecordRepresentationText : undefined),
     optionValue,
     disableValue,
     translateChoice: translateChoice ?? !isFromReference,

@@ -48,6 +48,16 @@ function isPresent(value: unknown): value is string | number {
 /** The resolver `useGetRecordRepresentation` returns. */
 export type GetRecordRepresentation = (record: unknown) => ReactNode;
 
+/** The default chain `name → title → label → reference → #${id}`. */
+function defaultRepresentation(record: unknown): string | number {
+  const chain = record as DefaultChainRecord;
+  if (isPresent(chain.name)) return chain.name;
+  if (isPresent(chain.title)) return chain.title;
+  if (isPresent(chain.label)) return chain.label;
+  if (isPresent(chain.reference)) return chain.reference;
+  return `#${String(chain.id)}`;
+}
+
 export function useGetRecordRepresentation(
   resource?: string,
 ): GetRecordRepresentation {
@@ -65,12 +75,39 @@ export function useGetRecordRepresentation(
       if (isValidElement(recordRepresentation)) {
         return recordRepresentation;
       }
-      const chain = record as DefaultChainRecord;
-      if (isPresent(chain.name)) return chain.name;
-      if (isPresent(chain.title)) return chain.title;
-      if (isPresent(chain.label)) return chain.label;
-      if (isPresent(chain.reference)) return chain.reference;
-      return `#${String(chain.id)}`;
+      return defaultRepresentation(record);
+    },
+    [recordRepresentation],
+  );
+}
+
+/**
+ * `useGetRecordRepresentationText(resource?)` is the plain-text form for
+ * choice labels and search, where a `ReactNode` cannot go. A string path gives
+ * `String` of the value at it (`""` when absent); a function's result is used
+ * when it is a string or a number; an element, or any other function result,
+ * falls back to the default chain.
+ */
+export function useGetRecordRepresentationText(
+  resource?: string,
+): (record: unknown) => string {
+  const { recordRepresentation } = useResourceDefinition({ resource });
+
+  return useCallback(
+    (record: unknown): string => {
+      if (record == null) return "";
+      if (typeof recordRepresentation === "function") {
+        const result = (recordRepresentation as (r: unknown) => unknown)(
+          record,
+        );
+        if (typeof result === "string" || typeof result === "number") {
+          return String(result);
+        }
+      } else if (typeof recordRepresentation === "string") {
+        const value = getAtPath(record, recordRepresentation);
+        return value == null ? "" : String(value);
+      }
+      return String(defaultRepresentation(record));
     },
     [recordRepresentation],
   );
