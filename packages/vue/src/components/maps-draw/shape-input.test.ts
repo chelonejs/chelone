@@ -781,6 +781,37 @@ describe("ShapeInput cut tool", () => {
     ).toEqual([stored]);
   });
 
+  it("a cut keeps the FeatureCollection's name and crs", async () => {
+    const crs = { type: "name", properties: { name: "EPSG:4326" } };
+    const { draw, wrapper, value } = await setup(
+      { kind: "FeatureCollection" },
+      {
+        type: "FeatureCollection",
+        name: "sites",
+        crs,
+        features: [
+          {
+            type: "Feature",
+            geometry: field(0, 0, 10, 10),
+            properties: {},
+          },
+        ],
+      },
+    );
+
+    await drawCutter(wrapper, draw, field(5, -5, 15, 5));
+
+    const stored = value() as {
+      name: string;
+      crs: unknown;
+      features: { geometry: { coordinates: number[][][] } }[];
+    };
+    expect(stored.name).toBe("sites");
+    expect(stored.crs).toEqual(crs);
+    expect(stored.features).toHaveLength(1);
+    expect(stored.features[0]?.geometry.coordinates[0]).toHaveLength(7);
+  });
+
   it("commits nothing when the cutter misses every polygon", async () => {
     const { draw, wrapper, commits, value, dirty } = await setup(
       {},
