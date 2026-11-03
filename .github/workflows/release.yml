@@ -12,7 +12,7 @@ concurrency:
 jobs:
   release:
     if: github.repository == 'chelonejs/chelone' && github.ref == 'refs/heads/main'
-    runs-on: [self-hosted, chelone]
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: write
