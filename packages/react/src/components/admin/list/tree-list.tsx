@@ -1,5 +1,6 @@
 import {
   buildRecordTree,
+  getAtPath,
   type Identifier,
   type LooseRecord,
   type RecordTreeNode,
@@ -47,15 +48,6 @@ export interface TreeListProps {
   empty?: ReactNode;
   className?: string;
 }
-
-const readPath = (record: unknown, path: string): unknown =>
-  path
-    .split(".")
-    .reduce<unknown>(
-      (value, key) =>
-        value == null ? undefined : (value as Record<string, unknown>)[key],
-      record,
-    );
 
 /** What every `TreeListNode` needs from the `<TreeList>` above it. */
 interface TreeListState {
@@ -328,12 +320,12 @@ function TreeList({
     hrefFor: (record) => (onSelect ? undefined : linkTo(record)),
     isSelectable: (record) => !!onSelect || linkTo(record) !== undefined,
     titleFor(record) {
-      const value = titleSource ? readPath(record, titleSource) : undefined;
+      const value = titleSource ? getAtPath(record, titleSource) : undefined;
       return typeof value === "string" ? value : getRepresentation(record);
     },
     iconFor(record) {
       if (!iconSource || !iconMap) return undefined;
-      const value = readPath(record, iconSource);
+      const value = getAtPath(record, iconSource);
       return value == null ? undefined : iconMap[String(value)];
     },
     isTabStop: (id) => tabStop === id,

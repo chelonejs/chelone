@@ -219,6 +219,29 @@ describe("<TreeList>", () => {
     ).not.toBeNull();
   });
 
+  it("titleSource and iconSource read a bracket path", async () => {
+    const nested = CATEGORIES.map((category) => ({
+      id: category.id,
+      parent_id: category.parent_id,
+      meta: {
+        labels: [{ text: category.slug }],
+        kinds: [category.kind],
+      },
+    }));
+    mount({
+      dataProvider: fakeDataProvider({ categories: nested }),
+      tree: {
+        titleSource: "meta.labels[0].text",
+        iconSource: "meta.kinds[0]",
+        iconMap: { folder: FolderIcon, file: FileIcon },
+      },
+    });
+    await screen.findByRole("tree");
+
+    expect(titles()).toEqual(["a", "b"]);
+    expect(row("a").querySelector("[data-testid=folder-icon]")).not.toBeNull();
+  });
+
   it("onSelect receives the record when a row is clicked or Enter is pressed", async () => {
     const onSelect = vi.fn();
     mount({ tree: { onSelect } });
