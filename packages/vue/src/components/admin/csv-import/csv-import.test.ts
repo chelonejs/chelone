@@ -7,6 +7,7 @@
 import {
   type CsvImportReport,
   type DataProvider,
+  downloadCSV,
   fakeDataProvider,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
@@ -16,13 +17,12 @@ import { defineComponent, h, type VNodeChild } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
 import Admin from "../../../admin/admin.vue";
-import { downloadCSV } from "../buttons/export";
 import List from "../view/list.vue";
 import CsvImport from "./csv-import.vue";
 import { useCsvImport } from "./use-csv-import";
 
-vi.mock("../buttons/export", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../buttons/export")>()),
+vi.mock("@chelone/core", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@chelone/core")>()),
   downloadCSV: vi.fn(),
 }));
 

@@ -2,6 +2,12 @@
 // plus the `admin/` SFCs (list/datatable, edit/create, inputs, fields, buttons)
 // wired to the Task 5/6 controller + form composables.
 
+export {
+  defaultExporter,
+  downloadCSV,
+  type Exporter,
+  recordsToCSV,
+} from "@chelone/core";
 // --- admin: auth (V3-a app shell + V3-c auth pages) -----------------------
 export type { AccessDeniedProps } from "./admin/auth/access-denied.vue";
 export { default as AccessDenied } from "./admin/auth/access-denied.vue";
@@ -49,12 +55,6 @@ export type { DualApprovalButtonProps } from "./admin/buttons/dual-approval-butt
 export { default as DualApprovalButton } from "./admin/buttons/dual-approval-button.vue";
 export type { EditButtonProps } from "./admin/buttons/edit-button.vue";
 export { default as EditButton } from "./admin/buttons/edit-button.vue";
-export {
-  defaultExporter,
-  downloadCSV,
-  type Exporter,
-  recordsToCSV,
-} from "./admin/buttons/export";
 export type { ExportButtonProps } from "./admin/buttons/export-button.vue";
 export { default as ExportButton } from "./admin/buttons/export-button.vue";
 export type {
