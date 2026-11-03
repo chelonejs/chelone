@@ -6174,7 +6174,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils", "@chelone/maps-provider"],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
