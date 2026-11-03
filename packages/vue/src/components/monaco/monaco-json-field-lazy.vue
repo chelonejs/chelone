@@ -8,6 +8,7 @@ import { loader, VueMonacoEditor } from "@guolao/vue-monaco-editor";
 import type { editor } from "monaco-editor";
 import * as monaco from "monaco-editor";
 import { computed, shallowRef } from "vue";
+import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import { useFieldValue } from "../../record/use-field-value";
 import {
@@ -28,11 +29,16 @@ const props = withDefaults(defineProps<MonacoJsonFieldProps>(), {
   maxHeight: 400,
 });
 
+defineSlots<{ empty?: () => unknown }>();
+
+const translate = useTranslate();
 const value = useFieldValue({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
 });
+
+const missing = computed(() => value.value == null);
 
 const text = computed(() =>
   typeof value.value === "string"
@@ -68,7 +74,12 @@ const options = computed<editor.IStandaloneEditorConstructionOptions>(() => ({
 </script>
 
 <template>
+  <slot v-if="missing && $slots.empty" name="empty" />
+  <span v-else-if="missing && empty" :class="cn(props.class)">{{
+    translate(empty, { _: empty })
+  }}</span>
   <div
+    v-else
     ref="container"
     :class="cn('overflow-hidden rounded-md border', props.class)"
   >

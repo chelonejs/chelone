@@ -76,7 +76,11 @@ afterEach(() => {
   for (const w of mounted.splice(0)) w.unmount();
 });
 
-function mountField(props: MonacoJsonFieldProps, theme: Theme = "light") {
+function mountField(
+  props: MonacoJsonFieldProps,
+  theme: Theme = "light",
+  slots?: Record<string, () => unknown>,
+) {
   const Harness = defineComponent({
     setup() {
       provideCheloneContext({
@@ -87,7 +91,7 @@ function mountField(props: MonacoJsonFieldProps, theme: Theme = "light") {
         h(
           ThemeProvider,
           { defaultTheme: theme, storageKey: `t-${theme}` },
-          () => h(MonacoJsonField, props),
+          () => h(MonacoJsonField, props, slots),
         );
     },
   });
@@ -147,6 +151,45 @@ describe("MonacoJsonField", () => {
       mountField({ source: "missing", record: { id: 1 } }),
     );
     expect(el.textContent).toBe("null");
+  });
+
+  it("shows the empty text instead of the editor when the value is missing", async () => {
+    const wrapper = mountField({
+      source: "missing",
+      empty: "No metadata",
+      record: { id: 1 },
+    });
+    await vi.waitFor(() => expect(wrapper.text()).toContain("No metadata"));
+    expect(wrapper.find('[data-testid="editor"]').exists()).toBe(false);
+    expect(wrapper.find("[empty]").exists()).toBe(false);
+  });
+
+  it("renders the #empty slot when given", async () => {
+    const wrapper = mountField(
+      { source: "missing", empty: "No metadata", record: { id: 1 } },
+      "light",
+      { empty: () => h("p", { "data-testid": "empty" }, "Nothing here") },
+    );
+    await vi.waitFor(() =>
+      expect(wrapper.get('[data-testid="empty"]').text()).toBe("Nothing here"),
+    );
+    expect(wrapper.text()).not.toContain("No metadata");
+    expect(wrapper.find('[data-testid="editor"]').exists()).toBe(false);
+  });
+
+  it("ignores empty when the value is present", async () => {
+    const wrapper = mountField(
+      {
+        source: "meta",
+        empty: "No metadata",
+        record: { id: 1, meta: { a: 1 } },
+      },
+      "light",
+      { empty: () => h("p", "Nothing here") },
+    );
+    await editor(wrapper);
+    expect(wrapper.text()).not.toContain("No metadata");
+    expect(wrapper.text()).not.toContain("Nothing here");
   });
 
   it("uses the fixed height when autoHeight is false", async () => {
