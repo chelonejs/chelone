@@ -10,6 +10,8 @@ export interface TextInputProps {
   placeholder?: string;
   disabled?: boolean;
   readonly?: boolean;
+  autocomplete?: string;
+  autofocus?: boolean;
   /** Class applied to the inner `<Input>` control (wrappers reserve trailing room). */
   inputClass?: string;
   class?: string;
@@ -68,6 +70,8 @@ const labelText = computed(() =>
       :placeholder="placeholder"
       :disabled="disabled"
       :readonly="readonly"
+      :autocomplete="autocomplete"
+      :autofocus="autofocus"
       :aria-invalid="invalid"
       :class="inputClass"
       @update:model-value="setValue"
