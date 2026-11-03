@@ -180,6 +180,12 @@ export {
   savedQueriesKey,
 } from "./controller/saved-queries";
 export { resolveNotificationKey } from "./controller/translate-fallback";
+export {
+  defaultExporter,
+  downloadCSV,
+  type Exporter,
+  recordsToCSV,
+} from "./csv/export";
 export { createCsvImportController } from "./csv/import-controller";
 export { matchCsvHeaders } from "./csv/match-headers";
 export { parseCsvWith } from "./csv/parse-with";

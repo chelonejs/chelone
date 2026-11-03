@@ -18,7 +18,8 @@
  * passes its own `exporter` prop — the button never assumes the default.
  */
 
-import type { DataProvider, LooseRecord } from "@chelone/core";
+import type { DataProvider } from "../data/types";
+import type { LooseRecord } from "../resource/record";
 
 /**
  * Turns a page of records into a downloaded file. Called by the export buttons
