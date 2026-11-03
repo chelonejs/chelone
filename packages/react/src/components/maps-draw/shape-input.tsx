@@ -396,12 +396,13 @@ export function ShapeInput({
       ? (controlsRef.current?.refused ?? [])
       : [];
     let features = [...edit.features, ...refused];
-    let prev = now.field.value;
+    const prev = now.field.value;
+    let addHeld = true;
     if (edit.type === "cut") {
       // The tool clears either way; a cut that touched nothing commits nothing.
       setTool(null);
       // The editor holds no polygon with a hole, so the held parts are cut too.
-      // The result then holds every part, and no held part is added back.
+      // The result then holds every part, so `prev` only lends its own members.
       const cut = cutFeatures(
         [...features, ...heldFeatures(now.kind, prev)],
         edit.cutter,
@@ -410,10 +411,11 @@ export function ShapeInput({
       // A single-shape value stores the last feature: a split would lose the rest.
       if (!HOLDS_MANY.has(now.kind) && cut.features.length > 1) return;
       features = cut.features;
-      if (HOLDS_MANY.has(now.kind)) prev = null;
+      addHeld = false;
     }
     const next = featuresToShape(now.kind, features, prev, {
       aspectRatio: now.aspectRatio,
+      addHeld,
     });
     written.current = next;
     now.field.onChange(next);

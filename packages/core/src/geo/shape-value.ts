@@ -22,6 +22,12 @@ export type ShapeValue = GeoJsonValue | GeoBBox;
 export interface FeaturesToShapeOptions {
   /** Width over height of a `BBox` value. */
   aspectRatio?: number;
+  /**
+   * Whether the parts `prev` holds come back. `false` when `features` already
+   * holds every part, as after a cut. A FeatureCollection still keeps its other
+   * members. Defaults to `true`.
+   */
+  addHeld?: boolean;
 }
 
 interface Split {
@@ -195,7 +201,12 @@ function joinMulti(
   }
 }
 
-function heldGeometries(kind: ShapeValueKind, prev: unknown): GeoGeometry[] {
+function heldGeometries(
+  kind: ShapeValueKind,
+  prev: unknown,
+  addHeld: boolean,
+): GeoGeometry[] {
+  if (!addHeld) return [];
   return heldFeatures(kind, prev).flatMap((f) =>
     f.geometry ? [f.geometry] : [],
   );
@@ -214,6 +225,7 @@ export function featuresToShape(
   prev: unknown,
   options: FeaturesToShapeOptions = {},
 ): ShapeValue | null {
+  const addHeld = options.addHeld ?? true;
   switch (kind) {
     case "Point":
     case "LineString":
@@ -226,12 +238,12 @@ export function featuresToShape(
     case "MultiPolygon":
       return joinMulti(kind, [
         ...features.flatMap((f) => (f.geometry ? [f.geometry] : [])),
-        ...heldGeometries(kind, prev),
+        ...heldGeometries(kind, prev, addHeld),
       ]);
     case "GeometryCollection": {
       const geometries = [
         ...features.flatMap((f) => (f.geometry ? [f.geometry] : [])),
-        ...heldGeometries(kind, prev),
+        ...heldGeometries(kind, prev, addHeld),
       ];
       return geometries.length
         ? { type: "GeometryCollection", geometries }
@@ -248,7 +260,9 @@ export function featuresToShape(
       return { ...rest, geometry };
     }
     case "FeatureCollection": {
-      const all = [...features, ...heldFeatures(kind, prev)];
+      const all = addHeld
+        ? [...features, ...heldFeatures(kind, prev)]
+        : features;
       if (!all.length) return null;
       // The old bbox no longer contains the new features.
       const { bbox: _bbox, ...rest } = isGeoFeatureCollection(prev) ? prev : {};
