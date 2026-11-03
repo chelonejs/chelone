@@ -18,6 +18,7 @@ interface Task {
   from?: unknown;
   to?: unknown;
   kind?: string;
+  ranges?: string[];
 }
 
 const event = (
@@ -72,6 +73,23 @@ describe("toCalendarEvents", () => {
     });
     expect(events.map((e) => e.title)).toEqual(["Launch", "Task 2", "Task 3"]);
     expect(events.map((e) => e.color)).toEqual(["blue", undefined, undefined]);
+  });
+
+  it("reads startSource written with a bracket index", () => {
+    const records: Task[] = [
+      { id: 1, ranges: ["2026-05-01", "2026-05-03"] },
+      { id: 2, ranges: ["2026-05-02"] },
+      { id: 3, ranges: [] },
+    ];
+    const events = toCalendarEvents(records, {
+      startSource: "ranges[0]",
+      endSource: "ranges[1]",
+      getTitle: (task: Task) => `Task ${task.id}`,
+    });
+    expect(events.map((e) => e.record.id)).toEqual([1, 2]);
+    expect(events[0]?.start).toEqual(new Date(2026, 4, 1));
+    expect(events[0]?.end).toEqual(new Date(2026, 4, 3));
+    expect(events[1]?.end).toBeUndefined();
   });
 
   it("does not mutate the records", () => {

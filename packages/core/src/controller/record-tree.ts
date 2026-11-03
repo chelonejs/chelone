@@ -4,21 +4,13 @@
  * records, and no record disappears when the data holds a parent cycle.
  */
 
+import { getAtPath } from "../resource/get-at-path";
 import type { Identifier } from "../resource/identifier";
 
 export interface RecordTreeNode<R> {
   record: R;
   children: RecordTreeNode<R>[];
 }
-
-const readPath = (record: unknown, path: string): unknown =>
-  path
-    .split(".")
-    .reduce<unknown>(
-      (value, key) =>
-        value == null ? undefined : (value as Record<string, unknown>)[key],
-      record,
-    );
 
 /**
  * Roots and siblings keep list order, so the data provider's sort decides
@@ -43,7 +35,7 @@ export function buildRecordTree<R extends { id: Identifier }>(
   // parents.get(id) is the id of the node to nest under, or null for a root.
   const parents = new Map<string, string | null>();
   for (const [id, node] of nodes) {
-    const value = readPath(node.record, parentSource);
+    const value = getAtPath(node.record, parentSource);
     const parent = value == null || value === "" ? null : String(value);
     parents.set(
       id,
