@@ -304,6 +304,10 @@ importers:
         version: 3.2.6(@types/debug@4.1.13)(@types/node@22.20.0)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)(stylus@0.57.0)(yaml@2.9.0)
 
   packages/core:
+    dependencies:
+      dot.paths:
+        specifier: ^0.2.0
+        version: 0.2.0
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: ^0.18.0
@@ -4033,6 +4037,10 @@ packages:
   dot-prop@6.0.1:
     resolution: {integrity: sha512-tE7ztYzXHIeyvc7N+hR3oi7FIbf/NIjVP9hmAt3yMXzrQ072/fpjGLx2GxNxGxUl5V73MEqYzioOMoVhGMJ5cA==}
     engines: {node: '>=10'}
+
+  dot.paths@0.2.0:
+    resolution: {integrity: sha512-tgvc6Ihoqkf5JyaeAgQApK5+29U5xFPeiZ9txJJI0mGWZt/kMh12Vj3tbPAXPRPFc4V44g3QJ9WtavXwNorwoA==}
+    engines: {node: '>=18'}
 
   dotenv@17.4.2:
     resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
@@ -11035,6 +11043,8 @@ snapshots:
   dot-prop@6.0.1:
     dependencies:
       is-obj: 2.0.0
+
+  dot.paths@0.2.0: {}
 
   dotenv@17.4.2: {}
 
