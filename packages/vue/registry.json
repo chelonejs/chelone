@@ -6030,7 +6030,7 @@
         }
       ],
       "registryDependencies": ["@chelone/lib-utils", "@chelone/use-map"],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

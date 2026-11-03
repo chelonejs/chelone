@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
+import { useTranslate } from "../../i18n-hooks";
 import { useMapsConfig } from "./maps-provider";
 
 const MapContext = createContext<MapLibreMap | null>(null);
@@ -36,7 +37,7 @@ export interface MapCanvasProps {
   /** Zoom with the mouse wheel. Defaults to true. */
   scrollZoom?: boolean;
   className?: string;
-  /** Rendered once the map has loaded. */
+  /** Rendered once the map has loaded. A map that fails to load shows a text panel instead. */
   children?: ReactNode;
 }
 
@@ -70,7 +71,9 @@ export function MapCanvas({
   }
 
   const container = useRef<HTMLDivElement>(null);
+  const translate = useTranslate();
   const [map, setMap] = useState<MapLibreMap | null>(null);
+  const [failed, setFailed] = useState(false);
   // Read once, when the effect builds the map.
   const initial = useRef({ style, center, zoom, scrollZoom });
   initial.current = { style, center, zoom, scrollZoom };
@@ -87,12 +90,23 @@ export function MapCanvas({
       scrollZoom,
     });
     let active = true;
+    let loaded = false;
+    // A bad style never fires `load`, so an error before it shows the panel.
+    // A tile that fails during the first render is followed by `load` on a
+    // map that works, which clears it; an error after `load` is ignored.
+    created.on("error", () => {
+      if (active && !loaded) setFailed(true);
+    });
     created.on("load", () => {
-      if (active) setMap(created);
+      if (!active) return;
+      loaded = true;
+      setFailed(false);
+      setMap(created);
     });
     return () => {
       active = false;
       setMap(null);
+      setFailed(false);
       created.remove();
     };
   }, []);
@@ -104,7 +118,17 @@ export function MapCanvas({
       className={cn("relative w-full overflow-hidden rounded-md", className)}
       style={{ height }}
     >
-      {map ? (
+      {failed ? (
+        <div
+          data-slot="map-canvas-error"
+          role="alert"
+          className="flex h-full items-center justify-center text-sm text-muted-foreground"
+        >
+          {translate("chelone.map.load_failed", {
+            _: "The map could not be loaded",
+          })}
+        </div>
+      ) : map ? (
         <MapContext.Provider value={map}>{children}</MapContext.Provider>
       ) : null}
     </div>
