@@ -650,6 +650,7 @@ export type {
   ResourceDescriptor,
 } from "./resource/describe-resource";
 export { describeResource } from "./resource/describe-resource";
+export { getAtPath } from "./resource/get-at-path";
 export type { Identifier } from "./resource/identifier";
 export type { LooseRecord, ResourceRecord } from "./resource/record";
 export type {

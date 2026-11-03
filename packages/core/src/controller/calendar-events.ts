@@ -1,3 +1,4 @@
+import { getAtPath } from "../resource/get-at-path";
 import {
   type CalendarRange,
   calendarDayKey,
@@ -23,15 +24,6 @@ export interface ToCalendarEventsOptions<R> {
   getTitle: (record: R) => string;
 }
 
-const readPath = (record: unknown, path: string): unknown =>
-  path
-    .split(".")
-    .reduce<unknown>(
-      (value, key) =>
-        value == null ? undefined : (value as Record<string, unknown>)[key],
-      record,
-    );
-
 const midnight = (date: Date, dayOffset = 0): Date =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate() + dayOffset);
 
@@ -44,11 +36,11 @@ export function toCalendarEvents<R>(
 ): CalendarEvent<R>[] {
   const events: CalendarEvent<R>[] = [];
   for (const record of records) {
-    const start = parseCalendarDate(readPath(record, options.startSource));
+    const start = parseCalendarDate(getAtPath(record, options.startSource));
     if (!start) continue;
 
     const parsedEnd = options.endSource
-      ? parseCalendarDate(readPath(record, options.endSource))
+      ? parseCalendarDate(getAtPath(record, options.endSource))
       : undefined;
     const end =
       parsedEnd && parsedEnd.getTime() >= start.getTime()
@@ -56,7 +48,7 @@ export function toCalendarEvents<R>(
         : undefined;
 
     const titleValue = options.titleSource
-      ? readPath(record, options.titleSource)
+      ? getAtPath(record, options.titleSource)
       : undefined;
     const title =
       (typeof titleValue === "string" || typeof titleValue === "number") &&
@@ -65,7 +57,7 @@ export function toCalendarEvents<R>(
         : options.getTitle(record);
 
     const colorValue = options.colorSource
-      ? readPath(record, options.colorSource)
+      ? getAtPath(record, options.colorSource)
       : undefined;
     const color =
       colorValue == null ? undefined : options.colorMap?.[String(colorValue)];

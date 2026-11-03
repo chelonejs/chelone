@@ -105,6 +105,26 @@ describe("createClientListController", () => {
       expect(c.getSnapshot().data?.map((r) => r.id)).toEqual([2, 3, 1, 4]);
     });
 
+    it("sorts and filters by a bracket path", () => {
+      const rows = [
+        { id: 1, nested: { levels: [3] } },
+        { id: 2, nested: { levels: [1] } },
+        { id: 3, nested: { levels: [2] } },
+      ];
+      const sorted = createClientListController({
+        data: rows,
+        sort: { field: "nested.levels[0]", order: "ASC" },
+      });
+      expect(sorted.getSnapshot().data?.map((r) => r.id)).toEqual([2, 3, 1]);
+
+      const filtered = createClientListController({
+        data: rows,
+        filter: { "nested.levels[0]": 2 },
+      });
+      expect(filtered.getSnapshot().data?.map((r) => r.id)).toEqual([3]);
+      expect(filtered.getSnapshot().total).toBe(1);
+    });
+
     it("setSort toggles order on the same single field and resets page", () => {
       const c = createClientListController<Row>({
         data,

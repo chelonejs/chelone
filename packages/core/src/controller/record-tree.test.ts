@@ -122,6 +122,17 @@ describe("buildRecordTree", () => {
     ]);
   });
 
+  it("reads parentSource written with a bracket index", () => {
+    const records: Row[] = [
+      { id: 1, parents: [] },
+      { id: 2, parents: [1] },
+      { id: 3, parents: [1] },
+    ];
+    const expected = [{ id: 1, children: [leaf(2), leaf(3)] }];
+    expect(shape(buildRecordTree(records, "parents[0]"))).toEqual(expected);
+    expect(shape(buildRecordTree(records, "parents.0"))).toEqual(expected);
+  });
+
   it("does not mutate its input", () => {
     const records: Row[] = [
       { id: 1, parent: 2 },
