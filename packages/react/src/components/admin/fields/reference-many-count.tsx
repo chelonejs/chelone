@@ -1,11 +1,10 @@
-import type { FilterPayload, Identifier } from "@chelone/core";
+import type { FilterPayload, Identifier, LooseRecord } from "@chelone/core";
 import type { ReactNode } from "react";
-import type { UnknownRecord } from "@/lib/unknown-types";
 import { useGetManyReference } from "../../../hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 
 interface ReferenceManyCountProps<
-  RecordType extends UnknownRecord = UnknownRecord,
+  RecordType extends LooseRecord = LooseRecord,
 > {
   /** The referenced resource holding the reverse FK (e.g. `"books"`). */
   reference: string;
@@ -51,7 +50,7 @@ interface ReferenceManyCountProps<
  *   </List>
  * );
  */
-function ReferenceManyCount<RecordType extends UnknownRecord = UnknownRecord>(
+function ReferenceManyCount<RecordType extends LooseRecord = LooseRecord>(
   props: ReferenceManyCountProps<RecordType>,
 ) {
   const {

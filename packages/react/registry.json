@@ -3155,10 +3155,9 @@
       ],
       "registryDependencies": [
         "@chelone/lib-field-types",
-        "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3174,10 +3173,9 @@
       ],
       "registryDependencies": [
         "@chelone/lib-field-types",
-        "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3193,10 +3191,9 @@
       ],
       "registryDependencies": [
         "@chelone/lib-field-types",
-        "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3212,7 +3209,6 @@
       ],
       "registryDependencies": [
         "@chelone/lib-field-types",
-        "@chelone/lib-unknown-types",
         "@chelone/lib-utils"
       ],
       "dependencies": ["@chelone/core", "@chelone/react"],
@@ -3229,11 +3225,8 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": [
-        "@chelone/lib-field-types",
-        "@chelone/lib-unknown-types"
-      ],
-      "dependencies": ["@chelone/react"],
+      "registryDependencies": ["@chelone/lib-field-types"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3247,11 +3240,8 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": [
-        "@chelone/lib-field-types",
-        "@chelone/lib-unknown-types"
-      ],
-      "dependencies": ["@chelone/react", "libphonenumber-js"],
+      "registryDependencies": ["@chelone/lib-field-types"],
+      "dependencies": ["@chelone/core", "@chelone/react", "libphonenumber-js"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3265,11 +3255,8 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": [
-        "@chelone/lib-field-types",
-        "@chelone/lib-unknown-types"
-      ],
-      "dependencies": ["@chelone/react"],
+      "registryDependencies": ["@chelone/lib-field-types"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3286,11 +3273,10 @@
       "registryDependencies": [
         "@chelone/field-label-text",
         "@chelone/lib-field-types",
-        "@chelone/lib-unknown-types",
         "@chelone/lib-utils",
         "@chelone/text-field"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3332,7 +3318,6 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/lib-unknown-types"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -3377,10 +3362,9 @@
       ],
       "registryDependencies": [
         "@chelone/lib-field-types",
-        "@chelone/lib-gen-memo",
-        "@chelone/lib-unknown-types"
+        "@chelone/lib-gen-memo"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
