@@ -1,12 +1,12 @@
 <script lang="ts">
-import type { MapStyleInput, ShapeStyle } from "@chelone/core";
+import type { MapStyleInput, ShapeStyle, SourceProp } from "@chelone/core";
 
 export type SimplifyQuality = "Default" | "High";
 
 /** Props for {@link SimplifyInput}. */
 export interface SimplifyInputProps {
   /** The form field holding a Geometry, Feature or FeatureCollection. */
-  source: string;
+  source: SourceProp;
   /** The legend. A string is translated; `false` renders none. */
   label?: string | false;
   helperText?: string | false;

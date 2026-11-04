@@ -1,4 +1,10 @@
-import type { GeoBBox, GeocodeResult, GeocodingProvider } from "@chelone/core";
+import type {
+  GeoBBox,
+  GeocodeResult,
+  GeocodingProvider,
+  LooseRecord,
+  SourceProp,
+} from "@chelone/core";
 import { useEffect, useState } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { Button } from "@/components/ui/button";
@@ -16,9 +22,9 @@ import { useTranslate } from "../../i18n-hooks";
 import { useMapsConfig } from "../maps/maps-provider";
 import { useGeocode } from "./use-geocode";
 
-export interface GeocodingInputProps {
+export interface GeocodingInputProps<TRecord = LooseRecord> {
   /** The form field holding the address text. */
-  source: string;
+  source: SourceProp<TRecord>;
   /** Written with the picked result's latitude. Left alone when unset. */
   latSource?: string;
   /** Written with the picked result's longitude. Left alone when unset. */
@@ -62,7 +68,7 @@ const toText = (value: unknown) =>
  *   provider={createNominatimProvider({ endpoint })}
  * />
  */
-export function GeocodingInput({
+export function GeocodingInput<TRecord = LooseRecord>({
   source,
   latSource,
   lngSource,
@@ -77,7 +83,7 @@ export function GeocodingInput({
   limit,
   disabled = false,
   className,
-}: GeocodingInputProps) {
+}: GeocodingInputProps<TRecord>) {
   const translate = useTranslate();
   const { geocoder } = useMapsConfig();
   const activeProvider = provider ?? geocoder;

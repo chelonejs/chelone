@@ -4,6 +4,7 @@ import {
   geoBounds,
   heldFeatures,
   isLngLatBox,
+  type LooseRecord,
   type MapStyleInput,
   maxVertices,
   minAreaM2,
@@ -12,6 +13,7 @@ import {
   type ShapeStyle,
   type ShapeValue,
   type ShapeValueKind,
+  type SourceProp,
   shapeToFeatures,
   type Validator,
 } from "@chelone/core";
@@ -44,9 +46,9 @@ import {
 
 type ToolbarTool = DrawTool | "delete";
 
-export interface ShapeInputProps {
+export interface ShapeInputProps<TRecord = LooseRecord> {
   /** The form field holding the GeoJSON value. */
-  source: string;
+  source: SourceProp<TRecord>;
   /** The kind of value the field holds, which decides what a drawing writes. */
   kind: ShapeValueKind;
   /** The legend. A string is translated; `false` renders none. */
@@ -260,7 +262,7 @@ const NO_CONTROLS: UseTerraDrawResult = {
  * @example
  * <ShapeInput source="area" kind="Polygon" label="Area" />
  */
-export function ShapeInput({
+export function ShapeInput<TRecord = LooseRecord>({
   source,
   kind,
   label,
@@ -285,7 +287,7 @@ export function ShapeInput({
   refine,
   refineFailedMessage,
   className,
-}: ShapeInputProps) {
+}: ShapeInputProps<TRecord>) {
   // The limits run before the caller's validators.
   const validators = useMemo(
     () => [
