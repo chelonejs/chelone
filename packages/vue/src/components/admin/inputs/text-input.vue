@@ -1,7 +1,9 @@
 <script lang="ts">
+import type { SourceProp } from "@chelone/core";
+
 /** Props for {@link TextInput}. */
 export interface TextInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   type?: string;
   defaultValue?: unknown;

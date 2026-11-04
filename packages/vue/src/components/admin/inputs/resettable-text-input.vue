@@ -1,7 +1,9 @@
 <script lang="ts">
+import type { SourceProp } from "@chelone/core";
+
 /** Props for {@link ResettableTextInput}. */
 export interface ResettableTextInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   resettable?: boolean;
   clearAlwaysVisible?: boolean;
