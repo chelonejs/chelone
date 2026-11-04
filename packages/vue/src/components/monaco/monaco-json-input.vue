@@ -1,10 +1,10 @@
 <script lang="ts">
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import type { editor } from "monaco-editor";
 
 /** Props for {@link MonacoJsonInput}. */
 export interface MonacoJsonInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
