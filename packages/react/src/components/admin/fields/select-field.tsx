@@ -40,8 +40,6 @@ const SelectFieldImpl = <
 >(
   typedProps: SelectFieldProps<RecordType, TChoice>,
 ) => {
-  // The body reads choices as loose records; `TChoice` only types the props.
-  const props = typedProps as unknown as SelectFieldProps;
   const {
     className,
     empty,
@@ -49,14 +47,16 @@ const SelectFieldImpl = <
     defaultValue,
     source,
     record,
-    optionValue = "id",
-    optionText = "name",
-    translateChoice = true,
+    optionValue,
+    optionText,
+    translateChoice,
     ...rest
-  } = props;
-  const value: unknown = useFieldValue({ defaultValue, source, record });
+  } = typedProps;
+  // Read through `LooseRecord`: the typed read is a `SourceValue` still deferred
+  // on `RecordType`, which overflows the compiler when compared. It is `unknown`.
+  const value = useFieldValue<LooseRecord>({ defaultValue, source, record });
 
-  const { getChoiceText, getChoiceValue } = useChoices({
+  const { getChoiceText, getChoiceValue } = useChoices<TChoice>({
     optionText,
     optionValue,
     translateChoice,
