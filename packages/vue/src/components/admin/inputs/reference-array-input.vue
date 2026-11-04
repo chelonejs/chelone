@@ -1,10 +1,10 @@
 <script lang="ts">
-import type { FilterPayload, SortPayload } from "@chelone/core";
+import type { FilterPayload, SortPayload, SourceProp } from "@chelone/core";
 
 /** Props for {@link ReferenceArrayInput}. */
 export interface ReferenceArrayInputProps {
   /** The FK-array field on the current record (e.g. `"tag_ids"`). */
-  source: string;
+  source: SourceProp;
   /** The referenced resource choices are fetched from (e.g. `"tags"`). */
   reference: string;
   /**

@@ -1,4 +1,9 @@
-import type { FilterPayload, SortPayload } from "@chelone/core";
+import type {
+  FilterPayload,
+  LooseRecord,
+  SortPayload,
+  SourceProp,
+} from "@chelone/core";
 import type { ReactElement, ReactNode } from "react";
 import { Children, useEffect } from "react";
 import {
@@ -9,9 +14,9 @@ import { useWatch } from "../../../form";
 import { ResourceContextProvider } from "../../../resource";
 import { AutocompleteInput } from "./autocomplete-input";
 
-interface ReferenceInputProps {
+interface ReferenceInputProps<RecordType extends LooseRecord = LooseRecord> {
   /** The FK field on the current record (e.g. `"company_id"`). */
-  source: string;
+  source: SourceProp<RecordType>;
   /** The referenced resource choices are fetched from (e.g. `"companies"`). */
   reference: string;
   /**
@@ -66,7 +71,9 @@ interface ReferenceInputProps {
  *   </Edit>
  * );
  */
-function ReferenceInput(props: ReferenceInputProps): ReactNode {
+function ReferenceInput<RecordType extends LooseRecord = LooseRecord>(
+  props: ReferenceInputProps<RecordType>,
+): ReactNode {
   const {
     children = defaultChildren,
     source,

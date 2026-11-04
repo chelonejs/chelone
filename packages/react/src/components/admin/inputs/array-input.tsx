@@ -1,4 +1,4 @@
-import type { Validator } from "@chelone/core";
+import type { LooseRecord, SourceProp, Validator } from "@chelone/core";
 import { Children, type ReactNode } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -15,9 +15,9 @@ import {
   ArrayInputResultContext,
 } from "./array-input-context";
 
-interface ArrayInputProps {
+interface ArrayInputProps<RecordType extends LooseRecord = LooseRecord> {
   /** The array field path RELATIVE to the ambient source scope. */
-  source: string;
+  source: SourceProp<RecordType>;
   /**
    * The input label. A string is translated; a ReactNode renders as-is;
    * `false` renders no label.
@@ -108,7 +108,9 @@ function hasRequiredValidator(validate: ArrayInputProps["validate"]): boolean {
  *   </Edit>
  * );
  */
-function ArrayInput(props: ArrayInputProps): ReactNode {
+function ArrayInput<RecordType extends LooseRecord = LooseRecord>(
+  props: ArrayInputProps<RecordType>,
+): ReactNode {
   const {
     className,
     defaultValue = [],
