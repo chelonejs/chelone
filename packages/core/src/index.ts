@@ -15,6 +15,19 @@ export {
   permissionsQueryOptions,
 } from "./auth/auth-options";
 export type { AuthProvider, CanAccessParams, UserIdentity } from "./auth/types";
+export type {
+  CartesianRow,
+  DonutSlice,
+  MetricDelta,
+} from "./chart/chart-data";
+export {
+  chartColor,
+  DEFAULT_CHART_COLORS,
+  getMetricDelta,
+  hasChartValues,
+  toCartesianRows,
+  toDonutSlices,
+} from "./chart/chart-data";
 export type { HotkeyEvent, HotkeyTarget } from "./command-menu/hotkey";
 export {
   isTypingTarget,
