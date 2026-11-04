@@ -16,4 +16,21 @@ import { postSchema } from "./posts";
  */
 export const resources = defineResources({
   posts: { schema: postSchema },
+  authors: {},
+  products: {},
+  customers: {},
+  orders: {},
+  places: {},
 });
+
+/**
+ * Registering the map types every `source` prop against it. The schema-less
+ * resources are `{}` entries so the plain components still accept their paths
+ * (a resource with no schema has a loose record). `createResourceComponents`
+ * is the strict path: see `register-proof.tsx`.
+ */
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
