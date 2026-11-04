@@ -65,6 +65,7 @@ export interface KanbanBoardProps<TRecord extends LooseRecord = LooseRecord> {
   className?: string;
 }
 
+// type-escape: getAtPath reads a record by a runtime path and returns unknown
 const isEmpty = (value: unknown) => value == null || value === "";
 
 // Enter and Space select a card, so the keyboard sensor stays off: the "Move to"
@@ -161,7 +162,7 @@ function KanbanBoard<TRecord extends LooseRecord = LooseRecord>({
   linkType,
   className,
 }: KanbanBoardProps<TRecord>) {
-  const { data } = useListContext();
+  const { data } = useListContext<TRecord>();
   const resource = useResourceContext();
   const translate = useTranslate();
   const notify = useNotify();
@@ -180,7 +181,7 @@ function KanbanBoard<TRecord extends LooseRecord = LooseRecord>({
   const draggable = !!resource && canAccess && !isAccessPending;
 
   const buckets = useMemo(
-    () => buildKanbanBuckets((data ?? []) as TRecord[], groupSource, columns),
+    () => buildKanbanBuckets(data ?? [], groupSource, columns),
     [data, groupSource, columns],
   );
 
@@ -195,8 +196,8 @@ function KanbanBoard<TRecord extends LooseRecord = LooseRecord>({
   const onDragEnd = ({ canceled, operation }: DragEndEvent) => {
     const { source, target } = operation;
     if (canceled || !source || !target) return;
-    const record = (data ?? []).find((r) => String(r.id) === String(source.id));
-    if (record) move(record as TRecord, String(target.id));
+    const record = data?.find((r) => String(r.id) === String(source.id));
+    if (record) move(record, String(target.id));
   };
 
   // A resource that registers neither view has no route to link to.

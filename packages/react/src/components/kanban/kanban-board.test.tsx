@@ -134,12 +134,18 @@ const card = (title: string) => {
   if (!found) throw new Error(`no card titled ${title}`);
   return found;
 };
-const cardWithId = (id: number) =>
-  document.querySelector(`[data-record-id="${id}"]`) as HTMLElement;
-const cardArea = (label: string) =>
-  column(label).querySelector<HTMLElement>(
+const cardWithId = (id: number) => {
+  const found = document.querySelector<HTMLElement>(`[data-record-id="${id}"]`);
+  if (!found) throw new Error(`no card with id ${id}`);
+  return found;
+};
+const cardArea = (label: string) => {
+  const found = column(label).querySelector<HTMLElement>(
     "[data-slot=kanban-column-cards]",
-  ) as HTMLElement;
+  );
+  if (!found) throw new Error(`no card area in ${label}`);
+  return found;
+};
 
 const COLUMN_IDS = COLUMNS.map((c) => c.id);
 const COLUMN_WIDTH = 280;
@@ -148,18 +154,22 @@ const CARD_HEIGHT = 50;
 
 /** Where an element sits on the stubbed canvas: columns side by side, cards stacked. */
 function rectOf(el: Element): DOMRect {
-  const make = (x: number, y: number, width: number, height: number) =>
-    ({
-      x,
-      y,
-      width,
-      height,
-      left: x,
-      top: y,
-      right: x + width,
-      bottom: y + height,
-      toJSON: () => ({}),
-    }) as DOMRect;
+  const make = (
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+  ): DOMRect => ({
+    x,
+    y,
+    width,
+    height,
+    left: x,
+    top: y,
+    right: x + width,
+    bottom: y + height,
+    toJSON: () => ({}),
+  });
   const area = el.closest("[data-slot=kanban-column-cards]");
   const col = el.closest<HTMLElement>("[data-slot=kanban-column]");
   // dnd-kit clips a rect to its ancestors, so they cover the whole window.
@@ -169,9 +179,11 @@ function rectOf(el: Element): DOMRect {
   const cards = Array.from(area.querySelectorAll("[data-slot=kanban-card]"));
   const at = cards.findIndex((c) => c === el || c.contains(el));
   // dnd-kit moves the held card with a CSS translate, which jsdom does not lay out; it shows as a custom property.
-  const [dx, dy] = (
-    (el as HTMLElement).style.getPropertyValue("--dnd-translate") || "0px 0px"
-  )
+  const translate =
+    el instanceof HTMLElement
+      ? el.style.getPropertyValue("--dnd-translate")
+      : "";
+  const [dx, dy] = (translate || "0px 0px")
     .split(" ")
     .map((n) => Number.parseFloat(n) || 0);
   return make(
@@ -194,6 +206,32 @@ class StubPointerEvent extends MouseEvent {
   }
 }
 
+/** What dnd-kit's drop animation needs of an Animation: it finishes at once. */
+class StubAnimation extends EventTarget implements Animation {
+  currentTime: CSSNumberish | null = null;
+  effect: AnimationEffect | null = null;
+  finished = Promise.resolve(this);
+  id = "";
+  oncancel = null;
+  onfinish = null;
+  onremove = null;
+  pending = false;
+  playState: AnimationPlayState = "finished";
+  playbackRate = 1;
+  ready = Promise.resolve(this);
+  replaceState: AnimationReplaceState = "active";
+  startTime: CSSNumberish | null = null;
+  timeline: AnimationTimeline | null = null;
+  cancel() {}
+  commitStyles() {}
+  finish() {}
+  pause() {}
+  persist() {}
+  play() {}
+  reverse() {}
+  updatePlaybackRate() {}
+}
+
 class StubIntersectionObserver {
   observe() {}
   unobserve() {}
@@ -208,14 +246,7 @@ beforeEach(() => {
   vi.stubGlobal("IntersectionObserver", StubIntersectionObserver);
   document.getAnimations = () => [];
   Element.prototype.getAnimations = () => [];
-  Element.prototype.animate = () =>
-    ({
-      finished: Promise.resolve(),
-      cancel() {},
-      finish() {},
-      addEventListener() {},
-      removeEventListener() {},
-    }) as unknown as Animation;
+  Element.prototype.animate = () => new StubAnimation();
   vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
     function (this: Element) {
       return rectOf(this);
@@ -437,12 +468,13 @@ describe("<KanbanBoard>", () => {
 
   it("the card changes column before the data provider answers", async () => {
     const dataProvider = provider();
-    let answer: (value: unknown) => void = () => {};
+    type Updated = Awaited<ReturnType<DataProvider["update"]>>;
+    let answer: (value: Updated) => void = () => {};
     vi.spyOn(dataProvider, "update").mockImplementation(
       () =>
-        new Promise((resolve) => {
+        new Promise<Updated>((resolve) => {
           answer = resolve;
-        }) as never,
+        }),
     );
     mount({ dataProvider });
     await screen.findByText("Write it");
@@ -453,7 +485,9 @@ describe("<KanbanBoard>", () => {
       expect(cardTitles("In progress")).toEqual(["Write it", "Ship it"]),
     );
     expect(cardTitles("To do")).toEqual(["Test it"]);
-    answer({ data: { ...TASKS[0], status: "doing" } });
+    answer({
+      data: { id: 1, title: "Write it", status: "doing", note: "soon" },
+    });
   });
 
   it("a rejected update puts the card back and notifies an error", async () => {
@@ -684,7 +718,7 @@ describe("<KanbanBoard>", () => {
       "In progress",
       "Done",
     ]);
-    fireEvent.click(items[1] as HTMLElement);
+    fireEvent.click(screen.getByRole("menuitem", { name: "Done" }));
 
     await waitFor(() => expect(update).toHaveBeenCalledTimes(1));
     expect(update).toHaveBeenCalledWith("tasks", {
@@ -712,8 +746,9 @@ describe("<KanbanBoard>", () => {
     });
     fireEvent.click(trigger);
     fireEvent.keyDown(trigger, { key: "Enter" });
-    const items = await screen.findAllByRole("menuitem");
-    fireEvent.click(items[0] as HTMLElement);
+    fireEvent.click(
+      await screen.findByRole("menuitem", { name: "In progress" }),
+    );
 
     expect(select).not.toHaveBeenCalled();
   });
