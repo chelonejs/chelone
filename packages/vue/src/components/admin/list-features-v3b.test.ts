@@ -365,6 +365,20 @@ describe("<FilterForm> filters prop", () => {
     expect(field(wrapper, "views").exists()).toBe(false);
   });
 
+  it("a filter with a nested source shows as set when the list filter holds a value at that path", async () => {
+    const { capture, wrapper } = mountEntries([
+      { source: "tags[0].label", component: TextInput },
+    ]);
+    await settled(capture);
+    expect(field(wrapper, "tags[0].label").exists()).toBe(false);
+
+    capture.list?.setFilters({ tags: [{ label: "news" }] });
+
+    await vi.waitFor(() =>
+      expect(field(wrapper, "tags[0].label").exists()).toBe(true),
+    );
+  });
+
   it("an entry with a value in the list filter renders without being displayed", async () => {
     const { capture, wrapper } = mountEntries(entries);
     await settled(capture);

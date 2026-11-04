@@ -7,13 +7,13 @@
  * choices context; standalone, it must be provided (each input throws otherwise).
  */
 
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import type { ChoiceRecord, OptionText } from "../../../choices/use-choices";
 
 /** The choice-accessor + form-binding props every choice input accepts. */
 export interface ChoiceInputBaseProps {
   /** The FK/field path. Optional under a reference wrapper (inherited from context). */
-  source?: string;
+  source?: SourceProp | undefined;
   /** Inline choices (`{ id, name }[]` or `string[]`). Omitted under a reference wrapper. */
   choices?: readonly (string | ChoiceRecord)[];
   /** The display path (dotted) or a formatter over the whole choice. Default `name`. */

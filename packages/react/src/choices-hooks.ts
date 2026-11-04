@@ -7,7 +7,7 @@ import type {
   ResourceMap,
   SortPayload,
 } from "@chelone/core";
-import { createChoicesController } from "@chelone/core";
+import { createChoicesController, getAtPath } from "@chelone/core";
 import {
   createContext,
   createElement,
@@ -177,17 +177,6 @@ export function useChoicesContext(
   return resolved;
 }
 
-/** Reads a dotted path off a record (`get(choice, 'a.b')`), else `undefined`. */
-function getPath(record: ChoiceRecord, path: string): unknown {
-  if (path in record) return record[path];
-  let current: unknown = record;
-  for (const key of path.split(".")) {
-    if (current == null || typeof current !== "object") return undefined;
-    current = (current as Record<string, unknown>)[key];
-  }
-  return current;
-}
-
 export type OptionText = string | ((choice: ChoiceRecord) => string);
 
 export interface UseChoicesOptions {
@@ -212,9 +201,19 @@ export interface UseChoicesResult {
 }
 
 /**
+ * Read a choice option path. An empty path reads nothing: core's `getAtPath`
+ * returns the record itself for `""`, which would render `[object Object]` as
+ * the label and submit the whole choice as the field value.
+ */
+const readChoicePath = (choice: ChoiceRecord, path: string): unknown =>
+  path === "" ? undefined : getAtPath(choice, path);
+
+/**
  * The choice accessors (ra's `useChoices`): text (string path or formatter,
  * translated with a `{_: name}` fallback so a non-key label renders as-is),
- * value (`optionValue` path or `id`), and disabled flag.
+ * value (`optionValue` path or `id`), and disabled flag. Every path reads
+ * through core's {@link getAtPath}, so `optionText: "author[0].name"` resolves
+ * like `useFieldValue` does.
  */
 export function useChoices(options: UseChoicesOptions = {}): UseChoicesResult {
   const {
@@ -229,7 +228,7 @@ export function useChoices(options: UseChoicesOptions = {}): UseChoicesResult {
     () => ({
       getChoiceText(choice) {
         if (typeof optionText === "function") return optionText(choice);
-        const raw = getPath(choice, optionText);
+        const raw = readChoicePath(choice, optionText);
         const text = raw == null ? "" : String(raw);
         if (!translateChoice) return text;
         // ra's `{_: name}` convention: translate the text as a key, but fall
@@ -239,11 +238,11 @@ export function useChoices(options: UseChoicesOptions = {}): UseChoicesResult {
         return translated === text ? text : translated;
       },
       getChoiceValue(choice) {
-        const value = getPath(choice, optionValue);
+        const value = readChoicePath(choice, optionValue);
         return value !== undefined ? value : choice.id;
       },
       getDisableValue(choice) {
-        return getPath(choice, disableValue);
+        return readChoicePath(choice, disableValue);
       },
     }),
     [optionText, optionValue, disableValue, translateChoice, translate],

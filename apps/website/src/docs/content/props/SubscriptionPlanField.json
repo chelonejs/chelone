@@ -69,7 +69,7 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "SourceProp<RecordType>",
       "optional": false,
       "comment": "Name of the property to display (dot/bracket path)."
     },

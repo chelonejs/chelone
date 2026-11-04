@@ -88,7 +88,7 @@ changes relative to the server call:
 | Mode | Cache | Server call |
 | --- | --- | --- |
 | `"pessimistic"` (default) | Untouched until the server answers, then the resource's queries are invalidated and refetch. | Immediate. |
-| `"optimistic"` | The cached record (and the entries reference fields read) is patched or removed first. An error restores it. The resource's queries are invalidated when the call settles either way. | Immediate. |
+| `"optimistic"` | The cached record (and the entries reference fields read) is patched or removed first. An update also patches its row in the cached lists (`getList`, `getManyReference`, `getInfiniteList`). An error restores the patched keys. The resource's queries are invalidated when the call settles either way; with several updates of the resource pending, only when the last one settles. | Immediate. |
 | `"undoable"` | Patched or removed first. | Held back until the undo window closes. An "Undo" notification cancels it. |
 
 Pessimistic mode never touches the cache ahead of the server: it only

@@ -3,14 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { defineResources } from "../resource/registry";
 import { fakeDataProvider } from "./fake-provider";
-import { manyKey, oneKey } from "./keys";
+import { listKey, manyKey, oneKey } from "./keys";
 import {
   createMutationOptions,
   deleteMutationOptions,
   updateMutationOptions,
 } from "./mutation-options";
 import { getOneOptions } from "./query-options";
-import type { DataProvider } from "./types";
+import type { DataProvider, GetListResult } from "./types";
 
 const resources = defineResources({
   posts: {
@@ -20,12 +20,58 @@ const resources = defineResources({
 type R = typeof resources;
 const seed = () => ({
   dataProvider: fakeDataProvider<R>({
-    posts: [{ id: 1, title: "a", at: new Date(2026, 0, 1) }],
+    posts: [
+      { id: 1, title: "a", at: new Date(2026, 0, 1) },
+      { id: 2, title: "b", at: new Date(2026, 0, 1) },
+    ],
   }),
   queryClient: new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   }),
 });
+
+const listParams = {
+  pagination: { page: 1, perPage: 10 },
+  sort: { field: "id", order: "ASC" as const },
+  filter: {},
+};
+const at = new Date(2026, 0, 1);
+
+function seedPostsList(queryClient: QueryClient) {
+  queryClient.setQueryData<GetListResult>(listKey("posts", listParams), {
+    data: [
+      { id: 1, title: "a", at },
+      { id: 2, title: "b", at },
+    ],
+    total: 2,
+  });
+}
+
+const titlesOf = (queryClient: QueryClient) =>
+  queryClient
+    .getQueryData<GetListResult>(listKey("posts", listParams))
+    ?.data.map((r) => r.title);
+
+/** A provider whose `update` calls wait until the test settles them one by one. */
+function gatedUpdates(c: ReturnType<typeof seed>) {
+  const pending: Array<{ resolve: () => void; reject: (e: Error) => void }> =
+    [];
+  const dataProvider: DataProvider<R> = {
+    ...c.dataProvider,
+    update: (resource, params) =>
+      new Promise((resolve, reject) => {
+        pending.push({
+          resolve: () =>
+            resolve(c.dataProvider.update(resource, params) as never),
+          reject,
+        });
+      }),
+  };
+  return {
+    pending,
+    ctx: { dataProvider, queryClient: c.queryClient },
+  };
+}
 
 describe("mutation option factories", () => {
   it("create (pessimistic default) resolves with the created record", async () => {
@@ -163,6 +209,175 @@ describe("mutation option factories", () => {
       { id: 1, title: "patched" },
     ]);
     resolveUpdate();
+    await done;
+  });
+
+  it("optimistic update patches cached getList rows at once and keeps them on success", async () => {
+    const c = seed();
+    seedPostsList(c.queryClient);
+    const { ctx, pending } = gatedUpdates(c);
+    const observer = new MutationObserver(
+      c.queryClient,
+      updateMutationOptions(ctx, "posts", { mutationMode: "optimistic" }),
+    );
+    const done = observer.mutate({ id: 1, data: { title: "patched" } });
+    await vi.waitFor(() => expect(pending).toHaveLength(1));
+    expect(titlesOf(c.queryClient)).toEqual(["patched", "b"]);
+    pending[0]?.resolve();
+    await done;
+    expect(titlesOf(c.queryClient)).toEqual(["patched", "b"]);
+  });
+
+  it("optimistic update restores the patched keys of a getList row on error", async () => {
+    const c = seed();
+    seedPostsList(c.queryClient);
+    const { ctx, pending } = gatedUpdates(c);
+    const observer = new MutationObserver(
+      c.queryClient,
+      updateMutationOptions(ctx, "posts", { mutationMode: "optimistic" }),
+    );
+    const done = observer.mutate({ id: 1, data: { title: "patched" } });
+    await vi.waitFor(() => expect(pending).toHaveLength(1));
+    expect(titlesOf(c.queryClient)).toEqual(["patched", "b"]);
+    pending[0]?.reject(new Error("server said no"));
+    await expect(done).rejects.toThrow();
+    expect(titlesOf(c.queryClient)).toEqual(["a", "b"]);
+  });
+
+  it("a failed optimistic update leaves another in-flight update's patch on a different row", async () => {
+    const c = seed();
+    seedPostsList(c.queryClient);
+    const { ctx, pending } = gatedUpdates(c);
+    const options = updateMutationOptions(ctx, "posts", {
+      mutationMode: "optimistic",
+    });
+    const first = new MutationObserver(c.queryClient, options).mutate({
+      id: 1,
+      data: { title: "one" },
+    });
+    await vi.waitFor(() => expect(pending).toHaveLength(1));
+    const second = new MutationObserver(c.queryClient, options).mutate({
+      id: 2,
+      data: { title: "two" },
+    });
+    await vi.waitFor(() => expect(pending).toHaveLength(2));
+    expect(titlesOf(c.queryClient)).toEqual(["one", "two"]);
+    pending[0]?.reject(new Error("server said no"));
+    await expect(first).rejects.toThrow();
+    expect(titlesOf(c.queryClient)).toEqual(["a", "two"]);
+    pending[1]?.resolve();
+    await second;
+  });
+
+  it("optimistic update cancels an in-flight getList so its result cannot overwrite the patch", async () => {
+    const c = seed();
+    seedPostsList(c.queryClient);
+    let resolveFetch!: (result: GetListResult) => void;
+    const inFlight = c.queryClient.fetchQuery({
+      queryKey: listKey("posts", listParams),
+      queryFn: () =>
+        new Promise<GetListResult>((resolve) => {
+          resolveFetch = resolve;
+        }),
+      staleTime: 0,
+    });
+    inFlight.catch(() => undefined);
+    await vi.waitFor(() => expect(resolveFetch).toBeTypeOf("function"));
+    const { ctx, pending } = gatedUpdates(c);
+    const observer = new MutationObserver(
+      c.queryClient,
+      updateMutationOptions(ctx, "posts", { mutationMode: "optimistic" }),
+    );
+    const done = observer.mutate({ id: 1, data: { title: "patched" } });
+    await vi.waitFor(() => expect(pending).toHaveLength(1));
+    resolveFetch({
+      data: [
+        { id: 1, title: "stale", at },
+        { id: 2, title: "b", at },
+      ],
+      total: 2,
+    });
+    await inFlight.catch(() => undefined);
+    expect(titlesOf(c.queryClient)).toEqual(["patched", "b"]);
+    pending[0]?.resolve();
+    await done;
+  });
+
+  it("two overlapping optimistic updates refetch the lists once, when the last one settles", async () => {
+    const c = seed();
+    seedPostsList(c.queryClient);
+    const invalidate = vi.spyOn(c.queryClient, "invalidateQueries");
+    const { ctx, pending } = gatedUpdates(c);
+    const options = updateMutationOptions(ctx, "posts", {
+      mutationMode: "optimistic",
+    });
+    const first = new MutationObserver(c.queryClient, options).mutate({
+      id: 1,
+      data: { title: "one" },
+    });
+    await vi.waitFor(() => expect(pending).toHaveLength(1));
+    const second = new MutationObserver(c.queryClient, options).mutate({
+      id: 2,
+      data: { title: "two" },
+    });
+    await vi.waitFor(() => expect(pending).toHaveLength(2));
+    pending[0]?.resolve();
+    await first;
+    expect(invalidate).not.toHaveBeenCalled();
+    expect(titlesOf(c.queryClient)).toEqual(["one", "two"]);
+    pending[1]?.resolve();
+    await second;
+    expect(invalidate).toHaveBeenCalledTimes(1);
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ["posts"] });
+  });
+
+  it("two optimistic updates answered in the same tick still refetch the lists once", async () => {
+    const c = seed();
+    seedPostsList(c.queryClient);
+    const invalidate = vi.spyOn(c.queryClient, "invalidateQueries");
+    const { ctx, pending } = gatedUpdates(c);
+    const options = updateMutationOptions(ctx, "posts", {
+      mutationMode: "optimistic",
+    });
+    const first = new MutationObserver(c.queryClient, options).mutate({
+      id: 1,
+      data: { title: "one" },
+    });
+    await vi.waitFor(() => expect(pending).toHaveLength(1));
+    const second = new MutationObserver(c.queryClient, options).mutate({
+      id: 2,
+      data: { title: "two" },
+    });
+    await vi.waitFor(() => expect(pending).toHaveLength(2));
+    pending[0]?.resolve();
+    pending[1]?.resolve();
+    await Promise.all([first, second]);
+    expect(invalidate).toHaveBeenCalledTimes(1);
+  });
+
+  it("a lone optimistic update still refetches the lists when it settles", async () => {
+    const c = seed();
+    const invalidate = vi.spyOn(c.queryClient, "invalidateQueries");
+    const observer = new MutationObserver(
+      c.queryClient,
+      updateMutationOptions(c, "posts", { mutationMode: "optimistic" }),
+    );
+    await observer.mutate({ id: 1, data: { title: "patched" } });
+    expect(invalidate).toHaveBeenCalledTimes(1);
+  });
+
+  it("pessimistic update leaves cached lists untouched before resolution", async () => {
+    const c = seed();
+    seedPostsList(c.queryClient);
+    const { ctx, pending } = gatedUpdates(c);
+    const observer = new MutationObserver(
+      c.queryClient,
+      updateMutationOptions(ctx, "posts"),
+    );
+    const done = observer.mutate({ id: 1, data: { title: "later" } });
+    await vi.waitFor(() => expect(pending).toHaveLength(1));
+    expect(titlesOf(c.queryClient)).toEqual(["a", "b"]);
+    pending[0]?.resolve();
     await done;
   });
 

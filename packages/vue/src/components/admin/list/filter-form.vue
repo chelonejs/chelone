@@ -44,6 +44,7 @@ export interface FilterFormProps {
 
 import {
   filterFormReflectShape,
+  getAtPath,
   getFilterFormValues,
   mergeFilterValues,
 } from "@chelone/core";
@@ -81,22 +82,13 @@ function isEmptyValue(value: unknown): boolean {
   return false;
 }
 
-function valueAt(record: unknown, source: string): unknown {
-  let current = record;
-  for (const key of source.split(".")) {
-    if (current == null || typeof current !== "object") return undefined;
-    current = (current as Record<string, unknown>)[key];
-  }
-  return current;
-}
-
 function isShown(entry: FilterFormEntry): boolean {
   return (
     !!entry.alwaysOn ||
     !!(list.displayedFilters as Record<string, boolean> | undefined)?.[
       entry.source
     ] ||
-    !isEmptyValue(valueAt(list.filter, entry.source))
+    !isEmptyValue(getAtPath(list.filter, entry.source))
   );
 }
 
