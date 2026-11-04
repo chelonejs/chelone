@@ -1,4 +1,4 @@
-import type { Identifier } from "@chelone/core";
+import type { Identifier, ResourceRecord } from "@chelone/core";
 import { quoteValue } from "./filters";
 
 type Row = Record<string, unknown>;
@@ -83,10 +83,11 @@ export function idFilter(
 }
 
 /** Adds the `id` Chelone needs to a record whose key is not just `id`. */
-export function withVirtualId(record: Row, primaryKey: readonly string[]): Row {
-  return primaryKey.length === 1 && primaryKey[0] === "id"
-    ? record
-    : { ...record, id: encodeId(record, primaryKey) };
+export function withVirtualId(
+  record: Row,
+  primaryKey: readonly string[],
+): ResourceRecord & Row {
+  return { ...record, id: encodeId(record, primaryKey) };
 }
 
 /** Drops the `id` that `withVirtualId` added, before a record goes back to the table. */
