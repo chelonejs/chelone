@@ -2,6 +2,7 @@ import {
   createReferenceManyController,
   createReferenceOneController,
   type FilterPayload,
+  getAtPath,
   type Identifier,
   type ListControllerContext,
   type ListControllerState,
@@ -76,12 +77,16 @@ export type UseReferenceOneFieldControllerResult<TRecord> =
       keyof MicroStore<ReferenceOneControllerState<TRecord>>
     >;
 
-/** The foreign key `source` holds on the record; anything but a string or number reads as no key. */
+/**
+ * The foreign key `source` holds on the record, read through core's
+ * {@link getAtPath} so `source="author.id"` resolves the way `ReferenceField`
+ * reads it. Anything but a string or number reads as no key.
+ */
 function foreignKeyOf(
   record: RecordContextValue,
   source: string,
 ): Identifier | undefined {
-  const value = (record as Record<string, unknown> | undefined)?.[source];
+  const value = getAtPath(record, source);
   return typeof value === "string" || typeof value === "number"
     ? value
     : undefined;

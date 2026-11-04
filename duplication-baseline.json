@@ -21,7 +21,7 @@
   "packages/react/src/auth-hooks.ts <-> packages/vue/src/auth/auth-hooks.ts": 2,
   "packages/react/src/auth-hooks.ts <-> packages/vue/src/auth/permissions-hooks.ts": 5,
   "packages/react/src/choices-hooks.ts <-> packages/vue/src/choices/choices-context.ts": 3,
-  "packages/react/src/choices-hooks.ts <-> packages/vue/src/choices/use-choices.ts": 2,
+  "packages/react/src/choices-hooks.ts <-> packages/vue/src/choices/use-choices.ts": 1,
   "packages/react/src/choices-hooks.ts <-> packages/vue/src/choices/use-reference-input.ts": 2,
   "packages/react/src/components/admin/auth/login-form.tsx <-> packages/react/src/components/admin/auth/login-with-email.tsx": 3,
   "packages/react/src/components/admin/auth/login-form.tsx <-> packages/react/src/components/admin/supabase/forgot-password-form.tsx": 1,
