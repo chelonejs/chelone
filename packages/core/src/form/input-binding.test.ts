@@ -1,3 +1,5 @@
+import { runInNewContext } from "node:vm";
+import type { StandardSchemaV1 } from "@tanstack/form-core";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { createNotificationStore } from "../notification/notification-store";
@@ -534,6 +536,37 @@ describe("createFieldBinding — field-level schema", () => {
     await controller.submit();
     expect(spy).toHaveBeenCalled();
     expect(save).toHaveBeenCalledTimes(1);
+  });
+
+  it("routes a schema whose validate returns a thenable that is not this realm's Promise", async () => {
+    // A `Promise` from another realm fails `instanceof Promise`, and so does a
+    // validator that hands back its own thenable. Both must still reach the
+    // async latch: read as a sync outcome, their issues are dropped and the
+    // value submits with no error shown.
+    // type-escape: runInNewContext hands back the vm realm's globals as unknown.
+    const ForeignPromise = runInNewContext("Promise") as typeof Promise;
+    expect(new ForeignPromise((resolve) => resolve(1))).not.toBeInstanceOf(
+      Promise,
+    );
+
+    const schema: StandardSchemaV1 = {
+      "~standard": {
+        version: 1,
+        vendor: "chelone-test",
+        validate: () =>
+          new ForeignPromise((resolve) =>
+            resolve({ issues: [{ message: "thenable schema rejects" }] }),
+          ),
+      },
+    };
+
+    const { binding, controller, save, errors } = makeWiringHarness({ schema });
+    binding.setValue("x");
+    await controller.submit();
+    expect(save).not.toHaveBeenCalled();
+    expect(errors()).toContainEqual(
+      expect.objectContaining({ message: "thenable schema rejects" }),
+    );
   });
 });
 

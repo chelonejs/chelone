@@ -20,6 +20,7 @@ import {
   type FieldValidatorMeta,
   type FieldValidatorStackResult,
   isRequired,
+  type SchemaOutcome,
   type Validator,
   type ValidatorResult,
 } from "./validators";
@@ -321,10 +322,13 @@ export function createFieldBinding<
     const { schema } = current;
     if (schema) {
       // The raw Standard Schema protocol (not form-core's sync-only helper)
-      // so an async schema routes through the latch instead of throwing.
+      // so an async schema routes through the latch instead of throwing. Any
+      // thenable counts, not just this realm's `Promise`: a schema built in
+      // another realm, or one that hands back its own thenable, would read as
+      // a sync outcome and its issues would be dropped.
       const outcome = schema["~standard"].validate(value);
-      if (outcome instanceof Promise) {
-        return outcome.then((resolved) => {
+      if (isAsyncSchemaOutcome(outcome)) {
+        return Promise.resolve(outcome).then((resolved) => {
           const issues = resolved.issues;
           return issues && issues.length > 0 ? issues : runFns();
         });
@@ -502,4 +506,15 @@ export function createFieldBinding<
       subscriptions.clear();
     },
   };
+}
+
+/**
+ * A schema outcome that is a thenable of an outcome. `isThenable` already
+ * answers the question for any thenable; the predicate keeps the resolved
+ * value typed so the async branch reads `issues` off it.
+ */
+function isAsyncSchemaOutcome(
+  outcome: SchemaOutcome | PromiseLike<SchemaOutcome>,
+): outcome is PromiseLike<SchemaOutcome> {
+  return isThenable(outcome);
 }
