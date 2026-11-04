@@ -1,12 +1,12 @@
 <script lang="ts">
-import type { GeocodingProvider } from "@chelone/core";
+import type { GeocodingProvider, SourceProp } from "@chelone/core";
 
 /** Props for {@link ReverseGeocodeField}. */
 export interface ReverseGeocodeFieldProps {
   /** The record property holding the latitude. */
-  latSource: string;
+  latSource: SourceProp;
   /** The record property holding the longitude. */
-  lngSource: string;
+  lngSource: SourceProp;
   /** Defaults to the ambient record. */
   record?: Record<string, unknown>;
   /** `full` is the whole name, `street` its first part and `city` its first two. Defaults to `full`. */

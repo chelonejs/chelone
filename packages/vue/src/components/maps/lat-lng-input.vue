@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { MapStyleInput, Validator } from "@chelone/core";
+import type { MapStyleInput, SourceProp, Validator } from "@chelone/core";
 import {
   defineComponent,
   onBeforeUnmount,
@@ -72,9 +72,9 @@ const MapBindings = defineComponent({
 /** Props for {@link LatLngInput}. */
 export interface LatLngInputProps {
   /** The form field holding the latitude. */
-  latSource: string;
+  latSource: SourceProp;
   /** The form field holding the longitude. */
-  lngSource: string;
+  lngSource: SourceProp;
   /** The legend. A string is translated; `false` renders none. */
   label?: string | false;
   helperText?: string;
