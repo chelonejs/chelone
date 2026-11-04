@@ -3,10 +3,12 @@ import {
   type GeoGeometry,
   geoAreaM2,
   geoBounds,
+  type LooseRecord,
   type OsmPresetName,
   type OsmTagInput,
   type OverpassProvider,
   OverpassRateLimitError,
+  type SourceProp,
 } from "@chelone/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { Eraser, Plus } from "lucide-react";
@@ -23,9 +25,9 @@ import { subtractMask, unionAll } from "./osm-geometry-ops";
 
 type Area = Extract<GeoGeometry, { type: "Polygon" | "MultiPolygon" }>;
 
-export interface OsmFeatureOperatorProps {
+export interface OsmFeatureOperatorProps<TRecord = LooseRecord> {
   /** The form field holding the Polygon or MultiPolygon. */
-  source: string;
+  source: SourceProp<TRecord>;
   /** `subtract` removes the matching OSM areas from the polygon; `add` merges them in. */
   mode: "subtract" | "add";
   /** Named OSM feature sets to query, such as `water`. */
@@ -64,7 +66,7 @@ const km2 = (m2: number) => `${(Math.max(0, m2) / 1e6).toFixed(3)} km²`;
  * @example
  * <OsmFeatureOperator source="area" mode="subtract" presets={["water"]} />
  */
-export function OsmFeatureOperator({
+export function OsmFeatureOperator<TRecord = LooseRecord>({
   source,
   mode,
   presets,
@@ -74,7 +76,7 @@ export function OsmFeatureOperator({
   provider: given,
   disabled = false,
   className,
-}: OsmFeatureOperatorProps) {
+}: OsmFeatureOperatorProps<TRecord>) {
   const { overpass } = useMapsConfig();
   const provider = given ?? overpass;
   if (!provider) {
@@ -202,7 +204,10 @@ export function OsmFeatureOperator({
 const SUBTRACT_ICON = <Eraser />;
 const ADD_ICON = <Plus />;
 
-export type OsmFeatureSubtractProps = Omit<OsmFeatureOperatorProps, "mode">;
+export type OsmFeatureSubtractProps<TRecord = LooseRecord> = Omit<
+  OsmFeatureOperatorProps<TRecord>,
+  "mode"
+>;
 
 /**
  * Removes OpenStreetMap areas, such as water, from the polygon in a form field.
@@ -210,14 +215,17 @@ export type OsmFeatureSubtractProps = Omit<OsmFeatureOperatorProps, "mode">;
  * @example
  * <OsmFeatureSubtract source="area" presets={["water"]} />
  */
-export function OsmFeatureSubtract({
+export function OsmFeatureSubtract<TRecord = LooseRecord>({
   icon = SUBTRACT_ICON,
   ...props
-}: OsmFeatureSubtractProps) {
+}: OsmFeatureSubtractProps<TRecord>) {
   return <OsmFeatureOperator {...props} mode="subtract" icon={icon} />;
 }
 
-export type OsmFeatureAddProps = Omit<OsmFeatureOperatorProps, "mode">;
+export type OsmFeatureAddProps<TRecord = LooseRecord> = Omit<
+  OsmFeatureOperatorProps<TRecord>,
+  "mode"
+>;
 
 /**
  * Merges OpenStreetMap areas, such as buildings, into the polygon in a form field.
@@ -225,9 +233,9 @@ export type OsmFeatureAddProps = Omit<OsmFeatureOperatorProps, "mode">;
  * @example
  * <OsmFeatureAdd source="area" presets={["buildings"]} />
  */
-export function OsmFeatureAdd({
+export function OsmFeatureAdd<TRecord = LooseRecord>({
   icon = ADD_ICON,
   ...props
-}: OsmFeatureAddProps) {
+}: OsmFeatureAddProps<TRecord>) {
   return <OsmFeatureOperator {...props} mode="add" icon={icon} />;
 }
