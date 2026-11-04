@@ -65,6 +65,7 @@ export default [
       "single-field-list",
       "tree-list",
       "calendar-list",
+      "kanban-board",
       "tabbed-show-layout",
       "card-content-inner",
       "list-no-results",
