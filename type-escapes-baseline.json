@@ -457,10 +457,6 @@
   "packages/core/src/i18n/messages.ts": {
     "unknown": 1
   },
-  "packages/core/src/i18n/missing-keys.test.ts": {
-    "cast": 1,
-    "unknown": 1
-  },
   "packages/core/src/i18n/translatable.ts": {
     "cast": 1,
     "unknown": 6
