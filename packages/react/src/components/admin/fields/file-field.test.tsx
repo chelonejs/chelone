@@ -86,6 +86,30 @@ describe("<FileField>", () => {
     ).toBe("https://example.org/picture.png");
   });
 
+  it("an array item's title and src read a bracket path", () => {
+    render(
+      <Providers>
+        <RecordContextProvider
+          value={{
+            id: 1,
+            files: [
+              { meta: [{ name: "Plan" }], links: [{ href: "plan.pdf" }] },
+              { meta: [{ name: "Cover" }], links: [{ href: "cover.pdf" }] },
+            ],
+          }}
+        >
+          <FileField source="files" src="links[0].href" title="meta[0].name" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    expect(
+      screen.getByRole("link", { name: "Plan" }).getAttribute("href"),
+    ).toBe("plan.pdf");
+    expect(
+      screen.getByRole("link", { name: "Cover" }).getAttribute("href"),
+    ).toBe("cover.pdf");
+  });
+
   it("renders nothing when the value is null and no empty prop", () => {
     const { container } = render(
       <Providers>
