@@ -9,6 +9,7 @@
     "format": "biome check --write .",
     "lint": "biome check .",
     "check:duplication": "node scripts/check-duplication.mjs",
+    "check:type-escapes": "node scripts/check-type-escapes.mjs",
     "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true",
     "release:check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm --filter \"./packages/*\" run check:pack"
   },
