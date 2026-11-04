@@ -76,4 +76,22 @@ describe("<SelectField />", () => {
     );
     expect(container.textContent).toBe("");
   });
+
+  it("shows the text of a choice typed by a custom TChoice", () => {
+    type Gender = { code: string; label: { en: string } };
+    const genders: Gender[] = [
+      { code: "M", label: { en: "Masculine" } },
+      { code: "F", label: { en: "Feminine" } },
+    ];
+    const { getByText } = render(
+      <SelectField<{ id: number; gender: string }, Gender>
+        source="gender"
+        choices={genders}
+        optionValue="code"
+        optionText={(choice) => choice.label.en}
+      />,
+      { wrapper: wrap({ id: 1, gender: "F" }) },
+    );
+    expect(getByText("Feminine")).toBeTruthy();
+  });
 });
