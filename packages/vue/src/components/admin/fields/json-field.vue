@@ -1,9 +1,9 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 
 /** Props for {@link JsonField}. */
 export interface JsonFieldProps {
-  source: string;
+  source: SourceProp;
   record?: LooseRecord;
   defaultValue?: unknown;
   empty?: string;
