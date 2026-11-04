@@ -1,11 +1,23 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.2/schema.json",
-  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
   "files": {
     "includes": ["**/*.ts", "**/*.tsx", "**/*.json", "**/*.jsonc", "**/*.vue"]
   },
-  "formatter": { "enabled": true, "indentStyle": "space" },
-  "linter": { "enabled": true, "rules": { "recommended": true } },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  },
   "overrides": [
     {
       "includes": ["packages/react/src/components/ui/**"],
@@ -253,6 +265,10 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   }
                 ]
               }
@@ -300,6 +316,10 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   }
                 ]
               }
@@ -345,6 +365,10 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   }
                 ]
               }
@@ -394,6 +418,10 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   }
                 ]
               }
@@ -443,6 +471,10 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   }
                 ]
               }
@@ -492,6 +524,63 @@
                   {
                     "group": ["@chelone/supabase", "@supabase/*"],
                     "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/react/src/components/kanban/**",
+        "packages/react/src/kanban.ts",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   }
                 ]
               }
@@ -553,6 +642,10 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   }
                 ]
               }
@@ -609,6 +702,10 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   }
                 ]
               }
@@ -663,6 +760,10 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   }
                 ]
               }
@@ -721,6 +822,10 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   }
                 ]
               }
@@ -779,6 +884,10 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   }
                 ]
               }
@@ -837,6 +946,72 @@
                   {
                     "group": ["@chelone/supabase", "@supabase/*"],
                     "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/vue/src/components/kanban/**",
+        "packages/vue/src/kanban.ts",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react-dom": "@chelone/vue must not import react-dom.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
+                  "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
+                  "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
+                  "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   }
                 ]
               }
