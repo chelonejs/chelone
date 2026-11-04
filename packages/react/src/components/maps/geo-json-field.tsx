@@ -233,6 +233,6 @@ export function GeoJsonFieldBody({
 export function GeoJsonField<
   RecordType extends Record<string, unknown> = Record<string, unknown>,
 >({ source, record, defaultValue, ...body }: GeoJsonFieldProps<RecordType>) {
-  const value = useFieldValue({ source, record, defaultValue });
+  const value: unknown = useFieldValue({ source, record, defaultValue });
   return <GeoJsonFieldBody value={value} {...body} />;
 }

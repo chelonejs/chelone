@@ -44,7 +44,7 @@ function SubscriptionPlanField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: SubscriptionPlanFieldProps<RecordType>) {
-  const value = useFieldValue({ defaultValue, source, record });
+  const value: unknown = useFieldValue({ defaultValue, source, record });
   const translate = useTranslate();
   const plan = plans.find((p) => p.id === value);
 

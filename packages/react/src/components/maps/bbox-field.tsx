@@ -17,6 +17,6 @@ export function BBoxField({
   defaultValue,
   ...body
 }: BBoxFieldProps) {
-  const value = useFieldValue({ source, record, defaultValue });
+  const value: unknown = useFieldValue({ source, record, defaultValue });
   return <GeoJsonFieldBody value={bboxToPolygon(value)} {...body} />;
 }

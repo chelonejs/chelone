@@ -40,7 +40,7 @@ function TextArrayField<RecordType extends LooseRecord = LooseRecord>(
     variant = "outline",
     ...rest
   } = props;
-  const data = useFieldValue({ defaultValue, source, record });
+  const data: unknown = useFieldValue({ defaultValue, source, record });
   const translate = useTranslate();
 
   const isEmpty = !Array.isArray(data) || data.length === 0;
