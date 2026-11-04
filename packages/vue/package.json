@@ -19,6 +19,7 @@
     ".": "./src/index.ts",
     "./package.json": "./package.json",
     "./monaco": "./src/monaco.ts",
+    "./kanban": "./src/kanban.ts",
     "./supabase": "./src/supabase.ts",
     "./csv-import": "./src/csv-import.ts",
     "./maps": "./src/maps.ts",
@@ -40,6 +41,10 @@
       "./monaco": {
         "types": "./dist/monaco.d.ts",
         "default": "./dist/monaco.js"
+      },
+      "./kanban": {
+        "types": "./dist/kanban.d.ts",
+        "default": "./dist/kanban.js"
       },
       "./supabase": {
         "types": "./dist/supabase.d.ts",
@@ -84,6 +89,8 @@
   },
   "peerDependencies": {
     "@chelone/supabase": "workspace:*",
+    "@dnd-kit/dom": "^0.5.3",
+    "@dnd-kit/vue": "^0.5.3",
     "@guolao/vue-monaco-editor": "^1.6.0",
     "@milkdown/crepe": "^7.23.0",
     "@milkdown/kit": "^7.23.0",
@@ -103,6 +110,12 @@
   },
   "peerDependenciesMeta": {
     "@chelone/supabase": {
+      "optional": true
+    },
+    "@dnd-kit/dom": {
+      "optional": true
+    },
+    "@dnd-kit/vue": {
       "optional": true
     },
     "@guolao/vue-monaco-editor": {
@@ -148,6 +161,8 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.0",
     "@chelone/supabase": "workspace:*",
+    "@dnd-kit/dom": "^0.5.3",
+    "@dnd-kit/vue": "^0.5.3",
     "@guolao/vue-monaco-editor": "^1.6.0",
     "@milkdown/crepe": "^7.23.0",
     "@milkdown/kit": "^7.23.0",

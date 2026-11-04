@@ -37,11 +37,12 @@ export interface KanbanBoardProps<
  * `@chelone/react`'s `list/kanban-board.tsx`, over the same core
  * `buildKanbanBuckets` + `planKanbanMove` rules.
  *
- * A card moves to another column by dragging it, or with its "Move to" menu for
- * keyboard users; either writes `groupSource` through an optimistic `update`, so
- * the card changes column at once and goes back when the write fails. Dragging
- * needs `edit` access on the resource. Touch drag is not supported: the menu
- * covers touch.
+ * A card moves to another column by dragging it with mouse, touch or pen, or
+ * with its "Move to" menu for keyboard users; either writes `groupSource`
+ * through an optimistic `update`, so the card changes column at once and goes
+ * back when the write fails. Dragging needs `edit` access on the resource. A
+ * touch drag starts after a short hold, so a swipe still scrolls the board.
+ * Dragging runs on `@dnd-kit/vue`, an optional peer that needs Vue 3.5.
  *
  * It fetches nothing and sets no `perPage`, so give the `<List>` a `perPage`
  * that covers every card. Cards keep the list's order inside a column.
@@ -70,25 +71,32 @@ import {
   type Identifier,
   planKanbanMove,
 } from "@chelone/core";
-import { computed, getCurrentInstance, ref, shallowRef } from "vue";
-import { useResourceDefinition } from "../../../admin/resource-registry";
-import { useCheloneNotifications } from "../../../context";
-import { useUpdate } from "../../../data/mutations";
-import { useTranslate } from "../../../i18n/use-translate";
-import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
-import { cn } from "../../../lib/utils";
-import { useListContext } from "../../../list/list-context";
-import { useResourceContext } from "../../../resource-context";
-import { useCreatePath, useNavigate } from "../../../router";
-import Button from "../../ui/button.vue";
+import { DragDropProvider, PointerSensor } from "@dnd-kit/vue";
+import { computed, getCurrentInstance } from "vue";
+import { useResourceDefinition } from "../../admin/resource-registry";
+import { useCheloneNotifications } from "../../context";
+import { useUpdate } from "../../data/mutations";
+import { useTranslate } from "../../i18n/use-translate";
+import { useGetRecordRepresentation } from "../../label/use-get-record-representation";
+import { cn } from "../../lib/utils";
+import { useListContext } from "../../list/list-context";
+import { useResourceContext } from "../../resource-context";
+import { useCreatePath, useNavigate } from "../../router";
+import Button from "../ui/button.vue";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
-import { useMenuAccess } from "../layout/use-menu-access";
-import { ArrowRightLeftIcon } from "./list-icons";
+} from "../ui/dropdown-menu";
+import { useMenuAccess } from "../admin/layout/use-menu-access";
+import { ArrowRightLeftIcon } from "../admin/list/list-icons";
+import KanbanDraggableCard from "./kanban-draggable-card.vue";
+import KanbanDropArea from "./kanban-drop-area.vue";
+
+// Pointer events cover mouse, touch and pen. The keyboard sensor stays off:
+// Enter and Space select a card, and the Move to menu is the keyboard path.
+const sensors = [PointerSensor];
 
 // A `false` in the union makes Vue cast an absent prop to `false`.
 const props = withDefaults(defineProps<KanbanBoardProps<TRecord>>(), {
@@ -134,18 +142,6 @@ const hasListener = () => {
 const buckets = computed(() =>
   buildKanbanBuckets((list.data ?? []) as TRecord[], props.groupSource, props.columns),
 );
-
-// `dataTransfer.getData` is empty during `dragover`, so the held record is kept
-// here. A `shallowRef` so the held record is never made reactive: it is written
-// back as `previousData` exactly as the list handed it over.
-const grabbed = shallowRef<TRecord | null>(null);
-const draggingId = ref<string>();
-const overColumn = ref<string>();
-function clearDrag(): void {
-  grabbed.value = null;
-  draggingId.value = undefined;
-  overColumn.value = undefined;
-}
 
 function move(record: TRecord, targetColumnId: string): void {
   const plan = planKanbanMove(
@@ -197,37 +193,19 @@ function onCardKeydown(event: KeyboardEvent, record: TRecord): void {
   select(record);
 }
 
-function onDragStart(event: DragEvent, record: TRecord): void {
-  // A dragstart from inside the card (its text, a link in the `#card` slot) bubbles here too.
-  if (!draggable.value || !event.dataTransfer) return;
-  event.dataTransfer.effectAllowed = "move";
-  // Firefox starts no drag without data.
-  event.dataTransfer.setData("text/plain", String(record.id));
-  grabbed.value = record;
-  draggingId.value = String(record.id);
-}
-
-function onDragOver(event: DragEvent, columnId: string): void {
-  if (!grabbed.value) return;
-  event.preventDefault();
-  if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
-  overColumn.value = columnId;
-}
-
-function onDragLeave(event: DragEvent, columnId: string): void {
-  // Moving onto a child of the area fires dragleave on the area first.
-  const into = event.relatedTarget;
-  const area = event.currentTarget as Element | null;
-  if (into instanceof Node && area?.contains(into)) return;
-  if (overColumn.value === columnId) overColumn.value = undefined;
-}
-
-function onDrop(event: DragEvent, columnId: string): void {
-  const record = grabbed.value;
-  if (!record || !draggable.value) return;
-  event.preventDefault();
-  clearDrag();
-  move(record, columnId);
+function onDragEnd(event: {
+  canceled: boolean;
+  operation: {
+    source: { id: string | number } | null;
+    target: { id: string | number } | null;
+  };
+}): void {
+  const { source, target } = event.operation;
+  if (event.canceled || !source || !target || !draggable.value) return;
+  const record = (list.data ?? []).find(
+    (candidate) => String(candidate.id) === String(source.id),
+  ) as TRecord | undefined;
+  if (record) move(record, String(target.id));
 }
 
 const isEmpty = (value: unknown) => value == null || value === "";
@@ -254,78 +232,77 @@ const emptyLabel = computed(() =>
 </script>
 
 <template>
-  <div
-    data-slot="kanban-board"
-    :class="cn('flex items-start gap-4 overflow-x-auto pb-2', props.class)"
+  <DragDropProvider
+    :sensors="sensors"
+    @drag-end="onDragEnd"
   >
     <div
-      v-for="{ column, records } in buckets"
-      :key="column.id"
-      role="group"
-      :aria-label="column.label"
-      data-slot="kanban-column"
-      :data-column-id="column.id"
-      :class="
-        cn(
-          'flex w-72 shrink-0 flex-col gap-2 rounded-lg bg-muted/50 p-2',
-          column.className,
-        )
-      "
+      data-slot="kanban-board"
+      :class="cn('flex items-start gap-4 overflow-x-auto pb-2', props.class)"
     >
-      <div class="flex items-center justify-between px-1 text-sm font-medium">
-        <span>{{ column.label }}</span>
-        <span
-          data-slot="kanban-column-count"
-          class="text-muted-foreground"
-        >{{ records.length }}</span>
-      </div>
       <div
-        data-slot="kanban-column-cards"
-        :data-over="overColumn === column.id ? '' : undefined"
-        class="flex min-h-16 flex-col gap-2 rounded-md data-[over]:bg-accent"
-        @dragover="onDragOver($event, column.id)"
-        @dragleave="onDragLeave($event, column.id)"
-        @drop="onDrop($event, column.id)"
+        v-for="{ column, records } in buckets"
+        :key="column.id"
+        role="group"
+        :aria-label="column.label"
+        data-slot="kanban-column"
+        :data-column-id="column.id"
+        :class="
+          cn(
+            'flex w-72 shrink-0 flex-col gap-2 rounded-lg bg-muted/50 p-2',
+            column.className,
+          )
+        "
       >
-        <p
-          v-if="records.length === 0"
-          data-slot="kanban-empty"
-          class="px-1 py-2 text-sm text-muted-foreground"
+        <div class="flex items-center justify-between px-1 text-sm font-medium">
+          <span>{{ column.label }}</span>
+          <span
+            data-slot="kanban-column-count"
+            class="text-muted-foreground"
+          >{{ records.length }}</span>
+        </div>
+        <KanbanDropArea
+          :column-id="column.id"
+          data-slot="kanban-column-cards"
+          class="flex min-h-16 flex-col gap-2 rounded-md data-[over]:bg-accent"
         >
-          {{ emptyLabel }}
-        </p>
-        <div
-          v-for="record in records"
-          :key="record.id"
-          role="button"
-          tabindex="0"
-          data-slot="kanban-card"
-          :data-record-id="String(record.id)"
-          :data-dragging="draggingId === String(record.id) ? '' : undefined"
-          :draggable="draggable"
-          class="flex cursor-pointer items-start gap-2 rounded-md border bg-card p-3 text-sm shadow-xs data-[dragging]:opacity-50"
-          @click="select(record)"
-          @keydown="onCardKeydown($event, record)"
-          @dragstart="onDragStart($event, record)"
-          @dragend="clearDrag"
-        >
-          <div class="flex min-w-0 flex-1 flex-col gap-1">
-            <slot
-              v-if="$slots.card"
-              name="card"
-              :record="record"
-            />
-            <template v-else>
-              <span data-slot="kanban-card-title" class="font-medium">
-                {{ titleOf(record) }}
-              </span>
-              <span
-                v-if="!isEmpty(textOf(record, props.descriptionSource))"
-                data-slot="kanban-card-description"
-                class="text-muted-foreground"
-              >
-                {{ String(textOf(record, props.descriptionSource)) }}
-              </span>
+          <p
+            v-if="records.length === 0"
+            data-slot="kanban-empty"
+            class="px-1 py-2 text-sm text-muted-foreground"
+          >
+            {{ emptyLabel }}
+          </p>
+          <KanbanDraggableCard
+            v-for="record in records"
+            :key="record.id"
+            :id="String(record.id)"
+            :draggable="draggable"
+            role="button"
+            tabindex="0"
+            data-slot="kanban-card"
+            :data-record-id="String(record.id)"
+            class="flex cursor-pointer items-start gap-2 rounded-md border bg-card p-3 text-sm shadow-xs data-[dragging]:opacity-50"
+            @click="select(record)"
+            @keydown="onCardKeydown($event, record)"
+          >
+            <div class="flex min-w-0 flex-1 flex-col gap-1">
+              <slot
+                v-if="$slots.card"
+                name="card"
+                :record="record"
+              />
+              <template v-else>
+                <span data-slot="kanban-card-title" class="font-medium">
+                  {{ titleOf(record) }}
+                </span>
+                <span
+                  v-if="!isEmpty(textOf(record, props.descriptionSource))"
+                  data-slot="kanban-card-description"
+                  class="text-muted-foreground"
+                >
+                  {{ String(textOf(record, props.descriptionSource)) }}
+                </span>
             </template>
           </div>
           <!-- The menu is not portalled, so its clicks would reach the card.
@@ -360,8 +337,9 @@ const emptyLabel = computed(() =>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </div>
-      </div>
+        </KanbanDraggableCard>
+      </KanbanDropArea>
     </div>
   </div>
+  </DragDropProvider>
 </template>
