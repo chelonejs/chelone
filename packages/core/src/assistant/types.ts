@@ -1,15 +1,5 @@
 import type { StandardSchemaV1 } from "@tanstack/form-core";
-
-/** What crosses the model boundary: arguments in, results out. */
-export type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue };
-
-export type JsonObject = { [key: string]: JsonValue };
+import type { JsonObject, JsonValue } from "../guards";
 
 /** A tool call the model asked for. `id` ties the result back to it. */
 export interface AssistantToolCall {

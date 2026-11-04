@@ -1,3 +1,4 @@
+import { isRecord } from "../guards";
 import type { GeoFeature, GeoGeometry, GeoPosition } from "./geojson";
 import { isGeoGeometry } from "./geojson";
 import type { ShapeStyle } from "./map-layers";
@@ -139,10 +140,6 @@ export function toEditorFeatures(
   return result;
 }
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 /** What `getSnapshot()` of the editor returns, as far as core reads it. */
 export interface EditorSnapshotFeature {
   type?: "Feature";
@@ -167,7 +164,7 @@ export function fromEditorFeatures(
     if (HELPER_FLAGS.some((flag) => source[flag])) continue;
     if (!isGeoGeometry(entry.geometry)) continue;
     const kept = source[SOURCE_PROPERTIES];
-    const properties = isPlainObject(kept)
+    const properties = isRecord(kept)
       ? { ...kept }
       : Object.fromEntries(
           Object.entries(source).filter(

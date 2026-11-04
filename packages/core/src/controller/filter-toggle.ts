@@ -6,13 +6,9 @@
  * contains-all rule.
  */
 
-type Filters = Record<string, unknown>;
+import { isPlainObject } from "../guards";
 
-const isPlainObject = (value: unknown): value is Record<string, unknown> => {
-  if (typeof value !== "object" || value === null) return false;
-  const proto = Object.getPrototypeOf(value);
-  return proto === Object.prototype || proto === null;
-};
+type Filters = Record<string, unknown>;
 
 function deepEqual(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) return true;
