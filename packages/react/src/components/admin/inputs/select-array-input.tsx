@@ -1,3 +1,4 @@
+import type { SourcePath } from "@chelone/core";
 import { ChevronDown, X } from "lucide-react";
 import * as React from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
@@ -21,11 +22,11 @@ import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentationText } from "../../../label";
 import type { InputProps } from "../input-props";
 
-interface ChoicesProps {
-  choices?: readonly (string | ChoiceRecord)[];
-  optionText?: OptionText;
-  optionValue?: string;
-  disableValue?: string;
+interface ChoicesProps<TChoice extends ChoiceRecord = ChoiceRecord> {
+  choices?: readonly (string | TChoice)[];
+  optionText?: OptionText<TChoice>;
+  optionValue?: SourcePath<TChoice>;
+  disableValue?: SourcePath<TChoice>;
   translateChoice?: boolean;
 }
 
@@ -53,7 +54,11 @@ interface ChoicesProps {
  *   </Edit>
  * );
  */
-function SelectArrayInput(props: SelectArrayInputProps) {
+function SelectArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
+  typedProps: SelectArrayInputProps<TChoice>,
+) {
+  // The body reads choices as loose records; `TChoice` only types the props.
+  const props = typedProps as unknown as SelectArrayInputProps;
   const {
     choices: choicesProp,
     resource: resourceProp,
@@ -296,13 +301,14 @@ function SelectArrayInput(props: SelectArrayInputProps) {
   );
 }
 
-type SelectArrayInputProps = ChoicesProps &
-  // `source` is optional: a SelectArrayInput inside a ReferenceArrayInput
-  // inherits it.
-  Partial<InputProps> & {
-    className?: string;
-    placeholder?: string;
-    InputLabelProps?: React.ComponentProps<typeof FieldLabel>;
-  };
+type SelectArrayInputProps<TChoice extends ChoiceRecord = ChoiceRecord> =
+  ChoicesProps<TChoice> &
+    // `source` is optional: a SelectArrayInput inside a ReferenceArrayInput
+    // inherits it.
+    Partial<InputProps> & {
+      className?: string;
+      placeholder?: string;
+      InputLabelProps?: React.ComponentProps<typeof FieldLabel>;
+    };
 
 export { SelectArrayInput, type SelectArrayInputProps };
