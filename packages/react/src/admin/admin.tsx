@@ -24,8 +24,13 @@
  * `<AdminUI>` escape hatch still defaults to its placeholder when used directly.
  */
 
-import type { ResourceMap } from "@chelone/core";
-import type { ReactNode } from "react";
+import {
+  type AnyCheloneI18n,
+  createI18n,
+  englishMessages,
+  type ResourceMap,
+} from "@chelone/core";
+import { type ReactNode, useRef } from "react";
 import type { RouterAdapter } from "../router/adapter";
 import { AdminContext, type AdminContextProps } from "./admin-context";
 import { AdminRoutes } from "./admin-routes";
@@ -148,6 +153,14 @@ function AdminComponent<TResources extends ResourceMap = ResourceMap>({
   accessDenied,
   authenticationError,
 }: AdminProps<TResources>): ReactNode {
+  // Built once, and only when the app brings no i18n of its own.
+  const englishI18n = useRef<AnyCheloneI18n>(null);
+  if (i18n === undefined && englishI18n.current === null) {
+    englishI18n.current = createI18n({
+      locale: "en",
+      messages: { en: englishMessages },
+    });
+  }
   const slotProps: AdminSlotProps = {
     title,
     layout,
@@ -166,7 +179,7 @@ function AdminComponent<TResources extends ResourceMap = ResourceMap>({
       dataProvider={dataProvider}
       queryClient={queryClient}
       store={store}
-      i18n={i18n}
+      i18n={i18n ?? englishI18n.current ?? undefined}
       authProvider={authProvider}
       notifications={notifications}
       resources={resources}

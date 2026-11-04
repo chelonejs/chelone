@@ -181,6 +181,20 @@ describe("<CancelButton>", () => {
 });
 
 describe("<DeleteButton>", () => {
+  it("an Admin with no i18n titles the confirm dialog with the resource and record", async () => {
+    const { wrapper } = mountAdmin(() =>
+      h(
+        withRecord({ id: 2, title: "t2" }, () =>
+          h(DeleteButton, { resource: "posts", redirect: false }),
+        ),
+      ),
+    );
+    await wrapper.find('[data-slot="delete-button"]').trigger("click");
+    expect(wrapper.find('[data-slot="confirm-title"]').text()).toBe(
+      "Delete Post t2",
+    );
+  });
+
   it("opens the <Confirm> dialog then deletes on confirm", async () => {
     const { wrapper, dataProvider } = mountAdmin(() =>
       h(

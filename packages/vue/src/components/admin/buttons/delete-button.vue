@@ -68,6 +68,8 @@ import { useCheloneContext } from "../../../context";
 import { useDeleteController } from "../../../controllers";
 import { useUndoable } from "../../../data/undoable";
 import { useTranslate } from "../../../i18n/use-translate";
+import { humanize, pluralize } from "../../../label/inflection";
+import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
 import { RecordContextKey } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 import { useRedirect } from "../../../router";
@@ -117,6 +119,26 @@ const { canAccess, isPending: isAccessPending } = useMenuAccess(
   })),
 );
 const show = computed(() => !isAccessPending.value && canAccess.value);
+
+const getRecordRepresentation = useGetRecordRepresentation(resource as string);
+// `{name}` and `{recordRepresentation}` in the confirm copy, as the React twin passes them.
+const confirmOptions = computed(() => {
+  const representation = getRecordRepresentation(record.value);
+  return {
+    name: translate(`resources.${resource}.forcedCaseName`, {
+      smart_count: 1,
+      _: humanize(
+        translate(`resources.${resource}.name`, {
+          smart_count: 1,
+          _: pluralize(resource as string, 1),
+        }),
+      ),
+    }),
+    recordRepresentation:
+      typeof representation === "string" ? representation : "",
+    id: record.value?.id,
+  };
+});
 
 const label = computed(() =>
   translate("ra.action.delete", { _: props.label ?? "Delete" }),
@@ -191,6 +213,7 @@ async function onConfirm(): Promise<void> {
     :title="confirmTitle"
     :content="confirmContent"
     :confirm-color="confirmColor"
+    :translate-options="confirmOptions"
     @confirm="onConfirm"
     @close="onCancel"
   />
