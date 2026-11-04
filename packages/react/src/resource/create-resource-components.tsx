@@ -19,6 +19,7 @@ import type {
   RegisteredResources,
   ResourceMap,
   SourceProp,
+  SourceValue,
 } from "@chelone/core";
 import { ApiKeyField } from "../components/admin/fields/api-key-field";
 import { ArrayField } from "../components/admin/fields/array-field";
@@ -166,18 +167,62 @@ const components = {
 type Components = typeof components;
 
 /**
+ * The `source` entry of a component's props, `TSource`-typed and still optional
+ * where it was optional. Empty for props with no `source`.
+ */
+type SourceEntry<TProps, TSource> = "source" extends keyof TProps
+  ? Partial<Pick<TProps, "source">> extends Pick<TProps, "source">
+    ? { source?: TSource }
+    : { source: TSource }
+  : unknown;
+
+/**
  * `TProps` with `source` replaced by `TSource`, and still optional where it was
  * optional. Props with no `source` come back as they were. Distributes over a
  * union of props.
  */
 type WithSource<TProps, TSource> = TProps extends unknown
   ? "source" extends keyof TProps
-    ? Omit<TProps, "source"> &
-        (Partial<Pick<TProps, "source">> extends Pick<TProps, "source">
-          ? { source?: TSource }
-          : { source: TSource })
+    ? Omit<TProps, "source"> & SourceEntry<TProps, TSource>
     : TProps
   : never;
+
+/** The return type of an optional callback prop. */
+type CallbackResult<TCallback> =
+  NonNullable<TCallback> extends (...args: never[]) => infer TResult
+    ? TResult
+    : never;
+
+/** The first parameter of an optional callback prop. */
+type CallbackParam<TCallback> =
+  NonNullable<TCallback> extends (
+    value: infer TValue,
+    ...args: never[]
+  ) => unknown
+    ? TValue
+    : never;
+
+/**
+ * The `format`, `parse` and `transform` entries of `TProps` with `TValue` in
+ * place of the value they took or returned. Each stays optional and keeps the
+ * rest of its signature, and one `TProps` lacks is not added.
+ */
+type ValueEntries<TProps, TValue> = {
+  [K in Extract<keyof TProps, "format" | "transform">]?: (
+    value: TValue,
+  ) => CallbackResult<TProps[K]>;
+} & {
+  [K in Extract<keyof TProps, "parse">]?: (
+    value: CallbackParam<TProps[K]>,
+  ) => TValue;
+};
+
+/** Whether `TProps` has a `format`, `parse` or `transform`. */
+type HasValueProps<TProps> = [
+  keyof TProps & ("format" | "parse" | "transform"),
+] extends [never]
+  ? false
+  : true;
 
 /**
  * A component whose `source` prop is `TSource`. A generic component is read at
@@ -187,6 +232,25 @@ type WithSourceComponent<TComponent, TSource> = TComponent extends (
   props: infer TProps,
 ) => infer TResult
   ? (props: WithSource<TProps, TSource>) => TResult
+  : TComponent;
+
+/**
+ * A component with a `format`, `parse` or `transform` is generic over the
+ * literal `source`, so those callbacks take the value at it. One without
+ * keeps {@link WithSourceComponent}'s signature. `NoInfer` keeps `TPath` from
+ * being inferred back through `SourceValue` out of a callback's parameter,
+ * which overflows the type depth.
+ */
+type ResourceMember<TComponent, TRecord> = TComponent extends (
+  props: infer TProps,
+) => infer TResult
+  ? HasValueProps<TProps> extends true
+    ? <TPath extends SourceProp<TRecord>>(
+        props: Omit<TProps, "source" | "format" | "parse" | "transform"> &
+          SourceEntry<TProps, TPath> &
+          ValueEntries<TProps, NoInfer<SourceValue<TRecord, TPath>>>,
+      ) => TResult
+    : WithSourceComponent<TComponent, SourceProp<TRecord>>
   : TComponent;
 
 /** A view with no `resource` prop: the factory has bound it. */
@@ -202,9 +266,9 @@ export type ResourceComponents<
   TResources extends ResourceMap,
   TName extends keyof TResources & string,
 > = {
-  [K in keyof Components]: WithSourceComponent<
+  [K in keyof Components]: ResourceMember<
     Components[K],
-    SourceProp<RecordOf<TResources, TName>>
+    RecordOf<TResources, TName>
   >;
 } & {
   Edit: BoundView<EditProps, ReturnType<typeof Edit>>;

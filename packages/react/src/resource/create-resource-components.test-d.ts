@@ -15,6 +15,8 @@ const resources = defineResources({
   posts: {
     schema: z.object({
       title: z.string(),
+      views: z.number(),
+      publishedAt: z.date().nullable(),
       tags: z.array(z.object({ label: z.string() })),
     }),
   },
@@ -79,6 +81,69 @@ describe("createResourceComponentsOf", () => {
   it("rejects a name the map does not have", () => {
     // @ts-expect-error `tags` is no resource of the map
     createResourceComponentsOf<typeof resources, "tags">("tags");
+  });
+});
+
+describe("format, parse and transform", () => {
+  it("a posts input's format receives the value type at its source", () => {
+    posts.NumberInput({
+      source: "views",
+      format: (value) => {
+        expectTypeOf(value).toEqualTypeOf<number>();
+        return String(value);
+      },
+    });
+    posts.TextInput({
+      source: "title",
+      format: (value) => {
+        expectTypeOf(value).toEqualTypeOf<string>();
+        return value;
+      },
+    });
+    posts.TextInput({
+      source: "tags[0].label",
+      format: (value) => {
+        expectTypeOf(value).toEqualTypeOf<string>();
+        return value;
+      },
+    });
+  });
+
+  it("a posts input's parse must return the value type at its source", () => {
+    posts.TextInput({ source: "title", parse: (value) => String(value) });
+    posts.TextInput({
+      source: "title",
+      // @ts-expect-error `title` is a string, not a number
+      parse: (value) => Number(value),
+    });
+  });
+
+  it("a posts date field's transform receives the value type at its source", () => {
+    posts.DateField({
+      source: "publishedAt",
+      transform: (value) => {
+        expectTypeOf(value).toEqualTypeOf<Date | null>();
+        return value ?? undefined;
+      },
+    });
+    posts.NumberField({
+      source: "views",
+      transform: (value) => {
+        expectTypeOf(value).toEqualTypeOf<number>();
+        return value;
+      },
+    });
+  });
+
+  it("a member with no format, parse or transform keeps its props", () => {
+    const count: Props<typeof posts.ReferenceManyCount> = {
+      reference: "comments",
+      target: "post_id",
+    };
+    posts.TextField({ source: "title" });
+    // @ts-expect-error a typo is still rejected by a member with a value callback
+    posts.TextInput({ source: "titel" });
+    void count;
   });
 });
 
