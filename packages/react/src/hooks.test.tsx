@@ -71,6 +71,36 @@ describe("react hooks", () => {
     expect(result.current.data?.data.map((p) => p.title)).toEqual(["a", "b"]);
   });
 
+  it("useGetList refetches every refetchInterval ms", async () => {
+    const { wrapper, dataProvider } = makeWrapper();
+    const getList = vi.spyOn(dataProvider, "getList");
+    renderHook(
+      () => useGetList<R, "posts">("posts", {}, { refetchInterval: 30 }),
+      { wrapper },
+    );
+    await waitFor(() => expect(getList.mock.calls.length).toBeGreaterThan(2));
+  });
+
+  it("useGetList does not poll with refetchInterval 0 or none", async () => {
+    for (const options of [
+      { refetchInterval: 0 },
+      { refetchInterval: -30 },
+      { refetchInterval: false as const },
+      {},
+    ]) {
+      const { wrapper, dataProvider } = makeWrapper();
+      const getList = vi.spyOn(dataProvider, "getList");
+      const { result, unmount } = renderHook(
+        () => useGetList<R, "posts">("posts", {}, options),
+        { wrapper },
+      );
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(getList).toHaveBeenCalledTimes(1);
+      unmount();
+    }
+  });
+
   it("useGetOne is served from the list-seeded cache shape", async () => {
     const { wrapper } = makeWrapper();
     const { result } = renderHook(

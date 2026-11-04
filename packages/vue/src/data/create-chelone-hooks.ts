@@ -23,6 +23,7 @@ import {
   useUpdateMany,
 } from "./mutations";
 import {
+  type ListQueryOptions,
   useGetList,
   useGetMany,
   useGetManyAggregate,
@@ -42,7 +43,7 @@ export function createCheloneHooks<TResources extends ResourceMap>() {
     useGetList: <TName extends keyof TResources & string>(
       resource: TName,
       params?: MaybeRefOrGetter<GetListParams>,
-      options?: QueryOptions,
+      options?: ListQueryOptions,
     ) => useGetList<TResources, TName>(resource, params, options),
     useGetOne: <TName extends keyof TResources & string>(
       resource: TName,

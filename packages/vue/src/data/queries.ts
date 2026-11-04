@@ -93,6 +93,12 @@ export function useGetManyAggregate<
   );
 }
 
+/** `refetchInterval` is in ms; `0`, a negative number or `false` turns polling off. */
+export type ListQueryOptions = {
+  enabled?: MaybeRefOrGetter<boolean>;
+  refetchInterval?: MaybeRefOrGetter<number | false>;
+};
+
 /**
  * Fetch a page of records, reactively. `resource` may be a ref or getter, so a
  * changing resource re-keys the query.
@@ -103,14 +109,22 @@ export function useGetList<
 >(
   resource: MaybeRefOrGetter<TName>,
   params: MaybeRefOrGetter<GetListParams> = {},
-  options: { enabled?: MaybeRefOrGetter<boolean> } = {},
+  options: ListQueryOptions = {},
 ) {
   const ctx = useCheloneContext<TResources>();
   return useQuery(
-    computed(() => ({
-      ...getListOptions(ctx, toValue(resource), toValue(params)),
-      enabled: options.enabled === undefined ? true : toValue(options.enabled),
-    })),
+    computed(() => {
+      const interval = toValue(options.refetchInterval);
+      return {
+        ...getListOptions(ctx, toValue(resource), toValue(params)),
+        enabled:
+          options.enabled === undefined ? true : toValue(options.enabled),
+        refetchInterval:
+          typeof interval === "number" && interval > 0
+            ? interval
+            : (false as const),
+      };
+    }),
   );
 }
 
