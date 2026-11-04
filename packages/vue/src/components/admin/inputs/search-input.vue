@@ -1,7 +1,7 @@
 <script lang="ts">
 /** Props for {@link SearchInput}. */
 export interface SearchInputProps {
-  source?: string;
+  source?: SourceProp;
   label?: string | false;
   disableClearable?: boolean;
   defaultValue?: unknown;
@@ -21,7 +21,7 @@ export interface SearchInputProps {
  * (use `<TextInput>` when a label is needed) — mirroring the React twin.
  */
 
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import { computed } from "vue";
 import { useCheloneFormContext, useWrappedSource } from "../../../form/form-context";
 import { subscribeStore, useSubscribable } from "../../../form/subscribe-ref";
