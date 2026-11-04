@@ -1,7 +1,7 @@
 {
-  "packages/core": "0.3.0",
-  "packages/react": "0.3.0",
-  "packages/vue": "0.3.0",
-  "packages/supabase": "0.3.0",
-  "packages/rest": "0.3.0"
+  "packages/core": "0.4.0",
+  "packages/react": "0.4.0",
+  "packages/vue": "0.4.0",
+  "packages/supabase": "0.4.0",
+  "packages/rest": "0.4.0"
 }

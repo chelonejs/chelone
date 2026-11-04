@@ -1,5 +1,42 @@
 # @chelone/react
 
+## [0.4.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.3.0...@chelone/react@0.4.0) (2026-11-04)
+
+
+### Features
+
+* **core,react,vue:** CalendarList and TreeList take their sources typed by the record ([ddda9a0](https://github.com/chelonejs/chelone/commit/ddda9a04ca7e59de59b985ae18efd011fcf6c4a6))
+* **react,vue:** Labeled, the webhook-endpoint field and the add-on fields take SourceProp ([58e3818](https://github.com/chelonejs/chelone/commit/58e381829f7c0b7e8513d32c98b94f8907015a27))
+* **react,vue:** rating, usage-meter and api-key sibling sources take SourceKey ([2b54e08](https://github.com/chelonejs/chelone/commit/2b54e085051ff9901b5ebb501c37a83610956b11))
+* **react,vue:** the lat-lng and map search components type their sources ([319ed54](https://github.com/chelonejs/chelone/commit/319ed5415512b17eaaa2ad08f8a7d41d83734f44))
+* **react,vue:** the map and draw inputs take a source typed by the record ([f59dd79](https://github.com/chelonejs/chelone/commit/f59dd79deb9b530d3f3775eb89de5996a9ad8469))
+* **react,vue:** the reference fields take a source typed by the record ([6b3d706](https://github.com/chelonejs/chelone/commit/6b3d70658e17bf0a68ace66f6b76fcee1919c79a))
+* **react,vue:** type ArrayInput, ReferenceInput, ReferenceArrayInput and SearchInput sources as SourceProp ([ac31e1c](https://github.com/chelonejs/chelone/commit/ac31e1c73272d507d1c84f2c34d4082be41115fc))
+* **react,vue:** type optionText, optionValue and disableValue of the select and autocomplete inputs by their choices ([dc99857](https://github.com/chelonejs/chelone/commit/dc99857d2f34d04bf444003ae3827f20b303d9a6))
+* **react,vue:** type source of ArrayField, RecordField, FunctionField and WrapperField ([b7bbae1](https://github.com/chelonejs/chelone/commit/b7bbae1cb9cfc2cc296230d57658b00aeb9c8ae3))
+* **react,vue:** type the api-key, webhook-endpoint, datagrid, mdx and monaco sources by the record ([362d61d](https://github.com/chelonejs/chelone/commit/362d61da32700ffc939bafa6331bad5f2c64d067))
+* **react,vue:** useFieldValue and useInput type a value by its source path ([b2b4553](https://github.com/chelonejs/chelone/commit/b2b45532d647857714df117c5e20b7a46b3f5611))
+* **react:** createResourceComponents binds the views, fields and inputs to one resource ([a8651ec](https://github.com/chelonejs/chelone/commit/a8651ecd2bc6d708f218c3d9b5f51177fbe65374))
+* **react:** GeoJsonField narrows source to the record it takes ([4b52ae5](https://github.com/chelonejs/chelone/commit/4b52ae5cf7b59b56ce03b408d135691a360d520b))
+* **react:** KanbanBoard shows the records of a list as columns and moves a card by dragging it ([cdbd2c0](https://github.com/chelonejs/chelone/commit/cdbd2c0d6598a01dda5fad53c5d2c0b9d1ef44a9))
+
+
+### Bug Fixes
+
+* **react:** KanbanBoard ignores a drag without edit access and names Move to in plain text ([b8e3e35](https://github.com/chelonejs/chelone/commit/b8e3e3591c75fa92511b074e834e20616bbf6cbc))
+* **vue:** bind RecordType to the record prop of the three sibling-source fields ([5edfd61](https://github.com/chelonejs/chelone/commit/5edfd619096b55424aa0bbc3952cc41370ed0dd5))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.4.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.4.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.4.0
+
 ## [0.3.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.2.0...@chelone/react@0.3.0) (2026-11-04)
 
 
