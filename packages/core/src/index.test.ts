@@ -12,6 +12,15 @@ import * as barrel from "./index";
  * breaks the test AND biome's noDynamicNamespaceImportAccess stays happy.
  */
 describe("@chelone/core barrel", () => {
+  it("exports the rich text rules", () => {
+    expect(barrel.isSafeLinkUrl).toBeTypeOf("function");
+    expect(barrel.isSafeImageSrc).toBeTypeOf("function");
+    expect(barrel.richTextSanitizeOptions).toBeTypeOf("object");
+    expect(barrel.richTextStarterKitOptions).toBeTypeOf("object");
+    expect(barrel.richTextToolbarItems).toHaveLength(14);
+    expect(barrel.richTextBlockTypes).toHaveLength(7);
+  });
+
   it("exports the saved-queries controller and helpers", () => {
     expect(barrel.createSavedQueriesController).toBeTypeOf("function");
     expect(barrel.extractValidSavedQueries).toBeTypeOf("function");
@@ -366,6 +375,13 @@ describe("@chelone/core barrel", () => {
     expect(barrel.inMemoryLockProvider).toBeTypeOf("function");
   });
 
+  it("exports the topic hub and the BroadcastChannel transport", () => {
+    expect(barrel.createTopicHub).toBeTypeOf("function");
+    expect(barrel.broadcastChannelTransport).toBeTypeOf("function");
+    expect("resolveReconnectConfig" in barrel).toBe(false);
+    expect("reconnectDelay" in barrel).toBe(false);
+  });
+
   it("exports the command menu helpers", () => {
     expect(barrel.matchesHotkey).toBeTypeOf("function");
     expect(barrel.shouldHandleHotkey).toBeTypeOf("function");
@@ -375,6 +391,15 @@ describe("@chelone/core barrel", () => {
     expect(barrel.createCommandRegistry).toBeTypeOf("function");
     expect(barrel.getVisibleCommands).toBeTypeOf("function");
     expect(barrel.groupCommands).toBeTypeOf("function");
+  });
+
+  it("exports the onboarding tour controller and placement", () => {
+    expect(barrel.createTourController).toBeTypeOf("function");
+    expect(barrel.onboardingTourKey("intro")).toBe(
+      "onboarding-tour.intro.completed",
+    );
+    expect(barrel.placeTourCard).toBeTypeOf("function");
+    expect(barrel.tourSpotlightPath).toBeTypeOf("function");
   });
 
   it("exports the environment stores", () => {

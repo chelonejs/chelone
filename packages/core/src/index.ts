@@ -612,8 +612,33 @@ export type {
   NotifyOptions,
 } from "./notification/notification-store";
 export { createNotificationStore } from "./notification/notification-store";
+export type {
+  PlaceTourCardOptions,
+  TourCardPosition,
+  TourPlacement,
+  TourRect,
+} from "./onboarding-tour/placement";
+export {
+  placeTourCard,
+  tourSpotlightPath,
+} from "./onboarding-tour/placement";
+export type {
+  TourController,
+  TourControllerOptions,
+  TourEnd,
+  TourState,
+} from "./onboarding-tour/tour-controller";
+export {
+  createTourController,
+  onboardingTourKey,
+} from "./onboarding-tour/tour-controller";
 export type { AddEventsForMutationsOptions } from "./realtime/add-events-for-mutations";
 export { addEventsForMutations } from "./realtime/add-events-for-mutations";
+export type {
+  BroadcastChannelTransport,
+  BroadcastChannelTransportOptions,
+} from "./realtime/broadcast-channel-transport";
+export { broadcastChannelTransport } from "./realtime/broadcast-channel-transport";
 export type { InMemoryLockProviderOptions } from "./realtime/in-memory-lock-provider";
 export { inMemoryLockProvider } from "./realtime/in-memory-lock-provider";
 export type { LiveOptions, LiveSubscription } from "./realtime/live";
@@ -657,8 +682,11 @@ export {
   isRealtimeDataProvider,
   realtimeDataProvider,
 } from "./realtime/realtime-data-provider";
+export type { RealtimeReconnectConfig } from "./realtime/reconnect-backoff";
 export type { RealtimeStatusState } from "./realtime/status-store";
 export { createRealtimeStatusStore } from "./realtime/status-store";
+export type { TopicHub } from "./realtime/topic-hub";
+export { createTopicHub } from "./realtime/topic-hub";
 export {
   lockResourceTopic,
   lockTopic,
@@ -734,6 +762,22 @@ export type {
   SourceProp,
   SourceValue,
 } from "./resource/source-path";
+export type {
+  IsSafeImageSrcOptions,
+  RichTextBlockType,
+  RichTextHeadingLevel,
+  RichTextToolbarGroup,
+  RichTextToolbarItem,
+  RichTextToolbarItemId,
+} from "./rich-text/rich-text";
+export {
+  isSafeImageSrc,
+  isSafeLinkUrl,
+  richTextBlockTypes,
+  richTextSanitizeOptions,
+  richTextStarterKitOptions,
+  richTextToolbarItems,
+} from "./rich-text/rich-text";
 export type { CheloneLocation, NavigateOpts } from "./router/location";
 export { parseLocation } from "./router/location";
 export type { PathMatch } from "./router/match";

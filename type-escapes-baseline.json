@@ -503,9 +503,6 @@
   "packages/core/src/realtime/lock-session.ts": {
     "unknown": 2
   },
-  "packages/core/src/realtime/memory-transport.ts": {
-    "cast": 1
-  },
   "packages/core/src/realtime/presence.test.ts": {
     "double-cast": 1,
     "cast": 1,
