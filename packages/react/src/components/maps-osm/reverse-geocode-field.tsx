@@ -1,14 +1,19 @@
-import { type GeocodingProvider, toCoordinate } from "@chelone/core";
+import {
+  type GeocodingProvider,
+  type LooseRecord,
+  type SourceProp,
+  toCoordinate,
+} from "@chelone/core";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useFieldValue } from "../../record/use-field-value";
 import { useReverseGeocode } from "./use-reverse-geocode";
 
-export interface ReverseGeocodeFieldProps {
+export interface ReverseGeocodeFieldProps<TRecord = LooseRecord> {
   /** The record property holding the latitude. */
-  latSource: string;
+  latSource: SourceProp<TRecord>;
   /** The record property holding the longitude. */
-  lngSource: string;
+  lngSource: SourceProp<TRecord>;
   /** Defaults to the ambient record. */
   record?: Record<string, unknown>;
   /** `full` is the whole name, `street` its first part and `city` its first two. Defaults to `full`. */
@@ -35,14 +40,14 @@ function shorten(name: string, format: "full" | "street" | "city"): string {
  * @example
  * <ReverseGeocodeField latSource="latitude" lngSource="longitude" format="city" />
  */
-export function ReverseGeocodeField({
+export function ReverseGeocodeField<TRecord = LooseRecord>({
   latSource,
   lngSource,
   record,
   format = "full",
   provider,
   className,
-}: ReverseGeocodeFieldProps) {
+}: ReverseGeocodeFieldProps<TRecord>) {
   const lat = toCoordinate(useFieldValue({ source: latSource, record }));
   const lng = toCoordinate(useFieldValue({ source: lngSource, record }));
   const found = useReverseGeocode(

@@ -1,6 +1,8 @@
 import {
   type GeocodingProvider,
+  type LooseRecord,
   reverseGeocodeQueryOptions,
+  type SourceProp,
 } from "@chelone/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
@@ -10,13 +12,13 @@ import { LatLngInput } from "../maps/lat-lng-input";
 import { useMapsConfig } from "../maps/maps-provider";
 import { GeocodingInput } from "./geocoding-input";
 
-export interface MapWithSearchProps {
+export interface MapWithSearchProps<TRecord = LooseRecord> {
   /** The form field holding the latitude. */
-  latSource: string;
+  latSource: SourceProp<TRecord>;
   /** The form field holding the longitude. */
-  lngSource: string;
+  lngSource: SourceProp<TRecord>;
   /** The form field holding the address text. */
-  addressSource: string;
+  addressSource: SourceProp<TRecord>;
   /** In pixels, or any CSS length. Defaults to 400. */
   height?: number | string;
   /** Read once at mount. Defaults to 13. */
@@ -43,7 +45,7 @@ export interface MapWithSearchProps {
  *   provider={createNominatimProvider({ endpoint })}
  * />
  */
-export function MapWithSearch({
+export function MapWithSearch<TRecord = LooseRecord>({
   latSource,
   lngSource,
   addressSource,
@@ -51,7 +53,7 @@ export function MapWithSearch({
   zoom = 13,
   provider,
   className,
-}: MapWithSearchProps) {
+}: MapWithSearchProps<TRecord>) {
   const queryClient = useQueryClient();
   const { geocoder } = useMapsConfig();
   const active = provider ?? geocoder;
@@ -85,13 +87,13 @@ export function MapWithSearch({
       data-slot="map-with-search"
       className={cn("flex flex-col gap-3", className)}
     >
-      <GeocodingInput
+      <GeocodingInput<TRecord>
         source={addressSource}
         latSource={latSource}
         lngSource={lngSource}
         provider={provider}
       />
-      <LatLngInput
+      <LatLngInput<TRecord>
         latSource={latSource}
         lngSource={lngSource}
         label={false}
