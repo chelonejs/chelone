@@ -37,11 +37,13 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test-setup.ts"],
-    // The docs engine's pure-logic tests (nav / nav-sequence / registry) run
-    // under `node --test` (node:test), not vitest — exclude them here so vitest
-    // owns the jsdom render tests and generator CLI tests (in node).
+    // The docs engine's other pure-logic tests (nav-sequence / registry) run
+    // under `node --test` (node:test), not vitest. `nav.test.ts` is vitest, and
+    // `nav-content.test.ts` needs Vite's `import.meta.glob`.
     include: [
       "src/**/*.test.tsx",
+      "src/docs/nav.test.ts",
+      "src/docs/nav-content.test.ts",
       "src/landing/**/*.test.ts",
       "scripts/**/*.test.ts",
     ],
