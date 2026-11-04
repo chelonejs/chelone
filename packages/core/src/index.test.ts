@@ -12,6 +12,15 @@ import * as barrel from "./index";
  * breaks the test AND biome's noDynamicNamespaceImportAccess stays happy.
  */
 describe("@chelone/core barrel", () => {
+  it("exports the rich text rules", () => {
+    expect(barrel.isSafeLinkUrl).toBeTypeOf("function");
+    expect(barrel.isSafeImageSrc).toBeTypeOf("function");
+    expect(barrel.richTextSanitizeOptions).toBeTypeOf("object");
+    expect(barrel.richTextStarterKitOptions).toBeTypeOf("object");
+    expect(barrel.richTextToolbarItems).toHaveLength(14);
+    expect(barrel.richTextBlockTypes).toHaveLength(7);
+  });
+
   it("exports the saved-queries controller and helpers", () => {
     expect(barrel.createSavedQueriesController).toBeTypeOf("function");
     expect(barrel.extractValidSavedQueries).toBeTypeOf("function");
