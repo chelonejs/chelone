@@ -38,20 +38,18 @@ const toError = (error: unknown): Error =>
 const issuesText = (issues: ReadonlyArray<{ readonly message: string }>) =>
   issues.map((issue) => issue.message).join("; ");
 
-/** Resolves with `undefined` when the signal aborts before the next chunk. */
-function nextOrAbort(
-  iterator: AsyncIterator<AssistantChunk>,
+/** Resolves with `undefined` when the signal aborts before the promise settles. */
+function raceAbort<T>(
+  promise: Promise<T>,
   signal: AbortSignal,
-): Promise<IteratorResult<AssistantChunk> | undefined> {
+): Promise<T | undefined> {
   return new Promise((resolve, reject) => {
     const onAbort = () => resolve(undefined);
+    if (signal.aborted) return onAbort();
     signal.addEventListener("abort", onAbort, { once: true });
-    iterator
-      .next()
-      .then(resolve, reject)
-      .finally(() => {
-        signal.removeEventListener("abort", onAbort);
-      });
+    promise.then(resolve, reject).finally(() => {
+      signal.removeEventListener("abort", onAbort);
+    });
   });
 }
 
@@ -74,8 +72,18 @@ export function createAssistantSession({
       ]),
     );
   let active: AbortController | null = null;
+  let destroyed = false;
+  // An adapter destroys the session on unmount: end the turn so no tool runs after.
+  store.onDestroy(() => {
+    destroyed = true;
+    active?.abort();
+    active = null;
+  });
 
-  async function runTool(call: AssistantToolCall): Promise<ToolMessage> {
+  async function runTool(
+    call: AssistantToolCall,
+    signal: AbortSignal,
+  ): Promise<ToolMessage> {
     const base = {
       role: "tool",
       id: call.id,
@@ -86,10 +94,12 @@ export function createAssistantSession({
       return { ...base, error: `Unknown tool: ${call.toolName}` };
     }
     const definition = tools[call.toolName] as AssistantTool;
+    const stopped = { ...base, error: "Stopped" };
     try {
       let args = call.args;
       if (definition.schema) {
         const outcome = await definition.schema["~standard"].validate(args);
+        if (signal.aborted) return stopped;
         if (outcome.issues) {
           return {
             ...base,
@@ -98,8 +108,13 @@ export function createAssistantSession({
         }
         args = outcome.value as Record<string, unknown>;
       }
-      if (definition.confirm && !(await confirmTool?.(call))) {
-        return { ...base, error: "The user declined to run this tool" };
+      if (definition.confirm) {
+        const answer = await confirmTool?.(call);
+        // A stop while the dialog is open must not let a late "yes" run the tool.
+        if (signal.aborted) return stopped;
+        if (!answer) {
+          return { ...base, error: "The user declined to run this tool" };
+        }
       }
       return { ...base, result: await definition.handler(args) };
     } catch (error) {
@@ -126,7 +141,7 @@ export function createAssistantSession({
           .send(store.getSnapshot().messages, declarations, { signal })
           [Symbol.asyncIterator]();
         for (;;) {
-          const step = await nextOrAbort(iterator, signal);
+          const step = await raceAbort(iterator.next(), signal);
           if (!step || step.done || signal.aborted) break;
           const chunk = step.value;
           if (chunk.type === "done") break;
@@ -173,7 +188,10 @@ export function createAssistantSession({
 
       const results: ToolMessage[] = [];
       for (const call of calls) {
-        results.push(await runTool(call));
+        // A tool that never settles must not hold the turn after a stop.
+        const result = await raceAbort(runTool(call, signal), signal);
+        if (!result) return;
+        results.push(result);
         if (signal.aborted) return;
       }
       // Calls join the assistant message only with their results, so a stop
@@ -199,6 +217,7 @@ export function createAssistantSession({
   return {
     ...store,
     async send(text) {
+      if (destroyed) return;
       if (!text.trim() || store.getSnapshot().status === "streaming") return;
       const controller = new AbortController();
       active = controller;

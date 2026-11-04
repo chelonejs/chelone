@@ -398,6 +398,74 @@ describe("createAssistantSession", () => {
     });
   });
 
+  it("destroy aborts the active turn, and a send afterwards does nothing", async () => {
+    const handler = vi.fn(() => "ran");
+    const { transport, calls } = scripted([call("c", "loop"), done]);
+    const session = createAssistantSession({
+      transport,
+      tools: {
+        loop: tool({
+          handler: () => {
+            session.destroy();
+            return handler();
+          },
+        }),
+      },
+    });
+
+    await session.send("go");
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.signal.aborted).toBe(true);
+
+    await session.send("again");
+    expect(calls).toHaveLength(1);
+  });
+
+  it("stop ends a turn that is waiting on a confirmation, and a late yes runs nothing", async () => {
+    let answer!: (yes: boolean) => void;
+    const handler = vi.fn();
+    const { transport, calls } = scripted([call("a", "remove"), done]);
+    const session = createAssistantSession({
+      transport,
+      tools: { remove: tool({ handler, confirm: true }) },
+      confirmTool: () =>
+        new Promise<boolean>((resolve) => {
+          answer = resolve;
+        }),
+    });
+
+    const running = session.send("go");
+    await vi.waitFor(() => expect(answer).toBeTypeOf("function"));
+    session.stop();
+    await running;
+    answer(true);
+    await Promise.resolve();
+
+    expect(handler).not.toHaveBeenCalled();
+    expect(calls).toHaveLength(1);
+    expect(session.getSnapshot().status).toBe("idle");
+  });
+
+  it("stop ends a turn whose handler never settles", async () => {
+    const { transport } = scripted([call("a", "hang"), done]);
+    const session = createAssistantSession({
+      transport,
+      tools: { hang: tool({ handler: () => new Promise(() => {}) }) },
+    });
+
+    const running = session.send("go");
+    await vi.waitFor(() =>
+      expect(session.getSnapshot().status).toBe("streaming"),
+    );
+    await Promise.resolve();
+    session.stop();
+    await running;
+
+    expect(session.getSnapshot().status).toBe("idle");
+  });
+
   it("the transport gets the tool declarations without handler, schema or confirm", async () => {
     const parameters = {
       type: "object",
