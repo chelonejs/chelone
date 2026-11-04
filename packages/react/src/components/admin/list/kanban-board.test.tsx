@@ -23,7 +23,7 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { MemoryRouter, useLocation } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Admin } from "../../../admin/admin";
@@ -68,12 +68,14 @@ function mount({
   authProvider,
   edit = true,
   show = true,
+  resourceProps = {},
 }: {
   board?: Partial<KanbanBoardProps>;
   dataProvider?: DataProvider;
   authProvider?: AuthProvider;
   edit?: boolean;
   show?: boolean;
+  resourceProps?: Partial<ComponentProps<typeof Resource>>;
 } = {}) {
   const View = () => null;
   const notifications = createNotificationStore();
@@ -108,6 +110,7 @@ function mount({
           list={list}
           edit={edit ? View : undefined}
           show={show ? View : undefined}
+          {...resourceProps}
         />
       </Admin>
     </MemoryRouter>,
@@ -490,5 +493,49 @@ describe("<KanbanBoard>", () => {
     expect(screen.getByText(script)).toBeTruthy();
     expect(document.querySelector("img")).toBeNull();
     expect(document.querySelector("script")).toBeNull();
+  });
+
+  it("a drag that starts inside a card writes nothing when edit access is denied", async () => {
+    const dataProvider = provider();
+    const update = vi.spyOn(dataProvider, "update");
+    const authProvider = denyEdit();
+    mount({
+      dataProvider,
+      authProvider,
+      board: {
+        cardRenderer: (record: LooseRecord) => (
+          <a href="#x" data-testid={`link-${record.id}`}>
+            {String(record.title)}
+          </a>
+        ),
+      },
+    });
+    await screen.findByTestId("link-1");
+    await waitFor(() => expect(authProvider.canAccess).toHaveBeenCalled());
+
+    const dataTransfer = stubTransfer();
+    fireEvent.dragStart(screen.getByTestId("link-1"), { dataTransfer });
+    fireEvent.dragOver(cardArea("Done"), { dataTransfer });
+    fireEvent.drop(cardArea("Done"), { dataTransfer });
+
+    expect(dataTransfer.setData).not.toHaveBeenCalled();
+    expect(cardArea("Done").hasAttribute("data-over")).toBe(false);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("names the Move to button in plain text when the representation is an element", async () => {
+    mount({
+      dataProvider: fakeDataProvider({
+        tasks: [{ id: 1, title: "Write it", status: "todo" }],
+      }),
+      resourceProps: {
+        recordRepresentation: (record: LooseRecord) => (
+          <b>{String(record.title)}</b>
+        ),
+      },
+    });
+    await screen.findByText("Write it");
+
+    expect(screen.getByRole("button", { name: "Move Write it" })).toBeTruthy();
   });
 });

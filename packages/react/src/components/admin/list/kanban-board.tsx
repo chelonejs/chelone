@@ -26,7 +26,10 @@ import {
 import { useListContext } from "../../../form";
 import { useUpdate } from "../../../hooks";
 import { useTranslate } from "../../../i18n-hooks";
-import { useGetRecordRepresentation } from "../../../label";
+import {
+  useGetRecordRepresentation,
+  useGetRecordRepresentationText,
+} from "../../../label";
 import { cn } from "../../../lib/utils";
 import { useNotify } from "../../../notification-hooks";
 import { useResourceContext, useResourceDefinition } from "../../../resource";
@@ -98,6 +101,7 @@ function KanbanBoard<TRecord extends LooseRecord = LooseRecord>({
   const translate = useTranslate();
   const notify = useNotify();
   const getRepresentation = useGetRecordRepresentation(resource);
+  const getRepresentationText = useGetRecordRepresentationText(resource);
   const navigate = useNavigate();
   const createPath = useCreatePath();
   const { hasEdit, hasShow } = useResourceDefinition({ resource });
@@ -147,6 +151,11 @@ function KanbanBoard<TRecord extends LooseRecord = LooseRecord>({
 
   const textOf = (record: TRecord, source?: SourceProp<TRecord>) =>
     source ? getAtPath(record, source) : undefined;
+  // The Move button's name is plain text: a representation may be an element.
+  const titleTextOf = (record: TRecord): string => {
+    const value = textOf(record, titleSource);
+    return value == null ? getRepresentationText(record) : String(value);
+  };
   const titleOf = (record: TRecord): ReactNode => {
     const value = textOf(record, titleSource);
     return value == null ? getRepresentation(record) : String(value);
@@ -201,7 +210,7 @@ function KanbanBoard<TRecord extends LooseRecord = LooseRecord>({
             }}
             onDrop={(e: DragEvent) => {
               const record = grabbed.current;
-              if (!record) return;
+              if (!record || !draggable) return;
               e.preventDefault();
               clearDrag();
               move(record, column.id);
@@ -243,6 +252,8 @@ function KanbanBoard<TRecord extends LooseRecord = LooseRecord>({
                         : undefined
                     }
                     onDragStart={(e: DragEvent) => {
+                      // A dragstart from inside the card (its text, a link in a cardRenderer) bubbles here too.
+                      if (!draggable) return;
                       e.dataTransfer.effectAllowed = "move";
                       // Firefox starts no drag without data.
                       e.dataTransfer.setData("text/plain", String(record.id));
@@ -291,7 +302,7 @@ function KanbanBoard<TRecord extends LooseRecord = LooseRecord>({
                               aria-label={translate(
                                 "chelone.kanban_board.move",
                                 {
-                                  title: String(title),
+                                  title: titleTextOf(record),
                                   _: "Move {title}",
                                 },
                               )}
