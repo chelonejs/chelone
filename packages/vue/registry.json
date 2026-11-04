@@ -5757,7 +5757,12 @@
         "@chelone/list-icons",
         "@chelone/use-menu-access"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue", "@dnd-kit/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@dnd-kit/dom",
+        "@dnd-kit/vue"
+      ],
       "files": [
         {
           "path": "src/components/kanban/kanban-board.vue",
@@ -5793,7 +5798,12 @@
         "@chelone/list-icons",
         "@chelone/use-menu-access"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue", "@dnd-kit/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@dnd-kit/dom",
+        "@dnd-kit/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
