@@ -82,7 +82,7 @@ export interface UseArrayInputResult {
 
 function toBindingUpdate<TRecord>(
   options: UseArrayInputOptions<TRecord>,
-): ArrayBindingUpdateOptions {
+): ArrayBindingUpdateOptions<UnknownFormValues> {
   return {
     defaultValue: options.defaultValue,
     scalar: options.scalar,

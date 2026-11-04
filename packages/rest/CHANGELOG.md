@@ -1,5 +1,19 @@
 # @chelone/rest
 
+## [0.6.0](https://github.com/chelonejs/chelone/compare/@chelone/rest@0.5.0...@chelone/rest@0.6.0) (2026-11-04)
+
+
+### Refactors
+
+* **rest,supabase:** return records from the providers without as never ([9635d7b](https://github.com/chelonejs/chelone/commit/9635d7bf4b317552f02aed5d52dc390e0c96be2c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.6.0
+
 ## [0.5.0](https://github.com/chelonejs/chelone/compare/@chelone/rest@0.4.0...@chelone/rest@0.5.0) (2026-11-04)
 
 
