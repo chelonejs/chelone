@@ -26,11 +26,11 @@ export interface GeocodingInputProps<TRecord = LooseRecord> {
   /** The form field holding the address text. */
   source: SourceProp<TRecord>;
   /** Written with the picked result's latitude. Left alone when unset. */
-  latSource?: string;
+  latSource?: SourceProp<TRecord>;
   /** Written with the picked result's longitude. Left alone when unset. */
-  lngSource?: string;
+  lngSource?: SourceProp<TRecord>;
   /** Written with the picked result's `[west, south, east, north]`, when it has one. */
-  bboxSource?: string;
+  bboxSource?: SourceProp<TRecord>;
   /** A string is translated; `false` renders none. Defaults to the label of `source`. */
   label?: string | false;
   /** Defaults to `chelone.map.search_placeholder`. */
