@@ -195,6 +195,15 @@ describe("richTextToolbarItems", () => {
     );
   });
 
+  it("gives the link item no shortcut, since tiptap binds none and mod+k opens the command menu", () => {
+    const link = richTextToolbarItems.find((item) => item.id === "link");
+    expect(link).toBeDefined();
+    expect(link?.shortcut).toBeUndefined();
+    expect(richTextToolbarItems.map((item) => item.shortcut)).not.toContain(
+      "mod+k",
+    );
+  });
+
   it("every shortcut parses with matchesHotkey", () => {
     const withShortcut = richTextToolbarItems.filter((item) => item.shortcut);
     expect(withShortcut.map((item) => item.id)).toEqual(

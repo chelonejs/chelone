@@ -130,7 +130,9 @@ function item(
 
 /**
  * Every toolbar button, in display order. Adapters map each id to a tiptap
- * command, so core names no tiptap type. Shortcuts match tiptap's own keymaps.
+ * command, so core names no tiptap type. A shortcut is listed only where
+ * tiptap's own keymap binds it, so the adapter wires nothing extra. Link has
+ * none: tiptap binds no key for it, and `mod+k` opens the command menu.
  */
 export const richTextToolbarItems: readonly Readonly<RichTextToolbarItem>[] =
   Object.freeze([
@@ -140,7 +142,7 @@ export const richTextToolbarItems: readonly Readonly<RichTextToolbarItem>[] =
     item("strike", "mark", "Strikethrough", "mod+shift+s"),
     item("code", "mark", "Code", "mod+e"),
     item("clearFormatting", "mark", "Clear formatting"),
-    item("link", "insert", "Link", "mod+k"),
+    item("link", "insert", "Link"),
     item("bulletList", "list", "Bullet list", "mod+shift+8"),
     item("orderedList", "list", "Ordered list", "mod+shift+7"),
     item("blockquote", "block", "Blockquote", "mod+shift+b"),
