@@ -1,0 +1,29 @@
+{
+  "name": "AdapterPathRoute",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "element",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "index",
+      "type": "false",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

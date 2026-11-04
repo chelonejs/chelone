@@ -7,9 +7,11 @@
  */
 
 export type {
+  AdapterIndexRouteProps,
   AdapterLinkProps,
   AdapterNavigate,
   AdapterNavigateProps,
+  AdapterPathRouteProps,
   AdapterRouteProps,
   AdapterRoutesProps,
   RouterAdapter,
