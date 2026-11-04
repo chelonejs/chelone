@@ -2,6 +2,7 @@ import type {
   ArrayBinding,
   ArrayBindingUpdateOptions,
   ArrayRow,
+  SourcePath,
   SourceScope,
   TranslatableMessage,
 } from "@chelone/core";
@@ -45,9 +46,10 @@ function useAttach(subscribe: (listener: () => void) => () => void): void {
   useSyncExternalStore(subscribe, attachSnapshot, attachSnapshot);
 }
 
-export interface UseArrayInputOptions extends ArrayBindingUpdateOptions {
+export interface UseArrayInputOptions<TRecord = unknown>
+  extends ArrayBindingUpdateOptions {
   /** The array field path RELATIVE to the ambient source scope. */
-  source: string;
+  source: SourcePath<TRecord>;
 }
 
 /** The array field's own error state (min-length validators, etc.). */
@@ -86,8 +88,8 @@ interface ArrayBindingHolder {
   binding: ArrayBinding<UnknownFormValues>;
 }
 
-function toBindingUpdate(
-  options: UseArrayInputOptions,
+function toBindingUpdate<TRecord>(
+  options: UseArrayInputOptions<TRecord>,
 ): ArrayBindingUpdateOptions {
   return {
     defaultValue: options.defaultValue,
@@ -114,8 +116,14 @@ function toBindingUpdate(
  * set is reference-stable between structure changes so React reuses fibers by
  * `row.id`.
  */
+export function useArrayInput<TRecord>(
+  options: UseArrayInputOptions<TRecord>,
+): UseArrayInputResult;
 export function useArrayInput(
   options: UseArrayInputOptions,
+): UseArrayInputResult;
+export function useArrayInput<TRecord>(
+  options: UseArrayInputOptions<TRecord>,
 ): UseArrayInputResult {
   const { form } = useCheloneFormContext();
   const parentScope = useSourceContext();

@@ -24,6 +24,7 @@ import type {
   ArrayBindingUpdateOptions,
   ArrayRow,
   CheloneFieldState,
+  SourcePath,
   SourceScope,
   TranslatableMessage,
 } from "@chelone/core";
@@ -43,9 +44,10 @@ import { useSubscribable } from "../form/subscribe-ref";
 /** The erased form-data shape the ambient form carries. */
 type UnknownFormValues = Record<string, unknown>;
 
-export interface UseArrayInputOptions extends ArrayBindingUpdateOptions {
+export interface UseArrayInputOptions<TRecord = unknown>
+  extends ArrayBindingUpdateOptions {
   /** The array field path RELATIVE to the ambient source scope. */
-  source: string;
+  source: SourcePath<TRecord>;
 }
 
 /** The array field's own reactive error state (min-length validators, etc.). */
@@ -78,8 +80,8 @@ export interface UseArrayInputResult {
   fieldState: ArrayFieldState;
 }
 
-function toBindingUpdate(
-  options: UseArrayInputOptions,
+function toBindingUpdate<TRecord>(
+  options: UseArrayInputOptions<TRecord>,
 ): ArrayBindingUpdateOptions {
   return {
     defaultValue: options.defaultValue,
@@ -91,8 +93,14 @@ function toBindingUpdate(
   };
 }
 
+export function useArrayInput<TRecord>(
+  options: UseArrayInputOptions<TRecord>,
+): UseArrayInputResult;
 export function useArrayInput(
   options: UseArrayInputOptions,
+): UseArrayInputResult;
+export function useArrayInput<TRecord>(
+  options: UseArrayInputOptions<TRecord>,
 ): UseArrayInputResult {
   const { form } = useCheloneFormContext();
   const parentScope = useSourceScope();

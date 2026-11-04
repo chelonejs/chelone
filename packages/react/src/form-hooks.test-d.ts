@@ -14,6 +14,7 @@ import type {
   UseFormResult,
   UseInputResult,
 } from "./form-hooks";
+import { useInput } from "./form-hooks";
 
 const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
@@ -88,5 +89,20 @@ describe("form hook result types (P4 lesson: type symmetry)", () => {
     expectTypeOf<FieldErrors>().toEqualTypeOf<
       Record<string, string | string[]>
     >();
+  });
+});
+
+describe("useInput source typing", () => {
+  it("useInput<Post> accepts a path of Post", () => {
+    expectTypeOf(useInput<Post>).toBeCallableWith({ source: "title" });
+  });
+
+  it("useInput<Post> rejects a source that is not a path of Post", () => {
+    // @ts-expect-error "titel" is not a path of Post
+    expectTypeOf(useInput<Post>).toBeCallableWith({ source: "titel" });
+  });
+
+  it("useInput without a type argument takes any string", () => {
+    expectTypeOf(useInput).toBeCallableWith({ source: "anything.at[0].all" });
   });
 });
