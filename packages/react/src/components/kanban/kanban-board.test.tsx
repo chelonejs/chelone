@@ -623,6 +623,34 @@ describe("<KanbanBoard>", () => {
     }
   });
 
+  it("a card announces as a button, with no drag instructions", async () => {
+    mount();
+    await screen.findByText("Write it");
+    await settle();
+
+    const node = card("Write it");
+    expect(node.getAttribute("role")).toBe("button");
+    for (const name of [
+      "aria-roledescription",
+      "aria-describedby",
+      "aria-pressed",
+      "aria-grabbed",
+    ]) {
+      expect(node.hasAttribute(name), name).toBe(false);
+    }
+    expect(document.body.textContent).not.toContain("space bar");
+  });
+
+  it("a card is not announced as disabled when edit access is denied", async () => {
+    const authProvider = denyEdit();
+    mount({ authProvider });
+    await screen.findByText("Write it");
+    await waitFor(() => expect(authProvider.canAccess).toHaveBeenCalled());
+    await settle();
+
+    expect(card("Write it").hasAttribute("aria-disabled")).toBe(false);
+  });
+
   it("cards are not draggable when edit access is denied", async () => {
     const authProvider = denyEdit();
     mount({ authProvider });

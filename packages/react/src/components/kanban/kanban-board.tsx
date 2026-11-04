@@ -7,7 +7,7 @@ import {
   type SourceKey,
   type SourceProp,
 } from "@chelone/core";
-import { PointerSensor } from "@dnd-kit/dom";
+import { Accessibility, PointerSensor } from "@dnd-kit/dom";
 import {
   DragDropProvider,
   type DragEndEvent,
@@ -70,6 +70,11 @@ const isEmpty = (value: unknown) => value == null || value === "";
 // Enter and Space select a card, so the keyboard sensor stays off: the "Move to"
 // menu is the keyboard path.
 const SENSORS = [PointerSensor];
+// Without the keyboard sensor, the Accessibility plugin would still tag a card
+// "draggable" or "disabled" and tell a screen reader to press Space, which selects.
+const PLUGINS: ComponentProps<typeof DragDropProvider>["plugins"] = (
+  defaults,
+) => defaults.filter((plugin) => plugin !== Accessibility);
 
 /** The card area of a column: a drop target that marks itself while a card is over it. */
 function KanbanColumnCards({
@@ -218,7 +223,7 @@ function KanbanBoard<TRecord extends LooseRecord = LooseRecord>({
   };
 
   return (
-    <DragDropProvider sensors={SENSORS} onDragEnd={onDragEnd}>
+    <DragDropProvider sensors={SENSORS} plugins={PLUGINS} onDragEnd={onDragEnd}>
       <div
         data-slot="kanban-board"
         className={cn("flex items-start gap-4 overflow-x-auto pb-2", className)}
