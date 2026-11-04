@@ -330,6 +330,18 @@ describe("@chelone/core barrel", () => {
     expect(barrel.getAllowedTransitions).toBeTypeOf("function");
   });
 
+  it("exports the job monitor helpers", () => {
+    expect(barrel.DEFAULT_JOB_TABS).toEqual([
+      "running",
+      "queued",
+      "failed",
+      "done",
+    ]);
+    expect(barrel.getJobActions).toBeTypeOf("function");
+    expect(barrel.planJobRetry).toBeTypeOf("function");
+    expect(barrel.planJobCancel).toBeTypeOf("function");
+  });
+
   it("exports the presence session and helpers", () => {
     expect(barrel.createPresenceSession).toBeTypeOf("function");
     expect(barrel.presenceTopic).toBeTypeOf("function");
