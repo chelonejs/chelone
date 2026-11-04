@@ -1,5 +1,6 @@
-// Fails when a pull request adds a type escape, or removes one without
-// updating the baseline. Escapes are counted per file and kind, parsed with
+// Fails when a pull request adds a type escape. Removed escapes pass: the
+// type-escape-baseline workflow records them on main after the merge, so pull
+// requests never edit the baseline and never conflict over it. Escapes are counted per file and kind, parsed with
 // TypeScript (Vue files by their <script> blocks), so the count does not move
 // when unrelated lines do.
 //
@@ -7,7 +8,7 @@
 // `// type-escape: <why>` comment. That is the way to add a justified escape.
 //
 //   pnpm check:type-escapes            compare with type-escapes-baseline.json
-//   pnpm check:type-escapes --update   rewrite the baseline from the current tree
+//   pnpm check:type-escapes --update   rewrite the baseline (main's workflow runs this)
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -179,10 +180,9 @@ if (added.length > 0) {
   }
 }
 if (removed.length > 0) {
-  if (added.length > 0) console.error("");
-  console.error("Type escapes were removed. Run pnpm check:type-escapes --update and commit the baseline:\n");
-  for (const { file, kind, found, allowed } of removed) console.error(`${file}: ${found} ${kind}, baseline has ${allowed}`);
+  console.log("Type escapes removed (main's type-escape-baseline workflow records them after the merge):");
+  for (const { file, kind, found, allowed } of removed) console.log(`${file}: ${found} ${kind}, baseline has ${allowed}`);
 }
 
-if (added.length > 0 || removed.length > 0) process.exit(1);
-console.log(`No new type escapes: ${sites.length} in ${counts.size} files match the baseline.`);
+if (added.length > 0) process.exit(1);
+console.log(`No new type escapes: ${sites.length} in ${counts.size} files.`);
