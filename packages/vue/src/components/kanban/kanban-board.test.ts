@@ -742,6 +742,29 @@ describe("<KanbanBoard>", () => {
       expect(node.attributes("draggable")).toBe(undefined);
   });
 
+  it("attributes put on the board land on the board element", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { wrapper } = await mountBoard({
+      board: {
+        id: "tasks-board",
+        style: "max-height: 400px",
+        "aria-label": "Tasks",
+        "data-testid": "board",
+        class: "extra",
+      },
+    });
+
+    const board = wrapper.find("[data-slot=kanban-board]");
+    expect(board.attributes("data-testid")).toBe("board");
+    expect(board.attributes("id")).toBe("tasks-board");
+    expect(board.attributes("aria-label")).toBe("Tasks");
+    expect(board.attributes("style")).toContain("max-height");
+    expect(board.classes()).toContain("extra");
+    expect(
+      warn.mock.calls.some((call) => String(call[0]).includes("Extraneous")),
+    ).toBe(false);
+  });
+
   it("cards are not draggable when edit access is denied", async () => {
     const authProvider = denyEdit();
     const { wrapper } = await mountBoard({ authProvider });

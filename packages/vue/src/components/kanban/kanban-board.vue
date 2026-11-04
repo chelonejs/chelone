@@ -130,6 +130,10 @@ const draggable = computed(
   () => !!resource && canAccess.value && !isAccessPending.value,
 );
 
+// The root is `DragDropProvider`, which renders a fragment, so attributes would
+// fall through to it and be dropped. They belong on the board element.
+defineOptions({ inheritAttrs: false });
+
 // Declared emits are stripped from `$attrs`, so the vnode props are the only
 // place to tell whether a parent attached `@select-card`. `@select-card.once`
 // compiles to `onSelectCardOnce`, which `emit` also honours.
@@ -237,6 +241,7 @@ const emptyLabel = computed(() =>
     @drag-end="onDragEnd"
   >
     <div
+      v-bind="$attrs"
       data-slot="kanban-board"
       :class="cn('flex items-start gap-4 overflow-x-auto pb-2', props.class)"
     >
