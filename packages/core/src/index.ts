@@ -87,6 +87,15 @@ export type {
 } from "./controller/infinite-list-controller";
 export { createInfiniteListController } from "./controller/infinite-list-controller";
 export type {
+  KanbanBucket,
+  KanbanColumnDef,
+  KanbanMove,
+} from "./controller/kanban-board";
+export {
+  buildKanbanBuckets,
+  planKanbanMove,
+} from "./controller/kanban-board";
+export type {
   ListController,
   ListControllerContext,
   ListControllerOptions,
