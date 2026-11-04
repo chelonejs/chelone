@@ -1,6 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router";
 import { CardDescriptions } from "./mdx/card-context";
+import { groupByCategory } from "./nav";
 import { introBySection } from "./nav-content";
 import { fallbackIcon, SECTION_META } from "./section-meta";
 import type { DocGroup } from "./types";
@@ -29,9 +30,23 @@ export function CategoryIndex({ section }: { section: DocGroup }) {
   const Intro = introBySection[section.dir];
   const cards = section.children.flatMap((c) =>
     c.kind === "leaf"
-      ? [{ to: `/docs/${c.slug}`, title: c.title, slug: c.slug }]
+      ? [
+          {
+            to: `/docs/${c.slug}`,
+            title: c.title,
+            slug: c.slug,
+            category: c.category,
+          },
+        ]
       : c.indexSlug
-        ? [{ to: `/docs/${c.indexSlug}`, title: c.title, slug: c.indexSlug }]
+        ? [
+            {
+              to: `/docs/${c.indexSlug}`,
+              title: c.title,
+              slug: c.indexSlug,
+              category: undefined,
+            },
+          ]
         : [],
   );
 
@@ -56,38 +71,50 @@ export function CategoryIndex({ section }: { section: DocGroup }) {
           </article>
         </CardDescriptions.Provider>
       ) : (
-        <div className="mt-10 grid gap-3 sm:grid-cols-2">
-          {cards.map((card, i) => {
-            const desc = descBySlug.get(card.slug);
-            return (
-              <Link
-                key={card.slug}
-                to={card.to}
-                className="group block rounded-xl border border-border/60 bg-card p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-border hover:bg-muted/40"
-                style={{
-                  transitionTimingFunction: ease,
-                  animation: `docs-rise 0.5s ${ease} both`,
-                  animationDelay: `${Math.min(i, 12) * 30}ms`,
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-foreground">
-                    {card.title}
-                  </span>
-                  <ArrowUpRight
-                    className="ml-auto size-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground"
-                    strokeWidth={1.5}
-                    style={{ transitionTimingFunction: ease }}
-                  />
-                </div>
-                {desc && (
-                  <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">
-                    {desc}
-                  </p>
-                )}
-              </Link>
-            );
-          })}
+        <div className="mt-10 space-y-8">
+          {groupByCategory(cards, (c) => c.category).map((run) => (
+            <section key={run.category ?? run.items[0].slug}>
+              {run.category && (
+                <h2 className="mb-3 text-sm font-semibold text-muted-foreground">
+                  {run.category}
+                </h2>
+              )}
+              <div className="grid gap-3 sm:grid-cols-2">
+                {run.items.map((card) => {
+                  const i = cards.indexOf(card);
+                  const desc = descBySlug.get(card.slug);
+                  return (
+                    <Link
+                      key={card.slug}
+                      to={card.to}
+                      className="group block rounded-xl border border-border/60 bg-card p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-border hover:bg-muted/40"
+                      style={{
+                        transitionTimingFunction: ease,
+                        animation: `docs-rise 0.5s ${ease} both`,
+                        animationDelay: `${Math.min(i, 12) * 30}ms`,
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-foreground">
+                          {card.title}
+                        </span>
+                        <ArrowUpRight
+                          className="ml-auto size-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground"
+                          strokeWidth={1.5}
+                          style={{ transitionTimingFunction: ease }}
+                        />
+                      </div>
+                      {desc && (
+                        <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">
+                          {desc}
+                        </p>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
         </div>
       )}
     </div>
