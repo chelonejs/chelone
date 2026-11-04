@@ -482,7 +482,7 @@ describe("<ReferenceManyField>", () => {
             target="author_id"
             // A draft holds no value for its key field yet.
             source="draftKey"
-            record={{ id: 1, name: "Draft" }}
+            record={{ id: 1, name: "Draft", draftKey: undefined }}
           >
             <Probe />
           </ReferenceManyField>

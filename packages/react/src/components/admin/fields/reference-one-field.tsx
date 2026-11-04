@@ -1,4 +1,9 @@
-import type { FilterPayload, LooseRecord, SortPayload } from "@chelone/core";
+import type {
+  FilterPayload,
+  LooseRecord,
+  SortPayload,
+  SourceProp,
+} from "@chelone/core";
 import type { ReactNode } from "react";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentation } from "../../../label";
@@ -15,7 +20,7 @@ interface ReferenceOneFieldProps<RecordType extends LooseRecord = LooseRecord> {
   /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
   target: string;
   /** The field on the current record the `target` matches. Default `"id"`. */
-  source?: string;
+  source?: SourceProp<RecordType>;
   /** The record whose id is matched. Defaults to the ambient record. */
   record?: RecordType;
   /** Child field(s) rendered against the referenced record. */
