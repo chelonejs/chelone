@@ -21,6 +21,7 @@
     ".": "./src/index.ts",
     "./tanstack-router": "./src/tanstack-router.ts",
     "./monaco": "./src/monaco.ts",
+    "./kanban": "./src/kanban.ts",
     "./csv-import": "./src/csv-import.ts",
     "./maps": "./src/maps.ts",
     "./maps/draw": "./src/maps-draw.ts",
@@ -46,6 +47,10 @@
       "./monaco": {
         "types": "./dist/monaco.d.ts",
         "default": "./dist/monaco.js"
+      },
+      "./kanban": {
+        "types": "./dist/kanban.d.ts",
+        "default": "./dist/kanban.js"
       },
       "./csv-import": {
         "types": "./dist/csv-import.d.ts",
@@ -106,6 +111,8 @@
   },
   "peerDependencies": {
     "@chelone/supabase": "workspace:*",
+    "@dnd-kit/dom": "^0.5.3",
+    "@dnd-kit/react": "^0.5.3",
     "@mdxeditor/editor": "^4.3.4",
     "@monaco-editor/react": "^4.7.0",
     "@tanstack/react-query": "^5.0.0",
@@ -127,6 +134,12 @@
   },
   "peerDependenciesMeta": {
     "@chelone/supabase": {
+      "optional": true
+    },
+    "@dnd-kit/dom": {
+      "optional": true
+    },
+    "@dnd-kit/react": {
       "optional": true
     },
     "@mdxeditor/editor": {
@@ -175,6 +188,8 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.0",
     "@chelone/supabase": "workspace:*",
+    "@dnd-kit/dom": "^0.5.3",
+    "@dnd-kit/react": "^0.5.3",
     "@mdxeditor/editor": "^4.3.4",
     "@monaco-editor/react": "^4.7.0",
     "@tanstack/react-query": "^5.0.0",
