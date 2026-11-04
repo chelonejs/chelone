@@ -59,3 +59,82 @@ describe("defineResources with Zod 4", () => {
     }>();
   });
 });
+
+describe("defineResources references", () => {
+  const authoredSchema = z.object({
+    id: z.number(),
+    authorId: z.number(),
+    title: z.string(),
+  });
+
+  it("defineResources accepts a references key that is a field of the schema", () => {
+    defineResources({
+      posts: { schema: authoredSchema, references: { authorId: "users" } },
+      users: {},
+    });
+  });
+
+  it("defineResources rejects a references key that is not a field of the schema", () => {
+    defineResources({
+      posts: {
+        schema: authoredSchema,
+        // @ts-expect-error authorid is not a field of the schema
+        references: { authorid: "users" },
+      },
+      users: {},
+    });
+  });
+
+  it("defineResources rejects a references target that is not a registered resource", () => {
+    defineResources({
+      posts: {
+        schema: authoredSchema,
+        // @ts-expect-error writers is not a registered resource
+        references: { authorId: "writers" },
+      },
+      users: {},
+    });
+  });
+
+  it("defineResources keeps literal resource names when references are given", () => {
+    const registry = defineResources({
+      posts: { schema: authoredSchema, references: { authorId: "users" } },
+      users: {},
+    });
+    expectTypeOf<keyof typeof registry>().toEqualTypeOf<"posts" | "users">();
+    expectTypeOf<RecordOf<typeof registry, "posts">>().toEqualTypeOf<
+      z.infer<typeof authoredSchema>
+    >();
+  });
+
+  it("a resource with no schema accepts any references key", () => {
+    defineResources({
+      posts: { references: { anything: "users" } },
+      users: {},
+    });
+  });
+
+  it("defineResources checks references on a Zod 4 schema", () => {
+    const schema = z4.object({ id: z4.number(), authorId: z4.number() });
+    defineResources({
+      posts: { schema, references: { authorId: "users" } },
+      users: {},
+    });
+    defineResources({
+      posts: {
+        schema,
+        // @ts-expect-error authorid is not a field of the Zod 4 schema
+        references: { authorid: "users" },
+      },
+      users: {},
+    });
+    defineResources({
+      posts: {
+        schema,
+        // @ts-expect-error writers is not a registered resource
+        references: { authorId: "writers" },
+      },
+      users: {},
+    });
+  });
+});
