@@ -59,10 +59,8 @@ interface CheckboxGroupInputProps<TChoice extends ChoiceRecord = ChoiceRecord>
  * );
  */
 function CheckboxGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
-  inProps: CheckboxGroupInputProps<TChoice>,
+  props: CheckboxGroupInputProps<TChoice>,
 ) {
-  // The body reads choices as loose records; `TChoice` only types the props.
-  const props = inProps as unknown as CheckboxGroupInputProps;
   const {
     choices: choicesProp,
     resource: resourceProp,
@@ -78,9 +76,9 @@ function CheckboxGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     readOnly,
 
     optionText,
-    optionValue = "id",
+    optionValue,
     translateChoice,
-    disableValue = "disabled",
+    disableValue,
 
     className,
     helperText,
@@ -99,7 +97,7 @@ function CheckboxGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     resource,
     source,
     isFromReference,
-  } = useChoicesContext({ choices: choicesProp, source: sourceProp });
+  } = useChoicesContext<TChoice>({ choices: choicesProp, source: sourceProp });
 
   if (source === undefined) {
     throw new Error(
@@ -124,13 +122,15 @@ function CheckboxGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   const error = fieldState.error;
 
   const getRecordRepresentationText = useGetRecordRepresentationText(resource);
-  const { getChoiceText, getChoiceValue, getDisableValue } = useChoices({
-    optionText:
-      optionText ?? (isFromReference ? getRecordRepresentationText : undefined),
-    optionValue,
-    translateChoice: translateChoice ?? !isFromReference,
-    disableValue,
-  });
+  const { getChoiceText, getChoiceValue, getDisableValue } =
+    useChoices<TChoice>({
+      optionText:
+        optionText ??
+        (isFromReference ? getRecordRepresentationText : undefined),
+      optionValue,
+      translateChoice: translateChoice ?? !isFromReference,
+      disableValue,
+    });
 
   if (isPending) {
     return <Skeleton className="h-9 w-full" />;

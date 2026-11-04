@@ -47,10 +47,8 @@ import type { ChoicesProps, InputProps } from "../input-props";
  * );
  */
 function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
-  typedProps: SelectInputProps<TChoice>,
+  props: SelectInputProps<TChoice>,
 ) {
-  // The body reads choices as loose records; `TChoice` only types the props.
-  const props = typedProps as unknown as SelectInputProps;
   const {
     choices: choicesProp,
     resource: resourceProp,
@@ -58,7 +56,7 @@ function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
 
     optionText,
     optionValue,
-    disableValue = "disabled",
+    disableValue,
     translateChoice,
 
     defaultValue,
@@ -101,7 +99,7 @@ function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     source,
     resource,
     isFromReference,
-  } = useChoicesContext({ choices: choicesProp, source: sourceProp });
+  } = useChoicesContext<TChoice>({ choices: choicesProp, source: sourceProp });
 
   if (source === undefined) {
     throw new Error(
@@ -110,13 +108,15 @@ function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   }
 
   const getRecordRepresentationText = useGetRecordRepresentationText(resource);
-  const { getChoiceText, getChoiceValue, getDisableValue } = useChoices({
-    optionText:
-      optionText ?? (isFromReference ? getRecordRepresentationText : undefined),
-    optionValue,
-    disableValue,
-    translateChoice: translateChoice ?? !isFromReference,
-  });
+  const { getChoiceText, getChoiceValue, getDisableValue } =
+    useChoices<TChoice>({
+      optionText:
+        optionText ??
+        (isFromReference ? getRecordRepresentationText : undefined),
+      optionValue,
+      disableValue,
+      translateChoice: translateChoice ?? !isFromReference,
+    });
 
   // `resource`/`disabled`/`readOnly` are component-local (label + control
   // gating), NOT `useInput` keys.

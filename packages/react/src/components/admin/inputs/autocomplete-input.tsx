@@ -58,10 +58,8 @@ import { createDebounce } from "./create-debounce";
  * );
  */
 function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
-  typedProps: AutocompleteInputProps<TChoice>,
+  props: AutocompleteInputProps<TChoice>,
 ) {
-  // The body reads choices as loose records; `TChoice` only types the props.
-  const props = typedProps as unknown as AutocompleteInputProps;
   const {
     debounce: debounceDelay = 250,
     filterToQuery = DefaultFilterToQuery,
@@ -87,7 +85,10 @@ function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     resource,
     isFromReference,
     setFilters,
-  } = useChoicesContext({ choices: props.choices, source: props.source });
+  } = useChoicesContext<TChoice>({
+    choices: props.choices,
+    source: props.source,
+  });
 
   if (source === undefined) {
     throw new Error(
@@ -115,11 +116,11 @@ function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   const error = fieldState.error;
 
   const getRecordRepresentationText = useGetRecordRepresentationText(resource);
-  const { getChoiceText, getChoiceValue } = useChoices({
+  const { getChoiceText, getChoiceValue } = useChoices<TChoice>({
     optionText:
       props.optionText ??
-      (isFromReference ? getRecordRepresentationText : "name"),
-    optionValue: props.optionValue ?? "id",
+      (isFromReference ? getRecordRepresentationText : undefined),
+    optionValue: props.optionValue,
     disableValue: props.disableValue,
     translateChoice: props.translateChoice ?? !isFromReference,
   });
@@ -172,7 +173,7 @@ function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   );
 
   const getInputText = useCallback(
-    (choice: ChoiceRecord) =>
+    (choice: TChoice) =>
       typeof inputText === "function"
         ? inputText(choice)
         : getChoiceText(choice),
@@ -190,7 +191,7 @@ function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   });
 
   const handleChange = useCallback(
-    (choice: ChoiceRecord) => {
+    (choice: TChoice) => {
       if (isEqual(getChoiceValue(choice), field.value) && !isRequired) {
         field.onChange(emptyValue);
         setFilterValue("");

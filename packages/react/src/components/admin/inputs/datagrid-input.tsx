@@ -75,16 +75,14 @@ type DatagridInputProps<
 function DatagridInput<
   TRecord = LooseRecord,
   TChoice extends ChoiceRecord = ChoiceRecord,
->(typedProps: DatagridInputProps<TRecord, TChoice>): ReactNode {
-  // The body reads choices as loose records; `TChoice` only types the props.
-  const props = typedProps as unknown as DatagridInputProps;
+>(props: DatagridInputProps<TRecord, TChoice>): ReactNode {
   const {
     choices,
     className,
     source: sourceProp,
     helperText,
-    optionText = "name",
-    optionValue = "id",
+    optionText,
+    optionValue,
     translateChoice,
     optionLabel,
   } = props;
@@ -93,7 +91,7 @@ function DatagridInput<
     availableChoices = [],
     source,
     isFromReference,
-  } = useChoicesContext({ choices, source: sourceProp });
+  } = useChoicesContext<TChoice>({ choices, source: sourceProp });
 
   const finalSource = source ?? sourceProp ?? "";
   if (finalSource === "") {
@@ -114,7 +112,7 @@ function DatagridInput<
   });
   const translate = useTranslate();
 
-  const { getChoiceText, getChoiceValue } = useChoices({
+  const { getChoiceText, getChoiceValue } = useChoices<TChoice>({
     optionText,
     optionValue,
     translateChoice: translateChoice ?? !isFromReference,
