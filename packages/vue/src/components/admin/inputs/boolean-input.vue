@@ -1,7 +1,7 @@
 <script lang="ts">
 /** Props for {@link BooleanInput}. */
 export interface BooleanInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   defaultValue?: boolean;
   validate?: Validator | readonly Validator[];
@@ -17,7 +17,7 @@ export interface BooleanInputProps {
  * on change so validation surfaces on interaction.
  */
 
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";

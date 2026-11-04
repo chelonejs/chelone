@@ -1,7 +1,7 @@
 <script lang="ts">
 /** Props for {@link ColorInput}. */
 export interface ColorInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
@@ -23,7 +23,7 @@ export interface ColorInputProps {
  * the optional quick-set `swatches` row. Binds via `useInput` + `<ValidationError>`.
  */
 
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { cn } from "../../../lib/utils";
