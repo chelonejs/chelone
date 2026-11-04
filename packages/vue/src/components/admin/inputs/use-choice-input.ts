@@ -53,13 +53,6 @@ export interface UseChoiceInputOptions<
   disableValue?: SourcePath<TChoice>;
   /** Translate a string-path label. Default `!isFromReference`. */
   translateChoice?: boolean;
-  /**
-   * The `optionText` fallback for a NON-reference context when `optionText` is
-   * omitted (a reference context always falls back to the record
-   * representation). `undefined` lets `useChoices` apply its own `name` default;
-   * the autocomplete twins pass `"name"` explicitly.
-   */
-  defaultOptionText?: OptionText<TChoice>;
 }
 
 /** The resolved choice-input surface — accessors + reactive context fields. */
@@ -111,7 +104,7 @@ export function useChoiceInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     useChoices<TChoice>({
       optionText:
         options.optionText ??
-        (isFromReference ? getRecordRepresentation : options.defaultOptionText),
+        (isFromReference ? getRecordRepresentation : undefined),
       optionValue: options.optionValue,
       disableValue: options.disableValue,
       translateChoice: options.translateChoice ?? !isFromReference,

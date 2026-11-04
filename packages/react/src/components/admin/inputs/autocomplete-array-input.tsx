@@ -1,4 +1,4 @@
-import type { FilterPayload } from "@chelone/core";
+import type { FilterPayload, SourcePath } from "@chelone/core";
 import { Command as CommandPrimitive } from "cmdk";
 import { X } from "lucide-react";
 import * as React from "react";
@@ -29,11 +29,11 @@ import { useEvent } from "../../../util/use-event";
 import type { InputProps } from "../input-props";
 import { createDebounce } from "./create-debounce";
 
-interface ChoicesProps {
-  choices?: readonly (string | ChoiceRecord)[];
-  optionText?: OptionText;
-  optionValue?: string;
-  disableValue?: string;
+interface ChoicesProps<TChoice extends ChoiceRecord = ChoiceRecord> {
+  choices?: readonly (string | TChoice)[];
+  optionText?: OptionText<TChoice>;
+  optionValue?: SourcePath<TChoice>;
+  disableValue?: SourcePath<TChoice>;
   translateChoice?: boolean;
 }
 
@@ -62,7 +62,11 @@ const EMPTY_VALUES: unknown[] = [];
  *   </Create>
  * );
  */
-function AutocompleteArrayInput(props: AutocompleteArrayInputProps) {
+function AutocompleteArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
+  typedProps: AutocompleteArrayInputProps<TChoice>,
+) {
+  // The body reads choices as loose records; `TChoice` only types the props.
+  const props = typedProps as unknown as AutocompleteArrayInputProps;
   const {
     debounce: debounceDelay = 250,
     filterToQuery = DefaultFilterToQuery,
@@ -408,41 +412,42 @@ const DefaultFilterToQuery = (searchText: string): FilterPayload => ({
   q: searchText,
 });
 
-type AutocompleteArrayInputProps = Omit<InputProps, "source"> &
-  Partial<Pick<InputProps, "source">> &
-  ChoicesProps & {
-    className?: string;
-    debounce?: number;
-    filterToQuery?: (searchText: string) => FilterPayload;
-    placeholder?: string;
-    /** Custom display text for badge labels. */
-    inputText?: (option: unknown) => string;
-    /** When true, only show already-selected choices in the dropdown. */
-    limitChoicesToValue?: boolean;
-    /** Cap the number of dropdown items shown. */
-    suggestionLimit?: number;
-    /** Content to show when no choices match the filter. */
-    noOptionsText?: React.ReactNode;
-    /** When true, clear the filter text on input blur. */
-    clearOnBlur?: boolean;
-    /** When true, open the dropdown on input focus (default for the array variant). */
-    openOnFocus?: boolean;
-    /** When true, select all text in the input on focus. */
-    selectOnFocus?: boolean;
-    /** When true, Home/End keys scroll the listbox to first/last item. */
-    handleHomeEndKeys?: boolean;
-    /** Custom equality check between a choice value and a selected value. */
-    isOptionEqualToValue?: (option: unknown, value: unknown) => boolean;
-    /** Custom filter function; replaces default substring match. */
-    matchSuggestion?: (filter: string, choice: unknown) => boolean;
-    /** Gate controlling whether the dropdown opens at all. */
-    shouldRenderSuggestions?: (filter: string) => boolean;
-    /** Accepted for API parity; not rendered in the array variant. */
-    emptyText?: string;
-    /** Called with the current filter text on every keystroke (no debounce). */
-    setFilter?: (filter: string) => void;
-    /** Radix popover modality. */
-    modal?: boolean;
-  };
+type AutocompleteArrayInputProps<TChoice extends ChoiceRecord = ChoiceRecord> =
+  Omit<InputProps, "source"> &
+    Partial<Pick<InputProps, "source">> &
+    ChoicesProps<TChoice> & {
+      className?: string;
+      debounce?: number;
+      filterToQuery?: (searchText: string) => FilterPayload;
+      placeholder?: string;
+      /** Custom display text for badge labels. */
+      inputText?: (option: unknown) => string;
+      /** When true, only show already-selected choices in the dropdown. */
+      limitChoicesToValue?: boolean;
+      /** Cap the number of dropdown items shown. */
+      suggestionLimit?: number;
+      /** Content to show when no choices match the filter. */
+      noOptionsText?: React.ReactNode;
+      /** When true, clear the filter text on input blur. */
+      clearOnBlur?: boolean;
+      /** When true, open the dropdown on input focus (default for the array variant). */
+      openOnFocus?: boolean;
+      /** When true, select all text in the input on focus. */
+      selectOnFocus?: boolean;
+      /** When true, Home/End keys scroll the listbox to first/last item. */
+      handleHomeEndKeys?: boolean;
+      /** Custom equality check between a choice value and a selected value. */
+      isOptionEqualToValue?: (option: unknown, value: unknown) => boolean;
+      /** Custom filter function; replaces default substring match. */
+      matchSuggestion?: (filter: string, choice: unknown) => boolean;
+      /** Gate controlling whether the dropdown opens at all. */
+      shouldRenderSuggestions?: (filter: string) => boolean;
+      /** Accepted for API parity; not rendered in the array variant. */
+      emptyText?: string;
+      /** Called with the current filter text on every keystroke (no debounce). */
+      setFilter?: (filter: string) => void;
+      /** Radix popover modality. */
+      modal?: boolean;
+    };
 
 export { AutocompleteArrayInput, type AutocompleteArrayInputProps };

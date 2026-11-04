@@ -1,4 +1,4 @@
-import type { FilterPayload } from "@chelone/core";
+import type { FilterPayload, SourcePath } from "@chelone/core";
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
@@ -31,11 +31,11 @@ import { useEvent } from "../../../util/use-event";
 import type { InputProps } from "../input-props";
 import { createDebounce } from "./create-debounce";
 
-interface ChoicesProps {
-  choices?: readonly (string | ChoiceRecord)[];
-  optionText?: OptionText;
-  optionValue?: string;
-  disableValue?: string;
+interface ChoicesProps<TChoice extends ChoiceRecord = ChoiceRecord> {
+  choices?: readonly (string | TChoice)[];
+  optionText?: OptionText<TChoice>;
+  optionValue?: SourcePath<TChoice>;
+  disableValue?: SourcePath<TChoice>;
   translateChoice?: boolean;
 }
 
@@ -65,7 +65,11 @@ interface ChoicesProps {
  *   </Create>
  * );
  */
-function AutocompleteInput(props: AutocompleteInputProps) {
+function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
+  typedProps: AutocompleteInputProps<TChoice>,
+) {
+  // The body reads choices as loose records; `TChoice` only types the props.
+  const props = typedProps as unknown as AutocompleteInputProps;
   const {
     debounce: debounceDelay = 250,
     filterToQuery = DefaultFilterToQuery,
@@ -398,9 +402,12 @@ const DefaultFilterToQuery = (searchText: string): FilterPayload => ({
   q: searchText,
 });
 
-type AutocompleteInputProps = Omit<InputProps, "source"> &
+type AutocompleteInputProps<TChoice extends ChoiceRecord = ChoiceRecord> = Omit<
+  InputProps,
+  "source"
+> &
   Partial<Pick<InputProps, "source">> &
-  ChoicesProps & {
+  ChoicesProps<TChoice> & {
     className?: string;
     debounce?: number;
     filterToQuery?: (searchText: string) => FilterPayload;
