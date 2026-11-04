@@ -211,6 +211,41 @@
     },
     {
       "includes": [
+        "packages/supabase/src/codegen/**",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**",
+                      "!typescript",
+                      "!@chelone/core",
+                      "!node:*",
+                      "!./**",
+                      "!../**",
+                      "!.",
+                      "!.."
+                    ],
+                    "message": "@chelone/supabase's codegen imports only typescript, @chelone/core, node:* and relative paths."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
         "packages/react/src/**",
         "!**/*.test.ts",
         "!**/*.test.tsx",
