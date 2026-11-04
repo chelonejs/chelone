@@ -30,6 +30,8 @@ jobs:
         run: pnpm lint
       - name: No new duplication
         run: pnpm check:duplication
+      - name: No new type escapes
+        run: pnpm check:type-escapes
       - name: Typecheck
         run: pnpm typecheck
       - name: Test
