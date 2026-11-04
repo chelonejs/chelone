@@ -11,6 +11,7 @@ import {
   type ShapeStyle,
   type ShapeValue,
   type ShapeValueKind,
+  type SourceProp,
   type Validator,
 } from "@chelone/core";
 import {
@@ -38,7 +39,7 @@ type ToolbarTool = DrawTool | "delete";
 /** Props for {@link ShapeInput}. */
 export interface ShapeInputProps {
   /** The form field holding the GeoJSON value. */
-  source: string;
+  source: SourceProp;
   /** The kind of value the field holds, which decides what a drawing writes. */
   kind: ShapeValueKind;
   /** The legend. A string is translated; `false` renders none. */
