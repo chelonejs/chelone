@@ -754,6 +754,22 @@ export type {
   SourceProp,
   SourceValue,
 } from "./resource/source-path";
+export type {
+  IsSafeImageSrcOptions,
+  RichTextBlockType,
+  RichTextHeadingLevel,
+  RichTextToolbarGroup,
+  RichTextToolbarItem,
+  RichTextToolbarItemId,
+} from "./rich-text/rich-text";
+export {
+  isSafeImageSrc,
+  isSafeLinkUrl,
+  richTextBlockTypes,
+  richTextSanitizeOptions,
+  richTextStarterKitOptions,
+  richTextToolbarItems,
+} from "./rich-text/rich-text";
 export type { CheloneLocation, NavigateOpts } from "./router/location";
 export { parseLocation } from "./router/location";
 export type { PathMatch } from "./router/match";
