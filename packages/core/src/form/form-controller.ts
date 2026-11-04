@@ -7,6 +7,7 @@ import {
   type StandardSchemaV1,
 } from "@tanstack/form-core";
 import type { NotificationStore } from "../notification/notification-store";
+import { createFormHandle, type FormHandle } from "./form-handle";
 import {
   composeFormValidator,
   isThenable,
@@ -161,6 +162,12 @@ export interface FormController<TRecord> {
    * and advanced imperative use.
    */
   form: CheloneFormApi<TRecord>;
+  /**
+   * The same form as a {@link FormHandle}: `source` paths typed by `TRecord`,
+   * values typed at each path, and the record-erased `ambient` form a context
+   * can carry.
+   */
+  handle: FormHandle<TRecord>;
   /**
    * Refcounted subscription (uSES-compatible): registers `listener` with
    * `form.store` and mounts the form on the 0 -> 1 transition. Returns an
@@ -320,6 +327,7 @@ export function createFormController<TRecord>(
 
   return {
     form,
+    handle: createFormHandle<TRecord>(form),
     subscribe(listener) {
       // A destroyed controller never re-attaches: a post-destroy mount would
       // resurrect resources nothing will ever release.

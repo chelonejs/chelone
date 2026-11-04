@@ -437,18 +437,53 @@ export type {
 } from "./form/form-groups";
 export { createFormGroups, reduceGroupState } from "./form/form-groups";
 export type {
+  AmbientFieldMeta,
+  AmbientForm,
+  AnyFormHandle,
+  FormContextHandle,
+  FormContextHandleOf,
+  FormHandle,
+  RecordMap,
+  ResourceFormHandle,
+  UnboundFormHandle,
+} from "./form/form-handle";
+export {
+  createFormHandle,
+  isResourceHandle,
+  toFormContextHandle,
+  toResourceFormHandle,
+} from "./form/form-handle";
+export type {
   CheloneFieldApi,
   CheloneFieldState,
+  CheloneFieldStore,
   FieldBinding,
   FieldBindingOptions,
   FieldBindingUpdateOptions,
-  FieldValidatorMeta,
+  FormattedValue,
 } from "./form/input-binding";
 export {
   createFieldBinding,
   defaultFormat,
   defaultParse,
 } from "./form/input-binding";
+export type {
+  ChoiceValueOf,
+  DateInputValue,
+  FileInputValue,
+  FormValue,
+  WebhookValue,
+} from "./form/input-values";
+export {
+  toBooleanValue,
+  toCurrencyValue,
+  toDateInputValue,
+  toFileInputValue,
+  toNumberValue,
+  toTextList,
+  toTextValue,
+  toWebhookValue,
+} from "./form/input-values";
 export type { JsonShape } from "./form/json-text";
 export {
   detectJsonShape,
@@ -465,6 +500,7 @@ export {
   rootSourceScope,
 } from "./form/source";
 export type {
+  FieldValidatorMeta,
   MessageFactory,
   RequiredValidator,
   ValidationErrorMessage,
