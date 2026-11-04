@@ -109,7 +109,8 @@ describe("createMissingKeyStore", () => {
     ]);
     expect(Object.keys(JSON.parse(store.toJson("fr")))).toEqual(["__proto__"]);
     expect(store.toJson("fr")).toContain('"__proto__": "Proto"');
-    expect("Proto" in {}).toBe(false);
+    const plain: { Proto?: string } = {};
+    expect(plain.Proto).toBeUndefined();
   });
 
   it("clear empties one locale and leaves the others", async () => {
