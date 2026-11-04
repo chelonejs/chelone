@@ -3,6 +3,7 @@ import type {
   FilterPayload,
   LooseRecord,
   SortPayload,
+  SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link ReferenceManyField}. */
@@ -12,7 +13,7 @@ export interface ReferenceManyFieldProps {
   /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
   target: string;
   /** The field on the current record the `target` matches. Default `"id"`. */
-  source?: string;
+  source?: SourceProp;
   /** The record whose id is matched. Defaults to the ambient record. */
   record?: LooseRecord;
   /** Initial sort of the related list. Default id ascending. */
