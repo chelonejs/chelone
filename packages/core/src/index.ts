@@ -118,6 +118,15 @@ export {
   serializeListState,
 } from "./controller/list-params";
 export type {
+  PivotAggregator,
+  PivotOptions,
+  PivotTable,
+} from "./controller/pivot-grid";
+export {
+  buildPivotTable,
+  formatPivotValue,
+} from "./controller/pivot-grid";
+export type {
   PrevNextOptions,
   PrevNextPage,
   PrevNextParams,
