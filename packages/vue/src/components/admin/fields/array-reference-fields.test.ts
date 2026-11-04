@@ -181,6 +181,25 @@ describe("FileField", () => {
     expect(links[1]!.text()).toBe("B");
   });
 
+  it("FileField reads an array item's title and src by a bracket path", () => {
+    const w = mountField(
+      FileField,
+      { source: "files", src: "links[0].href", title: "meta[0].name" },
+      {
+        files: [
+          { meta: [{ name: "Plan" }], links: [{ href: "plan.pdf" }] },
+          { meta: [{ name: "Cover" }], links: [{ href: "cover.pdf" }] },
+        ],
+      },
+    );
+    const links = w.findAll('[data-slot="file-field"] a');
+    expect(links.map((a) => a.attributes("href"))).toEqual([
+      "plan.pdf",
+      "cover.pdf",
+    ]);
+    expect(links.map((a) => a.text())).toEqual(["Plan", "Cover"]);
+  });
+
   it("renders the empty placeholder for a nullish value", () => {
     const w = mountField(
       FileField,
@@ -219,6 +238,22 @@ describe("ImageField", () => {
     const imgs = w.findAll('[data-slot="image-field"] img');
     expect(imgs).toHaveLength(2);
     expect(imgs[1]!.attributes("src")).toBe("2.png");
+  });
+
+  it("ImageField reads an array item's title and src by a bracket path", () => {
+    const w = mountField(
+      ImageField,
+      { source: "pics", src: "links[0].href", title: "meta[0].name" },
+      {
+        pics: [
+          { meta: [{ name: "A" }], links: [{ href: "a.png" }] },
+          { meta: [{ name: "B" }], links: [{ href: "b.png" }] },
+        ],
+      },
+    );
+    const imgs = w.findAll('[data-slot="image-field"] img');
+    expect(imgs.map((i) => i.attributes("src"))).toEqual(["a.png", "b.png"]);
+    expect(imgs.map((i) => i.attributes("title"))).toEqual(["A", "B"]);
   });
 
   it("renders the empty placeholder for a nullish value", () => {
