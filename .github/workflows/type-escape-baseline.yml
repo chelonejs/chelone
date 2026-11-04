@@ -1,0 +1,45 @@
+name: Type-escape baseline
+
+# Pull requests may lower type-escape counts without touching the baseline, so
+# they never conflict over it. This records the lower counts once they land.
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  # A newer push supersedes an older one: its run sees every merge before it.
+  group: type-escape-baseline
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          # The token reaches only the push step, not the install.
+          persist-credentials: false
+      # This job can write to main, so its third-party action is pinned.
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Record removed escapes
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          pnpm check:type-escapes
+          pnpm check:type-escapes --update
+          git diff --quiet type-escapes-baseline.json && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: record removed type escapes" -- type-escapes-baseline.json
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" HEAD:main
