@@ -1,7 +1,7 @@
 <script lang="ts">
 /** Props for {@link ReferenceInput}. */
 export interface ReferenceInputProps {
-  source: string;
+  source: SourceProp;
   reference: string;
   label?: string | false;
   perPage?: number;
@@ -21,7 +21,7 @@ export interface ReferenceInputProps {
  * Risk 1). Choice labels use the reference's record representation.
  */
 
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import { computed } from "vue";
 import { useGetList } from "../../../data/queries";
 import { useInput } from "../../../form/use-input";

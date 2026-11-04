@@ -1,10 +1,10 @@
 <script lang="ts">
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 
 /** Props for {@link ArrayInput}. */
 export interface ArrayInputProps {
   /** The array field path RELATIVE to the ambient source scope. */
-  source: string;
+  source: SourceProp;
   /** Explicit label, or `false` to hide it. Absent → humanized `source`. */
   label?: string | false;
   /** Override the ambient resource (label-key resolution). */
