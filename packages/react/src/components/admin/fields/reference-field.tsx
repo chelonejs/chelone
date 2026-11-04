@@ -86,7 +86,10 @@ function ReferenceField<RecordType extends LooseRecord = LooseRecord>(
     error: errorElement = null,
   } = props;
 
-  const id = useFieldValue({ source, record }) as Identifier | null | undefined;
+  const id = useFieldValue({
+    source: source as SourceProp<RecordType>,
+    record,
+  }) as Identifier | null | undefined;
   const translate = useTranslate();
   const getRecordRepresentation = useGetRecordRepresentation(reference);
   const definition = useResourceDefinition({ resource: reference });

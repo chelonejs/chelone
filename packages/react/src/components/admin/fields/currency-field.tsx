@@ -43,7 +43,7 @@ function CurrencyField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: CurrencyFieldProps<RecordType>) {
-  const value = useFieldValue({ defaultValue, source, record });
+  const value: unknown = useFieldValue({ defaultValue, source, record });
   const appLocale = useLocale();
   const translate = useTranslate();
   const locale = displayLocale ?? appLocale;

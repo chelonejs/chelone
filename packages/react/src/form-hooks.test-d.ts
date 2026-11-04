@@ -20,6 +20,7 @@ const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
 });
 type Post = { id: number; title: string };
+type Article = { headline: string; views: number; author: { name: string } };
 
 describe("form hook result types (P4 lesson: type symmetry)", () => {
   it("UseFormResult is generic in the form data type, never any", () => {
@@ -104,5 +105,50 @@ describe("useInput source typing", () => {
 
   it("useInput without a type argument takes any string", () => {
     expectTypeOf(useInput).toBeCallableWith({ source: "anything.at[0].all" });
+  });
+});
+
+describe("useInput value typing", () => {
+  it("useInput types format with the value at its source", () => {
+    useInput<Article, "views">({
+      source: "views",
+      format: (value) => {
+        expectTypeOf(value).toEqualTypeOf<number>();
+        return String(value);
+      },
+    });
+  });
+
+  it("useInput types parse to return the value at its source", () => {
+    useInput<Article, "views">({
+      source: "views",
+      defaultValue: 0,
+      parse: (input) => Number(input),
+    });
+    useInput<Article, "views">({
+      source: "views",
+      // @ts-expect-error parse must return a number for "views"
+      parse: (input) => String(input),
+    });
+  });
+
+  it("useInput rejects a format that takes the wrong value type", () => {
+    useInput<Article, "headline">({
+      source: "headline",
+      // @ts-expect-error "headline" is a string, not a number
+      format: (value: number) => value,
+    });
+  });
+
+  it("useInput without a record takes unknown values", () => {
+    useInput({
+      source: "anything",
+      defaultValue: 1,
+      format: (value) => {
+        expectTypeOf(value).toBeUnknown();
+        return value;
+      },
+      parse: (input) => input,
+    });
   });
 });

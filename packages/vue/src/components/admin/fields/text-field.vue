@@ -1,7 +1,9 @@
 <script lang="ts">
+import type { LooseRecord, SourceProp } from "@chelone/core";
+
 /** Props for {@link TextField}. */
 export interface TextFieldProps {
-  source: string;
+  source: SourceProp;
   record?: LooseRecord;
   defaultValue?: unknown;
   empty?: string;
@@ -16,7 +18,6 @@ export interface TextFieldProps {
  * `<span>`. A nullish value renders the `empty` fallback (or nothing).
  */
 
-import type { LooseRecord } from "@chelone/core";
 import { computed } from "vue";
 import { useFieldValue } from "../../../record/use-field-value";
 

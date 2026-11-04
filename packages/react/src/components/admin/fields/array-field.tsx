@@ -3,6 +3,7 @@ import type {
   LooseRecord,
   ResourceRecord,
   SortPayload,
+  SourceProp,
 } from "@chelone/core";
 import type { ReactNode } from "react";
 import { ListContextProvider } from "../../../form";
@@ -42,7 +43,11 @@ function ArrayField<RecordType extends LooseRecord = LooseRecord>(
   props: ArrayFieldProps<RecordType>,
 ) {
   const { children, perPage, sort, filter } = props;
-  const data = (useFieldValue(props) as unknown[] | undefined) ?? emptyArray;
+  const data =
+    (useFieldValue({
+      ...props,
+      source: props.source as SourceProp<RecordType>,
+    }) as unknown as unknown[] | undefined) ?? emptyArray;
   const listContext = useList({
     // The array holds arbitrary embedded records; the client controller is
     // record-shape-agnostic, so erase to the loose `ResourceRecord`.

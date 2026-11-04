@@ -57,7 +57,7 @@ function MdxField<RecordType extends LooseRecord = LooseRecord>({
   onError,
   ...rest
 }: MdxFieldProps<RecordType>) {
-  const value = useFieldValue({ source, record });
+  const value: unknown = useFieldValue({ source, record });
   const translate = useTranslate();
   const theme = useResolvedTheme();
   const editorRef = useRef<MDXEditorMethods>(null);

@@ -703,7 +703,7 @@ function DataTableCell(props: DataTableColumnProps) {
   // Resolve the source value off the ambient row record (zero-lodash parity via
   // `useFieldValue`). Called unconditionally to satisfy the Rules of Hooks; the
   // result is only used in the source-only render branch below.
-  const sourceValue = useFieldValue({ source: source ?? "" });
+  const sourceValue: unknown = useFieldValue({ source: source ?? "" });
   if (!render && !field && !children && !source) {
     throw new Error(
       "DataTableColumn: Missing at least one of the following props: render, field, children, or source",
