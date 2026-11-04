@@ -149,7 +149,7 @@ describe("ReferenceManyField", () => {
     expect(wrapper.text()).toContain("World");
     expect(wrapper.text()).not.toContain("Foo");
 
-    await wrapper.get('button[aria-label="Next"]').trigger("click");
+    await wrapper.get('button[aria-label="Go to next page"]').trigger("click");
 
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("Foo");

@@ -73,7 +73,7 @@ const viewLabel = (view: CalendarView) =>
         <Button
           variant="ghost"
           size="icon"
-          :aria-label="translate('ra.navigation.previous', { _: 'Previous' })"
+          :aria-label="translate('ra.calendar.previous', { _: 'Previous' })"
           @click="emit('navigate', 'previous')"
         >
           <ChevronLeftIcon />
@@ -84,7 +84,7 @@ const viewLabel = (view: CalendarView) =>
         <Button
           variant="ghost"
           size="icon"
-          :aria-label="translate('ra.navigation.next', { _: 'Next' })"
+          :aria-label="translate('ra.calendar.next', { _: 'Next' })"
           @click="emit('navigate', 'next')"
         >
           <ChevronRightIcon />
