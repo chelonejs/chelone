@@ -30,10 +30,12 @@ export type ChoiceRecord = Record<string, unknown>;
  * shape. `isFromReference` distinguishes them; the list-mutation actions are
  * no-ops on an inline context (pagination off).
  */
-export interface ChoicesContextValue {
-  allChoices: ChoiceRecord[];
-  availableChoices: ChoiceRecord[];
-  selectedChoices: ChoiceRecord[];
+export interface ChoicesContextValue<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> {
+  allChoices: TChoice[];
+  availableChoices: TChoice[];
+  selectedChoices: TChoice[];
   total: number | undefined;
   isPending: boolean;
   isFetching: boolean;
@@ -159,9 +161,9 @@ export interface UseChoicesContextOptions {
  * {@link ChoicesContextProvider} value is returned. Throws if neither is
  * present.
  */
-export function useChoicesContext(
+export function useChoicesContext<TChoice extends ChoiceRecord = ChoiceRecord>(
   options: UseChoicesContextOptions = {},
-): ChoicesContextValue {
+): ChoicesContextValue<TChoice> {
   const ambient = useContext(ChoicesContext);
   const inline = options.choices;
   const synthesized = useMemo<ChoicesContextValue | null>(
@@ -175,7 +177,8 @@ export function useChoicesContext(
       "useChoicesContext: pass `choices` or wrap in a <ChoicesContextProvider>.",
     );
   }
-  return resolved;
+  // type-escape: the context holds the erased value; the caller names its choice shape
+  return resolved as ChoicesContextValue<TChoice>;
 }
 
 /** A path into a choice, or a formatter over the whole choice. */
