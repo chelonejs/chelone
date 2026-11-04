@@ -1,9 +1,12 @@
-<script lang="ts">
+<script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { FilterPayload } from "@chelone/core";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
 /** Props for {@link AutocompleteArrayInput}. */
-export interface AutocompleteArrayInputProps extends ChoiceInputBaseProps {
+export interface AutocompleteArrayInputProps<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> extends ChoiceInputBaseProps<TChoice> {
   /** Placeholder shown in the search input. */
   placeholder?: string;
   /** Maps the typed filter text into a reference-list filter payload. Default `{ q }`. */
@@ -13,7 +16,7 @@ export interface AutocompleteArrayInputProps extends ChoiceInputBaseProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
 /**
  * `<AutocompleteArrayInput>` — a searchable multi-select showing chosen items as
  * removable badges, the Vue analog of `@chelone/react`'s
@@ -38,9 +41,8 @@ import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 import { useChoiceInput } from "./use-choice-input";
 
-const props = withDefaults(defineProps<AutocompleteArrayInputProps>(), {
+const props = withDefaults(defineProps<AutocompleteArrayInputProps<TChoice>>(), {
   label: undefined,
-  optionValue: "id",
   filterToQuery: (searchText: string) => ({ q: searchText }),
 });
 
@@ -63,7 +65,6 @@ const {
   optionValue: props.optionValue,
   disableValue: props.disableValue,
   translateChoice: props.translateChoice,
-  defaultOptionText: "name",
 });
 
 const { id, value, setValue, blur, error, touched, isRequired } = useInput({
@@ -125,14 +126,14 @@ function onInput(event: Event) {
   if (isFromReference) setFilters(props.filterToQuery(text), true);
 }
 
-function onSelect(choice: Record<string, unknown>) {
+function onSelect(choice: TChoice) {
   setValue([...values.value, getChoiceValue(choice)]);
   query.value = "";
   if (isFromReference) setFilters(props.filterToQuery(""), true);
   blur();
 }
 
-function onUnselect(choice: Record<string, unknown>) {
+function onUnselect(choice: TChoice) {
   setValue(values.value.filter((v) => !areIdsEqual(getChoiceValue(choice), v)));
   blur();
 }
