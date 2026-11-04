@@ -377,6 +377,7 @@ export type {
   ArrayBinding,
   ArrayBindingOptions,
   ArrayBindingUpdateOptions,
+  ArrayItemOf,
   ArrayRow,
 } from "./form/array-binding";
 export { createArrayBinding } from "./form/array-binding";

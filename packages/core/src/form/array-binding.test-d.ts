@@ -1,6 +1,7 @@
 import { expectTypeOf, it } from "vitest";
 import {
   type ArrayBinding,
+  type ArrayItemOf,
   type ArrayRow,
   createArrayBinding,
 } from "./array-binding";
@@ -10,6 +11,9 @@ import type { FieldBinding } from "./input-binding";
 interface Cart {
   items: { sku: string | null; qty: number | null }[];
 }
+
+/** One `Cart` row — the item type its array paths carry. */
+type CartItem = { sku: string | null; qty: number | null };
 
 it("the array binding surface carries no `any`", () => {
   const controller = createFormController<Cart>({
@@ -24,7 +28,7 @@ it("the array binding surface carries no `any`", () => {
   expectTypeOf(binding.getTotal()).toEqualTypeOf<number>();
   expectTypeOf(binding.subscribe).parameter(0).toEqualTypeOf<() => void>();
   expectTypeOf(binding.subscribe).returns.toEqualTypeOf<() => void>();
-  expectTypeOf(binding.add).parameter(0).toEqualTypeOf<unknown>();
+  expectTypeOf(binding.add).parameter(0).toEqualTypeOf<CartItem | undefined>();
   expectTypeOf(binding.add).returns.toBeVoid();
   expectTypeOf(binding.insert).returns.toEqualTypeOf<Promise<void>>();
   expectTypeOf(binding.replace).returns.toEqualTypeOf<Promise<void>>();
@@ -74,4 +78,26 @@ it("createArrayBinding rejects a source that is not a path of the record", () =>
 it("createArrayBinding takes any string for a Record<string, unknown> form", () => {
   const composed: string = "anything[3].goes";
   createArrayBinding(looseForm, { source: composed });
+});
+
+it("ops take the record's own array item type", () => {
+  const binding = createArrayBinding(typed().form, { source: "items" });
+  expectTypeOf<ArrayItemOf<Cart>>().toEqualTypeOf<CartItem>();
+  expectTypeOf(binding.add).parameter(0).toEqualTypeOf<CartItem | undefined>();
+  expectTypeOf(binding.insert)
+    .parameter(1)
+    .toEqualTypeOf<CartItem | undefined>();
+  expectTypeOf(binding.replace).parameter(1).toEqualTypeOf<CartItem>();
+  binding.add({ sku: "a", qty: 1 });
+  void binding.insert(0, { sku: "a", qty: 1 });
+  void binding.replace(0, { sku: "a", qty: 1 });
+  // @ts-expect-error 5 is not a Cart row
+  binding.add(5);
+});
+
+it("a binding over a form with no array paths takes any item", () => {
+  const binding = createArrayBinding(looseForm, { source: "tags" });
+  expectTypeOf(binding.add).parameter(0).toEqualTypeOf<unknown>();
+  binding.add(5);
+  binding.add({ sku: "a", qty: 1 });
 });
