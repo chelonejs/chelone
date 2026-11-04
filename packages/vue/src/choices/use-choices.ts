@@ -14,34 +14,38 @@
  * called in `setup`.
  */
 
-import { getAtPath } from "@chelone/core";
+import { getAtPath, type SourcePath } from "@chelone/core";
 import { useTranslate } from "../i18n/use-translate";
 
 /** An erased choice record — choices carry arbitrary shapes (`{id, name, ...}`). */
 export type ChoiceRecord = Record<string, unknown>;
 
 /** The display path (dot or bracket) or a formatter over the whole choice. */
-export type OptionText = string | ((choice: ChoiceRecord) => string);
+export type OptionText<TChoice extends ChoiceRecord = ChoiceRecord> =
+  | SourcePath<TChoice>
+  | ((choice: TChoice) => string);
 
-export interface UseChoicesOptions {
+export interface UseChoicesOptions<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> {
   /** The display path or a formatter. Default `'name'`. */
-  optionText?: OptionText;
+  optionText?: OptionText<TChoice>;
   /** The value path. Default `'id'`. */
-  optionValue?: string;
+  optionValue?: SourcePath<TChoice>;
   /** The disabled-flag path. Default `'disabled'`. */
-  disableValue?: string;
+  disableValue?: SourcePath<TChoice>;
   /** Translate a string-path text through the catalog (default `true`). */
   translateChoice?: boolean;
 }
 
 /** The choice accessors a choice input needs. */
-export interface UseChoicesResult {
+export interface UseChoicesResult<TChoice extends ChoiceRecord = ChoiceRecord> {
   /** The display text: string path (optionally translated) or the formatter's output. */
-  getChoiceText(choice: ChoiceRecord): string;
+  getChoiceText(choice: TChoice): string;
   /** The value: `get(choice, optionValue)`, falling back to `choice.id`. */
-  getChoiceValue(choice: ChoiceRecord): unknown;
+  getChoiceValue(choice: TChoice): unknown;
   /** The disabled flag: `get(choice, disableValue)`. */
-  getDisableValue(choice: ChoiceRecord): unknown;
+  getDisableValue(choice: TChoice): unknown;
 }
 
 /**
@@ -62,16 +66,22 @@ export function getChoicePath(record: ChoiceRecord, path: string): unknown {
  * value (`optionValue` path or `id`), and disabled flag. Defaults are read live
  * off `options`, so a reactive props object stays live between reads.
  */
-export function useChoices(options: UseChoicesOptions = {}): UseChoicesResult {
+export function useChoices<TChoice extends ChoiceRecord = ChoiceRecord>(
+  options: UseChoicesOptions<TChoice> = {},
+): UseChoicesResult<TChoice> {
   const translate = useTranslate();
+  // Read live off `options`, erased to the loose choice: the `"name"`/`"id"`/
+  // `"disabled"` defaults are paths a `TChoice` need not have, and
+  // `getChoicePath` takes any string.
+  const loose = (): UseChoicesOptions => options as UseChoicesOptions;
 
   return {
     getChoiceText(choice) {
-      const optionText = options.optionText ?? "name";
+      const optionText = loose().optionText ?? "name";
       if (typeof optionText === "function") return optionText(choice);
       const raw = getChoicePath(choice, optionText);
       const text = raw == null ? "" : String(raw);
-      if (options.translateChoice === false) return text;
+      if (loose().translateChoice === false) return text;
       // ra's `{ _: name }` convention: translate the text as a key, falling
       // back to the raw text when it is not a catalog key (chelone's translate
       // echoes the key on a miss).
@@ -79,11 +89,11 @@ export function useChoices(options: UseChoicesOptions = {}): UseChoicesResult {
       return translated === text ? text : translated;
     },
     getChoiceValue(choice) {
-      const value = getChoicePath(choice, options.optionValue ?? "id");
+      const value = getChoicePath(choice, loose().optionValue ?? "id");
       return value !== undefined ? value : choice.id;
     },
     getDisableValue(choice) {
-      return getChoicePath(choice, options.disableValue ?? "disabled");
+      return getChoicePath(choice, loose().disableValue ?? "disabled");
     },
   };
 }
