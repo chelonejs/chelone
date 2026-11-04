@@ -1,10 +1,10 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 
 /** Props for {@link ApiKeyInput}. */
 export interface ApiKeyInputProps {
   /** Record field holding the API key. */
-  source: string;
+  source: SourceProp;
   /** Override resource. */
   resource?: string;
   /** Async side-effect on rotate. When provided, replaces the default update mutation. */
