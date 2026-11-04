@@ -125,6 +125,17 @@ export const blocks = [
     sourceDirs: [{ path: "src/components/monaco", recursive: true }],
   },
   {
+    name: "kanban",
+    type: "registry:block",
+    title: "Chelone Kanban",
+    categories: ["chelone", "list"],
+    description:
+      "The opt-in kanban add-on: KanbanBoard shows the records of a list as columns and moves a card between them by drag with mouse, touch or pen, or with a Move to menu. Installs @dnd-kit/vue and needs Vue 3.5.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [{ path: "src/components/kanban", recursive: true }],
+  },
+  {
     name: "mdx-editor",
     type: "registry:block",
     title: "Chelone Markdown",
