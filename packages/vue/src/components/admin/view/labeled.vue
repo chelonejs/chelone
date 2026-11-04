@@ -63,11 +63,13 @@ export default defineComponent({
     // `false` in the type makes Vue cast an ABSENT label to `false`; the
     // explicit `undefined` default keeps absent distinct from `:label="false"`.
     label: {
-      type: [String, Boolean] as unknown as PropType<string | false>,
+      // type-escape: Vue's documented way to type a runtime prop.
+      type: [String, Boolean] as PropType<string | false>,
       default: undefined,
     },
     source: {
-      type: String as unknown as PropType<SourceProp>,
+      // type-escape: Vue's documented way to type a runtime prop.
+      type: String as PropType<SourceProp>,
       default: undefined,
     },
     resource: { type: String, default: undefined },

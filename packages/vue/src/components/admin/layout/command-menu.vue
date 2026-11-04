@@ -152,9 +152,9 @@ function fail(): void {
 function run(action: CommandMenuAction): void {
   close();
   try {
-    const result = action.onSelect() as unknown;
-    if (result && typeof (result as PromiseLike<unknown>).then === "function")
-      (result as PromiseLike<unknown>).then(undefined, fail);
+    const result = action.onSelect();
+    // Core types onSelect as `() => void`, so a command may return any value.
+    if (result) Promise.resolve(result).then(undefined, fail);
   } catch {
     fail();
   }

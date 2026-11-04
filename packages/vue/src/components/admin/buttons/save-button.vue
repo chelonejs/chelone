@@ -29,6 +29,7 @@ export interface SaveButtonProps {
 
 import { computed, onScopeDispose, shallowRef } from "vue";
 import { useCheloneFormContext } from "../../../form/form-context";
+import { subscribeStore } from "../../../form/subscribe-ref";
 import { useTranslate } from "../../../i18n/use-translate";
 import Button from "../../ui/button.vue";
 
@@ -43,16 +44,11 @@ const translate = useTranslate();
 // Reactive bridge over the form-core store (already mounted by useForm): read
 // the submit gate slices without re-mounting anything.
 const state = shallowRef(form.store.state);
-const subscription = form.store.subscribe(() => {
-  state.value = form.store.state;
-});
-onScopeDispose(() => {
-  const unsub = subscription as unknown as
-    | (() => void)
-    | { unsubscribe: () => void };
-  if (typeof unsub === "function") unsub();
-  else unsub.unsubscribe();
-});
+onScopeDispose(
+  subscribeStore(form.store, () => {
+    state.value = form.store.state;
+  }),
+);
 
 const saving = computed(() => state.value.isSubmitting);
 const disabled = computed(() => {
