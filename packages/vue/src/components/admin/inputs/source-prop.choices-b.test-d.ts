@@ -3,13 +3,15 @@
  * `optionValue` and `disableValue` as paths of those choices. Under a reference
  * wrapper there are no `choices`, so the paths stay `string`.
  *
- * Vue has no `DatagridInput`, so `<SelectField>` is the one that only has
- * `optionText` and `optionValue`.
+ * `<DatagridInput>` and `<SelectField>` have no `disableValue` of their own.
+ * Vue's `<DatagridInput>` still accepts `disableValue` because it comes from
+ * the shared `ChoiceInputBaseProps`, and never reads it.
  */
 
 import { describe, it } from "vitest";
 import SelectField from "../fields/select-field.vue";
 import CheckboxGroupInput from "./checkbox-group-input.vue";
+import DatagridInput from "./datagrid-input.vue";
 import RadioButtonGroupInput from "./radio-button-group-input.vue";
 
 const choices = [{ id: 1, label: "One", off: false }];
@@ -40,6 +42,34 @@ describe("CheckboxGroupInput choices paths", () => {
       optionText: "anyKey",
       optionValue: "anyKey",
       disableValue: "anyKey",
+    });
+  });
+});
+
+describe("DatagridInput choices paths", () => {
+  it("optionText and optionValue accept a path of the inline choices", () => {
+    DatagridInput({
+      source: "tag_ids",
+      choices,
+      optionText: "label",
+      optionValue: "id",
+    });
+  });
+
+  it("optionText rejects a path that is not on the choices", () => {
+    DatagridInput({
+      source: "tag_ids",
+      choices,
+      // @ts-expect-error `lable` is not a path of the choices
+      optionText: "lable",
+    });
+  });
+
+  it("without choices the paths take any string", () => {
+    DatagridInput({
+      source: "tag_ids",
+      optionText: "anyKey",
+      optionValue: "anyKey",
     });
   });
 });

@@ -3,8 +3,9 @@
  * `optionValue` and `disableValue` as paths of those choices. Under a reference
  * wrapper there are no `choices`, so the paths stay `string`.
  *
- * `<DatagridInput>` and `<SelectField>` have no `disableValue`, and Vue has no
- * `DatagridInput`.
+ * `<DatagridInput>` and `<SelectField>` take the two paths only. Vue's
+ * `<DatagridInput>` inherits a `disableValue` from `ChoiceInputBaseProps` and
+ * never reads it, so neither adapter tests one.
  */
 
 import { describe, it } from "vitest";

@@ -1,14 +1,22 @@
-<script lang="ts">
+<script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
-/** Props for {@link DatagridInput}. */
-export interface DatagridInputProps extends ChoiceInputBaseProps {
+/**
+ * Props for {@link DatagridInput}.
+ *
+ * `disableValue` comes in through the shared base and is unused: a datagrid row
+ * is never disabled. The React twin has no `disableValue` prop at all.
+ */
+export interface DatagridInputProps<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> extends ChoiceInputBaseProps<TChoice> {
   /** Column header for the choice column. Default empty. */
   optionLabel?: string;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
 /**
  * `<DatagridInput>` — renders the choices as a selectable table: the user ticks
  * row checkboxes and the form value is the array of selected record ids. The Vue
@@ -24,7 +32,7 @@ export interface DatagridInputProps extends ChoiceInputBaseProps {
  * filtering / pagination / create-suggestion flow), matching the React twin.
  */
 
-import type { Identifier } from "@chelone/core";
+import type { Identifier, SourcePath } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -41,9 +49,7 @@ import {
 import ValidationError from "../common/validation-error.vue";
 import { useChoiceInput } from "./use-choice-input";
 
-const props = withDefaults(defineProps<DatagridInputProps>(), {
-  optionValue: "id",
-});
+const props = defineProps<DatagridInputProps<TChoice>>();
 
 const translate = useTranslate();
 const emptyArray: Identifier[] = [];
@@ -52,7 +58,11 @@ const { source, allChoices, getChoiceText, getChoiceValue } = useChoiceInput({
   componentName: "DatagridInput",
   choices: props.choices,
   source: props.source,
-  optionText: props.optionText ?? "name",
+  // The React twin defaults `optionText` to `"name"` in its own destructuring,
+  // so a `<DatagridInput>` under a reference wrapper labels the `name` field
+  // rather than the record representation. The literal has to be cast: a
+  // `SourcePath<TChoice>` is deferred while `TChoice` is open.
+  optionText: props.optionText ?? ("name" as SourcePath<TChoice>),
   optionValue: props.optionValue,
   disableValue: props.disableValue,
   translateChoice: props.translateChoice,
