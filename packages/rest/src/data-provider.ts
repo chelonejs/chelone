@@ -174,7 +174,7 @@ export function restDataProvider({
       query,
       write,
       ...init
-    }: RequestInit & { id?: unknown; query?: object; write?: boolean },
+    }: RequestInit & { id?: Identifier; query?: object; write?: boolean },
   ) => {
     const { headers: callHeaders, query: callQuery } = (meta ?? {}) as RestMeta;
     const merged = new Headers(
@@ -203,11 +203,11 @@ export function restDataProvider({
       const response = await request(resource, params.meta, {
         query: listQuery(params),
       });
-      return parseList(response, resource) as never;
+      return parseList(response, resource);
     },
     async getOne(resource, { id, meta }) {
       const response = await request(resource, meta, { id });
-      return { data: parseRecord(response, resource) } as never;
+      return { data: parseRecord(response, resource) };
     },
     async create(resource, { data, meta }) {
       const response = await request(resource, meta, {
@@ -215,7 +215,7 @@ export function restDataProvider({
         write: true,
         body: JSON.stringify(data),
       });
-      return { data: parseRecord(response, resource) } as never;
+      return { data: parseRecord(response, resource) };
     },
     async update(resource, { id, data, meta, previousData }) {
       const response = await request(resource, meta, {
@@ -226,9 +226,9 @@ export function restDataProvider({
       });
       // A 204 has no body, so what the caller sent stands in for the saved record.
       if (response.body.trim() === "") {
-        return { data: { ...previousData, ...data, id } } as never;
+        return { data: { ...previousData, ...data, id } };
       }
-      return { data: parseRecord(response, resource) } as never;
+      return { data: parseRecord(response, resource) };
     },
     async delete(resource, { id, previousData, meta }) {
       const response = await request(resource, meta, { id, method: "DELETE" });
@@ -242,7 +242,7 @@ export function restDataProvider({
       const data = useFallback
         ? (previousData ?? { id })
         : parseRecord(response, resource);
-      return { data } as never;
+      return { data };
     },
     async getMany(resource, { ids, meta }) {
       // An empty id filter writes no parameter, so the request would list the whole resource.
@@ -251,12 +251,12 @@ export function restDataProvider({
         const results = await Promise.all(
           ids.map((id) => provider.getOne(resource, { id, meta })),
         );
-        return { data: results.map(({ data }) => data) } as never;
+        return { data: results.map(({ data }) => data) };
       }
       const response = await request(resource, meta, {
         query: getManyQuery(ids),
       });
-      return { data: parseList(response, resource).data } as never;
+      return { data: parseList(response, resource).data };
     },
     async getManyReference(resource, { target, id, filter, ...params }) {
       return provider.getList(resource, {
