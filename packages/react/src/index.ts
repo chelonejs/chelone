@@ -815,6 +815,10 @@ export {
   type InfinitePaginationProps,
 } from "./components/admin/list/infinite-pagination";
 export {
+  KanbanBoard,
+  type KanbanBoardProps,
+} from "./components/admin/list/kanban-board";
+export {
   ListActions,
   type ListActionsProps,
 } from "./components/admin/list/list-actions";
