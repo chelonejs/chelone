@@ -6,11 +6,12 @@
 
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
-import { createSSRApp, defineComponent, h } from "vue";
+import { type Component, createSSRApp, defineComponent, h } from "vue";
 import { renderToString } from "vue/server-renderer";
 import {
   type ChartConfig,
   ChartContainer,
+  type ChartDatum,
   ChartLegendContent,
   ChartStyle,
   ChartTooltipContent,
@@ -23,11 +24,8 @@ afterEach(() => {
   for (const wrapper of wrappers.splice(0)) wrapper.unmount();
 });
 
-function mountTracked(
-  component: Parameters<typeof mount>[0],
-  props?: Record<string, unknown>,
-): VueWrapper {
-  const wrapper = mount(component, { props, attachTo: document.body });
+function mountTracked(component: Component): VueWrapper {
+  const wrapper = mount(component, { attachTo: document.body });
   wrappers.push(wrapper);
   return wrapper;
 }
@@ -50,7 +48,7 @@ describe("<ChartContainer>", () => {
           );
       },
     });
-    const wrapper = mountTracked(ChartContainer, { config });
+    const wrapper = mountTracked(() => h(ChartContainer, { config }));
     expect(wrapper.attributes("data-slot")).toBe("chart");
     expect(wrapper.attributes("data-chart")).toMatch(/^chart-\S+$/);
 
@@ -63,7 +61,9 @@ describe("<ChartContainer>", () => {
   });
 
   it("uses a given id in data-chart", () => {
-    const wrapper = mountTracked(ChartContainer, { config, id: "sales" });
+    const wrapper = mountTracked(() =>
+      h(ChartContainer, { config, id: "sales" }),
+    );
     expect(wrapper.attributes("data-chart")).toBe("chart-sales");
   });
 
@@ -115,7 +115,9 @@ describe("<ChartContainer> under server rendering", () => {
 
 describe("<ChartStyle>", () => {
   it("writes a CSS variable per configured color for the light and dark themes", () => {
-    const wrapper = mountTracked(ChartStyle, { id: "chart-x", config });
+    const wrapper = mountTracked(() =>
+      h(ChartStyle, { id: "chart-x", config }),
+    );
     const css = wrapper.get("style").element.textContent ?? "";
     expect(css).toContain("[data-chart=chart-x]");
     expect(css).toContain(".dark [data-chart=chart-x]");
@@ -136,23 +138,24 @@ describe("<ChartStyle>", () => {
   });
 
   it("renders nothing when no entry has a color", () => {
-    const wrapper = mountTracked(ChartStyle, {
-      id: "chart-x",
-      config: { a: { label: "A" } },
-    });
+    const wrapper = mountTracked(() =>
+      h(ChartStyle, { id: "chart-x", config: { a: { label: "A" } } }),
+    );
     expect(wrapper.find("style").exists()).toBe(false);
   });
 
   it("a color that holds </style><script> creates no script element", () => {
-    const wrapper = mountTracked(ChartStyle, {
-      id: "chart-x",
-      config: {
-        evil: {
-          color: "red;}</style><script>window.__pwned = 1</script><style>",
+    const wrapper = mountTracked(() =>
+      h(ChartStyle, {
+        id: "chart-x",
+        config: {
+          evil: {
+            color: "red;}</style><script>window.__pwned = 1</script><style>",
+          },
+          ok: { color: "blue" },
         },
-        ok: { color: "blue" },
-      },
-    });
+      }),
+    );
     expect(document.querySelector("script")).toBeNull();
     expect(wrapper.element.parentElement?.querySelector("script")).toBeNull();
     const css = wrapper.get("style").element.textContent ?? "";
@@ -172,8 +175,8 @@ describe("<ChartLegendContent>", () => {
     );
     const items = wrapper.findAll("[data-slot=chart-legend-item]");
     expect(items.map((item) => item.text())).toEqual(["Desktop", "Mobile"]);
-    const swatch = items[0]?.get("div").element as HTMLElement;
-    expect(swatch.style.backgroundColor).toBe("rgb(255, 0, 0)");
+    const swatch = items[0]?.get<HTMLElement>("div").element;
+    expect(swatch?.style.backgroundColor).toBe("rgb(255, 0, 0)");
   });
 });
 
@@ -192,7 +195,7 @@ describe("<ChartLegendContent> without a label", () => {
 });
 
 describe("<ChartTooltipContent> rows", () => {
-  const rowsOf = (payload: Record<string, unknown>) => {
+  const rowsOf = (payload: ChartDatum) => {
     const html =
       componentToString(config, ChartTooltipContent, {})?.(payload) ?? "";
     const el = document.createElement("div");

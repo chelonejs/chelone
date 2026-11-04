@@ -12,6 +12,10 @@ export { default as ChartTooltipContent } from "./chart-tooltip-content.vue";
 export {
   type ChartConfig,
   type ChartContextProps,
+  type ChartDatum,
+  type ChartDatumValue,
+  type ChartTooltipOptions,
+  type ChartTooltipRenderProps,
   componentToString,
   provideChartContext,
   THEMES,

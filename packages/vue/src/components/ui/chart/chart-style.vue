@@ -14,6 +14,7 @@ import { type ChartConfig, THEMES } from "./utils";
 
 const props = defineProps<{ id: string; config: ChartConfig }>();
 
+const THEME_NAMES: (keyof typeof THEMES)[] = ["light", "dark"];
 const SAFE_TOKEN = /^[\w-]+$/;
 const SAFE_COLOR = /^[^<>{};]+$/;
 
@@ -23,11 +24,11 @@ const css = computed(() => {
     ([key, item]) => SAFE_TOKEN.test(key) && (item.theme || item.color),
   );
   if (!colored.length) return "";
-  return Object.entries(THEMES)
-    .map(([theme, prefix]) => {
+  return THEME_NAMES.map((theme) => {
+      const prefix = THEMES[theme];
       const lines = colored.flatMap(([key, item]) => {
         const color =
-          item.theme?.[theme as keyof typeof THEMES] ?? item.color;
+          item.theme?.[theme] ?? item.color;
         return color && SAFE_COLOR.test(color)
           ? [`  --color-${key}: ${color};`]
           : [];

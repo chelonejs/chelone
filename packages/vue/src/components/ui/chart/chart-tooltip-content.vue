@@ -9,24 +9,14 @@
 
 import { computed } from "vue";
 import { cn } from "../../../lib/utils";
-import { useChart } from "./utils";
+import {
+  type ChartTooltipOptions,
+  type ChartTooltipRenderProps,
+  useChart,
+} from "./utils";
 
 const props = withDefaults(
-  defineProps<{
-    class?: string;
-    hideLabel?: boolean;
-    hideIndicator?: boolean;
-    indicator?: "line" | "dot" | "dashed";
-    /** Payload key whose value names each row; defaults to the key itself. */
-    nameKey?: string;
-    /** Payload key shown as the heading in place of `x`. */
-    labelKey?: string;
-    labelFormatter?: (x: number | Date) => string | number;
-    payload?: Record<string, unknown>;
-    color?: string;
-    /** The hovered x value, passed by `componentToString`. */
-    x?: number | Date;
-  }>(),
+  defineProps<ChartTooltipOptions & ChartTooltipRenderProps>(),
   { indicator: "dot", payload: () => ({}) },
 );
 

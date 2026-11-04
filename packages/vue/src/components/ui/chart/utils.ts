@@ -36,6 +36,42 @@ export type ChartConfig = {
   );
 };
 
+/** A value a tooltip can show; the datum's other fields are never read. */
+export type ChartDatumValue =
+  | string
+  | number
+  | boolean
+  | Date
+  | null
+  | undefined;
+
+/** One hovered datum: field name to value. */
+export type ChartDatum = Record<string, ChartDatumValue>;
+
+/** unovis hands a tooltip either the datum or a node holding it as `data`. */
+type ChartTooltipTarget = ChartDatum | { data: ChartDatum };
+
+/** What `componentToString` adds to the props it is given. */
+export interface ChartTooltipRenderProps {
+  payload?: ChartDatum;
+  /** The hovered x value. */
+  x?: number | Date;
+}
+
+/** The props of `<ChartTooltipContent>` a caller sets. */
+export interface ChartTooltipOptions {
+  class?: string;
+  hideLabel?: boolean;
+  hideIndicator?: boolean;
+  indicator?: "line" | "dot" | "dashed";
+  /** Payload key whose value names each row; defaults to the key itself. */
+  nameKey?: string;
+  /** Payload key shown as the heading in place of `x`. */
+  labelKey?: string;
+  labelFormatter?: (x: number | Date) => string | number;
+  color?: string;
+}
+
 /** The contract `<ChartContainer>` provides to the chart parts. */
 export interface ChartContextProps {
   id: string;
@@ -69,12 +105,22 @@ let idCounter = 0;
  * does not reset, so on Vue 3.4 pass `id` to `<ChartContainer>` for SSR.
  */
 export function useId(): string {
+  // type-escape: Vue 3.4 has no useId, so the cast types the 3.5 export we probe for
   const vueUseId = (Vue as { useId?: () => string }).useId;
   if (vueUseId && getCurrentInstance()) {
     return vueUseId().replace(/[^\w-]/g, "");
   }
   idCounter += 1;
   return `chelone-${idCounter}`;
+}
+
+function isWrapped(target: ChartTooltipTarget): target is { data: ChartDatum } {
+  return (
+    "data" in target &&
+    typeof target.data === "object" &&
+    target.data !== null &&
+    !(target.data instanceof Date)
+  );
 }
 
 /**
@@ -86,16 +132,12 @@ export function useId(): string {
 export function componentToString(
   config: ChartConfig,
   component: Component,
-  // biome-ignore lint/suspicious/noExplicitAny: the props of any tooltip component
-  props?: Record<string, any>,
-): ((data: unknown, x?: number | Date) => string) | undefined {
+  props?: ChartTooltipOptions,
+): ((data: ChartTooltipTarget, x?: number | Date) => string) | undefined {
   if (typeof window === "undefined") return undefined;
   const id = useId();
   return (data, x) => {
-    const payload =
-      typeof data === "object" && data !== null && "data" in data
-        ? data.data
-        : data;
+    const payload = isWrapped(data) ? data.data : data;
     const host = defineComponent({
       setup() {
         provideChartContext({ id, config: ref(config) });
