@@ -12,7 +12,8 @@ export interface UsageMeterFieldProps<
   RecordType extends LooseRecord = LooseRecord,
 > {
   source: SourceProp;
-  record?: LooseRecord;
+  /** The record to render. Defaults to the ambient `RecordContext` value. */
+  record?: RecordType;
   defaultValue?: unknown;
   /**
    * Sibling record field holding the limit/quota; the bar is only shown when
@@ -51,7 +52,8 @@ const props = defineProps<UsageMeterFieldProps<RecordType>>();
 
 const DEFAULT_THRESHOLDS: UsageMeterThresholds = { warning: 0.8, critical: 1.0 };
 
-const value = useFieldValue({
+// `source` is a loose `SourceProp` (#751), so the value read is typed loose.
+const value = useFieldValue<LooseRecord>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
@@ -61,8 +63,12 @@ const used = computed<number | null | undefined>(() =>
   typeof value.value === "number" ? value.value : (value.value as null | undefined),
 );
 
+// The limit is a plain own-key read of a sibling field, not a path walk, so the
+// record is read as a loose one.
 const injectedRecord = inject(RecordContextKey, null);
-const ctxRecord = computed(() => props.record ?? injectedRecord?.value);
+const ctxRecord = computed<LooseRecord | undefined>(
+  () => props.record ?? injectedRecord?.value,
+);
 
 const limit = computed<number | undefined>(() => {
   const rec = ctxRecord.value;

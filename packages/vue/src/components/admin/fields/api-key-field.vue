@@ -6,7 +6,8 @@ export interface ApiKeyFieldProps<
   RecordType extends LooseRecord = LooseRecord,
 > {
   source: SourceProp;
-  record?: LooseRecord;
+  /** The record to render. Defaults to the ambient `RecordContext` value. */
+  record?: RecordType;
   defaultValue?: unknown;
   /**
    * Sibling record field with scope strings; renders chips when set. A
@@ -47,14 +48,19 @@ import { useFieldValue } from "../../../record/use-field-value";
 
 const props = defineProps<ApiKeyFieldProps<RecordType>>();
 
-const value = useFieldValue({
+// `source` is a loose `SourceProp` (#751), so the value read is typed loose.
+const value = useFieldValue<LooseRecord>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
 });
 
+// The scope and last-used reads are plain own-key reads of sibling fields, not
+// path walks, so the record is read as a loose one.
 const injectedRecord = inject(RecordContextKey, null);
-const ctxRecord = computed(() => props.record ?? injectedRecord?.value);
+const ctxRecord = computed<LooseRecord | undefined>(
+  () => props.record ?? injectedRecord?.value,
+);
 
 const revealed = ref(false);
 const copied = ref(false);
