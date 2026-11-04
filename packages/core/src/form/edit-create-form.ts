@@ -26,6 +26,7 @@ import {
   type FormController,
   type FormControllerOptions,
 } from "./form-controller";
+import { type ResourceFormHandle, toResourceFormHandle } from "./form-handle";
 
 /**
  * What the composed form controllers need: the P4 record-controller services
@@ -157,8 +158,10 @@ export interface CreateFormControllerState<TRecord>
  * unsubscribe releases both. `getSnapshot` composes the two reference-stable
  * sub-snapshots with identity caching (uSES-safe).
  */
-export interface EditFormController<TRecord> {
+export interface EditFormController<TRecord, TName extends string = string> {
   form: CheloneFormApi<Partial<TRecord>>;
+  /** The form as a handle tagged with the resource it edits. */
+  handle: ResourceFormHandle<TName, Partial<TRecord>>;
   /** The composed P4 edit controller — imperative `save` with call-time options lives here. */
   recordController: EditController<TRecord>;
   submit(): Promise<void>;
@@ -167,8 +170,10 @@ export interface EditFormController<TRecord> {
   destroy(): void;
 }
 
-export interface CreateFormController<TRecord> {
+export interface CreateFormController<TRecord, TName extends string = string> {
   form: CheloneFormApi<Partial<TRecord>>;
+  /** The form as a handle tagged with the resource it creates. */
+  handle: ResourceFormHandle<TName, Partial<TRecord>>;
   /** The composed P4 create controller. */
   recordController: CreateController<TRecord>;
   submit(): Promise<void>;
@@ -388,7 +393,15 @@ export function createEditFormController<
     return off;
   });
 
-  return { form: formController.form, recordController, ...lifecycle };
+  return {
+    form: formController.form,
+    handle: toResourceFormHandle<string, TFormData>(
+      formController.handle,
+      resource,
+    ),
+    recordController,
+    ...lifecycle,
+  };
 }
 
 /**
@@ -450,5 +463,13 @@ export function createCreateFormController<
 
   const lifecycle = composeControllers(formController, recordController);
 
-  return { form: formController.form, recordController, ...lifecycle };
+  return {
+    form: formController.form,
+    handle: toResourceFormHandle<string, TFormData>(
+      formController.handle,
+      resource,
+    ),
+    recordController,
+    ...lifecycle,
+  };
 }

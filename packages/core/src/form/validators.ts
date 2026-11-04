@@ -1,4 +1,9 @@
+import type {
+  StandardSchemaV1,
+  StandardSchemaV1Issue,
+} from "@tanstack/form-core";
 import type { TranslatableMessage } from "./form-controller";
+import type { ChoiceValueOf } from "./input-values";
 import { isThenable } from "./save-pipeline";
 
 /* @link http://stackoverflow.com/questions/46155/validate-email-address-in-javascript */
@@ -17,40 +22,91 @@ export type ValidationErrorMessage = string | TranslatableMessage;
 export type ValidatorResult = ValidationErrorMessage | null | undefined;
 
 /**
- * The ra validator contract: `(value, allValues, meta)`. `meta` carries the
- * final source path plus whatever the binding merged in (`validatorMeta` —
- * the React layer passes input props there). Sync or async.
+ * The values ra's skip-empty gate lets into a validator's value slot next to
+ * the field's own type: the holes, and an unset multi-input's `[]`. Every
+ * built-in except `required` stands down on them, so a validator written for a
+ * `string` field is still legal on a field whose value is momentarily empty.
  */
-export type Validator = (
-  value: unknown,
-  values: unknown,
-  meta: unknown,
+// type-escape: ra's empty values include an unset multi-input's `[]`.
+export type EmptyValue = null | undefined | readonly unknown[];
+
+/**
+ * The third validator argument (ra's `props` slot): a field binding always
+ * fills `source` with the final source path and merges its `validatorMeta`
+ * (input props in the React layer) in. `source` is optional because a validator
+ * is also a plain function an app can call with no field behind it. The open
+ * bag is the boundary — Chelone cannot know what an input passes there.
+ */
+export interface FieldValidatorMeta {
+  /** The FINAL field path the value came from, when a binding ran the stack. */
+  source?: string;
+  // type-escape: the validator meta bag is an app-supplied bag of any values.
+  [key: string]: unknown;
+}
+
+/**
+ * The ra validator contract: `(value, allValues, meta)`. `meta` carries the
+ * final source path plus whatever the binding merged in (`validatorMeta` — the
+ * React layer passes input props there); it is optional so a validator that
+ * reads only the value can say only the value. Sync or async.
+ *
+ * Generic in the value and the values it is handed: `Validator<string, Post>`
+ * is a validator for a `Post`'s `string` field (its value slot also holds
+ * {@link EmptyValue}), and one written for the widest pair (`Validator`, the
+ * default) fits any field.
+ */
+// type-escape: the default pair is "any field" — the widest validator every field accepts.
+export type Validator<TValue = unknown, TValues = unknown> = (
+  value: TValue | EmptyValue,
+  values: TValues,
+  meta?: FieldValidatorMeta,
 ) => ValidatorResult | Promise<ValidatorResult>;
 
 /** `required()`'s return: a validator tagged for {@link isRequired} detection. */
-export interface RequiredValidator {
+// type-escape: the default pair is "any field" (see Validator).
+export interface RequiredValidator<TValue = unknown, TValues = unknown> {
   (
-    value: unknown,
-    values: unknown,
-    meta: unknown,
+    value: TValue | EmptyValue,
+    values: TValues,
+    meta?: FieldValidatorMeta,
   ): ValidatorResult | Promise<ValidatorResult>;
   readonly isRequired: true;
 }
 
+/** A validator, or the `false`/nullish ra passes when a rule is switched off. */
+// type-escape: the default pair is "any field" (see Validator).
+export type ValidatorInput<TValue = unknown, TValues = unknown> =
+  | Validator<TValue, TValues>
+  | false
+  | null
+  | undefined;
+
+/** One `validate` slot: a single validator or a list of them (ra call style). */
+// type-escape: the default pair is "any field" (see Validator).
+export type ValidatorSlot<TValue = unknown, TValues = unknown> =
+  | ValidatorInput<TValue, TValues>
+  | ReadonlyArray<ValidatorInput<TValue, TValues>>;
+
 /** Params handed to a message factory when the error message is a function. */
-export interface ValidationMessageParams {
+// type-escape: a message factory for no particular field takes any value.
+export interface ValidationMessageParams<TValue = unknown, TValues = unknown> {
+  // type-escape: interpolation args are an app-supplied bag of any values.
   args: Record<string, unknown> | undefined;
-  value: unknown;
-  values: unknown;
+  value: TValue | EmptyValue;
+  values: TValues;
 }
 
 /** Builds an error message dynamically from the failing value/args. */
-export type MessageFactory = (
-  params: ValidationMessageParams,
+// type-escape: the default pair is "any field" (see Validator).
+export type MessageFactory<TValue = unknown, TValues = unknown> = (
+  params: ValidationMessageParams<TValue, TValues>,
 ) => ValidationErrorMessage;
 
 /** A built-in's `message` option: an i18n key/string or a factory. */
-export type ValidationMessage = string | MessageFactory;
+// type-escape: the default pair is "any field" (see Validator).
+export type ValidationMessage<TValue = unknown, TValues = unknown> =
+  | string
+  | MessageFactory<TValue, TValues>;
 
 /**
  * ra's emptiness notion — the skip-empty gate every built-in except
@@ -67,18 +123,15 @@ export function isEmpty(value: unknown): boolean {
 }
 
 /** Resolves a {@link ValidationMessage} into the error payload (ra's getMessage). */
-function getMessage(
-  message: ValidationMessage,
+function getMessage<TValue, TValues>(
+  message: ValidationMessage<TValue, TValues>,
   args: Record<string, unknown> | undefined,
-  value: unknown,
-  values: unknown,
+  value: TValue | EmptyValue,
+  values: TValues,
 ): ValidationErrorMessage {
   if (typeof message === "function") return message({ args, value, values });
   return args ? { message, args } : message;
 }
-
-/** Loose input accepted by {@link composeValidators} and {@link isRequired}. */
-type ValidatorInput = Validator | false | null | undefined;
 
 /**
  * Composes validators into one (ra contract): runs them SEQUENTIALLY,
@@ -91,21 +144,25 @@ type ValidatorInput = Validator | false | null | undefined;
  * options rather than react-hook-form rules, so fresh identities per render
  * cannot re-trigger anything.
  */
-export function composeValidators(
-  ...validators: ReadonlyArray<ValidatorInput | ReadonlyArray<ValidatorInput>>
-): Validator {
+// type-escape: composition is value-agnostic: it forwards whatever it is handed.
+export function composeValidators<TValue = unknown, TValues = unknown>(
+  ...validators: ReadonlyArray<ValidatorSlot<TValue, TValues>>
+): Validator<TValue, TValues> {
   const head = validators[0];
   const list = (Array.isArray(head) ? head : validators).filter(
-    (candidate): candidate is Validator => typeof candidate === "function",
+    (candidate): candidate is Validator<TValue, TValues> =>
+      typeof candidate === "function",
   );
   const runFrom = (
     start: number,
-    value: unknown,
-    values: unknown,
-    meta: unknown,
+    value: TValue | EmptyValue,
+    values: TValues,
+    meta: FieldValidatorMeta | undefined,
   ): ValidatorResult | Promise<ValidatorResult> => {
     for (let index = start; index < list.length; index++) {
-      const validator = list[index] as Validator;
+      // `noUncheckedIndexedAccess`: the loop bound already guarantees a member.
+      const validator = list[index];
+      if (validator === undefined) continue;
       const result = validator(value, values, meta);
       if (isThenable(result)) {
         return Promise.resolve(result).then((resolved) =>
@@ -124,11 +181,12 @@ export function composeValidators(
  * every other one skips empty values so optional fields stay optional.
  * The returned validator is tagged `.isRequired` for {@link isRequired}.
  */
-export function required(
-  message: ValidationMessage = "chelone.validation.required",
-): RequiredValidator {
+// type-escape: `required()` reads only emptiness, so it fits any value pair.
+export function required<TValue = unknown, TValues = unknown>(
+  message: ValidationMessage<TValue, TValues> = "chelone.validation.required",
+): RequiredValidator<TValue, TValues> {
   return Object.assign(
-    (value: unknown, values: unknown, _meta: unknown) =>
+    (value: TValue | EmptyValue, values: TValues) =>
       isEmpty(value)
         ? getMessage(message, undefined, value, values)
         : undefined,
@@ -176,7 +234,7 @@ export function minValue(
   message: ValidationMessage = "chelone.validation.minValue",
 ): Validator {
   return (value, values) =>
-    !isEmpty(value) && (value as number) < min
+    !isEmpty(value) && Number(value) < min
       ? getMessage(message, { min }, value, values)
       : undefined;
 }
@@ -187,7 +245,7 @@ export function maxValue(
   message: ValidationMessage = "chelone.validation.maxValue",
 ): Validator {
   return (value, values) =>
-    !isEmpty(value) && (value as number) > max
+    !isEmpty(value) && Number(value) > max
       ? getMessage(message, { max }, value, values)
       : undefined;
 }
@@ -223,16 +281,25 @@ export function email(
   return regex(EMAIL_REGEX, message);
 }
 
-/** Errors when the value is not one of `list`. Skips empty values. */
-export function choices(
-  list: readonly unknown[],
-  message: ValidationMessage = "chelone.validation.oneOf",
-): Validator {
+/**
+ * Errors when the value is not one of `list`. Skips empty values.
+ *
+ * Generic in the choices: {@link ChoiceValueOf} maps the list to the value the
+ * field holds for one (a `{id, name}` pair stores its `id`), so
+ * `choices([{ id: 1, name: 'm' }])` is a validator for a number field.
+ */
+export function choices<TChoice>(
+  list: readonly TChoice[],
+  message: ValidationMessage<
+    ChoiceValueOf<TChoice>
+  > = "chelone.validation.oneOf",
+): Validator<ChoiceValueOf<TChoice>> {
+  const options: readonly unknown[] = list.map(choiceValue);
   return (value, values) =>
-    !isEmpty(value) && !list.includes(value)
+    !isEmpty(value) && !options.includes(value)
       ? getMessage(
           message,
-          { options: list.map(String).join(", ") },
+          { options: options.map(String).join(", ") },
           value,
           values,
         )
@@ -240,20 +307,48 @@ export function choices(
 }
 
 /**
+ * The value a choice list stores for one choice: its `id` when it has one (ra's
+ * `choices` carry `{id, name}` pairs), the choice itself otherwise.
+ */
+function choiceValue<TChoice>(choice: TChoice): ChoiceValueOf<TChoice> {
+  if (typeof choice === "object" && choice !== null && "id" in choice) {
+    // type-escape: `ChoiceValueOf` names the id of a choice that has one; TS
+    // cannot follow the runtime `in` check into the deferred conditional.
+    return choice.id as ChoiceValueOf<TChoice>;
+  }
+  // type-escape: a choice with no id is its own value.
+  return choice as ChoiceValueOf<TChoice>;
+}
+
+/**
  * Detects requiredness from the RAW `validate` prop — a single validator or
  * any array member tagged `.isRequired === true` (the `required()` tag).
  * Inputs use this to render the required marker without running validation.
  */
-export function isRequired(
-  validate: ValidatorInput | ReadonlyArray<ValidatorInput>,
+// type-escape: requiredness is read off the tag, not the value.
+export function isRequired<TValue = unknown, TValues = unknown>(
+  validate: ValidatorSlot<TValue, TValues>,
 ): boolean {
-  if (!validate) return false;
   if (Array.isArray(validate)) {
     return validate.some(
       (candidate) =>
-        typeof candidate === "function" &&
-        (candidate as Partial<RequiredValidator>).isRequired === true,
+        typeof candidate === "function" && hasRequiredTag(candidate),
     );
   }
-  return (validate as Partial<RequiredValidator>).isRequired === true;
+  return typeof validate === "function" && hasRequiredTag(validate);
 }
+
+/** The `required()` tag, read through an `in` check rather than a cast. */
+function hasRequiredTag(validator: object): boolean {
+  return "isRequired" in validator && validator.isRequired === true;
+}
+
+/** The validator stack a field binding runs: schema issues or a validator error. */
+export type FieldValidatorStackResult =
+  | ValidatorResult
+  | readonly StandardSchemaV1Issue[];
+
+/** A field schema outcome: issues, or a thenable of them (an async schema). */
+export type SchemaOutcome = ReturnType<
+  StandardSchemaV1["~standard"]["validate"]
+>;

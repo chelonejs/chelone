@@ -10,6 +10,7 @@ import {
   createFieldBinding,
   type FieldBinding,
   type FieldBindingOptions,
+  type FieldBindingUpdateOptions,
 } from "./input-binding";
 
 /**
@@ -81,7 +82,10 @@ export type ArrayItemOf<
 export interface ArrayBindingOptions<
   TRecord = LooseRecord,
   TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
-> extends Omit<FieldBindingOptions<TRecord>, "format" | "parse"> {
+> extends Omit<
+    FieldBindingOptions<TRecord>,
+    "format" | "parse" | "defaultValue"
+  > {
   /** The array field path this binding drives. */
   source: TPath;
   /**
@@ -221,16 +225,20 @@ export function createArrayBinding<
   const name = source as ArrayFieldPath<TRecord>;
 
   /** The field-binding view of the current options (fresh seed array per call). */
-  const toFieldOptions = (): FieldBindingOptions<TRecord> => ({
-    source,
+  const toFieldOptions = (): FieldBindingUpdateOptions => ({
     defaultValue: current.defaultValue ? [...current.defaultValue] : [],
     validate: current.validate,
     schema: current.schema,
     validatorMeta: current.validatorMeta,
   });
 
-  // INERT (4R): mount/seed/register happen on the first subscriber.
-  const fieldBinding = createFieldBinding<TRecord>(form, toFieldOptions());
+  // INERT (4R): mount/seed/register happen on the first subscriber. An
+  // iterator drives positional ops on the array, not one input value.
+  // type-escape: so the field binding's input type is `unknown`.
+  const fieldBinding = createFieldBinding<TRecord, TPath, unknown>(form, {
+    source,
+    ...toFieldOptions(),
+  });
 
   const currentArray = (): readonly ArrayItemOf<TRecord, TPath>[] => {
     const value = form.getFieldValue(name);
