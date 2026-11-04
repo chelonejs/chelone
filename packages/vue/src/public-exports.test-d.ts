@@ -3,7 +3,7 @@
  * ships its props type next to it, as `@chelone/react` does.
  */
 
-import type { PresenceUser, UserIdentity } from "@chelone/core";
+import type { PresenceUser, ResourceMap, UserIdentity } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import type { ComputedRef, MaybeRefOrGetter, Ref } from "vue";
 import type {
@@ -74,6 +74,7 @@ import type {
   ReferenceInputProps,
   RefreshIconButtonProps,
   ResettableTextInputProps,
+  ResourceComponents,
   ResourceProps,
   SaveButtonProps,
   SavedQueriesListProps,
@@ -308,5 +309,18 @@ describe("@chelone/vue public exports", () => {
       ComputedRef<UserIdentity | undefined>
     >();
     expectTypeOf<Result["isPending"]>().toEqualTypeOf<ComputedRef<boolean>>();
+  });
+
+  it("exports the resource component factories and their type", () => {
+    expectTypeOf(barrel.createResourceComponents).toBeFunction();
+    expectTypeOf(barrel.createResourceComponentsOf).toBeFunction();
+    expectTypeOf<ResourceComponents<ResourceMap, string>>().toHaveProperty(
+      "TextInput",
+    );
+  });
+
+  it("createResourceComponents takes any name when nothing is registered", () => {
+    expectTypeOf(barrel.createResourceComponents<string>).toBeFunction();
+    barrel.createResourceComponents("anything");
   });
 });

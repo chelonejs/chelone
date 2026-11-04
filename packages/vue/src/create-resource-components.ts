@@ -39,13 +39,11 @@ import DateField from "./components/admin/fields/date-field.vue";
 import DurationField from "./components/admin/fields/duration-field.vue";
 import EmailField from "./components/admin/fields/email-field.vue";
 import FileField from "./components/admin/fields/file-field.vue";
-import FunctionField from "./components/admin/fields/function-field.vue";
 import ImageField from "./components/admin/fields/image-field.vue";
 import JsonField from "./components/admin/fields/json-field.vue";
 import NumberField from "./components/admin/fields/number-field.vue";
 import PhoneField from "./components/admin/fields/phone-field.vue";
 import RatingField from "./components/admin/fields/rating-field.vue";
-import RecordField from "./components/admin/fields/record-field.vue";
 import ReferenceArrayField from "./components/admin/fields/reference-array-field.vue";
 import ReferenceField from "./components/admin/fields/reference-field.vue";
 import ReferenceManyCount from "./components/admin/fields/reference-many-count.vue";
@@ -114,13 +112,11 @@ const sourceMembers = {
   DurationField,
   EmailField,
   FileField,
-  FunctionField,
   ImageField,
   JsonField,
   NumberField,
   PhoneField,
   RatingField,
-  RecordField,
   ReferenceArrayField,
   ReferenceField,
   ReferenceManyCount,
@@ -200,12 +196,18 @@ type Retyped<TComponent extends Ctor, TSource> = Pick<
     $props: WithSource<InstanceType<TComponent>["$props"], TSource>;
   });
 
-/** A view with its `resource` prop removed. */
+/**
+ * A view with its `resource` prop removed. Templates are not strict about
+ * undeclared attributes, so the prop stays as `never` to make
+ * `<posts.Edit resource="users">` an error.
+ */
 type BoundView<TComponent extends Ctor> = Pick<TComponent, keyof TComponent> &
   (new (
     ...args: ConstructorParameters<TComponent>
   ) => Omit<InstanceType<TComponent>, "$props"> & {
-    $props: Omit<InstanceType<TComponent>["$props"], "resource">;
+    $props: Omit<InstanceType<TComponent>["$props"], "resource"> & {
+      resource?: never;
+    };
   });
 
 /**

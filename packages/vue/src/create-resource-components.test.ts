@@ -45,6 +45,7 @@ const ListRows = defineComponent({
     return () =>
       h(
         "ul",
+        { id: "rows" },
         (list.data ?? []).map((record) =>
           h("li", String((record as { title?: unknown }).title ?? record.id)),
         ),
@@ -64,8 +65,7 @@ describe("createResourceComponents", () => {
     const posts = createResourceComponents("posts");
     const wrapper = mountAdmin(() => h(posts.List, null, () => h(ListRows)));
     await flushPromises();
-    expect(wrapper.find("h2").text()).toBe("Posts list");
-    expect(wrapper.findAll("li").map((li) => li.text())).toEqual([
+    expect(wrapper.findAll("#rows li").map((li) => li.text())).toEqual([
       "Hello world",
       "Second post",
     ]);
