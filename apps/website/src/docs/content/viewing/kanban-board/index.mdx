@@ -1,11 +1,11 @@
 ---
 title: "KanbanBoard"
-description: "The records of the ambient <List> as columns, one per column definition, with a card per record. The board fetches nothing, so give the list a perPage that covers every card; a record whose group value names no column is not shown. A drop writes the target column's id to groupSource through an optimistic update: the card changes column at once, and a failed write puts the card back and notifies. A card drags only with edit access on the resource. Drag and drop is native, so it does not work on touch screens; the Move to menu on each card moves it by keyboard."
+description: "The records of the ambient <List> as columns, one per column definition, with a card per record. The board fetches nothing, so give the list a perPage that covers every card; a record whose group value names no column is not shown. A drop writes the target column's id to groupSource through an optimistic update: the card changes column at once, and a failed write puts the card back and notifies. A card drags only with edit access on the resource. Dragging uses pointer events, so mouse, touch and pen work; the Move to menu on each card moves it by keyboard."
 registry: "kanban-board"
 ---
 {/* generated:gen-component-stubs */}
 
-The records of the ambient `<List>` as columns, one per column definition, with a card per record. The board fetches nothing, so give the list a perPage that covers every card; a record whose group value names no column is not shown. A drop writes the target column's id to groupSource through an optimistic update: the card changes column at once, and a failed write puts the card back and notifies. A card drags only with edit access on the resource. Drag and drop is native, so it does not work on touch screens; the `Move to` menu on each card moves it by keyboard.
+The records of the ambient `<List>` as columns, one per column definition, with a card per record. The board fetches nothing, so give the list a perPage that covers every card; a record whose group value names no column is not shown. A drop writes the target column's id to groupSource through an optimistic update: the card changes column at once, and a failed write puts the card back and notifies. A card drags only with edit access on the resource. Dragging uses pointer events, so mouse, touch and pen work; the `Move to` menu on each card moves it by keyboard.
 
 ## Props
 

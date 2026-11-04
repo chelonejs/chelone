@@ -1,8 +1,9 @@
 /**
  * `<KanbanBoard>`: the records of the ambient `<List>` as columns. Mounted as
  * `<MemoryRouter><Admin><Resource list edit show/></Admin></MemoryRouter>`;
- * assertions are on DOM, roles and data-provider calls. Drag events are fired
- * with a stub `dataTransfer`, since jsdom has none.
+ * assertions are on DOM, roles and data-provider calls. A drag is driven with
+ * pointer events; jsdom has no `PointerEvent`, element geometry or
+ * `elementFromPoint`, so the test stubs those and dnd-kit runs unmocked.
  */
 import {
   type AuthProvider,
@@ -16,8 +17,8 @@ import {
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
-  createEvent,
   fireEvent,
+  getConfig,
   render,
   screen,
   waitFor,
@@ -25,10 +26,10 @@ import {
 } from "@testing-library/react";
 import type { ComponentProps, ReactNode } from "react";
 import { MemoryRouter, useLocation } from "react-router";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { Admin } from "../../../admin/admin";
-import { Resource } from "../../../resource";
-import { List } from "../views/list";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { Admin } from "../../admin/admin";
+import { Resource } from "../../resource";
+import { List } from "../admin/views/list";
 import { KanbanBoard, type KanbanBoardProps } from "./kanban-board";
 
 afterEach(cleanup);
@@ -133,29 +134,186 @@ const card = (title: string) => {
   if (!found) throw new Error(`no card titled ${title}`);
   return found;
 };
+const cardWithId = (id: number) =>
+  document.querySelector(`[data-record-id="${id}"]`) as HTMLElement;
 const cardArea = (label: string) =>
   column(label).querySelector<HTMLElement>(
     "[data-slot=kanban-column-cards]",
   ) as HTMLElement;
 
-/** jsdom drops `relatedTarget` from a drag event's init, so it is set by hand. */
-function dragLeave(target: Element, relatedTarget: Element | null) {
-  const event = createEvent.dragLeave(target);
-  Object.defineProperty(event, "relatedTarget", { value: relatedTarget });
-  fireEvent(target, event);
+const COLUMN_IDS = COLUMNS.map((c) => c.id);
+const COLUMN_WIDTH = 280;
+const COLUMN_STRIDE = 300;
+const CARD_HEIGHT = 50;
+
+/** Where an element sits on the stubbed canvas: columns side by side, cards stacked. */
+function rectOf(el: Element): DOMRect {
+  const make = (x: number, y: number, width: number, height: number) =>
+    ({
+      x,
+      y,
+      width,
+      height,
+      left: x,
+      top: y,
+      right: x + width,
+      bottom: y + height,
+      toJSON: () => ({}),
+    }) as DOMRect;
+  const area = el.closest("[data-slot=kanban-column-cards]");
+  const col = el.closest<HTMLElement>("[data-slot=kanban-column]");
+  // dnd-kit clips a rect to its ancestors, so they cover the whole window.
+  if (!area || !col) return make(0, 0, 1024, 768);
+  const x = COLUMN_IDS.indexOf(col.dataset.columnId ?? "") * COLUMN_STRIDE;
+  if (el === area) return make(x, 0, COLUMN_WIDTH, 600);
+  const cards = Array.from(area.querySelectorAll("[data-slot=kanban-card]"));
+  const at = cards.findIndex((c) => c === el || c.contains(el));
+  // dnd-kit moves the held card with a CSS translate, which jsdom does not lay out; it shows as a custom property.
+  const [dx, dy] = (
+    (el as HTMLElement).style.getPropertyValue("--dnd-translate") || "0px 0px"
+  )
+    .split(" ")
+    .map((n) => Number.parseFloat(n) || 0);
+  return make(
+    x + 10 + (dx ?? 0),
+    10 + at * (CARD_HEIGHT + 10) + (dy ?? 0),
+    260,
+    CARD_HEIGHT,
+  );
 }
 
-function stubTransfer() {
-  return { effectAllowed: "none", dropEffect: "none", setData: vi.fn() };
+class StubPointerEvent extends MouseEvent {
+  readonly pointerId: number;
+  readonly pointerType: string;
+  readonly isPrimary: boolean;
+  constructor(type: string, init: PointerEventInit = {}) {
+    super(type, init);
+    this.pointerId = init.pointerId ?? 1;
+    this.pointerType = init.pointerType ?? "mouse";
+    this.isPrimary = init.isPrimary ?? true;
+  }
+}
+
+class StubIntersectionObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() {
+    return [];
+  }
+}
+
+beforeEach(() => {
+  vi.stubGlobal("PointerEvent", StubPointerEvent);
+  vi.stubGlobal("IntersectionObserver", StubIntersectionObserver);
+  document.getAnimations = () => [];
+  Element.prototype.getAnimations = () => [];
+  Element.prototype.animate = () =>
+    ({
+      finished: Promise.resolve(),
+      cancel() {},
+      finish() {},
+      addEventListener() {},
+      removeEventListener() {},
+    }) as unknown as Animation;
+  vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
+    function (this: Element) {
+      return rectOf(this);
+    },
+  );
+  // Every pointer is over the card area of the column whose x range holds it.
+  document.elementFromPoint = (x: number) =>
+    document.querySelectorAll<HTMLElement>("[data-slot=kanban-column-cards]")[
+      Math.floor(x / COLUMN_STRIDE)
+    ] ?? document.body;
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
+
+/**
+ * Real time outside `act`, for asserting that nothing happens: React holds back
+ * renders queued inside an `act` scope, and dnd-kit waits for a render.
+ */
+const wait = (ms: number) =>
+  getConfig().asyncWrapper(
+    () => new Promise<void>((resolve) => setTimeout(resolve, ms)),
+  );
+const settle = () => wait(100);
+const centre = (el: Element) => {
+  const { x, y, width, height } = rectOf(el);
+  return { x: x + width / 2, y: y + height / 2 };
+};
+/** A point inside a column's card area, off its exact centre (a zero distance has no ranking). */
+const insideArea = (label: string) => {
+  const { x, y } = centre(cardArea(label));
+  return { x: x + 20, y: y + 20 };
+};
+const pointer = (
+  target: Element | Document,
+  type: "pointerdown" | "pointermove" | "pointerup",
+  at: { x: number; y: number },
+  pointerType: "mouse" | "touch" = "mouse",
+) => {
+  fireEvent(
+    target,
+    new PointerEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      clientX: at.x,
+      clientY: at.y,
+      pointerType,
+      pointerId: 1,
+      isPrimary: true,
+      button: 0,
+    }),
+  );
+};
+
+/** Press a card and move past the activation distance; the card is then held. */
+async function pickUp(title: string, pointerType: "mouse" | "touch" = "mouse") {
+  const held = card(title);
+  const from = centre(held);
+  pointer(held, "pointerdown", from, pointerType);
+  // A touch drag starts after its hold, a mouse drag after a few pixels.
+  if (pointerType === "mouse") {
+    pointer(
+      document,
+      "pointermove",
+      { x: from.x + 10, y: from.y },
+      pointerType,
+    );
+  }
+  await waitFor(() =>
+    expect(document.querySelector("[data-dragging]")).not.toBeNull(),
+  );
+}
+
+/** Move the held card over a column's card area and wait for the highlight. */
+async function moveOver(
+  label: string,
+  pointerType: "mouse" | "touch" = "mouse",
+) {
+  pointer(document, "pointermove", insideArea(label), pointerType);
+  await waitFor(() =>
+    expect(cardArea(label).hasAttribute("data-over")).toBe(true),
+  );
 }
 
 /** Pick a card up and drop it on a column's card area. */
-function dragTo(title: string, label: string) {
-  const dataTransfer = stubTransfer();
-  fireEvent.dragStart(card(title), { dataTransfer });
-  fireEvent.dragOver(cardArea(label), { dataTransfer });
-  fireEvent.drop(cardArea(label), { dataTransfer });
-  fireEvent.dragEnd(card(title), { dataTransfer });
+async function dragTo(
+  title: string,
+  label: string,
+  pointerType: "mouse" | "touch" = "mouse",
+) {
+  await pickUp(title, pointerType);
+  await moveOver(label, pointerType);
+  pointer(document, "pointerup", insideArea(label), pointerType);
+  await waitFor(() =>
+    expect(document.querySelector("[data-dragging]")).toBeNull(),
+  );
 }
 
 const denyEdit = (): AuthProvider => ({
@@ -266,7 +424,7 @@ describe("<KanbanBoard>", () => {
     const { notify } = mount({ dataProvider });
     await screen.findByText("Write it");
 
-    dragTo("Write it", "In progress");
+    await dragTo("Write it", "In progress");
 
     await waitFor(() => expect(update).toHaveBeenCalledTimes(1));
     expect(update).toHaveBeenCalledWith("tasks", {
@@ -289,7 +447,7 @@ describe("<KanbanBoard>", () => {
     mount({ dataProvider });
     await screen.findByText("Write it");
 
-    dragTo("Write it", "In progress");
+    await dragTo("Write it", "In progress");
 
     await waitFor(() =>
       expect(cardTitles("In progress")).toEqual(["Write it", "Ship it"]),
@@ -304,7 +462,7 @@ describe("<KanbanBoard>", () => {
     const { notify } = mount({ dataProvider });
     await screen.findByText("Write it");
 
-    dragTo("Write it", "In progress");
+    await dragTo("Write it", "In progress");
 
     await waitFor(() =>
       expect(notify).toHaveBeenCalledWith(
@@ -324,7 +482,7 @@ describe("<KanbanBoard>", () => {
     mount({ dataProvider });
     await screen.findByText("Write it");
 
-    dragTo("Write it", "To do");
+    await dragTo("Write it", "To do");
 
     expect(update).not.toHaveBeenCalled();
     expect(cardTitles("To do")).toEqual(["Write it", "Test it"]);
@@ -336,42 +494,133 @@ describe("<KanbanBoard>", () => {
     mount({ dataProvider });
     await screen.findByText("Write it");
 
-    const dataTransfer = stubTransfer();
-    fireEvent.dragStart(card("Write it"), { dataTransfer });
-    fireEvent.dragOver(cardArea("Done"), { dataTransfer });
+    await pickUp("Write it");
+    await moveOver("Done");
     expect(cardArea("Done").hasAttribute("data-over")).toBe(true);
-    fireEvent.dragEnd(card("Write it"), { dataTransfer });
+    // Past the last column nothing is under the pointer.
+    pointer(document, "pointermove", { x: 2000, y: 2000 });
+    await waitFor(() =>
+      expect(cardArea("Done").hasAttribute("data-over")).toBe(false),
+    );
+    pointer(document, "pointerup", { x: 2000, y: 2000 });
+    await settle();
 
-    expect(cardArea("Done").hasAttribute("data-over")).toBe(false);
     expect(card("Write it").hasAttribute("data-dragging")).toBe(false);
     expect(update).not.toHaveBeenCalled();
-    // With nothing held, a column takes no drop.
-    const over = fireEvent.dragOver(cardArea("Done"), { dataTransfer });
-    expect(over).toBe(true);
+    expect(cardTitles("To do")).toEqual(["Write it", "Test it"]);
   });
 
   it("marks the held card and the column under it while dragging", async () => {
     mount();
     await screen.findByText("Write it");
 
-    const dataTransfer = stubTransfer();
-    fireEvent.dragStart(card("Write it"), { dataTransfer });
-    expect(dataTransfer.effectAllowed).toBe("move");
-    expect(dataTransfer.setData).toHaveBeenCalledWith("text/plain", "1");
+    await pickUp("Write it");
     expect(card("Write it").hasAttribute("data-dragging")).toBe(true);
 
-    const notCancelled = fireEvent.dragOver(cardArea("Done"), { dataTransfer });
-    expect(notCancelled).toBe(false);
-    expect(dataTransfer.dropEffect).toBe("move");
+    await moveOver("Done");
     expect(cardArea("Done").hasAttribute("data-over")).toBe(true);
+    expect(cardArea("In progress").hasAttribute("data-over")).toBe(false);
 
-    // Moving onto a child of the area is not leaving it.
-    dragLeave(cardArea("To do"), card("Test it"));
-    fireEvent.dragOver(cardArea("To do"), { dataTransfer });
-    dragLeave(cardArea("To do"), card("Test it"));
-    expect(cardArea("To do").hasAttribute("data-over")).toBe(true);
-    dragLeave(cardArea("To do"), document.body);
-    expect(cardArea("To do").hasAttribute("data-over")).toBe(false);
+    await moveOver("In progress");
+    expect(cardArea("Done").hasAttribute("data-over")).toBe(false);
+    expect(cardArea("In progress").hasAttribute("data-over")).toBe(true);
+  });
+
+  it("a touch drag moves a card to another column", async () => {
+    const dataProvider = provider();
+    const update = vi.spyOn(dataProvider, "update");
+    mount({ dataProvider });
+    await screen.findByText("Write it");
+
+    await dragTo("Write it", "Done", "touch");
+
+    await waitFor(() => expect(update).toHaveBeenCalledTimes(1));
+    expect(update).toHaveBeenCalledWith("tasks", {
+      id: 1,
+      data: { status: "done" },
+      previousData: TASKS[0],
+    });
+  });
+
+  it("a touch that moves before the hold ends scrolls and starts no drag", async () => {
+    const dataProvider = provider();
+    const update = vi.spyOn(dataProvider, "update");
+    mount({ dataProvider });
+    await screen.findByText("Write it");
+
+    const from = centre(card("Write it"));
+    pointer(card("Write it"), "pointerdown", from, "touch");
+    pointer(document, "pointermove", { x: from.x + 40, y: from.y }, "touch");
+    await wait(300);
+    expect(card("Write it").hasAttribute("data-dragging")).toBe(false);
+    pointer(document, "pointerup", insideArea("Done"), "touch");
+    await settle();
+
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("a click on a card selects it and starts no drag", async () => {
+    const dataProvider = provider();
+    const update = vi.spyOn(dataProvider, "update");
+    const onSelectCard = vi.fn();
+    mount({ dataProvider, board: { onSelectCard } });
+    await screen.findByText("Write it");
+
+    const at = centre(card("Write it"));
+    pointer(card("Write it"), "pointerdown", at);
+    expect(card("Write it").hasAttribute("data-dragging")).toBe(false);
+    pointer(document, "pointerup", at);
+    fireEvent.click(card("Write it"));
+    await settle();
+
+    expect(onSelectCard).toHaveBeenCalledTimes(1);
+    expect(onSelectCard).toHaveBeenCalledWith(TASKS[0]);
+    expect(card("Write it").hasAttribute("data-dragging")).toBe(false);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("a press on the Move to button starts no drag", async () => {
+    mount();
+    await screen.findByText("Write it");
+
+    const trigger = within(card("Write it")).getByRole("button", {
+      name: "Move Write it",
+    });
+    const at = centre(card("Write it"));
+    pointer(trigger, "pointerdown", at);
+    pointer(document, "pointermove", { x: at.x + 40, y: at.y });
+    await settle();
+
+    expect(card("Write it").hasAttribute("data-dragging")).toBe(false);
+  });
+
+  it("a press on a link in cardRenderer starts no drag", async () => {
+    mount({
+      board: {
+        cardRenderer: (record: LooseRecord) => (
+          <a href="#x" data-testid={`link-${record.id}`}>
+            {String(record.title)}
+          </a>
+        ),
+      },
+    });
+    await screen.findByTestId("link-1");
+
+    const at = centre(cardWithId(1));
+    pointer(screen.getByTestId("link-1"), "pointerdown", at);
+    pointer(document, "pointermove", { x: at.x + 40, y: at.y });
+    await settle();
+
+    expect(document.querySelector("[data-dragging]")).toBeNull();
+  });
+
+  it("no card carries the native draggable attribute", async () => {
+    mount();
+    await screen.findByText("Write it");
+
+    for (const node of document.querySelectorAll("[data-slot=kanban-card]")) {
+      expect(node.hasAttribute("draggable")).toBe(false);
+    }
   });
 
   it("cards are not draggable when edit access is denied", async () => {
@@ -380,14 +629,14 @@ describe("<KanbanBoard>", () => {
     await screen.findByText("Write it");
     await waitFor(() => expect(authProvider.canAccess).toHaveBeenCalled());
 
-    expect(card("Write it").getAttribute("draggable")).toBe("false");
+    expect(card("Write it").hasAttribute("data-draggable")).toBe(false);
   });
 
   it("cards are draggable with edit access", async () => {
     mount();
     await screen.findByText("Write it");
 
-    expect(card("Write it").getAttribute("draggable")).toBe("true");
+    expect(card("Write it").hasAttribute("data-draggable")).toBe(true);
   });
 
   it("the Move to menu lists the other columns and moving with the keyboard calls update like a drop", async () => {
@@ -513,12 +762,15 @@ describe("<KanbanBoard>", () => {
     await screen.findByTestId("link-1");
     await waitFor(() => expect(authProvider.canAccess).toHaveBeenCalled());
 
-    const dataTransfer = stubTransfer();
-    fireEvent.dragStart(screen.getByTestId("link-1"), { dataTransfer });
-    fireEvent.dragOver(cardArea("Done"), { dataTransfer });
-    fireEvent.drop(cardArea("Done"), { dataTransfer });
+    const at = centre(cardWithId(1));
+    pointer(screen.getByTestId("link-1"), "pointerdown", at);
+    pointer(document, "pointermove", { x: at.x + 10, y: at.y });
+    pointer(document, "pointermove", insideArea("Done"));
+    await settle();
+    pointer(document, "pointerup", insideArea("Done"));
+    await settle();
 
-    expect(dataTransfer.setData).not.toHaveBeenCalled();
+    expect(document.querySelector("[data-dragging]")).toBeNull();
     expect(cardArea("Done").hasAttribute("data-over")).toBe(false);
     expect(update).not.toHaveBeenCalled();
   });
