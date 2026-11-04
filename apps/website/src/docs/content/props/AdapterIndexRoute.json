@@ -1,0 +1,29 @@
+{
+  "name": "AdapterIndexRoute",
+  "props": [
+    {
+      "name": "children",
+      "type": "undefined",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "element",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "index",
+      "type": "true",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

@@ -5,8 +5,17 @@
  */
 
 import type { CheloneLocation, PathMatch } from "@chelone/core";
+import { createElement } from "react";
+import { Route as RRRoute, Routes as RRRoutes } from "react-router";
 import { assertType, describe, expectTypeOf, it } from "vitest";
-import type { AdapterNavigate, RouterAdapter, RouterBlocker } from "./adapter";
+import type {
+  AdapterIndexRouteProps,
+  AdapterNavigate,
+  AdapterPathRouteProps,
+  AdapterRouteProps,
+  RouterAdapter,
+  RouterBlocker,
+} from "./adapter";
 import type { BlockerPredicate, RedirectTo } from "./nav-hooks";
 import {
   useBasename,
@@ -23,6 +32,35 @@ import { reactRouterAdapter } from "./react-router-adapter";
 describe("RouterAdapter type contract", () => {
   it("the default adapter satisfies RouterAdapter exactly", () => {
     expectTypeOf(reactRouterAdapter).toMatchTypeOf<RouterAdapter>();
+  });
+
+  it("react-router's Route and Routes are assignable to the adapter's", () => {
+    // The adapter exposes react-router's own components by identity, so its
+    // props must be a subset of react-router's — no cast in between.
+    expectTypeOf(RRRoute).toMatchTypeOf<RouterAdapter["Route"]>();
+    expectTypeOf(RRRoutes).toMatchTypeOf<RouterAdapter["Routes"]>();
+  });
+
+  it("an index route takes no children", () => {
+    // @ts-expect-error an index route's `children` is `undefined`
+    assertType<AdapterRouteProps>({
+      index: true,
+      children: createElement("div"),
+    });
+  });
+
+  it("a path route keeps children and takes index only as false", () => {
+    assertType<AdapterRouteProps>({
+      path: "posts",
+      index: false,
+      element: createElement("div"),
+      children: createElement("div"),
+    });
+    assertType<AdapterPathRouteProps>({ path: "posts" });
+    assertType<AdapterIndexRouteProps>({
+      index: true,
+      element: createElement("div"),
+    });
   });
 
   it("useLocation returns a CheloneLocation", () => {

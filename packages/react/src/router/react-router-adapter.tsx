@@ -50,8 +50,6 @@ import type {
   AdapterLinkProps,
   AdapterNavigate,
   AdapterNavigateProps,
-  AdapterRouteProps,
-  AdapterRoutesProps,
   RouterAdapter,
   RouterBlocker,
   RouterWrapperProps,
@@ -101,20 +99,25 @@ function useLocation(): CheloneLocation {
  * current react-router navigate. A string `to` or a numeric delta both flow
  * through; opts map 1:1 (`replace`, `state`).
  */
+/** The nav options `AdapterNavigate`'s string form accepts (its `opts` slot). */
+type NavigateOpts = { replace?: boolean; state?: unknown };
+
 function useNavigate(): AdapterNavigate {
   const navigate = useRRNavigate();
   const navigateRef = useRef(navigate);
   navigateRef.current = navigate;
-  return useCallback(
-    (to: string | number, opts?: { replace?: boolean; state?: unknown }) => {
-      if (typeof to === "number") {
-        navigateRef.current(to);
-        return;
-      }
-      navigateRef.current(to, opts);
-    },
-    [],
-  ) as AdapterNavigate;
+  // Declared with the two `AdapterNavigate` call signatures (string + opts, or a
+  // numeric delta) so the stable wrapper lands on the interface as-is.
+  function navigateTo(to: string, opts?: NavigateOpts): void;
+  function navigateTo(delta: number): void;
+  function navigateTo(to: string | number, opts?: NavigateOpts): void {
+    if (typeof to === "number") {
+      navigateRef.current(to);
+      return;
+    }
+    navigateRef.current(to, opts);
+  }
+  return useCallback(navigateTo, []);
 }
 
 function useParams(): Record<string, string | undefined> {
@@ -243,13 +246,17 @@ function Navigate({ to, replace, state }: AdapterNavigateProps) {
  * wrapper function — even one that renders `<RRRoute>` — is rejected with
  * "[Route] is not a <Route> component", so nesting through the adapter would be
  * impossible. Matching ra-core's `reactRouterProvider` (which also assigns
- * `Route`/`Routes` by identity), we expose the real components. `AdapterRouteProps`
- * (`path?/index?/element?/children?`) and `AdapterRoutesProps` (`location?`,
- * `children?`) are structural subsets of react-router's props, so the identity
- * assignment satisfies the neutral `RouterAdapter` contract.
+ * `Route`/`Routes` by identity), we expose the real components.
+ *
+ * The identity assignment type-checks because `AdapterRouteProps` is a union
+ * split the same way react-router splits its own `RouteProps` — a path/layout
+ * member (`index?: false`, `children?`) and an index member (`index: true`,
+ * `children?: undefined`) — so every adapter route props shape is a subset of a
+ * react-router one. `AdapterRoutesProps` (`location?`, `children?`) is already a
+ * subset of `RoutesProps`.
  */
-const Route = RRRoute as unknown as (props: AdapterRouteProps) => ReactNode;
-const Routes = RRRoutes as unknown as (props: AdapterRoutesProps) => ReactNode;
+const Route: RouterAdapter["Route"] = RRRoute;
+const Routes: RouterAdapter["Routes"] = RRRoutes;
 
 function Outlet() {
   return <RROutlet />;
