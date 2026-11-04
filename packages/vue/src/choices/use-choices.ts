@@ -14,12 +14,13 @@
  * called in `setup`.
  */
 
+import { getAtPath } from "@chelone/core";
 import { useTranslate } from "../i18n/use-translate";
 
 /** An erased choice record — choices carry arbitrary shapes (`{id, name, ...}`). */
 export type ChoiceRecord = Record<string, unknown>;
 
-/** The display path (dotted) or a formatter over the whole choice. */
+/** The display path (dot or bracket) or a formatter over the whole choice. */
 export type OptionText = string | ((choice: ChoiceRecord) => string);
 
 export interface UseChoicesOptions {
@@ -43,15 +44,16 @@ export interface UseChoicesResult {
   getDisableValue(choice: ChoiceRecord): unknown;
 }
 
-/** Reads a dotted path off a record (`get(choice, 'a.b')`), else `undefined`. */
+/**
+ * Read a choice path off a record with core's one path grammar
+ * ({@link getAtPath}): dot members (`author.name`), bracket indices
+ * (`tags[0].label`) and numeric-dot indices all resolve, and an own flat key
+ * equal to the whole path wins. An empty path reads nothing, where core's
+ * reader returns the record itself. Public in the package barrel.
+ */
 export function getChoicePath(record: ChoiceRecord, path: string): unknown {
-  if (path in record) return record[path];
-  let current: unknown = record;
-  for (const key of path.split(".")) {
-    if (current == null || typeof current !== "object") return undefined;
-    current = (current as Record<string, unknown>)[key];
-  }
-  return current;
+  if (path === "") return undefined;
+  return getAtPath(record, path);
 }
 
 /**

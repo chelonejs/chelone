@@ -228,6 +228,27 @@ describe("useReferenceManyFieldController", () => {
     expect(capture.result?.total).toBe(1);
   });
 
+  it("the foreign key is read from a nested source", async () => {
+    // The top-level id (99) matches nothing: total 5 proves the nested read.
+    const { capture, referenceSpy } = mountMany(
+      { source: "author.id" },
+      { id: 99, author: { id: 1 } },
+    );
+    await vi.waitFor(() => expect(capture.result?.total).toBe(5));
+    expect(referenceSpy).toHaveBeenLastCalledWith(
+      "comments",
+      expect.objectContaining({ id: 1 }),
+    );
+
+    // The bracket grammar reads the same kind of path.
+    const bracketed = mountMany(
+      { source: "tags[0].id" },
+      { id: 99, tags: [{ id: 2 }] },
+    );
+    await vi.waitFor(() => expect(bracketed.capture.result?.total).toBe(1));
+    expect(bracketed.capture.result?.data?.map((row) => row.id)).toEqual([6]);
+  });
+
   it("follows a record that arrives late or changes and releases the previous subscription", async () => {
     const { capture, record, referenceSpy, observerCount, dataObserverCount } =
       mountMany();
@@ -308,6 +329,23 @@ describe("useReferenceOneFieldController", () => {
         id: 1,
         pagination: { page: 1, perPage: 1 },
       }),
+    );
+  });
+
+  it("the foreign key is read from a nested source", async () => {
+    const { capture, referenceSpy } = mountOne(
+      { source: "author.id" },
+      // The top-level id (99) matches no profile: the nested one does.
+      { id: 99, author: { id: 1 } },
+    );
+    await vi.waitFor(() => expect(capture.result?.isPending).toBe(false));
+    expect(capture.result?.referenceRecord).toMatchObject({
+      id: 1,
+      bio: "first",
+    });
+    expect(referenceSpy).toHaveBeenCalledWith(
+      "profiles",
+      expect.objectContaining({ id: 1 }),
     );
   });
 
