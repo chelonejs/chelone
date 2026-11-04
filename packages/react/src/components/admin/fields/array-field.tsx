@@ -44,10 +44,7 @@ function ArrayField<RecordType extends LooseRecord = LooseRecord>(
 ) {
   const { children, perPage, sort, filter } = props;
   const data =
-    (useFieldValue({
-      ...props,
-      source: props.source as SourceProp<RecordType>,
-    }) as unknown as unknown[] | undefined) ?? emptyArray;
+    (useFieldValue(props) as unknown as unknown[] | undefined) ?? emptyArray;
   const listContext = useList({
     // The array holds arbitrary embedded records; the client controller is
     // record-shape-agnostic, so erase to the loose `ResourceRecord`.
@@ -66,7 +63,7 @@ const emptyArray: unknown[] = [];
 
 interface ArrayFieldProps<RecordType extends LooseRecord = LooseRecord> {
   /** The field path to the array on the current record. */
-  source: string;
+  source: SourceProp<RecordType>;
   /** The record to read. Defaults to the ambient `RecordContext` value. */
   record?: RecordType;
   /** Returned when the resolved value is `undefined`. */

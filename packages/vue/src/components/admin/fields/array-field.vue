@@ -1,10 +1,15 @@
 <script lang="ts">
-import type { FilterPayload, LooseRecord, SortPayload } from "@chelone/core";
+import type {
+  FilterPayload,
+  LooseRecord,
+  SortPayload,
+  SourceProp,
+} from "@chelone/core";
 
 /** Props for {@link ArrayField}. */
 export interface ArrayFieldProps {
   /** The field path to the array on the current record. */
-  source: string;
+  source: SourceProp;
   /** The record to read. Defaults to the ambient `RecordContext` value. */
   record?: LooseRecord;
   /** Returned when the resolved value is `undefined`. */
