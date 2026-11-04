@@ -46,6 +46,8 @@ export const postSchema = z.object({
   author_id: z.number({ message: "Pick an author" }),
   views: z.number().min(0).optional(),
   published: z.boolean().optional(),
+  /** Unused by the forms; gives `register-proof` an array for a bracket path. */
+  tags: z.array(z.object({ label: z.string() })).optional(),
 });
 
 export function PostList() {
