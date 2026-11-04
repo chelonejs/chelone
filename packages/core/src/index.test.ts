@@ -375,6 +375,13 @@ describe("@chelone/core barrel", () => {
     expect(barrel.inMemoryLockProvider).toBeTypeOf("function");
   });
 
+  it("exports the topic hub and the BroadcastChannel transport", () => {
+    expect(barrel.createTopicHub).toBeTypeOf("function");
+    expect(barrel.broadcastChannelTransport).toBeTypeOf("function");
+    expect("resolveReconnectConfig" in barrel).toBe(false);
+    expect("reconnectDelay" in barrel).toBe(false);
+  });
+
   it("exports the command menu helpers", () => {
     expect(barrel.matchesHotkey).toBeTypeOf("function");
     expect(barrel.shouldHandleHotkey).toBeTypeOf("function");

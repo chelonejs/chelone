@@ -457,6 +457,10 @@
   "packages/core/src/i18n/messages.ts": {
     "unknown": 1
   },
+  "packages/core/src/i18n/missing-keys.test.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
   "packages/core/src/i18n/translatable.ts": {
     "cast": 1,
     "unknown": 6
@@ -502,9 +506,6 @@
   },
   "packages/core/src/realtime/lock-session.ts": {
     "unknown": 2
-  },
-  "packages/core/src/realtime/memory-transport.ts": {
-    "cast": 1
   },
   "packages/core/src/realtime/presence.test.ts": {
     "double-cast": 1,
