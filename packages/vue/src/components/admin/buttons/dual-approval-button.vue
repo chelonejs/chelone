@@ -1,14 +1,16 @@
-<script lang="ts">
-import type { LooseRecord, MutationMode } from "@chelone/core";
+<script lang="ts" generic="TRecord extends Record<string, unknown> = Record<string, unknown>">
+import type { LooseRecord, MutationMode, SourceKey } from "@chelone/core";
 
 /** Props for {@link DualApprovalButton}. */
-export interface DualApprovalButtonProps {
+export interface DualApprovalButtonProps<
+  TRecord extends Record<string, unknown> = Record<string, unknown>,
+> {
   /** Approvals needed. Floored, minimum 1. Default `2`. */
   required?: number;
-  /** Record field holding the approver list. Default `"approvers"`. */
-  approverSource?: string;
-  /** Record field the status is written to. Default `"status"`. */
-  statusSource?: string;
+  /** Record field holding the approver list, a top-level key. Default `"approvers"`. */
+  approverSource?: SourceKey<TRecord>;
+  /** Record field the status is written to, a top-level key. Default `"status"`. */
+  statusSource?: SourceKey<TRecord>;
   /** Status written while approvals are short of `required`. Default `"pending"`. */
   pendingValue?: unknown;
   /** Status written once approvals reach `required`. Default `"approved"`. */
@@ -16,7 +18,7 @@ export interface DualApprovalButtonProps {
   /** Override the ambient `<Resource>`. */
   resource?: string;
   /** Override the ambient record. */
-  record?: LooseRecord;
+  record?: TRecord;
   /** How the update is dispatched. Default `"pessimistic"`. */
   mutationMode?: MutationMode;
   /** Extra CSS class appended to the button. */
@@ -24,7 +26,7 @@ export interface DualApprovalButtonProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends Record<string, unknown> = Record<string, unknown>">
 /**
  * `<DualApprovalButton>` — records the signed-in user as one more approver on
  * the record in view, and flips the status once `required` approvers are in.
@@ -54,7 +56,7 @@ import { useResourceContext } from "../../../resource-context";
 import Button from "../../ui/button.vue";
 import { useMenuAccess } from "../layout/use-menu-access";
 
-const props = withDefaults(defineProps<DualApprovalButtonProps>(), {
+const props = withDefaults(defineProps<DualApprovalButtonProps<TRecord>>(), {
   required: 2,
   approverSource: "approvers",
   statusSource: "status",
@@ -65,7 +67,9 @@ const props = withDefaults(defineProps<DualApprovalButtonProps>(), {
 
 const resource = useResourceContext(props);
 const injectedRecord = inject(RecordContextKey, null);
-const record = computed(() => props.record ?? injectedRecord?.value);
+const record = computed<TRecord | undefined>(
+  () => (props.record ?? injectedRecord?.value) as TRecord | undefined,
+);
 const translate = useTranslate();
 const notifications = useCheloneNotifications();
 const { identity } = useOptionalIdentity();
@@ -89,7 +93,7 @@ const options = computed(() => ({
   identityId: identity.value?.id,
 }));
 const state = computed(() =>
-  record.value ? getApprovalState(record.value, options.value) : undefined,
+  record.value ? getApprovalState<TRecord>(record.value, options.value) : undefined,
 );
 
 const show = computed(
@@ -122,7 +126,7 @@ async function onClick(event: MouseEvent): Promise<void> {
   event.stopPropagation();
   const current = record.value;
   if (!current) return;
-  const data = buildApprovalUpdate(current, options.value);
+  const data = buildApprovalUpdate<TRecord>(current, options.value);
   if (!data) return;
   try {
     // In the default undoable mode `mutateAsync` resolves once the Undo
@@ -130,7 +134,7 @@ async function onClick(event: MouseEvent): Promise<void> {
     await update.mutateAsync({
       id: current.id as Identifier,
       data,
-      previousData: current,
+      previousData: current as unknown as LooseRecord,
     });
     if (props.mutationMode !== "undoable") {
       notifications?.notify("chelone.notification.updated", {

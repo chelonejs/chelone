@@ -19,6 +19,7 @@ import {
   type Identifier,
   type LooseRecord,
   type MutationMode,
+  type SourceKey,
 } from "@chelone/core";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,19 +32,21 @@ import { useRecordContext } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource";
 import { useMenuAccess } from "../layout/use-menu-access";
 
-interface DualApprovalButtonProps {
+interface DualApprovalButtonProps<
+  TRecord extends Record<string, unknown> = Record<string, unknown>,
+> {
   /** Approvals needed. Default 2. */
   required?: number;
-  /** Record field holding the approver ids. Default `"approvers"`. */
-  approverSource?: string;
-  /** Record field the status is written to. Default `"status"`. */
-  statusSource?: string;
+  /** Record field holding the approver ids, a top-level key. Default `"approvers"`. */
+  approverSource?: SourceKey<TRecord>;
+  /** Record field the status is written to, a top-level key. Default `"status"`. */
+  statusSource?: SourceKey<TRecord>;
   /** Status written while approvals are short of `required`. Default `"pending"`. */
   pendingValue?: unknown;
   /** Status written once approvals reach `required`. Default `"approved"`. */
   approvedValue?: unknown;
   resource?: string;
-  record?: LooseRecord;
+  record?: TRecord;
   /** Default `"pessimistic"`; `"undoable"` shows an Undo notification. */
   mutationMode?: MutationMode;
   className?: string;
@@ -63,7 +66,9 @@ interface DualApprovalButtonProps {
  *   </Edit>
  * );
  */
-function DualApprovalButton(props: DualApprovalButtonProps) {
+function DualApprovalButton<
+  TRecord extends Record<string, unknown> = Record<string, unknown>,
+>(props: DualApprovalButtonProps<TRecord>) {
   const {
     required,
     approverSource,
@@ -73,7 +78,7 @@ function DualApprovalButton(props: DualApprovalButtonProps) {
     mutationMode = "pessimistic",
     className,
   } = props;
-  const record = useRecordContext(props);
+  const record = useRecordContext<TRecord>(props);
   const resource = useResourceContext(props);
   const translate = useTranslate();
   const notify = useNotify();
@@ -126,7 +131,7 @@ function DualApprovalButton(props: DualApprovalButtonProps) {
     const update = mutateAsync({
       id: record.id as Identifier,
       data,
-      previousData: record,
+      previousData: record as unknown as LooseRecord,
     });
     // An undoable `mutateAsync` resolves once the Undo notification is enqueued.
     if (mutationMode === "undoable") {
