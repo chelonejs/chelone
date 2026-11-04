@@ -534,6 +534,9 @@ importers:
       publint:
         specifier: ^0.3.0
         version: 0.3.25
+      typescript:
+        specifier: ^5.5.0
+        version: 5.9.3
       vite:
         specifier: ^7.0.0
         version: 7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(stylus@0.57.0)(yaml@2.9.0)
