@@ -28,19 +28,31 @@ function applyFilter<TRecord>(
   );
 }
 
-/** Orders numbers, strings, dates and booleans as `<` does; anything else ties. */
+/** What `<` reduces a value to: dates by time, booleans and null as numbers. */
+function toComparable<TValue>(value: TValue): number | string {
+  if (value instanceof Date) return value.getTime();
+  if (typeof value === "number" || typeof value === "string") return value;
+  if (typeof value === "boolean") return Number(value);
+  if (value === null) return 0;
+  return Number.NaN;
+}
+
+/**
+ * Orders as `<` does, coercion included: null sorts as 0, a numeric string
+ * against a number compares as a number, and values `<` cannot order
+ * (undefined, objects, a non-numeric string against a number) tie.
+ */
 function compareValues(a: unknown, b: unknown): number {
-  if (a instanceof Date && b instanceof Date)
-    return compareValues(a.getTime(), b.getTime());
-  if (
-    (typeof a === "number" && typeof b === "number") ||
-    (typeof a === "string" && typeof b === "string") ||
-    (typeof a === "boolean" && typeof b === "boolean")
-  ) {
-    if (a < b) return -1;
-    if (a > b) return 1;
+  const x = toComparable(a);
+  const y = toComparable(b);
+  if (typeof x === "string" && typeof y === "string") {
+    if (x < y) return -1;
+    return x > y ? 1 : 0;
   }
-  return 0;
+  const nx = Number(x);
+  const ny = Number(y);
+  if (nx < ny) return -1;
+  return nx > ny ? 1 : 0;
 }
 
 function applySort<TRecord>(
@@ -99,9 +111,13 @@ export function fakeDataProvider<TResources extends ResourceMap>(
     resource: TName,
   ): RecordOf<TResources, TName>[] => {
     const rows = store[resource];
-    if (!rows)
+    if (rows) return rows;
+    // a resource seeded with an explicit `undefined` is an empty table
+    if (!Object.hasOwn(store, resource))
       throw new Error(`fakeDataProvider: unknown resource "${resource}"`);
-    return rows;
+    const empty: RecordOf<TResources, TName>[] = [];
+    store[resource] = empty;
+    return empty;
   };
   const find = <TName extends keyof TResources & string>(
     resource: TName,
