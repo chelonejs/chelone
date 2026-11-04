@@ -43,4 +43,23 @@ describe("workflow button source props", () => {
       source?: string;
     }>();
   });
+
+  it("pendingValue and approvedValue take a value of the record", () => {
+    type StringTicket = { id: string; status: string };
+
+    expectTypeOf<
+      DualApprovalButtonProps<StringTicket>["pendingValue"]
+    >().toEqualTypeOf<string | undefined>();
+    expectTypeOf<
+      DualApprovalButtonProps<StringTicket>["approvedValue"]
+    >().toEqualTypeOf<string | undefined>();
+
+    assertType<Pick<DualApprovalButtonProps<StringTicket>, "pendingValue">>({
+      pendingValue: "open",
+    });
+    assertType<Pick<DualApprovalButtonProps<StringTicket>, "approvedValue">>({
+      // @ts-expect-error a number is not a value of a string-valued record
+      approvedValue: 1,
+    });
+  });
 });

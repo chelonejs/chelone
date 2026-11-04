@@ -2,8 +2,6 @@ import { describe, expectTypeOf, it } from "vitest";
 import type { DualApprovalButtonProps } from "./dual-approval-button";
 import type { StatusTransitionButtonProps } from "./status-transition-button";
 
-// A type alias: an interface has no index signature, so it does not satisfy
-// the buttons' `Record<string, unknown>` constraint.
 type Post = {
   id: number;
   reviewers: number[];
@@ -45,5 +43,23 @@ describe("workflow button source props", () => {
     expectTypeOf<StatusTransitionButtonProps["source"]>().toEqualTypeOf<
       string | undefined
     >();
+  });
+
+  it("pendingValue and approvedValue take a value of the record", () => {
+    type Ticket = { id: string; status: string };
+
+    expectTypeOf<
+      DualApprovalButtonProps<Ticket>["pendingValue"]
+    >().toEqualTypeOf<string | undefined>();
+    expectTypeOf<
+      DualApprovalButtonProps<Ticket>["approvedValue"]
+    >().toEqualTypeOf<string | undefined>();
+
+    const approval: DualApprovalButtonProps<Ticket> = {
+      pendingValue: "open",
+      // @ts-expect-error a number is not a value of a string-valued record
+      approvedValue: 1,
+    };
+    void approval;
   });
 });

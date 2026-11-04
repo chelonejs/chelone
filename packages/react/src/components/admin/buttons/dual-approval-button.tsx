@@ -16,9 +16,11 @@
 import {
   buildApprovalUpdate,
   getApprovalState,
-  type Identifier,
-  type LooseRecord,
+  isLooseRecord,
   type MutationMode,
+  type RegisteredRecord,
+  type RegisteredResourceName,
+  type ResourceRecord,
   type SourceKey,
 } from "@chelone/core";
 import { Check } from "lucide-react";
@@ -33,7 +35,7 @@ import { useResourceContext } from "../../../resource";
 import { useMenuAccess } from "../layout/use-menu-access";
 
 interface DualApprovalButtonProps<
-  TRecord extends Record<string, unknown> = Record<string, unknown>,
+  TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
 > {
   /** Approvals needed. Default 2. */
   required?: number;
@@ -42,9 +44,9 @@ interface DualApprovalButtonProps<
   /** Record field the status is written to, a top-level key. Default `"status"`. */
   statusSource?: SourceKey<TRecord>;
   /** Status written while approvals are short of `required`. Default `"pending"`. */
-  pendingValue?: unknown;
+  pendingValue?: TRecord[keyof TRecord];
   /** Status written once approvals reach `required`. Default `"approved"`. */
-  approvedValue?: unknown;
+  approvedValue?: TRecord[keyof TRecord];
   resource?: string;
   record?: TRecord;
   /** Default `"pessimistic"`; `"undoable"` shows an Undo notification. */
@@ -67,7 +69,7 @@ interface DualApprovalButtonProps<
  * );
  */
 function DualApprovalButton<
-  TRecord extends Record<string, unknown> = Record<string, unknown>,
+  TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
 >(props: DualApprovalButtonProps<TRecord>) {
   const {
     required,
@@ -92,7 +94,9 @@ function DualApprovalButton<
     mutationMode,
   });
 
-  if (!resource || !record || record.id == null) return null;
+  if (!resource || !record || record.id == null || !isLooseRecord(record)) {
+    return null;
+  }
   if (isAccessPending || !canAccess) return null;
 
   const options = {
@@ -129,9 +133,9 @@ function DualApprovalButton<
     const data = buildApprovalUpdate(record, options);
     if (!data) return;
     const update = mutateAsync({
-      id: record.id as Identifier,
+      id: record.id,
       data,
-      previousData: record as unknown as LooseRecord,
+      previousData: record,
     });
     // An undoable `mutateAsync` resolves once the Undo notification is enqueued.
     if (mutationMode === "undoable") {
