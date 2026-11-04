@@ -1,0 +1,268 @@
+/**
+ * `createResourceComponents("posts")`: the views, fields and inputs of one
+ * resource, with every `source` typed by that resource's record.
+ *
+ * The fields and inputs are the package's own components, retyped by a cast and
+ * not wrapped, so `posts.TextInput === TextInput`. The four views are wrapped,
+ * because they pass the bound name down as `resource`.
+ *
+ * Add-on components (monaco, maps, mdx, supabase, csv-import) are not members:
+ * the import fence keeps them out of the main entry, and they take the
+ * registered union.
+ *
+ * Call the factory at module scope. Each name gets one set of views, so a call
+ * inside a component body does not remount them, but it is still wasted work.
+ */
+import type {
+  RecordOf,
+  RegisteredResourceName,
+  RegisteredResources,
+  ResourceMap,
+  SourceProp,
+} from "@chelone/core";
+import { ApiKeyField } from "../components/admin/fields/api-key-field";
+import { ArrayField } from "../components/admin/fields/array-field";
+import { BadgeField } from "../components/admin/fields/badge-field";
+import { BooleanField } from "../components/admin/fields/boolean-field";
+import { ChipField } from "../components/admin/fields/chip-field";
+import { ColorField } from "../components/admin/fields/color-field";
+import { CronField } from "../components/admin/fields/cron-field";
+import { CurrencyField } from "../components/admin/fields/currency-field";
+import { DateField } from "../components/admin/fields/date-field";
+import { DurationField } from "../components/admin/fields/duration-field";
+import { EmailField } from "../components/admin/fields/email-field";
+import { FileField } from "../components/admin/fields/file-field";
+import { FunctionField } from "../components/admin/fields/function-field";
+import { ImageField } from "../components/admin/fields/image-field";
+import { JsonField } from "../components/admin/fields/json-field";
+import { NumberField } from "../components/admin/fields/number-field";
+import { PhoneField } from "../components/admin/fields/phone-field";
+import { RatingField } from "../components/admin/fields/rating-field";
+import { RecordField } from "../components/admin/fields/record-field";
+import { ReferenceArrayField } from "../components/admin/fields/reference-array-field";
+import { ReferenceField } from "../components/admin/fields/reference-field";
+import { ReferenceManyCount } from "../components/admin/fields/reference-many-count";
+import { ReferenceManyField } from "../components/admin/fields/reference-many-field";
+import { ReferenceOneField } from "../components/admin/fields/reference-one-field";
+import { SelectField } from "../components/admin/fields/select-field";
+import { SubscriptionPlanField } from "../components/admin/fields/subscription-plan-field";
+import { TextArrayField } from "../components/admin/fields/text-array-field";
+import { TextField } from "../components/admin/fields/text-field";
+import { UrlField } from "../components/admin/fields/url-field";
+import { UsageMeterField } from "../components/admin/fields/usage-meter-field";
+import { WebhookEndpointField } from "../components/admin/fields/webhook-endpoint-field";
+import { WrapperField } from "../components/admin/fields/wrapper-field";
+import { ApiKeyInput } from "../components/admin/inputs/api-key-input";
+import { ArrayInput } from "../components/admin/inputs/array-input";
+import { AutocompleteArrayInput } from "../components/admin/inputs/autocomplete-array-input";
+import { AutocompleteInput } from "../components/admin/inputs/autocomplete-input";
+import { BooleanInput } from "../components/admin/inputs/boolean-input";
+import { CheckboxGroupInput } from "../components/admin/inputs/checkbox-group-input";
+import { ColorInput } from "../components/admin/inputs/color-input";
+import { CronInput } from "../components/admin/inputs/cron-input";
+import { CurrencyInput } from "../components/admin/inputs/currency-input";
+import { DatagridInput } from "../components/admin/inputs/datagrid-input";
+import { DateInput } from "../components/admin/inputs/date-input";
+import { DateTimeInput } from "../components/admin/inputs/date-time-input";
+import { DurationInput } from "../components/admin/inputs/duration-input";
+import { FileInput } from "../components/admin/inputs/file-input";
+import { ImageInput } from "../components/admin/inputs/image-input";
+import { LoadingInput } from "../components/admin/inputs/loading-input";
+import { NullableBooleanInput } from "../components/admin/inputs/nullable-boolean-input";
+import { NumberInput } from "../components/admin/inputs/number-input";
+import { PasswordInput } from "../components/admin/inputs/password-input";
+import { PhoneInput } from "../components/admin/inputs/phone-input";
+import { RadioButtonGroupInput } from "../components/admin/inputs/radio-button-group-input";
+import { RatingInput } from "../components/admin/inputs/rating-input";
+import { ReferenceArrayInput } from "../components/admin/inputs/reference-array-input";
+import { ReferenceInput } from "../components/admin/inputs/reference-input";
+import { ResettableTextInput } from "../components/admin/inputs/resettable-text-input";
+import { SearchInput } from "../components/admin/inputs/search-input";
+import { SelectArrayInput } from "../components/admin/inputs/select-array-input";
+import { SelectInput } from "../components/admin/inputs/select-input";
+import { SubscriptionPlanPicker } from "../components/admin/inputs/subscription-plan-picker";
+import { TextArrayInput } from "../components/admin/inputs/text-array-input";
+import { TextInput } from "../components/admin/inputs/text-input";
+import { TimeInput } from "../components/admin/inputs/time-input";
+import { WebhookEndpointInput } from "../components/admin/inputs/webhook-endpoint-input";
+import { Create, type CreateProps } from "../components/admin/views/create";
+import { Edit, type EditProps } from "../components/admin/views/edit";
+import { List, type ListProps } from "../components/admin/views/list";
+import { Show, type ShowProps } from "../components/admin/views/show";
+
+/**
+ * The package's own fields and inputs, which the factory returns unwrapped.
+ * The three `as typeof` casts name a type that declaration emit cannot spell
+ * otherwise: `genericMemo(XImpl)` is typed as the unexported `XImpl`.
+ */
+const components = {
+  ApiKeyField,
+  ArrayField,
+  BadgeField,
+  BooleanField,
+  ChipField: ChipField as typeof ChipField,
+  ColorField,
+  CronField,
+  CurrencyField,
+  DateField: DateField as typeof DateField,
+  DurationField,
+  EmailField: EmailField as typeof EmailField,
+  FileField,
+  FunctionField,
+  ImageField,
+  JsonField,
+  NumberField,
+  PhoneField,
+  RatingField,
+  RecordField,
+  ReferenceArrayField,
+  ReferenceField,
+  ReferenceManyCount,
+  ReferenceManyField,
+  ReferenceOneField,
+  SelectField,
+  SubscriptionPlanField,
+  TextArrayField,
+  TextField,
+  UrlField,
+  UsageMeterField,
+  WebhookEndpointField,
+  WrapperField,
+  ApiKeyInput,
+  ArrayInput,
+  AutocompleteArrayInput,
+  AutocompleteInput,
+  BooleanInput,
+  CheckboxGroupInput,
+  ColorInput,
+  CronInput,
+  CurrencyInput,
+  DatagridInput,
+  DateInput,
+  DateTimeInput,
+  DurationInput,
+  FileInput,
+  ImageInput,
+  LoadingInput,
+  NullableBooleanInput,
+  NumberInput,
+  PasswordInput,
+  PhoneInput,
+  RadioButtonGroupInput,
+  RatingInput,
+  ReferenceArrayInput,
+  ReferenceInput,
+  ResettableTextInput,
+  SearchInput,
+  SelectArrayInput,
+  SelectInput,
+  SubscriptionPlanPicker,
+  TextArrayInput,
+  TextInput,
+  TimeInput,
+  WebhookEndpointInput,
+};
+
+type Components = typeof components;
+
+/**
+ * `TProps` with `source` replaced by `TSource`, and still optional where it was
+ * optional. Props with no `source` come back as they were. Distributes over a
+ * union of props.
+ */
+type WithSource<TProps, TSource> = TProps extends unknown
+  ? "source" extends keyof TProps
+    ? Omit<TProps, "source"> &
+        (Partial<Pick<TProps, "source">> extends Pick<TProps, "source">
+          ? { source?: TSource }
+          : { source: TSource })
+    : TProps
+  : never;
+
+/**
+ * A component whose `source` prop is `TSource`. A generic component is read at
+ * its constraint, which is the loose record it defaults to.
+ */
+type WithSourceComponent<TComponent, TSource> = TComponent extends (
+  props: infer TProps,
+) => infer TResult
+  ? (props: WithSource<TProps, TSource>) => TResult
+  : TComponent;
+
+/** A view with no `resource` prop: the factory has bound it. */
+type BoundView<TProps extends { resource?: string }, TResult> = (
+  props: Omit<TProps, "resource">,
+) => TResult;
+
+/**
+ * The views, fields and inputs of one resource of `TResources`, each `source`
+ * typed by {@link SourceProp} of that resource's record.
+ */
+export type ResourceComponents<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+> = {
+  [K in keyof Components]: WithSourceComponent<
+    Components[K],
+    SourceProp<RecordOf<TResources, TName>>
+  >;
+} & {
+  Edit: BoundView<EditProps, ReturnType<typeof Edit>>;
+  Create: BoundView<CreateProps, ReturnType<typeof Create>>;
+  Show: BoundView<ShowProps, ReturnType<typeof Show>>;
+  List: BoundView<ListProps, ReturnType<typeof List>>;
+};
+
+const cache = new Map<string, unknown>();
+
+function build(name: string) {
+  const cached = cache.get(name);
+  if (cached) return cached;
+  const built = {
+    ...components,
+    Edit: (props: Omit<EditProps, "resource">) => (
+      <Edit {...props} resource={name} />
+    ),
+    Create: (props: Omit<CreateProps, "resource">) => (
+      <Create {...props} resource={name} />
+    ),
+    Show: (props: Omit<ShowProps, "resource">) => (
+      <Show {...props} resource={name} />
+    ),
+    List: (props: Omit<ListProps, "resource">) => (
+      <List {...props} resource={name} />
+    ),
+  };
+  cache.set(name, built);
+  return built;
+}
+
+/**
+ * The components of the resource `name`, typed by the record of that resource
+ * in the map `TResources`. Use it where `Register` is not augmented, as a type
+ * test does.
+ *
+ * @example
+ * const posts = createResourceComponentsOf<typeof resources, "posts">("posts");
+ */
+export function createResourceComponentsOf<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(name: TName): ResourceComponents<TResources, TName> {
+  return build(name) as ResourceComponents<TResources, TName>;
+}
+
+/**
+ * The components of the resource `name`, typed by the record of that resource
+ * in the registered map. With nothing registered every name compiles and every
+ * `source` is a `string`.
+ *
+ * @example
+ * const posts = createResourceComponents("posts");
+ * <posts.TextInput source="title" />
+ */
+export function createResourceComponents<TName extends RegisteredResourceName>(
+  name: TName,
+): ResourceComponents<RegisteredResources, TName> {
+  return build(name) as ResourceComponents<RegisteredResources, TName>;
+}

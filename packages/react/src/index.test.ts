@@ -1,4 +1,4 @@
-import type { UserIdentity } from "@chelone/core";
+import type { ResourceMap, UserIdentity } from "@chelone/core";
 import { describe, expect, expectTypeOf, it } from "vitest";
 // Type-only imports from the barrel: a dropped `export type` line makes these
 // fail `tsc` (the react test script runs with `--typecheck`), locking the type
@@ -276,6 +276,14 @@ describe("@chelone/react barrel — P6 form leftovers + SSR seam (W2)", () => {
     expect(barrel.TranslatableFieldsTab).toBeTypeOf("function");
     expect(barrel.TranslatableFieldsTabContent).toBeTypeOf("function");
     expectTypeOf<barrel.TranslatableFieldsProps>().toHaveProperty("locales");
+  });
+
+  it("exports the per-resource component factories", () => {
+    expect(barrel.createResourceComponents).toBeTypeOf("function");
+    expect(barrel.createResourceComponentsOf).toBeTypeOf("function");
+    expectTypeOf<
+      barrel.ResourceComponents<ResourceMap, string>
+    >().toHaveProperty("TextInput");
   });
 
   it("exports TabbedForm (W2-T5)", () => {
