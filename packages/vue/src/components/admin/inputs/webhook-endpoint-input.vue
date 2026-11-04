@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 
 /**
  * Storage shape a `<WebhookEndpointInput>` edits. Mirrors the React twin's
@@ -18,7 +18,7 @@ export interface WebhookEndpoint {
 
 /** Props for {@link WebhookEndpointInput}. */
 export interface WebhookEndpointInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   /** Available event-type strings to surface as checkboxes. */
   eventTypes: readonly string[];

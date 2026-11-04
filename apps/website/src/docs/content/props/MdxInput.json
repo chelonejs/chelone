@@ -99,7 +99,7 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "SourceProp<TRecord>",
       "optional": false,
       "comment": "The field path RELATIVE to the ambient source scope."
     },
