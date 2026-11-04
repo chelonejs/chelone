@@ -10,8 +10,9 @@
  * The one decision that lets ONE interface cover both routers (plan §0b-3): `to`
  * is a STRING and Chelone owns matching + search serialization, so TanStack's
  * typed-search / typed-params generics NEVER reach this surface. Every hook here
- * reads TanStack's UNTYPED runtime state (`strict:false`) and maps it onto the
- * neutral `CheloneLocation` / `PathMatch` / `RouterBlocker` shapes.
+ * reads TanStack's OWN exported types (`ParsedLocation`, `ShouldBlockFn`, and the
+ * `strict:false` params bag) and maps them onto the neutral `CheloneLocation` /
+ * `PathMatch` / `RouterBlocker` shapes.
  *
  * ── The leaks papered over (plan §0b-4, + one reference-slot boundary) ────────
  *  1. resetScroll inversion: TanStack `resetScroll:true` == react-router
@@ -28,7 +29,11 @@
  *     it and STRIP the `__TSR_*` internals so they never surface as user state.
  *  4. search + hash SHAPE: TanStack's `useLocation().search` is a PARSED OBJECT
  *     (`searchStr` holds the raw string) and its `hash` drops the leading `#`.
- *     We map `searchStr → search` (+ a `URLSearchParams`) and re-add `#`.
+ *     We map `searchStr → search` (+ a `URLSearchParams`) and re-add `#`. The
+ *     BLOCKER's locations are a third shape: `ShouldBlockFnLocation` carries
+ *     `search` parsed but NO `searchStr` and no `hash`, so there the adapter
+ *     re-serializes `search` with the router's own `stringifySearch` and reports
+ *     an empty hash.
  *  5. (reference-slot boundary) `useInRouterContext` / `useCanBlock`: TanStack
  *     has no in-context hook, and `useRouterState` THROWS outside a router (so it
  *     can't be probed conditionally). The adapter tracks presence via its OWN
@@ -44,8 +49,13 @@
  * single `$` catch-all TanStack route in the created router (see RouterWrapper).
  */
 
-import type { CheloneLocation, PathMatch } from "@chelone/core";
+import type { CheloneLocation, NavigateOpts, PathMatch } from "@chelone/core";
 import { matchPath as coreMatchPath, parseLocation } from "@chelone/core";
+import type {
+  AnyRouter,
+  ParsedLocation,
+  ShouldBlockFn,
+} from "@tanstack/react-router";
 import {
   createMemoryHistory,
   createRootRoute,
@@ -93,50 +103,49 @@ import type {
  */
 const InTanstackRouterContext = createContext<boolean>(false);
 
-/** TanStack's untyped runtime location (the `strict:false` shape). */
-interface TSLocationShape {
-  pathname: string;
-  /** The RAW query string incl. leading `?` (`''` when empty). */
-  searchStr: string;
-  /** The hash WITHOUT the leading `#` (`''` when empty). */
-  hash: string;
-  /** History entry state; carries `__TSR_key` / `__TSR_index` internals. */
-  state?: Record<string, unknown>;
-}
+/**
+ * The slice of a TanStack location `toCheloneLocation` reads. `state` is optional
+ * because the blocker's locations (`ShouldBlockFnLocation`, leak #4) carry no
+ * history state at all.
+ */
+type LocationInput = Pick<ParsedLocation, "pathname" | "searchStr" | "hash"> & {
+  state?: ParsedLocation["state"];
+};
 
 /** Map TanStack's parsed location onto the neutral `CheloneLocation` (leaks #3/#4). */
-function toCheloneLocation(location: TSLocationShape): CheloneLocation {
-  const search = location.searchStr ?? "";
+function toCheloneLocation(location: LocationInput): CheloneLocation {
+  const search = location.searchStr;
+  const searchParams = new URLSearchParams(search);
   const hash = location.hash ? `#${location.hash}` : "";
+  const rawState = location.state;
+  if (rawState == null) {
+    return {
+      pathname: location.pathname,
+      search,
+      searchParams,
+      hash,
+      state: null,
+    };
+  }
   // Synthesize `key` from TanStack's history-state key, and strip the `__TSR_*`
   // internals so user `state` never leaks router bookkeeping.
-  const rawState = location.state ?? null;
-  let key: string | undefined;
-  let state: unknown = rawState;
-  if (rawState != null && typeof rawState === "object") {
-    const { __TSR_key, __TSR_index, ...rest } = rawState as Record<
-      string,
-      unknown
-    >;
-    key = typeof __TSR_key === "string" ? __TSR_key : undefined;
-    void __TSR_index;
-    // Preserve `null` semantics: an entry with only TSR internals has no user
-    // state. Collapse the emptied object back to `null` for parity with the
-    // react-router adapter (which surfaces `state ?? null`).
-    state = Object.keys(rest).length > 0 ? rest : null;
-  }
+  const { __TSR_key: key, __TSR_index, ...rest } = rawState;
+  void __TSR_index;
   return {
     pathname: location.pathname,
     search,
-    searchParams: new URLSearchParams(search),
+    searchParams,
     hash,
-    state,
+    // Preserve `null` semantics: an entry with only TSR internals has no user
+    // state. Collapse the emptied object back to `null` for parity with the
+    // react-router adapter (which surfaces `state ?? null`).
+    state: Object.keys(rest).length > 0 ? rest : null,
     key,
   };
 }
 
 function useLocation(): CheloneLocation {
-  const location = useTSLocation() as unknown as TSLocationShape;
+  const location = useTSLocation();
   return useMemo(
     () => toCheloneLocation(location),
     // TanStack's location object is identity-stable per entry.
@@ -162,35 +171,42 @@ function useNavigate(): AdapterNavigate {
   navRef.current = tsNavigate;
   const routerRef = useRef(router);
   routerRef.current = router;
-  return useCallback(
-    (to: string | number, opts?: { replace?: boolean; state?: unknown }) => {
-      if (typeof to === "number") {
-        // Delta navigation through the router's own history (memory or browser).
-        routerRef.current.history.go(to);
-        return;
-      }
-      navRef.current({
-        to,
-        replace: opts?.replace,
-        state: opts?.state as never,
-      } as never);
-    },
-    [],
-  ) as AdapterNavigate;
+
+  function navigate(to: string, opts?: NavigateOpts): void;
+  function navigate(delta: number): void;
+  function navigate(to: string | number, opts?: NavigateOpts): void {
+    if (typeof to === "number") {
+      // Delta navigation through the router's own history (memory or browser).
+      routerRef.current.history.go(to);
+      return;
+    }
+    navRef.current({
+      to,
+      replace: opts?.replace,
+      state: opts?.state as never,
+    });
+  }
+
+  return useCallback(navigate, []);
 }
 
-/** TanStack params (`strict:false`) → the neutral map (drop the `_splat` dupe). */
+/**
+ * TanStack params (`strict:false`) → the neutral map (drop the `_splat` dupe).
+ * With no registered router TanStack types the `strict:false` bag as `any`, and a
+ * param validator can widen a value (a validator may parse `?id=7` to the number
+ * `7`), so every value is normalized to a string here rather than passed through.
+ */
 function useParams(): Record<string, string | undefined> {
-  const params = useTSParams({ strict: false }) as Record<
-    string,
-    string | undefined
-  >;
+  const params = useTSParams({ strict: false });
   return useMemo(() => {
-    // TanStack aliases the splat under BOTH `*` and `_splat`; Chelone's contract
-    // is the single `'*'` key (ra-core convention). Drop `_splat`.
-    const { _splat, ...rest } = params;
-    void _splat;
-    return rest;
+    const out: Record<string, string | undefined> = {};
+    for (const [key, value] of Object.entries(params)) {
+      // TanStack aliases the splat under BOTH `*` and `_splat`; Chelone's contract
+      // is the single `'*'` key (ra-core convention). Drop `_splat`.
+      if (key === "_splat") continue;
+      out[key] = value == null ? undefined : String(value);
+    }
+    return out;
   }, [params]);
 }
 
@@ -203,44 +219,36 @@ function useBlocker(
         nextLocation: CheloneLocation;
       }) => boolean),
 ): RouterBlocker {
-  const shouldBlockFn = useCallback(
-    (args: {
-      current: { pathname: string; searchStr?: string; hash?: string };
-      next: { pathname: string; searchStr?: string; hash?: string };
-    }): boolean => {
+  // TanStack hands the blocker a `ShouldBlockFnLocation` — `search` PARSED, with
+  // no `searchStr` and no `hash` (leak #4) — so the query is re-serialized with
+  // the router's own serializer rather than read off the location.
+  const stringifySearch = useTSRouter().options.stringifySearch;
+  const shouldBlockFn: ShouldBlockFn<AnyRouter> = useCallback(
+    ({ current, next }) => {
       if (typeof shouldBlock === "boolean") return shouldBlock;
       return shouldBlock({
         currentLocation: toCheloneLocation({
-          pathname: args.current.pathname,
-          searchStr: args.current.searchStr ?? "",
-          hash: args.current.hash ?? "",
+          pathname: current.pathname,
+          searchStr: stringifySearch(current.search),
+          hash: "",
         }),
         nextLocation: toCheloneLocation({
-          pathname: args.next.pathname,
-          searchStr: args.next.searchStr ?? "",
-          hash: args.next.hash ?? "",
+          pathname: next.pathname,
+          searchStr: stringifySearch(next.search),
+          hash: "",
         }),
       });
     },
-    [shouldBlock],
+    [shouldBlock, stringifySearch],
   );
 
-  const resolver = useTSBlocker({
-    shouldBlockFn: shouldBlockFn as never,
-    withResolver: true,
-  });
+  const resolver = useTSBlocker({ shouldBlockFn, withResolver: true });
 
   const noop = useCallback(() => {}, []);
   return useMemo<RouterBlocker>(() => {
     // TanStack: `{ status: 'idle' | 'blocked', next?, proceed?, reset? }`.
     const blocked = resolver.status === "blocked";
-    const next = blocked
-      ? (resolver.next as {
-          pathname: string;
-          searchStr?: string;
-          hash?: string;
-        })
-      : null;
+    const next = blocked ? resolver.next : null;
     return {
       // `idle → unblocked`; TanStack has no distinct `proceeding` (it proceeds
       // synchronously), so the third state never appears on this adapter.
@@ -250,12 +258,12 @@ function useBlocker(
       location: next
         ? toCheloneLocation({
             pathname: next.pathname,
-            searchStr: next.searchStr ?? "",
-            hash: next.hash ?? "",
+            searchStr: stringifySearch(next.search),
+            hash: "",
           })
         : null,
     };
-  }, [resolver, noop]);
+  }, [resolver, noop, stringifySearch]);
 }
 
 /** Match the current pathname against a pattern via Chelone's own matcher. */
@@ -283,7 +291,7 @@ const Link = forwardRef<HTMLAnchorElement, AdapterLinkProps>(
   ({ to, replace, state, children, ...rest }, ref) => (
     <TSLink
       ref={ref}
-      to={to as never}
+      to={to}
       replace={replace}
       state={state as never}
       {...rest}
@@ -295,9 +303,7 @@ const Link = forwardRef<HTMLAnchorElement, AdapterLinkProps>(
 Link.displayName = "TanstackRouterAdapterLink";
 
 function Navigate({ to, replace, state }: AdapterNavigateProps) {
-  return (
-    <TSNavigate to={to as never} replace={replace} state={state as never} />
-  );
+  return <TSNavigate to={to} replace={replace} state={state as never} />;
 }
 
 /**
@@ -410,7 +416,7 @@ function CreatedTanstackRouter({
   });
   return (
     <InTanstackRouterContext.Provider value={true}>
-      <RouterProvider router={router as never} />
+      <RouterProvider router={router} />
     </InTanstackRouterContext.Provider>
   );
 }

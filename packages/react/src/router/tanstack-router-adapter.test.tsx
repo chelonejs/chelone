@@ -301,6 +301,27 @@ describe("tanstackRouterAdapter — useBlocker (leak: idle|blocked double → tr
     expect(blockerLoc).toBe("/b");
   });
 
+  it("a blocked navigation reports the query string of its target", async () => {
+    // TanStack's `shouldBlockFn` location carries `search` as a PARSED object and
+    // no `searchStr` at all — reading `searchStr` here would always report `""`.
+    const blocked =
+      ref<NonNullable<ReturnType<typeof useBlocker>["location"]>>();
+    const navFn = ref<(to: string) => void>();
+    function Probe() {
+      const blocker = useBlocker(true);
+      const nav = useNavigate();
+      navFn.current = (to) => nav(to);
+      if (blocker.location) blocked.current = blocker.location;
+      return null;
+    }
+    await renderTanstack(<Probe />, "/a");
+    navFn.current?.("/posts?page=2");
+    await settle();
+    expect(blocked.current?.pathname).toBe("/posts");
+    expect(blocked.current?.search).toBe("?page=2");
+    expect(blocked.current?.searchParams.get("page")).toBe("2");
+  });
+
   it("honors a neutral-location predicate (only blocks matching targets)", async () => {
     let blockerState = "";
     const navFn = ref<(to: string) => void>();

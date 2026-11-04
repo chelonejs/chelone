@@ -33,6 +33,19 @@ describe("tanstackRouterAdapter type contract", () => {
     >().toEqualTypeOf<RouterBlocker>();
   });
 
+  it("useBlocker's predicate receives CheloneLocation", () => {
+    type Predicate = Extract<
+      Parameters<(typeof tanstackRouterAdapter)["useBlocker"]>[0],
+      (args: never) => boolean
+    >;
+    expectTypeOf<Predicate>().toEqualTypeOf<
+      (args: {
+        currentLocation: CheloneLocation;
+        nextLocation: CheloneLocation;
+      }) => boolean
+    >();
+  });
+
   it("useParams values are string | undefined (never any — no typed-params leak)", () => {
     expectTypeOf<
       ReturnType<(typeof tanstackRouterAdapter)["useParams"]>
