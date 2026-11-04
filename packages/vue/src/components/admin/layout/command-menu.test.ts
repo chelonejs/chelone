@@ -8,6 +8,7 @@
 import {
   type AuthProvider,
   type CheloneStore,
+  type CommandAction,
   createI18n,
   createNotificationStore,
   createStore,
@@ -17,7 +18,14 @@ import {
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick, ref, type VNodeChild } from "vue";
+import {
+  type Component,
+  defineComponent,
+  h,
+  nextTick,
+  ref,
+  type VNodeChild,
+} from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../../admin/admin.vue";
 import Resource from "../../../admin/resource.vue";
@@ -555,6 +563,23 @@ describe("CommandMenu actions", () => {
       type: "error",
     });
     await until(() => dialog() === null);
+  });
+
+  it("an onSelect that returns a value that is not a promise closes the menu without an error", async () => {
+    const onSelect = vi.fn(() => window.location.href);
+    const action: CommandAction<string, Component> = {
+      id: "open",
+      label: "Open page",
+      onSelect,
+    };
+    const { notify } = await mountMenu({ props: { actions: [action] } });
+    await openMenu();
+
+    await pick("Open page");
+    await until(() => dialog() === null);
+    await flushPromises();
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(notify).not.toHaveBeenCalled();
   });
 
   it("an onSelect that returns nothing closes the menu without an error", async () => {

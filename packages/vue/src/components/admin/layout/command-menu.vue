@@ -153,7 +153,8 @@ function run(action: CommandMenuAction): void {
   close();
   try {
     const result = action.onSelect();
-    if (result) result.then(undefined, fail);
+    // Core types onSelect as `() => void`, so a command may return any value.
+    if (result) Promise.resolve(result).then(undefined, fail);
   } catch {
     fail();
   }
