@@ -57,7 +57,7 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "SourceProp<RecordType>",
       "optional": true,
       "comment": "The field on the current record the `target` matches. Default `\"id\"`."
     },
