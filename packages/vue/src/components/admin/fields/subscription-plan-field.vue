@@ -1,12 +1,12 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { SubscriptionPlan } from "../inputs/subscription-plan-picker.vue";
 
 export type { SubscriptionPlan };
 
 /** Props for {@link SubscriptionPlanField}. */
 export interface SubscriptionPlanFieldProps {
-  source: string;
+  source: SourceProp;
   record?: LooseRecord;
   defaultValue?: unknown;
   empty?: string;
