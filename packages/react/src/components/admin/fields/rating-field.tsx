@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceKey } from "@chelone/core";
 import type { HTMLAttributes, ReactNode } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
@@ -13,8 +13,11 @@ interface RatingFieldProps<RecordType extends LooseRecord = LooseRecord>
   max?: number;
   /** Allow half-star granularity when value is between integers. */
   allowHalf?: boolean;
-  /** Sibling record source rendered in parentheses (e.g. review count). */
-  countSource?: string;
+  /**
+   * Sibling record field rendered in parentheses (e.g. review count). A
+   * top-level key, not a path: the read is `record[countSource]`.
+   */
+  countSource?: SourceKey<RecordType>;
 }
 
 /**

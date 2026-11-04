@@ -1,9 +1,14 @@
 /**
  * The rating to usage-meter display fields show one record field, so their
- * `source` is a path into the record and takes `SourceProp`. Sibling sources
- * (`countSource`, `limitSource`, ...) stay `string`; `SelectField`'s
- * `optionText`/`optionValue` are paths of its choices, tested in
- * `../inputs/source-prop.choices-b.test-d.ts`.
+ * `source` is a path into the record and takes `SourceProp`. The sibling
+ * sources (`countSource`, `limitSource`, ...) moved to `SourceKey`: see
+ * `source-prop.sibling.test-d.ts`. `SelectField`'s `optionText`/`optionValue`
+ * are paths of its choices: see `../inputs/source-prop.choices-b.test-d.ts`.
+ *
+ * Every assertion here reads the props the component itself exposes. A generic
+ * SFC is a function type, not a constructor, so its props come through
+ * `Parameters<typeof X>[0]` (at its default `RecordType`) instead of
+ * `InstanceType<typeof X>["$props"]`.
  */
 
 import type { SourceProp } from "@chelone/core";
@@ -15,14 +20,14 @@ import type FileField from "./file-field.vue";
 import type ImageField from "./image-field.vue";
 import type JsonField from "./json-field.vue";
 import type RatingField from "./rating-field.vue";
-import type { SelectFieldProps } from "./select-field.vue";
+import type SelectField from "./select-field.vue";
 import type SubscriptionPlanField from "./subscription-plan-field.vue";
 import type TextArrayField from "./text-array-field.vue";
 import type UsageMeterField from "./usage-meter-field.vue";
 
 describe("rating to usage-meter field sources", () => {
   it("the RatingField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof RatingField>["$props"];
+    type Props = Parameters<typeof RatingField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
@@ -42,10 +47,8 @@ describe("rating to usage-meter field sources", () => {
   });
 
   it("the SelectField source prop is SourceProp", () => {
-    // `SelectField` is generic in its choices, so `InstanceType` of the SFC
-    // does not apply; the props interface it exports defaults to the loose
-    // choice, where `source` is still `SourceProp`.
-    expectTypeOf<SelectFieldProps["source"]>().toEqualTypeOf<SourceProp>();
+    type Props = Parameters<typeof SelectField>[0];
+    expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the TextArrayField source prop is SourceProp", () => {
@@ -64,7 +67,7 @@ describe("rating to usage-meter field sources", () => {
   });
 
   it("the ApiKeyField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ApiKeyField>["$props"];
+    type Props = Parameters<typeof ApiKeyField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
@@ -74,7 +77,7 @@ describe("rating to usage-meter field sources", () => {
   });
 
   it("the UsageMeterField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof UsageMeterField>["$props"];
+    type Props = Parameters<typeof UsageMeterField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 });

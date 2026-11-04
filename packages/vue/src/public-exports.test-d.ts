@@ -3,7 +3,7 @@
  * ships its props type next to it, as `@chelone/react` does.
  */
 
-import type { PresenceUser, UserIdentity } from "@chelone/core";
+import type { PresenceUser, ResourceMap, UserIdentity } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import type { ComputedRef, MaybeRefOrGetter, Ref } from "vue";
 import type {
@@ -46,6 +46,7 @@ import type {
   IconButtonWithTooltipProps,
   InfiniteListProps,
   InfinitePaginationProps,
+  KanbanBoardProps,
   LinkProps,
   ListActionsProps,
   ListLiveProps,
@@ -74,6 +75,7 @@ import type {
   ReferenceInputProps,
   RefreshIconButtonProps,
   ResettableTextInputProps,
+  ResourceComponents,
   ResourceProps,
   SaveButtonProps,
   SavedQueriesListProps,
@@ -144,6 +146,12 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<FilterListProps>().toHaveProperty("label");
     expectTypeOf<FilterListSectionProps>().toHaveProperty("label");
     expectTypeOf<InfinitePaginationProps>().toBeObject();
+    expectTypeOf<KanbanBoardProps>().toHaveProperty("groupSource");
+    expectTypeOf<KanbanBoardProps>().toHaveProperty("columns");
+    expectTypeOf<KanbanBoardProps>().toHaveProperty("titleSource");
+    expectTypeOf<KanbanBoardProps>().toHaveProperty("descriptionSource");
+    expectTypeOf<KanbanBoardProps>().toHaveProperty("linkType");
+    expectTypeOf<KanbanBoardProps>().toHaveProperty("class");
     expectTypeOf<LinkProps>().toHaveProperty("to");
     expectTypeOf<ListActionsProps>().toBeObject();
     expectTypeOf<ListProps>().toBeObject();
@@ -242,6 +250,11 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf(barrel.TreeList).not.toBeAny();
   });
 
+  it("KanbanBoard ships beside its props", () => {
+    expectTypeOf(barrel.KanbanBoard).not.toBeAny();
+    expectTypeOf<KanbanBoardProps["groupSource"]>().toEqualTypeOf<string>();
+  });
+
   it("CalendarList ships beside its props", () => {
     expectTypeOf(barrel.CalendarList).not.toBeAny();
     expectTypeOf<CalendarListProps>().toHaveProperty("startSource");
@@ -308,5 +321,18 @@ describe("@chelone/vue public exports", () => {
       ComputedRef<UserIdentity | undefined>
     >();
     expectTypeOf<Result["isPending"]>().toEqualTypeOf<ComputedRef<boolean>>();
+  });
+
+  it("exports the resource component factories and their type", () => {
+    expectTypeOf(barrel.createResourceComponents).toBeFunction();
+    expectTypeOf(barrel.createResourceComponentsOf).toBeFunction();
+    expectTypeOf<ResourceComponents<ResourceMap, string>>().toHaveProperty(
+      "TextInput",
+    );
+  });
+
+  it("createResourceComponents takes any name when nothing is registered", () => {
+    expectTypeOf(barrel.createResourceComponents<string>).toBeFunction();
+    barrel.createResourceComponents("anything");
   });
 });

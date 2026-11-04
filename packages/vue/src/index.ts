@@ -159,6 +159,11 @@ export {
   useReferenceOneFieldController,
   useShowController,
 } from "./controllers";
+export type { ResourceComponents } from "./create-resource-components";
+export {
+  createResourceComponents,
+  createResourceComponentsOf,
+} from "./create-resource-components";
 // --- supporting composables the vertical is built on ----------------------
 export { createCheloneHooks } from "./data/create-chelone-hooks";
 export { useInfiniteGetList } from "./data/infinite-queries";

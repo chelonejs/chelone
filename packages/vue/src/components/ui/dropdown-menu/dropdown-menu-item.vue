@@ -1,8 +1,13 @@
 <script setup lang="ts">
 /**
- * `<DropdownMenuItem>` — a selectable menu row. Closes the menu on click, then
- * emits `select` so the consumer runs its action (the Vue idiom for the React
- * twin's `onClick`). The Vue analog of shadcn's `DropdownMenuItem`.
+ * `<DropdownMenuItem>` — a selectable menu row. Closes the menu on click or on
+ * Enter / Space, then emits `select` so the consumer runs its action (the Vue
+ * idiom for the React twin's `onClick`). The Vue analog of shadcn's
+ * `DropdownMenuItem`.
+ *
+ * The row is a `div` with `role="menuitem"` and `tabindex="0"`, which gets no
+ * key activation from the browser, so Enter and Space are handled here — the
+ * keyboard path radix gives the React twin for free.
  */
 
 import { cn } from "../../../lib/utils";
@@ -13,9 +18,16 @@ const emit = defineEmits<{ select: [] }>();
 
 const { setOpen } = useDropdownMenu();
 
-function onClick(): void {
+function select(): void {
   setOpen(false);
   emit("select");
+}
+
+function onKeydown(event: KeyboardEvent): void {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  // Space would otherwise scroll the page behind the menu.
+  event.preventDefault();
+  select();
 }
 </script>
 
@@ -30,7 +42,8 @@ function onClick(): void {
       )
     "
     data-slot="dropdown-menu-item"
-    @click="onClick"
+    @click="select"
+    @keydown="onKeydown"
   >
     <slot />
   </div>

@@ -1227,6 +1227,11 @@ export {
   useResourceDefinitions,
   useResourceRegistry,
 } from "./resource";
+export type { ResourceComponents } from "./resource/create-resource-components";
+export {
+  createResourceComponents,
+  createResourceComponentsOf,
+} from "./resource/create-resource-components";
 export type {
   AdapterLinkProps,
   AdapterNavigate,
