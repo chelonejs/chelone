@@ -1,0 +1,3366 @@
+{
+  "apps/demo/src/resources/places.tsx": {
+    "cast": 1
+  },
+  "apps/demo/src/resources/register-proof.tsx": {
+    "ts-comment": 1
+  },
+  "apps/demo/src/seed.ts": {
+    "unknown": 6
+  },
+  "apps/vue-demo/src/resources/register-proof.vue": {
+    "ts-comment": 1
+  },
+  "apps/vue-demo/src/seed.ts": {
+    "unknown": 3
+  },
+  "apps/website/src/components/site-shell/nav-tree.test.tsx": {
+    "cast": 1
+  },
+  "apps/website/src/docs/docs-breadcrumb.tsx": {
+    "cast": 1
+  },
+  "apps/website/src/docs/docs-layout.tsx": {
+    "cast": 1
+  },
+  "apps/website/src/docs/mdx/callout.tsx": {
+    "cast": 1
+  },
+  "apps/website/src/docs/mdx/component-preview.tsx": {
+    "cast": 1,
+    "non-null": 1
+  },
+  "apps/website/src/docs/mdx/preview-fixtures.ts": {
+    "unknown": 2
+  },
+  "apps/website/src/docs/mdx/preview-provider.test.tsx": {
+    "cast": 1
+  },
+  "apps/website/src/docs/mdx/tabs.tsx": {
+    "cast": 3
+  },
+  "apps/website/src/docs/nav-content.ts": {
+    "non-null": 1
+  },
+  "apps/website/src/docs/nav-sequence.test.ts": {
+    "non-null": 1
+  },
+  "apps/website/src/docs/nav.test.ts": {
+    "as-any": 5,
+    "non-null": 5,
+    "any": 2
+  },
+  "apps/website/src/docs/nav.ts": {
+    "cast": 1,
+    "non-null": 1
+  },
+  "apps/website/src/docs/prev-next.tsx": {
+    "non-null": 1
+  },
+  "apps/website/src/docs/registry.ts": {
+    "cast": 2
+  },
+  "apps/website/src/landing/reveal.tsx": {
+    "as-never": 2
+  },
+  "apps/website/src/test-setup.ts": {
+    "cast": 1
+  },
+  "packages/core/src/auth/access-control.test.ts": {
+    "cast": 1
+  },
+  "packages/core/src/auth/access-control.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/auth/auth-options.ts": {
+    "cast": 2,
+    "unknown": 5
+  },
+  "packages/core/src/auth/types.ts": {
+    "unknown": 8
+  },
+  "packages/core/src/command-menu/registry.ts": {
+    "unknown": 3
+  },
+  "packages/core/src/controller/calendar-dates.test.ts": {
+    "cast": 2
+  },
+  "packages/core/src/controller/calendar-dates.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/controller/calendar-events.test.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/controller/calendar-events.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/controller/client-list-controller.test.ts": {
+    "cast": 1
+  },
+  "packages/core/src/controller/client-list-controller.ts": {
+    "cast": 2,
+    "unknown": 7
+  },
+  "packages/core/src/controller/data-table-columns.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/controller/filter-toggle.ts": {
+    "unknown": 6
+  },
+  "packages/core/src/controller/infinite-list-controller.test.ts": {
+    "as-never": 1
+  },
+  "packages/core/src/controller/infinite-list-controller.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/controller/job-monitor.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/core/src/controller/kanban-board.ts": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/core/src/controller/list-controller.test.ts": {
+    "as-never": 1,
+    "unknown": 2
+  },
+  "packages/core/src/controller/list-controller.ts": {
+    "cast": 3,
+    "unknown": 14
+  },
+  "packages/core/src/controller/list-params.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/core/src/controller/pivot-grid.test.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/core/src/controller/pivot-grid.ts": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/core/src/controller/prev-next.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/core/src/controller/record-controllers.test.ts": {
+    "as-never": 7,
+    "cast": 1
+  },
+  "packages/core/src/controller/record-controllers.ts": {
+    "cast": 2,
+    "unknown": 8
+  },
+  "packages/core/src/controller/record-tree.test.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/controller/record-tree.ts": {
+    "cast": 3
+  },
+  "packages/core/src/controller/record-workflow.test.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/controller/record-workflow.ts": {
+    "cast": 4,
+    "unknown": 14
+  },
+  "packages/core/src/controller/reference-many-controller.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/controller/reference-one-controller.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/controller/saved-queries.test.ts": {
+    "double-cast": 1,
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/core/src/controller/saved-queries.ts": {
+    "unknown": 6
+  },
+  "packages/core/src/csv/export.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/csv/import-controller.test.ts": {
+    "double-cast": 2,
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/core/src/csv/import-controller.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/csv/run-import.test.ts": {
+    "as-never": 1,
+    "cast": 3,
+    "unknown": 4
+  },
+  "packages/core/src/csv/run-import.ts": {
+    "cast": 1
+  },
+  "packages/core/src/csv/types.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/csv/validate-rows.test.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/csv/validate-rows.ts": {
+    "cast": 4,
+    "unknown": 6
+  },
+  "packages/core/src/data/cache-ops.test.ts": {
+    "cast": 2
+  },
+  "packages/core/src/data/cache-ops.ts": {
+    "as-never": 1,
+    "cast": 3,
+    "unknown": 16
+  },
+  "packages/core/src/data/combine-data-providers.test.ts": {
+    "double-cast": 2,
+    "unknown": 1
+  },
+  "packages/core/src/data/fake-provider.ts": {
+    "as-never": 9,
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/core/src/data/fetch-utils.ts": {
+    "cast": 1,
+    "unknown": 6
+  },
+  "packages/core/src/data/get-many-aggregate.test.ts": {
+    "as-never": 1,
+    "cast": 2
+  },
+  "packages/core/src/data/get-many-aggregate.ts": {
+    "cast": 3,
+    "unknown": 2
+  },
+  "packages/core/src/data/http-error.test.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/data/http-error.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/data/keys.ts": {
+    "unknown": 3
+  },
+  "packages/core/src/data/mutation-options.test.ts": {
+    "as-never": 5,
+    "unknown": 2
+  },
+  "packages/core/src/data/mutation-options.ts": {
+    "cast": 2,
+    "unknown": 8
+  },
+  "packages/core/src/data/types.test-d.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/core/src/data/types.ts": {
+    "unknown": 10
+  },
+  "packages/core/src/data/undoable.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/core/src/data/undoable.ts": {
+    "cast": 3,
+    "unknown": 8
+  },
+  "packages/core/src/data/with-lifecycle-callbacks.test-d.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/core/src/data/with-lifecycle-callbacks.test.ts": {
+    "double-cast": 5,
+    "cast": 2,
+    "unknown": 6
+  },
+  "packages/core/src/data/with-lifecycle-callbacks.ts": {
+    "double-cast": 3,
+    "cast": 2,
+    "unknown": 8
+  },
+  "packages/core/src/form/array-binding.test-d.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/form/array-binding.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/core/src/form/array-binding.ts": {
+    "double-cast": 1,
+    "unknown": 19
+  },
+  "packages/core/src/form/choices-controller.test-d.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/form/choices-controller.test.ts": {
+    "as-never": 1,
+    "cast": 3,
+    "unknown": 3
+  },
+  "packages/core/src/form/choices-controller.ts": {
+    "cast": 1,
+    "unknown": 11
+  },
+  "packages/core/src/form/dirty-values.ts": {
+    "unknown": 3
+  },
+  "packages/core/src/form/edit-create-form.test.ts": {
+    "as-never": 7,
+    "cast": 3,
+    "unknown": 3
+  },
+  "packages/core/src/form/edit-create-form.ts": {
+    "double-cast": 1,
+    "cast": 10,
+    "unknown": 10
+  },
+  "packages/core/src/form/filter-form-values.ts": {
+    "cast": 5,
+    "unknown": 20
+  },
+  "packages/core/src/form/form-controller.test-d.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/form/form-controller.ts": {
+    "cast": 6,
+    "unknown": 11
+  },
+  "packages/core/src/form/form-groups.test.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/form/form-groups.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/form/input-binding.test-d.ts": {
+    "unknown": 5
+  },
+  "packages/core/src/form/input-binding.test.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/form/input-binding.ts": {
+    "cast": 6,
+    "unknown": 25
+  },
+  "packages/core/src/form/json-text.test.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/form/json-text.ts": {
+    "cast": 1,
+    "unknown": 5
+  },
+  "packages/core/src/form/probe-lifecycle.test.ts": {
+    "double-cast": 1,
+    "cast": 12,
+    "unknown": 5
+  },
+  "packages/core/src/form/save-pipeline.test.ts": {
+    "cast": 2
+  },
+  "packages/core/src/form/save-pipeline.ts": {
+    "cast": 4,
+    "unknown": 17
+  },
+  "packages/core/src/form/validators.ts": {
+    "cast": 5,
+    "unknown": 21
+  },
+  "packages/core/src/geo/bbox.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/geo/bounds.ts": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/core/src/geo/constraints.test.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/geo/constraints.ts": {
+    "cast": 1,
+    "unknown": 5
+  },
+  "packages/core/src/geo/coordinates.test.ts": {
+    "cast": 2
+  },
+  "packages/core/src/geo/coordinates.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/geo/editor.test.ts": {
+    "as-never": 1
+  },
+  "packages/core/src/geo/editor.ts": {
+    "unknown": 4
+  },
+  "packages/core/src/geo/geocoding.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/geo/geojson.ts": {
+    "unknown": 4
+  },
+  "packages/core/src/geo/geometry-math.ts": {
+    "cast": 1
+  },
+  "packages/core/src/geo/map-layers.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/geo/nominatim.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/core/src/geo/nominatim.ts": {
+    "cast": 3,
+    "unknown": 8
+  },
+  "packages/core/src/geo/osm-presets.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/geo/osm-tags.test.ts": {
+    "cast": 2
+  },
+  "packages/core/src/geo/overpass.test.ts": {
+    "cast": 4,
+    "unknown": 9
+  },
+  "packages/core/src/geo/overpass.ts": {
+    "cast": 2,
+    "unknown": 5
+  },
+  "packages/core/src/geo/shape-value.test.ts": {
+    "cast": 1
+  },
+  "packages/core/src/geo/shape-value.ts": {
+    "unknown": 5
+  },
+  "packages/core/src/geo/snap-to-roads.test.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/core/src/geo/snap-to-roads.ts": {
+    "cast": 2,
+    "unknown": 3
+  },
+  "packages/core/src/geo/throttle.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/i18n/i18n.test.ts": {
+    "as-never": 1
+  },
+  "packages/core/src/i18n/i18n.ts": {
+    "cast": 1,
+    "unknown": 4
+  },
+  "packages/core/src/i18n/messages.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/i18n/translatable.ts": {
+    "cast": 1,
+    "unknown": 6
+  },
+  "packages/core/src/index.test-d.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/index.test.ts": {
+    "cast": 3
+  },
+  "packages/core/src/notification/notification-store.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/realtime/add-events-for-mutations.test.ts": {
+    "double-cast": 3,
+    "cast": 2
+  },
+  "packages/core/src/realtime/add-events-for-mutations.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/core/src/realtime/copy-members.ts": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/core/src/realtime/in-memory-lock-provider.test.ts": {
+    "cast": 1
+  },
+  "packages/core/src/realtime/in-memory-lock-provider.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/realtime/live.test.ts": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/core/src/realtime/lock-options.test.ts": {
+    "cast": 2
+  },
+  "packages/core/src/realtime/lock-session.test.ts": {
+    "double-cast": 2,
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/core/src/realtime/lock-session.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/realtime/memory-transport.ts": {
+    "cast": 1
+  },
+  "packages/core/src/realtime/presence.test.ts": {
+    "double-cast": 1,
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/core/src/realtime/presence.ts": {
+    "unknown": 5
+  },
+  "packages/core/src/realtime/realtime-data-provider.test.ts": {
+    "double-cast": 4
+  },
+  "packages/core/src/realtime/realtime-data-provider.ts": {
+    "cast": 1
+  },
+  "packages/core/src/realtime/realtime.test-d.ts": {
+    "cast": 2
+  },
+  "packages/core/src/realtime/types.ts": {
+    "unknown": 12
+  },
+  "packages/core/src/realtime/unread-count.test.ts": {
+    "as-never": 1
+  },
+  "packages/core/src/resource/describe-resource.test.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/resource/describe-resource.ts": {
+    "cast": 12,
+    "unknown": 20
+  },
+  "packages/core/src/resource/get-at-path.ts": {
+    "cast": 2,
+    "unknown": 5
+  },
+  "packages/core/src/resource/record.test-d.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/resource/record.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/resource/registry-store.test-d.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/resource/registry-store.ts": {
+    "unknown": 12
+  },
+  "packages/core/src/resource/registry.ts": {
+    "unknown": 1
+  },
+  "packages/core/src/resource/source-path.test-d.ts": {
+    "unknown": 4
+  },
+  "packages/core/src/resource/source-path.ts": {
+    "unknown": 3
+  },
+  "packages/core/src/router/location.ts": {
+    "unknown": 3
+  },
+  "packages/core/src/router/port.test-d.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/router/record-from-location.test.ts": {
+    "unknown": 2
+  },
+  "packages/core/src/router/record-from-location.ts": {
+    "cast": 1,
+    "unknown": 3
+  },
+  "packages/core/src/store/adapters.ts": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/core/src/store/micro-store.test.ts": {
+    "cast": 1
+  },
+  "packages/core/src/store/micro-store.ts": {
+    "cast": 1
+  },
+  "packages/core/src/store/store.test.ts": {
+    "unknown": 4
+  },
+  "packages/core/src/store/store.ts": {
+    "cast": 1,
+    "unknown": 5
+  },
+  "packages/react/src/admin/admin-routes.test.tsx": {
+    "double-cast": 1
+  },
+  "packages/react/src/admin/admin-routes.tsx": {
+    "cast": 4
+  },
+  "packages/react/src/admin/admin-ui.tsx": {
+    "double-cast": 1,
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/admin/admin.test-d.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/admin/admin.test.tsx": {
+    "double-cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/admin/admin.tsx": {
+    "double-cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/admin/auth-gate.tsx": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/admin/partition.test.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/admin/partition.tsx": {
+    "cast": 9,
+    "unknown": 5
+  },
+  "packages/react/src/admin/scroll.test.tsx": {
+    "double-cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/admin/scroll.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/admin/slots.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/array-hooks.test-d.ts": {
+    "unknown": 1
+  },
+  "packages/react/src/array-hooks.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/array-hooks.ts": {
+    "unknown": 6
+  },
+  "packages/react/src/auth-hooks.ts": {
+    "cast": 3,
+    "unknown": 9
+  },
+  "packages/react/src/auth-r2.test.tsx": {
+    "cast": 4,
+    "unknown": 2
+  },
+  "packages/react/src/choices-hooks.test-d.ts": {
+    "unknown": 2
+  },
+  "packages/react/src/choices-hooks.test.tsx": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/react/src/choices-hooks.ts": {
+    "cast": 4,
+    "unknown": 6
+  },
+  "packages/react/src/compat-hooks.test.tsx": {
+    "double-cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/compat-hooks.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/auth/can-access.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/auth/login-form.tsx": {
+    "cast": 3,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/auth/login-with-email.test.tsx": {
+    "cast": 3
+  },
+  "packages/react/src/components/admin/auth/login-with-email.tsx": {
+    "cast": 3,
+    "unknown": 3
+  },
+  "packages/react/src/components/admin/buttons/bulk-delete-button.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/admin/buttons/bulk-export-button.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/buttons/bulk-update-button.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/admin/buttons/clone-button.test.tsx": {
+    "double-cast": 2,
+    "cast": 1
+  },
+  "packages/react/src/components/admin/buttons/columns-button.test.tsx": {
+    "double-cast": 2,
+    "cast": 3
+  },
+  "packages/react/src/components/admin/buttons/delete-button.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/buttons/dual-approval-button.test.tsx": {
+    "double-cast": 1,
+    "as-never": 1,
+    "cast": 5,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/buttons/dual-approval-button.tsx": {
+    "double-cast": 1,
+    "cast": 1,
+    "unknown": 6
+  },
+  "packages/react/src/components/admin/buttons/export-button.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/buttons/filter-button.tsx": {
+    "cast": 3,
+    "unknown": 3
+  },
+  "packages/react/src/components/admin/buttons/list-bulk-buttons.test.tsx": {
+    "double-cast": 1,
+    "as-any": 1,
+    "cast": 5,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/buttons/list-buttons.test.tsx": {
+    "double-cast": 1
+  },
+  "packages/react/src/components/admin/buttons/locales-menu-button.test.tsx": {
+    "as-any": 1
+  },
+  "packages/react/src/components/admin/buttons/save-button.test.tsx": {
+    "double-cast": 1,
+    "cast": 2
+  },
+  "packages/react/src/components/admin/buttons/skip-navigation-button.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/buttons/status-transition-button.test.tsx": {
+    "double-cast": 1,
+    "as-never": 1,
+    "as-any": 1,
+    "cast": 4,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/buttons/status-transition-button.tsx": {
+    "double-cast": 1,
+    "cast": 2,
+    "unknown": 5
+  },
+  "packages/react/src/components/admin/buttons/undoable.test.tsx": {
+    "double-cast": 1
+  },
+  "packages/react/src/components/admin/buttons/update-button.test.tsx": {
+    "double-cast": 1,
+    "as-never": 2,
+    "cast": 3
+  },
+  "packages/react/src/components/admin/buttons/update-button.tsx": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/common/check-for-application-update.test.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/admin/csv-import/csv-import.test.tsx": {
+    "as-never": 1,
+    "cast": 4
+  },
+  "packages/react/src/components/admin/csv-import/csv-import.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/feedback/confirm.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/feedback/linear-progress.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/feedback/loading-indicator.test.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/feedback/not-found.test.tsx": {
+    "double-cast": 2
+  },
+  "packages/react/src/components/admin/feedback/notification.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/fields/api-key-field.test.tsx": {
+    "cast": 3,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/api-key-field.tsx": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/array-field.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/fields/array-field.tsx": {
+    "double-cast": 1,
+    "cast": 1,
+    "unknown": 3
+  },
+  "packages/react/src/components/admin/fields/badge-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/badge-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/boolean-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/boolean-field.tsx": {
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/chip-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/chip-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/color-field.test.tsx": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/color-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/cron-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/cron-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/currency-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/currency-field.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/date-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/date-field.tsx": {
+    "unknown": 3
+  },
+  "packages/react/src/components/admin/fields/duration-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/duration-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/email-field.test.tsx": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/email-field.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/file-field.tsx": {
+    "cast": 6,
+    "unknown": 5
+  },
+  "packages/react/src/components/admin/fields/function-field.test.tsx": {
+    "cast": 1,
+    "unknown": 3
+  },
+  "packages/react/src/components/admin/fields/image-field.tsx": {
+    "cast": 6,
+    "unknown": 6
+  },
+  "packages/react/src/components/admin/fields/json-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/json-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/number-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/number-field.tsx": {
+    "cast": 1,
+    "unknown": 5
+  },
+  "packages/react/src/components/admin/fields/phone-field.test.tsx": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/phone-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/rating-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/rating-field.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/record-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/reference-array-field.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/fields/reference-array-field.tsx": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/reference-field.tsx": {
+    "cast": 4
+  },
+  "packages/react/src/components/admin/fields/reference-many-count.test.tsx": {
+    "double-cast": 1
+  },
+  "packages/react/src/components/admin/fields/reference-many-count.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/admin/fields/reference-many-field.test.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/admin/fields/reference-many-field.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/fields/reference-one-field.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/fields/reference-one-field.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/fields/select-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/select-field.tsx": {
+    "double-cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/subscription-plan-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/subscription-plan-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/text-array-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/text-array-field.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/text-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/text-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/url-field.test.tsx": {
+    "as-any": 1,
+    "cast": 3,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/url-field.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/usage-meter-field.test.tsx": {
+    "cast": 5,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/usage-meter-field.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/admin/fields/webhook-endpoint-field.test.tsx": {
+    "cast": 4,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/fields/webhook-endpoint-field.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/fields/wrapper-field.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/form/simple-form-iterator.test.tsx": {
+    "as-never": 1,
+    "cast": 5,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/form/translatable-inputs.test.tsx": {
+    "cast": 4,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/guessers/edit-guesser.test.tsx": {
+    "double-cast": 1,
+    "cast": 1
+  },
+  "packages/react/src/components/admin/guessers/edit-guesser.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/guessers/guess-components.ts": {
+    "double-cast": 1
+  },
+  "packages/react/src/components/admin/guessers/guessed-code.ts": {
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/guessers/list-guesser.test.tsx": {
+    "double-cast": 1
+  },
+  "packages/react/src/components/admin/guessers/list-guesser.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/guessers/show-guesser.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/input-props.test-d.ts": {
+    "unknown": 3
+  },
+  "packages/react/src/components/admin/input-props.ts": {
+    "unknown": 6
+  },
+  "packages/react/src/components/admin/inputs/api-key-input.test.tsx": {
+    "cast": 5,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/api-key-input.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/inputs/array-input-row.test.tsx": {
+    "as-never": 1,
+    "cast": 4,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/array-input.test.tsx": {
+    "as-never": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/array-input.tsx": {
+    "cast": 3,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/inputs/autocomplete-array-input.test.tsx": {
+    "unknown": 3
+  },
+  "packages/react/src/components/admin/inputs/autocomplete-array-input.tsx": {
+    "double-cast": 1,
+    "cast": 1,
+    "unknown": 8
+  },
+  "packages/react/src/components/admin/inputs/autocomplete-input.test.tsx": {
+    "unknown": 3
+  },
+  "packages/react/src/components/admin/inputs/autocomplete-input.tsx": {
+    "double-cast": 1,
+    "unknown": 6
+  },
+  "packages/react/src/components/admin/inputs/boolean-input.test.tsx": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/boolean-input.tsx": {
+    "unknown": 5
+  },
+  "packages/react/src/components/admin/inputs/checkbox-group-input.test.tsx": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/checkbox-group-input.tsx": {
+    "double-cast": 1,
+    "cast": 2,
+    "unknown": 4
+  },
+  "packages/react/src/components/admin/inputs/color-input.test.tsx": {
+    "cast": 4,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/color-input.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/inputs/create-debounce.ts": {
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/inputs/cron-input.test.tsx": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/cron-input.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/inputs/currency-input.test.tsx": {
+    "cast": 7,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/currency-input.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/admin/inputs/datagrid-input.test.tsx": {
+    "cast": 4,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/inputs/datagrid-input.tsx": {
+    "double-cast": 1,
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/date-input.test.tsx": {
+    "cast": 8,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/inputs/date-input.tsx": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/date-time-input.test.tsx": {
+    "cast": 5,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/date-time-input.tsx": {
+    "cast": 3,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/inputs/duration-input.test.tsx": {
+    "cast": 5,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/duration-input.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/inputs/file-input.test.tsx": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/inputs/file-input.tsx": {
+    "cast": 7,
+    "unknown": 4
+  },
+  "packages/react/src/components/admin/inputs/image-input.test.tsx": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/loading-input.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/inputs/nullable-boolean-input.test.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/nullable-boolean-input.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/inputs/number-input.test.tsx": {
+    "cast": 5,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/inputs/number-input.tsx": {
+    "unknown": 3
+  },
+  "packages/react/src/components/admin/inputs/p7b-integration-probe.test.tsx": {
+    "double-cast": 1,
+    "cast": 2,
+    "unknown": 4
+  },
+  "packages/react/src/components/admin/inputs/p7c-integration-probe.test.tsx": {
+    "double-cast": 1,
+    "cast": 3,
+    "unknown": 6
+  },
+  "packages/react/src/components/admin/inputs/password-input.test.tsx": {
+    "cast": 4,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/phone-input.test.tsx": {
+    "cast": 5,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/phone-input.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/admin/inputs/radio-button-group-input.test.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/radio-button-group-input.tsx": {
+    "double-cast": 1,
+    "cast": 1
+  },
+  "packages/react/src/components/admin/inputs/rating-input.test.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/rating-input.tsx": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/reference-array-input.test.tsx": {
+    "cast": 1,
+    "unknown": 3
+  },
+  "packages/react/src/components/admin/inputs/reference-input.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/inputs/resettable-text-input.test.tsx": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/search-input.test.tsx": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/select-array-input.test.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/select-array-input.tsx": {
+    "double-cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/inputs/select-input.test.tsx": {
+    "as-any": 1,
+    "unknown": 4
+  },
+  "packages/react/src/components/admin/inputs/select-input.tsx": {
+    "double-cast": 1,
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/subscription-plan-picker.test.tsx": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/subscription-plan-picker.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/inputs/text-array-input.test.tsx": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/text-array-input.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/inputs/text-input.test.tsx": {
+    "cast": 5,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/text-input.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/inputs/time-input.test.tsx": {
+    "cast": 7,
+    "unknown": 4
+  },
+  "packages/react/src/components/admin/inputs/time-input.tsx": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/inputs/webhook-endpoint-input.test.tsx": {
+    "cast": 6,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/inputs/webhook-endpoint-input.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/layout/app-sidebar.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/layout/command-menu.test.tsx": {
+    "double-cast": 2,
+    "cast": 5,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/layout/command-menu.tsx": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/layout/layout.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/layout/menu.test.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/layout/menu.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/layout/resource-menu-item.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/layout/theme-provider.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/layout/use-menu-access.ts": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/list/bulk-actions-toolbar.test.tsx": {
+    "double-cast": 1
+  },
+  "packages/react/src/components/admin/list/bulk-edit-drawer.test.tsx": {
+    "double-cast": 1,
+    "cast": 5
+  },
+  "packages/react/src/components/admin/list/bulk-edit-drawer.tsx": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/list/calendar-list.test.tsx": {
+    "double-cast": 1,
+    "cast": 18,
+    "unknown": 3
+  },
+  "packages/react/src/components/admin/list/calendar-list.tsx": {
+    "double-cast": 1,
+    "cast": 5,
+    "unknown": 4
+  },
+  "packages/react/src/components/admin/list/calendar-month-view.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/list/count.test.tsx": {
+    "as-never": 2
+  },
+  "packages/react/src/components/admin/list/data-table.test.tsx": {
+    "double-cast": 1,
+    "cast": 6,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/list/data-table.tsx": {
+    "cast": 5,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/list/filter-form.test.tsx": {
+    "double-cast": 2,
+    "unknown": 4
+  },
+  "packages/react/src/components/admin/list/filter-form.tsx": {
+    "cast": 1,
+    "unknown": 4
+  },
+  "packages/react/src/components/admin/list/filter-list.test.tsx": {
+    "double-cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/list/filter-live-search.test.tsx": {
+    "double-cast": 1,
+    "cast": 1
+  },
+  "packages/react/src/components/admin/list/infinite-pagination.test.tsx": {
+    "double-cast": 2,
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/list/kanban-board.test.tsx": {
+    "as-never": 1,
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/list/kanban-board.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/list/list-pagination.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/list/list-pagination.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/list/list-toolbar.test.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/list/list-toolbar.tsx": {
+    "cast": 2,
+    "unknown": 4
+  },
+  "packages/react/src/components/admin/list/prev-next-buttons.test.tsx": {
+    "double-cast": 1,
+    "cast": 2
+  },
+  "packages/react/src/components/admin/list/prev-next-buttons.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/admin/list/saved-queries-list.test.tsx": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/list/saved-queries-list.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/list/simple-list.test.tsx": {
+    "double-cast": 1,
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/list/simple-list.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/list/single-field-list.test.tsx": {
+    "double-cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/list/single-field-list.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/list/tree-list.test.tsx": {
+    "cast": 5
+  },
+  "packages/react/src/components/admin/list/tree-list.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/admin/realtime/comments-thread.test.tsx": {
+    "as-never": 5,
+    "cast": 21,
+    "unknown": 7
+  },
+  "packages/react/src/components/admin/realtime/comments-thread.tsx": {
+    "cast": 1,
+    "unknown": 3
+  },
+  "packages/react/src/components/admin/realtime/edit-live.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/realtime/edit-live.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/realtime/lock-on-mount.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/realtime/lock-status.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/admin/realtime/menu-live.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/admin/realtime/presence-bar.test.tsx": {
+    "double-cast": 1
+  },
+  "packages/react/src/components/admin/realtime/show-live.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/supabase/forgot-password-form.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/supabase/set-password-form.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/supabase/social-auth-button.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/supabase/supabase-login-page.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/supabase/use-password-recovery.ts": {
+    "cast": 3,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/views/create.test.tsx": {
+    "cast": 5,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/views/create.tsx": {
+    "cast": 1,
+    "unknown": 4
+  },
+  "packages/react/src/components/admin/views/edit.test.tsx": {
+    "double-cast": 1,
+    "cast": 5
+  },
+  "packages/react/src/components/admin/views/edit.tsx": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/react/src/components/admin/views/infinite-list.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/views/labeled.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/views/list.test.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/views/show.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/admin/views/tabbed-show-layout.tsx": {
+    "cast": 8,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/views/translatable-fields.test.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/admin/views/translatable-fields.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/maps-draw/__fixtures__/fake-terra-draw.ts": {
+    "cast": 1,
+    "unknown": 12
+  },
+  "packages/react/src/components/maps-draw/__fixtures__/mount-shape-input.tsx": {
+    "unknown": 2
+  },
+  "packages/react/src/components/maps-draw/bbox-input.test.tsx": {
+    "cast": 7
+  },
+  "packages/react/src/components/maps-draw/draw-toolbar.test.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/maps-draw/geometry-ops.test.ts": {
+    "unknown": 1
+  },
+  "packages/react/src/components/maps-draw/geometry-ops.ts": {
+    "double-cast": 1,
+    "as-never": 1,
+    "cast": 2
+  },
+  "packages/react/src/components/maps-draw/shape-constraints.test.tsx": {
+    "as-never": 1,
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/maps-draw/shape-input.test.tsx": {
+    "cast": 6,
+    "unknown": 5
+  },
+  "packages/react/src/components/maps-draw/shape-input.tsx": {
+    "cast": 2,
+    "unknown": 8
+  },
+  "packages/react/src/components/maps-draw/shape-inputs.test.tsx": {
+    "as-never": 3,
+    "cast": 10,
+    "unknown": 4
+  },
+  "packages/react/src/components/maps-draw/simplify-input.test.tsx": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/react/src/components/maps-draw/simplify-input.tsx": {
+    "unknown": 4
+  },
+  "packages/react/src/components/maps-draw/use-terra-draw.ts": {
+    "as-never": 2,
+    "cast": 2,
+    "unknown": 5
+  },
+  "packages/react/src/components/maps-osm/geocoding-input.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/maps-osm/geocoding-input.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/maps-osm/map-with-search.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/maps-osm/osm-feature-operator.test.tsx": {
+    "cast": 5,
+    "unknown": 5
+  },
+  "packages/react/src/components/maps-osm/osm-feature-operator.tsx": {
+    "cast": 2,
+    "unknown": 6
+  },
+  "packages/react/src/components/maps-osm/osm-features.test.ts": {
+    "cast": 3,
+    "unknown": 2
+  },
+  "packages/react/src/components/maps-osm/osm-features.ts": {
+    "double-cast": 2,
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/react/src/components/maps-osm/osm-geometry-ops.test.ts": {
+    "cast": 1
+  },
+  "packages/react/src/components/maps-osm/osm-geometry-ops.ts": {
+    "as-never": 1,
+    "cast": 3
+  },
+  "packages/react/src/components/maps-osm/reverse-geocode-field.test.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/maps-osm/reverse-geocode-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/maps-osm/use-osm-features.test.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/maps-osm/use-osm-features.ts": {
+    "unknown": 1
+  },
+  "packages/react/src/components/maps/__fixtures__/fake-maplibre.ts": {
+    "cast": 1,
+    "unknown": 26
+  },
+  "packages/react/src/components/maps/bbox-field.test.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/maps/bbox-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/maps/geo-json-field.test.tsx": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/maps/geo-json-field.tsx": {
+    "as-never": 3,
+    "cast": 1,
+    "unknown": 8
+  },
+  "packages/react/src/components/maps/lat-lng-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/maps/lat-lng-input.test.tsx": {
+    "double-cast": 1,
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/maps/lat-lng-input.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/components/maps/map-canvas.test.tsx": {
+    "double-cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/components/maps/source-prop.addons.test-d.ts": {
+    "unknown": 2
+  },
+  "packages/react/src/components/mdx-editor/mdx-field.test.tsx": {
+    "cast": 5,
+    "unknown": 7
+  },
+  "packages/react/src/components/mdx-editor/mdx-field.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/mdx-editor/mdx-input.test.tsx": {
+    "as-never": 1,
+    "cast": 7,
+    "unknown": 6
+  },
+  "packages/react/src/components/mdx-editor/mdx-input.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/monaco/internal/use-json-schema.ts": {
+    "double-cast": 1
+  },
+  "packages/react/src/components/monaco/monaco-json-field-lazy.tsx": {
+    "unknown": 2
+  },
+  "packages/react/src/components/monaco/monaco-json-field.test.tsx": {
+    "unknown": 2
+  },
+  "packages/react/src/components/monaco/monaco-json-field.tsx": {
+    "double-cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/components/monaco/monaco-json-input-lazy.tsx": {
+    "unknown": 2
+  },
+  "packages/react/src/components/monaco/monaco-json-input.test.tsx": {
+    "cast": 18,
+    "unknown": 11
+  },
+  "packages/react/src/components/monaco/monaco-json-input.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/components/ui/chart.tsx": {
+    "cast": 8,
+    "unknown": 1
+  },
+  "packages/react/src/components/ui/color-picker/color-picker.tsx": {
+    "double-cast": 1,
+    "cast": 2,
+    "ts-comment": 1
+  },
+  "packages/react/src/components/ui/color-picker/color-picker.types.ts": {
+    "unknown": 2
+  },
+  "packages/react/src/components/ui/input-group.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/ui/sidebar.tsx": {
+    "cast": 3
+  },
+  "packages/react/src/components/ui/slot.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/ui/sonner.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/components/ui/toggle-group.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/components/ui/ui-smoke.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/context.tsx": {
+    "cast": 2
+  },
+  "packages/react/src/field-error-display.test.tsx": {
+    "as-never": 1,
+    "unknown": 2
+  },
+  "packages/react/src/field-error.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/form-context.tsx": {
+    "double-cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/form-hooks.test-d.ts": {
+    "unknown": 2
+  },
+  "packages/react/src/form-hooks.test.tsx": {
+    "double-cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/form-hooks.ts": {
+    "cast": 4,
+    "unknown": 21
+  },
+  "packages/react/src/form-parity.test.tsx": {
+    "cast": 7,
+    "unknown": 1
+  },
+  "packages/react/src/form-perf-schema.test.tsx": {
+    "non-null": 3,
+    "unknown": 2
+  },
+  "packages/react/src/form-perf.test.tsx": {
+    "non-null": 3,
+    "unknown": 2
+  },
+  "packages/react/src/form/filter-live-form.test-d.ts": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/react/src/form/filter-live-form.test.tsx": {
+    "double-cast": 3,
+    "unknown": 3
+  },
+  "packages/react/src/form/filter-live-form.tsx": {
+    "cast": 1,
+    "unknown": 3
+  },
+  "packages/react/src/form/form-scope.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/form/group-hooks.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/form/rhf-shim.test-d.ts": {
+    "unknown": 1
+  },
+  "packages/react/src/form/rhf-shim.test.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/form/rhf-shim.ts": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/react/src/form/tabbed-form.test.tsx": {
+    "cast": 4,
+    "unknown": 1
+  },
+  "packages/react/src/form/tabbed-form.tsx": {
+    "cast": 4
+  },
+  "packages/react/src/form/w2-probe-lifecycle.test.tsx": {
+    "double-cast": 2,
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/form/warn-unsaved-changes.test.tsx": {
+    "cast": 1,
+    "unknown": 4
+  },
+  "packages/react/src/form/wizard-form.test.tsx": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/react/src/form/wizard-form.tsx": {
+    "cast": 5
+  },
+  "packages/react/src/hooks.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/i18n-hooks.ts": {
+    "unknown": 1
+  },
+  "packages/react/src/index.test.ts": {
+    "unknown": 3
+  },
+  "packages/react/src/label/label.test-d.ts": {
+    "unknown": 1
+  },
+  "packages/react/src/label/use-get-record-representation.test.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/label/use-get-record-representation.tsx": {
+    "cast": 4,
+    "unknown": 13
+  },
+  "packages/react/src/label/use-get-resource-label.test.tsx": {
+    "as-never": 1,
+    "unknown": 1
+  },
+  "packages/react/src/label/use-get-resource-label.ts": {
+    "unknown": 1
+  },
+  "packages/react/src/label/use-resource-translation.test.tsx": {
+    "as-never": 1,
+    "unknown": 1
+  },
+  "packages/react/src/label/use-resource-translation.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/label/use-translate-label.test.tsx": {
+    "as-never": 1,
+    "unknown": 1
+  },
+  "packages/react/src/lib/are-ids-equal.ts": {
+    "unknown": 2
+  },
+  "packages/react/src/lib/gen-memo.ts": {
+    "as-any": 1
+  },
+  "packages/react/src/list/infinite-list-context.ts": {
+    "cast": 1
+  },
+  "packages/react/src/list/list-slice-hooks.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/list/url-sync.test.tsx": {
+    "double-cast": 2,
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/react/src/live-hooks.ts": {
+    "cast": 1
+  },
+  "packages/react/src/lock-hooks.test.tsx": {
+    "double-cast": 1,
+    "cast": 1,
+    "unknown": 4
+  },
+  "packages/react/src/lock-hooks.ts": {
+    "unknown": 2
+  },
+  "packages/react/src/maps-entry.test.ts": {
+    "cast": 1
+  },
+  "packages/react/src/p5-gate.test.tsx": {
+    "double-cast": 2,
+    "cast": 11,
+    "unknown": 2
+  },
+  "packages/react/src/p6-w1-gate.test.tsx": {
+    "double-cast": 1,
+    "unknown": 3
+  },
+  "packages/react/src/p6-w1-probe-lifecycle.test.tsx": {
+    "double-cast": 3,
+    "unknown": 3
+  },
+  "packages/react/src/p7a-probe-lifecycle.test.tsx": {
+    "cast": 3,
+    "unknown": 2
+  },
+  "packages/react/src/p7d-probe-fields-integration.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/p7e-probe-admin-e2e.test.tsx": {
+    "double-cast": 3,
+    "cast": 2
+  },
+  "packages/react/src/p7g-buttons-crud-cycle.test.tsx": {
+    "double-cast": 4,
+    "cast": 1
+  },
+  "packages/react/src/presence-hooks.test.tsx": {
+    "double-cast": 1
+  },
+  "packages/react/src/prev-next-hooks.ts": {
+    "cast": 1
+  },
+  "packages/react/src/realtime-hooks.test.tsx": {
+    "cast": 1
+  },
+  "packages/react/src/realtime-hooks.ts": {
+    "cast": 2
+  },
+  "packages/react/src/record-view-context.test-d.ts": {
+    "cast": 4,
+    "unknown": 1
+  },
+  "packages/react/src/record-view-context.tsx": {
+    "cast": 3,
+    "unknown": 12
+  },
+  "packages/react/src/record/record-context.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/record/record.test-d.ts": {
+    "unknown": 2
+  },
+  "packages/react/src/record/use-field-value.test.tsx": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/record/use-field-value.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/reference-hooks.test.tsx": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/react/src/resource/create-resource-components.test-d.ts": {
+    "unknown": 1
+  },
+  "packages/react/src/resource/create-resource-components.test.tsx": {
+    "double-cast": 1,
+    "cast": 1
+  },
+  "packages/react/src/resource/create-resource-components.tsx": {
+    "cast": 5,
+    "unknown": 3
+  },
+  "packages/react/src/resource/registry-hooks.tsx": {
+    "cast": 5,
+    "unknown": 8
+  },
+  "packages/react/src/resource/resource.test-d.ts": {
+    "unknown": 1
+  },
+  "packages/react/src/resource/resource.test.tsx": {
+    "cast": 6,
+    "unknown": 19
+  },
+  "packages/react/src/resource/resource.tsx": {
+    "cast": 1,
+    "unknown": 6
+  },
+  "packages/react/src/router/adapter.tsx": {
+    "unknown": 3
+  },
+  "packages/react/src/router/nav-hooks.tsx": {
+    "cast": 1,
+    "unknown": 6
+  },
+  "packages/react/src/router/react-router-adapter.test.tsx": {
+    "double-cast": 1
+  },
+  "packages/react/src/router/react-router-adapter.tsx": {
+    "double-cast": 2,
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/react/src/router/router-adapter.test-d.ts": {
+    "cast": 2
+  },
+  "packages/react/src/router/router-adapter.test.tsx": {
+    "double-cast": 1,
+    "as-any": 1,
+    "cast": 2,
+    "unknown": 7
+  },
+  "packages/react/src/router/tanstack-router-adapter.test.tsx": {
+    "double-cast": 6,
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/router/tanstack-router-adapter.tsx": {
+    "double-cast": 1,
+    "as-never": 8,
+    "cast": 6,
+    "unknown": 4
+  },
+  "packages/react/src/router/w1-probe-portability.test.tsx": {
+    "double-cast": 1,
+    "unknown": 3
+  },
+  "packages/react/src/save-context.tsx": {
+    "unknown": 2
+  },
+  "packages/react/src/ssr/hydration.test.tsx": {
+    "double-cast": 1,
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/react/src/ssr/loader-example.test.tsx": {
+    "double-cast": 1,
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/ssr/ssr-node.test.tsx": {
+    "unknown": 1
+  },
+  "packages/react/src/test-setup.ts": {
+    "cast": 1
+  },
+  "packages/react/src/translatable-hooks.tsx": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/react/src/undoable-hooks.ts": {
+    "unknown": 4
+  },
+  "packages/react/src/use-list.test-d.ts": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/react/src/use-list.test.tsx": {
+    "cast": 3,
+    "unknown": 3
+  },
+  "packages/react/src/util/sanitize-field-rest-props.ts": {
+    "unknown": 2
+  },
+  "packages/react/src/util/sanitize-input-rest-props.ts": {
+    "unknown": 2
+  },
+  "packages/react/src/util/shallow-equal.ts": {
+    "cast": 4,
+    "unknown": 6
+  },
+  "packages/react/src/util/use-event.ts": {
+    "unknown": 1
+  },
+  "packages/react/src/util/warning.ts": {
+    "unknown": 1
+  },
+  "packages/rest/src/data-provider.test.ts": {
+    "cast": 12,
+    "unknown": 11
+  },
+  "packages/rest/src/data-provider.ts": {
+    "as-never": 8,
+    "cast": 4,
+    "unknown": 8
+  },
+  "packages/supabase/src/auth-provider.test.ts": {
+    "double-cast": 1,
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/supabase/src/auth-provider.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/supabase/src/data-provider.test.ts": {
+    "cast": 1,
+    "unknown": 5
+  },
+  "packages/supabase/src/data-provider.ts": {
+    "as-never": 8,
+    "cast": 18,
+    "unknown": 1
+  },
+  "packages/supabase/src/http.test.ts": {
+    "unknown": 1
+  },
+  "packages/supabase/src/postgrest/filters.test.ts": {
+    "unknown": 1
+  },
+  "packages/supabase/src/postgrest/filters.ts": {
+    "cast": 1,
+    "unknown": 5
+  },
+  "packages/supabase/src/postgrest/keys.ts": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/vue/src/admin/admin-registry.test.ts": {
+    "double-cast": 1
+  },
+  "packages/vue/src/admin/admin-shell.vue": {
+    "unknown": 6
+  },
+  "packages/vue/src/admin/admin.test.ts": {
+    "double-cast": 1
+  },
+  "packages/vue/src/admin/admin.vue": {
+    "unknown": 11
+  },
+  "packages/vue/src/admin/auth-gate.ts": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/vue/src/admin/custom-routes.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/admin/navigate-to-first-resource.test.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/admin/registry-churn.test.ts": {
+    "double-cast": 1
+  },
+  "packages/vue/src/admin/resource-registry.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/admin/route-resolution.test.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/admin/shell-error-boundary.test.ts": {
+    "unknown": 5
+  },
+  "packages/vue/src/admin/shell-error-boundary.vue": {
+    "unknown": 2
+  },
+  "packages/vue/src/admin/shell-slots.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/admin/slot-routes.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/array/use-array-input.test.ts": {
+    "cast": 1,
+    "non-null": 8,
+    "unknown": 1
+  },
+  "packages/vue/src/array/use-array-input.ts": {
+    "unknown": 5
+  },
+  "packages/vue/src/auth/auth-hooks.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/auth/permissions-hooks.ts": {
+    "cast": 2,
+    "unknown": 6
+  },
+  "packages/vue/src/choices/choices-context.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/choices/choices.test.ts": {
+    "cast": 3
+  },
+  "packages/vue/src/choices/use-choices.ts": {
+    "cast": 1,
+    "unknown": 4
+  },
+  "packages/vue/src/choices/use-reference-input.ts": {
+    "cast": 3
+  },
+  "packages/vue/src/components/admin/auth-v3c.test.ts": {
+    "non-null": 4,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/auth/access-denied.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/auth/auth-layout.vue": {
+    "unknown": 3
+  },
+  "packages/vue/src/components/admin/auth/can-access.vue": {
+    "unknown": 4
+  },
+  "packages/vue/src/components/admin/auth/login-form.vue": {
+    "cast": 3,
+    "unknown": 3
+  },
+  "packages/vue/src/components/admin/auth/login-page.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/auth/login-with-email.vue": {
+    "cast": 3,
+    "unknown": 4
+  },
+  "packages/vue/src/components/admin/bulk-buttons-v3b.test.ts": {
+    "non-null": 8
+  },
+  "packages/vue/src/components/admin/buttons-v3b.test.ts": {
+    "non-null": 2
+  },
+  "packages/vue/src/components/admin/buttons/bulk-delete-button.vue": {
+    "cast": 5
+  },
+  "packages/vue/src/components/admin/buttons/bulk-export-button.vue": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/buttons/bulk-update-button.vue": {
+    "cast": 6,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/buttons/clone-button.test.ts": {
+    "double-cast": 1,
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/buttons/columns-button.test.ts": {
+    "cast": 2,
+    "unknown": 3
+  },
+  "packages/vue/src/components/admin/buttons/columns-button.vue": {
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/buttons/delete-button.vue": {
+    "cast": 10
+  },
+  "packages/vue/src/components/admin/buttons/dual-approval-button.test.ts": {
+    "as-never": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/buttons/dual-approval-button.vue": {
+    "double-cast": 1,
+    "cast": 2,
+    "unknown": 4
+  },
+  "packages/vue/src/components/admin/buttons/export-button.vue": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/buttons/filter-button.vue": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/buttons/list-button.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/buttons/locales-menu-button.test.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/buttons/locales-menu-button.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/buttons/save-button.vue": {
+    "double-cast": 1
+  },
+  "packages/vue/src/components/admin/buttons/skip-navigation-button.test.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/buttons/sort-button.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/buttons/status-transition-button.test.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/buttons/status-transition-button.vue": {
+    "double-cast": 1,
+    "cast": 3,
+    "unknown": 3
+  },
+  "packages/vue/src/components/admin/buttons/update-button.test.ts": {
+    "as-never": 1,
+    "cast": 3,
+    "unknown": 3
+  },
+  "packages/vue/src/components/admin/buttons/update-button.vue": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/common-v3c.test.ts": {
+    "non-null": 4
+  },
+  "packages/vue/src/components/admin/common/application-updated-notification.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/common/check-for-application-update.test.ts": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/common/icon-button-with-tooltip.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/common/link.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/csv-import/csv-import.test.ts": {
+    "as-never": 1,
+    "cast": 6,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/csv-import/csv-import.vue": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/feedback/confirm.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/feedback/error.vue": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/feedback/loading-indicator.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/feedback/not-found.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/feedback/not-found.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/feedback/placeholder.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/api-key-field.vue": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/array-field.vue": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/array-reference-fields.test.ts": {
+    "as-never": 1,
+    "cast": 2,
+    "non-null": 3,
+    "unknown": 6
+  },
+  "packages/vue/src/components/admin/fields/badge-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/boolean-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/chip-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/color-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/cron-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/currency-field.vue": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/fields/date-field.vue": {
+    "unknown": 3
+  },
+  "packages/vue/src/components/admin/fields/display-fields.test.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/fields/duration-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/email-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/file-field.vue": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/formatted-fields.test.ts": {
+    "as-never": 1,
+    "cast": 1,
+    "non-null": 1,
+    "unknown": 5
+  },
+  "packages/vue/src/components/admin/fields/function-field.vue": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/image-field.vue": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/json-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/number-field.vue": {
+    "unknown": 5
+  },
+  "packages/vue/src/components/admin/fields/phone-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/rating-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/record-field.vue": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/reference-array-field.vue": {
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/fields/reference-batching.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/reference-field.test.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/fields/reference-field.vue": {
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/fields/reference-many-count.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/fields/reference-many-field.test.ts": {
+    "double-cast": 1,
+    "as-never": 1
+  },
+  "packages/vue/src/components/admin/fields/reference-one-field.test.ts": {
+    "unknown": 3
+  },
+  "packages/vue/src/components/admin/fields/select-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/subscription-plan-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/text-array-field.vue": {
+    "unknown": 4
+  },
+  "packages/vue/src/components/admin/fields/text-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/url-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/usage-meter-field.vue": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/v2c-probe.test.ts": {
+    "as-never": 1,
+    "cast": 3,
+    "unknown": 7
+  },
+  "packages/vue/src/components/admin/fields/webhook-endpoint-field.vue": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/fields/wrapper-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/form/translatable-inputs.test.ts": {
+    "cast": 1,
+    "unknown": 3
+  },
+  "packages/vue/src/components/admin/guessers/edit-guesser.test.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/guessers/edit-guesser.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/guessers/guessed-code.ts": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/guessers/guesser-empty.vue": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/guessers/list-guesser.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/guessers/show-guesser.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/guessers/use-guessed-resource.test.ts": {
+    "double-cast": 1
+  },
+  "packages/vue/src/components/admin/infinite-list.test.ts": {
+    "double-cast": 2,
+    "as-never": 1,
+    "cast": 3,
+    "unknown": 4
+  },
+  "packages/vue/src/components/admin/inputs/api-key-input.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/inputs/array-file-inputs-v2b.test.ts": {
+    "cast": 5,
+    "non-null": 11,
+    "unknown": 11
+  },
+  "packages/vue/src/components/admin/inputs/array-input-iterator.test.ts": {
+    "cast": 1,
+    "unknown": 5
+  },
+  "packages/vue/src/components/admin/inputs/array-input.vue": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/inputs/autocomplete-array-input.vue": {
+    "cast": 3,
+    "unknown": 4
+  },
+  "packages/vue/src/components/admin/inputs/autocomplete-input.vue": {
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/inputs/checkbox-group-input.vue": {
+    "cast": 2,
+    "unknown": 6
+  },
+  "packages/vue/src/components/admin/inputs/choice-input-props.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/inputs/choice-inputs-v2b.test.ts": {
+    "as-never": 1,
+    "cast": 7,
+    "non-null": 7,
+    "unknown": 8
+  },
+  "packages/vue/src/components/admin/inputs/color-input.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/inputs/cron-input.vue": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/inputs/currency-input.vue": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/inputs/datagrid-input.vue": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/inputs/date-input-format.ts": {
+    "cast": 4,
+    "unknown": 5
+  },
+  "packages/vue/src/components/admin/inputs/date-input.vue": {
+    "unknown": 6
+  },
+  "packages/vue/src/components/admin/inputs/date-time-input.vue": {
+    "unknown": 7
+  },
+  "packages/vue/src/components/admin/inputs/duration-input.vue": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/inputs/file-input-preview.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/inputs/file-input.vue": {
+    "cast": 4,
+    "unknown": 9
+  },
+  "packages/vue/src/components/admin/inputs/inputs-v2a-formatted.test.ts": {
+    "cast": 18,
+    "unknown": 11
+  },
+  "packages/vue/src/components/admin/inputs/inputs-v2a-task3.test.ts": {
+    "as-never": 1,
+    "cast": 8,
+    "unknown": 9
+  },
+  "packages/vue/src/components/admin/inputs/inputs-v2a.test.ts": {
+    "as-never": 1,
+    "cast": 8,
+    "unknown": 8
+  },
+  "packages/vue/src/components/admin/inputs/label-coercion-fix.test.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/inputs/nullable-boolean-input.vue": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/inputs/number-input.vue": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/inputs/password-input.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/inputs/phone-input.vue": {
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/inputs/radio-button-group-input.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/inputs/rating-input.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/inputs/reference-array-input.vue": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/inputs/reference-input.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/inputs/resettable-text-input.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/inputs/search-input.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/inputs/select-array-input.vue": {
+    "cast": 2,
+    "unknown": 6
+  },
+  "packages/vue/src/components/admin/inputs/select-input.vue": {
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/inputs/subscription-plan-picker.vue": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/inputs/text-array-input.vue": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/inputs/text-input.vue": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/inputs/time-input.vue": {
+    "unknown": 7
+  },
+  "packages/vue/src/components/admin/inputs/use-choice-input.ts": {
+    "cast": 1,
+    "unknown": 4
+  },
+  "packages/vue/src/components/admin/inputs/v2a-probe.test.ts": {
+    "as-never": 1,
+    "cast": 4,
+    "unknown": 11
+  },
+  "packages/vue/src/components/admin/inputs/v2b-probe.test.ts": {
+    "cast": 9,
+    "non-null": 12,
+    "unknown": 11
+  },
+  "packages/vue/src/components/admin/inputs/webhook-endpoint-input.vue": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/layout/app-bar.test.ts": {
+    "double-cast": 1
+  },
+  "packages/vue/src/components/admin/layout/command-menu-record-search.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/layout/command-menu.test.ts": {
+    "double-cast": 3,
+    "cast": 3,
+    "unknown": 5
+  },
+  "packages/vue/src/components/admin/layout/command-menu.vue": {
+    "cast": 4,
+    "unknown": 3
+  },
+  "packages/vue/src/components/admin/layout/layout.test.ts": {
+    "double-cast": 2,
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/layout/menu.test.ts": {
+    "double-cast": 1,
+    "cast": 3
+  },
+  "packages/vue/src/components/admin/layout/menu.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/layout/title.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/layout/title.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/layout/use-menu-access.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/layout/user-menu.test.ts": {
+    "double-cast": 1
+  },
+  "packages/vue/src/components/admin/list-features-v3b.test.ts": {
+    "cast": 3,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/list/bulk-edit-drawer.test.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/list/bulk-edit-drawer.vue": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/list/calendar-agenda-view.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/list/calendar-list.test.ts": {
+    "double-cast": 2,
+    "cast": 1,
+    "unknown": 4
+  },
+  "packages/vue/src/components/admin/list/calendar-list.vue": {
+    "cast": 1,
+    "non-null": 2,
+    "unknown": 4
+  },
+  "packages/vue/src/components/admin/list/calendar-month-view.vue": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/list/calendar-week-view.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/list/count.test.ts": {
+    "as-never": 3
+  },
+  "packages/vue/src/components/admin/list/count.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/list/data-table-context.ts": {
+    "cast": 3
+  },
+  "packages/vue/src/components/admin/list/data-table-row.vue": {
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/list/data-table-rows.test.ts": {
+    "unknown": 4
+  },
+  "packages/vue/src/components/admin/list/data-table.test.ts": {
+    "unknown": 4
+  },
+  "packages/vue/src/components/admin/list/data-table.vue": {
+    "cast": 7,
+    "unknown": 3
+  },
+  "packages/vue/src/components/admin/list/filter-form.vue": {
+    "cast": 4,
+    "unknown": 6
+  },
+  "packages/vue/src/components/admin/list/filter-live-search.test.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/list/kanban-board.test.ts": {
+    "as-never": 1,
+    "cast": 1,
+    "non-null": 5,
+    "unknown": 5
+  },
+  "packages/vue/src/components/admin/list/kanban-board.vue": {
+    "double-cast": 1,
+    "cast": 3,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/list/list-pagination.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/list/saved-queries-list.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/list/simple-list.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/list/simple-list.vue": {
+    "unknown": 8
+  },
+  "packages/vue/src/components/admin/list/single-field-list.test.ts": {
+    "double-cast": 1,
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/list/single-field-list.vue": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/list/tree-list-node.vue": {
+    "cast": 3
+  },
+  "packages/vue/src/components/admin/list/tree-list.test.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/list/tree-list.vue": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/realtime/comments-thread.test.ts": {
+    "as-never": 4,
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/realtime/comments-thread.vue": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/realtime/edit-live.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/realtime/edit-live.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/realtime/list-live.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/realtime/lock-on-mount.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/realtime/lock-on-mount.vue": {
+    "unknown": 4
+  },
+  "packages/vue/src/components/admin/realtime/lock-status.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/realtime/lock-status.vue": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/realtime/menu-live.test.ts": {
+    "as-never": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/realtime/menu-live.vue": {
+    "cast": 4
+  },
+  "packages/vue/src/components/admin/realtime/show-live.test.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/saved-queries-list.test.ts": {
+    "double-cast": 2,
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/supabase/forgot-password-form.vue": {
+    "cast": 1,
+    "unknown": 3
+  },
+  "packages/vue/src/components/admin/supabase/forgot-password-page.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/supabase/set-password-form.vue": {
+    "cast": 1,
+    "unknown": 3
+  },
+  "packages/vue/src/components/admin/supabase/set-password-page.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/supabase/social-auth-button.vue": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/supabase/supabase-login-page.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/supabase/supabase-login-page.vue": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/supabase/use-password-recovery.test.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/supabase/use-password-recovery.ts": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/undoable.test.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/vertical.test.ts": {
+    "cast": 9,
+    "unknown": 9
+  },
+  "packages/vue/src/components/admin/view/create.vue": {
+    "cast": 2,
+    "unknown": 5
+  },
+  "packages/vue/src/components/admin/view/edit.vue": {
+    "cast": 6,
+    "unknown": 8
+  },
+  "packages/vue/src/components/admin/view/infinite-list.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/view/labeled.vue": {
+    "double-cast": 2,
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/view/show.vue": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/view/tabbed-show-layout-tab.vue": {
+    "cast": 2
+  },
+  "packages/vue/src/components/admin/view/tabbed-show-layout.vue": {
+    "cast": 3
+  },
+  "packages/vue/src/components/admin/view/translatable-fields-tab-content.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/admin/view/translatable-fields.test.ts": {
+    "double-cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/admin/view/translatable-fields.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/admin/view/view-titles.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/maps-draw/__fixtures__/fake-terra-draw.ts": {
+    "cast": 1,
+    "unknown": 12
+  },
+  "packages/vue/src/components/maps-draw/bbox-input.ts": {
+    "double-cast": 1
+  },
+  "packages/vue/src/components/maps-draw/draw-icons.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/components/maps-draw/geometry-ops.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/maps-draw/geometry-ops.ts": {
+    "double-cast": 1,
+    "as-never": 1,
+    "cast": 2
+  },
+  "packages/vue/src/components/maps-draw/shape-constraints.test.ts": {
+    "cast": 2,
+    "unknown": 5
+  },
+  "packages/vue/src/components/maps-draw/shape-input.test.ts": {
+    "cast": 10,
+    "unknown": 11
+  },
+  "packages/vue/src/components/maps-draw/shape-input.vue": {
+    "cast": 8,
+    "unknown": 7
+  },
+  "packages/vue/src/components/maps-draw/shape-inputs.test.ts": {
+    "as-never": 2,
+    "cast": 13,
+    "unknown": 10
+  },
+  "packages/vue/src/components/maps-draw/shape-inputs.ts": {
+    "double-cast": 1
+  },
+  "packages/vue/src/components/maps-draw/simplify-input.test.ts": {
+    "cast": 4,
+    "unknown": 4
+  },
+  "packages/vue/src/components/maps-draw/simplify-input.vue": {
+    "cast": 2,
+    "unknown": 5
+  },
+  "packages/vue/src/components/maps-draw/use-terra-draw.ts": {
+    "as-never": 2,
+    "cast": 2,
+    "unknown": 5
+  },
+  "packages/vue/src/components/maps-osm/geocoding-input.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/maps-osm/map-with-search.test.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/components/maps-osm/osm-feature-operator.test.ts": {
+    "cast": 1,
+    "unknown": 6
+  },
+  "packages/vue/src/components/maps-osm/osm-feature-operator.vue": {
+    "cast": 2,
+    "unknown": 4
+  },
+  "packages/vue/src/components/maps-osm/osm-feature-operators.ts": {
+    "double-cast": 1
+  },
+  "packages/vue/src/components/maps-osm/osm-features.test.ts": {
+    "cast": 3,
+    "unknown": 2
+  },
+  "packages/vue/src/components/maps-osm/osm-features.ts": {
+    "double-cast": 2,
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/vue/src/components/maps-osm/osm-geometry-ops.test.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/components/maps-osm/osm-geometry-ops.ts": {
+    "as-never": 1,
+    "cast": 3
+  },
+  "packages/vue/src/components/maps-osm/reverse-geocode-field.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/maps-osm/reverse-geocode-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/maps-osm/use-osm-features.test.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/components/maps-osm/use-osm-features.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/maps/__fixtures__/fake-maplibre.ts": {
+    "cast": 1,
+    "unknown": 26
+  },
+  "packages/vue/src/components/maps/geo-json-field.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/maps/geo-json-field.vue": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/maps/lat-lng-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/maps/lat-lng-input.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/components/maps/lat-lng-input.vue": {
+    "double-cast": 2,
+    "cast": 4,
+    "unknown": 2
+  },
+  "packages/vue/src/components/maps/map-canvas.test.ts": {
+    "double-cast": 2,
+    "unknown": 4
+  },
+  "packages/vue/src/components/maps/use-geo-json-source.ts": {
+    "as-never": 3,
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/components/maps/use-map.ts": {
+    "double-cast": 1,
+    "cast": 4
+  },
+  "packages/vue/src/components/mdx-editor/mdx-field.test.ts": {
+    "double-cast": 1,
+    "as-never": 2,
+    "cast": 1,
+    "unknown": 6
+  },
+  "packages/vue/src/components/mdx-editor/mdx-field.vue": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/mdx-editor/mdx-input.test.ts": {
+    "double-cast": 1,
+    "as-never": 1,
+    "cast": 2,
+    "unknown": 6
+  },
+  "packages/vue/src/components/mdx-editor/mdx-input.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/monaco/internal/use-json-schema.ts": {
+    "double-cast": 1
+  },
+  "packages/vue/src/components/monaco/monaco-json-field-lazy.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/monaco/monaco-json-field.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/monaco/monaco-json-field.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/monaco/monaco-json-input-lazy.vue": {
+    "unknown": 2
+  },
+  "packages/vue/src/components/monaco/monaco-json-input.test.ts": {
+    "cast": 4,
+    "unknown": 7
+  },
+  "packages/vue/src/components/monaco/monaco-json-input.vue": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/ui/alert.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/components/ui/badge.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/components/ui/checkbox.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/ui/command/command-input.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/ui/command/command.test.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/components/ui/dropdown-menu/dropdown-menu.test.ts": {
+    "cast": 2,
+    "non-null": 4,
+    "unknown": 1
+  },
+  "packages/vue/src/components/ui/dropdown-menu/dropdown-menu.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/ui/field.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/components/ui/input.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/ui/native-select.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/ui/switch.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/components/ui/textarea.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/context.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/controllers/use-controller-for-id.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/controllers/use-create-controller.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/controllers/use-delete-controller.test.ts": {
+    "non-null": 2
+  },
+  "packages/vue/src/controllers/use-delete-controller.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/controllers/use-edit-controller.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/controllers/use-infinite-list-controller.test.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/controllers/use-infinite-list-controller.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/controllers/use-list-controller.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/controllers/use-prev-next-controller.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/controllers/use-reference-field-controllers.test.ts": {
+    "double-cast": 1
+  },
+  "packages/vue/src/controllers/use-reference-many-field-controller.ts": {
+    "cast": 3,
+    "unknown": 3
+  },
+  "packages/vue/src/controllers/use-reference-one-field-controller.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/controllers/use-show-controller.test.ts": {
+    "double-cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/controllers/use-show-controller.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/create-resource-components.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/create-resource-components.ts": {
+    "as-never": 1,
+    "cast": 1,
+    "unknown": 3
+  },
+  "packages/vue/src/data/mutations.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/data/undoable.ts": {
+    "unknown": 4
+  },
+  "packages/vue/src/form/field-error.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/form/form-context.ts": {
+    "double-cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/form/form-groups.test.ts": {
+    "cast": 5,
+    "unknown": 4
+  },
+  "packages/vue/src/form/form-groups.ts": {
+    "cast": 3
+  },
+  "packages/vue/src/form/tabbed-form-url.test.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/form/tabbed-form.test.ts": {
+    "cast": 4,
+    "unknown": 3
+  },
+  "packages/vue/src/form/tabbed-form.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/form/use-form.test.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/form/use-form.ts": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/vue/src/form/use-input.test-d.ts": {
+    "unknown": 4
+  },
+  "packages/vue/src/form/use-input.test.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/form/use-input.ts": {
+    "cast": 3,
+    "unknown": 14
+  },
+  "packages/vue/src/form/use-warn-when-unsaved-changes.test.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/form/use-warn-when-unsaved-changes.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/form/wizard-form-shell.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/form/wizard-form.test.ts": {
+    "cast": 3,
+    "unknown": 4
+  },
+  "packages/vue/src/form/wizard-form.vue": {
+    "cast": 1
+  },
+  "packages/vue/src/i18n/use-locale.test.ts": {
+    "double-cast": 1,
+    "as-never": 1,
+    "cast": 3,
+    "unknown": 1
+  },
+  "packages/vue/src/i18n/use-translatable.test.ts": {
+    "double-cast": 1,
+    "as-never": 1,
+    "cast": 3,
+    "unknown": 4
+  },
+  "packages/vue/src/i18n/use-translatable.ts": {
+    "unknown": 1
+  },
+  "packages/vue/src/i18n/use-translate.test.ts": {
+    "double-cast": 1,
+    "cast": 1
+  },
+  "packages/vue/src/i18n/use-translate.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/integration/v1b-probe.test.ts": {
+    "cast": 2,
+    "unknown": 2
+  },
+  "packages/vue/src/label/use-get-record-representation.test.ts": {
+    "unknown": 4
+  },
+  "packages/vue/src/label/use-get-record-representation.ts": {
+    "cast": 2,
+    "unknown": 9
+  },
+  "packages/vue/src/lib/are-ids-equal.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/lib/shallow-equal.ts": {
+    "cast": 4,
+    "unknown": 6
+  },
+  "packages/vue/src/list/infinite-list-context.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/list/list-context.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/list/use-list.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/maps-entry.test.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/notification-hooks.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/r3-mode-beforeunload.test.ts": {
+    "cast": 5,
+    "unknown": 10
+  },
+  "packages/vue/src/realtime/locks.test.ts": {
+    "cast": 2,
+    "unknown": 4
+  },
+  "packages/vue/src/realtime/locks.ts": {
+    "cast": 1,
+    "unknown": 2
+  },
+  "packages/vue/src/realtime/presence.test.ts": {
+    "as-never": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/realtime/presence.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/realtime/subscribe.ts": {
+    "unknown": 4
+  },
+  "packages/vue/src/record/record-context.ts": {
+    "cast": 2
+  },
+  "packages/vue/src/record/use-field-value.test-d.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/record/use-field-value.test.ts": {
+    "unknown": 2
+  },
+  "packages/vue/src/record/use-field-value.ts": {
+    "cast": 1,
+    "unknown": 1
+  },
+  "packages/vue/src/router/nav-composables.test.ts": {
+    "double-cast": 1
+  },
+  "packages/vue/src/router/nav-composables.ts": {
+    "unknown": 5
+  },
+  "packages/vue/src/router/vue-router-adapter.ts": {
+    "cast": 2,
+    "unknown": 1
+  },
+  "packages/vue/src/store/bridge-churn.test.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/store/use-micro-store.test.ts": {
+    "cast": 1
+  },
+  "packages/vue/src/store/use-micro-store.ts": {
+    "cast": 2,
+    "unknown": 4
+  }
+}
