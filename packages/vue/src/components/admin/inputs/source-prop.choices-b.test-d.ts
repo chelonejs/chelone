@@ -5,7 +5,9 @@
  *
  * `<DatagridInput>` and `<SelectField>` have no `disableValue` of their own.
  * Vue's `<DatagridInput>` still accepts `disableValue` because it comes from
- * the shared `ChoiceInputBaseProps`, and never reads it.
+ * the shared `ChoiceInputBaseProps`, and never reads it. The `it` names match
+ * the acceptance-criterion lines, so the two components with a `disableValue`
+ * of their own test it in a separate case.
  */
 
 import { describe, it } from "vitest";
@@ -17,12 +19,19 @@ import RadioButtonGroupInput from "./radio-button-group-input.vue";
 const choices = [{ id: 1, label: "One", off: false }];
 
 describe("CheckboxGroupInput choices paths", () => {
-  it("optionText, optionValue and disableValue accept a path of the inline choices", () => {
+  it("optionText and optionValue accept a path of the inline choices", () => {
     CheckboxGroupInput({
       source: "tags",
       choices,
       optionText: "label",
       optionValue: "id",
+    });
+  });
+
+  it("disableValue accepts a path of the inline choices", () => {
+    CheckboxGroupInput({
+      source: "tags",
+      choices,
       disableValue: "off",
     });
   });
@@ -75,12 +84,19 @@ describe("DatagridInput choices paths", () => {
 });
 
 describe("RadioButtonGroupInput choices paths", () => {
-  it("optionText, optionValue and disableValue accept a path of the inline choices", () => {
+  it("optionText and optionValue accept a path of the inline choices", () => {
     RadioButtonGroupInput({
       source: "category",
       choices,
       optionText: "label",
       optionValue: "id",
+    });
+  });
+
+  it("disableValue accepts a path of the inline choices", () => {
+    RadioButtonGroupInput({
+      source: "category",
+      choices,
       disableValue: "off",
     });
   });

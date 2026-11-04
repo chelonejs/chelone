@@ -7,8 +7,9 @@
  *
  * Every assertion here reads the props the component itself exposes. A generic
  * SFC is a function type, not a constructor, so its props come through
- * `Parameters<typeof X>[0]` (at its default `RecordType`) instead of
- * `InstanceType<typeof X>["$props"]`.
+ * `Parameters<typeof X>[0]` (at its default type argument) instead of
+ * `InstanceType<typeof X>["$props"]`: that is `RatingField`, `SelectField`,
+ * `ApiKeyField` and `UsageMeterField`.
  */
 
 import type { SourceProp } from "@chelone/core";
