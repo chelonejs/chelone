@@ -10,7 +10,11 @@ import {
   provideChoicesContext,
   useChoicesContext,
 } from "./choices-context";
-import { type UseChoicesResult, useChoices } from "./use-choices";
+import {
+  getChoicePath,
+  type UseChoicesResult,
+  useChoices,
+} from "./use-choices";
 import {
   type UseReferenceInputResult,
   useReferenceInput,
@@ -99,6 +103,34 @@ describe("useChoices", () => {
     expect(c.getDisableValue({ id: 1, name: "x", disabled: true })).toBe(true);
     const custom = run({ disableValue: "locked" });
     expect(custom.getDisableValue({ id: 1, name: "x", locked: 1 })).toBe(1);
+  });
+
+  it("optionText reads a bracket path", () => {
+    const c = run({ optionText: "author[0].name" });
+    expect(c.getChoiceText({ id: 1, author: [{ name: "Ada" }] })).toBe("Ada");
+  });
+
+  it("optionValue reads a bracket path", () => {
+    const c = run({ optionValue: "refs[1].id" });
+    expect(
+      c.getChoiceValue({ id: 1, refs: [{ id: "first" }, { id: "second" }] }),
+    ).toBe("second");
+  });
+
+  it("a flat key that contains a dot still wins", () => {
+    const c = run({ optionText: "nested.level", optionValue: "nested.level" });
+    const choice = { id: 1, "nested.level": "Flat", nested: { level: "Deep" } };
+    expect(c.getChoiceText(choice)).toBe("Flat");
+    expect(c.getChoiceValue(choice)).toBe("Flat");
+  });
+
+  it("an empty option path reads nothing, not the whole choice", () => {
+    const c = run({ optionText: "", optionValue: "", disableValue: "" });
+    expect(c.getChoiceText({ id: 7, name: "Seven" })).toBe("");
+    expect(c.getChoiceValue({ id: 7, name: "Seven" })).toBe(7);
+    expect(c.getDisableValue({ id: 7, name: "Seven" })).toBeUndefined();
+    // The exported reader keeps the same contract.
+    expect(getChoicePath({ id: 7, name: "Seven" }, "")).toBeUndefined();
   });
 });
 
