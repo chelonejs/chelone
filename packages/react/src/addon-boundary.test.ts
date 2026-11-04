@@ -28,6 +28,12 @@ const ADDONS: {
     packages: ["@monaco-editor/react", "monaco-editor"],
   },
   {
+    name: "kanban",
+    folder: "src/components/kanban",
+    entry: "src/kanban.ts",
+    packages: ["@dnd-kit/react", "@dnd-kit/dom"],
+  },
+  {
     name: "mdx-editor",
     folder: "src/components/mdx-editor",
     entry: "src/mdx-editor.ts",

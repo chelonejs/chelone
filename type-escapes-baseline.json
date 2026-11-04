@@ -1374,15 +1374,6 @@
     "cast": 1,
     "unknown": 1
   },
-  "packages/react/src/components/admin/list/kanban-board.test.tsx": {
-    "as-never": 1,
-    "cast": 3,
-    "unknown": 1
-  },
-  "packages/react/src/components/admin/list/kanban-board.tsx": {
-    "cast": 1,
-    "unknown": 1
-  },
   "packages/react/src/components/admin/list/list-pagination.test.tsx": {
     "cast": 1
   },
