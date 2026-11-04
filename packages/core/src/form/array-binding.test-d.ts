@@ -8,12 +8,23 @@ import {
 import { type CheloneFormApi, createFormController } from "./form-controller";
 import type { FieldBinding } from "./input-binding";
 
+/** One row of `Cart.items`. */
+type CartItem = { sku: string | null; qty: number | null };
+
 interface Cart {
-  items: { sku: string | null; qty: number | null }[];
+  items: CartItem[];
 }
 
-/** One `Cart` row — the item type its array paths carry. */
-type CartItem = { sku: string | null; qty: number | null };
+/** Two arrays with different row shapes, so the union is not the answer. */
+interface Shop {
+  items: CartItem[];
+  tags: string[];
+}
+
+/** An array inside an array. */
+interface OrderForm {
+  orders: { items: CartItem[] }[];
+}
 
 it("the array binding surface carries no `any`", () => {
   const controller = createFormController<Cart>({
@@ -22,7 +33,7 @@ it("the array binding surface carries no `any`", () => {
   });
   const binding = createArrayBinding(controller.form, { source: "items" });
   expectTypeOf(binding).not.toBeAny();
-  expectTypeOf(binding).toEqualTypeOf<ArrayBinding<Cart>>();
+  expectTypeOf(binding).toEqualTypeOf<ArrayBinding<Cart, "items">>();
   expectTypeOf(binding.field).toEqualTypeOf<FieldBinding<Cart>>();
   expectTypeOf(binding.getRows()).toEqualTypeOf<readonly ArrayRow[]>();
   expectTypeOf(binding.getTotal()).toEqualTypeOf<number>();
@@ -80,19 +91,39 @@ it("createArrayBinding takes any string for a Record<string, unknown> form", () 
   createArrayBinding(looseForm, { source: composed });
 });
 
-it("ops take the record's own array item type", () => {
-  const binding = createArrayBinding(typed().form, { source: "items" });
-  expectTypeOf<ArrayItemOf<Cart>>().toEqualTypeOf<CartItem>();
+it("ops take the row type of the binding's own source", () => {
+  const controller = createFormController<Shop>({
+    defaultValues: { items: [], tags: [] },
+    save: async () => undefined,
+  });
+  const items = createArrayBinding(controller.form, { source: "items" });
+  const tags = createArrayBinding(controller.form, { source: "tags" });
+  expectTypeOf<ArrayItemOf<Shop, "items">>().toEqualTypeOf<CartItem>();
+  expectTypeOf<ArrayItemOf<Shop, "tags">>().toEqualTypeOf<string>();
+  expectTypeOf(items.add).parameter(0).toEqualTypeOf<CartItem | undefined>();
+  expectTypeOf(items.insert).parameter(1).toEqualTypeOf<CartItem | undefined>();
+  expectTypeOf(items.replace).parameter(1).toEqualTypeOf<CartItem>();
+  expectTypeOf(tags.add).parameter(0).toEqualTypeOf<string | undefined>();
+  items.add({ sku: "a", qty: 1 });
+  tags.add("x");
+  // @ts-expect-error a Cart row is not a tags row
+  tags.add({ sku: "a", qty: 1 });
+  // @ts-expect-error a string is not a Cart row
+  items.add("x");
+});
+
+it("a nested array binding takes its own rows", () => {
+  const controller = createFormController<OrderForm>({
+    defaultValues: { orders: [] },
+    save: async () => undefined,
+  });
+  const binding = createArrayBinding(controller.form, {
+    source: "orders[0].items",
+  });
   expectTypeOf(binding.add).parameter(0).toEqualTypeOf<CartItem | undefined>();
-  expectTypeOf(binding.insert)
-    .parameter(1)
-    .toEqualTypeOf<CartItem | undefined>();
-  expectTypeOf(binding.replace).parameter(1).toEqualTypeOf<CartItem>();
   binding.add({ sku: "a", qty: 1 });
-  void binding.insert(0, { sku: "a", qty: 1 });
-  void binding.replace(0, { sku: "a", qty: 1 });
-  // @ts-expect-error 5 is not a Cart row
-  binding.add(5);
+  // @ts-expect-error an orders row is not an items row
+  binding.add({ items: [] });
 });
 
 it("a binding over a form with no array paths takes any item", () => {
