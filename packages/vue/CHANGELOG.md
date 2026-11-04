@@ -1,5 +1,38 @@
 # @chelone/vue
 
+## [0.6.0](https://github.com/chelonejs/chelone/compare/@chelone/vue@0.5.0...@chelone/vue@0.6.0) (2026-11-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* **vue:** import KanbanBoard and KanbanBoardProps from @chelone/vue/kanban instead of @chelone/vue. @dnd-kit/vue and @dnd-kit/dom (needs Vue 3.5) are optional peers to install with it.
+
+### Features
+
+* **core:** toTimelineEntries reads timeline entries from records, formatRelativeTime moves to core ([b381402](https://github.com/chelonejs/chelone/commit/b3814020784ecd2ddb543da95110dc581e5b14c5))
+* **react,vue:** useGetList takes a refetchInterval ([9ae8cda](https://github.com/chelonejs/chelone/commit/9ae8cdaa4ae4d5685f189cb7ebf3d691396762a0))
+* **vue:** add dependency-free ChartContainer, ChartStyle, tooltip and legend content ([de690eb](https://github.com/chelonejs/chelone/commit/de690ebb5daf51e9adce5b4e4a1b989ec37e33b8))
+* **vue:** KanbanBoard drags with @dnd-kit/vue, so touch works, and moves to @chelone/vue/kanban ([c592ee3](https://github.com/chelonejs/chelone/commit/c592ee35679be87ec96e91afbe1d6f8eec5c4f91))
+
+
+### Bug Fixes
+
+* **vue:** KanbanBoard keeps the attributes put on it ([a266958](https://github.com/chelonejs/chelone/commit/a266958a6f593fc6c68874a2d7a7e56139e365d0))
+* **vue:** make chart ids hydrate, ignore inherited payload keys, handle missing values and labels ([0a9ac85](https://github.com/chelonejs/chelone/commit/0a9ac858c36b418ff7a6f3abd599fda896427094))
+* **vue:** remove the type escapes from the chart family ([7c15067](https://github.com/chelonejs/chelone/commit/7c15067c326b1cdd61f43717b53fdafba42cd4a2))
+* **vue:** the moved KanbanBoard keeps its type-escape baseline and adds none ([8598dd9](https://github.com/chelonejs/chelone/commit/8598dd991f48789f5a28bc7e738471d2fee63cfb))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.6.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.6.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.6.0
+
 ## [0.5.0](https://github.com/chelonejs/chelone/compare/@chelone/vue@0.4.0...@chelone/vue@0.5.0) (2026-11-04)
 
 
