@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 
 /** A subscription plan a {@link SubscriptionPlanPicker} renders as one card. */
 export interface SubscriptionPlan {
@@ -14,7 +14,7 @@ export interface SubscriptionPlan {
 /** Props for {@link SubscriptionPlanPicker}. */
 export interface SubscriptionPlanPickerProps {
   /** The FK/field path holding the selected plan id. */
-  source: string;
+  source: SourceProp;
   /** The plans rendered as cards. */
   plans: readonly SubscriptionPlan[];
   /** Highlights one plan as recommended. */
