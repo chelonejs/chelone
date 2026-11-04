@@ -3,12 +3,13 @@ import type {
   OsmPresetName,
   OsmTagInput,
   OverpassProvider,
+  SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link OsmFeatureOperator}. */
 export interface OsmFeatureOperatorProps {
   /** The form field holding the Polygon or MultiPolygon. */
-  source: string;
+  source: SourceProp;
   /** `subtract` removes the matching OSM areas from the polygon; `add` merges them in. */
   mode: "subtract" | "add";
   /** Named OSM feature sets to query, such as `water`. */
