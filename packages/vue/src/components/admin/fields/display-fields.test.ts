@@ -10,7 +10,7 @@
 import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { type Component, defineComponent, h } from "vue";
 import { provideCheloneContext } from "../../../context";
 import { provideRecordContext } from "../../../record/record-context";
@@ -23,6 +23,7 @@ import EmailField from "./email-field.vue";
 import NumberField from "./number-field.vue";
 import PhoneField from "./phone-field.vue";
 import RatingField from "./rating-field.vue";
+import TextField from "./text-field.vue";
 import UrlField from "./url-field.vue";
 
 // A minimal Chelone context: `useTranslate` degrades to an echo (honoring the
@@ -437,5 +438,18 @@ describe("RatingField", () => {
       { rating: null },
     );
     expect(w.get('[data-slot="rating-field"]').text()).toBe("unrated");
+  });
+});
+
+describe("TextField", () => {
+  it("mounts with a source prop and logs no Vue prop warning", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const w = mountField(TextField, { source: "title" }, { title: "Hello" });
+      expect(w.get('[data-slot="text-field"]').text()).toBe("Hello");
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
   });
 });

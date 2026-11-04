@@ -1,9 +1,9 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 
 /** Props for {@link DateField}. */
 export interface DateFieldProps {
-  source: string;
+  source: SourceProp;
   record?: LooseRecord;
   defaultValue?: unknown;
   empty?: string;
