@@ -1,8 +1,8 @@
-import { type ComponentType, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useResourceContext } from "../../../resource";
 import { RecordField } from "../fields/record-field";
 import { Show, type ShowProps } from "../views/show";
-import { guessFieldComponents } from "./guess-components";
+import { guessFieldElements } from "./guess-components";
 import { printGuessedView } from "./guessed-code";
 import { GuesserEmpty } from "./guesser-empty";
 import { useGuessedResource } from "./use-guessed-resource";
@@ -68,23 +68,13 @@ function ShowGuesser({
               />
             );
           }
-          const Field = guessFieldComponents[field.field] as ComponentType<
-            Record<string, unknown>
-          >;
           return (
             <RecordField
               key={field.source}
               source={field.source}
               {...(label !== undefined && { label })}
             >
-              <Field
-                source={field.source}
-                {...(field.reference !== undefined && {
-                  reference: field.reference,
-                })}
-                {...(field.choices && { choices: field.choices })}
-                {...field.fieldProps}
-              />
+              {guessFieldElements[field.field](field)}
             </RecordField>
           );
         })}
