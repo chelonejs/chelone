@@ -46,6 +46,7 @@ import type {
   IconButtonWithTooltipProps,
   InfiniteListProps,
   InfinitePaginationProps,
+  KanbanBoardProps,
   LinkProps,
   ListActionsProps,
   ListLiveProps,
@@ -145,6 +146,12 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<FilterListProps>().toHaveProperty("label");
     expectTypeOf<FilterListSectionProps>().toHaveProperty("label");
     expectTypeOf<InfinitePaginationProps>().toBeObject();
+    expectTypeOf<KanbanBoardProps>().toHaveProperty("groupSource");
+    expectTypeOf<KanbanBoardProps>().toHaveProperty("columns");
+    expectTypeOf<KanbanBoardProps>().toHaveProperty("titleSource");
+    expectTypeOf<KanbanBoardProps>().toHaveProperty("descriptionSource");
+    expectTypeOf<KanbanBoardProps>().toHaveProperty("linkType");
+    expectTypeOf<KanbanBoardProps>().toHaveProperty("class");
     expectTypeOf<LinkProps>().toHaveProperty("to");
     expectTypeOf<ListActionsProps>().toBeObject();
     expectTypeOf<ListProps>().toBeObject();
@@ -241,6 +248,11 @@ describe("@chelone/vue public exports", () => {
 
   it("TreeList ships beside its props", () => {
     expectTypeOf(barrel.TreeList).not.toBeAny();
+  });
+
+  it("KanbanBoard ships beside its props", () => {
+    expectTypeOf(barrel.KanbanBoard).not.toBeAny();
+    expectTypeOf<KanbanBoardProps["groupSource"]>().toEqualTypeOf<string>();
   });
 
   it("CalendarList ships beside its props", () => {

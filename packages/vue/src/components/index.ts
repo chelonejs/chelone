@@ -406,6 +406,8 @@ export type { FilterLiveSearchProps } from "./admin/list/filter-live-search.vue"
 export { default as FilterLiveSearch } from "./admin/list/filter-live-search.vue";
 export type { InfinitePaginationProps } from "./admin/list/infinite-pagination.vue";
 export { default as InfinitePagination } from "./admin/list/infinite-pagination.vue";
+export type { KanbanBoardProps } from "./admin/list/kanban-board.vue";
+export { default as KanbanBoard } from "./admin/list/kanban-board.vue";
 export type { ListActionsProps } from "./admin/list/list-actions.vue";
 export { default as ListActions } from "./admin/list/list-actions.vue";
 export type { ListNoResultsProps } from "./admin/list/list-no-results.vue";
