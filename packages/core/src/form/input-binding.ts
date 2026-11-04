@@ -7,6 +7,8 @@ import {
   type FieldValidateOrFn,
   type StandardSchemaV1,
 } from "@tanstack/form-core";
+import type { LooseRecord } from "../resource/record";
+import type { SourcePath } from "../resource/source-path";
 import type {
   AsyncValidator,
   CheloneFormApi,
@@ -115,9 +117,9 @@ export interface FieldValidatorMeta {
   [key: string]: unknown;
 }
 
-export interface FieldBindingOptions {
+export interface FieldBindingOptions<TRecord = LooseRecord> {
   /** The FINAL field path (already source-scoped — see `source.ts`). */
-  source: string;
+  source: SourcePath<TRecord>;
   /**
    * Input-level default, ra precedence: seeds ONLY into a hole (untouched
    * field whose form value is `undefined`) — an existing record value,
@@ -142,7 +144,10 @@ export interface FieldBindingOptions {
 }
 
 /** `update()` payload: everything but the identity-defining source. */
-export type FieldBindingUpdateOptions = Omit<FieldBindingOptions, "source">;
+export type FieldBindingUpdateOptions = Omit<
+  FieldBindingOptions<LooseRecord>,
+  "source"
+>;
 
 /**
  * Vanilla field binding over a single `@tanstack/form-core` FieldApi —
@@ -214,11 +219,13 @@ interface BindingValidators {
 
 export function createFieldBinding<TRecord>(
   form: CheloneFormApi<TRecord>,
-  options: FieldBindingOptions,
+  options: FieldBindingOptions<TRecord>,
 ): FieldBinding<TRecord> {
   const { source } = options;
+  // The one cast: a `SourcePath` is a path of the record by construction, but
+  // TS cannot see that it is one of form-core's `DeepKeys`.
   const name = source as DeepKeys<TRecord>;
-  let current: FieldBindingOptions = options;
+  let current: FieldBindingUpdateOptions & { source: string } = options;
 
   /**
    * Runs the binding's validator stack against a value: field schema first
