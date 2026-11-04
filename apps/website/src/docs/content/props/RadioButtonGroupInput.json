@@ -9,9 +9,9 @@
     },
     {
       "name": "choices",
-      "type": "readonly string | ChoiceRecord[]",
+      "type": "readonly string | TChoice[]",
       "optional": true,
-      "comment": ""
+      "comment": "Inline choices (`{ id, name }[]` or `string[]`). Omitted under a reference wrapper."
     },
     {
       "name": "defaultValue",
@@ -27,9 +27,9 @@
     },
     {
       "name": "disableValue",
-      "type": "string",
+      "type": "SourcePath<TChoice>",
       "optional": true,
-      "comment": ""
+      "comment": "The disabled-flag path. Default `disabled`."
     },
     {
       "name": "format",
@@ -87,15 +87,15 @@
     },
     {
       "name": "optionText",
-      "type": "OptionText",
+      "type": "OptionText<TChoice>",
       "optional": true,
-      "comment": ""
+      "comment": "The display path (dot/bracket) or a formatter over the whole choice. Default `name`."
     },
     {
       "name": "optionValue",
-      "type": "string",
+      "type": "SourcePath<TChoice>",
       "optional": true,
-      "comment": ""
+      "comment": "The value path. Default `id`."
     },
     {
       "name": "parse",
@@ -131,7 +131,7 @@
       "name": "translateChoice",
       "type": "boolean",
       "optional": true,
-      "comment": ""
+      "comment": "Translate a string-path label."
     },
     {
       "name": "type",

@@ -9,7 +9,7 @@
     },
     {
       "name": "choices",
-      "type": "readonly ChoiceRecord[]",
+      "type": "readonly TChoice[]",
       "optional": true,
       "comment": "The list of choices to map the value against."
     },
@@ -39,13 +39,13 @@
     },
     {
       "name": "optionText",
-      "type": "OptionText",
+      "type": "OptionText<TChoice>",
       "optional": true,
       "comment": "The display path or a formatter. Default `'name'`."
     },
     {
       "name": "optionValue",
-      "type": "string",
+      "type": "SourcePath<TChoice>",
       "optional": true,
       "comment": "The value path on a choice. Default `'id'`."
     },
