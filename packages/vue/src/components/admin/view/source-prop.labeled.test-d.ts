@@ -10,9 +10,20 @@ import type { GeoJsonFieldProps } from "../../maps/geo-json-field.vue";
 import type { MdxFieldProps } from "../../mdx-editor/mdx-field.vue";
 import type { MonacoJsonFieldProps } from "../../monaco/monaco-json-field.vue";
 import type { WebhookEndpointFieldProps } from "../fields/webhook-endpoint-field.vue";
+import type Labeled from "./labeled.vue";
 import type { LabeledProps } from "./labeled.vue";
 
 describe("Labeled and add-on field sources", () => {
+  it("the Labeled component declares source as SourceProp and label as string | false", () => {
+    type DeclaredProps = InstanceType<typeof Labeled>["$props"];
+    expectTypeOf<DeclaredProps["source"]>().toEqualTypeOf<
+      SourceProp | undefined
+    >();
+    expectTypeOf<DeclaredProps["label"]>().toEqualTypeOf<
+      string | false | undefined
+    >();
+  });
+
   it("the Labeled source prop is SourceProp", () => {
     expectTypeOf<LabeledProps["source"]>().toEqualTypeOf<
       SourceProp | undefined
