@@ -33,6 +33,19 @@ export interface ApprovalOptions<TRecord = Record<string, unknown>> {
   approvedValue?: unknown;
 }
 
+/**
+ * What `buildApprovalUpdate` takes. `statusSource` is a write target, and a
+ * record often has no status field until its first approval, so it takes any
+ * string; `approverSource` is read, so it stays a key of the record.
+ */
+export type ApprovalUpdateOptions<TRecord = Record<string, unknown>> = Omit<
+  ApprovalOptions<TRecord>,
+  "statusSource"
+> & {
+  /** Record field the status is written to. Default `"status"`. */
+  statusSource?: string;
+};
+
 export interface ApprovalState {
   /** Distinct approver ids, as strings. */
   approvers: string[];
@@ -99,7 +112,7 @@ export function getApprovalState<TRecord = Record<string, unknown>>(
  */
 export function buildApprovalUpdate<TRecord = Record<string, unknown>>(
   record: TRecord & object,
-  options: ApprovalOptions<TRecord> = {},
+  options: ApprovalUpdateOptions<TRecord> = {},
 ): Record<string, unknown> | null {
   const {
     approverSource = "approvers",
@@ -108,7 +121,11 @@ export function buildApprovalUpdate<TRecord = Record<string, unknown>>(
     pendingValue = "pending",
     approvedValue = "approved",
   } = options;
-  const state = getApprovalState(record, options);
+  const state = getApprovalState(record, {
+    approverSource: options.approverSource,
+    required: options.required,
+    identityId,
+  });
   if (!state.canApprove || identityId === undefined || identityId === null) {
     return null;
   }

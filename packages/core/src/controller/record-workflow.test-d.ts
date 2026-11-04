@@ -42,10 +42,23 @@ describe("record workflow types", () => {
   it("they reject a key that is not on the record", () => {
     // @ts-expect-error `reviewer` is not a key of Post
     getApprovalState(post, { approverSource: "reviewer" });
-    // @ts-expect-error `state` is not a key of Post
-    buildApprovalUpdate(post, { statusSource: "state", identityId: 1 });
+    // @ts-expect-error `reviewer` is not a key of Post
+    buildApprovalUpdate(post, { approverSource: "reviewer", identityId: 1 });
+    // @ts-expect-error `state` is not a key of Post, and getApprovalState reads the options
+    getApprovalState(post, { statusSource: "state" });
     // @ts-expect-error a nested path is not a top-level key
     getApprovalState(post, { approverSource: "address.city" });
+  });
+
+  it("buildApprovalUpdate writes a status field the record does not have yet", () => {
+    buildApprovalUpdate(
+      { signers: ["a"] },
+      {
+        approverSource: "signers",
+        statusSource: "state",
+        identityId: "b",
+      },
+    );
   });
 
   it("getAllowedTransitions types source by the record", () => {

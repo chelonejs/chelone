@@ -140,7 +140,7 @@ describe("buildApprovalUpdate", () => {
   it("uses custom sources and values", () => {
     expect(
       buildApprovalUpdate(
-        { signers: ["a"], state: "draft" },
+        { signers: ["a"] },
         {
           approverSource: "signers",
           statusSource: "state",
@@ -153,7 +153,7 @@ describe("buildApprovalUpdate", () => {
     ).toEqual({ signers: ["a", "b"], state: "awaiting" });
     expect(
       buildApprovalUpdate(
-        { signers: ["a"], state: "draft" },
+        { signers: ["a"] },
         {
           approverSource: "signers",
           statusSource: "state",
