@@ -1,4 +1,9 @@
-import type { Identifier, LooseRecord, SourceProp } from "@chelone/core";
+import type {
+  Identifier,
+  LooseRecord,
+  SourcePath,
+  SourceProp,
+} from "@chelone/core";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -20,16 +25,16 @@ import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import type { InputProps } from "../input-props";
 
-type DatagridInputProps<TRecord = LooseRecord> = Omit<
-  InputProps<unknown, TRecord>,
-  "source" | "disabled" | "readOnly"
-> & {
+type DatagridInputProps<
+  TRecord = LooseRecord,
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> = Omit<InputProps<unknown, TRecord>, "source" | "disabled" | "readOnly"> & {
   /** Inline choices (records) — omit inside a `<ReferenceArrayInput>`. */
-  choices?: readonly ChoiceRecord[];
+  choices?: readonly TChoice[];
   /** The display path or a formatter for a choice. Default `"name"`. */
-  optionText?: OptionText;
+  optionText?: OptionText<TChoice>;
   /** The value path on a choice. Default `"id"`. */
-  optionValue?: string;
+  optionValue?: SourcePath<TChoice>;
   /** Translate the choice text through the catalog. */
   translateChoice?: boolean;
   /** The FK-array field; supplied ambiently inside a `<ReferenceArrayInput>`. */
@@ -67,9 +72,12 @@ type DatagridInputProps<TRecord = LooseRecord> = Omit<
  *   </Edit>
  * );
  */
-function DatagridInput<TRecord = LooseRecord>(
-  props: DatagridInputProps<TRecord>,
-): ReactNode {
+function DatagridInput<
+  TRecord = LooseRecord,
+  TChoice extends ChoiceRecord = ChoiceRecord,
+>(typedProps: DatagridInputProps<TRecord, TChoice>): ReactNode {
+  // The body reads choices as loose records; `TChoice` only types the props.
+  const props = typedProps as unknown as DatagridInputProps;
   const {
     choices,
     className,

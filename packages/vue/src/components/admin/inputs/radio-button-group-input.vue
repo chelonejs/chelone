@@ -1,14 +1,17 @@
-<script lang="ts">
+<script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
 /** Props for {@link RadioButtonGroupInput}. */
-export interface RadioButtonGroupInputProps extends ChoiceInputBaseProps {
+export interface RadioButtonGroupInputProps<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> extends ChoiceInputBaseProps<TChoice> {
   /** Lay the radios out horizontally instead of stacked. */
   row?: boolean;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
 /**
  * `<RadioButtonGroupInput>` — a single-select rendered as a list of radios, the
  * Vue analog of `@chelone/react`'s `inputs/radio-button-group-input.tsx`. Reads
@@ -29,10 +32,8 @@ import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 import { useChoiceInput } from "./use-choice-input";
 
-const props = withDefaults(defineProps<RadioButtonGroupInputProps>(), {
+const props = withDefaults(defineProps<RadioButtonGroupInputProps<TChoice>>(), {
   label: undefined,
-  optionValue: "id",
-  disableValue: "disabled",
   row: false,
 });
 
@@ -70,7 +71,7 @@ const helper = computed(
   () => props.helperText ?? (fetchError.value as Error | undefined)?.message,
 );
 
-function isChoiceDisabled(choice: Record<string, unknown>): boolean {
+function isChoiceDisabled(choice: TChoice): boolean {
   return (
     props.disabled === true ||
     props.readonly === true ||
@@ -78,7 +79,7 @@ function isChoiceDisabled(choice: Record<string, unknown>): boolean {
   );
 }
 
-function onSelect(choice: Record<string, unknown>) {
+function onSelect(choice: TChoice) {
   setValue(getChoiceValue(choice));
   blur();
 }

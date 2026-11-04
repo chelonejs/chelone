@@ -1,14 +1,15 @@
 /**
  * The rating to usage-meter display fields show one record field, so their
- * `source` is a path into the record and takes `SourceProp`, and `optionText`
- * and `optionValue` stay `string`. The sibling sources (`countSource`,
- * `limitSource`, ...) moved to `SourceKey`: see
- * `source-prop.sibling.test-d.ts`.
+ * `source` is a path into the record and takes `SourceProp`. The sibling
+ * sources (`countSource`, `limitSource`, ...) moved to `SourceKey`: see
+ * `source-prop.sibling.test-d.ts`. `SelectField`'s `optionText`/`optionValue`
+ * are paths of its choices: see `../inputs/source-prop.choices-b.test-d.ts`.
  *
  * Every assertion here reads the props the component itself exposes. A generic
  * SFC is a function type, not a constructor, so its props come through
- * `Parameters<typeof X>[0]` (at its default `RecordType`) instead of
- * `InstanceType<typeof X>["$props"]`.
+ * `Parameters<typeof X>[0]` (at its default type argument) instead of
+ * `InstanceType<typeof X>["$props"]`: that is `RatingField`, `SelectField`,
+ * `ApiKeyField` and `UsageMeterField`.
  */
 
 import type { SourceProp } from "@chelone/core";
@@ -47,7 +48,7 @@ describe("rating to usage-meter field sources", () => {
   });
 
   it("the SelectField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof SelectField>["$props"];
+    type Props = Parameters<typeof SelectField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 

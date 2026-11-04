@@ -1,10 +1,12 @@
 import type {
   LooseRecord,
+  SourcePath,
   SourceProp,
   TranslatableMessage,
   Validator,
 } from "@chelone/core";
 import type { ReactNode } from "react";
+import type { ChoiceRecord, OptionText } from "../../choices-hooks";
 
 /**
  * Chelone-native `InputProps` — the shared prop contract every admin input
@@ -67,3 +69,24 @@ export interface InputProps<ValueType = unknown, TRecord = LooseRecord> {
 
 /** The displayable field-error union chelone `fieldState.error` carries. */
 export type InputFieldError = string | TranslatableMessage | undefined;
+
+/**
+ * The choice keys the inline-`choices` inputs share (ra's `ChoicesProps`), the
+ * React twin of Vue's `ChoiceInputBaseProps` choice keys. `TChoice` is inferred
+ * from `choices`, which is what makes `optionText`, `optionValue` and
+ * `disableValue` paths of the choices the caller actually passed; under a
+ * reference wrapper there are no choices and `TChoice` stays the loose
+ * `ChoiceRecord`, where every path is a plain `string`.
+ */
+export interface ChoicesProps<TChoice extends ChoiceRecord = ChoiceRecord> {
+  /** Inline choices (`{ id, name }[]` or `string[]`). Omitted under a reference wrapper. */
+  choices?: readonly (string | TChoice)[];
+  /** The display path (dot/bracket) or a formatter over the whole choice. Default `name`. */
+  optionText?: OptionText<TChoice>;
+  /** The value path. Default `id`. */
+  optionValue?: SourcePath<TChoice>;
+  /** The disabled-flag path. Default `disabled`. */
+  disableValue?: SourcePath<TChoice>;
+  /** Translate a string-path label. */
+  translateChoice?: boolean;
+}

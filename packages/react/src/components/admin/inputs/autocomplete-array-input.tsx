@@ -1,4 +1,4 @@
-import type { FilterPayload, SourcePath } from "@chelone/core";
+import type { FilterPayload } from "@chelone/core";
 import { Command as CommandPrimitive } from "cmdk";
 import { X } from "lucide-react";
 import * as React from "react";
@@ -19,23 +19,15 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { areIdsEqual } from "@/lib/are-ids-equal";
-import type { ChoiceRecord, OptionText } from "../../../choices-hooks";
+import type { ChoiceRecord } from "../../../choices-hooks";
 import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentationText } from "../../../label";
 import { useEvent } from "../../../util/use-event";
-import type { InputProps } from "../input-props";
+import type { ChoicesProps, InputProps } from "../input-props";
 import { createDebounce } from "./create-debounce";
-
-interface ChoicesProps<TChoice extends ChoiceRecord = ChoiceRecord> {
-  choices?: readonly (string | TChoice)[];
-  optionText?: OptionText<TChoice>;
-  optionValue?: SourcePath<TChoice>;
-  disableValue?: SourcePath<TChoice>;
-  translateChoice?: boolean;
-}
 
 const EMPTY_VALUES: unknown[] = [];
 
