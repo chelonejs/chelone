@@ -65,13 +65,31 @@ export interface AdapterNavigateProps {
   state?: unknown;
 }
 
-/** Props the adapter's `Route` accepts (declarative route config). */
-export interface AdapterRouteProps {
+/**
+ * Props the adapter's `Route` accepts for a NON-index route: a `path` (or none,
+ * for a layout route), children, and `index` only ever `false`.
+ */
+export interface AdapterPathRouteProps {
   path?: string;
-  index?: boolean;
+  index?: false;
   element?: ReactNode;
   children?: ReactNode;
 }
+
+/**
+ * Props the adapter's `Route` accepts for an INDEX route: `index: true` and NO
+ * children — the same split react-router's own `Route` props make, which is
+ * what lets the default adapter hand over its `Route` by identity.
+ */
+export interface AdapterIndexRouteProps {
+  path?: string;
+  index: true;
+  element?: ReactNode;
+  children?: undefined;
+}
+
+/** Props the adapter's `Route` accepts (declarative route config). */
+export type AdapterRouteProps = AdapterPathRouteProps | AdapterIndexRouteProps;
 
 /** Props the adapter's `Routes` accepts (`location` for controlled matching). */
 export interface AdapterRoutesProps {
