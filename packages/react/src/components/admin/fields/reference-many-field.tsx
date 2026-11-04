@@ -1,4 +1,9 @@
-import type { FilterPayload, LooseRecord, SortPayload } from "@chelone/core";
+import type {
+  FilterPayload,
+  LooseRecord,
+  SortPayload,
+  SourceProp,
+} from "@chelone/core";
 import type { ReactNode } from "react";
 import { ListContextProvider } from "../../../form";
 import type { RecordContextValue } from "../../../record/record-context";
@@ -13,7 +18,7 @@ interface ReferenceManyFieldProps<
   /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
   target: string;
   /** The field on the current record the `target` matches. Default `"id"`. */
-  source?: string;
+  source?: SourceProp<RecordType>;
   /** The record whose id is matched. Defaults to the ambient record. */
   record?: RecordType;
   /** The list-rendering children (a `DataTable`, etc.). */
