@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
-import type { AssistantTool, JsonObject, JsonValue } from "./types";
+import type { JsonObject, JsonValue } from "../guards";
+import type { AssistantTool } from "./types";
 
 describe("assistant types", () => {
   it("a handler takes the model's JSON arguments and returns JSON", () => {
