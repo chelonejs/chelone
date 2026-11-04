@@ -1325,10 +1325,6 @@
           "type": "registry:component"
         },
         {
-          "path": "src/components/admin/list/kanban-board.vue",
-          "type": "registry:component"
-        },
-        {
           "path": "src/components/admin/list/list-actions.vue",
           "type": "registry:component"
         },
@@ -4847,27 +4843,6 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
-      "name": "kanban-board",
-      "type": "registry:component",
-      "title": "Kanban Board",
-      "files": [
-        {
-          "path": "src/components/admin/list/kanban-board.vue",
-          "type": "registry:component"
-        }
-      ],
-      "registryDependencies": [
-        "@chelone/button",
-        "@chelone/dropdown-menu",
-        "@chelone/lib-utils",
-        "@chelone/list-icons",
-        "@chelone/use-menu-access"
-      ],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
-      "categories": ["chelone", "components"],
-      "author": "Chelone <https://chelone.dev>"
-    },
-    {
       "name": "list-actions",
       "type": "registry:component",
       "title": "List Actions",
@@ -5709,6 +5684,87 @@
       ],
       "dependencies": ["@chelone/core", "monaco-editor"],
       "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "kanban",
+      "type": "registry:block",
+      "title": "Chelone Kanban",
+      "categories": ["chelone", "list"],
+      "description": "The opt-in kanban add-on: KanbanBoard shows the records of a list as columns and moves a card between them by drag with mouse, touch or pen, or with a Move to menu. Installs @dnd-kit/vue and needs Vue 3.5.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/dropdown-menu",
+        "@chelone/lib-utils",
+        "@chelone/list-icons",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@dnd-kit/vue"],
+      "files": [
+        {
+          "path": "src/components/kanban/kanban-board.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/kanban/kanban-draggable-card.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/kanban/kanban-drop-area.vue",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "kanban-board",
+      "type": "registry:component",
+      "title": "Kanban Board",
+      "files": [
+        {
+          "path": "src/components/kanban/kanban-board.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/dropdown-menu",
+        "@chelone/kanban-draggable-card",
+        "@chelone/kanban-drop-area",
+        "@chelone/lib-utils",
+        "@chelone/list-icons",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@dnd-kit/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "kanban-draggable-card",
+      "type": "registry:component",
+      "title": "Kanban Draggable Card",
+      "files": [
+        {
+          "path": "src/components/kanban/kanban-draggable-card.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@dnd-kit/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "kanban-drop-area",
+      "type": "registry:component",
+      "title": "Kanban Drop Area",
+      "files": [
+        {
+          "path": "src/components/kanban/kanban-drop-area.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@dnd-kit/vue"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
