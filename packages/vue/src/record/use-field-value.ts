@@ -13,35 +13,55 @@
  * field tracks the record, not the form's source prefix.
  */
 
-import { getAtPath, type LooseRecord } from "@chelone/core";
+import {
+  getAtPath,
+  type LooseRecord,
+  type SourceProp,
+  type SourceValue,
+} from "@chelone/core";
 import { type ComputedRef, computed, inject } from "vue";
 import { RecordContextKey, type RecordValue } from "./record-context";
 
-export interface UseFieldValueOptions<RecordType = LooseRecord> {
+export interface UseFieldValueOptions<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> {
   /** The field path — dot members and/or bracket/numeric indices. */
-  source: string;
+  source: TPath;
   /** Override the ambient record (a static record wins over the context ref). */
   record?: RecordValue<RecordType>;
-  /** Returned only when the resolved value is `undefined`. */
+  /**
+   * Returned only when the resolved value is `undefined`. Untyped on purpose:
+   * the result type is the record's value at `source`, not the default's.
+   */
   defaultValue?: unknown;
 }
 
 /**
- * The value at `source` off the ambient (or overridden) record, reactively.
+ * The value at `source` off the ambient (or overridden) record, reactively. A
+ * typed `record` and a literal `source` give the value's type;
+ * `useFieldValue<Post>(...)` alone infers no path, so the value is the union of
+ * Post's value types.
  *
  * @example
  * const name = useFieldValue({ source: "author.name" });
  * // template: {{ name }}
  */
-export function useFieldValue<RecordType = LooseRecord>(
-  options: UseFieldValueOptions<RecordType>,
-): ComputedRef<unknown> {
+export function useFieldValue<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+>(
+  options: UseFieldValueOptions<RecordType, TPath>,
+): ComputedRef<SourceValue<RecordType, TPath>> {
   const { source, defaultValue } = options;
   const injected = inject(RecordContextKey, null);
   return computed(() => {
     const record =
       options.record !== undefined ? options.record : injected?.value;
     const value = getAtPath(record, source);
-    return value === undefined ? defaultValue : value;
+    return (value === undefined ? defaultValue : value) as SourceValue<
+      RecordType,
+      TPath
+    >;
   });
 }

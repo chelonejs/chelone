@@ -1,4 +1,9 @@
-import type { FilterPayload, Identifier, LooseRecord } from "@chelone/core";
+import type {
+  FilterPayload,
+  Identifier,
+  LooseRecord,
+  SourceProp,
+} from "@chelone/core";
 import type { ReactNode } from "react";
 import { useGetManyReference } from "../../../hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -64,7 +69,10 @@ function ReferenceManyCount<RecordType extends LooseRecord = LooseRecord>(
     className,
   } = props;
 
-  const id = useFieldValue({ source, record }) as Identifier | null | undefined;
+  const id = useFieldValue({
+    source: source as SourceProp<RecordType>,
+    record,
+  }) as Identifier | null | undefined;
 
   const { data, isPending, error } = useGetManyReference(
     reference,

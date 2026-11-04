@@ -22,6 +22,7 @@ import type {
   CheloneFieldState,
   FieldBinding,
   SourcePath,
+  SourceValue,
   TranslatableMessage,
   Validator,
 } from "@chelone/core";
@@ -35,20 +36,24 @@ import { useSubscribable } from "./subscribe-ref";
 /** The erased form-data shape the ambient form carries. */
 type UnknownFormValues = Record<string, unknown>;
 
-export interface UseInputOptions<TRecord = unknown> {
+export interface UseInputOptions<
+  TRecord = unknown,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+> {
   /** The field path RELATIVE to the ambient source scope (iterator rows compose it). */
-  source: SourcePath<TRecord>;
+  source: TPath;
   /**
    * Input-level default (ra precedence): seeds ONLY into a hole (an untouched
    * field whose form value is `undefined`); an existing record value wins.
+   * Typed as the value at `source` (`unknown` without a record).
    */
-  defaultValue?: unknown;
+  defaultValue?: NoInfer<SourceValue<TRecord, TPath>>;
   /** ra-contract validators — composed, first error wins. */
   validate?: Validator | readonly Validator[];
   /** Read transform (raw form value → input value). Default `defaultFormat`. */
-  format?: (value: unknown) => unknown;
+  format?: (value: NoInfer<SourceValue<TRecord, TPath>>) => unknown;
   /** Write transform (input value → stored value). Default `defaultParse`. */
-  parse?: (input: unknown) => unknown;
+  parse?: (input: unknown) => NoInfer<SourceValue<TRecord, TPath>>;
   /** Forces the required marker; ORed with `required()` detection on `validate`. */
   isRequired?: boolean;
   /** Explicit element id; a `useId` value is generated otherwise. */
@@ -101,17 +106,23 @@ function extractEventValue(input: unknown): unknown {
   return input;
 }
 
-export function useInput<TRecord>(
-  options: UseInputOptions<TRecord>,
-): UseInputReturn;
-// The loose overload: a typed props spread has a `source` wider than
-// `SourcePath<Post>` (row paths, filter keys), and inference from it would
-// otherwise reject the call. Last, so `Parameters<typeof useInput>` is the
-// plain `UseInputOptions`.
+// The loose overload comes first so a call with no type argument never tries
+// the generic one: inferring through `SourceValue` overflows the compiler's
+// instantiation depth when `defaultValue` and `format` are both given. It is
+// repeated last, so `Parameters<typeof useInput>` is the plain `UseInputOptions`.
 export function useInput(options: UseInputOptions): UseInputReturn;
-export function useInput<TRecord>(
-  options: UseInputOptions<TRecord>,
-): UseInputReturn {
+export function useInput<
+  TRecord,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+>(options: UseInputOptions<TRecord, TPath>): UseInputReturn;
+// A typed props spread has a `source` wider than `SourcePath<Post>` (row paths,
+// filter keys), which the generic overload would reject.
+export function useInput(options: UseInputOptions): UseInputReturn;
+export function useInput(typedOptions: unknown): UseInputReturn {
+  // The implementation takes the erased options: the binding's `format` and
+  // `parse` are loose, and resolving the typed `SourceValue` generically here
+  // would exceed the compiler's instantiation depth.
+  const options = typedOptions as UseInputOptions;
   const { form } = useCheloneFormContext();
   const scope = useSourceScope();
   const source = scope.getSource(options.source);

@@ -233,6 +233,6 @@ export function GeoJsonField({
   defaultValue,
   ...body
 }: GeoJsonFieldProps) {
-  const value = useFieldValue({ source, record, defaultValue });
+  const value: unknown = useFieldValue({ source, record, defaultValue });
   return <GeoJsonFieldBody value={value} {...body} />;
 }

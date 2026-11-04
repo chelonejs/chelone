@@ -14,6 +14,7 @@ import type {
   RecordOf,
   ResourceMap,
   SourcePath,
+  SourceValue,
   TranslatableMessage,
 } from "@chelone/core";
 import {
@@ -301,10 +302,18 @@ export function useCreateForm<
   );
 }
 
-export interface UseInputOptions<TRecord = unknown>
-  extends FieldBindingUpdateOptions {
+export interface UseInputOptions<
+  TRecord = unknown,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+> extends Omit<FieldBindingUpdateOptions, "defaultValue" | "format" | "parse"> {
   /** The field path RELATIVE to the ambient source scope (iterator rows compose it). */
-  source: SourcePath<TRecord>;
+  source: TPath;
+  /** Seeds an empty field; typed as the value at `source` (`unknown` without a record). */
+  defaultValue?: NoInfer<SourceValue<TRecord, TPath>>;
+  /** Read transform (stored value -> input value). Default `defaultFormat`. */
+  format?: (value: NoInfer<SourceValue<TRecord, TPath>>) => unknown;
+  /** Write transform (input value -> stored value). Default `defaultParse`. */
+  parse?: (input: unknown) => NoInfer<SourceValue<TRecord, TPath>>;
   /** Forces the required marker; ORed with `required()` detection on `validate`. */
   isRequired?: boolean;
   /** Explicit element id; a `useId` value is generated otherwise. */
@@ -353,9 +362,7 @@ interface InputBindingHolder {
  * validators' meta argument carries the full input props (ra parity: custom
  * validators can read them), with an explicit `validatorMeta` merged on top.
  */
-function toBindingUpdate<TRecord>(
-  options: UseInputOptions<TRecord>,
-): FieldBindingUpdateOptions {
+function toBindingUpdate(options: UseInputOptions): FieldBindingUpdateOptions {
   const meta: Record<string, unknown> = {};
   Object.assign(meta, options, options.validatorMeta);
   return {
@@ -414,17 +421,24 @@ function extractEventValue(input: unknown): unknown {
  *   (react-form's slice pattern), so typing here never re-renders sibling
  *   inputs.
  */
-export function useInput<TRecord>(
-  options: UseInputOptions<TRecord>,
-): UseInputResult;
-// The loose overload: a typed `InputProps<_, Post>` spread has a `source` wider
-// than `SourcePath<Post>` (row paths, filter keys), and inference from it
-// would otherwise reject the call. Last, so `Parameters<typeof useInput>` is
-// the plain `UseInputOptions`.
+// The loose overload comes first so a call with no type argument never tries
+// the generic one: inferring through `SourceValue` overflows the compiler's
+// instantiation depth when `defaultValue` and `format` are both given. It is
+// repeated last, so `Parameters<typeof useInput>` is the plain `UseInputOptions`.
 export function useInput(options: UseInputOptions): UseInputResult;
-export function useInput<TRecord>(
-  options: UseInputOptions<TRecord>,
-): UseInputResult {
+export function useInput<
+  TRecord,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+>(options: UseInputOptions<TRecord, TPath>): UseInputResult;
+// A typed `InputProps<_, Post>` spread has a `source` wider than
+// `SourcePath<Post>` (row paths, filter keys), which the generic overload
+// would reject.
+export function useInput(options: UseInputOptions): UseInputResult;
+export function useInput(typedOptions: unknown): UseInputResult {
+  // The implementation takes the erased options: the binding's `format` and
+  // `parse` are loose, and resolving the typed `SourceValue` generically here
+  // would exceed the compiler's instantiation depth.
+  const options = typedOptions as UseInputOptions;
   const { form } = useCheloneFormContext();
   const scope = useSourceContext();
   const source = scope.getSource(options.source);
@@ -473,7 +487,9 @@ export function useInput<TRecord>(
     binding.update(toBindingUpdate(options));
   });
 
-  const format = options.format ?? defaultFormat;
+  const format = (options.format ?? defaultFormat) as (
+    value: unknown,
+  ) => unknown;
 
   return {
     id: options.id ?? generatedId,

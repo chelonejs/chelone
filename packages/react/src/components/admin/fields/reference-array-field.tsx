@@ -4,6 +4,7 @@ import type {
   LooseRecord,
   ResourceRecord,
   SortPayload,
+  SourceProp,
 } from "@chelone/core";
 import type { ReactNode } from "react";
 import { ListContextProvider } from "../../../form";
@@ -68,7 +69,10 @@ function ReferenceArrayField<RecordType extends LooseRecord = LooseRecord>(
 ) {
   const { source, reference, record, children, sort, filter, perPage } = props;
 
-  const value = useFieldValue({ source, record });
+  const value: unknown = useFieldValue({
+    source: source as SourceProp<RecordType>,
+    record,
+  });
   const ids = (Array.isArray(value) ? value : emptyIds) as Identifier[];
 
   const { data, isPending, isFetching, error } = useGetManyAggregate(

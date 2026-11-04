@@ -49,7 +49,7 @@ const SelectFieldImpl = <RecordType extends LooseRecord = LooseRecord>(
     translateChoice = true,
     ...rest
   } = props;
-  const value = useFieldValue({ defaultValue, source, record });
+  const value: unknown = useFieldValue({ defaultValue, source, record });
 
   const { getChoiceText, getChoiceValue } = useChoices({
     optionText,

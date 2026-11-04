@@ -16,31 +16,49 @@
  * form's source scope.
  */
 
-import { getAtPath, type LooseRecord } from "@chelone/core";
+import {
+  getAtPath,
+  type LooseRecord,
+  type SourceProp,
+  type SourceValue,
+} from "@chelone/core";
 import {
   type UseRecordContextOptions,
   useRecordContext,
 } from "./record-context";
 
-export interface UseFieldValueOptions<RecordType = LooseRecord>
-  extends UseRecordContextOptions<RecordType> {
+export interface UseFieldValueOptions<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> extends UseRecordContextOptions<RecordType> {
   /** The field path — dot members and/or bracket/numeric indices. */
-  source: string;
-  /** Returned only when the resolved value is `undefined`. */
+  source: TPath;
+  /**
+   * Returned only when the resolved value is `undefined`. Untyped on purpose:
+   * the result type is the record's value at `source`, not the default's.
+   */
   defaultValue?: unknown;
 }
 
 /**
- * Get the value of a field of the current record.
+ * Get the value of a field of the current record. A typed `record` and a
+ * literal `source` give the value's type; `useFieldValue<Post>(...)` alone
+ * infers no path, so the value is the union of Post's value types.
  *
  * @example
  * const value = useFieldValue({ source: "author.name" });
  */
-export function useFieldValue<RecordType = LooseRecord>(
-  params: UseFieldValueOptions<RecordType>,
-): unknown {
+export function useFieldValue<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+>(
+  params: UseFieldValueOptions<RecordType, TPath>,
+): SourceValue<RecordType, TPath> {
   const { defaultValue, source } = params;
   const record = useRecordContext<RecordType>(params);
   const value = getAtPath(record, source);
-  return value === undefined ? defaultValue : value;
+  return (value === undefined ? defaultValue : value) as SourceValue<
+    RecordType,
+    TPath
+  >;
 }
