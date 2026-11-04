@@ -23,10 +23,18 @@ import { ResourceContextProvider } from "./resource-context";
 
 /**
  * A view slot: a component to instantiate (`<List />`) or an element to render
- * verbatim (`<List sort=… />`). `unknown` keeps the marker framework-lean; the
- * shadcn views (P7) narrow it.
+ * verbatim (`<List sort=… />`).
+ *
+ * The props are `NonNullable<unknown>` (an object with nothing required) because
+ * `toElement` instantiates the component with NO props: a component whose own
+ * props are all optional fits, and one with a required prop does not. That is
+ * what makes `<Resource name="posts" list={ListGuesser} />` type-check — with
+ * `ComponentType<unknown>` it never did, since `unknown` is not assignable to
+ * `ListGuesserProps`.
  */
-export type ResourceViewChild = ComponentType<unknown> | ReactElement;
+export type ResourceViewChild =
+  | ComponentType<NonNullable<unknown>>
+  | ReactElement;
 
 export interface ResourceProps {
   /** The resource name — the registry key and the route base (`<name>/*`). */
@@ -77,7 +85,7 @@ interface ResourceComponent {
 function toElement(view: ResourceViewChild | undefined): ReactElement | null {
   if (view == null) return null;
   if (isValidElement(view)) return view;
-  const Component = view as ComponentType<unknown>;
+  const Component = view;
   return <Component />;
 }
 
