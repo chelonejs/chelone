@@ -40,7 +40,7 @@
 ## Tier 3 — deferred / lower priority (charter-deferred or niche)
 
 ### R7. Preferences / Configurable / Inspector
-- Dropped. The inspector, `Configurable` and `SimpleFormConfigurable` are not built, and `ColumnsButton` covers the usual reason for them. See [Shadmin extras (#225)](#shadmin-extras-225).
+- Planned. The inspector, `Configurable` and `SimpleFormConfigurable` are not built, and `ColumnsButton` covers the usual reason for them. See [Shadmin extras (#225)](#shadmin-extras-225).
 
 ### R8. Guessers / inference — reframe as a Chelone EXTENSION
 - ra-core's guessers sniff data values/name-heuristics to infer views. Chelone deliberately skipped them. BUT the Zod registry is a *better* substrate: a schema→view scaffolder (`z.infer` field types → default List/Edit/Show columns) would be *typed* inference, not data-sniffing — arguably surpassing ra-core. Frame as a NEW extension feature, not a port. Effort M–L. The guessers are tracked in #225, see [Shadmin extras (#225)](#shadmin-extras-225).
@@ -62,7 +62,7 @@ Heavy editors and integrations ship as opt-in subpaths, so an app that does not 
 - **Markdown** (in progress): `MdxInput` and `MdxField` from `/mdx-editor`. Issues #402 to #406.
 - **CSV import** (in progress): `CsvImport` and `useCsvImport` from `/csv-import`. Issues #407 to #411 and #424.
 - **Supabase** (in progress): the `@chelone/supabase` package, and the `/supabase` subpath for the login, reset and set password pages. Issues #412 to #423, #425 and #426.
-- **Dropped:** the block editor and the tiptap rich text input, both left out with tiptap.
+- **Block editor and tiptap rich text input** (planned): both pull in tiptap, so each is an opt-in add-on.
 
 ## Shadmin extras (#225)
 
@@ -75,8 +75,11 @@ Pieces of shadmin that Chelone keeps, with where each stands. Each lands in both
 - **Approval buttons** (in progress): approve and reject actions on a record. Issues #475 and #481 to #483, docs in #489.
 - **Command menu** (in progress): a keyboard-driven command palette. Issues #484 to #487 and #490.
 - **Calendar list** (post-v1): a list that renders records on a calendar. Issues #436 to #443. The framework-free calendar rules in `@chelone/core` (#436) are built; the adapter components are not.
-- **Dropped:** the inspector, `Configurable` and `SimpleFormConfigurable`. `ColumnsButton` covers the usual reason for them.
-- **Dropped:** the rest of the `widgets` folder. It is closer to finished app screens than admin building blocks.
+- **Kanban board** (planned): a list that renders records as columns and moves a card by dragging. Issues #790 to #794.
+- **Other widgets** (planned): pivot grid, record timeline, diff viewer, in-place editor, permission matrix, approval queue, job monitor, dashboard charts, i18n key editor, layout builder, onboarding tour and the assistant. They come after the kanban board.
+- **Inspector, `Configurable` and `SimpleFormConfigurable`** (planned): after the other widgets. `ColumnsButton` covers the usual reason for them.
+- **Data provider devtools** (planned): after the other widgets.
+- **Dropped:** theme presets and the theme studio. Theming is shadcn CSS variables, as `apps/website/src/docs/content/app-config/themes.mdx` describes.
 
 ## Adapter duplication (#669)
 
@@ -94,4 +97,4 @@ Every feature lives once per adapter, and the copies drift. [`headless-controlle
 - Feedback: `Confirm`, `Error`, `Loading`, `LoadingIndicator`, `LinearProgress`, `Notification`, `NotFound` (for the catch-all route), `Offline`, `Placeholder`, `Ready`, `Spinner`.
 - Common: `Link`, `IconButtonWithTooltip`, `KeyboardShortcut`, `FieldLabelText`, `InputHelperText`, `CheckForApplicationUpdate`, `ApplicationUpdatedNotification`.
 
-**Next:** Tier 3 (R9, and the audit-log part of R10) stays deferred. R7 is dropped and R8 is tracked in #225. Realtime, live views and record locks from R10 are built. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open work is the first npm release (#8), the opt-in add-ons (#224) and the shadmin extras (#225).
+**Next:** Tier 3 (R9, and the audit-log part of R10) stays deferred. R7 is planned and R8 is tracked in #225. Realtime, live views and record locks from R10 are built. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open work is the first npm release (#8), the opt-in add-ons (#224) and the shadmin extras (#225), whose first open piece is the kanban board.
