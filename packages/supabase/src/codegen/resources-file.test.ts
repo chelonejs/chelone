@@ -92,6 +92,20 @@ declare module "@chelone/core" {
     expect(text).not.toContain("owner_id");
   });
 
+  it("writes a column once when two foreign keys share it", () => {
+    const text = generate([
+      table("posts", [
+        { column: "author_id", relation: "authors" },
+        { column: "author_id", relation: "editors" },
+        { column: "author_id", relation: "authors" },
+      ]),
+      table("authors"),
+      table("editors"),
+    ]);
+    expect(text).toContain('references: { author_id: "authors" }');
+    expect(text.match(/author_id/g)).toHaveLength(1);
+  });
+
   it("quotes a key that is not an identifier", () => {
     const text = generate([
       table("blog-comments", [{ column: "post-id", relation: "blog-posts" }]),

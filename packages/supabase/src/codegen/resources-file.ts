@@ -91,7 +91,14 @@ export function generateResourcesFile({
 
   const entries = sorted.map(({ name, references }) => {
     const schemaName = schemaNames.get(name);
-    const kept = references.filter(({ relation }) => schemaNames.has(relation));
+    // An object literal cannot repeat a key, so the first foreign key on a column wins.
+    const kept = references.filter(
+      ({ column, relation }, index) =>
+        schemaNames.has(relation) &&
+        references.findIndex(
+          (other) => other.column === column && schemaNames.has(other.relation),
+        ) === index,
+    );
     if (kept.length === 0) {
       return `  ${propertyKey(name)}: { schema: ${schemaName} },`;
     }
