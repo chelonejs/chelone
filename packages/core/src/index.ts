@@ -4,6 +4,24 @@
 // "change" })`); re-exported so consumers can build one without a direct
 // `@tanstack/form-core` dependency.
 export { revalidateLogic } from "@tanstack/form-core";
+export type {
+  AssistantSession,
+  AssistantSessionState,
+  CreateAssistantSessionOptions,
+} from "./assistant/assistant-session";
+export { createAssistantSession } from "./assistant/assistant-session";
+export type { EchoAssistantTransportOptions } from "./assistant/echo-transport";
+export { echoAssistantTransport } from "./assistant/echo-transport";
+export type {
+  AssistantChunk,
+  AssistantMessage,
+  AssistantTool,
+  AssistantToolCall,
+  AssistantToolDeclaration,
+  AssistantTransport,
+  JsonObject,
+  JsonValue,
+} from "./assistant/types";
 export type { Permission } from "./auth/access-control";
 export { canAccessWithPermissions } from "./auth/access-control";
 export type { CheckErrorOutcome } from "./auth/auth-options";
