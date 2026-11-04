@@ -1856,10 +1856,6 @@
           "type": "registry:component"
         },
         {
-          "path": "src/components/admin/list/kanban-board.tsx",
-          "type": "registry:component"
-        },
-        {
           "path": "src/components/admin/list/list-actions.tsx",
           "type": "registry:component"
         },
@@ -5148,26 +5144,6 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
-      "name": "kanban-board",
-      "type": "registry:component",
-      "title": "Kanban Board",
-      "files": [
-        {
-          "path": "src/components/admin/list/kanban-board.tsx",
-          "type": "registry:component"
-        }
-      ],
-      "registryDependencies": [
-        "@chelone/button",
-        "@chelone/dropdown-menu",
-        "@chelone/lib-utils",
-        "@chelone/use-menu-access"
-      ],
-      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
-      "categories": ["chelone", "components"],
-      "author": "Chelone <https://chelone.dev>"
-    },
-    {
       "name": "list-actions",
       "type": "registry:component",
       "title": "List Actions",
@@ -5927,6 +5903,59 @@
       ],
       "dependencies": ["@chelone/core", "monaco-editor"],
       "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "kanban",
+      "type": "registry:block",
+      "title": "Chelone Kanban",
+      "categories": ["chelone", "lists"],
+      "description": "The opt-in Kanban add-on: KanbanBoard shows the records of a list as columns and moves a card by dragging it with the mouse, a finger or a pen. Installs @dnd-kit/react and @dnd-kit/dom.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/dropdown-menu",
+        "@chelone/lib-utils",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@dnd-kit/dom",
+        "@dnd-kit/react",
+        "lucide-react"
+      ],
+      "files": [
+        {
+          "path": "src/components/kanban/kanban-board.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "kanban-board",
+      "type": "registry:component",
+      "title": "Kanban Board",
+      "files": [
+        {
+          "path": "src/components/kanban/kanban-board.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/dropdown-menu",
+        "@chelone/lib-utils",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@dnd-kit/dom",
+        "@dnd-kit/react",
+        "lucide-react"
+      ],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
