@@ -1,8 +1,8 @@
-import { type ComponentType, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useResourceContext } from "../../../resource";
 import { DataTable } from "../list/data-table";
 import { List, type ListProps } from "../views/list";
-import { guessFieldComponents } from "./guess-components";
+import { guessFieldElements } from "./guess-components";
 import { printGuessedView } from "./guessed-code";
 import { GuesserEmpty } from "./guesser-empty";
 import { useGuessedResource } from "./use-guessed-resource";
@@ -69,23 +69,13 @@ function ListGuesser({
                 />
               );
             }
-            const Field = guessFieldComponents[field.field] as ComponentType<
-              Record<string, unknown>
-            >;
             return (
               <DataTable.Col
                 key={field.source}
                 source={field.source}
                 label={label}
               >
-                <Field
-                  source={field.source}
-                  {...(field.reference !== undefined && {
-                    reference: field.reference,
-                  })}
-                  {...(field.choices && { choices: field.choices })}
-                  {...field.fieldProps}
-                />
+                {guessFieldElements[field.field](field)}
               </DataTable.Col>
             );
           })}
