@@ -22,6 +22,8 @@ export const postSchema = z.object({
   author_id: z.number({ message: "Pick an author" }),
   views: z.number().min(0).optional(),
   published: z.boolean().optional(),
+  /** Unused by the forms; gives `register-proof` an array for a bracket path. */
+  tags: z.array(z.object({ label: z.string() })).optional(),
 });
 
 export const authorSchema = z.object({
@@ -34,6 +36,18 @@ export const authorSchema = z.object({
 export const resources = defineResources({
   posts: { schema: postSchema },
   authors: { schema: authorSchema },
+  places: {},
 });
+
+/**
+ * Registering the map types every `source` prop against it. `places` has no
+ * schema, so its entry is `{}` and the plain components still accept its paths.
+ * `createResourceComponents` is the strict path: see `register-proof.vue`.
+ */
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
 
 export type Resources = typeof resources;
