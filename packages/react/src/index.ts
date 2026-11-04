@@ -1233,9 +1233,11 @@ export {
   createResourceComponentsOf,
 } from "./resource/create-resource-components";
 export type {
+  AdapterIndexRouteProps,
   AdapterLinkProps,
   AdapterNavigate,
   AdapterNavigateProps,
+  AdapterPathRouteProps,
   AdapterRouteProps,
   AdapterRoutesProps,
   BasenameProviderProps,
