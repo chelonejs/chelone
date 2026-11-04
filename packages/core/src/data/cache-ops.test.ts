@@ -1,6 +1,10 @@
 import { type InfiniteData, QueryClient } from "@tanstack/query-core";
 import { describe, expect, it } from "vitest";
-import { removeRecordsFromCache, updateRecordsInCache } from "./cache-ops";
+import {
+  patchListEntries,
+  removeRecordsFromCache,
+  updateRecordsInCache,
+} from "./cache-ops";
 import {
   infiniteListKey,
   listKey,
@@ -426,5 +430,116 @@ describe("updateRecordsInCache on infinite and reference lists", () => {
     const before = qc.getQueryData<GetListResult>(key);
     updateRecordsInCache(qc, "posts", [99], { title: "Patched" });
     expect(qc.getQueryData<GetListResult>(key)).toBe(before);
+  });
+});
+
+describe("patchListEntries", () => {
+  it("patches matching rows of getList, getManyReference and getInfiniteList entries", () => {
+    const qc = makeClient();
+    seedList(qc);
+    seedInfinite(qc);
+    const refKey = manyReferenceKey("posts", refParams);
+    qc.setQueryData<GetListResult>(refKey, {
+      data: [
+        { id: 2, title: "Two" },
+        { id: 9, title: "Nine" },
+      ],
+      total: 2,
+    });
+    patchListEntries(qc, "posts", new Set(["2", "3"]), { title: "Patched" });
+    expect(
+      qc.getQueryData<GetListResult>(listKey("posts", listParams)),
+    ).toEqual({
+      data: [
+        { id: 1, title: "One" },
+        { id: 2, title: "Patched" },
+        { id: 3, title: "Patched" },
+      ],
+      total: 3,
+    });
+    expect(qc.getQueryData<GetListResult>(refKey)?.data).toEqual([
+      { id: 2, title: "Patched" },
+      { id: 9, title: "Nine" },
+    ]);
+    const infinite = qc.getQueryData<InfiniteData<GetListResult, number>>(
+      infiniteListKey("posts", infiniteParams),
+    );
+    expect(infinite?.pages.map((p) => p.data.map((r) => r.title))).toEqual([
+      ["One", "Patched"],
+      ["Patched", "Four"],
+    ]);
+    expect(infinite?.pageParams).toEqual([1, 2]);
+  });
+
+  it("its rollback puts back only the patched keys of the patched rows", () => {
+    const qc = makeClient();
+    const key = listKey("posts", listParams);
+    qc.setQueryData<GetListResult>(key, {
+      data: [
+        { id: 1, title: "One", status: "a" },
+        { id: 2, title: "Two", status: "a" },
+      ],
+      total: 2,
+    });
+    const rollback = patchListEntries(qc, "posts", new Set(["1"]), {
+      title: "Patched",
+      note: "new",
+    });
+    // A refetch-free write to a key the patch did not touch.
+    qc.setQueryData<GetListResult>(key, (old) => ({
+      ...(old as GetListResult),
+      data: (old as GetListResult).data.map((r) =>
+        r.id === 1 ? { ...r, status: "b" } : r,
+      ),
+    }));
+    rollback();
+    expect(qc.getQueryData<GetListResult>(key)?.data).toEqual([
+      { id: 1, title: "One", status: "b" },
+      { id: 2, title: "Two", status: "a" },
+    ]);
+    expect(qc.getQueryData<GetListResult>(key)?.data[0]).not.toHaveProperty(
+      "note",
+    );
+  });
+
+  it("its rollback keeps a patch another update made to a different row", () => {
+    const qc = makeClient();
+    seedList(qc);
+    seedInfinite(qc);
+    const rollbackOne = patchListEntries(qc, "posts", new Set(["1"]), {
+      title: "A",
+    });
+    patchListEntries(qc, "posts", new Set(["2"]), { title: "B" });
+    rollbackOne();
+    expect(
+      qc
+        .getQueryData<GetListResult>(listKey("posts", listParams))
+        ?.data.map((r) => r.title),
+    ).toEqual(["One", "B", "Three"]);
+    const infinite = qc.getQueryData<InfiniteData<GetListResult, number>>(
+      infiniteListKey("posts", infiniteParams),
+    );
+    expect(infinite?.pages[0]?.data.map((r) => r.title)).toEqual(["One", "B"]);
+  });
+
+  it("keeps the cached object of an entry that holds none of the ids", () => {
+    const qc = makeClient();
+    const key = manyReferenceKey("posts", refParams);
+    qc.setQueryData<GetListResult>(key, {
+      data: [{ id: 1, title: "One" }],
+      total: 1,
+    });
+    const infKey = infiniteListKey("posts", infiniteParams);
+    seedInfinite(qc);
+    const before = qc.getQueryData<GetListResult>(key);
+    const infBefore = qc.getQueryData(infKey);
+    const rollback = patchListEntries(qc, "posts", new Set(["99"]), {
+      title: "Patched",
+    });
+    expect(qc.getQueryData<GetListResult>(key)).toBe(before);
+    expect(qc.getQueryData(infKey)).toBe(infBefore);
+    rollback();
+    expect(qc.getQueryData<GetListResult>(key)).toBe(before);
+    expect(qc.getQueryData(infKey)).toBe(infBefore);
   });
 });
