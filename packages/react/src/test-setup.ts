@@ -18,6 +18,13 @@
  * ships no `matchMedia`, so a light-mode-default stub is provided.
  */
 
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
+
+// Without vitest globals Testing Library cannot register its own cleanup, so a
+// render stays mounted and its query timers fire after jsdom is torn down.
+afterEach(cleanup);
+
 if (typeof URL !== "undefined") {
   if (typeof URL.createObjectURL !== "function") {
     URL.createObjectURL = function createObjectURL(): string {

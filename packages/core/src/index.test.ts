@@ -378,6 +378,7 @@ describe("@chelone/core barrel", () => {
   it("exports the in-memory transport and lock provider", () => {
     expect(barrel.memoryTransport).toBeTypeOf("function");
     expect(barrel.inMemoryLockProvider).toBeTypeOf("function");
+    expect(barrel.announceLock).toBeTypeOf("function");
   });
 
   it("exports the topic hub and the BroadcastChannel transport", () => {
