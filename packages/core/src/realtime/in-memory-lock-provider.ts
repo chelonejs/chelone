@@ -1,4 +1,4 @@
-import { lockResourceTopic, lockTopic } from "./topics";
+import { announceLock } from "./announce-lock";
 import {
   type Lock,
   LockConflictError,
@@ -21,20 +21,6 @@ export function inMemoryLockProvider({
 }: InMemoryLockProviderOptions = {}): LockProvider {
   const store = new Map<string, Lock>();
 
-  const announce = async (type: "locked" | "unlocked", lock: Lock) => {
-    if (!publisher) return;
-    const event = { type, payload: lock };
-    try {
-      await Promise.all([
-        publisher.publish(lockTopic(lock.resource, lock.recordId), event),
-        publisher.publish(lockResourceTopic(lock.resource), event),
-      ]);
-    } catch {
-      // The lock is already taken or released: a failed announcement must not
-      // report it as failed.
-    }
-  };
-
   return {
     async lock(resource, { id, identity }) {
       const key = storeKey(resource, id);
@@ -52,7 +38,7 @@ export function inMemoryLockProvider({
         createdAt: new Date().toISOString(),
       };
       store.set(key, lock);
-      await announce("locked", lock);
+      await announceLock(publisher, "locked", lock);
       return lock;
     },
     async unlock(resource, { id, identity }) {
@@ -65,7 +51,7 @@ export function inMemoryLockProvider({
         throw new LockConflictError(existing);
       }
       store.delete(key);
-      await announce("unlocked", existing);
+      await announceLock(publisher, "unlocked", existing);
       return existing;
     },
     async getLock(resource, { id }) {

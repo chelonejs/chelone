@@ -634,6 +634,7 @@ export {
 } from "./onboarding-tour/tour-controller";
 export type { AddEventsForMutationsOptions } from "./realtime/add-events-for-mutations";
 export { addEventsForMutations } from "./realtime/add-events-for-mutations";
+export { announceLock } from "./realtime/announce-lock";
 export type { InMemoryLockProviderOptions } from "./realtime/in-memory-lock-provider";
 export { inMemoryLockProvider } from "./realtime/in-memory-lock-provider";
 export type { LiveOptions, LiveSubscription } from "./realtime/live";
