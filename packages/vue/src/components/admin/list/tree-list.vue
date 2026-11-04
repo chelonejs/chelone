@@ -1,14 +1,15 @@
 <script lang="ts">
+import type { SourceProp } from "@chelone/core";
 import type { Component } from "vue";
 
 /** Props for {@link TreeList}. */
 export interface TreeListProps {
   /** The field holding the parent's id; a dot or bracket path reads a nested value. */
-  parentSource: string;
+  parentSource: SourceProp;
   /** The string field shown as the row title; the record representation otherwise. */
-  titleSource?: string;
+  titleSource?: SourceProp;
   /** The field whose value picks a component from `iconMap`. */
-  iconSource?: string;
+  iconSource?: SourceProp;
   iconMap?: Record<string, Component>;
   /** Whether branches start open. Default `false`. */
   defaultExpanded?: boolean;

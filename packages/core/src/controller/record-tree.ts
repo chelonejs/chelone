@@ -6,6 +6,7 @@
 
 import { getAtPath } from "../resource/get-at-path";
 import type { Identifier } from "../resource/identifier";
+import type { SourcePath } from "../resource/source-path";
 
 export interface RecordTreeNode<R> {
   record: R;
@@ -21,7 +22,7 @@ export interface RecordTreeNode<R> {
  */
 export function buildRecordTree<R extends { id: Identifier }>(
   records: readonly R[],
-  parentSource: string,
+  parentSource: SourcePath<R>,
 ): RecordTreeNode<R>[] {
   const nodes = new Map<string, RecordTreeNode<R>>();
   const order = new Map<string, number>();
