@@ -88,5 +88,4 @@ A type change ships with a type test. Type tests are `*.test-d.ts` files run by 
 `pnpm check:type-escapes` (in CI and the pre-push hook) counts every escape per file and kind: double casts, `as never`, `as any`, other casts, `!`, `any`, `unknown` (not a type guard's input, a `catch` binding or a conditional check) and `@ts-ignore` (and `@ts-expect-error` outside tests). It fails when any count in `type-escapes-baseline.json` goes up.
 
 - New escape: write the exact type instead. When an escape is honest (the bar above allows it), put `// type-escape: <why>` on its line or the line above, and it is not counted.
-- Removed escapes: the check fails until you run `pnpm check:type-escapes --update` and commit the baseline, so the baseline only moves down.
-- Never run `--update` to let a new escape through.
+- Removed escapes pass. Never edit `type-escapes-baseline.json` or run `--update` in a pull request: the `type-escape-baseline` workflow records the lower counts on main after the merge, so the baseline only moves down.
