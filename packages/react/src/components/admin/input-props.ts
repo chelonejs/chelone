@@ -1,4 +1,9 @@
-import type { TranslatableMessage, Validator } from "@chelone/core";
+import type {
+  LooseRecord,
+  SourceProp,
+  TranslatableMessage,
+  Validator,
+} from "@chelone/core";
 import type { ReactNode } from "react";
 
 /**
@@ -17,9 +22,9 @@ import type { ReactNode } from "react";
  * `helperText`, `disabled`, `readOnly`, `type`, and `name` are the
  * presentational keys the input components read directly.
  */
-export interface InputProps<ValueType = unknown> {
+export interface InputProps<ValueType = unknown, TRecord = LooseRecord> {
   /** The field path RELATIVE to the ambient source scope. */
-  source: string;
+  source: SourceProp<TRecord>;
   /**
    * The input label. A string is translated; a ReactNode renders as-is;
    * `false` (or `""`) renders no label.

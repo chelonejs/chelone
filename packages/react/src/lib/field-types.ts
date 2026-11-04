@@ -5,17 +5,17 @@
  *
  * Chelone rebridge notes:
  * - shadmin extended ra-core's `BaseFieldProps` (which typed `source` as
- *   `ExtractRecordPaths<RecordType>` for path autocompletion). Chelone core does
- *   not carry the `ExtractRecordPaths` / `HintedString` path-inference machinery,
- *   so `source` is a plain `string` — the same type chelone's `useFieldValue`
- *   consumes. Runtime parity is unchanged; only IDE source autocompletion is lost.
+ *   `ExtractRecordPaths<RecordType>` for path autocompletion). Chelone types
+ *   `source` as core's `SourceProp<RecordType>`: a typed `record` narrows it to
+ *   that record's paths, and a loose record (or an app that registers no
+ *   resources) takes any `string`, the type `useFieldValue` consumes.
  * - The DataTable-layout keys (`cellClassName`, `headerClassName`, `sortable`,
  *   `sortBy`, `sortByOrder`, `textAlign`) are carried verbatim so a field's props
  *   surface stays call-site-compatible with shadmin even though the DataTable
  *   consumer is not part of this wave.
  */
 
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { ReactNode } from "react";
 
 export type SortOrder = "ASC" | "DESC";
@@ -23,7 +23,7 @@ export type TextAlign = "left" | "center" | "right" | "justify" | "inherit";
 
 export interface FieldProps<RecordType extends LooseRecord = LooseRecord> {
   /** Name of the property to display (dot/bracket path). */
-  source: string;
+  source: SourceProp<RecordType>;
 
   /** The record to render. Defaults to the ambient `RecordContext` value. */
   record?: RecordType;

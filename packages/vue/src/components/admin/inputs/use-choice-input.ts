@@ -22,6 +22,7 @@
  * (parity with the twin's `useState` capture of the reference options).
  */
 
+import type { SourceProp } from "@chelone/core";
 import { type ComputedRef, computed } from "vue";
 import {
   type ChoicesContextValue,
@@ -41,7 +42,7 @@ export interface UseChoiceInputOptions {
   /** Inline choices — synthesized into a static context, ignoring any ambient one. */
   choices?: readonly (string | ChoiceRecord)[];
   /** The FK/field path (falls back to the ambient reference context's source). */
-  source?: string;
+  source?: SourceProp | undefined;
   /** The display path or a formatter. */
   optionText?: OptionText;
   /** The value path. Default `id` (via `useChoices`). */
