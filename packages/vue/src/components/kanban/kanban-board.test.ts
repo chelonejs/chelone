@@ -1,9 +1,11 @@
 /**
  * `<KanbanBoard>`: the records of the ambient `<List>` as columns. Mounted as
  * `<Admin><Resource list edit show/></Admin>` with a memory router; assertions
- * are on DOM, roles and data-provider calls. Drag events are dispatched by hand
- * with a stub `dataTransfer`, since jsdom has neither `DragEvent` nor
- * `DataTransfer`.
+ * are on DOM, roles and data-provider calls. Drags are `pointerdown`,
+ * `pointermove` and `pointerup`, which dnd-kit's pointer sensor reads. jsdom
+ * lacks `PointerEvent`, layout, `elementFromPoint`, pointer capture and the
+ * observers, so `layout` stubs them: the columns sit side by side, each card
+ * under the one before it.
  */
 
 import {
@@ -16,12 +18,12 @@ import {
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
-import Admin from "../../../admin/admin.vue";
-import Resource from "../../../admin/resource.vue";
-import List from "../view/list.vue";
+import Admin from "../../admin/admin.vue";
+import Resource from "../../admin/resource.vue";
+import List from "../admin/view/list.vue";
 import KanbanBoard from "./kanban-board.vue";
 
 const TASKS = [
@@ -168,15 +170,7 @@ const moveButton = (wrapper: VueWrapper, title: string) => {
   return found;
 };
 
-function stubTransfer() {
-  return { effectAllowed: "none", dropEffect: "none", setData: vi.fn() };
-}
-
-/**
- * A drag event jsdom cannot build: `dataTransfer` and `relatedTarget` are set
- * with `defineProperty`, because both are read-only accessors on jsdom's event
- * prototypes. Renders on the next tick, so attributes read back as set.
- */
+/** A key or click event; renders on the next tick, so attributes read back as set. */
 async function fire(
   target: Element,
   type: string,
@@ -197,17 +191,248 @@ async function press(target: HTMLElement, key: string): Promise<Event> {
   return fire(target, "keydown", { key });
 }
 
+type PointerKind = "mouse" | "touch" | "pen";
+
+const AREA = { width: 280, height: 600, gap: 20 };
+const CARD = { height: 50, gap: 10, inset: 10 };
+
+const rect = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+): DOMRect => ({
+  x,
+  y,
+  left: x,
+  top: y,
+  width,
+  height,
+  right: x + width,
+  bottom: y + height,
+  toJSON: () => ({}),
+});
+
+/** Where `layout` puts a column's card area. */
+function areaRect(area: Element): DOMRect {
+  const areas = Array.from(
+    document.querySelectorAll("[data-slot=kanban-column-cards]"),
+  );
+  const x = areas.indexOf(area) * (AREA.width + AREA.gap);
+  return rect(x, 0, AREA.width, AREA.height);
+}
+
+/**
+ * jsdom has no layout, so give the card areas and cards a place, and the
+ * browser APIs dnd-kit reads a stand-in. Not a mock of dnd-kit: the sensor,
+ * the collision detection and the drag state all run as they do in a browser.
+ */
+function layout() {
+  class PointerEventStub extends MouseEvent {
+    readonly pointerId: number;
+    readonly pointerType: string;
+    readonly isPrimary: boolean;
+    constructor(type: string, init: PointerEventInit = {}) {
+      super(type, init);
+      this.pointerId = init.pointerId ?? 1;
+      this.pointerType = init.pointerType ?? "mouse";
+      this.isPrimary = init.isPrimary ?? true;
+    }
+  }
+  class ObserverStub implements IntersectionObserver {
+    readonly root = null;
+    readonly rootMargin = "";
+    readonly thresholds = [];
+    constructor(private readonly callback: IntersectionObserverCallback) {}
+    observe(target: Element) {
+      const box = target.getBoundingClientRect();
+      const entry: IntersectionObserverEntry = {
+        target,
+        isIntersecting: true,
+        intersectionRatio: 1,
+        boundingClientRect: box,
+        intersectionRect: box,
+        rootBounds: null,
+        time: 0,
+      };
+      queueMicrotask(() => this.callback([entry], this));
+    }
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  }
+  // dnd-kit reads these off the document's window as well as the global.
+  const view = document.defaultView;
+  if (!view) throw new Error("the document has no window");
+  const stubs = {
+    PointerEvent: PointerEventStub,
+    IntersectionObserver: ObserverStub,
+    ResizeObserver: ObserverStub,
+  };
+  for (const [name, stub] of Object.entries(stubs)) {
+    vi.stubGlobal(name, stub);
+  }
+  Object.assign(view, stubs);
+
+  vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
+    function (this: Element) {
+      const slot = this.getAttribute("data-slot");
+      if (slot === "kanban-column-cards") return areaRect(this);
+      if (slot === "kanban-card") {
+        const area = this.closest("[data-slot=kanban-column-cards]");
+        if (!area) return rect(0, 0, 1024, 768);
+        const box = areaRect(area);
+        const index = Array.from(
+          area.querySelectorAll("[data-slot=kanban-card]"),
+        ).indexOf(this);
+        // A browser moves the held card by the `translate` dnd-kit sets on it.
+        const held = (
+          this instanceof HTMLElement
+            ? this.style.getPropertyValue("--dnd-translate")
+            : ""
+        ).match(/-?[\d.]+/g);
+        const [dx = 0, dy = 0] = held ? held.map(Number) : [];
+        return rect(
+          box.x + CARD.inset + dx,
+          CARD.inset + index * (CARD.height + CARD.gap) + dy,
+          box.width - 2 * CARD.inset,
+          CARD.height,
+        );
+      }
+      // Every other element, such as the scrolling board, holds the whole window.
+      return rect(0, 0, 1024, 768);
+    },
+  );
+  document.elementFromPoint = (x: number, y: number) =>
+    Array.from(
+      document.querySelectorAll("[data-slot=kanban-column-cards]"),
+    ).find((area) => {
+      const box = areaRect(area);
+      return x >= box.left && x < box.right && y >= box.top && y < box.bottom;
+    }) ?? document.body;
+  // dnd-kit reads the reduced-motion preference.
+  Object.assign(view, {
+    matchMedia: () => ({
+      matches: false,
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  });
+  // The drop animation asks for running animations and plays one: none run,
+  // and the one it plays has finished.
+  Object.assign(document, { getAnimations: () => [] });
+  Object.assign(Element.prototype, {
+    getAnimations: () => [],
+    animate: () => ({ finished: Promise.resolve(), cancel() {} }),
+  });
+  HTMLElement.prototype.setPointerCapture = () => {};
+  HTMLElement.prototype.releasePointerCapture = () => {};
+}
+
+beforeEach(() => {
+  layout();
+  // jsdom's CSS parser rejects the nested rules in dnd-kit's stylesheet, and
+  // reports it on the console; the page works the same without it.
+  const report = console.error.bind(console);
+  vi.spyOn(console, "error").mockImplementation((...args) => {
+    if (!String(args[0]).includes("Could not parse CSS stylesheet")) {
+      report(...args);
+    }
+  });
+});
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
+
+const centre = (node: Element) => {
+  const box = node.getBoundingClientRect();
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+};
+
+function pointer(
+  target: EventTarget,
+  type: string,
+  at: { x: number; y: number },
+  pointerType: PointerKind = "mouse",
+  button = 0,
+): Event {
+  const event = new PointerEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    pointerId: 1,
+    isPrimary: true,
+    pointerType,
+    button,
+    clientX: at.x,
+    clientY: at.y,
+  });
+  target.dispatchEvent(event);
+  return event;
+}
+
+const sleep = (ms: number) => new Promise((done) => setTimeout(done, ms));
+
+/** Let dnd-kit's frame-scheduled work and the renders it causes finish. */
+async function settle() {
+  await sleep(60);
+  await flushPromises();
+}
+
+/**
+ * Press a card and hold it until the sensor starts the drag: a mouse or pen
+ * after a few pixels of movement, a touch after its hold. Returns where the
+ * pointer is, so the caller can move on.
+ */
+async function pickUp(
+  target: Element,
+  pointerType: PointerKind = "mouse",
+): Promise<{ x: number; y: number }> {
+  const from = centre(target);
+  pointer(target, "pointerdown", from, pointerType);
+  if (pointerType === "touch") {
+    await sleep(300);
+  } else {
+    const moved = { x: from.x + 8, y: from.y };
+    pointer(document, "pointermove", moved, pointerType);
+    await settle();
+    return moved;
+  }
+  await flushPromises();
+  return from;
+}
+
+/** Move the held card over a column's card area. */
+async function moveOver(
+  area: Element,
+  pointerType: PointerKind = "mouse",
+): Promise<{ x: number; y: number }> {
+  const at = centre(area);
+  pointer(document, "pointermove", at, pointerType);
+  await settle();
+  return at;
+}
+
+async function drop(
+  at: { x: number; y: number },
+  pointerType: PointerKind = "mouse",
+) {
+  pointer(document, "pointerup", at, pointerType);
+  await settle();
+}
+
 /** Pick a card up and drop it on a column's card area. */
 async function dragTo(
   wrapper: VueWrapper,
   title: string,
   label: string,
-  dataTransfer = stubTransfer(),
+  pointerType: PointerKind = "mouse",
 ) {
-  await fire(card(wrapper, title), "dragstart", { dataTransfer });
-  await fire(cardArea(wrapper, label), "dragover", { dataTransfer });
-  await fire(cardArea(wrapper, label), "drop", { dataTransfer });
-  await fire(card(wrapper, title), "dragend", { dataTransfer });
+  await pickUp(card(wrapper, title), pointerType);
+  const at = await moveOver(cardArea(wrapper, label), pointerType);
+  await drop(at, pointerType);
 }
 
 const denyEdit = (): AuthProvider => ({
@@ -392,52 +617,160 @@ describe("<KanbanBoard>", () => {
     const dataProvider = provider();
     const update = vi.spyOn(dataProvider, "update");
     const { wrapper } = await mountBoard({ dataProvider });
-    const dataTransfer = stubTransfer();
 
-    await fire(card(wrapper, "Write it"), "dragstart", { dataTransfer });
-    await fire(cardArea(wrapper, "Done"), "dragover", { dataTransfer });
+    await pickUp(card(wrapper, "Write it"));
+    await moveOver(cardArea(wrapper, "Done"));
     expect(cardArea(wrapper, "Done").hasAttribute("data-over")).toBe(true);
-    await fire(card(wrapper, "Write it"), "dragend", { dataTransfer });
+    const outside = { x: 2000, y: 2000 };
+    pointer(document, "pointermove", outside);
+    await settle();
+    expect(cardArea(wrapper, "Done").hasAttribute("data-over")).toBe(false);
+    await drop(outside);
+
+    expect(card(wrapper, "Write it").hasAttribute("data-dragging")).toBe(false);
+    expect(update).not.toHaveBeenCalled();
+    expect(cardTitles(wrapper, "To do")).toEqual(["Write it", "Test it"]);
+  });
+
+  it("a cancelled drag writes nothing", async () => {
+    const dataProvider = provider();
+    const update = vi.spyOn(dataProvider, "update");
+    const { wrapper } = await mountBoard({ dataProvider });
+
+    await pickUp(card(wrapper, "Write it"));
+    await moveOver(cardArea(wrapper, "Done"));
+    await press(document.body, "Escape");
+    await settle();
 
     expect(cardArea(wrapper, "Done").hasAttribute("data-over")).toBe(false);
     expect(card(wrapper, "Write it").hasAttribute("data-dragging")).toBe(false);
     expect(update).not.toHaveBeenCalled();
-    // With nothing held, a column takes no drop.
-    const over = await fire(cardArea(wrapper, "Done"), "dragover", {
-      dataTransfer,
-    });
-    expect(over.defaultPrevented).toBe(false);
   });
 
   it("marks the held card and the column under it while dragging", async () => {
     const { wrapper } = await mountBoard();
-    const dataTransfer = stubTransfer();
 
-    await fire(card(wrapper, "Write it"), "dragstart", { dataTransfer });
-    expect(dataTransfer.effectAllowed).toBe("move");
-    expect(dataTransfer.setData).toHaveBeenCalledWith("text/plain", "1");
+    expect(card(wrapper, "Write it").hasAttribute("data-dragging")).toBe(false);
+    await pickUp(card(wrapper, "Write it"));
     expect(card(wrapper, "Write it").hasAttribute("data-dragging")).toBe(true);
+    expect(card(wrapper, "Test it").hasAttribute("data-dragging")).toBe(false);
 
-    const over = await fire(cardArea(wrapper, "Done"), "dragover", {
-      dataTransfer,
-    });
-    expect(over.defaultPrevented).toBe(true);
-    expect(dataTransfer.dropEffect).toBe("move");
+    await moveOver(cardArea(wrapper, "Done"));
     expect(cardArea(wrapper, "Done").hasAttribute("data-over")).toBe(true);
-
-    // Moving onto a child of the area is not leaving it.
-    await fire(cardArea(wrapper, "To do"), "dragleave", {
-      relatedTarget: card(wrapper, "Test it"),
-    });
-    await fire(cardArea(wrapper, "To do"), "dragover", { dataTransfer });
-    await fire(cardArea(wrapper, "To do"), "dragleave", {
-      relatedTarget: card(wrapper, "Test it"),
-    });
-    expect(cardArea(wrapper, "To do").hasAttribute("data-over")).toBe(true);
-    await fire(cardArea(wrapper, "To do"), "dragleave", {
-      relatedTarget: document.body,
-    });
     expect(cardArea(wrapper, "To do").hasAttribute("data-over")).toBe(false);
+
+    await moveOver(cardArea(wrapper, "In progress"));
+    expect(cardArea(wrapper, "Done").hasAttribute("data-over")).toBe(false);
+    expect(cardArea(wrapper, "In progress").hasAttribute("data-over")).toBe(
+      true,
+    );
+  });
+
+  it("a touch drag moves a card to another column", async () => {
+    const dataProvider = provider();
+    const update = vi.spyOn(dataProvider, "update");
+    const { wrapper } = await mountBoard({ dataProvider });
+
+    await dragTo(wrapper, "Write it", "Done", "touch");
+
+    await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1));
+    expect(update).toHaveBeenCalledWith("tasks", {
+      id: 1,
+      data: { status: "done" },
+      previousData: TASKS[0],
+    });
+  });
+
+  it("a touch that moves before the hold ends starts no drag, so a swipe scrolls", async () => {
+    const dataProvider = provider();
+    const update = vi.spyOn(dataProvider, "update");
+    const { wrapper } = await mountBoard({ dataProvider });
+
+    const target = card(wrapper, "Write it");
+    const from = centre(target);
+    pointer(target, "pointerdown", from, "touch");
+    pointer(document, "pointermove", { x: from.x + 40, y: from.y }, "touch");
+    await sleep(300);
+    await moveOver(cardArea(wrapper, "Done"), "touch");
+    await drop(centre(cardArea(wrapper, "Done")), "touch");
+
+    expect(target.hasAttribute("data-dragging")).toBe(false);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("a click on a card selects it and starts no drag", async () => {
+    const dataProvider = provider();
+    const update = vi.spyOn(dataProvider, "update");
+    const onSelectCard = vi.fn();
+    const { wrapper } = await mountBoard({
+      dataProvider,
+      board: { onSelectCard },
+    });
+
+    const target = card(wrapper, "Write it");
+    const at = centre(target);
+    pointer(target, "pointerdown", at);
+    pointer(target, "pointerup", at);
+    await fire(target, "click");
+    await settle();
+
+    expect(onSelectCard).toHaveBeenCalledTimes(1);
+    expect(onSelectCard).toHaveBeenCalledWith(TASKS[0]);
+    expect(target.hasAttribute("data-dragging")).toBe(false);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("a press on the Move to button starts no drag", async () => {
+    const dataProvider = provider();
+    const update = vi.spyOn(dataProvider, "update");
+    const { wrapper } = await mountBoard({ dataProvider });
+
+    for (const kind of ["mouse", "touch"] as const) {
+      const button = moveButton(wrapper, "Write it");
+      const from = centre(button);
+      pointer(button, "pointerdown", from, kind);
+      await sleep(300);
+      pointer(document, "pointermove", { x: from.x + 8, y: from.y }, kind);
+      await moveOver(cardArea(wrapper, "Done"), kind);
+
+      expect(card(wrapper, "Write it").hasAttribute("data-dragging")).toBe(
+        false,
+      );
+      await drop(centre(cardArea(wrapper, "Done")), kind);
+    }
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("no card carries the native draggable attribute", async () => {
+    const { wrapper } = await mountBoard();
+
+    const cards = wrapper.findAll("[data-slot=kanban-card]");
+    expect(cards).toHaveLength(3);
+    for (const node of cards)
+      expect(node.attributes("draggable")).toBe(undefined);
+  });
+
+  it("attributes put on the board land on the board element", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { wrapper } = await mountBoard({
+      board: {
+        id: "tasks-board",
+        style: "max-height: 400px",
+        "aria-label": "Tasks",
+        "data-testid": "board",
+        class: "extra",
+      },
+    });
+
+    const board = wrapper.find("[data-slot=kanban-board]");
+    expect(board.attributes("data-testid")).toBe("board");
+    expect(board.attributes("id")).toBe("tasks-board");
+    expect(board.attributes("aria-label")).toBe("Tasks");
+    expect(board.attributes("style")).toContain("max-height");
+    expect(board.classes()).toContain("extra");
+    expect(
+      warn.mock.calls.some((call) => String(call[0]).includes("Extraneous")),
+    ).toBe(false);
   });
 
   it("cards are not draggable when edit access is denied", async () => {
@@ -445,7 +778,9 @@ describe("<KanbanBoard>", () => {
     const { wrapper } = await mountBoard({ authProvider });
     await vi.waitFor(() => expect(authProvider.canAccess).toHaveBeenCalled());
 
-    expect(card(wrapper, "Write it").getAttribute("draggable")).toBe("false");
+    expect(card(wrapper, "Write it").hasAttribute("data-draggable")).toBe(
+      false,
+    );
     expect(wrapper.find("button[data-slot=kanban-card-move]").exists()).toBe(
       false,
     );
@@ -454,7 +789,7 @@ describe("<KanbanBoard>", () => {
   it("cards are draggable with edit access", async () => {
     const { wrapper } = await mountBoard();
 
-    expect(card(wrapper, "Write it").getAttribute("draggable")).toBe("true");
+    expect(card(wrapper, "Write it").hasAttribute("data-draggable")).toBe(true);
     expect(moveButton(wrapper, "Write it").getAttribute("aria-label")).toBe(
       "Move Write it",
     );
@@ -605,14 +940,18 @@ describe("<KanbanBoard>", () => {
     });
     await vi.waitFor(() => expect(authProvider.canAccess).toHaveBeenCalled());
 
-    const link = el(wrapper.get('[data-testid="link-1"]'));
-    const dataTransfer = stubTransfer();
-    await fire(link, "dragstart", { dataTransfer });
-    await fire(cardArea(wrapper, "Done"), "dragover", { dataTransfer });
-    await fire(cardArea(wrapper, "Done"), "drop", { dataTransfer });
+    // The link is interactive, so a press on it never starts a drag; the
+    // card around it is the other place a press can land.
+    for (const target of [
+      el(wrapper.get('[data-testid="link-1"]')),
+      el(wrapper.get("[data-slot=kanban-card]")),
+    ]) {
+      await pickUp(target);
+      await moveOver(cardArea(wrapper, "Done"));
+      expect(cardArea(wrapper, "Done").hasAttribute("data-over")).toBe(false);
+      await drop(centre(cardArea(wrapper, "Done")));
+    }
 
-    expect(dataTransfer.setData).not.toHaveBeenCalled();
-    expect(cardArea(wrapper, "Done").hasAttribute("data-over")).toBe(false);
     expect(update).not.toHaveBeenCalled();
   });
 });
