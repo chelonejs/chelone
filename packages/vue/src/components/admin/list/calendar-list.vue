@@ -3,19 +3,20 @@ import type {
   CalendarRange,
   CalendarView,
   CalendarWeekStart,
+  SourceProp,
 } from "@chelone/core";
 import type { CalendarNavigateDirection } from "./calendar-header.vue";
 
 /** Props for {@link CalendarList}. */
 export interface CalendarListProps {
   /** The field holding the start of an event; a dotted path reads a nested value. */
-  startSource: string;
+  startSource: SourceProp;
   /** The field holding the end. An event with none, or one before its start, covers its start day only. */
-  endSource?: string;
+  endSource?: SourceProp;
   /** The string field shown as the event title; the record representation otherwise. */
-  titleSource?: string;
+  titleSource?: SourceProp;
   /** The field whose value picks a color from `colorMap`. */
-  colorSource?: string;
+  colorSource?: SourceProp;
   colorMap?: Record<string, string>;
   /** The view shown first. Default `month`. */
   defaultView?: CalendarView;
