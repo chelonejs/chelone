@@ -156,13 +156,11 @@ function move(record: TRecord, targetColumnId: string): void {
     targetColumnId,
   );
   if (!plan) return;
-  update
-    .mutateAsync(plan as unknown as Parameters<typeof update.mutateAsync>[0])
-    .catch(() => {
-      notifications?.notify("chelone.notification.http_error", {
-        type: "error",
-      });
+  update.mutateAsync(plan).catch(() => {
+    notifications?.notify("chelone.notification.http_error", {
+      type: "error",
     });
+  });
 }
 
 // A resource that registers neither view has no route to link to.
