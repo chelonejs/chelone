@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 import { buildNavTree } from "./nav.ts";
 import type { DocGroup } from "./types.ts";
 
@@ -61,4 +61,45 @@ test("buildNavTree sets indexSlug to a group's first leaf descendant", () => {
       c.kind === "group" && c.dir === "page-components/edit",
   )!;
   assert.equal(editGroup.indexSlug, "page-components/edit/overview");
+});
+
+test("buildNavTree expands a category entry into its pages in order, each tagged with the category", () => {
+  const slugs = ["ui/a", "ui/b", "ui/c", "ui/d"];
+  const metas = {
+    "": [{ dir: "ui", title: "UI" }],
+    ui: [
+      { category: "First", slugs: ["c", "a"] },
+      { category: "Second", slugs: ["d"] },
+    ],
+  };
+  const tree = buildNavTree(slugs, metas, (s) => s.split("/").pop()!);
+  const leaves = tree[0].children.filter((c) => c.kind === "leaf");
+  assert.deepEqual(
+    leaves.map((c) => [c.slug, c.category]),
+    [
+      ["ui/c", "First"],
+      ["ui/a", "First"],
+      ["ui/d", "Second"],
+      ["ui/b", undefined],
+    ],
+  );
+  // Categorised pages stay direct children of the section.
+  assert.equal(leaves.length, tree[0].children.length);
+});
+
+test("buildNavTree skips a category slug that has no page and appends unlisted pages without a category", () => {
+  const slugs = ["ui/b", "ui/a", "ui/z"];
+  const metas = {
+    "": [{ dir: "ui", title: "UI" }],
+    ui: [{ category: "Only", slugs: ["missing", "z"] }],
+  };
+  const tree = buildNavTree(slugs, metas, (s) => s.split("/").pop()!);
+  assert.deepEqual(
+    tree[0].children.map((c) => [(c as any).slug, (c as any).category]),
+    [
+      ["ui/z", "Only"],
+      ["ui/a", undefined],
+      ["ui/b", undefined],
+    ],
+  );
 });
