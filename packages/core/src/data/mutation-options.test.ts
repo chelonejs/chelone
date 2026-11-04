@@ -331,6 +331,30 @@ describe("mutation option factories", () => {
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ["posts"] });
   });
 
+  it("two optimistic updates answered in the same tick still refetch the lists once", async () => {
+    const c = seed();
+    seedPostsList(c.queryClient);
+    const invalidate = vi.spyOn(c.queryClient, "invalidateQueries");
+    const { ctx, pending } = gatedUpdates(c);
+    const options = updateMutationOptions(ctx, "posts", {
+      mutationMode: "optimistic",
+    });
+    const first = new MutationObserver(c.queryClient, options).mutate({
+      id: 1,
+      data: { title: "one" },
+    });
+    await vi.waitFor(() => expect(pending).toHaveLength(1));
+    const second = new MutationObserver(c.queryClient, options).mutate({
+      id: 2,
+      data: { title: "two" },
+    });
+    await vi.waitFor(() => expect(pending).toHaveLength(2));
+    pending[0]?.resolve();
+    pending[1]?.resolve();
+    await Promise.all([first, second]);
+    expect(invalidate).toHaveBeenCalledTimes(1);
+  });
+
   it("a lone optimistic update still refetches the lists when it settles", async () => {
     const c = seed();
     const invalidate = vi.spyOn(c.queryClient, "invalidateQueries");

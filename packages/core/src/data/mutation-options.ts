@@ -1,3 +1,4 @@
+import type { QueryClient } from "@tanstack/query-core";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import {
   patchListEntries,
@@ -35,6 +36,22 @@ interface OptimisticContext {
   key?: readonly unknown[];
   manySnapshot?: ManySnapshot;
   rollbackLists?: () => void;
+}
+
+/**
+ * Optimistic updates that have started and not yet settled, per client and
+ * resource. `isMutating` cannot stand in: TanStack runs `onSettled` before it
+ * marks the mutation done, so two updates answered in the same tick each count
+ * the other as pending and both would skip the refetch.
+ */
+const unsettledUpdates = new WeakMap<QueryClient, Map<string, number>>();
+
+function countUpdate(queryClient: QueryClient, resource: string, by: 1 | -1) {
+  const counts = unsettledUpdates.get(queryClient) ?? new Map<string, number>();
+  unsettledUpdates.set(queryClient, counts);
+  const next = (counts.get(resource) ?? 0) + by;
+  counts.set(resource, next);
+  return next;
 }
 
 /** Cancels in-flight list fetches (`getList`, `getManyReference`, `getInfiniteList`) so they cannot overwrite a patch. */
@@ -97,6 +114,8 @@ export function updateMutationOptions<
     },
     onMutate: async (params: UpdateParams<RecordOf<TResources, TName>>) => {
       if (mode !== "optimistic") return {};
+      // Counted before any await: `onSettled` runs even when `onMutate` throws.
+      countUpdate(ctx.queryClient, resource, 1);
       const key = oneKey(resource, { id: params.id });
       await ctx.queryClient.cancelQueries({ queryKey: key });
       const previous =
@@ -137,11 +156,10 @@ export function updateMutationOptions<
       context?.rollbackLists?.();
     },
     onSettled: () => {
-      // The settling update still counts as pending here, so another one is a count above one.
       // Refetching while a later update is in flight would overwrite its patched row with the old server value.
       if (
         mode === "optimistic" &&
-        ctx.queryClient.isMutating({ mutationKey }) > 1
+        countUpdate(ctx.queryClient, resource, -1) > 0
       ) {
         return;
       }
