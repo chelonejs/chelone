@@ -55,10 +55,8 @@ interface RadioButtonGroupInputProps<
  * );
  */
 function RadioButtonGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
-  inProps: RadioButtonGroupInputProps<TChoice>,
+  props: RadioButtonGroupInputProps<TChoice>,
 ) {
-  // The body reads choices as loose records; `TChoice` only types the props.
-  const props = inProps as unknown as RadioButtonGroupInputProps;
   const {
     choices: choicesProp,
     resource: resourceProp,
@@ -74,9 +72,9 @@ function RadioButtonGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     readOnly,
 
     optionText,
-    optionValue = "id",
+    optionValue,
     translateChoice,
-    disableValue = "disabled",
+    disableValue,
 
     className,
     helperText,
@@ -93,7 +91,7 @@ function RadioButtonGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     error: fetchError,
     resource,
     source,
-  } = useChoicesContext({ choices: choicesProp, source: sourceProp });
+  } = useChoicesContext<TChoice>({ choices: choicesProp, source: sourceProp });
 
   if (source === undefined) {
     throw new Error(
@@ -117,12 +115,13 @@ function RadioButtonGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const { getChoiceText, getChoiceValue, getDisableValue } = useChoices({
-    optionText,
-    optionValue,
-    translateChoice,
-    disableValue,
-  });
+  const { getChoiceText, getChoiceValue, getDisableValue } =
+    useChoices<TChoice>({
+      optionText,
+      optionValue,
+      translateChoice,
+      disableValue,
+    });
 
   if (isPending) {
     return <Skeleton className="h-9 w-full" />;

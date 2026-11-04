@@ -55,10 +55,8 @@ const EMPTY_VALUES: unknown[] = [];
  * );
  */
 function AutocompleteArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
-  typedProps: AutocompleteArrayInputProps<TChoice>,
+  props: AutocompleteArrayInputProps<TChoice>,
 ) {
-  // The body reads choices as loose records; `TChoice` only types the props.
-  const props = typedProps as unknown as AutocompleteArrayInputProps;
   const {
     debounce: debounceDelay = 250,
     filterToQuery = DefaultFilterToQuery,
@@ -81,7 +79,10 @@ function AutocompleteArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     resource,
     isFromReference,
     setFilters,
-  } = useChoicesContext({ choices: props.choices, source: props.source });
+  } = useChoicesContext<TChoice>({
+    choices: props.choices,
+    source: props.source,
+  });
 
   if (source === undefined) {
     throw new Error(
@@ -109,11 +110,11 @@ function AutocompleteArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   const error = fieldState.error;
 
   const getRecordRepresentationText = useGetRecordRepresentationText(resource);
-  const { getChoiceText, getChoiceValue } = useChoices({
+  const { getChoiceText, getChoiceValue } = useChoices<TChoice>({
     optionText:
       props.optionText ??
-      (isFromReference ? getRecordRepresentationText : "name"),
-    optionValue: props.optionValue ?? "id",
+      (isFromReference ? getRecordRepresentationText : undefined),
+    optionValue: props.optionValue,
     disableValue: props.disableValue,
     translateChoice: props.translateChoice ?? !isFromReference,
   });
@@ -168,7 +169,7 @@ function AutocompleteArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     [isOptionEqualToValue],
   );
 
-  const handleUnselect = useEvent((choice: ChoiceRecord) => {
+  const handleUnselect = useEvent((choice: TChoice) => {
     field.onChange(values.filter((v) => !isEqual(getChoiceValue(choice), v)));
     field.onBlur();
   });
@@ -217,7 +218,7 @@ function AutocompleteArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     translate("ra.navigation.no_results", { _: "No matching item found." });
 
   const getInputText = useCallback(
-    (choice: ChoiceRecord) =>
+    (choice: TChoice) =>
       typeof inputText === "function"
         ? inputText(choice)
         : getChoiceText(choice),

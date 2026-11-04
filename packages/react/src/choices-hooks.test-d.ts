@@ -5,6 +5,7 @@ import {
   type UseChoicesResult,
   type UseReferenceInputResult,
   useChoices,
+  useChoicesContext,
 } from "./choices-hooks";
 
 // A `type`, not an `interface`: only a type alias satisfies `ChoiceRecord`.
@@ -83,5 +84,15 @@ describe("choices hook result types", () => {
     });
     const { getChoiceText } = useChoices();
     expectTypeOf(getChoiceText).parameter(0).toEqualTypeOf<ChoiceRecord>();
+  });
+
+  it("useChoicesContext keeps TChoice", () => {
+    const ctx = useChoicesContext<Author>();
+    expectTypeOf(ctx.availableChoices).toEqualTypeOf<Author[]>();
+    expectTypeOf(ctx.allChoices).toEqualTypeOf<Author[]>();
+    expectTypeOf(ctx.selectedChoices).toEqualTypeOf<Author[]>();
+    expectTypeOf(useChoicesContext().availableChoices).toEqualTypeOf<
+      ChoiceRecord[]
+    >();
   });
 });
