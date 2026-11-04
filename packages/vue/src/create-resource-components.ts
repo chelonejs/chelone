@@ -18,10 +18,12 @@
  * supabase, csv-import) are not members: the import fence keeps them out of
  * this entry, and they take the registered union.
  *
- * `RecordField` and `FunctionField` are not members either. They are
- * `generic=` SFCs, whose type is a function with no constructor signature, so
- * `Retyped` cannot replace their `source`. Import them directly; their
- * `source` takes a plain string.
+ * Six fields and inputs are not members: `RecordField`, `FunctionField`,
+ * `AutocompleteInput`, `AutocompleteArrayInput`, `SelectInput` and
+ * `SelectArrayInput`. They are `generic=` SFCs, whose type is a function with
+ * no constructor signature, so `Retyped` cannot replace their `source` without
+ * erasing the generic. Import them directly; their `source` keeps the
+ * registered union, or a plain string when nothing is registered.
  */
 
 import type {
@@ -65,8 +67,6 @@ import WrapperField from "./components/admin/fields/wrapper-field.vue";
 import ApiKeyInput from "./components/admin/inputs/api-key-input.vue";
 import ArrayInput from "./components/admin/inputs/array-input.vue";
 import ArrayInputRow from "./components/admin/inputs/array-input-row.vue";
-import AutocompleteArrayInput from "./components/admin/inputs/autocomplete-array-input.vue";
-import AutocompleteInput from "./components/admin/inputs/autocomplete-input.vue";
 import BooleanInput from "./components/admin/inputs/boolean-input.vue";
 import CheckboxGroupInput from "./components/admin/inputs/checkbox-group-input.vue";
 import ColorInput from "./components/admin/inputs/color-input.vue";
@@ -91,8 +91,6 @@ import ReferenceArrayInput from "./components/admin/inputs/reference-array-input
 import ReferenceInput from "./components/admin/inputs/reference-input.vue";
 import ResettableTextInput from "./components/admin/inputs/resettable-text-input.vue";
 import SearchInput from "./components/admin/inputs/search-input.vue";
-import SelectArrayInput from "./components/admin/inputs/select-array-input.vue";
-import SelectInput from "./components/admin/inputs/select-input.vue";
 import SubscriptionPlanPicker from "./components/admin/inputs/subscription-plan-picker.vue";
 import TextArrayInput from "./components/admin/inputs/text-array-input.vue";
 import TextInput from "./components/admin/inputs/text-input.vue";
@@ -138,8 +136,6 @@ const sourceMembers = {
   ApiKeyInput,
   ArrayInput,
   ArrayInputRow,
-  AutocompleteArrayInput,
-  AutocompleteInput,
   BooleanInput,
   CheckboxGroupInput,
   ColorInput,
@@ -164,8 +160,6 @@ const sourceMembers = {
   ReferenceInput,
   ResettableTextInput,
   SearchInput,
-  SelectArrayInput,
-  SelectInput,
   SubscriptionPlanPicker,
   TextArrayInput,
   TextInput,
