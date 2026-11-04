@@ -50,7 +50,10 @@ export function createMissingKeyStore(): MissingKeyStore {
   return {
     record(key, locale, fallback) {
       let entries = byLocale.get(locale);
-      if (!entries) byLocale.set(locale, (entries = new Map()));
+      if (!entries) {
+        entries = new Map();
+        byLocale.set(locale, entries);
+      }
       if (entries.has(key)) return;
       entries.set(key, { key, fallback, translation: "" });
       changed(locale);
