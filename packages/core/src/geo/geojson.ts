@@ -1,13 +1,28 @@
-// GeoJSON (RFC 7946) written by hand: core takes no `@types/geojson`.
+// GeoJSON (RFC 7946) as `@types/geojson` writes it, so turf, MapLibre, Terra
+// Draw and osm2geojson take and return core's values without a cast. Only
+// `import type` crosses from that package.
 
-import { isRecord } from "../guards";
+import type {
+  BBox,
+  Feature,
+  FeatureCollection,
+  Geometry,
+  GeometryCollection,
+  LineString,
+  MultiLineString,
+  MultiPoint,
+  MultiPolygon,
+  Point,
+  Polygon,
+  Position,
+} from "geojson";
+import { isJsonObject, isRecord, type JsonObject } from "../guards";
+
+// The `Geo*` names below are aliases of geojson's types, kept so the later
+// slices of #1082 build. The last slice removes them.
 
 /** `[longitude, latitude]` with an optional altitude and further members. */
-export type GeoPosition = [
-  longitude: number,
-  latitude: number,
-  ...rest: number[],
-];
+export type GeoPosition = Position;
 
 /** `[west, south, east, north]`. */
 export type GeoBBox = [
@@ -18,76 +33,23 @@ export type GeoBBox = [
 ];
 
 /** `[west, south, min altitude, east, north, max altitude]`. */
-export type GeoBBox3D = [
-  west: number,
-  south: number,
-  minAltitude: number,
-  east: number,
-  north: number,
-  maxAltitude: number,
-];
+export type GeoBBox3D = Extract<BBox, { length: 6 }>;
 
-interface GeoGeometryBase {
-  bbox?: GeoBBox | GeoBBox3D;
-}
+export type GeoPoint = Point;
+export type GeoMultiPoint = MultiPoint;
+export type GeoLineString = LineString;
+export type GeoMultiLineString = MultiLineString;
+export type GeoPolygon = Polygon;
+export type GeoMultiPolygon = MultiPolygon;
+export type GeoGeometryCollection = GeometryCollection;
+export type GeoGeometry = Geometry;
 
-export interface GeoPoint extends GeoGeometryBase {
-  type: "Point";
-  coordinates: GeoPosition;
-}
+export type GeoFeature = Feature<Geometry | null, JsonObject | null>;
 
-export interface GeoMultiPoint extends GeoGeometryBase {
-  type: "MultiPoint";
-  coordinates: GeoPosition[];
-}
-
-export interface GeoLineString extends GeoGeometryBase {
-  type: "LineString";
-  coordinates: GeoPosition[];
-}
-
-export interface GeoMultiLineString extends GeoGeometryBase {
-  type: "MultiLineString";
-  coordinates: GeoPosition[][];
-}
-
-export interface GeoPolygon extends GeoGeometryBase {
-  type: "Polygon";
-  coordinates: GeoPosition[][];
-}
-
-export interface GeoMultiPolygon extends GeoGeometryBase {
-  type: "MultiPolygon";
-  coordinates: GeoPosition[][][];
-}
-
-export interface GeoGeometryCollection extends GeoGeometryBase {
-  type: "GeometryCollection";
-  geometries: GeoGeometry[];
-}
-
-export type GeoGeometry =
-  | GeoPoint
-  | GeoMultiPoint
-  | GeoLineString
-  | GeoMultiLineString
-  | GeoPolygon
-  | GeoMultiPolygon
-  | GeoGeometryCollection;
-
-export interface GeoFeature {
-  type: "Feature";
-  geometry: GeoGeometry | null;
-  properties: Record<string, unknown> | null;
-  id?: string | number;
-  bbox?: GeoBBox | GeoBBox3D;
-}
-
-export interface GeoFeatureCollection {
-  type: "FeatureCollection";
-  features: GeoFeature[];
-  bbox?: GeoBBox | GeoBBox3D;
-}
+export type GeoFeatureCollection = FeatureCollection<
+  Geometry | null,
+  JsonObject | null
+>;
 
 /** What a map input stores: a geometry, a Feature or a FeatureCollection. */
 export type GeoJsonValue = GeoGeometry | GeoFeature | GeoFeatureCollection;
@@ -96,7 +58,7 @@ function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
-function isPosition(value: unknown): value is GeoPosition {
+function isPosition(value: unknown): value is Position {
   return (
     Array.isArray(value) && value.length >= 2 && value.every(isFiniteNumber)
   );
@@ -121,7 +83,9 @@ const COORDINATE_DEPTH: Record<string, number> = {
 };
 
 /** True for exactly four finite numbers. */
-export function isGeoBBox(value: unknown): value is GeoBBox {
+export function isGeoBBox(
+  value: unknown,
+): value is [number, number, number, number] {
   return (
     Array.isArray(value) && value.length === 4 && value.every(isFiniteNumber)
   );
@@ -138,7 +102,7 @@ function hasValidBBox(value: Record<string, unknown>): boolean {
   );
 }
 
-export function isGeoGeometry(value: unknown): value is GeoGeometry {
+export function isGeoGeometry(value: unknown): value is Geometry {
   if (!isRecord(value) || !hasValidBBox(value)) return false;
   if (value.type === "GeometryCollection") {
     return (
@@ -153,7 +117,9 @@ export function isGeoGeometry(value: unknown): value is GeoGeometry {
   return depth !== undefined && isNested(value.coordinates, depth);
 }
 
-export function isGeoFeature(value: unknown): value is GeoFeature {
+export function isGeoFeature(
+  value: unknown,
+): value is Feature<Geometry | null, JsonObject | null> {
   if (!isRecord(value) || value.type !== "Feature" || !hasValidBBox(value)) {
     return false;
   }
@@ -162,13 +128,13 @@ export function isGeoFeature(value: unknown): value is GeoFeature {
   return (
     value.properties === undefined ||
     value.properties === null ||
-    isRecord(value.properties)
+    isJsonObject(value.properties)
   );
 }
 
 export function isGeoFeatureCollection(
   value: unknown,
-): value is GeoFeatureCollection {
+): value is FeatureCollection<Geometry | null, JsonObject | null> {
   return (
     isRecord(value) &&
     value.type === "FeatureCollection" &&
