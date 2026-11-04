@@ -16,6 +16,7 @@ A headless admin engine: a vanilla-TypeScript core with thin React and Vue adapt
 - Test from the outside: mount the component under `<Admin>` (see the harnesses in `packages/vue/src/components/admin/inputs/*.test.ts` and `packages/react/src/components/admin/inputs/*.test.tsx`) and assert DOM, roles and data-provider calls. jsdom applies no CSS, so never assert styling.
 - A package that imports a dependency declares it in its own `package.json`. pnpm hoisting can hide a missing one locally; CI's fresh install will not.
 - After adding, moving or removing a React or Vue component file, or changing what one imports, run `pnpm --dir packages/react registry:generate` or `pnpm --dir packages/vue registry:generate` and commit that package's `registry.json`. CI fails on a stale one.
+- Types are exact: no `any`, no `as unknown as`, no `as never`, and `unknown` only at a real boundary. Read `.claude/skills/chelone-typescript/SKILL.md` before writing TypeScript.
 - Comment only what would surprise the next reader.
 - Before writing a helper, search core and the other adapter for one. Logic both adapters need goes in core.
 - `pnpm check:duplication` (jscpd, counted per file pair against `duplication-baseline.json`) fails on new duplication and names both copies. Remove the copy instead. `pnpm check:duplication --update` is only for a pull request that removes or moves duplication, never to let a new clone through.
