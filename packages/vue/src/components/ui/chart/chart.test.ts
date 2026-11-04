@@ -130,6 +130,9 @@ describe("<ChartStyle>", () => {
     expect(css).toMatch(
       /\.dark \[data-chart=chart-x\] \{[^}]*--color-mobile: #0000ff;/,
     );
+    expect(css).toMatch(
+      /\.dark \[data-chart=chart-x\] \{[^}]*--color-desktop: #ff0000;/,
+    );
   });
 
   it("renders nothing when no entry has a color", () => {
