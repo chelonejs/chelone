@@ -154,6 +154,25 @@ describe("DualApprovalButton", () => {
     );
   });
 
+  it("an approval sends the record as previousData", async () => {
+    const dataProvider = fakeDataProvider(seed());
+    const update = vi.spyOn(dataProvider, "update");
+    const { wrapper } = await mountButton({
+      button: () => approval(),
+      dataProvider,
+    });
+
+    await (await findButton(wrapper)).trigger("click");
+
+    await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1));
+    expect(update.mock.calls[0]?.[1].previousData).toEqual({
+      id: 1,
+      title: "Alpha",
+      approvers: ["2"],
+      status: "draft",
+    });
+  });
+
   it("sets the approved status on the approval that reaches required", async () => {
     const dataProvider = fakeDataProvider(seed());
     const update = vi.spyOn(dataProvider, "update");
