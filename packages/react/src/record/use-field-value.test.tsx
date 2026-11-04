@@ -60,6 +60,36 @@ describe("useFieldValue", () => {
     expect(result.current).toBe("a");
   });
 
+  it("reads a key that contains a dot as a flat key", () => {
+    // A record that literally holds a "nested.level" key (a flattened payload)
+    // wins over splitting the source, as in lodash/get.
+    const { result } = renderHook(
+      () => useFieldValue({ source: "nested.level" }),
+      {
+        wrapper: wrapWith({
+          id: 1,
+          "nested.level": "flat",
+          nested: { level: "split" },
+        }),
+      },
+    );
+    expect(result.current).toBe("flat");
+  });
+
+  it("bracket and dot index read the same value", () => {
+    const record = { id: 1, tags: [{ label: "a" }, { label: "b" }] };
+    const { result: bracket } = renderHook(
+      () => useFieldValue({ source: "tags[1].label" }),
+      { wrapper: wrapWith(record) },
+    );
+    const { result: dot } = renderHook(
+      () => useFieldValue({ source: "tags.1.label" }),
+      { wrapper: wrapWith(record) },
+    );
+    expect(bracket.current).toBe("b");
+    expect(dot.current).toBe("b");
+  });
+
   it("falls back to defaultValue when the field is missing", () => {
     const { result } = renderHook(
       () => useFieldValue({ source: "missing", defaultValue: "D" }),
