@@ -7,6 +7,7 @@
  */
 
 import {
+  type AnyCheloneI18n,
   type AuthProvider,
   createI18n,
   createNotificationStore,
@@ -60,6 +61,7 @@ async function mountBoard({
   slots,
   dataProvider = provider(),
   authProvider,
+  i18n = createI18n({ locale: "en", messages: { en: {} } }),
   edit = true,
   show = true,
 }: {
@@ -67,6 +69,7 @@ async function mountBoard({
   slots?: Record<string, unknown>;
   dataProvider?: DataProvider;
   authProvider?: AuthProvider;
+  i18n?: AnyCheloneI18n;
   edit?: boolean;
   show?: boolean;
 } = {}) {
@@ -104,7 +107,7 @@ async function mountBoard({
           authProvider,
           notifications,
           queryClient,
-          i18n: createI18n({ locale: "en", messages: { en: {} } }),
+          i18n,
         },
         {
           default: () =>
@@ -188,6 +191,12 @@ async function fire(
   return event;
 }
 
+/** Focus an element and press a key on it, as a keyboard user does. */
+async function press(target: HTMLElement, key: string): Promise<Event> {
+  target.focus();
+  return fire(target, "keydown", { key });
+}
+
 /** Pick a card up and drop it on a column's card area. */
 async function dragTo(
   wrapper: VueWrapper,
@@ -259,6 +268,25 @@ describe("<KanbanBoard>", () => {
     expect(
       column(wrapper, "To do").find("[data-slot=kanban-empty]").exists(),
     ).toBe(false);
+  });
+
+  it("the empty column re-translates when the locale changes", async () => {
+    const i18n = createI18n({
+      locale: "en",
+      messages: {
+        en: { "chelone.kanban_board.empty": "Nothing here" },
+        fr: { "chelone.kanban_board.empty": "Rien ici" },
+      },
+    });
+    const { wrapper } = await mountBoard({ i18n });
+
+    const emptyText = () =>
+      column(wrapper, "Done").get("[data-slot=kanban-empty]").text();
+    expect(emptyText()).toBe("Nothing here");
+
+    i18n.setLocale("fr");
+    await nextTick();
+    expect(emptyText()).toBe("Rien ici");
   });
 
   it("titleSource wins over the record representation and descriptionSource adds a line", async () => {
@@ -444,7 +472,12 @@ describe("<KanbanBoard>", () => {
 
     const items = wrapper.findAll('[role="menuitem"]');
     expect(items.map((item) => item.text())).toEqual(["In progress", "Done"]);
-    await fire(el(items[1]!), "click");
+
+    // The item is a `role="menuitem"` div with `tabindex="0"`: Tab reaches it,
+    // and Enter is its activation. A synthetic click would hide that.
+    const item = el(items[1]!);
+    expect(item.getAttribute("tabindex")).toBe("0");
+    await press(item, "Enter");
 
     await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1));
     expect(update).toHaveBeenCalledWith("tasks", {
@@ -455,6 +488,54 @@ describe("<KanbanBoard>", () => {
     await vi.waitFor(() =>
       expect(cardTitles(wrapper, "Done")).toEqual(["Write it"]),
     );
+    expect(wrapper.find('[role="menuitem"]').exists()).toBe(false);
+  });
+
+  it("Space on a Move menu item moves the card and does not scroll the page", async () => {
+    const dataProvider = provider();
+    const update = vi.spyOn(dataProvider, "update");
+    const { wrapper } = await mountBoard({ dataProvider });
+
+    await fire(moveButton(wrapper, "Write it"), "click");
+    const [first] = wrapper.findAll('[role="menuitem"]');
+    const space = await press(el(first!), " ");
+
+    expect(space.defaultPrevented).toBe(true);
+    expect(wrapper.find('[role="menuitem"]').exists()).toBe(false);
+    await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1));
+    expect(update).toHaveBeenCalledWith("tasks", {
+      id: 1,
+      data: { status: "doing" },
+      previousData: TASKS[0],
+    });
+  });
+
+  it("Escape closes the Move menu and writes nothing", async () => {
+    const dataProvider = provider();
+    const update = vi.spyOn(dataProvider, "update");
+    const { wrapper } = await mountBoard({ dataProvider });
+
+    await fire(moveButton(wrapper, "Write it"), "click");
+    expect(wrapper.findAll('[role="menuitem"]')).toHaveLength(2);
+
+    const [first] = wrapper.findAll('[role="menuitem"]');
+    await press(el(first!), "Escape");
+
+    expect(wrapper.find('[role="menuitem"]').exists()).toBe(false);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("a key that is not Enter or Space leaves the menu open and writes nothing", async () => {
+    const dataProvider = provider();
+    const update = vi.spyOn(dataProvider, "update");
+    const { wrapper } = await mountBoard({ dataProvider });
+
+    await fire(moveButton(wrapper, "Write it"), "click");
+    const [first] = wrapper.findAll('[role="menuitem"]');
+    await press(el(first!), "x");
+
+    expect(wrapper.findAll('[role="menuitem"]')).toHaveLength(2);
+    expect(update).not.toHaveBeenCalled();
   });
 
   it("a select-card listener receives the record and replaces the navigation", async () => {

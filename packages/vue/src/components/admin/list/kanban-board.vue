@@ -246,7 +246,11 @@ const moveLabel = (record: TRecord) =>
     title: titleOf(record),
     _: "Move {title}",
   });
-const emptyLabel = translate("chelone.kanban_board.empty", { _: "No items" });
+// A `computed`, not a constant: `translate` only tracks the locale inside a
+// computed or the template, so a `setLocale` re-renders the empty text.
+const emptyLabel = computed(() =>
+  translate("chelone.kanban_board.empty", { _: "No items" }),
+);
 </script>
 
 <template>
@@ -324,11 +328,13 @@ const emptyLabel = translate("chelone.kanban_board.empty", { _: "No items" });
               </span>
             </template>
           </div>
-          <!-- The menu is not portalled, so its events would reach the card. -->
+          <!-- The menu is not portalled, so its clicks would reach the card.
+               Keys bubble: the card's handler ignores keys that do not target
+               it, and `<DropdownMenu>` listens for Escape on `document`, which
+               a stopped keydown would never reach. -->
           <div
             v-if="draggable"
             @click.stop
-            @keydown.stop
           >
             <DropdownMenu>
               <DropdownMenuTrigger>
