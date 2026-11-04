@@ -196,18 +196,22 @@ type PointerKind = "mouse" | "touch" | "pen";
 const AREA = { width: 280, height: 600, gap: 20 };
 const CARD = { height: 50, gap: 10, inset: 10 };
 
-const rect = (x: number, y: number, width: number, height: number) =>
-  ({
-    x,
-    y,
-    left: x,
-    top: y,
-    width,
-    height,
-    right: x + width,
-    bottom: y + height,
-    toJSON: () => ({}),
-  }) as DOMRect;
+const rect = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+): DOMRect => ({
+  x,
+  y,
+  left: x,
+  top: y,
+  width,
+  height,
+  right: x + width,
+  bottom: y + height,
+  toJSON: () => ({}),
+});
 
 /** Where `layout` puts a column's card area. */
 function areaRect(area: Element): DOMRect {
@@ -235,26 +239,23 @@ function layout() {
       this.isPrimary = init.isPrimary ?? true;
     }
   }
-  class ObserverStub {
+  class ObserverStub implements IntersectionObserver {
+    readonly root = null;
+    readonly rootMargin = "";
+    readonly thresholds = [];
     constructor(private readonly callback: IntersectionObserverCallback) {}
     observe(target: Element) {
       const box = target.getBoundingClientRect();
-      queueMicrotask(() =>
-        this.callback(
-          [
-            {
-              target,
-              isIntersecting: true,
-              intersectionRatio: 1,
-              boundingClientRect: box,
-              intersectionRect: box,
-              rootBounds: null,
-              time: 0,
-            },
-          ] as IntersectionObserverEntry[],
-          this as unknown as IntersectionObserver,
-        ),
-      );
+      const entry: IntersectionObserverEntry = {
+        target,
+        isIntersecting: true,
+        intersectionRatio: 1,
+        boundingClientRect: box,
+        intersectionRect: box,
+        rootBounds: null,
+        time: 0,
+      };
+      queueMicrotask(() => this.callback([entry], this));
     }
     unobserve() {}
     disconnect() {}
@@ -262,13 +263,18 @@ function layout() {
       return [];
     }
   }
-  const view = document.defaultView as unknown as Record<string, unknown>;
-  vi.stubGlobal("PointerEvent", PointerEventStub);
-  view.PointerEvent = PointerEventStub;
-  vi.stubGlobal("IntersectionObserver", ObserverStub);
-  view.IntersectionObserver = ObserverStub;
-  vi.stubGlobal("ResizeObserver", ObserverStub);
-  view.ResizeObserver = ObserverStub;
+  // dnd-kit reads these off the document's window as well as the global.
+  const view = document.defaultView;
+  if (!view) throw new Error("the document has no window");
+  const stubs = {
+    PointerEvent: PointerEventStub,
+    IntersectionObserver: ObserverStub,
+    ResizeObserver: ObserverStub,
+  };
+  for (const [name, stub] of Object.entries(stubs)) {
+    vi.stubGlobal(name, stub);
+  }
+  Object.assign(view, stubs);
 
   vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
     function (this: Element) {
@@ -282,9 +288,11 @@ function layout() {
           area.querySelectorAll("[data-slot=kanban-card]"),
         ).indexOf(this);
         // A browser moves the held card by the `translate` dnd-kit sets on it.
-        const held = (this as HTMLElement).style
-          .getPropertyValue("--dnd-translate")
-          .match(/-?[\d.]+/g);
+        const held = (
+          this instanceof HTMLElement
+            ? this.style.getPropertyValue("--dnd-translate")
+            : ""
+        ).match(/-?[\d.]+/g);
         const [dx = 0, dy = 0] = held ? held.map(Number) : [];
         return rect(
           box.x + CARD.inset + dx,
@@ -305,7 +313,7 @@ function layout() {
       return x >= box.left && x < box.right && y >= box.top && y < box.bottom;
     }) ?? document.body;
   // dnd-kit reads the reduced-motion preference.
-  Object.assign(document.defaultView as object, {
+  Object.assign(view, {
     matchMedia: () => ({
       matches: false,
       addEventListener() {},
@@ -936,7 +944,7 @@ describe("<KanbanBoard>", () => {
     // card around it is the other place a press can land.
     for (const target of [
       el(wrapper.get('[data-testid="link-1"]')),
-      el(wrapper.findAll("[data-slot=kanban-card]")[0]!),
+      el(wrapper.get("[data-slot=kanban-card]")),
     ]) {
       await pickUp(target);
       await moveOver(cardArea(wrapper, "Done"));

@@ -206,9 +206,9 @@ function onDragEnd(event: {
 }): void {
   const { source, target } = event.operation;
   if (event.canceled || !source || !target || !draggable.value) return;
-  const record = (list.data ?? []).find(
-    (candidate) => String(candidate.id) === String(source.id),
-  ) as TRecord | undefined;
+  const record = buckets.value
+    .flatMap((bucket) => bucket.records)
+    .find((candidate) => String(candidate.id) === String(source.id));
   if (record) move(record, String(target.id));
 }
 
