@@ -29,7 +29,7 @@ function DateFieldImpl<RecordType extends LooseRecord = LooseRecord>(
     );
   }
 
-  const value = useFieldValue({ source, record, defaultValue });
+  const value: unknown = useFieldValue({ source, record, defaultValue });
   if (value == null || value === "") {
     if (!empty) {
       return null;

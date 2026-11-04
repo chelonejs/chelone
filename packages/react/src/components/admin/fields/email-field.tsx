@@ -12,7 +12,7 @@ function EmailFieldImpl<RecordType extends LooseRecord = LooseRecord>(
   inProps: EmailFieldProps<RecordType>,
 ) {
   const { className, empty, defaultValue, source, record, ...rest } = inProps;
-  const value = useFieldValue({ defaultValue, source, record });
+  const value: unknown = useFieldValue({ defaultValue, source, record });
   const translate = useTranslate();
 
   if (value == null) {

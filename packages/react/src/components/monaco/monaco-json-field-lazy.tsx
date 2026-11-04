@@ -36,7 +36,7 @@ export default function MonacoJsonFieldLazy({
   className,
   monacoOptions,
 }: MonacoJsonFieldProps) {
-  const value = useFieldValue({ source, record, defaultValue });
+  const value: unknown = useFieldValue({ source, record, defaultValue });
   const translate = useTranslate();
   const container = useRef<HTMLDivElement>(null);
   const [instance, setInstance] =
