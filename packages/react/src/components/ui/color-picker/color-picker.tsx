@@ -40,6 +40,17 @@ const COLOR_MODES = [
 // Component (top of file — filled in Phase 5)
 // ---------------------------------------------------------------------------
 
+// lib.dom has no EyeDropper yet.
+interface EyeDropperConstructor {
+  new (): { open(): Promise<{ sRGBHex: string }> };
+}
+
+function isEyeDropperConstructor(
+  value: unknown,
+): value is EyeDropperConstructor {
+  return typeof value === "function";
+}
+
 interface ColorPickerProps<TMode extends ColorMode | undefined = undefined> {
   value: ColorString | (string & {});
   onChange: (
@@ -147,12 +158,8 @@ function ColorPicker<TMode extends ColorMode | undefined>({
 
   const handleEyeDropper = async () => {
     if (typeof window === "undefined") return;
-    const EyeDropper = (
-      window as unknown as {
-        EyeDropper?: new () => { open(): Promise<{ sRGBHex: string }> };
-      }
-    ).EyeDropper;
-    if (!EyeDropper) return;
+    const EyeDropper = "EyeDropper" in window ? window.EyeDropper : undefined;
+    if (!isEyeDropperConstructor(EyeDropper)) return;
     try {
       const result = await new EyeDropper().open();
       const parsed = parseHex(result.sRGBHex);
