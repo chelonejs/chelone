@@ -1,5 +1,6 @@
 import type { StandardSchemaV1 } from "@tanstack/form-core";
 import type { LooseRecord } from "./record";
+import type { SourceKey } from "./source-path";
 
 /** Per-resource configuration: an optional Standard Schema (Zod 3, Zod 4, Valibot, ...) and the references its fields hold. */
 export interface ResourceConfig<
@@ -21,9 +22,29 @@ export type ResourceMap = { [name: string]: ResourceConfig };
  * `defineResources({ posts: { schema: postSchema } })` keeps `"posts"` literal
  * and `typeof postSchema` exact, enabling end-to-end inference.
  */
-export function defineResources<const T extends ResourceMap>(resources: T): T {
+export function defineResources<const T extends ResourceMap>(
+  resources: T & Checked<T>,
+): T {
   return resources;
 }
+
+/**
+ * Narrows each resource's `references` to keys that are top-level fields of its
+ * record and values that are registered resource names. A mapped type over the
+ * keys actually written is what makes a misspelled key an error: an optional
+ * `{ [K in SourceKey]?: ... }` intersection lets inference widen `T` instead.
+ */
+type Checked<T extends ResourceMap> = {
+  [N in keyof T & string]: {
+    references?: {
+      [K in keyof NonNullable<T[N]["references"]>]: K extends SourceKey<
+        RecordOf<T, N>
+      >
+        ? keyof T & string
+        : never;
+    };
+  };
+};
 
 /**
  * The record type for a given resource name in a registry:
