@@ -21,9 +21,9 @@
     },
     {
       "name": "countSource",
-      "type": "string",
+      "type": "SourceKey<RecordType>",
       "optional": true,
-      "comment": "Sibling record source rendered in parentheses (e.g. review count)."
+      "comment": "Sibling record field rendered in parentheses (e.g. review count). A\ntop-level key, not a path: the read is `record[countSource]`."
     },
     {
       "name": "empty",

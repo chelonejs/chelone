@@ -1,8 +1,10 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceKey, SourceProp } from "@chelone/core";
 
 /** Props for {@link RatingField}. */
-export interface RatingFieldProps {
+export interface RatingFieldProps<
+  RecordType extends LooseRecord = LooseRecord,
+> {
   source: SourceProp;
   record?: LooseRecord;
   defaultValue?: unknown;
@@ -11,13 +13,16 @@ export interface RatingFieldProps {
   max?: number;
   /** Allow half-star granularity when the value falls between integers. */
   allowHalf?: boolean;
-  /** Sibling record source rendered in parentheses (e.g. a review count). */
-  countSource?: string;
+  /**
+   * Sibling record field rendered in parentheses (e.g. a review count). A
+   * top-level key, not a path: the read is `record[countSource]`.
+   */
+  countSource?: SourceKey<RecordType>;
   class?: string;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<RatingField>` — displays a numeric rating as a row of filled/half/outlined
  * star icons, the Vue analog of `@chelone/react`'s `fields/rating-field.tsx`.
@@ -33,7 +38,7 @@ import { useFieldValue } from "../../../record/use-field-value";
 import { RecordContextKey } from "../../../record/record-context";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = defineProps<RatingFieldProps>();
+const props = defineProps<RatingFieldProps<RecordType>>();
 
 const max = computed(() => props.max ?? 5);
 

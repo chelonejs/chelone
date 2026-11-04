@@ -33,9 +33,9 @@
     },
     {
       "name": "limitSource",
-      "type": "string",
+      "type": "SourceKey<RecordType>",
       "optional": true,
-      "comment": "Sibling record field holding the limit/quota. Bar is only shown when set."
+      "comment": "Sibling record field holding the limit/quota; the bar is only shown when\nset. A top-level key, not a path: the read is `record[limitSource]`."
     },
     {
       "name": "record",

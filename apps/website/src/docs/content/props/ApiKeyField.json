@@ -33,9 +33,9 @@
     },
     {
       "name": "lastUsedSource",
-      "type": "string",
+      "type": "SourceKey<RecordType>",
       "optional": true,
-      "comment": "Record field with ISO last-used timestamp."
+      "comment": "Sibling record field with an ISO last-used timestamp. A top-level key, not\na path: the read is `record[lastUsedSource]`."
     },
     {
       "name": "maskedFormat",
@@ -57,9 +57,9 @@
     },
     {
       "name": "scopesSource",
-      "type": "string",
+      "type": "SourceKey<RecordType>",
       "optional": true,
-      "comment": "Record field with scope strings. Renders chips when set."
+      "comment": "Sibling record field with scope strings; renders chips when set. A\ntop-level key, not a path: the read is `record[scopesSource]`."
     },
     {
       "name": "sortable",
