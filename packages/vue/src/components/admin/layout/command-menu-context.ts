@@ -15,8 +15,14 @@ import {
   watch,
 } from "vue";
 
-/** A command in the menu. The label is text and the icon is a Vue component. */
-export type CommandMenuAction = CommandAction<string, Component>;
+/**
+ * A command in the menu. The label is text and the icon is a Vue component.
+ * `onSelect` may return a promise; the menu reports a rejection as an error.
+ */
+export type CommandMenuAction = Omit<
+  CommandAction<string, Component>,
+  "onSelect"
+> & { onSelect: () => void | Promise<void> };
 
 /** What `useCommandMenu()` returns. */
 export interface CommandMenuContextValue {
