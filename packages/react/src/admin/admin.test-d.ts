@@ -6,13 +6,14 @@
  * `createElement` and assertions are type-level only.
  */
 
-import { fakeDataProvider } from "@chelone/core";
+import { fakeDataProvider, type ResourceMap } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { createElement, type ReactNode } from "react";
 import { assertType, describe, expectTypeOf, it } from "vitest";
 import type { RouterAdapter } from "../router/adapter";
 import type { AdminProps } from "./admin";
 import { Admin } from "./admin";
+import type { AdminUI } from "./admin-ui";
 import type { AdminChildren, PartitionedChildren } from "./partition";
 import { partitionChildren } from "./partition";
 import {
@@ -94,5 +95,13 @@ describe("partitionChildren", () => {
     const asAsyncFn: AdminChildren = async (_permissions: unknown) =>
       createElement(AdminTitle, null, "app") as ReactNode;
     assertType<AdminChildren>(asAsyncFn);
+  });
+});
+
+describe("AdminUI", () => {
+  it("AdminUI takes no type argument", () => {
+    // @ts-expect-error AdminUI declares no type parameter
+    type Instantiated = typeof AdminUI<ResourceMap>;
+    expectTypeOf<Instantiated>().not.toBeAny();
   });
 });

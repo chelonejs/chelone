@@ -61,6 +61,20 @@ describe("createResourceComponents", () => {
     expect(wrapper.find("h2").text()).toBe("Hello world");
   });
 
+  it("a bound view renders with its resource and passes slots on", async () => {
+    const posts = createResourceComponents("posts");
+    const wrapper = mountAdmin(() =>
+      h(
+        posts.Edit,
+        { id: 1 },
+        { default: () => h("p", { id: "slotted" }, "Body") },
+      ),
+    );
+    await flushPromises();
+    expect(wrapper.find("h2").text()).toBe("Hello world");
+    expect(wrapper.find("#slotted").text()).toBe("Body");
+  });
+
   it("a List from the factory lists its own resource", async () => {
     const posts = createResourceComponents("posts");
     const wrapper = mountAdmin(() => h(posts.List, null, () => h(ListRows)));
