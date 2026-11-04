@@ -574,6 +574,26 @@ export type {
   NotifyOptions,
 } from "./notification/notification-store";
 export { createNotificationStore } from "./notification/notification-store";
+export type {
+  PlaceTourCardOptions,
+  TourCardPosition,
+  TourPlacement,
+  TourRect,
+} from "./onboarding-tour/placement";
+export {
+  placeTourCard,
+  tourSpotlightPath,
+} from "./onboarding-tour/placement";
+export type {
+  TourController,
+  TourControllerOptions,
+  TourEnd,
+  TourState,
+} from "./onboarding-tour/tour-controller";
+export {
+  createTourController,
+  onboardingTourKey,
+} from "./onboarding-tour/tour-controller";
 export type { AddEventsForMutationsOptions } from "./realtime/add-events-for-mutations";
 export { addEventsForMutations } from "./realtime/add-events-for-mutations";
 export type { InMemoryLockProviderOptions } from "./realtime/in-memory-lock-provider";

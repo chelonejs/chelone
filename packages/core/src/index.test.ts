@@ -356,6 +356,15 @@ describe("@chelone/core barrel", () => {
     expect(barrel.groupCommands).toBeTypeOf("function");
   });
 
+  it("exports the onboarding tour controller and placement", () => {
+    expect(barrel.createTourController).toBeTypeOf("function");
+    expect(barrel.onboardingTourKey("intro")).toBe(
+      "onboarding-tour.intro.completed",
+    );
+    expect(barrel.placeTourCard).toBeTypeOf("function");
+    expect(barrel.tourSpotlightPath).toBeTypeOf("function");
+  });
+
   it("exports the environment stores", () => {
     expect(barrel.createOfflineStore).toBeTypeOf("function");
     expect(barrel.createApplicationUpdateStore).toBeTypeOf("function");
