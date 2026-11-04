@@ -1,9 +1,9 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 
 /** Props for {@link BooleanField}. */
 export interface BooleanFieldProps {
-  source: string;
+  source: SourceProp;
   record?: LooseRecord;
   defaultValue?: unknown;
   /** Label shown (as a native `title` tooltip) when the value is truthy. */
