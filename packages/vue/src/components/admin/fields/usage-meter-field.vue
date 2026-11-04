@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 
 /** Ratio thresholds toggling the warning / critical bar color. */
 export interface UsageMeterThresholds {
@@ -9,7 +9,7 @@ export interface UsageMeterThresholds {
 
 /** Props for {@link UsageMeterField}. */
 export interface UsageMeterFieldProps {
-  source: string;
+  source: SourceProp;
   record?: LooseRecord;
   defaultValue?: unknown;
   /** Sibling record field holding the limit/quota. Bar is only shown when set. */
