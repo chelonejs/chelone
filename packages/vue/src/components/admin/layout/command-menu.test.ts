@@ -535,7 +535,7 @@ describe("CommandMenu actions", () => {
     await until(() => optionTexts().includes("Gated command"));
   });
 
-  it("CommandMenu notifies an error when an async action rejects", async () => {
+  it("a rejected onSelect notifies an error and closes the menu", async () => {
     const { notify } = await mountMenu({
       props: {
         actions: [
@@ -554,6 +554,20 @@ describe("CommandMenu actions", () => {
     expect(notify).toHaveBeenCalledWith("chelone.notification.http_error", {
       type: "error",
     });
+    await until(() => dialog() === null);
+  });
+
+  it("an onSelect that returns nothing closes the menu without an error", async () => {
+    const onSelect = vi.fn(() => {});
+    const { notify } = await mountMenu({
+      props: { actions: [{ id: "quiet", label: "Be quiet", onSelect }] },
+    });
+    await openMenu();
+
+    await pick("Be quiet");
+    await until(() => dialog() === null);
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(notify).not.toHaveBeenCalled();
   });
 });
 

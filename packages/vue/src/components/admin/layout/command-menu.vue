@@ -152,9 +152,8 @@ function fail(): void {
 function run(action: CommandMenuAction): void {
   close();
   try {
-    const result = action.onSelect() as unknown;
-    if (result && typeof (result as PromiseLike<unknown>).then === "function")
-      (result as PromiseLike<unknown>).then(undefined, fail);
+    const result = action.onSelect();
+    if (result) result.then(undefined, fail);
   } catch {
     fail();
   }
