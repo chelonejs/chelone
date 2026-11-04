@@ -1,10 +1,10 @@
 <script lang="ts">
-import type { GeoBBox, GeocodingProvider } from "@chelone/core";
+import type { GeoBBox, GeocodingProvider, SourceProp } from "@chelone/core";
 
 /** Props for {@link GeocodingInput}. */
 export interface GeocodingInputProps {
   /** The form field holding the address text. */
-  source: string;
+  source: SourceProp;
   /** Written with the picked result's latitude. Left alone when unset. */
   latSource?: string;
   /** Written with the picked result's longitude. Left alone when unset. */
