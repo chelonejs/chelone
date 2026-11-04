@@ -1,5 +1,9 @@
 import type { RecordOf, ResourceMap } from "../resource/registry";
-import { patchManyEntries, removeManyEntries } from "./cache-ops";
+import {
+  patchListEntries,
+  patchManyEntries,
+  removeManyEntries,
+} from "./cache-ops";
 import { manyKeyPrefix, oneKey, resourceKey } from "./keys";
 import type { DataContext } from "./query-options";
 import type { CreateParams, DeleteParams, UpdateParams } from "./types";
@@ -17,9 +21,10 @@ export interface MutationModeOptions {
 }
 
 function invalidateResource(ctx: DataContext<ResourceMap>, resource: string) {
-  // ponytail: optimistic mode invalidates list caches instead of patching them
-  // (only the getOne and getMany entries are patched); per-list optimistic
-  // patching arrives with controllers (P4) if profiling demands.
+  // Optimistic update patches the getOne, getMany and list rows it knows of;
+  // this refetch brings in what the patch could not know (a row that now sorts
+  // or filters elsewhere, a server-computed field). Optimistic delete patches
+  // getOne and getMany only, so the lists catch up here.
   return ctx.queryClient.invalidateQueries({ queryKey: resourceKey(resource) });
 }
 
@@ -29,6 +34,18 @@ interface OptimisticContext {
   previous?: unknown;
   key?: readonly unknown[];
   manySnapshot?: ManySnapshot;
+  rollbackLists?: () => void;
+}
+
+/** Cancels in-flight list fetches (`getList`, `getManyReference`, `getInfiniteList`) so they cannot overwrite a patch. */
+function cancelListQueries(ctx: DataContext<ResourceMap>, resource: string) {
+  return ctx.queryClient.cancelQueries({
+    queryKey: resourceKey(resource),
+    predicate: ({ queryKey }) =>
+      queryKey[1] === "getList" ||
+      queryKey[1] === "getManyReference" ||
+      queryKey[1] === "getInfiniteList",
+  });
 }
 
 /** Cancels in-flight `getMany` fetches so they cannot overwrite the patch, then snapshots the entries. */
@@ -71,7 +88,9 @@ export function updateMutationOptions<
   options: MutationModeOptions = {},
 ) {
   const mode: MutationMode = options.mutationMode ?? "pessimistic";
+  const mutationKey = [resource, "update"];
   return {
+    mutationKey,
     mutationFn: async (params: UpdateParams<RecordOf<TResources, TName>>) => {
       const result = await ctx.dataProvider.update(resource, params);
       return result.data;
@@ -97,7 +116,14 @@ export function updateMutationOptions<
         new Set([String(params.id)]),
         structuredClone(params.data) as Record<string, unknown>,
       );
-      return { previous, key, manySnapshot };
+      await cancelListQueries(ctx, resource);
+      const rollbackLists = patchListEntries(
+        ctx.queryClient,
+        resource,
+        new Set([String(params.id)]),
+        structuredClone(params.data) as Record<string, unknown>,
+      );
+      return { previous, key, manySnapshot, rollbackLists };
     },
     onError: (
       _error: unknown,
@@ -108,8 +134,19 @@ export function updateMutationOptions<
         ctx.queryClient.setQueryData(context.key, context.previous);
       }
       restoreManyEntries(ctx, context?.manySnapshot);
+      context?.rollbackLists?.();
     },
-    onSettled: () => invalidateResource(ctx, resource),
+    onSettled: () => {
+      // The settling update still counts as pending here, so another one is a count above one.
+      // Refetching while a later update is in flight would overwrite its patched row with the old server value.
+      if (
+        mode === "optimistic" &&
+        ctx.queryClient.isMutating({ mutationKey }) > 1
+      ) {
+        return;
+      }
+      return invalidateResource(ctx, resource);
+    },
   };
 }
 
