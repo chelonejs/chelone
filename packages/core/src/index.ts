@@ -635,6 +635,11 @@ export {
 export type { AddEventsForMutationsOptions } from "./realtime/add-events-for-mutations";
 export { addEventsForMutations } from "./realtime/add-events-for-mutations";
 export { announceLock } from "./realtime/announce-lock";
+export type {
+  BroadcastChannelTransport,
+  BroadcastChannelTransportOptions,
+} from "./realtime/broadcast-channel-transport";
+export { broadcastChannelTransport } from "./realtime/broadcast-channel-transport";
 export type { InMemoryLockProviderOptions } from "./realtime/in-memory-lock-provider";
 export { inMemoryLockProvider } from "./realtime/in-memory-lock-provider";
 export type { LiveOptions, LiveSubscription } from "./realtime/live";
@@ -678,8 +683,11 @@ export {
   isRealtimeDataProvider,
   realtimeDataProvider,
 } from "./realtime/realtime-data-provider";
+export type { RealtimeReconnectConfig } from "./realtime/reconnect-backoff";
 export type { RealtimeStatusState } from "./realtime/status-store";
 export { createRealtimeStatusStore } from "./realtime/status-store";
+export type { TopicHub } from "./realtime/topic-hub";
+export { createTopicHub } from "./realtime/topic-hub";
 export {
   lockResourceTopic,
   lockTopic,
