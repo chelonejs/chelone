@@ -3,6 +3,7 @@ import type {
   FilterPayload,
   LooseRecord,
   SortPayload,
+  SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link ReferenceOneField}. */
@@ -12,7 +13,7 @@ export interface ReferenceOneFieldProps {
   /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
   target: string;
   /** The field on the current record the `target` matches. Default `"id"`. */
-  source?: string;
+  source?: SourceProp;
   /** The record whose id is matched. Defaults to the ambient record. */
   record?: LooseRecord;
   /** Sort applied to the reference lookup (the first match is used). Read when the record id changes; remount with a `key` to change it otherwise. */

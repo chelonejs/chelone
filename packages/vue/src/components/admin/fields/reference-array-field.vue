@@ -4,12 +4,13 @@ import type {
   Identifier,
   LooseRecord,
   SortPayload,
+  SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link ReferenceArrayField}. */
 export interface ReferenceArrayFieldProps {
   /** The FK-array field on the current record (e.g. `"tag_ids"`). */
-  source: string;
+  source: SourceProp;
   /** The referenced resource the ids point at (e.g. `"tags"`). */
   reference: string;
   /** The record to read the FK array off. Defaults to the ambient record. */

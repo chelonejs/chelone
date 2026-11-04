@@ -4,6 +4,7 @@ import type {
   LooseRecord,
   ResourceRecord,
   SortPayload,
+  SourceProp,
 } from "@chelone/core";
 import type { ReactNode } from "react";
 import { ListContextProvider } from "../../../form";
@@ -16,7 +17,7 @@ interface ReferenceArrayFieldProps<
   RecordType extends LooseRecord = LooseRecord,
 > {
   /** The FK-array field on the current record (e.g. `"tag_ids"`). */
-  source: string;
+  source: SourceProp<RecordType>;
   /** The referenced resource the ids point at (e.g. `"tags"`). */
   reference: string;
   /** The record to read the FK array off. Defaults to the ambient record. */

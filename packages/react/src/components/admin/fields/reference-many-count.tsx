@@ -1,4 +1,9 @@
-import type { FilterPayload, Identifier, LooseRecord } from "@chelone/core";
+import type {
+  FilterPayload,
+  Identifier,
+  LooseRecord,
+  SourceProp,
+} from "@chelone/core";
 import type { ReactNode } from "react";
 import { useGetManyReference } from "../../../hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -11,7 +16,7 @@ interface ReferenceManyCountProps<
   /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
   target: string;
   /** The field on the current record the `target` matches. Default `"id"`. */
-  source?: string;
+  source?: SourceProp<RecordType>;
   /** The record whose id is matched. Defaults to the ambient record. */
   record?: RecordType;
   /** Permanent filter merged into the lookup, so only matching rows are counted. */

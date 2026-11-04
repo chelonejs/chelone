@@ -1,4 +1,4 @@
-import type { Identifier, LooseRecord } from "@chelone/core";
+import type { Identifier, LooseRecord, SourceProp } from "@chelone/core";
 import type { MouseEvent, ReactNode } from "react";
 import { useGetManyAggregate } from "../../../hooks";
 import { useTranslate } from "../../../i18n-hooks";
@@ -11,7 +11,7 @@ import { useRouterAdapter } from "../../../router/adapter";
 
 interface ReferenceFieldProps<RecordType extends LooseRecord = LooseRecord> {
   /** The FK field on the current record (e.g. `"author_id"`). */
-  source: string;
+  source: SourceProp<RecordType>;
   /** The referenced resource the FK points at (e.g. `"authors"`). */
   reference: string;
   /** The record to read the FK off. Defaults to the ambient record. */
