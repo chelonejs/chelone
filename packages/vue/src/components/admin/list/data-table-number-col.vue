@@ -1,10 +1,11 @@
 <script lang="ts">
+import type { SourceProp } from "@chelone/core";
 import type { DataTableColProps } from "./data-table-col.vue";
 
 /** Props for {@link DataTableNumberCol}. */
 export interface DataTableNumberColProps
   extends Omit<DataTableColProps, "source"> {
-  source: string;
+  source: SourceProp;
   /** BCP 47 locale(s) for `Intl.NumberFormat`. */
   locales?: string | string[];
   /** `Intl.NumberFormatOptions` (currency, percent, fraction digits…). */

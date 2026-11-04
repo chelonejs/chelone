@@ -1,8 +1,10 @@
 <script lang="ts">
+import type { SourceProp } from "@chelone/core";
+
 /** Props for {@link SortButton}. */
 export interface SortButtonProps {
   /** The sortable field names offered in the dropdown. */
-  fields: string[];
+  fields: SourceProp[];
   /** Override the auto-translated button label. */
   label?: string;
   /** Extra CSS class appended to the trigger. */
