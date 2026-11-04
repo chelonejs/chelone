@@ -21,6 +21,7 @@
 import type {
   CheloneFieldState,
   FieldBinding,
+  SourcePath,
   TranslatableMessage,
   Validator,
 } from "@chelone/core";
@@ -34,9 +35,9 @@ import { useSubscribable } from "./subscribe-ref";
 /** The erased form-data shape the ambient form carries. */
 type UnknownFormValues = Record<string, unknown>;
 
-export interface UseInputOptions {
+export interface UseInputOptions<TRecord = unknown> {
   /** The field path RELATIVE to the ambient source scope (iterator rows compose it). */
-  source: string;
+  source: SourcePath<TRecord>;
   /**
    * Input-level default (ra precedence): seeds ONLY into a hole (an untouched
    * field whose form value is `undefined`); an existing record value wins.
@@ -100,7 +101,17 @@ function extractEventValue(input: unknown): unknown {
   return input;
 }
 
-export function useInput(options: UseInputOptions): UseInputReturn {
+export function useInput<TRecord>(
+  options: UseInputOptions<TRecord>,
+): UseInputReturn;
+// The loose overload: a typed props spread has a `source` wider than
+// `SourcePath<Post>` (row paths, filter keys), and inference from it would
+// otherwise reject the call. Last, so `Parameters<typeof useInput>` is the
+// plain `UseInputOptions`.
+export function useInput(options: UseInputOptions): UseInputReturn;
+export function useInput<TRecord>(
+  options: UseInputOptions<TRecord>,
+): UseInputReturn {
   const { form } = useCheloneFormContext();
   const scope = useSourceScope();
   const source = scope.getSource(options.source);

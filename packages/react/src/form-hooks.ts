@@ -13,6 +13,7 @@ import type {
   FormControllerOptions,
   RecordOf,
   ResourceMap,
+  SourcePath,
   TranslatableMessage,
 } from "@chelone/core";
 import {
@@ -300,9 +301,10 @@ export function useCreateForm<
   );
 }
 
-export interface UseInputOptions extends FieldBindingUpdateOptions {
+export interface UseInputOptions<TRecord = unknown>
+  extends FieldBindingUpdateOptions {
   /** The field path RELATIVE to the ambient source scope (iterator rows compose it). */
-  source: string;
+  source: SourcePath<TRecord>;
   /** Forces the required marker; ORed with `required()` detection on `validate`. */
   isRequired?: boolean;
   /** Explicit element id; a `useId` value is generated otherwise. */
@@ -351,7 +353,9 @@ interface InputBindingHolder {
  * validators' meta argument carries the full input props (ra parity: custom
  * validators can read them), with an explicit `validatorMeta` merged on top.
  */
-function toBindingUpdate(options: UseInputOptions): FieldBindingUpdateOptions {
+function toBindingUpdate<TRecord>(
+  options: UseInputOptions<TRecord>,
+): FieldBindingUpdateOptions {
   const meta: Record<string, unknown> = {};
   Object.assign(meta, options, options.validatorMeta);
   return {
@@ -410,7 +414,17 @@ function extractEventValue(input: unknown): unknown {
  *   (react-form's slice pattern), so typing here never re-renders sibling
  *   inputs.
  */
-export function useInput(options: UseInputOptions): UseInputResult {
+export function useInput<TRecord>(
+  options: UseInputOptions<TRecord>,
+): UseInputResult;
+// The loose overload: a typed `InputProps<_, Post>` spread has a `source` wider
+// than `SourcePath<Post>` (row paths, filter keys), and inference from it
+// would otherwise reject the call. Last, so `Parameters<typeof useInput>` is
+// the plain `UseInputOptions`.
+export function useInput(options: UseInputOptions): UseInputResult;
+export function useInput<TRecord>(
+  options: UseInputOptions<TRecord>,
+): UseInputResult {
   const { form } = useCheloneFormContext();
   const scope = useSourceContext();
   const source = scope.getSource(options.source);
