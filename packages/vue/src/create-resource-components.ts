@@ -175,7 +175,7 @@ type Ctor = abstract new (...args: never[]) => { $props: object };
 /** `P` with `source` swapped for `TSource`, optional where `P`'s was. */
 type WithSource<P, TSource> = "source" extends keyof P
   ? Omit<P, "source"> &
-      ({} extends Pick<P, "source">
+      (Partial<Pick<P, "source">> extends Pick<P, "source">
         ? { source?: TSource }
         : { source: TSource })
   : P;
