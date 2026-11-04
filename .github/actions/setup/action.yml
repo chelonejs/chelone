@@ -1,0 +1,28 @@
+name: Set up
+description: pnpm, Node, the workspace's dependencies and the job's turbo cache
+inputs:
+  cache-key:
+    description: Names the job's turbo cache, so jobs that run different tasks keep separate caches
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v4
+    - uses: actions/setup-node@v5
+      with:
+        node-version: 24
+        cache: pnpm
+    - name: Install
+      shell: bash
+      run: pnpm install --frozen-lockfile
+    # Each run saves under its own sha and restores the newest entry for its job,
+    # from its own branch first, then from main.
+    - uses: actions/cache@v4
+      with:
+        path: .turbo/cache
+        key: turbo-${{ inputs.cache-key }}-${{ github.sha }}
+        restore-keys: turbo-${{ inputs.cache-key }}-
+    # Turbo never prunes its local cache, and each run re-saves what it restored.
+    - name: Drop turbo cache entries older than a week
+      shell: bash
+      run: find .turbo/cache -type f -mtime +7 -delete 2>/dev/null || true

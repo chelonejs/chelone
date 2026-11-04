@@ -13,19 +13,18 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  TURBO_CACHE_DIR: .turbo/cache
+
 jobs:
-  check:
+  static:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      - uses: ./.github/actions/setup
         with:
-          node-version: 24
-          cache: pnpm
-      - name: Install
-        run: pnpm install --frozen-lockfile
+          cache-key: static
       - name: Lint
         run: pnpm lint
       - name: No new duplication
@@ -34,8 +33,15 @@ jobs:
         run: pnpm check:type-escapes
       - name: Typecheck
         run: pnpm typecheck
-      - name: Test
-        run: pnpm test
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+        with:
+          cache-key: build
       - name: Build
         run: pnpm build
       - name: Props pages are up to date
@@ -66,3 +72,36 @@ jobs:
           }
       - name: Vue registry builds
         run: pnpm --dir packages/vue registry:build
+
+  test:
+    name: test (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: core, rest, supabase, website
+            key: base
+            run: pnpm turbo run test --filter=!@chelone/react --filter=!@chelone/vue -- --typecheck.enabled=false
+          - name: react 1/2
+            key: react-1
+            run: pnpm turbo run test --filter=@chelone/react -- --typecheck.enabled=false --shard=1/2
+          - name: react 2/2
+            key: react-2
+            run: pnpm turbo run test --filter=@chelone/react -- --typecheck.enabled=false --shard=2/2
+          - name: vue 1/2
+            key: vue-1
+            run: pnpm turbo run test --filter=@chelone/vue -- --typecheck.enabled=false --shard=1/2
+          - name: vue 2/2
+            key: vue-2
+            run: pnpm turbo run test --filter=@chelone/vue -- --typecheck.enabled=false --shard=2/2
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+        with:
+          cache-key: test-${{ matrix.key }}
+      # The *.test-d.ts files sit under each package's tsconfig, so the static
+      # job's tsc and vue-tsc already check them, and vitest skips its own pass.
+      - name: Test
+        run: ${{ matrix.run }}
