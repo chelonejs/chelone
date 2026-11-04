@@ -419,5 +419,13 @@ describe("@chelone/core barrel", () => {
     expect("isThenable" in barrel).toBe(false);
     expect("composeFormValidator" in barrel).toBe(false);
     expect("resolveHydrationAction" in barrel).toBe(false);
+    expect("isPlainObject" in barrel).toBe(false);
+    expect("isJsonObject" in barrel).toBe(false);
+  });
+
+  it("exports isRecord", () => {
+    expect(barrel.isRecord).toBeTypeOf("function");
+    expect(barrel.isRecord({ a: 1 })).toBe(true);
+    expect(barrel.isRecord([1])).toBe(false);
   });
 });
