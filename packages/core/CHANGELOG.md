@@ -1,5 +1,13 @@
 # @chelone/core
 
+## [0.4.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.3.0...@chelone/core@0.4.0) (2026-11-04)
+
+
+### Features
+
+* **core,react,vue:** CalendarList and TreeList take their sources typed by the record ([ddda9a0](https://github.com/chelonejs/chelone/commit/ddda9a04ca7e59de59b985ae18efd011fcf6c4a6))
+* **core:** buildKanbanBuckets sorts records into columns and planKanbanMove decides what a drop writes ([189c0ef](https://github.com/chelonejs/chelone/commit/189c0ef3a3fd471c0ec2a2feca5f7015ca5c1659))
+
 ## [0.3.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.2.0...@chelone/core@0.3.0) (2026-11-04)
 
 
