@@ -44,7 +44,7 @@ const label = computed(() => {
 
 const rows = computed(() =>
   Object.entries(props.payload)
-    .filter(([key]) => key in config.value && key !== props.labelKey)
+    .filter(([key]) => Object.hasOwn(config.value, key) && key !== props.labelKey)
     .map(([key, value]) => {
       const item = config.value[key];
       const named = props.nameKey ? props.payload[props.nameKey] : undefined;
@@ -53,7 +53,11 @@ const rows = computed(() =>
         item,
         name: item?.label ?? (named != null ? String(named) : key),
         value:
-          typeof value === "number" ? value.toLocaleString() : String(value),
+          value == null
+            ? null
+            : typeof value === "number"
+              ? value.toLocaleString()
+              : String(value),
         color: props.color ?? item?.color ?? `var(--color-${key})`,
       };
     }),
@@ -115,9 +119,11 @@ const nestLabel = computed(
               <template v-else>{{ row.name }}</template>
             </span>
           </div>
-          <span class="font-mono font-medium text-foreground tabular-nums">{{
-            row.value
-          }}</span>
+          <span
+            v-if="row.value !== null"
+            class="font-mono font-medium text-foreground tabular-nums"
+            >{{ row.value }}</span
+          >
         </div>
       </div>
     </div>

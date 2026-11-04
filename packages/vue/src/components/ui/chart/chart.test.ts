@@ -6,7 +6,8 @@
 
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
-import { defineComponent, h } from "vue";
+import { createSSRApp, defineComponent, h } from "vue";
+import { renderToString } from "vue/server-renderer";
 import {
   type ChartConfig,
   ChartContainer,
@@ -67,9 +68,48 @@ describe("<ChartContainer>", () => {
   });
 
   it("two containers on one page get different ids", () => {
-    const a = mountTracked(ChartContainer, { config });
-    const b = mountTracked(ChartContainer, { config });
-    expect(a.attributes("data-chart")).not.toBe(b.attributes("data-chart"));
+    const wrapper = mountTracked(
+      defineComponent({
+        render: () => [
+          h(ChartContainer, { config }),
+          h(ChartContainer, { config }),
+        ],
+      }),
+    );
+    const [a, b] = wrapper
+      .findAll("[data-slot=chart]")
+      .map((el) => el.attributes("data-chart"));
+    expect(a).toBeTruthy();
+    expect(a).not.toBe(b);
+  });
+});
+
+describe("<ChartContainer> under server rendering", () => {
+  it("hydrates to the same data-chart after earlier server renders", async () => {
+    const page = () =>
+      createSSRApp({
+        render: () => h(ChartContainer, { config }),
+      });
+    // Earlier requests in the same process must not shift the next page's id.
+    await renderToString(page());
+    await renderToString(page());
+    const html = await renderToString(page());
+    const serverId = /data-chart="([^"]+)"/.exec(html)?.[1];
+
+    const host = document.createElement("div");
+    host.innerHTML = html;
+    document.body.append(host);
+    const app = page();
+    app.mount(host);
+    const clientId = host
+      .querySelector("[data-slot=chart]")
+      ?.getAttribute("data-chart");
+    expect(clientId).toBe(serverId);
+    expect(host.querySelector("style")?.textContent).toContain(
+      `[data-chart=${serverId}]`,
+    );
+    app.unmount();
+    host.remove();
   });
 });
 
@@ -131,6 +171,46 @@ describe("<ChartLegendContent>", () => {
     expect(items.map((item) => item.text())).toEqual(["Desktop", "Mobile"]);
     const swatch = items[0]?.get("div").element as HTMLElement;
     expect(swatch.style.backgroundColor).toBe("rgb(255, 0, 0)");
+  });
+});
+
+describe("<ChartLegendContent> without a label", () => {
+  it("falls back to the config key", () => {
+    const wrapper = mountTracked(
+      defineComponent({
+        render: () =>
+          h(ChartContainer, { config: { desktop: { color: "red" } } }, () =>
+            h(ChartLegendContent),
+          ),
+      }),
+    );
+    expect(wrapper.get("[data-slot=chart-legend-item]").text()).toBe("desktop");
+  });
+});
+
+describe("<ChartTooltipContent> rows", () => {
+  const rowsOf = (payload: Record<string, unknown>) => {
+    const html =
+      componentToString(config, ChartTooltipContent, {})?.(payload) ?? "";
+    const el = document.createElement("div");
+    el.innerHTML = html;
+    return el;
+  };
+
+  it("ignores payload keys inherited from Object.prototype", () => {
+    const el = rowsOf({ desktop: 1, constructor: "x", toString: "y" });
+    expect(el.textContent).toContain("Desktop");
+    expect(el.textContent).not.toContain("constructor");
+    expect(el.textContent).not.toContain("toString");
+    expect(el.innerHTML).not.toContain("--color-constructor");
+  });
+
+  it("shows no value text for a null or undefined value", () => {
+    const el = rowsOf({ desktop: null, mobile: 80 });
+    expect(el.textContent).toContain("Desktop");
+    expect(el.textContent).toContain("80");
+    expect(el.textContent).not.toContain("null");
+    expect(el.textContent).not.toContain("undefined");
   });
 });
 

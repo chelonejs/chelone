@@ -26,6 +26,7 @@ const items = computed(() =>
     item,
     // A themed entry has no single color; `ChartStyle` defines the variable.
     color: item.color ?? `var(--color-${key})`,
+    label: item.label ?? key,
   })),
 );
 </script>
@@ -56,8 +57,8 @@ const items = computed(() =>
         class="h-2 w-2 shrink-0 rounded-[2px]"
         :style="{ backgroundColor: entry.color }"
       />
-      <component :is="entry.item.label" v-if="typeof entry.item.label !== 'string'" />
-      <template v-else>{{ entry.item.label }}</template>
+      <component :is="entry.label" v-if="typeof entry.label !== 'string'" />
+      <template v-else>{{ entry.label }}</template>
     </div>
   </div>
 </template>

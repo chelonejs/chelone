@@ -9,10 +9,12 @@
  * test.
  */
 
+import * as Vue from "vue";
 import {
   type Component,
   createApp,
   defineComponent,
+  getCurrentInstance,
   h,
   type InjectionKey,
   inject,
@@ -58,8 +60,19 @@ export function useChart(): ChartContextProps {
 
 let idCounter = 0;
 
-/** A page-unique id, safe to put in a selector without escaping. */
+/**
+ * A page-unique id, safe to put in a selector. Inside a component it is Vue's
+ * own `useId` where the installed Vue has one (3.5+), which is per app and so
+ * matches between server render and hydration. Vue's peer range starts at 3.4,
+ * and `componentToString` calls this outside a component; both fall back to a
+ * module counter, which a server that renders several requests in one process
+ * does not reset, so on Vue 3.4 pass `id` to `<ChartContainer>` for SSR.
+ */
 export function useId(): string {
+  const vueUseId = (Vue as { useId?: () => string }).useId;
+  if (vueUseId && getCurrentInstance()) {
+    return vueUseId().replace(/[^\w-]/g, "");
+  }
   idCounter += 1;
   return `chelone-${idCounter}`;
 }
