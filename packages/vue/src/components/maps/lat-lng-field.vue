@@ -1,12 +1,12 @@
 <script lang="ts">
-import type { MapStyleInput } from "@chelone/core";
+import type { MapStyleInput, SourceProp } from "@chelone/core";
 
 /** Props for {@link LatLngField}. */
 export interface LatLngFieldProps {
   /** The record property holding the latitude. */
-  latSource: string;
+  latSource: SourceProp;
   /** The record property holding the longitude. */
-  lngSource: string;
+  lngSource: SourceProp;
   /** Defaults to the ambient record. */
   record?: Record<string, unknown>;
   zoom?: number;

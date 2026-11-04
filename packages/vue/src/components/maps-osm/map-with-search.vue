@@ -1,14 +1,14 @@
 <script lang="ts">
-import type { GeocodingProvider } from "@chelone/core";
+import type { GeocodingProvider, SourceProp } from "@chelone/core";
 
 /** Props for {@link MapWithSearch}. */
 export interface MapWithSearchProps {
   /** The form field holding the latitude. */
-  latSource: string;
+  latSource: SourceProp;
   /** The form field holding the longitude. */
-  lngSource: string;
+  lngSource: SourceProp;
   /** The form field holding the address text. */
-  addressSource: string;
+  addressSource: SourceProp;
   /** In pixels, or any CSS length. Defaults to 400. */
   height?: number | string;
   /** Read once at mount. Defaults to 13. */

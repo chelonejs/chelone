@@ -6,11 +6,11 @@ export interface GeocodingInputProps {
   /** The form field holding the address text. */
   source: SourceProp;
   /** Written with the picked result's latitude. Left alone when unset. */
-  latSource?: string;
+  latSource?: SourceProp;
   /** Written with the picked result's longitude. Left alone when unset. */
-  lngSource?: string;
+  lngSource?: SourceProp;
   /** Written with the picked result's `[west, south, east, north]`, when it has one. */
-  bboxSource?: string;
+  bboxSource?: SourceProp;
   /** A string is translated; `false` renders none. Defaults to the label of `source`. */
   label?: string | false;
   /** Defaults to `chelone.map.search_placeholder`. */

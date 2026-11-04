@@ -1,14 +1,19 @@
-import { type MapStyleInput, toCoordinate } from "@chelone/core";
+import {
+  type LooseRecord,
+  type MapStyleInput,
+  type SourceProp,
+  toCoordinate,
+} from "@chelone/core";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../i18n-hooks";
 import { useFieldValue } from "../../record/use-field-value";
 import { MapCanvas, MapMarker } from "./map-canvas";
 
-export interface LatLngFieldProps {
+export interface LatLngFieldProps<TRecord = LooseRecord> {
   /** The record property holding the latitude. */
-  latSource: string;
+  latSource: SourceProp<TRecord>;
   /** The record property holding the longitude. */
-  lngSource: string;
+  lngSource: SourceProp<TRecord>;
   /** Defaults to the ambient record. */
   record?: Record<string, unknown>;
   zoom?: number;
@@ -31,7 +36,7 @@ function inRange(value: number | null, limit: number): number | null {
  * @example
  * <LatLngField latSource="latitude" lngSource="longitude" />
  */
-export function LatLngField({
+export function LatLngField<TRecord = LooseRecord>({
   latSource,
   lngSource,
   record,
@@ -39,7 +44,7 @@ export function LatLngField({
   height,
   mapStyle,
   className,
-}: LatLngFieldProps) {
+}: LatLngFieldProps<TRecord>) {
   const translate = useTranslate();
   const lat = inRange(
     toCoordinate(useFieldValue({ source: latSource, record })),
