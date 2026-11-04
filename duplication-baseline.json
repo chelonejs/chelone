@@ -42,8 +42,6 @@
   "packages/react/src/components/admin/fields/color-field.tsx <-> packages/react/src/components/admin/fields/duration-field.tsx": 1,
   "packages/react/src/components/admin/fields/color-field.tsx <-> packages/react/src/components/admin/fields/phone-field.tsx": 1,
   "packages/react/src/components/admin/fields/color-field.tsx <-> packages/react/src/components/admin/fields/subscription-plan-field.tsx": 1,
-  "packages/react/src/components/admin/fields/cron-field.tsx <-> packages/react/src/components/admin/fields/file-field.tsx": 1,
-  "packages/react/src/components/admin/fields/cron-field.tsx <-> packages/react/src/components/admin/fields/image-field.tsx": 1,
   "packages/react/src/components/admin/fields/currency-field.tsx <-> packages/react/src/components/admin/fields/rating-field.tsx": 1,
   "packages/react/src/components/admin/fields/date-field.tsx <-> packages/react/src/components/admin/fields/number-field.tsx": 1,
   "packages/react/src/components/admin/fields/email-field.tsx <-> packages/react/src/components/admin/fields/json-field.tsx": 1,

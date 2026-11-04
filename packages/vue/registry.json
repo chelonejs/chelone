@@ -845,10 +845,6 @@
           "type": "registry:component"
         },
         {
-          "path": "src/components/admin/fields/get-path.ts",
-          "type": "registry:component"
-        },
-        {
           "path": "src/components/admin/fields/image-field.vue",
           "type": "registry:component"
         },
@@ -2735,7 +2731,7 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/get-path", "@chelone/lib-utils"],
+      "registryDependencies": ["@chelone/lib-utils"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
@@ -2756,19 +2752,6 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
-      "name": "get-path",
-      "type": "registry:component",
-      "title": "Get Path",
-      "files": [
-        {
-          "path": "src/components/admin/fields/get-path.ts",
-          "type": "registry:component"
-        }
-      ],
-      "categories": ["chelone", "components"],
-      "author": "Chelone <https://chelone.dev>"
-    },
-    {
       "name": "image-field",
       "type": "registry:component",
       "title": "Image Field",
@@ -2778,7 +2761,7 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/get-path", "@chelone/lib-utils"],
+      "registryDependencies": ["@chelone/lib-utils"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
