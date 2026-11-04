@@ -1,11 +1,12 @@
 <script lang="ts">
+import type { SourceProp } from "@chelone/core";
 import type { GeoJsonViewProps } from "./geo-json-view.vue";
 
 /** Props for {@link GeoJsonField}. */
 export interface GeoJsonFieldProps
   extends Partial<Omit<GeoJsonViewProps, "data">> {
   /** The record property holding the GeoJSON value. */
-  source: string;
+  source: SourceProp;
   /** Defaults to the ambient record. */
   record?: Record<string, unknown>;
   /** Used when the property is `undefined`. */
