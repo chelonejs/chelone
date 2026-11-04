@@ -102,6 +102,16 @@ export function createI18n<const TCatalog extends MessageCatalog>(options: {
   locale: string;
   messages: Record<string, TCatalog>;
   fallbackLocale?: string;
+  /**
+   * Called when the current locale's catalog holds no own entry for a key,
+   * even when `fallbackLocale` supplies the text. `fallback` is the string `_`
+   * param. A throwing callback goes to `console.error`; `translate` is unchanged.
+   */
+  onMissingKey?: (
+    key: string,
+    locale: string,
+    fallback: string | undefined,
+  ) => void;
 }): CheloneI18n<TCatalog> {
   let locale = options.locale;
   const subscribers = new Set<() => void>();
@@ -109,8 +119,20 @@ export function createI18n<const TCatalog extends MessageCatalog>(options: {
   return {
     translate(key, ...args) {
       const params = args[0] as Record<string, unknown> | undefined;
+      const own = lookup(options.messages[locale], key);
+      if (own === undefined && options.onMissingKey) {
+        try {
+          options.onMissingKey(
+            key,
+            locale,
+            typeof params?._ === "string" ? params._ : undefined,
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      }
       const value =
-        lookup(options.messages[locale], key) ??
+        own ??
         (options.fallbackLocale
           ? lookup(options.messages[options.fallbackLocale], key)
           : undefined);
