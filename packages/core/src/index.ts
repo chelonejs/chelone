@@ -653,6 +653,7 @@ export {
 } from "./onboarding-tour/tour-controller";
 export type { AddEventsForMutationsOptions } from "./realtime/add-events-for-mutations";
 export { addEventsForMutations } from "./realtime/add-events-for-mutations";
+export { announceLock } from "./realtime/announce-lock";
 export type {
   BroadcastChannelTransport,
   BroadcastChannelTransportOptions,
