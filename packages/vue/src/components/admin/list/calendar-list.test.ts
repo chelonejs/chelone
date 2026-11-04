@@ -707,7 +707,7 @@ describe("<CalendarList> agenda view", () => {
 
     expect(days(wrapper)).toHaveLength(0);
     expect(wrapper.get("[data-slot=calendar-agenda-empty]").text()).toBe(
-      "No events in this range",
+      "No events",
     );
   });
 

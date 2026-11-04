@@ -537,6 +537,7 @@ export {
 export type { OsrmProviderOptions, RoutingProvider } from "./geo/snap-to-roads";
 export { createOsrmProvider } from "./geo/snap-to-roads";
 export { defaultMessages } from "./i18n/default-messages";
+export { englishMessages } from "./i18n/english-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";
 export { createI18n } from "./i18n/i18n";
 export type {
@@ -654,6 +655,12 @@ export { getAtPath } from "./resource/get-at-path";
 export type { Identifier } from "./resource/identifier";
 export type { LooseRecord, ResourceRecord } from "./resource/record";
 export type {
+  Register,
+  RegisteredRecord,
+  RegisteredResourceName,
+  RegisteredResources,
+} from "./resource/register";
+export type {
   RecordOf,
   ResourceConfig,
   ResourceMap,
@@ -670,6 +677,16 @@ export {
   computeDefinition,
   createResourceRegistry,
 } from "./resource/registry-store";
+export type {
+  AnySourcePath,
+  AnySourcePathOf,
+  FilterSourceKey,
+  RowSourcePath,
+  SourceKey,
+  SourcePath,
+  SourceProp,
+  SourceValue,
+} from "./resource/source-path";
 export type { CheloneLocation, NavigateOpts } from "./router/location";
 export { parseLocation } from "./router/location";
 export type { PathMatch } from "./router/match";

@@ -1,6 +1,6 @@
 {
   "name": "@chelone/core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -54,5 +54,8 @@
     "vite": "^7.0.0",
     "vitest": "^3.0.0",
     "zod": "^3.25.0"
+  },
+  "dependencies": {
+    "dot.paths": "^0.2.0"
   }
 }
