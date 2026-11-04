@@ -1,5 +1,9 @@
-import type { FieldComponentName, InputComponentName } from "@chelone/core";
-import type { ComponentType } from "react";
+import type {
+  FieldComponentName,
+  FieldDescriptor,
+  InputComponentName,
+} from "@chelone/core";
+import { createElement, type ReactElement } from "react";
 import { BooleanField } from "../fields/boolean-field";
 import { DateField } from "../fields/date-field";
 import { EmailField } from "../fields/email-field";
@@ -20,34 +24,88 @@ import { SelectInput } from "../inputs/select-input";
 import { TextArrayInput } from "../inputs/text-array-input";
 import { TextInput } from "../inputs/text-input";
 
-// A descriptor's props are only known at runtime, so each component is held
-// untyped. The record is exhaustive: a name added in core fails typecheck here.
-const untyped = <P>(component: ComponentType<P>) =>
-  component as unknown as ComponentType;
+type GuessElement = (field: FieldDescriptor) => ReactElement;
 
-/** The field component each core `FieldComponentName` renders as. */
-export const guessFieldComponents: Record<FieldComponentName, ComponentType> = {
-  TextField: untyped(TextField),
-  EmailField: untyped(EmailField),
-  UrlField: untyped(UrlField),
-  NumberField: untyped(NumberField),
-  BooleanField: untyped(BooleanField),
-  DateField: untyped(DateField),
-  SelectField: untyped(SelectField),
-  TextArrayField: untyped(TextArrayField),
-  ReferenceField: untyped(ReferenceField),
-  ReferenceArrayField: untyped(ReferenceArrayField),
+// A reference descriptor always carries its target; the empty fallback only
+// keeps the type total, as the guessers' reference branches already do.
+const referenceOf = (field: FieldDescriptor) => field.reference ?? "";
+
+/**
+ * Builds the field element each core `FieldComponentName` renders as. The
+ * record is exhaustive: a name added in core fails typecheck here.
+ */
+export const guessFieldElements: Record<FieldComponentName, GuessElement> = {
+  TextField: (field) =>
+    createElement(TextField, { source: field.source, ...field.fieldProps }),
+  EmailField: (field) =>
+    createElement(EmailField, { source: field.source, ...field.fieldProps }),
+  UrlField: (field) =>
+    createElement(UrlField, { source: field.source, ...field.fieldProps }),
+  NumberField: (field) =>
+    createElement(NumberField, { source: field.source, ...field.fieldProps }),
+  BooleanField: (field) =>
+    createElement(BooleanField, { source: field.source, ...field.fieldProps }),
+  DateField: (field) =>
+    createElement(DateField, { source: field.source, ...field.fieldProps }),
+  SelectField: (field) =>
+    createElement(SelectField, {
+      source: field.source,
+      choices: field.choices,
+      ...field.fieldProps,
+    }),
+  TextArrayField: (field) =>
+    createElement(TextArrayField, {
+      source: field.source,
+      ...field.fieldProps,
+    }),
+  ReferenceField: (field) =>
+    createElement(ReferenceField, {
+      source: field.source,
+      reference: referenceOf(field),
+      ...field.fieldProps,
+    }),
+  ReferenceArrayField: (field) =>
+    createElement(ReferenceArrayField, {
+      source: field.source,
+      reference: referenceOf(field),
+      ...field.fieldProps,
+    }),
 };
 
-/** The input component each core `InputComponentName` renders as. */
-export const guessInputComponents: Record<InputComponentName, ComponentType> = {
-  TextInput: untyped(TextInput),
-  NumberInput: untyped(NumberInput),
-  BooleanInput: untyped(BooleanInput),
-  DateInput: untyped(DateInput),
-  DateTimeInput: untyped(DateTimeInput),
-  SelectInput: untyped(SelectInput),
-  TextArrayInput: untyped(TextArrayInput),
-  ReferenceInput: untyped(ReferenceInput),
-  ReferenceArrayInput: untyped(ReferenceArrayInput),
+/**
+ * Builds the input element each core `InputComponentName` renders as, with the
+ * descriptor's `label` when it has one.
+ */
+export const guessInputElements: Record<InputComponentName, GuessElement> = {
+  TextInput: (field) =>
+    createElement(TextInput, { source: field.source, label: field.label }),
+  NumberInput: (field) =>
+    createElement(NumberInput, { source: field.source, label: field.label }),
+  BooleanInput: (field) =>
+    createElement(BooleanInput, { source: field.source, label: field.label }),
+  DateInput: (field) =>
+    createElement(DateInput, { source: field.source, label: field.label }),
+  DateTimeInput: (field) =>
+    createElement(DateTimeInput, { source: field.source, label: field.label }),
+  SelectInput: (field) =>
+    createElement(SelectInput, {
+      source: field.source,
+      label: field.label,
+      choices: field.choices,
+    }),
+  TextArrayInput: (field) =>
+    createElement(TextArrayInput, {
+      source: field.source,
+      label: field.label,
+    }),
+  ReferenceInput: (field) =>
+    createElement(ReferenceInput, {
+      source: field.source,
+      reference: referenceOf(field),
+    }),
+  ReferenceArrayInput: (field) =>
+    createElement(ReferenceArrayInput, {
+      source: field.source,
+      reference: referenceOf(field),
+    }),
 };
