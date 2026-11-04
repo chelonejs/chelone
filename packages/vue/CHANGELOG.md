@@ -1,5 +1,28 @@
 # @chelone/vue
 
+## [0.5.0](https://github.com/chelonejs/chelone/compare/@chelone/vue@0.4.0...@chelone/vue@0.5.0) (2026-11-04)
+
+
+### Features
+
+* **vue:** a resource component's format, parse and transform take the value at its source ([8d74a0d](https://github.com/chelonejs/chelone/commit/8d74a0d521ff48af2b9c75ab10f155c81cced46d))
+
+
+### Bug Fixes
+
+* **react,vue:** type the Vue DatagridInput choice paths by its choices too ([6c34ecb](https://github.com/chelonejs/chelone/commit/6c34ecb4d89477686f9673259be35a5462390f1c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.5.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.5.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.5.0
+
 ## [0.4.0](https://github.com/chelonejs/chelone/compare/@chelone/vue@0.3.0...@chelone/vue@0.4.0) (2026-11-04)
 
 

@@ -1,5 +1,29 @@
 # @chelone/react
 
+## [0.5.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.4.0...@chelone/react@0.5.0) (2026-11-04)
+
+
+### Features
+
+* **react:** a resource component's format, parse and transform take the value at its source ([f45e8ce](https://github.com/chelonejs/chelone/commit/f45e8ceb6708f99aca9758594a624ce11524cf8f))
+
+
+### Bug Fixes
+
+* **react,vue:** type the Vue DatagridInput choice paths by its choices too ([6c34ecb](https://github.com/chelonejs/chelone/commit/6c34ecb4d89477686f9673259be35a5462390f1c))
+* **react:** take the guessers as Resource list, edit and show views ([6e0e6df](https://github.com/chelonejs/chelone/commit/6e0e6dfc46c97090ce4a4992f1b5959a40f8a383))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.5.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.5.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.5.0
+
 ## [0.4.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.3.0...@chelone/react@0.4.0) (2026-11-04)
 
 
