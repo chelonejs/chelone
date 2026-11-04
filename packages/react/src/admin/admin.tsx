@@ -97,7 +97,7 @@ interface AdminStatics {
  * they can be a `(permissions) => …` FUNCTION, which is not React children, so
  * naming it `children` would be misleading (and trip `noChildrenProp`).
  */
-function AdminInner<TResources extends ResourceMap = ResourceMap>({
+function AdminInner({
   requireAuth,
   permissions,
   slotProps,
@@ -108,7 +108,6 @@ function AdminInner<TResources extends ResourceMap = ResourceMap>({
   slotProps: AdminSlotProps;
   adminChildren: AdminChildren;
 }): ReactNode {
-  void (undefined as unknown as TResources);
   const { status, node } = useResolvedChildren(adminChildren, permissions);
   return (
     <AdminUI
@@ -187,7 +186,7 @@ function AdminComponent<TResources extends ResourceMap = ResourceMap>({
       adapter={router}
       basename={basename}
     >
-      <AdminInner<TResources>
+      <AdminInner
         requireAuth={requireAuth}
         permissions={permissions}
         slotProps={slotProps}
