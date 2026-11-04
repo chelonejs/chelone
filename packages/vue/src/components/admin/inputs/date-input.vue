@@ -1,7 +1,7 @@
 <script lang="ts">
 /** Props for {@link DateInput}. */
 export interface DateInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
@@ -29,7 +29,7 @@ export interface DateInputProps {
  * dance (born of RHF's `field.ref`) maps to a focused-buffer + external re-sync.
  */
 
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";

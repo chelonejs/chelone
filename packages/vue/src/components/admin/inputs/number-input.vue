@@ -1,7 +1,7 @@
 <script lang="ts">
 /** Props for {@link NumberInput}. */
 export interface NumberInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
@@ -17,7 +17,7 @@ export interface NumberInputProps {
  * on empty so required validation still triggers. Binds through `useInput`.
  */
 
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
