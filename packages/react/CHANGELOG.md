@@ -1,5 +1,41 @@
 # @chelone/react
 
+## [0.6.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.5.0...@chelone/react@0.6.0) (2026-11-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* **react:** KanbanBoard and KanbanBoardProps are no longer exported from @chelone/react. Import them from @chelone/react/kanban and install @dnd-kit/react and @dnd-kit/dom.
+
+### Features
+
+* **core:** toTimelineEntries reads timeline entries from records, formatRelativeTime moves to core ([b381402](https://github.com/chelonejs/chelone/commit/b3814020784ecd2ddb543da95110dc581e5b14c5))
+* **react,vue:** useGetList takes a refetchInterval ([9ae8cda](https://github.com/chelonejs/chelone/commit/9ae8cdaa4ae4d5685f189cb7ebf3d691396762a0))
+* **react:** drag KanbanBoard cards with @dnd-kit/react ([6181c69](https://github.com/chelonejs/chelone/commit/6181c69d0afa7b6deadd0726ab06dce6a7f10c0c))
+* **react:** PivotGrid shows the records of a list as a pivot table with totals ([6bece1f](https://github.com/chelonejs/chelone/commit/6bece1f0961e9bba868b070bbbefba7073a74898))
+
+
+### Bug Fixes
+
+* **react:** keep a kanban card's button semantics under dnd-kit ([c6c7622](https://github.com/chelonejs/chelone/commit/c6c76229c0884d95b9d7d23d37e55add0016f6dc))
+* **react:** remove the type escapes the kanban move added ([5c2a92a](https://github.com/chelonejs/chelone/commit/5c2a92a7fbed1eb9cc3afa835155f1fb649e83bc))
+
+
+### Refactors
+
+* **react:** choice inputs keep TChoice through their body ([ecda42c](https://github.com/chelonejs/chelone/commit/ecda42c5212cbf2a2ed4344c88cac53d5e8049bf))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.6.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.6.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.6.0
+
 ## [0.5.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.4.0...@chelone/react@0.5.0) (2026-11-04)
 
 
