@@ -1,0 +1,53 @@
+{
+  "name": "KanbanBoard",
+  "props": [
+    {
+      "name": "cardRenderer",
+      "type": "(record: TRecord) => ReactNode",
+      "optional": true,
+      "comment": "Replaces the title and description inside a card."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "columns",
+      "type": "readonly KanbanColumnDef[]",
+      "optional": false,
+      "comment": "The columns, in order. A record whose group value names none is not shown."
+    },
+    {
+      "name": "descriptionSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field shown as a second line when its value is not empty."
+    },
+    {
+      "name": "groupSource",
+      "type": "SourceKey<TRecord>",
+      "optional": false,
+      "comment": "The top-level field whose value names a column; a drop writes the target\ncolumn's `id` to it."
+    },
+    {
+      "name": "linkType",
+      "type": "false | \"show\" | \"edit\"",
+      "optional": true,
+      "comment": "Where a card goes when `onSelectCard` is not given. `edit` by default,\n`show` when the resource has no edit view. `false` leaves cards inert."
+    },
+    {
+      "name": "onSelectCard",
+      "type": "(record: TRecord) => void",
+      "optional": true,
+      "comment": "Called with the record when a card is selected, in place of navigating."
+    },
+    {
+      "name": "titleSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field shown as the card title; the record representation when it is null or undefined."
+    }
+  ]
+}
