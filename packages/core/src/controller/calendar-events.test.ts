@@ -37,8 +37,8 @@ const ids = (events: CalendarEvent<{ id: number }>[]) =>
 
 describe("toCalendarEvents", () => {
   const options = {
-    startSource: "from",
-    endSource: "to",
+    startSource: "from" as const,
+    endSource: "to" as const,
     getTitle: (task: Task) => `Task ${task.id}`,
   };
 
