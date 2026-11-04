@@ -109,8 +109,8 @@ describe("createMissingKeyStore", () => {
     ]);
     expect(Object.keys(JSON.parse(store.toJson("fr")))).toEqual(["__proto__"]);
     expect(store.toJson("fr")).toContain('"__proto__": "Proto"');
-    // type-escape: probes a key the empty literal does not declare, to prove `__proto__` did not pollute it
-    expect(({} as Record<string, unknown>).Proto).toBeUndefined();
+    const plain: { Proto?: string } = {};
+    expect(plain.Proto).toBeUndefined();
   });
 
   it("clear empties one locale and leaves the others", async () => {
