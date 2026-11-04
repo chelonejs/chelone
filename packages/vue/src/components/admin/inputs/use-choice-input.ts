@@ -42,7 +42,7 @@ export interface UseChoiceInputOptions<
   /** Component name used in the "must provide the source prop" error. */
   componentName: string;
   /** Inline choices — synthesized into a static context, ignoring any ambient one. */
-  choices?: readonly (string | ChoiceRecord)[];
+  choices?: readonly (string | TChoice)[];
   /** The FK/field path (falls back to the ambient reference context's source). */
   source?: SourceProp | undefined;
   /** The display path or a formatter. */
@@ -63,7 +63,9 @@ export interface UseChoiceInputOptions<
 }
 
 /** The resolved choice-input surface — accessors + reactive context fields. */
-export interface UseChoiceInputResult {
+export interface UseChoiceInputResult<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> {
   /** The resolved `source` (guaranteed defined — the composable throws otherwise). */
   source: string;
   /** `true` for a reference context, `false` for inline choices. */
@@ -71,24 +73,24 @@ export interface UseChoiceInputResult {
   /** The referenced resource name (inline: `undefined`). */
   resource: string | undefined;
   /** The full choice list (reactive). */
-  allChoices: ComputedRef<ChoiceRecord[]>;
+  allChoices: ComputedRef<TChoice[]>;
   /** Whether the reference list is still loading (inline: `false`). */
   isPending: ComputedRef<boolean>;
   /** The reference fetch error (inline: `null`). */
   fetchError: ComputedRef<unknown>;
   /** The display text for a choice. */
-  getChoiceText(choice: ChoiceRecord): string;
+  getChoiceText(choice: TChoice): string;
   /** The value for a choice (`optionValue` path or `id`). */
-  getChoiceValue(choice: ChoiceRecord): unknown;
+  getChoiceValue(choice: TChoice): unknown;
   /** The disabled flag for a choice. */
-  getDisableValue(choice: ChoiceRecord): unknown;
+  getDisableValue(choice: TChoice): unknown;
   /** Push a filter onto a reference context (inert for inline choices). */
   setFilters(filter: Record<string, unknown>, debounce?: boolean): void;
 }
 
-export function useChoiceInput(
-  options: UseChoiceInputOptions,
-): UseChoiceInputResult {
+export function useChoiceInput<TChoice extends ChoiceRecord = ChoiceRecord>(
+  options: UseChoiceInputOptions<TChoice>,
+): UseChoiceInputResult<TChoice> {
   const ctx: ChoicesContextValue = useChoicesContext({
     choices: options.choices,
     source: options.source,
@@ -105,14 +107,15 @@ export function useChoiceInput(
   const resource = ctx.resource;
 
   const getRecordRepresentation = useGetRecordRepresentation(resource);
-  const { getChoiceText, getChoiceValue, getDisableValue } = useChoices({
-    optionText:
-      options.optionText ??
-      (isFromReference ? getRecordRepresentation : options.defaultOptionText),
-    optionValue: options.optionValue,
-    disableValue: options.disableValue,
-    translateChoice: options.translateChoice ?? !isFromReference,
-  });
+  const { getChoiceText, getChoiceValue, getDisableValue } =
+    useChoices<TChoice>({
+      optionText:
+        options.optionText ??
+        (isFromReference ? getRecordRepresentation : options.defaultOptionText),
+      optionValue: options.optionValue,
+      disableValue: options.disableValue,
+      translateChoice: options.translateChoice ?? !isFromReference,
+    });
 
   return {
     source,
@@ -120,7 +123,10 @@ export function useChoiceInput(
     resource,
     // Computeds re-read the reference context's getters inside a tracking scope
     // so the list stays live; for an inline context they read static fields.
-    allChoices: computed(() => ctx.allChoices ?? []),
+    // The cast: the context list is erased. Inline `choices` are `TChoice`
+    // records, and under a reference the choices come from context, where
+    // `TChoice` stays the default.
+    allChoices: computed(() => (ctx.allChoices ?? []) as TChoice[]),
     isPending: computed(() => ctx.isPending),
     fetchError: computed(() => ctx.error),
     getChoiceText,
