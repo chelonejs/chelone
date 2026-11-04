@@ -323,6 +323,8 @@ any of the nine verbs, such as `beforeCreate` or `afterGetOne`. Each handler
 names a `resource`, or `"*"` for every resource. Handlers run in array order,
 the `before` chain feeds the provider, and the `after` chain feeds the caller.
 Every callback must return the value, since `undefined` does not mean unchanged.
+A `"*"` hook runs for every resource, so it returns the record type it
+receives: a hook that returns a different record shape is a type error.
 Each callback also receives the wrapped provider as its last argument; calling it
 does not re-enter the callbacks.
 

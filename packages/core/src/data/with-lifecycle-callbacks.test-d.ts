@@ -1,7 +1,8 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
+import type { ResourceRecord } from "../resource/record";
 import { defineResources } from "../resource/registry";
-import type { DataProvider } from "./types";
+import type { DataProvider, GetOneResult } from "./types";
 import { withLifecycleCallbacks } from "./with-lifecycle-callbacks";
 
 const postSchema = z.object({ id: z.number(), title: z.string() });
@@ -46,6 +47,39 @@ describe("withLifecycleCallbacks inference", () => {
         { resource: "posts", afterGetOne: (result) => result },
       ]),
     ).toEqualTypeOf<DataProvider<typeof resources>>();
+  });
+
+  it('a "*" afterGetOne returns the record type it receives', () => {
+    withLifecycleCallbacks(dp, [
+      {
+        resource: "*",
+        afterGetOne: (result) => {
+          expectTypeOf(result.data.id).toEqualTypeOf<string | number>();
+          return { data: { ...result.data } };
+        },
+      },
+    ]);
+
+    withLifecycleCallbacks(dp, [
+      {
+        resource: "*",
+        afterGetOne<TRecord extends ResourceRecord>(
+          result: GetOneResult<TRecord>,
+        ): GetOneResult<TRecord> {
+          return result;
+        },
+      },
+    ]);
+
+    withLifecycleCallbacks(dp, [
+      // @ts-expect-error a "*" hook cannot return another record shape
+      {
+        resource: "*",
+        afterGetOne: (): GetOneResult<{ id: number; extra: boolean }> => ({
+          data: { id: 1, extra: true },
+        }),
+      },
+    ]);
   });
 
   it("the other verbs' callbacks are typed with the resource's record", () => {
