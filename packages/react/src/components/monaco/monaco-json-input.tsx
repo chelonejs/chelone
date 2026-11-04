@@ -1,9 +1,11 @@
+import type { LooseRecord } from "@chelone/core";
 import type { editor } from "monaco-editor";
 import { lazy, Suspense } from "react";
 import type { InputProps } from "../admin/input-props";
 import { MonacoSkeleton } from "./internal/monaco-shared";
 
-interface MonacoJsonInputProps extends InputProps {
+interface MonacoJsonInputProps<TRecord = LooseRecord>
+  extends InputProps<unknown, TRecord> {
   /** A JSON Schema the value is checked against. Object shape only. */
   schema?: object;
   /** A schema Monaco fetches from this URL. Ignored when `schema` is set. */
@@ -46,7 +48,9 @@ const MonacoJsonInputLazy = lazy(() => import("./monaco-json-input-lazy"));
  *
  * <MonacoJsonInput source="settings" schema={settingsSchema} />
  */
-function MonacoJsonInput(props: MonacoJsonInputProps) {
+function MonacoJsonInput<TRecord = LooseRecord>(
+  props: MonacoJsonInputProps<TRecord>,
+) {
   const { autoHeight = false, height, minHeight } = props;
   return (
     <Suspense
