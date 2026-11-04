@@ -9,9 +9,9 @@
     },
     {
       "name": "approverSource",
-      "type": "string",
+      "type": "SourceKey<TRecord>",
       "optional": true,
-      "comment": "Record field holding the approver ids. Default `\"approvers\"`."
+      "comment": "Record field holding the approver ids, a top-level key. Default `\"approvers\"`."
     },
     {
       "name": "className",
@@ -33,7 +33,7 @@
     },
     {
       "name": "record",
-      "type": "LooseRecord",
+      "type": "TRecord",
       "optional": true,
       "comment": ""
     },
@@ -51,9 +51,9 @@
     },
     {
       "name": "statusSource",
-      "type": "string",
+      "type": "SourceKey<TRecord>",
       "optional": true,
-      "comment": "Record field the status is written to. Default `\"status\"`."
+      "comment": "Record field the status is written to, a top-level key. Default `\"status\"`."
     }
   ]
 }
