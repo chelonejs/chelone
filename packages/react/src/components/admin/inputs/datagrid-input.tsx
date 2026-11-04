@@ -1,4 +1,4 @@
-import type { Identifier } from "@chelone/core";
+import type { Identifier, LooseRecord, SourceProp } from "@chelone/core";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -20,8 +20,8 @@ import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import type { InputProps } from "../input-props";
 
-type DatagridInputProps = Omit<
-  InputProps,
+type DatagridInputProps<TRecord = LooseRecord> = Omit<
+  InputProps<unknown, TRecord>,
   "source" | "disabled" | "readOnly"
 > & {
   /** Inline choices (records) — omit inside a `<ReferenceArrayInput>`. */
@@ -33,7 +33,7 @@ type DatagridInputProps = Omit<
   /** Translate the choice text through the catalog. */
   translateChoice?: boolean;
   /** The FK-array field; supplied ambiently inside a `<ReferenceArrayInput>`. */
-  source?: string;
+  source?: SourceProp<TRecord>;
   /** Override the ambient resource. */
   resource?: string;
   /** Extra classes on the wrapper. */
@@ -67,7 +67,9 @@ type DatagridInputProps = Omit<
  *   </Edit>
  * );
  */
-function DatagridInput(props: DatagridInputProps): ReactNode {
+function DatagridInput<TRecord = LooseRecord>(
+  props: DatagridInputProps<TRecord>,
+): ReactNode {
   const {
     choices,
     className,
