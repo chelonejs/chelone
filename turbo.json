@@ -1,8 +1,10 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["tsconfig.base.json"],
   "tasks": {
+    "transit": { "dependsOn": ["^transit"] },
     "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
-    "test": {},
-    "typecheck": {}
+    "test": { "dependsOn": ["transit"], "outputs": [] },
+    "typecheck": { "dependsOn": ["transit"], "outputs": [] }
   }
 }

@@ -26,6 +26,18 @@ export {
   CardHeader,
   CardTitle,
 } from "./card";
+export {
+  type ChartConfig,
+  ChartContainer,
+  type ChartContextProps,
+  ChartLegendContent,
+  ChartStyle,
+  ChartTooltipContent,
+  componentToString,
+  provideChartContext,
+  THEMES,
+  useChart,
+} from "./chart";
 export { default as Checkbox } from "./checkbox.vue";
 // --- command primitive family ---------------------------------------------
 export type {
