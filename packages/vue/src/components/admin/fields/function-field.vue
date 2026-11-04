@@ -1,11 +1,11 @@
 <script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 
 /** Props for {@link FunctionField}. */
-export interface FunctionFieldProps<RecordType = LooseRecord> {
+export interface FunctionFieldProps<RecordType extends LooseRecord = LooseRecord> {
   record?: RecordType;
   /** Optional source, forwarded to the default slot for convenience. */
-  source?: string;
+  source?: SourceProp<RecordType>;
   class?: string;
 }
 </script>

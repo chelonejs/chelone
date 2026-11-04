@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import {
   createElement,
   type ElementType,
@@ -19,7 +19,7 @@ interface RecordFieldProps<RecordType extends LooseRecord = LooseRecord>
   children?: ReactNode;
   field?: ElementType;
   render?: (record: RecordType) => ReactNode;
-  source?: string;
+  source?: SourceProp<RecordType>;
   record?: RecordType;
   variant?: "default" | "inline";
 }
