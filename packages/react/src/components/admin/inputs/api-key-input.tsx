@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 import {
@@ -35,7 +35,7 @@ import { useResourceContext } from "../../../resource";
  * <ApiKeyInput source="apiKey" />
  * <ApiKeyInput source="apiKey" onRotate={async (record) => await regenKey(record.id)} />
  */
-function ApiKeyInput(props: ApiKeyInputProps) {
+function ApiKeyInput<TRecord = LooseRecord>(props: ApiKeyInputProps<TRecord>) {
   const { source, onRotate, disabled, resource: resourceProp } = props;
   const record = useRecordContext();
   const resource = useResourceContext({ resource: resourceProp });
@@ -96,9 +96,9 @@ function ApiKeyInput(props: ApiKeyInputProps) {
   );
 }
 
-interface ApiKeyInputProps {
+interface ApiKeyInputProps<TRecord = LooseRecord> {
   /** Record field holding the API key. */
-  source: string;
+  source: SourceProp<TRecord>;
   /** Override resource. */
   resource?: string;
   /** Async side-effect on rotate. When provided, replaces the default update mutation. */

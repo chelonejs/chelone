@@ -21,7 +21,7 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "SourceProp<TRecord>",
       "optional": false,
       "comment": "Record field holding the API key."
     }

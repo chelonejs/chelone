@@ -1,10 +1,10 @@
 <script lang="ts">
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import type { CrepeEditorConfig } from "./internal/crepe-editor.vue";
 
 /** Props for {@link MdxInput}. */
 export interface MdxInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   /** Used when the record has no value at `source`. Defaults to `""`. */
   defaultValue?: unknown;

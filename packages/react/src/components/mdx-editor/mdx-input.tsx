@@ -1,3 +1,4 @@
+import type { LooseRecord } from "@chelone/core";
 import {
   MDXEditor,
   type MDXEditorMethods,
@@ -37,7 +38,8 @@ type MdxEditorPassthrough = Omit<
   | "ref"
 >;
 
-interface MdxInputProps extends InputProps {
+interface MdxInputProps<TRecord = LooseRecord>
+  extends InputProps<unknown, TRecord> {
   className?: string;
   /**
    * Extra `MDXEditor` props. `plugins` here replaces `defaultInputPlugins`;
@@ -131,7 +133,7 @@ function editorPropsEqual(prev: EditorProps, next: EditorProps) {
  *
  * <MdxInput source="body" label="Notes" />
  */
-function MdxInput(props: MdxInputProps) {
+function MdxInput<TRecord = LooseRecord>(props: MdxInputProps<TRecord>) {
   const {
     label,
     source,
