@@ -96,6 +96,8 @@ function isShown(entry: FilterFormEntry): boolean {
 // submitted, its live values drive `setFilters` instead.
 const { form, values, reset } = useForm<Record<string, unknown>>({
   resource,
+  // The values are list filters, not the resource's record.
+  recordForm: false,
   record: { ...(list.filter ?? {}) } as Record<string, unknown>,
   onSubmit: () => undefined,
 });

@@ -14,6 +14,7 @@ import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import { z } from "zod";
 import Admin from "../../admin/admin.vue";
+import { useFormHandle } from "../../form/form-context";
 import { type ListContextValue, useListContext } from "../../list/list-context";
 import FilterButton from "./buttons/filter-button.vue";
 import TextField from "./fields/text-field.vue";
@@ -197,6 +198,37 @@ describe("<FilterForm>", () => {
     );
     return { capture, wrapper };
   }
+
+  it("provides an unbound handle: its values are filters, not the resource's record", async () => {
+    const seen: {
+      resource?: string;
+      posts?: ReturnType<typeof useFormHandle<"posts">>;
+    } = {};
+    const handleProbe = defineComponent({
+      setup() {
+        seen.resource = useFormHandle().resource;
+        seen.posts = useFormHandle("posts");
+        return () => null;
+      },
+    });
+    const capture: { list?: ListContextValue } = {};
+    mountAdmin(() =>
+      h(
+        List,
+        { resource: "posts" },
+        {
+          default: () => [
+            h(listProbe(capture)),
+            h(FilterForm, null, { default: () => h(handleProbe) }),
+          ],
+        },
+      ),
+    );
+    await settled(capture);
+
+    expect(seen.resource).toBeUndefined();
+    expect(seen.posts).toBeUndefined();
+  });
 
   it("typing keeps a filter the form has no input for", async () => {
     const { capture, wrapper } = mountFilterForm();

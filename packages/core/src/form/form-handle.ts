@@ -274,7 +274,7 @@ export interface AnyFormHandle {
  * The names `THandle` can carry. A handle union that names no resource (nothing
  * registered) takes any string, so a generic caller still compiles.
  */
-type HandleName<THandle extends AnyFormHandle> = [
+export type HandleName<THandle extends AnyFormHandle> = [
   NonNullable<THandle["resource"]>,
 ] extends [never]
   ? string

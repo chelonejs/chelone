@@ -18,6 +18,7 @@ import type {
   AnyFormHandle,
   CheloneFormApi,
   FormContextHandle,
+  HandleName,
   RegisteredResourceName,
   ResourceFormHandle,
   SourceScope,
@@ -103,10 +104,30 @@ export function useFormHandle<TName extends RegisteredResourceName>(
 ): NamedFormHandle<FormContextHandle, TName> | undefined;
 export function useFormHandle<TName extends RegisteredResourceName>(
   name?: TName,
-): FormContextHandle | undefined {
+): FormContextHandle | NamedFormHandle<FormContextHandle, TName> | undefined {
   const { form } = useCheloneFormContext();
-  if (name === undefined) return form;
-  return isResourceHandle(form, name) ? form : undefined;
+  return name === undefined ? readFormHandle(form) : readFormHandle(form, name);
+}
+
+/**
+ * What {@link useFormHandle} does with the handle it injects, over any handle
+ * union: the union itself without a name, or the member that edits `name`.
+ * Split out so a type test can run it over an explicit resource map, since
+ * registering resources is global to a type-check run.
+ */
+export function readFormHandle<THandle extends AnyFormHandle>(
+  handle: THandle,
+): THandle;
+export function readFormHandle<
+  THandle extends AnyFormHandle,
+  TName extends HandleName<THandle>,
+>(handle: THandle, name: TName): NamedFormHandle<THandle, TName> | undefined;
+export function readFormHandle<
+  THandle extends AnyFormHandle,
+  TName extends HandleName<THandle>,
+>(handle: THandle, name?: TName): THandle | undefined {
+  if (name === undefined) return handle;
+  return isResourceHandle(handle, name) ? handle : undefined;
 }
 
 /**

@@ -78,6 +78,13 @@ export interface UseFormOptions<TFormData> {
   getRecord?: () => Partial<TFormData> | undefined;
   /** Rebaseline the form from the saved values on success (D5). Default true. */
   resetOnSuccess?: boolean;
+  /**
+   * Whether the form holds the resource's record, so descendants read it
+   * through a handle tagged with that resource (`useFormHandle("posts")`).
+   * `false` for a form whose values are something else, such as a list filter:
+   * its handle is unbound. Default true.
+   */
+  recordForm?: boolean;
 }
 
 /** The narrow reactive surface `useForm` exposes to a view. */
@@ -144,7 +151,7 @@ export function useForm<TFormData = Record<string, unknown>>(
   provideCheloneForm({
     form: controller.form,
     submit: controller.submit,
-    resource,
+    resource: options.recordForm === false ? undefined : resource,
   });
 
   return {

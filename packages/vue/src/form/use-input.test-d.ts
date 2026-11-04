@@ -6,7 +6,7 @@ import type {
   UnboundFormHandle,
 } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
-import { type NamedFormHandle, useFormHandle } from "./form-context";
+import { readFormHandle, useFormHandle } from "./form-context";
 import { useInput } from "./use-input";
 
 type Post = { headline: string; views: number; author: { name: string } };
@@ -84,15 +84,15 @@ interface PostRecord {
 
 /**
  * Registering resources is global to the whole type-check run, so these tests
- * cannot register `Post`: they pin the narrowing on an explicit map, which is
- * what `useFormHandle` computes over the registered one.
+ * cannot register `Post`: they run `readFormHandle`, the function `useFormHandle`
+ * calls on the injected handle, over an explicit map.
  */
 type PostHandles = FormContextHandleOf<{
   posts: PostRecord;
   tags: { label: string };
 }>;
 
-declare const handle: NamedFormHandle<PostHandles, "posts">;
+declare const handles: PostHandles;
 
 describe("useFormHandle", () => {
   it("with nothing registered, the context is the unbound handle", () => {
@@ -107,10 +107,11 @@ describe("useFormHandle", () => {
   });
 
   it("the named handle types its field values", () => {
-    type Named = NamedFormHandle<PostHandles, "posts">;
-    expectTypeOf<Named>().toEqualTypeOf<
-      ResourceFormHandle<"posts", Partial<PostRecord>>
+    const handle = readFormHandle(handles, "posts");
+    expectTypeOf(handle).toEqualTypeOf<
+      ResourceFormHandle<"posts", Partial<PostRecord>> | undefined
     >();
+    if (!handle) return;
     expectTypeOf(handle.getFieldValue("title")).not.toBeUnknown();
     expectTypeOf(handle.getFieldValue("author.name")).toEqualTypeOf<
       SourceValue<Partial<PostRecord>, "author.name">
@@ -121,10 +122,9 @@ describe("useFormHandle", () => {
     handle.setFieldValue("title", 5);
   });
 
-  it("a resource the union does not name falls back to the bare handle", () => {
-    expectTypeOf<NamedFormHandle<PostHandles, "comments">>().toEqualTypeOf<
-      ResourceFormHandle<"comments">
-    >();
+  it("a resource the union does not name is a type error", () => {
+    // @ts-expect-error "comments" is not a resource of the union
+    readFormHandle(handles, "comments");
   });
 });
 

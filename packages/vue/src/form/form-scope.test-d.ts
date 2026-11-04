@@ -40,14 +40,16 @@ describe("OptionalSaveFormProps", () => {
   it("the without-save member lists every UseFormOptions key but onSubmit", () => {
     type WithoutSave = Extract<Props, { save?: undefined }>;
     expectTypeOf<keyof WithoutSave>().toEqualTypeOf<
-      "save" | Exclude<keyof UseFormOptions<FormValues>, "onSubmit">
+      | "save"
+      | Exclude<keyof UseFormOptions<FormValues>, "onSubmit" | "recordForm">
     >();
   });
 
   it("the with-save member takes every UseFormOptions key but onSubmit", () => {
     type WithSave = Exclude<Props, { save?: undefined }>;
     expectTypeOf<keyof WithSave>().toEqualTypeOf<
-      "save" | Exclude<keyof UseFormOptions<FormValues>, "onSubmit">
+      | "save"
+      | Exclude<keyof UseFormOptions<FormValues>, "onSubmit" | "recordForm">
     >();
   });
 });
