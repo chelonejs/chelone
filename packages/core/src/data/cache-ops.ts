@@ -27,9 +27,7 @@ function withoutIds(
   page: GetListResult,
   idSet: Set<string>,
 ): GetListResult | undefined {
-  const kept = page.data.filter(
-    (record) => !idSet.has(String((record as ResourceRecord).id)),
-  );
+  const kept = page.data.filter((record) => !idSet.has(String(record.id)));
   return kept.length === page.data.length ? undefined : { ...page, data: kept };
 }
 
@@ -41,7 +39,7 @@ function withPatchedRows(
 ): GetListResult | undefined {
   let changed = false;
   const nextData = page.data.map((record) => {
-    if (idSet.has(String((record as ResourceRecord).id))) {
+    if (idSet.has(String(record.id))) {
       changed = true;
       return { ...record, ...data };
     }
@@ -163,11 +161,11 @@ function priorsOf(
 ): RowPriors {
   const priors: RowPriors = new Map();
   for (const row of page.data) {
-    const id = String((row as ResourceRecord).id);
+    const id = String(row.id);
     if (!idSet.has(id)) continue;
     const prior: Record<string, unknown> = {};
     for (const field of Object.keys(data)) {
-      prior[field] = field in row ? (row as never)[field] : ABSENT;
+      prior[field] = field in row ? row[field] : ABSENT;
     }
     priors.set(id, prior);
   }
