@@ -831,6 +831,10 @@ export {
   type ListToolbarProps,
 } from "./components/admin/list/list-toolbar";
 export {
+  PivotGrid,
+  type PivotGridProps,
+} from "./components/admin/list/pivot-grid";
+export {
   PrevNextButtons,
   type PrevNextButtonsProps,
 } from "./components/admin/list/prev-next-buttons";
