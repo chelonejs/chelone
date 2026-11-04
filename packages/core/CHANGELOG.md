@@ -1,5 +1,29 @@
 # @chelone/core
 
+## [0.3.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.2.0...@chelone/core@0.3.0) (2026-11-04)
+
+
+### Features
+
+* **core:** defineResources rejects a references key that is not a field and a target that is not a resource ([1470949](https://github.com/chelonejs/chelone/commit/14709493e8af1ca96cc821a913e8a165996480f8))
+* **core:** type the approval and transition sources as top-level record keys ([b50959e](https://github.com/chelonejs/chelone/commit/b50959ef61d437f589116c0b922b7a9af5d8a3a5))
+
+
+### Bug Fixes
+
+* **core:** an optimistic update patches the cached lists and restores only its own rows on error ([c3ba97b](https://github.com/chelonejs/chelone/commit/c3ba97b15479cecf74be36a187a4e1137cd1ad43))
+* **core:** an optimistic update patches the cached lists and restores only its own rows on error ([00ba897](https://github.com/chelonejs/chelone/commit/00ba89790bf04a7554452370c593f586c278f47c))
+* **core:** count unsettled optimistic updates instead of reading isMutating ([7467f2c](https://github.com/chelonejs/chelone/commit/7467f2c441eeadad3ca17f402f9a1cbb47e25fca))
+* **core:** let buildApprovalUpdate write a status field the record lacks ([69d0ef6](https://github.com/chelonejs/chelone/commit/69d0ef61b509cfba75de03871e026414986155fa))
+
+
+### Refactors
+
+* **core:** fold the path segment walker into getAtPath ([4a7d8e6](https://github.com/chelonejs/chelone/commit/4a7d8e6d2056485290adece92ed30fc3816e1132))
+* **core:** type createFieldBinding and createArrayBinding sources by their form's record ([915e86d](https://github.com/chelonejs/chelone/commit/915e86d860696d283c873aff478b51e7b7365b99))
+* **core:** type createFieldBinding and createArrayBinding sources by their form's record ([af1425f](https://github.com/chelonejs/chelone/commit/af1425fa8897681170344658d7bcbd8526646a03))
+* **react,vue:** read record paths through core's getAtPath ([26c3e3d](https://github.com/chelonejs/chelone/commit/26c3e3d626e7dde61b72cf85a85f84ec91d474da))
+
 ## [0.2.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.1.1...@chelone/core@0.2.0) (2026-11-03)
 
 
