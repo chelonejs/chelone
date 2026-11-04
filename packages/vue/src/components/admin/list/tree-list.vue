@@ -3,7 +3,7 @@ import type { Component } from "vue";
 
 /** Props for {@link TreeList}. */
 export interface TreeListProps {
-  /** The field holding the parent's id; a dotted path reads a nested value. */
+  /** The field holding the parent's id; a dot or bracket path reads a nested value. */
   parentSource: string;
   /** The string field shown as the row title; the record representation otherwise. */
   titleSource?: string;
@@ -42,6 +42,7 @@ export interface TreeListProps {
 
 import {
   buildRecordTree,
+  getAtPath,
   type Identifier,
   type LooseRecord,
   type RecordTreeNode,
@@ -128,7 +129,7 @@ const linkTo = (record: LooseRecord) =>
 
 function titleFor(record: LooseRecord): string {
   if (props.titleSource) {
-    const value = readPath(record, props.titleSource);
+    const value = getAtPath(record, props.titleSource);
     if (typeof value === "string") return value;
   }
   return getRepresentation(record);
@@ -136,18 +137,8 @@ function titleFor(record: LooseRecord): string {
 
 function iconFor(record: LooseRecord) {
   if (!props.iconSource || !props.iconMap) return undefined;
-  const value = readPath(record, props.iconSource);
+  const value = getAtPath(record, props.iconSource);
   return value == null ? undefined : props.iconMap[String(value)];
-}
-
-function readPath(record: unknown, path: string): unknown {
-  return path
-    .split(".")
-    .reduce<unknown>(
-      (value, key) =>
-        value == null ? undefined : (value as Record<string, unknown>)[key],
-      record,
-    );
 }
 
 provide(TreeListKey, {
