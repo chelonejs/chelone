@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { LooseRecord, Validator } from "@chelone/core";
+import type { LooseRecord, SourceProp, Validator } from "@chelone/core";
 
 /** A dropped file transformed into a preview record. */
 export interface TransformedFile {
@@ -11,7 +11,7 @@ export interface TransformedFile {
 /** Props for {@link FileInput}. */
 export interface FileInputProps {
   /** The file field path. */
-  source: string;
+  source: SourceProp;
   /** Explicit label, or `false` to hide it. Absent → humanized `source`. */
   label?: string | false;
   /** Override the ambient resource (label-key resolution). */
