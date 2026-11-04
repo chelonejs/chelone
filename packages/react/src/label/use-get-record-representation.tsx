@@ -9,27 +9,14 @@
  * A nullish record → `""`.
  *
  * The resource is taken from the argument or the ambient `ResourceContext`
- * (`useResourceDefinition` resolves it). Clean-room: the string-path read uses
- * the same segment walker as `useFieldValue` (chelone's zero-lodash footprint).
+ * (`useResourceDefinition` resolves it). Clean-room: the string-path read is
+ * core's `getAtPath`, the same reader `useFieldValue` uses (chelone's
+ * zero-lodash footprint).
  */
 
+import { getAtPath } from "@chelone/core";
 import { isValidElement, type ReactNode, useCallback } from "react";
 import { useResourceDefinition } from "../resource";
-
-/** Read the value at a lodash-style `source` path off `record`. */
-function getAtPath(record: unknown, source: string): unknown {
-  if (source === "") return record;
-  let current: unknown = record;
-  const pattern = /\[([^\]]*)\]|[^.[\]]+/g;
-  let match: RegExpExecArray | null = pattern.exec(source);
-  while (match !== null) {
-    if (current == null || typeof current !== "object") return undefined;
-    const key = match[1] !== undefined ? match[1] : match[0];
-    current = (current as Record<string, unknown>)[key];
-    match = pattern.exec(source);
-  }
-  return current;
-}
 
 /** A record whose fields the default representation chain probes. */
 interface DefaultChainRecord {
