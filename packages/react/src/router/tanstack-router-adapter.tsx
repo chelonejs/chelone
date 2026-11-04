@@ -33,7 +33,12 @@
  *     BLOCKER's locations are a third shape: `ShouldBlockFnLocation` carries
  *     `search` parsed but NO `searchStr` and no `hash`, so there the adapter
  *     re-serializes `search` with the router's own `stringifySearch` and reports
- *     an empty hash.
+ *     an empty hash. That re-serialization is TanStack's own location model
+ *     (`parseLocation` builds every `ParsedLocation`'s `searchStr` the same way),
+ *     so a blocked location matches the location the app lands on — it is not a
+ *     third query shape. TanStack keeps no raw query anywhere the adapter can
+ *     reach, so a query it normalizes (`?q=1.50` → `?q=1.5`) normalizes on BOTH
+ *     adapters' paths.
  *  5. (reference-slot boundary) `useInRouterContext` / `useCanBlock`: TanStack
  *     has no in-context hook, and `useRouterState` THROWS outside a router (so it
  *     can't be probed conditionally). The adapter tracks presence via its OWN
