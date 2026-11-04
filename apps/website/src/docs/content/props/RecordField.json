@@ -81,7 +81,7 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "SourceProp<RecordType>",
       "optional": true,
       "comment": ""
     },

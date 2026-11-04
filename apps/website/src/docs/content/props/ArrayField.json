@@ -45,7 +45,7 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "SourceProp<RecordType>",
       "optional": false,
       "comment": "The field path to the array on the current record."
     }

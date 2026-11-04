@@ -1,10 +1,10 @@
 <script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 import type { Component } from "vue";
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 
 /** Props for {@link RecordField}. */
-export interface RecordFieldProps<RecordType = LooseRecord> {
-  source?: string;
+export interface RecordFieldProps<RecordType extends LooseRecord = LooseRecord> {
+  source?: SourceProp<RecordType>;
   /** Explicit label, or `false`/`""` to hide it. Absent → humanized `source`. */
   label?: string | false;
   /** Override the ambient resource (reserved for label i18n; inert in V1). */

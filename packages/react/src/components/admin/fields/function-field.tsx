@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import { type HTMLAttributes, type ReactNode, useMemo } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,7 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
 interface FunctionFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends Omit<FieldProps<RecordType>, "source">,
     Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
-  source?: string;
+  source?: SourceProp<RecordType>;
   render: (record: RecordType, source?: string) => ReactNode;
 }
 
