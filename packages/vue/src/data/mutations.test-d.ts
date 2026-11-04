@@ -67,3 +67,22 @@ it("mutate still takes an onSuccess option", () => {
   const del = useDelete<R, "posts">("posts");
   del.mutate({ id: 1, previousData }, { onSuccess: () => {} });
 });
+
+// A kanban move plan is `{ id, data: Record<string, string>, previousData }`,
+// built without knowing the resource, so it must fit `mutateAsync` in either
+// mode through the default resource map.
+it("useUpdate mutateAsync accepts a plan-shaped { id, data, previousData } in both modes", () => {
+  const plan = {
+    id: 1,
+    data: { draft: "done" } satisfies Record<string, string>,
+    previousData,
+  };
+  const pessimistic = useUpdate("posts");
+  const optimistic = useUpdate("posts", { mutationMode: "optimistic" });
+  const undo = useUpdate("posts", undoable);
+  void [
+    pessimistic.mutateAsync(plan),
+    optimistic.mutateAsync(plan),
+    undo.mutateAsync(plan),
+  ];
+});
