@@ -1,3 +1,4 @@
+import type { LooseRecord } from "@chelone/core";
 import { useState } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -43,7 +44,9 @@ const DEFAULT_VALUE: WebhookEndpoint = {
  *
  * <WebhookEndpointInput source="endpoint" eventTypes={EVENT_TYPES} />
  */
-function WebhookEndpointInput(props: WebhookEndpointInputProps) {
+function WebhookEndpointInput<TRecord = LooseRecord>(
+  props: WebhookEndpointInputProps<TRecord>,
+) {
   const {
     label,
     source,
@@ -181,7 +184,8 @@ function WebhookEndpointInput(props: WebhookEndpointInputProps) {
   );
 }
 
-interface WebhookEndpointInputProps extends InputProps {
+interface WebhookEndpointInputProps<TRecord = LooseRecord>
+  extends InputProps<unknown, TRecord> {
   /** Available event-type strings to surface as checkboxes. */
   eventTypes: readonly string[];
   /** Optional test-ping handler. When set, renders the test-ping button. */

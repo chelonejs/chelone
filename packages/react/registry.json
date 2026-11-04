@@ -4528,7 +4528,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5901,7 +5901,7 @@
         "@chelone/input-props",
         "@chelone/monaco-shared"
       ],
-      "dependencies": ["monaco-editor"],
+      "dependencies": ["@chelone/core", "monaco-editor"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6018,7 +6018,7 @@
         "@chelone/textarea",
         "@chelone/use-theme"
       ],
-      "dependencies": ["@chelone/react", "@mdxeditor/editor"],
+      "dependencies": ["@chelone/core", "@chelone/react", "@mdxeditor/editor"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
