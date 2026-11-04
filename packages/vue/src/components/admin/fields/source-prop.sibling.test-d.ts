@@ -153,11 +153,12 @@ describe("sibling source props", () => {
 
   it("without a record type they take any string", () => {
     // The default `RecordType` is `LooseRecord`, whose `SourceKey` is `string`.
+    // Read off the components, not the interfaces, so the two cannot drift.
     type Siblings = [
-      RatingFieldProps["countSource"],
-      UsageMeterFieldProps["limitSource"],
-      ApiKeyFieldProps["scopesSource"],
-      ApiKeyFieldProps["lastUsedSource"],
+      Parameters<typeof RatingField>[0]["countSource"],
+      Parameters<typeof UsageMeterField>[0]["limitSource"],
+      Parameters<typeof ApiKeyField>[0]["scopesSource"],
+      Parameters<typeof ApiKeyField>[0]["lastUsedSource"],
     ];
     expectTypeOf<Siblings>().toEqualTypeOf<
       [
