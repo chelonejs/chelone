@@ -11,8 +11,9 @@ export function chartColor(
   index: number,
   colors: readonly string[] = DEFAULT_CHART_COLORS,
 ): string {
-  const length = colors.length;
-  return colors[((index % length) + length) % length] as string;
+  const list = colors.length > 0 ? colors : DEFAULT_CHART_COLORS;
+  const length = list.length;
+  return list[((index % length) + length) % length] as string;
 }
 
 export type CartesianRow = { index: number; x: unknown; y: number | null };
@@ -42,6 +43,10 @@ export function hasChartValues(rows: readonly CartesianRow[]): boolean {
   return rows.some((row) => row.y !== null);
 }
 
+function toLabel(value: unknown): string {
+  return value === undefined || value === null ? "" : String(value);
+}
+
 export type DonutSlice = { label: string; value: number; share: number };
 
 export function toDonutSlices(
@@ -53,7 +58,7 @@ export function toDonutSlices(
   for (const row of data) {
     const value = toFiniteNumber(row[valueField]);
     if (value !== null && value > 0) {
-      kept.push({ label: String(row[labelField]), value });
+      kept.push({ label: toLabel(row[labelField]), value });
     }
   }
   const total = kept.reduce((sum, slice) => sum + slice.value, 0);

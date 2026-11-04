@@ -119,6 +119,20 @@ describe("toDonutSlices", () => {
     expect(slices).toEqual([{ label: "keep", value: 2, share: 1 }]);
   });
 
+  it("gives a row with a missing or null label an empty label", () => {
+    expect(
+      toDonutSlices(
+        [{ n: 1 }, { name: null, n: 1 }, { name: 0, n: 2 }],
+        "name",
+        "n",
+      ),
+    ).toEqual([
+      { label: "", value: 1, share: 0.25 },
+      { label: "", value: 1, share: 0.25 },
+      { label: "0", value: 2, share: 0.5 },
+    ]);
+  });
+
   it("returns no slices when the total is zero", () => {
     expect(toDonutSlices([], "name", "n")).toEqual([]);
     expect(
@@ -160,6 +174,11 @@ describe("chartColor", () => {
     expect(chartColor(5)).toBe("var(--chart-1)");
     expect(chartColor(7)).toBe("var(--chart-3)");
     expect(chartColor(3, ["red", "green"])).toBe("green");
+  });
+
+  it("falls back to the chart variables for an empty color list", () => {
+    expect(chartColor(0, [])).toBe("var(--chart-1)");
+    expect(chartColor(6, [])).toBe("var(--chart-2)");
   });
 });
 
