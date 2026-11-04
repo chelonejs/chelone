@@ -205,6 +205,30 @@ describe("<TreeList>", () => {
     ).toBe(true);
   });
 
+  it("titleSource and iconSource read a bracket path", async () => {
+    const nested = CATEGORIES.map((category) => ({
+      id: category.id,
+      parent_id: category.parent_id,
+      meta: {
+        labels: [{ text: category.slug }],
+        kinds: [category.kind],
+      },
+    }));
+    const { wrapper } = await mountList({
+      dataProvider: fakeDataProvider({ categories: nested }),
+      list: tree({
+        titleSource: "meta.labels[0].text",
+        iconSource: "meta.kinds[0]",
+        iconMap: { folder: FolderIcon, file: FileIcon },
+      }),
+    });
+
+    expect(titles(wrapper)).toEqual(["a", "b"]);
+    expect(item(wrapper, "a").find("[data-testid=folder-icon]").exists()).toBe(
+      true,
+    );
+  });
+
   it("a select listener receives the record and replaces the navigation", async () => {
     const onSelect = vi.fn();
     const { wrapper, router } = await mountList({

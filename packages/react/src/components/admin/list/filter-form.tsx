@@ -1,3 +1,4 @@
+import { getAtPath } from "@chelone/core";
 import { MinusCircle } from "lucide-react";
 import * as React from "react";
 import { isValidElement, type ReactNode, useCallback, useEffect } from "react";
@@ -8,19 +9,6 @@ import { useFilterContext } from "../../../list/filter-context";
 import { useListFilterContext } from "../../../list/list-slice-hooks";
 import { useResourceContext } from "../../../resource";
 import { Button } from "../../ui/button";
-
-/**
- * Read the value at a dot/bracket path off an object (zero-lodash parity with
- * `lodash/get`). Used to test whether a filter value is set for a given source.
- */
-function getAtPath(record: unknown, source: string): unknown {
-  let current: unknown = record;
-  for (const key of source.split(".")) {
-    if (current == null || typeof current !== "object") return undefined;
-    current = (current as Record<string, unknown>)[key];
-  }
-  return current;
-}
 
 interface FilterElementProps {
   source: string;

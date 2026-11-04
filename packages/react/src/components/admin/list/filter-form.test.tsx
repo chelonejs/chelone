@@ -131,6 +131,15 @@ describe("<FilterForm>", () => {
     expect(document.querySelector("input[name='title']")).toBeTruthy();
   });
 
+  it("a filter with a nested source shows as set when the list filter holds a value at that path", () => {
+    render(
+      <Harness filter={{ tags: [{ label: "news" }] }}>
+        <FilterForm filters={[filterInput("tags[0].label")]} />
+      </Harness>,
+    );
+    expect(document.querySelector("input[name='tags[0].label']")).toBeTruthy();
+  });
+
   it("renders a remove control for a non-alwaysOn shown filter", () => {
     render(
       <Harness displayedFilters={{ title: true }}>
