@@ -1,7 +1,9 @@
 import {
+  type LooseRecord,
   latitude,
   longitude,
   type MapStyleInput,
+  type SourceProp,
   toCoordinate,
   type Validator,
 } from "@chelone/core";
@@ -21,11 +23,11 @@ import { ValidationError } from "../../field-error-display";
 import { useInput } from "../../form-hooks";
 import { MapCanvas, MapMarker, useMap } from "./map-canvas";
 
-export interface LatLngInputProps {
+export interface LatLngInputProps<TRecord = LooseRecord> {
   /** The form field holding the latitude. */
-  latSource: string;
+  latSource: SourceProp<TRecord>;
   /** The form field holding the longitude. */
-  lngSource: string;
+  lngSource: SourceProp<TRecord>;
   /** The legend. A string is translated; `false` renders none. */
   label?: string | false;
   helperText?: string;
@@ -180,7 +182,7 @@ function ClickToPlace({
  * @example
  * <LatLngInput latSource="latitude" lngSource="longitude" label="Location" />
  */
-export function LatLngInput({
+export function LatLngInput<TRecord = LooseRecord>({
   latSource,
   lngSource,
   label,
@@ -194,7 +196,7 @@ export function LatLngInput({
   disabled = false,
   onPositionChange,
   className,
-}: LatLngInputProps) {
+}: LatLngInputProps<TRecord>) {
   const lat = useCoordinate(latSource, toArray(latValidate), latitude());
   const lng = useCoordinate(lngSource, toArray(lngValidate), longitude());
 
