@@ -306,8 +306,8 @@ importers:
   packages/core:
     dependencies:
       dot.paths:
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.2.1
+        version: 0.2.1
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: ^0.18.0
@@ -4038,8 +4038,8 @@ packages:
     resolution: {integrity: sha512-tE7ztYzXHIeyvc7N+hR3oi7FIbf/NIjVP9hmAt3yMXzrQ072/fpjGLx2GxNxGxUl5V73MEqYzioOMoVhGMJ5cA==}
     engines: {node: '>=10'}
 
-  dot.paths@0.2.0:
-    resolution: {integrity: sha512-tgvc6Ihoqkf5JyaeAgQApK5+29U5xFPeiZ9txJJI0mGWZt/kMh12Vj3tbPAXPRPFc4V44g3QJ9WtavXwNorwoA==}
+  dot.paths@0.2.1:
+    resolution: {integrity: sha512-xvx78iPBR4chh9rLT9KUXq6c0trbzqc/07ZpNct0HLYcTQqU/9+b0x+XCl7od2nB5SpFQ/P2MZUKt4Bbyoqj5A==}
     engines: {node: '>=18'}
 
   dotenv@17.4.2:
@@ -11044,7 +11044,7 @@ snapshots:
     dependencies:
       is-obj: 2.0.0
 
-  dot.paths@0.2.0: {}
+  dot.paths@0.2.1: {}
 
   dotenv@17.4.2: {}
 
