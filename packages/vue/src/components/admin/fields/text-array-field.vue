@@ -1,10 +1,10 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { BadgeVariant } from "../../ui/badge";
 
 /** Props for {@link TextArrayField}. */
 export interface TextArrayFieldProps {
-  source: string;
+  source: SourceProp;
   record?: LooseRecord;
   defaultValue?: unknown;
   empty?: string;
