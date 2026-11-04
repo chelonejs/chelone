@@ -36,7 +36,7 @@ import type {
   SourceProp,
   SourceValue,
 } from "@chelone/core";
-import { defineComponent, h, type VNode } from "vue";
+import { type Component, defineComponent, h, type VNode } from "vue";
 import ApiKeyField from "./components/admin/fields/api-key-field.vue";
 import ArrayField from "./components/admin/fields/array-field.vue";
 import BadgeField from "./components/admin/fields/badge-field.vue";
@@ -309,20 +309,35 @@ export type ResourceComponents<
 
 /** Wraps a view so it renders with `resource` set, passing attrs and slots on. */
 function bindResource(
-  view: Ctor,
+  view: Component,
   resource: string,
   displayName: string,
-): unknown {
+): Component {
   return defineComponent({
     name: displayName,
     inheritAttrs: false,
     setup(_, { attrs, slots }) {
-      return () => h(view as never, { ...attrs, resource }, slots);
+      return () => h(view, { ...attrs, resource }, slots);
     },
   });
 }
 
-function build(name: string): unknown {
+/** The members and the four bound views, before `ResourceComponents` retypes them. */
+type BuiltComponents = SourceMembers & {
+  Edit: Component;
+  Create: Component;
+  Show: Component;
+  List: Component;
+};
+
+/**
+ * The retyped members are not comparable to the SFCs they retype (a
+ * `ValueMember` is a function, an SFC a constructor), so the caller's cast only
+ * compiles when the target is part of the source's type.
+ */
+function build<TResources extends ResourceMap, TName extends string>(
+  name: string,
+): BuiltComponents | ResourceComponents<TResources, TName> {
   return {
     ...sourceMembers,
     Edit: bindResource(Edit, name, "ResourceEdit"),
@@ -341,7 +356,11 @@ export function createResourceComponentsOf<
   TResources extends ResourceMap,
   TName extends keyof TResources & string,
 >(name: TName): ResourceComponents<TResources, TName> {
-  return build(name) as ResourceComponents<TResources, TName>;
+  // type-escape: the members are the SFCs themselves; only their prop types are retyped
+  return build<TResources, TName>(name) as ResourceComponents<
+    TResources,
+    TName
+  >;
 }
 
 /**
