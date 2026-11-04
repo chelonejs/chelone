@@ -51,7 +51,7 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "SourceProp<RecordType>",
       "optional": false,
       "comment": "The FK-array field on the current record (e.g. `\"tag_ids\"`)."
     }

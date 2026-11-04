@@ -57,7 +57,7 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "SourceProp<RecordType>",
       "optional": false,
       "comment": "The array field path RELATIVE to the ambient source scope."
     },

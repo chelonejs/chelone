@@ -51,7 +51,7 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "SourceProp<RecordType>",
       "optional": false,
       "comment": "The FK field on the current record (e.g. `\"company_id\"`)."
     },
