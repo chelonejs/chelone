@@ -33,13 +33,13 @@
     },
     {
       "name": "onTransition",
-      "type": "(from: string, to: string, record: LooseRecord) => void",
+      "type": "(from: string, to: string, record: TRecord) => void",
       "optional": true,
       "comment": "Runs once the update has resolved, or, in undoable mode, once the Undo\nnotification is queued. Not called when the update fails."
     },
     {
       "name": "record",
-      "type": "LooseRecord",
+      "type": "TRecord",
       "optional": true,
       "comment": ""
     },
@@ -51,9 +51,9 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "SourceKey<TRecord>",
       "optional": true,
-      "comment": "Record field holding the status. Default `\"status\"`."
+      "comment": "Record field holding the status, a top-level key. Default `\"status\"`."
     },
     {
       "name": "transitions",
