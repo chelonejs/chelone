@@ -56,3 +56,11 @@ export const ChevronsUpDownIcon: FunctionalComponent = icon(() => [
   h("path", { d: "m7 15 5 5 5-5" }),
   h("path", { d: "m7 9 5-5 5 5" }),
 ]);
+
+/** Two opposing arrows — the kanban card "Move to" control. */
+export const ArrowRightLeftIcon: FunctionalComponent = icon(() => [
+  h("path", { d: "m16 3 4 4-4 4" }),
+  h("path", { d: "M20 7H4" }),
+  h("path", { d: "m8 21-4-4 4-4" }),
+  h("path", { d: "M4 17h16" }),
+]);
