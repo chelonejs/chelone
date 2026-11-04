@@ -1,6 +1,6 @@
 /**
  * Type-checked, never imported by the app. `./index.ts` registers the demo's
- * resources through `declare module "@chelone/core"`, so this file proves the
+ * resources by augmenting `Register`, so this file proves the
  * app-side path: a `posts` source passes and a typo fails at the call site.
  * Each `@ts-expect-error` must stay an error, or `tsc` fails on the unused
  * directive.

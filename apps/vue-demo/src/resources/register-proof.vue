@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Type-checked by `vue-tsc`, never imported by the app. `./schema.ts`
- * registers the demo's resources through `declare module "@chelone/core"`, so
+ * registers the demo's resources by augmenting `Register`, so
  * this file proves the app-side path: a `posts` source passes and a typo fails
  * at the call site. Each `@vue-expect-error` must stay an error, or the
  * typecheck fails on the unused directive.
