@@ -595,6 +595,11 @@ export type {
 } from "./i18n/messages";
 export { defineMessages } from "./i18n/messages";
 export type {
+  MissingKeyEntry,
+  MissingKeyStore,
+} from "./i18n/missing-keys";
+export { createMissingKeyStore } from "./i18n/missing-keys";
+export type {
   TranslatableController,
   TranslatableOptions,
   TranslatableState,
