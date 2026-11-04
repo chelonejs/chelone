@@ -1,4 +1,8 @@
-import type { LooseRecord, SourceKey } from "@chelone/core";
+import {
+  formatRelativeTime,
+  type LooseRecord,
+  type SourceKey,
+} from "@chelone/core";
 import { Copy, Eye, EyeOff } from "lucide-react";
 import { type HTMLAttributes, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -127,24 +131,14 @@ function ApiKeyField<RecordType extends LooseRecord = LooseRecord>({
       )}
       {lastUsedSource && (
         <span className="text-xs text-muted-foreground">
-          Last used: {formatRelative(lastUsed)}
+          Last used:{" "}
+          {lastUsed
+            ? formatRelativeTime(new Date(lastUsed), new Date())
+            : "Never"}
         </span>
       )}
     </span>
   );
-}
-
-function formatRelative(iso: string | null | undefined): string {
-  if (!iso) return "Never";
-  const delta = (new Date(iso).getTime() - Date.now()) / 1000;
-  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
-  const absSeconds = Math.abs(delta);
-  if (absSeconds < 60) return rtf.format(Math.round(delta), "second");
-  if (absSeconds < 3600) return rtf.format(Math.round(delta / 60), "minute");
-  if (absSeconds < 86400) return rtf.format(Math.round(delta / 3600), "hour");
-  if (absSeconds < 86400 * 30)
-    return rtf.format(Math.round(delta / 86400), "day");
-  return rtf.format(Math.round(delta / (86400 * 30)), "month");
 }
 
 export { ApiKeyField, type ApiKeyFieldProps };
