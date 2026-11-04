@@ -42,13 +42,17 @@ import { useList } from "../../../use-list";
 function ArrayField<RecordType extends LooseRecord = LooseRecord>(
   props: ArrayFieldProps<RecordType>,
 ) {
-  const { children, perPage, sort, filter } = props;
-  const data =
-    (useFieldValue(props) as unknown as unknown[] | undefined) ?? emptyArray;
+  const { children, perPage, sort, filter, source, record, defaultValue } =
+    props;
+  // Read through the loose record: the array holds arbitrary embedded rows,
+  // and a deferred `SourceValue<RecordType, ...>` is too deep to narrow.
+  const value = useFieldValue<LooseRecord>({
+    defaultValue,
+    source,
+    record,
+  });
   const listContext = useList({
-    // The array holds arbitrary embedded records; the client controller is
-    // record-shape-agnostic, so erase to the loose `ResourceRecord`.
-    data: data as ResourceRecord[],
+    data: Array.isArray(value) ? value : emptyArray,
     perPage,
     sort,
     filter,
@@ -59,7 +63,7 @@ function ArrayField<RecordType extends LooseRecord = LooseRecord>(
   );
 }
 
-const emptyArray: unknown[] = [];
+const emptyArray: ResourceRecord[] = [];
 
 interface ArrayFieldProps<RecordType extends LooseRecord = LooseRecord> {
   /** The field path to the array on the current record. */

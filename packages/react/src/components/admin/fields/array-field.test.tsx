@@ -77,4 +77,20 @@ describe("<ArrayField>", () => {
     expect(screen.getByRole("list")).toBeTruthy();
     expect(screen.queryByRole("listitem")).toBeNull();
   });
+
+  it.each([
+    ["a string", "not-an-array"],
+    ["an object", { id: "value-1" }],
+    ["null", null],
+  ])("passes an empty list when the value is %s", (_label, value) => {
+    render(
+      <RecordContextProvider value={{ id: "non-array", values: value }}>
+        <ArrayField source="values">
+          <TestConsumer />
+        </ArrayField>
+      </RecordContextProvider>,
+    );
+    expect(screen.getByRole("list")).toBeTruthy();
+    expect(screen.queryByRole("listitem")).toBeNull();
+  });
 });
