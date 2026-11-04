@@ -40,7 +40,7 @@
 ## Tier 3 — deferred / lower priority (charter-deferred or niche)
 
 ### R7. Preferences / Configurable / Inspector
-- Planned. The inspector, `Configurable` and `SimpleFormConfigurable` are not built, and `ColumnsButton` covers the usual reason for them. See [Shadmin extras (#225)](#shadmin-extras-225).
+- Planned in #928. The inspector, `Configurable` and `SimpleFormConfigurable` are not built, and `ColumnsButton` covers the usual reason for them. See [Shadmin extras (#225)](#shadmin-extras-225).
 
 ### R8. Guessers / inference — reframe as a Chelone EXTENSION
 - ra-core's guessers sniff data values/name-heuristics to infer views. Chelone deliberately skipped them. BUT the Zod registry is a *better* substrate: a schema→view scaffolder (`z.infer` field types → default List/Edit/Show columns) would be *typed* inference, not data-sniffing — arguably surpassing ra-core. Frame as a NEW extension feature, not a port. Effort M–L. The guessers are tracked in #225, see [Shadmin extras (#225)](#shadmin-extras-225).
@@ -50,7 +50,8 @@
 - **Shipped:** translatable inputs and fields in both adapters (`TranslatableInputs`, `TranslatableFields`, `useTranslatable` and the translatable context), on the framework-free `createTranslatableController` in `@chelone/core`. Guides: `apps/website/src/docs/content/editing/translatable-inputs/index.mdx` and `apps/website/src/docs/content/viewing/translatable-fields/index.mdx`.
 
 ### R10. Realtime / enterprise
-- **Realtime, live views and record locks are built in both adapters** (the engine is in `@chelone/core`; `useSubscribe`, `ListLive`/`ShowLive`/`EditLive`/`MenuLive`, `LockOnMount`/`LockStatus` in React and Vue; both demos wire it). Guide: `apps/website/src/docs/content/app-config/realtime.mdx`.
+- **The realtime engine, live views and record locks are built in both adapters** (the engine is in `@chelone/core`; `useSubscribe`, `ListLive`/`ShowLive`/`EditLive`/`MenuLive`, `LockOnMount`/`LockStatus` in React and Vue; both demos wire it). Guide: `apps/website/src/docs/content/app-config/realtime.mdx`.
+- **Transports are open** in #835. Only `memoryTransport` and `inMemoryLockProvider` ship, so events and locks stay in one tab. The BroadcastChannel, WebSocket, server-sent events and Supabase Realtime transports and a Supabase lock provider are its slices.
 - Still deferred: audit-log. Large, ecosystem-scale, post-v1. Tree list and calendar list moved to [Shadmin extras (#225)](#shadmin-extras-225).
 
 ## Opt-in add-ons (#224)
@@ -62,7 +63,11 @@ Heavy editors and integrations ship as opt-in subpaths, so an app that does not 
 - **Markdown** (in progress): `MdxInput` and `MdxField` from `/mdx-editor`. Issues #402 to #406.
 - **CSV import** (in progress): `CsvImport` and `useCsvImport` from `/csv-import`. Issues #407 to #411 and #424.
 - **Supabase** (in progress): the `@chelone/supabase` package, and the `/supabase` subpath for the login, reset and set password pages. Issues #412 to #423, #425 and #426.
-- **Block editor and tiptap rich text input** (planned): both pull in tiptap, so each is an opt-in add-on.
+- **Tiptap rich text input** (planned): `RichTextInput` and `RichTextField` from `/rich-text-input`. Issue #902.
+- **Block editor** (planned): `BlockEditorInput` and `BlockDocField` from `/block-editor`, also on tiptap. Issue #914.
+- **Charts** (planned): `TrendChart`, `BarChart` and `DonutChart` from `/charts`, on recharts in React and unovis in Vue, so the two APIs differ. Issue #880.
+- **Supabase codegen** (planned): `chelone-supabase gen` writes a typed resources file, Zod schemas included, from a Supabase project's types, for the Zod guessers. Issue #842.
+- **Drag** (planned): wherever chelone drags, it uses `@dnd-kit/react` and `@dnd-kit/vue` as optional peers of the add-on that drags.
 
 ## Shadmin extras (#225)
 
@@ -75,11 +80,14 @@ Pieces of shadmin that Chelone keeps, with where each stands. Each lands in both
 - **Approval buttons** (in progress): approve and reject actions on a record. Issues #475 and #481 to #483, docs in #489.
 - **Command menu** (in progress): a keyboard-driven command palette. Issues #484 to #487 and #490.
 - **Calendar list** (post-v1): a list that renders records on a calendar. Issues #436 to #443. The framework-free calendar rules in `@chelone/core` (#436) are built; the adapter components are not.
-- **Kanban board** (planned): a list that renders records as columns and moves a card by dragging. Issues #790 to #794.
-- **Other widgets** (planned): pivot grid, record timeline, diff viewer, in-place editor, permission matrix, approval queue, job monitor, dashboard charts, i18n key editor, layout builder, onboarding tour and the assistant. They come after the kanban board.
-- **Inspector, `Configurable` and `SimpleFormConfigurable`** (planned): after the other widgets. `ColumnsButton` covers the usual reason for them.
-- **Data provider devtools** (planned): after the other widgets.
-- **Dropped:** theme presets and the theme studio. Theming is shadcn CSS variables, as `apps/website/src/docs/content/app-config/themes.mdx` describes.
+- **Kanban board** (in progress): a list that renders records as columns and moves a card by dragging. Issues #790 to #794. #846 moves it to dnd-kit and the `/kanban` subpath.
+- **Other widgets** (planned), one issue each: pivot grid #850, record timeline #854, diff viewer #858, in-place editor #862, permission matrix #866, approval queue #871, job monitor #875, i18n key editor #889, onboarding tour #893 and the assistant #897.
+- **Inspector, `Configurable` and `SimpleFormConfigurable`** (planned): an opt-in add-on, #928. `ColumnsButton` covers the usual reason for them.
+- **Data provider devtools** (planned): #937.
+- **Dropped:** theme presets and the theme studio. Theming is shadcn CSS variables, as `apps/website/src/docs/content/app-config/themes.mdx` describes. A theme editor lives in chelonejs/ridiculous#16, and a glass look lives in [chelonejs/glass](https://github.com/chelonejs/glass).
+- **Dropped:** the layout builder. `ColumnsButton` already reorders columns.
+- **Dropped:** the schema-driven view. The Zod guessers cover it.
+- **Dropped:** the runtime Supabase guessers. The codegen in #842 feeds the Zod guessers instead.
 
 ## Adapter duplication (#669)
 
@@ -97,4 +105,4 @@ Every feature lives once per adapter, and the copies drift. [`headless-controlle
 - Feedback: `Confirm`, `Error`, `Loading`, `LoadingIndicator`, `LinearProgress`, `Notification`, `NotFound` (for the catch-all route), `Offline`, `Placeholder`, `Ready`, `Spinner`.
 - Common: `Link`, `IconButtonWithTooltip`, `KeyboardShortcut`, `FieldLabelText`, `InputHelperText`, `CheckForApplicationUpdate`, `ApplicationUpdatedNotification`.
 
-**Next:** Tier 3 (R9, and the audit-log part of R10) stays deferred. R7 is planned and R8 is tracked in #225. Realtime, live views and record locks from R10 are built. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open work is the first npm release (#8), the opt-in add-ons (#224) and the shadmin extras (#225), whose first open piece is the kanban board.
+**Next:** Tier 3 (R9, and the audit-log part of R10) stays deferred. R7 is planned and R8 is tracked in #225. The realtime engine, live views and record locks from R10 are built, and its transports are open in #835. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open work is the first npm release (#8), the opt-in add-ons (#224) and the shadmin extras (#225), whose first open pieces are the realtime transports (#835), the Supabase codegen (#842) and the kanban move to dnd-kit (#846).
