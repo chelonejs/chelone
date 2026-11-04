@@ -340,6 +340,11 @@ describe("@chelone/core barrel", () => {
     expect(barrel.locksKey).toBeTypeOf("function");
   });
 
+  it("exports the assistant session and the echo transport", () => {
+    expect(barrel.createAssistantSession).toBeTypeOf("function");
+    expect(barrel.echoAssistantTransport).toBeTypeOf("function");
+  });
+
   it("exports the in-memory transport and lock provider", () => {
     expect(barrel.memoryTransport).toBeTypeOf("function");
     expect(barrel.inMemoryLockProvider).toBeTypeOf("function");
