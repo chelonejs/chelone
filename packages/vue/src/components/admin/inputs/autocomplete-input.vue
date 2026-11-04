@@ -1,9 +1,12 @@
-<script lang="ts">
+<script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { FilterPayload } from "@chelone/core";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
 /** Props for {@link AutocompleteInput}. */
-export interface AutocompleteInputProps extends ChoiceInputBaseProps {
+export interface AutocompleteInputProps<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> extends ChoiceInputBaseProps<TChoice> {
   /** Placeholder shown in the search input. */
   placeholder?: string;
   /** Maps the typed filter text into a reference-list filter payload. Default `{ q }`. */
@@ -13,7 +16,7 @@ export interface AutocompleteInputProps extends ChoiceInputBaseProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
 /**
  * `<AutocompleteInput>` — a searchable dropdown for choosing a single scalar, the
  * Vue analog of `@chelone/react`'s `inputs/autocomplete-input.tsx`. Reads choices
@@ -39,9 +42,8 @@ import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 import { useChoiceInput } from "./use-choice-input";
 
-const props = withDefaults(defineProps<AutocompleteInputProps>(), {
+const props = withDefaults(defineProps<AutocompleteInputProps<TChoice>>(), {
   label: undefined,
-  optionValue: "id",
   filterToQuery: (searchText: string) => ({ q: searchText }),
 });
 
@@ -63,7 +65,6 @@ const {
   optionValue: props.optionValue,
   disableValue: props.disableValue,
   translateChoice: props.translateChoice,
-  defaultOptionText: "name",
 });
 
 const { id, value, setValue, blur, error, touched, isRequired } = useInput({
@@ -134,7 +135,7 @@ function onInput(event: Event) {
   if (isFromReference) setFilters(props.filterToQuery(text));
 }
 
-function onSelect(choice: Record<string, unknown>) {
+function onSelect(choice: TChoice) {
   if (areIdsEqual(getChoiceValue(choice), value.value) && !isRequired) {
     setValue("");
     query.value = "";

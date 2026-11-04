@@ -1,14 +1,17 @@
-<script lang="ts">
+<script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
 /** Props for {@link SelectArrayInput}. */
-export interface SelectArrayInputProps extends ChoiceInputBaseProps {
+export interface SelectArrayInputProps<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> extends ChoiceInputBaseProps<TChoice> {
   /** Placeholder shown in the trigger when nothing is selected. */
   placeholder?: string;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
 /**
  * `<SelectArrayInput>` — a compact multi-select: a trigger showing the selected
  * items as badges that opens a checkbox list. The Vue analog of
@@ -33,9 +36,8 @@ import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 import { useChoiceInput } from "./use-choice-input";
 
-const props = withDefaults(defineProps<SelectArrayInputProps>(), {
+const props = withDefaults(defineProps<SelectArrayInputProps<TChoice>>(), {
   label: undefined,
-  disableValue: "disabled",
 });
 
 const translate = useTranslate();
@@ -87,7 +89,7 @@ function isChecked(choiceValue: unknown): boolean {
   return values.value.some((v) => String(v) === String(choiceValue));
 }
 
-function isChoiceDisabled(choice: Record<string, unknown>): boolean {
+function isChoiceDisabled(choice: TChoice): boolean {
   return (
     props.disabled === true ||
     props.readonly === true ||

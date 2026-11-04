@@ -1,3 +1,4 @@
+import type { SourcePath } from "@chelone/core";
 import { X } from "lucide-react";
 import type { ComponentProps, ReactElement } from "react";
 import { useCallback, useEffect } from "react";
@@ -46,7 +47,11 @@ import type { InputProps } from "../input-props";
  *   </Edit>
  * );
  */
-function SelectInput(props: SelectInputProps) {
+function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
+  typedProps: SelectInputProps<TChoice>,
+) {
+  // The body reads choices as loose records; `TChoice` only types the props.
+  const props = typedProps as unknown as SelectInputProps;
   const {
     choices: choicesProp,
     resource: resourceProp,
@@ -275,21 +280,22 @@ function SelectInput(props: SelectInputProps) {
   );
 }
 
-interface ChoicesProps {
-  choices?: readonly (string | ChoiceRecord)[];
-  optionText?: OptionText;
-  optionValue?: string;
-  disableValue?: string;
+interface ChoicesProps<TChoice extends ChoiceRecord = ChoiceRecord> {
+  choices?: readonly (string | TChoice)[];
+  optionText?: OptionText<TChoice>;
+  optionValue?: SourcePath<TChoice>;
+  disableValue?: SourcePath<TChoice>;
   translateChoice?: boolean;
 }
 
-type SelectInputProps = ChoicesProps &
-  // `source` is optional: a SelectInput inside a ReferenceInput inherits it.
-  Partial<InputProps> & {
-    emptyText?: string | ReactElement;
-    emptyValue?: string | number | boolean | null;
-    onChange?: (value: string) => void;
-    resettable?: boolean;
-  } & Omit<ComponentProps<typeof Field>, "children">;
+type SelectInputProps<TChoice extends ChoiceRecord = ChoiceRecord> =
+  ChoicesProps<TChoice> &
+    // `source` is optional: a SelectInput inside a ReferenceInput inherits it.
+    Partial<InputProps> & {
+      emptyText?: string | ReactElement;
+      emptyValue?: string | number | boolean | null;
+      onChange?: (value: string) => void;
+      resettable?: boolean;
+    } & Omit<ComponentProps<typeof Field>, "children">;
 
 export { SelectInput, type SelectInputProps };
