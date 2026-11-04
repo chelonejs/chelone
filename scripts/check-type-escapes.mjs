@@ -1,16 +1,17 @@
-// Fails when a pull request adds a type escape. Removed escapes pass: the
-// type-escape-baseline workflow records them on main after the merge, so pull
-// requests never edit the baseline and never conflict over it. Escapes are counted per file and kind, parsed with
-// TypeScript (Vue files by their <script> blocks), so the count does not move
-// when unrelated lines do.
+// Fails when a change adds a type escape. Each file's count per kind is compared
+// with the same file at a base commit, so removed escapes pass and there is no
+// baseline file to keep. Escapes are parsed with TypeScript (Vue files by their
+// <script> blocks), so the count does not move when unrelated lines do.
 //
 // A site is not counted when its line, or the line above, carries a
 // `// type-escape: <why>` comment. That is the way to add a justified escape.
 //
-//   pnpm check:type-escapes            compare with type-escapes-baseline.json
-//   pnpm check:type-escapes --update   rewrite the baseline (main's workflow runs this)
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+//   pnpm check:type-escapes                compare with where HEAD left origin/main
+//   pnpm check:type-escapes --base <ref>   compare with <ref> (CI passes HEAD^1)
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -18,7 +19,6 @@ import { fileURLToPath } from "node:url";
 const ts = createRequire(import.meta.url)(process.env.TYPESCRIPT_PATH ?? "typescript");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const baselinePath = path.join(root, "type-escapes-baseline.json");
 
 const KINDS = ["double-cast", "as-never", "as-any", "cast", "non-null", "any", "unknown", "ts-comment"];
 const SKIP = /(^|\/)(node_modules|dist|build|coverage|\.react-router|\.turbo)(\/|$)/;
@@ -28,20 +28,20 @@ const TEST_FILE = /\.(test|spec)\.|\.test-d\.ts$|\/(__tests__|__fixtures__|e2e)\
 
 const byCodeUnit = (x, y) => (x < y ? -1 : x > y ? 1 : 0);
 
-function listFiles() {
+function listFiles(tree) {
   const files = [];
   const walk = (dir) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const full = path.join(dir, entry.name);
-      if (SKIP.test(path.relative(root, full))) continue;
+      if (SKIP.test(path.relative(tree, full))) continue;
       if (entry.isDirectory()) walk(full);
       else if (/\.(ts|tsx|mts|vue)$/.test(entry.name) && !entry.name.endsWith(".d.ts")) files.push(full);
     }
   };
   for (const group of ["packages", "apps"]) {
-    for (const entry of readdirSync(path.join(root, group), { withFileTypes: true })) {
-      const src = path.join(root, group, entry.name, "src");
-      if (entry.isDirectory() && readdirSync(path.join(root, group, entry.name)).includes("src")) walk(src);
+    for (const entry of readdirSync(path.join(tree, group), { withFileTypes: true })) {
+      const src = path.join(tree, group, entry.name, "src");
+      if (entry.isDirectory() && readdirSync(path.join(tree, group, entry.name)).includes("src")) walk(src);
     }
   }
   return files.sort(byCodeUnit);
@@ -90,10 +90,10 @@ function classify(node) {
   return null;
 }
 
-function readEscapes() {
+function readEscapes(tree) {
   const sites = [];
-  for (const file of listFiles()) {
-    const rel = path.relative(root, file);
+  for (const file of listFiles(tree)) {
+    const rel = path.relative(tree, file);
     const text = readFileSync(file, "utf8");
     const lines = text.split("\n");
     const justified = (line) => JUSTIFIED.test(lines[line - 1] ?? "") || JUSTIFIED.test(lines[line - 2] ?? "");
@@ -128,44 +128,45 @@ function countByFile(sites) {
   return counts;
 }
 
-function readBaseline() {
+const git = (...args) => execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+
+function baseRef() {
+  const flag = process.argv.indexOf("--base");
   try {
-    return JSON.parse(readFileSync(baselinePath, "utf8"));
-  } catch (error) {
-    if (error.code === "ENOENT") return {};
-    throw error;
+    const ref = flag === -1 ? git("merge-base", "HEAD", "origin/main") : process.argv[flag + 1];
+    return git("rev-parse", "--short", "--verify", `${ref}^{commit}`);
+  } catch {
+    console.error("No base commit to compare with. Run git fetch origin main, or pass --base <ref>.");
+    process.exit(2);
   }
 }
 
-function writeBaseline(counts) {
-  const sorted = Object.fromEntries(
-    [...counts]
-      .sort(([x], [y]) => byCodeUnit(x, y))
-      .map(([file, perKind]) => [file, Object.fromEntries(KINDS.filter((k) => perKind[k]).map((k) => [k, perKind[k]]))]),
-  );
-  writeFileSync(baselinePath, `${JSON.stringify(sorted, null, 2)}\n`);
+/** Escape counts of the tree at `ref`, read from a throwaway worktree. */
+function countAt(ref) {
+  const dir = mkdtempSync(path.join(tmpdir(), "type-escapes-"));
+  try {
+    git("worktree", "add", "--detach", "--quiet", dir, ref);
+    return countByFile(readEscapes(dir));
+  } finally {
+    git("worktree", "remove", "--force", dir);
+    rmSync(dir, { recursive: true, force: true });
+  }
 }
 
-const sites = readEscapes();
+const sites = readEscapes(root);
 const counts = countByFile(sites);
-
-if (process.argv.includes("--update")) {
-  writeBaseline(counts);
-  console.log(`type-escapes-baseline.json rewritten: ${sites.length} escapes in ${counts.size} files.`);
-  process.exit(0);
-}
-
-const baseline = readBaseline();
+const base = baseRef();
+const baseline = countAt(base);
 const added = [];
 const removed = [];
 for (const [file, perKind] of counts) {
   for (const kind of KINDS) {
     const found = perKind[kind] ?? 0;
-    const allowed = baseline[file]?.[kind] ?? 0;
+    const allowed = baseline.get(file)?.[kind] ?? 0;
     if (found > allowed) added.push({ file, kind, found, allowed });
   }
 }
-for (const [file, perKind] of Object.entries(baseline)) {
+for (const [file, perKind] of baseline) {
   for (const [kind, allowed] of Object.entries(perKind)) {
     const found = counts.get(file)?.[kind] ?? 0;
     if (found < allowed) removed.push({ file, kind, found, allowed });
@@ -175,13 +176,13 @@ for (const [file, perKind] of Object.entries(baseline)) {
 if (added.length > 0) {
   console.error("New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a `// type-escape: <why>` comment:\n");
   for (const { file, kind, found, allowed } of added) {
-    console.error(`${file}: ${found} ${kind}, baseline allows ${allowed}`);
+    console.error(`${file}: ${found} ${kind}, ${base} has ${allowed}`);
     for (const site of sites.filter((s) => s.file === file && s.kind === kind)) console.error(`  ${site.file}:${site.line}`);
   }
 }
 if (removed.length > 0) {
-  console.log("Type escapes removed (main's type-escape-baseline workflow records them after the merge):");
-  for (const { file, kind, found, allowed } of removed) console.log(`${file}: ${found} ${kind}, baseline has ${allowed}`);
+  console.log(`Type escapes removed since ${base}:`);
+  for (const { file, kind, found, allowed } of removed) console.log(`${file}: ${found} ${kind}, ${base} had ${allowed}`);
 }
 
 if (added.length > 0) process.exit(1);

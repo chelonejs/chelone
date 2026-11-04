@@ -1,5 +1,10 @@
 <script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceKey, SourceProp } from "@chelone/core";
+import {
+  formatRelativeTime,
+  type LooseRecord,
+  type SourceKey,
+  type SourceProp,
+} from "@chelone/core";
 
 /** Props for {@link ApiKeyField}. */
 export interface ApiKeyFieldProps<
@@ -86,18 +91,6 @@ const lastUsed = computed<string | null | undefined>(() => {
   if (!props.lastUsedSource || !rec) return undefined;
   return rec[props.lastUsedSource] as string | null | undefined;
 });
-
-function formatRelative(iso: string | null | undefined): string {
-  if (!iso) return "Never";
-  const delta = (new Date(iso).getTime() - Date.now()) / 1000;
-  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
-  const abs = Math.abs(delta);
-  if (abs < 60) return rtf.format(Math.round(delta), "second");
-  if (abs < 3600) return rtf.format(Math.round(delta / 60), "minute");
-  if (abs < 86400) return rtf.format(Math.round(delta / 3600), "hour");
-  if (abs < 86400 * 30) return rtf.format(Math.round(delta / 86400), "day");
-  return rtf.format(Math.round(delta / (86400 * 30)), "month");
-}
 
 async function handleCopy() {
   try {
@@ -197,7 +190,7 @@ async function handleCopy() {
       >
     </span>
     <span v-if="lastUsedSource" class="text-xs text-muted-foreground"
-      >Last used: {{ formatRelative(lastUsed) }}</span
+      >Last used: {{ lastUsed ? formatRelativeTime(new Date(lastUsed), new Date()) : "Never" }}</span
     >
   </span>
 </template>

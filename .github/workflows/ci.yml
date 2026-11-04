@@ -22,6 +22,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
+        with:
+          # HEAD^1 is main: the base of a pull request's merge commit, or main before a push.
+          fetch-depth: 2
       - uses: ./.github/actions/setup
         with:
           cache-key: check
@@ -30,7 +33,7 @@ jobs:
       - name: No new duplication
         run: pnpm check:duplication
       - name: No new type escapes
-        run: pnpm check:type-escapes
+        run: pnpm check:type-escapes --base HEAD^1
       - name: Typecheck
         run: pnpm typecheck
       - name: Build

@@ -206,6 +206,14 @@ export {
   createEditController,
   createShowController,
 } from "./controller/record-controllers";
+export type {
+  RecordTimelineEntry,
+  ToTimelineEntriesOptions,
+} from "./controller/record-timeline";
+export {
+  formatRelativeTime,
+  toTimelineEntries,
+} from "./controller/record-timeline";
 export type { RecordTreeNode } from "./controller/record-tree";
 export { buildRecordTree } from "./controller/record-tree";
 export type {
