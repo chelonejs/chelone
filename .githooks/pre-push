@@ -25,5 +25,13 @@ while read -r _ local_sha _ _; do
       exit 1
     fi
   fi
+  if [ -f "$tmp/tree/scripts/check-type-escapes.mjs" ] && [ -f "$tmp/tree/type-escapes-baseline.json" ]; then
+    if [ ! -d "$root/node_modules/typescript" ]; then
+      echo "pre-push: typescript is not installed, skipping the type-escape check (run pnpm install; CI still runs it)" >&2
+    elif ! (cd "$tmp/tree" && TYPESCRIPT_PATH="$root/node_modules/typescript" node scripts/check-type-escapes.mjs); then
+      echo "pre-push: pnpm check:type-escapes failed, write the exact type (see .claude/skills/chelone-typescript)" >&2
+      exit 1
+    fi
+  fi
   git worktree remove --force "$tmp/tree"
 done
