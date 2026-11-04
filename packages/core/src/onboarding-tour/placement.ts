@@ -64,9 +64,14 @@ export function placeTourCard({
 
   let side: Side;
   if (placement === "auto") {
-    side = SIDES.reduce((best, next) =>
-      room[next] > room[best] ? next : best,
-    );
+    // Prefer sides the card fits on, so a roomy but too-small side cannot win
+    // and push the card over the target.
+    const roomiest = (candidates: readonly Side[]): Side =>
+      candidates.reduce((best, next) =>
+        room[next] > room[best] ? next : best,
+      );
+    const fitting = SIDES.filter(fits);
+    side = roomiest(fitting.length > 0 ? fitting : SIDES);
   } else {
     side =
       !fits(placement) && fits(OPPOSITE[placement])

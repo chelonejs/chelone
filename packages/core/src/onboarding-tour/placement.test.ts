@@ -51,6 +51,26 @@ describe("placeTourCard", () => {
     );
   });
 
+  it("auto skips a side the card does not fit on", () => {
+    // right and left have 160, top and bottom 150, but only top and bottom fit
+    const wide: TourRect = { top: 150, left: 160, width: 680, height: 500 };
+    expect(
+      placeTourCard({ target: wide, card, viewport, placement: "auto" }),
+    ).toEqual({ top: 662, left: 400, side: "bottom" });
+  });
+
+  it("auto falls back to the side with most room when none fits", () => {
+    const huge: TourRect = { top: 50, left: 100, width: 800, height: 700 };
+    const result = placeTourCard({
+      target: huge,
+      card,
+      viewport,
+      placement: "auto",
+    });
+    // room: top 50, bottom 50, left 100, right 100; none fits, right wins the tie
+    expect(result.side).toBe("right");
+  });
+
   it("flips a side that does not fit", () => {
     const nearTop: TourRect = { top: 50, left: 400, width: 100, height: 50 };
     expect(
