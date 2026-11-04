@@ -1,8 +1,8 @@
 /**
  * `<Labeled>` and the webhook-endpoint and add-on fields name a path into a
- * record. The three that take a `record` narrow `source` to that record's
- * paths; `<Labeled>` and `<GeoJsonField>` hold no record type, so their
- * `source` is `SourceProp`, which is `string` until an app registers resources.
+ * record. The four that take a `record` narrow `source` to that record's
+ * paths; `<Labeled>` holds no record type, so its `source` is `SourceProp`,
+ * which is `string` until an app registers resources.
  */
 
 import type { SourceProp } from "@chelone/core";
@@ -27,7 +27,8 @@ describe("Labeled and add-on field sources", () => {
     };
     const monaco: MonacoJsonFieldProps<Hook> = { source: "endpoint.url" };
     const mdx: MdxFieldProps<Hook> = { source: "title" };
-    const unused = [webhook, monaco, mdx];
+    const geo: GeoJsonFieldProps<Hook> = { source: "endpoint" };
+    const unused = [webhook, monaco, mdx, geo];
     expectTypeOf(unused).not.toBeAny();
 
     // @ts-expect-error "titel" is no path of Hook
@@ -36,13 +37,14 @@ describe("Labeled and add-on field sources", () => {
     const monacoTypo: MonacoJsonFieldProps<Hook> = { source: "titel" };
     // @ts-expect-error "titel" is no path of Hook
     const mdxTypo: MdxFieldProps<Hook> = { source: "titel" };
-    expectTypeOf([webhookTypo, monacoTypo, mdxTypo]).not.toBeAny();
+    // @ts-expect-error "titel" is no path of Hook
+    const geoTypo: GeoJsonFieldProps<Hook> = { source: "titel" };
+    expectTypeOf([webhookTypo, monacoTypo, mdxTypo, geoTypo]).not.toBeAny();
   });
 
-  it("the Labeled and GeoJsonField sources are SourceProp", () => {
+  it("the Labeled source is SourceProp", () => {
     expectTypeOf<LabeledProps["source"]>().toEqualTypeOf<
       SourceProp | undefined
     >();
-    expectTypeOf<GeoJsonFieldProps["source"]>().toEqualTypeOf<SourceProp>();
   });
 });
