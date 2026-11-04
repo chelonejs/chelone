@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceKey } from "@chelone/core";
 import { Copy, Eye, EyeOff } from "lucide-react";
 import { type HTMLAttributes, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,16 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
 interface ApiKeyFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     HTMLAttributes<HTMLSpanElement> {
-  /** Record field with scope strings. Renders chips when set. */
-  scopesSource?: string;
-  /** Record field with ISO last-used timestamp. */
-  lastUsedSource?: string;
+  /**
+   * Sibling record field with scope strings; renders chips when set. A
+   * top-level key, not a path: the read is `record[scopesSource]`.
+   */
+  scopesSource?: SourceKey<RecordType>;
+  /**
+   * Sibling record field with an ISO last-used timestamp. A top-level key, not
+   * a path: the read is `record[lastUsedSource]`.
+   */
+  lastUsedSource?: SourceKey<RecordType>;
   /** 'last4' shows the trailing 4 chars; 'full' masks everything. */
   maskedFormat?: "last4" | "full";
 }

@@ -1,22 +1,31 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceKey, SourceProp } from "@chelone/core";
 
 /** Props for {@link ApiKeyField}. */
-export interface ApiKeyFieldProps {
+export interface ApiKeyFieldProps<
+  RecordType extends LooseRecord = LooseRecord,
+> {
   source: SourceProp;
-  record?: LooseRecord;
+  /** The record to render. Defaults to the ambient `RecordContext` value. */
+  record?: RecordType;
   defaultValue?: unknown;
-  /** Record field with scope strings. Renders chips when set. */
-  scopesSource?: string;
-  /** Record field with an ISO last-used timestamp. */
-  lastUsedSource?: string;
+  /**
+   * Sibling record field with scope strings; renders chips when set. A
+   * top-level key, not a path: the read is `record[scopesSource]`.
+   */
+  scopesSource?: SourceKey<RecordType>;
+  /**
+   * Sibling record field with an ISO last-used timestamp. A top-level key, not
+   * a path: the read is `record[lastUsedSource]`.
+   */
+  lastUsedSource?: SourceKey<RecordType>;
   /** 'last4' shows the trailing 4 chars; 'full' masks everything. */
   maskedFormat?: "last4" | "full";
   class?: string;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<ApiKeyField>` — masked API-key display with reveal + copy controls, the Vue
  * analog of `@chelone/react`'s `fields/api-key-field.tsx`. Reads the key at
@@ -37,16 +46,21 @@ import Button from "../../ui/button.vue";
 import { RecordContextKey } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 
-const props = defineProps<ApiKeyFieldProps>();
+const props = defineProps<ApiKeyFieldProps<RecordType>>();
 
-const value = useFieldValue({
+// `source` is a loose `SourceProp` (#751), so the value read is typed loose.
+const value = useFieldValue<LooseRecord>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
 });
 
+// The scope and last-used reads are plain own-key reads of sibling fields, not
+// path walks, so the record is read as a loose one.
 const injectedRecord = inject(RecordContextKey, null);
-const ctxRecord = computed(() => props.record ?? injectedRecord?.value);
+const ctxRecord = computed<LooseRecord | undefined>(
+  () => props.record ?? injectedRecord?.value,
+);
 
 const revealed = ref(false);
 const copied = ref(false);
