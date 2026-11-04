@@ -34,7 +34,7 @@
     "build": "vite build && tsc -p tsconfig.build.json && node ../../scripts/dts-extensions.mjs dist",
     "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only",
     "test": "NODE_OPTIONS=--no-experimental-webstorage vitest run --typecheck",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.es2020.json"
   },
   "peerDependencies": {
     "@tanstack/form-core": "^1.33.0",
