@@ -1,7 +1,9 @@
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type CSSProperties, type ReactNode, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type RevealTag = "div" | "section" | "span" | "li" | "ul";
+
+type RevealStyle = CSSProperties & { "--reveal-delay"?: string };
 
 interface RevealProps {
   children: ReactNode;
@@ -35,7 +37,7 @@ export function Reveal({
   delay = 0,
   immediate = false,
 }: RevealProps) {
-  const ref = useRef<HTMLElement>(null);
+  const [el, setEl] = useState<HTMLElement | null>(null);
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
@@ -43,7 +45,6 @@ export function Reveal({
       setShown(true);
       return;
     }
-    const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => {
@@ -56,15 +57,19 @@ export function Reveal({
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [immediate]);
+  }, [immediate, el]);
+
+  const style: RevealStyle | undefined = delay
+    ? { "--reveal-delay": `${delay}s` }
+    : undefined;
 
   return (
     <As
-      ref={ref as never}
+      ref={setEl}
       data-reveal=""
       data-shown={shown ? "" : undefined}
       className={className}
-      style={delay ? ({ "--reveal-delay": `${delay}s` } as never) : undefined}
+      style={style}
     >
       {children}
     </As>
