@@ -1,5 +1,10 @@
-import type { UpdateMetaOptions } from "@tanstack/form-core";
+import type {
+  DeepKeys,
+  DeepValue,
+  UpdateMetaOptions,
+} from "@tanstack/form-core";
 import type { LooseRecord } from "../resource/record";
+import type { SourcePath } from "../resource/source-path";
 import type { CheloneFormApi } from "./form-controller";
 import {
   createFieldBinding,
@@ -35,14 +40,56 @@ export interface ArrayRow {
   reOrder(to: number): void;
 }
 
-export interface ArrayBindingOptions<TRecord = LooseRecord>
-  extends Omit<FieldBindingOptions<TRecord>, "format" | "parse"> {
+/**
+ * form-core's array-field paths of `TRecord` — every array path it can see,
+ * which is why the ops themselves are typed by the binding's own {@link SourcePath}
+ * rather than by this union.
+ */
+type ArrayFieldPath<TRecord> = Parameters<
+  CheloneFormApi<TRecord>["pushFieldValue"]
+>[0];
+
+/** form-core's item type across every one of those paths. */
+type ArrayItem<TRecord> = Parameters<
+  CheloneFormApi<TRecord>["pushFieldValue"]
+>[1];
+
+/** The array form-core stores across its {@link ArrayFieldPath} union. */
+type ArrayValue<TRecord> = DeepValue<TRecord, ArrayFieldPath<TRecord>>;
+
+/** The array form-core stores at the binding's own path. */
+type PathValue<TRecord, TPath extends string> = DeepValue<
+  TRecord,
+  TPath & DeepKeys<TRecord>
+>;
+
+/**
+ * The item type of the array at `TPath`: the row shape of THIS binding's
+ * source, not the union of every array in the record. `unknown` when the path
+ * is one form-core cannot type — a composed `string` source (the ambient form)
+ * or a scalar path.
+ */
+export type ArrayItemOf<
+  TRecord,
+  TPath extends string = SourcePath<TRecord>,
+> = string extends TPath
+  ? unknown
+  : PathValue<TRecord, TPath> extends readonly unknown[]
+    ? PathValue<TRecord, TPath>[number]
+    : unknown;
+
+export interface ArrayBindingOptions<
+  TRecord = LooseRecord,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+> extends Omit<FieldBindingOptions<TRecord>, "format" | "parse"> {
+  /** The array field path this binding drives. */
+  source: TPath;
   /**
    * Seed rows for a value hole (ra precedence: an existing record value,
    * including `[]`, always wins). Defaults to `[]` so positional ops always
    * have an array to act on once attached. Never dirties the form.
    */
-  defaultValue?: readonly unknown[];
+  defaultValue?: readonly ArrayItemOf<TRecord, TPath>[];
   /**
    * Scalar-array mode (#20): rows are primitives and `add()` pushes `''`.
    * When omitted the mode is DETECTED: `itemDefaults` present -> object;
@@ -61,10 +108,10 @@ export interface ArrayBindingOptions<TRecord = LooseRecord>
 }
 
 /** `update()` payload: everything but the identity-defining source. */
-export type ArrayBindingUpdateOptions = Omit<
-  ArrayBindingOptions<LooseRecord>,
-  "source"
->;
+export type ArrayBindingUpdateOptions<
+  TRecord = LooseRecord,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+> = Omit<ArrayBindingOptions<TRecord, TPath>, "source">;
 
 /**
  * Vanilla array binding over a form-core array field — the useArrayInput
@@ -89,7 +136,10 @@ export type ArrayBindingUpdateOptions = Omit<
  * reconcile positionally (append/truncate) — use the binding's ops when row
  * identity matters.
  */
-export interface ArrayBinding<TRecord> {
+export interface ArrayBinding<
+  TRecord,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+> {
   /**
    * The array field's own binding (validators via options, meta/errors via
    * `field.getSnapshot()`). Do NOT create a second FieldBinding on the same
@@ -116,11 +166,11 @@ export interface ArrayBinding<TRecord> {
    * Appends a row. Without `item`: `''` in scalar mode; in object mode the
    * first row's keys nulled merged with `itemDefaults`.
    */
-  add(item?: unknown): void;
+  add(item?: ArrayItemOf<TRecord, TPath>): void;
   /** Inserts a row at `index` (clamped into range); same default item as `add`. */
-  insert(index: number, item?: unknown): Promise<void>;
+  insert(index: number, item?: ArrayItemOf<TRecord, TPath>): Promise<void>;
   /** Replaces the row at `index` with `item` — the slot gets a NEW id. */
-  replace(index: number, item: unknown): Promise<void>;
+  replace(index: number, item: ArrayItemOf<TRecord, TPath>): Promise<void>;
   /** Removes the row at `index` (form-core shifts meta, deletes the trailing slot, revalidates). */
   remove(index: number): Promise<void>;
   /** Swaps two rows — ids travel with the values. */
@@ -134,56 +184,13 @@ export interface ArrayBinding<TRecord> {
    * (validators flow into the underlying field binding; `scalar` /
    * `itemDefaults` / `defaultValue` update the array layer).
    */
-  update(options: ArrayBindingUpdateOptions): void;
+  update(options: ArrayBindingUpdateOptions<TRecord, TPath>): void;
   /**
    * Imperative teardown for vanilla (non-React) consumers — delegates to the
    * underlying field binding: unmounts if attached, severs listeners, blocks
    * re-attach. Idempotent.
    */
   destroy(): void;
-}
-
-/**
- * The FormApi array surface widened to runtime-composed string paths.
- * Sources are composed at runtime (`orders[0].items`), which can never
- * satisfy `DeepKeysOfType` on an unresolved `TRecord` — this view is exactly
- * form-core's runtime contract, reached through a single documented cast.
- */
-interface ArrayOpsApi {
-  getFieldValue(field: string): unknown;
-  getFieldMeta(field: string): { _arrayVersion?: number } | undefined;
-  setFieldValue(field: string, value: unknown, opts?: UpdateMetaOptions): void;
-  pushFieldValue(field: string, value: unknown, opts?: UpdateMetaOptions): void;
-  insertFieldValue(
-    field: string,
-    index: number,
-    value: unknown,
-    opts?: UpdateMetaOptions,
-  ): Promise<void>;
-  replaceFieldValue(
-    field: string,
-    index: number,
-    value: unknown,
-    opts?: UpdateMetaOptions,
-  ): Promise<void>;
-  removeFieldValue(
-    field: string,
-    index: number,
-    opts?: UpdateMetaOptions,
-  ): Promise<void>;
-  swapFieldValues(
-    field: string,
-    indexA: number,
-    indexB: number,
-    opts?: UpdateMetaOptions,
-  ): void;
-  moveFieldValues(
-    field: string,
-    from: number,
-    to: number,
-    opts?: UpdateMetaOptions,
-  ): void;
-  clearFieldValues(field: string, opts?: UpdateMetaOptions): void;
 }
 
 /** Record-hydration write: value only, meta untouched, no validation. */
@@ -193,20 +200,25 @@ const HYDRATION_WRITE: UpdateMetaOptions = {
   dontRunListeners: true,
 };
 
-const EMPTY: readonly unknown[] = [];
+const EMPTY: readonly never[] = [];
 
 const isPlainRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
-export function createArrayBinding<TRecord>(
+export function createArrayBinding<
+  TRecord,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+>(
   form: CheloneFormApi<TRecord>,
-  options: ArrayBindingOptions<TRecord>,
-): ArrayBinding<TRecord> {
+  options: ArrayBindingOptions<TRecord, TPath>,
+): ArrayBinding<TRecord, TPath> {
   const { source } = options;
-  let current: ArrayBindingUpdateOptions & { source: string } = options;
+  let current: ArrayBindingOptions<TRecord, TPath> = options;
 
-  // The single widening cast (see ArrayOpsApi).
-  const api = form as unknown as ArrayOpsApi;
+  // A `SourcePath` is a path of the record by construction, and a binding is
+  // only ever built on an array field.
+  // type-escape: TS cannot see either in form-core's `DeepKeysOfType`.
+  const name = source as ArrayFieldPath<TRecord>;
 
   /** The field-binding view of the current options (fresh seed array per call). */
   const toFieldOptions = (): FieldBindingOptions<TRecord> => ({
@@ -220,19 +232,22 @@ export function createArrayBinding<TRecord>(
   // INERT (4R): mount/seed/register happen on the first subscriber.
   const fieldBinding = createFieldBinding<TRecord>(form, toFieldOptions());
 
-  const currentArray = (): readonly unknown[] => {
-    const value = api.getFieldValue(source);
+  const currentArray = (): readonly ArrayItemOf<TRecord, TPath>[] => {
+    const value = form.getFieldValue(name);
     return Array.isArray(value) ? value : EMPTY;
   };
 
+  /** A fresh copy of the seed rows — never the option's own array. */
+  const seedRows = (): ArrayItemOf<TRecord, TPath>[] =>
+    current.defaultValue ? [...current.defaultValue] : [];
+
   /** Materializes the guarded default so positional ops act on a real array. */
   const ensureSeeded = (): void => {
-    if (api.getFieldValue(source) !== undefined) return;
-    api.setFieldValue(
-      source,
-      current.defaultValue ? [...current.defaultValue] : [],
-      HYDRATION_WRITE,
-    );
+    if (form.getFieldValue(name) !== undefined) return;
+    // The seed IS the array form-core keeps at `name`.
+    // type-escape: its `DeepValue` stays deferred while `TRecord` is open.
+    const seed = seedRows() as ArrayValue<TRecord>;
+    form.setFieldValue(name, seed, HYDRATION_WRITE);
   };
 
   // --- stable row ids (D8): a parallel array mirroring every op ------------
@@ -252,11 +267,11 @@ export function createArrayBinding<TRecord>(
 
   /** Changes exactly when the row STRUCTURE changes (ground truth #6). */
   const structuralStamp = (): string =>
-    `${api.getFieldMeta(source)?._arrayVersion ?? 0}:${currentArray().length}`;
+    `${form.getFieldMeta(name)?._arrayVersion ?? 0}:${currentArray().length}`;
 
   // --- new-item defaults (#20) ---------------------------------------------
   /** The row shape probe: first current row, else first default row. */
-  const firstRowProbe = (): unknown => {
+  const firstRowProbe = (): ArrayItemOf<TRecord, TPath> | undefined => {
     const rows = currentArray();
     return rows.length > 0 ? rows[0] : current.defaultValue?.[0];
   };
@@ -268,45 +283,71 @@ export function createArrayBinding<TRecord>(
     return probe === undefined ? true : !isPlainRecord(probe);
   };
 
-  const newItem = (): unknown => {
-    if (isScalarMode()) return "";
+  /** Object mode: the first row's keys, every one nulled. */
+  const emptyRowTemplate = (): Record<string, unknown> => {
     const template: Record<string, unknown> = {};
     const probe = firstRowProbe();
     if (isPlainRecord(probe)) {
       for (const key of Object.keys(probe)) template[key] = null;
     }
-    return { ...template, ...current.itemDefaults };
+    return template;
   };
+
+  const newItem = (): ArrayItemOf<TRecord, TPath> => {
+    const row = isScalarMode()
+      ? ""
+      : { ...emptyRowTemplate(), ...current.itemDefaults };
+    // The new row comes from the FIRST row's keys (or `''` when scalar mode is
+    // declared), which a generic `TRecord` cannot predict.
+    // type-escape: the row is the shape the binding builds, not the record's.
+    return row as ArrayItemOf<TRecord, TPath>;
+  };
+
+  /**
+   * Hands a row to form-core, whose array ops are typed by the union of every
+   * array path in the record. {@link ArrayItemOf} is the row type of THIS
+   * binding's path, and `unknown` for a composed `string` source, where
+   * form-core types the item as `never`.
+   */
+  const formItem = (value: ArrayItemOf<TRecord, TPath>): ArrayItem<TRecord> =>
+    // type-escape: this path's row is one of form-core's union rows.
+    value as ArrayItem<TRecord>;
 
   // --- ops (ids mutate FIRST, synchronously before the form op, so any
   // notification-driven read already sees the correct pairing) --------------
-  const add = (item?: unknown): void => {
+  const add = (item?: ArrayItemOf<TRecord, TPath>): void => {
     ensureSeeded();
     syncIds(currentArray().length);
     ids.push(allocId());
-    api.pushFieldValue(source, item !== undefined ? item : newItem());
+    form.pushFieldValue(name, formItem(item !== undefined ? item : newItem()));
   };
 
-  const insert = async (index: number, item?: unknown): Promise<void> => {
+  const insert = async (
+    index: number,
+    item?: ArrayItemOf<TRecord, TPath>,
+  ): Promise<void> => {
     ensureSeeded();
     const length = currentArray().length;
     syncIds(length);
     const at = Math.max(0, Math.min(index, length));
     ids.splice(at, 0, allocId());
-    await api.insertFieldValue(
-      source,
+    await form.insertFieldValue(
+      name,
       at,
-      item !== undefined ? item : newItem(),
+      formItem(item !== undefined ? item : newItem()),
     );
   };
 
-  const replace = async (index: number, item: unknown): Promise<void> => {
+  const replace = async (
+    index: number,
+    item: ArrayItemOf<TRecord, TPath>,
+  ): Promise<void> => {
     ensureSeeded();
     const length = currentArray().length;
     syncIds(length);
     if (index < 0 || index >= length) return;
     ids[index] = allocId();
-    await api.replaceFieldValue(source, index, item);
+    await form.replaceFieldValue(name, index, formItem(item));
   };
 
   const remove = async (index: number): Promise<void> => {
@@ -315,7 +356,7 @@ export function createArrayBinding<TRecord>(
     syncIds(length);
     if (index < 0 || index >= length) return;
     ids.splice(index, 1);
-    await api.removeFieldValue(source, index);
+    await form.removeFieldValue(name, index);
   };
 
   const swap = (indexA: number, indexB: number): void => {
@@ -330,7 +371,7 @@ export function createArrayBinding<TRecord>(
     if (idA === undefined || idB === undefined) return;
     ids[indexA] = idB;
     ids[indexB] = idA;
-    api.swapFieldValues(source, indexA, indexB);
+    form.swapFieldValues(name, indexA, indexB);
   };
 
   const reOrder = (from: number, to: number): void => {
@@ -342,13 +383,13 @@ export function createArrayBinding<TRecord>(
     const [moved] = ids.splice(from, 1);
     if (moved === undefined) return;
     ids.splice(to, 0, moved);
-    api.moveFieldValues(source, from, to);
+    form.moveFieldValues(name, from, to);
   };
 
   const clear = (): void => {
     ensureSeeded();
     ids.length = 0;
-    api.clearFieldValues(source);
+    form.clearFieldValues(name);
   };
 
   // --- rows (cached; identity-stable until the structure changes) ----------
