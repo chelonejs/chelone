@@ -1,4 +1,5 @@
 import { expectTypeOf, it } from "vitest";
+import type { LocationState } from "./location";
 import type {
   CheloneLocation,
   NavigateOpts,
@@ -12,18 +13,18 @@ it("CheloneLocation carries the location shape", () => {
     search: string;
     searchParams: URLSearchParams;
     hash: string;
-    state: unknown;
+    state: LocationState | null;
   }>();
   // key is optional
   expectTypeOf<CheloneLocation["key"]>().toEqualTypeOf<string | undefined>();
-  // state is unknown, never any
+  // state is a LocationState or null, never any
   expectTypeOf<CheloneLocation["state"]>().not.toBeAny();
 });
 
 it("NavigateOpts is fully optional", () => {
   expectTypeOf<NavigateOpts>().toMatchTypeOf<{
     replace?: boolean;
-    state?: unknown;
+    state?: LocationState;
     resetScroll?: boolean;
   }>();
   expectTypeOf<NavigateOpts["state"]>().not.toBeAny();

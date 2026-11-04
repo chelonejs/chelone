@@ -6,10 +6,46 @@
  * browser. Adapters map their host location onto `CheloneLocation`.
  */
 
+import { isRecord } from "../guards";
+
+/**
+ * What Chelone writes into history state. An interface, so an app adds its own
+ * keys by augmenting `@chelone/core`.
+ */
+export interface LocationState {
+  /** `false` keeps the scroll position on navigation. */
+  _scrollToTop?: boolean;
+  /** Where to go once a blocked navigation is confirmed. */
+  nextPathname?: string;
+  /** A seed record of any resource, read by `getRecordFromLocation`. */
+  // type-escape: a seed record can belong to any resource
+  record?: Record<string, unknown>;
+}
+
+/**
+ * Read browser history state, which is untyped input, as a `LocationState`.
+ * `null` for anything that is not an object or whose known keys have the wrong
+ * type. App keys pass through unchecked.
+ */
+// type-escape: browser history state is untyped input
+export function toLocationState(raw: unknown): LocationState | null {
+  return isLocationState(raw) ? raw : null;
+}
+
+function isLocationState(raw: unknown): raw is LocationState {
+  if (!isRecord(raw)) return false;
+  const { _scrollToTop, nextPathname, record } = raw;
+  return (
+    (_scrollToTop === undefined || typeof _scrollToTop === "boolean") &&
+    (nextPathname === undefined || typeof nextPathname === "string") &&
+    (record === undefined || isRecord(record))
+  );
+}
+
 /**
  * A framework-neutral location snapshot. `search` is the raw `?a=b` string
  * (leading `?` included, `''` when empty); `searchParams` is the parsed
- * convenience view; `state` is `unknown` (never `any`) — callers narrow it.
+ * convenience view; `state` is a `LocationState` or `null`.
  * `key` is native in react-router, synthesized for TanStack (plan §0b-4).
  */
 export interface CheloneLocation {
@@ -17,7 +53,7 @@ export interface CheloneLocation {
   search: string;
   searchParams: URLSearchParams;
   hash: string;
-  state: unknown;
+  state: LocationState | null;
   key?: string;
 }
 
@@ -28,7 +64,7 @@ export interface CheloneLocation {
  */
 export interface NavigateOpts {
   replace?: boolean;
-  state?: unknown;
+  state?: LocationState;
   resetScroll?: boolean;
 }
 
@@ -39,7 +75,7 @@ export interface NavigateOpts {
  */
 export function parseLocation(
   to: string,
-  state: unknown = null,
+  state: LocationState | null = null,
   key?: string,
 ): CheloneLocation {
   const hashIndex = to.indexOf("#");

@@ -55,7 +55,11 @@
  */
 
 import type { CheloneLocation, NavigateOpts, PathMatch } from "@chelone/core";
-import { matchPath as coreMatchPath, parseLocation } from "@chelone/core";
+import {
+  matchPath as coreMatchPath,
+  parseLocation,
+  toLocationState,
+} from "@chelone/core";
 import type {
   AnyRouter,
   ParsedLocation,
@@ -144,7 +148,7 @@ function toCheloneLocation(location: LocationInput): CheloneLocation {
     // Preserve `null` semantics: an entry with only TSR internals has no user
     // state. Collapse the emptied object back to `null` for parity with the
     // react-router adapter (which surfaces `state ?? null`).
-    state: Object.keys(rest).length > 0 ? rest : null,
+    state: Object.keys(rest).length > 0 ? toLocationState(rest) : null,
     key,
   };
 }

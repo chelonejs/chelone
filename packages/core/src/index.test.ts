@@ -298,6 +298,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.matchPath).toBeTypeOf("function");
   });
 
+  it("exports toLocationState", () => {
+    expect(barrel.toLocationState).toBeTypeOf("function");
+  });
+
   it("exports the P6 runtime resource registry (W1-T2)", () => {
     expect(barrel.createResourceRegistry).toBeTypeOf("function");
     expect(barrel.computeDefinition).toBeTypeOf("function");

@@ -842,8 +842,12 @@ export {
   richTextStarterKitOptions,
   richTextToolbarItems,
 } from "./rich-text/rich-text";
-export type { CheloneLocation, NavigateOpts } from "./router/location";
-export { parseLocation } from "./router/location";
+export type {
+  CheloneLocation,
+  LocationState,
+  NavigateOpts,
+} from "./router/location";
+export { parseLocation, toLocationState } from "./router/location";
 export type { PathMatch } from "./router/match";
 export { matchPath } from "./router/match";
 export type { CreatePathParams, CreatePathType } from "./router/paths";
