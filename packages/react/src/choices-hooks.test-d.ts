@@ -1,10 +1,19 @@
 import { describe, expectTypeOf, it } from "vitest";
-import type {
-  ChoiceRecord,
-  ChoicesContextValue,
-  UseChoicesResult,
-  UseReferenceInputResult,
+import {
+  type ChoiceRecord,
+  type ChoicesContextValue,
+  type UseChoicesResult,
+  type UseReferenceInputResult,
+  useChoices,
 } from "./choices-hooks";
+
+// A `type`, not an `interface`: only a type alias satisfies `ChoiceRecord`.
+type Author = {
+  id: number;
+  name: string;
+  disabled: boolean;
+  address: { city: string };
+};
 
 describe("choices hook result types", () => {
   it("ChoicesContextValue is the unified reference/inline shape, never any", () => {
@@ -33,5 +42,46 @@ describe("choices hook result types", () => {
 
   it("UseReferenceInputResult is a ChoicesContextValue", () => {
     expectTypeOf<UseReferenceInputResult>().toEqualTypeOf<ChoicesContextValue>();
+  });
+
+  it("useChoices<Author> accepts a path of Author for optionText, optionValue and disableValue", () => {
+    const { getChoiceText, getChoiceValue, getDisableValue } =
+      useChoices<Author>({
+        optionText: "address.city",
+        optionValue: "id",
+        disableValue: "disabled",
+      });
+    expectTypeOf(getChoiceText).parameter(0).toEqualTypeOf<Author>();
+    expectTypeOf(getChoiceValue).parameter(0).toEqualTypeOf<Author>();
+    expectTypeOf(getDisableValue).parameter(0).toEqualTypeOf<Author>();
+  });
+
+  it("useChoices<Author> rejects a path that is not on Author", () => {
+    // @ts-expect-error `nme` is not a path of Author
+    useChoices<Author>({ optionText: "nme" });
+    // @ts-expect-error `ide` is not a path of Author
+    useChoices<Author>({ optionValue: "ide" });
+    // @ts-expect-error `disabld` is not a path of Author
+    useChoices<Author>({ disableValue: "disabld" });
+  });
+
+  it("useChoices<Author> accepts an optionText function that takes an Author", () => {
+    useChoices<Author>({ optionText: (author) => author.name });
+    useChoices<Author>({
+      optionText: (author) => {
+        expectTypeOf(author).toEqualTypeOf<Author>();
+        return author.address.city;
+      },
+    });
+  });
+
+  it("useChoices without a type argument takes any string", () => {
+    useChoices({
+      optionText: "anything.at[0].all",
+      optionValue: "whatever",
+      disableValue: "off",
+    });
+    const { getChoiceText } = useChoices();
+    expectTypeOf(getChoiceText).parameter(0).toEqualTypeOf<ChoiceRecord>();
   });
 });

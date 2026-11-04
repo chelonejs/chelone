@@ -22,7 +22,7 @@
  * (parity with the twin's `useState` capture of the reference options).
  */
 
-import type { SourceProp } from "@chelone/core";
+import type { SourcePath, SourceProp } from "@chelone/core";
 import { type ComputedRef, computed } from "vue";
 import {
   type ChoicesContextValue,
@@ -36,7 +36,9 @@ import {
 import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
 
 /** Options for {@link useChoiceInput}. */
-export interface UseChoiceInputOptions {
+export interface UseChoiceInputOptions<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> {
   /** Component name used in the "must provide the source prop" error. */
   componentName: string;
   /** Inline choices — synthesized into a static context, ignoring any ambient one. */
@@ -44,11 +46,11 @@ export interface UseChoiceInputOptions {
   /** The FK/field path (falls back to the ambient reference context's source). */
   source?: SourceProp | undefined;
   /** The display path or a formatter. */
-  optionText?: OptionText;
+  optionText?: OptionText<TChoice>;
   /** The value path. Default `id` (via `useChoices`). */
-  optionValue?: string;
+  optionValue?: SourcePath<TChoice>;
   /** The disabled-flag path. Default `disabled`. */
-  disableValue?: string;
+  disableValue?: SourcePath<TChoice>;
   /** Translate a string-path label. Default `!isFromReference`. */
   translateChoice?: boolean;
   /**
@@ -57,7 +59,7 @@ export interface UseChoiceInputOptions {
    * representation). `undefined` lets `useChoices` apply its own `name` default;
    * the autocomplete twins pass `"name"` explicitly.
    */
-  defaultOptionText?: OptionText;
+  defaultOptionText?: OptionText<TChoice>;
 }
 
 /** The resolved choice-input surface — accessors + reactive context fields. */
