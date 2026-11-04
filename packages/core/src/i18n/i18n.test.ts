@@ -167,4 +167,88 @@ describe("createI18n", () => {
     i18n.setLocale("fr");
     expect(cb).not.toHaveBeenCalled();
   });
+
+  it("calls onMissingKey with the key, the locale and the _ fallback", () => {
+    const onMissingKey = vi.fn();
+    const i18n: AnyCheloneI18n = createI18n({
+      locale: "fr",
+      messages: { en, fr: defineMessages({}) },
+      onMissingKey,
+    });
+    i18n.translate("ra.auth.sign_in", { _: "Sign in" });
+    expect(onMissingKey).toHaveBeenCalledWith(
+      "ra.auth.sign_in",
+      "fr",
+      "Sign in",
+    );
+    i18n.translate("other.key");
+    expect(onMissingKey).toHaveBeenLastCalledWith("other.key", "fr", undefined);
+    i18n.translate("third.key", { _: 3 });
+    expect(onMissingKey).toHaveBeenLastCalledWith("third.key", "fr", undefined);
+  });
+
+  it("calls onMissingKey when only the fallback locale holds the key", () => {
+    const onMissingKey = vi.fn();
+    const i18n = createI18n({
+      locale: "fr",
+      fallbackLocale: "en",
+      messages: { en, fr: defineMessages({}) },
+      onMissingKey,
+    });
+    expect(i18n.translate("chelone.action.save")).toBe("Save");
+    expect(onMissingKey).toHaveBeenCalledWith(
+      "chelone.action.save",
+      "fr",
+      undefined,
+    );
+  });
+
+  it("does not call onMissingKey for a key the locale holds", () => {
+    const onMissingKey = vi.fn();
+    const i18n = createI18n({
+      locale: "en",
+      messages: { en, fr },
+      onMissingKey,
+    });
+    i18n.translate("chelone.action.save");
+    expect(onMissingKey).not.toHaveBeenCalled();
+  });
+
+  it("returns the same text with and without onMissingKey", () => {
+    const messages = { en, fr: defineMessages({}) };
+    const plain: AnyCheloneI18n = createI18n({ locale: "fr", messages });
+    const watched: AnyCheloneI18n = createI18n({
+      locale: "fr",
+      messages,
+      fallbackLocale: "en",
+      onMissingKey: () => {},
+    });
+    const unwatched: AnyCheloneI18n = createI18n({
+      locale: "fr",
+      messages,
+      fallbackLocale: "en",
+    });
+    expect(plain.translate("x.y")).toBe("x.y");
+    expect(watched.translate("x.y")).toBe("x.y");
+    expect(watched.translate("x.y", { _: "Hi {n}", n: 1 })).toBe("Hi 1");
+    expect(plain.translate("x.y", { _: "Hi {n}", n: 1 })).toBe("Hi 1");
+    expect(watched.translate("chelone.greeting", { name: "Rin" })).toBe(
+      unwatched.translate("chelone.greeting", { name: "Rin" }),
+    );
+  });
+
+  it("a throwing onMissingKey does not break translate", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const boom = new Error("boom");
+    const i18n: AnyCheloneI18n = createI18n({
+      locale: "fr",
+      messages: { en, fr: defineMessages({}) },
+      onMissingKey: () => {
+        throw boom;
+      },
+    });
+    expect(i18n.translate("x.y", { _: "Hi" })).toBe("Hi");
+    expect(error).toHaveBeenCalledWith(boom);
+    error.mockRestore();
+  });
 });
