@@ -599,8 +599,8 @@ describe("form options on the view", () => {
             id: 1,
             redirectOnSave: false,
             onSuccess: () => {
-              seen.title = formApi?.state.values.title;
-              seen.isDirty = formApi?.state.isDirty;
+              seen.title = formApi?.ambient.getFieldValue("title");
+              seen.isDirty = formApi?.ambient.store.state.isDirty;
             },
           },
           {

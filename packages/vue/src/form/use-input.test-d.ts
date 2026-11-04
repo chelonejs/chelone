@@ -1,4 +1,12 @@
+import type {
+  FormContextHandle,
+  FormContextHandleOf,
+  ResourceFormHandle,
+  SourceValue,
+  UnboundFormHandle,
+} from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
+import { type NamedFormHandle, useFormHandle } from "./form-context";
 import { useInput } from "./use-input";
 
 type Post = { headline: string; views: number; author: { name: string } };
@@ -65,5 +73,74 @@ describe("useInput value typing", () => {
       format: (value: unknown) => String(value),
       parse: (input: unknown) => input,
     });
+  });
+});
+
+interface PostRecord {
+  title: string;
+  views: number;
+  author: { name: string };
+}
+
+/**
+ * Registering resources is global to the whole type-check run, so these tests
+ * cannot register `Post`: they pin the narrowing on an explicit map, which is
+ * what `useFormHandle` computes over the registered one.
+ */
+type PostHandles = FormContextHandleOf<{
+  posts: PostRecord;
+  tags: { label: string };
+}>;
+
+declare const handle: NamedFormHandle<PostHandles, "posts">;
+
+describe("useFormHandle", () => {
+  it("with nothing registered, the context is the unbound handle", () => {
+    expectTypeOf(useFormHandle()).toEqualTypeOf<FormContextHandle>();
+    expectTypeOf(useFormHandle()).toEqualTypeOf<UnboundFormHandle>();
+  });
+
+  it("useFormHandle(name) is that resource's handle or undefined", () => {
+    expectTypeOf(useFormHandle("posts")).toEqualTypeOf<
+      ResourceFormHandle<"posts"> | undefined
+    >();
+  });
+
+  it("the named handle types its field values", () => {
+    type Named = NamedFormHandle<PostHandles, "posts">;
+    expectTypeOf<Named>().toEqualTypeOf<
+      ResourceFormHandle<"posts", Partial<PostRecord>>
+    >();
+    expectTypeOf(handle.getFieldValue("title")).not.toBeUnknown();
+    expectTypeOf(handle.getFieldValue("author.name")).toEqualTypeOf<
+      SourceValue<Partial<PostRecord>, "author.name">
+    >();
+    // @ts-expect-error "titel" is not a path of a post
+    handle.getFieldValue("titel");
+    // @ts-expect-error a number is not the value at `title`
+    handle.setFieldValue("title", 5);
+  });
+
+  it("a resource the union does not name falls back to the bare handle", () => {
+    expectTypeOf<NamedFormHandle<PostHandles, "comments">>().toEqualTypeOf<
+      ResourceFormHandle<"comments">
+    >();
+  });
+});
+
+describe("useInput value and setValue", () => {
+  it("the value is what format returns; setValue takes it or an event", () => {
+    const input = useInput<Invoice, "total", string>({
+      source: "total",
+      format: (value) => value.toFixed(2),
+      parse: (text) => Number(text),
+    });
+    expectTypeOf(input.value.value).toEqualTypeOf<string>();
+    expectTypeOf(input.setValue).parameter(0).toEqualTypeOf<Event | string>();
+  });
+
+  it("without a format the value is unknown", () => {
+    const input = useInput({ source: "anything" });
+    expectTypeOf(input.value.value).toBeUnknown();
   });
 });

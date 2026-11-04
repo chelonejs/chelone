@@ -28,9 +28,9 @@ export interface ResettableTextInputProps {
  * consistent with the coercion fix) so the control stays a controlled string.
  *
  * Rebridge note: the React twin read the live value via the `useWatch` RHF shim
- * and cleared via `form.setFieldValue`. Here we OBSERVE the ambient form store
- * (a read-only `useSubscribable` over `form.store` — no second field
- * registration) and clear via the same `form.setFieldValue(wrappedSource, "")`.
+ * and cleared via `form.ambient.setFieldValue`. Here we OBSERVE the ambient form store
+ * (a read-only `useSubscribable` over `form.ambient.store` — no second field
+ * registration) and clear via the same `form.ambient.setFieldValue(wrappedSource, "")`.
  */
 
 import type { Validator } from "@chelone/core";
@@ -52,15 +52,15 @@ const { form } = useCheloneFormContext();
 const wrappedSource = useWrappedSource(props.source);
 
 // Observe the ambient form store so `hasValue` re-derives per keystroke. Reading
-// `form.getFieldValue` inside a computed is only reactive if the computed also
+// `form.ambient.getFieldValue` inside a computed is only reactive if the computed also
 // depends on the store snapshot, hence the `void formState.value` touch.
 const formState = useSubscribable({
-  getSnapshot: () => form.store.state,
-  subscribe: (cb) => subscribeStore(form.store, cb),
+  getSnapshot: () => form.ambient.store.state,
+  subscribe: (cb) => subscribeStore(form.ambient.store, cb),
 });
 const hasValue = computed(() => {
   void formState.value;
-  const v = form.getFieldValue(wrappedSource);
+  const v = form.ambient.getFieldValue(wrappedSource);
   return v != null && v !== "";
 });
 
@@ -73,7 +73,7 @@ const clearLabel = computed(() =>
 );
 
 function handleClear() {
-  form.setFieldValue(wrappedSource, "");
+  form.ambient.setFieldValue(wrappedSource, "");
 }
 </script>
 

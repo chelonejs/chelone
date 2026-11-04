@@ -23,7 +23,7 @@ export interface SaveButtonProps {
  * (mounted by `<Edit>`/`<Create>` via `useForm`'s provider) and invokes it on
  * click. Disabled state derives from the reactive form-store slices
  * (`isSubmitting` / `isValidating` / `canSubmit`), the React twin's
- * `useSelector(form.store, …)` mapped to a Vue `shallowRef` bridge over the
+ * `useSelector(form.ambient.store, …)` mapped to a Vue `shallowRef` bridge over the
  * form-core store (a plain read — no mount, the form is already mounted).
  */
 
@@ -43,10 +43,10 @@ const translate = useTranslate();
 
 // Reactive bridge over the form-core store (already mounted by useForm): read
 // the submit gate slices without re-mounting anything.
-const state = shallowRef(form.store.state);
+const state = shallowRef(form.ambient.store.state);
 onScopeDispose(
-  subscribeStore(form.store, () => {
-    state.value = form.store.state;
+  subscribeStore(form.ambient.store, () => {
+    state.value = form.ambient.store.state;
   }),
 );
 
@@ -70,7 +70,7 @@ const displayedLabel = computed(() =>
 
 async function onClick() {
   if (submit) await submit();
-  else await form.handleSubmit();
+  else await form.ambient.handleSubmit();
 }
 </script>
 

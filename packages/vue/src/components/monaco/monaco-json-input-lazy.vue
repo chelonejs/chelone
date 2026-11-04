@@ -90,7 +90,7 @@ const { form } = useCheloneFormContext();
 const firstError = (list: editor.IMarker[]) =>
   list.find((marker) => marker.severity >= ERROR_SEVERITY)?.message;
 const markerCheck = () => {
-  if (!form.state.isSubmitting) return firstError(markers.value);
+  if (!form.ambient.store.state.isSubmitting) return firstError(markers.value);
   checking++;
   return settled()
     .then(firstError)

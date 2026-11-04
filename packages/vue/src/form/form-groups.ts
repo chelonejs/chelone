@@ -1,7 +1,7 @@
 /**
  * FormGroups Vue layer — the twin of `@chelone/react`'s `group-hooks.tsx`. Wires
  * core's string-membership `createFormGroups` registry to the ambient form's
- * `form.store.state.fieldMeta` so a tab/step badge reads just its own members'
+ * `form.ambient.store.state.fieldMeta` so a tab/step badge reads just its own members'
  * validity.
  *
  * `useFormGroup` runs the reducer inside the consuming badge and swaps its ref
@@ -185,7 +185,9 @@ export function useFormGroup(
 
   const reduce = (): GroupState =>
     reduceGroupState(
-      form.store.state.fieldMeta as Parameters<typeof reduceGroupState>[0],
+      form.ambient.store.state.fieldMeta as Parameters<
+        typeof reduceGroupState
+      >[0],
       registry.value.getMembers(toValue(name)),
     );
 
@@ -195,7 +197,7 @@ export function useFormGroup(
     if (!sameGroupState(state.value, next)) state.value = next;
   };
 
-  const stopStore = subscribeStore(form.store, refresh);
+  const stopStore = subscribeStore(form.ambient.store, refresh);
   // Re-subscribes when the registry is swapped; refreshes when `name` changes.
   const stopWatch = watch(
     [registry, () => toValue(name)],

@@ -29,10 +29,10 @@ async function validateStep(stepName: string): Promise<boolean> {
   // The submit cause marks each field touched, then runs its validators.
   await Promise.all(
     members.map((source) =>
-      Promise.resolve(form.validateField(source, "submit")),
+      Promise.resolve(form.ambient.validateField(source, "submit")),
     ),
   );
-  const fieldMeta = form.store.state.fieldMeta as Record<
+  const fieldMeta = form.ambient.store.state.fieldMeta as Record<
     string,
     { isValid: boolean } | undefined
   >;

@@ -1,5 +1,6 @@
-import type { FieldErrors } from "@chelone/core";
+import type { FieldErrors, UnboundFormHandle } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
+import type { CheloneFormContextValue } from "./form-context";
 import type { OptionalSaveFormProps } from "./form-scope";
 import type { UseFormOptions } from "./use-form";
 
@@ -48,5 +49,25 @@ describe("OptionalSaveFormProps", () => {
     expectTypeOf<keyof WithSave>().toEqualTypeOf<
       "save" | Exclude<keyof UseFormOptions<FormValues>, "onSubmit">
     >();
+  });
+});
+
+describe("the form a plain useForm provides", () => {
+  it("is the unbound handle: no resource, values unchecked", () => {
+    // `useForm` provides a handle tagged by its resource when it has one. The
+    // member with no resource holds whatever is registered.
+    type Unbound = Extract<
+      CheloneFormContextValue["form"],
+      { resource: undefined }
+    >;
+    expectTypeOf<Unbound>().toEqualTypeOf<UnboundFormHandle>();
+    expectTypeOf<Unbound["resource"]>().toBeUndefined();
+    expectTypeOf<Unbound["ambient"]["getFieldValue"]>().returns.toBeUnknown();
+  });
+
+  it("with nothing registered, the context form is the unbound handle alone", () => {
+    expectTypeOf<
+      CheloneFormContextValue["form"]
+    >().toEqualTypeOf<UnboundFormHandle>();
   });
 });

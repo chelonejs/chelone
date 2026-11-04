@@ -1,7 +1,18 @@
+import type { ValidationCause } from "@tanstack/form-core";
 import type { RegisteredResources } from "../resource/register";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import type { SourcePath, SourceValue } from "../resource/source-path";
+import {
+  type ArrayBinding,
+  type ArrayBindingOptions,
+  createArrayBinding,
+} from "./array-binding";
 import type { CheloneFormApi, CheloneFormState } from "./form-controller";
+import {
+  createFieldBinding,
+  type FieldBinding,
+  type FieldBindingOptions,
+} from "./input-binding";
 
 /**
  * A map of resource name -> record type — the shape {@link FormContextHandleOf}
@@ -41,6 +52,15 @@ export interface FormSnapshot<TRecord> {
   canSubmit: boolean;
 }
 
+// type-escape: the erased record leaves a bound field's value, input and rows unchecked.
+type AmbientFieldOptions = FieldBindingOptions<unknown, string, unknown>;
+// type-escape: see `AmbientFieldOptions`.
+type AmbientFieldBinding = FieldBinding<unknown, string, unknown>;
+// type-escape: see `AmbientFieldOptions`.
+type AmbientArrayOptions = ArrayBindingOptions<unknown, string>;
+// type-escape: see `AmbientFieldOptions`.
+type AmbientArrayBinding = ArrayBinding<unknown, string>;
+
 /**
  * A form with its record type erased: the shape a form context carries, since
  * one context spans every input below it whatever their record. Every path is a
@@ -62,6 +82,20 @@ export interface AmbientForm {
   setFieldValue(path: string, value: unknown): void;
   /** The field's meta (touched/dirty/errors/validators) at a path. */
   getFieldMeta(path: string): AmbientFieldMeta[string];
+  /** Runs the validators of one field for `cause`, settling when they have. */
+  validateField(path: string, cause: ValidationCause): Promise<void>;
+  /** Runs the form's own submit: validate, then the save the form was built with. */
+  handleSubmit(): Promise<void>;
+  /** Rebaselines the form from `values`, or from its current defaults when omitted. */
+  // type-escape: the record is erased, so the values are unchecked.
+  reset(values?: unknown): void;
+  /**
+   * Binds one field of this form. Inert until the binding is subscribed to
+   * (see {@link FieldBinding}).
+   */
+  bindField(options: AmbientFieldOptions): AmbientFieldBinding;
+  /** Binds one array field of this form. Inert until subscribed to. */
+  bindArray(options: AmbientArrayOptions): AmbientArrayBinding;
 }
 
 /**
@@ -156,11 +190,27 @@ export function createFormHandle<TRecord>(
   // type-escape: the form read through its erased record type.
   const loose = form as CheloneFormApi<unknown>;
 
+  // The explicit type arguments keep the compiler from walking the record's
+  // paths: inferring them through the erased record overflows its depth.
+  const bindField: AmbientForm["bindField"] = (options) =>
+    // type-escape: the erased record, as above.
+    createFieldBinding<unknown, string, unknown>(loose, options);
+  const bindArray: AmbientForm["bindArray"] = (options) =>
+    // type-escape: the erased record, as above.
+    createArrayBinding<unknown, string>(loose, options);
+
   const ambient: AmbientForm = {
     store: loose.store,
     getFieldValue: (path) => loose.getFieldValue(path),
     setFieldValue: (path, value) => loose.setFieldValue(path, value),
     getFieldMeta: (path) => loose.getFieldMeta(path),
+    validateField: async (path, cause) => {
+      await loose.validateField(path, cause);
+    },
+    handleSubmit: () => loose.handleSubmit(),
+    reset: (values) => loose.reset(values),
+    bindField,
+    bindArray,
   };
 
   // The members are written loose and read typed: the `TPath` typing lives in
@@ -188,7 +238,8 @@ export function toResourceFormHandle<TName extends string, TFormData>(
 }
 
 /**
- * Widens a handle to the form-context union, tagging it with `resource`.
+ * Widens a handle to the form-context union, tagging it with `resource`, or
+ * leaving it unbound when the form edits no resource.
  *
  * A type-level move only: at runtime the object is `handle` with `resource`
  * set. The registry — not the caller's generic — decides which record type the
@@ -197,7 +248,7 @@ export function toResourceFormHandle<TName extends string, TFormData>(
  */
 export function toFormContextHandle<TName extends string, TFormData>(
   handle: FormHandle<TFormData>,
-  resource: TName,
+  resource: TName | undefined,
 ): FormContextHandle {
   // type-escape: the tagged handle carries no record; the union spells one.
   const tagged: FormHandle<unknown> & { resource: TName | undefined } = {
@@ -220,6 +271,16 @@ export interface AnyFormHandle {
 }
 
 /**
+ * The names `THandle` can carry. A handle union that names no resource (nothing
+ * registered) takes any string, so a generic caller still compiles.
+ */
+type HandleName<THandle extends AnyFormHandle> = [
+  NonNullable<THandle["resource"]>,
+] extends [never]
+  ? string
+  : NonNullable<THandle["resource"]>;
+
+/**
  * Narrows a handle to the member that names `name`.
  *
  * The narrowing a generic body cannot do itself: `handle.resource === name`
@@ -229,7 +290,7 @@ export interface AnyFormHandle {
  */
 export function isResourceHandle<
   THandle extends AnyFormHandle,
-  TName extends THandle["resource"] & string,
+  TName extends HandleName<THandle>,
 >(
   handle: THandle,
   name: TName,

@@ -20,25 +20,22 @@
 
 import type {
   CheloneFieldState,
-  FieldBinding,
   SourcePath,
   SourceValue,
   TranslatableMessage,
   Validator,
 } from "@chelone/core";
-import { createFieldBinding, defaultFormat, isRequired } from "@chelone/core";
+import { defaultFormat, isRequired } from "@chelone/core";
 import { type ComputedRef, computed, useId } from "vue";
 import { firstFieldError } from "./field-error";
 import { useCheloneFormContext, useSourceScope } from "./form-context";
 import { useRegisterFieldGroup } from "./form-groups";
 import { useSubscribable } from "./subscribe-ref";
 
-/** The erased form-data shape the ambient form carries. */
-type UnknownFormValues = Record<string, unknown>;
-
 export interface UseInputOptions<
   TRecord = unknown,
   TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+  TInput = unknown,
 > {
   /** The field path RELATIVE to the ambient source scope (iterator rows compose it). */
   source: TPath;
@@ -51,25 +48,31 @@ export interface UseInputOptions<
   /** ra-contract validators — composed, first error wins. */
   validate?: Validator | readonly Validator[];
   /** Read transform (raw form value → input value). Default `defaultFormat`. */
-  format?: (value: NoInfer<SourceValue<TRecord, TPath>>) => unknown;
+  format?: (value: NoInfer<SourceValue<TRecord, TPath>>) => TInput;
   /** Write transform (input value → stored value). Default `defaultParse`. */
-  parse?: (input: unknown) => NoInfer<SourceValue<TRecord, TPath>>;
+  parse?: (input: TInput) => NoInfer<SourceValue<TRecord, TPath>>;
   /** Forces the required marker; ORed with `required()` detection on `validate`. */
   isRequired?: boolean;
   /** Explicit element id; a `useId` value is generated otherwise. */
   id?: string;
 }
 
-/** The reactive input surface — spread onto / bound into the input SFC. */
-export interface UseInputReturn {
+/**
+ * The reactive input surface — spread onto / bound into the input SFC.
+ * `TInput` is what the input holds: the result of `format`.
+ */
+export interface UseInputReturn<TInput = unknown> {
   /** Stable element id (for `<label for>` / `aria-describedby`). */
   id: string;
   /** The FINAL field path (source-scoped). */
   name: string;
   /** The input-facing value: `format(raw)` — `''` for nullish under the default. */
-  value: ComputedRef<unknown>;
-  /** Writes `parse(value)` to the field (marks touched+dirty, validates per mode). */
-  setValue: (input: unknown) => void;
+  value: ComputedRef<TInput>;
+  /**
+   * Writes `parse(value)` to the field (marks touched+dirty, validates per
+   * mode). Takes a change event or the value itself.
+   */
+  setValue: (input: Event | TInput) => void;
   /** Marks the field blurred and runs blur-cause validation. */
   blur: () => void;
   /** The first displayable field error, or `undefined` when valid. */
@@ -114,7 +117,8 @@ export function useInput(options: UseInputOptions): UseInputReturn;
 export function useInput<
   TRecord,
   TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
->(options: UseInputOptions<TRecord, TPath>): UseInputReturn;
+  TInput = unknown,
+>(options: UseInputOptions<TRecord, TPath, TInput>): UseInputReturn<TInput>;
 // A typed props spread has a `source` wider than `SourcePath<Post>` (row paths,
 // filter keys), which the generic overload would reject.
 export function useInput(options: UseInputOptions): UseInputReturn;
@@ -129,7 +133,7 @@ export function useInput(typedOptions: unknown): UseInputReturn {
   const generatedId = useId();
   useRegisterFieldGroup(source);
 
-  const binding: FieldBinding<UnknownFormValues> = createFieldBinding(form, {
+  const binding = form.ambient.bindField({
     source,
     defaultValue: options.defaultValue,
     format: options.format,
@@ -139,7 +143,7 @@ export function useInput(typedOptions: unknown): UseInputReturn {
 
   // 4R: subscribing mounts the field (seed default + register + onMount) on
   // `setup`; `onScopeDispose` unmounts it on teardown.
-  const state = useSubscribable<CheloneFieldState<UnknownFormValues>>(binding);
+  const state = useSubscribable<CheloneFieldState<unknown>>(binding);
   const format = options.format ?? defaultFormat;
 
   return {

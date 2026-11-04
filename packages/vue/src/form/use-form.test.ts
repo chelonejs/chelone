@@ -6,6 +6,7 @@ import { defineComponent, h, nextTick } from "vue";
 import { z } from "zod";
 import { type CheloneContextValue, provideCheloneContext } from "../context";
 import { provideResourceContext } from "../resource-context";
+import { useFormHandle } from "./form-context";
 import { type UseFormOptions, type UseFormReturn, useForm } from "./use-form";
 
 const postSchema = z.object({
@@ -21,6 +22,8 @@ interface MountCfg {
   resources?: boolean;
   /** Provide an ambient `<Resource>` name for the schema lookup. */
   resource?: string;
+  /** Rendered under the form, so it reads the form `useForm` provides. */
+  child?: ReturnType<typeof defineComponent>;
 }
 
 function mountForm(options: UseFormOptions<Post>, cfg: MountCfg = {}) {
@@ -32,7 +35,7 @@ function mountForm(options: UseFormOptions<Post>, cfg: MountCfg = {}) {
   const FormProbe = defineComponent({
     setup() {
       capture.result = useForm<Post>(options);
-      return () => null;
+      return () => (cfg.child ? h(cfg.child) : null);
     },
   });
   const Provider = defineComponent({
@@ -144,5 +147,86 @@ describe("useForm", () => {
     });
 
     expect(result(capture).submitting.value).toBe(false);
+  });
+});
+
+describe("the form useForm provides", () => {
+  const record = { id: 1, title: "hello", views: 5 };
+
+  function readHandle() {
+    const seen: {
+      resource?: string | undefined;
+      posts?: ReturnType<typeof useFormHandle<"posts">>;
+      title?: string;
+    } = {};
+    const child = defineComponent({
+      setup() {
+        const handle = useFormHandle();
+        seen.resource = handle.resource;
+        seen.posts = useFormHandle("posts");
+        seen.title = String(handle.ambient.getFieldValue("title"));
+        return () => null;
+      },
+    });
+    return { seen, child };
+  }
+
+  it("is the unbound handle when the form has no resource", () => {
+    const { seen, child } = readHandle();
+    mountForm({ record, onSubmit: async () => undefined }, { child });
+
+    expect(seen.resource).toBeUndefined();
+    expect(seen.posts).toBeUndefined();
+    expect(seen.title).toBe("hello");
+  });
+
+  it("is tagged with the resource option", () => {
+    const { seen, child } = readHandle();
+    mountForm(
+      { record, resource: "posts", onSubmit: async () => undefined },
+      { child },
+    );
+
+    expect(seen.resource).toBe("posts");
+    expect(seen.posts?.resource).toBe("posts");
+  });
+
+  it("is tagged with the ambient <Resource> name", () => {
+    const { seen, child } = readHandle();
+    mountForm(
+      { record, onSubmit: async () => undefined },
+      { child, resource: "posts" },
+    );
+
+    expect(seen.resource).toBe("posts");
+    expect(seen.posts?.resource).toBe("posts");
+  });
+
+  it("useFormHandle(name) is undefined for another resource", () => {
+    const seen: { tags?: ReturnType<typeof useFormHandle<"tags">> } = {};
+    const child = defineComponent({
+      setup() {
+        seen.tags = useFormHandle("tags");
+        return () => null;
+      },
+    });
+    mountForm(
+      { record, resource: "posts", onSubmit: async () => undefined },
+      { child },
+    );
+
+    expect(seen.tags).toBeUndefined();
+  });
+
+  it("useFormHandle throws without a form above", () => {
+    const child = defineComponent({
+      setup() {
+        useFormHandle();
+        return () => null;
+      },
+    });
+    const error = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    expect(() => mount(child)).toThrow(/no ambient form/);
+    error.mockRestore();
   });
 });

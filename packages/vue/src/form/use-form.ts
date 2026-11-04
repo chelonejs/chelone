@@ -100,9 +100,10 @@ function registrySchema<TFormData>(
   resource: string | undefined,
 ): FormSchema<TFormData> {
   if (!resources || !resource) return undefined;
-  const entry = (resources as Record<string, { schema?: unknown }>)[resource];
+  const entry = resources[resource];
   // zod >= 3.24 implements Standard Schema; the registry types schemas broadly,
   // so widening to the form data type is a cast (mirrors core's registrySchema).
+  // type-escape: the registry's schema slot to the form's data type.
   return entry?.schema as FormSchema<TFormData>;
 }
 
@@ -140,7 +141,11 @@ export function useForm<TFormData = Record<string, unknown>>(
   const state = useSubscribable(controller);
 
   // Expose the form to descendant `useInput`s (mirror React's CheloneFormProvider).
-  provideCheloneForm({ form: controller.form, submit: controller.submit });
+  provideCheloneForm({
+    form: controller.form,
+    submit: controller.submit,
+    resource,
+  });
 
   return {
     form: controller.form,

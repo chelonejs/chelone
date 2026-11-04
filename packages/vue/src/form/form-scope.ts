@@ -63,7 +63,7 @@ export function useFormScope<TFormData>(
   }
   if (ambient) {
     const { form, submit } = ambient;
-    return submit ?? (() => form.handleSubmit());
+    return submit ?? (() => form.ambient.handleSubmit());
   }
   throw new Error(
     `<${name}> needs a \`save\` prop outside a view that provides a form (<Edit>, <Create>).`,

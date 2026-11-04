@@ -17,7 +17,7 @@ export interface SearchInputProps {
  * `<SearchInput>` — an unlabelled text input with a search icon, the Vue analog
  * of `@chelone/react`'s `inputs/search-input.tsx`. Designed for filter bars, it
  * defaults to the `q` full-text source. Reads the live value off the ambient
- * form store and clears via `form.setFieldValue`. It throws if given a `label`
+ * form store and clears via `form.ambient.setFieldValue`. It throws if given a `label`
  * (use `<TextInput>` when a label is needed) — mirroring the React twin.
  */
 
@@ -46,12 +46,12 @@ const { form } = useCheloneFormContext();
 const wrappedSource = useWrappedSource(props.source);
 
 const formState = useSubscribable({
-  getSnapshot: () => form.store.state,
-  subscribe: (cb) => subscribeStore(form.store, cb),
+  getSnapshot: () => form.ambient.store.state,
+  subscribe: (cb) => subscribeStore(form.ambient.store, cb),
 });
 const hasValue = computed(() => {
   void formState.value;
-  const v = form.getFieldValue(wrappedSource);
+  const v = form.ambient.getFieldValue(wrappedSource);
   return v != null && v !== "";
 });
 
@@ -66,7 +66,7 @@ const clearLabel = computed(() =>
 );
 
 function handleClear() {
-  form.setFieldValue(wrappedSource, "");
+  form.ambient.setFieldValue(wrappedSource, "");
 }
 </script>
 
