@@ -100,7 +100,7 @@ function setup<TFormData extends Record<string, unknown>>(
       },
     });
     submitRef.current = form.submit;
-    formRef.current = form.form as unknown as FormRef["current"];
+    formRef.current = form.form;
     return (
       <CheloneFormProvider form={form.form} submit={form.submit}>
         {children}
