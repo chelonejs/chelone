@@ -1,5 +1,5 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceKey, SourceProp } from "@chelone/core";
 
 /** Ratio thresholds toggling the warning / critical bar color. */
 export interface UsageMeterThresholds {
@@ -8,12 +8,18 @@ export interface UsageMeterThresholds {
 }
 
 /** Props for {@link UsageMeterField}. */
-export interface UsageMeterFieldProps {
+export interface UsageMeterFieldProps<
+  RecordType extends LooseRecord = LooseRecord,
+> {
   source: SourceProp;
-  record?: LooseRecord;
+  /** The record to render. Defaults to the ambient `RecordContext` value. */
+  record?: RecordType;
   defaultValue?: unknown;
-  /** Sibling record field holding the limit/quota. Bar is only shown when set. */
-  limitSource?: string;
+  /**
+   * Sibling record field holding the limit/quota; the bar is only shown when
+   * set. A top-level key, not a path: the read is `record[limitSource]`.
+   */
+  limitSource?: SourceKey<RecordType>;
   /** Optional unit suffix (e.g. "GB", "requests"). */
   unit?: string;
   /** Ratio thresholds. Defaults `{ warning: 0.8, critical: 1.0 }`. */
@@ -22,7 +28,7 @@ export interface UsageMeterFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<UsageMeterField>` — displays a numeric usage value relative to an optional
  * limit, rendering a progress bar that shifts color at configurable thresholds.
@@ -42,11 +48,12 @@ import { cn } from "../../../lib/utils";
 import { RecordContextKey } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 
-const props = defineProps<UsageMeterFieldProps>();
+const props = defineProps<UsageMeterFieldProps<RecordType>>();
 
 const DEFAULT_THRESHOLDS: UsageMeterThresholds = { warning: 0.8, critical: 1.0 };
 
-const value = useFieldValue({
+// `source` is a loose `SourceProp` (#751), so the value read is typed loose.
+const value = useFieldValue<LooseRecord>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
@@ -56,8 +63,12 @@ const used = computed<number | null | undefined>(() =>
   typeof value.value === "number" ? value.value : (value.value as null | undefined),
 );
 
+// The limit is a plain own-key read of a sibling field, not a path walk, so the
+// record is read as a loose one.
 const injectedRecord = inject(RecordContextKey, null);
-const ctxRecord = computed(() => props.record ?? injectedRecord?.value);
+const ctxRecord = computed<LooseRecord | undefined>(
+  () => props.record ?? injectedRecord?.value,
+);
 
 const limit = computed<number | undefined>(() => {
   const rec = ctxRecord.value;

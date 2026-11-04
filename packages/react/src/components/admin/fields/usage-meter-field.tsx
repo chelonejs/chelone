@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceKey } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import { Progress } from "@/components/ui/progress";
 import type { FieldProps } from "@/lib/field-types";
@@ -10,8 +10,11 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
 interface UsageMeterFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     Omit<HTMLAttributes<HTMLSpanElement>, "color"> {
-  /** Sibling record field holding the limit/quota. Bar is only shown when set. */
-  limitSource?: string;
+  /**
+   * Sibling record field holding the limit/quota; the bar is only shown when
+   * set. A top-level key, not a path: the read is `record[limitSource]`.
+   */
+  limitSource?: SourceKey<RecordType>;
   /** Optional unit suffix (e.g. "GB", "requests"). */
   unit?: string;
   /** Ratio thresholds for warning + critical states. Defaults `{ warning: 0.8, critical: 1.0 }`. */

@@ -1,23 +1,29 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceKey, SourceProp } from "@chelone/core";
 
 /** Props for {@link RatingField}. */
-export interface RatingFieldProps {
+export interface RatingFieldProps<
+  RecordType extends LooseRecord = LooseRecord,
+> {
   source: SourceProp;
-  record?: LooseRecord;
+  /** The record to render. Defaults to the ambient `RecordContext` value. */
+  record?: RecordType;
   defaultValue?: unknown;
   empty?: string;
   /** Total stars rendered (filled + outlined). Default 5. */
   max?: number;
   /** Allow half-star granularity when the value falls between integers. */
   allowHalf?: boolean;
-  /** Sibling record source rendered in parentheses (e.g. a review count). */
-  countSource?: string;
+  /**
+   * Sibling record field rendered in parentheses (e.g. a review count). A
+   * top-level key, not a path: the read is `record[countSource]`.
+   */
+  countSource?: SourceKey<RecordType>;
   class?: string;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<RatingField>` — displays a numeric rating as a row of filled/half/outlined
  * star icons, the Vue analog of `@chelone/react`'s `fields/rating-field.tsx`.
@@ -33,11 +39,12 @@ import { useFieldValue } from "../../../record/use-field-value";
 import { RecordContextKey } from "../../../record/record-context";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = defineProps<RatingFieldProps>();
+const props = defineProps<RatingFieldProps<RecordType>>();
 
 const max = computed(() => props.max ?? 5);
 
-const value = useFieldValue({
+// `source` is a loose `SourceProp` (#751), so the value read is typed loose.
+const value = useFieldValue<LooseRecord>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
@@ -45,9 +52,12 @@ const value = useFieldValue({
 
 // Inject the record ref once (inject must run in setup); a `record` prop wins.
 // Reading `.value` inside the computed keeps `countSource` reactive as an async
-// record resolves — parity with the twin's `useRecordContext`.
+// record resolves — parity with the twin's `useRecordContext`. The record is
+// read as a loose one: `countSource` is a plain own-key read, not a path walk.
 const injectedRecord = inject(RecordContextKey, null);
-const ctxRecord = computed(() => props.record ?? injectedRecord?.value);
+const ctxRecord = computed<LooseRecord | undefined>(
+  () => props.record ?? injectedRecord?.value,
+);
 const translate = useTranslate();
 
 const count = computed<number | undefined>(() => {
