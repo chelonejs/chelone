@@ -1,3 +1,5 @@
+import { getAtPath } from "../resource/get-at-path";
+import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import type {
@@ -9,38 +11,59 @@ import type {
   SortPayload,
 } from "./types";
 
-type Row = ResourceRecord & Record<string, unknown>;
+/** One array of records per resource name, each typed by that resource's schema. */
+type FakeTables<TResources extends ResourceMap> = {
+  [N in keyof TResources & string]?: RecordOf<TResources, N>[];
+};
 
-function applyFilter(rows: Row[], filter: FilterPayload | undefined): Row[] {
+function applyFilter<TRecord>(
+  rows: TRecord[],
+  filter: FilterPayload | undefined,
+): TRecord[] {
   if (!filter) return rows;
   return rows.filter((row) =>
-    Object.entries(filter).every(([key, value]) => row[key] === value),
+    Object.entries(filter).every(
+      ([key, value]) => getAtPath(row, key) === value,
+    ),
   );
 }
 
-function applySort(
-  rows: Row[],
+/** Orders numbers, strings, dates and booleans as `<` does; anything else ties. */
+function compareValues(a: unknown, b: unknown): number {
+  if (a instanceof Date && b instanceof Date)
+    return compareValues(a.getTime(), b.getTime());
+  if (
+    (typeof a === "number" && typeof b === "number") ||
+    (typeof a === "string" && typeof b === "string") ||
+    (typeof a === "boolean" && typeof b === "boolean")
+  ) {
+    if (a < b) return -1;
+    if (a > b) return 1;
+  }
+  return 0;
+}
+
+function applySort<TRecord>(
+  rows: TRecord[],
   sort: SortPayload | SortPayload[] | undefined,
-): Row[] {
+): TRecord[] {
   if (!sort) return rows;
   const keys = Array.isArray(sort) ? sort : [sort];
   if (keys.length === 0) return rows;
   return [...rows].sort((a, b) => {
     for (const { field, order } of keys) {
       const dir = order === "ASC" ? 1 : -1;
-      const av = a[field] as never;
-      const bv = b[field] as never;
-      if (av < bv) return -dir;
-      if (av > bv) return dir;
+      const cmp = compareValues(getAtPath(a, field), getAtPath(b, field));
+      if (cmp !== 0) return cmp * dir;
     }
     return 0;
   });
 }
 
-function paginate(
-  rows: Row[],
+function paginate<TRecord extends ResourceRecord>(
+  rows: TRecord[],
   pagination: Pagination | undefined,
-): GetListResult<Row> {
+): GetListResult<TRecord> {
   if (!pagination) return { data: rows, total: rows.length };
   if ("page" in pagination) {
     const start = (pagination.page - 1) * pagination.perPage;
@@ -69,21 +92,21 @@ function paginate(
 
 /** In-memory DataProvider for tests and dogfooding. Mutates its own copy of the seed. */
 export function fakeDataProvider<TResources extends ResourceMap>(
-  initialData: {
-    [K in keyof TResources]?: RecordOf<TResources, K>[];
-  },
+  initialData: FakeTables<TResources>,
 ): DataProvider<TResources> {
-  const store = new Map<string, Row[]>();
-  for (const [resource, rows] of Object.entries(initialData)) {
-    store.set(resource, structuredClone(rows ?? []) as Row[]);
-  }
-  const table = (resource: string): Row[] => {
-    const rows = store.get(resource);
+  const store: FakeTables<TResources> = structuredClone(initialData);
+  const table = <TName extends keyof TResources & string>(
+    resource: TName,
+  ): RecordOf<TResources, TName>[] => {
+    const rows = store[resource];
     if (!rows)
       throw new Error(`fakeDataProvider: unknown resource "${resource}"`);
     return rows;
   };
-  const find = (resource: string, id: unknown): Row => {
+  const find = <TName extends keyof TResources & string>(
+    resource: TName,
+    id: Identifier,
+  ): RecordOf<TResources, TName> => {
     const row = table(resource).find((r) => String(r.id) === String(id));
     if (!row)
       throw new Error(`fakeDataProvider: ${resource}#${String(id)} not found`);
@@ -91,7 +114,10 @@ export function fakeDataProvider<TResources extends ResourceMap>(
   };
   let nextId = 1_000_000;
 
-  const listLike = (rows: Row[], params: GetListParams) =>
+  const listLike = <TRecord extends ResourceRecord>(
+    rows: TRecord[],
+    params: GetListParams,
+  ) =>
     paginate(
       applySort(applyFilter(rows, params.filter), params.sort),
       params.pagination,
@@ -99,31 +125,35 @@ export function fakeDataProvider<TResources extends ResourceMap>(
 
   return {
     async getList(resource, params) {
-      return listLike(table(resource), params) as never;
+      return listLike(table(resource), params);
     },
     async getOne(resource, params) {
-      return { data: structuredClone(find(resource, params.id)) } as never;
+      return { data: structuredClone(find(resource, params.id)) };
     },
     async getMany(resource, params) {
       return {
         data: params.ids.map((id) => structuredClone(find(resource, id))),
-      } as never;
+      };
     },
     async getManyReference(resource, params) {
       const rows = table(resource).filter(
-        (r) => String(r[params.target]) === String(params.id),
+        (r) => String(getAtPath(r, params.target)) === String(params.id),
       );
-      return listLike(rows, params) as never;
+      return listLike(rows, params);
     },
     async create(resource, params) {
-      const row = { id: nextId++, ...structuredClone(params.data) } as Row;
+      // type-escape: a fake cannot prove that the sent fields plus an id make a whole record
+      const row = {
+        id: nextId++,
+        ...structuredClone(params.data),
+      } as RecordOf<TResources, typeof resource>;
       table(resource).push(row);
-      return { data: structuredClone(row) } as never;
+      return { data: structuredClone(row) };
     },
     async update(resource, params) {
       const row = find(resource, params.id);
       Object.assign(row, structuredClone(params.data));
-      return { data: structuredClone(row) } as never;
+      return { data: structuredClone(row) };
     },
     async updateMany(resource, params) {
       for (const id of params.ids)
@@ -133,12 +163,12 @@ export function fakeDataProvider<TResources extends ResourceMap>(
     async delete(resource, params) {
       const rows = table(resource);
       const idx = rows.findIndex((r) => String(r.id) === String(params.id));
-      if (idx === -1)
+      const removed = idx === -1 ? undefined : rows.splice(idx, 1)[0];
+      if (!removed)
         throw new Error(
           `fakeDataProvider: ${resource}#${String(params.id)} not found`,
         );
-      const [removed] = rows.splice(idx, 1);
-      return { data: structuredClone(removed) } as never;
+      return { data: structuredClone(removed) };
     },
     async deleteMany(resource, params) {
       for (const id of params.ids) {
