@@ -1,7 +1,9 @@
 /**
  * The rating to usage-meter display fields show one record field, so their
  * `source` is a path into the record and takes `SourceProp`. Sibling sources
- * (`countSource`, `limitSource`, ...) and `optionText`/`optionValue` stay `string`.
+ * (`countSource`, `limitSource`, ...) stay `string`; `SelectField`'s
+ * `optionText`/`optionValue` are paths of its choices, tested in
+ * `../inputs/source-prop.choices-b.test-d.ts`.
  */
 
 import type { SourceProp } from "@chelone/core";
@@ -13,7 +15,7 @@ import type FileField from "./file-field.vue";
 import type ImageField from "./image-field.vue";
 import type JsonField from "./json-field.vue";
 import type RatingField from "./rating-field.vue";
-import type SelectField from "./select-field.vue";
+import type { SelectFieldProps } from "./select-field.vue";
 import type SubscriptionPlanField from "./subscription-plan-field.vue";
 import type TextArrayField from "./text-array-field.vue";
 import type UsageMeterField from "./usage-meter-field.vue";
@@ -40,8 +42,10 @@ describe("rating to usage-meter field sources", () => {
   });
 
   it("the SelectField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof SelectField>["$props"];
-    expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
+    // `SelectField` is generic in its choices, so `InstanceType` of the SFC
+    // does not apply; the props interface it exports defaults to the loose
+    // choice, where `source` is still `SourceProp`.
+    expectTypeOf<SelectFieldProps["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the TextArrayField source prop is SourceProp", () => {

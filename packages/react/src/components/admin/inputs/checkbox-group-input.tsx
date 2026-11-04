@@ -12,25 +12,17 @@ import {
 } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import type { ChoiceRecord, OptionText } from "../../../choices-hooks";
+import type { ChoiceRecord } from "../../../choices-hooks";
 import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useGetRecordRepresentationText } from "../../../label";
 import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
-import type { InputProps } from "../input-props";
+import type { ChoicesProps, InputProps } from "../input-props";
 
-interface ChoicesProps {
-  choices?: readonly (string | ChoiceRecord)[];
-  optionText?: OptionText;
-  optionValue?: string;
-  disableValue?: string;
-  translateChoice?: boolean;
-}
-
-interface CheckboxGroupInputProps
+interface CheckboxGroupInputProps<TChoice extends ChoiceRecord = ChoiceRecord>
   extends Partial<InputProps>,
-    ChoicesProps,
+    ChoicesProps<TChoice>,
     // The rendered root is a `<fieldset>` (via `<FieldSet>`); extend the
     // fieldset attribute surface so the passthrough `{...rest}` typechecks.
     Omit<
@@ -66,7 +58,11 @@ interface CheckboxGroupInputProps
  *   </Edit>
  * );
  */
-function CheckboxGroupInput(inProps: CheckboxGroupInputProps) {
+function CheckboxGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
+  inProps: CheckboxGroupInputProps<TChoice>,
+) {
+  // The body reads choices as loose records; `TChoice` only types the props.
+  const props = inProps as unknown as CheckboxGroupInputProps;
   const {
     choices: choicesProp,
     resource: resourceProp,
@@ -93,7 +89,7 @@ function CheckboxGroupInput(inProps: CheckboxGroupInputProps) {
     options,
     labelPlacement = "end",
     ...rest
-  } = inProps;
+  } = props;
 
   // chelone `useChoicesContext` takes only `{ choices, source }`.
   const {

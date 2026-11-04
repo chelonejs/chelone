@@ -1,4 +1,3 @@
-import type { SourcePath } from "@chelone/core";
 import { ChevronDown, X } from "lucide-react";
 import * as React from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
@@ -14,21 +13,13 @@ import {
 } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import type { ChoiceRecord, OptionText } from "../../../choices-hooks";
+import type { ChoiceRecord } from "../../../choices-hooks";
 import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentationText } from "../../../label";
-import type { InputProps } from "../input-props";
-
-interface ChoicesProps<TChoice extends ChoiceRecord = ChoiceRecord> {
-  choices?: readonly (string | TChoice)[];
-  optionText?: OptionText<TChoice>;
-  optionValue?: SourcePath<TChoice>;
-  disableValue?: SourcePath<TChoice>;
-  translateChoice?: boolean;
-}
+import type { ChoicesProps, InputProps } from "../input-props";
 
 /**
  * Multi-select dropdown input for choosing several values from a list.

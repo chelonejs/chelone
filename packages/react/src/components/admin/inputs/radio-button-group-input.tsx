@@ -11,30 +11,23 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import type { ChoiceRecord, OptionText } from "../../../choices-hooks";
+import type { ChoiceRecord } from "../../../choices-hooks";
 import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
-import type { InputProps } from "../input-props";
+import type { ChoicesProps, InputProps } from "../input-props";
 
-interface RadioButtonGroupInputProps
-  extends Partial<InputProps>,
-    ChoicesProps,
+interface RadioButtonGroupInputProps<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> extends Partial<InputProps>,
+    ChoicesProps<TChoice>,
     Omit<
       React.ComponentProps<typeof RadioGroup>,
       "defaultValue" | "onBlur" | "onChange" | "type"
     > {
   row?: boolean;
   options?: React.ComponentProps<typeof RadioGroup>;
-}
-
-interface ChoicesProps {
-  choices?: readonly (string | ChoiceRecord)[];
-  optionText?: OptionText;
-  optionValue?: string;
-  disableValue?: string;
-  translateChoice?: boolean;
 }
 
 /**
@@ -61,7 +54,11 @@ interface ChoicesProps {
  *   </Edit>
  * );
  */
-function RadioButtonGroupInput(inProps: RadioButtonGroupInputProps) {
+function RadioButtonGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
+  inProps: RadioButtonGroupInputProps<TChoice>,
+) {
+  // The body reads choices as loose records; `TChoice` only types the props.
+  const props = inProps as unknown as RadioButtonGroupInputProps;
   const {
     choices: choicesProp,
     resource: resourceProp,
@@ -87,7 +84,7 @@ function RadioButtonGroupInput(inProps: RadioButtonGroupInputProps) {
     row,
     options,
     ...rest
-  } = inProps;
+  } = props;
 
   // chelone `useChoicesContext` takes only `{ choices, source }`.
   const {

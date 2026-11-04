@@ -3751,7 +3751,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4394,7 +4394,7 @@
         "@chelone/popover",
         "@chelone/skeleton"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4417,7 +4417,7 @@
         "@chelone/select",
         "@chelone/skeleton"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },

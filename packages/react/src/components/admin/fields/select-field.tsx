@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourcePath } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
@@ -34,9 +34,14 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
  * as choice labels. Set `translateChoice={false}` to opt out (e.g. inside a
  * `<ReferenceField>`, which defaults it to false).
  */
-const SelectFieldImpl = <RecordType extends LooseRecord = LooseRecord>(
-  props: SelectFieldProps<RecordType>,
+const SelectFieldImpl = <
+  RecordType extends LooseRecord = LooseRecord,
+  TChoice extends ChoiceRecord = ChoiceRecord,
+>(
+  typedProps: SelectFieldProps<RecordType, TChoice>,
 ) => {
+  // The body reads choices as loose records; `TChoice` only types the props.
+  const props = typedProps as unknown as SelectFieldProps;
   const {
     className,
     empty,
@@ -87,15 +92,17 @@ SelectFieldImpl.displayName = "SelectFieldImpl";
 
 const SelectField = genericMemo(SelectFieldImpl);
 
-interface SelectFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
+interface SelectFieldProps<
+  RecordType extends LooseRecord = LooseRecord,
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> extends FieldProps<RecordType>,
     HTMLAttributes<HTMLSpanElement> {
   /** The list of choices to map the value against. */
-  choices?: readonly ChoiceRecord[];
+  choices?: readonly TChoice[];
   /** The value path on a choice. Default `'id'`. */
-  optionValue?: string;
+  optionValue?: SourcePath<TChoice>;
   /** The display path or a formatter. Default `'name'`. */
-  optionText?: OptionText;
+  optionText?: OptionText<TChoice>;
   /** Translate a string-path text through the catalog. Default `true`. */
   translateChoice?: boolean;
 }

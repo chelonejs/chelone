@@ -1,14 +1,17 @@
-<script lang="ts">
+<script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
 /** Props for {@link CheckboxGroupInput}. */
-export interface CheckboxGroupInputProps extends ChoiceInputBaseProps {
+export interface CheckboxGroupInputProps<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> extends ChoiceInputBaseProps<TChoice> {
   /** Lay the checkboxes out horizontally instead of stacked. */
   row?: boolean;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
 /**
  * `<CheckboxGroupInput>` — a multi-select rendered as a list of checkboxes, the
  * Vue analog of `@chelone/react`'s `inputs/checkbox-group-input.tsx`. Reads
@@ -29,10 +32,8 @@ import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 import { useChoiceInput } from "./use-choice-input";
 
-const props = withDefaults(defineProps<CheckboxGroupInputProps>(), {
+const props = withDefaults(defineProps<CheckboxGroupInputProps<TChoice>>(), {
   label: undefined,
-  optionValue: "id",
-  disableValue: "disabled",
   row: false,
 });
 
@@ -78,7 +79,7 @@ function isChecked(choiceValue: unknown): boolean {
   return values.value.some((v) => String(v) === String(choiceValue));
 }
 
-function isChoiceDisabled(choice: Record<string, unknown>): boolean {
+function isChoiceDisabled(choice: TChoice): boolean {
   return (
     props.disabled === true ||
     props.readonly === true ||

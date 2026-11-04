@@ -1,4 +1,3 @@
-import type { SourcePath } from "@chelone/core";
 import { X } from "lucide-react";
 import type { ComponentProps, ReactElement } from "react";
 import { useCallback, useEffect } from "react";
@@ -14,14 +13,14 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import type { ChoiceRecord, OptionText } from "../../../choices-hooks";
+import type { ChoiceRecord } from "../../../choices-hooks";
 import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentationText } from "../../../label";
 import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
-import type { InputProps } from "../input-props";
+import type { ChoicesProps, InputProps } from "../input-props";
 
 /**
  * Dropdown select input for choosing a single value from a list of options.
@@ -278,14 +277,6 @@ function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
       </FieldError>
     </Field>
   );
-}
-
-interface ChoicesProps<TChoice extends ChoiceRecord = ChoiceRecord> {
-  choices?: readonly (string | TChoice)[];
-  optionText?: OptionText<TChoice>;
-  optionValue?: SourcePath<TChoice>;
-  disableValue?: SourcePath<TChoice>;
-  translateChoice?: boolean;
 }
 
 type SelectInputProps<TChoice extends ChoiceRecord = ChoiceRecord> =
