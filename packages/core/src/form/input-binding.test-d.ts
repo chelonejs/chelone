@@ -30,8 +30,10 @@ it("the field binding surface carries no `any`", () => {
   expectTypeOf(binding.getSnapshot()).not.toBeAny();
   expectTypeOf(binding.getSnapshot().meta.isTouched).toEqualTypeOf<boolean>();
   expectTypeOf(binding.getSnapshot().meta.errors).not.toBeAny();
-  expectTypeOf(binding.getValue()).toEqualTypeOf<unknown>();
-  expectTypeOf(binding.setValue).parameter(0).toEqualTypeOf<unknown>();
+  expectTypeOf(binding.getValue()).toEqualTypeOf<string>();
+  expectTypeOf(binding.setValue).parameter(0).toEqualTypeOf<string>();
+  expectTypeOf(binding.store.state.value).toBeUnknown();
+  expectTypeOf(binding.store.state.meta).not.toBeAny();
   expectTypeOf(binding.subscribe).parameter(0).toEqualTypeOf<() => void>();
   expectTypeOf(binding.subscribe).returns.toEqualTypeOf<() => void>();
   expectTypeOf(binding.isRequired()).toEqualTypeOf<boolean>();
@@ -45,8 +47,12 @@ it("validators keep the ra contract types (translatable payloads, no any)", () =
   ).toEqualTypeOf<Validator>();
   expectTypeOf(isRequired([required(), minLength(3)])).toEqualTypeOf<boolean>();
   expectTypeOf(minLength(3)).not.toBeAny();
-  expectTypeOf(defaultFormat(null)).toEqualTypeOf<unknown>();
-  expectTypeOf(defaultParse("")).toEqualTypeOf<unknown>();
+  expectTypeOf(defaultFormat<string | null>(null)).toEqualTypeOf<string>();
+  expectTypeOf(defaultFormat(null)).toEqualTypeOf<"">();
+  expectTypeOf(defaultFormat<number | undefined>(0)).toEqualTypeOf<
+    number | ""
+  >();
+  expectTypeOf(defaultParse<string | null>("")).toEqualTypeOf<string | null>();
 });
 
 const typed = () =>

@@ -8,30 +8,48 @@ import {
   type StandardSchemaV1,
 } from "@tanstack/form-core";
 import type { LooseRecord } from "../resource/record";
-import type { SourcePath } from "../resource/source-path";
+import type { SourcePath, SourceValue } from "../resource/source-path";
 import type {
   AsyncValidator,
   CheloneFormApi,
   SyncValidator,
 } from "./form-controller";
 import { isThenable } from "./save-pipeline";
-import { composeValidators, isRequired, type Validator } from "./validators";
+import {
+  composeValidators,
+  type FieldValidatorMeta,
+  type FieldValidatorStackResult,
+  isRequired,
+  type SchemaOutcome,
+  type Validator,
+  type ValidatorResult,
+} from "./validators";
 
 /**
  * ra's default format: render `null`/`undefined` as `''` so text inputs stay
  * controlled; every other value (including `0`/`false`) passes through.
  */
-export function defaultFormat(value: unknown): unknown {
-  return value == null ? "" : value;
+export function defaultFormat<TValue>(value: TValue): FormattedValue<TValue> {
+  // type-escape: TS cannot follow that dropping null/undefined lands on it.
+  return (value == null ? "" : value) as FormattedValue<TValue>;
 }
+
+/**
+ * What a field's input holds under {@link defaultFormat}: the stored value with
+ * its holes spelled as `''`.
+ */
+export type FormattedValue<TValue> = Exclude<TValue, null | undefined> | "";
 
 /**
  * ra's default parse: store a cleared text input (`''`) as `null` — the
  * shape most backends expect; every other value (including `0`/`false`)
  * passes through.
  */
-export function defaultParse(input: unknown): unknown {
-  return input === "" ? null : input;
+export function defaultParse<TInput>(
+  input: TInput,
+): Exclude<TInput, ""> | null {
+  // type-escape: TS cannot follow that turning `''` into null lands on it.
+  return (input === "" ? null : input) as Exclude<TInput, ""> | null;
 }
 
 /** The widest data type a runtime-composed source path can address. */
@@ -108,29 +126,35 @@ type CheloneFieldOptions<TRecord> = FieldApiOptions<
 export type CheloneFieldState<TRecord> = CheloneFieldApi<TRecord>["state"];
 
 /**
- * The third validator argument (ra's `props` slot): always carries the final
- * source path; the binding's `validatorMeta` (input props in the React
- * layer) is merged in.
+ * form-core's field store with the record type erased: `{ value, meta }` for an
+ * adapter selector, which cannot know the record of the field it renders.
  */
-export interface FieldValidatorMeta {
-  source: string;
-  [key: string]: unknown;
-}
+export type CheloneFieldStore = CheloneFieldApi<unknown>["store"];
 
-export interface FieldBindingOptions<TRecord = LooseRecord> {
-  /** The FINAL field path (already source-scoped — see `source.ts`). */
-  source: SourcePath<TRecord>;
+/**
+ * Everything a field binding takes except the identity-defining `source`,
+ * spelled for one value type: `TValue` is what the field holds, `TInput` what
+ * the input holds.
+ *
+ * `defaultValue` and `parse`'s result stay open: the bag is rebuilt every
+ * render, can come from a source scope that names no path, and its value lands
+ * on form-core's `handleChange`, whose own value type is `DeepValue`. `format`
+ * is where the value type is pinned.
+ */
+export interface FieldBindingBaseOptions<TValue, TInput> {
   /**
    * Input-level default, ra precedence: seeds ONLY into a hole (untouched
    * field whose form value is `undefined`) — an existing record value,
    * including `null`, always wins. Re-applied whenever the hole reopens
    * (reset/rehydration), never dirties the form.
    */
+  // type-escape: an option bag outlives the path it was built for.
   defaultValue?: unknown;
   /** Read transform (raw form value -> input value). Default {@link defaultFormat}. */
-  format?: (value: unknown) => unknown;
+  format?: (value: TValue) => TInput;
   /** Write transform (input value -> stored value). Default {@link defaultParse}. */
-  parse?: (input: unknown) => unknown;
+  // type-escape: the stored value is checked by form-core, not by this type.
+  parse?: (input: TInput) => unknown;
   /** ra-contract validators — composed, first error wins, sync stays sync. */
   validate?: Validator | readonly Validator[];
   /**
@@ -143,10 +167,23 @@ export interface FieldBindingOptions<TRecord = LooseRecord> {
   validatorMeta?: Record<string, unknown>;
 }
 
-/** `update()` payload: everything but the identity-defining source. */
-export type FieldBindingUpdateOptions = Omit<
-  FieldBindingOptions<LooseRecord>,
-  "source"
+export interface FieldBindingOptions<
+  TRecord = LooseRecord,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+  TInput = FormattedValue<SourceValue<TRecord, TPath>>,
+> extends FieldBindingBaseOptions<SourceValue<TRecord, TPath>, TInput> {
+  /** The FINAL field path (already source-scoped — see `source.ts`). */
+  source: TPath;
+}
+
+/**
+ * `update()` payload: everything but the identity-defining source. The
+ * render-freshness bag an adapter hands over each render, with both value
+ * types left open — the same options, record-erased.
+ */
+export type FieldBindingUpdateOptions = FieldBindingBaseOptions<
+  unknown,
+  unknown
 >;
 
 /**
@@ -167,12 +204,21 @@ export type FieldBindingUpdateOptions = Omit<
  * submit). The sync slot stays synchronous; the FIRST thenable result
  * latches the binding onto the async slot (injected lazily so pure-sync
  * validators never flicker `isValidating`).
+ *
+ * `TRecord` is the form's data type, `TPath` the field's own source path and
+ * `TInput` what the input holds (`TPath`'s value under `format`), so
+ * `getValue()`/`setValue()` are typed for one field, not for the widest value
+ * in the record.
  */
-export interface FieldBinding<TRecord> {
+export interface FieldBinding<
+  TRecord,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+  TInput = unknown,
+> {
   /** The wrapped FieldApi — the full form-core surface for advanced use. */
   field: CheloneFieldApi<TRecord>;
   /** The final field path this binding is attached to. */
-  readonly source: string;
+  readonly source: TPath;
   /**
    * Refcounted subscription (uSES-compatible): registers `listener` with the
    * identity-memoized `field.store` (per-field render isolation) and mounts
@@ -182,10 +228,17 @@ export interface FieldBinding<TRecord> {
   subscribe(listener: () => void): () => void;
   /** The current field state — `field.store.state` (reference-stable until a write). */
   getSnapshot(): CheloneFieldState<TRecord>;
+  /**
+   * form-core's derived store of this field, with the record type erased:
+   * `{ value, meta }` for an adapter selector, which cannot know the record of
+   * the field it renders. Same store object as `field.store` — subscribing here
+   * and to the form costs one subscription each, and neither mounts the field.
+   */
+  readonly store: CheloneFieldStore;
   /** The input-facing value: `format(raw)` — never `null`/`undefined` under the default format. */
-  getValue(): unknown;
+  getValue(): TInput;
   /** Writes `parse(input)` through `handleChange` (marks touched+dirty, validates per revalidation mode). */
-  setValue(input: unknown): void;
+  setValue(input: TInput): void;
   /** Marks the field blurred and runs blur-cause validation. */
   blur(): void;
   /** Requiredness detected from the RAW validate prop (`required()`'s tag). */
@@ -217,15 +270,36 @@ interface BindingValidators {
   onDynamicAsync?: (props: { value: unknown }) => Promise<unknown>;
 }
 
-export function createFieldBinding<TRecord>(
+/** The binding's own option set: the update bag, typed for its `TInput`. */
+interface CurrentOptions<TRecord, TPath extends SourcePath<TRecord>, TInput>
+  extends FieldBindingBaseOptions<SourceValue<TRecord, TPath>, TInput> {
+  source: TPath;
+}
+
+/** A validator list (ra call style) rather than a single validator. */
+function isValidatorList(
+  validate: Validator | readonly Validator[],
+): validate is readonly Validator[] {
+  return Array.isArray(validate);
+}
+
+export function createFieldBinding<
+  TRecord,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+  TInput = FormattedValue<SourceValue<TRecord, TPath>>,
+>(
   form: CheloneFormApi<TRecord>,
-  options: FieldBindingOptions<TRecord>,
-): FieldBinding<TRecord> {
+  options: FieldBindingOptions<TRecord, TPath, TInput>,
+): FieldBinding<TRecord, TPath, TInput> {
   const { source } = options;
   // The one cast: a `SourcePath` is a path of the record by construction, but
   // TS cannot see that it is one of form-core's `DeepKeys`.
   const name = source as DeepKeys<TRecord>;
-  let current: FieldBindingUpdateOptions & { source: string } = options;
+  // The value checks below stay `unknown` instead of a `DeepValue` over the
+  // whole path union of a generic record.
+  // type-escape: the form read through its erased record type.
+  const loose = form as CheloneFormApi<unknown>;
+  let current: CurrentOptions<TRecord, TPath, TInput> = options;
 
   /**
    * Runs the binding's validator stack against a value: field schema first
@@ -233,37 +307,42 @@ export function createFieldBinding<TRecord>(
    * validators with `(value, allValues, meta)`. Synchronous while every
    * consulted step is synchronous.
    */
-  const runValidators = (value: unknown): unknown => {
-    const runFns = (): unknown => {
+  const runValidators = (
+    value: unknown,
+  ): FieldValidatorStackResult | Promise<FieldValidatorStackResult> => {
+    const runFns = (): ValidatorResult | Promise<ValidatorResult> => {
       const { validate } = current;
       if (!validate) return undefined;
-      const composed = Array.isArray(validate)
+      const composed = isValidatorList(validate)
         ? composeValidators(validate)
-        : (validate as Validator);
+        : validate;
       const meta: FieldValidatorMeta = { source, ...current.validatorMeta };
       return composed(value, form.store.state.values, meta);
     };
     const { schema } = current;
     if (schema) {
       // The raw Standard Schema protocol (not form-core's sync-only helper)
-      // so an async schema routes through the latch instead of throwing.
+      // so an async schema routes through the latch instead of throwing. Any
+      // thenable counts, not just this realm's `Promise`: a schema built in
+      // another realm, or one that hands back its own thenable, would read as
+      // a sync outcome and its issues would be dropped.
       const outcome = schema["~standard"].validate(value);
-      if (isThenable(outcome)) {
-        return outcome.then((resolved) => {
-          const issues = (resolved as { issues?: readonly unknown[] }).issues;
-          return issues && issues.length > 0 ? [...issues] : runFns();
+      if (isAsyncSchemaOutcome(outcome)) {
+        return Promise.resolve(outcome).then((resolved) => {
+          const issues = resolved.issues;
+          return issues && issues.length > 0 ? issues : runFns();
         });
       }
       const issues = outcome.issues;
-      if (issues && issues.length > 0) return [...issues];
+      if (issues && issues.length > 0) return issues;
     }
     return runFns();
   };
 
   /**
-   * True once a validation run returned a thenable. From then on the sync
-   * slot stands down and the async slot (lazily injected below) owns the
-   * stack — awaited results land under the same `onDynamic` errorMap key.
+   * True once a validation run returned a thenable. From then on the sync slot
+   * stands down and the async slot (lazily injected below) owns the stack —
+   * awaited results land under the same `onDynamic` errorMap key.
    * Deliberately sticky: un-latching on option updates would re-probe (and
    * double-run) async validators on every render.
    */
@@ -314,7 +393,7 @@ export function createFieldBinding<TRecord>(
     form,
     name,
     defaultValue: (current.defaultValue !== undefined &&
-    form.getFieldValue(name) === undefined
+    loose.getFieldValue(name) === undefined
       ? current.defaultValue
       : undefined) as CheloneFieldOptions<TRecord>["defaultValue"],
     validators: bindingValidators as CheloneFieldOptions<TRecord>["validators"],
@@ -334,6 +413,33 @@ export function createFieldBinding<TRecord>(
     const unmount = unmountField;
     unmountField = undefined;
     unmount?.();
+  };
+
+  /** The raw value at this binding's path, as form-core types it. */
+  const rawValue = (): unknown => field.store.state.value;
+
+  /** The binding's `format`, or the ra default, applied to the raw value. */
+  const formatValue = (raw: unknown): TInput => {
+    const format = current.format;
+    if (format !== undefined) {
+      // `format` reads the value as chelone's `SourceValue` for this path;
+      // form-core hands over its own `DeepValue` of it.
+      // type-escape: the two spellings of one path's value.
+      return (format as (value: unknown) => TInput)(raw);
+    }
+    // With no `format` option, `TInput` is what `defaultFormat` returns for
+    // this path's value.
+    // type-escape: the binding's input type, read off an erased value.
+    return defaultFormat<unknown>(raw) as TInput;
+  };
+
+  /** The binding's `parse`, or the ra default for this binding's input. */
+  const parseInput = (input: TInput): unknown => {
+    const parse = current.parse;
+    if (parse !== undefined) return parse(input);
+    // type-escape: with no `parse` option, the stored value is the one
+    // `defaultParse` produces for this input.
+    return defaultParse(input);
   };
 
   return {
@@ -366,18 +472,29 @@ export function createFieldBinding<TRecord>(
       };
     },
     getSnapshot: () => field.store.state,
-    getValue() {
-      const format = current.format ?? defaultFormat;
-      return format(field.store.state.value);
+    // The store is the field's own; the record type is erased so an adapter
+    // can read `{ value, meta }` without naming the record.
+    // type-escape: one store, read through its erased record.
+    store: field.store as CheloneFieldStore,
+    getValue(): TInput {
+      return formatValue(rawValue());
     },
-    setValue(input) {
-      const parse = current.parse ?? defaultParse;
-      field.handleChange(parse(input) as FieldData<TRecord>);
+    setValue(input: TInput) {
+      // form-core's `DeepValue` and chelone's `SourceValue` spell one path's
+      // value two ways.
+      // type-escape: the write lands on form-core's spelling.
+      field.handleChange(parseInput(input) as FieldData<TRecord>);
     },
     blur: () => field.handleBlur(),
     isRequired: () => isRequired(current.validate),
     update(next) {
-      current = { source, ...next };
+      // The render-freshness bag is loose (`unknown` in and out); the
+      // binding's own `TInput` is what its `format`/`parse` were built for.
+      // type-escape: the bag is re-read as this binding's own option type.
+      current = {
+        source,
+        ...next,
+      } as CurrentOptions<TRecord, TPath, TInput>;
       if (destroyed || unmountField === undefined) return;
       field.update(buildOptions());
     },
@@ -389,4 +506,15 @@ export function createFieldBinding<TRecord>(
       subscriptions.clear();
     },
   };
+}
+
+/**
+ * A schema outcome that is a thenable of an outcome. `isThenable` already
+ * answers the question for any thenable; the predicate keeps the resolved
+ * value typed so the async branch reads `issues` off it.
+ */
+function isAsyncSchemaOutcome(
+  outcome: SchemaOutcome | PromiseLike<SchemaOutcome>,
+): outcome is PromiseLike<SchemaOutcome> {
+  return isThenable(outcome);
 }
