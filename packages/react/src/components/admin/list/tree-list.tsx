@@ -4,6 +4,7 @@ import {
   type Identifier,
   type LooseRecord,
   type RecordTreeNode,
+  type SourceProp,
 } from "@chelone/core";
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import {
@@ -26,11 +27,11 @@ import { SimpleListLoading } from "./simple-list-loading";
 
 export interface TreeListProps {
   /** The field holding the parent's id; a dotted path reads a nested value. */
-  parentSource: string;
+  parentSource: SourceProp;
   /** The string field shown as the row title; the record representation otherwise. */
-  titleSource?: string;
+  titleSource?: SourceProp;
   /** The field whose value picks a component from `iconMap`. */
-  iconSource?: string;
+  iconSource?: SourceProp;
   iconMap?: Record<string, ComponentType<{ className?: string }>>;
   /** Whether branches start open. Default `false`. */
   defaultExpanded?: boolean;

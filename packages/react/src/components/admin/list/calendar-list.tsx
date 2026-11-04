@@ -1,4 +1,5 @@
 import {
+  type CalendarEvent,
   type CalendarRange,
   type CalendarView,
   type CalendarWeekStart,
@@ -6,7 +7,9 @@ import {
   calendarLabels,
   calendarRange,
   calendarRangeFilter,
+  type LooseRecord,
   type ResourceRecord,
+  type SourceProp,
   shiftCalendarAnchor,
   staleCalendarRangeKeys,
   toCalendarEvents,
@@ -40,11 +43,11 @@ interface CalendarListProps<
   RecordType extends ResourceRecord = ResourceRecord,
 > {
   /** The field holding an event's start; also the field the default range filter is keyed on. */
-  startSource: string;
-  endSource?: string;
+  startSource: SourceProp;
+  endSource?: SourceProp;
   /** The field holding an event's title; the record representation when unset or empty. */
-  titleSource?: string;
-  colorSource?: string;
+  titleSource?: SourceProp;
+  colorSource?: SourceProp;
   /** Maps the value at `colorSource` to a CSS color. */
   colorMap?: Record<string, string>;
   /** The view shown first; the first of `views` when it is not among them. @default "month" */
@@ -211,9 +214,11 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
     [],
   );
 
+  // The sources are typed for the ambient list's loose record, so the events
+  // are built over `LooseRecord` and narrowed to the caller's record after.
   const events = useMemo(
     () =>
-      toCalendarEvents((list.data ?? []) as RecordType[], {
+      toCalendarEvents((list.data ?? []) as LooseRecord[], {
         startSource,
         endSource,
         titleSource,
@@ -227,7 +232,7 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
             ? String(representation)
             : String(record.id);
         },
-      }),
+      }) as unknown as CalendarEvent<RecordType>[],
     [
       list.data,
       startSource,

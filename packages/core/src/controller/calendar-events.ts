@@ -1,4 +1,5 @@
 import { getAtPath } from "../resource/get-at-path";
+import type { SourcePath } from "../resource/source-path";
 import {
   type CalendarRange,
   calendarDayKey,
@@ -14,10 +15,10 @@ export interface CalendarEvent<R> {
 }
 
 export interface ToCalendarEventsOptions<R> {
-  startSource: string;
-  endSource?: string;
-  titleSource?: string;
-  colorSource?: string;
+  startSource: SourcePath<R>;
+  endSource?: SourcePath<R>;
+  titleSource?: SourcePath<R>;
+  colorSource?: SourcePath<R>;
   /** Maps the value at `colorSource` to a color. */
   colorMap?: Record<string, string>;
   /** The title when `titleSource` is unset or empty: the adapter fills it from the record representation. */
