@@ -1,4 +1,9 @@
-import type { StandardSchemaV1 } from "@tanstack/form-core";
+import type {
+  AnyFieldLikeMeta,
+  DeepKeys,
+  DeepValue,
+  StandardSchemaV1,
+} from "@tanstack/form-core";
 import {
   type CreateController,
   type CreateControllerState,
@@ -103,21 +108,6 @@ export function resolveHydrationAction(
   }
   if (!isTouched) return "rebaseline";
   return previousId === undefined ? "partial-apply" : "keep-dirty";
-}
-
-/**
- * Path-keyed FormApi access with the `DeepKeys` correlation erased: the
- * partial-apply hydration re-applies values captured at RUNTIME `fieldMeta`
- * paths, which no static type can correlate with their `DeepValue` types.
- * The values round-trip through the same path unchanged.
- */
-interface PathValueAccess {
-  getFieldValue(path: string): unknown;
-  setFieldValue(
-    path: string,
-    value: unknown,
-    opts?: { dontRunListeners?: boolean },
-  ): void;
 }
 
 /** The composed-option subset shared by edit + create (the form side). */
@@ -366,22 +356,22 @@ export function createEditFormController<
       // which would wipe the re-applied values one refetch later. Listeners
       // are suppressed — hydration is not a user change; net-new dirt is
       // zero (only fields the user already dirtied are re-marked).
-      const pathAccess = form as unknown as PathValueAccess;
-      // Same DeepKeys erasure as PathValueAccess: fieldMeta keys are runtime
-      // leaf paths; every meta carries isDirty (sticky ever-modified).
-      const fieldMeta = form.state.fieldMeta as Record<
-        string,
-        { isDirty: boolean }
-      >;
-      const dirtyValues: Array<[path: string, value: unknown]> = [];
-      for (const [path, meta] of Object.entries(fieldMeta)) {
-        if (meta.isDirty) {
-          dirtyValues.push([path, pathAccess.getFieldValue(path)]);
-        }
+      const dirtyValues: Array<
+        [DeepKeys<TFormData>, DeepValue<TFormData, DeepKeys<TFormData>>]
+      > = [];
+      for (const [path, meta] of Object.entries<AnyFieldLikeMeta | undefined>(
+        form.state.fieldMeta,
+      )) {
+        if (!meta?.isDirty) continue;
+        // The runtime-path cast `input-binding.ts` documents: a `fieldMeta`
+        // key is a path of the form data by construction, but TS cannot see
+        // that it is one of form-core's `DeepKeys`.
+        const name = path as DeepKeys<TFormData>;
+        dirtyValues.push([name, form.getFieldValue(name)]);
       }
       form.reset(merged);
       for (const [path, value] of dirtyValues) {
-        pathAccess.setFieldValue(path, value, { dontRunListeners: true });
+        form.setFieldValue(path, value, { dontRunListeners: true });
       }
       return;
     }
