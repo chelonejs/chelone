@@ -1,8 +1,11 @@
-<script lang="ts">
+<script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
 /** Props for {@link SelectInput}. */
-export interface SelectInputProps extends ChoiceInputBaseProps {
+export interface SelectInputProps<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> extends ChoiceInputBaseProps<TChoice> {
   /** Label of the empty option prepended to the list. Default `""` (a blank line). */
   emptyText?: string;
   /** Underlying value submitted when the empty option is chosen. Default `""`. */
@@ -10,7 +13,7 @@ export interface SelectInputProps extends ChoiceInputBaseProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
 /**
  * `<SelectInput>` — a dropdown for choosing a single value, the Vue analog of
  * `@chelone/react`'s `inputs/select-input.tsx`. Reads choices from the ambient
@@ -33,11 +36,10 @@ import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 import { useChoiceInput } from "./use-choice-input";
 
-const props = withDefaults(defineProps<SelectInputProps>(), {
+const props = withDefaults(defineProps<SelectInputProps<TChoice>>(), {
   label: undefined,
   emptyText: "",
   emptyValue: "",
-  disableValue: "disabled",
 });
 
 const translate = useTranslate();
