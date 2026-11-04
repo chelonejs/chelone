@@ -71,7 +71,8 @@ import {
   type Identifier,
   planKanbanMove,
 } from "@chelone/core";
-import { DragDropProvider, PointerSensor } from "@dnd-kit/vue";
+import { PointerSensor } from "@dnd-kit/dom";
+import { DragDropProvider } from "@dnd-kit/vue";
 import { computed, getCurrentInstance } from "vue";
 import { useResourceDefinition } from "../../admin/resource-registry";
 import { useCheloneNotifications } from "../../context";
