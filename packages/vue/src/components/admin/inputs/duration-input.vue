@@ -3,7 +3,7 @@ type Unit = "d" | "h" | "m" | "s";
 
 /** Props for {@link DurationInput}. */
 export interface DurationInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
@@ -23,7 +23,7 @@ export interface DurationInputProps {
  * second boxes and writes the recomposed ISO string back (all-empty → `null`).
  */
 
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { cn } from "../../../lib/utils";

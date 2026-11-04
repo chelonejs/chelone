@@ -1,7 +1,7 @@
 <script lang="ts">
 /** Props for {@link PhoneInput}. */
 export interface PhoneInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
@@ -22,7 +22,7 @@ export interface PhoneInputProps {
  * typing and `parsePhoneNumber(...).number` normalizes on write-back.
  */
 
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import {
   AsYouType,
   type CountryCode,
