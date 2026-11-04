@@ -7,21 +7,23 @@
  * choices context; standalone, it must be provided (each input throws otherwise).
  */
 
-import type { SourceProp, Validator } from "@chelone/core";
+import type { SourcePath, SourceProp, Validator } from "@chelone/core";
 import type { ChoiceRecord, OptionText } from "../../../choices/use-choices";
 
 /** The choice-accessor + form-binding props every choice input accepts. */
-export interface ChoiceInputBaseProps {
+export interface ChoiceInputBaseProps<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> {
   /** The FK/field path. Optional under a reference wrapper (inherited from context). */
   source?: SourceProp | undefined;
   /** Inline choices (`{ id, name }[]` or `string[]`). Omitted under a reference wrapper. */
-  choices?: readonly (string | ChoiceRecord)[];
+  choices?: readonly (string | TChoice)[];
   /** The display path (dotted) or a formatter over the whole choice. Default `name`. */
-  optionText?: OptionText;
+  optionText?: OptionText<TChoice>;
   /** The value path. Default `id`. */
-  optionValue?: string;
+  optionValue?: SourcePath<TChoice>;
   /** The disabled-flag path. Default `disabled`. */
-  disableValue?: string;
+  disableValue?: SourcePath<TChoice>;
   /** Translate a string-path label through the catalog. Default `!isFromReference`. */
   translateChoice?: boolean;
   /** Explicit label, or `false` to hide it. Absent → humanized `source`. */

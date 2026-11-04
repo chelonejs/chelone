@@ -1,9 +1,9 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 
 /** Props for {@link ApiKeyField}. */
 export interface ApiKeyFieldProps {
-  source: string;
+  source: SourceProp;
   record?: LooseRecord;
   defaultValue?: unknown;
   /** Record field with scope strings. Renders chips when set. */
