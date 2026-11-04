@@ -107,13 +107,14 @@ export function supabaseDataProvider({
       sortOrder,
       meta: supabaseMeta,
     });
+    const orderPairs: Pair[] = order === undefined ? [] : [["order", order]];
     const { headers, json } = await request(
       resource,
       [
         ["select", buildSelect(supabaseMeta)],
         ...pageParams(pagination),
         ...buildFilters(filter ?? {}, { defaultListOp }),
-        ...(order === undefined ? [] : ([["order", order]] as Pair[])),
+        ...orderPairs,
       ],
       supabaseMeta,
       { headers: { Prefer: "count=exact" } },
@@ -168,7 +169,7 @@ export function supabaseDataProvider({
   }
 
   return {
-    getList: list as DataProvider["getList"],
+    getList: list,
 
     async getOne(resource, { id, meta }) {
       const supabaseMeta = (meta ?? {}) as SupabaseMeta;
@@ -183,7 +184,7 @@ export function supabaseDataProvider({
           supabaseMeta,
           { headers: { Accept: OBJECT_ACCEPT } },
         );
-        return { data: withVirtualId(json as Row, primaryKey) } as never;
+        return { data: withVirtualId(json as Row, primaryKey) };
       } catch (error) {
         // PostgREST answers a single-object request that matches no row with 406.
         if (error instanceof HttpError && error.status === 406) {
@@ -204,7 +205,7 @@ export function supabaseDataProvider({
       );
       return {
         data: (json as Row[]).map((row) => withVirtualId(row, primaryKey)),
-      } as never;
+      };
     },
 
     getManyReference(resource, params: GetManyReferenceParams) {
@@ -213,7 +214,7 @@ export function supabaseDataProvider({
       return list(resource, {
         ...params,
         filter: { ...filter, [`${target}@eq`]: id },
-      }) as never;
+      });
     },
 
     async create(resource, { data, meta }) {
@@ -221,9 +222,9 @@ export function supabaseDataProvider({
       const primaryKey = getPrimaryKey(resource, primaryKeys);
       const row = await writeOne(resource, [], supabaseMeta, {
         method: "POST",
-        body: JSON.stringify(withoutVirtualId(data as Row, primaryKey)),
+        body: JSON.stringify(withoutVirtualId(data, primaryKey)),
       });
-      return { data: withVirtualId(row, primaryKey) } as never;
+      return { data: withVirtualId(row, primaryKey) };
     },
 
     async update(resource, { id, data, meta }) {
@@ -236,14 +237,11 @@ export function supabaseDataProvider({
         {
           method: "PATCH",
           body: JSON.stringify(
-            removePrimaryKey(
-              withoutVirtualId(data as Row, primaryKey),
-              primaryKey,
-            ),
+            removePrimaryKey(withoutVirtualId(data, primaryKey), primaryKey),
           ),
         },
       );
-      return { data: withVirtualId(row, primaryKey) } as never;
+      return { data: withVirtualId(row, primaryKey) };
     },
 
     async updateMany(resource, { ids, data, meta }) {
@@ -258,15 +256,12 @@ export function supabaseDataProvider({
           {
             method: "PATCH",
             body: JSON.stringify(
-              removePrimaryKey(
-                withoutVirtualId(data as Row, primaryKey),
-                primaryKey,
-              ),
+              removePrimaryKey(withoutVirtualId(data, primaryKey), primaryKey),
             ),
           },
           primaryKey,
         ),
-      } as never;
+      };
     },
 
     async delete(resource, { id, meta }) {
@@ -278,7 +273,7 @@ export function supabaseDataProvider({
         supabaseMeta,
         { method: "DELETE" },
       );
-      return { data: withVirtualId(row, primaryKey) } as never;
+      return { data: withVirtualId(row, primaryKey) };
     },
 
     async deleteMany(resource, { ids, meta }) {
@@ -293,7 +288,7 @@ export function supabaseDataProvider({
           { method: "DELETE" },
           primaryKey,
         ),
-      } as never;
+      };
     },
   };
 }
