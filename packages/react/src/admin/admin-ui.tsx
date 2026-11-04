@@ -20,7 +20,6 @@ import {
   createI18n,
   createNotificationStore,
   defaultMessages,
-  type ResourceMap,
 } from "@chelone/core";
 import {
   createContext,
@@ -145,6 +144,20 @@ function DefaultThemeProvider({
   return <ThemeProvider>{children}</ThemeProvider>;
 }
 
+const SLOT_PROP_KEYS = [
+  "title",
+  "layout",
+  "loginPage",
+  "dashboard",
+  "catchAll",
+  "error",
+  "ready",
+  "authCallback",
+  "loading",
+  "accessDenied",
+  "authenticationError",
+] as const satisfies readonly (keyof AdminSlotProps)[];
+
 /**
  * Merge the page-slot override PROPS over the hoisted slot CHILDREN — a set prop
  * wins (the escape hatch). Only override the fields the props actually set, so a
@@ -155,7 +168,7 @@ function mergeSlots(
   propSlots: AdminSlotProps,
 ): AdminSlots {
   const merged: AdminSlots = { ...childSlots };
-  for (const key of Object.keys(propSlots) as (keyof AdminSlotProps)[]) {
+  for (const key of SLOT_PROP_KEYS) {
     const value = propSlots[key];
     if (value !== undefined) merged[key] = value;
   }
@@ -217,7 +230,7 @@ function ResourceKey({ element }: { element: ReactElement }): ReactNode {
  * hoisted slot children, registers the resources, publishes the content to
  * `AdminUIContext`, and renders the `render` engine (default: the placeholder).
  */
-export function AdminUI<TResources extends ResourceMap = ResourceMap>({
+export function AdminUI({
   requireAuth = false,
   permissions,
   childrenStatus = "ready",
@@ -236,8 +249,6 @@ export function AdminUI<TResources extends ResourceMap = ResourceMap>({
   accessDenied,
   authenticationError,
 }: AdminUIProps): ReactNode {
-  void (undefined as unknown as TResources); // reserved generic (resource typing)
-
   // Partition each render (cheap; recurses fragments, ignores non-elements).
   const rawParts = useMemo(() => partitionChildren(children), [children]);
 
