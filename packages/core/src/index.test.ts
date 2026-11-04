@@ -28,6 +28,15 @@ describe("@chelone/core barrel", () => {
     expect(barrel.clearUnread).toBeTypeOf("function");
   });
 
+  it("exports the chart data helpers", () => {
+    expect(barrel.DEFAULT_CHART_COLORS).toHaveLength(5);
+    expect(barrel.chartColor).toBeTypeOf("function");
+    expect(barrel.toCartesianRows).toBeTypeOf("function");
+    expect(barrel.hasChartValues).toBeTypeOf("function");
+    expect(barrel.toDonutSlices).toBeTypeOf("function");
+    expect(barrel.getMetricDelta).toBeTypeOf("function");
+  });
+
   it("exports stripJsonComments", () => {
     expect(barrel.stripJsonComments).toBeTypeOf("function");
   });
