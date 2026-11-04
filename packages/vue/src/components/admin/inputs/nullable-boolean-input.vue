@@ -1,7 +1,7 @@
 <script lang="ts">
 /** Props for {@link NullableBooleanInput}. */
 export interface NullableBooleanInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   nullLabel?: string;
   trueLabel?: string;
@@ -27,7 +27,7 @@ export interface NullableBooleanInputProps {
  * value, no sentinel round-trip.
  */
 
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { useTranslate } from "../../../i18n/use-translate";

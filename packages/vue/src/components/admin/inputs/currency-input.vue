@@ -1,7 +1,7 @@
 <script lang="ts">
 /** Props for {@link CurrencyInput}. */
 export interface CurrencyInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
@@ -29,7 +29,7 @@ export interface CurrencyInputProps {
  * keeps the display string stable while typing.
  */
 
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useLocale } from "../../../i18n/use-locale";
 import { useInput } from "../../../form/use-input";
