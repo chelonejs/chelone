@@ -32,6 +32,7 @@ export interface AssistantSession extends MicroStore<AssistantSessionState> {
 
 type ToolMessage = Extract<AssistantMessage, { role: "tool" }>;
 
+// type-escape: a caught value is unknown until it is checked.
 const toError = (error: unknown): Error =>
   error instanceof Error ? error : new Error(String(error));
 
@@ -90,10 +91,12 @@ export function createAssistantSession({
       toolName: call.toolName,
     } as const;
     // hasOwn, because a model can name `constructor` or `__proto__`.
-    if (!Object.hasOwn(tools, call.toolName)) {
+    const definition = Object.hasOwn(tools, call.toolName)
+      ? tools[call.toolName]
+      : undefined;
+    if (!definition) {
       return { ...base, error: `Unknown tool: ${call.toolName}` };
     }
-    const definition = tools[call.toolName] as AssistantTool;
     const stopped = { ...base, error: "Stopped" };
     try {
       let args = call.args;
@@ -106,7 +109,7 @@ export function createAssistantSession({
             error: `Invalid arguments: ${issuesText(outcome.issues)}`,
           };
         }
-        args = outcome.value as Record<string, unknown>;
+        args = outcome.value;
       }
       if (definition.confirm) {
         const answer = await confirmTool?.(call);

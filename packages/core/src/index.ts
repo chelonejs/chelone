@@ -19,6 +19,8 @@ export type {
   AssistantToolCall,
   AssistantToolDeclaration,
   AssistantTransport,
+  JsonObject,
+  JsonValue,
 } from "./assistant/types";
 export type { Permission } from "./auth/access-control";
 export { canAccessWithPermissions } from "./auth/access-control";

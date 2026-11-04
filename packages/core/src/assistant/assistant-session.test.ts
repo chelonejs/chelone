@@ -6,6 +6,7 @@ import type {
   AssistantTool,
   AssistantToolDeclaration,
   AssistantTransport,
+  JsonObject,
 } from "./types";
 
 interface Call {
@@ -39,7 +40,7 @@ const done: AssistantChunk = { type: "done" };
 const call = (
   id: string,
   toolName: string,
-  args: Record<string, unknown> = {},
+  args: JsonObject = {},
 ): AssistantChunk => ({ type: "tool-call", id, toolName, args });
 
 const tool = (overrides: Partial<AssistantTool> = {}): AssistantTool => ({
@@ -102,8 +103,8 @@ describe("createAssistantSession", () => {
   });
 
   it("runs a tool call and sends its result back for a follow-up turn", async () => {
-    const handler = vi.fn((args: Record<string, unknown>) => ({
-      count: args.n,
+    const handler = vi.fn((args: JsonObject) => ({
+      count: args.n ?? null,
     }));
     const { transport, calls } = scripted(
       [text("Looking"), call("c1", "count", { n: 3 }), done],
@@ -186,16 +187,13 @@ describe("createAssistantSession", () => {
 
   it("arguments the tool schema rejects never reach the handler", async () => {
     const handler = vi.fn();
-    const schema = {
+    const schema: NonNullable<AssistantTool["schema"]> = {
       "~standard": {
         version: 1,
         vendor: "test",
-        validate: (value: unknown) =>
-          typeof (value as { n?: unknown }).n === "number"
-            ? { value }
-            : { issues: [{ message: "n must be a number" }] },
+        validate: () => ({ issues: [{ message: "n must be a number" }] }),
       },
-    } as AssistantTool["schema"];
+    };
     const { transport, calls } = scripted(
       [call("a", "count", { n: "x" }), done],
       [done],
@@ -484,7 +482,7 @@ describe("createAssistantSession", () => {
               vendor: "t",
               validate: () => ({ value: {} }),
             },
-          } as AssistantTool["schema"],
+          },
           confirm: true,
         }),
       },
