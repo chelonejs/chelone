@@ -1,5 +1,4 @@
 import {
-  type CalendarEvent,
   type CalendarRange,
   type CalendarView,
   type CalendarWeekStart,
@@ -9,7 +8,7 @@ import {
   calendarRangeFilter,
   type LooseRecord,
   type ResourceRecord,
-  type SourceProp,
+  type SourcePath,
   shiftCalendarAnchor,
   staleCalendarRangeKeys,
   toCalendarEvents,
@@ -39,15 +38,15 @@ import { CalendarWeekView } from "./calendar-week-view";
 
 const ALL_VIEWS: readonly CalendarView[] = ["month", "week", "agenda"];
 
-interface CalendarListProps<
-  RecordType extends ResourceRecord = ResourceRecord,
-> {
+interface CalendarListProps<RecordType extends ResourceRecord = LooseRecord> {
+  // The sources are `NoInfer`: inferring `RecordType` from a path literal
+  // falls back to `ResourceRecord`, whose only path is "id", not to the default.
   /** The field holding an event's start; also the field the default range filter is keyed on. */
-  startSource: SourceProp;
-  endSource?: SourceProp;
+  startSource: NoInfer<SourcePath<RecordType>>;
+  endSource?: NoInfer<SourcePath<RecordType>>;
   /** The field holding an event's title; the record representation when unset or empty. */
-  titleSource?: SourceProp;
-  colorSource?: SourceProp;
+  titleSource?: NoInfer<SourcePath<RecordType>>;
+  colorSource?: NoInfer<SourcePath<RecordType>>;
   /** Maps the value at `colorSource` to a CSS color. */
   colorMap?: Record<string, string>;
   /** The view shown first; the first of `views` when it is not among them. @default "month" */
@@ -101,7 +100,7 @@ interface CalendarListProps<
  *   <CalendarList startSource="start" endSource="end" titleSource="title" />
  * </List>
  */
-function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
+function CalendarList<RecordType extends ResourceRecord = LooseRecord>({
   startSource,
   endSource,
   titleSource,
@@ -120,7 +119,7 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
   headerRenderer,
   className,
 }: CalendarListProps<RecordType>) {
-  const list = useListContext();
+  const list = useListContext<RecordType>();
   const resource = useResourceContext();
   const definition = useResourceDefinition();
   const navigate = useNavigate();
@@ -214,11 +213,9 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
     [],
   );
 
-  // The sources are typed for the ambient list's loose record, so the events
-  // are built over `LooseRecord` and narrowed to the caller's record after.
   const events = useMemo(
     () =>
-      toCalendarEvents((list.data ?? []) as LooseRecord[], {
+      toCalendarEvents<RecordType>(list.data ?? [], {
         startSource,
         endSource,
         titleSource,
@@ -232,7 +229,7 @@ function CalendarList<RecordType extends ResourceRecord = ResourceRecord>({
             ? String(representation)
             : String(record.id);
         },
-      }) as unknown as CalendarEvent<RecordType>[],
+      }),
     [
       list.data,
       startSource,
