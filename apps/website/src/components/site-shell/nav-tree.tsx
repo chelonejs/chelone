@@ -17,6 +17,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { groupByCategory } from "@/docs/nav";
 import type { DocGroup, DocNode } from "@/docs/types";
 
 type IconType = ComponentType<{ className?: string }>;
@@ -108,6 +109,8 @@ function NavSubNode({ node, ...p }: { node: DocNode } & SubProps) {
   );
 }
 
+const nodeKey = (n: DocNode) => (n.kind === "leaf" ? n.slug : n.dir);
+
 /**
  * Shared collapsible nav tree renderer in the sidebar-07 NavMain shape: each
  * top-level section is an icon menu-button (so it shows as an icon when the
@@ -179,18 +182,34 @@ export function NavTree({
                   )}
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {section.children.map((child) => (
-                        <NavSubNode
-                          key={child.kind === "leaf" ? child.slug : child.dir}
-                          node={child}
-                          activeSlug={activeSlug}
-                          hrefFor={hrefFor}
-                          openDirs={openDirs}
-                          onToggle={onToggle}
-                          onNavigate={onNavigate}
-                          badgeFor={badgeFor}
-                        />
-                      ))}
+                      {groupByCategory(section.children, (n) =>
+                        n.kind === "leaf" ? n.category : undefined,
+                      ).map((run) => {
+                        const items = run.items.map((child) => (
+                          <NavSubNode
+                            key={nodeKey(child)}
+                            node={child}
+                            activeSlug={activeSlug}
+                            hrefFor={hrefFor}
+                            openDirs={openDirs}
+                            onToggle={onToggle}
+                            onNavigate={onNavigate}
+                            badgeFor={badgeFor}
+                          />
+                        ));
+                        return run.category ? (
+                          <SidebarMenuSubItem key={`category:${run.category}`}>
+                            <div className="px-2 pt-2 pb-1 text-xs font-medium text-sidebar-foreground/70">
+                              {run.category}
+                            </div>
+                            <ul className="flex min-w-0 flex-col gap-1">
+                              {items}
+                            </ul>
+                          </SidebarMenuSubItem>
+                        ) : (
+                          items
+                        );
+                      })}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </SidebarMenuItem>
