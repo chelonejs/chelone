@@ -13,6 +13,9 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  TURBO_CACHE_DIR: .turbo/cache
+
 jobs:
   static:
     runs-on: ubuntu-latest
@@ -20,6 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
+        with:
+          cache-key: static
       - name: Lint
         run: pnpm lint
       - name: No new duplication
@@ -35,6 +40,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
+        with:
+          cache-key: build
       - name: Build
         run: pnpm build
       - name: Props pages are up to date
@@ -75,18 +82,25 @@ jobs:
       matrix:
         include:
           - name: core, rest, supabase, website
+            key: base
             run: pnpm turbo run test --filter=!@chelone/react --filter=!@chelone/vue -- --typecheck.enabled=false
           - name: react 1/2
-            run: pnpm --filter @chelone/react test --typecheck.enabled=false --shard=1/2
+            key: react-1
+            run: pnpm turbo run test --filter=@chelone/react -- --typecheck.enabled=false --shard=1/2
           - name: react 2/2
-            run: pnpm --filter @chelone/react test --typecheck.enabled=false --shard=2/2
+            key: react-2
+            run: pnpm turbo run test --filter=@chelone/react -- --typecheck.enabled=false --shard=2/2
           - name: vue 1/2
-            run: pnpm --filter @chelone/vue test --typecheck.enabled=false --shard=1/2
+            key: vue-1
+            run: pnpm turbo run test --filter=@chelone/vue -- --typecheck.enabled=false --shard=1/2
           - name: vue 2/2
-            run: pnpm --filter @chelone/vue test --typecheck.enabled=false --shard=2/2
+            key: vue-2
+            run: pnpm turbo run test --filter=@chelone/vue -- --typecheck.enabled=false --shard=2/2
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup
+        with:
+          cache-key: test-${{ matrix.key }}
       # The *.test-d.ts files sit under each package's tsconfig, so the static
       # job's tsc and vue-tsc already check them, and vitest skips its own pass.
       - name: Test
