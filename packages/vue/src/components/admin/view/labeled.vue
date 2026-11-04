@@ -12,6 +12,7 @@
  * themselves.
  */
 
+import type { SourceProp } from "@chelone/core";
 import {
   Comment,
   defineComponent,
@@ -30,7 +31,7 @@ export interface LabeledProps {
   /** Overrides the child's `label`; `false` renders no label. */
   label?: string | false;
   /** Overrides the child's `source` when resolving the label. */
-  source?: string;
+  source?: SourceProp;
   /** Overrides the child's `resource` when resolving the label. */
   resource?: string;
   isRequired?: boolean;
@@ -65,7 +66,10 @@ export default defineComponent({
       type: [String, Boolean] as unknown as PropType<string | false>,
       default: undefined,
     },
-    source: { type: String, default: undefined },
+    source: {
+      type: String as unknown as PropType<SourceProp>,
+      default: undefined,
+    },
     resource: { type: String, default: undefined },
     isRequired: { type: Boolean, default: false },
     htmlFor: { type: String, default: undefined },
