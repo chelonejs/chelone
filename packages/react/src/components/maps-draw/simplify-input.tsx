@@ -4,8 +4,10 @@ import {
   geoBounds,
   isGeoJsonValue,
   isLngLatBox,
+  type LooseRecord,
   type MapStyleInput,
   type ShapeStyle,
+  type SourceProp,
 } from "@chelone/core";
 import {
   type ReactNode,
@@ -30,9 +32,9 @@ import { simplifyGeo } from "./geometry-ops";
 
 export type SimplifyQuality = "Default" | "High";
 
-export interface SimplifyInputProps {
+export interface SimplifyInputProps<TRecord = LooseRecord> {
   /** The form field holding a Geometry, Feature or FeatureCollection. */
-  source: string;
+  source: SourceProp<TRecord>;
   /** The legend. A string is translated; `false` renders none. */
   label?: ReactNode | false;
   helperText?: ReactNode | false;
@@ -106,7 +108,7 @@ function sameJson(a: unknown, b: unknown): boolean {
  * @example
  * <SimplifyInput source="outline" label="Outline" tolerance={0.005} />
  */
-export function SimplifyInput({
+export function SimplifyInput<TRecord = LooseRecord>({
   source,
   label,
   helperText,
@@ -121,7 +123,7 @@ export function SimplifyInput({
   step = 0.001,
   quality: initialQuality = "Default",
   className,
-}: SimplifyInputProps) {
+}: SimplifyInputProps<TRecord>) {
   const translate = useTranslate();
   const { field, fieldState, isRequired } = useInput({
     source,
