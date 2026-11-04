@@ -13,6 +13,8 @@ const resources = defineResources({
     schema: z.object({
       id: z.number(),
       title: z.string(),
+      views: z.number(),
+      publishedAt: z.date().nullable(),
       items: z.array(z.object({ sku: z.string(), qty: z.number() })),
     }),
   },
@@ -47,6 +49,38 @@ const posts = createResourceComponentsOf<typeof resources, "posts">("posts");
   <posts.Edit resource="users" :id="1" />
   <!-- @vue-expect-error -->
   <posts.List resource="users" />
+
+  <!-- format receives the value type at its source -->
+  <posts.DateTimeInput source="title" :format="(value: string) => value" />
+  <posts.DateTimeInput source="views" :format="(value: number) => String(value)" />
+  <!-- @vue-expect-error -->
+  <posts.DateTimeInput source="views" :format="(value: string) => value" />
+
+  <!-- parse must return the value type at its source -->
+  <posts.DateTimeInput source="views" :parse="(value: unknown) => Number(value)" />
+  <!-- @vue-expect-error -->
+  <posts.DateTimeInput source="views" :parse="(value: unknown) => String(value)" />
+
+  <!-- transform receives the value type at its source -->
+  <posts.DateField
+    source="publishedAt"
+    :transform="(value: Date | null) => value ?? undefined"
+  />
+  <!-- @vue-expect-error -->
+  <posts.DateField source="publishedAt" :transform="(value: string) => new Date(value)" />
+  <posts.NumberField source="views" :transform="(value: number) => value" />
+
+  <!-- a member with a slot keeps it -->
+  <posts.FileInput source="title" :format="(value: string) => value">
+    <template #default="{ record }">{{ record }}</template>
+  </posts.FileInput>
+
+  <!-- a typo is still rejected on a member with a value callback -->
+  <!-- @vue-expect-error -->
+  <posts.DateTimeInput source="titel" />
+
+  <!-- a member with no format, parse or transform keeps its props -->
+  <posts.TextField source="title" class="x" />
 
   <!-- a generic SFC is not a member -->
   <!-- @vue-expect-error -->

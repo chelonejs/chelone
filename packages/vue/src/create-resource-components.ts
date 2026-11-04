@@ -34,8 +34,9 @@ import type {
   RegisteredResources,
   ResourceMap,
   SourceProp,
+  SourceValue,
 } from "@chelone/core";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, type VNode } from "vue";
 import ApiKeyField from "./components/admin/fields/api-key-field.vue";
 import ArrayField from "./components/admin/fields/array-field.vue";
 import BadgeField from "./components/admin/fields/badge-field.vue";
@@ -209,6 +210,68 @@ type Retyped<TComponent extends Ctor, TSource> = Pick<
     $props: WithSource<InstanceType<TComponent>["$props"], TSource>;
   });
 
+/** The return type of an optional callback prop. */
+type CallbackResult<TCallback> =
+  NonNullable<TCallback> extends (...args: never[]) => infer TResult
+    ? TResult
+    : never;
+
+/** The first parameter of an optional callback prop. */
+type CallbackParam<TCallback> =
+  NonNullable<TCallback> extends (
+    value: infer TValue,
+    ...args: never[]
+  ) => unknown
+    ? TValue
+    : never;
+
+/**
+ * The `format`, `parse` and `transform` entries of `P` with `TValue` in place
+ * of the value they took or returned. Each stays optional and keeps the rest
+ * of its signature, and one `P` lacks is not added.
+ */
+type ValueEntries<P, TValue> = {
+  [K in Extract<keyof P, "format" | "transform">]?: (
+    value: TValue,
+  ) => CallbackResult<P[K]>;
+} & {
+  [K in Extract<keyof P, "parse">]?: (value: CallbackParam<P[K]>) => TValue;
+};
+
+/**
+ * A member whose props have a `format`, `parse` or `transform`: a generic
+ * function component over the literal `source`, so those callbacks take the
+ * value at it. Volar reads a function component's props off its first
+ * parameter and its slots off the second. `NoInfer` keeps `TPath` from being inferred back through
+ * `SourceValue` out of a callback's parameter, which overflows the type depth.
+ */
+type ValueMember<TComponent extends Ctor, TRecord> = <
+  TPath extends SourceProp<TRecord>,
+>(
+  props: Omit<
+    InstanceType<TComponent>["$props"],
+    "source" | "format" | "parse" | "transform"
+  > &
+    (Partial<Pick<InstanceType<TComponent>["$props"], "source">> extends Pick<
+      InstanceType<TComponent>["$props"],
+      "source"
+    >
+      ? { source?: TPath }
+      : { source: TPath }) &
+    ValueEntries<
+      InstanceType<TComponent>["$props"],
+      NoInfer<SourceValue<TRecord, TPath>>
+    >,
+  ctx?: { slots?: InstanceType<TComponent>["$slots"] },
+) => VNode;
+
+/** The member type: {@link ValueMember} when the props have a value callback, else {@link Retyped}. */
+type ResourceMember<TComponent extends Ctor, TRecord> = [
+  keyof InstanceType<TComponent>["$props"] & ("format" | "parse" | "transform"),
+] extends [never]
+  ? Retyped<TComponent, SourceProp<TRecord>>
+  : ValueMember<TComponent, TRecord>;
+
 /**
  * A view with its `resource` prop removed. Templates are not strict about
  * undeclared attributes, so the prop stays as `never` to make
@@ -233,9 +296,9 @@ export type ResourceComponents<
 > = {
   [K in keyof SourceMembers as SourceMembers[K] extends Ctor
     ? K
-    : never]: Retyped<
+    : never]: ResourceMember<
     Extract<SourceMembers[K], Ctor>,
-    SourceProp<RecordOf<TResources, TName>>
+    RecordOf<TResources, TName>
   >;
 } & {
   Edit: BoundView<typeof Edit>;
