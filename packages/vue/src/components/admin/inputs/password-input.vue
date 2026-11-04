@@ -1,7 +1,7 @@
 <script lang="ts">
 /** Props for {@link PasswordInput}. */
 export interface PasswordInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   initiallyVisible?: boolean;
   defaultValue?: unknown;
@@ -28,7 +28,7 @@ export interface PasswordInputProps {
  * eye / eye-off glyphs are inlined SVGs mirroring lucide's paths.
  */
 
-import type { Validator } from "@chelone/core";
+import type { SourceProp, Validator } from "@chelone/core";
 import { computed, ref } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { cn } from "../../../lib/utils";
