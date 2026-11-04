@@ -1,10 +1,10 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { CrepeEditorConfig } from "./internal/crepe-editor.vue";
 
 /** Props for {@link MdxField}. */
 export interface MdxFieldProps {
-  source: string;
+  source: SourceProp;
   record?: LooseRecord;
   /** Used when the record has no value at `source`. */
   defaultValue?: unknown;

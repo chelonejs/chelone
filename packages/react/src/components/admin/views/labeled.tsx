@@ -1,3 +1,4 @@
+import type { SourceProp } from "@chelone/core";
 import {
   Children,
   createElement,
@@ -15,7 +16,7 @@ interface LabeledProps {
   /** Overrides the child's `label`; `false` renders no label. */
   label?: ReactNode;
   /** Overrides the child's `source` when resolving the label. */
-  source?: string;
+  source?: SourceProp;
   /** Overrides the child's `resource` when resolving the label. */
   resource?: string;
   isRequired?: boolean;
