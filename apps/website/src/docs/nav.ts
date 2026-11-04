@@ -13,6 +13,22 @@ function firstLeafSlug(nodes: DocNode[]): string | undefined {
   return undefined;
 }
 
+/** Splits an ordered list into runs of consecutive items sharing a category.
+ *  A run with no category is headless. */
+export function groupByCategory<T>(
+  items: T[],
+  categoryOf: (item: T) => string | undefined,
+): { category?: string; items: T[] }[] {
+  const runs: { category?: string; items: T[] }[] = [];
+  for (const item of items) {
+    const category = categoryOf(item);
+    const last = runs[runs.length - 1];
+    if (last && last.category === category) last.items.push(item);
+    else runs.push({ category, items: [item] });
+  }
+  return runs;
+}
+
 // metas: keyed by dir path ("" = root), value = that folder's _meta entries.
 // Pure + testable. Files/dirs not named in _meta are appended alphabetically.
 export function buildNavTree(
@@ -41,7 +57,19 @@ export function buildNavTree(
     const usedDir = new Set<string>();
 
     for (const e of meta) {
-      if ("slug" in e) {
+      if ("category" in e) {
+        for (const slug of e.slugs) {
+          const full = prefix === "" ? slug : `${prefix}/${slug}`;
+          if (!leafSlugs.has(full) || usedLeaf.has(full)) continue;
+          ordered.push({
+            kind: "leaf",
+            slug: full,
+            title: titleOf(full),
+            category: e.category,
+          });
+          usedLeaf.add(full);
+        }
+      } else if ("slug" in e) {
         const full = prefix === "" ? e.slug : `${prefix}/${e.slug}`;
         if (leafSlugs.has(full)) {
           ordered.push({
