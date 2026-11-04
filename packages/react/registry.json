@@ -5539,6 +5539,7 @@
         "@chelone/lib-utils",
         "@chelone/record-field"
       ],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

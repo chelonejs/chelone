@@ -1,12 +1,12 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { editor } from "monaco-editor";
 import { defineAsyncComponent } from "vue";
 import MonacoSkeleton from "./internal/monaco-skeleton.vue";
 
 /** Props for {@link MonacoJsonField}. */
 export interface MonacoJsonFieldProps {
-  source: string;
+  source: SourceProp;
   record?: LooseRecord;
   /** Shown when the record has no value at `source`. */
   defaultValue?: unknown;

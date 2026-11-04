@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
 
 /** A webhook delivery outcome. */
 export type DeliveryStatus = "ok" | "failed" | "pending";
@@ -17,7 +17,7 @@ export interface WebhookEndpoint {
 
 /** Props for {@link WebhookEndpointField}. */
 export interface WebhookEndpointFieldProps {
-  source: string;
+  source: SourceProp;
   record?: LooseRecord;
   defaultValue?: unknown;
   class?: string;
