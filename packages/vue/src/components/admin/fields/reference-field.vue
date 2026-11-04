@@ -1,9 +1,10 @@
 <script lang="ts">
+import type { SourceProp } from "@chelone/core";
 import type { LinkToType } from "../../../router";
 
 /** Props for {@link ReferenceField}. */
 export interface ReferenceFieldProps {
-  source: string;
+  source: SourceProp;
   reference: string;
   record?: LooseRecord;
   empty?: string;
