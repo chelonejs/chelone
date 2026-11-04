@@ -8,22 +8,43 @@
  * approve.
  */
 
+import type { SourceKey } from "../resource/source-path";
+
 type Id = string | number;
 
-export interface ApprovalOptions {
-  /** Record field holding the approver list. Default `"approvers"`. */
-  approverSource?: string;
+export interface ApprovalOptions<TRecord = Record<string, unknown>> {
+  /**
+   * Record field holding the approver list, a top-level key: it is read as
+   * `record[approverSource]` and written back whole. Default `"approvers"`.
+   */
+  approverSource?: SourceKey<TRecord>;
   /** Approvals needed. Floored, minimum 1; `NaN` reads as 2. Default 2. */
   required?: number;
   /** The current user. No identity means nobody can approve. */
   identityId?: Id | null;
-  /** Record field `buildApprovalUpdate` writes the status to. Default `"status"`. */
-  statusSource?: string;
+  /**
+   * Record field `buildApprovalUpdate` writes the status to, a top-level key.
+   * Default `"status"`.
+   */
+  statusSource?: SourceKey<TRecord>;
   /** Status written while approvals are short of `required`. Default `"pending"`. */
   pendingValue?: unknown;
   /** Status written once approvals reach `required`. Default `"approved"`. */
   approvedValue?: unknown;
 }
+
+/**
+ * What `buildApprovalUpdate` takes. `statusSource` is a write target, and a
+ * record often has no status field until its first approval, so it takes any
+ * string; `approverSource` is read, so it stays a key of the record.
+ */
+export type ApprovalUpdateOptions<TRecord = Record<string, unknown>> = Omit<
+  ApprovalOptions<TRecord>,
+  "statusSource"
+> & {
+  /** Record field the status is written to. Default `"status"`. */
+  statusSource?: string;
+};
 
 export interface ApprovalState {
   /** Distinct approver ids, as strings. */
@@ -35,9 +56,9 @@ export interface ApprovalState {
   canApprove: boolean;
 }
 
-export interface TransitionOptions {
-  /** Record field holding the status. Default `"status"`. */
-  source?: string;
+export interface TransitionOptions<TRecord = Record<string, unknown>> {
+  /** Record field holding the status, a top-level key. Default `"status"`. */
+  source?: SourceKey<TRecord>;
   /** Next states by current state. */
   transitions: Record<string, readonly string[]>;
   /** Predicates keyed `"<from>-><to>"`. A transition with no guard is allowed. */
@@ -56,14 +77,14 @@ function normalizeRequired(required: number | undefined): number {
   return Math.max(1, Math.floor(required));
 }
 
-function storedItems(record: Record<string, unknown>, source: string) {
-  const value = record[source];
+function storedItems(record: object, source: string) {
+  const value = (record as Record<string, unknown>)[source];
   return Array.isArray(value) ? (value as unknown[]) : [];
 }
 
-export function getApprovalState(
-  record: Record<string, unknown>,
-  options: ApprovalOptions = {},
+export function getApprovalState<TRecord = Record<string, unknown>>(
+  record: TRecord & object,
+  options: ApprovalOptions<TRecord> = {},
 ): ApprovalState {
   const { approverSource = "approvers", identityId } = options;
   const required = normalizeRequired(options.required);
@@ -89,9 +110,9 @@ export function getApprovalState(
  * approve. Stored items stay as they were and the identity is appended in its
  * own type.
  */
-export function buildApprovalUpdate(
-  record: Record<string, unknown>,
-  options: ApprovalOptions = {},
+export function buildApprovalUpdate<TRecord = Record<string, unknown>>(
+  record: TRecord & object,
+  options: ApprovalUpdateOptions<TRecord> = {},
 ): Record<string, unknown> | null {
   const {
     approverSource = "approvers",
@@ -100,7 +121,11 @@ export function buildApprovalUpdate(
     pendingValue = "pending",
     approvedValue = "approved",
   } = options;
-  const state = getApprovalState(record, options);
+  const state = getApprovalState(record, {
+    approverSource: options.approverSource,
+    required: options.required,
+    identityId,
+  });
   if (!state.canApprove || identityId === undefined || identityId === null) {
     return null;
   }
@@ -111,12 +136,12 @@ export function buildApprovalUpdate(
   };
 }
 
-export function getAllowedTransitions(
-  record: Record<string, unknown>,
-  options: TransitionOptions,
+export function getAllowedTransitions<TRecord = Record<string, unknown>>(
+  record: TRecord & object,
+  options: TransitionOptions<TRecord>,
 ): AllowedTransitions {
   const { source = "status", transitions, guards } = options;
-  const current = String(record[source] ?? "");
+  const current = String((record as Record<string, unknown>)[source] ?? "");
   const next = hasOwn(transitions, current) ? transitions[current] : undefined;
   const allowed: string[] = [];
   for (const to of Array.isArray(next) ? next : []) {
@@ -125,7 +150,7 @@ export function getAllowedTransitions(
     const guard = guards && hasOwn(guards, key) ? guards[key] : undefined;
     if (guard) {
       try {
-        if (!guard(record)) continue;
+        if (!guard(record as Record<string, unknown>)) continue;
       } catch {
         continue;
       }

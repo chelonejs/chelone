@@ -21,6 +21,7 @@ import {
   type Identifier,
   type LooseRecord,
   type MutationMode,
+  type SourceKey,
 } from "@chelone/core";
 import { ChevronDown } from "lucide-react";
 import { Fragment, useState } from "react";
@@ -38,9 +39,11 @@ import { useResourceContext } from "../../../resource";
 import { Confirm } from "../feedback/confirm";
 import { useMenuAccess } from "../layout/use-menu-access";
 
-interface StatusTransitionButtonProps {
-  /** Record field holding the status. Default `"status"`. */
-  source?: string;
+interface StatusTransitionButtonProps<
+  TRecord extends Record<string, unknown> = Record<string, unknown>,
+> {
+  /** Record field holding the status, a top-level key. Default `"status"`. */
+  source?: SourceKey<TRecord>;
   /** The states each state may move to. */
   transitions: Record<string, readonly string[]>;
   /** Predicates keyed `"<from>-><to>"`. A transition with no guard is allowed. */
@@ -48,7 +51,7 @@ interface StatusTransitionButtonProps {
   /** Text for a state. A state with no entry shows as it is. */
   labels?: Record<string, string>;
   resource?: string;
-  record?: LooseRecord;
+  record?: TRecord;
   /** Ask for confirmation before the update. */
   confirm?: boolean;
   /** Default `"pessimistic"`; `"undoable"` shows an Undo notification. */
@@ -57,7 +60,7 @@ interface StatusTransitionButtonProps {
    * Runs once the update has resolved, or, in undoable mode, once the Undo
    * notification is queued. Not called when the update fails.
    */
-  onTransition?: (from: string, to: string, record: LooseRecord) => void;
+  onTransition?: (from: string, to: string, record: TRecord) => void;
   className?: string;
 }
 
@@ -83,9 +86,11 @@ interface StatusTransitionButtonProps {
  *   </Edit>
  * );
  */
-function StatusTransitionButton(props: StatusTransitionButtonProps) {
+function StatusTransitionButton<
+  TRecord extends Record<string, unknown> = Record<string, unknown>,
+>(props: StatusTransitionButtonProps<TRecord>) {
   const {
-    source = "status",
+    source = "status" as SourceKey<TRecord>,
     transitions,
     guards,
     labels,
@@ -94,7 +99,7 @@ function StatusTransitionButton(props: StatusTransitionButtonProps) {
     onTransition,
     className,
   } = props;
-  const record = useRecordContext(props);
+  const record = useRecordContext<TRecord>(props);
   const resource = useResourceContext(props);
   const notify = useNotify();
   const [target, setTarget] = useState<string | null>(null);
@@ -121,7 +126,7 @@ function StatusTransitionButton(props: StatusTransitionButtonProps) {
     const update = mutateAsync({
       id: record.id as Identifier,
       data: { [source]: next },
-      previousData: record,
+      previousData: record as unknown as LooseRecord,
     });
     if (mutationMode === "optimistic") setTarget(null);
     try {

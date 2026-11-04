@@ -146,7 +146,6 @@
   "packages/vue/src/components/admin/buttons/edit-button.vue <-> packages/vue/src/components/admin/buttons/show-button.vue": 3,
   "packages/vue/src/components/admin/buttons/icons.ts <-> packages/vue/src/components/admin/feedback/icons.ts": 1,
   "packages/vue/src/components/admin/buttons/icons.ts <-> packages/vue/src/components/admin/list/list-icons.ts": 1,
-  "packages/vue/src/components/admin/buttons/status-transition-button.vue <-> packages/vue/src/components/admin/buttons/update-button.vue": 1,
   "packages/vue/src/components/admin/common/icons.ts <-> packages/vue/src/components/admin/feedback/icons.ts": 1,
   "packages/vue/src/components/admin/common/icons.ts <-> packages/vue/src/components/admin/guessers/icons.ts": 1,
   "packages/vue/src/components/admin/fields/api-key-field.vue <-> packages/vue/src/components/admin/fields/rating-field.vue": 1,

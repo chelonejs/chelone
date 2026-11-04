@@ -1,10 +1,12 @@
-<script lang="ts">
-import type { LooseRecord, MutationMode } from "@chelone/core";
+<script lang="ts" generic="TRecord extends Record<string, unknown> = Record<string, unknown>">
+import type { MutationMode, SourceKey } from "@chelone/core";
 
 /** Props for {@link StatusTransitionButton}. */
-export interface StatusTransitionButtonProps {
-  /** Record field holding the status. Default `"status"`. */
-  source?: string;
+export interface StatusTransitionButtonProps<
+  TRecord extends Record<string, unknown> = Record<string, unknown>,
+> {
+  /** Record field holding the status, a top-level key. Default `"status"`. */
+  source?: SourceKey<TRecord>;
   /** Next states by current state. */
   transitions: Record<string, readonly string[]>;
   /** Predicates keyed `"<from>-><to>"`. A transition with no guard is allowed. */
@@ -14,7 +16,7 @@ export interface StatusTransitionButtonProps {
   /** Override the ambient `<Resource>`. */
   resource?: string;
   /** Override the ambient record. */
-  record?: LooseRecord;
+  record?: TRecord;
   /** Ask for confirmation before moving the record. Default `false`. */
   confirm?: boolean;
   /** How the update is dispatched. Default `"pessimistic"`. */
@@ -24,7 +26,7 @@ export interface StatusTransitionButtonProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends Record<string, unknown> = Record<string, unknown>">
 /**
  * `<StatusTransitionButton>` — a menu of the states the record in view may move
  * to next. The Vue twin of `@chelone/react`'s
@@ -38,7 +40,11 @@ export interface StatusTransitionButtonProps {
  * disabled when no transition is allowed and while an update is in flight.
  */
 
-import { getAllowedTransitions, type Identifier } from "@chelone/core";
+import {
+  getAllowedTransitions,
+  type Identifier,
+  type LooseRecord,
+} from "@chelone/core";
 import { computed, inject, ref } from "vue";
 import { useCheloneNotifications } from "../../../context";
 import { useUpdate } from "../../../data/mutations";
@@ -56,19 +62,21 @@ import Confirm from "../feedback/confirm.vue";
 import { useMenuAccess } from "../layout/use-menu-access";
 import { ChevronDownIcon } from "./icons";
 
-const props = withDefaults(defineProps<StatusTransitionButtonProps>(), {
+const props = withDefaults(defineProps<StatusTransitionButtonProps<TRecord>>(), {
   source: "status",
   confirm: false,
   mutationMode: "pessimistic",
 });
 
 const emit = defineEmits<{
-  (event: "transition", from: string, to: string, record: LooseRecord): void;
+  (event: "transition", from: string, to: string, record: TRecord): void;
 }>();
 
 const resource = useResourceContext(props);
 const injectedRecord = inject(RecordContextKey, null);
-const record = computed(() => props.record ?? injectedRecord?.value);
+const record = computed(
+  () => props.record ?? (injectedRecord?.value as TRecord | undefined),
+);
 const translate = useTranslate();
 const notifications = useCheloneNotifications();
 
@@ -84,7 +92,7 @@ const update = useUpdate(resource ?? "", { mutationMode: props.mutationMode });
 
 const transitionState = computed(() =>
   record.value
-    ? getAllowedTransitions(record.value, {
+    ? getAllowedTransitions<TRecord>(record.value, {
         source: props.source,
         transitions: props.transitions,
         guards: props.guards,
@@ -137,7 +145,7 @@ async function move(to: string): Promise<void> {
     await update.mutateAsync({
       id: current.id as Identifier,
       data: { [props.source]: to },
-      previousData: current,
+      previousData: current as unknown as LooseRecord,
     });
   } catch {
     notifications?.notify("chelone.notification.http_error", { type: "error" });
