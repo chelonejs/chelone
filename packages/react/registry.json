@@ -2605,7 +2605,7 @@
         "@chelone/tooltip",
         "use-mobile"
       ],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
