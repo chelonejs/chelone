@@ -1,9 +1,15 @@
-<script lang="ts" generic="TRecord extends Record<string, unknown> = Record<string, unknown>">
-import type { MutationMode, SourceKey } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>">
+import type {
+  MutationMode,
+  RegisteredRecord,
+  RegisteredResourceName,
+  ResourceRecord,
+  SourceKey,
+} from "@chelone/core";
 
 /** Props for {@link StatusTransitionButton}. */
 export interface StatusTransitionButtonProps<
-  TRecord extends Record<string, unknown> = Record<string, unknown>,
+  TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
 > {
   /** Record field holding the status, a top-level key. Default `"status"`. */
   source?: SourceKey<TRecord>;
@@ -26,7 +32,7 @@ export interface StatusTransitionButtonProps<
 }
 </script>
 
-<script setup lang="ts" generic="TRecord extends Record<string, unknown> = Record<string, unknown>">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>">
 /**
  * `<StatusTransitionButton>` — a menu of the states the record in view may move
  * to next. The Vue twin of `@chelone/react`'s
@@ -42,8 +48,7 @@ export interface StatusTransitionButtonProps<
 
 import {
   getAllowedTransitions,
-  type Identifier,
-  type LooseRecord,
+  isLooseRecord,
 } from "@chelone/core";
 import { computed, inject, ref } from "vue";
 import { useCheloneNotifications } from "../../../context";
@@ -63,7 +68,6 @@ import { useMenuAccess } from "../layout/use-menu-access";
 import { ChevronDownIcon } from "./icons";
 
 const props = withDefaults(defineProps<StatusTransitionButtonProps<TRecord>>(), {
-  source: "status",
   confirm: false,
   mutationMode: "pessimistic",
 });
@@ -107,8 +111,8 @@ const show = computed(
     canAccess.value,
 );
 const label = (state: string) =>
-  props.labels && Object.hasOwn(props.labels, state)
-    ? (props.labels[state] as string)
+  Object.hasOwn(props.labels ?? {}, state)
+    ? (props.labels?.[state] ?? state)
     : state;
 
 const pendingTarget = ref<string | null>(null);
@@ -137,15 +141,15 @@ function onSelect(to: string): void {
 
 async function move(to: string): Promise<void> {
   const current = record.value;
-  if (!current) return;
+  if (!current || current.id == null || !isLooseRecord(current)) return;
   const from = transitionState.value?.current ?? "";
   try {
     // In undoable mode `mutateAsync` resolves once the Undo notification is
     // enqueued, and `useUpdate` notifies for it.
     await update.mutateAsync({
-      id: current.id as Identifier,
-      data: { [props.source]: to },
-      previousData: current as unknown as LooseRecord,
+      id: current.id,
+      data: { [props.source ?? "status"]: to },
+      previousData: current,
     });
   } catch {
     notifications?.notify("chelone.notification.http_error", { type: "error" });

@@ -18,9 +18,11 @@
 
 import {
   getAllowedTransitions,
-  type Identifier,
-  type LooseRecord,
+  isLooseRecord,
   type MutationMode,
+  type RegisteredRecord,
+  type RegisteredResourceName,
+  type ResourceRecord,
   type SourceKey,
 } from "@chelone/core";
 import { ChevronDown } from "lucide-react";
@@ -40,7 +42,7 @@ import { Confirm } from "../feedback/confirm";
 import { useMenuAccess } from "../layout/use-menu-access";
 
 interface StatusTransitionButtonProps<
-  TRecord extends Record<string, unknown> = Record<string, unknown>,
+  TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
 > {
   /** Record field holding the status, a top-level key. Default `"status"`. */
   source?: SourceKey<TRecord>;
@@ -87,10 +89,10 @@ interface StatusTransitionButtonProps<
  * );
  */
 function StatusTransitionButton<
-  TRecord extends Record<string, unknown> = Record<string, unknown>,
+  TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
 >(props: StatusTransitionButtonProps<TRecord>) {
   const {
-    source = "status" as SourceKey<TRecord>,
+    source,
     transitions,
     guards,
     labels,
@@ -99,6 +101,7 @@ function StatusTransitionButton<
     onTransition,
     className,
   } = props;
+  const statusKey: string = source ?? "status";
   const record = useRecordContext<TRecord>(props);
   const resource = useResourceContext(props);
   const notify = useNotify();
@@ -112,7 +115,9 @@ function StatusTransitionButton<
     mutationMode,
   });
 
-  if (!resource || !record || record.id == null) return null;
+  if (!resource || !record || record.id == null || !isLooseRecord(record)) {
+    return null;
+  }
   if (isAccessPending || !canAccess) return null;
 
   const { current, allowed } = getAllowedTransitions(record, {
@@ -124,9 +129,9 @@ function StatusTransitionButton<
 
   const run = async (next: string) => {
     const update = mutateAsync({
-      id: record.id as Identifier,
-      data: { [source]: next },
-      previousData: record as unknown as LooseRecord,
+      id: record.id,
+      data: { [statusKey]: next },
+      previousData: record,
     });
     if (mutationMode === "optimistic") setTarget(null);
     try {
