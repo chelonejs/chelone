@@ -44,7 +44,7 @@ import { useSubscribable } from "../form/subscribe-ref";
 /** The erased form-data shape the ambient form carries. */
 type UnknownFormValues = Record<string, unknown>;
 
-export interface UseArrayInputOptions<TRecord = UnknownFormValues>
+export interface UseArrayInputOptions<TRecord = unknown>
   extends ArrayBindingUpdateOptions {
   /** The array field path RELATIVE to the ambient source scope. */
   source: SourcePath<TRecord>;
@@ -93,7 +93,13 @@ function toBindingUpdate<TRecord>(
   };
 }
 
-export function useArrayInput<TRecord = UnknownFormValues>(
+export function useArrayInput<TRecord>(
+  options: UseArrayInputOptions<TRecord>,
+): UseArrayInputResult;
+export function useArrayInput(
+  options: UseArrayInputOptions,
+): UseArrayInputResult;
+export function useArrayInput<TRecord>(
   options: UseArrayInputOptions<TRecord>,
 ): UseArrayInputResult {
   const { form } = useCheloneFormContext();

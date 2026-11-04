@@ -35,7 +35,7 @@ import { useSubscribable } from "./subscribe-ref";
 /** The erased form-data shape the ambient form carries. */
 type UnknownFormValues = Record<string, unknown>;
 
-export interface UseInputOptions<TRecord = UnknownFormValues> {
+export interface UseInputOptions<TRecord = unknown> {
   /** The field path RELATIVE to the ambient source scope (iterator rows compose it). */
   source: SourcePath<TRecord>;
   /**
@@ -101,7 +101,15 @@ function extractEventValue(input: unknown): unknown {
   return input;
 }
 
-export function useInput<TRecord = UnknownFormValues>(
+export function useInput<TRecord>(
+  options: UseInputOptions<TRecord>,
+): UseInputReturn;
+// The loose overload: a typed props spread has a `source` wider than
+// `SourcePath<Post>` (row paths, filter keys), and inference from it would
+// otherwise reject the call. Last, so `Parameters<typeof useInput>` is the
+// plain `UseInputOptions`.
+export function useInput(options: UseInputOptions): UseInputReturn;
+export function useInput<TRecord>(
   options: UseInputOptions<TRecord>,
 ): UseInputReturn {
   const { form } = useCheloneFormContext();

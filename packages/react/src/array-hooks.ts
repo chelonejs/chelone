@@ -46,7 +46,7 @@ function useAttach(subscribe: (listener: () => void) => () => void): void {
   useSyncExternalStore(subscribe, attachSnapshot, attachSnapshot);
 }
 
-export interface UseArrayInputOptions<TRecord = UnknownFormValues>
+export interface UseArrayInputOptions<TRecord = unknown>
   extends ArrayBindingUpdateOptions {
   /** The array field path RELATIVE to the ambient source scope. */
   source: SourcePath<TRecord>;
@@ -116,7 +116,13 @@ function toBindingUpdate<TRecord>(
  * set is reference-stable between structure changes so React reuses fibers by
  * `row.id`.
  */
-export function useArrayInput<TRecord = UnknownFormValues>(
+export function useArrayInput<TRecord>(
+  options: UseArrayInputOptions<TRecord>,
+): UseArrayInputResult;
+export function useArrayInput(
+  options: UseArrayInputOptions,
+): UseArrayInputResult;
+export function useArrayInput<TRecord>(
   options: UseArrayInputOptions<TRecord>,
 ): UseArrayInputResult {
   const { form } = useCheloneFormContext();

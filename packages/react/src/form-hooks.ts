@@ -301,7 +301,7 @@ export function useCreateForm<
   );
 }
 
-export interface UseInputOptions<TRecord = UnknownFormValues>
+export interface UseInputOptions<TRecord = unknown>
   extends FieldBindingUpdateOptions {
   /** The field path RELATIVE to the ambient source scope (iterator rows compose it). */
   source: SourcePath<TRecord>;
@@ -414,7 +414,15 @@ function extractEventValue(input: unknown): unknown {
  *   (react-form's slice pattern), so typing here never re-renders sibling
  *   inputs.
  */
-export function useInput<TRecord = UnknownFormValues>(
+export function useInput<TRecord>(
+  options: UseInputOptions<TRecord>,
+): UseInputResult;
+// The loose overload: a typed `InputProps<_, Post>` spread has a `source` wider
+// than `SourcePath<Post>` (row paths, filter keys), and inference from it
+// would otherwise reject the call. Last, so `Parameters<typeof useInput>` is
+// the plain `UseInputOptions`.
+export function useInput(options: UseInputOptions): UseInputResult;
+export function useInput<TRecord>(
   options: UseInputOptions<TRecord>,
 ): UseInputResult {
   const { form } = useCheloneFormContext();
