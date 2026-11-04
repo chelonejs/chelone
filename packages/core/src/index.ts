@@ -87,6 +87,17 @@ export type {
 } from "./controller/infinite-list-controller";
 export { createInfiniteListController } from "./controller/infinite-list-controller";
 export type {
+  JobActionOptions,
+  JobActions,
+  JobPlan,
+} from "./controller/job-monitor";
+export {
+  DEFAULT_JOB_TABS,
+  getJobActions,
+  planJobCancel,
+  planJobRetry,
+} from "./controller/job-monitor";
+export type {
   KanbanBucket,
   KanbanColumnDef,
   KanbanMove,
@@ -117,6 +128,15 @@ export {
   serializeListParams,
   serializeListState,
 } from "./controller/list-params";
+export type {
+  PivotAggregator,
+  PivotOptions,
+  PivotTable,
+} from "./controller/pivot-grid";
+export {
+  buildPivotTable,
+  formatPivotValue,
+} from "./controller/pivot-grid";
 export type {
   PrevNextOptions,
   PrevNextPage,
