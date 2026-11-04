@@ -1,5 +1,5 @@
 /**
- * `useGetManyReference` and `useGetManyAggregate` — mounted through probe
+ * `useGetList`, `useGetManyReference` and `useGetManyAggregate` — mounted through probe
  * components under a real `<Admin>` (which installs the vue-query client and
  * the Chelone context) over a seeded `fakeDataProvider`. Each case asserts what
  * the probe renders and what the provider was asked, never an internal.
@@ -13,7 +13,11 @@ import { type Component, defineComponent, h, type Ref, ref } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
 import Admin from "../admin/admin.vue";
-import { useGetManyAggregate, useGetManyReference } from "./queries";
+import {
+  useGetList,
+  useGetManyAggregate,
+  useGetManyReference,
+} from "./queries";
 
 const resources = defineResources({
   comments: {
@@ -247,5 +251,74 @@ describe("useGetManyAggregate", () => {
     await vi.waitFor(() => expect(probes.fetchStatus(0)).toBe("idle"));
     expect(probes.titles(0)).toEqual([]);
     expect(probes.getMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("useGetList", () => {
+  function mountList(refetchInterval?: Parameters<typeof useGetList>[2]) {
+    const dataProvider = seededDataProvider();
+    const getList = vi.spyOn(dataProvider, "getList");
+    const Probe = defineComponent({
+      setup() {
+        const query = useGetList<Resources, "posts">(
+          "posts",
+          {},
+          refetchInterval,
+        );
+        return () =>
+          h(
+            "ul",
+            (query.data.value?.data ?? []).map((row) =>
+              h("li", { key: row.id }, row.title),
+            ),
+          );
+      },
+    });
+    const wrapper = mountUnderAdmin(dataProvider, [Probe]);
+    return { wrapper, getList };
+  }
+  const wait = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
+  it("refetches every refetchInterval ms", async () => {
+    const { getList } = mountList({ refetchInterval: 30 });
+    await vi.waitFor(() =>
+      expect(getList.mock.calls.length).toBeGreaterThan(2),
+    );
+  });
+
+  it("does not poll with refetchInterval 0 or none", async () => {
+    for (const options of [
+      { refetchInterval: 0 },
+      { refetchInterval: -30 },
+      { refetchInterval: false as const },
+      {},
+    ]) {
+      const { wrapper, getList } = mountList(options);
+      await flushPromises();
+      await wait(100);
+      expect(getList).toHaveBeenCalledTimes(1);
+      wrapper.unmount();
+    }
+  });
+
+  it("a ref refetchInterval starts and stops polling when it changes", async () => {
+    const interval = ref<number | false>(false);
+    const { getList } = mountList({ refetchInterval: interval });
+    await flushPromises();
+    await wait(100);
+    expect(getList).toHaveBeenCalledTimes(1);
+
+    interval.value = 30;
+    await vi.waitFor(() =>
+      expect(getList.mock.calls.length).toBeGreaterThan(3),
+    );
+
+    interval.value = false;
+    await flushPromises();
+    await wait(50);
+    const stopped = getList.mock.calls.length;
+    await wait(150);
+    expect(getList).toHaveBeenCalledTimes(stopped);
   });
 });

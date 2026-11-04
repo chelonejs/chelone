@@ -27,16 +27,27 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCheloneContext } from "./context";
 import { useUndoable } from "./undoable-hooks";
 
+/** `refetchInterval` is in ms; `0`, a negative number or `false` turns polling off. */
+type ListQueryOptions = {
+  enabled?: boolean;
+  staleTime?: number;
+  refetchInterval?: number | false;
+};
+
 export function useGetList<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
->(
-  resource: TName,
-  params: GetListParams = {},
-  options: { enabled?: boolean; staleTime?: number } = {},
-) {
+>(resource: TName, params: GetListParams = {}, options: ListQueryOptions = {}) {
   const ctx = useCheloneContext<TResources>();
-  return useQuery({ ...getListOptions(ctx, resource, params), ...options });
+  const { refetchInterval, ...rest } = options;
+  return useQuery({
+    ...getListOptions(ctx, resource, params),
+    ...rest,
+    refetchInterval:
+      typeof refetchInterval === "number" && refetchInterval > 0
+        ? refetchInterval
+        : false,
+  });
 }
 
 export function useGetOne<
@@ -180,7 +191,7 @@ export function createCheloneHooks<TResources extends ResourceMap>() {
     useGetList: <TName extends keyof TResources & string>(
       resource: TName,
       params?: GetListParams,
-      options?: { enabled?: boolean; staleTime?: number },
+      options?: ListQueryOptions,
     ) => useGetList<TResources, TName>(resource, params, options),
     useGetOne: <TName extends keyof TResources & string>(
       resource: TName,
