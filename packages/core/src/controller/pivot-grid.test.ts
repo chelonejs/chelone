@@ -41,6 +41,21 @@ describe("buildPivotTable", () => {
     expect(table.columnKeys).toEqual(["a", "b", ""]);
   });
 
+  it("sorts negative and decimal numeric keys by value", () => {
+    const records: Row[] = [
+      { r: -1, c: 1.5 },
+      { r: 2, c: 1.25 },
+      { r: -10, c: 10 },
+      { r: 0.5, c: -2.5 },
+    ];
+    const table = buildPivotTable(records, {
+      rowSource: "r",
+      columnSource: "c",
+    });
+    expect(table.rowKeys).toEqual(["-10", "-1", "0.5", "2"]);
+    expect(table.columnKeys).toEqual(["-2.5", "1.25", "1.5", "10"]);
+  });
+
   it("reads a null, undefined or empty key as the empty key", () => {
     const records: Row[] = [
       { r: null, c: undefined },

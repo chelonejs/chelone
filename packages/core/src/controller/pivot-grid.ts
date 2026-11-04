@@ -36,11 +36,20 @@ interface Group {
 
 const collator = new Intl.Collator(undefined, { numeric: true });
 
+const NUMERIC_KEY = /^-?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i;
+
+// The collator reads digit runs as whole numbers but not a sign or a decimal
+// point, so two numeric keys compare by value here and the collator orders the
+// rest, and breaks a tie such as "1" and "1.0".
 const compareKeys = (a: string, b: string): number => {
   if (a === b) return 0;
   if (a === "") return 1;
   if (b === "") return -1;
-  return collator.compare(a, b);
+  if (NUMERIC_KEY.test(a) && NUMERIC_KEY.test(b)) {
+    const difference = Number(a) - Number(b);
+    if (difference !== 0 && !Number.isNaN(difference)) return difference;
+  }
+  return collator.compare(a, b) || (a < b ? -1 : 1);
 };
 
 const toKey = (value: unknown): string =>
