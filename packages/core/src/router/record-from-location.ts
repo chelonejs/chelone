@@ -4,6 +4,7 @@
  * the clone link writes `?source=<json>`.
  */
 
+import { isRecord } from "../guards";
 import type { CheloneLocation } from "./location";
 
 export interface RecordFromLocationOptions {
@@ -13,14 +14,10 @@ export interface RecordFromLocationOptions {
   stateSource?: string;
 }
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 /**
  * The record at `state[stateSource]` if it is an object, else the JSON in the
  * `searchSource` param. Returns `null` for no param, invalid JSON, a repeated
- * param or a value that is not a plain object. Never throws.
+ * param or a value that is not an object. Never throws.
  */
 export function getRecordFromLocation(
   location: Pick<CheloneLocation, "state" | "searchParams">,
@@ -28,16 +25,16 @@ export function getRecordFromLocation(
 ): Record<string, unknown> | null {
   const { searchSource = "source", stateSource = "record" } = options;
 
-  const fromState = isPlainObject(location.state)
+  const fromState = isRecord(location.state)
     ? location.state[stateSource]
     : undefined;
-  if (isPlainObject(fromState)) return fromState;
+  if (isRecord(fromState)) return fromState;
 
   const values = location.searchParams.getAll(searchSource);
   if (values.length !== 1) return null;
   try {
     const parsed: unknown = JSON.parse(values[0] as string);
-    return isPlainObject(parsed) ? parsed : null;
+    return isRecord(parsed) ? parsed : null;
   } catch {
     return null;
   }

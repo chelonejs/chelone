@@ -1,5 +1,7 @@
 // GeoJSON (RFC 7946) written by hand: core takes no `@types/geojson`.
 
+import { isRecord } from "../guards";
+
 /** `[longitude, latitude]` with an optional altitude and further members. */
 export type GeoPosition = [
   longitude: number,
@@ -89,10 +91,6 @@ export interface GeoFeatureCollection {
 
 /** What a map input stores: a geometry, a Feature or a FeatureCollection. */
 export type GeoJsonValue = GeoGeometry | GeoFeature | GeoFeatureCollection;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);

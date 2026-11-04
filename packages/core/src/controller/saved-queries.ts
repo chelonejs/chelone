@@ -1,4 +1,5 @@
 import type { FilterPayload, SortPayload } from "../data/types";
+import { isPlainObject, isRecord } from "../guards";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import type { ListControllerContext } from "./list-controller";
 
@@ -33,9 +34,6 @@ export interface SavedQueriesControllerOptions {
 export function savedQueriesKey(storeKey: string): string {
   return `${storeKey}.savedQueries`;
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
 
 const isSortPayload = (value: unknown): value is SortPayload =>
   isRecord(value) &&
@@ -75,12 +73,6 @@ export function extractValidSavedQueries(raw: unknown): SavedQuery[] {
   }
   return queries;
 }
-
-const isPlainObject = (value: unknown): value is Record<string, unknown> => {
-  if (!isRecord(value)) return false;
-  const proto = Object.getPrototypeOf(value);
-  return proto === Object.prototype || proto === null;
-};
 
 /**
  * Structural equality; object key order is irrelevant, array order is not.

@@ -19,8 +19,6 @@ export type {
   AssistantToolCall,
   AssistantToolDeclaration,
   AssistantTransport,
-  JsonObject,
-  JsonValue,
 } from "./assistant/types";
 export type { Permission } from "./auth/access-control";
 export { canAccessWithPermissions } from "./auth/access-control";
@@ -605,6 +603,8 @@ export {
 } from "./geo/shape-value";
 export type { OsrmProviderOptions, RoutingProvider } from "./geo/snap-to-roads";
 export { createOsrmProvider } from "./geo/snap-to-roads";
+export type { JsonObject, JsonValue } from "./guards";
+export { isRecord } from "./guards";
 export { defaultMessages } from "./i18n/default-messages";
 export { englishMessages } from "./i18n/english-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import type { JsonObject } from "../guards";
 import { createAssistantSession } from "./assistant-session";
 import type {
   AssistantChunk,
@@ -6,7 +7,6 @@ import type {
   AssistantTool,
   AssistantToolDeclaration,
   AssistantTransport,
-  JsonObject,
 } from "./types";
 
 interface Call {
