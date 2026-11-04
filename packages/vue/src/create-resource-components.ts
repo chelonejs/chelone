@@ -17,6 +17,11 @@
  * the resource and take no `resource` prop. The add-ons (maps, monaco, mdx,
  * supabase, csv-import) are not members: the import fence keeps them out of
  * this entry, and they take the registered union.
+ *
+ * `RecordField` and `FunctionField` are not members either. They are
+ * `generic=` SFCs, whose type is a function with no constructor signature, so
+ * `Retyped` cannot replace their `source`. Import them directly; their
+ * `source` takes a plain string.
  */
 
 import type {
