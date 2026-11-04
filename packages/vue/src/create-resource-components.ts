@@ -18,12 +18,14 @@
  * supabase, csv-import) are not members: the import fence keeps them out of
  * this entry, and they take the registered union.
  *
- * Six fields and inputs are not members: `RecordField`, `FunctionField`,
- * `AutocompleteInput`, `AutocompleteArrayInput`, `SelectInput` and
- * `SelectArrayInput`. They are `generic=` SFCs, whose type is a function with
- * no constructor signature, so `Retyped` cannot replace their `source` without
- * erasing the generic. Import them directly; their `source` keeps the
- * registered union, or a plain string when nothing is registered.
+ * Generic fields and inputs (`generic=` SFCs: `RecordField`, `SelectInput`,
+ * `ApiKeyField`, ...) are not members of the type. Their type is a function
+ * with no constructor signature, so `Retyped` cannot replace their `source`
+ * without erasing the generic. The test is the type itself, so an SFC that
+ * becomes generic later drops out of `ResourceComponents` on its own, and a
+ * template that uses it fails `vue-tsc` instead of the build. Import them
+ * directly; their `source` keeps the registered union, or a plain string when
+ * nothing is registered.
  */
 
 import type {
@@ -46,11 +48,13 @@ import DateField from "./components/admin/fields/date-field.vue";
 import DurationField from "./components/admin/fields/duration-field.vue";
 import EmailField from "./components/admin/fields/email-field.vue";
 import FileField from "./components/admin/fields/file-field.vue";
+import FunctionField from "./components/admin/fields/function-field.vue";
 import ImageField from "./components/admin/fields/image-field.vue";
 import JsonField from "./components/admin/fields/json-field.vue";
 import NumberField from "./components/admin/fields/number-field.vue";
 import PhoneField from "./components/admin/fields/phone-field.vue";
 import RatingField from "./components/admin/fields/rating-field.vue";
+import RecordField from "./components/admin/fields/record-field.vue";
 import ReferenceArrayField from "./components/admin/fields/reference-array-field.vue";
 import ReferenceField from "./components/admin/fields/reference-field.vue";
 import ReferenceManyCount from "./components/admin/fields/reference-many-count.vue";
@@ -67,6 +71,8 @@ import WrapperField from "./components/admin/fields/wrapper-field.vue";
 import ApiKeyInput from "./components/admin/inputs/api-key-input.vue";
 import ArrayInput from "./components/admin/inputs/array-input.vue";
 import ArrayInputRow from "./components/admin/inputs/array-input-row.vue";
+import AutocompleteArrayInput from "./components/admin/inputs/autocomplete-array-input.vue";
+import AutocompleteInput from "./components/admin/inputs/autocomplete-input.vue";
 import BooleanInput from "./components/admin/inputs/boolean-input.vue";
 import CheckboxGroupInput from "./components/admin/inputs/checkbox-group-input.vue";
 import ColorInput from "./components/admin/inputs/color-input.vue";
@@ -91,6 +97,8 @@ import ReferenceArrayInput from "./components/admin/inputs/reference-array-input
 import ReferenceInput from "./components/admin/inputs/reference-input.vue";
 import ResettableTextInput from "./components/admin/inputs/resettable-text-input.vue";
 import SearchInput from "./components/admin/inputs/search-input.vue";
+import SelectArrayInput from "./components/admin/inputs/select-array-input.vue";
+import SelectInput from "./components/admin/inputs/select-input.vue";
 import SubscriptionPlanPicker from "./components/admin/inputs/subscription-plan-picker.vue";
 import TextArrayInput from "./components/admin/inputs/text-array-input.vue";
 import TextInput from "./components/admin/inputs/text-input.vue";
@@ -115,11 +123,13 @@ const sourceMembers = {
   DurationField,
   EmailField,
   FileField,
+  FunctionField,
   ImageField,
   JsonField,
   NumberField,
   PhoneField,
   RatingField,
+  RecordField,
   ReferenceArrayField,
   ReferenceField,
   ReferenceManyCount,
@@ -136,6 +146,8 @@ const sourceMembers = {
   ApiKeyInput,
   ArrayInput,
   ArrayInputRow,
+  AutocompleteArrayInput,
+  AutocompleteInput,
   BooleanInput,
   CheckboxGroupInput,
   ColorInput,
@@ -160,6 +172,8 @@ const sourceMembers = {
   ReferenceInput,
   ResettableTextInput,
   SearchInput,
+  SelectArrayInput,
+  SelectInput,
   SubscriptionPlanPicker,
   TextArrayInput,
   TextInput,
@@ -217,8 +231,10 @@ export type ResourceComponents<
   TResources extends ResourceMap,
   TName extends keyof TResources & string,
 > = {
-  [K in keyof SourceMembers]: Retyped<
-    SourceMembers[K],
+  [K in keyof SourceMembers as SourceMembers[K] extends Ctor
+    ? K
+    : never]: Retyped<
+    Extract<SourceMembers[K], Ctor>,
     SourceProp<RecordOf<TResources, TName>>
   >;
 } & {

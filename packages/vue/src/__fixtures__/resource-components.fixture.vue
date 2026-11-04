@@ -47,4 +47,8 @@ const posts = createResourceComponentsOf<typeof resources, "posts">("posts");
   <posts.Edit resource="users" :id="1" />
   <!-- @vue-expect-error -->
   <posts.List resource="users" />
+
+  <!-- a generic SFC is not a member -->
+  <!-- @vue-expect-error -->
+  <posts.SelectInput source="title" />
 </template>
