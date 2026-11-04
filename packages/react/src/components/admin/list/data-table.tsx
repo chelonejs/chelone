@@ -6,6 +6,7 @@ import {
   type Identifier,
   type LooseRecord,
   type SortPayload,
+  type SourceProp,
 } from "@chelone/core";
 import {
   ArrowDownAZ,
@@ -763,7 +764,7 @@ interface DataTableColumnProps {
   children?: ReactNode;
   render?: (record: LooseRecord) => ReactNode;
   field?: React.ElementType;
-  source?: string;
+  source?: SourceProp;
   label?: ReactNode;
   disableSort?: boolean;
   sortByOrder?: SortPayload["order"];
@@ -772,7 +773,7 @@ interface DataTableColumnProps {
 }
 
 interface DataTableNumberColumnProps extends DataTableColumnProps {
-  source: string;
+  source: SourceProp;
   locales?: string | string[];
   options?: Intl.NumberFormatOptions;
 }
