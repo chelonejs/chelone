@@ -1,7 +1,9 @@
 <script lang="ts">
+import type { SourceProp } from "@chelone/core";
+
 /** Props for {@link TimeInput}. */
 export interface TimeInputProps {
-  source: string;
+  source: SourceProp;
   label?: string | false;
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
