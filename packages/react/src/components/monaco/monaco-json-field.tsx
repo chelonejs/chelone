@@ -46,7 +46,7 @@ function MonacoJsonField<RecordType extends LooseRecord = LooseRecord>(
         />
       }
     >
-      <MonacoJsonFieldLazy {...(props as MonacoJsonFieldProps)} />
+      <MonacoJsonFieldLazy {...(props as unknown as MonacoJsonFieldProps)} />
     </Suspense>
   );
 }
