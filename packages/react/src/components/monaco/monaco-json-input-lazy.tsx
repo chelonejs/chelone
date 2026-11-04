@@ -100,11 +100,11 @@ export default function MonacoJsonInputLazy({
   // A save waits out Monaco's diagnostics delay so a schema error from the
   // last edit is in the list before it is read. Re-checks while typing read
   // what is there: waiting would hold a cleared error on screen and block Save.
-  const { form } = useCheloneFormContext();
+  const { ambient } = useCheloneFormContext().form;
   const firstError = (list: editor.IMarker[]) =>
     list.find((marker) => marker.severity >= ERROR_SEVERITY)?.message;
   const markerCheck = () => {
-    if (!form.state.isSubmitting) return firstError(markers.current);
+    if (!ambient.store.state.isSubmitting) return firstError(markers.current);
     checking.current++;
     return settled()
       .then(firstError)

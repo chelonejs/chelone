@@ -111,7 +111,7 @@ function FormButtons() {
   const { save } = useSaveContext();
   return (
     <>
-      <button type="button" onClick={() => form.reset()}>
+      <button type="button" onClick={() => form.ambient.reset()}>
         reset
       </button>
       <button type="button" onClick={() => save?.({})}>

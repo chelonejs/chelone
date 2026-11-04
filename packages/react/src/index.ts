@@ -1059,6 +1059,7 @@ export {
 } from "./form-context";
 export type {
   FormStateSlices,
+  NamedFormHandle,
   UseCreateFormResult,
   UseEditFormResult,
   UseFormControllerResult,
@@ -1074,6 +1075,7 @@ export {
   useEditForm,
   useForm,
   useFormController,
+  useFormHandle,
   useInput,
 } from "./form-hooks";
 export {

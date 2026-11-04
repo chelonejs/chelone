@@ -6,9 +6,9 @@
  * hydration and the view's save pipeline stay in effect. With neither, it throws.
  */
 
+import type { AmbientForm } from "@chelone/core";
 import { type ReactNode, useCallback } from "react";
 import {
-  type CheloneFormContextValue,
   CheloneFormProvider,
   useOptionalCheloneFormContext,
 } from "../form-context";
@@ -43,13 +43,15 @@ export interface FormScopeProps<TFormData> {
 }
 
 function AmbientFormScope({
-  ambient: { form, submit },
+  ambient,
+  submit,
   children,
 }: {
-  ambient: CheloneFormContextValue;
+  ambient: AmbientForm;
+  submit: (() => Promise<void>) | undefined;
   children: FormScopeProps<unknown>["children"];
 }) {
-  const fallback = useCallback(() => form.handleSubmit(), [form]);
+  const fallback = useCallback(() => ambient.handleSubmit(), [ambient]);
   return <>{children(submit ?? fallback)}</>;
 }
 
@@ -73,7 +75,7 @@ export function FormScope<TFormData>({
   options,
   children,
 }: FormScopeProps<TFormData>) {
-  const ambient = useOptionalCheloneFormContext();
+  const context = useOptionalCheloneFormContext();
   const { save } = options;
   if (save) {
     return (
@@ -82,8 +84,12 @@ export function FormScope<TFormData>({
       </OwnFormScope>
     );
   }
-  if (ambient) {
-    return <AmbientFormScope ambient={ambient}>{children}</AmbientFormScope>;
+  if (context) {
+    return (
+      <AmbientFormScope ambient={context.form.ambient} submit={context.submit}>
+        {children}
+      </AmbientFormScope>
+    );
   }
   throw new Error(
     `<${name}> needs a \`save\` prop outside a view that provides a form (<Edit>, <Create>).`,

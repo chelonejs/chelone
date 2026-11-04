@@ -186,7 +186,7 @@ function sameGroupState(a: GroupState, b: GroupState): boolean {
  */
 export function useFormGroup(name: string): GroupState {
   const registry = useFormGroups();
-  const { form } = useCheloneFormContext();
+  const { ambient } = useCheloneFormContext().form;
 
   // Track membership as an external store so a mount/unmount of a member
   // re-derives with the fresh member list (reference-stable between changes).
@@ -208,5 +208,5 @@ export function useFormGroup(name: string): GroupState {
     [members],
   );
 
-  return useSelector(form.store, selector, { compare: sameGroupState });
+  return useSelector(ambient.store, selector, { compare: sameGroupState });
 }

@@ -29,6 +29,7 @@ import {
   useEditForm,
   useForm,
   useFormController,
+  useFormHandle,
   useInput,
 } from "./form-hooks";
 import { RouterAdapterProvider } from "./router/adapter";
@@ -772,5 +773,67 @@ describe("useEditForm redirect-on-save", () => {
     expect(updateSpy).toHaveBeenCalledTimes(1);
     // The record reconciled with server truth — the save actually landed.
     await waitFor(() => expect(latest.edit?.isDefaultValue).toBe(true));
+  });
+});
+
+describe("useFormHandle", () => {
+  function setupHandle(resource?: string) {
+    const { wrapper: Wrapper } = makeWrapper();
+    const latest: { handle: ReturnType<typeof useFormHandle> | null } = {
+      handle: null,
+    };
+    function Probe() {
+      latest.handle = useFormHandle();
+      return null;
+    }
+    function Host() {
+      const form = useForm<{ title: string }>({
+        defaultValues: { title: "hello" },
+        save: async () => undefined,
+      });
+      return (
+        <CheloneFormProvider
+          form={form.form}
+          resource={resource}
+          submit={form.submit}
+        >
+          <Probe />
+        </CheloneFormProvider>
+      );
+    }
+    render(
+      <Wrapper>
+        <Host />
+      </Wrapper>,
+    );
+    return latest;
+  }
+
+  it("tags the handle with the resource the provider is given", () => {
+    const latest = setupHandle("posts");
+    expect(latest.handle?.resource).toBe("posts");
+  });
+
+  it("is unbound without a resource", () => {
+    const latest = setupHandle();
+    expect(latest.handle?.resource).toBeUndefined();
+  });
+
+  it("reads and writes the form's values through the handle", () => {
+    const latest = setupHandle("posts");
+    expect(latest.handle?.ambient.getFieldValue("title")).toBe("hello");
+    act(() => latest.handle?.ambient.setFieldValue("title", "bye"));
+    expect(latest.handle?.getSnapshot().values).toEqual({ title: "bye" });
+  });
+
+  it("throws without a <CheloneFormProvider>", () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      expect(() => renderHook(() => useFormHandle())).toThrow(
+        /CheloneFormProvider/,
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 });

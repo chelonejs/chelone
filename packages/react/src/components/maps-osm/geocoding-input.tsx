@@ -90,7 +90,7 @@ export function GeocodingInput<TRecord = LooseRecord>({
   const typeahead = activeProvider?.typeahead === true;
 
   const { id, field, fieldState, isRequired } = useInput({ source });
-  const { form } = useCheloneFormContext();
+  const { ambient } = useCheloneFormContext().form;
   const wrappedLat = useWrappedSource(latSource ?? "");
   const wrappedLng = useWrappedSource(lngSource ?? "");
   const wrappedBbox = useWrappedSource(bboxSource ?? "");
@@ -137,18 +137,18 @@ export function GeocodingInput<TRecord = LooseRecord>({
   // A hand-typed address no longer matches the position of an earlier pick.
   const writeTyped = () => {
     field.onChange(text);
-    if (latSource) form.setFieldValue(wrappedLat, null);
-    if (lngSource) form.setFieldValue(wrappedLng, null);
-    if (bboxSource) form.setFieldValue(wrappedBbox, null);
+    if (latSource) ambient.setFieldValue(wrappedLat, null);
+    if (lngSource) ambient.setFieldValue(wrappedLng, null);
+    if (bboxSource) ambient.setFieldValue(wrappedBbox, null);
   };
 
   const pick = (result: GeocodeResult) => {
     field.onChange(result.displayName);
     setText(result.displayName);
-    if (latSource) form.setFieldValue(wrappedLat, result.lat);
-    if (lngSource) form.setFieldValue(wrappedLng, result.lng);
+    if (latSource) ambient.setFieldValue(wrappedLat, result.lat);
+    if (lngSource) ambient.setFieldValue(wrappedLng, result.lng);
     if (bboxSource && result.bbox) {
-      form.setFieldValue(wrappedBbox, [...result.bbox]);
+      ambient.setFieldValue(wrappedBbox, [...result.bbox]);
     }
     setOpen(false);
   };

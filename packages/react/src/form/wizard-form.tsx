@@ -244,7 +244,7 @@ interface WizardShellProps {
  * active-step context that `<WizardForm.Step>` reads.
  */
 function WizardShell({ stepNames, submit, children }: WizardShellProps) {
-  const { form } = useCheloneFormContext();
+  const { ambient } = useCheloneFormContext().form;
   const groups = useFormGroups();
 
   const validateStep = useCallback(
@@ -255,17 +255,17 @@ function WizardShell({ stepNames, submit, children }: WizardShellProps) {
       // field touched then runs its validators — sync or async).
       await Promise.all(
         members.map((source) =>
-          Promise.resolve(form.validateField(source, "submit")),
+          Promise.resolve(ambient.validateField(source, "submit")),
         ),
       );
       // Read the authoritative per-field validity the badge also aggregates.
-      const fieldMeta = form.store.state.fieldMeta as Record<
+      const fieldMeta = ambient.store.state.fieldMeta as Record<
         string,
         { isValid: boolean } | undefined
       >;
       return members.every((source) => fieldMeta[source]?.isValid !== false);
     },
-    [form, groups],
+    [ambient, groups],
   );
 
   const wizard = useWizardForm(stepNames, submit, validateStep);

@@ -162,7 +162,7 @@ function Edit(props: EditProps) {
     <EditContextProvider value={editValue}>
       <SaveContextProvider value={saveValue}>
         <RecordContextProvider value={record}>
-          <CheloneFormProvider form={form} submit={submit}>
+          <CheloneFormProvider form={form} resource={resource} submit={submit}>
             <EditView {...viewProps}>{children}</EditView>
           </CheloneFormProvider>
         </RecordContextProvider>

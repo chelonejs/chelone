@@ -1,7 +1,18 @@
+import type { ValidationCause } from "@tanstack/form-core";
 import type { RegisteredResources } from "../resource/register";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import type { SourcePath, SourceValue } from "../resource/source-path";
+import {
+  type ArrayBinding,
+  type ArrayBindingOptions,
+  createArrayBinding,
+} from "./array-binding";
 import type { CheloneFormApi, CheloneFormState } from "./form-controller";
+import {
+  createFieldBinding,
+  type FieldBinding,
+  type FieldBindingBaseOptions,
+} from "./input-binding";
 
 /**
  * A map of resource name -> record type — the shape {@link FormContextHandleOf}
@@ -42,6 +53,19 @@ export interface FormSnapshot<TRecord> {
 }
 
 /**
+ * What {@link AmbientForm.bindField} takes: the binding options of a field
+ * whose record is erased. Spelled out instead of
+ * `FieldBindingOptions<unknown, string, TInput>`, whose path-typed parameters
+ * make the compiler overflow when it relates two instantiations.
+ */
+export interface AmbientFieldOptions<TInput>
+  // type-escape: `unknown` is the value of a field whose record is erased.
+  extends FieldBindingBaseOptions<unknown, TInput> {
+  /** The FINAL field path (already source-scoped). */
+  source: string;
+}
+
+/**
  * A form with its record type erased: the shape a form context carries, since
  * one context spans every input below it whatever their record. Every path is a
  * `string` and every value unchecked; a {@link FormHandle} is the way back to a
@@ -62,6 +86,27 @@ export interface AmbientForm {
   setFieldValue(path: string, value: unknown): void;
   /** The field's meta (touched/dirty/errors/validators) at a path. */
   getFieldMeta(path: string): AmbientFieldMeta[string];
+  /** Runs the field's validators for `cause` (a group badge validates on submit). */
+  validateField(path: string, cause: ValidationCause): Promise<void>;
+  /** Resets the form to its default values. */
+  reset(): void;
+  /** Validates and submits through the form's own `onSubmit`. */
+  handleSubmit(): Promise<void>;
+  /**
+   * Binds the field at `options.source`, a final (already scoped) path. The
+   * binding is inert until its first subscriber mounts it.
+   */
+  // type-escape: `unknown` is the input of a binding no one typed.
+  bindField<TInput = unknown>(
+    options: AmbientFieldOptions<TInput>,
+    // type-escape: the record is erased.
+  ): FieldBinding<unknown, string, TInput>;
+  /** Binds the array field at `options.source`; inert until subscribed. */
+  bindArray(
+    // type-escape: the record is erased, so a row is unchecked.
+    options: ArrayBindingOptions<unknown, string>,
+    // type-escape: the record is erased, so a row is unchecked.
+  ): ArrayBinding<unknown, string>;
 }
 
 /**
@@ -156,11 +201,27 @@ export function createFormHandle<TRecord>(
   // type-escape: the form read through its erased record type.
   const loose = form as CheloneFormApi<unknown>;
 
+  function bindField<TInput>(
+    options: AmbientFieldOptions<TInput>,
+    // type-escape: the record is erased.
+  ): FieldBinding<unknown, string, TInput> {
+    // type-escape: the record is erased.
+    return createFieldBinding<unknown, string, TInput>(loose, options);
+  }
+
   const ambient: AmbientForm = {
     store: loose.store,
     getFieldValue: (path) => loose.getFieldValue(path),
     setFieldValue: (path, value) => loose.setFieldValue(path, value),
     getFieldMeta: (path) => loose.getFieldMeta(path),
+    validateField: async (path, cause) => {
+      await loose.validateField(path, cause);
+    },
+    reset: () => loose.reset(),
+    handleSubmit: () => loose.handleSubmit(),
+    bindField,
+    // type-escape: the record is erased.
+    bindArray: (options) => createArrayBinding<unknown, string>(loose, options),
   };
 
   // The members are written loose and read typed: the `TPath` typing lives in

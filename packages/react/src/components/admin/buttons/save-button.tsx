@@ -82,12 +82,15 @@ function SaveButton(props: SaveButtonProps) {
     ...rest
   } = props;
   const translate = useTranslate();
-  const { form, submit } = useCheloneFormContext();
+  const {
+    form: { ambient },
+    submit,
+  } = useCheloneFormContext();
   const saveContext = useSaveContext();
 
-  const isSubmitting = useSelector(form.store, (s) => s.isSubmitting);
-  const isValidating = useSelector(form.store, (s) => s.isValidating);
-  const canSubmit = useSelector(form.store, (s) => s.canSubmit);
+  const isSubmitting = useSelector(ambient.store, (s) => s.isSubmitting);
+  const isValidating = useSelector(ambient.store, (s) => s.isValidating);
+  const canSubmit = useSelector(ambient.store, (s) => s.canSubmit);
   const saving = isSubmitting || saveContext.saving === true;
 
   const disabled = alwaysEnable
@@ -110,10 +113,10 @@ function SaveButton(props: SaveButtonProps) {
       if (submit) {
         await submit();
       } else {
-        await form.handleSubmit();
+        await ambient.handleSubmit();
       }
     },
-    [onClick, submit, form],
+    [onClick, submit, ambient],
   );
 
   const displayedLabel = label ? translate(label, { _: label }) : undefined;
