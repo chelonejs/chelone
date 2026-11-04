@@ -12,27 +12,14 @@
  *
  * The resource comes from the argument or the ambient `<Resource>` name. The
  * registry is optional (a form/field used without `<Admin>` in a unit test):
- * with no registry, only the default chain applies.
+ * with no registry, only the default chain applies. The string-path read is
+ * core's `getAtPath`, the same reader `useFieldValue` uses.
  */
 
+import { getAtPath } from "@chelone/core";
 import { inject } from "vue";
 import { ResourceRegistryKey } from "../admin/resource-registry";
 import { useResourceContext } from "../resource-context";
-
-/** Read the value at a lodash-style `source` path off `record`. */
-function getAtPath(record: unknown, source: string): unknown {
-  if (source === "") return record;
-  let current: unknown = record;
-  const pattern = /\[([^\]]*)\]|[^.[\]]+/g;
-  let match: RegExpExecArray | null = pattern.exec(source);
-  while (match !== null) {
-    if (current == null || typeof current !== "object") return undefined;
-    const key = match[1] !== undefined ? match[1] : match[0];
-    current = (current as Record<string, unknown>)[key];
-    match = pattern.exec(source);
-  }
-  return current;
-}
 
 interface DefaultChainRecord {
   id?: unknown;

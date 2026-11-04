@@ -72,6 +72,25 @@ describe("useGetRecordRepresentation", () => {
     expect(result.current({ id: 1, author: { name: "Ada" } })).toBe("Ada");
   });
 
+  it("a string-path representation reads a bracket path", () => {
+    const registry = registryWith("posts", "tags[1].label");
+    const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
+      wrapper: makeWrapper({ registry, resource: "posts" }),
+    });
+    expect(
+      result.current({ id: 1, tags: [{ label: "a" }, { label: "b" }] }),
+    ).toBe("b");
+  });
+
+  it("an empty path returns the record", () => {
+    const registry = registryWith("posts", "");
+    const record = { id: 1, title: "Whole" };
+    const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
+      wrapper: makeWrapper({ registry, resource: "posts" }),
+    });
+    expect(result.current(record)).toBe(record);
+  });
+
   it("returns a React element recordRepresentation verbatim", () => {
     const element = <span>custom</span>;
     const registry = registryWith("posts", element);
