@@ -43,6 +43,10 @@ export interface UseFieldValueOptions<
  * `useFieldValue<Post>(...)` alone infers no path, so the value is the union of
  * Post's value types.
  *
+ * The type does not include `undefined` for a record that has not loaded: before
+ * the ambient record resolves, `.value` is `undefined`, so guard it in a view
+ * that renders while loading.
+ *
  * @example
  * const name = useFieldValue({ source: "author.name" });
  * // template: {{ name }}

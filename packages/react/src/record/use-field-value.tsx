@@ -45,6 +45,10 @@ export interface UseFieldValueOptions<
  * literal `source` give the value's type; `useFieldValue<Post>(...)` alone
  * infers no path, so the value is the union of Post's value types.
  *
+ * The type does not include `undefined` for a record that has not loaded: before
+ * the ambient record resolves the read is `undefined`, so guard it in a view that
+ * renders while loading.
+ *
  * @example
  * const value = useFieldValue({ source: "author.name" });
  */
