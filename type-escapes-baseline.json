@@ -2745,17 +2745,6 @@
   "packages/vue/src/components/admin/list/filter-live-search.test.ts": {
     "cast": 2
   },
-  "packages/vue/src/components/admin/list/kanban-board.test.ts": {
-    "as-never": 1,
-    "cast": 1,
-    "non-null": 5,
-    "unknown": 5
-  },
-  "packages/vue/src/components/admin/list/kanban-board.vue": {
-    "double-cast": 1,
-    "cast": 3,
-    "unknown": 2
-  },
   "packages/vue/src/components/admin/list/list-pagination.vue": {
     "cast": 1
   },
@@ -2909,6 +2898,17 @@
   },
   "packages/vue/src/components/admin/view/view-titles.test.ts": {
     "unknown": 1
+  },
+  "packages/vue/src/components/kanban/kanban-board.test.ts": {
+    "as-never": 1,
+    "cast": 1,
+    "non-null": 5,
+    "unknown": 5
+  },
+  "packages/vue/src/components/kanban/kanban-board.vue": {
+    "double-cast": 1,
+    "cast": 2,
+    "unknown": 2
   },
   "packages/vue/src/components/maps-draw/__fixtures__/fake-terra-draw.ts": {
     "cast": 1,

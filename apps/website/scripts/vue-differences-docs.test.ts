@@ -10,6 +10,8 @@ const vueIndex = read("../../../packages/vue/src/index.ts");
 const vueComponentsIndex = read(
   "../../../packages/vue/src/components/index.ts",
 );
+// `KanbanBoard` ships from the `/kanban` subpath, not the base barrel.
+const vueKanbanEntry = read("../../../packages/vue/src/kanban.ts");
 
 it("the differences page names registry, customRoutes, the error slot scope and the default layout", () => {
   expect(page).toMatch(/^title: "Differences from React"$/m);
@@ -32,7 +34,7 @@ it("the differences page names TabbedFormTab, WizardFormStep and the Confirm eve
 });
 
 it("the Vue components the differences page names are exported by @chelone/vue", () => {
-  const exported = `${vueIndex}\n${vueComponentsIndex}`;
+  const exported = `${vueIndex}\n${vueComponentsIndex}\n${vueKanbanEntry}`;
   for (const name of [
     "Confirm",
     "BooleanField",
