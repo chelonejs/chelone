@@ -6,6 +6,7 @@ import type {
   RecordOf,
   ResourceMap,
   SortPayload,
+  SourcePath,
 } from "@chelone/core";
 import { createChoicesController, getAtPath } from "@chelone/core";
 import {
@@ -177,27 +178,32 @@ export function useChoicesContext(
   return resolved;
 }
 
-export type OptionText = string | ((choice: ChoiceRecord) => string);
+/** A path into a choice, or a formatter over the whole choice. */
+export type OptionText<TChoice extends ChoiceRecord = ChoiceRecord> =
+  | SourcePath<TChoice>
+  | ((choice: TChoice) => string);
 
-export interface UseChoicesOptions {
+export interface UseChoicesOptions<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> {
   /** The display path or a formatter. Default `'name'`. */
-  optionText?: OptionText;
+  optionText?: OptionText<TChoice>;
   /** The value path. Default `'id'`. */
-  optionValue?: string;
+  optionValue?: SourcePath<TChoice>;
   /** The disabled-flag path. Default `'disabled'`. */
-  disableValue?: string;
+  disableValue?: SourcePath<TChoice>;
   /** Translate a string-path text through the catalog (default true). */
   translateChoice?: boolean;
 }
 
 /** The choice accessors a choice input needs. */
-export interface UseChoicesResult {
+export interface UseChoicesResult<TChoice extends ChoiceRecord = ChoiceRecord> {
   /** The display text: string path (optionally translated) or the formatter's output. */
-  getChoiceText(choice: ChoiceRecord): string;
+  getChoiceText(choice: TChoice): string;
   /** The value: `get(choice, optionValue)`, falling back to `choice.id`. */
-  getChoiceValue(choice: ChoiceRecord): unknown;
+  getChoiceValue(choice: TChoice): unknown;
   /** The disabled flag: `get(choice, disableValue)`. */
-  getDisableValue(choice: ChoiceRecord): unknown;
+  getDisableValue(choice: TChoice): unknown;
 }
 
 /**
@@ -215,16 +221,20 @@ const readChoicePath = (choice: ChoiceRecord, path: string): unknown =>
  * through core's {@link getAtPath}, so `optionText: "author[0].name"` resolves
  * like `useFieldValue` does.
  */
-export function useChoices(options: UseChoicesOptions = {}): UseChoicesResult {
+export function useChoices<TChoice extends ChoiceRecord = ChoiceRecord>(
+  options: UseChoicesOptions<TChoice> = {},
+): UseChoicesResult<TChoice> {
+  // Erased to the loose choice: the `"name"`/`"id"`/`"disabled"` defaults are
+  // paths a `TChoice` need not have, and `readChoicePath` takes any string.
   const {
     optionText = "name",
     optionValue = "id",
     disableValue = "disabled",
     translateChoice = true,
-  } = options;
+  } = options as UseChoicesOptions;
   const translate = useTranslate();
 
-  return useMemo<UseChoicesResult>(
+  return useMemo<UseChoicesResult<TChoice>>(
     () => ({
       getChoiceText(choice) {
         if (typeof optionText === "function") return optionText(choice);
