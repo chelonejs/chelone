@@ -7,6 +7,7 @@ import {
   isLngLatBox,
   type MapStyleInput,
   type ShapeStyle,
+  type SourceProp,
   shapeLayerSpecs,
 } from "@chelone/core";
 import type { Map as MapLibreMap } from "maplibre-gl";
@@ -35,11 +36,13 @@ export interface GeoJsonViewProps {
   className?: string;
 }
 
-export interface GeoJsonFieldProps extends GeoJsonViewProps {
+export interface GeoJsonFieldProps<
+  RecordType extends Record<string, unknown> = Record<string, unknown>,
+> extends GeoJsonViewProps {
   /** The record property holding the GeoJSON value. */
-  source: string;
+  source: SourceProp<RecordType>;
   /** Defaults to the ambient record. */
-  record?: Record<string, unknown>;
+  record?: RecordType;
   /** Used when the property is `undefined`. */
   defaultValue?: unknown;
   /** Replaces the translation of `chelone.map.no_geometry`. */
@@ -227,12 +230,9 @@ export function GeoJsonFieldBody({
  * @example
  * <GeoJsonField source="geometry" />
  */
-export function GeoJsonField({
-  source,
-  record,
-  defaultValue,
-  ...body
-}: GeoJsonFieldProps) {
+export function GeoJsonField<
+  RecordType extends Record<string, unknown> = Record<string, unknown>,
+>({ source, record, defaultValue, ...body }: GeoJsonFieldProps<RecordType>) {
   const value: unknown = useFieldValue({ source, record, defaultValue });
   return <GeoJsonFieldBody value={value} {...body} />;
 }
