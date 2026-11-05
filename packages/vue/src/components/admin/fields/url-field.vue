@@ -1,11 +1,11 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link UrlField}. */
-export interface UrlFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface UrlFieldProps<RecordType extends LooseRecord = LooseRecord> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** Anchor `target` (e.g. `_blank`). */
   target?: string;
@@ -17,7 +17,7 @@ export interface UrlFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<UrlField>` — displays a URL as a clickable hyperlink, the Vue analog of
  * `@chelone/react`'s `fields/url-field.tsx`. Reads the value at `source` off
@@ -32,9 +32,9 @@ import { cn } from "../../../lib/utils";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = defineProps<UrlFieldProps>();
+const props = defineProps<UrlFieldProps<RecordType>>();
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

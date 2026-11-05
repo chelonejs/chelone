@@ -1,11 +1,11 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link CronField}. */
-export interface CronFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface CronFieldProps<RecordType extends LooseRecord = LooseRecord> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** When true, render the raw cron expression below the human phrase. */
   showExpression?: boolean;
@@ -13,7 +13,7 @@ export interface CronFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<CronField>` — displays a 5-field cron expression as a human-readable phrase
  * (via `cronstrue`, through the shared `describeCron` helper). The Vue analog of
@@ -28,9 +28,9 @@ import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
 import { describeCron } from "../inputs/cron-utils";
 
-const props = defineProps<CronFieldProps>();
+const props = defineProps<CronFieldProps<RecordType>>();
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

@@ -1,23 +1,23 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link NumberField}. */
-export interface NumberFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface NumberFieldProps<RecordType extends LooseRecord = LooseRecord> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** BCP 47 locale(s) for `Intl.NumberFormat` (via `toLocaleString`). */
   locales?: string | string[];
   /** `Intl.NumberFormatOptions` (currency, percent, min/max fraction digits…). */
   options?: Intl.NumberFormatOptions;
   /** Pre-format transform; the default coerces a numeric string to a number. */
-  transform?: (value: unknown) => unknown;
+  transform?: (value: SourceValue<RecordType, SourceProp<RecordType>>) => unknown;
   class?: string;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<NumberField>` — displays a numeric value with locale-specific formatting,
  * the Vue analog of `@chelone/react`'s `fields/number-field.tsx`. Reads the
@@ -30,9 +30,9 @@ import { computed } from "vue";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = defineProps<NumberFieldProps>();
+const props = defineProps<NumberFieldProps<RecordType>>();
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

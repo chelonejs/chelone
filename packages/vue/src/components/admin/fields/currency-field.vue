@@ -1,11 +1,11 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link CurrencyField}. */
-export interface CurrencyFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface CurrencyFieldProps<RecordType extends LooseRecord = LooseRecord> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** ISO-4217 currency code (e.g. 'USD'). Required when value is a plain number. */
   currency?: string;
@@ -19,7 +19,7 @@ export interface CurrencyFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<CurrencyField>` — displays a monetary value via `Intl.NumberFormat`, the Vue
  * analog of `@chelone/react`'s `fields/currency-field.tsx`. Accepts either a
@@ -38,9 +38,9 @@ import { useFieldValue } from "../../../record/use-field-value";
 import { useLocale } from "../../../i18n/use-locale";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = defineProps<CurrencyFieldProps>();
+const props = defineProps<CurrencyFieldProps<RecordType>>();
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
@@ -55,9 +55,15 @@ const emptyText = computed(() =>
 
 /** Normalize a number-or-`{amount,currency}` value to `{ amount, code }`. */
 function normalize(v: unknown): { amount: number; code: string } {
-  if (typeof v === "object" && v !== null && "amount" in v && "currency" in v) {
-    const obj = v as { amount: number; currency: string };
-    return { amount: obj.amount, code: obj.currency };
+  if (
+    typeof v === "object" &&
+    v !== null &&
+    "amount" in v &&
+    typeof v.amount === "number" &&
+    "currency" in v &&
+    typeof v.currency === "string"
+  ) {
+    return { amount: v.amount, code: v.currency };
   }
   if (!props.currency) {
     throw new Error("<CurrencyField>: numeric value requires a `currency` prop");

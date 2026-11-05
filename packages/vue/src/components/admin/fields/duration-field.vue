@@ -1,11 +1,11 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link DurationField}. */
-export interface DurationFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface DurationFieldProps<RecordType extends LooseRecord = LooseRecord> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** 'compact' renders `2h 30m`; 'relative' renders `2 hours 30 minutes`. */
   displayFormat?: "compact" | "relative";
@@ -13,7 +13,7 @@ export interface DurationFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<DurationField>` — displays an ISO-8601 duration string as a compact
  * ("2h 30m") or relative ("2 hours 30 minutes") human-readable value. The Vue
@@ -31,9 +31,9 @@ import {
   relativeDuration,
 } from "../inputs/duration-utils";
 
-const props = defineProps<DurationFieldProps>();
+const props = defineProps<DurationFieldProps<RecordType>>();
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

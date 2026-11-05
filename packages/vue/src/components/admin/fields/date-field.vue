@@ -1,11 +1,11 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link DateField}. */
-export interface DateFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface DateFieldProps<RecordType extends LooseRecord = LooseRecord> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** BCP 47 locale(s) for `Intl.DateTimeFormat` (via `toLocale*String`). */
   locales?: Intl.LocalesArgument;
@@ -15,12 +15,12 @@ export interface DateFieldProps {
   /** Include the date portion. Default true. */
   showDate?: boolean;
   /** Value → `Date` transform; the default parses strings/numbers via `new Date`. */
-  transform?: (value: unknown) => Date | undefined;
+  transform?: (value: SourceValue<RecordType, SourceProp<RecordType>>) => Date | undefined;
   class?: string;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<DateField>` — displays a date value with locale-specific formatting, the
  * Vue analog of `@chelone/react`'s `fields/date-field.tsx`. Reads the value at
@@ -38,12 +38,12 @@ import { useTranslate } from "../../../i18n/use-translate";
 // `withDefaults` for the boolean flags: an absent Vue Boolean prop is cast to
 // `false` (never `undefined`), so a bare `?? true` default would never fire —
 // the default must live on the prop itself.
-const props = withDefaults(defineProps<DateFieldProps>(), {
+const props = withDefaults(defineProps<DateFieldProps<RecordType>>(), {
   showDate: true,
   showTime: false,
 });
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
