@@ -7,16 +7,16 @@ import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import {
+  type ComponentProps,
   createElement,
-  type FC,
   type ReactElement,
   type ReactNode,
 } from "react";
 import { afterEach, describe, expect, it } from "vitest";
+import { makeListContext } from "../../../__fixtures__/list-context";
 import { CheloneProvider } from "../../../context";
-import { ListContextProvider, type ListContextValue } from "../../../form";
+import { ListContextProvider } from "../../../form";
 import { ResourceContextProvider } from "../../../resource";
-import { useList } from "../../../use-list";
 import { TextInput } from "../inputs/text-input";
 import { FilterForm } from "./filter-form";
 
@@ -39,20 +39,24 @@ function Providers({ children }: { children: ReactNode }) {
 }
 
 /**
- * Build a filter input element carrying the filter-only props (`alwaysOn`,
- * `defaultValue`) FilterForm reads off `element.props`. Chelone inputs don't
- * declare `alwaysOn` (it is a filter-layer concern, not an input concern), so we
- * inject it through a loosely-typed props object — exactly how FilterForm reads
- * it back (via a `FilterElementProps` cast).
+ * A `<TextInput>` that also takes `alwaysOn` and drops it: `alwaysOn` is the
+ * filter layer's own prop, which FilterForm reads off `element.props` (via a
+ * `FilterElementProps` cast) and never passes down to the input.
  */
+type FilterInputProps = ComponentProps<typeof TextInput> & {
+  alwaysOn?: boolean;
+};
+
+function FilterInput({ alwaysOn: _alwaysOn, ...inputProps }: FilterInputProps) {
+  return <TextInput {...inputProps} />;
+}
+
+/** A filter input element carrying the filter-only props FilterForm reads. */
 function filterInput(
   source: string,
-  extra: { alwaysOn?: boolean; defaultValue?: unknown } = {},
+  extra: { alwaysOn?: boolean } = {},
 ): ReactElement {
-  // TextInput doesn't declare `alwaysOn` (a filter-layer prop), so widen the
-  // component to a loose functional-component type to attach it.
-  const LooseInput = TextInput as unknown as FC<Record<string, unknown>>;
-  return createElement(LooseInput, { key: source, source, ...extra });
+  return createElement(FilterInput, { key: source, source, ...extra });
 }
 
 function Harness({
@@ -84,12 +88,7 @@ function Inner({
   filter: Record<string, unknown>;
   displayedFilters: Record<string, boolean>;
 }) {
-  const list = useList({ data: [], filter });
-  const value = {
-    ...list,
-    filter,
-    displayedFilters,
-  } as unknown as ListContextValue;
+  const value = makeListContext({ filter, displayedFilters });
   return <ListContextProvider value={value}>{children}</ListContextProvider>;
 }
 

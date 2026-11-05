@@ -3,7 +3,12 @@
  * driven by the ambient infinite list context. The context is stubbed so each
  * test controls `hasNextPage` / `isFetchingNextPage` directly.
  */
-import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  defineMessages,
+  fakeDataProvider,
+  type ResourceRecord,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -14,8 +19,10 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { makeListContext } from "../../../__fixtures__/list-context";
 import { CheloneProvider } from "../../../context";
 import { ListContextProvider, type ListContextValue } from "../../../form";
+import type { UseInfiniteListControllerResult } from "../../../infinite-hooks";
 import { InfinitePagination } from "./infinite-pagination";
 
 afterEach(() => {
@@ -48,42 +55,21 @@ function Providers({
   );
 }
 
-/** The ambient list as an infinite one: `fetchNextPage` is a spy. */
-type StubList = ListContextValue & { fetchNextPage: ReturnType<typeof vi.fn> };
-
-function makeList(overrides: Record<string, unknown> = {}): StubList {
+/**
+ * The ambient list as an infinite one: `fetchNextPage` / `fetchPreviousPage`
+ * are spies, and `data` carries one row so the end message has rows to report.
+ */
+function makeList(
+  overrides: Partial<UseInfiniteListControllerResult<ResourceRecord>> = {},
+): UseInfiniteListControllerResult<ResourceRecord> {
   return {
-    page: 1,
-    perPage: 10,
-    sort: [],
-    filter: {},
-    displayedFilters: {},
-    selectedIds: [],
-    data: [{ id: 1 }],
-    total: undefined,
-    pageInfo: undefined,
-    isPending: false,
-    isFetching: false,
+    ...makeListContext({ data: [{ id: 1 }], total: undefined }),
     isFetchingNextPage: false,
     isFetchingPreviousPage: false,
-    error: null,
-    hasNextPage: true,
-    hasPreviousPage: false,
-    setPage: vi.fn(),
-    setPerPage: vi.fn(),
-    setSort: vi.fn(),
-    setFilters: vi.fn(),
-    showFilter: vi.fn(),
-    hideFilter: vi.fn(),
-    select: vi.fn(),
-    toggleItem: vi.fn(),
-    unselectAll: vi.fn(),
-    selectAll: vi.fn(),
-    refetch: vi.fn(),
     fetchNextPage: vi.fn(),
     fetchPreviousPage: vi.fn(),
     ...overrides,
-  } as unknown as StubList;
+  };
 }
 
 function tree(
@@ -213,10 +199,8 @@ describe("<InfinitePagination>", () => {
     expect(value.fetchNextPage).toHaveBeenCalledTimes(1);
 
     // While a page is loading the old observer is released and none is active.
-    const fetching = makeList({
-      isFetchingNextPage: true,
-      fetchNextPage: value.fetchNextPage,
-    });
+    // Spread `value` so the rerenders keep the SAME `fetchNextPage` spy.
+    const fetching = { ...value, isFetchingNextPage: true };
     rerender(tree(fetching, <InfinitePagination offset={100} />));
     expect(observer.disconnect).toHaveBeenCalled();
     const live = FakeObserver.instances.filter(
@@ -225,10 +209,7 @@ describe("<InfinitePagination>", () => {
     expect(live).toHaveLength(0);
 
     // Done fetching, but no next page: nothing observes.
-    const ended = makeList({
-      hasNextPage: false,
-      fetchNextPage: value.fetchNextPage,
-    });
+    const ended = { ...value, hasNextPage: false };
     rerender(tree(ended, <InfinitePagination offset={100} />));
     expect(
       FakeObserver.instances.filter(

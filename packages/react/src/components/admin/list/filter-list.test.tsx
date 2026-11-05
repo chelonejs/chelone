@@ -8,8 +8,9 @@ import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { makeListContext } from "../../../__fixtures__/list-context";
 import { CheloneProvider } from "../../../context";
-import { ListContextProvider, type ListContextValue } from "../../../form";
+import { ListContextProvider } from "../../../form";
 import { FilterList } from "./filter-list";
 import { FilterListItem } from "./filter-list-item";
 import { FilterListSection } from "./filter-list-section";
@@ -31,7 +32,7 @@ function mount(
     locale: "en",
     messages: { en: defineMessages(messages) },
   });
-  const value = { filter, setFilters } as unknown as ListContextValue;
+  const value = makeListContext({ filter, setFilters });
   render(
     <CheloneProvider
       dataProvider={fakeDataProvider({})}
