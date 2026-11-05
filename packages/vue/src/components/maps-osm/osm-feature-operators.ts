@@ -1,4 +1,4 @@
-import { type ComponentObjectPropsOptions, defineComponent, h } from "vue";
+import { defineComponent, h } from "vue";
 import OsmFeatureOperator, {
   type OsmFeatureOperatorProps,
 } from "./osm-feature-operator.vue";
@@ -6,8 +6,20 @@ import OsmFeatureOperator, {
 export type OsmFeatureSubtractProps = Omit<OsmFeatureOperatorProps, "mode">;
 export type OsmFeatureAddProps = Omit<OsmFeatureOperatorProps, "mode">;
 
-/** The operator's prop options but for `mode`, so the wrappers stay in step with it. */
-const { mode: _mode, ...options } = OsmFeatureOperator.props;
+/**
+ * The props the operators forward to `OsmFeatureOperator`: all of them but
+ * `mode`. A prop they are not given reaches it as `undefined`, which takes its
+ * own default.
+ */
+export const osmFeatureOperatorKeys = [
+  "source",
+  "presets",
+  "tags",
+  "label",
+  "provider",
+  "disabled",
+  "class",
+] as const satisfies readonly (keyof OsmFeatureSubtractProps)[];
 
 const svg = (...paths: string[]) =>
   h(
@@ -46,8 +58,7 @@ function operator(
         h(OsmFeatureOperator, { ...props, mode }, { icon: slots.icon ?? icon }),
     {
       name,
-      props:
-        options as unknown as ComponentObjectPropsOptions<OsmFeatureSubtractProps>,
+      props: [...osmFeatureOperatorKeys],
     },
   );
 }

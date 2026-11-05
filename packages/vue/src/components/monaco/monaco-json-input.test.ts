@@ -56,6 +56,7 @@ const hoisted = vi.hoisted(() => ({
   diagnosticsOptions: {} as Record<string, unknown>,
   formatRun: vi.fn(),
   modelUri: "",
+  noJson: false,
 }));
 
 // One object for every editor, as in Monaco.
@@ -125,7 +126,7 @@ vi.mock("@guolao/vue-monaco-editor", async () => {
                   };
                 },
               },
-              languages: { json: { jsonDefaults } },
+              languages: hoisted.noJson ? {} : { json: { jsonDefaults } },
             },
           );
         });
@@ -267,6 +268,7 @@ beforeEach(() => {
   hoisted.contentListeners.clear();
   hoisted.diagnosticsOptions = {};
   hoisted.formatRun.mockReset();
+  hoisted.noJson = false;
   vi.stubGlobal(
     "ResizeObserver",
     class {
@@ -349,6 +351,16 @@ describe("MonacoJsonInput", () => {
     await type(await editor(wrapper), "  \n");
     await submit();
     expect(onData).toHaveBeenCalledWith({ meta: null });
+  });
+
+  it("mounts and registers nothing when monaco has no json defaults", async () => {
+    hoisted.noJson = true;
+    const { wrapper } = setup(
+      input({ source: "meta", schema: { type: "object" } }),
+      { record: { meta: {} } },
+    );
+    expect(await editor(wrapper)).toBeTruthy();
+    expect(hoisted.diagnosticsOptions).toEqual({});
   });
 
   it("stores an object that looks like a DOM event as the object", async () => {

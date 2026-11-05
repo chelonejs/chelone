@@ -50,12 +50,20 @@ function apply(defaults: JsonDefaults, state: Shared): void {
   if (!registrations.length) shared.delete(defaults);
 }
 
+function hasJsonDefaults(
+  value: object,
+): value is { jsonDefaults: JsonDefaults } {
+  return "jsonDefaults" in value;
+}
+
 /** `monaco.json` since 0.55; older builds expose it under `monaco.languages`. */
 function getJsonDefaults(monaco: typeof Monaco): JsonDefaults | undefined {
-  const legacy = (
-    monaco.languages as unknown as { json?: { jsonDefaults?: JsonDefaults } }
-  ).json;
-  return monaco.json?.jsonDefaults ?? legacy?.jsonDefaults;
+  if (monaco.json) return monaco.json.jsonDefaults;
+  if ("json" in monaco.languages) {
+    const legacy = monaco.languages.json;
+    if (hasJsonDefaults(legacy)) return legacy.jsonDefaults;
+  }
+  return undefined;
 }
 
 interface UseJsonSchemaOptions {
