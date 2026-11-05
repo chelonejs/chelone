@@ -3,7 +3,7 @@
   "props": [
     {
       "name": "file",
-      "type": "FileWithPreview | TransformedFile",
+      "type": "FileEntry",
       "optional": false,
       "comment": ""
     },

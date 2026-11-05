@@ -1,3 +1,5 @@
+import type { SourceProp } from "@chelone/core";
+import { toNumberValue } from "@chelone/core";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
@@ -51,14 +53,15 @@ function NumberInput(props: NumberInputProps) {
   } = props;
   const resource = useResourceContext({ resource: resourceProp });
 
+  // `format` and `parse` run here on the local string state, so the binding
+  // keeps its defaults and `parse` runs once per edit.
   const { id, field, fieldState, isRequired } = useInput({
     ...rest,
     defaultValue,
     source,
     validate,
-    format,
-    parse,
   });
+  const display = format(toNumberValue(field.value));
 
   const invalid = fieldState.invalid;
   // chelone `fieldState.error` is ALREADY the displayable
@@ -67,13 +70,7 @@ function NumberInput(props: NumberInputProps) {
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = event.target.value;
-    // Use `valueAsNumber` for accurate float parsing (handles locale,
-    // exponents, etc.) but fall back to the string when the input is
-    // empty or otherwise not parseable as a number.
-    const numericValue = event.target.valueAsNumber;
-    const numberValue = parse(
-      Number.isNaN(numericValue) ? rawValue : numericValue,
-    );
+    const numberValue = parse(rawValue);
 
     setValue(rawValue);
     // Write `null` (not 0) on empty so required validation still triggers
@@ -82,9 +79,7 @@ function NumberInput(props: NumberInputProps) {
     onChangeProp?.(event);
   };
 
-  const [value, setValue] = useState<string | undefined>(
-    field.value?.toString() ?? "",
-  );
+  const [value, setValue] = useState(display);
 
   const hasFocus = React.useRef(false);
 
@@ -97,14 +92,14 @@ function NumberInput(props: NumberInputProps) {
     field.onBlur?.();
     onBlurProp?.(event);
     hasFocus.current = false;
-    setValue(field.value?.toString() ?? "");
+    setValue(display);
   };
 
   useEffect(() => {
     if (!hasFocus.current) {
-      setValue(field.value?.toString() ?? "");
+      setValue(display);
     }
-  }, [field.value]);
+  }, [display]);
 
   // Destructure `field` so the spread below doesn't reinstate the value /
   // onChange / onBlur we're handling manually. chelone's `field` has no `ref`.
@@ -149,28 +144,28 @@ function NumberInput(props: NumberInputProps) {
   );
 }
 
-interface NumberInputProps
-  extends InputProps,
+interface NumberInputProps<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> extends Omit<InputProps<TRecord, TPath>, "format" | "parse">,
     Omit<
       React.ComponentProps<"input">,
       "defaultValue" | "onBlur" | "onChange" | "type"
     > {
-  /**
-   * Parse the raw input into a number (or `null` on empty/unparseable). The
-   * param is `unknown` for chelone `useInput` parity — the handler feeds it a
-   * `string | number`, and a custom parse may narrow.
-   */
-  parse?: (value: unknown) => number | null;
+  /** Text the input shows for the stored number (`null` when empty). */
+  format?: (value: number | null) => string;
+  /** The number to store for the text the user typed (`null` when empty or unparseable). */
+  parse?: (value: string) => number | null;
 }
 
-const defaultFormat = (value: unknown) =>
-  value == null || Number.isNaN(value) ? "" : String(value);
+const defaultFormat = (value: number | null): string =>
+  value === null ? "" : String(value);
 
-const convertStringToNumber = (value: unknown): number | null => {
-  if (value == null || value === "") {
+const convertStringToNumber = (value: string | number): number | null => {
+  if (value === "") {
     return null;
   }
-  const float = typeof value === "number" ? value : parseFloat(String(value));
+  const float = typeof value === "number" ? value : parseFloat(value);
 
   return Number.isNaN(float) ? null : float;
 };

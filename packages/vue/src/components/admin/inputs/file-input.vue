@@ -1,12 +1,11 @@
 <script lang="ts">
-import type { LooseRecord, SourceProp, Validator } from "@chelone/core";
-
-/** A dropped file transformed into a preview record. */
-export interface TransformedFile {
-  rawFile: File & { preview?: string };
-  src: string;
-  title: string;
-}
+import type {
+  FileEntry,
+  FileSelection,
+  SourceProp,
+  TransformedFile,
+  Validator,
+} from "@chelone/core";
 
 /** Props for {@link FileInput}. */
 export interface FileInputProps {
@@ -22,10 +21,10 @@ export interface FileInputProps {
   validate?: Validator | readonly Validator[];
   /** Input-level default value (seeds only into a hole). */
   defaultValue?: unknown;
-  /** Read transform (raw value → preview records). Default the file transform. */
-  format?: (value: unknown) => unknown;
-  /** Write transform (raw value → stored). Default the file transform. */
-  parse?: (value: unknown) => unknown;
+  /** Read transform (the files in the form → the files shown). Default makes a preview record of each dropped file. */
+  format?: (value: FileSelection) => FileSelection;
+  /** Write transform (the dropped or remaining files → stored value). Default makes a preview record of each dropped file. */
+  parse?: (value: FileSelection) => FileSelection;
   /**
    * The native `accept` attribute (a comma-separated MIME/extension list, e.g.
    * `"image/*,application/pdf"`). DIVERGENCE from the React twin's react-dropzone
@@ -68,6 +67,11 @@ export interface FileInputProps {
  * preview child (a field, an `<img>`) renders it. `<ImageInput>` wraps this.
  */
 
+import {
+  fileEntryKey,
+  toFileEntries,
+  toFileSelection,
+} from "@chelone/core";
 import { computed, ref, useSlots } from "vue";
 import { useInput } from "../../../form/use-input";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -90,37 +94,43 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
 
 /** Turn a browser `File` into the expected preview record (twin parity). */
-function transformFile(file: unknown): unknown {
+function transformFile(file: FileEntry): FileEntry {
   if (!(file instanceof File)) return file;
   // jsdom lacks createObjectURL; guard so the transform never throws there.
   const preview =
     typeof URL !== "undefined" && typeof URL.createObjectURL === "function"
       ? URL.createObjectURL(file)
       : "";
-  return { rawFile: file, src: preview, title: file.name } as TransformedFile;
+  const transformed: TransformedFile = {
+    rawFile: file,
+    src: preview,
+    title: file.name,
+  };
+  return transformed;
 }
 
-function transformFiles(files: unknown): unknown {
+function transformFiles(files: FileSelection): FileSelection {
   if (!files) return props.multiple ? [] : null;
   if (Array.isArray(files)) return files.map(transformFile);
   return transformFile(files);
 }
 
+// `format` and `parse` run here on the files, so the binding keeps its
+// defaults.
 const { id, name, value, setValue, blur, error, touched, isRequired } = useInput(
   {
     source: props.source,
     defaultValue: props.defaultValue,
     validate: props.validate,
-    format: props.format ?? transformFiles,
-    parse: props.parse ?? transformFiles,
   },
 );
 
-const files = computed<LooseRecord[]>(() => {
-  const v = value.value;
-  if (!v) return [];
-  return (Array.isArray(v) ? v : [v]) as LooseRecord[];
-});
+const format = (selection: FileSelection) =>
+  (props.format ?? transformFiles)(selection);
+const parse = (selection: FileSelection) =>
+  (props.parse ?? transformFiles)(selection);
+
+const files = computed(() => toFileEntries(format(toFileSelection(value.value))));
 
 const invalid = computed(() => touched.value && error.value != null);
 const labelText = computed(() =>
@@ -138,9 +148,9 @@ const isDisabled = computed(() => props.disabled === true || props.readonly === 
 function commit(newFiles: File[]) {
   if (newFiles.length === 0) return;
   if (props.multiple) {
-    setValue([...files.value, ...newFiles]);
+    setValue(parse([...files.value, ...newFiles]));
   } else {
-    setValue(newFiles[0]);
+    setValue(parse(newFiles[0] ?? null));
   }
   blur();
 }
@@ -174,17 +184,13 @@ function openPicker() {
   if (!isDisabled.value) fileInputRef.value?.click();
 }
 
-// A template `as` cast spanning lines is a parse error for vue-tsc, so the key lives here.
-function fileKey(file: LooseRecord, index: number): string | number {
-  const named = file as { rawFile?: { name?: string }; src?: string };
-  return named.rawFile?.name ?? named.src ?? index;
-}
-
-function onRemove(file: LooseRecord) {
+function onRemove(file: FileEntry) {
   if (props.multiple) {
-    setValue(files.value.filter((stateFile) => !shallowEqual(stateFile, file)));
+    setValue(
+      parse(files.value.filter((stateFile) => !shallowEqual(stateFile, file))),
+    );
   } else {
-    setValue(null);
+    setValue(parse(null));
   }
   blur();
 }
@@ -241,7 +247,7 @@ function onRemove(file: LooseRecord) {
     >
       <FileInputPreview
         v-for="(file, index) in files"
-        :key="fileKey(file, index)"
+        :key="fileEntryKey(file, index)"
         :file="file"
         @remove="onRemove(file)"
       >

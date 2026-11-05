@@ -1,10 +1,10 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import type { FileEntry } from "@chelone/core";
 
 /** Props for {@link FileInputPreview}. */
 export interface FileInputPreviewProps {
   /** The file record published to the preview slot (a transformed file or an existing record). */
-  file: LooseRecord;
+  file: FileEntry;
 }
 </script>
 
@@ -18,6 +18,7 @@ export interface FileInputPreviewProps {
  * dropped file's preview held, matching the twin's cleanup effect.
  */
 
+import { fileEntryPreview } from "@chelone/core";
 import { onScopeDispose } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { provideRecordContext } from "../../../record/record-context";
@@ -32,11 +33,7 @@ const translate = useTranslate();
 provideRecordContext(props.file);
 
 onScopeDispose(() => {
-  const file = props.file as {
-    rawFile?: { preview?: string };
-    preview?: string;
-  };
-  const preview = file.rawFile ? file.rawFile.preview : file.preview;
+  const preview = fileEntryPreview(props.file);
   if (preview && typeof URL !== "undefined" && URL.revokeObjectURL) {
     URL.revokeObjectURL(preview);
   }

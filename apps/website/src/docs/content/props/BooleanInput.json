@@ -15,7 +15,7 @@
     },
     {
       "name": "defaultValue",
-      "type": "boolean | null",
+      "type": "BooleanDefault<TRecord, TPath>",
       "optional": true,
       "comment": "ra precedence default; `false` when omitted (the switch starts off)."
     },
@@ -27,9 +27,9 @@
     },
     {
       "name": "format",
-      "type": "(value: unknown) => unknown",
+      "type": "(value: boolean) => boolean",
       "optional": true,
-      "comment": "Read transform (raw form value → boolean the switch reflects)."
+      "comment": "Read transform (guarded form value → boolean the switch reflects)."
     },
     {
       "name": "helperText",
@@ -63,7 +63,7 @@
     },
     {
       "name": "onBlur",
-      "type": "(event: unknown) => void",
+      "type": "(event: FocusEvent<Element, Element>) => void",
       "optional": true,
       "comment": ""
     },
@@ -87,9 +87,9 @@
     },
     {
       "name": "parse",
-      "type": "(value: unknown) => unknown",
+      "type": "(value: boolean) => boolean | null",
       "optional": true,
-      "comment": "Write transform (boolean → stored value)."
+      "comment": "Write transform (the switch's boolean → stored value)."
     },
     {
       "name": "readOnly",
@@ -105,7 +105,7 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "TPath",
       "optional": false,
       "comment": "The field path RELATIVE to the ambient source scope."
     },
