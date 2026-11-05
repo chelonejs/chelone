@@ -72,12 +72,18 @@ describe("AdminProps", () => {
   });
 });
 
+/** The function member of `AdminChildren`. */
+type ChildFunction = Extract<
+  AdminChildren,
+  (permissions: never) => ReactNode | Promise<ReactNode>
+>;
+
 describe("registered permissions", () => {
   it("a registered permissions type reaches the function child", () => {
     expectTypeOf<RegisteredPermissions>().toEqualTypeOf<AppPermissions>();
-    expectTypeOf<
-      Parameters<Extract<AdminChildren, (permissions: never) => unknown>>[0]
-    >().toEqualTypeOf<AppPermissions | undefined>();
+    expectTypeOf<Parameters<ChildFunction>[0]>().toEqualTypeOf<
+      AppPermissions | undefined
+    >();
     expectTypeOf<AdminProps["permissions"]>().toEqualTypeOf<
       AppPermissions | undefined
     >();
