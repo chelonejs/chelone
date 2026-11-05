@@ -16,7 +16,11 @@
  * core's `getAtPath`, the same reader `useFieldValue` uses.
  */
 
-import { getAtPath, type ResourceRecord } from "@chelone/core";
+import {
+  getAtPath,
+  isResourceRecord,
+  type ResourceRecord,
+} from "@chelone/core";
 import { inject } from "vue";
 import { ResourceRegistryKey } from "../admin/resource-registry";
 import type { RecordRepresentation } from "../index";
