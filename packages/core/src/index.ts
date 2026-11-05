@@ -293,6 +293,7 @@ export type {
   FetchJsonResult,
 } from "./data/fetch-utils";
 export { fetchUtils } from "./data/fetch-utils";
+export { isFilterBranch } from "./data/filter-branch";
 export { getManyAggregateOptions } from "./data/get-many-aggregate";
 export { HttpError } from "./data/http-error";
 export {

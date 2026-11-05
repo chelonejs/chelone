@@ -1,3 +1,4 @@
+import { isFilterBranch } from "../data/filter-branch";
 import type { FilterPayload } from "../data/types";
 import { isRecord } from "../guards";
 
@@ -95,12 +96,7 @@ export function mergeFilterValues(
   for (const key of Object.keys(values)) {
     const next = values[key];
     const prev = merged[key];
-    if (
-      isRecord(next) &&
-      !(next instanceof Date) &&
-      isRecord(prev) &&
-      !(prev instanceof Date)
-    ) {
+    if (isFilterBranch(next) && isFilterBranch(prev)) {
       merged[key] = { ...prev, ...next };
     } else {
       merged[key] = next;

@@ -1,3 +1,4 @@
+import { isFilterBranch } from "../data/filter-branch";
 import type { FilterPayload, SortPayload } from "../data/types";
 import { getAtPath } from "../resource/get-at-path";
 import type { Identifier } from "../resource/identifier";
@@ -99,13 +100,8 @@ function flattenFilter(
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(filter)) {
     const path = prefix ? `${prefix}.${key}` : key;
-    if (
-      value !== null &&
-      typeof value === "object" &&
-      !Array.isArray(value) &&
-      !(value instanceof Date)
-    ) {
-      Object.assign(result, flattenFilter(value as FilterPayload, path));
+    if (isFilterBranch(value)) {
+      Object.assign(result, flattenFilter(value, path));
     } else {
       result[path] = value;
     }
