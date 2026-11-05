@@ -34,6 +34,7 @@
  *    `fieldInfo[name].validationMetaMap[cause].lastAbortController`.
  *  - field timers: pending debounce/async timers in `field.timeoutIds`.
  */
+import type { AnyFieldApi } from "@tanstack/form-core";
 import { QueryClient } from "@tanstack/query-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
@@ -97,9 +98,6 @@ interface FieldInfoView {
     { lastAbortController: AbortController } | undefined
   >;
 }
-interface FieldTimeoutsView {
-  timeoutIds: Record<string, Record<string, unknown>>;
-}
 
 function fieldInfoMap(form: object): Record<string, FieldInfoView | undefined> {
   return (form as { fieldInfo: Record<string, FieldInfoView | undefined> })
@@ -120,9 +118,11 @@ function abortControllersOf(form: object, source: string): AbortController[] {
     .map((meta) => meta.lastAbortController);
 }
 
-function pendingFieldTimers(field: object): number {
-  const { timeoutIds } = field as unknown as FieldTimeoutsView;
-  return Object.values(timeoutIds)
+// `Pick`, not `AnyFieldApi`: a `CheloneFieldApi` is not assignable to
+// form-core's all-`any` field type — its `never` submit meta breaks the
+// recursive check. The gauge only needs the public timer map.
+function pendingFieldTimers(field: Pick<AnyFieldApi, "timeoutIds">): number {
+  return Object.values(field.timeoutIds)
     .flatMap((group) => Object.values(group))
     .filter((t) => t != null).length;
 }
