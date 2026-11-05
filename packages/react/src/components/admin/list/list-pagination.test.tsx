@@ -7,7 +7,8 @@ import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { makeListContext } from "../../../__fixtures__/list-context";
 import { CheloneProvider } from "../../../context";
 import { ListContextProvider, type ListContextValue } from "../../../form";
 import { ListPagination } from "./list-pagination";
@@ -31,37 +32,6 @@ function Providers({ children }: { children: ReactNode }) {
   );
 }
 
-function makeList(overrides: Partial<ListContextValue> = {}): ListContextValue {
-  return {
-    page: 1,
-    perPage: 10,
-    sort: [],
-    filter: {},
-    displayedFilters: {},
-    selectedIds: [],
-    data: [],
-    total: 95,
-    pageInfo: undefined,
-    isPending: false,
-    isFetching: false,
-    error: null,
-    hasNextPage: true,
-    hasPreviousPage: false,
-    setPage: vi.fn(),
-    setPerPage: vi.fn(),
-    setSort: vi.fn(),
-    setFilters: vi.fn(),
-    showFilter: vi.fn(),
-    hideFilter: vi.fn(),
-    select: vi.fn(),
-    toggleItem: vi.fn(),
-    unselectAll: vi.fn(),
-    selectAll: vi.fn(),
-    refetch: vi.fn(),
-    ...overrides,
-  } as ListContextValue;
-}
-
 function wrap(value: ListContextValue, node: ReactNode) {
   return render(
     <Providers>
@@ -72,17 +42,20 @@ function wrap(value: ListContextValue, node: ReactNode) {
 
 describe("<ListPagination>", () => {
   it("renders the current range info (1-10 of 95)", () => {
-    wrap(makeList(), <ListPagination />);
+    wrap(makeListContext(), <ListPagination />);
     expect(screen.getByText(/1-10 of 95/)).toBeTruthy();
   });
 
   it("renders nothing when the total is 0", () => {
-    const { container } = wrap(makeList({ total: 0 }), <ListPagination />);
+    const { container } = wrap(
+      makeListContext({ total: 0 }),
+      <ListPagination />,
+    );
     expect(container.textContent).toBe("");
   });
 
   it("goes to the next page via setPage", () => {
-    const value = makeList();
+    const value = makeListContext();
     wrap(value, <ListPagination />);
     const next = screen.getByRole("button", { name: /next/i });
     fireEvent.click(next);
@@ -90,13 +63,16 @@ describe("<ListPagination>", () => {
   });
 
   it("disables the previous button on page 1", () => {
-    wrap(makeList({ page: 1, hasPreviousPage: false }), <ListPagination />);
+    wrap(
+      makeListContext({ page: 1, hasPreviousPage: false }),
+      <ListPagination />,
+    );
     const prev = screen.getByRole("button", { name: /previous/i });
     expect(prev).toHaveProperty("disabled", true);
   });
 
   it("navigates to a page number when clicked", () => {
-    const value = makeList({ page: 1, total: 30, perPage: 10 });
+    const value = makeListContext({ page: 1, total: 30, perPage: 10 });
     wrap(value, <ListPagination />);
     const pageBtn = screen.getByRole("button", { name: "3" });
     fireEvent.click(pageBtn);
@@ -104,14 +80,14 @@ describe("<ListPagination>", () => {
   });
 
   it("changes rows per page via the select", () => {
-    const value = makeList();
+    const value = makeListContext();
     wrap(value, <ListPagination rowsPerPageOptions={[10, 25]} />);
     // The select trigger shows the current perPage.
     expect(screen.getByText("Rows per page")).toBeTruthy();
   });
 
   it("renders a partial range when total is unknown", () => {
-    wrap(makeList({ total: undefined }), <ListPagination />);
+    wrap(makeListContext({ total: undefined }), <ListPagination />);
     expect(screen.getByText(/1-10/)).toBeTruthy();
   });
 });

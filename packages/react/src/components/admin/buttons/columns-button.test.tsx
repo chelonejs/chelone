@@ -18,7 +18,6 @@ import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
-import type { ListContextValue } from "../../../form";
 import { ListContextProvider } from "../../../form";
 import {
   ResourceContextProvider,
@@ -87,7 +86,7 @@ function Page({
   const list = useList({ data: ROWS, perPage: 10 });
   return (
     <ResourceContextProvider value={noResource ? undefined : "posts"}>
-      <ListContextProvider value={list as unknown as ListContextValue}>
+      <ListContextProvider value={list}>
         <ColumnsButton {...button} />
         {withTable ? (
           <DataTable defaultHiddenColumns={defaultHiddenColumns}>
@@ -354,7 +353,7 @@ describe("<ColumnsButton>", () => {
       const list = useList({ data: ROWS, perPage: 10 });
       return (
         <ResourceContextProvider value="posts">
-          <ListContextProvider value={list as unknown as ListContextValue}>
+          <ListContextProvider value={list}>
             <ColumnsButton storeKey="a" aria-label="Columns A" />
             <ColumnsButton storeKey="b" aria-label="Columns B" />
             <div data-testid="a">
