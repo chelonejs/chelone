@@ -53,7 +53,7 @@ interface Choice {
 const choices = computed<Choice[]>(() => {
   const rows = query.data.value?.data ?? [];
   return rows.map((record) => ({
-    value: (record as { id: string | number }).id,
+    value: record.id,
     label: getRepresentation(record),
   }));
 });
