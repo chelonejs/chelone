@@ -1,3 +1,4 @@
+import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -49,7 +50,7 @@ function mountArray(
   const Provider = defineComponent({
     setup() {
       const ctx: CheloneContextValue = {
-        dataProvider: {} as CheloneContextValue["dataProvider"],
+        dataProvider: fakeDataProvider({}),
         queryClient,
       };
       provideCheloneContext(ctx);

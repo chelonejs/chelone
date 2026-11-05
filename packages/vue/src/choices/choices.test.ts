@@ -47,7 +47,7 @@ function mountInContext<T>(
   const Provider = defineComponent({
     setup() {
       const ctx: CheloneContextValue = {
-        dataProvider: {} as CheloneContextValue["dataProvider"],
+        dataProvider: fakeDataProvider({}),
         queryClient,
         ...ctxOverrides,
       };
@@ -167,7 +167,7 @@ describe("useChoicesContext", () => {
     const Root = defineComponent({
       setup() {
         provideCheloneContext({
-          dataProvider: {} as CheloneContextValue["dataProvider"],
+          dataProvider: fakeDataProvider({}),
           queryClient,
         });
         return () => h(AmbientProvider);
