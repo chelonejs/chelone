@@ -688,8 +688,13 @@ export type {
   MessageValue,
   PluralMessage,
   TranslateParams,
+  TranslateParamValues,
 } from "./i18n/messages";
-export { defineMessages } from "./i18n/messages";
+export {
+  definedParams,
+  defineMessages,
+  pickTranslateParamValues,
+} from "./i18n/messages";
 export type {
   MissingKeyEntry,
   MissingKeyStore,

@@ -114,7 +114,7 @@ function LoginWithEmail(props: LoginWithEmailProps) {
         const message = getErrorMessage(error);
         notify(message ?? "ra.auth.sign_in_error", {
           type: "error",
-          messageArgs: { _: message },
+          messageArgs: message === undefined ? undefined : { _: message },
         });
       }
       return undefined;

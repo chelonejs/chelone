@@ -1,4 +1,8 @@
-import { startUndoableMutation, type UndoableHandle } from "@chelone/core";
+import {
+  startUndoableMutation,
+  type TranslateParamValues,
+  type UndoableHandle,
+} from "@chelone/core";
 import { type QueryKey, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { useCheloneNotifications } from "./context";
@@ -21,7 +25,7 @@ export interface RunUndoableOptions {
   commit: () => Promise<unknown>;
   /** i18n KEY for the undoable notification (e.g. `chelone.notification.deleted`). */
   message: string;
-  messageArgs?: Record<string, unknown>;
+  messageArgs?: TranslateParamValues;
   type?: "info" | "success" | "warning" | "error";
   /** Undo window in ms (default 5000). Auto-hide/dismiss ⇒ commit. */
   autoHideDuration?: number;

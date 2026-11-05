@@ -11,6 +11,7 @@
  */
 
 import type { SourceProp } from "@chelone/core";
+import { definedParams } from "@chelone/core";
 import { ArrowUpDown, ChevronDown } from "lucide-react";
 import * as React from "react";
 import { memo } from "react";
@@ -91,8 +92,8 @@ function SortButtonComponent(props: SortButtonProps) {
     resource,
     source: primarySort.field,
   });
-  const translationOptions = {
-    field: fieldLabel,
+  const translationOptions = definedParams({
+    field: typeof fieldLabel === "string" ? fieldLabel : undefined,
     field_lower_first:
       typeof fieldLabel === "string"
         ? fieldLabel.charAt(0).toLowerCase() + fieldLabel.slice(1)
@@ -100,7 +101,7 @@ function SortButtonComponent(props: SortButtonProps) {
     order: translate(`ra.sort.${primarySort.order}`, {
       _: primarySort.order,
     }),
-  };
+  });
   const buttonLabel = translate(`resources.${resource}.action.sort_by`, {
     ...translationOptions,
     _: translate(label, { ...translationOptions, _: label }),

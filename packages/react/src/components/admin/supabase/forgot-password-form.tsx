@@ -52,7 +52,7 @@ function ForgotPasswordForm({ className }: ForgotPasswordFormProps) {
         const message = errorMessage(error);
         notify(message ?? "ra.notification.http_error", {
           type: "warning",
-          messageArgs: { _: message },
+          messageArgs: message === undefined ? undefined : { _: message },
         });
       }
       return undefined;

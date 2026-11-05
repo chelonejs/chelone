@@ -3,6 +3,7 @@ import type {
   StandardSchemaV1Issue,
 } from "@tanstack/form-core";
 import { isThenable } from "../guards";
+import type { TranslateParamValues } from "../i18n/messages";
 import type { TranslatableMessage } from "./form-controller";
 import type { ChoiceValueOf } from "./input-values";
 
@@ -91,7 +92,7 @@ export type ValidatorSlot<TValue = unknown, TValues = unknown> =
 // type-escape: a message factory for no particular field takes any value.
 export interface ValidationMessageParams<TValue = unknown, TValues = unknown> {
   // type-escape: interpolation args are an app-supplied bag of any values.
-  args: Record<string, unknown> | undefined;
+  args: TranslateParamValues | undefined;
   value: TValue | EmptyValue;
   values: TValues;
 }
@@ -125,7 +126,7 @@ export function isEmpty(value: unknown): boolean {
 /** Resolves a {@link ValidationMessage} into the error payload (ra's getMessage). */
 function getMessage<TValue, TValues>(
   message: ValidationMessage<TValue, TValues>,
-  args: Record<string, unknown> | undefined,
+  args: TranslateParamValues | undefined,
   value: TValue | EmptyValue,
   values: TValues,
 ): ValidationErrorMessage {

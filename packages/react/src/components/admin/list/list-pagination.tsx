@@ -1,3 +1,4 @@
+import type { TranslateParamValues } from "@chelone/core";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { type ReactElement, useEffect } from "react";
 import { useTranslate } from "../../../i18n-hooks";
@@ -119,11 +120,7 @@ function ListPagination({
   // chelone's i18n returns the KEY (never a `_` default) when a message is not
   // registered, so compose each label with a local English fallback: use the
   // translation only when it actually resolved to something other than the key.
-  const t = (
-    key: string,
-    fallback: string,
-    params?: Record<string, unknown>,
-  ) => {
+  const t = (key: string, fallback: string, params?: TranslateParamValues) => {
     const out = translate(key, params ?? {});
     return out === key ? fallback : out;
   };
@@ -134,7 +131,7 @@ function ListPagination({
     "ra.navigation.page_rows_per_page",
     "Rows per page",
   );
-  const totalDisplay = total === -1 ? pageEnd : total;
+  const totalDisplay = total == null || total === -1 ? pageEnd : total;
   const rangeLabel = isPartial
     ? t("ra.navigation.partial_page_range_info", `${pageStart}-${pageEnd}`, {
         offsetBegin: pageStart,
