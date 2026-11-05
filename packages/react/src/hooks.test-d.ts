@@ -1,6 +1,7 @@
 import { defineResources } from "@chelone/core";
 import { expectTypeOf, it } from "vitest";
 import { z } from "zod";
+import type { UsePermissionsResult } from "./auth-hooks";
 import { useDelete, useUpdate } from "./hooks";
 import { useTranslate } from "./i18n-hooks";
 
@@ -53,4 +54,8 @@ it("translate params refuse an object value", () => {
   translate("k", { x: 1, y: "two" });
   // @ts-expect-error a message param is a string or a number
   translate("k", { x: {} });
+});
+
+it("permissions error is Error or null", () => {
+  expectTypeOf<UsePermissionsResult["error"]>().toEqualTypeOf<Error | null>();
 });

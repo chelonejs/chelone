@@ -126,7 +126,7 @@ export interface HandleAuthCallbackResult {
   /** True once the callback has resolved and the redirect has been issued. */
   settled: Ref<boolean>;
   /** The error, if `handleCallback` rejected. */
-  error: Ref<unknown>;
+  error: Ref<Error | null>;
 }
 
 /**
