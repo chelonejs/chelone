@@ -1,6 +1,7 @@
 import { expectTypeOf, it } from "vitest";
 import {
   type ArrayBinding,
+  type ArrayBindingOptions,
   type ArrayItemOf,
   type ArrayRow,
   createArrayBinding,
@@ -131,4 +132,41 @@ it("a binding over a form with no array paths takes any item", () => {
   expectTypeOf(binding.add).parameter(0).toEqualTypeOf<unknown>();
   binding.add(5);
   binding.add({ sku: "a", qty: 1 });
+});
+
+it("itemDefaults takes a partial of the binding's own row", () => {
+  const controller = createFormController<Shop>({
+    defaultValues: { items: [], tags: [] },
+    save: async () => undefined,
+  });
+  expectTypeOf<
+    ArrayBindingOptions<Shop, "items">["itemDefaults"]
+  >().toEqualTypeOf<Partial<CartItem> | undefined>();
+  createArrayBinding(controller.form, {
+    source: "items",
+    itemDefaults: { qty: 1 },
+  });
+  createArrayBinding(controller.form, { source: "items", itemDefaults: {} });
+  createArrayBinding(controller.form, {
+    source: "items",
+    // @ts-expect-error `price` is no key of a Cart row
+    itemDefaults: { price: 1 },
+  });
+  createArrayBinding(controller.form, {
+    source: "items",
+    // @ts-expect-error `qty` is a number
+    itemDefaults: { qty: "one" },
+  });
+  createArrayBinding(controller.form, {
+    source: "tags",
+    // @ts-expect-error a scalar row has no defaults to merge
+    itemDefaults: { qty: 1 },
+  });
+});
+
+it("itemDefaults takes any object for a form that names no record", () => {
+  createArrayBinding(looseForm, {
+    source: "items",
+    itemDefaults: { anything: 1 },
+  });
 });

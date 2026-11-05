@@ -6,15 +6,14 @@
 
 import type { SourceProp } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
-import type ArrayInput from "./array-input.vue";
+import type { ArrayInputProps } from "./array-input.vue";
 import type ReferenceArrayInput from "./reference-array-input.vue";
 import type ReferenceInput from "./reference-input.vue";
 import type SearchInput from "./search-input.vue";
 
 describe("array, reference and search input sources", () => {
   it("the ArrayInput source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ArrayInput>["$props"];
-    expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
+    expectTypeOf<ArrayInputProps["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the ReferenceInput source prop is SourceProp", () => {

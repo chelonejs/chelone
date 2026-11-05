@@ -1,4 +1,11 @@
-import type { LooseRecord, SourceProp, Validator } from "@chelone/core";
+import {
+  type ArrayItemOf,
+  type ItemDefaultsOf,
+  isRequired,
+  type LooseRecord,
+  type SourceProp,
+  type Validator,
+} from "@chelone/core";
 import { Children, type ReactNode } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -15,9 +22,12 @@ import {
   ArrayInputResultContext,
 } from "./array-input-context";
 
-interface ArrayInputProps<RecordType extends LooseRecord = LooseRecord> {
+interface ArrayInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> {
   /** The array field path RELATIVE to the ambient source scope. */
-  source: SourceProp<RecordType>;
+  source: TPath;
   /**
    * The input label. A string is translated; a ReactNode renders as-is;
    * `false` renders no label.
@@ -30,11 +40,11 @@ interface ArrayInputProps<RecordType extends LooseRecord = LooseRecord> {
   /** Array-level validators (e.g. `minLength`) — composed, first error wins. */
   validate?: Validator | readonly Validator[];
   /** The array's default value (seeds an untouched hole). */
-  defaultValue?: readonly unknown[];
+  defaultValue?: readonly ArrayItemOf<RecordType, TPath>[];
   /** Force scalar-row mode (a `string[]`/`number[]`); DETECTED when omitted. */
   scalar?: boolean;
   /** Object-row defaults merged into a new row (object mode). */
-  itemDefaults?: Record<string, unknown>;
+  itemDefaults?: ItemDefaultsOf<ArrayItemOf<RecordType, TPath>>;
   /** Extra classes on the field wrapper. */
   className?: string;
   /** Label for the add-row button; a string is translated. */
@@ -56,18 +66,9 @@ function childOwnsAddButton(children: ReactNode): boolean {
     (child) =>
       typeof child === "object" &&
       "type" in child &&
-      (child.type as { ownsAddButton?: boolean }).ownsAddButton === true,
-  );
-}
-
-/** Detects a `required()`-tagged validator on the raw `validate` prop. */
-function hasRequiredValidator(validate: ArrayInputProps["validate"]): boolean {
-  if (!validate) return false;
-  const validators: readonly Validator[] = Array.isArray(validate)
-    ? validate
-    : [validate as Validator];
-  return validators.some(
-    (v) => (v as { isRequired?: boolean }).isRequired === true,
+      typeof child.type === "function" &&
+      "ownsAddButton" in child.type &&
+      child.type.ownsAddButton === true,
   );
 }
 
@@ -108,9 +109,10 @@ function hasRequiredValidator(validate: ArrayInputProps["validate"]): boolean {
  *   </Edit>
  * );
  */
-function ArrayInput<RecordType extends LooseRecord = LooseRecord>(
-  props: ArrayInputProps<RecordType>,
-): ReactNode {
+function ArrayInput<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+>(props: ArrayInputProps<RecordType, TPath>): ReactNode {
   const {
     className,
     defaultValue = [],
@@ -159,7 +161,7 @@ function ArrayInput<RecordType extends LooseRecord = LooseRecord>(
             label={label}
             source={arraySource}
             resource={resourceFromProps ?? resource}
-            isRequired={hasRequiredValidator(validate)}
+            isRequired={validate !== undefined && isRequired(validate)}
           />
         </FieldLabel>
       )}
