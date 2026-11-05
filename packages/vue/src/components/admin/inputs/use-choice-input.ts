@@ -70,7 +70,7 @@ export interface UseChoiceInputResult<
   /** Whether the reference list is still loading (inline: `false`). */
   isPending: ComputedRef<boolean>;
   /** The reference fetch error (inline: `null`). */
-  fetchError: ComputedRef<unknown>;
+  fetchError: ComputedRef<Error | null>;
   /** The display text for a choice. */
   getChoiceText(choice: TChoice): string;
   /** The value for a choice (`optionValue` path or `id`). */

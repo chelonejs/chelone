@@ -209,9 +209,7 @@ function CheckboxGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
           );
         })}
       </div>
-      <InputHelperText
-        helperText={helperText ?? (fetchError as Error | undefined)?.message}
-      />
+      <InputHelperText helperText={helperText ?? fetchError?.message} />
       <FieldError>
         {invalid && error ? <ValidationError error={error} /> : null}
       </FieldError>

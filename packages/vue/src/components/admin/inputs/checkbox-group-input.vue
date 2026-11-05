@@ -72,7 +72,7 @@ const labelText = computed(() =>
   props.label === false ? null : (props.label ?? humanizeSource(source)),
 );
 const helper = computed(
-  () => props.helperText ?? (fetchError.value as Error | undefined)?.message,
+  () => props.helperText ?? fetchError.value?.message,
 );
 
 function isChecked(choiceValue: unknown): boolean {

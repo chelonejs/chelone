@@ -181,9 +181,7 @@ function RadioButtonGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
           );
         })}
       </RadioGroup>
-      <InputHelperText
-        helperText={helperText ?? (fetchError as Error | undefined)?.message}
-      />
+      <InputHelperText helperText={helperText ?? fetchError?.message} />
       <FieldError>
         {invalid && error ? <ValidationError error={error} /> : null}
       </FieldError>
