@@ -692,7 +692,7 @@ export type {
 export {
   definedParams,
   defineMessages,
-  isTranslateParamValues,
+  pickTranslateParamValues,
 } from "./i18n/messages";
 export type {
   MissingKeyEntry,

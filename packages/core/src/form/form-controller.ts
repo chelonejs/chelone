@@ -9,7 +9,7 @@ import {
 } from "@tanstack/form-core";
 import { hasProperty, isThenable } from "../guards";
 import {
-  isTranslateParamValues,
+  pickTranslateParamValues,
   type TranslateParamValues,
 } from "../i18n/messages";
 import type { NotificationStore } from "../notification/notification-store";
@@ -446,8 +446,8 @@ export function normalizeFormError(
     const { message } = error;
     if (typeof message === "string") {
       if ("args" in error) {
-        const { args } = error;
-        if (isTranslateParamValues(args)) return { message, args };
+        const args = pickTranslateParamValues(error.args);
+        if (args) return { message, args };
       }
       return message;
     }

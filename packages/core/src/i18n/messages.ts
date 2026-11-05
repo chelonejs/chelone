@@ -8,18 +8,20 @@ export type MessageCatalog = Record<string, MessageValue>;
 /** The values a message placeholder takes; one type for typed catalogs and the erased view. */
 export type TranslateParamValues = Record<string, string | number>;
 
-/** Whether every own value is a string or a number: the boundary check for params from `unknown` input. */
-export function isTranslateParamValues(
+/** Boundary narrowing for `unknown` input: keeps the string and number entries of a plain object, `undefined` for anything else. */
+export function pickTranslateParamValues(
   value: unknown,
-): value is TranslateParamValues {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value) &&
-    Object.values(value).every(
-      (entry) => typeof entry === "string" || typeof entry === "number",
-    )
-  );
+): TranslateParamValues | undefined {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return undefined;
+  }
+  const picked: TranslateParamValues = {};
+  for (const [name, entry] of Object.entries(value)) {
+    if (typeof entry === "string" || typeof entry === "number") {
+      picked[name] = entry;
+    }
+  }
+  return picked;
 }
 
 /** Drops absent values: an `undefined` param would otherwise render as the text "undefined". */

@@ -626,6 +626,15 @@ describe("normalizeFormError", () => {
     expect(normalizeFormError({ message: "x", args: 5 })).toBe("x");
   });
 
+  it("keeps the string and number args when others are not message params", () => {
+    expect(
+      normalizeFormError({
+        message: "ra.validation.minLength",
+        args: { min: 5, strict: true, extra: undefined },
+      }),
+    ).toEqual({ message: "ra.validation.minLength", args: { min: 5 } });
+  });
+
   it("uses an Error's message", () => {
     expect(normalizeFormError(new Error("boom"))).toBe("boom");
   });
