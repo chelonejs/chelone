@@ -764,6 +764,11 @@ export {
   realtimeDataProvider,
 } from "./realtime/realtime-data-provider";
 export type { RealtimeReconnectConfig } from "./realtime/reconnect-backoff";
+export type {
+  SseTransport,
+  SseTransportOptions,
+} from "./realtime/sse-transport";
+export { sseTransport } from "./realtime/sse-transport";
 export type { RealtimeStatusState } from "./realtime/status-store";
 export { createRealtimeStatusStore } from "./realtime/status-store";
 export type { TopicHub } from "./realtime/topic-hub";
