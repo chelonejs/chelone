@@ -1,34 +1,31 @@
 /**
  * `<SingleFieldList>`: the records of the ambient list as an inline row. The
- * list surface is provided directly so the records are exact; assertions are on
- * DOM and on what the slots receive.
+ * list surface is the `makeListContext` fixture provided directly so the records
+ * are exact; assertions are on DOM and on what the slots receive.
  */
 
+import type { LooseRecord } from "@chelone/core";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { defineComponent, h, type VNodeChild } from "vue";
-import {
-  ListContextKey,
-  type ListContextValue,
-} from "../../../list/list-context";
+import { makeListContext } from "../../../__fixtures__/list-context";
+import { provideListContext } from "../../../list/list-context";
 import { useRecordContext } from "../../../record/record-context";
-import { ResourceContextKey } from "../../../resource-context";
+import { provideResourceContext } from "../../../resource-context";
 import SingleFieldList from "./single-field-list.vue";
 
-const TAGS = [
+const TAGS: LooseRecord[] = [
   { id: 1, name: "red" },
   { id: 2, name: "green" },
 ];
 
-function mountList(ui: () => VNodeChild, data: unknown[] | null = TAGS) {
+function mountList(ui: () => VNodeChild, data: LooseRecord[] | null = TAGS) {
   const Provider = defineComponent({
-    provide: {
-      [ResourceContextKey as symbol]: "tags",
-      [ListContextKey as symbol]: {
-        data: data ?? undefined,
-      } as unknown as ListContextValue,
+    setup() {
+      provideResourceContext("tags");
+      provideListContext(makeListContext({ data: data ?? undefined }));
+      return () => ui();
     },
-    setup: () => () => ui(),
   });
   return mount(Provider);
 }

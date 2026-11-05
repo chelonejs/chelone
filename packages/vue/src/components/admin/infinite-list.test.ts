@@ -5,14 +5,20 @@
  * controller against a `fakeDataProvider`.
  */
 
-import { defineResources, fakeDataProvider } from "@chelone/core";
+import {
+  defineResources,
+  fakeDataProvider,
+  type LooseRecord,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h, reactive } from "vue";
+import { type Component, defineComponent, h, reactive } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
+import { makeListContext } from "../../__fixtures__/list-context";
 import Admin from "../../admin/admin.vue";
+import type { UseInfiniteListControllerReturn } from "../../controllers/use-infinite-list-controller";
 import {
   type ListContextValue,
   provideListContext,
@@ -97,25 +103,31 @@ afterEach(() => {
   FakeObserver.instances = [];
 });
 
-function stubList(overrides: Record<string, unknown> = {}) {
-  return reactive({
-    data: [{ id: 1 }],
-    error: null as Error | null,
-    isPending: false,
-    hasNextPage: true,
+/**
+ * The ambient list as an infinite one: the fixture's whole list surface plus the
+ * infinite fields, with one row so the end message has rows to report. Reactive
+ * so a test can write `list.hasNextPage` and the component re-renders.
+ */
+function stubList(
+  overrides: Partial<UseInfiniteListControllerReturn<LooseRecord>> = {},
+) {
+  const list: UseInfiniteListControllerReturn<LooseRecord> = {
+    ...makeListContext({ data: [{ id: 1 }] }),
     isFetchingNextPage: false,
+    isFetchingPreviousPage: false,
     fetchNextPage: vi.fn(),
     fetchPreviousPage: vi.fn(),
     ...overrides,
-  });
+  };
+  return reactive(list);
 }
 
 /** Publishes `list` as the ambient list context, then renders `child`. */
-function withList(list: ReturnType<typeof stubList>, child: unknown) {
+function withList(list: ReturnType<typeof stubList>, child: Component) {
   return defineComponent({
     setup() {
-      provideListContext(list as unknown as ListContextValue);
-      return () => h(child as never);
+      provideListContext(list);
+      return () => h(child);
     },
   });
 }

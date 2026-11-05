@@ -16,6 +16,7 @@ import { type DOMWrapper, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick, reactive, type VNodeChild } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
+import { makeListContext } from "../../__fixtures__/list-context";
 import Admin from "../../admin/admin.vue";
 import {
   type ListContextValue,
@@ -85,40 +86,22 @@ type ListState = Partial<
 >;
 
 /**
- * A list context stub: the whole `ListContextValue` surface, with `setParams`
- * a spy and every other action a no-op spy. Reactive so a test can write
+ * A list context stub: the fixture's whole `ListContextValue` surface with the
+ * test's params and a `setParams` spy on top. Reactive so a test can write
  * `list.filter` and the component re-renders.
+ *
+ * The `id` DESC sort is the stub's own default, not the fixture's empty one:
+ * `<SavedQueriesList>` saves the list's sort, and the save assertions read it.
  */
 function makeList(state: ListState = {}) {
   const setParams = vi.fn();
-  const list = reactive<ListContextValue>({
-    page: 1,
-    perPage: state.perPage ?? 10,
-    sort: state.sort ?? [{ field: "id", order: "DESC" }],
-    filter: state.filter ?? {},
-    displayedFilters: state.displayedFilters ?? {},
-    selectedIds: [],
-    data: undefined,
-    total: undefined,
-    pageInfo: undefined,
-    isPending: false,
-    isFetching: false,
-    error: null,
-    hasNextPage: undefined,
-    hasPreviousPage: undefined,
-    setPage: vi.fn(),
-    setPerPage: vi.fn(),
-    setSort: vi.fn(),
-    setFilters: vi.fn(),
-    setParams,
-    showFilter: vi.fn(),
-    hideFilter: vi.fn(),
-    select: vi.fn(),
-    toggleItem: vi.fn(),
-    unselectAll: vi.fn(),
-    selectAll: vi.fn(async () => {}),
-    refetch: vi.fn(),
-  });
+  const list = reactive(
+    makeListContext({
+      ...state,
+      sort: state.sort ?? [{ field: "id", order: "DESC" }],
+      setParams,
+    }),
+  );
   return { list, setParams };
 }
 
