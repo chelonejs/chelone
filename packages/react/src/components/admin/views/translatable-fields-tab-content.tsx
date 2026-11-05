@@ -7,7 +7,7 @@ import {
   useRecordContext,
 } from "../../../record/record-context";
 import { useTranslatableContext } from "../../../translatable-hooks";
-import { Labeled } from "./labeled";
+import { type ChildLabelProps, Labeled } from "./labeled";
 
 export interface TranslatableFieldsTabContentProps {
   locale: string;
@@ -56,7 +56,7 @@ export function TranslatableFieldsTabContent({
         <SourceContextProvider scope={scope}>
           {labelEach
             ? items.map((item) =>
-                isValidElement(item) ? (
+                isValidElement<ChildLabelProps>(item) ? (
                   <Labeled key={item.key}>{item}</Labeled>
                 ) : (
                   item

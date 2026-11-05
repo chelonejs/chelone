@@ -1045,6 +1045,7 @@ export {
   FormGroupProvider,
   FormGroupsProvider,
   FormProvider,
+  flattenChildren,
   getFilterFormValues,
   ListContextProvider,
   TabbedForm,

@@ -230,6 +230,25 @@ describe("<TabbedShowLayout>", () => {
     expect(screen.getByText("Hello World")).toBeTruthy();
   });
 
+  it("TabbedShowLayout ignores a child that is not a tab", () => {
+    renderAt(
+      "/posts/1/show",
+      <TabbedShowLayout>
+        <p>Stray paragraph</p>
+        <TextField source="tag" />
+        text
+        <TabbedShowLayout.Tab label="Summary">
+          <TextField source="title" />
+        </TabbedShowLayout.Tab>
+      </TabbedShowLayout>,
+    );
+    expect(screen.getAllByRole("tab")).toHaveLength(1);
+    expect(screen.getByText("Hello World")).toBeTruthy();
+    expect(screen.queryByText("Stray paragraph")).toBeNull();
+    expect(screen.queryByText("news")).toBeNull();
+    expect(screen.queryByText("text")).toBeNull();
+  });
+
   it("TabbedShowLayout tabs prop replaces the default tab list", () => {
     function CustomTabs({
       tabs,
