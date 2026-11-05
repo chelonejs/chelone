@@ -4,7 +4,7 @@ import { createMicroStore, type MicroStore } from "../store/micro-store";
  * An extra command in the menu. `label` and `icon` are generic so each adapter
  * uses its own types (a React node, a Vue component).
  */
-export interface CommandAction<TLabel = string, TIcon = unknown> {
+export interface CommandAction<TLabel, TIcon> {
   id: string;
   label: TLabel;
   icon?: TIcon;
@@ -17,7 +17,7 @@ export interface CommandAction<TLabel = string, TIcon = unknown> {
   onSelect: () => void;
 }
 
-export interface CommandRegistry<TLabel = string, TIcon = unknown> {
+export interface CommandRegistry<TLabel, TIcon> {
   store: MicroStore<{ commands: CommandAction<TLabel, TIcon>[] }>;
   /**
    * Adds the action, or replaces one with the same id. The returned function
@@ -30,10 +30,10 @@ export interface CommandRegistry<TLabel = string, TIcon = unknown> {
 
 export const defaultCommandGroup = "actions";
 
-export function createCommandRegistry<
-  TLabel = string,
-  TIcon = unknown,
->(): CommandRegistry<TLabel, TIcon> {
+export function createCommandRegistry<TLabel, TIcon>(): CommandRegistry<
+  TLabel,
+  TIcon
+> {
   const store = createMicroStore<{ commands: CommandAction<TLabel, TIcon>[] }>({
     commands: [],
   });
@@ -65,7 +65,7 @@ export function createCommandRegistry<
   return { store, register, unregister };
 }
 
-export function getVisibleCommands<T extends Pick<CommandAction, "when">>(
+export function getVisibleCommands<T extends { when?: () => boolean }>(
   commands: readonly T[],
 ): T[] {
   return commands.filter((command) => {
@@ -78,7 +78,7 @@ export function getVisibleCommands<T extends Pick<CommandAction, "when">>(
 }
 
 /** Groups in first-seen order. A missing `group` reads as `"actions"`. */
-export function groupCommands<T extends Pick<CommandAction, "group">>(
+export function groupCommands<T extends { group?: string }>(
   commands: readonly T[],
 ): [string, T[]][] {
   const groups = new Map<string, T[]>();

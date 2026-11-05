@@ -6,16 +6,20 @@ import {
   groupCommands,
 } from "./registry";
 
-const action = (
-  id: string,
-  extra: Partial<CommandAction> = {},
-): CommandAction => ({ id, label: id, onSelect: () => {}, ...extra });
+type TestAction = CommandAction<string, string>;
 
-const ids = (commands: readonly CommandAction[]) => commands.map((c) => c.id);
+const action = (id: string, extra: Partial<TestAction> = {}): TestAction => ({
+  id,
+  label: id,
+  onSelect: () => {},
+  ...extra,
+});
+
+const ids = (commands: readonly TestAction[]) => commands.map((c) => c.id);
 
 describe("createCommandRegistry", () => {
   it("register adds a command and unregister removes it", () => {
-    const registry = createCommandRegistry();
+    const registry = createCommandRegistry<string, string>();
     const listener = vi.fn();
     registry.store.subscribe(listener);
 
@@ -29,7 +33,7 @@ describe("createCommandRegistry", () => {
   });
 
   it("register replaces a command with the same id", () => {
-    const registry = createCommandRegistry();
+    const registry = createCommandRegistry<string, string>();
     registry.register(action("a", { label: "first" }));
     registry.register(action("b"));
     registry.register(action("a", { label: "second" }));
@@ -40,7 +44,7 @@ describe("createCommandRegistry", () => {
   });
 
   it("a stale cleanup does not remove a newer registration of the same id", () => {
-    const registry = createCommandRegistry();
+    const registry = createCommandRegistry<string, string>();
     const staleCleanup = registry.register(action("a", { label: "first" }));
     const freshCleanup = registry.register(action("a", { label: "second" }));
 
