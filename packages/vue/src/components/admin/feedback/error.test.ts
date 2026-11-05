@@ -19,7 +19,7 @@ enableAutoUnmount(afterEach);
 
 const Blank = defineComponent({ setup: () => () => h("div") });
 
-function mountError(error: Error | string | undefined) {
+function mountError(error: Error | string | { message: string } | undefined) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [{ path: "/", component: Blank }],
@@ -57,6 +57,11 @@ describe("<Error>", () => {
     const wrapper = mountError("Something broke");
 
     expect(wrapper.get("summary").text()).toBe("Something broke");
+  });
+
+  it("Error shows an empty message as empty", () => {
+    expect(mountError(new Error("")).get("summary").text()).toBe("");
+    expect(mountError({ message: "" }).get("summary").text()).toBe("");
   });
 
   it("Error shows Unknown error when nothing was thrown", () => {

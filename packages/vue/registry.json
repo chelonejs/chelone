@@ -2447,7 +2447,7 @@
         }
       ],
       "registryDependencies": ["@chelone/feedback-icons", "@chelone/title"],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
