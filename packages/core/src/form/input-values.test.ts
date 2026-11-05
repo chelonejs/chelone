@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import type { ChoiceValueOf } from "./input-values";
 import {
   toBooleanValue,
+  toCurrencyComposite,
   toCurrencyValue,
   toDateInputValue,
   toFileInputValue,
@@ -96,6 +97,23 @@ describe("toCurrencyValue", () => {
     expect(toCurrencyValue(1250)).toBe(1250);
     expect(toCurrencyValue("12.50")).toBe(12.5);
     expect(toCurrencyValue("")).toBeNull();
+  });
+});
+
+describe("toCurrencyComposite", () => {
+  it("reads the amount and currency pair", () => {
+    expect(toCurrencyComposite({ amount: 5, currency: "EUR" })).toEqual({
+      amount: 5,
+      currency: "EUR",
+    });
+  });
+
+  it("is null for a bare number, a hole or a pair of the wrong shape", () => {
+    expect(toCurrencyComposite(12)).toBeNull();
+    expect(toCurrencyComposite(null)).toBeNull();
+    expect(toCurrencyComposite({ amount: 5 })).toBeNull();
+    expect(toCurrencyComposite({ amount: "x", currency: "EUR" })).toBeNull();
+    expect(toCurrencyComposite({ amount: 5, currency: 3 })).toBeNull();
   });
 });
 

@@ -1,5 +1,10 @@
 <script lang="ts">
-import type { SourceProp, Validator } from "@chelone/core";
+import type {
+  LooseRecord,
+  SourceProp,
+  SourceValue,
+  Validator,
+} from "@chelone/core";
 
 /** A subscription plan a {@link SubscriptionPlanPicker} renders as one card. */
 export interface SubscriptionPlan {
@@ -12,9 +17,12 @@ export interface SubscriptionPlan {
 }
 
 /** Props for {@link SubscriptionPlanPicker}. */
-export interface SubscriptionPlanPickerProps {
+export interface SubscriptionPlanPickerProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> {
   /** The FK/field path holding the selected plan id. */
-  source: SourceProp;
+  source: TPath;
   /** The plans rendered as cards. */
   plans: readonly SubscriptionPlan[];
   /** Highlights one plan as recommended. */
@@ -30,7 +38,7 @@ export interface SubscriptionPlanPickerProps {
   /** Forces the required marker. */
   isRequired?: boolean;
   /** Input-level default value (seeds only into a hole). */
-  defaultValue?: unknown;
+  defaultValue?: NoInfer<SourceValue<RecordType, TPath>>;
   /** Disables the whole picker. */
   disabled?: boolean;
   /** Root element class passthrough. */
@@ -48,6 +56,7 @@ export interface SubscriptionPlanPickerProps {
  * `role="radiogroup"`; each card a `role="radio"` with `aria-checked`.
  */
 
+import { toTextValue } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { cn } from "../../../lib/utils";
@@ -69,9 +78,7 @@ const { id, value, setValue, error, touched, isRequired } = useInput({
 });
 
 const invalid = computed(() => touched.value && error.value != null);
-const currentId = computed<string | null>(
-  () => (value.value as string | null | undefined) ?? null,
-);
+const currentId = computed(() => toTextValue(value.value));
 const labelText = computed(() =>
   props.label === false ? null : (props.label ?? humanizeSource(props.source)),
 );

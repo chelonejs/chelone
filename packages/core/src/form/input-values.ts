@@ -109,6 +109,26 @@ export function toCurrencyValue(value: FormValue): number | null {
   return toNumberValue(value);
 }
 
+/** What a multi-currency `<CurrencyInput>` stores: the amount and its currency code. */
+export interface CurrencyComposite {
+  amount: number;
+  currency: string;
+}
+
+/**
+ * A multi-currency input's value: the `{ amount, currency }` pair, `null` for
+ * anything else (an absent value, or a bare number from single-currency mode).
+ */
+export function toCurrencyComposite(
+  value: FormValue,
+): CurrencyComposite | null {
+  if (typeof value !== "object" || value === null) return null;
+  if (!("amount" in value) || !("currency" in value)) return null;
+  const amount = toNumberValue(value.amount);
+  if (amount === null || typeof value.currency !== "string") return null;
+  return { amount, currency: value.currency };
+}
+
 /** The empty endpoint a webhook input starts from. */
 const EMPTY_WEBHOOK_VALUE: WebhookValue = {
   url: "",

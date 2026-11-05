@@ -29,6 +29,7 @@
  */
 
 import type {
+  LooseRecord,
   RecordOf,
   RegisteredResourceName,
   RegisteredResources,
@@ -87,11 +88,15 @@ import BooleanInput from "./components/admin/inputs/boolean-input.vue";
 import CheckboxGroupInput from "./components/admin/inputs/checkbox-group-input.vue";
 import ColorInput from "./components/admin/inputs/color-input.vue";
 import CronInput from "./components/admin/inputs/cron-input.vue";
-import CurrencyInput from "./components/admin/inputs/currency-input.vue";
+import CurrencyInput, {
+  type CurrencyInputProps,
+} from "./components/admin/inputs/currency-input.vue";
 import DatagridInput from "./components/admin/inputs/datagrid-input.vue";
 import DateInput from "./components/admin/inputs/date-input.vue";
 import DateTimeInput from "./components/admin/inputs/date-time-input.vue";
-import DurationInput from "./components/admin/inputs/duration-input.vue";
+import DurationInput, {
+  type DurationInputProps,
+} from "./components/admin/inputs/duration-input.vue";
 import FileInput from "./components/admin/inputs/file-input.vue";
 import FileInputPreview from "./components/admin/inputs/file-input-preview.vue";
 import ImageInput from "./components/admin/inputs/image-input.vue";
@@ -102,18 +107,24 @@ import NumberInput from "./components/admin/inputs/number-input.vue";
 import PasswordInput from "./components/admin/inputs/password-input.vue";
 import PhoneInput from "./components/admin/inputs/phone-input.vue";
 import RadioButtonGroupInput from "./components/admin/inputs/radio-button-group-input.vue";
-import RatingInput from "./components/admin/inputs/rating-input.vue";
+import RatingInput, {
+  type RatingInputProps,
+} from "./components/admin/inputs/rating-input.vue";
 import ReferenceArrayInput from "./components/admin/inputs/reference-array-input.vue";
 import ReferenceInput from "./components/admin/inputs/reference-input.vue";
 import ResettableTextInput from "./components/admin/inputs/resettable-text-input.vue";
 import SearchInput from "./components/admin/inputs/search-input.vue";
 import SelectArrayInput from "./components/admin/inputs/select-array-input.vue";
 import SelectInput from "./components/admin/inputs/select-input.vue";
-import SubscriptionPlanPicker from "./components/admin/inputs/subscription-plan-picker.vue";
+import SubscriptionPlanPicker, {
+  type SubscriptionPlanPickerProps,
+} from "./components/admin/inputs/subscription-plan-picker.vue";
 import TextArrayInput from "./components/admin/inputs/text-array-input.vue";
 import TextInput from "./components/admin/inputs/text-input.vue";
 import TimeInput from "./components/admin/inputs/time-input.vue";
-import WebhookEndpointInput from "./components/admin/inputs/webhook-endpoint-input.vue";
+import WebhookEndpointInput, {
+  type WebhookEndpointInputProps,
+} from "./components/admin/inputs/webhook-endpoint-input.vue";
 import Create from "./components/admin/view/create.vue";
 import Edit from "./components/admin/view/edit.vue";
 import List from "./components/admin/view/list.vue";
@@ -296,6 +307,41 @@ type ArrayInputMember<TRecord> = <TPath extends SourceProp<TRecord>>(
 ) => VNode;
 
 /**
+ * The inputs whose `defaultValue` is typed by the value at `source`. Their
+ * SFCs take the loose record: a generic SFC types `defaultValue` through
+ * `SourceValue`, which overflows the instantiation depth in the props helpers
+ * Volar generates. The props interfaces are generic, so these members are
+ * function components like {@link ArrayInputMember}.
+ */
+type TypedInputMembers<TRecord> = {
+  CurrencyInput: <TPath extends SourceProp<TRecord>>(
+    props: CurrencyInputProps<TRecord, TPath> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  DurationInput: <TPath extends SourceProp<TRecord>>(
+    props: DurationInputProps<TRecord, TPath> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  RatingInput: <TPath extends SourceProp<TRecord>>(
+    props: RatingInputProps<TRecord, TPath> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  SubscriptionPlanPicker: <TPath extends SourceProp<TRecord>>(
+    props: SubscriptionPlanPickerProps<TRecord, TPath> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  WebhookEndpointInput: <TPath extends SourceProp<TRecord>>(
+    props: WebhookEndpointInputProps<TRecord, TPath> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+};
+
+/**
  * A view with its `resource` prop removed. Templates are not strict about
  * undeclared attributes, so the prop stays as `never` to make
  * `<posts.Edit resource="users">` an error.
@@ -318,18 +364,20 @@ export type ResourceComponents<
   TName extends keyof TResources & string,
 > = {
   [K in keyof SourceMembers as SourceMembers[K] extends Ctor
-    ? K
+    ? K extends keyof TypedInputMembers<LooseRecord>
+      ? never
+      : K
     : never]: ResourceMember<
     Extract<SourceMembers[K], Ctor>,
     RecordOf<TResources, TName>
   >;
-} & {
-  ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
-  Edit: BoundView<typeof Edit>;
-  Create: BoundView<typeof Create>;
-  Show: BoundView<typeof Show>;
-  List: BoundView<typeof List>;
-};
+} & TypedInputMembers<RecordOf<TResources, TName>> & {
+    ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
+    Edit: BoundView<typeof Edit>;
+    Create: BoundView<typeof Create>;
+    Show: BoundView<typeof Show>;
+    List: BoundView<typeof List>;
+  };
 
 /** Wraps a view so it renders with `resource` set, passing attrs and slots on. */
 function bindResource(
