@@ -1,3 +1,9 @@
+import {
+  type LooseRecord,
+  type SourceProp,
+  toCurrencyComposite,
+  toCurrencyValue,
+} from "@chelone/core";
 import type * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
@@ -28,7 +34,10 @@ import type { InputProps } from "../input-props";
  *   </Edit>
  * );
  */
-function CurrencyInput(props: CurrencyInputProps) {
+function CurrencyInput<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+>(props: CurrencyInputProps<TRecord, TPath>) {
   const {
     label,
     source,
@@ -40,37 +49,34 @@ function CurrencyInput(props: CurrencyInputProps) {
     displayLocale,
     storeAsMinorUnits = false,
     disabled,
-    validate,
-    isRequired: isRequiredProp,
-    id: idProp,
-    defaultValue,
-    format,
-    parse,
-    // Strip the form/DOM handler seams so they don't reach `useInput` (chained
-    // there) nor the DOM spread twice.
+    ...inputProps
+  } = props;
+  const resource = useResourceContext({ resource: resourceProp });
+  const [appLocale] = useLocaleState();
+  const locale = displayLocale ?? appLocale;
+
+  // The options are spread whole: reading the generic `defaultValue` anywhere
+  // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
+  // instantiation depth.
+  const { id, field, fieldState, isRequired } = useInput({
+    ...inputProps,
+    source,
+  });
+  // Strip the form/DOM handler seams so they don't reach the DOM spread twice
+  // (`useInput` chains them).
+  const {
+    validate: _validate,
+    isRequired: _isRequired,
+    id: _id,
+    defaultValue: _defaultValue,
+    format: _format,
+    parse: _parse,
     onChange: _onChange,
     onBlur: _onBlur,
     name: _name,
     readOnly: _readOnly,
     ...rest
-  } = props;
-  void _onChange;
-  void _onBlur;
-  void _name;
-  void _readOnly;
-  const resource = useResourceContext({ resource: resourceProp });
-  const [appLocale] = useLocaleState();
-  const locale = displayLocale ?? appLocale;
-
-  const { id, field, fieldState, isRequired } = useInput({
-    source,
-    validate,
-    isRequired: isRequiredProp,
-    id: idProp,
-    defaultValue,
-    format,
-    parse,
-  });
+  } = inputProps;
 
   const invalid = fieldState.invalid;
   // chelone `fieldState.error` is ALREADY the displayable
@@ -78,12 +84,10 @@ function CurrencyInput(props: CurrencyInputProps) {
   const error = fieldState.error;
 
   const isComposite = !!currencies;
-  const composite = isComposite
-    ? (field.value as { amount: number; currency: string } | null)
-    : null;
+  const composite = isComposite ? toCurrencyComposite(field.value) : null;
   const fixedAmount = isComposite
     ? composite?.amount
-    : (field.value as number | null);
+    : toCurrencyValue(field.value);
   const currentCurrency = isComposite ? composite?.currency : currency;
 
   const majorAmount =
@@ -192,8 +196,10 @@ function CurrencyInput(props: CurrencyInputProps) {
   );
 }
 
-interface CurrencyInputProps
-  extends InputProps,
+interface CurrencyInputProps<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> extends InputProps<TRecord, TPath>,
     Omit<
       React.ComponentProps<"input">,
       "defaultValue" | "onBlur" | "onChange" | "type" | "step"

@@ -56,7 +56,7 @@ export interface InputProps<
    * Input-level default, ra precedence (seeds only into an untouched hole).
    * Typed as the value at `source`; `unknown` without a record.
    */
-  defaultValue?: SourceValue<TRecord, TPath>;
+  defaultValue?: NoInfer<SourceValue<TRecord, TPath>>;
   /** Native disabled state. */
   disabled?: boolean;
   /** Native read-only state. */
