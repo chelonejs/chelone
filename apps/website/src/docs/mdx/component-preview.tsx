@@ -23,17 +23,18 @@ const demoModules = import.meta.glob<{
   mode?: PreviewMode;
 }>("../content/**/demos/*.tsx", { eager: true });
 
-const demoSources = import.meta.glob("../content/**/demos/*.tsx", {
+const demoSources = import.meta.glob<string>("../content/**/demos/*.tsx", {
   eager: true,
   query: "?raw",
   import: "default",
-}) as Record<string, string>;
+});
 
 /** Convert name "<component-dir>/<demo>" → glob key */
 function keyFor(name: string): string | undefined {
   // name = "components/button/basic" → key = "../content/components/button/demos/basic.tsx"
   const parts = name.split("/");
-  const demoFile = parts.pop()!;
+  const demoFile = parts.pop();
+  if (demoFile === undefined) return undefined;
   const componentDir = parts.join("/");
   const key = `../content/${componentDir}/demos/${demoFile}.tsx`;
   if (demoModules[key]) return key;
