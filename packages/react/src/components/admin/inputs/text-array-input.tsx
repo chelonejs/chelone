@@ -1,3 +1,4 @@
+import { type SourceProp, toTextList } from "@chelone/core";
 import { X } from "lucide-react";
 import * as React from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
@@ -24,7 +25,11 @@ import type { InputProps } from "../input-props";
 
 type TagProps = { key: string | number; onDelete: () => void };
 
-type TextArrayInputProps = InputProps & {
+type TextArrayInputProps<
+  // type-escape: the no-record sentinel `SourcePath` and `SourceValue` test for
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> = InputProps<TRecord, TPath> & {
   className?: string;
   placeholder?: string;
   /** Autocomplete suggestions shown in a dropdown below the input. */
@@ -103,7 +108,7 @@ function TextArrayInput(props: TextArrayInputProps) {
   const [inputValue, setInputValue] = React.useState("");
   const [suggestionsOpen, setSuggestionsOpen] = React.useState(false);
 
-  const values: string[] = (field.value as string[] | undefined) ?? emptyArray;
+  const values = toTextList(field.value);
 
   const filteredOptions = React.useMemo(() => {
     if (!options || !inputValue.trim()) return [];

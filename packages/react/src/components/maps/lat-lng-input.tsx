@@ -50,8 +50,7 @@ export interface LatLngInputProps<TRecord = LooseRecord> {
   className?: string;
 }
 
-const toText = (value: unknown) =>
-  typeof value === "number" ? `${value}` : "";
+const toText = (value: number | null) => (value === null ? "" : `${value}`);
 
 /** About 10 cm, so the text fields stay readable. */
 const round6 = (value: number) => Math.round(value * 1e6) / 1e6;
@@ -90,15 +89,13 @@ function useCoordinate(
   const { id, field, fieldState, isRequired } = useInput({
     source,
     parse: toCoordinate,
-    format: (value: unknown) => toText(toCoordinate(value)),
+    format: (value) => toText(toCoordinate(value)),
     validate: [range, ...validate],
   });
   const [draft, setDraft] = useState<string | null>(null);
   const stored = toCoordinate(field.value);
   const text =
-    draft !== null && toCoordinate(draft) === stored
-      ? draft
-      : (field.value as string);
+    draft !== null && toCoordinate(draft) === stored ? draft : toText(stored);
   return {
     id,
     field,

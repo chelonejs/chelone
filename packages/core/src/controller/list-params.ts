@@ -17,6 +17,7 @@
  */
 
 import type { FilterPayload, SortPayload } from "../data/types";
+import { isRecord } from "../guards";
 import type { ListParamsPatch } from "./list-controller";
 
 type SortOrder = "ASC" | "DESC";
@@ -76,8 +77,7 @@ function parseJsonObjectParam<T>(raw: string | null): T | undefined {
   if (raw === null) return undefined;
   try {
     const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed))
-      return undefined;
+    if (!isRecord(parsed)) return undefined;
     return parsed as T;
   } catch {
     return undefined;

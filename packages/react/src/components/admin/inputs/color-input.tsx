@@ -1,3 +1,4 @@
+import { type SourceProp, toTextValue } from "@chelone/core";
 import type * as React from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -53,7 +54,7 @@ function ColorInput(props: ColorInputProps) {
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const value = (field.value as string | undefined) ?? "#000000";
+  const value = toTextValue(field.value) || "#000000";
 
   return (
     <Field className={className} data-invalid={invalid || undefined}>
@@ -109,8 +110,11 @@ function ColorInput(props: ColorInputProps) {
   );
 }
 
-interface ColorInputProps
-  extends InputProps,
+interface ColorInputProps<
+  // type-escape: the no-record sentinel `SourcePath` and `SourceValue` test for
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> extends InputProps<TRecord, TPath>,
     Omit<
       React.ComponentProps<"input">,
       "defaultValue" | "onBlur" | "onChange" | "type"

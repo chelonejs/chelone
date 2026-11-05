@@ -5,15 +5,9 @@
  * feature appears, then `finish` fires) and asserts the form's value.
  */
 
-import type {
-  GeoGeometry,
-  GeoLineString,
-  GeoPoint,
-  GeoPolygon,
-  RoutingProvider,
-} from "@chelone/core";
+import type { RoutingProvider } from "@chelone/core";
 import { act, cleanup, fireEvent, screen } from "@testing-library/react";
-import type { LineString } from "geojson";
+import type { Geometry, LineString, Point, Polygon } from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetFake as resetMaps } from "../maps/__fixtures__/fake-maplibre";
 import {
@@ -54,15 +48,15 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-const point = (x = 0): GeoPoint => ({ type: "Point", coordinates: [x, x] });
-const line = (x = 0): GeoLineString => ({
+const point = (x = 0): Point => ({ type: "Point", coordinates: [x, x] });
+const line = (x = 0): LineString => ({
   type: "LineString",
   coordinates: [
     [x, x],
     [x + 1, x + 1],
   ],
 });
-const square = (offset = 0): GeoPolygon => ({
+const square = (offset = 0): Polygon => ({
   type: "Polygon",
   coordinates: [
     [
@@ -74,7 +68,7 @@ const square = (offset = 0): GeoPolygon => ({
     ],
   ],
 });
-const holed: GeoPolygon = {
+const holed: Polygon = {
   type: "Polygon",
   coordinates: [
     [
@@ -101,7 +95,7 @@ async function drawWith(
   draw: () => TerraDraw,
   tool: string,
   mode: string,
-  geometry: GeoGeometry,
+  geometry: Geometry,
 ) {
   fireEvent.click(button(tool));
   await act(async () => {
@@ -224,12 +218,12 @@ describe("PolygonInput", () => {
 });
 
 describe("MultiPolygonInput", () => {
-  const parts: [GeoPolygon, GeoPolygon, GeoPolygon] = [
+  const parts: [Polygon, Polygon, Polygon] = [
     square(0),
     square(10),
     square(20),
   ];
-  const multi = (...polygons: GeoPolygon[]) => ({
+  const multi = (...polygons: Polygon[]) => ({
     type: "MultiPolygon",
     coordinates: polygons.map((p) => p.coordinates),
   });
@@ -460,7 +454,7 @@ describe("FeatureInput", () => {
 });
 
 describe("FeatureCollectionInput", () => {
-  const feature = (name: string, geometry: GeoGeometry) => ({
+  const feature = (name: string, geometry: Geometry) => ({
     type: "Feature",
     properties: { name },
     geometry,

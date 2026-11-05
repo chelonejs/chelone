@@ -3,7 +3,7 @@
 export interface ColorInputProps {
   source: SourceProp;
   label?: string | false;
-  defaultValue?: unknown;
+  defaultValue?: string;
   validate?: Validator | readonly Validator[];
   helperText?: string;
   swatches?: readonly string[];
@@ -23,7 +23,7 @@ export interface ColorInputProps {
  * the optional quick-set `swatches` row. Binds via `useInput` + `<ValidationError>`.
  */
 
-import type { SourceProp, Validator } from "@chelone/core";
+import { type SourceProp, toTextValue, type Validator } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { cn } from "../../../lib/utils";
@@ -44,8 +44,7 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
 // Native `<input type="color">` requires a valid `#rrggbb`; fall back to black
 // when the field is empty/nullish (mirrors the React twin's `?? "#000000"`).
 const displayValue = computed(() => {
-  const v = value.value;
-  return typeof v === "string" && v !== "" ? v : "#000000";
+  return toTextValue(value.value) || "#000000";
 });
 const invalid = computed(() => touched.value && error.value != null);
 const labelText = computed(() =>

@@ -43,10 +43,11 @@ import {
   areaInTypeOf,
   geoAreaM2,
   geoBounds,
+  isGeoArea,
   OverpassRateLimitError,
 } from "@chelone/core";
 import { useQueryClient } from "@tanstack/vue-query";
-import type { Geometry } from "geojson";
+import type { MultiPolygon, Polygon } from "geojson";
 import { onBeforeUnmount, ref, toRaw } from "vue";
 import { useInput } from "../../form/use-input";
 import { useTranslate } from "../../i18n/use-translate";
@@ -57,8 +58,6 @@ import Spinner from "../ui/spinner.vue";
 import { fetchOsmFeatures } from "./osm-features";
 import { subtractMask, unionAll } from "./osm-geometry-ops";
 
-type Area = Extract<Geometry, { type: "Polygon" | "MultiPolygon" }>;
-
 const props = withDefaults(defineProps<OsmFeatureOperatorProps>(), {
   presets: undefined,
   tags: undefined,
@@ -67,13 +66,13 @@ const props = withDefaults(defineProps<OsmFeatureOperatorProps>(), {
   disabled: false,
 });
 
-const isArea = (value: unknown): value is Area => {
-  const type = (value as { type?: unknown } | null)?.type;
-  return type === "Polygon" || type === "MultiPolygon";
-};
-
+/**
+ * The failure of an aborted request. jsdom and browsers reject with a
+ * `DOMException`, which is not an `Error`, so both are tested.
+ */
 const isAbort = (error: unknown) =>
-  (error as { name?: unknown } | null)?.name === "AbortError";
+  (error instanceof Error || error instanceof DOMException) &&
+  error.name === "AbortError";
 
 /** Square kilometres to 3 decimals, from a difference in square metres. */
 const km2 = (m2: number) => `${(Math.max(0, m2) / 1e6).toFixed(3)} km²`;
@@ -92,7 +91,7 @@ const running = ref(false);
 let controller: AbortController | null = null;
 onBeforeUnmount(() => controller?.abort());
 
-function write(geometry: Area | null) {
+function write(geometry: Polygon | MultiPolygon | null) {
   input.setValue(geometry);
   input.blur();
 }
@@ -105,7 +104,7 @@ async function run() {
     notify("chelone.map.osm.no_sources", { type: "warning" });
     return;
   }
-  if (!isArea(value)) {
+  if (!isGeoArea(value)) {
     notify("chelone.map.osm.no_polygon", { type: "warning" });
     return;
   }
