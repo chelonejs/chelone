@@ -52,9 +52,8 @@ export interface ResetPasswordParams {
   captchaToken?: string;
 }
 
-/** `getPermissions` resolves `undefined` when nobody is signed in. */
 export type SupabaseAuthProvider<TPermissions = RegisteredPermissions> =
-  AuthProvider<TPermissions | undefined> &
+  AuthProvider<TPermissions> &
     Required<Pick<AuthProvider, "handleCallback">> & {
       setPassword(params: SetPasswordParams): Promise<void>;
       resetPassword(params: ResetPasswordParams): Promise<void>;

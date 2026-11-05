@@ -27,7 +27,8 @@ export interface AuthProvider<TPermissions = RegisteredPermissions> {
   checkAuth(params?: unknown): Promise<void>;
   checkError(error: unknown): Promise<void>;
   getIdentity?(): Promise<UserIdentity>;
-  getPermissions?(params?: unknown): Promise<TPermissions>;
+  /** Resolves `undefined` when there are no permissions to give, e.g. nobody is signed in. */
+  getPermissions?(params?: unknown): Promise<TPermissions | undefined>;
   canAccess?(params: CanAccessParams): Promise<boolean>;
   handleCallback?(): Promise<void | { redirectTo?: string }>;
   refreshAuth?(): Promise<void>;

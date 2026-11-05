@@ -20,6 +20,15 @@ describe("permissionsQueryOptions", () => {
     expectTypeOf(queryFn).returns.resolves.toEqualTypeOf<string[] | null>();
   });
 
+  it("lets getPermissions resolve undefined, which the query maps to null", () => {
+    const provider: AuthProvider<string[]> = {
+      ...verbs,
+      getPermissions: async (): Promise<string[] | undefined> => undefined,
+    };
+    const { queryFn } = permissionsQueryOptions(provider);
+    expectTypeOf(queryFn).returns.resolves.toEqualTypeOf<string[] | null>();
+  });
+
   it("rejects a getPermissions that resolves another type", () => {
     const provider: AuthProvider<string[]> = {
       ...verbs,
