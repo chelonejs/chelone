@@ -50,11 +50,16 @@ export function useControllerForId<
     // and stopping that scope must not stop this one. We stop it ourselves.
     const scope = effectScope(true);
     try {
-      // `run` returns undefined only for a stopped scope, and this one is new.
-      const bound = scope.run(() => {
+      const bound = scope.run((): BoundController<TController, TState> => {
         const controller = create(value);
         return { controller, state: useMicroStore<TState>(controller) };
-      }) as BoundController<TController, TState>;
+      });
+      // `run` returns undefined only for a stopped scope, and this one is new.
+      if (bound === undefined) {
+        throw new Error(
+          "useControllerForId: the new effect scope was inactive",
+        );
+      }
       return { scope, bound };
     } catch (error) {
       scope.stop();
