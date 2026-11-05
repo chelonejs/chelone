@@ -14,14 +14,10 @@ import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
 import { MemoryRouter, Route, useNavigate } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Resource } from "../resource/resource";
 import { Admin } from "./admin";
 import { CustomRoutes } from "./slots";
-
-beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
 
 afterEach(() => {
   cleanup();

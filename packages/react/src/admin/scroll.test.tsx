@@ -15,25 +15,26 @@ import {
   describe,
   expect,
   it,
+  type MockInstance,
   vi,
 } from "vitest";
 import { AdminContext } from "./admin-context";
 import { RestoreScrollPosition, useScrollToTop } from "./scroll";
 
-let scrollToSpy: ReturnType<typeof vi.fn>;
+let scrollToSpy: MockInstance<typeof window.scrollTo>;
 
 beforeAll(() => {
   vi.useFakeTimers();
 });
 
 beforeEach(() => {
-  scrollToSpy = vi.fn();
-  window.scrollTo = scrollToSpy as unknown as typeof window.scrollTo;
+  scrollToSpy = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
 });
 
 afterEach(() => {
   cleanup();
   vi.clearAllTimers();
+  vi.restoreAllMocks();
 });
 
 const dataProvider = fakeDataProvider({});
