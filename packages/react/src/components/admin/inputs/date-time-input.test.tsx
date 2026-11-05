@@ -121,6 +121,14 @@ describe("<DateTimeInput>", () => {
     expect(new Date(written as string).getTime()).not.toBeNaN();
   });
 
+  it("renders empty for a stored object", () => {
+    setup(<DateTimeInput source="starts_at" />, {
+      defaultValues: { starts_at: { year: 2021 } },
+    });
+    const input = screen.getByLabelText("Starts at") as HTMLInputElement;
+    expect(input.value).toBe("");
+  });
+
   it("does not render a label when label is false", () => {
     setup(<DateTimeInput source="starts_at" label={false} />, {
       defaultValues: { starts_at: "2021-09-11T10:30" },

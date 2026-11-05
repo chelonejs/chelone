@@ -1,3 +1,9 @@
+import {
+  type DateInputValue,
+  type SourceProp,
+  toDateInputValue,
+  toTextValue,
+} from "@chelone/core";
 import * as React from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -65,8 +71,8 @@ function DateTimeInput(props: DateTimeInputProps) {
     onBlur,
     source,
     validate,
-    format,
-    parse,
+    format: (raw) => format(toDateInputValue(raw)),
+    parse: (input) => parse(toTextValue(input)),
   });
 
   const invalid = fieldState.invalid;
@@ -160,7 +166,7 @@ function DateTimeInput(props: DateTimeInputProps) {
       <Input
         ref={localInputRef}
         name={field.name}
-        defaultValue={format(initialDefaultValueRef.current) as string}
+        defaultValue={format(toDateInputValue(initialDefaultValueRef.current))}
         key={inputKey}
         type="datetime-local"
         onChange={handleChange}
@@ -186,8 +192,14 @@ function DateTimeInput(props: DateTimeInputProps) {
   );
 }
 
-type DateTimeInputProps = Omit<InputProps, "defaultValue"> & {
-  defaultValue?: string | number | Date;
+type DateTimeInputProps<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> = Omit<InputProps<TRecord, TPath>, "format" | "parse"> & {
+  /** Read transform: the stored value, as a date input holds it, to the input's display string. */
+  format?: (value: DateInputValue) => string;
+  /** Write transform: the string the DOM input holds to the stored value. */
+  parse?: (value: string) => unknown;
   inputClassName?: string;
 } & Omit<React.ComponentProps<"input">, "defaultValue" | "type">;
 
@@ -218,7 +230,7 @@ const dateTimeRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
  * Convert a value from the dataProvider (ISO string / `Date`) to the local
  * `datetime-local` display string. Empty → "" (keeps the input controlled).
  */
-const formatDateTime = (value: unknown): string => {
+const formatDateTime = (value: DateInputValue): string => {
   if (value == null || value === "") {
     return "";
   }
@@ -228,16 +240,16 @@ const formatDateTime = (value: unknown): string => {
   if (typeof value === "string" && dateTimeRegex.test(value)) {
     return value;
   }
-  return convertDateToString(new Date(value as string | number));
+  return convertDateToString(new Date(value));
 };
 
 /**
  * Convert the local `datetime-local` string back to an ISO string (browser
  * timezone). Returns `null` for empty so a required validator still fires.
  */
-const convertDateStringToISO = (value: unknown): string | null => {
-  if (value == null || value === "") return null;
-  const date = new Date(value as string);
+const convertDateStringToISO = (value: string): string | null => {
+  if (value === "") return null;
+  const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 };
 

@@ -136,6 +136,14 @@ describe("<TimeInput>", () => {
     expect(onData.mock.calls.at(-1)?.[0]?.opens_at).toBe("09:45");
   });
 
+  it("renders empty for a stored object", () => {
+    setup(<TimeInput source="opens_at" />, {
+      defaultValues: { opens_at: { year: 2021 } },
+    });
+    const input = screen.getByLabelText("Opens at") as HTMLInputElement;
+    expect(input.value).toBe("");
+  });
+
   it("does not render a label when label is false", () => {
     setup(<TimeInput source="opens_at" label={false} />, {
       defaultValues: { opens_at: "08:30" },
