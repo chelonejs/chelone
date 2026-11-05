@@ -788,8 +788,10 @@ export {
 } from "./realtime/presence";
 export {
   assertRealtimeDataProvider,
+  hasTransportMembers,
   isRealtimeDataProvider,
   realtimeDataProvider,
+  type TransportMembers,
 } from "./realtime/realtime-data-provider";
 export type { RealtimeReconnectConfig } from "./realtime/reconnect-backoff";
 export type {
