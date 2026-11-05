@@ -3,10 +3,10 @@ import { difference } from "@turf/difference";
 import { simplify } from "@turf/simplify";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 
-/** A stored shape: a Feature whose geometry may be absent and whose properties are JSON. */
 export type DrawFeature = Feature<Geometry | null, JsonObject | null>;
 
-export type GeoJson =
+/** A Geometry, a Feature or a FeatureCollection, with JSON properties. */
+export type DrawValue =
   | Geometry
   | DrawFeature
   | FeatureCollection<Geometry | null, JsonObject | null>;
@@ -87,7 +87,10 @@ export interface SimplifyOptions {
   highQuality: boolean;
 }
 
-function simplifyInPlace(value: GeoJson, options: SimplifyOptions): GeoJson {
+function simplifyInPlace(
+  value: DrawValue,
+  options: SimplifyOptions,
+): DrawValue {
   if (value.type === "FeatureCollection") {
     value.features = value.features.map(
       (feature) => simplifyInPlace(feature, options) as DrawFeature,
@@ -100,7 +103,7 @@ function simplifyInPlace(value: GeoJson, options: SimplifyOptions): GeoJson {
     tolerance: options.tolerance,
     highQuality: options.highQuality,
     mutate: true,
-  }) as unknown as GeoJson;
+  }) as unknown as DrawValue;
 }
 
 /**
@@ -110,7 +113,10 @@ function simplifyInPlace(value: GeoJson, options: SimplifyOptions): GeoJson {
  * vertices at any tolerance above 0, so a tolerance of 0 or less skips it and
  * returns a copy of the value.
  */
-export function simplifyGeo(value: GeoJson, options: SimplifyOptions): GeoJson {
+export function simplifyGeo(
+  value: DrawValue,
+  options: SimplifyOptions,
+): DrawValue {
   // `mutate` lets turf skip its own clone, so the one made here is the only one.
   const copy = structuredClone(value);
   if (options.tolerance <= 0) return copy;

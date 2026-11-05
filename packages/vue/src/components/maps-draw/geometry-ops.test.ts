@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   cutFeatures,
   type DrawFeature,
-  type GeoJson,
+  type DrawValue,
   simplifyGeo,
 } from "./geometry-ops";
 
@@ -123,7 +123,7 @@ function bumpyLine(): [number, number][] {
 
 describe("simplifyGeo", () => {
   it("does not mutate its input", () => {
-    const input: GeoJson = {
+    const input: DrawValue = {
       type: "LineString",
       coordinates: bumpyLine(),
     };
@@ -135,8 +135,8 @@ describe("simplifyGeo", () => {
   });
 
   it("simplifies a Feature and a FeatureCollection", () => {
-    const line: GeoJson = { type: "LineString", coordinates: bumpyLine() };
-    const feature: GeoJson = {
+    const line: DrawValue = { type: "LineString", coordinates: bumpyLine() };
+    const feature: DrawValue = {
       type: "Feature",
       properties: { name: "a" },
       geometry: line,
@@ -173,10 +173,10 @@ describe("simplifyGeo", () => {
   });
 
   it("returns a Point unchanged", () => {
-    const point: GeoJson = { type: "Point", coordinates: [2.35, 48.85] };
+    const point: DrawValue = { type: "Point", coordinates: [2.35, 48.85] };
     const result = simplifyGeo(point, { tolerance: 0.05, highQuality: false });
     expect(result).toEqual(point);
-    const multi: GeoJson = {
+    const multi: DrawValue = {
       type: "MultiPoint",
       coordinates: [
         [0, 0],
@@ -189,7 +189,7 @@ describe("simplifyGeo", () => {
   });
 
   it("keeps a collinear vertex at tolerance 0", () => {
-    const polygon: GeoJson = {
+    const polygon: DrawValue = {
       type: "Polygon",
       coordinates: [
         [
@@ -208,14 +208,14 @@ describe("simplifyGeo", () => {
   });
 
   it("passes a Feature with a null geometry through", () => {
-    const empty: GeoJson = {
+    const empty: DrawValue = {
       type: "Feature",
       properties: null,
       geometry: null,
     };
     const options = { tolerance: 0.01, highQuality: false };
     expect(simplifyGeo(empty, options)).toEqual(empty);
-    const collection: GeoJson = {
+    const collection: DrawValue = {
       type: "FeatureCollection",
       features: [empty, square(0, 0, 1, 1)],
     };
