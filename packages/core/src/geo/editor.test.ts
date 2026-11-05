@@ -2,25 +2,26 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
-import type { Feature, Geometry } from "geojson";
+import type { Feature, Geometry, LineString, Point, Polygon } from "geojson";
 import { describe, expect, it } from "vitest";
 import type { JsonObject } from "../guards";
 import {
   EDITOR_PROPERTIES,
+  type EditorSnapshotFeature,
   editorStyles,
   fromEditorFeatures,
   toEditorFeatures,
 } from "./editor";
 
-const point: Geometry = { type: "Point", coordinates: [1, 2] };
-const line: Geometry = {
+const point: Point = { type: "Point", coordinates: [1, 2] };
+const line: LineString = {
   type: "LineString",
   coordinates: [
     [0, 0],
     [1, 1],
   ],
 };
-const polygon: Geometry = {
+const polygon: Polygon = {
   type: "Polygon",
   coordinates: [
     [
@@ -72,6 +73,25 @@ describe("toEditorFeatures", () => {
         properties: { mode: "polygon", "chelone:properties": {} },
       },
     ]);
+  });
+
+  it("toEditorFeatures keeps the source properties whole under chelone:properties", () => {
+    const properties: JsonObject = {
+      name: "p",
+      tags: ["a", "b"],
+      nested: { depth: { n: 1, flag: null } },
+      mode: "bus",
+      "chelone:id": "mine",
+    };
+    const [feature] = toEditorFeatures(
+      [{ type: "Feature", id: "a", geometry: point, properties }],
+      ids(),
+    );
+    expect(feature?.properties).toEqual({
+      mode: "point",
+      "chelone:id": "a",
+      "chelone:properties": properties,
+    });
   });
 
   it("toEditorFeatures gives a fresh id every call and leaves the source alone", () => {
@@ -256,9 +276,9 @@ describe("toEditorFeatures", () => {
 
 describe("fromEditorFeatures", () => {
   it("fromEditorFeatures drops helper features and the editor's own properties and restores the source id", () => {
-    const snapshot = [
+    const snapshot: EditorSnapshotFeature[] = [
       {
-        type: "Feature" as const,
+        type: "Feature",
         id: "editor-1",
         geometry: polygon,
         properties: {
@@ -277,14 +297,16 @@ describe("fromEditorFeatures", () => {
           "snappingPoint",
           "coordinatePoint",
         ] as const
-      ).map((flag, index) => ({
-        type: "Feature" as const,
-        id: `helper-${index}`,
-        geometry: point,
-        properties: { mode: "select", [flag]: true },
-      })),
+      ).map(
+        (flag, index): EditorSnapshotFeature => ({
+          type: "Feature",
+          id: `helper-${index}`,
+          geometry: point,
+          properties: { mode: "select", [flag]: true },
+        }),
+      ),
       {
-        type: "Feature" as const,
+        type: "Feature",
         id: "drawing",
         geometry: line,
         properties: { mode: "linestring", currentlyDrawing: true },
@@ -301,17 +323,14 @@ describe("fromEditorFeatures", () => {
   });
 
   it("fromEditorFeatures keeps a feature the editor marks edited while it is dragged", () => {
-    const [dragged] = toEditorFeatures(
+    const snapshot = toEditorFeatures(
       [{ type: "Feature", id: "a", geometry: polygon, properties: { k: 1 } }],
       ids(),
-    );
-    const snapshot = [
-      {
-        ...dragged,
-        properties: { ...dragged?.properties, edited: true, selected: true },
-      },
-    ];
-    expect(fromEditorFeatures(snapshot as never)).toEqual([
+    ).map((dragged) => ({
+      ...dragged,
+      properties: { ...dragged.properties, edited: true, selected: true },
+    }));
+    expect(fromEditorFeatures(snapshot)).toEqual([
       { type: "Feature", id: "a", geometry: polygon, properties: { k: 1 } },
     ]);
   });
@@ -371,18 +390,72 @@ describe("fromEditorFeatures", () => {
     expect(fromEditorFeatures(toEditorFeatures(source, ids()))).toEqual(source);
   });
 
-  it("fromEditorFeatures drops a feature with a malformed geometry and never throws", () => {
+  it("fromEditorFeatures drops a feature whose coordinate is not a finite number and never throws", () => {
     expect(
       fromEditorFeatures([
         {
           type: "Feature",
           id: "x",
-          geometry: { type: "Polygon", coordinates: "nope" },
+          geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [Number.NaN, 0],
+                [1, 0],
+                [1, 1],
+                [Number.NaN, 0],
+              ],
+            ],
+          },
           properties: { mode: "polygon" },
         },
-        { type: "Feature", id: "y", geometry: null, properties: null },
+        {
+          type: "Feature",
+          id: "y",
+          geometry: {
+            type: "Point",
+            coordinates: [Number.POSITIVE_INFINITY, 0],
+          },
+          properties: { mode: "point" },
+        },
       ]),
     ).toEqual([]);
+  });
+
+  it("fromEditorFeatures drops a feature whose chelone:properties is not a JSON object", () => {
+    expect(
+      fromEditorFeatures([
+        {
+          type: "Feature",
+          id: "x",
+          geometry: point,
+          properties: {
+            mode: "point",
+            "chelone:id": "a",
+            "chelone:properties": 3,
+            name: "kept by the editor",
+          },
+        },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("fromEditorFeatures returns the properties toEditorFeatures stored", () => {
+    const properties: JsonObject = {
+      name: "area",
+      tags: ["a", "b"],
+      nested: { depth: { n: 1, flag: null } },
+      mode: "bus",
+      "chelone:id": "mine",
+    };
+    const [editor] = toEditorFeatures(
+      [{ type: "Feature", id: "a", geometry: polygon, properties }],
+      ids(),
+    );
+    expect(editor).toBeDefined();
+    expect(fromEditorFeatures(editor ? [editor] : [])).toEqual([
+      { type: "Feature", id: "a", geometry: polygon, properties },
+    ]);
   });
 });
 

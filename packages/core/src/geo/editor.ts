@@ -1,9 +1,14 @@
-import type { Feature, Geometry, Position } from "geojson";
-import { isJsonObject, isRecord, type JsonObject } from "../guards";
-import { isGeoGeometry } from "./geojson";
+import type { Feature, LineString, Point, Polygon, Position } from "geojson";
+import { isJsonObject, type JsonObject } from "../guards";
+import { type GeoFeature, isGeoGeometry } from "./geojson";
 import type { ShapeStyle } from "./map-layers";
 
-type EditorFeature = Feature<Geometry | null, JsonObject | null>;
+type EditorGeometry = Point | LineString | Polygon;
+
+/** A feature as the editor takes it: a drawable geometry, JSON properties and an id. */
+export type EditorFeature = Feature<EditorGeometry, JsonObject> & {
+  id: string | number;
+};
 
 // Core converts to and from the editor's features without importing it. The
 // names below are the ones `terra-draw` writes into `properties`; editor.test
@@ -82,9 +87,7 @@ function editorPosition([
   ];
 }
 
-function editorGeometry(
-  geometry: Extract<Geometry, { type: "Point" | "LineString" | "Polygon" }>,
-): Geometry {
+function editorGeometry(geometry: EditorGeometry): EditorGeometry {
   switch (geometry.type) {
     case "Point":
       return { ...geometry, coordinates: editorPosition(geometry.coordinates) };
@@ -115,7 +118,7 @@ function editorGeometry(
  * rewritten.
  */
 export function toEditorFeatures(
-  features: EditorFeature[],
+  features: GeoFeature[],
   getId: () => string | number,
 ): EditorFeature[] {
   const result: EditorFeature[] = [];
@@ -146,31 +149,30 @@ export function toEditorFeatures(
 }
 
 /** What `getSnapshot()` of the editor returns, as far as core reads it. */
-export interface EditorSnapshotFeature {
-  type?: "Feature";
-  id?: string | number;
-  geometry: { type: string; coordinates?: unknown } | null;
-  properties: object | null;
-}
+export type EditorSnapshotFeature = Feature<EditorGeometry, JsonObject>;
 
 /**
  * The user's features in an editor snapshot: its helper features (selection
  * points, midpoints, closing points, snapping points and a feature still being
  * drawn) are dropped, and `id` and `properties` come back from `chelone:id`
  * and `chelone:properties`. A feature the editor made has no `id`, and keeps
- * its properties but for the editor's own. A feature whose properties are not
- * JSON is left out.
+ * its properties but for the editor's own. A feature with a coordinate that is
+ * not a finite number, or a `chelone:properties` that is not a JSON object, is
+ * left out.
  */
 export function fromEditorFeatures(
   snapshot: readonly EditorSnapshotFeature[],
-): EditorFeature[] {
-  const result: EditorFeature[] = [];
+): GeoFeature[] {
+  const result: GeoFeature[] = [];
   for (const entry of snapshot) {
-    const source: Record<string, unknown> = { ...entry.properties };
+    const source: JsonObject = { ...entry.properties };
     if (HELPER_FLAGS.some((flag) => source[flag])) continue;
     if (!isGeoGeometry(entry.geometry)) continue;
     const kept = source[SOURCE_PROPERTIES];
-    const properties = isRecord(kept)
+    // A stash that is not a JSON object is damaged: leave the feature out
+    // rather than return it with its properties replaced.
+    if (SOURCE_PROPERTIES in source && !isJsonObject(kept)) continue;
+    const properties: JsonObject = isJsonObject(kept)
       ? { ...kept }
       : Object.fromEntries(
           Object.entries(source).filter(
@@ -180,8 +182,7 @@ export function fromEditorFeatures(
               !EDITOR_OWN_PROPERTIES.includes(key),
           ),
         );
-    if (!isJsonObject(properties)) continue;
-    const feature: EditorFeature = {
+    const feature: GeoFeature = {
       type: "Feature",
       geometry: entry.geometry,
       properties,

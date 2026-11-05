@@ -535,7 +535,11 @@ export {
   noSelfIntersection,
 } from "./geo/constraints";
 export { latitude, longitude, toCoordinate } from "./geo/coordinates";
-export type { EditorSnapshotFeature, EditorStyles } from "./geo/editor";
+export type {
+  EditorFeature,
+  EditorSnapshotFeature,
+  EditorStyles,
+} from "./geo/editor";
 export {
   editorStyles,
   fromEditorFeatures,
