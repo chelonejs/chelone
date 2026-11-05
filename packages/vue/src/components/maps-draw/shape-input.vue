@@ -1,6 +1,5 @@
 <script lang="ts">
 import {
-  type GeoFeature,
   geoBounds,
   isLngLatBox,
   type MapStyleInput,
@@ -159,8 +158,8 @@ function defaultTools(kind: ShapeValueKind): readonly ToolbarTool[] {
 const Editor = defineComponent({
   name: "ShapeInputEditor",
   props: {
-    features: { type: Array as PropType<GeoFeature[]>, required: true },
-    held: { type: Array as PropType<GeoFeature[]>, required: true },
+    features: { type: Array as PropType<DrawFeature[]>, required: true },
+    held: { type: Array as PropType<DrawFeature[]>, required: true },
     tool: { type: String as PropType<DrawTool | null>, default: null },
     disabled: { type: Boolean, default: false },
     snappable: { type: Boolean, default: true },
@@ -261,7 +260,7 @@ import FieldLabelText from "../admin/common/field-label-text.vue";
 import MapCanvas from "../maps/map-canvas.vue";
 import { FieldError } from "../ui/field";
 import DrawToolbar from "./draw-toolbar.vue";
-import { cutFeatures } from "./geometry-ops";
+import { cutFeatures, type DrawFeature } from "./geometry-ops";
 
 const props = withDefaults(defineProps<ShapeInputProps>(), {
   label: undefined,
