@@ -1,12 +1,13 @@
+import type { Geometry, Polygon } from "geojson";
+import type { LngLatBox } from "./bounds";
 import { geoBounds } from "./bounds";
-import type { GeoBBox, GeoGeometry, GeoPolygon } from "./geojson";
 import { isGeoBBox } from "./geojson";
 
 /**
  * The closed rectangle ring of a bbox; `null` unless it is four finite numbers.
  * A box with west greater than east crosses 180: its ring runs east of 180.
  */
-export function bboxToPolygon(bbox: unknown): GeoPolygon | null {
+export function bboxToPolygon(bbox: unknown): Polygon | null {
   if (!isGeoBBox(bbox)) return null;
   const [west, south, rawEast, north] = bbox;
   const east = west > rawEast ? rawEast + 360 : rawEast;
@@ -25,7 +26,7 @@ export function bboxToPolygon(bbox: unknown): GeoPolygon | null {
 }
 
 /** The box around a Polygon, west greater than east across 180; `null` for any other geometry. */
-export function polygonToBBox(geometry: GeoGeometry): GeoBBox | null {
+export function polygonToBBox(geometry: Geometry): LngLatBox | null {
   return geometry.type === "Polygon" ? geoBounds(geometry, "explicit") : null;
 }
 
@@ -47,7 +48,7 @@ const wrapLongitude = (longitude: number) =>
  */
 export function aspectLockedBBox(
   ratio: number,
-): (geometry: GeoGeometry) => GeoBBox | null {
+): (geometry: Geometry) => LngLatBox | null {
   return (geometry) => {
     const bbox = polygonToBBox(geometry);
     if (!bbox || !Number.isFinite(ratio) || ratio <= 0) return bbox;

@@ -1,7 +1,7 @@
+import type { Geometry, Position } from "geojson";
 import type { Validator } from "../form/validators";
 import { isEmpty } from "../form/validators";
 import { bboxToPolygon } from "./bbox";
-import type { GeoGeometry, GeoPosition } from "./geojson";
 import { isGeoJsonValue } from "./geojson";
 import { geoAreaM2, hasSelfIntersection } from "./geometry-math";
 
@@ -9,7 +9,7 @@ import { geoAreaM2, hasSelfIntersection } from "./geometry-math";
  * The geometry of each member of a geometry, Feature or FeatureCollection. A
  * BBox is the rectangle it covers.
  */
-function members(value: unknown): GeoGeometry[] {
+function members(value: unknown): Geometry[] {
   const box = bboxToPolygon(value);
   if (box) return [box];
   if (!isGeoJsonValue(value)) return [];
@@ -20,7 +20,7 @@ function members(value: unknown): GeoGeometry[] {
   return [value];
 }
 
-function ringVertices(ring: GeoPosition[]): number {
+function ringVertices(ring: Position[]): number {
   const first = ring[0];
   const last = ring[ring.length - 1];
   const closed =
@@ -32,7 +32,7 @@ function ringVertices(ring: GeoPosition[]): number {
   return closed ? ring.length - 1 : ring.length;
 }
 
-function geometryVertices(geometry: GeoGeometry): number {
+function geometryVertices(geometry: Geometry): number {
   switch (geometry.type) {
     case "Point":
       return 1;
@@ -72,13 +72,13 @@ export function countVertices(value: unknown): number {
 }
 
 /** Area of a geometry, with the parts of a GeometryCollection added up. */
-function areaM2(geometry: GeoGeometry): number {
+function areaM2(geometry: Geometry): number {
   return geometry.type === "GeometryCollection"
     ? geometry.geometries.reduce((sum, part) => sum + areaM2(part), 0)
     : geoAreaM2(geometry);
 }
 
-function hasArea(geometry: GeoGeometry): boolean {
+function hasArea(geometry: Geometry): boolean {
   switch (geometry.type) {
     case "Polygon":
     case "MultiPolygon":
@@ -110,7 +110,7 @@ function isUnreadable(value: unknown): boolean {
  * FeatureCollection fails.
  */
 function constraint(
-  fails: (geometry: GeoGeometry) => boolean,
+  fails: (geometry: Geometry) => boolean,
   failure: () => { message: string; args?: Record<string, unknown> },
 ): Validator {
   return (value) => {

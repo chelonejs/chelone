@@ -1,4 +1,6 @@
+import type { Feature, FeatureCollection, Geometry, Polygon } from "geojson";
 import { describe, expect, it } from "vitest";
+import type { JsonObject } from "../guards";
 import {
   countVertices,
   maxVertices,
@@ -6,14 +8,8 @@ import {
   minVertices,
   noSelfIntersection,
 } from "./constraints";
-import type {
-  GeoFeature,
-  GeoFeatureCollection,
-  GeoGeometry,
-  GeoPolygon,
-} from "./geojson";
 
-const triangle: GeoPolygon = {
+const triangle: Polygon = {
   type: "Polygon",
   coordinates: [
     [
@@ -25,7 +21,7 @@ const triangle: GeoPolygon = {
   ],
 };
 
-const bowTie: GeoPolygon = {
+const bowTie: Polygon = {
   type: "Polygon",
   coordinates: [
     [
@@ -38,7 +34,7 @@ const bowTie: GeoPolygon = {
   ],
 };
 
-const degreeSquare: GeoPolygon = {
+const degreeSquare: Polygon = {
   type: "Polygon",
   coordinates: [
     [
@@ -51,11 +47,15 @@ const degreeSquare: GeoPolygon = {
   ],
 };
 
-function feature(geometry: GeoGeometry | null): GeoFeature {
+function feature(
+  geometry: Geometry | null,
+): Feature<Geometry | null, JsonObject | null> {
   return { type: "Feature", geometry, properties: {} };
 }
 
-function collection(...geometries: GeoGeometry[]): GeoFeatureCollection {
+function collection(
+  ...geometries: Geometry[]
+): FeatureCollection<Geometry | null, JsonObject | null> {
   return { type: "FeatureCollection", features: geometries.map(feature) };
 }
 
@@ -91,7 +91,7 @@ describe("countVertices", () => {
   });
 
   it("countVertices adds up the holes and the parts of a MultiPolygon", () => {
-    const holed: GeoPolygon = {
+    const holed: Polygon = {
       type: "Polygon",
       coordinates: [...degreeSquare.coordinates, ...triangle.coordinates],
     };
@@ -152,7 +152,7 @@ describe("minVertices", () => {
 
 describe("maxVertices", () => {
   it("maxVertices fails a MultiPolygon over the limit", () => {
-    const multi: GeoGeometry = {
+    const multi: Geometry = {
       type: "MultiPolygon",
       coordinates: [triangle.coordinates, degreeSquare.coordinates],
     };

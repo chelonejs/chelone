@@ -1,6 +1,7 @@
+import type { Polygon } from "geojson";
 import { describe, expect, it } from "vitest";
 import { aspectLockedBBox, bboxToPolygon, polygonToBBox } from "./bbox";
-import type { GeoBBox, GeoPolygon } from "./geojson";
+import type { LngLatBox } from "./bounds";
 
 function rectangle(west: number, south: number, east: number, north: number) {
   return {
@@ -14,7 +15,7 @@ function rectangle(west: number, south: number, east: number, north: number) {
         [west, south],
       ],
     ],
-  } satisfies GeoPolygon;
+  } satisfies Polygon;
 }
 
 describe("bboxToPolygon", () => {
@@ -55,13 +56,13 @@ describe("polygonToBBox", () => {
   });
 
   it("round-trips with bboxToPolygon", () => {
-    const bbox: GeoBBox = [10, 20, 30, 40];
+    const bbox: LngLatBox = [10, 20, 30, 40];
     const polygon = bboxToPolygon(bbox);
     expect(polygon && polygonToBBox(polygon)).toEqual(bbox);
   });
 
   it("round-trips a box across the antimeridian", () => {
-    const bbox: GeoBBox = [170, -10, -170, 10];
+    const bbox: LngLatBox = [170, -10, -170, 10];
     const polygon = bboxToPolygon(bbox);
     expect(polygon).toEqual(rectangle(170, -10, 190, 10));
     expect(polygon && polygonToBBox(polygon)).toEqual(bbox);
@@ -71,20 +72,20 @@ describe("polygonToBBox", () => {
     for (const bbox of [
       [-100, -10, 100, 10],
       [-170, -10, 170, 10],
-    ] satisfies GeoBBox[]) {
+    ] satisfies LngLatBox[]) {
       const polygon = bboxToPolygon(bbox);
       expect(polygon && polygonToBBox(polygon)).toEqual(bbox);
     }
   });
 
   it("round-trips a box across the antimeridian that is wider than 180 degrees", () => {
-    const bbox: GeoBBox = [100, -10, -100, 10];
+    const bbox: LngLatBox = [100, -10, -100, 10];
     const polygon = bboxToPolygon(bbox);
     expect(polygon && polygonToBBox(polygon)).toEqual(bbox);
   });
 
   it("round-trips the whole world", () => {
-    const bbox: GeoBBox = [-180, -90, 180, 90];
+    const bbox: LngLatBox = [-180, -90, 180, 90];
     const polygon = bboxToPolygon(bbox);
     expect(polygon && polygonToBBox(polygon)).toEqual(bbox);
   });
