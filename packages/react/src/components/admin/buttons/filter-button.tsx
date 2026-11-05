@@ -101,8 +101,9 @@ function FilterButton(props: FilterButtonProps) {
     useListFilterContext();
   const hasFilterValues = Object.keys(filterValues).length > 0;
   const [open, setOpen] = useState(false);
-  const focusTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  useEffect(() => () => clearTimeout(focusTimer.current), []);
+  /** The filter `handleShow` just displayed, whose input takes focus on close. */
+  const shownSource = useRef<string | undefined>(undefined);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   if (filters === undefined) {
     throw new Error(
@@ -121,17 +122,31 @@ function FilterButton(props: FilterButtonProps) {
       showFilter(source, defaultValue === "" ? undefined : defaultValue);
       // The FilterFormInput has no way of knowing it was just displayed (and so
       // that it should focus its input), so fall back to imperative focus.
-      clearTimeout(focusTimer.current);
-      focusTimer.current = setTimeout(() => {
-        const inputElement = document.querySelector<HTMLInputElement>(
-          `input[name='${source}']`,
-        );
-        inputElement?.focus();
-      }, 50);
+      // Closing the menu is what mounts it, so the focus belongs in the menu's
+      // close auto-focus (see handleCloseAutoFocus), not on a timer racing it.
+      shownSource.current = source;
       setOpen(false);
     },
     [showFilter],
   );
+
+  /**
+   * Radix returns focus to the trigger when the menu closes. When the close is
+   * a "show this filter", take focus to the filter's input instead: the input
+   * is mounted by the same commit that closed the menu.
+   */
+  const handleCloseAutoFocus = useCallback((event: Event) => {
+    const source = shownSource.current;
+    shownSource.current = undefined;
+    if (source === undefined) return;
+    // The menu can close as part of the button's own unmount. A button that is
+    // off the document takes no focus anywhere.
+    if (!rootRef.current?.isConnected) return;
+    event.preventDefault();
+    document
+      .querySelector<HTMLInputElement>(`input[name='${source}']`)
+      ?.focus();
+  }, []);
 
   const handleRemove = useCallback(
     ({ source }: { source: string }) => {
@@ -146,7 +161,7 @@ function FilterButton(props: FilterButtonProps) {
   }
 
   return (
-    <div className={cn("inline-block", className)} {...rest}>
+    <div ref={rootRef} className={cn("inline-block", className)} {...rest}>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
           <Button
@@ -160,7 +175,11 @@ function FilterButton(props: FilterButtonProps) {
             {translate("ra.action.add_filter", { _: "Add filter" })}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-56">
+        <DropdownMenuContent
+          align="start"
+          className="w-56"
+          onCloseAutoFocus={handleCloseAutoFocus}
+        >
           {allTogglableFilters
             .filter(
               (
