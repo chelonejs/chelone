@@ -2,6 +2,7 @@ import {
   buildOverpassQuery,
   type JsonObject,
   type LngLatBox,
+  type OverpassAnswer,
   type OverpassProvider,
   type OverpassQuerySources,
   overpassQueryOptions,
@@ -62,7 +63,7 @@ export function useOsmFeatures(
       ...base,
       enabled: (options.enabled ?? true) && active && base.enabled,
       select: (
-        answer: unknown,
+        answer: OverpassAnswer,
       ): FeatureCollection<Geometry | null, JsonObject | null> =>
         osmToPolygons(answer, presets),
     };

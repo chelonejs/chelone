@@ -627,6 +627,8 @@ export {
 export type { OsmTagFilter, OsmTagInput } from "./geo/osm-tags";
 export { tagToFilter } from "./geo/osm-tags";
 export type {
+  OverpassAnswer,
+  OverpassElement,
   OverpassProvider,
   OverpassProviderOptions,
   OverpassQuery,
@@ -635,6 +637,7 @@ export type {
 } from "./geo/overpass";
 export {
   createOverpassProvider,
+  isOverpassAnswer,
   OverpassError,
   OverpassRateLimitError,
   OverpassTimeoutError,

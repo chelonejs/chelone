@@ -4,6 +4,28 @@ export interface OverpassRequestOptions {
   signal?: AbortSignal;
 }
 
+export type OverpassElement = {
+  type: "node" | "way" | "relation";
+  id: number;
+  tags?: Readonly<Record<string, string>>;
+};
+
+/** The JSON body of an Overpass interpreter answer. */
+export type OverpassAnswer = {
+  elements: OverpassElement[];
+  remark?: string;
+};
+
+/** True for a body with an `elements` array, which Overpass always sends. */
+export function isOverpassAnswer(value: unknown): value is OverpassAnswer {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "elements" in value &&
+    Array.isArray(value.elements)
+  );
+}
+
 export interface OverpassProvider {
   name: string;
   /**
@@ -12,7 +34,10 @@ export interface OverpassProvider {
    */
   cacheKey?: string;
   /** Runs an Overpass QL query and resolves to the parsed JSON answer. */
-  query(query: string, options?: OverpassRequestOptions): Promise<unknown>;
+  query(
+    query: string,
+    options?: OverpassRequestOptions,
+  ): Promise<OverpassAnswer>;
 }
 
 export class OverpassError extends Error {
@@ -45,8 +70,8 @@ export class OverpassTimeoutError extends OverpassError {
  * the elements found so far and a `remark`. That partial list must not pass
  * for a complete one.
  */
-function throwOnRuntimeError(answer: unknown): void {
-  const remark = (answer as { remark?: unknown } | null)?.remark;
+function throwOnRuntimeError(answer: OverpassAnswer): void {
+  const { remark } = answer;
   if (typeof remark !== "string" || !/^runtime error/i.test(remark.trim())) {
     return;
   }
@@ -116,7 +141,10 @@ export function createOverpassProvider(
             response.status,
           );
         }
-        const answer = (await response.json()) as unknown;
+        const answer: unknown = await response.json();
+        if (!isOverpassAnswer(answer)) {
+          throw new OverpassError("Overpass answered JSON without elements");
+        }
         throwOnRuntimeError(answer);
         return answer;
       } catch (error) {
@@ -138,7 +166,9 @@ export interface OverpassQueryOptions {
 
 export interface OverpassQuery {
   queryKey: readonly unknown[];
-  queryFn: (context: Pick<QueryFunctionContext, "signal">) => Promise<unknown>;
+  queryFn: (
+    context: Pick<QueryFunctionContext, "signal">,
+  ) => Promise<OverpassAnswer>;
   enabled: boolean;
   staleTime: number;
 }

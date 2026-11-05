@@ -9,7 +9,7 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick, provide, ref } from "vue";
 import { MapsProvider } from "../maps/use-map";
-import fixture from "./__fixtures__/overpass-water-roads.json";
+import { waterRoadsAnswer as fixture } from "./__fixtures__/water-roads-answer";
 import { useOsmFeatures } from "./use-osm-features";
 
 type Box = [number, number, number, number];

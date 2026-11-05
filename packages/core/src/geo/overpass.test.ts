@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createOverpassProvider,
+  isOverpassAnswer,
   OverpassError,
   type OverpassProvider,
   OverpassRateLimitError,
@@ -32,7 +33,33 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+describe("isOverpassAnswer", () => {
+  it("isOverpassAnswer accepts an answer with elements and refuses a body without them", () => {
+    expect(isOverpassAnswer({ elements: [] })).toBe(true);
+    expect(
+      isOverpassAnswer({
+        elements: [{ type: "way", id: 1, tags: { natural: "water" } }],
+        remark: "note",
+      }),
+    ).toBe(true);
+    expect(isOverpassAnswer({})).toBe(false);
+    expect(isOverpassAnswer({ elements: "none" })).toBe(false);
+    expect(isOverpassAnswer(null)).toBe(false);
+    expect(isOverpassAnswer([])).toBe(false);
+  });
+});
+
 describe("createOverpassProvider", () => {
+  it("createOverpassProvider throws an OverpassError for JSON that is not an Overpass answer", async () => {
+    for (const body of [{ error: "nope" }, null, [], "text"]) {
+      const provider = createOverpassProvider({
+        endpoint: ENDPOINT,
+        fetch: stubFetch(body),
+      });
+      await expect(provider.query("q")).rejects.toBeInstanceOf(OverpassError);
+    }
+  });
+
   it("POSTs the encoded query as a form body", async () => {
     const fetchStub = stubFetch({ elements: [{ type: "way", id: 1 }] });
     const provider = createOverpassProvider({
@@ -186,7 +213,7 @@ describe("overpassQueryOptions", () => {
   it("keys a provider without a cacheKey by its name", () => {
     const custom: OverpassProvider = {
       name: "acme",
-      query: async () => ({}),
+      query: async () => ({ elements: [] }),
     };
     expect(overpassQueryOptions(custom, "out;").queryKey).toEqual([
       "overpass",
