@@ -50,6 +50,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.isFilterBranch).toBeTypeOf("function");
   });
 
+  it("exports shallowEqual", () => {
+    expect(barrel.shallowEqual).toBeTypeOf("function");
+  });
+
   it("exports textOf", () => {
     expect(barrel.textOf).toBeTypeOf("function");
   });

@@ -909,5 +909,6 @@ export { getRecordFromLocation } from "./router/record-from-location";
 export { localStorageAdapter, memoryStoreAdapter } from "./store/adapters";
 export type { MicroStore, MicroStoreOptions } from "./store/micro-store";
 export { createMicroStore } from "./store/micro-store";
+export { shallowEqual } from "./store/shallow-equal";
 export type { CheloneStore, StoreAdapter } from "./store/store";
 export { createStore } from "./store/store";

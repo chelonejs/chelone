@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import { type LooseRecord, shallowEqual } from "@chelone/core";
 import {
   MDXEditor,
   type MDXEditorMethods,
@@ -62,17 +62,6 @@ interface EditorProps {
   onChange: (markdown: string, initialMarkdownNormalize: boolean) => void;
   onBlur: (event: FocusEvent) => void;
   onError: () => void;
-}
-
-function shallowEqual(
-  a: MdxEditorPassthrough | undefined,
-  b: MdxEditorPassthrough | undefined,
-) {
-  if (a === b) return true;
-  if (!a || !b) return false;
-  const keysA = Object.keys(a) as (keyof MdxEditorPassthrough)[];
-  if (keysA.length !== Object.keys(b).length) return false;
-  return keysA.every((key) => Object.is(a[key], b[key]));
 }
 
 // The editor is uncontrolled, so a re-render with the same inputs is wasted
