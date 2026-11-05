@@ -1,7 +1,9 @@
-import { isRecord } from "../guards";
-import type { GeoFeature, GeoGeometry, GeoPosition } from "./geojson";
+import type { Feature, Geometry, Position } from "geojson";
+import { isJsonObject, isRecord, type JsonObject } from "../guards";
 import { isGeoGeometry } from "./geojson";
 import type { ShapeStyle } from "./map-layers";
+
+type EditorFeature = Feature<Geometry | null, JsonObject | null>;
 
 // Core converts to and from the editor's features without importing it. The
 // names below are the ones `terra-draw` writes into `properties`; editor.test
@@ -65,7 +67,10 @@ const EDITOR_DECIMALS = 9;
  * A position as the editor accepts it: longitude wrapped into -180 to 180,
  * both numbers rounded to 9 decimals, and any altitude dropped.
  */
-function editorPosition([longitude, latitude]: GeoPosition): GeoPosition {
+function editorPosition([
+  longitude = Number.NaN,
+  latitude = Number.NaN,
+]: Position): Position {
   const wrapped =
     longitude >= -180 && longitude <= 180
       ? longitude
@@ -78,8 +83,8 @@ function editorPosition([longitude, latitude]: GeoPosition): GeoPosition {
 }
 
 function editorGeometry(
-  geometry: Extract<GeoGeometry, { type: "Point" | "LineString" | "Polygon" }>,
-): GeoGeometry {
+  geometry: Extract<Geometry, { type: "Point" | "LineString" | "Polygon" }>,
+): Geometry {
   switch (geometry.type) {
     case "Point":
       return { ...geometry, coordinates: editorPosition(geometry.coordinates) };
@@ -110,10 +115,10 @@ function editorGeometry(
  * rewritten.
  */
 export function toEditorFeatures(
-  features: GeoFeature[],
+  features: EditorFeature[],
   getId: () => string | number,
-): GeoFeature[] {
-  const result: GeoFeature[] = [];
+): EditorFeature[] {
+  const result: EditorFeature[] = [];
   for (const feature of features) {
     const geometry = feature.geometry;
     if (
@@ -125,7 +130,7 @@ export function toEditorFeatures(
     ) {
       continue;
     }
-    const properties: Record<string, unknown> = {
+    const properties: JsonObject = {
       mode: MODES[geometry.type],
       [SOURCE_PROPERTIES]: { ...feature.properties },
     };
@@ -153,12 +158,13 @@ export interface EditorSnapshotFeature {
  * points, midpoints, closing points, snapping points and a feature still being
  * drawn) are dropped, and `id` and `properties` come back from `chelone:id`
  * and `chelone:properties`. A feature the editor made has no `id`, and keeps
- * its properties but for the editor's own.
+ * its properties but for the editor's own. A feature whose properties are not
+ * JSON is left out.
  */
 export function fromEditorFeatures(
   snapshot: readonly EditorSnapshotFeature[],
-): GeoFeature[] {
-  const result: GeoFeature[] = [];
+): EditorFeature[] {
+  const result: EditorFeature[] = [];
   for (const entry of snapshot) {
     const source: Record<string, unknown> = { ...entry.properties };
     if (HELPER_FLAGS.some((flag) => source[flag])) continue;
@@ -174,7 +180,8 @@ export function fromEditorFeatures(
               !EDITOR_OWN_PROPERTIES.includes(key),
           ),
         );
-    const feature: GeoFeature = {
+    if (!isJsonObject(properties)) continue;
+    const feature: EditorFeature = {
       type: "Feature",
       geometry: entry.geometry,
       properties,

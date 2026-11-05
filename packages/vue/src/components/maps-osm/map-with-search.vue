@@ -75,12 +75,12 @@ function reverse(lat: number, lng: number) {
       if (!result || gesture !== gestures) return;
       // A search pick since the gesture moved the coordinates on.
       if (
-        form.getFieldValue(wrappedLat) !== lat ||
-        form.getFieldValue(wrappedLng) !== lng
+        form.ambient.getFieldValue(wrappedLat) !== lat ||
+        form.ambient.getFieldValue(wrappedLng) !== lng
       ) {
         return;
       }
-      form.setFieldValue(wrappedAddress, result.displayName);
+      form.ambient.setFieldValue(wrappedAddress, result.displayName);
     })
     .catch(() => {});
 }

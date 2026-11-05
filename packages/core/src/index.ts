@@ -438,12 +438,12 @@ export type {
 export { createFormGroups, reduceGroupState } from "./form/form-groups";
 export type {
   AmbientFieldMeta,
-  AmbientFieldOptions,
   AmbientForm,
   AnyFormHandle,
   FormContextHandle,
   FormContextHandleOf,
   FormHandle,
+  HandleName,
   RecordMap,
   ResourceFormHandle,
   UnboundFormHandle,

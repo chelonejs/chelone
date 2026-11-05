@@ -49,7 +49,7 @@ function makeProbe(captured: Captured) {
     setup() {
       captured.tabbed = useTabbedFormContext();
       const { form } = useCheloneFormContext();
-      captured.dirty = () => form.store.state.isDirty;
+      captured.dirty = () => form.ambient.store.state.isDirty;
       return () => null;
     },
   });

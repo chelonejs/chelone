@@ -50,7 +50,11 @@ const ResetButton = defineComponent({
     return () =>
       h(
         "button",
-        { type: "button", "data-testid": "reset", onClick: () => form.reset() },
+        {
+          type: "button",
+          "data-testid": "reset",
+          onClick: () => form.ambient.reset(),
+        },
         "Reset",
       );
   },

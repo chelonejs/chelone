@@ -152,18 +152,18 @@ function runSearch() {
 // A hand-typed address no longer matches the position of an earlier pick.
 function writeTyped() {
   setValue(text.value);
-  if (wrappedLat) form.setFieldValue(wrappedLat, null);
-  if (wrappedLng) form.setFieldValue(wrappedLng, null);
-  if (wrappedBbox) form.setFieldValue(wrappedBbox, null);
+  if (wrappedLat) form.ambient.setFieldValue(wrappedLat, null);
+  if (wrappedLng) form.ambient.setFieldValue(wrappedLng, null);
+  if (wrappedBbox) form.ambient.setFieldValue(wrappedBbox, null);
 }
 
 function pick(result: GeocodeResult) {
   setValue(result.displayName);
   text.value = result.displayName;
-  if (wrappedLat) form.setFieldValue(wrappedLat, result.lat);
-  if (wrappedLng) form.setFieldValue(wrappedLng, result.lng);
+  if (wrappedLat) form.ambient.setFieldValue(wrappedLat, result.lat);
+  if (wrappedLng) form.ambient.setFieldValue(wrappedLng, result.lng);
   if (wrappedBbox && result.bbox) {
-    form.setFieldValue(wrappedBbox, [...result.bbox]);
+    form.ambient.setFieldValue(wrappedBbox, [...result.bbox]);
   }
   open.value = false;
   active.value = -1;

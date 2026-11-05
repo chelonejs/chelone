@@ -34,13 +34,13 @@ interface Counts {
   unsubscribed: number;
 }
 
-/** Wraps `form.store.subscribe` for every subscriber that mounts after it. */
+/** Wraps `form.ambient.store.subscribe` for every subscriber that mounts after it. */
 const StoreProbe = (counts: Counts) =>
   defineComponent({
     setup() {
       const { form } = useCheloneFormContext();
-      const subscribe = form.store.subscribe.bind(form.store);
-      form.store.subscribe = (listener) => {
+      const subscribe = form.ambient.store.subscribe.bind(form.ambient.store);
+      form.ambient.store.subscribe = (listener) => {
         counts.subscribed += 1;
         const subscription = subscribe(listener);
         return {

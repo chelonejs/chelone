@@ -68,7 +68,7 @@ export function useWarnWhenUnsavedChanges(
   let wasSubmitSuccessful = false;
   const readFormState = () => {
     const { isDefaultValue, isSubmitSuccessful, isValid, values } =
-      form.store.state;
+      form.ambient.store.state;
     if (!isSubmitSuccessful) savedValues = undefined;
     else if (!wasSubmitSuccessful) savedValues = isValid ? values : undefined;
     wasSubmitSuccessful = isSubmitSuccessful;
@@ -79,7 +79,7 @@ export function useWarnWhenUnsavedChanges(
   };
   const formState = shallowRef(readFormState());
   onScopeDispose(
-    subscribeStore(form.store, () => {
+    subscribeStore(form.ambient.store, () => {
       const next = readFormState();
       const current = formState.value;
       if (

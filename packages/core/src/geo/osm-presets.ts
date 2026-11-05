@@ -1,3 +1,4 @@
+import type { JsonObject } from "../guards";
 import type { GeoBBox } from "./geojson";
 import type { OsmTagFilter, OsmTagInput } from "./osm-tags";
 import { tagToFilter } from "./osm-tags";
@@ -55,10 +56,7 @@ export const OSM_PRESETS = {
 
 export type OsmPresetName = keyof typeof OSM_PRESETS;
 
-function accepts(
-  filter: OsmTagFilter,
-  tags: Readonly<Record<string, unknown>>,
-): boolean {
+function accepts(filter: OsmTagFilter, tags: Readonly<JsonObject>): boolean {
   const raw = tags[filter.key];
   if (raw === undefined || raw === null) return false;
   if ("any" in filter) return true;
@@ -73,7 +71,7 @@ function accepts(
  * adapter can read its `bufferLinesMeters`; `null` when none does.
  */
 export function findPresetForTags(
-  tags: Readonly<Record<string, unknown>>,
+  tags: Readonly<JsonObject>,
   names: readonly OsmPresetName[],
 ): OsmPreset | null {
   for (const name of names) {
