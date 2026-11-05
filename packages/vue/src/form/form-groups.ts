@@ -73,15 +73,20 @@ function useFormGroupsRef(): Readonly<Ref<FormGroups>> | undefined {
   return inject(FormGroupsKey, null) ?? undefined;
 }
 
-/** The ambient {@link FormGroups} registry; throws without a provider. */
-export function useFormGroups(): FormGroups {
+/** The ambient registry as a ref; throws without a provider. */
+function requireFormGroupsRef(): Readonly<Ref<FormGroups>> {
   const registry = useFormGroupsRef();
   if (!registry) {
     throw new Error(
       "useFormGroups: no <FormGroupsProvider> found above this component.",
     );
   }
-  return registry.value;
+  return registry;
+}
+
+/** The ambient {@link FormGroups} registry; throws without a provider. */
+export function useFormGroups(): FormGroups {
+  return requireFormGroupsRef().value;
 }
 
 /** The ambient registry, or `undefined` so `useInput` never throws outside a grouped form. */
@@ -163,10 +168,10 @@ function sameGroupState(a: GroupState, b: GroupState): boolean {
   const aKeys = Object.keys(a.errors);
   if (aKeys.length !== Object.keys(b.errors).length) return false;
   return aKeys.every((key) => {
+    const mine = a.errors[key];
     const other = b.errors[key];
     return (
-      other !== undefined &&
-      sameDisplayError(a.errors[key] as DisplayError, other)
+      mine !== undefined && other !== undefined && sameDisplayError(mine, other)
     );
   });
 }
@@ -179,15 +184,12 @@ function sameGroupState(a: GroupState, b: GroupState): boolean {
 export function useFormGroup(
   name: MaybeRefOrGetter<string>,
 ): Readonly<Ref<GroupState>> {
-  useFormGroups();
-  const registry = useFormGroupsRef() as Readonly<Ref<FormGroups>>;
+  const registry = requireFormGroupsRef();
   const { form } = useCheloneFormContext();
 
   const reduce = (): GroupState =>
     reduceGroupState(
-      form.ambient.store.state.fieldMeta as Parameters<
-        typeof reduceGroupState
-      >[0],
+      form.ambient.store.state.fieldMeta,
       registry.value.getMembers(toValue(name)),
     );
 
