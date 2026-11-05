@@ -101,6 +101,8 @@ function FilterButton(props: FilterButtonProps) {
     useListFilterContext();
   const hasFilterValues = Object.keys(filterValues).length > 0;
   const [open, setOpen] = useState(false);
+  const focusTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(focusTimer.current), []);
 
   if (filters === undefined) {
     throw new Error(
@@ -119,7 +121,8 @@ function FilterButton(props: FilterButtonProps) {
       showFilter(source, defaultValue === "" ? undefined : defaultValue);
       // The FilterFormInput has no way of knowing it was just displayed (and so
       // that it should focus its input), so fall back to imperative focus.
-      setTimeout(() => {
+      clearTimeout(focusTimer.current);
+      focusTimer.current = setTimeout(() => {
         const inputElement = document.querySelector<HTMLInputElement>(
           `input[name='${source}']`,
         );

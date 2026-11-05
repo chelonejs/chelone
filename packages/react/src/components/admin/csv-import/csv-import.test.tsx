@@ -47,6 +47,19 @@ const schema = z.object({
 const GOOD_CSV = "title,views\nHello,1\nWorld,2\n";
 const MIXED_CSV = "title,views\nHello,1\n,2\nWorld,3\n";
 
+/** The `DataTransfer` a browser hands a file drop. */
+function fileTransfer(...files: File[]) {
+  return {
+    files,
+    items: files.map((file) => ({
+      kind: "file",
+      type: file.type,
+      getAsFile: () => file,
+    })),
+    types: ["Files"],
+  };
+}
+
 function makeProvider(): DataProvider {
   return fakeDataProvider({ posts: [] });
 }
@@ -168,7 +181,7 @@ describe("<CsvImport>", () => {
 
     await act(async () => {
       fireEvent.drop(dropzone, {
-        dataTransfer: { files: [file], types: ["Files"] },
+        dataTransfer: fileTransfer(file),
       });
     });
 
@@ -194,11 +207,11 @@ describe("<CsvImport>", () => {
 
     await act(async () => {
       fireEvent.drop(dropzone, {
-        dataTransfer: { files: [first, second], types: ["Files"] },
+        dataTransfer: fileTransfer(first, second),
       });
     });
 
-    await act(async () => {});
+    await parsed("2 rows parsed");
     expect(screen.queryByText("Choose a .csv file")).toBeNull();
   });
 

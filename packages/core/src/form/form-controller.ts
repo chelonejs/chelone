@@ -359,7 +359,9 @@ export function createFormController<TRecord>(
     },
     getSnapshot: () => form.store.state,
     async submit() {
-      if (destroyed) return;
+      // form-core gates only a first attempt on `canSubmit`, so a second submit
+      // while `save` is in flight would run `save` again.
+      if (destroyed || form.state.isSubmitting) return;
       if (serverErrorsApplied) {
         // Clear OUR onSubmit channel (form + every registered field) so the
         // canSubmit gate lets an unchanged resubmit through; fresh validator

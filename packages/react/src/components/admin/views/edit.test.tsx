@@ -59,8 +59,12 @@ function makeDataProvider() {
 function Providers({
   children,
   dataProvider = makeDataProvider(),
+  path = ":id",
+  entry = "/1",
 }: {
   children: ReactNode;
+  path?: string;
+  entry?: string;
   dataProvider?: ReturnType<typeof makeDataProvider>;
 }) {
   const queryClient = new QueryClient({
@@ -82,10 +86,10 @@ function Providers({
     >
       <ResourceRegistryProvider registry={registry}>
         <RouterAdapterProvider adapter={reactRouterAdapter}>
-          <MemoryRouter initialEntries={["/1"]}>
+          <MemoryRouter initialEntries={[entry]}>
             <ResourceContextProvider value="posts">
               <Routes>
-                <Route path=":id" element={children} />
+                <Route path={path} element={children} />
               </Routes>
             </ResourceContextProvider>
           </MemoryRouter>
@@ -334,5 +338,22 @@ describe("<Edit>", () => {
     fireEvent.click(screen.getByRole("button", { name: "save" }));
     await screen.findByText("Too strict");
     expect(update).not.toHaveBeenCalled();
+  });
+
+  it("Edit throws without an id prop or a route id", () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    try {
+      expect(() =>
+        render(
+          <Providers path="/" entry="/">
+            <Edit />
+          </Providers>,
+        ),
+      ).toThrow(/Edit.*`id`.*`:id`/);
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });

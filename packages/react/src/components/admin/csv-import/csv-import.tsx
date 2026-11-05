@@ -305,8 +305,8 @@ function UploadStep({
     [loadParsed, setNotice],
   );
   // The dropzone hands onDrop only the files it accepts. With `multiple: false`
-  // it also rejects several valid files as `too-many-files`, which is not a
-  // wrong file type.
+  // it keeps the first of several valid files and rejects the rest as
+  // `too-many-files`, which is not a wrong file type.
   const onDropRejected = useCallback(
     (rejections: FileRejection[]) => {
       if (

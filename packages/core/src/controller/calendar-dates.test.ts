@@ -182,7 +182,8 @@ describe("calendarLabels", () => {
     expect(fr.title("month", anchor, range)).toBe("mai 2026");
     expect(fr.weekday(anchor)).toBe("ven.");
     expect(fr.dayNumber(anchor)).toBe("15");
-    expect(plainSpaces(fr.hour(9))).toBe("09 h");
+    // ICU 79 (Node 26) drops the " h" that earlier ICU data appends.
+    expect(plainSpaces(fr.hour(9))).toMatch(/^09( h)?$/);
     expect(fr.agendaDay(anchor)).toBe("vendredi 15 mai");
   });
 

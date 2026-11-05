@@ -4,7 +4,7 @@
     "rootDir": "src",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "preserve",
-    "baseUrl": ".",
+    "types": ["vite/client"],
     "paths": {
       "@/components/*": ["./src/components/*"],
       "@/lib/*": ["./src/lib/*"],

@@ -157,73 +157,76 @@ const ADAPTERS: [string, RouterAdapter][] = [
 // SHARED behavior body — one assertion set, run against BOTH adapters. A green
 // run over BOTH IS the portability proof for the flat surface + all 5 dimensions.
 // ─────────────────────────────────────────────────────────────────────────────
-describe.each(
-  ADAPTERS,
-)("RouterAdapter portability — %s drives the shared Admin tree", (_label, adapter) => {
-  it("matches the splat route and mounts the show view", async () => {
-    await mountAdmin(adapter, <AdminTree adapter={adapter} />, "/posts/42");
-    // PORTABLE: both adapters match `/posts/*` and mount the show view.
-    expect(screen.getByTestId("page").textContent).toBe("posts-show");
-    // Both feed SOME splat under `*` (exact shape is a documented asymmetry
-    // asserted separately: route-relative on rr vs whole-path on the ts slot).
-    expect(screen.getByTestId("param-splat").textContent).not.toBe("");
-  });
-
-  it("reads location (pathname / search / hash) equivalently", async () => {
-    await mountAdmin(
-      adapter,
-      <AdminTree adapter={adapter} />,
-      "/posts/42?tab=comments#c3",
-    );
-    expect(screen.getByTestId("loc-pathname").textContent).toBe("/posts/42");
-    // raw `?...` string on BOTH (TanStack's parsed-object leak papered over).
-    expect(screen.getByTestId("loc-search").textContent).toBe("?tab=comments");
-    // leading `#` on BOTH (TanStack drops it internally; re-added).
-    expect(screen.getByTestId("loc-hash").textContent).toBe("#c3");
-  });
-
-  it("navigates imperatively and the tree re-matches", async () => {
-    const nav = cell<(to: string) => void>();
-    function Driver() {
-      nav.current = useNavigate();
-      return <AdminTree adapter={adapter} />;
-    }
-    await mountAdmin(adapter, <Driver />, "/posts");
-    expect(screen.getByTestId("page").textContent).toBe("posts-list");
-    await act(async () => {
-      nav.current?.("/posts/42");
-      await new Promise((r) => setTimeout(r, 40));
+describe.each(ADAPTERS)(
+  "RouterAdapter portability — %s drives the shared Admin tree",
+  (_label, adapter) => {
+    it("matches the splat route and mounts the show view", async () => {
+      await mountAdmin(adapter, <AdminTree adapter={adapter} />, "/posts/42");
+      // PORTABLE: both adapters match `/posts/*` and mount the show view.
+      expect(screen.getByTestId("page").textContent).toBe("posts-show");
+      // Both feed SOME splat under `*` (exact shape is a documented asymmetry
+      // asserted separately: route-relative on rr vs whole-path on the ts slot).
+      expect(screen.getByTestId("param-splat").textContent).not.toBe("");
     });
-    expect(screen.getByTestId("page").textContent).toBe("posts-show");
-    expect(screen.getByTestId("loc-pathname").textContent).toBe("/posts/42");
-  });
 
-  it("clicks a <Link> and client-navigates", async () => {
-    await mountAdmin(adapter, <AdminTree adapter={adapter} />, "/posts");
-    expect(screen.getByTestId("page").textContent).toBe("posts-list");
-    const link = screen.getByTestId("to-show");
-    expect(link.tagName).toBe("A");
-    expect(link.getAttribute("href")).toBe("/posts/42");
-    await act(async () => {
-      fireEvent.click(link);
-      await new Promise((r) => setTimeout(r, 40));
+    it("reads location (pathname / search / hash) equivalently", async () => {
+      await mountAdmin(
+        adapter,
+        <AdminTree adapter={adapter} />,
+        "/posts/42?tab=comments#c3",
+      );
+      expect(screen.getByTestId("loc-pathname").textContent).toBe("/posts/42");
+      // raw `?...` string on BOTH (TanStack's parsed-object leak papered over).
+      expect(screen.getByTestId("loc-search").textContent).toBe(
+        "?tab=comments",
+      );
+      // leading `#` on BOTH (TanStack drops it internally; re-added).
+      expect(screen.getByTestId("loc-hash").textContent).toBe("#c3");
     });
-    expect(screen.getByTestId("page").textContent).toBe("posts-show");
-    expect(screen.getByTestId("loc-pathname").textContent).toBe("/posts/42");
-  });
 
-  it("useMatch (via adapter) matches the current pathname equivalently", async () => {
-    const seen = cell<boolean>();
-    function Probe() {
-      const m = adapter.useMatch("/posts/:id");
-      seen.current = m?.params.id === "42";
-      return null;
-    }
-    await mountAdmin(adapter, <Probe />, "/posts/42");
-    // useMatch delegates to the neutral matcher on both → identical result.
-    expect(seen.current).toBe(true);
-  });
-});
+    it("navigates imperatively and the tree re-matches", async () => {
+      const nav = cell<(to: string) => void>();
+      function Driver() {
+        nav.current = useNavigate();
+        return <AdminTree adapter={adapter} />;
+      }
+      await mountAdmin(adapter, <Driver />, "/posts");
+      expect(screen.getByTestId("page").textContent).toBe("posts-list");
+      await act(async () => {
+        nav.current?.("/posts/42");
+        await new Promise((r) => setTimeout(r, 40));
+      });
+      expect(screen.getByTestId("page").textContent).toBe("posts-show");
+      expect(screen.getByTestId("loc-pathname").textContent).toBe("/posts/42");
+    });
+
+    it("clicks a <Link> and client-navigates", async () => {
+      await mountAdmin(adapter, <AdminTree adapter={adapter} />, "/posts");
+      expect(screen.getByTestId("page").textContent).toBe("posts-list");
+      const link = screen.getByTestId("to-show");
+      expect(link.tagName).toBe("A");
+      expect(link.getAttribute("href")).toBe("/posts/42");
+      await act(async () => {
+        fireEvent.click(link);
+        await new Promise((r) => setTimeout(r, 40));
+      });
+      expect(screen.getByTestId("page").textContent).toBe("posts-show");
+      expect(screen.getByTestId("loc-pathname").textContent).toBe("/posts/42");
+    });
+
+    it("useMatch (via adapter) matches the current pathname equivalently", async () => {
+      const seen = cell<boolean>();
+      function Probe() {
+        const m = adapter.useMatch("/posts/:id");
+        seen.current = m?.params.id === "42";
+        return null;
+      }
+      await mountAdmin(adapter, <Probe />, "/posts/42");
+      // useMatch delegates to the neutral matcher on both → identical result.
+      expect(seen.current).toBe(true);
+    });
+  },
+);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BOUNDED GAP (§0b-6): the TanStack reference slot does NOT drive the shell's
@@ -508,14 +511,15 @@ describe("matchPath equivalence across adapters", () => {
     ["/posts/:id", "/comments/1"],
     ["/", "/"],
   ];
-  it.each(
-    cases,
-  )("pattern %s vs %s → identical PathMatch on both", (pat, path) => {
-    const rr = reactRouterAdapter.matchPath(pat, path);
-    const ts = tanstackRouterAdapter.matchPath(pat, path);
-    const core = coreMatchPath(pat, path);
-    expect(rr).toEqual(core);
-    expect(ts).toEqual(core);
-    expect(rr).toEqual(ts);
-  });
+  it.each(cases)(
+    "pattern %s vs %s → identical PathMatch on both",
+    (pat, path) => {
+      const rr = reactRouterAdapter.matchPath(pat, path);
+      const ts = tanstackRouterAdapter.matchPath(pat, path);
+      const core = coreMatchPath(pat, path);
+      expect(rr).toEqual(core);
+      expect(ts).toEqual(core);
+      expect(rr).toEqual(ts);
+    },
+  );
 });
