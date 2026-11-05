@@ -9,6 +9,7 @@
 import {
   type DataProvider,
   fakeDataProvider,
+  type GetListParams,
   type LooseRecord,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
@@ -79,18 +80,18 @@ const button = (wrapper: VueWrapper, text: string) => {
 const providerWith = (rows: LooseRecord[] = MEETINGS) => {
   const base = fakeDataProvider({ meetings: rows });
   // The fake compares filters by equality, so it cannot answer a range.
-  const getList = vi.fn(async () => ({ data: rows, total: rows.length }));
-  return {
-    getList,
-    dataProvider: { ...base, getList } as unknown as DataProvider,
-  };
+  const getList = vi.fn(async (_resource: string, _params: GetListParams) => ({
+    data: rows,
+    total: rows.length,
+  }));
+  const dataProvider: DataProvider = { ...base, getList };
+  return { getList, dataProvider };
 };
-interface ListCall {
-  filter: Record<string, unknown>;
-  pagination: { perPage: number };
-}
-const lastFilter = (getList: ReturnType<typeof providerWith>["getList"]) =>
-  (getList.mock.calls.at(-1) as unknown as [string, ListCall])[1];
+const lastFilter = (getList: ReturnType<typeof providerWith>["getList"]) => {
+  const call = getList.mock.calls.at(-1);
+  if (!call) throw new Error("getList was never called");
+  return call[1];
+};
 
 async function mountList({
   list,
@@ -187,7 +188,7 @@ describe("<CalendarList> month view", () => {
     await mountList({ list: calendar(), dataProvider });
 
     const params = lastFilter(getList);
-    expect(params.pagination.perPage).toBe(1000);
+    expect(params.pagination).toEqual({ page: 1, perPage: 1000 });
     expect(params.filter).toEqual({
       ends_at_gte: new Date(2026, 3, 26).toISOString(),
       starts_at_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
@@ -228,7 +229,7 @@ describe("<CalendarList> month view", () => {
     await headerButton(wrapper, "Next").trigger("click");
     await flushPromises();
     expect(title(wrapper)).toBe("June 2026");
-    expect(lastFilter(getList).filter.ends_at_gte).toBe(
+    expect(lastFilter(getList).filter?.ends_at_gte).toBe(
       new Date(2026, 4, 31).toISOString(),
     );
 
@@ -236,7 +237,7 @@ describe("<CalendarList> month view", () => {
     await headerButton(wrapper, "Previous").trigger("click");
     await flushPromises();
     expect(title(wrapper)).toBe("April 2026");
-    expect(lastFilter(getList).filter.ends_at_gte).toBe(
+    expect(lastFilter(getList).filter?.ends_at_gte).toBe(
       new Date(2026, 2, 29).toISOString(),
     );
   });
@@ -779,7 +780,7 @@ describe("<CalendarList> views", () => {
 
     await switcherButton(wrapper, "Week").trigger("click");
     await flushPromises();
-    expect(lastFilter(getList).filter.ends_at_gte).toBe(
+    expect(lastFilter(getList).filter?.ends_at_gte).toBe(
       new Date(2026, 4, 10).toISOString(),
     );
   });
