@@ -1,21 +1,29 @@
 import {
   asFeatureCollection,
-  type GeoFeatureCollection,
-  type GeoJsonValue,
   geoBounds,
   isGeoJsonValue,
   isLngLatBox,
+  type JsonObject,
   type MapStyleInput,
   type ShapeStyle,
   type SourceProp,
   shapeLayerSpecs,
 } from "@chelone/core";
+import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { useEffect, useId, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../i18n-hooks";
 import { useFieldValue } from "../../record/use-field-value";
 import { MapCanvas, useMap } from "./map-canvas";
+
+type GeoJsonCollection = FeatureCollection<Geometry | null, JsonObject | null>;
+
+/** What a map input stores: a geometry, a Feature or a FeatureCollection. */
+type GeoJsonInput =
+  | Geometry
+  | Feature<Geometry | null, JsonObject | null>
+  | GeoJsonCollection;
 
 /** What every GeoJSON map shows besides the data: the framing and the canvas. */
 export interface GeoJsonViewProps {
@@ -57,7 +65,7 @@ export interface GeoJsonFieldProps<
 export function useGeoJsonSource(
   map: MapLibreMap,
   sourceId: string,
-  data: GeoFeatureCollection,
+  data: GeoJsonCollection,
   style: ShapeStyle,
 ): void {
   const specs = shapeLayerSpecs(sourceId, style);
@@ -99,7 +107,7 @@ export function useGeoJsonSource(
 }
 
 interface GeoJSONSourceLike {
-  setData(data: GeoFeatureCollection): unknown;
+  setData(data: GeoJsonCollection): unknown;
 }
 
 /** Props for {@link GeoJsonLayers}: the framing options, and the data to draw. */
@@ -109,7 +117,7 @@ export interface GeoJsonLayersProps
     "shapeStyle" | "fitBounds" | "fitPadding" | "maxFitZoom"
   > {
   /** A Geometry, Feature or FeatureCollection. */
-  data: GeoJsonValue;
+  data: GeoJsonInput;
 }
 
 /**
@@ -169,7 +177,7 @@ export function GeoJsonView({
   scrollZoom = false,
   className,
   ...layers
-}: GeoJsonViewProps & { data: GeoJsonValue }) {
+}: GeoJsonViewProps & { data: GeoJsonInput }) {
   return (
     <MapCanvas
       height={height}
