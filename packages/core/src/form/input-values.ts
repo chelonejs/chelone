@@ -75,6 +75,11 @@ export function toBooleanValue(value: FormValue): boolean {
   return Boolean(value);
 }
 
+/** A tri-state boolean input's value: `true` or `false` as stored, `null` for every other value (unset is not false). */
+export function toNullableBooleanValue(value: FormValue): boolean | null {
+  return typeof value === "boolean" ? value : null;
+}
+
 /**
  * A date input's value, unconverted: the string/number/`Date` it can edit,
  * `null` for a cleared one. Formatting to the input's own shape stays with the
@@ -102,6 +107,83 @@ export function toFileInputValue(value: FormValue): FileInputValue {
   if (typeof value === "string") return value;
   if (typeof File !== "undefined" && value instanceof File) return value;
   return null;
+}
+
+/** A picked `File`, which may carry the object URL its preview holds. */
+export type FileWithPreview = File & { preview?: string };
+
+/** What `<FileInput>` stores for a dropped file: the file with the preview URL and title a preview child reads. */
+export type TransformedFile = {
+  rawFile: FileWithPreview;
+  src: string;
+  title: string;
+};
+
+/** A file already on the record: the `{ src, title }` object a data provider stores. Other keys ride along. */
+export type StoredFile = {
+  src?: string;
+  title?: string;
+};
+
+/** One file a `<FileInput>` holds. */
+export type FileEntry = FileWithPreview | TransformedFile | StoredFile;
+
+/** What a `<FileInput>` holds: one entry, a list of them with `multiple`, or nothing. */
+export type FileSelection = FileEntry | FileEntry[] | null;
+
+/** `File` is read through the global so the guards also run where there is none (Node). */
+function isFile(value: FormValue): value is FileWithPreview {
+  return typeof File !== "undefined" && value instanceof File;
+}
+
+function isFileEntry(value: FormValue): value is FileEntry {
+  return (
+    isFile(value) ||
+    (typeof value === "object" && value !== null && !Array.isArray(value))
+  );
+}
+
+/** The preview record `<FileInput>` makes of a dropped file. */
+export function isTransformedFile(value: FormValue): value is TransformedFile {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "rawFile" in value &&
+    isFile(value.rawFile) &&
+    "src" in value &&
+    typeof value.src === "string" &&
+    "title" in value &&
+    typeof value.title === "string"
+  );
+}
+
+/**
+ * A file input's selection: the entry, the entries of a list (anything that is
+ * not a file or a record dropped), `null` for a cleared one.
+ */
+export function toFileSelection(value: FormValue): FileSelection {
+  if (Array.isArray(value)) return value.filter(isFileEntry);
+  return isFileEntry(value) ? value : null;
+}
+
+/** The entries of a file input's value, in order. */
+export function toFileEntries(value: FormValue): FileEntry[] {
+  const selection = toFileSelection(value);
+  if (selection === null) return [];
+  return Array.isArray(selection) ? selection : [selection];
+}
+
+/** A stable list key for a file entry: the dropped file's name, else the stored `src`, else its place. */
+export function fileEntryKey(entry: FileEntry, index: number): string | number {
+  if (isTransformedFile(entry)) return entry.rawFile.name;
+  if (isFile(entry)) return index;
+  return entry.src ?? index;
+}
+
+/** The object URL a file entry's preview holds, to revoke when it goes. */
+export function fileEntryPreview(entry: FileEntry): string | undefined {
+  if (isTransformedFile(entry)) return entry.rawFile.preview;
+  return isFile(entry) ? entry.preview : undefined;
 }
 
 /** A currency input's value: the amount, `null` when cleared (minor-vs-major units stay with the input). */

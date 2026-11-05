@@ -1,10 +1,16 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import type { ChoiceValueOf } from "./input-values";
 import {
+  fileEntryKey,
+  fileEntryPreview,
+  isTransformedFile,
   toBooleanValue,
   toCurrencyValue,
   toDateInputValue,
+  toFileEntries,
   toFileInputValue,
+  toFileSelection,
+  toNullableBooleanValue,
   toNumberValue,
   toTextList,
   toTextValue,
@@ -63,6 +69,18 @@ describe("toBooleanValue", () => {
     expect(toBooleanValue("false")).toBe(false);
     expect(toBooleanValue("0")).toBe(false);
     expect(toBooleanValue("true")).toBe(true);
+  });
+});
+
+describe("toNullableBooleanValue", () => {
+  it("keeps a stored boolean and reads everything else as unset", () => {
+    expect(toNullableBooleanValue(true)).toBe(true);
+    expect(toNullableBooleanValue(false)).toBe(false);
+    expect(toNullableBooleanValue(null)).toBeNull();
+    expect(toNullableBooleanValue(undefined)).toBeNull();
+    expect(toNullableBooleanValue("")).toBeNull();
+    expect(toNullableBooleanValue("true")).toBeNull();
+    expect(toNullableBooleanValue(0)).toBeNull();
   });
 });
 
@@ -140,5 +158,54 @@ describe("ChoiceValueOf", () => {
       ChoiceValueOf<{ id: number; name: string }>
     >().toEqualTypeOf<number>();
     expectTypeOf<ChoiceValueOf<"m" | "f">>().toEqualTypeOf<"m" | "f">();
+  });
+});
+
+describe("the file entry guards", () => {
+  const file = new File(["x"], "a.png");
+  const transformed = { rawFile: file, src: "blob:a", title: "a.png" };
+  const stored = { src: "https://example.org/b.pdf", title: "Cover" };
+
+  it("isTransformedFile accepts only the preview record of a dropped file", () => {
+    expect(isTransformedFile(transformed)).toBe(true);
+    expect(isTransformedFile(stored)).toBe(false);
+    expect(isTransformedFile(file)).toBe(false);
+    expect(isTransformedFile({ rawFile: "a", src: "", title: "" })).toBe(false);
+    expect(isTransformedFile(null)).toBe(false);
+  });
+
+  it("toFileSelection keeps one entry, a list of entries, and clears the rest", () => {
+    expect(toFileSelection(file)).toBe(file);
+    expect(toFileSelection(stored)).toBe(stored);
+    expect(toFileSelection([file, stored, 3, null])).toEqual([file, stored]);
+    expect(toFileSelection(null)).toBeNull();
+    expect(toFileSelection(undefined)).toBeNull();
+    expect(toFileSelection("")).toBeNull();
+    expect(toFileSelection("https://example.org/c.png")).toBeNull();
+  });
+
+  it("toFileEntries lists the selection", () => {
+    expect(toFileEntries(null)).toEqual([]);
+    expect(toFileEntries(stored)).toEqual([stored]);
+    expect(toFileEntries([file, transformed])).toEqual([file, transformed]);
+  });
+
+  it("fileEntryKey names a dropped file, a stored file, and falls back to the index", () => {
+    expect(fileEntryKey(transformed, 2)).toBe("a.png");
+    expect(fileEntryKey(stored, 2)).toBe("https://example.org/b.pdf");
+    expect(fileEntryKey({ title: "no src" }, 2)).toBe(2);
+    expect(fileEntryKey(file, 3)).toBe(3);
+  });
+
+  it("fileEntryPreview finds the object URL a preview holds", () => {
+    const withPreview = Object.assign(new File(["x"], "p.png"), {
+      preview: "blob:p",
+    });
+    expect(fileEntryPreview({ ...transformed, rawFile: withPreview })).toBe(
+      "blob:p",
+    );
+    expect(fileEntryPreview(withPreview)).toBe("blob:p");
+    expect(fileEntryPreview(transformed)).toBeUndefined();
+    expect(fileEntryPreview(stored)).toBeUndefined();
   });
 });

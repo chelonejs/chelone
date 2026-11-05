@@ -207,9 +207,10 @@ type CallbackParam<TCallback> =
     : never;
 
 /**
- * The `format`, `parse` and `transform` entries of `TProps` with `TValue` in
- * place of the value they took or returned. Each stays optional and keeps the
- * rest of its signature, and one `TProps` lacks is not added.
+ * The `format`, `parse`, `transform` and `defaultValue` entries of `TProps` with
+ * `TValue` in place of the value they took, returned or held. Each stays
+ * optional and keeps the rest of its signature, and one `TProps` lacks is not
+ * added.
  */
 type ValueEntries<TProps, TValue> = {
   [K in Extract<keyof TProps, "format" | "transform">]?: (
@@ -219,11 +220,13 @@ type ValueEntries<TProps, TValue> = {
   [K in Extract<keyof TProps, "parse">]?: (
     value: CallbackParam<TProps[K]>,
   ) => TValue;
+} & {
+  [K in Extract<keyof TProps, "defaultValue">]?: TValue;
 };
 
-/** Whether `TProps` has a `format`, `parse` or `transform`. */
+/** Whether `TProps` has a `format`, `parse`, `transform` or `defaultValue`. */
 type HasValueProps<TProps> = [
-  keyof TProps & ("format" | "parse" | "transform"),
+  keyof TProps & ("format" | "parse" | "transform" | "defaultValue"),
 ] extends [never]
   ? false
   : true;
@@ -250,7 +253,10 @@ type ResourceMember<TComponent, TRecord> = TComponent extends (
 ) => infer TResult
   ? HasValueProps<TProps> extends true
     ? <TPath extends SourceProp<TRecord>>(
-        props: Omit<TProps, "source" | "format" | "parse" | "transform"> &
+        props: Omit<
+          TProps,
+          "source" | "format" | "parse" | "transform" | "defaultValue"
+        > &
           SourceEntry<TProps, TPath> &
           ValueEntries<TProps, NoInfer<SourceValue<TRecord, TPath>>>,
       ) => TResult

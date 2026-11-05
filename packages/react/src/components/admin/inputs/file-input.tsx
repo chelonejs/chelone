@@ -1,3 +1,15 @@
+import type {
+  FileEntry,
+  FileSelection,
+  SourceProp,
+  TransformedFile,
+} from "@chelone/core";
+import {
+  fileEntryKey,
+  fileEntryPreview,
+  toFileEntries,
+  toFileSelection,
+} from "@chelone/core";
 import { XCircle } from "lucide-react";
 import type * as React from "react";
 import {
@@ -5,7 +17,6 @@ import {
   type ComponentType,
   type HTMLAttributes,
   isValidElement,
-  type ReactElement,
   type ReactNode,
   useEffect,
 } from "react";
@@ -55,12 +66,12 @@ import type { InputProps } from "../input-props";
 function FileInput(props: FileInputProps) {
   const {
     defaultValue,
-    format,
+    format: formatProp,
     label,
     helperText,
     onBlur: onBlurProp,
     onChange: onChangeProp,
-    parse,
+    parse: parseProp,
     resource,
     source,
     validate,
@@ -90,7 +101,7 @@ function FileInput(props: FileInputProps) {
   const translate = useTranslate();
 
   // turn a browser dropped file structure into expected structure
-  const transformFile = (file: unknown) => {
+  const transformFile = (file: FileEntry): FileEntry => {
     if (!(file instanceof File)) {
       return file;
     }
@@ -105,7 +116,7 @@ function FileInput(props: FileInputProps) {
     return transformedFile;
   };
 
-  const transformFiles = (files: unknown) => {
+  const transformFiles = (files: FileSelection): FileSelection => {
     if (!files) {
       return multiple ? [] : null;
     }
@@ -117,6 +128,11 @@ function FileInput(props: FileInputProps) {
     return transformFile(files);
   };
 
+  const format = formatProp ?? transformFiles;
+  const parse = parseProp ?? transformFiles;
+
+  // `format` and `parse` run here on the files, so the binding keeps its
+  // defaults.
   const {
     id,
     field: { onChange, onBlur, value, name },
@@ -124,14 +140,12 @@ function FileInput(props: FileInputProps) {
     fieldState,
   } = useInput({
     defaultValue,
-    format: format ?? transformFiles,
     onBlur: onBlurProp,
     onChange: onChangeProp,
-    parse: parse ?? transformFiles,
     source,
     validate,
   });
-  const files = value ? (Array.isArray(value) ? value : [value]) : [];
+  const files = toFileEntries(format(toFileSelection(value)));
 
   const invalid = fieldState.invalid;
   // chelone `fieldState.error` is ALREADY the displayable
@@ -146,10 +160,10 @@ function FileInput(props: FileInputProps) {
     const updatedFiles = multiple ? [...files, ...newFiles] : [...newFiles];
 
     if (multiple) {
-      onChange(updatedFiles);
+      onChange(parse(updatedFiles));
       onBlur();
     } else {
-      onChange(updatedFiles[0]);
+      onChange(parse(updatedFiles[0] ?? null));
       onBlur();
     }
 
@@ -158,7 +172,7 @@ function FileInput(props: FileInputProps) {
     }
   };
 
-  const onRemove = (file: File | TransformedFile) => async () => {
+  const onRemove = (file: FileEntry) => async () => {
     if (validateFileRemoval) {
       try {
         await validateFileRemoval(file);
@@ -171,10 +185,10 @@ function FileInput(props: FileInputProps) {
       const filteredFiles = files.filter(
         (stateFile) => !shallowEqual(stateFile, file),
       );
-      onChange(filteredFiles);
+      onChange(parse(filteredFiles));
       onBlur();
     } else {
-      onChange(null);
+      onChange(parse(null));
       onBlur();
     }
 
@@ -183,10 +197,8 @@ function FileInput(props: FileInputProps) {
     }
   };
 
-  const childrenElement =
-    children && isValidElement(Children.only(children))
-      ? (Children.only(children) as ReactElement)
-      : undefined;
+  const onlyChild = children ? Children.only(children) : undefined;
+  const childrenElement = isValidElement(onlyChild) ? onlyChild : undefined;
 
   const { getRootProps, getInputProps } = useDropzone({
     accept,
@@ -253,18 +265,14 @@ function FileInput(props: FileInputProps) {
 
       {children && (
         <div className="previews flex flex-col gap-1">
-          {files.map((file, index: number) => (
+          {files.map((file, index) => (
             <FileInputPreview
-              key={
-                (file as { rawFile?: File })?.rawFile?.name ??
-                (file as { src?: string })?.src ??
-                index
-              }
-              file={file as FileWithPreview | TransformedFile}
-              onRemove={onRemove(file as File | TransformedFile)}
+              key={fileEntryKey(file, index)}
+              file={file}
+              onRemove={onRemove(file)}
               removeIcon={removeIcon}
             >
-              <RecordContextProvider value={file}>
+              <RecordContextProvider<FileEntry> value={file}>
                 {childrenElement}
               </RecordContextProvider>
             </FileInputPreview>
@@ -275,7 +283,14 @@ function FileInput(props: FileInputProps) {
   );
 }
 
-type FileInputProps = Omit<InputProps, "type"> & {
+type FileInputProps<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> = Omit<InputProps<TRecord, TPath>, "type" | "format" | "parse"> & {
+  /** Read transform (the files in the form → the files shown). Default makes a preview record of each dropped file. */
+  format?: (value: FileSelection) => FileSelection;
+  /** Write transform (the dropped or remaining files → stored value). Default makes a preview record of each dropped file. */
+  parse?: (value: FileSelection) => FileSelection;
   accept?: DropzoneOptions["accept"];
   className?: string;
   children?: ReactNode;
@@ -285,24 +300,12 @@ type FileInputProps = Omit<InputProps, "type"> & {
   minSize?: DropzoneOptions["minSize"];
   multiple?: DropzoneOptions["multiple"];
   options?: DropzoneOptions;
-  onRemove?: (file: File | TransformedFile) => void;
+  onRemove?: (file: FileEntry) => void;
   placeholder?: ReactNode;
   removeIcon?: ComponentType<{ className?: string }>;
   inputProps?: DropzoneInputProps & React.ComponentProps<"input">;
-  validateFileRemoval?(
-    file: File | TransformedFile,
-  ): boolean | Promise<boolean>;
+  validateFileRemoval?(file: FileEntry): boolean | Promise<boolean>;
 };
-
-interface FileWithPreview extends File {
-  preview?: string;
-}
-
-interface TransformedFile {
-  rawFile: FileWithPreview;
-  src: string;
-  title: string;
-}
 
 /**
  * Preview container for uploaded files in `<FileInput>`, with a remove button.
@@ -325,7 +328,7 @@ function FileInputPreview(props: FileInputPreviewProps) {
 
   useEffect(() => {
     return () => {
-      const preview = "rawFile" in file ? file.rawFile.preview : file.preview;
+      const preview = fileEntryPreview(file);
 
       if (preview) {
         window.URL.revokeObjectURL(preview);
@@ -355,7 +358,7 @@ function FileInputPreview(props: FileInputPreviewProps) {
 }
 
 interface FileInputPreviewProps extends HTMLAttributes<HTMLDivElement> {
-  file: FileWithPreview | TransformedFile;
+  file: FileEntry;
   onRemove: () => void;
   removeIcon?: React.ComponentType<{ className?: string }>;
 }

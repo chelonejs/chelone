@@ -1,5 +1,7 @@
+import type { SourceProp, SourceValue } from "@chelone/core";
+import { toBooleanValue } from "@chelone/core";
 import type React from "react";
-import type { ComponentProps } from "react";
+import type { ComponentProps, FocusEvent } from "react";
 import { useCallback } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -31,7 +33,7 @@ function BooleanInput(props: BooleanInputProps) {
   const {
     className,
     defaultValue = false,
-    format,
+    format = identity,
     label,
     helperText,
     onBlur,
@@ -39,7 +41,7 @@ function BooleanInput(props: BooleanInputProps) {
     onFocus,
     readOnly,
     disabled,
-    parse,
+    parse = identity,
     resource: resourceProp,
     source,
     validate,
@@ -55,10 +57,10 @@ function BooleanInput(props: BooleanInputProps) {
   // `resource`/`disabled`/`readOnly` are NOT `useInput` keys (they are
   // presentational — `resource` resolves the label, disabled/readOnly gate the
   // DOM control below); only the wiring keys are threaded into `useInput`.
+  // `format` and `parse` run here on the switch's boolean, so the binding keeps
+  // its defaults.
   const { id, field, fieldState, isRequired } = useInput({
     defaultValue,
-    format,
-    parse,
     source,
     onBlur,
     // The user `onChange(boolean)` is chained inside `handleChange` (which
@@ -66,22 +68,24 @@ function BooleanInput(props: BooleanInputProps) {
     validate,
   });
 
+  const checked = format(toBooleanValue(field.value));
+
   const invalid = fieldState.invalid;
   // chelone `fieldState.error` is ALREADY the displayable
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
   const handleChange = useCallback(
-    (checked: boolean) => {
-      field.onChange(checked);
+    (next: boolean) => {
+      field.onChange(parse(next));
       // Mark the field touched so validation surfaces on interaction.
       field.onBlur();
       // Chain the user's `onChange(boolean)`. Kept out of `useInput` (whose
       // `onChange` is `(eventOrValue?: unknown) => void`) so the boolean arg is
       // exact and it fires exactly once.
-      onChange?.(checked);
+      onChange?.(next);
     },
-    [field, onChange],
+    [field, onChange, parse],
   );
 
   return (
@@ -90,7 +94,7 @@ function BooleanInput(props: BooleanInputProps) {
         <Switch
           id={id}
           aria-invalid={invalid || undefined}
-          checked={Boolean(field.value)}
+          checked={checked}
           onFocus={onFocus}
           onCheckedChange={handleChange}
           disabled={disabled || readOnly}
@@ -113,21 +117,34 @@ function BooleanInput(props: BooleanInputProps) {
   );
 }
 
-interface BooleanInputProps
-  extends Omit<InputProps, "onChange" | "onBlur" | "type"> {
+/** `defaultValue` of a boolean input: the value at `source`, or a boolean for a loose record. */
+type BooleanDefault<
+  TRecord,
+  TPath extends SourceProp<TRecord>,
+> = unknown extends TRecord ? boolean | null : SourceValue<TRecord, TPath>;
+
+interface BooleanInputProps<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> extends Omit<
+    InputProps<TRecord, TPath>,
+    "onChange" | "onBlur" | "type" | "defaultValue" | "format" | "parse"
+  > {
   className?: string;
   /** ra precedence default; `false` when omitted (the switch starts off). */
-  defaultValue?: boolean | null;
-  /** Read transform (raw form value → boolean the switch reflects). */
-  format?: (value: unknown) => unknown;
-  /** Write transform (boolean → stored value). */
-  parse?: (value: unknown) => unknown;
-  onBlur?: (event?: unknown) => void;
+  defaultValue?: BooleanDefault<TRecord, TPath>;
+  /** Read transform (guarded form value → boolean the switch reflects). */
+  format?: (value: boolean) => boolean;
+  /** Write transform (the switch's boolean → stored value). */
+  parse?: (value: boolean) => boolean | null;
+  onBlur?: (event?: FocusEvent) => void;
   /** Chained AFTER the parsed boolean is written to the form. */
   onChange?: (value: boolean) => void;
   onFocus?: (event: React.FocusEvent<HTMLButtonElement>) => void;
   /** Extra props forwarded to the underlying shadcn `<Switch>`. */
   options?: ComponentProps<typeof Switch>;
 }
+
+const identity = (value: boolean): boolean => value;
 
 export { BooleanInput, type BooleanInputProps };

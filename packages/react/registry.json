@@ -3897,7 +3897,7 @@
         "@chelone/input-props",
         "@chelone/switch"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4138,7 +4138,12 @@
         "@chelone/input-props",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/react", "lucide-react", "react-dropzone"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "lucide-react",
+        "react-dropzone"
+      ],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4194,7 +4199,7 @@
         "@chelone/lib-utils",
         "@chelone/select"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4215,7 +4220,7 @@
         "@chelone/input-helper-text",
         "@chelone/input-props"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
