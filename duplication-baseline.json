@@ -54,7 +54,6 @@
   "packages/react/src/components/admin/form/translatable-inputs-tab.tsx <-> packages/react/src/components/admin/views/translatable-fields-tab.tsx": 1,
   "packages/react/src/components/admin/guessers/edit-guesser.tsx <-> packages/react/src/components/admin/guessers/list-guesser.tsx": 1,
   "packages/react/src/components/admin/guessers/edit-guesser.tsx <-> packages/react/src/components/admin/guessers/show-guesser.tsx": 1,
-  "packages/react/src/components/admin/guessers/list-guesser.tsx <-> packages/react/src/components/admin/guessers/show-guesser.tsx": 1,
   "packages/react/src/components/admin/inputs/array-input.tsx <-> packages/react/src/components/admin/inputs/text-input.tsx": 1,
   "packages/react/src/components/admin/inputs/autocomplete-array-input.tsx <-> packages/react/src/components/admin/inputs/autocomplete-input.tsx": 11,
   "packages/react/src/components/admin/inputs/autocomplete-input.tsx <-> packages/react/src/components/admin/inputs/select-array-input.tsx": 1,

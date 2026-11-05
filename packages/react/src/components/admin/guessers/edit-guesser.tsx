@@ -1,4 +1,4 @@
-import { type ComponentType, useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { useResourceContext } from "../../../resource";
 import { Toolbar } from "../form/toolbar";
 import { AutocompleteArrayInput } from "../inputs/autocomplete-array-input";
@@ -6,7 +6,7 @@ import { AutocompleteInput } from "../inputs/autocomplete-input";
 import { ReferenceArrayInput } from "../inputs/reference-array-input";
 import { ReferenceInput } from "../inputs/reference-input";
 import { Edit, type EditProps } from "../views/edit";
-import { guessInputComponents } from "./guess-components";
+import { guessInputElements } from "./guess-components";
 import { printGuessedView } from "./guessed-code";
 import { GuesserEmpty } from "./guesser-empty";
 import { useGuessedResource } from "./use-guessed-resource";
@@ -88,16 +88,10 @@ function EditGuesser({
             </ReferenceArrayInput>
           );
         }
-        const Input = guessInputComponents[field.input] as ComponentType<
-          Record<string, unknown>
-        >;
         return (
-          <Input
-            key={field.source}
-            source={field.source}
-            {...(label !== undefined && { label })}
-            {...(field.choices && { choices: field.choices })}
-          />
+          <Fragment key={field.source}>
+            {guessInputElements[field.input](field)}
+          </Fragment>
         );
       })}
       <Toolbar />

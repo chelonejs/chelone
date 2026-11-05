@@ -3,7 +3,7 @@
   "props": [
     {
       "name": "approvedValue",
-      "type": "unknown",
+      "type": "TRecord[keyof TRecord]",
       "optional": true,
       "comment": "Status written once approvals reach `required`. Default `\"approved\"`."
     },
@@ -27,7 +27,7 @@
     },
     {
       "name": "pendingValue",
-      "type": "unknown",
+      "type": "TRecord[keyof TRecord]",
       "optional": true,
       "comment": "Status written while approvals are short of `required`. Default `\"pending\"`."
     },

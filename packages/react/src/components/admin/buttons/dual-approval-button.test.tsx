@@ -140,6 +140,21 @@ describe("DualApprovalButton", () => {
     );
   });
 
+  it("an approval sends the record as previousData", async () => {
+    const dataProvider = fakeDataProvider({
+      posts: [post({ approvers: ["u2"] })],
+    });
+    const update = vi.spyOn(dataProvider, "update");
+    mount({ record: post({ approvers: ["u2"] }), dataProvider });
+
+    fireEvent.click(await screen.findByRole("button", { name: /Approve/ }));
+
+    await waitFor(() => expect(update).toHaveBeenCalledTimes(1));
+    expect(update.mock.calls[0]?.[1].previousData).toEqual(
+      post({ approvers: ["u2"] }),
+    );
+  });
+
   it("sets the approved status on the approval that reaches required", async () => {
     const dataProvider = fakeDataProvider({
       posts: [post({ approvers: ["u2"] })],
