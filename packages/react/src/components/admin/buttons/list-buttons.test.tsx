@@ -37,6 +37,9 @@ import {
 } from "../../../resource";
 import { RouterAdapterProvider } from "../../../router/adapter";
 import { reactRouterAdapter } from "../../../router/react-router-adapter";
+import { SelectInput } from "../inputs/select-input";
+import { TextInput } from "../inputs/text-input";
+import { FilterForm } from "../list/filter-form";
 import { FilterButton } from "./filter-button";
 import { RefreshIconButton } from "./refresh-icon-button";
 import { SelectAllButton } from "./select-all-button";
@@ -73,6 +76,36 @@ function makeDataProvider() {
 // FilterButton only reads the element's props; the input is rendered by DisplayedFilterInputs.
 function TextFilter(_props: { source: string; alwaysOn?: boolean }) {
   return null;
+}
+
+/** A real filter input: `<FilterForm>` renders it, `alwaysOn` stays filter-only. */
+function FilterTextInput({
+  alwaysOn: _alwaysOn,
+  ...inputProps
+}: {
+  source: string;
+  alwaysOn?: boolean;
+}) {
+  return <TextInput {...inputProps} />;
+}
+
+/** A filter whose control is a `<Select>` trigger: no `input[name=...]`. */
+function FilterSelectInput({
+  alwaysOn: _alwaysOn,
+  ...inputProps
+}: {
+  source: string;
+  alwaysOn?: boolean;
+}) {
+  return (
+    <SelectInput
+      {...inputProps}
+      choices={[
+        { id: "news", name: "News" },
+        { id: "misc", name: "Misc" },
+      ]}
+    />
+  );
 }
 
 function DisplayedFilterInputs() {
@@ -228,11 +261,13 @@ describe("<ToggleFilterButton>", () => {
   });
 });
 
-/** Open the Radix menu from the keyboard: jsdom has no PointerEvent for the mouse path. */
+/** Open the Radix menu from the keyboard: jsdom has no PointerEvent for the mouse path.
+ * Returns the trigger, which is `aria-hidden` while the menu is open. */
 async function openAddFilterMenu() {
   const trigger = await screen.findByRole("button", { name: "Add filter" });
   trigger.focus();
   fireEvent.keyDown(trigger, { key: "Enter" });
+  return trigger;
 }
 
 describe("<FilterButton>", () => {
@@ -249,6 +284,93 @@ describe("<FilterButton>", () => {
     );
 
     const input = await screen.findByRole("textbox", { name: "title input" });
+    await waitFor(() => expect(document.activeElement).toBe(input));
+  });
+
+  it("showing a filter does not hand focus back to the Add filter trigger", async () => {
+    render(
+      <ListHarness>
+        <FilterButton filters={[<TextFilter key="title" source="title" />]} />
+        <DisplayedFilterInputs />
+      </ListHarness>,
+    );
+    const trigger = await openAddFilterMenu();
+    const triggerFocused = vi.fn();
+    trigger.addEventListener("focus", triggerFocused);
+
+    fireEvent.click(
+      await screen.findByRole("menuitemcheckbox", { name: "Title" }),
+    );
+
+    const input = await screen.findByRole("textbox", { name: "title input" });
+    await waitFor(() => expect(document.activeElement).toBe(input));
+    expect(triggerFocused).not.toHaveBeenCalled();
+  });
+
+  it("closing the menu without showing a filter returns focus to the trigger", async () => {
+    render(
+      <ListHarness>
+        <FilterButton filters={[<TextFilter key="title" source="title" />]} />
+      </ListHarness>,
+    );
+    const trigger = await openAddFilterMenu();
+
+    fireEvent.keyDown(trigger, { key: "Escape" });
+
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+  });
+
+  it("showing a filter focuses the input its <FilterForm> renders", async () => {
+    const filters = [<FilterTextInput key="title" source="title" />];
+    render(
+      <ListHarness>
+        <FilterButton filters={filters} />
+        <FilterForm filters={filters} />
+      </ListHarness>,
+    );
+    await openAddFilterMenu();
+
+    fireEvent.click(
+      await screen.findByRole("menuitemcheckbox", { name: "Title" }),
+    );
+
+    const input = document.querySelector<HTMLInputElement>(
+      "input[name='title']",
+    );
+    expect(input).toBeTruthy();
+    await waitFor(() => expect(document.activeElement).toBe(input));
+  });
+
+  it("showing a filter whose control is not an input leaves focus on the trigger", async () => {
+    const filters = [<FilterSelectInput key="category" source="category" />];
+    render(
+      <ListHarness>
+        <FilterButton filters={filters} />
+        <FilterForm filters={filters} />
+      </ListHarness>,
+    );
+    const trigger = await openAddFilterMenu();
+
+    fireEvent.click(
+      await screen.findByRole("menuitemcheckbox", { name: "Category" }),
+    );
+
+    expect(document.querySelector("input[name='category']")).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+  });
+
+  it("showing a filter whose source holds a quote focuses its input", async () => {
+    render(
+      <ListHarness>
+        <FilterButton filters={[<TextFilter key="q" source="it's" />]} />
+        <DisplayedFilterInputs />
+      </ListHarness>,
+    );
+    await openAddFilterMenu();
+
+    fireEvent.click(await screen.findByRole("menuitemcheckbox"));
+
+    const input = await screen.findByRole("textbox", { name: "it's input" });
     await waitFor(() => expect(document.activeElement).toBe(input));
   });
 
