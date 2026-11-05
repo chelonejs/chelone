@@ -12,15 +12,13 @@
  * provider (parity with the React twin).
  */
 
-import type { RecordOf, ResourceMap } from "@chelone/core";
+import type { LooseRecord } from "@chelone/core";
 import { type InjectionKey, inject, provide } from "vue";
 import type { UseListControllerReturn } from "../controllers/use-list-controller";
 
 /** The ambient list surface — the reactive `useListController` result. */
-export type ListContextValue<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
-> = UseListControllerReturn<RecordOf<TResources, TName>>;
+export type ListContextValue<TRecord = LooseRecord> =
+  UseListControllerReturn<TRecord>;
 
 /** The provide/inject key for the ambient list surface. */
 export const ListContextKey: InjectionKey<ListContextValue> = Symbol(
@@ -32,14 +30,18 @@ export function provideListContext(value: ListContextValue): void {
   provide(ListContextKey, value);
 }
 
-/** The ambient list surface; throws without a `<List>`/provider above. */
+/**
+ * The ambient list surface; throws without a `<List>`/provider above.
+ * `TRecord` is unconstrained: a `RecordOf` is not always a `ResourceRecord`.
+ */
 export function useListContext<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
->(): ListContextValue<TResources, TName> {
+  TRecord = LooseRecord,
+>(): ListContextValue<TRecord> {
   const ctx = inject(ListContextKey, null);
   if (!ctx) {
     throw new Error("useListContext: no <List> found above this component.");
   }
-  return ctx as ListContextValue<TResources, TName>;
+  // type-escape: an injection key cannot carry the caller's record type, so the
+  // provided `LooseRecord` list is read back as the record type the caller names
+  return ctx as ListContextValue<TRecord>;
 }
