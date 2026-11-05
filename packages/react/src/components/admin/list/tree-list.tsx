@@ -67,7 +67,9 @@ interface TreeListState {
 }
 
 const treeItemOf = (target: EventTarget | null) =>
-  (target as Element).closest<HTMLElement>('[role="treeitem"]');
+  target instanceof Element
+    ? target.closest<HTMLElement>('[role="treeitem"]')
+    : null;
 
 function TreeListNode({
   node,

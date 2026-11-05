@@ -157,8 +157,9 @@ function onDragOver(event: DragEvent, day: Date) {
 
 function onDragLeave(event: DragEvent, day: Date) {
   const into = event.relatedTarget;
+  const cell = event.currentTarget;
   // Moving onto a child of the cell fires dragleave on the cell first.
-  if (into instanceof Node && (event.currentTarget as Node).contains(into)) {
+  if (into instanceof Node && cell instanceof Node && cell.contains(into)) {
     return;
   }
   if (overKey.value === calendarDayKey(day)) overKey.value = undefined;
