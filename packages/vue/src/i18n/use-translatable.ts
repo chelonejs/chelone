@@ -9,6 +9,7 @@
 import {
   createTranslatableController,
   getRecordForLocale as pickLocale,
+  type RecordForLocale,
   type TranslatableController,
 } from "@chelone/core";
 import {
@@ -48,7 +49,7 @@ export interface TranslatableContext {
   /** `record` with each translation map replaced by its selected-locale value. */
   getRecordForLocale<T extends object | null | undefined>(
     record: T,
-  ): T extends object ? Record<string, unknown> : T;
+  ): T extends object ? RecordForLocale<T> : T;
 }
 
 const TranslatableKey: InjectionKey<TranslatableContext> = Symbol(
