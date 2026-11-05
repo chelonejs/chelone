@@ -58,14 +58,18 @@ function registrySchema<TResources extends ResourceMap, TFormData>(
  * server field never erases a default); arrays replace wholesale. Fresh
  * objects on every merged level.
  */
-function deepMerge(base: unknown, override: unknown): unknown {
+function deepMerge<T>(base: T, override: T | Partial<T> | undefined): T {
   if (override === undefined) return base;
-  if (!isPlainObject(base) || !isPlainObject(override)) return override;
+  if (!isPlainObject(base) || !isPlainObject(override)) {
+    // type-escape: only an object `T` differs from `Partial<T>`, and this branch has no object pair to merge
+    return override as T;
+  }
   const result: Record<string, unknown> = { ...base };
   for (const [key, value] of Object.entries(override)) {
     result[key] = key in base ? deepMerge(base[key], value) : value;
   }
-  return result;
+  // type-escape: the merged object has `base`'s keys plus `override`'s, each a `T` member or a `Partial<T>` one
+  return result as T;
 }
 
 export type HydrationAction =
@@ -291,10 +295,10 @@ export function createEditFormController<
     },
   );
 
-  const baseDefaults: TFormData = options.defaultValues ?? ({} as TFormData);
+  const baseDefaults: TFormData = options.defaultValues ?? {};
   const resetOnSuccess = options.resetOnSuccess !== false;
   const mergedWith = (record: TRecord): TFormData =>
-    deepMerge(baseDefaults, record) as TFormData;
+    deepMerge(baseDefaults, record);
 
   /** The last hydrated record REFERENCE — unrelated record-store writes (saving flips) skip hydration. */
   let lastHydrated: TRecord | undefined;
@@ -425,12 +429,12 @@ export function createCreateFormController<
     },
   );
 
-  const seed: TFormData = options.record ?? ({} as TFormData);
-  const baseDefaults = options.defaultValues ?? ({} as TFormData);
+  const seed: TFormData = options.record ?? {};
+  const baseDefaults = options.defaultValues ?? {};
   const resetOnSuccess = options.resetOnSuccess !== false;
 
   const formController: FormController<TFormData> = createFormController({
-    defaultValues: deepMerge(baseDefaults, seed) as TFormData,
+    defaultValues: deepMerge(baseDefaults, seed),
     schema:
       options.schema ?? registrySchema<TResources, TFormData>(ctx, resource),
     validate: options.validate,
@@ -444,9 +448,7 @@ export function createCreateFormController<
       recordController.save(data, {
         onSaved: async (saved) => {
           if (resetOnSuccess) {
-            formController.form.reset(
-              deepMerge(baseDefaults, saved) as TFormData,
-            );
+            formController.form.reset(deepMerge(baseDefaults, saved));
           }
           await options.onSuccess?.(saved);
         },
