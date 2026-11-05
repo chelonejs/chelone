@@ -23,6 +23,7 @@ import {
   type VNode,
 } from "vue";
 import { cn } from "../../../lib/utils";
+import { childVNodes } from "../../../lib/vnode-children";
 import FieldLabelText from "../common/field-label-text.vue";
 import RecordField from "../fields/record-field.vue";
 
@@ -47,8 +48,8 @@ export interface LabeledProps {
 function firstNode(nodes: VNode[]): VNode | undefined {
   for (const node of nodes) {
     if (node.type === Comment) continue;
-    if (node.type === Fragment && Array.isArray(node.children)) {
-      const inner = firstNode(node.children as VNode[]);
+    if (node.type === Fragment) {
+      const inner = firstNode(childVNodes(node));
       if (inner) return inner;
     } else {
       return node;

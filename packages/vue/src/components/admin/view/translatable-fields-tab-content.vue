@@ -21,6 +21,7 @@ import {
 import { provideSourceScope, useSourceScope } from "../../../form/form-context";
 import { useTranslatableContext } from "../../../i18n/use-translatable";
 import { cn } from "../../../lib/utils";
+import { childVNodes } from "../../../lib/vnode-children";
 import { provideRecordContext, RecordContextKey } from "../../../record/record-context";
 import Labeled from "./labeled.vue";
 
@@ -36,8 +37,8 @@ export interface TranslatableFieldsTabContentProps {
 function flatNodes(nodes: VNode[], out: VNode[] = []): VNode[] {
   for (const node of nodes) {
     if (node.type === Comment) continue;
-    if (node.type === Fragment && Array.isArray(node.children)) {
-      flatNodes(node.children as VNode[], out);
+    if (node.type === Fragment) {
+      flatNodes(childVNodes(node), out);
     } else {
       out.push(node);
     }
