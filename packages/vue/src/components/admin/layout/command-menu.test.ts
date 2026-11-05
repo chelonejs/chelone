@@ -677,14 +677,27 @@ describe("useRegisterCommand", () => {
   });
 });
 
+/**
+ * A `matchMedia` double with a fixed answer. jsdom ships none, and the Sheet
+ * path only asks `matches` and registers a change listener.
+ */
+function fakeMatchMedia(matches: boolean): (query: string) => MediaQueryList {
+  return (query) => ({
+    matches,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  });
+}
+
 describe("CommandMenu on a narrow screen", () => {
   it("CommandMenu opens in a bottom Sheet when useIsMobile is true", async () => {
     vi.stubGlobal("innerWidth", 500);
-    window.matchMedia = vi.fn(() => ({
-      matches: true,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    })) as unknown as typeof window.matchMedia;
+    vi.stubGlobal("matchMedia", fakeMatchMedia(true));
     try {
       await mountMenu();
       await openMenu();
@@ -697,7 +710,6 @@ describe("CommandMenu on a narrow screen", () => {
       expect(input()).not.toBeNull();
     } finally {
       vi.unstubAllGlobals();
-      delete (window as { matchMedia?: unknown }).matchMedia;
     }
   });
 });
@@ -705,11 +717,7 @@ describe("CommandMenu on a narrow screen", () => {
 describe("CommandMenu focus on a narrow screen", () => {
   it("CommandMenu focuses the search box when it opens in the Sheet", async () => {
     vi.stubGlobal("innerWidth", 500);
-    window.matchMedia = vi.fn(() => ({
-      matches: true,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    })) as unknown as typeof window.matchMedia;
+    vi.stubGlobal("matchMedia", fakeMatchMedia(true));
     try {
       await mountMenu();
       await openMenu();
@@ -721,7 +729,6 @@ describe("CommandMenu focus on a narrow screen", () => {
       expect(document.activeElement).toBe(input());
     } finally {
       vi.unstubAllGlobals();
-      delete (window as { matchMedia?: unknown }).matchMedia;
     }
   });
 });

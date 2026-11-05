@@ -106,13 +106,20 @@ function wrap(
   return render(tree(value, node, messages));
 }
 
-/** An `IntersectionObserver` double that records every instance it creates. */
-class FakeObserver {
+/**
+ * An `IntersectionObserver` double that records every instance it creates. It
+ * implements the interface so the observer it hands its callback is itself,
+ * uncast.
+ */
+class FakeObserver implements IntersectionObserver {
   static instances: FakeObserver[] = [];
+  readonly root: Element | Document | null = null;
+  readonly rootMargin = "";
+  readonly thresholds: readonly number[] = [];
   observe = vi.fn();
   disconnect = vi.fn();
   unobserve = vi.fn();
-  takeRecords = () => [];
+  takeRecords = (): IntersectionObserverEntry[] => [];
   constructor(
     public callback: IntersectionObserverCallback,
     public options?: IntersectionObserverInit,
@@ -121,10 +128,7 @@ class FakeObserver {
   }
   /** Report the sentinel as in or out of view. */
   trigger(isIntersecting: boolean) {
-    this.callback(
-      [{ isIntersecting } as IntersectionObserverEntry],
-      this as unknown as IntersectionObserver,
-    );
+    this.callback([{ isIntersecting } as IntersectionObserverEntry], this);
   }
 }
 
