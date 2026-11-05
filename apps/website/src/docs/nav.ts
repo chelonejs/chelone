@@ -4,6 +4,11 @@ function titleize(s: string): string {
   return s.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+/** The last `/`-separated segment of a slug or dir path ("" for ""). */
+export function lastSegment(slug: string): string {
+  return slug.slice(slug.lastIndexOf("/") + 1);
+}
+
 function firstLeafSlug(nodes: DocNode[]): string | undefined {
   for (const n of nodes) {
     if (n.kind === "leaf") return n.slug;
@@ -109,7 +114,7 @@ export function buildNavTree(
         ordered.push({
           kind: "group",
           dir: d,
-          title: titleize(d.split("/").pop()!),
+          title: titleize(lastSegment(d)),
           indexSlug: firstLeafSlug(children),
           children,
         });
@@ -117,5 +122,7 @@ export function buildNavTree(
 
     return ordered;
   }
-  return build("") as DocGroup[];
+  // The docs tree roots at section folders only (see content/_meta.ts), so this
+  // filter narrows `DocNode[]` to `DocGroup[]` without dropping anything.
+  return build("").filter((node): node is DocGroup => node.kind === "group");
 }

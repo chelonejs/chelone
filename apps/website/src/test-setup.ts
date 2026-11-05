@@ -42,7 +42,7 @@ if (typeof window !== "undefined" && typeof window.matchMedia !== "function") {
       dispatchEvent() {
         return false;
       },
-    } as MediaQueryList;
+    };
   };
 }
 
