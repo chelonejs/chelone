@@ -38,9 +38,7 @@ function isRepresentationFunction(
 }
 
 /** The resolver `useGetRecordRepresentation` returns. */
-export type GetRecordRepresentation = (
-  record: ResourceRecord | null | undefined,
-) => string;
+export type GetRecordRepresentation = (record: unknown) => string;
 
 export function useGetRecordRepresentation(
   resource?: string,
@@ -51,13 +49,15 @@ export function useGetRecordRepresentation(
     ? registry?.definitions[name]?.recordRepresentation
     : undefined;
 
-  return (record): string => {
+  return (record: unknown): string => {
     if (record == null) return "";
     if (
       recordRepresentation !== undefined &&
       isRepresentationFunction(recordRepresentation)
     ) {
-      return String(recordRepresentation(record) ?? "");
+      return isResourceRecord(record)
+        ? String(recordRepresentation(record) ?? "")
+        : "";
     }
     if (typeof recordRepresentation === "string") {
       return String(getAtPath(record, recordRepresentation) ?? "");

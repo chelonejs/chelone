@@ -4,7 +4,7 @@
  * resource's `recordRepresentation` from the registry definition and applies:
  * - a function → call it with the record;
  * - a string → the value at that (deep) source path off the record when it is
- *   text, a number or an element, and `""` otherwise;
+ *   text, a number or an element, and `String` of it otherwise (`""` when absent), as the Vue twin does;
  * - a React element → returned verbatim;
  * - otherwise the default chain `name → title → label → reference → #${id}`.
  * A nullish record → `""`.
@@ -59,7 +59,8 @@ export function useGetRecordRepresentation(
         if (typeof value === "string" || typeof value === "number") {
           return value;
         }
-        return isValidElement(value) ? value : "";
+        if (isValidElement(value)) return value;
+        return value == null ? "" : String(value);
       }
       if (isValidElement(recordRepresentation)) {
         return recordRepresentation;

@@ -97,13 +97,13 @@ describe("useGetRecordRepresentation", () => {
     ).toBe("b");
   });
 
-  it("a path that reads a value React cannot render gives an empty string", () => {
+  it("an empty path stringifies the record, as the Vue twin does", () => {
     const registry = registryWith("posts", "");
     const record = { id: 1, title: "Whole" };
     const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
       wrapper: makeWrapper({ registry, resource: "posts" }),
     });
-    expect(result.current(record)).toBe("");
+    expect(result.current(record)).toBe(String(record));
   });
 
   it("returns a React element recordRepresentation verbatim", () => {
