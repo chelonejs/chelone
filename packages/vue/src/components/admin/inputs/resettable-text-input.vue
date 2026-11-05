@@ -7,7 +7,7 @@ export interface ResettableTextInputProps {
   label?: string | false;
   resettable?: boolean;
   clearAlwaysVisible?: boolean;
-  defaultValue?: unknown;
+  defaultValue?: string;
   validate?: Validator | readonly Validator[];
   helperText?: string;
   placeholder?: string;

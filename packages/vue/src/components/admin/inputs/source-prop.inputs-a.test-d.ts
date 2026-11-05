@@ -1,5 +1,12 @@
-import type { SourceProp } from "@chelone/core";
+import {
+  defineResources,
+  type RecordOf,
+  type SourceProp,
+  type SourceValue,
+} from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
+import { z } from "zod";
+import { createResourceComponentsOf } from "../../../create-resource-components";
 import type BooleanInput from "./boolean-input.vue";
 import type ColorInput from "./color-input.vue";
 import type CronInput from "./cron-input.vue";
@@ -77,5 +84,54 @@ describe("the first eleven inputs", () => {
     expectTypeOf<
       InstanceType<typeof PhoneInput>["$props"]["source"]
     >().toEqualTypeOf<SourceProp>();
+  });
+});
+
+const resources = defineResources({
+  posts: {
+    schema: z.object({
+      id: z.number(),
+      title: z.string(),
+      views: z.number(),
+      tags: z.array(z.string()),
+      color: z.string(),
+    }),
+  },
+});
+
+type Post = RecordOf<typeof resources, "posts">;
+
+const posts = createResourceComponentsOf<typeof resources, "posts">("posts");
+
+describe("the text-valued inputs of a resource", () => {
+  it("posts.TextInput takes defaultValue typed by its source", () => {
+    const title = posts.TextInput<"title">;
+    type Props = Parameters<typeof title>[0];
+    expectTypeOf<Props["defaultValue"]>().toEqualTypeOf<
+      SourceValue<Post, "title"> | undefined
+    >();
+    posts.TextInput({ source: "title", defaultValue: "Untitled" });
+  });
+
+  it("posts.TextInput rejects a default of another type", () => {
+    // @ts-expect-error `title` is a string, not a number
+    posts.TextInput({ source: "title", defaultValue: 1 });
+  });
+
+  it("posts.TextInput rejects a misspelled source", () => {
+    // @ts-expect-error `titel` is no path of a post
+    posts.TextInput({ source: "titel" });
+  });
+
+  it("the other text-valued inputs type defaultValue by their source", () => {
+    posts.ColorInput({ source: "color", defaultValue: "#fff" });
+    posts.PasswordInput({ source: "title", defaultValue: "x" });
+    posts.ResettableTextInput({ source: "title", defaultValue: "x" });
+    posts.SearchInput({ source: "title", defaultValue: "x" });
+    posts.TextArrayInput({ source: "tags", defaultValue: ["a"] });
+    // @ts-expect-error `tags` holds strings
+    posts.TextArrayInput({ source: "tags", defaultValue: [1] });
+    // @ts-expect-error `views` is a number, not a string
+    posts.CronInput({ source: "views", defaultValue: "* * * * *" });
   });
 });

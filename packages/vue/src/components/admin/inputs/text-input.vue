@@ -6,7 +6,7 @@ export interface TextInputProps {
   source: SourceProp;
   label?: string | false;
   type?: string;
-  defaultValue?: unknown;
+  defaultValue?: string;
   validate?: Validator | readonly Validator[];
   helperText?: string;
   placeholder?: string;
@@ -29,7 +29,7 @@ export interface TextInputProps {
  * `<ValidationError>`), never an RHF `error.root.message`.
  */
 
-import type { Validator } from "@chelone/core";
+import { toTextValue, type Validator } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
@@ -41,17 +41,23 @@ const props = withDefaults(defineProps<TextInputProps>(), {
   label: undefined,
 });
 
-const { id, value, setValue, blur, error, touched, isRequired } = useInput({
+const { id, value, setValue, blur, error, touched, isRequired } = useInput<
+  unknown,
+  string,
+  string
+>({
   source: props.source,
   defaultValue: props.defaultValue,
   validate: props.validate,
+  // A stored number reads as its digits, an object as empty.
+  format: toTextValue,
   // Coercion papercut fix: core's `defaultParse` maps `""` → `null`, so a
   // CLEARED required text field would be validated as `null` and a zod
   // `z.string().min(1)` schema fires its "Expected string, received null" TYPE
   // error before the friendly `.min(1)` refinement can run. Keep a cleared text
   // field an empty STRING (identity parse) so the string refinement — and its
   // custom/i18n message — is what surfaces.
-  parse: (input: unknown) => input,
+  parse: (input: string) => input,
 });
 
 const invalid = computed(() => touched.value && error.value != null);
@@ -68,7 +74,7 @@ const labelText = computed(() =>
     <Input
       :id="id"
       :type="type ?? 'text'"
-      :model-value="value as string"
+      :model-value="value"
       :placeholder="placeholder"
       :disabled="disabled"
       :readonly="readonly"

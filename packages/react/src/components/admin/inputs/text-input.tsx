@@ -1,3 +1,4 @@
+import { type SourceProp, toTextValue } from "@chelone/core";
 import { X } from "lucide-react";
 import type * as React from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
@@ -13,13 +14,23 @@ import { useResourceContext } from "../../../resource";
 import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
 import type { InputProps } from "../input-props";
 
-type TextInputProps = InputProps & {
+type TextInputProps<
+  // type-escape: the no-record sentinel `SourcePath` and `SourceValue` test for
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> = InputProps<TRecord, TPath> & {
   multiline?: boolean;
   inputClassName?: string;
   resettable?: boolean;
   className?: string;
-} & Omit<React.ComponentProps<"textarea">, "onChange" | "onBlur" | "type"> &
-  Omit<React.ComponentProps<"input">, "onChange" | "onBlur" | "type">;
+} & Omit<
+    React.ComponentProps<"textarea">,
+    "onChange" | "onBlur" | "type" | "defaultValue"
+  > &
+  Omit<
+    React.ComponentProps<"input">,
+    "onChange" | "onBlur" | "type" | "defaultValue"
+  >;
 
 /**
  * Single-line or multiline text input for string values.
@@ -58,12 +69,9 @@ function TextInput(props: TextInputProps) {
   // chelone `fieldState.error` is ALREADY the displayable
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
-  const hasValue = field.value != null && field.value !== "";
-
-  // chelone `useInput` types `field.value` as `unknown` (its `format` returns
-  // `unknown`); under the default format it is `""` for nullish, i.e. a display
-  // string. Narrow it for the DOM control (ra-core typed it compatibly).
-  const domField = { ...field, value: field.value as string };
+  const text = toTextValue(field.value);
+  const hasValue = text !== "";
+  const domField = { ...field, value: text };
 
   const handleReset = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();

@@ -1,3 +1,4 @@
+import { type SourceProp, toTextValue } from "@chelone/core";
 import type * as React from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -59,7 +60,7 @@ function CronInput(props: CronInputProps) {
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const exprRaw = (field.value as string | null | undefined) ?? "";
+  const exprRaw = toTextValue(field.value);
   const preview = exprRaw ? describeCron(exprRaw) : null;
 
   return (
@@ -98,8 +99,11 @@ function CronInput(props: CronInputProps) {
   );
 }
 
-interface CronInputProps
-  extends InputProps,
+interface CronInputProps<
+  // type-escape: the no-record sentinel `SourcePath` and `SourceValue` test for
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> extends InputProps<TRecord, TPath>,
     Omit<React.ComponentProps<"div">, "defaultValue" | "onBlur" | "onChange"> {
   disabled?: boolean;
 }
