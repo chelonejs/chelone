@@ -13,6 +13,7 @@ import {
   type CreatePathType,
   createPath,
   type Identifier,
+  type LocationState,
   type PathMatch,
 } from "@chelone/core";
 import type { ComputedRef } from "vue";
@@ -104,7 +105,7 @@ export type Redirect = (
   resource?: string,
   id?: Identifier,
   data?: unknown,
-  state?: Record<string, unknown>,
+  state?: LocationState,
 ) => void;
 
 export function useRedirect(): Redirect {
@@ -117,7 +118,7 @@ export function useRedirect(): Redirect {
     resource?: string,
     id?: Identifier,
     data?: unknown,
-    state: Record<string, unknown> = {},
+    state: LocationState = {},
   ) => {
     if (to === false) return;
 

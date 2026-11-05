@@ -9,7 +9,7 @@
     },
     {
       "name": "state",
-      "type": "unknown",
+      "type": "LocationState",
       "optional": true,
       "comment": ""
     },

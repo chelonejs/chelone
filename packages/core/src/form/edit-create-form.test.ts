@@ -117,19 +117,18 @@ describe("createEditFormController", () => {
     const ctx = makeCtx();
     const realGetOne = ctx.dataProvider.getOne.bind(ctx.dataProvider);
     let releaseRecord: (() => void) | undefined;
-    ctx.dataProvider.getOne = (async (
-      resource: "posts",
-      params: { id: number },
-    ) => {
-      // Only the FIRST fetch is deferred — the post-save invalidation refetch
-      // must flow through, or submit() would await it forever.
-      if (releaseRecord === undefined) {
-        await new Promise<void>((resolve) => {
-          releaseRecord = resolve;
-        });
-      }
-      return realGetOne(resource, params as never);
-    }) as never;
+    vi.spyOn(ctx.dataProvider, "getOne").mockImplementation(
+      async (resource, params) => {
+        // Only the FIRST fetch is deferred — the post-save invalidation refetch
+        // must flow through, or submit() would await it forever.
+        if (releaseRecord === undefined) {
+          await new Promise<void>((resolve) => {
+            releaseRecord = resolve;
+          });
+        }
+        return realGetOne(resource, params);
+      },
+    );
     const update = vi.spyOn(ctx.dataProvider, "update");
     const c = createEditFormController(ctx, "posts", { id: 1 });
     c.subscribe(() => {});
@@ -174,9 +173,9 @@ describe("createEditFormController", () => {
     title.mount();
     title.handleChange("typed");
 
-    ctx.dataProvider.getOne = (async () => ({
+    vi.spyOn(ctx.dataProvider, "getOne").mockResolvedValue({
       data: { id: 1, title: "server-v2", subtitle: "s" },
-    })) as never;
+    });
     await ctx.queryClient.invalidateQueries();
     await vi.waitFor(() =>
       expect(c.getSnapshot().record).toMatchObject({ title: "server-v2" }),
@@ -189,14 +188,13 @@ describe("createEditFormController", () => {
     const ctx = makeCtx();
     const onRedirect = vi.fn();
     const realUpdate = ctx.dataProvider.update.bind(ctx.dataProvider);
-    ctx.dataProvider.update = (async (
-      resource: "posts",
-      params: { id: number; data: Partial<Post> },
-    ) =>
-      realUpdate(resource, {
-        ...params,
-        data: { ...params.data, title: `${params.data.title}-server` },
-      } as never)) as never;
+    vi.spyOn(ctx.dataProvider, "update").mockImplementation(
+      async (resource, params) =>
+        realUpdate(resource, {
+          ...params,
+          data: { ...params.data, title: `${params.data.title}-server` },
+        }),
+    );
     const c = createEditFormController(ctx, "posts", { id: 1, onRedirect });
     c.subscribe(() => {});
     await recordLoaded(c);
@@ -264,12 +262,12 @@ describe("createEditFormController", () => {
 
   it("server ValidationError lands on fields via the onSubmit channel; root notifies; saving settles", async () => {
     const ctx = makeCtx();
-    ctx.dataProvider.update = (async () => {
-      throw new ValidationError("invalid", {
+    vi.spyOn(ctx.dataProvider, "update").mockRejectedValue(
+      new ValidationError("invalid", {
         root: "server says no",
         title: "bad title",
-      });
-    }) as never;
+      }),
+    );
     const c = createEditFormController(ctx, "posts", { id: 1 });
     c.subscribe(() => {});
     await recordLoaded(c);
@@ -412,9 +410,9 @@ describe("createCreateFormController", () => {
 
   it("server ValidationError on create lands on mounted fields", async () => {
     const ctx = makeCtx();
-    ctx.dataProvider.create = (async () => {
-      throw new ValidationError("invalid", { title: "taken" });
-    }) as never;
+    vi.spyOn(ctx.dataProvider, "create").mockRejectedValue(
+      new ValidationError("invalid", { title: "taken" }),
+    );
     const c = createCreateFormController(ctx, "posts", {
       record: { title: "x" },
     });

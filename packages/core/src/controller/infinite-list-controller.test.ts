@@ -54,14 +54,13 @@ const observerCount = (queryClient: QueryClient): number =>
 const slowProvider = (ctx: ReturnType<typeof makeCtx>, delays: number[]) => {
   const real = ctx.dataProvider.getList.bind(ctx.dataProvider);
   let call = 0;
-  return vi.spyOn(ctx.dataProvider, "getList").mockImplementation((async (
-    resource: never,
-    params: never,
-  ) => {
-    const wait = delays[Math.min(call++, delays.length - 1)] ?? 0;
-    await new Promise((resolve) => setTimeout(resolve, wait));
-    return real(resource, params);
-  }) as never);
+  return vi
+    .spyOn(ctx.dataProvider, "getList")
+    .mockImplementation(async (resource, params) => {
+      const wait = delays[Math.min(call++, delays.length - 1)] ?? 0;
+      await new Promise((resolve) => setTimeout(resolve, wait));
+      return real(resource, params);
+    });
 };
 
 const ids = (c: {

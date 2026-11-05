@@ -15,7 +15,7 @@
  *   DEVIATION note on `CreatedDataRouter`).
  */
 
-import type { CheloneLocation, PathMatch } from "@chelone/core";
+import type { CheloneLocation, LocationState, PathMatch } from "@chelone/core";
 import { parseLocation, toLocationState } from "@chelone/core";
 import {
   createContext,
@@ -31,6 +31,7 @@ import {
 } from "react";
 import {
   createBrowserRouter,
+  type Location,
   RouterProvider,
   Link as RRLink,
   Navigate as RRNavigate,
@@ -57,13 +58,7 @@ import type {
 } from "./adapter";
 
 /** react-router `Location` (structurally) → the neutral `CheloneLocation`. */
-function toCheloneLocation(location: {
-  pathname: string;
-  search: string;
-  hash: string;
-  state?: unknown;
-  key?: string;
-}): CheloneLocation {
+function toCheloneLocation(location: Location): CheloneLocation {
   return {
     pathname: location.pathname,
     search: location.search,
@@ -100,7 +95,7 @@ function useLocation(): CheloneLocation {
  * through; opts map 1:1 (`replace`, `state`).
  */
 /** The nav options `AdapterNavigate`'s string form accepts (its `opts` slot). */
-type NavigateOpts = { replace?: boolean; state?: unknown };
+type NavigateOpts = { replace?: boolean; state?: LocationState };
 
 function useNavigate(): AdapterNavigate {
   const navigate = useRRNavigate();
@@ -135,10 +130,7 @@ function useBlocker(
 ): RouterBlocker {
   // Adapt Chelone's predicate (neutral locations) to react-router's.
   const blockerFn = useCallback(
-    (args: {
-      currentLocation: { pathname: string; search: string; hash: string };
-      nextLocation: { pathname: string; search: string; hash: string };
-    }): boolean => {
+    (args: { currentLocation: Location; nextLocation: Location }): boolean => {
       if (typeof shouldBlock === "boolean") return shouldBlock;
       return shouldBlock({
         currentLocation: toCheloneLocation(args.currentLocation),

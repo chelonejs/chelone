@@ -75,6 +75,15 @@ describe("RouterAdapter type contract", () => {
     >().toEqualTypeOf<AdapterNavigate>();
   });
 
+  it("navigate state is LocationState", () => {
+    const check = (navigate: AdapterNavigate) => {
+      navigate("/x", { state: { _scrollToTop: true, nextPathname: "/y" } });
+      // @ts-expect-error `_scrollToTop` is a boolean
+      navigate("/x", { state: { _scrollToTop: "yes" } });
+    };
+    expectTypeOf(check).toBeFunction();
+  });
+
   it("useBlocker returns the normalized RouterBlocker", () => {
     expectTypeOf<
       ReturnType<RouterAdapter["useBlocker"]>
