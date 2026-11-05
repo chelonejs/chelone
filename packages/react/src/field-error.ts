@@ -1,4 +1,8 @@
-import { normalizeFormError, type TranslatableMessage } from "@chelone/core";
+import {
+  normalizeFormError,
+  type TranslatableMessage,
+  type ValidationErrorMap,
+} from "@chelone/core";
 
 /** Error-map scan order: server/submit errors first, then validator causes. */
 const ERROR_MAP_PRIORITY = [
@@ -12,11 +16,10 @@ const ERROR_MAP_PRIORITY = [
 
 /** First displayable error across the field's error-map causes, normalized. */
 export function firstFieldError(
-  errorMap: object,
+  errorMap: ValidationErrorMap,
 ): string | TranslatableMessage | undefined {
-  const map = errorMap as Record<string, unknown>;
   for (const cause of ERROR_MAP_PRIORITY) {
-    const normalized = normalizeFormError(map[cause]);
+    const normalized = normalizeFormError(errorMap[cause]);
     if (normalized !== undefined) return normalized;
   }
   return undefined;
