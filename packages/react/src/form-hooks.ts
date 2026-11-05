@@ -16,6 +16,7 @@ import type {
   FormControllerOptions,
   RecordOf,
   ResourceMap,
+  SaveOptions,
   SourcePath,
   SourceValue,
   TranslatableMessage,
@@ -194,7 +195,7 @@ export interface UseEditFormResult<TRecord>
   extends EditControllerState<TRecord>,
     FormStateSlices {
   form: CheloneFormApi<Partial<TRecord>>;
-  submit: () => Promise<void>;
+  submit: (options?: SaveOptions<TRecord>) => Promise<void>;
 }
 
 /**
@@ -255,7 +256,7 @@ export interface UseCreateFormResult<TRecord>
   extends CreateControllerState<TRecord>,
     FormStateSlices {
   form: CheloneFormApi<Partial<TRecord>>;
-  submit: () => Promise<void>;
+  submit: (options?: SaveOptions<TRecord>) => Promise<void>;
 }
 
 /**

@@ -122,13 +122,13 @@ function Edit(props: EditProps) {
   // composed submit pipeline (validate → persist → reconcile). Errors surface
   // on the form store (fieldState), so this resolves `undefined`.
   const save = useCallback<NonNullable<SaveContextValue["save"]>>(
-    async (data) => {
+    async (data, options) => {
       for (const [key, value] of Object.entries(
         data as Record<string, unknown>,
       )) {
         form.setFieldValue(key, value);
       }
-      await submit();
+      await submit(options);
       return undefined;
     },
     [form, submit],

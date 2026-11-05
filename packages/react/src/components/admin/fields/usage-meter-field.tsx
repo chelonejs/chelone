@@ -43,7 +43,7 @@ function UsageMeterField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: UsageMeterFieldProps<RecordType>) {
-  const used = useFieldValue({ defaultValue, source, record }) as
+  const used = useFieldValue<LooseRecord>({ defaultValue, source, record }) as
     | number
     | null
     | undefined;

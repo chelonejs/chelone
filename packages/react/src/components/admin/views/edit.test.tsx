@@ -151,7 +151,7 @@ describe("<Edit>", () => {
   it("persists an update through the save handler", async () => {
     const dataProvider = makeDataProvider();
     function Submit() {
-      const { save } = useSaveContext();
+      const { save } = useSaveContext<{ id: number; title: string }>();
       return (
         <button type="button" onClick={() => save?.({ title: "Updated" })}>
           save
@@ -177,11 +177,55 @@ describe("<Edit>", () => {
       expect(data).toMatchObject({ title: "Updated" });
     });
   });
+  it("save forwards its call-time options: transform, meta and onSuccess run", async () => {
+    const dataProvider = makeDataProvider();
+    const update = vi.spyOn(dataProvider, "update");
+    const onSuccess = vi.fn();
+    function Submit() {
+      const { save } = useSaveContext<{ id: number; title: string }>();
+      return (
+        <button
+          type="button"
+          onClick={() =>
+            save?.(
+              { title: "x" },
+              {
+                transform: (data) => ({ ...data, title: "transformed" }),
+                meta: { a: 1 },
+                onSuccess,
+              },
+            )
+          }
+        >
+          save
+        </button>
+      );
+    }
+    render(
+      <Providers dataProvider={dataProvider}>
+        <Edit>
+          <TextInput source="title" />
+          <Submit />
+        </Edit>
+      </Providers>,
+    );
+    await screen.findByDisplayValue("Original");
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    expect(update).toHaveBeenCalledWith(
+      "posts",
+      expect.objectContaining({
+        data: expect.objectContaining({ title: "transformed" }),
+        meta: { a: 1 },
+      }),
+    );
+  });
+
   it("validate on <Edit> blocks a save that fails it", async () => {
     const dataProvider = makeDataProvider();
     const update = vi.spyOn(dataProvider, "update");
     function Submit() {
-      const { save } = useSaveContext();
+      const { save } = useSaveContext<{ id: number; title: string }>();
       return (
         <button type="button" onClick={() => save?.({ title: "" })}>
           save
@@ -214,7 +258,7 @@ describe("<Edit>", () => {
     const dataProvider = makeDataProvider();
     const update = vi.spyOn(dataProvider, "update");
     function Submit() {
-      const { save } = useSaveContext();
+      const { save } = useSaveContext<{ id: number; title: string }>();
       return (
         <button type="button" onClick={() => save?.({ title: "Next" })}>
           save
@@ -255,7 +299,7 @@ describe("<Edit>", () => {
     const dataProvider = makeDataProvider();
     const update = vi.spyOn(dataProvider, "update");
     function Submit() {
-      const { save } = useSaveContext();
+      const { save } = useSaveContext<{ id: number; title: string }>();
       return (
         <button type="button" onClick={() => save?.({ title: "Next" })}>
           save

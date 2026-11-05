@@ -13,6 +13,7 @@ import {
   type EditControllerState,
   type RecordControllerContext,
   type RedirectRequest,
+  type SaveOptions,
   type SaveTransform,
 } from "../controller/record-controllers";
 import type { MutationMode } from "../data/mutation-options";
@@ -161,7 +162,8 @@ export interface EditFormController<TRecord, TName extends string = string> {
   handle: ResourceFormHandle<TName, Partial<TRecord>>;
   /** The composed P4 edit controller — imperative `save` with call-time options lives here. */
   recordController: EditController<TRecord>;
-  submit(): Promise<void>;
+  /** Validates, persists, reconciles. `options` apply to this one save, as `recordController.save`'s do. */
+  submit(options?: SaveOptions<TRecord>): Promise<void>;
   subscribe(listener: () => void): () => void;
   getSnapshot(): EditFormControllerState<TRecord>;
   destroy(): void;
@@ -173,7 +175,8 @@ export interface CreateFormController<TRecord, TName extends string = string> {
   handle: ResourceFormHandle<TName, Partial<TRecord>>;
   /** The composed P4 create controller. */
   recordController: CreateController<TRecord>;
-  submit(): Promise<void>;
+  /** Validates, persists, reconciles. `options` apply to this one save, as `recordController.save`'s do. */
+  submit(options?: SaveOptions<TRecord>): Promise<void>;
   subscribe(listener: () => void): () => void;
   getSnapshot(): CreateFormControllerState<TRecord>;
   destroy(): void;
@@ -187,10 +190,10 @@ interface RecordStoreSlice<TRecordState extends object> {
 }
 
 /** The lifecycle members shared by both composed controllers. */
-interface ComposedLifecycle<TSnapshot> {
+interface ComposedLifecycle<TSnapshot, TRecord> {
   subscribe(listener: () => void): () => void;
   getSnapshot(): TSnapshot;
-  submit(): Promise<void>;
+  submit(options?: SaveOptions<TRecord>): Promise<void>;
   destroy(): void;
 }
 
@@ -200,11 +203,15 @@ interface ComposedLifecycle<TSnapshot> {
  * — so a cached record hydrates before mount validators see the form) and
  * its teardown runs on the last unsubscribe.
  */
-function composeControllers<TFormData, TRecordState extends object>(
+function composeControllers<TFormData, TRecord, TRecordState extends object>(
   formController: FormController<TFormData>,
   recordStore: RecordStoreSlice<TRecordState>,
+  submit: (options?: SaveOptions<TRecord>) => Promise<void>,
   onAttach?: () => () => void,
-): ComposedLifecycle<TRecordState & { form: CheloneFormState<TFormData> }> {
+): ComposedLifecycle<
+  TRecordState & { form: CheloneFormState<TFormData> },
+  TRecord
+> {
   let destroyed = false;
   let attachTeardown: (() => void) | undefined;
   const active = new Set<symbol>();
@@ -250,7 +257,7 @@ function composeControllers<TFormData, TRecordState extends object>(
       }
       return cachedSnapshot;
     },
-    submit: () => formController.submit(),
+    submit,
     destroy() {
       if (destroyed) return;
       destroyed = true;
@@ -262,6 +269,50 @@ function composeControllers<TFormData, TRecordState extends object>(
       formController.destroy();
       recordStore.destroy();
       active.clear();
+    },
+  };
+}
+
+/**
+ * The per-submit save options. The form's `onSubmit` takes no arguments, so
+ * `submit(options)` parks `options` here for the length of that one submit and
+ * the form's `save` reads them back through `saveOptions`. Two overlapping
+ * submits share the slot.
+ */
+function createSubmitOptions<TRecord>() {
+  let current: SaveOptions<TRecord> = {};
+  return {
+    /** The form's `save`: the call's options, with `reconcile` run before the caller's own `onSaved`. */
+    save<TResult>(
+      recordController: {
+        save(
+          data: Partial<TRecord>,
+          options: SaveOptions<TRecord>,
+        ): Promise<TResult>;
+      },
+      reconcile: (saved: TRecord) => void | Promise<void>,
+    ) {
+      return (data: Partial<TRecord>) => {
+        const call = current;
+        return recordController.save(data, {
+          ...call,
+          onSaved: async (saved) => {
+            await reconcile(saved);
+            await call.onSaved?.(saved);
+          },
+        });
+      };
+    },
+    async submit<TFormData>(
+      formController: FormController<TFormData>,
+      options: SaveOptions<TRecord> = {},
+    ): Promise<void> {
+      current = options;
+      try {
+        await formController.submit();
+      } finally {
+        current = {};
+      }
     },
   };
 }
@@ -303,6 +354,7 @@ export function createEditFormController<
   /** The last hydrated record REFERENCE — unrelated record-store writes (saving flips) skip hydration. */
   let lastHydrated: TRecord | undefined;
 
+  const submitOptions = createSubmitOptions<TRecord>();
   const formController: FormController<TFormData> = createFormController({
     defaultValues: baseDefaults,
     schema:
@@ -315,16 +367,13 @@ export function createEditFormController<
     // The composed layer reconciles with SERVER truth in onSaved below — the
     // standalone submitted-values reset must not fire first.
     resetOnSuccess: false,
-    save: (data) =>
-      recordController.save(data, {
-        onSaved: async (saved) => {
-          if (resetOnSuccess) {
-            formController.form.reset(mergedWith(saved));
-            lastHydrated = saved;
-          }
-          await options.onSuccess?.(saved);
-        },
-      }),
+    save: submitOptions.save(recordController, async (saved) => {
+      if (resetOnSuccess) {
+        formController.form.reset(mergedWith(saved));
+        lastHydrated = saved;
+      }
+      await options.onSuccess?.(saved);
+    }),
     formOptions: options.formOptions,
   });
 
@@ -384,11 +433,16 @@ export function createEditFormController<
     form.update({ ...form.options, defaultValues: merged });
   };
 
-  const lifecycle = composeControllers(formController, recordController, () => {
-    const off = recordController.subscribe(hydrate);
-    hydrate(); // cached-record path: hydrate before the form mounts
-    return off;
-  });
+  const lifecycle = composeControllers(
+    formController,
+    recordController,
+    (saveOptions) => submitOptions.submit(formController, saveOptions),
+    () => {
+      const off = recordController.subscribe(hydrate);
+      hydrate(); // cached-record path: hydrate before the form mounts
+      return off;
+    },
+  );
 
   return {
     form: formController.form,
@@ -433,6 +487,7 @@ export function createCreateFormController<
   const baseDefaults = options.defaultValues ?? {};
   const resetOnSuccess = options.resetOnSuccess !== false;
 
+  const submitOptions = createSubmitOptions<TRecord>();
   const formController: FormController<TFormData> = createFormController({
     defaultValues: deepMerge(baseDefaults, seed),
     schema:
@@ -444,19 +499,20 @@ export function createCreateFormController<
     notifications: ctx.notifications,
     translate: ctx.translate,
     resetOnSuccess: false,
-    save: (data) =>
-      recordController.save(data, {
-        onSaved: async (saved) => {
-          if (resetOnSuccess) {
-            formController.form.reset(deepMerge(baseDefaults, saved));
-          }
-          await options.onSuccess?.(saved);
-        },
-      }),
+    save: submitOptions.save(recordController, async (saved) => {
+      if (resetOnSuccess) {
+        formController.form.reset(deepMerge(baseDefaults, saved));
+      }
+      await options.onSuccess?.(saved);
+    }),
     formOptions: options.formOptions,
   });
 
-  const lifecycle = composeControllers(formController, recordController);
+  const lifecycle = composeControllers(
+    formController,
+    recordController,
+    (saveOptions) => submitOptions.submit(formController, saveOptions),
+  );
 
   return {
     form: formController.form,
