@@ -105,7 +105,8 @@ describe("saved queries", () => {
     controller.subscribe(listener);
 
     controller.save("Bad", value({ perPage: 0 }));
-    controller.save("Worse", { filter: 1 } as unknown as SavedQueryValue);
+    // Wire-shaped on purpose: a stored query parsed back can hold a number.
+    controller.save("Worse", JSON.parse('{"filter":1}'));
 
     expect(controller.getSnapshot().queries).toEqual([]);
     expect(store.getItem(savedQueriesKey("posts"))).toBeUndefined();

@@ -274,9 +274,11 @@ describe("ReferenceManyField", () => {
   });
 
   it("without a record id fetches nothing and renders an empty list", async () => {
+    // Wire-shaped on purpose: a record off the wire can have no id.
+    const noId = JSON.parse('{"title":"no id"}');
     const { wrapper, manyReferenceSpy, listSpy } = mountAdmin(() => [
       h("div", { "data-testid": "draft" }, [
-        h(withRecord({ name: "Draft" } as never, {}, () => h(Probe))),
+        h(withRecord(noId, {}, () => h(Probe))),
       ]),
       h("div", { "data-testid": "saved" }, [
         h(withRecord({ id: 1 }, {}, () => h(Probe))),

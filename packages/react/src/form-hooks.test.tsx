@@ -666,7 +666,8 @@ describe("useCreateForm", () => {
         // The posts schema requires id:number — a create form has no id, so
         // give it one via defaults to keep the schema satisfiable and let
         // title carry the failure.
-        defaultValues: { id: 99, title: 123 as unknown as string },
+        // Wire-shaped on purpose: a value off the wire can be a number.
+        defaultValues: JSON.parse('{"id":99,"title":123}'),
       });
       latest.create = createForm;
       return (
