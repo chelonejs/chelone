@@ -1,4 +1,4 @@
-import type { GeoFeature, GeoJsonValue } from "@chelone/core";
+import type { GeoFeature, GeoJsonValue, JsonObject } from "@chelone/core";
 import { describe, expect, it } from "vitest";
 import { cutFeatures, simplifyGeo } from "./geometry-ops";
 
@@ -7,7 +7,7 @@ function square(
   south: number,
   east: number,
   north: number,
-  properties: Record<string, unknown> | null = null,
+  properties: JsonObject | null = null,
 ): GeoFeature {
   return {
     type: "Feature",

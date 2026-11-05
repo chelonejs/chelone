@@ -132,6 +132,44 @@ describe("isGeoFeature", () => {
     expect(isGeoFeature({ type: "Feature", properties: {} })).toBe(false);
     expect(isGeoFeature(point)).toBe(false);
   });
+
+  it("isGeoFeature refuses properties that are not JSON, such as a Date or a function", () => {
+    const feature = (properties: object | null | undefined) => ({
+      type: "Feature",
+      geometry: point,
+      properties,
+    });
+    expect(isGeoFeature(feature({ when: new Date(0) }))).toBe(false);
+    expect(isGeoFeature(feature({ run: () => 1 }))).toBe(false);
+    expect(isGeoFeature(feature({ missing: undefined }))).toBe(false);
+    expect(isGeoFeature(feature({ nested: { when: new Date(0) } }))).toBe(
+      false,
+    );
+    expect(isGeoFeature(feature(new Date(0)))).toBe(false);
+  });
+
+  it("isGeoFeature still accepts null, missing and nested JSON properties", () => {
+    const feature = (properties: object | null | undefined) => ({
+      type: "Feature",
+      geometry: point,
+      properties,
+    });
+    expect(isGeoFeature(feature(null))).toBe(true);
+    expect(isGeoFeature(feature(undefined))).toBe(true);
+    expect(isGeoFeature({ type: "Feature", geometry: point })).toBe(true);
+    expect(
+      isGeoFeature(
+        feature({
+          name: "Eiffel",
+          height: 330,
+          open: true,
+          closed: null,
+          tags: ["tower", { kind: "iron" }],
+          address: { city: "Paris", geo: { lat: 48.85 } },
+        }),
+      ),
+    ).toBe(true);
+  });
 });
 
 describe("isGeoFeatureCollection", () => {

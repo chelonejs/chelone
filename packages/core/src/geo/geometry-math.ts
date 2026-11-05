@@ -1,4 +1,4 @@
-import type { GeoGeometry, GeoPosition } from "./geojson";
+import type { Geometry, Position } from "geojson";
 
 // The sphere `@turf/area` uses, so areas agree with it.
 const EARTH_RADIUS_M = 6378137;
@@ -8,16 +8,23 @@ function toRadians(degrees: number): number {
 }
 
 /** An element of an array whose index the caller keeps in range. */
-function at(positions: GeoPosition[], index: number): GeoPosition {
-  return positions[index] as GeoPosition;
+function at(positions: Position[], index: number): Position {
+  return positions[index] ?? [];
 }
 
-function samePosition(a: GeoPosition, b: GeoPosition): boolean {
-  return a[0] === b[0] && a[1] === b[1];
+/** Longitude and latitude; `NaN` for one a short position lacks. */
+function xy([x = Number.NaN, y = Number.NaN]: Position): [number, number] {
+  return [x, y];
+}
+
+function samePosition(a: Position, b: Position): boolean {
+  const [ax, ay] = xy(a);
+  const [bx, by] = xy(b);
+  return ax === bx && ay === by;
 }
 
 /** Drops a closing position that repeats the first one. */
-function openRing(ring: GeoPosition[]): GeoPosition[] {
+function openRing(ring: Position[]): Position[] {
   const last = ring[ring.length - 1];
   return ring.length > 1 && last && samePosition(at(ring, 0), last)
     ? ring.slice(0, -1)
@@ -25,7 +32,7 @@ function openRing(ring: GeoPosition[]): GeoPosition[] {
 }
 
 /** Unsigned area of one ring on the sphere. */
-function ringAreaM2(ring: GeoPosition[]): number {
+function ringAreaM2(ring: Position[]): number {
   const points = openRing(ring);
   const count = points.length;
   if (count < 3) return 0;
@@ -35,13 +42,13 @@ function ringAreaM2(ring: GeoPosition[]): number {
     const here = at(points, i);
     const after = at(points, (i + 1) % count);
     sum +=
-      (toRadians(after[0]) - toRadians(before[0])) *
-      Math.sin(toRadians(here[1]));
+      (toRadians(xy(after)[0]) - toRadians(xy(before)[0])) *
+      Math.sin(toRadians(xy(here)[1]));
   }
   return Math.abs((sum * EARTH_RADIUS_M * EARTH_RADIUS_M) / 2);
 }
 
-function polygonAreaM2(rings: GeoPosition[][]): number {
+function polygonAreaM2(rings: Position[][]): number {
   const [outer, ...holes] = rings;
   if (!outer) return 0;
   return holes.reduce(
@@ -55,7 +62,7 @@ function polygonAreaM2(rings: GeoPosition[][]): number {
  * computes it. Holes are subtracted. `0` for every type but Polygon and
  * MultiPolygon.
  */
-export function geoAreaM2(geometry: GeoGeometry): number {
+export function geoAreaM2(geometry: Geometry): number {
   if (geometry.type === "Polygon") return polygonAreaM2(geometry.coordinates);
   if (geometry.type === "MultiPolygon") {
     return geometry.coordinates.reduce(
@@ -67,29 +74,31 @@ export function geoAreaM2(geometry: GeoGeometry): number {
 }
 
 /** Twice the signed area of the triangle `a`, `b`, `c`. */
-function cross(a: GeoPosition, b: GeoPosition, c: GeoPosition): number {
-  return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+function cross(a: Position, b: Position, c: Position): number {
+  const [ax, ay] = xy(a);
+  const [bx, by] = xy(b);
+  const [cx, cy] = xy(c);
+  return (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
 }
 
-function onSegment(
-  a: GeoPosition,
-  b: GeoPosition,
-  point: GeoPosition,
-): boolean {
+function onSegment(a: Position, b: Position, point: Position): boolean {
+  const [ax, ay] = xy(a);
+  const [bx, by] = xy(b);
+  const [px, py] = xy(point);
   return (
-    point[0] >= Math.min(a[0], b[0]) &&
-    point[0] <= Math.max(a[0], b[0]) &&
-    point[1] >= Math.min(a[1], b[1]) &&
-    point[1] <= Math.max(a[1], b[1])
+    px >= Math.min(ax, bx) &&
+    px <= Math.max(ax, bx) &&
+    py >= Math.min(ay, by) &&
+    py <= Math.max(ay, by)
   );
 }
 
 /** True when the segments share any point, a touch or an overlap included. */
 function segmentsMeet(
-  a: GeoPosition,
-  b: GeoPosition,
-  c: GeoPosition,
-  d: GeoPosition,
+  a: Position,
+  b: Position,
+  c: Position,
+  d: Position,
 ): boolean {
   const abc = cross(a, b, c);
   const abd = cross(a, b, d);
@@ -113,10 +122,7 @@ function segmentsMeet(
  * True when two segments that do not follow each other share a point.
  * `closed` makes the last segment follow the first.
  */
-function pathSelfIntersects(
-  positions: GeoPosition[],
-  closed: boolean,
-): boolean {
+function pathSelfIntersects(positions: Position[], closed: boolean): boolean {
   const points = positions.filter(
     (position, index) =>
       index === 0 || !samePosition(position, at(positions, index - 1)),
@@ -140,7 +146,7 @@ function pathSelfIntersects(
   return false;
 }
 
-function lineSelfIntersects(line: GeoPosition[]): boolean {
+function lineSelfIntersects(line: Position[]): boolean {
   const first = line[0];
   const last = line[line.length - 1];
   const closed =
@@ -156,7 +162,7 @@ function lineSelfIntersects(line: GeoPosition[]): boolean {
  * Rings of one polygon, or polygons of one collection, are not compared with
  * each other.
  */
-export function hasSelfIntersection(geometry: GeoGeometry): boolean {
+export function hasSelfIntersection(geometry: Geometry): boolean {
   switch (geometry.type) {
     case "LineString":
       return lineSelfIntersects(geometry.coordinates);
@@ -177,7 +183,7 @@ export function hasSelfIntersection(geometry: GeoGeometry): boolean {
   }
 }
 
-type Area = Extract<GeoGeometry, { type: "Polygon" | "MultiPolygon" }>;
+type Area = Extract<Geometry, { type: "Polygon" | "MultiPolygon" }>;
 
 /**
  * `result` in the type of `value`, so it stays editable by the input that owns
