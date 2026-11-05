@@ -270,8 +270,21 @@ describe("<ThemeProvider> + <ThemeModeToggle> in isolation", () => {
 });
 
 describe("<Layout> sidebar by viewport width", () => {
-  const originalMatchMedia = window.matchMedia;
   const originalInnerWidth = window.innerWidth;
+
+  /** A `matchMedia` double with a fixed answer; jsdom ships none. */
+  function fakeMatchMedia(matches: boolean): (query: string) => MediaQueryList {
+    return (query) => ({
+      matches,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    });
+  }
 
   // jsdom has no real viewport and no matchMedia: stub both, as the viewport the
   // test wants.
@@ -280,16 +293,11 @@ describe("<Layout> sidebar by viewport width", () => {
       configurable: true,
       value: width,
     });
-    window.matchMedia = ((query: string) => ({
-      matches: width < 768,
-      media: query,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    })) as unknown as typeof window.matchMedia;
+    vi.stubGlobal("matchMedia", fakeMatchMedia(width < 768));
   }
 
   afterEach(() => {
-    window.matchMedia = originalMatchMedia;
+    vi.unstubAllGlobals();
     Object.defineProperty(window, "innerWidth", {
       configurable: true,
       value: originalInnerWidth,
@@ -392,8 +400,8 @@ describe("<Layout> sidebar by viewport width", () => {
   });
 
   it("without matchMedia the sidebar renders as the desktop column", async () => {
-    // @ts-expect-error jsdom ships without matchMedia; keep it that way.
-    window.matchMedia = undefined;
+    // jsdom ships no matchMedia: stub it as absent, which is what the hook sees.
+    vi.stubGlobal("matchMedia", undefined);
     const { wrapper } = await mountLayout();
 
     await wrapper.find('[data-slot="sidebar-trigger"]').trigger("click");

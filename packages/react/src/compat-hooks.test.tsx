@@ -237,9 +237,8 @@ describe("useLocaleState", () => {
 });
 
 describe("useIsMobile", () => {
-  const originalMatchMedia = window.matchMedia;
   const originalInnerWidth = window.innerWidth;
-  let listeners: Array<() => void>;
+  let listeners: Array<EventListener>;
 
   function setViewport(width: number) {
     Object.defineProperty(window, "innerWidth", {
@@ -249,25 +248,45 @@ describe("useIsMobile", () => {
     });
   }
 
-  beforeEach(() => {
-    listeners = [];
-    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+  /**
+   * A `matchMedia` double: `matches` follows the stubbed viewport width, and the
+   * change listeners land in `listeners` so a test can fire one.
+   */
+  function fakeMatchMedia(query: string): MediaQueryList {
+    return {
       matches: window.innerWidth < 768,
       media: query,
-      addEventListener: (_: string, cb: () => void) => listeners.push(cb),
-      removeEventListener: (_: string, cb: () => void) => {
+      onchange: null,
+      addEventListener(_type: string, cb: EventListenerOrEventListenerObject) {
+        if (typeof cb === "function") listeners.push(cb);
+      },
+      removeEventListener(
+        _type: string,
+        cb: EventListenerOrEventListenerObject,
+      ) {
         listeners = listeners.filter((l) => l !== cb);
       },
       // legacy API (unused; present for shape parity)
-      addListener: () => {},
-      removeListener: () => {},
-      onchange: null,
-      dispatchEvent: () => false,
-    })) as unknown as typeof window.matchMedia;
+      addListener() {},
+      removeListener() {},
+      dispatchEvent() {
+        return false;
+      },
+    };
+  }
+
+  /** Fire the `change` event the hook registered on the double. */
+  function fireChange() {
+    for (const listener of listeners) listener(new Event("change"));
+  }
+
+  beforeEach(() => {
+    listeners = [];
+    vi.stubGlobal("matchMedia", fakeMatchMedia);
   });
 
   afterEach(() => {
-    window.matchMedia = originalMatchMedia;
+    vi.unstubAllGlobals();
     setViewport(originalInnerWidth);
   });
 
@@ -289,7 +308,7 @@ describe("useIsMobile", () => {
     expect(result.current).toBe(false);
     act(() => {
       setViewport(500);
-      for (const l of listeners) l();
+      fireChange();
     });
     expect(result.current).toBe(true);
   });
