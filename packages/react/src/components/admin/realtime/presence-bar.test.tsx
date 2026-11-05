@@ -10,6 +10,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { makeAuthProvider } from "../../../__fixtures__/auth-provider";
 import { CheloneProvider } from "../../../context";
 import { PresenceBar } from "./presence-bar";
 
@@ -147,9 +148,9 @@ describe("PresenceBar", () => {
   });
 
   it("PresenceBar prefers the currentUser prop to the auth identity", async () => {
-    const authProvider = {
+    const authProvider = makeAuthProvider({
       getIdentity: async () => ({ id: "zed", fullName: "Zed Zee" }),
-    } as unknown as AuthProvider;
+    });
     const { Providers, join } = setup(authProvider);
     const watcher = join(bob);
     render(<PresenceBar topic="t" currentUser={ann} />, {

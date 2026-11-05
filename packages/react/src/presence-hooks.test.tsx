@@ -11,6 +11,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { type ReactNode, StrictMode } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { makeAuthProvider } from "./__fixtures__/auth-provider";
 import { CheloneProvider } from "./context";
 import { usePresence } from "./presence-hooks";
 import { RecordContextProvider } from "./record/record-context";
@@ -79,9 +80,9 @@ describe("usePresence", () => {
   });
 
   it("usePresence takes the user from the auth provider identity", async () => {
-    const authProvider = {
+    const authProvider = makeAuthProvider({
       getIdentity: async () => ({ id: "ann", fullName: "Ann Lee" }),
-    } as unknown as AuthProvider;
+    });
     const { wrapper, peer } = setup(authProvider);
     const { result } = renderHook(() => usePresence({ topic: "t" }), {
       wrapper,
