@@ -173,13 +173,13 @@ const available = computed<CalendarView[]>(() => {
 const view = ref<CalendarView>(
   available.value.includes(props.defaultView)
     ? props.defaultView
-    : available.value[0]!,
+    : available.value[0] ?? props.defaultView,
 );
 function onViewChange(next: CalendarView) {
   if (available.value.includes(next)) view.value = next;
 }
 watch(available, (offered) => {
-  if (!offered.includes(view.value)) view.value = offered[0]!;
+  if (!offered.includes(view.value)) view.value = offered[0] ?? props.defaultView;
 });
 
 const anchor = ref(new Date());
