@@ -17,6 +17,8 @@ import {
   defineComponent,
   h,
   nextTick,
+  type Ref,
+  ref,
   type VNodeChild,
 } from "vue";
 import { provideCheloneContext } from "../../../context";
@@ -46,7 +48,10 @@ function mountField(
   // takes, so no Vue component type accepts every field this harness mounts.
   field: object,
   props: Record<string, unknown>,
-  record: Record<string, unknown> | undefined,
+  record:
+    | Record<string, unknown>
+    | undefined
+    | Ref<Record<string, unknown> | undefined>,
   // `never` scope: the harness hands every slot to `h` and never calls one, so
   // each takes whatever scope the field passes it.
   slots?: Record<string, (scope: never) => VNodeChild>,
@@ -440,6 +445,32 @@ describe("FunctionField (scoped slot ↔ React render prop)", () => {
       default: () => "x",
     });
     expect(w.find('[data-slot="function-field"]').exists()).toBe(false);
+  });
+});
+
+describe("ambient record that lands after mount", () => {
+  it("FunctionField renders once the ambient record resolves", async () => {
+    const ambient = ref<Record<string, unknown> | undefined>(undefined);
+    const w = mountField(FunctionField, {}, ambient, {
+      default: (scope: { record: Record<string, unknown> }) =>
+        `fn:${scope.record.name}`,
+    });
+    expect(w.find('[data-slot="function-field"]').exists()).toBe(false);
+    ambient.value = { name: "Ada" };
+    await nextTick();
+    expect(w.get('[data-slot="function-field"]').text()).toBe("fn:Ada");
+  });
+
+  it("RecordField renders once the ambient record resolves", async () => {
+    const ambient = ref<Record<string, unknown> | undefined>(undefined);
+    const w = mountField(RecordField, {}, ambient, {
+      default: (scope: { record: Record<string, unknown> }) =>
+        `rec:${scope.record.name}`,
+    });
+    expect(w.text()).not.toContain("rec:");
+    ambient.value = { name: "Ada" };
+    await nextTick();
+    expect(w.get('[data-slot="record-field"]').text()).toContain("rec:Ada");
   });
 });
 

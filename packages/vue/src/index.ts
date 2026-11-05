@@ -337,6 +337,7 @@ export {
   provideRecordContext,
   RecordContextKey,
   useRecordContext,
+  useRecordContextRef,
 } from "./record/record-context";
 export type { UseFieldValueOptions } from "./record/use-field-value";
 export { useFieldValue } from "./record/use-field-value";
