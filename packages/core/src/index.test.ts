@@ -428,11 +428,16 @@ describe("@chelone/core barrel", () => {
   it("does NOT leak internal save-pipeline / hydration helpers", () => {
     expect("sanitizeEmptyValues" in barrel).toBe(false);
     expect("toFormErrorMapValue" in barrel).toBe(false);
-    expect("isThenable" in barrel).toBe(false);
     expect("composeFormValidator" in barrel).toBe(false);
     expect("resolveHydrationAction" in barrel).toBe(false);
     expect("isPlainObject" in barrel).toBe(false);
     expect("isJsonObject" in barrel).toBe(false);
+  });
+
+  it("exports isThenable and extractEventValue", () => {
+    expect(barrel.isThenable(Promise.resolve(1))).toBe(true);
+    expect(barrel.isThenable(() => {})).toBe(false);
+    expect(barrel.extractEventValue({ target: { value: "a" } })).toBe("a");
   });
 
   it("exports isRecord", () => {

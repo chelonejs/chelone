@@ -412,6 +412,7 @@ export {
   createCreateFormController,
   createEditFormController,
 } from "./form/edit-create-form";
+export { extractEventValue } from "./form/event-value";
 export {
   filterFormReflectShape,
   getFilterFormValues,
@@ -674,7 +675,7 @@ export {
 export type { OsrmProviderOptions, RoutingProvider } from "./geo/snap-to-roads";
 export { createOsrmProvider } from "./geo/snap-to-roads";
 export type { JsonObject, JsonValue } from "./guards";
-export { isRecord } from "./guards";
+export { isRecord, isThenable } from "./guards";
 export { defaultMessages } from "./i18n/default-messages";
 export { englishMessages } from "./i18n/english-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";

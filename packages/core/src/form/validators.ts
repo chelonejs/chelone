@@ -2,9 +2,9 @@ import type {
   StandardSchemaV1,
   StandardSchemaV1Issue,
 } from "@tanstack/form-core";
+import { isThenable } from "../guards";
 import type { TranslatableMessage } from "./form-controller";
 import type { ChoiceValueOf } from "./input-values";
-import { isThenable } from "./save-pipeline";
 
 /* @link http://stackoverflow.com/questions/46155/validate-email-address-in-javascript */
 const EMAIL_REGEX =
