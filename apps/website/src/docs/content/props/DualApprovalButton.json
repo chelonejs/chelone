@@ -3,13 +3,13 @@
   "props": [
     {
       "name": "approvedValue",
-      "type": "TRecord[keyof TRecord]",
+      "type": "string",
       "optional": true,
       "comment": "Status written once approvals reach `required`. Default `\"approved\"`."
     },
     {
       "name": "approverSource",
-      "type": "SourceKey<TRecord>",
+      "type": "keyof TRecord & string",
       "optional": true,
       "comment": "Record field holding the approver ids, a top-level key. Default `\"approvers\"`."
     },
@@ -27,7 +27,7 @@
     },
     {
       "name": "pendingValue",
-      "type": "TRecord[keyof TRecord]",
+      "type": "string",
       "optional": true,
       "comment": "Status written while approvals are short of `required`. Default `\"pending\"`."
     },
@@ -51,7 +51,7 @@
     },
     {
       "name": "statusSource",
-      "type": "SourceKey<TRecord>",
+      "type": "keyof TRecord & string",
       "optional": true,
       "comment": "Record field the status is written to, a top-level key. Default `\"status\"`."
     }
