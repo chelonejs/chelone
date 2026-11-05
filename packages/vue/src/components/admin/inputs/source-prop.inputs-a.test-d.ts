@@ -90,11 +90,11 @@ describe("the first eleven inputs", () => {
 const resources = defineResources({
   posts: {
     schema: z.object({
-      id: z.number(),
       title: z.string(),
       views: z.number(),
       tags: z.array(z.string()),
       color: z.string(),
+      id: z.number(),
     }),
   },
 });

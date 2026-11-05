@@ -85,11 +85,11 @@ describe("api-key, datagrid, webhook-endpoint, mdx and monaco-json sources", () 
 const resources = defineResources({
   posts: {
     schema: z.object({
-      id: z.number(),
       title: z.string(),
       views: z.number(),
       tags: z.array(z.string()),
       color: z.string(),
+      id: z.number(),
     }),
   },
 });
