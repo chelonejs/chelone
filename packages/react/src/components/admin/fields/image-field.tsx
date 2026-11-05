@@ -1,20 +1,12 @@
-import {
-  getAtPath,
-  type LooseRecord,
-  type SourceProp,
-  type SourceValue,
-} from "@chelone/core";
-import type { HTMLAttributes } from "react";
-import type { FieldProps } from "@/lib/field-types";
+import { getAtPath, type LooseRecord, type SourceProp } from "@chelone/core";
+import type { SpanFieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
 interface ImageFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    Omit<HTMLAttributes<HTMLSpanElement>, "defaultValue"> {
-  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
+  extends SpanFieldProps<RecordType> {
   /** The path to the image url on each item, for an array of images. */
   src?: string;
   /** The path to the display title (or a literal label). */

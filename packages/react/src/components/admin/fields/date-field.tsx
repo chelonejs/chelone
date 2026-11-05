@@ -1,6 +1,5 @@
 import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
-import type { HTMLAttributes } from "react";
-import type { FieldProps } from "@/lib/field-types";
+import type { SpanFieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -100,9 +99,7 @@ DateFieldImpl.displayName = "DateFieldImpl";
 const DateField = genericMemo(DateFieldImpl);
 
 interface DateFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    Omit<HTMLAttributes<HTMLSpanElement>, "defaultValue"> {
-  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
+  extends SpanFieldProps<RecordType> {
   locales?: Intl.LocalesArgument;
   options?: Intl.DateTimeFormatOptions;
   showTime?: boolean;
