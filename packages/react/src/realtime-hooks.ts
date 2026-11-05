@@ -2,8 +2,8 @@ import {
   assertRealtimeDataProvider,
   createRealtimeStatusStore,
   type DataProvider,
+  hasTransportMembers,
   type Identifier,
-  isRealtimeDataProvider,
   type MicroStore,
   type RealtimeEvent,
   type RealtimeStatusState,
@@ -98,7 +98,7 @@ export function useOnReconnect(callback: () => void): void {
   const onReconnected = useEvent(callback);
 
   useEffect(() => {
-    if (!isRealtimeDataProvider(dataProvider)) return;
+    if (!hasTransportMembers(dataProvider)) return;
     return dataProvider.onReconnect?.(onReconnected);
   }, [dataProvider, onReconnected]);
 }
@@ -113,7 +113,7 @@ function statusStoreFor(dataProvider: DataProvider) {
   let store = statusStores.get(dataProvider);
   if (!store) {
     store = createRealtimeStatusStore(
-      isRealtimeDataProvider(dataProvider) ? dataProvider : {},
+      hasTransportMembers(dataProvider) ? dataProvider : {},
     );
     statusStores.set(dataProvider, store);
   }
