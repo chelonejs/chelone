@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { fakeDataProvider } from "../data/fake-provider";
 import { createStore } from "../store/store";
 import { memoryTransport } from "./memory-transport";
 import { realtimeDataProvider } from "./realtime-data-provider";
@@ -7,7 +8,7 @@ import { clearUnread, subscribeUnreadCount, unreadKey } from "./unread-count";
 
 const setup = () => {
   const transport = memoryTransport();
-  const dataProvider = realtimeDataProvider({} as never, transport);
+  const dataProvider = realtimeDataProvider(fakeDataProvider({}), transport);
   const store = createStore();
   const emit = (type: string) =>
     transport.publish(resourceTopic("posts"), { type, payload: {} });

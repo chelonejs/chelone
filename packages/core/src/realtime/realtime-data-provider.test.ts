@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { InertDataProvider } from "../__fixtures__/data-provider";
 import { combineDataProviders } from "../data/combine-data-providers";
 import type { DataProvider } from "../data/types";
 import {
@@ -27,10 +28,30 @@ const verbs = [
   "deleteMany",
 ] as const;
 
-const baseProvider = () =>
-  Object.fromEntries(
-    verbs.map((verb) => [verb, vi.fn(async () => ({ verb }))]),
-  ) as unknown as DataProvider;
+/**
+ * Every verb is a spy that resolves a record whose `id` is the verb's name.
+ * The spies are assigned, not `vi.spyOn`ed: a spy on an inherited method is a
+ * non-enumerable own property, which a copy of the provider would drop.
+ */
+const baseProvider = () => {
+  const provider = new InertDataProvider();
+  provider.getList = vi.fn(async () => ({
+    data: [{ id: "getList" }],
+    total: 1,
+  }));
+  provider.getOne = vi.fn(async () => ({ data: { id: "getOne" } }));
+  provider.create = vi.fn(async () => ({ data: { id: "create" } }));
+  provider.update = vi.fn(async () => ({ data: { id: "update" } }));
+  provider.delete = vi.fn(async () => ({ data: { id: "delete" } }));
+  provider.getMany = vi.fn(async () => ({ data: [{ id: "getMany" }] }));
+  provider.getManyReference = vi.fn(async () => ({
+    data: [{ id: "getManyReference" }],
+    total: 1,
+  }));
+  provider.updateMany = vi.fn(async () => ({ data: ["updateMany"] }));
+  provider.deleteMany = vi.fn(async () => ({ data: ["deleteMany"] }));
+  return provider;
+};
 
 const baseTransport = (): RealtimeTransport => ({
   subscribe: vi.fn(() => () => {}),
@@ -57,7 +78,8 @@ describe("realtimeDataProvider", () => {
     const dp = realtimeDataProvider(base, baseTransport());
 
     await expect(dp.getList("posts", { filter: {} })).resolves.toEqual({
-      verb: "getList",
+      data: [{ id: "getList" }],
+      total: 1,
     });
     await dp.getOne("posts", { id: 1 });
     await dp.create("posts", { data: {} });
@@ -75,41 +97,41 @@ describe("realtimeDataProvider", () => {
   });
 
   it("keeps the verbs of a provider written as a class", async () => {
-    class Api {
-      async getList() {
-        return { verb: "getList" };
+    class Api extends InertDataProvider {
+      override async getList() {
+        return { data: [{ id: "getList" }], total: 1 };
       }
-      async getOne() {
-        return { verb: "getOne" };
+      override async getOne() {
+        return { data: { id: "getOne" } };
       }
     }
-    const dp = realtimeDataProvider(
-      new Api() as unknown as DataProvider,
-      baseTransport(),
-    );
+    const dp = realtimeDataProvider(new Api(), baseTransport());
 
     await expect(dp.getList("posts", { filter: {} })).resolves.toEqual({
-      verb: "getList",
+      data: [{ id: "getList" }],
+      total: 1,
     });
     await expect(dp.getOne("posts", { id: 1 })).resolves.toEqual({
-      verb: "getOne",
+      data: { id: "getOne" },
     });
   });
 
   it("keeps a custom method on the prototype of a class provider, bound to it", async () => {
-    class Api {
+    class Api extends InertDataProvider {
       readonly banned: string[] = [];
       async banUser(name: string) {
         this.banned.push(name);
         return this.banned.length;
       }
     }
+    const hasBanUser = (
+      provider: DataProvider,
+    ): provider is DataProvider & Pick<Api, "banUser"> =>
+      "banUser" in provider && typeof provider.banUser === "function";
     const api = new Api();
-    const dp = realtimeDataProvider(
-      api as unknown as DataProvider,
-      baseTransport(),
-    ) as unknown as Api;
+    const dp = realtimeDataProvider(api, baseTransport());
 
+    if (!hasBanUser(dp)) throw new Error("banUser was not kept");
     await expect(dp.banUser("eve")).resolves.toBe(1);
     expect(api.banned).toEqual(["eve"]);
   });
@@ -215,7 +237,7 @@ describe("realtimeDataProvider", () => {
     const dp = realtimeDataProvider(combined, baseTransport());
 
     await expect(dp.getOne("posts", { id: 1 })).resolves.toEqual({
-      verb: "getOne",
+      data: { id: "getOne" },
     });
     expect(posts.getOne).toHaveBeenCalledWith("posts", { id: 1 });
     expect(isRealtimeDataProvider(dp)).toBe(true);

@@ -1,12 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
+import { InertDataProvider } from "../__fixtures__/data-provider";
+import { fakeDataProvider } from "../data/fake-provider";
 import type { DataProvider } from "../data/types";
 import { addEventsForMutations } from "./add-events-for-mutations";
 import { isRealtimeDataProvider } from "./realtime-data-provider";
-import type { RealtimeDataProvider, RealtimeEvent } from "./types";
+import type { RealtimeEvent } from "./types";
 
 type Published = [topic: string, event: Omit<RealtimeEvent, "topic">];
 
-const setup = (overrides: Partial<DataProvider> = {}) => {
+/** `stub` runs before the base is wrapped, to replace one of its verbs. */
+const setup = (stub?: (base: DataProvider) => void) => {
   const published: Published[] = [];
   const publisher = {
     publish: vi.fn(
@@ -15,15 +18,20 @@ const setup = (overrides: Partial<DataProvider> = {}) => {
       },
     ),
   };
-  const base = {
-    create: vi.fn(async () => ({ data: { id: 7, title: "new" } })),
-    update: vi.fn(async () => ({ data: { id: 1, title: "edited" } })),
-    delete: vi.fn(async () => ({ data: { id: 1, title: "gone" } })),
-    updateMany: vi.fn(async () => ({ data: [1, 2] })),
-    deleteMany: vi.fn(async () => ({ data: [1, 2] })),
-    getList: vi.fn(async () => ({ data: [], total: 0 })),
-    ...overrides,
-  } as unknown as DataProvider;
+  const base: DataProvider = fakeDataProvider({});
+  vi.spyOn(base, "create").mockResolvedValue({
+    data: { id: 7, title: "new" },
+  });
+  vi.spyOn(base, "update").mockResolvedValue({
+    data: { id: 1, title: "edited" },
+  });
+  vi.spyOn(base, "delete").mockResolvedValue({
+    data: { id: 1, title: "gone" },
+  });
+  vi.spyOn(base, "updateMany").mockResolvedValue({ data: [1, 2] });
+  vi.spyOn(base, "deleteMany").mockResolvedValue({ data: [1, 2] });
+  vi.spyOn(base, "getList").mockResolvedValue({ data: [], total: 0 });
+  stub?.(base);
   return {
     base,
     publisher,
@@ -81,9 +89,9 @@ describe("addEventsForMutations", () => {
 
   it("updateMany publishes on the resource topic and once per id on each record topic", async () => {
     // The base reports only id 1 as written, so the events follow the result.
-    const { dp, published } = setup({
-      updateMany: vi.fn(async () => ({ data: [1] })),
-    } as Partial<DataProvider>);
+    const { dp, published } = setup((base) => {
+      vi.spyOn(base, "updateMany").mockResolvedValue({ data: [1] });
+    });
 
     await expect(
       dp.updateMany("posts", { ids: [1, 2], data: { title: "x" } }),
@@ -109,11 +117,9 @@ describe("addEventsForMutations", () => {
 
   it("a rejected write publishes nothing", async () => {
     const failure = new Error("server said no");
-    const { dp, publisher } = setup({
-      update: vi.fn(async () => {
-        throw failure;
-      }),
-    } as Partial<DataProvider>);
+    const { dp, publisher } = setup((base) => {
+      vi.spyOn(base, "update").mockRejectedValue(failure);
+    });
 
     await expect(dp.update("posts", { id: 1, data: {} })).rejects.toBe(failure);
 
@@ -154,16 +160,16 @@ describe("addEventsForMutations", () => {
   });
 
   it("keeps the reads of a provider written as a class", async () => {
-    class Api {
-      async getList() {
+    class Api extends InertDataProvider {
+      override async getList() {
         return { data: [], total: 0 };
       }
-      async create() {
+      override async create() {
         return { data: { id: 7 } };
       }
     }
     const published: string[] = [];
-    const dp = addEventsForMutations(new Api() as unknown as DataProvider, {
+    const dp = addEventsForMutations<DataProvider>(new Api(), {
       publish: async (topic) => {
         published.push(topic);
       },
@@ -178,22 +184,19 @@ describe("addEventsForMutations", () => {
   });
 
   it("keeps a RealtimeDataProvider written as a class realtime", async () => {
-    class Api {
+    class Api extends InertDataProvider {
       readonly subscribed: string[] = [];
-      subscribe(topic: string) {
+      subscribe(topic: string, _callback: () => void) {
         this.subscribed.push(topic);
         return () => {};
       }
       async publish() {}
-      async create() {
+      override async create() {
         return { data: { id: 7 } };
       }
     }
     const api = new Api();
-    const dp = addEventsForMutations(
-      api as unknown as RealtimeDataProvider,
-      api,
-    );
+    const dp = addEventsForMutations(api, api);
 
     expect(isRealtimeDataProvider(dp)).toBe(true);
     dp.subscribe("resource/posts", () => {});

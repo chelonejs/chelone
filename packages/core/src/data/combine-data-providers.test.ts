@@ -1,5 +1,6 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { z } from "zod";
+import { InertDataProvider } from "../__fixtures__/data-provider";
 import { defineResources } from "../resource/registry";
 import { combineDataProviders } from "./combine-data-providers";
 import { fakeDataProvider } from "./fake-provider";
@@ -70,12 +71,39 @@ const callers: Record<
   deleteMany: (dp, r) => dp.deleteMany(r, paramsFor.deleteMany),
 };
 
-/** A provider whose every verb is a spy resolving `{ data: label }`. */
+/** A provider whose every verb is a spy resolving a result that carries `label`. */
 const spyProvider = (label: string) => {
-  const spies = Object.fromEntries(
-    verbs.map((verb) => [verb, vi.fn(async () => ({ data: label }))]),
-  ) as unknown as Record<Verb, ReturnType<typeof vi.fn>>;
-  return { provider: spies as unknown as DataProvider<Resources>, spies };
+  const provider = new InertDataProvider<Resources>();
+  const record = { id: 1, title: label, body: label };
+  const results = {
+    getList: { data: [record], total: 1 },
+    getOne: { data: record },
+    create: { data: record },
+    update: { data: record },
+    delete: { data: record },
+    getMany: { data: [record] },
+    getManyReference: { data: [record], total: 1 },
+    updateMany: { data: [1] },
+    deleteMany: { data: [1] },
+  };
+  const spies = {
+    getList: vi.spyOn(provider, "getList").mockResolvedValue(results.getList),
+    getOne: vi.spyOn(provider, "getOne").mockResolvedValue(results.getOne),
+    create: vi.spyOn(provider, "create").mockResolvedValue(results.create),
+    update: vi.spyOn(provider, "update").mockResolvedValue(results.update),
+    delete: vi.spyOn(provider, "delete").mockResolvedValue(results.delete),
+    getMany: vi.spyOn(provider, "getMany").mockResolvedValue(results.getMany),
+    getManyReference: vi
+      .spyOn(provider, "getManyReference")
+      .mockResolvedValue(results.getManyReference),
+    updateMany: vi
+      .spyOn(provider, "updateMany")
+      .mockResolvedValue(results.updateMany),
+    deleteMany: vi
+      .spyOn(provider, "deleteMany")
+      .mockResolvedValue(results.deleteMany),
+  };
+  return { provider, spies, results };
 };
 
 describe("combineDataProviders", () => {
@@ -87,12 +115,12 @@ describe("combineDataProviders", () => {
     );
 
     for (const verb of verbs) {
-      await expect(callers[verb](dp, "posts")).resolves.toEqual({
-        data: "posts",
-      });
-      await expect(callers[verb](dp, "comments")).resolves.toEqual({
-        data: "comments",
-      });
+      await expect(callers[verb](dp, "posts")).resolves.toEqual(
+        posts.results[verb],
+      );
+      await expect(callers[verb](dp, "comments")).resolves.toEqual(
+        comments.results[verb],
+      );
 
       expect(posts.spies[verb]).toHaveBeenCalledExactlyOnceWith(
         "posts",
