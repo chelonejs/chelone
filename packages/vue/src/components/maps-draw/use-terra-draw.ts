@@ -112,7 +112,9 @@ export interface UseTerraDrawResult {
 
 const NONE_REFUSED: DrawFeature[] = [];
 
-type SelectFlags = Record<string, { feature: Record<string, unknown> }>;
+type SelectFlags = NonNullable<
+  NonNullable<ConstructorParameters<typeof TerraDrawSelectMode>[0]>["flags"]
+>;
 
 /** The select modes name their flags by the `mode` property of the feature. */
 function selectFlags(kind: "edit" | "move", snappable: boolean): SelectFlags {
@@ -148,51 +150,49 @@ function buildModes(
 ) {
   const styles = editorStyles(shapeStyle);
   const snapping = snappable ? { toCoordinate: true, toLine: true } : undefined;
-  // The editor types a style as a hex string; `ShapeStyle` takes any CSS color.
-  const asStyles = (value: Record<string, string | number>) => value as never;
   return [
     new TerraDrawPointMode({
       modeName: "point",
       pointerDistance,
-      styles: asStyles(styles.point),
+      styles: styles.point,
     }),
     new TerraDrawLineStringMode({
       modeName: "linestring",
       pointerDistance,
       snapping,
-      styles: asStyles(styles.linestring),
+      styles: styles.linestring,
     }),
     new TerraDrawPolygonMode({
       modeName: "polygon",
       pointerDistance,
       snapping,
-      styles: asStyles(styles.polygon),
+      styles: styles.polygon,
     }),
     new TerraDrawRectangleMode({
       modeName: "rectangle",
       pointerDistance,
-      styles: asStyles(styles.rectangle),
+      styles: styles.rectangle,
     }),
     new TerraDrawCircleMode({
       modeName: "circle",
       pointerDistance,
-      styles: asStyles(styles.circle),
+      styles: styles.circle,
     }),
     new TerraDrawSelectMode({
       modeName: "select",
       pointerDistance,
       flags: selectFlags("edit", snappable),
-      styles: asStyles(styles.select),
+      styles: styles.select,
     }),
     new TerraDrawSelectMode({
       modeName: "select-move",
       pointerDistance,
       flags: selectFlags("move", snappable),
-      styles: asStyles(styles.select),
+      styles: styles.select,
     }),
     new TerraDrawRenderMode({
       modeName: "render",
-      styles: asStyles(styles.render),
+      styles: styles.render,
     }),
   ];
 }
@@ -377,9 +377,7 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
       syncing = true;
       try {
         current.clear();
-        const answers = current.addFeatures(
-          pairs.map((pair) => pair.editor) as never,
-        );
+        const answers = current.addFeatures(pairs.map((pair) => pair.editor));
         answers.forEach((answer, i) => {
           const pair = pairs[i];
           if (!answer.valid && pair) refusedEntries.push(pair.feature);

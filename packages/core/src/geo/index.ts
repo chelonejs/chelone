@@ -9,7 +9,11 @@ export {
   noSelfIntersection,
 } from "./constraints";
 export { latitude, longitude, toCoordinate } from "./coordinates";
-export type { EditorSnapshotFeature, EditorStyles } from "./editor";
+export type {
+  EditorFeature,
+  EditorSnapshotFeature,
+  EditorStyles,
+} from "./editor";
 export { editorStyles, fromEditorFeatures, toEditorFeatures } from "./editor";
 export type {
   GeocodeQuery,

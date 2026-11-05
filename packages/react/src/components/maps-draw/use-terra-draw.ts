@@ -97,7 +97,9 @@ export interface UseTerraDrawResult {
 
 const NONE_REFUSED: DrawFeature[] = [];
 
-type SelectFlags = Record<string, { feature: Record<string, unknown> }>;
+type SelectFlags = NonNullable<
+  NonNullable<ConstructorParameters<typeof TerraDrawSelectMode>[0]>["flags"]
+>;
 
 /** The select modes name their flags by the `mode` property of the feature. */
 function selectFlags(kind: "edit" | "move", snappable: boolean): SelectFlags {
@@ -133,51 +135,49 @@ function buildModes(
 ) {
   const styles = editorStyles(shapeStyle);
   const snapping = snappable ? { toCoordinate: true, toLine: true } : undefined;
-  // The editor types a style as a hex string; `ShapeStyle` takes any CSS color.
-  const asStyles = (value: Record<string, string | number>) => value as never;
   return [
     new TerraDrawPointMode({
       modeName: "point",
       pointerDistance,
-      styles: asStyles(styles.point),
+      styles: styles.point,
     }),
     new TerraDrawLineStringMode({
       modeName: "linestring",
       pointerDistance,
       snapping,
-      styles: asStyles(styles.linestring),
+      styles: styles.linestring,
     }),
     new TerraDrawPolygonMode({
       modeName: "polygon",
       pointerDistance,
       snapping,
-      styles: asStyles(styles.polygon),
+      styles: styles.polygon,
     }),
     new TerraDrawRectangleMode({
       modeName: "rectangle",
       pointerDistance,
-      styles: asStyles(styles.rectangle),
+      styles: styles.rectangle,
     }),
     new TerraDrawCircleMode({
       modeName: "circle",
       pointerDistance,
-      styles: asStyles(styles.circle),
+      styles: styles.circle,
     }),
     new TerraDrawSelectMode({
       modeName: "select",
       pointerDistance,
       flags: selectFlags("edit", snappable),
-      styles: asStyles(styles.select),
+      styles: styles.select,
     }),
     new TerraDrawSelectMode({
       modeName: "select-move",
       pointerDistance,
       flags: selectFlags("move", snappable),
-      styles: asStyles(styles.select),
+      styles: styles.select,
     }),
     new TerraDrawRenderMode({
       modeName: "render",
-      styles: asStyles(styles.render),
+      styles: styles.render,
     }),
   ];
 }
@@ -349,18 +349,15 @@ export function useTerraDraw({
       return;
     }
     // One editor feature per entry, or none where core cannot hold the entry.
-    const pairs = features.map((feature) => ({
-      feature,
-      editor: toEditorFeatures([feature], () => draw.getFeatureId())[0],
-    }));
-    const sent = pairs.flatMap((pair) => (pair.editor ? [pair] : []));
+    const sent = features.flatMap((feature) => {
+      const editor = toEditorFeatures([feature], () => draw.getFeatureId())[0];
+      return editor ? [{ feature, editor }] : [];
+    });
     const refusedNow: DrawFeature[] = [];
     syncing.current = true;
     try {
       draw.clear();
-      const answers = draw.addFeatures(
-        sent.map((pair) => pair.editor) as never,
-      );
+      const answers = draw.addFeatures(sent.map((pair) => pair.editor));
       answers.forEach((answer, i) => {
         const pair = sent[i];
         if (!answer.valid && pair) refusedNow.push(pair.feature);
