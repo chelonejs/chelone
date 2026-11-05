@@ -21,7 +21,7 @@ import {
   within,
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Admin } from "../../../admin";
 import { Resource } from "../../../resource";
 import { Edit } from "../views/edit";
@@ -29,10 +29,6 @@ import {
   PrevNextButtons,
   type PrevNextButtonsProps,
 } from "./prev-next-buttons";
-
-beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
 
 afterEach(cleanup);
 

@@ -41,7 +41,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   Admin,
   BulkDeleteButton,
@@ -54,10 +54,6 @@ import {
   SaveButton,
   TextInput,
 } from "./index";
-
-beforeAll(() => {
-  window.scrollTo = vi.fn();
-});
 
 afterEach(cleanup);
 
