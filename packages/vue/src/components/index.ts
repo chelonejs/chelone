@@ -7,6 +7,7 @@ export {
   downloadCSV,
   type Exporter,
   recordsToCSV,
+  type TransformedFile,
 } from "@chelone/core";
 // --- admin: auth (V3-a app shell + V3-c auth pages) -----------------------
 export type { AccessDeniedProps } from "./admin/auth/access-denied.vue";
@@ -269,10 +270,7 @@ export {
   parseIsoDuration,
   relativeDuration,
 } from "./admin/inputs/duration-utils";
-export type {
-  FileInputProps,
-  TransformedFile,
-} from "./admin/inputs/file-input.vue";
+export type { FileInputProps } from "./admin/inputs/file-input.vue";
 export { default as FileInput } from "./admin/inputs/file-input.vue";
 export type { FileInputPreviewProps } from "./admin/inputs/file-input-preview.vue";
 export { default as FileInputPreview } from "./admin/inputs/file-input-preview.vue";

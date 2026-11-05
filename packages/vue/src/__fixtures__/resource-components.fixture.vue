@@ -80,7 +80,7 @@ const posts = createResourceComponentsOf<typeof resources, "posts">("posts");
   <posts.NumberField source="views" :transform="(value: number) => value" />
 
   <!-- a member with a slot keeps it -->
-  <posts.FileInput source="title" :format="(value: string) => value">
+  <posts.FileInput source="title" :format="(value: string) => null">
     <template #default="{ record }">{{ record }}</template>
   </posts.FileInput>
 

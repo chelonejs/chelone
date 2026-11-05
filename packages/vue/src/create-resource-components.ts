@@ -235,9 +235,9 @@ type CallbackParam<TCallback> =
     : never;
 
 /**
- * The `format`, `parse` and `transform` entries of `P` with `TValue` in place
- * of the value they took or returned. Each stays optional and keeps the rest
- * of its signature, and one `P` lacks is not added.
+ * The `format`, `parse`, `transform` and `defaultValue` entries of `P` with
+ * `TValue` in place of the value they took, returned or held. Each stays
+ * optional and keeps the rest of its signature, and one `P` lacks is not added.
  */
 type ValueEntries<P, TValue> = {
   [K in Extract<keyof P, "format" | "transform">]?: (
@@ -245,10 +245,12 @@ type ValueEntries<P, TValue> = {
   ) => CallbackResult<P[K]>;
 } & {
   [K in Extract<keyof P, "parse">]?: (value: CallbackParam<P[K]>) => TValue;
+} & {
+  [K in Extract<keyof P, "defaultValue">]?: TValue;
 };
 
 /**
- * A member whose props have a `format`, `parse` or `transform`: a generic
+ * A member whose props have a `format`, `parse`, `transform` or `defaultValue`: a generic
  * function component over the literal `source`, so those callbacks take the
  * value at it. Volar reads a function component's props off its first
  * parameter and its slots off the second. `NoInfer` keeps `TPath` from being inferred back through
@@ -259,7 +261,7 @@ type ValueMember<TComponent extends Ctor, TRecord> = <
 >(
   props: Omit<
     InstanceType<TComponent>["$props"],
-    "source" | "format" | "parse" | "transform"
+    "source" | "format" | "parse" | "transform" | "defaultValue"
   > &
     (Partial<Pick<InstanceType<TComponent>["$props"], "source">> extends Pick<
       InstanceType<TComponent>["$props"],
@@ -274,9 +276,10 @@ type ValueMember<TComponent extends Ctor, TRecord> = <
   ctx?: { slots?: InstanceType<TComponent>["$slots"] },
 ) => VNode;
 
-/** The member type: {@link ValueMember} when the props have a value callback, else {@link Retyped}. */
+/** The member type: {@link ValueMember} when the props have a value entry, else {@link Retyped}. */
 type ResourceMember<TComponent extends Ctor, TRecord> = [
-  keyof InstanceType<TComponent>["$props"] & ("format" | "parse" | "transform"),
+  keyof InstanceType<TComponent>["$props"] &
+    ("format" | "parse" | "transform" | "defaultValue"),
 ] extends [never]
   ? Retyped<TComponent, SourceProp<TRecord>>
   : ValueMember<TComponent, TRecord>;
