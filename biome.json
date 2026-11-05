@@ -241,14 +241,16 @@
                     "group": [
                       "**",
                       "!typescript",
+                      "!supazod",
                       "!@chelone/core",
                       "!node:*",
+                      "!node:*/*",
                       "!./**",
                       "!../**",
                       "!.",
                       "!.."
                     ],
-                    "message": "@chelone/supabase's codegen imports only typescript, @chelone/core, node:* and relative paths."
+                    "message": "@chelone/supabase's codegen imports only typescript, supazod, @chelone/core, node:* and relative paths."
                   }
                 ]
               }
