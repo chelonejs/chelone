@@ -6,6 +6,7 @@
  */
 
 import type { LooseRecord } from "@chelone/core";
+import { definedParams } from "@chelone/core";
 import { Copy } from "lucide-react";
 import type { Ref } from "react";
 import { buttonVariants } from "@/components/ui/button";
@@ -69,10 +70,10 @@ function CloneButton(props: CloneButtonProps) {
       ? `resources.${resource}.action.clone`
       : undefined,
     baseI18nKey: "ra.action.clone",
-    options: {
+    options: definedParams({
       _: "Clone",
       name: resource ? getResourceLabel(resource, 1) : undefined,
-    },
+    }),
     userText: labelProp,
   });
   if (!record || record.id == null || !canAccess || isAccessPending) {

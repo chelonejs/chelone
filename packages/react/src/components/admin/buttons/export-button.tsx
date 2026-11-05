@@ -10,7 +10,7 @@
  * not exist in chelone yet, so the exporter contract drops that argument.
  */
 
-import { defaultExporter, type Exporter } from "@chelone/core";
+import { defaultExporter, definedParams, type Exporter } from "@chelone/core";
 import { Download } from "lucide-react";
 import type { Ref } from "react";
 import { useCallback } from "react";
@@ -66,10 +66,10 @@ function ExportButton(props: ExportButtonProps) {
       ? `resources.${resource}.action.export`
       : undefined,
     baseI18nKey: "ra.action.export",
-    options: {
+    options: definedParams({
       _: "Export",
       name: resource ? getResourceLabel(resource, 1) : undefined,
-    },
+    }),
     userText: labelProp,
   });
   const dataProvider = useDataProvider();

@@ -9,6 +9,7 @@
  *   from `@chelone/react`.
  */
 
+import { definedParams } from "@chelone/core";
 import { Plus } from "lucide-react";
 import type { Ref } from "react";
 import { buttonVariants } from "@/components/ui/button";
@@ -66,10 +67,10 @@ function CreateButton(props: CreateButtonProps) {
       ? `resources.${resource}.action.create`
       : undefined,
     baseI18nKey: "ra.action.create",
-    options: {
+    options: definedParams({
       _: "Create",
       name: resource ? getResourceLabel(resource, 1) : undefined,
-    },
+    }),
     userText: labelProp,
   });
   if (isPending || !canAccess) return null;

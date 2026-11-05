@@ -75,9 +75,11 @@ describe("createI18n", () => {
     });
     const erased: AnyCheloneI18n = i18n;
     expect(
+      // @ts-expect-error the types refuse undefined; JS callers can still send it
       erased.translate("items.selected", { count: undefined, smart_count: 3 }),
     ).toBe("3 selected");
     expect(
+      // @ts-expect-error the types refuse null; JS callers can still send it
       erased.translate("items.selected", { count: null, smart_count: 3 }),
     ).toBe("3 selected");
   });

@@ -1,6 +1,7 @@
 import type { FormValidateOrFn } from "@tanstack/form-core";
 import { expectTypeOf, it } from "vitest";
 import { z } from "zod";
+import type { TranslateParamValues } from "../i18n/messages";
 import {
   createFormController,
   type FieldErrors,
@@ -73,7 +74,7 @@ it("normalizeFormError returns the translatable boundary union", () => {
   >();
   expectTypeOf<TranslatableMessage>().toEqualTypeOf<{
     message: string;
-    args?: Record<string, unknown>;
+    args?: TranslateParamValues;
   }>();
 });
 
