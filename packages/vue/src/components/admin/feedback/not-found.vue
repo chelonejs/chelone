@@ -23,7 +23,7 @@ export interface NotFoundProps {
  * </Admin>
  */
 
-import { computed } from "vue";
+import { computed, type VNode } from "vue";
 import { useAuthenticated } from "../../../admin/auth-gate";
 import { useTranslate } from "../../../i18n/use-translate";
 import { cn } from "../../../lib/utils";
@@ -37,7 +37,7 @@ const props = defineProps<NotFoundProps>();
 
 defineSlots<{
   /** Replaces the default search-x glyph. */
-  icon?: () => unknown;
+  icon?: () => VNode[];
 }>();
 
 // With no authProvider the gate is frozen authenticated, so an app with no

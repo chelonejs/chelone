@@ -23,7 +23,7 @@ export interface AccessDeniedProps {
  * override via the `icon` prop or the `#icon` slot.
  */
 
-import { computed } from "vue";
+import { computed, type VNode } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { cn } from "../../../lib/utils";
 import { LockIcon } from "./icons";
@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<AccessDeniedProps>(), {
 
 defineSlots<{
   /** Override the default padlock glyph. */
-  icon?: () => unknown;
+  icon?: () => VNode[];
 }>();
 
 const translate = useTranslate();

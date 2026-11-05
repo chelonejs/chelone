@@ -17,7 +17,7 @@ export interface GuesserEmptyProps {
  * and `message` slots win over the props, which win over the translated defaults.
  */
 
-import { computed } from "vue";
+import { computed, type VNode } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { FileQuestionIcon } from "./icons";
 
@@ -25,9 +25,9 @@ const props = defineProps<GuesserEmptyProps>();
 
 defineSlots<{
   /** Replaces the title text. */
-  title?: () => unknown;
+  title?: () => VNode[];
   /** Replaces the message text. */
-  message?: () => unknown;
+  message?: () => VNode[];
 }>();
 
 const translate = useTranslate();
