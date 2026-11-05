@@ -41,12 +41,12 @@ export interface OsmFeatureOperatorProps {
 
 import {
   areaInTypeOf,
-  type GeoGeometry,
   geoAreaM2,
   geoBounds,
   OverpassRateLimitError,
 } from "@chelone/core";
 import { useQueryClient } from "@tanstack/vue-query";
+import type { Geometry } from "geojson";
 import { onBeforeUnmount, ref, toRaw } from "vue";
 import { useInput } from "../../form/use-input";
 import { useTranslate } from "../../i18n/use-translate";
@@ -57,7 +57,7 @@ import Spinner from "../ui/spinner.vue";
 import { fetchOsmFeatures } from "./osm-features";
 import { subtractMask, unionAll } from "./osm-geometry-ops";
 
-type Area = Extract<GeoGeometry, { type: "Polygon" | "MultiPolygon" }>;
+type Area = Extract<Geometry, { type: "Polygon" | "MultiPolygon" }>;
 
 const props = withDefaults(defineProps<OsmFeatureOperatorProps>(), {
   presets: undefined,

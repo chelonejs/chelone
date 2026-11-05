@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { GeoBBox, GeocodingProvider, SourceProp } from "@chelone/core";
+import type { GeocodingProvider, LngLatBox, SourceProp } from "@chelone/core";
 
 /** Props for {@link GeocodingInput}. */
 export interface GeocodingInputProps {
@@ -22,7 +22,7 @@ export interface GeocodingInputProps {
   /** Typeahead providers only: wait after the last key. Defaults to 300. */
   debounceMs?: number;
   countryCodes?: string[];
-  viewBox?: GeoBBox;
+  viewBox?: LngLatBox;
   limit?: number;
   disabled?: boolean;
   class?: string;

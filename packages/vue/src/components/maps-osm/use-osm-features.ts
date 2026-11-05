@@ -1,12 +1,13 @@
 import {
   buildOverpassQuery,
-  type GeoBBox,
-  type GeoFeatureCollection,
+  type JsonObject,
+  type LngLatBox,
   type OverpassProvider,
   type OverpassQuerySources,
   overpassQueryOptions,
 } from "@chelone/core";
 import { useQuery } from "@tanstack/vue-query";
+import type { FeatureCollection, Geometry } from "geojson";
 import { computed, type MaybeRefOrGetter, toValue } from "vue";
 import { useMapsConfig } from "../maps/use-map";
 import { hasOsmSources, osmToPolygons } from "./osm-features";
@@ -32,7 +33,7 @@ export interface UseOsmFeaturesOptions {
  * const { data } = useOsmFeatures(bbox, { presets: ["water"] }, { provider });
  */
 export function useOsmFeatures(
-  bbox: MaybeRefOrGetter<GeoBBox | null>,
+  bbox: MaybeRefOrGetter<LngLatBox | null>,
   sources: MaybeRefOrGetter<OverpassQuerySources>,
   options: UseOsmFeaturesOptions = {},
 ) {
@@ -60,7 +61,9 @@ export function useOsmFeatures(
     return {
       ...base,
       enabled: (options.enabled ?? true) && active && base.enabled,
-      select: (answer: unknown): GeoFeatureCollection =>
+      select: (
+        answer: unknown,
+      ): FeatureCollection<Geometry | null, JsonObject | null> =>
         osmToPolygons(answer, presets),
     };
   });

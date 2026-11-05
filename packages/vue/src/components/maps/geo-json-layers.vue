@@ -1,10 +1,14 @@
 <script lang="ts">
-import type { GeoJsonValue, ShapeStyle } from "@chelone/core";
+import type { JsonObject, ShapeStyle } from "@chelone/core";
+import type { Feature, FeatureCollection, Geometry } from "geojson";
 
 /** Props for {@link GeoJsonLayers}. */
 export interface GeoJsonLayersProps {
   /** A Geometry, Feature or FeatureCollection. */
-  data: GeoJsonValue;
+  data:
+    | Geometry
+    | Feature<Geometry | null, JsonObject | null>
+    | FeatureCollection<Geometry | null, JsonObject | null>;
   /** Partial over `DEFAULT_SHAPE_STYLE`. */
   shapeStyle?: ShapeStyle;
   /** Frame the map around the data. Defaults to true. */
