@@ -8,7 +8,7 @@
  * message stays on screen with a Back to login link and no redirect.
  */
 
-import { required } from "@chelone/core";
+import { errorMessageOf, required } from "@chelone/core";
 import { useCallback } from "react";
 import { PasswordInput } from "@/components/admin/inputs/password-input";
 import { Button } from "@/components/ui/button";
@@ -30,15 +30,6 @@ interface SetPasswordValues {
   password: string;
   confirmPassword: string;
 }
-
-const errorMessage = (error: unknown): string | undefined => {
-  if (typeof error === "string" && error) return error;
-  if (error && typeof error === "object" && "message" in error) {
-    const { message } = error as { message: unknown };
-    if (typeof message === "string" && message) return message;
-  }
-  return undefined;
-};
 
 // Form level, so editing either field re-checks both and clears a stale error.
 const validateMatch = (values: SetPasswordValues) =>
@@ -71,7 +62,7 @@ function SetPasswordForm({ className }: SetPasswordFormProps) {
           password: values.password,
         });
       } catch (error) {
-        const message = errorMessage(error);
+        const message = errorMessageOf(error);
         notify(message ?? "ra.notification.http_error", {
           type: "warning",
           messageArgs: message === undefined ? undefined : { _: message },

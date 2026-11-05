@@ -6,6 +6,7 @@
  * Ported from shadmin `supabase/social-auth-button.tsx`.
  */
 
+import { errorMessageOf } from "@chelone/core";
 import type { SupabaseOAuthProvider } from "@chelone/supabase";
 import type { ComponentProps, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -41,15 +42,6 @@ export interface SocialAuthButtonProps
   children?: ReactNode;
 }
 
-const errorMessage = (error: unknown): string | undefined => {
-  if (typeof error === "string" && error) return error;
-  if (error && typeof error === "object" && "message" in error) {
-    const { message } = error as { message: unknown };
-    if (typeof message === "string" && message) return message;
-  }
-  return undefined;
-};
-
 export function SocialAuthButton({
   provider,
   redirect,
@@ -68,7 +60,7 @@ export function SocialAuthButton({
       });
     } catch (error) {
       // A rejection with nothing is a custom provider declining to start OAuth.
-      const message = errorMessage(error);
+      const message = errorMessageOf(error);
       if (message) {
         notify(message, { type: "error", messageArgs: { _: message } });
       }

@@ -6893,7 +6893,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
-      "dependencies": ["@chelone/supabase", "@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/supabase", "@chelone/vue"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },

@@ -6937,7 +6937,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/social-icons"],
-      "dependencies": ["@chelone/react", "@chelone/supabase"],
+      "dependencies": ["@chelone/core", "@chelone/react", "@chelone/supabase"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
