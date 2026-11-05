@@ -6,6 +6,7 @@ import type {
   PageInfo,
   SortPayload,
 } from "../data/types";
+import { isRecord } from "../guards";
 import type { NotificationStore } from "../notification/notification-store";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
@@ -147,10 +148,8 @@ export function removeFilterPath(
       const { [key]: _removed, ...others } = node;
       return others;
     }
-    if (child == null || typeof child !== "object" || Array.isArray(child)) {
-      return node;
-    }
-    const pruned = prune(child as Record<string, unknown>, depth + 1);
+    if (!isRecord(child)) return node;
+    const pruned = prune(child, depth + 1);
     if (pruned === child) return node;
     if (Object.keys(pruned).length === 0) {
       const { [key]: _emptied, ...others } = node;
@@ -158,7 +157,7 @@ export function removeFilterPath(
     }
     return { ...node, [key]: pruned };
   };
-  return prune(rest, 0) as FilterPayload;
+  return prune(rest, 0);
 }
 
 /**

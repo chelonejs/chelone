@@ -1,3 +1,4 @@
+import { isRecord } from "../guards";
 import type { AuthProvider, CanAccessParams, UserIdentity } from "./types";
 
 /** Plain option objects, same convention as the data factories (P2). */
@@ -80,9 +81,8 @@ export interface CheckErrorOutcome {
 }
 
 function readProp<T>(source: unknown, key: string): T | undefined {
-  return source != null && typeof source === "object" && key in source
-    ? ((source as Record<string, unknown>)[key] as T)
-    : undefined;
+  // type-escape: the caller names the prop's type
+  return isRecord(source) && key in source ? (source[key] as T) : undefined;
 }
 
 /**
