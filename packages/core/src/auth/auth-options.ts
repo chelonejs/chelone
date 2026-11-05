@@ -17,14 +17,14 @@ export function identityQueryOptions(authProvider: AuthProvider) {
 }
 
 export function canAccessQueryOptions(
-  authProvider: AuthProvider,
+  authProvider: AuthProvider | undefined,
   params: CanAccessParams,
 ) {
   return {
     queryKey: ["auth", "canAccess", params] as const,
-    // No canAccess on the provider = access control not configured = allow.
+    // No provider, or no canAccess on it = access control not configured = allow.
     queryFn: async (): Promise<boolean> =>
-      authProvider.canAccess?.(params) ?? true,
+      authProvider?.canAccess?.(params) ?? true,
   };
 }
 
