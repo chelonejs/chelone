@@ -21,6 +21,7 @@ import type {
   SourceProp,
   SourceValue,
 } from "@chelone/core";
+import type { ReactNode } from "react";
 import { ApiKeyField } from "../components/admin/fields/api-key-field";
 import { ArrayField } from "../components/admin/fields/array-field";
 import { BadgeField } from "../components/admin/fields/badge-field";
@@ -54,7 +55,10 @@ import { UsageMeterField } from "../components/admin/fields/usage-meter-field";
 import { WebhookEndpointField } from "../components/admin/fields/webhook-endpoint-field";
 import { WrapperField } from "../components/admin/fields/wrapper-field";
 import { ApiKeyInput } from "../components/admin/inputs/api-key-input";
-import { ArrayInput } from "../components/admin/inputs/array-input";
+import {
+  ArrayInput,
+  type ArrayInputProps,
+} from "../components/admin/inputs/array-input";
 import { AutocompleteArrayInput } from "../components/admin/inputs/autocomplete-array-input";
 import { AutocompleteInput } from "../components/admin/inputs/autocomplete-input";
 import { BooleanInput } from "../components/admin/inputs/boolean-input";
@@ -253,6 +257,15 @@ type ResourceMember<TComponent, TRecord> = TComponent extends (
     : WithSourceComponent<TComponent, SourceProp<TRecord>>
   : TComponent;
 
+/**
+ * `ArrayInput` is generic over its record and its `source`, so its rows are
+ * typed by the array at that `source`, which {@link ResourceMember} would read
+ * at the constraint.
+ */
+type ArrayInputMember<TRecord> = <TPath extends SourceProp<TRecord>>(
+  props: ArrayInputProps<TRecord, TPath>,
+) => ReactNode;
+
 /** A view with no `resource` prop: the factory has bound it. */
 type BoundView<TProps extends { resource?: string }, TResult> = (
   props: Omit<TProps, "resource">,
@@ -266,11 +279,12 @@ export type ResourceComponents<
   TResources extends ResourceMap,
   TName extends keyof TResources & string,
 > = {
-  [K in keyof Components]: ResourceMember<
+  [K in Exclude<keyof Components, "ArrayInput">]: ResourceMember<
     Components[K],
     RecordOf<TResources, TName>
   >;
 } & {
+  ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
   Edit: BoundView<EditProps, ReturnType<typeof Edit>>;
   Create: BoundView<CreateProps, ReturnType<typeof Create>>;
   Show: BoundView<ShowProps, ReturnType<typeof Show>>;

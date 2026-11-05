@@ -34,6 +34,15 @@ const posts = createResourceComponentsOf<typeof resources, "posts">("posts");
   </posts.Edit>
   <posts.List />
 
+  <!-- an array input takes the rows of the array it binds -->
+  <posts.ArrayInput source="items" :default-value="[{ sku: 'a', qty: 1 }]" :item-defaults="{ qty: 1 }">
+    <posts.TextInput source="sku" />
+  </posts.ArrayInput>
+  <!-- @vue-expect-error -->
+  <posts.ArrayInput source="itemz" />
+  <!-- @vue-expect-error -->
+  <posts.ArrayInput source="items" :default-value="[{ sku: 'a', qty: 'one' }]" />
+
   <!-- a typo -->
   <!-- @vue-expect-error -->
   <posts.TextInput source="titel" />
