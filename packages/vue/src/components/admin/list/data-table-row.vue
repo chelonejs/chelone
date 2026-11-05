@@ -48,9 +48,7 @@ provide(RecordContextKey, recordRef);
 provide(DataTablePassKey, "data");
 
 const list = useListContext();
-const recordId = computed(
-  () => (props.record as { id?: Identifier }).id as Identifier,
-);
+const recordId = computed<Identifier>(() => props.record.id);
 const isSelected = computed(
   () => list.selectedIds?.includes(recordId.value) ?? false,
 );

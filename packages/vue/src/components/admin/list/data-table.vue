@@ -128,15 +128,14 @@ provide(DataTableRowsKey, {
 const rows = computed<LooseRecord[]>(() => (list.data ?? []) as LooseRecord[]);
 const isEmpty = computed(() => !list.isPending && rows.value.length === 0);
 
-const rowId = (record: LooseRecord): Identifier =>
-  (record as { id: Identifier }).id;
+const rowId = (record: LooseRecord): Identifier => record.id;
 
 const rowKey = (record: LooseRecord): string =>
-  String((record as { id?: unknown }).id);
+  String(record.id);
 
 // Header select-all: checked when every id on the current page is selected.
 const selectableIds = computed<Identifier[]>(() =>
-  rows.value.map((r) => (r as { id: Identifier }).id),
+  rows.value.map((r) => r.id),
 );
 const allSelected = computed(() => {
   const selected = list.selectedIds ?? [];
