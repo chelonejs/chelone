@@ -75,7 +75,7 @@ defineSlots<{
   empty?(): VNode[];
 }>();
 
-const list = useListContext();
+const list = useListContext<LooseRecord>();
 const resource = useResourceContext();
 const getRepresentation = useGetRecordRepresentation(resource);
 const navigate = useNavigate();
@@ -91,7 +91,7 @@ const hasListener = () => {
 };
 
 const roots = computed(() =>
-  buildRecordTree((list.data ?? []) as LooseRecord[], props.parentSource),
+  buildRecordTree(list.data ?? [], props.parentSource),
 );
 
 // Keyed by id, not by node, so a refetch that rebuilds the tree keeps it.

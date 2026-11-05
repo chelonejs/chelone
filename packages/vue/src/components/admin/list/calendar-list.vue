@@ -141,7 +141,7 @@ defineSlots<{
   header?(props: CalendarHeaderSlotProps): VNode[];
 }>();
 
-const list = useListContext();
+const list = useListContext<LooseRecord>();
 const resource = useResourceContext();
 const getRepresentation = useGetRecordRepresentation(resource);
 const navigate = useNavigate();
@@ -208,7 +208,7 @@ const weekdays = computed(() =>
 );
 
 const events = computed<CalendarEvent<LooseRecord>[]>(() =>
-  toCalendarEvents((list.data ?? []) as LooseRecord[], {
+  toCalendarEvents(list.data ?? [], {
     startSource: props.startSource,
     endSource: props.endSource,
     titleSource: props.titleSource,

@@ -111,7 +111,7 @@ defineSlots<{
   card?(props: { record: TRecord }): VNode[];
 }>();
 
-const list = useListContext();
+const list = useListContext<TRecord>();
 const resource = useResourceContext();
 const translate = useTranslate();
 const getRepresentation = useGetRecordRepresentation(resource);
@@ -145,7 +145,7 @@ const hasListener = () => {
 };
 
 const buckets = computed(() =>
-  buildKanbanBuckets((list.data ?? []) as TRecord[], props.groupSource, props.columns),
+  buildKanbanBuckets(list.data ?? [], props.groupSource, props.columns),
 );
 
 function move(record: TRecord, targetColumnId: string): void {

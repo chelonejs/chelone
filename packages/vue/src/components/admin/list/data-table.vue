@@ -96,7 +96,7 @@ const props = withDefaults(
 );
 
 const slots = useSlots();
-const list = useListContext();
+const list = useListContext<LooseRecord>();
 
 const hasBulkActions = computed(
   () => props.bulkActions || slots.bulkActions != null,
@@ -125,7 +125,7 @@ provide(DataTableRowsKey, {
   canExpand,
 });
 
-const rows = computed<LooseRecord[]>(() => (list.data ?? []) as LooseRecord[]);
+const rows = computed<LooseRecord[]>(() => list.data ?? []);
 const isEmpty = computed(() => !list.isPending && rows.value.length === 0);
 
 const rowId = (record: LooseRecord): Identifier => record.id;
