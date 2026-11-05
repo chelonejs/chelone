@@ -1,4 +1,4 @@
-import { geoAreaM2, type JsonObject } from "@chelone/core";
+import { geoAreaM2, isGeoArea, type JsonObject } from "@chelone/core";
 import { difference } from "@turf/difference";
 import { simplify } from "@turf/simplify";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
@@ -15,12 +15,6 @@ export interface CutResult {
   features: DrawFeature[];
   /** False when the cutter touched no polygon, so `features` equals the input. */
   changed: boolean;
-}
-
-type Area = Extract<Geometry, { type: "Polygon" | "MultiPolygon" }>;
-
-function isArea(geometry: Geometry | null): geometry is Area {
-  return geometry?.type === "Polygon" || geometry?.type === "MultiPolygon";
 }
 
 /** The polygon clipper can move a start vertex, so a miss is told by the area. */
@@ -43,7 +37,7 @@ export function cutFeatures(
   const cutGeometry = cutter.geometry;
   for (const feature of features) {
     const geometry = feature.geometry;
-    if (!isArea(geometry) || !isArea(cutGeometry)) {
+    if (!isGeoArea(geometry) || !isGeoArea(cutGeometry)) {
       out.push(feature);
       continue;
     }
@@ -58,7 +52,7 @@ export function cutFeatures(
       changed = true;
       continue;
     }
-    const rest = left.geometry as Area;
+    const rest = left.geometry;
     if (sameArea(geoAreaM2(rest), geoAreaM2(geometry))) {
       out.push(feature);
       continue;
@@ -91,19 +85,29 @@ function simplifyInPlace(
   value: DrawValue,
   options: SimplifyOptions,
 ): DrawValue {
-  if (value.type === "FeatureCollection") {
-    value.features = value.features.map(
-      (feature) => simplifyInPlace(feature, options) as DrawFeature,
-    );
-    return value;
-  }
-  // turf reads `geometry.type` without a null check.
-  if (value.type === "Feature" && !value.geometry) return value;
-  return simplify(value as never, {
+  const turfOptions = {
     tolerance: options.tolerance,
     highQuality: options.highQuality,
     mutate: true,
-  }) as unknown as DrawValue;
+  };
+  if (value.type === "FeatureCollection") {
+    value.features = value.features.map((feature) =>
+      simplifyFeature(feature, turfOptions),
+    );
+    return value;
+  }
+  if (value.type === "Feature") return simplifyFeature(value, turfOptions);
+  return simplify(value, turfOptions);
+}
+
+function simplifyFeature(
+  feature: DrawFeature,
+  turfOptions: Parameters<typeof simplify>[1],
+): DrawFeature {
+  const { geometry } = feature;
+  // turf reads `geometry.type` without a null check.
+  if (!geometry) return feature;
+  return simplify({ ...feature, geometry }, turfOptions);
 }
 
 /**

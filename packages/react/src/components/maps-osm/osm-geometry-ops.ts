@@ -1,18 +1,22 @@
-import { geoAreaM2, geoBounds, type JsonObject } from "@chelone/core";
+import {
+  geoAreaM2,
+  geoBounds,
+  isGeoArea,
+  type JsonObject,
+} from "@chelone/core";
 import { difference } from "@turf/difference";
 import { union } from "@turf/union";
-import type { Feature, Geometry } from "geojson";
+import type { Feature, Geometry, MultiPolygon, Polygon } from "geojson";
 
 type AreaFeature = Feature<Geometry | null, JsonObject | null>;
 
-type Area = Extract<Geometry, { type: "Polygon" | "MultiPolygon" }>;
+type Area = Polygon | MultiPolygon;
 
-function isArea(geometry: Geometry | null | undefined): geometry is Area {
-  return geometry?.type === "Polygon" || geometry?.type === "MultiPolygon";
-}
-
-const asFeature = (geometry: Area) =>
-  ({ type: "Feature", properties: {}, geometry }) as never;
+const asFeature = (geometry: Area): Feature<Area, JsonObject | null> => ({
+  type: "Feature",
+  properties: {},
+  geometry,
+});
 
 /**
  * The union of the Polygon and MultiPolygon features as one geometry; other
@@ -20,7 +24,7 @@ const asFeature = (geometry: Area) =>
  * as its own geometry, without a turf call.
  */
 export function unionAll(features: readonly AreaFeature[]): Area | null {
-  const areas = features.map((f) => f.geometry).filter(isArea);
+  const areas = features.map((f) => f.geometry).filter(isGeoArea);
   const [first, ...rest] = areas;
   if (!first) return null;
   if (rest.length === 0) return first;
@@ -28,9 +32,8 @@ export function unionAll(features: readonly AreaFeature[]): Area | null {
     type: "FeatureCollection",
     features: areas.map(asFeature),
   });
-  return isArea(merged?.geometry as Geometry | undefined)
-    ? (merged?.geometry as Area)
-    : null;
+  const geometry = merged?.geometry;
+  return isGeoArea(geometry) ? geometry : null;
 }
 
 /**
@@ -48,8 +51,8 @@ export function subtractMask(
     type: "FeatureCollection",
     features: [asFeature(input), asFeature(masked)],
   });
-  const geometry = left?.geometry as Geometry | undefined;
-  if (!isArea(geometry) || geoAreaM2(geometry) <= 0) return null;
+  const geometry = left?.geometry;
+  if (!isGeoArea(geometry) || geoAreaM2(geometry) <= 0) return null;
   return geometry;
 }
 

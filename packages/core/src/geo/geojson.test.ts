@@ -1,6 +1,7 @@
 import type { Point } from "geojson";
 import { describe, expect, it } from "vitest";
 import {
+  isGeoArea,
   isGeoBBox,
   isGeoFeature,
   isGeoFeatureCollection,
@@ -18,6 +19,40 @@ const square = [
     [0, 0],
   ],
 ];
+
+describe("isGeoArea", () => {
+  it("accepts a Polygon and a MultiPolygon", () => {
+    expect(isGeoArea({ type: "Polygon", coordinates: square })).toBe(true);
+    expect(isGeoArea({ type: "MultiPolygon", coordinates: [square] })).toBe(
+      true,
+    );
+  });
+
+  it("refuses a Point, a GeometryCollection, a Feature, null and a polygon with a non-numeric coordinate", () => {
+    const polygon = { type: "Polygon", coordinates: square };
+    expect(isGeoArea({ type: "Point", coordinates: [0, 0] })).toBe(false);
+    expect(
+      isGeoArea({ type: "GeometryCollection", geometries: [polygon] }),
+    ).toBe(false);
+    expect(
+      isGeoArea({ type: "Feature", properties: null, geometry: polygon }),
+    ).toBe(false);
+    expect(isGeoArea(null)).toBe(false);
+    expect(
+      isGeoArea({
+        type: "Polygon",
+        coordinates: [
+          [
+            [0, 0],
+            [1, 0],
+            [1, "1"],
+            [0, 0],
+          ],
+        ],
+      }),
+    ).toBe(false);
+  });
+});
 
 describe("isGeoGeometry", () => {
   it("accepts every geometry type", () => {

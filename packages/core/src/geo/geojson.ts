@@ -117,6 +117,14 @@ export function isGeoGeometry(value: unknown): value is Geometry {
   return depth !== undefined && isNested(value.coordinates, depth);
 }
 
+/** A Polygon or a MultiPolygon, the geometries turf's area operations take. */
+export function isGeoArea(value: unknown): value is Polygon | MultiPolygon {
+  return (
+    isGeoGeometry(value) &&
+    (value.type === "Polygon" || value.type === "MultiPolygon")
+  );
+}
+
 export function isGeoFeature(
   value: unknown,
 ): value is Feature<Geometry | null, JsonObject | null> {

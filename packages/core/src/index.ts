@@ -575,6 +575,7 @@ export type {
   GeoPosition,
 } from "./geo/geojson";
 export {
+  isGeoArea,
   isGeoBBox,
   isGeoFeature,
   isGeoFeatureCollection,
