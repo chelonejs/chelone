@@ -51,7 +51,7 @@ export interface GeocodingInputProps {
  * />
  */
 
-import type { GeocodeResult } from "@chelone/core";
+import { type GeocodeResult, textOf } from "@chelone/core";
 import { computed, ref, useId, watch } from "vue";
 import { useCheloneFormContext, useWrappedSource } from "../../form/form-context";
 import { useInput } from "../../form/use-input";
@@ -88,10 +88,7 @@ const wrappedBbox = props.bboxSource
   ? useWrappedSource(props.bboxSource)
   : null;
 
-const toText = (raw: unknown) =>
-  typeof raw === "string" ? raw : raw == null ? "" : String(raw);
-
-const saved = computed(() => toText(value.value));
+const saved = computed(() => textOf(value.value));
 const text = ref(saved.value);
 // What the search runs on: typing sets it for a typeahead provider, Enter or the button for any other.
 const query = ref("");
