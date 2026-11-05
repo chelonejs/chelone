@@ -9,6 +9,7 @@ import {
   type EditFormController,
   resolveHydrationAction,
 } from "./edit-create-form";
+import type { CheloneFormApi } from "./form-controller";
 
 const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
@@ -45,6 +46,14 @@ it("createCreateFormController types the seed and created record", () => {
   });
   expectTypeOf(controller).not.toBeAny();
   expectTypeOf(controller.getSnapshot().record).toEqualTypeOf<Partial<Post>>();
+  expectTypeOf(controller.getSnapshot().form.values).toEqualTypeOf<
+    Partial<Post>
+  >();
+});
+
+it("createCreateFormController without defaultValues still gives FormController<Partial<Post>>", () => {
+  const controller = createCreateFormController(ctx, "posts");
+  expectTypeOf(controller.form).toEqualTypeOf<CheloneFormApi<Partial<Post>>>();
   expectTypeOf(controller.getSnapshot().form.values).toEqualTypeOf<
     Partial<Post>
   >();
