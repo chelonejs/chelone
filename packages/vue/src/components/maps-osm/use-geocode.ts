@@ -1,8 +1,8 @@
 import {
-  type GeoBBox,
   type GeocodeResult,
   type GeocodingProvider,
   geocodeQueryOptions,
+  type LngLatBox,
 } from "@chelone/core";
 import { useQuery } from "@tanstack/vue-query";
 import {
@@ -27,7 +27,7 @@ export interface UseGeocodeOptions {
   /** ISO 3166-1 alpha-2 codes to restrict the search to. */
   countryCodes?: string[];
   /** `[west, south, east, north]` to favour or restrict hits to. */
-  viewBox?: GeoBBox;
+  viewBox?: LngLatBox;
   limit?: number;
 }
 

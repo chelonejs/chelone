@@ -1,9 +1,8 @@
 import {
   buildOverpassQuery,
   findPresetForTags,
-  type GeoBBox,
-  type GeoFeature,
-  type GeoFeatureCollection,
+  type JsonObject,
+  type LngLatBox,
   OSM_PRESETS,
   type OsmPreset,
   type OsmPresetName,
@@ -13,11 +12,14 @@ import {
 } from "@chelone/core";
 import type { QueryClient } from "@tanstack/vue-query";
 import { buffer } from "@turf/buffer";
+import type { Feature, FeatureCollection, Geometry } from "geojson";
 import osm2geojson from "osm2geojson-lite";
 
 type TurfFeature = Extract<Parameters<typeof buffer>[0], { type: "Feature" }>;
 
-function isPolygon(feature: GeoFeature): boolean {
+function isPolygon(
+  feature: Feature<Geometry | null, JsonObject | null>,
+): boolean {
   const type = feature.geometry?.type;
   return type === "Polygon" || type === "MultiPolygon";
 }
@@ -31,11 +33,11 @@ function isPolygon(feature: GeoFeature): boolean {
 export function osmToPolygons(
   response: unknown,
   presets: readonly OsmPresetName[],
-): GeoFeatureCollection {
+): FeatureCollection<Geometry | null, JsonObject | null> {
   const converted = osm2geojson(response as Record<string, unknown>, {
     completeFeature: true,
     renderTagged: true,
-  }) as unknown as GeoFeatureCollection;
+  }) as unknown as FeatureCollection<Geometry | null, JsonObject | null>;
 
   // `findPresetForTags` returns the first match, so a preset without a buffer
   // must not shadow a later one that has it.
@@ -44,7 +46,7 @@ export function osmToPolygons(
     return preset.bufferLinesMeters !== undefined;
   });
 
-  const features: GeoFeature[] = [];
+  const features: Feature<Geometry | null, JsonObject | null>[] = [];
   for (const feature of converted.features) {
     const type = feature.geometry?.type;
     if (isPolygon(feature)) {
@@ -59,7 +61,9 @@ export function osmToPolygons(
       const buffered = buffer(feature as unknown as TurfFeature, meters, {
         units: "meters",
       });
-      const geometry = buffered?.geometry as GeoFeature["geometry"] | undefined;
+      const geometry = buffered?.geometry as
+        | Feature<Geometry | null, JsonObject | null>["geometry"]
+        | undefined;
       if (geometry?.type === "Polygon" || geometry?.type === "MultiPolygon") {
         features.push({
           type: "Feature",
@@ -90,10 +94,10 @@ export function hasOsmSources(sources: OverpassQuerySources): boolean {
  */
 export async function fetchOsmFeatures(
   queryClient: QueryClient,
-  bbox: GeoBBox | null,
+  bbox: LngLatBox | null,
   sources: OverpassQuerySources,
   { provider, signal }: FetchOsmFeaturesOptions,
-): Promise<GeoFeatureCollection | null> {
+): Promise<FeatureCollection<Geometry | null, JsonObject | null> | null> {
   if (!bbox || !hasOsmSources(sources)) return null;
   const query = buildOverpassQuery(sources, bbox);
   // The caller's `signal` stays out of the fetch: TanStack shares one

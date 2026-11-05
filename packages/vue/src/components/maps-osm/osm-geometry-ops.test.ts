@@ -1,9 +1,5 @@
-import {
-  type GeoFeature,
-  type GeoGeometry,
-  geoAreaM2,
-  geoBounds,
-} from "@chelone/core";
+import { geoAreaM2, geoBounds, type JsonObject } from "@chelone/core";
+import type { Feature, Geometry } from "geojson";
 import { describe, expect, it } from "vitest";
 import { subtractMask, unionAll } from "./osm-geometry-ops";
 
@@ -12,7 +8,7 @@ function square(
   south: number,
   east: number,
   north: number,
-): GeoFeature {
+): Feature<Geometry | null, JsonObject | null> {
   return {
     type: "Feature",
     properties: {},
@@ -31,8 +27,8 @@ function square(
   };
 }
 
-const areaOf = (feature: GeoFeature) =>
-  feature.geometry as Extract<GeoGeometry, { type: "Polygon" }>;
+const areaOf = (feature: Feature<Geometry | null, JsonObject | null>) =>
+  feature.geometry as Extract<Geometry, { type: "Polygon" }>;
 
 describe("unionAll", () => {
   it("merges two overlapping squares into one Polygon", () => {

@@ -1,8 +1,9 @@
 import {
-  type GeoFeatureCollection,
+  type JsonObject,
   type ShapeStyle,
   shapeLayerSpecs,
 } from "@chelone/core";
+import type { FeatureCollection, Geometry } from "geojson";
 import {
   computed,
   type MaybeRefOrGetter,
@@ -13,7 +14,7 @@ import {
 import { useMap } from "./use-map";
 
 interface GeoJSONSourceLike {
-  setData(data: GeoFeatureCollection): unknown;
+  setData(data: FeatureCollection<Geometry | null, JsonObject | null>): unknown;
 }
 
 let nextSourceId = 0;
@@ -32,7 +33,7 @@ export function uniqueGeoJsonSourceId(): string {
  */
 export function useGeoJsonSource(
   sourceId: string,
-  data: MaybeRefOrGetter<GeoFeatureCollection>,
+  data: MaybeRefOrGetter<FeatureCollection<Geometry | null, JsonObject | null>>,
   style: MaybeRefOrGetter<ShapeStyle>,
 ): void {
   const map = useMap();

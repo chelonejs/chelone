@@ -1,15 +1,11 @@
-import {
-  type GeoFeature,
-  type GeoGeometry,
-  geoAreaM2,
-  geoBounds,
-} from "@chelone/core";
+import { geoAreaM2, geoBounds, type JsonObject } from "@chelone/core";
 import { difference } from "@turf/difference";
 import { union } from "@turf/union";
+import type { Feature, Geometry } from "geojson";
 
-type Area = Extract<GeoGeometry, { type: "Polygon" | "MultiPolygon" }>;
+type Area = Extract<Geometry, { type: "Polygon" | "MultiPolygon" }>;
 
-function isArea(geometry: GeoGeometry | null | undefined): geometry is Area {
+function isArea(geometry: Geometry | null | undefined): geometry is Area {
   return geometry?.type === "Polygon" || geometry?.type === "MultiPolygon";
 }
 
@@ -21,7 +17,9 @@ const asFeature = (geometry: Area) =>
  * geometries are ignored. `null` when there is none. One feature comes back
  * as its own geometry, without a turf call.
  */
-export function unionAll(features: readonly GeoFeature[]): Area | null {
+export function unionAll(
+  features: readonly Feature<Geometry | null, JsonObject | null>[],
+): Area | null {
   const areas = features.map((f) => f.geometry).filter(isArea);
   const [first, ...rest] = areas;
   if (!first) return null;
@@ -30,7 +28,7 @@ export function unionAll(features: readonly GeoFeature[]): Area | null {
     type: "FeatureCollection",
     features: areas.map(asFeature),
   });
-  return isArea(merged?.geometry as GeoGeometry | undefined)
+  return isArea(merged?.geometry as Geometry | undefined)
     ? (merged?.geometry as Area)
     : null;
 }
@@ -41,7 +39,7 @@ export function unionAll(features: readonly GeoFeature[]): Area | null {
  */
 export function subtractMask(
   input: Area,
-  mask: readonly GeoFeature[],
+  mask: readonly Feature<Geometry | null, JsonObject | null>[],
 ): Area | null {
   const masked = unionAll(mask);
   if (!masked) return input;
@@ -50,12 +48,12 @@ export function subtractMask(
     type: "FeatureCollection",
     features: [asFeature(input), asFeature(masked)],
   });
-  const geometry = left?.geometry as GeoGeometry | undefined;
+  const geometry = left?.geometry as Geometry | undefined;
   if (!isArea(geometry) || geoAreaM2(geometry) <= 0) return null;
   return geometry;
 }
 
-function boxesOverlap(a: GeoGeometry, b: GeoGeometry): boolean {
+function boxesOverlap(a: Geometry, b: Geometry): boolean {
   const boxA = geoBounds(a);
   const boxB = geoBounds(b);
   if (!boxA || !boxB) return true;

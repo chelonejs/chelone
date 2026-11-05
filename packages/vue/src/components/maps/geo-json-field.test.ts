@@ -5,13 +5,10 @@
  * map was asked to do.
  */
 
-import {
-  fakeDataProvider,
-  type GeoJsonValue,
-  rasterTileStyle,
-} from "@chelone/core";
+import { fakeDataProvider, rasterTileStyle } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
+import type { Geometry } from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { type Component, defineComponent, h, reactive } from "vue";
 import { provideCheloneContext } from "../../context";
@@ -328,9 +325,7 @@ describe("GeoJsonLayers", () => {
     await show(
       defineComponent({
         setup: () => () =>
-          h(MapCanvas, () =>
-            h(GeoJsonLayers, { data: polygon as GeoJsonValue }),
-          ),
+          h(MapCanvas, () => h(GeoJsonLayers, { data: polygon as Geometry })),
       }),
       {},
     );
