@@ -1,7 +1,7 @@
 import type {
-  LooseRecord,
   SourcePath,
   SourceProp,
+  SourceValue,
   TranslatableMessage,
   Validator,
 } from "@chelone/core";
@@ -24,9 +24,13 @@ import type { ChoiceRecord, OptionText } from "../../choices-hooks";
  * `helperText`, `disabled`, `readOnly`, `type`, and `name` are the
  * presentational keys the input components read directly.
  */
-export interface InputProps<ValueType = unknown, TRecord = LooseRecord> {
+export interface InputProps<
+  // type-escape: the no-record sentinel `SourcePath` and `SourceValue` test for
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> {
   /** The field path RELATIVE to the ambient source scope. */
-  source: SourceProp<TRecord>;
+  source: TPath;
   /**
    * The input label. A string is translated; a ReactNode renders as-is;
    * `false` (or `""`) renders no label.
@@ -45,11 +49,14 @@ export interface InputProps<ValueType = unknown, TRecord = LooseRecord> {
   /** ra-contract validators — composed, first error wins. */
   validate?: Validator | readonly Validator[];
   /** Read transform (raw form value → input value). */
-  format?: (value: ValueType) => unknown;
+  format?: (value: unknown) => unknown;
   /** Write transform (input value → stored value). */
-  parse?: (value: unknown) => ValueType;
-  /** Input-level default, ra precedence (seeds only into an untouched hole). */
-  defaultValue?: unknown;
+  parse?: (value: unknown) => unknown;
+  /**
+   * Input-level default, ra precedence (seeds only into an untouched hole).
+   * Typed as the value at `source`; `unknown` without a record.
+   */
+  defaultValue?: SourceValue<TRecord, TPath>;
   /** Native disabled state. */
   disabled?: boolean;
   /** Native read-only state. */

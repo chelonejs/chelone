@@ -5,7 +5,8 @@ import type { InputProps } from "../admin/input-props";
 import { MonacoSkeleton } from "./internal/monaco-shared";
 
 interface MonacoJsonInputProps<TRecord = LooseRecord>
-  extends InputProps<unknown, TRecord> {
+  extends Omit<InputProps<TRecord>, "defaultValue"> {
+  defaultValue?: unknown;
   /** A JSON Schema the value is checked against. Object shape only. */
   schema?: object;
   /** A schema Monaco fetches from this URL. Ignored when `schema` is set. */

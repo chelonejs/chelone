@@ -185,7 +185,8 @@ function WebhookEndpointInput<TRecord = LooseRecord>(
 }
 
 interface WebhookEndpointInputProps<TRecord = LooseRecord>
-  extends InputProps<unknown, TRecord> {
+  extends Omit<InputProps<TRecord>, "defaultValue"> {
+  defaultValue?: unknown;
   /** Available event-type strings to surface as checkboxes. */
   eventTypes: readonly string[];
   /** Optional test-ping handler. When set, renders the test-ping button. */
