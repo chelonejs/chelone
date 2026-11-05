@@ -1036,3 +1036,92 @@ describe("LineStringInput with snapToRoads", () => {
     expect(value()).toBe(written);
   });
 });
+
+/** A component that renders `template`, so a bare attribute reaches the wrapper as `""`. */
+const fromTemplate = (template: string) =>
+  defineComponent({
+    components: {
+      BBoxInput,
+      GeoJsonInput,
+      LineStringInput,
+      PolygonInput,
+    },
+    template,
+  });
+
+describe("props a wrapper forwards to ShapeInput", () => {
+  it("keeps the ShapeInput default for a prop it was not given", async () => {
+    const { draw } = await mountShapeInput(() =>
+      h(PolygonInput, { source: "shape" }),
+    );
+
+    expect(draw().modeOf("polygon")?.options.snapping).toEqual({
+      toCoordinate: true,
+      toLine: true,
+    });
+    expect(draw().modeOf("polygon")?.options.pointerDistance).toBe(20);
+  });
+
+  it("passes a given prop over the ShapeInput default", async () => {
+    const { draw } = await mountShapeInput(() =>
+      h(PolygonInput, { source: "shape", snappable: false, snapDistance: 35 }),
+    );
+
+    expect(draw().modeOf("polygon")?.options.snapping).toBeUndefined();
+    expect(draw().modeOf("polygon")?.options.pointerDistance).toBe(35);
+  });
+
+  it("reads a bare disabled attribute as true", async () => {
+    const { wrapper } = await mountShapeInput(() =>
+      h(fromTemplate('<PolygonInput source="shape" disabled />')),
+    );
+
+    expect(wrapper.find('[role="toolbar"]').exists()).toBe(false);
+  });
+
+  it("reads a bare disabled attribute as true on BBoxInput", async () => {
+    const { wrapper } = await mountShapeInput(() =>
+      h(fromTemplate('<BBoxInput source="shape" disabled />')),
+    );
+
+    expect(wrapper.find('[role="toolbar"]').exists()).toBe(false);
+  });
+
+  it("maps a kebab-case attribute onto the camelCase prop", async () => {
+    const { wrapper, draw, value } = await mountShapeInput(() =>
+      h(fromTemplate('<BBoxInput source="shape" :aspect-ratio="2" />')),
+    );
+
+    await drawWith(
+      wrapper,
+      draw,
+      "Draw a rectangle",
+      "rectangle",
+      rect(0, 0, 4, 4),
+    );
+
+    expect(value()).toEqual([-2, 0, 6, 4]);
+  });
+
+  it("reads a bare collection attribute as true", async () => {
+    const { wrapper, draw, value } = await mountShapeInput(() =>
+      h(fromTemplate('<GeoJsonInput source="shape" collection />')),
+    );
+    await drawWith(wrapper, draw, "Draw a point", "point", point(1));
+    await drawWith(wrapper, draw, "Draw a point", "point", point(2));
+
+    expect(value()).toMatchObject({ type: "GeometryCollection" });
+  });
+
+  it("reads a bare snap-to-roads attribute as true", async () => {
+    const router = fakeRouter();
+    const { wrapper, draw } = await mountShapeInput(
+      () => h(fromTemplate('<LineStringInput source="shape" snap-to-roads />')),
+      null,
+      { router },
+    );
+    await drawWith(wrapper, draw, "Draw a line", "linestring", line(4));
+
+    expect(router.snapToRoad).toHaveBeenCalledTimes(1);
+  });
+});

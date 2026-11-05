@@ -1,11 +1,38 @@
 import type { ShapeValue } from "@chelone/core";
-import { type ComponentObjectPropsOptions, defineComponent, h } from "vue";
+import { defineComponent, h } from "vue";
 import ShapeInput, { type ShapeInputProps } from "./shape-input.vue";
 
 export interface BBoxInputProps
   extends Omit<ShapeInputProps, "kind" | "tools"> {}
 
-const { kind: _kind, tools: _tools, ...options } = ShapeInput.props;
+/**
+ * The props `BBoxInput` forwards to `ShapeInput`: all of them but `kind` and
+ * `tools`. A prop it is not given reaches `ShapeInput` as `undefined`, which
+ * takes `ShapeInput`'s own default.
+ */
+export const bboxInputKeys = [
+  "source",
+  "label",
+  "helperText",
+  "validate",
+  "minVertices",
+  "maxVertices",
+  "minAreaM2",
+  "allowSelfIntersection",
+  "snappable",
+  "snapDistance",
+  "disabled",
+  "defaultCenter",
+  "zoom",
+  "height",
+  "mapStyle",
+  "shapeStyle",
+  "aspectRatio",
+  "fitBounds",
+  "refine",
+  "class",
+] as const satisfies readonly (keyof BBoxInputProps)[];
+
 /**
  * Edits a bounding box, `[west, south, east, north]`, by drawing a rectangle on
  * a map. A new rectangle replaces the old one. With `aspectRatio` the stored
@@ -29,7 +56,7 @@ export const BBoxInput = defineComponent(
       }),
   {
     name: "BBoxInput",
-    props: options as unknown as ComponentObjectPropsOptions<BBoxInputProps>,
+    props: [...bboxInputKeys],
     emits: { commit: (_value: ShapeValue | null) => true },
   },
 );

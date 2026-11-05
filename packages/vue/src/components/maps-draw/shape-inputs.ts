@@ -3,12 +3,7 @@ import type {
   ShapeValue,
   ShapeValueKind,
 } from "@chelone/core";
-import {
-  type ComponentObjectPropsOptions,
-  defineComponent,
-  h,
-  type SetupContext,
-} from "vue";
+import { defineComponent, h, type SetupContext } from "vue";
 import { useMapsConfig } from "../maps/use-map";
 import ShapeInput, { type ShapeInputProps } from "./shape-input.vue";
 import type { DrawTool } from "./use-terra-draw";
@@ -58,13 +53,42 @@ export function toolsForShapes(
 }
 
 /**
- * The prop options of `ShapeInput` but for `kind`, so the wrappers stay in step
- * with the component. Typed by the wrapper's own props, since the compiled
- * component does not carry them. `extra` adds the wrapper's own props.
+ * The props every input in this file forwards to `ShapeInput`: all of them but
+ * `kind`. A prop an input is not given reaches `ShapeInput` as `undefined`,
+ * which takes `ShapeInput`'s own default.
  */
-const { kind: _kind, ...options } = ShapeInput.props;
-function propsOf<P>(extra: object = {}) {
-  return { ...options, ...extra } as unknown as ComponentObjectPropsOptions<P>;
+export const geoJsonInputBaseKeys = [
+  "source",
+  "label",
+  "helperText",
+  "validate",
+  "minVertices",
+  "maxVertices",
+  "minAreaM2",
+  "allowSelfIntersection",
+  "tools",
+  "snappable",
+  "snapDistance",
+  "disabled",
+  "defaultCenter",
+  "zoom",
+  "height",
+  "mapStyle",
+  "shapeStyle",
+  "aspectRatio",
+  "fitBounds",
+  "refine",
+  "class",
+] as const satisfies readonly (keyof GeoJsonInputBaseProps)[];
+
+/**
+ * A boolean attribute written bare, as in `<GeoJsonInput collection>`, reaches
+ * a wrapper's setup as `""`: only a declared Boolean prop is cast, and a key
+ * list declares none. `ShapeInput` casts the props it is given, so only a prop
+ * the wrapper reads itself needs this.
+ */
+function isBareAttribute(value: unknown): value is "" {
+  return value === "";
 }
 
 const emits = {
@@ -107,7 +131,7 @@ function fixedKind(
         renderShape(props, emit, kind, tools),
     {
       name,
-      props: propsOf<GeoJsonInputBaseProps>(),
+      props: [...geoJsonInputBaseKeys],
       emits,
     },
   );
@@ -138,6 +162,12 @@ export interface LineStringInputProps extends GeoJsonInputBaseProps {
   snapToRoads?: boolean | RoutingProvider;
 }
 
+/** The props `LineStringInput` takes: the base props and `snapToRoads`. */
+export const lineStringInputKeys = [
+  ...geoJsonInputBaseKeys,
+  "snapToRoads",
+] as const satisfies readonly (keyof LineStringInputProps)[];
+
 /** A `refine` that snaps a line of two or more positions with `router`. */
 function snapRefine(router: RoutingProvider): GeoJsonInputBaseProps["refine"] {
   return (value, { signal }) => {
@@ -156,11 +186,14 @@ function snapRefine(router: RoutingProvider): GeoJsonInputBaseProps["refine"] {
 export const LineStringInput = defineComponent(
   (props: LineStringInputProps, { emit }) => {
     const config = useMapsConfig();
+    const wantsConfigRouter = () =>
+      props.snapToRoads === true || isBareAttribute(props.snapToRoads);
     const router = (): RoutingProvider | undefined => {
       const { snapToRoads } = props;
-      return snapToRoads === true ? config.router : snapToRoads || undefined;
+      if (wantsConfigRouter()) return config.router;
+      return typeof snapToRoads === "object" ? snapToRoads : undefined;
     };
-    if (props.snapToRoads === true && !router()) {
+    if (wantsConfigRouter() && !router()) {
       throw new Error(
         "LineStringInput needs a routing provider for `snapToRoads`: pass a RoutingProvider as the prop or set `router` on <MapsProvider>.",
       );
@@ -178,9 +211,7 @@ export const LineStringInput = defineComponent(
   },
   {
     name: "LineStringInput",
-    props: propsOf<LineStringInputProps>({
-      snapToRoads: { type: [Boolean, Object], default: false },
-    }),
+    props: [...lineStringInputKeys],
     emits,
   },
 );
@@ -222,6 +253,13 @@ export interface GeoJsonInputProps extends GeoJsonInputBaseProps {
   collection?: boolean;
 }
 
+/** The props `GeoJsonInput` takes: the base props, `shapes` and `collection`. */
+export const geoJsonInputKeys = [
+  ...geoJsonInputBaseKeys,
+  "shapes",
+  "collection",
+] as const satisfies readonly (keyof GeoJsonInputProps)[];
+
 /**
  * Edits any one GeoJSON geometry, or with `collection` a GeometryCollection,
  * limited to the drawn `shapes`.
@@ -236,16 +274,15 @@ export const GeoJsonInput = defineComponent(
       return renderShape(
         rest,
         emit,
-        collection ? "GeometryCollection" : "Geometry",
+        collection === true || isBareAttribute(collection)
+          ? "GeometryCollection"
+          : "Geometry",
         toolsForShapes(shapes),
       );
     },
   {
     name: "GeoJsonInput",
-    props: propsOf<GeoJsonInputProps>({
-      shapes: { type: Array, default: undefined },
-      collection: { type: Boolean, default: false },
-    }),
+    props: [...geoJsonInputKeys],
     emits,
   },
 );
@@ -258,6 +295,12 @@ export interface FeatureInputProps extends GeoJsonInputBaseProps {
    */
   shape?: GeometryShape;
 }
+
+/** The props `FeatureInput` takes: the base props and `shape`. */
+export const featureInputKeys = [
+  ...geoJsonInputBaseKeys,
+  "shape",
+] as const satisfies readonly (keyof FeatureInputProps)[];
 
 /**
  * Edits a GeoJSON Feature. An edit keeps the feature's `id` and `properties`.
@@ -273,9 +316,7 @@ export const FeatureInput = defineComponent(
     },
   {
     name: "FeatureInput",
-    props: propsOf<FeatureInputProps>({
-      shape: { type: String, default: undefined },
-    }),
+    props: [...featureInputKeys],
     emits,
   },
 );
@@ -284,6 +325,12 @@ export interface FeatureCollectionInputProps extends GeoJsonInputBaseProps {
   /** The shapes the user may draw. Defaults to `Point`, `LineString` and `Polygon`. */
   allowedShapes?: readonly GeometryShape[];
 }
+
+/** The props `FeatureCollectionInput` takes: the base props and `allowedShapes`. */
+export const featureCollectionInputKeys = [
+  ...geoJsonInputBaseKeys,
+  "allowedShapes",
+] as const satisfies readonly (keyof FeatureCollectionInputProps)[];
 
 /**
  * Edits a GeoJSON FeatureCollection. Each feature keeps its own `properties`
@@ -305,9 +352,7 @@ export const FeatureCollectionInput = defineComponent(
     },
   {
     name: "FeatureCollectionInput",
-    props: propsOf<FeatureCollectionInputProps>({
-      allowedShapes: { type: Array, default: undefined },
-    }),
+    props: [...featureCollectionInputKeys],
     emits,
   },
 );
