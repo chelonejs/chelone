@@ -1,12 +1,12 @@
-import type { GeoLineString, GeoPosition } from "./geojson";
+import type { LineString, Position } from "geojson";
 
 export interface RoutingProvider {
   name: string;
   /** Resolves to the line matched to roads, or `null` when it cannot be. */
   snapToRoad(
-    line: GeoLineString,
+    line: LineString,
     options?: { signal?: AbortSignal },
-  ): Promise<GeoLineString | null>;
+  ): Promise<LineString | null>;
 }
 
 export interface OsrmProviderOptions {
@@ -43,9 +43,9 @@ export function createOsrmProvider(
 
   /** One match request; `null` when the server cannot match the chunk. */
   async function matchChunk(
-    positions: GeoPosition[],
+    positions: Position[],
     signal: AbortSignal | undefined,
-  ): Promise<GeoPosition[] | null> {
+  ): Promise<Position[] | null> {
     const path = positions.map(([lng, lat]) => `${lng},${lat}`).join(";");
     try {
       const response = await doFetch(
@@ -66,7 +66,7 @@ export function createOsrmProvider(
       ) {
         return null;
       }
-      return geometry.coordinates as GeoPosition[];
+      return geometry.coordinates as Position[];
     } catch (error) {
       if (signal?.aborted) throw error;
       return null;
@@ -81,7 +81,7 @@ export function createOsrmProvider(
       const positions = line.coordinates;
       if (positions.length < 2) return null;
       // Chunks share their end points, so the snapped pieces meet there.
-      const joined: GeoPosition[] = [];
+      const joined: Position[] = [];
       for (let start = 0; start < positions.length - 1; ) {
         const end = Math.min(start + OSRM_MAX_POSITIONS, positions.length);
         const piece = await matchChunk(positions.slice(start, end), signal);

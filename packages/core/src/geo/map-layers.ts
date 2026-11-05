@@ -1,4 +1,5 @@
-import type { GeoFeatureCollection } from "./geojson";
+import type { FeatureCollection, Geometry } from "geojson";
+import type { JsonObject } from "../guards";
 import { isGeoFeature, isGeoFeatureCollection, isGeoGeometry } from "./geojson";
 
 export interface ShapeStyle {
@@ -82,7 +83,9 @@ export function shapeLayerSpecs(
 }
 
 /** Never throws: anything that is not GeoJSON becomes an empty collection. */
-export function asFeatureCollection(value: unknown): GeoFeatureCollection {
+export function asFeatureCollection(
+  value: unknown,
+): FeatureCollection<Geometry | null, JsonObject | null> {
   if (isGeoFeatureCollection(value)) return value;
   if (isGeoFeature(value)) {
     return { type: "FeatureCollection", features: [value] };

@@ -1,5 +1,5 @@
 import type { JsonObject } from "../guards";
-import type { GeoBBox } from "./geojson";
+import type { LngLatBox } from "./bounds";
 import type { OsmTagFilter, OsmTagInput } from "./osm-tags";
 import { tagToFilter } from "./osm-tags";
 
@@ -114,7 +114,7 @@ function filterToSelector(filter: OsmTagFilter): string {
  */
 export function buildOverpassQuery(
   sources: OverpassQuerySources,
-  bbox: GeoBBox,
+  bbox: LngLatBox,
 ): string {
   const [west, south, east, north] = bbox;
   const area = `(${south},${west},${north},${east})`;
