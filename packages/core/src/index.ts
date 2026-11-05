@@ -2,7 +2,10 @@
 // `formOptions.validationLogic` escape hatch invites a user-supplied strategy
 // (e.g. a filter form that validates on change: `revalidateLogic({ mode:
 // "change" })`); re-exported so consumers can build one without a direct
-// `@tanstack/form-core` dependency.
+// `@tanstack/form-core` dependency. `ValidationErrorMap` is the error map a
+// field's meta carries, for the same reason.
+
+export type { ValidationErrorMap } from "@tanstack/form-core";
 export { revalidateLogic } from "@tanstack/form-core";
 export type {
   AssistantSession,

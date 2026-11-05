@@ -32,10 +32,7 @@ async function validateStep(stepName: string): Promise<boolean> {
       Promise.resolve(form.ambient.validateField(source, "submit")),
     ),
   );
-  const fieldMeta = form.ambient.store.state.fieldMeta as Record<
-    string,
-    { isValid: boolean } | undefined
-  >;
+  const { fieldMeta } = form.ambient.store.state;
   return members.every((source) => fieldMeta[source]?.isValid !== false);
 }
 

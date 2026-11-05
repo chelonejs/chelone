@@ -1,4 +1,5 @@
-import { assertType, describe, it } from "vitest";
+import type { AnyFieldMeta, ValidationErrorMap } from "@tanstack/form-core";
+import { assertType, describe, expectTypeOf, it } from "vitest";
 import type { TranslatableMessage } from "./form-controller";
 import {
   createFormGroups,
@@ -25,5 +26,15 @@ describe("form-groups public types", () => {
     assertType<boolean>(state.isTouched);
     assertType<boolean>(state.isValidating);
     assertType<Record<string, string | TranslatableMessage>>(state.errors);
+  });
+
+  it("GroupFieldMeta errorMap is form-core's ValidationErrorMap", () => {
+    expectTypeOf<
+      GroupFieldMeta["errorMap"]
+    >().toEqualTypeOf<ValidationErrorMap>();
+  });
+
+  it("a form-core field meta assigns to GroupFieldMeta", () => {
+    expectTypeOf<AnyFieldMeta>().toExtend<GroupFieldMeta>();
   });
 });

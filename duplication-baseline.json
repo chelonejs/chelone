@@ -122,7 +122,6 @@
   "packages/react/src/controller-hooks.ts <-> packages/react/src/controller-hooks.ts": 1,
   "packages/react/src/controller-hooks.ts <-> packages/vue/src/controllers/controller-context.ts": 1,
   "packages/react/src/controller-hooks.ts <-> packages/vue/src/controllers/use-create-controller.ts": 1,
-  "packages/react/src/field-error.ts <-> packages/vue/src/form/field-error.ts": 1,
   "packages/react/src/field-error.ts <-> packages/vue/src/form/form-groups.ts": 1,
   "packages/react/src/form-hooks.ts <-> packages/react/src/form-hooks.ts": 1,
   "packages/react/src/form-hooks.ts <-> packages/vue/src/form/use-input.ts": 1,
