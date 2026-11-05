@@ -1,7 +1,8 @@
-import type {
-  AuthProvider,
-  RegisteredPermissions,
-  UserIdentity,
+import {
+  type AuthProvider,
+  isRecord,
+  type RegisteredPermissions,
+  type UserIdentity,
 } from "@chelone/core";
 import type { Provider, SupabaseClient, User } from "@supabase/supabase-js";
 import { setPasswordPath } from "./paths";
@@ -58,9 +59,6 @@ export type SupabaseAuthProvider<TPermissions = RegisteredPermissions> =
       setPassword(params: SetPasswordParams): Promise<void>;
       resetPassword(params: ResetPasswordParams): Promise<void>;
     };
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
 
 export function supabaseAuthProvider<TPermissions = RegisteredPermissions>(
   client: SupabaseClient,

@@ -1,4 +1,5 @@
 import type { UserIdentity } from "../auth/types";
+import { isRecord } from "../guards";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import type { RealtimeTransport } from "./types";
 
@@ -45,9 +46,6 @@ const toError = (error: unknown): Error =>
 
 const sameUser = (a: PresenceUser, b: PresenceUser): boolean =>
   a.id === b.id && a.name === b.name && a.avatar === b.avatar;
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
 
 const isPresenceUser = (value: unknown): value is PresenceUser =>
   isRecord(value) &&
