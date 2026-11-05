@@ -1,30 +1,43 @@
-import type { CheloneFormApi, SourceScope } from "@chelone/core";
-import { rootSourceScope } from "@chelone/core";
+import type {
+  CheloneFormApi,
+  FormContextHandle,
+  FormHandle,
+  SourceScope,
+  UnboundFormHandle,
+} from "@chelone/core";
+import {
+  createFormHandle,
+  rootSourceScope,
+  toFormContextHandle,
+} from "@chelone/core";
 import { createContext, type ReactNode, useContext, useMemo } from "react";
 
 /**
- * The erased form-data shape context transport uses: a React context cannot
- * be generic, so providers widen their `CheloneFormApi<TFormData>` to this.
- * Field paths are runtime strings and field values `unknown`, so nothing
- * downstream (useInput, field bindings) needs the precise type back.
- */
-type UnknownFormValues = Record<string, unknown>;
-
-/**
- * What input consumers need from an ambient form: the FormApi (field bindings
- * hang off it) and the controller's submit pipeline (for submit-on-enter and
- * toolbar buttons — P7 UI). Provided by `<CheloneFormProvider>`.
+ * What input consumers need from an ambient form: the tagged handle (field
+ * bindings hang off `handle.ambient`) and the controller's submit pipeline
+ * (for submit-on-enter and toolbar buttons — P7 UI). Provided by
+ * `<CheloneFormProvider>`.
  */
 export interface CheloneFormContextValue {
-  form: CheloneFormApi<UnknownFormValues>;
+  form: FormContextHandle;
   submit: (() => Promise<void>) | undefined;
 }
 
 const CheloneFormContext = createContext<CheloneFormContextValue | null>(null);
 
+/** The handle of a form no resource owns. */
+function toUnboundHandle(handle: FormHandle<unknown>): UnboundFormHandle {
+  return { ...handle, resource: undefined };
+}
+
 export interface CheloneFormProviderProps<TFormData> {
   /** The form to expose — `useForm`/`useEditForm`/`useCreateForm`'s `.form`. */
   form: CheloneFormApi<TFormData>;
+  /**
+   * The resource the form edits, which tags the handle in context. Leave it out
+   * for a form no resource owns (`useForm`): the handle is then unbound.
+   */
+  resource?: string;
   /** The controller submit pipeline — the hooks' `.submit`. */
   submit?: () => Promise<void>;
   children: ReactNode;
@@ -37,17 +50,20 @@ export interface CheloneFormProviderProps<TFormData> {
  */
 export function CheloneFormProvider<TFormData>({
   form,
+  resource,
   submit,
   children,
 }: CheloneFormProviderProps<TFormData>) {
-  const value = useMemo<CheloneFormContextValue>(
-    () => ({
-      // Erasure cast only — the runtime object is untouched.
-      form: form as unknown as CheloneFormApi<UnknownFormValues>,
+  const value = useMemo<CheloneFormContextValue>(() => {
+    const handle = createFormHandle(form);
+    return {
+      form:
+        resource === undefined
+          ? toUnboundHandle(handle)
+          : toFormContextHandle(handle, resource),
       submit,
-    }),
-    [form, submit],
-  );
+    };
+  }, [form, resource, submit]);
   return (
     <CheloneFormContext.Provider value={value}>
       {children}

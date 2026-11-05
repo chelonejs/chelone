@@ -1,5 +1,5 @@
 import {
-  type CheloneFormApi,
+  type AmbientForm,
   type Identifier,
   type LiveSubscription,
   subscribeLiveRecord,
@@ -38,7 +38,7 @@ function EditLive(props: EditLiveProps) {
 
   const subscriptionRef = useRef<LiveSubscription | null>(null);
   // Set by `<LiveFormSync>`, which mounts once the record has loaded.
-  const formRef = useRef<CheloneFormApi<Record<string, unknown>> | null>(null);
+  const formRef = useRef<AmbientForm | null>(null);
 
   // Subscribed here, not under `<Edit>`, so an event between mount and the
   // record arriving is heard. It is held until the record has loaded: the
@@ -87,18 +87,18 @@ function LiveFormSync({
   formRef,
   subscriptionRef,
 }: {
-  formRef: RefObject<CheloneFormApi<Record<string, unknown>> | null>;
+  formRef: RefObject<AmbientForm | null>;
   subscriptionRef: RefObject<LiveSubscription | null>;
 }) {
-  const { form } = useCheloneFormContext();
-  const clean = useSelector(form.store, isClean);
+  const { ambient } = useCheloneFormContext().form;
+  const clean = useSelector(ambient.store, isClean);
 
   useEffect(() => {
-    formRef.current = form;
+    formRef.current = ambient;
     return () => {
       formRef.current = null;
     };
-  }, [form, formRef]);
+  }, [ambient, formRef]);
 
   useEffect(() => {
     if (clean) subscriptionRef.current?.resume();

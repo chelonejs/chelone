@@ -180,7 +180,7 @@ function Create(props: CreateProps) {
     <CreateContextProvider value={createValue}>
       <SaveContextProvider value={saveValue}>
         <RecordContextProvider value={controller.record}>
-          <CheloneFormProvider form={form} submit={submit}>
+          <CheloneFormProvider form={form} resource={resource} submit={submit}>
             <CreateView {...viewProps}>{children}</CreateView>
           </CheloneFormProvider>
         </RecordContextProvider>

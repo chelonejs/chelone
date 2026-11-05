@@ -35,15 +35,15 @@ export const SearchInput = <RecordType extends LooseRecord = LooseRecord>(
 ) => {
   const { label, className, disableClearable, source = "q", ...rest } = inProps;
 
-  const translate = useTranslate();
-  const { form } = useCheloneFormContext();
   const wrappedSource = useWrappedSource(source);
+  const translate = useTranslate();
+  const { ambient } = useCheloneFormContext().form;
   const fieldValue = useWatch({ name: source });
   const hasValue = fieldValue != null && fieldValue !== "";
 
   const handleClear = useCallback(() => {
-    form.setFieldValue(wrappedSource, "");
-  }, [form, wrappedSource]);
+    ambient.setFieldValue(wrappedSource, "");
+  }, [ambient, wrappedSource]);
 
   if (label) {
     throw new Error(

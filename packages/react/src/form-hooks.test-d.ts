@@ -1,20 +1,27 @@
 import type {
   CheloneFormApi,
   FieldErrors,
+  FormContextHandle,
+  FormContextHandleOf,
+  ResourceFormHandle,
+  SourceValue,
   TranslatableMessage,
+  UnboundFormHandle,
 } from "@chelone/core";
 import { defineResources } from "@chelone/core";
+import type { FocusEvent } from "react";
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import type {
   FormStateSlices,
+  NamedFormHandle,
   UseCreateFormResult,
   UseEditFormResult,
   UseFormControllerResult,
   UseFormResult,
   UseInputResult,
 } from "./form-hooks";
-import { useInput } from "./form-hooks";
+import { useFormHandle, useInput } from "./form-hooks";
 
 const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
@@ -150,5 +157,64 @@ describe("useInput value typing", () => {
       },
       parse: (input) => input,
     });
+  });
+});
+
+describe("useInput result typing", () => {
+  it("field.onBlur takes an optional focus event", () => {
+    expectTypeOf<
+      Parameters<UseInputResult["field"]["onBlur"]>[0]
+    >().toEqualTypeOf<FocusEvent | undefined>();
+  });
+
+  it("field.value is the input type", () => {
+    expectTypeOf<UseInputResult<string>["field"]["value"]>().toBeString();
+  });
+});
+
+/** An explicit resource map: nothing is registered in this program. */
+type Resources = { posts: Post; tags: { label: string } };
+type Handles = FormContextHandleOf<Resources>;
+declare const handle: NamedFormHandle<Handles, "posts">;
+declare const context: Handles;
+
+describe("useFormHandle", () => {
+  it("useFormHandle() is the context union", () => {
+    expectTypeOf(useFormHandle()).toEqualTypeOf<FormContextHandle>();
+    // Nothing is registered here, so the union is the unbound member alone.
+    expectTypeOf(useFormHandle()).toEqualTypeOf<UnboundFormHandle>();
+  });
+
+  it("useFormHandle(name) takes a registered resource only", () => {
+    // @ts-expect-error nothing is registered, so no name is a resource
+    useFormHandle("posts");
+  });
+
+  it("useFormHandle(name) is that resource's handle or undefined", () => {
+    // `useFormHandle(name)` returns `NamedFormHandle<FormContextHandle, name>`;
+    // a global `Register` would leak into every file of this program, so the
+    // union is spelled with an explicit resource map.
+    type Posts = NamedFormHandle<Handles, "posts">;
+    expectTypeOf<Posts>().toEqualTypeOf<
+      ResourceFormHandle<"posts", Partial<Post>> | undefined
+    >();
+    if (handle) {
+      expectTypeOf(handle.getFieldValue("title")).toEqualTypeOf<
+        SourceValue<Partial<Post>, "title">
+      >();
+      expectTypeOf(handle.getFieldValue("title")).not.toBeUnknown();
+      // @ts-expect-error "titel" is not a path of Post
+      handle.getFieldValue("titel");
+    }
+  });
+
+  it("the context union narrows on .resource", () => {
+    if (context.resource === "posts") {
+      expectTypeOf(context).toEqualTypeOf<
+        ResourceFormHandle<"posts", Partial<Post>>
+      >();
+    } else if (context.resource === undefined) {
+      expectTypeOf(context).toEqualTypeOf<UnboundFormHandle>();
+    }
   });
 });

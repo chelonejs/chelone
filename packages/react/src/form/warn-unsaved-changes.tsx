@@ -115,13 +115,13 @@ export function useWarnWhenUnsavedChanges(
   enable: boolean,
   formRootPathname?: string,
 ): WarnWhenUnsavedChangesDecision {
-  const { form } = useCheloneFormContext();
+  const { ambient } = useCheloneFormContext().form;
 
   // Dirty = `!isDefaultValue` (deep-equality baseline), NOT the sticky
   // `isDirty` (ground truth #7). `isSubmitSuccessful` clears the block after a
   // successful save (ra-core parity: the redirect-in-onSuccess same-tick race).
-  const isDefaultValue = useSelector(form.store, (s) => s.isDefaultValue);
-  const justSubmitted = useSelector(form.store, (s) => s.isSubmitSuccessful);
+  const isDefaultValue = useSelector(ambient.store, (s) => s.isDefaultValue);
+  const justSubmitted = useSelector(ambient.store, (s) => s.isSubmitSuccessful);
   const dirty = !isDefaultValue;
   const shouldBlockNav = enable && dirty && !justSubmitted;
 

@@ -53,7 +53,7 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
       suppressHtmlProcessing?: boolean;
       onError?: (payload: { error: string; source: string }) => void;
       onChange?: (markdown: string, initialMarkdownNormalize: boolean) => void;
-      onBlur?: () => void;
+      onBlur?: (event: FocusEvent) => void;
     }
   >(function MDXEditor(props, ref) {
     // Uncontrolled like the real editor: only the first `markdown` is read.
@@ -89,7 +89,10 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
         <button type="button" onClick={() => edit("- item", true)}>
           normalize
         </button>
-        <button type="button" onClick={() => props.onBlur?.()}>
+        <button
+          type="button"
+          onClick={() => props.onBlur?.(new FocusEvent("blur"))}
+        >
           blur
         </button>
       </div>
@@ -311,6 +314,16 @@ describe("<MdxInput />", () => {
     expect(handle.form.getFieldMeta("body")?.isTouched).toBeFalsy();
     fireEvent.click(screen.getByText("blur"));
     expect(handle.form.getFieldMeta("body")?.isTouched).toBe(true);
+  });
+
+  it("passes the editor's blur event to the onBlur prop", () => {
+    const onBlur = vi.fn();
+    setup(<MdxInput source="body" onBlur={onBlur} />, {
+      defaultValues: { body: "x" },
+    });
+    fireEvent.click(screen.getByText("blur"));
+    expect(onBlur).toHaveBeenCalledTimes(1);
+    expect(onBlur.mock.calls[0]?.[0]).toBeInstanceOf(FocusEvent);
   });
 
   it("passes suppressHtmlProcessing to the editor by default", () => {
