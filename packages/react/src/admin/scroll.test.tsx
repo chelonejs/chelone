@@ -21,7 +21,7 @@ import {
 import { AdminContext } from "./admin-context";
 import { RestoreScrollPosition, useScrollToTop } from "./scroll";
 
-let scrollToSpy: MockInstance<typeof window.scrollTo>;
+let scrollToSpy: MockInstance<Window["scrollTo"]>;
 
 beforeAll(() => {
   vi.useFakeTimers();
