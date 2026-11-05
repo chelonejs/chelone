@@ -3,7 +3,7 @@
   "props": [
     {
       "name": "authProvider",
-      "type": "AuthProvider<unknown>",
+      "type": "AuthProvider<AppPermissions>",
       "optional": true,
       "comment": ""
     },

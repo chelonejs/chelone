@@ -21,7 +21,7 @@
     },
     {
       "name": "authProvider",
-      "type": "AuthProvider<unknown>",
+      "type": "AuthProvider<AppPermissions>",
       "optional": true,
       "comment": "The optional auth provider (gates the shell when `requireAuth`)."
     },
@@ -93,7 +93,7 @@
     },
     {
       "name": "permissions",
-      "type": "unknown",
+      "type": "AppPermissions",
       "optional": true,
       "comment": "The app's permissions, passed to the function-child + registration."
     },

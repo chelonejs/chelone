@@ -94,7 +94,7 @@ describe("usePermissions", () => {
       getPermissions: async () => ["admin", "editor"],
     });
     const { wrapper } = makeWrapper({ authProvider });
-    const { result } = renderHook(() => usePermissions<string[]>(), {
+    const { result } = renderHook(() => usePermissions(), {
       wrapper,
     });
     await waitFor(() =>

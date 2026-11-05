@@ -14,6 +14,7 @@
 
 import {
   createResourceRegistry,
+  type RegisteredPermissions,
   type ResourceDefinition,
   type ResourceDefinitionMap,
   type ResourceRegistry,
@@ -40,7 +41,7 @@ interface ResourceMarkerType {
   chelName: "Resource";
   registerResource: (
     props: ResourceProps,
-    permissions: unknown,
+    permissions: RegisteredPermissions | undefined,
   ) => ResourceDefinition;
 }
 
@@ -246,7 +247,7 @@ function optionsSignature(
  */
 export function useRegisterResources(
   children: ReactNode,
-  permissions: unknown,
+  permissions: RegisteredPermissions | undefined,
 ): void {
   const registry = useResourceRegistry();
   const resources = collectResourceElements(children);

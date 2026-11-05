@@ -22,6 +22,7 @@
  * can gate its resources on permissions.
  */
 
+import type { RegisteredPermissions } from "@chelone/core";
 import {
   Children,
   Fragment,
@@ -149,7 +150,9 @@ export function partitionChildren(children: ReactNode): PartitionedChildren {
  */
 export type AdminChildren =
   | ReactNode
-  | ((permissions: unknown) => ReactNode | Promise<ReactNode>);
+  | ((
+      permissions: RegisteredPermissions | undefined,
+    ) => ReactNode | Promise<ReactNode>);
 
 /** The status of the async children resolution. */
 export type AdminChildrenStatus = "loading" | "ready";
@@ -185,23 +188,15 @@ export interface UseAdminChildrenResult {
  */
 export function useResolvedChildren(
   children: AdminChildren,
-  permissions: unknown,
+  permissions: RegisteredPermissions | undefined,
 ): UseResolvedChildrenResult {
-  const isFunction = typeof children === "function";
-
   // For a function-child, invoke it once (in render) to see if it is sync (a
-  // node) or async (a thenable). A sync result is used immediately; a thenable
+  // node) or async (a promise). A sync result is used immediately; a promise
   // is awaited in the effect below.
-  const invoked = useMemo(() => {
-    if (!isFunction) return null;
-    return (
-      children as (permissions: unknown) => ReactNode | Promise<ReactNode>
-    )(permissions);
-  }, [isFunction, children, permissions]);
-
-  const isThenable =
-    invoked != null &&
-    typeof (invoked as { then?: unknown }).then === "function";
+  const invoked = useMemo(
+    () => (typeof children === "function" ? children(permissions) : null),
+    [children, permissions],
+  );
 
   // Async function-child resolution: hold the resolved node + status.
   const [asyncState, setAsyncState] = useState<UseResolvedChildrenResult>({
@@ -210,26 +205,26 @@ export function useResolvedChildren(
   });
 
   useEffect(() => {
-    if (!isFunction || !isThenable) return;
+    if (!(invoked instanceof Promise)) return;
     let cancelled = false;
     // Reset to loading for a fresh promise (permissions changed).
     setAsyncState({ status: "loading", node: null });
-    (invoked as Promise<ReactNode>).then((resolved) => {
+    Promise.resolve(invoked).then((resolved) => {
       if (cancelled) return; // stale resolve discarded
       setAsyncState({ status: "ready", node: resolved });
     });
     return () => {
       cancelled = true;
     };
-  }, [isFunction, isThenable, invoked]);
+  }, [invoked]);
 
-  if (!isFunction) {
-    return { status: "ready", node: children as ReactNode };
+  if (typeof children !== "function") {
+    return { status: "ready", node: children };
   }
-  if (!isThenable) {
-    return { status: "ready", node: invoked as ReactNode };
+  if (invoked instanceof Promise) {
+    return asyncState;
   }
-  return asyncState;
+  return { status: "ready", node: invoked };
 }
 
 /**
@@ -240,7 +235,7 @@ export function useResolvedChildren(
  */
 export function useAdminChildren(
   children: AdminChildren,
-  permissions: unknown,
+  permissions: RegisteredPermissions | undefined,
 ): UseAdminChildrenResult {
   const { status, node } = useResolvedChildren(children, permissions);
   const parts = useMemo(

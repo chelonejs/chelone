@@ -6,6 +6,7 @@
 
 import type {
   ComputeDefinitionProps,
+  RegisteredPermissions,
   ResourceDefinition,
   ResourceRecord,
 } from "@chelone/core";
@@ -38,10 +39,10 @@ describe("Resource static contract", () => {
     expectTypeOf<
       Parameters<typeof Resource.registerResource>[0]
     >().toEqualTypeOf<ResourceProps>();
-    // permissions is unknown (never any).
+    // permissions is the registered type, or undefined when `<Admin>` has none.
     expectTypeOf<
       Parameters<typeof Resource.registerResource>[1]
-    >().toEqualTypeOf<unknown>();
+    >().toEqualTypeOf<RegisteredPermissions | undefined>();
   });
 
   it("chelName marker is the literal 'Resource'", () => {

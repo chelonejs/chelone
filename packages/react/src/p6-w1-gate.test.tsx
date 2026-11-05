@@ -19,7 +19,7 @@
  *     call-count 0 until authed).
  */
 
-import type { AuthProvider } from "@chelone/core";
+import type { AuthProvider, RegisteredPermissions } from "@chelone/core";
 import {
   createResourceRegistry,
   fakeDataProvider,
@@ -248,7 +248,7 @@ function MountResources({
   permissions,
 }: {
   children: React.ReactNode;
-  permissions?: unknown;
+  permissions?: RegisteredPermissions;
 }) {
   useRegisterResources(children, permissions);
   return null;
