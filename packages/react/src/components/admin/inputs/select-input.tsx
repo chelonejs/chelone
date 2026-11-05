@@ -260,7 +260,7 @@ function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
                 <SelectItem
                   key={String(value)}
                   value={value != null ? String(value) : ""}
-                  disabled={isDisabled === true}
+                  disabled={isDisabled}
                 >
                   {getChoiceText(choice)}
                 </SelectItem>
