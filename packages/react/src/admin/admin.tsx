@@ -28,6 +28,7 @@ import {
   type AnyCheloneI18n,
   createI18n,
   englishMessages,
+  type RegisteredPermissions,
   type ResourceMap,
 } from "@chelone/core";
 import { type ReactNode, useRef } from "react";
@@ -67,7 +68,7 @@ export interface AdminProps<TResources extends ResourceMap = ResourceMap>
   /** Gate the shell on auth (the no-flash gate — consumed by W1-T7). */
   requireAuth?: boolean;
   /** The app's permissions, passed to the function-child + registration. */
-  permissions?: unknown;
+  permissions?: RegisteredPermissions;
   /**
    * Resources / custom routes / page-slot markers — OR a single
    * `(permissions) => node | Promise<node>` function-child (parity §0a-9).
@@ -104,7 +105,7 @@ function AdminInner({
   adminChildren,
 }: {
   requireAuth: boolean;
-  permissions: unknown;
+  permissions: RegisteredPermissions | undefined;
   slotProps: AdminSlotProps;
   adminChildren: AdminChildren;
 }): ReactNode {

@@ -8,6 +8,7 @@ import {
   getListOptions,
   getManyOptions,
 } from "../data/query-options";
+import { removeEmpty } from "../data/remove-empty";
 import type {
   FilterPayload,
   GetListResult,
@@ -109,16 +110,6 @@ const DEFAULT_DEBOUNCE_MS = 500;
 const DEFAULT_SORT: SortPayload = { field: "id", order: "DESC" };
 /** perPage for the non-id selected getList — generous, real values sets are small. */
 const SELECTED_LIST_PER_PAGE = 1000;
-
-/** Strips `''`, `null` and `undefined` values. Always returns a FRESH object. */
-function removeEmpty(filter: FilterPayload): FilterPayload {
-  const result: FilterPayload = {};
-  for (const [key, value] of Object.entries(filter)) {
-    if (value === "" || value === null || value === undefined) continue;
-    result[key] = value;
-  }
-  return result;
-}
 
 function errorMessageKey(error: Error): string {
   return error.message || "chelone.notification.http_error";
