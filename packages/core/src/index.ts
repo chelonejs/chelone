@@ -580,13 +580,20 @@ export {
   isGeoFeatureCollection,
   isGeoGeometry,
   isGeoJsonValue,
+  placedFeatures,
 } from "./geo/geojson";
 export {
   areaInTypeOf,
   geoAreaM2,
   hasSelfIntersection,
 } from "./geo/geometry-math";
-export type { ShapeLayerSpec, ShapeStyle } from "./geo/map-layers";
+export type {
+  CircleLayerSpec,
+  FillLayerSpec,
+  LineLayerSpec,
+  ShapeLayerSpec,
+  ShapeStyle,
+} from "./geo/map-layers";
 export {
   asFeatureCollection,
   DEFAULT_SHAPE_STYLE,
