@@ -5,6 +5,7 @@ import {
   type FormValidateOrFn,
   revalidateLogic,
   type StandardSchemaV1,
+  type ValidationErrorMap,
 } from "@tanstack/form-core";
 import type { NotificationStore } from "../notification/notification-store";
 import { createFormHandle, type FormHandle } from "./form-handle";
@@ -263,11 +264,11 @@ export function createFormController<TRecord>(
     }
     // 2. Sanitize (ra semantics, top-level only, record baseline).
     const data = options.sanitizeEmptyValues
-      ? sanitizeEmptyValues(value as TRecord & object, options.getRecord?.())
+      ? sanitizeEmptyValues(value, options.getRecord?.())
       : value;
     // 3. Save — the P4 contract resolves fieldErrors, never rejects for
     // provider errors. `root` is the reserved form-level key (D4).
-    const fieldErrors = await options.save(data as TRecord);
+    const fieldErrors = await options.save(data);
     const mapped = toFormErrorMapValue(fieldErrors);
     if (mapped) {
       // The onSubmit key — NEVER onServer, which would stick forever — so
@@ -281,7 +282,7 @@ export function createFormController<TRecord>(
     // rewrites options.defaultValues -> isDefaultValue true). The composed
     // controllers pass resetOnSuccess: false and reset with SERVER truth.
     if (options.resetOnSuccess !== false) form.reset(value);
-    await options.onSuccess?.(data as TRecord);
+    await options.onSuccess?.(data);
   };
 
   const onSubmitInvalid: CheloneFormOptions<TRecord>["onSubmitInvalid"] = (
@@ -409,8 +410,9 @@ function displayableRoot(
 }
 
 /** First displayable form-level error across the error-map keys, submit-first. */
-function firstFormLevelError(errorMap: object): unknown {
-  const map = errorMap as Record<string, unknown>;
+function firstFormLevelError(
+  errorMap: ValidationErrorMap,
+): string | TranslatableMessage | undefined {
   for (const key of [
     "onSubmit",
     "onDynamic",
@@ -418,8 +420,8 @@ function firstFormLevelError(errorMap: object): unknown {
     "onBlur",
     "onMount",
     "onServer",
-  ]) {
-    const candidate = displayableRoot(map[key]);
+  ] as const) {
+    const candidate = displayableRoot(errorMap[key]);
     if (candidate !== undefined) return candidate;
   }
   return undefined;

@@ -1,3 +1,4 @@
+import type { FormValidateOrFn } from "@tanstack/form-core";
 import { expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import {
@@ -8,6 +9,11 @@ import {
   normalizeFormError,
   type TranslatableMessage,
 } from "./form-controller";
+import {
+  type ComposeFormValidatorConfig,
+  composeFormValidator,
+  type FormErrorMapValue,
+} from "./save-pipeline";
 
 interface PostDraft {
   title: string;
@@ -88,4 +94,35 @@ it("the T2 pipeline options are precisely typed (no any)", () => {
   expectTypeOf<
     FormControllerOptions<PostDraft>["notifications"]
   >().not.toBeAny();
+});
+
+interface Comment {
+  body: string;
+}
+
+it("composeFormValidator keeps the user's form-core validator type", () => {
+  expectTypeOf<
+    ComposeFormValidatorConfig<PostDraft>["userValidator"]
+  >().toEqualTypeOf<FormValidateOrFn<PostDraft> | undefined>();
+
+  const forPost: FormValidateOrFn<PostDraft> = ({ value }) =>
+    value.title ? undefined : "title required";
+  const forComment: FormValidateOrFn<Comment> = ({ value }) =>
+    value.body ? undefined : "body required";
+
+  composeFormValidator<PostDraft>({ userValidator: forPost });
+  composeFormValidator<PostDraft>({
+    // @ts-expect-error -- a validator for Comment does not validate a PostDraft
+    userValidator: forComment,
+  });
+});
+
+it("composeFormValidator returns a validator of form-core's props and the error-map value", () => {
+  const composed = composeFormValidator<PostDraft>({
+    validate: () => undefined,
+  });
+  expectTypeOf(composed).not.toBeAny();
+  expectTypeOf<NonNullable<typeof composed>>().returns.toEqualTypeOf<
+    FormErrorMapValue | undefined
+  >();
 });
