@@ -21,8 +21,6 @@ export function TabItem({ children }: TabItemProps) {
   return <>{children}</>;
 }
 
-TabItem.displayName = "TabItem";
-
 // ── Tabs ─────────────────────────────────────────────────────────────────────
 
 interface TabsProps {
@@ -30,10 +28,7 @@ interface TabsProps {
 }
 
 function isTabItem(node: ReactNode): node is ReactElement<TabItemProps> {
-  return (
-    isValidElement(node) &&
-    (node.type as { displayName?: string }).displayName === "TabItem"
-  );
+  return isValidElement(node) && node.type === TabItem;
 }
 
 export function Tabs({ children }: TabsProps) {
@@ -66,7 +61,7 @@ export function Tabs({ children }: TabsProps) {
         className="flex border-b border-border/30 bg-muted/30 overflow-x-auto"
       >
         {items.map((item, i) => {
-          const label = (item.props as TabItemProps).label;
+          const label = item.props.label;
           const selected = i === active;
           return (
             <button
@@ -98,7 +93,7 @@ export function Tabs({ children }: TabsProps) {
       {/* Panels */}
       {items.map((item, i) => (
         <div
-          key={(item.props as TabItemProps).label}
+          key={item.props.label}
           id={`${uid}-panel-${i}`}
           role="tabpanel"
           aria-labelledby={`${uid}-tab-${i}`}

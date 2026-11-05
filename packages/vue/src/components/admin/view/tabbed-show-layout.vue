@@ -159,7 +159,7 @@ export default defineComponent({
 
       const descriptors = tabNodes.map(
         (node, index): TabbedShowLayoutTabDescriptor => ({
-          value: segments[index] as string,
+          value: segments[index] ?? "",
           label: String(node.props?.label),
           icon: node.props?.icon,
           count: node.props?.count,

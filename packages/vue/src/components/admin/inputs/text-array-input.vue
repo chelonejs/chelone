@@ -5,7 +5,7 @@ import type { SourceProp, Validator } from "@chelone/core";
 export interface TextArrayInputProps {
   source: SourceProp;
   label?: string | false;
-  defaultValue?: unknown;
+  defaultValue?: readonly string[];
   validate?: Validator | readonly Validator[];
   placeholder?: string;
   disabled?: boolean;
@@ -29,6 +29,7 @@ export interface TextArrayInputProps {
  * tests exercise. The dropdown can layer on once those primitives land.
  */
 
+import { toTextList } from "@chelone/core";
 import { computed, ref } from "vue";
 import { useInput } from "../../../form/use-input";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -43,20 +44,25 @@ const props = withDefaults(defineProps<TextArrayInputProps>(), {
   label: undefined,
 });
 
-const emptyArray: string[] = [];
-
-const { id, value, setValue, blur, error, touched, isRequired } = useInput({
+const {
+  id,
+  value: values,
+  setValue,
+  blur,
+  error,
+  touched,
+  isRequired,
+} = useInput<unknown, string, string[]>({
   source: props.source,
   defaultValue: props.defaultValue,
   validate: props.validate,
-  // A nullish stored value renders as an empty tag list, not `''`.
-  format: (raw: unknown) => raw ?? emptyArray,
+  // A stored non-array renders as an empty tag list, not `''`.
+  format: toTextList,
 });
 
 const translate = useTranslate();
 const inputValue = ref("");
 
-const values = computed<string[]>(() => (value.value as string[]) ?? emptyArray);
 const invalid = computed(() => touched.value && error.value != null);
 const labelText = computed(() =>
   props.label === false ? null : (props.label ?? humanizeSource(props.source)),

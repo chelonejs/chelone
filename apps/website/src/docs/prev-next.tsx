@@ -1,10 +1,11 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link } from "react-router";
+import { lastSegment } from "./nav";
 import { navTree } from "./nav-content";
 import { leafTitle, prevNext } from "./nav-sequence";
 
 const titleOf = (slug: string): string =>
-  leafTitle(slug, navTree) ?? slug.split("/").pop()!;
+  leafTitle(slug, navTree) ?? lastSegment(slug);
 
 export function PrevNext({ slug }: { slug: string }) {
   const { prev, next } = prevNext(slug, navTree);

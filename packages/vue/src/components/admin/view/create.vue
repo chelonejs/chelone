@@ -90,8 +90,8 @@ const form = useForm<Record<string, unknown>>({
   onSubmit: async (data): Promise<FieldErrors | undefined> => {
     const errors = await create.save(data, {
       onSaved: async (saved) => {
-        form.reset(saved as Record<string, unknown>);
-        await props.onSuccess?.(saved as Record<string, unknown>);
+        form.reset(saved);
+        await props.onSuccess?.(saved);
       },
     });
     if (!errors && props.redirectOnSave) {

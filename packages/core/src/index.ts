@@ -582,22 +582,6 @@ export {
   geocodeQueryOptions,
   reverseGeocodeQueryOptions,
 } from "./geo/geocoding";
-export type {
-  GeoBBox,
-  GeoBBox3D,
-  GeoFeature,
-  GeoFeatureCollection,
-  GeoGeometry,
-  GeoGeometryCollection,
-  GeoJsonValue,
-  GeoLineString,
-  GeoMultiLineString,
-  GeoMultiPoint,
-  GeoMultiPolygon,
-  GeoPoint,
-  GeoPolygon,
-  GeoPosition,
-} from "./geo/geojson";
 export {
   isGeoArea,
   isGeoBBox,

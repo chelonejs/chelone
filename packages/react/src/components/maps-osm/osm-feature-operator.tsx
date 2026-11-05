@@ -2,6 +2,7 @@ import {
   areaInTypeOf,
   geoAreaM2,
   geoBounds,
+  isGeoArea,
   type LooseRecord,
   type OsmPresetName,
   type OsmTagInput,
@@ -10,7 +11,7 @@ import {
   type SourceProp,
 } from "@chelone/core";
 import { useQueryClient } from "@tanstack/react-query";
-import type { Geometry } from "geojson";
+import type { MultiPolygon, Polygon } from "geojson";
 import { Eraser, Plus } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -22,8 +23,6 @@ import { useNotify } from "../../notification-hooks";
 import { useMapsConfig } from "../maps/maps-provider";
 import { fetchOsmFeatures } from "./osm-features";
 import { subtractMask, unionAll } from "./osm-geometry-ops";
-
-type Area = Extract<Geometry, { type: "Polygon" | "MultiPolygon" }>;
 
 export interface OsmFeatureOperatorProps<TRecord = LooseRecord> {
   /** The form field holding the Polygon or MultiPolygon. */
@@ -43,13 +42,13 @@ export interface OsmFeatureOperatorProps<TRecord = LooseRecord> {
   className?: string;
 }
 
-const isArea = (value: unknown): value is Area => {
-  const type = (value as { type?: unknown } | null)?.type;
-  return type === "Polygon" || type === "MultiPolygon";
-};
-
+/**
+ * The failure of an aborted request. jsdom and browsers reject with a
+ * `DOMException`, which is not an `Error`, so both are tested.
+ */
 const isAbort = (error: unknown) =>
-  (error as { name?: unknown } | null)?.name === "AbortError";
+  (error instanceof Error || error instanceof DOMException) &&
+  error.name === "AbortError";
 
 /** Square kilometres to 3 decimals, from a difference in square metres. */
 const km2 = (m2: number) => `${(Math.max(0, m2) / 1e6).toFixed(3)} km²`;
@@ -94,7 +93,7 @@ export function OsmFeatureOperator<TRecord = LooseRecord>({
   const controller = useRef<AbortController | null>(null);
   useEffect(() => () => controller.current?.abort(), []);
 
-  const write = (geometry: Area | null) => {
+  const write = (geometry: Polygon | MultiPolygon | null) => {
     field.onChange(geometry);
     field.onBlur();
   };
@@ -105,7 +104,7 @@ export function OsmFeatureOperator<TRecord = LooseRecord>({
       notify("chelone.map.osm.no_sources", { type: "warning" });
       return;
     }
-    if (!isArea(value)) {
+    if (!isGeoArea(value)) {
       notify("chelone.map.osm.no_polygon", { type: "warning" });
       return;
     }

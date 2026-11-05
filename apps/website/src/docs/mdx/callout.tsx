@@ -31,7 +31,7 @@ const LABEL: Record<CalloutType, string> = {
 };
 
 export function Callout({ type = "note", children }: CalloutProps) {
-  const t = type in STYLES ? type : ("note" as CalloutType);
+  const t: CalloutType = type in STYLES ? type : "note";
   return (
     <aside
       className={cn("my-4 flex gap-3 rounded-lg border p-4", STYLES[t])}

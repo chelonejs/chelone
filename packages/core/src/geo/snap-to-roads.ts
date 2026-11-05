@@ -1,4 +1,6 @@
 import type { LineString, Position } from "geojson";
+import { isRecord } from "../guards";
+import { isGeoGeometry } from "./geojson";
 
 export interface RoutingProvider {
   name: string;
@@ -23,9 +25,23 @@ export interface OsrmProviderOptions {
 /** The match service rejects a request with more coordinates than this; a longer line is matched in chunks. */
 const OSRM_MAX_POSITIONS = 100;
 
-interface OsrmMatchResponse {
-  code?: unknown;
-  matchings?: { geometry?: { type?: unknown; coordinates?: unknown } }[];
+/**
+ * The line OSRM matched to one chunk, or `null` when the answer is not a
+ * single LineString of finite coordinates it can hand back.
+ */
+function matchedLine(body: unknown): Position[] | null {
+  if (!isRecord(body) || body.code !== "Ok") return null;
+  // A trace OSRM could not join comes back as several pieces; one of them is
+  // not the whole line, so the caller keeps its own.
+  if (!Array.isArray(body.matchings) || body.matchings.length !== 1) {
+    return null;
+  }
+  const matching = body.matchings[0];
+  if (!isRecord(matching)) return null;
+  const geometry = matching.geometry;
+  if (!isGeoGeometry(geometry) || geometry.type !== "LineString") return null;
+  // A match with no positions is no line for the caller to draw.
+  return geometry.coordinates.length === 0 ? null : geometry.coordinates;
 }
 
 export function createOsrmProvider(
@@ -53,20 +69,7 @@ export function createOsrmProvider(
         { signal },
       );
       if (!response.ok) return null;
-      const body = (await response.json()) as OsrmMatchResponse;
-      if (body?.code !== "Ok") return null;
-      // A trace OSRM could not join comes back as several pieces; one of
-      // them is not the whole line, so the caller keeps its own.
-      if (body.matchings?.length !== 1) return null;
-      const geometry = body.matchings[0]?.geometry;
-      if (
-        geometry?.type !== "LineString" ||
-        !Array.isArray(geometry.coordinates) ||
-        geometry.coordinates.length === 0
-      ) {
-        return null;
-      }
-      return geometry.coordinates as Position[];
+      return matchedLine(await response.json());
     } catch (error) {
       if (signal?.aborted) throw error;
       return null;

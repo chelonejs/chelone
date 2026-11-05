@@ -1,7 +1,7 @@
 // Build-time glob wiring (import.meta.glob — Vite only, not node:test).
 // Kept separate from nav.ts so pure buildNavTree is testable with node --test.
 import type { ComponentType } from "react";
-import { buildNavTree } from "./nav";
+import { buildNavTree, lastSegment } from "./nav";
 import type { MetaEntry } from "./types";
 
 interface PageModule {
@@ -69,5 +69,5 @@ export { buildNavTree };
 export const navTree = buildNavTree(
   docSlugs,
   collectedMetas,
-  (slug) => titleBySlug.get(slug) ?? slug.split("/").pop()!,
+  (slug) => titleBySlug.get(slug) ?? lastSegment(slug),
 );

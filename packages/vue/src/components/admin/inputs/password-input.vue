@@ -4,7 +4,7 @@ export interface PasswordInputProps {
   source: SourceProp;
   label?: string | false;
   initiallyVisible?: boolean;
-  defaultValue?: unknown;
+  defaultValue?: string;
   validate?: Validator | readonly Validator[];
   helperText?: string;
   placeholder?: string;
