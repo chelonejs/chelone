@@ -84,7 +84,7 @@ export default defineComponent({
     const self = getCurrentInstance()?.type;
     return () => {
       const child = firstNode(slots.default?.() ?? []);
-      const childProps = (child?.props ?? {}) as LabeledProps;
+      const childProps = child?.props ?? {};
       // Text and native elements have a string or symbol type.
       const labelsItself =
         child != null &&

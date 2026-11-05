@@ -49,9 +49,7 @@ const getRecordRepresentation = useGetRecordRepresentation(resource);
 const defaultTitle = computed(() => getRecordRepresentation(show.record));
 
 // Publish the record for slotted display fields (reactive — hydrates async).
-provideRecordContext(
-  computed(() => show.record as Record<string, unknown> | undefined),
-);
+provideRecordContext(computed(() => show.record));
 </script>
 
 <template>
