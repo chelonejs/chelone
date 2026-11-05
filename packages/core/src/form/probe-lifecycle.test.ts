@@ -714,6 +714,7 @@ describe("probe F: overlapping submits", () => {
       { status: "fulfilled", value: undefined },
       { status: "fulfilled", value: undefined },
     ]);
+    expect(savedRecords).toHaveLength(1);
     // Reset landed: the form is rebaselined on the submitted values, clean.
     expect(controller.form.state.values.title).toBe("edited");
     expect(controller.form.state.isDefaultValue).toBe(true);

@@ -12,7 +12,7 @@ so no workflow in this repository deploys it.
 | Build command | `pnpm install --frozen-lockfile && pnpm build` |
 | Output folder | `apps/website/build/client` |
 | Root directory | the repository root |
-| Environment variables | `NODE_VERSION=24`, `PNPM_VERSION=10.14.0` (production and preview) |
+| Environment variables | `NODE_VERSION=26`, `PNPM_VERSION=12.16.1` (production and preview) |
 | Custom domain | `chelone.dev`, a proxied `CNAME` to `chelone.pages.dev` in the `chelone.dev` zone |
 
 Every push to `main` deploys production. Every other branch, and every pull request, gets a

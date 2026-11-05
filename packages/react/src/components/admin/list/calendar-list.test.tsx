@@ -417,24 +417,27 @@ describe("<CalendarList> month view", () => {
       new Date(2026, 5, 28),
       new Date(2026, 7, 1, 23, 59, 59, 999),
     ],
-  ])("removes a range filter a reloaded URL held for %s", async (_name, start, end) => {
-    const filter = JSON.stringify({
-      end_gte: start.toISOString(),
-      start_lte: end.toISOString(),
-    });
-    mount(<Toggled />, {
-      url: `/?filter=${encodeURIComponent(filter)}&perPage=1000`,
-    });
-    await screen.findByText("Standup");
+  ])(
+    "removes a range filter a reloaded URL held for %s",
+    async (_name, start, end) => {
+      const filter = JSON.stringify({
+        end_gte: start.toISOString(),
+        start_lte: end.toISOString(),
+      });
+      mount(<Toggled />, {
+        url: `/?filter=${encodeURIComponent(filter)}&perPage=1000`,
+      });
+      await screen.findByText("Standup");
 
-    fireEvent.click(screen.getByRole("button", { name: "hide calendar" }));
+      fireEvent.click(screen.getByRole("button", { name: "hide calendar" }));
 
-    await waitFor(() =>
-      expect(screen.getByTestId("params").textContent).toBe(
-        JSON.stringify({ perPage: 25, filter: {} }),
-      ),
-    );
-  });
+      await waitFor(() =>
+        expect(screen.getByTestId("params").textContent).toBe(
+          JSON.stringify({ perPage: 25, filter: {} }),
+        ),
+      );
+    },
+  );
 
   it("drops a start_gte a list URL kept from before endSource bounded the end", async () => {
     const stale = JSON.stringify({

@@ -176,7 +176,7 @@ describe("describeResource", () => {
   it("marks object, record, tuple and array of objects unsupported with a reason", () => {
     const fields = fieldsOf({
       object: z.object({ a: z.string() }),
-      record: z.record(z.string()),
+      record: z.record(z.string(), z.string()),
       tuple: z.tuple([z.string(), z.number()]),
       objects: z.array(z.object({ a: z.string() })),
       numbers: z.array(z.number()),
