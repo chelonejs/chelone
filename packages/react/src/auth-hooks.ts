@@ -7,7 +7,12 @@ import {
   permissionsQueryOptions,
   type UserIdentity,
 } from "@chelone/core";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  type QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
 import { useCheloneAuthProvider, useCheloneContext } from "./context";
 import { type Redirect, useRedirectOptional } from "./router/nav-hooks";
@@ -83,7 +88,7 @@ export interface UsePermissionsResult<PermissionsType = unknown> {
   /** Whether the permissions query is in flight (always `false` when unconfigured). */
   isPending: boolean;
   /** The error, if the provider's `getPermissions` rejected. */
-  error: unknown;
+  error: Error | null;
   /** Re-run the permissions query. */
   refetch: () => void;
 }
@@ -234,7 +239,7 @@ export function useLogoutIfAccessDenied(): LogoutIfAccessDenied {
 }
 
 /** True when a react-query key belongs to the auth subsystem (`["auth", …]`). */
-function isAuthQueryKey(key: unknown): boolean {
+function isAuthQueryKey(key: QueryKey): boolean {
   return Array.isArray(key) && key[0] === "auth";
 }
 
