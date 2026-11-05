@@ -1,4 +1,6 @@
 <script lang="ts">
+import type { TranslateParamValues } from "@chelone/core";
+
 /** Props for {@link Confirm}. */
 export interface ConfirmProps {
   /** Whether the dialog is open. Default `false`. */
@@ -16,7 +18,7 @@ export interface ConfirmProps {
   /** `"warning"` tints the confirm button destructive. Default `"primary"`. */
   confirmColor?: "primary" | "warning";
   /** Interpolation params merged into the title/content translation (e.g. `smart_count`). */
-  translateOptions?: Record<string, unknown>;
+  translateOptions?: TranslateParamValues;
   /** Extra CSS class appended to the dialog panel. */
   class?: string;
 }

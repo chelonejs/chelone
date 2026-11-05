@@ -19,6 +19,7 @@
  */
 
 import {
+  definedParams,
   type Identifier,
   type LooseRecord,
   type MutationMode,
@@ -148,33 +149,33 @@ function DeleteButton(props: DeleteButtonProps) {
   const label = useResourceTranslation({
     resourceI18nKey: `resources.${resource}.action.delete`,
     baseI18nKey: "ra.action.delete",
-    options: {
+    options: definedParams({
       _: "Delete",
       name: resourceName,
       recordRepresentation,
-    },
+    }),
     userText: labelProp,
   });
   const confirmTitle = useResourceTranslation({
     resourceI18nKey: `resources.${resource}.message.delete_title`,
     baseI18nKey: "ra.message.delete_title",
-    options: {
+    options: definedParams({
       _: "Delete %{name} %{recordRepresentation}",
       recordRepresentation,
       name: resourceName,
       id: record?.id,
-    },
+    }),
     userText: confirmTitleProp,
   });
   const confirmContent = useResourceTranslation({
     resourceI18nKey: `resources.${resource}.message.delete_content`,
     baseI18nKey: "ra.message.delete_content",
-    options: {
+    options: definedParams({
       _: "Are you sure you want to delete this item?",
       recordRepresentation,
       name: resourceName,
       id: record?.id,
-    },
+    }),
     userText: confirmContentProp,
   });
 

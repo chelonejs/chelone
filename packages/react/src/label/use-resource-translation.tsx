@@ -13,6 +13,7 @@
  * translated `baseI18nKey`, matching the `resolveNotificationKey` convention.
  */
 
+import type { TranslateParamValues } from "@chelone/core";
 import { type ReactNode, useMemo } from "react";
 import { useTranslate } from "../i18n-hooks";
 
@@ -20,7 +21,7 @@ export interface UseResourceTranslationOptions {
   resourceI18nKey?: string;
   baseI18nKey: string;
   userText?: ReactNode;
-  options?: Record<string, unknown>;
+  options?: TranslateParamValues;
 }
 
 export function useResourceTranslation(

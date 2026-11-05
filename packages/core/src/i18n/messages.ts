@@ -5,6 +5,36 @@ export type PluralMessage = Partial<Record<Intl.LDMLPluralRule, string>> & {
 export type MessageValue = string | PluralMessage;
 export type MessageCatalog = Record<string, MessageValue>;
 
+/** The values a message placeholder takes; one type for typed catalogs and the erased view. */
+export type TranslateParamValues = Record<string, string | number>;
+
+/** Boundary narrowing for `unknown` input: keeps the string and number entries of a plain object, `undefined` for anything else. */
+export function pickTranslateParamValues(
+  value: unknown,
+): TranslateParamValues | undefined {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return undefined;
+  }
+  const picked: TranslateParamValues = {};
+  for (const [name, entry] of Object.entries(value)) {
+    if (typeof entry === "string" || typeof entry === "number") {
+      picked[name] = entry;
+    }
+  }
+  return picked;
+}
+
+/** Drops absent values: an `undefined` param would otherwise render as the text "undefined". */
+export function definedParams(
+  params: Record<string, string | number | undefined>,
+): TranslateParamValues {
+  const defined: TranslateParamValues = {};
+  for (const [name, value] of Object.entries(params)) {
+    if (value !== undefined) defined[name] = value;
+  }
+  return defined;
+}
+
 /** Identity helper pinning literal keys AND literal template strings (for param inference). */
 export function defineMessages<const T extends MessageCatalog>(catalog: T): T {
   return catalog;
@@ -30,9 +60,9 @@ type ParamsObject<T extends string> = [ExtractParams<T>] extends [never]
 export type TranslateParams<TValue extends MessageValue> = TValue extends string
   ? ParamsObject<TValue>
   : TValue extends PluralMessage
-    ? ([ExtractParams<TValue["other"]>] extends [never]
-        ? unknown
-        : { [K in ExtractParams<TValue["other"]>]: string | number }) & {
-        count: number;
-      }
+    ? [ExtractParams<TValue["other"]>] extends [never]
+      ? { count: number }
+      : { [K in ExtractParams<TValue["other"]>]: string | number } & {
+          count: number;
+        }
     : never;

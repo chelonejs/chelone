@@ -8,7 +8,7 @@
  * inside `<DataTable bulkActionsButtons>` / `<BulkActionsToolbar>`.
  */
 
-import { defaultExporter, type Exporter } from "@chelone/core";
+import { defaultExporter, definedParams, type Exporter } from "@chelone/core";
 import { Download } from "lucide-react";
 import type { Ref } from "react";
 import { Button } from "@/components/ui/button";
@@ -74,10 +74,10 @@ function BulkExportButton(props: BulkExportButtonProps) {
       ? `resources.${resource}.action.export`
       : undefined,
     baseI18nKey: "ra.action.export",
-    options: {
+    options: definedParams({
       _: "Export",
       name: resource ? getResourceLabel(resource, 1) : undefined,
-    },
+    }),
     userText: labelProp,
   });
 

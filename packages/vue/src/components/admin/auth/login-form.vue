@@ -80,7 +80,7 @@ async function save(values: LoginValues): Promise<undefined> {
     const message = getErrorMessage(error);
     notifications?.notify(message ?? "ra.auth.sign_in_error", {
       type: "error",
-      messageArgs: { _: message },
+      messageArgs: message === undefined ? undefined : { _: message },
     });
   }
   return undefined;
