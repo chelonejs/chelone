@@ -165,7 +165,7 @@ describe("Resource — marker + static registration contract", () => {
   it("derives has* flags from component presence (list-only)", () => {
     const def = Resource.registerResource(
       { name: "tags", list: ListView },
-      null,
+      undefined,
     );
     expect(def.hasList).toBe(true);
     expect(def.hasCreate).toBe(false);
