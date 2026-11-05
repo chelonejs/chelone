@@ -42,12 +42,13 @@ import { DownloadIcon } from "./icons";
 
 const props = defineProps<ExportButtonProps>();
 
-const resource = useResourceContext(props);
-if (!resource) {
+const ambientResource = useResourceContext(props);
+if (!ambientResource) {
   throw new Error(
     "<ExportButton> must be used inside a <Resource> or given a `resource` prop.",
   );
 }
+const resource: string = ambientResource;
 const list = useListContext();
 const { dataProvider } = useCheloneContext();
 const notifications = useCheloneNotifications();
@@ -61,13 +62,13 @@ const disabled = computed(() => list.total === 0);
 async function onClick(): Promise<void> {
   const exporter = props.exporter ?? defaultExporter;
   try {
-    const { data } = await dataProvider.getList(resource as string, {
+    const { data } = await dataProvider.getList(resource, {
       sort: list.sort?.[0],
       filter: list.filter ?? {},
       pagination: { page: 1, perPage: props.maxResults ?? 1000 },
       meta: props.meta,
     });
-    await exporter(data, dataProvider, resource as string);
+    await exporter(data, dataProvider, resource);
   } catch (error) {
     console.error(error);
     notifications?.notify("chelone.notification.http_error", { type: "error" });

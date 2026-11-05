@@ -38,12 +38,13 @@ import { DownloadIcon } from "./icons";
 
 const props = defineProps<BulkExportButtonProps>();
 
-const resource = useResourceContext(props);
-if (!resource) {
+const ambientResource = useResourceContext(props);
+if (!ambientResource) {
   throw new Error(
     "<BulkExportButton> must be used inside a <Resource> or given a `resource` prop.",
   );
 }
+const resource: string = ambientResource;
 const list = useListContext();
 const { dataProvider } = useCheloneContext();
 const notifications = useCheloneNotifications();
@@ -56,11 +57,11 @@ const label = computed(() =>
 async function onClick(): Promise<void> {
   const exporter = props.exporter ?? defaultExporter;
   try {
-    const { data } = await dataProvider.getMany(resource as string, {
+    const { data } = await dataProvider.getMany(resource, {
       ids: list.selectedIds ?? [],
       meta: props.meta,
     });
-    await exporter(data, dataProvider, resource as string);
+    await exporter(data, dataProvider, resource);
   } catch (error) {
     console.error(error);
     notifications?.notify("chelone.notification.http_error", { type: "error" });
