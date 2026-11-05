@@ -67,19 +67,20 @@ const props = withDefaults(defineProps<BulkDeleteButtonProps>(), {
   confirmColor: "warning",
 });
 
-const resource = useResourceContext(props);
-if (!resource) {
+const ambientResource = useResourceContext(props);
+if (!ambientResource) {
   throw new Error(
     "<BulkDeleteButton> must be used inside a <Resource> or given a `resource` prop.",
   );
 }
+const resource: string = ambientResource;
 const list = useListContext();
 const translate = useTranslate();
 const notifications = useCheloneNotifications();
 const ctx = useCheloneContext();
 const runUndoable = useUndoable();
 const refresh = useRefresh();
-const deleteMany = useDeleteMany(resource as string);
+const deleteMany = useDeleteMany(resource);
 
 const isPending = computed(() => deleteMany.isPending.value);
 const label = computed(() =>
@@ -96,10 +97,10 @@ function onClick(event: MouseEvent): void {
   if (props.mutationMode === "undoable") {
     const ids = (list.selectedIds ?? []) as Identifier[];
     runUndoable({
-      queryKeys: [[resource as string]],
+      queryKeys: [[resource]],
       applyOptimistic: () =>
-        removeRecordsFromCache(ctx.queryClient, resource as string, ids),
-      commit: () => ctx.dataProvider.deleteMany(resource as string, { ids }),
+        removeRecordsFromCache(ctx.queryClient, resource, ids),
+      commit: () => ctx.dataProvider.deleteMany(resource, { ids }),
       message: "chelone.notification.deleted",
       messageArgs: { smart_count: ids.length },
       onCommitError: () => {

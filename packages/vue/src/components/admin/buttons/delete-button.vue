@@ -90,12 +90,13 @@ const props = withDefaults(defineProps<DeleteButtonProps>(), {
   confirmColor: "warning",
 });
 
-const resource = useResourceContext(props);
-if (!resource) {
+const ambientResource = useResourceContext(props);
+if (!ambientResource) {
   throw new Error(
     "<DeleteButton> must be used inside a <Resource> or given a `resource` prop.",
   );
 }
+const resource: string = ambientResource;
 const injectedRecord = inject(RecordContextKey, null);
 const record = computed(() => props.record ?? injectedRecord?.value);
 const translate = useTranslate();
@@ -107,10 +108,10 @@ const runUndoable = useUndoable();
 let deletedId: Identifier | undefined;
 // Keep the reactive object: destructuring `saving` would freeze it at `false`.
 const controller = useDeleteController({
-  resource: resource as string,
+  resource: resource,
   onRedirect: () => {
     if (props.redirect !== false && deletedId != null) {
-      redirect(props.redirect, resource as string, deletedId);
+      redirect(props.redirect, resource, deletedId);
     }
   },
 });
@@ -118,13 +119,13 @@ const controller = useDeleteController({
 const { canAccess, isPending: isAccessPending } = useMenuAccess(
   computed(() => ({
     action: "delete",
-    resource: resource as string,
+    resource: resource,
     record: record.value,
   })),
 );
 const show = computed(() => !isAccessPending.value && canAccess.value);
 
-const getRecordRepresentation = useGetRecordRepresentation(resource as string);
+const getRecordRepresentation = useGetRecordRepresentation(resource);
 // `{name}` and `{recordRepresentation}` in the confirm copy, as the React twin passes them.
 const confirmOptions = computed(() => {
   const representation = getRecordRepresentation(record.value);
@@ -134,7 +135,7 @@ const confirmOptions = computed(() => {
       _: humanize(
         translate(`resources.${resource}.name`, {
           smart_count: 1,
-          _: pluralize(resource as string, 1),
+          _: pluralize(resource, 1),
         }),
       ),
     }),
@@ -159,11 +160,11 @@ function onClick(): void {
   if (props.mutationMode === "undoable") {
     const id = current.id as Identifier;
     runUndoable({
-      queryKeys: [[resource as string]],
+      queryKeys: [[resource]],
       applyOptimistic: () =>
-        removeRecordsFromCache(ctx.queryClient, resource as string, [id]),
+        removeRecordsFromCache(ctx.queryClient, resource, [id]),
       commit: () =>
-        ctx.dataProvider.delete(resource as string, {
+        ctx.dataProvider.delete(resource, {
           id,
           previousData: current,
         }),
@@ -172,7 +173,7 @@ function onClick(): void {
     });
     // Redirect optimistically — the row is already gone from the cache.
     if (props.redirect !== false) {
-      redirect(props.redirect, resource as string, id);
+      redirect(props.redirect, resource, id);
     }
     return;
   }
