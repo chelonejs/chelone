@@ -64,6 +64,11 @@ describe("choices hook result types", () => {
     expectTypeOf(getDisableValue).parameter(0).toEqualTypeOf<Author>();
   });
 
+  it("getDisableValue returns boolean", () => {
+    const { getDisableValue } = useChoices<Author>();
+    expectTypeOf(getDisableValue).returns.toEqualTypeOf<boolean>();
+  });
+
   it("useChoices<Author> rejects a path that is not on Author", () => {
     // @ts-expect-error `nme` is not a path of Author
     useChoices<Author>({ optionText: "nme" });

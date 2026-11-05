@@ -102,7 +102,9 @@ describe("useChoices", () => {
     const c = run();
     expect(c.getDisableValue({ id: 1, name: "x", disabled: true })).toBe(true);
     const custom = run({ disableValue: "locked" });
-    expect(custom.getDisableValue({ id: 1, name: "x", locked: 1 })).toBe(1);
+    expect(custom.getDisableValue({ id: 1, name: "x", locked: true })).toBe(
+      true,
+    );
   });
 
   it("optionText reads a bracket path", () => {
@@ -128,7 +130,7 @@ describe("useChoices", () => {
     const c = run({ optionText: "", optionValue: "", disableValue: "" });
     expect(c.getChoiceText({ id: 7, name: "Seven" })).toBe("");
     expect(c.getChoiceValue({ id: 7, name: "Seven" })).toBe(7);
-    expect(c.getDisableValue({ id: 7, name: "Seven" })).toBeUndefined();
+    expect(c.getDisableValue({ id: 7, name: "Seven" })).toBe(false);
     // The exported reader keeps the same contract.
     expect(getChoicePath({ id: 7, name: "Seven" }, "")).toBeUndefined();
   });
