@@ -1,21 +1,25 @@
-import {
-  type GeoFeature,
-  type GeoGeometry,
-  type GeoJsonValue,
-  geoAreaM2,
-} from "@chelone/core";
+import { geoAreaM2, type JsonObject } from "@chelone/core";
 import { difference } from "@turf/difference";
 import { simplify } from "@turf/simplify";
+import type { Feature, FeatureCollection, Geometry } from "geojson";
+
+export type DrawFeature = Feature<Geometry | null, JsonObject | null>;
+
+/** A Geometry, a Feature or a FeatureCollection, with JSON properties. */
+export type DrawValue =
+  | Geometry
+  | DrawFeature
+  | FeatureCollection<Geometry | null, JsonObject | null>;
 
 export interface CutResult {
-  features: GeoFeature[];
+  features: DrawFeature[];
   /** False when the cutter touched no polygon, so `features` equals the input. */
   changed: boolean;
 }
 
-type Area = Extract<GeoGeometry, { type: "Polygon" | "MultiPolygon" }>;
+type Area = Extract<Geometry, { type: "Polygon" | "MultiPolygon" }>;
 
-function isArea(geometry: GeoGeometry | null): geometry is Area {
+function isArea(geometry: Geometry | null): geometry is Area {
   return geometry?.type === "Polygon" || geometry?.type === "MultiPolygon";
 }
 
@@ -31,10 +35,10 @@ function sameArea(a: number, b: number): boolean {
  * removed. A part left with a hole keeps it. Other geometries are untouched.
  */
 export function cutFeatures(
-  features: readonly GeoFeature[],
-  cutter: GeoFeature,
+  features: readonly DrawFeature[],
+  cutter: DrawFeature,
 ): CutResult {
-  const out: GeoFeature[] = [];
+  const out: DrawFeature[] = [];
   let changed = false;
   const cutGeometry = cutter.geometry;
   for (const feature of features) {
@@ -84,12 +88,12 @@ export interface SimplifyOptions {
 }
 
 function simplifyInPlace(
-  value: GeoJsonValue,
+  value: DrawValue,
   options: SimplifyOptions,
-): GeoJsonValue {
+): DrawValue {
   if (value.type === "FeatureCollection") {
     value.features = value.features.map(
-      (feature) => simplifyInPlace(feature, options) as GeoFeature,
+      (feature) => simplifyInPlace(feature, options) as DrawFeature,
     );
     return value;
   }
@@ -99,7 +103,7 @@ function simplifyInPlace(
     tolerance: options.tolerance,
     highQuality: options.highQuality,
     mutate: true,
-  }) as unknown as GeoJsonValue;
+  }) as unknown as DrawValue;
 }
 
 /**
@@ -110,9 +114,9 @@ function simplifyInPlace(
  * returns a copy of the value.
  */
 export function simplifyGeo(
-  value: GeoJsonValue,
+  value: DrawValue,
   options: SimplifyOptions,
-): GeoJsonValue {
+): DrawValue {
   // `mutate` lets turf skip its own clone, so the one made here is the only one.
   const copy = structuredClone(value);
   if (options.tolerance <= 0) return copy;
