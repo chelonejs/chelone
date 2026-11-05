@@ -15,7 +15,7 @@
     },
     {
       "name": "defaultValue",
-      "type": "unknown",
+      "type": "SourceValue<TRecord, TPath>",
       "optional": true,
       "comment": "Input-level default, ra precedence (seeds only into an untouched hole).\nTyped as the value at `source`; `unknown` without a record."
     },
@@ -99,7 +99,7 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "TPath",
       "optional": false,
       "comment": "The field path RELATIVE to the ambient source scope."
     },
