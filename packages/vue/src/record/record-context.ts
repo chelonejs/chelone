@@ -18,7 +18,16 @@
  */
 
 import type { LooseRecord } from "@chelone/core";
-import { type InjectionKey, inject, isRef, provide, type Ref, ref } from "vue";
+import {
+  type ComputedRef,
+  computed,
+  type InjectionKey,
+  inject,
+  isRef,
+  provide,
+  type Ref,
+  ref,
+} from "vue";
 
 /** A record in scope, or `undefined` when none is (mirrors ra-core's union). */
 export type RecordValue<RecordType = LooseRecord> = RecordType | undefined;
@@ -48,14 +57,31 @@ export interface UseRecordContextOptions<RecordType = LooseRecord> {
 }
 
 /**
+ * The reactive form of {@link useRecordContext}: a computed that follows both
+ * the ambient ref and the `record` getter, for a component whose `record` prop
+ * or ambient record can change after setup (an Edit view publishes its record
+ * once the fetch lands). Call it in `setup`, since it injects.
+ */
+export function useRecordContextRef<RecordType = LooseRecord>(
+  record?: () => RecordValue<RecordType>,
+): ComputedRef<RecordValue<RecordType>> {
+  const injected = inject(RecordContextKey, null);
+  return computed(() => {
+    const explicit = record?.();
+    if (explicit !== undefined) return explicit;
+    // type-escape: the provider publishes the record at LooseRecord; the caller names the record type it expects, as in React's `useRecordContext<RecordType>()`
+    return injected?.value as RecordValue<RecordType>;
+  });
+}
+
+/**
  * Read the ambient record's current value. A `record` prop always wins over the
  * injected ref (parity: ra-core's `useRecordContext`). Returns `undefined` when
- * neither a prop nor an ancestor provider supplies one.
+ * neither a prop nor an ancestor provider supplies one. A plain read at call
+ * time: use {@link useRecordContextRef} where the record can change.
  */
 export function useRecordContext<RecordType = LooseRecord>(
   options?: UseRecordContextOptions<RecordType>,
 ): RecordValue<RecordType> {
-  if (options?.record !== undefined) return options.record;
-  const injected = inject(RecordContextKey, null);
-  return injected?.value as RecordValue<RecordType>;
+  return useRecordContextRef<RecordType>(() => options?.record).value;
 }

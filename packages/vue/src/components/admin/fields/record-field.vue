@@ -36,10 +36,10 @@ export interface RecordFieldProps<RecordType extends LooseRecord = LooseRecord> 
  * label i18n is a later wave — parity with the Vue inputs).
  */
 
-import { computed, inject, type VNode } from "vue";
+import { computed, type VNode } from "vue";
 import { cn } from "../../../lib/utils";
 import { humanizeSource } from "../inputs/label-text";
-import { RecordContextKey } from "../../../record/record-context";
+import { useRecordContextRef } from "../../../record/record-context";
 import { useTranslate } from "../../../i18n/use-translate";
 import TextField from "./text-field.vue";
 
@@ -59,10 +59,7 @@ const slots = defineSlots<{
 
 const translate = useTranslate();
 
-const injectedRecord = inject(RecordContextKey, null);
-const record = computed<RecordType | undefined>(
-  () => (props.record ?? injectedRecord?.value) as RecordType | undefined,
-);
+const record = useRecordContextRef<RecordType>(() => props.record);
 
 const hasSlot = computed(() => slots.default != null);
 
