@@ -24,13 +24,42 @@ export const DEFAULT_SHAPE_STYLE = {
   pointRadius: 7,
 } as const satisfies ShapeStyle;
 
-export interface ShapeLayerSpec {
+/** `["==", ["geometry-type"], type]`: `geometry-type` is the base type for the Multi types. */
+type GeometryTypeTest<TType extends "Polygon" | "LineString" | "Point"> = [
+  "==",
+  ["geometry-type"],
+  TType,
+];
+
+export interface FillLayerSpec {
   id: string;
-  type: "fill" | "line" | "circle";
+  type: "fill";
   source: string;
-  filter: unknown[];
-  paint: Record<string, string | number>;
+  filter: GeometryTypeTest<"Polygon">;
+  paint: { "fill-color": string; "fill-opacity": number };
 }
+
+export interface LineLayerSpec {
+  id: string;
+  type: "line";
+  source: string;
+  filter: ["any", GeometryTypeTest<"LineString">, GeometryTypeTest<"Polygon">];
+  paint: {
+    "line-color": string;
+    "line-width": number;
+    "line-opacity": number;
+  };
+}
+
+export interface CircleLayerSpec {
+  id: string;
+  type: "circle";
+  source: string;
+  filter: GeometryTypeTest<"Point">;
+  paint: { "circle-color": string; "circle-radius": number };
+}
+
+export type ShapeLayerSpec = FillLayerSpec | LineLayerSpec | CircleLayerSpec;
 
 /**
  * Fill, line and point layers for one GeoJSON source. `geometry-type` returns
@@ -41,7 +70,7 @@ export interface ShapeLayerSpec {
 export function shapeLayerSpecs(
   sourceId: string,
   style: ShapeStyle,
-): [ShapeLayerSpec, ShapeLayerSpec, ShapeLayerSpec] {
+): [FillLayerSpec, LineLayerSpec, CircleLayerSpec] {
   const color = style.color ?? DEFAULT_SHAPE_STYLE.color;
   return [
     {

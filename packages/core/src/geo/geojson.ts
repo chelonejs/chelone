@@ -149,3 +149,15 @@ export function isGeoJsonValue(value: unknown): value is GeoJsonValue {
     isGeoGeometry(value) || isGeoFeature(value) || isGeoFeatureCollection(value)
   );
 }
+
+/** The features MapLibre draws: a feature with a null geometry has nothing to draw. */
+export function placedFeatures(
+  collection: FeatureCollection<Geometry | null, JsonObject | null>,
+): FeatureCollection<Geometry, JsonObject | null> {
+  const features: Feature<Geometry, JsonObject | null>[] = [];
+  for (const feature of collection.features) {
+    const { geometry } = feature;
+    if (geometry !== null) features.push({ ...feature, geometry });
+  }
+  return { ...collection, features };
+}
