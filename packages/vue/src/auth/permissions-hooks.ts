@@ -33,7 +33,7 @@ export interface UsePermissionsResult<PermissionsType = unknown> {
   /** Whether the permissions query is in flight (always `false` when unconfigured). */
   isPending: ComputedRef<boolean>;
   /** The error, if the provider's `getPermissions` rejected. */
-  error: ComputedRef<unknown>;
+  error: ComputedRef<Error | null>;
   /** Re-run the permissions query. */
   refetch: () => void;
 }
