@@ -117,10 +117,10 @@ export function NavigateToFirstResource(): ReactNode {
   // `true` when the provider omits `canAccess`, via `canAccessQueryOptions`).
   const hasProvider = authProvider != null;
   const { data: canAccess, isPending } = useQuery({
-    ...canAccessQueryOptions(
-      authProvider ?? ({} as NonNullable<typeof authProvider>),
-      { action: "list", resource: resource || "__none__" },
-    ),
+    ...canAccessQueryOptions(authProvider, {
+      action: "list",
+      resource: resource || "__none__",
+    }),
     enabled: hasProvider && firstListable != null,
   });
 
