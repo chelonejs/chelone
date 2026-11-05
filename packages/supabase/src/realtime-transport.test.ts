@@ -32,10 +32,20 @@ interface FakeChannel {
 const fakeClient = () => {
   const channels: FakeChannel[] = [];
   const removed: FakeChannel[] = [];
-  // What every channel answers to a send.
-  const behaviour: { sendResult: string | Error } = { sendResult: "ok" };
+  // Like supabase-js, `channel()` returns the channel already open under a name,
+  // and a removed channel stays open until its removal settles.
+  const open = new Map<string, FakeChannel>();
+  const behaviour: {
+    /** What every channel answers to a send. */
+    sendResult: string | Error;
+    /** While set, a send or a removal waits for it. */
+    holdSend: Promise<void> | null;
+    holdRemoval: Promise<void> | null;
+  } = { sendResult: "ok", holdSend: null, holdRemoval: null };
   const client = {
     channel(name, options): FakeChannel {
+      const existing = open.get(name);
+      if (existing) return existing;
       let onStatus: StatusCallback = () => {};
       let onBroadcast: (message: SupabaseBroadcastMessage) => void = () => {};
       const channel: FakeChannel = {
@@ -52,6 +62,7 @@ const fakeClient = () => {
         }),
         send: vi.fn(async (message: object) => {
           channel.sent.push(message);
+          if (behaviour.holdSend) await behaviour.holdSend;
           if (behaviour.sendResult instanceof Error) throw behaviour.sendResult;
           return behaviour.sendResult;
         }),
@@ -59,10 +70,16 @@ const fakeClient = () => {
         status: (status, error) => onStatus(status, error),
       };
       channels.push(channel);
+      open.set(name, channel);
       return channel;
     },
     async removeChannel(channel) {
-      for (const fake of channels) if (fake === channel) removed.push(fake);
+      if (behaviour.holdRemoval) await behaviour.holdRemoval;
+      for (const fake of channels) {
+        if (fake !== channel) continue;
+        removed.push(fake);
+        open.delete(fake.name);
+      }
       return "ok";
     },
   } satisfies SupabaseRealtimeClient;
@@ -79,6 +96,14 @@ const setup = (options?: SupabaseRealtimeTransportOptions) => {
   transport.onError((error) => errors.push(error));
   transport.onReconnect(() => reconnects.push(1));
   return { ...fake, transport, statuses, errors, reconnects };
+};
+
+const gate = () => {
+  let open = () => {};
+  const closed = new Promise<void>((resolve) => {
+    open = resolve;
+  });
+  return { closed, open: () => open() };
 };
 
 const collect = () => {
@@ -222,6 +247,63 @@ describe("supabaseRealtimeTransport", () => {
 
     expect(errors.map((error) => error.kind)).toEqual(["send_failed"]);
     expect(removed).toEqual(channels);
+  });
+
+  it("subscribing again while the last channel is still leaving opens a fresh channel", async () => {
+    const { transport, channels, removed, behaviour, statuses } = setup();
+    const release = gate();
+    behaviour.holdRemoval = release.closed;
+    const posts = collect();
+    transport.subscribe("posts", () => {})();
+
+    transport.subscribe("posts", posts.callback);
+    release.open();
+    await vi.waitFor(() => expect(channels).toHaveLength(2));
+
+    expect(removed).toEqual([channels[0]]);
+    expect(channels[1]?.subscribe).toHaveBeenCalledTimes(1);
+    channels[1]?.status("SUBSCRIBED");
+    channels[1]?.receive({ type: "created", payload: 1 });
+    expect(posts.events).toHaveLength(1);
+    expect(statuses.at(-1)).toBe("connected");
+  });
+
+  it("subscribing while a publish is still sending opens its own channel after the publish's is removed", async () => {
+    const { transport, channels, removed, behaviour } = setup();
+    const release = gate();
+    behaviour.holdSend = release.closed;
+    const posts = collect();
+    const sending = transport.publish("posts", { type: "created", payload: 1 });
+
+    transport.subscribe("posts", posts.callback);
+    release.open();
+    await sending;
+    await vi.waitFor(() => expect(channels).toHaveLength(2));
+
+    expect(removed).toEqual([channels[0]]);
+    channels[1]?.status("SUBSCRIBED");
+    channels[1]?.receive({ type: "created", payload: 2 });
+    expect(posts.events).toHaveLength(1);
+    expect(transport.getStatus()).toBe("connected");
+  });
+
+  it("publish while the subscriber's channel is still opening waits for it and sends there", async () => {
+    const { transport, channels, behaviour } = setup();
+    const release = gate();
+    behaviour.holdRemoval = release.closed;
+    transport.subscribe("posts", () => {})();
+    transport.subscribe("posts", () => {});
+
+    const publishing = transport.publish("posts", {
+      type: "created",
+      payload: 1,
+    });
+    release.open();
+    await publishing;
+
+    expect(channels).toHaveLength(2);
+    expect(channels[0]?.sent).toEqual([]);
+    expect(channels[1]?.sent).toHaveLength(1);
   });
 
   it("status follows SUBSCRIBED, CHANNEL_ERROR, TIMED_OUT and CLOSED", () => {

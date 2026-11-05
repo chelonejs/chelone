@@ -66,7 +66,10 @@ export interface SupabaseRealtimeTransport extends Required<RealtimeTransport> {
 type JoinState = "joining" | "subscribed" | "errored" | "closed";
 
 interface Joined {
-  channel: SupabaseRealtimeChannel;
+  /** Unset until the channel is opened, which waits for an earlier use of its name to end. */
+  channel?: SupabaseRealtimeChannel;
+  /** Settles once `channel` is opened or the entry is dropped. */
+  ready: Promise<void>;
   state: JoinState;
   // Set by an error, so the next join is a reconnect.
   failed: boolean;
@@ -98,6 +101,10 @@ export function supabaseRealtimeTransport(
   const joined = new Map<string, Joined>();
   // Channels opened only to publish, so close() can remove one still sending.
   const shortLived = new Set<SupabaseRealtimeChannel>();
+  // supabase-js hands back the open channel for a name, and a removed channel
+  // stays open until the server acknowledges the leave. So each topic's channel
+  // is used by one owner at a time: this holds the end of the last owner.
+  const busy = new Map<string, Promise<void>>();
   let closed = false;
 
   const setStatus = (status: RealtimeConnectionStatus) => {
@@ -125,6 +132,21 @@ export function supabaseRealtimeTransport(
     try {
       await client.removeChannel(channel);
     } catch {}
+  };
+
+  // Runs `task` after the earlier ones on `topic`; a rejection goes to the caller only.
+  const occupy = <T>(topic: string, task: () => Promise<T>): Promise<T> => {
+    const previous = busy.get(topic);
+    const run = previous ? previous.then(task) : task();
+    const end = run.then(
+      () => {},
+      () => {},
+    );
+    busy.set(topic, end);
+    void end.then(() => {
+      if (busy.get(topic) === end) busy.delete(topic);
+    });
+    return run;
   };
 
   const handleBroadcast = (
@@ -177,22 +199,34 @@ export function supabaseRealtimeTransport(
   };
 
   const join = (topic: string) => {
-    const channel = open(topic);
-    const entry: Joined = { channel, state: "joining", failed: false };
+    const entry: Joined = {
+      ready: Promise.resolve(),
+      state: "joining",
+      failed: false,
+    };
     joined.set(topic, entry);
-    channel.on("broadcast", { event: BROADCAST_EVENT }, (message) =>
-      handleBroadcast(topic, message),
-    );
-    channel.subscribe((status, error) =>
-      handleStatus(topic, entry, status, error),
-    );
+    const start = () => {
+      if (closed || joined.get(topic) !== entry) return;
+      const channel = open(topic);
+      entry.channel = channel;
+      channel.on("broadcast", { event: BROADCAST_EVENT }, (message) =>
+        handleBroadcast(topic, message),
+      );
+      channel.subscribe((status, error) =>
+        handleStatus(topic, entry, status, error),
+      );
+    };
+    const previous = busy.get(topic);
+    if (previous) entry.ready = previous.then(start);
+    else start();
   };
 
   const leave = (topic: string) => {
     const entry = joined.get(topic);
     if (!entry) return;
     joined.delete(topic);
-    void remove(entry.channel);
+    const { channel } = entry;
+    if (channel) void occupy(topic, () => remove(channel));
     refreshStatus();
   };
 
@@ -236,19 +270,25 @@ export function supabaseRealtimeTransport(
     },
     async publish(topic, event) {
       if (closed) throw new Error("supabaseRealtimeTransport is closed");
-      const existing = joined.get(topic);
-      if (existing) {
-        await send(existing.channel, topic, event);
-        return;
+      for (let entry = joined.get(topic); entry; entry = joined.get(topic)) {
+        await entry.ready;
+        if (closed) throw new Error("supabaseRealtimeTransport is closed");
+        if (entry.channel && joined.get(topic) === entry) {
+          await send(entry.channel, topic, event);
+          return;
+        }
       }
-      const channel = open(topic);
-      shortLived.add(channel);
-      try {
-        await send(channel, topic, event);
-      } finally {
-        shortLived.delete(channel);
-        await remove(channel);
-      }
+      await occupy(topic, async () => {
+        if (closed) throw new Error("supabaseRealtimeTransport is closed");
+        const channel = open(topic);
+        shortLived.add(channel);
+        try {
+          await send(channel, topic, event);
+        } finally {
+          shortLived.delete(channel);
+          await remove(channel);
+        }
+      });
     },
     onReconnect: hub.onReconnect,
     onStatusChange: hub.onStatusChange,
@@ -258,7 +298,9 @@ export function supabaseRealtimeTransport(
       if (closed) return;
       closed = true;
       const channels = [
-        ...[...joined.values()].map(({ channel }) => channel),
+        ...[...joined.values()].flatMap(({ channel }) =>
+          channel ? [channel] : [],
+        ),
         ...shortLived,
       ];
       joined.clear();
