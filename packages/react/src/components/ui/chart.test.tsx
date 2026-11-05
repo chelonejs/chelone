@@ -4,12 +4,20 @@
  * CSS, so the theme colours are read from the emitted `<style>` text.
  */
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import type { ReactNode } from "react";
+import { describe, expect, it, vi } from "vitest";
 import {
   type ChartConfig,
   ChartContainer,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+
+// jsdom measures every element as 0x0, so recharts' ResponsiveContainer renders
+// an empty box and never mounts its children. Pass them through instead.
+vi.mock("recharts", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("recharts")>()),
+  ResponsiveContainer: ({ children }: { children?: ReactNode }) => children,
+}));
 
 const config: ChartConfig = {
   desktop: { label: "Desktop", theme: { light: "#111111", dark: "#eeeeee" } },
