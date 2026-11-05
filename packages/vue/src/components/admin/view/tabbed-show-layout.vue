@@ -28,6 +28,7 @@ import {
 import { decodePath, splatBase } from "../../../form/splat-base";
 import { useTranslate } from "../../../i18n/use-translate";
 import { cn } from "../../../lib/utils";
+import { childVNodes } from "../../../lib/vnode-children";
 import { RecordContextKey } from "../../../record/record-context";
 import { useRouterAdapter } from "../../../router/adapter";
 import TabbedShowLayoutTab, {
@@ -68,8 +69,8 @@ export interface TabbedShowLayoutTabsSlotProps {
 /** The tab vnodes of a slot, looking through fragments (`v-for`). */
 function collectTabs(nodes: VNode[], out: VNode[] = []): VNode[] {
   for (const node of nodes) {
-    if (node.type === Fragment && Array.isArray(node.children)) {
-      collectTabs(node.children as VNode[], out);
+    if (node.type === Fragment) {
+      collectTabs(childVNodes(node), out);
     } else if (node.type === TabbedShowLayoutTab) {
       out.push(node);
     }

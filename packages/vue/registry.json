@@ -1537,6 +1537,10 @@
         {
           "path": "src/lib/utils.ts",
           "type": "registry:lib"
+        },
+        {
+          "path": "src/lib/vnode-children.ts",
+          "type": "registry:lib"
         }
       ],
       "cssVars": {
@@ -5367,6 +5371,7 @@
       "registryDependencies": [
         "@chelone/field-label-text",
         "@chelone/lib-utils",
+        "@chelone/lib-vnode-children",
         "@chelone/record-field"
       ],
       "dependencies": ["@chelone/core"],
@@ -5411,7 +5416,11 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/labeled", "@chelone/lib-utils"],
+      "registryDependencies": [
+        "@chelone/labeled",
+        "@chelone/lib-utils",
+        "@chelone/lib-vnode-children"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5427,6 +5436,7 @@
       ],
       "registryDependencies": [
         "@chelone/lib-utils",
+        "@chelone/lib-vnode-children",
         "@chelone/tabbed-show-layout-tab"
       ],
       "dependencies": ["@chelone/vue"],
@@ -5443,7 +5453,11 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/labeled", "@chelone/lib-utils"],
+      "registryDependencies": [
+        "@chelone/labeled",
+        "@chelone/lib-utils",
+        "@chelone/lib-vnode-children"
+      ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -5533,6 +5547,19 @@
       "files": [
         {
           "path": "src/lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "categories": ["chelone", "library"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lib-vnode-children",
+      "type": "registry:lib",
+      "title": "Lib Vnode Children",
+      "files": [
+        {
+          "path": "src/lib/vnode-children.ts",
           "type": "registry:lib"
         }
       ],
