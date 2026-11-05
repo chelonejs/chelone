@@ -15,7 +15,11 @@
  * adapter) so nested `<Routes>` matching is observable.
  */
 
-import { fakeDataProvider, type ResourceDefinition } from "@chelone/core";
+import {
+  fakeDataProvider,
+  type RegisteredPermissions,
+  type ResourceDefinition,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -385,7 +389,7 @@ describe("useRegisterResources — lifecycle", () => {
     // every render regardless of any effect re-run — vacuous. Here we assert the
     // stored definition itself changes.
     const { Wrapper, registryRef } = registryWrapper();
-    function Register({ permissions }: { permissions: unknown }) {
+    function Register({ permissions }: { permissions: RegisteredPermissions | undefined }) {
       useRegisterResources(
         <PermissionAwareResource name="posts" list={ListView} />,
         permissions,
@@ -393,7 +397,7 @@ describe("useRegisterResources — lifecycle", () => {
       return null;
     }
     function Harness() {
-      const [permissions, setPermissions] = useState<unknown>("viewer");
+      const [permissions, setPermissions] = useState<RegisteredPermissions | undefined>("viewer");
       return (
         <Wrapper>
           <Register permissions={permissions} />
@@ -424,7 +428,7 @@ describe("useRegisterResources — lifecycle", () => {
     // permission-dependent change the signature can't distinguish — matching
     // ra-core, which re-runs registration on every permissions change.
     const { Wrapper, registryRef } = registryWrapper();
-    function Register({ permissions }: { permissions: unknown }) {
+    function Register({ permissions }: { permissions: RegisteredPermissions | undefined }) {
       useRegisterResources(
         <NullReprResource name="posts" list={ListView} />,
         permissions,
@@ -432,7 +436,7 @@ describe("useRegisterResources — lifecycle", () => {
       return null;
     }
     function Harness() {
-      const [permissions, setPermissions] = useState<unknown>("viewer");
+      const [permissions, setPermissions] = useState<RegisteredPermissions | undefined>("viewer");
       return (
         <Wrapper>
           <Register permissions={permissions} />
@@ -461,7 +465,7 @@ describe("useRegisterResources — lifecycle", () => {
     // identical definition. The core isEqual-guard must absorb the re-register
     // (no notify) — the `permissions` dep must not reintroduce redundant churn.
     const { Wrapper, registryRef } = registryWrapper();
-    function Register({ permissions }: { permissions: unknown }) {
+    function Register({ permissions }: { permissions: RegisteredPermissions | undefined }) {
       useRegisterResources(
         <Resource name="posts" list={ListView} />,
         permissions,
@@ -469,7 +473,7 @@ describe("useRegisterResources — lifecycle", () => {
       return null;
     }
     function Harness() {
-      const [permissions, setPermissions] = useState<unknown>("role-a");
+      const [permissions, setPermissions] = useState<RegisteredPermissions | undefined>("role-a");
       return (
         <Wrapper>
           <Register permissions={permissions} />

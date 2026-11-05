@@ -6,7 +6,11 @@
  * `createElement` and assertions are type-level only.
  */
 
-import { fakeDataProvider, type ResourceMap } from "@chelone/core";
+import {
+  fakeDataProvider,
+  type RegisteredPermissions,
+  type ResourceMap,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { createElement, type ReactNode } from "react";
 import { assertType, describe, expectTypeOf, it } from "vitest";
@@ -22,6 +26,20 @@ import {
   type CustomRoutesComponent,
   type SlotComponent,
 } from "./slots";
+
+/**
+ * `Register` is global to the TypeScript program, so this augmentation reaches
+ * every file the package typechecks. The union is as wide as the permissions
+ * the other tests pass (a role string, a list of roles, a `{ role }` object),
+ * so they still compile against it.
+ */
+type AppPermissions = string | string[] | { role: string };
+
+declare module "@chelone/core" {
+  interface Register {
+    permissions: AppPermissions;
+  }
+}
 
 describe("AdminProps", () => {
   it("requires dataProvider + queryClient, everything else optional", () => {
@@ -51,6 +69,24 @@ describe("AdminProps", () => {
     >();
     expectTypeOf<AdminProps["layout"]>().toEqualTypeOf<ReactNode | undefined>();
     expectTypeOf<AdminProps["title"]>().toEqualTypeOf<ReactNode | undefined>();
+  });
+});
+
+describe("registered permissions", () => {
+  it("a registered permissions type reaches the function child", () => {
+    expectTypeOf<RegisteredPermissions>().toEqualTypeOf<AppPermissions>();
+    expectTypeOf<
+      Parameters<Extract<AdminChildren, (permissions: never) => unknown>>[0]
+    >().toEqualTypeOf<AppPermissions | undefined>();
+    expectTypeOf<AdminProps["permissions"]>().toEqualTypeOf<
+      AppPermissions | undefined
+    >();
+  });
+
+  it("a function child that reads the permissions as another type does not compile", () => {
+    // @ts-expect-error the child receives AppPermissions, not a number
+    const wrong: AdminChildren = (permissions: number) => permissions;
+    assertType<AdminChildren>(wrong);
   });
 });
 

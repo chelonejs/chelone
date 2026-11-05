@@ -15,7 +15,11 @@
  * it (parity §0a-6). The routes are relative to the parent `<name>/*` match.
  */
 
-import { computeDefinition, type ResourceDefinition } from "@chelone/core";
+import {
+  computeDefinition,
+  type RegisteredPermissions,
+  type ResourceDefinition,
+} from "@chelone/core";
 import type { ComponentType, ReactElement, ReactNode } from "react";
 import { isValidElement } from "react";
 import type { RecordRepresentation } from "../index";
@@ -73,7 +77,7 @@ interface ResourceComponent {
   /** Derive the `ResourceDefinition` the registry records (parity §0a-8). */
   registerResource(
     props: ResourceProps,
-    permissions: unknown,
+    permissions: RegisteredPermissions | undefined,
   ): ResourceDefinition;
 }
 
@@ -115,7 +119,7 @@ function ResourceView(props: ResourceProps): ReactNode {
 const chelName: "Resource" = "Resource";
 function registerResource(
   props: ResourceProps,
-  _permissions: unknown,
+  _permissions: RegisteredPermissions | undefined,
 ): ResourceDefinition {
   return computeDefinition(props);
 }

@@ -11,7 +11,11 @@
  * cache subscription in `setup` with an `onScopeDispose` teardown.
  */
 
-import { checkError, permissionsQueryOptions } from "@chelone/core";
+import {
+  checkError,
+  permissionsQueryOptions,
+  type RegisteredPermissions,
+} from "@chelone/core";
 import {
   type QueryKey,
   useMutation,
@@ -27,9 +31,9 @@ import { type Redirect, useRedirectOptional } from "../router";
 /* -------------------------------------------------------------------------- */
 
 /** The result of {@link usePermissions} (reactive refs). */
-export interface UsePermissionsResult<PermissionsType = unknown> {
+export interface UsePermissionsResult {
   /** The current user's permissions (`undefined` until resolved / unconfigured). */
-  permissions: ComputedRef<PermissionsType | undefined>;
+  permissions: ComputedRef<RegisteredPermissions | undefined>;
   /** Whether the permissions query is in flight (always `false` when unconfigured). */
   isPending: ComputedRef<boolean>;
   /** The error, if the provider's `getPermissions` rejected. */
@@ -58,10 +62,10 @@ export interface UsePermissionsOptions {
  * provider), this degrades gracefully so a no-auth app can call it to gate
  * optional features.
  */
-export function usePermissions<PermissionsType = unknown>(
+export function usePermissions(
   params?: unknown,
   options: UsePermissionsOptions = {},
-): UsePermissionsResult<PermissionsType> {
+): UsePermissionsResult {
   const { authProvider } = useCheloneContext();
   const hasGetPermissions = authProvider?.getPermissions != null;
   const query = useQuery({
@@ -74,10 +78,9 @@ export function usePermissions<PermissionsType = unknown>(
     // No provider / no getPermissions → permissions not configured. Vue-query
     // reports a disabled query as `isPending: true` (fetchStatus idle); the
     // undefined-tolerant contract must win over that.
+    // The query resolves `null` for "nothing to give"; the contract says `undefined`.
     permissions: computed(() =>
-      hasGetPermissions
-        ? (query.data.value as PermissionsType | undefined)
-        : undefined,
+      hasGetPermissions ? (query.data.value ?? undefined) : undefined,
     ),
     isPending: computed(() =>
       hasGetPermissions ? query.isPending.value : false,
