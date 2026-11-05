@@ -29,7 +29,7 @@ import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
-import { useGetRecordRepresentationText } from "../../../label";
+import { useGetChoiceRepresentationText } from "../../../label";
 import { useEvent } from "../../../util/use-event";
 import type { ChoicesProps, InputProps } from "../input-props";
 import { createDebounce } from "./create-debounce";
@@ -109,11 +109,12 @@ function AutocompleteArrayInput<
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const getRecordRepresentationText = useGetRecordRepresentationText(resource);
+  const getChoiceRepresentationText =
+    useGetChoiceRepresentationText<TChoice>(resource);
   const { getChoiceText, getChoiceValue } = useChoices<TChoice>({
     optionText:
       props.optionText ??
-      (isFromReference ? getRecordRepresentationText : undefined),
+      (isFromReference ? getChoiceRepresentationText : undefined),
     optionValue: props.optionValue,
     disableValue: props.disableValue,
     translateChoice: props.translateChoice ?? !isFromReference,

@@ -217,14 +217,17 @@ function arrangedColumns(): VNode[] {
   // columns read their props once, so a reused instance would show another
   // column's data. A key the author set is kept.
   const taken = new Map<string, number>();
-  return shown.map((index) => {
-    const node = nodes[index] as VNode;
-    if (node.key != null) return node;
+  return shown.flatMap((index) => {
+    const node = nodes[index];
+    if (node === undefined) return [];
+    if (node.key != null) return [node];
     const id = ids[index];
     const base = id === undefined ? `index:${index}` : `id:${id}`;
     const count = taken.get(base) ?? 0;
     taken.set(base, count + 1);
-    return cloneVNode(node, { key: count === 0 ? base : `${base}:${count}` });
+    return [
+      cloneVNode(node, { key: count === 0 ? base : `${base}:${count}` }),
+    ];
   });
 }
 
