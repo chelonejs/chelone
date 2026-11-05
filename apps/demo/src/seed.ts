@@ -9,46 +9,43 @@
 
 /**
  * Records flow into `fakeDataProvider`, which types every row as a
- * `LooseRecord` (`ResourceRecord & { [key: string]: unknown }`). The seed
- * interfaces carry the same open index signature so the concrete shapes stay
- * assignable to the provider's row type while keeping their known fields typed.
+ * `LooseRecord`. The seed shapes are object type aliases rather than
+ * interfaces: an alias is implicitly indexable, so it stays assignable to the
+ * provider's row type without an open index signature (`seed.test-d.ts` pins
+ * it).
  */
-export interface Author {
+export type Author = {
   id: number;
   name: string;
   email: string;
-  [key: string]: unknown;
-}
+};
 
-export interface Post {
+export type Post = {
   id: number;
   title: string;
   body: string;
   author_id: number;
   views: number;
   published: boolean;
-  [key: string]: unknown;
-}
+};
 
-export interface Product {
+export type Product = {
   id: number;
   name: string;
   sku: string;
   price: number;
   stock: number;
   category: string;
-  [key: string]: unknown;
-}
+};
 
-export interface Customer {
+export type Customer = {
   id: number;
   name: string;
   email: string;
   city: string;
-  [key: string]: unknown;
-}
+};
 
-export interface Order {
+export type Order = {
   id: number;
   reference: string;
   customer_id: number;
@@ -56,10 +53,9 @@ export interface Order {
   quantity: number;
   status: string;
   total: number;
-  [key: string]: unknown;
-}
+};
 
-export interface Place {
+export type Place = {
   id: number;
   name: string;
   address: string;
@@ -69,8 +65,7 @@ export interface Place {
   route: { type: "LineString"; coordinates: number[][] };
   /** `[west, south, east, north]`. */
   bbox: [number, number, number, number];
-  [key: string]: unknown;
-}
+};
 
 /**
  * Pick element `i % arr.length` with a defined return type (satisfies
