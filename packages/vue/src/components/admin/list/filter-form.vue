@@ -85,7 +85,7 @@ function isEmptyValue(value: unknown): boolean {
 function isShown(entry: FilterFormEntry): boolean {
   return (
     !!entry.alwaysOn ||
-    !!(list.displayedFilters as Record<string, boolean> | undefined)?.[
+    !!list.displayedFilters?.[
       entry.source
     ] ||
     !isEmptyValue(getAtPath(list.filter, entry.source))
@@ -98,7 +98,7 @@ const { form, values, reset } = useForm<Record<string, unknown>>({
   resource,
   // The values are list filters, not the resource's record.
   recordForm: false,
-  record: { ...(list.filter ?? {}) } as Record<string, unknown>,
+  record: { ...(list.filter ?? {}) },
   onSubmit: () => undefined,
 });
 
@@ -139,8 +139,8 @@ watch(
   () => list.filter,
   () => {
     pendingPush = null;
-    const incoming = (list.filter ?? {}) as Record<string, unknown>;
-    const current = form.store.state.values as Record<string, unknown>;
+    const incoming = list.filter ?? {};
+    const current = form.store.state.values;
     const next = getFilterFormValues(
       filterFormReflectShape(current, form.store.state.fieldMeta, incoming),
       incoming,

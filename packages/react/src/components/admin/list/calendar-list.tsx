@@ -151,7 +151,7 @@ function CalendarList<RecordType extends ResourceRecord = LooseRecord>({
   const staleKeys = rangeFilter
     ? []
     : staleCalendarRangeKeys(startSource, endSource);
-  const listFilter = list.filter as Record<string, unknown>;
+  const listFilter = list.filter;
   const inSync =
     list.perPage === perPage &&
     staleKeys.every((key) => !(key in listFilter)) &&
@@ -174,7 +174,7 @@ function CalendarList<RecordType extends ResourceRecord = LooseRecord>({
   useEffect(() => {
     const current = latest.current;
     const values = current.rangeValues();
-    const filter = { ...(current.list.filter as Record<string, unknown>) };
+    const filter = { ...current.list.filter };
     for (const key of current.staleKeys) delete filter[key];
     // Recorded even when the list already holds the range, as it does after a
     // reload on a list URL: the unmount still has to take it back.
@@ -196,7 +196,7 @@ function CalendarList<RecordType extends ResourceRecord = LooseRecord>({
       if (!before) return;
       applied.current = null;
       const { list: current } = latest.current;
-      const filter = { ...(current.filter as Record<string, unknown>) };
+      const filter = { ...current.filter };
       for (const key of before.keys) delete filter[key];
       // A perPage already ours on mount came from a URL this calendar wrote
       // earlier, so the one it replaced is gone: fall back to the list default,
