@@ -14,13 +14,7 @@ import { useTranslate } from "../../../i18n-hooks";
 import { useRecordContext } from "../../../record/record-context";
 import { useLocation, useNavigate } from "../../../router";
 import { useRouterAdapter } from "../../../router/adapter";
-import { Labeled } from "./labeled";
-
-const TAB_MARKER = "ShowTab";
-
-interface TabMarker {
-  chelName?: string;
-}
+import { type ChildLabelProps, Labeled } from "./labeled";
 
 interface ShowTabProps {
   /** The tab label. Translated with itself as the fallback. */
@@ -47,7 +41,6 @@ interface ShowTabProps {
 function ShowTab({ children }: ShowTabProps): ReactElement {
   return <>{children}</>;
 }
-(ShowTab as TabMarker).chelName = TAB_MARKER;
 
 /** What a tab list needs to draw one tab. */
 interface TabbedShowLayoutTabDescriptor {
@@ -109,20 +102,18 @@ interface TabbedShowLayoutProps {
 }
 
 function isShowTab(child: ReactNode): child is ReactElement<ShowTabProps> {
-  return (
-    isValidElement(child) &&
-    (child.type as TabMarker | undefined)?.chelName === TAB_MARKER
-  );
+  return isValidElement<ShowTabProps>(child) && child.type === ShowTab;
 }
 
 /** Flattens Fragments, which `Children.toArray` leaves in place. */
 function flattenChildren(children: ReactNode): ReactNode[] {
   const out: ReactNode[] = [];
   for (const child of Children.toArray(children)) {
-    if (isValidElement(child) && child.type === Fragment) {
-      out.push(
-        ...flattenChildren((child.props as { children?: ReactNode }).children),
-      );
+    if (
+      isValidElement<{ children?: ReactNode }>(child) &&
+      child.type === Fragment
+    ) {
+      out.push(...flattenChildren(child.props.children));
     } else {
       out.push(child);
     }
@@ -168,9 +159,12 @@ function TabbedShowLayoutImpl({
   const splatBase = useSplatPathBase().replace(/\/+$/, "");
 
   const tabElements = flattenChildren(children).filter(isShowTab);
-  const segments = tabElements.map((tab, index) =>
-    tab.props.path != null ? tab.props.path : index > 0 ? String(index) : "",
-  );
+  const entries = tabElements.map((tab, index) => ({
+    tab,
+    segment:
+      tab.props.path != null ? tab.props.path : index > 0 ? String(index) : "",
+  }));
+  const segments = entries.map((entry) => entry.segment);
   const [localValue, setLocalValue] = useState(segments[0] ?? "");
 
   if (!record) return null;
@@ -183,16 +177,17 @@ function TabbedShowLayoutImpl({
             matchPath(tabHref(splatBase, segment), location.pathname) != null,
         )
       : localValue);
-  const active = segments.includes(requested ?? "")
-    ? (requested as string)
-    : (segments[0] ?? "");
+  const active =
+    requested !== undefined && segments.includes(requested)
+      ? requested
+      : (segments[0] ?? "");
 
-  const descriptors = tabElements.map(
-    ({ props }, index): TabbedShowLayoutTabDescriptor => ({
-      value: segments[index] as string,
-      label: props.label,
-      icon: props.icon,
-      count: props.count,
+  const descriptors = entries.map(
+    ({ tab, segment }): TabbedShowLayoutTabDescriptor => ({
+      value: segment,
+      label: tab.props.label,
+      icon: tab.props.icon,
+      count: tab.props.count,
     }),
   );
 
@@ -206,17 +201,17 @@ function TabbedShowLayoutImpl({
 
   return (
     <Tabs value={active} onValueChange={onValueChange} className={className}>
-      {cloneElement(tabs as ReactElement<{ tabs: unknown }>, {
-        tabs: descriptors,
-      })}
-      {tabElements.map((tab, index) => (
-        <TabsContent key={segments[index]} value={segments[index] as string}>
+      {isValidElement<{ tabs: TabbedShowLayoutTabDescriptor[] }>(tabs)
+        ? cloneElement(tabs, { tabs: descriptors })
+        : tabs}
+      {entries.map(({ tab, segment }) => (
+        <TabsContent key={segment} value={segment}>
           <div
             className={cn("flex flex-col", tab.props.contentClassName)}
             style={{ gap: spacing * 4 }}
           >
             {Children.toArray(tab.props.children)
-              .filter(isValidElement)
+              .filter(isValidElement<ChildLabelProps>)
               .map((field, fieldIndex) => (
                 <Fragment key={field.key}>
                   {fieldIndex > 0 ? divider : null}
@@ -230,14 +225,8 @@ function TabbedShowLayoutImpl({
   );
 }
 
-interface TabbedShowLayoutComponent {
-  (props: TabbedShowLayoutProps): ReactElement | null;
-  /** The tab slot: `<TabbedShowLayout.Tab label>`. */
-  Tab: typeof ShowTab;
-}
-
-const TabbedShowLayout = TabbedShowLayoutImpl as TabbedShowLayoutComponent;
-TabbedShowLayout.Tab = ShowTab;
+/** The tab slot is `<TabbedShowLayout.Tab label>`. */
+const TabbedShowLayout = Object.assign(TabbedShowLayoutImpl, { Tab: ShowTab });
 
 export {
   ShowTab,

@@ -12,7 +12,7 @@ import { RecordField } from "../fields/record-field";
 
 interface LabeledProps {
   /** The one field (or input) to label. */
-  children: ReactElement;
+  children: ReactElement<ChildLabelProps>;
   /** Overrides the child's `label`; `false` renders no label. */
   label?: ReactNode;
   /** Overrides the child's `source` when resolving the label. */
@@ -59,7 +59,7 @@ function Labeled(props: LabeledProps): ReactElement {
     component = "div",
     className,
   } = props;
-  const child = Children.only(children) as ReactElement<ChildLabelProps>;
+  const child = Children.only(children);
   const childProps = child.props;
   const labelsItself =
     typeof child.type === "string" ||
@@ -86,4 +86,4 @@ function Labeled(props: LabeledProps): ReactElement {
   );
 }
 
-export { Labeled, type LabeledProps };
+export { type ChildLabelProps, Labeled, type LabeledProps };
