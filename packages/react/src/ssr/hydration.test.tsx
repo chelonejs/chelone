@@ -74,7 +74,7 @@ describe("hydration — dehydrate/hydrate round-trip", () => {
       data: [{ id: 1, title: "a" }] as Post[],
       total: 1,
     }));
-    const dp = { getList } as unknown as DataProvider;
+    const dp = { ...fakeDataProvider({}), getList };
 
     // Server prefetch (one provider call).
     const server = makeCtx(dp);

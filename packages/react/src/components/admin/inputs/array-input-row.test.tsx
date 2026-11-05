@@ -9,6 +9,7 @@ import {
   createResourceRegistry,
   defineMessages,
   type FieldErrors,
+  fakeDataProvider,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import {
@@ -44,7 +45,7 @@ function makeWrapper() {
   const registry = createResourceRegistry();
   return ({ children }: { children: ReactNode }) => (
     <CheloneProvider
-      dataProvider={{} as never}
+      dataProvider={fakeDataProvider({})}
       queryClient={new QueryClient()}
       i18n={i18n}
     >

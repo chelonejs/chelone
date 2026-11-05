@@ -16,7 +16,7 @@
  */
 
 import type { DataProvider } from "@chelone/core";
-import { getListOptions } from "@chelone/core";
+import { fakeDataProvider, getListOptions } from "@chelone/core";
 import { QueryClient, useQuery } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
@@ -44,7 +44,7 @@ describe("loader → ensureQueryData → useQuery (SSR data flow)", () => {
       data: [{ id: 1, title: "a" }] as Post[],
       total: 1,
     }));
-    const dp = { getList } as unknown as DataProvider;
+    const dp = { ...fakeDataProvider({}), getList };
     const params = { pagination: { page: 1, perPage: 10 } };
 
     // 1. LOADER (server): prefetch into a per-request client.

@@ -88,13 +88,8 @@ function searchProvider(hits: Record<string, Hit[]>) {
     const data = hits[resource] ?? [];
     return { data, total: data.length };
   });
-  return {
-    getList,
-    dataProvider: {
-      ...fakeDataProvider(seed()),
-      getList,
-    } as unknown as DataProvider,
-  };
+  const dataProvider: DataProvider = { ...fakeDataProvider(seed()), getList };
+  return { getList, dataProvider };
 }
 
 const typeQuery = (value: string) =>

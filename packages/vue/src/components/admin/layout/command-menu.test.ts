@@ -13,7 +13,9 @@ import {
   createNotificationStore,
   createStore,
   type DataProvider,
+  fakeDataProvider,
   type GetListParams,
+  type GetListResult,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
@@ -57,16 +59,17 @@ const posts = [
 ];
 
 function makeDataProvider(
-  getList: (resource: string, params: GetListParams) => unknown = () => ({
+  getList: (resource: string, params: GetListParams) => GetListResult = () => ({
     data: [],
     total: 0,
   }),
 ): DataProvider {
   return {
+    ...fakeDataProvider({}),
     getList: vi.fn(async (resource: string, params: GetListParams) =>
       getList(resource, params),
     ),
-  } as unknown as DataProvider;
+  };
 }
 
 const authProvider = (over: Partial<AuthProvider> = {}): AuthProvider => ({
