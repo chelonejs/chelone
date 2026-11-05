@@ -11,7 +11,6 @@ import {
   type InjectionKey,
   inject,
   onBeforeUnmount,
-  type PropType,
   provide,
   type Ref,
   toValue,
@@ -43,15 +42,8 @@ export interface MapsProviderProps extends MapsConfig {}
  *   <Admin>...</Admin>
  * </MapsProvider>
  */
-export const MapsProvider = defineComponent({
-  name: "MapsProvider",
-  props: {
-    mapStyle: [String, Object] as PropType<MapStyleInput | undefined>,
-    geocoder: Object as PropType<GeocodingProvider | undefined>,
-    overpass: Object as PropType<OverpassProvider | undefined>,
-    router: Object as PropType<RoutingProvider | undefined>,
-  },
-  setup(props, { slots }) {
+export const MapsProvider = defineComponent(
+  (props: MapsProviderProps, { slots }) => {
     // Getters, so a changed prop reaches the maps that read it later.
     provide(MapsConfigKey, {
       get mapStyle() {
@@ -69,7 +61,11 @@ export const MapsProvider = defineComponent({
     });
     return () => slots.default?.();
   },
-});
+  {
+    name: "MapsProvider",
+    props: { mapStyle: null, geocoder: null, overpass: null, router: null },
+  },
+);
 
 /** The services from the nearest `MapsProvider`; empty when there is none. */
 export function useMapsConfig(): MapsConfig {
@@ -180,22 +176,17 @@ export function useMapMarker(
  * @example
  * <MapMarker :position="[48.85, 2.35]" draggable @drag-end="(lat, lng) => ..." />
  */
-export const MapMarker = defineComponent({
-  name: "MapMarker",
-  props: {
-    /** `[lat, lng]`. */
-    position: {
-      type: Array as unknown as PropType<readonly [lat: number, lng: number]>,
-      required: true,
+export const MapMarker = defineComponent(
+  (
+    props: {
+      /** `[lat, lng]`. */
+      position: readonly [lat: number, lng: number];
+      draggable?: boolean;
+      /** Any CSS color. Defaults to red. */
+      color?: string;
     },
-    draggable: { type: Boolean, default: false },
-    /** Any CSS color. Defaults to red. */
-    color: { type: String, default: DEFAULT_PIN_COLOR },
-  },
-  emits: {
-    dragEnd: (_lat: number, _lng: number) => true,
-  },
-  setup(props, { emit }) {
+    { emit },
+  ) => {
     useMapMarker(() => ({
       position: props.position,
       draggable: props.draggable,
@@ -204,6 +195,17 @@ export const MapMarker = defineComponent({
     }));
     return () => null;
   },
-});
+  {
+    name: "MapMarker",
+    props: {
+      position: null,
+      draggable: { type: Boolean, default: false },
+      color: { type: String, default: DEFAULT_PIN_COLOR },
+    },
+    emits: {
+      dragEnd: (_lat: number, _lng: number) => true,
+    },
+  },
+);
 
 export type MapMarkerProps = InstanceType<typeof MapMarker>["$props"];
