@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
+const THEME_NAMES: ReadonlyArray<keyof typeof THEMES> = ["light", "dark"];
 
 const INITIAL_DIMENSION = { width: 320, height: 200 } as const;
 type TooltipNameType = number | string;
@@ -91,22 +92,18 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   return (
     <style
       dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+        __html: THEME_NAMES.map(
+          (theme) => `
+${THEMES[theme]} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ??
-      itemConfig.color;
+    const color = itemConfig.theme?.[theme] ?? itemConfig.color;
     return color ? `  --color-${key}: ${color};` : null;
   })
   .join("\n")}
 }
 `,
-          )
-          .join("\n"),
+        ).join("\n"),
       }}
     />
   );
@@ -325,6 +322,13 @@ function ChartLegendContent({
   );
 }
 
+function stringAt(source: object, key: string): string | undefined {
+  for (const [entryKey, value] of Object.entries(source)) {
+    if (entryKey === key && typeof value === "string") return value;
+  }
+  return undefined;
+}
+
 // Helper to extract item config from a payload.
 function getPayloadConfigFromPayload(
   config: ChartConfig,
@@ -342,22 +346,10 @@ function getPayloadConfigFromPayload(
       ? payload.payload
       : undefined;
 
-  let configLabelKey: string = key;
-
-  if (
-    key in payload &&
-    typeof payload[key as keyof typeof payload] === "string"
-  ) {
-    configLabelKey = payload[key as keyof typeof payload] as string;
-  } else if (
-    payloadPayload &&
-    key in payloadPayload &&
-    typeof payloadPayload[key as keyof typeof payloadPayload] === "string"
-  ) {
-    configLabelKey = payloadPayload[
-      key as keyof typeof payloadPayload
-    ] as string;
-  }
+  const configLabelKey =
+    stringAt(payload, key) ??
+    (payloadPayload ? stringAt(payloadPayload, key) : undefined) ??
+    key;
 
   return configLabelKey in config ? config[configLabelKey] : config[key];
 }

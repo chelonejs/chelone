@@ -19,6 +19,7 @@ import {
   getAtPath,
   isResourceRecord,
   type ResourceRecord,
+  textOf,
 } from "@chelone/core";
 import { isValidElement, type ReactNode, useCallback } from "react";
 import type { ChoiceRecord } from "../choices-hooks";
@@ -60,7 +61,7 @@ export function useGetRecordRepresentation(
           return value;
         }
         if (isValidElement(value)) return value;
-        return value == null ? "" : String(value);
+        return textOf(value);
       }
       if (isValidElement(recordRepresentation)) {
         return recordRepresentation;
@@ -93,7 +94,7 @@ export function useGetRecordRepresentationText(
         }
       } else if (typeof recordRepresentation === "string") {
         const value = getAtPath(record, recordRepresentation);
-        return value == null ? "" : String(value);
+        return textOf(value);
       }
       return String(defaultRepresentation(record));
     },

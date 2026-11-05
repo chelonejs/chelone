@@ -1,9 +1,10 @@
-import type {
-  GeocodeResult,
-  GeocodingProvider,
-  LngLatBox,
-  LooseRecord,
-  SourceProp,
+import {
+  type GeocodeResult,
+  type GeocodingProvider,
+  type LngLatBox,
+  type LooseRecord,
+  type SourceProp,
+  textOf,
 } from "@chelone/core";
 import { useEffect, useState } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
@@ -47,9 +48,6 @@ export interface GeocodingInputProps<TRecord = LooseRecord> {
   disabled?: boolean;
   className?: string;
 }
-
-const toText = (value: unknown) =>
-  typeof value === "string" ? value : value == null ? "" : String(value);
 
 /**
  * A text field that searches an address with a geocoding provider and fills
@@ -95,7 +93,7 @@ export function GeocodingInput<TRecord = LooseRecord>({
   const wrappedLng = useWrappedSource(lngSource ?? "");
   const wrappedBbox = useWrappedSource(bboxSource ?? "");
 
-  const saved = toText(field.value);
+  const saved = textOf(field.value);
   const [text, setText] = useState(saved);
   // What the search runs on: typing sets it for a typeahead provider, Enter or the button for any other.
   const [query, setQuery] = useState("");

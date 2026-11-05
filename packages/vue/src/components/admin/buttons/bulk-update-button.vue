@@ -63,19 +63,20 @@ const props = withDefaults(defineProps<BulkUpdateButtonProps>(), {
   variant: "outline",
 });
 
-const resource = useResourceContext(props);
-if (!resource) {
+const ambientResource = useResourceContext(props);
+if (!ambientResource) {
   throw new Error(
     "<BulkUpdateButton> must be used inside a <Resource> or given a `resource` prop.",
   );
 }
-const list = useListContext();
+const resource: string = ambientResource;
 const translate = useTranslate();
 const notifications = useCheloneNotifications();
 const ctx = useCheloneContext();
 const runUndoable = useUndoable();
 const refresh = useRefresh();
-const updateMany = useUpdateMany(resource as string);
+const list = useListContext();
+const updateMany = useUpdateMany(resource);
 
 const isPending = computed(() => updateMany.isPending.value);
 const label = computed(() =>
@@ -90,16 +91,16 @@ async function onClick(event: MouseEvent): Promise<void> {
     const undoableIds = ids as Identifier[];
     const data = props.data ?? {};
     runUndoable({
-      queryKeys: [[resource as string]],
+      queryKeys: [[resource]],
       applyOptimistic: () =>
         updateRecordsInCache(
           ctx.queryClient,
-          resource as string,
+          resource,
           undoableIds,
           data,
         ),
       commit: () =>
-        ctx.dataProvider.updateMany(resource as string, {
+        ctx.dataProvider.updateMany(resource, {
           ids: undoableIds,
           data,
         }),

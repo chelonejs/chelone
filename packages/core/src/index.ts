@@ -524,6 +524,7 @@ export {
   createRowSourceScope,
   rootSourceScope,
 } from "./form/source";
+export { textOf } from "./form/text-of";
 export type {
   FieldValidatorMeta,
   MessageFactory,

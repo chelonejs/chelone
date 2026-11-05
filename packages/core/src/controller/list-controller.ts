@@ -1,5 +1,6 @@
 import { QueryObserver, type QueryObserverResult } from "@tanstack/query-core";
 import { type DataContext, getListOptions } from "../data/query-options";
+import { removeEmpty } from "../data/remove-empty";
 import type {
   FilterPayload,
   GetListResult,
@@ -114,16 +115,6 @@ function normalizeSort(
   if (!sort) return fallback.map((entry) => ({ ...entry }));
   const entries = Array.isArray(sort) ? sort : [sort];
   return entries.map((entry) => ({ ...entry }));
-}
-
-/** Strips `''`, `null` and `undefined` values. Always returns a FRESH object. */
-function removeEmpty(filter: FilterPayload): FilterPayload {
-  const result: FilterPayload = {};
-  for (const [key, value] of Object.entries(filter)) {
-    if (value === "" || value === null || value === undefined) continue;
-    result[key] = value;
-  }
-  return result;
 }
 
 /**

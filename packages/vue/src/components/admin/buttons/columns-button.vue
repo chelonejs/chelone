@@ -28,7 +28,6 @@ export interface ColumnsButtonProps {
 import {
   arrangeColumns,
   columnLabelMatches,
-  type DataTableColumnInfo,
   defaultDataTableStoreKey,
 } from "@chelone/core";
 import { computed, ref } from "vue";
@@ -63,18 +62,25 @@ const props = defineProps<ColumnsButtonProps>();
 
 useCheloneStore();
 const resource = useResourceContext({ resource: props.resource });
+const noResourceMessage =
+  "ColumnsButton: no resource. Pass a `resource` or `storeKey` prop or render inside a <Resource>.";
 if (!resource && !props.storeKey) {
-  throw new Error(
-    "ColumnsButton: no resource. Pass a `resource` or `storeKey` prop or render inside a <Resource>.",
-  );
+  throw new Error(noResourceMessage);
 }
 
 const translate = useTranslate();
 const translateLabel = useTranslateLabel();
 
 const state: UseDataTableColumnsResult = useDataTableColumns({
-  storeKey: () =>
-    props.storeKey ?? defaultDataTableStoreKey(resource as string),
+  storeKey: () => {
+    if (props.storeKey !== undefined) {
+      return props.storeKey;
+    }
+    if (!resource) {
+      throw new Error(noResourceMessage);
+    }
+    return defaultDataTableStoreKey(resource);
+  },
   // What the table hides until a choice is stored, as it published them.
   defaultHiddenColumns: () =>
     state.columns.value
@@ -89,17 +95,22 @@ const rows = computed(() => {
   return arrangeColumns(
     columns.map((column) => column.id),
     { hidden: [], order: state.order.value },
-  ).map((index) => {
-    const column = columns[index] as DataTableColumnInfo;
-    return {
-      id: column.id,
-      label:
-        translateLabel({
-          label: column.label,
-          source: column.source,
-          resource,
-        }) || column.id,
-    };
+  ).flatMap((index) => {
+    const column = columns[index];
+    if (!column) {
+      return [];
+    }
+    return [
+      {
+        id: column.id,
+        label:
+          translateLabel({
+            label: column.label,
+            source: column.source,
+            resource,
+          }) || column.id,
+      },
+    ];
   });
 });
 

@@ -1,6 +1,5 @@
 import type { LooseRecord } from "@chelone/core";
-import type { HTMLAttributes } from "react";
-import type { FieldProps } from "@/lib/field-types";
+import type { SpanFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
@@ -32,11 +31,7 @@ function TextField<RecordType extends LooseRecord = LooseRecord>({
   empty,
   ...rest
 }: TextFieldProps<RecordType>) {
-  const value: unknown = useFieldValue<LooseRecord>({
-    defaultValue,
-    source,
-    record,
-  });
+  const value = useFieldValue({ defaultValue, source, record });
   const translate = useTranslate();
 
   if (value == null) {
@@ -59,7 +54,6 @@ function TextField<RecordType extends LooseRecord = LooseRecord>({
 }
 
 interface TextFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    HTMLAttributes<HTMLSpanElement> {}
+  extends SpanFieldProps<RecordType> {}
 
 export { TextField, type TextFieldProps };
