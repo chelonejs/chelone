@@ -1,4 +1,5 @@
 import { isFilterBranch } from "../data/filter-branch";
+import { removeEmpty } from "../data/remove-empty";
 import type { FilterPayload, SortPayload } from "../data/types";
 import { getAtPath } from "../resource/get-at-path";
 import type { Identifier } from "../resource/identifier";
@@ -76,16 +77,6 @@ function normalizeSort(
   if (!sort) return DEFAULT_SORT.map((entry) => ({ ...entry }));
   const entries = Array.isArray(sort) ? sort : [sort];
   return entries.map((entry) => ({ ...entry }));
-}
-
-/** Strips `''`, `null` and `undefined` values. Always returns a FRESH object. */
-function removeEmpty(filter: FilterPayload): FilterPayload {
-  const result: FilterPayload = {};
-  for (const [key, value] of Object.entries(filter)) {
-    if (value === "" || value === null || value === undefined) continue;
-    result[key] = value;
-  }
-  return result;
 }
 
 /**

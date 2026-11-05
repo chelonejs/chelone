@@ -1,6 +1,5 @@
 {
-  "packages/core/src/controller/client-list-controller.ts <-> packages/core/src/controller/list-controller.ts": 2,
-  "packages/core/src/controller/client-list-controller.ts <-> packages/core/src/form/choices-controller.ts": 1,
+  "packages/core/src/controller/client-list-controller.ts <-> packages/core/src/controller/list-controller.ts": 1,
   "packages/core/src/controller/infinite-list-controller.ts <-> packages/core/src/controller/reference-many-controller.ts": 1,
   "packages/core/src/controller/list-controller.ts <-> packages/core/src/controller/record-controllers.ts": 1,
   "packages/core/src/controller/list-controller.ts <-> packages/core/src/controller/reference-many-controller.ts": 1,
