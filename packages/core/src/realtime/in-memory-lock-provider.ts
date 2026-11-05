@@ -1,3 +1,4 @@
+import type { Identifier } from "../resource/identifier";
 import { announceLock } from "./announce-lock";
 import {
   type Lock,
@@ -12,7 +13,7 @@ export interface InMemoryLockProviderOptions {
 }
 
 // A JSON array cannot be forged by a resource name holding a separator.
-const storeKey = (resource: string, id: unknown) =>
+const storeKey = (resource: string, id: Identifier) =>
   JSON.stringify([resource, String(id)]);
 
 /** A `LockProvider` kept in a `Map`, for tests and demos. */
