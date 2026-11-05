@@ -7,11 +7,11 @@ import {
   type StandardSchemaV1,
   type ValidationErrorMap,
 } from "@tanstack/form-core";
+import { hasProperty, isThenable } from "../guards";
 import type { NotificationStore } from "../notification/notification-store";
 import { createFormHandle, type FormHandle } from "./form-handle";
 import {
   composeFormValidator,
-  isThenable,
   sanitizeEmptyValues,
   toFormErrorMapValue,
 } from "./save-pipeline";
@@ -398,12 +398,7 @@ function displayableRoot(
 ): string | TranslatableMessage | undefined {
   if (typeof error === "string") return error || undefined;
   if (Array.isArray(error)) return displayableRoot(error[0]);
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof (error as { message: unknown }).message === "string"
-  ) {
+  if (hasProperty(error, "message") && typeof error.message === "string") {
     return normalizeFormError(error);
   }
   return undefined;

@@ -120,7 +120,6 @@
   "packages/react/src/controller-hooks.ts <-> packages/vue/src/controllers/use-create-controller.ts": 1,
   "packages/react/src/field-error.ts <-> packages/vue/src/form/form-groups.ts": 1,
   "packages/react/src/form-hooks.ts <-> packages/react/src/form-hooks.ts": 1,
-  "packages/react/src/form-hooks.ts <-> packages/vue/src/form/use-input.ts": 1,
   "packages/react/src/form/tabbed-form.test-d.ts <-> packages/react/src/form/wizard-form.test-d.ts": 1,
   "packages/react/src/form/tabbed-form.tsx <-> packages/react/src/form/tabbed-form.tsx": 1,
   "packages/react/src/hooks.ts <-> packages/react/src/hooks.ts": 2,
