@@ -706,6 +706,7 @@ export type {
 } from "./i18n/missing-keys";
 export { createMissingKeyStore } from "./i18n/missing-keys";
 export type {
+  RecordForLocale,
   TranslatableController,
   TranslatableOptions,
   TranslatableState,
@@ -715,6 +716,7 @@ export {
   getRecordForLocale,
 } from "./i18n/translatable";
 export { stripJsonComments } from "./json/strip-json-comments";
+export { errorMessageOf } from "./notification/error-message";
 export type {
   Notification,
   NotificationStore,

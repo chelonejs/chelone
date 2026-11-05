@@ -1,6 +1,7 @@
 import {
   createTranslatableController,
   getRecordForLocale,
+  type RecordForLocale,
 } from "@chelone/core";
 import {
   createContext,
@@ -26,7 +27,7 @@ export interface TranslatableContextValue {
   /** A copy of `record` with every translation map replaced by the selected locale's value. */
   getRecordForLocale: <T extends object | null | undefined>(
     record: T,
-  ) => T extends object ? Record<string, unknown> : T;
+  ) => T extends object ? RecordForLocale<T> : T;
 }
 
 /**

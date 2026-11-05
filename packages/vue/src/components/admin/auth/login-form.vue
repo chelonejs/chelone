@@ -32,7 +32,7 @@ export interface LoginFormProps {
  * store is optional — errors are simply not surfaced when none is configured.
  */
 
-import { required } from "@chelone/core";
+import { errorMessageOf, required } from "@chelone/core";
 import { useCheloneNotifications } from "../../../context";
 import { useForm } from "../../../form/use-form";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -53,20 +53,6 @@ const login = useLogin();
 const notifications = useCheloneNotifications();
 const translate = useTranslate();
 
-function getErrorMessage(error: unknown): string | undefined {
-  if (typeof error === "string") return error;
-  if (
-    error &&
-    typeof error === "object" &&
-    "message" in error &&
-    typeof (error as { message: unknown }).message === "string" &&
-    (error as { message: string }).message
-  ) {
-    return (error as { message: string }).message;
-  }
-  return undefined;
-}
-
 // The `onSubmit` contract must resolve (never reject) for provider errors —
 // catch the login rejection and surface it via the notification store.
 async function save(values: LoginValues): Promise<undefined> {
@@ -77,7 +63,7 @@ async function save(values: LoginValues): Promise<undefined> {
         : { ...values },
     );
   } catch (error) {
-    const message = getErrorMessage(error);
+    const message = errorMessageOf(error);
     notifications?.notify(message ?? "ra.auth.sign_in_error", {
       type: "error",
       messageArgs: message === undefined ? undefined : { _: message },
