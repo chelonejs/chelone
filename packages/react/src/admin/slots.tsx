@@ -52,10 +52,10 @@ export interface SlotComponent {
  * children lands in the right shell position regardless of source order.
  */
 function createSlot(chelName: SlotName): SlotComponent {
-  const Slot = ((_props: SlotProps): ReactNode => null) as SlotComponent;
-  Object.defineProperty(Slot, "chelName", { value: chelName });
-  Object.defineProperty(Slot, "displayName", { value: chelName });
-  return Slot;
+  return Object.assign((_props: SlotProps): ReactNode => null, {
+    chelName,
+    displayName: chelName,
+  });
 }
 
 /** The app title (menu / document heading). */
@@ -112,14 +112,12 @@ export interface CustomRoutesComponent {
  * branches (even while unauthenticated); with-layout customs render inside
  * `<Layout>` before the resources (parity §0a-10).
  */
-const CustomRoutesImpl = ((_props: CustomRoutesProps): ReactNode =>
-  null) as CustomRoutesComponent;
-Object.defineProperty(CustomRoutesImpl, "chelName", { value: "CustomRoutes" });
-Object.defineProperty(CustomRoutesImpl, "displayName", {
-  value: "CustomRoutes",
-});
+const customRoutesName: CustomRoutesName = "CustomRoutes";
 
-export const CustomRoutes: CustomRoutesComponent = CustomRoutesImpl;
+export const CustomRoutes: CustomRoutesComponent = Object.assign(
+  (_props: CustomRoutesProps): ReactNode => null,
+  { chelName: customRoutesName, displayName: customRoutesName },
+);
 
 /**
  * The element shape a bucketed slot / custom-route carries (an element whose

@@ -69,7 +69,7 @@
     },
     {
       "name": "permissions",
-      "type": "unknown",
+      "type": "AppPermissions",
       "optional": true,
       "comment": "The app's permissions (passed to the resource registration re-run)."
     },

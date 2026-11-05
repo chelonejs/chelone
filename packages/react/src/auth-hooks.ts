@@ -5,6 +5,7 @@ import {
   checkError,
   identityQueryOptions,
   permissionsQueryOptions,
+  type RegisteredPermissions,
   type UserIdentity,
 } from "@chelone/core";
 import {
@@ -78,9 +79,9 @@ export function useLogout() {
 /* -------------------------------------------------------------------------- */
 
 /** The result of {@link usePermissions}. */
-export interface UsePermissionsResult<PermissionsType = unknown> {
+export interface UsePermissionsResult {
   /** The current user's permissions (`undefined` until resolved / unconfigured). */
-  permissions: PermissionsType | undefined;
+  permissions: RegisteredPermissions | undefined;
   /** Whether the permissions query is in flight (always `false` when unconfigured). */
   isPending: boolean;
   /** The error, if the provider's `getPermissions` rejected. */
@@ -102,13 +103,13 @@ export interface UsePermissionsResult<PermissionsType = unknown> {
  * optional features.
  *
  * @example
- * const { permissions, isPending } = usePermissions<string[]>();
+ * const { permissions, isPending } = usePermissions();
  * if (!isPending && permissions?.includes("admin")) return <AdminPanel />;
  */
-export function usePermissions<PermissionsType = unknown>(
+export function usePermissions(
   params?: unknown,
   options: { staleTime?: number; enabled?: boolean } = {},
-): UsePermissionsResult<PermissionsType> {
+): UsePermissionsResult {
   const { authProvider } = useCheloneContext();
   const hasGetPermissions = authProvider?.getPermissions != null;
   const query = useQuery({
@@ -129,7 +130,8 @@ export function usePermissions<PermissionsType = unknown>(
     };
   }
   return {
-    permissions: query.data as PermissionsType | undefined,
+    // The query resolves `null` for "nothing to give"; the contract says `undefined`.
+    permissions: query.data ?? undefined,
     isPending: query.isPending,
     error: query.error,
     refetch: query.refetch,
