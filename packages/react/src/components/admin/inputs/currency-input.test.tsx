@@ -138,6 +138,24 @@ describe("<CurrencyInput>", () => {
     });
   });
 
+  it("keeps a stored amount that has no currency when one is picked", async () => {
+    const onData = vi.fn();
+    const { submitRef } = setup<{ price: { amount: number } }>(
+      <CurrencyInput source="price" currencies={["USD", "EUR"]} />,
+      { defaultValues: { price: { amount: 500 } }, onData },
+    );
+    expect(screen.getByLabelText("Price")).toHaveProperty("value", "500");
+    fireEvent.change(screen.getByRole("combobox"), {
+      target: { value: "EUR" },
+    });
+    await act(async () => {
+      await submitRef.current?.();
+    });
+    expect(onData).toHaveBeenCalledWith({
+      price: { amount: 500, currency: "EUR" },
+    });
+  });
+
   it("displays a divided major value when storeAsMinorUnits", () => {
     setup(<CurrencyInput source="price" currency="USD" storeAsMinorUnits />, {
       defaultValues: { price: 12345 },

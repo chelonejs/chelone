@@ -1,9 +1,22 @@
 <script lang="ts">
-/** Props for {@link CurrencyInput}. */
-export interface CurrencyInputProps {
-  source: SourceProp;
+import type {
+  LooseRecord,
+  SourceProp,
+  SourceValue,
+  Validator,
+} from "@chelone/core";
+
+/**
+ * Props for {@link CurrencyInput}. The SFC takes the loose record; a
+ * resource's `CurrencyInput` takes `defaultValue` typed by `source`.
+ */
+export interface CurrencyInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> {
+  source: TPath;
   label?: string | false;
-  defaultValue?: unknown;
+  defaultValue?: NoInfer<SourceValue<RecordType, TPath>>;
   validate?: Validator | readonly Validator[];
   /** ISO-4217 currency code when storage is a plain number. */
   currency?: string;
@@ -29,7 +42,7 @@ export interface CurrencyInputProps {
  * keeps the display string stable while typing.
  */
 
-import type { SourceProp, Validator } from "@chelone/core";
+import { toCurrencyComposite, toCurrencyValue } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useLocale } from "../../../i18n/use-locale";
 import { useInput } from "../../../form/use-input";
@@ -38,11 +51,6 @@ import { Field, FieldError, FieldLabel } from "../../ui/field";
 import Input from "../../ui/input.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
-
-interface Composite {
-  amount: number;
-  currency: string;
-}
 
 const props = withDefaults(
   defineProps<CurrencyInputProps>(),
@@ -61,13 +69,13 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
 });
 
 const isComposite = computed(() => props.currencies != null);
-const composite = computed<Composite | null>(() =>
-  isComposite.value ? (value.value as Composite | null) : null,
+const composite = computed(() =>
+  isComposite.value ? toCurrencyComposite(value.value) : null,
 );
 const fixedAmount = computed<number | null>(() =>
   isComposite.value
     ? (composite.value?.amount ?? null)
-    : ((value.value as number | null) ?? null),
+    : toCurrencyValue(value.value),
 );
 const currentCurrency = computed<string | undefined>(() =>
   isComposite.value ? composite.value?.currency : props.currency,

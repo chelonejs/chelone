@@ -24,7 +24,7 @@ export interface ShowControllerState<TRecord> {
   record: TRecord | undefined;
   isPending: boolean;
   isFetching: boolean;
-  error: unknown;
+  error: Error | null;
 }
 
 export interface EditControllerState<TRecord>
@@ -260,7 +260,7 @@ function createRecordFetch<
 ): () => () => void {
   type TRecord = RecordOf<TResources, TName>;
 
-  let lastNotifiedError: unknown = null;
+  let lastNotifiedError: Error | null = null;
   /** Cached so repeated observer emissions keep a STABLE error reference. */
   let mismatchError: Error | null = null;
 

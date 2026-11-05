@@ -14,6 +14,7 @@
  * inside a component body does not remount them, but it is still wasted work.
  */
 import type {
+  LooseRecord,
   RecordOf,
   RegisteredResourceName,
   RegisteredResources,
@@ -65,11 +66,17 @@ import { BooleanInput } from "../components/admin/inputs/boolean-input";
 import { CheckboxGroupInput } from "../components/admin/inputs/checkbox-group-input";
 import { ColorInput } from "../components/admin/inputs/color-input";
 import { CronInput } from "../components/admin/inputs/cron-input";
-import { CurrencyInput } from "../components/admin/inputs/currency-input";
+import {
+  CurrencyInput,
+  type CurrencyInputProps,
+} from "../components/admin/inputs/currency-input";
 import { DatagridInput } from "../components/admin/inputs/datagrid-input";
 import { DateInput } from "../components/admin/inputs/date-input";
 import { DateTimeInput } from "../components/admin/inputs/date-time-input";
-import { DurationInput } from "../components/admin/inputs/duration-input";
+import {
+  DurationInput,
+  type DurationInputProps,
+} from "../components/admin/inputs/duration-input";
 import { FileInput } from "../components/admin/inputs/file-input";
 import { ImageInput } from "../components/admin/inputs/image-input";
 import { LoadingInput } from "../components/admin/inputs/loading-input";
@@ -78,18 +85,27 @@ import { NumberInput } from "../components/admin/inputs/number-input";
 import { PasswordInput } from "../components/admin/inputs/password-input";
 import { PhoneInput } from "../components/admin/inputs/phone-input";
 import { RadioButtonGroupInput } from "../components/admin/inputs/radio-button-group-input";
-import { RatingInput } from "../components/admin/inputs/rating-input";
+import {
+  RatingInput,
+  type RatingInputProps,
+} from "../components/admin/inputs/rating-input";
 import { ReferenceArrayInput } from "../components/admin/inputs/reference-array-input";
 import { ReferenceInput } from "../components/admin/inputs/reference-input";
 import { ResettableTextInput } from "../components/admin/inputs/resettable-text-input";
 import { SearchInput } from "../components/admin/inputs/search-input";
 import { SelectArrayInput } from "../components/admin/inputs/select-array-input";
 import { SelectInput } from "../components/admin/inputs/select-input";
-import { SubscriptionPlanPicker } from "../components/admin/inputs/subscription-plan-picker";
+import {
+  SubscriptionPlanPicker,
+  type SubscriptionPlanPickerProps,
+} from "../components/admin/inputs/subscription-plan-picker";
 import { TextArrayInput } from "../components/admin/inputs/text-array-input";
 import { TextInput } from "../components/admin/inputs/text-input";
 import { TimeInput } from "../components/admin/inputs/time-input";
-import { WebhookEndpointInput } from "../components/admin/inputs/webhook-endpoint-input";
+import {
+  WebhookEndpointInput,
+  type WebhookEndpointInputProps,
+} from "../components/admin/inputs/webhook-endpoint-input";
 import { Create, type CreateProps } from "../components/admin/views/create";
 import { Edit, type EditProps } from "../components/admin/views/edit";
 import { List, type ListProps } from "../components/admin/views/list";
@@ -272,6 +288,51 @@ type ArrayInputMember<TRecord> = <TPath extends SourceProp<TRecord>>(
   props: ArrayInputProps<TRecord, TPath>,
 ) => ReactNode;
 
+/**
+ * `TProps` of one `source`, with its `format` and `parse` taking the value at
+ * that `source` like {@link ResourceMember}'s. `NoInfer` keeps `TPath` from
+ * being inferred back through `SourceValue` out of `defaultValue`, which
+ * overflows the type depth.
+ */
+type TypedInputProps<TProps, TRecord, TPath extends SourceProp<TRecord>> = Omit<
+  TProps,
+  "defaultValue" | "format" | "parse"
+> & { defaultValue?: NoInfer<SourceValue<TRecord, TPath>> } & ValueEntries<
+    TProps,
+    NoInfer<SourceValue<TRecord, TPath>>
+  >;
+
+/**
+ * The inputs generic over their record and `source`, so `defaultValue` is the
+ * value at that `source`, which {@link ResourceMember} would read at the
+ * constraint.
+ */
+type TypedInputMembers<TRecord> = {
+  CurrencyInput: <TPath extends SourceProp<TRecord>>(
+    props: TypedInputProps<CurrencyInputProps<TRecord, TPath>, TRecord, TPath>,
+  ) => ReactNode;
+  DurationInput: <TPath extends SourceProp<TRecord>>(
+    props: TypedInputProps<DurationInputProps<TRecord, TPath>, TRecord, TPath>,
+  ) => ReactNode;
+  RatingInput: <TPath extends SourceProp<TRecord>>(
+    props: TypedInputProps<RatingInputProps<TRecord, TPath>, TRecord, TPath>,
+  ) => ReactNode;
+  SubscriptionPlanPicker: <TPath extends SourceProp<TRecord>>(
+    props: TypedInputProps<
+      SubscriptionPlanPickerProps<TRecord, TPath>,
+      TRecord,
+      TPath
+    >,
+  ) => ReactNode;
+  WebhookEndpointInput: <TPath extends SourceProp<TRecord>>(
+    props: TypedInputProps<
+      WebhookEndpointInputProps<TRecord, TPath>,
+      TRecord,
+      TPath
+    >,
+  ) => ReactNode;
+};
+
 /** A view with no `resource` prop: the factory has bound it. */
 type BoundView<TProps extends { resource?: string }, TResult> = (
   props: Omit<TProps, "resource">,
@@ -285,17 +346,17 @@ export type ResourceComponents<
   TResources extends ResourceMap,
   TName extends keyof TResources & string,
 > = {
-  [K in Exclude<keyof Components, "ArrayInput">]: ResourceMember<
-    Components[K],
-    RecordOf<TResources, TName>
-  >;
-} & {
-  ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
-  Edit: BoundView<EditProps, ReturnType<typeof Edit>>;
-  Create: BoundView<CreateProps, ReturnType<typeof Create>>;
-  Show: BoundView<ShowProps, ReturnType<typeof Show>>;
-  List: BoundView<ListProps, ReturnType<typeof List>>;
-};
+  [K in Exclude<
+    keyof Components,
+    "ArrayInput" | keyof TypedInputMembers<LooseRecord>
+  >]: ResourceMember<Components[K], RecordOf<TResources, TName>>;
+} & TypedInputMembers<RecordOf<TResources, TName>> & {
+    ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
+    Edit: BoundView<EditProps, ReturnType<typeof Edit>>;
+    Create: BoundView<CreateProps, ReturnType<typeof Create>>;
+    Show: BoundView<ShowProps, ReturnType<typeof Show>>;
+    List: BoundView<ListProps, ReturnType<typeof List>>;
+  };
 
 const cache = new Map<string, unknown>();
 
