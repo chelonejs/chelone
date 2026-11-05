@@ -34,8 +34,8 @@ import { act, cleanup, render } from "@testing-library/react";
 import { type ReactNode, useState } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { makeListContext } from "../__fixtures__/list-context";
 import { CheloneProvider } from "../context";
-import type { UseListControllerResult } from "../controller-hooks";
 import { CheloneFormProvider } from "../form-context";
 import { useForm, useInput } from "../form-hooks";
 import { ResourceContextProvider } from "../resource";
@@ -233,16 +233,12 @@ describe("PROBE 1 — FormGroups registry churn", () => {
 /* 2. FilterLiveForm debounce-race / zombie microtask                         */
 /* ========================================================================== */
 
-function makeFakeList(filter: Record<string, unknown> = {}): {
-  value: UseListControllerResult<PostRecord>;
-  setFilters: ReturnType<typeof vi.fn>;
-} {
+function makeFakeList(filter: Record<string, unknown> = {}) {
   const setFilters = vi.fn();
-  const value = {
-    filter,
+  return {
+    value: makeListContext<PostRecord>({ filter, setFilters }),
     setFilters,
-  } as unknown as UseListControllerResult<PostRecord>;
-  return { value, setFilters };
+  };
 }
 
 describe("PROBE 2 — FilterLiveForm debounce-race", () => {
@@ -332,10 +328,10 @@ describe("PROBE 2 — FilterLiveForm debounce-race", () => {
       return null;
     }
     function Host() {
-      const list = {
+      const list = makeListContext<PostRecord>({
         filter: currentFilter,
         setFilters,
-      } as unknown as UseListControllerResult<PostRecord>;
+      });
       return (
         <ResourceContextProvider value="posts">
           <ListContextProvider value={list}>

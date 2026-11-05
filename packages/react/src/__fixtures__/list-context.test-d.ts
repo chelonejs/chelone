@@ -5,12 +5,37 @@ import type { ListContextValue } from "../form";
 import type { UseListResult } from "../use-list";
 import { makeListContext } from "./list-context";
 
+interface PostRecord {
+  id: number;
+  title: string;
+}
+
 describe("makeListContext", () => {
   it("returns a whole ListContextValue, so a test passes it with no cast", () => {
     expectTypeOf(makeListContext()).toEqualTypeOf<ListContextValue>();
     expectTypeOf(
       makeListContext({ selectedIds: [1, 2], total: 0 }),
     ).toEqualTypeOf<ListContextValue>();
+  });
+
+  it("is generic over the record type the harness's rows carry", () => {
+    // A test with its own record interface pins it and gets its own rows back,
+    // still assignable to what a `<ListContextProvider>` takes.
+    expectTypeOf(makeListContext<PostRecord>().data).toEqualTypeOf<
+      PostRecord[] | undefined
+    >();
+    expectTypeOf(
+      makeListContext<PostRecord>({ data: [{ id: 1, title: "One" }] }),
+    ).toMatchTypeOf<ListContextValue>();
+    // The record type is pinned by the caller, never inferred from an override:
+    // a bare call and one with rows are both the plain `ListContextValue`.
+    const rows = [{ id: 1, title: "One" }];
+    expectTypeOf(makeListContext()).toEqualTypeOf<ListContextValue>();
+    expectTypeOf(
+      makeListContext({ data: rows }),
+    ).toEqualTypeOf<ListContextValue>();
+    // @ts-expect-error a pinned record type is not the plain one's rows
+    makeListContext<PostRecord>({ data: [{ id: 1, title: 2 }] });
   });
 
   it("takes an override of any field, each with the field's own type", () => {

@@ -19,14 +19,15 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { makeListContext } from "../../../__fixtures__/list-context";
 import { CheloneProvider } from "../../../context";
-import { ListContextProvider, type ListContextValue } from "../../../form";
+import { ListContextProvider } from "../../../form";
 import { FilterLiveSearch } from "./filter-live-search";
 
 afterEach(cleanup);
 
 function tree(ui: ReactNode, filter: FilterPayload, setFilters = vi.fn()) {
-  const value = { filter, setFilters } as unknown as ListContextValue;
+  const value = makeListContext({ filter, setFilters });
   return (
     <CheloneProvider
       dataProvider={fakeDataProvider({})}
