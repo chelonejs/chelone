@@ -6,9 +6,9 @@ export interface DateTimeInputProps {
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
   /** Read transform (form value → display string). Default {@link formatDateTime}. */
-  format?: (value: unknown) => unknown;
+  format?: (value: DateInputValue) => string;
   /** Write transform (display string → stored value). Default {@link parseDateTimeToISO}. */
-  parse?: (input: unknown) => unknown;
+  parse?: (input: string) => unknown;
   helperText?: string;
   disabled?: boolean;
   readonly?: boolean;
@@ -27,7 +27,13 @@ export interface DateTimeInputProps {
  * `<DateInput>`.
  */
 
-import type { SourceProp, Validator } from "@chelone/core";
+import {
+  type DateInputValue,
+  type SourceProp,
+  toDateInputValue,
+  toTextValue,
+  type Validator,
+} from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
@@ -53,8 +59,8 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source: props.source,
   defaultValue: props.defaultValue,
   validate: props.validate,
-  format: (v: unknown) => format.value(v),
-  parse: (v: unknown) => parse.value(v),
+  format: (v: unknown) => format.value(toDateInputValue(v)),
+  parse: (v: unknown) => parse.value(toTextValue(v)),
 });
 
 const buffer = ref(value.value == null ? "" : String(value.value));

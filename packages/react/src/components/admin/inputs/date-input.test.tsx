@@ -162,6 +162,14 @@ describe("<DateInput>", () => {
     expect(String(written)).toContain("2021-10-20");
   });
 
+  it("renders empty for a stored object", () => {
+    setup(<DateInput source="published_at" />, {
+      defaultValues: { published_at: { year: 2021 } },
+    });
+    const input = screen.getByLabelText<HTMLInputElement>("Published at");
+    expect(input.value).toBe("");
+  });
+
   it("does not render a label when label is false", () => {
     setup(<DateInput source="published_at" label={false} />, {
       defaultValues: { published_at: "2021-09-11" },

@@ -6,9 +6,9 @@ export interface DateInputProps {
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
   /** Read transform (form value → display string). Default {@link formatDate}. */
-  format?: (value: unknown) => unknown;
+  format?: (value: DateInputValue) => string | null;
   /** Write transform (display string → stored value). Default core parse (""→null). */
-  parse?: (input: unknown) => unknown;
+  parse?: (input: string) => unknown;
   helperText?: string;
   disabled?: boolean;
   readonly?: boolean;
@@ -29,7 +29,13 @@ export interface DateInputProps {
  * dance (born of RHF's `field.ref`) maps to a focused-buffer + external re-sync.
  */
 
-import type { SourceProp, Validator } from "@chelone/core";
+import {
+  type DateInputValue,
+  type SourceProp,
+  toDateInputValue,
+  toTextValue,
+  type Validator,
+} from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
@@ -47,12 +53,13 @@ const props = withDefaults(
 );
 
 const format = computed(() => props.format ?? formatDate);
+const userParse = props.parse;
 const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source: props.source,
   defaultValue: props.defaultValue,
   validate: props.validate,
-  format: (v: unknown) => format.value(v),
-  parse: props.parse,
+  format: (v: unknown) => format.value(toDateInputValue(v)),
+  parse: userParse && ((v: unknown) => userParse(toTextValue(v))),
 });
 
 const buffer = ref(value.value == null ? "" : String(value.value));
