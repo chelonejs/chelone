@@ -19,9 +19,10 @@ import { type FormSubmit, type UseFormOptions, useForm } from "./use-form";
  *
  * The without-`save` member spells its keys out so `defineProps` can resolve
  * it; `form-scope.test-d.ts` pins the list against `UseFormOptions`.
+ * `recordForm` is not a prop: a form built from props edits the record.
  */
 export type OptionalSaveFormProps<TFormData> =
-  | (Omit<UseFormOptions<TFormData>, "onSubmit"> & {
+  | (Omit<UseFormOptions<TFormData>, "onSubmit" | "recordForm"> & {
       save: FormSubmit<TFormData>;
     })
   | {
@@ -63,7 +64,7 @@ export function useFormScope<TFormData>(
   }
   if (ambient) {
     const { form, submit } = ambient;
-    return submit ?? (() => form.handleSubmit());
+    return submit ?? (() => form.ambient.handleSubmit());
   }
   throw new Error(
     `<${name}> needs a \`save\` prop outside a view that provides a form (<Edit>, <Create>).`,

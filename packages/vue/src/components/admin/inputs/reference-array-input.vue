@@ -41,10 +41,9 @@ export interface ReferenceArrayInputProps {
  * filtering flows through the context's `setFilters`. This wrapper syncs the
  * current FK-array value INTO the controller (`setValue`) so it resolves the
  * SELECTED records — the Vue analog of the React twin's `useWatch` + `useEffect`,
- * here a `useSubscribable` over `form.store` driving a `watch`.
+ * here a `useSubscribable` over `form.ambient.store` driving a `watch`.
  */
 
-import type { CheloneFormApi } from "@chelone/core";
 import { watch } from "vue";
 import {
   provideChoicesContext,
@@ -81,9 +80,9 @@ provideChoicesContext(choicesContext);
 // through the child's `useInput`.
 const { form } = useCheloneFormContext();
 const source = useWrappedSource(props.source);
-const store = (form as CheloneFormApi<Record<string, unknown>>).store;
+const { store } = form.ambient;
 const fieldValue = useSubscribable<unknown>({
-  getSnapshot: () => form.getFieldValue(source),
+  getSnapshot: () => form.ambient.getFieldValue(source),
   subscribe: (listener) => subscribeStore(store, listener),
 });
 watch(
