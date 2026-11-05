@@ -202,7 +202,7 @@ function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     <Field
       className={cn("w-full min-w-20", className)}
       data-invalid={invalid || undefined}
-      {...sanitizeInputRestProps(rest as Record<string, unknown>)}
+      {...sanitizeInputRestProps(rest)}
     >
       {label !== "" && label !== false && (
         <FieldLabel htmlFor={id}>

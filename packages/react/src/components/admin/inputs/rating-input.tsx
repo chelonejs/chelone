@@ -82,7 +82,7 @@ function RatingInput<
         aria-disabled={disabled}
         aria-invalid={invalid || undefined}
         className={cn("flex items-center gap-1", className)}
-        {...sanitizeInputRestProps(rest as Record<string, unknown>)}
+        {...sanitizeInputRestProps(rest)}
       >
         {Array.from({ length: steps }).map((_, i) => {
           const v = (i + 1) * stepValue;
