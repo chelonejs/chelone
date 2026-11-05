@@ -70,14 +70,39 @@ describe("record workflow types", () => {
     getAllowedTransitions(post, { source: "status", transitions: {} });
   });
 
+  it("a guard receives the record's own type", () => {
+    getAllowedTransitions(post, {
+      source: "stage",
+      transitions: { draft: ["live"] },
+      guards: {
+        "draft->live": (record) => {
+          expectTypeOf(record).toEqualTypeOf<Post>();
+          return record.title !== "";
+        },
+      },
+    });
+  });
+
+  it("pendingValue and approvedValue are strings", () => {
+    buildApprovalUpdate(post, {
+      identityId: 1,
+      pendingValue: "waiting",
+      approvedValue: "done",
+    });
+    // @ts-expect-error a status is a string
+    buildApprovalUpdate(post, { identityId: 1, pendingValue: 1 });
+    // @ts-expect-error a status is a string
+    buildApprovalUpdate(post, { identityId: 1, approvedValue: true });
+  });
+
   it("a loose record takes any string", () => {
     getApprovalState(loose, { approverSource: "anything" });
     buildApprovalUpdate(loose, { statusSource: "whatever", identityId: 1 });
     getAllowedTransitions(loose, { source: "free", transitions: {} });
-    expectTypeOf<ApprovalOptions["approverSource"]>().toEqualTypeOf<
-      string | undefined
-    >();
-    expectTypeOf<TransitionOptions["source"]>().toEqualTypeOf<
+    expectTypeOf<
+      ApprovalOptions<LooseRecord>["approverSource"]
+    >().toEqualTypeOf<string | undefined>();
+    expectTypeOf<TransitionOptions<LooseRecord>["source"]>().toEqualTypeOf<
       string | undefined
     >();
   });

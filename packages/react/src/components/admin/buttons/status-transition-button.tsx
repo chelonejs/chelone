@@ -23,7 +23,6 @@ import {
   type RegisteredRecord,
   type RegisteredResourceName,
   type ResourceRecord,
-  type SourceKey,
 } from "@chelone/core";
 import { ChevronDown } from "lucide-react";
 import { Fragment, useState } from "react";
@@ -45,11 +44,11 @@ interface StatusTransitionButtonProps<
   TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
 > {
   /** Record field holding the status, a top-level key. Default `"status"`. */
-  source?: SourceKey<TRecord>;
+  source?: keyof TRecord & string;
   /** The states each state may move to. */
   transitions: Record<string, readonly string[]>;
   /** Predicates keyed `"<from>-><to>"`. A transition with no guard is allowed. */
-  guards?: Record<string, (record: Record<string, unknown>) => boolean>;
+  guards?: Record<string, (record: TRecord) => boolean>;
   /** Text for a state. A state with no entry shows as it is. */
   labels?: Record<string, string>;
   resource?: string;

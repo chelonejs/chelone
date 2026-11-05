@@ -1,3 +1,4 @@
+import { type LooseRecord, type SourceProp, toTextValue } from "@chelone/core";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,10 @@ interface SubscriptionPlan {
  *   recommendedPlanId="pro"
  * />
  */
-function SubscriptionPlanPicker(props: SubscriptionPlanPickerProps) {
+function SubscriptionPlanPicker<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+>(props: SubscriptionPlanPickerProps<TRecord, TPath>) {
   const {
     label,
     source,
@@ -47,23 +51,16 @@ function SubscriptionPlanPicker(props: SubscriptionPlanPickerProps) {
     plans,
     recommendedPlanId,
     disabled,
-    validate,
-    isRequired: isRequiredProp,
-    id: idProp,
-    defaultValue,
-    format,
-    parse,
+    ...inputProps
   } = props;
   const resource = useResourceContext({ resource: resourceProp });
 
+  // The options are spread whole: reading the generic `defaultValue` anywhere
+  // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
+  // instantiation depth.
   const { id, field, fieldState, isRequired } = useInput({
+    ...inputProps,
     source,
-    validate,
-    isRequired: isRequiredProp,
-    id: idProp,
-    defaultValue,
-    format,
-    parse,
   });
 
   const invalid = fieldState.invalid;
@@ -71,7 +68,7 @@ function SubscriptionPlanPicker(props: SubscriptionPlanPickerProps) {
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const currentId = (field.value as string | null | undefined) ?? null;
+  const currentId = toTextValue(field.value);
 
   return (
     <FieldSet
@@ -185,7 +182,10 @@ const PlanCard = ({
   );
 };
 
-interface SubscriptionPlanPickerProps extends InputProps {
+interface SubscriptionPlanPickerProps<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> extends InputProps<TRecord, TPath> {
   plans: readonly SubscriptionPlan[];
   recommendedPlanId?: string;
   disabled?: boolean;

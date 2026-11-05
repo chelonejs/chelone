@@ -244,6 +244,19 @@ describe("<RatingInput>", () => {
     expect(wrapper.find("legend").text()).toContain("Rating");
   });
 
+  it("renders the empty state for a stored string that is no number", async () => {
+    const { wrapper } = mountInForm(
+      () => h(RatingInput, { source: "rating" }),
+      { record: { rating: "great" } },
+    );
+    await flushPromises();
+    const stars = wrapper.findAll('[role="radio"]');
+    expect(stars.length).toBe(5);
+    expect(
+      stars.filter((s) => s.attributes("aria-checked") === "true").length,
+    ).toBe(0);
+  });
+
   it("renders `max` stars when max is set", async () => {
     const { wrapper } = mountInForm(
       () => h(RatingInput, { source: "rating", max: 10 }),
