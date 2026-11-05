@@ -15,6 +15,7 @@ import {
   type Identifier,
   type LocationState,
   type PathMatch,
+  type ResourceRecord,
 } from "@chelone/core";
 import type { ComputedRef } from "vue";
 import {
@@ -85,7 +86,11 @@ export function useCreatePath(): (params: CreatePathParams) => string {
 export type RedirectTo =
   | CreatePathType
   | false
-  | ((resource?: string, id?: Identifier, data?: unknown) => string | false);
+  | ((
+      resource?: string,
+      id?: Identifier,
+      data?: ResourceRecord,
+    ) => string | false);
 
 /**
  * Navigate in the ra-core redirect forms — reproducing the React twin's
@@ -104,7 +109,7 @@ export type Redirect = (
   to: RedirectTo,
   resource?: string,
   id?: Identifier,
-  data?: unknown,
+  data?: ResourceRecord,
   state?: LocationState,
 ) => void;
 
@@ -117,7 +122,7 @@ export function useRedirect(): Redirect {
     to: RedirectTo,
     resource?: string,
     id?: Identifier,
-    data?: unknown,
+    data?: ResourceRecord,
     state: LocationState = {},
   ) => {
     if (to === false) return;
