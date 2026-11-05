@@ -7,9 +7,7 @@ import {
   createI18n,
   createNotificationStore,
   fakeDataProvider,
-  type GeoFeature,
-  type GeoMultiPolygon,
-  type GeoPolygon,
+  type JsonObject,
   type MessageCatalog,
   mapMessages,
   type NotificationStore,
@@ -26,6 +24,7 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import type { Feature, Geometry, MultiPolygon, Polygon } from "geojson";
 import type { ReactElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../context";
@@ -49,7 +48,7 @@ const rect = (
   south: number,
   east: number,
   north: number,
-): GeoPolygon => ({
+): Polygon => ({
   type: "Polygon",
   coordinates: [
     [
@@ -64,12 +63,14 @@ const rect = (
 
 /** About 1.24 km², at the equator. */
 const field = rect(0, 0, 0.01, 0.01);
-const feature = (geometry: GeoPolygon): GeoFeature => ({
+const feature = (
+  geometry: Polygon,
+): Feature<Geometry | null, JsonObject | null> => ({
   type: "Feature",
   properties: {},
   geometry,
 });
-const collection = (...geometries: GeoPolygon[]) => ({
+const collection = (...geometries: Polygon[]) => ({
   type: "FeatureCollection" as const,
   features: geometries.map(feature),
 });
@@ -84,7 +85,7 @@ const neighbour = rect(0.01, 0, 0.02, 0.01);
 const stripe = rect(0.004, -1, 0.006, 1);
 /** Sits clear of `field`, to its east. */
 const apart = rect(0.02, 0, 0.03, 0.01);
-const multi = (...polygons: GeoPolygon[]): GeoMultiPolygon => ({
+const multi = (...polygons: Polygon[]): MultiPolygon => ({
   type: "MultiPolygon",
   coordinates: polygons.map((p) => p.coordinates),
 });
@@ -415,7 +416,7 @@ describe("OsmFeatureSubtract", () => {
     );
     await click();
 
-    const written = m.value() as GeoMultiPolygon;
+    const written = m.value() as MultiPolygon;
     expect(written.type).toBe("MultiPolygon");
     expect(written.coordinates).toHaveLength(2);
     expect(messages(m.notifications)[0]).toMatchObject({

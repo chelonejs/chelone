@@ -1,7 +1,7 @@
 import type {
-  GeoBBox,
   GeocodeResult,
   GeocodingProvider,
+  LngLatBox,
   LooseRecord,
   SourceProp,
 } from "@chelone/core";
@@ -42,7 +42,7 @@ export interface GeocodingInputProps<TRecord = LooseRecord> {
   /** Typeahead providers only: wait after the last key. Defaults to 300. */
   debounceMs?: number;
   countryCodes?: string[];
-  viewBox?: GeoBBox;
+  viewBox?: LngLatBox;
   limit?: number;
   disabled?: boolean;
   className?: string;
