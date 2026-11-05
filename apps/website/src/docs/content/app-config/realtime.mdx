@@ -1,6 +1,6 @@
 ---
 title: "Realtime"
-description: "Live lists, record locks and unread badges over a transport you supply."
+description: "Live lists, record locks and unread badges over a browser, WebSocket, server-sent events or Supabase transport."
 ---
 
 Realtime lets one user's change refresh what another user is looking at. A
@@ -238,8 +238,10 @@ export const PostEdit = () => (
 ```
 
 - Presence needs a realtime data provider. With `memoryTransport` it works for
-  one page only, such as two components in the same tab. Nothing reaches
-  another browser without a server transport, and Chelone ships none.
+  one page only, such as two components in the same tab. To reach other users,
+  use `webSocketTransport`, `sseTransport` or `supabaseRealtimeTransport`, or
+  `broadcastChannelTransport` for the tabs of one browser. See
+  [The browser transports](#the-browser-transports).
 - The bar announces the current user on `presence/<resource>/<id>`, a topic
   built by `presenceTopic(resource, id)`, and listens on it for the others.
   The user comes from the auth provider's identity; `currentUser` replaces it.
@@ -476,10 +478,10 @@ interface RealtimeTransport {
 - `onError` reports `connect_failed`, `auth_failed`, `send_failed`,
   `parse_failed` and `handler_threw`, each with `retrying` set.
 
-A transport that needs a client library, such as a WebSocket, server-sent
-events or a hosted pub/sub service, is the app's to supply. Chelone ships none:
-write one that implements the interface above and pass it to
-`realtimeDataProvider`.
+Chelone ships transports for the browser, a WebSocket server, a server-sent
+events server and Supabase, listed below. For any other service, write one that
+implements the interface above with `createTopicHub`, see
+[Writing your own](#writing-your-own).
 
 ### The in-memory transport
 
@@ -498,6 +500,213 @@ transport.simulateReconnect(); // calls every onReconnect listener
 - A subscriber that throws goes to `onError` as `handler_threw`; the other
   subscribers still run.
 - It starts as `"connected"`.
+
+### The browser transports
+
+Three transports in `@chelone/core` need no library. Each returns a
+`RealtimeTransport` with every optional member and a `close()`. Pass one to
+`realtimeDataProvider` like `memoryTransport`.
+
+| Transport | Reaches | Needs a server |
+| --- | --- | --- |
+| `broadcastChannelTransport` | The tabs of one browser | No |
+| `webSocketTransport` | Every client of a WebSocket server | Yes |
+| `sseTransport` | Every client of a server-sent events server | Yes, plus an endpoint to publish to |
+
+For Supabase, see [Supabase Realtime](/docs/app-config/supabase#realtime).
+
+#### BroadcastChannel
+
+`broadcastChannelTransport` shares events between the tabs of one browser
+through a `BroadcastChannel`. Every tab that uses the same `channel` name joins.
+
+```ts
+import { broadcastChannelTransport, realtimeDataProvider } from "@chelone/core";
+import { baseProvider } from "./baseProvider";
+
+export const transport = broadcastChannelTransport({ channel: "admin" });
+
+export const dataProvider = realtimeDataProvider(baseProvider, transport);
+```
+
+- `BroadcastChannel` reaches only tabs of one browser, and only for one origin.
+  It does not reach another browser or another device.
+- A publish also reaches the subscribers of the tab that published, so a tab
+  sees its own events.
+- It throws on creation where the global `BroadcastChannel` is missing.
+- It reports `"connected"` until `close()`.
+
+#### WebSocket
+
+`webSocketTransport` keeps one socket open and sends every topic through it.
+
+```ts
+import { realtimeDataProvider, webSocketTransport } from "@chelone/core";
+import { baseProvider } from "./baseProvider";
+import { getSession } from "./session";
+
+export const transport = webSocketTransport({
+  url: "wss://api.example.com/realtime",
+  getAuthToken: async () => (await getSession())?.accessToken,
+  authMode: "subprotocol",
+});
+
+export const dataProvider = realtimeDataProvider(baseProvider, transport);
+```
+
+The socket opens on the first subscribe or publish. It carries JSON text
+frames. The client sends:
+
+```json
+{"op":"subscribe","topic":"resource/posts"}
+{"op":"unsubscribe","topic":"resource/posts"}
+{"op":"publish","topic":"resource/posts","event":{"type":"updated","payload":{"ids":[1]}}}
+{"op":"ping"}
+```
+
+The server sends an event as a frame with the shape of the event, and answers a
+`ping` with a pong:
+
+```json
+{"topic":"resource/posts","type":"updated","payload":{"ids":[1]},"meta":{}}
+{"op":"pong"}
+```
+
+- `topic` and `type` are required strings. `payload` and `meta` are optional.
+  A frame that is not text, not JSON or not an event goes to `onError` as
+  `parse_failed`.
+- After a reconnect the transport sends `subscribe` again for every topic that
+  still has a listener, so the server needs no memory of the old socket.
+- A `publish` made before the socket is open waits in a queue and is sent when
+  it opens. `close()` rejects the ones still waiting.
+- `heartbeatMs` (default 30000) sets how often a `ping` goes out. A `ping` with
+  no frame of any kind back by the next one counts as a dropped connection.
+- `idleDisconnectMs` (default 30000) closes the socket once nothing is
+  subscribed, and it opens again on the next subscribe.
+- `protocols` lists the subprotocols offered on every connection.
+
+`getAuthToken` runs before every connection, so a retry carries a fresh token.
+`authMode` says where the token goes:
+
+- `"query"` (the default) adds a `token` parameter to the URL. Server logs, proxy
+  logs and browser history can keep a URL, and so can the token in it.
+- `"subprotocol"` offers the token as a subprotocol after `protocols`, and keeps
+  it out of the URL. The server must accept that subprotocol in the handshake.
+  Use it when the server can read the `Sec-WebSocket-Protocol` header.
+
+#### Server-sent events
+
+`sseTransport` reads a stream with `EventSource` and publishes with a `POST`.
+
+```ts
+import { realtimeDataProvider, sseTransport } from "@chelone/core";
+import { baseProvider } from "./baseProvider";
+import { getSession } from "./session";
+
+export const transport = sseTransport({
+  url: "https://api.example.com/realtime/stream",
+  publishUrl: "https://api.example.com/realtime/publish",
+  getAuthToken: async () => (await getSession())?.accessToken,
+});
+
+export const dataProvider = realtimeDataProvider(baseProvider, transport);
+```
+
+The stream opens on the first subscribe, and subscribes in the same tick share
+one request. It is a `GET` on `url` with the topics in a `topics` query
+parameter (rename it with `topicFilterParam`), comma separated:
+`/realtime/stream?topics=resource%2Fposts%2Clock%2Fposts&token=...`.
+
+The server sends one named event per topic. The event name is the topic, and
+`data` is JSON of `{ type, payload, meta }`:
+
+```text
+event: resource/posts
+data: {"type":"updated","payload":{"ids":[1]}}
+```
+
+- `type` is a required string; `payload` and `meta` are optional. The topic comes
+  from the event name, so `data` does not carry one. Data that is not JSON goes
+  to `onError` as `parse_failed`; JSON without a `type` is dropped.
+- `EventSource` cannot set headers, so the token is always in the stream URL as
+  `token`. It carries the same risk as `authMode: "query"` above: use a
+  short-lived token.
+- A `publish` sends a `POST` to `publishUrl` with a JSON body of
+  `{ "topic": "...", "event": { "type": "...", ... } }` and an
+  `Authorization: Bearer <token>` header. Any status outside 200 to 299 rejects
+  it. Without `publishUrl` a `publish` rejects.
+- A change to the topics reopens the stream, which can take a moment.
+- `withCredentials` is passed to `EventSource` and sends credentials on the
+  `POST`. `fetch` replaces the global one for the `POST`.
+- `idleDisconnectMs` (default 30000) closes the stream once nothing is
+  subscribed.
+
+#### Reconnect and status
+
+`webSocketTransport` and `sseTransport` retry a dropped connection with
+exponential backoff. `reconnect` takes these options:
+
+| Option | Default | Does |
+| --- | --- | --- |
+| `enabled` | `true` | `false` turns retries off. |
+| `initialDelayMs` | `1000` | The wait before the first retry; each retry doubles it. |
+| `maxDelayMs` | `30000` | The wait never grows past this. |
+| `maxAttempts` | `Infinity` | Retries before giving up. |
+| `jitter` | `0.3` | The share of each wait that is randomised, up or down. |
+
+A connection that opens again resets the count. A reconnect calls the
+`onReconnect` listeners, which refetch the live views. `getStatus` reports:
+
+| Status | Means |
+| --- | --- |
+| `"idle"` | Nothing is subscribed, so no connection is open. The first subscribe or publish opens one. |
+| `"connected"` | The connection is open. |
+| `"reconnecting"` | The connection dropped and a retry is waiting or running. |
+| `"disconnected"` | `close()` was called, a retry gave up, retries are off, or the server closed the connection cleanly. |
+
+A failed connection goes to `onError` as `connect_failed` with `retrying` set.
+A token that cannot be read is `auth_failed`, a send that throws is
+`send_failed`.
+
+#### Closing
+
+`close()` ends a transport and sets `"disconnected"`. Call it when the app tears
+the transport down, such as a test cleanup or a hot-reload dispose.
+
+- On `broadcastChannelTransport`, a `publish` after `close()` rejects.
+- On `webSocketTransport` it closes the socket and rejects queued publishes.
+- On `sseTransport` it closes the stream.
+- A later subscribe on a WebSocket or server-sent events transport opens a
+  connection again.
+
+#### Writing your own
+
+For a service Chelone has no transport for, such as a hosted pub/sub client,
+`createTopicHub` holds the parts every transport shares: the subscribers of each
+topic, with a throwing subscriber isolated from the others, and the status,
+reconnect and error listeners. Your transport connects to the service and calls
+`dispatch` for each event it receives.
+
+```ts
+import { createTopicHub, type RealtimeTransport } from "@chelone/core";
+
+export function myTransport(client: MyClient): RealtimeTransport {
+  const hub = createTopicHub();
+  client.onMessage((topic, event) => hub.dispatch({ topic, ...event }));
+  return {
+    subscribe: hub.subscribe,
+    publish: (topic, event) => client.send(topic, event),
+    onReconnect: hub.onReconnect,
+    onStatusChange: hub.onStatusChange,
+    getStatus: hub.getStatus,
+    onError: hub.onError,
+  };
+}
+```
+
+`hub.setStatus`, `hub.reconnected` and `hub.report` let the transport tell the
+hub about the connection. `hub.has(topic)` and `hub.topics()` say what to
+subscribe to on the service.
 
 ## How events reach the query cache
 
