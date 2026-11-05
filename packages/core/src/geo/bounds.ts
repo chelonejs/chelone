@@ -1,4 +1,16 @@
-import type { GeoBBox, GeoJsonValue } from "./geojson";
+import type { Feature, FeatureCollection, Geometry } from "geojson";
+import type { JsonObject } from "../guards";
+
+/**
+ * `[west, south, east, north]`. Not geojson's `BBox`, which also allows six
+ * numbers.
+ */
+export type LngLatBox = [
+  west: number,
+  south: number,
+  east: number,
+  north: number,
+];
 
 // A ring from `bboxToPolygon` runs east of 180, up to 180 + 360.
 const MAX_LONGITUDE = 540;
@@ -56,10 +68,13 @@ function longitudeArc(
  * east.
  */
 export function geoBounds(
-  value: GeoJsonValue,
+  value:
+    | Geometry
+    | Feature<Geometry | null, JsonObject | null>
+    | FeatureCollection<Geometry | null, JsonObject | null>,
   mode: CrossingMode = "narrowest",
-): GeoBBox | null {
-  let bounds: GeoBBox | null = null;
+): LngLatBox | null {
+  let bounds: LngLatBox | null = null;
   const longitudes = new Set<number>();
   const extend = (longitude: number, latitude: number) => {
     longitudes.add(longitude);
@@ -80,7 +95,13 @@ export function geoBounds(
     }
     for (const child of node) walkCoordinates(child);
   };
-  const walk = (node: GeoJsonValue | null) => {
+  const walk = (
+    node:
+      | Geometry
+      | Feature<Geometry | null, JsonObject | null>
+      | FeatureCollection<Geometry | null, JsonObject | null>
+      | null,
+  ) => {
     if (!node) return;
     if (node.type === "FeatureCollection") {
       for (const feature of node.features) walk(feature);
@@ -94,7 +115,7 @@ export function geoBounds(
   };
   walk(value);
   if (!bounds) return null;
-  const [west, south, east, north] = bounds as GeoBBox;
+  const [west, south, east, north] = bounds as LngLatBox;
   const [arcWest, arcEast] = longitudeArc(longitudes, west, east, mode);
   return [arcWest, south, arcEast, north];
 }
@@ -103,9 +124,7 @@ export function geoBounds(
  * Whether every corner is a valid longitude and latitude. MapLibre throws on a
  * latitude outside ±90, so a box failing this is never fitted.
  */
-export function isLngLatBox(
-  box: readonly number[] | null,
-): box is [number, number, number, number] {
+export function isLngLatBox(box: readonly number[] | null): box is LngLatBox {
   if (!box) return false;
   const [west = 0, south = 0, east = 0, north = 0] = box;
   return (

@@ -59,6 +59,7 @@ const hoisted = vi.hoisted(() => ({
   formatRun: vi.fn(),
   modelUri: "",
   topLevelJson: false,
+  noJson: false,
   editorOptions: undefined as Record<string, unknown> | undefined,
 }));
 
@@ -123,11 +124,13 @@ vi.mock("@monaco-editor/react", () => ({
               };
             },
           },
-          languages: {
-            json: hoisted.topLevelJson
-              ? { deprecated: true }
-              : { jsonDefaults },
-          },
+          languages: hoisted.noJson
+            ? {}
+            : {
+                json: hoisted.topLevelJson
+                  ? { deprecated: true }
+                  : { jsonDefaults },
+              },
           ...(hoisted.topLevelJson && { json: { jsonDefaults } }),
         },
       );
@@ -242,6 +245,7 @@ beforeEach(() => {
   hoisted.formatRun.mockReset();
   hoisted.editorOptions = undefined;
   hoisted.topLevelJson = false;
+  hoisted.noJson = false;
 });
 afterEach(() => {
   vi.useRealTimers();
@@ -345,6 +349,18 @@ describe("<MonacoJsonInput />", () => {
     expect(
       (hoisted.diagnosticsOptions as DiagnosticsOptions).schemas,
     ).toHaveLength(1);
+  });
+
+  it("mounts and registers nothing when monaco has no json defaults", async () => {
+    hoisted.noJson = true;
+    setup(
+      <MonacoJsonInput source="meta" id="m" schema={{ type: "object" }} />,
+      {
+        defaultValues: { meta: {} },
+      },
+    );
+    expect(await editor()).toBeTruthy();
+    expect(hoisted.diagnosticsOptions).toEqual({});
   });
 
   it("keeps other editors' schemas when it registers and unregisters", async () => {

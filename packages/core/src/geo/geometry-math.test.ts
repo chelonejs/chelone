@@ -1,8 +1,8 @@
+import type { Polygon, Position } from "geojson";
 import { describe, expect, it } from "vitest";
-import type { GeoPolygon, GeoPosition } from "./geojson";
 import { areaInTypeOf, geoAreaM2, hasSelfIntersection } from "./geometry-math";
 
-function square(west: number, south: number, size: number): GeoPosition[] {
+function square(west: number, south: number, size: number): Position[] {
   return [
     [west, south],
     [west + size, south],
@@ -14,7 +14,7 @@ function square(west: number, south: number, size: number): GeoPosition[] {
 
 describe("geoAreaM2", () => {
   it("geoAreaM2 of a one degree square at the equator is about 12392 km2", () => {
-    const polygon: GeoPolygon = {
+    const polygon: Polygon = {
       type: "Polygon",
       coordinates: [square(0, 0, 1)],
     };
@@ -74,7 +74,7 @@ describe("geoAreaM2", () => {
 
 describe("hasSelfIntersection", () => {
   it("hasSelfIntersection flags a bow-tie and passes a square", () => {
-    const bowTie: GeoPolygon = {
+    const bowTie: Polygon = {
       type: "Polygon",
       coordinates: [
         [
@@ -137,7 +137,7 @@ describe("hasSelfIntersection", () => {
   });
 
   it("hasSelfIntersection looks inside every part of a collection", () => {
-    const bowTie: GeoPosition[] = [
+    const bowTie: Position[] = [
       [0, 0],
       [2, 2],
       [2, 0],
@@ -178,11 +178,11 @@ describe("hasSelfIntersection", () => {
 });
 
 describe("areaInTypeOf", () => {
-  const polygon = (west: number): GeoPolygon => ({
+  const polygon = (west: number): Polygon => ({
     type: "Polygon",
     coordinates: [square(west, 0, 1)],
   });
-  const multi = (...parts: GeoPolygon[]) => ({
+  const multi = (...parts: Polygon[]) => ({
     type: "MultiPolygon" as const,
     coordinates: parts.map((part) => part.coordinates),
   });

@@ -1,6 +1,7 @@
+import type { FeatureCollection, Geometry } from "geojson";
 import { describe, expect, it } from "vitest";
+import type { JsonObject } from "../guards";
 import { geoBounds, isLngLatBox } from "./bounds";
-import type { GeoFeatureCollection } from "./geojson";
 
 describe("geoBounds", () => {
   it("covers a Point as a zero-size box", () => {
@@ -27,7 +28,7 @@ describe("geoBounds", () => {
   });
 
   it("covers a FeatureCollection with a Point and a Polygon", () => {
-    const collection: GeoFeatureCollection = {
+    const collection: FeatureCollection<Geometry | null, JsonObject | null> = {
       type: "FeatureCollection",
       features: [
         {
