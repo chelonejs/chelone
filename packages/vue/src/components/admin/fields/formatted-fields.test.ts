@@ -12,7 +12,13 @@ import { createI18n, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import { type Component, defineComponent, h, nextTick } from "vue";
+import {
+  type Component,
+  defineComponent,
+  h,
+  nextTick,
+  type VNodeChild,
+} from "vue";
 import { provideCheloneContext } from "../../../context";
 import { provideRecordContext } from "../../../record/record-context";
 import ApiKeyField from "./api-key-field.vue";
@@ -35,16 +41,22 @@ function makeContext() {
 
 /** Mount `field` (with `props` + optional `slots`) under a static `record`. */
 function mountField(
+  // `object` is the widest honest shape: `<FunctionField>` is generic with a
+  // required scoped slot, and vue-tsc types that as a function no `h` overload
+  // takes, so no Vue component type accepts every field this harness mounts.
   field: object,
   props: Record<string, unknown>,
   record: Record<string, unknown> | undefined,
-  slots?: Record<string, unknown>,
+  // `never` scope: the harness hands every slot to `h` and never calls one, so
+  // each takes whatever scope the field passes it.
+  slots?: Record<string, (scope: never) => VNodeChild>,
 ) {
   const Harness = defineComponent({
     setup() {
       provideCheloneContext(makeContext());
       provideRecordContext(record);
-      return () => h(field as Component, props, slots as never);
+      // type-escape: every field here is a component; see the `object` note.
+      return () => h(field as Component, props, slots);
     },
   });
   return mount(Harness);

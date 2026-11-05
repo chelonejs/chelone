@@ -5,7 +5,7 @@ import {
 } from "@chelone/core";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick } from "vue";
+import { defineComponent, h, nextTick, type VNodeChild } from "vue";
 import { type CheloneContextValue, provideCheloneContext } from "../context";
 import {
   useLocale,
@@ -28,8 +28,11 @@ function makeI18n(): AnyCheloneI18n {
 }
 
 /** Mount `child` under a context that carries `i18n` (or none). */
-function mountWith(i18n: AnyCheloneI18n | undefined, child: () => unknown) {
-  const Child = defineComponent({ setup: child as never });
+function mountWith(
+  i18n: AnyCheloneI18n | undefined,
+  child: () => () => VNodeChild,
+) {
+  const Child = defineComponent({ setup: child });
   const Host = defineComponent({
     setup() {
       provideCheloneContext({ dataProvider, i18n } as CheloneContextValue);
