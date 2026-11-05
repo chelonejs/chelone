@@ -1,11 +1,11 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link PhoneField}. */
-export interface PhoneFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface PhoneFieldProps<RecordType extends LooseRecord = LooseRecord> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** `national` → `(415) 555-2671`; `international` → `+1 415 555 2671`. */
   displayFormat?: "national" | "international";
@@ -15,7 +15,7 @@ export interface PhoneFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<PhoneField>` — displays an E.164 phone number as a formatted label,
  * optionally wrapped in a `tel:` link, the Vue analog of `@chelone/react`'s
@@ -32,11 +32,11 @@ import { useTranslate } from "../../../i18n/use-translate";
 
 // `withDefaults` for `link`: an absent Vue Boolean prop is cast to `false`, so
 // the `true` default must live on the prop (a bare `?? true` never fires).
-const props = withDefaults(defineProps<PhoneFieldProps>(), { link: true });
+const props = withDefaults(defineProps<PhoneFieldProps<RecordType>>(), { link: true });
 
 const displayFormat = computed(() => props.displayFormat ?? "national");
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
