@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { SourceProp } from "@chelone/core";
+import type { DateInputValue, SourceProp } from "@chelone/core";
 
 /** Props for {@link TimeInput}. */
 export interface TimeInputProps {
@@ -7,14 +7,14 @@ export interface TimeInputProps {
   label?: string | false;
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
-  /** Read transform (form value → display string). Default {@link formatTime}. */
-  format?: (value: unknown) => unknown;
-  /** Write transform (display string → stored value). Default {@link parseTimeToDate}. */
-  parse?: (input: unknown) => unknown;
   helperText?: string;
   disabled?: boolean;
   readonly?: boolean;
   inputClass?: string;
+  /** Read transform (form value → display string). Default {@link formatTime}. */
+  format?: (value: DateInputValue) => string;
+  /** Write transform (display string → stored value). Default {@link parseTimeToDate}. */
+  parse?: (input: string) => unknown;
   class?: string;
 }
 </script>
@@ -29,7 +29,11 @@ export interface TimeInputProps {
  * pattern as `<DateInput>`.
  */
 
-import type { Validator } from "@chelone/core";
+import {
+  toDateInputValue,
+  toTextValue,
+  type Validator,
+} from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
@@ -51,8 +55,8 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source: props.source,
   defaultValue: props.defaultValue,
   validate: props.validate,
-  format: (v: unknown) => format.value(v),
-  parse: (v: unknown) => parse.value(v),
+  format: (v: unknown) => format.value(toDateInputValue(v)),
+  parse: (v: unknown) => parse.value(toTextValue(v)),
 });
 
 const buffer = ref(value.value == null ? "" : String(value.value));

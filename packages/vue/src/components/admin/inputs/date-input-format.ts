@@ -7,6 +7,8 @@
  * without mounting a component).
  */
 
+import type { DateInputValue } from "@chelone/core";
+
 const leftPad =
   (nb = 2) =>
   (value: number) =>
@@ -31,11 +33,11 @@ function dateToYmd(value: Date): string {
  * Format a form value (string / ISO / `Date` / timestamp / "") to a bare
  * "YYYY-MM-DD" string for `<input type="date">`. Returns `null` for nullish/empty.
  */
-export function formatDate(value: unknown): string | null {
+export function formatDate(value: DateInputValue): string | null {
   if (value == null || value === "") return null;
   if (value instanceof Date) return dateToYmd(value);
   if (typeof value === "string" && dateRegex.test(value)) return value;
-  return dateToYmd(new Date(value as string | number));
+  return dateToYmd(new Date(value));
 }
 
 /** Whether a raw `<input type="date">` string is empty or a valid date. */
@@ -63,20 +65,20 @@ function dateToLocalDateTime(value: Date): string {
  * Format a form value (ISO string / `Date` / timestamp) to the local
  * `datetime-local` display string. Empty → "" (keeps the input controlled).
  */
-export function formatDateTime(value: unknown): string {
+export function formatDateTime(value: DateInputValue): string {
   if (value == null || value === "") return "";
   if (value instanceof Date) return dateToLocalDateTime(value);
   if (typeof value === "string" && dateTimeRegex.test(value)) return value;
-  return dateToLocalDateTime(new Date(value as string | number));
+  return dateToLocalDateTime(new Date(value));
 }
 
 /**
  * Parse a local `datetime-local` string back to an ISO 8601 string (browser
  * timezone). Returns `null` for empty/unparseable so a required validator fires.
  */
-export function parseDateTimeToISO(value: unknown): string | null {
-  if (value == null || value === "") return null;
-  const date = new Date(value as string);
+export function parseDateTimeToISO(value: string): string | null {
+  if (value === "") return null;
+  const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
@@ -103,11 +105,11 @@ function dateToHm(value: Date): string {
  * Format a form value (`Date` / "HH:mm" string) to the "HH:mm" display string.
  * Empty → "" (keeps the input controlled).
  */
-export function formatTime(value: unknown): string {
+export function formatTime(value: DateInputValue): string {
   if (value == null || value === "") return "";
   if (value instanceof Date) return dateToHm(value);
   if (typeof value === "string" && timeRegex.test(value)) return value;
-  return dateToHm(new Date(value as string | number));
+  return dateToHm(new Date(value));
 }
 
 /**
@@ -115,9 +117,8 @@ export function formatTime(value: unknown): string {
  * dataProvider compatibility. Returns `null` for empty/unparseable so a required
  * validator still fires.
  */
-export function parseTimeToDate(value: unknown): Date | null {
-  if (value == null || value === "") return null;
-  if (typeof value === "string" && timeRegex.test(value)) {
+export function parseTimeToDate(value: string): Date | null {
+  if (timeRegex.test(value)) {
     const [hh = "0", mm = "0", ss = "0"] = value.split(":");
     const d = new Date();
     d.setHours(
