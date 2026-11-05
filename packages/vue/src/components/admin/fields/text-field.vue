@@ -1,16 +1,16 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link TextField}. */
-export interface TextFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface TextFieldProps<RecordType extends LooseRecord = LooseRecord> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<TextField>` — displays a text value from a record field, the Vue analog of
  * `@chelone/react`'s `fields/text-field.tsx`. Reads the value at `source` off
@@ -21,9 +21,9 @@ export interface TextFieldProps {
 import { computed } from "vue";
 import { useFieldValue } from "../../../record/use-field-value";
 
-const props = defineProps<TextFieldProps>();
+const props = defineProps<TextFieldProps<RecordType>>();
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

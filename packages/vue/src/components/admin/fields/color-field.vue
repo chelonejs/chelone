@@ -1,11 +1,11 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link ColorField}. */
-export interface ColorFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface ColorFieldProps<RecordType extends LooseRecord = LooseRecord> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** When false, hides the textual color value next to the chip. Default true. */
   showLabel?: boolean;
@@ -13,7 +13,7 @@ export interface ColorFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<ColorField>` — displays a color value as a colored chip plus its string
  * label, the Vue analog of `@chelone/react`'s `fields/color-field.tsx`. Accepts
@@ -28,9 +28,9 @@ import { useTranslate } from "../../../i18n/use-translate";
 
 // `withDefaults`: an absent Vue Boolean prop is cast to `false`, so `showLabel`
 // needs its `true` default on the prop itself (a bare `?? true` never fires).
-const props = withDefaults(defineProps<ColorFieldProps>(), { showLabel: true });
+const props = withDefaults(defineProps<ColorFieldProps<RecordType>>(), { showLabel: true });
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

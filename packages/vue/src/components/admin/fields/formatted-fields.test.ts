@@ -83,6 +83,15 @@ describe("CurrencyField", () => {
     expect(w.get('[data-slot="currency-field"]').text()).toContain("€");
   });
 
+  it("formats a { amount, currency } value whose amount is a numeric string", () => {
+    const w = mountField(
+      CurrencyField,
+      { source: "cost", displayLocale: "en-US" },
+      { cost: { amount: "12.50", currency: "EUR" } },
+    );
+    expect(w.get('[data-slot="currency-field"]').text()).toBe("€12.50");
+  });
+
   it("divides by 100 under storeAsMinorUnits", () => {
     const w = mountField(
       CurrencyField,

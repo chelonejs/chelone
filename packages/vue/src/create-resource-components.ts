@@ -19,7 +19,8 @@
  * this entry, and they take the registered union.
  *
  * Generic fields and inputs (`generic=` SFCs: `RecordField`, `SelectInput`,
- * `ApiKeyField`, ...) are not members of the type. Their type is a function
+ * `ApiKeyField`, ...) are not members of the type unless `TypedFieldMembers` or
+ * `TypedInputMembers` lists them (`TextField`, `DateField`, ...). Their type is a function
  * with no constructor signature, so `Retyped` cannot replace their `source`
  * without erasing the generic. The test is the type itself, so an SFC that
  * becomes generic later drops out of `ResourceComponents` on its own, and a
@@ -49,20 +50,38 @@ import type { ChoiceRecord } from "./choices/use-choices";
 import ApiKeyField from "./components/admin/fields/api-key-field.vue";
 import ArrayField from "./components/admin/fields/array-field.vue";
 import BadgeField from "./components/admin/fields/badge-field.vue";
-import BooleanField from "./components/admin/fields/boolean-field.vue";
+import BooleanField, {
+  type BooleanFieldProps,
+} from "./components/admin/fields/boolean-field.vue";
 import ChipField from "./components/admin/fields/chip-field.vue";
-import ColorField from "./components/admin/fields/color-field.vue";
-import CronField from "./components/admin/fields/cron-field.vue";
-import CurrencyField from "./components/admin/fields/currency-field.vue";
-import DateField from "./components/admin/fields/date-field.vue";
-import DurationField from "./components/admin/fields/duration-field.vue";
-import EmailField from "./components/admin/fields/email-field.vue";
+import ColorField, {
+  type ColorFieldProps,
+} from "./components/admin/fields/color-field.vue";
+import CronField, {
+  type CronFieldProps,
+} from "./components/admin/fields/cron-field.vue";
+import CurrencyField, {
+  type CurrencyFieldProps,
+} from "./components/admin/fields/currency-field.vue";
+import DateField, {
+  type DateFieldProps,
+} from "./components/admin/fields/date-field.vue";
+import DurationField, {
+  type DurationFieldProps,
+} from "./components/admin/fields/duration-field.vue";
+import EmailField, {
+  type EmailFieldProps,
+} from "./components/admin/fields/email-field.vue";
 import FileField from "./components/admin/fields/file-field.vue";
 import FunctionField from "./components/admin/fields/function-field.vue";
 import ImageField from "./components/admin/fields/image-field.vue";
 import JsonField from "./components/admin/fields/json-field.vue";
-import NumberField from "./components/admin/fields/number-field.vue";
-import PhoneField from "./components/admin/fields/phone-field.vue";
+import NumberField, {
+  type NumberFieldProps,
+} from "./components/admin/fields/number-field.vue";
+import PhoneField, {
+  type PhoneFieldProps,
+} from "./components/admin/fields/phone-field.vue";
 import RatingField from "./components/admin/fields/rating-field.vue";
 import RecordField from "./components/admin/fields/record-field.vue";
 import ReferenceArrayField from "./components/admin/fields/reference-array-field.vue";
@@ -73,8 +92,12 @@ import ReferenceOneField from "./components/admin/fields/reference-one-field.vue
 import SelectField from "./components/admin/fields/select-field.vue";
 import SubscriptionPlanField from "./components/admin/fields/subscription-plan-field.vue";
 import TextArrayField from "./components/admin/fields/text-array-field.vue";
-import TextField from "./components/admin/fields/text-field.vue";
-import UrlField from "./components/admin/fields/url-field.vue";
+import TextField, {
+  type TextFieldProps,
+} from "./components/admin/fields/text-field.vue";
+import UrlField, {
+  type UrlFieldProps,
+} from "./components/admin/fields/url-field.vue";
 import UsageMeterField from "./components/admin/fields/usage-meter-field.vue";
 import WebhookEndpointField from "./components/admin/fields/webhook-endpoint-field.vue";
 import WrapperField from "./components/admin/fields/wrapper-field.vue";
@@ -270,31 +293,63 @@ type ValueEntries<P, TValue> = {
 };
 
 /**
- * A member whose props have a `format`, `parse`, `transform` or `defaultValue`: a generic
- * function component over the literal `source`, so those callbacks take the
- * value at it. Volar reads a function component's props off its first
- * parameter and its slots off the second. `NoInfer` keeps `TPath` from being inferred back through
+ * A function component over the literal `source`, so the `format`, `parse`,
+ * `transform` and `defaultValue` in `TProps` take the value at it. Volar reads
+ * a function component's props off its first parameter and its slots off the
+ * second. `NoInfer` keeps `TPath` from being inferred back through
  * `SourceValue` out of a callback's parameter, which overflows the type depth.
  */
-type ValueMember<TComponent extends Ctor, TRecord> = <
+type ValueFunction<TProps, TSlots, TRecord> = <
   TPath extends SourceProp<TRecord>,
 >(
   props: Omit<
-    InstanceType<TComponent>["$props"],
+    TProps,
     "source" | "format" | "parse" | "transform" | "defaultValue"
   > &
-    (Partial<Pick<InstanceType<TComponent>["$props"], "source">> extends Pick<
-      InstanceType<TComponent>["$props"],
-      "source"
+    (Partial<Pick<TProps, Extract<keyof TProps, "source">>> extends Pick<
+      TProps,
+      Extract<keyof TProps, "source">
     >
       ? { source?: TPath }
       : { source: TPath }) &
-    ValueEntries<
-      InstanceType<TComponent>["$props"],
-      NoInfer<SourceValue<TRecord, TPath>>
-    >,
-  ctx?: { slots?: InstanceType<TComponent>["$slots"] },
+    ValueEntries<TProps, NoInfer<SourceValue<TRecord, TPath>>>,
+  ctx?: { slots?: TSlots },
 ) => VNode;
+
+/** A member whose SFC has a constructor: its props are read off `$props`. */
+type ValueMember<TComponent extends Ctor, TRecord> = ValueFunction<
+  InstanceType<TComponent>["$props"],
+  InstanceType<TComponent>["$slots"],
+  TRecord
+>;
+
+/**
+ * A member whose SFC is generic in its record, so it is a function and not a
+ * constructor, and its props cannot be read off it: Vue's generic props type
+ * has an index signature, which `Omit` would collapse. `TProps` is the SFC's
+ * exported props interface at the default (loose) record, retyped by
+ * {@link ValueFunction} as for a {@link ValueMember}.
+ */
+type GenericValueMember<TProps, TRecord> = ValueFunction<
+  TProps & VNodeProps & AllowedComponentProps,
+  object,
+  TRecord
+>;
+
+/** The display fields that are generic in their record, retyped to `TRecord`. */
+type TypedFieldMembers<TRecord> = {
+  BooleanField: GenericValueMember<BooleanFieldProps, TRecord>;
+  ColorField: GenericValueMember<ColorFieldProps, TRecord>;
+  CronField: GenericValueMember<CronFieldProps, TRecord>;
+  CurrencyField: GenericValueMember<CurrencyFieldProps, TRecord>;
+  DateField: GenericValueMember<DateFieldProps, TRecord>;
+  DurationField: GenericValueMember<DurationFieldProps, TRecord>;
+  EmailField: GenericValueMember<EmailFieldProps, TRecord>;
+  NumberField: GenericValueMember<NumberFieldProps, TRecord>;
+  PhoneField: GenericValueMember<PhoneFieldProps, TRecord>;
+  TextField: GenericValueMember<TextFieldProps, TRecord>;
+  UrlField: GenericValueMember<UrlFieldProps, TRecord>;
+};
 
 /** The member type: {@link ValueMember} when the props have a value callback or a `defaultValue`, else {@link Retyped}. */
 type ResourceMember<TComponent extends Ctor, TRecord> = [
@@ -415,7 +470,8 @@ export type ResourceComponents<
     Extract<SourceMembers[K], Ctor>,
     RecordOf<TResources, TName>
   >;
-} & TypedInputMembers<RecordOf<TResources, TName>> & {
+} & TypedInputMembers<RecordOf<TResources, TName>> &
+  TypedFieldMembers<RecordOf<TResources, TName>> & {
     ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
     Edit: BoundView<typeof Edit>;
     Create: BoundView<typeof Create>;
