@@ -10,6 +10,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { type ReactNode, StrictMode } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { makeAuthProvider } from "./__fixtures__/auth-provider";
 import { CheloneProvider } from "./context";
 import {
   useGetLock,
@@ -41,10 +42,8 @@ function setup(authProvider?: AuthProvider) {
   return { dataProvider, locks, wrapper };
 }
 
-const authAs = (id: string): AuthProvider =>
-  ({
-    getIdentity: async () => ({ id }),
-  }) as unknown as AuthProvider;
+const authAs = (id: string) =>
+  makeAuthProvider({ getIdentity: async () => ({ id }) });
 
 describe("useLock", () => {
   it("locks with the explicit identity and no auth provider", async () => {

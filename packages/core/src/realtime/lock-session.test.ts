@@ -26,6 +26,15 @@ const lockOf = (identity: string): Lock => ({
   createdAt: "2026-01-01T00:00:00.000Z",
 });
 
+/** A whole `AuthProvider` whose verbs are no-ops unless the test overrides them. */
+const authProviderWith = (overrides: Partial<AuthProvider>): AuthProvider => ({
+  login: async () => {},
+  logout: async () => {},
+  checkAuth: async () => {},
+  checkError: async () => {},
+  ...overrides,
+});
+
 const setup = (overrides: Partial<LockSessionDataProvider> = {}) => {
   const locks = inMemoryLockProvider({ publisher: memoryTransport() });
   const dataProvider: LockSessionDataProvider = {
@@ -215,16 +224,17 @@ describe("resolveLockIdentity", () => {
   });
 
   it("falls back to the auth provider identity and rejects when there is none", async () => {
-    const authProvider = {
+    const authProvider = authProviderWith({
       getIdentity: async () => ({ id: "grace" }),
-    } as unknown as AuthProvider;
+    });
     await expect(resolveLockIdentity(authProvider)).resolves.toBe("grace");
 
     const message =
       "no identity available. Pass identity explicitly or configure an authProvider.";
     await expect(resolveLockIdentity(undefined)).rejects.toThrow(message);
-    await expect(
-      resolveLockIdentity({} as unknown as AuthProvider),
-    ).rejects.toThrow(message);
+    // A provider that simply lacks the optional verb rejects the same way.
+    await expect(resolveLockIdentity(authProviderWith({}))).rejects.toThrow(
+      message,
+    );
   });
 });
