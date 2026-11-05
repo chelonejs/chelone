@@ -42,6 +42,7 @@ export type {
   GeoPosition,
 } from "./geojson";
 export {
+  isGeoArea,
   isGeoBBox,
   isGeoFeature,
   isGeoFeatureCollection,

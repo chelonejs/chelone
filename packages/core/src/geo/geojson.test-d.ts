@@ -1,8 +1,8 @@
-import type { Geometry } from "geojson";
+import type { Geometry, MultiPolygon, Polygon } from "geojson";
 import { describe, expectTypeOf, it } from "vitest";
 import type { JsonObject } from "../guards";
 import type { GeoBBox, GeoFeature, GeoGeometry } from "./geojson";
-import { isGeoBBox } from "./geojson";
+import { isGeoArea, isGeoBBox } from "./geojson";
 
 describe("GeoJSON types", () => {
   it("a feature's properties are a JSON object or null", () => {
@@ -18,5 +18,9 @@ describe("GeoJSON types", () => {
     expectTypeOf(isGeoBBox).guards.toEqualTypeOf<
       [number, number, number, number]
     >();
+  });
+
+  it("isGeoArea narrows unknown to Polygon | MultiPolygon", () => {
+    expectTypeOf(isGeoArea).guards.toEqualTypeOf<Polygon | MultiPolygon>();
   });
 });
