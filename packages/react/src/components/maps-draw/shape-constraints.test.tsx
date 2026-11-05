@@ -8,7 +8,10 @@
 import { act, cleanup, fireEvent, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetFake as resetMaps } from "../maps/__fixtures__/fake-maplibre";
-import { resetFake as resetDraws } from "./__fixtures__/fake-terra-draw";
+import {
+  type FakeFeature,
+  resetFake as resetDraws,
+} from "./__fixtures__/fake-terra-draw";
 import { mountShapeInput, storedValue } from "./__fixtures__/mount-shape-input";
 import { ShapeInput } from "./shape-input";
 import { PolygonInput } from "./shape-inputs";
@@ -42,10 +45,10 @@ const tiny = ring([0, 0], [0.0001, 0], [0.0001, 0.0001], [0, 0.0001]);
 const twoVertices = ring([0, 0], [1, 1]);
 
 /** Draws `geometry` with the polygon tool the way Terra Draw finishes one. */
-async function drawShape({ draw }: Mounted, geometry: unknown) {
+async function drawShape({ draw }: Mounted, geometry: FakeFeature["geometry"]) {
   fireEvent.click(screen.getByRole("button", { name: "Draw a polygon" }));
   await act(async () => {
-    const id = draw().put(geometry as never, "polygon");
+    const id = draw().put(geometry, "polygon");
     draw().emitFinish(id, "draw");
   });
 }
