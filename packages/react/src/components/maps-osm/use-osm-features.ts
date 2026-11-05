@@ -1,12 +1,13 @@
 import {
   buildOverpassQuery,
-  type GeoBBox,
-  type GeoFeatureCollection,
+  type JsonObject,
+  type LngLatBox,
   type OverpassProvider,
   type OverpassQuerySources,
   overpassQueryOptions,
 } from "@chelone/core";
 import { useQuery } from "@tanstack/react-query";
+import type { FeatureCollection, Geometry } from "geojson";
 import { useCallback } from "react";
 import { useMapsConfig } from "../maps/maps-provider";
 import { hasOsmSources, osmToPolygons } from "./osm-features";
@@ -32,7 +33,7 @@ export interface UseOsmFeaturesOptions {
  * const { data } = useOsmFeatures(bbox, { presets: ["water"] }, { provider });
  */
 export function useOsmFeatures(
-  bbox: GeoBBox | null,
+  bbox: LngLatBox | null,
   sources: OverpassQuerySources,
   options: UseOsmFeaturesOptions = {},
 ) {
@@ -52,7 +53,7 @@ export function useOsmFeatures(
   const presetKey = (sources.presets ?? []).join(",");
   // biome-ignore lint/correctness/useExhaustiveDependencies: presetKey stands for sources.presets
   const select = useCallback(
-    (answer: unknown): GeoFeatureCollection =>
+    (answer: unknown): FeatureCollection<Geometry | null, JsonObject | null> =>
       osmToPolygons(answer, sources.presets ?? []),
     [presetKey],
   );

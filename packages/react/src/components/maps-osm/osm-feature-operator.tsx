@@ -1,6 +1,5 @@
 import {
   areaInTypeOf,
-  type GeoGeometry,
   geoAreaM2,
   geoBounds,
   type LooseRecord,
@@ -11,6 +10,7 @@ import {
   type SourceProp,
 } from "@chelone/core";
 import { useQueryClient } from "@tanstack/react-query";
+import type { Geometry } from "geojson";
 import { Eraser, Plus } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ import { useMapsConfig } from "../maps/maps-provider";
 import { fetchOsmFeatures } from "./osm-features";
 import { subtractMask, unionAll } from "./osm-geometry-ops";
 
-type Area = Extract<GeoGeometry, { type: "Polygon" | "MultiPolygon" }>;
+type Area = Extract<Geometry, { type: "Polygon" | "MultiPolygon" }>;
 
 export interface OsmFeatureOperatorProps<TRecord = LooseRecord> {
   /** The form field holding the Polygon or MultiPolygon. */
