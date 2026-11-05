@@ -33,6 +33,15 @@ const resources = defineResources({
       status: z.enum(["open", "paid"]),
     }),
   },
+  settings: {
+    schema: z.object({ name: z.string(), labels: z.array(z.string()) }),
+  },
+  drafts: {
+    schema: z.object({
+      labels: z.array(z.number()),
+      id: z.string().optional(),
+    }),
+  },
 });
 
 type Cart = RecordOf<typeof resources, "carts">;
@@ -79,5 +88,20 @@ describe("carts.ArrayInput", () => {
     });
     // @ts-expect-error `price` is no key of a cart item
     carts.ArrayInput({ source: "items", itemDefaults: { price: 1 } });
+  });
+});
+
+describe("ArrayInput of a record with no required id", () => {
+  it("is still a member, with rows typed by its array", () => {
+    const settings = createResourceComponentsOf<typeof resources, "settings">(
+      "settings",
+    );
+    const drafts = createResourceComponentsOf<typeof resources, "drafts">(
+      "drafts",
+    );
+    settings.ArrayInput({ source: "labels", defaultValue: ["a"] });
+    drafts.ArrayInput({ source: "labels", defaultValue: [1] });
+    // @ts-expect-error `labelz` is no path of a setting
+    settings.ArrayInput({ source: "labelz" });
   });
 });

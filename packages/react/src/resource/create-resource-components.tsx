@@ -14,7 +14,6 @@
  * inside a component body does not remount them, but it is still wasted work.
  */
 import type {
-  LooseRecord,
   RecordOf,
   RegisteredResourceName,
   RegisteredResources,
@@ -261,14 +260,11 @@ type ResourceMember<TComponent, TRecord> = TComponent extends (
 /**
  * `ArrayInput` is generic over its record and its `source`, so its rows are
  * typed by the array at that `source`, which {@link ResourceMember} would read
- * at the constraint. A record that is not a {@link LooseRecord} has no array
- * input.
+ * at the constraint.
  */
-type ArrayInputMember<TRecord> = TRecord extends LooseRecord
-  ? <TPath extends SourceProp<TRecord>>(
-      props: ArrayInputProps<TRecord, TPath>,
-    ) => ReactNode
-  : never;
+type ArrayInputMember<TRecord> = <TPath extends SourceProp<TRecord>>(
+  props: ArrayInputProps<TRecord, TPath>,
+) => ReactNode;
 
 /** A view with no `resource` prop: the factory has bound it. */
 type BoundView<TProps extends { resource?: string }, TResult> = (

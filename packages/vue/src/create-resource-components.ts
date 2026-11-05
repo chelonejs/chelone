@@ -29,7 +29,6 @@
  */
 
 import type {
-  LooseRecord,
   RecordOf,
   RegisteredResourceName,
   RegisteredResources,
@@ -289,17 +288,12 @@ type ArrayInputSlots = NonNullable<Parameters<typeof ArrayInput>[1]>["slots"];
  * `ArrayInput` is generic over its record and its `source`, so its rows are
  * typed by the array at that `source`. A generic SFC has no constructor for
  * {@link Retyped} to read, so this is a function component like
- * {@link ValueMember}. A record that is not a {@link LooseRecord} has no array
- * input.
+ * {@link ValueMember}.
  */
-type ArrayInputMember<TRecord> = TRecord extends LooseRecord
-  ? <TPath extends SourceProp<TRecord>>(
-      props: ArrayInputProps<TRecord, TPath> &
-        VNodeProps &
-        AllowedComponentProps,
-      ctx?: { slots?: ArrayInputSlots },
-    ) => VNode
-  : never;
+type ArrayInputMember<TRecord> = <TPath extends SourceProp<TRecord>>(
+  props: ArrayInputProps<TRecord, TPath> & VNodeProps & AllowedComponentProps,
+  ctx?: { slots?: ArrayInputSlots },
+) => VNode;
 
 /**
  * A view with its `resource` prop removed. Templates are not strict about

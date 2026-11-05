@@ -1,7 +1,7 @@
 <script
   lang="ts"
   generic="
-    RecordType extends LooseRecord = LooseRecord,
+    RecordType = LooseRecord,
     TPath extends SourceProp<RecordType> = SourceProp<RecordType>
   "
 >
@@ -15,7 +15,7 @@ import type {
 
 /** Props for {@link ArrayInput}. */
 export interface ArrayInputProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType = LooseRecord,
   TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
 > {
   /** The array field path RELATIVE to the ambient source scope. */
@@ -65,7 +65,7 @@ export interface ArrayInputProps<
   setup
   lang="ts"
   generic="
-    RecordType extends LooseRecord = LooseRecord,
+    RecordType = LooseRecord,
     TPath extends SourceProp<RecordType> = SourceProp<RecordType>
   "
 >

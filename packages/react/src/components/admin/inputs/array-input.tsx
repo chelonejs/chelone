@@ -23,7 +23,7 @@ import {
 } from "./array-input-context";
 
 interface ArrayInputProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType = LooseRecord,
   TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
 > {
   /** The array field path RELATIVE to the ambient source scope. */
@@ -110,7 +110,7 @@ function childOwnsAddButton(children: ReactNode): boolean {
  * );
  */
 function ArrayInput<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType = LooseRecord,
   TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
 >(props: ArrayInputProps<RecordType, TPath>): ReactNode {
   const {
