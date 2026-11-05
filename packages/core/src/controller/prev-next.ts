@@ -9,6 +9,7 @@ import type {
   FilterPayload,
   GetListParams,
   GetListResult,
+  InfiniteListParams,
   SortPayload,
 } from "../data/types";
 import type { Identifier } from "../resource/identifier";
@@ -40,7 +41,7 @@ export interface PrevNextOptions {
 
 export interface PrevNextParams {
   /** The page the list itself showed: the key its query cached it under. */
-  cached: GetListParams;
+  cached: InfiniteListParams;
   /** The first `limit` rows, for when the cached page cannot serve. */
   fetch: GetListParams;
 }
