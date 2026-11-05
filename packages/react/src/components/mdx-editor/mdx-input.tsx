@@ -39,7 +39,9 @@ type MdxEditorPassthrough = Omit<
 >;
 
 interface MdxInputProps<TRecord = LooseRecord>
-  extends InputProps<unknown, TRecord> {
+  extends Omit<InputProps<TRecord>, "defaultValue"> {
+  /** Input-level default, ra precedence (seeds only into an untouched hole). */
+  defaultValue?: unknown;
   className?: string;
   /**
    * Extra `MDXEditor` props. `plugins` here replaces `defaultInputPlugins`;
