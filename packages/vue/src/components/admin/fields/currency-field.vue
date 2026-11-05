@@ -59,11 +59,12 @@ function normalize(v: unknown): { amount: number; code: string } {
     typeof v === "object" &&
     v !== null &&
     "amount" in v &&
-    typeof v.amount === "number" &&
+    (typeof v.amount === "number" || typeof v.amount === "string") &&
     "currency" in v &&
     typeof v.currency === "string"
   ) {
-    return { amount: v.amount, code: v.currency };
+    // A numeric column serialised as a string is still a valid amount.
+    return { amount: Number(v.amount), code: v.currency };
   }
   if (!props.currency) {
     throw new Error("<CurrencyField>: numeric value requires a `currency` prop");
