@@ -15,7 +15,7 @@
  * - `useCanAccess` → the no-throw `useMenuAccess`.
  */
 
-import type { Identifier, LooseRecord, MutationMode } from "@chelone/core";
+import type { LooseRecord, MutationMode } from "@chelone/core";
 import { RefreshCw } from "lucide-react";
 import type { ReactNode, Ref } from "react";
 import { Fragment, useState } from "react";
@@ -137,26 +137,28 @@ function UpdateButton(props: UpdateButtonProps) {
     }),
   };
 
-  const params = () => ({
-    id: record?.id as Identifier,
+  const params = (current: LooseRecord) => ({
+    id: current.id,
     data,
-    previousData: record,
+    previousData: current,
   });
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
+    if (!record) return;
     if (mutationMode !== "undoable") {
       setOpen(true);
       return;
     }
     // Undoable `mutateAsync` resolves once the Undo notification is enqueued.
-    void mutateAsync(params());
+    void mutateAsync(params(record));
     onClick?.(e);
   };
 
   const handleConfirm = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    const update = mutateAsync(params());
+    if (!record) return;
+    const update = mutateAsync(params(record));
     if (mutationMode === "optimistic") setOpen(false);
     onClick?.(e);
     try {
@@ -165,7 +167,7 @@ function UpdateButton(props: UpdateButtonProps) {
         type: "info",
         messageArgs: { smart_count: 1 },
       });
-      onSuccess?.(result as LooseRecord);
+      if (result) onSuccess?.(result);
     } catch (error) {
       notify("chelone.notification.http_error", { type: "error" });
       onError?.(error);
