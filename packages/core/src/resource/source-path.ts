@@ -1,4 +1,4 @@
-import type { Get, Paths } from "dot.paths";
+import type { Paths } from "dot.paths";
 import type { LooseRecord } from "./record";
 import type { RegisteredResources } from "./register";
 import type { RecordOf, ResourceMap } from "./registry";
@@ -80,7 +80,7 @@ export type SourcePath<TRecord> = unknown extends TRecord
   ? string
   : Paths<TRecord, { arrays: "bracket" }>;
 
-/** A bracket path read as a dot path: `a[0].b` is `a.0.b`. */
+/** A bracket path read as a dot path: `a[0].b` is `a.0.b`, `[0].b` is `0.b`. */
 type _Dotted<TPath extends string> =
   TPath extends `${infer A}[${infer I}]${infer R}`
     ? _Dotted<`${A}.${I}${R}`>
@@ -89,33 +89,53 @@ type _Dotted<TPath extends string> =
       : TPath;
 
 /**
- * The `null`/`undefined` each parent along `TPath` adds to the value, given
- * as dotted segments: parents that are `unknown` or `any` read everything
- * below them as `unknown`, as `Get`'s `nullish: "path"` mode does.
- *
- * Built from `Get`'s default mode, one prefix at a time, on purpose:
- * `Get<T, P, { nullish: "path" }>` recurses on `P` while its parent type grows
- * at every segment, so with a `P` that depends on a type parameter (a field's
- * `SourceProp<RecordType>`) the compiler recurses until "Type instantiation is
- * excessively deep" the first time the value is read. The counter bounds this
- * one the same way `_WalkDepth` bounds the record walk.
+ * One segment into a value that is neither `null` nor `undefined`, per union
+ * member. An array takes any index segment (`0`, `${number}`) to its element, an
+ * object takes its own key, a numeric key given as its string form, and a miss is
+ * `never`, so a path `SourcePath` rejects reads nothing.
  */
-type _ParentNullish<
-  TRecord,
-  TRest extends string,
-  TPrefix extends string,
-  Walk extends number,
-> = [Walk] extends [0]
-  ? never
-  : TRest extends `${infer THead}.${infer TTail}`
-    ?
-        | _NullishAt<Get<TRecord, `${TPrefix}${THead}`>>
-        | _ParentNullish<TRecord, TTail, `${TPrefix}${THead}.`, _PrevWalk[Walk]>
-    : never;
+type _Step<
+  TValue,
+  TKey extends string,
+> = TValue extends readonly (infer TItem)[]
+  ? TKey extends keyof TValue
+    ? TValue[TKey]
+    : TKey extends `${number}`
+      ? TItem
+      : never
+  : TKey extends keyof TValue
+    ? TValue[TKey]
+    : TKey extends `${infer TIndex extends number}`
+      ? TIndex extends keyof TValue
+        ? TValue[TIndex]
+        : never
+      : never;
 
-type _NullishAt<TValue> = unknown extends TValue
-  ? unknown
-  : TValue & (null | undefined);
+/**
+ * Walks dotted segments, adding the `null`/`undefined` of every parent
+ * (`T & (null | undefined)` is exactly that part). A value that is `unknown`
+ * or `any` reads everything below it as `unknown`.
+ *
+ * `dot.paths`' `Get<T, P, { nullish: "path" }>` is not used here on purpose: its
+ * miss fallback calls back into `Get`, so when `TRecord` is a type parameter
+ * (a field's `RecordType`) the compiler never reaches a base case and reports
+ * "Type instantiation is excessively deep" the first time the value is read or
+ * inferred from. This walk has no such cycle, and the counter bounds it as
+ * `_WalkDepth` bounds the record walk.
+ */
+type _ValueAt<TValue, TPath extends string, Walk extends number> = [
+  Walk,
+] extends [0]
+  ? unknown // type-escape: a path past the walk depth is not a SourcePath
+  : unknown extends TValue
+    ? unknown // type-escape: nothing is known below an unknown parent
+    : TPath extends `${infer THead}.${infer TTail}`
+      ? _ValueAt<
+          _Step<NonNullable<TValue>, THead> | (TValue & (null | undefined)),
+          TTail,
+          _PrevWalk[Walk]
+        >
+      : _Step<NonNullable<TValue>, TPath> | (TValue & (null | undefined));
 
 /**
  * The value type at `TPath`, including the `null`/`undefined` of every parent
@@ -124,15 +144,7 @@ type _NullishAt<TValue> = unknown extends TValue
  */
 export type SourceValue<TRecord, TPath extends string> = unknown extends TRecord
   ? unknown
-  : _WithParents<
-      Get<TRecord, _Dotted<TPath>>,
-      _ParentNullish<TRecord, _Dotted<TPath>, "", _WalkDepth>
-    >;
-
-/** `unknown` when a parent is `unknown` (or `any`, which would absorb the union). */
-type _WithParents<TLeaf, TParents> = unknown extends TParents
-  ? unknown
-  : TLeaf | TParents;
+  : _ValueAt<TRecord, _Dotted<TPath>, _WalkDepth>;
 
 /**
  * The top-level keys of `TRecord`, for props that read or write one flat key

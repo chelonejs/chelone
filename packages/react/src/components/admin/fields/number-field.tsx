@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
@@ -34,10 +34,10 @@ function NumberField<RecordType extends LooseRecord = LooseRecord>({
   options,
   ...rest
 }: NumberFieldProps<RecordType>) {
-  let value: unknown = useFieldValue({ defaultValue, source, record });
+  const raw = useFieldValue({ defaultValue, source, record });
   const translate = useTranslate();
 
-  if (value == null) {
+  if (raw == null) {
     if (!empty) {
       return null;
     }
@@ -49,9 +49,7 @@ function NumberField<RecordType extends LooseRecord = LooseRecord>({
     );
   }
 
-  if (transform) {
-    value = transform(value);
-  }
+  const value = transform ? transform(raw) : raw;
 
   return (
     <span {...sanitizeFieldRestProps(rest)}>
@@ -67,7 +65,9 @@ interface NumberFieldProps<RecordType extends LooseRecord = LooseRecord>
     HTMLAttributes<HTMLSpanElement> {
   locales?: string | string[];
   options?: object;
-  transform?: (value: unknown) => unknown;
+  transform?: (
+    value: SourceValue<RecordType, SourceProp<RecordType>>,
+  ) => unknown;
 }
 
 const defaultTransform = (value: unknown): unknown =>

@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 import { Check, type LucideIcon, X } from "lucide-react";
 import {
   Tooltip,
@@ -37,7 +37,7 @@ function BooleanField<RecordType extends LooseRecord = LooseRecord>({
   looseValue = false,
   empty = null,
 }: BooleanFieldProps<RecordType>) {
-  const value: unknown = useFieldValue({ source, record, defaultValue });
+  const value = useFieldValue({ source, record, defaultValue });
   const isTruthyValue = value === true || (looseValue && value);
   const baseClassName = "size-5 text-foreground";
 
@@ -93,7 +93,7 @@ function RenderLabel({
 
 interface BooleanFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType> {
-  defaultValue?: unknown;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   TrueIcon?: LucideIcon | null;
   FalseIcon?: LucideIcon | null;
   valueLabelTrue?: string;

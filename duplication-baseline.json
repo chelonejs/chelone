@@ -47,7 +47,7 @@
   "packages/react/src/components/admin/fields/email-field.tsx <-> packages/react/src/components/admin/fields/json-field.tsx": 1,
   "packages/react/src/components/admin/fields/email-field.tsx <-> packages/react/src/components/admin/fields/select-field.tsx": 1,
   "packages/react/src/components/admin/fields/email-field.tsx <-> packages/react/src/components/admin/fields/url-field.tsx": 1,
-  "packages/react/src/components/admin/fields/file-field.tsx <-> packages/react/src/components/admin/fields/image-field.tsx": 3,
+  "packages/react/src/components/admin/fields/file-field.tsx <-> packages/react/src/components/admin/fields/image-field.tsx": 2,
   "packages/react/src/components/admin/fields/number-field.tsx <-> packages/react/src/components/admin/fields/text-field.tsx": 1,
   "packages/react/src/components/admin/fields/reference-field.tsx <-> packages/react/src/components/admin/fields/reference-one-field.tsx": 1,
   "packages/react/src/components/admin/form/translatable-inputs-tab.tsx <-> packages/react/src/components/admin/views/translatable-fields-tab.tsx": 1,

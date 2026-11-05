@@ -1,4 +1,9 @@
-import { getAtPath, type LooseRecord, type SourceProp } from "@chelone/core";
+import {
+  getAtPath,
+  type LooseRecord,
+  type SourceProp,
+  type SourceValue,
+} from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
@@ -9,7 +14,7 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
 interface ImageFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
     Omit<HTMLAttributes<HTMLSpanElement>, "defaultValue"> {
-  defaultValue?: unknown;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   /** The path to the image url on each item, for an array of images. */
   src?: string;
   /** The path to the display title (or a literal label). */
@@ -37,7 +42,7 @@ function ImageField<RecordType extends LooseRecord = LooseRecord>(
   props: ImageFieldProps<RecordType>,
 ) {
   const { src, defaultValue, source, record, empty, title, ...rest } = props;
-  const value: unknown = useFieldValue({ defaultValue, source, record });
+  const value = useFieldValue({ defaultValue, source, record });
   const titleFromRecord: unknown = useFieldValue({
     record,
     // A `title` may be a record path OR a literal label. The hook must always be
