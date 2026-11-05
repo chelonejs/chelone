@@ -3,6 +3,7 @@ import type {
   MessageKey,
   MessageValue,
   TranslateParams,
+  TranslateParamValues,
 } from "./messages";
 
 /**
@@ -29,7 +30,7 @@ type CatalogValue<
  * assignable to this; key-level literal typing lives on the concrete instance.
  */
 export interface AnyCheloneI18n {
-  translate(key: string, params?: Record<string, unknown>): string;
+  translate(key: string, params?: TranslateParamValues): string;
   getLocale(): string;
   setLocale(locale: string): void;
   getLocales(): string[];
@@ -64,7 +65,7 @@ export interface CheloneI18n<TCatalog extends MessageCatalog> {
 
 function interpolate(
   template: string,
-  params: Record<string, unknown> | undefined,
+  params: TranslateParamValues | undefined,
 ): string {
   if (!params) return template;
   return template.replace(/\{(\w+)\}/g, (match, name: string) =>
@@ -75,12 +76,14 @@ function interpolate(
 function resolve(
   value: MessageValue,
   locale: string,
-  params?: Record<string, unknown>,
+  params?: TranslateParamValues,
 ): string {
   if (typeof value === "string") return interpolate(value, params);
   // `smart_count` is the polyglot/ra name every caller passes; `count` wins.
   const raw = params?.count ?? params?.smart_count;
-  const count = typeof raw === "number" ? raw : Number(raw ?? Number.NaN);
+  if (raw === undefined || raw === null)
+    return interpolate(value.other, params);
+  const count = Number(raw);
   if (Number.isNaN(count)) return interpolate(value.other, params);
   const category = new Intl.PluralRules(locale).select(count);
   return interpolate(value[category] ?? value.other, {
@@ -118,7 +121,7 @@ export function createI18n<const TCatalog extends MessageCatalog>(options: {
 
   return {
     translate(key, ...args) {
-      const params = args[0] as Record<string, unknown> | undefined;
+      const params: TranslateParamValues | undefined = args[0];
       const own = lookup(options.messages[locale], key);
       if (own === undefined && options.onMissingKey) {
         try {

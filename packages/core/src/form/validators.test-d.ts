@@ -1,4 +1,5 @@
 import { expectTypeOf, it } from "vitest";
+import type { TranslateParamValues } from "../i18n/messages";
 import {
   choices,
   composeValidators,
@@ -89,14 +90,12 @@ it("a message factory sees the typed params", () => {
   const factory: MessageFactory<string, Post> = ({ args, value, values }) => {
     expectTypeOf(value).toEqualTypeOf<string | EmptyValue>();
     expectTypeOf(values).toEqualTypeOf<Post>();
-    // type-escape: interpolation args are an app-supplied bag of any values.
-    expectTypeOf(args).toEqualTypeOf<Record<string, unknown> | undefined>();
+    expectTypeOf(args).toEqualTypeOf<TranslateParamValues | undefined>();
     return "chelone.validation.custom";
   };
   const message: ValidationMessage<string, Post> = factory;
   expectTypeOf<ValidationMessageParams<string, Post>>().toEqualTypeOf<{
-    // type-escape: the same app-supplied bag of any values.
-    args: Record<string, unknown> | undefined;
+    args: TranslateParamValues | undefined;
     value: string | EmptyValue;
     values: Post;
   }>();

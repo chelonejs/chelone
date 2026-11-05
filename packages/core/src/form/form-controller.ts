@@ -8,6 +8,10 @@ import {
   type ValidationErrorMap,
 } from "@tanstack/form-core";
 import { hasProperty, isThenable } from "../guards";
+import {
+  isTranslateParamValues,
+  type TranslateParamValues,
+} from "../i18n/messages";
 import type { NotificationStore } from "../notification/notification-store";
 import { createFormHandle, type FormHandle } from "./form-handle";
 import {
@@ -78,7 +82,7 @@ export type FieldErrors = Record<string, string | string[]>;
  */
 export interface TranslatableMessage {
   message: string;
-  args?: Record<string, unknown>;
+  args?: TranslateParamValues;
 }
 
 /**
@@ -443,9 +447,7 @@ export function normalizeFormError(
     if (typeof message === "string") {
       if ("args" in error) {
         const { args } = error;
-        if (typeof args === "object" && args !== null && !Array.isArray(args)) {
-          return { message, args: args as Record<string, unknown> };
-        }
+        if (isTranslateParamValues(args)) return { message, args };
       }
       return message;
     }
