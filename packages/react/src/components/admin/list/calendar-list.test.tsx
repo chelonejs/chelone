@@ -100,9 +100,8 @@ function rangeProvider(rows: EventRow[]) {
       };
     },
   );
-  return { ...base, getList } as unknown as DataProvider & {
-    getList: typeof getList;
-  };
+  const dataProvider: DataProvider = { ...base, getList };
+  return { dataProvider, getList };
 }
 
 function Location() {
@@ -139,7 +138,7 @@ function mount(
   });
   const result = render(
     <CheloneProvider
-      dataProvider={provider}
+      dataProvider={provider.dataProvider}
       queryClient={
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
