@@ -11,11 +11,18 @@ import { FilterContextProvider } from "../../../list/filter-context";
 import { FilterForm } from "./filter-form";
 import { ListActions } from "./list-actions";
 
+/** The props `ListToolbar` hands to its actions element. */
+interface ToolbarActionProps {
+  exporter?: Exporter | false;
+  hasCreate?: boolean;
+  filters?: ReactNode[];
+}
+
 interface ListToolbarProps {
   /** Filter inputs: an array, or an element whose children are the inputs. */
   filters?: ReactElement | ReactNode[];
   /** The right-hand element; `false` renders none. Defaults to `<ListActions>`. */
-  actions?: ReactElement | false;
+  actions?: ReactElement<ToolbarActionProps> | false;
   className?: string;
   /** Handed to the actions element; `false` hides the export button. */
   exporter?: Exporter | false;
@@ -25,15 +32,21 @@ interface ListToolbarProps {
 
 /** The toolbar's own props that the element has not set itself. */
 function defaultsFor(
-  element: ReactElement,
-  candidates: Record<string, unknown>,
-): Record<string, unknown> {
-  const own = element.props as Record<string, unknown>;
-  return Object.fromEntries(
-    Object.entries(candidates).filter(
-      ([key, value]) => value !== undefined && own[key] === undefined,
-    ),
-  );
+  element: ReactElement<ToolbarActionProps>,
+  candidates: ToolbarActionProps,
+): ToolbarActionProps {
+  const own = element.props;
+  const defaults: ToolbarActionProps = {};
+  if (candidates.exporter !== undefined && own.exporter === undefined) {
+    defaults.exporter = candidates.exporter;
+  }
+  if (candidates.hasCreate !== undefined && own.hasCreate === undefined) {
+    defaults.hasCreate = candidates.hasCreate;
+  }
+  if (candidates.filters !== undefined && own.filters === undefined) {
+    defaults.filters = candidates.filters;
+  }
+  return defaults;
 }
 
 /**
@@ -64,7 +77,7 @@ function ListToolbar(props: ListToolbarProps) {
   const actionsElement =
     actions === false ? null : actions ? (
       cloneElement(
-        actions as ReactElement<Record<string, unknown>>,
+        actions,
         defaultsFor(actions, { exporter, hasCreate, filters }),
       )
     ) : (
