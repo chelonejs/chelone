@@ -1,18 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
+import { fakeDataProvider } from "../data/fake-provider";
 import { csvErrorRows, runCsvImport } from "./run-import";
 import type { CsvImportReport, CsvRowValidation } from "./types";
 
 const valid = (n: number): CsvRowValidation => ({ ok: true, row: { n } });
 
 function providerWith(create: (data: Record<string, unknown>) => unknown) {
-  const spy = vi.fn(async (_resource: string, params: { data: unknown }) => {
-    await create(params.data as Record<string, unknown>);
-    return { data: { id: 1, ...(params.data as object) } };
-  });
-  return {
-    dataProvider: { create: spy } as never,
-    create: spy,
-  };
+  const dataProvider = fakeDataProvider({});
+  const spy = vi
+    .spyOn(dataProvider, "create")
+    .mockImplementation(async (_resource, params) => {
+      await create(params.data);
+      return { data: { id: 1, ...params.data } };
+    });
+  return { dataProvider, create: spy };
 }
 
 describe("runCsvImport", () => {

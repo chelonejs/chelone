@@ -1,6 +1,7 @@
+import type { StandardSchemaV1 } from "@tanstack/form-core";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import type { DataProvider } from "../data/types";
+import { fakeDataProvider } from "../data/fake-provider";
 import { createCsvImportController } from "./import-controller";
 import type { CsvImportOptions, ParsedCsv } from "./types";
 
@@ -16,13 +17,14 @@ const parsed = (
 ): ParsedCsv => ({ headers, rows, errors: [] });
 
 function setup(options: Partial<CsvImportOptions> = {}) {
-  const create = vi.fn(
-    async (_resource: string, params: { data: unknown }) => ({
-      data: { id: 1, ...(params.data as object) },
-    }),
-  );
+  const dataProvider = fakeDataProvider({});
+  const create = vi
+    .spyOn(dataProvider, "create")
+    .mockImplementation(async (_resource, params) => ({
+      data: { id: 1, ...params.data },
+    }));
   const controller = createCsvImportController({
-    dataProvider: { create } as unknown as DataProvider,
+    dataProvider,
     resource: "people",
     schema,
     ...options,
@@ -334,16 +336,16 @@ describe("createCsvImportController", () => {
 
   it("a validation that was reset away does not unblock the one that replaced it", async () => {
     const gates: Array<() => void> = [];
-    const gated = {
+    const gated: StandardSchemaV1 = {
       "~standard": {
         version: 1,
         vendor: "test",
-        validate: (value: unknown) =>
+        validate: (value) =>
           new Promise((resolve) => {
             gates.push(() => resolve({ value }));
           }),
       },
-    } as unknown as CsvImportOptions["schema"];
+    };
     const { controller, state } = setup({ schema: gated });
     const rows = [{ a: "1" }];
 
