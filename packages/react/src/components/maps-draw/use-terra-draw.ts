@@ -1,7 +1,6 @@
 import {
   editorStyles,
   fromEditorFeatures,
-  type GeoFeature,
   type ShapeStyle,
   toEditorFeatures,
 } from "@chelone/core";
@@ -18,6 +17,7 @@ import {
 } from "terra-draw";
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import { useMap } from "../maps/map-canvas";
+import type { DrawFeature } from "./geometry-ops";
 
 /** A toolbar button that switches the editor's mode. */
 export type DrawTool =
@@ -55,20 +55,20 @@ export type TerraDrawEdit =
   | {
       type: "draw" | "edit" | "delete";
       /** The user's features after the edit. */
-      features: GeoFeature[];
+      features: DrawFeature[];
     }
   | {
       /** A polygon finished while the `cut` tool was active. */
       type: "cut";
       /** The user's features without the cutter. */
-      features: GeoFeature[];
+      features: DrawFeature[];
       /** The finished polygon, which the editor no longer holds. */
-      cutter: GeoFeature;
+      cutter: DrawFeature;
     };
 
 export interface UseTerraDrawOptions {
   /** The features to show and edit. The editor takes a new array when it differs from its own. */
-  features: GeoFeature[];
+  features: DrawFeature[];
   /** The active tool. Defaults to none. */
   tool?: DrawTool | null;
   /** Switches to the `render` mode, which shows the features and edits nothing. */
@@ -92,10 +92,10 @@ export interface UseTerraDrawResult {
    * The entries of `features` the editor refused, as given. They are not drawn
    * and not in any `onEdit`: a caller that keeps them in its value adds them back.
    */
-  refused: GeoFeature[];
+  refused: DrawFeature[];
 }
 
-const NONE_REFUSED: GeoFeature[] = [];
+const NONE_REFUSED: DrawFeature[] = [];
 
 type SelectFlags = Record<string, { feature: Record<string, unknown> }>;
 
@@ -233,9 +233,9 @@ export function useTerraDraw({
   const map = useMap();
   const [draw, setDraw] = useState<TerraDraw | null>(null);
   const [selectedId, setSelectedId] = useState<string | number | null>(null);
-  const [refused, setRefused] = useState<GeoFeature[]>(NONE_REFUSED);
+  const [refused, setRefused] = useState<DrawFeature[]>(NONE_REFUSED);
   // The same list as `refused`, for the sync to read without rerunning.
-  const refusedRef = useRef<GeoFeature[]>(NONE_REFUSED);
+  const refusedRef = useRef<DrawFeature[]>(NONE_REFUSED);
   const latest = useRef({
     snappable,
     snapDistance,
@@ -354,7 +354,7 @@ export function useTerraDraw({
       editor: toEditorFeatures([feature], () => draw.getFeatureId())[0],
     }));
     const sent = pairs.flatMap((pair) => (pair.editor ? [pair] : []));
-    const refusedNow: GeoFeature[] = [];
+    const refusedNow: DrawFeature[] = [];
     syncing.current = true;
     try {
       draw.clear();

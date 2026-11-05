@@ -1,6 +1,5 @@
 import {
   featuresToShape,
-  type GeoFeature,
   geoBounds,
   heldFeatures,
   isLngLatBox,
@@ -36,7 +35,7 @@ import { useTranslate } from "../../i18n-hooks";
 import { useGeoJsonSource } from "../maps/geo-json-field";
 import { MapCanvas, useMap } from "../maps/map-canvas";
 import { DrawToolbar } from "./draw-toolbar";
-import { cutFeatures } from "./geometry-ops";
+import { cutFeatures, type DrawFeature } from "./geometry-ops";
 import {
   type DrawTool,
   type TerraDrawEdit,
@@ -165,8 +164,8 @@ const HOLDS_MANY: ReadonlySet<ShapeValueKind> = new Set([
 ]);
 
 interface EditorProps {
-  features: GeoFeature[];
-  held: GeoFeature[];
+  features: DrawFeature[];
+  held: DrawFeature[];
   tool: DrawTool | null;
   disabled: boolean;
   snappable: boolean;
@@ -219,8 +218,8 @@ function FitToShape({
   value,
   written,
 }: {
-  features: GeoFeature[];
-  held: GeoFeature[];
+  features: DrawFeature[];
+  held: DrawFeature[];
   value: unknown;
   written: React.RefObject<unknown>;
 }) {

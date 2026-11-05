@@ -11,7 +11,6 @@ import {
   createI18n,
   createNotificationStore,
   fakeDataProvider,
-  type GeoFeature,
   mapMessages,
   rasterTileStyle,
 } from "@chelone/core";
@@ -44,6 +43,7 @@ import {
   storedValue,
   toolbarNames,
 } from "./__fixtures__/mount-shape-input";
+import type { DrawFeature } from "./geometry-ops";
 import { ShapeInput, type ShapeInputProps } from "./shape-input";
 import {
   LineStringInput,
@@ -495,7 +495,7 @@ describe("ShapeInput", () => {
     expect(draw().added[0]?.map((f) => f.geometry)).toEqual([square(20)]);
     const sources = Object.values(map().sources);
     expect(sources).toHaveLength(1);
-    const data = sources[0]?.data as { features: GeoFeature[] };
+    const data = sources[0]?.data as { features: DrawFeature[] };
     expect(data.features.map((f) => f.geometry)).toEqual([holed]);
 
     fireEvent.click(button("Edit"));
@@ -887,7 +887,7 @@ describe("ShapeInput", () => {
     expect(draw().getSnapshot()).toEqual([]);
     const sources = Object.values(map().sources);
     expect(sources).toHaveLength(1);
-    const data = sources[0]?.data as { features: GeoFeature[] };
+    const data = sources[0]?.data as { features: DrawFeature[] };
     const rings = data.features.map((f) =>
       f.geometry?.type === "Polygon" ? f.geometry.coordinates.length : 0,
     );
