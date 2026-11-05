@@ -5,7 +5,13 @@
  * feature appears, then `finish` fires) and asserts the form's value.
  */
 
-import type { RoutingProvider } from "@chelone/core";
+import type {
+  GeoGeometry,
+  GeoLineString,
+  GeoPoint,
+  GeoPolygon,
+  RoutingProvider,
+} from "@chelone/core";
 import { act, cleanup, fireEvent, screen } from "@testing-library/react";
 import type { LineString } from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -48,17 +54,15 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-type Geometry = { type: string; coordinates?: unknown };
-
-const point = (x = 0): Geometry => ({ type: "Point", coordinates: [x, x] });
-const line = (x = 0): Geometry => ({
+const point = (x = 0): GeoPoint => ({ type: "Point", coordinates: [x, x] });
+const line = (x = 0): GeoLineString => ({
   type: "LineString",
   coordinates: [
     [x, x],
     [x + 1, x + 1],
   ],
 });
-const square = (offset = 0): Geometry => ({
+const square = (offset = 0): GeoPolygon => ({
   type: "Polygon",
   coordinates: [
     [
@@ -70,7 +74,7 @@ const square = (offset = 0): Geometry => ({
     ],
   ],
 });
-const holed: Geometry = {
+const holed: GeoPolygon = {
   type: "Polygon",
   coordinates: [
     [
@@ -97,7 +101,7 @@ async function drawWith(
   draw: () => TerraDraw,
   tool: string,
   mode: string,
-  geometry: Geometry,
+  geometry: GeoGeometry,
 ) {
   fireEvent.click(button(tool));
   await act(async () => {
@@ -220,8 +224,12 @@ describe("PolygonInput", () => {
 });
 
 describe("MultiPolygonInput", () => {
-  const parts = [square(0), square(10), square(20)];
-  const multi = (...polygons: Geometry[]) => ({
+  const parts: [GeoPolygon, GeoPolygon, GeoPolygon] = [
+    square(0),
+    square(10),
+    square(20),
+  ];
+  const multi = (...polygons: GeoPolygon[]) => ({
     type: "MultiPolygon",
     coordinates: polygons.map((p) => p.coordinates),
   });
@@ -243,21 +251,19 @@ describe("MultiPolygonInput", () => {
 
     await deleteStored(draw, 1);
 
-    expect(storedValue()).toEqual(
-      multi(parts[0] as Geometry, parts[2] as Geometry),
-    );
+    expect(storedValue()).toEqual(multi(parts[0], parts[2]));
   });
 
   it("keeps a part with a hole when another part is deleted", async () => {
     const { draw } = await mountShapeInput(
       <MultiPolygonInput source="shape" label="Zones" />,
-      multi(holed, parts[1] as Geometry, parts[2] as Geometry),
+      multi(holed, parts[1], parts[2]),
     );
 
     // The holed part draws read-only, so the first stored feature is parts[1].
     await deleteStored(draw, 0);
 
-    expect(storedValue()).toEqual(multi(parts[2] as Geometry, holed));
+    expect(storedValue()).toEqual(multi(parts[2], holed));
   });
 });
 
@@ -454,7 +460,7 @@ describe("FeatureInput", () => {
 });
 
 describe("FeatureCollectionInput", () => {
-  const feature = (name: string, geometry: Geometry) => ({
+  const feature = (name: string, geometry: GeoGeometry) => ({
     type: "Feature",
     properties: { name },
     geometry,
@@ -516,7 +522,7 @@ function pendingRefine() {
 
 describe("ShapeInput refine", () => {
   it("writes a changed result and reseeds the draft", async () => {
-    const refine = vi.fn<Refine>(async () => square(5) as never);
+    const refine = vi.fn<Refine>(async () => square(5));
     const { draw } = await mountShapeInput(
       <PolygonInput source="shape" label="Area" refine={refine} />,
     );
@@ -540,7 +546,7 @@ describe("ShapeInput refine", () => {
         source="shape"
         label="Area"
         onCommit={onCommit}
-        refine={async () => square(5) as never}
+        refine={async () => square(5)}
       />,
     );
     await drawWith(draw, "Draw a polygon", "polygon", square(1));
@@ -552,7 +558,7 @@ describe("ShapeInput refine", () => {
   });
 
   it("is not called on hydration or reset", async () => {
-    const refine = vi.fn<Refine>(async () => square(5) as never);
+    const refine = vi.fn<Refine>(async () => square(5));
     const { form } = await mountShapeInput(
       <PolygonInput source="shape" label="Area" refine={refine} />,
       square(1),
