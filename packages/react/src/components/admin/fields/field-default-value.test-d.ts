@@ -10,6 +10,7 @@ import type { BooleanFieldProps } from "./boolean-field";
 import type { DateFieldProps } from "./date-field";
 import type { ImageFieldProps } from "./image-field";
 import type { NumberFieldProps } from "./number-field";
+import type { TextFieldProps } from "./text-field";
 
 type Post = {
   id: number;
@@ -28,6 +29,18 @@ describe("value-taking field props", () => {
 
   it("ImageField defaultValue is the record's value type", () => {
     expectTypeOf<ImageFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+  });
+
+  it("TextField, DateField and NumberField defaultValue are the record's value type, not the HTML attribute's", () => {
+    expectTypeOf<TextFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<DateFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<NumberFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
       PostValue | undefined
     >();
   });

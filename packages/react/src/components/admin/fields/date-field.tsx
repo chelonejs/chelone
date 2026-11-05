@@ -101,7 +101,8 @@ const DateField = genericMemo(DateFieldImpl);
 
 interface DateFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
-    HTMLAttributes<HTMLSpanElement> {
+    Omit<HTMLAttributes<HTMLSpanElement>, "defaultValue"> {
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   locales?: Intl.LocalesArgument;
   options?: Intl.DateTimeFormatOptions;
   showTime?: boolean;

@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
@@ -56,6 +56,8 @@ function TextField<RecordType extends LooseRecord = LooseRecord>({
 
 interface TextFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
-    HTMLAttributes<HTMLSpanElement> {}
+    Omit<HTMLAttributes<HTMLSpanElement>, "defaultValue"> {
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
+}
 
 export { TextField, type TextFieldProps };

@@ -62,7 +62,8 @@ function NumberField<RecordType extends LooseRecord = LooseRecord>({
 
 interface NumberFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
-    HTMLAttributes<HTMLSpanElement> {
+    Omit<HTMLAttributes<HTMLSpanElement>, "defaultValue"> {
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   locales?: string | string[];
   options?: object;
   transform?: (
