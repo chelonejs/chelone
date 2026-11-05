@@ -82,6 +82,8 @@ export function sseTransport({
   // Set by an error after the stream had opened: the next open is a reconnect.
   let dropped = false;
   let openQueued = false;
+  // The topics are read after the token, so a subscribe in the wait is covered.
+  let resolvingToken = false;
   let retryTimer: ReturnType<typeof setTimeout> | undefined;
   let idleTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -103,12 +105,12 @@ export function sseTransport({
     return `${url}${url.includes("?") ? "&" : "?"}${query}`;
   };
 
-  const handleError = (stream: EventSource, opened: boolean) => {
-    if (source !== stream) return;
-    stopStream();
-    dropped ||= opened;
+  // Reports the failure, then waits to retry or gives up.
+  const retryOrGiveUp = (
+    failure: (retrying: boolean) => RealtimeTransportError,
+  ) => {
     const retrying = config.enabled && attempt < config.maxAttempts;
-    hub.report({ kind: "connect_failed", retrying });
+    hub.report(failure(retrying));
     if (!retrying) {
       active = false;
       hub.setStatus("disconnected");
@@ -118,31 +120,46 @@ export function sseTransport({
     retryTimer = setTimeout(
       () => {
         retryTimer = undefined;
-        void open();
+        void open(true);
       },
       reconnectDelay(attempt, config),
     );
     attempt += 1;
   };
 
-  async function open(): Promise<void> {
+  const handleError = (stream: EventSource, opened: boolean) => {
+    if (source !== stream) return;
+    stopStream();
+    dropped ||= opened;
+    retryOrGiveUp((retrying) => ({ kind: "connect_failed", retrying }));
+  };
+
+  // `isRetry`: a failure of the token here is one more failed retry, not a stop.
+  async function open(isRetry = false): Promise<void> {
     stopStream();
     const current = ++generation;
     active = true;
+    resolvingToken = true;
     let token: string | undefined;
     try {
       token = await readToken();
     } catch (cause) {
       if (current !== generation) return;
+      resolvingToken = false;
+      if (isRetry) {
+        retryOrGiveUp((retrying) => ({ kind: "auth_failed", cause, retrying }));
+        return;
+      }
       active = false;
       hub.report({ kind: "auth_failed", cause, retrying: false });
       hub.setStatus("disconnected");
       return;
     }
     if (current !== generation) return;
+    resolvingToken = false;
     const topics = hub.topics();
     if (topics.length === 0) {
-      active = false;
+      goIdle();
       return;
     }
 
@@ -197,28 +214,35 @@ export function sseTransport({
     void Promise.resolve().then(() => {
       if (!openQueued) return;
       openQueued = false;
-      attempt = 0;
+      if (!active) attempt = 0;
       return open();
     });
   };
 
-  const goIdle = () => {
+  function goIdle() {
     generation += 1;
+    resolvingToken = false;
+    clearTimeout(idleTimer);
+    idleTimer = undefined;
     stopStream();
     active = false;
     dropped = false;
     if (hub.getStatus() !== "idle") hub.setStatus("idle");
-  };
+  }
 
   return {
     subscribe(topic, callback) {
       const stop = hub.subscribe(topic, callback);
       clearTimeout(idleTimer);
       idleTimer = undefined;
-      if (!active || !filter.has(topic)) queueOpen();
+      // A pending retry or token wait reads the topics when it runs.
+      const covered =
+        retryTimer !== undefined || resolvingToken || filter.has(topic);
+      if (!active || !covered) queueOpen();
       return () => {
         stop();
-        if (hub.topics().length > 0) return;
+        // After `close()` or a give-up nothing is open, so there is nothing to idle.
+        if (hub.topics().length > 0 || !active) return;
         clearTimeout(idleTimer);
         idleTimer = setTimeout(goIdle, idleDisconnectMs);
       };
@@ -261,6 +285,7 @@ export function sseTransport({
     close() {
       openQueued = false;
       generation += 1;
+      resolvingToken = false;
       clearTimeout(idleTimer);
       idleTimer = undefined;
       stopStream();

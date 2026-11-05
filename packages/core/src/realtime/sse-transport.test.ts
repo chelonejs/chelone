@@ -506,6 +506,112 @@ describe("sseTransport", () => {
     expect(transport.getStatus()).toBe("connected");
   });
 
+  it("a resubscribe during the retry wait neither reconnects early nor resets the backoff", async () => {
+    const transport = create({ reconnect: { jitter: 0, maxAttempts: 2 } });
+    transport.subscribe("a", vi.fn());
+    await flush();
+    lastStream().fail();
+    await vi.advanceTimersByTimeAsync(1000);
+    lastStream().fail();
+    expect(streams()).toHaveLength(2);
+
+    transport.subscribe("a", vi.fn());
+    await flush();
+    expect(streams()).toHaveLength(2);
+    expect(transport.getStatus()).toBe("reconnecting");
+
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(streams()).toHaveLength(3);
+    lastStream().fail();
+    expect(transport.getStatus()).toBe("disconnected");
+  });
+
+  it("a token that rejects during a retry keeps retrying until maxAttempts", async () => {
+    const onError = vi.fn();
+    let offline = false;
+    const cause = new Error("offline");
+    const transport = create({
+      reconnect: { jitter: 0, maxAttempts: 2 },
+      getAuthToken: async () => {
+        if (offline) throw cause;
+        return "t";
+      },
+      onError,
+    });
+    transport.subscribe("a", vi.fn());
+    await flush();
+    lastStream().open();
+    offline = true;
+
+    lastStream().fail();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(onError).toHaveBeenLastCalledWith({
+      kind: "auth_failed",
+      cause,
+      retrying: true,
+    });
+    expect(transport.getStatus()).toBe("reconnecting");
+
+    offline = false;
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(streams()).toHaveLength(2);
+    lastStream().open();
+    expect(transport.getStatus()).toBe("connected");
+  });
+
+  it("a token that keeps rejecting during retries ends disconnected", async () => {
+    let offline = false;
+    const transport = create({
+      reconnect: { jitter: 0, maxAttempts: 1 },
+      getAuthToken: async () => {
+        if (offline) throw new Error("offline");
+        return "t";
+      },
+    });
+    transport.subscribe("a", vi.fn());
+    await flush();
+    lastStream().open();
+    offline = true;
+
+    lastStream().fail();
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(transport.getStatus()).toBe("disconnected");
+    await vi.advanceTimersByTimeAsync(60000);
+    expect(streams()).toHaveLength(1);
+  });
+
+  it("the last subscriber leaving before the open returns the status to idle", async () => {
+    const transport = create({ idleDisconnectMs: 60000 });
+    const stopA = transport.subscribe("a", vi.fn());
+    await flush();
+    lastStream().open();
+
+    const stopB = transport.subscribe("b", vi.fn());
+    stopA();
+    stopB();
+    await flush();
+
+    expect(transport.getStatus()).toBe("idle");
+    expect(lastStream().closed).toBe(true);
+  });
+
+  it("an unsubscribe after close leaves the status disconnected", async () => {
+    const transport = create({ idleDisconnectMs: 5000 });
+    const stop = transport.subscribe("a", vi.fn());
+    await flush();
+    lastStream().open();
+    const seen: RealtimeConnectionStatus[] = [];
+
+    transport.close();
+    transport.onStatusChange((status) => seen.push(status));
+    stop();
+    await vi.advanceTimersByTimeAsync(60000);
+
+    expect(transport.getStatus()).toBe("disconnected");
+    expect(seen).toEqual([]);
+  });
+
   it("a hostile token or topic cannot add query parameters and the token never reaches a reported error", async () => {
     const token = "a&topics=x#frag";
     const errors: RealtimeTransportError[] = [];
