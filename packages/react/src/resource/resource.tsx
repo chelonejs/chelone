@@ -15,14 +15,10 @@
  * it (parity §0a-6). The routes are relative to the parent `<name>/*` match.
  */
 
-import {
-  computeDefinition,
-  type ResourceDefinition,
-  type ResourceIcon,
-  type ResourceRepresentation,
-} from "@chelone/core";
+import { computeDefinition, type ResourceDefinition } from "@chelone/core";
 import type { ComponentType, ReactElement, ReactNode } from "react";
 import { isValidElement } from "react";
+import type { RecordRepresentation } from "../index";
 import { useRouterAdapter } from "../router/adapter";
 import { ResourceContextProvider } from "./resource-context";
 
@@ -30,16 +26,14 @@ import { ResourceContextProvider } from "./resource-context";
  * A view slot: a component to instantiate (`<List />`) or an element to render
  * verbatim (`<List sort=… />`).
  *
- * The props are `NonNullable<unknown>` (an object with nothing required) because
+ * The props are `object` (an object with nothing required) because
  * `toElement` instantiates the component with NO props: a component whose own
  * props are all optional fits, and one with a required prop does not. That is
  * what makes `<Resource name="posts" list={ListGuesser} />` type-check — with
  * `ComponentType<unknown>` it never did, since `unknown` is not assignable to
  * `ListGuesserProps`.
  */
-export type ResourceViewChild =
-  | ComponentType<NonNullable<unknown>>
-  | ReactElement;
+export type ResourceViewChild = ComponentType<object> | ReactElement;
 
 export interface ResourceProps {
   /** The resource name — the registry key and the route base (`<name>/*`). */
@@ -53,9 +47,9 @@ export interface ResourceProps {
   /** The show view. Presence sets `hasShow`. */
   show?: ResourceViewChild;
   /** The menu / breadcrumb icon (a React component). */
-  icon?: ResourceIcon;
+  icon?: ComponentType;
   /** How a record renders as a label (string field name, function, or node). */
-  recordRepresentation?: ResourceRepresentation;
+  recordRepresentation?: RecordRepresentation;
   /** Open extension bag — the shadcn menu reads `options.group` (D9). */
   options?: Record<string, unknown>;
   /**
@@ -94,7 +88,7 @@ function toElement(view: ResourceViewChild | undefined): ReactElement | null {
   return <Component />;
 }
 
-const ResourceImpl = ((props: ResourceProps): ReactNode => {
+function ResourceView(props: ResourceProps): ReactNode {
   const { name, list, create, edit, show, children } = props;
   const { Routes, Route } = useRouterAdapter();
 
@@ -109,7 +103,7 @@ const ResourceImpl = ((props: ResourceProps): ReactNode => {
       </Routes>
     </ResourceContextProvider>
   );
-}) as ResourceComponent;
+}
 
 // The static marker + registrar. `chelName` is the partition key (W1-T6);
 // `registerResource` derives the definition via the core `computeDefinition`
@@ -118,11 +112,16 @@ const ResourceImpl = ((props: ResourceProps): ReactNode => {
 // future access-aware registration (custom Resource subclasses may narrow the
 // definition by permission); the default ignores it, matching ra-core's default
 // Resource.registerResource which also ignores its permissions argument.
-Object.defineProperty(ResourceImpl, "chelName", { value: "Resource" });
-ResourceImpl.registerResource = (
+const chelName: "Resource" = "Resource";
+function registerResource(
   props: ResourceProps,
   _permissions: unknown,
-): ResourceDefinition => computeDefinition(props);
+): ResourceDefinition {
+  return computeDefinition(props);
+}
 
 /** The exported `<Resource>` (a marker + a route host — see the module doc). */
-export const Resource: ResourceComponent = ResourceImpl;
+export const Resource: ResourceComponent = Object.assign(ResourceView, {
+  chelName,
+  registerResource,
+});

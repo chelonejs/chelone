@@ -7,6 +7,7 @@
 
 import {
   getAtPath,
+  type LooseRecord,
   type ResourceRecord,
   type ResourceRepresentation,
 } from "@chelone/core";
@@ -27,7 +28,7 @@ interface MountOptions {
   /** The `recordRepresentation` of the registered `posts` definition. */
   recordRepresentation?: ResourceRepresentation;
   /** The record the probe renders. */
-  record: unknown;
+  record: LooseRecord | null | undefined;
   /** Passed to the composable; omit to read the ambient resource instead. */
   resource?: string;
   /** The ambient resource name provided to the subtree. */
@@ -37,7 +38,7 @@ interface MountOptions {
 /** Mount the composable against a registry holding one `posts` definition. */
 function mountRepresentation(options: MountOptions): {
   wrapper: VueWrapper;
-  represent: (record: unknown) => string;
+  represent: (record: LooseRecord | null | undefined) => string;
 } {
   const registry = createResourceRegistry();
   registry.register({
@@ -67,7 +68,8 @@ function mountRepresentation(options: MountOptions): {
 
   return {
     wrapper: mount(Harness),
-    represent: (record: unknown) => captured.resolve?.(record) ?? "",
+    represent: (record: LooseRecord | null | undefined) =>
+      captured.resolve?.(record) ?? "",
   };
 }
 

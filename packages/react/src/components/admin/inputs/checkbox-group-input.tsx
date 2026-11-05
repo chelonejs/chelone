@@ -21,7 +21,7 @@ import type { ChoiceRecord } from "../../../choices-hooks";
 import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
-import { useGetRecordRepresentationText } from "../../../label";
+import { useGetChoiceRepresentationText } from "../../../label";
 import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
 import type { ChoicesProps, InputProps } from "../input-props";
 
@@ -129,12 +129,13 @@ function CheckboxGroupInput<
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const getRecordRepresentationText = useGetRecordRepresentationText(resource);
+  const getChoiceRepresentationText =
+    useGetChoiceRepresentationText<TChoice>(resource);
   const { getChoiceText, getChoiceValue, getDisableValue } =
     useChoices<TChoice>({
       optionText:
         optionText ??
-        (isFromReference ? getRecordRepresentationText : undefined),
+        (isFromReference ? getChoiceRepresentationText : undefined),
       optionValue,
       translateChoice: translateChoice ?? !isFromReference,
       disableValue,

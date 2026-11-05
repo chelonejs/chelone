@@ -131,6 +131,12 @@ describe("ResourceDefinition slot types", () => {
     >();
   });
 
+  it("recordRepresentation refuses a number", () => {
+    // @ts-expect-error a representation is a path, a function or an element
+    const props: ResourceProps = { name: "posts", recordRepresentation: 3 };
+    expectTypeOf(props).toEqualTypeOf<ResourceProps>();
+  });
+
   it("refuses an icon that is not a component", () => {
     // @ts-expect-error an icon is a component type, not a node
     const props: ComputeDefinitionProps = { name: "posts", icon: "star" };

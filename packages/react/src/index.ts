@@ -1124,6 +1124,7 @@ export type {
   UseResourceTranslationOptions,
 } from "./label";
 export {
+  useGetChoiceRepresentationText,
   useGetRecordRepresentation,
   useGetRecordRepresentationText,
   useGetResourceLabel,

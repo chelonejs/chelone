@@ -22,7 +22,12 @@
  * (parity with the twin's `useState` capture of the reference options).
  */
 
-import type { ChoiceValueOf, SourcePath, SourceProp } from "@chelone/core";
+import {
+  type ChoiceValueOf,
+  isResourceRecord,
+  type SourcePath,
+  type SourceProp,
+} from "@chelone/core";
 import { type ComputedRef, computed } from "vue";
 import {
   type ChoicesContextValue,
@@ -100,11 +105,14 @@ export function useChoiceInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   const resource = ctx.resource;
 
   const getRecordRepresentation = useGetRecordRepresentation(resource);
+  // A choice is a loose bag until a reference loads it: one with no `id` has no representation.
+  const getChoiceRepresentation = (choice: TChoice): string =>
+    isResourceRecord(choice) ? getRecordRepresentation(choice) : "";
   const { getChoiceText, getChoiceValue, getDisableValue } =
     useChoices<TChoice>({
       optionText:
         options.optionText ??
-        (isFromReference ? getRecordRepresentation : undefined),
+        (isFromReference ? getChoiceRepresentation : undefined),
       optionValue: options.optionValue,
       disableValue: options.disableValue,
       translateChoice: options.translateChoice ?? !isFromReference,
