@@ -13,7 +13,12 @@
  * to `baseI18nKey`, matching `resolveNotificationKey`'s convention.
  */
 
-import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  defineMessages,
+  fakeDataProvider,
+  type MessageCatalog,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -21,10 +26,10 @@ import { describe, expect, it } from "vitest";
 import { CheloneProvider } from "../context";
 import { useResourceTranslation } from "./use-resource-translation";
 
-function makeWrapper(messages?: Record<string, Record<string, unknown>>) {
+function makeWrapper(messages?: Record<string, MessageCatalog>) {
   const i18n = createI18n({
     locale: "en",
-    messages: (messages as never) ?? { en: defineMessages({}) },
+    messages: messages ?? { en: defineMessages({}) },
   });
   return ({ children }: { children: ReactNode }) => (
     <CheloneProvider
