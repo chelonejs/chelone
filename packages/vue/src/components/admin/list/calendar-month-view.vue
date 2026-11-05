@@ -55,7 +55,7 @@ import {
   calendarEventsOnDay,
   moveCalendarEvent,
 } from "@chelone/core";
-import { computed, onBeforeUnmount, ref, shallowRef } from "vue";
+import { computed, onBeforeUnmount, ref, shallowRef, type VNode } from "vue";
 import { cn } from "../../../lib/utils";
 
 const props = defineProps<CalendarMonthViewProps>();
@@ -65,7 +65,7 @@ const emit = defineEmits<{
   drop: [record: LooseRecord, range: CalendarDrop];
 }>();
 defineSlots<{
-  event?(props: CalendarEventSlotProps): unknown;
+  event?(props: CalendarEventSlotProps): VNode[];
 }>();
 
 const weeks = computed(() => {

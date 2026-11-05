@@ -97,6 +97,7 @@ import {
   getCurrentInstance,
   onBeforeUnmount,
   ref,
+  type VNode,
   watch,
 } from "vue";
 import { useResourceDefinition } from "../../../admin/resource-registry";
@@ -135,9 +136,9 @@ const emit = defineEmits<{
 }>();
 defineSlots<{
   /** Replaces an event in its day cell. */
-  event?(props: CalendarEventSlotProps): unknown;
+  event?(props: CalendarEventSlotProps): VNode[];
   /** Replaces the title and the navigation. */
-  header?(props: CalendarHeaderSlotProps): unknown;
+  header?(props: CalendarHeaderSlotProps): VNode[];
 }>();
 
 const list = useListContext();

@@ -15,6 +15,7 @@ export interface WrapperFieldProps {
 </script>
 
 <script setup lang="ts">
+import type { VNode } from "vue";
 /**
  * `<WrapperField>` — wraps several fields so a parent layout (a
  * `SimpleShowLayout`, a `DataTable`) can treat them as one labeled/sortable unit
@@ -31,7 +32,7 @@ defineProps<WrapperFieldProps>();
 
 defineSlots<{
   /** The wrapped fields, rendered as-is. */
-  default(): unknown;
+  default(): VNode[];
 }>();
 </script>
 

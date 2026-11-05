@@ -48,7 +48,7 @@ import {
   type LooseRecord,
   type RecordTreeNode,
 } from "@chelone/core";
-import { computed, getCurrentInstance, provide, ref } from "vue";
+import { computed, getCurrentInstance, provide, ref, type VNode } from "vue";
 import { useResourceDefinition } from "../../../admin/resource-registry";
 import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
 import { cn } from "../../../lib/utils";
@@ -70,9 +70,9 @@ const props = withDefaults(defineProps<TreeListProps>(), {
 const emit = defineEmits<{ select: [record: LooseRecord] }>();
 defineSlots<{
   /** Rendered while the list is pending, in place of `SimpleListLoading`. */
-  loading?(): unknown;
+  loading?(): VNode[];
   /** Rendered with no records, in place of `ListNoResults`. */
-  empty?(): unknown;
+  empty?(): VNode[];
 }>();
 
 const list = useListContext();

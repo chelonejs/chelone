@@ -28,7 +28,7 @@ export interface CalendarAgendaViewProps {
  */
 
 import { groupCalendarAgenda } from "@chelone/core";
-import { computed } from "vue";
+import { computed, type VNode } from "vue";
 import { useLocale } from "../../../i18n/use-locale";
 import { useTranslate } from "../../../i18n/use-translate";
 import CalendarEventButton from "./calendar-event.vue";
@@ -37,7 +37,7 @@ import type { CalendarEventSlotProps } from "./calendar-month-view.vue";
 const props = defineProps<CalendarAgendaViewProps>();
 const emit = defineEmits<{ selectEvent: [record: LooseRecord] }>();
 defineSlots<{
-  event?(props: CalendarEventSlotProps): unknown;
+  event?(props: CalendarEventSlotProps): VNode[];
 }>();
 
 const translate = useTranslate();

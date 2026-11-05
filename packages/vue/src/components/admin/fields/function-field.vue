@@ -24,7 +24,7 @@ export interface FunctionFieldProps<RecordType extends LooseRecord = LooseRecord
  * Renders nothing until an ambient (or overridden) record resolves.
  */
 
-import { computed, inject } from "vue";
+import { computed, inject, type VNode } from "vue";
 import { cn } from "../../../lib/utils";
 import { RecordContextKey } from "../../../record/record-context";
 
@@ -32,7 +32,7 @@ const props = defineProps<FunctionFieldProps<RecordType>>();
 
 defineSlots<{
   /** Receives the resolved record + optional source; renders the derived value. */
-  default(props: { record: RecordType; source?: string }): unknown;
+  default(props: { record: RecordType; source?: string }): VNode[];
 }>();
 
 const injectedRecord = inject(RecordContextKey, null);
