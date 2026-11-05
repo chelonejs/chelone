@@ -26,15 +26,11 @@ import {
 } from "@testing-library/react";
 import { type ReactNode, useState } from "react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Admin, Layout, Resource } from "../../../index";
 import { useLocation } from "../../../router";
 import { CommandMenu, type CommandMenuProps } from "./command-menu";
 import { useCommandMenu, useRegisterCommand } from "./command-menu-context";
-
-beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
 
 afterEach(() => {
   cleanup();

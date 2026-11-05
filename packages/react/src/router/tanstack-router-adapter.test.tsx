@@ -27,7 +27,7 @@ import {
   screen,
 } from "@testing-library/react";
 import { type ReactNode, useRef } from "react";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { RouterAdapterProvider } from "./adapter";
 import { BasenameProvider } from "./context";
 import {
@@ -41,12 +41,6 @@ import {
 import { tanstackRouterAdapter } from "./tanstack-router-adapter";
 
 const adapter = tanstackRouterAdapter;
-
-// TanStack calls window.scrollTo on navigation; jsdom doesn't implement it.
-// Stub it so the (irrelevant-to-this-suite) scroll side effect is a no-op.
-beforeAll(() => {
-  window.scrollTo = vi.fn();
-});
 
 afterEach(() => {
   cleanup();
