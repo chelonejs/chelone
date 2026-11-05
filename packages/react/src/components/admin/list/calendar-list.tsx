@@ -134,7 +134,7 @@ function CalendarList<RecordType extends ResourceRecord = LooseRecord>({
   const [chosenView, setView] = useState<CalendarView>(defaultView);
   const view = availableViews.includes(chosenView)
     ? chosenView
-    : (availableViews[0] as CalendarView);
+    : (availableViews[0] ?? defaultView);
   const [anchor, setAnchor] = useState(() => new Date());
 
   const range = useMemo(
