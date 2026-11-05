@@ -413,6 +413,7 @@ export {
   createEditFormController,
 } from "./form/edit-create-form";
 export { extractEventValue } from "./form/event-value";
+export { firstFieldError } from "./form/field-error";
 export {
   filterFormReflectShape,
   getFilterFormValues,

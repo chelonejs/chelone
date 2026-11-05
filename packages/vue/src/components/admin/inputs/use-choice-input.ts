@@ -76,7 +76,7 @@ export interface UseChoiceInputResult<
   /** The value for a choice (`optionValue` path or `id`). */
   getChoiceValue(choice: TChoice): unknown;
   /** The disabled flag for a choice. */
-  getDisableValue(choice: TChoice): unknown;
+  getDisableValue(choice: TChoice): boolean;
   /** Push a filter onto a reference context (inert for inline choices). */
   setFilters(filter: Record<string, unknown>, debounce?: boolean): void;
 }

@@ -45,7 +45,7 @@ export interface UseChoicesResult<TChoice extends ChoiceRecord = ChoiceRecord> {
   /** The value: `get(choice, optionValue)`, falling back to `choice.id`. */
   getChoiceValue(choice: TChoice): unknown;
   /** The disabled flag: `get(choice, disableValue)`. */
-  getDisableValue(choice: TChoice): unknown;
+  getDisableValue(choice: TChoice): boolean;
 }
 
 /**
@@ -93,7 +93,7 @@ export function useChoices<TChoice extends ChoiceRecord = ChoiceRecord>(
       return value !== undefined ? value : choice.id;
     },
     getDisableValue(choice) {
-      return getChoicePath(choice, loose().disableValue ?? "disabled");
+      return getChoicePath(choice, loose().disableValue ?? "disabled") === true;
     },
   };
 }
