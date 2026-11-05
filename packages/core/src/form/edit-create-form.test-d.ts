@@ -1,6 +1,7 @@
 import { QueryClient } from "@tanstack/query-core";
 import { expectTypeOf, it } from "vitest";
 import { z } from "zod";
+import type { SaveOptions } from "../controller/record-controllers";
 import { fakeDataProvider } from "../data/fake-provider";
 import { defineResources } from "../resource/registry";
 import {
@@ -33,7 +34,9 @@ it("createEditFormController infers the record type from the registry — no any
     Partial<Post>
   >();
   expectTypeOf(controller.getSnapshot().saving).toEqualTypeOf<boolean>();
-  expectTypeOf(controller.submit).toEqualTypeOf<() => Promise<void>>();
+  expectTypeOf(controller.submit).toEqualTypeOf<
+    (options?: SaveOptions<Post>) => Promise<void>
+  >();
   expectTypeOf(controller.form.state.values).toEqualTypeOf<Partial<Post>>();
 });
 

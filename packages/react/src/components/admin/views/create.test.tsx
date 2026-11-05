@@ -192,6 +192,41 @@ describe("<Create>", () => {
     });
   });
 
+  it("save forwards its call-time options: meta and onError run", async () => {
+    const dataProvider = makeDataProvider();
+    const create = vi
+      .spyOn(dataProvider, "create")
+      .mockRejectedValue(new Error("boom"));
+    const onError = vi.fn();
+    function Submit() {
+      const { save } = useSaveContext<{ id: number; title: string }>();
+      return (
+        <button
+          type="button"
+          onClick={() =>
+            save?.({ title: "x" }, { meta: { a: 1 }, onError })?.catch(() => {})
+          }
+        >
+          save
+        </button>
+      );
+    }
+    render(
+      <Providers dataProvider={dataProvider}>
+        <Create>
+          <TextInput source="title" />
+          <Submit />
+        </Create>
+      </Providers>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "save" }));
+    await waitFor(() => expect(onError).toHaveBeenCalled());
+    expect(create).toHaveBeenCalledWith(
+      "posts",
+      expect.objectContaining({ meta: { a: 1 } }),
+    );
+  });
+
   it("validate on <Create> blocks a save that fails it", async () => {
     const dataProvider = makeDataProvider();
     const create = vi.spyOn(dataProvider, "create");
