@@ -285,11 +285,7 @@ export function useGetPathForRecord(
 function useCanAccessGated(params: CanAccessParams, enabled: boolean): boolean {
   const { authProvider } = useCheloneContext();
   const { data } = useQuery({
-    ...canAccessQueryOptions(
-      // A stub provider whose `canAccess` is absent → queryFn resolves `true`.
-      authProvider ?? ({} as NonNullable<typeof authProvider>),
-      params,
-    ),
+    ...canAccessQueryOptions(authProvider, params),
     enabled: enabled && authProvider != null,
   });
   // No authProvider → allow. Query disabled but view exists → we haven't

@@ -127,6 +127,20 @@ describe("usePermissions", () => {
     expect(capture.result?.permissions.value).toBeUndefined();
     expect(capture.result?.isPending.value).toBe(false);
   });
+
+  it("usePermissions with no auth provider runs no query", async () => {
+    const capture: { result?: ReturnType<typeof usePermissions> } = {};
+    const { queryClient } = mountAdmin(() => h(probe(capture)));
+    await flushPromises();
+    expect(capture.result?.isPending.value).toBe(false);
+    expect(queryClient.isFetching()).toBe(0);
+    expect(
+      queryClient
+        .getQueryCache()
+        .find({ queryKey: ["auth", "getPermissions", undefined] })?.state
+        .fetchStatus ?? "idle",
+    ).toBe("idle");
+  });
 });
 
 /* -------------------------------------------------------------------------- */

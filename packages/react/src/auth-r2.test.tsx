@@ -117,6 +117,20 @@ describe("usePermissions", () => {
     expect(result.current.permissions).toBeUndefined();
     expect(result.current.isPending).toBe(false);
   });
+
+  it("usePermissions with no auth provider runs no query", async () => {
+    const { wrapper, queryClient } = makeWrapper(); // no authProvider
+    const { result } = renderHook(() => usePermissions(), { wrapper });
+    await Promise.resolve();
+    expect(result.current.isPending).toBe(false);
+    expect(queryClient.isFetching()).toBe(0);
+    expect(
+      queryClient
+        .getQueryCache()
+        .find({ queryKey: ["auth", "getPermissions", undefined] })?.state
+        .fetchStatus ?? "idle",
+    ).toBe("idle");
+  });
 });
 
 /* -------------------------------------------------------------------------- */
