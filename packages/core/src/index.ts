@@ -488,10 +488,14 @@ export type {
   WebhookValue,
 } from "./form/input-values";
 export {
+  choiceIdOf,
   fileEntryKey,
   fileEntryPreview,
   isTransformedFile,
+  resolveChoiceValue,
   toBooleanValue,
+  toChoiceValue,
+  toChoiceValues,
   toCurrencyComposite,
   toCurrencyValue,
   toDateInputValue,

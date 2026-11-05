@@ -145,6 +145,28 @@ describe("<CheckboxGroupInput>", () => {
     expect(onData).toHaveBeenCalledWith({ tags: ["lifestyle"] });
   });
 
+  it("calls onBlur and onChange once per toggle, and not for focus moving inside the group", () => {
+    const onBlur = vi.fn();
+    const onChange = vi.fn();
+    setup(
+      <CheckboxGroupInput
+        source="tags"
+        choices={choices}
+        onBlur={onBlur}
+        onChange={onChange}
+      />,
+      { defaultValues: { tags: [] } },
+    );
+    const tech = screen.getByLabelText("Tech");
+    act(() => tech.focus());
+    act(() => tech.blur());
+    expect(onBlur).not.toHaveBeenCalled();
+    fireEvent.click(tech);
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(["tech"]);
+    expect(onBlur).toHaveBeenCalledTimes(1);
+  });
+
   it("renders the required marker for a required validator", () => {
     setup(
       <CheckboxGroupInput

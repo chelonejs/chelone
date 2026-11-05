@@ -5,7 +5,7 @@ import type {
 import { isThenable } from "../guards";
 import type { TranslateParamValues } from "../i18n/messages";
 import type { TranslatableMessage } from "./form-controller";
-import type { ChoiceValueOf } from "./input-values";
+import { type ChoiceValueOf, choiceIdOf } from "./input-values";
 
 /* @link http://stackoverflow.com/questions/46155/validate-email-address-in-javascript */
 const EMAIL_REGEX =
@@ -295,7 +295,7 @@ export function choices<TChoice>(
     ChoiceValueOf<TChoice>
   > = "chelone.validation.oneOf",
 ): Validator<ChoiceValueOf<TChoice>> {
-  const options: readonly unknown[] = list.map(choiceValue);
+  const options: readonly unknown[] = list.map(choiceIdOf);
   return (value, values) =>
     !isEmpty(value) && !options.includes(value)
       ? getMessage(
@@ -305,20 +305,6 @@ export function choices<TChoice>(
           values,
         )
       : undefined;
-}
-
-/**
- * The value a choice list stores for one choice: its `id` when it has one (ra's
- * `choices` carry `{id, name}` pairs), the choice itself otherwise.
- */
-function choiceValue<TChoice>(choice: TChoice): ChoiceValueOf<TChoice> {
-  if (typeof choice === "object" && choice !== null && "id" in choice) {
-    // type-escape: `ChoiceValueOf` names the id of a choice that has one; TS
-    // cannot follow the runtime `in` check into the deferred conditional.
-    return choice.id as ChoiceValueOf<TChoice>;
-  }
-  // type-escape: a choice with no id is its own value.
-  return choice as ChoiceValueOf<TChoice>;
 }
 
 /**
