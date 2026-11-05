@@ -1,7 +1,7 @@
 {
   "name": "chelone",
   "private": true,
-  "packageManager": "pnpm@10.14.0",
+  "packageManager": "pnpm@12.16.1",
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
@@ -14,14 +14,9 @@
     "release:check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm --filter \"./packages/*\" run check:pack"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.0",
+    "@biomejs/biome": "^2.6.5",
     "jscpd": "5.4.2",
-    "turbo": "^2.0.0",
-    "typescript": "^5.5.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "iconv-lite@<0.7": "^0.7.3"
-    }
+    "turbo": "^2.11.10",
+    "typescript": "^6.0.3"
   }
 }
