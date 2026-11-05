@@ -3920,7 +3920,7 @@
         "@chelone/lib-utils",
         "@chelone/skeleton"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4399,7 +4399,7 @@
         "@chelone/popover",
         "@chelone/skeleton"
       ],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
