@@ -16,7 +16,11 @@ import { defineComponent, h, nextTick } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import { z } from "zod";
 import Admin from "../../../admin/admin.vue";
-import { type UseFormReturn, useForm } from "../../../form/use-form";
+import {
+  type UseFormOptions,
+  type UseFormReturn,
+  useForm,
+} from "../../../form/use-form";
 import AutocompleteArrayInput from "./autocomplete-array-input.vue";
 import AutocompleteInput from "./autocomplete-input.vue";
 import CheckboxGroupInput from "./checkbox-group-input.vue";
@@ -57,7 +61,13 @@ interface Captured {
 
 function mountInForm(
   render: () => unknown,
-  { record, schema }: { record: FormValues; schema?: z.ZodTypeAny },
+  {
+    record,
+    schema,
+  }: {
+    record: FormValues;
+    schema?: UseFormOptions<FormValues>["schema"];
+  },
 ) {
   const captured: Captured = {};
   const queryClient = new QueryClient({
@@ -70,7 +80,7 @@ function mountInForm(
     setup(_, { slots }) {
       const form = useForm<FormValues>({
         record,
-        schema: schema as never,
+        schema,
         onSubmit: async () => undefined,
       });
       captured.form = form;
