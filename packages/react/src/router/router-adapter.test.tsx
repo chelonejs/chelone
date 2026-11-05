@@ -338,40 +338,36 @@ describe("useCreatePath — matrix (basename applied)", () => {
   });
 });
 
+/**
+ * The `useRedirect` the last rendered `Probe` returned. The assignment happens
+ * inside a component, so the read below narrows it with a guard instead of a
+ * cast (TS keeps the declared type across a component's closure).
+ */
+let lastRedirect: ReturnType<typeof useRedirect> | undefined;
+
 describe("useRedirect — the ra-core forms (parity §0a-11)", () => {
   function setup(initial = "/start") {
     const locations: string[] = [];
     function Probe() {
-      const redirect = useRedirect();
+      lastRedirect = useRedirect();
       const loc = useLocation();
       locations.push(loc.pathname + loc.search);
-      return (
-        <button
-          type="button"
-          data-testid="go"
-          onClick={() => {
-            (Probe as unknown as { last?: typeof redirect }).last = redirect;
-          }}
-        >
-          x
-        </button>
-      );
-    }
-    let captured: ReturnType<typeof useRedirect> | null = null;
-    function Capture() {
-      captured = useRedirect();
       return null;
     }
     render(
       <RouterAdapterProvider adapter={adapter}>
         <MemoryRouter initialEntries={[initial]}>
           <Probe />
-          <Capture />
         </MemoryRouter>
       </RouterAdapterProvider>,
     );
     return {
-      redirect: () => captured as NonNullable<typeof captured>,
+      redirect: () => {
+        if (lastRedirect === undefined) {
+          throw new Error("setup: the Probe never captured a useRedirect");
+        }
+        return lastRedirect;
+      },
       locations,
     };
   }

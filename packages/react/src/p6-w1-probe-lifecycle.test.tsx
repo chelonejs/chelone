@@ -48,11 +48,12 @@ import {
   useResourceDefinitions,
 } from "./resource/registry-hooks";
 import { Resource } from "./resource/resource";
+import type { RouterAdapter } from "./router/adapter";
 import { reactRouterAdapter } from "./router/react-router-adapter";
 import { tanstackRouterAdapter } from "./router/tanstack-router-adapter";
 
 beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
+  window.scrollTo = vi.fn();
 });
 
 afterEach(() => {
@@ -299,12 +300,9 @@ describe("L4 — useHandleAuthCallback redirect once, no discard leak", () => {
   it("resolves handleCallback and fires the redirect EXACTLY ONCE despite re-renders", async () => {
     const navigateSpy = vi.fn();
     // A custom adapter that records navigate calls (the redirect target).
-    const spyAdapter = {
+    const spyAdapter: RouterAdapter = {
       ...reactRouterAdapter,
-      useNavigate: () =>
-        navigateSpy as unknown as ReturnType<
-          typeof reactRouterAdapter.useNavigate
-        >,
+      useNavigate: () => navigateSpy,
     };
     const handleCallback = vi.fn(async () => ({ redirectTo: "/dashboard" }));
     const authProvider = makeAuthProvider({ handleCallback });
@@ -339,12 +337,9 @@ describe("L4 — useHandleAuthCallback redirect once, no discard leak", () => {
 
   it("unmounting BEFORE the callback settles fires NO redirect (no post-unmount navigate)", async () => {
     const navigateSpy = vi.fn();
-    const spyAdapter = {
+    const spyAdapter: RouterAdapter = {
       ...reactRouterAdapter,
-      useNavigate: () =>
-        navigateSpy as unknown as ReturnType<
-          typeof reactRouterAdapter.useNavigate
-        >,
+      useNavigate: () => navigateSpy,
     };
     let release!: () => void;
     const gate = new Promise<void>((r) => {

@@ -29,24 +29,24 @@ vi.mock("react-router", async (importOriginal) => {
   };
 });
 
-type Dispatcher = { useState: { name: string } } | null;
-
 /**
  * Whether a component is rendering right now. React keeps a dispatcher on its
  * shared internals; outside a render its hooks are `throwInvalidHookError`
  * (in commit phase too, which is why `H != null` alone is not enough).
+ * React types that bag as private, so each read goes through `Reflect` and is
+ * narrowed by a `typeof` check.
  */
 function isRendering(): boolean {
-  const internals = (
-    React as unknown as {
-      __CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE: {
-        H: Dispatcher;
-      };
-    }
-  ).__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
-  const dispatcher = internals.H;
+  const internals = Reflect.get(
+    React,
+    "__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE",
+  );
+  if (typeof internals !== "object" || internals === null) return false;
+  const dispatcher = Reflect.get(internals, "H");
+  if (typeof dispatcher !== "object" || dispatcher === null) return false;
+  const useState = Reflect.get(dispatcher, "useState");
   return (
-    dispatcher != null && dispatcher.useState.name !== "throwInvalidHookError"
+    typeof useState === "function" && useState.name !== "throwInvalidHookError"
   );
 }
 
