@@ -2,24 +2,25 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
+import type { Feature, Geometry } from "geojson";
 import { describe, expect, it } from "vitest";
+import type { JsonObject } from "../guards";
 import {
   EDITOR_PROPERTIES,
   editorStyles,
   fromEditorFeatures,
   toEditorFeatures,
 } from "./editor";
-import type { GeoFeature, GeoGeometry } from "./geojson";
 
-const point: GeoGeometry = { type: "Point", coordinates: [1, 2] };
-const line: GeoGeometry = {
+const point: Geometry = { type: "Point", coordinates: [1, 2] };
+const line: Geometry = {
   type: "LineString",
   coordinates: [
     [0, 0],
     [1, 1],
   ],
 };
-const polygon: GeoGeometry = {
+const polygon: Geometry = {
   type: "Polygon",
   coordinates: [
     [
@@ -38,7 +39,7 @@ function ids() {
 
 describe("toEditorFeatures", () => {
   it("toEditorFeatures sets mode by geometry type and keeps the source id under chelone:id", () => {
-    const features: GeoFeature[] = [
+    const features: Feature<Geometry | null, JsonObject | null>[] = [
       { type: "Feature", id: "a", geometry: point, properties: { name: "p" } },
       { type: "Feature", id: 7, geometry: line, properties: null },
       { type: "Feature", geometry: polygon, properties: {} },
@@ -74,7 +75,7 @@ describe("toEditorFeatures", () => {
   });
 
   it("toEditorFeatures gives a fresh id every call and leaves the source alone", () => {
-    const source: GeoFeature = {
+    const source: Feature<Geometry | null, JsonObject | null> = {
       type: "Feature",
       id: "a",
       geometry: point,
@@ -93,7 +94,7 @@ describe("toEditorFeatures", () => {
   });
 
   it("toEditorFeatures skips features the editor cannot hold", () => {
-    const features: GeoFeature[] = [
+    const features: Feature<Geometry | null, JsonObject | null>[] = [
       { type: "Feature", geometry: null, properties: {} },
       {
         type: "Feature",
@@ -126,7 +127,7 @@ describe("toEditorFeatures", () => {
   });
 
   it("rounds positions to 9 decimals", () => {
-    const features: GeoFeature[] = [
+    const features: Feature<Geometry | null, JsonObject | null>[] = [
       {
         type: "Feature",
         geometry: { type: "Point", coordinates: [4.360416666666667, 50.85] },
@@ -167,7 +168,7 @@ describe("toEditorFeatures", () => {
   });
 
   it("drops an altitude from every position", () => {
-    const features: GeoFeature[] = [
+    const features: Feature<Geometry | null, JsonObject | null>[] = [
       {
         type: "Feature",
         geometry: { type: "Point", coordinates: [1, 2, 30] },
@@ -200,7 +201,7 @@ describe("toEditorFeatures", () => {
   });
 
   it("wraps a longitude past 180 into range", () => {
-    const features: GeoFeature[] = [
+    const features: Feature<Geometry | null, JsonObject | null>[] = [
       {
         type: "Feature",
         geometry: {
@@ -229,7 +230,7 @@ describe("toEditorFeatures", () => {
   });
 
   it("leaves a value with 9 or fewer decimals equal after a round trip", () => {
-    const features: GeoFeature[] = [
+    const features: Feature<Geometry | null, JsonObject | null>[] = [
       {
         type: "Feature",
         id: "a",
@@ -316,7 +317,7 @@ describe("fromEditorFeatures", () => {
   });
 
   it("fromEditorFeatures keeps user properties named like the editor's own", () => {
-    const source: GeoFeature[] = [
+    const source: Feature<Geometry | null, JsonObject | null>[] = [
       {
         type: "Feature",
         id: "a",
@@ -363,7 +364,7 @@ describe("fromEditorFeatures", () => {
   });
 
   it("fromEditorFeatures round-trips toEditorFeatures", () => {
-    const source: GeoFeature[] = [
+    const source: Feature<Geometry | null, JsonObject | null>[] = [
       { type: "Feature", id: 3, geometry: polygon, properties: { k: "v" } },
       { type: "Feature", geometry: line, properties: {} },
     ];
