@@ -42,7 +42,7 @@ export type RedirectRequest = (
   target: RedirectTarget,
   resource: string,
   id?: Identifier,
-  data?: unknown,
+  data?: ResourceRecord,
 ) => void;
 
 export interface RecordControllerContext<

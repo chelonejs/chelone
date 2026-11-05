@@ -4,7 +4,7 @@
  * §0a-4 contract requires.
  */
 
-import type { CheloneLocation, PathMatch } from "@chelone/core";
+import type { CheloneLocation, PathMatch, ResourceRecord } from "@chelone/core";
 import { createElement } from "react";
 import { Route as RRRoute, Routes as RRRoutes } from "react-router";
 import { assertType, describe, expectTypeOf, it } from "vitest";
@@ -147,6 +147,16 @@ describe("nav-hook signatures", () => {
     const asFalse: RedirectTo = false;
     assertType<RedirectTo>(asString);
     assertType<RedirectTo>(asFalse);
+  });
+
+  it("a redirect function receives a ResourceRecord", () => {
+    type RedirectFn = Extract<RedirectTo, (...args: never[]) => string | false>;
+    expectTypeOf<Parameters<RedirectFn>[2]>().toEqualTypeOf<
+      ResourceRecord | undefined
+    >();
+    expectTypeOf<Parameters<ReturnType<typeof useRedirect>>[3]>().toEqualTypeOf<
+      ResourceRecord | undefined
+    >();
   });
 
   it("useGetPathForRecord returns string | false (never any)", () => {
