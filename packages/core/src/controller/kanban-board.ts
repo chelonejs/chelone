@@ -10,7 +10,6 @@
 
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
-import type { SourceKey } from "../resource/source-path";
 
 export interface KanbanColumnDef {
   /** Value written to `groupSource` by a drop into this column. */
@@ -42,13 +41,9 @@ export interface KanbanMove<R> {
  */
 function bucketKey<R extends ResourceRecord>(
   record: R,
-  groupSource: SourceKey<R>,
+  groupSource: keyof R & string,
 ): string {
-  // `SourceKey` is a conditional type, so TS cannot see it as `keyof R` for a
-  // generic `R`. The read is a plain own-key read either way, not a path walk:
-  // a move can only write `{ [source]: value }`.
-  const value = (record as Record<string, unknown>)[groupSource];
-  return String(value ?? "");
+  return String(record[groupSource] ?? "");
 }
 
 /**
@@ -59,7 +54,7 @@ function bucketKey<R extends ResourceRecord>(
  */
 export function buildKanbanBuckets<R extends ResourceRecord>(
   records: readonly R[],
-  groupSource: SourceKey<R>,
+  groupSource: keyof R & string,
   columns: readonly KanbanColumnDef[],
 ): KanbanBucket<R>[] {
   const buckets: KanbanBucket<R>[] = columns.map((column) => ({
@@ -86,7 +81,7 @@ export function buildKanbanBuckets<R extends ResourceRecord>(
  */
 export function planKanbanMove<R extends ResourceRecord>(
   record: R,
-  groupSource: SourceKey<R>,
+  groupSource: keyof R & string,
   columns: readonly KanbanColumnDef[],
   targetColumnId: string,
 ): KanbanMove<R> | null {

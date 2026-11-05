@@ -21,7 +21,6 @@ import {
   type RegisteredRecord,
   type RegisteredResourceName,
   type ResourceRecord,
-  type SourceKey,
 } from "@chelone/core";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,13 +39,13 @@ interface DualApprovalButtonProps<
   /** Approvals needed. Default 2. */
   required?: number;
   /** Record field holding the approver ids, a top-level key. Default `"approvers"`. */
-  approverSource?: SourceKey<TRecord>;
+  approverSource?: keyof TRecord & string;
   /** Record field the status is written to, a top-level key. Default `"status"`. */
-  statusSource?: SourceKey<TRecord>;
+  statusSource?: keyof TRecord & string;
   /** Status written while approvals are short of `required`. Default `"pending"`. */
-  pendingValue?: TRecord[keyof TRecord];
+  pendingValue?: string;
   /** Status written once approvals reach `required`. Default `"approved"`. */
-  approvedValue?: TRecord[keyof TRecord];
+  approvedValue?: string;
   resource?: string;
   record?: TRecord;
   /** Default `"pessimistic"`; `"undoable"` shows an Undo notification. */

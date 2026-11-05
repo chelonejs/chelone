@@ -8,16 +8,14 @@
  * approve.
  */
 
-import type { SourceKey } from "../resource/source-path";
-
 type Id = string | number;
 
-export interface ApprovalOptions<TRecord = Record<string, unknown>> {
+export interface ApprovalOptions<TRecord extends object> {
   /**
    * Record field holding the approver list, a top-level key: it is read as
    * `record[approverSource]` and written back whole. Default `"approvers"`.
    */
-  approverSource?: SourceKey<TRecord>;
+  approverSource?: keyof TRecord & string;
   /** Approvals needed. Floored, minimum 1; `NaN` reads as 2. Default 2. */
   required?: number;
   /** The current user. No identity means nobody can approve. */
@@ -26,11 +24,11 @@ export interface ApprovalOptions<TRecord = Record<string, unknown>> {
    * Record field `buildApprovalUpdate` writes the status to, a top-level key.
    * Default `"status"`.
    */
-  statusSource?: SourceKey<TRecord>;
+  statusSource?: keyof TRecord & string;
   /** Status written while approvals are short of `required`. Default `"pending"`. */
-  pendingValue?: unknown;
+  pendingValue?: string;
   /** Status written once approvals reach `required`. Default `"approved"`. */
-  approvedValue?: unknown;
+  approvedValue?: string;
 }
 
 /**
@@ -38,7 +36,7 @@ export interface ApprovalOptions<TRecord = Record<string, unknown>> {
  * record often has no status field until its first approval, so it takes any
  * string; `approverSource` is read, so it stays a key of the record.
  */
-export type ApprovalUpdateOptions<TRecord = Record<string, unknown>> = Omit<
+export type ApprovalUpdateOptions<TRecord extends object> = Omit<
   ApprovalOptions<TRecord>,
   "statusSource"
 > & {
@@ -56,13 +54,13 @@ export interface ApprovalState {
   canApprove: boolean;
 }
 
-export interface TransitionOptions<TRecord = Record<string, unknown>> {
+export interface TransitionOptions<TRecord extends object> {
   /** Record field holding the status, a top-level key. Default `"status"`. */
-  source?: SourceKey<TRecord>;
+  source?: keyof TRecord & string;
   /** Next states by current state. */
   transitions: Record<string, readonly string[]>;
   /** Predicates keyed `"<from>-><to>"`. A transition with no guard is allowed. */
-  guards?: Record<string, (record: Record<string, unknown>) => boolean>;
+  guards?: Record<string, (record: TRecord) => boolean>;
 }
 
 export interface AllowedTransitions {
@@ -77,19 +75,34 @@ function normalizeRequired(required: number | undefined): number {
   return Math.max(1, Math.floor(required));
 }
 
-function storedItems(record: object, source: string) {
-  const value = (record as Record<string, unknown>)[source];
+function storedItems<R extends object>(record: R, source: keyof R & string) {
+  const value = record[source];
   return Array.isArray(value) ? (value as unknown[]) : [];
 }
 
-export function getApprovalState<TRecord = Record<string, unknown>>(
+/**
+ * The approver list: `approverSource` when given, else the `"approvers"` field
+ * if the record has one. The default is a literal the record's type may not
+ * name, so it is read only after an `in` check.
+ */
+function approverItems<R extends object>(
+  record: R,
+  approverSource: (keyof R & string) | undefined,
+) {
+  if (approverSource !== undefined) return storedItems(record, approverSource);
+  return "approvers" in record ? storedItems(record, "approvers") : [];
+}
+
+export function getApprovalState<TRecord extends object>(
   record: TRecord & object,
   options: ApprovalOptions<TRecord> = {},
 ): ApprovalState {
-  const { approverSource = "approvers", identityId } = options;
+  const { approverSource, identityId } = options;
   const required = normalizeRequired(options.required);
   const approvers = [
-    ...new Set(storedItems(record, approverSource).map((item) => String(item))),
+    ...new Set(
+      approverItems(record, approverSource).map((item) => String(item)),
+    ),
   ];
   const count = approvers.length;
   const hasIdentity = identityId !== undefined && identityId !== null;
@@ -110,12 +123,12 @@ export function getApprovalState<TRecord = Record<string, unknown>>(
  * approve. Stored items stay as they were and the identity is appended in its
  * own type.
  */
-export function buildApprovalUpdate<TRecord = Record<string, unknown>>(
+export function buildApprovalUpdate<TRecord extends object>(
   record: TRecord & object,
   options: ApprovalUpdateOptions<TRecord> = {},
 ): Record<string, unknown> | null {
   const {
-    approverSource = "approvers",
+    approverSource,
     statusSource = "status",
     identityId,
     pendingValue = "pending",
@@ -130,18 +143,27 @@ export function buildApprovalUpdate<TRecord = Record<string, unknown>>(
     return null;
   }
   return {
-    [approverSource]: [...storedItems(record, approverSource), identityId],
+    [approverSource ?? "approvers"]: [
+      ...approverItems(record, approverSource),
+      identityId,
+    ],
     [statusSource]:
       state.count + 1 >= state.required ? approvedValue : pendingValue,
   };
 }
 
-export function getAllowedTransitions<TRecord = Record<string, unknown>>(
+export function getAllowedTransitions<TRecord extends object>(
   record: TRecord & object,
   options: TransitionOptions<TRecord>,
 ): AllowedTransitions {
-  const { source = "status", transitions, guards } = options;
-  const current = String((record as Record<string, unknown>)[source] ?? "");
+  const { source, transitions, guards } = options;
+  const value =
+    source !== undefined
+      ? record[source]
+      : "status" in record
+        ? record.status
+        : undefined;
+  const current = String(value ?? "");
   const next = hasOwn(transitions, current) ? transitions[current] : undefined;
   const allowed: string[] = [];
   for (const to of Array.isArray(next) ? next : []) {
@@ -150,7 +172,7 @@ export function getAllowedTransitions<TRecord = Record<string, unknown>>(
     const guard = guards && hasOwn(guards, key) ? guards[key] : undefined;
     if (guard) {
       try {
-        if (!guard(record as Record<string, unknown>)) continue;
+        if (!guard(record)) continue;
       } catch {
         continue;
       }
