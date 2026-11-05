@@ -144,7 +144,7 @@ function BulkEditDrawer(props: BulkEditDrawerProps) {
       }
       try {
         await dataProvider.updateMany(name, {
-          ids: ids as Identifier[],
+          ids,
           data: diff,
         });
       } catch (error) {
@@ -158,7 +158,7 @@ function BulkEditDrawer(props: BulkEditDrawerProps) {
       });
       unselectAll();
       refresh();
-      done?.(diff, ids as Identifier[]);
+      done?.(diff, ids);
       close();
       return undefined;
     },

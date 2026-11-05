@@ -1,10 +1,10 @@
 ---
 title: "Installation"
-description: "Install Chelone with React Router v7 or Vue Router 4, plus an optional TanStack Router reference adapter."
+description: "Install Chelone with React Router or Vue Router, plus an optional TanStack Router reference adapter."
 ---
 
 Chelone is a headless admin engine for React and Vue. This page is React-first,
-using `react-router` v7 by default; the [Vue section](#install-for-vue) covers
+using `react-router` v8 by default (React 18 apps stay on v7); the [Vue section](#install-for-vue) covers
 `@chelone/vue`.
 An optional TanStack Router reference adapter is available at
 `@chelone/react/tanstack-router`. The headless logic is packaged as
@@ -20,7 +20,7 @@ automatically:
 
 ```bash
 npm install @chelone/react zod \
-  react-router@^7.0.0 \
+  react-router@^8.0.0 \
   @tanstack/react-query@^5.0.0 @tanstack/react-store@^0.11.0 \
   @tanstack/form-core@^1.33.0 @tanstack/query-core@^5.0.0
 ```
@@ -32,7 +32,7 @@ by `@chelone/react` are:
 | --- | --- | --- |
 | `react` | `^18 \|\| ^19` | Yes |
 | `react-dom` | `^18 \|\| ^19` | Yes |
-| `react-router` | `^7.0.0` | Yes |
+| `react-router` | `^7.0.0 \|\| ^8.0.0` | Yes |
 | `@tanstack/react-query` | `^5.0.0` | Yes |
 | `@tanstack/react-store` | `^0.11.0` | Yes |
 | `@tanstack/react-router` | `^1.0.0` | Only for the optional reference adapter |
@@ -122,14 +122,14 @@ export function App() {
 ## Install for Vue
 
 `@chelone/vue` is the Vue 3 adapter. It sits on the same `@chelone/core` engine
-as the React adapter and uses `vue-router` 4. Add it with its peers and Zod (Zod 3.25 or later, or Zod 4).
+as the React adapter and uses `vue-router` 4 or 5. Add it with its peers and Zod (Zod 3.25 or later, or Zod 4).
 `@chelone/core` is listed directly because the examples below import
 `fakeDataProvider` from it, which pnpm and Yarn Plug'n'Play only resolve for a
 direct dependency:
 
 ```bash
 npm install @chelone/vue @chelone/core zod \
-  vue@^3.4.0 vue-router@^4.0.0 \
+  vue@^3.5.34 vue-router@^5.0.0 \
   @tanstack/vue-query@^5.0.0 \
   @tanstack/form-core@^1.33.0 @tanstack/query-core@^5.0.0
 ```
@@ -139,7 +139,7 @@ The peer ranges declared by `@chelone/vue` are:
 | Peer | Range |
 | --- | --- |
 | `vue` | `^3.4.0` |
-| `vue-router` | `^4.0.0` |
+| `vue-router` | `^4.0.0 \|\| ^5.0.0` |
 | `@tanstack/vue-query` | `^5.0.0` |
 
 `@chelone/core` also requires these peers:

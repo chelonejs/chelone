@@ -197,9 +197,11 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
   onDropEvent,
 }: CalendarMonthViewProps<RecordType>) {
   const { labels, days, todayKey } = useCalendarGrid(range);
-  const weeks: Date[][] = [];
+  const weeks: [Date, ...Date[]][] = [];
   for (let i = 0; i < days.length; i += WEEK) {
-    weeks.push(days.slice(i, i + WEEK));
+    const first = days[i];
+    if (first !== undefined)
+      weeks.push([first, ...days.slice(i + 1, i + WEEK)]);
   }
 
   const selectSlot = (day: Date) =>
@@ -307,7 +309,7 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
       <tbody>
         {weeks.map((week) => (
           <tr
-            key={calendarDayKey(week[0] as Date)}
+            key={calendarDayKey(week[0])}
             className="border-b last:border-b-0"
           >
             {week.map((day) => {

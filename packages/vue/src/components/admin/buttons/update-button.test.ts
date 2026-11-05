@@ -340,6 +340,40 @@ describe("<UpdateButton>", () => {
     await vi.waitFor(() => expect(onError).toHaveBeenCalledWith(error));
   });
 
+  it("onSuccess is not called for an undoable update", async () => {
+    const onSuccess = vi.fn();
+    const onError = vi.fn();
+    const { wrapper, notify } = await mountButton({
+      button: () => updateButton({ onSuccess, onError }),
+    });
+
+    await (await findUpdate(wrapper)).trigger("click");
+    captureUndoable(notify).onClose?.();
+    await flushPromises();
+
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
+  });
+
+  it("the button sends the record id and previousData", async () => {
+    const dataProvider = fakeDataProvider(seed());
+    const update = vi.spyOn(dataProvider, "update");
+    const { wrapper } = await mountButton({
+      button: () => updateButton({ mutationMode: "optimistic" }),
+      dataProvider,
+    });
+
+    await (await findUpdate(wrapper)).trigger("click");
+    await confirm(wrapper);
+
+    await vi.waitFor(() => expect(update).toHaveBeenCalledTimes(1));
+    expect(update).toHaveBeenCalledWith("posts", {
+      id: 1,
+      data: { views: 0 },
+      previousData: { id: 1, title: "Alpha", views: 10 },
+    });
+  });
+
   it("is disabled while the update is pending", async () => {
     const { dataProvider, update, settle } = deferredUpdate();
     const { wrapper } = await mountButton({

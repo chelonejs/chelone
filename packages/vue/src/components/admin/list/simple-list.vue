@@ -16,6 +16,7 @@ export interface SimpleListSlotProps {
 </script>
 
 <script setup lang="ts">
+import type { VNode } from "vue";
 /**
  * `<SimpleList>` — the records of the ambient `<List>` as tappable rows, for
  * lists too narrow for a `<DataTable>`. The Vue analog of `@chelone/react`'s
@@ -46,16 +47,16 @@ const props = withDefaults(defineProps<SimpleListProps>(), {
   linkType: undefined,
 });
 defineSlots<{
-  "primary-text"?(props: SimpleListSlotProps): unknown;
-  "secondary-text"?(props: SimpleListSlotProps): unknown;
-  "tertiary-text"?(props: SimpleListSlotProps): unknown;
-  "left-avatar"?(props: SimpleListSlotProps): unknown;
-  "left-icon"?(props: SimpleListSlotProps): unknown;
-  "right-icon"?(props: SimpleListSlotProps): unknown;
+  "primary-text"?(props: SimpleListSlotProps): VNode[];
+  "secondary-text"?(props: SimpleListSlotProps): VNode[];
+  "tertiary-text"?(props: SimpleListSlotProps): VNode[];
+  "left-avatar"?(props: SimpleListSlotProps): VNode[];
+  "left-icon"?(props: SimpleListSlotProps): VNode[];
+  "right-icon"?(props: SimpleListSlotProps): VNode[];
   /** Rendered while the list is pending, in place of `SimpleListLoading`. */
-  loading?(): unknown;
+  loading?(): VNode[];
   /** Rendered with no records, in place of `ListNoResults`. */
-  empty?(): unknown;
+  empty?(): VNode[];
 }>();
 
 const list = useListContext();

@@ -18,25 +18,29 @@ export function applyCsvMapping(
  * Lists a zod object's keys, and the ones whose schema is not optional. Any
  * other schema has no `shape` to read and yields no fields.
  */
-export function csvSchemaFields(schema: unknown): {
+export function csvSchemaFields(schema: StandardSchemaV1 | undefined): {
   fields: string[];
   required: string[];
 } {
-  const shape = (schema as { shape?: unknown } | null | undefined)?.shape;
+  const shape = schema && "shape" in schema ? schema.shape : undefined;
   if (typeof shape !== "object" || shape === null) {
     return { fields: [], required: [] };
   }
-  const entries = Object.entries(shape as Record<string, unknown>);
+  const entries: Array<[string, unknown]> = Object.entries(shape);
   return {
     fields: entries.map(([key]) => key),
     required: entries
-      .filter(
-        ([, field]) =>
-          !(field as { isOptional?: () => boolean } | null)?.isOptional?.(),
-      )
+      .filter(([, field]) => !isOptionalField(field))
       .map(([key]) => key),
   };
 }
+
+const isOptionalField = (field: unknown): boolean =>
+  typeof field === "object" &&
+  field !== null &&
+  "isOptional" in field &&
+  typeof field.isOptional === "function" &&
+  Boolean(field.isOptional());
 
 const message = (error: unknown) =>
   error instanceof Error ? error.message : String(error);

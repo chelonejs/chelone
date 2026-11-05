@@ -1,3 +1,8 @@
+import {
+  type ChoiceValueOf,
+  type SourceProp,
+  toChoiceValues,
+} from "@chelone/core";
 import type * as React from "react";
 import type { ComponentProps } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
@@ -16,12 +21,15 @@ import type { ChoiceRecord } from "../../../choices-hooks";
 import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
-import { useGetRecordRepresentationText } from "../../../label";
+import { useGetChoiceRepresentationText } from "../../../label";
 import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
 import type { ChoicesProps, InputProps } from "../input-props";
 
-interface CheckboxGroupInputProps<TChoice extends ChoiceRecord = ChoiceRecord>
-  extends Partial<InputProps>,
+interface CheckboxGroupInputProps<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> extends Partial<InputProps<TRecord, TPath>>,
     ChoicesProps<TChoice>,
     // The rendered root is a `<fieldset>` (via `<FieldSet>`); extend the
     // fieldset attribute surface so the passthrough `{...rest}` typechecks.
@@ -58,20 +66,16 @@ interface CheckboxGroupInputProps<TChoice extends ChoiceRecord = ChoiceRecord>
  *   </Edit>
  * );
  */
-function CheckboxGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
-  props: CheckboxGroupInputProps<TChoice>,
-) {
+function CheckboxGroupInput<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+  TChoice extends ChoiceRecord = ChoiceRecord,
+>(props: CheckboxGroupInputProps<TRecord, TPath, TChoice>) {
   const {
     choices: choicesProp,
     resource: resourceProp,
     source: sourceProp,
 
-    format,
-    onBlur,
-    onChange,
-    parse,
-    validate,
-    defaultValue,
     disabled,
     readOnly,
 
@@ -86,6 +90,10 @@ function CheckboxGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     row = false,
     options,
     labelPlacement = "end",
+    // Stay out of `rest`: it is spread onto the `<FieldSet>`, where a blur or
+    // change from inside the group would bubble into the callback.
+    onBlur,
+    onChange,
     ...rest
   } = props;
 
@@ -106,14 +114,14 @@ function CheckboxGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   }
 
   // `resource`/`disabled`/`readOnly` are component-local, NOT `useInput` keys.
+  // The options are spread whole: reading the generic `defaultValue` anywhere
+  // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
+  // instantiation depth.
   const { id, field, fieldState, isRequired } = useInput({
-    format,
+    ...rest,
     onBlur,
     onChange,
-    parse,
     source,
-    validate,
-    defaultValue,
   });
 
   const invalid = fieldState.invalid;
@@ -121,12 +129,13 @@ function CheckboxGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const getRecordRepresentationText = useGetRecordRepresentationText(resource);
+  const getChoiceRepresentationText =
+    useGetChoiceRepresentationText<TChoice>(resource);
   const { getChoiceText, getChoiceValue, getDisableValue } =
     useChoices<TChoice>({
       optionText:
         optionText ??
-        (isFromReference ? getRecordRepresentationText : undefined),
+        (isFromReference ? getChoiceRepresentationText : undefined),
       optionValue,
       translateChoice: translateChoice ?? !isFromReference,
       disableValue,
@@ -136,11 +145,14 @@ function CheckboxGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     return <Skeleton className="h-9 w-full" />;
   }
 
-  const value: unknown[] = Array.isArray(field.value) ? field.value : [];
-  const isChecked = (choiceValue: unknown) =>
+  const value = toChoiceValues<TChoice>(field.value);
+  const isChecked = (choiceValue: ChoiceValueOf<TChoice>) =>
     value.some((v) => String(v) === String(choiceValue));
 
-  const handleCheck = (choiceValue: unknown, checked: boolean) => {
+  const handleCheck = (
+    choiceValue: ChoiceValueOf<TChoice>,
+    checked: boolean,
+  ) => {
     const next = checked
       ? [...value, choiceValue]
       : value.filter((v) => String(v) !== String(choiceValue));
@@ -152,7 +164,7 @@ function CheckboxGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     <FieldSet
       className={className}
       data-invalid={invalid || undefined}
-      {...sanitizeInputRestProps(rest as Record<string, unknown>)}
+      {...sanitizeInputRestProps(rest)}
     >
       {label !== false && (
         <FieldLegend variant="label">

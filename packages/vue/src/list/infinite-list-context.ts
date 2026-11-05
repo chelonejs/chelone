@@ -22,7 +22,7 @@ export function useInfiniteListContext<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
 >(): UseInfiniteListControllerReturn<RecordOf<TResources, TName>> {
-  const list = useListContext<TResources, TName>();
+  const list = useListContext<RecordOf<TResources, TName>>();
   if (!isInfiniteList<RecordOf<TResources, TName>>(list)) {
     throw new Error(
       "useInfiniteListContext: the ambient list is not an infinite list",

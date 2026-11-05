@@ -239,7 +239,7 @@ describe("useChoices", () => {
     const choice = { id: 7, name: "Seven" };
     expect(result.current.getChoiceText(choice)).toBe("");
     expect(result.current.getChoiceValue(choice)).toBe(7);
-    expect(result.current.getDisableValue(choice)).toBeUndefined();
+    expect(result.current.getDisableValue(choice)).toBe(false);
   });
 
   it("disables translation when translateChoice is false", () => {

@@ -62,7 +62,9 @@ export async function runCsvImport(options: {
         created += 1;
         return;
       }
-      const { rowIndex, row } = batch[i] as { rowIndex: number; row: CsvRow };
+      const item = batch[i];
+      if (!item) return;
+      const { rowIndex, row } = item;
       errors.push({
         rowIndex,
         row,

@@ -125,9 +125,7 @@ const isEmptyValue = (filterValue: unknown): boolean => {
   if (filterValue === "" || filterValue == null) return true;
   // A non-empty leaf anywhere makes the value non-empty.
   if (typeof filterValue === "object") {
-    return Object.keys(filterValue).every((key) =>
-      isEmptyValue((filterValue as Record<string, unknown>)[key]),
-    );
+    return Object.values(filterValue).every(isEmptyValue);
   }
   return false;
 };

@@ -16,6 +16,7 @@ import type {
   FormControllerOptions,
   RecordOf,
   ResourceMap,
+  SaveOptions,
   SourcePath,
   SourceValue,
   TranslatableMessage,
@@ -25,6 +26,7 @@ import {
   createEditFormController,
   createFormController,
   defaultFormat,
+  extractEventValue,
   isRequired as hasRequiredValidator,
   isResourceHandle,
 } from "@chelone/core";
@@ -193,7 +195,7 @@ export interface UseEditFormResult<TRecord>
   extends EditControllerState<TRecord>,
     FormStateSlices {
   form: CheloneFormApi<Partial<TRecord>>;
-  submit: () => Promise<void>;
+  submit: (options?: SaveOptions<TRecord>) => Promise<void>;
 }
 
 /**
@@ -254,7 +256,7 @@ export interface UseCreateFormResult<TRecord>
   extends CreateControllerState<TRecord>,
     FormStateSlices {
   form: CheloneFormApi<Partial<TRecord>>;
-  submit: () => Promise<void>;
+  submit: (options?: SaveOptions<TRecord>) => Promise<void>;
 }
 
 /**
@@ -411,30 +413,6 @@ function toBindingUpdate(options: UseInputOptions): FieldBindingUpdateOptions {
     schema: options.schema,
     validatorMeta: meta,
   };
-}
-
-/**
- * RHF-compatible event extraction: DOM/synthetic change events yield
- * `target.checked` for checkboxes and `target.value` otherwise; anything
- * else (a raw value, a custom picker's payload) passes through untouched.
- */
-function extractEventValue(input: unknown): unknown {
-  if (typeof input === "object" && input !== null && "target" in input) {
-    const { target } = input as { target: unknown };
-    if (
-      typeof target === "object" &&
-      target !== null &&
-      ("value" in target || "checked" in target)
-    ) {
-      const element = target as {
-        type?: unknown;
-        checked?: unknown;
-        value?: unknown;
-      };
-      return element.type === "checkbox" ? element.checked : element.value;
-    }
-  }
-  return input;
 }
 
 /**

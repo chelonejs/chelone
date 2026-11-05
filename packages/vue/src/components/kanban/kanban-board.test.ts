@@ -242,6 +242,7 @@ function layout() {
   class ObserverStub implements IntersectionObserver {
     readonly root = null;
     readonly rootMargin = "";
+    readonly scrollMargin = "";
     readonly thresholds = [];
     constructor(private readonly callback: IntersectionObserverCallback) {}
     observe(target: Element) {

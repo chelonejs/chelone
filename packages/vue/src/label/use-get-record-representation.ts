@@ -16,21 +16,29 @@
  * core's `getAtPath`, the same reader `useFieldValue` uses.
  */
 
-import { getAtPath } from "@chelone/core";
+import {
+  getAtPath,
+  isResourceRecord,
+  type ResourceRecord,
+} from "@chelone/core";
 import { inject } from "vue";
 import { ResourceRegistryKey } from "../admin/resource-registry";
+import type { RecordRepresentation } from "../index";
 import { useResourceContext } from "../resource-context";
-
-interface DefaultChainRecord {
-  id?: unknown;
-  name?: unknown;
-  title?: unknown;
-  label?: unknown;
-  reference?: unknown;
-}
 
 function isPresent(value: unknown): value is string | number {
   return value != null && value !== "";
+}
+
+/**
+ * Whether the representation is a function to call with the record. A Vue
+ * `Component` can also be a function (a functional component, a constructor),
+ * and the types cannot tell the two apart, so any function is called as one.
+ */
+function isRepresentationFunction(
+  value: RecordRepresentation,
+): value is (record: ResourceRecord) => string | number {
+  return typeof value === "function";
 }
 
 /** The resolver `useGetRecordRepresentation` returns. */
@@ -47,19 +55,21 @@ export function useGetRecordRepresentation(
 
   return (record: unknown): string => {
     if (record == null) return "";
-    if (typeof recordRepresentation === "function") {
-      return String(
-        (recordRepresentation as (r: unknown) => unknown)(record) ?? "",
-      );
+    if (
+      recordRepresentation !== undefined &&
+      isRepresentationFunction(recordRepresentation)
+    ) {
+      return isResourceRecord(record)
+        ? String(recordRepresentation(record) ?? "")
+        : "";
     }
     if (typeof recordRepresentation === "string") {
       return String(getAtPath(record, recordRepresentation) ?? "");
     }
-    const chain = record as DefaultChainRecord;
-    if (isPresent(chain.name)) return String(chain.name);
-    if (isPresent(chain.title)) return String(chain.title);
-    if (isPresent(chain.label)) return String(chain.label);
-    if (isPresent(chain.reference)) return String(chain.reference);
-    return `#${String(chain.id)}`;
+    for (const key of ["name", "title", "label", "reference"]) {
+      const value = getAtPath(record, key);
+      if (isPresent(value)) return String(value);
+    }
+    return `#${String(getAtPath(record, "id"))}`;
   };
 }

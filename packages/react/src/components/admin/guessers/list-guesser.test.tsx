@@ -120,7 +120,7 @@ describe("ListGuesser", () => {
           schema: z.object({
             id: z.number(),
             title: z.string(),
-            meta: z.record(z.string()),
+            meta: z.record(z.string(), z.string()),
           }),
         },
       }),

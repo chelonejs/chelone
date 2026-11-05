@@ -37,11 +37,10 @@ const list = useListContext();
 const translate = useTranslate();
 
 const isPartial = computed(() => list.total == null);
-const totalPages = computed(() =>
-  !isPartial.value && (list.total ?? 0) > 0
-    ? Math.ceil((list.total as number) / list.perPage)
-    : undefined,
-);
+const totalPages = computed(() => {
+  const total = list.total ?? 0;
+  return total > 0 ? Math.ceil(total / list.perPage) : undefined;
+});
 
 // Out-of-bounds guard: reset to page 1 when the current page is past the last.
 watch(
@@ -66,7 +65,7 @@ const pageEnd = computed(() =>
     : Math.min(list.page * list.perPage, list.total),
 );
 const totalDisplay = computed(() =>
-  list.total === -1 ? pageEnd.value : list.total,
+  list.total == null || list.total === -1 ? pageEnd.value : list.total,
 );
 const count = computed(() =>
   list.total != null && list.total > 0

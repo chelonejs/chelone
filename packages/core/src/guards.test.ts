@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { isJsonObject, isPlainObject, isRecord } from "./guards";
+import {
+  hasProperty,
+  isJsonObject,
+  isPlainObject,
+  isRecord,
+  isThenable,
+} from "./guards";
 
 class Query {
   sql = "select 1";
@@ -101,5 +107,42 @@ describe("isJsonObject", () => {
     expect(isJsonObject([1, 2])).toBe(false);
     expect(isJsonObject(null)).toBe(false);
     expect(isJsonObject(cyclicObject())).toBe(false);
+  });
+});
+
+describe("hasProperty", () => {
+  it("narrows an object with the key and refuses null, an array and a primitive", () => {
+    // type-escape: the guard narrows a value the compiler sees only as `unknown`
+    const held: unknown = { target: 1 };
+    if (!hasProperty(held, "target")) throw new Error("expected the key");
+    expect(held.target).toBe(1);
+
+    expect(hasProperty({ a: 1 }, "b")).toBe(false);
+    expect(hasProperty(new Query(), "sql")).toBe(true);
+    const refused = [null, undefined, [1], "abc", 1, true];
+    for (const value of refused) {
+      expect(hasProperty(value, "length")).toBe(false);
+    }
+  });
+});
+
+describe("isThenable", () => {
+  it("accepts a promise and a thenable and refuses a function and null", () => {
+    expect(isThenable(Promise.resolve(1))).toBe(true);
+    // biome-ignore lint/suspicious/noThenProperty: the thenable is the case under test
+    expect(isThenable({ then: () => {} })).toBe(true);
+
+    const refused = [
+      () => {},
+      null,
+      undefined,
+      {},
+      // biome-ignore lint/suspicious/noThenProperty: a non-function `then` is the case under test
+      { then: 1 },
+      "then",
+    ];
+    for (const value of refused) {
+      expect(isThenable(value)).toBe(false);
+    }
   });
 });

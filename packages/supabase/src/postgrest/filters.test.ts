@@ -79,6 +79,14 @@ describe("buildFilters", () => {
     ]);
   });
 
+  it("an unknown operator suffix builds the same pair as before", () => {
+    expect(build({ "age@bogus": 18 })).toEqual([["age", "bogus.18"]]);
+    expect(build({ "name@bogus": "ada" })).toEqual([["name", "bogus.ada"]]);
+    expect(build({ "tags@bogus": ["a", "b"] })).toEqual([
+      ["tags", "bogus.a,b"],
+    ]);
+  });
+
   it("skips undefined values", () => {
     expect(build({ a: undefined, b: 1 })).toEqual([["b", "eq.1"]]);
   });

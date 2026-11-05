@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.6.5/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -15,7 +15,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "preset": "recommended"
     }
   },
   "overrides": [
@@ -39,6 +39,7 @@
             "noDangerouslySetInnerHtml": "off"
           },
           "correctness": {
+            "noComponentHookFactories": "off",
             "useExhaustiveDependencies": "off"
           }
         }
@@ -69,11 +70,20 @@
       }
     },
     {
-      "includes": ["**/*.test.ts", "**/*.test.tsx"],
+      "includes": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.test-d.ts",
+        "**/__fixtures__/**"
+      ],
       "linter": {
         "rules": {
           "style": {
             "noNonNullAssertion": "off"
+          },
+          "correctness": {
+            "noComponentHookFactories": "off",
+            "noUnsafeOptionalChaining": "off"
           }
         }
       }
@@ -1071,7 +1081,7 @@
           "vue": "none"
         },
         "rules": {
-          "recommended": false
+          "preset": "none"
         }
       }
     }

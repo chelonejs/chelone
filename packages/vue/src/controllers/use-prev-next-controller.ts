@@ -82,9 +82,7 @@ export function usePrevNextController(
         )
       : undefined,
   );
-  const pagination = computed(
-    () => params.value.cached.pagination as { page: number; perPage: number },
-  );
+  const pagination = computed(() => params.value.cached.pagination);
   const canUseCache = computed(
     () =>
       record.value != null &&

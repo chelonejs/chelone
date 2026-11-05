@@ -7,6 +7,7 @@
  */
 
 import type { LooseRecord } from "@chelone/core";
+import { definedParams } from "@chelone/core";
 import { Eye } from "lucide-react";
 import type { Ref } from "react";
 import { buttonVariants } from "@/components/ui/button";
@@ -72,11 +73,11 @@ function ShowButton(props: ShowButtonProps) {
   const label = useResourceTranslation({
     resourceI18nKey: resource ? `resources.${resource}.action.show` : undefined,
     baseI18nKey: "ra.action.show",
-    options: {
+    options: definedParams({
       _: "Show",
       name: resource ? getResourceLabel(resource, 1) : undefined,
       recordRepresentation,
-    },
+    }),
     userText: labelProp,
   });
   if (!record || record.id == null || !canAccess || isAccessPending) {

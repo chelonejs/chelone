@@ -7,7 +7,12 @@ import type {
   LooseRecord,
   PageInfo,
 } from "@chelone/core";
-import { fetchUtils, HttpError, ValidationError } from "@chelone/core";
+import {
+  fetchUtils,
+  HttpError,
+  isRecord,
+  ValidationError,
+} from "@chelone/core";
 
 export interface RestDataProviderOptions {
   apiUrl: string;
@@ -78,9 +83,6 @@ export const defaultListQuery = (
   return { ...query, ...filter };
 };
 
-const isObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
-
 const headerTotal = (response: FetchJsonResult): number | undefined => {
   const header = response.headers.get("X-Total-Count")?.trim();
   if (!header) return undefined;
@@ -94,7 +96,7 @@ export const defaultParseList = (
 ): GetListResult => {
   const { json } = response;
   const body = Array.isArray(json) ? { data: json } : json;
-  if (!isObject(body) || !Array.isArray(body.data)) {
+  if (!isRecord(body) || !Array.isArray(body.data)) {
     throw new Error(
       `restDataProvider: the ${resource} list response is not an array or { data, total?, pageInfo? }. Pass parseList to read it.`,
     );
@@ -104,7 +106,7 @@ export const defaultParseList = (
   return {
     data: body.data as LooseRecord[],
     ...(total === undefined ? {} : { total }),
-    ...(isObject(body.pageInfo) ? { pageInfo: body.pageInfo as PageInfo } : {}),
+    ...(isRecord(body.pageInfo) ? { pageInfo: body.pageInfo as PageInfo } : {}),
   };
 };
 
@@ -112,7 +114,7 @@ export const defaultParseRecord = (
   response: FetchJsonResult,
   resource: string,
 ): LooseRecord => {
-  if (!isObject(response.json)) {
+  if (!isRecord(response.json)) {
     throw new Error(
       `restDataProvider: the ${resource} response is not a JSON object. Pass parseRecord to read it.`,
     );
@@ -128,7 +130,7 @@ const isMessage = (value: unknown): value is string =>
 const isFieldErrors = (
   value: unknown,
 ): value is Record<string, string | string[]> => {
-  if (!isObject(value)) return false;
+  if (!isRecord(value)) return false;
   const entries = Object.values(value);
   return (
     entries.every(
@@ -145,7 +147,7 @@ const isFieldErrors = (
 
 /** A 422 whose body carries at least one field message in `errors` becomes a `ValidationError`; anything else stays as it is. */
 const defaultToValidationError = (error: HttpError): Error => {
-  const errors = isObject(error.body) ? error.body.errors : undefined;
+  const errors = isRecord(error.body) ? error.body.errors : undefined;
   if (error.status !== 422 || !isFieldErrors(errors)) return error;
   return new ValidationError(error.message, errors);
 };
@@ -235,10 +237,10 @@ export function restDataProvider({
       // Servers often answer a delete with a 204 or an acknowledgement such
       // as `{"success":true}`; the caller's last copy then stands in for the record.
       const body = response.json;
-      const isRecord = isObject(body) && "id" in body;
+      const hasId = isRecord(body) && "id" in body;
       const useFallback =
         response.body.trim() === "" ||
-        (customParseRecord === undefined && !isRecord);
+        (customParseRecord === undefined && !hasId);
       const data = useFallback
         ? (previousData ?? { id })
         : parseRecord(response, resource);

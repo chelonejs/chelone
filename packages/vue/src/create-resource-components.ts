@@ -45,6 +45,7 @@ import {
   type VNode,
   type VNodeProps,
 } from "vue";
+import type { ChoiceRecord } from "./choices/use-choices";
 import ApiKeyField from "./components/admin/fields/api-key-field.vue";
 import ArrayField from "./components/admin/fields/array-field.vue";
 import BadgeField from "./components/admin/fields/badge-field.vue";
@@ -82,10 +83,16 @@ import ArrayInput, {
   type ArrayInputProps,
 } from "./components/admin/inputs/array-input.vue";
 import ArrayInputRow from "./components/admin/inputs/array-input-row.vue";
-import AutocompleteArrayInput from "./components/admin/inputs/autocomplete-array-input.vue";
-import AutocompleteInput from "./components/admin/inputs/autocomplete-input.vue";
+import AutocompleteArrayInput, {
+  type AutocompleteArrayInputProps,
+} from "./components/admin/inputs/autocomplete-array-input.vue";
+import AutocompleteInput, {
+  type AutocompleteInputProps,
+} from "./components/admin/inputs/autocomplete-input.vue";
 import BooleanInput from "./components/admin/inputs/boolean-input.vue";
-import CheckboxGroupInput from "./components/admin/inputs/checkbox-group-input.vue";
+import CheckboxGroupInput, {
+  type CheckboxGroupInputProps,
+} from "./components/admin/inputs/checkbox-group-input.vue";
 import ColorInput from "./components/admin/inputs/color-input.vue";
 import CronInput from "./components/admin/inputs/cron-input.vue";
 import CurrencyInput, {
@@ -114,7 +121,9 @@ import ReferenceArrayInput from "./components/admin/inputs/reference-array-input
 import ReferenceInput from "./components/admin/inputs/reference-input.vue";
 import ResettableTextInput from "./components/admin/inputs/resettable-text-input.vue";
 import SearchInput from "./components/admin/inputs/search-input.vue";
-import SelectArrayInput from "./components/admin/inputs/select-array-input.vue";
+import SelectArrayInput, {
+  type SelectArrayInputProps,
+} from "./components/admin/inputs/select-array-input.vue";
 import SelectInput from "./components/admin/inputs/select-input.vue";
 import SubscriptionPlanPicker, {
   type SubscriptionPlanPickerProps,
@@ -317,6 +326,30 @@ type ArrayInputMember<TRecord> = <TPath extends SourceProp<TRecord>>(
  * function components like {@link ArrayInputMember}.
  */
 type TypedInputMembers<TRecord> = {
+  AutocompleteArrayInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: AutocompleteArrayInputProps<TRecord, TPath, TChoice> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  AutocompleteInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: AutocompleteInputProps<TRecord, TPath, TChoice> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  CheckboxGroupInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: CheckboxGroupInputProps<TRecord, TPath, TChoice> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
   CurrencyInput: <TPath extends SourceProp<TRecord>>(
     props: CurrencyInputProps<TRecord, TPath> &
       VNodeProps &
@@ -329,6 +362,14 @@ type TypedInputMembers<TRecord> = {
   ) => VNode;
   RatingInput: <TPath extends SourceProp<TRecord>>(
     props: RatingInputProps<TRecord, TPath> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  SelectArrayInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: SelectArrayInputProps<TRecord, TPath, TChoice> &
       VNodeProps &
       AllowedComponentProps,
   ) => VNode;

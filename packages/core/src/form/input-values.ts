@@ -39,6 +39,64 @@ export type ChoiceValueOf<TChoice> = TChoice extends { id: infer TId }
   ? TId
   : TChoice;
 
+/**
+ * The value a choice list stores for one choice: its `id` when it has one (ra's
+ * `choices` carry `{id, name}` pairs), the choice itself otherwise.
+ */
+export function choiceIdOf<TChoice>(choice: TChoice): ChoiceValueOf<TChoice> {
+  if (typeof choice === "object" && choice !== null && "id" in choice) {
+    // TS cannot follow the runtime `in` check into the deferred conditional.
+    // type-escape: `ChoiceValueOf` names the id of a choice that has one.
+    return choice.id as ChoiceValueOf<TChoice>;
+  }
+  // type-escape: a choice with no id is its own value.
+  return choice as ChoiceValueOf<TChoice>;
+}
+
+/**
+ * The value a single-choice input holds, which is the value of one of its
+ * choices. An empty field is the empty value the input was given, which no
+ * choice equals, so it is only ever compared.
+ */
+export function toChoiceValue<TChoice>(
+  value: FormValue,
+): ChoiceValueOf<TChoice> {
+  // Form state is record-free.
+  // type-escape: a choice input stores the value of one of its choices.
+  return value as ChoiceValueOf<TChoice>;
+}
+
+/**
+ * The value a choice stores: what was read at its `optionValue` path, else its
+ * {@link choiceIdOf id}.
+ */
+export function resolveChoiceValue<TChoice>(
+  choice: TChoice,
+  atOptionValue: FormValue,
+): ChoiceValueOf<TChoice> {
+  return atOptionValue !== undefined
+    ? toChoiceValue<TChoice>(atOptionValue)
+    : choiceIdOf(choice);
+}
+
+const NO_CHOICE_VALUES: readonly never[] = Object.freeze([]);
+
+/**
+ * The values a multi-choice input holds: the stored array, one value for a
+ * stored scalar, and a shared empty list for a missing one (so a render that
+ * finds nothing keeps the same reference). `''` is missing too: it is what the
+ * default format makes of a nullish value.
+ */
+export function toChoiceValues<TChoice>(
+  value: FormValue,
+): readonly ChoiceValueOf<TChoice>[] {
+  if (value == null || value === "") return NO_CHOICE_VALUES;
+  // Form state is record-free.
+  // type-escape: a multi-choice input stores an array of its choices' values.
+  if (Array.isArray(value)) return value as readonly ChoiceValueOf<TChoice>[];
+  return [toChoiceValue<TChoice>(value)];
+}
+
 /** The text a text input edits: `''` for a nullish value so the input stays controlled. */
 export function toTextValue(value: FormValue): string {
   if (value == null) return "";

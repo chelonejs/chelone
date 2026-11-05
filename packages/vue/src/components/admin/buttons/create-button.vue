@@ -28,6 +28,7 @@ export interface CreateButtonProps {
  * when access control is unconfigured).
  */
 
+import { definedParams } from "@chelone/core";
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -52,10 +53,13 @@ const show = computed(() => !isAccessPending.value && canAccess.value);
 
 const to = computed(() => createPath({ resource, type: "create" }));
 const label = computed(() =>
-  translate("ra.action.create", {
-    _: "Create",
-    name: resource ? getResourceLabel(resource, 1) : undefined,
-  }),
+  translate(
+    "ra.action.create",
+    definedParams({
+      _: "Create",
+      name: resource ? getResourceLabel(resource, 1) : undefined,
+    }),
+  ),
 );
 const classes = computed(() =>
   buttonVariants({ variant: "outline", class: props.class }),

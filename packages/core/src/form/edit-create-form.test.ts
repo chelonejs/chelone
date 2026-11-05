@@ -243,6 +243,52 @@ describe("createEditFormController", () => {
     c.destroy();
   });
 
+  it("submit(options) runs the call-time transform, onSuccess and meta of that save", async () => {
+    const ctx = makeCtx();
+    const update = vi.spyOn(ctx.dataProvider, "update");
+    const onSuccess = vi.fn();
+    const onSaved = vi.fn();
+    const onRedirect = vi.fn();
+    const c = createEditFormController(ctx, "posts", { id: 1, onRedirect });
+    c.subscribe(() => {});
+    await recordLoaded(c);
+    await c.submit({
+      transform: (data) => ({ ...data, title: "transformed" }),
+      onSuccess,
+      onSaved,
+      meta: { source: "bridge" },
+    });
+    expect(update).toHaveBeenCalledWith(
+      "posts",
+      expect.objectContaining({
+        data: expect.objectContaining({ title: "transformed" }),
+        meta: { source: "bridge" },
+      }),
+    );
+    expect(onSaved).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "transformed" }),
+    );
+    expect(onSuccess).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "transformed" }),
+    );
+    // onSuccess REPLACES the default notify + redirect.
+    expect(ctx.notifications.getSnapshot()).toHaveLength(0);
+    expect(onRedirect).not.toHaveBeenCalled();
+    c.destroy();
+  });
+
+  it("submit(options) options do not leak into the next submit", async () => {
+    const ctx = makeCtx();
+    const onSuccess = vi.fn();
+    const c = createEditFormController(ctx, "posts", { id: 1 });
+    c.subscribe(() => {});
+    await recordLoaded(c);
+    await c.submit({ onSuccess });
+    await c.submit();
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+    c.destroy();
+  });
+
   it("resetOnSuccess: false skips the server-truth reset (form stays non-default)", async () => {
     const ctx = makeCtx();
     const c = createEditFormController(ctx, "posts", {
@@ -405,6 +451,28 @@ describe("createCreateFormController", () => {
       form.values.id,
       expect.objectContaining({ title: "brand new" }),
     );
+    c.destroy();
+  });
+
+  it("submit(options) runs the call-time onError and meta of that save", async () => {
+    const ctx = makeCtx();
+    const create = vi
+      .spyOn(ctx.dataProvider, "create")
+      .mockRejectedValue(new Error("boom"));
+    const onError = vi.fn();
+    const c = createCreateFormController(ctx, "posts", {
+      record: { title: "brand new" },
+    });
+    c.subscribe(() => {});
+    await c.submit({ onError, meta: { a: 1 } }).catch(() => {});
+    expect(create).toHaveBeenCalledWith(
+      "posts",
+      expect.objectContaining({ meta: { a: 1 } }),
+    );
+    expect(onError).toHaveBeenCalledWith(expect.any(Error));
+    expect(
+      ctx.notifications.getSnapshot().some((n) => n.type === "error"),
+    ).toBe(false);
     c.destroy();
   });
 

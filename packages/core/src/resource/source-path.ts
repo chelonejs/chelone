@@ -140,11 +140,14 @@ type _ValueAt<TValue, TPath extends string, Walk extends number> = [
 /**
  * The value type at `TPath`, including the `null`/`undefined` of every parent
  * along it — what reading `record.author?.name` gives. `unknown` for a loose
- * record.
+ * record, and for a path typed as a bare `string` (no path to walk).
  */
 export type SourceValue<TRecord, TPath extends string> = unknown extends TRecord
   ? unknown
-  : _ValueAt<TRecord, _Dotted<TPath>, _WalkDepth>;
+  : string extends TPath
+    ? // type-escape: a path typed as bare `string` names no path to walk
+      unknown
+    : _ValueAt<TRecord, _Dotted<TPath>, _WalkDepth>;
 
 /**
  * The top-level keys of `TRecord`, for props that read or write one flat key

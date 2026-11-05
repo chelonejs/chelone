@@ -138,8 +138,7 @@ const emit = defineEmits<{
 
 const translate = useTranslate();
 
-const toText = (value: unknown) =>
-  typeof value === "number" ? `${value}` : "";
+const toText = (value: number | null) => (value === null ? "" : `${value}`);
 
 function toArray(
   validate: Validator | readonly Validator[] | undefined,
@@ -176,7 +175,7 @@ function useCoordinate(
   const input = useInput({
     source,
     parse: toCoordinate,
-    format: (value: unknown) => toText(toCoordinate(value)),
+    format: (value) => toText(toCoordinate(value)),
     validate: [range, ...validate],
   });
   const draft = ref<string | null>(null);
@@ -184,7 +183,7 @@ function useCoordinate(
   const text = computed(() =>
     draft.value !== null && toCoordinate(draft.value) === stored.value
       ? draft.value
-      : (input.value.value as string),
+      : toText(stored.value),
   );
   return {
     ...input,
@@ -192,7 +191,8 @@ function useCoordinate(
     invalid: computed(() => input.touched.value && input.error.value != null),
     text,
     onType(event: Event) {
-      const element = event.target as HTMLInputElement;
+      const element = event.target;
+      if (!(element instanceof HTMLInputElement)) return;
       if (!TYPING.test(element.value)) {
         // The input is uncontrolled to Vue until its model changes, so put the old text back.
         element.value = text.value;
@@ -218,12 +218,10 @@ const fields = computed(() => [
   { source: props.lngSource, input: lng },
 ]);
 
-const position = computed(() => {
+const position = computed<readonly [number, number] | null>(() => {
   const a = lat.stored.value;
   const b = lng.stored.value;
-  return inRange(a, 90) && inRange(b, 180)
-    ? ([a, b] as readonly [number, number])
-    : null;
+  return inRange(a, 90) && inRange(b, 180) ? [a, b] : null;
 });
 const center = computed(() => position.value ?? props.defaultPosition);
 const invalid = computed(() => lat.invalid.value || lng.invalid.value);

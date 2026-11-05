@@ -4,6 +4,7 @@ import { combineDataProviders } from "../data/combine-data-providers";
 import type { DataProvider } from "../data/types";
 import {
   assertRealtimeDataProvider,
+  hasTransportMembers,
   isRealtimeDataProvider,
   realtimeDataProvider,
 } from "./realtime-data-provider";
@@ -267,6 +268,36 @@ describe("assertRealtimeDataProvider", () => {
         "useSubscribe",
       ),
     ).not.toThrow();
+  });
+});
+
+describe("hasTransportMembers", () => {
+  it("accepts a provider that has reconnect and status members but no publish", () => {
+    const onReconnect = vi.fn(() => () => {});
+    const getStatus = (): RealtimeConnectionStatus => "connected";
+    const partial: DataProvider = Object.assign(baseProvider(), {
+      subscribe: () => () => {},
+      onReconnect,
+      getStatus,
+    });
+
+    expect(isRealtimeDataProvider(partial)).toBe(false);
+    expect(hasTransportMembers(partial)).toBe(true);
+    if (hasTransportMembers(partial)) {
+      expect(partial.onReconnect).toBe(onReconnect);
+      expect(partial.getStatus).toBe(getStatus);
+    }
+  });
+
+  it("accepts a plain provider with none of the members", () => {
+    expect(hasTransportMembers(baseProvider())).toBe(true);
+  });
+
+  it("rejects a provider whose member is not a function", () => {
+    const broken: DataProvider = Object.assign(baseProvider(), {
+      onReconnect: 3,
+    });
+    expect(hasTransportMembers(broken)).toBe(false);
   });
 });
 

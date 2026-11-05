@@ -64,7 +64,7 @@ const providerButtons = {
   twitch: TwitchButton,
   twitter: TwitterButton,
   workos: WorkosButton,
-} satisfies Record<SupabaseOAuthProvider, unknown>;
+} satisfies Record<SupabaseOAuthProvider, typeof AppleButton>;
 
 function SupabaseLoginPage(props: SupabaseLoginPageProps) {
   const {

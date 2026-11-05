@@ -7,7 +7,12 @@ import {
   permissionsQueryOptions,
   type UserIdentity,
 } from "@chelone/core";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  type QueryKey,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
 import { useCheloneAuthProvider, useCheloneContext } from "./context";
 import { type Redirect, useRedirectOptional } from "./router/nav-hooks";
@@ -35,11 +40,7 @@ export function useOptionalIdentity(): UseOptionalIdentityResult {
   const { authProvider } = useCheloneContext();
   const hasGetIdentity = authProvider?.getIdentity != null;
   const query = useQuery({
-    // A stub provider satisfies the option factory's type when none is
-    // configured; the query is disabled in that case so it never runs.
-    ...identityQueryOptions(
-      authProvider ?? ({} as NonNullable<typeof authProvider>),
-    ),
+    ...identityQueryOptions(authProvider),
     enabled: hasGetIdentity,
   });
 
@@ -83,7 +84,7 @@ export interface UsePermissionsResult<PermissionsType = unknown> {
   /** Whether the permissions query is in flight (always `false` when unconfigured). */
   isPending: boolean;
   /** The error, if the provider's `getPermissions` rejected. */
-  error: unknown;
+  error: Error | null;
   /** Re-run the permissions query. */
   refetch: () => void;
 }
@@ -111,12 +112,7 @@ export function usePermissions<PermissionsType = unknown>(
   const { authProvider } = useCheloneContext();
   const hasGetPermissions = authProvider?.getPermissions != null;
   const query = useQuery({
-    ...permissionsQueryOptions(
-      // A stub provider satisfies the option factory's type when none is
-      // configured; the query is disabled in that case so it never runs.
-      authProvider ?? ({} as NonNullable<typeof authProvider>),
-      params,
-    ),
+    ...permissionsQueryOptions(authProvider, params),
     staleTime: options.staleTime ?? 5 * 60 * 1000,
     enabled: (options.enabled ?? true) && hasGetPermissions,
   });
@@ -234,7 +230,7 @@ export function useLogoutIfAccessDenied(): LogoutIfAccessDenied {
 }
 
 /** True when a react-query key belongs to the auth subsystem (`["auth", …]`). */
-function isAuthQueryKey(key: unknown): boolean {
+function isAuthQueryKey(key: QueryKey): boolean {
   return Array.isArray(key) && key[0] === "auth";
 }
 

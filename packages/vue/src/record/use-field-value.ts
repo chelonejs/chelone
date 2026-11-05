@@ -31,10 +31,10 @@ export interface UseFieldValueOptions<
   /** Override the ambient record (a static record wins over the context ref). */
   record?: RecordValue<RecordType>;
   /**
-   * Returned only when the resolved value is `undefined`. Untyped on purpose:
-   * the result type is the record's value at `source`, not the default's.
+   * Returned only when the resolved value is `undefined`; it has the type of
+   * the value at `source`.
    */
-  defaultValue?: unknown;
+  defaultValue?: NoInfer<SourceValue<RecordType, TPath>>;
 }
 
 /**
@@ -56,16 +56,23 @@ export function useFieldValue<
   TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
 >(
   options: UseFieldValueOptions<RecordType, TPath>,
-): ComputedRef<SourceValue<RecordType, TPath>> {
+): ComputedRef<SourceValue<RecordType, TPath>>;
+// The implementation reads at `unknown`: `getAtPath` is untyped, and the
+// overload above states the value's type.
+export function useFieldValue(options: {
+  source: string;
+  // type-escape: implementation signature; the overload above states the type
+  record?: unknown;
+  // type-escape: implementation signature; the overload above states the type
+  defaultValue?: unknown;
+  // type-escape: as above
+}): ComputedRef<unknown> {
   const { source, defaultValue } = options;
   const injected = inject(RecordContextKey, null);
   return computed(() => {
     const record =
       options.record !== undefined ? options.record : injected?.value;
     const value = getAtPath(record, source);
-    return (value === undefined ? defaultValue : value) as SourceValue<
-      RecordType,
-      TPath
-    >;
+    return value === undefined ? defaultValue : value;
   });
 }

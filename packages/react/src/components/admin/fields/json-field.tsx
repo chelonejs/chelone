@@ -41,7 +41,11 @@ function JsonField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: JsonFieldProps<RecordType>) {
-  const value: unknown = useFieldValue({ defaultValue, source, record });
+  const value: unknown = useFieldValue<LooseRecord>({
+    source,
+    record,
+    defaultValue,
+  });
   const translate = useTranslate();
 
   if (value == null) {

@@ -1,4 +1,9 @@
-import type { AuthProvider, UserIdentity } from "@chelone/core";
+import {
+  type AuthProvider,
+  isRecord,
+  type RegisteredPermissions,
+  type UserIdentity,
+} from "@chelone/core";
 import type { Provider, SupabaseClient, User } from "@supabase/supabase-js";
 import { setPasswordPath } from "./paths";
 import { readSupabaseUrlParams } from "./url-params";
@@ -21,11 +26,13 @@ export type SupabaseOAuthProvider =
   | "twitter"
   | "workos";
 
-export interface SupabaseAuthProviderOptions {
+export interface SupabaseAuthProviderOptions<
+  TPermissions = RegisteredPermissions,
+> {
   /** Replaces the identity read from the user's metadata. */
   getIdentity?: (user: User) => UserIdentity | Promise<UserIdentity>;
   /** Receives the signed-in user; `getPermissions` resolves its result. */
-  getPermissions?: (user: User) => unknown;
+  getPermissions?: (user: User) => TPermissions | Promise<TPermissions>;
   /**
    * Where the OAuth provider sends the user back; `login` params win.
    * Also the path prefix of the set-password redirect `handleCallback` returns.
@@ -46,19 +53,17 @@ export interface ResetPasswordParams {
   captchaToken?: string;
 }
 
-export type SupabaseAuthProvider = AuthProvider &
-  Required<Pick<AuthProvider, "handleCallback">> & {
-    setPassword(params: SetPasswordParams): Promise<void>;
-    resetPassword(params: ResetPasswordParams): Promise<void>;
-  };
+export type SupabaseAuthProvider<TPermissions = RegisteredPermissions> =
+  AuthProvider<TPermissions> &
+    Required<Pick<AuthProvider, "handleCallback">> & {
+      setPassword(params: SetPasswordParams): Promise<void>;
+      resetPassword(params: ResetPasswordParams): Promise<void>;
+    };
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
-
-export function supabaseAuthProvider(
+export function supabaseAuthProvider<TPermissions = RegisteredPermissions>(
   client: SupabaseClient,
-  options: SupabaseAuthProviderOptions = {},
-): SupabaseAuthProvider {
+  options: SupabaseAuthProviderOptions<TPermissions> = {},
+): SupabaseAuthProvider<TPermissions> {
   const { auth } = client;
 
   return {

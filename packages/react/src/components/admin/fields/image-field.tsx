@@ -43,7 +43,7 @@ function ImageField<RecordType extends LooseRecord = LooseRecord>(
 ) {
   const { src, defaultValue, source, record, empty, title, ...rest } = props;
   const value = useFieldValue({ defaultValue, source, record });
-  const titleFromRecord: unknown = useFieldValue({
+  const titleFromRecord: unknown = useFieldValue<LooseRecord>({
     record,
     // A `title` may be a record path OR a literal label. The hook must always be
     // called (rules of hooks), so pass `""` when `title` is absent — but chelone

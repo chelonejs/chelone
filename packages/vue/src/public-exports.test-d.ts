@@ -3,9 +3,16 @@
  * ships its props type next to it, as `@chelone/react` does.
  */
 
-import type { PresenceUser, ResourceMap, UserIdentity } from "@chelone/core";
+import type {
+  ComputeDefinitionProps,
+  PresenceUser,
+  ResourceDefinition,
+  ResourceMap,
+  ResourceRecord,
+  UserIdentity,
+} from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
-import type { ComputedRef, MaybeRefOrGetter, Ref } from "vue";
+import type { Component, ComputedRef, MaybeRefOrGetter, Ref } from "vue";
 import type {
   AdminProps,
   ApplicationUpdatedNotificationProps,
@@ -70,6 +77,7 @@ import type {
   PlaceholderProps,
   PresenceBarProps,
   PrevNextButtonsProps,
+  RecordRepresentation,
   ReferenceFieldProps,
   ReferenceInputProps,
   RefreshIconButtonProps,
@@ -322,5 +330,28 @@ describe("@chelone/vue public exports", () => {
   it("createResourceComponents takes any name when nothing is registered", () => {
     expectTypeOf(barrel.createResourceComponents<string>).toBeFunction();
     barrel.createResourceComponents("anything");
+  });
+});
+
+describe("resource definition slot types", () => {
+  it("types a definition's icon as a Vue component", () => {
+    expectTypeOf<ResourceDefinition["icon"]>().toEqualTypeOf<
+      Component | undefined
+    >();
+  });
+
+  it("types a definition's recordRepresentation as RecordRepresentation", () => {
+    expectTypeOf<ResourceDefinition["recordRepresentation"]>().toEqualTypeOf<
+      RecordRepresentation | undefined
+    >();
+    expectTypeOf<RecordRepresentation>().toEqualTypeOf<
+      string | ((record: ResourceRecord) => string | number) | Component
+    >();
+  });
+
+  it("types the route components as a Vue component", () => {
+    expectTypeOf<ComputeDefinitionProps["list"]>().toEqualTypeOf<
+      Component | undefined
+    >();
   });
 });

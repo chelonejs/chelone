@@ -3,7 +3,7 @@
   "props": [
     {
       "name": "actions",
-      "type": "false | ReactElement<unknown, string | JSXElementConstructor<any>>",
+      "type": "false | ReactElement<ToolbarActionProps, string | JSXElementConstructor<any>>",
       "optional": true,
       "comment": "The right-hand element; `false` renders none. Defaults to `<ListActions>`."
     },

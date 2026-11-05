@@ -17,7 +17,7 @@ export interface ForgotPasswordFormProps {
  * errors.
  */
 
-import { required } from "@chelone/core";
+import { errorMessageOf, required } from "@chelone/core";
 import { RouterLink } from "vue-router";
 import { useCheloneNotifications } from "../../../context";
 import { useForm } from "../../../form/use-form";
@@ -38,23 +38,14 @@ const resetPassword = useResetPassword();
 const notifications = useCheloneNotifications();
 const translate = useTranslate();
 
-function errorMessage(error: unknown): string | undefined {
-  if (typeof error === "string" && error) return error;
-  if (error && typeof error === "object" && "message" in error) {
-    const { message } = error as { message: unknown };
-    if (typeof message === "string" && message) return message;
-  }
-  return undefined;
-}
-
 async function save(values: ForgotPasswordValues): Promise<undefined> {
   try {
     await resetPassword.mutateAsync({ email: values.email });
   } catch (error) {
-    const message = errorMessage(error);
+    const message = errorMessageOf(error);
     notifications?.notify(message ?? "ra.notification.http_error", {
       type: "warning",
-      messageArgs: { _: message },
+      messageArgs: message === undefined ? undefined : { _: message },
     });
   }
   return undefined;

@@ -1,12 +1,18 @@
 <script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type {
+  FilterPayload,
+  LooseRecord,
+  SourceProp,
+} from "@chelone/core";
 import type { ChoiceRecord } from "../../../choices/use-choices";
-import type { FilterPayload } from "@chelone/core";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
 /** Props for {@link AutocompleteInput}. */
 export interface AutocompleteInputProps<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TChoice extends ChoiceRecord = ChoiceRecord,
-> extends ChoiceInputBaseProps<TChoice> {
+> extends ChoiceInputBaseProps<TRecord, TPath, TChoice> {
   /** Placeholder shown in the search input. */
   placeholder?: string;
   /** Maps the typed filter text into a reference-list filter payload. Default `{ q }`. */
@@ -42,7 +48,7 @@ import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 import { useChoiceInput } from "./use-choice-input";
 
-const props = withDefaults(defineProps<AutocompleteInputProps<TChoice>>(), {
+const props = withDefaults(defineProps<AutocompleteInputProps<LooseRecord, SourceProp, TChoice>>(), {
   label: undefined,
   filterToQuery: (searchText: string) => ({ q: searchText }),
 });

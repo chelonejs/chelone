@@ -136,7 +136,7 @@ describe("useResetPassword", () => {
     ]);
   });
 
-  it("useResetPassword throws when the auth provider has no resetPassword", async () => {
+  it("useResetPassword throws without a resetPassword method", async () => {
     const { result } = renderHook(() => useResetPassword(), {
       wrapper: makeWrapper({ authProvider: makeAuthProvider() }),
     });
@@ -174,7 +174,7 @@ describe("useSetPassword", () => {
     await waitFor(() => expect(currentPath).toBe("/"));
   });
 
-  it("useSetPassword throws when the auth provider has no setPassword", async () => {
+  it("useSetPassword throws without a setPassword method", async () => {
     const { result } = renderHook(() => useSetPassword(), {
       wrapper: makeWrapper({ authProvider: makeAuthProvider() }),
     });

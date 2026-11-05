@@ -6,16 +6,9 @@ import vueRegistry from "../../../../packages/vue/registry.json" with {
 };
 import type { InstallCommands } from "./types";
 
-interface RegistryItem {
-  name: string;
-}
-const names = new Set<string>(
-  (registry as { items: RegistryItem[] }).items.map((i) => i.name),
-);
+const names = new Set(registry.items.map((item) => item.name));
 
-const vueNames = new Set<string>(
-  (vueRegistry as { items: RegistryItem[] }).items.map((i) => i.name),
-);
+const vueNames = new Set(vueRegistry.items.map((item) => item.name));
 
 // Install commands are driven by a page's `registry` frontmatter field (set
 // during migration when the page documents a real registry component), not by

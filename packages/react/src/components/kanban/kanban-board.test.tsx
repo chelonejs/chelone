@@ -12,6 +12,7 @@ import {
   type DataProvider,
   defineMessages,
   fakeDataProvider,
+  getAtPath,
   type LooseRecord,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
@@ -210,15 +211,16 @@ class StubPointerEvent extends MouseEvent {
 class StubAnimation extends EventTarget implements Animation {
   currentTime: CSSNumberish | null = null;
   effect: AnimationEffect | null = null;
-  finished = Promise.resolve(this);
+  finished: Promise<Animation> = Promise.resolve(this);
   id = "";
   oncancel = null;
   onfinish = null;
   onremove = null;
+  overallProgress: number | null = null;
   pending = false;
   playState: AnimationPlayState = "finished";
   playbackRate = 1;
-  ready = Promise.resolve(this);
+  ready: Promise<Animation> = Promise.resolve(this);
   replaceState: AnimationReplaceState = "active";
   startTime: CSSNumberish | null = null;
   timeline: AnimationTimeline | null = null;
@@ -844,8 +846,8 @@ describe("<KanbanBoard>", () => {
         tasks: [{ id: 1, title: "Write it", status: "todo" }],
       }),
       resourceProps: {
-        recordRepresentation: (record: LooseRecord) => (
-          <b>{String(record.title)}</b>
+        recordRepresentation: (record) => (
+          <b>{String(getAtPath(record, "title"))}</b>
         ),
       },
     });

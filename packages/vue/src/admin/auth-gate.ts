@@ -57,14 +57,10 @@ export interface AuthGateState {
 export function useAuthGate(requireAuth: boolean): AuthGateState {
   const { authProvider } = useCheloneContext();
   const hasProvider = authProvider != null;
-  // Only fetch when the shell gates AND a provider exists. A stub provider
-  // satisfies the option factory's type when none is configured; the query is
-  // disabled in that case so it never runs.
+  // Only fetch when the shell gates AND a provider exists.
   const enabled = requireAuth && hasProvider;
   const { data, isPending, fetchStatus } = useQuery({
-    ...authStateQueryOptions(
-      authProvider ?? ({} as NonNullable<typeof authProvider>),
-    ),
+    ...authStateQueryOptions(authProvider),
     enabled,
   });
 
@@ -126,7 +122,7 @@ export interface HandleAuthCallbackResult {
   /** True once the callback has resolved and the redirect has been issued. */
   settled: Ref<boolean>;
   /** The error, if `handleCallback` rejected. */
-  error: Ref<unknown>;
+  error: Ref<Error | null>;
 }
 
 /**

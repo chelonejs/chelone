@@ -1,6 +1,13 @@
-import type { Feature, LineString, Point, Polygon, Position } from "geojson";
+import type {
+  Feature,
+  Geometry,
+  LineString,
+  Point,
+  Polygon,
+  Position,
+} from "geojson";
 import { isJsonObject, type JsonObject } from "../guards";
-import { type GeoFeature, isGeoGeometry } from "./geojson";
+import { isGeoGeometry } from "./geojson";
 import type { ShapeStyle } from "./map-layers";
 
 type EditorGeometry = Point | LineString | Polygon;
@@ -118,7 +125,7 @@ function editorGeometry(geometry: EditorGeometry): EditorGeometry {
  * rewritten.
  */
 export function toEditorFeatures(
-  features: GeoFeature[],
+  features: Feature<Geometry | null, JsonObject | null>[],
   getId: () => string | number,
 ): EditorFeature[] {
   const result: EditorFeature[] = [];
@@ -162,8 +169,8 @@ export type EditorSnapshotFeature = Feature<EditorGeometry, JsonObject>;
  */
 export function fromEditorFeatures(
   snapshot: readonly EditorSnapshotFeature[],
-): GeoFeature[] {
-  const result: GeoFeature[] = [];
+): Feature<Geometry | null, JsonObject | null>[] {
+  const result: Feature<Geometry | null, JsonObject | null>[] = [];
   for (const entry of snapshot) {
     const source: JsonObject = { ...entry.properties };
     if (HELPER_FLAGS.some((flag) => source[flag])) continue;
@@ -182,7 +189,7 @@ export function fromEditorFeatures(
               !EDITOR_OWN_PROPERTIES.includes(key),
           ),
         );
-    const feature: GeoFeature = {
+    const feature: Feature<Geometry | null, JsonObject | null> = {
       type: "Feature",
       geometry: entry.geometry,
       properties,

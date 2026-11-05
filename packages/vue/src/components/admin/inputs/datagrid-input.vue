@@ -1,4 +1,5 @@
 <script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
@@ -10,7 +11,7 @@ import type { ChoiceInputBaseProps } from "./choice-input-props";
  */
 export interface DatagridInputProps<
   TChoice extends ChoiceRecord = ChoiceRecord,
-> extends ChoiceInputBaseProps<TChoice> {
+> extends ChoiceInputBaseProps<LooseRecord, SourceProp, TChoice> {
   /** Column header for the choice column. Default empty. */
   optionLabel?: string;
 }

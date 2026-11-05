@@ -52,7 +52,7 @@ describe("validateCsvRows", () => {
   it('reports each issue as "path: message" and keeps the mapped row', async () => {
     const schema = z.object({
       title: z.string().min(1, "Required"),
-      price: z.number({ invalid_type_error: "Not a number" }),
+      price: z.number({ message: "Not a number" }),
     });
 
     expect(

@@ -29,7 +29,7 @@ export interface CalendarWeekViewProps {
  */
 
 import { calendarDayKey, calendarEventsInHour } from "@chelone/core";
-import { onBeforeUnmount, ref } from "vue";
+import { onBeforeUnmount, ref, type VNode } from "vue";
 import CalendarEventButton from "./calendar-event.vue";
 import type {
   CalendarEventSlotProps,
@@ -42,7 +42,7 @@ const emit = defineEmits<{
   selectSlot: [slot: CalendarSlot];
 }>();
 defineSlots<{
-  event?(props: CalendarEventSlotProps): unknown;
+  event?(props: CalendarEventSlotProps): VNode[];
 }>();
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);

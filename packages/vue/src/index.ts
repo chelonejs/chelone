@@ -8,6 +8,26 @@
 // bridge). The barrel fills in as V1 tasks land (store bridge, router adapter,
 // <Admin>/<Resource>, controllers, form, components).
 
+import type { ResourceRecord } from "@chelone/core";
+import type { Component } from "vue";
+
+/**
+ * How a record renders as a label: a source path, a function returning text,
+ * or a component. Set it as a `<Resource>`'s `recordRepresentation`.
+ */
+export type RecordRepresentation =
+  | string
+  | ((record: ResourceRecord) => string | number)
+  | Component;
+
+declare module "@chelone/core" {
+  interface ResourceSlots {
+    icon: Component;
+    representation: RecordRepresentation;
+    component: Component;
+  }
+}
+
 export type { AdminProps } from "./admin/admin.vue";
 export { default as Admin } from "./admin/admin.vue";
 // --- auth gate (no-flash gate + per-page gate + OAuth callback resolver) ---
@@ -317,6 +337,7 @@ export {
   provideRecordContext,
   RecordContextKey,
   useRecordContext,
+  useRecordContextRef,
 } from "./record/record-context";
 export type { UseFieldValueOptions } from "./record/use-field-value";
 export { useFieldValue } from "./record/use-field-value";

@@ -5,6 +5,11 @@
  * the representation the composable resolves for a record.
  */
 
+import {
+  getAtPath,
+  type ResourceRecord,
+  type ResourceRepresentation,
+} from "@chelone/core";
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { defineComponent, h, provide } from "vue";
@@ -20,7 +25,7 @@ import {
 
 interface MountOptions {
   /** The `recordRepresentation` of the registered `posts` definition. */
-  recordRepresentation?: unknown;
+  recordRepresentation?: ResourceRepresentation;
   /** The record the probe renders. */
   record: unknown;
   /** Passed to the composable; omit to read the ambient resource instead. */
@@ -93,7 +98,8 @@ describe("useGetRecordRepresentation", () => {
 
   it("uses a function recordRepresentation", () => {
     const { represent } = mountRepresentation({
-      recordRepresentation: (r: { title: string }) => `Post: ${r.title}`,
+      recordRepresentation: (r: ResourceRecord) =>
+        `Post: ${String(getAtPath(r, "title"))}`,
       record: { id: 1, title: "Hello" },
       resource: "posts",
     });

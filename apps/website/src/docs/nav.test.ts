@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "vitest";
-import { buildNavTree } from "./nav.ts";
+import { buildNavTree, lastSegment } from "./nav.ts";
 import type { DocGroup } from "./types.ts";
 
 test("buildNavTree orders by _meta then alpha, nests dirs", () => {
@@ -102,4 +102,26 @@ test("buildNavTree skips a category slug that has no page and appends unlisted p
       ["ui/b", undefined],
     ],
   );
+});
+
+test("buildNavTree returns only groups at the root", () => {
+  const tree = buildNavTree(
+    ["getting-started/install", "ui-layout/button", "ui-layout/input/overview"],
+    { "": [{ dir: "ui-layout" }, { dir: "getting-started" }] },
+  );
+  // Every root node is a section folder: a page always sits under one, so the
+  // group filter in `buildNavTree` drops nothing here.
+  assert.deepEqual(
+    tree.map((node) => [node.kind, node.dir]),
+    [
+      ["group", "ui-layout"],
+      ["group", "getting-started"],
+    ],
+  );
+});
+
+test("lastSegment returns the last path segment", () => {
+  assert.equal(lastSegment("page-components/list/overview"), "overview");
+  assert.equal(lastSegment("getting-started"), "getting-started");
+  assert.equal(lastSegment(""), "");
 });

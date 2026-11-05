@@ -18,7 +18,7 @@ import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
-import { useGetRecordRepresentationText } from "../../../label";
+import { useGetChoiceRepresentationText } from "../../../label";
 import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
 import type { ChoicesProps, InputProps } from "../input-props";
 
@@ -107,12 +107,13 @@ function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     );
   }
 
-  const getRecordRepresentationText = useGetRecordRepresentationText(resource);
+  const getChoiceRepresentationText =
+    useGetChoiceRepresentationText<TChoice>(resource);
   const { getChoiceText, getChoiceValue, getDisableValue } =
     useChoices<TChoice>({
       optionText:
         optionText ??
-        (isFromReference ? getRecordRepresentationText : undefined),
+        (isFromReference ? getChoiceRepresentationText : undefined),
       optionValue,
       disableValue,
       translateChoice: translateChoice ?? !isFromReference,
@@ -260,7 +261,7 @@ function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
                 <SelectItem
                   key={String(value)}
                   value={value != null ? String(value) : ""}
-                  disabled={isDisabled === true}
+                  disabled={isDisabled}
                 >
                   {getChoiceText(choice)}
                 </SelectItem>

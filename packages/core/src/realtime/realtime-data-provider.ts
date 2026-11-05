@@ -74,6 +74,36 @@ export function isRealtimeDataProvider<
   );
 }
 
+const transportMembers = [
+  "onReconnect",
+  "onStatusChange",
+  "getStatus",
+  "onError",
+] as const;
+
+/** The optional transport members a data provider may carry without being a full `RealtimeDataProvider`. */
+export type TransportMembers = Pick<
+  RealtimeDataProvider,
+  (typeof transportMembers)[number]
+>;
+
+/**
+ * True when every transport member `dataProvider` has is a function. Absent
+ * members are fine: they are optional, and a provider with only some of them
+ * (no `publish`, say) still reports reconnects and status.
+ */
+export function hasTransportMembers<
+  TResources extends ResourceMap = ResourceMap,
+>(
+  dataProvider: DataProvider<TResources>,
+): dataProvider is DataProvider<TResources> & TransportMembers {
+  return transportMembers.every(
+    (name) =>
+      !(name in dataProvider) ||
+      typeof Reflect.get(dataProvider, name) === "function",
+  );
+}
+
 export function assertRealtimeDataProvider<
   TResources extends ResourceMap = ResourceMap,
 >(

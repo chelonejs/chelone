@@ -4,7 +4,7 @@ export interface SearchInputProps {
   source?: SourceProp;
   label?: string | false;
   disableClearable?: boolean;
-  defaultValue?: unknown;
+  defaultValue?: string;
   validate?: Validator | readonly Validator[];
   placeholder?: string;
   inputClass?: string;

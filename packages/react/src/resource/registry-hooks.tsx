@@ -23,7 +23,6 @@ import {
   createContext,
   Fragment,
   isValidElement,
-  type ReactElement,
   type ReactNode,
   useContext,
   useEffect,
@@ -32,26 +31,46 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import type { RecordRepresentation } from "../index";
+import type { ResourceProps } from "./resource";
 import { useResourceContext } from "./resource-context";
 
 /** The static shape a `<Resource>`-marker element's `type` carries. */
 interface ResourceMarkerType {
-  chelName?: string;
-  registerResource?: (
-    props: Record<string, unknown>,
+  chelName: "Resource";
+  registerResource: (
+    props: ResourceProps,
     permissions: unknown,
   ) => ResourceDefinition;
 }
 
-/**
- * A collected `<Resource>` element: the element plus its narrowed marker type
- * (a `ReactElement`'s second type param must be a component constructor, so the
- * registrar is carried alongside rather than as that param).
- */
+/** A collected `<Resource>` element: its props and the registrar its type carries. */
 interface ResourceElement {
-  element: ReactElement<{ name: string }>;
-  registerResource: NonNullable<ResourceMarkerType["registerResource"]>;
-  props: Record<string, unknown>;
+  registerResource: ResourceMarkerType["registerResource"];
+  props: ResourceProps;
+}
+
+function isResourceMarkerType(type: unknown): type is ResourceMarkerType {
+  return (
+    typeof type === "function" &&
+    "chelName" in type &&
+    type.chelName === "Resource" &&
+    "registerResource" in type &&
+    typeof type.registerResource === "function"
+  );
+}
+
+function isResourceProps(props: unknown): props is ResourceProps {
+  return (
+    typeof props === "object" &&
+    props !== null &&
+    "name" in props &&
+    typeof props.name === "string"
+  );
+}
+
+function hasChildren(props: unknown): props is { children?: ReactNode } {
+  return typeof props === "object" && props !== null;
 }
 
 const ResourceRegistryContext = createContext<ResourceRegistry | null>(null);
@@ -114,22 +133,15 @@ function collectResourceElements(children: ReactNode): ResourceElement[] {
     if (!isValidElement(child)) return;
     if (child.type === Fragment) {
       // Recurse into the fragment's children.
-      collected.push(
-        ...collectResourceElements(
-          (child.props as { children?: ReactNode }).children,
-        ),
-      );
+      if (hasChildren(child.props)) {
+        collected.push(...collectResourceElements(child.props.children));
+      }
       return;
     }
-    const type = child.type as ResourceMarkerType;
-    if (
-      type?.chelName === "Resource" &&
-      typeof type.registerResource === "function"
-    ) {
+    if (isResourceMarkerType(child.type) && isResourceProps(child.props)) {
       collected.push({
-        element: child as ReactElement<{ name: string }>,
-        registerResource: type.registerResource,
-        props: child.props as Record<string, unknown>,
+        registerResource: child.type.registerResource,
+        props: child.props,
       });
     }
   });
@@ -180,12 +192,11 @@ function identityToken(value: unknown): string {
   if (typeof value !== "object" && typeof value !== "function") {
     return `p:${String(value)}`;
   }
-  const key = value as object;
-  let token = identityTokens.get(key);
+  let token = identityTokens.get(value);
   if (token === undefined) {
     nextIdentityToken += 1;
     token = nextIdentityToken;
-    identityTokens.set(key, token);
+    identityTokens.set(value, token);
   }
   return `r:${token}`;
 }
@@ -310,7 +321,7 @@ export interface UseResourceDefinitionOptions {
   hasCreate?: boolean;
   hasEdit?: boolean;
   hasShow?: boolean;
-  recordRepresentation?: unknown;
+  recordRepresentation?: RecordRepresentation;
 }
 
 /**

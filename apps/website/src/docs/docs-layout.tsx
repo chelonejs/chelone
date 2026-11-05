@@ -29,11 +29,7 @@ export default function DocsLayout() {
   // Controlled open state so the active section auto-opens on client-side nav.
   const [openDirs, setOpenDirs] = useState<Set<string>>(
     () =>
-      new Set(
-        [...ancestorDirs(activeSlug), "getting-started"].filter(
-          Boolean,
-        ) as string[],
-      ),
+      new Set([...ancestorDirs(activeSlug), "getting-started"].filter(Boolean)),
   );
 
   useEffect(() => {

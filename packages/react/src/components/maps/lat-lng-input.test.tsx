@@ -127,6 +127,13 @@ describe("LatLngInput", () => {
     expect(liveMarkers()[0]?.getLngLat()).toEqual({ lng: 2.35, lat: 48.85 });
   });
 
+  it("a stored number shows as its decimal text", async () => {
+    await setup({}, { latitude: 0, longitude: -122.4194 });
+
+    expect(latField().value).toBe("0");
+    expect(lngField().value).toBe("-122.4194");
+  });
+
   it("shows numeric strings from the record, as LatLngField does", async () => {
     // Wire-shaped on purpose: coordinates off the wire can arrive as strings.
     await setup({}, JSON.parse('{"latitude":"48.85","longitude":"2.35"}'));

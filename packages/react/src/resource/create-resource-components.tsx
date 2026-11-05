@@ -23,6 +23,7 @@ import type {
   SourceValue,
 } from "@chelone/core";
 import type { ReactNode } from "react";
+import type { ChoiceRecord } from "../choices-hooks";
 import { ApiKeyField } from "../components/admin/fields/api-key-field";
 import { ArrayField } from "../components/admin/fields/array-field";
 import { BadgeField } from "../components/admin/fields/badge-field";
@@ -60,10 +61,19 @@ import {
   ArrayInput,
   type ArrayInputProps,
 } from "../components/admin/inputs/array-input";
-import { AutocompleteArrayInput } from "../components/admin/inputs/autocomplete-array-input";
-import { AutocompleteInput } from "../components/admin/inputs/autocomplete-input";
+import {
+  AutocompleteArrayInput,
+  type AutocompleteArrayInputProps,
+} from "../components/admin/inputs/autocomplete-array-input";
+import {
+  AutocompleteInput,
+  type AutocompleteInputProps,
+} from "../components/admin/inputs/autocomplete-input";
 import { BooleanInput } from "../components/admin/inputs/boolean-input";
-import { CheckboxGroupInput } from "../components/admin/inputs/checkbox-group-input";
+import {
+  CheckboxGroupInput,
+  type CheckboxGroupInputProps,
+} from "../components/admin/inputs/checkbox-group-input";
 import { ColorInput } from "../components/admin/inputs/color-input";
 import { CronInput } from "../components/admin/inputs/cron-input";
 import {
@@ -93,7 +103,10 @@ import { ReferenceArrayInput } from "../components/admin/inputs/reference-array-
 import { ReferenceInput } from "../components/admin/inputs/reference-input";
 import { ResettableTextInput } from "../components/admin/inputs/resettable-text-input";
 import { SearchInput } from "../components/admin/inputs/search-input";
-import { SelectArrayInput } from "../components/admin/inputs/select-array-input";
+import {
+  SelectArrayInput,
+  type SelectArrayInputProps,
+} from "../components/admin/inputs/select-array-input";
 import { SelectInput } from "../components/admin/inputs/select-input";
 import {
   SubscriptionPlanPicker,
@@ -308,6 +321,36 @@ type TypedInputProps<TProps, TRecord, TPath extends SourceProp<TRecord>> = Omit<
  * constraint.
  */
 type TypedInputMembers<TRecord> = {
+  AutocompleteArrayInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: TypedInputProps<
+      AutocompleteArrayInputProps<TRecord, TPath, TChoice>,
+      TRecord,
+      TPath
+    >,
+  ) => ReactNode;
+  AutocompleteInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: TypedInputProps<
+      AutocompleteInputProps<TRecord, TPath, TChoice>,
+      TRecord,
+      TPath
+    >,
+  ) => ReactNode;
+  CheckboxGroupInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: TypedInputProps<
+      CheckboxGroupInputProps<TRecord, TPath, TChoice>,
+      TRecord,
+      TPath
+    >,
+  ) => ReactNode;
   CurrencyInput: <TPath extends SourceProp<TRecord>>(
     props: TypedInputProps<CurrencyInputProps<TRecord, TPath>, TRecord, TPath>,
   ) => ReactNode;
@@ -316,6 +359,16 @@ type TypedInputMembers<TRecord> = {
   ) => ReactNode;
   RatingInput: <TPath extends SourceProp<TRecord>>(
     props: TypedInputProps<RatingInputProps<TRecord, TPath>, TRecord, TPath>,
+  ) => ReactNode;
+  SelectArrayInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: TypedInputProps<
+      SelectArrayInputProps<TRecord, TPath, TChoice>,
+      TRecord,
+      TPath
+    >,
   ) => ReactNode;
   SubscriptionPlanPicker: <TPath extends SourceProp<TRecord>>(
     props: TypedInputProps<
@@ -365,15 +418,19 @@ function build(name: string) {
   if (cached) return cached;
   const built = {
     ...components,
+    // biome-ignore lint/correctness/noComponentHookFactories: built once per resource name, then cached
     Edit: (props: Omit<EditProps, "resource">) => (
       <Edit {...props} resource={name} />
     ),
+    // biome-ignore lint/correctness/noComponentHookFactories: built once per resource name, then cached
     Create: (props: Omit<CreateProps, "resource">) => (
       <Create {...props} resource={name} />
     ),
+    // biome-ignore lint/correctness/noComponentHookFactories: built once per resource name, then cached
     Show: (props: Omit<ShowProps, "resource">) => (
       <Show {...props} resource={name} />
     ),
+    // biome-ignore lint/correctness/noComponentHookFactories: built once per resource name, then cached
     List: (props: Omit<ListProps, "resource">) => (
       <List {...props} resource={name} />
     ),

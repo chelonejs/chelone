@@ -27,6 +27,7 @@ import {
   shallowReactive,
   toValue,
 } from "vue";
+import type { RecordRepresentation } from "../index";
 import { useResourceContext } from "../resource-context";
 
 /**
@@ -49,7 +50,7 @@ export interface ResourceDefinition {
   /** The menu / breadcrumb icon (a Vue component). */
   icon?: Component;
   /** How a record renders as a label (field name, function, or component). */
-  recordRepresentation?: unknown;
+  recordRepresentation?: RecordRepresentation;
 }
 
 /** The reactive resource registry contract `<Admin>` provides and `<Resource>` mutates. */
@@ -129,7 +130,7 @@ export interface UseResourceDefinitionOptions {
   hasCreate?: boolean;
   hasEdit?: boolean;
   hasShow?: boolean;
-  recordRepresentation?: unknown;
+  recordRepresentation?: RecordRepresentation;
 }
 
 /** A resource's definition with the four `has*` view flags resolved. */

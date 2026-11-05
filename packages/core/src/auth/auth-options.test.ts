@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/query-core";
+import { QueryClient, skipToken } from "@tanstack/query-core";
 import { describe, expect, it } from "vitest";
 import {
   authStateQueryOptions,
@@ -44,6 +44,19 @@ describe("auth query option factories", () => {
     );
     expect(allowed).toBe(true);
     expect(canAccessQueryOptions(base, params).queryKey).toEqual([
+      "auth",
+      "canAccess",
+      params,
+    ]);
+  });
+
+  it("canAccessQueryOptions resolves true with no provider", async () => {
+    const client = new QueryClient();
+    const params = { action: "edit", resource: "posts" };
+    expect(
+      await client.fetchQuery(canAccessQueryOptions(undefined, params)),
+    ).toBe(true);
+    expect(canAccessQueryOptions(undefined, params).queryKey).toEqual([
       "auth",
       "canAccess",
       params,
@@ -124,6 +137,31 @@ describe("auth query option factories", () => {
       "auth",
       "getPermissions",
       undefined,
+    ]);
+  });
+});
+
+describe("auth query option factories without a provider", () => {
+  it("identityQueryOptions, authStateQueryOptions and permissionsQueryOptions skip with no provider", () => {
+    expect(identityQueryOptions(undefined).queryFn).toBe(skipToken);
+    expect(authStateQueryOptions(undefined).queryFn).toBe(skipToken);
+    expect(permissionsQueryOptions(undefined).queryFn).toBe(skipToken);
+  });
+
+  it("keeps the same query keys with no provider", () => {
+    const params = { role: "admin" };
+    expect(identityQueryOptions(undefined).queryKey).toEqual([
+      "auth",
+      "getIdentity",
+    ]);
+    expect(authStateQueryOptions(undefined).queryKey).toEqual([
+      "auth",
+      "checkAuth",
+    ]);
+    expect(permissionsQueryOptions(undefined, params).queryKey).toEqual([
+      "auth",
+      "getPermissions",
+      params,
     ]);
   });
 });
