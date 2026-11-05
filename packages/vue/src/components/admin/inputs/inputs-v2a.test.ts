@@ -108,6 +108,26 @@ function mountInForm(
   return { wrapper, captured };
 }
 
+describe("<TextInput> stored values", () => {
+  it("spells a stored number and renders a stored object as empty", async () => {
+    const number = mountInForm(() => h(TextInput, { source: "title" }), {
+      record: { id: 1, title: 5 },
+    });
+    await flushPromises();
+    expect(number.wrapper.find<HTMLInputElement>("input").element.value).toBe(
+      "5",
+    );
+
+    const object = mountInForm(() => h(TextInput, { source: "title" }), {
+      record: { id: 1, title: { count: 5 } },
+    });
+    await flushPromises();
+    expect(object.wrapper.find<HTMLInputElement>("input").element.value).toBe(
+      "",
+    );
+  });
+});
+
 describe("null-coercion papercut", () => {
   it("a cleared required text input surfaces the .min(1) message, not the zod type error", async () => {
     const { wrapper, captured } = mountInForm(

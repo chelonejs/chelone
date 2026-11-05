@@ -5,7 +5,7 @@ import type { SourceProp, Validator } from "@chelone/core";
 export interface CronInputProps {
   source: SourceProp;
   label?: string | false;
-  defaultValue?: unknown;
+  defaultValue?: string;
   validate?: Validator | readonly Validator[];
   disabled?: boolean;
   class?: string;
@@ -20,6 +20,7 @@ export interface CronInputProps {
  * off the current value, or `"Invalid cron"` for a non-empty unparseable string.
  */
 
+import { toTextValue } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
@@ -38,7 +39,7 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   validate: props.validate,
 });
 
-const expr = computed(() => (value.value as string) ?? "");
+const expr = computed(() => toTextValue(value.value));
 const preview = computed(() => (expr.value ? describeCron(expr.value) : null));
 const previewText = computed(() =>
   preview.value ?? (expr.value ? "Invalid cron" : ""),

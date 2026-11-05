@@ -3,7 +3,7 @@
 export interface PhoneInputProps {
   source: SourceProp;
   label?: string | false;
-  defaultValue?: unknown;
+  defaultValue?: string;
   validate?: Validator | readonly Validator[];
   defaultCountry?: CountryCode;
   allowedCountries?: readonly CountryCode[];
@@ -22,7 +22,7 @@ export interface PhoneInputProps {
  * typing and `parsePhoneNumber(...).number` normalizes on write-back.
  */
 
-import type { SourceProp, Validator } from "@chelone/core";
+import { type SourceProp, toTextValue, type Validator } from "@chelone/core";
 import {
   AsYouType,
   type CountryCode,
@@ -68,9 +68,9 @@ function formatNational(v: string, country: CountryCode): string {
   }
 }
 
-const stored = computed(() => String(value.value ?? ""));
+const stored = computed(() => toTextValue(value.value));
 const countries = computed<readonly CountryCode[]>(
-  () => props.allowedCountries ?? (getCountries() as CountryCode[]),
+  () => props.allowedCountries ?? (getCountries()),
 );
 
 const country = ref<CountryCode>(inferCountry(stored.value, props.defaultCountry));
