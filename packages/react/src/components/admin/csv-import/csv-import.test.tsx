@@ -323,13 +323,14 @@ describe("<CsvImport> commit step", () => {
   it("a row that fails to create is in the report and Download error report calls downloadCSV with it", async () => {
     const dataProvider = makeProvider();
     const real = dataProvider.create.bind(dataProvider);
-    vi.spyOn(dataProvider, "create").mockImplementation(((
-      resource: string,
-      params: { data: { title: string } },
-    ) =>
-      params.data.title === "World"
-        ? Promise.reject(new Error("duplicate title"))
-        : real(resource, params as never)) as DataProvider["create"]);
+    vi.spyOn(dataProvider, "create").mockImplementation(
+      async (resource, params) => {
+        if (params.data.title === "World") {
+          throw new Error("duplicate title");
+        }
+        return real(resource, params);
+      },
+    );
     let report: CsvImportReport | undefined;
     render(
       <Providers dataProvider={dataProvider}>

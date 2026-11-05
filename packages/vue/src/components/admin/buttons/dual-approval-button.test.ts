@@ -115,7 +115,7 @@ function deferredUpdate() {
   const update = vi.spyOn(dataProvider, "update").mockImplementation(
     (_resource, params) =>
       new Promise((resolve) => {
-        settle = () => resolve({ data: { id: 1, ...params.data } } as never);
+        settle = () => resolve({ data: { id: 1, ...params.data } });
       }),
   );
   return { dataProvider, update, settle: () => settle() };

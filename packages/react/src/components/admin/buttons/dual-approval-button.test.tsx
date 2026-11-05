@@ -265,8 +265,7 @@ describe("DualApprovalButton", () => {
     vi.spyOn(dataProvider, "update").mockImplementation(
       () =>
         new Promise((resolve) => {
-          settle = () =>
-            resolve({ data: post({ approvers: ["u1"] }) } as never);
+          settle = () => resolve({ data: post({ approvers: ["u1"] }) });
         }),
     );
     mount({ dataProvider, props: { required: 3 } });

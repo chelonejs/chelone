@@ -217,7 +217,7 @@ describe("StatusTransitionButton", () => {
           settle = (error) =>
             error
               ? reject(error)
-              : resolve({ data: { id: 1, ...params.data } } as never);
+              : resolve({ data: { id: 1, ...params.data } });
         }),
     );
     const onTransition = vi.fn();
