@@ -40,6 +40,18 @@ describe("createChoicesController types", () => {
     expectTypeOf(s.availableChoices).not.toBeAny();
   });
 
+  it("the state error is Error or null", () => {
+    expectTypeOf<
+      ChoicesControllerState<Post>["error"]
+    >().toEqualTypeOf<Error | null>();
+  });
+
+  it("lookupKey takes a key of the referenced record", () => {
+    createChoicesController(ctx, { reference: "posts", lookupKey: "title" });
+    // @ts-expect-error `slug` is not a key of Post
+    createChoicesController(ctx, { reference: "posts", lookupKey: "slug" });
+  });
+
   it("setValue accepts scalar and array identifiers", () => {
     const c = createChoicesController(ctx, { reference: "posts" });
     expectTypeOf(c.setValue).parameter(0).toEqualTypeOf<unknown>();
