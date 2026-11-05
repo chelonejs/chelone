@@ -110,8 +110,8 @@ function FilterButton(props: FilterButtonProps) {
 
   const allTogglableFilters = filters.filter(
     (filterElement) =>
-      isValidElement(filterElement) &&
-      !(filterElement.props as FilterElementProps).alwaysOn,
+      isValidElement<FilterElementProps>(filterElement) &&
+      !filterElement.props.alwaysOn,
   );
 
   const handleShow = useCallback(
@@ -120,9 +120,9 @@ function FilterButton(props: FilterButtonProps) {
       // The FilterFormInput has no way of knowing it was just displayed (and so
       // that it should focus its input), so fall back to imperative focus.
       setTimeout(() => {
-        const inputElement = document.querySelector(
+        const inputElement = document.querySelector<HTMLInputElement>(
           `input[name='${source}']`,
-        ) as HTMLInputElement | null;
+        );
         inputElement?.focus();
       }, 50);
       setOpen(false);
@@ -163,7 +163,7 @@ function FilterButton(props: FilterButtonProps) {
               (
                 filterElement,
               ): filterElement is React.ReactElement<FilterElementProps> =>
-                isValidElement(filterElement),
+                isValidElement<FilterElementProps>(filterElement),
             )
             .map((filterElement, index: number) => (
               <FilterButtonMenuItem
@@ -227,7 +227,7 @@ function FilterButtonMenuItem(props: FilterButtonMenuItemProps) {
       if (typeof ref === "function") {
         ref(node);
       } else if (ref) {
-        (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        ref.current = node;
       }
     },
     [ref],
