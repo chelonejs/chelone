@@ -19,6 +19,7 @@ import {
   getAtPath,
   resolveChoiceValue,
   type SourcePath,
+  textOf,
 } from "@chelone/core";
 import { useTranslate } from "../i18n/use-translate";
 
@@ -85,7 +86,7 @@ export function useChoices<TChoice extends ChoiceRecord = ChoiceRecord>(
       const optionText = loose().optionText ?? "name";
       if (typeof optionText === "function") return optionText(choice);
       const raw = getChoicePath(choice, optionText);
-      const text = raw == null ? "" : String(raw);
+      const text = textOf(raw);
       if (loose().translateChoice === false) return text;
       // ra's `{ _: name }` convention: translate the text as a key, falling
       // back to the raw text when it is not a catalog key (chelone's translate

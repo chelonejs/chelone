@@ -50,6 +50,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.isFilterBranch).toBeTypeOf("function");
   });
 
+  it("exports textOf", () => {
+    expect(barrel.textOf).toBeTypeOf("function");
+  });
+
   it("exports stripJsonComments", () => {
     expect(barrel.stripJsonComments).toBeTypeOf("function");
   });
