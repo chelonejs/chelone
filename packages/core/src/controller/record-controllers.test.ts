@@ -27,6 +27,15 @@ const makeCtx = () => ({
   notifications: createNotificationStore(),
 });
 
+/** A promise held shut until `open()`, to keep a provider reply in flight. */
+const gate = () => {
+  let open!: () => void;
+  const promise = new Promise<void>((resolve) => {
+    open = resolve;
+  });
+  return { promise, open };
+};
+
 const settled = (c: { getSnapshot: () => { isPending: boolean } }) =>
   vi.waitFor(() => expect(c.getSnapshot().isPending).toBe(false));
 
@@ -108,9 +117,9 @@ describe("createShowController", () => {
 
   it("fetched record with a mismatched id (loose) surfaces an error, not the record", async () => {
     const ctx = makeCtx();
-    ctx.dataProvider.getOne = (async () => ({
+    vi.spyOn(ctx.dataProvider, "getOne").mockResolvedValue({
       data: { id: 2, title: "z" },
-    })) as never;
+    });
     const c = createShowController(ctx, "posts", { id: 1 });
     attach(c);
     await vi.waitFor(() => expect(c.getSnapshot().error).toBeTruthy());
@@ -122,9 +131,10 @@ describe("createShowController", () => {
 
   it("id comparison is loose: a string '1' matches the requested number 1", async () => {
     const ctx = makeCtx();
-    ctx.dataProvider.getOne = (async () => ({
-      data: { id: "1", title: "a" },
-    })) as never;
+    // A server reply is wire JSON: the string id is a deliberate type violation.
+    vi.spyOn(ctx.dataProvider, "getOne").mockResolvedValue(
+      JSON.parse('{"data":{"id":"1","title":"a"}}'),
+    );
     const c = createShowController(ctx, "posts", { id: 1 });
     attach(c);
     await settled(c);
@@ -319,18 +329,20 @@ describe("createEditController", () => {
   it("saving reflects the in-flight mutation", async () => {
     const ctx = makeCtx();
     const inner = ctx.dataProvider.update.bind(ctx.dataProvider);
-    let release!: () => void;
-    ctx.dataProvider.update = (resource, params) =>
-      new Promise((resolve) => {
-        release = () => resolve(inner(resource, params) as never);
-      });
+    const held = gate();
+    vi.spyOn(ctx.dataProvider, "update").mockImplementation(
+      async (resource, params) => {
+        await held.promise;
+        return inner(resource, params);
+      },
+    );
     const c = createEditController(ctx, "posts", { id: 1 });
     attach(c);
     await settled(c);
     expect(c.getSnapshot().saving).toBe(false);
     const done = c.save({ title: "b" });
     await vi.waitFor(() => expect(c.getSnapshot().saving).toBe(true));
-    release();
+    held.open();
     await done;
     expect(c.getSnapshot().saving).toBe(false);
     c.destroy();
@@ -424,11 +436,13 @@ describe("createEditController", () => {
   it("destroy mid-save: the in-flight mutation is released once it settles", async () => {
     const ctx = makeGcCtx();
     const inner = ctx.dataProvider.update.bind(ctx.dataProvider);
-    let release!: () => void;
-    ctx.dataProvider.update = (resource, params) =>
-      new Promise((resolve) => {
-        release = () => resolve(inner(resource, params) as never);
-      });
+    const held = gate();
+    vi.spyOn(ctx.dataProvider, "update").mockImplementation(
+      async (resource, params) => {
+        await held.promise;
+        return inner(resource, params);
+      },
+    );
     const c = createEditController(ctx, "posts", { id: 1 });
     attach(c);
     await settled(c);
@@ -437,7 +451,7 @@ describe("createEditController", () => {
       expect(ctx.queryClient.getMutationCache().getAll()).toHaveLength(1),
     );
     c.destroy();
-    release();
+    held.open();
     await done;
     await mutationCacheEmpty(ctx.queryClient);
   });
@@ -445,19 +459,23 @@ describe("createEditController", () => {
   it("overlapping attached saves: both mutations released after both settle", async () => {
     const ctx = makeGcCtx();
     const inner = ctx.dataProvider.update.bind(ctx.dataProvider);
-    const releases: Array<() => void> = [];
-    ctx.dataProvider.update = (resource, params) =>
-      new Promise((resolve) => {
-        releases.push(() => resolve(inner(resource, params) as never));
-      });
+    const gates: Array<ReturnType<typeof gate>> = [];
+    vi.spyOn(ctx.dataProvider, "update").mockImplementation(
+      async (resource, params) => {
+        const held = gate();
+        gates.push(held);
+        await held.promise;
+        return inner(resource, params);
+      },
+    );
     const c = createEditController(ctx, "posts", { id: 1 });
     attach(c);
     await settled(c);
     const first = c.save({ title: "b" });
-    await vi.waitFor(() => expect(releases).toHaveLength(1));
+    await vi.waitFor(() => expect(gates).toHaveLength(1));
     const second = c.save({ title: "c" });
-    await vi.waitFor(() => expect(releases).toHaveLength(2));
-    for (const releaseSave of releases) releaseSave();
+    await vi.waitFor(() => expect(gates).toHaveLength(2));
+    for (const held of gates) held.open();
     await Promise.all([first, second]);
     expect(c.getSnapshot().saving).toBe(false);
     await mutationCacheEmpty(ctx.queryClient);
@@ -610,17 +628,19 @@ describe("createCreateController", () => {
   it("saving reflects the in-flight create", async () => {
     const ctx = makeCtx();
     const inner = ctx.dataProvider.create.bind(ctx.dataProvider);
-    let release!: () => void;
-    ctx.dataProvider.create = (resource, params) =>
-      new Promise((resolve) => {
-        release = () => resolve(inner(resource, params) as never);
-      });
+    const held = gate();
+    vi.spyOn(ctx.dataProvider, "create").mockImplementation(
+      async (resource, params) => {
+        await held.promise;
+        return inner(resource, params);
+      },
+    );
     const c = createCreateController(ctx, "posts");
     attach(c);
     expect(c.getSnapshot().saving).toBe(false);
     const done = c.save({ title: "n" });
     await vi.waitFor(() => expect(c.getSnapshot().saving).toBe(true));
-    release();
+    held.open();
     await done;
     expect(c.getSnapshot().saving).toBe(false);
     c.destroy();
@@ -805,17 +825,19 @@ describe("createDeleteController", () => {
   it("saving reflects the in-flight delete", async () => {
     const ctx = makeCtx();
     const inner = ctx.dataProvider.delete.bind(ctx.dataProvider);
-    let release!: () => void;
-    ctx.dataProvider.delete = (resource, params) =>
-      new Promise((resolve) => {
-        release = () => resolve(inner(resource, params) as never);
-      });
+    const held = gate();
+    vi.spyOn(ctx.dataProvider, "delete").mockImplementation(
+      async (resource, params) => {
+        await held.promise;
+        return inner(resource, params);
+      },
+    );
     const c = createDeleteController(ctx, "posts");
     attach(c);
     expect(c.getSnapshot().saving).toBe(false);
     const done = c.deleteOne(1);
     await vi.waitFor(() => expect(c.getSnapshot().saving).toBe(true));
-    release();
+    held.open();
     await done;
     expect(c.getSnapshot().saving).toBe(false);
     c.destroy();

@@ -270,7 +270,7 @@ describe("getManyAggregateOptions", () => {
 
   it("a malformed provider result rejects every caller instead of leaving them pending", async () => {
     const c = setup();
-    c.getMany.mockResolvedValue({ data: undefined } as never);
+    c.getMany.mockResolvedValue(JSON.parse("{}"));
 
     const results = await Promise.allSettled([
       c.queryClient.fetchQuery(

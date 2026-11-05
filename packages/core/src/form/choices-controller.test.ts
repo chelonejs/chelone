@@ -361,7 +361,7 @@ describe("createChoicesController — selected resolution (non-id lookupKey #16)
           return {
             data: rows.filter((r) => isbn.includes(r.isbn)),
             total: isbn.length,
-          } as never;
+          };
         }
         return rawGetList(resource, params);
       });
