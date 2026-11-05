@@ -516,10 +516,7 @@ function useListableResources(names: string[]): Set<string> {
   const checked = authProvider?.canAccess != null;
   const results = useQueries({
     queries: unique.map((resource) => ({
-      ...canAccessQueryOptions(
-        authProvider ?? ({} as NonNullable<typeof authProvider>),
-        { resource, action: "list" },
-      ),
+      ...canAccessQueryOptions(authProvider, { resource, action: "list" }),
       enabled: checked,
     })),
   });

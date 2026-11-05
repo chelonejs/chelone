@@ -50,6 +50,19 @@ describe("auth query option factories", () => {
     ]);
   });
 
+  it("canAccessQueryOptions resolves true with no provider", async () => {
+    const client = new QueryClient();
+    const params = { action: "edit", resource: "posts" };
+    expect(
+      await client.fetchQuery(canAccessQueryOptions(undefined, params)),
+    ).toBe(true);
+    expect(canAccessQueryOptions(undefined, params).queryKey).toEqual([
+      "auth",
+      "canAccess",
+      params,
+    ]);
+  });
+
   it("canAccessQueryOptions delegates to provider canAccess", async () => {
     const provider: AuthProvider = {
       ...base,
