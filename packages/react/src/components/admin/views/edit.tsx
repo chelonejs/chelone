@@ -99,7 +99,12 @@ function Edit(props: EditProps) {
     );
   }
   const params = useParams();
-  const id = idProp ?? (params.id as Identifier);
+  const id = idProp ?? params.id;
+  if (id === undefined) {
+    throw new Error(
+      "The Edit component needs an `id` prop or a route with an `:id` param",
+    );
+  }
 
   // The controller captures its options once, so it always gets these two
   // wrappers (a callback added after mount still runs) and they read the
