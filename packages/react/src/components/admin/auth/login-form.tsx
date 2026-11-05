@@ -16,7 +16,7 @@
  *   notify payload is an i18n key + a raw-message fallback under `_`).
  */
 
-import { required } from "@chelone/core";
+import { errorMessageOf, required } from "@chelone/core";
 import { useCallback } from "react";
 import { TextInput } from "@/components/admin/inputs/text-input";
 import { Button } from "@/components/ui/button";
@@ -44,20 +44,6 @@ interface LoginValues {
   password: string;
 }
 
-const getErrorMessage = (error: unknown): string | undefined => {
-  if (typeof error === "string") return error;
-  if (
-    error &&
-    typeof error === "object" &&
-    "message" in error &&
-    typeof (error as { message: unknown }).message === "string" &&
-    (error as { message: string }).message
-  ) {
-    return (error as { message: string }).message;
-  }
-  return undefined;
-};
-
 function LoginForm(props: LoginFormProps) {
   const { redirectTo, className } = props;
   const login = useLogin();
@@ -73,7 +59,7 @@ function LoginForm(props: LoginFormProps) {
           redirectTo != null ? { ...values, redirectTo } : { ...values },
         );
       } catch (error) {
-        const message = getErrorMessage(error);
+        const message = errorMessageOf(error);
         notify(message ?? "ra.auth.sign_in_error", {
           type: "error",
           messageArgs: message === undefined ? undefined : { _: message },

@@ -47,7 +47,7 @@ export interface LoginWithEmailProps {
  * <LoginWithEmail :on-submit="({ email, password }) => myBackend.signIn(email, password)" />
  */
 
-import { required } from "@chelone/core";
+import { errorMessageOf, required } from "@chelone/core";
 import { useMutation } from "@tanstack/vue-query";
 import { useCheloneContext, useCheloneNotifications } from "../../../context";
 import { useForm } from "../../../form/use-form";
@@ -80,20 +80,6 @@ const login = useMutation({
 const notifications = useCheloneNotifications();
 const translate = useTranslate();
 
-function getErrorMessage(error: unknown): string | undefined {
-  if (typeof error === "string") return error;
-  if (
-    error &&
-    typeof error === "object" &&
-    "message" in error &&
-    typeof (error as { message: unknown }).message === "string" &&
-    (error as { message: string }).message
-  ) {
-    return (error as { message: string }).message;
-  }
-  return undefined;
-}
-
 // The form `onSubmit` contract must resolve (never reject) for provider
 // errors, so the rejection is caught here and surfaced via the notification
 // store.
@@ -105,7 +91,7 @@ async function save(values: LoginWithEmailValues): Promise<undefined> {
       await login.mutateAsync({ ...values, redirectTo: props.redirectTo });
     }
   } catch (error) {
-    const message = getErrorMessage(error);
+    const message = errorMessageOf(error);
     notifications?.notify(message ?? "ra.auth.sign_in_error", {
       type: "error",
       messageArgs: message === undefined ? undefined : { _: message },

@@ -716,6 +716,7 @@ export {
   getRecordForLocale,
 } from "./i18n/translatable";
 export { stripJsonComments } from "./json/strip-json-comments";
+export { errorMessageOf } from "./notification/error-message";
 export type {
   Notification,
   NotificationStore,
