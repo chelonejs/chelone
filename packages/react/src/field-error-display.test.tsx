@@ -17,6 +17,7 @@ import {
   defineMessages,
   type FieldErrors,
   fakeDataProvider,
+  type MessageCatalog,
   type TranslatableMessage,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
@@ -32,10 +33,10 @@ import {
 import { CheloneFormProvider } from "./form-context";
 import { useForm, useInput } from "./form-hooks";
 
-function makeWrapper(messages?: Record<string, Record<string, unknown>>) {
+function makeWrapper(messages?: Record<string, MessageCatalog>) {
   const i18n = createI18n({
     locale: "en",
-    messages: (messages as never) ?? { en: defineMessages({}) },
+    messages: messages ?? { en: defineMessages({}) },
   });
   return ({ children }: { children: ReactNode }) => (
     <CheloneProvider
