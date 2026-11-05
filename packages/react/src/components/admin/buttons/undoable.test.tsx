@@ -38,8 +38,9 @@ import {
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, type MockInstance, vi } from "vitest";
+import { makeListContext } from "../../../__fixtures__/list-context";
 import { CheloneProvider } from "../../../context";
-import { ListContextProvider, type ListContextValue } from "../../../form";
+import { ListContextProvider } from "../../../form";
 import { RecordContextProvider } from "../../../record/record-context";
 import {
   ResourceContextProvider,
@@ -133,13 +134,7 @@ function Providers({
     hasEdit: true,
     hasShow: true,
   });
-  const listValue = {
-    selectedIds,
-    unselectAll: () => {},
-    onSelect: () => {},
-    onToggleItem: () => {},
-    onUnselectItems: () => {},
-  } as unknown as ListContextValue;
+  const listValue = makeListContext({ selectedIds });
   return (
     <CheloneProvider
       dataProvider={dataProvider}

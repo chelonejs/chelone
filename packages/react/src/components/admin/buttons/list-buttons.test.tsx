@@ -29,11 +29,7 @@ import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { useListController } from "../../../controller-hooks";
-import {
-  ListContextProvider,
-  type ListContextValue,
-  useListContext,
-} from "../../../form";
+import { ListContextProvider, useListContext } from "../../../form";
 import { useListFilterContext } from "../../../list/list-slice-hooks";
 import {
   ResourceContextProvider,
@@ -146,7 +142,7 @@ function ListInner({
     }
   }, [list, selectedIds]);
   return (
-    <ListContextProvider value={list as unknown as ListContextValue}>
+    <ListContextProvider value={list}>
       <Probe />
       {children}
     </ListContextProvider>

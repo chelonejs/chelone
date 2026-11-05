@@ -23,7 +23,6 @@ import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
-import type { ListContextValue } from "../../../form";
 import { ListContextProvider } from "../../../form";
 import { RecordContextProvider } from "../../../record/record-context";
 import {
@@ -273,7 +272,7 @@ describe("<ReferenceManyCount>", () => {
       const list = useList({ data: authors });
       return (
         <ResourceContextProvider value="authors">
-          <ListContextProvider value={list as unknown as ListContextValue}>
+          <ListContextProvider value={list}>
             <DataTable>
               <DataTable.Col source="name" />
               <DataTable.Col label="Books">

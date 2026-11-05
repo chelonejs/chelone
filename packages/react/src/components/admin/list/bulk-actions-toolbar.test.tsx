@@ -9,7 +9,6 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { type ReactNode, useEffect, useRef } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { CheloneProvider } from "../../../context";
-import type { ListContextValue } from "../../../form";
 import { ListContextProvider } from "../../../form";
 import { useList } from "../../../use-list";
 import { BulkActionsToolbar } from "./bulk-actions-toolbar";
@@ -69,11 +68,7 @@ function Inner({
       list.select(selectedIds);
     }
   }, [list, selectedIds]);
-  return (
-    <ListContextProvider value={list as unknown as ListContextValue}>
-      {children}
-    </ListContextProvider>
-  );
+  return <ListContextProvider value={list}>{children}</ListContextProvider>;
 }
 
 describe("<BulkActionsToolbar>", () => {

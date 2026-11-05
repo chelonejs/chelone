@@ -38,7 +38,7 @@ import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { useListController } from "../../../controller-hooks";
-import { ListContextProvider, type ListContextValue } from "../../../form";
+import { ListContextProvider } from "../../../form";
 import { FilterContextProvider } from "../../../list/filter-context";
 import {
   ResourceContextProvider,
@@ -184,11 +184,7 @@ function ListInner({
       list.select(selectedIds);
     }
   }, [list, selectedIds]);
-  return (
-    <ListContextProvider value={list as unknown as ListContextValue}>
-      {children}
-    </ListContextProvider>
-  );
+  return <ListContextProvider value={list}>{children}</ListContextProvider>;
 }
 
 async function getIds(dataProvider: DataProvider): Promise<number[]> {

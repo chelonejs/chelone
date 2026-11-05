@@ -31,7 +31,6 @@ import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { useDataTableColumns } from "../../../data-table-columns-hooks";
-import type { ListContextValue } from "../../../form";
 import { ListContextProvider } from "../../../form";
 import {
   ResourceContextProvider,
@@ -111,7 +110,7 @@ function TableInner({
   const list = useList({ data, perPage });
   return (
     <ResourceContextProvider value="posts">
-      <ListContextProvider value={list as unknown as ListContextValue}>
+      <ListContextProvider value={list}>
         <DataTable bulkActionButtons={bulkActionButtons} {...tableProps}>
           {children}
         </DataTable>
