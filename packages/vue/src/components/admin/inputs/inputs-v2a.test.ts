@@ -14,7 +14,11 @@ import { defineComponent, h, nextTick } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import { z } from "zod";
 import Admin from "../../../admin/admin.vue";
-import { type UseFormReturn, useForm } from "../../../form/use-form";
+import {
+  type UseFormOptions,
+  type UseFormReturn,
+  useForm,
+} from "../../../form/use-form";
 import ColorInput from "./color-input.vue";
 import NullableBooleanInput from "./nullable-boolean-input.vue";
 import PasswordInput from "./password-input.vue";
@@ -64,7 +68,7 @@ function mountInForm(
     schema,
   }: {
     record: FormValues;
-    schema?: typeof postSchema;
+    schema?: UseFormOptions<FormValues>["schema"];
   },
 ) {
   const captured: Captured = {};
@@ -78,7 +82,7 @@ function mountInForm(
     setup(_, { slots }) {
       const form = useForm<FormValues>({
         record,
-        schema: schema as never,
+        schema,
         onSubmit: async () => undefined,
       });
       captured.form = form;
