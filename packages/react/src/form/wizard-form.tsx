@@ -259,10 +259,7 @@ function WizardShell({ stepNames, submit, children }: WizardShellProps) {
         ),
       );
       // Read the authoritative per-field validity the badge also aggregates.
-      const fieldMeta = ambient.store.state.fieldMeta as Record<
-        string,
-        { isValid: boolean } | undefined
-      >;
+      const { fieldMeta } = ambient.store.state;
       return members.every((source) => fieldMeta[source]?.isValid !== false);
     },
     [ambient, groups],
