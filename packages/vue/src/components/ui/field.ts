@@ -6,7 +6,7 @@
  * one-line SFCs — the minimal, dependency-free slice the admin inputs need.
  */
 
-import { defineComponent, h, type PropType } from "vue";
+import { defineComponent, h } from "vue";
 import { cn } from "../../lib/utils";
 
 /** The input field wrapper — a vertical stack of label + control + error. */
@@ -77,7 +77,7 @@ export const FieldError = defineComponent({
 /** The field description / helper text. */
 export const FieldDescription = defineComponent({
   name: "FieldDescription",
-  props: { class: { type: String as PropType<string>, default: "" } },
+  props: { class: { type: String, default: "" } },
   setup(props, { slots }) {
     return () =>
       h(
