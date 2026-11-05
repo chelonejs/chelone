@@ -98,8 +98,6 @@ describe("useShowController", () => {
     await loaded(() => capture.result);
     expect(capture.result?.isFetching).toBe(false);
     expect(capture.result?.error).toBeNull();
-    expect(
-      (capture.result as unknown as Record<string, unknown>).save,
-    ).toBeUndefined();
+    expect(capture.result).not.toHaveProperty("save");
   });
 });

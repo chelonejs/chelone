@@ -174,7 +174,7 @@ describe("<Edit>", () => {
     fireEvent.click(screen.getByRole("button", { name: "save" }));
     await waitFor(async () => {
       const { data } = await dataProvider.getOne("posts", { id: 1 });
-      expect((data as unknown as { title: string }).title).toBe("Updated");
+      expect(data).toMatchObject({ title: "Updated" });
     });
   });
   it("validate on <Edit> blocks a save that fails it", async () => {

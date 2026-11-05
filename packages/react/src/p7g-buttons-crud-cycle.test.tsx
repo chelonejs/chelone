@@ -56,7 +56,7 @@ import {
 } from "./index";
 
 beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
+  window.scrollTo = vi.fn();
 });
 
 afterEach(cleanup);
@@ -194,7 +194,7 @@ describe("P7g CRUD cycle — (a) edit + ported SaveButton persists the mutation"
     // …and the value PERSISTS — a fresh getOne reflects it (non-vacuity anchor).
     await waitFor(async () => {
       const { data } = await dataProvider.getOne("posts", { id: 1 });
-      expect((data as unknown as Post).title).toBe("Alpha edited");
+      expect(data).toMatchObject({ title: "Alpha edited" });
     });
   });
 });
@@ -236,7 +236,7 @@ describe("P7g CRUD cycle — (b) bulk delete via ported BulkDeleteButton", () =>
         sort: { field: "id", order: "ASC" },
         filter: {},
       });
-      const titles = (data as unknown as Post[]).map((p) => p.title);
+      const titles = data.map((row) => String(row.title));
       expect(titles).toEqual(["Gamma"]);
     });
 
@@ -274,7 +274,7 @@ describe("P7g CRUD cycle — (c) create via ported CreateButton + SaveButton", (
         sort: { field: "id", order: "ASC" },
         filter: {},
       });
-      const titles = (data as unknown as Post[]).map((p) => p.title);
+      const titles = data.map((row) => String(row.title));
       expect(titles).toContain("Delta");
     });
   });

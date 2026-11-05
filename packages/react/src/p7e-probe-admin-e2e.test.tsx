@@ -68,7 +68,7 @@ import {
 // TanStack/react-router scroll restoration + the layout call window.scrollTo /
 // matchMedia (matchMedia is shimmed in test-setup); jsdom lacks scrollTo.
 beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
+  window.scrollTo = vi.fn();
 });
 
 afterEach(cleanup);
@@ -310,7 +310,7 @@ describe("P7e end-to-end — (c) edit hydrates, edits, submits, reflects", () =>
     // The provider persisted the update — refetch reflects the new value.
     await waitFor(async () => {
       const { data } = await dataProvider.getOne("posts", { id: 1 });
-      expect((data as unknown as Post).title).toBe("Alpha edited");
+      expect(data).toMatchObject({ title: "Alpha edited" });
     });
   });
 });
@@ -335,7 +335,7 @@ describe("P7e end-to-end — (d) create submits a new record", () => {
         sort: { field: "id", order: "ASC" },
         filter: {},
       });
-      const titles = (data as unknown as Post[]).map((p) => p.title);
+      const titles = data.map((row) => String(row.title));
       expect(titles).toContain("Gamma");
     });
   });
