@@ -79,9 +79,10 @@ export function usePermissions(
     // reports a disabled query as `isPending: true` (fetchStatus idle); the
     // undefined-tolerant contract must win over that.
     // The query resolves `null` for "nothing to give"; the contract says `undefined`.
-    permissions: computed(() =>
-      hasGetPermissions ? (query.data.value ?? undefined) : undefined,
-    ),
+    permissions: computed(() => {
+      if (!hasGetPermissions) return undefined;
+      return query.data.value ?? undefined;
+    }),
     isPending: computed(() =>
       hasGetPermissions ? query.isPending.value : false,
     ),
