@@ -1,4 +1,5 @@
 import {
+  type AmbientForm,
   createFormGroups,
   type FormGroups,
   type GroupState,
@@ -200,11 +201,8 @@ export function useFormGroup(name: string): GroupState {
   // selector identity changes when membership changes → useSelector re-subscribes.
   const selector = useMemo(
     () =>
-      (state: { fieldMeta: Record<string, unknown> }): GroupState =>
-        reduceGroupState(
-          state.fieldMeta as Parameters<typeof reduceGroupState>[0],
-          members,
-        ),
+      (state: AmbientForm["store"]["state"]): GroupState =>
+        reduceGroupState(state.fieldMeta, members),
     [members],
   );
 
