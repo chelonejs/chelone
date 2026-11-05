@@ -184,7 +184,8 @@ describe("runGen", () => {
       );
 
     expect(diagnostics).toEqual([]);
-  });
+    // A cold program type-checks @chelone/core and zod, which outruns vitest's 5s default on a CI runner.
+  }, 60_000);
 
   it("--schema picks the schema and --scaffold vue prints Vue elements", async () => {
     const { code, stdout } = await run(
