@@ -4,7 +4,10 @@ import {
   fileEntryKey,
   fileEntryPreview,
   isTransformedFile,
+  resolveChoiceValue,
   toBooleanValue,
+  toChoiceValue,
+  toChoiceValues,
   toCurrencyComposite,
   toCurrencyValue,
   toDateInputValue,
@@ -190,6 +193,43 @@ describe("ChoiceValueOf", () => {
       ChoiceValueOf<{ id: number; name: string }>
     >().toEqualTypeOf<number>();
     expectTypeOf<ChoiceValueOf<"m" | "f">>().toEqualTypeOf<"m" | "f">();
+  });
+});
+
+describe("the choice value guards", () => {
+  type Author = { id: number; name: string };
+
+  it("toChoiceValues keeps an array as stored", () => {
+    const stored = [1, 2];
+    expect(toChoiceValues<Author>(stored)).toBe(stored);
+    expectTypeOf(toChoiceValues<Author>(stored)).toEqualTypeOf<
+      readonly number[]
+    >();
+  });
+
+  it("toChoiceValues reads a missing value as none and a scalar as one", () => {
+    expect(toChoiceValues<Author>(undefined)).toEqual([]);
+    expect(toChoiceValues<Author>(null)).toEqual([]);
+    expect(toChoiceValues<Author>(3)).toEqual([3]);
+  });
+
+  it("toChoiceValues gives the same empty list for every missing value", () => {
+    expect(toChoiceValues<Author>(undefined)).toBe(
+      toChoiceValues<Author>(null),
+    );
+  });
+
+  it("toChoiceValue is the id of an Author", () => {
+    expect(toChoiceValue<Author>(4)).toBe(4);
+    expectTypeOf(toChoiceValue<Author>(4)).toEqualTypeOf<number>();
+  });
+
+  it("resolveChoiceValue prefers the value read at optionValue, else the id", () => {
+    const choice = { id: 7, name: "Ada" };
+    expect(resolveChoiceValue(choice, "Ada")).toBe("Ada");
+    expect(resolveChoiceValue(choice, undefined)).toBe(7);
+    expect(resolveChoiceValue("m", undefined)).toBe("m");
+    expectTypeOf(resolveChoiceValue(choice, undefined)).toEqualTypeOf<number>();
   });
 });
 
