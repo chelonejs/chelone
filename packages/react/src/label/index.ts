@@ -8,6 +8,7 @@
 
 export type { GetRecordRepresentation } from "./use-get-record-representation";
 export {
+  useGetChoiceRepresentationText,
   useGetRecordRepresentation,
   useGetRecordRepresentationText,
 } from "./use-get-record-representation";

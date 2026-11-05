@@ -17,7 +17,6 @@
  * `<Resource>` also carries the view components as props.
  */
 
-import type { ResourceRepresentation } from "@chelone/core";
 import {
   type Component,
   type ComputedRef,
@@ -28,6 +27,7 @@ import {
   shallowReactive,
   toValue,
 } from "vue";
+import type { RecordRepresentation } from "../index";
 import { useResourceContext } from "../resource-context";
 
 /**
@@ -50,7 +50,7 @@ export interface ResourceDefinition {
   /** The menu / breadcrumb icon (a Vue component). */
   icon?: Component;
   /** How a record renders as a label (field name, function, or component). */
-  recordRepresentation?: ResourceRepresentation;
+  recordRepresentation?: RecordRepresentation;
 }
 
 /** The reactive resource registry contract `<Admin>` provides and `<Resource>` mutates. */
@@ -130,7 +130,7 @@ export interface UseResourceDefinitionOptions {
   hasCreate?: boolean;
   hasEdit?: boolean;
   hasShow?: boolean;
-  recordRepresentation?: ResourceRepresentation;
+  recordRepresentation?: RecordRepresentation;
 }
 
 /** A resource's definition with the four `has*` view flags resolved. */

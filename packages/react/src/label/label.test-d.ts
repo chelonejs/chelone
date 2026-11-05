@@ -3,10 +3,15 @@
  * their ra-core contracts (adapted to chelone types).
  */
 
+import type { ResourceRecord } from "@chelone/core";
 import type { ReactNode } from "react";
 import { describe, expectTypeOf, it } from "vitest";
+import type { RecordRepresentation } from "../index";
 import type { GetRecordRepresentation } from "./use-get-record-representation";
-import { useGetRecordRepresentation } from "./use-get-record-representation";
+import {
+  useGetRecordRepresentation,
+  useGetRecordRepresentationText,
+} from "./use-get-record-representation";
 import type { GetResourceLabel } from "./use-get-resource-label";
 import { useGetResourceLabel } from "./use-get-resource-label";
 import type { UseResourceTranslationOptions } from "./use-resource-translation";
@@ -21,10 +26,22 @@ describe("label helper types", () => {
     ).returns.toEqualTypeOf<GetRecordRepresentation>();
     expectTypeOf<GetRecordRepresentation>()
       .parameter(0)
-      .toEqualTypeOf<unknown>();
+      .toEqualTypeOf<ResourceRecord | null | undefined>();
     expectTypeOf<
       ReturnType<GetRecordRepresentation>
     >().toEqualTypeOf<ReactNode>();
+  });
+
+  it("a representation function receives a ResourceRecord", () => {
+    expectTypeOf<RecordRepresentation>()
+      .extract<(...args: never[]) => unknown>()
+      .parameters.toEqualTypeOf<[record: ResourceRecord]>();
+  });
+
+  it("the text form takes a ResourceRecord, null or undefined", () => {
+    expectTypeOf(useGetRecordRepresentationText)
+      .returns.parameter(0)
+      .toEqualTypeOf<ResourceRecord | null | undefined>();
   });
 
   it("useGetResourceLabel returns (resource, count?) => string", () => {

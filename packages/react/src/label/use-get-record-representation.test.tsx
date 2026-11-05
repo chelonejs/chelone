@@ -12,6 +12,7 @@
 import {
   createResourceRegistry,
   getAtPath,
+  type LooseRecord,
   type ResourceRegistry,
   type ResourceRepresentation,
 } from "@chelone/core";
@@ -23,6 +24,11 @@ import {
   useGetRecordRepresentation,
   useGetRecordRepresentationText,
 } from "./use-get-record-representation";
+
+/** A record with fields beyond `id`, as an app reads them off a registered schema. */
+function loose(record: LooseRecord): LooseRecord {
+  return record;
+}
 
 interface WrapperOpts {
   registry: ResourceRegistry;
@@ -66,7 +72,9 @@ describe("useGetRecordRepresentation", () => {
     const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
       wrapper: makeWrapper({ registry, resource: "posts" }),
     });
-    expect(result.current({ id: 1, title: "Hello" })).toBe("Post: Hello");
+    expect(result.current(loose({ id: 1, title: "Hello" }))).toBe(
+      "Post: Hello",
+    );
   });
 
   it("uses a string recordRepresentation as a (deep) source path", () => {
@@ -74,7 +82,9 @@ describe("useGetRecordRepresentation", () => {
     const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
       wrapper: makeWrapper({ registry, resource: "posts" }),
     });
-    expect(result.current({ id: 1, author: { name: "Ada" } })).toBe("Ada");
+    expect(result.current(loose({ id: 1, author: { name: "Ada" } }))).toBe(
+      "Ada",
+    );
   });
 
   it("a string-path representation reads a bracket path", () => {
@@ -83,17 +93,17 @@ describe("useGetRecordRepresentation", () => {
       wrapper: makeWrapper({ registry, resource: "posts" }),
     });
     expect(
-      result.current({ id: 1, tags: [{ label: "a" }, { label: "b" }] }),
+      result.current(loose({ id: 1, tags: [{ label: "a" }, { label: "b" }] })),
     ).toBe("b");
   });
 
-  it("an empty path returns the record", () => {
+  it("an empty path stringifies the record, as the Vue twin does", () => {
     const registry = registryWith("posts", "");
     const record = { id: 1, title: "Whole" };
     const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
       wrapper: makeWrapper({ registry, resource: "posts" }),
     });
-    expect(result.current(record)).toBe(record);
+    expect(result.current(record)).toBe(String(record));
   });
 
   it("returns a React element recordRepresentation verbatim", () => {
@@ -102,7 +112,7 @@ describe("useGetRecordRepresentation", () => {
     const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
       wrapper: makeWrapper({ registry, resource: "posts" }),
     });
-    const out = result.current({ id: 1 });
+    const out = result.current(loose({ id: 1 }));
     expect(isValidElement(out)).toBe(true);
     expect(out).toBe(element);
   });
@@ -112,11 +122,11 @@ describe("useGetRecordRepresentation", () => {
     const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
       wrapper: makeWrapper({ registry, resource: "posts" }),
     });
-    expect(result.current({ id: 1, name: "N" })).toBe("N");
-    expect(result.current({ id: 2, title: "T" })).toBe("T");
-    expect(result.current({ id: 3, label: "L" })).toBe("L");
-    expect(result.current({ id: 4, reference: "R" })).toBe("R");
-    expect(result.current({ id: 5 })).toBe("#5");
+    expect(result.current(loose({ id: 1, name: "N" }))).toBe("N");
+    expect(result.current(loose({ id: 2, title: "T" }))).toBe("T");
+    expect(result.current(loose({ id: 3, label: "L" }))).toBe("L");
+    expect(result.current(loose({ id: 4, reference: "R" }))).toBe("R");
+    expect(result.current(loose({ id: 5 }))).toBe("#5");
   });
 
   it("skips empty-string default-chain fields", () => {
@@ -125,7 +135,7 @@ describe("useGetRecordRepresentation", () => {
       wrapper: makeWrapper({ registry, resource: "posts" }),
     });
     // empty name → fall through to title
-    expect(result.current({ id: 1, name: "", title: "T" })).toBe("T");
+    expect(result.current(loose({ id: 1, name: "", title: "T" }))).toBe("T");
   });
 
   it("returns an empty string for a nullish record", () => {
@@ -142,7 +152,7 @@ describe("useGetRecordRepresentation", () => {
     const { result } = renderHook(() => useGetRecordRepresentation(), {
       wrapper: makeWrapper({ registry, resource: "posts" }),
     });
-    expect(result.current({ id: 1, title: "Ctx" })).toBe("Ctx");
+    expect(result.current(loose({ id: 1, title: "Ctx" }))).toBe("Ctx");
   });
 
   it("returns a stable callback identity across re-renders", () => {
@@ -164,8 +174,10 @@ describe("useGetRecordRepresentationText", () => {
       () => useGetRecordRepresentationText("posts"),
       { wrapper: makeWrapper({ registry, resource: "posts" }) },
     );
-    expect(result.current({ id: 1, author: { name: "Ada" } })).toBe("Ada");
-    expect(result.current({ id: 2, author: {} })).toBe("");
+    expect(result.current(loose({ id: 1, author: { name: "Ada" } }))).toBe(
+      "Ada",
+    );
+    expect(result.current(loose({ id: 2, author: {} }))).toBe("");
   });
 
   it("the text form uses a function's string result", () => {
@@ -177,7 +189,9 @@ describe("useGetRecordRepresentationText", () => {
       () => useGetRecordRepresentationText("posts"),
       { wrapper: makeWrapper({ registry, resource: "posts" }) },
     );
-    expect(result.current({ id: 1, title: "Hello" })).toBe("Post: Hello");
+    expect(result.current(loose({ id: 1, title: "Hello" }))).toBe(
+      "Post: Hello",
+    );
   });
 
   it("the text form falls back to the default chain for an element", () => {
@@ -186,9 +200,9 @@ describe("useGetRecordRepresentationText", () => {
       () => useGetRecordRepresentationText("posts"),
       { wrapper: makeWrapper({ registry, resource: "posts" }) },
     );
-    expect(result.current({ id: 1, name: "N" })).toBe("N");
-    expect(result.current({ id: 2, title: "T" })).toBe("T");
-    expect(result.current({ id: 3 })).toBe("#3");
+    expect(result.current(loose({ id: 1, name: "N" }))).toBe("N");
+    expect(result.current(loose({ id: 2, title: "T" }))).toBe("T");
+    expect(result.current(loose({ id: 3 }))).toBe("#3");
   });
 
   it("the text form falls back to the default chain for a function returning an element", () => {
@@ -197,7 +211,7 @@ describe("useGetRecordRepresentationText", () => {
       () => useGetRecordRepresentationText("posts"),
       { wrapper: makeWrapper({ registry, resource: "posts" }) },
     );
-    expect(result.current({ id: 1, name: "N" })).toBe("N");
+    expect(result.current(loose({ id: 1, name: "N" }))).toBe("N");
   });
 
   it("the text form uses a function's numeric result as a string", () => {
@@ -206,6 +220,6 @@ describe("useGetRecordRepresentationText", () => {
       () => useGetRecordRepresentationText("posts"),
       { wrapper: makeWrapper({ registry, resource: "posts" }) },
     );
-    expect(result.current({ id: 4 })).toBe("8");
+    expect(result.current(loose({ id: 4 }))).toBe("8");
   });
 });
