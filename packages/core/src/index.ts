@@ -706,6 +706,7 @@ export type {
 } from "./i18n/missing-keys";
 export { createMissingKeyStore } from "./i18n/missing-keys";
 export type {
+  RecordForLocale,
   TranslatableController,
   TranslatableOptions,
   TranslatableState,

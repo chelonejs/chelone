@@ -84,6 +84,28 @@ function isTranslationMap(
   return !locales || Object.keys(node).every((key) => locales.includes(key));
 }
 
+type LocalizedField<V> = V extends (...args: never[]) => unknown
+  ? V
+  : V extends Date
+    ? V
+    : V extends readonly (infer Item)[]
+      ? LocalizedField<Item>[]
+      : V extends Record<string, string>
+        ? string
+        : V extends object
+          ? RecordForLocale<V>
+          : V;
+
+/**
+ * What `getRecordForLocale` makes of `T`: a field typed `Record<string, string>`
+ * becomes `string`, an array maps its items, any other object maps its fields,
+ * and every other type stays. The root is never replaced.
+ *
+ * A nested `{ a: string; b: string }` field reads as a translation map here,
+ * though at run time only `locales` tells the two apart.
+ */
+export type RecordForLocale<T> = { [K in keyof T]: LocalizedField<T[K]> };
+
 /**
  * A copy of `record` where every object holding `locale` as an own key is
  * replaced by its value at that key, at any depth and inside arrays. Nodes
@@ -98,8 +120,9 @@ export function getRecordForLocale<T extends object | null | undefined>(
   record: T,
   locale: string,
   locales?: readonly string[],
-): T extends object ? Record<string, unknown> : T {
+): T extends object ? RecordForLocale<T> : T {
+  // type-escape: pick is built key by key from a runtime walk the compiler cannot follow
   return pick(record, locale, locales, true) as T extends object
-    ? Record<string, unknown>
+    ? RecordForLocale<T>
     : T;
 }
