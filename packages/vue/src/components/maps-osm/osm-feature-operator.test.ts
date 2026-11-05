@@ -220,6 +220,28 @@ describe("OsmFeatureSubtract", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("a value that is not a Polygon or MultiPolygon warns no_polygon", async () => {
+    // A `type` alone is not a polygon: the coordinates must be there, and a
+    // `bbox` must be numbers.
+    const values = [
+      { type: "Polygon" },
+      { type: "Polygon", coordinates: "0,0" },
+      { type: "MultiPolygon", coordinates: [[["0,0"]]] },
+      { type: "Polygon", coordinates: field.coordinates, bbox: "nope" },
+      { type: "Feature", properties: null, geometry: field },
+      "area",
+      42,
+    ];
+    for (const value of values) {
+      const m = await setup(subtract(), value);
+      await m.click();
+      expect(m.pushed().map((n) => n.message)).toEqual([
+        "chelone.map.osm.no_polygon",
+      ]);
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("fetches with the polygon's bounds and writes the reduced polygon with the area notice", async () => {
     fetchMock.mockResolvedValue(collection(rightHalf));
     const m = await setup(subtract());
