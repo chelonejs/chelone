@@ -96,7 +96,7 @@ async function onClick(event: MouseEvent): Promise<void> {
           ctx.queryClient,
           resource as string,
           undoableIds,
-          data as Record<string, unknown>,
+          data,
         ),
       commit: () =>
         ctx.dataProvider.updateMany(resource as string, {

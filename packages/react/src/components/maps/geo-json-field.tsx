@@ -240,6 +240,11 @@ export function GeoJsonFieldBody({
 export function GeoJsonField<
   RecordType extends Record<string, unknown> = Record<string, unknown>,
 >({ source, record, defaultValue, ...body }: GeoJsonFieldProps<RecordType>) {
-  const value: unknown = useFieldValue({ source, record, defaultValue });
+  // type-escape: this field's record is a string-keyed bag with no `id`, so it is no `LooseRecord`
+  const value: unknown = useFieldValue<Record<string, unknown>>({
+    source,
+    record,
+    defaultValue,
+  });
   return <GeoJsonFieldBody value={value} {...body} />;
 }

@@ -2,7 +2,6 @@ import {
   assertRealtimeDataProvider,
   createMicroStore,
   createPresenceSession,
-  type Identifier,
   type PresenceSessionState,
   type PresenceUser,
   presenceTopic,
@@ -61,7 +60,7 @@ export function usePresence({
   const resolvedTopic = computed(() => {
     const explicit = toValue(topic);
     if (explicit !== undefined) return explicit;
-    const id = ambientRecord?.value?.id as Identifier | undefined;
+    const id = ambientRecord?.value?.id;
     return ambientResource !== undefined && id != null
       ? presenceTopic(ambientResource, id)
       : undefined;

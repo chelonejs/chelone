@@ -36,7 +36,11 @@ function WebhookEndpointField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: WebhookEndpointFieldProps<RecordType>) {
-  const value: unknown = useFieldValue({ defaultValue, source, record });
+  const value: unknown = useFieldValue<LooseRecord>({
+    defaultValue,
+    source,
+    record,
+  });
 
   if (!value || typeof value !== "object") return null;
   const endpoint = value as WebhookEndpoint;

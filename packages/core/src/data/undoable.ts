@@ -4,7 +4,7 @@ import {
   type QueryKey,
 } from "@tanstack/query-core";
 import type { Identifier } from "../resource/identifier";
-import type { ResourceRecord } from "../resource/record";
+import type { LooseRecord, ResourceRecord } from "../resource/record";
 import { removeRecordsFromCache, updateRecordsInCache } from "./cache-ops";
 import type { DeleteParams, UpdateManyParams, UpdateParams } from "./types";
 
@@ -217,11 +217,10 @@ export function startUndoableMutation<TResult = unknown>(
     },
     commit() {
       // Idempotent: a second commit returns the first call's promise.
-      if (state === "committed") {
-        return commitPromise as Promise<TResult | undefined>;
-      }
-      // Commit after undo is a no-op — the server must stay untouched.
-      if (state === "undone") return Promise.resolve(undefined);
+      if (commitPromise) return commitPromise;
+      // Commit after undo is a no-op — the server must stay untouched. So is
+      // one after a commit whose deferred call threw before returning a promise.
+      if (state !== "pending") return Promise.resolve(undefined);
       state = "committed";
       pendingUndoables.delete(handle);
       inFlightCommits += 1;
@@ -335,21 +334,18 @@ export interface UndoableCacheOptions {
 }
 
 /** Patch `ids` in the `resource` caches now; the notification reads "updated". */
-export function undoableUpdateOptions(
+export function undoableUpdateOptions<
+  TRecord extends ResourceRecord = LooseRecord,
+>(
   queryClient: QueryClient,
   resource: string,
   ids: Identifier[],
-  data: object,
+  data: Partial<NoInfer<TRecord>>,
 ): UndoableCacheOptions {
   return {
     queryKeys: [[resource]],
     applyOptimistic: () =>
-      updateRecordsInCache(
-        queryClient,
-        resource,
-        ids,
-        data as Record<string, unknown>,
-      ),
+      updateRecordsInCache<TRecord>(queryClient, resource, ids, data),
     message: "chelone.notification.updated",
     messageArgs: { smart_count: ids.length },
   };

@@ -97,8 +97,10 @@ describe("makeListContext", () => {
     // `ListContextValue` is the `useListController` result over the fallback
     // record, so a live controller feeds `provideListContext` as it is, and so
     // does an infinite one (extra fields, same surface) and `useList`.
+    // `ReturnType` of a generic function reads its constraint (`unknown`), not
+    // its default, so the record type is named.
     expectTypeOf<
-      ReturnType<typeof useListContext>
+      ReturnType<typeof useListContext<LooseRecord>>
     >().toEqualTypeOf<ListContextValue>();
     expectTypeOf<
       ReturnType<typeof useList>

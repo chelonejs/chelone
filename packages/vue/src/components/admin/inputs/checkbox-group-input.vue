@@ -1,11 +1,14 @@
 <script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
 /** Props for {@link CheckboxGroupInput}. */
 export interface CheckboxGroupInputProps<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TChoice extends ChoiceRecord = ChoiceRecord,
-> extends ChoiceInputBaseProps<TChoice> {
+> extends ChoiceInputBaseProps<TRecord, TPath, TChoice> {
   /** Lay the checkboxes out horizontally instead of stacked. */
   row?: boolean;
 }
@@ -24,6 +27,7 @@ export interface CheckboxGroupInputProps<
  * value (string-compared, twin parity) and re-writes the whole array.
  */
 
+import { type ChoiceValueOf, toChoiceValues } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import Checkbox from "../../ui/checkbox.vue";
@@ -32,12 +36,10 @@ import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 import { useChoiceInput } from "./use-choice-input";
 
-const props = withDefaults(defineProps<CheckboxGroupInputProps<TChoice>>(), {
+const props = withDefaults(defineProps<CheckboxGroupInputProps<LooseRecord, SourceProp, TChoice>>(), {
   label: undefined,
   row: false,
 });
-
-const emptyArray: unknown[] = [];
 
 const {
   source,
@@ -60,14 +62,10 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source,
   defaultValue: props.defaultValue,
   validate: props.validate,
-  format: (raw: unknown) =>
-    Array.isArray(raw) ? raw : raw == null ? emptyArray : [raw],
 });
 
 const invalid = computed(() => touched.value && error.value != null);
-const values = computed<unknown[]>(() =>
-  Array.isArray(value.value) ? (value.value as unknown[]) : emptyArray,
-);
+const values = computed(() => toChoiceValues<TChoice>(value.value));
 const labelText = computed(() =>
   props.label === false ? null : (props.label ?? humanizeSource(source)),
 );
@@ -75,7 +73,7 @@ const helper = computed(
   () => props.helperText ?? fetchError.value?.message,
 );
 
-function isChecked(choiceValue: unknown): boolean {
+function isChecked(choiceValue: ChoiceValueOf<TChoice>): boolean {
   return values.value.some((v) => String(v) === String(choiceValue));
 }
 
@@ -87,7 +85,7 @@ function isChoiceDisabled(choice: TChoice): boolean {
   );
 }
 
-function onToggle(choiceValue: unknown, checked: boolean) {
+function onToggle(choiceValue: ChoiceValueOf<TChoice>, checked: boolean) {
   const next = checked
     ? [...values.value, choiceValue]
     : values.value.filter((v) => String(v) !== String(choiceValue));

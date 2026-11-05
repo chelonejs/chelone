@@ -24,6 +24,7 @@ import type {
   CreateControllerState,
   EditControllerState,
   MutationMode,
+  ResourceRecord,
   ShowControllerState,
 } from "@chelone/core";
 import { createContext, type ReactNode, useContext } from "react";
@@ -38,8 +39,9 @@ import type { SaveHandler } from "./save-context";
  * the ra view fields. Structurally a `SaveContextValue` (save/saving/
  * mutationMode), so a view can publish it into `SaveContext` unchanged.
  */
-export interface EditContextValue<RecordType = unknown>
-  extends EditControllerState<RecordType> {
+export interface EditContextValue<
+  RecordType extends ResourceRecord = ResourceRecord,
+> extends EditControllerState<RecordType> {
   /** The resource name (drives labels, breadcrumbs, the list link). */
   resource: string;
   /** Computed heading; the view falls back to it when no `title` prop is set. */
@@ -52,16 +54,17 @@ export interface EditContextValue<RecordType = unknown>
 const EditContext = createContext<EditContextValue | null>(null);
 EditContext.displayName = "EditContext";
 
-export interface EditContextProviderProps<RecordType = unknown> {
+export interface EditContextProviderProps<
+  RecordType extends ResourceRecord = ResourceRecord,
+> {
   value: EditContextValue<RecordType>;
   children: ReactNode;
 }
 
 /** Publishes the ambient edit surface (mounted by an `<Edit>` view in P7d). */
-export function EditContextProvider<RecordType = unknown>({
-  value,
-  children,
-}: EditContextProviderProps<RecordType>): ReactNode {
+export function EditContextProvider<
+  RecordType extends ResourceRecord = ResourceRecord,
+>({ value, children }: EditContextProviderProps<RecordType>): ReactNode {
   return <EditContext.Provider value={value}>{children}</EditContext.Provider>;
 }
 
@@ -70,7 +73,7 @@ export function EditContextProvider<RecordType = unknown>({
  * an edit descendant with no `<Edit>` above it is a wiring bug (ra parity).
  */
 export function useEditContext<
-  RecordType = unknown,
+  RecordType extends ResourceRecord = ResourceRecord,
 >(): EditContextValue<RecordType> {
   const context = useContext(EditContext);
   if (!context) {
@@ -86,8 +89,9 @@ export function useEditContext<
 /* -------------------------------------------------------------------------- */
 
 /** The ambient show surface: the record-controller state + the ra view fields. */
-export interface ShowContextValue<RecordType = unknown>
-  extends ShowControllerState<RecordType> {
+export interface ShowContextValue<
+  RecordType extends ResourceRecord = ResourceRecord,
+> extends ShowControllerState<RecordType> {
   resource: string;
   defaultTitle?: string;
 }
@@ -95,16 +99,17 @@ export interface ShowContextValue<RecordType = unknown>
 const ShowContext = createContext<ShowContextValue | null>(null);
 ShowContext.displayName = "ShowContext";
 
-export interface ShowContextProviderProps<RecordType = unknown> {
+export interface ShowContextProviderProps<
+  RecordType extends ResourceRecord = ResourceRecord,
+> {
   value: ShowContextValue<RecordType>;
   children: ReactNode;
 }
 
 /** Publishes the ambient show surface (mounted by a `<Show>` view in P7d). */
-export function ShowContextProvider<RecordType = unknown>({
-  value,
-  children,
-}: ShowContextProviderProps<RecordType>): ReactNode {
+export function ShowContextProvider<
+  RecordType extends ResourceRecord = ResourceRecord,
+>({ value, children }: ShowContextProviderProps<RecordType>): ReactNode {
   return <ShowContext.Provider value={value}>{children}</ShowContext.Provider>;
 }
 
@@ -113,7 +118,7 @@ export function ShowContextProvider<RecordType = unknown>({
  * (ra parity). Show is read-only — no save surface.
  */
 export function useShowContext<
-  RecordType = unknown,
+  RecordType extends ResourceRecord = ResourceRecord,
 >(): ShowContextValue<RecordType> {
   const context = useContext(ShowContext);
   if (!context) {
@@ -138,8 +143,9 @@ export function useOptionalShowContext(): ShowContextValue | null {
  * partial SEED, id-less) + the save surface + the ra view fields. Like edit, a
  * structural `SaveContextValue`.
  */
-export interface CreateContextValue<RecordType = unknown>
-  extends CreateControllerState<RecordType> {
+export interface CreateContextValue<
+  RecordType extends ResourceRecord = ResourceRecord,
+> extends CreateControllerState<RecordType> {
   resource: string;
   defaultTitle?: string;
   save: SaveHandler<RecordType>;
@@ -149,16 +155,17 @@ export interface CreateContextValue<RecordType = unknown>
 const CreateContext = createContext<CreateContextValue | null>(null);
 CreateContext.displayName = "CreateContext";
 
-export interface CreateContextProviderProps<RecordType = unknown> {
+export interface CreateContextProviderProps<
+  RecordType extends ResourceRecord = ResourceRecord,
+> {
   value: CreateContextValue<RecordType>;
   children: ReactNode;
 }
 
 /** Publishes the ambient create surface (mounted by a `<Create>` view in P7d). */
-export function CreateContextProvider<RecordType = unknown>({
-  value,
-  children,
-}: CreateContextProviderProps<RecordType>): ReactNode {
+export function CreateContextProvider<
+  RecordType extends ResourceRecord = ResourceRecord,
+>({ value, children }: CreateContextProviderProps<RecordType>): ReactNode {
   return (
     <CreateContext.Provider value={value}>{children}</CreateContext.Provider>
   );
@@ -169,7 +176,7 @@ export function CreateContextProvider<RecordType = unknown>({
  * (ra parity).
  */
 export function useCreateContext<
-  RecordType = unknown,
+  RecordType extends ResourceRecord = ResourceRecord,
 >(): CreateContextValue<RecordType> {
   const context = useContext(CreateContext);
   if (!context) {

@@ -55,7 +55,7 @@ async function handleRotate() {
       await props.onRotate(rec);
     } else if (rec && resource) {
       await update.mutateAsync({
-        id: rec.id as string | number,
+        id: rec.id,
         data: { [props.source]: null },
         previousData: rec,
       });

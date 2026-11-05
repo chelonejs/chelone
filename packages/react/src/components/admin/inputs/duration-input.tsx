@@ -1,3 +1,4 @@
+import { type LooseRecord, type SourceProp, toTextValue } from "@chelone/core";
 import type * as React from "react";
 import { useEffect, useState } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
@@ -12,12 +13,24 @@ import type { InputProps } from "../input-props";
 import { parseIsoDuration } from "./duration-utils";
 
 type Unit = "d" | "h" | "m" | "s";
+const DEFAULT_UNITS: readonly Unit[] = ["d", "h", "m", "s"];
 const UNIT_LABEL: Record<Unit, string> = {
   d: "days",
   h: "hours",
   m: "minutes",
   s: "seconds",
 };
+
+/** The per-unit box contents of a stored ISO-8601 duration. */
+function seed(stored: string): Record<Unit, string> {
+  const parsed = parseIsoDuration(stored) ?? {};
+  return {
+    d: parsed.days?.toString() ?? "",
+    h: parsed.hours?.toString() ?? "",
+    m: parsed.minutes?.toString() ?? "",
+    s: parsed.seconds?.toString() ?? "",
+  };
+}
 
 /**
  * Edits an ISO-8601 duration string via per-unit numeric inputs.
@@ -31,65 +44,56 @@ const UNIT_LABEL: Record<Unit, string> = {
  *   </Edit>
  * );
  */
-function DurationInput(props: DurationInputProps) {
+function DurationInput<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+>(props: DurationInputProps<TRecord, TPath>) {
   const {
     label,
     source,
     className,
     resource: resourceProp,
     helperText,
-    units = ["d", "h", "m", "s"] as Unit[],
+    units = DEFAULT_UNITS,
     disabled,
-    validate,
-    isRequired: isRequiredProp,
-    id: idProp,
-    defaultValue,
-    format,
-    parse,
+    ...inputProps
+  } = props;
+  const resource = useResourceContext({ resource: resourceProp });
+
+  // The options are spread whole: reading the generic `defaultValue` anywhere
+  // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
+  // instantiation depth.
+  const { id, field, fieldState, isRequired } = useInput({
+    ...inputProps,
+    source,
+  });
+  const {
+    validate: _validate,
+    isRequired: _isRequired,
+    id: _id,
+    defaultValue: _defaultValue,
+    format: _format,
+    parse: _parse,
     onChange: _onChange,
     onBlur: _onBlur,
     name: _name,
     readOnly: _readOnly,
     ...rest
-  } = props;
-  void _onChange;
-  void _onBlur;
-  void _name;
-  void _readOnly;
-  const resource = useResourceContext({ resource: resourceProp });
-
-  const { id, field, fieldState, isRequired } = useInput({
-    source,
-    validate,
-    isRequired: isRequiredProp,
-    id: idProp,
-    defaultValue,
-    format,
-    parse,
-  });
+  } = inputProps;
 
   const invalid = fieldState.invalid;
   // chelone `fieldState.error` is ALREADY the displayable
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const parsed = parseIsoDuration(String(field.value ?? "")) ?? {};
-  const [values, setValues] = useState<Record<Unit, string>>({
-    d: parsed.days?.toString() ?? "",
-    h: parsed.hours?.toString() ?? "",
-    m: parsed.minutes?.toString() ?? "",
-    s: parsed.seconds?.toString() ?? "",
-  });
+  const stored = toTextValue(field.value);
+  const [values, setValues] = useState<Record<Unit, string>>(() =>
+    seed(stored),
+  );
 
   useEffect(() => {
-    const p = parseIsoDuration(String(field.value ?? "")) ?? {};
-    setValues({
-      d: p.days?.toString() ?? "",
-      h: p.hours?.toString() ?? "",
-      m: p.minutes?.toString() ?? "",
-      s: p.seconds?.toString() ?? "",
-    });
-  }, [field.value]);
+    setValues(seed(stored));
+  }, [stored]);
 
   const writeBack = (next: Record<Unit, string>) => {
     const dayPart = next.d ? `${+next.d}D` : "";
@@ -151,8 +155,10 @@ function DurationInput(props: DurationInputProps) {
   );
 }
 
-interface DurationInputProps
-  extends InputProps,
+interface DurationInputProps<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> extends InputProps<TRecord, TPath>,
     Omit<React.ComponentProps<"div">, "defaultValue" | "onBlur" | "onChange"> {
   /** Which units to expose. Default `["d","h","m","s"]`. */
   units?: readonly Unit[];

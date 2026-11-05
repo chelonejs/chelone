@@ -41,7 +41,11 @@ function RatingField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: RatingFieldProps<RecordType>) {
-  const value: unknown = useFieldValue({ defaultValue, source, record });
+  const value: unknown = useFieldValue<LooseRecord>({
+    defaultValue,
+    source,
+    record,
+  });
   const ctxRecord = useRecordContext<RecordType>({ record });
   const translate = useTranslate();
   const count =

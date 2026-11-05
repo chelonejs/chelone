@@ -4,7 +4,6 @@ import type {
   RegisteredRecord,
   RegisteredResourceName,
   ResourceRecord,
-  SourceKey,
 } from "@chelone/core";
 
 /** Props for {@link DualApprovalButton}. */
@@ -14,13 +13,13 @@ export interface DualApprovalButtonProps<
   /** Approvals needed. Floored, minimum 1. Default `2`. */
   required?: number;
   /** Record field holding the approver list, a top-level key. Default `"approvers"`. */
-  approverSource?: SourceKey<TRecord>;
+  approverSource?: keyof TRecord & string;
   /** Record field the status is written to, a top-level key. Default `"status"`. */
-  statusSource?: SourceKey<TRecord>;
+  statusSource?: keyof TRecord & string;
   /** Status written while approvals are short of `required`. Default `"pending"`. */
-  pendingValue?: TRecord[keyof TRecord];
+  pendingValue?: string;
   /** Status written once approvals reach `required`. Default `"approved"`. */
-  approvedValue?: TRecord[keyof TRecord];
+  approvedValue?: string;
   /** Override the ambient `<Resource>`. */
   resource?: string;
   /** Override the ambient record. */

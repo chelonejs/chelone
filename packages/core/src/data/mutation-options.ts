@@ -1,4 +1,5 @@
-import type { QueryClient } from "@tanstack/query-core";
+import type { QueryClient, QueryKey } from "@tanstack/query-core";
+import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import {
   patchListEntries,
@@ -29,12 +30,14 @@ function invalidateResource(ctx: DataContext<ResourceMap>, resource: string) {
   return ctx.queryClient.invalidateQueries({ queryKey: resourceKey(resource) });
 }
 
-type ManySnapshot = Array<[readonly unknown[], unknown]>;
+type ManySnapshot<TRecord extends ResourceRecord> = Array<
+  [QueryKey, TRecord[] | undefined]
+>;
 
-interface OptimisticContext {
-  previous?: unknown;
-  key?: readonly unknown[];
-  manySnapshot?: ManySnapshot;
+interface OptimisticContext<TRecord extends ResourceRecord> {
+  previous?: TRecord;
+  key?: QueryKey;
+  manySnapshot?: ManySnapshot<TRecord>;
   rollbackLists?: () => void;
 }
 
@@ -66,17 +69,19 @@ function cancelListQueries(ctx: DataContext<ResourceMap>, resource: string) {
 }
 
 /** Cancels in-flight `getMany` fetches so they cannot overwrite the patch, then snapshots the entries. */
-async function snapshotManyEntries(
+async function snapshotManyEntries<TRecord extends ResourceRecord>(
   ctx: DataContext<ResourceMap>,
   resource: string,
-): Promise<ManySnapshot> {
+): Promise<ManySnapshot<TRecord>> {
   await ctx.queryClient.cancelQueries({ queryKey: manyKeyPrefix(resource) });
-  return ctx.queryClient.getQueriesData({ queryKey: manyKeyPrefix(resource) });
+  return ctx.queryClient.getQueriesData<TRecord[]>({
+    queryKey: manyKeyPrefix(resource),
+  });
 }
 
-function restoreManyEntries(
+function restoreManyEntries<TRecord extends ResourceRecord>(
   ctx: DataContext<ResourceMap>,
-  snapshot: ManySnapshot | undefined,
+  snapshot: ManySnapshot<TRecord> | undefined,
 ) {
   for (const [key, value] of snapshot ?? []) {
     ctx.queryClient.setQueryData(key, value);
@@ -128,26 +133,28 @@ export function updateMutationOptions<
         ctx.queryClient.setQueryData(key, merged);
       }
       // Reference fields read the getMany entries, not oneKey.
-      const manySnapshot = await snapshotManyEntries(ctx, resource);
+      const manySnapshot = await snapshotManyEntries<
+        RecordOf<TResources, TName>
+      >(ctx, resource);
       patchManyEntries(
         ctx.queryClient,
         resource,
         new Set([String(params.id)]),
-        structuredClone(params.data) as Record<string, unknown>,
+        structuredClone(params.data),
       );
       await cancelListQueries(ctx, resource);
       const rollbackLists = patchListEntries(
         ctx.queryClient,
         resource,
         new Set([String(params.id)]),
-        structuredClone(params.data) as Record<string, unknown>,
+        structuredClone(params.data),
       );
       return { previous, key, manySnapshot, rollbackLists };
     },
     onError: (
-      _error: unknown,
+      _error: Error,
       _params: UpdateParams<RecordOf<TResources, TName>>,
-      context: OptimisticContext | undefined,
+      context: OptimisticContext<RecordOf<TResources, TName>> | undefined,
     ) => {
       if (context?.key && context.previous !== undefined) {
         ctx.queryClient.setQueryData(context.key, context.previous);
@@ -190,7 +197,9 @@ export function deleteMutationOptions<
         ctx.queryClient.getQueryData<RecordOf<TResources, TName>>(key);
       ctx.queryClient.removeQueries({ queryKey: key });
       // Reference fields read the getMany entries, not oneKey.
-      const manySnapshot = await snapshotManyEntries(ctx, resource);
+      const manySnapshot = await snapshotManyEntries<
+        RecordOf<TResources, TName>
+      >(ctx, resource);
       removeManyEntries(
         ctx.queryClient,
         resource,
@@ -199,9 +208,9 @@ export function deleteMutationOptions<
       return { previous, key, manySnapshot };
     },
     onError: (
-      _error: unknown,
+      _error: Error,
       _params: DeleteParams<RecordOf<TResources, TName>>,
-      context: OptimisticContext | undefined,
+      context: OptimisticContext<RecordOf<TResources, TName>> | undefined,
     ) => {
       if (context?.key && context.previous !== undefined) {
         ctx.queryClient.setQueryData(context.key, context.previous);

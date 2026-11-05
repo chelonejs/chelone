@@ -30,11 +30,11 @@ export type RecordContextValue<RecordType = LooseRecord> =
 
 /**
  * Holds the current record. Default `undefined` (no ambient record). Typed
- * `unknown` because a typed record narrows only at the read edge
+ * `object` because a typed record narrows only at the read edge
  * (`useRecordContext<RecordType>()`); a concrete record (e.g. `{ id, title }`)
  * has no string index signature so is not structurally a `LooseRecord`.
  */
-export const RecordContext = createContext<unknown>(undefined);
+export const RecordContext = createContext<object | undefined>(undefined);
 
 RecordContext.displayName = "RecordContext";
 

@@ -17,15 +17,13 @@ import {
   type AnyCheloneI18n,
   createI18n,
   type MessageCatalog,
+  type TranslateParamValues,
 } from "@chelone/core";
 import { useCheloneContext } from "../context";
 import { useLocale } from "./use-locale";
 
 /** The translate signature the components consume. */
-export type Translate = (
-  key: string,
-  params?: Record<string, unknown>,
-) => string;
+export type Translate = (key: string, params?: TranslateParamValues) => string;
 
 // No i18n: an empty catalog echoes the key, and for a missing key honours the
 // polyglot `{ _: default }` convention, placeholders filled in, as with a real one.
@@ -39,7 +37,7 @@ export function useTranslate(): Translate {
   const { i18n } = useCheloneContext();
   const active = i18n ?? echoI18n;
   const locale = useLocale();
-  return (key: string, params?: Record<string, unknown>) => {
+  return (key: string, params?: TranslateParamValues) => {
     // Read first so a computed or template calling `translate` tracks the locale.
     void locale.value;
     return active.translate(key, params);

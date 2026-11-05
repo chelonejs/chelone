@@ -1,4 +1,5 @@
 import type { FilterPayload } from "../data/types";
+import { isRecord } from "../guards";
 
 /**
  * Pure helpers a live filter form uses to keep its values and the list filter
@@ -23,15 +24,12 @@ const resolveFilterValue = (
     return key in filter ? filter[key] : "";
   }
   // Nested object: rebuild every inner key too, defaulting each to ''.
-  if (typeof formValue === "object") {
-    const nestedFilter =
-      typeof filter[key] === "object" && filter[key] !== null
-        ? (filter[key] as Record<string, unknown>)
-        : {};
-    const inner = formValue as Record<string, unknown>;
+  if (isRecord(formValue)) {
+    const heldFilter = filter[key];
+    const nestedFilter = isRecord(heldFilter) ? heldFilter : {};
     const rebuilt: Record<string, unknown> = {};
-    for (const innerKey of Object.keys(inner)) {
-      rebuilt[innerKey] = resolveFilterValue(inner, innerKey, nestedFilter);
+    for (const innerKey of Object.keys(formValue)) {
+      rebuilt[innerKey] = resolveFilterValue(formValue, innerKey, nestedFilter);
     }
     if (Object.keys(rebuilt).length === 0) return "";
     return rebuilt;
@@ -98,22 +96,15 @@ export function mergeFilterValues(
     const next = values[key];
     const prev = merged[key];
     if (
-      next !== null &&
-      typeof next === "object" &&
-      !Array.isArray(next) &&
+      isRecord(next) &&
       !(next instanceof Date) &&
-      prev !== null &&
-      typeof prev === "object" &&
-      !Array.isArray(prev) &&
+      isRecord(prev) &&
       !(prev instanceof Date)
     ) {
-      merged[key] = {
-        ...(prev as Record<string, unknown>),
-        ...(next as Record<string, unknown>),
-      };
+      merged[key] = { ...prev, ...next };
     } else {
       merged[key] = next;
     }
   }
-  return merged as FilterPayload;
+  return merged;
 }

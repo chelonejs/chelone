@@ -73,7 +73,7 @@ import {
 } from "@chelone/core";
 import { PointerSensor } from "@dnd-kit/dom";
 import { DragDropProvider } from "@dnd-kit/vue";
-import { computed, getCurrentInstance } from "vue";
+import { computed, getCurrentInstance, type VNode } from "vue";
 import { useResourceDefinition } from "../../admin/resource-registry";
 import { useCheloneNotifications } from "../../context";
 import { useUpdate } from "../../data/mutations";
@@ -108,7 +108,7 @@ const props = withDefaults(defineProps<KanbanBoardProps<TRecord>>(), {
 const emit = defineEmits<{ "select-card": [record: TRecord] }>();
 defineSlots<{
   /** Replaces the title and description inside a card. */
-  card?(props: { record: TRecord }): unknown;
+  card?(props: { record: TRecord }): VNode[];
 }>();
 
 const list = useListContext();

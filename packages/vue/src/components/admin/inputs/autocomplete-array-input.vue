@@ -1,12 +1,18 @@
 <script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type {
+  FilterPayload,
+  LooseRecord,
+  SourceProp,
+} from "@chelone/core";
 import type { ChoiceRecord } from "../../../choices/use-choices";
-import type { FilterPayload } from "@chelone/core";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
 /** Props for {@link AutocompleteArrayInput}. */
 export interface AutocompleteArrayInputProps<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TChoice extends ChoiceRecord = ChoiceRecord,
-> extends ChoiceInputBaseProps<TChoice> {
+> extends ChoiceInputBaseProps<TRecord, TPath, TChoice> {
   /** Placeholder shown in the search input. */
   placeholder?: string;
   /** Maps the typed filter text into a reference-list filter payload. Default `{ q }`. */
@@ -32,6 +38,7 @@ export interface AutocompleteArrayInputProps<
  * input) removes one (twin parity).
  */
 
+import { toChoiceValues } from "@chelone/core";
 import { computed, ref } from "vue";
 import { useInput } from "../../../form/use-input";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -41,13 +48,12 @@ import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 import { useChoiceInput } from "./use-choice-input";
 
-const props = withDefaults(defineProps<AutocompleteArrayInputProps<TChoice>>(), {
+const props = withDefaults(defineProps<AutocompleteArrayInputProps<LooseRecord, SourceProp, TChoice>>(), {
   label: undefined,
   filterToQuery: (searchText: string) => ({ q: searchText }),
 });
 
 const translate = useTranslate();
-const emptyArray: unknown[] = [];
 
 const {
   source,
@@ -71,16 +77,12 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source,
   defaultValue: props.defaultValue,
   validate: props.validate,
-  format: (raw: unknown) =>
-    Array.isArray(raw) ? raw : raw == null ? emptyArray : [raw],
 });
 
 const open = ref(false);
 const query = ref("");
 
-const values = computed<unknown[]>(() =>
-  Array.isArray(value.value) ? (value.value as unknown[]) : emptyArray,
-);
+const values = computed(() => toChoiceValues<TChoice>(value.value));
 const selectedChoices = computed(() =>
   allChoices.value.filter((choice) =>
     values.value.some((v) => areIdsEqual(getChoiceValue(choice), v)),

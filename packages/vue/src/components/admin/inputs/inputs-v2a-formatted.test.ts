@@ -413,6 +413,25 @@ describe("<CurrencyInput>", () => {
     expect(captured.values?.().money).toEqual({ amount: 99, currency: "EUR" });
   });
 
+  it("keeps a stored amount that has no currency when one is picked", async () => {
+    const { wrapper, captured } = mountInForm(
+      () =>
+        h(CurrencyInput, {
+          source: "money",
+          currencies: ["EUR", "USD"],
+        }),
+      { id: 1, money: { amount: 500 } },
+    );
+    await flushPromises();
+    expect(
+      wrapper.find<HTMLInputElement>('input[type="number"]').element.value,
+    ).toBe("500");
+
+    await wrapper.find("select[data-currency-select]").setValue("USD");
+    await nextTick();
+    expect(captured.values?.().money).toEqual({ amount: 500, currency: "USD" });
+  });
+
   it("divides and multiplies by 100 when storeAsMinorUnits", async () => {
     const { wrapper, captured } = mountInForm(
       () =>

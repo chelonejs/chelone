@@ -66,7 +66,7 @@ const pageEnd = computed(() =>
     : Math.min(list.page * list.perPage, list.total),
 );
 const totalDisplay = computed(() =>
-  list.total === -1 ? pageEnd.value : list.total,
+  list.total == null || list.total === -1 ? pageEnd.value : list.total,
 );
 const count = computed(() =>
   list.total != null && list.total > 0

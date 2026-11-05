@@ -6,14 +6,12 @@
  * Chelone divergences:
  * - Access is gated by `useMenuAccess` (a no-throw `useCanAccess` — a no-auth
  *   app renders every resource item).
- * - `ResourceDefinition.icon` is `unknown` in core (framework-neutral); it is
- *   narrowed to a component here before rendering.
  * - `Link` comes from the router adapter; navigation `state` carries the
  *   `_scrollToTop` flag the P6 scroll manager reads.
  */
 
 import { List } from "lucide-react";
-import { type ComponentType, createElement, type ReactNode } from "react";
+import { createElement, type ReactNode } from "react";
 import {
   SidebarMenuButton,
   SidebarMenuItem,
@@ -42,11 +40,6 @@ export interface ResourceMenuItemProps {
   onClick?: () => void;
   /** Extra props spread onto the underlying `<SidebarMenuButton>`. */
   tooltipProps?: Record<string, unknown>;
-}
-
-/** True when `icon` is a component we can `createElement` (not a ReactNode). */
-function isComponentIcon(icon: unknown): icon is ComponentType {
-  return typeof icon === "function";
 }
 
 /**
@@ -103,7 +96,7 @@ function ResourceMenuItem({
   const resolvedIcon =
     icon !== undefined ? (
       icon
-    ) : isComponentIcon(definitionIcon) ? (
+    ) : definitionIcon ? (
       createElement(definitionIcon)
     ) : (
       <List />

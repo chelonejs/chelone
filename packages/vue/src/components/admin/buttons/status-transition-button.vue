@@ -4,7 +4,6 @@ import type {
   RegisteredRecord,
   RegisteredResourceName,
   ResourceRecord,
-  SourceKey,
 } from "@chelone/core";
 
 /** Props for {@link StatusTransitionButton}. */
@@ -12,11 +11,11 @@ export interface StatusTransitionButtonProps<
   TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
 > {
   /** Record field holding the status, a top-level key. Default `"status"`. */
-  source?: SourceKey<TRecord>;
+  source?: keyof TRecord & string;
   /** Next states by current state. */
   transitions: Record<string, readonly string[]>;
   /** Predicates keyed `"<from>-><to>"`. A transition with no guard is allowed. */
-  guards?: Record<string, (record: Record<string, unknown>) => boolean>;
+  guards?: Record<string, (record: TRecord) => boolean>;
   /** Display text by state. A state with no entry shows as itself. */
   labels?: Record<string, string>;
   /** Override the ambient `<Resource>`. */

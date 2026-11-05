@@ -9,7 +9,6 @@
 
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
-import type { SourceKey } from "../resource/source-path";
 import { getAllowedTransitions } from "./record-workflow";
 
 /** The monitor's tabs, in order. One `buildKanbanBuckets` column per status. */
@@ -20,9 +19,9 @@ export const DEFAULT_JOB_TABS = [
   "done",
 ] as const;
 
-export interface JobActionOptions<TRecord = Record<string, unknown>> {
+export interface JobActionOptions<TRecord extends object> {
   /** Record field holding the job status, a top-level key. Default `"status"`. */
-  statusSource?: SourceKey<TRecord>;
+  statusSource?: keyof TRecord & string;
   /** Statuses a job can be retried from. Default `["failed"]`. */
   retryFrom?: readonly string[];
   /** Statuses a job can be cancelled from. Default `["running", "queued"]`. */
@@ -47,9 +46,9 @@ export interface JobPlan<TRecord> {
   previousData: TRecord;
 }
 
-function canMove<TRecord>(
+function canMove<TRecord extends object>(
   record: TRecord & object,
-  source: SourceKey<TRecord>,
+  source: keyof TRecord & string,
   from: readonly string[],
   to: string,
 ) {
@@ -61,12 +60,12 @@ function canMove<TRecord>(
   return { status: current, allowed: allowed.includes(to) };
 }
 
-export function getJobActions<TRecord = Record<string, unknown>>(
+export function getJobActions<TRecord extends object>(
   record: TRecord & object,
   options: JobActionOptions<TRecord> = {},
 ): JobActions {
   const {
-    statusSource = "status" as SourceKey<TRecord>,
+    statusSource = "status" as keyof TRecord & string,
     retryFrom = ["failed"],
     cancelFrom = ["running", "queued"],
     retryValue = "queued",

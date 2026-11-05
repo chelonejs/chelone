@@ -2,13 +2,18 @@ import type {
   ChoicesController,
   ChoicesControllerContext,
   ChoicesControllerOptions,
+  ChoiceValueOf,
   FilterPayload,
   RecordOf,
   ResourceMap,
   SortPayload,
   SourcePath,
 } from "@chelone/core";
-import { createChoicesController, getAtPath } from "@chelone/core";
+import {
+  createChoicesController,
+  getAtPath,
+  resolveChoiceValue,
+} from "@chelone/core";
 import {
   createContext,
   createElement,
@@ -204,9 +209,9 @@ export interface UseChoicesResult<TChoice extends ChoiceRecord = ChoiceRecord> {
   /** The display text: string path (optionally translated) or the formatter's output. */
   getChoiceText(choice: TChoice): string;
   /** The value: `get(choice, optionValue)`, falling back to `choice.id`. */
-  getChoiceValue(choice: TChoice): unknown;
+  getChoiceValue(choice: TChoice): ChoiceValueOf<TChoice>;
   /** The disabled flag: `get(choice, disableValue)`. */
-  getDisableValue(choice: TChoice): unknown;
+  getDisableValue(choice: TChoice): boolean;
 }
 
 /**
@@ -251,11 +256,10 @@ export function useChoices<TChoice extends ChoiceRecord = ChoiceRecord>(
         return translated === text ? text : translated;
       },
       getChoiceValue(choice) {
-        const value = readChoicePath(choice, optionValue);
-        return value !== undefined ? value : choice.id;
+        return resolveChoiceValue(choice, readChoicePath(choice, optionValue));
       },
       getDisableValue(choice) {
-        return readChoicePath(choice, disableValue);
+        return readChoicePath(choice, disableValue) === true;
       },
     }),
     [optionText, optionValue, disableValue, translateChoice, translate],

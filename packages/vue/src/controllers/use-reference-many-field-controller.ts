@@ -14,7 +14,9 @@
 import {
   createReferenceManyController,
   type FilterPayload,
+  type Identifier,
   type ListControllerState,
+  type ListParamsPatch,
   type MicroStore,
   type RecordOf,
   type ReferenceManyController,
@@ -105,13 +107,7 @@ export function useReferenceManyFieldController<
 
   const state = computed(() => bound.value.state.value);
   // Actions delegate to the current controller, so their identities survive a rebuild.
-  const action = <TKey extends keyof ReferenceManyController<TRecord>>(
-    key: TKey,
-  ) =>
-    ((...args: unknown[]) =>
-      (bound.value.controller[key] as (...a: unknown[]) => unknown)(
-        ...args,
-      )) as ReferenceManyController<TRecord>[TKey];
+  const controller = () => bound.value.controller;
 
   return reactive({
     data: computed(() => state.value.data),
@@ -128,17 +124,23 @@ export function useReferenceManyFieldController<
     selectedIds: computed(() => state.value.selectedIds),
     hasNextPage: computed(() => state.value.hasNextPage),
     hasPreviousPage: computed(() => state.value.hasPreviousPage),
-    setPage: action("setPage"),
-    setPerPage: action("setPerPage"),
-    setSort: action("setSort"),
-    setFilters: action("setFilters"),
-    setParams: action("setParams"),
-    showFilter: action("showFilter"),
-    hideFilter: action("hideFilter"),
-    select: action("select"),
-    toggleItem: action("toggleItem"),
-    unselectAll: action("unselectAll"),
-    selectAll: action("selectAll"),
-    refetch: action("refetch"),
-  }) as UseReferenceManyFieldControllerReturn<TRecord>;
+    setPage: (page: number) => controller().setPage(page),
+    setPerPage: (perPage: number) => controller().setPerPage(perPage),
+    setSort: (sort: SortPayload | SortPayload[]) => controller().setSort(sort),
+    setFilters: (
+      filter: FilterPayload,
+      displayedFilters?: Record<string, boolean>,
+      debounced?: boolean,
+    ) => controller().setFilters(filter, displayedFilters, debounced),
+    setParams: (patch: ListParamsPatch) => controller().setParams(patch),
+    showFilter: (name: string, defaultValue?: unknown) =>
+      controller().showFilter(name, defaultValue),
+    hideFilter: (name: string) => controller().hideFilter(name),
+    select: (ids: Identifier[]) => controller().select(ids),
+    toggleItem: (itemId: Identifier) => controller().toggleItem(itemId),
+    unselectAll: () => controller().unselectAll(),
+    selectAll: (options?: { limit?: number }) =>
+      controller().selectAll(options),
+    refetch: () => controller().refetch(),
+  });
 }

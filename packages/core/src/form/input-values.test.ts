@@ -4,7 +4,11 @@ import {
   fileEntryKey,
   fileEntryPreview,
   isTransformedFile,
+  resolveChoiceValue,
   toBooleanValue,
+  toChoiceValue,
+  toChoiceValues,
+  toCurrencyComposite,
   toCurrencyValue,
   toDateInputValue,
   toFileEntries,
@@ -117,6 +121,37 @@ describe("toCurrencyValue", () => {
   });
 });
 
+describe("toCurrencyComposite", () => {
+  it("reads the amount and currency pair", () => {
+    expect(toCurrencyComposite({ amount: 5, currency: "EUR" })).toEqual({
+      amount: 5,
+      currency: "EUR",
+    });
+  });
+
+  it("keeps the amount when the currency is missing or not text", () => {
+    expect(toCurrencyComposite({ amount: 500 })).toEqual({
+      amount: 500,
+      currency: undefined,
+    });
+    expect(toCurrencyComposite({ amount: 500, currency: null })).toEqual({
+      amount: 500,
+      currency: undefined,
+    });
+    expect(toCurrencyComposite({ amount: 5, currency: 3 })).toEqual({
+      amount: 5,
+      currency: undefined,
+    });
+  });
+
+  it("is null for a bare number, a hole or an amount that is no number", () => {
+    expect(toCurrencyComposite(12)).toBeNull();
+    expect(toCurrencyComposite(null)).toBeNull();
+    expect(toCurrencyComposite({ currency: "EUR" })).toBeNull();
+    expect(toCurrencyComposite({ amount: "x", currency: "EUR" })).toBeNull();
+  });
+});
+
 describe("toWebhookValue", () => {
   it("fills every member the input edits", () => {
     expect(toWebhookValue(null)).toEqual({
@@ -158,6 +193,44 @@ describe("ChoiceValueOf", () => {
       ChoiceValueOf<{ id: number; name: string }>
     >().toEqualTypeOf<number>();
     expectTypeOf<ChoiceValueOf<"m" | "f">>().toEqualTypeOf<"m" | "f">();
+  });
+});
+
+describe("the choice value guards", () => {
+  type Author = { id: number; name: string };
+
+  it("toChoiceValues keeps an array as stored", () => {
+    const stored = [1, 2];
+    expect(toChoiceValues<Author>(stored)).toBe(stored);
+    expectTypeOf(toChoiceValues<Author>(stored)).toEqualTypeOf<
+      readonly number[]
+    >();
+  });
+
+  it("toChoiceValues reads a missing value as none and a scalar as one", () => {
+    expect(toChoiceValues<Author>(undefined)).toEqual([]);
+    expect(toChoiceValues<Author>(null)).toEqual([]);
+    expect(toChoiceValues<Author>("")).toEqual([]);
+    expect(toChoiceValues<Author>(3)).toEqual([3]);
+  });
+
+  it("toChoiceValues gives the same empty list for every missing value", () => {
+    expect(toChoiceValues<Author>(undefined)).toBe(
+      toChoiceValues<Author>(null),
+    );
+  });
+
+  it("toChoiceValue is the id of an Author", () => {
+    expect(toChoiceValue<Author>(4)).toBe(4);
+    expectTypeOf(toChoiceValue<Author>(4)).toEqualTypeOf<number>();
+  });
+
+  it("resolveChoiceValue prefers the value read at optionValue, else the id", () => {
+    const choice = { id: 7, name: "Ada" };
+    expect(resolveChoiceValue(choice, "Ada")).toBe("Ada");
+    expect(resolveChoiceValue(choice, undefined)).toBe(7);
+    expect(resolveChoiceValue("m", undefined)).toBe("m");
+    expectTypeOf(resolveChoiceValue(choice, undefined)).toEqualTypeOf<number>();
   });
 });
 

@@ -13,6 +13,7 @@
  * (ra-core-catalog compat).
  */
 
+import type { TranslateParamValues } from "@chelone/core";
 import { useCallback } from "react";
 import { useTranslate } from "../i18n-hooks";
 import { useResourceDefinitions } from "../resource";
@@ -56,7 +57,7 @@ export function useGetResourceLabel(): GetResourceLabel {
  * chelone's `count`-based plural selection and ra-core's `smart_count`.
  */
 function translateWithDefault(
-  translate: (key: string, params?: Record<string, unknown>) => string,
+  translate: (key: string, params?: TranslateParamValues) => string,
   key: string,
   fallback: string,
   count: number,

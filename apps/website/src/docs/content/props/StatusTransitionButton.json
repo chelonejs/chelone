@@ -15,7 +15,7 @@
     },
     {
       "name": "guards",
-      "type": "Record<string, (record: Record<string, unknown>) => boolean>",
+      "type": "Record<string, (record: TRecord) => boolean>",
       "optional": true,
       "comment": "Predicates keyed `\"<from>-><to>\"`. A transition with no guard is allowed."
     },
@@ -51,7 +51,7 @@
     },
     {
       "name": "source",
-      "type": "SourceKey<TRecord>",
+      "type": "keyof TRecord & string",
       "optional": true,
       "comment": "Record field holding the status, a top-level key. Default `\"status\"`."
     },

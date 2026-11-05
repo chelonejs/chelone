@@ -1,11 +1,14 @@
 <script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
 /** Props for {@link SelectArrayInput}. */
 export interface SelectArrayInputProps<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TChoice extends ChoiceRecord = ChoiceRecord,
-> extends ChoiceInputBaseProps<TChoice> {
+> extends ChoiceInputBaseProps<TRecord, TPath, TChoice> {
   /** Placeholder shown in the trigger when nothing is selected. */
   placeholder?: string;
 }
@@ -27,6 +30,7 @@ export interface SelectArrayInputProps<
  * (string-compared, twin parity) and re-writes the array.
  */
 
+import { type ChoiceValueOf, toChoiceValues } from "@chelone/core";
 import { computed, ref } from "vue";
 import { useInput } from "../../../form/use-input";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -36,12 +40,11 @@ import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 import { useChoiceInput } from "./use-choice-input";
 
-const props = withDefaults(defineProps<SelectArrayInputProps<TChoice>>(), {
+const props = withDefaults(defineProps<SelectArrayInputProps<LooseRecord, SourceProp, TChoice>>(), {
   label: undefined,
 });
 
 const translate = useTranslate();
-const emptyArray: unknown[] = [];
 const open = ref(false);
 
 const {
@@ -65,14 +68,10 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source,
   defaultValue: props.defaultValue,
   validate: props.validate,
-  format: (raw: unknown) =>
-    Array.isArray(raw) ? raw : raw == null ? emptyArray : [raw],
 });
 
 const invalid = computed(() => touched.value && error.value != null);
-const values = computed<unknown[]>(() =>
-  Array.isArray(value.value) ? (value.value as unknown[]) : emptyArray,
-);
+const values = computed(() => toChoiceValues<TChoice>(value.value));
 const selectedChoices = computed(() =>
   allChoices.value.filter((choice) =>
     values.value.some((v) => String(v) === String(getChoiceValue(choice))),
@@ -85,7 +84,7 @@ const helper = computed(
   () => props.helperText ?? fetchError.value?.message,
 );
 
-function isChecked(choiceValue: unknown): boolean {
+function isChecked(choiceValue: ChoiceValueOf<TChoice>): boolean {
   return values.value.some((v) => String(v) === String(choiceValue));
 }
 
@@ -97,7 +96,7 @@ function isChoiceDisabled(choice: TChoice): boolean {
   );
 }
 
-function onToggle(choiceValue: unknown, checked: boolean) {
+function onToggle(choiceValue: ChoiceValueOf<TChoice>, checked: boolean) {
   const next = checked
     ? [...values.value, choiceValue]
     : values.value.filter((v) => String(v) !== String(choiceValue));

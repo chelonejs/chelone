@@ -9,7 +9,12 @@
  * An empty / nullish record → `""`.
  */
 
-import { createResourceRegistry, type ResourceRegistry } from "@chelone/core";
+import {
+  createResourceRegistry,
+  getAtPath,
+  type ResourceRegistry,
+  type ResourceRepresentation,
+} from "@chelone/core";
 import { renderHook } from "@testing-library/react";
 import { isValidElement, type ReactNode } from "react";
 import { afterEach, describe, expect, it } from "vitest";
@@ -36,7 +41,7 @@ function makeWrapper({ registry, resource }: WrapperOpts) {
 
 function registryWith(
   name: string,
-  recordRepresentation?: unknown,
+  recordRepresentation?: ResourceRepresentation,
 ): ResourceRegistry {
   const registry = createResourceRegistry();
   registry.register({
@@ -56,7 +61,7 @@ describe("useGetRecordRepresentation", () => {
   it("uses a function recordRepresentation", () => {
     const registry = registryWith(
       "posts",
-      (r: { id: number; title: string }) => `Post: ${r.title}`,
+      (r) => `Post: ${String(getAtPath(r, "title"))}`,
     );
     const { result } = renderHook(() => useGetRecordRepresentation("posts"), {
       wrapper: makeWrapper({ registry, resource: "posts" }),
@@ -166,7 +171,7 @@ describe("useGetRecordRepresentationText", () => {
   it("the text form uses a function's string result", () => {
     const registry = registryWith(
       "posts",
-      (r: { title: string }) => `Post: ${r.title}`,
+      (r) => `Post: ${String(getAtPath(r, "title"))}`,
     );
     const { result } = renderHook(
       () => useGetRecordRepresentationText("posts"),
@@ -196,7 +201,7 @@ describe("useGetRecordRepresentationText", () => {
   });
 
   it("the text form uses a function's numeric result as a string", () => {
-    const registry = registryWith("posts", (r: { id: number }) => r.id * 2);
+    const registry = registryWith("posts", (r) => Number(r.id) * 2);
     const { result } = renderHook(
       () => useGetRecordRepresentationText("posts"),
       { wrapper: makeWrapper({ registry, resource: "posts" }) },

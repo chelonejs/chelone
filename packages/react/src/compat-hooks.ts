@@ -7,6 +7,7 @@ import {
 } from "@chelone/core";
 import { notifyManager, useQueryClient } from "@tanstack/react-query";
 import {
+  type DependencyList,
   useCallback,
   useEffect,
   useMemo,
@@ -155,7 +156,10 @@ function localeName(locale: string): string {
  * spinner/progress bar only appears after a short grace period so a fast
  * response never flashes it.
  */
-export function useTimeout(delay = 0, dependencies: unknown[] = []): boolean {
+export function useTimeout(
+  delay = 0,
+  dependencies: DependencyList = [],
+): boolean {
   const [ready, setReady] = useState(false);
 
   // `dependencies` is the caller-supplied reset key (ra `useTimeout` contract):

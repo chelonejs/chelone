@@ -2,6 +2,7 @@ import { defineResources } from "@chelone/core";
 import { expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import { useDelete, useUpdate } from "./hooks";
+import { useTranslate } from "./i18n-hooks";
 
 const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
@@ -45,4 +46,11 @@ it("mutate still takes an onSuccess option on the update and delete results", ()
     { id: 1, previousData: { id: 1, title: "y" } },
     { onSuccess: () => {} },
   );
+});
+
+it("translate params refuse an object value", () => {
+  const translate = useTranslate();
+  translate("k", { x: 1, y: "two" });
+  // @ts-expect-error a message param is a string or a number
+  translate("k", { x: {} });
 });

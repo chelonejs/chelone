@@ -7,11 +7,15 @@ import {
   type StandardSchemaV1,
   type ValidationErrorMap,
 } from "@tanstack/form-core";
+import { hasProperty, isThenable } from "../guards";
+import {
+  pickTranslateParamValues,
+  type TranslateParamValues,
+} from "../i18n/messages";
 import type { NotificationStore } from "../notification/notification-store";
 import { createFormHandle, type FormHandle } from "./form-handle";
 import {
   composeFormValidator,
-  isThenable,
   sanitizeEmptyValues,
   toFormErrorMapValue,
 } from "./save-pipeline";
@@ -78,7 +82,7 @@ export type FieldErrors = Record<string, string | string[]>;
  */
 export interface TranslatableMessage {
   message: string;
-  args?: Record<string, unknown>;
+  args?: TranslateParamValues;
 }
 
 /**
@@ -398,12 +402,7 @@ function displayableRoot(
 ): string | TranslatableMessage | undefined {
   if (typeof error === "string") return error || undefined;
   if (Array.isArray(error)) return displayableRoot(error[0]);
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof (error as { message: unknown }).message === "string"
-  ) {
+  if (hasProperty(error, "message") && typeof error.message === "string") {
     return normalizeFormError(error);
   }
   return undefined;
@@ -447,10 +446,8 @@ export function normalizeFormError(
     const { message } = error;
     if (typeof message === "string") {
       if ("args" in error) {
-        const { args } = error;
-        if (typeof args === "object" && args !== null && !Array.isArray(args)) {
-          return { message, args: args as Record<string, unknown> };
-        }
+        const args = pickTranslateParamValues(error.args);
+        if (args) return { message, args };
       }
       return message;
     }

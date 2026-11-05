@@ -1,3 +1,8 @@
+import {
+  type LooseRecord,
+  type SourceProp,
+  toNumberValue,
+} from "@chelone/core";
 import type * as React from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -26,7 +31,10 @@ import type { InputProps } from "../input-props";
  *   </Edit>
  * );
  */
-function RatingInput(props: RatingInputProps) {
+function RatingInput<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+>(props: RatingInputProps<TRecord, TPath>) {
   const {
     label,
     source,
@@ -51,7 +59,7 @@ function RatingInput(props: RatingInputProps) {
 
   const steps = allowHalf ? max * 2 : max;
   const stepValue = allowHalf ? 0.5 : 1;
-  const currentValue = (field.value as number | null | undefined) ?? 0;
+  const currentValue = toNumberValue(field.value) ?? 0;
 
   return (
     <FieldSet
@@ -129,8 +137,10 @@ const Star = ({ filled, half }: { filled: boolean; half: boolean }) => (
   </svg>
 );
 
-interface RatingInputProps
-  extends InputProps,
+interface RatingInputProps<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> extends InputProps<TRecord, TPath>,
     Omit<React.ComponentProps<"div">, "defaultValue" | "onBlur" | "onChange"> {
   max?: number;
   allowHalf?: boolean;

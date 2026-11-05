@@ -1,3 +1,8 @@
+import {
+  type ChoiceValueOf,
+  type SourceProp,
+  toChoiceValues,
+} from "@chelone/core";
 import { ChevronDown, X } from "lucide-react";
 import * as React from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
@@ -45,9 +50,11 @@ import type { ChoicesProps, InputProps } from "../input-props";
  *   </Edit>
  * );
  */
-function SelectArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
-  props: SelectArrayInputProps<TChoice>,
-) {
+function SelectArrayInput<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+  TChoice extends ChoiceRecord = ChoiceRecord,
+>(props: SelectArrayInputProps<TRecord, TPath, TChoice>) {
   const {
     choices: choicesProp,
     resource: resourceProp,
@@ -59,18 +66,13 @@ function SelectArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     translateChoice,
     InputLabelProps,
 
-    defaultValue,
-    format,
     label,
     helperText,
-    onBlur,
-    onChange,
-    parse,
-    validate,
     readOnly,
     disabled,
     placeholder,
     className,
+    ...inputOptions
   } = props;
   const translate = useTranslate();
   const [open, setOpen] = React.useState(false);
@@ -104,14 +106,12 @@ function SelectArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     });
 
   // `resource`/`disabled`/`readOnly` are component-local, NOT `useInput` keys.
+  // The options are spread whole: reading the generic `defaultValue` anywhere
+  // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
+  // instantiation depth.
   const { id, field, fieldState, isRequired } = useInput({
-    defaultValue,
-    format,
-    onBlur,
-    onChange,
-    parse,
+    ...inputOptions,
     source,
-    validate,
   });
 
   const invalid = fieldState.invalid;
@@ -119,13 +119,9 @@ function SelectArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const value: unknown[] = Array.isArray(field.value)
-    ? field.value
-    : field.value != null
-      ? [field.value]
-      : [];
+  const value = toChoiceValues<TChoice>(field.value);
 
-  const handleToggle = (choiceValue: unknown) => {
+  const handleToggle = (choiceValue: ChoiceValueOf<TChoice>) => {
     const isSelected = value.some((v) => String(v) === String(choiceValue));
     const next = isSelected
       ? value.filter((v) => String(v) !== String(choiceValue))
@@ -292,14 +288,17 @@ function SelectArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   );
 }
 
-type SelectArrayInputProps<TChoice extends ChoiceRecord = ChoiceRecord> =
-  ChoicesProps<TChoice> &
-    // `source` is optional: a SelectArrayInput inside a ReferenceArrayInput
-    // inherits it.
-    Partial<InputProps> & {
-      className?: string;
-      placeholder?: string;
-      InputLabelProps?: React.ComponentProps<typeof FieldLabel>;
-    };
+type SelectArrayInputProps<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> = ChoicesProps<TChoice> &
+  // `source` is optional: a SelectArrayInput inside a ReferenceArrayInput
+  // inherits it.
+  Partial<InputProps<TRecord, TPath>> & {
+    className?: string;
+    placeholder?: string;
+    InputLabelProps?: React.ComponentProps<typeof FieldLabel>;
+  };
 
 export { SelectArrayInput, type SelectArrayInputProps };

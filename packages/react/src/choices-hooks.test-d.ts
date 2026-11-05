@@ -1,3 +1,4 @@
+import type { ChoiceValueOf } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import {
   type ChoiceRecord,
@@ -43,7 +44,7 @@ describe("choices hook result types", () => {
       (choice: ChoiceRecord) => string
     >();
     expectTypeOf<UseChoicesResult["getChoiceValue"]>().toEqualTypeOf<
-      (choice: ChoiceRecord) => unknown
+      (choice: ChoiceRecord) => ChoiceValueOf<ChoiceRecord>
     >();
     expectTypeOf<UseChoicesResult>().not.toBeAny();
   });
@@ -62,6 +63,17 @@ describe("choices hook result types", () => {
     expectTypeOf(getChoiceText).parameter(0).toEqualTypeOf<Author>();
     expectTypeOf(getChoiceValue).parameter(0).toEqualTypeOf<Author>();
     expectTypeOf(getDisableValue).parameter(0).toEqualTypeOf<Author>();
+  });
+
+  it("getChoiceValue returns the ChoiceValueOf the choice", () => {
+    const { getChoiceValue } = useChoices<Author>();
+    expectTypeOf(getChoiceValue).returns.toEqualTypeOf<ChoiceValueOf<Author>>();
+    expectTypeOf(getChoiceValue).returns.toEqualTypeOf<number>();
+  });
+
+  it("getDisableValue returns boolean", () => {
+    const { getDisableValue } = useChoices<Author>();
+    expectTypeOf(getDisableValue).returns.toEqualTypeOf<boolean>();
   });
 
   it("useChoices<Author> rejects a path that is not on Author", () => {

@@ -24,6 +24,12 @@ describe("useChoices option types", () => {
     expectTypeOf(choices).toEqualTypeOf<UseChoicesResult<Author>>();
   });
 
+  it("getDisableValue returns boolean", () => {
+    expectTypeOf<
+      ReturnType<UseChoicesResult<Author>["getDisableValue"]>
+    >().toEqualTypeOf<boolean>();
+  });
+
   it("useChoices<Author> rejects a path that is not on Author", () => {
     // @ts-expect-error `penname` is not a path of Author
     useChoices<Author>({ optionText: "penname" });

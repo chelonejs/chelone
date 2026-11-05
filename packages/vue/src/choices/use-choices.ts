@@ -14,7 +14,12 @@
  * called in `setup`.
  */
 
-import { getAtPath, type SourcePath } from "@chelone/core";
+import {
+  type ChoiceValueOf,
+  getAtPath,
+  resolveChoiceValue,
+  type SourcePath,
+} from "@chelone/core";
 import { useTranslate } from "../i18n/use-translate";
 
 /** An erased choice record — choices carry arbitrary shapes (`{id, name, ...}`). */
@@ -43,9 +48,9 @@ export interface UseChoicesResult<TChoice extends ChoiceRecord = ChoiceRecord> {
   /** The display text: string path (optionally translated) or the formatter's output. */
   getChoiceText(choice: TChoice): string;
   /** The value: `get(choice, optionValue)`, falling back to `choice.id`. */
-  getChoiceValue(choice: TChoice): unknown;
+  getChoiceValue(choice: TChoice): ChoiceValueOf<TChoice>;
   /** The disabled flag: `get(choice, disableValue)`. */
-  getDisableValue(choice: TChoice): unknown;
+  getDisableValue(choice: TChoice): boolean;
 }
 
 /**
@@ -89,11 +94,13 @@ export function useChoices<TChoice extends ChoiceRecord = ChoiceRecord>(
       return translated === text ? text : translated;
     },
     getChoiceValue(choice) {
-      const value = getChoicePath(choice, loose().optionValue ?? "id");
-      return value !== undefined ? value : choice.id;
+      return resolveChoiceValue(
+        choice,
+        getChoicePath(choice, loose().optionValue ?? "id"),
+      );
     },
     getDisableValue(choice) {
-      return getChoicePath(choice, loose().disableValue ?? "disabled");
+      return getChoicePath(choice, loose().disableValue ?? "disabled") === true;
     },
   };
 }

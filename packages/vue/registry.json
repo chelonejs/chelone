@@ -1912,7 +1912,7 @@
         "@chelone/button-variants",
         "@chelone/use-menu-access"
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "devDependencies": ["vue-router"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
@@ -2432,7 +2432,7 @@
         "@chelone/feedback-icons",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3451,7 +3451,7 @@
         "@chelone/use-choice-input",
         "@chelone/validation-error"
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3854,7 +3854,7 @@
         "@chelone/use-choice-input",
         "@chelone/validation-error"
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3968,7 +3968,7 @@
         "@chelone/use-choice-input",
         "@chelone/validation-error"
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3989,7 +3989,7 @@
         "@chelone/use-choice-input",
         "@chelone/validation-error"
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },

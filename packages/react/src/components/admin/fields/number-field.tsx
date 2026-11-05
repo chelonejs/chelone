@@ -34,7 +34,11 @@ function NumberField<RecordType extends LooseRecord = LooseRecord>({
   options,
   ...rest
 }: NumberFieldProps<RecordType>) {
-  let value: unknown = useFieldValue({ defaultValue, source, record });
+  let value: unknown = useFieldValue<LooseRecord>({
+    defaultValue,
+    source,
+    record,
+  });
   const translate = useTranslate();
 
   if (value == null) {
