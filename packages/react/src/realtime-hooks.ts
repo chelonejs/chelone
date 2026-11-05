@@ -3,8 +3,8 @@ import {
   createRealtimeStatusStore,
   type DataProvider,
   type Identifier,
+  isRealtimeDataProvider,
   type MicroStore,
-  type RealtimeDataProvider,
   type RealtimeEvent,
   type RealtimeStatusState,
   recordTopic,
@@ -98,9 +98,8 @@ export function useOnReconnect(callback: () => void): void {
   const onReconnected = useEvent(callback);
 
   useEffect(() => {
-    return (dataProvider as Partial<RealtimeDataProvider>).onReconnect?.(
-      onReconnected,
-    );
+    if (!isRealtimeDataProvider(dataProvider)) return;
+    return dataProvider.onReconnect?.(onReconnected);
   }, [dataProvider, onReconnected]);
 }
 
@@ -114,7 +113,7 @@ function statusStoreFor(dataProvider: DataProvider) {
   let store = statusStores.get(dataProvider);
   if (!store) {
     store = createRealtimeStatusStore(
-      dataProvider as Partial<RealtimeDataProvider>,
+      isRealtimeDataProvider(dataProvider) ? dataProvider : {},
     );
     statusStores.set(dataProvider, store);
   }
