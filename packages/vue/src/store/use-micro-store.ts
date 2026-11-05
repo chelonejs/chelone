@@ -1,4 +1,4 @@
-import type { MicroStore } from "@chelone/core";
+import { type MicroStore, shallowEqual } from "@chelone/core";
 import {
   type ComputedRef,
   computed,
@@ -38,33 +38,6 @@ export function useMicroStore<T>(store: MicroStore<T>): Readonly<Ref<T>> {
   });
   onScopeDispose(unsubscribe);
   return computed(() => state.value);
-}
-
-/** Shallow structural equality: `Object.is` on primitives, one-level key/value on objects. */
-function shallowEqual(a: unknown, b: unknown): boolean {
-  if (Object.is(a, b)) return true;
-  if (
-    typeof a !== "object" ||
-    a === null ||
-    typeof b !== "object" ||
-    b === null
-  ) {
-    return false;
-  }
-  const aRecord = a as Record<string, unknown>;
-  const bRecord = b as Record<string, unknown>;
-  const aKeys = Object.keys(aRecord);
-  const bKeys = Object.keys(bRecord);
-  if (aKeys.length !== bKeys.length) return false;
-  for (const key of aKeys) {
-    if (
-      !Object.hasOwn(bRecord, key) ||
-      !Object.is(aRecord[key], bRecord[key])
-    ) {
-      return false;
-    }
-  }
-  return true;
 }
 
 /**
