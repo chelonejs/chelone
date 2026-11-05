@@ -6,6 +6,7 @@ import type {
   CheloneLocation,
   Exporter,
   FilterSourceKey,
+  LocationState,
   LooseRecord,
   NavigateOpts,
   PathMatch,
@@ -39,6 +40,9 @@ it("re-exports the P6 router types from the root", () => {
   expectTypeOf<
     CheloneLocation["searchParams"]
   >().toEqualTypeOf<URLSearchParams>();
+  expectTypeOf<NavigateOpts["state"]>().toEqualTypeOf<
+    LocationState | undefined
+  >();
   expectTypeOf<NavigateOpts["state"]>().not.toBeAny();
   expectTypeOf<PathMatch["params"]>().toEqualTypeOf<Record<string, string>>();
   expectTypeOf<RouterPort["navigate"]>().toBeFunction();

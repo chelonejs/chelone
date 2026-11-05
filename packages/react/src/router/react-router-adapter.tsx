@@ -16,7 +16,7 @@
  */
 
 import type { CheloneLocation, PathMatch } from "@chelone/core";
-import { parseLocation } from "@chelone/core";
+import { parseLocation, toLocationState } from "@chelone/core";
 import {
   createContext,
   forwardRef,
@@ -69,7 +69,7 @@ function toCheloneLocation(location: {
     search: location.search,
     searchParams: new URLSearchParams(location.search),
     hash: location.hash,
-    state: location.state ?? null,
+    state: toLocationState(location.state),
     key: location.key,
   };
 }

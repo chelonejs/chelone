@@ -130,6 +130,31 @@ describe("useLocation / useParams", () => {
     expect(result.current.hash).toBe("#top");
   });
 
+  it("reads history state through toLocationState", () => {
+    // type-escape: some cases feed a junk state on purpose
+    const stateAt = (state: unknown) =>
+      renderHook(() => useLocation(), {
+        wrapper: function Wrapper({ children }: { children: ReactNode }) {
+          return (
+            <RouterAdapterProvider adapter={adapter}>
+              <MemoryRouter initialEntries={[{ pathname: "/posts", state }]}>
+                {children}
+              </MemoryRouter>
+            </RouterAdapterProvider>
+          );
+        },
+      }).result.current.state;
+
+    expect(stateAt({ nextPathname: "/posts", fromApp: 7 })).toEqual({
+      nextPathname: "/posts",
+      fromApp: 7,
+    });
+    expect(stateAt("state")).toBeNull();
+    expect(stateAt({ _scrollToTop: "yes" })).toBeNull();
+    expect(stateAt({ record: [1, 2], seed: { a: 1 } })).toBeNull();
+    expect(stateAt(undefined)).toBeNull();
+  });
+
   it("exposes route params incl. splat", () => {
     function Probe() {
       const params = useParams();

@@ -11,7 +11,7 @@
  * router's typed-search / typed-params generics leak here.
  */
 
-import type { CheloneLocation, PathMatch } from "@chelone/core";
+import type { CheloneLocation, NavigateOpts, PathMatch } from "@chelone/core";
 import {
   createContext,
   type ForwardRefExoticComponent,
@@ -39,7 +39,7 @@ export interface RouterBlocker {
 
 /** `useNavigate`'s returned navigator — ref-STABLE so nav doesn't re-render. */
 export interface AdapterNavigate {
-  (to: string, opts?: { replace?: boolean; state?: unknown }): void;
+  (to: string, opts?: NavigateOpts): void;
   (delta: number): void;
 }
 
