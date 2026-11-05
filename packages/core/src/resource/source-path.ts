@@ -80,6 +80,43 @@ export type SourcePath<TRecord> = unknown extends TRecord
   ? string
   : Paths<TRecord, { arrays: "bracket" }>;
 
+/** A bracket path read as a dot path: `a[0].b` is `a.0.b`. */
+type _Dotted<TPath extends string> =
+  TPath extends `${infer A}[${infer I}]${infer R}`
+    ? _Dotted<`${A}.${I}${R}`>
+    : TPath extends `.${infer R}`
+      ? R
+      : TPath;
+
+/**
+ * The `null`/`undefined` each parent along `TPath` adds to the value, given
+ * as dotted segments: parents that are `unknown` or `any` read everything
+ * below them as `unknown`, as `Get`'s `nullish: "path"` mode does.
+ *
+ * Built from `Get`'s default mode, one prefix at a time, on purpose:
+ * `Get<T, P, { nullish: "path" }>` recurses on `P` while its parent type grows
+ * at every segment, so with a `P` that depends on a type parameter (a field's
+ * `SourceProp<RecordType>`) the compiler recurses until "Type instantiation is
+ * excessively deep" the first time the value is read. The counter bounds this
+ * one the same way `_WalkDepth` bounds the record walk.
+ */
+type _ParentNullish<
+  TRecord,
+  TRest extends string,
+  TPrefix extends string,
+  Walk extends number,
+> = [Walk] extends [0]
+  ? never
+  : TRest extends `${infer THead}.${infer TTail}`
+    ?
+        | _NullishAt<Get<TRecord, `${TPrefix}${THead}`>>
+        | _ParentNullish<TRecord, TTail, `${TPrefix}${THead}.`, _PrevWalk[Walk]>
+    : never;
+
+type _NullishAt<TValue> = unknown extends TValue
+  ? unknown
+  : TValue & (null | undefined);
+
 /**
  * The value type at `TPath`, including the `null`/`undefined` of every parent
  * along it — what reading `record.author?.name` gives. `unknown` for a loose
@@ -87,7 +124,15 @@ export type SourcePath<TRecord> = unknown extends TRecord
  */
 export type SourceValue<TRecord, TPath extends string> = unknown extends TRecord
   ? unknown
-  : Get<TRecord, TPath, { nullish: "path" }>;
+  : _WithParents<
+      Get<TRecord, _Dotted<TPath>>,
+      _ParentNullish<TRecord, _Dotted<TPath>, "", _WalkDepth>
+    >;
+
+/** `unknown` when a parent is `unknown` (or `any`, which would absorb the union). */
+type _WithParents<TLeaf, TParents> = unknown extends TParents
+  ? unknown
+  : TLeaf | TParents;
 
 /**
  * The top-level keys of `TRecord`, for props that read or write one flat key
