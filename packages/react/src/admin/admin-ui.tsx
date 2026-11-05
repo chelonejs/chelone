@@ -20,6 +20,7 @@ import {
   createI18n,
   createNotificationStore,
   defaultMessages,
+  type RegisteredPermissions,
 } from "@chelone/core";
 import {
   createContext,
@@ -179,7 +180,7 @@ export interface AdminUIProps extends AdminSlotProps {
   /** Whether the shell gates on auth (no-flash gate — consumed by W1-T7). */
   requireAuth?: boolean;
   /** The app's permissions (passed to the resource registration re-run). */
-  permissions?: unknown;
+  permissions?: RegisteredPermissions;
   /**
    * The async function-child resolution status (parity §0a-9), supplied by
    * `<Admin>` from `useResolvedChildren`. `'loading'` holds the shell on the
