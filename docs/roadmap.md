@@ -62,11 +62,10 @@ Heavy editors and integrations ship as opt-in subpaths, so an app that does not 
 - **JSON editing** (in progress): `JsonField` in the base adapters, and `MonacoJsonInput` and `MonacoJsonField` from `/monaco`. Issues #394 to #401.
 - **Markdown** (in progress): `MdxInput` and `MdxField` from `/mdx-editor`. Issues #402 to #406.
 - **CSV import** (in progress): `CsvImport` and `useCsvImport` from `/csv-import`. Issues #407 to #411 and #424.
-- **Supabase** (in progress): the `@chelone/supabase` package, and the `/supabase` subpath for the login, reset and set password pages. Issues #412 to #423, #425 and #426.
+- **Supabase** (in progress): the `@chelone/supabase` package, and the `/supabase` subpath for the login, reset and set password pages. The `chelone-supabase gen` bin writes Zod schemas and a typed resources file from the project's types, for the guessers, documented on the Supabase page (#842). Issues #412 to #423, #425 and #426.
 - **Tiptap rich text input** (planned): `RichTextInput` and `RichTextField` from `/rich-text-input`. Issue #902.
 - **Block editor** (planned): `BlockEditorInput` and `BlockDocField` from `/block-editor`, also on tiptap. Issue #914.
 - **Charts** (planned): `TrendChart`, `BarChart` and `DonutChart` from `/charts`, on recharts in React and unovis in Vue, so the two APIs differ. Issue #880.
-- **Supabase codegen** (planned): `chelone-supabase gen` writes a typed resources file, Zod schemas included, from a Supabase project's types, for the Zod guessers. Issue #842.
 - **Drag** (planned): wherever chelone drags, it uses `@dnd-kit/react` and `@dnd-kit/vue` as optional peers of the add-on that drags.
 
 ## Shadmin extras (#225)
