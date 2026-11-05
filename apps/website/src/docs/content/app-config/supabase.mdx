@@ -328,7 +328,7 @@ as a dev dependency, and run the bin:
 ```bash
 supabase gen types typescript --local > supabase/types.ts
 pnpm add -D supazod
-chelone-supabase gen --input supabase/types.ts --out-dir src/resources
+pnpm exec chelone-supabase gen --input supabase/types.ts --out-dir src/resources
 ```
 
 The bin also needs `typescript` installed, which most apps already have. It
@@ -390,8 +390,8 @@ What it does not read:
 - Compound foreign keys.
 - Foreign keys to a table in another schema. Pass `--schema` to read a schema
   other than `public`.
-- Primary keys other than `id`. For those, set `primaryKeys` under
-  [Options](#options) of the data provider.
+- Primary keys other than `id`. For those, set `primaryKeys` in the
+  options of the data provider, see [Compound keys](#compound-keys).
 
 The two files are overwritten each time, so run the command again after a
 migration and do not edit them. Put your own resource config in a separate file.
@@ -400,7 +400,7 @@ Add `--scaffold react` or `--scaffold vue` to print a `<Resource>` element for
 each table and view, with a guesser on each page. Paste them into `<Admin>`:
 
 ```bash
-chelone-supabase gen --input supabase/types.ts --out-dir src/resources --scaffold react
+pnpm exec chelone-supabase gen --input supabase/types.ts --out-dir src/resources --scaffold react
 ```
 
 ## What is not supported

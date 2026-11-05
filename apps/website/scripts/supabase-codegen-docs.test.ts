@@ -55,3 +55,26 @@ it("the guessers page links to the generating section", () => {
     "](/docs/app-config/supabase#generating-resources)",
   );
 });
+
+it("the page links to anchors that exist exactly once", () => {
+  const headings = [...supabasePage.matchAll(/^#{2,3} (.+)$/gm)].map((match) =>
+    match[1]
+      .toLowerCase()
+      .replace(/[^a-z0-9 -]/g, "")
+      .replace(/ /g, "-"),
+  );
+  for (const [, anchor] of generating.matchAll(/\]\(#([a-z0-9-]+)\)/g)) {
+    expect(
+      headings.filter((heading) => heading === anchor),
+      `#${anchor}`,
+    ).toHaveLength(1);
+  }
+});
+
+it("the commands run the bin through the package manager", () => {
+  for (const line of generating.split("\n")) {
+    if (line.includes("chelone-supabase gen --")) {
+      expect(line).toMatch(/^pnpm exec chelone-supabase gen /);
+    }
+  }
+});
