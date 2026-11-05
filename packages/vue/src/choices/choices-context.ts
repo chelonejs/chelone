@@ -31,7 +31,7 @@ export interface ChoicesContextValue {
   total: number | undefined;
   isPending: boolean;
   isFetching: boolean;
-  error: unknown;
+  error: Error | null;
   page: number;
   perPage: number;
   sort: SortPayload;

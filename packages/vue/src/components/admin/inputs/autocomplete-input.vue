@@ -108,7 +108,7 @@ const noMatchText = computed(
     translate("ra.navigation.no_results", { _: "No matching item found." }),
 );
 const helper = computed(
-  () => props.helperText ?? (fetchError.value as Error | undefined)?.message,
+  () => props.helperText ?? fetchError.value?.message,
 );
 
 const filteredChoices = computed(() => {

@@ -31,6 +31,13 @@ describe("choices hook result types", () => {
     expectTypeOf<ChoicesContextValue>().not.toBeAny();
   });
 
+  it("the choices error is Error or null", () => {
+    expectTypeOf<ChoicesContextValue["error"]>().toEqualTypeOf<Error | null>();
+    expectTypeOf<
+      UseReferenceInputResult["error"]
+    >().toEqualTypeOf<Error | null>();
+  });
+
   it("UseChoicesResult carries the three accessors", () => {
     expectTypeOf<UseChoicesResult["getChoiceText"]>().toEqualTypeOf<
       (choice: ChoiceRecord) => string
