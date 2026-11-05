@@ -128,7 +128,6 @@
   "packages/react/src/label/inflection.ts <-> packages/vue/src/label/inflection.ts": 4,
   "packages/react/src/router/react-router-adapter.tsx <-> packages/react/src/ssr/router-factory.tsx": 1,
   "packages/react/src/undoable-hooks.ts <-> packages/vue/src/data/undoable.ts": 2,
-  "packages/react/src/util/shallow-equal.ts <-> packages/vue/src/lib/shallow-equal.ts": 2,
   "packages/supabase/src/data-provider.ts <-> packages/supabase/src/data-provider.ts": 1,
   "packages/vue/src/admin/admin-shell.vue <-> packages/vue/src/admin/admin.vue": 1,
   "packages/vue/src/components/admin/auth/icons.ts <-> packages/vue/src/components/admin/layout/icons.ts": 1,

@@ -5537,6 +5537,7 @@
           "type": "registry:lib"
         }
       ],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "library"],
       "author": "Chelone <https://chelone.dev>"
     },
