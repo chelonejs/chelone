@@ -273,6 +273,35 @@ describe("useReferenceManyFieldController", () => {
     expect(observerCount()).toBe(attached);
   });
 
+  it("actions keep their identity after the id changes", async () => {
+    const { capture, record, referenceSpy } = mountMany(
+      { perPage: 2 },
+      { id: 1 },
+    );
+    await vi.waitFor(() => expect(capture.result?.total).toBe(5));
+    const before = capture.result?.setPage;
+    const beforeRefetch = capture.result?.refetch;
+
+    record.value = { id: 2 };
+    await vi.waitFor(() => expect(capture.result?.total).toBe(1));
+    expect(capture.result?.setPage).toBe(before);
+    expect(capture.result?.refetch).toBe(beforeRefetch);
+
+    // The old reference still drives the controller built for the new id.
+    referenceSpy.mockClear();
+    before?.(1);
+    capture.result?.setSort({ field: "body", order: "DESC" });
+    await vi.waitFor(() =>
+      expect(referenceSpy).toHaveBeenLastCalledWith(
+        "comments",
+        expect.objectContaining({
+          id: 2,
+          sort: { field: "body", order: "DESC" },
+        }),
+      ),
+    );
+  });
+
   it("stays bound when the record changes inside another scope that then stops", async () => {
     const { capture, record, dataObserverCount } = mountMany({}, { id: 1 });
     await vi.waitFor(() => expect(capture.result?.total).toBe(5));
