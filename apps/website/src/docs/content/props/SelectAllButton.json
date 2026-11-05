@@ -11,7 +11,7 @@
       "name": "label",
       "type": "ReactNode",
       "optional": true,
-      "comment": ""
+      "comment": "A message key, translated with itself as the fallback."
     },
     {
       "name": "limit",

@@ -1,13 +1,15 @@
 <script lang="ts">
 /** Props for {@link SelectAllButton}. */
 export interface SelectAllButtonProps {
-  /** A message key, translated with "Select all" as the fallback. */
+  /** A message key, translated with itself as the fallback. */
   label?: string;
   /** The most rows to select. */
   limit?: number;
   /** Extra CSS class appended to the button. */
   class?: string;
 }
+
+const defaultLabel = "ra.action.select_all";
 </script>
 
 <script setup lang="ts">
@@ -25,13 +27,19 @@ import { useListContext } from "../../../list/list-context";
 import Button from "../../ui/button.vue";
 
 const props = withDefaults(defineProps<SelectAllButtonProps>(), {
-  label: "ra.action.select_all",
+  label: defaultLabel,
   limit: 250,
 });
 const emit = defineEmits<{ click: [] }>();
 
 const list = useListContext();
 const translate = useTranslate();
+
+const text = computed(() =>
+  translate(props.label, {
+    _: props.label === defaultLabel ? "Select all" : props.label,
+  }),
+);
 
 const visible = computed(() => {
   const { data, total, selectedIds } = list;
@@ -58,6 +66,6 @@ async function onClick(event: MouseEvent): Promise<void> {
     data-slot="select-all-button"
     @click="onClick"
   >
-    {{ translate(props.label, { _: "Select all" }) }}
+    {{ text }}
   </Button>
 </template>
