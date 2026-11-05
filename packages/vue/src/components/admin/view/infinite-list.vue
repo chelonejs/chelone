@@ -20,10 +20,7 @@ import { useInfiniteListController } from "../../../controllers/use-infinite-lis
 import { computed } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useGetResourceLabel } from "../../../label/use-get-resource-label";
-import {
-  type ListContextValue,
-  provideListContext,
-} from "../../../list/list-context";
+import { provideListContext } from "../../../list/list-context";
 import {
   provideResourceContext,
   useResourceContext,
@@ -43,7 +40,7 @@ const controller = useInfiniteListController({
   resource,
   perPage: props.perPage,
 });
-provideListContext(controller as ListContextValue);
+provideListContext(controller);
 
 const translate = useTranslate();
 const getResourceLabel = useGetResourceLabel();

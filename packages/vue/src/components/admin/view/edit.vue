@@ -67,22 +67,22 @@ const defaultTitle = computed(() => getRecordRepresentation(edit.record));
 
 const form = useForm<Record<string, unknown>>({
   resource,
-  record: edit.record as Record<string, unknown> | undefined,
+  record: edit.record,
   // Read per call: the form captures its options once, props stay live.
   // The form captures its options once: always hand it this wrapper, so a
   // `validate` set after setup still runs, as of the live prop.
   validate: (values) => props.validate?.(values),
   schema: props.schema,
   sanitizeEmptyValues: props.sanitizeEmptyValues,
-  getRecord: () => edit.record as Record<string, unknown> | undefined,
+  getRecord: () => edit.record,
   // Rebaselined to the SERVER record in `onSaved` (as React's composed form
   // does), so `onSuccess` sees the reconciled form.
   resetOnSuccess: false,
   onSubmit: async (data): Promise<FieldErrors | undefined> => {
     const errors = await edit.save(data, {
       onSaved: async (saved) => {
-        form.reset(saved as Record<string, unknown>);
-        await props.onSuccess?.(saved as Record<string, unknown>);
+        form.reset(saved);
+        await props.onSuccess?.(saved);
       },
     });
     if (!errors && props.redirectOnSave) {
@@ -93,13 +93,11 @@ const form = useForm<Record<string, unknown>>({
 });
 
 // Publish the record for slotted fields; rebaseline the form when it hydrates.
-provideRecordContext(
-  computed(() => edit.record as Record<string, unknown> | undefined),
-);
+provideRecordContext(computed(() => edit.record));
 watch(
   () => edit.record,
   (record) => {
-    if (record) form.reset(record as Record<string, unknown>);
+    if (record) form.reset(record);
   },
 );
 </script>
