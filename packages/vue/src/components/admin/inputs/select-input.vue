@@ -75,7 +75,7 @@ const labelText = computed(() =>
   props.label === false ? null : (props.label ?? humanizeSource(source)),
 );
 const helper = computed(
-  () => props.helperText ?? (fetchError.value as Error | undefined)?.message,
+  () => props.helperText ?? fetchError.value?.message,
 );
 const emptyLabel = computed(() =>
   props.emptyText === "" ? " " : translate(props.emptyText, { _: props.emptyText }),
