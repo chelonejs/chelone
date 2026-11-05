@@ -13,16 +13,17 @@ import {
   createStore,
   defineResources,
   fakeDataProvider,
+  type NavigateOpts,
   parseLocation,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { forwardRef, type ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { CheloneProvider } from "../context";
 import { useListController } from "../controller-hooks";
-import type { AdapterNavigate, RouterAdapter } from "../router/adapter";
+import type { AdapterLinkProps, RouterAdapter } from "../router/adapter";
 import { RouterAdapterProvider } from "../router/adapter";
 
 const resources = defineResources({
@@ -38,19 +39,19 @@ const rows = Array.from({ length: 25 }, (_, i) => ({
  * remaining members are inert stubs (the list hook touches only those two).
  * `navigate` mutates the closed-over `search`, so a follow-up render observes
  * the pushed query; `setSearch` stands in for back/forward or a followed link.
+ * Its one signature takes both `AdapterNavigate` overloads' arguments (a string
+ * `to` or a delta), which is what makes it assignable to the contract.
  */
 function makeMockAdapter(initialSearch = "") {
   let search = initialSearch;
-  const navigate = vi.fn(
-    (to: string | number, _opts?: { replace?: boolean; state?: unknown }) => {
-      if (typeof to === "number") return;
-      const q = to.indexOf("?");
-      search = q >= 0 ? to.slice(q) : "";
-    },
-  );
+  const navigate = vi.fn((to: string | number, _opts?: NavigateOpts) => {
+    if (typeof to === "number") return;
+    const q = to.indexOf("?");
+    search = q >= 0 ? to.slice(q) : "";
+  });
   const adapter: RouterAdapter = {
     useLocation: () => parseLocation(`/posts${search}`),
-    useNavigate: () => navigate as unknown as AdapterNavigate,
+    useNavigate: () => navigate,
     useParams: () => ({}),
     useBlocker: () => ({
       state: "unblocked",
@@ -61,7 +62,10 @@ function makeMockAdapter(initialSearch = "") {
     useMatch: () => null,
     useInRouterContext: () => true,
     useCanBlock: () => false,
-    Link: (() => null) as unknown as RouterAdapter["Link"],
+    // Two params (props, ref) — React warns about a one-parameter render.
+    Link: forwardRef<HTMLAnchorElement, AdapterLinkProps>(
+      ({ children }, _ref) => children,
+    ),
     Navigate: () => null,
     Route: () => null,
     Routes: () => null,

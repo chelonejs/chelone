@@ -45,7 +45,7 @@ const adapter = tanstackRouterAdapter;
 // TanStack calls window.scrollTo on navigation; jsdom doesn't implement it.
 // Stub it so the (irrelevant-to-this-suite) scroll side effect is a no-op.
 beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
+  window.scrollTo = vi.fn();
 });
 
 afterEach(() => {
@@ -64,6 +64,18 @@ interface Ref<T> {
 }
 function ref<T>(): Ref<T> {
   return { current: null };
+}
+
+/**
+ * The value a `Probe` captured into a `ref`, or a failure naming what is
+ * missing. The guard narrows for real, so a read after an `await` needs no cast.
+ */
+function requireCaptured<T>(holder: Ref<T>, what: string): T {
+  const value = holder.current;
+  if (value === null) {
+    throw new Error(`the Probe captured no ${what}`);
+  }
+  return value;
 }
 
 /**
@@ -161,13 +173,13 @@ describe("tanstackRouterAdapter — contract surface", () => {
 
 describe("tanstackRouterAdapter — useLocation (leak: parsed search + hash + key)", () => {
   it("maps TanStack's parsed location onto a CheloneLocation with a STRING search", async () => {
-    let captured: ReturnType<typeof useLocation> | null = null;
+    const captured = ref<ReturnType<typeof useLocation>>();
     function Probe() {
-      captured = useLocation();
+      captured.current = useLocation();
       return null;
     }
     await renderTanstack(<Probe />, "/posts?page=2&sort=id#top");
-    const loc = captured as unknown as ReturnType<typeof useLocation>;
+    const loc = requireCaptured(captured, "location");
     expect(loc.pathname).toBe("/posts");
     // LEAK papered over: TanStack's `search` is a parsed OBJECT + `searchStr`;
     // Chelone's `search` is the raw string (`searchStr`), plus a URLSearchParams.
@@ -179,13 +191,13 @@ describe("tanstackRouterAdapter — useLocation (leak: parsed search + hash + ke
   });
 
   it("synthesizes a stable `key` and strips TanStack's __TSR internals from state", async () => {
-    let captured: ReturnType<typeof useLocation> | null = null;
+    const captured = ref<ReturnType<typeof useLocation>>();
     function Probe() {
-      captured = useLocation();
+      captured.current = useLocation();
       return null;
     }
     await renderTanstack(<Probe />, "/posts");
-    const loc = captured as unknown as ReturnType<typeof useLocation>;
+    const loc = requireCaptured(captured, "location");
     // LEAK papered over: react-router has a native `key`; TanStack keeps it in
     // `state.__TSR_key`. We synthesize `key` from it and never surface the
     // `__TSR_*` internals as user state.
@@ -199,13 +211,13 @@ describe("tanstackRouterAdapter — useLocation (leak: parsed search + hash + ke
 
 describe("tanstackRouterAdapter — useParams (splat under `*`)", () => {
   it("exposes route params incl. the splat under `*` (drops TanStack's `_splat` dupe)", async () => {
-    let captured: Record<string, string | undefined> | null = null;
+    const captured = ref<Record<string, string | undefined>>();
     function Probe() {
-      captured = useParams();
+      captured.current = useParams();
       return null;
     }
     await renderTanstack(<Probe />, "/posts/7/extra/bits");
-    const params = captured as unknown as Record<string, string | undefined>;
+    const params = requireCaptured(captured, "params");
     // The created router's catch-all exposes the full path under `*` (Chelone's
     // splat convention) — the reference adapter mirrors ra-core's `'*'` key.
     expect(params["*"]).toBe("posts/7/extra/bits");
@@ -264,13 +276,13 @@ describe("tanstackRouterAdapter — useNavigate (ref-stable, string + delta)", (
 
 describe("tanstackRouterAdapter — useBlocker (leak: idle|blocked double → triple)", () => {
   it("is 'unblocked' with no-op proceed/reset when not blocking (TanStack 'idle')", async () => {
-    let captured: ReturnType<typeof useBlocker> | null = null;
+    const captured = ref<ReturnType<typeof useBlocker>>();
     function Probe() {
-      captured = useBlocker(false);
+      captured.current = useBlocker(false);
       return null;
     }
     await renderTanstack(<Probe />, "/a");
-    const blocker = captured as unknown as ReturnType<typeof useBlocker>;
+    const blocker = requireCaptured(captured, "blocker");
     // LEAK papered over: TanStack's `idle` maps to Chelone's `unblocked`.
     expect(blocker.state).toBe("unblocked");
     expect(typeof blocker.proceed).toBe("function");
@@ -587,13 +599,13 @@ describe("tanstackRouterAdapter — RouterWrapper (create + join)", () => {
 
 describe("tanstackRouterAdapter — nav hooks bridge onto it (createPath / redirect)", () => {
   it("useCreatePath builds basename-prefixed paths through the adapter", async () => {
-    let cp: ReturnType<typeof useCreatePath> | null = null;
+    const cp = ref<ReturnType<typeof useCreatePath>>();
     function Probe() {
-      cp = useCreatePath();
+      cp.current = useCreatePath();
       return null;
     }
     await renderTanstack(<Probe />, "/", "/admin");
-    const create = cp as unknown as ReturnType<typeof useCreatePath>;
+    const create = requireCaptured(cp, "createPath");
     expect(create({ type: "list", resource: "posts" })).toBe("/admin/posts");
     expect(create({ type: "show", resource: "posts", id: 7 })).toBe(
       "/admin/posts/7/show",

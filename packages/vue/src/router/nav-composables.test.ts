@@ -283,18 +283,10 @@ describe("nav-composables — vue-router adapter bridge", () => {
     const { router, captured: redirect } = await mountConsumer(() =>
       useRedirect(),
     );
-    const original = Object.getOwnPropertyDescriptor(window, "location");
     const holder = { href: "" };
-    Object.defineProperty(window, "location", {
-      configurable: true,
-      value: holder as unknown as Location,
-    });
-    try {
-      redirect("https://example.com/x");
-      await flushPromises();
-    } finally {
-      if (original) Object.defineProperty(window, "location", original);
-    }
+    vi.stubGlobal("location", holder);
+    redirect("https://example.com/x");
+    await flushPromises();
     expect(holder.href).toBe("https://example.com/x");
     // The router was NOT pushed — we stayed on the initial route.
     expect(router.currentRoute.value.path).toBe("/");

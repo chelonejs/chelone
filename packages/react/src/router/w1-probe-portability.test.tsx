@@ -32,7 +32,7 @@ import { tanstackRouterAdapter } from "./tanstack-router-adapter";
 
 // TanStack calls window.scrollTo on navigation; jsdom doesn't implement it.
 beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
+  window.scrollTo = vi.fn();
 });
 afterEach(() => cleanup());
 

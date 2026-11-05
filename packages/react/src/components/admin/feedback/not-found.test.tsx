@@ -157,10 +157,10 @@ describe("<NotFound>", () => {
 
   it("goes back one entry when the button is clicked", () => {
     const navigate = vi.fn();
-    const adapter = {
+    const adapter: RouterAdapter = {
       ...reactRouterAdapter,
       useNavigate: () => navigate,
-    } as unknown as RouterAdapter;
+    };
     render(
       <Wrap adapter={adapter}>
         <NotFound />
