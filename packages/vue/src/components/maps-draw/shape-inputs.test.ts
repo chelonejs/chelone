@@ -8,13 +8,13 @@
 import {
   createI18n,
   fakeDataProvider,
-  type GeoLineString,
   mapMessages,
   type RoutingProvider,
   rasterTileStyle,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
+import type { LineString } from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, type VNode } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
@@ -911,17 +911,17 @@ describe("ShapeInput refine", () => {
 
 /** Snaps by shifting every position 1 degree east. */
 function fakeRouter(
-  snap?: (line: GeoLineString) => GeoLineString | null,
+  snap?: (line: LineString) => LineString | null,
 ): RoutingProvider & { snapToRoad: ReturnType<typeof vi.fn> } {
   return {
     name: "fake",
-    snapToRoad: vi.fn(async (l: GeoLineString) =>
+    snapToRoad: vi.fn(async (l: LineString) =>
       snap
         ? snap(l)
         : ({
             type: "LineString",
             coordinates: l.coordinates.map(([x, y]) => [(x ?? 0) + 1, y ?? 0]),
-          } as GeoLineString),
+          } as LineString),
     ),
   };
 }

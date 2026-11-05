@@ -1,6 +1,11 @@
-import type { GeoFeature, GeoJsonValue, JsonObject } from "@chelone/core";
+import type { JsonObject } from "@chelone/core";
 import { describe, expect, it } from "vitest";
-import { cutFeatures, simplifyGeo } from "./geometry-ops";
+import {
+  cutFeatures,
+  type DrawFeature,
+  type GeoJson,
+  simplifyGeo,
+} from "./geometry-ops";
 
 function square(
   west: number,
@@ -8,7 +13,7 @@ function square(
   east: number,
   north: number,
   properties: JsonObject | null = null,
-): GeoFeature {
+): DrawFeature {
   return {
     type: "Feature",
     properties,
@@ -27,7 +32,7 @@ function square(
   };
 }
 
-function rings(feature: GeoFeature | undefined) {
+function rings(feature: DrawFeature | undefined) {
   const geometry = feature?.geometry;
   if (geometry?.type !== "Polygon") throw new Error("not a polygon");
   return geometry.coordinates;
@@ -87,12 +92,12 @@ describe("cutFeatures", () => {
   });
 
   it("leaves points and lines alone", () => {
-    const point: GeoFeature = {
+    const point: DrawFeature = {
       type: "Feature",
       properties: null,
       geometry: { type: "Point", coordinates: [5, 5] },
     };
-    const line: GeoFeature = {
+    const line: DrawFeature = {
       type: "Feature",
       properties: null,
       geometry: {
@@ -118,7 +123,7 @@ function bumpyLine(): [number, number][] {
 
 describe("simplifyGeo", () => {
   it("does not mutate its input", () => {
-    const input: GeoJsonValue = {
+    const input: GeoJson = {
       type: "LineString",
       coordinates: bumpyLine(),
     };
@@ -130,8 +135,8 @@ describe("simplifyGeo", () => {
   });
 
   it("simplifies a Feature and a FeatureCollection", () => {
-    const line: GeoJsonValue = { type: "LineString", coordinates: bumpyLine() };
-    const feature: GeoJsonValue = {
+    const line: GeoJson = { type: "LineString", coordinates: bumpyLine() };
+    const feature: GeoJson = {
       type: "Feature",
       properties: { name: "a" },
       geometry: line,
@@ -168,10 +173,10 @@ describe("simplifyGeo", () => {
   });
 
   it("returns a Point unchanged", () => {
-    const point: GeoJsonValue = { type: "Point", coordinates: [2.35, 48.85] };
+    const point: GeoJson = { type: "Point", coordinates: [2.35, 48.85] };
     const result = simplifyGeo(point, { tolerance: 0.05, highQuality: false });
     expect(result).toEqual(point);
-    const multi: GeoJsonValue = {
+    const multi: GeoJson = {
       type: "MultiPoint",
       coordinates: [
         [0, 0],
@@ -184,7 +189,7 @@ describe("simplifyGeo", () => {
   });
 
   it("keeps a collinear vertex at tolerance 0", () => {
-    const polygon: GeoJsonValue = {
+    const polygon: GeoJson = {
       type: "Polygon",
       coordinates: [
         [
@@ -203,14 +208,14 @@ describe("simplifyGeo", () => {
   });
 
   it("passes a Feature with a null geometry through", () => {
-    const empty: GeoJsonValue = {
+    const empty: GeoJson = {
       type: "Feature",
       properties: null,
       geometry: null,
     };
     const options = { tolerance: 0.01, highQuality: false };
     expect(simplifyGeo(empty, options)).toEqual(empty);
-    const collection: GeoJsonValue = {
+    const collection: GeoJson = {
       type: "FeatureCollection",
       features: [empty, square(0, 0, 1, 1)],
     };

@@ -1,7 +1,6 @@
 import {
   editorStyles,
   fromEditorFeatures,
-  type GeoFeature,
   type ShapeStyle,
   toEditorFeatures,
 } from "@chelone/core";
@@ -27,6 +26,7 @@ import {
   watch,
 } from "vue";
 import { useMap } from "../maps/use-map";
+import type { DrawFeature } from "./geometry-ops";
 
 /** A toolbar button that switches the editor's mode. */
 export type DrawTool =
@@ -64,15 +64,15 @@ export type TerraDrawEdit =
   | {
       type: "draw" | "edit" | "delete";
       /** The user's features after the edit. */
-      features: GeoFeature[];
+      features: DrawFeature[];
     }
   | {
       /** A polygon finished while the `cut` tool was active. */
       type: "cut";
       /** The user's features without the cutter. */
-      features: GeoFeature[];
+      features: DrawFeature[];
       /** The finished polygon, which the editor no longer holds. */
-      cutter: GeoFeature;
+      cutter: DrawFeature;
     };
 
 export interface UseTerraDrawOptions {
@@ -82,7 +82,7 @@ export interface UseTerraDrawOptions {
    * differs from its own, and switches mode when the tool or `disabled` changes.
    */
   state: () => {
-    features: GeoFeature[];
+    features: DrawFeature[];
     /** The active tool. Defaults to none. */
     tool?: DrawTool | null;
     /** Switches to the `render` mode, which shows the features and edits nothing. */
@@ -107,10 +107,10 @@ export interface UseTerraDrawResult {
    * The entries of `features` the editor refused, as given. They are not drawn
    * and not in any `onEdit`: a caller that keeps them in its value adds them back.
    */
-  refused: Readonly<Ref<GeoFeature[]>>;
+  refused: Readonly<Ref<DrawFeature[]>>;
 }
 
-const NONE_REFUSED: GeoFeature[] = [];
+const NONE_REFUSED: DrawFeature[] = [];
 
 type SelectFlags = Record<string, { feature: Record<string, unknown> }>;
 
@@ -243,8 +243,8 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
   const selectedId = ref<string | number | null>(null);
   // Read by the sync without rerunning it, so a plain variable beside the ref.
   let refusedNow = NONE_REFUSED;
-  const refused = shallowRef<GeoFeature[]>(NONE_REFUSED);
-  const setRefused = (next: GeoFeature[]) => {
+  const refused = shallowRef<DrawFeature[]>(NONE_REFUSED);
+  const setRefused = (next: DrawFeature[]) => {
     refusedNow = next.length ? next : NONE_REFUSED;
     refused.value = refusedNow;
   };
@@ -373,7 +373,7 @@ export function useTerraDraw(options: UseTerraDrawOptions): UseTerraDrawResult {
         )[0];
         return editor ? [{ feature, editor }] : [];
       });
-      const refusedEntries: GeoFeature[] = [];
+      const refusedEntries: DrawFeature[] = [];
       syncing = true;
       try {
         current.clear();

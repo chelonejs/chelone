@@ -6375,7 +6375,7 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/use-map"],
+      "registryDependencies": ["@chelone/geometry-ops", "@chelone/use-map"],
       "dependencies": [
         "@chelone/core",
         "terra-draw",

@@ -10,7 +10,6 @@
 import {
   createI18n,
   fakeDataProvider,
-  type GeoFeature,
   mapMessages,
   rasterTileStyle,
 } from "@chelone/core";
@@ -33,6 +32,7 @@ import {
   resetFake as resetDraws,
 } from "./__fixtures__/fake-terra-draw";
 import DrawToolbar, { type DrawToolbarProps } from "./draw-toolbar.vue";
+import type { DrawFeature } from "./geometry-ops";
 import ShapeInput, { type ShapeInputProps } from "./shape-input.vue";
 import { MultiPolygonInput, PointInput, PolygonInput } from "./shape-inputs";
 import { toolMode } from "./use-terra-draw";
@@ -496,7 +496,7 @@ describe("ShapeInput", () => {
     expect(draw().added[0]?.map((f) => f.geometry)).toEqual([square(20)]);
     const sources = Object.values(map().sources);
     expect(sources).toHaveLength(1);
-    const data = sources[0]?.data as { features: GeoFeature[] };
+    const data = sources[0]?.data as { features: DrawFeature[] };
     expect(data.features.map((f) => f.geometry)).toEqual([holed]);
 
     await button(wrapper, "Edit").trigger("click");
@@ -895,7 +895,7 @@ describe("ShapeInput", () => {
     expect(draw().getSnapshot()).toEqual([]);
     const sources = Object.values(map().sources);
     expect(sources).toHaveLength(1);
-    const data = sources[0]?.data as { features: GeoFeature[] };
+    const data = sources[0]?.data as { features: DrawFeature[] };
     const rings = data.features.map((f) =>
       f.geometry?.type === "Polygon" ? f.geometry.coordinates.length : 0,
     );
