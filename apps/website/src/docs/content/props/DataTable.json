@@ -3,7 +3,7 @@
   "props": [
     {
       "name": "body",
-      "type": "ComponentType<{ children: ReactNode; rowClassName?: (record: LooseRecord, rowIndex: number) => string | undefined }>",
+      "type": "ComponentType<DataTableBodyProps>",
       "optional": true,
       "comment": "Override the table body component."
     },
@@ -39,7 +39,7 @@
     },
     {
       "name": "expand",
-      "type": "ReactElement<unknown, string | JSXElementConstructor<any>> | ComponentType<{ id: Identifier; record: LooseRecord; resource: string }>",
+      "type": "ReactElement<unknown, string | JSXElementConstructor<any>> | ComponentType<DataTableExpandProps>",
       "optional": true,
       "comment": "Element or function component rendered as the expand panel under each row.\nWhen provided, a chevron toggle column is added at the start of every row."
     },
