@@ -671,6 +671,7 @@ export { defaultMessages } from "./i18n/default-messages";
 export { englishMessages } from "./i18n/english-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";
 export { createI18n } from "./i18n/i18n";
+export { humanize, humanizeField, pluralize } from "./i18n/inflection";
 export type {
   ExtractParams,
   MessageCatalog,
