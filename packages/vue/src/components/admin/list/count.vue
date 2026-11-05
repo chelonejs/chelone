@@ -49,7 +49,7 @@ if (!props.resource && !ambientResource) {
 const translate = useTranslate();
 const createPath = useCreatePath();
 // Read through `props` so a bound `resource` that changes refetches and relinks.
-const resource = computed(() => (props.resource ?? ambientResource) as string);
+const resource = computed(() => props.resource ?? ambientResource ?? "");
 const { data, isPending, error } = useGetList(
   resource,
   computed(() => ({
