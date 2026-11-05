@@ -29,7 +29,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { Activity, StrictMode, Suspense } from "react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Admin } from "./admin/admin";
 import {
   ResourceRegistryProvider,
@@ -40,10 +40,6 @@ import { Resource } from "./resource/resource";
 import { useRouterAdapter } from "./router/adapter";
 import { reactRouterAdapter } from "./router/react-router-adapter";
 import { tanstackRouterAdapter } from "./router/tanstack-router-adapter";
-
-beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
 
 afterEach(() => {
   cleanup();

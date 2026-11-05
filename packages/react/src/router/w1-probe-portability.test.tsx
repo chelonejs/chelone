@@ -22,7 +22,7 @@ import {
 } from "@testing-library/react";
 import { type ReactNode, useRef } from "react";
 import { createMemoryRouter, MemoryRouter, RouterProvider } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import type { RouterAdapter } from "./adapter";
 import { RouterAdapterProvider } from "./adapter";
 import { BasenameProvider } from "./context";
@@ -30,10 +30,6 @@ import { useBlocker, useLocation, useNavigate, useParams } from "./nav-hooks";
 import { reactRouterAdapter } from "./react-router-adapter";
 import { tanstackRouterAdapter } from "./tanstack-router-adapter";
 
-// TanStack calls window.scrollTo on navigation; jsdom doesn't implement it.
-beforeAll(() => {
-  window.scrollTo = vi.fn();
-});
 afterEach(() => cleanup());
 
 /** A mutable holder read after an `await` (sidesteps TS `never`-narrowing). */

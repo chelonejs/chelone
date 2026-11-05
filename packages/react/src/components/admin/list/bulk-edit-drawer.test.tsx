@@ -24,7 +24,7 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   Admin,
   DataTable,
@@ -35,9 +35,6 @@ import {
 } from "../../../index";
 import { BulkEditDrawer, type BulkEditDrawerProps } from "./bulk-edit-drawer";
 
-beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
 afterEach(cleanup);
 
 const seed = () => ({

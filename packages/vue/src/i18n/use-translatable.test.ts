@@ -5,7 +5,7 @@ import {
 } from "@chelone/core";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick, ref } from "vue";
+import { defineComponent, h, nextTick, ref, type VNodeChild } from "vue";
 import { type CheloneContextValue, provideCheloneContext } from "../context";
 import {
   provideTranslatable,
@@ -26,10 +26,10 @@ function makeI18n(locale: string): AnyCheloneI18n {
 /** Mount `child` under a context that carries `i18n` (or none). */
 function mountWith(
   i18n: AnyCheloneI18n | undefined,
-  child: () => unknown,
+  child: () => () => VNodeChild,
   errorHandler?: (error: unknown) => void,
 ) {
-  const Child = defineComponent({ setup: child as never });
+  const Child = defineComponent({ setup: child });
   const Host = defineComponent({
     setup() {
       provideCheloneContext({ dataProvider, i18n } as CheloneContextValue);
@@ -188,8 +188,11 @@ describe("useTranslatableContext", () => {
   });
 
   it("useTranslatableContext throws outside a provider", () => {
-    expect(() => mountWith(undefined, () => useTranslatableContext())).toThrow(
-      /provideTranslatable/,
-    );
+    expect(() =>
+      mountWith(undefined, () => {
+        useTranslatableContext();
+        return () => h("p");
+      }),
+    ).toThrow(/provideTranslatable/);
   });
 });

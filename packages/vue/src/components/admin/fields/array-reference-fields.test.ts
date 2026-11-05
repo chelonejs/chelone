@@ -13,7 +13,7 @@ import { defineResources, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { type Component, defineComponent, h } from "vue";
+import { type Component, defineComponent, h, type VNodeChild } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import { z } from "zod";
 import Admin from "../../../admin/admin.vue";
@@ -40,13 +40,15 @@ function mountField(
   field: Component,
   props: Record<string, unknown>,
   record: Record<string, unknown> | undefined,
-  slots?: Record<string, unknown>,
+  // `never` scope: the harness hands every slot to `h` and never calls one, so
+  // each takes whatever scope the field passes it.
+  slots?: Record<string, (scope: never) => VNodeChild>,
 ) {
   const Harness = defineComponent({
     setup() {
       provideCheloneContext(makeContext());
       provideRecordContext(record);
-      return () => h(field, props, slots as never);
+      return () => h(field, props, slots);
     },
   });
   return mount(Harness);
