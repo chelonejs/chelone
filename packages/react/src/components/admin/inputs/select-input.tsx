@@ -269,9 +269,7 @@ function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
           </SelectContent>
         </Select>
       </div>
-      <InputHelperText
-        helperText={helperText ?? (fetchError as Error | undefined)?.message}
-      />
+      <InputHelperText helperText={helperText ?? fetchError?.message} />
       <FieldError>
         {invalid && error ? <ValidationError error={error} /> : null}
       </FieldError>

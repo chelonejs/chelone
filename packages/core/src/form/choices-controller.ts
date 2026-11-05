@@ -16,8 +16,8 @@ import type {
 } from "../data/types";
 import type { NotificationStore } from "../notification/notification-store";
 import type { Identifier } from "../resource/identifier";
-import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
+import type { SourceKey } from "../resource/source-path";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 
 /**
@@ -48,7 +48,7 @@ export interface ChoicesControllerState<TRecord> {
   hasPreviousPage: boolean | undefined;
   isPending: boolean;
   isFetching: boolean;
-  error: unknown;
+  error: Error | null;
   /** The referenced resource name. */
   resource: string;
   /** The FK field on the referencing side (metadata for consumers). */
@@ -88,7 +88,7 @@ export interface ChoicesControllerOptions<
    * `'id'` (default) resolves selected records via `getMany`; any other key
    * resolves via `getList({ filter: { [lookupKey]: value } })` (#16).
    */
-  lookupKey?: string;
+  lookupKey?: SourceKey<RecordOf<TResources, TName>>;
   /** Permanent filter — merged OVER the dynamic filter for every choices fetch. */
   filter?: FilterPayload;
   page?: number;
@@ -120,9 +120,8 @@ function removeEmpty(filter: FilterPayload): FilterPayload {
   return result;
 }
 
-function errorMessageKey(error: unknown): string {
-  const message = error instanceof Error ? error.message : "";
-  return message || "chelone.notification.http_error";
+function errorMessageKey(error: Error): string {
+  return error.message || "chelone.notification.http_error";
 }
 
 /** Normalizes a value into a non-empty identifier list, or `[]` when there is nothing to resolve. */
@@ -274,15 +273,14 @@ export function createChoicesController<
   const recompute = (patch: {
     isPending: boolean;
     isFetching: boolean;
-    error: unknown;
+    error: Error | null;
   }): void => {
     const s = store.getSnapshot();
     const page = pageData ?? [];
     const selected = selectedData;
 
     // allChoices: page with any missing selected prepended, deduped by lookupKey.
-    const keyOf = (record: TRecord): unknown =>
-      (record as ResourceRecord & Record<string, unknown>)[lookupKey];
+    const keyOf = (record: TRecord): unknown => record[lookupKey];
     const pageKeys = new Set(page.map(keyOf));
     const missing = selected.filter((record) => !pageKeys.has(keyOf(record)));
     const allChoices = missing.length > 0 ? [...missing, ...page] : page;
@@ -318,11 +316,11 @@ export function createChoicesController<
     });
   };
 
-  let lastNotifiedError: unknown = null;
-  const notifyError = (error: unknown): void => {
+  let lastNotifiedError: Error | null = null;
+  const notifyError = (error: Error | null): void => {
     if (error === lastNotifiedError) return;
     lastNotifiedError = error;
-    if (error == null) return;
+    if (error === null) return;
     ctx.notifications?.notify(errorMessageKey(error), {
       type: "error",
       messageArgs: { _: String(error) },
