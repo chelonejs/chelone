@@ -422,6 +422,24 @@ describe("fromEditorFeatures", () => {
     ).toEqual([]);
   });
 
+  it("fromEditorFeatures drops a feature whose chelone:properties is not a JSON object", () => {
+    expect(
+      fromEditorFeatures([
+        {
+          type: "Feature",
+          id: "x",
+          geometry: point,
+          properties: {
+            mode: "point",
+            "chelone:id": "a",
+            "chelone:properties": 3,
+            name: "kept by the editor",
+          },
+        },
+      ]),
+    ).toEqual([]);
+  });
+
   it("fromEditorFeatures returns the properties toEditorFeatures stored", () => {
     const properties: JsonObject = {
       name: "area",

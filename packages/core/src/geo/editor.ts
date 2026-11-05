@@ -157,7 +157,8 @@ export type EditorSnapshotFeature = Feature<EditorGeometry, JsonObject>;
  * drawn) are dropped, and `id` and `properties` come back from `chelone:id`
  * and `chelone:properties`. A feature the editor made has no `id`, and keeps
  * its properties but for the editor's own. A feature with a coordinate that is
- * not a finite number is left out.
+ * not a finite number, or a `chelone:properties` that is not a JSON object, is
+ * left out.
  */
 export function fromEditorFeatures(
   snapshot: readonly EditorSnapshotFeature[],
@@ -168,6 +169,9 @@ export function fromEditorFeatures(
     if (HELPER_FLAGS.some((flag) => source[flag])) continue;
     if (!isGeoGeometry(entry.geometry)) continue;
     const kept = source[SOURCE_PROPERTIES];
+    // A stash that is not a JSON object is damaged: leave the feature out
+    // rather than return it with its properties replaced.
+    if (SOURCE_PROPERTIES in source && !isJsonObject(kept)) continue;
     const properties: JsonObject = isJsonObject(kept)
       ? { ...kept }
       : Object.fromEntries(
