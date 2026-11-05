@@ -102,7 +102,9 @@ type LocalizedField<V> = V extends (...args: never[]) => unknown
  * and every other type stays. The root is never replaced.
  *
  * A nested `{ a: string; b: string }` field reads as a translation map here,
- * though at run time only `locales` tells the two apart.
+ * though at run time only `locales` tells the two apart. A map without the
+ * selected locale is also left as it is at run time, so its type is the
+ * translated one only for a locale the data covers.
  */
 export type RecordForLocale<T> = { [K in keyof T]: LocalizedField<T[K]> };
 
