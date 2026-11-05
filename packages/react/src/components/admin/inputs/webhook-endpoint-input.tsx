@@ -38,6 +38,11 @@ const DEFAULT_VALUE: WebhookEndpoint = {
   eventTypes: [],
 };
 
+/** `options` with the empty endpoint as its `defaultValue` when it has none (`null` counts as none). */
+function withEmptyEndpoint(options: { defaultValue?: unknown }) {
+  return { ...options, defaultValue: options.defaultValue ?? DEFAULT_VALUE };
+}
+
 /**
  * Composite input for a webhook endpoint. Edits the URL, signing secret, and
  * event-type subscriptions. Optionally renders a test-ping button.
@@ -66,12 +71,11 @@ function WebhookEndpointInput<
   } = props;
   const resource = useResourceContext({ resource: resourceProp });
 
-  // The options are spread whole: reading the generic `defaultValue` anywhere
+  // The options are spread whole: reading the generic `defaultValue` here
   // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
-  // instantiation depth. The empty endpoint seeds unless the caller
-  // gives a `defaultValue`.
+  // instantiation depth. `withEmptyEndpoint` reads it through a loose type.
   const { id, field, fieldState, isRequired } = useInput({
-    ...Object.assign({ defaultValue: DEFAULT_VALUE }, inputProps),
+    ...withEmptyEndpoint(inputProps),
     source,
   });
 
