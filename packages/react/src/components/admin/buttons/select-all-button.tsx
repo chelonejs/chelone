@@ -10,8 +10,11 @@ import { Button } from "@/components/ui/button";
 import { useListContext } from "../../../form";
 import { useTranslate } from "../../../i18n-hooks";
 
+const defaultLabel = "ra.action.select_all";
+
 interface SelectAllButtonProps
   extends Omit<ComponentProps<typeof Button>, "onClick" | "children"> {
+  /** A message key, translated with itself as the fallback. */
   label?: ReactNode;
   /** The most rows to select. */
   limit?: number;
@@ -30,7 +33,7 @@ interface SelectAllButtonProps
  * const MyBulkActions = () => <SelectAllButton limit={500} />;
  */
 function SelectAllButton({
-  label = "ra.action.select_all",
+  label = defaultLabel,
   limit = 250,
   onClick,
   ...rest
@@ -58,7 +61,7 @@ function SelectAllButton({
       onClick={handleClick}
     >
       {typeof label === "string"
-        ? translate(label, { _: "Select all" })
+        ? translate(label, { _: label === defaultLabel ? "Select all" : label })
         : label}
     </Button>
   );
