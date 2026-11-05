@@ -32,7 +32,15 @@ export type TabbedFormProps<TFormData> = OptionalSaveFormProps<TFormData> & {
  * `name` for every tab after the first, else `''` for the first. The active tab
  * is the first whose path equals the pathname, else the first tab.
  */
-import { computed, Fragment, ref, shallowRef, useSlots, type VNode } from "vue";
+import {
+  computed,
+  Fragment,
+  isVNode,
+  ref,
+  shallowRef,
+  useSlots,
+  type VNode,
+} from "vue";
 import { useRouter } from "vue-router";
 import {
   useRouterAdapter,
@@ -71,7 +79,7 @@ function collectTabs(
 ): TabDescriptor[] {
   for (const node of nodes) {
     if (node.type === Fragment && Array.isArray(node.children)) {
-      collectTabs(node.children as VNode[], tabs);
+      collectTabs(node.children.filter(isVNode), tabs);
     } else if (node.type === TabbedFormTab) {
       const name = String(node.props?.name);
       const path = node.props?.path;
