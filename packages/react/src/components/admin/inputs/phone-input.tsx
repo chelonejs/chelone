@@ -73,7 +73,7 @@ function PhoneInput(props: PhoneInputProps) {
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const countries = allowedCountries ?? (getCountries() as CountryCode[]);
+  const countries = allowedCountries ?? getCountries();
 
   const initial = inferCountry(String(field.value ?? ""), defaultCountry);
   const [country, setCountry] = useState<CountryCode>(initial);
