@@ -53,12 +53,7 @@ export function useMenuAccess(
 
   const query = useQuery(
     computed(() => ({
-      // A stub provider satisfies the option factory's type when none is
-      // configured; the query is disabled in that case so it never runs.
-      ...canAccessQueryOptions(
-        authProvider ?? ({} as NonNullable<typeof authProvider>),
-        toValue(params),
-      ),
+      ...canAccessQueryOptions(authProvider, toValue(params)),
       enabled: hasControl && toValue(enabled),
     })),
   );

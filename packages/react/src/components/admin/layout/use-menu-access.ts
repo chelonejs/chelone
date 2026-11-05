@@ -25,10 +25,7 @@ export function useMenuAccess(params: CanAccessParams): MenuAccessResult {
   const { authProvider } = useCheloneContext();
   const hasProvider = authProvider != null;
   const query = useQuery({
-    ...canAccessQueryOptions(
-      authProvider ?? ({} as NonNullable<typeof authProvider>),
-      params,
-    ),
+    ...canAccessQueryOptions(authProvider, params),
     enabled: hasProvider && authProvider?.canAccess != null,
   });
 
