@@ -332,7 +332,8 @@ describe("toPresenceUser", () => {
       toPresenceUser({ id: 7, fullName: "Ada Lovelace", avatar: "a.png" }),
     ).toEqual({ id: "7", name: "Ada Lovelace", avatar: "a.png" });
     expect(toPresenceUser({ id: "ada" })).toEqual({ id: "ada", name: "ada" });
-    expect(toPresenceUser({ id: 7, avatar: 3 as unknown as string })).toEqual({
+    // Wire-shaped on purpose: a wire identity can carry a numeric avatar.
+    expect(toPresenceUser(JSON.parse('{"id":7,"avatar":3}'))).toEqual({
       id: "7",
       name: "7",
     });

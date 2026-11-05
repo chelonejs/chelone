@@ -42,7 +42,7 @@ import { Admin, Edit, Resource, TextInput } from "../../../index";
 import { UpdateButton, type UpdateButtonProps } from "./update-button";
 
 beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
+  window.scrollTo = vi.fn();
 });
 afterEach(cleanup);
 
@@ -386,14 +386,12 @@ describe("<UpdateButton>", () => {
   });
 
   it("renders nothing without a record id", async () => {
+    // Wire-shaped on purpose: a record off the wire can have no id.
+    const noId = JSON.parse('{"title":"no id"}');
     mount({
       button: (
         <>
-          <UpdateButton
-            data={{ views: 0 }}
-            record={{ title: "no id" } as never}
-            label="No id"
-          />
+          <UpdateButton data={{ views: 0 }} record={noId} label="No id" />
           <UpdateButton data={{ views: 0 }} label="Has id" />
         </>
       ),

@@ -291,8 +291,8 @@ describe("useReferenceManyFieldController", () => {
   });
 
   it("with no record id fetches nothing", async () => {
-    // A record with no id key: LooseRecord requires one, so the fixture is cast.
-    const noId = { title: "no id" } as unknown as RecordValue;
+    // Wire-shaped on purpose: a record off the wire can have no id key.
+    const noId = JSON.parse('{"title":"no id"}');
     const { capture, referenceSpy, dataObserverCount } = mountMany({}, noId);
     await nextTick();
     expect(capture.result?.data).toEqual([]);

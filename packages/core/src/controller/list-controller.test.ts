@@ -71,7 +71,8 @@ describe("createListController", () => {
     c.setSort({ field: "title", order: "ASC" });
     expect(c.getSnapshot().page).toBe(1);
     expect(c.getSnapshot().sort).toEqual([{ field: "title", order: "ASC" }]);
-    c.setSort({ field: "title" } as never); // same field, no explicit order -> toggle
+    // Wire-shaped on purpose: a sort off the wire can carry no `order`.
+    c.setSort(JSON.parse('{"field":"title"}')); // no order -> toggle
     expect(c.getSnapshot().sort).toEqual([{ field: "title", order: "DESC" }]);
     c.destroy();
   });

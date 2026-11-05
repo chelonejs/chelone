@@ -10,7 +10,6 @@ import {
   createResourceRegistry,
   defineMessages,
   fakeDataProvider,
-  type LooseRecord,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import {
@@ -42,7 +41,7 @@ import { reactRouterAdapter } from "../../../router/react-router-adapter";
 import { CloneButton } from "./clone-button";
 
 beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
+  window.scrollTo = vi.fn();
 });
 afterEach(cleanup);
 
@@ -120,9 +119,11 @@ describe("<CloneButton>", () => {
   });
 
   it("renders nothing without a record id", () => {
+    // Wire-shaped on purpose: a record off the wire can have no id.
+    const noId = JSON.parse('{"title":"no id"}');
     render(
       <Providers>
-        <CloneButton record={{ title: "no id" } as unknown as LooseRecord} />
+        <CloneButton record={noId} />
         <RecordContextProvider value={undefined}>
           <CloneButton />
         </RecordContextProvider>

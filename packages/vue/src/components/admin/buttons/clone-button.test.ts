@@ -9,7 +9,6 @@ import {
   createI18n,
   defineMessages,
   fakeDataProvider,
-  type LooseRecord,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
@@ -203,10 +202,12 @@ describe("<CloneButton>", () => {
   });
 
   it("renders nothing without a record id", async () => {
+    // Wire-shaped on purpose: a record off the wire can have no id.
+    const noId = JSON.parse('{"title":"no id"}');
     const { wrapper } = await mountButtons(() => [
       h(CloneButton, {
         resource: "posts",
-        record: { title: "no id" } as unknown as LooseRecord,
+        record: noId,
       }),
       h(CloneButton, { resource: "posts" }),
     ]);
