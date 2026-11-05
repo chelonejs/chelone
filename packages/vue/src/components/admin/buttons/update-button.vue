@@ -56,7 +56,6 @@ export interface UpdateButtonProps {
  * The icon is the `icon` slot, defaulting to a refresh glyph.
  */
 
-import type { Identifier } from "@chelone/core";
 import { computed, inject, ref } from "vue";
 import { useCheloneNotifications } from "../../../context";
 import { useUpdate } from "../../../data/mutations";
@@ -132,25 +131,29 @@ const confirmOptions = computed(() => ({
 
 const open = ref(false);
 
-const params = () => ({
-  id: record.value?.id as Identifier,
+const params = (current: LooseRecord) => ({
+  id: current.id,
   data: props.data,
-  previousData: record.value,
+  previousData: current,
 });
 
 function onClick(event: MouseEvent): void {
   event.stopPropagation();
+  const current = record.value;
+  if (!current) return;
   if (props.mutationMode !== "undoable") {
     open.value = true;
     return;
   }
   // Undoable `mutateAsync` resolves once the Undo notification is enqueued.
-  void update.mutateAsync(params());
+  void update.mutateAsync(params(current));
   emit("click", event);
 }
 
 async function onConfirm(): Promise<void> {
-  const pending = update.mutateAsync(params());
+  const current = record.value;
+  if (!current) return;
+  const pending = update.mutateAsync(params(current));
   if (props.mutationMode === "optimistic") open.value = false;
   emit("click");
   try {
@@ -159,7 +162,7 @@ async function onConfirm(): Promise<void> {
       type: "info",
       messageArgs: { smart_count: 1 },
     });
-    emit("success", result as LooseRecord);
+    if (result) emit("success", result);
   } catch (error) {
     notifications?.notify("chelone.notification.http_error", { type: "error" });
     emit("error", error);
