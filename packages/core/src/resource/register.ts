@@ -26,6 +26,17 @@ export type RegisteredResources = Register extends {
   ? TResources
   : ResourceMap;
 
+/**
+ * The registered permissions type, or `unknown` when nothing is registered.
+ * An app registers it with `interface Register { permissions: string[] }`.
+ */
+export type RegisteredPermissions = Register extends {
+  permissions: infer TPermissions;
+}
+  ? TPermissions
+  : // type-escape: the fallback for an app that registers no permissions type
+    unknown;
+
 /** The registered resource names, or `string` when nothing is registered. */
 export type RegisteredResourceName = keyof RegisteredResources & string;
 

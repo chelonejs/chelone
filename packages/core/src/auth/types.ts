@@ -1,4 +1,5 @@
 import type { Identifier } from "../resource/identifier";
+import type { RegisteredPermissions } from "../resource/register";
 
 export interface UserIdentity {
   id: Identifier;
@@ -18,7 +19,7 @@ export interface CanAccessParams {
  * not permitted. `refreshAuth` is the token-refresh hook point (charter §11);
  * the P6 shell builds the no-flash SSR gate on `checkAuth`.
  */
-export interface AuthProvider {
+export interface AuthProvider<TPermissions = RegisteredPermissions> {
   login(
     params: Record<string, unknown>,
   ): Promise<void | { redirectTo?: string }>;
@@ -26,7 +27,8 @@ export interface AuthProvider {
   checkAuth(params?: unknown): Promise<void>;
   checkError(error: unknown): Promise<void>;
   getIdentity?(): Promise<UserIdentity>;
-  getPermissions?(params?: unknown): Promise<unknown>;
+  /** Resolves `undefined` when there are no permissions to give, e.g. nobody is signed in. */
+  getPermissions?(params?: unknown): Promise<TPermissions | undefined>;
   canAccess?(params: CanAccessParams): Promise<boolean>;
   handleCallback?(): Promise<void | { redirectTo?: string }>;
   refreshAuth?(): Promise<void>;
