@@ -14,6 +14,7 @@
  * runtime — mirrors the resource-registry / MicroStore notification pattern.
  */
 
+import type { ValidationErrorMap } from "@tanstack/form-core";
 import {
   normalizeFormError,
   type TranslatableMessage,
@@ -104,8 +105,8 @@ export interface GroupFieldMeta {
   isDirty: boolean;
   isTouched: boolean;
   isValidating: boolean;
-  /** Cause-keyed validation errors (`onSubmit`/`onDynamic`/…) — `unknown` values. */
-  errorMap: Record<string, unknown>;
+  /** form-core's cause-keyed validation errors (`onSubmit`/`onDynamic`/…). */
+  errorMap: ValidationErrorMap;
 }
 
 /** The aggregated group state a badge/toolbar renders. */
@@ -134,7 +135,7 @@ const ERROR_MAP_PRIORITY = [
 
 /** First displayable error across a field's error-map causes, normalized. */
 function firstMemberError(
-  errorMap: Record<string, unknown>,
+  errorMap: ValidationErrorMap,
 ): string | TranslatableMessage | undefined {
   for (const cause of ERROR_MAP_PRIORITY) {
     const normalized = normalizeFormError(errorMap[cause]);
