@@ -14,7 +14,7 @@
  * zero-lodash footprint).
  */
 
-import { getAtPath } from "@chelone/core";
+import { getAtPath, isResourceRecord } from "@chelone/core";
 import { isValidElement, type ReactNode, useCallback } from "react";
 import { useResourceDefinition } from "../resource";
 
@@ -53,8 +53,11 @@ export function useGetRecordRepresentation(
   return useCallback(
     (record: unknown): ReactNode => {
       if (record == null) return "";
-      if (typeof recordRepresentation === "function") {
-        return (recordRepresentation as (r: unknown) => ReactNode)(record);
+      if (
+        typeof recordRepresentation === "function" &&
+        isResourceRecord(record)
+      ) {
+        return recordRepresentation(record);
       }
       if (typeof recordRepresentation === "string") {
         return getAtPath(record, recordRepresentation) as ReactNode;
@@ -84,9 +87,9 @@ export function useGetRecordRepresentationText(
     (record: unknown): string => {
       if (record == null) return "";
       if (typeof recordRepresentation === "function") {
-        const result = (recordRepresentation as (r: unknown) => unknown)(
-          record,
-        );
+        const result = isResourceRecord(record)
+          ? recordRepresentation(record)
+          : undefined;
         if (typeof result === "string" || typeof result === "number") {
           return String(result);
         }
