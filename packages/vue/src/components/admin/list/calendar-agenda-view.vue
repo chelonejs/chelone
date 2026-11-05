@@ -21,7 +21,6 @@ export interface CalendarAgendaViewProps {
 </script>
 
 <script setup lang="ts">
-import type { VNode } from "vue";
 /**
  * `<CalendarAgendaView>` — the events of the range as a list, a heading per day
  * with the events that start on it, earliest first. Emits `select-event` with
@@ -29,7 +28,7 @@ import type { VNode } from "vue";
  */
 
 import { groupCalendarAgenda } from "@chelone/core";
-import { computed } from "vue";
+import { computed, type VNode } from "vue";
 import { useLocale } from "../../../i18n/use-locale";
 import { useTranslate } from "../../../i18n/use-translate";
 import CalendarEventButton from "./calendar-event.vue";

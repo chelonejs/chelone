@@ -24,7 +24,6 @@ export interface TreeListProps {
 </script>
 
 <script setup lang="ts">
-import type { VNode } from "vue";
 /**
  * `<TreeList>` — the records of the ambient `<List>` as a collapsible tree,
  * nested by a parent field. The Vue analog of `@chelone/react`'s
@@ -49,7 +48,7 @@ import {
   type LooseRecord,
   type RecordTreeNode,
 } from "@chelone/core";
-import { computed, getCurrentInstance, provide, ref } from "vue";
+import { computed, getCurrentInstance, provide, ref, type VNode } from "vue";
 import { useResourceDefinition } from "../../../admin/resource-registry";
 import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
 import { cn } from "../../../lib/utils";

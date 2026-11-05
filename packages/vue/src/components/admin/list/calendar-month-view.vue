@@ -40,7 +40,6 @@ export interface CalendarMonthViewProps {
 </script>
 
 <script setup lang="ts">
-import type { VNode } from "vue";
 /**
  * `<CalendarMonthView>` — a grid of whole weeks with the events of each day in
  * its cell. An event that spans days shows in every cell it covers. Emits
@@ -56,7 +55,7 @@ import {
   calendarEventsOnDay,
   moveCalendarEvent,
 } from "@chelone/core";
-import { computed, onBeforeUnmount, ref, shallowRef } from "vue";
+import { computed, onBeforeUnmount, ref, shallowRef, type VNode } from "vue";
 import { cn } from "../../../lib/utils";
 
 const props = defineProps<CalendarMonthViewProps>();

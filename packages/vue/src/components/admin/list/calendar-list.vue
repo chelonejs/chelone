@@ -59,7 +59,6 @@ export interface CalendarHeaderSlotProps {
 </script>
 
 <script setup lang="ts">
-import type { VNode } from "vue";
 /**
  * `<CalendarList>` — the records of the ambient `<List>` as events in a month
  * grid, or in a week of hour rows, or in an agenda. The Vue analog of `@chelone/react`'s `list/calendar-list.tsx`. It asks
@@ -98,6 +97,7 @@ import {
   getCurrentInstance,
   onBeforeUnmount,
   ref,
+  type VNode,
   watch,
 } from "vue";
 import { useResourceDefinition } from "../../../admin/resource-registry";

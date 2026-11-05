@@ -11,7 +11,6 @@ export interface FunctionFieldProps<RecordType extends LooseRecord = LooseRecord
 </script>
 
 <script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { VNode } from "vue";
 /**
  * `<FunctionField>` — renders derived content from the ambient record, the Vue
  * analog of `@chelone/react`'s `fields/function-field.tsx`. Useful for composing
@@ -25,7 +24,7 @@ import type { VNode } from "vue";
  * Renders nothing until an ambient (or overridden) record resolves.
  */
 
-import { computed, inject } from "vue";
+import { computed, inject, type VNode } from "vue";
 import { cn } from "../../../lib/utils";
 import { RecordContextKey } from "../../../record/record-context";
 

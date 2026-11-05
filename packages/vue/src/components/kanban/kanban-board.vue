@@ -31,7 +31,6 @@ export interface KanbanBoardProps<
 </script>
 
 <script setup lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
-import type { VNode } from "vue";
 /**
  * `<KanbanBoard>` — the records of the ambient `<List>` as columns, one per
  * `columns` entry, with a card per record. The Vue analog of
@@ -74,7 +73,7 @@ import {
 } from "@chelone/core";
 import { PointerSensor } from "@dnd-kit/dom";
 import { DragDropProvider } from "@dnd-kit/vue";
-import { computed, getCurrentInstance } from "vue";
+import { computed, getCurrentInstance, type VNode } from "vue";
 import { useResourceDefinition } from "../../admin/resource-registry";
 import { useCheloneNotifications } from "../../context";
 import { useUpdate } from "../../data/mutations";

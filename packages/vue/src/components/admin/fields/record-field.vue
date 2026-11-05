@@ -20,7 +20,6 @@ export interface RecordFieldProps<RecordType extends LooseRecord = LooseRecord> 
 </script>
 
 <script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { VNode } from "vue";
 /**
  * `<RecordField>` — displays a labeled field-value pair with flexible rendering,
  * the Vue analog of `@chelone/react`'s `fields/record-field.tsx`. Supports
@@ -37,7 +36,7 @@ import type { VNode } from "vue";
  * label i18n is a later wave — parity with the Vue inputs).
  */
 
-import { computed, inject } from "vue";
+import { computed, inject, type VNode } from "vue";
 import { cn } from "../../../lib/utils";
 import { humanizeSource } from "../inputs/label-text";
 import { RecordContextKey } from "../../../record/record-context";

@@ -21,7 +21,6 @@ export interface CalendarWeekViewProps {
 </script>
 
 <script setup lang="ts">
-import type { VNode } from "vue";
 /**
  * `<CalendarWeekView>` — seven day columns by 24 hour rows. An event shows in
  * the cell of its start hour only. Emits `select-event` with the record and
@@ -30,7 +29,7 @@ import type { VNode } from "vue";
  */
 
 import { calendarDayKey, calendarEventsInHour } from "@chelone/core";
-import { onBeforeUnmount, ref } from "vue";
+import { onBeforeUnmount, ref, type VNode } from "vue";
 import CalendarEventButton from "./calendar-event.vue";
 import type {
   CalendarEventSlotProps,
