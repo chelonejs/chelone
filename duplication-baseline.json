@@ -18,7 +18,7 @@
   "packages/core/src/realtime/types.ts <-> packages/core/src/realtime/types.ts": 1,
   "packages/react/src/admin/admin-ui.tsx <-> packages/react/src/admin/partition.tsx": 1,
   "packages/react/src/array-hooks.ts <-> packages/vue/src/array/use-array-input.ts": 3,
-  "packages/react/src/auth-hooks.ts <-> packages/vue/src/auth/auth-hooks.ts": 2,
+  "packages/react/src/auth-hooks.ts <-> packages/vue/src/auth/auth-hooks.ts": 1,
   "packages/react/src/auth-hooks.ts <-> packages/vue/src/auth/permissions-hooks.ts": 5,
   "packages/react/src/choices-hooks.ts <-> packages/vue/src/choices/choices-context.ts": 3,
   "packages/react/src/choices-hooks.ts <-> packages/vue/src/choices/use-choices.ts": 1,

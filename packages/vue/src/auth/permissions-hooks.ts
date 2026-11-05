@@ -65,12 +65,7 @@ export function usePermissions<PermissionsType = unknown>(
   const { authProvider } = useCheloneContext();
   const hasGetPermissions = authProvider?.getPermissions != null;
   const query = useQuery({
-    ...permissionsQueryOptions(
-      // A stub provider satisfies the option factory's type when none is
-      // configured; the query is disabled in that case so it never runs.
-      authProvider ?? ({} as NonNullable<typeof authProvider>),
-      params,
-    ),
+    ...permissionsQueryOptions(authProvider, params),
     staleTime: options.staleTime ?? 5 * 60 * 1000,
     enabled: (options.enabled ?? true) && hasGetPermissions,
   });
