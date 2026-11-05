@@ -109,6 +109,7 @@ export const blocks = [
       { path: "src/lib/are-ids-equal.ts", type: "registry:lib" },
       { path: "src/lib/shallow-equal.ts", type: "registry:lib" },
       { path: "src/lib/utils.ts", type: "registry:lib" },
+      { path: "src/lib/vnode-children.ts", type: "registry:lib" },
     ],
   },
   {

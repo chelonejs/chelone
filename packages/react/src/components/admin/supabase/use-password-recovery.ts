@@ -6,6 +6,7 @@
  * and `use-supabase-access-token.ts`.
  */
 
+import type { AuthProvider } from "@chelone/core";
 import type { ResetPasswordParams, SetPasswordParams } from "@chelone/supabase";
 import { readSupabaseUrlParams } from "@chelone/supabase";
 import {
@@ -28,6 +29,24 @@ export type UseSetPasswordOptions = Omit<
   "mutationFn"
 >;
 
+/** Whether `provider` carries the method the reset email flow calls. */
+function canResetPassword(provider: AuthProvider): provider is AuthProvider & {
+  resetPassword(params: ResetPasswordParams): Promise<void>;
+} {
+  return (
+    "resetPassword" in provider && typeof provider.resetPassword === "function"
+  );
+}
+
+/** Whether `provider` carries the method the set password flow calls. */
+function canSetPassword(provider: AuthProvider): provider is AuthProvider & {
+  setPassword(params: SetPasswordParams): Promise<void>;
+} {
+  return (
+    "setPassword" in provider && typeof provider.setPassword === "function"
+  );
+}
+
 /** Sends the reset email, then points the user at the login page. */
 export function useResetPassword(options: UseResetPasswordOptions = {}) {
   const authProvider = useCheloneAuthProvider();
@@ -37,14 +56,12 @@ export function useResetPassword(options: UseResetPasswordOptions = {}) {
   return useMutation<void, Error, ResetPasswordParams>({
     ...options,
     mutationFn: async (params) => {
-      if (!("resetPassword" in authProvider)) {
+      if (!canResetPassword(authProvider)) {
         throw new Error(
           "useResetPassword: the auth provider has no resetPassword method. Use supabaseAuthProvider from @chelone/supabase.",
         );
       }
-      await (
-        authProvider as { resetPassword: (p: unknown) => Promise<void> }
-      ).resetPassword(params);
+      await authProvider.resetPassword(params);
     },
     onSuccess: (...args) => {
       notify("ra-supabase.auth.password_reset", { type: "info" });
@@ -63,14 +80,12 @@ export function useSetPassword(options: UseSetPasswordOptions = {}) {
   return useMutation<void, Error, SetPasswordParams>({
     ...options,
     mutationFn: async (params) => {
-      if (!("setPassword" in authProvider)) {
+      if (!canSetPassword(authProvider)) {
         throw new Error(
           "useSetPassword: the auth provider has no setPassword method. Use supabaseAuthProvider from @chelone/supabase.",
         );
       }
-      await (
-        authProvider as { setPassword: (p: unknown) => Promise<void> }
-      ).setPassword(params);
+      await authProvider.setPassword(params);
     },
     onSuccess: async (...args) => {
       await queryClient.invalidateQueries({ queryKey: ["auth"] });
@@ -143,10 +158,10 @@ export function useSupabaseUrlTokens(): {
 } {
   const location = useLocation();
   const navigate = useNavigate();
-  const kept = useRef({ accessToken: null, refreshToken: null } as {
+  const kept = useRef<{
     accessToken: string | null;
     refreshToken: string | null;
-  });
+  }>({ accessToken: null, refreshToken: null });
 
   const { accessToken, refreshToken } = readSupabaseUrlParams(location);
   if (accessToken !== null || refreshToken !== null) {

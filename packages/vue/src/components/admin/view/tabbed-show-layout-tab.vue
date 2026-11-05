@@ -21,6 +21,7 @@ import {
   type VNodeChild,
 } from "vue";
 import { cn } from "../../../lib/utils";
+import { childVNodes } from "../../../lib/vnode-children";
 import Labeled from "./labeled.vue";
 
 /** Props for {@link TabbedShowLayoutTab}. */
@@ -55,8 +56,8 @@ export const TabbedShowLayoutContextKey: InjectionKey<TabbedShowLayoutContext> =
 function elementNodes(nodes: VNode[], out: VNode[] = []): VNode[] {
   for (const node of nodes) {
     if (node.type === Comment || node.type === Text) continue;
-    if (node.type === Fragment && Array.isArray(node.children)) {
-      elementNodes(node.children as VNode[], out);
+    if (node.type === Fragment) {
+      elementNodes(childVNodes(node), out);
     } else {
       out.push(node);
     }
