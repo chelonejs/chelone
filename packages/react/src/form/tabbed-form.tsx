@@ -33,9 +33,7 @@
 
 import type { PathMatch } from "@chelone/core";
 import {
-  Children,
   createContext,
-  Fragment,
   isValidElement,
   type ReactElement,
   type ReactNode,
@@ -46,6 +44,7 @@ import {
 } from "react";
 import { useRouterAdapter } from "../router/adapter";
 import { useLocation } from "../router/nav-hooks";
+import { flattenChildren } from "./flatten-children";
 import {
   FormScope,
   type OptionalSaveFormOptions,
@@ -161,27 +160,6 @@ function isTab(child: ReactNode): child is ReactElement<TabbedFormTabProps> {
     "chelName" in child.type &&
     child.type.chelName === TAB_MARKER
   );
-}
-
-/**
- * Flatten `children` into a flat node list, recursing through Fragments (a
- * top-level `<>…</>` is NOT flattened by `Children.toArray`, so authors who
- * group `<TabbedForm.Tab>`s in a Fragment — or a component returning one — are
- * handled). Mirrors ra-core's children-partition walk (plan §0a-9).
- */
-function flattenChildren(children: ReactNode): ReactNode[] {
-  const out: ReactNode[] = [];
-  for (const child of Children.toArray(children)) {
-    if (
-      isValidElement<{ children?: ReactNode }>(child) &&
-      child.type === Fragment
-    ) {
-      out.push(...flattenChildren(child.props.children));
-    } else {
-      out.push(child);
-    }
-  }
-  return out;
 }
 
 /** Extract the ordered tab descriptors from `<TabbedForm.Tab>` children. */

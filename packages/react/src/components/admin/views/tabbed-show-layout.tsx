@@ -9,6 +9,7 @@ import {
 } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { flattenChildren } from "../../../form/flatten-children";
 import { useSplatPathBase } from "../../../form/use-splat-path-base";
 import { useTranslate } from "../../../i18n-hooks";
 import { useRecordContext } from "../../../record/record-context";
@@ -103,22 +104,6 @@ interface TabbedShowLayoutProps {
 
 function isShowTab(child: ReactNode): child is ReactElement<ShowTabProps> {
   return isValidElement<ShowTabProps>(child) && child.type === ShowTab;
-}
-
-/** Flattens Fragments, which `Children.toArray` leaves in place. */
-function flattenChildren(children: ReactNode): ReactNode[] {
-  const out: ReactNode[] = [];
-  for (const child of Children.toArray(children)) {
-    if (
-      isValidElement<{ children?: ReactNode }>(child) &&
-      child.type === Fragment
-    ) {
-      out.push(...flattenChildren(child.props.children));
-    } else {
-      out.push(child);
-    }
-  }
-  return out;
 }
 
 function tabHref(base: string, segment: string): string {

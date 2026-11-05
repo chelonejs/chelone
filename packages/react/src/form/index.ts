@@ -20,6 +20,7 @@ export {
   useFilterForm,
   useListContext,
 } from "./filter-live-form";
+export { flattenChildren } from "./flatten-children";
 export type {
   FormGroupProviderProps,
   FormGroupsProviderProps,
