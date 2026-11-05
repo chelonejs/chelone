@@ -1,3 +1,10 @@
+import {
+  type DateInputValue,
+  type SourceProp,
+  type SourceValue,
+  toDateInputValue,
+  toTextValue,
+} from "@chelone/core";
 import * as React from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -64,8 +71,8 @@ function DateInput(props: DateInputProps) {
     defaultValue,
     source,
     validate,
-    format,
-    parse,
+    format: (raw) => format(toDateInputValue(raw)),
+    parse: parse && ((input) => parse(toTextValue(input))),
   });
 
   const invalid = fieldState.invalid;
@@ -171,7 +178,9 @@ function DateInput(props: DateInputProps) {
       <Input
         ref={localInputRef}
         name={field.name}
-        defaultValue={(format(initialDefaultValueRef.current) as string) ?? ""}
+        defaultValue={
+          format(toDateInputValue(initialDefaultValueRef.current)) ?? ""
+        }
         key={inputKey}
         type="date"
         onChange={handleChange}
@@ -197,7 +206,15 @@ function DateInput(props: DateInputProps) {
   );
 }
 
-type DateInputProps = InputProps & {
+type DateInputProps<
+  // type-escape: the no-record sentinel `SourcePath` and `SourceValue` test for
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> = Omit<InputProps<TRecord, TPath>, "format" | "parse"> & {
+  /** Read transform: the stored value, as a date input holds it, to the `YYYY-MM-DD` string. */
+  format?: (value: DateInputValue) => string | null;
+  /** Write transform: the string the DOM input holds to the stored value. */
+  parse?: (value: string) => SourceValue<TRecord, TPath>;
   inputClassName?: string;
 } & Omit<React.ComponentProps<"input">, "label" | "defaultValue" | "type">;
 
@@ -223,7 +240,7 @@ const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
  * timezone (documented ra behavior); pass a custom `parse`/`format` to control it.
  * Returns `null` for nullish/empty so the input stays controlled-by-defaultValue.
  */
-const defaultFormat = (value: unknown): string | null => {
+const defaultFormat = (value: DateInputValue): string | null => {
   if (value == null || value === "") {
     return null;
   }
@@ -233,7 +250,7 @@ const defaultFormat = (value: unknown): string | null => {
   if (typeof value === "string" && dateRegex.test(value)) {
     return value;
   }
-  return convertDateToString(new Date(value as string | number));
+  return convertDateToString(new Date(value));
 };
 
 export { DateInput, type DateInputProps };

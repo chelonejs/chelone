@@ -1,3 +1,10 @@
+import {
+  type DateInputValue,
+  type SourceProp,
+  type SourceValue,
+  toDateInputValue,
+  toTextValue,
+} from "@chelone/core";
 import * as React from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -65,8 +72,8 @@ function TimeInput(props: TimeInputProps) {
     onBlur,
     source,
     validate,
-    format,
-    parse,
+    format: (raw) => format(toDateInputValue(raw)),
+    parse: (input) => parse(toTextValue(input)),
   });
 
   const invalid = fieldState.invalid;
@@ -158,7 +165,7 @@ function TimeInput(props: TimeInputProps) {
       <Input
         ref={localInputRef}
         name={field.name}
-        defaultValue={format(initialDefaultValueRef.current) as string}
+        defaultValue={format(toDateInputValue(initialDefaultValueRef.current))}
         key={inputKey}
         type="time"
         onChange={handleChange}
@@ -184,8 +191,15 @@ function TimeInput(props: TimeInputProps) {
   );
 }
 
-type TimeInputProps = Omit<InputProps, "defaultValue"> & {
-  defaultValue?: string | number | Date;
+type TimeInputProps<
+  // type-escape: the no-record sentinel `SourcePath` and `SourceValue` test for
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> = Omit<InputProps<TRecord, TPath>, "format" | "parse"> & {
+  /** Read transform: the stored value, as a date input holds it, to the input's display string. */
+  format?: (value: DateInputValue) => string;
+  /** Write transform: the string the DOM input holds to the stored value. */
+  parse?: (value: string) => SourceValue<TRecord, TPath>;
   inputClassName?: string;
 } & Omit<React.ComponentProps<"input">, "defaultValue" | "type">;
 
@@ -212,7 +226,7 @@ const timeRegex = /^\d{2}:\d{2}(:\d{2})?$/;
  * Convert a value from the dataProvider (Date / "HH:mm" string) to the "HH:mm"
  * display string. Empty → "" (keeps the input controlled).
  */
-const formatTime = (value: unknown): string => {
+const formatTime = (value: DateInputValue): string => {
   if (value == null || value === "") {
     return "";
   }
@@ -222,7 +236,7 @@ const formatTime = (value: unknown): string => {
   if (typeof value === "string" && timeRegex.test(value)) {
     return value;
   }
-  return convertDateToString(new Date(value as string | number));
+  return convertDateToString(new Date(value));
 };
 
 /**
@@ -230,11 +244,8 @@ const formatTime = (value: unknown): string => {
  * for dataProvider compatibility. Returns `null` for empty/unparseable so a
  * required validator still fires.
  */
-const parseTime = (value: unknown): Date | null => {
-  if (value == null || value === "") {
-    return null;
-  }
-  if (typeof value === "string" && timeRegex.test(value)) {
+const parseTime = (value: string): Date | null => {
+  if (timeRegex.test(value)) {
     const [hh = "0", mm = "0", ss = "0"] = value.split(":");
     const d = new Date();
     d.setHours(

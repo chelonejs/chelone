@@ -236,17 +236,17 @@ type CallbackParam<TCallback> =
 
 /**
  * The `format`, `parse`, `transform` and `defaultValue` entries of `P` with
- * `TValue` in place of the value they took, returned or held. Each stays
- * optional and keeps the rest of its signature, and one `P` lacks is not added.
+ * `TValue` in place of the value they took or returned. Each stays optional
+ * and keeps the rest of its signature, and one `P` lacks is not added.
  */
 type ValueEntries<P, TValue> = {
+  [K in Extract<keyof P, "defaultValue">]?: TValue;
+} & {
   [K in Extract<keyof P, "format" | "transform">]?: (
     value: TValue,
   ) => CallbackResult<P[K]>;
 } & {
   [K in Extract<keyof P, "parse">]?: (value: CallbackParam<P[K]>) => TValue;
-} & {
-  [K in Extract<keyof P, "defaultValue">]?: TValue;
 };
 
 /**
@@ -276,7 +276,7 @@ type ValueMember<TComponent extends Ctor, TRecord> = <
   ctx?: { slots?: InstanceType<TComponent>["$slots"] },
 ) => VNode;
 
-/** The member type: {@link ValueMember} when the props have a value entry, else {@link Retyped}. */
+/** The member type: {@link ValueMember} when the props have a value callback or a `defaultValue`, else {@link Retyped}. */
 type ResourceMember<TComponent extends Ctor, TRecord> = [
   keyof InstanceType<TComponent>["$props"] &
     ("format" | "parse" | "transform" | "defaultValue"),

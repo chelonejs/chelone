@@ -207,12 +207,14 @@ type CallbackParam<TCallback> =
     : never;
 
 /**
- * The `format`, `parse`, `transform` and `defaultValue` entries of `TProps` with
- * `TValue` in place of the value they took, returned or held. Each stays
+ * The `format`, `parse`, `transform` and `defaultValue` entries of `TProps`
+ * with `TValue` in place of the value they took or returned. Each stays
  * optional and keeps the rest of its signature, and one `TProps` lacks is not
  * added.
  */
 type ValueEntries<TProps, TValue> = {
+  [K in Extract<keyof TProps, "defaultValue">]?: TValue;
+} & {
   [K in Extract<keyof TProps, "format" | "transform">]?: (
     value: TValue,
   ) => CallbackResult<TProps[K]>;
@@ -220,8 +222,6 @@ type ValueEntries<TProps, TValue> = {
   [K in Extract<keyof TProps, "parse">]?: (
     value: CallbackParam<TProps[K]>,
   ) => TValue;
-} & {
-  [K in Extract<keyof TProps, "defaultValue">]?: TValue;
 };
 
 /** Whether `TProps` has a `format`, `parse`, `transform` or `defaultValue`. */

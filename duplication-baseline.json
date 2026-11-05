@@ -187,7 +187,7 @@
   "packages/vue/src/components/admin/inputs/date-input.vue <-> packages/vue/src/components/admin/inputs/date-time-input.vue": 5,
   "packages/vue/src/components/admin/inputs/date-input.vue <-> packages/vue/src/components/admin/inputs/number-input.vue": 2,
   "packages/vue/src/components/admin/inputs/date-input.vue <-> packages/vue/src/components/admin/inputs/text-input.vue": 1,
-  "packages/vue/src/components/admin/inputs/date-input.vue <-> packages/vue/src/components/admin/inputs/time-input.vue": 4,
+  "packages/vue/src/components/admin/inputs/date-input.vue <-> packages/vue/src/components/admin/inputs/time-input.vue": 3,
   "packages/vue/src/components/admin/inputs/date-time-input.vue <-> packages/vue/src/components/admin/inputs/time-input.vue": 1,
   "packages/vue/src/components/admin/inputs/duration-input.vue <-> packages/vue/src/components/admin/inputs/phone-input.vue": 1,
   "packages/vue/src/components/admin/inputs/nullable-boolean-input.vue <-> packages/vue/src/components/admin/inputs/reference-input.vue": 1,
