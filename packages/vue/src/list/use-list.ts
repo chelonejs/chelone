@@ -51,7 +51,7 @@ export interface UseListOptions<
   /** Pass-through fetching flag for an async source feeding the list. */
   isFetching?: MaybeRefOrGetter<boolean>;
   /** Pass-through error for an async source feeding the list. */
-  error?: MaybeRefOrGetter<Error | null>;
+  error?: MaybeRefOrGetter<Error | null | undefined>;
 }
 
 /**
