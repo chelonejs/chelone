@@ -49,13 +49,13 @@ export function authStateQueryOptions(authProvider: AuthProvider) {
  * a queryFn resolving `undefined`. Mirrors {@link canAccessQueryOptions}: keyed
  * by the passed `params` so distinct param objects cache independently.
  */
-export function permissionsQueryOptions(
-  authProvider: AuthProvider,
+export function permissionsQueryOptions<TPermissions>(
+  authProvider: AuthProvider<TPermissions>,
   params?: unknown,
 ) {
   return {
     queryKey: ["auth", "getPermissions", params] as const,
-    queryFn: async (): Promise<unknown> =>
+    queryFn: async (): Promise<TPermissions | null> =>
       (await authProvider.getPermissions?.(params)) ?? null,
   };
 }

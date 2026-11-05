@@ -838,6 +838,7 @@ export type { LooseRecord, ResourceRecord } from "./resource/record";
 export { isLooseRecord } from "./resource/record";
 export type {
   Register,
+  RegisteredPermissions,
   RegisteredRecord,
   RegisteredResourceName,
   RegisteredResources,
