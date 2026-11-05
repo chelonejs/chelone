@@ -24,6 +24,7 @@ export interface TreeListProps {
 </script>
 
 <script setup lang="ts">
+import type { VNode } from "vue";
 /**
  * `<TreeList>` — the records of the ambient `<List>` as a collapsible tree,
  * nested by a parent field. The Vue analog of `@chelone/react`'s
@@ -70,9 +71,9 @@ const props = withDefaults(defineProps<TreeListProps>(), {
 const emit = defineEmits<{ select: [record: LooseRecord] }>();
 defineSlots<{
   /** Rendered while the list is pending, in place of `SimpleListLoading`. */
-  loading?(): unknown;
+  loading?(): VNode[];
   /** Rendered with no records, in place of `ListNoResults`. */
-  empty?(): unknown;
+  empty?(): VNode[];
 }>();
 
 const list = useListContext();

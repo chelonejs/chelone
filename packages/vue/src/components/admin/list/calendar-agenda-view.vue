@@ -21,6 +21,7 @@ export interface CalendarAgendaViewProps {
 </script>
 
 <script setup lang="ts">
+import type { VNode } from "vue";
 /**
  * `<CalendarAgendaView>` — the events of the range as a list, a heading per day
  * with the events that start on it, earliest first. Emits `select-event` with
@@ -37,7 +38,7 @@ import type { CalendarEventSlotProps } from "./calendar-month-view.vue";
 const props = defineProps<CalendarAgendaViewProps>();
 const emit = defineEmits<{ selectEvent: [record: LooseRecord] }>();
 defineSlots<{
-  event?(props: CalendarEventSlotProps): unknown;
+  event?(props: CalendarEventSlotProps): VNode[];
 }>();
 
 const translate = useTranslate();

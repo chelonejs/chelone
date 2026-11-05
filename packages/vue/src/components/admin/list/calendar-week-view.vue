@@ -21,6 +21,7 @@ export interface CalendarWeekViewProps {
 </script>
 
 <script setup lang="ts">
+import type { VNode } from "vue";
 /**
  * `<CalendarWeekView>` — seven day columns by 24 hour rows. An event shows in
  * the cell of its start hour only. Emits `select-event` with the record and
@@ -42,7 +43,7 @@ const emit = defineEmits<{
   selectSlot: [slot: CalendarSlot];
 }>();
 defineSlots<{
-  event?(props: CalendarEventSlotProps): unknown;
+  event?(props: CalendarEventSlotProps): VNode[];
 }>();
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);

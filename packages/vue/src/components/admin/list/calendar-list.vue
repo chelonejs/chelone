@@ -59,6 +59,7 @@ export interface CalendarHeaderSlotProps {
 </script>
 
 <script setup lang="ts">
+import type { VNode } from "vue";
 /**
  * `<CalendarList>` — the records of the ambient `<List>` as events in a month
  * grid, or in a week of hour rows, or in an agenda. The Vue analog of `@chelone/react`'s `list/calendar-list.tsx`. It asks
@@ -135,9 +136,9 @@ const emit = defineEmits<{
 }>();
 defineSlots<{
   /** Replaces an event in its day cell. */
-  event?(props: CalendarEventSlotProps): unknown;
+  event?(props: CalendarEventSlotProps): VNode[];
   /** Replaces the title and the navigation. */
-  header?(props: CalendarHeaderSlotProps): unknown;
+  header?(props: CalendarHeaderSlotProps): VNode[];
 }>();
 
 const list = useListContext();

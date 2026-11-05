@@ -31,6 +31,7 @@ export interface KanbanBoardProps<
 </script>
 
 <script setup lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
+import type { VNode } from "vue";
 /**
  * `<KanbanBoard>` — the records of the ambient `<List>` as columns, one per
  * `columns` entry, with a card per record. The Vue analog of
@@ -108,7 +109,7 @@ const props = withDefaults(defineProps<KanbanBoardProps<TRecord>>(), {
 const emit = defineEmits<{ "select-card": [record: TRecord] }>();
 defineSlots<{
   /** Replaces the title and description inside a card. */
-  card?(props: { record: TRecord }): unknown;
+  card?(props: { record: TRecord }): VNode[];
 }>();
 
 const list = useListContext();

@@ -20,6 +20,7 @@ export interface RecordFieldProps<RecordType extends LooseRecord = LooseRecord> 
 </script>
 
 <script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { VNode } from "vue";
 /**
  * `<RecordField>` — displays a labeled field-value pair with flexible rendering,
  * the Vue analog of `@chelone/react`'s `fields/record-field.tsx`. Supports
@@ -54,7 +55,7 @@ const props = withDefaults(defineProps<RecordFieldProps<RecordType>>(), {
 
 const slots = defineSlots<{
   /** Receives the resolved record; renders children or derived content. */
-  default?(props: { record: RecordType }): unknown;
+  default?(props: { record: RecordType }): VNode[];
 }>();
 
 const translate = useTranslate();

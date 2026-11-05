@@ -40,6 +40,7 @@ export interface CalendarMonthViewProps {
 </script>
 
 <script setup lang="ts">
+import type { VNode } from "vue";
 /**
  * `<CalendarMonthView>` — a grid of whole weeks with the events of each day in
  * its cell. An event that spans days shows in every cell it covers. Emits
@@ -65,7 +66,7 @@ const emit = defineEmits<{
   drop: [record: LooseRecord, range: CalendarDrop];
 }>();
 defineSlots<{
-  event?(props: CalendarEventSlotProps): unknown;
+  event?(props: CalendarEventSlotProps): VNode[];
 }>();
 
 const weeks = computed(() => {
