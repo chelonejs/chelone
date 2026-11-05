@@ -12,6 +12,7 @@ import {
   type DataProvider,
   defineMessages,
   fakeDataProvider,
+  getAtPath,
   type LooseRecord,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
@@ -844,8 +845,8 @@ describe("<KanbanBoard>", () => {
         tasks: [{ id: 1, title: "Write it", status: "todo" }],
       }),
       resourceProps: {
-        recordRepresentation: (record: LooseRecord) => (
-          <b>{String(record.title)}</b>
+        recordRepresentation: (record) => (
+          <b>{String(getAtPath(record, "title"))}</b>
         ),
       },
     });

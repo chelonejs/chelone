@@ -15,7 +15,12 @@
  * it (parity §0a-6). The routes are relative to the parent `<name>/*` match.
  */
 
-import { computeDefinition, type ResourceDefinition } from "@chelone/core";
+import {
+  computeDefinition,
+  type ResourceDefinition,
+  type ResourceIcon,
+  type ResourceRepresentation,
+} from "@chelone/core";
 import type { ComponentType, ReactElement, ReactNode } from "react";
 import { isValidElement } from "react";
 import { useRouterAdapter } from "../router/adapter";
@@ -48,9 +53,9 @@ export interface ResourceProps {
   /** The show view. Presence sets `hasShow`. */
   show?: ResourceViewChild;
   /** The menu / breadcrumb icon (a React component). */
-  icon?: unknown;
+  icon?: ResourceIcon;
   /** How a record renders as a label (string field name, function, or node). */
-  recordRepresentation?: unknown;
+  recordRepresentation?: ResourceRepresentation;
   /** Open extension bag — the shadcn menu reads `options.group` (D9). */
   options?: Record<string, unknown>;
   /**

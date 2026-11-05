@@ -1,3 +1,24 @@
+import type { ResourceRecord } from "@chelone/core";
+import type { ComponentType, ReactElement, ReactNode } from "react";
+import type { ResourceViewChild } from "./resource";
+
+/**
+ * How a record renders as a label: a source path, a render function, or an
+ * element used verbatim. Set it as a `<Resource>`'s `recordRepresentation`.
+ */
+export type RecordRepresentation =
+  | string
+  | ((record: ResourceRecord) => ReactNode)
+  | ReactElement;
+
+declare module "@chelone/core" {
+  interface ResourceSlots {
+    icon: ComponentType;
+    representation: RecordRepresentation;
+    component: ResourceViewChild;
+  }
+}
+
 export {
   defaultExporter,
   downloadCSV,

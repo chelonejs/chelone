@@ -11,6 +11,7 @@ import {
   defineMessages,
   type FieldErrors,
   fakeDataProvider,
+  type ResourceRepresentation,
   required,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
@@ -34,7 +35,7 @@ const messages = {
   en: defineMessages({ "chelone.validation.required": "Required" }),
 };
 
-function makeRegistry(recordRepresentation?: unknown) {
+function makeRegistry(recordRepresentation?: ResourceRepresentation) {
   const registry = createResourceRegistry();
   registry.register({
     name: "authors",
@@ -47,7 +48,7 @@ function makeRegistry(recordRepresentation?: unknown) {
   return registry;
 }
 
-function makeWrapper(recordRepresentation?: unknown) {
+function makeWrapper(recordRepresentation?: ResourceRepresentation) {
   const i18n = createI18n({ locale: "en", messages });
   const registry = makeRegistry(recordRepresentation);
   return ({ children }: { children: ReactNode }) => (
@@ -71,7 +72,7 @@ function setup<TFormData extends Record<string, unknown>>(
     onData,
     recordRepresentation,
   }: {
-    recordRepresentation?: unknown;
+    recordRepresentation?: ResourceRepresentation;
     defaultValues?: TFormData;
     save?: (data: TFormData) => Promise<FieldErrors | undefined>;
     onData?: (data: TFormData) => void;

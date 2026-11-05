@@ -16,7 +16,12 @@
  * core's `getAtPath`, the same reader `useFieldValue` uses.
  */
 
-import { getAtPath } from "@chelone/core";
+import {
+  getAtPath,
+  isResourceRecord,
+  type ResourceRecord,
+  type ResourceRepresentation,
+} from "@chelone/core";
 import { inject } from "vue";
 import { ResourceRegistryKey } from "../admin/resource-registry";
 import { useResourceContext } from "../resource-context";
@@ -33,6 +38,17 @@ function isPresent(value: unknown): value is string | number {
   return value != null && value !== "";
 }
 
+/**
+ * Whether the representation is a function to call with the record. A Vue
+ * `Component` can also be a function (a functional component, a constructor),
+ * and the types cannot tell the two apart, so any function is called as one.
+ */
+function isRepresentationFunction(
+  value: ResourceRepresentation,
+): value is (record: ResourceRecord) => string | number {
+  return typeof value === "function";
+}
+
 /** The resolver `useGetRecordRepresentation` returns. */
 export type GetRecordRepresentation = (record: unknown) => string;
 
@@ -47,10 +63,13 @@ export function useGetRecordRepresentation(
 
   return (record: unknown): string => {
     if (record == null) return "";
-    if (typeof recordRepresentation === "function") {
-      return String(
-        (recordRepresentation as (r: unknown) => unknown)(record) ?? "",
-      );
+    if (
+      recordRepresentation !== undefined &&
+      isRepresentationFunction(recordRepresentation)
+    ) {
+      return isResourceRecord(record)
+        ? String(recordRepresentation(record) ?? "")
+        : "";
     }
     if (typeof recordRepresentation === "string") {
       return String(getAtPath(record, recordRepresentation) ?? "");

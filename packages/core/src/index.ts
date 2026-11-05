@@ -838,7 +838,7 @@ export { describeResource } from "./resource/describe-resource";
 export { getAtPath } from "./resource/get-at-path";
 export type { Identifier } from "./resource/identifier";
 export type { LooseRecord, ResourceRecord } from "./resource/record";
-export { isLooseRecord } from "./resource/record";
+export { isLooseRecord, isResourceRecord } from "./resource/record";
 export type {
   Register,
   RegisteredPermissions,
@@ -854,10 +854,14 @@ export type {
 export { defineResources } from "./resource/registry";
 export type {
   ComputeDefinitionProps,
+  ResourceComponent,
   ResourceDefinition,
   ResourceDefinitionMap,
+  ResourceIcon,
   ResourceRegistry,
   ResourceRegistryListener,
+  ResourceRepresentation,
+  ResourceSlots,
 } from "./resource/registry-store";
 export {
   computeDefinition,

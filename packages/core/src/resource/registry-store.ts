@@ -12,11 +12,51 @@
  */
 
 /**
+ * The augmentation point for the types a resource definition carries that
+ * depend on the UI framework. An adapter names them once, as `Register` does
+ * for resources:
+ *
+ * ```ts
+ * declare module "@chelone/core" {
+ *   interface ResourceSlots {
+ *     icon: ComponentType;
+ *     representation: RecordRepresentation;
+ *     component: ComponentType;
+ *   }
+ * }
+ * ```
+ *
+ * Augmenting is global to a TypeScript program, so a program that includes
+ * both adapters would see both. Without an augmentation each type is
+ * `unknown`.
+ */
+// biome-ignore lint/suspicious/noEmptyInterface: an empty interface is the augmentation point; a type alias cannot be augmented
+export interface ResourceSlots {}
+
+/** A resource's menu icon: the adapter's icon type, or `unknown` when none is declared. */
+export type ResourceIcon = ResourceSlots extends { icon: infer TIcon }
+  ? TIcon
+  : unknown;
+
+/** How a record renders as a label: the adapter's type, or `unknown` when none is declared. */
+export type ResourceRepresentation = ResourceSlots extends {
+  representation: infer TRepresentation;
+}
+  ? TRepresentation
+  : unknown;
+
+/** A resource's list, create, edit or show view: the adapter's component type, or `unknown` when none is declared. */
+export type ResourceComponent = ResourceSlots extends {
+  component: infer TComponent;
+}
+  ? TComponent
+  : unknown;
+
+/**
  * What a single mounted resource exposes to the shell. `hasList/hasCreate/…`
- * drive the routing engine and the menu; `icon` / `recordRepresentation` are
- * framework-neutral here (`unknown`) — the React layer narrows them to a
- * component / render function. `options` is an open extension bag (D9: the
- * shadcn menu reads `options.group`).
+ * drive the routing engine and the menu; `icon` / `recordRepresentation` take
+ * the adapter's types through {@link ResourceSlots}. `options` is an open
+ * extension bag (D9: the shadcn menu reads `options.group`).
  */
 export interface ResourceDefinition {
   name: string;
@@ -24,10 +64,8 @@ export interface ResourceDefinition {
   hasCreate: boolean;
   hasEdit: boolean;
   hasShow: boolean;
-  /** Framework-neutral: a React component in `@chelone/react`. */
-  icon?: unknown;
-  /** Framework-neutral: `string | function | ReactNode` in `@chelone/react`. */
-  recordRepresentation?: unknown;
+  icon?: ResourceIcon;
+  recordRepresentation?: ResourceRepresentation;
   /** Open extension bag — e.g. `{ group: "content" }` for menu grouping (D9). */
   options?: Record<string, unknown>;
 }
@@ -63,18 +101,18 @@ export interface ResourceRegistry {
 /** Framework-neutral props `computeDefinition` derives a definition from. */
 export interface ComputeDefinitionProps {
   name: string;
-  /** A list component/route (any value); presence sets `hasList`. */
-  list?: unknown;
-  create?: unknown;
-  edit?: unknown;
-  show?: unknown;
+  /** A list component; presence sets `hasList`. */
+  list?: ResourceComponent;
+  create?: ResourceComponent;
+  edit?: ResourceComponent;
+  show?: ResourceComponent;
   /** Explicit overrides OR-ed with component presence (`!!list || !!hasList`). */
   hasList?: boolean;
   hasCreate?: boolean;
   hasEdit?: boolean;
   hasShow?: boolean;
-  icon?: unknown;
-  recordRepresentation?: unknown;
+  icon?: ResourceIcon;
+  recordRepresentation?: ResourceRepresentation;
   options?: Record<string, unknown>;
 }
 
