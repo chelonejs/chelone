@@ -115,5 +115,5 @@ export function mergeFilterValues(
       merged[key] = next;
     }
   }
-  return merged as FilterPayload;
+  return merged;
 }
