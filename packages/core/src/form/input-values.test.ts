@@ -210,6 +210,7 @@ describe("the choice value guards", () => {
   it("toChoiceValues reads a missing value as none and a scalar as one", () => {
     expect(toChoiceValues<Author>(undefined)).toEqual([]);
     expect(toChoiceValues<Author>(null)).toEqual([]);
+    expect(toChoiceValues<Author>("")).toEqual([]);
     expect(toChoiceValues<Author>(3)).toEqual([3]);
   });
 

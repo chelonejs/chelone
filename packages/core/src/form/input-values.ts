@@ -84,12 +84,13 @@ const NO_CHOICE_VALUES: readonly never[] = Object.freeze([]);
 /**
  * The values a multi-choice input holds: the stored array, one value for a
  * stored scalar, and a shared empty list for a missing one (so a render that
- * finds nothing keeps the same reference).
+ * finds nothing keeps the same reference). `''` is missing too: it is what the
+ * default format makes of a nullish value.
  */
 export function toChoiceValues<TChoice>(
   value: FormValue,
 ): readonly ChoiceValueOf<TChoice>[] {
-  if (value == null) return NO_CHOICE_VALUES;
+  if (value == null || value === "") return NO_CHOICE_VALUES;
   // Form state is record-free.
   // type-escape: a multi-choice input stores an array of its choices' values.
   if (Array.isArray(value)) return value as readonly ChoiceValueOf<TChoice>[];

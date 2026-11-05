@@ -210,6 +210,7 @@ function AutocompleteInput<
     },
     [
       field,
+      fieldValue,
       getChoiceValue,
       isRequired,
       isEqual,
