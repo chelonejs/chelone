@@ -21,7 +21,7 @@ import { useCheloneNotifications } from "./context";
 export function useNotifications(): Readonly<Ref<readonly Notification[]>> {
   const store = useCheloneNotifications();
   if (!store) {
-    return computed(() => [] as readonly Notification[]);
+    return computed<readonly Notification[]>(() => []);
   }
   const snapshot = shallowRef<readonly Notification[]>(store.getSnapshot());
   const unsubscribe = store.subscribe(() => {
