@@ -45,4 +45,18 @@ describe("useFieldValue value typing", () => {
       ComputedRef<number | string | { email: string }>
     >();
   });
+
+  it("defaultValue takes the source's value type", () => {
+    useFieldValue({
+      source: "customer.email",
+      record: invoice,
+      defaultValue: "",
+    });
+    useFieldValue({
+      source: "customer.email",
+      record: invoice,
+      // @ts-expect-error a number default for a string source
+      defaultValue: 0,
+    });
+  });
 });

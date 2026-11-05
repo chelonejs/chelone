@@ -32,7 +32,11 @@ function TextField<RecordType extends LooseRecord = LooseRecord>({
   empty,
   ...rest
 }: TextFieldProps<RecordType>) {
-  const value: unknown = useFieldValue({ defaultValue, source, record });
+  const value: unknown = useFieldValue<LooseRecord>({
+    defaultValue,
+    source,
+    record,
+  });
   const translate = useTranslate();
 
   if (value == null) {

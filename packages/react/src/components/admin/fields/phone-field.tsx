@@ -35,7 +35,11 @@ function PhoneField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: PhoneFieldProps<RecordType>) {
-  const value: unknown = useFieldValue({ defaultValue, source, record });
+  const value: unknown = useFieldValue<LooseRecord>({
+    defaultValue,
+    source,
+    record,
+  });
   const translate = useTranslate();
 
   if (value == null || value === "") {

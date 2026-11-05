@@ -17,20 +17,29 @@
  *   button degrades to a plain submit rather than crashing.
  */
 
-import type { MutationMode } from "@chelone/core";
+import type { MutationMode, ResourceRecord, SaveOptions } from "@chelone/core";
 import { createContext, type ReactNode, useContext } from "react";
 
-/** The chelone save handler: resolves with server field errors or `undefined`. */
-export type SaveHandler<RecordType> = (
-  data: Partial<RecordType>,
-  options?: unknown,
-) => Promise<Record<string, string | string[]> | undefined>;
+/**
+ * The chelone save handler: resolves with server field errors or `undefined`.
+ * Declared through a method so its parameters stay bivariant: a view publishes
+ * a `SaveHandler<Post>` into a context typed for `ResourceRecord`, and each
+ * context reads it back at the caller's record type.
+ */
+export type SaveHandler<RecordType> = {
+  save(
+    data: Partial<RecordType>,
+    options?: SaveOptions<RecordType>,
+  ): Promise<Record<string, string | string[]> | undefined>;
+}["save"];
 
 /**
  * The ambient save surface. Every field optional (ra parity): a view without a
  * save (a `<Show>`, or a form outside a CRUD view) provides the empty default.
  */
-export interface SaveContextValue<RecordType = unknown> {
+export interface SaveContextValue<
+  RecordType extends ResourceRecord = ResourceRecord,
+> {
   /** Persists the form values; resolves with server field errors on validation failure. */
   save?: SaveHandler<RecordType>;
   /**
@@ -68,6 +77,9 @@ export function SaveContextProvider({
  * empty default lets an out-of-view `<SaveButton>` fall back to a plain form
  * submit. Callers read `save` optionally (`saveContext?.save`).
  */
-export function useSaveContext(): SaveContextValue {
-  return useContext(SaveContext);
+export function useSaveContext<
+  RecordType extends ResourceRecord = ResourceRecord,
+>(): SaveContextValue<RecordType> {
+  // type-escape: the view that published the save typed it at its own record, as `useEditContext` reads it
+  return useContext(SaveContext) as SaveContextValue<RecordType>;
 }

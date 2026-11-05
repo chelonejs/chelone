@@ -142,13 +142,13 @@ function Create(props: CreateProps) {
   // The compat save bridge — same shape as `<Edit>`: write `data` into the
   // ambient form, then run the composed create pipeline.
   const save = useCallback<NonNullable<SaveContextValue["save"]>>(
-    async (data) => {
+    async (data, options) => {
       for (const [key, value] of Object.entries(
         data as Record<string, unknown>,
       )) {
         form.setFieldValue(key, value);
       }
-      await submit();
+      await submit(options);
       return undefined;
     },
     [form, submit],
