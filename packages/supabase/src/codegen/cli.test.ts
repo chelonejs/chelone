@@ -106,6 +106,7 @@ describe("runGen", () => {
 
   afterEach(async () => {
     vi.doUnmock("supazod");
+    vi.doUnmock("typescript");
     vi.resetModules();
     await rm(dir, { recursive: true, force: true });
   });
@@ -302,6 +303,39 @@ describe("runGen", () => {
     expect(code).toBe(1);
     expect(err.join("")).toMatch(/add `supazod` as a dev dependency/);
     expect(err.join("").trimEnd().split("\n")).toHaveLength(1);
+    expect(await exists(join(dir, "generated", "resources.ts"))).toBe(false);
+  });
+
+  it("a missing typescript says how to add it and exits 1, and --help still works", async () => {
+    vi.resetModules();
+    vi.doMock("typescript", () => {
+      throw new Error("Cannot find package 'typescript'");
+    });
+    const { runGen: runWithoutTypescript } = await import("./cli");
+    const withoutTypescript = async (argv: string[]) => {
+      const out: string[] = [];
+      const err: string[] = [];
+      const code = await runWithoutTypescript(argv, {
+        stdout: (text) => out.push(text),
+        stderr: (text) => err.push(text),
+        cwd: dir,
+      });
+      return { code, stdout: out.join(""), stderr: err.join("") };
+    };
+
+    const help = await withoutTypescript(["--help"]);
+    const gen = await withoutTypescript([
+      "gen",
+      "--input",
+      "database.types.ts",
+      "--out-dir",
+      "generated",
+    ]);
+
+    expect(help.code).toBe(0);
+    expect(gen.code).toBe(1);
+    expect(gen.stderr).toMatch(/add `typescript` as a dev dependency/);
+    expect(gen.stderr.trimEnd().split("\n")).toHaveLength(1);
     expect(await exists(join(dir, "generated", "resources.ts"))).toBe(false);
   });
 

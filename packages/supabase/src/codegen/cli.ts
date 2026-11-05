@@ -1,7 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
-import { readDatabaseRelations } from "./database-relations";
 import {
   generateResourceScaffold,
   generateResourcesFile,
@@ -41,12 +40,24 @@ const isAdapter = (value: string): value is Adapter =>
 
 const oneLine = (error: Error) => error.message.split("\n")[0] ?? "";
 
+const notInstalled = (name: string) =>
+  new Error(
+    `${name} is not installed: add \`${name}\` as a dev dependency and run the command again.`,
+  );
+
 const loadSupazod = () =>
   import("supazod").catch(() => {
-    throw new Error(
-      "supazod is not installed: add `supazod` as a dev dependency and run the command again.",
-    );
+    throw notInstalled("supazod");
   });
+
+// database-relations imports typescript, an optional peer: loading it here keeps `--help` and the missing-peer message reachable without it.
+const loadReadDatabaseRelations = () =>
+  import("./database-relations").then(
+    ({ readDatabaseRelations }) => readDatabaseRelations,
+    () => {
+      throw notInstalled("typescript");
+    },
+  );
 
 /** Runs `chelone-supabase` with the arguments after the program name, and resolves to the exit code. */
 export async function runGen(argv: string[], io: GenIo): Promise<number> {
@@ -93,7 +104,7 @@ async function gen(argv: string[], io: GenIo): Promise<number> {
   const sourceText = await readFile(inputPath, "utf8").catch(() => {
     throw new Error(`Cannot read the types file ${inputPath}.`);
   });
-  const relations = readDatabaseRelations(sourceText, schema);
+  const relations = (await loadReadDatabaseRelations())(sourceText, schema);
   const { generateContent, supabaseToZodOptionsSchema } = await loadSupazod();
   const { formatterSchemasFileContent } = await generateContent(
     supabaseToZodOptionsSchema.parse({

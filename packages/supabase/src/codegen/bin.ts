@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import { argv, cwd, exit, stderr, stdout } from "node:process";
+import process from "node:process";
 import { runGen } from "./cli";
 
-const code = await runGen(argv.slice(2), {
-  stdout: (text) => stdout.write(text),
-  stderr: (text) => stderr.write(text),
-  cwd: cwd(),
+// Set exitCode and let the process end, so output queued on a pipe is flushed first.
+process.exitCode = await runGen(process.argv.slice(2), {
+  stdout: (text) => process.stdout.write(text),
+  stderr: (text) => process.stderr.write(text),
+  cwd: process.cwd(),
 });
-exit(code);
