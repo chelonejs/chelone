@@ -68,7 +68,6 @@ export interface KanbanBoardProps<
 import {
   buildKanbanBuckets,
   getAtPath,
-  type Identifier,
   planKanbanMove,
 } from "@chelone/core";
 import { PointerSensor } from "@dnd-kit/dom";
@@ -175,7 +174,7 @@ const type = computed(
 );
 const linkTo = (record: TRecord) =>
   resource && type.value
-    ? createPath({ resource, id: record.id as Identifier, type: type.value })
+    ? createPath({ resource, id: record.id, type: type.value })
     : undefined;
 const selectable = computed(
   () => hasListener() || (!!resource && type.value !== false),
