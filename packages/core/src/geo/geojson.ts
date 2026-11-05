@@ -3,56 +3,14 @@
 // `import type` crosses from that package.
 
 import type {
-  BBox,
   Feature,
   FeatureCollection,
   Geometry,
-  GeometryCollection,
-  LineString,
-  MultiLineString,
-  MultiPoint,
   MultiPolygon,
-  Point,
   Polygon,
   Position,
 } from "geojson";
 import { isJsonObject, isRecord, type JsonObject } from "../guards";
-
-// The `Geo*` names below are aliases of geojson's types, kept so the later
-// slices of #1082 build. The last slice removes them.
-
-/** `[longitude, latitude]` with an optional altitude and further members. */
-export type GeoPosition = Position;
-
-/** `[west, south, east, north]`. */
-export type GeoBBox = [
-  west: number,
-  south: number,
-  east: number,
-  north: number,
-];
-
-/** `[west, south, min altitude, east, north, max altitude]`. */
-export type GeoBBox3D = Extract<BBox, { length: 6 }>;
-
-export type GeoPoint = Point;
-export type GeoMultiPoint = MultiPoint;
-export type GeoLineString = LineString;
-export type GeoMultiLineString = MultiLineString;
-export type GeoPolygon = Polygon;
-export type GeoMultiPolygon = MultiPolygon;
-export type GeoGeometryCollection = GeometryCollection;
-export type GeoGeometry = Geometry;
-
-export type GeoFeature = Feature<Geometry | null, JsonObject | null>;
-
-export type GeoFeatureCollection = FeatureCollection<
-  Geometry | null,
-  JsonObject | null
->;
-
-/** What a map input stores: a geometry, a Feature or a FeatureCollection. */
-export type GeoJsonValue = GeoGeometry | GeoFeature | GeoFeatureCollection;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
@@ -152,7 +110,10 @@ export function isGeoFeatureCollection(
   );
 }
 
-export function isGeoJsonValue(value: unknown): value is GeoJsonValue {
+export function isGeoJsonValue(value: unknown): value is
+  | Geometry
+  | Feature<Geometry | null, JsonObject | null>
+  | FeatureCollection<Geometry | null, JsonObject | null> {
   return (
     isGeoGeometry(value) || isGeoFeature(value) || isGeoFeatureCollection(value)
   );
