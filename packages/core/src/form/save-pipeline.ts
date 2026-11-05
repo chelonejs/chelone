@@ -5,6 +5,7 @@ import {
   type StandardSchemaV1,
   standardSchemaValidators,
 } from "@tanstack/form-core";
+import { isRecord, isThenable } from "../guards";
 import type { FormLevelValidate } from "./form-controller";
 
 /**
@@ -63,20 +64,6 @@ export function toFormErrorMapValue(
   return { form: root ?? undefined, fields };
 }
 
-/** Thenable detection — how the pipeline tells async validate fns from sync ones. */
-export function isThenable(value: unknown): value is PromiseLike<unknown> {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "then" in value &&
-    typeof (value as { then: unknown }).then === "function"
-  );
-}
-
-function isRecordObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 export interface ComposeFormValidatorConfig<TFormData> {
   /** Resource schema (zod or any Standard Schema) — the D6 default validator. */
   schema?: StandardSchemaV1<TFormData, unknown>;
@@ -128,13 +115,12 @@ export function composeFormValidator<TFormData>(
 
     const absorb = (result: unknown): void => {
       if (result == null) return;
-      if (isRecordObject(result) && "fields" in result) {
-        const global = result as { form?: unknown; fields?: unknown };
-        if (formError === undefined && global.form != null) {
-          formError = global.form;
+      if (isRecord(result) && "fields" in result) {
+        if (formError === undefined && result.form != null) {
+          formError = result.form;
         }
-        if (isRecordObject(global.fields)) {
-          for (const [key, error] of Object.entries(global.fields)) {
+        if (isRecord(result.fields)) {
+          for (const [key, error] of Object.entries(result.fields)) {
             if (error != null && !(key in fields)) fields[key] = error;
           }
         }

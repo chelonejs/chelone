@@ -37,6 +37,27 @@ export function isPlainObject(
 }
 
 /**
+ * An object that holds `key`, so `value[key]` reads without a cast. The
+ * member's type is `unknown`: the guard proves it is there, not what it is.
+ */
+export function hasProperty<TKey extends string>(
+  value: unknown,
+  key: TKey,
+  // type-escape: a guard on `unknown` learns the key and not its value
+): value is Record<TKey, unknown> {
+  return isRecord(value) && key in value;
+}
+
+/**
+ * Could `await value` wait on it? A promise, or any object with a `then`
+ * function. A bare function is refused even when it has no `then`.
+ */
+// type-escape: a guard on `unknown` learns that `then` is callable, not what it resolves to
+export function isThenable(value: unknown): value is PromiseLike<unknown> {
+  return hasProperty(value, "then") && typeof value.then === "function";
+}
+
+/**
  * True when `value` is an object JSON could have produced: plain objects and
  * arrays down to strings, finite numbers, booleans and null. `NaN` and
  * `Infinity` are refused, because `JSON.stringify` turns them into `null`, and

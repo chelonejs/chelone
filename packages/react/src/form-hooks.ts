@@ -25,6 +25,7 @@ import {
   createEditFormController,
   createFormController,
   defaultFormat,
+  extractEventValue,
   isRequired as hasRequiredValidator,
   isResourceHandle,
 } from "@chelone/core";
@@ -411,30 +412,6 @@ function toBindingUpdate(options: UseInputOptions): FieldBindingUpdateOptions {
     schema: options.schema,
     validatorMeta: meta,
   };
-}
-
-/**
- * RHF-compatible event extraction: DOM/synthetic change events yield
- * `target.checked` for checkboxes and `target.value` otherwise; anything
- * else (a raw value, a custom picker's payload) passes through untouched.
- */
-function extractEventValue(input: unknown): unknown {
-  if (typeof input === "object" && input !== null && "target" in input) {
-    const { target } = input as { target: unknown };
-    if (
-      typeof target === "object" &&
-      target !== null &&
-      ("value" in target || "checked" in target)
-    ) {
-      const element = target as {
-        type?: unknown;
-        checked?: unknown;
-        value?: unknown;
-      };
-      return element.type === "checkbox" ? element.checked : element.value;
-    }
-  }
-  return input;
 }
 
 /**
