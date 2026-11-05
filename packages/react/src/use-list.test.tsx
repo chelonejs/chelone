@@ -149,7 +149,7 @@ describe("useList", () => {
   it("reflects an isFetching / error prop change", () => {
     interface Props {
       fetching: boolean;
-      error: unknown;
+      error: Error | null;
     }
     const err = new Error("boom");
     const { result, rerender } = renderHook(

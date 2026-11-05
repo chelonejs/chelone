@@ -32,7 +32,7 @@ export interface ClientListControllerOptions<TRecord> {
   isPending?: boolean;
   isFetching?: boolean;
   /** Pass-through error. Default `null`. */
-  error?: unknown;
+  error?: Error | null;
   /** Extra predicate applied AFTER the field filters (ra-core `filterCallback`). */
   filterCallback?: (record: TRecord) => boolean;
 }
@@ -50,7 +50,7 @@ export interface ClientListControllerOptions<TRecord> {
 export interface ClientListLoadingState {
   isPending?: boolean;
   isFetching?: boolean;
-  error?: unknown;
+  error?: Error | null;
 }
 
 export interface ClientListController<TRecord> extends ListController<TRecord> {

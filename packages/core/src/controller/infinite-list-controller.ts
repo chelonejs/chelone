@@ -7,6 +7,7 @@ import {
 import type { infiniteListKey } from "../data/keys";
 import { getInfiniteListOptions, getListOptions } from "../data/query-options";
 import type { GetListResult } from "../data/types";
+import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import {
@@ -38,7 +39,7 @@ export interface InfiniteListController<TRecord>
 }
 
 type ParamsSlice = Pick<
-  ListControllerState<unknown>,
+  ListControllerState<ResourceRecord>,
   "page" | "perPage" | "sort" | "filter" | "displayedFilters" | "selectedIds"
 >;
 
