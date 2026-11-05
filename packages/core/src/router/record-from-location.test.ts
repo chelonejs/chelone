@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { parseLocation } from "./location";
+import { parseLocation, toLocationState } from "./location";
 import { getRecordFromLocation } from "./record-from-location";
 
-const at = (to: string, state: unknown = null) => parseLocation(to, state);
+const at = (to: string, state: unknown = null) =>
+  parseLocation(to, toLocationState(state));
 const source = (record: unknown) =>
   `/posts/create?source=${encodeURIComponent(JSON.stringify(record))}`;
 

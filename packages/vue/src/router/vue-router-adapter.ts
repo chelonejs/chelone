@@ -34,6 +34,7 @@ import {
   matchPath,
   type PathMatch,
   parseLocation,
+  toLocationState,
 } from "@chelone/core";
 import {
   type ComputedRef,
@@ -130,7 +131,9 @@ export const vueRouterAdapter: RouterAdapter = {
     const route = useRoute();
     // `route.fullPath` is reactive; `parseLocation` is pure core. State is read
     // per-recompute from history so a navigation that pushed state reflects it.
-    return computed(() => parseLocation(route.fullPath, readHistoryState()));
+    return computed(() =>
+      parseLocation(route.fullPath, toLocationState(readHistoryState())),
+    );
   },
 
   useNavigate(): AdapterNavigate {
