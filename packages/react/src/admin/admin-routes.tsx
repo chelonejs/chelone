@@ -34,7 +34,7 @@
 
 import { canAccessQueryOptions } from "@chelone/core";
 import { useQuery } from "@tanstack/react-query";
-import type { ReactElement, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Children, cloneElement, isValidElement, useMemo } from "react";
 import { useCheloneContext } from "../context";
 import { useResourceDefinitions } from "../resource/registry-hooks";
@@ -314,7 +314,7 @@ function Layout({
   if (layout == null) return children;
   if (isValidElement(layout)) {
     // Inject the routes as the layout element's children (ra-core parity).
-    return cloneElement(layout as ReactElement, undefined, children);
+    return cloneElement(layout, undefined, children);
   }
   return (
     <>
