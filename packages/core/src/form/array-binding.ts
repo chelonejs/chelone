@@ -67,17 +67,27 @@ type PathValue<TRecord, TPath extends string> = DeepValue<
 /**
  * The item type of the array at `TPath`: the row shape of THIS binding's
  * source, not the union of every array in the record. `unknown` when the path
- * is one form-core cannot type — a composed `string` source (the ambient form)
- * or a scalar path.
+ * is one form-core cannot type — a composed `string` source (the ambient form),
+ * a scalar path, or a row-relative path that is no path of the record.
  */
 export type ArrayItemOf<
   TRecord,
   TPath extends string = SourcePath<TRecord>,
 > = string extends TPath
   ? unknown
-  : PathValue<TRecord, TPath> extends readonly unknown[]
-    ? PathValue<TRecord, TPath>[number]
-    : unknown;
+  : [PathValue<TRecord, TPath>] extends [never]
+    ? unknown
+    : PathValue<TRecord, TPath> extends readonly unknown[]
+      ? PathValue<TRecord, TPath>[number]
+      : unknown;
+
+/**
+ * What a new row may be seeded with: a partial of an object row, or any object
+ * when the row type is unknown (a composed `string` source).
+ */
+export type ItemDefaultsOf<TItem> = unknown extends TItem
+  ? object
+  : Partial<Extract<TItem, object>>;
 
 export interface ArrayBindingOptions<
   TRecord = LooseRecord,
@@ -108,7 +118,7 @@ export interface ArrayBindingOptions<
    * (ra parity: object new item = first-row-keys-nulled + provided
    * defaults). Providing this implies object mode.
    */
-  itemDefaults?: Record<string, unknown>;
+  itemDefaults?: ItemDefaultsOf<ArrayItemOf<TRecord, TPath>>;
 }
 
 /** `update()` payload: everything but the identity-defining source. */

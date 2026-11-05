@@ -1,10 +1,25 @@
-<script lang="ts">
-import type { SourceProp, Validator } from "@chelone/core";
+<script
+  lang="ts"
+  generic="
+    RecordType extends LooseRecord = LooseRecord,
+    TPath extends SourceProp<RecordType> = SourceProp<RecordType>
+  "
+>
+import type {
+  ArrayItemOf,
+  ItemDefaultsOf,
+  LooseRecord,
+  SourceProp,
+  Validator,
+} from "@chelone/core";
 
 /** Props for {@link ArrayInput}. */
-export interface ArrayInputProps {
+export interface ArrayInputProps<
+  RecordType extends LooseRecord = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> {
   /** The array field path RELATIVE to the ambient source scope. */
-  source: SourceProp;
+  source: TPath;
   /** Explicit label, or `false` to hide it. Absent → humanized `source`. */
   label?: string | false;
   /** Override the ambient resource (label-key resolution). */
@@ -14,11 +29,11 @@ export interface ArrayInputProps {
   /** Array-level validators (e.g. `minLength`) — composed, first error wins. */
   validate?: Validator | readonly Validator[];
   /** The array's default value (seeds an untouched hole). */
-  defaultValue?: readonly unknown[];
+  defaultValue?: readonly ArrayItemOf<RecordType, TPath>[];
   /** Force scalar-row mode (a `string[]`/`number[]`); DETECTED when omitted. */
   scalar?: boolean;
   /** Object-row defaults merged into a new row (object mode). */
-  itemDefaults?: Record<string, unknown>;
+  itemDefaults?: ItemDefaultsOf<ArrayItemOf<RecordType, TPath>>;
   /** Label for the add-row button. Absent → translated "Add". */
   addLabel?: string;
   /** Hides every row control: add, clear, remove and reorder. */
@@ -46,7 +61,14 @@ export interface ArrayInputProps {
 }
 </script>
 
-<script setup lang="ts">
+<script
+  setup
+  lang="ts"
+  generic="
+    RecordType extends LooseRecord = LooseRecord,
+    TPath extends SourceProp<RecordType> = SourceProp<RecordType>
+  "
+>
 /**
  * `<ArrayInput>` — a list of sub-forms for editing an array embedded in a record
  * (order items, tags, any repeatable data), the Vue analog of `@chelone/react`'s
@@ -77,7 +99,7 @@ import ValidationError from "../common/validation-error.vue";
 import ArrayInputRow from "./array-input-row.vue";
 import { humanizeSource } from "./label-text";
 
-const props = withDefaults(defineProps<ArrayInputProps>(), {
+const props = withDefaults(defineProps<ArrayInputProps<RecordType, TPath>>(), {
   label: undefined,
   defaultValue: () => [],
 });

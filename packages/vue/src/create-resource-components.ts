@@ -29,6 +29,7 @@
  */
 
 import type {
+  LooseRecord,
   RecordOf,
   RegisteredResourceName,
   RegisteredResources,
@@ -36,7 +37,14 @@ import type {
   SourceProp,
   SourceValue,
 } from "@chelone/core";
-import { type Component, defineComponent, h, type VNode } from "vue";
+import {
+  type AllowedComponentProps,
+  type Component,
+  defineComponent,
+  h,
+  type VNode,
+  type VNodeProps,
+} from "vue";
 import ApiKeyField from "./components/admin/fields/api-key-field.vue";
 import ArrayField from "./components/admin/fields/array-field.vue";
 import BadgeField from "./components/admin/fields/badge-field.vue";
@@ -70,7 +78,9 @@ import UsageMeterField from "./components/admin/fields/usage-meter-field.vue";
 import WebhookEndpointField from "./components/admin/fields/webhook-endpoint-field.vue";
 import WrapperField from "./components/admin/fields/wrapper-field.vue";
 import ApiKeyInput from "./components/admin/inputs/api-key-input.vue";
-import ArrayInput from "./components/admin/inputs/array-input.vue";
+import ArrayInput, {
+  type ArrayInputProps,
+} from "./components/admin/inputs/array-input.vue";
 import ArrayInputRow from "./components/admin/inputs/array-input-row.vue";
 import AutocompleteArrayInput from "./components/admin/inputs/autocomplete-array-input.vue";
 import AutocompleteInput from "./components/admin/inputs/autocomplete-input.vue";
@@ -272,6 +282,25 @@ type ResourceMember<TComponent extends Ctor, TRecord> = [
   ? Retyped<TComponent, SourceProp<TRecord>>
   : ValueMember<TComponent, TRecord>;
 
+/** The slots `<ArrayInput>` declares: they do not depend on its generics. */
+type ArrayInputSlots = NonNullable<Parameters<typeof ArrayInput>[1]>["slots"];
+
+/**
+ * `ArrayInput` is generic over its record and its `source`, so its rows are
+ * typed by the array at that `source`. A generic SFC has no constructor for
+ * {@link Retyped} to read, so this is a function component like
+ * {@link ValueMember}. A record that is not a {@link LooseRecord} has no array
+ * input.
+ */
+type ArrayInputMember<TRecord> = TRecord extends LooseRecord
+  ? <TPath extends SourceProp<TRecord>>(
+      props: ArrayInputProps<TRecord, TPath> &
+        VNodeProps &
+        AllowedComponentProps,
+      ctx?: { slots?: ArrayInputSlots },
+    ) => VNode
+  : never;
+
 /**
  * A view with its `resource` prop removed. Templates are not strict about
  * undeclared attributes, so the prop stays as `never` to make
@@ -301,6 +330,7 @@ export type ResourceComponents<
     RecordOf<TResources, TName>
   >;
 } & {
+  ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
   Edit: BoundView<typeof Edit>;
   Create: BoundView<typeof Create>;
   Show: BoundView<typeof Show>;

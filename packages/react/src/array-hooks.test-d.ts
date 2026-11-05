@@ -1,7 +1,9 @@
-import type { ArrayRow } from "@chelone/core";
+import { type ArrayRow, defineResources, type RecordOf } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
+import { z } from "zod";
 import type { IteratorItem, UseArrayInputResult } from "./array-hooks";
 import { useArrayInput } from "./array-hooks";
+import { createResourceComponentsOf } from "./resource/create-resource-components";
 
 type Post = { id: number; tags: { label: string }[] };
 
@@ -45,5 +47,69 @@ describe("useArrayInput source typing", () => {
 
   it("useArrayInput without a type argument takes any string", () => {
     expectTypeOf(useArrayInput).toBeCallableWith({ source: "anything[0].at" });
+  });
+});
+
+const resources = defineResources({
+  carts: {
+    schema: z.object({
+      id: z.number(),
+      note: z.string(),
+      items: z.array(z.object({ sku: z.string(), qty: z.number() })),
+      tags: z.array(z.string()),
+    }),
+  },
+});
+
+type Cart = RecordOf<typeof resources, "carts">;
+
+const carts = createResourceComponentsOf<typeof resources, "carts">("carts");
+
+describe("carts.ArrayInput", () => {
+  it("takes defaultValue rows typed as a Cart item", () => {
+    const input = carts.ArrayInput<"items">;
+    type Props = Parameters<typeof input>[0];
+    expectTypeOf<Props["defaultValue"]>().toEqualTypeOf<
+      readonly Cart["items"][number][] | undefined
+    >();
+    expectTypeOf<Props["itemDefaults"]>().toEqualTypeOf<
+      Partial<Cart["items"][number]> | undefined
+    >();
+    const tags = carts.ArrayInput<"tags">;
+    expectTypeOf<Parameters<typeof tags>[0]["defaultValue"]>().toEqualTypeOf<
+      readonly string[] | undefined
+    >();
+  });
+
+  it("accepts rows of the array it binds, and partial item defaults", () => {
+    carts.ArrayInput({
+      source: "items",
+      defaultValue: [{ sku: "a", qty: 1 }],
+      itemDefaults: { qty: 1 },
+      children: null,
+    });
+  });
+
+  it("rejects a source that is not a path of a cart", () => {
+    carts.ArrayInput({
+      // @ts-expect-error `itemz` is no path of a cart
+      source: "itemz",
+      children: null,
+    });
+  });
+
+  it("rejects a row that is not a cart item", () => {
+    carts.ArrayInput({
+      source: "items",
+      // @ts-expect-error a row needs a numeric qty
+      defaultValue: [{ sku: "a", qty: "one" }],
+      children: null,
+    });
+    carts.ArrayInput({
+      source: "items",
+      // @ts-expect-error `price` is no key of a cart item
+      itemDefaults: { price: 1 },
+      children: null,
+    });
   });
 });
