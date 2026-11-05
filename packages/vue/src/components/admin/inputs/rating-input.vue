@@ -1,11 +1,19 @@
 <script lang="ts">
-import type { SourceProp, Validator } from "@chelone/core";
+import type {
+  LooseRecord,
+  SourceProp,
+  SourceValue,
+  Validator,
+} from "@chelone/core";
 
 /** Props for {@link RatingInput}. */
-export interface RatingInputProps {
-  source: SourceProp;
+export interface RatingInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> {
+  source: TPath;
   label?: string | false;
-  defaultValue?: unknown;
+  defaultValue?: NoInfer<SourceValue<RecordType, TPath>>;
   validate?: Validator | readonly Validator[];
   /** Number of whole stars (default 5). */
   max?: number;
@@ -25,6 +33,7 @@ export interface RatingInputProps {
  * `<fieldset>` / `<legend>` for the label + `<FieldError>` for the error slot.
  */
 
+import { toNumberValue } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { FieldError } from "../../ui/field";
@@ -46,9 +55,7 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
 const max = computed(() => props.max ?? 5);
 const steps = computed(() => (props.allowHalf ? max.value * 2 : max.value));
 const stepValue = computed(() => (props.allowHalf ? 0.5 : 1));
-const currentValue = computed(() =>
-  typeof value.value === "number" ? value.value : 0,
-);
+const currentValue = computed(() => toNumberValue(value.value) ?? 0);
 const stars = computed(() =>
   Array.from({ length: steps.value }, (_, i) => {
     const v = (i + 1) * stepValue.value;

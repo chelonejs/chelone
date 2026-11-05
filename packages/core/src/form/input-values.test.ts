@@ -5,6 +5,7 @@ import {
   fileEntryPreview,
   isTransformedFile,
   toBooleanValue,
+  toCurrencyComposite,
   toCurrencyValue,
   toDateInputValue,
   toFileEntries,
@@ -114,6 +115,37 @@ describe("toCurrencyValue", () => {
     expect(toCurrencyValue(1250)).toBe(1250);
     expect(toCurrencyValue("12.50")).toBe(12.5);
     expect(toCurrencyValue("")).toBeNull();
+  });
+});
+
+describe("toCurrencyComposite", () => {
+  it("reads the amount and currency pair", () => {
+    expect(toCurrencyComposite({ amount: 5, currency: "EUR" })).toEqual({
+      amount: 5,
+      currency: "EUR",
+    });
+  });
+
+  it("keeps the amount when the currency is missing or not text", () => {
+    expect(toCurrencyComposite({ amount: 500 })).toEqual({
+      amount: 500,
+      currency: undefined,
+    });
+    expect(toCurrencyComposite({ amount: 500, currency: null })).toEqual({
+      amount: 500,
+      currency: undefined,
+    });
+    expect(toCurrencyComposite({ amount: 5, currency: 3 })).toEqual({
+      amount: 5,
+      currency: undefined,
+    });
+  });
+
+  it("is null for a bare number, a hole or an amount that is no number", () => {
+    expect(toCurrencyComposite(12)).toBeNull();
+    expect(toCurrencyComposite(null)).toBeNull();
+    expect(toCurrencyComposite({ currency: "EUR" })).toBeNull();
+    expect(toCurrencyComposite({ amount: "x", currency: "EUR" })).toBeNull();
   });
 });
 

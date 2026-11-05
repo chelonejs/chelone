@@ -94,6 +94,17 @@ describe("<RatingInput>", () => {
     expect(screen.getByText("Rating")).not.toBeNull();
   });
 
+  it("renders the empty state for a stored string that is no number", () => {
+    setup(<RatingInput source="rating" />, {
+      defaultValues: { rating: "great" },
+    });
+    const stars = screen.getAllByRole("radio");
+    expect(stars).toHaveLength(5);
+    expect(
+      stars.filter((s) => s.getAttribute("aria-checked") === "true"),
+    ).toHaveLength(0);
+  });
+
   it("renders `max` stars when max is set", () => {
     setup(<RatingInput source="rating" max={10} />, {
       defaultValues: { rating: 7 },

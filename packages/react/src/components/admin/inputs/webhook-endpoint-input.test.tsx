@@ -119,6 +119,45 @@ describe("<WebhookEndpointInput>", () => {
     ).toBe("checked");
   });
 
+  it("seeds the empty endpoint when a wrapper forwards an undefined defaultValue", async () => {
+    const onData = vi.fn();
+    // An own `defaultValue` key holding `undefined`, as `defaultValue={props.defaultValue}` passes.
+    const forwarded = { defaultValue: undefined };
+    const { submitRef } = setup<{ endpoint?: WebhookEndpoint }>(
+      <WebhookEndpointInput
+        source="endpoint"
+        eventTypes={EVENTS}
+        {...forwarded}
+      />,
+      { onData },
+    );
+    await act(async () => {
+      await submitRef.current?.();
+    });
+    expect(onData).toHaveBeenCalledWith({
+      endpoint: { url: "", secret: "", eventTypes: [] },
+    });
+  });
+
+  it("seeds the empty endpoint when defaultValue is null", async () => {
+    const onData = vi.fn();
+    const forwarded = { defaultValue: null };
+    const { submitRef } = setup<{ endpoint?: WebhookEndpoint }>(
+      <WebhookEndpointInput
+        source="endpoint"
+        eventTypes={EVENTS}
+        {...forwarded}
+      />,
+      { onData },
+    );
+    await act(async () => {
+      await submitRef.current?.();
+    });
+    expect(onData).toHaveBeenCalledWith({
+      endpoint: { url: "", secret: "", eventTypes: [] },
+    });
+  });
+
   it("writes the url patch back to the form", async () => {
     const onData = vi.fn();
     const { submitRef } = setup<{ endpoint: WebhookEndpoint }>(

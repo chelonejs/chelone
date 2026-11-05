@@ -474,6 +474,7 @@ export {
 } from "./form/input-binding";
 export type {
   ChoiceValueOf,
+  CurrencyComposite,
   DateInputValue,
   FileEntry,
   FileInputValue,
@@ -489,6 +490,7 @@ export {
   fileEntryPreview,
   isTransformedFile,
   toBooleanValue,
+  toCurrencyComposite,
   toCurrencyValue,
   toDateInputValue,
   toFileEntries,
