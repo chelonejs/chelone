@@ -91,9 +91,7 @@ const Probe = defineComponent({
       h("div", [
         h(
           "ul",
-          (list.data ?? []).map((row) =>
-            h("li", String((row as unknown as { title: string }).title)),
-          ),
+          (list.data ?? []).map((row) => h("li", String(row.title))),
         ),
         h("output", `page ${list.page}`),
         h("output", `selected [${list.selectedIds.join(",")}]`),

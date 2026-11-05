@@ -121,7 +121,7 @@ describe("<SaveButton>", () => {
 
     await waitFor(async () => {
       const { data } = await dataProvider.getOne("posts", { id: 1 });
-      expect((data as unknown as { title: string }).title).toBe("Updated");
+      expect(data).toMatchObject({ title: "Updated" });
     });
   });
 

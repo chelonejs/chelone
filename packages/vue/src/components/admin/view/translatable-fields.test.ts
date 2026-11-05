@@ -133,22 +133,23 @@ describe("TranslatableFields", () => {
       setup() {
         const list = useListContext();
         return () =>
-          (list.data as unknown as { id: number }[]).map((row) =>
-            h(
+          (list.data ?? []).map((row) => {
+            const id = Number(row.id);
+            return h(
               defineComponent({
                 setup() {
                   provideRecordContext(row);
                   return () =>
                     h(
                       TranslatableFields,
-                      { locales: ["en", "fr"], groupKey: `row${row.id}` },
+                      { locales: ["en", "fr"], groupKey: `row${id}` },
                       () => h(TextField, { source: "details.label" }),
                     );
                 },
               }),
-              { key: row.id },
-            ),
-          );
+              { key: id },
+            );
+          });
       },
     });
     const { wrapper } = await mountFields(
