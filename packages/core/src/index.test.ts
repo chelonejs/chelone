@@ -46,6 +46,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.getMetricDelta).toBeTypeOf("function");
   });
 
+  it("exports isFilterBranch", () => {
+    expect(barrel.isFilterBranch).toBeTypeOf("function");
+  });
+
   it("exports stripJsonComments", () => {
     expect(barrel.stripJsonComments).toBeTypeOf("function");
   });
