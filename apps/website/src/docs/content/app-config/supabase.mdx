@@ -516,8 +516,10 @@ const locks = supabaseLockProvider({
 export const dataProvider = realtimeDataProvider(base, transport, { locks });
 ```
 
-- `instanceUrl`, `apiKey` and `client` are as for `supabaseDataProvider`, and
-  `schema` is too. The user's session applies, so row level security decides.
+- `instanceUrl`, `apiKey` and `client` are as for `supabaseDataProvider`. The
+  user's session applies, so row level security decides.
+- `schema` is a schema name for a table outside `public`. Unlike the data
+  provider's option, it takes a string, not a function.
 - `table` is the table of locks. It defaults to `chelone_locks`.
 - The lock identity is the `identity` that `LockOnMount` passes. Use the
   signed-in user's id, which `supabaseAuthProvider` returns as the identity's

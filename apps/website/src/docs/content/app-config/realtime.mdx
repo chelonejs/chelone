@@ -635,7 +635,10 @@ data: {"type":"updated","payload":{"ids":[1]}}
   `{ "topic": "...", "event": { "type": "...", ... } }` and an
   `Authorization: Bearer <token>` header. Any status outside 200 to 299 rejects
   it. Without `publishUrl` a `publish` rejects.
-- A change to the topics reopens the stream, which can take a moment.
+- Subscribing to a topic the open stream does not carry reopens it with the new
+  topic added, which can take a moment. Unsubscribing from one leaves the stream
+  as it is, and the server keeps sending that topic on it until the stream
+  closes; events for a topic with no subscriber are dropped.
 - `withCredentials` is passed to `EventSource` and sends credentials on the
   `POST`. `fetch` replaces the global one for the `POST`.
 - `idleDisconnectMs` (default 30000) closes the stream once nothing is
@@ -659,7 +662,7 @@ A connection that opens again resets the count. A reconnect calls the
 
 | Status | Means |
 | --- | --- |
-| `"idle"` | Nothing is subscribed, so no connection is open. The first subscribe or publish opens one. |
+| `"idle"` | Nothing is subscribed, so no connection is open. A subscribe opens one, and so does a `webSocketTransport` publish. A `sseTransport` publish only sends the `POST`. |
 | `"connected"` | The connection is open. |
 | `"reconnecting"` | The connection dropped and a retry is waiting or running. |
 | `"disconnected"` | `close()` was called, a retry gave up, retries are off, or the server closed the connection cleanly. |
