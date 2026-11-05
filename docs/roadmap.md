@@ -51,7 +51,7 @@
 
 ### R10. Realtime / enterprise
 - **The realtime engine, live views and record locks are built in both adapters** (the engine is in `@chelone/core`; `useSubscribe`, `ListLive`/`ShowLive`/`EditLive`/`MenuLive`, `LockOnMount`/`LockStatus` in React and Vue; both demos wire it). Guide: `apps/website/src/docs/content/app-config/realtime.mdx`.
-- **Transports are open** in #835. Only `memoryTransport` and `inMemoryLockProvider` ship, so events and locks stay in one tab. The BroadcastChannel, WebSocket, server-sent events and Supabase Realtime transports and a Supabase lock provider are its slices.
+- **The transports are built** (#835). `@chelone/core` ships `broadcastChannelTransport`, `webSocketTransport` and `sseTransport`, and `createTopicHub` for an app that writes its own. `@chelone/supabase` ships `supabaseRealtimeTransport` and `supabaseLockProvider`, which keeps record locks in a `chelone_locks` table. The guides are `apps/website/src/docs/content/app-config/realtime.mdx` and `supabase.mdx`. `memoryTransport` and `inMemoryLockProvider` stay for tests and demos.
 - Still deferred: audit-log. Large, ecosystem-scale, post-v1. Tree list and calendar list moved to [Shadmin extras (#225)](#shadmin-extras-225).
 
 ## Opt-in add-ons (#224)
@@ -104,4 +104,4 @@ Every feature lives once per adapter, and the copies drift. [`headless-controlle
 - Feedback: `Confirm`, `Error`, `Loading`, `LoadingIndicator`, `LinearProgress`, `Notification`, `NotFound` (for the catch-all route), `Offline`, `Placeholder`, `Ready`, `Spinner`.
 - Common: `Link`, `IconButtonWithTooltip`, `KeyboardShortcut`, `FieldLabelText`, `InputHelperText`, `CheckForApplicationUpdate`, `ApplicationUpdatedNotification`.
 
-**Next:** Tier 3 (R9, and the audit-log part of R10) stays deferred. R7 is planned and R8 is tracked in #225. The realtime engine, live views and record locks from R10 are built, and its transports are open in #835. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open work is the first npm release (#8), the opt-in add-ons (#224) and the shadmin extras (#225), whose first open pieces are the realtime transports (#835), the Supabase codegen (#842) and the kanban move to dnd-kit (#846).
+**Next:** Tier 3 (R9, and the audit-log part of R10) stays deferred. R7 is planned and R8 is tracked in #225. The realtime engine, live views, record locks and transports from R10 are built. The Vue registry (V4, see [`vue-adapter-design.md`](vue-adapter-design.md)) shipped. The remaining open work is the first npm release (#8), the opt-in add-ons (#224) and the shadmin extras (#225), whose first open pieces are the Supabase codegen (#842) and the kanban move to dnd-kit (#846).
