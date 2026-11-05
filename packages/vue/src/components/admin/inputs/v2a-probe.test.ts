@@ -54,6 +54,7 @@ import {
   type TextArrayInputProps,
   TextInput,
   TimeInput,
+  type UseFormOptions,
   type UseFormReturn,
   useForm,
   type WebhookEndpoint,
@@ -97,7 +98,13 @@ interface Captured {
 
 function mountInForm(
   render: () => unknown,
-  { record, schema }: { record: FormValues; schema?: typeof postSchema },
+  {
+    record,
+    schema,
+  }: {
+    record: FormValues;
+    schema?: UseFormOptions<FormValues>["schema"];
+  },
 ) {
   const captured: Captured = { saves: [] };
   const queryClient = new QueryClient({
@@ -110,7 +117,7 @@ function mountInForm(
     setup(_, { slots }) {
       const form = useForm<FormValues>({
         record,
-        schema: schema as never,
+        schema,
         // Records reaching `onSubmit` means validation passed and save fired.
         onSubmit: async (data) => {
           captured.saves.push(data);

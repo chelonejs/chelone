@@ -19,6 +19,7 @@ import { defineComponent, h, nextTick } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../admin/admin.vue";
 import { type UseFormReturn, useForm } from "../../form/use-form";
+import type { CrepeEditorConfig } from "./internal/crepe-editor.vue";
 import MdxInput, { type MdxInputProps } from "./mdx-input.vue";
 
 // The real serializer normalizes: it ends the text with a newline.
@@ -38,7 +39,7 @@ interface FakeCrepe {
 const hoisted = vi.hoisted(() => ({ instances: [] as FakeCrepe[] }));
 
 vi.mock("@milkdown/crepe", () => {
-  class Crepe {
+  class FakeCrepeImpl implements FakeCrepe {
     static Feature = { CodeMirror: "code-mirror", Latex: "latex" };
     config: Record<string, unknown>;
     markdown: string;
@@ -61,7 +62,7 @@ vi.mock("@milkdown/crepe", () => {
     constructor(config: Record<string, unknown>) {
       this.config = config;
       this.markdown = serialize(String(config.defaultValue ?? ""));
-      hoisted.instances.push(this as unknown as FakeCrepe);
+      hoisted.instances.push(this);
     }
     on(fn: (api: unknown) => void) {
       fn({
@@ -85,7 +86,7 @@ vi.mock("@milkdown/crepe", () => {
       return Promise.resolve(this);
     }
   }
-  return { Crepe };
+  return { Crepe: FakeCrepeImpl };
 });
 
 vi.mock("@milkdown/kit/utils", () => ({
@@ -270,14 +271,10 @@ describe("MdxInput", () => {
   });
 
   it("passes crepeConfig through to the editor", async () => {
-    mountInput(
-      {
-        crepeConfig: {
-          featureConfigs: { placeholder: { text: "Write" } },
-        } as never,
-      },
-      { record: { body: "x" } },
-    );
+    const crepeConfig: CrepeEditorConfig = {
+      featureConfigs: { placeholder: { text: "Write" } },
+    };
+    mountInput({ crepeConfig }, { record: { body: "x" } });
     await flushPromises();
     expect(only().config.featureConfigs).toEqual({
       placeholder: { text: "Write" },
