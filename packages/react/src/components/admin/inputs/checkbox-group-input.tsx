@@ -90,6 +90,10 @@ function CheckboxGroupInput<
     row = false,
     options,
     labelPlacement = "end",
+    // Stay out of `rest`: it is spread onto the `<FieldSet>`, where a blur or
+    // change from inside the group would bubble into the callback.
+    onBlur,
+    onChange,
     ...rest
   } = props;
 
@@ -113,7 +117,12 @@ function CheckboxGroupInput<
   // The options are spread whole: reading the generic `defaultValue` anywhere
   // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
   // instantiation depth.
-  const { id, field, fieldState, isRequired } = useInput({ ...rest, source });
+  const { id, field, fieldState, isRequired } = useInput({
+    ...rest,
+    onBlur,
+    onChange,
+    source,
+  });
 
   const invalid = fieldState.invalid;
   // chelone `fieldState.error` is ALREADY the displayable
