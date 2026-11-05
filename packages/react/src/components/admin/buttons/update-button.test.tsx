@@ -29,21 +29,10 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
-import {
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  it,
-  type MockInstance,
-  vi,
-} from "vitest";
+import { afterEach, describe, expect, it, type MockInstance, vi } from "vitest";
 import { Admin, Edit, Resource, TextInput } from "../../../index";
 import { UpdateButton, type UpdateButtonProps } from "./update-button";
 
-beforeAll(() => {
-  window.scrollTo = vi.fn();
-});
 afterEach(cleanup);
 
 const baseAuth = (over: Partial<AuthProvider> = {}): AuthProvider => ({

@@ -25,7 +25,7 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Admin } from "../../../admin/admin";
 import { CheloneProvider } from "../../../context";
 import { Resource } from "../../../resource/resource";
@@ -36,10 +36,6 @@ import {
 import { reactRouterAdapter } from "../../../router/react-router-adapter";
 import { TitlePortal } from "../layout/title-portal";
 import { NotFound } from "./not-found";
-
-beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
 
 afterEach(() => {
   cleanup();

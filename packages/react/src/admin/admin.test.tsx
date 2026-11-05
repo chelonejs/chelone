@@ -26,15 +26,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Layout } from "../components/admin/layout/layout";
 import { ThemeProvider } from "../components/admin/layout/theme-provider";
 import { DataTable } from "../components/admin/list/data-table";
@@ -56,11 +48,6 @@ import { Admin } from "./admin";
 import { AdminContext } from "./admin-context";
 import { AdminUI } from "./admin-ui";
 import { AdminDashboard, AdminTitle } from "./slots";
-
-// TanStack calls window.scrollTo on navigation; jsdom doesn't implement it.
-beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
 
 afterEach(() => {
   cleanup();

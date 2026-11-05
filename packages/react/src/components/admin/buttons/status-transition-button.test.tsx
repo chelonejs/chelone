@@ -21,7 +21,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Admin, Edit, Resource, TextInput } from "../../../index";
 import {
   StatusTransitionButton,
@@ -37,9 +37,6 @@ import {
   }
 }
 
-beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
 afterEach(cleanup);
 
 type Post = Record<string, unknown> & { id: number };

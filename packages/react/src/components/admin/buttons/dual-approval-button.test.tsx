@@ -22,16 +22,13 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Admin, Edit, Resource, TextInput } from "../../../index";
 import {
   DualApprovalButton,
   type DualApprovalButtonProps,
 } from "./dual-approval-button";
 
-beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
 afterEach(cleanup);
 
 const authFor = (

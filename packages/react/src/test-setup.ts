@@ -16,6 +16,10 @@
  * `<Notification>` (sonner `<Toaster>`) and `<ThemeProvider>` (system-mode
  * resolution) read `window.matchMedia("(prefers-color-scheme: dark)")`; jsdom
  * ships no `matchMedia`, so a light-mode-default stub is provided.
+ *
+ * jsdom's `window.scrollTo` logs "Not implemented" and does nothing; TanStack
+ * and the scroll manager call it on every navigation, so it is a no-op here.
+ * Tests that assert on it spy with `vi.spyOn(window, "scrollTo")`.
  */
 
 import { cleanup } from "@testing-library/react";
@@ -51,6 +55,14 @@ if (typeof window !== "undefined" && typeof window.matchMedia !== "function") {
       },
     } as MediaQueryList;
   };
+}
+
+if (typeof window !== "undefined") {
+  Object.defineProperty(window, "scrollTo", {
+    configurable: true,
+    writable: true,
+    value: () => {},
+  });
 }
 
 // Node 25+ defines a `localStorage` global that is undefined without

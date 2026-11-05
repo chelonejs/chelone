@@ -13,14 +13,11 @@ import {
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { Admin, Resource } from "../../../index";
 import { ListGuesser, type ListGuesserProps } from "./list-guesser";
 
-beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();

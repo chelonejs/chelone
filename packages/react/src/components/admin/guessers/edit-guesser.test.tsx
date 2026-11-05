@@ -19,14 +19,11 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { Admin, Resource } from "../../../index";
 import { EditGuesser, type EditGuesserProps } from "./edit-guesser";
 
-beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();

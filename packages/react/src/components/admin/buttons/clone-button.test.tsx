@@ -21,7 +21,7 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import {
   Admin,
@@ -40,9 +40,6 @@ import { RouterAdapterProvider } from "../../../router/adapter";
 import { reactRouterAdapter } from "../../../router/react-router-adapter";
 import { CloneButton } from "./clone-button";
 
-beforeAll(() => {
-  window.scrollTo = vi.fn();
-});
 afterEach(cleanup);
 
 const baseAuth = (over: Partial<AuthProvider> = {}): AuthProvider => ({
