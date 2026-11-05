@@ -14,10 +14,19 @@ import {
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h, nextTick, type Ref, ref } from "vue";
+import {
+  defineComponent,
+  h,
+  nextTick,
+  type Ref,
+  ref,
+  type VNodeChild,
+} from "vue";
 import { provideCheloneContext } from "../../context";
 import { provideRecordContext } from "../../record/record-context";
-import CrepeEditor from "./internal/crepe-editor.vue";
+import CrepeEditor, {
+  type CrepeEditorConfig,
+} from "./internal/crepe-editor.vue";
 import MdxField, { type MdxFieldProps } from "./mdx-field.vue";
 
 // The real serializer normalizes: it ends the text with a newline.
@@ -43,7 +52,7 @@ const hoisted = vi.hoisted(() => ({
 }));
 
 vi.mock("@milkdown/crepe", () => {
-  class Crepe {
+  class FakeCrepeImpl implements FakeCrepe {
     static Feature = { CodeMirror: "code-mirror", Latex: "latex" };
     config: Record<string, unknown>;
     markdown: string;
@@ -69,7 +78,7 @@ vi.mock("@milkdown/crepe", () => {
     constructor(config: Record<string, unknown>) {
       this.config = config;
       this.markdown = serialize(String(config.defaultValue ?? ""));
-      hoisted.instances.push(this as unknown as FakeCrepe);
+      hoisted.instances.push(this);
     }
     on(fn: (api: unknown) => void) {
       fn({
@@ -98,7 +107,7 @@ vi.mock("@milkdown/crepe", () => {
       return Promise.resolve(this);
     }
   }
-  return { Crepe };
+  return { Crepe: FakeCrepeImpl };
 });
 
 vi.mock("@milkdown/kit/utils", () => ({
@@ -123,7 +132,7 @@ const i18n = createI18n({
 function mountField(
   props: MdxFieldProps,
   record?: Ref<LooseRecord | undefined>,
-  slots?: Record<string, () => unknown>,
+  slots?: Record<string, () => VNodeChild>,
 ) {
   const Harness = defineComponent({
     setup() {
@@ -133,7 +142,7 @@ function mountField(
         i18n,
       });
       if (record) provideRecordContext(record);
-      return () => h(MdxField, props, slots as never);
+      return () => h(MdxField, props, slots);
     },
   });
   const wrapper = mount(Harness, { attachTo: document.body });
@@ -169,14 +178,11 @@ describe("MdxField", () => {
   });
 
   it("switches the CodeMirror and Latex features off", async () => {
-    mountField({
-      source: "body",
-      record: { id: 1, body: "x" },
-      crepeConfig: {
-        features: { "code-mirror": true, table: false },
-        featureConfigs: { placeholder: { text: "Write" } },
-      } as never,
-    });
+    const crepeConfig: CrepeEditorConfig = {
+      features: { "code-mirror": true, table: false },
+      featureConfigs: { placeholder: { text: "Write" } },
+    };
+    mountField({ source: "body", record: { id: 1, body: "x" }, crepeConfig });
     await flushPromises();
 
     const config = only().config;
