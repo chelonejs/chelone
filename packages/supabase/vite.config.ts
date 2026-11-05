@@ -13,13 +13,15 @@ const externals = [
   ...Object.keys(pkg.peerDependencies ?? {}),
 ];
 
-// Matches a package and any subpath of it (`zod`, `zod/v4`).
+// Matches a package and any subpath of it (`zod`, `zod/v4`), and Node built-ins.
 const isExternal = (id: string) =>
+  id.startsWith("node:") ||
   externals.some((name) => id === name || id.startsWith(`${name}/`));
 
 export default defineConfig({
   build: {
-    lib: { entry: "src/index.ts", formats: ["es"] },
+    // bin.ts is a second entry; nothing under src/index.ts imports src/codegen/.
+    lib: { entry: ["src/index.ts", "src/codegen/bin.ts"], formats: ["es"] },
     outDir: "dist",
     sourcemap: false,
     minify: false,

@@ -764,6 +764,11 @@ export {
   realtimeDataProvider,
 } from "./realtime/realtime-data-provider";
 export type { RealtimeReconnectConfig } from "./realtime/reconnect-backoff";
+export type {
+  SseTransport,
+  SseTransportOptions,
+} from "./realtime/sse-transport";
+export { sseTransport } from "./realtime/sse-transport";
 export type { RealtimeStatusState } from "./realtime/status-store";
 export { createRealtimeStatusStore } from "./realtime/status-store";
 export type { TopicHub } from "./realtime/topic-hub";
@@ -799,6 +804,11 @@ export {
   subscribeUnreadCount,
   unreadKey,
 } from "./realtime/unread-count";
+export type {
+  WebSocketTransport,
+  WebSocketTransportOptions,
+} from "./realtime/websocket-transport";
+export { webSocketTransport } from "./realtime/websocket-transport";
 export type {
   FieldComponentName,
   FieldDescriptor,
