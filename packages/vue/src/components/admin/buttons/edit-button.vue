@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+import { definedParams, type LooseRecord } from "@chelone/core";
 
 /** Props for {@link EditButton}. */
 export interface EditButtonProps {
@@ -62,10 +62,13 @@ const to = computed(() => {
   return id == null ? "" : createPath({ resource, type: "edit", id });
 });
 const label = computed(() =>
-  translate("ra.action.edit", {
-    _: "Edit",
-    name: resource ? getResourceLabel(resource, 1) : undefined,
-  }),
+  translate(
+    "ra.action.edit",
+    definedParams({
+      _: "Edit",
+      name: resource ? getResourceLabel(resource, 1) : undefined,
+    }),
+  ),
 );
 const classes = computed(() =>
   buttonVariants({ variant: "outline", class: props.class }),

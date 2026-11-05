@@ -22,6 +22,17 @@ export function isTranslateParamValues(
   );
 }
 
+/** Drops absent values: an `undefined` param would otherwise render as the text "undefined". */
+export function definedParams(
+  params: Record<string, string | number | undefined>,
+): TranslateParamValues {
+  const defined: TranslateParamValues = {};
+  for (const [name, value] of Object.entries(params)) {
+    if (value !== undefined) defined[name] = value;
+  }
+  return defined;
+}
+
 /** Identity helper pinning literal keys AND literal template strings (for param inference). */
 export function defineMessages<const T extends MessageCatalog>(catalog: T): T {
   return catalog;

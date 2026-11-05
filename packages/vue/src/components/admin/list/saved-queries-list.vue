@@ -21,7 +21,11 @@ export interface SavedQueriesListProps {
  * set can be saved, so a sort-only query cannot.
  */
 
-import { isSavedQueryActive, type SavedQueryValue } from "@chelone/core";
+import {
+  isSavedQueryActive,
+  type SavedQueryValue,
+  type TranslateParamValues,
+} from "@chelone/core";
 import { computed, ref, toRaw, watch } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { cn } from "../../../lib/utils";
@@ -50,7 +54,7 @@ const name = ref("");
 const t = (
   key: string,
   fallback: string,
-  params: Record<string, unknown> = {},
+  params: TranslateParamValues = {},
 ) => {
   const out = translate(key, params);
   return out === key ? fallback : out;

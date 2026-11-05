@@ -1,4 +1,8 @@
-import { isSavedQueryActive, type SavedQueryValue } from "@chelone/core";
+import {
+  isSavedQueryActive,
+  type SavedQueryValue,
+  type TranslateParamValues,
+} from "@chelone/core";
 import { type FormEvent, useId, useState } from "react";
 import { useListContext } from "../../../form";
 import { useTranslate } from "../../../i18n-hooks";
@@ -45,11 +49,7 @@ function SavedQueriesList({
 
   // chelone's i18n returns the KEY when a message is not registered, so each
   // label carries a local English fallback (as `ListPagination` does).
-  const t = (
-    key: string,
-    fallback: string,
-    params?: Record<string, unknown>,
-  ) => {
+  const t = (key: string, fallback: string, params?: TranslateParamValues) => {
     const out = translate(key, params ?? {});
     return out === key ? fallback : out;
   };

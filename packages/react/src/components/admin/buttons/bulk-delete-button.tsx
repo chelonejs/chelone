@@ -15,6 +15,7 @@
  */
 
 import {
+  definedParams,
   type Identifier,
   type MutationMode,
   removeRecordsFromCache,
@@ -105,10 +106,10 @@ function BulkDeleteButton(props: BulkDeleteButtonProps) {
       ? `resources.${resource}.action.delete`
       : undefined,
     baseI18nKey: "ra.action.delete",
-    options: {
+    options: definedParams({
       _: "Delete",
       name: resource ? getResourceLabel(resource, 1) : undefined,
-    },
+    }),
     userText: labelProp,
   });
 

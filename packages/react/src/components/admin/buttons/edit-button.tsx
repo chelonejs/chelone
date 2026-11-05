@@ -8,6 +8,7 @@
  */
 
 import type { LooseRecord } from "@chelone/core";
+import { definedParams } from "@chelone/core";
 import { Pencil } from "lucide-react";
 import type { Ref } from "react";
 import { buttonVariants } from "@/components/ui/button";
@@ -79,11 +80,11 @@ function EditButton(props: EditButtonProps) {
   const label = useResourceTranslation({
     resourceI18nKey: resource ? `resources.${resource}.action.edit` : undefined,
     baseI18nKey: "ra.action.edit",
-    options: {
+    options: definedParams({
       _: "Edit",
       name: resource ? getResourceLabel(resource, 1) : undefined,
       recordRepresentation,
-    },
+    }),
     userText: labelProp,
   });
   if (!record || record.id == null || !canAccess || isAccessPending) {
