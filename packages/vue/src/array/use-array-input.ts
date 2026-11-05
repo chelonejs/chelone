@@ -20,7 +20,6 @@
  */
 
 import type {
-  ArrayBinding,
   ArrayBindingUpdateOptions,
   ArrayRow,
   CheloneFieldState,
@@ -28,7 +27,7 @@ import type {
   SourceScope,
   TranslatableMessage,
 } from "@chelone/core";
-import { createArrayBinding, createArraySourceScope } from "@chelone/core";
+import { createArraySourceScope } from "@chelone/core";
 import {
   type ComputedRef,
   computed,
@@ -40,9 +39,6 @@ import {
 import { firstFieldError } from "../form/field-error";
 import { useCheloneFormContext, useSourceScope } from "../form/form-context";
 import { useSubscribable } from "../form/subscribe-ref";
-
-/** The erased form-data shape the ambient form carries. */
-type UnknownFormValues = Record<string, unknown>;
 
 export interface UseArrayInputOptions<TRecord = unknown>
   extends ArrayBindingUpdateOptions {
@@ -82,7 +78,8 @@ export interface UseArrayInputResult {
 
 function toBindingUpdate<TRecord>(
   options: UseArrayInputOptions<TRecord>,
-): ArrayBindingUpdateOptions<UnknownFormValues> {
+  // type-escape: the ambient form names no record.
+): ArrayBindingUpdateOptions<unknown> {
   return {
     defaultValue: options.defaultValue,
     scalar: options.scalar,
@@ -106,11 +103,10 @@ export function useArrayInput<TRecord>(
   const parentScope = useSourceScope();
   const source = parentScope.getSource(options.source);
 
-  const binding: ArrayBinding<UnknownFormValues> =
-    createArrayBinding<UnknownFormValues>(form, {
-      ...toBindingUpdate(options),
-      source,
-    });
+  const binding = form.ambient.bindArray({
+    ...toBindingUpdate(options),
+    source,
+  });
 
   // Structural reactivity + 4R attach: the binding's `subscribe` mounts the
   // array field on the first subscriber and notifies ONLY on row-structure
@@ -126,9 +122,8 @@ export function useArrayInput<TRecord>(
 
   // The array field's own state (min-length errors, touched/dirty) — a separate
   // subscription over the field binding, refcounting the SAME field mount.
-  const fieldState = useSubscribable<CheloneFieldState<UnknownFormValues>>(
-    binding.field,
-  );
+  // type-escape: the ambient form names no record.
+  const fieldState = useSubscribable<CheloneFieldState<unknown>>(binding.field);
 
   // Render-freshness: re-apply non-source options every time a tracked option
   // field changes (validators/itemDefaults/…). Runs once for a plain object.

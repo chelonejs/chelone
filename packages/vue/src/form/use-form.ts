@@ -78,6 +78,13 @@ export interface UseFormOptions<TFormData> {
   getRecord?: () => Partial<TFormData> | undefined;
   /** Rebaseline the form from the saved values on success (D5). Default true. */
   resetOnSuccess?: boolean;
+  /**
+   * Whether the form holds the resource's record, so descendants read it
+   * through a handle tagged with that resource (`useFormHandle("posts")`).
+   * `false` for a form whose values are something else, such as a list filter:
+   * its handle is unbound. Default true.
+   */
+  recordForm?: boolean;
 }
 
 /** The narrow reactive surface `useForm` exposes to a view. */
@@ -100,9 +107,10 @@ function registrySchema<TFormData>(
   resource: string | undefined,
 ): FormSchema<TFormData> {
   if (!resources || !resource) return undefined;
-  const entry = (resources as Record<string, { schema?: unknown }>)[resource];
+  const entry = resources[resource];
   // zod >= 3.24 implements Standard Schema; the registry types schemas broadly,
   // so widening to the form data type is a cast (mirrors core's registrySchema).
+  // type-escape: the registry's schema slot to the form's data type.
   return entry?.schema as FormSchema<TFormData>;
 }
 
@@ -140,7 +148,11 @@ export function useForm<TFormData = Record<string, unknown>>(
   const state = useSubscribable(controller);
 
   // Expose the form to descendant `useInput`s (mirror React's CheloneFormProvider).
-  provideCheloneForm({ form: controller.form, submit: controller.submit });
+  provideCheloneForm({
+    form: controller.form,
+    submit: controller.submit,
+    resource: options.recordForm === false ? undefined : resource,
+  });
 
   return {
     form: controller.form,

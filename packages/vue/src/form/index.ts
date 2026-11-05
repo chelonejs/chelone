@@ -3,13 +3,17 @@
 // field-error normalizer they share.
 
 export { firstFieldError } from "./field-error";
-export type { CheloneFormContextValue } from "./form-context";
+export type {
+  CheloneFormContextValue,
+  NamedFormHandle,
+} from "./form-context";
 export {
   CheloneFormContextKey,
   provideCheloneForm,
   provideSourceScope,
   SourceScopeKey,
   useCheloneFormContext,
+  useFormHandle,
   useOptionalCheloneFormContext,
   useSourceScope,
   useWrappedSource,

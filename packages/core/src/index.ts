@@ -443,6 +443,7 @@ export type {
   FormContextHandle,
   FormContextHandleOf,
   FormHandle,
+  HandleName,
   RecordMap,
   ResourceFormHandle,
   UnboundFormHandle,

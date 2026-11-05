@@ -17,11 +17,11 @@ const FormDirtyReporter = defineComponent({
   emits: { change: (_dirty: boolean) => true },
   setup(_, { emit }) {
     const { form } = useCheloneFormContext();
-    let dirty = !form.store.state.isDefaultValue;
+    let dirty = !form.ambient.store.state.isDefaultValue;
     emit("change", dirty);
     onScopeDispose(
-      subscribeStore(form.store, () => {
-        const next = !form.store.state.isDefaultValue;
+      subscribeStore(form.ambient.store, () => {
+        const next = !form.ambient.store.state.isDefaultValue;
         if (next === dirty) return;
         dirty = next;
         emit("change", dirty);
