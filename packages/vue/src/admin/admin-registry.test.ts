@@ -14,7 +14,7 @@
  *     resolved from the resource's zod schema.
  */
 
-import { defineResources } from "@chelone/core";
+import { defineResources, fakeDataProvider } from "@chelone/core";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { defineComponent, h, inject } from "vue";
@@ -36,9 +36,7 @@ interface Post {
   views: number;
 }
 
-const dataProvider = {
-  name: "stub-dp",
-} as unknown as CheloneContextValue["dataProvider"];
+const dataProvider = fakeDataProvider({});
 
 /** A fresh empty router; `/` avoids no-match noise. */
 function makeRouter(): Router {

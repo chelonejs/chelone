@@ -24,9 +24,7 @@ const Blank = defineComponent({
 });
 
 /** A stub data provider — only its identity matters for the context test. */
-const dataProvider = {
-  name: "stub-dp",
-} as unknown as CheloneContextValue["dataProvider"];
+const dataProvider = fakeDataProvider({});
 
 /** A fresh empty router (Admin adds the resource routes). `/` avoids no-match noise. */
 function makeRouter(): Router {

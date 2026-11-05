@@ -7,21 +7,18 @@
  * T1's `<AppBar>` now renders both the `<UserMenu>` and the `<Title>` target.
  */
 
-import { type AuthProvider, createI18n } from "@chelone/core";
+import { type AuthProvider, createI18n, fakeDataProvider } from "@chelone/core";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import Admin from "../../../admin/admin.vue";
 import Resource from "../../../admin/resource.vue";
-import type { CheloneContextValue } from "../../../context";
 import AppBar from "./app-bar.vue";
 import Title from "./title.vue";
 import { TITLE_PORTAL_ID } from "./title-portal-id";
 
-const dataProvider = {
-  name: "stub-dp",
-} as unknown as CheloneContextValue["dataProvider"];
+const dataProvider = fakeDataProvider({});
 
 function makeAuthProvider(over: Partial<AuthProvider> = {}): AuthProvider {
   return {

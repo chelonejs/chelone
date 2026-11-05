@@ -3,19 +3,20 @@
  * provides and describes the resource's Zod schema.
  */
 
-import { defineResources, type ResourceDescriptor } from "@chelone/core";
+import {
+  defineResources,
+  fakeDataProvider,
+  type ResourceDescriptor,
+} from "@chelone/core";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { type ComputedRef, defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
 import Admin from "../../../admin/admin.vue";
-import type { CheloneContextValue } from "../../../context";
 import { useGuessedResource } from "./use-guessed-resource";
 
-const dataProvider = {
-  name: "stub-dp",
-} as unknown as CheloneContextValue["dataProvider"];
+const dataProvider = fakeDataProvider({});
 
 const registry = defineResources({
   posts: {

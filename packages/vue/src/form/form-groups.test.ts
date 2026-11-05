@@ -1,6 +1,7 @@
 import {
   createFormGroups,
   type FormGroups,
+  fakeDataProvider,
   type GroupState,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
@@ -91,7 +92,7 @@ function mountForm(
   const Provider = defineComponent({
     setup() {
       const ctx: CheloneContextValue = {
-        dataProvider: {} as CheloneContextValue["dataProvider"],
+        dataProvider: fakeDataProvider({}),
         queryClient,
       };
       provideCheloneContext(ctx);

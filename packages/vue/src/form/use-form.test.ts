@@ -1,4 +1,4 @@
-import { defineResources } from "@chelone/core";
+import { defineResources, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -41,7 +41,7 @@ function mountForm(options: UseFormOptions<Post>, cfg: MountCfg = {}) {
   const Provider = defineComponent({
     setup() {
       const ctx: CheloneContextValue = {
-        dataProvider: {} as CheloneContextValue["dataProvider"],
+        dataProvider: fakeDataProvider({}),
         queryClient,
         resources: cfg.resources ? resources : undefined,
       };

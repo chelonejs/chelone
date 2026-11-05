@@ -1,3 +1,4 @@
+import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -65,7 +66,7 @@ async function mountHost(opts: HostOptions = {}) {
   const Root = defineComponent({
     setup() {
       const ctx: CheloneContextValue = {
-        dataProvider: {} as CheloneContextValue["dataProvider"],
+        dataProvider: fakeDataProvider({}),
         queryClient: new QueryClient(),
       };
       provideCheloneContext(ctx);
