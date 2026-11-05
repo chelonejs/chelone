@@ -78,15 +78,9 @@ function normalizeCurrencyValue(
   v: unknown,
   fallbackCurrency?: string,
 ): { amount: number; code: string } {
-  if (
-    typeof v === "object" &&
-    v !== null &&
-    "amount" in v &&
-    typeof v.amount === "number" &&
-    "currency" in v &&
-    typeof v.currency === "string"
-  ) {
-    return { amount: v.amount, code: v.currency };
+  if (typeof v === "object" && v !== null && "amount" in v && "currency" in v) {
+    // A numeric or jsonb column can hand back the amount as a string.
+    return { amount: Number(v.amount), code: String(v.currency) };
   }
   if (!fallbackCurrency) {
     throw new Error(
