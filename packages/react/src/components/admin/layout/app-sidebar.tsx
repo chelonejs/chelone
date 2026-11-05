@@ -10,7 +10,7 @@
  */
 
 import { Shell } from "lucide-react";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -20,6 +20,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { cssVars } from "@/lib/css-vars";
 import { useBasename } from "../../../router";
 import { useRouterAdapter } from "../../../router/adapter";
 import { Menu } from "./menu";
@@ -80,12 +81,10 @@ function AppSidebar({
     <Sidebar
       variant="floating"
       collapsible="icon"
-      style={
-        {
-          "--sidebar-width": `${size}px`,
-          "--sidebar-width-icon": `${closedSize}px`,
-        } as CSSProperties
-      }
+      style={cssVars({
+        "--sidebar-width": `${size}px`,
+        "--sidebar-width-icon": `${closedSize}px`,
+      })}
     >
       <SidebarHeader>
         <SidebarMenu>
