@@ -1,3 +1,5 @@
+import type { SourceProp } from "@chelone/core";
+import { toNullableBooleanValue } from "@chelone/core";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -15,13 +17,13 @@ import { useTranslate } from "../../../i18n-hooks";
 import { useResourceContext } from "../../../resource";
 import type { InputProps } from "../input-props";
 
-const getBooleanFromString = (value: unknown): boolean | null => {
+const getBooleanFromString = (value: string): boolean | null => {
   if (value === "true") return true;
   if (value === "false") return false;
   return null;
 };
 
-const getStringFromBoolean = (value: unknown): string => {
+const getStringFromBoolean = (value: boolean | null): string => {
   if (value === true) return "true";
   if (value === false) return "false";
   return "";
@@ -31,7 +33,14 @@ const getStringFromBoolean = (value: unknown): string => {
 // string for the "null" option and map back to "" / null when reading/writing.
 const NULL_OPTION = "__null__";
 
-interface NullableBooleanInputProps extends InputProps {
+interface NullableBooleanInputProps<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> extends Omit<InputProps<TRecord, TPath>, "format" | "parse"> {
+  /** Read transform (`true`, `false` or `null` as stored → the select's `"true"`, `"false"` or `""`). */
+  format?: (value: boolean | null) => string;
+  /** Write transform (the select's `"true"`, `"false"` or `""` → stored value). */
+  parse?: (value: string) => boolean | null;
   className?: string;
   nullLabel?: string;
   trueLabel?: string;
@@ -77,11 +86,10 @@ function NullableBooleanInput(props: NullableBooleanInputProps) {
 
   // `resource`/`disabled`/`readOnly` are NOT `useInput` keys — `resource`
   // resolves the label, disabled/readOnly gate the `<Select>` below.
+  // `format` and `parse` run here on the select's text, so the binding keeps
+  // its defaults.
   const { id, field, fieldState, isRequired } = useInput({
-    format,
-    parse,
     onBlur,
-    onChange,
     source,
     validate,
   });
@@ -91,15 +99,14 @@ function NullableBooleanInput(props: NullableBooleanInputProps) {
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  // field.value is "" / "true" / "false" (via format). Map "" to the sentinel.
-  const selectValue =
-    field.value === "" || field.value == null
-      ? NULL_OPTION
-      : (field.value as string);
+  // The formatted value is "" / "true" / "false". Map "" to the sentinel.
+  const text = format(toNullableBooleanValue(field.value));
+  const selectValue = text === "" ? NULL_OPTION : text;
 
   const handleValueChange = (value: string) => {
     const next = value === NULL_OPTION ? "" : value;
-    field.onChange(next);
+    field.onChange(parse(next));
+    onChange?.(next);
   };
 
   return (

@@ -7,6 +7,10 @@ export interface NullableBooleanInputProps {
   trueLabel?: string;
   falseLabel?: string;
   validate?: Validator | readonly Validator[];
+  /** Read transform (`true`, `false` or `null` as stored → the select's `"true"`, `"false"` or `""`). */
+  format?: (value: boolean | null) => string;
+  /** Write transform (the select's `"true"`, `"false"` or `""` → stored value). */
+  parse?: (value: string) => boolean | null;
   disabled?: boolean;
   helperText?: string;
   class?: string;
@@ -28,6 +32,7 @@ export interface NullableBooleanInputProps {
  */
 
 import type { SourceProp, Validator } from "@chelone/core";
+import { toNullableBooleanValue } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -41,14 +46,14 @@ const props = withDefaults(defineProps<NullableBooleanInputProps>(), {
   label: undefined,
 });
 
-const getStringFromBoolean = (v: unknown): string => {
-  if (v === true) return "true";
-  if (v === false) return "false";
+const getStringFromBoolean = (value: boolean | null): string => {
+  if (value === true) return "true";
+  if (value === false) return "false";
   return "";
 };
-const getBooleanFromString = (v: unknown): boolean | null => {
-  if (v === "true") return true;
-  if (v === "false") return false;
+const getBooleanFromString = (value: string): boolean | null => {
+  if (value === "true") return true;
+  if (value === "false") return false;
   return null;
 };
 
@@ -56,11 +61,13 @@ const translate = useTranslate();
 const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source: props.source,
   validate: props.validate,
-  format: getStringFromBoolean,
-  parse: getBooleanFromString,
 });
 
-const selectValue = computed(() => value.value as string);
+// `format` and `parse` run here on the select's text, so the binding keeps its
+// defaults.
+const selectValue = computed(() =>
+  (props.format ?? getStringFromBoolean)(toNullableBooleanValue(value.value)),
+);
 const invalid = computed(() => touched.value && error.value != null);
 const labelText = computed(() =>
   props.label === false || props.label === ""
@@ -90,7 +97,7 @@ const options = computed(() => [
 ]);
 
 function onChange(next: string) {
-  setValue(next);
+  setValue((props.parse ?? getBooleanFromString)(next));
   blur();
 }
 </script>
