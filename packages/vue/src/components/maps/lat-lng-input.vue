@@ -3,7 +3,6 @@ import type { MapStyleInput, SourceProp, Validator } from "@chelone/core";
 import {
   defineComponent,
   onBeforeUnmount,
-  type PropType,
   watch,
 } from "vue";
 import { MapMarker, useMap } from "./use-map";
@@ -13,7 +12,7 @@ interface Gesture {
   current: readonly [number, number] | null;
 }
 
-const positionKey = (position: readonly [number, number] | null) =>
+const positionKey = (position: readonly [number, number] | null | undefined) =>
   position ? `${position[0]},${position[1]}` : null;
 
 /**
@@ -21,23 +20,17 @@ const positionKey = (position: readonly [number, number] | null) =>
  * unless the input is disabled, and recentres the map on a position the form
  * changed from outside.
  */
-const MapBindings = defineComponent({
-  name: "LatLngInputMapBindings",
-  props: {
-    position: {
-      type: Array as unknown as PropType<readonly [number, number] | null>,
-      default: null,
+const MapBindings = defineComponent(
+  (
+    props: {
+      position?: readonly [number, number] | null;
+      disabled?: boolean;
+      gesture: Gesture;
+      /** The centre the map was built with; `MapCanvas` reads it once, before `load`. */
+      built: readonly [number, number];
     },
-    disabled: { type: Boolean, default: false },
-    gesture: { type: Object as PropType<Gesture>, required: true },
-    /** The centre the map was built with; `MapCanvas` reads it once, before `load`. */
-    built: {
-      type: Array as unknown as PropType<readonly [number, number]>,
-      required: true,
-    },
-  },
-  emits: { place: (_lat: number, _lng: number) => true },
-  setup(props, { emit }) {
+    { emit },
+  ) => {
     const map = useMap();
     const onClick = (event: { lngLat: { lat: number; lng: number } }) => {
       if (props.disabled) return;
@@ -67,7 +60,17 @@ const MapBindings = defineComponent({
     );
     return () => null;
   },
-});
+  {
+    name: "LatLngInputMapBindings",
+    props: {
+      position: { type: null, default: null },
+      disabled: { type: Boolean, default: false },
+      gesture: { type: null, required: true },
+      built: { type: null, required: true },
+    },
+    emits: { place: (_lat: number, _lng: number) => true },
+  },
+);
 
 /** Props for {@link LatLngInput}. */
 export interface LatLngInputProps {

@@ -1,4 +1,4 @@
-import { defineComponent, h, type PropType } from "vue";
+import { defineComponent, h } from "vue";
 import type { DrawTool } from "./use-terra-draw";
 
 /** The path data of one 24 by 24 outline icon per toolbar button. */
@@ -51,15 +51,8 @@ const DRAW_ICONS: Record<DrawTool | "delete", readonly string[]> = {
  * An inline SVG of a toolbar button's icon, since the Vue package has no icon
  * library. It takes the color of the surrounding text.
  */
-export const DrawIcon = defineComponent({
-  name: "DrawIcon",
-  props: {
-    name: {
-      type: String as PropType<DrawTool | "delete">,
-      required: true,
-    },
-  },
-  setup(props) {
+export const DrawIcon = defineComponent(
+  (props: { name: DrawTool | "delete" }) => {
     return () =>
       h(
         "svg",
@@ -77,4 +70,5 @@ export const DrawIcon = defineComponent({
         DRAW_ICONS[props.name].map((d) => h("path", { d, key: d })),
       );
   },
-});
+  { name: "DrawIcon", props: { name: { type: null, required: true } } },
+);

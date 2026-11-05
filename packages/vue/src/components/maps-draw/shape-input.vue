@@ -17,7 +17,6 @@ import {
   computed,
   defineComponent,
   onBeforeUnmount,
-  type PropType,
   toRaw,
   watch,
 } from "vue";
@@ -155,29 +154,23 @@ function defaultTools(kind: ShapeValueKind): readonly ToolbarTool[] {
  * editor, draws the read-only held parts, frames the first shape once, and
  * hands the selection controls up to the toolbar.
  */
-const Editor = defineComponent({
-  name: "ShapeInputEditor",
-  props: {
-    features: { type: Array as PropType<DrawFeature[]>, required: true },
-    held: { type: Array as PropType<DrawFeature[]>, required: true },
-    tool: { type: String as PropType<DrawTool | null>, default: null },
-    disabled: { type: Boolean, default: false },
-    snappable: { type: Boolean, default: true },
-    snapDistance: { type: Number, default: 20 },
-    shapeStyle: { type: Object as PropType<ShapeStyle>, default: undefined },
-    fit: { type: Boolean, default: true },
-    /** The field's current value, whatever it holds. */
-    getValue: {
-      type: Function as PropType<() => unknown>,
-      required: true,
+const Editor = defineComponent(
+  (
+    props: {
+      features: DrawFeature[];
+      held: DrawFeature[];
+      tool?: DrawTool | null;
+      disabled?: boolean;
+      snappable?: boolean;
+      snapDistance?: number;
+      shapeStyle?: ShapeStyle;
+      fit?: boolean;
+      /** The field's current value, whatever it holds. */
+      getValue: () => unknown;
+      written: Written;
     },
-    written: { type: Object as PropType<Written>, required: true },
-  },
-  emits: {
-    edit: (_edit: TerraDrawEdit) => true,
-    controls: (_controls: UseTerraDrawResult | null) => true,
-  },
-  setup(props, { emit }) {
+    { emit },
+  ) => {
     const map = useMap();
 
     // MapLibre structured-clones what it is given, which throws on a reactive proxy.
@@ -227,7 +220,26 @@ const Editor = defineComponent({
     );
     return () => null;
   },
-});
+  {
+    name: "ShapeInputEditor",
+    props: {
+      features: { type: null, required: true },
+      held: { type: null, required: true },
+      tool: { type: null, default: null },
+      disabled: { type: Boolean, default: false },
+      snappable: { type: Boolean, default: true },
+      snapDistance: { type: Number, default: 20 },
+      shapeStyle: { type: null, default: undefined },
+      fit: { type: Boolean, default: true },
+      getValue: { type: null, required: true },
+      written: { type: null, required: true },
+    },
+    emits: {
+      edit: (_edit: TerraDrawEdit) => true,
+      controls: (_controls: UseTerraDrawResult | null) => true,
+    },
+  },
+);
 </script>
 
 <script setup lang="ts">
