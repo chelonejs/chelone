@@ -21,7 +21,7 @@
     },
     {
       "name": "defaultValue",
-      "type": "readonly unknown[]",
+      "type": "readonly ArrayItemOf<RecordType, TPath>[]",
       "optional": true,
       "comment": "The array's default value (seeds an untouched hole)."
     },
@@ -33,7 +33,7 @@
     },
     {
       "name": "itemDefaults",
-      "type": "Record<string, unknown>",
+      "type": "ItemDefaultsOf<ArrayItemOf<RecordType, TPath>>",
       "optional": true,
       "comment": "Object-row defaults merged into a new row (object mode)."
     },
@@ -57,7 +57,7 @@
     },
     {
       "name": "source",
-      "type": "SourceProp<RecordType>",
+      "type": "TPath",
       "optional": false,
       "comment": "The array field path RELATIVE to the ambient source scope."
     },
