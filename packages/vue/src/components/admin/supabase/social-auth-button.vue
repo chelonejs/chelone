@@ -22,6 +22,7 @@ export interface SocialAuthButtonProps {
  * `@chelone/react`'s `supabase/social-auth-button.tsx`.
  */
 
+import { errorMessageOf } from "@chelone/core";
 import { useCheloneNotifications } from "../../../context";
 import { useLogin } from "../../../auth/auth-hooks";
 import { cn } from "../../../lib/utils";
@@ -32,15 +33,6 @@ const props = defineProps<SocialAuthButtonProps>();
 const login = useLogin();
 const notifications = useCheloneNotifications();
 
-function errorMessage(error: unknown): string | undefined {
-  if (typeof error === "string" && error) return error;
-  if (error && typeof error === "object" && "message" in error) {
-    const { message } = error as { message: unknown };
-    if (typeof message === "string" && message) return message;
-  }
-  return undefined;
-}
-
 async function handleClick(): Promise<void> {
   try {
     await login.mutateAsync({
@@ -49,7 +41,7 @@ async function handleClick(): Promise<void> {
     });
   } catch (error) {
     // A rejection with nothing is a custom provider declining to start OAuth.
-    const message = errorMessage(error);
+    const message = errorMessageOf(error);
     if (message) {
       notifications?.notify(message, {
         type: "error",

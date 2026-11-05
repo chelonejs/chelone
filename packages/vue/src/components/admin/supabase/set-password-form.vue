@@ -17,7 +17,7 @@ export interface SetPasswordFormProps {
  * and no redirect (shared with the React twin).
  */
 
-import { required } from "@chelone/core";
+import { errorMessageOf, required } from "@chelone/core";
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useCheloneNotifications } from "../../../context";
@@ -43,15 +43,6 @@ const translate = useTranslate();
 
 const hasTokens = computed(() => !!accessToken.value && !!refreshToken.value);
 
-function errorMessage(error: unknown): string | undefined {
-  if (typeof error === "string" && error) return error;
-  if (error && typeof error === "object" && "message" in error) {
-    const { message } = error as { message: unknown };
-    if (typeof message === "string" && message) return message;
-  }
-  return undefined;
-}
-
 // Form level, so editing either field re-checks both and clears a stale error.
 function validateMatch(values: SetPasswordValues) {
   if (values.password === values.confirmPassword) return undefined;
@@ -75,7 +66,7 @@ async function save(values: SetPasswordValues): Promise<undefined> {
       password: values.password,
     });
   } catch (error) {
-    const message = errorMessage(error);
+    const message = errorMessageOf(error);
     notifications?.notify(message ?? "ra.notification.http_error", {
       type: "warning",
       messageArgs: message === undefined ? undefined : { _: message },

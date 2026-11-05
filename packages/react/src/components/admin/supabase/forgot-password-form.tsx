@@ -7,7 +7,7 @@
  * message, because the form `save` contract must resolve for provider errors.
  */
 
-import { required } from "@chelone/core";
+import { errorMessageOf, required } from "@chelone/core";
 import { useCallback } from "react";
 import { TextInput } from "@/components/admin/inputs/text-input";
 import { Button } from "@/components/ui/button";
@@ -29,15 +29,6 @@ interface ForgotPasswordValues {
   email: string;
 }
 
-const errorMessage = (error: unknown): string | undefined => {
-  if (typeof error === "string" && error) return error;
-  if (error && typeof error === "object" && "message" in error) {
-    const { message } = error as { message: unknown };
-    if (typeof message === "string" && message) return message;
-  }
-  return undefined;
-};
-
 function ForgotPasswordForm({ className }: ForgotPasswordFormProps) {
   const resetPassword = useResetPassword();
   const notify = useNotify();
@@ -49,7 +40,7 @@ function ForgotPasswordForm({ className }: ForgotPasswordFormProps) {
       try {
         await resetPassword.mutateAsync({ email: values.email });
       } catch (error) {
-        const message = errorMessage(error);
+        const message = errorMessageOf(error);
         notify(message ?? "ra.notification.http_error", {
           type: "warning",
           messageArgs: message === undefined ? undefined : { _: message },

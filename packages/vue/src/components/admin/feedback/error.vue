@@ -56,6 +56,7 @@ const IS_DEV =
  * `ErrorPage` so the module never shadows the global `Error`.
  */
 
+import { errorMessageOf } from "@chelone/core";
 import { computed } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import Title from "../layout/title.vue";
@@ -65,19 +66,9 @@ const props = defineProps<ErrorProps>();
 
 const translate = useTranslate();
 
-const errorMessage = computed<string>(() => {
-  const error = props.error;
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof (error as { message?: unknown }).message === "string"
-  ) {
-    return (error as { message: string }).message;
-  }
-  if (typeof error === "string") return error;
-  return String(error ?? "Unknown error");
-});
+const errorMessage = computed<string>(
+  () => errorMessageOf(props.error) ?? String(props.error ?? "Unknown error"),
+);
 
 const showDev = computed(() => IS_DEV);
 
