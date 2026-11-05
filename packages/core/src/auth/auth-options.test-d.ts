@@ -3,13 +3,17 @@ import type { RegisteredPermissions } from "../resource/register";
 import { permissionsQueryOptions } from "./auth-options";
 import type { AuthProvider } from "./types";
 
+const verbs = {
+  login: async () => {},
+  logout: async () => {},
+  checkAuth: async () => {},
+  checkError: async () => {},
+};
+
 describe("permissionsQueryOptions", () => {
   it("resolves the permissions type of the provider, or null", () => {
     const provider: AuthProvider<string[]> = {
-      login: async () => {},
-      logout: async () => {},
-      checkAuth: async () => {},
-      checkError: async () => {},
+      ...verbs,
       getPermissions: async () => ["posts.read"],
     };
     const { queryFn } = permissionsQueryOptions(provider);
@@ -18,10 +22,7 @@ describe("permissionsQueryOptions", () => {
 
   it("rejects a getPermissions that resolves another type", () => {
     const provider: AuthProvider<string[]> = {
-      login: async () => {},
-      logout: async () => {},
-      checkAuth: async () => {},
-      checkError: async () => {},
+      ...verbs,
       // @ts-expect-error resolves a number, not string[]
       getPermissions: async () => 7,
     };
