@@ -73,6 +73,16 @@ describe("createNominatimProvider search", () => {
     expect(results.map((r) => r.displayName)).toEqual(["Paris, France"]);
   });
 
+  it("drops a hit that is not an object", async () => {
+    const provider = createNominatimProvider({
+      endpoint: ENDPOINT,
+      minIntervalMs: 0,
+      fetch: stubFetch([hit, "Paris, France", null, 7, [hit]]),
+    });
+    const results = await provider.search("Paris");
+    expect(results.map((r) => r.displayName)).toEqual(["Paris, France"]);
+  });
+
   it("sends Accept-Language and no User-Agent", async () => {
     const fetchStub = stubFetch();
     await createNominatimProvider({
@@ -181,6 +191,15 @@ describe("createNominatimProvider reverse", () => {
     expect(url.searchParams.get("lon")).toBe("2.35");
     expect(url.searchParams.get("format")).toBe("json");
     expect(result?.displayName).toBe("Paris, France");
+  });
+
+  it("returns null when the body is an array", async () => {
+    const provider = createNominatimProvider({
+      endpoint: ENDPOINT,
+      minIntervalMs: 0,
+      fetch: stubFetch([hit]),
+    });
+    await expect(provider.reverse(48.85, 2.35)).resolves.toBeNull();
   });
 
   it("returns null for a non-ok response, an error body and a network failure", async () => {

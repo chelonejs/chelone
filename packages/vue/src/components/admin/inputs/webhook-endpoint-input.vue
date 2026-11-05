@@ -1,5 +1,10 @@
 <script lang="ts">
-import type { SourceProp, Validator } from "@chelone/core";
+import type {
+  LooseRecord,
+  SourceProp,
+  SourceValue,
+  Validator,
+} from "@chelone/core";
 
 /**
  * Storage shape a `<WebhookEndpointInput>` edits. Mirrors the React twin's
@@ -17,14 +22,17 @@ export interface WebhookEndpoint {
 }
 
 /** Props for {@link WebhookEndpointInput}. */
-export interface WebhookEndpointInputProps {
-  source: SourceProp;
+export interface WebhookEndpointInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> {
+  source: TPath;
   label?: string | false;
   /** Available event-type strings to surface as checkboxes. */
   eventTypes: readonly string[];
   /** Optional test-ping handler. When set, renders the test-ping button. */
   onTestPing?: (url: string, secret: string) => Promise<void> | void;
-  defaultValue?: unknown;
+  defaultValue?: NoInfer<SourceValue<RecordType, TPath>>;
   validate?: Validator | readonly Validator[];
   isRequired?: boolean;
   id?: string;
@@ -43,6 +51,7 @@ export interface WebhookEndpointInputProps {
  * render never dereferences a missing sub-field.
  */
 
+import { toWebhookValue, type WebhookValue } from "@chelone/core";
 import { computed, ref } from "vue";
 import { useInput } from "../../../form/use-input";
 import Button from "../../ui/button.vue";
@@ -59,35 +68,36 @@ const props = withDefaults(defineProps<WebhookEndpointInputProps>(), {
 });
 
 const DEFAULT_VALUE: WebhookEndpoint = { url: "", secret: "", eventTypes: [] };
+// vue-tsc 3.3 mangles a `//` in a static component prop, so this binds from here.
+const URL_PLACEHOLDER = "https://example.com/webhook";
 
-const { id, value, setValue, blur, error, touched, isRequired } = useInput({
+const {
+  id,
+  value: current,
+  setValue,
+  blur,
+  error,
+  touched,
+  isRequired,
+} = useInput<unknown, string, WebhookValue>({
   source: props.source,
   defaultValue: props.defaultValue ?? DEFAULT_VALUE,
   validate: props.validate,
   isRequired: props.isRequired,
   id: props.id,
-  // Keep the raw object/null so the render normalizes it (not coerced to `''`).
-  format: (raw: unknown) => raw,
+  // Keep the object so the render fills in what a partial or null value lacks
+  // (the default format would turn a null into `''`).
+  format: toWebhookValue,
 });
 
 const pinging = ref(false);
-
-const stored = computed(
-  () => value.value as Partial<WebhookEndpoint> | null | undefined,
-);
-const current = computed<WebhookEndpoint>(() => ({
-  url: stored.value?.url ?? "",
-  secret: stored.value?.secret ?? "",
-  eventTypes: stored.value?.eventTypes ?? [],
-  lastDelivery: stored.value?.lastDelivery,
-}));
 
 const invalid = computed(() => touched.value && error.value != null);
 const labelText = computed(() =>
   props.label === false ? null : (props.label ?? humanizeSource(props.source)),
 );
 
-function update(patch: Partial<WebhookEndpoint>) {
+function update(patch: Partial<WebhookValue>) {
   setValue({ ...current.value, ...patch });
 }
 
@@ -122,7 +132,7 @@ async function handlePing() {
         :model-value="current.url"
         :disabled="disabled"
         :aria-invalid="invalid"
-        placeholder="https://example.com/webhook"
+        :placeholder="URL_PLACEHOLDER"
         @update:model-value="update({ url: $event })"
         @blur="blur"
       />

@@ -62,7 +62,11 @@ export interface DeleteButtonProps {
  * `deleteMutationOptions` invalidates the resource caches on settle.
  */
 
-import { type Identifier, removeRecordsFromCache } from "@chelone/core";
+import {
+  definedParams,
+  type Identifier,
+  removeRecordsFromCache,
+} from "@chelone/core";
 import { computed, inject, ref } from "vue";
 import { useCheloneContext } from "../../../context";
 import { useDeleteController } from "../../../controllers";
@@ -124,7 +128,7 @@ const getRecordRepresentation = useGetRecordRepresentation(resource as string);
 // `{name}` and `{recordRepresentation}` in the confirm copy, as the React twin passes them.
 const confirmOptions = computed(() => {
   const representation = getRecordRepresentation(record.value);
-  return {
+  return definedParams({
     name: translate(`resources.${resource}.forcedCaseName`, {
       smart_count: 1,
       _: humanize(
@@ -137,7 +141,7 @@ const confirmOptions = computed(() => {
     recordRepresentation:
       typeof representation === "string" ? representation : "",
     id: record.value?.id,
-  };
+  });
 });
 
 const label = computed(() =>

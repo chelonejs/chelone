@@ -9,7 +9,7 @@
     },
     {
       "name": "defaultValue",
-      "type": "unknown",
+      "type": "NoInfer<SourceValue<TRecord, TPath>>",
       "optional": true,
       "comment": "Input-level default, ra precedence (seeds only into an untouched hole).\nTyped as the value at `source`; `unknown` without a record."
     },
@@ -21,9 +21,9 @@
     },
     {
       "name": "format",
-      "type": "(value: unknown) => unknown",
+      "type": "(value: number | null) => string",
       "optional": true,
-      "comment": "Read transform (raw form value → input value)."
+      "comment": "Text the input shows for the stored number (`null` when empty)."
     },
     {
       "name": "helperText",
@@ -69,9 +69,9 @@
     },
     {
       "name": "parse",
-      "type": "(value: unknown) => number | null",
+      "type": "(value: string) => number | null",
       "optional": true,
-      "comment": "Parse the raw input into a number (or `null` on empty/unparseable). The\nparam is `unknown` for chelone `useInput` parity — the handler feeds it a\n`string | number`, and a custom parse may narrow."
+      "comment": "The number to store for the text the user typed (`null` when empty or unparseable)."
     },
     {
       "name": "readOnly",
@@ -87,7 +87,7 @@
     },
     {
       "name": "source",
-      "type": "string",
+      "type": "TPath",
       "optional": false,
       "comment": "The field path RELATIVE to the ambient source scope."
     },

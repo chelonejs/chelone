@@ -8,17 +8,13 @@
 import {
   createI18n,
   fakeDataProvider,
-  type GeoGeometry,
-  type GeoLineString,
-  type GeoPoint,
-  type GeoPolygon,
   mapMessages,
   type RoutingProvider,
   rasterTileStyle,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
-import type { LineString } from "geojson";
+import type { Geometry, LineString, Point, Polygon } from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, type VNode } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
@@ -72,15 +68,15 @@ afterEach(() => {
 
 type Values = { shape: unknown };
 
-const point = (x = 0): GeoPoint => ({ type: "Point", coordinates: [x, x] });
-const line = (x = 0): GeoLineString => ({
+const point = (x = 0): Point => ({ type: "Point", coordinates: [x, x] });
+const line = (x = 0): LineString => ({
   type: "LineString",
   coordinates: [
     [x, x],
     [x + 1, x + 1],
   ],
 });
-const square = (offset = 0): GeoPolygon => ({
+const square = (offset = 0): Polygon => ({
   type: "Polygon",
   coordinates: [
     [
@@ -92,7 +88,7 @@ const square = (offset = 0): GeoPolygon => ({
     ],
   ],
 });
-const holed: GeoPolygon = {
+const holed: Polygon = {
   type: "Polygon",
   coordinates: [
     [
@@ -111,7 +107,7 @@ const holed: GeoPolygon = {
   ],
 };
 /** A rectangle polygon from west, south, east, north. */
-const rect = (w: number, s: number, e: number, n: number): GeoPolygon => ({
+const rect = (w: number, s: number, e: number, n: number): Polygon => ({
   type: "Polygon",
   coordinates: [
     [
@@ -216,7 +212,7 @@ async function drawWith(
   draw: () => TerraDraw,
   tool: string,
   mode: string,
-  geometry: GeoGeometry,
+  geometry: Geometry,
 ) {
   await button(wrapper, tool).trigger("click");
   const id = draw().put(geometry, mode);
@@ -404,12 +400,12 @@ describe("attributes", () => {
 });
 
 describe("MultiPolygonInput", () => {
-  const parts: [GeoPolygon, GeoPolygon, GeoPolygon] = [
+  const parts: [Polygon, Polygon, Polygon] = [
     square(0),
     square(10),
     square(20),
   ];
-  const multi = (...polygons: GeoPolygon[]) => ({
+  const multi = (...polygons: Polygon[]) => ({
     type: "MultiPolygon",
     coordinates: polygons.map((p) => p.coordinates),
   });
@@ -655,7 +651,7 @@ describe("FeatureInput", () => {
 });
 
 describe("FeatureCollectionInput", () => {
-  const feature = (name: string, geometry: GeoGeometry) => ({
+  const feature = (name: string, geometry: Geometry) => ({
     type: "Feature",
     properties: { name },
     geometry,

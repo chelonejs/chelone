@@ -106,6 +106,7 @@ export function createCheloneRouter(
   // The router's single root element: a stable outlet that renders whatever the
   // outer `RouterProvider` last published, so parent re-renders stay live
   // without rebuilding the router (which owns history).
+  // biome-ignore lint/correctness/noComponentHookFactories: built once per router, not per render
   function RootOutlet(): ReactNode {
     const s = useContext(ChildrenContext);
     const children = useSyncExternalStore(s.subscribe, s.get, s.get);
@@ -121,6 +122,7 @@ export function createCheloneRouter(
           ...(basename ? { basename } : {}),
         });
 
+  // biome-ignore lint/correctness/noComponentHookFactories: built once per router, not per render
   function RouterProvider({ children }: { children?: ReactNode }): ReactNode {
     // Publish the current children after commit so the subscribed `RootOutlet`
     // renders them live; a stable `router` means history is never rebuilt.

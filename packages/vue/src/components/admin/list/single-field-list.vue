@@ -14,6 +14,7 @@ export interface SingleFieldListItemSlotProps {
 </script>
 
 <script setup lang="ts">
+import type { VNode } from "vue";
 /**
  * `<SingleFieldList>` — the records of the ambient list as an inline row, for a
  * cell or a card that lists related records. The Vue twin of
@@ -40,9 +41,9 @@ import SingleFieldListRecord from "./single-field-list-record.vue";
 
 const props = defineProps<SingleFieldListProps>();
 defineSlots<{
-  default?(): unknown;
+  default?(): VNode[];
   /** Renders each record; wins over the default slot. */
-  item?(props: SingleFieldListItemSlotProps): unknown;
+  item?(props: SingleFieldListItemSlotProps): VNode[];
 }>();
 
 const list = useListContext();

@@ -98,7 +98,7 @@ const { form, submit, submitting } = useForm<Record<string, unknown>>({
       close();
       return undefined;
     }
-    const ids = [...(list.selectedIds ?? [])] as Identifier[];
+    const ids = [...(list.selectedIds ?? [])];
     try {
       await updateMany.mutateAsync({ ids, data: diff });
     } catch (error) {

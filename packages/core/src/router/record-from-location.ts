@@ -31,9 +31,10 @@ export function getRecordFromLocation(
   if (isRecord(fromState)) return fromState;
 
   const values = location.searchParams.getAll(searchSource);
-  if (values.length !== 1) return null;
+  const [value] = values;
+  if (values.length !== 1 || value === undefined) return null;
   try {
-    const parsed: unknown = JSON.parse(values[0] as string);
+    const parsed: unknown = JSON.parse(value);
     return isRecord(parsed) ? parsed : null;
   } catch {
     return null;

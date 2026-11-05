@@ -57,9 +57,11 @@ const items = (item: HTMLElement) =>
   );
 
 function onKeydown(event: KeyboardEvent) {
-  const item = event.currentTarget as HTMLElement;
+  const item = event.currentTarget;
+  const origin = event.target;
+  if (!(item instanceof HTMLElement) || !(origin instanceof Element)) return;
   // The keydown of a nested treeitem bubbles through this one.
-  if ((event.target as Element).closest('[role="treeitem"]') !== item) return;
+  if (origin.closest('[role="treeitem"]') !== item) return;
   const all = items(item);
   const at = all.indexOf(item);
   let target: HTMLElement | undefined;
@@ -98,7 +100,9 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 function onFocusin(event: FocusEvent) {
-  if ((event.target as Element).closest('[role="treeitem"]') === event.currentTarget) {
+  const origin = event.target;
+  if (!(origin instanceof Element)) return;
+  if (origin.closest('[role="treeitem"]') === event.currentTarget) {
     tree?.setFocused(record.value.id);
   }
 }

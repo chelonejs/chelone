@@ -13,14 +13,15 @@ const topLevelName = (path: string): string => path.split(/[.[]/, 1)[0] ?? path;
  * `address.city` yields `address`. A field never touched, or only registered,
  * is left out.
  */
-export function getDirtyFormValues(
-  values: Record<string, unknown>,
+export function getDirtyFormValues<TValues extends object>(
+  values: TValues,
   fieldMeta: Record<string, { isDirty: boolean } | undefined>,
-): Record<string, unknown> {
-  const dirty: Record<string, unknown> = {};
+): Partial<TValues> {
+  const dirty: Partial<TValues> = {};
   for (const [path, meta] of Object.entries(fieldMeta)) {
     if (!meta?.isDirty) continue;
-    const name = topLevelName(path);
+    // type-escape: the name comes from a runtime path, which the compiler cannot tie to a key of TValues
+    const name = topLevelName(path) as keyof TValues;
     dirty[name] = values[name];
   }
   return dirty;

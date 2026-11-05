@@ -293,6 +293,7 @@ export type {
   FetchJsonResult,
 } from "./data/fetch-utils";
 export { fetchUtils } from "./data/fetch-utils";
+export { isFilterBranch } from "./data/filter-branch";
 export { getManyAggregateOptions } from "./data/get-many-aggregate";
 export { HttpError } from "./data/http-error";
 export {
@@ -412,6 +413,8 @@ export {
   createCreateFormController,
   createEditFormController,
 } from "./form/edit-create-form";
+export { extractEventValue } from "./form/event-value";
+export { firstFieldError } from "./form/field-error";
 export {
   filterFormReflectShape,
   getFilterFormValues,
@@ -474,16 +477,33 @@ export {
 } from "./form/input-binding";
 export type {
   ChoiceValueOf,
+  CurrencyComposite,
   DateInputValue,
+  FileEntry,
   FileInputValue,
+  FileSelection,
+  FileWithPreview,
   FormValue,
+  StoredFile,
+  TransformedFile,
   WebhookValue,
 } from "./form/input-values";
 export {
+  choiceIdOf,
+  fileEntryKey,
+  fileEntryPreview,
+  isTransformedFile,
+  resolveChoiceValue,
   toBooleanValue,
+  toChoiceValue,
+  toChoiceValues,
+  toCurrencyComposite,
   toCurrencyValue,
   toDateInputValue,
+  toFileEntries,
   toFileInputValue,
+  toFileSelection,
+  toNullableBooleanValue,
   toNumberValue,
   toTextList,
   toTextValue,
@@ -562,22 +582,6 @@ export {
   geocodeQueryOptions,
   reverseGeocodeQueryOptions,
 } from "./geo/geocoding";
-export type {
-  GeoBBox,
-  GeoBBox3D,
-  GeoFeature,
-  GeoFeatureCollection,
-  GeoGeometry,
-  GeoGeometryCollection,
-  GeoJsonValue,
-  GeoLineString,
-  GeoMultiLineString,
-  GeoMultiPoint,
-  GeoMultiPolygon,
-  GeoPoint,
-  GeoPolygon,
-  GeoPosition,
-} from "./geo/geojson";
 export {
   isGeoArea,
   isGeoBBox,
@@ -661,7 +665,7 @@ export {
 export type { OsrmProviderOptions, RoutingProvider } from "./geo/snap-to-roads";
 export { createOsrmProvider } from "./geo/snap-to-roads";
 export type { JsonObject, JsonValue } from "./guards";
-export { isRecord } from "./guards";
+export { isRecord, isThenable } from "./guards";
 export { defaultMessages } from "./i18n/default-messages";
 export { englishMessages } from "./i18n/english-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";
@@ -673,14 +677,20 @@ export type {
   MessageValue,
   PluralMessage,
   TranslateParams,
+  TranslateParamValues,
 } from "./i18n/messages";
-export { defineMessages } from "./i18n/messages";
+export {
+  definedParams,
+  defineMessages,
+  pickTranslateParamValues,
+} from "./i18n/messages";
 export type {
   MissingKeyEntry,
   MissingKeyStore,
 } from "./i18n/missing-keys";
 export { createMissingKeyStore } from "./i18n/missing-keys";
 export type {
+  RecordForLocale,
   TranslatableController,
   TranslatableOptions,
   TranslatableState,
@@ -690,6 +700,7 @@ export {
   getRecordForLocale,
 } from "./i18n/translatable";
 export { stripJsonComments } from "./json/strip-json-comments";
+export { errorMessageOf } from "./notification/error-message";
 export type {
   Notification,
   NotificationStore,
@@ -764,8 +775,10 @@ export {
 } from "./realtime/presence";
 export {
   assertRealtimeDataProvider,
+  hasTransportMembers,
   isRealtimeDataProvider,
   realtimeDataProvider,
+  type TransportMembers,
 } from "./realtime/realtime-data-provider";
 export type { RealtimeReconnectConfig } from "./realtime/reconnect-backoff";
 export type {
@@ -824,9 +837,10 @@ export { describeResource } from "./resource/describe-resource";
 export { getAtPath } from "./resource/get-at-path";
 export type { Identifier } from "./resource/identifier";
 export type { LooseRecord, ResourceRecord } from "./resource/record";
-export { isLooseRecord } from "./resource/record";
+export { isLooseRecord, isResourceRecord } from "./resource/record";
 export type {
   Register,
+  RegisteredPermissions,
   RegisteredRecord,
   RegisteredResourceName,
   RegisteredResources,
@@ -839,10 +853,14 @@ export type {
 export { defineResources } from "./resource/registry";
 export type {
   ComputeDefinitionProps,
+  ResourceComponent,
   ResourceDefinition,
   ResourceDefinitionMap,
+  ResourceIcon,
   ResourceRegistry,
   ResourceRegistryListener,
+  ResourceRepresentation,
+  ResourceSlots,
 } from "./resource/registry-store";
 export {
   computeDefinition,

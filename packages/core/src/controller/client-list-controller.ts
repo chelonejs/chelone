@@ -1,3 +1,4 @@
+import { isFilterBranch } from "../data/filter-branch";
 import type { FilterPayload, SortPayload } from "../data/types";
 import { getAtPath } from "../resource/get-at-path";
 import type { Identifier } from "../resource/identifier";
@@ -32,7 +33,7 @@ export interface ClientListControllerOptions<TRecord> {
   isPending?: boolean;
   isFetching?: boolean;
   /** Pass-through error. Default `null`. */
-  error?: unknown;
+  error?: Error | null;
   /** Extra predicate applied AFTER the field filters (ra-core `filterCallback`). */
   filterCallback?: (record: TRecord) => boolean;
 }
@@ -50,7 +51,7 @@ export interface ClientListControllerOptions<TRecord> {
 export interface ClientListLoadingState {
   isPending?: boolean;
   isFetching?: boolean;
-  error?: unknown;
+  error?: Error | null;
 }
 
 export interface ClientListController<TRecord> extends ListController<TRecord> {
@@ -99,13 +100,8 @@ function flattenFilter(
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(filter)) {
     const path = prefix ? `${prefix}.${key}` : key;
-    if (
-      value !== null &&
-      typeof value === "object" &&
-      !Array.isArray(value) &&
-      !(value instanceof Date)
-    ) {
-      Object.assign(result, flattenFilter(value as FilterPayload, path));
+    if (isFilterBranch(value)) {
+      Object.assign(result, flattenFilter(value, path));
     } else {
       result[path] = value;
     }

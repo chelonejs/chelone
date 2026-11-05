@@ -6,6 +6,7 @@ import type {
   PageInfo,
   SortPayload,
 } from "../data/types";
+import { isRecord } from "../guards";
 import type { NotificationStore } from "../notification/notification-store";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
@@ -26,7 +27,7 @@ export interface ListControllerState<TRecord> {
   pageInfo: PageInfo | undefined;
   isPending: boolean;
   isFetching: boolean;
-  error: unknown;
+  error: Error | null;
   hasNextPage: boolean | undefined;
   hasPreviousPage: boolean | undefined;
 }
@@ -141,16 +142,15 @@ export function removeFilterPath(
     node: Record<string, unknown>,
     depth: number,
   ): Record<string, unknown> => {
-    const key = keys[depth] as string;
+    const key = keys[depth];
+    if (key === undefined) return node;
     const child = node[key];
     if (depth === keys.length - 1) {
       const { [key]: _removed, ...others } = node;
       return others;
     }
-    if (child == null || typeof child !== "object" || Array.isArray(child)) {
-      return node;
-    }
-    const pruned = prune(child as Record<string, unknown>, depth + 1);
+    if (!isRecord(child)) return node;
+    const pruned = prune(child, depth + 1);
     if (pruned === child) return node;
     if (Object.keys(pruned).length === 0) {
       const { [key]: _emptied, ...others } = node;
@@ -158,7 +158,7 @@ export function removeFilterPath(
     }
     return { ...node, [key]: pruned };
   };
-  return prune(rest, 0) as FilterPayload;
+  return prune(rest, 0);
 }
 
 /**
@@ -254,8 +254,8 @@ export async function runSelectAll(
  */
 export function createErrorAnnouncer(
   notifications: NotificationStore | undefined,
-): { announce(error: unknown): void; rearm(): void } {
-  let last: unknown = null;
+): { announce(error: Error | null): void; rearm(): void } {
+  let last: Error | null = null;
   return {
     announce(error) {
       if (!error || error === last) return;
@@ -274,7 +274,10 @@ export function pageFlags(
   perPage: number,
   total: number | undefined,
   pageInfo: PageInfo | undefined,
-): Pick<ListControllerState<unknown>, "hasNextPage" | "hasPreviousPage"> {
+): Pick<
+  ListControllerState<ResourceRecord>,
+  "hasNextPage" | "hasPreviousPage"
+> {
   if (pageInfo) {
     return {
       hasNextPage: pageInfo.hasNextPage,
@@ -294,7 +297,7 @@ export function pageFlags(
  */
 export function resetPageTarget(
   s: Pick<
-    ListControllerState<unknown>,
+    ListControllerState<ResourceRecord>,
     "page" | "perPage" | "total" | "data" | "isPending" | "isFetching"
   >,
 ): number | undefined {
@@ -333,8 +336,8 @@ export function resetPageTarget(
  */
 export function listControllerActions(
   controller: Omit<
-    ListController<unknown>,
-    keyof MicroStore<ListControllerState<unknown>> | "defaultPerPage"
+    ListController<ResourceRecord>,
+    keyof MicroStore<ListControllerState<ResourceRecord>> | "defaultPerPage"
   >,
 ) {
   return {

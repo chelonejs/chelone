@@ -5,7 +5,33 @@
  * the excluded-key list matches it exactly.
  */
 
-export function sanitizeFieldRestProps<Props extends Record<string, unknown>>({
+/** The props `sanitizeFieldRestProps` removes. */
+export type FieldStrippedKey =
+  | "cellClassName"
+  | "className"
+  | "emptyText"
+  | "fullWidth"
+  | "headerClassName"
+  | "label"
+  | "linkType"
+  | "link"
+  | "locale"
+  | "record"
+  | "refetch"
+  | "resource"
+  | "sortable"
+  | "sortBy"
+  | "sortByOrder"
+  | "source"
+  | "textAlign"
+  | "translateChoice";
+
+/** `Props` with every stripped key optional, so the destructure below type-checks on props that lack it. */
+type FieldStrippedProps<Props extends object> = Props & {
+  [Key in FieldStrippedKey]?: Key extends keyof Props ? Props[Key] : never;
+};
+
+export function sanitizeFieldRestProps<Props extends object>({
   cellClassName: _cellClassName,
   className: _className,
   emptyText: _emptyText,
@@ -25,6 +51,6 @@ export function sanitizeFieldRestProps<Props extends Record<string, unknown>>({
   textAlign: _textAlign,
   translateChoice: _translateChoice,
   ...rest
-}: Props): Record<string, unknown> {
+}: FieldStrippedProps<Props>): Omit<Props, FieldStrippedKey> {
   return rest;
 }

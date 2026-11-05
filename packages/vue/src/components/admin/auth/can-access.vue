@@ -31,18 +31,18 @@ export interface CanAccessProps {
  * </CanAccess>
  */
 
-import { computed } from "vue";
+import { computed, type VNode } from "vue";
 import { useMenuAccess } from "../layout/use-menu-access";
 
 const props = defineProps<CanAccessProps>();
 
 defineSlots<{
   /** Rendered when access is granted. */
-  default?: () => unknown;
+  default?: () => VNode[];
   /** Rendered while the access check is pending. Defaults to nothing. */
-  loading?: () => unknown;
+  loading?: () => VNode[];
   /** Rendered when access is denied. Defaults to nothing. */
-  accessDenied?: () => unknown;
+  accessDenied?: () => VNode[];
 }>();
 
 const { canAccess, isPending } = useMenuAccess(

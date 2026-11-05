@@ -1,4 +1,5 @@
 import { describe, expectTypeOf, it } from "vitest";
+import type { ChoicesContextValue } from "./choices-context";
 import {
   type ChoiceRecord,
   type UseChoicesResult,
@@ -21,6 +22,12 @@ describe("useChoices option types", () => {
       disableValue: "retired",
     });
     expectTypeOf(choices).toEqualTypeOf<UseChoicesResult<Author>>();
+  });
+
+  it("getDisableValue returns boolean", () => {
+    expectTypeOf<
+      ReturnType<UseChoicesResult<Author>["getDisableValue"]>
+    >().toEqualTypeOf<boolean>();
   });
 
   it("useChoices<Author> rejects a path that is not on Author", () => {
@@ -49,5 +56,9 @@ describe("useChoices option types", () => {
       disableValue: "anyFlag",
     });
     expectTypeOf(useChoices()).toEqualTypeOf<UseChoicesResult<ChoiceRecord>>();
+  });
+
+  it("the choices error is Error or null", () => {
+    expectTypeOf<ChoicesContextValue["error"]>().toEqualTypeOf<Error | null>();
   });
 });

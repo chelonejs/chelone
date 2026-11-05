@@ -20,6 +20,7 @@
 
 import type { DataProvider } from "../data/types";
 import type { LooseRecord } from "../resource/record";
+import type { CsvRow } from "./types";
 
 /**
  * Turns a page of records into a downloaded file. Called by the export buttons
@@ -47,7 +48,7 @@ function csvCell(value: unknown): string {
  * in first-seen order — so a sparse record still lines up under the right
  * header. Returns an empty string for an empty dataset.
  */
-export function recordsToCSV(data: readonly LooseRecord[]): string {
+export function recordsToCSV(data: readonly CsvRow[]): string {
   if (data.length === 0) return "";
   const columns: string[] = [];
   const seen = new Set<string>();

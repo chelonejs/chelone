@@ -53,7 +53,7 @@ function ApiKeyInput<TRecord = LooseRecord>(props: ApiKeyInputProps<TRecord>) {
         await onRotate(record);
       } else if (record && resource) {
         await update.mutateAsync({
-          id: record.id as string | number,
+          id: record.id,
           data: { [source]: null },
           previousData: record,
         });

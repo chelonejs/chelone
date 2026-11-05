@@ -22,6 +22,7 @@ import {
   type LocationState,
   type PathMatch,
   type ResourceDefinition,
+  type ResourceRecord,
 } from "@chelone/core";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useContext } from "react";
@@ -98,7 +99,11 @@ export function useCreatePath(): (params: CreatePathParams) => string {
 export type RedirectTo =
   | CreatePathType
   | false
-  | ((resource?: string, id?: Identifier, data?: unknown) => string | false);
+  | ((
+      resource?: string,
+      id?: Identifier,
+      data?: ResourceRecord,
+    ) => string | false);
 
 /**
  * Navigate in the ra-core redirect forms — reproducing
@@ -122,7 +127,7 @@ export type Redirect = (
   to: RedirectTo,
   resource?: string,
   id?: Identifier,
-  data?: unknown,
+  data?: ResourceRecord,
   state?: LocationState,
 ) => void;
 
@@ -136,7 +141,7 @@ export function useRedirect(): Redirect {
       to: RedirectTo,
       resource?: string,
       id?: Identifier,
-      data?: unknown,
+      data?: ResourceRecord,
       state: LocationState = {},
     ) => {
       if (to === false) return;
@@ -201,7 +206,7 @@ export function useRedirectOptional(): Redirect {
 export type LinkToType =
   | CreatePathType
   | false
-  | ((record: unknown, resource: string) => CreatePathType | false);
+  | ((record: ResourceRecord, resource: string) => CreatePathType | false);
 
 export interface UseGetPathForRecordOptions {
   /** The resource name (required — the T5 wrappers read it from context). */
@@ -280,11 +285,7 @@ export function useGetPathForRecord(
 function useCanAccessGated(params: CanAccessParams, enabled: boolean): boolean {
   const { authProvider } = useCheloneContext();
   const { data } = useQuery({
-    ...canAccessQueryOptions(
-      // A stub provider whose `canAccess` is absent → queryFn resolves `true`.
-      authProvider ?? ({} as NonNullable<typeof authProvider>),
-      params,
-    ),
+    ...canAccessQueryOptions(authProvider, params),
     enabled: enabled && authProvider != null,
   });
   // No authProvider → allow. Query disabled but view exists → we haven't

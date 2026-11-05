@@ -38,10 +38,12 @@ export function fromJsonText(
 // Read-only display: unlike `toJsonText`, never returns empty text.
 export function formatJsonValue(value: unknown, indent = 2): string {
   try {
-    const parsed =
-      typeof value === "string" ? parseOrKeep(value) : { value, ok: true };
-    if (!parsed.ok) return value as string;
-    return JSON.stringify(parsed.value, null, indent) ?? String(value);
+    if (typeof value === "string") {
+      const parsed = parseOrKeep(value);
+      if (!parsed.ok) return value;
+      return JSON.stringify(parsed.value, null, indent) ?? value;
+    }
+    return JSON.stringify(value, null, indent) ?? String(value);
   } catch {
     return String(value);
   }

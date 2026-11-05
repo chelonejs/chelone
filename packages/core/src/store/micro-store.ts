@@ -50,8 +50,8 @@ export function createMicroStore<T extends object>(
       if (destroyed) return;
       const patch = typeof update === "function" ? update(state) : update;
       let changed = false;
-      for (const [key, value] of Object.entries(patch)) {
-        if (!Object.is(state[key as keyof T], value)) {
+      for (const key in patch) {
+        if (!Object.is(state[key], patch[key])) {
           changed = true;
           break;
         }

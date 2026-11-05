@@ -3,7 +3,7 @@ import type { Identifier } from "../resource/identifier";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { manyKey, oneKey } from "./keys";
 import type { DataContext } from "./query-options";
-import type { DataProvider, GetManyParams } from "./types";
+import type { GetManyParams } from "./types";
 
 interface Caller {
   queryClient: QueryClient;
@@ -26,7 +26,7 @@ interface Batch {
  */
 const pending = new WeakMap<object, Map<string, Batch>>();
 
-function flush(ctx: DataContext<never>, batchKey: string, batch: Batch): void {
+function flush(ctx: DataContext, batchKey: string, batch: Batch): void {
   pending.get(ctx.dataProvider)?.delete(batchKey);
   void settle(ctx, batch);
 }
@@ -36,9 +36,9 @@ function flush(ctx: DataContext<never>, batchKey: string, batch: Batch): void {
  * malformed result included, rejects the whole batch. Rejecting a caller that
  * already resolved is a no-op.
  */
-async function settle(ctx: DataContext<never>, batch: Batch): Promise<void> {
+async function settle(ctx: DataContext, batch: Batch): Promise<void> {
   try {
-    const provider = ctx.dataProvider as DataProvider<ResourceMap>;
+    const provider = ctx.dataProvider;
     const params: GetManyParams = { ids: [...batch.ids.values()] };
     if (batch.meta !== undefined) params.meta = batch.meta;
     const result = await provider.getMany(batch.resource, params);
@@ -74,7 +74,7 @@ async function settle(ctx: DataContext<never>, batch: Batch): Promise<void> {
  * the batch's error.
  */
 function enqueue(
-  ctx: DataContext<never>,
+  ctx: DataContext,
   resource: string,
   params: GetManyParams,
 ): Promise<Array<{ id: Identifier }>> {
@@ -123,11 +123,7 @@ export function getManyAggregateOptions<
     queryKey: manyKey(resource, params),
     queryFn: async (): Promise<RecordOf<TResources, TName>[]> => {
       if (params.ids.length === 0) return [];
-      const records = await enqueue(
-        ctx as DataContext<never>,
-        resource,
-        params,
-      );
+      const records = await enqueue(ctx, resource, params);
       return records as RecordOf<TResources, TName>[];
     },
   };

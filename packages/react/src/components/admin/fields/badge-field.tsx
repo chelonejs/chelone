@@ -43,7 +43,11 @@ function BadgeField<RecordType extends LooseRecord = LooseRecord>({
   variant = "outline",
   ...rest
 }: BadgeFieldProps<RecordType>) {
-  const value: unknown = useFieldValue({ defaultValue, source, record });
+  const value: unknown = useFieldValue<LooseRecord>({
+    defaultValue,
+    source,
+    record,
+  });
   const translate = useTranslate();
 
   if (value == null) {

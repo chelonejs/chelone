@@ -319,6 +319,41 @@ describe("<UpdateButton>", () => {
     await waitFor(() => expect(onError).toHaveBeenCalledWith(error));
   });
 
+  it("onSuccess is not called for an undoable update", async () => {
+    const onSuccess = vi.fn();
+    const onError = vi.fn();
+    const { notify } = mount({ button: updateButton({ onSuccess, onError }) });
+
+    fireEvent.click(await findUpdate());
+    await act(async () => {
+      captureUndoable(notify).onClose?.();
+    });
+
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
+  });
+
+  it("the button sends the record id and previousData", async () => {
+    const dataProvider = fakeDataProvider({
+      posts: [{ id: 1, title: "Alpha", views: 10 }],
+    });
+    const update = vi.spyOn(dataProvider, "update");
+    mount({
+      button: updateButton({ mutationMode: "optimistic" }),
+      dataProvider,
+    });
+
+    fireEvent.click(await findUpdate());
+    fireEvent.click(await screen.findByRole("button", { name: "Confirm" }));
+
+    await waitFor(() => expect(update).toHaveBeenCalledTimes(1));
+    expect(update).toHaveBeenCalledWith("posts", {
+      id: 1,
+      data: { views: 0 },
+      previousData: { id: 1, title: "Alpha", views: 10 },
+    });
+  });
+
   it("is disabled while the update is pending", async () => {
     const { dataProvider, update, settle } = deferredUpdate();
     mount({

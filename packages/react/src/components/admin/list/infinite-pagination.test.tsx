@@ -101,6 +101,7 @@ class FakeObserver implements IntersectionObserver {
   static instances: FakeObserver[] = [];
   readonly root: Element | Document | null = null;
   readonly rootMargin = "";
+  readonly scrollMargin = "";
   readonly thresholds: readonly number[] = [];
   observe = vi.fn();
   disconnect = vi.fn();

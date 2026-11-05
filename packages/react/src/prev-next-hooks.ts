@@ -45,10 +45,7 @@ export function usePrevNextController(
         getListOptions(ctx, resource, cached).queryKey,
       )
     : undefined;
-  const { page, perPage } = cached.pagination as {
-    page: number;
-    perPage: number;
-  };
+  const { page, perPage } = cached.pagination;
   const canUseCache =
     record != null && canUseCachedPage(record.id, cachedPage, page, perPage);
 

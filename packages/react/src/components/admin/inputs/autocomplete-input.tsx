@@ -1,4 +1,9 @@
-import type { FilterPayload } from "@chelone/core";
+import {
+  type ChoiceValueOf,
+  type FilterPayload,
+  type SourceProp,
+  toChoiceValue,
+} from "@chelone/core";
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
@@ -26,7 +31,7 @@ import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
-import { useGetRecordRepresentationText } from "../../../label";
+import { useGetChoiceRepresentationText } from "../../../label";
 import { useEvent } from "../../../util/use-event";
 import type { ChoicesProps, InputProps } from "../input-props";
 import { createDebounce } from "./create-debounce";
@@ -57,9 +62,11 @@ import { createDebounce } from "./create-debounce";
  *   </Create>
  * );
  */
-function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
-  props: AutocompleteInputProps<TChoice>,
-) {
+function AutocompleteInput<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+  TChoice extends ChoiceRecord = ChoiceRecord,
+>(props: AutocompleteInputProps<TRecord, TPath, TChoice>) {
   const {
     debounce: debounceDelay = 250,
     filterToQuery = DefaultFilterToQuery,
@@ -97,15 +104,11 @@ function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   }
 
   // `resource`/`disabled`/`readOnly` are component-local, NOT `useInput` keys.
-  const { id, field, fieldState, isRequired } = useInput({
-    source,
-    defaultValue: props.defaultValue,
-    format: props.format,
-    onBlur: props.onBlur,
-    onChange: props.onChange,
-    parse: props.parse,
-    validate: props.validate,
-  });
+  // The options are read whole: reading the generic `defaultValue` anywhere
+  // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
+  // instantiation depth.
+  const { id, field, fieldState, isRequired } = useInput({ ...props, source });
+  const fieldValue = toChoiceValue<TChoice>(field.value);
   const translate = useTranslate();
   const { placeholder = translate("ra.action.search", { _: "Search..." }) } =
     props;
@@ -115,11 +118,12 @@ function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const getRecordRepresentationText = useGetRecordRepresentationText(resource);
+  const getChoiceRepresentationText =
+    useGetChoiceRepresentationText<TChoice>(resource);
   const { getChoiceText, getChoiceValue } = useChoices<TChoice>({
     optionText:
       props.optionText ??
-      (isFromReference ? getRecordRepresentationText : undefined),
+      (isFromReference ? getChoiceRepresentationText : undefined),
     optionValue: props.optionValue,
     disableValue: props.disableValue,
     translateChoice: props.translateChoice ?? !isFromReference,
@@ -161,7 +165,7 @@ function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   const listboxId = React.useId();
 
   const isEqual = useCallback(
-    (choiceVal: unknown, fieldVal: unknown) =>
+    (choiceVal: ChoiceValueOf<TChoice>, fieldVal: ChoiceValueOf<TChoice>) =>
       isOptionEqualToValue
         ? isOptionEqualToValue(choiceVal, fieldVal)
         : areIdsEqual(choiceVal, fieldVal),
@@ -169,7 +173,7 @@ function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   );
 
   const selectedChoice = allChoices.find((choice) =>
-    isEqual(getChoiceValue(choice), field.value),
+    isEqual(getChoiceValue(choice), fieldValue),
   );
 
   const getInputText = useCallback(
@@ -192,7 +196,7 @@ function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
 
   const handleChange = useCallback(
     (choice: TChoice) => {
-      if (isEqual(getChoiceValue(choice), field.value) && !isRequired) {
+      if (isEqual(getChoiceValue(choice), fieldValue) && !isRequired) {
         field.onChange(emptyValue);
         setFilterValue("");
         if (isFromReference) {
@@ -207,6 +211,7 @@ function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     },
     [
       field,
+      fieldValue,
       getChoiceValue,
       isRequired,
       isEqual,
@@ -220,7 +225,7 @@ function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
 
   // limitChoicesToValue — show only the matching choice.
   let availableChoices = limitChoicesToValue
-    ? allChoices.filter((c) => isEqual(getChoiceValue(c), field.value))
+    ? allChoices.filter((c) => isEqual(getChoiceValue(c), fieldValue))
     : allChoices;
 
   // matchSuggestion — custom client-side filter for non-reference inputs.
@@ -369,7 +374,7 @@ function AutocompleteInput<TChoice extends ChoiceRecord = ChoiceRecord>(
                       <Check
                         className={cn(
                           "mr-2 size-4",
-                          isEqual(field.value, getChoiceValue(choice))
+                          isEqual(fieldValue, getChoiceValue(choice))
                             ? "opacity-100"
                             : "opacity-0",
                         )}
@@ -395,18 +400,19 @@ const DefaultFilterToQuery = (searchText: string): FilterPayload => ({
   q: searchText,
 });
 
-type AutocompleteInputProps<TChoice extends ChoiceRecord = ChoiceRecord> = Omit<
-  InputProps,
-  "source"
-> &
-  Partial<Pick<InputProps, "source">> &
+type AutocompleteInputProps<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> = Omit<InputProps<TRecord, TPath>, "source"> &
+  Partial<Pick<InputProps<TRecord, TPath>, "source">> &
   ChoicesProps<TChoice> & {
     className?: string;
     debounce?: number;
     filterToQuery?: (searchText: string) => FilterPayload;
     placeholder?: string;
     /** Custom display text for the selected value in the trigger. */
-    inputText?: (option: unknown) => string;
+    inputText?: (choice: TChoice) => string;
     /** When true, only show choices matching the current value. */
     limitChoicesToValue?: boolean;
     /** Cap the number of dropdown items shown. */
@@ -424,9 +430,12 @@ type AutocompleteInputProps<TChoice extends ChoiceRecord = ChoiceRecord> = Omit<
     /** When true, Home/End keys scroll the listbox to first/last item. */
     handleHomeEndKeys?: boolean;
     /** Custom equality check between a choice value and the current value. */
-    isOptionEqualToValue?: (option: unknown, value: unknown) => boolean;
+    isOptionEqualToValue?: (
+      option: ChoiceValueOf<TChoice>,
+      value: ChoiceValueOf<TChoice>,
+    ) => boolean;
     /** Custom filter function; replaces default substring match. */
-    matchSuggestion?: (filter: string, choice: unknown) => boolean;
+    matchSuggestion?: (filter: string, choice: TChoice) => boolean;
     /** Gate controlling whether the dropdown opens at all. */
     shouldRenderSuggestions?: (filter: string) => boolean;
     /** Label of a "(none)" entry prepended when the field is not required. */

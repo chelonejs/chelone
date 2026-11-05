@@ -31,7 +31,7 @@ export interface LocalesMenuButtonProps {
  * />
  */
 
-import { computed } from "vue";
+import { computed, type VNode } from "vue";
 import { useCheloneContext } from "../../../context";
 import { useLocales } from "../../../i18n/use-locale";
 import LocalesMenu from "./locales-menu.vue";
@@ -40,7 +40,7 @@ const props = defineProps<LocalesMenuButtonProps>();
 
 defineSlots<{
   /** Shown in the trigger instead of the upper-cased current locale code. */
-  icon?: () => unknown;
+  icon?: () => VNode[];
 }>();
 
 const { i18n } = useCheloneContext();

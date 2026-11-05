@@ -20,7 +20,7 @@ export interface LoginPageProps {
  * React's `useEffect`.
  */
 
-import { watch } from "vue";
+import { type VNode, watch } from "vue";
 import { useAuthState } from "../../../auth/auth-hooks";
 import { useRedirect } from "../../../router";
 import AuthLayout from "./auth-layout.vue";
@@ -30,7 +30,7 @@ const props = defineProps<LoginPageProps>();
 
 defineSlots<{
   /** Custom content in place of the default `<LoginForm>`. */
-  default?: () => unknown;
+  default?: () => VNode[];
 }>();
 
 const { data } = useAuthState();

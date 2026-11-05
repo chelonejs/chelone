@@ -17,6 +17,7 @@ import {
   defineComponent,
   h,
   nextTick,
+  ref,
   type VNodeChild,
 } from "vue";
 import { provideCheloneContext } from "../../../context";
@@ -440,6 +441,52 @@ describe("FunctionField (scoped slot ↔ React render prop)", () => {
       default: () => "x",
     });
     expect(w.find('[data-slot="function-field"]').exists()).toBe(false);
+  });
+});
+
+describe("ambient record that lands after mount", () => {
+  type Person = { name: string };
+
+  /** Mount `field` under an ambient record ref that starts empty. */
+  function mountUnderEmptyRef(
+    // `object` for the same reason as in `mountField`.
+    field: object,
+    slot: (scope: { record: Person }) => string,
+  ) {
+    const ambient = ref<Person | undefined>(undefined);
+    const Harness = defineComponent({
+      setup() {
+        provideCheloneContext(makeContext());
+        provideRecordContext<Person>(ambient);
+        // type-escape: every field here is a component; see the `object` note.
+        return () => h(field as Component, null, { default: slot });
+      },
+    });
+    return { ambient, wrapper: mount(Harness) };
+  }
+
+  it("FunctionField renders once the ambient record resolves", async () => {
+    const { ambient, wrapper } = mountUnderEmptyRef(
+      FunctionField,
+      ({ record }) => `fn:${record.name}`,
+    );
+    expect(wrapper.find('[data-slot="function-field"]').exists()).toBe(false);
+    ambient.value = { name: "Ada" };
+    await nextTick();
+    expect(wrapper.get('[data-slot="function-field"]').text()).toBe("fn:Ada");
+  });
+
+  it("RecordField renders once the ambient record resolves", async () => {
+    const { ambient, wrapper } = mountUnderEmptyRef(
+      RecordField,
+      ({ record }) => `rec:${record.name}`,
+    );
+    expect(wrapper.text()).not.toContain("rec:");
+    ambient.value = { name: "Ada" };
+    await nextTick();
+    expect(wrapper.get('[data-slot="record-field"]').text()).toContain(
+      "rec:Ada",
+    );
   });
 });
 

@@ -37,6 +37,7 @@ import {
 } from "../../../resource";
 import { RouterAdapterProvider } from "../../../router/adapter";
 import { reactRouterAdapter } from "../../../router/react-router-adapter";
+import { FilterButton } from "./filter-button";
 import { RefreshIconButton } from "./refresh-icon-button";
 import { SelectAllButton } from "./select-all-button";
 import { ToggleFilterButton } from "./toggle-filter-button";
@@ -67,6 +68,22 @@ function makeDataProvider() {
       { id: 5, title: "Five", category: "misc" },
     ],
   });
+}
+
+// FilterButton only reads the element's props; the input is rendered by DisplayedFilterInputs.
+function TextFilter(_props: { source: string; alwaysOn?: boolean }) {
+  return null;
+}
+
+function DisplayedFilterInputs() {
+  const { displayedFilters } = useListFilterContext();
+  return (
+    <>
+      {Object.keys(displayedFilters).map((source) => (
+        <input key={source} name={source} aria-label={`${source} input`} />
+      ))}
+    </>
+  );
 }
 
 function Probe() {
@@ -208,6 +225,51 @@ describe("<ToggleFilterButton>", () => {
       await screen.findByRole("button", { name: "Latest news" }),
     ).toBeTruthy();
     expect(screen.getByRole("button", { name: "Plain text" })).toBeTruthy();
+  });
+});
+
+/** Open the Radix menu from the keyboard: jsdom has no PointerEvent for the mouse path. */
+async function openAddFilterMenu() {
+  const trigger = await screen.findByRole("button", { name: "Add filter" });
+  trigger.focus();
+  fireEvent.keyDown(trigger, { key: "Enter" });
+}
+
+describe("<FilterButton>", () => {
+  it("showing a filter focuses its input", async () => {
+    render(
+      <ListHarness>
+        <FilterButton filters={[<TextFilter key="title" source="title" />]} />
+        <DisplayedFilterInputs />
+      </ListHarness>,
+    );
+    await openAddFilterMenu();
+    fireEvent.click(
+      await screen.findByRole("menuitemcheckbox", { name: "Title" }),
+    );
+
+    const input = await screen.findByRole("textbox", { name: "title input" });
+    await waitFor(() => expect(document.activeElement).toBe(input));
+  });
+
+  it("an alwaysOn filter is not in the add-filter menu", async () => {
+    render(
+      <ListHarness>
+        <FilterButton
+          filters={[
+            <TextFilter key="title" source="title" alwaysOn />,
+            <TextFilter key="category" source="category" />,
+          ]}
+        />
+      </ListHarness>,
+    );
+    await openAddFilterMenu();
+    expect(
+      await screen.findByRole("menuitemcheckbox", { name: "Category" }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole("menuitemcheckbox", { name: "Title" }),
+    ).toBeNull();
   });
 });
 

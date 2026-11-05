@@ -7,15 +7,23 @@
  * choices context; standalone, it must be provided (each input throws otherwise).
  */
 
-import type { SourcePath, SourceProp, Validator } from "@chelone/core";
+import type {
+  LooseRecord,
+  SourcePath,
+  SourceProp,
+  SourceValue,
+  Validator,
+} from "@chelone/core";
 import type { ChoiceRecord, OptionText } from "../../../choices/use-choices";
 
 /** The choice-accessor + form-binding props every choice input accepts. */
 export interface ChoiceInputBaseProps<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TChoice extends ChoiceRecord = ChoiceRecord,
 > {
   /** The FK/field path. Optional under a reference wrapper (inherited from context). */
-  source?: SourceProp | undefined;
+  source?: TPath | undefined;
   /** Inline choices (`{ id, name }[]` or `string[]`). Omitted under a reference wrapper. */
   choices?: readonly (string | TChoice)[];
   /** The display path (dotted) or a formatter over the whole choice. Default `name`. */
@@ -30,8 +38,8 @@ export interface ChoiceInputBaseProps<
   label?: string | false;
   /** Helper text under the control. */
   helperText?: string;
-  /** Input-level default value (seeds only into a hole). */
-  defaultValue?: unknown;
+  /** Input-level default value (seeds only into a hole), typed as the value at `source`. */
+  defaultValue?: NoInfer<SourceValue<TRecord, TPath>>;
   /** ra-contract validators — composed, first error wins. */
   validate?: Validator | readonly Validator[];
   /** Disables the control. */

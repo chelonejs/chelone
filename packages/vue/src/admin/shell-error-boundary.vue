@@ -14,7 +14,7 @@
  * `app.config.errorHandler` does not see it.
  */
 
-import { onErrorCaptured, shallowRef, watch } from "vue";
+import { onErrorCaptured, shallowRef, type VNode, watch } from "vue";
 import { useLocation } from "../router/nav-composables";
 import DefaultErrorFallback, {
   type ErrorFallbackProps,
@@ -22,9 +22,9 @@ import DefaultErrorFallback, {
 
 defineSlots<{
   /** The wrapped tree. */
-  default?: () => unknown;
+  default?: () => VNode[];
   /** Replaces the default fallback. */
-  error?: (props: ErrorFallbackProps) => unknown;
+  error?: (props: ErrorFallbackProps) => VNode[];
 }>();
 
 const captured = shallowRef<{ error: Error; info: string } | null>(null);

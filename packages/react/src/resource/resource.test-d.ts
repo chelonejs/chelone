@@ -4,12 +4,17 @@
  * `any`-free and shaped as the parity contract requires.
  */
 
-import type { ResourceDefinition } from "@chelone/core";
-import type { ReactElement } from "react";
+import type {
+  ComputeDefinitionProps,
+  ResourceDefinition,
+  ResourceRecord,
+} from "@chelone/core";
+import type { ComponentType, ReactElement, ReactNode } from "react";
 import { describe, expectTypeOf, it } from "vitest";
 import { EditGuesser } from "../components/admin/guessers/edit-guesser";
 import { ListGuesser } from "../components/admin/guessers/list-guesser";
 import { ShowGuesser } from "../components/admin/guessers/show-guesser";
+import type { RecordRepresentation } from "../index";
 import {
   useResourceDefinition,
   useResourceDefinitions,
@@ -101,5 +106,40 @@ describe("ResourceContext + hooks", () => {
     expectTypeOf(useResourceDefinition).returns.toEqualTypeOf<
       Partial<ResourceDefinition>
     >();
+  });
+});
+
+/** `src/index.ts` augments core's `ResourceSlots` with React's types. */
+describe("ResourceDefinition slot types", () => {
+  it("types a definition's icon as a component type", () => {
+    expectTypeOf<ResourceDefinition["icon"]>().toEqualTypeOf<
+      ComponentType | undefined
+    >();
+  });
+
+  it("types a definition's recordRepresentation as RecordRepresentation", () => {
+    type Slot = NonNullable<ResourceDefinition["recordRepresentation"]>;
+    expectTypeOf<Slot>().toEqualTypeOf<RecordRepresentation>();
+    expectTypeOf<Slot>().toEqualTypeOf<
+      string | ((record: ResourceRecord) => ReactNode) | ReactElement
+    >();
+  });
+
+  it("types the route components as a view slot", () => {
+    expectTypeOf<ComputeDefinitionProps["list"]>().toEqualTypeOf<
+      ResourceViewChild | undefined
+    >();
+  });
+
+  it("recordRepresentation refuses a number", () => {
+    // @ts-expect-error a representation is a path, a function or an element
+    const props: ResourceProps = { name: "posts", recordRepresentation: 3 };
+    expectTypeOf(props).toEqualTypeOf<ResourceProps>();
+  });
+
+  it("refuses an icon that is not a component", () => {
+    // @ts-expect-error an icon is a component type, not a node
+    const props: ComputeDefinitionProps = { name: "posts", icon: "star" };
+    expectTypeOf(props).toEqualTypeOf<ComputeDefinitionProps>();
   });
 });

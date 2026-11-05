@@ -39,6 +39,64 @@ export type ChoiceValueOf<TChoice> = TChoice extends { id: infer TId }
   ? TId
   : TChoice;
 
+/**
+ * The value a choice list stores for one choice: its `id` when it has one (ra's
+ * `choices` carry `{id, name}` pairs), the choice itself otherwise.
+ */
+export function choiceIdOf<TChoice>(choice: TChoice): ChoiceValueOf<TChoice> {
+  if (typeof choice === "object" && choice !== null && "id" in choice) {
+    // TS cannot follow the runtime `in` check into the deferred conditional.
+    // type-escape: `ChoiceValueOf` names the id of a choice that has one.
+    return choice.id as ChoiceValueOf<TChoice>;
+  }
+  // type-escape: a choice with no id is its own value.
+  return choice as ChoiceValueOf<TChoice>;
+}
+
+/**
+ * The value a single-choice input holds, which is the value of one of its
+ * choices. An empty field is the empty value the input was given, which no
+ * choice equals, so it is only ever compared.
+ */
+export function toChoiceValue<TChoice>(
+  value: FormValue,
+): ChoiceValueOf<TChoice> {
+  // Form state is record-free.
+  // type-escape: a choice input stores the value of one of its choices.
+  return value as ChoiceValueOf<TChoice>;
+}
+
+/**
+ * The value a choice stores: what was read at its `optionValue` path, else its
+ * {@link choiceIdOf id}.
+ */
+export function resolveChoiceValue<TChoice>(
+  choice: TChoice,
+  atOptionValue: FormValue,
+): ChoiceValueOf<TChoice> {
+  return atOptionValue !== undefined
+    ? toChoiceValue<TChoice>(atOptionValue)
+    : choiceIdOf(choice);
+}
+
+const NO_CHOICE_VALUES: readonly never[] = Object.freeze([]);
+
+/**
+ * The values a multi-choice input holds: the stored array, one value for a
+ * stored scalar, and a shared empty list for a missing one (so a render that
+ * finds nothing keeps the same reference). `''` is missing too: it is what the
+ * default format makes of a nullish value.
+ */
+export function toChoiceValues<TChoice>(
+  value: FormValue,
+): readonly ChoiceValueOf<TChoice>[] {
+  if (value == null || value === "") return NO_CHOICE_VALUES;
+  // Form state is record-free.
+  // type-escape: a multi-choice input stores an array of its choices' values.
+  if (Array.isArray(value)) return value as readonly ChoiceValueOf<TChoice>[];
+  return [toChoiceValue<TChoice>(value)];
+}
+
 /** The text a text input edits: `''` for a nullish value so the input stays controlled. */
 export function toTextValue(value: FormValue): string {
   if (value == null) return "";
@@ -75,6 +133,11 @@ export function toBooleanValue(value: FormValue): boolean {
   return Boolean(value);
 }
 
+/** A tri-state boolean input's value: `true` or `false` as stored, `null` for every other value (unset is not false). */
+export function toNullableBooleanValue(value: FormValue): boolean | null {
+  return typeof value === "boolean" ? value : null;
+}
+
 /**
  * A date input's value, unconverted: the string/number/`Date` it can edit,
  * `null` for a cleared one. Formatting to the input's own shape stays with the
@@ -104,9 +167,115 @@ export function toFileInputValue(value: FormValue): FileInputValue {
   return null;
 }
 
+/** A picked `File`, which may carry the object URL its preview holds. */
+export type FileWithPreview = File & { preview?: string };
+
+/** What `<FileInput>` stores for a dropped file: the file with the preview URL and title a preview child reads. */
+export type TransformedFile = {
+  rawFile: FileWithPreview;
+  src: string;
+  title: string;
+};
+
+/** A file already on the record: the `{ src, title }` object a data provider stores. Other keys ride along. */
+export type StoredFile = {
+  src?: string;
+  title?: string;
+};
+
+/** One file a `<FileInput>` holds: a stored file may also be just its URL. */
+export type FileEntry = FileWithPreview | TransformedFile | StoredFile | string;
+
+/** What a `<FileInput>` holds: one entry, a list of them with `multiple`, or nothing. */
+export type FileSelection = FileEntry | FileEntry[] | null;
+
+/** `File` is read through the global so the guards also run where there is none (Node). */
+function isFile(value: FormValue): value is FileWithPreview {
+  return typeof File !== "undefined" && value instanceof File;
+}
+
+function isFileEntry(value: FormValue): value is FileEntry {
+  return (
+    isFile(value) ||
+    (typeof value === "string" && value !== "") ||
+    (typeof value === "object" && value !== null && !Array.isArray(value))
+  );
+}
+
+/** The preview record `<FileInput>` makes of a dropped file. */
+export function isTransformedFile(value: FormValue): value is TransformedFile {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "rawFile" in value &&
+    isFile(value.rawFile) &&
+    "src" in value &&
+    typeof value.src === "string" &&
+    "title" in value &&
+    typeof value.title === "string"
+  );
+}
+
+/**
+ * A file input's selection: the entry, the entries of a list (anything that is
+ * not a file, a record or a URL string dropped), `null` for a cleared one.
+ */
+export function toFileSelection(value: FormValue): FileSelection {
+  if (Array.isArray(value)) return value.filter(isFileEntry);
+  return isFileEntry(value) ? value : null;
+}
+
+/** The entries of a file input's value, in order. */
+export function toFileEntries(value: FormValue): FileEntry[] {
+  const selection = toFileSelection(value);
+  if (selection === null) return [];
+  return Array.isArray(selection) ? selection : [selection];
+}
+
+/** A stable list key for a file entry: the dropped file's name, else the stored `src` or URL, else its place. */
+export function fileEntryKey(entry: FileEntry, index: number): string | number {
+  if (typeof entry === "string") return entry;
+  if (isTransformedFile(entry)) return entry.rawFile.name;
+  if (isFile(entry)) return index;
+  return entry.src ?? index;
+}
+
+/** The object URL a file entry's preview holds, to revoke when it goes. */
+export function fileEntryPreview(entry: FileEntry): string | undefined {
+  if (typeof entry === "string") return undefined;
+  if (isTransformedFile(entry)) return entry.rawFile.preview;
+  return isFile(entry) ? entry.preview : undefined;
+}
+
 /** A currency input's value: the amount, `null` when cleared (minor-vs-major units stay with the input). */
 export function toCurrencyValue(value: FormValue): number | null {
   return toNumberValue(value);
+}
+
+/** What a multi-currency `<CurrencyInput>` stores: the amount and its currency code, when it has one. */
+export interface CurrencyComposite {
+  amount: number;
+  currency: string | undefined;
+}
+
+/**
+ * A multi-currency input's value: the amount with its currency, `null` for
+ * anything without a numeric amount (an absent value, or a bare number from
+ * single-currency mode). A currency that is missing or not text reads as
+ * `undefined`, so the saved amount survives it.
+ */
+export function toCurrencyComposite(
+  value: FormValue,
+): CurrencyComposite | null {
+  if (typeof value !== "object" || value === null) return null;
+  if (!("amount" in value)) return null;
+  const amount = toNumberValue(value.amount);
+  if (amount === null) return null;
+  const currency =
+    "currency" in value && typeof value.currency === "string"
+      ? value.currency
+      : undefined;
+  return { amount, currency };
 }
 
 /** The empty endpoint a webhook input starts from. */

@@ -53,7 +53,7 @@ export function addEventsForMutations<TProvider extends DataProvider>(
     ),
   ];
 
-  const wrapped: DataProvider = {
+  const wrapped: TProvider = {
     ...copyMembers(base),
     create: async (resource, params) => {
       const result = await base.create(resource, params);
@@ -107,5 +107,5 @@ export function addEventsForMutations<TProvider extends DataProvider>(
       return result;
     },
   };
-  return wrapped as TProvider;
+  return wrapped;
 }

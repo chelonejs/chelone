@@ -13,7 +13,7 @@
  *   out of the change.
  */
 
-import { required } from "@chelone/core";
+import { errorMessageOf, required } from "@chelone/core";
 import { useMutation } from "@tanstack/react-query";
 import { LogIn } from "lucide-react";
 import { useCallback } from "react";
@@ -52,20 +52,6 @@ interface LoginWithEmailProps {
   /** Extra class names applied to the `<form>` element. */
   className?: string;
 }
-
-const getErrorMessage = (error: unknown): string | undefined => {
-  if (typeof error === "string") return error;
-  if (
-    error &&
-    typeof error === "object" &&
-    "message" in error &&
-    typeof (error as { message: unknown }).message === "string" &&
-    (error as { message: string }).message
-  ) {
-    return (error as { message: string }).message;
-  }
-  return undefined;
-};
 
 /**
  * @example
@@ -111,10 +97,10 @@ function LoginWithEmail(props: LoginWithEmailProps) {
           await login.mutateAsync({ ...values, redirectTo });
         }
       } catch (error) {
-        const message = getErrorMessage(error);
+        const message = errorMessageOf(error);
         notify(message ?? "ra.auth.sign_in_error", {
           type: "error",
-          messageArgs: { _: message },
+          messageArgs: message === undefined ? undefined : { _: message },
         });
       }
       return undefined;

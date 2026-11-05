@@ -96,7 +96,7 @@ const props = withDefaults(
 );
 
 const slots = useSlots();
-const list = useListContext();
+const list = useListContext<LooseRecord>();
 
 const hasBulkActions = computed(
   () => props.bulkActions || slots.bulkActions != null,
@@ -125,18 +125,17 @@ provide(DataTableRowsKey, {
   canExpand,
 });
 
-const rows = computed<LooseRecord[]>(() => (list.data ?? []) as LooseRecord[]);
+const rows = computed<LooseRecord[]>(() => list.data ?? []);
 const isEmpty = computed(() => !list.isPending && rows.value.length === 0);
 
-const rowId = (record: LooseRecord): Identifier =>
-  (record as { id: Identifier }).id;
+const rowId = (record: LooseRecord): Identifier => record.id;
 
 const rowKey = (record: LooseRecord): string =>
-  String((record as { id?: unknown }).id);
+  String(record.id);
 
 // Header select-all: checked when every id on the current page is selected.
 const selectableIds = computed<Identifier[]>(() =>
-  rows.value.map((r) => (r as { id: Identifier }).id),
+  rows.value.map((r) => r.id),
 );
 const allSelected = computed(() => {
   const selected = list.selectedIds ?? [];
@@ -218,14 +217,17 @@ function arrangedColumns(): VNode[] {
   // columns read their props once, so a reused instance would show another
   // column's data. A key the author set is kept.
   const taken = new Map<string, number>();
-  return shown.map((index) => {
-    const node = nodes[index] as VNode;
-    if (node.key != null) return node;
+  return shown.flatMap((index) => {
+    const node = nodes[index];
+    if (node === undefined) return [];
+    if (node.key != null) return [node];
     const id = ids[index];
     const base = id === undefined ? `index:${index}` : `id:${id}`;
     const count = taken.get(base) ?? 0;
     taken.set(base, count + 1);
-    return cloneVNode(node, { key: count === 0 ? base : `${base}:${count}` });
+    return [
+      cloneVNode(node, { key: count === 0 ? base : `${base}:${count}` }),
+    ];
   });
 }
 

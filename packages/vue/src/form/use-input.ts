@@ -25,7 +25,7 @@ import type {
   TranslatableMessage,
   Validator,
 } from "@chelone/core";
-import { defaultFormat, isRequired } from "@chelone/core";
+import { defaultFormat, extractEventValue, isRequired } from "@chelone/core";
 import { type ComputedRef, computed, useId } from "vue";
 import { firstFieldError } from "./field-error";
 import { useCheloneFormContext, useSourceScope } from "./form-context";
@@ -81,32 +81,6 @@ export interface UseInputReturn<TInput = unknown> {
   touched: ComputedRef<boolean>;
   /** Whether a required validator is present (or `isRequired` was forced). */
   isRequired: boolean;
-}
-
-/**
- * Native-event value extraction (parity with the React twin): a DOM/synthetic
- * change event yields `target.checked` for checkboxes and `target.value`
- * otherwise; a raw value (v-model payload, a custom picker's value) passes
- * through untouched. Lets an SFC wire either `@input="setValue"` or
- * `@update:modelValue="setValue"` without a shim.
- */
-function extractEventValue(input: unknown): unknown {
-  if (typeof input === "object" && input !== null && "target" in input) {
-    const { target } = input as { target: unknown };
-    if (
-      typeof target === "object" &&
-      target !== null &&
-      ("value" in target || "checked" in target)
-    ) {
-      const element = target as {
-        type?: unknown;
-        checked?: unknown;
-        value?: unknown;
-      };
-      return element.type === "checkbox" ? element.checked : element.value;
-    }
-  }
-  return input;
 }
 
 // The loose overload comes first so a call with no type argument never tries

@@ -1,11 +1,23 @@
 <script lang="ts">
+import type {
+  LooseRecord,
+  SourceProp,
+  SourceValue,
+  Validator,
+} from "@chelone/core";
+
 type Unit = "d" | "h" | "m" | "s";
 
+const DEFAULT_UNITS: readonly Unit[] = ["d", "h", "m", "s"];
+
 /** Props for {@link DurationInput}. */
-export interface DurationInputProps {
-  source: SourceProp;
+export interface DurationInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> {
+  source: TPath;
   label?: string | false;
-  defaultValue?: unknown;
+  defaultValue?: NoInfer<SourceValue<RecordType, TPath>>;
   validate?: Validator | readonly Validator[];
   /** Which units to expose. Default `["d","h","m","s"]`. */
   units?: readonly Unit[];
@@ -23,7 +35,7 @@ export interface DurationInputProps {
  * second boxes and writes the recomposed ISO string back (all-empty → `null`).
  */
 
-import type { SourceProp, Validator } from "@chelone/core";
+import { toTextValue } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { cn } from "../../../lib/utils";
@@ -43,7 +55,7 @@ const props = withDefaults(
   defineProps<DurationInputProps>(),
   // `label: undefined` so an absent `string | false` label isn't coerced to
   // `false` by Vue's Boolean-prop rule (which would suppress the label).
-  { units: () => ["d", "h", "m", "s"] as Unit[], label: undefined },
+  { units: () => [...DEFAULT_UNITS], label: undefined },
 );
 
 const { id, value, setValue, blur, error, touched, isRequired } = useInput({
@@ -52,8 +64,8 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   validate: props.validate,
 });
 
-function seed(v: unknown): Record<Unit, string> {
-  const p = parseIsoDuration(String(v ?? "")) ?? {};
+function seed(v: string): Record<Unit, string> {
+  const p = parseIsoDuration(v) ?? {};
   return {
     d: p.days?.toString() ?? "",
     h: p.hours?.toString() ?? "",
@@ -62,9 +74,9 @@ function seed(v: unknown): Record<Unit, string> {
   };
 }
 
-const values = ref<Record<Unit, string>>(seed(value.value));
+const values = ref<Record<Unit, string>>(seed(toTextValue(value.value)));
 watch(value, (next) => {
-  values.value = seed(next);
+  values.value = seed(toTextValue(next));
 });
 
 const invalid = computed(() => touched.value && error.value != null);

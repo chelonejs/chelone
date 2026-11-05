@@ -1,11 +1,12 @@
 <script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
 /** Props for {@link SelectInput}. */
 export interface SelectInputProps<
   TChoice extends ChoiceRecord = ChoiceRecord,
-> extends ChoiceInputBaseProps<TChoice> {
+> extends ChoiceInputBaseProps<LooseRecord, SourceProp, TChoice> {
   /** Label of the empty option prepended to the list. Default `""` (a blank line). */
   emptyText?: string;
   /** Underlying value submitted when the empty option is chosen. Default `""`. */
@@ -75,7 +76,7 @@ const labelText = computed(() =>
   props.label === false ? null : (props.label ?? humanizeSource(source)),
 );
 const helper = computed(
-  () => props.helperText ?? (fetchError.value as Error | undefined)?.message,
+  () => props.helperText ?? fetchError.value?.message,
 );
 const emptyLabel = computed(() =>
   props.emptyText === "" ? " " : translate(props.emptyText, { _: props.emptyText }),

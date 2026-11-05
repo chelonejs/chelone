@@ -3,7 +3,7 @@
   "props": [
     {
       "name": "children",
-      "type": "ReactElement",
+      "type": "ReactElement<ChildLabelProps>",
       "optional": false,
       "comment": "The one field (or input) to label."
     },

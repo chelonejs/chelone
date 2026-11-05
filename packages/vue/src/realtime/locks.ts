@@ -196,9 +196,7 @@ export function useLockOnMount({
 
   // Computeds, so a refetched record with the same id does not relock.
   const resolvedResource = computed(() => toValue(resource) ?? ambientResource);
-  const resolvedId = computed(
-    () => toValue(id) ?? (ambientRecord?.value?.id as Identifier | undefined),
-  );
+  const resolvedId = computed(() => toValue(id) ?? ambientRecord?.value?.id);
   const resolvedIdentity = computed(() => toValue(identity));
 
   // The session changes with the id, but `useMicroStore` binds one store for

@@ -3,7 +3,8 @@
  * representation (parity: ra-core `useGetRecordRepresentation`). Reads the
  * resource's `recordRepresentation` from the registry definition and applies:
  * - a function → call it with the record;
- * - a string → the value at that (deep) source path off the record;
+ * - a string → the value at that (deep) source path off the record when it is
+ *   text, a number or an element, and `String` of it otherwise (`""` when absent), as the Vue twin does;
  * - a React element → returned verbatim;
  * - otherwise the default chain `name → title → label → reference → #${id}`.
  * A nullish record → `""`.
@@ -14,18 +15,14 @@
  * zero-lodash footprint).
  */
 
-import { getAtPath } from "@chelone/core";
+import {
+  getAtPath,
+  isResourceRecord,
+  type ResourceRecord,
+} from "@chelone/core";
 import { isValidElement, type ReactNode, useCallback } from "react";
+import type { ChoiceRecord } from "../choices-hooks";
 import { useResourceDefinition } from "../resource";
-
-/** A record whose fields the default representation chain probes. */
-interface DefaultChainRecord {
-  id?: unknown;
-  name?: unknown;
-  title?: unknown;
-  label?: unknown;
-  reference?: unknown;
-}
 
 /** Whether a default-chain field is a non-empty display value. */
 function isPresent(value: unknown): value is string | number {
@@ -33,16 +30,17 @@ function isPresent(value: unknown): value is string | number {
 }
 
 /** The resolver `useGetRecordRepresentation` returns. */
-export type GetRecordRepresentation = (record: unknown) => ReactNode;
+export type GetRecordRepresentation = (
+  record: ResourceRecord | null | undefined,
+) => ReactNode;
 
 /** The default chain `name → title → label → reference → #${id}`. */
-function defaultRepresentation(record: unknown): string | number {
-  const chain = record as DefaultChainRecord;
-  if (isPresent(chain.name)) return chain.name;
-  if (isPresent(chain.title)) return chain.title;
-  if (isPresent(chain.label)) return chain.label;
-  if (isPresent(chain.reference)) return chain.reference;
-  return `#${String(chain.id)}`;
+function defaultRepresentation(record: ResourceRecord): string | number {
+  for (const key of ["name", "title", "label", "reference"]) {
+    const value = getAtPath(record, key);
+    if (isPresent(value)) return value;
+  }
+  return `#${String(getAtPath(record, "id"))}`;
 }
 
 export function useGetRecordRepresentation(
@@ -51,13 +49,18 @@ export function useGetRecordRepresentation(
   const { recordRepresentation } = useResourceDefinition({ resource });
 
   return useCallback(
-    (record: unknown): ReactNode => {
+    (record): ReactNode => {
       if (record == null) return "";
       if (typeof recordRepresentation === "function") {
-        return (recordRepresentation as (r: unknown) => ReactNode)(record);
+        return recordRepresentation(record);
       }
       if (typeof recordRepresentation === "string") {
-        return getAtPath(record, recordRepresentation) as ReactNode;
+        const value = getAtPath(record, recordRepresentation);
+        if (typeof value === "string" || typeof value === "number") {
+          return value;
+        }
+        if (isValidElement(value)) return value;
+        return value == null ? "" : String(value);
       }
       if (isValidElement(recordRepresentation)) {
         return recordRepresentation;
@@ -77,16 +80,14 @@ export function useGetRecordRepresentation(
  */
 export function useGetRecordRepresentationText(
   resource?: string,
-): (record: unknown) => string {
+): (record: ResourceRecord | null | undefined) => string {
   const { recordRepresentation } = useResourceDefinition({ resource });
 
   return useCallback(
-    (record: unknown): string => {
+    (record): string => {
       if (record == null) return "";
       if (typeof recordRepresentation === "function") {
-        const result = (recordRepresentation as (r: unknown) => unknown)(
-          record,
-        );
+        const result = recordRepresentation(record);
         if (typeof result === "string" || typeof result === "number") {
           return String(result);
         }
@@ -97,5 +98,21 @@ export function useGetRecordRepresentationText(
       return String(defaultRepresentation(record));
     },
     [recordRepresentation],
+  );
+}
+
+/**
+ * `useGetChoiceRepresentationText(resource?)` is the text form for a choice
+ * input's `optionText`. A choice is a loose bag until a reference loads it, so
+ * one that is not a record (no `id`) has no representation and gives `""`.
+ */
+export function useGetChoiceRepresentationText<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+>(resource?: string): (choice: TChoice) => string {
+  const getText = useGetRecordRepresentationText(resource);
+  return useCallback(
+    (choice: TChoice): string =>
+      isResourceRecord(choice) ? getText(choice) : "",
+    [getText],
   );
 }

@@ -7,6 +7,7 @@ import {
   type FieldValidateOrFn,
   type StandardSchemaV1,
 } from "@tanstack/form-core";
+import { isThenable } from "../guards";
 import type { LooseRecord } from "../resource/record";
 import type { SourcePath, SourceValue } from "../resource/source-path";
 import type {
@@ -14,7 +15,6 @@ import type {
   CheloneFormApi,
   SyncValidator,
 } from "./form-controller";
-import { isThenable } from "./save-pipeline";
 import {
   composeValidators,
   type FieldValidatorMeta,

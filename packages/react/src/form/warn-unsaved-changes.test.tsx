@@ -220,16 +220,12 @@ describe("useWarnWhenUnsavedChanges — router blocking", () => {
   });
 
   it("proceed() un-blocks so the navigation can continue", async () => {
-    // NOTE: asserting the destination DOM renders would require the jsdom data
-    // router to COMPLETE the navigation, which trips an undici/jsdom
-    // AbortSignal incompatibility unrelated to this hook. Assert the headless
-    // decision instead: proceed() leaves the `blocked` state.
-    const { captured } = makeFormHost();
+    const { captured, view } = makeFormHost();
     await act(async () => captured.setDirty?.());
     await act(async () => captured.navigate?.("/posts"));
     expect(captured.decision?.isBlocked).toBe(true);
     await act(async () => captured.decision?.proceed());
-    expect(captured.decision?.isBlocked).toBe(false);
+    expect(view.getByTestId("list")).toBeDefined();
   });
 
   it("cancel() keeps the user on the form", async () => {

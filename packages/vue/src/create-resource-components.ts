@@ -29,6 +29,7 @@
  */
 
 import type {
+  LooseRecord,
   RecordOf,
   RegisteredResourceName,
   RegisteredResources,
@@ -44,6 +45,7 @@ import {
   type VNode,
   type VNodeProps,
 } from "vue";
+import type { ChoiceRecord } from "./choices/use-choices";
 import ApiKeyField from "./components/admin/fields/api-key-field.vue";
 import ArrayField from "./components/admin/fields/array-field.vue";
 import BadgeField from "./components/admin/fields/badge-field.vue";
@@ -81,17 +83,27 @@ import ArrayInput, {
   type ArrayInputProps,
 } from "./components/admin/inputs/array-input.vue";
 import ArrayInputRow from "./components/admin/inputs/array-input-row.vue";
-import AutocompleteArrayInput from "./components/admin/inputs/autocomplete-array-input.vue";
-import AutocompleteInput from "./components/admin/inputs/autocomplete-input.vue";
+import AutocompleteArrayInput, {
+  type AutocompleteArrayInputProps,
+} from "./components/admin/inputs/autocomplete-array-input.vue";
+import AutocompleteInput, {
+  type AutocompleteInputProps,
+} from "./components/admin/inputs/autocomplete-input.vue";
 import BooleanInput from "./components/admin/inputs/boolean-input.vue";
-import CheckboxGroupInput from "./components/admin/inputs/checkbox-group-input.vue";
+import CheckboxGroupInput, {
+  type CheckboxGroupInputProps,
+} from "./components/admin/inputs/checkbox-group-input.vue";
 import ColorInput from "./components/admin/inputs/color-input.vue";
 import CronInput from "./components/admin/inputs/cron-input.vue";
-import CurrencyInput from "./components/admin/inputs/currency-input.vue";
+import CurrencyInput, {
+  type CurrencyInputProps,
+} from "./components/admin/inputs/currency-input.vue";
 import DatagridInput from "./components/admin/inputs/datagrid-input.vue";
 import DateInput from "./components/admin/inputs/date-input.vue";
 import DateTimeInput from "./components/admin/inputs/date-time-input.vue";
-import DurationInput from "./components/admin/inputs/duration-input.vue";
+import DurationInput, {
+  type DurationInputProps,
+} from "./components/admin/inputs/duration-input.vue";
 import FileInput from "./components/admin/inputs/file-input.vue";
 import FileInputPreview from "./components/admin/inputs/file-input-preview.vue";
 import ImageInput from "./components/admin/inputs/image-input.vue";
@@ -102,18 +114,26 @@ import NumberInput from "./components/admin/inputs/number-input.vue";
 import PasswordInput from "./components/admin/inputs/password-input.vue";
 import PhoneInput from "./components/admin/inputs/phone-input.vue";
 import RadioButtonGroupInput from "./components/admin/inputs/radio-button-group-input.vue";
-import RatingInput from "./components/admin/inputs/rating-input.vue";
+import RatingInput, {
+  type RatingInputProps,
+} from "./components/admin/inputs/rating-input.vue";
 import ReferenceArrayInput from "./components/admin/inputs/reference-array-input.vue";
 import ReferenceInput from "./components/admin/inputs/reference-input.vue";
 import ResettableTextInput from "./components/admin/inputs/resettable-text-input.vue";
 import SearchInput from "./components/admin/inputs/search-input.vue";
-import SelectArrayInput from "./components/admin/inputs/select-array-input.vue";
+import SelectArrayInput, {
+  type SelectArrayInputProps,
+} from "./components/admin/inputs/select-array-input.vue";
 import SelectInput from "./components/admin/inputs/select-input.vue";
-import SubscriptionPlanPicker from "./components/admin/inputs/subscription-plan-picker.vue";
+import SubscriptionPlanPicker, {
+  type SubscriptionPlanPickerProps,
+} from "./components/admin/inputs/subscription-plan-picker.vue";
 import TextArrayInput from "./components/admin/inputs/text-array-input.vue";
 import TextInput from "./components/admin/inputs/text-input.vue";
 import TimeInput from "./components/admin/inputs/time-input.vue";
-import WebhookEndpointInput from "./components/admin/inputs/webhook-endpoint-input.vue";
+import WebhookEndpointInput, {
+  type WebhookEndpointInputProps,
+} from "./components/admin/inputs/webhook-endpoint-input.vue";
 import Create from "./components/admin/view/create.vue";
 import Edit from "./components/admin/view/edit.vue";
 import List from "./components/admin/view/list.vue";
@@ -236,8 +256,8 @@ type CallbackParam<TCallback> =
 
 /**
  * The `format`, `parse`, `transform` and `defaultValue` entries of `P` with
- * `TValue` in place of the value they took, returned or held. Each stays
- * optional and keeps the rest of its signature, and one `P` lacks is not added.
+ * `TValue` in place of the value they took or returned. Each stays optional
+ * and keeps the rest of its signature, and one `P` lacks is not added.
  */
 type ValueEntries<P, TValue> = {
   [K in Extract<keyof P, "defaultValue">]?: TValue;
@@ -250,12 +270,11 @@ type ValueEntries<P, TValue> = {
 };
 
 /**
- * A member whose props have a `format`, `parse`, `transform` or `defaultValue`:
- * a generic function component over the literal `source`, so those entries take
- * the value at it. Volar reads a function component's props off its first
- * parameter and its slots off the second. `NoInfer` keeps `TPath` from being
- * inferred back through `SourceValue` out of a callback's parameter, which
- * overflows the type depth.
+ * A member whose props have a `format`, `parse`, `transform` or `defaultValue`: a generic
+ * function component over the literal `source`, so those callbacks take the
+ * value at it. Volar reads a function component's props off its first
+ * parameter and its slots off the second. `NoInfer` keeps `TPath` from being inferred back through
+ * `SourceValue` out of a callback's parameter, which overflows the type depth.
  */
 type ValueMember<TComponent extends Ctor, TRecord> = <
   TPath extends SourceProp<TRecord>,
@@ -300,6 +319,73 @@ type ArrayInputMember<TRecord> = <TPath extends SourceProp<TRecord>>(
 ) => VNode;
 
 /**
+ * The inputs whose `defaultValue` is typed by the value at `source`. Their
+ * SFCs take the loose record: a generic SFC types `defaultValue` through
+ * `SourceValue`, which overflows the instantiation depth in the props helpers
+ * Volar generates. The props interfaces are generic, so these members are
+ * function components like {@link ArrayInputMember}.
+ */
+type TypedInputMembers<TRecord> = {
+  AutocompleteArrayInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: AutocompleteArrayInputProps<TRecord, TPath, TChoice> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  AutocompleteInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: AutocompleteInputProps<TRecord, TPath, TChoice> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  CheckboxGroupInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: CheckboxGroupInputProps<TRecord, TPath, TChoice> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  CurrencyInput: <TPath extends SourceProp<TRecord>>(
+    props: CurrencyInputProps<TRecord, TPath> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  DurationInput: <TPath extends SourceProp<TRecord>>(
+    props: DurationInputProps<TRecord, TPath> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  RatingInput: <TPath extends SourceProp<TRecord>>(
+    props: RatingInputProps<TRecord, TPath> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  SelectArrayInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: SelectArrayInputProps<TRecord, TPath, TChoice> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  SubscriptionPlanPicker: <TPath extends SourceProp<TRecord>>(
+    props: SubscriptionPlanPickerProps<TRecord, TPath> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  WebhookEndpointInput: <TPath extends SourceProp<TRecord>>(
+    props: WebhookEndpointInputProps<TRecord, TPath> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+};
+
+/**
  * A view with its `resource` prop removed. Templates are not strict about
  * undeclared attributes, so the prop stays as `never` to make
  * `<posts.Edit resource="users">` an error.
@@ -322,18 +408,20 @@ export type ResourceComponents<
   TName extends keyof TResources & string,
 > = {
   [K in keyof SourceMembers as SourceMembers[K] extends Ctor
-    ? K
+    ? K extends keyof TypedInputMembers<LooseRecord>
+      ? never
+      : K
     : never]: ResourceMember<
     Extract<SourceMembers[K], Ctor>,
     RecordOf<TResources, TName>
   >;
-} & {
-  ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
-  Edit: BoundView<typeof Edit>;
-  Create: BoundView<typeof Create>;
-  Show: BoundView<typeof Show>;
-  List: BoundView<typeof List>;
-};
+} & TypedInputMembers<RecordOf<TResources, TName>> & {
+    ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
+    Edit: BoundView<typeof Edit>;
+    Create: BoundView<typeof Create>;
+    Show: BoundView<typeof Show>;
+    List: BoundView<typeof List>;
+  };
 
 /** Wraps a view so it renders with `resource` set, passing attrs and slots on. */
 function bindResource(

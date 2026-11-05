@@ -1,6 +1,8 @@
 import type { Geometry, Position } from "geojson";
 import type { Validator } from "../form/validators";
 import { isEmpty } from "../form/validators";
+import { isRecord } from "../guards";
+import type { TranslateParamValues } from "../i18n/messages";
 import { bboxToPolygon } from "./bbox";
 import { isGeoJsonValue } from "./geojson";
 import { geoAreaM2, hasSelfIntersection } from "./geometry-math";
@@ -96,10 +98,9 @@ function hasArea(geometry: Geometry): boolean {
  * value that is not GeoJSON is left to other validators.
  */
 function isUnreadable(value: unknown): boolean {
-  if (typeof value !== "object" || value === null) return false;
-  const { type } = value as { type?: unknown };
   return (
-    (type === "Feature" || type === "FeatureCollection") &&
+    isRecord(value) &&
+    (value.type === "Feature" || value.type === "FeatureCollection") &&
     !isGeoJsonValue(value)
   );
 }
@@ -111,7 +112,7 @@ function isUnreadable(value: unknown): boolean {
  */
 function constraint(
   fails: (geometry: Geometry) => boolean,
-  failure: () => { message: string; args?: Record<string, unknown> },
+  failure: () => { message: string; args?: TranslateParamValues },
 ): Validator {
   return (value) => {
     if (isEmpty(value)) return undefined;

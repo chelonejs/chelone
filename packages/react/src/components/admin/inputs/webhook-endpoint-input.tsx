@@ -1,4 +1,9 @@
-import type { LooseRecord } from "@chelone/core";
+import {
+  type LooseRecord,
+  type SourceProp,
+  toWebhookValue,
+  type WebhookValue,
+} from "@chelone/core";
 import { useState } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -33,6 +38,11 @@ const DEFAULT_VALUE: WebhookEndpoint = {
   eventTypes: [],
 };
 
+/** `options` with the empty endpoint as its `defaultValue` when it has none (`null` counts as none). */
+function withEmptyEndpoint(options: { defaultValue?: unknown }) {
+  return { ...options, defaultValue: options.defaultValue ?? DEFAULT_VALUE };
+}
+
 /**
  * Composite input for a webhook endpoint. Edits the URL, signing secret, and
  * event-type subscriptions. Optionally renders a test-ping button.
@@ -44,9 +54,10 @@ const DEFAULT_VALUE: WebhookEndpoint = {
  *
  * <WebhookEndpointInput source="endpoint" eventTypes={EVENT_TYPES} />
  */
-function WebhookEndpointInput<TRecord = LooseRecord>(
-  props: WebhookEndpointInputProps<TRecord>,
-) {
+function WebhookEndpointInput<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+>(props: WebhookEndpointInputProps<TRecord, TPath>) {
   const {
     label,
     source,
@@ -56,23 +67,16 @@ function WebhookEndpointInput<TRecord = LooseRecord>(
     eventTypes,
     onTestPing,
     disabled,
-    validate,
-    isRequired: isRequiredProp,
-    id: idProp,
-    defaultValue,
-    format,
-    parse,
+    ...inputProps
   } = props;
   const resource = useResourceContext({ resource: resourceProp });
 
+  // The options are spread whole: reading the generic `defaultValue` here
+  // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
+  // instantiation depth. `withEmptyEndpoint` reads it through a loose type.
   const { id, field, fieldState, isRequired } = useInput({
+    ...withEmptyEndpoint(inputProps),
     source,
-    validate,
-    isRequired: isRequiredProp,
-    id: idProp,
-    defaultValue: defaultValue ?? DEFAULT_VALUE,
-    format,
-    parse,
   });
 
   const invalid = fieldState.invalid;
@@ -82,17 +86,11 @@ function WebhookEndpointInput<TRecord = LooseRecord>(
 
   // Normalize against a partial/nullish stored value so the composite render
   // never dereferences a missing sub-field (e.g. a required-validated `null`).
-  const stored = field.value as Partial<WebhookEndpoint> | null | undefined;
-  const value: WebhookEndpoint = {
-    url: stored?.url ?? "",
-    secret: stored?.secret ?? "",
-    eventTypes: stored?.eventTypes ?? [],
-    lastDelivery: stored?.lastDelivery,
-  };
+  const value = toWebhookValue(field.value);
 
   const [pinging, setPinging] = useState(false);
 
-  const update = (patch: Partial<WebhookEndpoint>) => {
+  const update = (patch: Partial<WebhookValue>) => {
     field.onChange({ ...value, ...patch });
   };
 
@@ -184,10 +182,10 @@ function WebhookEndpointInput<TRecord = LooseRecord>(
   );
 }
 
-interface WebhookEndpointInputProps<TRecord = LooseRecord>
-  extends Omit<InputProps<TRecord>, "defaultValue"> {
-  /** Input-level default, ra precedence (seeds only into an untouched hole). */
-  defaultValue?: unknown;
+interface WebhookEndpointInputProps<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> extends InputProps<TRecord, TPath> {
   /** Available event-type strings to surface as checkboxes. */
   eventTypes: readonly string[];
   /** Optional test-ping handler. When set, renders the test-ping button. */

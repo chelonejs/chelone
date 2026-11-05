@@ -10,6 +10,11 @@ const resources = defineResources({
 });
 type Resources = typeof resources;
 
+declare const withReconnect: DataProvider<Resources> & {
+  reconnect(): Promise<void>;
+};
+declare const realtime: RealtimeDataProvider<Resources>;
+
 describe("realtime types", () => {
   it("a RealtimeDataProvider is assignable to DataProvider", () => {
     expectTypeOf<RealtimeDataProvider<Resources>>().toExtend<
@@ -30,5 +35,11 @@ describe("realtime types", () => {
     expectTypeOf(addEventsForMutations(plain, dp)).toEqualTypeOf<
       DataProvider<Resources>
     >();
+  });
+
+  it("addEventsForMutations keeps a provider's extra members", () => {
+    const wrapped = addEventsForMutations(withReconnect, realtime);
+    expectTypeOf(wrapped).toEqualTypeOf<typeof withReconnect>();
+    expectTypeOf(wrapped.reconnect).toEqualTypeOf<() => Promise<void>>();
   });
 });

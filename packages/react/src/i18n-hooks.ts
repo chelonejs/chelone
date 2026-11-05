@@ -2,6 +2,7 @@ import {
   type AnyCheloneI18n,
   createI18n,
   type MessageCatalog,
+  type TranslateParamValues,
 } from "@chelone/core";
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { useCheloneContext, useCheloneI18n } from "./context";
@@ -24,7 +25,7 @@ export function useSetLocale(): (locale: string) => void {
   return useCallback((locale: string) => i18n.setLocale(locale), [i18n]);
 }
 
-type Translate = (key: string, params?: Record<string, unknown>) => string;
+type Translate = (key: string, params?: TranslateParamValues) => string;
 
 // No i18n: an empty catalog echoes the key, and for a missing key honours the
 // polyglot `{ _: default }` convention, placeholders filled in, as with a real one.

@@ -132,7 +132,7 @@ describe("useResetPassword", () => {
     });
   });
 
-  it("useResetPassword throws when the auth provider has no resetPassword", async () => {
+  it("useResetPassword throws without a resetPassword method", async () => {
     const { result } = await setup(() => useResetPassword());
 
     await expect(
@@ -167,7 +167,7 @@ describe("useSetPassword", () => {
     expect(router.currentRoute.value.path).toBe("/");
   });
 
-  it("useSetPassword throws when the auth provider has no setPassword", async () => {
+  it("useSetPassword throws without a setPassword method", async () => {
     const { result } = await setup(() => useSetPassword());
 
     await expect(result.mutateAsync(params)).rejects.toThrow(/setPassword/);

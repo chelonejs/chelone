@@ -67,7 +67,9 @@ interface TreeListState {
 }
 
 const treeItemOf = (target: EventTarget | null) =>
-  (target as Element).closest<HTMLElement>('[role="treeitem"]');
+  target instanceof Element
+    ? target.closest<HTMLElement>('[role="treeitem"]')
+    : null;
 
 function TreeListNode({
   node,
@@ -256,7 +258,7 @@ function TreeList({
   empty,
   className,
 }: TreeListProps) {
-  const { data, isPending } = useListContext();
+  const { data, isPending } = useListContext<LooseRecord>();
   const resource = useResourceContext();
   const getRepresentation = useGetRecordRepresentation(resource);
   const navigate = useNavigate();
@@ -264,7 +266,7 @@ function TreeList({
   const { hasEdit, hasShow } = useResourceDefinition({ resource });
 
   const roots = useMemo(
-    () => buildRecordTree((data ?? []) as LooseRecord[], parentSource),
+    () => buildRecordTree(data ?? [], parentSource),
     [data, parentSource],
   );
 

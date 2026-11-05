@@ -22,7 +22,7 @@
  * (parity with the twin's `useState` capture of the reference options).
  */
 
-import type { SourcePath, SourceProp } from "@chelone/core";
+import type { ChoiceValueOf, SourcePath, SourceProp } from "@chelone/core";
 import { type ComputedRef, computed } from "vue";
 import {
   type ChoicesContextValue,
@@ -70,13 +70,13 @@ export interface UseChoiceInputResult<
   /** Whether the reference list is still loading (inline: `false`). */
   isPending: ComputedRef<boolean>;
   /** The reference fetch error (inline: `null`). */
-  fetchError: ComputedRef<unknown>;
+  fetchError: ComputedRef<Error | null>;
   /** The display text for a choice. */
   getChoiceText(choice: TChoice): string;
   /** The value for a choice (`optionValue` path or `id`). */
-  getChoiceValue(choice: TChoice): unknown;
+  getChoiceValue(choice: TChoice): ChoiceValueOf<TChoice>;
   /** The disabled flag for a choice. */
-  getDisableValue(choice: TChoice): unknown;
+  getDisableValue(choice: TChoice): boolean;
   /** Push a filter onto a reference context (inert for inline choices). */
   setFilters(filter: Record<string, unknown>, debounce?: boolean): void;
 }

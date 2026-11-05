@@ -55,8 +55,12 @@ function FileField<RecordType extends LooseRecord = LooseRecord>(
     record,
     ...rest
   } = props;
-  const sourceValue: unknown = useFieldValue({ defaultValue, source, record });
-  const titleFromRecord: unknown = useFieldValue({
+  const sourceValue: unknown = useFieldValue<LooseRecord>({
+    defaultValue,
+    source,
+    record,
+  });
+  const titleFromRecord: unknown = useFieldValue<LooseRecord>({
     record,
     // A `title` may be a record path OR a literal label. The hook must always be
     // called (rules of hooks), so pass `""` when `title` is absent — but chelone

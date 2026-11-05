@@ -125,6 +125,16 @@ describe("<DateInput>", () => {
     ).toBe("2021-09-11");
   });
 
+  it("renders empty for a stored object", async () => {
+    const { wrapper } = mountInForm(
+      () => h(DateInput, { source: "published_at" }),
+      { id: 1, published_at: { year: 2021 } },
+    );
+    await flushPromises();
+    const input = wrapper.find<HTMLInputElement>('input[type="date"]');
+    expect(input.element.value).toBe("");
+  });
+
   it("writes the typed date string back to the form", async () => {
     const { wrapper, captured } = mountInForm(
       () => h(DateInput, { source: "published_at" }),
@@ -198,6 +208,18 @@ describe("<DateTimeInput>", () => {
     expect((input.element as HTMLInputElement).value).toBe("2021-09-11T10:30");
   });
 
+  it("renders empty for a stored object", async () => {
+    const { wrapper } = mountInForm(
+      () => h(DateTimeInput, { source: "starts_at" }),
+      { id: 1, starts_at: { year: 2021 } },
+    );
+    await flushPromises();
+    const input = wrapper.find<HTMLInputElement>(
+      'input[type="datetime-local"]',
+    );
+    expect(input.element.value).toBe("");
+  });
+
   it("writes an ISO string back to the form when typed", async () => {
     const { wrapper, captured } = mountInForm(
       () => h(DateTimeInput, { source: "starts_at" }),
@@ -244,6 +266,16 @@ describe("<TimeInput>", () => {
     await flushPromises();
     const input = wrapper.find('input[type="time"]');
     expect((input.element as HTMLInputElement).value).toBe("08:30");
+  });
+
+  it("renders empty for a stored object", async () => {
+    const { wrapper } = mountInForm(
+      () => h(TimeInput, { source: "opens_at" }),
+      { id: 1, opens_at: { year: 2021 } },
+    );
+    await flushPromises();
+    const input = wrapper.find<HTMLInputElement>('input[type="time"]');
+    expect(input.element.value).toBe("");
   });
 
   it("writes a parsed Date back to the form when typed", async () => {
@@ -379,6 +411,25 @@ describe("<CurrencyInput>", () => {
     await wrapper.find('input[type="number"]').setValue("99");
     await nextTick();
     expect(captured.values?.().money).toEqual({ amount: 99, currency: "EUR" });
+  });
+
+  it("keeps a stored amount that has no currency when one is picked", async () => {
+    const { wrapper, captured } = mountInForm(
+      () =>
+        h(CurrencyInput, {
+          source: "money",
+          currencies: ["EUR", "USD"],
+        }),
+      { id: 1, money: { amount: 500 } },
+    );
+    await flushPromises();
+    expect(
+      wrapper.find<HTMLInputElement>('input[type="number"]').element.value,
+    ).toBe("500");
+
+    await wrapper.find("select[data-currency-select]").setValue("USD");
+    await nextTick();
+    expect(captured.values?.().money).toEqual({ amount: 500, currency: "USD" });
   });
 
   it("divides and multiplies by 100 when storeAsMinorUnits", async () => {

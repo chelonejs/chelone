@@ -6,7 +6,6 @@ import {
   createCsvImportController,
   csvErrorRows,
   downloadCSV,
-  type LooseRecord,
   parseCsvWith,
   recordsToCSV,
 } from "@chelone/core";
@@ -306,8 +305,8 @@ function UploadStep({
     [loadParsed, setNotice],
   );
   // The dropzone hands onDrop only the files it accepts. With `multiple: false`
-  // it also rejects several valid files as `too-many-files`, which is not a
-  // wrong file type.
+  // it keeps the first of several valid files and rejects the rest as
+  // `too-many-files`, which is not a wrong file type.
   const onDropRejected = useCallback(
     (rejections: FileRejection[]) => {
       if (
@@ -523,11 +522,7 @@ function CommitStep() {
           variant="outline"
           className="self-start"
           onClick={() =>
-            downloadCSV(
-              // recordsToCSV wants an id on each record; an error row needs none to serialize.
-              recordsToCSV(csvErrorRows(report) as LooseRecord[]),
-              "import-errors",
-            )
+            downloadCSV(recordsToCSV(csvErrorRows(report)), "import-errors")
           }
         >
           {translate("ra.csv_import.download_errors", {

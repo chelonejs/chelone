@@ -157,6 +157,15 @@ describe("<DataTable> — rendering", () => {
     expect(screen.getByText("Gamma")).toBeTruthy();
   });
 
+  it("renders the text of a boolean source-only cell", () => {
+    render(
+      <TableHarness data={[{ id: 1, published: true }]}>
+        <DataTable.Col source="published" />
+      </TableHarness>,
+    );
+    expect(screen.getByText("true")).toBeTruthy();
+  });
+
   it("renders children (a Field) against the row record via RecordContext", () => {
     render(
       <TableHarness>

@@ -1,4 +1,9 @@
-import type { FilterPayload } from "@chelone/core";
+import {
+  type ChoiceValueOf,
+  type FilterPayload,
+  type SourceProp,
+  toChoiceValues,
+} from "@chelone/core";
 import { Command as CommandPrimitive } from "cmdk";
 import { X } from "lucide-react";
 import * as React from "react";
@@ -24,12 +29,10 @@ import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
-import { useGetRecordRepresentationText } from "../../../label";
+import { useGetChoiceRepresentationText } from "../../../label";
 import { useEvent } from "../../../util/use-event";
 import type { ChoicesProps, InputProps } from "../input-props";
 import { createDebounce } from "./create-debounce";
-
-const EMPTY_VALUES: unknown[] = [];
 
 /**
  * Searchable dropdown for choosing multiple values, shown as removable badges.
@@ -54,9 +57,11 @@ const EMPTY_VALUES: unknown[] = [];
  *   </Create>
  * );
  */
-function AutocompleteArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
-  props: AutocompleteArrayInputProps<TChoice>,
-) {
+function AutocompleteArrayInput<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+  TChoice extends ChoiceRecord = ChoiceRecord,
+>(props: AutocompleteArrayInputProps<TRecord, TPath, TChoice>) {
   const {
     debounce: debounceDelay = 250,
     filterToQuery = DefaultFilterToQuery,
@@ -91,15 +96,10 @@ function AutocompleteArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   }
 
   // `resource`/`disabled`/`readOnly` are component-local, NOT `useInput` keys.
-  const { id, field, fieldState, isRequired } = useInput({
-    source,
-    defaultValue: props.defaultValue,
-    format: props.format,
-    onBlur: props.onBlur,
-    onChange: props.onChange,
-    parse: props.parse,
-    validate: props.validate,
-  });
+  // The options are read whole: reading the generic `defaultValue` anywhere
+  // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
+  // instantiation depth.
+  const { id, field, fieldState, isRequired } = useInput({ ...props, source });
   const translate = useTranslate();
   const { placeholder = translate("ra.action.search", { _: "Search..." }) } =
     props;
@@ -109,20 +109,18 @@ function AutocompleteArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   // `string | TranslatableMessage | undefined` — no RHF `error?.root?.message`.
   const error = fieldState.error;
 
-  const getRecordRepresentationText = useGetRecordRepresentationText(resource);
+  const getChoiceRepresentationText =
+    useGetChoiceRepresentationText<TChoice>(resource);
   const { getChoiceText, getChoiceValue } = useChoices<TChoice>({
     optionText:
       props.optionText ??
-      (isFromReference ? getRecordRepresentationText : undefined),
+      (isFromReference ? getChoiceRepresentationText : undefined),
     optionValue: props.optionValue,
     disableValue: props.disableValue,
     translateChoice: props.translateChoice ?? !isFromReference,
   });
 
-  // `field.value` may be undefined; coalesce to a stable empty array.
-  const values: unknown[] = Array.isArray(field.value)
-    ? field.value
-    : EMPTY_VALUES;
+  const values = toChoiceValues<TChoice>(field.value);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const listRef = React.useRef<HTMLDivElement>(null);
@@ -162,7 +160,7 @@ function AutocompleteArrayInput<TChoice extends ChoiceRecord = ChoiceRecord>(
   }, [field.value, debouncedSetFilters]);
 
   const isEqual = useCallback(
-    (choiceVal: unknown, fieldVal: unknown) =>
+    (choiceVal: ChoiceValueOf<TChoice>, fieldVal: ChoiceValueOf<TChoice>) =>
       isOptionEqualToValue
         ? isOptionEqualToValue(choiceVal, fieldVal)
         : areIdsEqual(choiceVal, fieldVal),
@@ -405,42 +403,48 @@ const DefaultFilterToQuery = (searchText: string): FilterPayload => ({
   q: searchText,
 });
 
-type AutocompleteArrayInputProps<TChoice extends ChoiceRecord = ChoiceRecord> =
-  Omit<InputProps, "source"> &
-    Partial<Pick<InputProps, "source">> &
-    ChoicesProps<TChoice> & {
-      className?: string;
-      debounce?: number;
-      filterToQuery?: (searchText: string) => FilterPayload;
-      placeholder?: string;
-      /** Custom display text for badge labels. */
-      inputText?: (option: unknown) => string;
-      /** When true, only show already-selected choices in the dropdown. */
-      limitChoicesToValue?: boolean;
-      /** Cap the number of dropdown items shown. */
-      suggestionLimit?: number;
-      /** Content to show when no choices match the filter. */
-      noOptionsText?: React.ReactNode;
-      /** When true, clear the filter text on input blur. */
-      clearOnBlur?: boolean;
-      /** When true, open the dropdown on input focus (default for the array variant). */
-      openOnFocus?: boolean;
-      /** When true, select all text in the input on focus. */
-      selectOnFocus?: boolean;
-      /** When true, Home/End keys scroll the listbox to first/last item. */
-      handleHomeEndKeys?: boolean;
-      /** Custom equality check between a choice value and a selected value. */
-      isOptionEqualToValue?: (option: unknown, value: unknown) => boolean;
-      /** Custom filter function; replaces default substring match. */
-      matchSuggestion?: (filter: string, choice: unknown) => boolean;
-      /** Gate controlling whether the dropdown opens at all. */
-      shouldRenderSuggestions?: (filter: string) => boolean;
-      /** Accepted for API parity; not rendered in the array variant. */
-      emptyText?: string;
-      /** Called with the current filter text on every keystroke (no debounce). */
-      setFilter?: (filter: string) => void;
-      /** Radix popover modality. */
-      modal?: boolean;
-    };
+type AutocompleteArrayInputProps<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> = Omit<InputProps<TRecord, TPath>, "source"> &
+  Partial<Pick<InputProps<TRecord, TPath>, "source">> &
+  ChoicesProps<TChoice> & {
+    className?: string;
+    debounce?: number;
+    filterToQuery?: (searchText: string) => FilterPayload;
+    placeholder?: string;
+    /** Custom display text for badge labels. */
+    inputText?: (choice: TChoice) => string;
+    /** When true, only show already-selected choices in the dropdown. */
+    limitChoicesToValue?: boolean;
+    /** Cap the number of dropdown items shown. */
+    suggestionLimit?: number;
+    /** Content to show when no choices match the filter. */
+    noOptionsText?: React.ReactNode;
+    /** When true, clear the filter text on input blur. */
+    clearOnBlur?: boolean;
+    /** When true, open the dropdown on input focus (default for the array variant). */
+    openOnFocus?: boolean;
+    /** When true, select all text in the input on focus. */
+    selectOnFocus?: boolean;
+    /** When true, Home/End keys scroll the listbox to first/last item. */
+    handleHomeEndKeys?: boolean;
+    /** Custom equality check between a choice value and a selected value. */
+    isOptionEqualToValue?: (
+      option: ChoiceValueOf<TChoice>,
+      value: ChoiceValueOf<TChoice>,
+    ) => boolean;
+    /** Custom filter function; replaces default substring match. */
+    matchSuggestion?: (filter: string, choice: TChoice) => boolean;
+    /** Gate controlling whether the dropdown opens at all. */
+    shouldRenderSuggestions?: (filter: string) => boolean;
+    /** Accepted for API parity; not rendered in the array variant. */
+    emptyText?: string;
+    /** Called with the current filter text on every keystroke (no debounce). */
+    setFilter?: (filter: string) => void;
+    /** Radix popover modality. */
+    modal?: boolean;
+  };
 
 export { AutocompleteArrayInput, type AutocompleteArrayInputProps };

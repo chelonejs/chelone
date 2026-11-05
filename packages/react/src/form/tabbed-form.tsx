@@ -33,9 +33,7 @@
 
 import type { PathMatch } from "@chelone/core";
 import {
-  Children,
   createContext,
-  Fragment,
   isValidElement,
   type ReactElement,
   type ReactNode,
@@ -46,6 +44,7 @@ import {
 } from "react";
 import { useRouterAdapter } from "../router/adapter";
 import { useLocation } from "../router/nav-hooks";
+import { flattenChildren } from "./flatten-children";
 import {
   FormScope,
   type OptionalSaveFormOptions,
@@ -92,10 +91,6 @@ export function useTabbedFormContext(): UseTabbedFormResult {
 
 /** A tab's identity marker — used to bucket `<TabbedForm.Tab>` children. */
 const TAB_MARKER = "TabbedFormTab";
-
-interface TabMarker {
-  chelName?: string;
-}
 
 export interface TabbedFormTabProps {
   /** The tab name — also its FormGroup name (its inputs register into it). */
@@ -155,34 +150,16 @@ function TabbedFormTab({
     </div>
   );
 }
-(TabbedFormTab as TabMarker).chelName = TAB_MARKER;
+Object.assign(TabbedFormTab, { chelName: TAB_MARKER });
 
 /** Whether an element is a `<TabbedForm.Tab>` (by its static marker). */
 function isTab(child: ReactNode): child is ReactElement<TabbedFormTabProps> {
   return (
     isValidElement(child) &&
-    (child.type as TabMarker | undefined)?.chelName === TAB_MARKER
+    typeof child.type === "function" &&
+    "chelName" in child.type &&
+    child.type.chelName === TAB_MARKER
   );
-}
-
-/**
- * Flatten `children` into a flat node list, recursing through Fragments (a
- * top-level `<>…</>` is NOT flattened by `Children.toArray`, so authors who
- * group `<TabbedForm.Tab>`s in a Fragment — or a component returning one — are
- * handled). Mirrors ra-core's children-partition walk (plan §0a-9).
- */
-function flattenChildren(children: ReactNode): ReactNode[] {
-  const out: ReactNode[] = [];
-  for (const child of Children.toArray(children)) {
-    if (isValidElement(child) && child.type === Fragment) {
-      out.push(
-        ...flattenChildren((child.props as { children?: ReactNode }).children),
-      );
-    } else {
-      out.push(child);
-    }
-  }
-  return out;
 }
 
 /** Extract the ordered tab descriptors from `<TabbedForm.Tab>` children. */
@@ -216,14 +193,6 @@ export interface TabbedFormProps<TFormData>
   syncWithLocation?: boolean;
   /** `<TabbedForm.Tab>` elements (and any non-tab chrome — badges, toolbars). */
   children: ReactNode;
-}
-
-interface TabbedFormComponent {
-  <TFormData>(
-    props: TabbedFormProps<TFormData> & OptionalSaveFormOptions<TFormData>,
-  ): ReactElement;
-  /** The tab slot: `<TabbedForm.Tab name label>`. */
-  Tab: typeof TabbedFormTab;
 }
 
 /**
@@ -456,5 +425,7 @@ function LocalShell({ tabs, submit, children }: ShellProps) {
   );
 }
 
-export const TabbedForm = TabbedFormImpl as TabbedFormComponent;
-TabbedForm.Tab = TabbedFormTab;
+/** The tab slot is `<TabbedForm.Tab name label>`. */
+export const TabbedForm = Object.assign(TabbedFormImpl, {
+  Tab: TabbedFormTab,
+});

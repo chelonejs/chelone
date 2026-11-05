@@ -34,7 +34,7 @@ function SingleFieldList<RecordType extends ResourceRecord = ResourceRecord>({
   render,
   className,
 }: SingleFieldListProps<RecordType>) {
-  const { data } = useListContext();
+  const { data } = useListContext<RecordType>();
   const resource = useResourceContext();
   const getRecordRepresentation = useGetRecordRepresentation(resource);
 
@@ -44,7 +44,7 @@ function SingleFieldList<RecordType extends ResourceRecord = ResourceRecord>({
 
   return (
     <div className={cn("flex gap-2", className)}>
-      {(data as RecordType[]).map((record, index) => (
+      {data.map((record, index) => (
         <RecordContextProvider<RecordType> key={record.id} value={record}>
           {render
             ? render(record, index)

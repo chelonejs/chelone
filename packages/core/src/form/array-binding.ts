@@ -3,6 +3,7 @@ import type {
   DeepValue,
   UpdateMetaOptions,
 } from "@tanstack/form-core";
+import { isRecord } from "../guards";
 import type { LooseRecord } from "../resource/record";
 import type { SourcePath } from "../resource/source-path";
 import type { CheloneFormApi } from "./form-controller";
@@ -216,9 +217,6 @@ const HYDRATION_WRITE: UpdateMetaOptions = {
 
 const EMPTY: readonly never[] = [];
 
-const isPlainRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
-
 export function createArrayBinding<
   TRecord,
   TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
@@ -298,14 +296,14 @@ export function createArrayBinding<
     if (current.scalar !== undefined) return current.scalar;
     if (current.itemDefaults !== undefined) return false;
     const probe = firstRowProbe();
-    return probe === undefined ? true : !isPlainRecord(probe);
+    return probe === undefined ? true : !isRecord(probe);
   };
 
   /** Object mode: the first row's keys, every one nulled. */
   const emptyRowTemplate = (): Record<string, unknown> => {
     const template: Record<string, unknown> = {};
     const probe = firstRowProbe();
-    if (isPlainRecord(probe)) {
+    if (isRecord(probe)) {
       for (const key of Object.keys(probe)) template[key] = null;
     }
     return template;

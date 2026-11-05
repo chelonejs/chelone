@@ -403,11 +403,184 @@ each table and view, with a guesser on each page. Paste them into `<Admin>`:
 pnpm exec chelone-supabase gen --input supabase/types.ts --out-dir src/resources --scaffold react
 ```
 
+## Realtime
+
+`supabaseRealtimeTransport(client, options?)` carries [realtime](/docs/app-config/realtime)
+events over Supabase Realtime broadcast channels, one channel per topic. Wrap
+the data provider with `realtimeDataProvider` and pass the same client:
+
+```ts title="src/data-provider.ts"
+import { addEventsForMutations, realtimeDataProvider } from "@chelone/core";
+import {
+  supabaseDataProvider,
+  supabaseRealtimeTransport,
+} from "@chelone/supabase";
+import { supabase } from "./supabase";
+
+const base = supabaseDataProvider({
+  instanceUrl: import.meta.env.VITE_SUPABASE_URL,
+  apiKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+  client: supabase,
+});
+
+export const transport = supabaseRealtimeTransport(supabase);
+
+export const dataProvider = addEventsForMutations(
+  realtimeDataProvider(base, transport),
+  transport,
+);
+```
+
+- A channel is named `chelone:` followed by the topic, such as
+  `chelone:resource/posts`. `channelPrefix` changes the prefix.
+- A channel opens on the first subscribe to its topic and is removed with the
+  last. A publish to a topic nobody here listens to opens a channel for the
+  send and removes it.
+- `getStatus` is `"idle"` with no subscription, `"connected"` once every channel
+  has joined, `"reconnecting"` while one has an error, and `"disconnected"`
+  after `close()` or when a channel closes. `supabase-js` retries on its own, so
+  there is no `reconnect` option. A channel that rejoins calls the
+  `onReconnect` listeners.
+- A publish rejects when Supabase does not acknowledge it, and goes to `onError`
+  as `send_failed`.
+- `close()` removes every channel and sets `"disconnected"`. A publish after it
+  rejects.
+- A publish reaches this client's own subscribers, as it does on the other
+  clients.
+
+### Private channels
+
+Channels are private by default. Supabase checks a private channel against the
+policies on `realtime.messages`, so the transport does nothing until you add
+one. This policy lets any signed-in user listen to and send on the channels:
+
+```sql
+create policy "chelone realtime read"
+  on realtime.messages
+  for select
+  to authenticated
+  using (realtime.messages.extension = 'broadcast');
+
+create policy "chelone realtime write"
+  on realtime.messages
+  for insert
+  to authenticated
+  with check (realtime.messages.extension = 'broadcast');
+```
+
+Narrow the `using` and `with check` expressions to limit who reaches which
+topic. The `realtime.topic()` function returns the channel name, so
+`realtime.topic() like 'chelone:resource/posts%'` limits a policy to one
+resource.
+
+Pass `private: false` to use public channels:
+
+```ts
+supabaseRealtimeTransport(supabase, { private: false });
+```
+
+A public channel needs no policy, and anyone who has the project's URL and
+publishable key can read its events and send to it, signed in or not. Events
+carry record data, such as the `data` of an `updated` event, so use a public
+channel only for topics that hold nothing private.
+
+### Record locks
+
+`supabaseLockProvider(options)` keeps [record locks](/docs/app-config/realtime)
+in a table every user shares, so a lock taken in one browser stops another
+user. Pass it as `locks` to `realtimeDataProvider`, and the transport as its
+`publisher` so every client hears of each lock and unlock:
+
+```ts title="src/data-provider.ts"
+import { realtimeDataProvider } from "@chelone/core";
+import {
+  supabaseDataProvider,
+  supabaseLockProvider,
+  supabaseRealtimeTransport,
+} from "@chelone/supabase";
+import { supabase } from "./supabase";
+
+const instanceUrl = import.meta.env.VITE_SUPABASE_URL;
+const apiKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+const base = supabaseDataProvider({ instanceUrl, apiKey, client: supabase });
+export const transport = supabaseRealtimeTransport(supabase);
+
+const locks = supabaseLockProvider({
+  instanceUrl,
+  apiKey,
+  client: supabase,
+  publisher: transport,
+});
+
+export const dataProvider = realtimeDataProvider(base, transport, { locks });
+```
+
+- `instanceUrl`, `apiKey` and `client` are as for `supabaseDataProvider`. The
+  user's session applies, so row level security decides.
+- `schema` is a schema name for a table outside `public`. Unlike the data
+  provider's option, it takes a string, not a function.
+- `table` is the table of locks. It defaults to `chelone_locks`.
+- The lock identity is the `identity` that `LockOnMount` passes. Use the
+  signed-in user's id, which `supabaseAuthProvider` returns as the identity's
+  `id`. The policies below compare it with `auth.uid()`.
+- Taking a lock held by another user throws `LockConflictError` with the
+  existing lock. Taking your own lock again returns it.
+
+Create the table and its policies in the SQL editor or a migration:
+
+```sql
+create table chelone_locks (
+  resource text not null,
+  record_id text not null,
+  identity text not null,
+  created_at timestamptz not null default now(),
+  primary key (resource, record_id)
+);
+
+alter table chelone_locks enable row level security;
+
+create policy "chelone locks are readable"
+  on chelone_locks
+  for select
+  to authenticated
+  using (true);
+
+create policy "chelone locks are taken by their holder"
+  on chelone_locks
+  for insert
+  to authenticated
+  with check (identity = auth.uid()::text);
+
+create policy "chelone locks are released by their holder"
+  on chelone_locks
+  for delete
+  to authenticated
+  using (identity = auth.uid()::text);
+```
+
+The primary key on `(resource, record_id)` is what keeps a record to one lock:
+a second insert fails with a 409 and the provider reads the holder. There is no
+update policy, so a holder cannot hand a lock to another user.
+
+A lock never expires. A tab that closes without releasing its lock, or a lost
+connection, leaves the row in place and the record stays locked. Delete the old
+rows on a schedule. With the `pg_cron` extension on, this job runs every five
+minutes and removes locks older than one hour:
+
+```sql
+select cron.schedule(
+  'chelone-locks-expire',
+  '*/5 * * * *',
+  $$delete from chelone_locks where created_at < now() - interval '1 hour'$$
+);
+```
+
+Choose an age longer than the longest edit a user can reasonably make, since a
+lock removed under an open edit lets another user take it.
+
 ## What is not supported
 
 - Cursor pagination. A `getList` with a cursor throws "supabaseDataProvider does
   not support cursor pagination". Use page and `perPage`.
 - `rpc/` resources. Only tables and views are read and written.
-- A realtime transport. The package has no Supabase Realtime adapter. To add
-  live updates, supply your own transport as described in
-  [Realtime](/docs/app-config/realtime).

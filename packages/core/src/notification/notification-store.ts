@@ -1,9 +1,11 @@
+import type { TranslateParamValues } from "../i18n/messages";
+
 export interface Notification {
   id: number;
   /** An i18n message KEY — translation/rendering is the UI layer's job. */
   message: string;
   type: "info" | "success" | "warning" | "error";
-  messageArgs?: Record<string, unknown>;
+  messageArgs?: TranslateParamValues;
   /**
    * True for optimistic-with-Undo notifications: the adapter renders an Undo
    * action and treats auto-hide/dismiss as a COMMIT (via `onClose`).
@@ -30,7 +32,7 @@ export interface Notification {
 /** The caller-facing options for `notify` (id and derived fields excluded). */
 export interface NotifyOptions {
   type?: Notification["type"];
-  messageArgs?: Record<string, unknown>;
+  messageArgs?: TranslateParamValues;
   undoable?: boolean;
   autoHideDuration?: number;
   undo?: () => void;

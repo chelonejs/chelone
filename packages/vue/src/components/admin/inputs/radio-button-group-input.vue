@@ -1,11 +1,12 @@
 <script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
 
 /** Props for {@link RadioButtonGroupInput}. */
 export interface RadioButtonGroupInputProps<
   TChoice extends ChoiceRecord = ChoiceRecord,
-> extends ChoiceInputBaseProps<TChoice> {
+> extends ChoiceInputBaseProps<LooseRecord, SourceProp, TChoice> {
   /** Lay the radios out horizontally instead of stacked. */
   row?: boolean;
 }
@@ -68,7 +69,7 @@ const labelText = computed(() =>
   props.label === false ? null : (props.label ?? humanizeSource(source)),
 );
 const helper = computed(
-  () => props.helperText ?? (fetchError.value as Error | undefined)?.message,
+  () => props.helperText ?? fetchError.value?.message,
 );
 
 function isChoiceDisabled(choice: TChoice): boolean {

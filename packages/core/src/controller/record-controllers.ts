@@ -24,7 +24,7 @@ export interface ShowControllerState<TRecord> {
   record: TRecord | undefined;
   isPending: boolean;
   isFetching: boolean;
-  error: unknown;
+  error: Error | null;
 }
 
 export interface EditControllerState<TRecord>
@@ -42,7 +42,7 @@ export type RedirectRequest = (
   target: RedirectTarget,
   resource: string,
   id?: Identifier,
-  data?: unknown,
+  data?: ResourceRecord,
 ) => void;
 
 export interface RecordControllerContext<
@@ -70,17 +70,25 @@ export type SaveTransform<TRecord> = (
 ) => Partial<TRecord> | Promise<Partial<TRecord>>;
 
 export interface SaveOptions<TRecord> {
-  /** Call-time transform — takes priority over the controller-level one. */
-  transform?: SaveTransform<TRecord>;
+  /**
+   * Call-time transform — takes priority over the controller-level one.
+   * Declared as a method (like `onSaved` and `onSuccess`) so `SaveOptions<Post>`
+   * stays assignable to `SaveOptions<ResourceRecord>`: a view publishes its
+   * `save` into a context typed for the default record.
+   */
+  transform?(
+    data: Partial<TRecord>,
+    extra?: { previousData?: TRecord },
+  ): Partial<TRecord> | Promise<Partial<TRecord>>;
   /**
    * OBSERVES the saved record WITHOUT replacing the default success handling
    * (runs before `onSuccess`/defaults). The P5 composed form controllers
    * reconcile form state with server truth through this — the save contract
    * itself resolves `FieldErrors | undefined`, never the record.
    */
-  onSaved?: (record: TRecord) => void | Promise<void>;
+  onSaved?(record: TRecord): void | Promise<void>;
   /** REPLACES the default success handling (notify + redirect request). */
-  onSuccess?: (record: TRecord) => void | Promise<void>;
+  onSuccess?(record: TRecord): void | Promise<void>;
   /** REPLACES the default error handling (the http_error notify). */
   onError?: (error: unknown) => void | Promise<void>;
   meta?: unknown;
@@ -260,7 +268,7 @@ function createRecordFetch<
 ): () => () => void {
   type TRecord = RecordOf<TResources, TName>;
 
-  let lastNotifiedError: unknown = null;
+  let lastNotifiedError: Error | null = null;
   /** Cached so repeated observer emissions keep a STABLE error reference. */
   let mismatchError: Error | null = null;
 

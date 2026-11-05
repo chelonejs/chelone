@@ -18,7 +18,7 @@ export type WizardFormProps<TFormData> = OptionalSaveFormProps<TFormData>;
  * before advancing; per-step membership reuses form groups. There are no
  * built-in step buttons: call `useWizardFormContext()` from the author's own.
  */
-import { Fragment, useSlots, type VNode } from "vue";
+import { Fragment, isVNode, useSlots, type VNode } from "vue";
 import { useFormScope } from "./form-scope";
 import { provideFormGroups } from "./form-groups";
 import WizardFormShell from "./wizard-form-shell.vue";
@@ -37,7 +37,7 @@ function collectSteps(nodes: VNode[]): string[] {
   const names: string[] = [];
   for (const node of nodes) {
     if (node.type === Fragment && Array.isArray(node.children)) {
-      names.push(...collectSteps(node.children as VNode[]));
+      names.push(...collectSteps(node.children.filter(isVNode)));
     } else if (node.type === WizardFormStep) {
       names.push(String(node.props?.name));
     }
