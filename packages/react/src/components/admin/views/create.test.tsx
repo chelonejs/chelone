@@ -164,7 +164,7 @@ describe("<Create>", () => {
   it("persists a new record through the save handler", async () => {
     const dataProvider = makeDataProvider();
     function Submit() {
-      const { save } = useSaveContext();
+      const { save } = useSaveContext<{ id: number; title: string }>();
       return (
         <button type="button" onClick={() => save?.({ title: "created" })}>
           save
@@ -196,7 +196,7 @@ describe("<Create>", () => {
     const dataProvider = makeDataProvider();
     const create = vi.spyOn(dataProvider, "create");
     function Submit() {
-      const { save } = useSaveContext();
+      const { save } = useSaveContext<{ id: number; title: string }>();
       return (
         <button type="button" onClick={() => save?.({ title: "" })}>
           save
@@ -223,7 +223,7 @@ describe("<Create>", () => {
   it("onSuccess on <Create> reads the latest render, not the first", async () => {
     const seen: string[] = [];
     function Submit() {
-      const { save } = useSaveContext();
+      const { save } = useSaveContext<{ id: number; title: string }>();
       return (
         <button type="button" onClick={() => save?.({ title: "created" })}>
           save
@@ -257,7 +257,7 @@ describe("<Create>", () => {
   it("onSuccess added to <Create> after mount is called", async () => {
     const seen: string[] = [];
     function Submit() {
-      const { save } = useSaveContext();
+      const { save } = useSaveContext<{ id: number; title: string }>();
       return (
         <button type="button" onClick={() => save?.({ title: "created" })}>
           save

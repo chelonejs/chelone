@@ -1,5 +1,5 @@
-import type { EditControllerState } from "@chelone/core";
-import { assertType, describe, it } from "vitest";
+import type { EditControllerState, ResourceRecord } from "@chelone/core";
+import { assertType, describe, expectTypeOf, it } from "vitest";
 import type {
   CreateContextValue,
   EditContextValue,
@@ -28,6 +28,15 @@ describe("record view context types", () => {
       error: edit.error,
       saving: edit.saving,
     });
+  });
+
+  it("an unparameterized EditContextValue holds a ResourceRecord", () => {
+    expectTypeOf<EditContextValue["record"]>().toEqualTypeOf<
+      ResourceRecord | undefined
+    >();
+    expectTypeOf<SaveContextValue>().toEqualTypeOf<
+      SaveContextValue<ResourceRecord>
+    >();
   });
 
   it("EditContextValue is a SaveContextValue (edit publishes into SaveContext)", () => {

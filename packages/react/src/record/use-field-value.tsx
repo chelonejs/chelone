@@ -22,10 +22,8 @@ import {
   type SourceProp,
   type SourceValue,
 } from "@chelone/core";
-import {
-  type UseRecordContextOptions,
-  useRecordContext,
-} from "./record-context";
+import { useContext } from "react";
+import { RecordContext, type UseRecordContextOptions } from "./record-context";
 
 export interface UseFieldValueOptions<
   RecordType = LooseRecord,
@@ -34,10 +32,10 @@ export interface UseFieldValueOptions<
   /** The field path — dot members and/or bracket/numeric indices. */
   source: TPath;
   /**
-   * Returned only when the resolved value is `undefined`. Untyped on purpose:
-   * the result type is the record's value at `source`, not the default's.
+   * Returned only when the resolved value is `undefined`; it has the type of
+   * the value at `source`.
    */
-  defaultValue?: unknown;
+  defaultValue?: NoInfer<SourceValue<RecordType, TPath>>;
 }
 
 /**
@@ -57,12 +55,18 @@ export function useFieldValue<
   TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
 >(
   params: UseFieldValueOptions<RecordType, TPath>,
-): SourceValue<RecordType, TPath> {
+): SourceValue<RecordType, TPath>;
+// The implementation reads at `unknown`: `getAtPath` is untyped, and the
+// overload above states the value's type.
+export function useFieldValue(params: {
+  source: string;
+  record?: object;
+  // type-escape: implementation signature; the overload above states the type
+  defaultValue?: unknown;
+  // type-escape: as above
+}): unknown {
   const { defaultValue, source } = params;
-  const record = useRecordContext<RecordType>(params);
-  const value = getAtPath(record, source);
-  return (value === undefined ? defaultValue : value) as SourceValue<
-    RecordType,
-    TPath
-  >;
+  const ambient = useContext(RecordContext);
+  const value = getAtPath(params.record ?? ambient, source);
+  return value === undefined ? defaultValue : value;
 }

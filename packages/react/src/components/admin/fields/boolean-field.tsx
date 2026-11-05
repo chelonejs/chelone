@@ -37,7 +37,11 @@ function BooleanField<RecordType extends LooseRecord = LooseRecord>({
   looseValue = false,
   empty = null,
 }: BooleanFieldProps<RecordType>) {
-  const value: unknown = useFieldValue({ source, record, defaultValue });
+  const value: unknown = useFieldValue<LooseRecord>({
+    source,
+    record,
+    defaultValue,
+  });
   const isTruthyValue = value === true || (looseValue && value);
   const baseClassName = "size-5 text-foreground";
 

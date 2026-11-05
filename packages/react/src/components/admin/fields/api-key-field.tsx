@@ -48,7 +48,11 @@ function ApiKeyField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: ApiKeyFieldProps<RecordType>) {
-  const value: unknown = useFieldValue({ defaultValue, source, record });
+  const value: unknown = useFieldValue<LooseRecord>({
+    defaultValue,
+    source,
+    record,
+  });
   const ctx = useRecordContext<RecordType>({ record });
   const [revealed, setRevealed] = useState(false);
   const [copied, setCopied] = useState(false);

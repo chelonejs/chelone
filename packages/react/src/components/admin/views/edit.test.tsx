@@ -151,7 +151,7 @@ describe("<Edit>", () => {
   it("persists an update through the save handler", async () => {
     const dataProvider = makeDataProvider();
     function Submit() {
-      const { save } = useSaveContext();
+      const { save } = useSaveContext<{ id: number; title: string }>();
       return (
         <button type="button" onClick={() => save?.({ title: "Updated" })}>
           save
@@ -181,7 +181,7 @@ describe("<Edit>", () => {
     const dataProvider = makeDataProvider();
     const update = vi.spyOn(dataProvider, "update");
     function Submit() {
-      const { save } = useSaveContext();
+      const { save } = useSaveContext<{ id: number; title: string }>();
       return (
         <button type="button" onClick={() => save?.({ title: "" })}>
           save
@@ -214,7 +214,7 @@ describe("<Edit>", () => {
     const dataProvider = makeDataProvider();
     const update = vi.spyOn(dataProvider, "update");
     function Submit() {
-      const { save } = useSaveContext();
+      const { save } = useSaveContext<{ id: number; title: string }>();
       return (
         <button type="button" onClick={() => save?.({ title: "Next" })}>
           save
@@ -255,7 +255,7 @@ describe("<Edit>", () => {
     const dataProvider = makeDataProvider();
     const update = vi.spyOn(dataProvider, "update");
     function Submit() {
-      const { save } = useSaveContext();
+      const { save } = useSaveContext<{ id: number; title: string }>();
       return (
         <button type="button" onClick={() => save?.({ title: "Next" })}>
           save

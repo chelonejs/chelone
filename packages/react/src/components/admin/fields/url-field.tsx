@@ -43,7 +43,11 @@ const UrlFieldImpl = <RecordType extends LooseRecord = LooseRecord>(
     content,
     ...rest
   } = inProps;
-  const value: unknown = useFieldValue({ defaultValue, source, record });
+  const value: unknown = useFieldValue<LooseRecord>({
+    defaultValue,
+    source,
+    record,
+  });
   const translate = useTranslate();
 
   if (value == null || value === "") {
