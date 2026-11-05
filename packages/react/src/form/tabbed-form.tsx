@@ -93,10 +93,6 @@ export function useTabbedFormContext(): UseTabbedFormResult {
 /** A tab's identity marker — used to bucket `<TabbedForm.Tab>` children. */
 const TAB_MARKER = "TabbedFormTab";
 
-interface TabMarker {
-  chelName?: string;
-}
-
 export interface TabbedFormTabProps {
   /** The tab name — also its FormGroup name (its inputs register into it). */
   name: string;
@@ -155,13 +151,15 @@ function TabbedFormTab({
     </div>
   );
 }
-(TabbedFormTab as TabMarker).chelName = TAB_MARKER;
+Object.assign(TabbedFormTab, { chelName: TAB_MARKER });
 
 /** Whether an element is a `<TabbedForm.Tab>` (by its static marker). */
 function isTab(child: ReactNode): child is ReactElement<TabbedFormTabProps> {
   return (
     isValidElement(child) &&
-    (child.type as TabMarker | undefined)?.chelName === TAB_MARKER
+    typeof child.type === "function" &&
+    "chelName" in child.type &&
+    child.type.chelName === TAB_MARKER
   );
 }
 
@@ -174,10 +172,11 @@ function isTab(child: ReactNode): child is ReactElement<TabbedFormTabProps> {
 function flattenChildren(children: ReactNode): ReactNode[] {
   const out: ReactNode[] = [];
   for (const child of Children.toArray(children)) {
-    if (isValidElement(child) && child.type === Fragment) {
-      out.push(
-        ...flattenChildren((child.props as { children?: ReactNode }).children),
-      );
+    if (
+      isValidElement<{ children?: ReactNode }>(child) &&
+      child.type === Fragment
+    ) {
+      out.push(...flattenChildren(child.props.children));
     } else {
       out.push(child);
     }
@@ -216,14 +215,6 @@ export interface TabbedFormProps<TFormData>
   syncWithLocation?: boolean;
   /** `<TabbedForm.Tab>` elements (and any non-tab chrome — badges, toolbars). */
   children: ReactNode;
-}
-
-interface TabbedFormComponent {
-  <TFormData>(
-    props: TabbedFormProps<TFormData> & OptionalSaveFormOptions<TFormData>,
-  ): ReactElement;
-  /** The tab slot: `<TabbedForm.Tab name label>`. */
-  Tab: typeof TabbedFormTab;
 }
 
 /**
@@ -456,5 +447,7 @@ function LocalShell({ tabs, submit, children }: ShellProps) {
   );
 }
 
-export const TabbedForm = TabbedFormImpl as TabbedFormComponent;
-TabbedForm.Tab = TabbedFormTab;
+/** The tab slot is `<TabbedForm.Tab name label>`. */
+export const TabbedForm = Object.assign(TabbedFormImpl, {
+  Tab: TabbedFormTab,
+});

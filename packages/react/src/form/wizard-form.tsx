@@ -149,10 +149,6 @@ export function useWizardForm(
 /** A step's identity marker — used to bucket `<WizardForm.Step>` children. */
 const STEP_MARKER = "WizardFormStep";
 
-interface StepMarker {
-  chelName?: string;
-}
-
 export interface WizardFormStepProps {
   /** The step name — also its FormGroup name (its inputs register into it). */
   name: string;
@@ -174,16 +170,19 @@ function WizardFormStep({ name, children }: WizardFormStepProps): ReactElement {
     </div>
   );
 }
-(WizardFormStep as StepMarker).chelName = STEP_MARKER;
+Object.assign(WizardFormStep, { chelName: STEP_MARKER });
 
 /** Extract the ordered step names from `<WizardForm.Step>` children. */
 function collectStepNames(children: ReactNode): string[] {
   const names: string[] = [];
   for (const child of Children.toArray(children)) {
-    if (!isValidElement(child)) continue;
-    if ((child.type as StepMarker | undefined)?.chelName === STEP_MARKER) {
-      const { name } = child.props as WizardFormStepProps;
-      names.push(name);
+    if (!isValidElement<WizardFormStepProps>(child)) continue;
+    if (
+      typeof child.type === "function" &&
+      "chelName" in child.type &&
+      child.type.chelName === STEP_MARKER
+    ) {
+      names.push(child.props.name);
     }
   }
   return names;
@@ -193,14 +192,6 @@ export interface WizardFormProps<TFormData>
   extends OptionalSaveFormProps<TFormData> {
   /** `<WizardForm.Step>` elements (and any non-step chrome — toolbars, etc.). */
   children: ReactNode;
-}
-
-interface WizardFormComponent {
-  <TFormData>(
-    props: WizardFormProps<TFormData> & OptionalSaveFormOptions<TFormData>,
-  ): ReactElement;
-  /** The step slot: `<WizardForm.Step name="...">`. */
-  Step: typeof WizardFormStep;
 }
 
 /**
@@ -277,5 +268,7 @@ function WizardShell({ stepNames, submit, children }: WizardShellProps) {
   );
 }
 
-export const WizardForm = WizardFormImpl as WizardFormComponent;
-WizardForm.Step = WizardFormStep;
+/** The step slot is `<WizardForm.Step name="...">`. */
+export const WizardForm = Object.assign(WizardFormImpl, {
+  Step: WizardFormStep,
+});
