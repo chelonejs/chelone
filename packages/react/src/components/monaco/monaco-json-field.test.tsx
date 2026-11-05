@@ -105,6 +105,17 @@ describe("<MonacoJsonField />", () => {
     });
   });
 
+  it("a record with a typed source renders its value", async () => {
+    type Product = { id: number; metadata: { sku: string } };
+    const record: Product = { id: 1, metadata: { sku: "A-1" } };
+    render(<MonacoJsonField source="metadata" record={record} />, {
+      wrapper: wrap(),
+    });
+    expect((await screen.findByTestId("editor")).textContent).toBe(
+      JSON.stringify({ sku: "A-1" }, null, 2),
+    );
+  });
+
   it("renders a string value as given", async () => {
     render(
       <MonacoJsonField source="raw" record={{ id: 1, raw: '{"x":1}' }} />,

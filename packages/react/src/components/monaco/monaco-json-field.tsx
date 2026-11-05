@@ -2,6 +2,7 @@ import type { LooseRecord } from "@chelone/core";
 import type { editor } from "monaco-editor";
 import { lazy, Suspense } from "react";
 import type { FieldProps } from "@/lib/field-types";
+import { useFieldValue } from "../../record/use-field-value";
 import { MonacoSkeleton } from "./internal/monaco-shared";
 
 interface MonacoJsonFieldProps<RecordType extends LooseRecord = LooseRecord>
@@ -36,17 +37,42 @@ const SKELETON_HEIGHT = 120;
 function MonacoJsonField<RecordType extends LooseRecord = LooseRecord>(
   props: MonacoJsonFieldProps<RecordType>,
 ) {
-  const { autoHeight = true, height } = props;
+  const {
+    source,
+    record,
+    defaultValue,
+    empty,
+    height,
+    autoHeight = true,
+    maxHeight,
+    className,
+    monacoOptions,
+  } = props;
+  // Read through `LooseRecord`: the typed read is a `SourceValue` still deferred
+  // on `RecordType`, which overflows the compiler when compared.
+  const value = useFieldValue<LooseRecord>({
+    source,
+    record,
+    defaultValue,
+  });
   return (
     <Suspense
       fallback={
         <MonacoSkeleton
           height={autoHeight ? SKELETON_HEIGHT : (height ?? 200)}
-          className={props.className}
+          className={className}
         />
       }
     >
-      <MonacoJsonFieldLazy {...(props as unknown as MonacoJsonFieldProps)} />
+      <MonacoJsonFieldLazy
+        value={value}
+        empty={empty}
+        height={height}
+        autoHeight={autoHeight}
+        maxHeight={maxHeight}
+        className={className}
+        monacoOptions={monacoOptions}
+      />
     </Suspense>
   );
 }

@@ -5877,7 +5877,7 @@
         "@chelone/lib-field-types",
         "@chelone/monaco-shared"
       ],
-      "dependencies": ["@chelone/core", "monaco-editor"],
+      "dependencies": ["@chelone/core", "@chelone/react", "monaco-editor"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
