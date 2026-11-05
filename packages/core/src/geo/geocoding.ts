@@ -1,12 +1,12 @@
 import type { QueryFunctionContext } from "@tanstack/query-core";
-import type { GeoBBox } from "./geojson";
+import type { LngLatBox } from "./bounds";
 
 export interface GeocodeResult {
   displayName: string;
   lat: number;
   lng: number;
   /** `[west, south, east, north]`. */
-  bbox?: GeoBBox;
+  bbox?: LngLatBox;
   /** The service's own kind of place, such as `city` or `house`. */
   type?: string;
   /** The service's unmapped hit, for fields core does not model. */
@@ -22,7 +22,7 @@ export interface GeocodeSearchOptions extends GeocodeRequestOptions {
   /** ISO 3166-1 alpha-2 codes to restrict the search to. */
   countryCodes?: string[];
   /** `[west, south, east, north]` to favour or restrict hits to. */
-  viewBox?: GeoBBox;
+  viewBox?: LngLatBox;
 }
 
 export interface GeocodingProvider {
@@ -58,7 +58,7 @@ export interface GeocodeQueryOptions extends ReverseGeocodeQueryOptions {
   minChars?: number;
   limit?: number;
   countryCodes?: string[];
-  viewBox?: GeoBBox;
+  viewBox?: LngLatBox;
 }
 
 export interface GeocodeQuery<TData> {

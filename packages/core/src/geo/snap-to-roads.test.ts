@@ -1,15 +1,15 @@
+import type { LineString, Position } from "geojson";
 import { describe, expect, it, vi } from "vitest";
-import type { GeoLineString, GeoPosition } from "./geojson";
 import { createOsrmProvider } from "./snap-to-roads";
 
 const ENDPOINT = "https://routing.example.test";
 
-const line = (coordinates: GeoPosition[]): GeoLineString => ({
+const line = (coordinates: Position[]): LineString => ({
   type: "LineString",
   coordinates,
 });
 
-const matched: GeoPosition[] = [
+const matched: Position[] = [
   [2.1, 48.1],
   [2.15, 48.15],
   [2.2, 48.2],
@@ -61,10 +61,7 @@ describe("createOsrmProvider", () => {
   });
 
   it("matches a line of more than 100 positions in chunks", async () => {
-    const many = Array.from(
-      { length: 250 },
-      (_, i): GeoPosition => [i / 10, 0],
-    );
+    const many = Array.from({ length: 250 }, (_, i): Position => [i / 10, 0]);
     // Echoes each chunk back shifted north, so the join is visible.
     const fetchStub = vi.fn<typeof fetch>(async (input) => {
       const path = String(input).split("/match/v1/driving/")[1] ?? "";
@@ -91,10 +88,7 @@ describe("createOsrmProvider", () => {
   });
 
   it("returns null when any chunk of a long line fails", async () => {
-    const many = Array.from(
-      { length: 150 },
-      (_, i): GeoPosition => [i / 10, 0],
-    );
+    const many = Array.from({ length: 150 }, (_, i): Position => [i / 10, 0]);
     const fetchStub = vi.fn<typeof fetch>(
       async () => new Response(JSON.stringify({ code: "NoMatch" })),
     );
@@ -128,7 +122,7 @@ describe("createOsrmProvider", () => {
   });
 
   it("returns null when the trace is split into several matchings", async () => {
-    const piece = (coordinates: GeoPosition[]) => ({
+    const piece = (coordinates: Position[]) => ({
       geometry: { type: "LineString", coordinates },
     });
     const provider = createOsrmProvider({

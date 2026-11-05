@@ -1,13 +1,11 @@
+import type { Feature, Geometry, Polygon, Position } from "geojson";
 import { describe, expect, it } from "vitest";
-import type {
-  GeoFeature,
-  GeoGeometry,
-  GeoPolygon,
-  GeoPosition,
-} from "./geojson";
+import type { JsonObject } from "../guards";
 import { featuresToShape, heldFeatures, shapeToFeatures } from "./shape-value";
 
-function ring(west: number, south: number, size = 1): GeoPosition[] {
+type ShapeFeature = Feature<Geometry | null, JsonObject | null>;
+
+function ring(west: number, south: number, size = 1): Position[] {
   return [
     [west, south],
     [west + size, south],
@@ -17,22 +15,22 @@ function ring(west: number, south: number, size = 1): GeoPosition[] {
   ];
 }
 
-const square = (west: number, south = 0): GeoPolygon => ({
+const square = (west: number, south = 0): Polygon => ({
   type: "Polygon",
   coordinates: [ring(west, south)],
 });
 
-const withHole: GeoPolygon = {
+const withHole: Polygon = {
   type: "Polygon",
   coordinates: [ring(0, 0, 4), ring(1, 1, 1)],
 };
 
-const point = (x: number, y = 0): GeoGeometry => ({
+const point = (x: number, y = 0): Geometry => ({
   type: "Point",
   coordinates: [x, y],
 });
 
-const line: GeoGeometry = {
+const line: Geometry = {
   type: "LineString",
   coordinates: [
     [0, 0],
@@ -41,9 +39,9 @@ const line: GeoGeometry = {
 };
 
 function feature(
-  geometry: GeoGeometry | null,
-  extra: Partial<GeoFeature> = {},
-): GeoFeature {
+  geometry: Geometry | null,
+  extra: Partial<ShapeFeature> = {},
+): ShapeFeature {
   return { type: "Feature", geometry, properties: {}, ...extra };
 }
 
@@ -214,13 +212,13 @@ describe("shapeToFeatures", () => {
   });
 
   it("heldFeatures keeps a Multi geometry under the Geometry kind", () => {
-    const multi: GeoGeometry = { type: "MultiPoint", coordinates: [[0, 0]] };
+    const multi: Geometry = { type: "MultiPoint", coordinates: [[0, 0]] };
     expect(shapeToFeatures("Geometry", multi)).toEqual([]);
     expect(heldFeatures("Geometry", multi)).toEqual([feature(multi)]);
   });
 
   it("the Geometry kind holds a GeometryCollection", () => {
-    const collection: GeoGeometry = {
+    const collection: Geometry = {
       type: "GeometryCollection",
       geometries: [point(0), square(2)],
     };
@@ -392,7 +390,7 @@ describe("featuresToShape", () => {
   });
 
   it("keeps a MultiPolygon inside a GeometryCollection through an edit", () => {
-    const multi: GeoGeometry = {
+    const multi: Geometry = {
       type: "MultiPolygon",
       coordinates: [[ring(5, 5)], [ring(8, 8)]],
     };
@@ -410,7 +408,7 @@ describe("featuresToShape", () => {
   });
 
   it("keeps a GeometryCollection inside a GeometryCollection through an edit", () => {
-    const inner: GeoGeometry = {
+    const inner: Geometry = {
       type: "GeometryCollection",
       geometries: [point(0), point(1)],
     };
@@ -499,7 +497,7 @@ describe("featuresToShape", () => {
   it("BBox round-trips through a Polygon feature and honours aspectRatio", () => {
     const [polygon] = shapeToFeatures("BBox", [1, 2, 3, 4]);
     expect(polygon).toBeDefined();
-    expect(featuresToShape("BBox", [polygon as GeoFeature], null)).toEqual([
+    expect(featuresToShape("BBox", [polygon as ShapeFeature], null)).toEqual([
       1, 2, 3, 4,
     ]);
     expect(
