@@ -23,7 +23,7 @@ import Admin from "../../../admin/admin.vue";
 import { type UseFormReturn, useForm } from "../../../form/use-form";
 import { provideRecordContext } from "../../../record/record-context";
 import { provideResourceContext } from "../../../resource-context";
-import ApiKeyInput from "./api-key-input.vue";
+import ApiKeyInput, { type ApiKeyInputProps } from "./api-key-input.vue";
 import CronInput from "./cron-input.vue";
 import RatingInput from "./rating-input.vue";
 import TextArrayInput from "./text-array-input.vue";
@@ -438,7 +438,7 @@ interface Account extends Record<string, unknown> {
 
 /** Mount `<ApiKeyInput>` under `<Admin>` with an ambient resource + record. */
 function mountApiKey(
-  props: Record<string, unknown>,
+  props: ApiKeyInputProps,
   {
     record,
     resource = "accounts",
@@ -477,7 +477,7 @@ function mountApiKey(
           {
             default: () =>
               h(Host, null, {
-                default: () => h(ApiKeyInput, props as never),
+                default: () => h(ApiKeyInput, props),
               }),
           },
         );
