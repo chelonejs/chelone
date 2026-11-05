@@ -305,6 +305,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@types/geojson':
+        specifier: ^7946.0.16
+        version: 7946.0.16
       dot.paths:
         specifier: ^0.2.1
         version: 0.2.1
@@ -351,6 +354,9 @@ importers:
       '@chelone/core':
         specifier: workspace:*
         version: link:../core
+      '@types/geojson':
+        specifier: ^7946.0.16
+        version: 7946.0.16
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -549,6 +555,9 @@ importers:
       '@chelone/core':
         specifier: workspace:*
         version: link:../core
+      '@types/geojson':
+        specifier: ^7946.0.16
+        version: 7946.0.16
       cronstrue:
         specifier: ^3.24.0
         version: 3.24.0

@@ -170,13 +170,14 @@
                       "!zod",
                       "!zod/*",
                       "!dot.paths",
+                      "!geojson",
                       "!node:*",
                       "!./**",
                       "!../**",
                       "!.",
                       "!.."
                     ],
-                    "message": "@chelone/core imports only its declared peers (@tanstack/query-core, @tanstack/form-core, zod) and its declared dependency (dot.paths), node:* and relative paths. Optional peers belong in an add-on."
+                    "message": "@chelone/core imports only its declared peers (@tanstack/query-core, @tanstack/form-core, zod) and its declared dependencies (dot.paths, and geojson for import type), node:* and relative paths. Optional peers belong in an add-on."
                   }
                 ]
               }
