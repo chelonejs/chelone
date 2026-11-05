@@ -152,7 +152,7 @@ describe("rhf-shim re-exports (documented mappings)", () => {
       q: "ctx",
       nested: { child: "n" },
     });
-    let seen: unknown;
+    let seen: ReturnType<typeof ShimFormContext>["form"] | undefined;
     function Reader() {
       const ctx = ShimFormContext();
       seen = ctx.form;
@@ -163,7 +163,9 @@ describe("rhf-shim re-exports (documented mappings)", () => {
         <Reader />
       </Host>,
     );
-    expect(seen).toBe(controller.form);
+    // The context carries a handle over the controller's form, not the form.
+    expect(seen?.ambient.store).toBe(controller.form.store);
+    expect(seen?.ambient.getFieldValue("q")).toBe("ctx");
   });
 
   it("re-exports useInput as the Controller/useController analog", () => {

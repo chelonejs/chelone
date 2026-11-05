@@ -1,4 +1,5 @@
 import type {
+  AmbientForm,
   ArrayBinding,
   ArrayBindingUpdateOptions,
   ArrayRow,
@@ -6,11 +7,7 @@ import type {
   SourceScope,
   TranslatableMessage,
 } from "@chelone/core";
-import {
-  createArrayBinding,
-  createArraySourceScope,
-  createRowSourceScope,
-} from "@chelone/core";
+import { createArraySourceScope, createRowSourceScope } from "@chelone/core";
 import { useSelector } from "@tanstack/react-store";
 import {
   createContext,
@@ -28,9 +25,6 @@ import {
   useCheloneFormContext,
   useSourceContext,
 } from "./form-context";
-
-/** The erased form-data shape ambient (context-provided) forms carry. */
-type UnknownFormValues = Record<string, unknown>;
 
 /** Constant snapshot for mount-driving subscriptions — never re-renders. */
 const attachSnapshot = (): true => true;
@@ -84,13 +78,13 @@ export interface UseArrayInputResult {
 
 /** One binding per (form, final source) pair — the useArrayInput identity key. */
 interface ArrayBindingHolder {
-  form: unknown;
-  binding: ArrayBinding<UnknownFormValues>;
+  form: AmbientForm;
+  binding: ArrayBinding<unknown>;
 }
 
 function toBindingUpdate<TRecord>(
   options: UseArrayInputOptions<TRecord>,
-): ArrayBindingUpdateOptions<UnknownFormValues> {
+): ArrayBindingUpdateOptions<unknown> {
   return {
     defaultValue: options.defaultValue,
     scalar: options.scalar,
@@ -125,13 +119,13 @@ export function useArrayInput(
 export function useArrayInput<TRecord>(
   options: UseArrayInputOptions<TRecord>,
 ): UseArrayInputResult {
-  const { form } = useCheloneFormContext();
+  const { ambient: form } = useCheloneFormContext().form;
   const parentScope = useSourceContext();
   const source = parentScope.getSource(options.source);
 
   const [holder, setHolder] = useState<ArrayBindingHolder>(() => ({
     form,
-    binding: createArrayBinding<UnknownFormValues>(form, {
+    binding: form.bindArray({
       ...toBindingUpdate(options),
       source,
     }),
@@ -141,7 +135,7 @@ export function useArrayInput<TRecord>(
     // Render-phase derived-state reset (react-form recreates the same way).
     active = {
       form,
-      binding: createArrayBinding<UnknownFormValues>(form, {
+      binding: form.bindArray({
         ...toBindingUpdate(options),
         source,
       }),
@@ -165,7 +159,7 @@ export function useArrayInput<TRecord>(
   );
 
   // Array-field error slices over the identity-memoized field.store.
-  const fieldStore = binding.field.field.store;
+  const fieldStore = binding.field.store;
   const isTouched = useSelector(fieldStore, (s) => s.meta.isTouched);
   const isDirty = useSelector(fieldStore, (s) => s.meta.isDirty);
   // Subscribe to the DISPLAYABLE error (not the raw errorMap object) with

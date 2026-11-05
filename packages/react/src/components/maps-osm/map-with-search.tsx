@@ -57,7 +57,7 @@ export function MapWithSearch<TRecord = LooseRecord>({
   const queryClient = useQueryClient();
   const { geocoder } = useMapsConfig();
   const active = provider ?? geocoder;
-  const { form } = useCheloneFormContext();
+  const { ambient } = useCheloneFormContext().form;
   const wrappedAddress = useWrappedSource(addressSource);
   const wrappedLat = useWrappedSource(latSource);
   const wrappedLng = useWrappedSource(lngSource);
@@ -72,12 +72,12 @@ export function MapWithSearch<TRecord = LooseRecord>({
         if (!result || gesture !== gestures.current) return;
         // A search pick since the gesture moved the coordinates on.
         if (
-          form.getFieldValue(wrappedLat) !== lat ||
-          form.getFieldValue(wrappedLng) !== lng
+          ambient.getFieldValue(wrappedLat) !== lat ||
+          ambient.getFieldValue(wrappedLng) !== lng
         ) {
           return;
         }
-        form.setFieldValue(wrappedAddress, result.displayName);
+        ambient.setFieldValue(wrappedAddress, result.displayName);
       })
       .catch(() => {});
   };

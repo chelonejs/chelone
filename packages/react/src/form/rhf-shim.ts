@@ -13,17 +13,17 @@
  * ## Re-exported chelone equivalents (rename-only import swap)
  * - `FormProvider`  → `CheloneFormProvider` (re-exported as `FormProvider`).
  * - `useFormContext`→ `useCheloneFormContext` (re-exported). NOTE: the returned
- *   object is `{ form, submit }` (a TanStack FormApi + the submit pipeline),
+ *   object is `{ form, submit }` (a form handle + the submit pipeline),
  *   NOT RHF's `{ setValue, getValues, getFieldState, formState, ... }`. Call
- *   sites that used RHF methods must move to the FormApi surface:
- *     - `setValue(name, v, opts)`      → `form.setFieldValue(name, v)`
- *     - `getValues(name)`              → `form.getFieldValue(name)`
- *     - `getFieldState(name)`          → `form.getFieldMeta(name)` /
+ *   sites that used RHF methods must move to the handle's `form.ambient`:
+ *     - `setValue(name, v, opts)`      → `form.ambient.setFieldValue(name, v)`
+ *     - `getValues(name)`              → `form.ambient.getFieldValue(name)`
+ *     - `getFieldState(name)`          → `form.ambient.getFieldMeta(name)` /
  *                                        `useInput({ source }).fieldState`
- *     - `resetField(name)` / `reset()` → `form.resetField(name)` / `form.reset()`
+ *     - `reset()`                      → `form.ambient.reset()`
  *     - `handleSubmit(fn)`             → the context `submit` pipeline
  *     - `formState.{dirtyFields,errors,submitCount}` → `useForm`/`useFormController`
- *                                        `FormStateSlices` + `form.store` selectors
+ *                                        `FormStateSlices` + `form.ambient.store` selectors
  * - `Controller` / `useController` → `useInput({ source })` (re-exported as
  *   `useController`). RHF's render-prop `<Controller render={({field})=>...}/>`
  *   becomes a call to `useInput` inside the input component (chelone's inputs
@@ -41,7 +41,6 @@
  * - `SubmitHandler` / `FieldValues` — RHF type aliases; drop them (chelone
  *   forms are generic in the data type).
  */
-import type { CheloneFormApi } from "@chelone/core";
 import { useSelector } from "@tanstack/react-store";
 import { useCheloneFormContext, useSourceContext } from "../form-context";
 
@@ -60,20 +59,20 @@ export interface UseWatchOptions {
  * Reactivity is per-field via `useSelector` over `form.store`: writing a
  * SIBLING field never re-renders this watcher, only a write to `name` does.
  */
-export function useWatch<TValue = unknown>({
-  name,
-}: UseWatchOptions): TValue | undefined {
-  const { form } = useCheloneFormContext();
+export function useWatch<TValue = unknown>(
+  options: UseWatchOptions,
+): TValue | undefined;
+// The value is `unknown` at the ambient form, which names no record: `TValue`
+// is the caller's claim about it, as in RHF.
+export function useWatch({ name }: UseWatchOptions): unknown {
+  const { ambient } = useCheloneFormContext().form;
   const scope = useSourceContext();
   const source = scope.getSource(name);
   // Selecting via `getFieldValue` (not `s.values[source]`) handles nested/dotted
   // paths through form-core's own path getter. The store subscription re-runs
   // the selector on any form write; value-equality would need a compare fn, but
   // primitives (the common watched shape) already short-circuit re-renders.
-  return useSelector(
-    (form as CheloneFormApi<Record<string, unknown>>).store,
-    () => form.getFieldValue(source) as TValue | undefined,
-  );
+  return useSelector(ambient.store, () => ambient.getFieldValue(source));
 }
 
 /**

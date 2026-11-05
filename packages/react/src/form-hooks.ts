@@ -1,4 +1,6 @@
 import type {
+  AmbientForm,
+  AnyFormHandle,
   CheloneFormApi,
   CreateControllerState,
   CreateFormController,
@@ -8,6 +10,7 @@ import type {
   EditFormControllerOptions,
   FieldBinding,
   FieldBindingUpdateOptions,
+  FormContextHandle,
   FormController,
   FormControllerContext,
   FormControllerOptions,
@@ -20,13 +23,15 @@ import type {
 import {
   createCreateFormController,
   createEditFormController,
-  createFieldBinding,
   createFormController,
   defaultFormat,
   isRequired as hasRequiredValidator,
+  isResourceHandle,
 } from "@chelone/core";
 import { useSelector } from "@tanstack/react-store";
 import {
+  type ChangeEvent,
+  type FocusEvent,
   useEffect,
   useId,
   useMemo,
@@ -38,9 +43,6 @@ import { firstFieldError, sameDisplayError } from "./field-error";
 import { useRegisterFieldGroup } from "./form/group-hooks";
 import { useCheloneFormContext, useSourceContext } from "./form-context";
 import { useRedirectOptional } from "./router";
-
-/** The erased form-data shape ambient (context-provided) forms carry. */
-type UnknownFormValues = Record<string, unknown>;
 
 /** Structurally the composed-form context: record services + registry. */
 function toFormContext<TResources extends ResourceMap>(
@@ -302,36 +304,72 @@ export function useCreateForm<
   );
 }
 
+/** What a DOM input's `onChange` hands over. */
+type InputChangeEvent = ChangeEvent<
+  HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+>;
+
+/** The resources the ambient form context can name: none until the app registers some. */
+type FormHandleName = FormContextHandle["resource"] & string;
+
+/** The member of the handle union `THandle` that edits `TName`, or `undefined`. */
+export type NamedFormHandle<
+  THandle extends AnyFormHandle,
+  TName extends string,
+> = Extract<THandle, { resource: TName }> | undefined;
+
+/**
+ * The ambient form as a handle tagged by the resource it edits. Narrow on
+ * `handle.resource` for that resource's record types, or ask for one by name.
+ * Throws without a `<CheloneFormProvider>` above.
+ *
+ * Library inputs read `handle.ambient`, which every member has, because one
+ * input renders under any resource.
+ */
+export function useFormHandle(): FormContextHandle;
+/** The ambient form's handle when it edits `name`, `undefined` when it edits another resource or none. */
+export function useFormHandle<TName extends FormHandleName>(
+  name: TName,
+): NamedFormHandle<FormContextHandle, TName>;
+export function useFormHandle<TName extends FormHandleName>(
+  name?: TName,
+): FormContextHandle | NamedFormHandle<FormContextHandle, TName> {
+  const { form } = useCheloneFormContext();
+  if (name === undefined) return form;
+  return isResourceHandle(form, name) ? form : undefined;
+}
+
 export interface UseInputOptions<
   TRecord = unknown,
   TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+  TInput = unknown,
 > extends Omit<FieldBindingUpdateOptions, "defaultValue" | "format" | "parse"> {
   /** The field path RELATIVE to the ambient source scope (iterator rows compose it). */
   source: TPath;
   /** Seeds an empty field; typed as the value at `source` (`unknown` without a record). */
   defaultValue?: NoInfer<SourceValue<TRecord, TPath>>;
   /** Read transform (stored value -> input value). Default `defaultFormat`. */
-  format?: (value: NoInfer<SourceValue<TRecord, TPath>>) => unknown;
+  format?: (value: NoInfer<SourceValue<TRecord, TPath>>) => TInput;
   /** Write transform (input value -> stored value). Default `defaultParse`. */
-  parse?: (input: unknown) => NoInfer<SourceValue<TRecord, TPath>>;
+  parse?: (input: TInput) => NoInfer<SourceValue<TRecord, TPath>>;
   /** Forces the required marker; ORed with `required()` detection on `validate`. */
   isRequired?: boolean;
   /** Explicit element id; a `useId` value is generated otherwise. */
   id?: string;
   /** Chained AFTER the parsed value is written to the form. */
-  onChange?: (eventOrValue?: unknown) => void;
+  onChange?: (eventOrValue?: InputChangeEvent | TInput) => void;
   /** Chained AFTER the blur is recorded. */
-  onBlur?: (event?: unknown) => void;
+  onBlur?: (event?: FocusEvent) => void;
 }
 
 /** ra-parity input wiring: spread onto the DOM/UI input. */
-export interface UseInputField {
+export interface UseInputField<TInput = unknown> {
   name: string;
   /** `format(raw)` — recomputed every render, `''` for nullish under the default. */
-  value: unknown;
+  value: TInput;
   /** Accepts a DOM/synthetic event OR a raw value; writes `parse(extracted)`. */
-  onChange: (eventOrValue?: unknown) => void;
-  onBlur: (event?: unknown) => void;
+  onChange: (eventOrValue?: InputChangeEvent | TInput) => void;
+  onBlur: (event?: FocusEvent) => void;
 }
 
 /** ra-parity field state (+ `isValidating` for async validators). */
@@ -344,17 +382,17 @@ export interface UseInputFieldState {
   error: string | TranslatableMessage | undefined;
 }
 
-export interface UseInputResult {
+export interface UseInputResult<TInput = unknown> {
   id: string;
-  field: UseInputField;
+  field: UseInputField<TInput>;
   fieldState: UseInputFieldState;
   isRequired: boolean;
 }
 
 /** One binding per (form, final source) pair — the useInput identity key. */
 interface InputBindingHolder {
-  form: CheloneFormApi<UnknownFormValues>;
-  binding: FieldBinding<UnknownFormValues>;
+  form: AmbientForm;
+  binding: FieldBinding<unknown>;
 }
 
 /**
@@ -429,7 +467,8 @@ export function useInput(options: UseInputOptions): UseInputResult;
 export function useInput<
   TRecord,
   TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
->(options: UseInputOptions<TRecord, TPath>): UseInputResult;
+  TInput = unknown,
+>(options: UseInputOptions<TRecord, TPath, TInput>): UseInputResult<TInput>;
 // A typed `InputProps<_, Post>` spread has a `source` wider than
 // `SourcePath<Post>` (row paths, filter keys), which the generic overload
 // would reject.
@@ -439,7 +478,7 @@ export function useInput(typedOptions: unknown): UseInputResult {
   // `parse` are loose, and resolving the typed `SourceValue` generically here
   // would exceed the compiler's instantiation depth.
   const options = typedOptions as UseInputOptions;
-  const { form } = useCheloneFormContext();
+  const { ambient: form } = useCheloneFormContext().form;
   const scope = useSourceContext();
   const source = scope.getSource(options.source);
   const generatedId = useId();
@@ -450,7 +489,7 @@ export function useInput(typedOptions: unknown): UseInputResult {
 
   const [holder, setHolder] = useState<InputBindingHolder>(() => ({
     form,
-    binding: createFieldBinding(form, { ...toBindingUpdate(options), source }),
+    binding: form.bindField({ ...toBindingUpdate(options), source }),
   }));
   let active = holder;
   if (active.form !== form || active.binding.source !== source) {
@@ -458,10 +497,7 @@ export function useInput(typedOptions: unknown): UseInputResult {
     // same way). The new binding is inert until the attach driver commits.
     active = {
       form,
-      binding: createFieldBinding(form, {
-        ...toBindingUpdate(options),
-        source,
-      }),
+      binding: form.bindField({ ...toBindingUpdate(options), source }),
     };
     setHolder(active);
   }
@@ -469,7 +505,7 @@ export function useInput(typedOptions: unknown): UseInputResult {
 
   useAttach(binding.subscribe);
 
-  const store = binding.field.store;
+  const { store } = binding;
   const rawValue = useSelector(store, (s) => s.value);
   const isTouched = useSelector(store, (s) => s.meta.isTouched);
   const isDirty = useSelector(store, (s) => s.meta.isDirty);
@@ -487,20 +523,18 @@ export function useInput(typedOptions: unknown): UseInputResult {
     binding.update(toBindingUpdate(options));
   });
 
-  const format = (options.format ?? defaultFormat) as (
-    value: unknown,
-  ) => unknown;
+  const format = options.format ?? defaultFormat;
 
   return {
     id: options.id ?? generatedId,
     field: {
       name: source,
       value: format(rawValue),
-      onChange: (eventOrValue?: unknown) => {
+      onChange: (eventOrValue) => {
         binding.setValue(extractEventValue(eventOrValue));
         options.onChange?.(eventOrValue);
       },
-      onBlur: (event?: unknown) => {
+      onBlur: (event) => {
         binding.blur();
         options.onBlur?.(event);
       },

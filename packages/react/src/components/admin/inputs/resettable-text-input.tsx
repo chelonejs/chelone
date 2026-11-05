@@ -56,15 +56,15 @@ function ResettableTextInput(props: ResettableTextInputProps) {
   } = props;
 
   const translate = useTranslate();
-  const { form } = useCheloneFormContext();
+  const { ambient } = useCheloneFormContext().form;
   const wrappedSource = useWrappedSource(source);
   const fieldValue = useWatch({ name: source });
   const hasValue = fieldValue != null && fieldValue !== "";
   const hasLabel = rest.label !== false;
 
   const handleClear = useCallback(() => {
-    form.setFieldValue(wrappedSource, "");
-  }, [form, wrappedSource]);
+    ambient.setFieldValue(wrappedSource, "");
+  }, [ambient, wrappedSource]);
 
   const showClearButton = resettable && (clearAlwaysVisible || hasValue);
   const clearLabel = translate("ra.action.clear_input_value", {
