@@ -65,15 +65,16 @@ const props = defineProps<ErrorProps>();
 
 const translate = useTranslate();
 
+// Mirrors the React twin: an empty message stays empty, it does not fall back.
 const errorMessage = computed<string>(() => {
   const error = props.error;
   if (
     typeof error === "object" &&
     error !== null &&
     "message" in error &&
-    typeof (error as { message?: unknown }).message === "string"
+    typeof error.message === "string"
   ) {
-    return (error as { message: string }).message;
+    return error.message;
   }
   if (typeof error === "string") return error;
   return String(error ?? "Unknown error");
