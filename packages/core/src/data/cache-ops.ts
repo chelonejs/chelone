@@ -1,6 +1,6 @@
 import type { InfiniteData, QueryClient } from "@tanstack/query-core";
 import type { Identifier } from "../resource/identifier";
-import type { ResourceRecord } from "../resource/record";
+import type { LooseRecord, ResourceRecord } from "../resource/record";
 import { infiniteListKeyPrefix, manyKeyPrefix, oneKey } from "./keys";
 import type { GetListResult } from "./types";
 
@@ -22,21 +22,43 @@ function singleResultListKeyPrefixes(resource: string) {
   ] as const;
 }
 
+/** The page param is the page number `getInfiniteListOptions` sets. */
+type InfiniteList<TRecord extends ResourceRecord> = InfiniteData<
+  GetListResult<TRecord>,
+  number
+>;
+
+function singleResultEntries<TRecord extends ResourceRecord>(
+  queryClient: QueryClient,
+  queryKey: readonly [string, string],
+) {
+  return queryClient.getQueriesData<GetListResult<TRecord>>({ queryKey });
+}
+
+function infiniteEntries<TRecord extends ResourceRecord>(
+  queryClient: QueryClient,
+  resource: string,
+) {
+  return queryClient.getQueriesData<InfiniteList<TRecord>>({
+    queryKey: infiniteListKeyPrefix(resource),
+  });
+}
+
 /** Filters ids out of a page; `undefined` when it holds none, so the cached object is kept. */
-function withoutIds(
-  page: GetListResult,
+function withoutIds<TRecord extends ResourceRecord>(
+  page: GetListResult<TRecord>,
   idSet: Set<string>,
-): GetListResult | undefined {
+): GetListResult<TRecord> | undefined {
   const kept = page.data.filter((record) => !idSet.has(String(record.id)));
   return kept.length === page.data.length ? undefined : { ...page, data: kept };
 }
 
 /** Shallow-merges `data` into the matching rows; `undefined` when none match. */
-function withPatchedRows(
-  page: GetListResult,
+function withPatchedRows<TRecord extends ResourceRecord>(
+  page: GetListResult<TRecord>,
   idSet: Set<string>,
-  data: Record<string, unknown>,
-): GetListResult | undefined {
+  data: Partial<TRecord>,
+): GetListResult<TRecord> | undefined {
   let changed = false;
   const nextData = page.data.map((record) => {
     if (idSet.has(String(record.id))) {
@@ -58,32 +80,29 @@ function lowerTotal(total: number | undefined, removed: number) {
  * out of every cached `getList`, `getManyReference` and `getInfiniteList` page
  * (decrementing `total` when known) and `getMany` entry.
  */
-export function removeRecordsFromCache(
-  queryClient: QueryClient,
-  resource: string,
-  ids: Identifier[],
-): void {
+export function removeRecordsFromCache<
+  TRecord extends ResourceRecord = LooseRecord,
+>(queryClient: QueryClient, resource: string, ids: Identifier[]): void {
   const idSet = new Set(ids.map(String));
   for (const id of ids) {
     queryClient.removeQueries({ queryKey: oneKey(resource, { id }) });
   }
   for (const queryKey of singleResultListKeyPrefixes(resource)) {
-    for (const [key, value] of queryClient.getQueriesData<GetListResult>({
+    for (const [key, value] of singleResultEntries<TRecord>(
+      queryClient,
       queryKey,
-    })) {
+    )) {
       if (!value) continue;
       const next = withoutIds(value, idSet);
       if (!next) continue;
       const removed = value.data.length - next.data.length;
-      queryClient.setQueryData<GetListResult>(key, {
+      queryClient.setQueryData<GetListResult<TRecord>>(key, {
         ...next,
         total: lowerTotal(value.total, removed),
       });
     }
   }
-  const infinite = queryClient.getQueriesData<
-    InfiniteData<GetListResult, unknown>
-  >({ queryKey: infiniteListKeyPrefix(resource) });
+  const infinite = infiniteEntries<TRecord>(queryClient, resource);
   for (const [key, value] of infinite) {
     if (!value) continue;
     const kept = value.pages.map((page) => withoutIds(page, idSet) ?? page);
@@ -93,7 +112,7 @@ export function removeRecordsFromCache(
       0,
     );
     if (removed === 0) continue;
-    queryClient.setQueryData<InfiniteData<GetListResult, unknown>>(key, {
+    queryClient.setQueryData<InfiniteList<TRecord>>(key, {
       ...value,
       pages: kept.map((page) => ({
         ...page,
@@ -109,39 +128,40 @@ export function removeRecordsFromCache(
  * `getOne` entry and every matching row of every cached `getList`,
  * `getManyReference`, `getInfiniteList` page and `getMany` entry.
  */
-export function updateRecordsInCache(
+export function updateRecordsInCache<
+  TRecord extends ResourceRecord = LooseRecord,
+>(
   queryClient: QueryClient,
   resource: string,
   ids: Identifier[],
-  data: Record<string, unknown>,
+  data: Partial<NoInfer<TRecord>>,
 ): void {
   const idSet = new Set(ids.map(String));
   for (const id of ids) {
     const key = oneKey(resource, { id });
-    const previous = queryClient.getQueryData<ResourceRecord>(key);
+    const previous = queryClient.getQueryData<TRecord>(key);
     if (previous !== undefined) {
       queryClient.setQueryData(key, { ...previous, ...data });
     }
   }
   for (const queryKey of singleResultListKeyPrefixes(resource)) {
-    for (const [key, value] of queryClient.getQueriesData<GetListResult>({
+    for (const [key, value] of singleResultEntries<TRecord>(
+      queryClient,
       queryKey,
-    })) {
+    )) {
       if (!value) continue;
       const next = withPatchedRows(value, idSet, data);
-      if (next) queryClient.setQueryData<GetListResult>(key, next);
+      if (next) queryClient.setQueryData<GetListResult<TRecord>>(key, next);
     }
   }
-  const infinite = queryClient.getQueriesData<
-    InfiniteData<GetListResult, unknown>
-  >({ queryKey: infiniteListKeyPrefix(resource) });
+  const infinite = infiniteEntries<TRecord>(queryClient, resource);
   for (const [key, value] of infinite) {
     if (!value) continue;
     const pages = value.pages.map(
       (page) => withPatchedRows(page, idSet, data) ?? page,
     );
     if (pages.every((page, i) => page === value.pages[i])) continue;
-    queryClient.setQueryData<InfiniteData<GetListResult, unknown>>(key, {
+    queryClient.setQueryData<InfiniteList<TRecord>>(key, {
       ...value,
       pages,
     });
@@ -152,19 +172,23 @@ export function updateRecordsInCache(
 const ABSENT = Symbol("absent");
 
 /** Row id -> the values of the patched keys before the patch; `ABSENT` marks a key the row lacked. */
-type RowPriors = Map<string, Record<string, unknown>>;
+type RowPriors<TRecord extends ResourceRecord> = Map<
+  string,
+  { [K in keyof TRecord]?: TRecord[K] | typeof ABSENT }
+>;
 
-function priorsOf(
-  page: GetListResult,
+function priorsOf<TRecord extends ResourceRecord>(
+  page: GetListResult<TRecord>,
   idSet: Set<string>,
-  data: Record<string, unknown>,
-): RowPriors {
-  const priors: RowPriors = new Map();
+  data: Partial<TRecord>,
+): RowPriors<TRecord> {
+  const priors: RowPriors<TRecord> = new Map();
   for (const row of page.data) {
     const id = String(row.id);
     if (!idSet.has(id)) continue;
-    const prior: Record<string, unknown> = {};
-    for (const field of Object.keys(data)) {
+    const prior: { [K in keyof TRecord]?: TRecord[K] | typeof ABSENT } = {};
+    for (const field in data) {
+      if (!Object.hasOwn(data, field)) continue;
       prior[field] = field in row ? row[field] : ABSENT;
     }
     priors.set(id, prior);
@@ -173,19 +197,19 @@ function priorsOf(
 }
 
 /** Puts the prior values back into the rows they were taken from. */
-function withRestoredRows(
-  page: GetListResult,
-  priors: RowPriors,
-): GetListResult {
+function withRestoredRows<TRecord extends ResourceRecord>(
+  page: GetListResult<TRecord>,
+  priors: RowPriors<TRecord>,
+): GetListResult<TRecord> {
   return {
     ...page,
     data: page.data.map((record) => {
       const prior = priors.get(String(record.id));
       if (!prior) return record;
-      const restored: Record<string, unknown> & ResourceRecord = { ...record };
-      for (const [field, value] of Object.entries(prior)) {
-        if (value === ABSENT) delete restored[field];
-        else restored[field] = value;
+      // The spread writes every prior back, `ABSENT` markers included; the loop then drops those keys.
+      const restored: TRecord = { ...record, ...prior };
+      for (const field in prior) {
+        if (prior[field] === ABSENT) delete restored[field];
       }
       return restored;
     }),
@@ -199,27 +223,28 @@ function withRestoredRows(
  * when it is called, so another update's patch to a different row survives.
  * An entry that holds none of the ids keeps its cached object.
  */
-export function patchListEntries(
+export function patchListEntries<TRecord extends ResourceRecord = LooseRecord>(
   queryClient: QueryClient,
   resource: string,
   idSet: Set<string>,
-  data: Record<string, unknown>,
+  data: Partial<NoInfer<TRecord>>,
 ): () => void {
   const rollbacks: Array<() => void> = [];
 
   for (const queryKey of singleResultListKeyPrefixes(resource)) {
-    for (const [key, value] of queryClient.getQueriesData<GetListResult>({
+    for (const [key, value] of singleResultEntries<TRecord>(
+      queryClient,
       queryKey,
-    })) {
+    )) {
       if (!value) continue;
       const next = withPatchedRows(value, idSet, data);
       if (!next) continue;
       const priors = priorsOf(value, idSet, data);
-      queryClient.setQueryData<GetListResult>(key, next);
+      queryClient.setQueryData<GetListResult<TRecord>>(key, next);
       rollbacks.push(() => {
-        const current = queryClient.getQueryData<GetListResult>(key);
+        const current = queryClient.getQueryData<GetListResult<TRecord>>(key);
         if (current) {
-          queryClient.setQueryData<GetListResult>(
+          queryClient.setQueryData<GetListResult<TRecord>>(
             key,
             withRestoredRows(current, priors),
           );
@@ -227,9 +252,7 @@ export function patchListEntries(
       });
     }
   }
-  const infinite = queryClient.getQueriesData<
-    InfiniteData<GetListResult, unknown>
-  >({ queryKey: infiniteListKeyPrefix(resource) });
+  const infinite = infiniteEntries<TRecord>(queryClient, resource);
   for (const [key, value] of infinite) {
     if (!value) continue;
     const pages = value.pages.map(
@@ -237,15 +260,14 @@ export function patchListEntries(
     );
     if (pages.every((page, i) => page === value.pages[i])) continue;
     const priorsByPage = value.pages.map((page) => priorsOf(page, idSet, data));
-    queryClient.setQueryData<InfiniteData<GetListResult, unknown>>(key, {
+    queryClient.setQueryData<InfiniteList<TRecord>>(key, {
       ...value,
       pages,
     });
     rollbacks.push(() => {
-      const current =
-        queryClient.getQueryData<InfiniteData<GetListResult, unknown>>(key);
+      const current = queryClient.getQueryData<InfiniteList<TRecord>>(key);
       if (!current) return;
-      queryClient.setQueryData<InfiniteData<GetListResult, unknown>>(key, {
+      queryClient.setQueryData<InfiniteList<TRecord>>(key, {
         ...current,
         pages: current.pages.map((page, i) => {
           const priors = priorsByPage[i];
@@ -266,13 +288,13 @@ export function patchListEntries(
  * Shallow-merge `data` into the matching records of every cached `getMany`
  * entry (what `ReferenceField` and `ReferenceArrayField` read through).
  */
-export function patchManyEntries(
+export function patchManyEntries<TRecord extends ResourceRecord = LooseRecord>(
   queryClient: QueryClient,
   resource: string,
   idSet: Set<string>,
-  data: Record<string, unknown>,
+  data: Partial<NoInfer<TRecord>>,
 ): void {
-  const manys = queryClient.getQueriesData<ResourceRecord[]>({
+  const manys = queryClient.getQueriesData<TRecord[]>({
     queryKey: manyKeyPrefix(resource),
   });
   for (const [key, value] of manys) {
@@ -285,7 +307,7 @@ export function patchManyEntries(
       }
       return record;
     });
-    if (changed) queryClient.setQueryData<ResourceRecord[]>(key, next);
+    if (changed) queryClient.setQueryData<TRecord[]>(key, next);
   }
 }
 
