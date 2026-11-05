@@ -1,6 +1,5 @@
 import type { LooseRecord } from "@chelone/core";
-import type { HTMLAttributes } from "react";
-import type { FieldProps } from "@/lib/field-types";
+import type { SpanFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
@@ -11,8 +10,7 @@ import {
 } from "../inputs/duration-utils";
 
 interface DurationFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    HTMLAttributes<HTMLSpanElement> {
+  extends SpanFieldProps<RecordType> {
   /** 'compact' renders `2h 30m`; 'relative' renders `2 hours 30 minutes`. */
   displayFormat?: "compact" | "relative";
 }
@@ -37,7 +35,7 @@ function DurationField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: DurationFieldProps<RecordType>) {
-  const value: unknown = useFieldValue<LooseRecord>({
+  const value = useFieldValue({
     defaultValue,
     source,
     record,

@@ -1,13 +1,11 @@
 import type { LooseRecord } from "@chelone/core";
-import type { HTMLAttributes } from "react";
-import type { FieldProps } from "@/lib/field-types";
+import type { SpanFieldProps } from "@/lib/field-types";
 import { useLocale, useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
 interface CurrencyFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    HTMLAttributes<HTMLSpanElement> {
+  extends SpanFieldProps<RecordType> {
   /** ISO-4217 currency code (e.g. 'USD'). Required when value is a plain number. */
   currency?: string;
   /** Override the user's app locale. */
@@ -43,7 +41,7 @@ function CurrencyField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: CurrencyFieldProps<RecordType>) {
-  const value: unknown = useFieldValue<LooseRecord>({
+  const value = useFieldValue({
     defaultValue,
     source,
     record,
@@ -80,9 +78,15 @@ function normalizeCurrencyValue(
   v: unknown,
   fallbackCurrency?: string,
 ): { amount: number; code: string } {
-  if (typeof v === "object" && v !== null && "amount" in v && "currency" in v) {
-    const obj = v as { amount: number; currency: string };
-    return { amount: obj.amount, code: obj.currency };
+  if (
+    typeof v === "object" &&
+    v !== null &&
+    "amount" in v &&
+    typeof v.amount === "number" &&
+    "currency" in v &&
+    typeof v.currency === "string"
+  ) {
+    return { amount: v.amount, code: v.currency };
   }
   if (!fallbackCurrency) {
     throw new Error(

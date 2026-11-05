@@ -1,7 +1,7 @@
 import type { LooseRecord } from "@chelone/core";
 import type { ComponentProps } from "react";
 import { Badge } from "@/components/ui/badge";
-import type { FieldProps } from "@/lib/field-types";
+import type { ElementFieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
@@ -22,7 +22,7 @@ function ChipFieldImpl<RecordType extends LooseRecord = LooseRecord>(
     variant = "outline",
     ...rest
   } = inProps;
-  const value: unknown = useFieldValue<LooseRecord>({
+  const value = useFieldValue({
     defaultValue,
     source,
     record,
@@ -77,8 +77,7 @@ ChipFieldImpl.displayName = "ChipFieldImpl";
 const ChipField = genericMemo(ChipFieldImpl);
 
 interface ChipFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    Omit<BadgeProps, "children"> {
+  extends ElementFieldProps<RecordType, Omit<BadgeProps, "children">> {
   variant?: "default" | "outline" | "secondary" | "destructive";
 }
 

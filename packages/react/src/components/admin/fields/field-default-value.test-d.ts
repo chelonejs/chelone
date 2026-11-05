@@ -6,10 +6,22 @@
 
 import type { SourceProp, SourceValue } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
+import type { ApiKeyFieldProps } from "./api-key-field";
+import type { BadgeFieldProps } from "./badge-field";
 import type { BooleanFieldProps } from "./boolean-field";
+import type { ChipFieldProps } from "./chip-field";
+import type { ColorFieldProps } from "./color-field";
+import type { CronFieldProps } from "./cron-field";
+import type { CurrencyFieldProps } from "./currency-field";
 import type { DateFieldProps } from "./date-field";
+import type { DurationFieldProps } from "./duration-field";
+import type { EmailFieldProps } from "./email-field";
+import type { FileFieldProps } from "./file-field";
 import type { ImageFieldProps } from "./image-field";
+import type { JsonFieldProps } from "./json-field";
 import type { NumberFieldProps } from "./number-field";
+import type { PhoneFieldProps } from "./phone-field";
+import type { RatingFieldProps } from "./rating-field";
 import type { TextFieldProps } from "./text-field";
 
 type Post = {
@@ -41,6 +53,45 @@ describe("value-taking field props", () => {
       PostValue | undefined
     >();
     expectTypeOf<NumberFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+  });
+
+  it("the twelve value-reading fields take the record's value type as defaultValue", () => {
+    expectTypeOf<ApiKeyFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<BadgeFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<ChipFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<ColorFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<CronFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<CurrencyFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<DurationFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<EmailFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<FileFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<JsonFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<PhoneFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+    expectTypeOf<RatingFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
       PostValue | undefined
     >();
   });

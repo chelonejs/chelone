@@ -1,14 +1,13 @@
 import { formatJsonValue, type LooseRecord } from "@chelone/core";
 import type { HTMLAttributes, ReactNode } from "react";
-import type { FieldProps } from "@/lib/field-types";
+import type { ElementFieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
 interface JsonFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    HTMLAttributes<HTMLPreElement> {
+  extends ElementFieldProps<RecordType, HTMLAttributes<HTMLPreElement>> {
   /** Spaces per indentation level. Defaults to 2. */
   indent?: number;
   /** Shown in a span when the value is null or undefined. A string is translated. */
@@ -41,7 +40,7 @@ function JsonField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: JsonFieldProps<RecordType>) {
-  const value: unknown = useFieldValue<LooseRecord>({
+  const value = useFieldValue({
     source,
     record,
     defaultValue,

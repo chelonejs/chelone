@@ -1,7 +1,7 @@
 import type { LooseRecord } from "@chelone/core";
 import type * as React from "react";
 import { Badge } from "@/components/ui/badge";
-import type { FieldProps } from "@/lib/field-types";
+import type { ElementFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
@@ -30,8 +30,7 @@ type BadgeProps = React.ComponentProps<typeof Badge>;
  * );
  */
 interface BadgeFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    BadgeProps {
+  extends ElementFieldProps<RecordType, BadgeProps> {
   variant?: "default" | "outline" | "secondary" | "destructive";
 }
 
@@ -43,7 +42,7 @@ function BadgeField<RecordType extends LooseRecord = LooseRecord>({
   variant = "outline",
   ...rest
 }: BadgeFieldProps<RecordType>) {
-  const value: unknown = useFieldValue<LooseRecord>({
+  const value = useFieldValue({
     defaultValue,
     source,
     record,
