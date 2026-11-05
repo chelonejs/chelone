@@ -31,12 +31,13 @@ import { ListIcon } from "./icons";
 
 const props = defineProps<ListButtonProps>();
 
-const resource = useResourceContext(props);
-if (!resource) {
+const ambientResource = useResourceContext(props);
+if (!ambientResource) {
   throw new Error(
     "<ListButton> must be used inside a <Resource> or given a `resource` prop.",
   );
 }
+const resource: string = ambientResource;
 const createPath = useCreatePath();
 const getResourceLabel = useGetResourceLabel();
 const translate = useTranslate();
@@ -45,7 +46,7 @@ const to = computed(() => createPath({ type: "list", resource }));
 const label = computed(() =>
   translate("ra.action.list", {
     _: "List",
-    name: getResourceLabel(resource as string, 1),
+    name: getResourceLabel(resource, 1),
   }),
 );
 const classes = computed(() =>

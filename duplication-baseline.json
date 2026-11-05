@@ -135,7 +135,7 @@
   "packages/vue/src/admin/admin-shell.vue <-> packages/vue/src/admin/admin.vue": 1,
   "packages/vue/src/components/admin/auth/icons.ts <-> packages/vue/src/components/admin/layout/icons.ts": 1,
   "packages/vue/src/components/admin/auth/login-form.vue <-> packages/vue/src/components/admin/auth/login-with-email.vue": 1,
-  "packages/vue/src/components/admin/buttons/bulk-export-button.vue <-> packages/vue/src/components/admin/buttons/export-button.vue": 3,
+  "packages/vue/src/components/admin/buttons/bulk-export-button.vue <-> packages/vue/src/components/admin/buttons/export-button.vue": 2,
   "packages/vue/src/components/admin/buttons/dual-approval-button.vue <-> packages/vue/src/components/admin/buttons/status-transition-button.vue": 2,
   "packages/vue/src/components/admin/buttons/edit-button.vue <-> packages/vue/src/components/admin/buttons/show-button.vue": 3,
   "packages/vue/src/components/admin/buttons/icons.ts <-> packages/vue/src/components/admin/feedback/icons.ts": 1,
