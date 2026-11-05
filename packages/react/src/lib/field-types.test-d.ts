@@ -1,6 +1,8 @@
 import type { SourceProp } from "@chelone/core";
+import type { ReactNode } from "react";
 import { describe, expectTypeOf, it } from "vitest";
 import type { FieldProps } from "./field-types";
+import { genericMemo } from "./gen-memo";
 
 type Post = {
   id: number;
@@ -36,5 +38,21 @@ describe("FieldProps", () => {
 
   it("FieldProps without a type argument takes any string when no resource is registered", () => {
     acceptLooseField({ source: "anything.at[0].all" });
+  });
+});
+
+describe("genericMemo", () => {
+  it("genericMemo keeps a generic component's type parameter", () => {
+    function Row<TRecord extends object>(props: {
+      record: TRecord;
+      pick: (record: TRecord) => string;
+    }): ReactNode {
+      return props.pick(props.record);
+    }
+    const MemoRow = genericMemo(Row);
+
+    MemoRow({ record: { id: 1 }, pick: (record) => String(record.id) });
+    // @ts-expect-error `pick` reads the record the caller passed, which has no `name`
+    MemoRow({ record: { id: 1 }, pick: (record) => record.name });
   });
 });
