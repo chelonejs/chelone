@@ -14,6 +14,12 @@
       "comment": "A class name to apply to the root element."
     },
     {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
       "name": "empty",
       "type": "ReactNode",
       "optional": true,
@@ -87,7 +93,7 @@
     },
     {
       "name": "transform",
-      "type": "(value: unknown) => unknown",
+      "type": "(value: SourceValue<RecordType, SourceProp<RecordType>>) => unknown",
       "optional": true,
       "comment": ""
     }

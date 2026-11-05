@@ -53,7 +53,7 @@ function TextField<RecordType extends LooseRecord = LooseRecord>({
   );
 }
 
-type TextFieldProps<RecordType extends LooseRecord = LooseRecord> =
-  SpanFieldProps<RecordType>;
+interface TextFieldProps<RecordType extends LooseRecord = LooseRecord>
+  extends SpanFieldProps<RecordType> {}
 
 export { TextField, type TextFieldProps };

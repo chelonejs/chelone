@@ -15,7 +15,7 @@
     },
     {
       "name": "defaultValue",
-      "type": "unknown",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
       "optional": true,
       "comment": ""
     },
