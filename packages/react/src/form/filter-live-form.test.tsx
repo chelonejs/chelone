@@ -10,6 +10,7 @@ import { act, render, renderHook, waitFor } from "@testing-library/react";
 import { type ReactNode, StrictMode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
+import { makeListContext } from "../__fixtures__/list-context";
 import { CheloneProvider } from "../context";
 import type { UseListControllerResult } from "../controller-hooks";
 import { useListController } from "../controller-hooks";
@@ -60,21 +61,16 @@ function makeWrapper({ strict = false }: { strict?: boolean } = {}) {
 }
 
 /**
- * A fake list-context value: only `filter` + `setFilters` (+ `resource`) are
- * load-bearing for FilterLiveForm. `setFilters` is a spy; other list state is
- * stubbed just enough to satisfy the type via a cast.
+ * A fake list-context value plus the `setFilters` spy FilterLiveForm pushes
+ * into. Only `filter` + `setFilters` are load-bearing here; the rest of the
+ * surface comes from the shared fixture.
  */
-function makeFakeList(filter: Record<string, unknown> = {}): {
-  value: UseListControllerResult<PostRecord>;
-  setFilters: ReturnType<typeof vi.fn>;
-} {
+function makeFakeList(filter: Record<string, unknown> = {}) {
   const setFilters = vi.fn();
-  const value = {
-    filter,
+  return {
+    value: makeListContext<PostRecord>({ filter, setFilters }),
     setFilters,
-    // The rest of the surface is unused by FilterLiveForm — stubbed.
-  } as unknown as UseListControllerResult<PostRecord>;
-  return { value, setFilters };
+  };
 }
 
 /** A one-input filter form driving `title`. Exposes the input handle. */
@@ -158,10 +154,10 @@ describe("useFilterForm / FilterLiveForm", () => {
       return null;
     }
     function Host() {
-      const list = {
+      const list = makeListContext<PostRecord>({
         filter: currentFilter,
         setFilters,
-      } as unknown as UseListControllerResult<PostRecord>;
+      });
       return (
         <ResourceContextProvider value="posts">
           <ListContextProvider value={list}>
@@ -206,10 +202,10 @@ describe("useFilterForm / FilterLiveForm", () => {
       return null;
     }
     function Host() {
-      const list = {
+      const list = makeListContext<PostRecord>({
         filter: staleFilter,
         setFilters,
-      } as unknown as UseListControllerResult<PostRecord>;
+      });
       return (
         <ResourceContextProvider value="posts">
           <ListContextProvider value={list}>

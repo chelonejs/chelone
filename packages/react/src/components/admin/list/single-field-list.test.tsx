@@ -13,8 +13,9 @@ import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it } from "vitest";
+import { makeListContext } from "../../../__fixtures__/list-context";
 import { CheloneProvider } from "../../../context";
-import { ListContextProvider, type ListContextValue } from "../../../form";
+import { ListContextProvider } from "../../../form";
 import { useRecordContext } from "../../../record/record-context";
 import {
   ResourceContextProvider,
@@ -24,12 +25,17 @@ import { SingleFieldList } from "./single-field-list";
 
 afterEach(cleanup);
 
-const TAGS = [
+interface TagRecord {
+  id: number;
+  name: string;
+}
+
+const TAGS: TagRecord[] = [
   { id: 1, name: "red" },
   { id: 2, name: "green" },
 ];
 
-function mount(ui: ReactNode, data: unknown[] | null = TAGS) {
+function mount(ui: ReactNode, data: TagRecord[] | null = TAGS) {
   const registry = createResourceRegistry();
   registry.register({
     name: "tags",
@@ -38,7 +44,7 @@ function mount(ui: ReactNode, data: unknown[] | null = TAGS) {
     hasEdit: false,
     hasShow: false,
   });
-  const value = { data: data ?? undefined } as unknown as ListContextValue;
+  const value = makeListContext<TagRecord>({ data: data ?? undefined });
   return render(
     <CheloneProvider
       dataProvider={fakeDataProvider({})}

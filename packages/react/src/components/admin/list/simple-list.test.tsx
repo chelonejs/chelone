@@ -23,13 +23,10 @@ import {
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { makeListContext } from "../../../__fixtures__/list-context";
 import { Admin } from "../../../admin/admin";
 import { CheloneProvider } from "../../../context";
-import {
-  ListContextProvider,
-  type ListContextValue,
-  useListContext,
-} from "../../../form";
+import { ListContextProvider, useListContext } from "../../../form";
 import { Resource } from "../../../resource";
 import { List } from "../views/list";
 import { ListNoResults } from "./list-no-results";
@@ -327,10 +324,7 @@ describe("<ListNoResults>", () => {
   });
 
   it("throws outside a resource", () => {
-    const list = {
-      filter: {},
-      setFilters: vi.fn(),
-    } as unknown as ListContextValue;
+    const list = makeListContext({ filter: {}, setFilters: vi.fn() });
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() =>
       render(
