@@ -25,8 +25,9 @@ describe("useChoices option types", () => {
   });
 
   it("getDisableValue returns boolean", () => {
-    const { getDisableValue } = useChoices<Author>();
-    expectTypeOf(getDisableValue).returns.toEqualTypeOf<boolean>();
+    expectTypeOf<
+      ReturnType<UseChoicesResult<Author>["getDisableValue"]>
+    >().toEqualTypeOf<boolean>();
   });
 
   it("useChoices<Author> rejects a path that is not on Author", () => {
