@@ -50,7 +50,7 @@ function SimpleList<RecordType extends ResourceRecord = ResourceRecord>({
   empty,
   className,
 }: SimpleListProps<RecordType>) {
-  const { data, isPending } = useListContext();
+  const { data, isPending } = useListContext<RecordType>();
   const resource = useResourceContext();
 
   if (isPending) {
@@ -72,7 +72,7 @@ function SimpleList<RecordType extends ResourceRecord = ResourceRecord>({
 
   return (
     <ul className={cn("flex flex-col", className)}>
-      {(data as RecordType[]).map((record, rowIndex) => (
+      {data.map((record, rowIndex) => (
         <RecordContextProvider<RecordType> key={record.id} value={record}>
           <SimpleListItem
             record={record}

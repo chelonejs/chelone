@@ -1,3 +1,5 @@
+import { isFilterBranch } from "@chelone/core";
+
 /** The operators of the PostgREST docs, including the `not`, `all` and `any` modifiers. */
 export type PostgrestOperator =
   | "eq"
@@ -65,15 +67,6 @@ export function buildFilters(
   return terms(filter, defaultListOp, "", false).map((t) => [t.key, t.value]);
 }
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value) &&
-    !(value instanceof Date)
-  );
-}
-
 function terms(
   filter: Record<string, unknown>,
   defaultOp: PostgrestOperator,
@@ -91,12 +84,12 @@ function terms(
       at === -1 ? defaultOp : (rawKey.slice(at + 1) as PostgrestOperator);
     const column = path === "" ? name : `${path}.${name}`;
 
-    if ((name === "or" || name === "and") && isPlainObject(value)) {
+    if ((name === "or" || name === "and") && isFilterBranch(value)) {
       const inner = terms(value, defaultOp, "", true).map((t) =>
         t.group ? `${t.key}${t.value}` : `${t.key}.${t.value}`,
       );
       out.push({ key: name, value: `(${inner.join(",")})`, group: true });
-    } else if (isPlainObject(value) && at === -1) {
+    } else if (isFilterBranch(value) && at === -1) {
       out.push(...terms(value, defaultOp, column, quoted));
     } else if (op === "like" || op === "ilike") {
       for (const word of String(value).trim().split(/\s+/)) {
@@ -133,7 +126,7 @@ function operand(op: PostgrestOperator, value: unknown, quoted: boolean) {
     }
     return `${op}.${strings.join(",")}`;
   }
-  if (isPlainObject(value)) {
+  if (isFilterBranch(value)) {
     return `${op}.${format(JSON.stringify(value), quoted)}`;
   }
   return `${op}.${format(scalar(value), quoted)}`;
