@@ -1,3 +1,4 @@
+import { isRecord } from "../guards";
 import type { LngLatBox } from "./bounds";
 import type {
   GeocodeRequestOptions,
@@ -24,6 +25,11 @@ export interface NominatimProviderOptions {
   sleep?: (ms: number, signal?: AbortSignal) => Promise<void>;
 }
 
+/**
+ * One hit as Nominatim's JSON has it, each member `unknown` because the
+ * service sends coordinates as strings. `toResult` reads these five and hands
+ * the hit on whole as `GeocodeResult.raw`.
+ */
 interface NominatimHit {
   display_name?: unknown;
   lat?: unknown;
@@ -39,24 +45,25 @@ function toNumber(value: unknown): number {
   return Number.NaN;
 }
 
-function toResult(hit: NominatimHit): GeocodeResult | null {
+// type-escape: the service's raw JSON, an object `isRecord` has already accepted.
+function toResult(hit: Record<string, unknown>): GeocodeResult | null {
   if (typeof hit.display_name !== "string") return null;
   const lat = toNumber(hit.lat);
   const lng = toNumber(hit.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
   const result: GeocodeResult = { displayName: hit.display_name, lat, lng };
   if (Array.isArray(hit.boundingbox) && hit.boundingbox.length === 4) {
-    const [minLat, maxLat, minLon, maxLon] = hit.boundingbox.map(toNumber) as [
-      number,
-      number,
-      number,
-      number,
-    ];
+    const [
+      minLat = Number.NaN,
+      maxLat = Number.NaN,
+      minLon = Number.NaN,
+      maxLon = Number.NaN,
+    ] = hit.boundingbox.map(toNumber);
     const bbox: LngLatBox = [minLon, minLat, maxLon, maxLat];
     if (bbox.every(Number.isFinite)) result.bbox = bbox;
   }
   if (typeof hit.type === "string") result.type = hit.type;
-  result.raw = hit;
+  result.raw = hit satisfies NominatimHit;
   return result;
 }
 
@@ -112,7 +119,11 @@ export function createNominatimProvider(
       if (!response.ok) throw new Error(`Nominatim search ${response.status}`);
       const hits: unknown = await response.json();
       if (!Array.isArray(hits)) return [];
-      return hits.flatMap((hit) => toResult(hit as NominatimHit) ?? []);
+      return hits.flatMap((hit) => {
+        if (!isRecord(hit)) return [];
+        const result = toResult(hit);
+        return result ? [result] : [];
+      });
     },
 
     async reverse(
@@ -129,10 +140,8 @@ export function createNominatimProvider(
       try {
         const response = await get("reverse", params, signal);
         if (!response.ok) return null;
-        const body = (await response.json()) as NominatimHit & {
-          error?: unknown;
-        };
-        if (!body || body.error) return null;
+        const body: unknown = await response.json();
+        if (!isRecord(body) || body.error) return null;
         return toResult(body);
       } catch (error) {
         if (signal?.aborted) throw error;
