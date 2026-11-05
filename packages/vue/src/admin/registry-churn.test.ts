@@ -8,11 +8,11 @@
  * unregister-on-scope-dispose driving `router.addRoute` / its remover.
  */
 
+import { fakeDataProvider } from "@chelone/core";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { defineComponent, h, inject, ref } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
-import type { CheloneContextValue } from "../context";
 import Admin from "./admin.vue";
 import Resource from "./resource.vue";
 import {
@@ -22,9 +22,7 @@ import {
 
 const Blank = defineComponent({ setup: () => () => h("div", "blank") });
 
-const dataProvider = {
-  name: "stub-dp",
-} as unknown as CheloneContextValue["dataProvider"];
+const dataProvider = fakeDataProvider({});
 
 function makeRouter(): Router {
   return createRouter({

@@ -6,7 +6,7 @@
  * `theme-provider.test.tsx`, translated to the Vue mount harness.
  */
 
-import { createNotificationStore } from "@chelone/core";
+import { createNotificationStore, fakeDataProvider } from "@chelone/core";
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick } from "vue";
@@ -38,9 +38,7 @@ if (typeof globalThis.localStorage === "undefined") {
 
 const Blank = defineComponent({ setup: () => () => h("div", "blank") });
 
-const dataProvider = {
-  name: "stub-dp",
-} as unknown as CheloneContextValue["dataProvider"];
+const dataProvider = fakeDataProvider({});
 
 function makeRouter(): Router {
   return createRouter({

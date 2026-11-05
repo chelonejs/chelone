@@ -1,4 +1,8 @@
-import { type AnyCheloneI18n, createI18n } from "@chelone/core";
+import {
+  type AnyCheloneI18n,
+  createI18n,
+  fakeDataProvider,
+} from "@chelone/core";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick } from "vue";
@@ -11,9 +15,7 @@ import {
 } from "./use-locale";
 import { useTranslate } from "./use-translate";
 
-const dataProvider = {
-  name: "stub-dp",
-} as unknown as CheloneContextValue["dataProvider"];
+const dataProvider = fakeDataProvider({});
 
 function makeI18n(): AnyCheloneI18n {
   return createI18n({

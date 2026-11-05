@@ -5,17 +5,15 @@
  * aria-label; and clicking the logout item calls the authProvider's `logout`.
  */
 
-import type { AuthProvider } from "@chelone/core";
+import { type AuthProvider, fakeDataProvider } from "@chelone/core";
 import { QueryClient, VUE_QUERY_CLIENT } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, provide } from "vue";
-import { CheloneContextKey, type CheloneContextValue } from "../../../context";
+import { CheloneContextKey } from "../../../context";
 import UserMenu from "./user-menu.vue";
 
-const dataProvider = {
-  name: "stub-dp",
-} as unknown as CheloneContextValue["dataProvider"];
+const dataProvider = fakeDataProvider({});
 
 function makeAuthProvider(over: Partial<AuthProvider> = {}): AuthProvider {
   return {

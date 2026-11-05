@@ -7,6 +7,7 @@
  * `#dashboard` slot is present, and lets custom children replace the auto list.
  */
 
+import { fakeDataProvider } from "@chelone/core";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { defineComponent, h } from "vue";
@@ -25,9 +26,7 @@ import MenuItemLink from "./menu-item-link.vue";
 
 const Blank = defineComponent({ setup: () => () => h("div", "blank") });
 
-const dataProvider = {
-  name: "stub-dp",
-} as unknown as CheloneContextValue["dataProvider"];
+const dataProvider = fakeDataProvider({});
 
 function makeRouter(): Router {
   return createRouter({
