@@ -7,6 +7,7 @@
 import {
   createI18n,
   fakeDataProvider,
+  type MessageCatalog,
   mapMessages,
   rasterTileStyle,
 } from "@chelone/core";
@@ -37,7 +38,7 @@ const style = rasterTileStyle({
 beforeEach(resetFake);
 afterEach(cleanup);
 
-function wrap(messages?: Record<string, string>) {
+function wrap(messages?: MessageCatalog) {
   const i18n = messages
     ? createI18n({ locale: "en", messages: { en: messages } })
     : undefined;
@@ -152,7 +153,7 @@ describe("MapCanvas", () => {
       <MapCanvas mapStyle="https://styles.example.test/missing.json">
         <p>child</p>
       </MapCanvas>,
-      { wrapper: wrap(mapMessages as unknown as Record<string, string>) },
+      { wrapper: wrap(mapMessages) },
     );
     act(() => maps[0]?.failStyle(new Error("404")));
     await loaded();
@@ -427,7 +428,7 @@ describe("LatLngField", () => {
     ["a longitude below -180", { lat: 48.85, lng: -181 }],
   ])("shows the translated empty text for %s", (_label, record) => {
     const { container } = render(field({ record }), {
-      wrapper: wrap(mapMessages as unknown as Record<string, string>),
+      wrapper: wrap(mapMessages),
     });
 
     const empty = container.querySelector('[data-slot="lat-lng-field-empty"]');

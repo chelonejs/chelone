@@ -7,6 +7,7 @@
 import {
   createI18n,
   fakeDataProvider,
+  type MessageCatalog,
   mapMessages,
   rasterTileStyle,
 } from "@chelone/core";
@@ -45,7 +46,7 @@ afterEach(() => {
 function mountMaps(
   content: () => VNode | VNode[],
   options: {
-    messages?: Record<string, string>;
+    messages?: MessageCatalog;
     record?: Record<string, unknown>;
   } = {},
 ) {
@@ -173,7 +174,7 @@ describe("MapCanvas", () => {
           { mapStyle: "https://styles.example.test/missing.json" },
           () => h("p", "child"),
         ),
-      { messages: mapMessages as unknown as Record<string, string> },
+      { messages: mapMessages },
     );
     maps[0]?.failStyle(new Error("404"));
     await loaded();
@@ -411,7 +412,7 @@ describe("LatLngField", () => {
     ["a longitude below -180", { lat: 48.85, lng: -181 }],
   ])("shows the translated empty text for %s", (_label, record) => {
     const wrapper = mountMaps(() => field({ record }), {
-      messages: mapMessages as unknown as Record<string, string>,
+      messages: mapMessages,
     });
 
     expect(wrapper.get('[data-slot="lat-lng-field-empty"]').text()).toBe(

@@ -17,6 +17,7 @@ import {
   createResourceRegistry,
   defineMessages,
   fakeDataProvider,
+  type MessageCatalog,
   type ResourceRegistry,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
@@ -28,7 +29,7 @@ import { ResourceRegistryProvider } from "../resource";
 import { useGetResourceLabel } from "./use-get-resource-label";
 
 interface WrapperOpts {
-  messages?: Record<string, Record<string, unknown>>;
+  messages?: Record<string, MessageCatalog>;
   registry?: ResourceRegistry;
 }
 
@@ -36,7 +37,7 @@ function makeWrapper(opts: WrapperOpts = {}) {
   const registry = opts.registry ?? createResourceRegistry();
   const i18n = createI18n({
     locale: "en",
-    messages: (opts.messages as never) ?? {
+    messages: opts.messages ?? {
       en: defineMessages({}),
     },
   });
