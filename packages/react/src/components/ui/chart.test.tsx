@@ -39,6 +39,7 @@ describe("chart", () => {
           active
           payload={[
             {
+              graphicalItemId: "desktop-series",
               dataKey: "value",
               name: "ignored",
               value: 12,
