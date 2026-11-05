@@ -238,6 +238,18 @@ describe("nav-composables — vue-router adapter bridge", () => {
     expect(router.currentRoute.value.path).toBe("/posts/2");
   });
 
+  it("a redirect pushes `_scrollToTop` in typed state", async () => {
+    const { router, captured: redirect } = await mountConsumer(() =>
+      useRedirect(),
+    );
+    redirect("edit", "posts", 2, undefined, { nextPathname: "/after" });
+    await flushPromises();
+    expect(router.options.history.state).toMatchObject({
+      _scrollToTop: true,
+      nextPathname: "/after",
+    });
+  });
+
   it("useRedirect('list') navigates to the list path", async () => {
     const { router, captured: redirect } = await mountConsumer(
       () => useRedirect(),

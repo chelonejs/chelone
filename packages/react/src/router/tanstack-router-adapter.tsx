@@ -54,7 +54,12 @@
  * single `$` catch-all TanStack route in the created router (see RouterWrapper).
  */
 
-import type { CheloneLocation, NavigateOpts, PathMatch } from "@chelone/core";
+import type {
+  CheloneLocation,
+  LocationState,
+  NavigateOpts,
+  PathMatch,
+} from "@chelone/core";
 import {
   matchPath as coreMatchPath,
   parseLocation,
@@ -62,6 +67,7 @@ import {
 } from "@chelone/core";
 import type {
   AnyRouter,
+  HistoryState,
   ParsedLocation,
   ShouldBlockFn,
 } from "@tanstack/react-router";
@@ -153,6 +159,19 @@ function toCheloneLocation(location: LocationInput): CheloneLocation {
   };
 }
 
+/**
+ * `LocationState` as TanStack's `HistoryState`. Both are all-optional, so
+ * TypeScript's weak-type check refuses the direct assignment (no shared key);
+ * `Object.assign` returns the intersection, which it accepts.
+ */
+function toHistoryState(
+  state: LocationState | undefined,
+): HistoryState | undefined {
+  if (!state) return undefined;
+  const target: HistoryState = {};
+  return Object.assign(target, state);
+}
+
 function useLocation(): CheloneLocation {
   const location = useTSLocation();
   return useMemo(
@@ -192,7 +211,7 @@ function useNavigate(): AdapterNavigate {
     navRef.current({
       to,
       replace: opts?.replace,
-      state: opts?.state as never,
+      state: toHistoryState(opts?.state),
     });
   }
 
@@ -302,7 +321,7 @@ const Link = forwardRef<HTMLAnchorElement, AdapterLinkProps>(
       ref={ref}
       to={to}
       replace={replace}
-      state={state as never}
+      state={toHistoryState(state)}
       {...rest}
     >
       {children}
@@ -312,7 +331,7 @@ const Link = forwardRef<HTMLAnchorElement, AdapterLinkProps>(
 Link.displayName = "TanstackRouterAdapterLink";
 
 function Navigate({ to, replace, state }: AdapterNavigateProps) {
-  return <TSNavigate to={to} replace={replace} state={state as never} />;
+  return <TSNavigate to={to} replace={replace} state={toHistoryState(state)} />;
 }
 
 /**

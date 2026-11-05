@@ -11,7 +11,12 @@
  * router's typed-search / typed-params generics leak here.
  */
 
-import type { CheloneLocation, NavigateOpts, PathMatch } from "@chelone/core";
+import type {
+  CheloneLocation,
+  LocationState,
+  NavigateOpts,
+  PathMatch,
+} from "@chelone/core";
 import {
   createContext,
   type ForwardRefExoticComponent,
@@ -54,7 +59,7 @@ export interface AdapterLinkProps
   extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href"> {
   to: string;
   replace?: boolean;
-  state?: unknown;
+  state?: LocationState;
   children?: ReactNode;
 }
 
@@ -62,7 +67,7 @@ export interface AdapterLinkProps
 export interface AdapterNavigateProps {
   to: string;
   replace?: boolean;
-  state?: unknown;
+  state?: LocationState;
 }
 
 /**

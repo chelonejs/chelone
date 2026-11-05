@@ -140,11 +140,6 @@ export function Authenticated({
 /** The Store key the login flow stashes the post-login target under. */
 const NEXT_PATHNAME_KEY = "nextPathname";
 
-/** How `location.state` may carry a post-login target. */
-interface NextPathnameState {
-  nextPathname?: string;
-}
-
 export interface HandleAuthCallbackResult {
   /** True once the callback has resolved and the redirect has been issued. */
   settled: boolean;
@@ -194,8 +189,7 @@ export function useHandleAuthCallback(): HandleAuthCallbackResult {
     if (!isSuccess) return;
     const fromData = data?.redirectTo;
     const fromStore = store?.getItem<string>(NEXT_PATHNAME_KEY);
-    const fromState = (location.state as NextPathnameState | null)
-      ?.nextPathname;
+    const fromState = location.state?.nextPathname;
     const target = fromData ?? fromStore ?? fromState ?? "/";
     // `redirect(fn)` navigates a RAW PATH verbatim — exactly what a resolved
     // callback target is (an app path or an absolute URL).
