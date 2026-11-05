@@ -13,6 +13,7 @@ import {
   createChoicesController,
   getAtPath,
   resolveChoiceValue,
+  textOf,
 } from "@chelone/core";
 import {
   createContext,
@@ -247,7 +248,7 @@ export function useChoices<TChoice extends ChoiceRecord = ChoiceRecord>(
       getChoiceText(choice) {
         if (typeof optionText === "function") return optionText(choice);
         const raw = readChoicePath(choice, optionText);
-        const text = raw == null ? "" : String(raw);
+        const text = textOf(raw);
         if (!translateChoice) return text;
         // ra's `{_: name}` convention: translate the text as a key, but fall
         // back to the raw text when it is not a catalog key (chelone's
