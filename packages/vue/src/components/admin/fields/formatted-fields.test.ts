@@ -17,7 +17,6 @@ import {
   defineComponent,
   h,
   nextTick,
-  type Ref,
   ref,
   type VNodeChild,
 } from "vue";
@@ -48,10 +47,7 @@ function mountField(
   // takes, so no Vue component type accepts every field this harness mounts.
   field: object,
   props: Record<string, unknown>,
-  record:
-    | Record<string, unknown>
-    | undefined
-    | Ref<Record<string, unknown> | undefined>,
+  record: Record<string, unknown> | undefined,
   // `never` scope: the harness hands every slot to `h` and never calls one, so
   // each takes whatever scope the field passes it.
   slots?: Record<string, (scope: never) => VNodeChild>,
@@ -449,28 +445,48 @@ describe("FunctionField (scoped slot ↔ React render prop)", () => {
 });
 
 describe("ambient record that lands after mount", () => {
-  it("FunctionField renders once the ambient record resolves", async () => {
-    const ambient = ref<Record<string, unknown> | undefined>(undefined);
-    const w = mountField(FunctionField, {}, ambient, {
-      default: (scope: { record: Record<string, unknown> }) =>
-        `fn:${scope.record.name}`,
+  type Person = { name: string };
+
+  /** Mount `field` under an ambient record ref that starts empty. */
+  function mountUnderEmptyRef(
+    // `object` for the same reason as in `mountField`.
+    field: object,
+    slot: (scope: { record: Person }) => string,
+  ) {
+    const ambient = ref<Person | undefined>(undefined);
+    const Harness = defineComponent({
+      setup() {
+        provideCheloneContext(makeContext());
+        provideRecordContext<Person>(ambient);
+        // type-escape: every field here is a component; see the `object` note.
+        return () => h(field as Component, null, { default: slot });
+      },
     });
-    expect(w.find('[data-slot="function-field"]').exists()).toBe(false);
+    return { ambient, wrapper: mount(Harness) };
+  }
+
+  it("FunctionField renders once the ambient record resolves", async () => {
+    const { ambient, wrapper } = mountUnderEmptyRef(
+      FunctionField,
+      ({ record }) => `fn:${record.name}`,
+    );
+    expect(wrapper.find('[data-slot="function-field"]').exists()).toBe(false);
     ambient.value = { name: "Ada" };
     await nextTick();
-    expect(w.get('[data-slot="function-field"]').text()).toBe("fn:Ada");
+    expect(wrapper.get('[data-slot="function-field"]').text()).toBe("fn:Ada");
   });
 
   it("RecordField renders once the ambient record resolves", async () => {
-    const ambient = ref<Record<string, unknown> | undefined>(undefined);
-    const w = mountField(RecordField, {}, ambient, {
-      default: (scope: { record: Record<string, unknown> }) =>
-        `rec:${scope.record.name}`,
-    });
-    expect(w.text()).not.toContain("rec:");
+    const { ambient, wrapper } = mountUnderEmptyRef(
+      RecordField,
+      ({ record }) => `rec:${record.name}`,
+    );
+    expect(wrapper.text()).not.toContain("rec:");
     ambient.value = { name: "Ada" };
     await nextTick();
-    expect(w.get('[data-slot="record-field"]').text()).toContain("rec:Ada");
+    expect(wrapper.get('[data-slot="record-field"]').text()).toContain(
+      "rec:Ada",
+    );
   });
 });
 
