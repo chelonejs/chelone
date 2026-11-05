@@ -562,12 +562,13 @@ describe("<KanbanBoard>", () => {
 
   it("the card changes column before the data provider answers", async () => {
     const dataProvider = provider();
-    let answer: (value: unknown) => void = () => {};
+    type Updated = Awaited<ReturnType<DataProvider["update"]>>;
+    let answer: (value: Updated) => void = () => {};
     vi.spyOn(dataProvider, "update").mockImplementation(
       () =>
-        new Promise((resolve) => {
+        new Promise<Updated>((resolve) => {
           answer = resolve;
-        }) as never,
+        }),
     );
     const { wrapper } = await mountBoard({ dataProvider });
 
@@ -580,7 +581,9 @@ describe("<KanbanBoard>", () => {
       ]),
     );
     expect(cardTitles(wrapper, "To do")).toEqual(["Test it"]);
-    answer({ data: { ...TASKS[0], status: "doing" } });
+    answer({
+      data: { id: 1, title: "Write it", status: "doing", note: "soon" },
+    });
   });
 
   it("a rejected update puts the card back and notifies an error", async () => {

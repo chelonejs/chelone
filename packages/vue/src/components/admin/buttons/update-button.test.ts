@@ -159,9 +159,7 @@ function deferredUpdate() {
     (_resource, params) =>
       new Promise((resolve, reject) => {
         settle = (error) =>
-          error
-            ? reject(error)
-            : resolve({ data: { id: 1, ...params.data } } as never);
+          error ? reject(error) : resolve({ data: { id: 1, ...params.data } });
       }),
   );
   return { dataProvider, update, settle: (error?: Error) => settle(error) };

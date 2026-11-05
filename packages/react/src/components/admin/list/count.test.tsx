@@ -114,7 +114,7 @@ describe("<Count>", () => {
       { resource: "posts" },
       {
         setup: (getList) => {
-          getList.mockResolvedValue({ data: [] } as never);
+          getList.mockResolvedValue({ data: [] });
         },
       },
     );
@@ -129,7 +129,7 @@ describe("<Count>", () => {
       { resource: "posts", timeout: 100 },
       {
         setup: (getList) => {
-          getList.mockReturnValue(new Promise(() => {}) as never);
+          getList.mockReturnValue(new Promise<never>(() => {}));
         },
       },
     );
