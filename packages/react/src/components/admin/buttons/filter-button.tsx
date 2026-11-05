@@ -74,6 +74,18 @@ interface FilterButtonMenuItemProps {
 }
 
 /**
+ * The `<FilterForm>` input for `source`, if the page has one. Matched on `name`
+ * rather than through an `input[name='...']` selector: a source is a path an
+ * app names, and a quote in one makes such a selector invalid.
+ */
+function findFilterInput(source: string): HTMLInputElement | null {
+  for (const input of document.querySelectorAll<HTMLInputElement>("input")) {
+    if (input.name === source) return input;
+  }
+  return null;
+}
+
+/**
  * A button that opens a dropdown to add/remove the optional filters displayed
  * in the `<FilterForm>`. Works alongside `<FilterForm>` to provide the full
  * filtering UI.
@@ -133,7 +145,7 @@ function FilterButton(props: FilterButtonProps) {
   /**
    * Radix returns focus to the trigger when the menu closes. When the close is
    * a "show this filter", take focus to the filter's input instead: the input
-   * is mounted by the same commit that closed the menu.
+   * is mounted by the same commit that closes the menu.
    */
   const handleCloseAutoFocus = useCallback((event: Event) => {
     const source = shownSource.current;
@@ -142,10 +154,13 @@ function FilterButton(props: FilterButtonProps) {
     // The menu can close as part of the button's own unmount. A button that is
     // off the document takes no focus anywhere.
     if (!rootRef.current?.isConnected) return;
+    const input = findFilterInput(source);
+    // A filter whose control is no `<input>` (a `<Select>` trigger, a
+    // `<Switch>`) has nothing here to focus, so Radix keeps the focus on the
+    // trigger.
+    if (input === null) return;
     event.preventDefault();
-    document
-      .querySelector<HTMLInputElement>(`input[name='${source}']`)
-      ?.focus();
+    input.focus();
   }, []);
 
   const handleRemove = useCallback(

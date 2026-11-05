@@ -434,6 +434,7 @@ describe("<FilterButton>", () => {
 
   it("does not touch the document after unmounting while a focus is pending", async () => {
     const querySelector = vi.spyOn(document, "querySelector");
+    const querySelectorAll = vi.spyOn(document, "querySelectorAll");
     const { unmount } = render(
       <ListHarness
         dataProvider={makeDataProvider()}
@@ -448,8 +449,11 @@ describe("<FilterButton>", () => {
     );
     unmount();
     querySelector.mockClear();
+    querySelectorAll.mockClear();
     await new Promise((resolve) => setTimeout(resolve, 120));
     expect(querySelector).not.toHaveBeenCalled();
+    expect(querySelectorAll).not.toHaveBeenCalled();
     querySelector.mockRestore();
+    querySelectorAll.mockRestore();
   });
 });

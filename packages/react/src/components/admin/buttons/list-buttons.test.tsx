@@ -37,6 +37,7 @@ import {
 } from "../../../resource";
 import { RouterAdapterProvider } from "../../../router/adapter";
 import { reactRouterAdapter } from "../../../router/react-router-adapter";
+import { SelectInput } from "../inputs/select-input";
 import { TextInput } from "../inputs/text-input";
 import { FilterForm } from "../list/filter-form";
 import { FilterButton } from "./filter-button";
@@ -86,6 +87,25 @@ function FilterTextInput({
   alwaysOn?: boolean;
 }) {
   return <TextInput {...inputProps} />;
+}
+
+/** A filter whose control is a `<Select>` trigger: no `input[name=...]`. */
+function FilterSelectInput({
+  alwaysOn: _alwaysOn,
+  ...inputProps
+}: {
+  source: string;
+  alwaysOn?: boolean;
+}) {
+  return (
+    <SelectInput
+      {...inputProps}
+      choices={[
+        { id: "news", name: "News" },
+        { id: "misc", name: "Misc" },
+      ]}
+    />
+  );
 }
 
 function DisplayedFilterInputs() {
@@ -318,6 +338,39 @@ describe("<FilterButton>", () => {
       "input[name='title']",
     );
     expect(input).toBeTruthy();
+    await waitFor(() => expect(document.activeElement).toBe(input));
+  });
+
+  it("showing a filter whose control is not an input leaves focus on the trigger", async () => {
+    const filters = [<FilterSelectInput key="category" source="category" />];
+    render(
+      <ListHarness>
+        <FilterButton filters={filters} />
+        <FilterForm filters={filters} />
+      </ListHarness>,
+    );
+    const trigger = await openAddFilterMenu();
+
+    fireEvent.click(
+      await screen.findByRole("menuitemcheckbox", { name: "Category" }),
+    );
+
+    expect(document.querySelector("input[name='category']")).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+  });
+
+  it("showing a filter whose source holds a quote focuses its input", async () => {
+    render(
+      <ListHarness>
+        <FilterButton filters={[<TextFilter key="q" source="it's" />]} />
+        <DisplayedFilterInputs />
+      </ListHarness>,
+    );
+    await openAddFilterMenu();
+
+    fireEvent.click(await screen.findByRole("menuitemcheckbox"));
+
+    const input = await screen.findByRole("textbox", { name: "it's input" });
     await waitFor(() => expect(document.activeElement).toBe(input));
   });
 
