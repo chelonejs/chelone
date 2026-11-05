@@ -418,15 +418,19 @@ function build(name: string) {
   if (cached) return cached;
   const built = {
     ...components,
+    // biome-ignore lint/correctness/noComponentHookFactories: built once per resource name, then cached
     Edit: (props: Omit<EditProps, "resource">) => (
       <Edit {...props} resource={name} />
     ),
+    // biome-ignore lint/correctness/noComponentHookFactories: built once per resource name, then cached
     Create: (props: Omit<CreateProps, "resource">) => (
       <Create {...props} resource={name} />
     ),
+    // biome-ignore lint/correctness/noComponentHookFactories: built once per resource name, then cached
     Show: (props: Omit<ShowProps, "resource">) => (
       <Show {...props} resource={name} />
     ),
+    // biome-ignore lint/correctness/noComponentHookFactories: built once per resource name, then cached
     List: (props: Omit<ListProps, "resource">) => (
       <List {...props} resource={name} />
     ),

@@ -53,12 +53,12 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       # No registry-url: with it, setup-node writes an .npmrc that hands npm a
       # placeholder token, and npm publishes with it instead of using OIDC.
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version: 24 # ships npm >= 11.5.1, which trusted publishing needs
+          node-version: 26 # ships npm >= 11.5.1, which trusted publishing needs
           cache: pnpm
       - name: Install
         run: pnpm install --frozen-lockfile

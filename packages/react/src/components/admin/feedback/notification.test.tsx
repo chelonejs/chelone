@@ -25,11 +25,16 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { act } from "react";
+import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { Notification } from "./notification";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  // Sonner's store is module-global and replays active toasts to a new Toaster.
+  toast.dismiss();
+});
 
 function makeI18n() {
   return createI18n({

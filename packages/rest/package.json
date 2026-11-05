@@ -40,9 +40,9 @@
     "@chelone/core": "workspace:*"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.18.0",
-    "publint": "^0.3.0",
-    "vite": "^7.0.0",
-    "vitest": "^3.0.0"
+    "@arethetypeswrong/cli": "^0.18.5",
+    "publint": "^0.3.25",
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0"
   }
 }
