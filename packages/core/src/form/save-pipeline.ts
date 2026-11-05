@@ -1,4 +1,6 @@
 import {
+  type FormValidateFn,
+  type FormValidateOrFn,
   isStandardSchemaValidator,
   type StandardSchemaV1,
   standardSchemaValidators,
@@ -15,10 +17,11 @@ import type { FormLevelValidate } from "./form-controller";
  * narrower than `TValues` (ra types it the same way; the DataProvider
  * receives partials by contract).
  */
-export function sanitizeEmptyValues<TValues extends object>(
+export function sanitizeEmptyValues<TValues>(
   values: TValues,
   record?: object,
 ): TValues {
+  if (typeof values !== "object" || values === null) return values;
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(values)) {
     if (value === undefined || value === null || value === "") {
@@ -27,6 +30,7 @@ export function sanitizeEmptyValues<TValues extends object>(
       result[key] = value;
     }
   }
+  // type-escape: omitted keys make the runtime value narrower than TValues (ra types it the same way)
   return result as TValues;
 }
 
@@ -82,8 +86,13 @@ export interface ComposeFormValidatorConfig<TFormData> {
    * The user's own `formOptions.validators.onDynamic` escape hatch (fn or
    * Standard Schema) — composed after the schema and validate fn.
    */
-  userValidator?: unknown;
+  userValidator?: FormValidateOrFn<TFormData>;
 }
+
+/** What form-core hands a form-level validator fn: `value` and `formApi`. */
+export type FormValidatorProps<TFormData> = Parameters<
+  FormValidateFn<TFormData>
+>[0];
 
 /**
  * Composes the D6 validator stack into ONE sync `onDynamic` validator:
@@ -104,7 +113,9 @@ export interface ComposeFormValidatorConfig<TFormData> {
  */
 export function composeFormValidator<TFormData>(
   config: ComposeFormValidatorConfig<TFormData>,
-): ((props: { value: TFormData }) => unknown) | undefined {
+):
+  | ((props: FormValidatorProps<TFormData>) => FormErrorMapValue | undefined)
+  | undefined {
   const { schema, validate, userValidator } = config;
   if (!schema && !validate && !userValidator) return undefined;
 
@@ -159,7 +170,7 @@ export function composeFormValidator<TFormData>(
               { value: props.value, validationSource: "form" },
               userValidator,
             )
-          : (userValidator as (p: { value: TFormData }) => unknown)(props),
+          : userValidator(props),
       );
     }
 
