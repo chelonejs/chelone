@@ -43,6 +43,11 @@ const posts = createResourceComponentsOf<typeof resources, "posts">("posts");
   <!-- @vue-expect-error -->
   <posts.ArrayInput source="items" :default-value="[{ sku: 'a', qty: 'one' }]" />
 
+  <!-- a default is the value at the source -->
+  <posts.TextInput source="title" default-value="Untitled" />
+  <!-- @vue-expect-error -->
+  <posts.TextInput source="title" :default-value="1" />
+
   <!-- a typo -->
   <!-- @vue-expect-error -->
   <posts.TextInput source="titel" />
