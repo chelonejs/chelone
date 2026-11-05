@@ -84,17 +84,41 @@ type ListState = Partial<
   Pick<ListContextValue, "filter" | "displayedFilters" | "sort" | "perPage">
 >;
 
-/** A list context stub; `setParams` is a spy and the state is reactive. */
+/**
+ * A list context stub: the whole `ListContextValue` surface, with `setParams`
+ * a spy and every other action a no-op spy. Reactive so a test can write
+ * `list.filter` and the component re-renders.
+ */
 function makeList(state: ListState = {}) {
   const setParams = vi.fn();
-  const list = reactive({
-    filter: {},
-    displayedFilters: {},
-    sort: [{ field: "id", order: "DESC" }],
-    perPage: 10,
-    ...state,
+  const list = reactive<ListContextValue>({
+    page: 1,
+    perPage: state.perPage ?? 10,
+    sort: state.sort ?? [{ field: "id", order: "DESC" }],
+    filter: state.filter ?? {},
+    displayedFilters: state.displayedFilters ?? {},
+    selectedIds: [],
+    data: undefined,
+    total: undefined,
+    pageInfo: undefined,
+    isPending: false,
+    isFetching: false,
+    error: null,
+    hasNextPage: undefined,
+    hasPreviousPage: undefined,
+    setPage: vi.fn(),
+    setPerPage: vi.fn(),
+    setSort: vi.fn(),
+    setFilters: vi.fn(),
     setParams,
-  }) as unknown as ListContextValue;
+    showFilter: vi.fn(),
+    hideFilter: vi.fn(),
+    select: vi.fn(),
+    toggleItem: vi.fn(),
+    unselectAll: vi.fn(),
+    selectAll: vi.fn(async () => {}),
+    refetch: vi.fn(),
+  });
   return { list, setParams };
 }
 
@@ -410,9 +434,7 @@ describe("SavedQueriesList under List", () => {
         return () =>
           h(
             "ul",
-            (list.data ?? []).map((row) =>
-              h("li", String((row as unknown as { title: string }).title)),
-            ),
+            (list.data ?? []).map((row) => h("li", String(row.title))),
           );
       },
     });
