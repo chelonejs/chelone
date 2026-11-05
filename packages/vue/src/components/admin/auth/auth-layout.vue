@@ -23,6 +23,7 @@ export interface AuthLayoutProps {
  * slot instead.
  */
 
+import type { VNode } from "vue";
 import { cn } from "../../../lib/utils";
 import Notification from "../feedback/notification.vue";
 
@@ -30,11 +31,11 @@ const props = defineProps<AuthLayoutProps>();
 
 defineSlots<{
   /** Main-pane content — typically a login / signup / password-reset form. */
-  default: () => unknown;
+  default: () => VNode[];
   /** Left-pane brand content; when filled, the layout becomes two-column. */
-  aside?: () => unknown;
+  aside?: () => VNode[];
   /** Replaces the default `<Notification />` toast region. */
-  notification?: () => unknown;
+  notification?: () => VNode[];
 }>();
 </script>
 
