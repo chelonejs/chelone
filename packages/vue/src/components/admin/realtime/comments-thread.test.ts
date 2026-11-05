@@ -12,6 +12,7 @@ import {
   fakeDataProvider,
   memoryTransport,
   type NotificationStore,
+  type RecordOf,
   realtimeDataProvider,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
@@ -42,7 +43,9 @@ const resources = defineResources({
 });
 type Resources = typeof resources;
 
-const comments = [
+type Comment = RecordOf<Resources, "comments">;
+
+const comments: Comment[] = [
   {
     id: 1,
     postId: 1,
@@ -67,13 +70,13 @@ const comments = [
   },
 ];
 
-function setup(rows: Array<Record<string, unknown>> = comments) {
+function setup(rows: Comment[] = comments) {
   const dataProvider = fakeDataProvider<Resources>({
     posts: [
       { id: 1, title: "a" },
       { id: 2, title: "b" },
     ],
-    comments: rows as never,
+    comments: rows,
   });
   return { dataProvider };
 }
@@ -305,7 +308,7 @@ describe("CommentsThread", () => {
     const create = vi.spyOn(dataProvider, "create").mockImplementation(
       () =>
         new Promise((resolve) => {
-          release = () => resolve({ data: { id: 9 } } as never);
+          release = () => resolve({ data: { ...comments[0], id: 9 } });
         }),
     );
     const wrapper = mountThread(dataProvider);
@@ -410,13 +413,13 @@ describe("CommentsThread", () => {
     const transport = memoryTransport();
     const base = fakeDataProvider<Resources>({
       posts: [{ id: 1, title: "a" }],
-      comments: comments as never,
+      comments,
     });
     const dataProvider = addEventsForMutations(
       realtimeDataProvider(base, transport),
       transport,
     );
-    const wrapper = mountThread(dataProvider as never);
+    const wrapper = mountThread(dataProvider);
     await flushPromises();
     expect(cards(wrapper)).toHaveLength(2);
 

@@ -7,6 +7,7 @@
 import {
   type AuthProvider,
   createPresenceSession,
+  type DataProvider,
   defineResources,
   fakeDataProvider,
   memoryTransport,
@@ -48,7 +49,7 @@ function setup() {
 }
 
 function mountUnderAdmin(
-  dataProvider: unknown,
+  dataProvider: DataProvider<typeof resources>,
   probe: Component,
   authProvider?: AuthProvider,
 ) {
@@ -59,7 +60,7 @@ function mountUnderAdmin(
     setup: () => () =>
       h(
         Admin,
-        { dataProvider: dataProvider as never, queryClient, authProvider },
+        { dataProvider, queryClient, authProvider },
         { default: () => h(probe), layout: () => h("div") },
       ),
   });
