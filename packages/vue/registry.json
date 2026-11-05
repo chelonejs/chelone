@@ -6968,7 +6968,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/supabase", "@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/supabase", "@chelone/vue"],
       "devDependencies": ["@tanstack/vue-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"

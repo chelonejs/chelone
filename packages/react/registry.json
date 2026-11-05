@@ -6983,7 +6983,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/react", "@chelone/supabase"],
+      "dependencies": ["@chelone/core", "@chelone/react", "@chelone/supabase"],
       "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
