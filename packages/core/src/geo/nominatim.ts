@@ -1,10 +1,10 @@
+import type { LngLatBox } from "./bounds";
 import type {
   GeocodeRequestOptions,
   GeocodeResult,
   GeocodeSearchOptions,
   GeocodingProvider,
 } from "./geocoding";
-import type { GeoBBox } from "./geojson";
 import { createThrottle } from "./throttle";
 
 export interface NominatimProviderOptions {
@@ -52,7 +52,7 @@ function toResult(hit: NominatimHit): GeocodeResult | null {
       number,
       number,
     ];
-    const bbox: GeoBBox = [minLon, minLat, maxLon, maxLat];
+    const bbox: LngLatBox = [minLon, minLat, maxLon, maxLat];
     if (bbox.every(Number.isFinite)) result.bbox = bbox;
   }
   if (typeof hit.type === "string") result.type = hit.type;

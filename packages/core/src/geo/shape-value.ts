@@ -1,5 +1,7 @@
+import type { Feature, FeatureCollection, Geometry } from "geojson";
+import type { JsonObject } from "../guards";
 import { aspectLockedBBox, bboxToPolygon, polygonToBBox } from "./bbox";
-import type { GeoBBox, GeoFeature, GeoGeometry, GeoJsonValue } from "./geojson";
+import type { LngLatBox } from "./bounds";
 import { isGeoFeature, isGeoFeatureCollection, isGeoGeometry } from "./geojson";
 
 /** What a drawing input stores in its form field. */
@@ -17,7 +19,13 @@ export type ShapeValueKind =
   | "BBox";
 
 /** A form value of any {@link ShapeValueKind}. */
-export type ShapeValue = GeoJsonValue | GeoBBox;
+export type ShapeValue =
+  | Geometry
+  | Feature<Geometry | null, JsonObject | null>
+  | FeatureCollection<Geometry | null, JsonObject | null>
+  | LngLatBox;
+
+type ShapeFeature = Feature<Geometry | null, JsonObject | null>;
 
 export interface FeaturesToShapeOptions {
   /** Width over height of a `BBox` value. */
@@ -31,11 +39,11 @@ export interface FeaturesToShapeOptions {
 }
 
 interface Split {
-  editable: GeoFeature[];
-  held: GeoFeature[];
+  editable: ShapeFeature[];
+  held: ShapeFeature[];
 }
 
-function wrap(geometry: GeoGeometry): GeoFeature {
+function wrap(geometry: Geometry): ShapeFeature {
   return { type: "Feature", geometry, properties: {} };
 }
 
@@ -44,7 +52,7 @@ function wrap(geometry: GeoGeometry): GeoFeature {
  * geometry or a GeometryCollection inside a GeometryCollection stays whole, so
  * it is held and written back as it was.
  */
-function singles(geometry: GeoGeometry): GeoGeometry[] {
+function singles(geometry: Geometry): Geometry[] {
   switch (geometry.type) {
     case "MultiPoint":
       return geometry.coordinates.map((coordinates) => ({
@@ -69,20 +77,20 @@ function singles(geometry: GeoGeometry): GeoGeometry[] {
 }
 
 /** The editor holds a Point, a LineString and a Polygon with one ring. */
-function isEditable(geometry: GeoGeometry | null): geometry is GeoGeometry {
+function isEditable(geometry: Geometry | null): geometry is Geometry {
   if (!geometry) return false;
   if (geometry.type === "Point" || geometry.type === "LineString") return true;
   return geometry.type === "Polygon" && geometry.coordinates.length === 1;
 }
 
 /** A Polygon with no ring has nothing to hold or to show. */
-function isEmptyPolygon(geometry: GeoGeometry): boolean {
+function isEmptyPolygon(geometry: Geometry): boolean {
   return geometry.type === "Polygon" && geometry.coordinates.length === 0;
 }
 
-function splitGeometries(geometries: GeoGeometry[]): Split {
-  const editable: GeoFeature[] = [];
-  const held: GeoFeature[] = [];
+function splitGeometries(geometries: Geometry[]): Split {
+  const editable: ShapeFeature[] = [];
+  const held: ShapeFeature[] = [];
   for (const geometry of geometries) {
     if (isEditable(geometry)) editable.push(wrap(geometry));
     else if (!isEmptyPolygon(geometry)) held.push(wrap(geometry));
@@ -90,9 +98,9 @@ function splitGeometries(geometries: GeoGeometry[]): Split {
   return { editable, held };
 }
 
-function splitFeatures(features: GeoFeature[]): Split {
-  const editable: GeoFeature[] = [];
-  const held: GeoFeature[] = [];
+function splitFeatures(features: ShapeFeature[]): Split {
+  const editable: ShapeFeature[] = [];
+  const held: ShapeFeature[] = [];
   for (const feature of features) {
     (isEditable(feature.geometry) ? editable : held).push(feature);
   }
@@ -139,7 +147,7 @@ function split(kind: ShapeValueKind, value: unknown): Split {
 export function shapeToFeatures(
   kind: ShapeValueKind,
   value: unknown,
-): GeoFeature[] {
+): ShapeFeature[] {
   return split(kind, value).editable;
 }
 
@@ -152,15 +160,15 @@ export function shapeToFeatures(
 export function heldFeatures(
   kind: ShapeValueKind,
   value: unknown,
-): GeoFeature[] {
+): ShapeFeature[] {
   return split(kind, value).held;
 }
 
 /** The geometry of the last feature, of `type` when given. */
 function lastGeometry(
-  features: GeoFeature[],
-  type?: GeoGeometry["type"],
-): GeoGeometry | null {
+  features: ShapeFeature[],
+  type?: Geometry["type"],
+): Geometry | null {
   for (let i = features.length - 1; i >= 0; i--) {
     const geometry = features[i]?.geometry;
     if (!geometry) continue;
@@ -175,8 +183,8 @@ function lastGeometry(
 
 function joinMulti(
   kind: "MultiPoint" | "MultiLineString" | "MultiPolygon",
-  geometries: GeoGeometry[],
-): GeoGeometry | null {
+  geometries: Geometry[],
+): Geometry | null {
   switch (kind) {
     case "MultiPoint": {
       const coordinates = geometries.flatMap((g) =>
@@ -205,7 +213,7 @@ function heldGeometries(
   kind: ShapeValueKind,
   prev: unknown,
   addHeld: boolean,
-): GeoGeometry[] {
+): Geometry[] {
   if (!addHeld) return [];
   return heldFeatures(kind, prev).flatMap((f) =>
     f.geometry ? [f.geometry] : [],
@@ -221,7 +229,7 @@ function heldGeometries(
  */
 export function featuresToShape(
   kind: ShapeValueKind,
-  features: GeoFeature[],
+  features: ShapeFeature[],
   prev: unknown,
   options: FeaturesToShapeOptions = {},
 ): ShapeValue | null {
