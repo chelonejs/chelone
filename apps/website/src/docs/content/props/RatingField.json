@@ -26,6 +26,12 @@
       "comment": "Sibling record field rendered in parentheses (e.g. review count). A\ntop-level key, not a path: the read is `record[countSource]`."
     },
     {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
       "name": "empty",
       "type": "ReactNode",
       "optional": true,

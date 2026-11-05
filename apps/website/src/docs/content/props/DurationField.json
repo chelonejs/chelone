@@ -14,6 +14,12 @@
       "comment": "A class name to apply to the root element."
     },
     {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
       "name": "displayFormat",
       "type": "\"compact\" | \"relative\"",
       "optional": true,
