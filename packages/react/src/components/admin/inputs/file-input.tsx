@@ -214,7 +214,7 @@ function FileInput(props: FileInputProps) {
     <Field
       className={cn("w-full", className)}
       data-invalid={invalid || undefined}
-      {...sanitizeInputRestProps(rest as Record<string, unknown>)}
+      {...sanitizeInputRestProps(rest)}
     >
       <FieldLabel
         htmlFor={id}
@@ -339,7 +339,7 @@ function FileInputPreview(props: FileInputPreviewProps) {
   return (
     <div
       className={cn("flex flex-row gap-1 group", className)}
-      {...sanitizeInputRestProps(rest as Record<string, unknown>)}
+      {...sanitizeInputRestProps(rest)}
     >
       <Button
         type="button"
