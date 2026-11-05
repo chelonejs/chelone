@@ -5,7 +5,57 @@
  * whose excluded-key list is identical); the excluded keys match them exactly.
  */
 
-export function sanitizeInputRestProps<Props extends Record<string, unknown>>({
+/** The props `sanitizeInputRestProps` removes. */
+export type InputStrippedKey =
+  | "afterSubmit"
+  | "allowNull"
+  | "alwaysOn"
+  | "beforeSubmit"
+  | "component"
+  | "data"
+  | "defaultValue"
+  | "error"
+  | "format"
+  | "formatOnBlur"
+  | "initializeForm"
+  | "input"
+  | "isEqual"
+  | "isRequired"
+  | "label"
+  | "limitChoicesToValue"
+  | "locale"
+  | "meta"
+  | "multiple"
+  | "name"
+  | "options"
+  | "optionText"
+  | "optionValue"
+  | "parse"
+  | "record"
+  | "ref"
+  | "refetch"
+  | "render"
+  | "resource"
+  | "setFilter"
+  | "setPagination"
+  | "setSort"
+  | "shouldUnregister"
+  | "source"
+  | "submitError"
+  | "subscription"
+  | "textAlign"
+  | "translate"
+  | "translateChoice"
+  | "validate"
+  | "validateFields"
+  | "value";
+
+/** `Props` with every stripped key optional, so the destructure below type-checks on props that lack it. */
+type InputStrippedProps<Props extends object> = Props & {
+  [Key in InputStrippedKey]?: Key extends keyof Props ? Props[Key] : never;
+};
+
+export function sanitizeInputRestProps<Props extends object>({
   afterSubmit: _afterSubmit,
   allowNull: _allowNull,
   alwaysOn: _alwaysOn,
@@ -49,6 +99,6 @@ export function sanitizeInputRestProps<Props extends Record<string, unknown>>({
   validateFields: _validateFields,
   value: _value,
   ...rest
-}: Props): Record<string, unknown> {
+}: InputStrippedProps<Props>): Omit<Props, InputStrippedKey> {
   return rest;
 }
