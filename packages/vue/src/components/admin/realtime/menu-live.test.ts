@@ -7,6 +7,7 @@
 import {
   type CheloneStore,
   createStore,
+  type DataProvider,
   defineResources,
   fakeDataProvider,
   memoryTransport,
@@ -40,14 +41,17 @@ function setup() {
 }
 
 function mountUnderAdmin(
-  { dataProvider, store }: { dataProvider: unknown; store: CheloneStore },
+  {
+    dataProvider,
+    store,
+  }: { dataProvider: DataProvider<Resources>; store: CheloneStore },
   render: () => unknown,
 ) {
   const Harness = defineComponent({
     setup: () => () =>
       h(
         Admin,
-        { dataProvider: dataProvider as never, store },
+        { dataProvider, store },
         { default: render, layout: () => h("div") },
       ),
   });

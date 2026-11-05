@@ -3,8 +3,10 @@ import {
   addEventsForMutations,
   createNotificationStore,
   type DataProvider,
+  defineResources,
   fakeDataProvider,
   memoryTransport,
+  type RecordOf,
   realtimeDataProvider,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
@@ -19,13 +21,30 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 import { CheloneProvider } from "../../../context";
 import { RecordContextProvider } from "../../../record/record-context";
 import { CommentsThread } from "./comments-thread";
 
 afterEach(cleanup);
 
-const comment = (over: Record<string, unknown>) => ({
+const resources = defineResources({
+  comments: {
+    schema: z.object({
+      id: z.number(),
+      postId: z.number(),
+      authorId: z.union([z.string(), z.number()]).optional(),
+      authorName: z.string().optional(),
+      body: z.string(),
+      createdAt: z.string(),
+      resolvedAt: z.string().nullable().optional(),
+    }),
+  },
+});
+type Resources = typeof resources;
+type Comment = RecordOf<Resources, "comments">;
+
+const comment = (over: Partial<Comment> = {}): Comment => ({
   id: 1,
   postId: 7,
   authorId: "u1",
@@ -35,7 +54,12 @@ const comment = (over: Record<string, unknown>) => ({
   ...over,
 });
 
-type Seed = Record<string, unknown>[];
+const created = (
+  over: Partial<Omit<Comment, "id">> = {},
+): Omit<Comment, "id"> => {
+  const { id: _id, ...rest } = comment();
+  return { ...rest, ...over };
+};
 
 function setup({
   comments = [],
@@ -44,12 +68,11 @@ function setup({
   contextRecord = { id: 7 },
 }: {
   contextRecord?: { id?: number };
-  comments?: Seed;
+  comments?: Comment[];
   authProvider?: AuthProvider;
-  provider?: DataProvider;
+  provider?: DataProvider<Resources>;
 } = {}) {
-  const dataProvider =
-    provider ?? (fakeDataProvider({ comments } as never) as DataProvider);
+  const dataProvider = provider ?? fakeDataProvider<Resources>({ comments });
   const getList = vi.spyOn(dataProvider, "getList");
   const create = vi.spyOn(dataProvider, "create");
   const update = vi.spyOn(dataProvider, "update");
@@ -241,7 +264,7 @@ describe("CommentsThread", () => {
     create.mockImplementationOnce(
       () =>
         new Promise((resolve) => {
-          release = () => resolve({ data: { id: 1 } } as never);
+          release = () => resolve({ data: comment() });
         }),
     );
     render(<CommentsThread reference="comments" target="postId" />, {
@@ -388,9 +411,9 @@ describe("CommentsThread", () => {
   it("CommentsThread shows a comment created through another client on a realtime provider", async () => {
     const transport = memoryTransport();
     const fake = addEventsForMutations(
-      fakeDataProvider({ comments: [comment({ id: 1 })] } as never),
+      fakeDataProvider<Resources>({ comments: [comment({ id: 1 })] }),
       transport,
-    ) as DataProvider;
+    );
     const { Providers } = setup({
       provider: realtimeDataProvider(fake, transport),
     });
@@ -403,8 +426,8 @@ describe("CommentsThread", () => {
 
     await act(async () => {
       await other.create("comments", {
-        data: comment({ id: undefined, body: "From afar" }),
-      } as never);
+        data: created({ body: "From afar" }),
+      });
     });
 
     expect(await screen.findByText("From afar")).toBeTruthy();
@@ -428,7 +451,7 @@ describe("CommentsThread", () => {
     create.mockImplementationOnce(
       () =>
         new Promise((resolve) => {
-          release = () => resolve({ data: { id: 1 } } as never);
+          release = () => resolve({ data: comment() });
         }),
     );
     render(<CommentsThread reference="comments" target="postId" />, {
