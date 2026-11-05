@@ -58,7 +58,7 @@ interface EditorProps {
   className?: string;
   mdxProps?: MdxEditorPassthrough;
   onChange: (markdown: string, initialMarkdownNormalize: boolean) => void;
-  onBlur: () => void;
+  onBlur: (event: FocusEvent) => void;
   onError: () => void;
 }
 
@@ -165,7 +165,6 @@ function MdxInput<TRecord = LooseRecord>(props: MdxInputProps<TRecord>) {
     // Identity, so clearing the editor stores "" and not null.
     parse: parse ?? ((value) => value),
     onChange,
-    onBlur,
   });
 
   const editorRef = useRef<MDXEditorMethods>(null);
@@ -186,8 +185,14 @@ function MdxInput<TRecord = LooseRecord>(props: MdxInputProps<TRecord>) {
     },
     [],
   );
-  // The editor reports a DOM blur, which is not the React event `onBlur` takes.
-  const handleBlur = useCallback(() => fieldRef.current.onBlur(), []);
+  // The editor reports a DOM blur, which is not the React event `field.onBlur`
+  // takes, so the caller's `onBlur` is called here with the event it sent.
+  const onBlurRef = useRef(onBlur);
+  onBlurRef.current = onBlur;
+  const handleBlur = useCallback((event: FocusEvent) => {
+    fieldRef.current.onBlur();
+    onBlurRef.current?.(event);
+  }, []);
 
   // Markdown the editor cannot import (block HTML, once HTML processing is off)
   // is dropped from its content without a sign, and the next keystroke would
