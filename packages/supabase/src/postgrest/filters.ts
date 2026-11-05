@@ -80,8 +80,7 @@ function terms(
 
     const at = rawKey.lastIndexOf("@");
     const name = at === -1 ? rawKey : rawKey.slice(0, at);
-    const op =
-      at === -1 ? defaultOp : (rawKey.slice(at + 1) as PostgrestOperator);
+    const op: string = at === -1 ? defaultOp : rawKey.slice(at + 1);
     const column = path === "" ? name : `${path}.${name}`;
 
     if ((name === "or" || name === "and") && isFilterBranch(value)) {
@@ -113,7 +112,7 @@ function terms(
   return out;
 }
 
-function operand(op: PostgrestOperator, value: unknown, quoted: boolean) {
+function operand(op: string, value: unknown, quoted: boolean) {
   if (value === null) {
     if (op === "eq") return "is.null";
     if (op === "neq") return "not.is.null";
