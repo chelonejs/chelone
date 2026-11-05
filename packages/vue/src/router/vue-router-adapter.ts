@@ -48,7 +48,7 @@ import {
   shallowRef,
   toValue,
 } from "vue";
-import type { HistoryState } from "vue-router";
+import type { HistoryState, RouteLocationNormalizedLoaded } from "vue-router";
 import { type Router, useRoute, useRouter } from "vue-router";
 import {
   type AdapterNavigate,
@@ -90,17 +90,25 @@ function toCorePattern(pattern: string | UseMatchArgs): string {
 }
 
 /** vue-router `route.params` → the neutral `Record<string, string | undefined>`. */
-function toNeutralParams(
-  params: Record<string, string | string[]>,
-): Record<string, string | undefined> {
+function toNeutralParams({
+  params,
+  matched,
+}: Pick<RouteLocationNormalizedLoaded, "params" | "matched">): Record<
+  string,
+  string | undefined
+> {
   const out: Record<string, string | undefined> = {};
   for (const key of Object.keys(params)) {
     const value = params[key];
     out[key] = Array.isArray(value) ? value.join("/") : value;
   }
   // `RouterPort.getParams` documents a splat under `*`; vue-router's own name
-  // for a catch-all is `pathMatch`, so expose it under both.
-  if ("pathMatch" in out) out["*"] = out.pathMatch;
+  // for a catch-all is `pathMatch`, so expose it under both. vue-router 5 omits
+  // an empty catch-all that 4 reports as `""`, so the route's own path decides.
+  if (matched.some(({ path }) => path.includes(":pathMatch"))) {
+    out.pathMatch ??= "";
+    out["*"] = out.pathMatch;
+  }
   return out;
 }
 
@@ -170,7 +178,7 @@ export const vueRouterAdapter: RouterAdapter = {
 
   useParams(): ComputedRef<Record<string, string | undefined>> {
     const route = useRoute();
-    return computed(() => toNeutralParams(route.params));
+    return computed(() => toNeutralParams(route));
   },
 
   useMatch(pattern: string | UseMatchArgs): ComputedRef<PathMatch | null> {

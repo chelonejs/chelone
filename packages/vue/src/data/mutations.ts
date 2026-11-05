@@ -207,13 +207,14 @@ export function useDeleteMany<
     });
     settle.success(params.ids);
   };
-  return {
+  const undoable: Undoable<typeof mutation, DeleteManyParams, Identifier[]> = {
     ...mutation,
     mutate,
-    mutateAsync: async (params: DeleteManyParams) => {
+    mutateAsync: async (params) => {
       mutate(params);
     },
   };
+  return undoable;
 }
 
 /**
@@ -260,13 +261,16 @@ export function useUpdateMany<
     });
     settle.success(params.ids);
   };
-  return {
+  const undoable: Undoable<
+    typeof mutation,
+    UpdateManyParams<RecordOf<TResources, TName>>,
+    Identifier[]
+  > = {
     ...mutation,
     mutate,
-    mutateAsync: async (
-      params: UpdateManyParams<RecordOf<TResources, TName>>,
-    ) => {
+    mutateAsync: async (params) => {
       mutate(params);
     },
   };
+  return undoable;
 }

@@ -68,6 +68,8 @@ const props = withDefaults(defineProps<WebhookEndpointInputProps>(), {
 });
 
 const DEFAULT_VALUE: WebhookEndpoint = { url: "", secret: "", eventTypes: [] };
+// vue-tsc 3.3 mangles a `//` in a static component prop, so this binds from here.
+const URL_PLACEHOLDER = "https://example.com/webhook";
 
 const {
   id,
@@ -130,7 +132,7 @@ async function handlePing() {
         :model-value="current.url"
         :disabled="disabled"
         :aria-invalid="invalid"
-        placeholder="https://example.com/webhook"
+        :placeholder="URL_PLACEHOLDER"
         @update:model-value="update({ url: $event })"
         @blur="blur"
       />

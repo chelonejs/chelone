@@ -842,19 +842,22 @@ describe("ShapeInput cut tool", () => {
       { type: "Feature", properties: {}, geometry: field(0, 0, 10, 10) },
     ],
     ["BBox", [0, 0, 10, 10]],
-  ])("commits nothing when a cut would split a %s value in two", async (kind, stored) => {
-    const { draw, wrapper, commits, value, dirty } = await setup(
-      { kind: kind as ShapeInputProps["kind"], tools: ["cut"] },
-      stored,
-    );
+  ])(
+    "commits nothing when a cut would split a %s value in two",
+    async (kind, stored) => {
+      const { draw, wrapper, commits, value, dirty } = await setup(
+        { kind: kind as ShapeInputProps["kind"], tools: ["cut"] },
+        stored,
+      );
 
-    await drawCutter(wrapper, draw, field(4, -5, 6, 15));
+      await drawCutter(wrapper, draw, field(4, -5, 6, 15));
 
-    expect(value()).toEqual(stored);
-    expect(commits).toEqual([]);
-    expect(dirty()).toBe(false);
-    expect(draw().mode).toBe("render");
-  });
+      expect(value()).toEqual(stored);
+      expect(commits).toEqual([]);
+      expect(dirty()).toBe(false);
+      expect(draw().mode).toBe("render");
+    },
+  );
 
   it("commits nothing when a hole cut would split a MultiPolygon held by a Geometry value", async () => {
     const stored = {
