@@ -6,6 +6,7 @@ import { MonacoSkeleton } from "./internal/monaco-shared";
 
 interface MonacoJsonInputProps<TRecord = LooseRecord>
   extends Omit<InputProps<TRecord>, "defaultValue"> {
+  /** Input-level default, ra precedence (seeds only into an untouched hole). */
   defaultValue?: unknown;
   /** A JSON Schema the value is checked against. Object shape only. */
   schema?: object;

@@ -186,6 +186,7 @@ function WebhookEndpointInput<TRecord = LooseRecord>(
 
 interface WebhookEndpointInputProps<TRecord = LooseRecord>
   extends Omit<InputProps<TRecord>, "defaultValue"> {
+  /** Input-level default, ra precedence (seeds only into an untouched hole). */
   defaultValue?: unknown;
   /** Available event-type strings to surface as checkboxes. */
   eventTypes: readonly string[];

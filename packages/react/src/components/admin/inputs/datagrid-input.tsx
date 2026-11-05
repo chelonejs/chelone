@@ -32,6 +32,7 @@ type DatagridInputProps<
   InputProps<TRecord>,
   "source" | "disabled" | "readOnly" | "defaultValue"
 > & {
+  /** Input-level default, ra precedence (seeds only into an untouched hole). */
   defaultValue?: unknown;
   /** Inline choices (records) — omit inside a `<ReferenceArrayInput>`. */
   choices?: readonly TChoice[];
