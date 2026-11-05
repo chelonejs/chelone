@@ -73,7 +73,7 @@ const buttons = {
   twitch: TwitchButton,
   twitter: TwitterButton,
   workos: WorkosButton,
-} satisfies Record<SupabaseOAuthProvider, unknown>;
+} satisfies Record<SupabaseOAuthProvider, typeof AppleButton>;
 
 const props = defineProps<SupabaseLoginPageProps>();
 
