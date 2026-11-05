@@ -280,9 +280,12 @@ const toChoices = (ids: (string | number)[]) =>
 function describeEnum({ entries = {} }: Node): Described {
   // A numeric enum also maps each value back to its key; those keys point at a
   // number-valued entry in turn, which a declared key never does.
-  const ids = Object.keys(entries)
-    .filter((key) => typeof entries[entries[key] as string] !== "number")
-    .map((key) => entries[key] as string | number);
+  const ids: (string | number)[] = [];
+  for (const key of Object.keys(entries)) {
+    const value = entries[key];
+    if (value === undefined || typeof entries[value] === "number") continue;
+    ids.push(value);
+  }
   return select(toChoices(ids));
 }
 

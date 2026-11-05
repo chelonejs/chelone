@@ -57,7 +57,8 @@ function toListSort(
   sort: SortPayload | SortPayload[] | undefined,
 ): SortPayload | SortPayload[] {
   if (Array.isArray(sort)) {
-    return sort.length === 1 ? { ...(sort[0] as SortPayload) } : sort;
+    const [only] = sort;
+    return sort.length === 1 && only ? { ...only } : sort;
   }
   return sort ?? { ...DEFAULT_SORT };
 }
