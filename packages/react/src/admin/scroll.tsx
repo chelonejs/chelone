@@ -16,18 +16,14 @@
  *   (navigating away from and back to a list).
  */
 
+import type { LocationState } from "@chelone/core";
 import { useEffect, useRef } from "react";
 import { useCheloneStore } from "../context";
 import { useLocation } from "../router/nav-hooks";
 
-/** How the location `state` carries the scroll intent (set by `useRedirect`). */
-interface ScrollState {
-  _scrollToTop?: boolean;
-}
-
-/** Read `_scrollToTop` off a location state, tolerating any/absent shape. */
-function scrollToTopRequested(state: unknown): boolean {
-  return (state as ScrollState | null)?._scrollToTop === true;
+/** Whether the location `state` carries the scroll intent (set by `useRedirect`). */
+function scrollToTopRequested(state: LocationState | null): boolean {
+  return state?._scrollToTop === true;
 }
 
 /**

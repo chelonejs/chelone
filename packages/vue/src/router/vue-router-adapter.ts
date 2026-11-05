@@ -31,6 +31,7 @@
 
 import {
   type CheloneLocation,
+  type LocationState,
   matchPath,
   type PathMatch,
   parseLocation,
@@ -60,8 +61,10 @@ import {
 } from "./adapter";
 
 /** Read `window.history.state` when in a browser; `null` under SSR. */
-function readHistoryState(): unknown {
-  return typeof window !== "undefined" ? window.history.state : null;
+function readHistoryState(): LocationState | null {
+  return typeof window !== "undefined"
+    ? toLocationState(window.history.state)
+    : null;
 }
 
 /**
@@ -131,14 +134,14 @@ export const vueRouterAdapter: RouterAdapter = {
     const route = useRoute();
     // `route.fullPath` is reactive; `parseLocation` is pure core. State is read
     // per-recompute from history so a navigation that pushed state reflects it.
-    return computed(() =>
-      parseLocation(route.fullPath, toLocationState(readHistoryState())),
-    );
+    return computed(() => parseLocation(route.fullPath, readHistoryState()));
   },
 
   useNavigate(): AdapterNavigate {
     const router = useRouter();
-    return ((to: string | number, opts?: AdapterNavigateOpts) => {
+    function navigate(to: string, opts?: AdapterNavigateOpts): void;
+    function navigate(delta: number): void;
+    function navigate(to: string | number, opts?: AdapterNavigateOpts): void {
       if (typeof to === "number") {
         router.go(to);
         return;
@@ -161,7 +164,8 @@ export const vueRouterAdapter: RouterAdapter = {
         return;
       }
       void router.push(location);
-    }) as AdapterNavigate;
+    }
+    return navigate;
   },
 
   useParams(): ComputedRef<Record<string, string | undefined>> {
