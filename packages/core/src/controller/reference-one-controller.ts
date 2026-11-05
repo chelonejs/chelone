@@ -31,7 +31,7 @@ export interface ReferenceOneControllerState<TRecord> {
   /** True during any fetch, the first one included. */
   isFetching: boolean;
   /** The provider error of the last fetch, else null. */
-  error: unknown;
+  error: Error | null;
 }
 
 export interface ReferenceOneController<TRecord>
