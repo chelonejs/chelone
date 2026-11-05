@@ -396,6 +396,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.webSocketTransport).toBeTypeOf("function");
   });
 
+  it("exports the server-sent events transport", () => {
+    expect(barrel.sseTransport).toBeTypeOf("function");
+  });
+
   it("exports the command menu helpers", () => {
     expect(barrel.matchesHotkey).toBeTypeOf("function");
     expect(barrel.shouldHandleHotkey).toBeTypeOf("function");
