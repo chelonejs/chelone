@@ -52,21 +52,28 @@ const titlesOf = (queryClient: QueryClient) =>
     .getQueryData<GetListResult>(listKey("posts", listParams))
     ?.data.map((r) => r.title);
 
+/** A promise held shut until `open()`, to keep a provider reply in flight. */
+const gate = () => {
+  let open!: () => void;
+  const promise = new Promise<void>((resolve) => {
+    open = resolve;
+  });
+  return { promise, open };
+};
+
 /** A provider whose `update` calls wait until the test settles them one by one. */
 function gatedUpdates(c: ReturnType<typeof seed>) {
   const pending: Array<{ resolve: () => void; reject: (e: Error) => void }> =
     [];
-  const dataProvider: DataProvider<R> = {
-    ...c.dataProvider,
-    update: (resource, params) =>
-      new Promise((resolve, reject) => {
-        pending.push({
-          resolve: () =>
-            resolve(c.dataProvider.update(resource, params) as never),
-          reject,
-        });
-      }),
-  };
+  const dataProvider: DataProvider<R> = { ...c.dataProvider };
+  vi.spyOn(dataProvider, "update").mockImplementation(
+    async (resource, params) => {
+      await new Promise<void>((resolve, reject) => {
+        pending.push({ resolve, reject });
+      });
+      return c.dataProvider.update(resource, params);
+    },
+  );
   return {
     pending,
     ctx: { dataProvider, queryClient: c.queryClient },
@@ -89,15 +96,14 @@ describe("mutation option factories", () => {
   it("optimistic update patches the oneKey cache immediately and keeps it on success", async () => {
     const c = seed();
     await c.queryClient.fetchQuery(getOneOptions(c, "posts", { id: 1 }));
-    let resolveUpdate!: () => void;
-    const gated: DataProvider<R> = {
-      ...c.dataProvider,
-      update: (resource, params) =>
-        new Promise((resolve) => {
-          resolveUpdate = () =>
-            resolve(c.dataProvider.update(resource, params) as never);
-        }),
-    };
+    const held = gate();
+    const gated: DataProvider<R> = { ...c.dataProvider };
+    const verb = vi
+      .spyOn(gated, "update")
+      .mockImplementation(async (resource, params) => {
+        await held.promise;
+        return c.dataProvider.update(resource, params);
+      });
     const ctx = { dataProvider: gated, queryClient: c.queryClient };
     const observer = new MutationObserver(
       c.queryClient,
@@ -105,12 +111,12 @@ describe("mutation option factories", () => {
     );
     const done = observer.mutate({ id: 1, data: { title: "patched" } });
     // wait until the provider has been CALLED (still gated — not resolved)
-    await vi.waitFor(() => expect(resolveUpdate).toBeTypeOf("function"));
+    await vi.waitFor(() => expect(verb).toHaveBeenCalled());
     // cache reflects the patch before the provider resolves
     expect(
       c.queryClient.getQueryData(oneKey("posts", { id: 1 })),
     ).toMatchObject({ title: "patched" });
-    resolveUpdate();
+    held.open();
     await done;
     // patch survives success (onSettled invalidates, but data stays)
     expect(
@@ -187,28 +193,27 @@ describe("mutation option factories", () => {
     });
     inFlight.catch(() => undefined);
     await vi.waitFor(() => expect(resolveFetch).toBeTypeOf("function"));
-    let resolveUpdate!: () => void;
-    const gated: DataProvider<R> = {
-      ...c.dataProvider,
-      update: (resource, params) =>
-        new Promise((resolve) => {
-          resolveUpdate = () =>
-            resolve(c.dataProvider.update(resource, params) as never);
-        }),
-    };
+    const held = gate();
+    const gated: DataProvider<R> = { ...c.dataProvider };
+    const verb = vi
+      .spyOn(gated, "update")
+      .mockImplementation(async (resource, params) => {
+        await held.promise;
+        return c.dataProvider.update(resource, params);
+      });
     const ctx = { dataProvider: gated, queryClient: c.queryClient };
     const observer = new MutationObserver(
       c.queryClient,
       updateMutationOptions(ctx, "posts", { mutationMode: "optimistic" }),
     );
     const done = observer.mutate({ id: 1, data: { title: "patched" } });
-    await vi.waitFor(() => expect(resolveUpdate).toBeTypeOf("function"));
+    await vi.waitFor(() => expect(verb).toHaveBeenCalled());
     resolveFetch([{ id: 1, title: "stale", at: new Date(2026, 0, 1) }]);
     await inFlight.catch(() => undefined);
     expect(c.queryClient.getQueryData(key)).toMatchObject([
       { id: 1, title: "patched" },
     ]);
-    resolveUpdate();
+    held.open();
     await done;
   });
 
@@ -462,39 +467,37 @@ describe("mutation option factories", () => {
     const key = manyKey("posts", { ids: [1] });
     const original = [{ id: 1, title: "a", at: new Date(2026, 0, 1) }];
     c.queryClient.setQueryData(key, original);
-    let resolveDelete!: () => void;
-    const gated: DataProvider<R> = {
-      ...c.dataProvider,
-      delete: (resource, params) =>
-        new Promise((resolve) => {
-          resolveDelete = () =>
-            resolve(c.dataProvider.delete(resource, params) as never);
-        }),
-    };
+    const held = gate();
+    const gated: DataProvider<R> = { ...c.dataProvider };
+    const verb = vi
+      .spyOn(gated, "delete")
+      .mockImplementation(async (resource, params) => {
+        await held.promise;
+        return c.dataProvider.delete(resource, params);
+      });
     const ctx = { dataProvider: gated, queryClient: c.queryClient };
     const observer = new MutationObserver(
       c.queryClient,
       deleteMutationOptions(ctx, "posts"),
     );
     const done = observer.mutate({ id: 1 });
-    await vi.waitFor(() => expect(resolveDelete).toBeTypeOf("function"));
+    await vi.waitFor(() => expect(verb).toHaveBeenCalled());
     expect(c.queryClient.getQueryData(key)).toEqual(original);
-    resolveDelete();
+    held.open();
     await done;
   });
 
   it("pessimistic update does NOT touch the cache before resolution", async () => {
     const c = seed();
     await c.queryClient.fetchQuery(getOneOptions(c, "posts", { id: 1 }));
-    let resolveUpdate!: () => void;
-    const gated: DataProvider<R> = {
-      ...c.dataProvider,
-      update: (resource, params) =>
-        new Promise((resolve) => {
-          resolveUpdate = () =>
-            resolve(c.dataProvider.update(resource, params) as never);
-        }),
-    };
+    const held = gate();
+    const gated: DataProvider<R> = { ...c.dataProvider };
+    const verb = vi
+      .spyOn(gated, "update")
+      .mockImplementation(async (resource, params) => {
+        await held.promise;
+        return c.dataProvider.update(resource, params);
+      });
     const ctx = { dataProvider: gated, queryClient: c.queryClient };
     const observer = new MutationObserver(
       c.queryClient,
@@ -502,11 +505,11 @@ describe("mutation option factories", () => {
     );
     const done = observer.mutate({ id: 1, data: { title: "later" } });
     // wait until the provider has been CALLED (still gated — not resolved)
-    await vi.waitFor(() => expect(resolveUpdate).toBeTypeOf("function"));
+    await vi.waitFor(() => expect(verb).toHaveBeenCalled());
     expect(
       c.queryClient.getQueryData(oneKey("posts", { id: 1 })),
     ).toMatchObject({ title: "a" });
-    resolveUpdate();
+    held.open();
     await done;
   });
 });
