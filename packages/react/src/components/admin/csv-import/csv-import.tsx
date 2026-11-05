@@ -6,7 +6,6 @@ import {
   createCsvImportController,
   csvErrorRows,
   downloadCSV,
-  type LooseRecord,
   parseCsvWith,
   recordsToCSV,
 } from "@chelone/core";
@@ -523,11 +522,7 @@ function CommitStep() {
           variant="outline"
           className="self-start"
           onClick={() =>
-            downloadCSV(
-              // recordsToCSV wants an id on each record; an error row needs none to serialize.
-              recordsToCSV(csvErrorRows(report) as LooseRecord[]),
-              "import-errors",
-            )
+            downloadCSV(recordsToCSV(csvErrorRows(report)), "import-errors")
           }
         >
           {translate("ra.csv_import.download_errors", {

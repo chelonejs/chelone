@@ -52,7 +52,7 @@ import {
   parseCsvWith,
   recordsToCSV,
 } from "@chelone/core";
-import type { CsvImportState, CsvRow, LooseRecord } from "@chelone/core";
+import type { CsvImportState, CsvRow } from "@chelone/core";
 import Papa from "papaparse";
 import { computed, onScopeDispose, provide, ref } from "vue";
 import { useCheloneContext } from "../../../context";
@@ -254,8 +254,7 @@ function downloadErrors() {
   const report = state.value.report;
   if (!report) return;
   downloadCSV(
-    // recordsToCSV wants an id on each record; an error row needs none to serialize.
-    recordsToCSV(csvErrorRows(report) as LooseRecord[]),
+    recordsToCSV(csvErrorRows(report)),
     "import-errors",
   );
 }
