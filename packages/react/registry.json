@@ -9,7 +9,11 @@
       "title": "Chelone UI Primitives",
       "categories": ["chelone", "ui"],
       "description": "The shadcn/ui primitive layer Chelone components compose (button, card, dialog, field, sidebar, table, …), shipped verbatim so consumers can install a single primitive or the whole set.",
-      "registryDependencies": ["@chelone/lib-utils", "use-mobile"],
+      "registryDependencies": [
+        "@chelone/lib-css-vars",
+        "@chelone/lib-utils",
+        "use-mobile"
+      ],
       "files": [
         {
           "path": "src/components/ui/accordion.tsx",
@@ -438,7 +442,7 @@
           "type": "registry:ui"
         }
       ],
-      "registryDependencies": ["@chelone/lib-utils"],
+      "registryDependencies": ["@chelone/lib-css-vars", "@chelone/lib-utils"],
       "dependencies": ["recharts"],
       "categories": ["chelone", "ui"],
       "author": "Chelone <https://chelone.dev>"
@@ -936,6 +940,7 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/input",
+        "@chelone/lib-css-vars",
         "@chelone/lib-utils",
         "@chelone/separator",
         "@chelone/sheet",
@@ -1000,6 +1005,7 @@
           "type": "registry:ui"
         }
       ],
+      "registryDependencies": ["@chelone/lib-css-vars"],
       "dependencies": ["lucide-react", "next-themes", "sonner"],
       "categories": ["chelone", "ui"],
       "author": "Chelone <https://chelone.dev>"
@@ -1087,7 +1093,11 @@
           "type": "registry:ui"
         }
       ],
-      "registryDependencies": ["@chelone/lib-utils", "@chelone/toggle"],
+      "registryDependencies": [
+        "@chelone/lib-css-vars",
+        "@chelone/lib-utils",
+        "@chelone/toggle"
+      ],
       "dependencies": ["class-variance-authority", "radix-ui"],
       "categories": ["chelone", "ui"],
       "author": "Chelone <https://chelone.dev>"
@@ -1985,6 +1995,10 @@
         },
         {
           "path": "src/lib/are-ids-equal.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "src/lib/css-vars.ts",
           "type": "registry:lib"
         },
         {
@@ -4572,7 +4586,11 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/menu", "@chelone/sidebar"],
+      "registryDependencies": [
+        "@chelone/lib-css-vars",
+        "@chelone/menu",
+        "@chelone/sidebar"
+      ],
       "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
@@ -5695,6 +5713,19 @@
       "files": [
         {
           "path": "src/lib/are-ids-equal.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "categories": ["chelone", "library"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "lib-css-vars",
+      "type": "registry:lib",
+      "title": "Lib Css Vars",
+      "files": [
+        {
+          "path": "src/lib/css-vars.ts",
           "type": "registry:lib"
         }
       ],
