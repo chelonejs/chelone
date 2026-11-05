@@ -63,6 +63,14 @@ describe("<CurrencyField />", () => {
     expect(getByText(/[¥￥]\s*500/)).toBeTruthy();
   });
 
+  it("formats a composite object whose amount is a numeric string", () => {
+    const { getByText } = render(
+      <CurrencyField source="cost" displayLocale="en-US" />,
+      { wrapper: wrap({ id: 1, cost: { amount: "12.50", currency: "USD" } }) },
+    );
+    expect(getByText("$12.50")).toBeTruthy();
+  });
+
   it("renders the empty placeholder when the value is missing", () => {
     const { getByText } = render(
       <CurrencyField source="price" currency="USD" empty="myapp.empty" />,

@@ -1,14 +1,13 @@
 import type { LooseRecord, SourceKey } from "@chelone/core";
-import type { HTMLAttributes, ReactNode } from "react";
-import type { FieldProps } from "@/lib/field-types";
+import type { ReactNode } from "react";
+import type { SpanFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
 interface RatingFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    HTMLAttributes<HTMLSpanElement> {
+  extends SpanFieldProps<RecordType> {
   /** Total stars rendered (filled + outlined). Default 5. */
   max?: number;
   /** Allow half-star granularity when value is between integers. */
@@ -41,7 +40,7 @@ function RatingField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: RatingFieldProps<RecordType>) {
-  const value: unknown = useFieldValue<LooseRecord>({
+  const value = useFieldValue({
     defaultValue,
     source,
     record,

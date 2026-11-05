@@ -1,7 +1,7 @@
 import type { LooseRecord } from "@chelone/core";
 import type React from "react";
 import type { AnchorHTMLAttributes } from "react";
-import type { FieldProps } from "@/lib/field-types";
+import type { ElementFieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
@@ -12,7 +12,7 @@ function EmailFieldImpl<RecordType extends LooseRecord = LooseRecord>(
   inProps: EmailFieldProps<RecordType>,
 ) {
   const { className, empty, defaultValue, source, record, ...rest } = inProps;
-  const value: unknown = useFieldValue<LooseRecord>({
+  const value = useFieldValue({
     defaultValue,
     source,
     record,
@@ -38,7 +38,7 @@ function EmailFieldImpl<RecordType extends LooseRecord = LooseRecord>(
       onClick={stopPropagation}
       {...sanitizeFieldRestProps(rest)}
     >
-      {value as string}
+      {typeof value === "string" ? value : String(value)}
     </a>
   );
 }
@@ -66,8 +66,10 @@ EmailFieldImpl.displayName = "EmailFieldImpl";
 const EmailField = genericMemo(EmailFieldImpl);
 
 interface EmailFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    AnchorHTMLAttributes<HTMLAnchorElement> {}
+  extends ElementFieldProps<
+    RecordType,
+    AnchorHTMLAttributes<HTMLAnchorElement>
+  > {}
 
 // useful to prevent click bubbling in a DataTable with rowClick
 const stopPropagation = (e: React.MouseEvent<HTMLAnchorElement>) =>

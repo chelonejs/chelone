@@ -1,14 +1,16 @@
 import type { LooseRecord } from "@chelone/core";
 import { parsePhoneNumber } from "libphonenumber-js";
 import type { HTMLAttributes } from "react";
-import type { FieldProps } from "@/lib/field-types";
+import type { ElementFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
 interface PhoneFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    Omit<HTMLAttributes<HTMLAnchorElement>, "href"> {
+  extends ElementFieldProps<
+    RecordType,
+    Omit<HTMLAttributes<HTMLAnchorElement>, "href">
+  > {
   /** 'national' renders `(415) 555-2671`; 'international' renders `+1 415 555 2671`. */
   displayFormat?: "national" | "international";
   /** When false, renders a plain `<span>` instead of a `tel:` link. */
@@ -35,7 +37,7 @@ function PhoneField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: PhoneFieldProps<RecordType>) {
-  const value: unknown = useFieldValue<LooseRecord>({
+  const value = useFieldValue({
     defaultValue,
     source,
     record,

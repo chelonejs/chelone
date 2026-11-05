@@ -66,12 +66,18 @@ export interface FieldProps<RecordType extends LooseRecord = LooseRecord> {
 }
 
 /**
- * The props of a field that renders a `<span>`: the span's own attributes, with
- * `defaultValue` typed by the record instead of the HTML attribute's
+ * The props of a field that renders an element: that element's own attributes,
+ * with `defaultValue` typed by the record instead of the HTML attribute's
  * `string | number | readonly string[]`.
  */
-export interface SpanFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    Omit<HTMLAttributes<HTMLSpanElement>, "defaultValue"> {
-  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
-}
+export type ElementFieldProps<
+  RecordType extends LooseRecord,
+  Attributes extends object,
+> = FieldProps<RecordType> &
+  Omit<Attributes, "defaultValue"> & {
+    defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
+  };
+
+/** The props of a field that renders a `<span>`. */
+export type SpanFieldProps<RecordType extends LooseRecord = LooseRecord> =
+  ElementFieldProps<RecordType, HTMLAttributes<HTMLSpanElement>>;

@@ -1,14 +1,13 @@
 import { getAtPath, type LooseRecord, type SourceProp } from "@chelone/core";
 import type { HTMLAttributes } from "react";
-import type { FieldProps } from "@/lib/field-types";
+import type { ElementFieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
 interface FileFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    HTMLAttributes<HTMLElement> {
+  extends ElementFieldProps<RecordType, HTMLAttributes<HTMLElement>> {
   /** The path to the file url on each item, for an array of files. */
   src?: string;
   /** The path to the display title (or a literal label). */
@@ -55,7 +54,7 @@ function FileField<RecordType extends LooseRecord = LooseRecord>(
     record,
     ...rest
   } = props;
-  const sourceValue: unknown = useFieldValue<LooseRecord>({
+  const sourceValue = useFieldValue({
     defaultValue,
     source,
     record,

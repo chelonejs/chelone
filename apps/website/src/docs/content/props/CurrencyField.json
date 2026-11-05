@@ -20,6 +20,12 @@
       "comment": "ISO-4217 currency code (e.g. 'USD'). Required when value is a plain number."
     },
     {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
       "name": "displayLocale",
       "type": "string",
       "optional": true,

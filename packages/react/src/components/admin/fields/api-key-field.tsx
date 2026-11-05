@@ -4,17 +4,16 @@ import {
   type SourceKey,
 } from "@chelone/core";
 import { Copy, Eye, EyeOff } from "lucide-react";
-import { type HTMLAttributes, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { FieldProps } from "@/lib/field-types";
+import type { SpanFieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
 import { useRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
 interface ApiKeyFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    HTMLAttributes<HTMLSpanElement> {
+  extends SpanFieldProps<RecordType> {
   /**
    * Sibling record field with scope strings; renders chips when set. A
    * top-level key, not a path: the read is `record[scopesSource]`.
@@ -48,7 +47,7 @@ function ApiKeyField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: ApiKeyFieldProps<RecordType>) {
-  const value: unknown = useFieldValue<LooseRecord>({
+  const value = useFieldValue({
     defaultValue,
     source,
     record,
