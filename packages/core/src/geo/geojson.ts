@@ -110,7 +110,9 @@ export function isGeoFeatureCollection(
   );
 }
 
-export function isGeoJsonValue(value: unknown): value is
+export function isGeoJsonValue(
+  value: unknown,
+): value is
   | Geometry
   | Feature<Geometry | null, JsonObject | null>
   | FeatureCollection<Geometry | null, JsonObject | null> {
