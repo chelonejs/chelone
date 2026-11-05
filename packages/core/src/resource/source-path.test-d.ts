@@ -1,3 +1,4 @@
+import type { Get } from "dot.paths";
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import type { LooseRecord } from "./record";
@@ -103,6 +104,33 @@ describe("SourceValue", () => {
       string | undefined
     >();
     expectTypeOf<SourceValue<Post, "items[0].sku">>().toEqualTypeOf<string>();
+  });
+
+  it("SourceValue matches Get's path-nullish reading for deep, null and unknown parents", () => {
+    interface Deep {
+      a?: { b: { c: number } | null; list: { n?: { z: string } }[] };
+      // type-escape: the parent whose children read as unknown
+      meta: unknown;
+    }
+    type Path<P extends string> = Get<Deep, P, { nullish: "path" }>;
+    expectTypeOf<SourceValue<Deep, "a.b.c">>().toEqualTypeOf<Path<"a.b.c">>();
+    expectTypeOf<SourceValue<Deep, "a.b.c">>().toEqualTypeOf<
+      number | null | undefined
+    >();
+    expectTypeOf<SourceValue<Deep, "a.list[0].n.z">>().toEqualTypeOf<
+      Path<"a.list[0].n.z">
+    >();
+    // type-escape: nothing is known below an unknown parent
+    expectTypeOf<SourceValue<Deep, "meta.x">>().toEqualTypeOf<unknown>();
+  });
+
+  it("SourceValue of a type parameter's own source can be read without exceeding the instantiation depth", () => {
+    function readValue<TRecord extends LooseRecord>(
+      value: SourceValue<TRecord, SourceProp<TRecord>>,
+    ) {
+      return String(value);
+    }
+    expectTypeOf(readValue).returns.toEqualTypeOf<string>();
   });
 
   it("SourceValue is unknown for a loose record", () => {

@@ -15,8 +15,8 @@
  *   consumer is not part of this wave.
  */
 
-import type { LooseRecord, SourceProp } from "@chelone/core";
-import type { ReactNode } from "react";
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+import type { HTMLAttributes, ReactNode } from "react";
 
 export type SortOrder = "ASC" | "DESC";
 export type TextAlign = "left" | "center" | "right" | "justify" | "inherit";
@@ -63,4 +63,15 @@ export interface FieldProps<RecordType extends LooseRecord = LooseRecord> {
    * A string is translated; a ReactNode renders as-is.
    */
   empty?: ReactNode;
+}
+
+/**
+ * The props of a field that renders a `<span>`: the span's own attributes, with
+ * `defaultValue` typed by the record instead of the HTML attribute's
+ * `string | number | readonly string[]`.
+ */
+export interface SpanFieldProps<RecordType extends LooseRecord = LooseRecord>
+  extends FieldProps<RecordType>,
+    Omit<HTMLAttributes<HTMLSpanElement>, "defaultValue"> {
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
 }
