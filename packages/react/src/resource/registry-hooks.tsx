@@ -17,6 +17,7 @@ import {
   type ResourceDefinition,
   type ResourceDefinitionMap,
   type ResourceRegistry,
+  type ResourceRepresentation,
 } from "@chelone/core";
 import {
   Children,
@@ -310,7 +311,7 @@ export interface UseResourceDefinitionOptions {
   hasCreate?: boolean;
   hasEdit?: boolean;
   hasShow?: boolean;
-  recordRepresentation?: unknown;
+  recordRepresentation?: ResourceRepresentation;
 }
 
 /**

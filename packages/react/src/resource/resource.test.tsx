@@ -24,7 +24,7 @@ import {
   renderHook,
   screen,
 } from "@testing-library/react";
-import { type ReactNode, useState } from "react";
+import { type ComponentType, type ReactNode, useState } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../context";
@@ -110,7 +110,7 @@ const PermissionAwareResource = makeMarker((props, permissions) => ({
 }));
 
 /**
- * recordRepresentation flips undefined → null on the "admin" permission. Both
+ * options flips undefined → `{}` on the "admin" permission. Both
  * collapse to the same signature token, so ONLY the `permissions` effect dep
  * (not the signature) can force the entry to track the change.
  */
@@ -121,8 +121,8 @@ const NullReprResource = makeMarker((props, permissions) => ({
   hasEdit: false,
   hasShow: false,
   icon: undefined,
-  recordRepresentation: permissions === "admin" ? null : undefined,
-  options: undefined,
+  recordRepresentation: undefined,
+  options: permissions === "admin" ? {} : undefined,
 }));
 
 describe("Resource — marker + static registration contract", () => {
@@ -417,9 +417,9 @@ describe("useRegisterResources — lifecycle", () => {
     expect(registryRef.current?.get("posts")?.hasCreate).toBe(true);
   });
 
-  it("re-registers on a permission flip even when the definition signature is lossy (null vs undefined repr)", () => {
-    // The signature key serializes `recordRepresentation` by identity, and both
-    // `null` and `undefined` collapse to the empty token. Keying the effect on
+  it("re-registers on a permission flip even when the definition signature is lossy (empty vs absent options)", () => {
+    // The signature key serializes `options` by key, and both
+    // an empty bag and `undefined` collapse to the empty token. Keying the effect on
     // `permissions` (not just the signature) guarantees the entry still tracks a
     // permission-dependent change the signature can't distinguish — matching
     // ra-core, which re-runs registration on every permissions change.
@@ -447,15 +447,13 @@ describe("useRegisterResources — lifecycle", () => {
       );
     }
     render(<Harness />);
-    expect(registryRef.current?.get("posts")?.recordRepresentation).toBe(
-      undefined,
-    );
+    expect(registryRef.current?.get("posts")?.options).toBe(undefined);
     act(() => {
       screen.getByTestId("promote").click();
     });
     // Signature is byte-identical across the flip; only the `permissions` dep
     // forces the re-run that updates the entry to the admin value.
-    expect(registryRef.current?.get("posts")?.recordRepresentation).toBe(null);
+    expect(registryRef.current?.get("posts")?.options).toEqual({});
   });
 
   it("does NOT churn subscribers when a permission-INDEPENDENT registrar's permissions flip", () => {
@@ -640,7 +638,7 @@ describe("useRegisterResources — lifecycle", () => {
     const IconA = () => <span>a</span>;
     const IconB = () => <span>b</span>;
     function Register() {
-      const [icon, setIcon] = useState<unknown>(() => IconA);
+      const [icon, setIcon] = useState<ComponentType>(() => IconA);
       useRegisterResources(
         <Resource name="posts" list={ListView} icon={icon} />,
         undefined,

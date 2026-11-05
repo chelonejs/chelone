@@ -1,10 +1,14 @@
 import { describe, expectTypeOf, it } from "vitest";
 import {
+  type ComputeDefinitionProps,
   computeDefinition,
   createResourceRegistry,
+  type ResourceComponent,
   type ResourceDefinition,
   type ResourceDefinitionMap,
+  type ResourceIcon,
   type ResourceRegistry,
+  type ResourceRepresentation,
 } from "./registry-store";
 
 describe("registry-store types", () => {
@@ -16,7 +20,11 @@ describe("registry-store types", () => {
       hasEdit: boolean;
       hasShow: boolean;
     }>();
+    // type-escape: pins the fallback an unaugmented program gets
     expectTypeOf<ResourceDefinition["icon"]>().toEqualTypeOf<unknown>();
+    type Representation = ResourceDefinition["recordRepresentation"];
+    // type-escape: pins the fallback an unaugmented program gets
+    expectTypeOf<Representation>().toEqualTypeOf<unknown>();
     expectTypeOf<ResourceDefinition["options"]>().toEqualTypeOf<
       Record<string, unknown> | undefined
     >();
@@ -48,7 +56,20 @@ describe("registry-store types", () => {
   it("computeDefinition accepts framework-neutral component props and returns a ResourceDefinition", () => {
     const def = computeDefinition({ name: "posts", list: () => null });
     expectTypeOf(def).toEqualTypeOf<ResourceDefinition>();
-    // components are `unknown` (framework-neutral): any value is accepted
+    // with no augmentation the slots are `unknown`: any value is accepted
     computeDefinition({ name: "posts", list: 123, edit: "x" });
+  });
+
+  it("with no augmentation every ResourceSlots type is unknown", () => {
+    // No file in this package augments `ResourceSlots`: augmentation is global
+    // to a TypeScript program, and these must resolve for adapter-less callers.
+    // type-escape: pins the fallback an unaugmented program gets
+    expectTypeOf<ResourceIcon>().toEqualTypeOf<unknown>();
+    // type-escape: pins the fallback an unaugmented program gets
+    expectTypeOf<ResourceRepresentation>().toEqualTypeOf<unknown>();
+    // type-escape: pins the fallback an unaugmented program gets
+    expectTypeOf<ResourceComponent>().toEqualTypeOf<unknown>();
+    // type-escape: pins the fallback an unaugmented program gets
+    expectTypeOf<ComputeDefinitionProps["list"]>().toEqualTypeOf<unknown>();
   });
 });

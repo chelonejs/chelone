@@ -45,7 +45,7 @@
     },
     {
       "name": "icon",
-      "type": "unknown",
+      "type": "ComponentType",
       "optional": true,
       "comment": "The menu / breadcrumb icon (a React component)."
     },
@@ -69,7 +69,7 @@
     },
     {
       "name": "recordRepresentation",
-      "type": "unknown",
+      "type": "RecordRepresentation",
       "optional": true,
       "comment": "How a record renders as a label (string field name, function, or node)."
     },
