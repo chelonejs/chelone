@@ -125,8 +125,8 @@ export type StoredFile = {
   title?: string;
 };
 
-/** One file a `<FileInput>` holds. */
-export type FileEntry = FileWithPreview | TransformedFile | StoredFile;
+/** One file a `<FileInput>` holds: a stored file may also be just its URL. */
+export type FileEntry = FileWithPreview | TransformedFile | StoredFile | string;
 
 /** What a `<FileInput>` holds: one entry, a list of them with `multiple`, or nothing. */
 export type FileSelection = FileEntry | FileEntry[] | null;
@@ -139,6 +139,7 @@ function isFile(value: FormValue): value is FileWithPreview {
 function isFileEntry(value: FormValue): value is FileEntry {
   return (
     isFile(value) ||
+    (typeof value === "string" && value !== "") ||
     (typeof value === "object" && value !== null && !Array.isArray(value))
   );
 }
@@ -159,7 +160,7 @@ export function isTransformedFile(value: FormValue): value is TransformedFile {
 
 /**
  * A file input's selection: the entry, the entries of a list (anything that is
- * not a file or a record dropped), `null` for a cleared one.
+ * not a file, a record or a URL string dropped), `null` for a cleared one.
  */
 export function toFileSelection(value: FormValue): FileSelection {
   if (Array.isArray(value)) return value.filter(isFileEntry);
@@ -173,8 +174,9 @@ export function toFileEntries(value: FormValue): FileEntry[] {
   return Array.isArray(selection) ? selection : [selection];
 }
 
-/** A stable list key for a file entry: the dropped file's name, else the stored `src`, else its place. */
+/** A stable list key for a file entry: the dropped file's name, else the stored `src` or URL, else its place. */
 export function fileEntryKey(entry: FileEntry, index: number): string | number {
+  if (typeof entry === "string") return entry;
   if (isTransformedFile(entry)) return entry.rawFile.name;
   if (isFile(entry)) return index;
   return entry.src ?? index;
@@ -182,6 +184,7 @@ export function fileEntryKey(entry: FileEntry, index: number): string | number {
 
 /** The object URL a file entry's preview holds, to revoke when it goes. */
 export function fileEntryPreview(entry: FileEntry): string | undefined {
+  if (typeof entry === "string") return undefined;
   if (isTransformedFile(entry)) return entry.rawFile.preview;
   return isFile(entry) ? entry.preview : undefined;
 }

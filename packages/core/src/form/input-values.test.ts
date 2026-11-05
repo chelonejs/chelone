@@ -181,7 +181,18 @@ describe("the file entry guards", () => {
     expect(toFileSelection(null)).toBeNull();
     expect(toFileSelection(undefined)).toBeNull();
     expect(toFileSelection("")).toBeNull();
-    expect(toFileSelection("https://example.org/c.png")).toBeNull();
+  });
+
+  it("toFileSelection keeps a stored URL string, alone or in a list", () => {
+    expect(toFileSelection("https://example.org/c.png")).toBe(
+      "https://example.org/c.png",
+    );
+    expect(toFileSelection(["https://example.org/c.png", ""])).toEqual([
+      "https://example.org/c.png",
+    ]);
+    expect(toFileEntries("https://example.org/c.png")).toEqual([
+      "https://example.org/c.png",
+    ]);
   });
 
   it("toFileEntries lists the selection", () => {
@@ -195,6 +206,9 @@ describe("the file entry guards", () => {
     expect(fileEntryKey(stored, 2)).toBe("https://example.org/b.pdf");
     expect(fileEntryKey({ title: "no src" }, 2)).toBe(2);
     expect(fileEntryKey(file, 3)).toBe(3);
+    expect(fileEntryKey("https://example.org/c.png", 4)).toBe(
+      "https://example.org/c.png",
+    );
   });
 
   it("fileEntryPreview finds the object URL a preview holds", () => {
@@ -207,5 +221,6 @@ describe("the file entry guards", () => {
     expect(fileEntryPreview(withPreview)).toBe("blob:p");
     expect(fileEntryPreview(transformed)).toBeUndefined();
     expect(fileEntryPreview(stored)).toBeUndefined();
+    expect(fileEntryPreview("https://example.org/c.png")).toBeUndefined();
   });
 });
