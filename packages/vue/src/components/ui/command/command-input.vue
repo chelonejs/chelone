@@ -14,17 +14,19 @@ const props = defineProps<{ class?: string }>();
 
 const ctx = useCommand();
 
+const moves = new Map<string, "next" | "prev" | "first" | "last">([
+  ["ArrowDown", "next"],
+  ["ArrowUp", "prev"],
+  ["Home", "first"],
+  ["End", "last"],
+]);
+
 function onKeydown(event: KeyboardEvent): void {
   if (event.isComposing) return;
-  const moves = {
-    ArrowDown: "next",
-    ArrowUp: "prev",
-    Home: "first",
-    End: "last",
-  } as const;
-  if (event.key in moves) {
+  const move = moves.get(event.key);
+  if (move) {
     event.preventDefault();
-    ctx.move(moves[event.key as keyof typeof moves]);
+    ctx.move(move);
   } else if (event.key === "Enter") {
     event.preventDefault();
     ctx.selectActive();
