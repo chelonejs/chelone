@@ -144,6 +144,40 @@ describe("createOsrmProvider", () => {
     await expect(provider.snapToRoad(twoPoints)).resolves.toBeNull();
   });
 
+  it("keeps the caller's line when a matched coordinate is not a number", async () => {
+    const provider = createOsrmProvider({
+      endpoint: ENDPOINT,
+      fetch: stubFetch({
+        code: "Ok",
+        matchings: [
+          {
+            geometry: {
+              type: "LineString",
+              coordinates: [
+                [2.1, 48.1],
+                [2.15, "48.15"],
+              ],
+            },
+          },
+        ],
+      }),
+    });
+    await expect(provider.snapToRoad(twoPoints)).resolves.toBeNull();
+  });
+
+  it("keeps the caller's line when the match is not a LineString", async () => {
+    const provider = createOsrmProvider({
+      endpoint: ENDPOINT,
+      fetch: stubFetch({
+        code: "Ok",
+        matchings: [
+          { geometry: { type: "MultiLineString", coordinates: [matched] } },
+        ],
+      }),
+    });
+    await expect(provider.snapToRoad(twoPoints)).resolves.toBeNull();
+  });
+
   it("returns null on a network error", async () => {
     const provider = createOsrmProvider({
       endpoint: ENDPOINT,
