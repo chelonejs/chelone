@@ -49,7 +49,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   Admin,
   Create,
@@ -64,12 +64,6 @@ import {
   TextInput,
   useSaveContext,
 } from "./index";
-
-// TanStack/react-router scroll restoration + the layout call window.scrollTo /
-// matchMedia (matchMedia is shimmed in test-setup); jsdom lacks scrollTo.
-beforeAll(() => {
-  window.scrollTo = vi.fn();
-});
 
 afterEach(cleanup);
 

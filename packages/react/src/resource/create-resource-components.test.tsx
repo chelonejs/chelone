@@ -15,7 +15,7 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Admin } from "../admin/admin";
 import { ReferenceField } from "../components/admin/fields/reference-field";
 import { TextField } from "../components/admin/fields/text-field";
@@ -26,10 +26,6 @@ import {
   createResourceComponentsOf,
 } from "./create-resource-components";
 import { Resource } from "./resource";
-
-beforeAll(() => {
-  window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
-});
 
 afterEach(cleanup);
 
