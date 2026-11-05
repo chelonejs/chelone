@@ -3,7 +3,6 @@ import * as monaco from "monaco-editor";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../i18n-hooks";
-import { useFieldValue } from "../../record/use-field-value";
 import {
   useAutoHeight,
   useMonacoLayout,
@@ -18,6 +17,17 @@ const MIN_HEIGHT = 120;
 const DEFAULT_HEIGHT = 200;
 const DEFAULT_MAX_HEIGHT = 400;
 
+/** What the wrapper hands over: the value it already read, and display props. */
+type MonacoJsonFieldLazyProps = Pick<
+  MonacoJsonFieldProps,
+  | "empty"
+  | "height"
+  | "autoHeight"
+  | "maxHeight"
+  | "className"
+  | "monacoOptions"
+> & { value: unknown };
+
 function toText(value: unknown): string {
   return typeof value === "string"
     ? value
@@ -26,17 +36,14 @@ function toText(value: unknown): string {
 
 /** The only file that imports `monaco-editor` at run time. */
 export default function MonacoJsonFieldLazy({
-  source,
-  record,
+  value,
   empty,
-  defaultValue,
   height = DEFAULT_HEIGHT,
   autoHeight = true,
   maxHeight = DEFAULT_MAX_HEIGHT,
   className,
   monacoOptions,
-}: MonacoJsonFieldProps) {
-  const value: unknown = useFieldValue({ source, record, defaultValue });
+}: MonacoJsonFieldLazyProps) {
   const translate = useTranslate();
   const container = useRef<HTMLDivElement>(null);
   const [instance, setInstance] =
