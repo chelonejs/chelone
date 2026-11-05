@@ -1,6 +1,5 @@
 import {
   asFeatureCollection,
-  type GeoJsonValue,
   geoBounds,
   isGeoJsonValue,
   isLngLatBox,
@@ -28,7 +27,7 @@ import { useInput } from "../../form-hooks";
 import { useTranslate } from "../../i18n-hooks";
 import { useGeoJsonSource } from "../maps/geo-json-field";
 import { MapCanvas, useMap } from "../maps/map-canvas";
-import { simplifyGeo } from "./geometry-ops";
+import { type DrawValue, simplifyGeo } from "./geometry-ops";
 
 export type SimplifyQuality = "Default" | "High";
 
@@ -66,7 +65,7 @@ function Preview({
   value,
   shapeStyle,
 }: {
-  value: GeoJsonValue;
+  value: DrawValue;
   shapeStyle: ShapeStyle | undefined;
 }) {
   const map = useMap();
@@ -142,7 +141,7 @@ export function SimplifyInput<TRecord = LooseRecord>({
   const [tolerance, setTolerance] = useState(initialTolerance);
   const [quality, setQuality] = useState<SimplifyQuality>(initialQuality);
 
-  const original = useRef<GeoJsonValue | null>(null);
+  const original = useRef<DrawValue | null>(null);
   // What this input wrote last, to tell its own writes from a reset or a load.
   const written = useRef<unknown>(null);
   const onChange = useRef(field.onChange);

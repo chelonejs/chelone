@@ -5,8 +5,9 @@
  * feature appears, then `finish` fires) and asserts the form's value.
  */
 
-import type { GeoLineString, RoutingProvider } from "@chelone/core";
+import type { RoutingProvider } from "@chelone/core";
 import { act, cleanup, fireEvent, screen } from "@testing-library/react";
+import type { LineString } from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetFake as resetMaps } from "../maps/__fixtures__/fake-maplibre";
 import {
@@ -621,17 +622,17 @@ describe("ShapeInput refine", () => {
 
 /** Snaps by shifting every position 1 degree east. */
 function fakeRouter(
-  snap?: (line: GeoLineString) => GeoLineString | null,
+  snap?: (line: LineString) => LineString | null,
 ): RoutingProvider & { snapToRoad: ReturnType<typeof vi.fn> } {
   return {
     name: "fake",
-    snapToRoad: vi.fn(async (l: GeoLineString) =>
+    snapToRoad: vi.fn(async (l: LineString) =>
       snap
         ? snap(l)
         : ({
             type: "LineString",
             coordinates: l.coordinates.map(([x, y]) => [(x ?? 0) + 1, y ?? 0]),
-          } as GeoLineString),
+          } as LineString),
     ),
   };
 }
