@@ -69,7 +69,12 @@ function Show(props: ShowProps) {
     );
   }
   const params = useParams();
-  const id = idProp ?? (params.id as Identifier);
+  const id = idProp ?? params.id;
+  if (id === undefined) {
+    throw new Error(
+      "The Show component needs an `id` prop or a route with an `:id` param",
+    );
+  }
 
   const controller = useShowController(resource, { id });
   const getRecordRepresentation = useGetRecordRepresentation(resource);

@@ -431,4 +431,25 @@ describe("<FilterButton>", () => {
       expect(toggled.getAttribute("aria-checked")).toBe("true");
     });
   });
+
+  it("does not touch the document after unmounting while a focus is pending", async () => {
+    const querySelector = vi.spyOn(document, "querySelector");
+    const { unmount } = render(
+      <ListHarness
+        dataProvider={makeDataProvider()}
+        filters={[<TextInput key="title" source="title" />]}
+      >
+        <FilterButton />
+      </ListHarness>,
+    );
+    openMenu(await screen.findByRole("button", { name: /add filter/i }));
+    fireEvent.click(
+      await screen.findByRole("menuitemcheckbox", { name: /title/i }),
+    );
+    unmount();
+    querySelector.mockClear();
+    await new Promise((resolve) => setTimeout(resolve, 120));
+    expect(querySelector).not.toHaveBeenCalled();
+    querySelector.mockRestore();
+  });
 });

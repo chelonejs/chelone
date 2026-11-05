@@ -17,7 +17,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { useShowContext } from "../../../record-view-context";
 import {
@@ -44,7 +44,15 @@ function makeDataProvider() {
   });
 }
 
-function Providers({ children }: { children: ReactNode }) {
+function Providers({
+  children,
+  path = ":id/show",
+  entry = "/1/show",
+}: {
+  children: ReactNode;
+  path?: string;
+  entry?: string;
+}) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -64,10 +72,10 @@ function Providers({ children }: { children: ReactNode }) {
     >
       <ResourceRegistryProvider registry={registry}>
         <RouterAdapterProvider adapter={reactRouterAdapter}>
-          <MemoryRouter initialEntries={["/1/show"]}>
+          <MemoryRouter initialEntries={[entry]}>
             <ResourceContextProvider value="posts">
               <Routes>
-                <Route path=":id/show" element={children} />
+                <Route path={path} element={children} />
               </Routes>
             </ResourceContextProvider>
           </MemoryRouter>
@@ -135,5 +143,22 @@ describe("<Show>", () => {
     await waitFor(() => expect(seen.title).toBe("Hello World"));
     expect(seen.resource).toBe("posts");
     expect(seen.hasSave).toBe(false);
+  });
+
+  it("Show throws without an id prop or a route id", () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    try {
+      expect(() =>
+        render(
+          <Providers path="/" entry="/">
+            <Show />
+          </Providers>,
+        ),
+      ).toThrow(/Show.*`id`.*`:id`/);
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });
