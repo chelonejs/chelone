@@ -45,8 +45,8 @@ export type ChoiceValueOf<TChoice> = TChoice extends { id: infer TId }
  */
 export function choiceIdOf<TChoice>(choice: TChoice): ChoiceValueOf<TChoice> {
   if (typeof choice === "object" && choice !== null && "id" in choice) {
-    // type-escape: `ChoiceValueOf` names the id of a choice that has one; TS
-    // cannot follow the runtime `in` check into the deferred conditional.
+    // TS cannot follow the runtime `in` check into the deferred conditional.
+    // type-escape: `ChoiceValueOf` names the id of a choice that has one.
     return choice.id as ChoiceValueOf<TChoice>;
   }
   // type-escape: a choice with no id is its own value.
@@ -61,8 +61,8 @@ export function choiceIdOf<TChoice>(choice: TChoice): ChoiceValueOf<TChoice> {
 export function toChoiceValue<TChoice>(
   value: FormValue,
 ): ChoiceValueOf<TChoice> {
-  // type-escape: a choice input stores the value of one of its choices, and
-  // form state is record-free.
+  // Form state is record-free.
+  // type-escape: a choice input stores the value of one of its choices.
   return value as ChoiceValueOf<TChoice>;
 }
 
@@ -90,8 +90,8 @@ export function toChoiceValues<TChoice>(
   value: FormValue,
 ): readonly ChoiceValueOf<TChoice>[] {
   if (value == null) return NO_CHOICE_VALUES;
-  // type-escape: a multi-choice input stores an array of its choices' values,
-  // and form state is record-free.
+  // Form state is record-free.
+  // type-escape: a multi-choice input stores an array of its choices' values.
   if (Array.isArray(value)) return value as readonly ChoiceValueOf<TChoice>[];
   return [toChoiceValue<TChoice>(value)];
 }
