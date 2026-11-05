@@ -54,9 +54,8 @@ export function buildRecordTree<R extends { id: Identifier }>(
     while (current !== null && !settled.has(current)) {
       if (onPath.has(current)) {
         const cycle = path.slice(path.indexOf(current));
-        const first = cycle.reduce((a, b) =>
-          (order.get(a) as number) < (order.get(b) as number) ? a : b,
-        );
+        const rank = (id: string) => order.get(id) ?? Number.POSITIVE_INFINITY;
+        const first = cycle.reduce((a, b) => (rank(a) < rank(b) ? a : b));
         parents.set(first, null);
         break;
       }
@@ -70,11 +69,8 @@ export function buildRecordTree<R extends { id: Identifier }>(
   const roots: RecordTreeNode<R>[] = [];
   for (const [id, node] of nodes) {
     const parent = parents.get(id) ?? null;
-    const siblings =
-      parent === null
-        ? roots
-        : (nodes.get(parent) as RecordTreeNode<R>).children;
-    siblings.push(node);
+    const parentNode = parent === null ? undefined : nodes.get(parent);
+    (parentNode ? parentNode.children : roots).push(node);
   }
   return roots;
 }

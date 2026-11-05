@@ -142,7 +142,8 @@ export function removeFilterPath(
     node: Record<string, unknown>,
     depth: number,
   ): Record<string, unknown> => {
-    const key = keys[depth] as string;
+    const key = keys[depth];
+    if (key === undefined) return node;
     const child = node[key];
     if (depth === keys.length - 1) {
       const { [key]: _removed, ...others } = node;

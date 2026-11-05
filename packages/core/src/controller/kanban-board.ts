@@ -68,7 +68,8 @@ export function buildKanbanBuckets<R extends ResourceRecord>(
   for (const record of records) {
     const index = bucketOf.get(bucketKey(record, groupSource));
     if (index === undefined) continue;
-    (buckets[index] as KanbanBucket<R>).records.push(record);
+    const bucket = buckets[index];
+    if (bucket) bucket.records.push(record);
   }
   return buckets;
 }
