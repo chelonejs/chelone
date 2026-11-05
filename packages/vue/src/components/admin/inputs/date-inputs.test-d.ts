@@ -4,7 +4,11 @@
  * fails. `createResourceComponentsOf` takes the map as a type argument, so no
  * `Register` augmentation is needed.
  */
-import { defineResources, type SourceValue } from "@chelone/core";
+import {
+  defineResources,
+  type RecordOf,
+  type SourceValue,
+} from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import { createResourceComponentsOf } from "../../../create-resource-components";
@@ -12,13 +16,14 @@ import { createResourceComponentsOf } from "../../../create-resource-components"
 const resources = defineResources({
   posts: {
     schema: z.object({
-      title: z.string(),
       publishedAt: z.date().nullable(),
+      views: z.number(),
+      title: z.string(),
     }),
   },
 });
 
-type Post = z.infer<(typeof resources)["posts"]["schema"]>;
+type Post = RecordOf<typeof resources, "posts">;
 
 const posts = createResourceComponentsOf<typeof resources, "posts">("posts");
 
@@ -27,7 +32,7 @@ const posts = createResourceComponentsOf<typeof resources, "posts">("posts");
  * factory's `NoInfer` wrapper as a different type, so the `defaultValue`
  * checks compare through this instead.
  */
-type Mutual<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
+type Mutual<A, B> = [B] extends [A] ? ([A] extends [B] ? true : false) : false;
 
 const date = posts.DateInput<"publishedAt">;
 const dateTime = posts.DateTimeInput<"publishedAt">;

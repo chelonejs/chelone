@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { SourceProp } from "@chelone/core";
+import type { DateInputValue, SourceProp } from "@chelone/core";
 
 /** Props for {@link TimeInput}. */
 export interface TimeInputProps {
@@ -7,14 +7,14 @@ export interface TimeInputProps {
   label?: string | false;
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
-  /** Read transform (form value → display string). Default {@link formatTime}. */
-  format?: (value: DateInputValue) => string;
-  /** Write transform (display string → stored value). Default {@link parseTimeToDate}. */
-  parse?: (input: string) => unknown;
   helperText?: string;
   disabled?: boolean;
   readonly?: boolean;
   inputClass?: string;
+  /** Read transform (form value → display string). Default {@link formatTime}. */
+  format?: (value: DateInputValue) => string;
+  /** Write transform (display string → stored value). Default {@link parseTimeToDate}. */
+  parse?: (input: string) => unknown;
   class?: string;
 }
 </script>
@@ -30,7 +30,6 @@ export interface TimeInputProps {
  */
 
 import {
-  type DateInputValue,
   toDateInputValue,
   toTextValue,
   type Validator,

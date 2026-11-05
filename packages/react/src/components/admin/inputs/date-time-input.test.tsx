@@ -125,7 +125,7 @@ describe("<DateTimeInput>", () => {
     setup(<DateTimeInput source="starts_at" />, {
       defaultValues: { starts_at: { year: 2021 } },
     });
-    const input = screen.getByLabelText("Starts at") as HTMLInputElement;
+    const input = screen.getByLabelText<HTMLInputElement>("Starts at");
     expect(input.value).toBe("");
   });
 

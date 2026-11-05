@@ -140,7 +140,7 @@ describe("<TimeInput>", () => {
     setup(<TimeInput source="opens_at" />, {
       defaultValues: { opens_at: { year: 2021 } },
     });
-    const input = screen.getByLabelText("Opens at") as HTMLInputElement;
+    const input = screen.getByLabelText<HTMLInputElement>("Opens at");
     expect(input.value).toBe("");
   });
 

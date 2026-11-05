@@ -29,8 +29,6 @@ const posts = createResourceComponentsOf<typeof resources, "posts">("posts");
  */
 type Mutual<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 
-type Props<T> = T extends (props: infer P) => unknown ? P : never;
-
 describe("the date inputs under a resource", () => {
   it("DateInput takes a defaultValue typed by the value at source", () => {
     expectTypeOf<
@@ -83,15 +81,15 @@ describe("the date inputs under a resource", () => {
   });
 
   it("each input rejects a misspelt source", () => {
-    const date: Props<typeof posts.DateInput> = {
+    const date: Parameters<typeof posts.DateInput>[0] = {
       // @ts-expect-error `publishedAtt` is no path of a post
       source: "publishedAtt",
     };
-    const dateTime: Props<typeof posts.DateTimeInput> = {
+    const dateTime: Parameters<typeof posts.DateTimeInput>[0] = {
       // @ts-expect-error `publishedAtt` is no path of a post
       source: "publishedAtt",
     };
-    const time: Props<typeof posts.TimeInput> = {
+    const time: Parameters<typeof posts.TimeInput>[0] = {
       // @ts-expect-error `publishedAtt` is no path of a post
       source: "publishedAtt",
     };

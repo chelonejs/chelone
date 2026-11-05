@@ -1,6 +1,7 @@
 import {
   type DateInputValue,
   type SourceProp,
+  type SourceValue,
   toDateInputValue,
   toTextValue,
 } from "@chelone/core";
@@ -206,13 +207,14 @@ function DateInput(props: DateInputProps) {
 }
 
 type DateInputProps<
+  // type-escape: the no-record sentinel `SourcePath` and `SourceValue` test for
   TRecord = unknown,
   TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
 > = Omit<InputProps<TRecord, TPath>, "format" | "parse"> & {
   /** Read transform: the stored value, as a date input holds it, to the `YYYY-MM-DD` string. */
   format?: (value: DateInputValue) => string | null;
   /** Write transform: the string the DOM input holds to the stored value. */
-  parse?: (value: string) => unknown;
+  parse?: (value: string) => SourceValue<TRecord, TPath>;
   inputClassName?: string;
 } & Omit<React.ComponentProps<"input">, "label" | "defaultValue" | "type">;
 

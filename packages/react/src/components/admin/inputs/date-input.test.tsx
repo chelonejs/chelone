@@ -166,7 +166,7 @@ describe("<DateInput>", () => {
     setup(<DateInput source="published_at" />, {
       defaultValues: { published_at: { year: 2021 } },
     });
-    const input = screen.getByLabelText("Published at") as HTMLInputElement;
+    const input = screen.getByLabelText<HTMLInputElement>("Published at");
     expect(input.value).toBe("");
   });
 

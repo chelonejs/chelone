@@ -131,8 +131,8 @@ describe("<DateInput>", () => {
       { id: 1, published_at: { year: 2021 } },
     );
     await flushPromises();
-    const input = wrapper.find('input[type="date"]');
-    expect((input.element as HTMLInputElement).value).toBe("");
+    const input = wrapper.find<HTMLInputElement>('input[type="date"]');
+    expect(input.element.value).toBe("");
   });
 
   it("writes the typed date string back to the form", async () => {
@@ -214,8 +214,10 @@ describe("<DateTimeInput>", () => {
       { id: 1, starts_at: { year: 2021 } },
     );
     await flushPromises();
-    const input = wrapper.find('input[type="datetime-local"]');
-    expect((input.element as HTMLInputElement).value).toBe("");
+    const input = wrapper.find<HTMLInputElement>(
+      'input[type="datetime-local"]',
+    );
+    expect(input.element.value).toBe("");
   });
 
   it("writes an ISO string back to the form when typed", async () => {
@@ -272,8 +274,8 @@ describe("<TimeInput>", () => {
       { id: 1, opens_at: { year: 2021 } },
     );
     await flushPromises();
-    const input = wrapper.find('input[type="time"]');
-    expect((input.element as HTMLInputElement).value).toBe("");
+    const input = wrapper.find<HTMLInputElement>('input[type="time"]');
+    expect(input.element.value).toBe("");
   });
 
   it("writes a parsed Date back to the form when typed", async () => {
