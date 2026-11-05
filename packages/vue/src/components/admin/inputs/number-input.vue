@@ -5,6 +5,10 @@ export interface NumberInputProps {
   label?: string | false;
   defaultValue?: unknown;
   validate?: Validator | readonly Validator[];
+  /** Text the input shows for the stored number (`null` when empty). */
+  format?: (value: number | null) => string;
+  /** The number to store for the text the user typed (`null` when empty or unparseable). */
+  parse?: (value: string) => number | null;
   class?: string;
 }
 </script>
@@ -18,6 +22,7 @@ export interface NumberInputProps {
  */
 
 import type { SourceProp, Validator } from "@chelone/core";
+import { toNumberValue } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
@@ -29,27 +34,34 @@ const props = withDefaults(defineProps<NumberInputProps>(), {
   label: undefined,
 });
 
-/** Parse the raw string to a number, or `null` on empty/unparseable. */
-function toNumber(raw: string): number | null {
-  if (raw == null || raw === "") return null;
-  const parsed = Number.parseFloat(raw);
-  return Number.isNaN(parsed) ? null : parsed;
-}
+const defaultFormat = (value: number | null): string =>
+  value === null ? "" : String(value);
 
+/** Parse the raw string to a number, or `null` on empty/unparseable. */
+const convertStringToNumber = (value: string | number): number | null => {
+  if (value === "") return null;
+  const float = typeof value === "number" ? value : Number.parseFloat(value);
+  return Number.isNaN(float) ? null : float;
+};
+
+// `format` and `parse` run here on the local string buffer, so the binding
+// keeps its defaults and `parse` runs once per edit.
 const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source: props.source,
   defaultValue: props.defaultValue,
   validate: props.validate,
-  // Store a real number (or null), not the display string.
-  parse: (input: unknown) => toNumber(String(input ?? "")),
 });
+
+const display = computed(() =>
+  (props.format ?? defaultFormat)(toNumberValue(value.value)),
+);
 
 // The local string buffer, seeded from the form value and re-synced when the
 // field value changes from outside (record hydration, reset) but not focused.
-const buffer = ref(value.value == null ? "" : String(value.value));
+const buffer = ref(display.value);
 const focused = ref(false);
-watch(value, (next) => {
-  if (!focused.value) buffer.value = next == null ? "" : String(next);
+watch(display, (next) => {
+  if (!focused.value) buffer.value = next;
 });
 
 const invalid = computed(() => touched.value && error.value != null);
@@ -59,12 +71,12 @@ const labelText = computed(() =>
 
 function onInput(raw: string) {
   buffer.value = raw;
-  setValue(toNumber(raw));
+  setValue((props.parse ?? convertStringToNumber)(raw));
 }
 function onBlur() {
   focused.value = false;
   blur();
-  buffer.value = value.value == null ? "" : String(value.value);
+  buffer.value = display.value;
 }
 </script>
 

@@ -150,6 +150,23 @@ describe("<FileInput>", () => {
     expect(firstLink.getAttribute("title")).toBe("Me");
   });
 
+  it("keeps a stored URL string as a preview row with a remove button", () => {
+    setup(
+      <FileInput source="avatar">
+        <FilePreviewChild />
+      </FileInput>,
+      { defaultValues: { avatar: "https://example.org/me.png" } },
+    );
+    const removeButtons = screen.getAllByRole("button", { name: /delete/i });
+    expect(removeButtons).toHaveLength(1);
+    const [remove] = removeButtons;
+    if (!remove) throw new Error("expected a remove button");
+    fireEvent.click(remove);
+    expect(screen.queryAllByRole("button", { name: /delete/i })).toHaveLength(
+      0,
+    );
+  });
+
   it("renders a remove button per file and removes on click", () => {
     setup(
       <FileInput source="attachments" multiple>

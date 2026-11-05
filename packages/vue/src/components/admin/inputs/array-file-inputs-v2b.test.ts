@@ -381,6 +381,31 @@ describe("<FileInput>", () => {
     expect(links[1]!.attributes("title")).toBe("Plan");
   });
 
+  it("keeps a stored URL string as a preview row with a remove button", async () => {
+    const { wrapper } = mountInForm(
+      () =>
+        h(
+          FileInput,
+          { source: "avatar" },
+          {
+            default: () => h(FilePreviewChild),
+          },
+        ),
+      { record: { id: 1, avatar: "https://example.org/me.png" } },
+    );
+    await flushPromises();
+
+    const removeButtons = wrapper.findAll(
+      '[data-slot="file-input-preview"] button',
+    );
+    expect(removeButtons).toHaveLength(1);
+    const [remove] = removeButtons;
+    if (!remove) throw new Error("expected a remove button");
+    await remove.trigger("click");
+    await nextTick();
+    expect(wrapper.findAll('[data-slot="file-input-preview"]')).toHaveLength(0);
+  });
+
   it("removes a file on its remove button", async () => {
     const { wrapper } = mountInForm(
       () =>
