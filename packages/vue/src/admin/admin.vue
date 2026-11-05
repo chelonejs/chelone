@@ -106,6 +106,7 @@ import {
   onScopeDispose,
   provide,
   useSlots,
+  type VNode,
   watchEffect,
 } from "vue";
 import { START_LOCATION, useRouter } from "vue-router";
@@ -128,27 +129,27 @@ provide(BasenameKey, basename);
 
 defineSlots<{
   /** The resource markers (`<Resource>`) — always rendered so they register. */
-  default?: () => unknown;
+  default?: () => VNode[];
   /** Override the default shell chrome (wins over the route view). */
-  layout?: () => unknown;
+  layout?: () => VNode[];
   /** The index/dashboard content (rendered before the route view by default). */
-  dashboard?: () => unknown;
+  dashboard?: () => VNode[];
   /** The unauthenticated login screen (`requireAuth`) — default `<LoginPage>`. */
-  login?: () => unknown;
+  login?: () => VNode[];
   /** Replaces the spinner shown while the `requireAuth` check is pending. */
-  loading?: () => unknown;
+  loading?: () => VNode[];
   /** Rendered alone when no resource is registered and no `customRoutes` are given. */
-  ready?: () => unknown;
+  ready?: () => VNode[];
   /** Replaces the default fallback shown when a route view throws. */
-  error?: (props: ErrorFallbackProps) => unknown;
+  error?: (props: ErrorFallbackProps) => VNode[];
   /** Mounted at `/auth-callback`, outside the layout and the auth gate. */
-  authCallback?: () => unknown;
+  authCallback?: () => VNode[];
   /** Mounted at `/authentication-error`, inside the layout. */
-  authenticationError?: () => unknown;
+  authenticationError?: () => VNode[];
   /** Mounted at `/access-denied`, inside the layout. */
-  accessDenied?: () => unknown;
+  accessDenied?: () => VNode[];
   /** Mounted for any path no other route owns, inside the layout. */
-  catchAll?: () => unknown;
+  catchAll?: () => VNode[];
 }>();
 
 const slots = useSlots();

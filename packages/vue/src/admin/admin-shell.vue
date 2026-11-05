@@ -19,7 +19,7 @@
  */
 
 import { joinBasename } from "@chelone/core";
-import { computed, useSlots } from "vue";
+import { computed, useSlots, type VNode } from "vue";
 import { START_LOCATION, useRoute, useRouter } from "vue-router";
 import Layout from "../components/admin/layout/layout.vue";
 import ThemeProvider from "../components/admin/layout/theme-provider.vue";
@@ -41,17 +41,17 @@ const props = defineProps<{
 
 defineSlots<{
   /** Override the default shell chrome (wins over the route view). */
-  layout?: () => unknown;
+  layout?: () => VNode[];
   /** The index/dashboard content (rendered before the route view at the index path only). */
-  dashboard?: () => unknown;
+  dashboard?: () => VNode[];
   /** The unauthenticated login screen (default `<LoginPage>`). */
-  login?: () => unknown;
+  login?: () => VNode[];
   /** Replaces the spinner shown while the `requireAuth` check is pending. */
-  loading?: () => unknown;
+  loading?: () => VNode[];
   /** Rendered alone when no resource is registered and no custom route is given. */
-  ready?: () => unknown;
+  ready?: () => VNode[];
   /** Replaces the default fallback shown when the layout branch throws. */
-  error?: (props: ErrorFallbackProps) => unknown;
+  error?: (props: ErrorFallbackProps) => VNode[];
 }>();
 
 const gate = useAuthGate(props.requireAuth);
