@@ -126,21 +126,19 @@ import { Show, type ShowProps } from "../components/admin/views/show";
 
 /**
  * The package's own fields and inputs, which the factory returns unwrapped.
- * The three `as typeof` casts name a type that declaration emit cannot spell
- * otherwise: `genericMemo(XImpl)` is typed as the unexported `XImpl`.
  */
 const components = {
   ApiKeyField,
   ArrayField,
   BadgeField,
   BooleanField,
-  ChipField: ChipField as typeof ChipField,
+  ChipField,
   ColorField,
   CronField,
   CurrencyField,
-  DateField: DateField as typeof DateField,
+  DateField,
   DurationField,
-  EmailField: EmailField as typeof EmailField,
+  EmailField,
   FileField,
   FunctionField,
   ImageField,
@@ -411,12 +409,20 @@ export type ResourceComponents<
     List: BoundView<ListProps, ReturnType<typeof List>>;
   };
 
-const cache = new Map<string, unknown>();
+/** What `build` returns: the package's components plus the four views bound to one resource. */
+type BuiltComponents = typeof components & {
+  Edit: (props: Omit<EditProps, "resource">) => ReturnType<typeof Edit>;
+  Create: (props: Omit<CreateProps, "resource">) => ReturnType<typeof Create>;
+  Show: (props: Omit<ShowProps, "resource">) => ReturnType<typeof Show>;
+  List: (props: Omit<ListProps, "resource">) => ReturnType<typeof List>;
+};
 
-function build(name: string) {
+const cache = new Map<string, BuiltComponents>();
+
+function build(name: string): BuiltComponents {
   const cached = cache.get(name);
   if (cached) return cached;
-  const built = {
+  const built: BuiltComponents = {
     ...components,
     // biome-ignore lint/correctness/noComponentHookFactories: built once per resource name, then cached
     Edit: (props: Omit<EditProps, "resource">) => (
