@@ -392,6 +392,10 @@ describe("@chelone/core barrel", () => {
     expect("reconnectDelay" in barrel).toBe(false);
   });
 
+  it("exports the WebSocket transport", () => {
+    expect(barrel.webSocketTransport).toBeTypeOf("function");
+  });
+
   it("exports the command menu helpers", () => {
     expect(barrel.matchesHotkey).toBeTypeOf("function");
     expect(barrel.shouldHandleHotkey).toBeTypeOf("function");

@@ -800,6 +800,11 @@ export {
   unreadKey,
 } from "./realtime/unread-count";
 export type {
+  WebSocketTransport,
+  WebSocketTransportOptions,
+} from "./realtime/websocket-transport";
+export { webSocketTransport } from "./realtime/websocket-transport";
+export type {
   FieldComponentName,
   FieldDescriptor,
   FieldKind,
