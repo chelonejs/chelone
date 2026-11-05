@@ -580,13 +580,20 @@ export {
   isGeoFeatureCollection,
   isGeoGeometry,
   isGeoJsonValue,
+  placedFeatures,
 } from "./geo/geojson";
 export {
   areaInTypeOf,
   geoAreaM2,
   hasSelfIntersection,
 } from "./geo/geometry-math";
-export type { ShapeLayerSpec, ShapeStyle } from "./geo/map-layers";
+export type {
+  CircleLayerSpec,
+  FillLayerSpec,
+  LineLayerSpec,
+  ShapeLayerSpec,
+  ShapeStyle,
+} from "./geo/map-layers";
 export {
   asFeatureCollection,
   DEFAULT_SHAPE_STYLE,
@@ -620,6 +627,8 @@ export {
 export type { OsmTagFilter, OsmTagInput } from "./geo/osm-tags";
 export { tagToFilter } from "./geo/osm-tags";
 export type {
+  OverpassAnswer,
+  OverpassElement,
   OverpassProvider,
   OverpassProviderOptions,
   OverpassQuery,
@@ -628,6 +637,7 @@ export type {
 } from "./geo/overpass";
 export {
   createOverpassProvider,
+  isOverpassAnswer,
   OverpassError,
   OverpassRateLimitError,
   OverpassTimeoutError,

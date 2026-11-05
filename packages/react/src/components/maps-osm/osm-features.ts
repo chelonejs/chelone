@@ -6,6 +6,7 @@ import {
   OSM_PRESETS,
   type OsmPreset,
   type OsmPresetName,
+  type OverpassAnswer,
   type OverpassProvider,
   type OverpassQuerySources,
   overpassQueryOptions,
@@ -21,8 +22,6 @@ type OsmFeatureCollection = FeatureCollection<
   JsonObject | null
 >;
 
-type TurfFeature = Extract<Parameters<typeof buffer>[0], { type: "Feature" }>;
-
 function isPolygon(feature: OsmFeature): boolean {
   const type = feature.geometry?.type;
   return type === "Polygon" || type === "MultiPolygon";
@@ -35,13 +34,13 @@ function isPolygon(feature: OsmFeature): boolean {
  * other line and every point is dropped.
  */
 export function osmToPolygons(
-  response: unknown,
+  response: OverpassAnswer,
   presets: readonly OsmPresetName[],
 ): OsmFeatureCollection {
-  const converted = osm2geojson(response as Record<string, unknown>, {
+  const converted: OsmFeatureCollection = osm2geojson(response, {
     completeFeature: true,
     renderTagged: true,
-  }) as unknown as OsmFeatureCollection;
+  });
 
   // `findPresetForTags` returns the first match, so a preset without a buffer
   // must not shadow a later one that has it.
@@ -52,27 +51,30 @@ export function osmToPolygons(
 
   const features: OsmFeature[] = [];
   for (const feature of converted.features) {
-    const type = feature.geometry?.type;
     if (isPolygon(feature)) {
       features.push(feature);
-    } else if (type === "LineString" || type === "MultiLineString") {
-      const meters = findPresetForTags(
-        feature.properties ?? {},
-        bufferingPresets,
-      )?.bufferLinesMeters;
-      if (!meters) continue;
-      // Core's GeoJSON types are hand-written, so turf needs the cast.
-      const buffered = buffer(feature as unknown as TurfFeature, meters, {
-        units: "meters",
+      continue;
+    }
+    const line = feature.geometry;
+    if (line?.type !== "LineString" && line?.type !== "MultiLineString") {
+      continue;
+    }
+    const meters = findPresetForTags(
+      feature.properties ?? {},
+      bufferingPresets,
+    )?.bufferLinesMeters;
+    if (!meters) continue;
+    const buffered = buffer(
+      { type: "Feature", properties: feature.properties, geometry: line },
+      meters,
+      { units: "meters" },
+    )?.geometry;
+    if (buffered?.type === "Polygon" || buffered?.type === "MultiPolygon") {
+      features.push({
+        type: "Feature",
+        properties: feature.properties,
+        geometry: buffered,
       });
-      const geometry = buffered?.geometry as OsmFeature["geometry"] | undefined;
-      if (geometry?.type === "Polygon" || geometry?.type === "MultiPolygon") {
-        features.push({
-          type: "Feature",
-          properties: feature.properties,
-          geometry,
-        });
-      }
     }
   }
   return { type: "FeatureCollection", features };

@@ -1,12 +1,16 @@
-import { type OverpassProvider, OverpassRateLimitError } from "@chelone/core";
+import {
+  type OverpassAnswer,
+  type OverpassProvider,
+  OverpassRateLimitError,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
-import fixture from "./__fixtures__/overpass-water-roads.json";
+import { waterRoadsAnswer as fixture } from "./__fixtures__/water-roads-answer";
 import { fetchOsmFeatures, osmToPolygons } from "./osm-features";
 
 const bbox: [number, number, number, number] = [2.29, 48.84, 2.31, 48.86];
 
-function fakeProvider(answer: unknown = fixture) {
+function fakeProvider(answer: OverpassAnswer = fixture) {
   const query = vi.fn<OverpassProvider["query"]>(async () => answer);
   const provider: OverpassProvider = { name: "fake", query };
   return { provider, query };
@@ -119,7 +123,7 @@ describe("fetchOsmFeatures", () => {
   });
 
   it("rejects on the caller's abort without failing a shared request of another caller", async () => {
-    let finish: (answer: unknown) => void = () => {};
+    let finish: (answer: OverpassAnswer) => void = () => {};
     const query = vi.fn<OverpassProvider["query"]>(
       () => new Promise((resolve) => (finish = resolve)),
     );

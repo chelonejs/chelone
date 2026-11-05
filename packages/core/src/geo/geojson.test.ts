@@ -1,3 +1,4 @@
+import type { Point } from "geojson";
 import { describe, expect, it } from "vitest";
 import {
   isGeoBBox,
@@ -5,6 +6,7 @@ import {
   isGeoFeatureCollection,
   isGeoGeometry,
   isGeoJsonValue,
+  placedFeatures,
 } from "./geojson";
 
 const square = [
@@ -269,5 +271,46 @@ describe("isGeoBBox", () => {
     expect(isGeoBBox([0, 0, 1, 1, 1])).toBe(false);
     expect(isGeoBBox("0,0,1,1")).toBe(false);
     expect(isGeoBBox(["0", "0", "1", "1"])).toBe(false);
+  });
+});
+
+describe("placedFeatures", () => {
+  const point: Point = { type: "Point", coordinates: [0, 0] };
+  it("placedFeatures drops a feature with a null geometry and keeps the order of the rest", () => {
+    const placed = placedFeatures({
+      type: "FeatureCollection",
+      features: [
+        { type: "Feature", geometry: point, properties: { n: "a" } },
+        { type: "Feature", geometry: null, properties: { n: "b" } },
+        {
+          type: "Feature",
+          geometry: { type: "Polygon", coordinates: square },
+          properties: { n: "c" },
+        },
+        { type: "Feature", geometry: null, properties: null },
+      ],
+    });
+    expect(placed.features.map((feature) => feature.properties?.n)).toEqual([
+      "a",
+      "c",
+    ]);
+  });
+
+  it("placedFeatures keeps a collection's bbox and a feature's id and properties", () => {
+    const placed = placedFeatures({
+      type: "FeatureCollection",
+      bbox: [0, 0, 1, 1],
+      features: [
+        { type: "Feature", id: 7, geometry: point, properties: { n: "a" } },
+        { type: "Feature", id: "x", geometry: null, properties: {} },
+      ],
+    });
+    expect(placed).toEqual({
+      type: "FeatureCollection",
+      bbox: [0, 0, 1, 1],
+      features: [
+        { type: "Feature", id: 7, geometry: point, properties: { n: "a" } },
+      ],
+    });
   });
 });

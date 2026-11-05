@@ -6,6 +6,7 @@ import {
   OSM_PRESETS,
   type OsmPreset,
   type OsmPresetName,
+  type OverpassAnswer,
   type OverpassProvider,
   type OverpassQuerySources,
   overpassQueryOptions,
@@ -14,8 +15,6 @@ import type { QueryClient } from "@tanstack/vue-query";
 import { buffer } from "@turf/buffer";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import osm2geojson from "osm2geojson-lite";
-
-type TurfFeature = Extract<Parameters<typeof buffer>[0], { type: "Feature" }>;
 
 function isPolygon(
   feature: Feature<Geometry | null, JsonObject | null>,
@@ -31,13 +30,14 @@ function isPolygon(
  * other line and every point is dropped.
  */
 export function osmToPolygons(
-  response: unknown,
+  response: OverpassAnswer,
   presets: readonly OsmPresetName[],
 ): FeatureCollection<Geometry | null, JsonObject | null> {
-  const converted = osm2geojson(response as Record<string, unknown>, {
-    completeFeature: true,
-    renderTagged: true,
-  }) as unknown as FeatureCollection<Geometry | null, JsonObject | null>;
+  const converted: FeatureCollection<Geometry | null, JsonObject | null> =
+    osm2geojson(response, {
+      completeFeature: true,
+      renderTagged: true,
+    });
 
   // `findPresetForTags` returns the first match, so a preset without a buffer
   // must not shadow a later one that has it.
@@ -48,29 +48,30 @@ export function osmToPolygons(
 
   const features: Feature<Geometry | null, JsonObject | null>[] = [];
   for (const feature of converted.features) {
-    const type = feature.geometry?.type;
     if (isPolygon(feature)) {
       features.push(feature);
-    } else if (type === "LineString" || type === "MultiLineString") {
-      const meters = findPresetForTags(
-        feature.properties ?? {},
-        bufferingPresets,
-      )?.bufferLinesMeters;
-      if (!meters) continue;
-      // Core's GeoJSON types are hand-written, so turf needs the cast.
-      const buffered = buffer(feature as unknown as TurfFeature, meters, {
-        units: "meters",
+      continue;
+    }
+    const line = feature.geometry;
+    if (line?.type !== "LineString" && line?.type !== "MultiLineString") {
+      continue;
+    }
+    const meters = findPresetForTags(
+      feature.properties ?? {},
+      bufferingPresets,
+    )?.bufferLinesMeters;
+    if (!meters) continue;
+    const buffered = buffer(
+      { type: "Feature", properties: feature.properties, geometry: line },
+      meters,
+      { units: "meters" },
+    )?.geometry;
+    if (buffered?.type === "Polygon" || buffered?.type === "MultiPolygon") {
+      features.push({
+        type: "Feature",
+        properties: feature.properties,
+        geometry: buffered,
       });
-      const geometry = buffered?.geometry as
-        | Feature<Geometry | null, JsonObject | null>["geometry"]
-        | undefined;
-      if (geometry?.type === "Polygon" || geometry?.type === "MultiPolygon") {
-        features.push({
-          type: "Feature",
-          properties: feature.properties,
-          geometry,
-        });
-      }
     }
   }
   return { type: "FeatureCollection", features };

@@ -1,9 +1,11 @@
 import {
   type JsonObject,
+  placedFeatures,
   type ShapeStyle,
   shapeLayerSpecs,
 } from "@chelone/core";
 import type { FeatureCollection, Geometry } from "geojson";
+import type { GeoJSONSource } from "maplibre-gl";
 import {
   computed,
   type MaybeRefOrGetter,
@@ -12,10 +14,6 @@ import {
   watch,
 } from "vue";
 import { useMap } from "./use-map";
-
-interface GeoJSONSourceLike {
-  setData(data: FeatureCollection<Geometry | null, JsonObject | null>): unknown;
-}
 
 let nextSourceId = 0;
 
@@ -42,22 +40,24 @@ export function useGeoJsonSource(
   const specsKey = computed(() => JSON.stringify(specs()));
 
   const initial = specs();
-  // MapLibre types a feature's geometry as non-null once `@types/geojson` resolves.
-  map.addSource(sourceId, { type: "geojson", data: toValue(data) as never });
-  for (const spec of initial) map.addLayer(spec as never);
+  map.addSource(sourceId, {
+    type: "geojson",
+    data: placedFeatures(toValue(data)),
+  });
+  for (const spec of initial) map.addLayer(spec);
   const ids = initial.map((spec) => spec.id);
 
   watch(
     () => toValue(data),
     (next) => {
-      (map.getSource(sourceId) as GeoJSONSourceLike | undefined)?.setData(next);
+      map.getSource<GeoJSONSource>(sourceId)?.setData(placedFeatures(next));
     },
   );
 
   watch(specsKey, () => {
     for (const spec of specs()) {
       if (map.getLayer(spec.id)) map.removeLayer(spec.id);
-      map.addLayer(spec as never);
+      map.addLayer(spec);
     }
   });
 

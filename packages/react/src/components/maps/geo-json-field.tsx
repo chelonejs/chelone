@@ -5,12 +5,13 @@ import {
   isLngLatBox,
   type JsonObject,
   type MapStyleInput,
+  placedFeatures,
   type ShapeStyle,
   type SourceProp,
   shapeLayerSpecs,
 } from "@chelone/core";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
-import type { Map as MapLibreMap } from "maplibre-gl";
+import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
 import { useEffect, useId, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../i18n-hooks";
@@ -76,9 +77,11 @@ export function useGeoJsonSource(
 
   useEffect(() => {
     const now = latest.current;
-    // MapLibre types a feature's geometry as non-null once `@types/geojson` resolves.
-    map.addSource(sourceId, { type: "geojson", data: now.data as never });
-    for (const spec of now.specs) map.addLayer(spec as never);
+    map.addSource(sourceId, {
+      type: "geojson",
+      data: placedFeatures(now.data),
+    });
+    for (const spec of now.specs) map.addLayer(spec);
     applied.current = { data: now.data, specsKey: now.specsKey };
     const ids = now.specs.map((spec) => spec.id);
     return () => {
@@ -93,7 +96,7 @@ export function useGeoJsonSource(
   useEffect(() => {
     if (applied.current.data === data) return;
     applied.current.data = data;
-    (map.getSource(sourceId) as GeoJSONSourceLike | undefined)?.setData(data);
+    map.getSource<GeoJSONSource>(sourceId)?.setData(placedFeatures(data));
   }, [map, sourceId, data]);
 
   useEffect(() => {
@@ -101,13 +104,9 @@ export function useGeoJsonSource(
     applied.current.specsKey = specsKey;
     for (const spec of latest.current.specs) {
       if (map.getLayer(spec.id)) map.removeLayer(spec.id);
-      map.addLayer(spec as never);
+      map.addLayer(spec);
     }
   }, [map, specsKey]);
-}
-
-interface GeoJSONSourceLike {
-  setData(data: GeoJsonCollection): unknown;
 }
 
 /** Props for {@link GeoJsonLayers}: the framing options, and the data to draw. */
