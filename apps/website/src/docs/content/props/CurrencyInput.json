@@ -23,7 +23,7 @@
       "name": "defaultValue",
       "type": "unknown",
       "optional": true,
-      "comment": "Input-level default, ra precedence (seeds only into an untouched hole)."
+      "comment": "Input-level default, ra precedence (seeds only into an untouched hole).\nTyped as the value at `source`; `unknown` without a record."
     },
     {
       "name": "disabled",
