@@ -26,7 +26,7 @@ export interface ListControllerState<TRecord> {
   pageInfo: PageInfo | undefined;
   isPending: boolean;
   isFetching: boolean;
-  error: unknown;
+  error: Error | null;
   hasNextPage: boolean | undefined;
   hasPreviousPage: boolean | undefined;
 }
@@ -254,8 +254,8 @@ export async function runSelectAll(
  */
 export function createErrorAnnouncer(
   notifications: NotificationStore | undefined,
-): { announce(error: unknown): void; rearm(): void } {
-  let last: unknown = null;
+): { announce(error: Error | null): void; rearm(): void } {
+  let last: Error | null = null;
   return {
     announce(error) {
       if (!error || error === last) return;
@@ -274,7 +274,10 @@ export function pageFlags(
   perPage: number,
   total: number | undefined,
   pageInfo: PageInfo | undefined,
-): Pick<ListControllerState<unknown>, "hasNextPage" | "hasPreviousPage"> {
+): Pick<
+  ListControllerState<ResourceRecord>,
+  "hasNextPage" | "hasPreviousPage"
+> {
   if (pageInfo) {
     return {
       hasNextPage: pageInfo.hasNextPage,
@@ -294,7 +297,7 @@ export function pageFlags(
  */
 export function resetPageTarget(
   s: Pick<
-    ListControllerState<unknown>,
+    ListControllerState<ResourceRecord>,
     "page" | "perPage" | "total" | "data" | "isPending" | "isFetching"
   >,
 ): number | undefined {
@@ -333,8 +336,8 @@ export function resetPageTarget(
  */
 export function listControllerActions(
   controller: Omit<
-    ListController<unknown>,
-    keyof MicroStore<ListControllerState<unknown>> | "defaultPerPage"
+    ListController<ResourceRecord>,
+    keyof MicroStore<ListControllerState<ResourceRecord>> | "defaultPerPage"
   >,
 ) {
   return {
