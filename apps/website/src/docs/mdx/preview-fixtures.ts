@@ -20,21 +20,19 @@ import { z } from "zod";
 
 // ── Records ──────────────────────────────────────────────────────────────────
 
-export interface PreviewAuthor {
+export type PreviewAuthor = {
   id: number;
   name: string;
   email: string;
-  [key: string]: unknown;
-}
-export interface PreviewPost {
+};
+export type PreviewPost = {
   id: number;
   title: string;
   body: string;
   author_id: number;
   views: number;
   published: boolean;
-  [key: string]: unknown;
-}
+};
 
 const authors: PreviewAuthor[] = [
   { id: 1, name: "Ada Lovelace", email: "ada@example.com" },

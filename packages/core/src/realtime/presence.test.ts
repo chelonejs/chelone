@@ -72,6 +72,27 @@ describe("createPresenceSession", () => {
     expect(usersOf(session)).toEqual([]);
   });
 
+  it("a presence message whose payload is an array is ignored", () => {
+    const { transport, make } = setup();
+    const session = make(ada, "tab-1");
+    session.start();
+    void transport.publish(topic, { type: "presence", payload: [grace] });
+
+    expect(usersOf(session)).toEqual([]);
+  });
+
+  it("a presence message whose user is an array is ignored", () => {
+    const { transport, make } = setup();
+    const session = make(ada, "tab-1");
+    session.start();
+    void transport.publish(topic, {
+      type: "presence",
+      payload: { sessionId: "tab-2", user: [grace.id, grace.name] },
+    });
+
+    expect(usersOf(session)).toEqual([]);
+  });
+
   it("a second session of the same user still announces to the first", () => {
     const { make } = setup();
     const first = make(ada, "tab-1");

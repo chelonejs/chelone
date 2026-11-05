@@ -93,6 +93,16 @@ describe("<TextInput>", () => {
     expect(screen.getByText("Title").closest("label")).not.toBeNull();
   });
 
+  it("spells a stored number and renders a stored object as empty", () => {
+    setup(<TextInput source="views" />, { defaultValues: { views: 5 } });
+    expect(screen.getByRole<HTMLInputElement>("textbox").value).toBe("5");
+    cleanup();
+    setup(<TextInput source="views" />, {
+      defaultValues: { views: { count: 5 } },
+    });
+    expect(screen.getByRole<HTMLInputElement>("textbox").value).toBe("");
+  });
+
   it("writes typed text back to the form value", () => {
     setup(<TextInput source="title" />, { defaultValues: { title: "" } });
     const input = screen.getByRole("textbox") as HTMLInputElement;

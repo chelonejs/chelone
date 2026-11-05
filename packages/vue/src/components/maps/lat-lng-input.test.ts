@@ -162,6 +162,13 @@ describe("LatLngInput", () => {
     expect(liveMarkers()[0]?.getLngLat()).toEqual({ lng: 2.35, lat: 48.85 });
   });
 
+  it("a stored number shows as its decimal text", async () => {
+    const { wrapper } = await setup({}, { latitude: 0, longitude: -122.4194 });
+
+    expect(textOf(latField(wrapper))).toBe("0");
+    expect(textOf(lngField(wrapper))).toBe("-122.4194");
+  });
+
   it("shows no marker while either coordinate is empty", async () => {
     const { wrapper, map } = await setup(
       { defaultPosition: [10, 20] },

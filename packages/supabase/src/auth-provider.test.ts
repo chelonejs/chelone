@@ -166,6 +166,13 @@ describe("supabaseAuthProvider", () => {
       ).resolves.toBeUndefined();
       await expect(provider.checkError(undefined)).resolves.toBeUndefined();
     });
+
+    it("checkError resolves for an array, even one carrying a status of 401", async () => {
+      const provider = supabaseAuthProvider(testClient());
+      const array = Object.assign([401], { status: 401 });
+
+      await expect(provider.checkError(array)).resolves.toBeUndefined();
+    });
   });
 
   describe("getIdentity", () => {

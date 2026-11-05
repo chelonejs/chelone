@@ -30,9 +30,11 @@ import type { Place } from "../seed";
 // One marker per place on the current page. The canvas reads its centre at
 // mount, so it waits for the first page of records.
 function PlacesMap() {
-  const { data } = useListContext();
+  // `useListContext` defaults to a bare `ResourceRecord`; naming `Place` is what
+  // lets the map read `lat`/`lng` off a record.
+  const { data } = useListContext<Place>();
   const points = (data ?? []).flatMap((record) => {
-    const { id, lat, lng } = record as Place;
+    const { id, lat, lng } = record;
     return typeof lat === "number" && typeof lng === "number"
       ? [{ id, position: [lat, lng] as const }]
       : [];

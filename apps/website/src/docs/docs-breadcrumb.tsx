@@ -16,6 +16,12 @@ interface DocsBreadcrumbProps {
   slug: string;
 }
 
+/** A linked ancestor crumb: where it points and what it is called. */
+interface Crumb {
+  to: string;
+  label: string;
+}
+
 /**
  * Full-path docs breadcrumb shown in the SiteShell inset header:
  * `Docs › <section> › [<group>] › <page>`. Always starts at the docs home; each
@@ -27,7 +33,7 @@ export function DocsBreadcrumb({ slug }: DocsBreadcrumbProps) {
   // Ancestors (everything but the last segment) → linked crumbs.
   const crumbs = parts
     .slice(0, -1)
-    .map((_, i) => {
+    .map((_, i): Crumb | null => {
       const dir = parts.slice(0, i + 1).join("/");
       if (i === 0) {
         const sec = navTree.find((g) => g.dir === dir);
@@ -38,7 +44,7 @@ export function DocsBreadcrumb({ slug }: DocsBreadcrumbProps) {
         ? { to: `/docs/${g.indexSlug}`, label: g.title }
         : null;
     })
-    .filter(Boolean) as { to: string; label: string }[];
+    .filter((crumb): crumb is Crumb => crumb !== null);
 
   // The final segment's label: a leaf page, or a section/group landing.
   const leaf = slug
