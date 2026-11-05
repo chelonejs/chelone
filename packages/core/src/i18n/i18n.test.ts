@@ -113,7 +113,9 @@ describe("createI18n", () => {
     expect(i18n.translate("chelone.greeting", { name: "Rin" })).toBe(
       "Hello Rin",
     ); // en fallback
-    expect(i18n.translate("chelone.missing" as never)).toBe("chelone.missing"); // key fallback, no throw
+    // The catalog-erased view takes any string key, which is what a missing key is.
+    const loose: AnyCheloneI18n = i18n;
+    expect(loose.translate("chelone.missing")).toBe("chelone.missing"); // key fallback, no throw
   });
 
   it("honors the polyglot `_` fallback for keys missing from the catalog", () => {
