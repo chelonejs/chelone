@@ -120,8 +120,8 @@ function setup<TFormData extends Record<string, unknown>>(
   const i18n = createI18n({ locale: "en", messages });
   const handle: {
     submit: () => Promise<void>;
-    form: ReturnType<typeof useForm<TFormData>>["form"];
-  } = { submit: async () => {}, form: undefined as never };
+    form: ReturnType<typeof useForm<TFormData>>["form"] | undefined;
+  } = { submit: async () => {}, form: undefined };
   function FormHost({ children }: { children: ReactNode }) {
     const form = useForm<TFormData>({
       defaultValues,
@@ -149,7 +149,11 @@ function setup<TFormData extends Record<string, unknown>>(
       </ThemeProvider>
     </CheloneProvider>,
   );
-  return handle;
+  const form = handle.form;
+  if (form === undefined) {
+    throw new Error("mdx-input setup: the form host never mounted");
+  }
+  return { submit: handle.submit, form };
 }
 
 /** The editor gets the given list as is, with the inert `<img>` plugin last. */

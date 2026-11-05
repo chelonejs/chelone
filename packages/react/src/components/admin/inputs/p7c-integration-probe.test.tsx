@@ -109,8 +109,9 @@ function makeProviders() {
   return { Providers, dataProvider };
 }
 
-interface FormRef {
-  current: { store: { state: { values: Record<string, unknown> } } } | null;
+/** The live FormApi, typed as `useForm` returns it. */
+interface FormRef<TFormData> {
+  current: ReturnType<typeof useForm<TFormData>>["form"] | null;
 }
 
 /**
@@ -133,7 +134,7 @@ function setup<TFormData extends Record<string, unknown>>(
   const submitRef: { current: (() => Promise<void>) | null } = {
     current: null,
   };
-  const formRef: FormRef = { current: null };
+  const formRef: FormRef<TFormData> = { current: null };
   function FormHost({ children }: { children: ReactNode }) {
     const form = useForm<TFormData>({
       defaultValues,
@@ -159,7 +160,10 @@ function setup<TFormData extends Record<string, unknown>>(
 }
 
 /** Read the live stored value at `source` off the form store. */
-function storeValue(formRef: FormRef, source: string): unknown {
+function storeValue<TFormData extends Record<string, unknown>>(
+  formRef: FormRef<TFormData>,
+  source: string,
+): unknown {
   return formRef.current?.store.state.values[source];
 }
 

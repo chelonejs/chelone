@@ -39,6 +39,7 @@ import {
   type FieldErrors,
   fakeDataProvider,
 } from "@chelone/core";
+import type { AnyFieldApi } from "@tanstack/form-core";
 import { QueryClient } from "@tanstack/react-query";
 import { act, render, waitFor } from "@testing-library/react";
 import {
@@ -140,14 +141,11 @@ function trackDevtoolsListeners() {
 
 /** Structural view of form-core internals the leak assertions need. */
 interface FieldInfoView {
-  instance: object | null;
+  instance: AnyFieldApi | null;
   validationMetaMap: Record<
     string,
     { lastAbortController: AbortController } | undefined
   >;
-}
-interface FieldTimeoutsView {
-  timeoutIds: Record<string, Record<string, unknown>>;
 }
 
 function fieldInfoMap(form: object): Record<string, FieldInfoView | undefined> {
@@ -171,10 +169,13 @@ function abortControllersOf(form: object, source: string): AbortController[] {
     .map((meta) => meta.lastAbortController);
 }
 
-/** Pending debounce/listener timers on a FieldApi — must be empty after detach. */
-function pendingFieldTimers(field: object): number {
-  const { timeoutIds } = field as unknown as FieldTimeoutsView;
-  return Object.values(timeoutIds)
+/**
+ * Pending debounce/listener timers on a FieldApi — must be empty after detach.
+ * `Pick`, not `AnyFieldApi`: a `CheloneFieldApi` is not assignable to form-core's
+ * all-`any` field type — its `never` submit meta breaks the recursive check.
+ */
+function pendingFieldTimers(field: Pick<AnyFieldApi, "timeoutIds">): number {
+  return Object.values(field.timeoutIds)
     .flatMap((group) => Object.values(group))
     .filter((t) => t != null).length;
 }
@@ -479,10 +480,12 @@ describe("P5 gate: discarded-render leaks", () => {
         setItem,
         notifications,
       } = makeWrapper();
-      let zombie: UseEditFormResult<(typeof rows)[number]> | null = null;
+      const zombie: {
+        current: UseEditFormResult<(typeof rows)[number]> | null;
+      } = { current: null };
       const mountEvents: object[] = [];
       function Exploding(): ReactNode {
-        zombie = useEditForm<typeof resources, "posts">("posts", {
+        zombie.current = useEditForm<typeof resources, "posts">("posts", {
           id: 1,
           formOptions: {
             listeners: {
@@ -502,7 +505,7 @@ describe("P5 gate: discarded-render leaks", () => {
         </Wrapper>,
       );
       await act(async () => {});
-      expect(zombie).not.toBeNull();
+      expect(zombie.current).not.toBeNull();
       expect(getOne).not.toHaveBeenCalled();
       expect(observerCount(queryClient)).toBe(0);
       expect(mountEvents).toHaveLength(0);
@@ -511,9 +514,10 @@ describe("P5 gate: discarded-render leaks", () => {
       // ZOMBIE WRITES: imperative value writes on the never-committed
       // instance are allowed (pure in-memory form state) but must mount
       // nothing and write nowhere.
-      const captured = zombie as unknown as UseEditFormResult<
-        (typeof rows)[number]
-      >;
+      if (zombie.current === null) {
+        throw new Error("gate: useEditForm never produced a result");
+      }
+      const captured = zombie.current;
       captured.form.setFieldValue("title", "ghost");
       await act(async () => {});
       expect(captured.form.state.values.title).toBe("ghost"); // allowed
@@ -722,7 +726,10 @@ describe("P5 gate: Activity detach aborts in-flight async validation", () => {
     await act(async () => {});
     const form = host.latestForm.current?.form as object;
     expect(liveFieldInstances(form)).toBe(1);
-    const fieldApi = fieldInfoMap(form).title?.instance as object;
+    const fieldApi = fieldInfoMap(form).title?.instance;
+    if (fieldApi == null) {
+      throw new Error("gate: the mounted field instance never registered");
+    }
 
     // Kick a submit; the async validator parks in flight.
     let firstSubmit!: Promise<void>;
