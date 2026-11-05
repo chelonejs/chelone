@@ -92,7 +92,7 @@ const multi = (...polygons: Polygon[]): MultiPolygon => ({
 
 const overpass: OverpassProvider = {
   name: "fake",
-  query: async () => ({}),
+  query: async () => ({ elements: [] }),
 };
 
 const catalog: MessageCatalog = {
@@ -290,7 +290,10 @@ describe("OsmFeatureSubtract", () => {
   });
 
   it("takes the provider from MapsProvider and throws an error naming provider and MapsProvider when neither is set", async () => {
-    const other: OverpassProvider = { name: "other", query: async () => ({}) };
+    const other: OverpassProvider = {
+      name: "other",
+      query: async () => ({ elements: [] }),
+    };
     const providerOfLastCall = () => fetchMock.mock.lastCall?.[3].provider;
     fetchMock.mockResolvedValue(collection());
 

@@ -4,7 +4,7 @@ import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MapsProvider } from "../maps/maps-provider";
-import fixture from "./__fixtures__/overpass-water-roads.json";
+import { waterRoadsAnswer as fixture } from "./__fixtures__/water-roads-answer";
 import { useOsmFeatures } from "./use-osm-features";
 
 const bbox: [number, number, number, number] = [2.29, 48.84, 2.31, 48.86];

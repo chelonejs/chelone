@@ -2,6 +2,7 @@ import {
   buildOverpassQuery,
   type JsonObject,
   type LngLatBox,
+  type OverpassAnswer,
   type OverpassProvider,
   type OverpassQuerySources,
   overpassQueryOptions,
@@ -53,7 +54,9 @@ export function useOsmFeatures(
   const presetKey = (sources.presets ?? []).join(",");
   // biome-ignore lint/correctness/useExhaustiveDependencies: presetKey stands for sources.presets
   const select = useCallback(
-    (answer: unknown): FeatureCollection<Geometry | null, JsonObject | null> =>
+    (
+      answer: OverpassAnswer,
+    ): FeatureCollection<Geometry | null, JsonObject | null> =>
       osmToPolygons(answer, sources.presets ?? []),
     [presetKey],
   );
