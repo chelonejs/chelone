@@ -21,6 +21,12 @@ describe("@chelone/core barrel", () => {
     expect(barrel.richTextBlockTypes).toHaveLength(7);
   });
 
+  it("exports humanize, humanizeField and pluralize", () => {
+    expect(barrel.humanize).toBeTypeOf("function");
+    expect(barrel.humanizeField).toBeTypeOf("function");
+    expect(barrel.pluralize).toBeTypeOf("function");
+  });
+
   it("exports the saved-queries controller and helpers", () => {
     expect(barrel.createSavedQueriesController).toBeTypeOf("function");
     expect(barrel.extractValidSavedQueries).toBeTypeOf("function");
