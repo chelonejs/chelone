@@ -6174,7 +6174,15 @@
       "dependencies": ["@chelone/core", "@chelone/react", "recharts"],
       "files": [
         {
+          "path": "src/components/charts/bar-chart.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/charts/chart-frame.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/charts/donut-chart.tsx",
           "type": "registry:component"
         },
         {
@@ -6182,6 +6190,21 @@
           "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bar-chart",
+      "type": "registry:component",
+      "title": "Bar Chart",
+      "files": [
+        {
+          "path": "src/components/charts/bar-chart.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/chart", "@chelone/chart-frame"],
+      "dependencies": ["@chelone/core", "recharts"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6194,8 +6217,27 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/card", "@chelone/skeleton"],
+      "registryDependencies": [
+        "@chelone/card",
+        "@chelone/chart",
+        "@chelone/skeleton"
+      ],
       "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "donut-chart",
+      "type": "registry:component",
+      "title": "Donut Chart",
+      "files": [
+        {
+          "path": "src/components/charts/donut-chart.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/chart", "@chelone/chart-frame"],
+      "dependencies": ["@chelone/core", "recharts"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
