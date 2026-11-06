@@ -4,6 +4,7 @@ import type {
   SourcePath,
   SourceProp,
 } from "@chelone/core";
+import { isIdentifier, toIdentifierList } from "@chelone/core";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -124,7 +125,7 @@ function DatagridInput<
   });
 
   const selectedIds = useMemo<Identifier[]>(
-    () => (Array.isArray(field.value) ? (field.value as Identifier[]) : []),
+    () => toIdentifierList(field.value),
     [field.value],
   );
 
@@ -144,10 +145,16 @@ function DatagridInput<
     [field, isSelected, selectedIds],
   );
 
-  const allIds = useMemo<Identifier[]>(
-    () => availableChoices.map((c) => getChoiceValue(c) as Identifier),
+  // A choice whose value is not an id has no row to tick, so it is skipped.
+  const rows = useMemo(
+    () =>
+      availableChoices.flatMap((choice) => {
+        const id = getChoiceValue(choice);
+        return isIdentifier(id) ? [{ choice, id }] : [];
+      }),
     [availableChoices, getChoiceValue],
   );
+  const allIds = useMemo(() => rows.map((row) => row.id), [rows]);
   const allSelected = allIds.length > 0 && allIds.every((id) => isSelected(id));
 
   const toggleAll = useCallback(() => {
@@ -184,8 +191,7 @@ function DatagridInput<
           </TableRow>
         </TableHeader>
         <TableBody>
-          {availableChoices.map((choice) => {
-            const id = getChoiceValue(choice) as Identifier;
+          {rows.map(({ choice, id }) => {
             return (
               <TableRow
                 key={String(id)}
