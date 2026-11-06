@@ -126,4 +126,19 @@ export {
   TableHeader,
   TableRow,
 } from "./table";
+// --- tabs primitive family -----------------------------------------------
+export type {
+  TabsContext,
+  TabsOrientation,
+  TabsTriggerEntry,
+} from "./tabs";
+export {
+  provideTabs,
+  Tabs,
+  TabsContent,
+  TabsKey,
+  TabsList,
+  TabsTrigger,
+  useTabs,
+} from "./tabs";
 export { default as Textarea } from "./textarea.vue";
