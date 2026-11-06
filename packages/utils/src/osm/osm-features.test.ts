@@ -1,14 +1,23 @@
 import {
+  geoBounds,
+  isOverpassAnswer,
+  type LngLatBox,
   type OverpassAnswer,
   type OverpassProvider,
   OverpassRateLimitError,
 } from "@chelone/core";
-import { QueryClient } from "@tanstack/vue-query";
+import { QueryClient } from "@tanstack/query-core";
 import { describe, expect, it, vi } from "vitest";
-import { waterRoadsAnswer as fixture } from "./__fixtures__/water-roads-answer";
-import { fetchOsmFeatures, osmToPolygons } from "./osm-features";
+import raw from "./__fixtures__/overpass-water-roads.json";
+import { fetchOsmFeatures, hasOsmSources, osmToPolygons } from "./osm-features";
 
-const bbox: [number, number, number, number] = [2.29, 48.84, 2.31, 48.86];
+if (!isOverpassAnswer(raw)) {
+  throw new Error("overpass-water-roads.json is not an Overpass answer");
+}
+
+const fixture: OverpassAnswer = raw;
+
+const bbox: LngLatBox = [2.29, 48.84, 2.31, 48.86];
 
 function fakeProvider(answer: OverpassAnswer = fixture) {
   const query = vi.fn<OverpassProvider["query"]>(async () => answer);
@@ -41,14 +50,16 @@ describe("osmToPolygons", () => {
       "way/1003",
     ]);
     const road = result.features[2];
-    expect(road?.geometry?.type).toBe("Polygon");
     expect(road?.properties?.highway).toBe("primary");
+    const geometry = road?.geometry;
+    if (geometry?.type !== "Polygon") {
+      throw new Error("the buffered road is not a Polygon");
+    }
+    const box = geoBounds(geometry);
+    if (!box) throw new Error("the buffered road has no bounds");
     // The line runs along longitude 2.299; 15 m of buffer is about 0.0002 degrees.
-    const ring = (road?.geometry as { coordinates: number[][][] })
-      .coordinates[0] as number[][];
-    const lons = ring.map((p) => p[0] as number);
-    expect(Math.min(...lons)).toBeLessThan(2.2989);
-    expect(Math.max(...lons)).toBeGreaterThan(2.2991);
+    expect(box[0]).toBeLessThan(2.2989);
+    expect(box[2]).toBeGreaterThan(2.2991);
   });
 
   it("drops points and an unbufferable line", () => {
@@ -80,6 +91,18 @@ describe("osmToPolygons", () => {
       natural: "water",
       name: "Etang",
     });
+  });
+});
+
+describe("hasOsmSources", () => {
+  it("is false for no presets and no tags", () => {
+    expect(hasOsmSources({})).toBe(false);
+    expect(hasOsmSources({ presets: [], tags: [] })).toBe(false);
+  });
+
+  it("is true for one preset or one tag", () => {
+    expect(hasOsmSources({ presets: ["water"] })).toBe(true);
+    expect(hasOsmSources({ tags: ["natural=water"] })).toBe(true);
   });
 });
 

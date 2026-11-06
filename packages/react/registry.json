@@ -6690,14 +6690,13 @@
         }
       ],
       "dependencies": [
-        "@chelone/core",
+        "@chelone/utils",
         "@turf/buffer",
         "@turf/difference",
         "@turf/union",
         "maplibre-gl",
         "osm2geojson-lite"
       ],
-      "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6713,9 +6712,11 @@
       ],
       "dependencies": [
         "@chelone/utils",
+        "@turf/buffer",
         "@turf/difference",
         "@turf/union",
-        "maplibre-gl"
+        "maplibre-gl",
+        "osm2geojson-lite"
       ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
