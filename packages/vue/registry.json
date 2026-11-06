@@ -7094,7 +7094,9 @@
       "categories": ["chelone", "inputs"],
       "description": "The opt-in block editor add-on: BlockEditorInput edits a document of rich text and app-defined blocks in a tiptap editor with a slash menu, and BlockDocField shows that document read-only. defineBlock declares a block from a Zod schema and its components. Installs the tiptap packages.",
       "registryDependencies": [
+        "@chelone/badge",
         "@chelone/button",
+        "@chelone/card",
         "@chelone/command",
         "@chelone/field",
         "@chelone/field-label-text",
@@ -7102,8 +7104,10 @@
         "@chelone/input-helper-text",
         "@chelone/lib-utils",
         "@chelone/native-select",
+        "@chelone/skeleton",
         "@chelone/source-input-props",
         "@chelone/switch",
+        "@chelone/table",
         "@chelone/validation-error"
       ],
       "dependencies": [
@@ -7154,6 +7158,26 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/block-editor/data-block-fields-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/data-block-parts.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/data-block-resource-select.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/data-block-state.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/data-blocks.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/block-editor/default-blocks.ts",
           "type": "registry:component"
         },
@@ -7167,6 +7191,22 @@
         },
         {
           "path": "src/components/block-editor/image-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/record-list-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/record-list-config.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/reference-record-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/reference-record-config.vue",
           "type": "registry:component"
         },
         {
@@ -7365,6 +7405,88 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "data-block-fields-input",
+      "type": "registry:component",
+      "title": "Data Block Fields Input",
+      "files": [
+        {
+          "path": "src/components/block-editor/data-block-fields-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/field", "@chelone/input"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-block-parts",
+      "type": "registry:component",
+      "title": "Data Block Parts",
+      "files": [
+        {
+          "path": "src/components/block-editor/data-block-parts.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/block-nodes"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-block-resource-select",
+      "type": "registry:component",
+      "title": "Data Block Resource Select",
+      "files": [
+        {
+          "path": "src/components/block-editor/data-block-resource-select.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/field", "@chelone/native-select"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-block-state",
+      "type": "registry:component",
+      "title": "Data Block State",
+      "files": [
+        {
+          "path": "src/components/block-editor/data-block-state.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/skeleton"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-blocks",
+      "type": "registry:component",
+      "title": "Data Blocks",
+      "files": [
+        {
+          "path": "src/components/block-editor/data-blocks.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-icons",
+        "@chelone/block-nodes",
+        "@chelone/data-block-parts",
+        "@chelone/record-list-block",
+        "@chelone/record-list-config",
+        "@chelone/reference-record-block",
+        "@chelone/reference-record-config"
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "default-blocks",
       "type": "registry:component",
       "title": "Default Blocks",
@@ -7433,6 +7555,90 @@
       ],
       "registryDependencies": ["@chelone/default-blocks"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "record-list-block",
+      "type": "registry:component",
+      "title": "Record List Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/record-list-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/data-block-parts",
+        "@chelone/data-block-state",
+        "@chelone/data-blocks",
+        "@chelone/table"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "record-list-config",
+      "type": "registry:component",
+      "title": "Record List Config",
+      "files": [
+        {
+          "path": "src/components/block-editor/record-list-config.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/data-block-fields-input",
+        "@chelone/data-block-resource-select",
+        "@chelone/data-blocks",
+        "@chelone/field",
+        "@chelone/input"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-record-block",
+      "type": "registry:component",
+      "title": "Reference Record Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/reference-record-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/card",
+        "@chelone/data-block-parts",
+        "@chelone/data-block-state",
+        "@chelone/data-blocks"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-record-config",
+      "type": "registry:component",
+      "title": "Reference Record Config",
+      "files": [
+        {
+          "path": "src/components/block-editor/reference-record-config.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/data-block-fields-input",
+        "@chelone/data-block-resource-select",
+        "@chelone/data-blocks",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/native-select"
+      ],
+      "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
