@@ -39,9 +39,8 @@ import type { SaveHandler } from "./save-context";
  * the ra view fields. Structurally a `SaveContextValue` (save/saving/
  * mutationMode), so a view can publish it into `SaveContext` unchanged.
  */
-export interface EditContextValue<
-  RecordType extends ResourceRecord = ResourceRecord,
-> extends EditControllerState<RecordType> {
+export interface EditContextValue<RecordType = ResourceRecord>
+  extends EditControllerState<RecordType> {
   /** The resource name (drives labels, breadcrumbs, the list link). */
   resource: string;
   /** Computed heading; the view falls back to it when no `title` prop is set. */
@@ -54,18 +53,19 @@ export interface EditContextValue<
 const EditContext = createContext<EditContextValue | null>(null);
 EditContext.displayName = "EditContext";
 
-export interface EditContextProviderProps<
-  RecordType extends ResourceRecord = ResourceRecord,
-> {
+export interface EditContextProviderProps<RecordType = ResourceRecord> {
   value: EditContextValue<RecordType>;
   children: ReactNode;
 }
 
 /** Publishes the ambient edit surface (mounted by an `<Edit>` view in P7d). */
-export function EditContextProvider<
-  RecordType extends ResourceRecord = ResourceRecord,
->({ value, children }: EditContextProviderProps<RecordType>): ReactNode {
-  return <EditContext.Provider value={value}>{children}</EditContext.Provider>;
+export function EditContextProvider<RecordType = ResourceRecord>({
+  value,
+  children,
+}: EditContextProviderProps<RecordType>): ReactNode {
+  // type-escape: the context stores each view's value at its own record, and `useEditContext` reads it back at the caller's
+  const stored = value as EditContextValue;
+  return <EditContext.Provider value={stored}>{children}</EditContext.Provider>;
 }
 
 /**
@@ -143,9 +143,8 @@ export function useOptionalShowContext(): ShowContextValue | null {
  * partial SEED, id-less) + the save surface + the ra view fields. Like edit, a
  * structural `SaveContextValue`.
  */
-export interface CreateContextValue<
-  RecordType extends ResourceRecord = ResourceRecord,
-> extends CreateControllerState<RecordType> {
+export interface CreateContextValue<RecordType = ResourceRecord>
+  extends CreateControllerState<RecordType> {
   resource: string;
   defaultTitle?: string;
   save: SaveHandler<RecordType>;
@@ -155,19 +154,20 @@ export interface CreateContextValue<
 const CreateContext = createContext<CreateContextValue | null>(null);
 CreateContext.displayName = "CreateContext";
 
-export interface CreateContextProviderProps<
-  RecordType extends ResourceRecord = ResourceRecord,
-> {
+export interface CreateContextProviderProps<RecordType = ResourceRecord> {
   value: CreateContextValue<RecordType>;
   children: ReactNode;
 }
 
 /** Publishes the ambient create surface (mounted by a `<Create>` view in P7d). */
-export function CreateContextProvider<
-  RecordType extends ResourceRecord = ResourceRecord,
->({ value, children }: CreateContextProviderProps<RecordType>): ReactNode {
+export function CreateContextProvider<RecordType = ResourceRecord>({
+  value,
+  children,
+}: CreateContextProviderProps<RecordType>): ReactNode {
+  // type-escape: the context stores each view's value at its own record, and `useCreateContext` reads it back at the caller's
+  const stored = value as CreateContextValue;
   return (
-    <CreateContext.Provider value={value}>{children}</CreateContext.Provider>
+    <CreateContext.Provider value={stored}>{children}</CreateContext.Provider>
   );
 }
 

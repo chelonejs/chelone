@@ -21,6 +21,9 @@
 import {
   type CreateFormControllerOptions,
   getRecordFromLocation,
+  type LooseRecord,
+  type RecordResources,
+  setFormValues,
 } from "@chelone/core";
 import {
   type ReactNode,
@@ -46,6 +49,7 @@ import { RouterAdapterContext } from "../../../router/adapter";
 import {
   SaveContextProvider,
   type SaveContextValue,
+  type SaveHandler,
 } from "../../../save-context";
 
 // Adapter presence is mount-stable (see `useRedirectOptional`), so the
@@ -67,15 +71,15 @@ function useRecordFromLocationOnce(): Record<string, unknown> | null {
  * The location's `?source=` JSON (what `<CloneButton>` writes) also seeds the
  * form at mount, and its keys win over `record`.
  */
-export interface CreateProps
+export interface CreateProps<TRecord = LooseRecord>
   extends Pick<
-    CreateFormControllerOptions<Record<string, unknown>>,
+    CreateFormControllerOptions<TRecord>,
     "validate" | "schema" | "sanitizeEmptyValues" | "onSuccess"
   > {
   /** Override the ambient resource (defaults to the `<Resource>` context). */
   resource?: string;
   /** Seed values for the not-yet-created record. */
-  record?: Record<string, unknown>;
+  record?: Partial<TRecord>;
   children?: ReactNode;
   component?: React.ElementType;
   /** Header actions; nothing by default. */
@@ -98,7 +102,7 @@ export interface CreateProps
  *   </Create>
  * );
  */
-function Create(props: CreateProps) {
+function Create<TRecord = LooseRecord>(props: CreateProps<TRecord>) {
   const {
     resource: resourceProp,
     record,
@@ -124,8 +128,11 @@ function Create(props: CreateProps) {
   // latest render's callbacks through the ref.
   const latest = useRef({ validate, onSuccess });
   latest.current = { validate, onSuccess };
-  const controller = useCreateForm(resource, {
-    record: recordFromLocation ? { ...record, ...recordFromLocation } : record,
+  const merged = { ...record, ...recordFromLocation };
+  // type-escape: the location's `?source=` JSON is untyped, and the form seeds from it as it does from `record`
+  const seed = recordFromLocation ? (merged as Partial<TRecord>) : record;
+  const controller = useCreateForm<RecordResources<TRecord>, string>(resource, {
+    record: seed,
     validate: (values) => latest.current.validate?.(values),
     schema,
     sanitizeEmptyValues,
@@ -141,18 +148,16 @@ function Create(props: CreateProps) {
 
   // The compat save bridge — same shape as `<Edit>`: write `data` into the
   // ambient form, then run the composed create pipeline.
-  const save = useCallback<NonNullable<SaveContextValue["save"]>>(
+  const save = useCallback<SaveHandler<TRecord>>(
     async (data, options) => {
-      for (const [key, value] of Object.entries(data)) {
-        form.setFieldValue(key, value);
-      }
+      setFormValues(form, data);
       await submit(options);
       return undefined;
     },
     [form, submit],
   );
 
-  const createValue = useMemo<CreateContextValue>(
+  const createValue = useMemo<CreateContextValue<TRecord>>(
     () => ({
       record: controller.record,
       isPending: controller.isPending,
@@ -165,7 +170,7 @@ function Create(props: CreateProps) {
     [controller, resource, defaultTitle, save],
   );
 
-  const saveValue = useMemo<SaveContextValue>(
+  const saveValue = useMemo<SaveContextValue<TRecord>>(
     () => ({
       save,
       saving: controller.isSubmitting,
