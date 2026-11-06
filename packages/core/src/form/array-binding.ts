@@ -5,7 +5,7 @@ import type {
 } from "@tanstack/form-core";
 import { isRecord } from "../guards";
 import type { LooseRecord } from "../resource/record";
-import type { SourcePath } from "../resource/source-path";
+import type { SourcePath, SourceValue } from "../resource/source-path";
 import type { CheloneFormApi } from "./form-controller";
 import {
   createFieldBinding,
@@ -160,7 +160,7 @@ export interface ArrayBinding<
    * `field.getSnapshot()`). Do NOT create a second FieldBinding on the same
    * source — form-core registers ONE instance per field name.
    */
-  field: FieldBinding<TRecord>;
+  field: FieldBinding<TRecord, TPath>;
   /** The array field path this binding is attached to. */
   readonly source: string;
   /**
@@ -232,9 +232,16 @@ export function createArrayBinding<
   // type-escape: TS cannot see either in form-core's `DeepKeysOfType`.
   const name = source as ArrayFieldPath<TRecord>;
 
+  /** A fresh copy of the seed rows — never the option's own array. */
+  const seedRows = (): ArrayItemOf<TRecord, TPath>[] =>
+    current.defaultValue ? [...current.defaultValue] : [];
+
   /** The field-binding view of the current options (fresh seed array per call). */
-  const toFieldOptions = (): FieldBindingUpdateOptions => ({
-    defaultValue: current.defaultValue ? [...current.defaultValue] : [],
+  const toFieldOptions = (): FieldBindingUpdateOptions<
+    SourceValue<TRecord, TPath>
+  > => ({
+    // type-escape: the rows of this path are its value, deferred while `TRecord` is open.
+    defaultValue: seedRows() as SourceValue<TRecord, TPath>,
     validate: current.validate,
     schema: current.schema,
     validatorMeta: current.validatorMeta,
@@ -252,10 +259,6 @@ export function createArrayBinding<
     const value = form.getFieldValue(name);
     return Array.isArray(value) ? value : EMPTY;
   };
-
-  /** A fresh copy of the seed rows — never the option's own array. */
-  const seedRows = (): ArrayItemOf<TRecord, TPath>[] =>
-    current.defaultValue ? [...current.defaultValue] : [];
 
   /** Materializes the guarded default so positional ops act on a real array. */
   const ensureSeeded = (): void => {

@@ -35,7 +35,7 @@ it("the array binding surface carries no `any`", () => {
   const binding = createArrayBinding(controller.form, { source: "items" });
   expectTypeOf(binding).not.toBeAny();
   expectTypeOf(binding).toEqualTypeOf<ArrayBinding<Cart, "items">>();
-  expectTypeOf(binding.field).toEqualTypeOf<FieldBinding<Cart>>();
+  expectTypeOf(binding.field).toEqualTypeOf<FieldBinding<Cart, "items">>();
   expectTypeOf(binding.getRows()).toEqualTypeOf<readonly ArrayRow[]>();
   expectTypeOf(binding.getTotal()).toEqualTypeOf<number>();
   expectTypeOf(binding.subscribe).parameter(0).toEqualTypeOf<() => void>();
