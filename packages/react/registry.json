@@ -1263,6 +1263,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/fields-selector.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/filter-button.tsx",
           "type": "registry:component"
         },
@@ -2408,9 +2412,8 @@
       ],
       "registryDependencies": [
         "@chelone/button",
-        "@chelone/input",
-        "@chelone/popover",
-        "@chelone/switch"
+        "@chelone/fields-selector",
+        "@chelone/popover"
       ],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
@@ -2498,6 +2501,25 @@
       "registryDependencies": ["@chelone/button"],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "fields-selector",
+      "type": "registry:component",
+      "title": "Fields Selector",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/fields-selector.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/input",
+        "@chelone/switch"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
