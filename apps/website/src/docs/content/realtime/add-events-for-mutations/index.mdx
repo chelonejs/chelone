@@ -1,0 +1,75 @@
+---
+title: "addEventsForMutations"
+description: "Publishes an event after each successful create, update, delete, updateMany or deleteMany so other clients refresh. The write never fails because a publish failed."
+---
+
+`addEventsForMutations` wraps a data provider and publishes after its writes,
+so a change made here reaches the live views of every other client.
+
+## Signature
+
+```ts
+function addEventsForMutations<TProvider extends DataProvider>(
+  base: TProvider,
+  publisher: Pick<RealtimeTransport, "publish">,
+  options?: AddEventsForMutationsOptions,
+): TProvider
+
+interface AddEventsForMutationsOptions {
+  /** Called with each publish that rejected; the mutation still resolves. */
+  onError?: (error: unknown) => void;
+}
+```
+
+- `base` is the provider to wrap. The result is typed `TProvider`, so wrapping a
+  `RealtimeDataProvider` keeps it one and every live hook still takes it.
+- `publisher` needs only `publish`: pass a transport, or the wrapped provider
+  itself.
+- `onError` hears each rejected publish. An `onError` that throws is swallowed
+  too.
+- `create`, `update`, `delete`, `updateMany` and `deleteMany` are wrapped. Every
+  other method is copied as it is, including the methods on the prototype chain
+  of a class instance.
+
+## Returns
+
+`TProvider`: the same verbs, each resolving after its publishes settle. A
+rejected publish goes to `onError` and never fails the write, because the write
+is already committed.
+
+Each write publishes on these topics:
+
+| Write | Topics | Payloads |
+| --- | --- | --- |
+| `create` | resource | `{ ids: [id] }` |
+| `update` | record, then resource | `{ id, data }`, then `{ ids: [id] }` |
+| `delete` | record, then resource | `{ id, previousData }`, then `{ ids: [id] }` |
+| `updateMany`, `deleteMany` | resource, then each record | `{ ids }`, then `{ id }` each |
+
+Those are the topics `resourceTopic` and `recordTopic` build, so a subscriber
+written by hand matches the wrapper. `1` and `"1"` give the same topic.
+
+Leave the wrapper out when your server publishes for every write already, such
+as a database change feed: publishing twice refetches twice.
+
+## Example
+
+```ts
+import {
+  addEventsForMutations,
+  realtimeDataProvider,
+  webSocketTransport,
+} from "@chelone/core";
+import { baseProvider } from "./baseProvider";
+
+const transport = webSocketTransport({ url: "wss://api.example.com/realtime" });
+
+export const dataProvider = addEventsForMutations(
+  realtimeDataProvider(baseProvider, transport),
+  transport,
+  { onError: (error) => console.error("publish failed", error) },
+);
+```
+
+See the [realtime guide](/docs/app-config/realtime) for the provider setup, the
+event payloads and the topics the live views listen on.

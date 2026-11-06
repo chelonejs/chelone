@@ -1,0 +1,69 @@
+---
+title: "memoryTransport"
+description: "Routes realtime events by topic inside one process, with no server and no library. For tests and demos: it reaches one page, not another browser."
+---
+
+`memoryTransport` is the transport the demos and the tests run on. It holds the
+subscribers of each topic in a `Map` and hands each publish straight to them.
+
+## Signature
+
+```ts
+function memoryTransport(options?: MemoryTransportOptions): MemoryTransport
+
+interface MemoryTransportOptions {
+  /** Waits this long between recording a publish and delivering it. */
+  delayMs?: number;
+  /** Called for every transport error, like a listener from `onError()`. */
+  onError?: (error: RealtimeTransportError) => void;
+}
+```
+
+## Returns
+
+A `MemoryTransport`: every member of `RealtimeTransport` (`subscribe`,
+`publish`, `onReconnect`, `onStatusChange`, `getStatus` and `onError`) plus
+three members tests and demos drive it with.
+
+| Member | Does |
+| --- | --- |
+| `publishedEvents` | Every event published so far, in order, whether or not anyone listened |
+| `simulateReconnect()` | Calls every `onReconnect` listener, as a transport does after a drop |
+| `setStatus(status)` | Sets what `getStatus` reports and calls every `onStatusChange` listener |
+
+It starts as `"connected"`, since there is no connection to open.
+
+- `publish` records the event first, then waits `delayMs`, then dispatches. An
+  unsubscribe during that delay is honoured, so the callback is not called.
+- A subscriber that throws is reported as `handler_threw`, and the other
+  subscribers still run.
+- Nothing leaves the process. Two components in one tab share events; a second
+  tab of the browser does not, and neither does another device. For the tabs of
+  one browser, use `broadcastChannelTransport`.
+
+## Example
+
+```ts
+import { memoryTransport } from "@chelone/core";
+
+export const transport = memoryTransport({
+  delayMs: 50,
+  onError: (error) => console.error(error.kind, error.cause),
+});
+
+const stop = transport.subscribe("resource/posts", (event) =>
+  console.log(event.type),
+);
+
+await transport.publish("resource/posts", {
+  type: "updated",
+  payload: { ids: [1] },
+});
+
+transport.publishedEvents.length; // 1
+transport.simulateReconnect();
+stop();
+```
+
+See the [realtime guide](/docs/app-config/realtime) for the transport contract,
+the other transports and the status each one reports.
