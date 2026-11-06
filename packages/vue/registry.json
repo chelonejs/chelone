@@ -192,6 +192,30 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/ui/tabs/context.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/tabs/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/tabs/tabs-content.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/tabs/tabs-list.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/tabs/tabs-trigger.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/ui/tabs/tabs.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/ui/textarea.vue",
           "type": "registry:component"
         }
@@ -557,6 +581,40 @@
       "files": [
         {
           "path": "src/components/ui/table.ts",
+          "type": "registry:ui"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "categories": ["chelone", "ui"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "tabs",
+      "type": "registry:ui",
+      "title": "Tabs",
+      "files": [
+        {
+          "path": "src/components/ui/tabs/context.ts",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/tabs/index.ts",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/tabs/tabs-content.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/tabs/tabs-list.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/tabs/tabs-trigger.vue",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/tabs/tabs.vue",
           "type": "registry:ui"
         }
       ],
