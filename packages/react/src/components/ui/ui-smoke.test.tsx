@@ -12,12 +12,18 @@
  * vitest matchers (no `@testing-library/jest-dom`) to match the package's
  * existing test convention.
  */
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import {
   Select,
   SelectContent,
@@ -80,5 +86,24 @@ describe("ui/ foundation smoke", () => {
     const trigger = screen.getByRole("combobox", { name: "fruit" });
     expect(trigger.getAttribute("data-slot")).toBe("select-trigger");
     expect(trigger.textContent).toContain("Pick one");
+  });
+
+  it("focuses the InputGroup input on an addon click that is not on a button", () => {
+    render(
+      <InputGroup>
+        <InputGroupInput aria-label="amount" />
+        <InputGroupAddon>
+          <span>USD</span>
+          <InputGroupButton>Clear</InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>,
+    );
+    const input = screen.getByRole("textbox", { name: "amount" });
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    expect(document.activeElement).not.toBe(input);
+
+    fireEvent.click(screen.getByText("USD"));
+    expect(document.activeElement).toBe(input);
   });
 });

@@ -33,7 +33,8 @@ const classes = computed(() =>
 );
 
 function onInput(event: Event) {
-  emit("update:modelValue", (event.target as HTMLTextAreaElement).value);
+  if (event.target instanceof HTMLTextAreaElement)
+    emit("update:modelValue", event.target.value);
 }
 </script>
 

@@ -197,7 +197,8 @@ const fileInput = ref<HTMLInputElement | null>(null);
 const dragging = ref(false);
 
 function onFileChange(event: Event) {
-  const input = event.target as HTMLInputElement;
+  const input = event.target;
+  if (!(input instanceof HTMLInputElement)) return;
   const file = input.files?.[0];
   if (file) void loadFile(file);
   // Allow choosing the same file again.
