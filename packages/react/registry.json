@@ -1894,6 +1894,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/record-timeline.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/saved-queries-list.tsx",
           "type": "registry:component"
         },
@@ -5305,6 +5309,24 @@
         "@chelone/skeleton"
       ],
       "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "record-timeline",
+      "type": "registry:component",
+      "title": "Record Timeline",
+      "files": [
+        {
+          "path": "src/components/admin/list/record-timeline.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/simple-list-loading"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
