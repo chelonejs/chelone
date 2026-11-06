@@ -4,6 +4,7 @@
  * the initiallyVisible prop.
  */
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -55,14 +56,20 @@ afterEach(() => cleanup());
 describe("<PasswordInput>", () => {
   it("renders a masked (type=password) input by default", () => {
     setup(<PasswordInput source="password" />, { password: "secret" });
-    const input = screen.getByLabelText("Password") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Password"),
+      HTMLInputElement,
+    );
     expect(input.getAttribute("type")).toBe("password");
     expect(input.value).toBe("secret");
   });
 
   it("toggles the input to text when the visibility button is clicked", () => {
     setup(<PasswordInput source="password" />, { password: "secret" });
-    const input = screen.getByLabelText("Password") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Password"),
+      HTMLInputElement,
+    );
     expect(input.getAttribute("type")).toBe("password");
     const toggle = screen.getByRole("button", { name: /show password/i });
     fireEvent.click(toggle);
@@ -73,14 +80,17 @@ describe("<PasswordInput>", () => {
     setup(<PasswordInput source="password" initiallyVisible />, {
       password: "secret",
     });
-    const input = screen.getByLabelText("Password") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Password"),
+      HTMLInputElement,
+    );
     expect(input.getAttribute("type")).toBe("text");
   });
 
   it("respects the disabled prop", () => {
     setup(<PasswordInput source="password" disabled />, { password: "x" });
     expect(
-      (screen.getByLabelText("Password") as HTMLInputElement).disabled,
+      elementOf(screen.getByLabelText("Password"), HTMLInputElement).disabled,
     ).toBe(true);
   });
 });

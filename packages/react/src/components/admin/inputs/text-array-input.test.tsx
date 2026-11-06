@@ -12,6 +12,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -102,7 +103,7 @@ describe("<TextArrayInput>", () => {
       <TextArrayInput source="tags" />,
       { defaultValues: { tags: ["a"] }, onData },
     );
-    const input = screen.getByLabelText("Tags") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Tags"), HTMLInputElement);
     fireEvent.change(input, { target: { value: "b" } });
     fireEvent.keyDown(input, { key: "Enter" });
     expect(screen.getByText("b")).toBeTruthy();
@@ -118,7 +119,7 @@ describe("<TextArrayInput>", () => {
       <TextArrayInput source="tags" />,
       { defaultValues: { tags: ["a", "b"] }, onData },
     );
-    const input = screen.getByLabelText("Tags") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Tags"), HTMLInputElement);
     fireEvent.keyDown(input, { key: "Backspace" });
     await act(async () => {
       await submitRef.current?.();

@@ -94,7 +94,7 @@ function setup(
     const form = useForm({
       defaultValues,
       save: async (data) => {
-        dataRef.current = data as Record<string, unknown>;
+        dataRef.current = data;
         return undefined;
       },
     });
