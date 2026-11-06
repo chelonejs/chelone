@@ -721,6 +721,10 @@ export {
   type AppSidebarProps,
 } from "./components/admin/layout/app-sidebar";
 export {
+  Assistant,
+  type AssistantProps,
+} from "./components/admin/layout/assistant";
+export {
   CommandMenu,
   type CommandMenuProps,
 } from "./components/admin/layout/command-menu";
