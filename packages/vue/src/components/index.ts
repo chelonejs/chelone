@@ -423,6 +423,8 @@ export type { PivotGridProps } from "./admin/list/pivot-grid.vue";
 export { default as PivotGrid } from "./admin/list/pivot-grid.vue";
 export type { PrevNextButtonsProps } from "./admin/list/prev-next-buttons.vue";
 export { default as PrevNextButtons } from "./admin/list/prev-next-buttons.vue";
+export type { RecordTimelineProps } from "./admin/list/record-timeline.vue";
+export { default as RecordTimeline } from "./admin/list/record-timeline.vue";
 export type { SavedQueriesListProps } from "./admin/list/saved-queries-list.vue";
 export { default as SavedQueriesList } from "./admin/list/saved-queries-list.vue";
 export type { SimpleListProps } from "./admin/list/simple-list.vue";

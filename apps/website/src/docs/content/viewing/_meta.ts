@@ -68,6 +68,7 @@ export default [
       "calendar-list",
       "kanban-board",
       "pivot-grid",
+      "record-timeline",
       "tabbed-show-layout",
       "card-content-inner",
       "list-no-results",
