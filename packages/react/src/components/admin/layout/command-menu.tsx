@@ -594,7 +594,7 @@ function ResourceHits({
 
   return hits.map((record) => {
     const representation = getRecordRepresentation(record);
-    const id = record.id as string | number;
+    const id = record.id;
     return (
       <CommandItem
         key={id}

@@ -128,9 +128,7 @@ function Edit(props: EditProps) {
   // on the form store (fieldState), so this resolves `undefined`.
   const save = useCallback<NonNullable<SaveContextValue["save"]>>(
     async (data, options) => {
-      for (const [key, value] of Object.entries(
-        data as Record<string, unknown>,
-      )) {
+      for (const [key, value] of Object.entries(data)) {
         form.setFieldValue(key, value);
       }
       await submit(options);

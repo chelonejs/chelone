@@ -11,7 +11,6 @@
  */
 
 import {
-  type Identifier,
   type LooseRecord,
   type MutationMode,
   updateRecordsInCache,
@@ -128,14 +127,14 @@ function BulkUpdateButton(props: BulkUpdateButtonProps) {
     e.stopPropagation();
     if (mutationMode === "undoable") {
       if (!resource) return;
-      const ids = selectedIds as Identifier[];
       runUndoable({
         queryKeys: [[resource]],
         applyOptimistic: () =>
-          updateRecordsInCache(queryClient, resource, ids, data),
-        commit: () => dataProvider.updateMany(resource, { ids, data }),
+          updateRecordsInCache(queryClient, resource, selectedIds, data),
+        commit: () =>
+          dataProvider.updateMany(resource, { ids: selectedIds, data }),
         message: "chelone.notification.updated",
-        messageArgs: { smart_count: ids.length },
+        messageArgs: { smart_count: selectedIds.length },
         onCommitError: () => {
           notify("chelone.notification.http_error", { type: "error" });
           refresh();
@@ -157,10 +156,7 @@ function BulkUpdateButton(props: BulkUpdateButtonProps) {
     if (!resource) return;
     setPending(true);
     try {
-      await dataProvider.updateMany(resource, {
-        ids: selectedIds as Identifier[],
-        data,
-      });
+      await dataProvider.updateMany(resource, { ids: selectedIds, data });
       notify("chelone.notification.updated", {
         type: "info",
         messageArgs: { smart_count: selectedIds.length },

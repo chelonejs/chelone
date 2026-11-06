@@ -20,7 +20,6 @@
 
 import {
   definedParams,
-  type Identifier,
   type LooseRecord,
   type MutationMode,
   removeRecordsFromCache,
@@ -186,7 +185,7 @@ function DeleteButton(props: DeleteButtonProps) {
     if (mutationMode === "undoable") {
       if (onClick) onClick(event);
       if (record?.id == null) return;
-      const id = record.id as Identifier;
+      const id = record.id;
       const previousData = record;
       runUndoable({
         queryKeys: [[resource]],
