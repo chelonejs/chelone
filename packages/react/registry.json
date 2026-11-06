@@ -6527,6 +6527,7 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/react",
+        "@chelone/utils",
         "@turf/buffer",
         "@turf/difference",
         "@turf/union",
@@ -6592,7 +6593,13 @@
         "@chelone/maps-provider",
         "@chelone/use-geocode"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6612,7 +6619,13 @@
         "@chelone/lib-utils",
         "@chelone/maps-provider"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6638,6 +6651,8 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/react",
+        "@turf/difference",
+        "@turf/union",
         "lucide-react",
         "maplibre-gl"
       ],
@@ -6658,6 +6673,8 @@
       "dependencies": [
         "@chelone/core",
         "@turf/buffer",
+        "@turf/difference",
+        "@turf/union",
         "maplibre-gl",
         "osm2geojson-lite"
       ],
@@ -6676,7 +6693,7 @@
         }
       ],
       "dependencies": [
-        "@chelone/core",
+        "@chelone/utils",
         "@turf/difference",
         "@turf/union",
         "maplibre-gl"
@@ -6699,7 +6716,13 @@
         "@chelone/skeleton",
         "@chelone/use-reverse-geocode"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6714,7 +6737,12 @@
         }
       ],
       "registryDependencies": ["@chelone/maps-provider"],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6733,7 +6761,12 @@
         "@chelone/maps-provider",
         "@chelone/osm-features"
       ],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6749,7 +6782,12 @@
         }
       ],
       "registryDependencies": ["@chelone/maps-provider"],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"

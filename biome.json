@@ -1182,6 +1182,7 @@
                     "group": [
                       "**",
                       "!@chelone/core",
+                      "!geojson",
                       "!@turf/buffer",
                       "!@turf/difference",
                       "!@turf/union",
@@ -1193,7 +1194,7 @@
                       "!.",
                       "!.."
                     ],
-                    "message": "@chelone/utils/osm imports only @chelone/core, @turf/buffer, @turf/difference, @turf/union, osm2geojson-lite, @tanstack/query-core, node:* and relative paths. Another subpath's libraries are that subpath's optional peers."
+                    "message": "@chelone/utils/osm imports only @chelone/core, geojson (import type only), @turf/buffer, @turf/difference, @turf/union, osm2geojson-lite, @tanstack/query-core, node:* and relative paths. Another subpath's libraries are that subpath's optional peers."
                   }
                 ]
               }
