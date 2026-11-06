@@ -17,6 +17,7 @@ import type {
   AdminProps,
   ApplicationUpdatedNotificationProps,
   ApprovalQueueProps,
+  AssistantProps,
   BooleanInputProps,
   BulkActionsToolbarProps,
   BulkEditDrawerProps,
@@ -46,6 +47,9 @@ import type {
   EditLiveProps,
   EditProps,
   ErrorFallbackProps,
+  FieldsSelectorListProps,
+  FieldsSelectorProps,
+  FieldsSelectorRowProps,
   FilterFormEntry,
   FilterFormProps,
   FilterListItemProps,
@@ -57,6 +61,7 @@ import type {
   InfiniteListProps,
   InfinitePaginationProps,
   InPlaceEditorProps,
+  JobMonitorProps,
   LinkProps,
   ListActionsProps,
   ListLiveProps,
@@ -185,6 +190,12 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<LoginWithEmailProps>().toHaveProperty("class");
     expectTypeOf<MenuLiveItemLinkProps>().toHaveProperty("resource");
     expectTypeOf<MenuLiveProps>().toHaveProperty("items");
+    expectTypeOf<JobMonitorProps>().toHaveProperty("pollInterval");
+    expectTypeOf<JobMonitorProps>().toHaveProperty("tabs");
+    expectTypeOf<JobMonitorProps["class"]>().toEqualTypeOf<
+      string | undefined
+    >();
+    expectTypeOf(barrel.JobMonitor).toBeObject();
     expectTypeOf<MetricCardProps>().toHaveProperty("label");
     expectTypeOf<MetricCardProps["icon"]>().toEqualTypeOf<
       Component | undefined
@@ -265,9 +276,20 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf(barrel.ColumnsButton).not.toBeAny();
   });
 
+  it("FieldsSelector ships beside its props", () => {
+    expectTypeOf(barrel.FieldsSelector).not.toBeAny();
+    expectTypeOf<FieldsSelectorProps>().toHaveProperty("storeKey");
+    expectTypeOf<FieldsSelectorProps>().toHaveProperty("resource");
+    expectTypeOf<FieldsSelectorProps>().toHaveProperty("listAs");
+    expectTypeOf<FieldsSelectorProps>().toHaveProperty("rowAs");
+    expectTypeOf<FieldsSelectorListProps>().toHaveProperty("onMove");
+    expectTypeOf<FieldsSelectorRowProps>().toHaveProperty("index");
+  });
+
   it("useDataTableColumns returns refs and setters", () => {
     type Result = ReturnType<typeof barrel.useDataTableColumns>;
     expectTypeOf<Result>().toHaveProperty("toggle");
+    expectTypeOf<Result>().toHaveProperty("moveTo");
     expectTypeOf<Result>().toHaveProperty("columns");
   });
 
@@ -350,6 +372,14 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf(barrel.useRegisterCommand)
       .parameter(0)
       .toEqualTypeOf<MaybeRefOrGetter<CommandMenuAction>>();
+  });
+
+  it("Assistant ships beside its props", () => {
+    expectTypeOf<AssistantProps>().toHaveProperty("transport");
+    expectTypeOf<AssistantProps>().toHaveProperty("tools");
+    expectTypeOf<AssistantProps>().toHaveProperty("placement");
+    expectTypeOf<AssistantProps>().toHaveProperty("maxToolRounds");
+    expectTypeOf(barrel.Assistant).not.toBeAny();
   });
 
   it("keeps internal helpers out of the barrel", () => {

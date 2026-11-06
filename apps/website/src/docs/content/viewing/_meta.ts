@@ -70,6 +70,7 @@ export default [
       "approval-queue",
       "pivot-grid",
       "record-timeline",
+      "job-monitor",
       "tabbed-show-layout",
       "card-content-inner",
       "list-no-results",
