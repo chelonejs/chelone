@@ -1,0 +1,291 @@
+---
+title: "Assistant"
+description: "A floating chat panel that streams a model's replies and runs the tools you give it."
+registry: "assistant"
+---
+
+`<Assistant>` is a floating chat. A button opens a panel where a user types a
+question, reads the reply as it streams in, and sees any tool the model called
+and what it returned. The conversation lives in `@chelone/core`, so the React
+and Vue panels behave the same.
+
+The panel sends the conversation through a transport. A transport is the only
+thing that knows about a model. Two ship in `@chelone/core`:
+
+- `echoAssistantTransport` replies `Echo: <your text>` with no model behind it.
+  Use it for a demo, a story or a test.
+- `httpAssistantTransport` posts the conversation to an endpoint of yours and
+  reads the reply as it streams.
+
+## Mounting it
+
+Render `<Assistant>` beside the layout, in the `Admin.Layout` slot. It is
+`position: fixed`, so it needs no place in the page.
+
+```tsx
+import { Admin, Assistant, Layout, Resource } from "@chelone/react";
+import { echoAssistantTransport } from "@chelone/core";
+
+const transport = echoAssistantTransport({ delayMs: 20 });
+
+const AppLayout = ({ children }) => (
+  <>
+    <Layout>{children}</Layout>
+    <Assistant transport={transport} />
+  </>
+);
+
+<Admin dataProvider={dataProvider}>
+  <Admin.Layout>
+    <AppLayout />
+  </Admin.Layout>
+  <Resource name="posts" list={PostList} />
+</Admin>;
+```
+
+In Vue the `#layout` slot holds the layout and the panel. The example passes
+`<router-view />` to `<Layout>`.
+
+```vue
+<script setup lang="ts">
+import { echoAssistantTransport } from "@chelone/core";
+import { Admin, Assistant, Layout, Resource } from "@chelone/vue";
+
+const transport = echoAssistantTransport({ delayMs: 20 });
+</script>
+
+<template>
+  <Admin :data-provider="dataProvider">
+    <Resource name="posts" :list="PostList" />
+
+    <template #layout>
+      <Layout>
+        <router-view />
+      </Layout>
+      <Assistant :transport="transport" />
+    </template>
+  </Admin>
+</template>
+```
+
+Create the transport once, outside the component or in `setup`. A new
+`transport`, `tools` or `maxToolRounds` value starts a new conversation and
+ends the one running.
+
+## Talking to a real model
+
+Point `httpAssistantTransport` at an endpoint you own.
+
+```tsx
+import { httpAssistantTransport } from "@chelone/core";
+
+const transport = httpAssistantTransport({
+  url: "/api/assistant",
+  headers: () => ({ Authorization: `Bearer ${getAppToken()}` }),
+});
+```
+
+`headers` can be a function, called for each request, so a token can change
+between turns. `credentials` and `fetch` are options too.
+
+### The model's key stays on the server
+
+The endpoint calls the model, and the model's API key belongs to the endpoint.
+Never put it in the app bundle, in `headers` or in an environment variable the
+build inlines: anyone who opens the app can read it. The browser sends only the
+conversation and, if you need it, your own app's session token. Check that
+token on the server before you call the model.
+
+### The request
+
+Each turn is one `POST` with a JSON body. `messages` is the conversation so far
+and `tools` holds the description and the JSON Schema of each tool, never its
+handler.
+
+```json
+{
+  "messages": [{ "role": "user", "content": "How many drafts are there?" }],
+  "tools": {
+    "count_posts": {
+      "description": "Counts posts by status",
+      "parameters": {
+        "type": "object",
+        "properties": { "status": { "type": "string" } }
+      }
+    }
+  }
+}
+```
+
+### The reply
+
+The endpoint replies with newline-delimited JSON: one chunk per line, sent as
+the model produces it. A `text` chunk adds to the reply, a `tool-call` chunk asks
+for a tool, and `done` ends the turn.
+
+```text
+{"type":"text","delta":"Let me check. "}
+{"type":"tool-call","id":"call_1","toolName":"count_posts","args":{"status":"draft"}}
+{"type":"done"}
+```
+
+A reply that ends without `done` counts as done. A line that is not one of
+these chunks fails the turn with `Invalid assistant chunk at line N`, and the
+panel shows an alert with a Retry button. A non-2xx status fails it too.
+
+When a turn ends with `tool-call` chunks, the panel runs the tools in the
+browser and posts again. The new `messages` carry the assistant turn with its
+`toolCalls`, then one `tool` message per call:
+
+```json
+[
+  { "role": "user", "content": "How many drafts are there?" },
+  {
+    "role": "assistant",
+    "content": "Let me check. ",
+    "toolCalls": [
+      { "id": "call_1", "toolName": "count_posts", "args": { "status": "draft" } }
+    ]
+  },
+  { "role": "tool", "id": "call_1", "toolName": "count_posts", "result": 3 }
+]
+```
+
+A `tool` message holds `result`, or `error` when the tool failed, was unknown,
+got invalid arguments or was declined. Pass these on to your model so it can
+answer from them.
+
+### A server sketch
+
+The endpoint reads the body, asks a model and writes each chunk as a line.
+`askModel` stands for your own code: it calls the model with a key from the
+server's environment and yields `text` and `tool-call` chunks.
+
+```ts
+export async function POST(request: Request): Promise<Response> {
+  const { messages, tools } = await request.json();
+  const encoder = new TextEncoder();
+
+  const body = new ReadableStream({
+    async start(controller) {
+      const write = (chunk: object) =>
+        controller.enqueue(encoder.encode(`${JSON.stringify(chunk)}\n`));
+      try {
+        for await (const chunk of askModel(messages, tools, request.signal)) {
+          write(chunk);
+        }
+        write({ type: "done" });
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(body, {
+    headers: { "Content-Type": "application/x-ndjson" },
+  });
+}
+```
+
+Pass `request.signal` on to the model call. When a user presses Stop, or the
+panel unmounts, the browser aborts the request and the signal fires.
+
+Model SDK adapters are not part of the base package. If one ships, it will be an
+opt-in subpath with the SDK as an optional peer dependency, the way
+`/monaco` is, so an app that does not use it installs nothing extra.
+
+## Tools
+
+A tool is something the model may call. Pass them in `tools`, keyed by the
+name the model uses.
+
+```tsx
+import type { AssistantTool } from "@chelone/core";
+import { z } from "zod";
+
+const tools: Record<string, AssistantTool> = {
+  count_posts: {
+    description: "Counts posts by status",
+    parameters: {
+      type: "object",
+      properties: { status: { type: "string", enum: ["draft", "published"] } },
+      required: ["status"],
+    },
+    schema: z.object({ status: z.enum(["draft", "published"]) }),
+    handler: async ({ status }) => {
+      const { total } = await dataProvider.getList("posts", {
+        pagination: { page: 1, perPage: 1 },
+        sort: { field: "id", order: "ASC" },
+        filter: { status },
+      });
+      return { total };
+    },
+  },
+  delete_post: {
+    description: "Deletes a post by id",
+    parameters: {
+      type: "object",
+      properties: { id: { type: "integer" } },
+      required: ["id"],
+    },
+    confirm: true,
+    handler: async ({ id }) => {
+      await dataProvider.delete("posts", { id });
+      return "deleted";
+    },
+  },
+};
+```
+
+- `description` and `parameters` go to the transport, and so to the model.
+  `parameters` is a JSON Schema object.
+- `schema` is any Standard Schema validator, such as a Zod schema. The model
+  chooses the arguments, so `schema` checks them before `handler` runs. A
+  failure becomes a tool message that starts `Invalid arguments:`, and the
+  handler is not called. The handler receives the validator's output.
+- `confirm: true` asks the user first. A dialog shows the tool name and its
+  arguments. Decline, or close the dialog, and the handler does not run: the
+  model gets a `The user declined to run this tool` error instead.
+- `handler` returns a JSON value, or a promise of one. A throw becomes the tool
+  message's `error`.
+
+A tool the model names that you did not register comes back as
+`Unknown tool: <name>`.
+
+### A tool runs on the model's word
+
+The model decides when to call a tool and with which arguments, and what a user
+types or a record holds can steer it. Treat each call as untrusted input. A tool
+that only reads is low risk. A tool that writes, deletes or spends should set
+`confirm: true`, so a person approves each call, and should still check the
+current user's access in the handler, as an API route would.
+
+### maxToolRounds
+
+After a turn that calls tools, the panel posts again with the results. That is
+one round. `maxToolRounds` caps how many follow-up turns one message may cause,
+so a model that keeps calling tools cannot loop for good. It defaults to 5.
+Past the cap the panel shows an alert reading `The assistant kept calling tools
+after N rounds`.
+
+## Behaviour
+
+- Closing the panel keeps the stream running. Open it again to see the reply.
+- Stop ends the stream and keeps the text so far.
+- After an error, Retry runs the last message again without adding a second
+  copy of it.
+- A reply and a tool result render as plain text. Markup in either shows as
+  characters and is never parsed.
+- The labels read the `chelone.assistant.*` translation keys: `trigger`,
+  `welcome`, `placeholder`, `send`, `stop`, `close`, `thinking`, `error`,
+  `retry` and `confirm`.
+- `placement` is `bottom-right` (the default), `bottom-left` or `sidebar`, which
+  puts the button at the top right.
+
+Setup for the Vue package is on the [Vue setup page](/docs/vue/setup). The Vue
+confirm dialog differs a little from React's. See
+[Differences from React](/docs/vue/differences).
+
+## Props
+
+<PropsTable name="Assistant" />
