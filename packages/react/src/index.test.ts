@@ -53,6 +53,7 @@ import type {
   MenuLiveItemLinkProps,
   MenuLiveProps,
   NumberInputProps,
+  OnboardingTourHandle,
   OnboardingTourProps,
   PartitionedChildren,
   PasswordInputProps,
@@ -709,8 +710,10 @@ describe("@chelone/react barrel — guessers", () => {
   });
 
   it("exports OnboardingTour", () => {
-    expect(barrel.OnboardingTour).toBeTypeOf("function");
+    // A forwardRef component is an object, not a function.
+    expect(barrel.OnboardingTour).toBeTypeOf("object");
     expectTypeOf<OnboardingTourProps>().toHaveProperty("steps");
+    expectTypeOf<OnboardingTourHandle>().toHaveProperty("start");
     expectTypeOf<TourStep>().toHaveProperty("target");
   });
 

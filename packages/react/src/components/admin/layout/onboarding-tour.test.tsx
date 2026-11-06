@@ -13,11 +13,15 @@ import {
   render,
   screen,
 } from "@testing-library/react";
-import type { ReactNode } from "react";
+import { createRef, type ReactNode, type RefObject } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Admin, Layout, Resource } from "../../../index";
-import { OnboardingTour, type OnboardingTourProps } from "./onboarding-tour";
+import {
+  OnboardingTour,
+  type OnboardingTourHandle,
+  type OnboardingTourProps,
+} from "./onboarding-tour";
 
 const scrollIntoView = vi.fn();
 
@@ -42,11 +46,12 @@ const steps: OnboardingTourProps["steps"] = [
 function mount(
   props: Partial<OnboardingTourProps> = {},
   store = createStore(),
+  tourRef?: RefObject<OnboardingTourHandle | null>,
 ) {
   function AppLayout({ children }: { children?: ReactNode }) {
     return (
       <>
-        <OnboardingTour id="main" steps={steps} {...props} />
+        <OnboardingTour ref={tourRef} id="main" steps={steps} {...props} />
         <Layout>{children}</Layout>
       </>
     );
@@ -265,6 +270,32 @@ describe("<OnboardingTour>", () => {
     addTargets();
     mount({ autoStart: false });
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("start() on the ref opens a tour that autoStart false left closed", () => {
+    addTargets();
+    const tourRef = createRef<OnboardingTourHandle>();
+    mount({ autoStart: false }, createStore(), tourRef);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    act(() => tourRef.current?.start());
+    expect(screen.getByRole("dialog").textContent).toContain("Look here");
+    expect(screen.getByRole("dialog").textContent).toContain("1 / 3");
+  });
+
+  it("start() on the ref replays a tour that is stored as done", () => {
+    addTargets();
+    const store = createStore();
+    store.setItem(doneKey, true);
+    const tourRef = createRef<OnboardingTourHandle>();
+    mount({}, store, tourRef);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    act(() => tourRef.current?.start());
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    act(() => tourRef.current?.start());
+    expect(screen.getByRole("dialog").textContent).toContain("1 / 3");
+    fireEvent.click(screen.getByRole("button", { name: "Skip" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(store.getItem(doneKey)).toBe(true);
   });
 
   it("re-measures every 250 ms while open", () => {

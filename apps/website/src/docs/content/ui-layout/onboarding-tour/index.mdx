@@ -166,6 +166,50 @@ const [, setDone] = useStore(onboardingTourKey("welcome"), false);
 `autoStart={false}` stops the tour opening by itself, on mount and when its key
 is cleared. A tour with no steps never opens.
 
+## Starting it on demand
+
+`start()` opens the tour on its first step whatever `autoStart` and the stored
+flag say, so it opens a tour with `autoStart={false}` and replays one that is
+stored as done. Calling it while the tour is open restarts it from step one.
+Finishing the replay stores the flag again.
+
+In React, pass a `ref` typed `OnboardingTourHandle`:
+
+```tsx
+import { OnboardingTour, type OnboardingTourHandle } from "@chelone/react";
+import { useRef } from "react";
+
+const AppLayout = ({ children }) => {
+  const tour = useRef<OnboardingTourHandle>(null);
+  return (
+    <>
+      <OnboardingTour ref={tour} id="welcome" steps={steps} autoStart={false} />
+      <button onClick={() => tour.current?.start()}>Take the tour</button>
+      <Layout>{children}</Layout>
+    </>
+  );
+};
+```
+
+In Vue, use a template ref:
+
+```vue
+<script setup lang="ts">
+import { OnboardingTour } from "@chelone/vue";
+import { useTemplateRef } from "vue";
+
+const tour = useTemplateRef("tour");
+</script>
+
+<template>
+  <OnboardingTour ref="tour" id="welcome" :steps="steps" :auto-start="false" />
+  <button @click="tour?.start()">Take the tour</button>
+</template>
+```
+
+The ref points at the mounted tour, so the button and the tour need a common
+parent that holds it.
+
 A different `id` is a different tour with its own stored flag. Changing `id`,
 `autoStart` or the number of steps starts the tour afresh.
 

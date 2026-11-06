@@ -28,6 +28,7 @@ const controller = createTourController({
   autoStart: props.autoStart,
   onComplete: (reason) => emit("complete", reason),
 });
+defineExpose({ start: controller.start });
 const state = useMicroStore(controller);
 const step = computed(() => props.steps[state.value.index]);
 </script>

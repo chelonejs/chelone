@@ -14,9 +14,11 @@ import {
   tourSpotlightPath,
 } from "@chelone/core";
 import {
+  forwardRef,
   type ReactNode,
   useEffect,
   useId,
+  useImperativeHandle,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -49,6 +51,12 @@ export interface OnboardingTourProps {
   placement?: TourPlacement;
 }
 
+/** What a `ref` on `<OnboardingTour>` gives: opens the tour whatever `autoStart` and the stored done flag say. */
+export interface OnboardingTourHandle {
+  /** Opens the tour on its first step, or restarts it from there while open. */
+  start(): void;
+}
+
 const REMEASURE_MS = 250;
 
 function findTarget(selector: string): Element | null {
@@ -77,7 +85,9 @@ function sameRect(a: TourRect | null, b: TourRect | null): boolean {
 }
 
 /**
- * Mount once, anywhere under `<Admin>`.
+ * Mount once, anywhere under `<Admin>`. Pass a `ref` to open it on demand:
+ * `ref.current?.start()` works with `autoStart={false}` and replays a tour
+ * stored as done.
  *
  * @example
  * <OnboardingTour
@@ -85,13 +95,13 @@ function sameRect(a: TourRect | null, b: TourRect | null): boolean {
  *   steps={[{ target: "#new-post", title: "Create", content: "Start here." }]}
  * />
  */
-export function OnboardingTour({
-  id,
-  steps,
-  autoStart = true,
-  onComplete,
-  placement = "auto",
-}: OnboardingTourProps) {
+export const OnboardingTour = forwardRef<
+  OnboardingTourHandle,
+  OnboardingTourProps
+>(function OnboardingTour(
+  { id, steps, autoStart = true, onComplete, placement = "auto" },
+  ref,
+) {
   const store = useCheloneStore();
   const stepCount = steps.length;
   const onCompleteRef = useRef(onComplete);
@@ -108,6 +118,7 @@ export function OnboardingTour({
       }),
     [id, stepCount, store, autoStart],
   );
+  useImperativeHandle(ref, () => ({ start: controller.start }), [controller]);
   const { active, index } = useSyncExternalStore(
     controller.subscribe,
     controller.getSnapshot,
@@ -128,7 +139,7 @@ export function OnboardingTour({
     />,
     document.body,
   );
-}
+});
 
 interface TourOverlayProps {
   controller: ReturnType<typeof createTourController>;
