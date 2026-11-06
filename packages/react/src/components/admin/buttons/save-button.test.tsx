@@ -13,6 +13,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -112,7 +113,10 @@ describe("<SaveButton>", () => {
         </Edit>
       </Providers>,
     );
-    const input = (await screen.findByLabelText(/title/i)) as HTMLInputElement;
+    const input = elementOf(
+      await screen.findByLabelText(/title/i),
+      HTMLInputElement,
+    );
     await waitFor(() => expect(input.value).toBe("Original"));
 
     fireEvent.change(input, { target: { value: "Updated" } });
@@ -136,8 +140,10 @@ describe("<SaveButton>", () => {
     );
     await waitFor(() =>
       expect(
-        (screen.getByRole("button", { name: /save/i }) as HTMLButtonElement)
-          .disabled,
+        elementOf(
+          screen.getByRole("button", { name: /save/i }),
+          HTMLButtonElement,
+        ).disabled,
       ).toBe(true),
     );
   });

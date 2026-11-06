@@ -12,6 +12,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -107,7 +108,7 @@ describe("DualApprovalButton", () => {
     const button = await screen.findByRole("button", { name: /Approve/ });
     expect(button.getAttribute("data-slot")).toBe("dual-approval-button");
     expect(button.textContent).toContain("1 of 2");
-    expect((button as HTMLButtonElement).disabled).toBe(false);
+    expect(elementOf(button, HTMLButtonElement).disabled).toBe(false);
   });
 
   it("updates the record with the approver list and the pending status", async () => {
@@ -179,7 +180,7 @@ describe("DualApprovalButton", () => {
     const button = await screen.findByRole("button", {
       name: /You already approved/,
     });
-    expect((button as HTMLButtonElement).disabled).toBe(true);
+    expect(elementOf(button, HTMLButtonElement).disabled).toBe(true);
     expect(button.getAttribute("title")).toBe("You already approved");
   });
 
@@ -187,7 +188,7 @@ describe("DualApprovalButton", () => {
     mount({ authProvider: authFor(undefined) });
 
     const button = await screen.findByRole("button", { name: /Approve/ });
-    expect((button as HTMLButtonElement).disabled).toBe(true);
+    expect(elementOf(button, HTMLButtonElement).disabled).toBe(true);
   });
 
   it("shows Fully approved once the threshold is met", async () => {
@@ -256,7 +257,7 @@ describe("DualApprovalButton", () => {
     );
     const again = await screen.findByRole("button", { name: /Approve/ });
     expect(again.textContent).toContain("1 of 2");
-    expect((again as HTMLButtonElement).disabled).toBe(false);
+    expect(elementOf(again, HTMLButtonElement).disabled).toBe(false);
   });
 
   it("is disabled while its update is pending", async () => {
@@ -274,7 +275,7 @@ describe("DualApprovalButton", () => {
     fireEvent.click(button);
 
     await waitFor(() =>
-      expect((button as HTMLButtonElement).disabled).toBe(true),
+      expect(elementOf(button, HTMLButtonElement).disabled).toBe(true),
     );
     settle();
   });
