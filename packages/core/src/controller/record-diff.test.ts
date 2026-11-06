@@ -78,6 +78,13 @@ describe("diffRecords", () => {
     ).toBe("changed");
   });
 
+  it("two invalid dates are unchanged", () => {
+    expect(
+      diffRecords({ at: new Date(Number.NaN) }, { at: new Date(Number.NaN) })[0]
+        ?.status,
+    ).toBe("unchanged");
+  });
+
   it("without sources lists the keys of before, then the keys only after has", () => {
     const rows = diffRecords<Record<string, number>>(
       { b: 1, a: 1 },

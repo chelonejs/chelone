@@ -10,7 +10,7 @@ export function deepEqual(a: unknown, b: unknown): boolean {
       a.every((item, i) => deepEqual(item, b[i]))
     );
   }
-  if (a instanceof Date) return b instanceof Date && +a === +b;
+  if (a instanceof Date) return b instanceof Date && Object.is(+a, +b);
   if (isPlainObject(a)) {
     if (!isPlainObject(b)) return false;
     const keys = Object.keys(a);
