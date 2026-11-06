@@ -101,6 +101,7 @@ export default [
       "bulk-actions-toolbar",
       "select-all-button",
       "columns-button",
+      "fields-selector",
       "export-button",
     ],
   },
