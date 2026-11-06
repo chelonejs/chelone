@@ -55,14 +55,16 @@ In Vue the inputs are the default slot:
 
 The user turns configure mode on with
 [`<InspectorButton>`](/docs/ui-layout/inspector), clicks Customize on the form,
-and the panel opens with the title `Form`.
+and the panel opens with the title `Form`, translated through
+`chelone.inspector.inputs_title`. Pass `title` to say something else.
 
 ## What the panel lists
 
 One row per input, named by its `source`, or by its `label` when it has no
-`source`. An input with neither is listed as `input-<index>`, where `index` is
-its position among the children. The label is the translated one the input would
-show, so `resources.posts.fields.title` names the `title` row.
+`source`. An input with neither is listed as `input-<index>`, where `index`
+counts the elements only: a child that is not an element is skipped before the
+counting starts. The label is the translated one the input would show, so
+`resources.posts.fields.title` names the `title` row.
 
 - A switch shows or hides the input.
 - A grip drags it into place.
@@ -104,9 +106,10 @@ lands in the invalid-form notification, because the input that would show it
 under the field is not there.
 
 A child that is not an element, a bare string between two fields, keeps its
-place and is always shown. An element with no `source` and no string `label`,
-such as a `<p>` note, is listed as `input-<index>` and can be hidden like any
-other.
+place, is always shown and is never listed. An element with no `source` and no
+string `label`, such as a `<p>` note, is listed as `input-<index>` and can be
+hidden like any other. In `<TextInput source="title" />{"A note"}<p />` the `<p>`
+is `input-1`, not `input-2`: the string takes no number.
 
 ## Props
 
@@ -118,7 +121,8 @@ The table shows the React props. The Vue shape is below.
 
 - The inputs go in the default slot. `class` styles the wrapper, where React
   takes `className`.
-- A text or static node in the slot is not an input: it keeps its place and is
-  always shown, as a non-element child does in React.
+- A text or static node in the slot is not an input: it keeps its place, is
+  always shown and takes no number in `input-<index>`, as a non-element child
+  does in React.
 - The drag runs on `@dnd-kit/vue`, which needs Vue 3.5. See
   [Installing the add-on](/docs/ui-layout/inspector#installing-the-add-on).

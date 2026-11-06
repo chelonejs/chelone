@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { expect, it } from "vitest";
 import { unresolvedDocLinks } from "./docs-links";
 
@@ -23,6 +23,29 @@ const reactBarrel = read("../../../packages/react/src/index.ts");
 const vueComponentsIndex = read(
   "../../../packages/vue/src/components/index.ts",
 );
+
+const reactInspectorDir = new URL(
+  "../../../packages/react/src/components/inspector/",
+  import.meta.url,
+);
+const vueInspectorDir = new URL(
+  "../../../packages/vue/src/components/inspector/",
+  import.meta.url,
+);
+
+/** Every `chelone.inspector.*` key the add-on's components translate. */
+function addOnTranslateKeys(dir: URL): string[] {
+  const keys = new Set<string>();
+  for (const file of readdirSync(dir)) {
+    if (!/\.(tsx|vue)$/.test(file) || file.includes(".test.")) continue;
+    for (const match of readFileSync(new URL(file, dir), "utf8").matchAll(
+      /["'](chelone\.inspector\.[a-z_]+)["']/g,
+    )) {
+      keys.add(match[1]);
+    }
+  }
+  return [...keys];
+}
 
 /** Every `<PropsTable name="X" />` on a page, which must have a props JSON. */
 function propsTableNames(mdx: string): string[] {
@@ -93,4 +116,27 @@ it("every docs link on the new pages resolves to a page", () => {
   for (const mdx of pages) {
     expect(unresolvedDocLinks(mdx)).toEqual([]);
   }
+});
+
+it("the inspector page's translation table names every key the add-on translates", () => {
+  const keys = new Set([
+    ...addOnTranslateKeys(reactInspectorDir),
+    ...addOnTranslateKeys(vueInspectorDir),
+  ]);
+  // A key the page misses is a string a translator cannot find.
+  expect(keys.size).toBeGreaterThan(0);
+  for (const key of keys) {
+    expect(inspector, `${key} in the table`).toContain(`| \`${key}\` |`);
+  }
+});
+
+it("the ConfigurableInputs page names the key behind its panel title", () => {
+  expect(configurableInputs).toContain("`chelone.inspector.inputs_title`");
+});
+
+it("the ConfigurableInputs page counts only elements in input-<index>", () => {
+  const flat = configurableInputs.replace(/\s+/g, " ");
+  expect(flat).toContain("`index` counts the elements only");
+  expect(flat).toContain("is `input-1`, not `input-2`");
+  expect(flat).not.toContain("position among the children");
 });
