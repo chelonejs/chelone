@@ -10,13 +10,15 @@
 
 import {
   createI18n,
+  type DataProvider,
   defineMessages,
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, type Mock, vi } from "vitest";
 import { defineComponent, h, nextTick } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
 import Admin from "../../../admin/admin.vue";
@@ -54,7 +56,7 @@ interface FormValues {
 
 interface Captured {
   form?: UseFormReturn<FormValues>;
-  values?: () => Record<string, unknown>;
+  values?: () => FormValues;
 }
 
 /** Mount `render()` inside `<Admin>` + a `useForm` host seeded with `record`. */
@@ -77,7 +79,7 @@ function mountInForm(
         onSubmit: async () => undefined,
       });
       captured.form = form;
-      captured.values = () => form.values.value as Record<string, unknown>;
+      captured.values = () => form.values.value;
       return () => slots.default?.();
     },
   });
@@ -180,9 +182,9 @@ describe("<CronInput>", () => {
       { record: { schedule: "0 9 * * *" } },
     );
     await flushPromises();
-    expect((wrapper.find("input").element as HTMLInputElement).value).toBe(
-      "0 9 * * *",
-    );
+    expect(
+      elementOf(wrapper.find("input").element, HTMLInputElement).value,
+    ).toBe("0 9 * * *");
   });
 
   it("previews the human meaning of a valid expression", async () => {
@@ -222,9 +224,9 @@ describe("<CronInput>", () => {
       { record: { schedule: "0 9 * * *" } },
     );
     await flushPromises();
-    expect((wrapper.find("input").element as HTMLInputElement).disabled).toBe(
-      true,
-    );
+    expect(
+      elementOf(wrapper.find("input").element, HTMLInputElement).disabled,
+    ).toBe(true);
   });
 });
 
@@ -347,10 +349,12 @@ describe("<WebhookEndpointInput>", () => {
     );
     await flushPromises();
     expect(
-      (wrapper.find("[data-webhook-url]").element as HTMLInputElement).value,
+      elementOf(wrapper.find("[data-webhook-url]").element, HTMLInputElement)
+        .value,
     ).toBe("https://a.test/hook");
     expect(
-      (wrapper.find("[data-webhook-secret]").element as HTMLInputElement).value,
+      elementOf(wrapper.find("[data-webhook-secret]").element, HTMLInputElement)
+        .value,
     ).toBe("shh");
   });
 
@@ -361,8 +365,10 @@ describe("<WebhookEndpointInput>", () => {
     );
     await flushPromises();
     expect(wrapper.findAll("[data-event-checkbox]").length).toBe(2);
-    const created = wrapper.find("#webhook-event-order\\.created")
-      .element as HTMLInputElement;
+    const created = elementOf(
+      wrapper.find("#webhook-event-order\\.created").element,
+      HTMLInputElement,
+    );
     expect(created.checked).toBe(true);
   });
 
@@ -459,7 +465,7 @@ function mountApiKey(
   }: {
     record?: Account;
     resource?: string;
-    update?: ReturnType<typeof vi.fn>;
+    update?: Mock<DataProvider["update"]>;
   } = {},
 ) {
   const queryClient = new QueryClient({
@@ -469,9 +475,7 @@ function mountApiKey(
   const base = fakeDataProvider({
     accounts: [{ id: 1, apiKey: "sk_live_abc" }],
   });
-  const dataProvider = update
-    ? { ...base, update: update as typeof base.update }
-    : base;
+  const dataProvider = update ? { ...base, update } : base;
 
   const Host = defineComponent({
     setup(_, { slots }) {
@@ -532,7 +536,9 @@ describe("<ApiKeyInput>", () => {
   });
 
   it("dispatches the default update mutation (id + nulled source) on confirm", async () => {
-    const update = vi.fn().mockResolvedValue({ data: { id: 1, apiKey: null } });
+    const update = vi
+      .fn<DataProvider["update"]>()
+      .mockResolvedValue({ data: { id: 1, apiKey: null } });
     const wrapper = mountApiKey(
       { source: "apiKey" },
       { record: { id: 1, apiKey: "sk_live_abc" }, update },
@@ -557,7 +563,7 @@ describe("<ApiKeyInput>", () => {
       { record: { id: 1, apiKey: "sk_live_abc" } },
     );
     expect(
-      (wrapper.find("[data-rotate-button]").element as HTMLButtonElement)
+      elementOf(wrapper.find("[data-rotate-button]").element, HTMLButtonElement)
         .disabled,
     ).toBe(true);
   });
