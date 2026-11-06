@@ -284,3 +284,70 @@ export const richTextExtraToolbarItems: readonly Readonly<RichTextExtraToolbarIt
     extraItem("image", "insert", "Image"),
     extraItem("color", "mark", "Text color"),
   ]);
+
+interface NamedMark {
+  type: { name: string };
+}
+
+/** The slice of a ProseMirror state `endColorOnEnter` reads, so core names no ProseMirror type. */
+interface EnterState<Mark extends NamedMark, Transaction> {
+  selection: {
+    $from: {
+      marks(): readonly Mark[];
+      nodeAfter: { marks: readonly Mark[] } | null;
+    };
+  };
+  storedMarks: readonly Mark[] | null;
+  tr: { setStoredMarks(marks: readonly Mark[] | null): Transaction };
+}
+
+/**
+ * The two ProseMirror plugin hooks that end a text color with its line.
+ * Splitting a block would carry the color into the next one, so after Enter
+ * the color's `textStyle` mark is dropped from the stored marks, unless colored
+ * text follows the cursor. An adapter wires them into
+ * `new Plugin({ props: { handleKeyDown }, appendTransaction })` and runs that
+ * plugin before the keymap, which handles Enter.
+ */
+export function endColorOnEnter() {
+  let enterPressed = false;
+  return {
+    handleKeyDown<View>(
+      _view: View,
+      event: {
+        key: string;
+        shiftKey: boolean;
+        ctrlKey: boolean;
+        metaKey: boolean;
+        altKey: boolean;
+      },
+    ): false {
+      enterPressed =
+        event.key === "Enter" &&
+        !event.shiftKey &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey;
+      return false;
+    },
+    appendTransaction<Mark extends NamedMark, Transaction, PreviousState>(
+      transactions: readonly { docChanged: boolean }[],
+      _previous: PreviousState,
+      state: EnterState<Mark, Transaction>,
+    ): Transaction | null {
+      if (!enterPressed || !transactions.some((tr) => tr.docChanged)) {
+        return null;
+      }
+      enterPressed = false;
+      const { $from } = state.selection;
+      // Text after the cursor that is still colored keeps the color running.
+      const following = $from.nodeAfter?.marks ?? [];
+      if (following.some((mark) => mark.type.name === "textStyle")) return null;
+      const marks = state.storedMarks ?? $from.marks();
+      const kept = marks.filter((mark) => mark.type.name !== "textStyle");
+      return kept.length === marks.length
+        ? null
+        : state.tr.setStoredMarks(kept);
+    },
+  };
+}
