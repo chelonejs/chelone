@@ -39,12 +39,14 @@ import Button from "../ui/button.vue";
 import {
   type ButtonState,
   formatShortcut,
+  hasRichTextColor,
   itemSpecs,
   readToolbarState,
   setBlockType,
 } from "./rich-text-commands";
-import { richTextIcons, richTextImageIcon } from "./rich-text-icons";
+import { richTextColorIcon, richTextIcons, richTextImageIcon } from "./rich-text-icons";
 import { getRichTextImageConfig } from "./rich-text-image";
+import RichTextColor from "./rich-text-color.vue";
 import RichTextImageForm from "./rich-text-image-form.vue";
 import RichTextLinkForm from "./rich-text-link-form.vue";
 
@@ -54,7 +56,9 @@ const translate = useTranslate();
 const state = shallowRef(readToolbarState(props.editor));
 const linkOpen = shallowRef(false);
 const imageOpen = shallowRef(false);
+const colorOpen = shallowRef(false);
 const hasImages = computed(() => getRichTextImageConfig(props.editor) !== null);
+const hasColors = computed(() => hasRichTextColor(props.editor));
 
 // tiptap's own `editor.state` ref updates two frames late, so the toolbar reads
 // the editor itself after each transaction. `setEditable` and a new
@@ -151,6 +155,19 @@ function onBlockType(event: Event) {
             <component :is="richTextIcons[item.id]" />
           </Button>
           <Button
+            v-if="item.id === 'code' && hasColors"
+            variant="ghost"
+            size="icon"
+            :aria-label="translate('chelone.rich_text.color', { _: 'Text color' })"
+            :title="translate('chelone.rich_text.color', { _: 'Text color' })"
+            :aria-expanded="colorOpen"
+            :disabled="!state.editable"
+            @mousedown.prevent
+            @click="colorOpen = !colorOpen"
+          >
+            <component :is="richTextColorIcon" />
+          </Button>
+          <Button
             v-if="item.id === 'link' && hasImages"
             variant="ghost"
             size="icon"
@@ -170,6 +187,7 @@ function onBlockType(event: Event) {
       :editor="editor"
       @close="imageOpen = false"
     />
+    <RichTextColor v-if="colorOpen && hasColors" :editor="editor" />
     <RichTextLinkForm
       v-if="linkOpen"
       :editor="editor"
