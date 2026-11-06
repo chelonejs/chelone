@@ -44,6 +44,15 @@ it("the input page has Images, Text color and Code blocks sections", () => {
   expect(inputPage).toMatch(/^## Code blocks$/m);
 });
 
+it("the Toolbar section gates only images and colors on the toolbar", () => {
+  const text = flat(section(inputPage, "Toolbar"));
+  expect(text).toMatch(
+    /`images` and `colors` decide whether the Image and Text color buttons are in the toolbar/,
+  );
+  expect(text).toMatch(/`codeHighlight` keeps the Code block button/);
+  expect(text).not.toMatch(/three props decide/i);
+});
+
 it("the Images section covers the images prop, its file rules and its callbacks", () => {
   const images = section(inputPage, "Images");
   const text = flat(images);
@@ -120,6 +129,9 @@ it("the Code blocks section covers codeHighlight, lowlight and the stored HTML",
   const code = section(inputPage, "Code blocks");
   const text = flat(code);
   expect(code).toContain("`codeHighlight`");
+  expect(text).toMatch(
+    /The Code block button is in the toolbar whatever `codeHighlight` is/,
+  );
   expect(text).toMatch(/lowlight/);
   expect(text).toMatch(/<pre><code class="language-/);
   expect(text).toMatch(/no highlight markup|not stored/i);

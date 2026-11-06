@@ -63,9 +63,9 @@ button reports `aria-pressed` while its mark or block is on the selection. Link,
 Image and Text color open a small form instead of running a command, and link
 editing accepts safe URLs and rejects unsafe schemes.
 
-Three props decide whether the Image, Text color and code block controls are in
-the toolbar at all: `images`, `colors` and `codeHighlight`, each under its own
-section below.
+`images` and `colors` decide whether the Image and Text color buttons are in the
+toolbar at all. `codeHighlight` keeps the Code block button and changes only how
+a code block is drawn. Each prop has its own section below.
 
 In React, `toolbar` replaces the default toolbar. Pass `toolbar={null}` to hide
 it, or include `<RichTextToolbar />` in a custom wrapper to keep its controls:
@@ -214,6 +214,9 @@ starts uncolored, unless the text after the caret is already colored.
 
 `codeHighlight` decides whether a code block is highlighted while it is being
 edited. `false` shows it plain. Default `true`.
+
+The Code block button is in the toolbar whatever `codeHighlight` is, so a block
+can be made either way, and stored HTML can hold `<pre><code>` in both cases.
 
 With it on, lowlight highlights the block with highlight.js grammars: the 37
 languages in its `common` set when the block names one, and a guess when it does
