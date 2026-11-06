@@ -153,6 +153,121 @@ it("the input page has a Stored content section on images, embeds and the server
   expect(flat).toMatch(/validate the document on the server/i);
 });
 
+it("the input page covers the data blocks, their caps and their read access", () => {
+  expect(inputPage).toContain("## Data blocks");
+  const flat = inputPage.replace(/\s+/g, " ");
+  expect(inputPage).toContain("blocks={[...defaultBlocks, ...dataBlocks]}");
+  expect(flat).toContain("`dataBlocks`");
+  for (const name of ["referenceRecord", "recordList", "chart"]) {
+    expect(flat, name).toContain(`\`${name}\``);
+  }
+  // The record list is capped at 50 rows and the chart at 1000, read at 100.
+  expect(flat).toMatch(/1 to 50/);
+  expect(flat).toMatch(/1000 at most/);
+  expect(flat).toMatch(/100 by default/);
+  // A data block is a data provider read, so it is gated by that resource's access.
+  expect(flat).toMatch(/data provider/);
+  expect(flat).toMatch(/error state/);
+});
+
+it("the input page draws a chart with the /charts components of each adapter", () => {
+  const flat = inputPage.replace(/\s+/g, " ");
+  expect(flat).toMatch(/`\/charts` components/);
+  expect(flat).toContain("`<TrendChart>`");
+  expect(flat).toContain("`<BarChart>`");
+  expect(flat).toContain("`<DonutChart>`");
+  expect(flat).toMatch(/recharts and\s+Vue with unovis/);
+  for (const slug of ["trend-chart", "bar-chart", "donut-chart"]) {
+    expect(inputPage, slug).toContain(`](/docs/ui-layout/${slug})`);
+  }
+});
+
+it("the data blocks sample imports the file the registry writes", () => {
+  const sample = fences(inputPage).find((code) =>
+    code.includes("[...defaultBlocks, ...dataBlocks]"),
+  );
+  expect(sample).toBeDefined();
+  expect(sample).toContain(
+    'import { dataBlocks } from "@/components/block-editor/data-blocks";',
+  );
+});
+
+it("the input page covers the drag handle and the keyboard path", () => {
+  expect(inputPage).toContain("## Moving blocks");
+  const flat = inputPage.replace(/\s+/g, " ");
+  expect(flat).toContain("`@dnd-kit/react`");
+  expect(flat).toContain("`@dnd-kit/vue`");
+  expect(flat).toMatch(/Move up and Move down are the keyboard path/);
+  expect(flat).toMatch(/not in\s+the tab order/);
+  expect(inputPage).toContain("](#moving-blocks)");
+});
+
+it("the input page links to anchors that exist exactly once", () => {
+  const headings = [...inputPage.matchAll(/^#{2,3} (.+)$/gm)].map((match) =>
+    match[1]
+      .toLowerCase()
+      .replace(/[^a-z0-9 -]/g, "")
+      .replace(/ /g, "-"),
+  );
+  for (const [, anchor] of inputPage.matchAll(/\]\(#([a-z0-9-]+)\)/g)) {
+    expect(
+      headings.filter((heading) => heading === anchor),
+      `#${anchor}`,
+    ).toHaveLength(1);
+  }
+});
+
+it("the field page says a data block reads its resource when the field renders", () => {
+  expect(fieldPage).toContain("## Data blocks read live data");
+  const flat = fieldPage.replace(/\s+/g, " ");
+  expect(flat).toContain("`useGetOne`");
+  expect(flat).toContain("`useGetList`");
+  expect(flat).toMatch(/error state/);
+  expect(fieldPage).toContain(
+    "](/docs/editing/block-editor-input#data-blocks)",
+  );
+});
+
+it("the differences page says the chart block draws with each adapter's /charts components", () => {
+  const addons = differences.slice(differences.indexOf("## Add-ons"));
+  const flat = addons.replace(/\s+/g, " ");
+  expect(flat).toContain("`@chelone/vue/charts`");
+  expect(flat).toContain("`@chelone/react/charts`");
+  expect(flat).toContain("`recharts`");
+  expect(flat).toContain("`@unovis/vue`");
+  expect(flat).toContain("`@dnd-kit/vue`");
+  expect(flat).toContain("`@dnd-kit/dom`");
+  expect(flat).toMatch(/Both entries ship the four default blocks/);
+});
+
+it("both READMEs name the drag and chart peers the block-editor entry shares with /charts", () => {
+  const reactRow = reactReadme
+    .split("\n")
+    .find((l) => l.includes("`@chelone/react/block-editor`"));
+  expect(reactRow).toContain("@dnd-kit/react");
+  expect(reactRow).toContain("@dnd-kit/dom");
+  expect(reactRow).toContain("recharts");
+  const vueRow = vueReadme
+    .split("\n")
+    .find((l) => l.includes("`@chelone/vue/block-editor`"));
+  expect(vueRow).toContain("@dnd-kit/vue");
+  expect(vueRow).toContain("@dnd-kit/dom");
+  expect(vueRow).toContain("@unovis/vue");
+  expect(vueRow).toContain("@unovis/ts");
+});
+
+it("the roadmap names the data blocks and the drag handle as built", () => {
+  const line = roadmap
+    .split("\n")
+    .find((l) => l.includes("Block editor") && l.includes("block-editor"));
+  expect(line).toContain("**Block editor** (built)");
+  expect(line).toContain("data blocks");
+  expect(line).toContain("drag handle");
+  expect(line).toContain("`@dnd-kit/react`");
+  expect(line).toContain("`@dnd-kit/vue`");
+  expect(line).toContain("#927");
+});
+
 it("the field page shows a show view, blocks and empty, and links to the input", () => {
   expect(fieldPage).toContain("## In a show view");
   expect(fieldPage).toContain("](/docs/editing/block-editor-input)");

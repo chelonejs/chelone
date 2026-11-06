@@ -95,8 +95,22 @@ the Add block button above the editor, where it also shows a search box.
 
 Once a block is selected, or the caret sits inside one, a bar appears above the
 editor with the block's label and its actions: Configure, Duplicate, Move up,
-Move down and Delete. Configure opens a panel under the bar. In React a drag
-handle at the left edge of each block moves it as well.
+Move down and Delete. Configure opens a panel under the bar.
+[Moving blocks](#moving-blocks) covers the two ways to move one.
+
+## Moving blocks
+
+A grip sits in the left gutter beside the top-level block the pointer is over,
+or the one the caret sits in. Drag it and a drop line appears at the nearest gap
+between blocks, including before the first block and after the last; dropping
+there moves the block. Both adapters draw the grip and move on the drop, on
+`@dnd-kit/react` and `@dnd-kit/vue`.
+
+The bar's Move up and Move down are the keyboard path, and the grip is not in
+the tab order on purpose: it has no keyboard drag, so a screen reader is not
+told to press Space on it. Move up and Move down move a block among its siblings
+at any depth, are disabled at the ends of that run, and each move is one
+transaction, so one undo puts the block back where it was.
 
 ## Custom blocks
 
@@ -192,6 +206,63 @@ one another app wrote, or one since removed. The editor keeps it as an
 and writes the node back unchanged when the form saves. Deleting that row is what
 drops it.
 
+## Data blocks
+
+Three shipped blocks store no content of their own. Each names a resource in its
+attrs and reads it through the data provider when it renders, so it shows what
+the resource holds now, not what it held when the document was written.
+`dataBlocks` is the three together:
+
+```tsx title="src/resources/PostEdit.tsx"
+import { Edit } from "@chelone/react";
+import { BlockEditorInput } from "@/components/block-editor/block-editor-input";
+import { dataBlocks } from "@/components/block-editor/data-blocks";
+import { defaultBlocks } from "@/components/block-editor/default-blocks";
+
+export const PostEdit = () => (
+  <Edit>
+    <BlockEditorInput
+      source="body"
+      label="Body"
+      blocks={[...defaultBlocks, ...dataBlocks]}
+    />
+  </Edit>
+);
+```
+
+`referenceRecordBlock`, `recordListBlock` and `chartBlock` are exported on their
+own for an editor that wants some of them. Both entries ship all three, and the
+registry writes them to `@/components/block-editor/data-blocks`.
+
+What each block shows, and what its Configure panel asks for:
+
+| Block | Shows | Configure |
+| --- | --- | --- |
+| `referenceRecord` | One record as a card of its title and fields, or as an inline badge of the title alone with `layout: "inline"` | Resource, Record id, Fields, Layout |
+| `recordList` | The first rows of a resource as a table of up to three columns | Resource, Fields, Rows |
+| `chart` | The first rows grouped by a category field, drawn as a bar, line or pie chart | Resource, Chart type, Category field, Value field, Aggregate |
+
+- Fields is a comma-separated list. Name none and the block shows every key the
+  record owns but `id`; a record list cuts that list to three columns.
+- Rows is capped: 1 to 50 for a record list, 5 by default. The chart reads
+  `perPage` rows too, 100 by default and 1000 at most, but its panel names no
+  Rows field, so a chart reads 100 rows unless the stored attrs say otherwise.
+- A chart draws with the `/charts` components: `<TrendChart>` for a line,
+  `<DonutChart>` for a pie and `<BarChart>` for a bar, which is
+  [TrendChart](/docs/ui-layout/trend-chart),
+  [DonutChart](/docs/ui-layout/donut-chart) and
+  [BarChart](/docs/ui-layout/bar-chart) here. React draws them with recharts and
+  Vue with unovis, so `/block-editor` needs the same chart peers `/charts`
+  needs.
+- Each read is an ordinary data provider read: `useGetOne` for a reference
+  record, `useGetList` for a record list and a chart. A reader whose data
+  provider refuses that resource sees the block's error state instead of data,
+  so embedding a resource in a document is only as private as that resource's
+  own access rules.
+- Before a block is configured, and while its read is on its way, it shows a
+  hint or a skeleton in place of its data. A record list with no rows shows
+  `No records`.
+
 ## Stored content
 
 The document is user-supplied, and the editor renders it.
@@ -267,6 +338,9 @@ import {
 } from "@chelone/vue/block-editor";
 ```
 
+The Vue entry also needs `@dnd-kit/vue` and `@dnd-kit/dom` for the block drag
+handle, and `@unovis/vue` and `@unovis/ts` for the chart block.
+
 The main `@chelone/react` and `@chelone/vue` entries never import tiptap, so an
 app that does not use the add-on does not need these packages.
 
@@ -280,11 +354,11 @@ with these differences:
 - The Vue input has no `id`, `resource`, `isRequired`, `format`, `parse` or
   `alwaysOn` prop and emits no events. Its label is translated against the
   ambient resource, and a `required()` validator sets the required marker.
-- React moves a block with a drag handle as well as the bar. Vue has the bar's
-  Move up and Move down.
-- The React entry also ships the data blocks (`dataBlocks`, `recordListBlock`
-  and `referenceRecordBlock`) and `chartBlock`, which chart a resource. The Vue
-  entry ships the four default blocks.
+- Both entries ship the same blocks: the four defaults and the three data
+  blocks (`dataBlocks`, made of `referenceRecordBlock`, `recordListBlock` and
+  `chartBlock`), and both move a block with the gutter grip and with the bar's
+  Move up and Move down. What differs is what draws a chart: recharts in React,
+  unovis in Vue.
 - `<BlockEditor>`, the editor the input builds on, takes `onChange` in React and
   emits `change` in Vue. `<BlockDocField>` takes an `empty` node in React, and
   the `empty` string with a `#empty` slot in Vue.
