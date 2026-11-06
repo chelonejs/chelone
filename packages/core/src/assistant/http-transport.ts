@@ -12,9 +12,16 @@ export interface HttpAssistantTransportOptions {
   fetch?: typeof globalThis.fetch;
 }
 
-function parseChunk(line: string): AssistantChunk {
+function parseChunk(line: string, lineNumber: number): AssistantChunk {
+  const invalid = () =>
+    new Error(`Invalid assistant chunk at line ${lineNumber}`);
   // type-escape: JSON from the endpoint must be validated before it becomes a chunk.
-  const chunk: unknown = JSON.parse(line);
+  let chunk: unknown;
+  try {
+    chunk = JSON.parse(line);
+  } catch {
+    throw invalid();
+  }
   if (isRecord(chunk)) {
     switch (chunk.type) {
       case "text":
@@ -40,7 +47,7 @@ function parseChunk(line: string): AssistantChunk {
         return { type: "done" };
     }
   }
-  throw new Error("Invalid assistant chunk");
+  throw invalid();
 }
 
 /** Posts a conversation to an app endpoint that replies with NDJSON AssistantChunks. */
@@ -75,6 +82,7 @@ export function httpAssistantTransport(
       if (reader) {
         const decoder = new TextDecoder();
         let pending = "";
+        let lineNumber = 0;
         try {
           for (;;) {
             const step = await reader.read();
@@ -82,10 +90,11 @@ export function httpAssistantTransport(
             pending += decoder.decode(step.value, { stream: true });
             let end = pending.indexOf("\n");
             while (end >= 0) {
+              lineNumber++;
               const line = pending.slice(0, end).trim();
               pending = pending.slice(end + 1);
               if (line) {
-                const chunk = parseChunk(line);
+                const chunk = parseChunk(line, lineNumber);
                 yield chunk;
                 if (chunk.type === "done") return;
               }

@@ -89,4 +89,30 @@ describe("httpAssistantTransport", () => {
       body: "The model is unavailable",
     });
   });
+
+  it("a malformed line or unknown chunk type throws naming the line", async () => {
+    for (const line of [
+      "not JSON",
+      '{"type":"vendor-event"}',
+      '{"type":"text","delta":7}',
+      '{"type":"tool-call","id":"c","toolName":"count","args":[]}',
+      "null",
+    ]) {
+      const response = new Response(
+        `\n{"type":"text","delta":"OK"}\n${line}\n`,
+      );
+      const transport = httpAssistantTransport({
+        url,
+        fetch: async () => response,
+      });
+
+      const result = collect(
+        transport.send([], {}, { signal: new AbortController().signal }),
+      );
+
+      await expect(result).rejects.toBeInstanceOf(Error);
+      await expect(result).rejects.toThrow(/line 3\b/);
+      expect(response.body?.locked).toBe(false);
+    }
+  });
 });
