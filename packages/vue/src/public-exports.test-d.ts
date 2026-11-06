@@ -68,6 +68,7 @@ import type {
   LoginWithEmailProps,
   MenuLiveItemLinkProps,
   MenuLiveProps,
+  MetricCardProps,
   NotFoundProps,
   NullableBooleanInputProps,
   NumberInputProps,
@@ -175,6 +176,14 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<LoginWithEmailProps>().toHaveProperty("class");
     expectTypeOf<MenuLiveItemLinkProps>().toHaveProperty("resource");
     expectTypeOf<MenuLiveProps>().toHaveProperty("items");
+    expectTypeOf<MetricCardProps>().toHaveProperty("label");
+    expectTypeOf<MetricCardProps["icon"]>().toEqualTypeOf<
+      Component | undefined
+    >();
+    expectTypeOf<MetricCardProps["class"]>().toEqualTypeOf<
+      string | undefined
+    >();
+    expectTypeOf(barrel.MetricCard).toBeObject();
     expectTypeOf<NotFoundProps>().toHaveProperty("title");
     expectTypeOf<NotFoundProps>().toHaveProperty("class");
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");

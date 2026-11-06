@@ -1,0 +1,47 @@
+{
+  "name": "MetricCard",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "delta",
+      "type": "number",
+      "optional": true,
+      "comment": "A ratio: 0.05 is 5.0%. Nothing renders for `undefined` or a non-finite number."
+    },
+    {
+      "name": "format",
+      "type": "(value: number) => string",
+      "optional": true,
+      "comment": "Applies to a numeric `value` only."
+    },
+    {
+      "name": "icon",
+      "type": "ComponentType<{ className?: string }>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "loading",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "value",
+      "type": "number | string",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}
