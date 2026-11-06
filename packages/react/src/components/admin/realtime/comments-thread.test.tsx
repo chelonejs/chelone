@@ -164,6 +164,26 @@ describe("CommentsThread", () => {
     expect(getList).not.toHaveBeenCalled();
   });
 
+  it("a row without a body is not listed", async () => {
+    const { Providers } = setup({
+      provider: fakeDataProvider({
+        comments: [
+          { id: 1, postId: 7, body: "First" },
+          { id: 2, postId: 7 },
+          { id: 3, postId: 7, body: 5 },
+        ],
+      }),
+    });
+    render(<CommentsThread reference="comments" target="postId" />, {
+      wrapper: Providers,
+    });
+
+    await waitFor(() => expect(cards()).toHaveLength(1));
+    expect(cards().map((c) => c.getAttribute("data-comment-id"))).toEqual([
+      "1",
+    ]);
+  });
+
   it("CommentsThread shows the empty state with no comments", async () => {
     const { Providers } = setup();
     render(<CommentsThread reference="comments" target="postId" />, {

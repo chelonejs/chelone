@@ -11,7 +11,13 @@ export interface CommentRecord {
   createdAt?: string;
   /** An ISO timestamp, set once the comment is resolved. */
   resolvedAt?: string | null;
-  [key: string]: unknown;
+}
+
+/** A row is a comment when it has a string `body`; any other row is skipped. */
+function isCommentRecord(
+  record: LooseRecord,
+): record is LooseRecord & CommentRecord {
+  return typeof record.body === "string";
 }
 
 /** Props for {@link CommentsThread}. */
@@ -95,7 +101,7 @@ watch(isError, (failed) => {
   }
 });
 
-const items = computed(() => (data.value?.data ?? []) as CommentRecord[]);
+const items = computed(() => (data.value?.data ?? []).filter(isCommentRecord));
 const total = computed(() => data.value?.total ?? items.value.length);
 
 function authorOf(comment: CommentRecord): string {
@@ -151,7 +157,7 @@ function onKeydown(event: KeyboardEvent) {
   }
 }
 
-async function resolve(comment: CommentRecord) {
+async function resolve(comment: LooseRecord & CommentRecord) {
   try {
     await update.mutateAsync({
       id: comment.id,
