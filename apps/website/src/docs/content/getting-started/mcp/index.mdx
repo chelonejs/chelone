@@ -1,0 +1,63 @@
+---
+title: "MCP Server"
+description: "Give your AI agent access to the Chelone registry through the shadcn MCP server."
+---
+
+The shadcn MCP server lets your AI agent browse the Chelone registry and add
+components to your project from a prompt.
+
+This page covers React projects. For Vue, follow the
+[Vue installation guide](/docs/getting-started/install#install-for-vue) and keep
+its registry URL.
+
+## Prerequisites
+
+Follow the [installation guide](/docs/getting-started/install) to set up your
+project and shadcn before connecting your agent.
+
+## Connect your client
+
+From your project directory, run the command for your AI client.
+
+### Claude Code
+
+```bash
+npx shadcn@latest mcp init --client claude
+```
+
+### Cursor
+
+```bash
+npx shadcn@latest mcp init --client cursor
+```
+
+### VS Code
+
+```bash
+npx shadcn@latest mcp init --client vscode
+```
+
+## Add the Chelone registry
+
+For React projects, add `@chelone` under `registries` in your project's
+`components.json`, keeping the rest of your shadcn configuration and any
+existing registries:
+
+```json title="components.json"
+{
+  "registries": {
+    "@chelone": "https://chelone.dev/r/{name}.json"
+  }
+}
+```
+
+Restart your AI client to load the MCP configuration, then enable the shadcn
+MCP server if your client asks.
+
+## Try a prompt
+
+With the shadcn MCP server connected, ask your agent:
+
+- "show me all available components in the chelone registry"
+- "init this project using the chelone registry"
+- "create a new admin using the chelone registry and declare 3 resources in it: posts, comments and users"
