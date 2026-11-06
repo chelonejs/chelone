@@ -5,7 +5,7 @@
  * wraps its field as a child, and a reference input takes no child.
  */
 
-import type { FieldDescriptor } from "@chelone/core";
+import type { FieldComponentName, FieldDescriptor } from "@chelone/core";
 
 export type GuessedView = "List" | "Edit" | "Show";
 
@@ -74,8 +74,14 @@ const pascal = (resource: string) => {
   return /^[A-Za-z]/.test(name) ? name : `Resource${name}`;
 };
 
-const isSkipped = (field: FieldDescriptor) =>
-  field.kind === "unsupported" || field.field === undefined;
+/**
+ * A field the printer can name a component for: not `unsupported`, and it names
+ * one. The guard is what lets the loops below read `field.field` with no cast.
+ */
+const isPrintable = (
+  field: FieldDescriptor,
+): field is FieldDescriptor & { field: FieldComponentName } =>
+  field.kind !== "unsupported" && field.field !== undefined;
 
 /**
  * Prints the SFC for `view` of `resource` and a `Skipped:` line for each field
@@ -92,7 +98,7 @@ export function printGuessedView(
     return name;
   };
 
-  const supported = fields.filter((field) => !isSkipped(field));
+  const supported = fields.filter(isPrintable);
   const lines: string[] = [];
 
   if (view === "List") {
@@ -102,7 +108,7 @@ export function printGuessedView(
       if (field.kind === "text") {
         lines.push(`      <${col} ${sourceAttrs(field)} />`);
       } else {
-        const component = use(field.field as string);
+        const component = use(field.field);
         lines.push(
           `      <${col} ${sourceAttrs(field)}><${component} ${attrs(field, true)} /></${col}>`,
         );
@@ -125,7 +131,7 @@ export function printGuessedView(
       if (field.kind === "text") {
         lines.push(`    <${wrapper} ${sourceAttrs(field)} />`);
       } else {
-        const component = use(field.field as string);
+        const component = use(field.field);
         lines.push(
           `    <${wrapper} ${sourceAttrs(field)}><${component} ${attrs(field, true)} /></${wrapper}>`,
         );
@@ -137,7 +143,7 @@ export function printGuessedView(
   if (view === "List") use("DataTable");
 
   const skipped = fields
-    .filter(isSkipped)
+    .filter((field) => !isPrintable(field))
     .map(
       (field) => `Skipped: ${field.source} (${field.reason ?? "no component"})`,
     );
