@@ -1,3 +1,4 @@
+import { elementOf } from "@chelone/test-utils";
 import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { expect, test } from "vitest";
@@ -42,7 +43,7 @@ test("a category renders as a heading that is not a link, followed by its pages'
   expect(heading.closest("a")).toBeNull();
   expect(heading.closest("button")).toBeNull();
 
-  const item = heading.closest("li") as HTMLElement;
+  const item = elementOf(heading.closest("li"), HTMLLIElement);
   expect(
     within(item)
       .getAllByRole("link")
