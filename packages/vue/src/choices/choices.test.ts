@@ -1,4 +1,5 @@
 import { defineResources, fakeDataProvider } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -141,7 +142,7 @@ describe("useChoicesContext", () => {
     const { capture } = mountInContext(() =>
       useChoicesContext({ choices: ["a", { id: 2, name: "B" }] }),
     );
-    const ctx = capture.value as ChoicesContextValue;
+    const ctx = defined(capture.value);
     expect(ctx.isFromReference).toBe(false);
     expect(ctx.allChoices).toHaveLength(2);
     expect(ctx.allChoices).toEqual(ctx.availableChoices);
