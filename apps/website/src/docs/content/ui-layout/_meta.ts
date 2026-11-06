@@ -78,4 +78,8 @@ export default [
       "onboarding-tour",
     ],
   },
+  {
+    category: "Dashboard & charts",
+    slugs: ["metric-card", "trend-chart", "bar-chart", "donut-chart"],
+  },
 ] satisfies MetaEntry[];
