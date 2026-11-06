@@ -151,11 +151,10 @@ function AllInputs() {
  * (the `source`) is exact and marker-agnostic.
  */
 function control(name: string): HTMLInputElement {
-  const el = document.querySelector(
-    `[name="${name}"]`,
-  ) as HTMLInputElement | null;
-  if (!el) throw new Error(`no control with name="${name}"`);
-  return el;
+  return elementOf(
+    document.querySelector(`[name="${name}"]`),
+    HTMLInputElement,
+  );
 }
 
 afterEach(() => cleanup());
