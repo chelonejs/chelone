@@ -36,8 +36,28 @@ it("shows one live preview above the reference page body when a basic demo exist
   });
 });
 
+it("shows the BooleanField preview and its demo source", async () => {
+  render(
+    <MemoryRouter initialEntries={["/docs/viewing/boolean-field"]}>
+      <Routes>
+        <Route path="/docs/*" element={<MdxPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
+  expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(1);
+  fireEvent.click(screen.getByRole("button", { name: "code" }));
+  await waitFor(() => {
+    expect(
+      screen
+        .getAllByRole("code")
+        .map((code) => code.textContent)
+        .join("\n"),
+    ).toContain('return <BooleanField source="published" />;');
+  });
+});
+
 it.each([
-  ["viewing/boolean-field", "BooleanField"],
   ["editing/text-input", "TextInput"],
   ["ui-layout/app-bar", "AppBar"],
 ])("shows no preview on %s when no basic demo exists", (slug, title) => {

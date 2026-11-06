@@ -190,7 +190,11 @@ class FakeMarker {
   }
 
   getElement(): HTMLElement {
-    return this.options.element as HTMLElement;
+    const { element } = this.options;
+    if (!(element instanceof HTMLElement)) {
+      throw new Error("fake Marker: no element option was given");
+    }
+    return element;
   }
 
   addTo(map: FakeMap): this {
