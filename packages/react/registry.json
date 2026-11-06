@@ -6526,9 +6526,8 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/react",
+        "@chelone/utils",
         "@turf/buffer",
-        "@turf/difference",
-        "@turf/union",
         "lucide-react",
         "maplibre-gl",
         "osm2geojson-lite"
@@ -6674,12 +6673,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": [
-        "@chelone/core",
-        "@turf/difference",
-        "@turf/union",
-        "maplibre-gl"
-      ],
+      "dependencies": ["@chelone/utils", "maplibre-gl"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
