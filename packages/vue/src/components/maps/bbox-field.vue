@@ -1,10 +1,11 @@
-<script lang="ts">
+<script lang="ts" generic="TRecord">
 import type { GeoJsonFieldProps } from "./geo-json-field.vue";
 
-export type BBoxFieldProps = GeoJsonFieldProps;
+// type-escape: without a `record` the paths are loose, as `SourceProp<unknown>` is
+export type BBoxFieldProps<TRecord = unknown> = GeoJsonFieldProps<TRecord>;
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord">
 /**
  * Shows a `[west, south, east, north]` box from a record as a rectangle on a
  * map. A value that is not four finite numbers shows the empty panel.
@@ -18,7 +19,7 @@ import { computed } from "vue";
 import { useFieldValue } from "../../record/use-field-value";
 import GeoJsonField from "./geo-json-field.vue";
 
-const props = withDefaults(defineProps<BBoxFieldProps>(), {
+const props = withDefaults(defineProps<BBoxFieldProps<TRecord>>(), {
   fitBounds: true,
   fitPadding: 20,
   maxFitZoom: 18,
@@ -26,7 +27,8 @@ const props = withDefaults(defineProps<BBoxFieldProps>(), {
   scrollZoom: false,
 });
 
-const value = useFieldValue({
+// type-escape: `source` is the loose `SourceProp`, so the read is untyped
+const value = useFieldValue<unknown>({
   source: props.source,
   get record() {
     return props.record;
