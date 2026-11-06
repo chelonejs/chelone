@@ -1338,6 +1338,18 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/layout/onboarding-tour-host.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/onboarding-tour-overlay.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/onboarding-tour.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/layout/resource-menu-item-group.vue",
           "type": "registry:component"
         },
@@ -4602,6 +4614,54 @@
       ],
       "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "onboarding-tour-host",
+      "type": "registry:component",
+      "title": "Onboarding Tour Host",
+      "files": [
+        {
+          "path": "src/components/admin/layout/onboarding-tour-host.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/onboarding-tour",
+        "@chelone/onboarding-tour-overlay"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "onboarding-tour-overlay",
+      "type": "registry:component",
+      "title": "Onboarding Tour Overlay",
+      "files": [
+        {
+          "path": "src/components/admin/layout/onboarding-tour-overlay.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/onboarding-tour"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "onboarding-tour",
+      "type": "registry:component",
+      "title": "Onboarding Tour",
+      "files": [
+        {
+          "path": "src/components/admin/layout/onboarding-tour.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/onboarding-tour-host"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {

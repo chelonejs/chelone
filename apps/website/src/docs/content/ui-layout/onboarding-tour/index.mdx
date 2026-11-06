@@ -1,0 +1,190 @@
+---
+title: "OnboardingTour"
+description: "A guided tour that highlights one element per step with a card beside it, and remembers that it is done."
+registry: "onboarding-tour"
+---
+
+`<OnboardingTour>` walks a user through the admin one element at a time. A dark
+scrim covers the page with a cut-out around the step's target, and a card beside
+the target holds the title, the text and the Back, Next and Skip buttons. When
+the user finishes or skips, the tour stores that in the store and does not open
+again.
+
+## Mounting it
+
+Mount it once, anywhere under `<Admin>`. It renders into `document.body`, so
+where it sits in the tree does not matter. A target is any element a CSS
+selector finds, so the elements you point at need an `id` or a `data-` attribute
+to select.
+
+```tsx
+import { Admin, Layout, OnboardingTour, Resource } from "@chelone/react";
+
+const AppLayout = ({ children }) => (
+  <>
+    <OnboardingTour
+      id="welcome"
+      steps={[
+        {
+          target: "#new-post",
+          title: "Create a post",
+          content: "Start here to write your first post.",
+        },
+        {
+          target: "[data-tour='search']",
+          content: "Find a post by its title.",
+          placement: "bottom",
+        },
+      ]}
+      onComplete={(reason) => console.log(reason)}
+    />
+    <Layout>{children}</Layout>
+  </>
+);
+
+<Admin dataProvider={dataProvider}>
+  <Admin.Layout>
+    <AppLayout />
+  </Admin.Layout>
+  <Resource name="posts" list={PostList} />
+</Admin>;
+```
+
+In Vue the tour goes in the `#layout` slot. It emits `complete` where React
+calls `onComplete`.
+
+```vue
+<script setup lang="ts">
+import { Admin, Layout, OnboardingTour, Resource } from "@chelone/vue";
+
+const steps = [
+  {
+    target: "#new-post",
+    title: "Create a post",
+    content: "Start here to write your first post.",
+  },
+  {
+    target: "[data-tour='search']",
+    content: "Find a post by its title.",
+    placement: "bottom",
+  },
+];
+</script>
+
+<template>
+  <Admin :data-provider="dataProvider">
+    <Resource name="posts" :list="PostList" />
+
+    <template #layout>
+      <OnboardingTour id="welcome" :steps="steps" @complete="console.log($event)" />
+      <Layout>
+        <router-view />
+      </Layout>
+    </template>
+  </Admin>
+</template>
+```
+
+`complete` and `onComplete` get `"finished"` when the user clicks Finish on the
+last step, and `"skipped"` for Skip, the Escape key or a click on the scrim.
+
+## Steps
+
+A step has these fields:
+
+| Field | Type | Meaning |
+| ----- | ---- | ------- |
+| `target` | `string` | CSS selector of the element to highlight. |
+| `title` | `ReactNode` in React, `string` in Vue | A heading for the card. The card is named after it. |
+| `content` | `ReactNode` in React, `string` in Vue | The text of the card. |
+| `placement` | `"auto"`, `"top"`, `"bottom"`, `"left"` or `"right"` | Overrides the tour's `placement` for this step. |
+
+`placement` on the tour defaults to `"auto"`, which picks the side with the most
+room. The card moves to stay inside the viewport.
+
+In Vue a `#step` slot replaces the title and the content. It is given
+`{ step, index }`, and the counter and the buttons stay.
+
+```vue
+<OnboardingTour id="welcome" :steps="steps">
+  <template #step="{ step, index }">
+    <p>Step {{ index + 1 }}: {{ step.content }}</p>
+  </template>
+</OnboardingTour>
+```
+
+React has no such slot: `title` and `content` take any node.
+
+## A missing target
+
+A step whose element is not on the page still shows. Its card sits in the centre
+of the screen and the scrim has no cut-out. An invalid selector counts as a
+missing target and does not throw. The tour looks the target up again every
+250 ms, so an element that appears late gets its highlight.
+
+A present target is scrolled to the centre of the viewport.
+
+## Keyboard and focus
+
+- The card is a modal dialog. Focus moves to its Next button, and Tab stays
+  inside the card.
+- Escape skips the tour.
+- When the tour closes, focus returns to the element that had it before.
+
+## Restarting
+
+The tour stores `true` under `onboardingTourKey(id)`, which is
+`onboarding-tour.<id>.completed`. Setting the key to anything else opens the tour
+again while it is mounted, so a "Show the tour again" button writes `false` with
+`useStore`.
+
+```tsx
+import { onboardingTourKey } from "@chelone/core";
+import { useStore } from "@chelone/react";
+
+const RestartTour = () => {
+  const [, setDone] = useStore(onboardingTourKey("welcome"), false);
+  return <button onClick={() => setDone(false)}>Show the tour again</button>;
+};
+```
+
+In Vue:
+
+```vue
+<script setup lang="ts">
+import { onboardingTourKey } from "@chelone/core";
+import { useStore } from "@chelone/vue";
+
+const [, setDone] = useStore(onboardingTourKey("welcome"), false);
+</script>
+
+<template>
+  <button @click="setDone(false)">Show the tour again</button>
+</template>
+```
+
+`autoStart={false}` stops the tour opening by itself, on mount and when its key
+is cleared. A tour with no steps never opens.
+
+A different `id` is a different tour with its own stored flag. Changing `id`,
+`autoStart` or the number of steps starts the tour afresh.
+
+## Translation
+
+Each button goes through `translate` with an English default, so
+[i18n messages](/docs/app-config/translation) override it.
+
+| Key | English default |
+| --- | --------------- |
+| `chelone.onboarding_tour.skip` | Skip |
+| `chelone.onboarding_tour.back` | Back |
+| `chelone.onboarding_tour.next` | Next |
+| `chelone.onboarding_tour.finish` | Finish |
+
+## Props
+
+<PropsTable name="OnboardingTour" />
+
+The table shows the React props. Vue emits `complete` where React takes
+`onComplete`, and a Vue `title` and `content` are strings. The other differences
+are on the [Differences from React](/docs/vue/differences) page.

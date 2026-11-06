@@ -76,6 +76,8 @@ The full prop list for `<Admin>` and `<Resource>` is on the
 | `<PermissionMatrix>` takes `value` and `onChange`. | `<PermissionMatrix>` is a `v-model`: `modelValue` in and `update:modelValue` out with the whole next value. It takes `class` where React takes `className`. | [Permission Matrix](/docs/editing/permission-matrix) |
 | `<InPlaceEditor>` takes `children` for the shown value and `editor` for the input. | `<InPlaceEditor>` takes the default slot for the shown value and the `#editor` slot for the input. | [In Place Editor](/docs/editing/in-place-editor) |
 | `<InPlaceEditor>` takes `onSuccess` and `onError` props. | `<InPlaceEditor>` emits `success` with the saved record and `error` with the failure. | [In Place Editor](/docs/editing/in-place-editor) |
+| `<OnboardingTour>` takes an `onComplete` prop, called with `"finished"` or `"skipped"`. | `<OnboardingTour>` emits `complete` with the same two values. | [Onboarding Tour](/docs/ui-layout/onboarding-tour) |
+| `<OnboardingTour>` steps take a `title` and `content` that are nodes. | A step's `title` and `content` are strings. A `#step` slot, given `{ step, index }`, replaces both. | [Onboarding Tour](/docs/ui-layout/onboarding-tour) |
 | `useGeoJsonSource(map, sourceId, data, style)` takes plain values. | `useGeoJsonSource(sourceId, data, style)` takes refs or getters and reads the map from the surrounding `<MapCanvas>`. | None |
 
 Theme storage differs too: the Vue `<ThemeProvider>` always uses `localStorage`

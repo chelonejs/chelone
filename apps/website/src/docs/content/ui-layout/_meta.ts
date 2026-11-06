@@ -74,6 +74,7 @@ export default [
       "refresh-icon-button",
       "icon-button-with-tooltip",
       "keyboard-shortcut",
+      "onboarding-tour",
     ],
   },
 ] satisfies MetaEntry[];
