@@ -1,0 +1,70 @@
+---
+title: "useLock"
+description: "Takes a record's lock for an identity. Returns a lock function, its pending state and its last error; rejects with LockConflictError when another identity holds the record."
+---
+
+`useLock` is the imperative form of taking a lock: it binds the data provider's
+`lock` and hands you a function to call. `<LockOnMount>` and `useLockOnMount`
+are the mounted-lifetime versions.
+
+## Signature
+
+```ts
+function useLock(): UseLockResult
+
+interface UseLockResult {
+  lock: (resource: string, params: LockCallParams) => Promise<Lock>;
+  isLoading: boolean;
+  error: Error | null;
+}
+
+interface LockCallParams {
+  id: Identifier;
+  /** Defaults to the auth provider's identity. */
+  identity?: Identifier;
+  meta?: Record<string, unknown>;
+}
+```
+
+- `lock(resource, { id, identity?, meta? })` resolves the `Lock` the provider
+  recorded.
+- `identity` defaults to the identity the auth provider reports. Pass it when
+  the app has no auth provider.
+- `isLoading` is the mutation's pending state. `error` is the last rejection.
+
+## Returns
+
+`lock` rejects with `LockConflictError` when another identity holds the record;
+its `existingLock` is that lock. Locking again as the current holder resolves
+with the existing lock rather than failing. It rejects with a plain error when
+the data provider is not a realtime one with lock support, and the same error
+lands in `error`.
+
+`lock` rejects rather than resolving `undefined`, so `await` it or catch at the
+call site.
+
+## Example
+
+```tsx
+import { useLock } from "@chelone/react";
+
+export const TakeLockButton = ({ id }: { id: number }) => {
+  const { lock, isLoading, error } = useLock();
+  return (
+    <>
+      <button disabled={isLoading} onClick={() => void lock("posts", { id })}>
+        Take lock
+      </button>
+      {error ? <p>{error.message}</p> : null}
+    </>
+  );
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name. `lock` is a plain function, and
+`isLoading` and `error` are refs.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup, the
+`LockProvider` contract and `LockConflictError`.

@@ -1,0 +1,68 @@
+---
+title: "useGetManyLive"
+description: "useGetMany, kept fresh: refetches when any listed record changes or the connection returns. Needs a realtime data provider."
+---
+
+`useGetManyLive` is `useGetMany` with a subscription to each listed record's
+topic, for the records whose ids you already have.
+
+## Signature
+
+```ts
+function useGetManyLive<
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(
+  resource: TName,
+  params: GetManyParams,
+  options?: { enabled?: boolean; staleTime?: number },
+): UseQueryResult<RecordOf<TResources, TName>[], Error>
+```
+
+Both type arguments default to the app's registered resources, so a call site
+writes neither. `UseQueryResult` is TanStack Query's query result.
+
+- `params` is `GetManyParams`: a required `ids` array and an optional `meta`.
+- `enabled` gates the fetch and the subscription together.
+- `staleTime` is `useGetMany`'s.
+
+## Returns
+
+The `useGetMany` result. `data` is the array of records, in the order the data
+provider returns them.
+
+It subscribes once per id, on `recordTopic(resource, id)`, and refetches when
+any of them changes or the connection returns. `1` and `"1"` share a topic, so
+they subscribe once. A new array holding the same ids does not tear the
+subscription down: the ids are compared as sorted text, so `[2, 1]` is the same
+set as `[1, 2]` and only a real change resubscribes.
+
+The invalidation covers every query under the resource, and events held for a
+pending undoable mutation are replayed once it settles.
+
+## Example
+
+```tsx
+import { useGetManyLive } from "@chelone/react";
+
+export const AuthorNames = ({ ids }: { ids: number[] }) => {
+  const { data } = useGetManyLive("authors", { ids });
+  return (
+    <ul>
+      {(data ?? []).map((author) => (
+        <li key={String(author.id)}>{String(author.name ?? "")}</li>
+      ))}
+    </ul>
+  );
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name. `resource` is a plain string, and `params`
+takes `MaybeRefOrGetter`: a genuinely new set of ids resubscribes, and the same
+ids in a new array do not. Its options are `{ enabled }` only, and `data` is a
+ref.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup and the
+topics behind this hook.

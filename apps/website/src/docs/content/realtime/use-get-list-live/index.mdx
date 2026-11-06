@@ -1,0 +1,66 @@
+---
+title: "useGetListLive"
+description: "useGetList, kept fresh: refetches when anything in its resource changes or the connection returns. Needs a realtime data provider."
+---
+
+`useGetListLive` is `useGetList` with a subscription added. A list written
+against the plain hook keeps working and simply stays current.
+
+## Signature
+
+```ts
+function useGetListLive<
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(
+  resource: TName,
+  params?: GetListParams,
+  options?: { enabled?: boolean; staleTime?: number },
+): UseQueryResult<GetListResult<RecordOf<TResources, TName>>, Error>
+```
+
+Both type arguments default to the app's registered resources, so a call site
+writes neither. `UseQueryResult` is TanStack Query's query result.
+
+- `params` is `useGetList`'s `GetListParams`: `pagination`, `sort`, `filter` and
+  `meta`. It defaults to `{}`.
+- `enabled` gates the fetch and the subscription together. `false` fetches
+  nothing and subscribes to nothing.
+- `staleTime` is `useGetList`'s.
+
+## Returns
+
+The `useGetList` result: `data` is the `GetListResult` (`{ data, total?, pageInfo? }`),
+and `isPending`, `isFetching`, `error` and `refetch` behave as they do there.
+
+It refetches on `resourceTopic(resource)`, which carries creates and the ids of
+every `update`, `delete`, `updateMany` and `deleteMany` that
+`addEventsForMutations` publishes. It also refetches on a reconnect, which
+covers events missed while offline. The invalidation covers every query under
+the resource, not this hook's query alone.
+
+Events that arrive while an undoable mutation is pending are held, because a
+refetch would bring back its optimistic delete, and replayed once it settles.
+
+## Example
+
+```tsx
+import { useGetListLive } from "@chelone/react";
+
+export const PostCount = () => {
+  const { data } = useGetListLive("posts", {
+    pagination: { page: 1, perPage: 20 },
+    sort: { field: "publishedAt", order: "DESC" },
+  });
+  return <p>{data?.total ?? 0} posts</p>;
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name. `resource` and `params` take
+`MaybeRefOrGetter`, so a ref or a getter keeps working and a change refetches
+and resubscribes. Its options are `{ enabled }` only, and `data` is a ref.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup and the
+topics behind this hook.
