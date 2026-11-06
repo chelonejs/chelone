@@ -186,8 +186,14 @@ export const blocks = [
     granularize: true,
     inferDependencies: true,
     // MapWithSearch reaches maplibre-gl only through the maps block, so the
-    // import scan cannot see it.
-    itemDependencies: ["maplibre-gl"],
+    // import scan cannot see it. @chelone/utils/osm imports @turf/difference
+    // and @turf/union, its optional peers, and the scan reads only this
+    // package's own imports.
+    itemDependencies: [
+      "@turf/difference",
+      "@turf/union",
+      "maplibre-gl",
+    ],
     registryDependencies: ["maps"],
     sourceDirs: [{ path: "src/components/maps-osm", recursive: true }],
   },
