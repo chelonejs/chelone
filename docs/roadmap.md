@@ -82,7 +82,7 @@ Pieces of shadmin that Chelone keeps, with where each stands. Each lands in both
 - **Kanban board** (in progress): a list that renders records as columns and moves a card by dragging. Issues #790 to #794. #846 moves it to dnd-kit and the `/kanban` subpath.
 - **Other widgets** (planned), one issue each: pivot grid #850, record timeline #854, diff viewer #858, in-place editor #862, permission matrix #866, approval queue #871, job monitor #875, i18n key editor #889, onboarding tour #893 and the assistant #897.
 - **Inspector, `Configurable` and `SimpleFormConfigurable`** (planned): an opt-in add-on, #928. `ColumnsButton` covers the usual reason for them.
-- **Data provider devtools** (planned): #937.
+- **Data provider devtools** (built): a floating panel of the calls a data provider log recorded, in both adapters, with a reference page. Issues #937 to #940.
 - **Dropped:** theme presets and the theme studio. Theming is shadcn CSS variables, as `apps/website/src/docs/content/app-config/themes.mdx` describes. A theme editor lives in chelonejs/ridiculous#16, and a glass look lives in [chelonejs/glass](https://github.com/chelonejs/glass).
 - **Dropped:** the layout builder. `ColumnsButton` already reorders columns.
 - **Dropped:** the schema-driven view. The Zod guessers cover it.
