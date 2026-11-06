@@ -40,6 +40,12 @@ const ADDONS: {
     packages: ["@dnd-kit/react", "@dnd-kit/dom"],
   },
   {
+    name: "inspector",
+    folder: "src/components/inspector",
+    entry: "src/inspector.ts",
+    packages: ["@dnd-kit/react"],
+  },
+  {
     name: "mdx-editor",
     folder: "src/components/mdx-editor",
     entry: "src/mdx-editor.ts",
@@ -52,6 +58,7 @@ const ADDONS: {
     packages: [
       "dompurify",
       "@tiptap/core",
+      "@tiptap/extension-image",
       "@tiptap/extensions",
       "@tiptap/pm",
       "@tiptap/react",

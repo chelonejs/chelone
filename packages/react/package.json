@@ -23,6 +23,7 @@
     "./monaco": "./src/monaco.ts",
     "./charts": "./src/charts.ts",
     "./kanban": "./src/kanban.ts",
+    "./inspector": "./src/inspector.ts",
     "./csv-import": "./src/csv-import.ts",
     "./maps": "./src/maps.ts",
     "./maps/draw": "./src/maps-draw.ts",
@@ -59,6 +60,10 @@
       "./kanban": {
         "types": "./dist/kanban.d.ts",
         "default": "./dist/kanban.js"
+      },
+      "./inspector": {
+        "types": "./dist/inspector.d.ts",
+        "default": "./dist/inspector.js"
       },
       "./csv-import": {
         "types": "./dist/csv-import.d.ts",
@@ -137,6 +142,7 @@
     "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
     "@tiptap/core": "^3.33.0",
+    "@tiptap/extension-image": "^3.33.0",
     "@tiptap/extensions": "^3.33.0",
     "@tiptap/pm": "^3.33.0",
     "@tiptap/react": "^3.33.0",
@@ -179,6 +185,9 @@
       "optional": true
     },
     "@tiptap/core": {
+      "optional": true
+    },
+    "@tiptap/extension-image": {
       "optional": true
     },
     "@tiptap/extensions": {
@@ -253,6 +262,7 @@
     "@tanstack/react-store": "^0.11.2",
     "@testing-library/react": "^16.3.3",
     "@tiptap/core": "^3.33.0",
+    "@tiptap/extension-image": "^3.33.0",
     "@tiptap/extensions": "^3.33.0",
     "@tiptap/pm": "^3.33.0",
     "@tiptap/react": "^3.33.0",

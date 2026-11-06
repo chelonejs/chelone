@@ -4,6 +4,11 @@ export {
   RichTextField,
   type RichTextFieldProps,
 } from "./components/rich-text-input/rich-text-field";
+export type {
+  RichTextImageError,
+  RichTextImageOptions,
+  RichTextUploadResult,
+} from "./components/rich-text-input/rich-text-image";
 export {
   RichTextInput,
   type RichTextInputProps,
