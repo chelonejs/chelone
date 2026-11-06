@@ -1,0 +1,29 @@
+{
+  "name": "DataProviderDevtools",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Whether the panel starts expanded."
+    },
+    {
+      "name": "log",
+      "type": "DataProviderLog",
+      "optional": false,
+      "comment": "The log whose entries the panel shows."
+    },
+    {
+      "name": "shortcut",
+      "type": "string",
+      "optional": true,
+      "comment": "Binding that shows or hides the panel, in the command menu's syntax."
+    }
+  ]
+}
