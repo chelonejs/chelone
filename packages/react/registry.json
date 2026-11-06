@@ -6332,6 +6332,8 @@
         "@chelone/core",
         "@chelone/react",
         "@chelone/utils",
+        "@turf/difference",
+        "@turf/simplify",
         "lucide-react",
         "terra-draw",
         "terra-draw-maplibre-gl-adapter"
@@ -6380,6 +6382,7 @@
       ],
       "registryDependencies": ["@chelone/shape-input"],
       "categories": ["chelone", "inputs"],
+      "dependencies": ["@turf/difference", "@turf/simplify"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6397,7 +6400,12 @@
         "@chelone/lib-utils",
         "@chelone/use-terra-draw"
       ],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "dependencies": [
+        "@chelone/react",
+        "@turf/difference",
+        "@turf/simplify",
+        "lucide-react"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6411,7 +6419,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/utils"],
+      "dependencies": ["@chelone/utils", "@turf/difference", "@turf/simplify"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6436,7 +6444,12 @@
         "@chelone/map-canvas",
         "@chelone/use-terra-draw"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@turf/difference",
+        "@turf/simplify"
+      ],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6455,7 +6468,7 @@
         "@chelone/shape-input",
         "@chelone/use-terra-draw"
       ],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@turf/difference", "@turf/simplify"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6480,7 +6493,12 @@
         "@chelone/slider",
         "@chelone/toggle-group"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@turf/difference",
+        "@turf/simplify"
+      ],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6497,6 +6515,8 @@
       "registryDependencies": ["@chelone/geometry-ops", "@chelone/map-canvas"],
       "dependencies": [
         "@chelone/core",
+        "@turf/difference",
+        "@turf/simplify",
         "terra-draw",
         "terra-draw-maplibre-gl-adapter"
       ],
