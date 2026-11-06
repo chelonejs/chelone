@@ -2002,6 +2002,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/widgets/metric-card.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/lib/are-ids-equal.ts",
           "type": "registry:lib"
         },
@@ -5750,6 +5754,25 @@
         "@chelone/translatable-fields-tabs"
       ],
       "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "metric-card",
+      "type": "registry:component",
+      "title": "Metric Card",
+      "files": [
+        {
+          "path": "src/components/admin/widgets/metric-card.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/card",
+        "@chelone/lib-utils",
+        "@chelone/skeleton"
+      ],
+      "dependencies": ["@chelone/core", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
