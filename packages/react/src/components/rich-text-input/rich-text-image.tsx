@@ -1,14 +1,23 @@
 import {
-  checkRichTextImageFile,
   clampRichTextImageWidth,
-  defaultRichTextImageRules,
+  copyRichTextImage,
+  downloadRichTextImage,
+  isRichTextImageConfigSource,
   isSafeImageSrc,
-  normalizeRichTextUpload,
+  prepareRichTextImages,
   type RichTextImageActionId,
-  type RichTextImageRules,
-  type RichTextUpload,
+  type RichTextImageConfig,
+  type RichTextImageError,
+  type RichTextImageInput,
+  type RichTextImageOptions,
+  type RichTextStoredImage,
+  type RichTextUploadResult,
+  resolveRichTextImageConfig,
   richTextImageActions,
-  richTextImageFileName,
+  richTextImageAttributes,
+  richTextImageUploadState,
+  setRichTextImageUploading,
+  storeRichTextImageFile,
 } from "@chelone/core";
 import type { Editor, JSONContent } from "@tiptap/core";
 import { getHTMLFromFragment, isNodeEmpty, nodeInputRule } from "@tiptap/core";
@@ -51,66 +60,6 @@ import {
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../i18n-hooks";
 
-/** What `uploadFn` may resolve to: a URL, a URL with the stored file's id, or `null` for a failed upload. */
-type RichTextUploadResult =
-  | string
-  | { id: string | number; src: string }
-  | null;
-
-type RichTextImageErrorReason =
-  /** The file type is not allowed. */
-  | "type"
-  /** The file is over `maxFileSize`. */
-  | "size"
-  /** The URL is not a safe image source. */
-  | "src"
-  /** The upload threw, returned `null`, or returned an unsafe URL. */
-  | "upload";
-
-interface RichTextImageError {
-  reason: RichTextImageErrorReason;
-  file: File | null;
-  /** What `uploadFn` threw, for an `upload` error. */
-  // type-escape: a catch binding is unknown
-  cause?: unknown;
-}
-
-/** The image settings of `<RichTextInput images={...}>`: core's rules, each optional, plus the two callbacks. */
-interface RichTextImageOptions extends Partial<RichTextImageRules> {
-  /**
-   * Stores a file and resolves to its URL. Without it a file is stored in the
-   * HTML as a data URL when `allowBase64` is on.
-   */
-  uploadFn?: (file: File) => Promise<RichTextUploadResult>;
-  /** Called for a file or URL that is refused, and for an upload that fails. */
-  onImageError?: (error: RichTextImageError) => void;
-}
-
-interface RichTextImageConfig {
-  rules: RichTextImageRules;
-  uploadFn: RichTextImageOptions["uploadFn"];
-  onImageError: RichTextImageOptions["onImageError"];
-}
-
-/** `images` from the input's props, with core's defaults under every rule. */
-function resolveRichTextImageConfig(
-  images: boolean | RichTextImageOptions,
-): RichTextImageConfig {
-  const options = typeof images === "object" ? images : {};
-  return {
-    rules: {
-      allowedMimeTypes:
-        options.allowedMimeTypes ?? defaultRichTextImageRules.allowedMimeTypes,
-      maxFileSize: options.maxFileSize ?? defaultRichTextImageRules.maxFileSize,
-      allowBase64: options.allowBase64 ?? defaultRichTextImageRules.allowBase64,
-    },
-    uploadFn: options.uploadFn,
-    onImageError: options.onImageError,
-  };
-}
-
-type RichTextImageInput = File | { src: string; alt?: string; title?: string };
-
 interface RichTextImageExtensionOptions extends ImageOptions {
   /** Read on every use, so the input's latest props apply without a new editor. */
   config: () => RichTextImageConfig;
@@ -141,96 +90,14 @@ function size(value: number | null | undefined): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
-function numberAttribute(value: string | null): number | null {
-  if (value === null) return null;
-  const parsed = Number.parseFloat(value);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-/** What a finished upload left on its image: the stored source, or `null` when it failed. */
-interface Stored {
-  src: string | null;
-  id: string | null;
-}
-
-/*
- * Uploads per editor, keyed by the file's `blob:` URL. `pending` drives the
- * view's spinner. `settled` outlives the blob: undo can bring back an image
- * that still has the `blob:` source, and the plugin swaps in what was stored.
- */
-interface UploadState {
-  pending: ReadonlySet<string>;
-  settled: Map<string, Stored>;
-  listeners: Set<() => void>;
-}
-
-const uploadStates = new WeakMap<Editor, UploadState>();
-
-function uploadStateOf(editor: Editor): UploadState {
-  const existing = uploadStates.get(editor);
-  if (existing) return existing;
-  const created: UploadState = {
-    pending: new Set(),
-    settled: new Map(),
-    listeners: new Set(),
-  };
-  uploadStates.set(editor, created);
-  return created;
-}
-
-function setUploading(editor: Editor, src: string, uploading: boolean) {
-  const state = uploadStateOf(editor);
-  const pending = new Set(state.pending);
-  if (uploading) pending.add(src);
-  else pending.delete(src);
-  state.pending = pending;
-  for (const listener of state.listeners) listener();
-}
-
-function readDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () =>
-      typeof reader.result === "string"
-        ? resolve(reader.result)
-        : reject(new Error("The file could not be read"));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
-}
-
-/** Without `uploadFn` the file becomes a data URL, which only some raster types may be. */
-function canBeDataUrl(file: File, allowBase64: boolean): boolean {
-  const type = (file.type.split(";")[0] ?? "").trim();
-  return (
-    !allowBase64 ||
-    isSafeImageSrc(`data:${type};base64,`, { allowDataImages: true })
-  );
-}
-
-async function storeFile(
-  file: File,
-  { rules, uploadFn }: RichTextImageConfig,
-): Promise<RichTextUpload> {
-  const result = uploadFn
-    ? await uploadFn(file)
-    : rules.allowBase64
-      ? await readDataUrl(file)
-      : null;
-  const upload =
-    result === null ? null : normalizeRichTextUpload(result, rules);
-  if (upload === null) throw new Error("No safe image source was stored");
-  return upload;
-}
-
 /** Sets what an upload stored on the image whose `src` is `from`, outside the undo history. */
 function patchImage(
   editor: Editor,
   type: string,
   from: string,
-  stored: Stored,
+  stored: RichTextStoredImage,
 ) {
-  uploadStateOf(editor).settled.set(from, stored);
+  richTextImageUploadState(editor).settled.set(from, stored);
   if (editor.isDestroyed) return;
   const { state, view } = editor;
   let position: number | null = null;
@@ -255,16 +122,16 @@ async function storeAndPatch(
   blobUrl: string,
   config: RichTextImageConfig,
 ) {
-  setUploading(editor, blobUrl, true);
+  setRichTextImageUploading(editor, blobUrl, true);
   try {
-    const upload = await storeFile(file, config);
+    const upload = await storeRichTextImageFile(file, config);
     patchImage(editor, type, blobUrl, { src: upload.src, id: upload.id });
   } catch (cause) {
     // No blob: source stays behind; the view shows its error state.
     patchImage(editor, type, blobUrl, { src: null, id: null });
     config.onImageError?.({ reason: "upload", file, cause });
   } finally {
-    setUploading(editor, blobUrl, false);
+    setRichTextImageUploading(editor, blobUrl, false);
     URL.revokeObjectURL(blobUrl);
   }
 }
@@ -294,32 +161,7 @@ const RichTextImage = Image.extend<RichTextImageExtensionOptions>({
   addAttributes() {
     return {
       ...this.parent?.(),
-      id: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-id"),
-        renderHTML: (attributes) =>
-          attributes.id == null ? {} : { "data-id": String(attributes.id) },
-      },
-      fileName: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-file-name"),
-        renderHTML: (attributes) =>
-          attributes.fileName == null
-            ? {}
-            : { "data-file-name": String(attributes.fileName) },
-      },
-      width: {
-        default: null,
-        parseHTML: (element) => numberAttribute(element.getAttribute("width")),
-        renderHTML: (attributes) =>
-          size(attributes.width) === null ? {} : { width: attributes.width },
-      },
-      height: {
-        default: null,
-        parseHTML: (element) => numberAttribute(element.getAttribute("height")),
-        renderHTML: (attributes) =>
-          size(attributes.height) === null ? {} : { height: attributes.height },
-      },
+      ...richTextImageAttributes(),
     };
   },
 
@@ -361,41 +203,12 @@ const RichTextImage = Image.extend<RichTextImageExtensionOptions>({
         ({ commands, dispatch, editor }) => {
           if (!dispatch) return inputs.length > 0;
           const config = this.options.config();
-          const { rules, onImageError } = config;
-          const content: JSONContent[] = [];
-          const stored: { file: File; blobUrl: string }[] = [];
-          for (const input of inputs) {
-            if (input instanceof File) {
-              const reason =
-                checkRichTextImageFile(input, rules) ??
-                (config.uploadFn === undefined &&
-                !canBeDataUrl(input, rules.allowBase64)
-                  ? "type"
-                  : null);
-              if (reason !== null) {
-                onImageError?.({ reason, file: input });
-                continue;
-              }
-              const blobUrl = URL.createObjectURL(input);
-              stored.push({ file: input, blobUrl });
-              content.push({
-                type,
-                attrs: {
-                  src: blobUrl,
-                  alt: input.name.replace(/\.[^.]*$/, ""),
-                  fileName: input.name,
-                },
-              });
-            } else if (
-              isSafeImageSrc(input.src, {
-                allowDataImages: rules.allowBase64,
-              })
-            ) {
-              content.push({ type, attrs: input });
-            } else {
-              onImageError?.({ reason: "src", file: null });
-            }
-          }
+          const prepared = prepareRichTextImages(inputs, config);
+          const stored = prepared.uploads;
+          const content: JSONContent[] = prepared.attributes.map((attrs) => ({
+            type,
+            attrs,
+          }));
           if (content.length === 0) return false;
           if (!commands.insertContent(content)) {
             for (const { blobUrl } of stored) URL.revokeObjectURL(blobUrl);
@@ -458,7 +271,7 @@ const RichTextImage = Image.extend<RichTextImageExtensionOptions>({
           if (!transactions.some((transaction) => transaction.docChanged)) {
             return null;
           }
-          const { settled } = uploadStateOf(editor);
+          const { settled } = richTextImageUploadState(editor);
           if (settled.size === 0) return null;
           const fixes: { pos: number; attrs: Attrs }[] = [];
           state.doc.descendants((node, pos) => {
@@ -477,7 +290,7 @@ const RichTextImage = Image.extend<RichTextImageExtensionOptions>({
         // An upload still running when the editor goes gives its blob: URL back.
         view: () => ({
           destroy: () => {
-            for (const src of uploadStateOf(editor).pending) {
+            for (const src of richTextImageUploadState(editor).pending) {
               URL.revokeObjectURL(src);
             }
           },
@@ -487,24 +300,13 @@ const RichTextImage = Image.extend<RichTextImageExtensionOptions>({
   },
 });
 
-function hasConfig(
-  options: unknown,
-): options is Pick<RichTextImageExtensionOptions, "config"> {
-  return (
-    typeof options === "object" &&
-    options !== null &&
-    "config" in options &&
-    typeof options.config === "function"
-  );
-}
-
 /** The image settings in force for `editor`, or `null` when it has no image extension. */
 function getRichTextImageConfig(editor: Editor): RichTextImageConfig | null {
   const extension = editor.extensionManager.extensions.find(
     (candidate) => candidate.name === RichTextImage.name,
   );
   const options = extension?.options;
-  return hasConfig(options) ? options.config() : null;
+  return isRichTextImageConfigSource(options) ? options.config() : null;
 }
 
 /**
@@ -541,47 +343,6 @@ const actionIcons: Record<
   copyLink: LinkIcon,
   remove: Trash2Icon,
 };
-
-function triggerDownload(href: string, fileName: string) {
-  const anchor = document.createElement("a");
-  anchor.href = href;
-  anchor.download = fileName;
-  anchor.rel = "noopener";
-  anchor.click();
-}
-
-async function downloadImage(src: string, alt: string) {
-  try {
-    const blob = await (await fetch(src)).blob();
-    const url = URL.createObjectURL(blob);
-    triggerDownload(url, richTextImageFileName(alt, blob.type));
-    setTimeout(() => URL.revokeObjectURL(url));
-  } catch {
-    // The host refuses a cross-origin fetch; the browser may still save the link.
-    triggerDownload(src, richTextImageFileName(alt, ""));
-  }
-}
-
-/** Browsers take only PNG on the clipboard, so other formats are redrawn as one. */
-async function toPng(blob: Blob): Promise<Blob> {
-  if (blob.type === "image/png") return blob;
-  const bitmap = await createImageBitmap(blob);
-  const canvas = document.createElement("canvas");
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
-  canvas.getContext("2d")?.drawImage(bitmap, 0, 0);
-  return new Promise((resolve, reject) =>
-    canvas.toBlob(
-      (png) => (png ? resolve(png) : reject(new Error("No PNG was produced"))),
-      "image/png",
-    ),
-  );
-}
-
-async function copyImage(src: string) {
-  const blob = await toPng(await (await fetch(src)).blob());
-  await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-}
 
 function ImageOverlay({
   src,
@@ -696,7 +457,7 @@ function ImageView({
   });
   const subscribe = useMemo(
     () => (listener: () => void) => {
-      const { listeners } = uploadStateOf(editor);
+      const { listeners } = richTextImageUploadState(editor);
       listeners.add(listener);
       return () => void listeners.delete(listener);
     },
@@ -704,7 +465,7 @@ function ImageView({
   );
   const uploading = useSyncExternalStore(
     subscribe,
-    () => src !== null && uploadStateOf(editor).pending.has(src),
+    () => src !== null && richTextImageUploadState(editor).pending.has(src),
   );
 
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
@@ -793,8 +554,9 @@ function ImageView({
     if (id === "remove") deleteNode();
     else if (src === null) return;
     else if (id === "view") setViewing(true);
-    else if (id === "download") void downloadImage(src, alt).catch(ignore);
-    else if (id === "copyImage") void copyImage(src).catch(ignore);
+    else if (id === "download")
+      void downloadRichTextImage(src, alt).catch(ignore);
+    else if (id === "copyImage") void copyRichTextImage(src).catch(ignore);
     else void navigator.clipboard.writeText(src).catch(ignore);
   }
 

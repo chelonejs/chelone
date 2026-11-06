@@ -43,7 +43,9 @@ import {
   readToolbarState,
   setBlockType,
 } from "./rich-text-commands";
-import { richTextIcons } from "./rich-text-icons";
+import { richTextIcons, richTextImageIcon } from "./rich-text-icons";
+import { getRichTextImageConfig } from "./rich-text-image";
+import RichTextImageForm from "./rich-text-image-form.vue";
 import RichTextLinkForm from "./rich-text-link-form.vue";
 
 const props = defineProps<RichTextToolbarProps>();
@@ -51,6 +53,8 @@ const props = defineProps<RichTextToolbarProps>();
 const translate = useTranslate();
 const state = shallowRef(readToolbarState(props.editor));
 const linkOpen = shallowRef(false);
+const imageOpen = shallowRef(false);
+const hasImages = computed(() => getRichTextImageConfig(props.editor) !== null);
 
 // tiptap's own `editor.state` ref updates two frames late, so the toolbar reads
 // the editor itself after each transaction. `setEditable` and a new
@@ -132,23 +136,40 @@ function onBlockType(event: Event) {
         class="flex items-center gap-1"
       >
         <span aria-hidden="true" class="mx-1 h-6 w-px bg-border" />
-        <Button
-          v-for="{ item, button } in entries"
-          :key="item.id"
-          :variant="button.pressed ? 'secondary' : 'ghost'"
-          size="icon"
-          :aria-label="label(item)"
-          :title="tooltip(item)"
-          :aria-pressed="button.pressed"
-          :aria-expanded="item.id === 'link' ? linkOpen : undefined"
-          :disabled="button.disabled"
-          @mousedown.prevent
-          @click="onClick(item)"
-        >
-          <component :is="richTextIcons[item.id]" />
-        </Button>
+        <template v-for="{ item, button } in entries" :key="item.id">
+          <Button
+            :variant="button.pressed ? 'secondary' : 'ghost'"
+            size="icon"
+            :aria-label="label(item)"
+            :title="tooltip(item)"
+            :aria-pressed="button.pressed"
+            :aria-expanded="item.id === 'link' ? linkOpen : undefined"
+            :disabled="button.disabled"
+            @mousedown.prevent
+            @click="onClick(item)"
+          >
+            <component :is="richTextIcons[item.id]" />
+          </Button>
+          <Button
+            v-if="item.id === 'link' && hasImages"
+            variant="ghost"
+            size="icon"
+            :aria-label="translate('chelone.rich_text.image', { _: 'Image' })"
+            :aria-expanded="imageOpen"
+            :disabled="!state.editable"
+            @mousedown.prevent
+            @click="imageOpen = !imageOpen"
+          >
+            <component :is="richTextImageIcon" />
+          </Button>
+        </template>
       </div>
     </div>
+    <RichTextImageForm
+      v-if="imageOpen && hasImages"
+      :editor="editor"
+      @close="imageOpen = false"
+    />
     <RichTextLinkForm
       v-if="linkOpen"
       :editor="editor"
