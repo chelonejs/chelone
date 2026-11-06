@@ -94,8 +94,8 @@ export function httpAssistantTransport(
         };
         signal.addEventListener("abort", release, { once: true });
         try {
-          if (signal.aborted) return;
           for (;;) {
+            if (signal.aborted) return;
             const step = await reader.read();
             if (signal.aborted) return;
             pending += decoder.decode(step.value, { stream: !step.done });

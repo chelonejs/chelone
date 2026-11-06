@@ -169,4 +169,31 @@ describe("httpAssistantTransport", () => {
     expect(body.locked).toBe(false);
     expect(pull).toHaveBeenCalledOnce();
   });
+
+  it("an abort releases the reader while the consumer is paused", async () => {
+    const cancel = vi.fn(() => new Promise<void>(() => {}));
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(
+          new TextEncoder().encode('{"type":"text","delta":"Part"}\n'),
+        );
+      },
+      cancel,
+    });
+    const controller = new AbortController();
+    const transport = httpAssistantTransport({
+      url,
+      fetch: async () => new Response(body),
+    });
+    const iterator = transport
+      .send([], {}, { signal: controller.signal })
+      [Symbol.asyncIterator]();
+    await iterator.next();
+
+    controller.abort();
+
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(body.locked).toBe(false);
+    await expect(iterator.next()).resolves.toMatchObject({ done: true });
+  });
 });
