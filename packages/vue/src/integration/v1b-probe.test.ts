@@ -25,6 +25,7 @@ import {
   defineResources,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -146,7 +147,7 @@ describe("probe (1) — <List> + <DataTable>: seeded cell + pagination + sort", 
     // inside the List default slot as a descendant).
     const CaptureList = defineComponent({
       setup(_, { slots }) {
-        captured.list = useListContext() as UseListControllerReturn<Post>;
+        captured.list = useListContext<Post>();
         return () => slots.default?.();
       },
     });
@@ -234,7 +235,9 @@ describe("probe (2) — <Edit>: pre-fill, edit, save persists (non-vacuous)", ()
     await vi.waitFor(() => {
       const input = wrapper.find('input[type="text"]');
       expect(input.exists()).toBe(true);
-      expect((input.element as HTMLInputElement).value).toBe(originalTitle);
+      expect(elementOf(input.element, HTMLInputElement).value).toBe(
+        originalTitle,
+      );
     });
 
     // Edit the field, then save.
