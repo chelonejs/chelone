@@ -243,6 +243,12 @@ export {
   type ExportButtonProps,
 } from "./components/admin/buttons/export-button";
 export {
+  FieldsSelector,
+  type FieldsSelectorListProps,
+  type FieldsSelectorProps,
+  type FieldsSelectorRowProps,
+} from "./components/admin/buttons/fields-selector";
+export {
   FilterButton,
   FilterButtonMenuItem,
   type FilterButtonMenuItemProps,
