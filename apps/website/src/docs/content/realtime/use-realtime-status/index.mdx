@@ -1,0 +1,83 @@
+---
+title: "useRealtimeStatus"
+description: "The connection status and the last transport error, following the transport while the component is mounted. status is idle when the transport reports neither."
+---
+
+`useRealtimeStatus` reads the transport's side of the data provider: whether it
+is connected, and what went wrong last.
+
+## Signature
+
+```ts
+function useRealtimeStatus(): RealtimeStatusState
+
+interface RealtimeStatusState {
+  status: RealtimeConnectionStatus;
+  /** The latest transport error; cleared when the status becomes "connected". */
+  lastError: RealtimeTransportError | null;
+}
+
+type RealtimeConnectionStatus =
+  | "connected"
+  | "reconnecting"
+  | "disconnected"
+  | "idle";
+
+interface RealtimeTransportError {
+  kind:
+    | "connect_failed"
+    | "auth_failed"
+    | "send_failed"
+    | "parse_failed"
+    | "handler_threw";
+  topic?: string;
+  cause?: unknown;
+  /** Whether the transport will try again on its own. */
+  retrying: boolean;
+}
+```
+
+## Returns
+
+`status` starts from the transport's `getStatus()` and then follows
+`onStatusChange`. A transport that announces changes but cannot be asked starts
+at `"disconnected"`, and one that reports neither reads `"idle"`.
+
+`lastError` is the latest error the transport reported through `onError`, and it
+clears when the status becomes `"connected"`. `retrying` says whether the
+transport will try again on its own, so a badge can tell a doomed connect from a
+backoff in progress.
+
+The status is read from a store, not a query: it is available on the first
+render, and a change re-renders. React keeps one store per data provider, so ten
+components on a page hold one set of transport listeners, released when the last
+of them unmounts.
+
+React does not require a realtime data provider here: a plain one reports
+`"idle"` with no error.
+
+## Example
+
+```tsx
+import { useRealtimeStatus } from "@chelone/react";
+
+export const ConnectionBadge = () => {
+  const { status, lastError } = useRealtimeStatus();
+  return (
+    <span>
+      {status}
+      {lastError ? `: ${lastError.kind}${lastError.retrying ? ", retrying" : ""}` : ""}
+    </span>
+  );
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name. `status` and `lastError` are refs, so a
+template reads `{{ status }}`. Each component holds its own store, and the
+realtime check runs at `setup`: a plain data provider throws when the composable
+is called.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup, the
+optional transport members and the reconnect defaults behind these values.

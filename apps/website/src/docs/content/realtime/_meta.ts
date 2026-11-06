@@ -14,6 +14,18 @@ export default [
     slugs: ["lock-on-mount", "lock-status"],
   },
   {
+    category: "Subscribe & publish hooks",
+    slugs: [
+      "use-subscribe",
+      "use-subscribe-to-record",
+      "use-subscribe-to-record-list",
+      "use-subscribe-callback",
+      "use-publish",
+      "use-on-reconnect",
+      "use-realtime-status",
+    ],
+  },
+  {
     category: "Live read hooks",
     slugs: ["use-get-list-live", "use-get-one-live", "use-get-many-live"],
   },
