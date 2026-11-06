@@ -14,6 +14,7 @@ import * as barrel from "./index";
 describe("@chelone/core barrel", () => {
   it("exports the rich text rules", () => {
     expect(barrel.isSafeLinkUrl).toBeTypeOf("function");
+    expect(barrel.isSafeFileUrl).toBeTypeOf("function");
     expect(barrel.isSafeImageSrc).toBeTypeOf("function");
     expect(barrel.richTextSanitizeOptions).toBeTypeOf("object");
     expect(barrel.richTextStarterKitOptions).toBeTypeOf("object");

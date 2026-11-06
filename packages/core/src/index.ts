@@ -1003,6 +1003,7 @@ export type {
   RichTextToolbarItemId,
 } from "./rich-text/rich-text";
 export {
+  isSafeFileUrl,
   isSafeImageSrc,
   isSafeLinkUrl,
   richTextBlockTypes,

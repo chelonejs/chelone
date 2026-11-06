@@ -29,6 +29,18 @@ export function isSafeLinkUrl(url: string): boolean {
   return scheme === undefined || LINK_SCHEMES.has(scheme);
 }
 
+const FILE_SCHEMES: ReadonlySet<string> = new Set(["http", "https", "blob"]);
+
+/**
+ * Whether a file `href` is safe to render. `blob` is allowed on top of the link
+ * schemes: `FileInput` previews a picked file with `URL.createObjectURL` and
+ * hands that url to `FileField`.
+ */
+export function isSafeFileUrl(url: string): boolean {
+  const scheme = schemeOf(normalize(url));
+  return scheme === undefined || FILE_SCHEMES.has(scheme);
+}
+
 export interface IsSafeImageSrcOptions {
   /** Allow base64 raster `data:image/*` sources. SVG is never allowed. */
   allowDataImages?: boolean;
