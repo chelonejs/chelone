@@ -14,6 +14,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -48,7 +49,7 @@ function makeRouter(): Router {
 
 interface Captured {
   form?: UseFormReturn<FormValues>;
-  values?: () => Record<string, unknown>;
+  values?: () => FormValues;
 }
 
 function mountInForm(
@@ -70,7 +71,7 @@ function mountInForm(
         onSubmit: async () => undefined,
       });
       captured.form = form;
-      captured.values = () => form.values.value as Record<string, unknown>;
+      captured.values = () => form.values.value;
       return () => slots.default?.();
     },
   });
@@ -99,7 +100,7 @@ describe("<DateInput>", () => {
     await flushPromises();
     const input = wrapper.find('input[type="date"]');
     expect(input.exists()).toBe(true);
-    expect((input.element as HTMLInputElement).value).toBe("2021-09-11");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe("2021-09-11");
     expect(wrapper.find("label").text()).toContain("Published At");
   });
 
@@ -110,8 +111,10 @@ describe("<DateInput>", () => {
     });
     await flushPromises();
     expect(
-      (iso.wrapper.find('input[type="date"]').element as HTMLInputElement)
-        .value,
+      elementOf(
+        iso.wrapper.find('input[type="date"]').element,
+        HTMLInputElement,
+      ).value,
     ).toBe("2021-09-11");
 
     const dateObj = mountInForm(
@@ -120,8 +123,10 @@ describe("<DateInput>", () => {
     );
     await flushPromises();
     expect(
-      (dateObj.wrapper.find('input[type="date"]').element as HTMLInputElement)
-        .value,
+      elementOf(
+        dateObj.wrapper.find('input[type="date"]').element,
+        HTMLInputElement,
+      ).value,
     ).toBe("2021-09-11");
   });
 
@@ -131,8 +136,11 @@ describe("<DateInput>", () => {
       { id: 1, published_at: { year: 2021 } },
     );
     await flushPromises();
-    const input = wrapper.find<HTMLInputElement>('input[type="date"]');
-    expect(input.element.value).toBe("");
+    const input = elementOf(
+      wrapper.find('input[type="date"]').element,
+      HTMLInputElement,
+    );
+    expect(input.value).toBe("");
   });
 
   it("writes the typed date string back to the form", async () => {
@@ -205,7 +213,9 @@ describe("<DateTimeInput>", () => {
     await flushPromises();
     const input = wrapper.find('input[type="datetime-local"]');
     expect(input.exists()).toBe(true);
-    expect((input.element as HTMLInputElement).value).toBe("2021-09-11T10:30");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe(
+      "2021-09-11T10:30",
+    );
   });
 
   it("renders empty for a stored object", async () => {
@@ -214,10 +224,11 @@ describe("<DateTimeInput>", () => {
       { id: 1, starts_at: { year: 2021 } },
     );
     await flushPromises();
-    const input = wrapper.find<HTMLInputElement>(
-      'input[type="datetime-local"]',
+    const input = elementOf(
+      wrapper.find('input[type="datetime-local"]').element,
+      HTMLInputElement,
     );
-    expect(input.element.value).toBe("");
+    expect(input.value).toBe("");
   });
 
   it("writes an ISO string back to the form when typed", async () => {
@@ -231,7 +242,8 @@ describe("<DateTimeInput>", () => {
     await nextTick();
     const written = captured.values?.().starts_at;
     expect(typeof written).toBe("string");
-    expect(Number.isNaN(new Date(written as string).getTime())).toBe(false);
+    if (typeof written !== "string") throw new Error("Expected a string");
+    expect(Number.isNaN(new Date(written).getTime())).toBe(false);
   });
 
   it("surfaces a validation error after submit", async () => {
@@ -265,7 +277,7 @@ describe("<TimeInput>", () => {
     );
     await flushPromises();
     const input = wrapper.find('input[type="time"]');
-    expect((input.element as HTMLInputElement).value).toBe("08:30");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe("08:30");
   });
 
   it("renders empty for a stored object", async () => {
@@ -274,8 +286,11 @@ describe("<TimeInput>", () => {
       { id: 1, opens_at: { year: 2021 } },
     );
     await flushPromises();
-    const input = wrapper.find<HTMLInputElement>('input[type="time"]');
-    expect(input.element.value).toBe("");
+    const input = elementOf(
+      wrapper.find('input[type="time"]').element,
+      HTMLInputElement,
+    );
+    expect(input.value).toBe("");
   });
 
   it("writes a parsed Date back to the form when typed", async () => {
@@ -288,8 +303,9 @@ describe("<TimeInput>", () => {
     await nextTick();
     const written = captured.values?.().opens_at;
     expect(written).toBeInstanceOf(Date);
-    expect((written as Date).getHours()).toBe(9);
-    expect((written as Date).getMinutes()).toBe(45);
+    if (!(written instanceof Date)) throw new Error("Expected a Date");
+    expect(written.getHours()).toBe(9);
+    expect(written.getMinutes()).toBe(45);
   });
 
   it("accepts a custom parse returning the raw string", async () => {
@@ -333,9 +349,9 @@ describe("<PhoneInput>", () => {
     await flushPromises();
     const input = wrapper.find('input[type="tel"]');
     expect(input.exists()).toBe(true);
-    expect((input.element as HTMLInputElement).value).toContain("415");
+    expect(elementOf(input.element, HTMLInputElement).value).toContain("415");
     const select = wrapper.find("select[data-country-select]");
-    expect((select.element as HTMLSelectElement).value).toBe("US");
+    expect(elementOf(select.element, HTMLSelectElement).value).toBe("US");
   });
 
   it("stores E.164 on typing a national number", async () => {
@@ -367,7 +383,8 @@ describe("<PhoneInput>", () => {
     );
     await flushPromises();
     expect(
-      (wrapper.find('input[type="tel"]').element as HTMLInputElement).disabled,
+      elementOf(wrapper.find('input[type="tel"]').element, HTMLInputElement)
+        .disabled,
     ).toBe(true);
   });
 });
@@ -380,7 +397,7 @@ describe("<CurrencyInput>", () => {
     );
     await flushPromises();
     const input = wrapper.find('input[type="number"]');
-    expect((input.element as HTMLInputElement).value).toBe("1234.5");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe("1234.5");
     expect(wrapper.text()).toContain("$");
   });
 
@@ -406,7 +423,7 @@ describe("<CurrencyInput>", () => {
     );
     await flushPromises();
     const select = wrapper.find("select[data-currency-select]");
-    expect((select.element as HTMLSelectElement).value).toBe("EUR");
+    expect(elementOf(select.element, HTMLSelectElement).value).toBe("EUR");
 
     await wrapper.find('input[type="number"]').setValue("99");
     await nextTick();
@@ -424,7 +441,8 @@ describe("<CurrencyInput>", () => {
     );
     await flushPromises();
     expect(
-      wrapper.find<HTMLInputElement>('input[type="number"]').element.value,
+      elementOf(wrapper.find('input[type="number"]').element, HTMLInputElement)
+        .value,
     ).toBe("500");
 
     await wrapper.find("select[data-currency-select]").setValue("USD");
@@ -444,7 +462,8 @@ describe("<CurrencyInput>", () => {
     );
     await flushPromises();
     expect(
-      (wrapper.find('input[type="number"]').element as HTMLInputElement).value,
+      elementOf(wrapper.find('input[type="number"]').element, HTMLInputElement)
+        .value,
     ).toBe("123.45");
 
     await wrapper.find('input[type="number"]').setValue("99.99");
@@ -470,7 +489,7 @@ describe("<CurrencyInput>", () => {
     const i18n = createI18n({
       locale: "en-US",
       messages: { "en-US": {}, "ar-AE": {} },
-    }) as AnyCheloneI18n;
+    });
     const { wrapper } = mountInForm(
       () => h(CurrencyInput, { source: "price", currency: "AED" }),
       { id: 1, price: 10 },
@@ -514,8 +533,10 @@ describe("<DurationInput>", () => {
     });
     await flushPromises();
     const val = (label: string) =>
-      (wrapper.find(`input[aria-label="${label}"]`).element as HTMLInputElement)
-        .value;
+      elementOf(
+        wrapper.find(`input[aria-label="${label}"]`).element,
+        HTMLInputElement,
+      ).value;
     expect(val("days")).toBe("1");
     expect(val("hours")).toBe("2");
     expect(val("minutes")).toBe("30");
@@ -577,8 +598,10 @@ describe("<DurationInput>", () => {
     );
     await flushPromises();
     expect(
-      (wrapper.find('input[aria-label="hours"]').element as HTMLInputElement)
-        .disabled,
+      elementOf(
+        wrapper.find('input[aria-label="hours"]').element,
+        HTMLInputElement,
+      ).disabled,
     ).toBe(true);
   });
 });
