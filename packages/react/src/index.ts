@@ -413,6 +413,11 @@ export {
   type DateFieldProps,
 } from "./components/admin/fields/date-field";
 export {
+  DiffViewer,
+  type DiffViewerMode,
+  type DiffViewerProps,
+} from "./components/admin/fields/diff-viewer";
+export {
   DurationField,
   type DurationFieldProps,
 } from "./components/admin/fields/duration-field";
