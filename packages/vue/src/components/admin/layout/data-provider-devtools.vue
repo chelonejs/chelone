@@ -24,8 +24,14 @@ export interface DataProviderDevtoolsProps {
  */
 
 import { shouldHandleHotkey } from "@chelone/core";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-import { useSubscribable } from "../../../form/subscribe-ref";
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  shallowRef,
+  watch,
+} from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { cn } from "../../../lib/utils";
 import Button from "../../ui/button.vue";
@@ -38,7 +44,21 @@ const props = withDefaults(defineProps<DataProviderDevtoolsProps>(), {
 
 const translate = useTranslate();
 const open = ref(props.defaultOpen);
-const snapshot = useSubscribable(props.log.store);
+const snapshot = shallowRef(props.log.store.getSnapshot());
+// Follows a new `log` prop: drops the old subscription and reads the new snapshot.
+watch(
+  () => props.log,
+  (log, _previous, onCleanup) => {
+    const { store } = log;
+    snapshot.value = store.getSnapshot();
+    onCleanup(
+      store.subscribe(() => {
+        snapshot.value = store.getSnapshot();
+      }),
+    );
+  },
+  { immediate: true },
+);
 // Newest first.
 const entries = computed(() => [...snapshot.value.entries].reverse());
 

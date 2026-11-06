@@ -9,7 +9,7 @@ import { createDataProviderLog, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, shallowRef } from "vue";
 import { createMemoryHistory, createRouter, RouterView } from "vue-router";
 import Admin from "../../../admin/admin.vue";
 import Resource from "../../../admin/resource.vue";
@@ -42,6 +42,7 @@ async function mountPanel(
 ) {
   const log = createDataProviderLog(options);
   const dataProvider = log.wrap(provider);
+  const shownLog = shallowRef(log);
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [{ path: "/posts", component: PostsPage }],
@@ -51,14 +52,17 @@ async function mountPanel(
     props: { dataProvider, queryClient: new QueryClient() },
     slots: {
       default: () => h(Resource, { name: "posts", list: PostsPage }),
-      layout: () => [h(DataProviderDevtools, { log, ...props }), h(RouterView)],
+      layout: () => [
+        h(DataProviderDevtools, { ...props, log: shownLog.value }),
+        h(RouterView),
+      ],
     },
     global: { plugins: [router] },
     attachTo: document.body,
   });
   mounted.push(wrapper);
   await flushPromises();
-  return { wrapper, log, dataProvider };
+  return { wrapper, log, dataProvider, shownLog };
 }
 
 function panel(): HTMLElement {
@@ -212,6 +216,28 @@ describe("DataProviderDevtools", () => {
     press("j", false);
     await flushPromises();
     expect(panel().getAttribute("data-open")).toBe("false");
+  });
+
+  it("follows a new log prop, and Clear empties the log on screen", async () => {
+    const { shownLog } = await mountPanel();
+    const other = createDataProviderLog();
+    const otherProvider = other.wrap(fakeDataProvider({ posts: [] }));
+    expect(entries().length).toBeGreaterThan(0);
+
+    shownLog.value = other;
+    await flushPromises();
+    expect(entries()).toHaveLength(0);
+
+    await otherProvider.getOne("posts", { id: 3 }).catch(() => undefined);
+    await flushPromises();
+    expect(entries().map((el) => el.textContent)).toEqual([
+      expect.stringContaining("getOne"),
+    ]);
+
+    button("Clear").click();
+    await flushPromises();
+    expect(other.store.getSnapshot().entries).toHaveLength(0);
+    expect(entries()).toHaveLength(0);
   });
 
   it("shows params that cannot be stringified as [unserializable]", async () => {
