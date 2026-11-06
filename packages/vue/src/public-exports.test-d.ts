@@ -46,6 +46,9 @@ import type {
   EditLiveProps,
   EditProps,
   ErrorFallbackProps,
+  FieldsSelectorListProps,
+  FieldsSelectorProps,
+  FieldsSelectorRowProps,
   FilterFormEntry,
   FilterFormProps,
   FilterListItemProps,
@@ -272,9 +275,20 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf(barrel.ColumnsButton).not.toBeAny();
   });
 
+  it("FieldsSelector ships beside its props", () => {
+    expectTypeOf(barrel.FieldsSelector).not.toBeAny();
+    expectTypeOf<FieldsSelectorProps>().toHaveProperty("storeKey");
+    expectTypeOf<FieldsSelectorProps>().toHaveProperty("resource");
+    expectTypeOf<FieldsSelectorProps>().toHaveProperty("listAs");
+    expectTypeOf<FieldsSelectorProps>().toHaveProperty("rowAs");
+    expectTypeOf<FieldsSelectorListProps>().toHaveProperty("onMove");
+    expectTypeOf<FieldsSelectorRowProps>().toHaveProperty("index");
+  });
+
   it("useDataTableColumns returns refs and setters", () => {
     type Result = ReturnType<typeof barrel.useDataTableColumns>;
     expectTypeOf<Result>().toHaveProperty("toggle");
+    expectTypeOf<Result>().toHaveProperty("moveTo");
     expectTypeOf<Result>().toHaveProperty("columns");
   });
 
