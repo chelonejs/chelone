@@ -699,6 +699,10 @@ export {
   type TextArrayInputProps,
 } from "./components/admin/inputs/text-array-input";
 export {
+  InPlaceEditor,
+  type InPlaceEditorProps,
+} from "./components/admin/inputs/in-place-editor";
+export {
   TextInput,
   type TextInputProps,
 } from "./components/admin/inputs/text-input";
