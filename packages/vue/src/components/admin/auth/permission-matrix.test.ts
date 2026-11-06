@@ -204,6 +204,18 @@ describe("<PermissionMatrix>", () => {
     expect(emitted(full)).toEqual([{ admin: [] }]);
   });
 
+  it("an All checkbox whose click changes nothing keeps showing the model", async () => {
+    const wrapper = mountMatrix({
+      roles: ["admin"],
+      resources: ["posts"],
+      actions: [],
+    });
+    expect(all(wrapper, "admin.posts").element.checked).toBe(true);
+    await all(wrapper, "admin.posts").setValue(false);
+    expect(emitted(wrapper)).toEqual([]);
+    expect(all(wrapper, "admin.posts").element.checked).toBe(true);
+  });
+
   it("switching tabs shows the other role's grants", async () => {
     const wrapper = mountMatrix({
       roles: ["admin", "editor"],

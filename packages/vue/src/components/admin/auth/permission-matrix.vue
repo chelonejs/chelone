@@ -132,8 +132,13 @@ function cellLabel(role: string, action: string, resource: string): string {
   });
 }
 
+// A native checkbox flips itself before the model answers. When a click changes
+// nothing, bumping the key remounts the boxes so they show the model again.
+const resync = ref(0);
+
 function change(next: PermissionMatrixValue) {
   if (next !== props.modelValue) emit("update:modelValue", next);
+  else resync.value++;
 }
 
 function cellState(roleId: string, resourceId: string, action: string) {
@@ -220,6 +225,7 @@ function toggleRow(roleId: string, resourceId: string) {
             <TableCell>{{ resource.label }}</TableCell>
             <TableCell v-for="action in actions" :key="action">
               <Checkbox
+                :key="resync"
                 :data-cell="`${entryId(role)}.${resource.id}.${action}`"
                 :data-inherited="
                   cellState(entryId(role), resource.id, action) ===
@@ -256,6 +262,7 @@ function toggleRow(roleId: string, resourceId: string) {
             </TableCell>
             <TableCell>
               <Checkbox
+                :key="resync"
                 :data-all="`${entryId(role)}.${resource.id}`"
                 :aria-label="cellLabel(entryLabel(role), allLabel, resource.label)"
                 :model-value="rowGranted(entryId(role), resource.id)"
