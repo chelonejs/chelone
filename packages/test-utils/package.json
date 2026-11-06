@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./drag-dom": "./src/drag-dom.ts"
   },
   "scripts": {
     "test": "NODE_OPTIONS=--no-experimental-webstorage vitest run --typecheck",
