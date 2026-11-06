@@ -294,6 +294,23 @@ describe("SimplifyInput", () => {
     expect(screen.getByText("Tolerance: 0.000")).toBeTruthy();
   });
 
+  it("moving the slider with a non-input event target changes nothing", async () => {
+    const { form } = await mount(
+      <SimplifyInput source="shape" tolerance={0} />,
+      polygon(),
+    );
+    // The slider is a Radix primitive: its value arrives through
+    // `onValueChange`, never through an event target.
+    const thumb = slider();
+    const inner = document.createElement("span");
+    thumb.append(inner);
+    fireEvent(inner, new Event("input", { bubbles: true }));
+    await act(async () => {});
+    expect(screen.getByText("Tolerance: 0.000")).toBeTruthy();
+    expect(ringLength()).toBe(21);
+    expect(form().state.isDirty).toBe(false);
+  });
+
   it("renders a legend, the helper text and the slot", async () => {
     await mount(
       <SimplifyInput source="shape" label="Outline" helperText="Thin it" />,

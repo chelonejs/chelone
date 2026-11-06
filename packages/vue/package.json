@@ -163,6 +163,7 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@chelone/supabase": "workspace:*",
+    "@chelone/test-utils": "workspace:*",
     "@dnd-kit/dom": "^0.5.3",
     "@dnd-kit/vue": "^0.5.3",
     "@guolao/vue-monaco-editor": "^1.6.0",

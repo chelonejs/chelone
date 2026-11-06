@@ -335,6 +335,24 @@ describe("SimplifyInput", () => {
     expect(wrapper.text()).toContain("Tolerance: 0.000");
   });
 
+  it("moving the slider with a non-input event target changes nothing", async () => {
+    const { form, value, ringLength, wrapper } = await mountInput(
+      simplifyInput({ tolerance: 0 }),
+      polygon(),
+    );
+    // A bubbling `input` event whose target is not the range input, such as
+    // one a widget inside it fires.
+    const range = wrapper.get('input[type="range"]').element;
+    const inner = document.createElement("span");
+    range.append(inner);
+    inner.dispatchEvent(new Event("input", { bubbles: true }));
+    await flushPromises();
+    expect(wrapper.text()).toContain("Tolerance: 0.000");
+    expect(ringLength()).toBe(21);
+    expect(value()).toEqual(polygon());
+    expect(form().state.isDirty).toBe(false);
+  });
+
   it("labels the range input and sets its bounds", async () => {
     const { wrapper } = await mountInput(
       simplifyInput({ minTolerance: 0.002, maxTolerance: 0.2, step: 0.01 }),
