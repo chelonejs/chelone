@@ -201,6 +201,52 @@ describe("httpAssistantTransport", () => {
     expect(body.locked).toBe(false);
   });
 
+  it("an abort quietly ends an in-flight fetch", async () => {
+    const controller = new AbortController();
+    const fetch = vi.fn<typeof globalThis.fetch>(
+      (_input, init) =>
+        new Promise((_resolve, reject) => {
+          const signal = init?.signal;
+          signal?.addEventListener("abort", () => reject(signal.reason));
+        }),
+    );
+    const transport = httpAssistantTransport({ url, fetch });
+    const iterator = transport
+      .send([], {}, { signal: controller.signal })
+      [Symbol.asyncIterator]();
+
+    const pending = iterator.next();
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalledOnce());
+    controller.abort();
+
+    await expect(pending).resolves.toMatchObject({ done: true });
+  });
+
+  it("preserves fetch and stream errors when the signal is not aborted", async () => {
+    const failure = new Error("Connection lost");
+    for (const fetch of [
+      async () => {
+        throw failure;
+      },
+      async () =>
+        new Response(
+          new ReadableStream<Uint8Array>({
+            start(controller) {
+              controller.error(failure);
+            },
+          }),
+        ),
+    ]) {
+      const transport = httpAssistantTransport({ url, fetch });
+
+      await expect(
+        collect(
+          transport.send([], {}, { signal: new AbortController().signal }),
+        ),
+      ).rejects.toBe(failure);
+    }
+  });
+
   it("an abort releases the reader while the consumer is paused", async () => {
     const cancel = vi.fn(() => new Promise<void>(() => {}));
     const body = new ReadableStream<Uint8Array>({
