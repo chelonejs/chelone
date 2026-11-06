@@ -5,6 +5,10 @@ export {
   default as Configurable,
 } from "./components/inspector/configurable.vue";
 export {
+  type ConfigurableInputsProps,
+  default as ConfigurableInputs,
+} from "./components/inspector/configurable-inputs.vue";
+export {
   default as Inspector,
   type InspectorProps,
 } from "./components/inspector/inspector.vue";
