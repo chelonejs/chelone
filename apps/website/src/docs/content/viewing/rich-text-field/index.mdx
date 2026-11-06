@@ -1,0 +1,87 @@
+---
+title: "RichTextField"
+description: "Shows stored HTML sanitized with DOMPurify, or its plain text."
+registry: "rich-text-input"
+---
+
+`<RichTextField>` displays stored HTML after sanitizing it with DOMPurify. Use it
+for formatted content in a show view. To edit that content, use
+[RichTextInput](/docs/editing/rich-text-input).
+
+## In a show view
+
+```tsx
+import { RecordField, Show } from "@chelone/react";
+import { RichTextField } from "@/components/rich-text-input/rich-text-field";
+
+export const PostShow = () => (
+  <Show>
+    <RecordField source="body">
+      <RichTextField source="body" empty="No content" />
+    </RecordField>
+  </Show>
+);
+```
+
+The rendered HTML sits in a `div` carrying the `rich-text` class, which the
+add-on's stylesheet styles. Import the stylesheet even when you only show
+values. See [Installing the add-on](#installing-the-add-on).
+
+## Plain text
+
+`stripTags` displays the text of the sanitized HTML without rendering its
+elements. For example, `<p>Hello <strong>world</strong></p>` displays as
+`Hello world`:
+
+```tsx
+<RichTextField source="body" stripTags />
+```
+
+## Empty values
+
+A missing value or `""` shows `empty`. A string is translated, and in React a
+node renders as-is. HTML such as `<p></p>` is still a nonempty string and does
+not trigger the fallback.
+
+In Vue, `empty` takes a string. Use the `#empty` slot for custom content:
+
+```vue
+<RichTextField source="body">
+  <template #empty><span>No content yet</span></template>
+</RichTextField>
+```
+
+Vue uses `class` for React's `className` and also accepts `record`,
+`default-value` and `strip-tags`. It has no `label`, `resource` or table column
+props.
+
+## What survives sanitizing
+
+DOMPurify runs with core's `richTextStyledSanitizeOptions`: scripts, event
+handlers, frames, form controls and a `<style>` element are removed before the
+HTML reaches the DOM. A `style` attribute survives only when it is one `color`
+declaration with a palette, hex, `rgb()` or `hsl()` value, so text colored by
+`<RichTextInput>` still shows. An `img` whose `src` is unsafe is removed, and an
+SVG data URL never counts as safe. Code blocks show plain, with no highlight
+markup.
+
+See the input page's [Stored HTML section](/docs/editing/rich-text-input#stored-html)
+for the editor schema and why the server should sanitize what it stores.
+
+## Props
+
+<PropsTable name="RichTextField" />
+
+## Installing the add-on
+
+This field is part of the rich text add-on:
+
+```bash
+npx shadcn add @chelone/rich-text-input
+```
+
+For Vue, use `npx shadcn-vue add @chelone/rich-text-input`. For npm, use
+`@chelone/react/rich-text-input` or `@chelone/vue/rich-text-input` and install
+the optional peers, of which the field needs `dompurify`. The
+[input page](/docs/editing/rich-text-input#installing-the-add-on) lists the full
+set for each adapter and the stylesheet import the rendered HTML needs.
