@@ -59,7 +59,7 @@ it("shows the BooleanField preview and its demo source", async () => {
 
 it.each([
   ["editing/text-input", "TextInput"],
-  ["ui-layout/app-bar", "AppBar"],
+  ["ui-layout/menu", "Menu"],
 ])("shows no preview on %s when no basic demo exists", (slug, title) => {
   render(
     <MemoryRouter initialEntries={[`/docs/${slug}`]}>
@@ -72,6 +72,21 @@ it.each([
   expect(screen.getByRole("heading", { level: 1, name: title })).toBeTruthy();
   expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
   expect(screen.queryByText(/Demo not found/)).toBeNull();
+});
+
+it("shows the AppBar live preview on its reference page", async () => {
+  render(
+    <MemoryRouter initialEntries={["/docs/ui-layout/app-bar"]}>
+      <Routes>
+        <Route path="/docs/*" element={<MdxPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
+  expect(
+    await screen.findByRole("button", { name: "Toggle Sidebar" }),
+  ).toBeTruthy();
+  expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(1);
 });
 
 it("keeps exactly one hand-placed preview on page-components/create", async () => {
