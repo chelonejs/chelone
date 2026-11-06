@@ -6825,6 +6825,179 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "block-editor",
+      "type": "registry:block",
+      "title": "Chelone Block Editor",
+      "categories": ["chelone", "inputs"],
+      "description": "The opt-in block editor add-on: BlockEditorInput edits a document of rich text and app-defined blocks in a tiptap editor with a slash menu, and BlockDocField shows that document read-only. defineBlock declares a block from a Zod schema and its components. Installs the tiptap packages.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/command",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/lib-utils",
+        "@chelone/source-input-props",
+        "@chelone/validation-error"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@tiptap/core",
+        "@tiptap/extensions",
+        "@tiptap/pm",
+        "@tiptap/starter-kit",
+        "@tiptap/suggestion",
+        "@tiptap/vue-3"
+      ],
+      "files": [
+        {
+          "path": "src/components/block-editor/block-doc-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-editor-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-editor.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-nodes.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-picker.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/slash-command.ts",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-doc-field",
+      "type": "registry:component",
+      "title": "Block Doc Field",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-doc-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-editor-shell",
+        "@chelone/block-nodes",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-editor-input",
+      "type": "registry:component",
+      "title": "Block Editor Input",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-editor-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-editor-shell",
+        "@chelone/block-nodes",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/source-input-props",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-editor-shell",
+      "type": "registry:component",
+      "title": "Block Editor Shell",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-editor.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-nodes",
+        "@chelone/block-picker",
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/slash-command"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@tiptap/core",
+        "@tiptap/extensions",
+        "@tiptap/pm",
+        "@tiptap/starter-kit",
+        "@tiptap/vue-3"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-nodes",
+      "type": "registry:component",
+      "title": "Block Nodes",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-nodes.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@tiptap/core",
+        "@tiptap/vue-3"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-picker",
+      "type": "registry:component",
+      "title": "Block Picker",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-picker.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/block-nodes", "@chelone/command"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "slash-command",
+      "type": "registry:component",
+      "title": "Slash Command",
+      "files": [
+        {
+          "path": "src/components/block-editor/slash-command.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@tiptap/core", "@tiptap/pm", "@tiptap/suggestion"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "maps",
       "type": "registry:block",
       "title": "Chelone Maps",
