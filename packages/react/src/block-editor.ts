@@ -1,5 +1,6 @@
 // A subpath entry, not part of the barrel: the add-on imports the optional
-// `@tiptap/*` peers, which the main entry must load without.
+// `@tiptap/*` peers and `recharts` (through `chartBlock`), which the main
+// entry must load without.
 export {
   BlockDocField,
   type BlockDocFieldProps,
@@ -19,6 +20,12 @@ export {
   defineBlock,
   NodeViewContent,
 } from "./components/block-editor/block-nodes";
+export { chartBlock } from "./components/block-editor/chart-block";
+export {
+  dataBlocks,
+  recordListBlock,
+  referenceRecordBlock,
+} from "./components/block-editor/data-blocks";
 export {
   calloutBlock,
   defaultBlocks,
