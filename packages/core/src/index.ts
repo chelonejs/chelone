@@ -47,6 +47,7 @@ export {
 } from "./auth/permission-matrix";
 export type { AuthProvider, CanAccessParams, UserIdentity } from "./auth/types";
 export type {
+  Attrs as BlockAttrs,
   BlockDocNode,
   BlockRegistry,
   BlockSpec,
@@ -56,6 +57,7 @@ export {
   describeBlockAttrs,
   emptyBlockDocument,
   getBlockDefaultAttrs,
+  isBlockDoc,
   isEmptyBlockDocument,
   matchBlocks,
   toEmbedSrc,

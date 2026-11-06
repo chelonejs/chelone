@@ -152,9 +152,16 @@ function mapChildren(
     : { ...node, content: node.content.map(visit) };
 }
 
+/**
+ * Wraps each node of an unknown type in an `unknownBlock`, so the editor keeps
+ * it. `canLoad` also catches what a type name cannot: an unknown mark, or an
+ * unknown node inside a paragraph. A top-level block it rejects is wrapped
+ * whole, from the document as stored.
+ */
 export function wrapUnknownBlocks(
   doc: BlockDocNode,
   known: ReadonlySet<string>,
+  canLoad?: (block: BlockDocNode) => boolean,
 ): BlockDocNode {
   const wrapNode = (node: BlockDocNode): BlockDocNode => {
     if (
@@ -165,7 +172,19 @@ export function wrapUnknownBlocks(
     }
     return { type: unknownBlockType, attrs: { payload: node } };
   };
-  return mapChildren(doc, wrapNode);
+  const wrapped = mapChildren(doc, wrapNode);
+  if (canLoad === undefined || wrapped.content === undefined) return wrapped;
+  return {
+    ...wrapped,
+    content: wrapped.content.map((block, index) =>
+      canLoad(block)
+        ? block
+        : {
+            type: unknownBlockType,
+            attrs: { payload: doc.content?.[index] ?? block },
+          },
+    ),
+  };
 }
 
 const isDocNode = (value: unknown): value is BlockDocNode => isObject(value);
@@ -178,6 +197,10 @@ export function unwrapUnknownBlocks(doc: BlockDocNode): BlockDocNode {
   };
   return mapChildren(doc, unwrapNode);
 }
+
+/** A stored value an editor can load: an object whose `type` is `"doc"`. */
+export const isBlockDoc = (value: unknown): value is BlockDocNode =>
+  isObject(value) && value.type === "doc";
 
 export const emptyBlockDocument = (): BlockDocNode => ({
   type: "doc",
