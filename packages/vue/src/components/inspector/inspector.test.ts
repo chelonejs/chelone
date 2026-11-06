@@ -7,6 +7,7 @@
 
 import {
   type CheloneStore,
+  createI18n,
   createStore,
   fakeDataProvider,
   inspectorPositionKey,
@@ -49,12 +50,15 @@ interface MountOptions {
   /** Mount without an `<Inspector>` around the page. */
   inspector?: boolean;
   store?: CheloneStore;
+  /** English messages for the app's i18n. */
+  messages?: Record<string, string>;
 }
 
 async function mountPage({
   page,
   inspector = true,
   store = createStore(),
+  messages = {},
 }: MountOptions) {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -68,6 +72,7 @@ async function mountPage({
         defaultOptions: { queries: { retry: false } },
       }),
       store,
+      i18n: createI18n({ locale: "en", messages: { en: messages } }),
     },
     slots: {
       layout: () =>
@@ -112,6 +117,21 @@ describe("InspectorButton", () => {
 
     await button.trigger("click");
     expect(onClick).toHaveBeenCalledTimes(1);
+    expect(button.attributes("aria-pressed")).toBe("false");
+    expect(panel(wrapper).exists()).toBe(false);
+  });
+
+  it("forwards class and disabled to the button", async () => {
+    const onClick = vi.fn();
+    const { wrapper } = await mountPage({
+      page: () =>
+        h(InspectorButton, { class: "ml-2", disabled: true, onClick }),
+    });
+    const button = modeButton(wrapper);
+    expect(button.classes()).toContain("ml-2");
+    expect(button.attributes("disabled")).toBeDefined();
+
+    await button.trigger("click");
     expect(button.attributes("aria-pressed")).toBe("false");
     expect(panel(wrapper).exists()).toBe(false);
   });
@@ -190,6 +210,33 @@ describe("Inspector", () => {
     expect(store.getItem(inspectorPositionKey)).toEqual({ x: 8, y: 704 });
     expect(style().left).toBe("8px");
     expect(style().top).toBe("704px");
+  });
+
+  it("a second press before the first release leaves no drag behind", async () => {
+    const { wrapper, store } = await mountPage({
+      page: () => h(InspectorButton),
+    });
+    await modeButton(wrapper).trigger("click");
+    const dialog = wrapper.get<HTMLElement>('[role="dialog"]');
+    const send = async (target: EventTarget, type: string, x: number) => {
+      target.dispatchEvent(
+        new MouseEvent(type, {
+          bubbles: true,
+          clientX: x,
+          clientY: 20,
+          button: 0,
+        }),
+      );
+      await flushPromises();
+    };
+    const handle = handleOf(wrapper).element;
+    await send(handle, "pointerdown", 700);
+    await send(handle, "pointerdown", 700);
+    await send(window, "pointerup", 700);
+
+    await send(window, "pointermove", 400);
+    expect(dialog.element.style.left).toBe("696px");
+    expect(store.getItem(inspectorPositionKey)).toBeUndefined();
   });
 
   it("clamps a stored position that no longer fits the window", async () => {
@@ -361,6 +408,33 @@ describe("Configurable", () => {
     expect(dialog.attributes("aria-label")).toBe(title);
     expect(dialog.text()).toContain(title);
     expect(document.querySelector("img")).toBeNull();
+  });
+});
+
+describe("Configurable editor context", () => {
+  it("the panel editor reads the resource context around its Configurable", async () => {
+    const { wrapper } = await mountPage({
+      messages: { "resources.posts.fields.title": "Headline" },
+      page: () =>
+        h(List, { resource: "posts" }, () => [
+          h(InspectorButton),
+          h(
+            Configurable,
+            { preferenceKey: "columns", title: "Columns panel" },
+            {
+              default: () => h(DataTable, null, columns),
+              // No `resource` prop: the label comes from the List around it.
+              editor: () => h(SortableFieldsSelector, { storeKey: STORE_KEY }),
+            },
+          ),
+        ]),
+    });
+    await modeButton(wrapper).trigger("click");
+    await defined(customize(wrapper)[0]).trigger("click");
+
+    await vi.waitFor(() =>
+      expect(rowLabels(wrapper)).toEqual(["Headline", "Views", "Author"]),
+    );
   });
 });
 

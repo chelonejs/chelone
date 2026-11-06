@@ -10,11 +10,17 @@ import {
   type InjectionKey,
   inject,
   provide,
+  type Ref,
+  ref,
   type VNode,
 } from "vue";
 import { useMicroStore } from "../../store/use-micro-store";
 
-/** What the panel shows for the selected `<Configurable>`: its `#editor` slot. */
+/**
+ * What the selection carries. The editor itself is teleported into the panel by
+ * its `<Configurable>`, so it keeps the contexts around that and not the
+ * panel's; this is only what the selection type needs.
+ */
 export type InspectorEditor = () => VNode[];
 
 /** The inspector the `<Inspector>` created. */
@@ -50,4 +56,21 @@ export function useInspector(): ComputedRef<InspectorControls> | null {
     select: inspector.select,
     release: inspector.release,
   }));
+}
+
+const InspectorBodyKey: InjectionKey<Readonly<Ref<HTMLElement | null>>> =
+  Symbol("chelone-inspector-body");
+
+/** Called by `<Inspector>` in `setup` with the ref of the panel's body element. */
+export function provideInspectorBody(
+  body: Readonly<Ref<HTMLElement | null>>,
+): void {
+  provide(InspectorBodyKey, body);
+}
+
+const noBody = ref<HTMLElement | null>(null);
+
+/** The panel's body element while the panel is open, which an editor is teleported into. */
+export function useInspectorBody(): Readonly<Ref<HTMLElement | null>> {
+  return inject(InspectorBodyKey, noBody);
 }

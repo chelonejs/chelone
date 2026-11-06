@@ -57,6 +57,8 @@ function onClick(event: MouseEvent) {
     :aria-label="text"
     :title="text"
     v-bind="$attrs"
+    :class="props.class"
+    :disabled="props.disabled"
     :aria-pressed="inspector.enabled"
     @click="onClick"
   >

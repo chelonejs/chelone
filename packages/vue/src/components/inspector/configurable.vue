@@ -22,15 +22,14 @@ export interface ConfigurableProps {
  * The wrapper is there whether or not the mode is on, so turning it on never
  * remounts the content.
  *
- * The panel renders the editor, so the editor reads the contexts around the
- * `<Inspector>`, not the ones around this: give it a `resource` rather than
- * counting on an ambient `<Resource>`.
+ * The editor is teleported into the panel, so it reads the contexts around this
+ * (resource, list, record), not the ones around the `<Inspector>`.
  *
  * @example
  * <Configurable preference-key="posts.columns" title="Columns">
  *   <PostTable />
  *   <template #editor>
- *     <SortableFieldsSelector store-key="posts.datatable" resource="posts" />
+ *     <SortableFieldsSelector store-key="posts.datatable" />
  *   </template>
  * </Configurable>
  */
@@ -40,16 +39,21 @@ import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import { SlidersHorizontalIcon } from "../admin/buttons/icons";
 import Button from "../ui/button.vue";
-import { type InspectorEditor, useInspector } from "./inspector-context";
+import {
+  type InspectorEditor,
+  useInspector,
+  useInspectorBody,
+} from "./inspector-context";
 
 const props = defineProps<ConfigurableProps>();
-const slots = defineSlots<{
+defineSlots<{
   default?: () => VNode[];
   editor?: () => VNode[];
 }>();
 
 const translate = useTranslate();
 const inspector = useInspector();
+const body = useInspectorBody();
 
 const defaultOpenLabel = "chelone.inspector.customize";
 const enabled = computed(() => inspector?.value.enabled ?? false);
@@ -57,8 +61,8 @@ const isSelected = computed(
   () => inspector?.value.selected?.key === props.preferenceKey,
 );
 
-// Reads the slot when called, so the panel follows a slot that changes.
-const editor: InspectorEditor = () => slots.editor?.() ?? [];
+// The editor is teleported into the panel below, not rendered from the store.
+const editor: InspectorEditor = () => [];
 
 function open() {
   inspector?.value.select({
@@ -112,6 +116,10 @@ watch(
         })
       }}
     </Button>
+    <!-- Teleported, so the editor reads the contexts around this, not the panel's. -->
+    <Teleport v-if="isSelected && body" :to="body">
+      <slot name="editor" />
+    </Teleport>
   </div>
   <slot v-else />
 </template>

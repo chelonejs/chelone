@@ -1,18 +1,10 @@
 <script lang="ts">
-import type { FunctionalComponent } from "vue";
-import type { InspectorEditor } from "./inspector-context";
-
 /** Props for {@link Inspector}. */
 export interface InspectorProps {
   /** Classes for the panel. */
   class?: string;
 }
 
-/** Renders the selected editor, a slot function, so its reads are the panel's. */
-const EditorOutlet: FunctionalComponent<{ editor: InspectorEditor }> = (
-  props,
-) => props.editor();
-EditorOutlet.props = ["editor"];
 </script>
 
 <script setup lang="ts">
@@ -55,7 +47,11 @@ import { useMicroStore } from "../../store/use-micro-store";
 import { useStore } from "../../store/use-store-item";
 import { XIcon } from "../admin/buttons/icons";
 import Button from "../ui/button.vue";
-import { provideInspector } from "./inspector-context";
+import {
+  type InspectorEditor,
+  provideInspector,
+  provideInspectorBody,
+} from "./inspector-context";
 
 const PANEL_WIDTH = 320;
 const KEY_STEP = 16;
@@ -74,6 +70,9 @@ const translate = useTranslate();
 const inspector = createInspector<InspectorEditor>();
 provideInspector(inspector);
 const state = useMicroStore(inspector.store);
+// The selected `<Configurable>` teleports its editor in here.
+const body = shallowRef<HTMLElement | null>(null);
+provideInspectorBody(body);
 
 // Without a store the position lives here, and is lost with the panel.
 const local = shallowRef<InspectorPosition>();
@@ -117,6 +116,8 @@ function onPointerDown(event: PointerEvent) {
   if (event.button !== 0 || !(event.target instanceof Element)) return;
   // The Close button is in the handle but is not a grip.
   if (event.target.closest("button")) return;
+  // A second press before the first release would orphan the first drag's listeners.
+  stopDrag?.();
   const start = { x: event.clientX, y: event.clientY };
   const origin = position.value;
   let last: InspectorPosition | null = null;
@@ -207,11 +208,11 @@ const title = computed(
       </Button>
     </div>
     <div
+      ref="body"
       data-slot="inspector-body"
       class="flex flex-col gap-3 overflow-auto p-3"
     >
-      <EditorOutlet v-if="state.selected" :editor="state.selected.editor" />
-      <p v-else class="text-sm text-muted-foreground">
+      <p v-if="!state.selected" class="text-sm text-muted-foreground">
         {{
           translate("chelone.inspector.empty", {
             _: "Pick an outlined element to configure it",
