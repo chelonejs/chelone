@@ -11,7 +11,6 @@ import {
   fakeDataProvider,
   type Identifier,
   inMemoryLockProvider,
-  type Lock,
   LockConflictError,
   type LockProvider,
   memoryTransport,
@@ -302,7 +301,7 @@ describe("useGetLock", () => {
               "p",
               { "data-testid": "lock" },
               query.isSuccess.value
-                ? String((query.data.value as Lock | null)?.identity ?? "free")
+                ? String(query.data.value?.identity ?? "free")
                 : "pending",
             );
         },
@@ -376,7 +375,7 @@ describe("useGetLockLive", () => {
               "p",
               { "data-testid": "lock" },
               query.isSuccess.value
-                ? String((query.data.value as Lock | null)?.identity ?? "free")
+                ? String(query.data.value?.identity ?? "free")
                 : "pending",
             );
         },
