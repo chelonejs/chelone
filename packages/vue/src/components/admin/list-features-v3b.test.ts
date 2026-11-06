@@ -7,6 +7,7 @@
  */
 
 import { defineResources, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -260,13 +261,15 @@ describe("<FilterForm>", () => {
 
     capture.list?.setFilters({});
     await vi.waitFor(() =>
-      expect((input.element as HTMLInputElement).value).toBe(""),
+      expect(elementOf(input.element, HTMLInputElement).value).toBe(""),
     );
   });
 
   const inputValue = (wrapper: ReturnType<typeof mountFilterForm>["wrapper"]) =>
-    (wrapper.find('input[data-slot="input"]').element as HTMLInputElement)
-      .value;
+    elementOf(
+      wrapper.find('input[data-slot="input"]').element,
+      HTMLInputElement,
+    ).value;
   const pastDebounce = () => new Promise((r) => setTimeout(r, 700));
 
   it("typing back to the current filter cancels the push still waiting", async () => {
@@ -329,8 +332,10 @@ describe("<FilterForm>", () => {
 
     await vi.waitFor(() =>
       expect(
-        (wrapper.find('input[data-slot="input"]').element as HTMLInputElement)
-          .value,
+        elementOf(
+          wrapper.find('input[data-slot="input"]').element,
+          HTMLInputElement,
+        ).value,
       ).toBe("t07"),
     );
   });

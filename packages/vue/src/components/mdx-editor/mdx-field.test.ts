@@ -46,10 +46,17 @@ interface FakeCrepe {
   finishCreate(): void;
 }
 
-const hoisted = vi.hoisted(() => ({
-  instances: [] as FakeCrepe[],
-  deferCreate: false,
-}));
+interface Hoisted {
+  instances: FakeCrepe[];
+  deferCreate: boolean;
+}
+
+const hoisted = vi.hoisted(
+  (): Hoisted => ({
+    instances: [],
+    deferCreate: false,
+  }),
+);
 
 vi.mock("@milkdown/crepe", () => {
   class FakeCrepeImpl implements FakeCrepe {
