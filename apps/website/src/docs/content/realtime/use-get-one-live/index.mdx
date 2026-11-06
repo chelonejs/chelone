@@ -1,0 +1,61 @@
+---
+title: "useGetOneLive"
+description: "useGetOne, kept fresh: refetches when its record changes or the connection returns. Needs a realtime data provider."
+---
+
+`useGetOneLive` is `useGetOne` with a subscription to its record's topic. A
+change to another record of the same resource leaves it alone.
+
+## Signature
+
+```ts
+function useGetOneLive<
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(
+  resource: TName,
+  params: GetOneParams,
+  options?: { enabled?: boolean; staleTime?: number },
+): UseQueryResult<RecordOf<TResources, TName>, Error>
+```
+
+Both type arguments default to the app's registered resources, so a call site
+writes neither. `UseQueryResult` is TanStack Query's query result.
+
+- `params` is `GetOneParams`: a required `id` and an optional `meta`.
+- `enabled` gates the fetch and the subscription together. `false` fetches
+  nothing and subscribes to nothing.
+- `staleTime` is `useGetOne`'s.
+
+## Returns
+
+The `useGetOne` result. `data` is the record itself: `getOne`'s `GetOneResult`
+is unwrapped before it reaches the cache.
+
+It refetches on `recordTopic(resource, id)` and on a reconnect. A new `id`
+resubscribes to the new record's topic. The invalidation an event triggers
+covers every query under the resource, so other views of it refetch too.
+
+Events held for a pending undoable mutation are replayed once it settles.
+
+## Example
+
+```tsx
+import { useGetOneLive } from "@chelone/react";
+
+export const PostTitle = ({ id }: { id: number }) => {
+  const { data, isPending } = useGetOneLive("posts", { id });
+  if (isPending) return <p>Loading…</p>;
+  return <h2>{String(data?.title ?? "")}</h2>;
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name. `resource` is a plain string, so the
+composable reads one resource for the life of the component, and `params` takes
+`MaybeRefOrGetter`: a new `id` resubscribes. Its options are `{ enabled }` only,
+and `data` is a ref.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup and the
+topics behind this hook.

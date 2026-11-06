@@ -2,6 +2,60 @@
   "name": "TrendChart",
   "props": [
     {
+      "name": "bare",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Leaves out the card and the title."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "optional": true,
+      "comment": "Any CSS color. Defaults to `var(--primary)`."
+    },
+    {
+      "name": "data",
+      "type": "readonly TRow[]",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "optional": true,
+      "comment": "In pixels. Defaults to 200."
+    },
+    {
+      "name": "loading",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "xField",
+      "type": "TX",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "yField",
+      "type": "keyof TRow & string",
+      "optional": false,
+      "comment": "A row whose value is not a finite number draws no point."
+    },
+    {
       "name": "area",
       "type": "boolean",
       "optional": true,

@@ -1,0 +1,59 @@
+---
+title: "useGetLocksLive"
+description: "useGetLocks, kept fresh: refetches when any lock of the resource is taken or released, or the connection returns. Needs a realtime data provider with lock support."
+---
+
+`useGetLocksLive` is `useGetLocks` with a subscription to the resource's lock
+topic. It is the read for a panel listing who is editing what.
+
+## Signature
+
+```ts
+function useGetLocksLive<TResources extends ResourceMap = ResourceMap>(
+  resource: keyof TResources & string,
+  options?: { enabled?: boolean },
+): UseQueryResult<Lock[], Error>
+```
+
+`UseQueryResult` is TanStack Query's query result.
+
+- `options` gates the fetch and the subscription together with `enabled`.
+
+## Returns
+
+The `useGetLocks` result: `data` is the array of `Lock`s the resource holds.
+
+It refetches on `lockResourceTopic(resource)`, which carries every `locked` and
+`unlocked` event for the resource, and on a reconnect. Several lock events in
+one tick fold into a single refetch.
+
+## Example
+
+```tsx
+import { useGetLocksLive } from "@chelone/react";
+
+export const LockList = () => {
+  const { data } = useGetLocksLive("posts");
+  return (
+    <ul>
+      {(data ?? []).map((lock) => (
+        <li key={String(lock.recordId)}>
+          {String(lock.recordId)}: {lock.identity}
+        </li>
+      ))}
+    </ul>
+  );
+};
+```
+
+`inMemoryLockProvider` announces its locks, so this hook updates on its own.
+A lock provider that publishes nothing needs `refetch` or a live read of its
+own.
+
+## In Vue
+
+`@chelone/vue` exports the same name. `resource` is a plain string and `data` is
+a ref.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup and the
+lock provider behind this hook.

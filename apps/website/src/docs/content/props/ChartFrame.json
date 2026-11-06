@@ -1,0 +1,59 @@
+{
+  "name": "ChartFrame",
+  "props": [
+    {
+      "name": "bare",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "children",
+      "type": "ReactElement",
+      "optional": false,
+      "comment": "The recharts chart, drawn inside a `ChartContainer` of the given height."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "config",
+      "type": "ChartConfig",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "boolean",
+      "optional": true,
+      "comment": "No number to draw: shows the empty text in place of the chart."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "loading",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "slot",
+      "type": "string",
+      "optional": false,
+      "comment": "The `data-slot` of the element that holds the chart, its skeleton or its empty text."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
