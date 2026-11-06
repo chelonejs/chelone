@@ -89,6 +89,20 @@ it("shows the AppBar live preview on its reference page", async () => {
   expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(1);
 });
 
+it("shows the AuthCallback loading state without a sign-in caption", async () => {
+  render(
+    <MemoryRouter initialEntries={["/docs/ui-layout/auth-callback"]}>
+      <Routes>
+        <Route path="/docs/*" element={<MdxPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
+  expect(await screen.findByRole("status", { name: "Loading" })).toBeTruthy();
+  expect(screen.queryByText("Completing sign-in...")).toBeNull();
+  expect(screen.queryByRole("alert")).toBeNull();
+});
+
 it("keeps exactly one hand-placed preview on page-components/create", async () => {
   render(
     <MemoryRouter initialEntries={["/docs/page-components/create"]}>
