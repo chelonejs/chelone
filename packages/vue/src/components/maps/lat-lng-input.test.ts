@@ -12,6 +12,7 @@ import {
   mapMessages,
   rasterTileStyle,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -131,7 +132,7 @@ const field = (wrapper: VueWrapper, label: string) => {
 const latField = (wrapper: VueWrapper) => field(wrapper, "Latitude");
 const lngField = (wrapper: VueWrapper) => field(wrapper, "Longitude");
 const textOf = (input: ReturnType<typeof latField>) =>
-  (input.element as HTMLInputElement).value;
+  elementOf(input.element, HTMLInputElement).value;
 
 describe("LatLngInput", () => {
   it("labels each coordinate from the resource's field translations", async () => {

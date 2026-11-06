@@ -7,13 +7,15 @@
  */
 
 import { createNotificationStore, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
+import { makeCheloneContext } from "../../../__fixtures__/chelone-context";
 import Admin from "../../../admin/admin.vue";
 import Resource from "../../../admin/resource.vue";
-import { CheloneContextKey, type CheloneContextValue } from "../../../context";
+import { CheloneContextKey } from "../../../context";
 import ThemeModeToggle from "./theme-mode-toggle.vue";
 import ThemeProvider from "./theme-provider.vue";
 
@@ -165,7 +167,10 @@ describe("<Layout> skip link (via <Admin> default slot)", () => {
 
   it("skip link focus target is the content area, not the app bar", async () => {
     const wrapper = await mountDefaultLayout();
-    const target = document.getElementById("main-content") as HTMLElement;
+    const target = elementOf(
+      document.getElementById("main-content"),
+      HTMLElement,
+    );
 
     expect(target.contains(wrapper.get('[data-slot="app-bar"]').element)).toBe(
       false,
@@ -249,7 +254,7 @@ describe("<ThemeProvider> + <ThemeModeToggle> in isolation", () => {
       props: { defaultTheme: "light", storageKey: "test-theme" },
       slots: { default: () => h(ThemeModeToggle) },
       global: {
-        provide: { [CheloneContextKey]: {} as CheloneContextValue },
+        provide: { [CheloneContextKey]: makeCheloneContext() },
       },
     });
     await nextTick();
