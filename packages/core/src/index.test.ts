@@ -21,6 +21,13 @@ describe("@chelone/core barrel", () => {
     expect(barrel.richTextBlockTypes).toHaveLength(7);
   });
 
+  it("exports the permission matrix helpers", () => {
+    expect(barrel.getPermissionCell).toBeTypeOf("function");
+    expect(barrel.togglePermission).toBeTypeOf("function");
+    expect(barrel.setPermissionRow).toBeTypeOf("function");
+    expect(barrel.isPermissionRowGranted).toBeTypeOf("function");
+  });
+
   it("exports noop", () => {
     expect(barrel.noop).toBeTypeOf("function");
     expect(barrel.noop()).toBeUndefined();
