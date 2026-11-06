@@ -29,6 +29,7 @@
     "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-theme.css",
     "./rich-text-input": "./src/rich-text-input.ts",
     "./rich-text-input.css": "./src/components/rich-text-input/rich-text.css",
+    "./block-editor": "./src/block-editor.ts",
     "./charts": "./src/charts.ts"
   },
   "publishConfig": {
@@ -79,6 +80,10 @@
         "default": "./dist/rich-text-input.js"
       },
       "./rich-text-input.css": "./dist/components/rich-text-input/rich-text.css",
+      "./block-editor": {
+        "types": "./dist/block-editor.d.ts",
+        "default": "./dist/block-editor.js"
+      },
       "./charts": {
         "types": "./dist/charts.d.ts",
         "default": "./dist/charts.js"
@@ -113,6 +118,7 @@
     "@tiptap/extensions": "^3.33.0",
     "@tiptap/pm": "^3.33.0",
     "@tiptap/starter-kit": "^3.33.0",
+    "@tiptap/suggestion": "^3.33.0",
     "@tiptap/vue-3": "^3.33.0",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
@@ -159,6 +165,9 @@
       "optional": true
     },
     "@tiptap/starter-kit": {
+      "optional": true
+    },
+    "@tiptap/suggestion": {
       "optional": true
     },
     "@tiptap/vue-3": {
@@ -218,6 +227,7 @@
     "@tiptap/extensions": "^3.33.0",
     "@tiptap/pm": "^3.33.0",
     "@tiptap/starter-kit": "^3.33.0",
+    "@tiptap/suggestion": "^3.33.0",
     "@tiptap/vue-3": "^3.33.0",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
