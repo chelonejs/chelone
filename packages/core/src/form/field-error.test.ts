@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import { firstFieldError } from "./field-error";
 
 describe("firstFieldError", () => {
-  it("takes onSubmit before onChange, and onServer last", () => {
+  it("firstFieldError takes onSubmit before onChange, and onServer last", () => {
     expect(
       firstFieldError({
         // every cause filled, in the reverse of the scan order
@@ -22,7 +22,7 @@ describe("firstFieldError", () => {
     ).toBe("on mount");
   });
 
-  it("normalizes a Standard Schema issue array, a translatable payload and a string", () => {
+  it("firstFieldError normalizes a Standard Schema issue array, a translatable payload and a string", () => {
     expect(
       firstFieldError({
         onBlur: [{ message: "Title is too short", path: ["title"] }],
@@ -34,7 +34,7 @@ describe("firstFieldError", () => {
     expect(firstFieldError({ onBlur: "plain string" })).toBe("plain string");
   });
 
-  it("gives undefined for an empty error map and for empty causes", () => {
+  it("firstFieldError gives undefined for an empty error map and for empty causes", () => {
     expect(firstFieldError({})).toBeUndefined();
     expect(
       firstFieldError({
@@ -45,7 +45,7 @@ describe("firstFieldError", () => {
     ).toBeUndefined();
   });
 
-  it("reads any error-map shaped object", () => {
+  it("firstFieldError reads any error-map shaped object", () => {
     expectTypeOf(firstFieldError).parameter(0).toEqualTypeOf<object>();
   });
 });
