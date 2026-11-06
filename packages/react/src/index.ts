@@ -187,6 +187,10 @@ export {
   type LoginWithEmailProps,
 } from "./components/admin/auth/login-with-email";
 export { Logout, type LogoutProps } from "./components/admin/auth/logout";
+export {
+  PermissionMatrix,
+  type PermissionMatrixProps,
+} from "./components/admin/auth/permission-matrix";
 // P7g component surface — the CRUD action buttons + form toolbar + Confirm
 // dialog (ported from shadmin `admin/buttons` + `admin/feedback` onto chelone's
 // mutation/nav/save seams). SaveButton fires the ambient composed `submit`
