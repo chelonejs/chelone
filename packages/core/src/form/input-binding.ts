@@ -142,8 +142,12 @@ export interface FieldBindingBaseOptions<TValue, TInput> {
    * (reset/rehydration), never dirties the form.
    */
   defaultValue?: TValue;
-  /** Read transform (raw form value -> input value). Default {@link defaultFormat}. */
-  format?: (value: TValue) => TInput;
+  /**
+   * Read transform (raw form value -> input value). Default {@link defaultFormat}.
+   * Takes the holes a record's type does not show: an untouched field is
+   * `undefined`, and {@link defaultParse} stores a cleared input as `null`.
+   */
+  format?: (value: TValue | null | undefined) => TInput;
   /** Write transform (input value -> stored value). Default {@link defaultParse}. */
   parse?: (input: TInput) => TValue;
   /** ra-contract validators — composed, first error wins, sync stays sync. */
@@ -416,10 +420,12 @@ export function createFieldBinding<
 
   /** The binding's `format`, or the ra default, applied to the stored value. */
   const formatValue = (): TInput => {
-    // form-core's `DeepValue` and chelone's `SourceValue` spell one path's value
-    // two ways, and a deferred `TRecord` keeps TS from seeing that they meet.
-    // type-escape: this path's value, read off form-core's widest spelling.
-    const value = field.store.state.value as SourceValue<TRecord, TPath>;
+    // `field-name.test-d.ts` pins that form-core and chelone read one value here.
+    // type-escape: a deferred `TRecord` keeps TS from seeing it.
+    const value = field.store.state.value as
+      | SourceValue<TRecord, TPath>
+      | null
+      | undefined;
     const { format } = current;
     if (format !== undefined) return format(value);
     // type-escape: with no `format`, `TInput` defaults to this result's type.

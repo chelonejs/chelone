@@ -85,13 +85,23 @@ it("createFieldBinding takes any string for a Record<string, unknown> form", () 
   createFieldBinding(looseForm, { source: composed });
 });
 
+it("format is told about the holes a record's type does not show", () => {
+  const { form } = typed();
+  createFieldBinding(form, {
+    source: "title",
+    // @ts-expect-error a cleared or untouched field reaches format as a hole
+    format: (value: string) => value.toUpperCase(),
+    parse: (input: string) => input,
+  });
+});
+
 it("a binding's options are typed by the value at its source", () => {
   const { form } = typed();
   createFieldBinding(form, {
     source: "views",
     defaultValue: 3,
     format: (value) => {
-      expectTypeOf(value).toEqualTypeOf<number>();
+      expectTypeOf(value).toEqualTypeOf<number | null | undefined>();
       return String(value);
     },
     parse: (input) => {

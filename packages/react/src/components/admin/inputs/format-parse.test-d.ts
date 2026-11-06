@@ -55,18 +55,18 @@ describe("InputProps format and parse by source", () => {
   it("an input that names its source types format by the value at it", () => {
     expectTypeOf<Required<CurrencyInputProps<Post, "views">>["format"]>()
       .parameter(0)
-      .toEqualTypeOf<number | undefined>();
+      .toEqualTypeOf<number | null | undefined>();
     expectTypeOf<Required<RatingInputProps<Post, "rating">>["format"]>()
       .parameter(0)
-      .toEqualTypeOf<number | undefined>();
+      .toEqualTypeOf<number | null | undefined>();
     expectTypeOf<Required<DurationInputProps<Post, "published_at">>["format"]>()
       .parameter(0)
-      .toEqualTypeOf<string | undefined>();
+      .toEqualTypeOf<string | null | undefined>();
     expectTypeOf<
       Required<SubscriptionPlanPickerProps<Post, "title">>["format"]
     >()
       .parameter(0)
-      .toEqualTypeOf<string | undefined>();
+      .toEqualTypeOf<string | null | undefined>();
 
     acceptCurrency({ source: "views", format: (value) => value?.toFixed(0) });
     acceptDuration({
