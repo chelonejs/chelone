@@ -50,6 +50,7 @@ import { useTranslate } from "../../../i18n/use-translate";
 import Button from "../../ui/button.vue";
 import DateField from "../fields/date-field.vue";
 import JsonField from "../fields/json-field.vue";
+import { provideRecordContext } from "../../../record/record-context";
 import { useMenuAccess } from "../layout/use-menu-access";
 
 const props = defineProps<JobMonitorRowProps>();
@@ -57,6 +58,9 @@ const emit = defineEmits<{
   (event: "plan", plan: JobPlan<LooseRecord> | null): void;
 }>();
 
+// The fields read the job from context, so a poll that changes a reused row's
+// job reaches them: a `record` prop is read once, at setup.
+provideRecordContext(computed(() => props.job));
 const translate = useTranslate();
 const showPayload = ref(false);
 const { canAccess, isPending: isAccessPending } = useMenuAccess(
@@ -116,7 +120,6 @@ const hasPayload = computed(
       >
       <DateField
         :source="fields.createdAtSource"
-        :record="job"
         show-time
         class="text-muted-foreground"
       />
@@ -172,7 +175,6 @@ const hasPayload = computed(
     <JsonField
       v-if="hasPayload && showPayload"
       :source="fields.payloadSource"
-      :record="job"
       class="overflow-x-auto rounded-md bg-muted p-2 text-xs"
     />
   </li>

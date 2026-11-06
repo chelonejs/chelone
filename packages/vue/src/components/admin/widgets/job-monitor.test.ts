@@ -387,6 +387,41 @@ describe("<JobMonitor>", () => {
     expect(first.find("pre").exists()).toBe(false);
   });
 
+  it("an open row follows a poll that changes its payload and creation time", async () => {
+    const dataProvider = provider([
+      job({
+        id: 1,
+        status: "failed",
+        payload: { to: "old@b.c" },
+        createdAt: "2026-01-02T10:00:00.000Z",
+      }),
+    ]);
+    const { wrapper } = await setup({
+      dataProvider,
+      monitor: { tabs: ["failed"], pollInterval: 30 },
+    });
+    await ready(wrapper);
+    const toggle = wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Show payload");
+    await toggle?.trigger("click");
+    const created = slot(wrapper, "date-field").text();
+    expect(wrapper.get("pre").text()).toContain("old@b.c");
+
+    const changed = job({
+      id: 1,
+      status: "failed",
+      payload: { to: "new@b.c" },
+      createdAt: "2027-03-04T10:00:00.000Z",
+    });
+    dataProvider.getList = async () => ({ data: [changed], total: 1 });
+
+    await vi.waitFor(() =>
+      expect(wrapper.get("pre").text()).toContain("new@b.c"),
+    );
+    expect(slot(wrapper, "date-field").text()).not.toBe(created);
+  });
+
   it("polls getList every pollInterval ms, and not with pollInterval 0", async () => {
     const polling = await setup({ monitor: { pollInterval: 30 } });
     await vi.waitFor(() =>
