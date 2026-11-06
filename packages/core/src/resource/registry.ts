@@ -47,6 +47,16 @@ type Checked<T extends ResourceMap> = {
 };
 
 /**
+ * A resource map whose every resource has `TRecord` as its record. A view
+ * generic over its record passes it to a hook that is generic over a map, so
+ * `RecordOf<RecordResources<TRecord>, string>` is `TRecord`.
+ */
+export type RecordResources<TRecord> = {
+  // type-escape: the schema's input is whatever the caller's schema takes, which the map need not pin
+  [name: string]: { schema: StandardSchemaV1<unknown, TRecord> };
+};
+
+/**
  * The record type for a given resource name in a registry:
  * the schema's Standard Schema output type when a schema is present, else `LooseRecord`.
  */

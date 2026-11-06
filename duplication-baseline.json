@@ -100,7 +100,7 @@
   "packages/react/src/components/admin/realtime/edit-live.tsx <-> packages/react/src/components/admin/realtime/show-live.tsx": 1,
   "packages/react/src/components/admin/supabase/forgot-password-form.tsx <-> packages/react/src/components/admin/supabase/set-password-form.tsx": 2,
   "packages/react/src/components/admin/supabase/use-password-recovery.ts <-> packages/vue/src/components/admin/supabase/use-password-recovery.ts": 1,
-  "packages/react/src/components/admin/views/create.tsx <-> packages/react/src/components/admin/views/edit.tsx": 3,
+  "packages/react/src/components/admin/views/create.tsx <-> packages/react/src/components/admin/views/edit.tsx": 2,
   "packages/react/src/components/admin/views/create.tsx <-> packages/react/src/components/admin/views/show.tsx": 1,
   "packages/react/src/components/maps-draw/shape-input.tsx <-> packages/react/src/components/maps-draw/simplify-input.tsx": 2,
   "packages/react/src/components/maps-draw/simplify-input.tsx <-> packages/react/src/components/maps/geo-json-field.tsx": 1,

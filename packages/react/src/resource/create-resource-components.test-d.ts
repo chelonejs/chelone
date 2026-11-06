@@ -3,9 +3,11 @@
  * resource map as a type argument, so these tests need no `Register`
  * augmentation, which is global to a TypeScript program.
  */
-import { defineResources } from "@chelone/core";
+import { defineResources, type LooseRecord } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
+import { Create, type CreateProps } from "../components/admin/views/create";
+import type { EditProps } from "../components/admin/views/edit";
 import {
   createResourceComponents,
   createResourceComponentsOf,
@@ -144,6 +146,48 @@ describe("format, parse and transform", () => {
     // @ts-expect-error a typo is still rejected by a member with a value callback
     posts.TextInput({ source: "titel" });
     void count;
+  });
+});
+
+type Post = z.output<(typeof resources)["posts"]["schema"]>;
+
+describe("posts.Create and posts.Edit", () => {
+  it("pass a Post to onSuccess and validate", () => {
+    posts.Create({
+      onSuccess: (saved) => {
+        expectTypeOf(saved).toEqualTypeOf<Post>();
+      },
+      validate: (values) => {
+        expectTypeOf(values).toEqualTypeOf<Partial<Post>>();
+        return undefined;
+      },
+    });
+    posts.Edit({
+      onSuccess: (saved) => {
+        expectTypeOf(saved).toEqualTypeOf<Post>();
+      },
+    });
+  });
+
+  it("a Create record seed is a partial Post", () => {
+    posts.Create({ record: { title: "Hello" } });
+    // @ts-expect-error `views` is a number
+    posts.Create({ record: { views: "many" } });
+    // @ts-expect-error `titel` is no field of a post
+    posts.Create({ record: { titel: "Hello" } });
+  });
+
+  it("a bare Create and Edit keep the loose record", () => {
+    expectTypeOf<CreateProps["record"]>().toEqualTypeOf<
+      Partial<LooseRecord> | undefined
+    >();
+    expectTypeOf<
+      Parameters<NonNullable<CreateProps["onSuccess"]>>[0]
+    >().toEqualTypeOf<LooseRecord>();
+    expectTypeOf<
+      Parameters<NonNullable<EditProps["onSuccess"]>>[0]
+    >().toEqualTypeOf<LooseRecord>();
+    Create({ record: { anything: 1 } });
   });
 });
 

@@ -37,9 +37,7 @@ export type SaveHandler<RecordType> = {
  * The ambient save surface. Every field optional (ra parity): a view without a
  * save (a `<Show>`, or a form outside a CRUD view) provides the empty default.
  */
-export interface SaveContextValue<
-  RecordType extends ResourceRecord = ResourceRecord,
-> {
+export interface SaveContextValue<RecordType = ResourceRecord> {
   /** Persists the form values; resolves with server field errors on validation failure. */
   save?: SaveHandler<RecordType>;
   /**
@@ -55,8 +53,8 @@ export const SaveContext = createContext<SaveContextValue>({});
 
 SaveContext.displayName = "SaveContext";
 
-export interface SaveContextProviderProps {
-  value: SaveContextValue;
+export interface SaveContextProviderProps<RecordType = ResourceRecord> {
+  value: SaveContextValue<RecordType>;
   children: ReactNode;
 }
 
@@ -65,11 +63,13 @@ export interface SaveContextProviderProps {
  * `{ save, saving, mutationMode }` slice of its composed controller so nested
  * save buttons/toolbars can trigger the save.
  */
-export function SaveContextProvider({
+export function SaveContextProvider<RecordType = ResourceRecord>({
   value,
   children,
-}: SaveContextProviderProps): ReactNode {
-  return <SaveContext.Provider value={value}>{children}</SaveContext.Provider>;
+}: SaveContextProviderProps<RecordType>): ReactNode {
+  // type-escape: the context stores each view's save at its own record, and `useSaveContext` reads it back at the caller's
+  const stored = value as SaveContextValue;
+  return <SaveContext.Provider value={stored}>{children}</SaveContext.Provider>;
 }
 
 /**
