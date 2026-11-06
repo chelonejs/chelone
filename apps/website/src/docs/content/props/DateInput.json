@@ -1,4 +1,23 @@
 {
   "name": "DateInput",
-  "props": []
+  "props": [
+    {
+      "name": "format",
+      "type": "(value: DateInputValue) => string | null",
+      "optional": true,
+      "comment": "Read transform: the stored value, as a date input holds it, to the `YYYY-MM-DD` string."
+    },
+    {
+      "name": "inputClassName",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "parse",
+      "type": "(value: string) => SourceValue<TRecord, TPath>",
+      "optional": true,
+      "comment": "Write transform: the string the DOM input holds to the stored value."
+    }
+  ]
 }

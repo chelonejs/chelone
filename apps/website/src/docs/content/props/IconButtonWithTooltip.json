@@ -1,4 +1,11 @@
 {
   "name": "IconButtonWithTooltip",
-  "props": []
+  "props": [
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "Tooltip content. A string is translated and also names the button."
+    }
+  ]
 }

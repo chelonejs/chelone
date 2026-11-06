@@ -1,4 +1,101 @@
 {
   "name": "FileInput",
-  "props": []
+  "props": [
+    {
+      "name": "accept",
+      "type": "DropzoneOptions[\"accept\"]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "format",
+      "type": "(value: FileSelection) => FileSelection",
+      "optional": true,
+      "comment": "Read transform (the files in the form → the files shown). Default makes a preview record of each dropped file."
+    },
+    {
+      "name": "inputProps",
+      "type": "DropzoneInputProps & React.ComponentProps<\"input\">",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "labelMultiple",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "labelSingle",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "maxSize",
+      "type": "DropzoneOptions[\"maxSize\"]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "minSize",
+      "type": "DropzoneOptions[\"minSize\"]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "multiple",
+      "type": "DropzoneOptions[\"multiple\"]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "onRemove",
+      "type": "(file: FileEntry) => void",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "options",
+      "type": "DropzoneOptions",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "parse",
+      "type": "(value: FileSelection) => FileSelection",
+      "optional": true,
+      "comment": "Write transform (the dropped or remaining files → stored value). Default makes a preview record of each dropped file."
+    },
+    {
+      "name": "placeholder",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "removeIcon",
+      "type": "ComponentType<{ className?: string }>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "validateFileRemoval",
+      "type": "unknown",
+      "optional": true,
+      "comment": ""
+    }
+  ]
 }

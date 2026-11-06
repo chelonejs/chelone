@@ -1,4 +1,29 @@
 {
   "name": "SelectInput",
-  "props": []
+  "props": [
+    {
+      "name": "emptyText",
+      "type": "string | ReactElement",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "emptyValue",
+      "type": "string | number | boolean | null",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "onChange",
+      "type": "(value: string) => void",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "resettable",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    }
+  ]
 }

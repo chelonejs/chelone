@@ -1,4 +1,23 @@
 {
   "name": "SelectArrayInput",
-  "props": []
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "InputLabelProps",
+      "type": "React.ComponentProps<typeof FieldLabel>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
 }

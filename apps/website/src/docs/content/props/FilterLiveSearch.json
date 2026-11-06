@@ -1,4 +1,17 @@
 {
   "name": "FilterLiveSearch",
-  "props": []
+  "props": [
+    {
+      "name": "disableClearable",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": true,
+      "comment": "Full-text search source. Defaults to `\"q\"`."
+    }
+  ]
 }

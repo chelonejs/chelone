@@ -1,4 +1,119 @@
 {
   "name": "AutocompleteInput",
-  "props": []
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "clearOnBlur",
+      "type": "boolean",
+      "optional": true,
+      "comment": "When true, clear the filter text on input blur."
+    },
+    {
+      "name": "debounce",
+      "type": "number",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "emptyText",
+      "type": "string",
+      "optional": true,
+      "comment": "Label of a \"(none)\" entry prepended when the field is not required."
+    },
+    {
+      "name": "emptyValue",
+      "type": "string | number",
+      "optional": true,
+      "comment": "Underlying value used when clearing the selection. Defaults to \"\"."
+    },
+    {
+      "name": "filterToQuery",
+      "type": "(searchText: string) => FilterPayload",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "handleHomeEndKeys",
+      "type": "boolean",
+      "optional": true,
+      "comment": "When true, Home/End keys scroll the listbox to first/last item."
+    },
+    {
+      "name": "inputText",
+      "type": "(choice: TChoice) => string",
+      "optional": true,
+      "comment": "Custom display text for the selected value in the trigger."
+    },
+    {
+      "name": "isOptionEqualToValue",
+      "type": "(option: ChoiceValueOf<TChoice>, value: ChoiceValueOf<TChoice>) => boolean",
+      "optional": true,
+      "comment": "Custom equality check between a choice value and the current value."
+    },
+    {
+      "name": "limitChoicesToValue",
+      "type": "boolean",
+      "optional": true,
+      "comment": "When true, only show choices matching the current value."
+    },
+    {
+      "name": "matchSuggestion",
+      "type": "(filter: string, choice: TChoice) => boolean",
+      "optional": true,
+      "comment": "Custom filter function; replaces default substring match."
+    },
+    {
+      "name": "modal",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Radix popover modality."
+    },
+    {
+      "name": "noOptionsText",
+      "type": "React.ReactNode",
+      "optional": true,
+      "comment": "Content to show when no choices match the filter."
+    },
+    {
+      "name": "openOnFocus",
+      "type": "boolean",
+      "optional": true,
+      "comment": "When true, open the dropdown on input focus."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "selectOnFocus",
+      "type": "boolean",
+      "optional": true,
+      "comment": "When true, select all text in the input on focus."
+    },
+    {
+      "name": "setFilter",
+      "type": "(filter: string) => void",
+      "optional": true,
+      "comment": "Called with the current filter text on every keystroke (no debounce)."
+    },
+    {
+      "name": "shouldRenderSuggestions",
+      "type": "(filter: string) => boolean",
+      "optional": true,
+      "comment": "Gate controlling whether the dropdown opens at all."
+    },
+    {
+      "name": "suggestionLimit",
+      "type": "number",
+      "optional": true,
+      "comment": "Cap the number of dropdown items shown."
+    }
+  ]
 }
