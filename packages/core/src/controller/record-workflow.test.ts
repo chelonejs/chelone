@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildApprovalUpdate,
+  buildRejectionUpdate,
   getAllowedTransitions,
   getApprovalState,
 } from "./record-workflow";
@@ -178,6 +179,91 @@ describe("buildApprovalUpdate", () => {
     const record = { approvers: ["a"] };
     buildApprovalUpdate(record, { identityId: "b" });
     expect(record.approvers).toEqual(["a"]);
+  });
+});
+
+describe("buildRejectionUpdate", () => {
+  it("writes the rejected status, the identity and the trimmed reason", () => {
+    expect(
+      buildRejectionUpdate(
+        { status: "pending" },
+        { identityId: "u1", reason: "  missing receipt \n" },
+      ),
+    ).toEqual({
+      status: "rejected",
+      rejectedBy: "u1",
+      rejectionNote: "missing receipt",
+    });
+  });
+
+  it("writes a blank reason as null", () => {
+    expect(buildRejectionUpdate({}, { identityId: 7, reason: "  \t" })).toEqual(
+      { status: "rejected", rejectedBy: 7, rejectionNote: null },
+    );
+    expect(buildRejectionUpdate({}, { identityId: 7 })).toEqual({
+      status: "rejected",
+      rejectedBy: 7,
+      rejectionNote: null,
+    });
+  });
+
+  it("returns null without an identity", () => {
+    expect(buildRejectionUpdate({}, { reason: "no" })).toBeNull();
+    expect(
+      buildRejectionUpdate({}, { identityId: null, reason: "no" }),
+    ).toBeNull();
+  });
+
+  it("returns null for a blank reason when requireReason is set", () => {
+    expect(
+      buildRejectionUpdate(
+        {},
+        { identityId: "u1", reason: "   ", requireReason: true },
+      ),
+    ).toBeNull();
+    expect(
+      buildRejectionUpdate({}, { identityId: "u1", requireReason: true }),
+    ).toBeNull();
+    expect(
+      buildRejectionUpdate(
+        {},
+        { identityId: "u1", reason: " why ", requireReason: true },
+      ),
+    ).toEqual({ status: "rejected", rejectedBy: "u1", rejectionNote: "why" });
+  });
+
+  it("returns null for a record that is already rejected", () => {
+    expect(
+      buildRejectionUpdate({ status: "rejected" }, { identityId: "u1" }),
+    ).toBeNull();
+  });
+
+  it("honours custom sources and rejectedValue", () => {
+    expect(
+      buildRejectionUpdate(
+        { state: 1 },
+        {
+          identityId: "u1",
+          reason: "late",
+          statusSource: "state",
+          rejectedValue: 9,
+          noteSource: "why",
+          rejectedBySource: "by",
+        },
+      ),
+    ).toEqual({ state: 9, by: "u1", why: "late" });
+    expect(
+      buildRejectionUpdate(
+        { state: 9 },
+        { identityId: "u1", statusSource: "state", rejectedValue: 9 },
+      ),
+    ).toBeNull();
+  });
+
+  it("does not mutate the record", () => {
+    const record = { status: "pending", tags: ["a"] };
+    buildRejectionUpdate(record, { identityId: "u1", reason: "no" });
+    expect(record).toEqual({ status: "pending", tags: ["a"] });
   });
 });
 
