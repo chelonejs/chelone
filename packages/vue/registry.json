@@ -3658,6 +3658,7 @@
           "type": "registry:component"
         }
       ],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
