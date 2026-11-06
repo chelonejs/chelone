@@ -1,0 +1,12 @@
+---
+title: "JobMonitor"
+description: "The jobs of a resource in one tab per status, with a count on each tab. The monitor reads its resource itself, from its resource prop or the context, and polls it every pollInterval ms, 5000 by default and 0 for no polling. It groups one page of up to perPage jobs, 200 by default, and a job whose status has no tab is not shown. Retry and Cancel write the status through a pessimistic update, need edit access on the resource, and are hidden with actions set to false. The rules are in the UI only, so the server has to refuse a retry of a job that is not failed."
+registry: "job-monitor"
+---
+{/* generated:gen-component-stubs */}
+
+The jobs of a resource in one tab per status, with a count on each tab. The monitor reads its resource itself, from its `resource` prop or the context, and polls it every `pollInterval` ms, 5000 by default and `0` for no polling. It groups one page of up to `perPage` jobs, 200 by default, and a job whose status has no tab is not shown. Retry and Cancel write the status through a pessimistic update, need `edit` access on the resource, and are hidden with `actions` set to `false`. The rules are in the UI only, so the server has to refuse a retry of a job that is not failed.
+
+## Props
+
+<PropsTable name="JobMonitor" />

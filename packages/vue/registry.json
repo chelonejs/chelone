@@ -1630,6 +1630,14 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/widgets/job-monitor-row.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/widgets/job-monitor.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/widgets/metric-card.vue",
           "type": "registry:component"
         },
@@ -5836,6 +5844,47 @@
         "@chelone/translatable-fields-tabs"
       ],
       "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "job-monitor-row",
+      "type": "registry:component",
+      "title": "Job Monitor Row",
+      "files": [
+        {
+          "path": "src/components/admin/widgets/job-monitor-row.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/date-field",
+        "@chelone/json-field",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "job-monitor",
+      "type": "registry:component",
+      "title": "Job Monitor",
+      "files": [
+        {
+          "path": "src/components/admin/widgets/job-monitor.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/card",
+        "@chelone/job-monitor-row",
+        "@chelone/lib-utils",
+        "@chelone/tabs"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

@@ -58,6 +58,7 @@ import type {
   InfiniteListProps,
   InfinitePaginationProps,
   InPlaceEditorProps,
+  JobMonitorProps,
   LinkProps,
   ListActionsProps,
   ListLiveProps,
@@ -186,6 +187,12 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<LoginWithEmailProps>().toHaveProperty("class");
     expectTypeOf<MenuLiveItemLinkProps>().toHaveProperty("resource");
     expectTypeOf<MenuLiveProps>().toHaveProperty("items");
+    expectTypeOf<JobMonitorProps>().toHaveProperty("pollInterval");
+    expectTypeOf<JobMonitorProps>().toHaveProperty("tabs");
+    expectTypeOf<JobMonitorProps["class"]>().toEqualTypeOf<
+      string | undefined
+    >();
+    expectTypeOf(barrel.JobMonitor).toBeObject();
     expectTypeOf<MetricCardProps>().toHaveProperty("label");
     expectTypeOf<MetricCardProps["icon"]>().toEqualTypeOf<
       Component | undefined
