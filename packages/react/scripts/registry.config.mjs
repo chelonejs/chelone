@@ -127,6 +127,17 @@ export const blocks = [
     sourceDirs: [{ path: "src/components/monaco", recursive: true }],
   },
   {
+    name: "charts",
+    type: "registry:block",
+    title: "Chelone Charts",
+    categories: ["chelone", "components"],
+    description:
+      "The opt-in charts add-on: TrendChart draws a line or an area over time in a card, on shadcn's chart primitive. Installs recharts.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [{ path: "src/components/charts", recursive: true }],
+  },
+  {
     name: "kanban",
     type: "registry:block",
     title: "Chelone Kanban",
