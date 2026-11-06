@@ -351,6 +351,49 @@ describe("<BlockEditorInput>", () => {
     });
   });
 
+  it("keeps a block with an unknown mark or an unknown inline node, and writes it back unchanged", async () => {
+    const highlighted: BlockDocNode = {
+      type: "paragraph",
+      content: [
+        { type: "text", text: "hi", marks: [{ type: "highlight" }] },
+        { type: "emoji", attrs: { name: "smile" } },
+      ],
+    };
+    const onData = vi.fn();
+    const { editor, dom, submit } = await mountInput(
+      {},
+      { defaultValues: { body: doc(highlighted, paragraph("After")) }, onData },
+    );
+    expect(dom().textContent).toContain("After");
+    act(() => {
+      const end = editor().state.doc.content.size - 1;
+      editor().commands.insertContentAt(end, "!");
+    });
+    await submit();
+    expect(onData).toHaveBeenCalledWith({
+      body: doc(highlighted, paragraph("After!")),
+    });
+  });
+
+  it("keeps the blank lines while the user clears the text", async () => {
+    const onData = vi.fn();
+    const blank: BlockDocNode = { type: "paragraph" };
+    const { editor, submit } = await mountInput(
+      {},
+      {
+        defaultValues: { body: doc(paragraph("abc"), blank, blank) },
+        onData,
+      },
+    );
+    act(() => {
+      editor().commands.deleteRange({ from: 1, to: 4 });
+    });
+    // The echo of the user's own edit must not reset the editor.
+    expect(editor().state.doc.childCount).toBe(3);
+    await submit();
+    expect(onData).toHaveBeenCalledWith({ body: null });
+  });
+
   it("shows hostile stored content as text", async () => {
     const { dom } = await mountInput(
       {},

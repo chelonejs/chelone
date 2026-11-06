@@ -5,6 +5,7 @@ import {
   emptyBlockDocument,
   getBlockDefaultAttrs,
   isBlockDoc,
+  isEmptyBlockDocument,
   richTextStarterKitOptions,
   unwrapUnknownBlocks,
   wrapUnknownBlocks,
@@ -106,15 +107,24 @@ function BlockEditor({
       ...registry.list().map(createBlockNode),
       createSlashExtension(slashRef),
     ];
-    const known = new Set(Object.keys(getSchema(extensions).nodes));
+    const schema = getSchema(extensions);
+    const known = new Set(Object.keys(schema.nodes));
+    // `nodeFromJSON` throws on an unknown mark, `check` on a misplaced node.
+    const canLoad = (block: BlockDocNode) => {
+      try {
+        schema.nodeFromJSON(block).check();
+        return true;
+      } catch {
+        return false;
+      }
+    };
+    const load = (next: BlockDocNode) =>
+      wrapUnknownBlocks(next, known, canLoad);
     return {
       registry,
       extensions,
-      content: wrapUnknownBlocks(
-        isBlockDoc(value) ? value : emptyBlockDocument(),
-        known,
-      ),
-      known,
+      load,
+      content: load(isBlockDoc(value) ? value : emptyBlockDocument()),
     };
   });
 
@@ -143,17 +153,19 @@ function BlockEditor({
   // A reset or `setValue` changes the form value without the editor knowing.
   useEffect(() => {
     if (!editor) return;
+    const current = unwrapUnknownBlocks(editor.getJSON());
+    // An input stores an empty document as `null`, so that is the echo of the
+    // user clearing the text, whatever number of blank lines remain.
+    if (!isBlockDoc(value) && isEmptyBlockDocument(current)) return;
     const next = isBlockDoc(value) ? value : emptyBlockDocument();
-    if (deepEqual(unwrapUnknownBlocks(editor.getJSON()), next)) return;
+    if (deepEqual(current, next)) return;
     const { head } = editor.state.selection;
-    editor.commands.setContent(wrapUnknownBlocks(next, setup.known), {
-      emitUpdate: false,
-    });
+    editor.commands.setContent(setup.load(next), { emitUpdate: false });
     // The old caret may lie past the end of the new document, or between blocks.
     const { doc } = editor.state;
     const caret = Selection.near(doc.resolve(Math.min(head, doc.content.size)));
     editor.view.dispatch(editor.state.tr.setSelection(caret));
-  }, [editor, value, setup.known]);
+  }, [editor, value, setup]);
 
   slashRef.current = {
     onChange: ({ query, range, clientRect }) =>
