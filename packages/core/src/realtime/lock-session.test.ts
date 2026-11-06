@@ -106,7 +106,8 @@ describe("createLockSession", () => {
 
     const { error, lock, isLocking } = session.store.getSnapshot();
     expect(error).toBeInstanceOf(LockConflictError);
-    expect((error as LockConflictError).existingLock).toEqual(existing);
+    if (!(error instanceof LockConflictError)) throw error;
+    expect(error.existingLock).toEqual(existing);
     expect(lock).toBeNull();
     expect(isLocking).toBe(false);
     expect(onError).toHaveBeenCalledWith(error);

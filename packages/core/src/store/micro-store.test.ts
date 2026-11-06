@@ -3,7 +3,10 @@ import { createMicroStore, type MicroStore } from "./micro-store";
 
 describe("createMicroStore", () => {
   it("getSnapshot is reference-stable until setState", () => {
-    const store = createMicroStore({ page: 1, sort: [] as string[] });
+    const store = createMicroStore<{ page: number; sort: string[] }>({
+      page: 1,
+      sort: [],
+    });
     const a = store.getSnapshot();
     expect(store.getSnapshot()).toBe(a);
     store.setState({ page: 2 });
