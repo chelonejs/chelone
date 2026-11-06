@@ -413,6 +413,8 @@ export type { ListPaginationProps } from "./admin/list/list-pagination.vue";
 export { default as ListPagination } from "./admin/list/list-pagination.vue";
 export type { ListToolbarProps } from "./admin/list/list-toolbar.vue";
 export { default as ListToolbar } from "./admin/list/list-toolbar.vue";
+export type { PivotGridProps } from "./admin/list/pivot-grid.vue";
+export { default as PivotGrid } from "./admin/list/pivot-grid.vue";
 export type { PrevNextButtonsProps } from "./admin/list/prev-next-buttons.vue";
 export { default as PrevNextButtons } from "./admin/list/prev-next-buttons.vue";
 export type { SavedQueriesListProps } from "./admin/list/saved-queries-list.vue";
