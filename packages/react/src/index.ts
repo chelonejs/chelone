@@ -993,6 +993,10 @@ export {
   TranslatableFieldsTabs,
   type TranslatableFieldsTabsProps,
 } from "./components/admin/views/translatable-fields-tabs";
+export {
+  MetricCard,
+  type MetricCardProps,
+} from "./components/admin/widgets/metric-card";
 export type { CheloneProviderProps } from "./context";
 export {
   CheloneProvider,
