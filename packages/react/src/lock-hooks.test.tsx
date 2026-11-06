@@ -86,7 +86,8 @@ describe("useLock", () => {
     });
 
     expect(caught).toBeInstanceOf(Error);
-    expect((caught as Error).message).toMatch(/no identity available/);
+    if (!(caught instanceof Error)) throw caught;
+    expect(caught.message).toMatch(/no identity available/);
     expect(await locks.getLock("posts", { id: 1 })).toBeNull();
   });
 

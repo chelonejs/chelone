@@ -16,6 +16,7 @@ import {
   type NavigateOpts,
   parseLocation,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { forwardRef, type ReactNode } from "react";
@@ -168,7 +169,8 @@ describe("useListController URL-sync (syncWithLocation)", () => {
     act(() => result.current.setFilters({ title: "t9" }));
     await waitFor(() => expect(navigate).toHaveBeenCalled());
     const lastCall = navigate.mock.calls.at(-1);
-    const to = lastCall?.[0] as string;
+    const to = defined(lastCall)[0];
+    if (typeof to !== "string") throw new Error("Expected a URL navigation");
     const opts = lastCall?.[1];
     expect(opts?.replace).toBe(true);
     expect(to).toContain("filter=");
@@ -186,7 +188,8 @@ describe("useListController URL-sync (syncWithLocation)", () => {
     navigate.mockClear();
     act(() => result.current.setPage(2));
     await waitFor(() => expect(navigate).toHaveBeenCalled());
-    const to = navigate.mock.calls.at(-1)?.[0] as string;
+    const to = defined(navigate.mock.calls.at(-1))[0];
+    if (typeof to !== "string") throw new Error("Expected a URL navigation");
     expect(to).toContain("page=2");
   });
 
@@ -304,7 +307,10 @@ describe("useListController URL-sync (syncWithLocation)", () => {
     expect(result.current.sort).toEqual([{ field: "title", order: "DESC" }]);
     expect(result.current.page).toBe(1);
     expect(navigate).toHaveBeenCalledTimes(1);
-    const to = decodeURIComponent(navigate.mock.calls[0]?.[0] as string);
+    const destination = defined(navigate.mock.calls[0])[0];
+    if (typeof destination !== "string")
+      throw new Error("Expected a URL navigation");
+    const to = decodeURIComponent(destination);
     expect(to).toContain('{"title":"t1"}');
     expect(to).toContain("sort=title");
     expect(to).toContain("order=DESC");

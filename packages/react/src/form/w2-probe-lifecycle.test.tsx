@@ -29,6 +29,7 @@ import {
   reduceGroupState,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render } from "@testing-library/react";
 import { type ReactNode, useState } from "react";
@@ -503,7 +504,7 @@ describe("PROBE 3 — WizardForm mount-preservation under churn", () => {
     // Step two's WRAPPER is hidden but present.
     const stepTwo = container.querySelector('[data-chelone-wizard-step="two"]');
     expect(stepTwo).not.toBeNull();
-    expect((stepTwo as HTMLElement).hidden).toBe(true);
+    expect(elementOf(stepTwo, HTMLElement).hidden).toBe(true);
   });
 });
 
