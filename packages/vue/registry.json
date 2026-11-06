@@ -660,6 +660,7 @@
         "@chelone/skeleton",
         "@chelone/switch",
         "@chelone/table",
+        "@chelone/tabs",
         "@chelone/textarea",
         "@chelone/ui-spinner"
       ],
@@ -706,6 +707,10 @@
         },
         {
           "path": "src/components/admin/auth/logout.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/permission-matrix.vue",
           "type": "registry:component"
         },
         {
@@ -1877,6 +1882,25 @@
       ],
       "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "permission-matrix",
+      "type": "registry:component",
+      "title": "Permission Matrix",
+      "files": [
+        {
+          "path": "src/components/admin/auth/permission-matrix.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/checkbox",
+        "@chelone/table",
+        "@chelone/tabs"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
