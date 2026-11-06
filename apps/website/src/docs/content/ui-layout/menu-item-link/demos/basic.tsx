@@ -1,16 +1,16 @@
 import { MenuItemLink } from "@chelone/react";
-import { Settings } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { SidebarMenu, SidebarProvider } from "@/components/ui/sidebar";
 
-/** `<MenuItemLink>` is one sidebar row: an icon, a label, and the `<kbd>` hint that navigates to the same route when pressed. */
+/** `<MenuItemLink>` is one sidebar row, here for the page you are reading: an icon, its label, the `<kbd>` shortcut hint, and the active highlight `useMatch` gives the current route. */
 export default function MenuItemLinkDemo() {
   return (
     <SidebarProvider className="min-h-0">
       <SidebarMenu className="w-56">
         <MenuItemLink
-          to="/settings"
-          label="Settings"
-          icon={<Settings />}
+          to="/docs/ui-layout/menu-item-link"
+          label="MenuItemLink"
+          icon={<BookOpen />}
           keyboardShortcut="mod+,"
         />
       </SidebarMenu>
