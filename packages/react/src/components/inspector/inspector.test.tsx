@@ -11,21 +11,37 @@ import {
   fakeDataProvider,
   inspectorPositionKey,
 } from "@chelone/core";
+import {
+  defined,
+  StubIntersectionObserver,
+  StubPointerEvent,
+  stubAnimations,
+} from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
   fireEvent,
+  getConfig,
   render,
   screen,
+  waitFor,
   within,
 } from "@testing-library/react";
 import { type ReactNode, useState } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Admin, Layout, Resource } from "../../index";
+import {
+  Admin,
+  ColumnsButton,
+  DataTable,
+  Layout,
+  List,
+  Resource,
+} from "../../index";
 import { Configurable } from "./configurable";
 import { Inspector } from "./inspector";
 import { InspectorButton } from "./inspector-button";
+import { SortableFieldsSelector } from "./sortable-fields-selector";
 
 afterEach(cleanup);
 
@@ -41,7 +57,11 @@ interface MountOptions {
   store?: ReturnType<typeof createStore>;
 }
 
-function mount({ page, inspector = true, store = createStore() }: MountOptions) {
+function mount({
+  page,
+  inspector = true,
+  store = createStore(),
+}: MountOptions) {
   function AppLayout({ children }: { children?: ReactNode }) {
     return inspector ? (
       <Inspector>
@@ -131,18 +151,20 @@ describe("<Inspector>", () => {
 
     fireEvent.click(within(dialog).getByRole("button", { name: "Close" }));
     expect(panel()).toBeNull();
-    expect(screen.getByRole("button", { name: "Configure mode" }).getAttribute(
-      "aria-pressed",
-    )).toBe("false");
+    expect(
+      screen
+        .getByRole("button", { name: "Configure mode" })
+        .getAttribute("aria-pressed"),
+    ).toBe("false");
   });
 
   it("dragging the header stores a clamped position", async () => {
     const { store } = mount({ page: <InspectorButton /> });
     fireEvent.click(await modeButton());
     const dialog = screen.getByRole("dialog");
-    const handle = within(dialog).getByText("Inspector").closest(
-      "[data-slot=inspector-handle]",
-    );
+    const handle = within(dialog)
+      .getByText("Inspector")
+      .closest("[data-slot=inspector-handle]");
     if (!handle) throw new Error("no handle");
     // The top right corner of a 1024 px window: 1024 - 320 - 8.
     expect(dialog.style.left).toBe("696px");
@@ -306,7 +328,7 @@ describe("<Configurable>", () => {
     });
     fireEvent.click(await modeButton());
     const customize = screen.getAllByRole("button", { name: "Customize" });
-    fireEvent.click(customize[1] as HTMLElement);
+    fireEvent.click(defined(customize[1]));
     expect(screen.getByText("second editor")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Remove First" }));
@@ -337,5 +359,172 @@ describe("<Configurable>", () => {
     const dialog = screen.getByRole("dialog", { name: title });
     expect(within(dialog).getByText(title)).toBeTruthy();
     expect(document.querySelector("img")).toBeNull();
+  });
+});
+
+/**
+ * jsdom has no `PointerEvent`, layout or `elementFromPoint`, so a drag stubs
+ * them and dnd-kit runs unmocked: rows stack 40 px apart in list order.
+ */
+const ROW_HEIGHT = 40;
+
+function rectOf(el: Element): DOMRect {
+  const row = el.closest("[data-slot=fields-selector-row]");
+  const rows = Array.from(
+    document.querySelectorAll("[data-slot=fields-selector-row]"),
+  );
+  const [x, y, width, height] = row
+    ? [0, rows.indexOf(row) * ROW_HEIGHT, 300, ROW_HEIGHT]
+    : [0, 0, 1024, 768];
+  // The held row moves with a CSS translate, which jsdom does not lay out.
+  const [dx = 0, dy = 0] = (
+    (el instanceof HTMLElement &&
+      el.style.getPropertyValue("--dnd-translate")) ||
+    ""
+  )
+    .split(" ")
+    .map((n) => Number.parseFloat(n) || 0);
+  return new DOMRect(x + dx, y + dy, width, height);
+}
+
+function stubDragDom() {
+  vi.stubGlobal("PointerEvent", StubPointerEvent);
+  vi.stubGlobal("IntersectionObserver", StubIntersectionObserver);
+  stubAnimations();
+  vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
+    function (this: Element) {
+      return rectOf(this);
+    },
+  );
+  document.elementFromPoint = (_x: number, y: number) =>
+    document.querySelectorAll<HTMLElement>("[data-slot=fields-selector-row]")[
+      Math.floor(y / ROW_HEIGHT)
+    ] ?? document.body;
+}
+
+const STORE_KEY = "posts.datatable";
+const col = (source: string) => <DataTable.Col key={source} source={source} />;
+const columns = [col("title"), col("views"), col("author")];
+const headers = () =>
+  screen.getAllByRole("columnheader").map((h) => h.textContent);
+const rowLabels = () =>
+  Array.from(document.querySelectorAll("[data-slot=fields-selector-row]")).map(
+    (row) => row.querySelector("[role=switch]")?.getAttribute("aria-label"),
+  );
+const grip = (index: number) =>
+  defined(screen.getAllByRole("button", { name: "Drag to reorder" })[index]);
+/** Real time outside `act`, which holds back the renders dnd-kit waits for. */
+const wait = (ms: number) =>
+  getConfig().asyncWrapper(
+    () => new Promise<void>((resolve) => setTimeout(resolve, ms)),
+  );
+const centre = (el: Element) => {
+  const { x, y, width, height } = rectOf(el);
+  return { x: x + width / 2, y: y + height / 2 };
+};
+const pointer = (
+  target: Element | Document,
+  type: "pointerdown" | "pointermove" | "pointerup",
+  at: { x: number; y: number },
+) =>
+  fireEvent(
+    target,
+    new PointerEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      clientX: at.x,
+      clientY: at.y,
+      pointerType: "mouse",
+      pointerId: 1,
+      isPrimary: true,
+      button: 0,
+    }),
+  );
+
+describe("<SortableFieldsSelector>", () => {
+  beforeEach(stubDragDom);
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("dragging a row onto another moves the column", async () => {
+    mount({
+      page: (
+        <List>
+          <SortableFieldsSelector storeKey={STORE_KEY} resource="posts" />
+          <DataTable>{columns}</DataTable>
+        </List>
+      ),
+    });
+    await screen.findAllByRole("columnheader");
+    expect(headers()).toEqual(["Title", "Views", "Author"]);
+
+    const from = centre(grip(0));
+    pointer(grip(0), "pointerdown", from);
+    pointer(document, "pointermove", { x: from.x + 10, y: from.y });
+    await waitFor(() =>
+      expect(document.querySelector("[data-dragging]")).not.toBeNull(),
+    );
+    // Over the last row, off its exact centre: a zero distance has no ranking.
+    const over = { x: 150, y: 2 * ROW_HEIGHT + 30 };
+    pointer(document, "pointermove", over);
+    // dnd-kit ranks the targets on a later frame, so the drop waits for it.
+    await wait(100);
+    pointer(document, "pointerup", over);
+
+    await waitFor(() =>
+      expect(headers()).toEqual(["Views", "Author", "Title"]),
+    );
+    expect(rowLabels()).toEqual(["Views", "Author", "Title"]);
+  });
+
+  it("a ColumnsButton and a SortableFieldsSelector in the panel stay in step", async () => {
+    mount({
+      page: (
+        <List>
+          <InspectorButton />
+          <ColumnsButton resource="posts" />
+          <Configurable
+            preferenceKey="columns"
+            title="Columns panel"
+            editor={<SortableFieldsSelector storeKey={STORE_KEY} />}
+          >
+            <DataTable>{columns}</DataTable>
+          </Configurable>
+        </List>
+      ),
+    });
+    fireEvent.click(await modeButton());
+    fireEvent.click(screen.getByRole("button", { name: "Customize" }));
+    const inPanel = within(
+      screen.getByRole("dialog", { name: "Columns panel" }),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Columns" }));
+    const popover = await screen.findAllByRole("dialog");
+    const inPopover = within(
+      popover.find((d) => d.getAttribute("aria-label") !== "Columns panel") ??
+        document.body,
+    );
+
+    fireEvent.click(inPopover.getByRole("switch", { name: "Views" }));
+    expect(headers()).toEqual(["Title", "Author"]);
+    expect(
+      inPanel
+        .getByRole("switch", { name: "Views" })
+        .getAttribute("aria-checked"),
+    ).toBe("false");
+
+    // Views is hidden but still listed, so Title moves past it.
+    fireEvent.click(inPanel.getByRole("button", { name: "Move down Title" }));
+    const order = (scope: ReturnType<typeof within>): (string | null)[] =>
+      scope
+        .getAllByRole("switch")
+        .map((node: HTMLElement) => node.getAttribute("aria-label"));
+    await waitFor(() =>
+      expect(order(inPopover)).toEqual(["Views", "Title", "Author"]),
+    );
+    expect(order(inPanel)).toEqual(["Views", "Title", "Author"]);
   });
 });

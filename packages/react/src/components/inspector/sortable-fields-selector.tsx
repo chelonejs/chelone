@@ -40,13 +40,19 @@ function SortableList({ onMove, children }: FieldsSelectorListProps) {
   );
 }
 
-function SortableRow({ id, index, disabled, children }: FieldsSelectorRowProps) {
+function SortableRow({
+  id,
+  index,
+  disabled,
+  children,
+}: FieldsSelectorRowProps) {
   const translate = useTranslate();
   const { ref, handleRef, isDragging } = useSortable({ id, index, disabled });
 
   return (
     <li
       ref={ref}
+      data-slot="fields-selector-row"
       data-dragging={isDragging ? "" : undefined}
       className={cn(
         "flex items-center gap-2 bg-popover",

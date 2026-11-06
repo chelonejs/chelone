@@ -26,8 +26,8 @@ import { X } from "lucide-react";
 import {
   createContext,
   type KeyboardEvent,
-  type PointerEvent as ReactPointerEvent,
   type ReactNode,
+  type PointerEvent as ReactPointerEvent,
   useContext,
   useEffect,
   useMemo,
@@ -50,8 +50,9 @@ interface InspectorControls
   extends InspectorState<ReactNode>,
     Omit<InspectorController<ReactNode>, "store"> {}
 
-const InspectorContext =
-  createContext<InspectorController<ReactNode> | null>(null);
+const InspectorContext = createContext<InspectorController<ReactNode> | null>(
+  null,
+);
 
 const subscribeNothing = () => () => {};
 const noState = (): null => null;
@@ -200,11 +201,11 @@ function InspectorPanel({
         className,
       )}
     >
-      {/* biome-ignore lint/a11y/useSemanticElements: a grip that moves the panel with the mouse and the arrow keys has no native element */}
       <div
         data-slot="inspector-handle"
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: the header is the grip, and the arrow keys move the panel while it has focus
         tabIndex={0}
-        role="group"
+        role="toolbar"
         aria-label={title}
         onPointerDown={onPointerDown}
         onKeyDown={onKeyDown}
@@ -223,7 +224,10 @@ function InspectorPanel({
           <X />
         </Button>
       </div>
-      <div data-slot="inspector-body" className="flex flex-col gap-3 overflow-auto p-3">
+      <div
+        data-slot="inspector-body"
+        className="flex flex-col gap-3 overflow-auto p-3"
+      >
         {inspector.selected ? (
           inspector.selected.editor
         ) : (
@@ -255,9 +259,4 @@ function Inspector({ children, className }: InspectorProps) {
   );
 }
 
-export {
-  Inspector,
-  type InspectorControls,
-  type InspectorProps,
-  useInspector,
-};
+export { Inspector, type InspectorControls, type InspectorProps, useInspector };
