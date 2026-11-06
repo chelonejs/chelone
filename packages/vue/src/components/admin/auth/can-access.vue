@@ -1,12 +1,18 @@
 <script lang="ts">
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
+
 /** Props for {@link CanAccess}. */
 export interface CanAccessProps {
   /** The action to check (`'list' | 'create' | 'edit' | 'show' | 'delete'` or custom). */
   action: string;
   /** The resource to check (e.g. `'posts'`). */
   resource: string;
-  /** Optional record the grant is scoped to (record-level predicates). */
-  record?: unknown;
+  /**
+   * Optional record the grant is scoped to (record-level predicates). `id` is
+   * the floor; the rest is whatever the grant's predicate reads, so a record of
+   * the caller's own shape and an inline record both fit.
+   */
+  record?: ResourceRecord | LooseRecord;
 }
 </script>
 

@@ -174,6 +174,10 @@ export const blocks = [
     docs: "Everything here needs the maps block: mount MapsProvider once with a mapStyle, or pass mapStyle to each input. Terra Draw reads its modes, snapping and styles once when the input mounts, so change key to rebuild. Terra Draw rotates a selected line or polygon with Control and r.",
     granularize: true,
     inferDependencies: true,
+    // geometry-ops reaches @turf/difference and @turf/simplify only through
+    // @chelone/utils/geo, which lists both as optional peers, so the import scan
+    // cannot see them and an installed item would miss both.
+    itemDependencies: ["@turf/difference", "@turf/simplify"],
     registryDependencies: ["maps"],
     sourceDirs: [{ path: "src/components/maps-draw", recursive: true }],
   },

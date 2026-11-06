@@ -605,6 +605,11 @@ export {
   geocodeQueryOptions,
   reverseGeocodeQueryOptions,
 } from "./geo/geocoding";
+export type {
+  Feature,
+  FeatureCollection,
+  Geometry,
+} from "./geo/geojson";
 export {
   isGeoArea,
   isGeoBBox,
