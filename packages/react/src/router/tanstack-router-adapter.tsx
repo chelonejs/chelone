@@ -62,6 +62,7 @@ import type {
 } from "@chelone/core";
 import {
   matchPath as coreMatchPath,
+  noop,
   parseLocation,
   toLocationState,
 } from "@chelone/core";
@@ -272,7 +273,6 @@ function useBlocker(
 
   const resolver = useTSBlocker({ shouldBlockFn, withResolver: true });
 
-  const noop = useCallback(() => {}, []);
   return useMemo<RouterBlocker>(() => {
     // TanStack: `{ status: 'idle' | 'blocked', next?, proceed?, reset? }`.
     const blocked = resolver.status === "blocked";
@@ -291,7 +291,7 @@ function useBlocker(
           })
         : null,
     };
-  }, [resolver, noop, stringifySearch]);
+  }, [resolver, stringifySearch]);
 }
 
 /** Match the current pathname against a pattern via Chelone's own matcher. */

@@ -16,6 +16,7 @@
  */
 
 import type { FilterPayload, SortPayload } from "@chelone/core";
+import { noop } from "@chelone/core";
 import { type InjectionKey, inject, provide } from "vue";
 import type { ChoiceRecord } from "./use-choices";
 
@@ -51,8 +52,6 @@ export interface ChoicesContextValue {
   setValue(value: unknown): void;
   refetch(): void;
 }
-
-const noop = (): void => {};
 
 const DEFAULT_SORT: SortPayload = { field: "id", order: "DESC" };
 

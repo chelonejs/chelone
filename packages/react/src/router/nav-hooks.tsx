@@ -20,6 +20,7 @@ import {
   createPath,
   type Identifier,
   type LocationState,
+  noop,
   type PathMatch,
   type ResourceDefinition,
   type ResourceRecord,
@@ -174,7 +175,7 @@ export function useRedirect(): Redirect {
 }
 
 /** A stable no-op redirect for the no-router case — one identity forever. */
-const noopRedirect: Redirect = () => {};
+const noopRedirect: Redirect = noop;
 
 /**
  * A NULL-TOLERANT `useRedirect`: the real redirect when a `RouterAdapter` is

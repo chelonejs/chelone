@@ -21,6 +21,11 @@ describe("@chelone/core barrel", () => {
     expect(barrel.richTextBlockTypes).toHaveLength(7);
   });
 
+  it("exports noop", () => {
+    expect(barrel.noop).toBeTypeOf("function");
+    expect(barrel.noop()).toBeUndefined();
+  });
+
   it("exports humanize, humanizeField and pluralize", () => {
     expect(barrel.humanize).toBeTypeOf("function");
     expect(barrel.humanizeField).toBeTypeOf("function");

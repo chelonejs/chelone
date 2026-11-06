@@ -12,6 +12,7 @@ import type {
 import {
   createChoicesController,
   getAtPath,
+  noop,
   resolveChoiceValue,
   textOf,
 } from "@chelone/core";
@@ -65,8 +66,6 @@ export interface ChoicesContextValue<
   setValue(value: unknown): void;
   refetch(): void;
 }
-
-const noop = (): void => {};
 
 const DEFAULT_SORT: SortPayload = { field: "id", order: "DESC" };
 
