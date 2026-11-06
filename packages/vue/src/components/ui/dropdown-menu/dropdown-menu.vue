@@ -29,7 +29,8 @@ provideDropdownMenu({ open, rootRef, setOpen, toggle });
 
 function onDocumentPointerDown(event: MouseEvent): void {
   const root = rootRef.value;
-  if (root && !root.contains(event.target as Node)) setOpen(false);
+  if (root && event.target instanceof Node && !root.contains(event.target))
+    setOpen(false);
 }
 function onDocumentKeydown(event: KeyboardEvent): void {
   if (event.key === "Escape") setOpen(false);
