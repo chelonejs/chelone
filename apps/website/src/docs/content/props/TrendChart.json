@@ -1,4 +1,35 @@
 {
   "name": "TrendChart",
-  "props": []
+  "props": [
+    {
+      "name": "area",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Fills the area under the line with a gradient."
+    },
+    {
+      "name": "smooth",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Draws a smooth curve instead of straight segments."
+    },
+    {
+      "name": "tooltipFormatter",
+      "type": "(value: number, name: string) => string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "xTickFormatter",
+      "type": "(value: TRow[TX]) => string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "yTickFormatter",
+      "type": "(value: number) => string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
 }

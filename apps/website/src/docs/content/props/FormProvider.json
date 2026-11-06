@@ -1,0 +1,29 @@
+{
+  "name": "FormProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "form",
+      "type": "CheloneFormApi<TFormData>",
+      "optional": false,
+      "comment": "The form to expose — `useForm`/`useEditForm`/`useCreateForm`'s `.form`."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource the form edits, which tags the handle in context. Leave it out\nfor a form no resource owns (`useForm`): the handle is then unbound."
+    },
+    {
+      "name": "submit",
+      "type": "() => Promise<void>",
+      "optional": true,
+      "comment": "The controller submit pipeline — the hooks' `.submit`."
+    }
+  ]
+}

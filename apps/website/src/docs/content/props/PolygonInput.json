@@ -1,0 +1,143 @@
+{
+  "name": "PolygonInput",
+  "props": [
+    {
+      "name": "allowSelfIntersection",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Set to false to flag a shape that crosses itself. Defaults to true, which checks nothing."
+    },
+    {
+      "name": "aspectRatio",
+      "type": "number",
+      "optional": true,
+      "comment": "Width over height of a `BBox` value. The stored box grows around its centre\nto this ratio and never shrinks, and the rectangle on the map follows it."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultCenter",
+      "type": "readonly [number, number]",
+      "optional": true,
+      "comment": "`[lat, lng]`. The map centre while the field is empty. Defaults to `[0, 0]`."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Shows the shape and hides the toolbar; pan and zoom still work."
+    },
+    {
+      "name": "fitBounds",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Frame the first value on the map. The user's own edits never refit. Defaults to true."
+    },
+    {
+      "name": "height",
+      "type": "string | number",
+      "optional": true,
+      "comment": "In pixels, or any CSS length. Defaults to 300."
+    },
+    {
+      "name": "helperText",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The legend. A string is translated; `false` renders none."
+    },
+    {
+      "name": "mapStyle",
+      "type": "MapStyleInput",
+      "optional": true,
+      "comment": "Defaults to the style from `MapsProvider`."
+    },
+    {
+      "name": "maxVertices",
+      "type": "number",
+      "optional": true,
+      "comment": "Most vertices the shape may have."
+    },
+    {
+      "name": "minAreaM2",
+      "type": "number",
+      "optional": true,
+      "comment": "Smallest area in square metres a polygon may cover."
+    },
+    {
+      "name": "minVertices",
+      "type": "number",
+      "optional": true,
+      "comment": "Fewest vertices the shape may have; a polygon ring counts its distinct vertices. The shape is stored as drawn and the field is flagged."
+    },
+    {
+      "name": "onCommit",
+      "type": "(value: ShapeValue | null) => void",
+      "optional": true,
+      "comment": "Called with the stored value after each drawing or edit has been written to the form, and again after `refine` writes a changed one."
+    },
+    {
+      "name": "refine",
+      "type": "(value: ShapeValue, options: { signal: AbortSignal }) => ShapeValue | Promise<ShapeValue | null> | null",
+      "optional": true,
+      "comment": "Adjusts the value after the user's own drawing or edit, such as snapping a\nline to roads. It runs once the edit is in the form, never on load or\nreset, and a newer edit or an unmount aborts `signal`. A result that is\nnot null and differs is written, unless the field changed meanwhile. A\nthrown error keeps the value as drawn. A null result is \"nothing to\nchange\" unless `refineFailedMessage` is set, which a throw also notifies."
+    },
+    {
+      "name": "refineFailedMessage",
+      "type": "string",
+      "optional": true,
+      "comment": "Message key notified as a warning when `refine` resolves to null or throws\n(an abort excepted), and the value is kept as drawn. `LineStringInput` sets it for\n`snapToRoads`."
+    },
+    {
+      "name": "shapeStyle",
+      "type": "ShapeStyle",
+      "optional": true,
+      "comment": "Partial over `DEFAULT_SHAPE_STYLE`. Read once."
+    },
+    {
+      "name": "snapDistance",
+      "type": "number",
+      "optional": true,
+      "comment": "Pixels within which the pointer grabs a vertex or snaps. Read once. Defaults to 20."
+    },
+    {
+      "name": "snappable",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Snap to existing coordinates and lines. Read once. Defaults to true."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The form field holding the GeoJSON value."
+    },
+    {
+      "name": "tools",
+      "type": "readonly ToolbarTool[]",
+      "optional": true,
+      "comment": "The toolbar buttons, in order. Defaults to the tools that suit `kind`."
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "Runs after the limits below."
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "optional": true,
+      "comment": "Read once at mount. Defaults to 13."
+    }
+  ]
+}
