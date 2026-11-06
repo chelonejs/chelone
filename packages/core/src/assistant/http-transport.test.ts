@@ -196,4 +196,67 @@ describe("httpAssistantTransport", () => {
     expect(body.locked).toBe(false);
     await expect(iterator.next()).resolves.toMatchObject({ done: true });
   });
+
+  it("an async headers function is read on every request", async () => {
+    let token = "first";
+    const headers = vi.fn(async () => ({ Authorization: `Bearer ${token}` }));
+    const fetch = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementation(async () => new Response('{"type":"done"}\n'));
+    try {
+      const transport = httpAssistantTransport({ url, headers });
+
+      await collect(
+        transport.send([], {}, { signal: new AbortController().signal }),
+      );
+      token = "second";
+      await collect(
+        transport.send([], {}, { signal: new AbortController().signal }),
+      );
+
+      expect(headers).toHaveBeenCalledTimes(2);
+      expect(
+        fetch.mock.calls.map(([input, init]) => [
+          input,
+          new Headers(init?.headers).get("Authorization"),
+        ]),
+      ).toEqual([
+        [url, "Bearer first"],
+        [url, "Bearer second"],
+      ]);
+    } finally {
+      fetch.mockRestore();
+    }
+  });
+
+  it("a token from headers goes only in the header, never in the URL or a thrown error", async () => {
+    const token = "Bearer a&x=1#y";
+    for (const response of [
+      new Response(token, { status: 401, statusText: token }),
+      new Response(`${token}\n`),
+      new Response(`{"type":"${token}"}\n`),
+    ]) {
+      const fetch = vi.fn<typeof globalThis.fetch>(async () => response);
+      const transport = httpAssistantTransport({
+        url,
+        fetch,
+        headers: () => ({ Authorization: token }),
+      });
+
+      const result = collect(
+        transport.send([], {}, { signal: new AbortController().signal }),
+      );
+
+      await expect(result).rejects.toBeInstanceOf(Error);
+      await expect(result).rejects.toHaveProperty(
+        "message",
+        expect.not.stringContaining(token),
+      );
+      expect(fetch).toHaveBeenCalledOnce();
+      const [input, init] = fetch.mock.calls[0] ?? [];
+      expect(input).toBe(url);
+      expect(init?.body).toBe('{"messages":[],"tools":{}}');
+      expect(new Headers(init?.headers).get("Authorization")).toBe(token);
+    }
+  });
 });
