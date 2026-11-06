@@ -1,0 +1,83 @@
+{
+  "name": "LatLngInput",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultPosition",
+      "type": "readonly [number, number]",
+      "optional": true,
+      "comment": "`[lat, lng]`. The map centre while either field is empty. Defaults to `[0, 0]`."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Disables both text fields and the pin; pan and zoom still work."
+    },
+    {
+      "name": "height",
+      "type": "string | number",
+      "optional": true,
+      "comment": "In pixels, or any CSS length. Defaults to 300."
+    },
+    {
+      "name": "helperText",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "comment": "The legend. A string is translated; `false` renders none."
+    },
+    {
+      "name": "latSource",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The form field holding the latitude."
+    },
+    {
+      "name": "latValidate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "Run after the -90..90 range check."
+    },
+    {
+      "name": "lngSource",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The form field holding the longitude."
+    },
+    {
+      "name": "lngValidate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "Run after the -180..180 range check."
+    },
+    {
+      "name": "mapStyle",
+      "type": "MapStyleInput",
+      "optional": true,
+      "comment": "Defaults to the style from `MapsProvider`."
+    },
+    {
+      "name": "onPositionChange",
+      "type": "(lat: number, lng: number) => void",
+      "optional": true,
+      "comment": "Called with the new position after a click or a pin drag, never for typing or a reset."
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "optional": true,
+      "comment": "Read once at mount. Defaults to 13."
+    }
+  ]
+}

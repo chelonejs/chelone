@@ -1,0 +1,35 @@
+{
+  "name": "SupabaseLoginPage",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Custom content in place of the form, the link and the buttons."
+    },
+    {
+      "name": "disableEmailPassword",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hides the email and password form, its divider and the forgot password link."
+    },
+    {
+      "name": "disableForgotPassword",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hides the forgot password link."
+    },
+    {
+      "name": "providers",
+      "type": "SupabaseOAuthProvider[]",
+      "optional": true,
+      "comment": "OAuth providers to show a button for, in order."
+    },
+    {
+      "name": "redirectTo",
+      "type": "string",
+      "optional": true,
+      "comment": "Path a successful sign-in redirects to. Forwarded to `<LoginForm>`."
+    }
+  ]
+}
