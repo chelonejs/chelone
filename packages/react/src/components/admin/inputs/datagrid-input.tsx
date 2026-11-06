@@ -29,12 +29,7 @@ import type { InputProps } from "../input-props";
 type DatagridInputProps<
   TRecord = LooseRecord,
   TChoice extends ChoiceRecord = ChoiceRecord,
-> = Omit<
-  InputProps<TRecord>,
-  "source" | "disabled" | "readOnly" | "defaultValue"
-> & {
-  /** Input-level default, ra precedence (seeds only into an untouched hole). */
-  defaultValue?: unknown;
+> = Omit<InputProps<TRecord>, "source" | "disabled" | "readOnly"> & {
   /** Inline choices (records) — omit inside a `<ReferenceArrayInput>`. */
   choices?: readonly TChoice[];
   /** The display path or a formatter for a choice. Default `"name"`. */

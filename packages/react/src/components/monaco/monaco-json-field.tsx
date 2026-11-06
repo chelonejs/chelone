@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 import type { editor } from "monaco-editor";
 import { lazy, Suspense } from "react";
 import type { FieldProps } from "@/lib/field-types";
@@ -8,7 +8,7 @@ import { MonacoSkeleton } from "./internal/monaco-shared";
 interface MonacoJsonFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType> {
   /** Shown when the record has no value at `source`. */
-  defaultValue?: unknown;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   /** Editor height in pixels when `autoHeight` is false. Defaults to 200. */
   height?: number;
   /** Grow with the content up to `maxHeight`. Defaults to true. */
