@@ -14,6 +14,7 @@ import {
   setPermissionRow,
   togglePermission,
 } from "@chelone/core";
+import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -74,6 +75,7 @@ export function PermissionMatrix({
 }: PermissionMatrixProps) {
   const translate = useTranslate();
   const getResourceLabel = useGetResourceLabel();
+  const [selectedRole, setSelectedRole] = useState<string | undefined>();
 
   const firstRole = roles[0];
   if (firstRole === undefined) {
@@ -85,6 +87,13 @@ export function PermissionMatrix({
       </div>
     );
   }
+
+  // A selected role that is no longer listed falls back to the first one.
+  const activeRole = roles.some((role) => entryId(role) === selectedRole)
+    ? selectedRole
+    : entryId(firstRole);
+  const actionLabel = (action: string) =>
+    translate(`ra.action.${action}`, { _: capitalize(action) });
 
   // Core takes a mutable list; the prop is readonly so a const tuple fits.
   const actionList = [...actions];
@@ -103,7 +112,8 @@ export function PermissionMatrix({
   return (
     <Tabs
       data-slot="permission-matrix"
-      defaultValue={entryId(firstRole)}
+      value={activeRole}
+      onValueChange={setSelectedRole}
       className={className}
     >
       <TabsList>
@@ -128,11 +138,7 @@ export function PermissionMatrix({
                     })}
                   </TableHead>
                   {actions.map((action) => (
-                    <TableHead key={action}>
-                      {translate(`ra.action.${action}`, {
-                        _: capitalize(action),
-                      })}
-                    </TableHead>
+                    <TableHead key={action}>{actionLabel(action)}</TableHead>
                   ))}
                   <TableHead>
                     {translate("chelone.permission_matrix.all", { _: "All" })}
@@ -167,7 +173,7 @@ export function PermissionMatrix({
                               "chelone.permission_matrix.cell",
                               {
                                 role: roleLabel,
-                                action,
+                                action: actionLabel(action),
                                 resource: resource.label,
                                 _: "{role} {action} {resource}",
                               },
@@ -207,7 +213,18 @@ export function PermissionMatrix({
                           resource.id,
                           actionList,
                         )}
-                        disabled={readOnly}
+                        disabled={
+                          readOnly ||
+                          (actionList.length > 0 &&
+                            actionList.every(
+                              (action) =>
+                                getPermissionCell(
+                                  grants,
+                                  resource.id,
+                                  action,
+                                ) === "inherited",
+                            ))
+                        }
                         onCheckedChange={() =>
                           change(
                             setPermissionRow(

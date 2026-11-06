@@ -17,7 +17,7 @@ import {
 
 afterEach(cleanup);
 
-function renderMatrix(
+function matrixTree(
   props: PermissionMatrixProps,
   messages: Record<string, string> = {},
 ) {
@@ -28,7 +28,7 @@ function renderMatrix(
     locale: "en",
     messages: { en: defineMessages(messages) },
   });
-  return render(
+  return (
     <CheloneProvider
       dataProvider={fakeDataProvider({})}
       queryClient={queryClient}
@@ -37,8 +37,15 @@ function renderMatrix(
       <ResourceRegistryProvider registry={createResourceRegistry()}>
         <PermissionMatrix {...props} />
       </ResourceRegistryProvider>
-    </CheloneProvider>,
+    </CheloneProvider>
   );
+}
+
+function renderMatrix(
+  props: PermissionMatrixProps,
+  messages: Record<string, string> = {},
+) {
+  return render(matrixTree(props, messages));
 }
 
 function cell(name: string): HTMLElement {
@@ -104,7 +111,7 @@ describe("<PermissionMatrix>", () => {
     expect(cell("admin.posts.list").getAttribute("aria-checked")).toBe("true");
     expect(cell("admin.posts.show").getAttribute("aria-checked")).toBe("true");
     expect(cell("admin.posts.edit").getAttribute("aria-checked")).toBe("false");
-    expect(screen.getByRole("checkbox", { name: "admin list Posts" })).toBe(
+    expect(screen.getByRole("checkbox", { name: "admin List Posts" })).toBe(
       cell("admin.posts.list"),
     );
   });
@@ -241,7 +248,46 @@ describe("<PermissionMatrix>", () => {
     expect(document.querySelector("img")).toBeNull();
     expect(document.querySelector("script")).toBeNull();
     expect(cell("admin.posts.list").getAttribute("aria-label")).toBe(
-      `${img} list ${script}`,
+      `${img} List ${script}`,
     );
+  });
+
+  it("names each cell with the translated action shown in its column header", () => {
+    renderMatrix(
+      { roles: ["admin"], resources: ["posts"] },
+      { "ra.action.list": "Browse" },
+    );
+    expect(cell("admin.posts.list").getAttribute("aria-label")).toBe(
+      "admin Browse Posts",
+    );
+  });
+
+  it("disables the All checkbox when every cell of the row is inherited", () => {
+    const onChange = vi.fn();
+    renderMatrix({
+      roles: ["root"],
+      resources: ["posts"],
+      value: { root: [{ resource: "*", action: "*" }] },
+      onChange,
+    });
+    expect(all("root.posts").hasAttribute("disabled")).toBe(true);
+    fireEvent.click(all("root.posts"));
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("falls back to the first role when the selected role is removed", () => {
+    const { rerender } = renderMatrix({
+      roles: ["admin", "editor"],
+      resources: ["posts"],
+    });
+    fireEvent.mouseDown(screen.getByRole("tab", { name: "editor" }), {
+      button: 0,
+    });
+    expect(cell("editor.posts.list")).toBeTruthy();
+    rerender(matrixTree({ roles: ["admin"], resources: ["posts"] }));
+    expect(
+      screen.getByRole("tab", { name: "admin" }).getAttribute("aria-selected"),
+    ).toBe("true");
+    expect(cell("admin.posts.list")).toBeTruthy();
   });
 });
