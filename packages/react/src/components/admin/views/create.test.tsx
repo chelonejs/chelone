@@ -14,6 +14,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -51,9 +52,8 @@ function makeI18n() {
 }
 
 function makeDataProvider() {
-  return fakeDataProvider({
-    posts: [] as Array<{ id: number; title: string }>,
-  });
+  const posts: Array<{ id: number; title: string }> = [];
+  return fakeDataProvider({ posts });
 }
 
 function Providers({
@@ -123,9 +123,9 @@ describe("<Create>", () => {
         </Create>
       </Providers>,
     );
-    expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
-      "seed",
-    );
+    expect(
+      elementOf(screen.getByLabelText(/title/i), HTMLInputElement).value,
+    ).toBe("seed");
   });
 
   it("renders a heading from the resource label", () => {
@@ -186,9 +186,7 @@ describe("<Create>", () => {
         sort: { field: "id", order: "ASC" },
         filter: {},
       });
-      expect(
-        data.some((r) => (r as { title?: string }).title === "created"),
-      ).toBe(true);
+      expect(data.some((r) => r.title === "created")).toBe(true);
     });
   });
 
@@ -330,7 +328,7 @@ describe("<Create> location seed", () => {
   const cloneUrl = (record: unknown) =>
     `/posts/create?source=${encodeURIComponent(JSON.stringify(record))}`;
   const titleValue = () =>
-    (screen.getByLabelText(/title/i) as HTMLInputElement).value;
+    elementOf(screen.getByLabelText(/title/i), HTMLInputElement).value;
 
   it("seeds the form from the source search param", () => {
     render(
@@ -353,9 +351,9 @@ describe("<Create> location seed", () => {
       </Providers>,
     );
     expect(titleValue()).toBe("from url");
-    expect((screen.getByLabelText(/body/i) as HTMLInputElement).value).toBe(
-      "kept",
-    );
+    expect(
+      elementOf(screen.getByLabelText(/body/i), HTMLInputElement).value,
+    ).toBe("kept");
   });
 
   it("a malformed source param leaves the form empty", () => {

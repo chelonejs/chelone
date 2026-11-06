@@ -110,7 +110,7 @@ describe("useList", () => {
     const { result, rerender } = renderHook(
       ({ filter }: { filter: Record<string, unknown> }) =>
         useList<Row>({ data, filter }),
-      { initialProps: { filter: {} as Record<string, unknown> } },
+      { initialProps: { filter: {} } },
     );
     expect(result.current.total).toBe(4);
     rerender({ filter: { category: "a" } });
@@ -132,10 +132,11 @@ describe("useList", () => {
       rows: Row[] | undefined;
       pending: boolean;
     }
+    const initialProps: Props = { rows: undefined, pending: true };
     const { result, rerender } = renderHook(
       ({ rows, pending }: Props) =>
         useList<Row>({ data: rows, isPending: pending }),
-      { initialProps: { rows: undefined, pending: true } as Props },
+      { initialProps },
     );
     expect(result.current.isPending).toBe(true);
     expect(result.current.data).toBeUndefined();
@@ -152,10 +153,11 @@ describe("useList", () => {
       error: Error | null;
     }
     const err = new Error("boom");
+    const initialProps: Props = { fetching: false, error: null };
     const { result, rerender } = renderHook(
       ({ fetching, error }: Props) =>
         useList<Row>({ data, isFetching: fetching, error }),
-      { initialProps: { fetching: false, error: null } as Props },
+      { initialProps },
     );
     expect(result.current.isFetching).toBe(false);
     expect(result.current.error).toBe(null);

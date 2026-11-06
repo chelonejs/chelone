@@ -23,11 +23,6 @@ import { describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../context";
 import { dehydrate, HydrationBoundary, hydrate } from "./hydration";
 
-interface Post extends Record<string, unknown> {
-  id: number;
-  title: string;
-}
-
 /** The component reads the SAME option factory the loader used → cache hit. */
 function PostList({ dp, client }: { dp: DataProvider; client: QueryClient }) {
   const { data } = useQuery(
@@ -41,7 +36,7 @@ function PostList({ dp, client }: { dp: DataProvider; client: QueryClient }) {
 describe("loader → ensureQueryData → useQuery (SSR data flow)", () => {
   it("prefetches in the loader, hydrates, and the component reads the cache (no client refetch)", async () => {
     const getList = vi.fn(async () => ({
-      data: [{ id: 1, title: "a" }] as Post[],
+      data: [{ id: 1, title: "a" }],
       total: 1,
     }));
     const dp = { ...fakeDataProvider({}), getList };
