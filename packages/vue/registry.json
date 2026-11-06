@@ -1407,6 +1407,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/pivot-grid.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/prev-next-buttons.vue",
           "type": "registry:component"
         },
@@ -5017,6 +5021,26 @@
         "@chelone/list-actions"
       ],
       "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "pivot-grid",
+      "type": "registry:component",
+      "title": "Pivot Grid",
+      "files": [
+        {
+          "path": "src/components/admin/list/pivot-grid.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/list-no-results",
+        "@chelone/simple-list-loading",
+        "@chelone/table"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
