@@ -80,6 +80,13 @@ export const TableIcon = glyph(
   path("M3 15h18"),
 );
 
+export const ChartColumnIcon = glyph(
+  path("M3 3v16a2 2 0 0 0 2 2h16"),
+  path("M18 17V9"),
+  path("M13 17V5"),
+  path("M8 17v-3"),
+);
+
 export const ChevronRightIcon = glyph(path("m9 18 6-6-6-6"));
 
 export const SettingsIcon = glyph(
