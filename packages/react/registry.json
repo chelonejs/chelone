@@ -6394,6 +6394,96 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "inspector",
+      "type": "registry:block",
+      "title": "Chelone Inspector",
+      "categories": ["chelone", "components"],
+      "description": "The opt-in inspector add-on: Inspector is a draggable panel that edits whichever Configurable the user picks, InspectorButton turns the mode on, and SortableFieldsSelector lists a table's columns with drag to reorder. Installs @dnd-kit/react.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/fields-selector",
+        "@chelone/lib-utils",
+        "@chelone/tooltip"
+      ],
+      "dependencies": ["@chelone/react", "@dnd-kit/react", "lucide-react"],
+      "files": [
+        {
+          "path": "src/components/inspector/configurable.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/inspector-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/inspector.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/sortable-fields-selector.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "configurable",
+      "type": "registry:component",
+      "title": "Configurable",
+      "files": [
+        {
+          "path": "src/components/inspector/configurable.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/inspector",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "inspector-button",
+      "type": "registry:component",
+      "title": "Inspector Button",
+      "files": [
+        {
+          "path": "src/components/inspector/inspector-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/inspector",
+        "@chelone/tooltip"
+      ],
+      "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "sortable-fields-selector",
+      "type": "registry:component",
+      "title": "Sortable Fields Selector",
+      "files": [
+        {
+          "path": "src/components/inspector/sortable-fields-selector.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/fields-selector",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/react", "@dnd-kit/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "mdx-editor",
       "type": "registry:block",
       "title": "Chelone Markdown",
