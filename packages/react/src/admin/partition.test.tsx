@@ -14,7 +14,7 @@ import {
   renderHook,
   screen,
 } from "@testing-library/react";
-import { type ReactNode, StrictMode } from "react";
+import { type ReactElement, type ReactNode, StrictMode } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Resource } from "../resource/resource";
@@ -44,6 +44,26 @@ afterEach(() => {
 
 const List = () => <div>list</div>;
 
+/**
+ * The `name` prop of each bucketed `<Resource>`. `ReactElement`'s props are
+ * `unknown`, so the name is read through a check that throws at this line when
+ * an element lands in the bucket without one.
+ */
+function resourceNames(elements: ReactElement[]): string[] {
+  return elements.map((el) => {
+    const props = el.props;
+    if (
+      typeof props !== "object" ||
+      props === null ||
+      !("name" in props) ||
+      typeof props.name !== "string"
+    ) {
+      throw new Error("Bucketed element without a string `name` prop");
+    }
+    return props.name;
+  });
+}
+
 describe("partitionChildren — resource + custom-route bucketing", () => {
   it("buckets <Resource> children into `resources` (order preserved)", () => {
     const parts = partitionChildren(
@@ -53,10 +73,7 @@ describe("partitionChildren — resource + custom-route bucketing", () => {
       </>,
     );
     expect(parts.resources).toHaveLength(2);
-    const names = parts.resources.map(
-      (el) => (el.props as { name: string }).name,
-    );
-    expect(names).toEqual(["posts", "comments"]);
+    expect(resourceNames(parts.resources)).toEqual(["posts", "comments"]);
   });
 
   it("splits <CustomRoutes> by noLayout (with-layout vs without-layout)", () => {
@@ -88,9 +105,7 @@ describe("partitionChildren — resource + custom-route bucketing", () => {
         <Resource name="c" list={List} />
       </>,
     );
-    expect(
-      parts.resources.map((el) => (el.props as { name: string }).name),
-    ).toEqual(["a", "b", "c"]);
+    expect(resourceNames(parts.resources)).toEqual(["a", "b", "c"]);
   });
 
   it("ignores non-element children (strings, numbers, null, booleans)", () => {
