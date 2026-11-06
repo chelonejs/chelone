@@ -23,6 +23,10 @@ export const PostShow = () => (
 );
 ```
 
+The rendered HTML sits in a `div` carrying the `rich-text` class, which the
+add-on's stylesheet styles. Import the stylesheet even when you only show
+values. See [Installing the add-on](#installing-the-add-on).
+
 ## Plain text
 
 `stripTags` displays the text of the sanitized HTML without rendering its
@@ -48,7 +52,20 @@ In Vue, `empty` takes a string. Use the `#empty` slot for custom content:
 ```
 
 Vue uses `class` for React's `className` and also accepts `record`,
-`default-value` and `strip-tags`.
+`default-value` and `strip-tags`. It has no `label`, `resource` or table column
+props.
+
+## What survives sanitizing
+
+DOMPurify runs with core's `richTextSanitizeOptions`: scripts, event handlers,
+frames, form controls and a `<style>` element are removed before the HTML reaches
+the DOM. React additionally keeps a `style` attribute when it is one `color`
+declaration with a palette, hex, `rgb()` or `hsl()` value, so text colored by
+`<RichTextInput>` still shows; Vue drops every `style` attribute. An `img` whose
+`src` is unsafe is removed, and an SVG data URL never counts as safe.
+
+See the input page's [Stored HTML section](/docs/editing/rich-text-input#stored-html)
+for the editor schema and why the server should sanitize what it stores.
 
 ## Props
 
@@ -64,7 +81,6 @@ npx shadcn add @chelone/rich-text-input
 
 For Vue, use `npx shadcn-vue add @chelone/rich-text-input`. For npm, use
 `@chelone/react/rich-text-input` or `@chelone/vue/rich-text-input` and install
-the optional peers. The [input page](/docs/editing/rich-text-input#installing-the-add-on)
-lists the packages and the required stylesheet import. Its
-[Stored HTML section](/docs/editing/rich-text-input#stored-html) explains the
-editor schema, DOMPurify and server sanitization.
+the optional peers, of which the field needs `dompurify`. The
+[input page](/docs/editing/rich-text-input#installing-the-add-on) lists the full
+set for each adapter and the stylesheet import the rendered HTML needs.

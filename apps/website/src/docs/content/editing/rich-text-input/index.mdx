@@ -5,14 +5,15 @@ registry: "rich-text-input"
 ---
 
 `<RichTextInput>` edits an HTML string in a tiptap editor. It is an add-on for
-React and Vue. See [Installing the add-on](#installing-the-add-on).
+React and Vue: it is in neither barrel, and the editor packages are optional
+peers. See [Installing the add-on](#installing-the-add-on).
 
 ## When to use it
 
 Use it for formatted content stored as HTML, such as an article body or a help
 page. Choose [MdxInput](/docs/editing/mdx-input) when the stored value should be
-markdown. For a short plain-text value, use [TextInput](/docs/editing/text-input).
-To display the stored HTML, use [RichTextField](/docs/viewing/rich-text-field).
+markdown, and [TextInput](/docs/editing/text-input) for a short plain-text
+value. To display the stored HTML, use [RichTextField](/docs/viewing/rich-text-field).
 
 ## Example
 
@@ -35,8 +36,8 @@ export const PostEdit = () => (
 
 ## Value contract
 
-- The value is an HTML string. Clearing the editor stores `""`, not `null` or
-  an empty paragraph tag. A value that is not a string reads as an empty editor.
+- The value is an HTML string. Clearing the editor stores `""`, not `null` or an
+  empty paragraph tag. A value that is not a string reads as an empty editor.
 - The editor parses the HTML into its schema and serializes edits back to HTML.
   It may normalize the markup. Loading a value does not mark the form dirty.
 - A form reset or `setValue` replaces the editor content without reporting a
@@ -48,15 +49,33 @@ The usual `validate` prop runs on the HTML string, and errors appear under the
 editor. A `required()` validator sets the required marker. React also accepts
 `isRequired` to force the marker.
 
-Both `disabled` and `readOnly` prevent edits and disable the default toolbar.
-The stored content remains visible.
+Both `disabled` and `readOnly` prevent edits and disable the toolbar buttons.
+The stored content remains visible. `placeholder` shows while the editor is
+empty.
 
 ## Toolbar
 
-The default `<RichTextToolbar>` offers paragraph and heading levels 1 to 6,
-bold, italic, underline, strikethrough, inline code, clear formatting, links,
-bullet and ordered lists, blockquotes, code blocks, horizontal rules, undo and
-redo. Link editing accepts safe URLs and rejects unsafe schemes.
+The default `<RichTextToolbar>` has a block-type select, offering paragraph and
+headings 1 to 6, and one button per command: bold, italic, underline,
+strikethrough, inline code, Text color, clear formatting, Link, bullet and
+ordered lists, blockquote, code block, Image, horizontal rule, undo and redo. A
+button reports `aria-pressed` while its mark or block is on the selection. Link,
+Image and Text color open a small form instead of running a command, and link
+editing accepts safe URLs and rejects unsafe schemes.
+
+Three props decide what the default toolbar offers:
+
+- `images`: `false` leaves out the image extension and the Image button. Options
+  set the file rules (`allowedMimeTypes`, `maxFileSize`, `allowBase64`),
+  `uploadFn` to store a file and return its URL, and `onImageError` for a
+  refused file or a failed upload. Without `uploadFn`, a file is stored as a
+  data URL when `allowBase64` is on. Default `true`.
+- `colors`, React only: `false` leaves out the color extension and the Text
+  color button. A color is stored as a `style` attribute holding one `color`
+  declaration with a palette value. Default `true`.
+- `codeHighlight`, React only: `false` shows code blocks plain instead of
+  highlighting them with lowlight. The stored HTML carries no highlight markup
+  either way. Default `true`.
 
 In React, `toolbar` replaces the default toolbar. Pass `toolbar={null}` to hide
 it, or include `<RichTextToolbar />` in a custom wrapper to keep its controls:
@@ -71,9 +90,9 @@ import { RichTextToolbar } from "@/components/rich-text-input/rich-text-toolbar"
 />;
 ```
 
-`editorOptions` passes extra options to tiptap. Supplying `extensions` replaces
-the default extension set. Its `onUpdate` and `onBlur` callbacks run after the
-input has updated the form or recorded the blur.
+`editorOptions` passes extra options to tiptap, spread last. Supplying
+`extensions` there replaces the default extension set, and its `onUpdate` and
+`onBlur` run after the input has updated the form or recorded the blur.
 
 ## Props
 
@@ -82,8 +101,8 @@ input has updated the form or recorded the blur.
 ## Installing the add-on
 
 The registry installs `<RichTextInput>`, `<RichTextToolbar>` and
-[`<RichTextField>`](/docs/viewing/rich-text-field), including their dependencies
-and stylesheet:
+[`<RichTextField>`](/docs/viewing/rich-text-field), with the link, image and
+color forms they open, their dependencies and the `rich-text.css` stylesheet:
 
 ```bash
 npx shadcn add @chelone/rich-text-input
@@ -95,27 +114,39 @@ import from the files the registry writes under
 `@/components/rich-text-input/`. There is no `index.ts` in that folder.
 
 For npm, import the `@chelone/react/rich-text-input` or
-`@chelone/vue/rich-text-input` subpath and install its optional peers yourself.
-Both need `@tiptap/core`, `@tiptap/pm`, `@tiptap/starter-kit`,
-`@tiptap/extensions` and `dompurify`. React also needs `@tiptap/react`:
+`@chelone/vue/rich-text-input` subpath and install the optional peers yourself.
+React needs:
 
 ```bash
-pnpm add @tiptap/core @tiptap/pm @tiptap/starter-kit @tiptap/extensions @tiptap/react dompurify
+pnpm add @tiptap/core @tiptap/pm @tiptap/react @tiptap/starter-kit \
+  @tiptap/extensions @tiptap/extension-image @tiptap/extension-text-style \
+  @tiptap/extension-code-block @tiptap/extension-code-block-lowlight \
+  lowlight highlight.js dompurify
 ```
 
 ```tsx
-import { RichTextField, RichTextInput, RichTextToolbar } from "@chelone/react/rich-text-input";
+import {
+  RichTextField,
+  RichTextInput,
+  RichTextToolbar,
+} from "@chelone/react/rich-text-input";
 import "@chelone/react/rich-text-input.css";
 ```
 
-Vue uses `@tiptap/vue-3`:
+Vue needs `@tiptap/vue-3` in place of `@tiptap/react`, and no color or
+highlight packages:
 
 ```bash
-pnpm add @tiptap/core @tiptap/pm @tiptap/starter-kit @tiptap/extensions @tiptap/vue-3 dompurify
+pnpm add @tiptap/core @tiptap/pm @tiptap/vue-3 @tiptap/starter-kit \
+  @tiptap/extensions @tiptap/extension-image dompurify
 ```
 
 ```ts
-import { RichTextField, RichTextInput, RichTextToolbar } from "@chelone/vue/rich-text-input";
+import {
+  RichTextField,
+  RichTextInput,
+  RichTextToolbar,
+} from "@chelone/vue/rich-text-input";
 import "@chelone/vue/rich-text-input.css";
 ```
 
@@ -131,9 +162,14 @@ Both adapters use tiptap and store the same HTML strings. The changed surface:
   `{ editor }`. An empty slot hides the toolbar.
 - React's `<RichTextToolbar>` reads the editor context supplied by the input.
   Vue's `<RichTextToolbar>` takes an `editor` prop.
+- Vue has no `colors` or `codeHighlight` prop: its editor has no color
+  extension and its code blocks are never highlighted. Both adapters take
+  `images`.
 - Vue uses `class` for React's `className`. Its `label` is a string or `false`,
   and `helper-text` is a string or `false`. It has no `id`, `resource`,
-  `isRequired`, `format`, `parse`, `alwaysOn`, `onChange` or `onBlur` prop.
+  `isRequired`, `format`, `parse`, `alwaysOn`, `onChange` or `onBlur` prop, and
+  its `editorOptions` is tiptap's own `EditorOptions` rather than
+  `@tiptap/react`'s.
 
 For example, using the Vue npm subpath:
 
@@ -161,6 +197,9 @@ extension set. The default schema drops scripts, frames, event handlers and
 unsafe link URLs.
 
 `<RichTextField>` sanitizes HTML with DOMPurify before rendering it. It removes
-scripts, event handlers, inline styles, frames and form controls. The server
-should still sanitize what it stores: a client can submit HTML without passing
-through this editor, and other consumers may render the stored value.
+scripts, event handlers, frames and form controls. React also keeps a `style`
+attribute only when it is one `color` declaration with a palette, hex, `rgb()`
+or `hsl()` value; Vue drops every `style` attribute.
+
+The server should still sanitize what it stores: a client can submit HTML without
+passing through this editor, and other consumers may render the stored value.
