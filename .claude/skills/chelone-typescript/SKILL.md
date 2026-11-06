@@ -17,7 +17,7 @@ Write the exact type, even when it costs a generic, an overload or a type test. 
 | `x as unknown as T`, `x as never` | Never. Fix the type that made the cast necessary, even when that is a bigger change than the ticket looked like. |
 | `x as T` | Only for an honest narrowing the compiler cannot see, with a `// type-escape: <why>` comment saying why it holds. A narrowing it can see is a type guard or a discriminant check. |
 | `x!` | Only where a `// type-escape: <why>` comment proves the value exists. Otherwise handle the missing case. |
-| `unknown` | Only at a real boundary: raw JSON from a server, a `catch` binding, a type guard's input, an app's opaque `meta` bag. Everywhere else the type is knowable, so write it. |
+| `unknown` | Only at a real boundary: raw JSON from a server, a `catch` binding, a type guard's input, an app's opaque `meta` bag, a generic's default or constraint (`<TRecord = unknown>`), or a function's input when the signature declares a concrete return type (`function parse(value: unknown): string`). Everywhere else the type is knowable, so write it. |
 | `Record<string, unknown>` and aliases of it | Not a record type. A record is the registered record or a generic the caller fixes. |
 | `LooseRecord` | The fallback for an app that registered nothing. Never a shortcut for "some record": a component that handles records takes `TRecord` instead. |
 
@@ -85,7 +85,7 @@ A type change ships with a type test. Type tests are `*.test-d.ts` files run by 
 
 ## The ratchet
 
-`pnpm check:type-escapes` (in CI and the pre-push hook) counts every escape per file and kind: double casts, `as never`, `as any`, other casts, `!`, `any`, `unknown` (not a type guard's input, a `catch` binding or a conditional check) and `@ts-ignore` (and `@ts-expect-error` outside tests). It fails when any count is higher than the same file's count where the branch left `origin/main` (CI compares with `main` as the pull request merges into it).
+`pnpm check:type-escapes` (in CI and the pre-push hook) counts every escape per file and kind: double casts, `as never`, `as any`, other casts, `!`, `any`, `unknown` (not a type guard's input, a `catch` binding, a conditional check, a type parameter's default or constraint, or a parameter of a function with a body and a concrete declared return type) and `@ts-ignore` (and `@ts-expect-error` outside tests). It fails when any count is higher than the same file's count where the branch left `origin/main` (CI compares with `main` as the pull request merges into it).
 
 - New escape: write the exact type instead. When an escape is honest (the bar above allows it), put `// type-escape: <why>` on its line or the line above, and it is not counted.
 - Removed escapes pass, and there is no baseline file to update.
