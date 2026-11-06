@@ -275,7 +275,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -319,6 +320,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -338,7 +343,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -370,6 +376,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -385,7 +395,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -421,6 +432,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -436,7 +451,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -476,6 +492,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -491,7 +511,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -531,6 +552,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -546,7 +571,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -586,6 +612,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -601,7 +631,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -641,6 +672,10 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -655,7 +690,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -708,6 +744,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -727,7 +767,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -768,6 +809,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -783,7 +828,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -828,6 +874,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -843,7 +893,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -892,6 +943,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -907,7 +962,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -956,6 +1012,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -971,7 +1031,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -1020,6 +1081,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -1035,7 +1100,8 @@
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
-        "!**/*.test-d.tsx"
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
       ],
       "linter": {
         "rules": {
@@ -1084,6 +1150,10 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
                 ]
               }
@@ -1195,6 +1265,119 @@
                       "!.."
                     ],
                     "message": "@chelone/utils/osm imports only @chelone/core, geojson (import type only), @turf/buffer, @turf/difference, @turf/union, osm2geojson-lite, @tanstack/query-core, node:* and relative paths. Another subpath's libraries are that subpath's optional peers."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/react/src/**/__fixtures__/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/vue/src/**/__fixtures__/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "@chelone/vue is a Vue adapter — no React. It subscribes to @chelone/core via a vue reactivity bridge; the React adapter lives in @chelone/react.",
+                  "react-dom": "@chelone/vue must not import react-dom.",
+                  "react-router": "@chelone/vue owns a vue-router RouterAdapter over core's RouterPort — never react-router.",
+                  "@chelone/react": "@chelone/vue must not import the React adapter. Both adapters subscribe independently to the shared @chelone/core; cross-adapter imports would leak React into the Vue package.",
+                  "@tanstack/react-query": "@chelone/vue uses @tanstack/vue-query.",
+                  "@tanstack/react-store": "@chelone/vue bridges form-core via @tanstack/vue-store (or core's own subscribe) — never react-store.",
+                  "@tanstack/react-router": "@chelone/vue uses vue-router over core's RouterPort."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   }
                 ]
               }

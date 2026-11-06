@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
+    "@chelone/test-utils": "workspace:*",
     "@tanstack/form-core": "^1.33.5",
     "@tanstack/query-core": "^5.106.1",
     "@types/node": "^26.6.6",
