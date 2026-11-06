@@ -7,29 +7,9 @@
  */
 
 import { isPlainObject } from "../guards";
+import { deepEqual } from "./deep-equal";
 
 type Filters = Record<string, unknown>;
-
-function deepEqual(a: unknown, b: unknown): boolean {
-  if (Object.is(a, b)) return true;
-  if (Array.isArray(a)) {
-    return (
-      Array.isArray(b) &&
-      a.length === b.length &&
-      a.every((item, i) => deepEqual(item, b[i]))
-    );
-  }
-  if (a instanceof Date) return b instanceof Date && +a === +b;
-  if (isPlainObject(a)) {
-    if (!isPlainObject(b)) return false;
-    const keys = Object.keys(a);
-    return (
-      keys.length === Object.keys(b).length &&
-      keys.every((key) => key in b && deepEqual(a[key], b[key]))
-    );
-  }
-  return false;
-}
 
 // Nested plain objects match partially: `{ range: { gte: 1 } }` is held by
 // `{ range: { gte: 1, lte: 9 } }`.
