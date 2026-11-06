@@ -47,7 +47,7 @@ const { data } = useGetList(
 const hits = computed(() =>
   enabled.value
     ? (data.value?.data ?? []).map((record) => ({
-        id: record.id as string | number,
+        id: record.id,
         label: represent(record),
         keywords: [represent(record)],
       }))
