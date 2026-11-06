@@ -59,7 +59,7 @@ it("shows the BooleanField preview and its demo source", async () => {
 
 it.each([
   ["editing/webhook-endpoint-input", "WebhookEndpointInput"],
-  ["ui-layout/menu", "Menu"],
+  ["ui-layout/can-access", "CanAccess"],
 ])("shows no preview on %s when no basic demo exists", (slug, title) => {
   render(
     <MemoryRouter initialEntries={[`/docs/${slug}`]}>
@@ -72,6 +72,20 @@ it.each([
   expect(screen.getByRole("heading", { level: 1, name: title })).toBeTruthy();
   expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
   expect(screen.queryByText(/Demo not found/)).toBeNull();
+});
+
+it("shows the Menu live preview with the preview resources on its reference page", async () => {
+  render(
+    <MemoryRouter initialEntries={["/docs/ui-layout/menu"]}>
+      <Routes>
+        <Route path="/docs/*" element={<MdxPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
+  expect(await screen.findByRole("link", { name: /Posts/ })).toBeTruthy();
+  expect(screen.getByRole("link", { name: /Authors/ })).toBeTruthy();
+  expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(1);
 });
 
 it("shows the AppBar live preview on its reference page", async () => {
