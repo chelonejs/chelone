@@ -2,7 +2,9 @@ import { bboxToPolygon } from "@chelone/core";
 import { useFieldValue } from "../../record/use-field-value";
 import { GeoJsonFieldBody, type GeoJsonFieldProps } from "./geo-json-field";
 
-export type BBoxFieldProps = GeoJsonFieldProps;
+// type-escape: without a `record` the paths are loose, as `SourceProp<unknown>` is
+export type BBoxFieldProps<RecordType = unknown> =
+  GeoJsonFieldProps<RecordType>;
 
 /**
  * Shows a `[west, south, east, north]` box from a record as a rectangle on a
@@ -11,12 +13,13 @@ export type BBoxFieldProps = GeoJsonFieldProps;
  * @example
  * <BBoxField source="bbox" />
  */
-export function BBoxField({
+export function BBoxField<RecordType>({
   source,
   record,
   defaultValue,
   ...body
-}: BBoxFieldProps) {
-  const value: unknown = useFieldValue({ source, record, defaultValue });
+}: BBoxFieldProps<RecordType>) {
+  const read: unknown = useFieldValue<RecordType>({ source, record });
+  const value = read === undefined ? defaultValue : read;
   return <GeoJsonFieldBody value={bboxToPolygon(value)} {...body} />;
 }

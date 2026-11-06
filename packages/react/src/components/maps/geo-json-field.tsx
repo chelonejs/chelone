@@ -45,17 +45,21 @@ export interface GeoJsonViewProps {
   className?: string;
 }
 
-export interface GeoJsonFieldProps<
-  RecordType extends Record<string, unknown> = Record<string, unknown>,
-> extends GeoJsonViewProps {
+/** What `GeoJsonFieldBody` takes besides the value: the view and the empty text. */
+export interface GeoJsonFieldBodyProps extends GeoJsonViewProps {
+  /** Replaces the translation of `chelone.map.no_geometry`. */
+  emptyText?: string;
+}
+
+// type-escape: without a `record` the paths are loose, as `SourceProp<unknown>` is
+export interface GeoJsonFieldProps<RecordType = unknown>
+  extends GeoJsonFieldBodyProps {
   /** The record property holding the GeoJSON value. */
   source: SourceProp<RecordType>;
   /** Defaults to the ambient record. */
   record?: RecordType;
   /** Used when the property is `undefined`. */
   defaultValue?: unknown;
-  /** Replaces the translation of `chelone.map.no_geometry`. */
-  emptyText?: string;
 }
 
 /**
@@ -189,11 +193,6 @@ export function GeoJsonView({
   );
 }
 
-type FieldBodyProps = Omit<
-  GeoJsonFieldProps,
-  "source" | "record" | "defaultValue"
-> & { value: unknown };
-
 /** Shows `value` on a map, or the empty panel when it is not GeoJSON. */
 export function GeoJsonFieldBody({
   value,
@@ -201,7 +200,7 @@ export function GeoJsonFieldBody({
   className,
   height,
   ...view
-}: FieldBodyProps) {
+}: GeoJsonFieldBodyProps & { value: unknown }) {
   const translate = useTranslate();
   if (!isGeoJsonValue(value) || !isLngLatBox(geoBounds(value))) {
     return (
@@ -237,14 +236,13 @@ export function GeoJsonFieldBody({
  * @example
  * <GeoJsonField source="geometry" />
  */
-export function GeoJsonField<
-  RecordType extends Record<string, unknown> = Record<string, unknown>,
->({ source, record, defaultValue, ...body }: GeoJsonFieldProps<RecordType>) {
-  // type-escape: this field's record is a string-keyed bag with no `id`, so it is no `LooseRecord`
-  const value: unknown = useFieldValue<Record<string, unknown>>({
-    source,
-    record,
-    defaultValue,
-  });
+export function GeoJsonField<RecordType>({
+  source,
+  record,
+  defaultValue,
+  ...body
+}: GeoJsonFieldProps<RecordType>) {
+  const read: unknown = useFieldValue<RecordType>({ source, record });
+  const value = read === undefined ? defaultValue : read;
   return <GeoJsonFieldBody value={value} {...body} />;
 }

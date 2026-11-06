@@ -1,14 +1,15 @@
-<script lang="ts">
+<script lang="ts" generic="TRecord">
 import type { GeocodingProvider, SourceProp } from "@chelone/core";
 
+// type-escape: without a `record` the paths are loose, as `SourceProp<unknown>` is
 /** Props for {@link ReverseGeocodeField}. */
-export interface ReverseGeocodeFieldProps {
+export interface ReverseGeocodeFieldProps<TRecord = unknown> {
   /** The record property holding the latitude. */
   latSource: SourceProp;
   /** The record property holding the longitude. */
   lngSource: SourceProp;
   /** Defaults to the ambient record. */
-  record?: Record<string, unknown>;
+  record?: TRecord;
   /** `full` is the whole name, `street` its first part and `city` its first two. Defaults to `full`. */
   format?: "full" | "street" | "city";
   /** Defaults to the `geocoder` of `MapsProvider`. One of the two is required. */
@@ -17,7 +18,7 @@ export interface ReverseGeocodeFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord">
 /**
  * Names the position held in two record fields, such as the address of a
  * saved point. Renders nothing without both coordinates, a skeleton while the
@@ -30,29 +31,19 @@ export interface ReverseGeocodeFieldProps {
  * <ReverseGeocodeField lat-source="latitude" lng-source="longitude" format="city" />
  */
 
-import { toCoordinate } from "@chelone/core";
 import { computed } from "vue";
 import { cn } from "../../lib/utils";
-import { useFieldValue } from "../../record/use-field-value";
+import { useCoordinates } from "../maps/use-coordinates";
 import Skeleton from "../ui/skeleton.vue";
 import { useReverseGeocode } from "./use-reverse-geocode";
 
-const props = withDefaults(defineProps<ReverseGeocodeFieldProps>(), {
+const props = withDefaults(defineProps<ReverseGeocodeFieldProps<TRecord>>(), {
   record: undefined,
   format: "full",
   provider: undefined,
 });
 
-const latValue = useFieldValue({
-  source: props.latSource,
-  record: props.record,
-});
-const lngValue = useFieldValue({
-  source: props.lngSource,
-  record: props.record,
-});
-const lat = computed(() => toCoordinate(latValue.value));
-const lng = computed(() => toCoordinate(lngValue.value));
+const { lat, lng } = useCoordinates(props);
 
 const found = useReverseGeocode(
   () => ({

@@ -15,7 +15,7 @@ export interface ReverseGeocodeFieldProps<TRecord = LooseRecord> {
   /** The record property holding the longitude. */
   lngSource: SourceProp<TRecord>;
   /** Defaults to the ambient record. */
-  record?: Record<string, unknown>;
+  record?: TRecord;
   /** `full` is the whole name, `street` its first part and `city` its first two. Defaults to `full`. */
   format?: "full" | "street" | "city";
   /** Defaults to the `geocoder` of `MapsProvider`. One of the two is required. */
