@@ -5251,6 +5251,7 @@
         "@chelone/checkbox",
         "@chelone/data-table-context",
         "@chelone/data-table-row",
+        "@chelone/lib-vnode-children",
         "@chelone/list-icons",
         "@chelone/list-pagination",
         "@chelone/table"
@@ -6546,10 +6547,15 @@
         "@chelone/button",
         "@chelone/button-icons",
         "@chelone/fields-selector",
-        "@chelone/lib-utils"
+        "@chelone/lib-utils",
+        "@chelone/lib-vnode-children"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue", "@dnd-kit/vue"],
       "files": [
+        {
+          "path": "src/components/inspector/configurable-inputs.vue",
+          "type": "registry:component"
+        },
         {
           "path": "src/components/inspector/configurable.vue",
           "type": "registry:component"
@@ -6571,6 +6577,25 @@
           "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "configurable-inputs",
+      "type": "registry:component",
+      "title": "Configurable Inputs",
+      "files": [
+        {
+          "path": "src/components/inspector/configurable-inputs.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/configurable",
+        "@chelone/lib-vnode-children",
+        "@chelone/sortable-fields-selector"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
