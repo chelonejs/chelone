@@ -55,7 +55,7 @@ export interface InputProps<
    * `defaultValue` reads `undefined`); `unknown` without a record.
    */
   format?: (
-    value: NoInfer<SourceTransformValue<TRecord, TPath>> | undefined,
+    value: NoInfer<SourceTransformValue<TRecord, TPath>> | null | undefined,
   ) => unknown;
   /**
    * Write transform (input value → stored value). Must return the value at

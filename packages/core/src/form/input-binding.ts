@@ -1,6 +1,4 @@
 import {
-  type DeepKeys,
-  type DeepValue,
   FieldApi,
   type FieldApiOptions,
   type FieldAsyncValidateOrFn,
@@ -10,6 +8,7 @@ import {
 import { isThenable } from "../guards";
 import type { LooseRecord } from "../resource/record";
 import type { SourcePath, SourceValue } from "../resource/source-path";
+import { type FieldData, type FieldName, toFieldName } from "./field-name";
 import type {
   AsyncValidator,
   CheloneFormApi,
@@ -52,15 +51,13 @@ export function defaultParse<TInput>(
   return (input === "" ? null : input) as Exclude<TInput, ""> | null;
 }
 
-/** The widest data type a runtime-composed source path can address. */
-type FieldData<TRecord> = DeepValue<TRecord, DeepKeys<TRecord>>;
 /** A sync field-validator slot at its widest legal instantiation. */
 type FieldSync<TRecord> =
-  | FieldValidateOrFn<TRecord, DeepKeys<TRecord>, FieldData<TRecord>>
+  | FieldValidateOrFn<TRecord, FieldName<TRecord>, FieldData<TRecord>>
   | undefined;
 /** An async field-validator slot at its widest legal instantiation. */
 type FieldAsync<TRecord> =
-  | FieldAsyncValidateOrFn<TRecord, DeepKeys<TRecord>, FieldData<TRecord>>
+  | FieldAsyncValidateOrFn<TRecord, FieldName<TRecord>, FieldData<TRecord>>
   | undefined;
 
 /**
@@ -71,7 +68,7 @@ type FieldAsync<TRecord> =
  */
 export type CheloneFieldApi<TRecord> = FieldApi<
   TRecord,
-  DeepKeys<TRecord>,
+  FieldName<TRecord>,
   FieldData<TRecord>,
   FieldSync<TRecord>, // onMount
   FieldSync<TRecord>, // onChange
@@ -98,7 +95,7 @@ export type CheloneFieldApi<TRecord> = FieldApi<
 /** FieldApi options matching {@link CheloneFieldApi}'s instantiation. */
 type CheloneFieldOptions<TRecord> = FieldApiOptions<
   TRecord,
-  DeepKeys<TRecord>,
+  FieldName<TRecord>,
   FieldData<TRecord>,
   FieldSync<TRecord>,
   FieldSync<TRecord>,
@@ -126,20 +123,16 @@ type CheloneFieldOptions<TRecord> = FieldApiOptions<
 export type CheloneFieldState<TRecord> = CheloneFieldApi<TRecord>["state"];
 
 /**
- * form-core's field store with the record type erased: `{ value, meta }` for an
- * adapter selector, which cannot know the record of the field it renders.
+ * form-core's field store: `{ value, meta }` for an adapter selector. An adapter
+ * cannot know the record of the field it renders, so it reads the default.
  */
-export type CheloneFieldStore = CheloneFieldApi<unknown>["store"];
+export type CheloneFieldStore<TRecord = unknown> =
+  CheloneFieldApi<TRecord>["store"];
 
 /**
  * Everything a field binding takes except the identity-defining `source`,
  * spelled for one value type: `TValue` is what the field holds, `TInput` what
  * the input holds.
- *
- * `defaultValue` and `parse`'s result stay open: the bag is rebuilt every
- * render, can come from a source scope that names no path, and its value lands
- * on form-core's `handleChange`, whose own value type is `DeepValue`. `format`
- * is where the value type is pinned.
  */
 export interface FieldBindingBaseOptions<TValue, TInput> {
   /**
@@ -148,13 +141,15 @@ export interface FieldBindingBaseOptions<TValue, TInput> {
    * including `null`, always wins. Re-applied whenever the hole reopens
    * (reset/rehydration), never dirties the form.
    */
-  // type-escape: an option bag outlives the path it was built for.
-  defaultValue?: unknown;
-  /** Read transform (raw form value -> input value). Default {@link defaultFormat}. */
-  format?: (value: TValue) => TInput;
+  defaultValue?: TValue;
+  /**
+   * Read transform (raw form value -> input value). Default {@link defaultFormat}.
+   * Takes the holes a record's type does not show: an untouched field is
+   * `undefined`, and {@link defaultParse} stores a cleared input as `null`.
+   */
+  format?: (value: TValue | null | undefined) => TInput;
   /** Write transform (input value -> stored value). Default {@link defaultParse}. */
-  // type-escape: the stored value is checked by form-core, not by this type.
-  parse?: (input: TInput) => unknown;
+  parse?: (input: TInput) => TValue;
   /** ra-contract validators — composed, first error wins, sync stays sync. */
   validate?: Validator | readonly Validator[];
   /**
@@ -177,14 +172,13 @@ export interface FieldBindingOptions<
 }
 
 /**
- * `update()` payload: everything but the identity-defining source. The
- * render-freshness bag an adapter hands over each render, with both value
- * types left open — the same options, record-erased.
+ * `update()` payload: everything but the identity-defining source. An adapter
+ * renders under any record, so it reads the defaults.
  */
-export type FieldBindingUpdateOptions = FieldBindingBaseOptions<
-  unknown,
-  unknown
->;
+export type FieldBindingUpdateOptions<
+  TValue = unknown,
+  TInput = unknown,
+> = FieldBindingBaseOptions<TValue, TInput>;
 
 /**
  * Vanilla field binding over a single `@tanstack/form-core` FieldApi —
@@ -229,12 +223,11 @@ export interface FieldBinding<
   /** The current field state — `field.store.state` (reference-stable until a write). */
   getSnapshot(): CheloneFieldState<TRecord>;
   /**
-   * form-core's derived store of this field, with the record type erased:
-   * `{ value, meta }` for an adapter selector, which cannot know the record of
-   * the field it renders. Same store object as `field.store` — subscribing here
-   * and to the form costs one subscription each, and neither mounts the field.
+   * form-core's derived store of this field: `{ value, meta }` for an adapter
+   * selector. Same store object as `field.store` — subscribing here and to the
+   * form costs one subscription each, and neither mounts the field.
    */
-  readonly store: CheloneFieldStore;
+  readonly store: CheloneFieldStore<TRecord>;
   /** The input-facing value: `format(raw)` — never `null`/`undefined` under the default format. */
   getValue(): TInput;
   /** Writes `parse(input)` through `handleChange` (marks touched+dirty, validates per revalidation mode). */
@@ -249,7 +242,9 @@ export interface FieldBinding<
    * current option set each render. Re-applies the guarded default when the
    * value hole reopened. Inert while detached (options apply on attach).
    */
-  update(options: FieldBindingUpdateOptions): void;
+  update(
+    options: FieldBindingUpdateOptions<SourceValue<TRecord, TPath>, TInput>,
+  ): void;
   /**
    * Imperative teardown for vanilla (non-React) consumers: unmounts if
    * attached, severs every listener, and blocks re-attach. Idempotent. React
@@ -264,16 +259,17 @@ interface FieldSubscription {
   off: () => void;
 }
 
-/** The mutable validator slots the binding wires into its FieldApi options. */
-interface BindingValidators {
-  onDynamic: (props: { value: unknown }) => unknown;
-  onDynamicAsync?: (props: { value: unknown }) => Promise<unknown>;
-}
+/** What a validator slot resolves to: form-core reads `undefined` as valid. */
+type FieldValidationResult =
+  | Exclude<FieldValidatorStackResult, null>
+  | undefined;
 
-/** The binding's own option set: the update bag, typed for its `TInput`. */
-interface CurrentOptions<TRecord, TPath extends SourcePath<TRecord>, TInput>
-  extends FieldBindingBaseOptions<SourceValue<TRecord, TPath>, TInput> {
-  source: TPath;
+/** The mutable validator slots the binding wires into its FieldApi options. */
+interface BindingValidators<TRecord> {
+  onDynamic: (props: { value: FieldData<TRecord> }) => FieldValidationResult;
+  onDynamicAsync?: (props: {
+    value: FieldData<TRecord>;
+  }) => Promise<FieldValidationResult>;
 }
 
 /** A validator list (ra call style) rather than a single validator. */
@@ -292,14 +288,8 @@ export function createFieldBinding<
   options: FieldBindingOptions<TRecord, TPath, TInput>,
 ): FieldBinding<TRecord, TPath, TInput> {
   const { source } = options;
-  // The one cast: a `SourcePath` is a path of the record by construction, but
-  // TS cannot see that it is one of form-core's `DeepKeys`.
-  const name = source as DeepKeys<TRecord>;
-  // The value checks below stay `unknown` instead of a `DeepValue` over the
-  // whole path union of a generic record.
-  // type-escape: the form read through its erased record type.
-  const loose = form as CheloneFormApi<unknown>;
-  let current: CurrentOptions<TRecord, TPath, TInput> = options;
+  const name = toFieldName<TRecord>(source);
+  let current: FieldBindingOptions<TRecord, TPath, TInput> = options;
 
   /**
    * Runs the binding's validator stack against a value: field schema first
@@ -308,7 +298,7 @@ export function createFieldBinding<
    * consulted step is synchronous.
    */
   const runValidators = (
-    value: unknown,
+    value: FieldData<TRecord>,
   ): FieldValidatorStackResult | Promise<FieldValidatorStackResult> => {
     const runFns = (): ValidatorResult | Promise<ValidatorResult> => {
       const { validate } = current;
@@ -348,13 +338,18 @@ export function createFieldBinding<
    */
   let asyncLatched = false;
   /** The first thenable, kept so the async slot consumes it instead of re-running the stack. */
-  let pendingRun: { value: unknown; result: PromiseLike<unknown> } | undefined;
+  let pendingRun:
+    | {
+        value: FieldData<TRecord>;
+        result: PromiseLike<FieldValidatorStackResult>;
+      }
+    | undefined;
 
   const onDynamicAsync = async ({
     value,
   }: {
-    value: unknown;
-  }): Promise<unknown> => {
+    value: FieldData<TRecord>;
+  }): Promise<FieldValidationResult> => {
     const held = pendingRun;
     pendingRun = undefined;
     const result =
@@ -362,7 +357,7 @@ export function createFieldBinding<
     return (await result) ?? undefined;
   };
 
-  const bindingValidators: BindingValidators = {
+  const bindingValidators: BindingValidators<TRecord> = {
     onDynamic: ({ value }) => {
       if (asyncLatched) return undefined;
       const result = runValidators(value);
@@ -381,6 +376,13 @@ export function createFieldBinding<
     },
   };
 
+  /** A value for this path, spelled as form-core's `DeepValue` for the write. */
+  const toFieldData = (
+    value: SourceValue<TRecord, TPath> | Exclude<TInput, ""> | null,
+  ): FieldData<TRecord> =>
+    // type-escape: the mirror of the read in `formatValue`.
+    value as FieldData<TRecord>;
+
   /**
    * The FieldApi options for the CURRENT binding options and form values.
    * `defaultValue` carries ra precedence, not form-core's: form-core seeds a
@@ -392,11 +394,12 @@ export function createFieldBinding<
   const buildOptions = (): CheloneFieldOptions<TRecord> => ({
     form,
     name,
-    defaultValue: (current.defaultValue !== undefined &&
-    loose.getFieldValue(name) === undefined
-      ? current.defaultValue
-      : undefined) as CheloneFieldOptions<TRecord>["defaultValue"],
-    validators: bindingValidators as CheloneFieldOptions<TRecord>["validators"],
+    defaultValue:
+      current.defaultValue !== undefined &&
+      form.getFieldValue(name) === undefined
+        ? toFieldData(current.defaultValue)
+        : undefined,
+    validators: bindingValidators,
   });
 
   // INERT: binds the derived field store only — nothing registers on the
@@ -415,31 +418,24 @@ export function createFieldBinding<
     unmount?.();
   };
 
-  /** The raw value at this binding's path, as form-core types it. */
-  const rawValue = (): unknown => field.store.state.value;
-
-  /** The binding's `format`, or the ra default, applied to the raw value. */
-  const formatValue = (raw: unknown): TInput => {
-    const format = current.format;
-    if (format !== undefined) {
-      // `format` reads the value as chelone's `SourceValue` for this path;
-      // form-core hands over its own `DeepValue` of it.
-      // type-escape: the two spellings of one path's value.
-      return (format as (value: unknown) => TInput)(raw);
-    }
-    // With no `format` option, `TInput` is what `defaultFormat` returns for
-    // this path's value.
-    // type-escape: the binding's input type, read off an erased value.
-    return defaultFormat<unknown>(raw) as TInput;
+  /** The binding's `format`, or the ra default, applied to the stored value. */
+  const formatValue = (): TInput => {
+    // `field-name.test-d.ts` pins that form-core and chelone read one value here.
+    // type-escape: a deferred `TRecord` keeps TS from seeing it.
+    const value = field.store.state.value as
+      | SourceValue<TRecord, TPath>
+      | null
+      | undefined;
+    const { format } = current;
+    if (format !== undefined) return format(value);
+    // type-escape: with no `format`, `TInput` defaults to this result's type.
+    return defaultFormat(value) as TInput;
   };
 
-  /** The binding's `parse`, or the ra default for this binding's input. */
-  const parseInput = (input: TInput): unknown => {
-    const parse = current.parse;
-    if (parse !== undefined) return parse(input);
-    // type-escape: with no `parse` option, the stored value is the one
-    // `defaultParse` produces for this input.
-    return defaultParse(input);
+  /** The binding's `parse`, or the ra default, applied to the input. */
+  const parseInput = (input: TInput): FieldData<TRecord> => {
+    const { parse } = current;
+    return toFieldData(parse ? parse(input) : defaultParse(input));
   };
 
   return {
@@ -472,29 +468,13 @@ export function createFieldBinding<
       };
     },
     getSnapshot: () => field.store.state,
-    // The store is the field's own; the record type is erased so an adapter
-    // can read `{ value, meta }` without naming the record.
-    // type-escape: one store, read through its erased record.
-    store: field.store as CheloneFieldStore,
-    getValue(): TInput {
-      return formatValue(rawValue());
-    },
-    setValue(input: TInput) {
-      // form-core's `DeepValue` and chelone's `SourceValue` spell one path's
-      // value two ways.
-      // type-escape: the write lands on form-core's spelling.
-      field.handleChange(parseInput(input) as FieldData<TRecord>);
-    },
+    store: field.store,
+    getValue: formatValue,
+    setValue: (input) => field.handleChange(parseInput(input)),
     blur: () => field.handleBlur(),
     isRequired: () => isRequired(current.validate),
     update(next) {
-      // The render-freshness bag is loose (`unknown` in and out); the
-      // binding's own `TInput` is what its `format`/`parse` were built for.
-      // type-escape: the bag is re-read as this binding's own option type.
-      current = {
-        source,
-        ...next,
-      } as CurrentOptions<TRecord, TPath, TInput>;
+      current = { source, ...next };
       if (destroyed || unmountField === undefined) return;
       field.update(buildOptions());
     },

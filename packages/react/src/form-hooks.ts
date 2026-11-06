@@ -359,10 +359,11 @@ export interface UseInputOptions<
   defaultValue?: NoInfer<SourceValue<TRecord, TPath>>;
   /**
    * Read transform (stored value -> input value). Default `defaultFormat`.
-   * Receives the value at `source`, plus the hole an untouched field leaves.
+   * Receives the value at `source`, plus the holes an untouched or cleared
+   * field leaves.
    */
   format?: (
-    value: NoInfer<SourceTransformValue<TRecord, TPath>> | undefined,
+    value: NoInfer<SourceTransformValue<TRecord, TPath>> | null | undefined,
   ) => TInput;
   /** Write transform (input value -> stored value). Default `defaultParse`. */
   parse?: (input: TInput) => NoInfer<SourceTransformValue<TRecord, TPath>>;

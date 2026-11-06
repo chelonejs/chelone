@@ -57,7 +57,7 @@ describe("InputProps", () => {
   it('InputProps<Post, "title"> types format and parse by the value at the path', () => {
     expectTypeOf<Required<InputProps<Post, "title">>["format"]>()
       .parameter(0)
-      .toEqualTypeOf<string | undefined>();
+      .toEqualTypeOf<string | null | undefined>();
     expectTypeOf<
       Required<InputProps<Post, "title">>["format"]
     >().returns.toBeUnknown();

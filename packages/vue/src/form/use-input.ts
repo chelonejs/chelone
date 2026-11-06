@@ -47,8 +47,14 @@ export interface UseInputOptions<
   defaultValue?: NoInfer<SourceValue<TRecord, TPath>>;
   /** ra-contract validators — composed, first error wins. */
   validate?: Validator | readonly Validator[];
-  /** Read transform (raw form value → input value). Default `defaultFormat`. */
-  format?: (value: NoInfer<SourceValue<TRecord, TPath>>) => TInput;
+  /**
+   * Read transform (raw form value → input value). Default `defaultFormat`.
+   * Receives the value at `source`, plus the holes an untouched or cleared
+   * field leaves.
+   */
+  format?: (
+    value: NoInfer<SourceValue<TRecord, TPath>> | null | undefined,
+  ) => TInput;
   /** Write transform (input value → stored value). Default `defaultParse`. */
   parse?: (input: TInput) => NoInfer<SourceValue<TRecord, TPath>>;
   /** Forces the required marker; ORed with `required()` detection on `validate`. */

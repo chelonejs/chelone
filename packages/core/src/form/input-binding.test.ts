@@ -28,7 +28,9 @@ const hydrationOpts = {
  * Wraps `field.mount` so tests can count mounts AND unmounts (the cleanup the
  * real mount returns is preserved — only observed).
  */
-const spyFieldMount = <TRecord>(binding: FieldBinding<TRecord>) => {
+const spyFieldMount = <TRecord>(
+  binding: Pick<FieldBinding<TRecord>, "field">,
+) => {
   const realMount = binding.field.mount;
   const unmountSpy = vi.fn();
   const mountSpy = vi.spyOn(binding.field, "mount").mockImplementation(() => {
@@ -370,7 +372,7 @@ describe("createFieldBinding — lifecycle", () => {
  */
 const makeWiringHarness = (
   bindingOptions: Omit<
-    Parameters<typeof createFieldBinding<Draft>>[1],
+    Parameters<typeof createFieldBinding<Draft, "title">>[1],
     "source"
   > = {},
 ) => {
