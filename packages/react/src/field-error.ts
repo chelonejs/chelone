@@ -1,8 +1,5 @@
 import type { TranslatableMessage } from "@chelone/core";
 
-/** The first displayable error across a field's error-map causes lives in core. */
-export { firstFieldError } from "@chelone/core";
-
 export type DisplayError = string | TranslatableMessage | undefined;
 
 /**
