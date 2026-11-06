@@ -176,6 +176,7 @@ const STUBS = [
   { slug: "filter-form", section: "editing", component: "FilterForm", registry: "filter-form", title: "FilterForm", desc: "The row of filter inputs for a list. Place it in the `actions` prop of `<List>`." },
   { slug: "tabbed-form", section: "editing", component: "TabbedForm", registry: null, title: "TabbedForm", desc: "Splits a create/edit form's inputs across tabs." },
   { slug: "wizard-form", section: "editing", component: "WizardForm", registry: null, title: "WizardForm", desc: "Splits a create/edit form into sequential wizard steps." },
+  { slug: "permission-matrix", section: "editing", component: "PermissionMatrix", registry: "permission-matrix", title: "PermissionMatrix", desc: "A tab per role, each holding a resource by action grid of checkboxes over that role's grants. The value maps each role id to a `Permission[]` that `canAccessWithPermissions` reads. A cell granted by a wildcard shows as a locked checked cell. The matrix gates nothing itself: wrap it in <CanAccess> to decide who sees it. In Vue the value is a `v-model`." },
 
   // ── ui-layout (shell / auth / feedback chrome) ──────────────────────────
   { slug: "access-denied", section: "ui-layout", component: "AccessDenied", registry: "access-denied", title: "AccessDenied", desc: "The splash shown when a user lacks access to a page." },

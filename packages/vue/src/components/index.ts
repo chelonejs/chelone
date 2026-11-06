@@ -32,6 +32,11 @@ export type {
 export { default as LoginWithEmail } from "./admin/auth/login-with-email.vue";
 export type { LogoutProps } from "./admin/auth/logout.vue";
 export { default as Logout } from "./admin/auth/logout.vue";
+export type {
+  PermissionMatrixEntry,
+  PermissionMatrixProps,
+} from "./admin/auth/permission-matrix.vue";
+export { default as PermissionMatrix } from "./admin/auth/permission-matrix.vue";
 // --- admin: buttons + form ------------------------------------------------
 export type { BulkDeleteButtonProps } from "./admin/buttons/bulk-delete-button.vue";
 export { default as BulkDeleteButton } from "./admin/buttons/bulk-delete-button.vue";
