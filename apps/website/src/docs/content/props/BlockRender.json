@@ -1,0 +1,29 @@
+{
+  "name": "BlockRender",
+  "props": [
+    {
+      "name": "attrs",
+      "type": "A",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "mode",
+      "type": "\"edit\" | \"read\"",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "selected",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "updateAttrs",
+      "type": "(attrs: Partial<A>) => void",
+      "optional": true,
+      "comment": "Only in edit mode."
+    }
+  ]
+}

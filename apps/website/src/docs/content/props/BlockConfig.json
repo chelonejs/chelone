@@ -1,0 +1,17 @@
+{
+  "name": "BlockConfig",
+  "props": [
+    {
+      "name": "attrs",
+      "type": "A",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "onChange",
+      "type": "(attrs: Partial<A>) => void",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}
