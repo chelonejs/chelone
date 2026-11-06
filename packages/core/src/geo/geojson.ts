@@ -12,6 +12,10 @@ import type {
 } from "geojson";
 import { isJsonObject, isRecord, type JsonObject } from "../guards";
 
+// The GeoJSON shapes these guards accept, re-exported so a package that depends
+// on core can name them without `@types/geojson` of its own.
+export type { Feature, FeatureCollection, Geometry } from "geojson";
+
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
