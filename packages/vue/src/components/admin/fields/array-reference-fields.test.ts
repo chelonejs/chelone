@@ -213,6 +213,34 @@ describe("FileField", () => {
     expect(links.map((a) => a.text())).toEqual(["Plan", "Cover"]);
   });
 
+  it("renders a numeric title path as text", () => {
+    const w = mountField(
+      FileField,
+      { source: "url", title: "version" },
+      { url: "doc.pdf", version: 7 },
+    );
+    const a = w.get('[data-slot="file-field"] a');
+    expect(a.text()).toBe("7");
+    expect(a.attributes("title")).toBe("7");
+    expect(a.attributes("href")).toBe("doc.pdf");
+  });
+
+  it("renders numeric array item titles as text", () => {
+    const w = mountField(
+      FileField,
+      { source: "files", src: "url", title: "size" },
+      {
+        files: [
+          { url: "a.pdf", size: 12 },
+          { url: "b.pdf", size: 34 },
+        ],
+      },
+    );
+    const links = w.findAll('[data-slot="file-field"] a');
+    expect(links.map((a) => a.text())).toEqual(["12", "34"]);
+    expect(links.map((a) => a.attributes("href"))).toEqual(["a.pdf", "b.pdf"]);
+  });
+
   it("renders the empty placeholder for a nullish value", () => {
     const w = mountField(
       FileField,

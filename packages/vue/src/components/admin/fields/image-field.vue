@@ -51,7 +51,9 @@ const titleFromRecord = computed(() =>
 
 const titleValue = computed(() =>
   props.title
-    ? (titleFromRecord.value?.toString() ?? props.title)
+    ? titleFromRecord.value == null
+      ? props.title
+      : String(titleFromRecord.value)
     : undefined,
 );
 
@@ -74,17 +76,17 @@ const items = computed<ImageItem[]>(() => {
   if (!Array.isArray(value.value)) return [];
   return value.value.map((file, index) => {
     const fileTitleValue = props.title
-      ? ((getAtPath(file, props.title) ?? props.title) as string)
+      ? String(getAtPath(file, props.title) ?? props.title)
       : props.title;
     const srcValue = props.src
-      ? ((getAtPath(file, props.src) ?? props.title) as string)
+      ? String(getAtPath(file, props.src) ?? props.title)
       : props.title;
     return { src: srcValue, title: fileTitleValue, key: srcValue ?? index };
   });
 });
 
 const singleSrc = computed(() =>
-  (value.value as { toString(): string } | null)?.toString(),
+  value.value == null ? undefined : String(value.value),
 );
 </script>
 

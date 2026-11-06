@@ -55,7 +55,9 @@ const titleFromRecord = computed(() =>
 
 const titleValue = computed(() =>
   props.title
-    ? (titleFromRecord.value?.toString() ?? props.title)
+    ? titleFromRecord.value == null
+      ? props.title
+      : String(titleFromRecord.value)
     : undefined,
 );
 
@@ -82,17 +84,17 @@ const links = computed<FileLink[]>(() => {
   if (!Array.isArray(sourceValue.value)) return [];
   return sourceValue.value.map((file, index) => {
     const fileTitleValue = props.title
-      ? ((getAtPath(file, props.title) ?? props.title) as string)
+      ? String(getAtPath(file, props.title) ?? props.title)
       : props.title;
     const srcValue = props.src
-      ? ((getAtPath(file, props.src) ?? props.title) as string)
+      ? String(getAtPath(file, props.src) ?? props.title)
       : props.title;
     return { href: srcValue, title: fileTitleValue, key: srcValue ?? index };
   });
 });
 
 const singleHref = computed(() =>
-  (sourceValue.value as { toString(): string } | null)?.toString(),
+  sourceValue.value == null ? undefined : String(sourceValue.value),
 );
 
 function stop(e: Event): void {
