@@ -17,6 +17,7 @@ Each entry below needs the peer dependencies listed beside it, and only that ent
 | `@chelone/vue/kanban` | `@dnd-kit/vue`, `@dnd-kit/dom` (needs Vue 3.5) |
 | `@chelone/vue/mdx-editor` | `@milkdown/crepe`, `@milkdown/kit` |
 | `@chelone/vue/rich-text-input` | `@tiptap/core`, `@tiptap/pm`, `@tiptap/vue-3`, `@tiptap/starter-kit`, `@tiptap/extensions`, `dompurify` |
+| `@chelone/vue/block-editor` | `@tiptap/core`, `@tiptap/pm`, `@tiptap/vue-3`, `@tiptap/starter-kit`, `@tiptap/extensions`, `@tiptap/suggestion` |
 | `@chelone/vue/csv-import` | `papaparse` |
 | `@chelone/vue/maps` | `maplibre-gl` |
 | `@chelone/vue/maps/draw` | `maplibre-gl`, `terra-draw`, `terra-draw-maplibre-gl-adapter`, `@turf/difference`, `@turf/simplify` |
