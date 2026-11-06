@@ -179,6 +179,10 @@ export function unwrapUnknownBlocks(doc: BlockDocNode): BlockDocNode {
   return mapChildren(doc, unwrapNode);
 }
 
+/** A stored value an editor can load: an object whose `type` is `"doc"`. */
+export const isBlockDoc = (value: unknown): value is BlockDocNode =>
+  isObject(value) && value.type === "doc";
+
 export const emptyBlockDocument = (): BlockDocNode => ({
   type: "doc",
   content: [{ type: "paragraph" }],

@@ -8,6 +8,7 @@ import {
   describeBlockAttrs,
   emptyBlockDocument,
   getBlockDefaultAttrs,
+  isBlockDoc,
   isEmptyBlockDocument,
   matchBlocks,
   toEmbedSrc,
@@ -208,6 +209,17 @@ describe("emptyBlockDocument", () => {
       content: [{ type: "paragraph" }],
     });
     expect(emptyBlockDocument()).not.toBe(emptyBlockDocument());
+  });
+});
+
+describe("isBlockDoc", () => {
+  it("accepts an object whose type is doc and nothing else", () => {
+    expect(isBlockDoc(emptyBlockDocument())).toBe(true);
+    expect(isBlockDoc({ type: "paragraph" })).toBe(false);
+    expect(isBlockDoc({})).toBe(false);
+    expect(isBlockDoc("doc")).toBe(false);
+    expect(isBlockDoc(null)).toBe(false);
+    expect(isBlockDoc([])).toBe(false);
   });
 });
 
