@@ -5,7 +5,12 @@
     "../../../packages/react/src/monaco.ts",
     "../../../packages/react/src/mdx-editor.ts",
     "../../../packages/react/src/rich-text-input.ts",
-    "../../../packages/react/src/kanban.ts"
+    "../../../packages/react/src/kanban.ts",
+    "../../../packages/react/src/maps.ts",
+    "../../../packages/react/src/maps-draw.ts",
+    "../../../packages/react/src/maps-osm.ts",
+    "../../../packages/react/src/supabase.ts",
+    "../../../packages/react/src/csv-import.ts"
   ],
   "tsconfig": "../../../packages/react/tsconfig.json",
   "json": "./public-api.typedoc.json",

@@ -1,0 +1,89 @@
+{
+  "name": "SimplifyInput",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultCenter",
+      "type": "readonly [number, number]",
+      "optional": true,
+      "comment": "`[lat, lng]`. Read once at mount. Defaults to `[0, 0]`."
+    },
+    {
+      "name": "height",
+      "type": "string | number",
+      "optional": true,
+      "comment": "In pixels, or any CSS length. Defaults to 400."
+    },
+    {
+      "name": "helperText",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The legend. A string is translated; `false` renders none."
+    },
+    {
+      "name": "mapStyle",
+      "type": "MapStyleInput",
+      "optional": true,
+      "comment": "Defaults to the style from `MapsProvider`."
+    },
+    {
+      "name": "maxTolerance",
+      "type": "number",
+      "optional": true,
+      "comment": "Defaults to 0.05."
+    },
+    {
+      "name": "minTolerance",
+      "type": "number",
+      "optional": true,
+      "comment": "Defaults to 0."
+    },
+    {
+      "name": "quality",
+      "type": "SimplifyQuality",
+      "optional": true,
+      "comment": "The initial algorithm. `High` is slower and keeps more detail. Defaults to `Default`."
+    },
+    {
+      "name": "shapeStyle",
+      "type": "ShapeStyle",
+      "optional": true,
+      "comment": "Partial over `DEFAULT_SHAPE_STYLE`."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The form field holding a Geometry, Feature or FeatureCollection."
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "optional": true,
+      "comment": "Defaults to 0.001."
+    },
+    {
+      "name": "tolerance",
+      "type": "number",
+      "optional": true,
+      "comment": "The slider's initial value, in degrees. Defaults to 0.01."
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "optional": true,
+      "comment": "Read once at mount. Defaults to 13."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "SocialAuthButton",
+  "props": [
+    {
+      "name": "asChild",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "provider",
+      "type": "SupabaseOAuthProvider",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "redirect",
+      "type": "string",
+      "optional": true,
+      "comment": "Where the provider sends the user back. Defaults to the current URL."
+    },
+    {
+      "name": "size",
+      "type": "\"default\" | \"xs\" | \"sm\" | \"lg\" | \"icon\" | \"icon-xs\" | \"icon-sm\" | \"icon-lg\" | null",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
