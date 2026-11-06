@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { expect, it } from "vitest";
 import sections from "../src/docs/content/_meta";
 import realtimeMeta from "../src/docs/content/realtime/_meta";
+import { SECTION_META } from "../src/docs/section-meta";
 import { unresolvedDocLinks } from "./docs-links";
 
 const components = [
@@ -15,6 +16,11 @@ const components = [
   { slug: "lock-on-mount", component: "LockOnMount" },
   { slug: "lock-status", component: "LockStatus" },
 ];
+
+it("Realtime has an icon and blurb for section navigation and cards", () => {
+  expect(SECTION_META.realtime?.icon).toBeDefined();
+  expect(SECTION_META.realtime?.blurb).toMatch(/\S/);
+});
 
 it("Realtime follows UI & Layout and lists every realtime component", () => {
   const directories = sections.map((section) => section.dir);
