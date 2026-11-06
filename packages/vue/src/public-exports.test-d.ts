@@ -38,6 +38,8 @@ import type {
   DataTableProps,
   DateInputProps,
   DateTimeInputProps,
+  DiffViewerMode,
+  DiffViewerProps,
   DualApprovalButtonProps,
   DurationInputProps,
   EditLiveProps,
@@ -137,6 +139,9 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<DataTableProps>().toBeObject();
     expectTypeOf<DateInputProps>().toHaveProperty("source");
     expectTypeOf<DateTimeInputProps>().toHaveProperty("source");
+    expectTypeOf<DiffViewerProps>().toHaveProperty("before");
+    expectTypeOf<DiffViewerProps>().toHaveProperty("sources");
+    expectTypeOf<DiffViewerMode>().toEqualTypeOf<"side-by-side" | "inline">();
     expectTypeOf<DualApprovalButtonProps>().toHaveProperty("required");
     expectTypeOf<DualApprovalButtonProps>().toHaveProperty("approverSource");
     expectTypeOf<DualApprovalButtonProps>().toHaveProperty("mutationMode");
