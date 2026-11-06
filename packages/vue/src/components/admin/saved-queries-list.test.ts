@@ -11,6 +11,7 @@ import {
   fakeDataProvider,
   type SavedQuery,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { type DOMWrapper, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -311,9 +312,9 @@ describe("SavedQueriesList", () => {
     expect(wrapper.find('input[aria-label="Query name"]').exists()).toBe(false);
     await button(wrapper, "Save current query")?.trigger("click");
     expect(
-      (
-        wrapper.find('input[aria-label="Query name"]')
-          .element as HTMLInputElement
+      elementOf(
+        wrapper.find('input[aria-label="Query name"]').element,
+        HTMLInputElement,
       ).value,
     ).toBe("");
   });

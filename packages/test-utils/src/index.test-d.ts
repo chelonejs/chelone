@@ -1,5 +1,5 @@
 import { expectTypeOf, it } from "vitest";
-import { defined, elementOf } from "./index";
+import { defined, elementOf, intersectionEntry } from "./index";
 
 it("defined strips null and undefined and keeps every other type", () => {
   const maybeString: string | null | undefined = "a";
@@ -24,4 +24,10 @@ it("elementOf narrows a node to the element type it is asked for", () => {
   expectTypeOf(
     elementOf(node, HTMLAnchorElement),
   ).toEqualTypeOf<HTMLAnchorElement>();
+});
+
+it("intersectionEntry hands the callback a whole entry", () => {
+  expectTypeOf(
+    intersectionEntry(true),
+  ).toEqualTypeOf<IntersectionObserverEntry>();
 });

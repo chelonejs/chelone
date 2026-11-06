@@ -10,6 +10,7 @@ import {
   fakeDataProvider,
   type LooseRecord,
 } from "@chelone/core";
+import { elementOf, intersectionEntry } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -79,8 +80,9 @@ class FakeObserver implements IntersectionObserver {
   ) {
     FakeObserver.instances.push(this);
   }
+  /** Report the sentinel as in or out of view. */
   trigger(isIntersecting: boolean) {
-    this.callback([{ isIntersecting } as IntersectionObserverEntry], this);
+    this.callback([intersectionEntry(isIntersecting)], this);
   }
 }
 
@@ -295,7 +297,7 @@ describe("InfiniteList", () => {
     const boxes = wrapper.findAll('input[aria-label="Select row"]');
     expect(boxes).toHaveLength(4);
     expect(
-      boxes.map((box) => (box.element as HTMLInputElement).checked),
+      boxes.map((box) => elementOf(box.element, HTMLInputElement).checked),
     ).toEqual([true, false, false, false]);
   });
 });
