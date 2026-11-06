@@ -38,8 +38,6 @@ export interface ResourceMenuItemProps {
   className?: string;
   /** Click handler invoked after the default navigation (e.g. close drawer). */
   onClick?: () => void;
-  /** Extra props spread onto the underlying `<SidebarMenuButton>`. */
-  tooltipProps?: Record<string, unknown>;
 }
 
 /**
@@ -64,7 +62,6 @@ function ResourceMenuItem({
   icon,
   className,
   onClick,
-  ...rest
 }: ResourceMenuItemProps) {
   const { canAccess, isPending } = useMenuAccess({
     resource: name,
@@ -106,12 +103,7 @@ function ResourceMenuItem({
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton
-        asChild
-        isActive={!!match}
-        className={className}
-        {...rest}
-      >
+      <SidebarMenuButton asChild isActive={!!match} className={className}>
         <Link to={to} state={{ _scrollToTop: true }} onClick={handleClick}>
           {resolvedIcon}
           {resolvedLabel}
