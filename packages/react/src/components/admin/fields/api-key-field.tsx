@@ -64,14 +64,12 @@ function ApiKeyField<RecordType extends LooseRecord = LooseRecord>({
       ? `${"•".repeat(Math.max(0, key.length - 4))}${key.slice(-4)}`
       : "•".repeat(key.length);
 
-  const scopes =
-    scopesSource && ctx
-      ? (ctx[scopesSource] as string[] | undefined)
-      : undefined;
-  const lastUsed =
-    lastUsedSource && ctx
-      ? (ctx[lastUsedSource] as string | null | undefined)
-      : undefined;
+  const rawScopes = scopesSource && ctx ? ctx[scopesSource] : undefined;
+  const scopes = Array.isArray(rawScopes)
+    ? rawScopes.filter((s): s is string => typeof s === "string")
+    : undefined;
+  const rawLastUsed = lastUsedSource && ctx ? ctx[lastUsedSource] : undefined;
+  const lastUsed = typeof rawLastUsed === "string" ? rawLastUsed : undefined;
 
   const handleCopy = async () => {
     try {

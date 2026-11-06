@@ -43,13 +43,11 @@ function UsageMeterField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: UsageMeterFieldProps<RecordType>) {
-  const used = useFieldValue<LooseRecord>({ defaultValue, source, record }) as
-    | number
-    | null
-    | undefined;
+  const rawUsed = useFieldValue<LooseRecord>({ defaultValue, source, record });
+  const used = typeof rawUsed === "number" ? rawUsed : undefined;
   const ctx = useRecordContext<RecordType>({ record });
-  const limit =
-    limitSource && ctx ? (ctx[limitSource] as number | undefined) : undefined;
+  const rawLimit = limitSource && ctx ? ctx[limitSource] : undefined;
+  const limit = typeof rawLimit === "number" ? rawLimit : undefined;
 
   if (used == null) return null;
 

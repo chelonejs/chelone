@@ -83,13 +83,16 @@ const scopes = computed<string[] | undefined>(() => {
   const rec = ctxRecord.value;
   if (!props.scopesSource || !rec) return undefined;
   const s = rec[props.scopesSource];
-  return Array.isArray(s) ? (s as string[]) : undefined;
+  return Array.isArray(s)
+    ? s.filter((scope): scope is string => typeof scope === "string")
+    : undefined;
 });
 
-const lastUsed = computed<string | null | undefined>(() => {
+const lastUsed = computed<string | undefined>(() => {
   const rec = ctxRecord.value;
   if (!props.lastUsedSource || !rec) return undefined;
-  return rec[props.lastUsedSource] as string | null | undefined;
+  const l = rec[props.lastUsedSource];
+  return typeof l === "string" ? l : undefined;
 });
 
 async function handleCopy() {

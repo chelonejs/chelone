@@ -65,6 +65,22 @@ describe("<ApiKeyField />", () => {
     expect(container.querySelectorAll("[data-scope-badge]").length).toBe(2);
   });
 
+  it("does not show a scope that is not a string", () => {
+    const { container } = render(
+      <ApiKeyField source="apiKey" scopesSource="scopes" />,
+      {
+        wrapper: wrap({
+          id: 1,
+          apiKey: "sk_live_x",
+          scopes: ["read", 7, null, { name: "admin" }],
+        }),
+      },
+    );
+    const badges = container.querySelectorAll("[data-scope-badge]");
+    expect(badges.length).toBe(1);
+    expect(badges[0]?.textContent).toBe("read");
+  });
+
   it("renders a relative 'last used' label when the timestamp is present", () => {
     const twoHoursAgo = new Date(Date.now() - 2 * 3600 * 1000).toISOString();
     const { getByText } = render(
