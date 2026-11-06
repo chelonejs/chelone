@@ -15,6 +15,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -138,7 +139,10 @@ describe("<Layout>", () => {
         </Layout>
       </Providers>,
     );
-    const target = document.getElementById("main-content") as HTMLElement;
+    const target = elementOf(
+      document.getElementById("main-content"),
+      HTMLElement,
+    );
     expect(target.contains(screen.getByText("First control"))).toBe(true);
     expect(
       target.contains(screen.getByRole("button", { name: /toggle sidebar/i })),

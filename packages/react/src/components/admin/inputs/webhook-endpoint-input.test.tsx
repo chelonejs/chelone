@@ -10,6 +10,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -98,11 +99,14 @@ describe("<WebhookEndpointInput>", () => {
       defaultValues: { endpoint: seed },
     });
     expect(
-      (document.querySelector("[data-webhook-url]") as HTMLInputElement).value,
+      elementOf(document.querySelector("[data-webhook-url]"), HTMLInputElement)
+        .value,
     ).toBe("https://a.test/hook");
     expect(
-      (document.querySelector("[data-webhook-secret]") as HTMLInputElement)
-        .value,
+      elementOf(
+        document.querySelector("[data-webhook-secret]"),
+        HTMLInputElement,
+      ).value,
     ).toBe("shh");
   });
 
@@ -113,8 +117,9 @@ describe("<WebhookEndpointInput>", () => {
     const checkboxes = document.querySelectorAll("[data-event-checkbox]");
     expect(checkboxes.length).toBe(2);
     expect(
-      (
-        document.querySelector("#webhook-event-order\\.created") as HTMLElement
+      elementOf(
+        document.querySelector("#webhook-event-order\\.created"),
+        HTMLElement,
       ).getAttribute("data-state"),
     ).toBe("checked");
   });
@@ -164,9 +169,10 @@ describe("<WebhookEndpointInput>", () => {
       <WebhookEndpointInput source="endpoint" eventTypes={EVENTS} />,
       { defaultValues: { endpoint: seed }, onData },
     );
-    fireEvent.change(document.querySelector("[data-webhook-url]") as Element, {
-      target: { value: "https://b.test/hook" },
-    });
+    fireEvent.change(
+      elementOf(document.querySelector("[data-webhook-url]"), HTMLInputElement),
+      { target: { value: "https://b.test/hook" } },
+    );
     await act(async () => {
       await submitRef.current?.();
     });
@@ -182,7 +188,10 @@ describe("<WebhookEndpointInput>", () => {
       { defaultValues: { endpoint: seed }, onData },
     );
     fireEvent.click(
-      document.querySelector("#webhook-event-order\\.updated") as Element,
+      elementOf(
+        document.querySelector("#webhook-event-order\\.updated"),
+        HTMLElement,
+      ),
     );
     await act(async () => {
       await submitRef.current?.();
@@ -205,9 +214,10 @@ describe("<WebhookEndpointInput>", () => {
       />,
       { defaultValues: { endpoint: seed } },
     );
-    const button = document.querySelector(
-      "[data-test-ping-button]",
-    ) as HTMLButtonElement;
+    const button = elementOf(
+      document.querySelector("[data-test-ping-button]"),
+      HTMLButtonElement,
+    );
     expect(button).toBeTruthy();
     await act(async () => {
       fireEvent.click(button);

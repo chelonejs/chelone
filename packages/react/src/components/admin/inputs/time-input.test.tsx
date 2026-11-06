@@ -12,6 +12,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -90,7 +91,10 @@ describe("<TimeInput>", () => {
     setup(<TimeInput source="opens_at" />, {
       defaultValues: { opens_at: "08:30" },
     });
-    const input = screen.getByLabelText("Opens at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Opens at"),
+      HTMLInputElement,
+    );
     expect(input.getAttribute("type")).toBe("time");
     expect(input.value).toBe("08:30");
   });
@@ -100,7 +104,10 @@ describe("<TimeInput>", () => {
     setup(<TimeInput source="opens_at" />, {
       defaultValues: { opens_at: d },
     });
-    const input = screen.getByLabelText("Opens at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Opens at"),
+      HTMLInputElement,
+    );
     expect(input.value).toBe("08:30");
   });
 
@@ -110,16 +117,19 @@ describe("<TimeInput>", () => {
       <TimeInput source="opens_at" />,
       { defaultValues: { opens_at: null }, onData },
     );
-    const input = screen.getByLabelText("Opens at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Opens at"),
+      HTMLInputElement,
+    );
     fireEvent.change(input, { target: { value: "09:45" } });
     await act(async () => {
       await submitRef.current?.();
     });
     const written = onData.mock.calls.at(-1)?.[0]?.opens_at;
     // Default parse returns a Date at today's date with the entered time.
-    expect(written).toBeInstanceOf(Date);
-    expect((written as Date).getHours()).toBe(9);
-    expect((written as Date).getMinutes()).toBe(45);
+    if (!(written instanceof Date)) throw new Error("Expected a parsed Date");
+    expect(written.getHours()).toBe(9);
+    expect(written.getMinutes()).toBe(45);
   });
 
   it("accepts a custom parse returning the raw string", async () => {
@@ -128,7 +138,10 @@ describe("<TimeInput>", () => {
       <TimeInput source="opens_at" parse={(v) => v} />,
       { defaultValues: { opens_at: null }, onData },
     );
-    const input = screen.getByLabelText("Opens at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Opens at"),
+      HTMLInputElement,
+    );
     fireEvent.change(input, { target: { value: "09:45" } });
     await act(async () => {
       await submitRef.current?.();
@@ -140,7 +153,10 @@ describe("<TimeInput>", () => {
     setup(<TimeInput source="opens_at" />, {
       defaultValues: { opens_at: { year: 2021 } },
     });
-    const input = screen.getByLabelText<HTMLInputElement>("Opens at");
+    const input = elementOf(
+      screen.getByLabelText("Opens at"),
+      HTMLInputElement,
+    );
     expect(input.value).toBe("");
   });
 
@@ -163,7 +179,7 @@ describe("<TimeInput>", () => {
       defaultValues: { opens_at: "08:30" },
     });
     expect(
-      (screen.getByLabelText("Opens at") as HTMLInputElement).disabled,
+      elementOf(screen.getByLabelText("Opens at"), HTMLInputElement).disabled,
     ).toBe(true);
   });
 
