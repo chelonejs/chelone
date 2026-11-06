@@ -120,7 +120,7 @@ describe("useInput value typing", () => {
     useInput<Article, "views">({
       source: "views",
       format: (value) => {
-        expectTypeOf(value).toEqualTypeOf<number>();
+        expectTypeOf(value).toEqualTypeOf<number | undefined>();
         return String(value);
       },
     });

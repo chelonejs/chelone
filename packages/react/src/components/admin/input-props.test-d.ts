@@ -15,6 +15,10 @@ type Post = {
 declare function acceptPostInput(props: InputProps<Post>): void;
 declare function acceptLooseInput(props: InputProps): void;
 declare function acceptTitleInput(props: InputProps<Post, "title">): void;
+declare function acceptRowInput(props: InputProps<Post, "qty">): void;
+declare function acceptFilterInput(
+  props: InputProps<Post, "published_at_gte">,
+): void;
 
 describe("InputProps", () => {
   it("InputProps source is SourceProp of its record", () => {
@@ -53,7 +57,7 @@ describe("InputProps", () => {
   it('InputProps<Post, "title"> types format and parse by the value at the path', () => {
     expectTypeOf<Required<InputProps<Post, "title">>["format"]>()
       .parameter(0)
-      .toEqualTypeOf<string>();
+      .toEqualTypeOf<string | undefined>();
     expectTypeOf<
       Required<InputProps<Post, "title">>["format"]
     >().returns.toBeUnknown();
@@ -65,13 +69,39 @@ describe("InputProps", () => {
     >().returns.toEqualTypeOf<string>();
     acceptTitleInput({
       source: "title",
-      format: (value) => value.toUpperCase(),
+      format: (value) => value?.toUpperCase(),
       parse: (value) => String(value),
     });
+    // @ts-expect-error an empty create form leaves `title` a hole: format must guard
+    acceptTitleInput({ source: "title", format: (v) => v.toUpperCase() });
     // @ts-expect-error format receives the value at "title", not any value
     acceptTitleInput({ source: "title", format: (value: number) => value });
     // @ts-expect-error parse must return the value at "title"
     acceptTitleInput({ source: "title", parse: () => 1 });
+  });
+
+  it("InputProps keeps the transforms loose for a source that names no value of the record", () => {
+    // A row path (`qty` under `items[]`) and a filter key are legal sources, but
+    // neither is a path of the record, so nothing is known about their value.
+    expectTypeOf<Required<InputProps<Post, "qty">>["format"]>()
+      .parameter(0)
+      .toBeUnknown();
+    expectTypeOf<
+      Required<InputProps<Post, "qty">>["parse"]
+    >().returns.toBeUnknown();
+    expectTypeOf<
+      Required<InputProps<Post, "published_at_gte">>["parse"]
+    >().returns.toBeUnknown();
+    acceptRowInput({
+      source: "qty",
+      format: (value) => String(value),
+      parse: (value) => Number(value),
+    });
+    acceptFilterInput({
+      source: "published_at_gte",
+      format: (value) => value,
+      parse: (value) => value,
+    });
   });
 
   it("InputProps<Post> types format over the values at every Post path", () => {

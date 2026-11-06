@@ -1,6 +1,7 @@
 import type {
   SourcePath,
   SourceProp,
+  SourceTransformValue,
   SourceValue,
   TranslatableMessage,
   Validator,
@@ -50,14 +51,17 @@ export interface InputProps<
   validate?: Validator | readonly Validator[];
   /**
    * Read transform (raw form value → input value). Receives the value at
-   * `source`; `unknown` without a record.
+   * `source`, plus the hole an untouched field leaves (a create form with no
+   * `defaultValue` reads `undefined`); `unknown` without a record.
    */
-  format?: (value: NoInfer<SourceValue<TRecord, TPath>>) => unknown;
+  format?: (
+    value: NoInfer<SourceTransformValue<TRecord, TPath>> | undefined,
+  ) => unknown;
   /**
    * Write transform (input value → stored value). Must return the value at
    * `source`; `unknown` without a record.
    */
-  parse?: (value: unknown) => NoInfer<SourceValue<TRecord, TPath>>;
+  parse?: (value: unknown) => NoInfer<SourceTransformValue<TRecord, TPath>>;
   /**
    * Input-level default, ra precedence (seeds only into an untouched hole).
    * Typed as the value at `source`; `unknown` without a record.

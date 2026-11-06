@@ -18,6 +18,7 @@ import type {
   ResourceMap,
   SaveOptions,
   SourceProp,
+  SourceTransformValue,
   SourceValue,
   TranslatableMessage,
 } from "@chelone/core";
@@ -347,7 +348,8 @@ export interface UseInputOptions<
   // `SourceProp`, not `SourcePath`: `source` is relative to the ambient scope,
   // so a row path (`sku` under `items[]`) and a filter key are legal here. It is
   // also what lets an input hand over its own `TPath`, which is how `format` and
-  // `parse` get the value at `source`.
+  // `parse` get the value at `source` — `SourceTransformValue` for the relative
+  // paths, whose value the record type cannot name.
   TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TInput = unknown,
 > extends Omit<FieldBindingUpdateOptions, "defaultValue" | "format" | "parse"> {
@@ -355,10 +357,15 @@ export interface UseInputOptions<
   source: TPath;
   /** Seeds an empty field; typed as the value at `source` (`unknown` without a record). */
   defaultValue?: NoInfer<SourceValue<TRecord, TPath>>;
-  /** Read transform (stored value -> input value). Default `defaultFormat`. */
-  format?: (value: NoInfer<SourceValue<TRecord, TPath>>) => TInput;
+  /**
+   * Read transform (stored value -> input value). Default `defaultFormat`.
+   * Receives the value at `source`, plus the hole an untouched field leaves.
+   */
+  format?: (
+    value: NoInfer<SourceTransformValue<TRecord, TPath>> | undefined,
+  ) => TInput;
   /** Write transform (input value -> stored value). Default `defaultParse`. */
-  parse?: (input: TInput) => NoInfer<SourceValue<TRecord, TPath>>;
+  parse?: (input: TInput) => NoInfer<SourceTransformValue<TRecord, TPath>>;
   /** Forces the required marker; ORed with `required()` detection on `validate`. */
   isRequired?: boolean;
   /** Explicit element id; a `useId` value is generated otherwise. */

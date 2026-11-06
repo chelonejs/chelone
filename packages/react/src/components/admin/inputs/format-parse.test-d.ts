@@ -47,26 +47,32 @@ declare function acceptAutocomplete(
   props: AutocompleteInputProps<Post, "tag_ids">,
 ): void;
 declare function acceptMdx(props: MdxInputProps<Post>): void;
+declare function acceptCurrencyFilter(
+  props: CurrencyInputProps<Post, "views_gte">,
+): void;
 
 describe("InputProps format and parse by source", () => {
   it("an input that names its source types format by the value at it", () => {
     expectTypeOf<Required<CurrencyInputProps<Post, "views">>["format"]>()
       .parameter(0)
-      .toEqualTypeOf<number>();
+      .toEqualTypeOf<number | undefined>();
     expectTypeOf<Required<RatingInputProps<Post, "rating">>["format"]>()
       .parameter(0)
-      .toEqualTypeOf<number>();
+      .toEqualTypeOf<number | undefined>();
     expectTypeOf<Required<DurationInputProps<Post, "published_at">>["format"]>()
       .parameter(0)
-      .toEqualTypeOf<string>();
+      .toEqualTypeOf<string | undefined>();
     expectTypeOf<
       Required<SubscriptionPlanPickerProps<Post, "title">>["format"]
     >()
       .parameter(0)
-      .toEqualTypeOf<string>();
+      .toEqualTypeOf<string | undefined>();
 
-    acceptCurrency({ source: "views", format: (value) => value.toFixed(0) });
-    acceptDuration({ source: "published_at", format: (value) => value.trim() });
+    acceptCurrency({ source: "views", format: (value) => value?.toFixed(0) });
+    acceptDuration({
+      source: "published_at",
+      format: (value) => value?.trim(),
+    });
     // @ts-expect-error `views` holds a number, not a string
     acceptCurrency({ source: "views", format: (value: string) => value });
   });
@@ -129,5 +135,22 @@ describe("InputProps format and parse by source", () => {
     acceptMdx({ source: "title", format: (value) => value });
     // @ts-expect-error no path of a post holds a boolean
     acceptMdx({ source: "title", parse: () => true });
+  });
+
+  it("a filter key as source keeps both transforms loose", () => {
+    // `views_gte` is a legal source in a filter, but it is not a path of Post, so
+    // the transforms over it stay `unknown` rather than demanding an unwritable
+    // `never`.
+    expectTypeOf<Required<CurrencyInputProps<Post, "views_gte">>["format"]>()
+      .parameter(0)
+      .toBeUnknown();
+    expectTypeOf<
+      Required<CurrencyInputProps<Post, "views_gte">>["parse"]
+    >().returns.toBeUnknown();
+    acceptCurrencyFilter({
+      source: "views_gte",
+      format: (value) => String(value),
+      parse: (value) => Number(value),
+    });
   });
 });
