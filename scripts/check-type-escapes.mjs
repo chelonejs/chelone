@@ -60,7 +60,23 @@ function scripts(file, text) {
   return blocks;
 }
 
-/** An `unknown` that is the right type: a type guard's input, a catch binding, a conditional type's check. */
+// A return type that says nothing about what the function did with its input.
+const OPAQUE_RETURN = new Set([ts.SyntaxKind.UnknownKeyword, ts.SyntaxKind.AnyKeyword, ts.SyntaxKind.VoidKeyword]);
+
+function mentionsOpaque(node) {
+  if (OPAQUE_RETURN.has(node.kind)) return true;
+  let found = false;
+  ts.forEachChild(node, (child) => {
+    if (!found && mentionsOpaque(child)) found = true;
+  });
+  return found;
+}
+
+/**
+ * An `unknown` that is the right type: a type guard's input, a catch binding, a conditional
+ * type's check, a type parameter's default or constraint (`<TRecord = unknown>`), or the input
+ * of a function that narrows it to a concrete return (`function parse(value: unknown): string`).
+ */
 function isHonestUnknown(node) {
   const parent = node.parent;
   if (ts.isConditionalTypeNode(parent) && (parent.checkType === node || parent.extendsType === node)) return true;
@@ -68,6 +84,12 @@ function isHonestUnknown(node) {
   if (ts.isVariableDeclaration(parent) && ts.isCatchClause(parent.parent)) return true;
   // The inner half of `x as unknown as T` is counted once, as the double cast.
   if (ts.isAsExpression(parent) && ts.isAsExpression(parent.parent) && parent.parent.expression === parent) return true;
+  if (ts.isTypeParameterDeclaration(parent) && (parent.default === node || parent.constraint === node)) return true;
+  // A parameter typed exactly `unknown` on a function with a body and a declared return type
+  // that mentions none of `unknown`, `any` or `void`: the signature shows the input was narrowed.
+  // A callback type or an overload signature has no body, so its `unknown` parameter stays counted.
+  const fn = parent.parent;
+  if (ts.isParameter(parent) && parent.type === node && fn?.body && fn.type && !mentionsOpaque(fn.type)) return true;
   return false;
 }
 
