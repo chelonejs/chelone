@@ -385,6 +385,9 @@ importers:
         specifier: ^4.6.7
         version: 4.6.7
     devDependencies:
+      '@chelone/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
       '@mdx-js/react':
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.3.0)(react@19.3.1)
@@ -685,6 +688,9 @@ importers:
       '@arethetypeswrong/cli':
         specifier: ^0.18.5
         version: 0.18.5
+      '@chelone/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       publint:
         specifier: ^0.3.25
         version: 0.3.25
@@ -704,6 +710,9 @@ importers:
       '@arethetypeswrong/cli':
         specifier: ^0.18.5
         version: 0.18.5
+      '@chelone/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       '@supabase/supabase-js':
         specifier: ^2.119.0
         version: 2.119.0

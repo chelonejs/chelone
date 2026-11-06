@@ -1,7 +1,17 @@
 import assert from "node:assert/strict";
+import { defined } from "@chelone/test-utils";
 import { test } from "vitest";
 import { buildNavTree, lastSegment } from "./nav.ts";
-import type { DocGroup } from "./types.ts";
+import type { DocGroup, DocLeaf, DocNode } from "./types.ts";
+
+function leavesOf(nodes: DocNode[]): DocLeaf[] {
+  return nodes.filter((n): n is DocLeaf => n.kind === "leaf");
+}
+
+function groupOf(node: DocNode | undefined): DocGroup {
+  if (node?.kind !== "group") throw new Error("Expected a group");
+  return node;
+}
 
 test("buildNavTree orders by _meta then alpha, nests dirs", () => {
   const slugs = [
@@ -24,18 +34,17 @@ test("buildNavTree orders by _meta then alpha, nests dirs", () => {
   const tree = buildNavTree(slugs, metas);
 
   // Top order from root _meta: getting-started before components
-  assert.equal(tree[0].kind, "group");
-  assert.equal((tree[0] as any).dir, "getting-started");
+  const gs = groupOf(tree[0]);
+  assert.equal(gs.dir, "getting-started");
   // Within getting-started: quick-start before install (meta order)
-  const gs = tree[0] as any;
   assert.deepEqual(
-    gs.children.map((c: any) => c.slug),
+    leavesOf(gs.children).map((c) => c.slug),
     ["getting-started/quick-start", "getting-started/install"],
   );
   // components: data-table listed in meta first, array-input appended alpha
-  const comp = tree[1] as any;
+  const comp = groupOf(tree[1]);
   assert.deepEqual(
-    comp.children.map((c: any) => c.slug),
+    leavesOf(comp.children).map((c) => c.slug),
     ["components/data-table", "components/array-input"],
   );
 });
@@ -54,12 +63,14 @@ test("buildNavTree sets indexSlug to a group's first leaf descendant", () => {
     ],
     "page-components/edit": [{ slug: "overview" }, { slug: "layout" }],
   };
-  const tree = buildNavTree(slugs, metas, (s) => s.split("/").pop()!);
-  const section = tree.find((g) => g.dir === "page-components")!;
-  const editGroup = section.children.find(
-    (c): c is DocGroup =>
-      c.kind === "group" && c.dir === "page-components/edit",
-  )!;
+  const tree = buildNavTree(slugs, metas, (s) => defined(s.split("/").pop()));
+  const section = defined(tree.find((g) => g.dir === "page-components"));
+  const editGroup = defined(
+    section.children.find(
+      (c): c is DocGroup =>
+        c.kind === "group" && c.dir === "page-components/edit",
+    ),
+  );
   assert.equal(editGroup.indexSlug, "page-components/edit/overview");
 });
 
@@ -72,8 +83,9 @@ test("buildNavTree expands a category entry into its pages in order, each tagged
       { category: "Second", slugs: ["d"] },
     ],
   };
-  const tree = buildNavTree(slugs, metas, (s) => s.split("/").pop()!);
-  const leaves = tree[0].children.filter((c) => c.kind === "leaf");
+  const tree = buildNavTree(slugs, metas, (s) => defined(s.split("/").pop()));
+  const first = defined(tree[0]);
+  const leaves = leavesOf(first.children);
   assert.deepEqual(
     leaves.map((c) => [c.slug, c.category]),
     [
@@ -84,7 +96,7 @@ test("buildNavTree expands a category entry into its pages in order, each tagged
     ],
   );
   // Categorised pages stay direct children of the section.
-  assert.equal(leaves.length, tree[0].children.length);
+  assert.equal(leaves.length, first.children.length);
 });
 
 test("buildNavTree skips a category slug that has no page and appends unlisted pages without a category", () => {
@@ -93,9 +105,9 @@ test("buildNavTree skips a category slug that has no page and appends unlisted p
     "": [{ dir: "ui", title: "UI" }],
     ui: [{ category: "Only", slugs: ["missing", "z"] }],
   };
-  const tree = buildNavTree(slugs, metas, (s) => s.split("/").pop()!);
+  const tree = buildNavTree(slugs, metas, (s) => defined(s.split("/").pop()));
   assert.deepEqual(
-    tree[0].children.map((c) => [(c as any).slug, (c as any).category]),
+    leavesOf(defined(tree[0]).children).map((c) => [c.slug, c.category]),
     [
       ["ui/z", "Only"],
       ["ui/a", undefined],
