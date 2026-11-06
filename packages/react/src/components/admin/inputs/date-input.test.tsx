@@ -14,6 +14,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -92,7 +93,10 @@ describe("<DateInput>", () => {
     setup(<DateInput source="published_at" />, {
       defaultValues: { published_at: "2021-09-11" },
     });
-    const input = screen.getByLabelText("Published at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Published at"),
+      HTMLInputElement,
+    );
     expect(input.getAttribute("type")).toBe("date");
     expect(input.value).toBe("2021-09-11");
   });
@@ -101,7 +105,10 @@ describe("<DateInput>", () => {
     setup(<DateInput source="published_at" />, {
       defaultValues: { published_at: "2021-09-11T06:51:17.772Z" },
     });
-    const input = screen.getByLabelText("Published at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Published at"),
+      HTMLInputElement,
+    );
     expect(input.value).toBe("2021-09-11");
   });
 
@@ -109,7 +116,10 @@ describe("<DateInput>", () => {
     setup(<DateInput source="published_at" />, {
       defaultValues: { published_at: new Date("2021-09-11T12:00:00.000Z") },
     });
-    const input = screen.getByLabelText("Published at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Published at"),
+      HTMLInputElement,
+    );
     expect(input.value).toBe("2021-09-11");
   });
 
@@ -119,7 +129,10 @@ describe("<DateInput>", () => {
       <DateInput source="published_at" />,
       { defaultValues: { published_at: null }, onData },
     );
-    const input = screen.getByLabelText("Published at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Published at"),
+      HTMLInputElement,
+    );
     fireEvent.change(input, { target: { value: "2021-10-20" } });
     await act(async () => {
       await submitRef.current?.();
@@ -133,7 +146,10 @@ describe("<DateInput>", () => {
       <DateInput source="published_at" />,
       { defaultValues: { published_at: "2021-09-11" }, onData },
     );
-    const input = screen.getByLabelText("Published at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Published at"),
+      HTMLInputElement,
+    );
     fireEvent.change(input, { target: { value: "" } });
     fireEvent.blur(input);
     await act(async () => {
@@ -149,11 +165,16 @@ describe("<DateInput>", () => {
     const { submitRef } = setup<{ published_at: unknown }>(
       <DateInput
         source="published_at"
-        parse={(v) => (v ? new Date(v as string).toISOString() : null)}
+        parse={(v) =>
+          typeof v === "string" && v ? new Date(v).toISOString() : null
+        }
       />,
       { defaultValues: { published_at: null }, onData },
     );
-    const input = screen.getByLabelText("Published at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Published at"),
+      HTMLInputElement,
+    );
     fireEvent.change(input, { target: { value: "2021-10-20" } });
     await act(async () => {
       await submitRef.current?.();
@@ -166,7 +187,10 @@ describe("<DateInput>", () => {
     setup(<DateInput source="published_at" />, {
       defaultValues: { published_at: { year: 2021 } },
     });
-    const input = screen.getByLabelText<HTMLInputElement>("Published at");
+    const input = elementOf(
+      screen.getByLabelText("Published at"),
+      HTMLInputElement,
+    );
     expect(input.value).toBe("");
   });
 
@@ -189,7 +213,8 @@ describe("<DateInput>", () => {
       defaultValues: { published_at: "2021-09-11" },
     });
     expect(
-      (screen.getByLabelText("Published at") as HTMLInputElement).disabled,
+      elementOf(screen.getByLabelText("Published at"), HTMLInputElement)
+        .disabled,
     ).toBe(true);
   });
 

@@ -12,6 +12,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -90,7 +91,10 @@ describe("<DateTimeInput>", () => {
     setup(<DateTimeInput source="starts_at" />, {
       defaultValues: { starts_at: "2021-09-11T10:30" },
     });
-    const input = screen.getByLabelText("Starts at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Starts at"),
+      HTMLInputElement,
+    );
     expect(input.getAttribute("type")).toBe("datetime-local");
     expect(input.value).toBe("2021-09-11T10:30");
   });
@@ -100,7 +104,10 @@ describe("<DateTimeInput>", () => {
     setup(<DateTimeInput source="starts_at" />, {
       defaultValues: { starts_at: d },
     });
-    const input = screen.getByLabelText("Starts at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Starts at"),
+      HTMLInputElement,
+    );
     expect(input.value).toBe("2021-09-11T10:30");
   });
 
@@ -110,7 +117,10 @@ describe("<DateTimeInput>", () => {
       <DateTimeInput source="starts_at" />,
       { defaultValues: { starts_at: null }, onData },
     );
-    const input = screen.getByLabelText("Starts at") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Starts at"),
+      HTMLInputElement,
+    );
     fireEvent.change(input, { target: { value: "2021-10-20T08:15" } });
     await act(async () => {
       await submitRef.current?.();
@@ -118,14 +128,18 @@ describe("<DateTimeInput>", () => {
     const written = onData.mock.calls.at(-1)?.[0]?.starts_at;
     // Default parse converts the local datetime-local value to an ISO string.
     expect(typeof written).toBe("string");
-    expect(new Date(written as string).getTime()).not.toBeNaN();
+    if (typeof written !== "string") throw new Error("expected an ISO string");
+    expect(new Date(written).getTime()).not.toBeNaN();
   });
 
   it("renders empty for a stored object", () => {
     setup(<DateTimeInput source="starts_at" />, {
       defaultValues: { starts_at: { year: 2021 } },
     });
-    const input = screen.getByLabelText<HTMLInputElement>("Starts at");
+    const input = elementOf(
+      screen.getByLabelText("Starts at"),
+      HTMLInputElement,
+    );
     expect(input.value).toBe("");
   });
 
@@ -148,7 +162,7 @@ describe("<DateTimeInput>", () => {
       defaultValues: { starts_at: "2021-09-11T10:30" },
     });
     expect(
-      (screen.getByLabelText("Starts at") as HTMLInputElement).disabled,
+      elementOf(screen.getByLabelText("Starts at"), HTMLInputElement).disabled,
     ).toBe(true);
   });
 
