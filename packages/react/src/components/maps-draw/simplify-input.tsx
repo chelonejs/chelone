@@ -1,5 +1,6 @@
 import {
   asFeatureCollection,
+  deepEqual,
   geoBounds,
   isGeoJsonValue,
   isLngLatBox,
@@ -86,10 +87,6 @@ function Preview({
   return null;
 }
 
-function sameJson(a: unknown, b: unknown): boolean {
-  return a === b || JSON.stringify(a) === JSON.stringify(b);
-}
-
 /**
  * Thins a stored Geometry, Feature or FeatureCollection with a tolerance
  * slider, and previews the result on a map. The form holds the simplified
@@ -157,7 +154,7 @@ export function SimplifyInput<TRecord = LooseRecord>({
       tolerance,
       highQuality: quality === "High",
     });
-    if (sameJson(next, value)) return;
+    if (deepEqual(next, value)) return;
     written.current = next;
     onChange.current(next);
   }, [value, tolerance, quality]);
