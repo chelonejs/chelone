@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { defined, elementOf } from "./index";
+import { defined, elementOf, intersectionEntry } from "./index";
 
 describe("defined", () => {
   it("defined returns a value and keeps 0, the empty string and false", () => {
@@ -39,5 +39,20 @@ describe("elementOf", () => {
     expect(() => elementOf(null, HTMLDivElement)).toThrow(
       "Expected HTMLDivElement",
     );
+  });
+});
+
+describe("intersectionEntry", () => {
+  it("fills every entry field and varies only isIntersecting", () => {
+    const inView = intersectionEntry(true);
+    expect(inView.isIntersecting).toBe(true);
+    expect(inView.intersectionRatio).toBe(1);
+    expect(inView.rootBounds).toBeNull();
+    expect(inView.target).toBeInstanceOf(HTMLElement);
+    expect(inView.time).toBe(0);
+
+    const outOfView = intersectionEntry(false);
+    expect(outOfView.isIntersecting).toBe(false);
+    expect(outOfView.intersectionRatio).toBe(0);
   });
 });
