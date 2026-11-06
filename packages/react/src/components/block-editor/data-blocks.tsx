@@ -1,6 +1,7 @@
 import {
   formatDataBlockValue,
   pickDataBlockFields,
+  readDataBlockValue,
   recordListBlockSpec,
   referenceRecordBlockSpec,
 } from "@chelone/core";
@@ -33,7 +34,6 @@ import {
   CountInput,
   DataBlockState,
   FieldsInput,
-  ownValue,
   ResourceSelect,
   useDataBlockGate,
 } from "./data-block-parts";
@@ -86,7 +86,7 @@ function ReferenceRecordView({
               <dt className="text-muted-foreground">
                 {translateLabel({ source: field, resource })}
               </dt>
-              <dd>{formatDataBlockValue(ownValue(data, field))}</dd>
+              <dd>{formatDataBlockValue(readDataBlockValue(data, field))}</dd>
             </div>
           ))}
         </dl>
@@ -210,7 +210,7 @@ function RecordListView({ attrs }: BlockRenderProps<RecordListAttrs>) {
           <TableRow key={String(row.id)}>
             {columns.map((column) => (
               <TableCell key={column}>
-                {formatDataBlockValue(ownValue(row, column))}
+                {formatDataBlockValue(readDataBlockValue(row, column))}
               </TableCell>
             ))}
           </TableRow>
