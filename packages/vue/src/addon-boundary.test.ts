@@ -21,6 +21,12 @@ const ADDONS = [
     packages: ["@guolao/vue-monaco-editor", "monaco-editor"],
   },
   {
+    name: "charts",
+    folder: "src/components/charts",
+    entry: "src/charts.ts",
+    packages: ["@unovis/vue", "@unovis/ts"],
+  },
+  {
     name: "kanban",
     folder: "src/components/kanban",
     entry: "src/kanban.ts",
