@@ -13,29 +13,35 @@ import ReferenceField, {
 
 const View = defineComponent({ render: () => h("div") });
 
-const Row = defineComponent({
-  props: {
-    link: { type: [String, Boolean], default: undefined },
-    onRowClick: { type: Function, default: undefined },
-  },
-  setup(props) {
-    provideRecordContext({ id: 10, author_id: 1 });
-    return () =>
-      h(
-        "div",
-        { "data-slot": "row", onClick: props.onRowClick as () => void },
-        h(ReferenceField, {
-          source: "author_id",
-          reference: "authors",
-          link: props.link,
-        } as ReferenceFieldProps),
-      );
-  },
-});
+/** What a test varies about the row: the field's `link` and the row's click handler. */
+interface RowProps {
+  link?: ReferenceFieldProps["link"];
+  onRowClick?: () => void;
+}
 
-async function mountField(
-  rowProps: { link?: string | boolean; onRowClick?: () => void } = {},
-) {
+/**
+ * A row holding `<ReferenceField>` over a fixed record. The props are closed
+ * over rather than declared as Vue props so each keeps its exact type.
+ */
+function makeRow(row: RowProps) {
+  return defineComponent({
+    setup() {
+      provideRecordContext({ id: 10, author_id: 1 });
+      return () =>
+        h(
+          "div",
+          { "data-slot": "row", onClick: row.onRowClick },
+          h(ReferenceField, {
+            source: "author_id",
+            reference: "authors",
+            link: row.link,
+          }),
+        );
+    },
+  });
+}
+
+async function mountField(rowProps: RowProps = {}) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [{ path: "/:pathMatch(.*)*", component: { render: () => null } }],
@@ -57,7 +63,7 @@ async function mountField(
           {
             default: () => [
               h(Resource, { name: "authors", list: View, show: View }),
-              h(Row, rowProps),
+              h(makeRow(rowProps)),
             ],
             layout: () => h("div"),
           },
