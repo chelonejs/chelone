@@ -6,6 +6,7 @@ import {
   defaultDataTableStoreKey,
   getDataTableColumnId,
   moveColumn,
+  moveColumnTo,
   toggleHiddenColumn,
 } from "./data-table-columns";
 
@@ -89,6 +90,39 @@ describe("moveColumn", () => {
     const result = moveColumn(order, ["a", "b"], "a", 1);
     expect(order).toEqual(["a", "b"]);
     expect(result).not.toBe(order);
+  });
+});
+
+describe("moveColumnTo", () => {
+  it("moves a column to an index, clamped to the ends", () => {
+    const ids = ["a", "b", "c", "d"];
+    expect(moveColumnTo(ids, ids, "a", 2)).toEqual(["b", "c", "a", "d"]);
+    expect(moveColumnTo(ids, ids, "d", 0)).toEqual(["d", "a", "b", "c"]);
+    expect(moveColumnTo(ids, ids, "b", 99)).toEqual(["a", "c", "d", "b"]);
+    expect(moveColumnTo(ids, ids, "c", -5)).toEqual(["c", "a", "b", "d"]);
+  });
+
+  it("indexes the resolved order, not the declared one", () => {
+    expect(moveColumnTo(["c"], ["a", "b", "c"], "a", 1)).toEqual([
+      "c",
+      "a",
+      "b",
+    ]);
+  });
+
+  it("returns the resolved order for an unknown id", () => {
+    expect(moveColumnTo(["c"], ["a", "b", "c"], "nope", 1)).toEqual([
+      "c",
+      "a",
+      "b",
+    ]);
+  });
+
+  it("does not mutate its arguments", () => {
+    const order = ["a", "b"];
+    const result = moveColumnTo(order, ["a", "b"], "a", 1);
+    expect(order).toEqual(["a", "b"]);
+    expect(result).toEqual(["b", "a"]);
   });
 });
 

@@ -151,6 +151,7 @@ export {
   defaultDataTableStoreKey,
   getDataTableColumnId,
   moveColumn,
+  moveColumnTo,
   toggleHiddenColumn,
 } from "./controller/data-table-columns";
 export {
@@ -171,6 +172,20 @@ export type {
   InfiniteListControllerState,
 } from "./controller/infinite-list-controller";
 export { createInfiniteListController } from "./controller/infinite-list-controller";
+export type {
+  Inspector,
+  InspectorPosition,
+  InspectorSelection,
+  InspectorState,
+  InspectorViewport,
+} from "./controller/inspector";
+export {
+  clampInspectorPosition,
+  configurableInputColumns,
+  createInspector,
+  defaultConfigurableInputsStoreKey,
+  inspectorPositionKey,
+} from "./controller/inspector";
 export type {
   JobActionOptions,
   JobActions,
