@@ -1,0 +1,39 @@
+// @vitest-environment node
+import { readFileSync } from "node:fs";
+import { expect, it } from "vitest";
+import { unresolvedDocLinks } from "./docs-links";
+
+const read = (path: string) =>
+  readFileSync(new URL(path, import.meta.url), "utf8");
+const page = read("../src/docs/content/getting-started/mcp/index.mdx");
+const meta = read("../src/docs/content/getting-started/_meta.ts");
+
+it("the MCP page gives clients the Chelone registry and example prompts", () => {
+  expect(page).toMatch(/^title: "MCP Server"$/m);
+  expect(page).toMatch(/^description: ".+"$/m);
+  expect(page).toContain("](/docs/getting-started/install)");
+  for (const client of ["claude", "cursor", "vscode"]) {
+    expect(page).toContain(`npx shadcn@latest mcp init --client ${client}`);
+  }
+  expect(page).toContain("components.json");
+  expect(page).toMatch(
+    /"registries":\s*\{\s*"@chelone": "https:\/\/chelone\.dev\/r\/\{name\}\.json"/,
+  );
+  for (const prompt of [
+    "show me all available components in the chelone registry",
+    "init this project using the chelone registry",
+    "create a new admin using the chelone registry and declare 3 resources in it: posts, comments and users",
+  ]) {
+    expect(page).toContain(prompt);
+  }
+});
+
+it("getting started lists MCP Server immediately after Installation", () => {
+  expect(meta).toMatch(
+    /slug: "install", title: "Installation" \},\s*\{ slug: "mcp", title: "MCP Server" \}/,
+  );
+});
+
+it("the MCP page has no unresolved doc links", () => {
+  expect(unresolvedDocLinks(page)).toEqual([]);
+});
