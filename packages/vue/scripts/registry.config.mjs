@@ -131,7 +131,7 @@ export const blocks = [
     title: "Chelone Charts",
     categories: ["chelone", "charts"],
     description:
-      "The opt-in charts add-on: TrendChart draws a line or an area over one numeric field in a card, with unovis. Installs @unovis/vue and @unovis/ts.",
+      "The opt-in charts add-on: TrendChart draws a line or an area, BarChart a bar per row and DonutChart a segment per value, each in a card, with unovis. Installs @unovis/vue and @unovis/ts.",
     granularize: true,
     inferDependencies: true,
     sourceDirs: [{ path: "src/components/charts", recursive: true }],

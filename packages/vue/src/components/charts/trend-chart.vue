@@ -1,31 +1,19 @@
 <script lang="ts">
 import type { LooseRecord } from "@chelone/core";
+import type { SeriesChartProps } from "./series-chart";
 
 /** Props for {@link TrendChart}. */
 export interface TrendChartProps<
   TRow extends object = LooseRecord,
   TX extends keyof TRow & string = keyof TRow & string,
-> {
-  data: readonly TRow[];
-  xField: TX;
-  /** A row whose value is not a finite number leaves a gap. */
-  yField: keyof TRow & string;
-  title?: string;
-  /** Any CSS color. Defaults to `var(--primary)`. */
-  color?: string;
-  /** In pixels. Defaults to 200. */
-  height?: number;
-  loading?: boolean;
+> extends SeriesChartProps<TRow, TX> {
   /** Fills the area under the line with a gradient. */
   area?: boolean;
   /** Draws a smooth curve instead of straight segments. */
   smooth?: boolean;
-  /** Leaves out the card and the title. */
-  bare?: boolean;
   xTickFormatter?: (value: TRow[TX]) => string;
   yTickFormatter?: (value: number) => string;
   tooltipFormatter?: (value: number, name: string) => string;
-  class?: string;
 }
 
 let gradientCount = 0;
@@ -59,7 +47,7 @@ const escapeAttribute = (value: string) =>
  * <TrendChart :data="visits" x-field="day" y-field="count" title="Visits" />
  */
 
-import { hasChartValues, toCartesianRows } from "@chelone/core";
+import { hasChartValues } from "@chelone/core";
 import { CurveType } from "@unovis/ts";
 import {
   VisArea,
@@ -70,13 +58,9 @@ import {
   VisXYContainer,
 } from "@unovis/vue";
 import { computed } from "vue";
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartTooltipContent,
-  componentToString,
-} from "../ui/chart";
+import { ChartContainer } from "../ui/chart";
 import ChartFrame from "./chart-frame.vue";
+import { rowX, useSeriesRows, rowY } from "./series-chart";
 
 const props = withDefaults(defineProps<TrendChartProps<TRow, TX>>(), {
   color: "var(--primary)",
@@ -87,20 +71,12 @@ const props = withDefaults(defineProps<TrendChartProps<TRow, TX>>(), {
   bare: false,
 });
 
-const rows = computed(() =>
-  toCartesianRows(props.data, props.xField, props.yField),
-);
+const { rows, config, xAxis, tooltipFor } = useSeriesRows(props);
 type Row = (typeof rows.value)[number];
 
-const config = computed<ChartConfig>(() => ({
-  [props.yField]: { label: props.yField, color: props.color },
-}));
 const curveType = computed(() =>
   props.smooth ? CurveType.MonotoneX : CurveType.Linear,
 );
-
-const x = (row: Row) => row.index;
-const y = (row: Row) => row.y;
 
 const gradientId = nextGradientId();
 const fill = () => `url(#${gradientId})`;
@@ -113,39 +89,15 @@ const svgDefs = computed(() =>
     : undefined,
 );
 
-/** The row an axis tick or the crosshair stands on; between two rows there is none. */
-function rowAt(position: number | Date) {
-  const index = typeof position === "number" ? position : position.getTime();
-  return Number.isInteger(index) ? rows.value[index] : undefined;
-}
-
-function xLabel(position: number | Date) {
-  const row = rowAt(position);
-  if (!row) return "";
-  if (props.xTickFormatter) return props.xTickFormatter(row.x);
-  return row.x == null ? "" : String(row.x);
-}
-
-// Few enough rows to name each one; otherwise every step-th row.
-const xTicks = computed(() => {
-  const step = Math.max(1, Math.ceil(rows.value.length / 7));
-  return rows.value.filter((row) => row.index % step === 0).map(x);
-});
-
 const yTickFormat = computed(() => {
   const format = props.yTickFormatter;
   return format ? (tick: number | Date) => format(Number(tick)) : undefined;
 });
 
-const tooltip = computed(() =>
-  componentToString(config.value, ChartTooltipContent, {
-    labelFormatter: xLabel,
-  }),
-);
 const tooltipTemplate = (row: Row) => {
   const format = props.tooltipFormatter;
   const value = format && row.y !== null ? format(row.y, props.yField) : row.y;
-  return tooltip.value?.({ [props.yField]: value }, row.index) ?? "";
+  return tooltipFor(row, value);
 };
 </script>
 
@@ -171,8 +123,8 @@ const tooltipTemplate = (row: Row) => {
       >
         <VisArea
           v-if="props.area"
-          :x="x"
-          :y="y"
+          :x="rowX"
+          :y="rowY"
           :color="fill"
           :opacity="1"
           :curve-type="curveType"
@@ -181,19 +133,12 @@ const tooltipTemplate = (row: Row) => {
         />
         <VisLine
           v-else
-          :x="x"
-          :y="y"
+          :x="rowX"
+          :y="rowY"
           :color="props.color"
           :curve-type="curveType"
         />
-        <VisAxis
-          type="x"
-          :grid-line="false"
-          :tick-line="false"
-          :domain-line="false"
-          :tick-values="xTicks"
-          :tick-format="xLabel"
-        />
+        <VisAxis type="x" v-bind="xAxis" />
         <VisAxis
           type="y"
           :tick-line="false"
@@ -202,8 +147,8 @@ const tooltipTemplate = (row: Row) => {
         />
         <VisCrosshair
           snap-to-data
-          :x="x"
-          :y="y"
+          :x="rowX"
+          :y="rowY"
           :color="props.color"
           :template="tooltipTemplate"
         />
