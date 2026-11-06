@@ -13,6 +13,7 @@ import {
   required,
   type ShapeValue,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import type { Polygon } from "geojson";
@@ -54,7 +55,7 @@ type Values = { shape: unknown };
 
 const ring = (...points: [number, number][]): Polygon => ({
   type: "Polygon",
-  coordinates: [[...points, points[0] as [number, number]]],
+  coordinates: [[...points, defined(points[0])]],
 });
 const triangle = ring([0, 0], [1, 0], [0, 1]);
 const square = ring([0, 0], [1, 0], [1, 1], [0, 1]);
@@ -184,7 +185,7 @@ describe("PolygonInput", () => {
       .findAll("button")
       .find((b) => b.attributes("aria-label") === "Edit");
     await edit?.trigger("click");
-    const id = mounted.draw().features[0]?.id as string;
+    const id = defined(mounted.draw().features[0]?.id);
     mounted.draw().replace(id, pentagon);
     mounted.draw().emitFinish(id, "dragCoordinate", "select");
     await flushPromises();
