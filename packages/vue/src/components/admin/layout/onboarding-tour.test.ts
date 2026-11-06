@@ -13,7 +13,7 @@ import {
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h, type VNodeChild } from "vue";
+import { defineComponent, h, type Ref, ref, type VNodeChild } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../../admin/admin.vue";
 import Resource from "../../../admin/resource.vue";
@@ -49,6 +49,7 @@ interface MountOptions {
   listeners?: { onComplete?: (reason: TourEnd) => void };
   slots?: { step?: (scope: { step: TourStep; index: number }) => VNodeChild };
   store?: ReturnType<typeof createStore>;
+  tourRef?: Ref<{ start(): void } | null>;
 }
 
 async function mountTour(options: MountOptions = {}) {
@@ -70,7 +71,13 @@ async function mountTour(options: MountOptions = {}) {
       layout: () => [
         h(
           OnboardingTour,
-          { id: "main", steps, ...options.props, ...options.listeners },
+          {
+            ref: options.tourRef,
+            id: "main",
+            steps,
+            ...options.props,
+            ...options.listeners,
+          },
           options.slots,
         ),
         h("main", "app"),
@@ -299,6 +306,35 @@ describe("<OnboardingTour>", () => {
     addTargets();
     await mountTour({ props: { autoStart: false } });
     expect(dialog()).toBeNull();
+  });
+
+  it("start() on the template ref opens a tour that autoStart false left closed", async () => {
+    addTargets();
+    const tourRef = ref<{ start(): void } | null>(null);
+    await mountTour({ props: { autoStart: false }, tourRef });
+    expect(dialog()).toBeNull();
+    tourRef.value?.start();
+    await flushPromises();
+    expect(dialog()?.textContent).toContain("Look here");
+    expect(dialog()?.textContent).toContain("1 / 3");
+  });
+
+  it("start() on the template ref replays a tour that is stored as done", async () => {
+    addTargets();
+    const store = createStore();
+    store.setItem(doneKey, true);
+    const tourRef = ref<{ start(): void } | null>(null);
+    await mountTour({ store, tourRef });
+    expect(dialog()).toBeNull();
+    tourRef.value?.start();
+    await flushPromises();
+    await click(button("Next"));
+    tourRef.value?.start();
+    await flushPromises();
+    expect(dialog()?.textContent).toContain("1 / 3");
+    await click(button("Skip"));
+    expect(dialog()).toBeNull();
+    expect(store.getItem(doneKey)).toBe(true);
   });
 
   it("re-measures every 250 ms while open", async () => {

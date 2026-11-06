@@ -31,9 +31,11 @@ export interface OnboardingTourProps {
  *
  * Emits `complete` with `"finished"` or `"skipped"`, the Vue idiom for the
  * React twin's `onComplete`. A `#step` slot, given `{ step, index }`, replaces
- * the card's title and content.
+ * the card's title and content. A template ref's `start()` opens the tour
+ * whatever `autoStart` and the stored done flag say.
  */
 
+import { useTemplateRef } from "vue";
 import Host from "./onboarding-tour-host.vue";
 
 const props = withDefaults(defineProps<OnboardingTourProps>(), {
@@ -44,10 +46,18 @@ const props = withDefaults(defineProps<OnboardingTourProps>(), {
 const emit = defineEmits<{
   (event: "complete", reason: TourEnd): void;
 }>();
+
+const host = useTemplateRef("host");
+
+defineExpose({
+  /** Opens the tour on its first step, or restarts it from there while open. */
+  start: () => host.value?.start(),
+});
 </script>
 
 <template>
   <Host
+    ref="host"
     :key="`${props.id}:${props.steps.length}:${props.autoStart}`"
     :id="props.id"
     :steps="props.steps"

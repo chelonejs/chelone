@@ -760,6 +760,7 @@ export {
 } from "./components/admin/layout/menu-item-link";
 export {
   OnboardingTour,
+  type OnboardingTourHandle,
   type OnboardingTourProps,
   type TourStep,
 } from "./components/admin/layout/onboarding-tour";
