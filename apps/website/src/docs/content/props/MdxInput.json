@@ -81,7 +81,7 @@
     },
     {
       "name": "parse",
-      "type": "(value: unknown) => NoInfer<SourceValue<TRecord, SourceProp<TRecord>>>",
+      "type": "(value: unknown) => NoInfer<SourceTransformValue<TRecord, SourceProp<TRecord>>>",
       "optional": true,
       "comment": "Write transform (input value → stored value). Must return the value at\n`source`; `unknown` without a record."
     },

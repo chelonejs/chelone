@@ -105,7 +105,7 @@
     },
     {
       "name": "parse",
-      "type": "(value: unknown) => NoInfer<SourceValue<TRecord, TPath>>",
+      "type": "(value: unknown) => NoInfer<SourceTransformValue<TRecord, TPath>>",
       "optional": true,
       "comment": "Write transform (input value → stored value). Must return the value at\n`source`; `unknown` without a record."
     },

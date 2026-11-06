@@ -35,7 +35,7 @@
       "name": "format",
       "type": "(value: unknown) => unknown",
       "optional": true,
-      "comment": "Read transform (raw form value → input value). Receives the value at\n`source`; `unknown` without a record."
+      "comment": "Read transform (raw form value → input value). Receives the value at\n`source`, plus the hole an untouched field leaves (a create form with no\n`defaultValue` reads `undefined`); `unknown` without a record."
     },
     {
       "name": "helperText",
