@@ -6,7 +6,7 @@ import type { BlockDefinition } from "./block-nodes";
 export interface BlockEditorProps {
   /** The document, as tiptap JSON. `null` or `undefined` is an empty document. */
   value?: BlockDocNode | null;
-  /** Read once, when the editor mounts. Names must be unique. */
+  /** Read once, when the editor mounts. Names must be unique. Defaults to `defaultBlocks`. */
   blocks?: readonly BlockDefinition[];
   editable?: boolean;
   /** Shown in an empty paragraph. */
@@ -53,12 +53,14 @@ import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import Button from "../ui/button.vue";
 import BlockPicker from "./block-picker.vue";
+import BlockToolbar from "./block-toolbar.vue";
 import { createBlockNode, unknownBlockNode } from "./block-nodes";
+import { defaultBlocks } from "./default-blocks";
 import { createSlashExtension } from "./slash-command";
 
 const props = withDefaults(defineProps<BlockEditorProps>(), {
   value: undefined,
-  blocks: () => [],
+  blocks: () => defaultBlocks,
   editable: true,
   placeholder: undefined,
 });
@@ -231,6 +233,7 @@ function toggleButtonPicker(event: MouseEvent) {
         {{ translate("chelone.block_editor.add_block", { _: "Add block" }) }}
       </Button>
     </div>
+    <BlockToolbar v-if="editable && editor" :editor="editor" :registry="registry" />
     <EditorContent :editor="editor" />
     <BlockPicker
       v-if="editable && picker"
