@@ -131,7 +131,7 @@ describe("TranslatableFields", () => {
       const { data = [] } = useListContext();
       return (
         <>
-          {(data as { id: number }[]).map((row) => (
+          {data.map((row) => (
             <RecordContextProvider key={row.id} value={row}>
               <TranslatableFields
                 locales={["en", "fr"]}
