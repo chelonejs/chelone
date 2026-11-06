@@ -19,7 +19,7 @@ import {
   StubIntersectionObserver,
   StubPointerEvent,
   stubAnimations,
-} from "@chelone/test-utils";
+} from "@chelone/test-utils/drag-dom";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
