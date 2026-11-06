@@ -38,6 +38,7 @@ import {
   defineResources,
   type FieldErrors,
   fakeDataProvider,
+  noop,
 } from "@chelone/core";
 import type { AnyFieldApi } from "@tanstack/form-core";
 import { QueryClient } from "@tanstack/react-query";
@@ -925,7 +926,6 @@ describe("P5 gate: churn", () => {
         },
       },
     });
-    const noop = () => {};
     for (let i = 0; i < 50; i++) {
       const offA = controller.subscribe(noop);
       const offB = controller.subscribe(noop);
@@ -961,7 +961,6 @@ describe("P5 gate: churn", () => {
       form as CheloneFormApi<{ title: string }>,
       { source: "title" },
     );
-    const noop = () => {};
     for (let i = 0; i < 50; i++) {
       const offA = binding.subscribe(noop);
       const offB = binding.subscribe(noop);

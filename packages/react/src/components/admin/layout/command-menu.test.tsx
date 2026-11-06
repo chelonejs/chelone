@@ -74,7 +74,7 @@ interface AppOptions {
   store?: ReturnType<typeof createStore>;
 }
 
-const noop = () => <div />;
+const stubPage = () => <div />;
 
 type Hit = Record<string, unknown> & { id: number };
 
@@ -121,10 +121,15 @@ function mount(options: AppOptions = {}) {
         <Admin.Layout>
           <AppLayout />
         </Admin.Layout>
-        <Resource name="posts" list={noop} show={noop} edit={noop} />
-        <Resource name="authors" list={noop} edit={noop} />
-        <Resource name="tags" list={noop} show={noop} />
-        <Resource name="settings" create={noop} />
+        <Resource
+          name="posts"
+          list={stubPage}
+          show={stubPage}
+          edit={stubPage}
+        />
+        <Resource name="authors" list={stubPage} edit={stubPage} />
+        <Resource name="tags" list={stubPage} show={stubPage} />
+        <Resource name="settings" create={stubPage} />
       </Admin>
     </MemoryRouter>,
   );
