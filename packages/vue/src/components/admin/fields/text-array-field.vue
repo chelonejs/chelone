@@ -49,8 +49,8 @@ const emptyText = computed(() =>
 );
 
 /** Stringify a non-string item for display (parity with the React twin). */
-function itemText(item: unknown): unknown {
-  return item != null && typeof item !== "string" ? String(item) : item;
+function itemText(item: unknown): string | null | undefined {
+  return item == null ? item : String(item);
 }
 </script>
 

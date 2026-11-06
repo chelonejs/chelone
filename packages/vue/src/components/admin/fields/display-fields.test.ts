@@ -136,6 +136,46 @@ describe("NumberField", () => {
     expect(w.get('[data-slot="number-field"]').text()).toBe("1,000");
   });
 
+  it("formats a numeric string with Intl currency options", () => {
+    const w = mountField(
+      NumberField,
+      {
+        source: "price",
+        locales: "en-US",
+        options: { style: "currency", currency: "USD" },
+      },
+      { price: "9.90" },
+    );
+    expect(w.get('[data-slot="number-field"]').text()).toBe("$9.90");
+  });
+
+  it("renders a non-numeric string unchanged", () => {
+    const w = mountField(
+      NumberField,
+      { source: "price" },
+      { price: "call us" },
+    );
+    expect(w.get('[data-slot="number-field"]').text()).toBe("call us");
+  });
+
+  it("formats the number a custom transform returns", () => {
+    const w = mountField(
+      NumberField,
+      { source: "price", locales: "en-US", transform: () => 4321 },
+      { price: 1 },
+    );
+    expect(w.get('[data-slot="number-field"]').text()).toBe("4,321");
+  });
+
+  it("renders nothing when the transform returns null", () => {
+    const w = mountField(
+      NumberField,
+      { source: "price", transform: () => null },
+      { price: 3 },
+    );
+    expect(w.find('[data-slot="number-field"]').exists()).toBe(false);
+  });
+
   it("renders nothing for a nullish value without empty", () => {
     const w = mountField(NumberField, { source: "price" }, { price: null });
     expect(w.find('[data-slot="number-field"]').exists()).toBe(false);

@@ -36,7 +36,11 @@ function NumberField<RecordType extends LooseRecord = LooseRecord>({
   const raw = useFieldValue({ defaultValue, source, record });
   const translate = useTranslate();
 
-  if (raw == null) {
+  // A nullish value before or after the transform is "nothing to show": the
+  // `empty` placeholder, or nothing.
+  const value = raw == null ? null : transform(raw);
+
+  if (value == null) {
     if (!empty) {
       return null;
     }
@@ -48,13 +52,11 @@ function NumberField<RecordType extends LooseRecord = LooseRecord>({
     );
   }
 
-  const value = transform ? transform(raw) : raw;
-
   return (
     <span {...sanitizeFieldRestProps(rest)}>
       {hasNumberFormat && typeof value === "number"
         ? value.toLocaleString(locales, options)
-        : (value as string)}
+        : value}
     </span>
   );
 }
@@ -65,13 +67,23 @@ interface NumberFieldProps<RecordType extends LooseRecord = LooseRecord>
   options?: object;
   transform?: (
     value: SourceValue<RecordType, SourceProp<RecordType>>,
-  ) => unknown;
+  ) => number | string | null | undefined;
 }
 
-const defaultTransform = (value: unknown): unknown =>
-  value && typeof value === "string" && !Number.isNaN(Number(value))
-    ? +value
-    : value;
+/**
+ * The default `transform`: a numeric string becomes a number so `options` can
+ * format it; every other value arrives as text the `<span>` can render.
+ */
+function defaultTransform(value: unknown): number | string | null | undefined {
+  if (typeof value === "string") {
+    const num = Number(value);
+    return value !== "" && !Number.isNaN(num) ? num : value;
+  }
+  if (typeof value === "number" || value == null) {
+    return value;
+  }
+  return String(value);
+}
 
 const hasNumberFormat = !!(
   typeof Intl === "object" &&

@@ -137,6 +137,17 @@ describe("TextArrayField", () => {
     expect(text).toContain("History");
   });
 
+  it("renders a non-string scalar as text", () => {
+    const w = mountField(
+      TextArrayField,
+      { source: "years" },
+      { years: [2020, 2021] },
+    );
+    const text = w.get('[data-slot="text-array-field"]').text();
+    expect(text).toContain("2020");
+    expect(text).toContain("2021");
+  });
+
   it("renders nothing for an empty array with no empty prop", () => {
     const w = mountField(TextArrayField, { source: "genres" }, { genres: [] });
     expect(w.find('[data-slot="text-array-field"]').exists()).toBe(false);

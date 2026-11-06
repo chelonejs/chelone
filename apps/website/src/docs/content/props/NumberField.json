@@ -93,7 +93,7 @@
     },
     {
       "name": "transform",
-      "type": "(value: SourceValue<RecordType, SourceProp<RecordType>>) => unknown",
+      "type": "(value: SourceValue<RecordType, SourceProp<RecordType>>) => string | number | null | undefined",
       "optional": true,
       "comment": ""
     }
