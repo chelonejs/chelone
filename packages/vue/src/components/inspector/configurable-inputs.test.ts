@@ -244,4 +244,23 @@ describe("ConfigurableInputs", () => {
     await click(switchFor("Views"));
     expect(values()).toEqual(["Alpha", "Ada"]);
   });
+
+  it("a text node stays in place, shown and unlisted", async () => {
+    await mountPage({
+      inputs: () =>
+        h(ConfigurableInputs, null, () => [
+          "Required fields",
+          h(TextInput, { source: "title" }),
+          h("p", "A note"),
+        ]),
+    });
+    expect(document.body.textContent).toContain("Required fields");
+
+    await openPanel();
+    // The paragraph is the second element, so `input-1`; the text has no id.
+    expect(rowLabels()).toEqual(["Headline", "input-1"]);
+    await click(switchFor("input-1"));
+    expect(document.body.textContent).not.toContain("A note");
+    expect(document.body.textContent).toContain("Required fields");
+  });
 });

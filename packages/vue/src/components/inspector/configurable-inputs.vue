@@ -77,18 +77,24 @@ const ConfigurableInputs = defineComponent(
 
     return () => {
       const nodes = flattenVNodes(slots.default?.() ?? []);
-      const inputProps = nodes.map(({ props: nodeProps }) => ({
-        source: nodeProps?.source,
-        label: nodeProps?.label,
-      }));
-      const columns = configurableInputColumns(inputProps).map((column) =>
+      // Text and static nodes (symbol types) are not inputs: they keep their
+      // place, always shown, as a non-element child does in the React twin.
+      const present = nodes.flatMap(({ type, props: nodeProps }) =>
+        typeof type === "symbol"
+          ? []
+          : [{ source: nodeProps?.source, label: nodeProps?.label }],
+      );
+      const columns = configurableInputColumns(present).map((column) =>
         // The panel reads this flag, so it must follow the default.
         props.defaultHiddenInputs?.includes(column.id)
           ? { ...column, defaultHidden: true }
           : column,
       );
       declared = columns;
-      const ids = columns.map((column) => column.id);
+      let next = 0;
+      const ids = nodes.map(({ type }) =>
+        typeof type === "symbol" ? undefined : columns[next++]?.id,
+      );
       const shown = arrangeColumns(ids, {
         hidden: hidden.value,
         order: order.value,
