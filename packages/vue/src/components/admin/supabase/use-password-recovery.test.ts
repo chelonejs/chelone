@@ -11,6 +11,7 @@ import {
   fakeDataProvider,
   type NotificationStore,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { enableAutoUnmount, flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -100,7 +101,7 @@ async function setup<T>(
     { global: { plugins: [router] }, attachTo: document.body },
   );
   await flushPromises();
-  return { result: result as T, router };
+  return { result: defined(result), router };
 }
 
 describe("useResetPassword", () => {

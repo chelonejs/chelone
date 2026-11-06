@@ -172,9 +172,9 @@ describe("useMicroStore bridge — 4R lifecycle under churn (PATTERN GATE)", () 
       label: "a",
     });
     const scope = effectScope();
-    let state!: Ref<CounterState>;
+    let state!: Readonly<Ref<CounterState>>;
     scope.run(() => {
-      state = useMicroStore(store) as Ref<CounterState>;
+      state = useMicroStore(store);
     });
     // Mutate while mounted — the ref tracks the store.
     store.setState({ count: 7 });
