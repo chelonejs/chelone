@@ -1,0 +1,62 @@
+---
+title: "useSubscribeCallback"
+description: "Returns subscribe(topic, callback) over the data provider, for subscriptions you start yourself. It hands back the unsubscribe, and you own it."
+---
+
+`useSubscribeCallback` hands you the data provider's `subscribe` as a function,
+for listening on your own schedule: from a click, a route change, or anywhere
+you want to decide when a subscription starts and stops.
+
+## Signature
+
+```ts
+function useSubscribeCallback(): (
+  topic: string,
+  callback: SubscriptionCallback,
+) => Unsubscribe
+```
+
+`Unsubscribe` is a function of no arguments that stops that one subscription.
+
+## Returns
+
+The same function on every render; it changes only when the data provider does.
+Calling it subscribes and returns the `Unsubscribe`.
+
+Nothing unsubscribes for you. `useSubscribe` releases its own subscription when
+the component unmounts; this one outlives the render that made it, so hold on to
+the `Unsubscribe` and call it yourself, such as from an effect's cleanup.
+
+The realtime check runs when you call the function, not when you create it: a
+plain data provider throws `useSubscribeCallback: dataProvider does not implement
+subscribe(). Wrap it with realtimeDataProvider().` at the call.
+
+## Example
+
+```tsx
+import { useEffect, useState } from "react";
+import { useSubscribeCallback } from "@chelone/react";
+
+export const ChatPanel = ({ open }: { open: boolean }) => {
+  const subscribe = useSubscribeCallback();
+  const [lines, setLines] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    return subscribe("chat", (event) =>
+      setLines((lines) => [...lines, String(event.payload)]),
+    );
+  }, [open, subscribe]);
+
+  return <ul>{lines.map((line) => <li key={line}>{line}</li>)}</ul>;
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name and the same returned function. The
+realtime check runs at `setup` instead: a plain data provider throws when the
+composable is called, before you subscribe.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup and the
+topic helpers.

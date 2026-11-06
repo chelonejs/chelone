@@ -1,0 +1,63 @@
+---
+title: "useSubscribeToRecordList"
+description: "useSubscribe for a whole resource's topic: creates, and the ids of every update, delete, updateMany and deleteMany."
+---
+
+`useSubscribeToRecordList` is `useSubscribe` with `resourceTopic(resource)`
+filled in, for everything happening to a resource at once.
+
+## Signature
+
+```ts
+function useSubscribeToRecordList(
+  resource: string,
+  callback: SubscriptionCallback,
+  options?: { enabled?: boolean },
+): void
+```
+
+- The topic is `resource/<resource>`.
+- `options` is `useSubscribe`'s: `enabled` defaults to true.
+
+## Returns
+
+Nothing.
+
+`addEventsForMutations` publishes these events on the resource topic:
+
+- `create` as `created` with `{ ids: [id] }`
+- `update` as `updated` with `{ ids: [id] }`
+- `delete` as `deleted` with `{ ids: [id] }`
+- `updateMany` and `deleteMany` as `updated` or `deleted` with `{ ids }`
+
+So a payload here names which records changed, never the record itself. Read the
+id from `payload.ids` and fetch what you need, or use a live read hook such as
+[useGetListLive](/docs/realtime/use-get-list-live), which refetches on the same
+topic.
+
+The realtime check and the unmount behaviour are `useSubscribe`'s.
+
+## Example
+
+```tsx
+import { useState } from "react";
+import { useSubscribeToRecordList } from "@chelone/react";
+
+export const NewPostBadge = () => {
+  const [created, setCreated] = useState(0);
+  useSubscribeToRecordList("posts", (event) => {
+    if (event.type !== "created") return;
+    const ids = (event.payload as { ids: number[] }).ids;
+    setCreated((n) => n + ids.length);
+  });
+  return created ? <span>{created} new</span> : null;
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name. `resource` and `enabled` take
+`MaybeRefOrGetter`, so a change resubscribes to the new resource's topic.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup and the
+full table of published payloads.

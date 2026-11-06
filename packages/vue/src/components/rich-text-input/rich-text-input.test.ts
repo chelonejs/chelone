@@ -278,9 +278,11 @@ describe("RichTextInput", () => {
       .findAll('[role="toolbar"] button')
       .map((each) => each.attributes("aria-label"));
     expect(names).toEqual(
-      richTextToolbarItems.flatMap((item) =>
-        item.id === "link" ? [item.defaultLabel, "Image"] : [item.defaultLabel],
-      ),
+      richTextToolbarItems.flatMap((item) => {
+        if (item.id === "link") return [item.defaultLabel, "Image"];
+        if (item.id === "code") return [item.defaultLabel, "Text color"];
+        return [item.defaultLabel];
+      }),
     );
   });
 

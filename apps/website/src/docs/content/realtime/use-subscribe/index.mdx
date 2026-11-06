@@ -1,0 +1,67 @@
+---
+title: "useSubscribe"
+description: "Listens to one topic while the component is mounted and calls your callback for each event on it. A new callback every render never resubscribes. Needs a realtime data provider."
+---
+
+`useSubscribe` is the subscription every live view in Chelone is built on. Give
+it a topic and a callback, and it hands each event on that topic to the
+callback.
+
+## Signature
+
+```ts
+function useSubscribe(
+  topic: string,
+  callback: SubscriptionCallback,
+  options?: { enabled?: boolean },
+): void
+
+type SubscriptionCallback<P = unknown> = (event: RealtimeEvent<P>) => void
+```
+
+A `RealtimeEvent` is `{ topic, type, payload, meta? }`. `type` is `"created"`,
+`"updated"`, `"deleted"`, `"locked"`, `"unlocked"`, or any string your own
+`publish` sends.
+
+- `topic` is a topic string. Build it with `resourceTopic`, `recordTopic`,
+  `lockTopic` or `presenceTopic` rather than writing one out.
+- `enabled` defaults to true. `false` skips the subscription, and the realtime
+  check with it, so a plain data provider stays silent.
+- A new `callback` every render does not resubscribe: the hook keeps calling the
+  latest one, so an inline arrow is fine.
+
+## Returns
+
+Nothing. The callback is the output.
+
+It subscribes when the component mounts and unsubscribes when the component
+unmounts or when the topic, the data provider or `enabled` changes, so a topic
+swap never leaves the old topic listening. Events published while nobody was
+subscribed are not replayed.
+
+The hook throws `useSubscribe: dataProvider does not implement subscribe().
+Wrap it with realtimeDataProvider().` when the data provider has not gone
+through `realtimeDataProvider`.
+
+## Example
+
+```tsx
+import { useState } from "react";
+import { resourceTopic, useSubscribe } from "@chelone/react";
+
+export const PostActivity = () => {
+  const [last, setLast] = useState<string | null>(null);
+  useSubscribe(resourceTopic("posts"), (event) => setLast(event.type));
+  return <span>{last ? `Last event: ${last}` : "Nothing yet"}</span>;
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name. `topic` and `enabled` take
+`MaybeRefOrGetter`, so a ref or a getter keeps working, and a change resubscribes
+to the new topic. The callback is read when the subscription is made: a Vue
+callback closes over live refs, so it needs no latest-callback wrapper.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup, the
+topic helpers and the event payloads.

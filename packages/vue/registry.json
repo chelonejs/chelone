@@ -6537,6 +6537,116 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "inspector",
+      "type": "registry:block",
+      "title": "Chelone Inspector",
+      "categories": ["chelone", "components"],
+      "description": "The opt-in inspector add-on: Inspector is a draggable panel that edits whichever Configurable the user picks, InspectorButton turns the mode on, and SortableFieldsSelector lists a table's columns with drag to reorder. Installs @dnd-kit/vue and needs Vue 3.5.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/fields-selector",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@dnd-kit/vue"],
+      "files": [
+        {
+          "path": "src/components/inspector/configurable.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/inspector-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/inspector-context.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/inspector.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/sortable-fields-selector.vue",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "configurable",
+      "type": "registry:component",
+      "title": "Configurable",
+      "files": [
+        {
+          "path": "src/components/inspector/configurable.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/inspector-context",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "inspector-button",
+      "type": "registry:component",
+      "title": "Inspector Button",
+      "files": [
+        {
+          "path": "src/components/inspector/inspector-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/inspector-context"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "inspector-context",
+      "type": "registry:component",
+      "title": "Inspector Context",
+      "files": [
+        {
+          "path": "src/components/inspector/inspector-context.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "sortable-fields-selector",
+      "type": "registry:component",
+      "title": "Sortable Fields Selector",
+      "files": [
+        {
+          "path": "src/components/inspector/sortable-fields-selector.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/fields-selector",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/vue", "@dnd-kit/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "mdx-editor",
       "type": "registry:block",
       "title": "Chelone Markdown",
@@ -6663,16 +6773,29 @@
         "@chelone/core",
         "@chelone/vue",
         "@tiptap/core",
+        "@tiptap/extension-code-block",
+        "@tiptap/extension-code-block-lowlight",
         "@tiptap/extension-image",
+        "@tiptap/extension-text-style",
         "@tiptap/extensions",
         "@tiptap/pm",
         "@tiptap/starter-kit",
         "@tiptap/vue-3",
-        "dompurify"
+        "dompurify",
+        "highlight.js",
+        "lowlight"
       ],
       "files": [
         {
+          "path": "src/components/rich-text-input/rich-text-color.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/rich-text-input/rich-text-commands.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-extensions.ts",
           "type": "registry:component"
         },
         {
@@ -6715,6 +6838,25 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "rich-text-color",
+      "type": "registry:component",
+      "title": "Rich Text Color",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-color.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/rich-text-commands"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "rich-text-commands",
       "type": "registry:component",
       "title": "Rich Text Commands",
@@ -6725,6 +6867,29 @@
         }
       ],
       "dependencies": ["@chelone/core", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-extensions",
+      "type": "registry:component",
+      "title": "Rich Text Extensions",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-extensions.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@tiptap/core",
+        "@tiptap/extension-code-block",
+        "@tiptap/extension-code-block-lowlight",
+        "@tiptap/extension-text-style",
+        "@tiptap/pm",
+        "highlight.js",
+        "lowlight"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6826,6 +6991,7 @@
         "@chelone/field",
         "@chelone/field-label-text",
         "@chelone/input-helper-text",
+        "@chelone/rich-text-extensions",
         "@chelone/rich-text-image",
         "@chelone/rich-text-toolbar",
         "@chelone/rich-text.css",
@@ -6872,6 +7038,7 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/lib-utils",
+        "@chelone/rich-text-color",
         "@chelone/rich-text-commands",
         "@chelone/rich-text-icons",
         "@chelone/rich-text-image",

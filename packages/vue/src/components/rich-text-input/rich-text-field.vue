@@ -1,6 +1,9 @@
 <script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
-import { sanitizeRichTextImageElement } from "@chelone/core";
+import {
+  sanitizeRichTextImageElement,
+  sanitizeRichTextStyle,
+} from "@chelone/core";
 import DOMPurify from "dompurify";
 
 let purify: ReturnType<typeof DOMPurify> | undefined;
@@ -8,6 +11,13 @@ function sanitizer() {
   if (!purify) {
     purify = DOMPurify(window);
     purify.addHook("afterSanitizeAttributes", sanitizeRichTextImageElement);
+    // `style` is allowed through the options; only a palette or plain color survives.
+    purify.addHook("uponSanitizeAttribute", (_node, data) => {
+      if (data.attrName !== "style") return;
+      const style = sanitizeRichTextStyle(data.attrValue);
+      if (style === null) data.keepAttr = false;
+      else data.attrValue = style;
+    });
   }
   return purify;
 }
@@ -29,9 +39,11 @@ export interface RichTextFieldProps<RecordType extends LooseRecord = LooseRecord
 <script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<RichTextField>` — shows a stored HTML value, sanitized with DOMPurify and
- * the core `richTextSanitizeOptions`: scripts, event handlers, `style`, frames
- * and form controls are removed before the HTML reaches the DOM. The Vue twin of
- * `@chelone/react`'s `rich-text-input/rich-text-field.tsx`.
+ * the core `richTextStyledSanitizeOptions`: scripts, event handlers, frames and
+ * form controls are removed before the HTML reaches the DOM, and a `style`
+ * attribute survives only as a palette, hex, `rgb()` or `hsl()` `color`. Code
+ * blocks show without highlighting. The Vue twin of `@chelone/react`'s
+ * `rich-text-input/rich-text-field.tsx`.
  *
  * Needs the optional `dompurify` peer. From npm, import
  * `@chelone/vue/rich-text-input.css` once for the content styles; the registry
@@ -44,7 +56,7 @@ export interface RichTextFieldProps<RecordType extends LooseRecord = LooseRecord
  * <RichTextField source="body" empty="No content" />
  */
 
-import { richTextSanitizeOptions } from "@chelone/core";
+import { richTextStyledSanitizeOptions } from "@chelone/core";
 import { computed, type VNode } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
@@ -53,8 +65,8 @@ import "./rich-text.css";
 
 // DOMPurify's `Config` takes mutable arrays, and core's options are frozen.
 const sanitizeConfig = {
-  FORBID_TAGS: [...richTextSanitizeOptions.FORBID_TAGS],
-  FORBID_ATTR: [...richTextSanitizeOptions.FORBID_ATTR],
+  FORBID_TAGS: [...richTextStyledSanitizeOptions.FORBID_TAGS],
+  FORBID_ATTR: [...richTextStyledSanitizeOptions.FORBID_ATTR],
 };
 
 const props = defineProps<RichTextFieldProps<RecordType>>();

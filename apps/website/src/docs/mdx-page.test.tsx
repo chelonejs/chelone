@@ -133,6 +133,13 @@ it("keeps exactly one hand-placed preview on page-components/create", async () =
 // The hook pages are hand-written MDX, so a bad JSX escape in their prose would
 // fail the build rather than a props lookup. Rendering them catches it here.
 it.each([
+  ["use-subscribe", "useSubscribe"],
+  ["use-subscribe-to-record", "useSubscribeToRecord"],
+  ["use-subscribe-to-record-list", "useSubscribeToRecordList"],
+  ["use-subscribe-callback", "useSubscribeCallback"],
+  ["use-publish", "usePublish"],
+  ["use-on-reconnect", "useOnReconnect"],
+  ["use-realtime-status", "useRealtimeStatus"],
   ["use-get-list-live", "useGetListLive"],
   ["use-get-one-live", "useGetOneLive"],
   ["use-get-many-live", "useGetManyLive"],

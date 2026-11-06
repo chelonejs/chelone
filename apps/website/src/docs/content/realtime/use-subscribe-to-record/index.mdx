@@ -1,0 +1,63 @@
+---
+title: "useSubscribeToRecord"
+description: "useSubscribe for one record's topic. Subscribes to nothing while the id is null or undefined, and 0 is an id."
+---
+
+`useSubscribeToRecord` is `useSubscribe` with `recordTopic(resource, id)` filled
+in, for the writes to one record.
+
+## Signature
+
+```ts
+function useSubscribeToRecord(
+  resource: string,
+  id: Identifier | null | undefined,
+  callback: SubscriptionCallback,
+  options?: { enabled?: boolean },
+): void
+```
+
+- The topic is `resource/<resource>/<id>`, which carries the `updated` and
+  `deleted` events `addEventsForMutations` publishes for that record, and
+  anything else published to it. A `create` lands on the resource topic, so a
+  new record never arrives here. See
+  [useSubscribeToRecordList](/docs/realtime/use-subscribe-to-record-list).
+- `1` and `"1"` give the same topic.
+- `options` is `useSubscribe`'s: `enabled` defaults to true.
+
+## Returns
+
+Nothing.
+
+While `id` is `null` or `undefined` it subscribes to nothing and throws nothing,
+which is what a record still loading wants: the subscription starts on the
+render that has an id. `0` is an id, not an absent one, so it listens on
+`resource/posts/0`. A new id resubscribes to the new record's topic and lets the
+old one go.
+
+The realtime check runs with the subscription, so a plain data provider stays
+silent while there is no id, and throws asking you to wrap it once there is one.
+
+## Example
+
+```tsx
+import { useState } from "react";
+import { useSubscribeToRecord } from "@chelone/react";
+
+export const DeletedNotice = ({ id }: { id: number | undefined }) => {
+  const [gone, setGone] = useState(false);
+  useSubscribeToRecord("posts", id, (event) => {
+    if (event.type === "deleted") setGone(true);
+  });
+  return gone ? <p>This post was deleted.</p> : null;
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name. `resource` and `id` take
+`MaybeRefOrGetter`, so an id that arrives later starts the subscription on its
+own.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup and the
+topics each write is published to.

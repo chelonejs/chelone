@@ -148,6 +148,17 @@ export const blocks = [
     sourceDirs: [{ path: "src/components/kanban", recursive: true }],
   },
   {
+    name: "inspector",
+    type: "registry:block",
+    title: "Chelone Inspector",
+    categories: ["chelone", "components"],
+    description:
+      "The opt-in inspector add-on: Inspector is a draggable panel that edits whichever Configurable the user picks, InspectorButton turns the mode on, and SortableFieldsSelector lists a table's columns with drag to reorder. Installs @dnd-kit/vue and needs Vue 3.5.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [{ path: "src/components/inspector", recursive: true }],
+  },
+  {
     name: "mdx-editor",
     type: "registry:block",
     title: "Chelone Markdown",

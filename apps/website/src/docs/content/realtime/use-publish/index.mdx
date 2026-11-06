@@ -1,0 +1,65 @@
+---
+title: "usePublish"
+description: "Returns publish(topic, event) over the data provider, for the events your own app invents. Resolves when the transport's publish settles."
+---
+
+`usePublish` hands you the data provider's `publish`, for events
+`addEventsForMutations` does not cover: a typing indicator, a custom command, or
+a type of your own on a topic of your own.
+
+## Signature
+
+```ts
+function usePublish(): (
+  topic: string,
+  event: Omit<RealtimeEvent, "topic">,
+) => Promise<void>
+```
+
+The event carries `type`, `payload` and an optional `meta`. The topic is the
+first argument, so it never appears inside the event.
+
+## Returns
+
+The same function on every render; it changes only when the data provider does.
+It resolves when the transport's `publish` settles, and rejects with whatever
+that transport rejects with, so `await` it or catch at the call site.
+
+A provider wrapped with `addEventsForMutations` already publishes for `create`,
+`update`, `delete`, `updateMany` and `deleteMany`. Publishing again for one of
+those writes refetches twice.
+
+The realtime check runs when you call the function, not when you create it: a
+plain data provider throws `usePublish: dataProvider does not implement
+subscribe(). Wrap it with realtimeDataProvider().` at the call.
+
+## Example
+
+```tsx
+import { recordTopic, usePublish } from "@chelone/react";
+
+export const TypingButton = ({ id }: { id: number }) => {
+  const publish = usePublish();
+  return (
+    <button
+      onClick={() =>
+        void publish(recordTopic("posts", id), {
+          type: "typing",
+          payload: { id },
+        })
+      }
+    >
+      I am typing
+    </button>
+  );
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name and returns the same kind of function. The
+realtime check runs at `setup` instead: a plain data provider throws when the
+composable is called.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup, the
+payloads `addEventsForMutations` publishes, and the transports' wire formats.

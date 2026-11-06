@@ -112,6 +112,16 @@ export const richTextImageIcon = glyph(
   path("m3 16 5-5 4 4 4-4 5 5"),
   path("M8 7h.01"),
 );
+/** lucide `palette`. */
+export const richTextColorIcon = glyph(
+  path(
+    "M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z",
+  ),
+  path("M13.5 6.5h.01"),
+  path("M17.5 10.5h.01"),
+  path("M6.5 12.5h.01"),
+  path("M8.5 7.5h.01"),
+);
 export const richTextImageActionIcons = {
   view: glyph(
     path("M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8"),
