@@ -6,10 +6,16 @@
 // A site is not counted when its line, or the line above, carries a
 // `// type-escape: <why>` comment. That is the way to add a justified escape.
 //
+// `unknown-cast` is the exception: a cast from an `unknown` value, or to a function taking
+// `unknown`. It is a double cast split across two statements, so no comment excuses it. Finding
+// it needs the checker, so it reads each package's program, and a tree with no installed
+// dependencies (the pre-push hook's) skips that half with a warning. `.vue` files are outside
+// those programs, so there only the cast to a function is seen.
+//
 //   pnpm check:type-escapes                compare with where HEAD left origin/main
 //   pnpm check:type-escapes --base <ref>   compare with <ref> (CI passes HEAD^1)
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -20,7 +26,7 @@ const ts = createRequire(import.meta.url)(process.env.TYPESCRIPT_PATH ?? "typesc
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-const KINDS = ["double-cast", "as-never", "as-any", "cast", "non-null", "any", "unknown", "ts-comment"];
+const KINDS = ["double-cast", "unknown-cast", "as-never", "as-any", "cast", "non-null", "any", "unknown", "ts-comment"];
 const SKIP = /(^|\/)(node_modules|dist|build|coverage|\.react-router|\.turbo)(\/|$)/;
 const JUSTIFIED = /\/\/\s*type-escape:\s*\S/;
 // @ts-expect-error is how a type test proves a call fails, so it is only counted outside tests.
@@ -72,6 +78,24 @@ function mentionsOpaque(node) {
   return found;
 }
 
+/** The type parameters a node can see, from itself outwards. */
+function typeParametersInScope(node) {
+  const names = new Set();
+  for (let scope = node; scope; scope = scope.parent) {
+    for (const parameter of scope.typeParameters ?? []) names.add(parameter.name.text);
+  }
+  return names;
+}
+
+function mentionsTypeParameter(node, names) {
+  if (ts.isTypeReferenceNode(node) && names.has(node.typeName.getText())) return true;
+  let found = false;
+  ts.forEachChild(node, (child) => {
+    if (!found && mentionsTypeParameter(child, names)) found = true;
+  });
+  return found;
+}
+
 /**
  * An `unknown` that is the right type: a type guard's input, a catch binding, a conditional
  * type's check, a type parameter's default or constraint (`<TRecord = unknown>`), or the input
@@ -86,11 +110,19 @@ function isHonestUnknown(node) {
   if (ts.isAsExpression(parent) && ts.isAsExpression(parent.parent) && parent.parent.expression === parent) return true;
   if (ts.isTypeParameterDeclaration(parent) && (parent.default === node || parent.constraint === node)) return true;
   // A parameter typed exactly `unknown` on a function with a body and a declared return type
-  // that mentions none of `unknown`, `any` or `void`: the signature shows the input was narrowed.
+  // that mentions none of `unknown`, `any`, `void` or a type parameter: the signature shows the
+  // input was narrowed. A type parameter can't be narrowed to, only cast to.
   // A callback type or an overload signature has no body, so its `unknown` parameter stays counted.
   const fn = parent.parent;
-  if (ts.isParameter(parent) && parent.type === node && fn?.body && fn.type && !mentionsOpaque(fn.type)) return true;
-  return false;
+  if (!ts.isParameter(parent) || parent.type !== node || !fn?.body || !fn.type) return false;
+  return !mentionsOpaque(fn.type) && !mentionsTypeParameter(fn.type, typeParametersInScope(fn));
+}
+
+/** A cast to a function that takes `unknown`, as in `(format as (value: unknown) => T)(raw)`. */
+function castsToUnknownParameter(type) {
+  return ts.isParenthesizedTypeNode(type)
+    ? castsToUnknownParameter(type.type)
+    : ts.isFunctionTypeNode(type) && type.parameters.some((p) => p.type?.kind === ts.SyntaxKind.UnknownKeyword);
 }
 
 function classify(node) {
@@ -126,6 +158,7 @@ function readEscapes(tree) {
         if (kind) {
           const line = block.line0 + source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1;
           if (!justified(line)) sites.push({ file: rel, line, kind });
+          if (kind === "cast" && castsToUnknownParameter(node.type)) sites.push({ file: rel, line, kind: "unknown-cast" });
         }
         ts.forEachChild(node, visit);
       };
@@ -136,6 +169,35 @@ function readEscapes(tree) {
       if (!comment || (comment[1] === "expect-error" && TEST_FILE.test(rel))) return;
       if (!justified(index + 1)) sites.push({ file: rel, line: index + 1, kind: "ts-comment" });
     });
+  }
+  return [...sites, ...readUnknownCasts(tree)];
+}
+
+/** Casts whose operand the checker reads as `unknown`, in each package's production code. */
+function readUnknownCasts(tree) {
+  if (!existsSync(path.join(tree, "packages/core/node_modules"))) {
+    console.warn("Dependencies are not installed here, skipping casts from unknown (CI still runs it).");
+    return [];
+  }
+  const sites = [];
+  for (const entry of readdirSync(path.join(tree, "packages"), { withFileTypes: true })) {
+    const config = path.join(tree, "packages", entry.name, "tsconfig.json");
+    if (!entry.isDirectory() || !existsSync(config)) continue;
+    const { fileNames, options } = ts.getParsedCommandLineOfConfigFile(config, {}, { ...ts.sys, onUnRecoverableConfigFileDiagnostic() {} });
+    const program = ts.createProgram(fileNames, options);
+    const checker = program.getTypeChecker();
+    for (const source of program.getSourceFiles()) {
+      const rel = path.relative(tree, source.fileName);
+      if (!rel.startsWith(`packages/${entry.name}/src/`) || TEST_FILE.test(rel) || source.isDeclarationFile) continue;
+      const visit = (node) => {
+        if (classify(node) === "cast" && checker.getTypeAtLocation(node.expression).flags & ts.TypeFlags.Unknown) {
+          const line = source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1;
+          sites.push({ file: rel, line, kind: "unknown-cast" });
+        }
+        ts.forEachChild(node, visit);
+      };
+      visit(source);
+    }
   }
   return sites;
 }
@@ -168,6 +230,11 @@ function countAt(ref) {
   const dir = mkdtempSync(path.join(tmpdir(), "type-escapes-"));
   try {
     git("worktree", "add", "--detach", "--quiet", dir, ref);
+    // The base's programs resolve through this checkout's dependencies.
+    for (const entry of ["", ...readdirSync(path.join(root, "packages")).map((name) => `packages/${name}`)]) {
+      const modules = path.join(root, entry, "node_modules");
+      if (existsSync(modules) && existsSync(path.join(dir, entry))) symlinkSync(modules, path.join(dir, entry, "node_modules"));
+    }
     return countByFile(readEscapes(dir));
   } finally {
     git("worktree", "remove", "--force", dir);
@@ -196,7 +263,7 @@ for (const [file, perKind] of baseline) {
 }
 
 if (added.length > 0) {
-  console.error("New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a `// type-escape: <why>` comment:\n");
+  console.error("New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a `// type-escape: <why>` comment. A cast from `unknown` takes no comment: keep the value typed, or narrow it with a type guard.\n");
   for (const { file, kind, found, allowed } of added) {
     console.error(`${file}: ${found} ${kind}, ${base} has ${allowed}`);
     for (const site of sites.filter((s) => s.file === file && s.kind === kind)) console.error(`  ${site.file}:${site.line}`);
