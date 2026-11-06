@@ -107,7 +107,6 @@
   "packages/react/src/components/maps-draw/simplify-input.tsx <-> packages/react/src/components/maps/geo-json-field.tsx": 1,
   "packages/react/src/components/maps-draw/use-terra-draw.ts <-> packages/vue/src/components/maps-draw/use-terra-draw.ts": 2,
   "packages/react/src/components/maps-osm/osm-features.ts <-> packages/vue/src/components/maps-osm/osm-features.ts": 3,
-  "packages/react/src/components/maps-osm/osm-geometry-ops.ts <-> packages/vue/src/components/maps-osm/osm-geometry-ops.ts": 2,
   "packages/react/src/components/mdx-editor/mdx-input.tsx <-> packages/react/src/components/monaco/monaco-json-input-lazy.tsx": 1,
   "packages/react/src/components/monaco/internal/use-json-schema.ts <-> packages/vue/src/components/monaco/internal/use-json-schema.ts": 3,
   "packages/react/src/controller-hooks.ts <-> packages/react/src/controller-hooks.ts": 1,
