@@ -8,8 +8,10 @@
  *   - frontmatter (title, one-line description, registry:<slug> when the
  *     component ships as a shadcn-registry item)
  *   - a one-line intro
- *   - for barrel-only components, an `@chelone/react` import block; registry-backed
- *     pages get their install block from `registry` frontmatter at render time
+ *   - for barrel-only components, an import block for the module they are
+ *     imported from (`@chelone/react`, or a row's `importFrom` add-on entry);
+ *     registry-backed pages get their install block from `registry`
+ *     frontmatter at render time
  *   - a <PropsTable name="<Component>"/> (reads the typedoc-generated JSON)
  *
  * `mdx-page.tsx` renders a preview when `demos/basic.tsx` exists.
@@ -51,10 +53,14 @@ const MARKER = "{/* generated:gen-component-stubs */}";
  * command; `null` => ships only in the @chelone/react barrel), a concise
  * title, and a one-line description written FRESH (no react-admin prose).
  *
+ * A row may also carry `importFrom`: the module a barrel-only component is
+ * imported from when it is not the barrel itself, such as an add-on entry
+ * (`@chelone/react/maps/draw`). Rows without it import from `@chelone/react`.
+ *
  * Cross-checked against the @chelone/react barrel + registry.json. Slugs whose
  * component is not exported are simply absent (the DROP set from plan §2).
  */
-/** @type {{slug:string,section:string,component:string,registry:string|null,title:string,desc:string}[]} */
+/** @type {{slug:string,section:string,component:string,registry:string|null,title:string,desc:string,importFrom?:string}[]} */
 const STUBS = [
   // ── viewing (read-only fields) ──────────────────────────────────────────
   { slug: "api-key-field", section: "viewing", component: "ApiKeyField", registry: "api-key-field", title: "ApiKeyField", desc: "Renders a secret API key value, masked with a reveal/copy affordance." },
@@ -232,12 +238,13 @@ const STUBS = [
 
 /**
  * Barrel-only components have no registry item, so the page renders no install
- * block for them; this import is their only one.
+ * block for them; this import is their only one. `importFrom` names the module
+ * for a component an add-on entry exports instead of the barrel.
  */
-function importBlock(component) {
+function importBlock(component, importFrom = "@chelone/react") {
   return [
     "```tsx",
-    `import { ${component} } from "@chelone/react";`,
+    `import { ${component} } from "${importFrom}";`,
     "```",
   ].join("\n");
 }
@@ -251,7 +258,7 @@ function mdxSafe(text) {
   return text.replace(/(?<!`)<([A-Za-z][\w.-]*)>/g, "`<$1>`");
 }
 
-function page({ component, registry, title, desc }) {
+function page({ component, registry, title, desc, importFrom }) {
   const hasProps = existsSync(resolve(PROPS, `${component}.json`));
   const fm = ["---", `title: "${title}"`, `description: "${desc.replace(/`/g, "").replace(/"/g, '\\"')}"`];
   if (registry) fm.push(`registry: "${registry}"`);
@@ -259,7 +266,8 @@ function page({ component, registry, title, desc }) {
 
   const parts = [fm.join("\n"), MARKER, "", mdxSafe(desc)];
   // `mdx-page.tsx` renders the install block from `registry` frontmatter.
-  if (!registry) parts.push("", "## Installation", "", importBlock(component));
+  if (!registry)
+    parts.push("", "## Installation", "", importBlock(component, importFrom));
 
   parts.push("", "## Props", "");
   parts.push(hasProps ? `<PropsTable name="${component}" />` : PROPLESS_EXPORTS.get(component));
