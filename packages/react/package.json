@@ -142,6 +142,7 @@
     "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
     "@tiptap/core": "^3.33.0",
+    "@tiptap/extension-image": "^3.33.0",
     "@tiptap/extensions": "^3.33.0",
     "@tiptap/pm": "^3.33.0",
     "@tiptap/react": "^3.33.0",
@@ -184,6 +185,9 @@
       "optional": true
     },
     "@tiptap/core": {
+      "optional": true
+    },
+    "@tiptap/extension-image": {
       "optional": true
     },
     "@tiptap/extensions": {
@@ -258,6 +262,7 @@
     "@tanstack/react-store": "^0.11.2",
     "@testing-library/react": "^16.3.3",
     "@tiptap/core": "^3.33.0",
+    "@tiptap/extension-image": "^3.33.0",
     "@tiptap/extensions": "^3.33.0",
     "@tiptap/pm": "^3.33.0",
     "@tiptap/react": "^3.33.0",

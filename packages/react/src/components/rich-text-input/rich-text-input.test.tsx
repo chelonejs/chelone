@@ -252,7 +252,8 @@ describe("<RichTextInput>", () => {
       {},
       { defaultValues: { body: hostile }, onData },
     );
-    expect(dom().querySelector("img, script, iframe")).toBeNull();
+    // The image stays, since images are on by default, but its handler goes.
+    expect(dom().querySelector("script, iframe")).toBeNull();
     expect(dom().querySelector("a[href^='javascript']")).toBeNull();
     for (const node of dom().querySelectorAll("*")) {
       expect(
@@ -267,6 +268,6 @@ describe("<RichTextInput>", () => {
     });
     const written = onData.mock.calls[0]?.[0]?.body;
     expect(written).toContain("kept");
-    expect(written).not.toMatch(/<img|<script|<iframe|onerror|javascript:/i);
+    expect(written).not.toMatch(/<script|<iframe|onerror|javascript:/i);
   });
 });
