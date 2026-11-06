@@ -10,6 +10,7 @@ import {
   unwrapUnknownBlocks,
   wrapUnknownBlocks,
 } from "@chelone/core";
+import { DragDropProvider } from "@dnd-kit/react";
 import { type Extensions, getSchema } from "@tiptap/core";
 import { Placeholder } from "@tiptap/extensions";
 import { Selection } from "@tiptap/pm/state";
@@ -19,6 +20,11 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../i18n-hooks";
+import {
+  BLOCK_DRAG_PLUGINS,
+  BLOCK_DRAG_SENSORS,
+  BlockDragHandle,
+} from "./block-drag-handle";
 import {
   type BlockDefinition,
   createBlockNode,
@@ -62,7 +68,8 @@ const contentClass = cn(
  * Type `/` or press Add block to insert a block. A node the editor has no
  * schema for stays in the document and is written back unchanged.
  *
- * Needs the optional `@tiptap/*` peers.
+ * Needs the optional `@tiptap/*` peers, and `@dnd-kit/react` for the drag
+ * handle.
  *
  * @example
  * import { BlockEditor, defineBlock } from "@chelone/react/block-editor";
@@ -235,7 +242,19 @@ function BlockEditor({
       {editable && editor ? (
         <BlockToolbar editor={editor} registry={setup.registry} />
       ) : null}
-      <EditorContent editor={editor} />
+      {editable && editor ? (
+        <DragDropProvider
+          sensors={BLOCK_DRAG_SENSORS}
+          plugins={BLOCK_DRAG_PLUGINS}
+        >
+          <div className="relative pl-6">
+            <EditorContent editor={editor} />
+            <BlockDragHandle editor={editor} />
+          </div>
+        </DragDropProvider>
+      ) : (
+        <EditorContent editor={editor} />
+      )}
       {editable && picker ? (
         <BlockPicker
           blocks={setup.registry.list()}
