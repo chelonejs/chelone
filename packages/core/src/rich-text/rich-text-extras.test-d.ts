@@ -42,6 +42,9 @@ it("the option objects are readonly", () => {
   richTextStyledSanitizeOptions.FORBID_TAGS.push("a");
   // @ts-expect-error the list is readonly
   richTextStyledSanitizeOptions.FORBID_ATTR.push("onclick");
+  expectTypeOf(richTextStyledSanitizeOptions.FORBID_ATTR).toEqualTypeOf<
+    readonly string[]
+  >();
   // @ts-expect-error the list is readonly
   richTextImageActions.push(richTextImageActions[0]);
 });

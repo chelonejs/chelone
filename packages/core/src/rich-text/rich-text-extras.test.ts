@@ -72,6 +72,21 @@ describe("checkRichTextImageFile", () => {
     ).toBe("type");
   });
 
+  it("rejects an svg that carries mime parameters", () => {
+    expect(
+      checkRichTextImageFile(
+        { type: "image/svg+xml;charset=utf-8", size: 10 },
+        defaultRichTextImageRules,
+      ),
+    ).toBe("type");
+    expect(
+      checkRichTextImageFile(
+        { type: "IMAGE/SVG+XML ; charset=utf-8", size: 10 },
+        defaultRichTextImageRules,
+      ),
+    ).toBe("type");
+  });
+
   it("matches an exact type and a wildcard subtype", () => {
     const rules = {
       ...defaultRichTextImageRules,
@@ -104,6 +119,21 @@ describe("normalizeRichTextUpload", () => {
     expect(
       normalizeRichTextUpload({ id: "abc", src: "data:image/png;base64,AAAA" }),
     ).toEqual({ id: "abc", src: "data:image/png;base64,AAAA" });
+  });
+
+  it("returns null for a data image when base64 is off", () => {
+    const src = "data:image/png;base64,AAAA";
+    const rules = { ...defaultRichTextImageRules, allowBase64: false };
+    expect(normalizeRichTextUpload(src, rules)).toBeNull();
+    expect(normalizeRichTextUpload({ id: 1, src }, rules)).toBeNull();
+    expect(normalizeRichTextUpload("https://cdn.test/a.png", rules)).toEqual({
+      id: null,
+      src: "https://cdn.test/a.png",
+    });
+    expect(normalizeRichTextUpload(src, defaultRichTextImageRules)).toEqual({
+      id: null,
+      src,
+    });
   });
 
   it("returns null for a javascript, svg data or vbscript source", () => {
@@ -140,6 +170,15 @@ describe("richTextImageFileName", () => {
     expect(richTextImageFileName("a", "image/svg+xml")).toBe("a.svg");
     expect(richTextImageFileName("", "image/webp")).toBe("image.webp");
     expect(richTextImageFileName("   ", "image/gif")).toBe("image.gif");
+  });
+
+  it("falls back to png for an empty or inherited subtype", () => {
+    expect(richTextImageFileName("a", "image/constructor")).toBe(
+      "a.constructor",
+    );
+    expect(richTextImageFileName("a", "image/toString")).toBe("a.tostring");
+    expect(richTextImageFileName("a", "image/")).toBe("a.png");
+    expect(richTextImageFileName("a", "")).toBe("a.png");
   });
 
   it("strips path separators, control characters and leading dots", () => {

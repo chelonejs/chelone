@@ -23,6 +23,11 @@ export const defaultRichTextImageRules: Readonly<RichTextImageRules> =
     allowBase64: true,
   });
 
+/** The `type/subtype` of a MIME type, lowercased, without parameters such as `;charset=utf-8`. */
+function baseMimeType(mimeType: string): string {
+  return (mimeType.split(";")[0] ?? "").trim().toLowerCase();
+}
+
 function mimeMatches(pattern: string, type: string): boolean {
   const wanted = pattern.toLowerCase();
   if (wanted.endsWith("/*")) return type.startsWith(wanted.slice(0, -1));
@@ -34,7 +39,7 @@ export function checkRichTextImageFile(
   file: { type: string; size: number },
   rules: RichTextImageRules,
 ): "type" | "size" | null {
-  const type = file.type.toLowerCase();
+  const type = baseMimeType(file.type);
   if (type === "image/svg+xml") return "type";
   if (!rules.allowedMimeTypes.some((pattern) => mimeMatches(pattern, type))) {
     return "type";
@@ -50,12 +55,15 @@ export interface RichTextUpload {
 /** What an upload handler may return: a URL, or a URL with the stored file's id. */
 export function normalizeRichTextUpload(
   result: string | { id: string | number; src: string },
+  rules: Pick<RichTextImageRules, "allowBase64"> = defaultRichTextImageRules,
 ): RichTextUpload | null {
   const upload =
     typeof result === "string"
       ? { id: null, src: result }
       : { id: String(result.id), src: result.src };
-  return isSafeImageSrc(upload.src, { allowDataImages: true }) ? upload : null;
+  return isSafeImageSrc(upload.src, { allowDataImages: rules.allowBase64 })
+    ? upload
+    : null;
 }
 
 /** `width` rounded and held in `min`..`max`. `max` wins when it is below `min`. */
@@ -67,12 +75,12 @@ export function clampRichTextImageWidth(
   return Math.min(max, Math.max(min, rounded));
 }
 
-const EXTENSIONS: Readonly<Record<string, string>> = {
-  jpeg: "jpg",
-  "svg+xml": "svg",
-  "x-icon": "ico",
-  "vnd.microsoft.icon": "ico",
-};
+const EXTENSIONS: ReadonlyMap<string, string> = new Map([
+  ["jpeg", "jpg"],
+  ["svg+xml", "svg"],
+  ["x-icon", "ico"],
+  ["vnd.microsoft.icon", "ico"],
+]);
 
 /** `<name>.<extension>` for downloading an image, from its alt text and mime type. */
 export function richTextImageFileName(alt: string, mimeType: string): string {
@@ -82,10 +90,9 @@ export function richTextImageFileName(alt: string, mimeType: string): string {
     .trim()
     .replace(/^\.+/, "")
     .trim();
-  const subtype = mimeType.split("/")[1]?.split(";")[0]?.trim().toLowerCase();
+  const subtype = baseMimeType(mimeType).split("/")[1] ?? "";
   const extension =
-    (subtype && EXTENSIONS[subtype]) ??
-    (subtype?.replace(/[^a-z0-9]/g, "") || "png");
+    EXTENSIONS.get(subtype) || subtype.replace(/[^a-z0-9]/g, "") || "png";
   return `${name || "image"}.${extension}`;
 }
 
@@ -229,9 +236,9 @@ export function sanitizeRichTextStyle(style: string): string | null {
  */
 export const richTextStyledSanitizeOptions = Object.freeze({
   FORBID_TAGS: richTextSanitizeOptions.FORBID_TAGS,
-  FORBID_ATTR: Object.freeze(
+  FORBID_ATTR: Object.freeze<readonly string[]>(
     richTextSanitizeOptions.FORBID_ATTR.filter(
-      (attribute): attribute is "style" => attribute !== "style",
+      (attribute) => attribute !== "style",
     ),
   ),
 });
