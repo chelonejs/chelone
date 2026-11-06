@@ -1,14 +1,15 @@
-<script lang="ts">
+<script lang="ts" generic="TRecord">
 import type { MapStyleInput, SourceProp } from "@chelone/core";
 
+// type-escape: without a `record` the paths are loose, as `SourceProp<unknown>` is
 /** Props for {@link LatLngField}. */
-export interface LatLngFieldProps {
+export interface LatLngFieldProps<TRecord = unknown> {
   /** The record property holding the latitude. */
   latSource: SourceProp;
   /** The record property holding the longitude. */
   lngSource: SourceProp;
   /** Defaults to the ambient record. */
-  record?: Record<string, unknown>;
+  record?: TRecord;
   zoom?: number;
   /** In pixels, or any CSS length. Defaults to 300. */
   height?: number | string;
@@ -18,7 +19,7 @@ export interface LatLngFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord">
 /**
  * Shows a point held in two record fields on a map. A missing, null,
  * non-numeric or out-of-range coordinate shows a text panel in its place; `0`
@@ -28,33 +29,25 @@ export interface LatLngFieldProps {
  * <LatLngField lat-source="latitude" lng-source="longitude" />
  */
 
-import { toCoordinate } from "@chelone/core";
 import { computed } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
-import { useFieldValue } from "../../record/use-field-value";
 import MapCanvas from "./map-canvas.vue";
+import { useCoordinates } from "./use-coordinates";
 import { MapMarker } from "./use-map";
 
-const props = defineProps<LatLngFieldProps>();
+const props = defineProps<LatLngFieldProps<TRecord>>();
 
 const translate = useTranslate();
-const latValue = useFieldValue({
-  source: props.latSource,
-  record: props.record,
-});
-const lngValue = useFieldValue({
-  source: props.lngSource,
-  record: props.record,
-});
+const coordinates = useCoordinates(props);
 
 /** MapLibre throws on a coordinate outside its range, so the field treats one as missing. */
 function inRange(value: number | null, limit: number): number | null {
   return value !== null && Math.abs(value) <= limit ? value : null;
 }
 
-const lat = computed(() => inRange(toCoordinate(latValue.value), 90));
-const lng = computed(() => inRange(toCoordinate(lngValue.value), 180));
+const lat = computed(() => inRange(coordinates.lat.value, 90));
+const lng = computed(() => inRange(coordinates.lng.value, 180));
 const cssHeight = computed(() => {
   const height = props.height ?? 300;
   return typeof height === "number" ? `${height}px` : height;
