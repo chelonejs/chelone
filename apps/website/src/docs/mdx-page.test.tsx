@@ -58,7 +58,7 @@ it("shows the BooleanField preview and its demo source", async () => {
 });
 
 it.each([
-  ["editing/text-input", "TextInput"],
+  ["editing/webhook-endpoint-input", "WebhookEndpointInput"],
   ["ui-layout/app-bar", "AppBar"],
 ])("shows no preview on %s when no basic demo exists", (slug, title) => {
   render(
