@@ -5,6 +5,7 @@ import {
   type MutationMode,
   type SourceProp,
 } from "@chelone/core";
+import { useIsMutating } from "@tanstack/react-query";
 import { type ReactNode, useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -84,6 +85,17 @@ function ApprovalQueueRow<TRecord extends LooseRecord>({
   const { mutateAsync, isPending } = useUpdate(resource ?? "", {
     mutationMode,
   });
+  // Approve has its own `useUpdate`, so the row counts the record's in-flight
+  // updates from the mutation cache; two decisions never go out from one stale record.
+  const updating =
+    useIsMutating({
+      mutationKey: [resource ?? "", "update"],
+      predicate: ({ state: { variables } }) =>
+        typeof variables === "object" &&
+        variables !== null &&
+        "id" in variables &&
+        variables.id === record.id,
+    }) > 0;
   const { canAccess, isPending: isAccessPending } = useMenuAccess({
     action: "edit",
     resource: resource ?? "",
@@ -109,6 +121,10 @@ function ApprovalQueueRow<TRecord extends LooseRecord>({
     requireReason,
     reason,
   });
+
+  const isRejected =
+    Reflect.get(record, statusSource ?? "status") ===
+    (rejectedValue ?? "rejected");
 
   const close = () => {
     setOpen(false);
@@ -163,27 +179,42 @@ function ApprovalQueueRow<TRecord extends LooseRecord>({
             )}
           </div>
           {rowExtra?.(record)}
-          <div className="flex items-center gap-2">
-            <DualApprovalButton<TRecord>
-              required={required}
-              approverSource={approverSource}
-              statusSource={statusSource}
-              pendingValue={pendingValue}
-              approvedValue={approvedValue}
-              mutationMode={mutationMode}
-            />
-            {canAccess && !isAccessPending ? (
-              <Button
-                type="button"
-                variant="outline"
-                data-slot="approval-queue-reject"
-                disabled={!identity || open}
-                onClick={() => setOpen(true)}
-              >
-                {translate("chelone.approval.reject", { _: "Reject" })}
-              </Button>
-            ) : null}
-          </div>
+          {isRejected ? (
+            <span
+              data-slot="approval-queue-rejected"
+              className="text-muted-foreground"
+            >
+              {translate("chelone.approval_queue.rejected", {
+                _: "Rejected",
+              })}
+            </span>
+          ) : (
+            // A disabled fieldset disables the Approve button inside it.
+            <fieldset
+              disabled={updating}
+              className="m-0 flex min-w-0 items-center gap-2 border-0 p-0"
+            >
+              <DualApprovalButton<TRecord>
+                required={required}
+                approverSource={approverSource}
+                statusSource={statusSource}
+                pendingValue={pendingValue}
+                approvedValue={approvedValue}
+                mutationMode={mutationMode}
+              />
+              {canAccess && !isAccessPending ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  data-slot="approval-queue-reject"
+                  disabled={!identity || open}
+                  onClick={() => setOpen(true)}
+                >
+                  {translate("chelone.approval.reject", { _: "Reject" })}
+                </Button>
+              ) : null}
+            </fieldset>
+          )}
         </div>
         {open ? (
           <form
@@ -209,7 +240,7 @@ function ApprovalQueueRow<TRecord extends LooseRecord>({
               <Button
                 type="submit"
                 variant="destructive"
-                disabled={!rejection || isPending}
+                disabled={!rejection || isPending || updating}
               >
                 {translate("chelone.approval_queue.confirm_reject", {
                   _: "Confirm reject",

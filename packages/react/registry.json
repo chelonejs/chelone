@@ -4952,6 +4952,7 @@
         "@chelone/use-menu-access"
       ],
       "dependencies": ["@chelone/core", "@chelone/react"],
+      "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

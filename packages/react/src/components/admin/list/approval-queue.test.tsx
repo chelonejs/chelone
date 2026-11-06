@@ -84,6 +84,26 @@ function provider(
   return inner;
 }
 
+/** A promise that settles when `open` is called. */
+function gate() {
+  let open = () => {};
+  const opened = new Promise<void>((resolve) => {
+    open = resolve;
+  });
+  return { opened, open };
+}
+
+/** A provider whose `update` waits for `opened` before it writes. */
+function slowUpdates(opened: Promise<void>): DataProvider {
+  const dataProvider = provider();
+  const update = dataProvider.update.bind(dataProvider);
+  dataProvider.update = async (...args) => {
+    await opened;
+    return update(...args);
+  };
+  return dataProvider;
+}
+
 function mount({
   queue = {},
   dataProvider = provider(),
@@ -351,6 +371,80 @@ describe("<ApprovalQueue>", () => {
     const reject = rejectIn(rowOf(1));
     expect(reject.getAttribute("data-slot")).toBe("approval-queue-reject");
     expect(reject.disabled).toBe(true);
+  });
+
+  it("Reject stays disabled while the row's Approve is in flight", async () => {
+    const release = gate();
+    mount({ dataProvider: slowUpdates(release.opened) });
+
+    await screen.findByText("Alpha");
+    await signedIn();
+    fireEvent.click(buttonIn(rowOf(1), /Approve/));
+
+    // A disabled fieldset disables the buttons inside it: `:disabled`, not `.disabled`.
+    await waitFor(() =>
+      expect(rejectIn(rowOf(1)).matches(":disabled")).toBe(true),
+    );
+    // Another record's row is not held up.
+    expect(rejectIn(rowOf(2)).matches(":disabled")).toBe(false);
+    release.open();
+    await waitFor(() =>
+      expect(rejectIn(rowOf(1)).matches(":disabled")).toBe(false),
+    );
+  });
+
+  it("Confirm reject stays disabled while the row's Approve is in flight", async () => {
+    const release = gate();
+    mount({ dataProvider: slowUpdates(release.opened) });
+
+    await screen.findByText("Alpha");
+    await signedIn();
+    fireEvent.click(rejectIn(rowOf(1)));
+    fireEvent.click(buttonIn(rowOf(1), /Approve/));
+
+    await waitFor(() =>
+      expect(buttonIn(rowOf(1), "Confirm reject").disabled).toBe(true),
+    );
+    release.open();
+    await waitFor(() =>
+      expect(buttonIn(rowOf(1), "Confirm reject").disabled).toBe(false),
+    );
+  });
+
+  it("Approve stays disabled while the row's rejection is in flight", async () => {
+    const release = gate();
+    mount({ dataProvider: slowUpdates(release.opened) });
+
+    await screen.findByText("Alpha");
+    await signedIn();
+    fireEvent.click(rejectIn(rowOf(1)));
+    fireEvent.click(buttonIn(rowOf(1), "Confirm reject"));
+
+    await waitFor(() =>
+      expect(buttonIn(rowOf(1), /Approve/).matches(":disabled")).toBe(true),
+    );
+    release.open();
+    await waitFor(() =>
+      expect(within(rowOf(1)).queryByRole("button", { name: /Approve/ })).toBe(
+        null,
+      ),
+    );
+  });
+
+  it("a rejected record shows Rejected in place of Approve and Reject", async () => {
+    mount({
+      dataProvider: provider([
+        { id: 1, title: "Alpha", approvers: [], status: "rejected" },
+        { id: 2, title: "Beta", approvers: [], status: "pending" },
+      ]),
+    });
+
+    await screen.findByText("Alpha");
+    expect(
+      within(rowOf(1)).getByText("Rejected").getAttribute("data-slot"),
+    ).toBe("approval-queue-rejected");
+    expect(within(rowOf(1)).queryByRole("button")).toBeNull();
+    expect(within(rowOf(2)).queryByText("Rejected")).toBeNull();
   });
 
   it("renders a title and subtitle that hold markup as text", async () => {
