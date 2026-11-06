@@ -18,13 +18,14 @@ import { type PreviewMode, PreviewProvider } from "./preview-provider";
 
 // Demo modules + their raw source, globbed from content. A demo's optional
 // `mode` export selects its PreviewProvider wrapper depth.
-const demoModules = import.meta.glob<{
+interface DemoModule {
   default: () => ReactNode;
   mode?: PreviewMode;
-}>("../content/**/demos/*.tsx", { eager: true });
+}
+
+const demoModules = import.meta.glob<DemoModule>("../content/**/demos/*.tsx");
 
 const demoSources = import.meta.glob<string>("../content/**/demos/*.tsx", {
-  eager: true,
   query: "?raw",
   import: "default",
 });
@@ -51,16 +52,35 @@ interface ComponentPreviewProps {
   className?: string;
 }
 
+type LoadedDemo =
+  | { key: string; status: "loaded"; module: DemoModule; source: string }
+  | { key: string; status: "error" };
+
 export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   const [tab, setTab] = useState<"preview" | "code">("preview");
-  // The live demo mounts the full admin stack (data provider, TanStack query,
-  // the resource registry) — a client-only concern. During SSG prerender we
-  // render a placeholder and only mount the real demo after hydration, so the
-  // static build never runs the admin runtime in Node.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
+  const [loaded, setLoaded] = useState<LoadedDemo>();
   const key = keyFor(name);
+
+  // Effects run only after hydration, keeping the admin runtime out of SSG.
+  useEffect(() => {
+    if (!key) return;
+    const loadModule = demoModules[key];
+    const loadSource = demoSources[key];
+    if (!loadModule || !loadSource) return;
+    let cancelled = false;
+    Promise.all([loadModule(), loadSource()]).then(
+      ([module, source]) => {
+        if (!cancelled) setLoaded({ key, status: "loaded", module, source });
+      },
+      () => {
+        if (!cancelled) setLoaded({ key, status: "error" });
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [key]);
+
   if (!key) {
     return (
       <div className="my-4 rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
@@ -69,9 +89,9 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
     );
   }
 
-  const DemoComponent = demoModules[key].default;
-  const mode = demoModules[key].mode;
-  const source = demoSources[key] ?? "";
+  const current = loaded?.key === key ? loaded : undefined;
+  const demo = current?.status === "loaded" ? current : undefined;
+  const DemoComponent = demo?.module.default;
 
   return (
     <div
@@ -101,16 +121,18 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
 
       {/* Preview panel — the demo renders inside the shared admin context
           stack (PreviewProvider) so bare @chelone/react components resolve.
-          Client-only (see `mounted`): the prerendered HTML shows a placeholder. */}
+          The prerendered HTML shows a placeholder until the module loads. */}
       {tab === "preview" && (
         <div className="flex min-h-32 items-center justify-center p-8">
-          {mounted ? (
-            <PreviewProvider mode={mode}>
+          {DemoComponent ? (
+            <PreviewProvider mode={demo?.module.mode}>
               <DemoComponent />
             </PreviewProvider>
           ) : (
             <span className="text-sm text-muted-foreground">
-              Loading preview…
+              {current?.status === "error"
+                ? "Unable to load demo."
+                : "Loading preview…"}
             </span>
           )}
         </div>
@@ -119,14 +141,22 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
       {/* Code panel — react-shiki syntax highlighted source */}
       {tab === "code" && (
         <div className="overflow-x-auto text-sm">
-          <ShikiHighlighter
-            language="tsx"
-            theme={SHIKI_THEME}
-            addDefaultStyles={false}
-            className="!bg-transparent p-4"
-          >
-            {source}
-          </ShikiHighlighter>
+          {demo ? (
+            <ShikiHighlighter
+              language="tsx"
+              theme={SHIKI_THEME}
+              addDefaultStyles={false}
+              className="!bg-transparent p-4"
+            >
+              {demo.source}
+            </ShikiHighlighter>
+          ) : (
+            <p className="p-4 text-muted-foreground">
+              {current?.status === "error"
+                ? "Unable to load demo."
+                : "Loading source…"}
+            </p>
+          )}
         </div>
       )}
     </div>

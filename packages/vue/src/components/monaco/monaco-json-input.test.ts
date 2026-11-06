@@ -28,9 +28,7 @@ import Admin from "../../admin/admin.vue";
 import { type UseFormReturn, useForm } from "../../form/use-form";
 import { useInput } from "../../form/use-input";
 import { MONACO_DIAGNOSTICS_DELAY_MS } from "./internal/use-monaco-markers";
-import MonacoJsonInput, {
-  type MonacoJsonInputProps,
-} from "./monaco-json-input.vue";
+import MonacoJsonInput from "./monaco-json-input.vue";
 
 vi.mock("monaco-editor", () => ({}));
 
@@ -209,7 +207,8 @@ function setup(
   return { wrapper, submit };
 }
 
-function input(props: MonacoJsonInputProps) {
+// The component is generic in its record, so its props are its first parameter.
+function input(props: Parameters<typeof MonacoJsonInput>[0]) {
   return () => h(MonacoJsonInput, props);
 }
 

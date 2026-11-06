@@ -1,15 +1,14 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord } from "@chelone/core";
 import type { editor } from "monaco-editor";
 import { defineAsyncComponent } from "vue";
+import type { FieldProps } from "../admin/fields/field-props";
 import MonacoSkeleton from "./internal/monaco-skeleton.vue";
 
 /** Props for {@link MonacoJsonField}. */
-export interface MonacoJsonFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  /** Shown when the record has no value at `source`. */
-  defaultValue?: unknown;
+export interface MonacoJsonFieldProps<
+  RecordType extends LooseRecord = LooseRecord,
+> extends FieldProps<RecordType> {
   /** Editor height in pixels when `autoHeight` is false. Defaults to 200. */
   height?: number;
   /** Grow with the content up to `maxHeight`. Defaults to true. */

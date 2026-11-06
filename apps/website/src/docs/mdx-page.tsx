@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import { Navigate, useParams } from "react-router";
 import { CategoryIndex } from "./category-index";
+import { ComponentPreview } from "./mdx/component-preview";
 import { InstallCommand } from "./mdx/install-command";
 import { introSlugToSection, navTree } from "./nav-content";
 import { findGroup } from "./nav-sequence";
@@ -14,6 +15,11 @@ interface GuideModule {
 const guides = import.meta.glob<GuideModule>("./content/**/*.mdx", {
   eager: true,
 });
+
+// Inspect paths without importing demos into the docs entry chunk.
+const basicDemos = import.meta.glob(
+  "./content/{viewing,editing,ui-layout}/*/demos/basic.tsx",
+);
 
 const bySlug = new Map(
   Object.entries(guides).map(([k, m]) => [
@@ -71,6 +77,9 @@ export default function MdxPage() {
           <p className="mb-2 text-sm font-semibold">Installation</p>
           <InstallCommand install={install} vue={vue} />
         </div>
+      )}
+      {basicDemos[`./content/${slug}/demos/basic.tsx`] && (
+        <ComponentPreview key={slug} name={`${slug}/basic`} />
       )}
       <Content />
       <PrevNext slug={slug} />
