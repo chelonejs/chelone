@@ -168,8 +168,11 @@ describe("<RichTextToolbar>", () => {
     const names = within(screen.getByRole("toolbar"))
       .getAllByRole("button")
       .map((each) => each.getAttribute("aria-label"));
+    // The Image button joins the insert group, right after Link.
     expect(names).toEqual(
-      richTextToolbarItems.map((item) => item.defaultLabel),
+      richTextToolbarItems.flatMap((item) =>
+        item.id === "link" ? [item.defaultLabel, "Image"] : [item.defaultLabel],
+      ),
     );
   });
 

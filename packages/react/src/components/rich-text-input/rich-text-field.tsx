@@ -1,5 +1,5 @@
 import type { LooseRecord } from "@chelone/core";
-import { richTextSanitizeOptions } from "@chelone/core";
+import { isSafeImageSrc, richTextSanitizeOptions } from "@chelone/core";
 import DOMPurify from "dompurify";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
@@ -14,6 +14,27 @@ const sanitizeConfig = {
   FORBID_TAGS: [...richTextSanitizeOptions.FORBID_TAGS],
   FORBID_ATTR: [...richTextSanitizeOptions.FORBID_ATTR],
 };
+
+let purify: ReturnType<typeof DOMPurify> | undefined;
+
+/**
+ * This field's own DOMPurify, so its image hook never runs for other callers of
+ * the shared default instance. Made on first use, since `window` is absent on
+ * the server.
+ */
+function sanitizer(): ReturnType<typeof DOMPurify> {
+  if (purify) return purify;
+  const created = DOMPurify(window);
+  // `javascript:` is already gone; this also drops SVG data URLs, which DOMPurify allows on an `img`.
+  created.addHook("afterSanitizeAttributes", (node) => {
+    if (node.nodeName !== "IMG" || !(node instanceof window.Element)) return;
+    const src = node.getAttribute("src");
+    if (src === null || !isSafeImageSrc(src, { allowDataImages: true }))
+      node.remove();
+  });
+  purify = created;
+  return created;
+}
 
 interface RichTextFieldProps<RecordType extends LooseRecord = LooseRecord>
   extends FieldProps<RecordType>,
@@ -67,7 +88,7 @@ function RichTextField<RecordType extends LooseRecord = LooseRecord>({
     );
   }
 
-  const clean = DOMPurify.sanitize(html, sanitizeConfig);
+  const clean = sanitizer().sanitize(html, sanitizeConfig);
 
   if (stripTags) {
     const text = new DOMParser().parseFromString(clean, "text/html").body
