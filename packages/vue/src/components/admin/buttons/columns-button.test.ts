@@ -10,6 +10,7 @@ import {
   defineResources,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -110,9 +111,9 @@ const rowButton = (w: VueWrapper, label: string, name: string) =>
   rowFor(w, label).get(`button[aria-label="${name}"]`);
 const panel = (w: VueWrapper) => w.find('[role="menu"]');
 const disabled = (button: { element: Element }) =>
-  (button.element as HTMLButtonElement).disabled;
+  elementOf(button.element, HTMLButtonElement).disabled;
 const checked = (w: VueWrapper, label: string) =>
-  (switchFor(w, label).element as HTMLInputElement).checked;
+  elementOf(switchFor(w, label).element, HTMLInputElement).checked;
 
 async function openMenu(w: VueWrapper) {
   await vi.waitFor(() => expect(disabled(trigger(w))).toBe(false));

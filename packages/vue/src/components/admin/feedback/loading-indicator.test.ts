@@ -5,6 +5,7 @@
  */
 
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -75,7 +76,7 @@ async function mountIndicator(
 
 const spinner = () => document.querySelector('[role="status"]');
 const button = () =>
-  document.querySelector("button") as HTMLButtonElement | null;
+  elementOf(document.querySelector("button"), HTMLButtonElement);
 
 describe("<LoadingIndicator>", () => {
   it("shows no spinner while idle", async () => {

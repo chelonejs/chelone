@@ -5,6 +5,7 @@
  */
 
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -62,7 +63,7 @@ async function mountButton(
 }
 
 const button = () =>
-  document.querySelector("button") as HTMLButtonElement | null;
+  elementOf(document.querySelector("button"), HTMLButtonElement);
 
 describe("<IconButtonWithTooltip>", () => {
   it("names the button by its translated label", async () => {
