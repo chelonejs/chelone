@@ -37,7 +37,7 @@ function makeI18n(locales: string[], changeLocale?: string): AnyCheloneI18n {
   return createI18n({
     locale: locales[0] ?? "en",
     messages,
-  }) as AnyCheloneI18n;
+  });
 }
 
 function mountButton(
