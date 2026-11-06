@@ -179,10 +179,11 @@ describe("useSubscribeToRecord", () => {
 
   it("does nothing while the id is undefined and subscribes for id 0", () => {
     const { wrapper, subscribe } = setup();
+    const initialProps: { id: number | null | undefined } = { id: undefined };
     const { rerender } = renderHook(
       ({ id }: { id: number | null | undefined }) =>
         useSubscribeToRecord("posts", id, vi.fn()),
-      { wrapper, initialProps: { id: undefined as number | null | undefined } },
+      { wrapper, initialProps },
     );
     rerender({ id: null });
     expect(subscribe).not.toHaveBeenCalled();

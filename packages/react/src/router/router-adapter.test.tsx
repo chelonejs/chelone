@@ -5,7 +5,8 @@
  * own RouterWrapper) so navigation is observable without a real DOM history.
  */
 
-import { fakeDataProvider } from "@chelone/core";
+import { type AuthProvider, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -832,7 +833,7 @@ describe("Link / Navigate components", () => {
         </MemoryRouter>
       </RouterAdapterProvider>,
     );
-    const el = screen.getByTestId("lnk") as HTMLAnchorElement;
+    const el = elementOf(screen.getByTestId("lnk"), HTMLAnchorElement);
     expect(anchorEl).toBe(el);
     expect(el.getAttribute("href")).toBe("/posts/1");
   });
@@ -856,7 +857,7 @@ describe("Link / Navigate components", () => {
 });
 
 describe("useGetPathForRecord — inference + explicit + access", () => {
-  function withProviders(child: ReactNode, authProvider?: unknown) {
+  function withProviders(child: ReactNode, authProvider?: AuthProvider) {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
@@ -864,8 +865,7 @@ describe("useGetPathForRecord — inference + explicit + access", () => {
       <CheloneProvider
         dataProvider={fakeDataProvider({})}
         queryClient={queryClient}
-        // biome-ignore lint/suspicious/noExplicitAny: test stub provider
-        authProvider={authProvider as any}
+        authProvider={authProvider}
       >
         <RouterAdapterProvider adapter={adapter}>
           <MemoryRouter>{child}</MemoryRouter>
