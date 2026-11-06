@@ -108,6 +108,34 @@ describe("createDataProviderLog", () => {
     });
   });
 
+  it("wraps the prototype methods of a class-based provider with this set to the original", async () => {
+    class PostsProvider {
+      readonly prefix = "post-";
+      async getOne(_resource: string, params: { id: number }) {
+        return { data: { id: `${this.prefix}${params.id}` } };
+      }
+    }
+    class AuditedProvider extends PostsProvider {
+      async audit(_resource: string) {
+        return "audited";
+      }
+    }
+    const log = createDataProviderLog();
+    const provider = new AuditedProvider();
+
+    const wrapped = log.wrap(provider);
+    const one = await wrapped.getOne("posts", { id: 1 });
+    await wrapped.audit("posts");
+
+    expect(one).toEqual({ data: { id: "post-1" } });
+    expect(wrapped).toBeInstanceOf(AuditedProvider);
+    expect(log.store.getSnapshot().entries.map((e) => e.method)).toEqual([
+      "getOne",
+      "audit",
+    ]);
+    expect(Object.hasOwn(provider, "getOne")).toBe(false);
+  });
+
   it("reads the resource as an empty string when the first argument is not a string", async () => {
     const log = createDataProviderLog();
     const provider = { ping: async (_value: number) => "pong" };
@@ -169,7 +197,7 @@ describe("createDataProviderLog", () => {
     expect(Object.keys(provider)).toEqual(["getOne", "settings", "name"]);
   });
 
-  it("keeps only the newest maxEntries entries, in the order they settle", async () => {
+  it("keeps only the newest maxEntries entries", async () => {
     const log = createDataProviderLog({ maxEntries: 2 });
     const releases: (() => void)[] = [];
     const provider = {

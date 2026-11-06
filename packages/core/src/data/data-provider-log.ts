@@ -57,6 +57,35 @@ function settled(call: () => unknown): Promise<unknown> {
   }
 }
 
+type ProviderMethod = (...args: unknown[]) => unknown;
+
+function isMethod(value: unknown): value is ProviderMethod {
+  return typeof value === "function";
+}
+
+/**
+ * The methods of a provider by name, own and inherited, so a class-based
+ * provider's prototype methods are found. The nearest definition wins.
+ */
+function methodsOf(dataProvider: object): Map<string, ProviderMethod> {
+  const methods = new Map<string, ProviderMethod>();
+  const seen = new Set<string>();
+  for (
+    let level: object | null = dataProvider;
+    level && level !== Object.prototype;
+    level = Object.getPrototypeOf(level)
+  ) {
+    for (const [name, descriptor] of Object.entries(
+      Object.getOwnPropertyDescriptors(level),
+    )) {
+      if (name === "constructor" || seen.has(name)) continue;
+      seen.add(name);
+      if (isMethod(descriptor.value)) methods.set(name, descriptor.value);
+    }
+  }
+  return methods;
+}
+
 /**
  * A log of every call through a wrapped data provider, kept in a store both
  * adapters subscribe to. Wrap once, as `withLifecycleCallbacks` does.
@@ -80,8 +109,8 @@ export function createDataProviderLog({
 
   const wrap = <TProvider extends object>(dataProvider: TProvider) => {
     const copy = { ...dataProvider };
-    for (const [method, value] of Object.entries(dataProvider)) {
-      if (typeof value !== "function") continue;
+    Object.setPrototypeOf(copy, Object.getPrototypeOf(dataProvider));
+    for (const [method, value] of methodsOf(dataProvider)) {
       // type-escape: the wrapper forwards any arguments and results of any method
       const logged = (...args: unknown[]): Promise<unknown> => {
         const id = ++lastId;
