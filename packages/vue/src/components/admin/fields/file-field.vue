@@ -55,7 +55,9 @@ const titleFromRecord = computed(() =>
 
 const titleValue = computed(() =>
   props.title
-    ? (titleFromRecord.value?.toString() ?? props.title)
+    ? titleFromRecord.value == null
+      ? props.title
+      : String(titleFromRecord.value)
     : undefined,
 );
 
@@ -81,18 +83,22 @@ interface FileLink {
 const links = computed<FileLink[]>(() => {
   if (!Array.isArray(sourceValue.value)) return [];
   return sourceValue.value.map((file, index) => {
+    // Inside `props.title ?`, the fallback is never nullish.
     const fileTitleValue = props.title
-      ? ((getAtPath(file, props.title) ?? props.title) as string)
+      ? String(getAtPath(file, props.title) ?? props.title)
       : props.title;
-    const srcValue = props.src
-      ? ((getAtPath(file, props.src) ?? props.title) as string)
+    // `src` falls back to `props.title`, which may be absent: a miss stays
+    // `undefined` so the link gets no href, never the text "undefined".
+    const srcPath = props.src
+      ? (getAtPath(file, props.src) ?? props.title)
       : props.title;
+    const srcValue = srcPath == null ? undefined : String(srcPath);
     return { href: srcValue, title: fileTitleValue, key: srcValue ?? index };
   });
 });
 
 const singleHref = computed(() =>
-  (sourceValue.value as { toString(): string } | null)?.toString(),
+  sourceValue.value == null ? undefined : String(sourceValue.value),
 );
 
 function stop(e: Event): void {

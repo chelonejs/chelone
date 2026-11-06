@@ -310,6 +310,30 @@ describe("<MenuLiveItemLink>", () => {
   });
 });
 
+describe("MenuLive", () => {
+  it("MenuLive does not subscribe with a provider that is not realtime", () => {
+    render(
+      <CheloneProvider
+        dataProvider={fakeDataProvider({ posts: [] })}
+        queryClient={new QueryClient()}
+        i18n={createI18n({ locale: "en", messages: { en: {} } })}
+        store={createStore()}
+      >
+        <RouterAdapterProvider adapter={reactRouterAdapter}>
+          <MemoryRouter>
+            <MenuLive
+              items={[{ to: "/posts", resource: "posts", label: "Posts" }]}
+            />
+          </MemoryRouter>
+        </RouterAdapterProvider>
+      </CheloneProvider>,
+    );
+
+    expect(screen.getByRole("link", { name: /posts/i })).toBeTruthy();
+    expect(badge()).toBeNull();
+  });
+});
+
 describe("<MenuLive>", () => {
   it("renders one link per item", async () => {
     const { Providers, emit } = setup();

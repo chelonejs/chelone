@@ -158,6 +158,23 @@ describe("CommentsThread", () => {
     expect(wrapper.text()).not.toContain("elsewhere");
   });
 
+  it("a row without a body is not listed", async () => {
+    const wrapper = mountThread(
+      fakeDataProvider({
+        comments: [
+          { id: 1, postId: 1, body: "first" },
+          { id: 2, postId: 1 },
+          { id: 3, postId: 1, body: 5 },
+        ],
+      }),
+    );
+    await flushPromises();
+
+    expect(
+      cards(wrapper).map((card) => card.attributes("data-comment-id")),
+    ).toEqual(["1"]);
+  });
+
   it("CommentsThread shows the author name, falling back to the author id", async () => {
     const { dataProvider } = setup();
     const wrapper = mountThread(dataProvider);
