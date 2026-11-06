@@ -29,7 +29,7 @@ interface Values {
 function makeHost(defaultValues: Values) {
   const controller = createFormController<Values>({
     defaultValues,
-    save: async () => undefined as FieldErrors | undefined,
+    save: async (): Promise<FieldErrors | undefined> => undefined,
   });
   controller.form.mount();
   function Host({ children }: { children: ReactNode }) {

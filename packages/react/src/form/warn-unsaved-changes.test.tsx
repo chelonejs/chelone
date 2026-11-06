@@ -1,3 +1,4 @@
+import nodeProcess from "node:process";
 import {
   createNotificationStore,
   createStore,
@@ -159,21 +160,12 @@ afterEach(() => {
  * environmental noise, and record anything else so a genuine rejection still
  * fails the run (asserted in `afterAll`).
  */
-// `@chelone/react`'s tsconfig omits @types/node, so reach Node's `process`
-// through a minimally-typed local handle rather than the global (keeps the
-// `--typecheck` pass green without pulling node types into the package).
-interface RejectionProcess {
-  removeAllListeners(event: string): void;
-  on(event: string, listener: (reason: unknown) => void): void;
-}
-const nodeProcess = (globalThis as { process?: RejectionProcess }).process;
-
 const isJsdomAbortSignalNoise = (reason: unknown): boolean =>
   reason instanceof Error &&
   /Expected signal .* to be an instance of AbortSignal/.test(reason.message);
 const unexpectedRejections: unknown[] = [];
-nodeProcess?.removeAllListeners("unhandledRejection");
-nodeProcess?.on("unhandledRejection", (reason: unknown) => {
+nodeProcess.removeAllListeners("unhandledRejection");
+nodeProcess.on("unhandledRejection", (reason: unknown) => {
   if (!isJsdomAbortSignalNoise(reason)) unexpectedRejections.push(reason);
 });
 afterAll(() => {
