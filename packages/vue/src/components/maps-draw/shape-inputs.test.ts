@@ -7,9 +7,11 @@
 
 import {
   createI18n,
+  createNotificationStore,
   fakeDataProvider,
   isGeoGeometry,
   mapMessages,
+  type Notification,
   type RoutingProvider,
   rasterTileStyle,
   type ShapeValue,
@@ -39,7 +41,7 @@ import {
   type TerraDraw,
 } from "./__fixtures__/fake-terra-draw";
 import { BBoxInput } from "./bbox-input";
-import type { ShapeInputProps } from "./shape-input.vue";
+import ShapeInput, { type ShapeInputProps } from "./shape-input.vue";
 import {
   FeatureCollectionInput,
   FeatureInput,
@@ -136,6 +138,14 @@ async function mountShapeInput(
   shape: ShapeValue | null = null,
   config: Omit<MapsConfig, "mapStyle"> = {},
 ) {
+  // Admin's toast drains the store, so keep what was pushed.
+  const notifications = createNotificationStore();
+  const pushed: Notification[] = [];
+  notifications.subscribe(() => {
+    for (const item of notifications.getSnapshot()) {
+      if (!pushed.some((seen) => seen.id === item.id)) pushed.push(item);
+    }
+  });
   let current: UseFormReturn<Values> | undefined;
   const FormHost = defineComponent({
     setup() {
@@ -163,6 +173,7 @@ async function mountShapeInput(
                 locale: "en",
                 messages: { en: mapMessages },
               }),
+              notifications,
             },
             { default: () => h(FormHost) },
           ),
@@ -199,6 +210,11 @@ async function mountShapeInput(
       if (!current) throw new Error("form not mounted");
       return current.form.store.state.values.shape;
     },
+    /** What the input pushed as a warning, oldest first. */
+    warnings: () =>
+      pushed
+        .filter((n) => n.type === "warning")
+        .map(({ message, type }) => ({ message, type })),
   };
 }
 
@@ -1040,6 +1056,60 @@ describe("LineStringInput with snapToRoads", () => {
     expect(value()).toEqual(line(4));
   });
 
+  it("warns when snapping to roads fails and keeps the drawn line", async () => {
+    const router = fakeRouter(() => null);
+    const { wrapper, draw, value, warnings } = await mountShapeInput(() =>
+      h(LineStringInput, {
+        source: "shape",
+        label: "Route",
+        snapToRoads: router,
+      }),
+    );
+    await drawWith(wrapper, draw, "Draw a line", "linestring", line(4));
+
+    expect(router.snapToRoad).toHaveBeenCalledTimes(1);
+    expect(warnings()).toEqual([
+      { message: "chelone.map.snap_failed", type: "warning" },
+    ]);
+    expect(value()).toEqual(line(4));
+  });
+
+  it("warns when the router throws and keeps the drawn line", async () => {
+    const { wrapper, draw, value, warnings } = await mountShapeInput(() =>
+      h(LineStringInput, {
+        source: "shape",
+        label: "Route",
+        snapToRoads: {
+          name: "fake",
+          snapToRoad: async () => {
+            throw new Error("offline");
+          },
+        },
+      }),
+    );
+    await drawWith(wrapper, draw, "Draw a line", "linestring", line(4));
+
+    expect(warnings()).toEqual([
+      { message: "chelone.map.snap_failed", type: "warning" },
+    ]);
+    expect(value()).toEqual(line(4));
+  });
+
+  it("stays quiet when a refine returns null and names no failure message", async () => {
+    const { wrapper, draw, value, warnings } = await mountShapeInput(() =>
+      h(ShapeInput, {
+        source: "shape",
+        kind: "LineString",
+        label: "Route",
+        refine: async () => null,
+      }),
+    );
+    await drawWith(wrapper, draw, "Draw a line", "linestring", line(4));
+
+    expect(warnings()).toEqual([]);
+    expect(value()).toEqual(line(4));
+  });
+
   it("does not write when the snapped line is identical", async () => {
     const router = fakeRouter((l) => ({
       type: "LineString",
@@ -1135,6 +1205,21 @@ describe("props a wrapper forwards to ShapeInput", () => {
     await drawWith(wrapper, draw, "Draw a point", "point", point(2));
 
     expect(value()).toMatchObject({ type: "GeometryCollection" });
+  });
+
+  it("forwards refineFailedMessage", async () => {
+    const { wrapper, draw, warnings } = await mountShapeInput(() =>
+      h(PolygonInput, {
+        source: "shape",
+        refine: async () => null,
+        refineFailedMessage: "chelone.map.snap_failed",
+      }),
+    );
+    await drawWith(wrapper, draw, "Draw a polygon", "polygon", square(1));
+
+    expect(warnings()).toEqual([
+      { message: "chelone.map.snap_failed", type: "warning" },
+    ]);
   });
 
   it("reads a bare snap-to-roads attribute as true", async () => {

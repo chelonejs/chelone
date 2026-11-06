@@ -83,12 +83,19 @@ export interface ShapeInputProps {
    * line to roads. It runs once the edit is in the form, never on load or
    * reset, and a newer edit or an unmount aborts `signal`. A result that is
    * not null and differs is written, unless the field changed meanwhile. A
-   * thrown error keeps the value as drawn.
+   * thrown error keeps the value as drawn. A null result is "nothing to
+   * change" unless `refineFailedMessage` is set, which a throw also notifies.
    */
   refine?: (
     value: ShapeValue,
     options: { signal: AbortSignal },
   ) => Promise<ShapeValue | null> | ShapeValue | null;
+  /**
+   * Message key notified as a warning when `refine` resolves to null or throws
+   * (an abort excepted), and the value is kept as drawn. `LineStringInput` sets it for
+   * `snapToRoads`.
+   */
+  refineFailedMessage?: string;
   class?: string;
 }
 
@@ -250,6 +257,7 @@ import {
   shapeToFeatures,
 } from "@chelone/core";
 import { ref, shallowRef } from "vue";
+import { useCheloneNotifications } from "../../context";
 import { useInput } from "../../form/use-input";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
@@ -281,6 +289,7 @@ const props = withDefaults(defineProps<ShapeInputProps>(), {
   aspectRatio: undefined,
   fitBounds: true,
   refine: undefined,
+  refineFailedMessage: undefined,
 });
 
 const emit = defineEmits<{
@@ -289,6 +298,7 @@ const emit = defineEmits<{
 }>();
 
 const translate = useTranslate();
+const notifications = useCheloneNotifications();
 // The limits run before the caller's validators.
 // An array, not a composed validator: `useInput` finds `required()` in a list.
 const validators: Validator[] = [
@@ -329,23 +339,34 @@ async function runRefine(committed: ShapeValue) {
   if (!refineValue) return;
   const abort = new AbortController();
   refining = abort;
+  const warnFailed = () => {
+    const message = props.refineFailedMessage;
+    if (message) notifications?.notify(message, { type: "warning" });
+  };
+  let result: ShapeValue | null;
   try {
-    const result = await refineValue(committed, { signal: abort.signal });
-    if (abort.signal.aborted || result === null) return;
-    // Only an untouched field takes the result: anything else was edited since.
-    if (
-      toRaw(input.value.value) !== toRaw(committed) ||
-      deepEqual(result, committed)
-    ) {
-      return;
-    }
-    written.current = result;
-    input.setValue(result);
-    input.blur();
-    emit("commit", result);
+    result = await refineValue(committed, { signal: abort.signal });
   } catch {
     // A failed refinement keeps the value as the user drew it.
+    if (!abort.signal.aborted) warnFailed();
+    return;
   }
+  if (abort.signal.aborted) return;
+  if (result === null) {
+    warnFailed();
+    return;
+  }
+  // Only an untouched field takes the result: anything else was edited since.
+  if (
+    toRaw(input.value.value) !== toRaw(committed) ||
+    deepEqual(result, committed)
+  ) {
+    return;
+  }
+  written.current = result;
+  input.setValue(result);
+  input.blur();
+  emit("commit", result);
 }
 
 function onEdit(edit: TerraDrawEdit) {

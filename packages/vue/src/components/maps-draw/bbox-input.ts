@@ -30,6 +30,7 @@ export const bboxInputKeys = [
   "aspectRatio",
   "fitBounds",
   "refine",
+  "refineFailedMessage",
   "class",
 ] as const satisfies readonly (keyof BBoxInputProps)[];
 
