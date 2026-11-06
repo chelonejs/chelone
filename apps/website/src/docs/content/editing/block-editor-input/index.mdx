@@ -88,10 +88,10 @@ The value is a block document: tiptap JSON, an object whose `type` is `"doc"`.
 
 ## Insert a block: the slash picker and the block bar
 
-Type `/` on an empty line and a picker opens at the caret, listing the blocks
-that match what you typed under each block's `group`. Arrow keys move the
-highlight, Enter inserts, Escape closes. The same picker opens from the Add block
-button above the editor, where it also shows a search box.
+Type `/` on an empty line, or after a space, and a picker opens at the caret,
+listing the blocks that match what you typed under each block's `group`. Arrow
+keys move the highlight, Enter inserts, Escape closes. The same picker opens from
+the Add block button above the editor, where it also shows a search box.
 
 Once a block is selected, or the caret sits inside one, a bar appears above the
 editor with the block's label and its actions: Configure, Duplicate, Move up,
@@ -162,7 +162,7 @@ What `defineBlock` takes:
 | `name` | The node name in the stored document. It cannot be a tiptap built-in such as `paragraph`, and it must be unique within `blocks`. |
 | `label`, `description`, `keywords` | What the picker shows and matches against. Both label and description are translated against `chelone.block_editor.blocks.<name>`. |
 | `group` | The heading the block sits under in the picker. |
-| `schema` | A Zod object whose output is the block's attrs. Every key needs a default. |
+| `schema` | A Zod object whose output is the block's attrs. Give every key a `.default()`: a key without one gets `null` as its attr. |
 | `content` | A content expression such as `"block+"`, for a block that holds other blocks. Without it the block is an atom. |
 | `render` | The component for both modes. `edit` and `read` override it for one mode. |
 | `config` | `"auto"` for a form built from the schema, a component for a form of your own, or nothing for no Configure button. |
