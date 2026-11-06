@@ -175,7 +175,11 @@ describe("<CanAccess>", () => {
       () =>
         h(
           CanAccess,
-          { action: "edit", resource: "posts", record: { id: 7 } },
+          {
+            action: "edit",
+            resource: "posts",
+            record: { id: 7, author: "rin" },
+          },
           { default: grantedSlot, accessDenied: deniedSlot },
         ),
       {

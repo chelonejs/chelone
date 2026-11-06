@@ -185,7 +185,7 @@ describe("<CanAccess>", () => {
       <CanAccess
         action="edit"
         resource="posts"
-        record={{ id: 7 }}
+        record={{ id: 7, author: "rin" }}
         accessDenied={<span>no</span>}
       >
         <span>yes</span>

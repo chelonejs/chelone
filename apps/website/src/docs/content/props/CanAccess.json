@@ -27,9 +27,9 @@
     },
     {
       "name": "record",
-      "type": "ResourceRecord<Identifier>",
+      "type": "LooseRecord | ResourceRecord<Identifier>",
       "optional": true,
-      "comment": "Optional record the grant is scoped to (record-level predicates)."
+      "comment": "Optional record the grant is scoped to (record-level predicates). `id` is\nthe floor; the rest is whatever the grant's predicate reads, so a record of\nthe caller's own shape and an inline record both fit."
     },
     {
       "name": "resource",
