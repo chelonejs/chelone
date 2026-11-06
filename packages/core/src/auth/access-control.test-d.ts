@@ -110,4 +110,27 @@ describe("CanAccessParams", () => {
       | undefined
     >();
   });
+
+  it("lets a provider declare the record its grants read, then hand its params to the matcher", () => {
+    const perms: Permission<Post>[] = [
+      { action: "edit", resource: "posts", record: (r) => r.author === "rin" },
+    ];
+    const readPosts = async (params: CanAccessParams<Post>) =>
+      canAccessWithPermissions(perms, params);
+    const provider: AuthProvider = { ...verbs, canAccess: readPosts };
+    expectTypeOf(readPosts).parameter(0).toEqualTypeOf<CanAccessParams<Post>>();
+    expectTypeOf(provider).toEqualTypeOf<AuthProvider>();
+  });
+
+  it("a provider that leaves its params unannotated only has `id` to read", () => {
+    const perms: Permission<Post>[] = [
+      { action: "edit", resource: "posts", record: (r) => r.author === "rin" },
+    ];
+    const provider: AuthProvider = {
+      ...verbs,
+      // @ts-expect-error the grant reads Post; the unannotated check gives a ResourceRecord
+      canAccess: async (params) => canAccessWithPermissions(perms, params),
+    };
+    void provider;
+  });
 });

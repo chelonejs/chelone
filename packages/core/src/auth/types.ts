@@ -10,8 +10,11 @@ export interface UserIdentity {
 }
 
 /**
- * One access check. `TRecord` is the record shape a record-level grant reads, so
- * a `canAccess` implementation can read the record's fields with no cast.
+ * One access check. `TRecord` is the record shape the check carries. Left
+ * unannotated it is a plain {@link ResourceRecord}, which only exposes `id`: a
+ * provider that runs `Permission<Post>`-style grants declares its own record
+ * type on `canAccess`'s params, which the interface accepts, and can then hand
+ * its params straight to `canAccessWithPermissions`.
  */
 export interface CanAccessParams<
   TRecord extends ResourceRecord = ResourceRecord,

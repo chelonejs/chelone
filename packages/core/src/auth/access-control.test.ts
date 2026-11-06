@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ResourceRecord } from "../resource/record";
 import { canAccessWithPermissions, type Permission } from "./access-control";
+import type { AuthProvider, CanAccessParams } from "./types";
 
 /** A registered record shape: the record a record-level grant reads. */
 interface Post extends ResourceRecord {
@@ -86,6 +87,36 @@ describe("canAccessWithPermissions", () => {
     expect(
       canAccessWithPermissions(own, { action: "edit", resource: "posts" }),
     ).toBe(false);
+  });
+
+  it("an authProvider hands its params to the matcher with no cast on the way", async () => {
+    const own: Permission<Post>[] = [
+      { action: "edit", resource: "posts", record: (r) => r.author === "rin" },
+    ];
+    const provider = {
+      login: async () => {},
+      logout: async () => {},
+      checkAuth: async () => {},
+      checkError: async () => {},
+      canAccess: async (params: CanAccessParams<Post>) =>
+        canAccessWithPermissions(own, params),
+    };
+    const authProvider: AuthProvider = provider;
+    expect(authProvider.canAccess).toBeTypeOf("function");
+    await expect(
+      provider.canAccess({
+        action: "edit",
+        resource: "posts",
+        record: { id: 1, author: "rin" },
+      }),
+    ).resolves.toBe(true);
+    await expect(
+      provider.canAccess({
+        action: "edit",
+        resource: "posts",
+        record: { id: 1, author: "eve" },
+      }),
+    ).resolves.toBe(false);
   });
 
   it("any matching permission grants (OR semantics)", () => {
