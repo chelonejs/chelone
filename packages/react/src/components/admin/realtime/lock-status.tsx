@@ -29,24 +29,25 @@ export interface LockStatusProps {
 function LockStatus({
   resource: resourceProp,
   id: idProp,
-  renderLock,
-  renderFree,
+  ...rest
 }: LockStatusProps) {
-  const translate = useTranslate();
   const resource = useResourceContext({ resource: resourceProp });
   const record = useRecordContext();
   const id = idProp ?? record?.id;
-  const enabled = !!resource && id !== undefined && id !== null;
+  if (!resource || id === undefined || id === null) return null;
+  return <LockedRecord resource={resource} id={id} {...rest} />;
+}
 
-  // The hook needs a resource and an id to build its query; with `enabled`
-  // false it neither fetches nor subscribes, so the casts are never read.
-  const { data: lock, isSuccess } = useGetLockLive(
-    resource as string,
-    { id: id as Identifier },
-    { enabled },
-  );
+/** The query, mounted once a resource and an id exist. */
+function LockedRecord({
+  resource,
+  id,
+  renderLock,
+  renderFree,
+}: LockStatusProps & { resource: string; id: Identifier }) {
+  const translate = useTranslate();
+  const { data: lock, isSuccess } = useGetLockLive(resource, { id });
 
-  if (!enabled) return null;
   if (lock) {
     return (
       renderLock?.(lock) ?? (

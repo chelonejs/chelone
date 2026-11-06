@@ -1,6 +1,7 @@
 import {
   type Identifier,
   isRealtimeDataProvider,
+  type LooseRecord,
   subscribeLiveResource,
 } from "@chelone/core";
 import { type KeyboardEvent, useEffect, useState } from "react";
@@ -20,10 +21,16 @@ export interface CommentRecord {
   id: Identifier;
   authorId?: Identifier;
   authorName?: string;
-  body?: string;
+  body: string;
   createdAt?: string;
   resolvedAt?: string | null;
-  [key: string]: unknown;
+}
+
+/** A row is a comment when it has a string `body`; any other row is skipped. */
+function isCommentRecord(
+  record: LooseRecord,
+): record is LooseRecord & CommentRecord {
+  return typeof record.body === "string";
 }
 
 export interface CommentsThreadProps {
@@ -41,8 +48,10 @@ export interface CommentsThreadProps {
 }
 
 /** The time of an ISO string, or `undefined` when it does not parse. */
-function formatTime(value: unknown): { iso: string; text: string } | undefined {
-  if (typeof value !== "string" && typeof value !== "number") return undefined;
+function formatTime(
+  value: string | number | null | undefined,
+): { iso: string; text: string } | undefined {
+  if (value === null || value === undefined) return undefined;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return undefined;
   return { iso: date.toISOString(), text: date.toLocaleString() };
@@ -78,10 +87,13 @@ function CommentsThread({
   const { identity } = useOptionalIdentity();
   const contextRecord = useRecordContext();
   const record = recordProp ?? contextRecord;
-  const id = record?.id;
-  const hasRecord = id !== undefined && id !== null;
+  const id = record?.id ?? undefined;
+  const hasRecord = id !== undefined;
   // Keyed by the record, so a draft written for one record never posts to the next.
-  const [stored, setStored] = useState<{ id: unknown; text: string }>({
+  const [stored, setStored] = useState<{
+    id: Identifier | undefined;
+    text: string;
+  }>({
     id,
     text: "",
   });
@@ -111,7 +123,7 @@ function CommentsThread({
   }, [live, dataProvider, queryClient, reference]);
 
   if (!hasRecord) return null;
-  const comments = (data?.data ?? []) as CommentRecord[];
+  const comments = (data?.data ?? []).filter(isCommentRecord);
   const total = data?.total;
   const canPost = draft.trim() !== "" && !isPosting;
 
@@ -136,7 +148,7 @@ function CommentsThread({
     }
   };
 
-  const resolve = (comment: CommentRecord) =>
+  const resolve = (comment: LooseRecord & CommentRecord) =>
     update(
       {
         id: comment.id,
