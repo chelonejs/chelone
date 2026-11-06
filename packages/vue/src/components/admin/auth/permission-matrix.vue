@@ -47,7 +47,6 @@ const EMPTY_VALUE: PermissionMatrixValue = {};
 import {
   getPermissionCell,
   isPermissionRowGranted,
-  type PermissionMatrixValue,
   setPermissionRow,
   togglePermission,
 } from "@chelone/core";
