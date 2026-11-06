@@ -1,4 +1,6 @@
 <script lang="ts">
+import type { ResourceRecord } from "@chelone/core";
+
 /** Props for {@link CanAccess}. */
 export interface CanAccessProps {
   /** The action to check (`'list' | 'create' | 'edit' | 'show' | 'delete'` or custom). */
@@ -6,7 +8,7 @@ export interface CanAccessProps {
   /** The resource to check (e.g. `'posts'`). */
   resource: string;
   /** Optional record the grant is scoped to (record-level predicates). */
-  record?: unknown;
+  record?: ResourceRecord;
 }
 </script>
 

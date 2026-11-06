@@ -1,4 +1,5 @@
 import type { Identifier } from "../resource/identifier";
+import type { ResourceRecord } from "../resource/record";
 import type { RegisteredPermissions } from "../resource/register";
 
 export interface UserIdentity {
@@ -8,10 +9,16 @@ export interface UserIdentity {
   [key: string]: unknown;
 }
 
-export interface CanAccessParams {
+/**
+ * One access check. `TRecord` is the record shape a record-level grant reads, so
+ * a `canAccess` implementation can read the record's fields with no cast.
+ */
+export interface CanAccessParams<
+  TRecord extends ResourceRecord = ResourceRecord,
+> {
   action: string;
   resource: string;
-  record?: unknown;
+  record?: TRecord;
 }
 
 /**

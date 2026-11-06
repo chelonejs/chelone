@@ -169,6 +169,30 @@ describe("<CanAccess>", () => {
     expect(wrapper.find('[data-slot="granted"]').exists()).toBe(false);
   });
 
+  it("scopes the check to the record it is given", async () => {
+    const ids: (string | number | undefined)[] = [];
+    const { wrapper } = mountAdmin(
+      () =>
+        h(
+          CanAccess,
+          { action: "edit", resource: "posts", record: { id: 7 } },
+          { default: grantedSlot, accessDenied: deniedSlot },
+        ),
+      {
+        authProvider: makeAuthProvider({
+          canAccess: async ({ record }) => {
+            ids.push(record?.id);
+            return record?.id === 7;
+          },
+        }),
+      },
+    );
+    await vi.waitFor(() =>
+      expect(wrapper.find('[data-slot="granted"]').exists()).toBe(true),
+    );
+    expect(ids).toEqual([7]);
+  });
+
   it("allows when access control is unconfigured (no canAccess method)", async () => {
     const { wrapper } = mountAdmin(
       () =>

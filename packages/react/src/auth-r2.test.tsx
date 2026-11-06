@@ -172,6 +172,30 @@ describe("<CanAccess>", () => {
     expect(screen.queryByText("yes")).toBeNull();
   });
 
+  it("scopes the check to the record it is given", async () => {
+    const ids: (string | number | undefined)[] = [];
+    const authProvider = baseAuth({
+      canAccess: async ({ record }) => {
+        ids.push(record?.id);
+        return record?.id === 7;
+      },
+    });
+    const { wrapper } = makeWrapper({ authProvider });
+    render(
+      <CanAccess
+        action="edit"
+        resource="posts"
+        record={{ id: 7 }}
+        accessDenied={<span>no</span>}
+      >
+        <span>yes</span>
+      </CanAccess>,
+      { wrapper },
+    );
+    await waitFor(() => expect(screen.getByText("yes")).toBeTruthy());
+    expect(ids).toEqual([7]);
+  });
+
   it("ALLOWS when access control is not configured (no canAccess)", () => {
     const authProvider = baseAuth(); // no canAccess
     const { wrapper } = makeWrapper({ authProvider });

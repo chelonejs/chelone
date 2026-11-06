@@ -27,7 +27,7 @@
     },
     {
       "name": "record",
-      "type": "unknown",
+      "type": "ResourceRecord<Identifier>",
       "optional": true,
       "comment": "Optional record the grant is scoped to (record-level predicates)."
     },

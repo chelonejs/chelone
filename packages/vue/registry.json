@@ -1707,6 +1707,7 @@
         }
       ],
       "registryDependencies": ["@chelone/use-menu-access"],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

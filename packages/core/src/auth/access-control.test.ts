@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
+import type { ResourceRecord } from "../resource/record";
 import { canAccessWithPermissions, type Permission } from "./access-control";
+
+/** A registered record shape: the record a record-level grant reads. */
+interface Post extends ResourceRecord {
+  id: number;
+  author: string;
+}
 
 describe("canAccessWithPermissions", () => {
   it("denies by default (empty permissions)", () => {
@@ -58,25 +65,21 @@ describe("canAccessWithPermissions", () => {
   });
 
   it("record predicate gates when a record is provided", () => {
-    const own: Permission[] = [
-      {
-        action: "edit",
-        resource: "posts",
-        record: (r) => (r as { author: string }).author === "rin",
-      },
+    const own: Permission<Post>[] = [
+      { action: "edit", resource: "posts", record: (r) => r.author === "rin" },
     ];
     expect(
       canAccessWithPermissions(own, {
         action: "edit",
         resource: "posts",
-        record: { author: "rin" },
+        record: { id: 1, author: "rin" },
       }),
     ).toBe(true);
     expect(
       canAccessWithPermissions(own, {
         action: "edit",
         resource: "posts",
-        record: { author: "eve" },
+        record: { id: 1, author: "eve" },
       }),
     ).toBe(false);
     // no record given → predicate permission does NOT grant blanket access
@@ -122,6 +125,7 @@ describe("canAccessWithPermissions", () => {
       canAccessWithPermissions(perms, {
         action: "edit",
         resource: "posts",
+        // @ts-expect-error a record is a record: null is not one, and the runtime still denies
         record: null,
       }),
     ).toBe(false);
