@@ -47,6 +47,23 @@ export {
 } from "./auth/permission-matrix";
 export type { AuthProvider, CanAccessParams, UserIdentity } from "./auth/types";
 export type {
+  BlockDocNode,
+  BlockRegistry,
+  BlockSpec,
+} from "./block-editor/block-document";
+export {
+  createBlockRegistry,
+  describeBlockAttrs,
+  emptyBlockDocument,
+  getBlockDefaultAttrs,
+  isEmptyBlockDocument,
+  matchBlocks,
+  toEmbedSrc,
+  unknownBlockType,
+  unwrapUnknownBlocks,
+  wrapUnknownBlocks,
+} from "./block-editor/block-document";
+export type {
   CartesianRow,
   DonutSlice,
   MetricDelta,
