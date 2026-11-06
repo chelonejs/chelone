@@ -13,6 +13,7 @@ Each entry below needs the peer dependencies listed beside it, and only that ent
 | Entry | Optional peers |
 | --- | --- |
 | `@chelone/vue/monaco` | `monaco-editor`, `@guolao/vue-monaco-editor` |
+| `@chelone/vue/charts` | `@unovis/vue`, `@unovis/ts` |
 | `@chelone/vue/kanban` | `@dnd-kit/vue`, `@dnd-kit/dom` (needs Vue 3.5) |
 | `@chelone/vue/mdx-editor` | `@milkdown/crepe`, `@milkdown/kit` |
 | `@chelone/vue/csv-import` | `papaparse` |
