@@ -29,7 +29,7 @@ import Spinner from "../../ui/spinner.vue";
 import PasswordInput from "../inputs/password-input.vue";
 import { useSetPassword, useSupabaseUrlTokens } from "./use-password-recovery";
 
-interface SetPasswordValues extends Record<string, unknown> {
+interface SetPasswordValues {
   password: string;
   confirmPassword: string;
 }
