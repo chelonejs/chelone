@@ -121,11 +121,7 @@ const RowConsumer = defineComponent({
       h(
         "ul",
         (list.data ?? []).map((row) =>
-          h(
-            "li",
-            { "aria-label": String((row as Record<string, unknown>).id) },
-            String((row as Record<string, unknown>)[props.textKey]),
-          ),
+          h("li", { "aria-label": String(row.id) }, String(row[props.textKey])),
         ),
       );
   },

@@ -6,7 +6,13 @@
  * assert DOM structure/roles/values + behavior, never styling.
  */
 
-import { fakeDataProvider, type LooseRecord } from "@chelone/core";
+import {
+  type FileEntry,
+  fakeDataProvider,
+  isTransformedFile,
+  type LooseRecord,
+} from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -24,15 +30,21 @@ import ReferenceArrayInput from "./reference-array-input.vue";
 import SubscriptionPlanPicker from "./subscription-plan-picker.vue";
 import TextInput from "./text-input.vue";
 
+/** An `<ArrayInput>` row this harness seeds. */
+interface ItemRow {
+  name?: string;
+  price?: number;
+}
+
 interface FormValues {
   id?: number;
-  items?: unknown;
-  tags?: unknown;
-  tag_ids?: unknown;
-  planId?: unknown;
-  attachments?: unknown;
-  avatar?: unknown;
-  pictures?: unknown;
+  items?: ItemRow[];
+  tags?: string[];
+  tag_ids?: number[];
+  planId?: string;
+  attachments?: FileEntry[];
+  avatar?: FileEntry | null;
+  pictures?: FileEntry[];
 }
 
 const CATEGORY_CHOICES = [
@@ -56,7 +68,7 @@ function makeRouter(): Router {
 
 interface Captured {
   form?: UseFormReturn<FormValues>;
-  values?: () => Record<string, unknown>;
+  values?: () => FormValues;
 }
 
 function mountInForm(
@@ -80,7 +92,7 @@ function mountInForm(
         onSubmit: async () => undefined,
       });
       captured.form = form;
-      captured.values = () => form.values.value as Record<string, unknown>;
+      captured.values = () => form.values.value;
       return () => slots.default?.();
     },
   });
@@ -178,10 +190,10 @@ describe("<DatagridInput>", () => {
     // 3 body rows carrying the choice text.
     expect(wrapper.find("tbody").text()).toContain("Tech");
 
-    await boxes[1]!.setValue(true); // first choice (tech)
+    await defined(boxes[1]).setValue(true); // first choice (tech)
     await nextTick();
     expect(captured.values?.().tags).toEqual(["tech"]);
-    await boxes[3]!.setValue(true); // people
+    await defined(boxes[3]).setValue(true); // people
     await nextTick();
     expect(captured.values?.().tags).toEqual(["tech", "people"]);
   });
@@ -193,7 +205,7 @@ describe("<DatagridInput>", () => {
     );
     await flushPromises();
 
-    const header = wrapper.findAll('input[type="checkbox"]')[0]!;
+    const header = defined(wrapper.findAll('input[type="checkbox"]')[0]);
     await header.setValue(true);
     await nextTick();
     expect(captured.values?.().tags).toEqual(["tech", "lifestyle", "people"]);
@@ -227,7 +239,7 @@ describe("<ArrayInput>", () => {
     await wrapper.find('[data-slot="array-input-add"]').trigger("click");
     await nextTick();
     expect(wrapper.findAll('[data-slot="array-input-row"]')).toHaveLength(2);
-    const items = captured.values?.().items as unknown[];
+    const items = defined(captured.values?.().items);
     expect(items).toHaveLength(2);
   });
 
@@ -244,13 +256,15 @@ describe("<ArrayInput>", () => {
     await flushPromises();
 
     expect(wrapper.findAll('[data-slot="array-input-row"]')).toHaveLength(2);
-    const remove = wrapper.findAll('[data-slot="array-input-remove"]')[0]!;
+    const remove = defined(
+      wrapper.findAll('[data-slot="array-input-remove"]')[0],
+    );
     await remove.trigger("click");
     await nextTick();
     expect(wrapper.findAll('[data-slot="array-input-row"]')).toHaveLength(1);
-    const items = captured.values?.().items as Array<{ name: string }>;
+    const items = defined(captured.values?.().items);
     expect(items).toHaveLength(1);
-    expect(items[0]!.name).toBe("B");
+    expect(defined(items[0]).name).toBe("B");
   });
 
   it("edits a nested field through the row scope", async () => {
@@ -261,8 +275,8 @@ describe("<ArrayInput>", () => {
 
     await wrapper.find('input[type="text"]').setValue("Renamed");
     await nextTick();
-    const items = captured.values?.().items as Array<{ name: string }>;
-    expect(items[0]!.name).toBe("Renamed");
+    const items = defined(captured.values?.().items);
+    expect(defined(items[0]).name).toBe("Renamed");
   });
 });
 
@@ -319,7 +333,7 @@ describe("<ReferenceArrayInput>", () => {
     expect(boxes).toHaveLength(4);
     expect(wrapper.find("tbody").text()).toContain("Tech");
 
-    await boxes[2]!.setValue(true); // News (id 2)
+    await defined(boxes[2]).setValue(true); // News (id 2)
     await nextTick();
     expect(captured.values?.().tag_ids).toEqual([2]);
   });
@@ -377,8 +391,8 @@ describe("<FileInput>", () => {
 
     const links = wrapper.findAll("a");
     expect(links).toHaveLength(2);
-    expect(links[0]!.attributes("title")).toBe("Cover");
-    expect(links[1]!.attributes("title")).toBe("Plan");
+    expect(defined(links[0]).attributes("title")).toBe("Cover");
+    expect(defined(links[1]).attributes("title")).toBe("Plan");
   });
 
   it("keeps a stored URL string as a preview row with a remove button", async () => {
@@ -432,11 +446,11 @@ describe("<FileInput>", () => {
       '[data-slot="file-input-preview"] button',
     );
     expect(removeButtons).toHaveLength(2);
-    await removeButtons[0]!.trigger("click");
+    await defined(removeButtons[0]).trigger("click");
     await nextTick();
     const links = wrapper.findAll("a");
     expect(links).toHaveLength(1);
-    expect(links[0]!.attributes("title")).toBe("Plan");
+    expect(defined(links[0]).attributes("title")).toBe("Plan");
   });
 
   it("selecting a file sets the value", async () => {
@@ -463,8 +477,13 @@ describe("<FileInput>", () => {
     await input.trigger("change");
     await nextTick();
 
-    const value = captured.values?.().avatar as { title?: string };
-    expect(value?.title).toBe("hello.png");
+    const value = captured.values?.().avatar;
+    if (!isTransformedFile(value)) {
+      throw new Error(
+        `Expected the dropped file's preview record, got ${value}`,
+      );
+    }
+    expect(value.title).toBe("hello.png");
     expect(wrapper.findAll("a")).toHaveLength(1);
     expect(wrapper.find("a").attributes("title")).toBe("hello.png");
   });
