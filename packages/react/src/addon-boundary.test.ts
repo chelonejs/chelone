@@ -49,7 +49,14 @@ const ADDONS: {
     name: "rich-text-input",
     folder: "src/components/rich-text-input",
     entry: "src/rich-text-input.ts",
-    packages: ["dompurify"],
+    packages: [
+      "dompurify",
+      "@tiptap/core",
+      "@tiptap/extensions",
+      "@tiptap/pm",
+      "@tiptap/react",
+      "@tiptap/starter-kit",
+    ],
   },
   {
     name: "maps",
