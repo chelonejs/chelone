@@ -7,6 +7,7 @@
  */
 
 import { fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -53,7 +54,7 @@ function makeRouter(): Router {
 
 interface Captured {
   form?: UseFormReturn<FormValues>;
-  values?: () => Record<string, unknown>;
+  values?: () => FormValues;
 }
 
 /**
@@ -86,7 +87,7 @@ function mountInForm(
         onSubmit: async () => undefined,
       });
       captured.form = form;
-      captured.values = () => form.values.value as Record<string, unknown>;
+      captured.values = () => form.values.value;
       return () => slots.default?.();
     },
   });
@@ -114,17 +115,17 @@ describe("<TextInput> stored values", () => {
       record: { id: 1, title: 5 },
     });
     await flushPromises();
-    expect(number.wrapper.find<HTMLInputElement>("input").element.value).toBe(
-      "5",
-    );
+    expect(
+      elementOf(number.wrapper.find("input").element, HTMLInputElement).value,
+    ).toBe("5");
 
     const object = mountInForm(() => h(TextInput, { source: "title" }), {
       record: { id: 1, title: { count: 5 } },
     });
     await flushPromises();
-    expect(object.wrapper.find<HTMLInputElement>("input").element.value).toBe(
-      "",
-    );
+    expect(
+      elementOf(object.wrapper.find("input").element, HTMLInputElement).value,
+    ).toBe("");
   });
 });
 
@@ -170,7 +171,7 @@ describe("<PasswordInput>", () => {
 
     const input = wrapper.find("input");
     expect(input.attributes("type")).toBe("password");
-    expect((input.element as HTMLInputElement).value).toBe("s3cret");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe("s3cret");
 
     // The reveal toggle flips the input type to text and back.
     const toggle = wrapper.find("button");
@@ -201,7 +202,9 @@ describe("<ResettableTextInput>", () => {
     await flushPromises();
 
     const input = wrapper.find('input[type="text"]');
-    expect((input.element as HTMLInputElement).value).toBe("War and Peace");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe(
+      "War and Peace",
+    );
 
     // The clear button shows only when the field has a value.
     const clear = wrapper.find('button[data-slot="reset"]');
@@ -212,7 +215,8 @@ describe("<ResettableTextInput>", () => {
     // Reset writes "" (not null) so the field stays a controlled string.
     expect(captured.values?.().title).toBe("");
     expect(
-      (wrapper.find('input[type="text"]').element as HTMLInputElement).value,
+      elementOf(wrapper.find('input[type="text"]').element, HTMLInputElement)
+        .value,
     ).toBe("");
     // With no value, the clear button is gone.
     expect(wrapper.find('button[data-slot="reset"]').exists()).toBe(false);
@@ -242,7 +246,7 @@ describe("<SearchInput>", () => {
     await flushPromises();
 
     const input = wrapper.find("input");
-    expect((input.element as HTMLInputElement).value).toBe("hello");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe("hello");
     // No label rendered (search is a filter affordance).
     expect(wrapper.find("label").exists()).toBe(false);
 
@@ -276,7 +280,7 @@ describe("<ColorInput>", () => {
 
     const input = wrapper.find('input[type="color"]');
     expect(input.exists()).toBe(true);
-    expect((input.element as HTMLInputElement).value).toBe("#3b82f6");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe("#3b82f6");
 
     await input.setValue("#22c55e");
     await nextTick();
@@ -289,7 +293,8 @@ describe("<ColorInput>", () => {
     });
     await flushPromises();
     expect(
-      (wrapper.find('input[type="color"]').element as HTMLInputElement).value,
+      elementOf(wrapper.find('input[type="color"]').element, HTMLInputElement)
+        .value,
     ).toBe("#000000");
   });
 });
@@ -304,7 +309,7 @@ describe("<NullableBooleanInput>", () => {
 
     const select = wrapper.find("select");
     // null field → the empty/null option selected.
-    expect((select.element as HTMLSelectElement).value).toBe("");
+    expect(elementOf(select.element, HTMLSelectElement).value).toBe("");
 
     await select.setValue("true");
     await nextTick();
