@@ -22,6 +22,7 @@ import {
   type NotificationStore,
   oneKey,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -43,6 +44,8 @@ interface Post {
   title: string;
   views: number;
 }
+type UpdateMutate = ReturnType<typeof useUpdate<Resources, "posts">>["mutate"];
+type DeleteMutate = ReturnType<typeof useDelete<Resources, "posts">>["mutate"];
 
 const seed: Post[] = [
   { id: 1, title: "One", views: 10 },
@@ -96,11 +99,11 @@ describe("mode non-regression — pessimistic (default)", () => {
   it("useDelete default calls the server IMMEDIATELY, exactly once, no undoable notice", async () => {
     const notifications = createNotificationStore();
     const notify = vi.spyOn(notifications, "notify");
-    const del: { mutate?: (p: unknown) => void } = {};
+    const del: { mutate?: DeleteMutate } = {};
     const probe = defineComponent({
       setup() {
         const m = useDelete<Resources, "posts">("posts");
-        del.mutate = m.mutate as (p: unknown) => void;
+        del.mutate = m.mutate;
         return () => null;
       },
     });
@@ -108,13 +111,13 @@ describe("mode non-regression — pessimistic (default)", () => {
     await flushPromises();
     const delSpy = vi.spyOn(dataProvider, "delete");
 
-    del.mutate?.({ id: 1, previousData: { id: 1 } });
+    del.mutate?.({ id: 1, previousData: defined(seed[0]) });
     await flushPromises();
 
     expect(delSpy).toHaveBeenCalledTimes(1);
     expect(delSpy).toHaveBeenCalledWith("posts", {
       id: 1,
-      previousData: { id: 1 },
+      previousData: defined(seed[0]),
     });
     expect(notify.mock.calls.some((c) => c[1]?.undoable)).toBe(false);
     expect(hasPendingUndoables()).toBe(false);
@@ -122,11 +125,11 @@ describe("mode non-regression — pessimistic (default)", () => {
 
   it("useUpdate default calls the server exactly once", async () => {
     const notifications = createNotificationStore();
-    const upd: { mutate?: (p: unknown) => void } = {};
+    const upd: { mutate?: UpdateMutate } = {};
     const probe = defineComponent({
       setup() {
         const m = useUpdate<Resources, "posts">("posts");
-        upd.mutate = m.mutate as (p: unknown) => void;
+        upd.mutate = m.mutate;
         return () => null;
       },
     });
@@ -144,13 +147,13 @@ describe("mode non-regression — pessimistic (default)", () => {
 describe("mode non-regression — optimistic", () => {
   it("useUpdate optimistic patches the cache synchronously AND calls the server once", async () => {
     const notifications = createNotificationStore();
-    const upd: { mutate?: (p: unknown) => void } = {};
+    const upd: { mutate?: UpdateMutate } = {};
     const probe = defineComponent({
       setup() {
         const m = useUpdate<Resources, "posts">("posts", {
           mutationMode: "optimistic",
         });
-        upd.mutate = m.mutate as (p: unknown) => void;
+        upd.mutate = m.mutate;
         return () => null;
       },
     });
@@ -174,13 +177,13 @@ describe("mode non-regression — optimistic", () => {
 
   it("useDelete optimistic removes the row synchronously AND calls the server once", async () => {
     const notifications = createNotificationStore();
-    const del: { mutate?: (p: unknown) => void } = {};
+    const del: { mutate?: DeleteMutate } = {};
     const probe = defineComponent({
       setup() {
         const m = useDelete<Resources, "posts">("posts", {
           mutationMode: "optimistic",
         });
-        del.mutate = m.mutate as (p: unknown) => void;
+        del.mutate = m.mutate;
         return () => null;
       },
     });
@@ -192,7 +195,7 @@ describe("mode non-regression — optimistic", () => {
     await flushPromises();
     const delSpy = vi.spyOn(dataProvider, "delete");
 
-    del.mutate?.({ id: 1, previousData: { id: 1 } });
+    del.mutate?.({ id: 1, previousData: defined(seed[0]) });
     await flushPromises();
 
     expect(
@@ -205,13 +208,13 @@ describe("mode non-regression — optimistic", () => {
 describe("beforeunload commit guard", () => {
   it("a pending undoable is committed (server called once) when the page unloads", async () => {
     const notifications = createNotificationStore();
-    const del: { mutate?: (p: unknown) => void } = {};
+    const del: { mutate?: DeleteMutate } = {};
     const probe = defineComponent({
       setup() {
         const m = useDelete<Resources, "posts">("posts", {
           mutationMode: "undoable",
         });
-        del.mutate = m.mutate as (p: unknown) => void;
+        del.mutate = m.mutate;
         return () => null;
       },
     });
@@ -223,7 +226,7 @@ describe("beforeunload commit guard", () => {
     await flushPromises();
     const delSpy = vi.spyOn(dataProvider, "delete");
 
-    del.mutate?.({ id: 1, previousData: { id: 1 } });
+    del.mutate?.({ id: 1, previousData: defined(seed[0]) });
     expect(hasPendingUndoables()).toBe(true);
     expect(delSpy).not.toHaveBeenCalled();
 
@@ -233,7 +236,7 @@ describe("beforeunload commit guard", () => {
     expect(delSpy).toHaveBeenCalledTimes(1);
     expect(delSpy).toHaveBeenCalledWith("posts", {
       id: 1,
-      previousData: { id: 1 },
+      previousData: defined(seed[0]),
     });
     expect(hasPendingUndoables()).toBe(false);
   });
