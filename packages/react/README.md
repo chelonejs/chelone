@@ -17,6 +17,7 @@ Each entry below needs the peer dependencies listed beside it, and only that ent
 | `@chelone/react/charts` | `recharts` |
 | `@chelone/react/kanban` | `@dnd-kit/react`, `@dnd-kit/dom` |
 | `@chelone/react/mdx-editor` | `@mdxeditor/editor` |
+| `@chelone/react/rich-text-input` | `@tiptap/core`, `@tiptap/pm`, `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extensions`, `@tiptap/extension-image`, `@tiptap/extension-text-style`, `@tiptap/extension-code-block`, `@tiptap/extension-code-block-lowlight`, `lowlight`, `highlight.js`, `dompurify` |
 | `@chelone/react/block-editor` | `@tiptap/core`, `@tiptap/pm`, `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extensions`, `@tiptap/suggestion`, `@dnd-kit/react`, `@dnd-kit/dom`, `recharts` |
 | `@chelone/react/csv-import` | `papaparse` |
 | `@chelone/react/maps` | `maplibre-gl` |
