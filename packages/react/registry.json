@@ -1771,6 +1771,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/layout/onboarding-tour.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/layout/resource-menu-item-group.tsx",
           "type": "registry:component"
         },
@@ -4809,6 +4813,21 @@
       ],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "onboarding-tour",
+      "type": "registry:component",
+      "title": "Onboarding Tour",
+      "files": [
+        {
+          "path": "src/components/admin/layout/onboarding-tour.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {

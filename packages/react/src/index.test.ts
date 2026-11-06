@@ -52,6 +52,7 @@ import type {
   MenuLiveItemLinkProps,
   MenuLiveProps,
   NumberInputProps,
+  OnboardingTourProps,
   PartitionedChildren,
   PasswordInputProps,
   PresenceBarProps,
@@ -79,6 +80,7 @@ import type {
   TagProps,
   TextArrayInputProps,
   TextInputProps,
+  TourStep,
   TranslateLabel,
   TranslateLabelOptions,
   UseFieldValueOptions,
@@ -703,5 +705,11 @@ describe("@chelone/react barrel — guessers", () => {
     expectTypeOf<CommandMenuProps>().toHaveProperty("hotkey");
     expectTypeOf<CommandMenuProps>().toHaveProperty("actions");
     expectTypeOf<CommandMenuContextValue>().toHaveProperty("registerCommand");
+  });
+
+  it("exports OnboardingTour", () => {
+    expect(barrel.OnboardingTour).toBeTypeOf("function");
+    expectTypeOf<OnboardingTourProps>().toHaveProperty("steps");
+    expectTypeOf<TourStep>().toHaveProperty("target");
   });
 });

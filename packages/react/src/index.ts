@@ -741,6 +741,11 @@ export {
   type MenuItemLinkProps,
 } from "./components/admin/layout/menu-item-link";
 export {
+  OnboardingTour,
+  type OnboardingTourProps,
+  type TourStep,
+} from "./components/admin/layout/onboarding-tour";
+export {
   ResourceMenuItem,
   type ResourceMenuItemProps,
 } from "./components/admin/layout/resource-menu-item";
