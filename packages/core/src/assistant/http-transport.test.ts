@@ -170,6 +170,37 @@ describe("httpAssistantTransport", () => {
     expect(pull).toHaveBeenCalledOnce();
   });
 
+  it("an abort quietly ends a read rejected by fetch", async () => {
+    const controller = new AbortController();
+    const pull = vi.fn();
+    const body = new ReadableStream<Uint8Array>(
+      {
+        start(stream) {
+          // Fetch errors the body before the transport's abort listener runs.
+          controller.signal.addEventListener("abort", () =>
+            stream.error(controller.signal.reason),
+          );
+        },
+        pull,
+      },
+      { highWaterMark: 0 },
+    );
+    const transport = httpAssistantTransport({
+      url,
+      fetch: async () => new Response(body),
+    });
+    const iterator = transport
+      .send([], {}, { signal: controller.signal })
+      [Symbol.asyncIterator]();
+
+    const pending = iterator.next();
+    await vi.waitFor(() => expect(pull).toHaveBeenCalledOnce());
+    controller.abort();
+
+    await expect(pending).resolves.toMatchObject({ done: true });
+    expect(body.locked).toBe(false);
+  });
+
   it("an abort releases the reader while the consumer is paused", async () => {
     const cancel = vi.fn(() => new Promise<void>(() => {}));
     const body = new ReadableStream<Uint8Array>({

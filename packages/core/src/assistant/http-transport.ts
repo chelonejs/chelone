@@ -58,71 +58,75 @@ export function httpAssistantTransport(
     options.fetch ?? ((input, init) => globalThis.fetch(input, init));
   return {
     async *send(messages, tools, { signal }): AsyncGenerator<AssistantChunk> {
-      if (signal.aborted) return;
-      const headers = new Headers(
-        typeof options.headers === "function"
-          ? await options.headers()
-          : options.headers,
-      );
-      if (signal.aborted) return;
-      headers.set("Content-Type", "application/json");
-      const response = await doFetch(options.url, {
-        method: "POST",
-        headers,
-        credentials: options.credentials,
-        body: JSON.stringify({ messages, tools }),
-        signal,
-      });
-      if (!response.ok) {
-        throw new HttpError(
-          `Assistant request failed (HTTP ${response.status})`,
-          response.status,
-          await response.text(),
+      try {
+        if (signal.aborted) return;
+        const headers = new Headers(
+          typeof options.headers === "function"
+            ? await options.headers()
+            : options.headers,
         );
-      }
-      const reader = response.body?.getReader();
-      if (reader) {
-        const decoder = new TextDecoder();
-        let pending = "";
-        let lineNumber = 0;
-        let released = false;
-        const release = () => {
-          if (released) return;
-          released = true;
-          void reader.cancel().catch(() => {});
-          reader.releaseLock();
-        };
-        signal.addEventListener("abort", release, { once: true });
-        try {
-          for (;;) {
-            if (signal.aborted) return;
-            const step = await reader.read();
-            if (signal.aborted) return;
-            pending += decoder.decode(step.value, { stream: !step.done });
-            // EOF also completes a line without a trailing newline.
-            if (step.done) pending += "\n";
-            let end = pending.indexOf("\n");
-            while (end >= 0) {
-              if (signal.aborted) return;
-              lineNumber++;
-              const line = pending.slice(0, end).trim();
-              pending = pending.slice(end + 1);
-              if (line) {
-                const chunk = parseChunk(line, lineNumber);
-                yield chunk;
-                if (chunk.type === "done") return;
-              }
-              end = pending.indexOf("\n");
-            }
-            if (step.done) break;
-          }
-        } finally {
-          signal.removeEventListener("abort", release);
-          release();
+        if (signal.aborted) return;
+        headers.set("Content-Type", "application/json");
+        const response = await doFetch(options.url, {
+          method: "POST",
+          headers,
+          credentials: options.credentials,
+          body: JSON.stringify({ messages, tools }),
+          signal,
+        });
+        if (!response.ok) {
+          throw new HttpError(
+            `Assistant request failed (HTTP ${response.status})`,
+            response.status,
+            await response.text(),
+          );
         }
+        const reader = response.body?.getReader();
+        if (reader) {
+          const decoder = new TextDecoder();
+          let pending = "";
+          let lineNumber = 0;
+          let released = false;
+          const release = () => {
+            if (released) return;
+            released = true;
+            void reader.cancel().catch(() => {});
+            reader.releaseLock();
+          };
+          signal.addEventListener("abort", release, { once: true });
+          try {
+            for (;;) {
+              if (signal.aborted) return;
+              const step = await reader.read();
+              if (signal.aborted) return;
+              pending += decoder.decode(step.value, { stream: !step.done });
+              // EOF also completes a line without a trailing newline.
+              if (step.done) pending += "\n";
+              let end = pending.indexOf("\n");
+              while (end >= 0) {
+                if (signal.aborted) return;
+                lineNumber++;
+                const line = pending.slice(0, end).trim();
+                pending = pending.slice(end + 1);
+                if (line) {
+                  const chunk = parseChunk(line, lineNumber);
+                  yield chunk;
+                  if (chunk.type === "done") return;
+                }
+                end = pending.indexOf("\n");
+              }
+              if (step.done) break;
+            }
+          } finally {
+            signal.removeEventListener("abort", release);
+            release();
+          }
+        }
+        if (signal.aborted) return;
+        yield { type: "done" };
+      } catch (error) {
+        if (!signal.aborted) throw error;
       }
-      if (signal.aborted) return;
-      yield { type: "done" };
     },
   };
 }
