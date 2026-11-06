@@ -64,6 +64,26 @@ export function defineBlock<A extends BlockAttrs>(
 
 export { NodeViewContent };
 
+/**
+ * A block with its label and description translated, falling back to the
+ * ones it declares. Keys are `chelone.block_editor.blocks.<name>.label` and
+ * `.description`.
+ */
+export function translateBlock(
+  translate: ReturnType<typeof useTranslate>,
+  block: BlockDefinition,
+): BlockDefinition {
+  const key = `chelone.block_editor.blocks.${block.name}`;
+  return {
+    ...block,
+    label: translate(`${key}.label`, { _: block.label }),
+    description:
+      block.description === undefined
+        ? undefined
+        : translate(`${key}.description`, { _: block.description }),
+  };
+}
+
 interface BlockNodeOptions {
   definition: BlockDefinition;
 }

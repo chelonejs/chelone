@@ -1831,7 +1831,10 @@
       }
     },
     {
-      "includes": ["packages/react/src/**/__fixtures__/**"],
+      "includes": [
+        "packages/react/src/**/__fixtures__/**",
+        "!packages/react/src/components/block-editor/__fixtures__/**"
+      ],
       "linter": {
         "rules": {
           "style": {
