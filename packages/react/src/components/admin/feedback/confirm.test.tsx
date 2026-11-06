@@ -7,6 +7,7 @@
  */
 
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -84,8 +85,10 @@ describe("<Confirm>", () => {
       </Providers>,
     );
     expect(
-      (screen.getByRole("button", { name: /confirm/i }) as HTMLButtonElement)
-        .disabled,
+      elementOf(
+        screen.getByRole("button", { name: /confirm/i }),
+        HTMLButtonElement,
+      ).disabled,
     ).toBe(true);
   });
 });

@@ -18,6 +18,7 @@ import {
   type NotificationStore,
   type NotifyOptions,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -362,14 +363,16 @@ describe("<UpdateButton>", () => {
     });
 
     const button = await findUpdate();
-    expect((button as HTMLButtonElement).disabled).toBe(false);
+    expect(elementOf(button, HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(button);
     fireEvent.click(await screen.findByRole("button", { name: "Confirm" }));
     await waitFor(() => expect(update).toHaveBeenCalled());
     await waitFor(() =>
       expect(
-        (screen.getByRole("button", { name: "Update" }) as HTMLButtonElement)
-          .disabled,
+        elementOf(
+          screen.getByRole("button", { name: "Update" }),
+          HTMLButtonElement,
+        ).disabled,
       ).toBe(true),
     );
 
@@ -377,8 +380,10 @@ describe("<UpdateButton>", () => {
 
     await waitFor(() =>
       expect(
-        (screen.getByRole("button", { name: "Update" }) as HTMLButtonElement)
-          .disabled,
+        elementOf(
+          screen.getByRole("button", { name: "Update" }),
+          HTMLButtonElement,
+        ).disabled,
       ).toBe(false),
     );
   });

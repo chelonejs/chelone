@@ -9,6 +9,7 @@ import {
   downloadCSV,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -99,9 +100,10 @@ const openDialog = () => {
 const button = (name: string) => screen.getByRole("button", { name });
 const nextButton = () => button("Next");
 const mapSelect = (field: string) =>
-  document.querySelector(
-    `select[data-csv-field="${field}"]`,
-  ) as HTMLSelectElement;
+  elementOf(
+    document.querySelector(`select[data-csv-field="${field}"]`),
+    HTMLSelectElement,
+  );
 
 const heading = (name: string) => screen.findByRole("heading", { name });
 const parsed = (text: string | RegExp) =>
@@ -173,8 +175,10 @@ describe("<CsvImport>", () => {
       </Providers>,
     );
     openDialog();
-    const dropzone = screen.getByTestId("csv-file-input")
-      .parentElement as HTMLElement;
+    const dropzone = elementOf(
+      screen.getByTestId("csv-file-input").parentElement,
+      HTMLElement,
+    );
     const file = new File(["title\nHello"], "posts.txt", {
       type: "text/plain",
     });
@@ -198,8 +202,10 @@ describe("<CsvImport>", () => {
       </Providers>,
     );
     openDialog();
-    const dropzone = screen.getByTestId("csv-file-input")
-      .parentElement as HTMLElement;
+    const dropzone = elementOf(
+      screen.getByTestId("csv-file-input").parentElement,
+      HTMLElement,
+    );
     const first = new File([GOOD_CSV], "first.csv", { type: "text/csv" });
     const second = new File(["title\nOther\n"], "second.csv", {
       type: "text/csv",

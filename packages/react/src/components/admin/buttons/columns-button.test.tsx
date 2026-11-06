@@ -6,6 +6,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -107,7 +108,7 @@ function renderPage(
       <Page {...props} />
     </Providers>,
   );
-  return { store: store as CheloneStore, ...view };
+  return { store: defined(store), ...view };
 }
 
 const col = (source: string, extra?: { defaultHidden?: boolean }) => (
@@ -117,8 +118,8 @@ const labelled = (label: string) => (
   <DataTable.Col key={label} label={label} render={() => "x"} />
 );
 
-const headers = (scope: HTMLElement | Document = document) =>
-  within(scope as HTMLElement)
+const headers = (scope: HTMLElement = document.body) =>
+  within(scope)
     .getAllByRole("columnheader")
     .map((h) => h.textContent);
 const click = (name: string) =>
@@ -132,7 +133,7 @@ const switches = () =>
     on: s.getAttribute("aria-checked") === "true",
   }));
 const isDisabled = (name: string) =>
-  (screen.getByRole("button", { name }) as HTMLButtonElement).disabled;
+  elementOf(screen.getByRole("button", { name }), HTMLButtonElement).disabled;
 
 describe("<ColumnsButton>", () => {
   it("lists the columns the DataTable published, each with a switch", () => {

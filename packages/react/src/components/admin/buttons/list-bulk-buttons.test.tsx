@@ -22,9 +22,12 @@ import {
   createResourceRegistry,
   type DataProvider,
   defineMessages,
+  type Exporter,
   fakeDataProvider,
+  type Identifier,
   type NotificationStore,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -61,12 +64,8 @@ afterEach(cleanup);
 // Radix DropdownMenu opens on `pointerdown` (button 0), not `click`. jsdom has
 // no `PointerEvent`, so alias it to `MouseEvent` and open triggers via a
 // pointerdown→pointerup→click sequence.
-{
-  // biome-ignore lint/suspicious/noExplicitAny: minimal jsdom PointerEvent shim.
-  const g = globalThis as any;
-  if (typeof g.PointerEvent === "undefined") {
-    g.PointerEvent = g.MouseEvent;
-  }
+if (typeof globalThis.PointerEvent === "undefined") {
+  vi.stubGlobal("PointerEvent", MouseEvent);
 }
 
 /** Open a Radix menu trigger the way a mouse would (pointerdown + click). */
@@ -187,13 +186,13 @@ function ListInner({
   return <ListContextProvider value={list}>{children}</ListContextProvider>;
 }
 
-async function getIds(dataProvider: DataProvider): Promise<number[]> {
+async function getIds(dataProvider: DataProvider): Promise<Identifier[]> {
   const { data } = await dataProvider.getList("posts", {
     pagination: { page: 1, perPage: 100 },
     sort: { field: "id", order: "ASC" },
     filter: {},
   });
-  return data.map((r) => r.id as number);
+  return data.map((r) => r.id);
 }
 
 describe("<ExportButton>", () => {
@@ -211,7 +210,7 @@ describe("<ExportButton>", () => {
 
   it("fetches the list and runs the exporter on click", async () => {
     const dataProvider = makeDataProvider();
-    const exporter = vi.fn();
+    const exporter = vi.fn<Exporter>();
     render(
       <ListHarness dataProvider={dataProvider}>
         <ExportButton exporter={exporter} />
@@ -220,11 +219,11 @@ describe("<ExportButton>", () => {
     const button = await screen.findByRole("button", { name: /export/i });
     fireEvent.click(button);
     await waitFor(() => expect(exporter).toHaveBeenCalledTimes(1));
-    const call = exporter.mock.calls[0];
+    const call = defined(exporter.mock.calls[0]);
     expect(call).toBeDefined();
-    const [rows, , resource] = call as unknown[];
+    const [rows, , resource] = call;
     expect(resource).toBe("posts");
-    expect((rows as { id: number }[]).map((r) => r.id)).toEqual([1, 2, 3]);
+    expect(rows.map((r) => r.id)).toEqual([1, 2, 3]);
   });
 
   it("notifies the chelone http_error key when the fetch fails", async () => {
@@ -311,7 +310,7 @@ describe("<BulkUpdateButton>", () => {
 describe("<BulkExportButton>", () => {
   it("fetches the selected records and runs the exporter", async () => {
     const dataProvider = makeDataProvider();
-    const exporter = vi.fn();
+    const exporter = vi.fn<Exporter>();
     render(
       <ListHarness dataProvider={dataProvider} selectedIds={[2, 3]}>
         <BulkExportButton exporter={exporter} />
@@ -320,10 +319,10 @@ describe("<BulkExportButton>", () => {
     const button = await screen.findByRole("button", { name: /export/i });
     fireEvent.click(button);
     await waitFor(() => expect(exporter).toHaveBeenCalledTimes(1));
-    const call = exporter.mock.calls[0];
+    const call = defined(exporter.mock.calls[0]);
     expect(call).toBeDefined();
-    const [rows] = call as unknown[];
-    expect((rows as { id: number }[]).map((r) => r.id).sort()).toEqual([2, 3]);
+    const [rows] = call;
+    expect(rows.map((r) => r.id).sort()).toEqual([2, 3]);
   });
 
   it("notifies the chelone http_error key when the fetch fails", async () => {

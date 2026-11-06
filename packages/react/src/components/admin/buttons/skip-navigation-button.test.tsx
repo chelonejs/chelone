@@ -5,6 +5,7 @@
  */
 
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { createRef, type ReactNode } from "react";
@@ -78,7 +79,10 @@ describe("<SkipNavigationButton>", () => {
         </main>
       </Wrap>,
     );
-    const main = document.getElementById("main-content") as HTMLElement;
+    const main = elementOf(
+      document.getElementById("main-content"),
+      HTMLElement,
+    );
     const focus = vi.spyOn(main, "focus");
     const blur = vi.spyOn(main, "blur");
     const tabIndexWhileFocused: Array<string | null> = [];
