@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/query-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { InertDataProvider } from "../__fixtures__/data-provider";
 import { listKey, lockKey, locksKey, oneKey } from "../data/keys";
-import type { DataProvider } from "../data/types";
 import { startUndoableMutation } from "../data/undoable";
 import {
   subscribeLiveLock,
@@ -15,7 +15,7 @@ import { realtimeDataProvider } from "./realtime-data-provider";
 
 const setup = () => {
   const transport = memoryTransport();
-  const dataProvider = realtimeDataProvider({} as DataProvider, transport);
+  const dataProvider = realtimeDataProvider(new InertDataProvider(), transport);
   const queryClient = new QueryClient();
   const invalidate = vi.spyOn(queryClient, "invalidateQueries");
   const seed = () => {
@@ -243,7 +243,7 @@ describe("subscribeLiveResource", () => {
 
   it("throws a clear error on a plain data provider", () => {
     const ctx = {
-      dataProvider: {} as DataProvider,
+      dataProvider: new InertDataProvider(),
       queryClient: new QueryClient(),
     };
 

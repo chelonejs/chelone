@@ -1,3 +1,4 @@
+import { defined } from "@chelone/test-utils";
 import type { Feature, Geometry, Polygon, Position } from "geojson";
 import { describe, expect, it } from "vitest";
 import type { JsonObject } from "../guards";
@@ -497,7 +498,7 @@ describe("featuresToShape", () => {
   it("BBox round-trips through a Polygon feature and honours aspectRatio", () => {
     const [polygon] = shapeToFeatures("BBox", [1, 2, 3, 4]);
     expect(polygon).toBeDefined();
-    expect(featuresToShape("BBox", [polygon as ShapeFeature], null)).toEqual([
+    expect(featuresToShape("BBox", [defined(polygon)], null)).toEqual([
       1, 2, 3, 4,
     ]);
     expect(

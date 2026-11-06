@@ -107,7 +107,8 @@ describe("createOverpassProvider", () => {
     expect(error).toBeInstanceOf(OverpassError);
     expect(error).not.toBeInstanceOf(OverpassRateLimitError);
     expect(error).not.toBeInstanceOf(OverpassTimeoutError);
-    expect((error as OverpassError).status).toBe(400);
+    if (!(error instanceof OverpassError)) throw error;
+    expect(error.status).toBe(400);
   });
 
   it("rejects a 200 answer whose remark reports a server timeout or memory limit", async () => {
@@ -132,7 +133,8 @@ describe("createOverpassProvider", () => {
     const memory = await outOfMemory.query("q").catch((e: unknown) => e);
     expect(memory).toBeInstanceOf(OverpassError);
     expect(memory).not.toBeInstanceOf(OverpassTimeoutError);
-    expect((memory as OverpassError).message).toContain("out of memory");
+    if (!(memory instanceof OverpassError)) throw memory;
+    expect(memory.message).toContain("out of memory");
   });
 
   it("resolves a 200 answer whose remark is not a runtime error", async () => {
@@ -191,13 +193,15 @@ describe("createOverpassProvider", () => {
     caller.abort();
     const error = await pending;
     expect(error).not.toBeInstanceOf(OverpassTimeoutError);
-    expect((error as DOMException).name).toBe("AbortError");
+    if (!(error instanceof DOMException)) throw error;
+    expect(error.name).toBe("AbortError");
   });
 
   it("throws a TypeError without an endpoint", () => {
-    expect(() => createOverpassProvider({} as { endpoint: string })).toThrow(
-      TypeError,
-    );
+    expect(() => {
+      // @ts-expect-error the options carry no endpoint, which the type requires
+      createOverpassProvider({});
+    }).toThrow(TypeError);
     expect(() => createOverpassProvider({ endpoint: "  " })).toThrow(
       '"endpoint"',
     );

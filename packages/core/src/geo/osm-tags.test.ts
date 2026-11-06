@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import type { OsmTagInput } from "./osm-tags";
 import { tagToFilter } from "./osm-tags";
 
 describe("tagToFilter", () => {
@@ -17,8 +16,10 @@ describe("tagToFilter", () => {
 
   it("throws on a missing separator, an empty key and an empty value", () => {
     for (const bad of ["natural", "=water", "natural="]) {
-      expect(() => tagToFilter(bad as OsmTagInput)).toThrow(TypeError);
-      expect(() => tagToFilter(bad as OsmTagInput)).toThrow("key=*");
+      // @ts-expect-error each string is a tag the `key=value` input type rejects
+      const rejected = () => tagToFilter(bad);
+      expect(rejected).toThrow(TypeError);
+      expect(rejected).toThrow("key=*");
     }
   });
 });

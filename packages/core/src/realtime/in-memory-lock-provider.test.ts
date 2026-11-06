@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { DataProvider } from "../data/types";
+import { InertDataProvider } from "../__fixtures__/data-provider";
 import { inMemoryLockProvider } from "./in-memory-lock-provider";
 import { memoryTransport } from "./memory-transport";
 import { realtimeDataProvider } from "./realtime-data-provider";
@@ -135,7 +135,9 @@ describe("inMemoryLockProvider", () => {
 
   it("a lock taken through realtimeDataProvider reaches a lockTopic subscriber", async () => {
     const { locks, transport } = setup();
-    const dp = realtimeDataProvider({} as DataProvider, transport, { locks });
+    const dp = realtimeDataProvider(new InertDataProvider(), transport, {
+      locks,
+    });
     const callback = vi.fn();
     dp.subscribe(lockTopic("posts", 1), callback);
 
