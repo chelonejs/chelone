@@ -2,7 +2,13 @@
  * P7d-T2 tests: `<WebhookEndpointField>` — URL + last-delivery status badge.
  */
 
-import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  defineMessages,
+  fakeDataProvider,
+  type LooseRecord,
+} from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -13,7 +19,7 @@ import { WebhookEndpointField } from "./webhook-endpoint-field";
 
 afterEach(cleanup);
 
-function wrap(record: unknown) {
+function wrap(record: LooseRecord) {
   const i18n = createI18n({
     locale: "en",
     messages: { en: defineMessages({}) },
@@ -24,9 +30,7 @@ function wrap(record: unknown) {
       queryClient={new QueryClient()}
       i18n={i18n}
     >
-      <RecordContextProvider value={record as Record<string, unknown>}>
-        {children}
-      </RecordContextProvider>
+      <RecordContextProvider value={record}>{children}</RecordContextProvider>
     </CheloneProvider>
   );
 }
@@ -45,9 +49,10 @@ describe("<WebhookEndpointField />", () => {
       { wrapper: wrap({ id: 1, endpoint: okEndpoint }) },
     );
     expect(getByText("https://example.com/webhook")).toBeTruthy();
-    const badge = container.querySelector(
-      "[data-webhook-status]",
-    ) as HTMLElement;
+    const badge = elementOf(
+      container.querySelector("[data-webhook-status]"),
+      HTMLElement,
+    );
     expect(badge.getAttribute("data-status")).toBe("ok");
   });
 
@@ -61,9 +66,10 @@ describe("<WebhookEndpointField />", () => {
         },
       }),
     });
-    const badge = container.querySelector(
-      "[data-webhook-status]",
-    ) as HTMLElement;
+    const badge = elementOf(
+      container.querySelector("[data-webhook-status]"),
+      HTMLElement,
+    );
     expect(badge.getAttribute("data-status")).toBe("failed");
   });
 
@@ -74,9 +80,10 @@ describe("<WebhookEndpointField />", () => {
         endpoint: { url: "https://x.test/hook", secret: "s", eventTypes: [] },
       }),
     });
-    const badge = container.querySelector(
-      "[data-webhook-status]",
-    ) as HTMLElement;
+    const badge = elementOf(
+      container.querySelector("[data-webhook-status]"),
+      HTMLElement,
+    );
     expect(badge.getAttribute("data-status")).toBe("pending");
   });
 

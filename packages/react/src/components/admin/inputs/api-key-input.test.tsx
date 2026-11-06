@@ -6,7 +6,8 @@
  * Renders a Rotate button that opens a confirm dialog; on confirm it calls
  * `onRotate(record)` if provided, else the default update mutation.
  */
-import { fakeDataProvider } from "@chelone/core";
+import { type DataProvider, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -28,6 +29,10 @@ interface Account extends Record<string, unknown> {
   apiKey: string | null;
 }
 
+/** The Rotate trigger, checked as a button. */
+const rotateButton = () =>
+  elementOf(document.querySelector("[data-rotate-button]"), HTMLButtonElement);
+
 function setup(
   ui: ReactNode,
   {
@@ -39,13 +44,11 @@ function setup(
     record?: Account;
     resource?: string;
     data?: { accounts: Account[] };
-    update?: ReturnType<typeof vi.fn>;
+    update?: DataProvider["update"];
   } = {},
 ) {
   const base = fakeDataProvider(data);
-  const dataProvider = update
-    ? { ...base, update: update as typeof base.update }
-    : base;
+  const dataProvider = update ? { ...base, update } : base;
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <CheloneProvider
       dataProvider={dataProvider}
@@ -80,9 +83,7 @@ describe("<ApiKeyInput>", () => {
       record: { id: 1, apiKey: "sk_live_abc" },
     });
     await act(async () => {
-      fireEvent.click(
-        document.querySelector("[data-rotate-button]") as HTMLElement,
-      );
+      fireEvent.click(rotateButton());
     });
     expect(screen.getByText("Rotate API key?")).toBeTruthy();
   });
@@ -92,9 +93,7 @@ describe("<ApiKeyInput>", () => {
     const record = { id: 1, apiKey: "sk_live_abc" };
     setup(<ApiKeyInput source="apiKey" onRotate={onRotate} />, { record });
     await act(async () => {
-      fireEvent.click(
-        document.querySelector("[data-rotate-button]") as HTMLElement,
-      );
+      fireEvent.click(rotateButton());
     });
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: /^Rotate$/ }));
@@ -103,15 +102,15 @@ describe("<ApiKeyInput>", () => {
   });
 
   it("dispatches the default update mutation (id + nulled source) on confirm", async () => {
-    const update = vi.fn().mockResolvedValue({ data: { id: 1, apiKey: null } });
+    const update = vi
+      .fn<DataProvider["update"]>()
+      .mockResolvedValue({ data: { id: 1, apiKey: null } });
     setup(<ApiKeyInput source="apiKey" />, {
       record: { id: 1, apiKey: "sk_live_abc" },
       update,
     });
     await act(async () => {
-      fireEvent.click(
-        document.querySelector("[data-rotate-button]") as HTMLElement,
-      );
+      fireEvent.click(rotateButton());
     });
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: /^Rotate$/ }));
@@ -132,9 +131,6 @@ describe("<ApiKeyInput>", () => {
     setup(<ApiKeyInput source="apiKey" disabled />, {
       record: { id: 1, apiKey: "sk_live_abc" },
     });
-    const button = document.querySelector(
-      "[data-rotate-button]",
-    ) as HTMLButtonElement;
-    expect(button.disabled).toBe(true);
+    expect(rotateButton().disabled).toBe(true);
   });
 });

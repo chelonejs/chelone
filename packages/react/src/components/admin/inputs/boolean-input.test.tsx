@@ -11,6 +11,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -89,7 +90,10 @@ describe("<BooleanInput>", () => {
     setup(<BooleanInput source="is_published" />, {
       defaultValues: { is_published: false },
     });
-    const sw = screen.getByLabelText("Is published") as HTMLButtonElement;
+    const sw = elementOf(
+      screen.getByLabelText("Is published"),
+      HTMLButtonElement,
+    );
     expect(sw.getAttribute("role")).toBe("switch");
     expect(sw.getAttribute("aria-checked")).toBe("false");
   });
@@ -151,7 +155,8 @@ describe("<BooleanInput>", () => {
       defaultValues: { is_published: false },
     });
     expect(
-      (screen.getByLabelText("Is published") as HTMLButtonElement).disabled,
+      elementOf(screen.getByLabelText("Is published"), HTMLButtonElement)
+        .disabled,
     ).toBe(true);
   });
 
@@ -160,7 +165,8 @@ describe("<BooleanInput>", () => {
       defaultValues: { is_published: false },
     });
     expect(
-      (screen.getByLabelText("Is published") as HTMLButtonElement).disabled,
+      elementOf(screen.getByLabelText("Is published"), HTMLButtonElement)
+        .disabled,
     ).toBe(true);
   });
 

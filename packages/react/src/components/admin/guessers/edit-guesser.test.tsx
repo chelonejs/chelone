@@ -10,6 +10,7 @@ import {
   fakeDataProvider,
   type ResourceMap,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -97,7 +98,7 @@ const postsResources = () =>
   });
 
 const input = (name: RegExp | string) =>
-  screen.getByLabelText(name) as HTMLInputElement;
+  elementOf(screen.getByLabelText(name), HTMLInputElement);
 
 describe("EditGuesser", () => {
   it("renders an input per schema field once the record loads", async () => {
