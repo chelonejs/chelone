@@ -63,7 +63,7 @@ const hasFilterValues = computed(
   () => Object.keys(list.filter ?? {}).length > 0,
 );
 const isDisplayed = (source: string): boolean =>
-  !!(list.displayedFilters as Record<string, boolean>)?.[source];
+  list.displayedFilters[source] === true;
 
 const addLabel = computed(() =>
   translate("ra.action.add_filter", { _: "Add filter" }),
