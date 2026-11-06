@@ -1,0 +1,47 @@
+{
+  "name": "PermissionMatrix",
+  "props": [
+    {
+      "name": "actions",
+      "type": "readonly string[]",
+      "optional": true,
+      "comment": "One column per action. Defaults to `list`, `show`, `create`, `edit`, `delete`."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "onChange",
+      "type": "(next: PermissionMatrixValue) => void",
+      "optional": true,
+      "comment": "Called with the whole next value after a click."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Disables every checkbox."
+    },
+    {
+      "name": "resources",
+      "type": "readonly PermissionMatrixEntry[]",
+      "optional": false,
+      "comment": "One row per resource. A string is labelled with the resource label."
+    },
+    {
+      "name": "roles",
+      "type": "readonly PermissionMatrixEntry[]",
+      "optional": false,
+      "comment": "One tab per role. A string is its own label."
+    },
+    {
+      "name": "value",
+      "type": "PermissionMatrixValue",
+      "optional": true,
+      "comment": "Role id to that role's grants."
+    }
+  ]
+}
