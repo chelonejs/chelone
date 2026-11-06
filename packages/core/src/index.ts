@@ -236,10 +236,12 @@ export type {
   AllowedTransitions,
   ApprovalOptions,
   ApprovalState,
+  RejectionOptions,
   TransitionOptions,
 } from "./controller/record-workflow";
 export {
   buildApprovalUpdate,
+  buildRejectionUpdate,
   getAllowedTransitions,
   getApprovalState,
 } from "./controller/record-workflow";
