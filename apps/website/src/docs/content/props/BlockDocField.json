@@ -1,0 +1,35 @@
+{
+  "name": "BlockDocField",
+  "props": [
+    {
+      "name": "blocks",
+      "type": "readonly BlockDefinition<Attrs>[]",
+      "optional": true,
+      "comment": "Read once, when the editor mounts. Each block's `read` component draws it."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the root element."
+    },
+    {
+      "name": "empty",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The node to display when the field value is empty. Defaults to nothing.\nA string is translated; a ReactNode renders as-is."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record to render. Defaults to the ambient `RecordContext` value."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": "Name of the property to display (dot/bracket path)."
+    }
+  ]
+}
