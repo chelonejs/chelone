@@ -79,6 +79,13 @@ The full prop list for `<Admin>` and `<Resource>` is on the
 | `<InPlaceEditor>` takes `onSuccess` and `onError` props. | `<InPlaceEditor>` emits `success` with the saved record and `error` with the failure. | [In Place Editor](/docs/editing/in-place-editor) |
 | `<OnboardingTour>` takes an `onComplete` prop, called with `"finished"` or `"skipped"`. | `<OnboardingTour>` emits `complete` with the same two values. | [Onboarding Tour](/docs/ui-layout/onboarding-tour) |
 | `<OnboardingTour>` steps take a `title` and `content` that are nodes. | A step's `title` and `content` are strings. A `#step` slot, given `{ step, index }`, replaces both. | [Onboarding Tour](/docs/ui-layout/onboarding-tour) |
+| `<TrendChart>` and `<BarChart>` plot the row's `xField` value on the x axis. | They plot the row index and label each tick with that row's `xField`, so any x value keeps its order. With more than 7 rows only every step-th tick is labelled. | [Trend Chart](/docs/ui-layout/trend-chart), [Bar Chart](/docs/ui-layout/bar-chart) |
+| `<TrendChart>`'s `xTickFormatter` formats the x axis ticks. | It formats the tooltip's row label too: the axis and the crosshair share one function. | [Trend Chart](/docs/ui-layout/trend-chart) |
+| `<TrendChart>` and `<BarChart>` show their tooltip through recharts' `<ChartTooltip>`. | They show it through unovis' crosshair: `VisCrosshair` carries an HTML template and `VisTooltip` renders it. | [Trend Chart](/docs/ui-layout/trend-chart), [Bar Chart](/docs/ui-layout/bar-chart) |
+| `<DonutChart>` shows its tooltip through recharts' `<ChartTooltip>` as well. | It has no crosshair. `VisTooltip` takes a `triggers` map keyed on `Donut.selectors.segment`, so the tooltip follows the hovered segment. | [Donut Chart](/docs/ui-layout/donut-chart) |
+| `<TrendChart>`'s `tooltipFormatter` returns text recharts renders as a node. | It returns text that goes into the crosshair's HTML string. | [Trend Chart](/docs/ui-layout/trend-chart) |
+| `<DonutChart>`'s `height` sizes the chart, and the ring is 30% of the radius whatever it is. | `height` sizes the chart and the ring: the arc is 15% of `height` wide. | [Donut Chart](/docs/ui-layout/donut-chart) |
+| `<TrendChart>`, `<BarChart>`, `<DonutChart>` and `<MetricCard>` take `className`. | They take `class`. | [Trend Chart](/docs/ui-layout/trend-chart), [Bar Chart](/docs/ui-layout/bar-chart), [Donut Chart](/docs/ui-layout/donut-chart), [Metric Card](/docs/ui-layout/metric-card) |
 | `useGeoJsonSource(map, sourceId, data, style)` takes plain values. | `useGeoJsonSource(sourceId, data, style)` takes refs or getters and reads the map from the surrounding `<MapCanvas>`. | None |
 
 Theme storage differs too: the Vue `<ThemeProvider>` always uses `localStorage`
@@ -100,7 +107,11 @@ SVG icons. See [Maps](/docs/app-config/maps) for the guide.
 The Monaco components are an add-on, imported from `@chelone/vue/monaco` or
 installed from the registry as `@chelone/monaco`. The Markdown components are
 another, imported from `@chelone/vue/mdx-editor` or installed as
-`@chelone/mdx-editor`.
+`@chelone/mdx-editor`. The charts are a third: `<TrendChart>`, `<BarChart>` and
+`<DonutChart>` come from `@chelone/vue/charts` and need `@unovis/vue` and
+`@unovis/ts`, where React has `@chelone/react/charts` and `recharts`.
+`<MetricCard>` is not part of it: it ships in both base packages and draws no
+chart.
 
 | React | Vue | React page |
 | ----- | --- | ---------- |
