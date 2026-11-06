@@ -34,6 +34,7 @@ export interface DatagridInputProps<
  */
 
 import type { Identifier, SourcePath } from "@chelone/core";
+import { isIdentifier, toIdentifierList } from "@chelone/core";
 import { computed } from "vue";
 import { useInput } from "../../../form/use-input";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -53,7 +54,6 @@ import { useChoiceInput } from "./use-choice-input";
 const props = defineProps<DatagridInputProps<TChoice>>();
 
 const translate = useTranslate();
-const emptyArray: Identifier[] = [];
 
 const { source, allChoices, getChoiceText, getChoiceValue } = useChoiceInput({
   componentName: "DatagridInput",
@@ -73,16 +73,19 @@ const { id, value, setValue, blur, error, touched } = useInput({
   source,
   defaultValue: props.defaultValue,
   validate: props.validate,
-  format: (raw: unknown) => (Array.isArray(raw) ? raw : emptyArray),
+  format: toIdentifierList,
 });
 
 const invalid = computed(() => touched.value && error.value != null);
-const selectedIds = computed<Identifier[]>(() =>
-  Array.isArray(value.value) ? (value.value as Identifier[]) : emptyArray,
+const selectedIds = computed(() => toIdentifierList(value.value));
+// A choice whose value is not an id has no row to tick, so it is skipped.
+const rows = computed(() =>
+  allChoices.value.flatMap((choice) => {
+    const rowId = getChoiceValue(choice);
+    return isIdentifier(rowId) ? [{ choice, rowId }] : [];
+  }),
 );
-const allIds = computed<Identifier[]>(() =>
-  allChoices.value.map((choice) => getChoiceValue(choice) as Identifier),
-);
+const allIds = computed(() => rows.value.map((row) => row.rowId));
 const allSelected = computed(
   () =>
     allIds.value.length > 0 &&
@@ -127,18 +130,16 @@ function toggleAll() {
       </TableHeader>
       <TableBody>
         <TableRow
-          v-for="choice in allChoices"
-          :key="String(getChoiceValue(choice))"
-          :data-state="
-            isSelected(getChoiceValue(choice) as Identifier) ? 'selected' : undefined
-          "
+          v-for="{ choice, rowId } in rows"
+          :key="String(rowId)"
+          :data-state="isSelected(rowId) ? 'selected' : undefined"
         >
           <TableCell>
             <Checkbox
-              :id="`${id}-${String(getChoiceValue(choice))}`"
-              :model-value="isSelected(getChoiceValue(choice) as Identifier)"
+              :id="`${id}-${String(rowId)}`"
+              :model-value="isSelected(rowId)"
               :aria-label="translate('ra.action.select_row', { _: 'Select this row' })"
-              @update:model-value="toggle(getChoiceValue(choice) as Identifier)"
+              @update:model-value="toggle(rowId)"
             />
           </TableCell>
           <TableCell>{{ getChoiceText(choice) }}</TableCell>
