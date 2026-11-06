@@ -174,7 +174,10 @@ function InPlaceEditor<TRecord extends LooseRecord = LooseRecord>(
         },
         onError: (error) => {
           dispatch({ type: "settled" });
-          notify("chelone.notification.http_error", { type: "error" });
+          // The undoable runner already notifies when its deferred commit fails.
+          if (mutationMode !== "undoable") {
+            notify("chelone.notification.http_error", { type: "error" });
+          }
           onError?.(error);
         },
       },

@@ -401,6 +401,36 @@ describe("<InPlaceEditor>", () => {
     ]);
   });
 
+  it("a failed undoable update notifies one error and calls onError", async () => {
+    const failure = new Error("server down");
+    const onError = vi.fn();
+    const { notify } = mount({
+      editor: (
+        <InPlaceEditor
+          source="title"
+          mutationMode="undoable"
+          onError={onError}
+        />
+      ),
+      fail: failure,
+    });
+
+    changeAndSubmit(await startEditing(), "Beta");
+    await waitFor(() => expect(notify).toHaveBeenCalledTimes(1));
+    // Closing the Undo notification is what sends the deferred update.
+    const [, options] = notify.mock.calls[0] ?? [];
+    await act(async () => {
+      options?.onClose?.();
+    });
+
+    await waitFor(() => expect(onError).toHaveBeenCalledWith(failure));
+    expect(
+      notify.mock.calls.filter(
+        ([message]) => message === "chelone.notification.http_error",
+      ),
+    ).toHaveLength(1);
+  });
+
   it("without edit access the value shows and cannot be clicked", async () => {
     const denied = {
       login: async () => {},
