@@ -505,6 +505,8 @@ export type { TranslatableFieldsTabContentProps } from "./admin/view/translatabl
 export { default as TranslatableFieldsTabContent } from "./admin/view/translatable-fields-tab-content.vue";
 export type { TranslatableFieldsTabsProps } from "./admin/view/translatable-fields-tabs.vue";
 export { default as TranslatableFieldsTabs } from "./admin/view/translatable-fields-tabs.vue";
+export type { JobMonitorProps } from "./admin/widgets/job-monitor.vue";
+export { default as JobMonitor } from "./admin/widgets/job-monitor.vue";
 export type { MetricCardProps } from "./admin/widgets/metric-card.vue";
 export { default as MetricCard } from "./admin/widgets/metric-card.vue";
 // --- ui primitives --------------------------------------------------------
