@@ -54,6 +54,17 @@ const InspectorContext = createContext<InspectorController<ReactNode> | null>(
   null,
 );
 
+/**
+ * The panel's body element, which a `<Configurable>` portals its editor into so
+ * the editor keeps the contexts (resource, list, record) around the
+ * `<Configurable>` rather than the ones around the panel.
+ */
+const InspectorBodyContext = createContext<HTMLElement | null>(null);
+
+function useInspectorBody(): HTMLElement | null {
+  return useContext(InspectorBodyContext);
+}
+
 const subscribeNothing = () => () => {};
 const noState = (): null => null;
 
@@ -105,9 +116,11 @@ const ARROWS: Record<string, InspectorPosition> = {
 function InspectorPanel({
   inspector,
   className,
+  bodyRef,
 }: {
   inspector: InspectorControls;
   className?: string;
+  bodyRef: (body: HTMLElement | null) => void;
 }) {
   const translate = useTranslate();
   const { store } = useCheloneContext();
@@ -225,6 +238,7 @@ function InspectorPanel({
         </Button>
       </div>
       <div
+        ref={bodyRef}
         data-slot="inspector-body"
         className="flex flex-col gap-3 overflow-auto p-3"
       >
@@ -242,21 +256,40 @@ function InspectorPanel({
   );
 }
 
-function Panel({ className }: { className?: string }) {
+function Panel({
+  className,
+  bodyRef,
+}: {
+  className?: string;
+  bodyRef: (body: HTMLElement | null) => void;
+}) {
   const inspector = useInspector();
   return inspector?.enabled ? (
-    <InspectorPanel inspector={inspector} className={className} />
+    <InspectorPanel
+      inspector={inspector}
+      className={className}
+      bodyRef={bodyRef}
+    />
   ) : null;
 }
 
 function Inspector({ children, className }: InspectorProps) {
   const [inspector] = useState(() => createInspector<ReactNode>());
+  const [body, setBody] = useState<HTMLElement | null>(null);
   return (
     <InspectorContext.Provider value={inspector}>
-      {children}
-      <Panel className={className} />
+      <InspectorBodyContext.Provider value={body}>
+        {children}
+        <Panel className={className} bodyRef={setBody} />
+      </InspectorBodyContext.Provider>
     </InspectorContext.Provider>
   );
 }
 
-export { Inspector, type InspectorControls, type InspectorProps, useInspector };
+export {
+  Inspector,
+  type InspectorControls,
+  type InspectorProps,
+  useInspector,
+  useInspectorBody,
+};

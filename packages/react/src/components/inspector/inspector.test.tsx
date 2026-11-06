@@ -55,12 +55,15 @@ interface MountOptions {
   /** Mount without an `<Inspector>` around the layout. */
   inspector?: boolean;
   store?: ReturnType<typeof createStore>;
+  /** English messages for the app's i18n. */
+  messages?: Record<string, string>;
 }
 
 function mount({
   page,
   inspector = true,
   store = createStore(),
+  messages = {},
 }: MountOptions) {
   function AppLayout({ children }: { children?: ReactNode }) {
     return inspector ? (
@@ -78,7 +81,7 @@ function mount({
         queryClient={
           new QueryClient({ defaultOptions: { queries: { retry: false } } })
         }
-        i18n={createI18n({ locale: "en", messages: { en: {} } })}
+        i18n={createI18n({ locale: "en", messages: { en: messages } })}
         store={store}
       >
         <Admin.Layout>
@@ -477,6 +480,29 @@ describe("<SortableFieldsSelector>", () => {
       expect(headers()).toEqual(["Views", "Author", "Title"]),
     );
     expect(rowLabels()).toEqual(["Views", "Author", "Title"]);
+  });
+
+  it("the panel editor reads the resource context around its Configurable", async () => {
+    mount({
+      messages: { "resources.posts.fields.title": "Headline" },
+      page: (
+        <List>
+          <InspectorButton />
+          <Configurable
+            preferenceKey="columns"
+            title="Columns panel"
+            editor={<SortableFieldsSelector storeKey={STORE_KEY} />}
+          >
+            <DataTable>{columns}</DataTable>
+          </Configurable>
+        </List>
+      ),
+    });
+    fireEvent.click(await modeButton());
+    fireEvent.click(screen.getByRole("button", { name: "Customize" }));
+
+    // No `resource` prop: the label comes from the Resource around the list.
+    expect(rowLabels()).toEqual(["Headline", "Views", "Author"]);
   });
 
   it("a ColumnsButton and a SortableFieldsSelector in the panel stay in step", async () => {

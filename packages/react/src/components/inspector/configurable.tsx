@@ -7,10 +7,15 @@
 
 import { SlidersHorizontal } from "lucide-react";
 import { type ReactNode, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../i18n-hooks";
-import { type InspectorControls, useInspector } from "./inspector";
+import {
+  type InspectorControls,
+  useInspector,
+  useInspectorBody,
+} from "./inspector";
 
 interface ConfigurableProps {
   children: ReactNode;
@@ -37,20 +42,18 @@ function Selectable({
   className,
 }: ConfigurableProps & { inspector: InspectorControls }) {
   const translate = useTranslate();
+  const body = useInspectorBody();
   const { enabled, selected, select, release } = inspector;
   const isSelected = selected?.key === preferenceKey;
 
   useEffect(() => () => release(preferenceKey), [release, preferenceKey]);
 
-  // The panel keeps the editor it was given, so a new one has to be handed over.
+  // The panel keeps the title it was given, so a new one has to be handed over.
   useEffect(() => {
-    if (
-      selected?.key === preferenceKey &&
-      (selected.editor !== editor || selected.title !== title)
-    ) {
-      select({ key: preferenceKey, title, editor });
+    if (selected?.key === preferenceKey && selected.title !== title) {
+      select({ key: preferenceKey, title, editor: null });
     }
-  }, [selected, preferenceKey, title, editor, select]);
+  }, [selected, preferenceKey, title, select]);
 
   return (
     <div
@@ -68,7 +71,7 @@ function Selectable({
           type="button"
           size="xs"
           className="absolute top-1 right-1 z-10 opacity-0 focus-visible:opacity-100 group-focus-within/configurable:opacity-100 group-hover/configurable:opacity-100 group-data-[selected]/configurable:opacity-100"
-          onClick={() => select({ key: preferenceKey, title, editor })}
+          onClick={() => select({ key: preferenceKey, title, editor: null })}
         >
           <SlidersHorizontal />
           {translate(openButtonLabel ?? defaultOpenLabel, {
@@ -76,6 +79,8 @@ function Selectable({
           })}
         </Button>
       ) : null}
+      {/* Portalled, so the editor reads the contexts around this, not the panel's. */}
+      {isSelected && body ? createPortal(editor, body) : null}
     </div>
   );
 }
