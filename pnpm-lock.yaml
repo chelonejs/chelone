@@ -512,6 +512,9 @@ importers:
       '@chelone/core':
         specifier: workspace:*
         version: link:../core
+      '@chelone/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@types/geojson':
         specifier: ^7946.0.16
         version: 7946.0.16
@@ -765,6 +768,9 @@ importers:
       '@chelone/core':
         specifier: workspace:*
         version: link:../core
+      '@chelone/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@types/geojson':
         specifier: ^7946.0.16
         version: 7946.0.16
