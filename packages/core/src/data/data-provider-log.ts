@@ -57,6 +57,7 @@ function settled(call: () => unknown): Promise<unknown> {
   }
 }
 
+// type-escape: a provider method takes and gives whatever the app defines
 type ProviderMethod = (...args: unknown[]) => unknown;
 
 function isMethod(value: unknown): value is ProviderMethod {
