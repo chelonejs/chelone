@@ -51,6 +51,7 @@ export default [
     slugs: [
       "mdx-input",
       "block-editor-input",
+      "rich-text-input",
       "monaco-json-input",
       "file-input",
       "image-input",
