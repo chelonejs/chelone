@@ -47,7 +47,7 @@ const ListRows = defineComponent({
         "ul",
         { id: "rows" },
         (list.data ?? []).map((record) =>
-          h("li", String((record as { title?: unknown }).title ?? record.id)),
+          h("li", String(record.title ?? record.id)),
         ),
       );
   },

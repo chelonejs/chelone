@@ -6,6 +6,7 @@
  */
 
 import { fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -90,6 +91,8 @@ const panel = (wrapper: ReturnType<typeof mount>, name: string) =>
   wrapper.get(`[data-chelone-tab="${name}"]`);
 const header = (wrapper: ReturnType<typeof mount>, name: string) =>
   wrapper.get(`[data-chelone-tab-header="${name}"]`);
+const inputValue = (wrapper: ReturnType<typeof mount>, name: string) =>
+  elementOf(panel(wrapper, name).get("input").element, HTMLInputElement).value;
 
 describe("<TabbedForm>", () => {
   it("shows the first tab and hides the others, with every tab's inputs still mounted", async () => {
@@ -140,9 +143,7 @@ describe("<TabbedForm>", () => {
     expect(header(wrapper, "main").attributes("data-active")).toBeUndefined();
 
     await header(wrapper, "main").trigger("click");
-    expect(
-      (panel(wrapper, "main").get("input").element as HTMLInputElement).value,
-    ).toBe("typed title");
+    expect(inputValue(wrapper, "main")).toBe("typed title");
   });
 
   it("a tab header shows its error dot once a field in that tab fails validation", async () => {
@@ -269,14 +270,10 @@ describe("<TabbedForm>", () => {
       dataProvider,
     );
 
-    await vi.waitFor(() => {
-      expect(
-        (panel(wrapper, "main").get("input").element as HTMLInputElement).value,
-      ).toBe("Hello World");
-    });
-    expect(
-      (panel(wrapper, "extra").get("input").element as HTMLInputElement).value,
-    ).toBe("First body");
+    await vi.waitFor(() =>
+      expect(inputValue(wrapper, "main")).toBe("Hello World"),
+    );
+    expect(inputValue(wrapper, "extra")).toBe("First body");
 
     await panel(wrapper, "extra").get("input").setValue("Edited body");
     await nextTick();
@@ -343,11 +340,9 @@ describe("<TabbedForm>", () => {
       dataProvider,
     );
 
-    await vi.waitFor(() => {
-      expect(
-        (panel(wrapper, "main").get("input").element as HTMLInputElement).value,
-      ).toBe("Hello World");
-    });
+    await vi.waitFor(() =>
+      expect(inputValue(wrapper, "main")).toBe("Hello World"),
+    );
 
     await panel(wrapper, "main").get("input").setValue("Edited title");
     await nextTick();

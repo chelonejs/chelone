@@ -4,6 +4,7 @@ import {
   fakeDataProvider,
   type NotificationStore,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -85,8 +86,9 @@ describe("useDeleteController", () => {
     await flushPromises();
 
     expect(deleteSpy).toHaveBeenCalledTimes(1);
-    expect(deleteSpy.mock.calls[0]![0]).toBe("posts");
-    expect(deleteSpy.mock.calls[0]![1]).toMatchObject({ id: 1 });
+    const [deleteResource, deleteParams] = defined(deleteSpy.mock.calls[0]);
+    expect(deleteResource).toBe("posts");
+    expect(deleteParams).toMatchObject({ id: 1 });
     expect(notify).toHaveBeenCalledWith(
       "chelone.notification.deleted",
       expect.objectContaining({ type: "success" }),

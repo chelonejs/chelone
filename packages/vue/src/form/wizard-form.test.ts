@@ -4,6 +4,7 @@
  */
 
 import { fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -77,6 +78,8 @@ const threeSteps =
 
 const step = (wrapper: ReturnType<typeof mount>, name: string) =>
   wrapper.get(`[data-chelone-wizard-step="${name}"]`);
+const inputValue = (wrapper: ReturnType<typeof mount>, name: string) =>
+  elementOf(step(wrapper, name).get("input").element, HTMLInputElement).value;
 
 const mountWizard = (captured: Captured, props: Record<string, unknown> = {}) =>
   mountAdmin(() =>
@@ -267,9 +270,7 @@ describe("<WizardForm>", () => {
     captured.wizard?.prev();
     await captured.wizard?.next();
 
-    expect(
-      (step(wrapper, "two").get("input").element as HTMLInputElement).value,
-    ).toBe("kept");
+    expect(inputValue(wrapper, "two")).toBe("kept");
   });
 
   it("with save, submit collects every step and calls save once", async () => {
@@ -314,14 +315,10 @@ describe("<WizardForm>", () => {
       dataProvider,
     );
 
-    await vi.waitFor(() => {
-      expect(
-        (step(wrapper, "one").get("input").element as HTMLInputElement).value,
-      ).toBe("Hello World");
-    });
-    expect(
-      (step(wrapper, "two").get("input").element as HTMLInputElement).value,
-    ).toBe("First body");
+    await vi.waitFor(() =>
+      expect(inputValue(wrapper, "one")).toBe("Hello World"),
+    );
+    expect(inputValue(wrapper, "two")).toBe("First body");
 
     await step(wrapper, "two").get("input").setValue("Edited body");
     await nextTick();
