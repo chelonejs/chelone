@@ -84,6 +84,14 @@ it.each(hooks)(
   },
 );
 
+it("the useLockOnMount page tells a held record from a failed release", () => {
+  const mdx = page("use-lock-on-mount");
+  expect(mdx).toContain("LockConflictError");
+  expect(mdx, "a failed release reaches onLockError, not lockError").toMatch(
+    /failed release[\s\S]{0,160}onLockError/,
+  );
+});
+
 it("every hook with a page is exported by both adapters", () => {
   for (const adapter of ["react", "vue"]) {
     const barrel = readFileSync(

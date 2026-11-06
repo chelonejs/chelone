@@ -1,6 +1,6 @@
 ---
 title: "useLockOnMount"
-description: "Holds a record's lock while the component is mounted and reports the lock, whether it is being taken, and the last failure. Needs a realtime data provider with lock support."
+description: "Holds a record's lock while the component is mounted and reports the lock, whether a request is in flight, and the last lock failure. A failed release reaches onLockError only. Needs a realtime data provider with lock support."
 ---
 
 `useLockOnMount` takes a lock when the component mounts and releases it when it
@@ -40,9 +40,13 @@ interface UseLockOnMountResult {
 ## Returns
 
 `lock` is the `Lock` while the session holds it, and `null` before it has one
-and after it releases. `isLocking` is true while the lock request is in flight.
-`lockError` is the last lock or release that failed, also passed to
-`onLockError`.
+and after it releases. `isLocking` is true while a lock request is in flight,
+and false on the first render, before the request starts.
+
+`lockError` is the last lock that failed. A record another identity holds
+arrives as a `LockConflictError`, whose `existingLock` is that lock. A failed
+release is not stored here: `stop()` clears the session state before the release
+runs, so a release that rejects reaches `onLockError` and nowhere else.
 
 Changing the data provider, resource, id or identity releases the old lock, even
 one still in flight, before the next is taken, so a provider never sees the new
@@ -50,14 +54,17 @@ lock ahead of the old release. A new `meta` object, a new `authProvider` or a
 new `onLockError` does not relock: the session reads them as they were when it
 was made.
 
-The hook throws when the data provider is not a realtime one with lock support
-and a resource and id are present. With no `identity` and no auth provider to
-read one from, the lock fails with an error saying no identity is available,
-which lands in `lockError`.
+The hook throws when a resource and id are present and the data provider has not
+gone through `realtimeDataProvider`. A provider wrapped without a `locks` option
+does not throw: its lock rejects with an error saying no `LockProvider` was
+configured, and that lands in `lockError`. With no `identity` and no auth
+provider to read one from, the lock fails with an error saying no identity is
+available, which lands in `lockError` too.
 
 ## Example
 
 ```tsx
+import { LockConflictError } from "@chelone/core";
 import { useLockOnMount } from "@chelone/react";
 
 export const PostEditor = ({ id }: { id: number }) => {
@@ -69,11 +76,17 @@ export const PostEditor = ({ id }: { id: number }) => {
   });
 
   if (isLocking) return <p>Requesting the lock…</p>;
+  if (lockError instanceof LockConflictError)
+    return <p>Locked by {String(lockError.existingLock.identity)}</p>;
   if (lockError) return <p>{lockError.message}</p>;
-  if (!lock) return <p>Held by another identity.</p>;
-  return <p>Editing as {lock.identity}</p>;
+  // No lock yet on the first render, and none once a release lands.
+  return lock ? <p>Editing as {lock.identity}</p> : null;
 };
 ```
+
+`<LockOnMount>` reads the same three states: a `Skeleton` while `isLocking`, an
+alert naming `existingLock.identity` for a conflict, its children once the lock
+is held, and nothing otherwise.
 
 ## In Vue
 
