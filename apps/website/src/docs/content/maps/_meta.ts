@@ -15,4 +15,19 @@ export default [
       "feature-collection-field",
     ],
   },
+  {
+    category: "Shape inputs",
+    slugs: [
+      "point-input",
+      "multi-point-input",
+      "line-string-input",
+      "multi-line-string-input",
+      "polygon-input",
+      "multi-polygon-input",
+      "geometry-collection-input",
+      "geo-json-input",
+      "feature-input",
+      "feature-collection-input",
+    ],
+  },
 ] satisfies MetaEntry[];
