@@ -26,6 +26,12 @@ export interface CreateAssistantSessionOptions {
 export interface AssistantSession extends MicroStore<AssistantSessionState> {
   /** Resolves when the turn, with its tool rounds, ends. */
   send(text: string): Promise<void>;
+  /**
+   * After an error, runs the last user message again: whatever the failed
+   * turn added after it is dropped and no second user message is added.
+   * Does nothing unless the status is `error`.
+   */
+  retry(): Promise<void>;
   stop(): void;
   reset(): void;
 }
@@ -217,23 +223,39 @@ export function createAssistantSession({
     update(() => ({ status: "idle" }));
   }
 
+  async function start(controller: AbortController): Promise<void> {
+    active = controller;
+    try {
+      await run(controller);
+    } finally {
+      if (active === controller) active = null;
+    }
+  }
+
   return {
     ...store,
     async send(text) {
       if (destroyed) return;
       if (!text.trim() || store.getSnapshot().status === "streaming") return;
-      const controller = new AbortController();
-      active = controller;
       store.setState((s) => ({
         messages: [...s.messages, { role: "user", content: text }],
         status: "streaming",
         error: null,
       }));
-      try {
-        await run(controller);
-      } finally {
-        if (active === controller) active = null;
-      }
+      await start(new AbortController());
+    },
+    async retry() {
+      if (destroyed || store.getSnapshot().status !== "error") return;
+      const { messages } = store.getSnapshot();
+      let last = messages.length - 1;
+      while (last >= 0 && messages[last]?.role !== "user") last--;
+      if (last < 0) return;
+      store.setState({
+        messages: messages.slice(0, last + 1),
+        status: "streaming",
+        error: null,
+      });
+      await start(new AbortController());
     },
     stop() {
       if (!active) return;

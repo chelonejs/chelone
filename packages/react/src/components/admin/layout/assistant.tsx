@@ -142,11 +142,6 @@ export function Assistant({
     setInput("");
   };
 
-  const retry = () => {
-    const last = [...messages].reverse().find((m) => m.role === "user");
-    if (last) void session.send(last.content);
-  };
-
   const label =
     triggerLabel ?? translate("chelone.assistant.trigger", { _: "Ask" });
   const welcome =
@@ -227,7 +222,12 @@ export function Assistant({
                 })}{" "}
                 {error?.message}
               </span>
-              <Button type="button" size="xs" variant="outline" onClick={retry}>
+              <Button
+                type="button"
+                size="xs"
+                variant="outline"
+                onClick={() => void session.retry()}
+              >
                 {translate("chelone.assistant.retry", { _: "Retry" })}
               </Button>
             </div>

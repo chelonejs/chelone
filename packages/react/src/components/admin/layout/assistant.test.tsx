@@ -309,10 +309,8 @@ describe("<Assistant>", () => {
     await within(log()).findByText("Back");
     expect(screen.queryByRole("alert")).toBeNull();
     expect(sent).toHaveLength(2);
-    expect(sent[1]?.messages.at(-1)).toEqual({
-      role: "user",
-      content: "hello",
-    });
+    expect(sent[1]?.messages).toEqual([{ role: "user", content: "hello" }]);
+    expect(within(log()).getAllByText("hello")).toHaveLength(1);
   });
 
   it("unmounting aborts the stream", async () => {
