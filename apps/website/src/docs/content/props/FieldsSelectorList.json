@@ -1,0 +1,29 @@
+{
+  "name": "FieldsSelectorList",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": false,
+      "comment": "True while searching, when the order on screen is not the real order."
+    },
+    {
+      "name": "ids",
+      "type": "readonly string[]",
+      "optional": false,
+      "comment": "The ids of the listed rows, in display order."
+    },
+    {
+      "name": "onMove",
+      "type": "(id: string, index: number) => void",
+      "optional": false,
+      "comment": "Move the column `id` to `index` in the full order."
+    }
+  ]
+}
