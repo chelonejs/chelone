@@ -40,6 +40,7 @@ export default defineConfig({
       entry: [
         "src/index.ts",
         "src/monaco.ts",
+        "src/charts.ts",
         "src/kanban.ts",
         "src/mdx-editor.ts",
         "src/maps.ts",
