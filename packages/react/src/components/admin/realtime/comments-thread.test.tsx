@@ -9,6 +9,7 @@ import {
   type RecordOf,
   realtimeDataProvider,
 } from "@chelone/core";
+import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -95,8 +96,11 @@ function setup({
   return { Providers, getList, create, update, notifications, dataProvider };
 }
 
+/** The rendered comment cards, each checked as an element at this line. */
 const cards = () =>
-  Array.from(document.querySelectorAll('[data-slot="comment"]'));
+  Array.from(document.querySelectorAll('[data-slot="comment"]'), (el) =>
+    elementOf(el, HTMLElement),
+  );
 
 describe("CommentsThread", () => {
   it("CommentsThread renders one card per comment of the record and none of another record", async () => {
@@ -130,8 +134,8 @@ describe("CommentsThread", () => {
     });
 
     await waitFor(() => expect(cards()).toHaveLength(2));
-    expect(within(cards()[0] as HTMLElement).getByText("Ann Lee")).toBeTruthy();
-    expect(within(cards()[1] as HTMLElement).getByText("u2")).toBeTruthy();
+    expect(within(defined(cards()[0])).getByText("Ann Lee")).toBeTruthy();
+    expect(within(defined(cards()[1])).getByText("u2")).toBeTruthy();
   });
 
   it("CommentsThread asks the provider for the target filter and createdAt ascending", async () => {
@@ -209,7 +213,10 @@ describe("CommentsThread", () => {
     await waitFor(() => expect(cards()).toHaveLength(2));
     expect(screen.queryByText(/Invalid Date/)).toBeNull();
     const byId = (id: string) =>
-      document.querySelector(`[data-comment-id="${id}"]`) as HTMLElement;
+      elementOf(
+        document.querySelector(`[data-comment-id="${id}"]`),
+        HTMLElement,
+      );
     expect(byId("1").querySelector("time")).toBeNull();
     expect(byId("2").querySelector("time")).not.toBeNull();
   });
@@ -227,12 +234,15 @@ describe("CommentsThread", () => {
     render(<CommentsThread reference="comments" target="postId" />, {
       wrapper: Providers,
     });
-    const box = await screen.findByPlaceholderText("Write a comment…");
+    const box = elementOf(
+      await screen.findByPlaceholderText("Write a comment…"),
+      HTMLTextAreaElement,
+    );
     fireEvent.change(box, { target: { value: "  Looks good\n  to me  " } });
     await waitFor(() =>
-      expect((screen.getByText("Post") as HTMLButtonElement).disabled).toBe(
-        false,
-      ),
+      expect(
+        elementOf(screen.getByText("Post"), HTMLButtonElement).disabled,
+      ).toBe(false),
     );
     const before = Date.now();
     await waitFor(() => expect(getIdentity).toHaveBeenCalled());
@@ -240,21 +250,18 @@ describe("CommentsThread", () => {
     fireEvent.click(screen.getByText("Post"));
 
     await waitFor(() => expect(create).toHaveBeenCalledTimes(1));
-    const call = create.mock.calls[0] as [
-      string,
-      { data: Record<string, unknown> },
-    ];
-    expect(call[0]).toBe("comments");
-    expect(call[1].data).toMatchObject({
+    const [resource, params] = defined(create.mock.calls[0]);
+    expect(resource).toBe("comments");
+    expect(params.data).toMatchObject({
       postId: 7,
       authorId: "u9",
       authorName: "Zed Poe",
       body: "Looks good\n  to me",
     });
-    const createdAt = Date.parse(String(call[1].data.createdAt));
+    const createdAt = Date.parse(defined(params.data.createdAt));
     expect(createdAt).toBeGreaterThanOrEqual(before);
     expect(createdAt).toBeLessThanOrEqual(Date.now());
-    await waitFor(() => expect((box as HTMLTextAreaElement).value).toBe(""));
+    await waitFor(() => expect(box.value).toBe(""));
     expect(await screen.findByText(/Looks good/)).toBeTruthy();
   });
 
@@ -265,7 +272,10 @@ describe("CommentsThread", () => {
     render(<CommentsThread reference="comments" target="postId" />, {
       wrapper: Providers,
     });
-    const box = await screen.findByPlaceholderText("Write a comment…");
+    const box = elementOf(
+      await screen.findByPlaceholderText("Write a comment…"),
+      HTMLTextAreaElement,
+    );
     fireEvent.change(box, { target: { value: "Hello" } });
     fireEvent.click(screen.getByText("Post"));
 
@@ -275,7 +285,7 @@ describe("CommentsThread", () => {
       ]),
     );
     expect(notifications.getSnapshot()[0]?.type).toBe("error");
-    expect((box as HTMLTextAreaElement).value).toBe("Hello");
+    expect(box.value).toBe("Hello");
   });
 
   it("CommentsThread disables Post for a blank body and while posting", async () => {
@@ -290,8 +300,11 @@ describe("CommentsThread", () => {
     render(<CommentsThread reference="comments" target="postId" />, {
       wrapper: Providers,
     });
-    const box = await screen.findByPlaceholderText("Write a comment…");
-    const post = screen.getByText("Post") as HTMLButtonElement;
+    const box = elementOf(
+      await screen.findByPlaceholderText("Write a comment…"),
+      HTMLTextAreaElement,
+    );
+    const post = elementOf(screen.getByText("Post"), HTMLButtonElement);
     expect(post.disabled).toBe(true);
     fireEvent.change(box, { target: { value: "   \n " } });
     expect(post.disabled).toBe(true);
@@ -304,7 +317,7 @@ describe("CommentsThread", () => {
     expect(create).toHaveBeenCalledTimes(1);
 
     await act(async () => release());
-    await waitFor(() => expect((box as HTMLTextAreaElement).value).toBe(""));
+    await waitFor(() => expect(box.value).toBe(""));
   });
 
   it("CommentsThread posts on Ctrl+Enter", async () => {
@@ -312,7 +325,10 @@ describe("CommentsThread", () => {
     render(<CommentsThread reference="comments" target="postId" />, {
       wrapper: Providers,
     });
-    const box = await screen.findByPlaceholderText("Write a comment…");
+    const box = elementOf(
+      await screen.findByPlaceholderText("Write a comment…"),
+      HTMLTextAreaElement,
+    );
     fireEvent.change(box, { target: { value: "Hi" } });
 
     fireEvent.keyDown(box, { key: "Enter" });
@@ -330,16 +346,16 @@ describe("CommentsThread", () => {
     render(<CommentsThread reference="comments" target="postId" />, {
       wrapper: Providers,
     });
-    const box = await screen.findByPlaceholderText("Write a comment…");
+    const box = elementOf(
+      await screen.findByPlaceholderText("Write a comment…"),
+      HTMLTextAreaElement,
+    );
     fireEvent.change(box, { target: { value: "Hi" } });
     fireEvent.click(screen.getByText("Post"));
 
     await waitFor(() => expect(create).toHaveBeenCalledTimes(1));
-    const call = create.mock.calls[0] as [
-      string,
-      { data: Record<string, unknown> },
-    ];
-    expect(call[1].data.authorId).toBe("anonymous");
+    const [, params] = defined(create.mock.calls[0]);
+    expect(params.data.authorId).toBe("anonymous");
   });
 
   it("CommentsThread shows Mark resolved only with resolvable and only on unresolved comments", async () => {
@@ -361,10 +377,10 @@ describe("CommentsThread", () => {
       wrapper: resolvable.Providers,
     });
     await waitFor(() => expect(cards()).toHaveLength(2));
-    const [open, done] = cards() as HTMLElement[];
-    expect(within(open as HTMLElement).getByText("Mark resolved")).toBeTruthy();
-    expect(within(done as HTMLElement).queryByText("Mark resolved")).toBeNull();
-    expect(within(done as HTMLElement).getByText(/^Resolved \S/)).toBeTruthy();
+    const [open, done] = cards();
+    expect(within(defined(open)).getByText("Mark resolved")).toBeTruthy();
+    expect(within(defined(done)).queryByText("Mark resolved")).toBeNull();
+    expect(within(defined(done)).getByText(/^Resolved \S/)).toBeTruthy();
   });
 
   it("CommentsThread resolves a comment with resolvedAt and previousData", async () => {
@@ -378,14 +394,13 @@ describe("CommentsThread", () => {
     fireEvent.click(await screen.findByText("Mark resolved"));
 
     await waitFor(() => expect(update).toHaveBeenCalledTimes(1));
-    const call = update.mock.calls[0] as [
-      string,
-      { id: unknown; data: { resolvedAt: string }; previousData: unknown },
-    ];
-    expect(call[0]).toBe("comments");
-    expect(call[1].id).toBe(1);
-    expect(Number.isNaN(Date.parse(call[1].data.resolvedAt))).toBe(false);
-    expect(call[1].previousData).toMatchObject(original);
+    const [resource, params] = defined(update.mock.calls[0]);
+    expect(resource).toBe("comments");
+    expect(params.id).toBe(1);
+    expect(Number.isNaN(Date.parse(defined(params.data.resolvedAt)))).toBe(
+      false,
+    );
+    expect(params.previousData).toMatchObject(original);
     await waitFor(() =>
       expect(notifications.getSnapshot().map((n) => n.message)).toEqual([
         "chelone.notification.updated",
@@ -458,7 +473,8 @@ describe("CommentsThread", () => {
     const { Providers, dataProvider } = setup({
       comments: [comment({ id: 1, body: "Plain" })],
     });
-    expect((dataProvider as { subscribe?: unknown }).subscribe).toBeUndefined();
+    // a plain provider carries no realtime `subscribe` verb
+    expect("subscribe" in dataProvider).toBe(false);
     render(<CommentsThread reference="comments" target="postId" />, {
       wrapper: Providers,
     });
@@ -477,9 +493,10 @@ describe("CommentsThread", () => {
     render(<CommentsThread reference="comments" target="postId" />, {
       wrapper: Providers,
     });
-    const box = (await screen.findByPlaceholderText(
-      "Write a comment…",
-    )) as HTMLTextAreaElement;
+    const box = elementOf(
+      await screen.findByPlaceholderText("Write a comment…"),
+      HTMLTextAreaElement,
+    );
     expect(box.readOnly).toBe(false);
     fireEvent.change(box, { target: { value: "Hi" } });
     fireEvent.keyDown(box, { key: "Enter", ctrlKey: true });
@@ -500,9 +517,10 @@ describe("CommentsThread", () => {
       />,
       { wrapper: Providers },
     );
-    const box = (await screen.findByPlaceholderText(
-      "Write a comment…",
-    )) as HTMLTextAreaElement;
+    const box = elementOf(
+      await screen.findByPlaceholderText("Write a comment…"),
+      HTMLTextAreaElement,
+    );
     fireEvent.change(box, { target: { value: "For seven" } });
 
     rerender(
@@ -514,8 +532,10 @@ describe("CommentsThread", () => {
     );
 
     expect(
-      (screen.getByPlaceholderText("Write a comment…") as HTMLTextAreaElement)
-        .value,
+      elementOf(
+        screen.getByPlaceholderText("Write a comment…"),
+        HTMLTextAreaElement,
+      ).value,
     ).toBe("");
     expect(create).not.toHaveBeenCalled();
   });
