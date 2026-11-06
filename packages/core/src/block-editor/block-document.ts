@@ -6,7 +6,7 @@ import {
 } from "../resource/describe-resource";
 
 // type-escape: tiptap attrs are open JSON, so the keys and values are not knowable here
-type Attrs = Record<string, unknown>;
+export type Attrs = Record<string, unknown>;
 
 /** The shape of tiptap JSON, with no tiptap import. */
 export interface BlockDocNode {
