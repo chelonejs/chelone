@@ -203,3 +203,67 @@ it.each([
     expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
   },
 );
+
+// Both block editor pages are hand-written MDX whose prose names components,
+// and their install block comes from the page's registry frontmatter.
+it.each([
+  ["editing/block-editor-input", "BlockEditorInput"],
+  ["viewing/block-doc-field", "BlockDocField"],
+])(
+  "renders the %s page with its block-editor install block",
+  async (slug, title) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: title }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText("pnpm dlx shadcn@latest add @chelone/block-editor"),
+    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Vue" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+  },
+);
+
+// The core function pages are hand-written MDX as well. They carry no "In Vue"
+// heading: the function comes from @chelone/core and reads the same in both
+// adapters.
+it.each([
+  ["add-events-for-mutations", "addEventsForMutations"],
+  ["memory-transport", "memoryTransport"],
+  ["broadcast-channel-transport", "broadcastChannelTransport"],
+  ["websocket-transport", "webSocketTransport"],
+  ["sse-transport", "sseTransport"],
+  ["in-memory-lock-provider", "inMemoryLockProvider"],
+])(
+  "renders the realtime %s page with its signature, returns and example",
+  async (slug, title) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/realtime/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: title }),
+    ).toBeTruthy();
+    for (const heading of ["Signature", "Returns", "Example"]) {
+      expect(
+        screen.getByRole("heading", { level: 2, name: heading }),
+        heading,
+      ).toBeTruthy();
+    }
+    expect(
+      screen.queryByRole("heading", { level: 2, name: "In Vue" }),
+    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+  },
+);

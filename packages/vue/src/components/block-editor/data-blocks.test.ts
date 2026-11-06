@@ -225,6 +225,7 @@ describe("data blocks", () => {
       .toEqual([
         expect.stringContaining("Reference record"),
         expect.stringContaining("Record list"),
+        expect.stringContaining("Chart"),
       ]);
   });
 });

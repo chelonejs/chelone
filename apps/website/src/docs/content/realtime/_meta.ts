@@ -2,6 +2,17 @@ import type { MetaEntry } from "@/docs/types";
 
 export default [
   {
+    category: "Provider builders & transports",
+    slugs: [
+      "add-events-for-mutations",
+      "memory-transport",
+      "broadcast-channel-transport",
+      "websocket-transport",
+      "sse-transport",
+      "in-memory-lock-provider",
+    ],
+  },
+  {
     category: "Live views & menus",
     slugs: ["list-live", "edit-live", "show-live", "menu-live"],
   },

@@ -1,0 +1,293 @@
+---
+title: "BlockEditorInput"
+description: "Edits a block document of rich text and app-defined blocks in a tiptap editor, stored as tiptap JSON."
+registry: "block-editor"
+---
+
+`<BlockEditorInput>` edits a document built out of blocks: rich text (headings,
+lists, quotes, code) plus discrete blocks — an image, an embed, a callout, or a
+block your app defines. Each block carries its own attributes and draws itself
+with its own components. It is an add-on: it is not in the `@chelone/react`
+barrel, and tiptap is a set of optional peer dependencies. See
+[Installing the add-on](#installing-the-add-on).
+
+## When to use it
+
+Use it where the value is a page a user assembles rather than a wall of text: a
+landing page with an image and a callout, a help article with a video, a release
+note with a chart. The user inserts a block, edits its attributes, and moves it.
+
+Beside the other text inputs:
+
+- `<RichTextInput>` edits one flowing HTML string with a formatting toolbar. It
+  has no blocks and no attributes per block, so pick it for a post body or a
+  comment where bold, links and lists are enough.
+- [MdxInput](/docs/editing/mdx-input) edits a markdown string, which stays
+  plain text you can render anywhere.
+- [TextInput](/docs/editing/text-input) is for a short single-line value.
+
+To show a stored block document without editing it, use
+[BlockDocField](/docs/viewing/block-doc-field).
+
+## Example
+
+```tsx title="src/resources/PostEdit.tsx"
+import { Edit } from "@chelone/react";
+import { BlockEditorInput } from "@/components/block-editor/block-editor-input";
+import { defaultBlocks } from "@/components/block-editor/default-blocks";
+import { quoteBlock } from "@/blocks/quote-block";
+
+export const PostEdit = () => (
+  <Edit>
+    <BlockEditorInput
+      source="body"
+      label="Body"
+      blocks={[...defaultBlocks, quoteBlock]}
+      placeholder="Type / for blocks"
+      helperText="Type / on an empty line to insert a block."
+    />
+  </Edit>
+);
+```
+
+With no `blocks` prop the editor offers the four default blocks: Callout,
+Toggle, Image and Embed. `blocks` replaces that list, so pass the defaults along
+when you add your own.
+
+## Value contract
+
+The value is a block document: tiptap JSON, an object whose `type` is `"doc"`.
+
+```json title="the stored value"
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "callout",
+      "attrs": { "variant": "info" },
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [{ "type": "text", "text": "One block per line." }]
+        }
+      ]
+    }
+  ]
+}
+```
+
+- An empty document is stored as `null`, not as a doc holding one empty
+  paragraph, so `required()` rejects a cleared editor.
+- A value that is not a doc object reads as an empty editor.
+- `blocks` is read once, when the editor mounts. A document holding a block the
+  list no longer names shows as an unknown block.
+- A form reset or `setValue` replaces the document.
+- The document goes into the form as it is, so the resource's Zod schema
+  validates it. `z.unknown()` accepts any document, and a schema that names the
+  node types it expects rejects the rest.
+
+## Insert a block: the slash picker and the block bar
+
+Type `/` on an empty line, or after a space, and a picker opens at the caret,
+listing the blocks that match what you typed under each block's `group`. Arrow
+keys move the highlight, Enter inserts, Escape closes. The same picker opens from
+the Add block button above the editor, where it also shows a search box.
+
+Once a block is selected, or the caret sits inside one, a bar appears above the
+editor with the block's label and its actions: Configure, Duplicate, Move up,
+Move down and Delete. Configure opens a panel under the bar. In React a drag
+handle at the left edge of each block moves it as well.
+
+## Custom blocks
+
+A block is a Zod schema plus the components that draw it. `defineBlock` takes
+both, and types `attrs` in every component from the schema.
+
+```tsx title="src/blocks/quote-block.tsx"
+import { z } from "zod";
+import { defineBlock } from "@/components/block-editor/block-nodes";
+
+export const quoteBlock = defineBlock({
+  name: "quote",
+  label: "Quote card",
+  group: "Media",
+  keywords: ["pull quote", "testimonial"],
+  description: "Show a quote with its author",
+  schema: z.object({
+    text: z.string().default(""),
+    author: z.string().default(""),
+    featured: z.boolean().default(false),
+  }),
+  config: "auto",
+  render: ({ attrs }) => (
+    <figure>
+      <blockquote>{attrs.text}</blockquote>
+      <figcaption>{attrs.author}</figcaption>
+    </figure>
+  ),
+});
+```
+
+In Vue `render` is a component, and `h` is enough for a small one:
+
+```ts title="src/blocks/quote-block.ts"
+import { z } from "zod";
+import { h } from "vue";
+import { defineBlock } from "@/components/block-editor/block-nodes";
+
+export const quoteBlock = defineBlock({
+  name: "quote",
+  label: "Quote card",
+  group: "Media",
+  keywords: ["pull quote", "testimonial"],
+  description: "Show a quote with its author",
+  schema: z.object({
+    text: z.string().default(""),
+    author: z.string().default(""),
+    featured: z.boolean().default(false),
+  }),
+  config: "auto",
+  render: ({ attrs }) =>
+    h("figure", [h("blockquote", attrs.text), h("figcaption", attrs.author)]),
+});
+```
+
+Pass a `.vue` component instead when the block wants a template:
+`render: QuoteBlock` with `import QuoteBlock from "./quote-block.vue"`.
+
+What `defineBlock` takes:
+
+| Field | Effect |
+| --- | --- |
+| `name` | The node name in the stored document. It cannot be a tiptap built-in such as `paragraph`, and it must be unique within `blocks`. |
+| `label`, `description`, `keywords` | What the picker shows and matches against. Both label and description are translated against `chelone.block_editor.blocks.<name>`. |
+| `group` | The heading the block sits under in the picker. |
+| `schema` | A Zod object whose output is the block's attrs. Give every key a `.default()`: a key without one gets `null` as its attr. |
+| `content` | A content expression such as `"block+"`, for a block that holds other blocks. Without it the block is an atom. |
+| `render` | The component for both modes. `edit` and `read` override it for one mode. |
+| `config` | `"auto"` for a form built from the schema, a component for a form of your own, or nothing for no Configure button. |
+| `icon` | The picker's icon. |
+
+### The auto config form
+
+`config: "auto"` builds the panel from the schema with `describeBlockAttrs`, one
+control per key:
+
+| Attr | Control |
+| --- | --- |
+| `z.boolean()` | A switch |
+| `z.enum(["a", "b"])` | A select over its choices |
+| `z.number()` | A number input |
+| `z.string()`, and a string with an email, url, date or datetime format | A text input of the matching type |
+| Anything else, such as an object or an array of objects | No control |
+
+A key with no control is still stored and still round trips; it simply has no
+field in the panel. Give the block a `config` component to edit those.
+
+### A block the editor does not know
+
+A stored document can hold a block the current `blocks` list has no schema for:
+one another app wrote, or one since removed. The editor keeps it as an
+`unknownBlock`, shows `Unknown block: <type>. It is kept on save.` in its place,
+and writes the node back unchanged when the form saves. Deleting that row is what
+drops it.
+
+## Stored content
+
+The document is user-supplied, and the editor renders it.
+
+- An image renders only from a safe source: `http`, `https`, `blob`, or a base64
+  raster `data:` URL. A `javascript:` source or an SVG data URL shows the empty
+  state instead. An uploaded file is stored in the document as a data URL, up to
+  5 MB.
+- An embed renders only from a YouTube or Vimeo link, and only in a sandboxed
+  iframe whose src is rebuilt from the video id alone. Any other URL shows the
+  empty state.
+- Nodes and marks come from the editor's own schema, so a stored document cannot
+  bring in a node the editor has no component for.
+
+These are browser-side checks, not a trust boundary. Validate the document on
+the server before you store it: the node types you accept, the image sources and
+the embed URLs.
+
+## Props
+
+<PropsTable name="BlockEditorInput" />
+
+## Installing the add-on
+
+There are two ways in. Both give you `<BlockEditorInput>`, `<BlockDocField>` and
+`defineBlock`.
+
+The registry copies the components into your project, and the code samples on
+these pages import them from the files it writes,
+`@/components/block-editor/block-editor-input`,
+`@/components/block-editor/block-doc-field` and
+`@/components/block-editor/block-nodes`. There is no `index.ts` in that folder:
+
+```bash
+npx shadcn add @chelone/block-editor
+```
+
+For Vue the item is the same name under the Vue registry:
+`npx shadcn-vue add @chelone/block-editor`. Either command installs the tiptap
+packages for you.
+
+Or import from the npm subpath, and install the optional peers yourself. For
+React:
+
+```bash
+pnpm add @tiptap/core @tiptap/extensions @tiptap/pm @tiptap/react \
+  @tiptap/starter-kit @tiptap/suggestion
+```
+
+```tsx
+import {
+  BlockDocField,
+  BlockEditorInput,
+  defineBlock,
+} from "@chelone/react/block-editor";
+```
+
+The React entry also needs `@dnd-kit/react` and `@dnd-kit/dom` for the block
+drag handle, and `recharts` for the chart block.
+
+For Vue:
+
+```bash
+pnpm add @tiptap/core @tiptap/extensions @tiptap/pm @tiptap/starter-kit \
+  @tiptap/suggestion @tiptap/vue-3
+```
+
+```ts
+import {
+  BlockDocField,
+  BlockEditorInput,
+  defineBlock,
+} from "@chelone/vue/block-editor";
+```
+
+The main `@chelone/react` and `@chelone/vue` entries never import tiptap, so an
+app that does not use the add-on does not need these packages.
+
+## React and Vue
+
+The same components, the same value contract and the same block definitions,
+with these differences:
+
+- React takes `className`, Vue takes `class`. `label` is a node in React and a
+  string or `false` in Vue, and Vue's `helper-text` is a string.
+- The Vue input has no `id`, `resource`, `isRequired`, `format`, `parse` or
+  `alwaysOn` prop and emits no events. Its label is translated against the
+  ambient resource, and a `required()` validator sets the required marker.
+- React moves a block with a drag handle as well as the bar. Vue has the bar's
+  Move up and Move down.
+- The React entry also ships the data blocks (`dataBlocks`, `recordListBlock`
+  and `referenceRecordBlock`) and `chartBlock`, which chart a resource. The Vue
+  entry ships the four default blocks.
+- `<BlockEditor>`, the editor the input builds on, takes `onChange` in React and
+  emits `change` in Vue. `<BlockDocField>` takes an `empty` node in React, and
+  the `empty` string with a `#empty` slot in Vue.
+
+The Vue [differences page](/docs/vue/differences#add-ons) lists the same changes
+with the other add-on notes.

@@ -31,6 +31,7 @@ export default [
       "json-field",
       "monaco-json-field",
       "mdx-field",
+      "block-doc-field",
       "cron-field",
       "diff-viewer",
       "image-field",
