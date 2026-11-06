@@ -6484,6 +6484,62 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "rich-text-input",
+      "type": "registry:block",
+      "title": "Chelone Rich Text",
+      "categories": ["chelone", "fields"],
+      "docs": "The field styles its content with rich-text.css, which the component imports itself and which reads the Chelone color tokens.",
+      "description": "The opt-in rich text add-on: RichTextField shows stored HTML sanitized with DOMPurify, or its text with stripTags. Installs dompurify.",
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "dompurify"],
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text.css",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-field",
+      "type": "registry:component",
+      "title": "Rich Text Field",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-utils",
+        "@chelone/rich-text.css"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "dompurify"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text.css",
+      "type": "registry:component",
+      "title": "Rich Text.css",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text.css",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "maps",
       "type": "registry:block",
       "title": "Chelone Maps",
