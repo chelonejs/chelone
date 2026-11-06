@@ -1,5 +1,19 @@
 # @chelone/rest
 
+## [0.7.0](https://github.com/chelonejs/chelone/compare/@chelone/rest@0.6.0...@chelone/rest@0.7.0) (2026-11-06)
+
+
+### Refactors
+
+* **core,rest,supabase:** use isRecord for the last four object checks ([ae12a1a](https://github.com/chelonejs/chelone/commit/ae12a1a3c7c05b76577fbe626fe596849c193e62))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.7.0
+
 ## [0.6.0](https://github.com/chelonejs/chelone/compare/@chelone/rest@0.5.0...@chelone/rest@0.6.0) (2026-11-04)
 
 
