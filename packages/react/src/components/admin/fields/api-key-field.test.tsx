@@ -2,7 +2,13 @@
  * P7d-T2 tests: `<ApiKeyField>` — masked API-key display with reveal + copy.
  */
 
-import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  defineMessages,
+  fakeDataProvider,
+  type LooseRecord,
+} from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -13,7 +19,7 @@ import { ApiKeyField } from "./api-key-field";
 
 afterEach(cleanup);
 
-function wrap(record: unknown) {
+function wrap(record: LooseRecord) {
   const i18n = createI18n({
     locale: "en",
     messages: { en: defineMessages({}) },
@@ -24,9 +30,7 @@ function wrap(record: unknown) {
       queryClient={new QueryClient()}
       i18n={i18n}
     >
-      <RecordContextProvider value={record as Record<string, unknown>}>
-        {children}
-      </RecordContextProvider>
+      <RecordContextProvider value={record}>{children}</RecordContextProvider>
     </CheloneProvider>
   );
 }
@@ -36,7 +40,10 @@ describe("<ApiKeyField />", () => {
     const { container } = render(<ApiKeyField source="apiKey" />, {
       wrapper: wrap({ id: 1, apiKey: "sk_live_abcd1234" }),
     });
-    const masked = container.querySelector("[data-api-key]") as HTMLElement;
+    const masked = elementOf(
+      container.querySelector("[data-api-key]"),
+      HTMLElement,
+    );
     expect(masked.textContent ?? "").toMatch(/^•+1234$/);
   });
 
@@ -44,9 +51,10 @@ describe("<ApiKeyField />", () => {
     const { container, getByText } = render(<ApiKeyField source="apiKey" />, {
       wrapper: wrap({ id: 1, apiKey: "sk_live_secret" }),
     });
-    const reveal = container.querySelector(
-      "[data-api-key-reveal]",
-    ) as HTMLButtonElement;
+    const reveal = elementOf(
+      container.querySelector("[data-api-key-reveal]"),
+      HTMLButtonElement,
+    );
     fireEvent.click(reveal);
     expect(getByText("sk_live_secret")).toBeTruthy();
   });

@@ -2,7 +2,12 @@
  * P7d-T1 tests: `<BooleanField>` — boolean shown as a check/close icon.
  */
 
-import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  defineMessages,
+  fakeDataProvider,
+  type LooseRecord,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -13,7 +18,7 @@ import { BooleanField } from "./boolean-field";
 
 afterEach(cleanup);
 
-function wrap(record: unknown) {
+function wrap(record: LooseRecord) {
   const i18n = createI18n({
     locale: "en",
     messages: {
@@ -29,9 +34,7 @@ function wrap(record: unknown) {
       queryClient={new QueryClient()}
       i18n={i18n}
     >
-      <RecordContextProvider value={record as Record<string, unknown>}>
-        {children}
-      </RecordContextProvider>
+      <RecordContextProvider value={record}>{children}</RecordContextProvider>
     </CheloneProvider>
   );
 }
