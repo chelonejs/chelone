@@ -1,0 +1,29 @@
+{
+  "name": "I18nKeyEditor",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Start with the list showing. Default `true`."
+    },
+    {
+      "name": "showExport",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Show the button that copies the typed translations as JSON. Default `true`."
+    },
+    {
+      "name": "store",
+      "type": "MissingKeyStore",
+      "optional": false,
+      "comment": "The store the app's `createI18n` writes to through `onMissingKey: store.record`."
+    }
+  ]
+}

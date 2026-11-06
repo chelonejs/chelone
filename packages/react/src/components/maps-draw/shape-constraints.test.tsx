@@ -5,6 +5,7 @@
  * test plays its part on the instance and reads the form value and the alert.
  */
 
+import { defined } from "@chelone/test-utils";
 import { act, cleanup, fireEvent, screen } from "@testing-library/react";
 import type { Polygon } from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -34,7 +35,7 @@ type Mounted = Awaited<ReturnType<typeof mountShapeInput>>;
 
 const ring = (...points: [number, number][]): Polygon => ({
   type: "Polygon",
-  coordinates: [[...points, points[0] as [number, number]]],
+  coordinates: [[...points, defined(points[0])]],
 });
 const triangle = ring([0, 0], [1, 0], [0, 1]);
 const square = ring([0, 0], [1, 0], [1, 1], [0, 1]);
@@ -96,7 +97,7 @@ describe("PolygonInput", () => {
     fireEvent.click(screen.getByRole("button", { name: "Edit" }));
     await act(async () => {
       const { draw } = mounted;
-      const id = draw().features[0]?.id as string;
+      const id = defined(draw().features[0]?.id);
       draw().replace(id, pentagon);
       draw().emitFinish(id, "dragCoordinate", "select");
     });

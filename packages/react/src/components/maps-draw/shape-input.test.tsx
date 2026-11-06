@@ -11,9 +11,11 @@ import {
   createI18n,
   createNotificationStore,
   fakeDataProvider,
+  isGeoFeatureCollection,
   mapMessages,
   rasterTileStyle,
 } from "@chelone/core";
+import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { useSelector } from "@tanstack/react-store";
 import {
@@ -43,7 +45,6 @@ import {
   storedValue,
   toolbarNames,
 } from "./__fixtures__/mount-shape-input";
-import type { DrawFeature } from "./geometry-ops";
 import { ShapeInput, type ShapeInputProps } from "./shape-input";
 import {
   LineStringInput,
@@ -175,7 +176,7 @@ const value = () =>
   JSON.parse(screen.getByTestId("value").textContent ?? "null");
 const dirty = () => screen.getByTestId("dirty").textContent;
 const button = (name: string) =>
-  screen.getByRole("button", { name }) as HTMLButtonElement;
+  elementOf(screen.getByRole("button", { name }), HTMLButtonElement);
 
 /** The id of the user's feature in the fake store. */
 const storedId = (features: FakeFeature[]) => {
@@ -495,7 +496,10 @@ describe("ShapeInput", () => {
     expect(draw().added[0]?.map((f) => f.geometry)).toEqual([square(20)]);
     const sources = Object.values(map().sources);
     expect(sources).toHaveLength(1);
-    const data = sources[0]?.data as { features: DrawFeature[] };
+    const data = defined(sources[0]).data;
+    if (!isGeoFeatureCollection(data)) {
+      throw new Error("Expected a GeoJSON feature collection source");
+    }
     expect(data.features.map((f) => f.geometry)).toEqual([holed]);
 
     fireEvent.click(button("Edit"));
@@ -631,26 +635,17 @@ describe("ShapeInput", () => {
     const { draw } = await setup();
 
     for (const name of ["select", "select-move"]) {
-      const flags = draw().modeOf(name)?.options.flags as Record<
-        string,
-        { feature: { rotateable?: boolean } }
-      >;
-      expect(flags.linestring?.feature.rotateable, `${name} linestring`).toBe(
+      const flags = defined(defined(draw().modeOf(name)).options.flags);
+      expect(flags.linestring?.feature?.rotateable, `${name} linestring`).toBe(
         true,
       );
-      expect(flags.polygon?.feature.rotateable, `${name} polygon`).toBe(true);
+      expect(flags.polygon?.feature?.rotateable, `${name} polygon`).toBe(true);
     }
     // The vertex tools belong to the edit mode only.
-    const edit = draw().modeOf("select")?.options.flags as Record<
-      string,
-      { feature: { coordinates?: { snappable?: boolean } } }
-    >;
-    expect(edit.polygon?.feature.coordinates?.snappable).toBe(true);
-    const move = draw().modeOf("select-move")?.options.flags as Record<
-      string,
-      { feature: { coordinates?: unknown } }
-    >;
-    expect(move.polygon?.feature.coordinates).toBeUndefined();
+    const edit = defined(defined(draw().modeOf("select")).options.flags);
+    expect(edit.polygon?.feature?.coordinates?.snappable).toBe(true);
+    const move = defined(defined(draw().modeOf("select-move")).options.flags);
+    expect(defined(move.polygon?.feature).coordinates).toBeUndefined();
   });
 
   it("deletes the selected feature from the toolbar", async () => {
@@ -887,7 +882,10 @@ describe("ShapeInput", () => {
     expect(draw().getSnapshot()).toEqual([]);
     const sources = Object.values(map().sources);
     expect(sources).toHaveLength(1);
-    const data = sources[0]?.data as { features: DrawFeature[] };
+    const data = defined(sources[0]).data;
+    if (!isGeoFeatureCollection(data)) {
+      throw new Error("Expected a GeoJSON feature collection source");
+    }
     const rings = data.features.map((f) =>
       f.geometry?.type === "Polygon" ? f.geometry.coordinates.length : 0,
     );

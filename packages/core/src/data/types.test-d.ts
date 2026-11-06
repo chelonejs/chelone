@@ -11,9 +11,10 @@ const resources = defineResources({
   comments: {},
 });
 
-describe("DataProvider inference", () => {
-  const dp = {} as DataProvider<typeof resources>;
+/** A provider of this registry, with no runtime behind it: a type test only calls it. */
+declare const dp: DataProvider<typeof resources>;
 
+describe("DataProvider inference", () => {
   it("getList returns the resource's record type", async () => {
     const result = await dp.getList("posts", {});
     expectTypeOf(result.data).toEqualTypeOf<Post[]>();

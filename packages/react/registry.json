@@ -1331,6 +1331,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/common/i18n-key-editor.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/common/icon-button-with-tooltip.tsx",
           "type": "registry:component"
         },
@@ -2767,6 +2771,26 @@
         }
       ],
       "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "i18n-key-editor",
+      "type": "registry:component",
+      "title": "I18n Key Editor",
+      "files": [
+        {
+          "path": "src/components/admin/common/i18n-key-editor.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/input",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6081,6 +6105,60 @@
       ],
       "dependencies": ["@chelone/core", "monaco-editor"],
       "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "charts",
+      "type": "registry:block",
+      "title": "Chelone Charts",
+      "categories": ["chelone", "components"],
+      "description": "The opt-in charts add-on: TrendChart draws a line or an area over time in a card, on shadcn's chart primitive. Installs recharts.",
+      "registryDependencies": [
+        "@chelone/card",
+        "@chelone/chart",
+        "@chelone/skeleton"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "recharts"],
+      "files": [
+        {
+          "path": "src/components/charts/chart-frame.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/charts/trend-chart.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "chart-frame",
+      "type": "registry:component",
+      "title": "Chart Frame",
+      "files": [
+        {
+          "path": "src/components/charts/chart-frame.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/card", "@chelone/skeleton"],
+      "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "trend-chart",
+      "type": "registry:component",
+      "title": "Trend Chart",
+      "files": [
+        {
+          "path": "src/components/charts/trend-chart.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/chart", "@chelone/chart-frame"],
+      "dependencies": ["@chelone/core", "recharts"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {

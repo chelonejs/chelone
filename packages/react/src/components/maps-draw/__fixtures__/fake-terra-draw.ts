@@ -12,7 +12,14 @@
  * are listed in `draws`; `resetFake()` empties the list between tests.
  */
 
-type Listener = (...args: never[]) => void;
+type EventArgs = {
+  ready: [];
+  finish: [id: FeatureId, context: { mode: string; action: string }];
+  change: [ids: (FeatureId | undefined)[], type: string, context?: unknown];
+  select: [id: FeatureId];
+  deselect: [id: FeatureId];
+};
+type Listener<E extends keyof EventArgs> = (...args: EventArgs[E]) => void;
 type FeatureId = string | number;
 
 export interface FakeFeature {
@@ -24,6 +31,14 @@ export interface FakeFeature {
 
 interface FakeModeOptions {
   modeName?: string;
+  flags?: {
+    [mode: string]: {
+      feature?: {
+        rotateable?: boolean;
+        coordinates?: { snappable?: boolean };
+      };
+    };
+  };
   [key: string]: unknown;
 }
 
@@ -73,7 +88,13 @@ export class TerraDraw {
   starts = 0;
   stops = 0;
   features: FakeFeature[] = [];
-  private listeners: Record<string, Listener[]> = {};
+  private readonly listeners: { [E in keyof EventArgs]: Listener<E>[] } = {
+    ready: [],
+    finish: [],
+    change: [],
+    select: [],
+    deselect: [],
+  };
   private nextId = 0;
   private running = false;
 
@@ -97,14 +118,16 @@ export class TerraDraw {
     return this.modes.find((mode) => mode.modeName === name);
   }
 
-  on(event: string, listener: Listener): void {
-    this.listeners[event] = [...(this.listeners[event] ?? []), listener];
+  on<E extends keyof EventArgs>(event: E, listener: Listener<E>): void {
+    const listeners: Listener<E>[] = this.listeners[event];
+    listeners.push(listener);
   }
 
-  off(event: string, listener: Listener): void {
-    this.listeners[event] = (this.listeners[event] ?? []).filter(
-      (l) => l !== listener,
-    );
+  off<E extends keyof EventArgs>(event: E, listener: Listener<E>): void {
+    const listeners: Listener<E>[] = this.listeners[event];
+    for (let i = listeners.length - 1; i >= 0; i--) {
+      if (listeners[i] === listener) listeners.splice(i, 1);
+    }
   }
 
   start(): void {
@@ -115,7 +138,7 @@ export class TerraDraw {
   stop(): void {
     this.stops += 1;
     this.running = false;
-    this.listeners = {};
+    for (const listeners of Object.values(this.listeners)) listeners.length = 0;
   }
 
   setMode(mode: string): void {
@@ -224,9 +247,12 @@ export class TerraDraw {
     this.fire("deselect", id);
   }
 
-  private fire(event: string, ...args: unknown[]): void {
-    for (const listener of [...(this.listeners[event] ?? [])]) {
-      (listener as (...a: unknown[]) => void)(...args);
+  private fire<E extends keyof EventArgs>(
+    event: E,
+    ...args: EventArgs[E]
+  ): void {
+    for (const listener of [...this.listeners[event]]) {
+      listener(...args);
     }
   }
 

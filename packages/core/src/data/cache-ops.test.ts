@@ -1,3 +1,4 @@
+import { defined } from "@chelone/test-utils";
 import { type InfiniteData, QueryClient } from "@tanstack/query-core";
 import { describe, expect, it } from "vitest";
 import {
@@ -486,12 +487,15 @@ describe("patchListEntries", () => {
       note: "new",
     });
     // A refetch-free write to a key the patch did not touch.
-    qc.setQueryData<GetListResult>(key, (old) => ({
-      ...(old as GetListResult),
-      data: (old as GetListResult).data.map((r) =>
-        r.id === 1 ? { ...r, status: "b" } : r,
-      ),
-    }));
+    qc.setQueryData<GetListResult>(key, (old) => {
+      const previous = defined(old);
+      return {
+        ...previous,
+        data: previous.data.map((r) =>
+          r.id === 1 ? { ...r, status: "b" } : r,
+        ),
+      };
+    });
     rollback();
     expect(qc.getQueryData<GetListResult>(key)?.data).toEqual([
       { id: 1, title: "One", status: "b" },

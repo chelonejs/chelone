@@ -82,3 +82,9 @@ export const ArrowRightIcon: FunctionalComponent = icon(() => [
   h("path", { d: "M5 12h14" }),
   h("path", { d: "m12 5 7 7-7 7" }),
 ]);
+
+/** A clock, `<RecordTimeline>`'s default entry icon. */
+export const ClockIcon: FunctionalComponent = icon(() => [
+  h("circle", { cx: "12", cy: "12", r: "10" }),
+  h("path", { d: "M12 6v6l4 2" }),
+]);

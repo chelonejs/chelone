@@ -210,7 +210,8 @@ describe("buildPivotTable", () => {
   });
 
   it("no records give empty keys and a null grand total", () => {
-    const table = buildPivotTable([] as Row[], {
+    const records: Row[] = [];
+    const table = buildPivotTable(records, {
       rowSource: "r",
       columnSource: "c",
     });
