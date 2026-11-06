@@ -210,3 +210,30 @@ it.each([
     expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
   },
 );
+
+// Both block editor pages are hand-written MDX whose prose names components,
+// and their install block comes from the page's registry frontmatter.
+it.each([
+  ["editing/block-editor-input", "BlockEditorInput"],
+  ["viewing/block-doc-field", "BlockDocField"],
+])(
+  "renders the %s page with its block-editor install block",
+  async (slug, title) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: title }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText("pnpm dlx shadcn@latest add @chelone/block-editor"),
+    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Vue" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+  },
+);
