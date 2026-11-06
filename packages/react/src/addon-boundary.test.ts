@@ -70,6 +70,7 @@ const ADDONS: {
       "@tiptap/starter-kit",
       "@tiptap/extensions",
       "@tiptap/suggestion",
+      "recharts",
     ],
   },
   {
