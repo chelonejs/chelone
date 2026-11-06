@@ -67,6 +67,7 @@ export default [
       "tree-list",
       "calendar-list",
       "kanban-board",
+      "approval-queue",
       "pivot-grid",
       "record-timeline",
       "tabbed-show-layout",

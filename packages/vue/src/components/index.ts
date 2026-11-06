@@ -382,6 +382,8 @@ export { default as TopToolbar } from "./admin/layout/top-toolbar.vue";
 export type { UserMenuProps } from "./admin/layout/user-menu.vue";
 export { default as UserMenu } from "./admin/layout/user-menu.vue";
 // --- admin: list ----------------------------------------------------------
+export type { ApprovalQueueProps } from "./admin/list/approval-queue.vue";
+export { default as ApprovalQueue } from "./admin/list/approval-queue.vue";
 export type { BulkActionsToolbarProps } from "./admin/list/bulk-actions-toolbar.vue";
 export { default as BulkActionsToolbar } from "./admin/list/bulk-actions-toolbar.vue";
 export type { BulkEditDrawerProps } from "./admin/list/bulk-edit-drawer.vue";

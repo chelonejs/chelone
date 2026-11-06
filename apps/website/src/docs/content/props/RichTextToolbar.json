@@ -1,0 +1,11 @@
+{
+  "name": "RichTextToolbar",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
