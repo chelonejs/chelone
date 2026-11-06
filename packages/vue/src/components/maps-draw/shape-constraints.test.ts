@@ -11,9 +11,11 @@ import {
   mapMessages,
   rasterTileStyle,
   required,
+  type ShapeValue,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
+import type { Polygon } from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, type VNode } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
@@ -49,9 +51,8 @@ afterEach(() => {
 });
 
 type Values = { shape: unknown };
-type Geometry = { type: string; coordinates?: unknown };
 
-const ring = (...points: [number, number][]): Geometry => ({
+const ring = (...points: [number, number][]): Polygon => ({
   type: "Polygon",
   coordinates: [[...points, points[0] as [number, number]]],
 });
@@ -65,7 +66,10 @@ const tiny = ring([0, 0], [0.0001, 0], [0.0001, 0.0001], [0, 0.0001]);
 const twoVertices = ring([0, 0], [1, 1]);
 
 /** Mounts `input` as the only field of a form under Admin and the maps provider. */
-async function mountShapeInput(input: () => VNode, shape: unknown = null) {
+async function mountShapeInput(
+  input: () => VNode,
+  shape: ShapeValue | null = null,
+) {
   let current: UseFormReturn<Values> | undefined;
   const FormHost = defineComponent({
     setup() {
@@ -134,7 +138,7 @@ async function mountShapeInput(input: () => VNode, shape: unknown = null) {
 type Mounted = Awaited<ReturnType<typeof mountShapeInput>>;
 
 /** Draws `geometry` with the polygon tool the way Terra Draw finishes one. */
-async function drawShape({ wrapper, draw }: Mounted, geometry: Geometry) {
+async function drawShape({ wrapper, draw }: Mounted, geometry: Polygon) {
   const polygon = wrapper
     .findAll("button")
     .find((b) => b.attributes("aria-label") === "Draw a polygon");
