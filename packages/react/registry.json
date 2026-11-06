@@ -1155,6 +1155,7 @@
         "@chelone/field",
         "@chelone/input",
         "@chelone/kbd",
+        "@chelone/label",
         "@chelone/pagination",
         "@chelone/popover",
         "@chelone/primitives",
@@ -1211,6 +1212,10 @@
         },
         {
           "path": "src/components/admin/auth/logout.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/auth/permission-matrix.tsx",
           "type": "registry:component"
         },
         {
@@ -1806,6 +1811,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/list/approval-queue.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/list/bulk-actions-toolbar.tsx",
           "type": "registry:component"
         },
@@ -2252,6 +2261,25 @@
       "registryDependencies": ["@chelone/dropdown-menu", "@chelone/lib-utils"],
       "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "permission-matrix",
+      "type": "registry:component",
+      "title": "Permission Matrix",
+      "files": [
+        {
+          "path": "src/components/admin/auth/permission-matrix.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/checkbox",
+        "@chelone/table",
+        "@chelone/tabs"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -4933,6 +4961,30 @@
       ],
       "dependencies": ["@chelone/react"],
       "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "approval-queue",
+      "type": "registry:component",
+      "title": "Approval Queue",
+      "files": [
+        {
+          "path": "src/components/admin/list/approval-queue.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/dual-approval-button",
+        "@chelone/label",
+        "@chelone/lib-utils",
+        "@chelone/textarea",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "devDependencies": ["@tanstack/react-query"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {

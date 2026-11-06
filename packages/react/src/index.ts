@@ -187,6 +187,10 @@ export {
   type LoginWithEmailProps,
 } from "./components/admin/auth/login-with-email";
 export { Logout, type LogoutProps } from "./components/admin/auth/logout";
+export {
+  PermissionMatrix,
+  type PermissionMatrixProps,
+} from "./components/admin/auth/permission-matrix";
 // P7g component surface — the CRUD action buttons + form toolbar + Confirm
 // dialog (ported from shadmin `admin/buttons` + `admin/feedback` onto chelone's
 // mutation/nav/save seams). SaveButton fires the ambient composed `submit`
@@ -767,6 +771,10 @@ export {
   UserMenu,
   type UserMenuProps,
 } from "./components/admin/layout/user-menu";
+export {
+  ApprovalQueue,
+  type ApprovalQueueProps,
+} from "./components/admin/list/approval-queue";
 // P7e component surface — list / datatable + list controls (ported from shadmin
 // onto the single `useListContext` + the list-slice hooks below). The datatable
 // is rewritten off `useListContext` directly (chelone has no `DataTableBase` /
