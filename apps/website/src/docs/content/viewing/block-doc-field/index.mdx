@@ -48,6 +48,24 @@ For a list cell, prefer [TextField](/docs/viewing/text-field) or a
 `<FunctionField>` that prints one line. `<BlockDocField>` mounts an editor per
 cell, so a datagrid of many rows gets heavy.
 
+## Data blocks read live data
+
+A stored data block holds no data: it names a resource in its attrs and reads it
+when the field renders. `referenceRecord` runs `useGetOne`, and `recordList` and
+`chart` run `useGetList`, each for the resource its attrs name. A show view
+therefore shows the record as it stands now, not as the document stored it, and
+a reader whose data provider refuses that resource gets the block's error state
+instead of data. The row caps are the input page's: 50 for a record list, 100
+for a chart.
+
+The field's `blocks` must name those blocks, the same list the editor that wrote
+the document had, or the stored block shows as an unknown block. Pass
+`[...defaultBlocks, ...dataBlocks]` to both. What each block draws and how it is
+configured is on [Data blocks](/docs/editing/block-editor-input#data-blocks).
+
+In a datagrid, a document with data blocks adds a read per cell on top of the
+editor each cell mounts.
+
 ## Props
 
 <PropsTable name="BlockDocField" />
