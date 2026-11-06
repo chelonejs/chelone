@@ -277,10 +277,11 @@ describe("RichTextInput", () => {
     const names = wrapper
       .findAll('[role="toolbar"] button')
       .map((each) => each.attributes("aria-label"));
-    expect(names).toEqual([
-      ...richTextToolbarItems.map((item) => item.defaultLabel),
-      "Image",
-    ]);
+    expect(names).toEqual(
+      richTextToolbarItems.flatMap((item) =>
+        item.id === "link" ? [item.defaultLabel, "Image"] : [item.defaultLabel],
+      ),
+    );
   });
 
   it("the toolbar slot replaces the default toolbar", async () => {

@@ -243,4 +243,19 @@ describe("rich text images", () => {
       expect(wrapper.get("img").attributes("width")).toBe("60"),
     );
   });
+
+  it("turning images off after mount rebuilds the editor without image support", async () => {
+    const { wrapper, setProps } = await mountInput({}, { body: "<p>kept</p>" });
+    expect(wrapper.find('button[aria-label="Image"]').exists()).toBe(true);
+    setProps({ images: false });
+    await vi.waitFor(() =>
+      expect(wrapper.find('button[aria-label="Image"]').exists()).toBe(false),
+    );
+    expect(wrapper.get('[role="textbox"]').text()).toBe("kept");
+    setProps({ images: true });
+    await vi.waitFor(() =>
+      expect(wrapper.find('button[aria-label="Image"]').exists()).toBe(true),
+    );
+    expect(wrapper.get('[role="textbox"]').text()).toBe("kept");
+  });
 });

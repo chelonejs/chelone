@@ -71,7 +71,7 @@ export type RichTextImageInput =
   | { src: string; alt?: string; title?: string };
 
 /** What a finished upload left on its image: the stored source, or `null` when it failed. */
-export interface Stored {
+export interface RichTextStoredImage {
   src: string | null;
   id: string | null;
 }
@@ -83,13 +83,13 @@ export interface Stored {
  */
 interface UploadState {
   pending: ReadonlySet<string>;
-  settled: Map<string, Stored>;
+  settled: Map<string, RichTextStoredImage>;
   listeners: Set<() => void>;
 }
 
 const uploadStates = new WeakMap<object, UploadState>();
 
-export function uploadStateOf(editor: object): UploadState {
+export function richTextImageUploadState(editor: object): UploadState {
   const existing = uploadStates.get(editor);
   if (existing) return existing;
   const created: UploadState = {
@@ -101,8 +101,12 @@ export function uploadStateOf(editor: object): UploadState {
   return created;
 }
 
-export function setUploading(editor: object, src: string, uploading: boolean) {
-  const state = uploadStateOf(editor);
+export function setRichTextImageUploading(
+  editor: object,
+  src: string,
+  uploading: boolean,
+) {
+  const state = richTextImageUploadState(editor);
   const pending = new Set(state.pending);
   if (uploading) pending.add(src);
   else pending.delete(src);
@@ -123,7 +127,7 @@ function readDataUrl(file: File): Promise<string> {
 }
 
 /** Without `uploadFn` the file becomes a data URL, which only some raster types may be. */
-export function canBeDataUrl(file: File, allowBase64: boolean): boolean {
+function canBeDataUrl(file: File, allowBase64: boolean): boolean {
   const type = (file.type.split(";")[0] ?? "").trim();
   return (
     !allowBase64 ||
@@ -131,7 +135,7 @@ export function canBeDataUrl(file: File, allowBase64: boolean): boolean {
   );
 }
 
-export async function storeFile(
+export async function storeRichTextImageFile(
   file: File,
   { rules, uploadFn }: RichTextImageConfig,
 ): Promise<RichTextUpload> {
@@ -154,7 +158,7 @@ function triggerDownload(href: string, fileName: string) {
   anchor.click();
 }
 
-export async function downloadImage(src: string, alt: string) {
+export async function downloadRichTextImage(src: string, alt: string) {
   try {
     const blob = await (await fetch(src)).blob();
     const url = URL.createObjectURL(blob);
@@ -182,7 +186,7 @@ async function toPng(blob: Blob): Promise<Blob> {
   );
 }
 
-export async function copyImage(src: string) {
+export async function copyRichTextImage(src: string) {
   const blob = await toPng(await (await fetch(src)).blob());
   await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
 }
@@ -271,4 +275,16 @@ export function richTextImageAttributes() {
     width: dimension("width"),
     height: dimension("height"),
   };
+}
+
+/** Narrows options from the editor library's untyped extension boundary. */
+export function isRichTextImageConfigSource(
+  options: unknown,
+): options is { config: () => RichTextImageConfig } {
+  return (
+    typeof options === "object" &&
+    options !== null &&
+    "config" in options &&
+    typeof options.config === "function"
+  );
 }

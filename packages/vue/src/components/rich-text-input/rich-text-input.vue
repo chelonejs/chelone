@@ -14,6 +14,7 @@ export interface RichTextInputProps<
   readOnly?: boolean;
   /** Shown while the editor is empty. */
   placeholder?: string;
+  /** Image insertion and upload settings. False leaves images out of the default schema. */
   images?: boolean | RichTextImageOptions;
   /**
    * Extra tiptap editor options, spread last: `extensions` here replaces the
@@ -54,7 +55,7 @@ import {
 import { Placeholder } from "@tiptap/extensions";
 import { TextSelection } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
-import { EditorContent, useEditor } from "@tiptap/vue-3";
+import { Editor as VueEditor, EditorContent, useEditor } from "@tiptap/vue-3";
 import { computed, type VNode, watch } from "vue";
 import { useInput } from "../../form/use-input";
 import { useResourceContext } from "../../resource-context";
@@ -99,7 +100,7 @@ const starterKitOptions = {
   heading: { levels: [...richTextStarterKitOptions.heading.levels] },
 };
 
-const editor = useEditor({
+const buildEditorOptions = (): Partial<EditorOptions> => ({
   extensions: [
     StarterKit.configure(starterKitOptions),
     ...(props.images === false ? [] : [RichTextImage.configure({ config: () => resolveRichTextImageConfig(props.images) })]),
@@ -124,6 +125,18 @@ const editor = useEditor({
     props.editorOptions?.onBlur?.(event);
   },
 });
+
+const editor = useEditor(buildEditorOptions());
+watch(
+  () => props.images === false,
+  () => {
+    const current = editor.value;
+    if (!current) return;
+    const content = getRichTextHtml(current);
+    current.destroy();
+    editor.value = new VueEditor({ ...buildEditorOptions(), content });
+  },
+);
 
 // `setEditable` and the placeholder text dispatch nothing, so an empty
 // transaction tells the toolbar and the placeholder decoration to read again.

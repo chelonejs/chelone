@@ -1,7 +1,8 @@
 import {
   clampRichTextImageWidth,
-  copyImage,
-  downloadImage,
+  copyRichTextImage,
+  downloadRichTextImage,
+  isRichTextImageConfigSource,
   isSafeImageSrc,
   prepareRichTextImages,
   type RichTextImageActionId,
@@ -9,14 +10,14 @@ import {
   type RichTextImageError,
   type RichTextImageInput,
   type RichTextImageOptions,
+  type RichTextStoredImage,
   type RichTextUploadResult,
   resolveRichTextImageConfig,
   richTextImageActions,
   richTextImageAttributes,
-  type Stored,
-  setUploading,
-  storeFile,
-  uploadStateOf,
+  richTextImageUploadState,
+  setRichTextImageUploading,
+  storeRichTextImageFile,
 } from "@chelone/core";
 import type { Editor, JSONContent } from "@tiptap/core";
 import { getHTMLFromFragment, isNodeEmpty, nodeInputRule } from "@tiptap/core";
@@ -94,9 +95,9 @@ function patchImage(
   editor: Editor,
   type: string,
   from: string,
-  stored: Stored,
+  stored: RichTextStoredImage,
 ) {
-  uploadStateOf(editor).settled.set(from, stored);
+  richTextImageUploadState(editor).settled.set(from, stored);
   if (editor.isDestroyed) return;
   const { state, view } = editor;
   let position: number | null = null;
@@ -121,16 +122,16 @@ async function storeAndPatch(
   blobUrl: string,
   config: RichTextImageConfig,
 ) {
-  setUploading(editor, blobUrl, true);
+  setRichTextImageUploading(editor, blobUrl, true);
   try {
-    const upload = await storeFile(file, config);
+    const upload = await storeRichTextImageFile(file, config);
     patchImage(editor, type, blobUrl, { src: upload.src, id: upload.id });
   } catch (cause) {
     // No blob: source stays behind; the view shows its error state.
     patchImage(editor, type, blobUrl, { src: null, id: null });
     config.onImageError?.({ reason: "upload", file, cause });
   } finally {
-    setUploading(editor, blobUrl, false);
+    setRichTextImageUploading(editor, blobUrl, false);
     URL.revokeObjectURL(blobUrl);
   }
 }
@@ -270,7 +271,7 @@ const RichTextImage = Image.extend<RichTextImageExtensionOptions>({
           if (!transactions.some((transaction) => transaction.docChanged)) {
             return null;
           }
-          const { settled } = uploadStateOf(editor);
+          const { settled } = richTextImageUploadState(editor);
           if (settled.size === 0) return null;
           const fixes: { pos: number; attrs: Attrs }[] = [];
           state.doc.descendants((node, pos) => {
@@ -289,7 +290,7 @@ const RichTextImage = Image.extend<RichTextImageExtensionOptions>({
         // An upload still running when the editor goes gives its blob: URL back.
         view: () => ({
           destroy: () => {
-            for (const src of uploadStateOf(editor).pending) {
+            for (const src of richTextImageUploadState(editor).pending) {
               URL.revokeObjectURL(src);
             }
           },
@@ -299,24 +300,13 @@ const RichTextImage = Image.extend<RichTextImageExtensionOptions>({
   },
 });
 
-function hasConfig(
-  options: unknown,
-): options is Pick<RichTextImageExtensionOptions, "config"> {
-  return (
-    typeof options === "object" &&
-    options !== null &&
-    "config" in options &&
-    typeof options.config === "function"
-  );
-}
-
 /** The image settings in force for `editor`, or `null` when it has no image extension. */
 function getRichTextImageConfig(editor: Editor): RichTextImageConfig | null {
   const extension = editor.extensionManager.extensions.find(
     (candidate) => candidate.name === RichTextImage.name,
   );
   const options = extension?.options;
-  return hasConfig(options) ? options.config() : null;
+  return isRichTextImageConfigSource(options) ? options.config() : null;
 }
 
 /**
@@ -467,7 +457,7 @@ function ImageView({
   });
   const subscribe = useMemo(
     () => (listener: () => void) => {
-      const { listeners } = uploadStateOf(editor);
+      const { listeners } = richTextImageUploadState(editor);
       listeners.add(listener);
       return () => void listeners.delete(listener);
     },
@@ -475,7 +465,7 @@ function ImageView({
   );
   const uploading = useSyncExternalStore(
     subscribe,
-    () => src !== null && uploadStateOf(editor).pending.has(src),
+    () => src !== null && richTextImageUploadState(editor).pending.has(src),
   );
 
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
@@ -564,8 +554,9 @@ function ImageView({
     if (id === "remove") deleteNode();
     else if (src === null) return;
     else if (id === "view") setViewing(true);
-    else if (id === "download") void downloadImage(src, alt).catch(ignore);
-    else if (id === "copyImage") void copyImage(src).catch(ignore);
+    else if (id === "download")
+      void downloadRichTextImage(src, alt).catch(ignore);
+    else if (id === "copyImage") void copyRichTextImage(src).catch(ignore);
     else void navigator.clipboard.writeText(src).catch(ignore);
   }
 

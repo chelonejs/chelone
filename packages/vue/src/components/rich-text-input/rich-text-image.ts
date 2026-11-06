@@ -1,14 +1,15 @@
 import {
+  isRichTextImageConfigSource,
   isSafeImageSrc,
   prepareRichTextImages,
   type RichTextImageConfig,
   type RichTextImageInput,
+  type RichTextStoredImage,
   resolveRichTextImageConfig,
   richTextImageAttributes,
-  type Stored,
-  setUploading,
-  storeFile,
-  uploadStateOf,
+  richTextImageUploadState,
+  setRichTextImageUploading,
+  storeRichTextImageFile,
 } from "@chelone/core";
 import {
   type Editor,
@@ -33,8 +34,8 @@ declare module "@tiptap/core" {
   }
 }
 
-function patch(editor: Editor, source: string, stored: Stored) {
-  uploadStateOf(editor).settled.set(source, stored);
+function patch(editor: Editor, source: string, stored: RichTextStoredImage) {
+  richTextImageUploadState(editor).settled.set(source, stored);
   if (editor.isDestroyed) return;
   const transaction = editor.state.tr.setMeta("addToHistory", false);
   editor.state.doc.descendants((node, pos) => {
@@ -51,14 +52,14 @@ async function upload(
   src: string,
   config: RichTextImageConfig,
 ) {
-  setUploading(editor, src, true);
+  setRichTextImageUploading(editor, src, true);
   try {
-    patch(editor, src, await storeFile(file, config));
+    patch(editor, src, await storeRichTextImageFile(file, config));
   } catch (cause) {
     patch(editor, src, { src: null, id: null });
     config.onImageError?.({ reason: "upload", file, cause });
   } finally {
-    setUploading(editor, src, false);
+    setRichTextImageUploading(editor, src, false);
     URL.revokeObjectURL(src);
   }
 }
@@ -173,7 +174,9 @@ export const RichTextImage = Image.extend<Options>({
           const tr = state.tr.setMeta("addToHistory", false);
           state.doc.descendants((node, pos) => {
             if (node.type.name !== this.name) return;
-            const stored = uploadStateOf(editor).settled.get(node.attrs.src);
+            const stored = richTextImageUploadState(editor).settled.get(
+              node.attrs.src,
+            );
             if (stored)
               tr.setNodeMarkup(pos, undefined, { ...node.attrs, ...stored });
           });
@@ -181,7 +184,7 @@ export const RichTextImage = Image.extend<Options>({
         },
         view: () => ({
           destroy: () => {
-            for (const src of uploadStateOf(editor).pending)
+            for (const src of richTextImageUploadState(editor).pending)
               URL.revokeObjectURL(src);
           },
         }),
@@ -196,10 +199,8 @@ export function getRichTextImageConfig(
   const extension = editor.extensionManager.extensions.find(
     (item) => item.name === RichTextImage.name,
   );
-  if (!extension) return null;
-  // Extension options are supplied by tiptap's untyped extension boundary.
-  const options: Options = extension.options;
-  return options.config();
+  const options = extension?.options;
+  return isRichTextImageConfigSource(options) ? options.config() : null;
 }
 
 export function getRichTextHtml(editor: Editor): string {

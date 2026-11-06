@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { richTextImageActions, type RichTextImageActionId, downloadImage, copyImage, clampRichTextImageWidth, uploadStateOf, isSafeImageSrc } from "@chelone/core";
+import { richTextImageActions, type RichTextImageActionId, downloadRichTextImage, copyRichTextImage, clampRichTextImageWidth, richTextImageUploadState, isSafeImageSrc } from "@chelone/core";
 import { useTranslate } from "../../i18n/use-translate";
 import { NodeViewWrapper, nodeViewProps } from "@tiptap/vue-3";
 import { computed, onScopeDispose, ref, useTemplateRef, nextTick, watch } from "vue";
@@ -24,7 +24,7 @@ const failedSrc = ref<string | null>(null);
 const image = useTemplateRef<HTMLImageElement>("image");
 const props = defineProps(nodeViewProps);
 const revision = ref(0);
-const uploads = uploadStateOf(props.editor);
+const uploads = richTextImageUploadState(props.editor);
 const refresh = () => { revision.value++; };
 props.editor.on("transaction", refresh);
 onScopeDispose(() => props.editor.off("transaction", refresh));
@@ -84,8 +84,8 @@ function run(action: RichTextImageActionId) {
   const source = src.value;
   if (!source) return;
   if (action === "view") { viewing.value = true; return; }
-  const operation = action === "download" ? downloadImage(source, props.node.attrs.alt ?? "")
-    : action === "copyImage" ? copyImage(source)
+  const operation = action === "download" ? downloadRichTextImage(source, props.node.attrs.alt ?? "")
+    : action === "copyImage" ? copyRichTextImage(source)
     : navigator.clipboard.writeText(source);
   void operation.catch(() => {});
 }

@@ -6874,6 +6874,7 @@
         "@chelone/lib-utils",
         "@chelone/rich-text-commands",
         "@chelone/rich-text-icons",
+        "@chelone/rich-text-image",
         "@chelone/rich-text-image-form",
         "@chelone/rich-text-link-form"
       ],
