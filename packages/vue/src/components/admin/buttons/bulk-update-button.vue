@@ -47,7 +47,7 @@ export interface BulkUpdateButtonProps {
  * error re-notifies + `refresh()`es to resync.
  */
 
-import { type Identifier, updateRecordsInCache } from "@chelone/core";
+import { updateRecordsInCache } from "@chelone/core";
 import { computed } from "vue";
 import { useCheloneContext, useCheloneNotifications } from "../../../context";
 import { useUpdateMany } from "../../../data/mutations";
@@ -88,7 +88,6 @@ async function onClick(event: MouseEvent): Promise<void> {
   const ids = list.selectedIds ?? [];
   if (ids.length === 0) return;
   if (props.mutationMode === "undoable") {
-    const undoableIds = ids as Identifier[];
     const data = props.data ?? {};
     runUndoable({
       queryKeys: [[resource]],
@@ -96,16 +95,16 @@ async function onClick(event: MouseEvent): Promise<void> {
         updateRecordsInCache(
           ctx.queryClient,
           resource,
-          undoableIds,
+          ids,
           data,
         ),
       commit: () =>
         ctx.dataProvider.updateMany(resource, {
-          ids: undoableIds,
+          ids,
           data,
         }),
       message: "chelone.notification.updated",
-      messageArgs: { smart_count: undoableIds.length },
+      messageArgs: { smart_count: ids.length },
       onCommitError: () => {
         notifications?.notify("chelone.notification.http_error", { type: "error" });
         refresh();
