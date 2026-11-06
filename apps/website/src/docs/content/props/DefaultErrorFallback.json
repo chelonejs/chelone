@@ -1,0 +1,23 @@
+{
+  "name": "DefaultErrorFallback",
+  "props": [
+    {
+      "name": "error",
+      "type": "Error",
+      "optional": false,
+      "comment": "The thrown error."
+    },
+    {
+      "name": "errorInfo",
+      "type": "ErrorInfo | null",
+      "optional": false,
+      "comment": "React's captured component stack (dev-facing), or null before capture."
+    },
+    {
+      "name": "resetErrorBoundary",
+      "type": "() => void",
+      "optional": false,
+      "comment": "Reset the boundary imperatively (in addition to the location auto-reset)."
+    }
+  ]
+}

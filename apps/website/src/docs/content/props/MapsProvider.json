@@ -1,0 +1,35 @@
+{
+  "name": "MapsProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "geocoder",
+      "type": "GeocodingProvider",
+      "optional": true,
+      "comment": "The geocoding service the `maps/osm` inputs search with."
+    },
+    {
+      "name": "mapStyle",
+      "type": "MapStyleInput",
+      "optional": true,
+      "comment": "The basemap: a MapLibre style URL, or an object from `rasterTileStyle`."
+    },
+    {
+      "name": "overpass",
+      "type": "OverpassProvider",
+      "optional": true,
+      "comment": "The Overpass service the `maps/osm` operators query OpenStreetMap with."
+    },
+    {
+      "name": "router",
+      "type": "RoutingProvider",
+      "optional": true,
+      "comment": "The routing service `LineStringInput` snaps drawn lines to roads with."
+    }
+  ]
+}

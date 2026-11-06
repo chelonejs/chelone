@@ -8,6 +8,11 @@
     "../../../packages/react/src/rich-text-input.ts",
     "../../../packages/react/src/kanban.ts",
     "../../../packages/react/src/block-editor.ts",
+    "../../../packages/react/src/maps.ts",
+    "../../../packages/react/src/maps-draw.ts",
+    "../../../packages/react/src/maps-osm.ts",
+    "../../../packages/react/src/supabase.ts",
+    "../../../packages/react/src/csv-import.ts",
     "../../../packages/react/src/inspector.ts"
   ],
   "tsconfig": "../../../packages/react/tsconfig.json",
