@@ -1,11 +1,11 @@
 import { SidebarToggleButton } from "@chelone/react";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { PreviewSidebarProvider } from "@/docs/mdx/preview-sidebar-provider";
 
-/** `<SidebarToggleButton>` is the icon button that opens and closes the sidebar. */
+/** `<SidebarToggleButton>` is the icon button that opens and closes the sidebar; here it drives the docs sidebar. */
 export default function SidebarToggleButtonDemo() {
   return (
-    <SidebarProvider className="min-h-0 w-auto">
+    <PreviewSidebarProvider className="min-h-0 w-auto">
       <SidebarToggleButton />
-    </SidebarProvider>
+    </PreviewSidebarProvider>
   );
 }

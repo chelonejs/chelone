@@ -1,11 +1,11 @@
 import { ResourceMenuItemGroup } from "@chelone/react";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { PreviewSidebarProvider } from "@/docs/mdx/preview-sidebar-provider";
 
 /** `<ResourceMenuItemGroup>` is a collapsible "Content" sidebar section linking to the posts and authors lists. */
 export default function ResourceMenuItemGroupDemo() {
   return (
-    <SidebarProvider className="min-h-0 w-56">
+    <PreviewSidebarProvider className="min-h-0 w-56">
       <ResourceMenuItemGroup label="Content" resources={["posts", "authors"]} />
-    </SidebarProvider>
+    </PreviewSidebarProvider>
   );
 }
