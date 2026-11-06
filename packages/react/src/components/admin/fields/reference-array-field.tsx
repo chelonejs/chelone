@@ -69,7 +69,7 @@ function ReferenceArrayField<RecordType extends LooseRecord = LooseRecord>(
 ) {
   const { source, reference, record, children, sort, filter, perPage } = props;
 
-  const value: unknown = useFieldValue({
+  const value = useFieldValue({
     source: source as SourceProp<RecordType>,
     record,
   });

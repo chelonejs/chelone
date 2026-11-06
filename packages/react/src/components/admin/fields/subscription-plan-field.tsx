@@ -1,7 +1,7 @@
 import type { LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import { Badge } from "@/components/ui/badge";
-import type { FieldProps } from "@/lib/field-types";
+import type { ElementFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
@@ -17,8 +17,10 @@ interface SubscriptionPlan {
 
 interface SubscriptionPlanFieldProps<
   RecordType extends LooseRecord = LooseRecord,
-> extends FieldProps<RecordType>,
-    Omit<HTMLAttributes<HTMLSpanElement>, "color"> {
+> extends ElementFieldProps<
+    RecordType,
+    Omit<HTMLAttributes<HTMLSpanElement>, "color">
+  > {
   /** Available plans to look up by id. */
   plans: readonly SubscriptionPlan[];
 }
@@ -44,7 +46,7 @@ function SubscriptionPlanField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: SubscriptionPlanFieldProps<RecordType>) {
-  const value: unknown = useFieldValue<LooseRecord>({
+  const value = useFieldValue({
     defaultValue,
     source,
     record,

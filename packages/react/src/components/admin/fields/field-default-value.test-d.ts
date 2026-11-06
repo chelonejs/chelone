@@ -7,6 +7,7 @@
 import type { SourceProp, SourceValue } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import type { ApiKeyFieldProps } from "./api-key-field";
+import type { ArrayFieldProps } from "./array-field";
 import type { BadgeFieldProps } from "./badge-field";
 import type { BooleanFieldProps } from "./boolean-field";
 import type { ChipFieldProps } from "./chip-field";
@@ -92,6 +93,12 @@ describe("value-taking field props", () => {
       PostValue | undefined
     >();
     expectTypeOf<RatingFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
+      PostValue | undefined
+    >();
+  });
+
+  it("ArrayField defaultValue is the record's value type", () => {
+    expectTypeOf<ArrayFieldProps<Post>["defaultValue"]>().toEqualTypeOf<
       PostValue | undefined
     >();
   });
