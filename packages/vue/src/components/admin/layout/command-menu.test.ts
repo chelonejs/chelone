@@ -361,8 +361,10 @@ describe("CommandMenu resources", () => {
 describe("CommandMenu record search", () => {
   const searching = () =>
     makeDataProvider((resource, params) => {
-      const filter = (params.filter ?? {}) as Record<string, string>;
-      const needle = Object.values(filter)[0]?.toLowerCase() ?? "";
+      const search = Object.values(params.filter ?? {})[0] ?? "";
+      if (typeof search !== "string")
+        throw new Error("Expected a search string");
+      const needle = search.toLowerCase();
       return {
         data:
           resource === "posts"
