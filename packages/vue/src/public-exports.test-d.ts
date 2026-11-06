@@ -17,6 +17,7 @@ import type {
   AdminProps,
   ApplicationUpdatedNotificationProps,
   ApprovalQueueProps,
+  AssistantProps,
   BooleanInputProps,
   BulkActionsToolbarProps,
   BulkEditDrawerProps,
@@ -350,6 +351,14 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf(barrel.useRegisterCommand)
       .parameter(0)
       .toEqualTypeOf<MaybeRefOrGetter<CommandMenuAction>>();
+  });
+
+  it("Assistant ships beside its props", () => {
+    expectTypeOf<AssistantProps>().toHaveProperty("transport");
+    expectTypeOf<AssistantProps>().toHaveProperty("tools");
+    expectTypeOf<AssistantProps>().toHaveProperty("placement");
+    expectTypeOf<AssistantProps>().toHaveProperty("maxToolRounds");
+    expectTypeOf(barrel.Assistant).not.toBeAny();
   });
 
   it("keeps internal helpers out of the barrel", () => {

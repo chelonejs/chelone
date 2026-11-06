@@ -344,6 +344,8 @@ export type { AppBarProps } from "./admin/layout/app-bar.vue";
 export { default as AppBar } from "./admin/layout/app-bar.vue";
 export type { AppSidebarProps } from "./admin/layout/app-sidebar.vue";
 export { default as AppSidebar } from "./admin/layout/app-sidebar.vue";
+export type { AssistantProps } from "./admin/layout/assistant.vue";
+export { default as Assistant } from "./admin/layout/assistant.vue";
 export type { CommandMenuProps } from "./admin/layout/command-menu.vue";
 export { default as CommandMenu } from "./admin/layout/command-menu.vue";
 export type { DashboardMenuItemProps } from "./admin/layout/dashboard-menu-item.vue";
