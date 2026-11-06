@@ -8,7 +8,12 @@
  * `<List>` (the Task-5 controller harness) so the ambient `ListContext` is live.
  */
 
-import { defineResources, fakeDataProvider } from "@chelone/core";
+import {
+  defineResources,
+  type Exporter,
+  fakeDataProvider,
+} from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import {
@@ -124,8 +129,9 @@ describe("<BulkDeleteButton>", () => {
 
     await wrapper.find('[data-slot="confirm-accept"]').trigger("click");
     await vi.waitFor(() => expect(deleteManySpy).toHaveBeenCalledTimes(1));
-    expect(deleteManySpy.mock.calls[0]![0]).toBe("posts");
-    expect(deleteManySpy.mock.calls[0]![1]).toMatchObject({ ids: [1, 3] });
+    const [resource, params] = defined(deleteManySpy.mock.calls[0]);
+    expect(resource).toBe("posts");
+    expect(params).toMatchObject({ ids: [1, 3] });
     await vi.waitFor(() => expect(capture.list?.selectedIds).toEqual([]));
   });
 
@@ -201,8 +207,9 @@ describe("<BulkUpdateButton>", () => {
     await wrapper.find('[data-slot="bulk-update-button"]').trigger("click");
 
     await vi.waitFor(() => expect(updateManySpy).toHaveBeenCalledTimes(1));
-    expect(updateManySpy.mock.calls[0]![0]).toBe("posts");
-    expect(updateManySpy.mock.calls[0]![1]).toMatchObject({
+    const [resource, params] = defined(updateManySpy.mock.calls[0]);
+    expect(resource).toBe("posts");
+    expect(params).toMatchObject({
       ids: [2, 4],
       data: { views: 0 },
     });
@@ -213,7 +220,7 @@ describe("<BulkUpdateButton>", () => {
 describe("<BulkExportButton>", () => {
   it("fetches the selected rows via getMany and runs the exporter", async () => {
     const capture: { list?: ListContextValue } = {};
-    const exporter = vi.fn();
+    const exporter = vi.fn<Exporter>();
     const { wrapper, dataProvider } = mountAdmin(() =>
       h(
         List,
@@ -234,16 +241,16 @@ describe("<BulkExportButton>", () => {
     await wrapper.find('[data-slot="bulk-export-button"]').trigger("click");
 
     await vi.waitFor(() => expect(getManySpy).toHaveBeenCalledTimes(1));
-    expect(getManySpy.mock.calls[0]![1]).toMatchObject({ ids: [1, 2] });
+    expect(defined(getManySpy.mock.calls[0])[1]).toMatchObject({ ids: [1, 2] });
     await vi.waitFor(() => expect(exporter).toHaveBeenCalledTimes(1));
-    expect(exporter.mock.calls[0]![0]).toHaveLength(2);
+    expect(defined(exporter.mock.calls[0])[0]).toHaveLength(2);
   });
 });
 
 describe("<ExportButton>", () => {
   it("fetches the filtered/sorted list via getList and runs the exporter", async () => {
     const capture: { list?: ListContextValue } = {};
-    const exporter = vi.fn();
+    const exporter = vi.fn<Exporter>();
     const { wrapper, dataProvider } = mountAdmin(() =>
       h(
         List,
@@ -262,11 +269,11 @@ describe("<ExportButton>", () => {
     await wrapper.find('[data-slot="export-button"]').trigger("click");
 
     await vi.waitFor(() => expect(getListSpy).toHaveBeenCalledTimes(1));
-    expect(getListSpy.mock.calls[0]![1]).toMatchObject({
+    expect(defined(getListSpy.mock.calls[0])[1]).toMatchObject({
       pagination: { page: 1, perPage: 1000 },
     });
     await vi.waitFor(() => expect(exporter).toHaveBeenCalledTimes(1));
-    expect(exporter.mock.calls[0]![0]).toHaveLength(5);
+    expect(defined(exporter.mock.calls[0])[0]).toHaveLength(5);
   });
 
   it("is disabled when the list is empty", async () => {
