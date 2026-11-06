@@ -15,6 +15,14 @@ function newQueryClient() {
   return new QueryClient({ defaultOptions: { queries: { retry: false } } });
 }
 
+/** The reason a settled query rejected with, failing at this line when it fulfilled. */
+function rejectedReason<T>(result: PromiseSettledResult<T>): Error {
+  if (result.status === "fulfilled") {
+    throw new Error("Expected a rejected query, got a fulfilled one");
+  }
+  return result.reason;
+}
+
 function setup() {
   const dataProvider = fakeDataProvider<typeof resources>({
     posts: [
@@ -242,7 +250,7 @@ describe("getManyAggregateOptions", () => {
     expect(c.getMany).toHaveBeenCalledTimes(1);
     expect(results.map((r) => r.status)).toEqual(["rejected", "rejected"]);
     for (const result of results) {
-      expect((result as PromiseRejectedResult).reason).toBe(error);
+      expect(rejectedReason(result)).toBe(error);
     }
   });
 
@@ -282,7 +290,7 @@ describe("getManyAggregateOptions", () => {
     ]);
 
     expect(results.map((r) => r.status)).toEqual(["rejected", "rejected"]);
-    const reasons = results.map((r) => (r as PromiseRejectedResult).reason);
+    const reasons = results.map(rejectedReason);
     expect(reasons[0]).toBeInstanceOf(TypeError);
     expect(reasons[1]).toBe(reasons[0]);
   });

@@ -1,3 +1,4 @@
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/query-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { removeRecordsFromCache } from "./cache-ops";
@@ -209,8 +210,8 @@ describe("startUndoableMutation", () => {
     return qc;
   };
   const ids = (qc: QueryClient) =>
-    (
-      qc.getQueryData(listKey("posts")) as { data: Array<{ id: number }> }
+    defined(
+      qc.getQueryData<{ data: Array<{ id: number }> }>(listKey("posts")),
     ).data.map((record) => record.id);
   /** Deletes one row the way the adapters do: the resource root as `queryKeys`. */
   const deletePost = (

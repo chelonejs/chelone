@@ -447,8 +447,8 @@ describe("createArrayBinding — nested arrays", () => {
     ]);
     const childSource = composeSource(rowAt(binding, 1).name, "sku");
     expect(childSource).toBe("orders[0].items[1].sku");
-    // A composed string is a plain `string`; the form's own path type needs a cast.
     const child = createFieldBinding(controller.form, {
+      // type-escape: composeSource returns a plain `string`, not a `SourcePath`, so this composed path is the production type's gap, not the test's.
       source: childSource as SourcePath<OrderForm>,
     });
     child.subscribe(() => {});
