@@ -51,7 +51,9 @@ export interface GeoJsonFieldBodyProps extends GeoJsonViewProps {
   emptyText?: string;
 }
 
-export interface GeoJsonFieldProps<RecordType> extends GeoJsonFieldBodyProps {
+// type-escape: without a `record` the paths are loose, as `SourceProp<unknown>` is
+export interface GeoJsonFieldProps<RecordType = unknown>
+  extends GeoJsonFieldBodyProps {
   /** The record property holding the GeoJSON value. */
   source: SourceProp<RecordType>;
   /** Defaults to the ambient record. */

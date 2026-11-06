@@ -3,6 +3,7 @@
  * record, not a string-keyed bag.
  */
 
+import type { SourceProp } from "@chelone/core";
 import { createElement } from "react";
 import { describe, expectTypeOf, it } from "vitest";
 import type { ReverseGeocodeFieldProps } from "../maps-osm/reverse-geocode-field";
@@ -43,6 +44,14 @@ describe("map field record props", () => {
     expectTypeOf<GeoJsonFieldProps<Place>["record"]>().toEqualTypeOf<
       Place | undefined
     >();
+  });
+
+  it("a bare GeoJsonFieldProps or BBoxFieldProps takes any source", () => {
+    expectTypeOf<GeoJsonFieldProps["source"]>().toEqualTypeOf<SourceProp>();
+    expectTypeOf<BBoxFieldProps["source"]>().toEqualTypeOf<SourceProp>();
+    const geo: GeoJsonFieldProps = { source: "geometry" };
+    const box: BBoxFieldProps = { source: "bbox" };
+    expectTypeOf([geo, box]).not.toBeAny();
   });
 
   it("a GeoJsonField without a record takes any source", () => {
