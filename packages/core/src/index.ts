@@ -955,6 +955,29 @@ export {
   richTextToolbarItems,
 } from "./rich-text/rich-text";
 export type {
+  RichTextColor,
+  RichTextColorPalette,
+  RichTextExtraToolbarItem,
+  RichTextExtraToolbarItemId,
+  RichTextImageAction,
+  RichTextImageActionId,
+  RichTextImageRules,
+  RichTextUpload,
+} from "./rich-text/rich-text-extras";
+export {
+  checkRichTextImageFile,
+  clampRichTextImageWidth,
+  defaultRichTextImageRules,
+  normalizeRichTextUpload,
+  richTextCodeBlockOptions,
+  richTextColors,
+  richTextExtraToolbarItems,
+  richTextImageActions,
+  richTextImageFileName,
+  richTextStyledSanitizeOptions,
+  sanitizeRichTextStyle,
+} from "./rich-text/rich-text-extras";
+export type {
   CheloneLocation,
   LocationState,
   NavigateOpts,
