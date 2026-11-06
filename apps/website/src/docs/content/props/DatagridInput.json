@@ -1,4 +1,125 @@
 {
   "name": "DatagridInput",
-  "props": []
+  "props": [
+    {
+      "name": "alwaysOn",
+      "type": "boolean",
+      "optional": true,
+      "comment": "As a `<FilterForm>`/`<FilterButton>` filter: always shown, never in the\nadd-filter menu. Read off the element by the filter layer, never by the input."
+    },
+    {
+      "name": "defaultValue",
+      "type": "NoInfer<SourceValue<TRecord, TPath>>",
+      "optional": true,
+      "comment": "Input-level default, ra precedence (seeds only into an untouched hole).\nTyped as the value at `source`; `unknown` without a record."
+    },
+    {
+      "name": "helperText",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Helper text rendered below the input; a string is translated."
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "optional": true,
+      "comment": "Explicit element id; a generated `useId` value is used otherwise."
+    },
+    {
+      "name": "isRequired",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Forces the required marker; ORed with `required()` detection on `validate`."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The input label. A string is translated; a ReactNode renders as-is;\n`false` (or `\"\"`) renders no label."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "optional": true,
+      "comment": "Legacy field-name alias (ra parity); the wiring uses `source`."
+    },
+    {
+      "name": "onBlur",
+      "type": "(event: unknown) => void",
+      "optional": true,
+      "comment": "Chained AFTER the blur is recorded."
+    },
+    {
+      "name": "onChange",
+      "type": "(eventOrValue: unknown) => void",
+      "optional": true,
+      "comment": "Chained AFTER the parsed value is written to the form."
+    },
+    {
+      "name": "parse",
+      "type": "(value: unknown) => NoInfer<SourceTransformValue<TRecord, TPath>>",
+      "optional": true,
+      "comment": "Write transform (input value → stored value). Must return the value at\n`source`; `unknown` without a record."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient resource."
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "optional": true,
+      "comment": "The DOM input `type` (text inputs default to `\"text\"`)."
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "ra-contract validators — composed, first error wins."
+    },
+    {
+      "name": "choices",
+      "type": "readonly TChoice[]",
+      "optional": true,
+      "comment": "Inline choices (records) — omit inside a `<ReferenceArrayInput>`."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra classes on the wrapper."
+    },
+    {
+      "name": "optionLabel",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Column header for the choice column. Default the resource/source label."
+    },
+    {
+      "name": "optionText",
+      "type": "OptionText<TChoice>",
+      "optional": true,
+      "comment": "The display path or a formatter for a choice. Default `\"name\"`."
+    },
+    {
+      "name": "optionValue",
+      "type": "SourcePath<TChoice>",
+      "optional": true,
+      "comment": "The value path on a choice. Default `\"id\"`."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The FK-array field; supplied ambiently inside a `<ReferenceArrayInput>`."
+    },
+    {
+      "name": "translateChoice",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Translate the choice text through the catalog."
+    }
+  ]
 }

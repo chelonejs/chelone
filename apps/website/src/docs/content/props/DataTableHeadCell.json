@@ -1,0 +1,77 @@
+{
+  "name": "DataTableHeadCell",
+  "props": [
+    {
+      "name": "cellClassName",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "conditionalClassName",
+      "type": "(record: LooseRecord) => string | false | undefined",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultHidden",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hidden until a choice is stored, unless the table sets `defaultHiddenColumns`."
+    },
+    {
+      "name": "disableSort",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "field",
+      "type": "ElementType<any, keyof IntrinsicElements>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "headerClassName",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "render",
+      "type": "(record: LooseRecord) => ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "sortByOrder",
+      "type": "\"ASC\" | \"DESC\"",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}
