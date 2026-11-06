@@ -22,8 +22,8 @@
  *
  * The ~25 T2 rich-guide slugs (page-components/*, viewing/index, editing/index,
  * the whole app-config section) are intentionally NOT in this table — they are
- * hand-written in T2. This generator owns the field/input/button/layout/feedback
- * reference only.
+ * hand-written in T2. This generator owns the
+ * field/input/button/layout/feedback/realtime reference only.
  *
  * Idempotent + non-destructive: an existing index.mdx that does NOT carry the
  * generated marker is left untouched (so hand-written T2 pages win). Re-running
@@ -239,6 +239,15 @@ const STUBS = [
   { slug: "toolbar", section: "ui-layout", component: "Toolbar", registry: "toolbar", title: "Toolbar", desc: "The form action bar holding the save/delete buttons." },
   { slug: "trend-chart", section: "ui-layout", component: "TrendChart", registry: "trend-chart", title: "TrendChart", desc: "A line, or a filled area with `area`, over a `data` array: one point per row, `xField` along the axis and `yField` up it. The chart fetches nothing, so pass rows you already have, and a row whose `yField` is not a finite number is a gap in the line. It is an add-on: import it from `@chelone/react/charts` or `@chelone/vue/charts`, and install `recharts` for React or `@unovis/vue` and `@unovis/ts` for Vue." },
   { slug: "user-menu", section: "ui-layout", component: "UserMenu", registry: "user-menu", title: "UserMenu", desc: "The app-bar dropdown for the signed-in user." },
+  // ── realtime ──────────────────────────────────────────────────────────
+  { slug: "list-live", section: "realtime", component: "ListLive", registry: "list-live", title: "ListLive", desc: "A `<List>` that refreshes when records in its resource change or the connection returns. Takes the same props as `<List>` and needs a realtime data provider." },
+  { slug: "edit-live", section: "realtime", component: "EditLive", registry: "edit-live", title: "EditLive", desc: "An `<Edit>` that refreshes the record on changes and reconnects. Holds incoming changes while the form has unsaved edits, then refetches once it is saved or reset. Needs a realtime data provider." },
+  { slug: "show-live", section: "realtime", component: "ShowLive", registry: "show-live", title: "ShowLive", desc: "A `<Show>` that refreshes the record on changes and reconnects. Takes the same props as `<Show>` and needs a realtime data provider." },
+  { slug: "menu-live", section: "realtime", component: "MenuLive", registry: "menu-live", title: "MenuLive", desc: "A navigation menu whose links show unread event counts for their resources. Counts new records by default and clears a link's count while its route is open. Needs a realtime data provider." },
+  { slug: "presence-bar", section: "realtime", component: "PresenceBar", registry: "presence-bar", title: "PresenceBar", desc: "Shows avatars for other users viewing the same record, with a count for those beyond `maxAvatars`. Renders nothing when nobody else is present. Needs a realtime data provider." },
+  { slug: "comments-thread", section: "realtime", component: "CommentsThread", registry: "comments-thread", title: "CommentsThread", desc: "Lists a record's comments and provides a box to post one through the data provider. `resolvable` adds a button to mark a comment resolved. Refreshes on comment events when the provider supports realtime." },
+  { slug: "lock-on-mount", section: "realtime", component: "LockOnMount", registry: "lock-on-mount", title: "LockOnMount", desc: "Acquires a record lock while mounted and releases it on unmount. Shows its children once the lock is held, a loading placeholder while requesting it, or the holder when another identity has it. Needs a realtime data provider with lock support." },
+  { slug: "lock-status", section: "realtime", component: "LockStatus", registry: "lock-status", title: "LockStatus", desc: "Shows a badge naming the record's lock holder and updates when the lock is taken or released. Renders nothing for a free record unless `renderFree` is supplied. Needs a realtime data provider with lock support." },
 ];
 
 /**
@@ -263,7 +272,7 @@ function mdxSafe(text) {
   return text.replace(/(?<!`)<([A-Za-z][\w.-]*)>/g, "`<$1>`");
 }
 
-function page({ component, registry, title, desc, importFrom }) {
+function page({ component, registry, title, desc, importFrom, section }) {
   const hasProps = existsSync(resolve(PROPS, `${component}.json`));
   const fm = ["---", `title: "${title}"`, `description: "${desc.replace(/`/g, "").replace(/"/g, '\\"')}"`];
   if (registry) fm.push(`registry: "${registry}"`);
@@ -273,6 +282,10 @@ function page({ component, registry, title, desc, importFrom }) {
   // `mdx-page.tsx` renders the install block from `registry` frontmatter.
   if (!registry)
     parts.push("", "## Installation", "", importBlock(component, importFrom));
+
+  if (section === "realtime") {
+    parts.push("", "See the [realtime guide](/docs/app-config/realtime) for provider setup and usage.");
+  }
 
   parts.push("", "## Props", "");
   parts.push(hasProps ? `<PropsTable name="${component}" />` : PROPLESS_EXPORTS.get(component));
