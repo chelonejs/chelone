@@ -22,7 +22,7 @@ export interface NumberInputProps {
  */
 
 import type { SourceProp, Validator } from "@chelone/core";
-import { toNumberValue } from "@chelone/core";
+import { textOf, toNumberValue } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<NumberInputProps>(), {
 });
 
 const defaultFormat = (value: number | null): string =>
-  value === null ? "" : String(value);
+  textOf(value);
 
 /** Parse the raw string to a number, or `null` on empty/unparseable. */
 const convertStringToNumber = (value: string | number): number | null => {
