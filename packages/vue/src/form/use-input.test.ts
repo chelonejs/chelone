@@ -100,7 +100,7 @@ describe("useInput", () => {
       {
         record: { id: 1, title: "", views: 0 },
         onSubmit: async () => undefined,
-        schema: postSchema as UseFormOptions<Post>["schema"],
+        schema: postSchema,
       },
       { source: "title" },
     );
