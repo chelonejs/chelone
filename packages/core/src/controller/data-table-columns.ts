@@ -89,6 +89,21 @@ export function moveColumn(
   return resolved;
 }
 
+/** Moves `id` to `index` in the resolved order, clamping `index` to the ends. */
+export function moveColumnTo(
+  order: readonly string[],
+  ids: readonly (string | undefined)[],
+  id: string,
+  index: number,
+): string[] {
+  const resolved = resolveOrder(ids, order);
+  const from = resolved.indexOf(id);
+  if (from < 0) return resolved;
+  const to = Math.min(Math.max(index, 0), resolved.length - 1);
+  resolved.splice(to, 0, ...resolved.splice(from, 1));
+  return resolved;
+}
+
 function fold(text: string): string {
   return text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
