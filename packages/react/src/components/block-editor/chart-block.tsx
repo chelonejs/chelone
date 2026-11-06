@@ -129,7 +129,7 @@ function ChartConfig({ attrs, onChange }: BlockConfigProps<ChartAttrs>) {
   );
 }
 
-/** A resource's first rows grouped by a category and drawn as a bar, line or pie chart. Needs the optional `recharts` peer. */
+/** A resource's first rows grouped by a category and drawn as a bar, line or pie chart. The `/block-editor` entry reaches `recharts` through this block, so it needs that optional peer. */
 export const chartBlock = defineBlock({
   ...chartBlockSpec,
   config: ChartConfig,
