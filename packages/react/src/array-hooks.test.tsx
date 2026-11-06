@@ -5,6 +5,7 @@ import {
   type FieldErrors,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render, renderHook } from "@testing-library/react";
 import { type ReactNode, StrictMode } from "react";
@@ -136,7 +137,7 @@ describe("useArrayInput", () => {
     expect(latest.current?.rows[0]?.name).toBe("tags[0]");
     expect(view.getAllByTestId("scalar-input")).toHaveLength(2);
     expect(
-      (view.getAllByTestId("scalar-input")[0] as HTMLInputElement).value,
+      elementOf(view.getAllByTestId("scalar-input")[0], HTMLInputElement).value,
     ).toBe("a");
 
     act(() => latest.current?.add());

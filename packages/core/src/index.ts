@@ -64,6 +64,21 @@ export {
   wrapUnknownBlocks,
 } from "./block-editor/block-document";
 export type {
+  ChartAggregateOptions,
+  ChartAggregatePoint,
+  DataBlockName,
+  DataBlockSpec,
+} from "./block-editor/data-blocks";
+export {
+  aggregateChartData,
+  chartBlockSpec,
+  dataBlockNames,
+  formatDataBlockValue,
+  pickDataBlockFields,
+  recordListBlockSpec,
+  referenceRecordBlockSpec,
+} from "./block-editor/data-blocks";
+export type {
   CartesianRow,
   DonutSlice,
   MetricDelta,
