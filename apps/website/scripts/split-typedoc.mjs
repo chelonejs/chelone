@@ -147,6 +147,68 @@ function* walk(node) {
   }
 }
 
+/**
+ * Every declaration typedoc documented, keyed by its reflection id. A
+ * `reference` type that links to one of these carries the id in `target`; a
+ * reference typedoc could not link (an undocumented or external declaration)
+ * carries a source location instead, and resolves to nothing.
+ *
+ * @param {any} node
+ * @param {Map<number, any>} index
+ * @returns {Map<number, any>}
+ */
+function indexDeclarations(node, index = new Map()) {
+  if (typeof node.id === "number") index.set(node.id, node);
+  for (const child of node.children ?? []) indexDeclarations(child, index);
+  return index;
+}
+
+const declarations = indexDeclarations(doc);
+
+/**
+ * The prop members of a props declaration, following the types it is made of:
+ * an interface's own children, an alias to an inline object type, an alias that
+ * names another declaration, and an intersection of any of those.
+ *
+ * `seen` holds the declarations already on the path, so a reference cycle
+ * between two aliases ends instead of recursing forever.
+ *
+ * @param {any} declaration
+ * @param {Set<any>} seen
+ * @returns {any[]}
+ */
+function membersOf(declaration, seen) {
+  if (!declaration || seen.has(declaration)) return [];
+  seen.add(declaration);
+  return [
+    ...(declaration.children ?? []),
+    ...membersOfType(declaration.type, seen),
+  ];
+}
+
+/**
+ * @param {any} type
+ * @param {Set<any>} seen
+ * @returns {any[]}
+ */
+function membersOfType(type, seen) {
+  if (!type) return [];
+  switch (type.type) {
+    case "reflection":
+      return membersOf(type.declaration, seen);
+    case "reference":
+      return typeof type.target === "number"
+        ? membersOf(declarations.get(type.target), seen)
+        : [];
+    case "intersection":
+      return (type.types ?? []).flatMap((/** @param {any} part */ part) =>
+        membersOfType(part, seen),
+      );
+    default:
+      return [];
+  }
+}
+
 const pages = new Map();
 
 for (const { componentName, iface } of walk(doc)) {
@@ -158,25 +220,27 @@ for (const { componentName, iface } of walk(doc)) {
     );
     continue;
   }
-  // Interfaces have `children`; type aliases sometimes resolve to an inline
-  // reflection (intersection / object literal). Try both shapes.
-  let members = iface.children;
-  if (!members && iface.type?.type === "reflection") {
-    members = iface.type.declaration?.children ?? [];
-  }
-
-  const props = (members ?? []).map(
-    /** @param {any} c */ (c) => ({
+  // Interfaces have `children`; a type alias is an inline object type, another
+  // declaration's name, or an intersection of those. Follow all of them.
+  // A repeated name keeps the position it first appeared at and the type of the
+  // last part that declares it, as TypeScript resolves an intersection.
+  const props = new Map();
+  for (const c of membersOf(iface, new Set())) {
+    props.set(c.name, {
       name: c.name,
       type: renderType(c.type),
       optional: c.flags?.isOptional === true,
       comment: renderComment(c.comment),
-    }),
-  );
+    });
+  }
 
   pages.set(
     componentName,
-    JSON.stringify({ name: componentName, props }, null, 2) + "\n",
+    JSON.stringify(
+      { name: componentName, props: [...props.values()] },
+      null,
+      2,
+    ) + "\n",
   );
 }
 
