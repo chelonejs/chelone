@@ -1,3 +1,4 @@
+import { defined } from "@chelone/test-utils";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   calendarDayKey,
@@ -109,8 +110,8 @@ describe("calendarDays", () => {
   it("covers a month grid in whole weeks", () => {
     const days = calendarDays(calendarRange("month", new Date(2026, 4, 15), 1));
     expect(days).toHaveLength(35);
-    expect(calendarDayKey(days[0] as Date)).toBe("2026-04-27");
-    expect(calendarDayKey(days[34] as Date)).toBe("2026-05-31");
+    expect(calendarDayKey(defined(days[0]))).toBe("2026-04-27");
+    expect(calendarDayKey(defined(days[34]))).toBe("2026-05-31");
   });
 });
 

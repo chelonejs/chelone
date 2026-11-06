@@ -1,3 +1,4 @@
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/query-core";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
@@ -217,7 +218,7 @@ describe("createEditController", () => {
       {
         transform: (d, extra) => ({
           ...d,
-          title: `${d.title}-${(extra?.previousData as { title: string }).title}`,
+          title: `${d.title}-${defined(extra?.previousData).title}`,
         }),
       },
     );
