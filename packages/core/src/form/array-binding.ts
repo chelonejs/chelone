@@ -1,11 +1,8 @@
-import type {
-  DeepKeys,
-  DeepValue,
-  UpdateMetaOptions,
-} from "@tanstack/form-core";
+import type { UpdateMetaOptions } from "@tanstack/form-core";
 import { isRecord } from "../guards";
 import type { LooseRecord } from "../resource/record";
 import type { SourcePath, SourceValue } from "../resource/source-path";
+import type { FieldName, FieldValue } from "./field-name";
 import type { CheloneFormApi } from "./form-controller";
 import {
   createFieldBinding,
@@ -57,12 +54,12 @@ type ArrayItem<TRecord> = Parameters<
 >[1];
 
 /** The array form-core stores across its {@link ArrayFieldPath} union. */
-type ArrayValue<TRecord> = DeepValue<TRecord, ArrayFieldPath<TRecord>>;
+type ArrayValue<TRecord> = FieldValue<TRecord, ArrayFieldPath<TRecord>>;
 
 /** The array form-core stores at the binding's own path. */
-type PathValue<TRecord, TPath extends string> = DeepValue<
+type PathValue<TRecord, TPath extends string> = FieldValue<
   TRecord,
-  TPath & DeepKeys<TRecord>
+  TPath & FieldName<TRecord>
 >;
 
 /**
@@ -264,7 +261,7 @@ export function createArrayBinding<
   const ensureSeeded = (): void => {
     if (form.getFieldValue(name) !== undefined) return;
     // The seed IS the array form-core keeps at `name`.
-    // type-escape: its `DeepValue` stays deferred while `TRecord` is open.
+    // type-escape: its `FieldValue` stays deferred while `TRecord` is open.
     const seed = seedRows() as ArrayValue<TRecord>;
     form.setFieldValue(name, seed, HYDRATION_WRITE);
   };

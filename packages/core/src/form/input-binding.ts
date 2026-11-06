@@ -1,6 +1,4 @@
 import {
-  type DeepKeys,
-  type DeepValue,
   FieldApi,
   type FieldApiOptions,
   type FieldAsyncValidateOrFn,
@@ -10,6 +8,7 @@ import {
 import { isThenable } from "../guards";
 import type { LooseRecord } from "../resource/record";
 import type { SourcePath, SourceValue } from "../resource/source-path";
+import { type FieldData, type FieldName, toFieldName } from "./field-name";
 import type {
   AsyncValidator,
   CheloneFormApi,
@@ -52,15 +51,13 @@ export function defaultParse<TInput>(
   return (input === "" ? null : input) as Exclude<TInput, ""> | null;
 }
 
-/** The widest data type a runtime-composed source path can address. */
-type FieldData<TRecord> = DeepValue<TRecord, DeepKeys<TRecord>>;
 /** A sync field-validator slot at its widest legal instantiation. */
 type FieldSync<TRecord> =
-  | FieldValidateOrFn<TRecord, DeepKeys<TRecord>, FieldData<TRecord>>
+  | FieldValidateOrFn<TRecord, FieldName<TRecord>, FieldData<TRecord>>
   | undefined;
 /** An async field-validator slot at its widest legal instantiation. */
 type FieldAsync<TRecord> =
-  | FieldAsyncValidateOrFn<TRecord, DeepKeys<TRecord>, FieldData<TRecord>>
+  | FieldAsyncValidateOrFn<TRecord, FieldName<TRecord>, FieldData<TRecord>>
   | undefined;
 
 /**
@@ -71,7 +68,7 @@ type FieldAsync<TRecord> =
  */
 export type CheloneFieldApi<TRecord> = FieldApi<
   TRecord,
-  DeepKeys<TRecord>,
+  FieldName<TRecord>,
   FieldData<TRecord>,
   FieldSync<TRecord>, // onMount
   FieldSync<TRecord>, // onChange
@@ -98,7 +95,7 @@ export type CheloneFieldApi<TRecord> = FieldApi<
 /** FieldApi options matching {@link CheloneFieldApi}'s instantiation. */
 type CheloneFieldOptions<TRecord> = FieldApiOptions<
   TRecord,
-  DeepKeys<TRecord>,
+  FieldName<TRecord>,
   FieldData<TRecord>,
   FieldSync<TRecord>,
   FieldSync<TRecord>,
@@ -287,9 +284,7 @@ export function createFieldBinding<
   options: FieldBindingOptions<TRecord, TPath, TInput>,
 ): FieldBinding<TRecord, TPath, TInput> {
   const { source } = options;
-  // A `SourcePath` is a path of the record by construction, but TS cannot see
-  // that it is one of form-core's `DeepKeys`.
-  const name = source as DeepKeys<TRecord>;
+  const name = toFieldName<TRecord>(source);
   let current: FieldBindingOptions<TRecord, TPath, TInput> = options;
 
   /**
