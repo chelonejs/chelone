@@ -58,15 +58,13 @@ import {
   getDataTableColumnId,
 } from "@chelone/core";
 import {
-  cloneVNode,
-  Comment,
   computed,
-  Fragment,
   provide,
   ref,
   useSlots,
   type VNode,
 } from "vue";
+import { flattenVNodes, keyByColumnId } from "../../../lib/vnode-children";
 import { useListContext } from "../../../list/list-context";
 import { useDataTableColumns } from "../../../list/use-data-table-columns";
 import { useResourceContext } from "../../../resource-context";
@@ -163,15 +161,6 @@ function handleToggleExpandAll() {
 // `v-for` makes and without the comments `v-if` leaves. A node whose `source`
 // and `label` props are not strings (a wrapper that does not forward them) has
 // no id: it keeps its place and is always shown.
-const flattenVNodes = (nodes: VNode[]): VNode[] =>
-  nodes.flatMap((node) =>
-    node.type === Comment
-      ? []
-      : node.type === Fragment
-        ? flattenVNodes((node.children ?? []) as VNode[])
-        : [node],
-  );
-
 const columnProps = (node: VNode) =>
   (node.props ?? {}) as { source?: unknown; label?: unknown };
 
@@ -213,22 +202,7 @@ function arrangedColumns(): VNode[] {
     hidden: hidden.value,
     order: order.value,
   });
-  // A column keeps its component instance when its position changes: the
-  // columns read their props once, so a reused instance would show another
-  // column's data. A key the author set is kept.
-  const taken = new Map<string, number>();
-  return shown.flatMap((index) => {
-    const node = nodes[index];
-    if (node === undefined) return [];
-    if (node.key != null) return [node];
-    const id = ids[index];
-    const base = id === undefined ? `index:${index}` : `id:${id}`;
-    const count = taken.get(base) ?? 0;
-    taken.set(base, count + 1);
-    return [
-      cloneVNode(node, { key: count === 0 ? base : `${base}:${count}` }),
-    ];
-  });
+  return keyByColumnId(nodes, ids, shown);
 }
 
 // The template passes `() => arrangedColumns()` to each outlet, not the function
