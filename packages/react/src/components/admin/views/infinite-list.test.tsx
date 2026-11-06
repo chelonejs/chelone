@@ -10,6 +10,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -142,8 +143,7 @@ describe("<InfiniteList>", () => {
     const [first] = await screen.findAllByRole("checkbox", {
       name: "Select row",
     });
-    expect(first).toBeDefined();
-    fireEvent.click(first as HTMLElement);
+    fireEvent.click(defined(first));
     await waitFor(() => expect(checked()).toEqual([true, false]));
 
     fireEvent.click(screen.getByRole("button", { name: "Load more" }));
