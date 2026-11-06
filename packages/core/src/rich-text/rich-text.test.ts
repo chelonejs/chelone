@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { matchesHotkey } from "../command-menu/hotkey";
 import {
+  isSafeFileUrl,
   isSafeImageSrc,
   isSafeLinkUrl,
   richTextBlockTypes,
@@ -55,6 +56,45 @@ describe("isSafeLinkUrl", () => {
       "  javascript:alert(1)",
     ]) {
       expect(isSafeLinkUrl(url), JSON.stringify(url)).toBe(false);
+    }
+  });
+});
+
+describe("isSafeFileUrl", () => {
+  it("isSafeFileUrl allows relative, http, https and blob URLs", () => {
+    for (const url of [
+      "doc.pdf",
+      "/uploads/doc.pdf",
+      "a/b/doc.pdf",
+      "//cdn.example.com/doc.pdf",
+      "http://example.com/doc.pdf",
+      "https://example.com/a?b=c#d",
+      "HTTPS://EXAMPLE.COM",
+      "blob:https://example.com/0b1c",
+      "blob:jsdom/preview",
+      "",
+    ]) {
+      expect(isSafeFileUrl(url), url).toBe(true);
+    }
+  });
+
+  it("isSafeFileUrl refuses javascript, data and vbscript URLs, including java\\tscript: and mixed case", () => {
+    for (const url of [
+      "javascript:alert(1)",
+      "JavaScript:alert(1)",
+      "JAVASCRIPT:alert(1)",
+      "vbscript:msgbox(1)",
+      "VBScript:msgbox(1)",
+      "data:text/html,<script>alert(1)</script>",
+      "DATA:text/html;base64,AAAA",
+      " java\tscript:alert(1)",
+      "java\nscript:alert(1)",
+      "\u0000javascript:alert(1)",
+      "  javascript:alert(1)",
+      "file:///etc/passwd",
+      "ftp://example.com",
+    ]) {
+      expect(isSafeFileUrl(url), JSON.stringify(url)).toBe(false);
     }
   });
 });
