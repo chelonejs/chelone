@@ -23,7 +23,8 @@ export interface BlockEditorProps {
  * unchanged. The Vue twin of `@chelone/react`'s
  * `block-editor/block-editor.tsx`, on `@tiptap/vue-3`.
  *
- * Needs the optional `@tiptap/*` peers. Emits `change` with the document on
+ * Needs the optional `@tiptap/*` peers, and `@dnd-kit/vue` for the drag
+ * handle. Emits `change` with the document on
  * each edit.
  *
  * @example
@@ -43,6 +44,7 @@ import {
   unwrapUnknownBlocks,
   wrapUnknownBlocks,
 } from "@chelone/core";
+import { DragDropProvider } from "@dnd-kit/vue";
 import { type Extensions, getSchema } from "@tiptap/core";
 import { Placeholder } from "@tiptap/extensions";
 import { Selection } from "@tiptap/pm/state";
@@ -52,6 +54,10 @@ import { computed, shallowRef, watch } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import Button from "../ui/button.vue";
+import BlockDragHandle, {
+  BLOCK_DRAG_PLUGINS,
+  BLOCK_DRAG_SENSORS,
+} from "./block-drag-handle.vue";
 import BlockPicker from "./block-picker.vue";
 import BlockToolbar from "./block-toolbar.vue";
 import { createBlockNode, unknownBlockNode } from "./block-nodes";
@@ -234,7 +240,17 @@ function toggleButtonPicker(event: MouseEvent) {
       </Button>
     </div>
     <BlockToolbar v-if="editable && editor" :editor="editor" :registry="registry" />
-    <EditorContent :editor="editor" />
+    <DragDropProvider
+      v-if="editable && editor"
+      :sensors="BLOCK_DRAG_SENSORS"
+      :plugins="BLOCK_DRAG_PLUGINS"
+    >
+      <div class="relative pl-6">
+        <EditorContent :editor="editor" />
+        <BlockDragHandle :editor="editor" />
+      </div>
+    </DragDropProvider>
+    <EditorContent v-else :editor="editor" />
     <BlockPicker
       v-if="editable && picker"
       :blocks="registry.list()"
