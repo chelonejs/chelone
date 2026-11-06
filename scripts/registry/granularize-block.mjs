@@ -10,8 +10,9 @@
 //   const granular = granularizeBlock({ files, packageJson, repoRoot, blockName });
 //   items.push(...granular);
 
-import { readFileSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { readdirSync, readFileSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import {
   ENGINE_PACKAGE,
@@ -122,6 +123,38 @@ const isOptionalPeer = (packageJson, pkg) =>
     packageJson.peerDependencies?.[pkg] &&
       packageJson.peerDependenciesMeta?.[pkg]?.optional === true,
   );
+
+const UTILS_PACKAGE = "@chelone/utils";
+
+// `@chelone/utils/<subpath>` keeps its heavy packages as optional peers, so
+// installing the package does not install them. The consumer of a subpath needs
+// the peers that subpath's own source imports.
+const UTILS_ROOT = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../packages/utils",
+);
+
+const utilsSubpathPeers = (imp) => {
+  if (!imp.startsWith(`${UTILS_PACKAGE}/`)) return [];
+  const utilsJson = JSON.parse(
+    readFileSync(join(UTILS_ROOT, "package.json"), "utf8"),
+  );
+  const peers = new Set();
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (/\.ts$/.test(entry.name) && !/\.test\.ts$/.test(entry.name)) {
+        for (const dep of parseImports(readFileSync(path, "utf8"))) {
+          const pkg = npmRoot(dep);
+          if (isOptionalPeer(utilsJson, pkg)) peers.add(pkg);
+        }
+      }
+    }
+  };
+  walk(join(UTILS_ROOT, "src", imp.slice(UTILS_PACKAGE.length + 1)));
+  return [...peers];
+};
 
 const stripExt = (rel) => rel.replace(/\.(tsx?|vue)$/, "");
 
@@ -364,6 +397,9 @@ export const granularizeBlock = ({
           npmDeps.add(pkg);
         } else if (packageJson.devDependencies?.[pkg]) {
           npmDevDeps.add(pkg);
+        }
+        for (const peer of utilsSubpathPeers(imp)) {
+          npmDeps.add(peer);
         }
       }
     }
