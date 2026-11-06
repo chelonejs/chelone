@@ -47,10 +47,9 @@ function RatingField<RecordType extends LooseRecord = LooseRecord>({
   });
   const ctxRecord = useRecordContext<RecordType>({ record });
   const translate = useTranslate();
-  const count =
-    countSource && ctxRecord
-      ? (ctxRecord[countSource] as number | undefined)
-      : undefined;
+  const rawCount =
+    countSource && ctxRecord ? ctxRecord[countSource] : undefined;
+  const count = typeof rawCount === "number" ? rawCount : undefined;
 
   if (value == null) {
     if (!empty) return null;

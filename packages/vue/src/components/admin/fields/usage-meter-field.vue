@@ -63,8 +63,8 @@ const value = useFieldValue<RecordType>({
   defaultValue: props.defaultValue,
 });
 
-const used = computed<number | null | undefined>(() =>
-  typeof value.value === "number" ? value.value : (value.value as null | undefined),
+const used = computed<number | undefined>(() =>
+  typeof value.value === "number" ? value.value : undefined,
 );
 
 // The limit is a plain own-key read of a sibling field, not a path walk, so the

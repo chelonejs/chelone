@@ -253,6 +253,17 @@ describe("ApiKeyField", () => {
     expect(badges[0]!.text()).toBe("read");
   });
 
+  it("does not show a scope that is not a string", () => {
+    const w = mountField(
+      ApiKeyField,
+      { source: "key", scopesSource: "scopes" },
+      { key: "abcd1234", scopes: ["read", 7, null, { name: "admin" }] },
+    );
+    const badges = w.findAll("[data-scope-badge]");
+    expect(badges).toHaveLength(1);
+    expect(badges[0]?.text()).toBe("read");
+  });
+
   it("renders nothing for a nullish value", () => {
     const w = mountField(ApiKeyField, { source: "key" }, { key: null });
     expect(w.find('[data-slot="api-key-field"]').exists()).toBe(false);
