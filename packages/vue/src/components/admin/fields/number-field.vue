@@ -12,7 +12,9 @@ export interface NumberFieldProps<RecordType extends LooseRecord = LooseRecord> 
   /** `Intl.NumberFormatOptions` (currency, percent, min/max fraction digits…). */
   options?: Intl.NumberFormatOptions;
   /** Pre-format transform; the default coerces a numeric string to a number. */
-  transform?: (value: SourceValue<RecordType, SourceProp<RecordType>>) => unknown;
+  transform?: (
+    value: SourceValue<RecordType, SourceProp<RecordType>>,
+  ) => number | string | null | undefined;
   class?: string;
 }
 </script>
@@ -40,11 +42,21 @@ const value = useFieldValue<RecordType>({
 
 const translate = useTranslate();
 
-/** Coerce a numeric string to a number (mirrors the twin's `defaultTransform`). */
-function defaultTransform(v: unknown): unknown {
-  return typeof v === "string" && v !== "" && !Number.isNaN(Number(v))
-    ? Number(v)
-    : v;
+/**
+ * The default `transform`: a numeric string becomes a number so `options` can
+ * format it; every other value arrives as text the `<span>` can render.
+ */
+function defaultTransform(
+  v: unknown,
+): number | string | null | undefined {
+  if (typeof v === "string") {
+    const num = Number(v);
+    return v !== "" && !Number.isNaN(num) ? num : v;
+  }
+  if (typeof v === "number" || v == null) {
+    return v;
+  }
+  return String(v);
 }
 
 const emptyText = computed(() =>
@@ -56,9 +68,10 @@ const formatted = computed<string | null>(() => {
   if (raw == null) return null;
   const transform = props.transform ?? defaultTransform;
   const transformed = transform(raw);
+  if (transformed == null) return null;
   return typeof transformed === "number"
     ? transformed.toLocaleString(props.locales, props.options)
-    : String(transformed);
+    : transformed;
 });
 </script>
 
