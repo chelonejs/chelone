@@ -171,8 +171,8 @@ import TimeInput from "./components/admin/inputs/time-input.vue";
 import WebhookEndpointInput, {
   type WebhookEndpointInputProps,
 } from "./components/admin/inputs/webhook-endpoint-input.vue";
-import Create from "./components/admin/view/create.vue";
-import Edit from "./components/admin/view/edit.vue";
+import Create, { type CreateProps } from "./components/admin/view/create.vue";
+import Edit, { type EditProps } from "./components/admin/view/edit.vue";
 import List from "./components/admin/view/list.vue";
 import Show from "./components/admin/view/show.vue";
 
@@ -478,6 +478,32 @@ type BoundView<TComponent extends Ctor> = Pick<TComponent, keyof TComponent> &
     };
   });
 
+/** The slots `<Create>` and `<Edit>` declare: they do not depend on their record. */
+type CreateSlots = NonNullable<Parameters<typeof Create>[1]>["slots"];
+type EditSlots = NonNullable<Parameters<typeof Edit>[1]>["slots"];
+
+/**
+ * `<Create>` is generic over its record, so a generic SFC has no constructor
+ * for {@link BoundView} to read. This is a function component like
+ * {@link ArrayInputMember}, with `resource` kept as `never` for the same reason.
+ */
+type CreateMember<TRecord> = (
+  props: Omit<CreateProps<TRecord>, "resource"> & {
+    resource?: never;
+  } & VNodeProps &
+    AllowedComponentProps,
+  ctx?: { slots?: CreateSlots },
+) => VNode;
+
+/** `<Edit>` bound to a resource, typed by that resource's record. */
+type EditMember<TRecord> = (
+  props: Omit<EditProps<TRecord>, "resource"> & {
+    resource?: never;
+  } & VNodeProps &
+    AllowedComponentProps,
+  ctx?: { slots?: EditSlots },
+) => VNode;
+
 /**
  * What `createResourceComponents(name)` returns: the four views bound to
  * `TName`, and every field and input with `source` typed by `TName`'s record.
@@ -497,8 +523,8 @@ export type ResourceComponents<
 } & TypedInputMembers<RecordOf<TResources, TName>> &
   TypedFieldMembers<RecordOf<TResources, TName>> & {
     ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
-    Edit: BoundView<typeof Edit>;
-    Create: BoundView<typeof Create>;
+    Edit: EditMember<RecordOf<TResources, TName>>;
+    Create: CreateMember<RecordOf<TResources, TName>>;
     Show: BoundView<typeof Show>;
     List: BoundView<typeof List>;
   };
