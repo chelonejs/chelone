@@ -38,12 +38,26 @@ const LAST_GAP_POINT = LAST_GAP_TOP + 20;
 const make = (x: number, y: number, width: number, height: number) =>
   new DOMRect(x, y, width, height);
 
+/** Where a layout change moves the blocks: the gap between one block's top and the next. */
+let stride = BLOCK_STRIDE;
+
+/** Reports a resize when the test says so. */
+const resizeObservers: StubResizeObserver[] = [];
+class StubResizeObserver {
+  constructor(readonly callback: ResizeObserverCallback) {
+    resizeObservers.push(this);
+  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
 /** Top-level blocks are laid out in a column; an absolutely placed element reports its own `top` and `height`. */
 function rectOf(el: Element) {
   const parent = el.parentElement;
   if (parent?.classList.contains("ProseMirror")) {
     const at = Array.prototype.indexOf.call(parent.children, el);
-    return make(0, at * BLOCK_STRIDE, 400, BLOCK_HEIGHT);
+    return make(0, at * stride, 400, BLOCK_HEIGHT);
   }
   if (el instanceof HTMLElement && el.style.top.endsWith("px")) {
     // dnd-kit moves the grip with a translate, which jsdom does not lay out.
@@ -65,6 +79,9 @@ beforeEach(() => {
   stubLayout();
   vi.stubGlobal("PointerEvent", StubPointerEvent);
   vi.stubGlobal("IntersectionObserver", StubIntersectionObserver);
+  vi.stubGlobal("ResizeObserver", StubResizeObserver);
+  stride = BLOCK_STRIDE;
+  resizeObservers.length = 0;
   stubAnimations();
   vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
     function (this: Element) {
@@ -168,6 +185,39 @@ describe("block drag handle", () => {
     );
     await screen.findByRole("textbox");
     expect(screen.queryByRole("button", { name: "Drag to move" })).toBeNull();
+  });
+
+  it("follows the hovered block when the layout changes without an edit", async () => {
+    const mounted = await mount(paragraph("A"), paragraph("B"), paragraph("C"));
+    fireEvent.mouseMove(mounted.dom().children[2] ?? document.body);
+    await waitFor(() =>
+      expect(handle().style.top).toBe(`${2 * BLOCK_STRIDE}px`),
+    );
+
+    // The window narrows and the text above wraps onto more lines.
+    stride = 150;
+    act(() => {
+      for (const observer of resizeObservers) observer.callback([], observer);
+    });
+    await waitFor(() => expect(handle().style.top).toBe("300px"));
+  });
+
+  it("returns to the selected block when the pointer leaves the editor", async () => {
+    const mounted = await mount(paragraph("A"), paragraph("B"), paragraph("C"));
+    fireEvent.mouseMove(mounted.dom().children[2] ?? document.body);
+    await waitFor(() =>
+      expect(handle().style.top).toBe(`${2 * BLOCK_STRIDE}px`),
+    );
+
+    fireEvent.mouseLeave(
+      elementOf(
+        document.querySelector("[data-slot=block-drag-layer]")?.parentElement ??
+          null,
+        HTMLElement,
+      ),
+    );
+    // The caret is in the first block.
+    await waitFor(() => expect(handle().style.top).toBe("0px"));
   });
 
   it("dropping on a gap moves the block and writes the document", async () => {

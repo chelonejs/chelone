@@ -110,21 +110,41 @@ export function BlockDragHandle({ editor }: { editor: Editor }) {
       });
       if (found !== null) setHovered(found);
     };
+    // The grip sits outside the editor, so leaving the wrapper (which holds both) ends the hover.
+    const wrapper = layerRef.current?.parentElement;
+    const onLeave = () => {
+      if (!draggingRef.current) setHovered(null);
+    };
     dom.addEventListener("mousemove", onMove);
-    return () => dom.removeEventListener("mousemove", onMove);
+    wrapper?.addEventListener("mouseleave", onLeave);
+    return () => {
+      dom.removeEventListener("mousemove", onMove);
+      wrapper?.removeEventListener("mouseleave", onLeave);
+    };
   }, [editor]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: `doc` is a new object after every edit, which is when the blocks move.
+  // A block changes height with the window width or when an image or node view finishes rendering, with no edit, so each block and the editor are observed too.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `doc` is a new object after every edit, which is when the blocks change.
   useLayoutEffect(() => {
-    const origin = layerRef.current?.getBoundingClientRect().top ?? 0;
-    const next: BlockBox[] = [];
+    const blocks: Element[] = [];
     editor.state.doc.forEach((_node, offset) => {
-      const rect = editor.view.nodeDOM(offset);
-      if (!(rect instanceof Element)) return;
-      const { top, bottom } = rect.getBoundingClientRect();
-      next.push({ top: top - origin, bottom: bottom - origin });
+      const block = editor.view.nodeDOM(offset);
+      if (block instanceof Element) blocks.push(block);
     });
-    setBoxes((current) => (sameBoxes(current, next) ? current : next));
+    const measure = () => {
+      const origin = layerRef.current?.getBoundingClientRect().top ?? 0;
+      const next = blocks.map((block) => {
+        const { top, bottom } = block.getBoundingClientRect();
+        return { top: top - origin, bottom: bottom - origin };
+      });
+      setBoxes((current) => (sameBoxes(current, next) ? current : next));
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(editor.view.dom);
+    for (const block of blocks) observer.observe(block);
+    return () => observer.disconnect();
   }, [editor, doc, isDragging]);
 
   useDragDropMonitor({
