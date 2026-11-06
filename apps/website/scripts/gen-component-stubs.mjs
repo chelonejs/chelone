@@ -11,8 +11,8 @@
  *   - for barrel-only components, an `@chelone/react` import block; registry-backed
  *     pages get their install block from `registry` frontmatter at render time
  *   - a <PropsTable name="<Component>"/> (reads the typedoc-generated JSON)
- *   - a <ComponentPreview> only when a demo file exists on disk (never
- *     fabricated here — demos are authored in T2 / getting-started)
+ *
+ * `mdx-page.tsx` renders a preview when `demos/basic.tsx` exists.
  *
  * HONEST-SCOPE: a stub is written ONLY when its `component` has a generated
  * props JSON (proving the component is exported from the barrel). Any entry
@@ -30,7 +30,6 @@
 import {
   existsSync,
   mkdirSync,
-  readdirSync,
   readFileSync,
   writeFileSync,
 } from "node:fs";
@@ -236,16 +235,6 @@ function importBlock(component) {
   ].join("\n");
 }
 
-/** True when a demos/<*>.tsx exists for this slug (so we can embed a preview). */
-function findDemo(section, slug) {
-  const demoDir = resolve(CONTENT, section, slug, "demos");
-  if (!existsSync(demoDir)) return null;
-  const files = readdirSync(demoDir).filter((f) => f.endsWith(".tsx"));
-  if (files.length === 0) return null;
-  // name form the ComponentPreview expects: "<section>/<slug>/<demo-basename>"
-  return `${section}/${slug}/${files[0].replace(/\.tsx$/, "")}`;
-}
-
 /**
  * MDX-safe body prose. In MDX a `<Word>` token parses as a JSX tag and breaks
  * the build, so wrap any `<Xxx>` / `<xxx>` element-like token in inline code.
@@ -255,7 +244,7 @@ function mdxSafe(text) {
   return text.replace(/(?<!`)<([A-Za-z][\w.-]*)>/g, "`<$1>`");
 }
 
-function page({ slug, section, component, registry, title, desc }) {
+function page({ component, registry, title, desc }) {
   const hasProps = existsSync(resolve(PROPS, `${component}.json`));
   const fm = ["---", `title: "${title}"`, `description: "${desc.replace(/`/g, "").replace(/"/g, '\\"')}"`];
   if (registry) fm.push(`registry: "${registry}"`);
@@ -264,11 +253,6 @@ function page({ slug, section, component, registry, title, desc }) {
   const parts = [fm.join("\n"), MARKER, "", mdxSafe(desc)];
   // `mdx-page.tsx` renders the install block from `registry` frontmatter.
   if (!registry) parts.push("", "## Installation", "", importBlock(component));
-
-  const demo = findDemo(section, slug);
-  if (demo) {
-    parts.push("", "## Example", "", `<ComponentPreview name="${demo}" />`);
-  }
 
   parts.push("", "## Props", "");
   parts.push(hasProps ? `<PropsTable name="${component}" />` : PROPLESS_EXPORTS.get(component));
