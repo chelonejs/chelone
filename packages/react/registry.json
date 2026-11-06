@@ -1214,6 +1214,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/auth/permission-matrix.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/bulk-delete-button.tsx",
           "type": "registry:component"
         },
@@ -2256,6 +2260,25 @@
       "registryDependencies": ["@chelone/dropdown-menu", "@chelone/lib-utils"],
       "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "permission-matrix",
+      "type": "registry:component",
+      "title": "Permission Matrix",
+      "files": [
+        {
+          "path": "src/components/admin/auth/permission-matrix.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/checkbox",
+        "@chelone/table",
+        "@chelone/tabs"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
