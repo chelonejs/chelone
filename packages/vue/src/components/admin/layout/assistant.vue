@@ -310,8 +310,9 @@ const confirmContent = () =>
   <Confirm
     :is-open="pending !== null"
     :title="confirmTitle()"
-    :content="confirmContent()"
     @confirm="settle(true)"
     @close="settle(false)"
-  />
+  >
+    <pre class="overflow-auto whitespace-pre-wrap font-mono text-xs">{{ confirmContent() }}</pre>
+  </Confirm>
 </template>

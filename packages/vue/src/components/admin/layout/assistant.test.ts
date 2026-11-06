@@ -83,6 +83,7 @@ const tool = (overrides: Partial<AssistantTool> = {}): AssistantTool => ({
 async function mountAssistant(
   initial: AssistantProps,
   messages: Record<string, string> = {},
+  onMissingKey?: (key: string) => void,
 ) {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -94,7 +95,11 @@ async function mountAssistant(
     props: {
       dataProvider: fakeDataProvider({ posts: [] }),
       queryClient: new QueryClient(),
-      i18n: createI18n({ locale: "en", messages: { en: messages } }),
+      i18n: createI18n({
+        locale: "en",
+        messages: { en: messages },
+        onMissingKey,
+      }),
     },
     slots: {
       default: () => h(Resource, { name: "posts", list: Blank }),
@@ -283,6 +288,31 @@ describe("<Assistant>", () => {
     expect(log()?.querySelector('[data-role="tool"]')?.textContent).toContain(
       "declined",
     );
+  });
+
+  it("the confirm dialog shows the arguments as written, in a preformatted block", async () => {
+    const args = { q: "{_}", nested: { id: 7 } };
+    const { transport } = scripted(
+      [toolCall("c1", "delete_post", args), done],
+      [text("Left it alone"), done],
+    );
+    const missing = vi.fn();
+    await mountAssistant(
+      {
+        transport,
+        tools: { delete_post: tool({ confirm: true }) },
+      },
+      {},
+      missing,
+    );
+    await openPanel();
+
+    await say("delete post 7");
+
+    await until(() => confirmDialog() !== null);
+    const shown = confirmDialog()?.querySelector("pre");
+    expect(shown?.textContent).toBe(JSON.stringify(args, null, 2));
+    expect(missing).not.toHaveBeenCalledWith(expect.stringContaining("nested"));
   });
 
   it("a confirmed call runs the tool", async () => {
