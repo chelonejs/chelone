@@ -13,6 +13,7 @@ import {
   type SavedQuery,
   type SavedQueryValue,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -24,6 +25,7 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { makeListContext } from "../../../__fixtures__/list-context";
 import { CheloneProvider } from "../../../context";
 import {
   ListContextProvider,
@@ -127,7 +129,7 @@ function Rows() {
     <ul>
       {(data ?? []).map((row) => (
         <li key={String(row.id)}>
-          {String((row as { title?: unknown }).title)}
+          {String("title" in row ? row.title : undefined)}
         </li>
       ))}
     </ul>
@@ -135,35 +137,13 @@ function Rows() {
 }
 
 function makeList(overrides: Partial<ListContextValue> = {}): ListContextValue {
-  return {
-    page: 1,
-    perPage: 10,
+  return makeListContext({
     sort: [{ field: "id", order: "DESC" }],
-    filter: {},
-    displayedFilters: {},
-    selectedIds: [],
     data: [],
     total: 0,
-    pageInfo: undefined,
-    isPending: false,
-    isFetching: false,
-    error: null,
     hasNextPage: false,
-    hasPreviousPage: false,
-    setPage: vi.fn(),
-    setPerPage: vi.fn(),
-    setSort: vi.fn(),
-    setFilters: vi.fn(),
-    setParams: vi.fn(),
-    showFilter: vi.fn(),
-    hideFilter: vi.fn(),
-    select: vi.fn(),
-    toggleItem: vi.fn(),
-    unselectAll: vi.fn(),
-    selectAll: vi.fn(),
-    refetch: vi.fn(),
     ...overrides,
-  } as ListContextValue;
+  });
 }
 
 function mountList(
@@ -309,8 +289,10 @@ describe("<SavedQueriesList>", () => {
     expect(screen.queryByRole("textbox", { name: "Query name" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Save current query" }));
     expect(
-      (screen.getByRole("textbox", { name: "Query name" }) as HTMLInputElement)
-        .value,
+      elementOf(
+        screen.getByRole("textbox", { name: "Query name" }),
+        HTMLInputElement,
+      ).value,
     ).toBe("");
   });
 

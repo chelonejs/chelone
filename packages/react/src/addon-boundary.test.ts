@@ -46,6 +46,12 @@ const ADDONS: {
     packages: ["@mdxeditor/editor"],
   },
   {
+    name: "rich-text-input",
+    folder: "src/components/rich-text-input",
+    entry: "src/rich-text-input.ts",
+    packages: ["dompurify"],
+  },
+  {
     name: "maps",
     folder: "src/components/maps",
     entry: "src/maps.ts",
@@ -220,6 +226,16 @@ describe("add-on boundary", () => {
       "./dist/components/mdx-editor/mdx-editor-dark.css",
     );
     // `sideEffects: false` lets a bundler drop `import "@chelone/react/mdx-editor.css"`.
+    expect(pkg.sideEffects).toContain("**/*.css");
+  });
+
+  it("the rich-text-input stylesheet is exported for npm users and survives tree shaking", () => {
+    const source = pkg.exports["./rich-text-input.css"];
+    expect(existsSync(resolve(root, source))).toBe(true);
+    expect(source.endsWith("rich-text.css")).toBe(true);
+    expect(pkg.publishConfig.exports["./rich-text-input.css"]).toBe(
+      "./dist/components/rich-text-input/rich-text.css",
+    );
     expect(pkg.sideEffects).toContain("**/*.css");
   });
 });

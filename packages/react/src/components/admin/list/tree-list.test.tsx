@@ -12,6 +12,7 @@ import {
   fakeDataProvider,
   type LooseRecord,
 } from "@chelone/core";
+import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -107,11 +108,12 @@ const item = (title: string) => {
   return found;
 };
 const chevron = (title: string) =>
-  item(title).querySelector<HTMLElement>("button[data-slot=tree-list-chevron]");
+  item(title).querySelector("button[data-slot=tree-list-chevron]");
 const row = (title: string) =>
-  item(title).querySelector<HTMLElement>(
-    "[data-slot=tree-list-row]",
-  ) as HTMLElement;
+  elementOf(
+    item(title).querySelector("[data-slot=tree-list-row]"),
+    HTMLElement,
+  );
 const path = () => screen.getByTestId("path").textContent;
 
 describe("<TreeList>", () => {
@@ -173,7 +175,7 @@ describe("<TreeList>", () => {
       within(item("Root A")).getAllByRole("button", { name: "Collapse" }),
     ).toHaveLength(1);
 
-    fireEvent.click(chevron("Root A") as HTMLElement);
+    fireEvent.click(defined(chevron("Root A")));
     expect(titles()).toEqual(["Root A", "Root B"]);
     expect(onSelect).not.toHaveBeenCalled();
     expect(path()).toBe("/categories");
@@ -251,7 +253,7 @@ describe("<TreeList>", () => {
     expect(onSelect).toHaveBeenCalledTimes(1);
     expect(onSelect).toHaveBeenLastCalledWith(CATEGORIES[3]);
 
-    (item("Root A") as HTMLElement).focus();
+    item("Root A").focus();
     fireEvent.keyDown(item("Root A"), { key: "Enter" });
     expect(onSelect).toHaveBeenCalledTimes(2);
     expect(onSelect).toHaveBeenLastCalledWith(CATEGORIES[0]);
@@ -301,7 +303,8 @@ describe("<TreeList>", () => {
   it("arrow keys expand, collapse and move focus", async () => {
     mount();
     await screen.findByRole("tree");
-    const focused = () => titleOf(document.activeElement as HTMLElement);
+    const focused = () =>
+      titleOf(elementOf(document.activeElement, HTMLElement));
     const press = (title: string, key: string) =>
       fireEvent.keyDown(item(title), { key });
 
@@ -338,7 +341,7 @@ describe("<TreeList>", () => {
     };
     mount({ dataProvider, queryClient });
     await screen.findByRole("tree");
-    fireEvent.click(chevron("Root A") as HTMLElement);
+    fireEvent.click(defined(chevron("Root A")));
 
     rows = [
       ...CATEGORIES,

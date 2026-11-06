@@ -97,6 +97,29 @@ function wrap(
  * implements the interface so the observer it hands its callback is itself,
  * uncast.
  */
+function intersectionEntry(isIntersecting: boolean): IntersectionObserverEntry {
+  const rect: DOMRectReadOnly = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    toJSON: () => ({}),
+  };
+  return {
+    isIntersecting,
+    boundingClientRect: rect,
+    intersectionRect: rect,
+    rootBounds: null,
+    intersectionRatio: isIntersecting ? 1 : 0,
+    target: document.createElement("div"),
+    time: 0,
+  };
+}
+
 class FakeObserver implements IntersectionObserver {
   static instances: FakeObserver[] = [];
   readonly root: Element | Document | null = null;
@@ -115,7 +138,7 @@ class FakeObserver implements IntersectionObserver {
   }
   /** Report the sentinel as in or out of view. */
   trigger(isIntersecting: boolean) {
-    this.callback([{ isIntersecting } as IntersectionObserverEntry], this);
+    this.callback([intersectionEntry(isIntersecting)], this);
   }
 }
 

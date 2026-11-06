@@ -65,6 +65,7 @@ export default defineConfig({
         "src/charts.ts",
         "src/kanban.ts",
         "src/mdx-editor.ts",
+        "src/rich-text-input.ts",
         "src/maps.ts",
         "src/maps-draw.ts",
         "src/maps-osm.ts",

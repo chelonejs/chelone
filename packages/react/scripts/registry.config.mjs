@@ -163,6 +163,24 @@ export const blocks = [
     ],
   },
   {
+    name: "rich-text-input",
+    type: "registry:block",
+    title: "Chelone Rich Text",
+    categories: ["chelone", "fields"],
+    description:
+      "The opt-in rich text add-on: RichTextField shows stored HTML sanitized with DOMPurify, or its text with stripTags. Installs dompurify.",
+    docs: "The field styles its content with rich-text.css, which the component imports itself and which reads the Chelone color tokens.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [
+      {
+        path: "src/components/rich-text-input",
+        recursive: true,
+        cssExtensions: true,
+      },
+    ],
+  },
+  {
     name: "maps",
     type: "registry:block",
     title: "Chelone Maps",

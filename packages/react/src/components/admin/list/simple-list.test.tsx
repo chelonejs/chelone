@@ -11,6 +11,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -151,7 +152,7 @@ describe("<SimpleList>", () => {
       "/posts/1",
       "/posts/2",
     ]);
-    expect(within(links[0] as HTMLElement).getByText("Alpha")).toBeTruthy();
+    expect(within(defined(links[0])).getByText("Alpha")).toBeTruthy();
   });
 
   it("links to the show page when linkType is show", async () => {
