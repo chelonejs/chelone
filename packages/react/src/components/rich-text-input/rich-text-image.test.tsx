@@ -16,6 +16,7 @@ import {
   within,
 } from "@testing-library/react";
 import type { Editor } from "@tiptap/core";
+import { closeHistory } from "@tiptap/pm/history";
 import type { ReactNode } from "react";
 import {
   afterEach,
@@ -64,7 +65,7 @@ afterEach(() => {
 
 async function mountInput(props: Partial<RichTextInputProps> = {}, body = "") {
   const created: { editor: Editor | null } = { editor: null };
-  mountUnderForm<{ body: string }>(
+  const { form } = mountUnderForm<{ body: string }>(
     <RichTextInput
       source="body"
       {...props}
@@ -77,7 +78,10 @@ async function mountInput(props: Partial<RichTextInputProps> = {}, body = "") {
     { defaultValues: { body } },
   );
   await screen.findByRole("textbox");
-  return () => defined(created.editor);
+  return Object.assign(() => defined(created.editor), {
+    /** What the form would save. */
+    value: () => form().form.getFieldValue("body"),
+  });
 }
 
 const png = (name = "cat.png", size = 4) =>
@@ -106,6 +110,11 @@ function chooseFiles(...files: File[]) {
 }
 
 const images = () => [...document.querySelectorAll("img")];
+
+/** Ends the undo group, so a later change is undone on its own. */
+function closeUndoGroup(editor: Editor) {
+  editor.view.dispatch(closeHistory(editor.state.tr));
+}
 
 /** A promise the test settles by hand. */
 function deferred<T>() {
@@ -259,17 +268,139 @@ describe("rich text images", () => {
     expect(editor().getHTML()).not.toContain("blob:");
   });
 
-  it("removing an image revokes its blob URL", async () => {
-    const uploadFn = vi.fn(() => new Promise<string>(() => {}));
-    const editor = await mountInput({ images: { uploadFn } });
+  it("the form value leaves out an image until its upload has stored it", async () => {
+    const upload = deferred<string>();
+    const editor = await mountInput({
+      images: { uploadFn: () => upload.promise },
+    });
     openForm();
     chooseFiles(png());
-    expect(revokeObjectURL).not.toHaveBeenCalled();
-    fireEvent.click(
-      await screen.findByRole("button", { name: "Remove image" }),
+    await waitFor(() => expect(images()).toHaveLength(1));
+    expect(editor().getHTML()).toContain("blob:test/1");
+    expect(editor.value()).not.toContain("blob:");
+    expect(editor.value()).not.toContain("<img");
+
+    await act(async () => {
+      upload.resolve("https://cdn.example.com/cat.png");
+    });
+    await waitFor(() =>
+      expect(editor.value()).toContain('src="https://cdn.example.com/cat.png"'),
     );
+    expect(editor.value()).not.toContain("blob:");
+  });
+
+  it("the form value leaves out an image whose upload failed", async () => {
+    const editor = await mountInput({
+      images: { uploadFn: () => Promise.reject(new Error("offline")) },
+    });
+    openForm();
+    chooseFiles(png());
+    await waitFor(() =>
+      expect(
+        document.querySelector('[data-slot="rich-text-image-error"]'),
+      ).not.toBeNull(),
+    );
+    expect(editor.value()).toBe("");
+  });
+
+  it("undoing the removal of an image whose upload finished restores the stored URL", async () => {
+    const upload = deferred<string>();
+    const editor = await mountInput({
+      images: { uploadFn: () => upload.promise },
+    });
+    openForm();
+    chooseFiles(png());
+    const remove = await screen.findByRole("button", { name: "Remove image" });
+    closeUndoGroup(editor());
+    fireEvent.click(remove);
     expect(editor().getHTML()).not.toContain("<img");
+    // The blob URL stays usable while the upload runs.
+    expect(revokeObjectURL).not.toHaveBeenCalled();
+
+    await act(async () => {
+      upload.resolve("https://cdn.example.com/cat.png");
+    });
     expect(revokeObjectURL).toHaveBeenCalledWith("blob:test/1");
+
+    act(() => {
+      editor().commands.undo();
+    });
+    expect(editor().getHTML()).toContain(
+      'src="https://cdn.example.com/cat.png"',
+    );
+    expect(editor().getHTML()).not.toContain("blob:");
+    expect(editor.value()).toContain('src="https://cdn.example.com/cat.png"');
+  });
+
+  it("undoing a resize made during the upload keeps the stored URL", async () => {
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(300);
+    const upload = deferred<string>();
+    const editor = await mountInput({
+      images: { uploadFn: () => upload.promise },
+    });
+    openForm();
+    chooseFiles(png());
+    await waitFor(() => expect(images()).toHaveLength(1));
+    closeUndoGroup(editor());
+    act(() => {
+      editor().commands.setNodeSelection(0);
+    });
+    const right = await screen.findByRole("button", {
+      name: "Resize image from the right edge",
+    });
+    fireEvent.keyDown(right, { key: "ArrowLeft" });
+    expect(editor().getHTML()).toContain("width=");
+
+    await act(async () => {
+      upload.resolve("https://cdn.example.com/cat.png");
+    });
+    act(() => {
+      editor().commands.undo();
+    });
+    expect(editor().getHTML()).toContain(
+      'src="https://cdn.example.com/cat.png"',
+    );
+    expect(editor().getHTML()).not.toContain("blob:");
+  });
+
+  it("an image type that cannot be a data URL is refused when there is no uploadFn", async () => {
+    const onImageError = vi.fn();
+    const editor = await mountInput({ images: { onImageError } });
+    openForm();
+    const bmp = new File([new Uint8Array(4)], "scan.bmp", {
+      type: "image/bmp",
+    });
+    chooseFiles(bmp);
+    expect(onImageError).toHaveBeenCalledWith({ reason: "type", file: bmp });
+    expect(editor().getHTML()).not.toContain("<img");
+    expect(URL.createObjectURL).not.toHaveBeenCalled();
+  });
+
+  it("a bmp goes to uploadFn, which may store any type", async () => {
+    const uploadFn = vi.fn(async () => "https://cdn.example.com/scan.bmp");
+    const editor = await mountInput({ images: { uploadFn } });
+    openForm();
+    chooseFiles(
+      new File([new Uint8Array(4)], "scan.bmp", { type: "image/bmp" }),
+    );
+    await waitFor(() =>
+      expect(editor.value()).toContain("https://cdn.example.com/scan.bmp"),
+    );
+  });
+
+  it("a label that appears after mounting labels the editor", async () => {
+    const mounted = mountUnderForm<{ body: string }>(
+      <RichTextInput source="body" label={false} />,
+      { defaultValues: { body: "" } },
+    );
+    const textbox = await screen.findByRole("textbox");
+    expect(textbox.getAttribute("aria-labelledby")).toBeNull();
+    mounted.rerender(<RichTextInput source="body" label="Article" />);
+    await waitFor(() =>
+      expect(
+        screen.getByRole("textbox").getAttribute("aria-labelledby"),
+      ).not.toBeNull(),
+    );
   });
 
   it("the arrow keys on a handle resize within the limits", async () => {

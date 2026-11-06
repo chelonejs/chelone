@@ -11,9 +11,9 @@ import {
   richTextImageFileName,
 } from "@chelone/core";
 import type { Editor, JSONContent } from "@tiptap/core";
-import { nodeInputRule } from "@tiptap/core";
+import { getHTMLFromFragment, isNodeEmpty, nodeInputRule } from "@tiptap/core";
 import Image, { type ImageOptions, inputRegex } from "@tiptap/extension-image";
-import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
+import type { Attrs } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import {
   type NodeViewProps,
@@ -147,9 +147,20 @@ function numberAttribute(value: string | null): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-/* Uploads in flight, per editor and keyed by the file's `blob:` URL, for the view's spinner. */
+/** What a finished upload left on its image: the stored source, or `null` when it failed. */
+interface Stored {
+  src: string | null;
+  id: string | null;
+}
+
+/*
+ * Uploads per editor, keyed by the file's `blob:` URL. `pending` drives the
+ * view's spinner. `settled` outlives the blob: undo can bring back an image
+ * that still has the `blob:` source, and the plugin swaps in what was stored.
+ */
 interface UploadState {
   pending: ReadonlySet<string>;
+  settled: Map<string, Stored>;
   listeners: Set<() => void>;
 }
 
@@ -158,7 +169,11 @@ const uploadStates = new WeakMap<Editor, UploadState>();
 function uploadStateOf(editor: Editor): UploadState {
   const existing = uploadStates.get(editor);
   if (existing) return existing;
-  const created: UploadState = { pending: new Set(), listeners: new Set() };
+  const created: UploadState = {
+    pending: new Set(),
+    settled: new Map(),
+    listeners: new Set(),
+  };
   uploadStates.set(editor, created);
   return created;
 }
@@ -184,6 +199,15 @@ function readDataUrl(file: File): Promise<string> {
   });
 }
 
+/** Without `uploadFn` the file becomes a data URL, which only some raster types may be. */
+function canBeDataUrl(file: File, allowBase64: boolean): boolean {
+  const type = (file.type.split(";")[0] ?? "").trim();
+  return (
+    !allowBase64 ||
+    isSafeImageSrc(`data:${type};base64,`, { allowDataImages: true })
+  );
+}
+
 async function storeFile(
   file: File,
   { rules, uploadFn }: RichTextImageConfig,
@@ -199,13 +223,14 @@ async function storeFile(
   return upload;
 }
 
-/** Sets attributes on the image whose `src` is `from`, outside the undo history. */
+/** Sets what an upload stored on the image whose `src` is `from`, outside the undo history. */
 function patchImage(
   editor: Editor,
   type: string,
   from: string,
-  attrs: { src: string | null; id?: string | null },
+  stored: Stored,
 ) {
+  uploadStateOf(editor).settled.set(from, stored);
   if (editor.isDestroyed) return;
   const { state, view } = editor;
   let position: number | null = null;
@@ -218,7 +243,7 @@ function patchImage(
   if (position === null || node === null) return;
   view.dispatch(
     state.tr
-      .setNodeMarkup(position, undefined, { ...node.attrs, ...attrs })
+      .setNodeMarkup(position, undefined, { ...node.attrs, ...stored })
       .setMeta("addToHistory", false),
   );
 }
@@ -236,20 +261,12 @@ async function storeAndPatch(
     patchImage(editor, type, blobUrl, { src: upload.src, id: upload.id });
   } catch (cause) {
     // No blob: source stays behind; the view shows its error state.
-    patchImage(editor, type, blobUrl, { src: null });
+    patchImage(editor, type, blobUrl, { src: null, id: null });
     config.onImageError?.({ reason: "upload", file, cause });
   } finally {
     setUploading(editor, blobUrl, false);
+    URL.revokeObjectURL(blobUrl);
   }
-}
-
-function blobSources(doc: ProseMirrorNode, type: string): Set<string> {
-  const sources = new Set<string>();
-  doc.descendants((node) => {
-    const src = text(node.attrs.src);
-    if (node.type.name === type && src?.startsWith("blob:")) sources.add(src);
-  });
-  return sources;
 }
 
 function imageFiles(files: FileList | undefined | null): File[] {
@@ -349,7 +366,12 @@ const RichTextImage = Image.extend<RichTextImageExtensionOptions>({
           const stored: { file: File; blobUrl: string }[] = [];
           for (const input of inputs) {
             if (input instanceof File) {
-              const reason = checkRichTextImageFile(input, rules);
+              const reason =
+                checkRichTextImageFile(input, rules) ??
+                (config.uploadFn === undefined &&
+                !canBeDataUrl(input, rules.allowBase64)
+                  ? "type"
+                  : null);
               if (reason !== null) {
                 onImageError?.({ reason, file: input });
                 continue;
@@ -431,17 +453,31 @@ const RichTextImage = Image.extend<RichTextImageExtensionOptions>({
             return editor.commands.setImages(files);
           },
         },
-        // A removed or replaced image gives its blob: URL back.
+        // An image brought back by undo or paste, whose upload has finished.
+        appendTransaction: (transactions, _previous, state) => {
+          if (!transactions.some((transaction) => transaction.docChanged)) {
+            return null;
+          }
+          const { settled } = uploadStateOf(editor);
+          if (settled.size === 0) return null;
+          const fixes: { pos: number; attrs: Attrs }[] = [];
+          state.doc.descendants((node, pos) => {
+            const src = node.type.name === type ? text(node.attrs.src) : null;
+            const stored = src === null ? undefined : settled.get(src);
+            if (stored)
+              fixes.push({ pos, attrs: { ...node.attrs, ...stored } });
+          });
+          if (fixes.length === 0) return null;
+          const tr = state.tr.setMeta("addToHistory", false);
+          for (const { pos, attrs } of fixes) {
+            tr.setNodeMarkup(pos, undefined, attrs);
+          }
+          return tr;
+        },
+        // An upload still running when the editor goes gives its blob: URL back.
         view: () => ({
-          update: (view, previous) => {
-            if (view.state.doc === previous.doc) return;
-            const kept = blobSources(view.state.doc, type);
-            for (const src of blobSources(previous.doc, type)) {
-              if (!kept.has(src)) URL.revokeObjectURL(src);
-            }
-          },
           destroy: () => {
-            for (const src of blobSources(editor.state.doc, type)) {
+            for (const src of uploadStateOf(editor).pending) {
               URL.revokeObjectURL(src);
             }
           },
@@ -469,6 +505,30 @@ function getRichTextImageConfig(editor: Editor): RichTextImageConfig | null {
   );
   const options = extension?.options;
   return hasConfig(options) ? options.config() : null;
+}
+
+/**
+ * The editor's HTML as the form value. An image that is still uploading, or
+ * whose upload failed, has no stored source yet, so it is left out: a `blob:`
+ * URL only exists in this tab. The finished upload changes the document and
+ * writes the value again.
+ */
+function getRichTextHtml(editor: Editor): string {
+  const { doc, tr } = editor.state;
+  const unstored: { from: number; to: number }[] = [];
+  doc.descendants((node, pos) => {
+    if (node.type.name !== RichTextImage.name) return;
+    const src = text(node.attrs.src);
+    if (src === null || src.startsWith("blob:")) {
+      unstored.push({ from: pos, to: pos + node.nodeSize });
+    }
+  });
+  for (const { from, to } of unstored.reverse()) tr.delete(from, to);
+  const kept = tr.doc;
+  if (isNodeEmpty(kept)) return "";
+  return unstored.length === 0
+    ? editor.getHTML()
+    : getHTMLFromFragment(kept.content, editor.schema);
 }
 
 const actionIcons: Record<
@@ -835,6 +895,7 @@ function ImageView({
 }
 
 export {
+  getRichTextHtml,
   getRichTextImageConfig,
   RichTextImage,
   type RichTextImageConfig,

@@ -21,6 +21,7 @@ import type {
 } from "../admin/input-props";
 import { createRichTextExtensions } from "./rich-text-extensions";
 import {
+  getRichTextHtml,
   type RichTextImageOptions,
   resolveRichTextImageConfig,
 } from "./rich-text-image";
@@ -97,6 +98,7 @@ function RichTextInput<TRecord = LooseRecord>(
   const labelId = `${id}-label`;
   const value = typeof field.value === "string" ? field.value : "";
   const editable = disabled !== true && readOnly !== true;
+  const hasLabel = label !== false;
 
   // `field` is a new object per render; the editor gets handlers that stay put.
   const fieldRef = useRef(field);
@@ -122,23 +124,28 @@ function RichTextInput<TRecord = LooseRecord>(
     [imagesEnabled],
   );
 
+  const customEditorProps = editorOptions?.editorProps;
+  const editorProps = useMemo<UseEditorOptions["editorProps"]>(
+    () =>
+      customEditorProps ?? {
+        attributes: {
+          class: "rich-text min-h-32 px-3 py-2 outline-none",
+          ...(hasLabel ? { "aria-labelledby": labelId } : {}),
+        },
+      },
+    [customEditorProps, hasLabel, labelId],
+  );
+
   const editor = useEditor(
     {
       immediatelyRender: false,
       extensions,
       content: value,
       editable,
-      editorProps: {
-        attributes: {
-          class: "rich-text min-h-32 px-3 py-2 outline-none",
-          ...(label === false ? {} : { "aria-labelledby": labelId }),
-        },
-      },
       ...editorOptions,
+      editorProps,
       onUpdate: (event) => {
-        fieldRef.current.onChange(
-          event.editor.isEmpty ? "" : event.editor.getHTML(),
-        );
+        fieldRef.current.onChange(getRichTextHtml(event.editor));
         editorOptions?.onUpdate?.(event);
       },
       onBlur: (event) => {
@@ -150,6 +157,11 @@ function RichTextInput<TRecord = LooseRecord>(
     },
     [imagesEnabled],
   );
+
+  // With deps, `useEditor` no longer passes changed options to a live editor.
+  useEffect(() => {
+    editor?.setOptions({ editorProps });
+  }, [editor, editorProps]);
 
   // `setEditable` and the placeholder text dispatch nothing, so an empty
   // transaction tells the toolbar and the placeholder decoration to read again.
@@ -163,7 +175,7 @@ function RichTextInput<TRecord = LooseRecord>(
   // A reset or `setValue` changes the form value without the editor knowing.
   useEffect(() => {
     if (!editor) return;
-    const current = editor.isEmpty ? "" : editor.getHTML();
+    const current = getRichTextHtml(editor);
     if (current === value) return;
     const { from, to } = editor.state.selection;
     editor.commands.setContent(value, { emitUpdate: false });
