@@ -82,6 +82,7 @@ import type {
   NullableBooleanInputProps,
   NumberInputProps,
   OfflineProps,
+  OnboardingTourProps,
   PasswordInputProps,
   PermissionMatrixProps,
   PhoneInputProps,
@@ -116,6 +117,7 @@ import type {
   ToggleFilterButtonProps,
   ToolbarProps,
   TopToolbarProps,
+  TourStep,
   TreeListProps,
   UpdateButtonProps,
   UsePresenceOptions,
@@ -372,6 +374,16 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf(barrel.useRegisterCommand)
       .parameter(0)
       .toEqualTypeOf<MaybeRefOrGetter<CommandMenuAction>>();
+  });
+
+  it("OnboardingTour ships beside its props and its step shape", () => {
+    expectTypeOf<OnboardingTourProps["steps"]>().toEqualTypeOf<TourStep[]>();
+    expectTypeOf<OnboardingTourProps["autoStart"]>().toEqualTypeOf<
+      boolean | undefined
+    >();
+    expectTypeOf<TourStep["title"]>().toEqualTypeOf<string | undefined>();
+    expectTypeOf<TourStep["content"]>().toEqualTypeOf<string>();
+    expectTypeOf(barrel.OnboardingTour).not.toBeAny();
   });
 
   it("Assistant ships beside its props", () => {
