@@ -1,0 +1,92 @@
+---
+title: "sseTransport"
+description: "Reads realtime events from a server-sent events stream and publishes with a POST. Needs a stream endpoint, and a publish endpoint to publish to."
+---
+
+`sseTransport` opens one `EventSource` stream to read events and publishes with
+a `POST`. It needs a server that names each event after its topic.
+
+## Signature
+
+```ts
+function sseTransport(options: SseTransportOptions): SseTransport
+
+interface SseTransportOptions {
+  /** The stream URL; the topic filter and the token are appended to its query. */
+  url: string;
+  /** Where `publish` POSTs. Without it `publish` rejects. */
+  publishUrl?: string;
+  /** The bearer token for the stream (as `token`) and for the publish POST. */
+  getAuthToken?: () =>
+    | string
+    | null
+    | undefined
+    | Promise<string | null | undefined>;
+  /** Sent to `EventSource` and as `credentials: "include"` on the publish POST. */
+  withCredentials?: boolean;
+  /** Exponential backoff for a dropped stream. */
+  reconnect?: RealtimeReconnectConfig;
+  /** How long the stream stays open with no subscriber. Default 30000. */
+  idleDisconnectMs?: number;
+  /** The query parameter that carries the topics. Default "topics". */
+  topicFilterParam?: string;
+  /** Called for every transport error, like a listener from `onError()`. */
+  onError?: (error: RealtimeTransportError) => void;
+  /** Used for the publish POST. Default the global `fetch`. */
+  fetch?: typeof fetch;
+}
+
+/** A `RealtimeTransport` with every optional member, plus `close()`. */
+interface SseTransport extends Required<RealtimeTransport> {
+  /** Closes the stream and sets `"disconnected"`; a later subscribe opens again. */
+  close(): void;
+}
+```
+
+## Returns
+
+Every member of `RealtimeTransport`, plus `close()`. The transport starts as
+`"idle"`, reads `"connected"` once the stream is open, and returns to `"idle"`
+`idleDisconnectMs` after the last unsubscribe. A `publish` never opens a stream.
+
+- The stream is a `GET` on `url` with the subscribed topics in the
+  `topicFilterParam` query parameter, comma separated. The server sends one
+  named event per topic, the event name being the topic, and `data` holding JSON
+  of `{ type, payload, meta }`.
+- Subscribes made in the same tick share one open. Subscribing to a topic the
+  open stream does not carry reopens it with the new topic added. Unsubscribing
+  leaves the stream as it is, and events for a topic with no subscriber are
+  dropped.
+- Data that is not JSON is reported as `parse_failed`. JSON with no `type` is
+  dropped.
+- `publish` sends a `POST` to `publishUrl` with a JSON body of `{ topic, event }`
+  and an `Authorization: Bearer <token>` header when there is a token. A status
+  outside 200 to 299 rejects it, as does a `fetch` that throws. A `publish`
+  rejects with a message naming `publishUrl` when that option is missing.
+- `EventSource` cannot set request headers, so the token always goes into the
+  stream URL as `token`, which carries the same risk as `authMode: "query"` on
+  `webSocketTransport`. Use a short-lived token.
+- `withCredentials` is passed to `EventSource` and sends credentials on the
+  `POST`. `fetch` replaces the global one for the `POST` only.
+- `close()` closes the stream and sets `"disconnected"`. A later subscribe opens
+  again.
+
+## Example
+
+```ts
+import { realtimeDataProvider, sseTransport } from "@chelone/core";
+import { baseProvider } from "./baseProvider";
+import { getSession } from "./session";
+
+export const transport = sseTransport({
+  url: "https://api.example.com/realtime/stream",
+  publishUrl: "https://api.example.com/realtime/publish",
+  getAuthToken: async () => (await getSession())?.accessToken,
+  topicFilterParam: "t",
+});
+
+export const dataProvider = realtimeDataProvider(baseProvider, transport);
+```
+
+See the [realtime guide](/docs/app-config/realtime) for the stream and publish
+shapes in full, the reconnect options and the Supabase transport.

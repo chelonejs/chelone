@@ -306,6 +306,24 @@ describe("RichTextInput", () => {
     expect(editor().isEditable).toBe(true);
   });
 
+  // Vue treats slot content that renders nothing as absent and shows the
+  // fallback, so an empty `#toolbar` keeps the default toolbar. There is no
+  // Vue equivalent of React's `toolbar={null}`.
+  it("keeps the default toolbar when the toolbar slot renders nothing", async () => {
+    const { wrapper } = await mountInput({}, { slots: { toolbar: () => [] } });
+    expect(wrapper.find('[role="toolbar"]').exists()).toBe(true);
+    expect(wrapper.find('button[aria-label="Bold"]').exists()).toBe(true);
+  });
+
+  it("drops the toolbar buttons when the toolbar slot renders an empty element", async () => {
+    const { wrapper } = await mountInput(
+      {},
+      { slots: { toolbar: () => h("span") } },
+    );
+    expect(wrapper.find('[role="toolbar"]').exists()).toBe(false);
+    expect(wrapper.find('button[aria-label="Bold"]').exists()).toBe(false);
+  });
+
   it("drops hostile markup from a stored value", async () => {
     const hostile = [
       "<img src=x onerror=alert(1)>",

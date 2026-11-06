@@ -1,0 +1,71 @@
+---
+title: "inMemoryLockProvider"
+description: "A LockProvider kept in a Map, for tests and demos. Locks do not outlive the page and never reach another browser."
+---
+
+`inMemoryLockProvider` holds record locks in a `Map` in this process. It is the
+`locks` option the demos and the tests pass to `realtimeDataProvider`.
+
+## Signature
+
+```ts
+function inMemoryLockProvider(
+  options?: InMemoryLockProviderOptions,
+): LockProvider
+
+interface InMemoryLockProviderOptions {
+  /** Told of each lock and unlock, on the record's and the resource's topic. */
+  publisher?: Pick<RealtimeTransport, "publish">;
+}
+```
+
+## Returns
+
+A `LockProvider`: `lock`, `unlock`, `getLock` and `getLocks`.
+
+- `lock` resolves the `Lock` it recorded, `{ resource, recordId, identity,
+  createdAt }`, with `createdAt` read from this process's clock. Locking again
+  as the holder resolves the existing lock rather than failing.
+- `lock` rejects with `LockConflictError` when another identity holds the
+  record. Its `existingLock` is that lock.
+- `unlock` resolves the released lock. It rejects with `LockConflictError` when
+  another identity holds the record, and with a plain error when there is no
+  lock to release, which is not a conflict.
+- `getLock` resolves `null` for a free record. `getLocks` resolves that
+  resource's locks only, empty when it holds none.
+- Identities and record ids are compared as strings, so `1` and `"1"` name the
+  same record, and a resource name cannot forge another record's key.
+- With a `publisher`, each lock and unlock is announced on `lockTopic` and
+  `lockResourceTopic` with the `Lock` as payload. A failed announce is
+  swallowed: the lock is already taken or released. Without a `publisher` the
+  provider is silent, and `LockStatus` does not update on its own.
+
+Nothing is enforced on writes. The provider records who holds what, and your
+server decides what a lock blocks. Locks live in this process, so they do not
+outlive the page or reach another browser.
+
+## Example
+
+```ts
+import {
+  inMemoryLockProvider,
+  memoryTransport,
+  realtimeDataProvider,
+} from "@chelone/core";
+import { baseProvider } from "./baseProvider";
+
+const transport = memoryTransport();
+
+export const locks = inMemoryLockProvider({ publisher: transport });
+
+export const dataProvider = realtimeDataProvider(baseProvider, transport, {
+  locks,
+});
+
+await locks.lock("posts", { id: 1, identity: "you" });
+// LockConflictError: the same record, another identity
+await locks.lock("posts", { id: "1", identity: "someone else" });
+```
+
+See the [realtime guide](/docs/app-config/realtime) for the `LockProvider`
+contract, the lock hooks and the Supabase locks table.
