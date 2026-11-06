@@ -12,6 +12,7 @@ import {
   type GetListParams,
   type LooseRecord,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -22,6 +23,7 @@ import Resource from "../../../admin/resource.vue";
 import { useListContext } from "../../../list/list-context";
 import List from "../view/list.vue";
 import CalendarList from "./calendar-list.vue";
+import type { CalendarDrop } from "./calendar-month-view.vue";
 
 const MEETINGS = [
   {
@@ -935,7 +937,7 @@ describe("<CalendarList> drag", () => {
   });
 
   it("an event with no end is dropped with no end", async () => {
-    const onDrop = vi.fn();
+    const onDrop = vi.fn<(record: LooseRecord, range: CalendarDrop) => void>();
     const { wrapper } = await mountList({
       list: calendar({ titleSource: "name", onDrop }),
     });
@@ -953,7 +955,7 @@ describe("<CalendarList> drag", () => {
     expect(onDrop.mock.calls[0]?.[1]).toEqual({
       start: new Date(2026, 5, 2, 15).toISOString(),
     });
-    expect("end" in (onDrop.mock.calls[0]?.[1] as object)).toBe(false);
+    expect("end" in defined(onDrop.mock.calls[0])[1]).toBe(false);
   });
 
   it("a multi-day event dragged from its second day moves by the day difference", async () => {
