@@ -9,6 +9,8 @@
  * listed in `maps` and `markers`; `resetFake()` empties both between tests.
  */
 
+import { elementOf } from "@chelone/test-utils";
+
 type Handler = (event?: unknown) => void;
 type LngLat = [lng: number, lat: number];
 
@@ -158,8 +160,13 @@ class FakeMap {
   }
 }
 
+interface FakeMarkerOptions {
+  element?: HTMLElement;
+  [key: string]: unknown;
+}
+
 class FakeMarker {
-  readonly options: Record<string, unknown>;
+  readonly options: FakeMarkerOptions;
   /** Every position set, oldest first. */
   readonly lngLats: LngLat[] = [];
   readonly handlers: Record<string, Handler[]> = {};
@@ -167,7 +174,7 @@ class FakeMarker {
   draggable: boolean;
   removed = false;
 
-  constructor(options: Record<string, unknown> = {}) {
+  constructor(options: FakeMarkerOptions = {}) {
     this.options = options;
     this.draggable = options.draggable === true;
     markers.push(this);
@@ -190,7 +197,7 @@ class FakeMarker {
   }
 
   getElement(): HTMLElement {
-    return this.options.element as HTMLElement;
+    return elementOf(this.options.element, HTMLElement);
   }
 
   addTo(map: FakeMap): this {
