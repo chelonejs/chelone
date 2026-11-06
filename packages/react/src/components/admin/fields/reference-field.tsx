@@ -1,4 +1,4 @@
-import type { Identifier, LooseRecord, SourceProp } from "@chelone/core";
+import { isIdentifier, type LooseRecord, type SourceProp } from "@chelone/core";
 import type { MouseEvent, ReactNode } from "react";
 import { useGetManyAggregate } from "../../../hooks";
 import { useTranslate } from "../../../i18n-hooks";
@@ -86,10 +86,10 @@ function ReferenceField<RecordType extends LooseRecord = LooseRecord>(
     error: errorElement = null,
   } = props;
 
-  const id = useFieldValue({
-    source: source as SourceProp<RecordType>,
-    record,
-  }) as Identifier | null | undefined;
+  // The FK read: a record whose type does not pin `source` gives an unknown
+  // value, so the guard is what makes it an id.
+  const foreignKey = useFieldValue({ source, record });
+  const id = isIdentifier(foreignKey) ? foreignKey : undefined;
   const translate = useTranslate();
   const getRecordRepresentation = useGetRecordRepresentation(reference);
   const definition = useResourceDefinition({ resource: reference });
@@ -101,7 +101,7 @@ function ReferenceField<RecordType extends LooseRecord = LooseRecord>(
     { ids: id != null ? [id] : [] },
     { enabled: id != null },
   );
-  const referenceRecord = data?.[0] as LooseRecord | undefined;
+  const referenceRecord = data?.[0];
 
   // Compute the link path unconditionally (Rules of Hooks): the hook owns the
   // `link==null` inference (show → edit → none, gated on the reference's
@@ -110,7 +110,7 @@ function ReferenceField<RecordType extends LooseRecord = LooseRecord>(
   // returns) keeps the hook order stable across renders.
   const linkPath = useGetPathForRecord({
     resource: reference,
-    record: referenceRecord as { id: Identifier } | undefined,
+    record: referenceRecord,
     // `useResourceDefinition` returns a partial (fields optional); the hook only
     // needs the show/edit flags, defaulted to `false` when the resource is
     // unregistered or the view is absent.

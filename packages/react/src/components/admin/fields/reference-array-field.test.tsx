@@ -361,6 +361,31 @@ describe("<ReferenceArrayField>", () => {
     expect(getMany.mock.calls[0]?.[1].ids).toHaveLength(2);
   });
 
+  it("keeps the valid ids of a partially valid FK array", async () => {
+    const dataProvider = fakeDataProvider({ tags: structuredClone(tags) });
+    const getMany = vi.spyOn(dataProvider, "getMany");
+    renderUnderAdmin(
+      <ReferenceArrayField
+        source="tag_ids"
+        reference="tags"
+        record={{ id: 1, tag_ids: [1, null, 2] }}
+      >
+        <ListStatus />
+      </ReferenceArrayField>,
+      dataProvider,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole("listitem").map((item) => item.textContent),
+      ).toEqual(["Tech", "News"]),
+    );
+    expect(getMany).toHaveBeenCalledTimes(1);
+    expect(getMany).toHaveBeenCalledWith(
+      "tags",
+      expect.objectContaining({ ids: [1, 2] }),
+    );
+  });
+
   it("resolves the array of FKs and lists the referenced records", async () => {
     const Providers = makeProviders();
     render(

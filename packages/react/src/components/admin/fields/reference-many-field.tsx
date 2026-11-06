@@ -6,7 +6,6 @@ import type {
 } from "@chelone/core";
 import type { ReactNode } from "react";
 import { ListContextProvider } from "../../../form";
-import type { RecordContextValue } from "../../../record/record-context";
 import { useReferenceManyFieldController } from "../../../reference-hooks";
 import { ResourceContextProvider } from "../../../resource";
 
@@ -85,7 +84,7 @@ function ReferenceManyField<RecordType extends LooseRecord = LooseRecord>(
     reference,
     target,
     source,
-    record: record as RecordContextValue,
+    record,
     sort,
     filter,
     perPage,

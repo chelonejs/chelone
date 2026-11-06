@@ -1,7 +1,6 @@
 <script lang="ts">
 import type {
   FilterPayload,
-  Identifier,
   LooseRecord,
   SortPayload,
   SourceProp,
@@ -37,7 +36,7 @@ export interface ReferenceArrayFieldProps {
  * `provideListContext` + `provideResourceContext`.
  */
 
-import type { ResourceRecord } from "@chelone/core";
+import { identifiersOf } from "@chelone/core";
 import { computed } from "vue";
 import { useGetManyAggregate } from "../../../data/queries";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -49,9 +48,9 @@ const props = defineProps<ReferenceArrayFieldProps>();
 
 const value = useFieldValue({ source: props.source, record: props.record });
 
-const ids = computed<Identifier[]>(() =>
-  Array.isArray(value.value) ? (value.value as Identifier[]) : [],
-);
+// The FK array read. A partially valid array (a nullable int[] reads as
+// `[1, null, 2]`) keeps the ids it has, as it did before the guard.
+const ids = computed(() => identifiersOf(value.value));
 
 const query = useGetManyAggregate(
   props.reference,
@@ -62,10 +61,7 @@ const query = useGetManyAggregate(
 // Only "pending" while a non-empty fetch is in flight; an empty FK array
 // resolves to an empty list synchronously.
 const listContext = useList({
-  data: () =>
-    (ids.value.length > 0
-      ? (query.data.value ?? undefined)
-      : []) as ResourceRecord[] | undefined,
+  data: () => (ids.value.length > 0 ? (query.data.value ?? undefined) : []),
   isPending: () => (ids.value.length > 0 ? query.isPending.value : false),
   isFetching: () => (ids.value.length > 0 ? query.isFetching.value : false),
   error: () => query.error.value,
