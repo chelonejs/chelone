@@ -1,0 +1,19 @@
+---
+title: "ReverseGeocodeField"
+description: "Names the position held in two record fields, latSource and lngSource, as an address read from a geocoding provider. format keeps the whole name, or shortens it to its first part with street or to its first two with city. Renders nothing when either field is not a number or a numeric string, a skeleton while the lookup runs, and the coordinates to 4 decimals when the provider knows no place. Needs a provider, from provider or MapsProvider."
+---
+{/* generated:gen-component-stubs */}
+
+Names the position held in two record fields, `latSource` and `lngSource`, as an address read from a geocoding provider. `format` keeps the whole name, or shortens it to its first part with `street` or to its first two with `city`. Renders nothing when either field is not a number or a numeric string, a skeleton while the lookup runs, and the coordinates to 4 decimals when the provider knows no place. Needs a provider, from `provider` or `MapsProvider`.
+
+## Installation
+
+```tsx
+import { ReverseGeocodeField } from "@chelone/react/maps/osm";
+```
+
+See the [maps guide](/docs/app-config/maps) for the subpaths, the optional packages and `MapsProvider`.
+
+## Props
+
+<PropsTable name="ReverseGeocodeField" />

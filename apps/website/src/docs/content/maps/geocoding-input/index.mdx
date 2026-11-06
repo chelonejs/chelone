@@ -1,0 +1,19 @@
+---
+title: "GeocodingInput"
+description: "Searches an address with a geocoding provider and writes the result the user picks to the form: its name to source, its latitude to latSource, its longitude to lngSource and its box to bboxSource, when the result has one. A provider that allows typeahead searches as the user types, after debounceMs; any other searches on Enter or on the Search button. Text typed by hand is saved when the field loses focus and clears latSource, lngSource and bboxSource, so they never describe a different address. Needs a provider, from provider or MapsProvider."
+---
+{/* generated:gen-component-stubs */}
+
+Searches an address with a geocoding provider and writes the result the user picks to the form: its name to `source`, its latitude to `latSource`, its longitude to `lngSource` and its box to `bboxSource`, when the result has one. A provider that allows typeahead searches as the user types, after `debounceMs`; any other searches on Enter or on the Search button. Text typed by hand is saved when the field loses focus and clears `latSource`, `lngSource` and `bboxSource`, so they never describe a different address. Needs a provider, from `provider` or `MapsProvider`.
+
+## Installation
+
+```tsx
+import { GeocodingInput } from "@chelone/react/maps/osm";
+```
+
+See the [maps guide](/docs/app-config/maps) for the subpaths, the optional packages and `MapsProvider`.
+
+## Props
+
+<PropsTable name="GeocodingInput" />

@@ -1,0 +1,19 @@
+---
+title: "MapWithSearch"
+description: "An address search over a map: a <GeocodingInput> on addressSource above a map with a pin on latSource and lngSource. Picking a result fills all three fields and moves the pin. Clicking the map or dragging the pin writes the address of that spot, unless the service finds none, and the lookup runs only after such a gesture, never on mount and never after a pick, so a picked address is never overwritten. Needs the optional maplibre-gl peer."
+---
+{/* generated:gen-component-stubs */}
+
+An address search over a map: a `<GeocodingInput>` on `addressSource` above a map with a pin on `latSource` and `lngSource`. Picking a result fills all three fields and moves the pin. Clicking the map or dragging the pin writes the address of that spot, unless the service finds none, and the lookup runs only after such a gesture, never on mount and never after a pick, so a picked address is never overwritten. Needs the optional `maplibre-gl` peer.
+
+## Installation
+
+```tsx
+import { MapWithSearch } from "@chelone/react/maps/osm";
+```
+
+See the [maps guide](/docs/app-config/maps) for the subpaths, the optional packages and `MapsProvider`.
+
+## Props
+
+<PropsTable name="MapWithSearch" />

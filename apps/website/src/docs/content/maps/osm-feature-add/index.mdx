@@ -1,0 +1,19 @@
+---
+title: "OsmFeatureAdd"
+description: "A button that merges OpenStreetMap areas into the Polygon or MultiPolygon held in source, queried from Overpass by presets and tags. The request runs on the click, and the result is written like a user edit, so the form turns dirty and the field's validators run. A merge that would leave a Polygon as several pieces is refused with a warning and the value is left as it was. Needs an Overpass provider, from provider or MapsProvider. It is OsmFeatureOperator with mode set to add for you."
+---
+{/* generated:gen-component-stubs */}
+
+A button that merges OpenStreetMap areas into the Polygon or MultiPolygon held in `source`, queried from Overpass by `presets` and `tags`. The request runs on the click, and the result is written like a user edit, so the form turns dirty and the field's validators run. A merge that would leave a Polygon as several pieces is refused with a warning and the value is left as it was. Needs an Overpass provider, from `provider` or `MapsProvider`. It is `OsmFeatureOperator` with `mode` set to `add` for you.
+
+## Installation
+
+```tsx
+import { OsmFeatureAdd } from "@chelone/react/maps/osm";
+```
+
+See the [maps guide](/docs/app-config/maps) for the subpaths, the optional packages and `MapsProvider`.
+
+## Props
+
+<PropsTable name="OsmFeatureAdd" />

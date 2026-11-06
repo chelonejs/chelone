@@ -41,4 +41,16 @@ export default [
       "feature-collection-input",
     ],
   },
+  // The pieces of the `maps/osm` entry, which call a geocoding or OpenStreetMap
+  // service the app supplies.
+  {
+    category: "Geocoding and OpenStreetMap",
+    slugs: [
+      "geocoding-input",
+      "map-with-search",
+      "reverse-geocode-field",
+      "osm-feature-add",
+      "osm-feature-subtract",
+    ],
+  },
 ] satisfies MetaEntry[];
