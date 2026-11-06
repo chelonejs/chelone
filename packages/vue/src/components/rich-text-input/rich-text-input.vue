@@ -1,6 +1,7 @@
 <script lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
 import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { Editor, EditorOptions } from "@tiptap/core";
+import type { RichTextImageOptions } from "@chelone/core";
 import type { SourceInputProps } from "../admin/inputs/source-input-props";
 
 /** Props for {@link RichTextInput}. */
@@ -13,6 +14,8 @@ export interface RichTextInputProps<
   readOnly?: boolean;
   /** Shown while the editor is empty. */
   placeholder?: string;
+  /** Image insertion and upload settings. False leaves images out of the default schema. */
+  images?: boolean | RichTextImageOptions;
   /**
    * Extra tiptap editor options, spread last: `extensions` here replaces the
    * default set. `onUpdate` and `onBlur` run after the input's own.
@@ -52,7 +55,7 @@ import {
 import { Placeholder } from "@tiptap/extensions";
 import { TextSelection } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
-import { EditorContent, useEditor } from "@tiptap/vue-3";
+import { Editor as VueEditor, EditorContent, useEditor } from "@tiptap/vue-3";
 import { computed, type VNode, watch } from "vue";
 import { useInput } from "../../form/use-input";
 import { useResourceContext } from "../../resource-context";
@@ -60,6 +63,7 @@ import FieldLabelText from "../admin/common/field-label-text.vue";
 import InputHelperText from "../admin/common/input-helper-text.vue";
 import ErrorMessage from "../admin/common/validation-error.vue";
 import { Field, FieldError, FieldLabel } from "../ui/field";
+import { getRichTextHtml, RichTextImage, resolveRichTextImageConfig } from "./rich-text-image";
 import RichTextToolbar from "./rich-text-toolbar.vue";
 import "./rich-text.css";
 
@@ -70,6 +74,7 @@ const props = withDefaults(
   {
     label: undefined,
     helperText: undefined,
+    images: true,
   },
 );
 
@@ -95,9 +100,10 @@ const starterKitOptions = {
   heading: { levels: [...richTextStarterKitOptions.heading.levels] },
 };
 
-const editor = useEditor({
+const buildEditorOptions = (): Partial<EditorOptions> => ({
   extensions: [
     StarterKit.configure(starterKitOptions),
+    ...(props.images === false ? [] : [RichTextImage.configure({ config: () => resolveRichTextImageConfig(props.images) })]),
     // The extension reads the text on each render, so a new one needs no new editor.
     Placeholder.configure({ placeholder: () => props.placeholder ?? "" }),
   ],
@@ -111,7 +117,7 @@ const editor = useEditor({
   },
   ...props.editorOptions,
   onUpdate: (event) => {
-    setValue(event.editor.isEmpty ? "" : event.editor.getHTML());
+    setValue(getRichTextHtml(event.editor));
     props.editorOptions?.onUpdate?.(event);
   },
   onBlur: (event) => {
@@ -119,6 +125,18 @@ const editor = useEditor({
     props.editorOptions?.onBlur?.(event);
   },
 });
+
+const editor = useEditor(buildEditorOptions());
+watch(
+  () => props.images === false,
+  () => {
+    const current = editor.value;
+    if (!current) return;
+    const content = getRichTextHtml(current);
+    current.destroy();
+    editor.value = new VueEditor({ ...buildEditorOptions(), content });
+  },
+);
 
 // `setEditable` and the placeholder text dispatch nothing, so an empty
 // transaction tells the toolbar and the placeholder decoration to read again.
@@ -135,7 +153,7 @@ watch(
 // A reset or `setValue` changes the form value without the editor knowing.
 watch([editor, html], ([current, next]) => {
   if (!current) return;
-  const now = current.isEmpty ? "" : current.getHTML();
+  const now = getRichTextHtml(current);
   if (now === next) return;
   const { from, to } = current.state.selection;
   current.commands.setContent(next, { emitUpdate: false });
