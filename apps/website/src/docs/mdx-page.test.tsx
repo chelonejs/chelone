@@ -129,3 +129,40 @@ it("keeps exactly one hand-placed preview on page-components/create", async () =
   expect(await screen.findByLabelText("Title")).toBeTruthy();
   expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(1);
 });
+
+// The hook pages are hand-written MDX, so a bad JSX escape in their prose would
+// fail the build rather than a props lookup. Rendering them catches it here.
+it.each([
+  ["use-get-list-live", "useGetListLive"],
+  ["use-get-one-live", "useGetOneLive"],
+  ["use-get-many-live", "useGetManyLive"],
+  ["use-lock", "useLock"],
+  ["use-unlock", "useUnlock"],
+  ["use-get-lock", "useGetLock"],
+  ["use-get-lock-live", "useGetLockLive"],
+  ["use-get-locks", "useGetLocks"],
+  ["use-get-locks-live", "useGetLocksLive"],
+  ["use-lock-on-mount", "useLockOnMount"],
+])(
+  "renders the realtime %s page with its signature, returns and example",
+  async (slug, title) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/realtime/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: title }),
+    ).toBeTruthy();
+    for (const heading of ["Signature", "Returns", "Example", "In Vue"]) {
+      expect(
+        screen.getByRole("heading", { level: 2, name: heading }),
+        heading,
+      ).toBeTruthy();
+    }
+    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+  },
+);
