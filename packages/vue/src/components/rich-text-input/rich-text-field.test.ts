@@ -8,7 +8,7 @@ import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
-import { defineComponent, h, type VNodeChild } from "vue";
+import { defineComponent, h, nextTick, ref, type VNodeChild } from "vue";
 import { provideCheloneContext } from "../../context";
 import { provideRecordContext } from "../../record/record-context";
 import RichTextField, { type RichTextFieldProps } from "./rich-text-field.vue";
@@ -85,6 +85,38 @@ describe("RichTextField", () => {
     const wrapper = mountField({}, { id: 1, body: null });
     const root = wrapper.get('[data-slot="rich-text-field"]');
     expect(root.element.innerHTML).toBe("");
+  });
+
+  it("follows the record prop when it changes", async () => {
+    const record = ref<LooseRecord | undefined>(undefined);
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideCheloneContext({
+            dataProvider: fakeDataProvider({}),
+            queryClient: new QueryClient(),
+            i18n,
+          });
+          return () =>
+            h(RichTextField, {
+              source: "body",
+              record: record.value,
+              empty: "myapp.empty",
+            });
+        },
+      }),
+      { attachTo: document.body },
+    );
+    mounted.push(wrapper);
+    expect(wrapper.text()).toBe("no content");
+
+    record.value = { id: 1, body: "<p>a</p>" };
+    await nextTick();
+    expect(wrapper.get("p").text()).toBe("a");
+
+    record.value = { id: 2, body: "<p>b</p>" };
+    await nextTick();
+    expect(wrapper.get("p").text()).toBe("b");
   });
 
   it("renders a non-string value through String()", () => {

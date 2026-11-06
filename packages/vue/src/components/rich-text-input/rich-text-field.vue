@@ -53,8 +53,12 @@ defineSlots<{ empty?: () => VNode[] }>();
 
 const value = useFieldValue<RecordType>({
   source: props.source,
-  record: props.record,
-  defaultValue: props.defaultValue,
+  get record() {
+    return props.record;
+  },
+  get defaultValue() {
+    return props.defaultValue;
+  },
 });
 const translate = useTranslate();
 
