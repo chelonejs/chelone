@@ -13,9 +13,9 @@ import {
 } from "@chelone/core";
 import { defined } from "@chelone/test-utils";
 import {
-  StubIntersectionObserver,
-  StubPointerEvent,
-  stubAnimations,
+  listCentre,
+  mousePointerEvent,
+  stubListDragDom,
 } from "@chelone/test-utils/drag-dom";
 import { QueryClient } from "@tanstack/react-query";
 import {
@@ -365,45 +365,13 @@ describe("<Configurable>", () => {
   });
 });
 
-/**
- * jsdom has no `PointerEvent`, layout or `elementFromPoint`, so a drag stubs
- * them and dnd-kit runs unmocked: rows stack 40 px apart in list order.
- */
+/** jsdom has no layout, so rows stack 40 px apart in list order. */
 const ROW_HEIGHT = 40;
-
-function rectOf(el: Element): DOMRect {
-  const row = el.closest("[data-slot=fields-selector-row]");
-  const rows = Array.from(
-    document.querySelectorAll("[data-slot=fields-selector-row]"),
-  );
-  const [x, y, width, height] = row
-    ? [0, rows.indexOf(row) * ROW_HEIGHT, 300, ROW_HEIGHT]
-    : [0, 0, 1024, 768];
-  // The held row moves with a CSS translate, which jsdom does not lay out.
-  const [dx = 0, dy = 0] = (
-    (el instanceof HTMLElement &&
-      el.style.getPropertyValue("--dnd-translate")) ||
-    ""
-  )
-    .split(" ")
-    .map((n) => Number.parseFloat(n) || 0);
-  return new DOMRect(x + dx, y + dy, width, height);
-}
-
-function stubDragDom() {
-  vi.stubGlobal("PointerEvent", StubPointerEvent);
-  vi.stubGlobal("IntersectionObserver", StubIntersectionObserver);
-  stubAnimations();
-  vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
-    function (this: Element) {
-      return rectOf(this);
-    },
-  );
-  document.elementFromPoint = (_x: number, y: number) =>
-    document.querySelectorAll<HTMLElement>("[data-slot=fields-selector-row]")[
-      Math.floor(y / ROW_HEIGHT)
-    ] ?? document.body;
-}
+const layout = {
+  rowSelector: "[data-slot=fields-selector-row]",
+  rowHeight: ROW_HEIGHT,
+};
+const stubDragDom = () => stubListDragDom(layout);
 
 const STORE_KEY = "posts.datatable";
 const col = (source: string) => <DataTable.Col key={source} source={source} />;
@@ -421,28 +389,12 @@ const wait = (ms: number) =>
   getConfig().asyncWrapper(
     () => new Promise<void>((resolve) => setTimeout(resolve, ms)),
   );
-const centre = (el: Element) => {
-  const { x, y, width, height } = rectOf(el);
-  return { x: x + width / 2, y: y + height / 2 };
-};
+const centre = (el: Element) => listCentre(el, layout);
 const pointer = (
   target: Element | Document,
   type: "pointerdown" | "pointermove" | "pointerup",
   at: { x: number; y: number },
-) =>
-  fireEvent(
-    target,
-    new PointerEvent(type, {
-      bubbles: true,
-      cancelable: true,
-      clientX: at.x,
-      clientY: at.y,
-      pointerType: "mouse",
-      pointerId: 1,
-      isPrimary: true,
-      button: 0,
-    }),
-  );
+) => fireEvent(target, mousePointerEvent(type, at));
 
 describe("<SortableFieldsSelector>", () => {
   beforeEach(stubDragDom);
