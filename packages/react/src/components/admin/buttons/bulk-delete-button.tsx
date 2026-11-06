@@ -16,7 +16,6 @@
 
 import {
   definedParams,
-  type Identifier,
   type MutationMode,
   removeRecordsFromCache,
 } from "@chelone/core";
@@ -130,14 +129,13 @@ function BulkDeleteButton(props: BulkDeleteButtonProps) {
     e.stopPropagation();
     if (mutationMode === "undoable") {
       if (!resource) return;
-      const ids = selectedIds as Identifier[];
       runUndoable({
         queryKeys: [[resource]],
         applyOptimistic: () =>
-          removeRecordsFromCache(queryClient, resource, ids),
-        commit: () => dataProvider.deleteMany(resource, { ids }),
+          removeRecordsFromCache(queryClient, resource, selectedIds),
+        commit: () => dataProvider.deleteMany(resource, { ids: selectedIds }),
         message: "chelone.notification.deleted",
-        messageArgs: { smart_count: ids.length },
+        messageArgs: { smart_count: selectedIds.length },
         onCommitError: () => {
           notify("chelone.notification.http_error", { type: "error" });
           refresh();
@@ -159,9 +157,7 @@ function BulkDeleteButton(props: BulkDeleteButtonProps) {
     if (!resource) return;
     setPending(true);
     try {
-      await dataProvider.deleteMany(resource, {
-        ids: selectedIds as Identifier[],
-      });
+      await dataProvider.deleteMany(resource, { ids: selectedIds });
       notify("chelone.notification.deleted", {
         type: "info",
         messageArgs: { smart_count: selectedIds.length },

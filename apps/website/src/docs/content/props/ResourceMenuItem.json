@@ -30,12 +30,6 @@
       "type": "() => void",
       "optional": true,
       "comment": "Click handler invoked after the default navigation (e.g. close drawer)."
-    },
-    {
-      "name": "tooltipProps",
-      "type": "Record<string, unknown>",
-      "optional": true,
-      "comment": "Extra props spread onto the underlying `<SidebarMenuButton>`."
     }
   ]
 }

@@ -106,10 +106,7 @@ const getResourceMenuGroups = (
  */
 function Menu({ children, className }: MenuProps) {
   const hasDashboard = useHasDashboard();
-  const resources = useResourceDefinitions() as Record<
-    string,
-    ResourceDefinition
-  >;
+  const resources = useResourceDefinitions();
   const { groupedResources, ungroupedResources } =
     getResourceMenuGroups(resources);
 
