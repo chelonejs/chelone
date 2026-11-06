@@ -84,10 +84,10 @@ interface Book {
 }
 
 function BookList() {
-  const { data = [] } = useListContext();
+  const { data = [] } = useListContext<Book>();
   return (
     <ul>
-      {(data as Book[]).map((b) => (
+      {data.map((b) => (
         <li key={b.id}>{`${b.title} (${b.year})`}</li>
       ))}
     </ul>
@@ -201,11 +201,11 @@ function Probe() {
     setFilters,
     toggleItem,
     unselectAll,
-  } = useListContext();
+  } = useListContext<Book>();
   return (
     <div>
       <ul>
-        {(data as Book[]).map((b) => (
+        {data.map((b) => (
           <li key={b.id}>{b.title}</li>
         ))}
       </ul>

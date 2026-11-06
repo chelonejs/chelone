@@ -80,10 +80,10 @@ interface Row {
 }
 
 function TagList() {
-  const { data = [] } = useListContext();
+  const { data = [] } = useListContext<Row>();
   return (
     <ul>
-      {(data as Row[]).map((t) => (
+      {data.map((t) => (
         <li key={t.id}>{t.name}</li>
       ))}
     </ul>

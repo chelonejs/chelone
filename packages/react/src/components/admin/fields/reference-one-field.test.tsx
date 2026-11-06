@@ -13,6 +13,7 @@ import {
   createResourceRegistry,
   defineMessages,
   fakeDataProvider,
+  type LooseRecord,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
@@ -75,6 +76,16 @@ function makeProviders() {
   return makeHarness().Providers;
 }
 
+/**
+ * The `render` prop hands over a `LooseRecord`, so reading `body` off it needs a
+ * check rather than a cast: a missing or non-string `body` fails at this line.
+ */
+function bodyOf(bio: LooseRecord | undefined): string {
+  const body = bio?.body;
+  if (typeof body !== "string") throw new Error("Expected a string bio.body");
+  return body;
+}
+
 afterEach(cleanup);
 
 describe("<ReferenceOneField>", () => {
@@ -104,7 +115,7 @@ describe("<ReferenceOneField>", () => {
           <ReferenceOneField
             reference="bios"
             target="author_id"
-            render={(bio) => <span>{(bio as { body?: string })?.body}</span>}
+            render={(bio) => <span>{bodyOf(bio)}</span>}
           />
         </RecordContextProvider>
       </Providers>,
