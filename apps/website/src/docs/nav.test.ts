@@ -4,8 +4,12 @@ import { test } from "vitest";
 import { buildNavTree, lastSegment } from "./nav.ts";
 import type { DocGroup, DocLeaf, DocNode } from "./types.ts";
 
+/** Every node as a leaf, throwing on a group so a stray one still fails. */
 function leavesOf(nodes: DocNode[]): DocLeaf[] {
-  return nodes.filter((n): n is DocLeaf => n.kind === "leaf");
+  return nodes.map((n) => {
+    if (n.kind !== "leaf") throw new Error(`Expected a leaf, got ${n.dir}`);
+    return n;
+  });
 }
 
 function groupOf(node: DocNode | undefined): DocGroup {
