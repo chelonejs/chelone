@@ -83,12 +83,16 @@ interface FileLink {
 const links = computed<FileLink[]>(() => {
   if (!Array.isArray(sourceValue.value)) return [];
   return sourceValue.value.map((file, index) => {
+    // Inside `props.title ?`, the fallback is never nullish.
     const fileTitleValue = props.title
       ? String(getAtPath(file, props.title) ?? props.title)
       : props.title;
-    const srcValue = props.src
-      ? String(getAtPath(file, props.src) ?? props.title)
+    // `src` falls back to `props.title`, which may be absent: a miss stays
+    // `undefined` so the link gets no href, never the text "undefined".
+    const srcPath = props.src
+      ? (getAtPath(file, props.src) ?? props.title)
       : props.title;
+    const srcValue = srcPath == null ? undefined : String(srcPath);
     return { href: srcValue, title: fileTitleValue, key: srcValue ?? index };
   });
 });

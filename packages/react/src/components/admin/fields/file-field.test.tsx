@@ -169,6 +169,24 @@ describe("<FileField>", () => {
     );
   });
 
+  it("leaves the href off an array item whose src path misses", () => {
+    const { container } = render(
+      <Providers>
+        <RecordContextProvider
+          value={{
+            id: 1,
+            files: [{ src: "a.pdf", name: "A" }, { name: "B" }],
+          }}
+        >
+          <FileField source="files" src="src" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    const links = Array.from(container.querySelectorAll("a"));
+    expect(links).toHaveLength(2);
+    expect(links.map((a) => a.getAttribute("href"))).toEqual(["a.pdf", null]);
+  });
+
   it("omits title and avoids a whole-record leak when no title prop is given", () => {
     const { container } = render(
       <Providers>

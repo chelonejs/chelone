@@ -241,6 +241,22 @@ describe("FileField", () => {
     expect(links.map((a) => a.attributes("href"))).toEqual(["a.pdf", "b.pdf"]);
   });
 
+  it("leaves the href off an array item whose src path misses", () => {
+    const w = mountField(
+      FileField,
+      { source: "files", src: "url" },
+      {
+        files: [{ url: "a.pdf", name: "A" }, { name: "B" }],
+      },
+    );
+    const links = w.findAll('[data-slot="file-field"] a');
+    expect(links).toHaveLength(2);
+    expect(links.map((a) => a.attributes("href"))).toEqual([
+      "a.pdf",
+      undefined,
+    ]);
+  });
+
   it("renders the empty placeholder for a nullish value", () => {
     const w = mountField(
       FileField,
@@ -295,6 +311,17 @@ describe("ImageField", () => {
     const imgs = w.findAll('[data-slot="image-field"] img');
     expect(imgs.map((i) => i.attributes("src"))).toEqual(["a.png", "b.png"]);
     expect(imgs.map((i) => i.attributes("title"))).toEqual(["A", "B"]);
+  });
+
+  it("leaves the src off an array item whose src path misses", () => {
+    const w = mountField(
+      ImageField,
+      { source: "pics", src: "url" },
+      { pics: [{ alt: "x" }] },
+    );
+    const imgs = w.findAll('[data-slot="image-field"] img');
+    expect(imgs).toHaveLength(1);
+    expect(imgs[0]?.attributes("src")).toBeUndefined();
   });
 
   it("renders the empty placeholder for a nullish value", () => {

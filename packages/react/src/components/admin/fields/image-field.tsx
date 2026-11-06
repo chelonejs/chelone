@@ -73,12 +73,14 @@ function ImageField<RecordType extends LooseRecord = LooseRecord>(
       >
         <ul>
           {value.map((file, index) => {
+            // Inside `title ?`, `title` is a string, so the fallback is never nullish.
             const fileTitleValue = title
               ? String(getAtPath(file, title) ?? title)
               : title;
-            const srcValue = src
-              ? String(getAtPath(file, src) ?? title)
-              : title;
+            // `src` falls back to `title`, which may be absent: a miss stays
+            // `undefined` so the img gets no src, never the text "undefined".
+            const srcPath = src ? (getAtPath(file, src) ?? title) : title;
+            const srcValue = srcPath == null ? undefined : String(srcPath);
 
             return (
               <li key={srcValue ?? index}>
