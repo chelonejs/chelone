@@ -29,12 +29,15 @@ import {
   ref,
 } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
-import Command from "../ui/command/command.vue";
-import CommandGroup from "../ui/command/command-group.vue";
-import CommandInput from "../ui/command/command-input.vue";
-import CommandItem from "../ui/command/command-item.vue";
-import { useCommand } from "../ui/command/context";
-import { CommandEmpty, CommandList } from "../ui/command/parts";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  useCommand,
+} from "../ui/command";
 import { translateBlock } from "./block-nodes";
 
 const props = withDefaults(defineProps<BlockPickerProps>(), {

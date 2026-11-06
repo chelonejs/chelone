@@ -6766,6 +6766,7 @@
       "description": "The opt-in block editor add-on: BlockEditorInput edits a document of rich text and app-defined blocks in a tiptap editor with a slash menu, and BlockDocField shows that document read-only. defineBlock declares a block from a Zod schema and its components. Installs the tiptap packages.",
       "registryDependencies": [
         "@chelone/button",
+        "@chelone/command",
         "@chelone/field",
         "@chelone/field-label-text",
         "@chelone/input-helper-text",
@@ -6911,7 +6912,7 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/block-nodes"],
+      "registryDependencies": ["@chelone/block-nodes", "@chelone/command"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
