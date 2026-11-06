@@ -1,0 +1,29 @@
+{
+  "name": "FieldsSelectorRow",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "index",
+      "type": "number",
+      "optional": false,
+      "comment": "The row's position in the full order, not among the search results."
+    }
+  ]
+}

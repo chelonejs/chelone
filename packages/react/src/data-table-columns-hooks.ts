@@ -2,6 +2,7 @@ import {
   type DataTableColumnInfo,
   dataTableColumnKeys,
   moveColumn,
+  moveColumnTo,
   noop,
   toggleHiddenColumn,
 } from "@chelone/core";
@@ -22,6 +23,8 @@ export interface UseDataTableColumnsResult {
   order: readonly string[];
   toggle: (id: string) => void;
   move: (id: string, direction: -1 | 1) => void;
+  /** Move a column to an index in the resolved order, clamped to the ends. */
+  moveTo: (id: string, index: number) => void;
   /** Forget the stored choices so the table's own defaults apply again. */
   reset: () => void;
   publish: (columns: readonly DataTableColumnInfo[]) => void;
@@ -102,6 +105,19 @@ export function useDataTableColumns({
       ),
     [store, keys, order, columns],
   );
+  const moveTo = useCallback(
+    (id: string, index: number) =>
+      store?.setItem(
+        keys.order,
+        moveColumnTo(
+          order,
+          columns.map((column) => column.id),
+          id,
+          index,
+        ),
+      ),
+    [store, keys, order, columns],
+  );
   const reset = useCallback(() => {
     store?.removeItem(keys.hidden);
     store?.removeItem(keys.order);
@@ -117,5 +133,5 @@ export function useDataTableColumns({
     [store, keys],
   );
 
-  return { columns, hidden, order, toggle, move, reset, publish };
+  return { columns, hidden, order, toggle, move, moveTo, reset, publish };
 }
