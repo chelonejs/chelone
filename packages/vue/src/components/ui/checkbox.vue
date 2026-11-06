@@ -27,7 +27,8 @@ const classes = computed(() =>
 );
 
 function onChange(event: Event) {
-  emit("update:modelValue", (event.target as HTMLInputElement).checked);
+  if (event.target instanceof HTMLInputElement)
+    emit("update:modelValue", event.target.checked);
 }
 </script>
 

@@ -392,6 +392,7 @@ export type {
   ItemDefaultsOf,
 } from "./form/array-binding";
 export { createArrayBinding } from "./form/array-binding";
+export { toIdentifierList } from "./form/choice-ids";
 export type {
   ChoicesController,
   ChoicesControllerContext,
