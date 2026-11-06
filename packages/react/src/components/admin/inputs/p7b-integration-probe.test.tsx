@@ -27,6 +27,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -150,11 +151,10 @@ function AllInputs() {
  * (the `source`) is exact and marker-agnostic.
  */
 function control(name: string): HTMLInputElement {
-  const el = document.querySelector(
-    `[name="${name}"]`,
-  ) as HTMLInputElement | null;
-  if (!el) throw new Error(`no control with name="${name}"`);
-  return el;
+  return elementOf(
+    document.querySelector(`[name="${name}"]`),
+    HTMLInputElement,
+  );
 }
 
 afterEach(() => cleanup());
@@ -326,7 +326,9 @@ describe("P7b input-integration probe (one form, four inputs)", () => {
     // The other-field error slot is clean (only the boolean changed).
     const titleField = control("title").closest("[data-slot='field']");
     if (titleField) {
-      expect(within(titleField as HTMLElement).queryByRole("alert")).toBeNull();
+      expect(
+        within(elementOf(titleField, HTMLElement)).queryByRole("alert"),
+      ).toBeNull();
     }
   });
 });
