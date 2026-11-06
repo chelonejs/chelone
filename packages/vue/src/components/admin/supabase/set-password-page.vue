@@ -16,6 +16,7 @@ export interface SetPasswordPageProps {
  * register the route at `setPasswordPath` from `@chelone/supabase`.
  */
 
+import type { VNode } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import AuthLayout from "../auth/auth-layout.vue";
 import SetPasswordForm from "./set-password-form.vue";
@@ -24,7 +25,7 @@ const props = defineProps<SetPasswordPageProps>();
 
 defineSlots<{
   /** Custom content in place of the default `<SetPasswordForm>`. */
-  default?: () => unknown;
+  default?: () => VNode[];
 }>();
 
 const translate = useTranslate();

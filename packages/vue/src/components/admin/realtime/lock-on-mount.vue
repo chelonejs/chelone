@@ -24,7 +24,7 @@ export interface LockOnMountProps {
  */
 
 import { LockConflictError } from "@chelone/core";
-import { computed } from "vue";
+import { computed, type VNode } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useLockOnMount } from "../../../realtime/locks";
 import { Alert, AlertDescription } from "../../ui/alert";
@@ -33,9 +33,9 @@ import Skeleton from "../../ui/skeleton.vue";
 const props = defineProps<LockOnMountProps>();
 
 defineSlots<{
-  default?: () => unknown;
-  loading?: () => unknown;
-  "locked-by"?: (props: { lock: Lock }) => unknown;
+  default?: () => VNode[];
+  loading?: () => VNode[];
+  "locked-by"?: (props: { lock: Lock }) => VNode[];
 }>();
 
 const translate = useTranslate();

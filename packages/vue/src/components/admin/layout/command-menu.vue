@@ -52,6 +52,7 @@ import {
   provide,
   ref,
   shallowRef,
+  type VNode,
   watch,
 } from "vue";
 import { useCheloneNotifications } from "../../../context";
@@ -76,7 +77,7 @@ const props = withDefaults(defineProps<CommandMenuProps>(), {
   searchDebounceMs: 250,
 });
 
-defineSlots<{ default?: () => unknown }>();
+defineSlots<{ default?: () => VNode[] }>();
 
 const translate = useTranslate();
 const notifications = useCheloneNotifications();
