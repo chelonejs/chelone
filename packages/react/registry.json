@@ -6548,15 +6548,24 @@
         "@chelone/core",
         "@chelone/react",
         "@tiptap/core",
+        "@tiptap/extension-code-block",
+        "@tiptap/extension-code-block-lowlight",
         "@tiptap/extension-image",
+        "@tiptap/extension-text-style",
         "@tiptap/extensions",
         "@tiptap/pm",
         "@tiptap/react",
         "@tiptap/starter-kit",
         "dompurify",
+        "highlight.js",
+        "lowlight",
         "lucide-react"
       ],
       "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-color.tsx",
+          "type": "registry:component"
+        },
         {
           "path": "src/components/rich-text-input/rich-text-extensions.ts",
           "type": "registry:component"
@@ -6593,6 +6602,21 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "rich-text-color",
+      "type": "registry:component",
+      "title": "Rich Text Color",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-color.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/react", "@tiptap/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "rich-text-extensions",
       "type": "registry:component",
       "title": "Rich Text Extensions",
@@ -6606,8 +6630,14 @@
       "dependencies": [
         "@chelone/core",
         "@tiptap/core",
+        "@tiptap/extension-code-block",
+        "@tiptap/extension-code-block-lowlight",
+        "@tiptap/extension-text-style",
         "@tiptap/extensions",
-        "@tiptap/starter-kit"
+        "@tiptap/pm",
+        "@tiptap/starter-kit",
+        "highlight.js",
+        "lowlight"
       ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6721,6 +6751,7 @@
         "@chelone/button",
         "@chelone/lib-utils",
         "@chelone/native-select",
+        "@chelone/rich-text-color",
         "@chelone/rich-text-image",
         "@chelone/rich-text-image-form",
         "@chelone/rich-text-url-form",

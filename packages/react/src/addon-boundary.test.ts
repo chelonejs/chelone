@@ -52,11 +52,16 @@ const ADDONS: {
     packages: [
       "dompurify",
       "@tiptap/core",
+      "@tiptap/extension-code-block",
+      "@tiptap/extension-code-block-lowlight",
       "@tiptap/extension-image",
+      "@tiptap/extension-text-style",
       "@tiptap/extensions",
       "@tiptap/pm",
       "@tiptap/react",
       "@tiptap/starter-kit",
+      "highlight.js",
+      "lowlight",
     ],
   },
   {
