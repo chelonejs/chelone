@@ -1663,6 +1663,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/inputs/in-place-editor.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/inputs/loading-input.tsx",
           "type": "registry:component"
         },
@@ -4266,6 +4270,27 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "in-place-editor",
+      "type": "registry:component",
+      "title": "In Place Editor",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/in-place-editor.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-field",
+        "@chelone/text-input",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "loading-input",
       "type": "registry:component",
       "title": "Loading Input",
@@ -6168,7 +6193,15 @@
       "dependencies": ["@chelone/core", "@chelone/react", "recharts"],
       "files": [
         {
+          "path": "src/components/charts/bar-chart.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/charts/chart-frame.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/charts/donut-chart.tsx",
           "type": "registry:component"
         },
         {
@@ -6176,6 +6209,21 @@
           "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bar-chart",
+      "type": "registry:component",
+      "title": "Bar Chart",
+      "files": [
+        {
+          "path": "src/components/charts/bar-chart.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/chart", "@chelone/chart-frame"],
+      "dependencies": ["@chelone/core", "recharts"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6188,8 +6236,27 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/card", "@chelone/skeleton"],
+      "registryDependencies": [
+        "@chelone/card",
+        "@chelone/chart",
+        "@chelone/skeleton"
+      ],
       "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "donut-chart",
+      "type": "registry:component",
+      "title": "Donut Chart",
+      "files": [
+        {
+          "path": "src/components/charts/donut-chart.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/chart", "@chelone/chart-frame"],
+      "dependencies": ["@chelone/core", "recharts"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
