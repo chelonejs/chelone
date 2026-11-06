@@ -77,6 +77,7 @@ The full prop list for `<Admin>` and `<Resource>` is on the
 | `<PermissionMatrix>` takes `value` and `onChange`. | `<PermissionMatrix>` is a `v-model`: `modelValue` in and `update:modelValue` out with the whole next value. It takes `class` where React takes `className`. | [Permission Matrix](/docs/editing/permission-matrix) |
 | `<InPlaceEditor>` takes `children` for the shown value and `editor` for the input. | `<InPlaceEditor>` takes the default slot for the shown value and the `#editor` slot for the input. | [In Place Editor](/docs/editing/in-place-editor) |
 | `<InPlaceEditor>` takes `onSuccess` and `onError` props. | `<InPlaceEditor>` emits `success` with the saved record and `error` with the failure. | [In Place Editor](/docs/editing/in-place-editor) |
+| `<Configurable>` takes an `editor` node prop, and `<InspectorButton>` takes the shadcn button props with an `onClick`. | `<Configurable>` takes the `#editor` slot, and `<InspectorButton>` takes `label`, `class` and `disabled`, has an `#icon` slot and emits `click`. Both take `class` where React takes `className`. | [Inspector](/docs/ui-layout/inspector) |
 | `<OnboardingTour>` takes an `onComplete` prop, called with `"finished"` or `"skipped"`. | `<OnboardingTour>` emits `complete` with the same two values. | [Onboarding Tour](/docs/ui-layout/onboarding-tour) |
 | `<OnboardingTour>` steps take a `title` and `content` that are nodes. | A step's `title` and `content` are strings. A `#step` slot, given `{ step, index }`, replaces both. | [Onboarding Tour](/docs/ui-layout/onboarding-tour) |
 | `<TrendChart>` and `<BarChart>` plot the row's `xField` value on the x axis. | They plot the row index and label each tick with that row's `xField`, so any x value keeps its order. With more than 7 rows only every step-th tick is labelled. | [Trend Chart](/docs/ui-layout/trend-chart), [Bar Chart](/docs/ui-layout/bar-chart) |
@@ -117,7 +118,10 @@ block editor is a fifth: `<BlockEditorInput>`, `<BlockDocField>` and
 `defineBlock` come from `@chelone/vue/block-editor` and need the `@tiptap/*`
 packages. `<BlockEditor>` emits `change` with the document, and
 `<BlockDocField>` takes a string `empty` with a `#empty` slot where React takes
-an `empty` node.
+an `empty` node. The inspector is a sixth: `<Inspector>`, `<InspectorButton>`,
+`<Configurable>`, `<ConfigurableInputs>` and `<SortableFieldsSelector>` come
+from `@chelone/vue/inspector` and need `@dnd-kit/vue`, where React has
+`@chelone/react/inspector` and `@dnd-kit/react`.
 
 | React | Vue | React page |
 | ----- | --- | ---------- |

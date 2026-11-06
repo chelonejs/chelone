@@ -14,6 +14,8 @@ const vueComponentsIndex = read(
 const vueKanbanEntry = read("../../../packages/vue/src/kanban.ts");
 // The charts ship from the `/charts` subpath for the same reason.
 const vueChartsEntry = read("../../../packages/vue/src/charts.ts");
+// So does the inspector group ship from the `/inspector` subpath.
+const vueInspectorEntry = read("../../../packages/vue/src/inspector.ts");
 
 /** The one table row holding `needle`, so a claim can be pinned to its row. */
 function rowContaining(needle: string): string {
@@ -43,7 +45,7 @@ it("the differences page names TabbedFormTab, WizardFormStep and the Confirm eve
 });
 
 it("the Vue components the differences page names are exported by @chelone/vue", () => {
-  const exported = `${vueIndex}\n${vueComponentsIndex}\n${vueKanbanEntry}\n${vueChartsEntry}`;
+  const exported = `${vueIndex}\n${vueComponentsIndex}\n${vueKanbanEntry}\n${vueChartsEntry}\n${vueInspectorEntry}`;
   for (const name of [
     "Confirm",
     "BooleanField",
@@ -65,6 +67,7 @@ it("the Vue components the differences page names are exported by @chelone/vue",
     "BulkEditDrawer",
     "FilterLiveSearch",
     "ColumnsButton",
+    "Configurable",
     "TreeList",
     "PivotGrid",
     "RecordTimeline",
@@ -127,6 +130,17 @@ it("the differences page says the charts are an add-on and MetricCard is not", (
   expect(flat).toMatch(
     /`@unovis\/ts`, where React has `@chelone\/react\/charts`/,
   );
+});
+
+it("the differences page names the Configurable editor slot and the inspector add-on", () => {
+  const row = rowContaining("`<InspectorButton>`");
+  expect(row).toContain("`<Configurable>` takes the `#editor` slot");
+  expect(row).toContain("](/docs/ui-layout/inspector)");
+  const flat = page.replace(/\s+/g, " ");
+  expect(flat).toContain("`@chelone/vue/inspector`");
+  expect(flat).toContain("`@dnd-kit/vue`");
+  expect(flat).toContain("`@chelone/react/inspector`");
+  expect(flat).toContain("`@dnd-kit/react`");
 });
 
 it("the differences page names the three Vue maps entries, the native combobox and the range input", () => {

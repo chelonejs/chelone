@@ -68,7 +68,7 @@ export default [
   },
   {
     category: "Forms",
-    slugs: ["tabbed-form", "wizard-form", "filter-form"],
+    slugs: ["tabbed-form", "wizard-form", "filter-form", "configurable-inputs"],
   },
   {
     category: "Buttons",

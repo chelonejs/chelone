@@ -1,0 +1,284 @@
+---
+title: "Inspector"
+description: "A floating, draggable panel that edits whichever outlined piece of the page the user picks, with a button that turns configure mode on."
+registry: "inspector"
+---
+
+`<Inspector>` is a floating panel that edits whichever piece of the page the
+user picks. `<InspectorButton>` turns configure mode on, `<Configurable>` marks
+a piece as configurable, and the panel shows that piece's `editor`. It is an
+add-on: none of the four components is in the `@chelone/react` or `@chelone/vue`
+barrel, and the drag path needs an optional peer. See
+[Installing the add-on](#installing-the-add-on).
+
+## When to use it
+
+Use it when a user should decide how a screen looks for them: which columns a
+table shows, which inputs a form has. You build the layout once, and the user's
+choices go in the store, not in your code.
+
+For the columns of a `<DataTable>` in one list,
+[`<ColumnsButton>`](/docs/viewing/columns-button) is the simpler shape: the same
+list, inline in that list's toolbar, with no add-on to install. The inspector is
+for choices that belong to the whole screen, and for editors other than a column
+list.
+
+## Mounting it
+
+Wrap the layout in `<Inspector>`, in the `Admin.Layout` slot, the way
+[`<CommandMenu>`](/docs/ui-layout/command-menu) is mounted. Mount it once: the
+panel it renders is fixed to the viewport.
+
+```tsx
+import { Admin, Layout, Resource } from "@chelone/react";
+import { Inspector } from "@chelone/react/inspector";
+
+const AppLayout = ({ children }) => (
+  <Inspector>
+    <Layout>{children}</Layout>
+  </Inspector>
+);
+
+<Admin dataProvider={dataProvider} store={store}>
+  <Admin.Layout>
+    <AppLayout />
+  </Admin.Layout>
+  <Resource name="posts" list={PostList} />
+</Admin>;
+```
+
+Put `<InspectorButton>` wherever the user can reach it, in a list `actions` or a
+toolbar. It renders nothing where no `<Inspector>` is mounted, so one shared
+toolbar works in every app.
+
+```tsx
+import { DataTable, List } from "@chelone/react";
+import { InspectorButton } from "@chelone/react/inspector";
+
+export function PostList() {
+  return (
+    <List actions={<InspectorButton />}>
+      <DataTable>
+        <DataTable.Col source="title" />
+      </DataTable>
+    </List>
+  );
+}
+```
+
+In Vue the button goes in the list's `#actions` slot, imported from
+`@chelone/vue/inspector`.
+
+In Vue the default slot of `<Inspector>` holds the layout. The example passes
+`<router-view />` to `<Layout>`.
+
+```vue
+<script setup lang="ts">
+import { Admin, Layout, Resource } from "@chelone/vue";
+import { Inspector } from "@chelone/vue/inspector";
+</script>
+
+<template>
+  <Admin :data-provider="dataProvider" :store="store">
+    <Resource name="posts" :list="PostList" />
+
+    <template #layout>
+      <Inspector>
+        <Layout>
+          <router-view />
+        </Layout>
+      </Inspector>
+    </template>
+  </Admin>
+</template>
+```
+
+## Configure mode
+
+- `<InspectorButton>` toggles the mode and reports it with `aria-pressed`. Its
+  `onClick` runs first, and calling `preventDefault` on the event keeps the mode
+  as it is. In Vue it emits `click` with the same rule.
+- While the mode is on, every `<Configurable>` on the page is outlined with a
+  dashed line and shows a Customize button. The one the user picked is outlined
+  with a solid line.
+- The panel's Close button turns the mode off and clears the selection.
+- While nothing is selected the panel says `Pick an outlined element to
+  configure it`.
+- `useInspector()` returns the state and the calls that change it: `enabled`,
+  `selected`, `enable`, `disable`, `toggle`, `select` and `release`. Outside an
+  `<Inspector>` it returns `null`, which is how `<InspectorButton>` and
+  `<Configurable>` leave themselves out of an app that mounts no panel. In Vue it
+  returns a ref that follows the state, or `null`, and is called in `setup`.
+
+## Marking a piece configurable
+
+`<Configurable>` needs a `preferenceKey`, which names the piece, so a stale
+unmount cannot clear another piece's selection. `title` is the panel's title
+while the piece is selected, and `editor` is what the panel shows: a React prop,
+or the `#editor` slot in Vue.
+
+```tsx
+import { DataTable, List } from "@chelone/react";
+import {
+  Configurable,
+  SortableFieldsSelector,
+} from "@chelone/react/inspector";
+
+export function PostList() {
+  return (
+    <Configurable
+      preferenceKey="posts.columns"
+      title="Columns"
+      editor={<SortableFieldsSelector storeKey="posts.datatable" />}
+    >
+      <List>
+        <DataTable>
+          <DataTable.Col source="title" />
+          <DataTable.Col source="body" />
+        </DataTable>
+      </List>
+    </Configurable>
+  );
+}
+```
+
+In Vue the editor goes in the `#editor` slot:
+
+```vue
+<Configurable preference-key="posts.columns" title="Columns">
+  <List>
+    <DataTable>
+      <DataTableCol source="title" />
+      <DataTableCol source="body" />
+    </DataTable>
+  </List>
+
+  <template #editor>
+    <SortableFieldsSelector store-key="posts.datatable" />
+  </template>
+</Configurable>
+```
+
+- The editor is portalled into the panel, so it reads the resource, list and
+  record contexts around its `<Configurable>`, not the ones around the
+  `<Inspector>`. A `SortableFieldsSelector` in the panel therefore labels the
+  columns of the table next to it.
+- The wrapper is there whether or not the mode is on, so turning the mode on
+  never remounts your children.
+- Unmounting the selected `<Configurable>` empties the panel. Unmounting another
+  one leaves the selection alone.
+- Without an `<Inspector>` above it, `<Configurable>` renders its children and
+  nothing else.
+- `<SortableFieldsSelector>` is [`<FieldsSelector>`](/docs/viewing/fields-selector)
+  with a grip on each row. It takes the same `storeKey` and `resource` props, and
+  Move up and Move down stay as the keyboard path. The grip is off while the list
+  is searched, because the order on screen is then not the real one.
+- For the inputs of a form, use
+  [`<ConfigurableInputs>`](/docs/editing/configurable-inputs), which is a
+  `<Configurable>` that already holds a `SortableFieldsSelector`.
+
+## Moving the panel
+
+- Drag the header. The header is the grip, and only the primary pointer button
+  drags. A press on a button inside the header, the Close button, is not a drag.
+- With the header focused, the arrow keys move the panel 16px at a time. The
+  header is a `role="toolbar"` you can tab to. A key pressed on the Close button
+  stays that button's own.
+- The panel is 320px wide and kept on screen: at least 8px from the left and
+  right edges, and its header always visible. A stored position that no longer
+  fits is clamped, and a window resize re-clamps it.
+- With a `store` on `<Admin>`, the place is saved under
+  `chelone.inspector.position` and comes back on the next load. Without a store
+  it lives in the panel and is lost when the panel closes. The store is on the
+  [Admin page](/docs/app-config/admin).
+
+## Props
+
+<PropsTable name="Inspector" />
+<PropsTable name="InspectorButton" />
+<PropsTable name="Configurable" />
+<PropsTable name="SortableFieldsSelector" />
+
+The tables show the React props. The Vue shape is below.
+
+## Translation
+
+Every string goes through `translate` with an English default, so
+[i18n messages](/docs/app-config/translation) override it. The table covers the
+whole add-on, `<ConfigurableInputs>` included.
+
+| Key | English default |
+| --- | --------------- |
+| `chelone.inspector.configure_mode` | Configure mode |
+| `chelone.inspector.customize` | Customize |
+| `chelone.inspector.title` | Inspector |
+| `chelone.inspector.empty` | Pick an outlined element to configure it |
+| `chelone.inspector.drag_field` | Drag to reorder |
+| `chelone.inspector.inputs_title` | Form, the panel title `<ConfigurableInputs>` gives itself |
+| `ra.action.close` | Close |
+
+The list inside the panel labels its search box, its move buttons and its Reset
+button with keys of its own. React uses `ra.action.search_columns`,
+`ra.action.move_column_up`, `ra.action.move_column_down`,
+`ra.action.reset_columns` and `ra.action.clear_input_value`. Vue uses
+`ra.action.search`, `ra.action.move_up`, `ra.action.move_down`,
+`ra.action.reset` and `ra.action.clear_input_value`.
+
+## Installing the add-on
+
+The registry copies the four components, plus the `<FieldsSelector>` they build
+on, into your project, and installs the drag peer for you:
+
+```bash
+npx shadcn add @chelone/inspector
+```
+
+Or import from the npm subpath and install the peer yourself. For React that is
+`@dnd-kit/react`:
+
+```bash
+pnpm add @dnd-kit/react
+```
+
+```tsx
+import {
+  Configurable,
+  Inspector,
+  InspectorButton,
+  SortableFieldsSelector,
+} from "@chelone/react/inspector";
+```
+
+For Vue it is `@dnd-kit/vue`, which needs Vue 3.5:
+
+```bash
+pnpm add @dnd-kit/vue
+```
+
+```ts
+import {
+  Configurable,
+  Inspector,
+  InspectorButton,
+  SortableFieldsSelector,
+} from "@chelone/vue/inspector";
+```
+
+`<FieldsSelector>`, the list without the grips, ships in both base packages and
+needs no peer. The main entries never import dnd-kit, so an app that does not use
+the add-on does not need it.
+
+## In Vue
+
+- `class` styles the panel, where React takes `className`.
+- `editor` is the `#editor` slot, given nothing. React takes a node.
+- `<InspectorButton>` takes `label`, `class` and `disabled`, replaces the glyph
+  with the `#icon` slot, and emits `click`. React takes the button props, so
+  `variant`, `size`, `icon` and `asChild` are yours to set, plus `onClick`.
+- The tooltip is the native `title`, because the Vue `ui` slice has no
+  `Tooltip`.
+- `useInspector()` returns a ref that follows the state, or `null`, and must be
+  called in `setup`.
+
+The Vue [differences page](/docs/vue/differences) lists the same changes with the
+other add-on notes.
