@@ -12,6 +12,7 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: read
 
 env:
   TURBO_CACHE_DIR: .turbo/cache
@@ -28,6 +29,13 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           cache-key: check
+      - name: Release notes parse
+        if: startsWith(github.head_ref, 'release-please--')
+        run: pnpm check:release-notes ${{ github.event.pull_request.number }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Script tests
+        run: pnpm test:scripts
       - name: Lint
         run: pnpm lint
       - name: No new duplication
