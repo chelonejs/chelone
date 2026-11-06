@@ -157,6 +157,26 @@ describe("rich text color", () => {
     );
   });
 
+  it("Enter inside a colored run keeps the color on the text typed there", async () => {
+    const editor = await mountInput(
+      {},
+      '<p><span style="color: var(--rich-text-color-bright-red);">first</span></p>',
+    );
+    // Between "fi" and "rst".
+    editor().commands.focus(3);
+
+    fireEvent.keyDown(screen.getByRole("textbox"), {
+      key: "Enter",
+      code: "Enter",
+      keyCode: 13,
+    });
+    editor().commands.insertContent({ type: "text", text: "X" });
+
+    expect(editor().getHTML()).toBe(
+      '<p><span style="color: var(--rich-text-color-bright-red);">fi</span></p><p><span style="color: var(--rich-text-color-bright-red);">Xrst</span></p>',
+    );
+  });
+
   it("colors false leaves out the button", async () => {
     const editor = await mountInput({ colors: false }, "<p>hello</p>");
     expect(screen.queryByRole("button", { name: "Text color" })).toBeNull();

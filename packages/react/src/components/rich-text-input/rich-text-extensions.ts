@@ -27,7 +27,8 @@ const codeBlockOptions: Partial<CodeBlockOptions> = richTextCodeBlockOptions;
 
 /**
  * Splitting a block would carry the color into the next line, so a color ends
- * with the line it was set on. It runs before the keymap, which handles Enter.
+ * with the line it was set on, unless colored text follows the cursor. It runs
+ * before the keymap, which handles Enter.
  */
 const EndColorOnEnter = Extension.create({
   name: "endColorOnEnter",
@@ -53,6 +54,11 @@ const EndColorOnEnter = Extension.create({
             return null;
           }
           enterPressed = false;
+          // Text after the cursor that is still colored keeps the color running.
+          const after = state.selection.$from.nodeAfter;
+          if (after?.marks.some((mark) => mark.type.name === "textStyle")) {
+            return null;
+          }
           const marks = state.storedMarks ?? state.selection.$from.marks();
           const kept = marks.filter((mark) => mark.type.name !== "textStyle");
           return kept.length === marks.length
