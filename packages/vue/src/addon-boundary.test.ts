@@ -39,6 +39,19 @@ const ADDONS = [
     packages: ["@milkdown/crepe", "@milkdown/kit"],
   },
   {
+    name: "rich-text-input",
+    folder: "src/components/rich-text-input",
+    entry: "src/rich-text-input.ts",
+    packages: [
+      "@tiptap/core",
+      "@tiptap/pm",
+      "@tiptap/vue-3",
+      "@tiptap/starter-kit",
+      "@tiptap/extensions",
+      "dompurify",
+    ],
+  },
+  {
     name: "maps",
     folder: "src/components/maps",
     entry: "src/maps.ts",
