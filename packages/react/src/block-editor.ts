@@ -19,3 +19,10 @@ export {
   defineBlock,
   NodeViewContent,
 } from "./components/block-editor/block-nodes";
+export {
+  calloutBlock,
+  defaultBlocks,
+  embedBlock,
+  imageBlock,
+  toggleBlock,
+} from "./components/block-editor/default-blocks";

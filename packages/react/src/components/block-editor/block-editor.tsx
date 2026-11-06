@@ -25,12 +25,14 @@ import {
   unknownBlockNode,
 } from "./block-nodes";
 import { BlockPicker } from "./block-picker";
+import { BlockToolbar } from "./block-toolbar";
+import { defaultBlocks } from "./default-blocks";
 import { createSlashExtension, type SlashCallbacks } from "./slash-command";
 
 interface BlockEditorProps {
   /** The document, as tiptap JSON. `null` or `undefined` is an empty document. */
   value?: BlockDocNode | null;
-  /** Read once, when the editor mounts. Names must be unique. */
+  /** Read once, when the editor mounts. Names must be unique. Defaults to `defaultBlocks`. */
   blocks?: readonly BlockDefinition[];
   editable?: boolean;
   /** Shown in an empty paragraph. */
@@ -69,7 +71,7 @@ const contentClass = cn(
  */
 function BlockEditor({
   value,
-  blocks = [],
+  blocks = defaultBlocks,
   editable = true,
   placeholder,
   className,
@@ -229,6 +231,9 @@ function BlockEditor({
             {translate("chelone.block_editor.add_block", { _: "Add block" })}
           </Button>
         </div>
+      ) : null}
+      {editable && editor ? (
+        <BlockToolbar editor={editor} registry={setup.registry} />
       ) : null}
       <EditorContent editor={editor} />
       {editable && picker ? (

@@ -8,27 +8,21 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import { Editor } from "@tiptap/core";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { mountUnderForm } from "../rich-text-input/__fixtures__/rich-text-harness";
-import { BlockDocField } from "./block-doc-field";
 import {
-  BlockEditorInput,
-  type BlockEditorInputProps,
-} from "./block-editor-input";
+  doc,
+  mountBlockEditor,
+  paragraph,
+  stubLayout,
+  type Values,
+} from "./__fixtures__/block-editor-harness";
+import { BlockDocField } from "./block-doc-field";
+import type { BlockEditorInputProps } from "./block-editor-input";
 import { defineBlock } from "./block-nodes";
 
-// ProseMirror measures the DOM while it scrolls the selection into view,
-// which jsdom has no layout for.
-beforeAll(() => {
-  const rect = new DOMRect(0, 0, 0, 0);
-  const rects = Object.assign([], { item: () => null });
-  Range.prototype.getClientRects = () => rects;
-  Range.prototype.getBoundingClientRect = () => rect;
-  Element.prototype.getClientRects = () => rects;
-  document.elementFromPoint = () => null;
-});
+beforeAll(stubLayout);
 
 afterEach(() => cleanup());
 
@@ -62,50 +56,10 @@ const counter = defineBlock({
 
 const blocks = [callout, counter];
 
-const paragraph = (text: string): BlockDocNode => ({
-  type: "paragraph",
-  content: [{ type: "text", text }],
-});
-const doc = (...content: BlockDocNode[]): BlockDocNode => ({
-  type: "doc",
-  content,
-});
-
-interface Values {
-  // `BlockDocNode` is recursive, which form-core's path types cannot follow.
-  body: object | null;
-}
-
-/** tiptap leaves its editor on the ProseMirror element. */
-function editorOf(element: Element): Editor {
-  const editor = Object.getOwnPropertyDescriptor(element, "editor")?.value;
-  if (!(editor instanceof Editor))
-    throw new Error("No tiptap editor on the element");
-  return editor;
-}
-
-async function mountInput(
+const mountInput = (
   props: Partial<BlockEditorInputProps> = {},
-  options: {
-    defaultValues?: Values;
-    onData?: (data: Values) => void;
-  } = { defaultValues: { body: null } },
-) {
-  const mounted = mountUnderForm<Values>(
-    <BlockEditorInput source="body" blocks={blocks} {...props} />,
-    options,
-  );
-  const textbox = await screen.findByRole("textbox");
-  return {
-    ...mounted,
-    dom: () => elementOf(textbox, HTMLElement),
-    editor: () => editorOf(textbox),
-    submit: () =>
-      act(async () => {
-        await mounted.form().submit();
-      }),
-  };
-}
+  options?: Parameters<typeof mountBlockEditor>[1],
+) => mountBlockEditor({ blocks, ...props }, options);
 
 describe("<BlockEditorInput>", () => {
   it("renders the stored document", async () => {
