@@ -14,18 +14,20 @@ function SelectFirstPage() {
   }, [select]);
 
   return (
-    <DataTable rowClick={false}>
+    <DataTable rowClick={false} bulkActionButtons>
       <DataTable.Col source="title" />
       <DataTable.NumberCol source="views" />
     </DataTable>
   );
 }
 
-/** `<SelectAllButton>` appears once every row of the page is selected, and selects the other 25 posts on click. */
+/** `<SelectAllButton>` appears once every row of the page is checked, and checks the other 25 posts on click. The table's own checkboxes and the "5 rows selected" bar make the selection visible. */
 export default function SelectAllButtonDemo() {
   return (
-    <List perPage={5} actions={<SelectAllButton />}>
-      <SelectFirstPage />
-    </List>
+    <div className="w-full pb-24 [transform:translateZ(0)]">
+      <List perPage={5} actions={<SelectAllButton />}>
+        <SelectFirstPage />
+      </List>
+    </div>
   );
 }
