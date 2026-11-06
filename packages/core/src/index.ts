@@ -15,6 +15,8 @@ export type {
 export { createAssistantSession } from "./assistant/assistant-session";
 export type { EchoAssistantTransportOptions } from "./assistant/echo-transport";
 export { echoAssistantTransport } from "./assistant/echo-transport";
+export type { HttpAssistantTransportOptions } from "./assistant/http-transport";
+export { httpAssistantTransport } from "./assistant/http-transport";
 export type {
   AssistantChunk,
   AssistantMessage,
