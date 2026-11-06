@@ -1,8 +1,4 @@
-import {
-  type Identifier,
-  type LiveSubscription,
-  subscribeLiveRecord,
-} from "@chelone/core";
+import { type LiveSubscription, subscribeLiveRecord } from "@chelone/core";
 import { type RefObject, useEffect, useRef } from "react";
 import { useCheloneContext } from "../../../context";
 import { useShowContext } from "../../../record-view-context";
@@ -29,7 +25,7 @@ function ShowLive(props: ShowLiveProps) {
   const contextResource = useResourceContext();
   const resource = props.resource ?? contextResource;
   const params = useParams();
-  const id = props.id ?? (params.id as Identifier | undefined);
+  const id = props.id ?? params.id;
   const { dataProvider, queryClient } = useCheloneContext();
 
   const subscriptionRef = useRef<LiveSubscription | null>(null);

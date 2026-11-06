@@ -57,7 +57,7 @@ const subscriptions = new WeakMap<
 const toEventsKey = (events: RealtimeEventType[]): string =>
   [...new Set(events)].sort().join(",");
 const fromEventsKey = (eventsKey: string): RealtimeEventType[] =>
-  eventsKey.split(",").filter(Boolean) as RealtimeEventType[];
+  eventsKey.split(",").filter(Boolean);
 
 /**
  * Links with the same resource and events share a store key, so they share

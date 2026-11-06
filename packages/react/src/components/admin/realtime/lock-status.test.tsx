@@ -190,6 +190,21 @@ describe("<LockStatus>", () => {
     expect(getLock).not.toHaveBeenCalled();
   });
 
+  it("LockStatus renders nothing without a record", async () => {
+    const { getLock, Providers } = setup();
+
+    const { container } = render(
+      <ResourceContextProvider value="posts">
+        <LockStatus renderFree={() => <p>Available</p>} />
+      </ResourceContextProvider>,
+      { wrapper: Providers },
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(container.textContent).toBe("");
+    expect(getLock).not.toHaveBeenCalled();
+  });
+
   it("treats id 0 as an id", async () => {
     const { locks, getLock, Providers } = setup();
     await locks.lock("posts", { id: 0, identity: "ann" });
