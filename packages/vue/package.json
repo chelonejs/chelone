@@ -139,7 +139,8 @@
     "terra-draw": "^1.39.0",
     "terra-draw-maplibre-gl-adapter": "^1.5.0",
     "vue": "^3.4.0",
-    "vue-router": "^4.0.0 || ^5.0.0"
+    "vue-router": "^4.0.0 || ^5.0.0",
+    "@tiptap/extension-image": "^3.33.0"
   },
   "peerDependenciesMeta": {
     "@chelone/supabase": {
@@ -216,6 +217,9 @@
     },
     "terra-draw-maplibre-gl-adapter": {
       "optional": true
+    },
+    "@tiptap/extension-image": {
+      "optional": true
     }
   },
   "devDependencies": {
@@ -259,6 +263,7 @@
     "vue": "^3.5.45",
     "vue-router": "^5.4.0",
     "vue-tsc": "^3.3.14",
-    "zod": "^4.6.7"
+    "zod": "^4.6.7",
+    "@tiptap/extension-image": "^3.33.0"
   }
 }
