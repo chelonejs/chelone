@@ -3,10 +3,11 @@ import {
   createI18n,
   fakeDataProvider,
 } from "@chelone/core";
+import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { defineComponent, h, nextTick, type VNodeChild } from "vue";
-import { type CheloneContextValue, provideCheloneContext } from "../context";
+import { provideCheloneContext } from "../context";
 import {
   useLocale,
   useLocaleState,
@@ -16,6 +17,9 @@ import {
 import { useTranslate } from "./use-translate";
 
 const dataProvider = fakeDataProvider({});
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+});
 
 function makeI18n(): AnyCheloneI18n {
   return createI18n({
@@ -24,7 +28,7 @@ function makeI18n(): AnyCheloneI18n {
       en: { greeting: "Hello" },
       fr: { greeting: "Bonjour" },
     },
-  }) as AnyCheloneI18n;
+  });
 }
 
 /** Mount `child` under a context that carries `i18n` (or none). */
@@ -35,7 +39,7 @@ function mountWith(
   const Child = defineComponent({ setup: child });
   const Host = defineComponent({
     setup() {
-      provideCheloneContext({ dataProvider, i18n } as CheloneContextValue);
+      provideCheloneContext({ dataProvider, queryClient, i18n });
       return () => h(Child);
     },
   });
@@ -109,10 +113,10 @@ describe("useLocales", () => {
   });
 
   it("useLocales keeps the code as the name for a tag Intl rejects", () => {
-    const i18n = createI18n({
+    const i18n: AnyCheloneI18n = createI18n({
       locale: "en",
       messages: { en: { greeting: "Hello" }, "not a tag!": {} },
-    }) as AnyCheloneI18n;
+    });
     expect(localesWith(i18n)).toEqual([
       { locale: "en", name: "English" },
       { locale: "not a tag!", name: "not a tag!" },

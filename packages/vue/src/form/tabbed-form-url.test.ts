@@ -6,6 +6,7 @@
  */
 
 import { fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { enableAutoUnmount, flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -114,7 +115,7 @@ const visibleTabs = (wrapper: Wrapper) =>
     .filter((tab) => tab.attributes("hidden") === undefined)
     .map((tab) => tab.attributes("data-chelone-tab"));
 const inputValue = (wrapper: Wrapper, tab: string) =>
-  (panel(wrapper, tab).get("input").element as HTMLInputElement).value;
+  elementOf(panel(wrapper, tab).get("input").element, HTMLInputElement).value;
 
 /** Wait until the edit form has loaded the record into a tab's input. */
 async function waitForValue(wrapper: Wrapper, tab: string, value: string) {

@@ -61,6 +61,7 @@ export default [
       "subscription-plan-picker",
       "webhook-endpoint-input",
       "permission-matrix",
+      "in-place-editor",
     ],
   },
   {

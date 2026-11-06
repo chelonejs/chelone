@@ -1186,6 +1186,14 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/inputs/in-place-editor-form.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/inputs/in-place-editor.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/inputs/label-text.ts",
           "type": "registry:component"
         },
@@ -3876,6 +3884,41 @@
         "@chelone/image-input-thumbnail"
       ],
       "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "in-place-editor-form",
+      "type": "registry:component",
+      "title": "In Place Editor Form",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/in-place-editor-form.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "in-place-editor",
+      "type": "registry:component",
+      "title": "In Place Editor",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/in-place-editor.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/in-place-editor-form",
+        "@chelone/text-field",
+        "@chelone/text-input",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
