@@ -1,0 +1,20 @@
+---
+title: "SocialAuthButton"
+description: "A button that starts an OAuth sign-in: a click calls login on the auth provider with provider and a redirect, which the Supabase provider turns into signInWithOAuth. redirect defaults to the current URL, children replaces the label, and a failed sign-in shows an error notification. Each provider has a ready-made button (GithubButton, ...) with its icon and a translated label."
+registry: "social-auth-button"
+---
+{/* generated:gen-component-stubs */}
+
+A button that starts an OAuth sign-in: a click calls `login` on the auth provider with `provider` and a `redirect`, which the Supabase provider turns into `signInWithOAuth`. `redirect` defaults to the current URL, `children` replaces the label, and a failed sign-in shows an error notification. Each provider has a ready-made button (`GithubButton`, ...) with its icon and a translated label.
+
+## Import
+
+```tsx
+import { SocialAuthButton } from "@chelone/react/supabase";
+```
+
+See the [Supabase pages guide](/docs/app-config/supabase-pages) for mounting the pages, the recovery flow, the provider buttons and the Vue slots.
+
+## Props
+
+<PropsTable name="SocialAuthButton" />

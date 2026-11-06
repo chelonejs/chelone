@@ -1,0 +1,20 @@
+---
+title: "ForgotPasswordPage"
+description: "The page a user lands on to ask for a reset email: <AuthLayout> around <ForgotPasswordForm>, which calls resetPassword on the auth provider. Mount it at its static path of /forgot-password, outside the layout and the auth gate, since the user is not signed in. children replaces the form, and other props go to the <div>."
+registry: "forgot-password-page"
+---
+{/* generated:gen-component-stubs */}
+
+The page a user lands on to ask for a reset email: `<AuthLayout>` around `<ForgotPasswordForm>`, which calls `resetPassword` on the auth provider. Mount it at its static `path` of `/forgot-password`, outside the layout and the auth gate, since the user is not signed in. `children` replaces the form, and other props go to the `<div>`.
+
+## Import
+
+```tsx
+import { ForgotPasswordPage } from "@chelone/react/supabase";
+```
+
+See the [Supabase pages guide](/docs/app-config/supabase-pages) for mounting the pages, the recovery flow, the provider buttons and the Vue slots.
+
+## Props
+
+<PropsTable name="ForgotPasswordPage" />
