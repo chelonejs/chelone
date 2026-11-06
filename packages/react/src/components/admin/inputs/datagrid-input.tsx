@@ -24,29 +24,33 @@ import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
-import type { InputProps } from "../input-props";
+import type { InputProps, LooseTransformProps } from "../input-props";
 
 type DatagridInputProps<
   TRecord = LooseRecord,
   TChoice extends ChoiceRecord = ChoiceRecord,
-> = Omit<InputProps<TRecord>, "source" | "disabled" | "readOnly"> & {
-  /** Inline choices (records) — omit inside a `<ReferenceArrayInput>`. */
-  choices?: readonly TChoice[];
-  /** The display path or a formatter for a choice. Default `"name"`. */
-  optionText?: OptionText<TChoice>;
-  /** The value path on a choice. Default `"id"`. */
-  optionValue?: SourcePath<TChoice>;
-  /** Translate the choice text through the catalog. */
-  translateChoice?: boolean;
-  /** The FK-array field; supplied ambiently inside a `<ReferenceArrayInput>`. */
-  source?: SourceProp<TRecord>;
-  /** Override the ambient resource. */
-  resource?: string;
-  /** Extra classes on the wrapper. */
-  className?: string;
-  /** Column header for the choice column. Default the resource/source label. */
-  optionLabel?: ReactNode;
-};
+> = Omit<
+  InputProps<TRecord>,
+  "source" | "disabled" | "readOnly" | "format" | "parse"
+> &
+  LooseTransformProps & {
+    /** Inline choices (records) — omit inside a `<ReferenceArrayInput>`. */
+    choices?: readonly TChoice[];
+    /** The display path or a formatter for a choice. Default `"name"`. */
+    optionText?: OptionText<TChoice>;
+    /** The value path on a choice. Default `"id"`. */
+    optionValue?: SourcePath<TChoice>;
+    /** Translate the choice text through the catalog. */
+    translateChoice?: boolean;
+    /** The FK-array field; supplied ambiently inside a `<ReferenceArrayInput>`. */
+    source?: SourceProp<TRecord>;
+    /** Override the ambient resource. */
+    resource?: string;
+    /** Extra classes on the wrapper. */
+    className?: string;
+    /** Column header for the choice column. Default the resource/source label. */
+    optionLabel?: ReactNode;
+  };
 
 /**
  * Form input that renders a list of records as a selectable table — the user

@@ -17,7 +17,7 @@ import type {
   RecordOf,
   ResourceMap,
   SaveOptions,
-  SourcePath,
+  SourceProp,
   SourceValue,
   TranslatableMessage,
 } from "@chelone/core";
@@ -344,7 +344,11 @@ export function useFormHandle<TName extends FormHandleName>(
 
 export interface UseInputOptions<
   TRecord = unknown,
-  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+  // `SourceProp`, not `SourcePath`: `source` is relative to the ambient scope,
+  // so a row path (`sku` under `items[]`) and a filter key are legal here. It is
+  // also what lets an input hand over its own `TPath`, which is how `format` and
+  // `parse` get the value at `source`.
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TInput = unknown,
 > extends Omit<FieldBindingUpdateOptions, "defaultValue" | "format" | "parse"> {
   /** The field path RELATIVE to the ambient source scope (iterator rows compose it). */
@@ -445,12 +449,12 @@ function toBindingUpdate(options: UseInputOptions): FieldBindingUpdateOptions {
 export function useInput(options: UseInputOptions): UseInputResult;
 export function useInput<
   TRecord,
-  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TInput = unknown,
 >(options: UseInputOptions<TRecord, TPath, TInput>): UseInputResult<TInput>;
-// A typed `InputProps<_, Post>` spread has a `source` wider than
-// `SourcePath<Post>` (row paths, filter keys), which the generic overload
-// would reject.
+// Repeated last for the same reason: an input whose resolved `source` is a
+// plain string (a choice input under a reference wrapper) has no path to name,
+// and it must still reach the loose options.
 export function useInput(options: UseInputOptions): UseInputResult;
 export function useInput(typedOptions: unknown): UseInputResult {
   // The implementation takes the erased options: the binding's `format` and

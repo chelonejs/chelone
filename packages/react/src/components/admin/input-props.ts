@@ -48,10 +48,16 @@ export interface InputProps<
   type?: string;
   /** ra-contract validators — composed, first error wins. */
   validate?: Validator | readonly Validator[];
-  /** Read transform (raw form value → input value). */
-  format?: (value: unknown) => unknown;
-  /** Write transform (input value → stored value). */
-  parse?: (value: unknown) => unknown;
+  /**
+   * Read transform (raw form value → input value). Receives the value at
+   * `source`; `unknown` without a record.
+   */
+  format?: (value: NoInfer<SourceValue<TRecord, TPath>>) => unknown;
+  /**
+   * Write transform (input value → stored value). Must return the value at
+   * `source`; `unknown` without a record.
+   */
+  parse?: (value: unknown) => NoInfer<SourceValue<TRecord, TPath>>;
   /**
    * Input-level default, ra precedence (seeds only into an untouched hole).
    * Typed as the value at `source`; `unknown` without a record.
@@ -76,6 +82,25 @@ export interface InputProps<
 
 /** The displayable field-error union chelone `fieldState.error` carries. */
 export type InputFieldError = string | TranslatableMessage | undefined;
+
+/**
+ * The `format`/`parse` pair of an input that cannot name the value at its own
+ * `source`, so it hands `useInput` the untyped transforms:
+ *
+ * - a choice input (`<AutocompleteInput>`, `<CheckboxGroupInput>`,
+ *   `<SelectArrayInput>`, `<DatagridInput>`) resolves `source` from the choices
+ *   context inside a reference wrapper, where it is a plain string;
+ * - an editor input (`<MdxInput>`, `<MonacoJsonInput>`) supplies its own
+ *   default transform over the text it edits, which cannot produce a value of a
+ *   record it does not know.
+ *
+ * Every other input passes its own `TRecord`/`TPath` to `useInput` and keeps the
+ * source-typed pair {@link InputProps} declares.
+ */
+export interface LooseTransformProps {
+  format?: (value: unknown) => unknown; // type-escape: the resolved source names no path of a record
+  parse?: (value: unknown) => unknown; // type-escape: the resolved source names no path of a record
+}
 
 /**
  * The choice keys the inline-`choices` inputs share (ra's `ChoicesProps`), the

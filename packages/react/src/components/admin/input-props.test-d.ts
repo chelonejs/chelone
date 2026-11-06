@@ -50,14 +50,67 @@ describe("InputProps", () => {
     expectTypeOf<InputProps["defaultValue"]>().toEqualTypeOf<unknown>();
   });
 
+  it('InputProps<Post, "title"> types format and parse by the value at the path', () => {
+    expectTypeOf<Required<InputProps<Post, "title">>["format"]>()
+      .parameter(0)
+      .toEqualTypeOf<string>();
+    expectTypeOf<
+      Required<InputProps<Post, "title">>["format"]
+    >().returns.toBeUnknown();
+    expectTypeOf<Required<InputProps<Post, "title">>["parse"]>()
+      .parameter(0)
+      .toBeUnknown();
+    expectTypeOf<
+      Required<InputProps<Post, "title">>["parse"]
+    >().returns.toEqualTypeOf<string>();
+    acceptTitleInput({
+      source: "title",
+      format: (value) => value.toUpperCase(),
+      parse: (value) => String(value),
+    });
+    // @ts-expect-error format receives the value at "title", not any value
+    acceptTitleInput({ source: "title", format: (value: number) => value });
+    // @ts-expect-error parse must return the value at "title"
+    acceptTitleInput({ source: "title", parse: () => 1 });
+  });
+
+  it("InputProps<Post> types format over the values at every Post path", () => {
+    acceptPostInput({
+      source: "items[0].qty",
+      format: (value) => String(value),
+    });
+    // @ts-expect-error no Post path holds a boolean
+    acceptPostInput({ source: "title", format: (value: boolean) => value });
+  });
+
+  it("InputProps without a record keeps format and parse on unknown", () => {
+    expectTypeOf<Required<InputProps>["format"]>().parameter(0).toBeUnknown();
+    expectTypeOf<Required<InputProps>["format"]>().returns.toBeUnknown();
+    expectTypeOf<Required<InputProps>["parse"]>().parameter(0).toBeUnknown();
+    expectTypeOf<Required<InputProps>["parse"]>().returns.toBeUnknown();
+    acceptLooseInput({
+      source: "anything",
+      format: (value) => value,
+      parse: (value) => value,
+    });
+  });
+
   it("InputProps without a type argument takes any string when no resource is registered", () => {
     acceptLooseInput({ source: "anything.at[0].all" });
   });
 
   it("InputProps spreads into useInput", () => {
     expectTypeOf(useInput).parameter(0).toEqualTypeOf<UseInputOptions>();
-    const spread = (props: InputProps<Post>) =>
-      useInput({ ...props, source: props.source });
-    expectTypeOf(spread).returns.toEqualTypeOf<ReturnType<typeof useInput>>();
+    const looseSpread = (props: InputProps) => useInput({ ...props });
+    expectTypeOf(looseSpread).returns.toEqualTypeOf<
+      ReturnType<typeof useInput>
+    >();
+    // A typed record reaches `useInput` through its own generics: the loose
+    // overload would hand `format` an `unknown` instead of the value at source.
+    const typedSpread = (props: InputProps<Post>) =>
+      useInput<Post>({ ...props, source: props.source });
+    expectTypeOf(typedSpread).returns.toEqualTypeOf<
+      ReturnType<typeof useInput>
+    >();
   });
 });

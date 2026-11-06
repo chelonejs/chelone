@@ -33,7 +33,11 @@ import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetChoiceRepresentationText } from "../../../label";
 import { useEvent } from "../../../util/use-event";
-import type { ChoicesProps, InputProps } from "../input-props";
+import type {
+  ChoicesProps,
+  InputProps,
+  LooseTransformProps,
+} from "../input-props";
 import { createDebounce } from "./create-debounce";
 
 /**
@@ -404,8 +408,9 @@ type AutocompleteInputProps<
   TRecord = unknown,
   TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TChoice extends ChoiceRecord = ChoiceRecord,
-> = Omit<InputProps<TRecord, TPath>, "source"> &
+> = Omit<InputProps<TRecord, TPath>, "source" | "format" | "parse"> &
   Partial<Pick<InputProps<TRecord, TPath>, "source">> &
+  LooseTransformProps &
   ChoicesProps<TChoice> & {
     className?: string;
     debounce?: number;

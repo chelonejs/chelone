@@ -49,8 +49,12 @@ function RatingInput<
   const resource = useResourceContext({ resource: resourceProp });
   // Pass the already-destructured `...rest` (presentational keys removed) plus
   // `source` explicitly, so label/className/max/allowHalf/etc. don't pollute
-  // `validatorMeta`. `defaultValue`/`validate`/`format`/`parse` remain in `rest`.
-  const { id, field, fieldState, isRequired } = useInput({ ...rest, source });
+  // `validatorMeta`. `defaultValue`/`validate`/`format`/`parse` remain in `rest`,
+  // and the component's own generics type them by the value at `source`.
+  const { id, field, fieldState, isRequired } = useInput<TRecord, TPath>({
+    ...rest,
+    source,
+  });
 
   const invalid = fieldState.invalid;
   // chelone `fieldState.error` is ALREADY the displayable

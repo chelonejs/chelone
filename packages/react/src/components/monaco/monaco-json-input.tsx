@@ -1,11 +1,12 @@
 import type { LooseRecord } from "@chelone/core";
 import type { editor } from "monaco-editor";
 import { lazy, Suspense } from "react";
-import type { InputProps } from "../admin/input-props";
+import type { InputProps, LooseTransformProps } from "../admin/input-props";
 import { MonacoSkeleton } from "./internal/monaco-shared";
 
 interface MonacoJsonInputProps<TRecord = LooseRecord>
-  extends InputProps<TRecord> {
+  extends Omit<InputProps<TRecord>, "format" | "parse">,
+    LooseTransformProps {
   /** A JSON Schema the value is checked against. Object shape only. */
   schema?: object;
   /** A schema Monaco fetches from this URL. Ignored when `schema` is set. */
