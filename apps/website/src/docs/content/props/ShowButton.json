@@ -1,4 +1,41 @@
 {
   "name": "ShowButton",
-  "props": []
+  "props": [
+    {
+      "name": "icon",
+      "type": "React.ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "LooseRecord",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "ref",
+      "type": "Ref<HTMLAnchorElement>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "scrollToTop",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    }
+  ]
 }

@@ -358,6 +358,8 @@ export type { CommandMenuProps } from "./admin/layout/command-menu.vue";
 export { default as CommandMenu } from "./admin/layout/command-menu.vue";
 export type { DashboardMenuItemProps } from "./admin/layout/dashboard-menu-item.vue";
 export { default as DashboardMenuItem } from "./admin/layout/dashboard-menu-item.vue";
+export type { DataProviderDevtoolsProps } from "./admin/layout/data-provider-devtools.vue";
+export { default as DataProviderDevtools } from "./admin/layout/data-provider-devtools.vue";
 export type { HideOnScrollProps } from "./admin/layout/hide-on-scroll.vue";
 export { default as HideOnScroll } from "./admin/layout/hide-on-scroll.vue";
 export { default as Layout } from "./admin/layout/layout.vue";

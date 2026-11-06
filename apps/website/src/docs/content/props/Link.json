@@ -1,4 +1,35 @@
 {
   "name": "Link",
-  "props": []
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "replace",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "state",
+      "type": "LocationState",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "to",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "ref",
+      "type": "Ref<HTMLAnchorElement>",
+      "optional": true,
+      "comment": ""
+    }
+  ]
 }

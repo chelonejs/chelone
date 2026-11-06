@@ -1,0 +1,53 @@
+{
+  "name": "OsmFeatureSubtract",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "The button text. A string is translated. Defaults to the mode's message."
+    },
+    {
+      "name": "presets",
+      "type": "readonly \"water\" | \"natural\" | \"waterway\" | \"building\" | \"forest\" | \"landuse\" | \"roads\" | \"highway\" | \"amenity\" | \"leisure\" | \"boundary\" | \"place\" | \"man_made\" | \"shop\" | \"tourism\" | \"historic\" | \"railway\" | \"barrier\" | \"power\" | \"buildings\"[]",
+      "optional": true,
+      "comment": "Named OSM feature sets to query, such as `water`."
+    },
+    {
+      "name": "provider",
+      "type": "OverpassProvider",
+      "optional": true,
+      "comment": "Defaults to the `overpass` of `MapsProvider`. One of the two is required."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The form field holding the Polygon or MultiPolygon."
+    },
+    {
+      "name": "tags",
+      "type": "readonly templateLiteral[]",
+      "optional": true,
+      "comment": "Extra Overpass tag filters, such as `natural=wood`."
+    }
+  ]
+}

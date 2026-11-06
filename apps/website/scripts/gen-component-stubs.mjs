@@ -8,8 +8,10 @@
  *   - frontmatter (title, one-line description, registry:<slug> when the
  *     component ships as a shadcn-registry item)
  *   - a one-line intro
- *   - for barrel-only components, an `@chelone/react` import block; registry-backed
- *     pages get their install block from `registry` frontmatter at render time
+ *   - for barrel-only components, an import block for the module they are
+ *     imported from (`@chelone/react`, or a row's `importFrom` add-on entry);
+ *     registry-backed pages get their install block from `registry`
+ *     frontmatter at render time
  *   - a <PropsTable name="<Component>"/> (reads the typedoc-generated JSON)
  *
  * `mdx-page.tsx` renders a preview when `demos/basic.tsx` exists.
@@ -51,10 +53,14 @@ const MARKER = "{/* generated:gen-component-stubs */}";
  * command; `null` => ships only in the @chelone/react barrel), a concise
  * title, and a one-line description written FRESH (no react-admin prose).
  *
+ * A row may also carry `importFrom`: the module a barrel-only component is
+ * imported from when it is not the barrel itself, such as an add-on entry
+ * (`@chelone/react/maps/draw`). Rows without it import from `@chelone/react`.
+ *
  * Cross-checked against the @chelone/react barrel + registry.json. Slugs whose
  * component is not exported are simply absent (the DROP set from plan §2).
  */
-/** @type {{slug:string,section:string,component:string,registry:string|null,title:string,desc:string}[]} */
+/** @type {{slug:string,section:string,component:string,registry:string|null,title:string,desc:string,importFrom?:string}[]} */
 const STUBS = [
   // ── viewing (read-only fields) ──────────────────────────────────────────
   { slug: "api-key-field", section: "viewing", component: "ApiKeyField", registry: "api-key-field", title: "ApiKeyField", desc: "Renders a secret API key value, masked with a reveal/copy affordance." },
@@ -195,6 +201,7 @@ const STUBS = [
   { slug: "check-for-application-update", section: "ui-layout", component: "CheckForApplicationUpdate", registry: "check-for-application-update", title: "CheckForApplicationUpdate", desc: "Polls the deployed page and shows a notification once a new build is live. Renders nothing until then." },
   { slug: "confirm", section: "ui-layout", component: "Confirm", registry: "confirm", title: "Confirm", desc: "A confirmation dialog for destructive actions." },
   { slug: "dashboard-menu-item", section: "ui-layout", component: "DashboardMenuItem", registry: "dashboard-menu-item", title: "DashboardMenuItem", desc: "The sidebar entry that links to the dashboard." },
+  { slug: "data-provider-devtools", section: "ui-layout", component: "DataProviderDevtools", registry: "data-provider-devtools", title: "DataProviderDevtools", desc: "A floating panel that lists the data provider calls a log recorded: method, resource, duration and the error of a failed call. Wrap the provider with `createDataProviderLog().wrap()`, pass the wrapped one to `<Admin>`, and mount the panel with the same log in development only, since it shows params and results." },
   { slug: "donut-chart", section: "ui-layout", component: "DonutChart", registry: "donut-chart", title: "DonutChart", desc: "One slice per row of a `data` array, `labelField` naming the slice and `valueField` sizing it. The chart fetches nothing, so pass rows you already have, and a row whose `valueField` is not a number above zero is a gap: it draws no slice. It is an add-on: import it from `@chelone/react/charts` or `@chelone/vue/charts`, and install `recharts` for React or `@unovis/vue` and `@unovis/ts` for Vue." },
   { slug: "error", section: "ui-layout", component: "Error", registry: "error", title: "Error", desc: "The fallback UI rendered by the admin error boundary." },
   { slug: "hide-on-scroll", section: "ui-layout", component: "HideOnScroll", registry: "hide-on-scroll", title: "HideOnScroll", desc: "Hides its wrapper on a downward scroll past a threshold and shows it again on any upward scroll." },
@@ -246,12 +253,13 @@ const STUBS = [
 
 /**
  * Barrel-only components have no registry item, so the page renders no install
- * block for them; this import is their only one.
+ * block for them; this import is their only one. `importFrom` names the module
+ * for a component an add-on entry exports instead of the barrel.
  */
-function importBlock(component) {
+function importBlock(component, importFrom = "@chelone/react") {
   return [
     "```tsx",
-    `import { ${component} } from "@chelone/react";`,
+    `import { ${component} } from "${importFrom}";`,
     "```",
   ].join("\n");
 }
@@ -265,7 +273,7 @@ function mdxSafe(text) {
   return text.replace(/(?<!`)<([A-Za-z][\w.-]*)>/g, "`<$1>`");
 }
 
-function page({ component, registry, title, desc, section }) {
+function page({ component, registry, title, desc, importFrom, section }) {
   const hasProps = existsSync(resolve(PROPS, `${component}.json`));
   const fm = ["---", `title: "${title}"`, `description: "${desc.replace(/`/g, "").replace(/"/g, '\\"')}"`];
   if (registry) fm.push(`registry: "${registry}"`);
@@ -273,7 +281,8 @@ function page({ component, registry, title, desc, section }) {
 
   const parts = [fm.join("\n"), MARKER, "", mdxSafe(desc)];
   // `mdx-page.tsx` renders the install block from `registry` frontmatter.
-  if (!registry) parts.push("", "## Installation", "", importBlock(component));
+  if (!registry)
+    parts.push("", "## Installation", "", importBlock(component, importFrom));
 
   if (section === "realtime") {
     parts.push("", "See the [realtime guide](/docs/app-config/realtime) for provider setup and usage.");
