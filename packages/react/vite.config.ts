@@ -62,6 +62,7 @@ export default defineConfig({
         "src/index.ts",
         "src/tanstack-router.ts",
         "src/monaco.ts",
+        "src/charts.ts",
         "src/kanban.ts",
         "src/mdx-editor.ts",
         "src/maps.ts",
