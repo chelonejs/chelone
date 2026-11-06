@@ -10,7 +10,7 @@ import {
   SettingsIcon,
   Trash2Icon,
 } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslate } from "../../i18n-hooks";
 import { AutoConfigForm } from "./auto-config-form";
@@ -67,13 +67,15 @@ function runOnBlock(
   editor: Editor,
   pos: number,
   act: (tr: Transaction, block: ProseMirrorNode) => void,
+  { focus = true }: { focus?: boolean } = {},
 ) {
   const block = editor.state.doc.nodeAt(pos);
   if (!block) return;
   const { tr } = editor.state;
   act(tr, block);
   editor.view.dispatch(tr.scrollIntoView());
-  editor.view.focus();
+  // A config field keeps the focus, or the next keystroke would land in the editor and replace the selected block.
+  if (focus) editor.view.focus();
 }
 
 function ToolbarButton({
@@ -137,11 +139,16 @@ export interface BlockToolbarProps {
  */
 export function BlockToolbar({ editor, registry }: BlockToolbarProps) {
   const translate = useTranslate();
-  const [configOpen, setConfigOpen] = useState(false);
+  // The block the panel is open for, so it does not open itself on another one.
+  const [configFor, setConfigFor] = useState<string | null>(null);
   const selected = useEditorState({
     editor,
     selector: ({ editor: current }) => selectedBlock(current, registry),
   });
+  const hasSelection = selected !== null;
+  useEffect(() => {
+    if (!hasSelection) setConfigFor(null);
+  }, [hasSelection]);
   const definition = selected ? registry.get(selected.name) : undefined;
   if (!selected || !definition) return null;
 
@@ -173,10 +180,16 @@ export function BlockToolbar({ editor, registry }: BlockToolbarProps) {
       tr.setSelection(NodeSelection.create(tr.doc, pos + after.nodeSize));
     });
   const patch = (attrs: Partial<BlockAttrs>) =>
-    runOnBlock(editor, pos, (tr, block) => {
-      tr.setNodeMarkup(pos, undefined, { ...block.attrs, ...attrs });
-    });
+    runOnBlock(
+      editor,
+      pos,
+      (tr, block) => {
+        tr.setNodeMarkup(pos, undefined, { ...block.attrs, ...attrs });
+      },
+      { focus: false },
+    );
 
+  const configOpen = configFor === selected.name;
   const { config } = definition;
   const hasConfig = config !== undefined;
   return (
@@ -198,7 +211,7 @@ export function BlockToolbar({ editor, registry }: BlockToolbarProps) {
               _: "Configure",
             })}
             pressed={configOpen}
-            onClick={() => setConfigOpen(!configOpen)}
+            onClick={() => setConfigFor(configOpen ? null : selected.name)}
           >
             <SettingsIcon />
           </ToolbarButton>

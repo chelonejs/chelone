@@ -165,7 +165,7 @@ describe("<BlockToolbar>", () => {
     ]);
   });
 
-  it("move up and move down swap the block with its sibling", async () => {
+  it("move up and move down swap the block and are disabled at the ends", async () => {
     const mounted = await mount(
       titled("plain", "A"),
       titled("plain", "B"),
@@ -184,25 +184,25 @@ describe("<BlockToolbar>", () => {
     fireEvent.click(button("Move up"));
     await mounted.submit();
     expect(titles(written(mounted))).toEqual(["B", "A", "C"]);
-  });
+    cleanup();
 
-  it("move up is disabled for the first sibling and move down for the last", async () => {
-    const mounted = await mount({
+    // A top-level block always has the editor's closing paragraph after it, so the ends are inside a box.
+    const boxed = await mount({
       type: "box",
       attrs: { title: "Box" },
       content: [titled("plain", "A"), titled("plain", "B")],
     });
     // 0 is the box, 1 its first child.
     act(() => {
-      mounted.editor().commands.setNodeSelection(1);
+      boxed.editor().commands.setNodeSelection(1);
     });
     expect(button("Move up").disabled).toBe(true);
     expect(button("Move down").disabled).toBe(false);
 
     const second =
-      1 + (mounted.editor().state.doc.firstChild?.child(0).nodeSize ?? 0);
+      1 + (boxed.editor().state.doc.firstChild?.child(0).nodeSize ?? 0);
     act(() => {
-      mounted.editor().commands.setNodeSelection(second);
+      boxed.editor().commands.setNodeSelection(second);
     });
     expect(button("Move up").disabled).toBe(false);
     expect(button("Move down").disabled).toBe(true);
@@ -277,6 +277,37 @@ describe("<BlockToolbar>", () => {
     });
     await mounted.submit();
     expect(written(mounted)?.[0]?.attrs?.size).toBeNull();
+  });
+
+  it("a config field keeps the focus while it patches the block", async () => {
+    const mounted = await mount(titled("note", "A"));
+    select(mounted.editor, 0);
+    fireEvent.click(button("Configure"));
+    const title = screen.getByRole("textbox", { name: "Title" });
+    title.focus();
+    fireEvent.change(title, { target: { value: "a" } });
+    expect(document.activeElement).toBe(title);
+    fireEvent.change(title, { target: { value: "ab" } });
+    expect(document.activeElement).toBe(title);
+    await mounted.submit();
+    expect(written(mounted)?.[0]?.attrs?.title).toBe("ab");
+  });
+
+  it("the config panel does not open itself on another block", async () => {
+    const mounted = await mount(
+      titled("note", "A"),
+      paragraph("Between"),
+      titled("custom", "B"),
+    );
+    select(mounted.editor, 0);
+    fireEvent.click(button("Configure"));
+    act(() => {
+      mounted.editor().commands.setTextSelection(1);
+    });
+    expect(screen.queryByRole("toolbar")).toBeNull();
+    select(mounted.editor, 2);
+    expect(button("Configure").getAttribute("aria-pressed")).toBe("false");
+    expect(document.querySelector('[data-slot="block-config"]')).toBeNull();
   });
 
   it("Configure toggles the panel", async () => {

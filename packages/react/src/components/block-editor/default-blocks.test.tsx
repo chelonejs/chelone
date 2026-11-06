@@ -206,85 +206,81 @@ describe("default blocks", () => {
     expect(screen.getByRole("button", { name: summary })).toBeTruthy();
   });
 
-  describe("the image config", () => {
-    async function openImageConfig(onData = vi.fn()) {
-      // The closing paragraph keeps the editor from adding its own.
-      const body = doc(block("image", { src: "", alt: "" }), paragraph("End"));
-      const mounted = await mountBlockEditor(
-        {},
-        { defaultValues: { body }, onData },
-      );
-      act(() => {
-        mounted.editor().commands.setNodeSelection(0);
-      });
-      fireEvent.click(await screen.findByRole("button", { name: "Configure" }));
-      return { ...mounted, body, onData };
-    }
-
-    it("an image file over 5 MB shows an error and writes nothing", async () => {
-      const { submit, body, onData } = await openImageConfig();
-      const big = new File([new Uint8Array(5 * 1024 * 1024 + 1)], "big.png", {
-        type: "image/png",
-      });
-      fireEvent.change(screen.getByLabelText("Upload image"), {
-        target: { files: [big] },
-      });
-      expect((await screen.findByRole("alert")).textContent).toBe(
-        "Choose an image file up to 5 MB",
-      );
-      await submit();
-      expect(onData).toHaveBeenCalledWith({ body });
+  async function openImageConfig(onData = vi.fn()) {
+    // The closing paragraph keeps the editor from adding its own.
+    const body = doc(block("image", { src: "", alt: "" }), paragraph("End"));
+    const mounted = await mountBlockEditor(
+      {},
+      { defaultValues: { body }, onData },
+    );
+    act(() => {
+      mounted.editor().commands.setNodeSelection(0);
     });
+    fireEvent.click(await screen.findByRole("button", { name: "Configure" }));
+    return { ...mounted, body, onData };
+  }
 
-    it("a file that is not an image shows an error and writes nothing", async () => {
-      const { submit, body, onData } = await openImageConfig();
-      const text = new File(["hello"], "notes.txt", { type: "text/plain" });
-      fireEvent.change(screen.getByLabelText("Upload image"), {
-        target: { files: [text] },
-      });
-      expect((await screen.findByRole("alert")).textContent).toBe(
-        "Choose an image file up to 5 MB",
-      );
-      await submit();
-      expect(onData).toHaveBeenCalledWith({ body });
+  it("an image file over 5 MB shows an error and writes nothing", async () => {
+    const { submit, body, onData } = await openImageConfig();
+    const big = new File([new Uint8Array(5 * 1024 * 1024 + 1)], "big.png", {
+      type: "image/png",
     });
-
-    it("an image file within 5 MB is stored as a data URL", async () => {
-      const { submit, onData } = await openImageConfig();
-      const png = new File([new Uint8Array([137, 80, 78, 71])], "dot.png", {
-        type: "image/png",
-      });
-      fireEvent.change(screen.getByLabelText("Upload image"), {
-        target: { files: [png] },
-      });
-      await vi.waitFor(() =>
-        expect(
-          document.querySelector('[data-block="image"] img'),
-        ).not.toBeNull(),
-      );
-      await submit();
-      expect(onData.mock.calls[0]?.[0]?.body?.content?.[0]?.attrs?.src).toMatch(
-        /^data:image\/png;base64,/,
-      );
+    fireEvent.change(screen.getByLabelText("Upload image"), {
+      target: { files: [big] },
     });
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "Choose an image file up to 5 MB",
+    );
+    await submit();
+    expect(onData).toHaveBeenCalledWith({ body });
+  });
 
-    it("the URL, alt text and width write their own attribute", async () => {
-      const { submit, onData } = await openImageConfig();
-      fireEvent.change(screen.getByLabelText("Image URL"), {
-        target: { value: "https://example.com/cat.png" },
-      });
-      fireEvent.change(screen.getByLabelText("Alt text"), {
-        target: { value: "A cat" },
-      });
-      fireEvent.change(screen.getByLabelText("Width (%)"), {
-        target: { value: "50" },
-      });
-      await submit();
-      expect(onData.mock.calls[0]?.[0]?.body?.content?.[0]?.attrs).toEqual({
-        src: "https://example.com/cat.png",
-        alt: "A cat",
-        widthPct: 50,
-      });
+  it("a file that is not an image shows an error and writes nothing", async () => {
+    const { submit, body, onData } = await openImageConfig();
+    const text = new File(["hello"], "notes.txt", { type: "text/plain" });
+    fireEvent.change(screen.getByLabelText("Upload image"), {
+      target: { files: [text] },
+    });
+    expect((await screen.findByRole("alert")).textContent).toBe(
+      "Choose an image file up to 5 MB",
+    );
+    await submit();
+    expect(onData).toHaveBeenCalledWith({ body });
+  });
+
+  it("an image file within 5 MB is stored as a data URL", async () => {
+    const { submit, onData } = await openImageConfig();
+    const png = new File([new Uint8Array([137, 80, 78, 71])], "dot.png", {
+      type: "image/png",
+    });
+    fireEvent.change(screen.getByLabelText("Upload image"), {
+      target: { files: [png] },
+    });
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-block="image"] img')).not.toBeNull(),
+    );
+    await submit();
+    expect(onData.mock.calls[0]?.[0]?.body?.content?.[0]?.attrs?.src).toMatch(
+      /^data:image\/png;base64,/,
+    );
+  });
+
+  it("the URL, alt text and width write their own attribute", async () => {
+    const { submit, onData } = await openImageConfig();
+    fireEvent.change(screen.getByLabelText("Image URL"), {
+      target: { value: "https://example.com/cat.png" },
+    });
+    fireEvent.change(screen.getByLabelText("Alt text"), {
+      target: { value: "A cat" },
+    });
+    fireEvent.change(screen.getByLabelText("Width (%)"), {
+      target: { value: "50" },
+    });
+    await submit();
+    expect(onData.mock.calls[0]?.[0]?.body?.content?.[0]?.attrs).toEqual({
+      src: "https://example.com/cat.png",
+      alt: "A cat",
+      widthPct: 50,
     });
   });
 });
