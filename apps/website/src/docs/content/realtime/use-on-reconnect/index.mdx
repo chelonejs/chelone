@@ -1,0 +1,75 @@
+---
+title: "useOnReconnect"
+description: "Calls your callback each time the transport reconnects, for refetching what was missed while offline. Does nothing when the transport cannot say."
+---
+
+`useOnReconnect` listens to the transport for the end of a drop. A live hook
+already refetches on a reconnect; this hook is for the rest of your app, such as
+replaying a queue or telling the user the connection is back.
+
+## Signature
+
+```ts
+function useOnReconnect(callback: () => void): void
+```
+
+## Returns
+
+Nothing.
+
+`callback` runs each time the transport reports a reconnect, and it is the
+latest one: a new function every render never resubscribes. The listener is
+released when the component unmounts.
+
+A transport with no `onReconnect` member is left alone: the hook does nothing and
+throws nothing. `webSocketTransport` and `sseTransport` report a reconnect after
+their backoff succeeds; `broadcastChannelTransport` has the member and never
+fires it, since tabs sharing a channel never drop. `memoryTransport` has
+`simulateReconnect()` for firing it by hand in a demo or test.
+
+`useGetListLive`, `useGetOneLive` and `useGetManyLive` refetch on a reconnect on
+their own, so a view that only reads records needs neither hook.
+
+## Example
+
+```tsx
+import { useRef, useState } from "react";
+import { useOnReconnect, usePublish } from "@chelone/react";
+
+export const Outbox = ({ line }: { line: string }) => {
+  const publish = usePublish();
+  const queue = useRef<string[]>([]);
+  const [sent, setSent] = useState(0);
+
+  useOnReconnect(() => {
+    const pending = queue.current;
+    queue.current = [];
+    for (const queued of pending)
+      void publish("chat", { type: "line", payload: queued });
+    setSent((n) => n + pending.length);
+  });
+
+  const send = () => {
+    void publish("chat", { type: "line", payload: line }).catch(() => {
+      queue.current.push(line);
+    });
+  };
+
+  return (
+    <>
+      <button onClick={send}>Send</button>
+      <span>{sent} queued lines resent</span>
+    </>
+  );
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name. The listener is released when the
+component unmounts. The realtime check runs at `setup`: a plain data provider
+throws when the composable is called, and a realtime provider whose transport
+cannot say still does nothing.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup and the
+transports' reconnect defaults.
