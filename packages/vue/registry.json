@@ -6465,6 +6465,8 @@
         "@chelone/utils",
         "@chelone/vue",
         "@turf/buffer",
+        "@turf/difference",
+        "@turf/union",
         "maplibre-gl",
         "osm2geojson-lite"
       ],
@@ -6532,7 +6534,13 @@
         "@chelone/use-map",
         "@chelone/validation-error"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6552,7 +6560,13 @@
         "@chelone/lib-utils",
         "@chelone/use-map"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/vue-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6574,7 +6588,13 @@
         "@chelone/ui-spinner",
         "@chelone/use-map"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/vue-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6591,7 +6611,7 @@
       ],
       "registryDependencies": ["@chelone/osm-feature-operator"],
       "categories": ["chelone", "components"],
-      "dependencies": ["maplibre-gl"],
+      "dependencies": ["@turf/difference", "@turf/union", "maplibre-gl"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6607,6 +6627,8 @@
       "dependencies": [
         "@chelone/core",
         "@turf/buffer",
+        "@turf/difference",
+        "@turf/union",
         "maplibre-gl",
         "osm2geojson-lite"
       ],
@@ -6624,7 +6646,12 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/utils", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/utils",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6643,7 +6670,13 @@
         "@chelone/skeleton",
         "@chelone/use-reverse-geocode"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6658,7 +6691,12 @@
         }
       ],
       "registryDependencies": ["@chelone/use-map"],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/vue-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6674,7 +6712,12 @@
         }
       ],
       "registryDependencies": ["@chelone/osm-features", "@chelone/use-map"],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/vue-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6690,7 +6733,12 @@
         }
       ],
       "registryDependencies": ["@chelone/use-map"],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/vue-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
