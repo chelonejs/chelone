@@ -933,6 +933,7 @@ export type {
   SourceKey,
   SourcePath,
   SourceProp,
+  SourceTransformValue,
   SourceValue,
 } from "./resource/source-path";
 export type {
