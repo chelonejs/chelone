@@ -186,10 +186,38 @@ function TourOverlay({
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") controller.skip();
+      if (event.key === "Escape") {
+        controller.skip();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      // The card is aria-modal, so Tab wraps inside it instead of reaching the page behind the scrim.
+      const buttons = cardRef.current?.querySelectorAll("button");
+      const first = buttons?.item(0);
+      const last = buttons?.item(buttons.length - 1);
+      if (!first || !last) return;
+      const current = document.activeElement;
+      const inside = cardRef.current?.contains(current) ?? false;
+      if (event.shiftKey && (current === first || !inside)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (current === last || !inside)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    const onFocusIn = (event: FocusEvent) => {
+      const { target } = event;
+      if (target instanceof Node && !cardRef.current?.contains(target)) {
+        advanceRef.current?.focus();
+      }
     };
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    document.addEventListener("focusin", onFocusIn);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("focusin", onFocusIn);
+    };
   }, [controller]);
 
   useLayoutEffect(() => {

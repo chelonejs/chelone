@@ -240,6 +240,27 @@ describe("<OnboardingTour>", () => {
     expect(document.activeElement).toBe(opener);
   });
 
+  it("keeps Tab inside the card while the tour is open", () => {
+    addTargets();
+    const outside = byId("three");
+    mount();
+    const skip = screen.getByRole("button", { name: "Skip" });
+    const next = screen.getByRole("button", { name: "Next" });
+
+    expect(fireEvent.keyDown(next, { key: "Tab" })).toBe(false);
+    expect(document.activeElement).toBe(skip);
+
+    expect(fireEvent.keyDown(skip, { key: "Tab", shiftKey: true })).toBe(false);
+    expect(document.activeElement).toBe(next);
+
+    // Tab between the card's own buttons is left to the browser.
+    skip.focus();
+    expect(fireEvent.keyDown(skip, { key: "Tab" })).toBe(true);
+
+    outside.focus();
+    expect(document.activeElement).toBe(next);
+  });
+
   it("autoStart false keeps it closed", () => {
     addTargets();
     mount({ autoStart: false });
