@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import * as barrel from "./index";
 
 /**
@@ -435,6 +435,15 @@ describe("@chelone/core barrel", () => {
   it("exports the assistant session and the echo transport", () => {
     expect(barrel.createAssistantSession).toBeTypeOf("function");
     expect(barrel.echoAssistantTransport).toBeTypeOf("function");
+  });
+
+  it("exports the HTTP assistant transport", () => {
+    expect(barrel.httpAssistantTransport).toBeTypeOf("function");
+    expectTypeOf(barrel.httpAssistantTransport).toEqualTypeOf<
+      (
+        options: barrel.HttpAssistantTransportOptions,
+      ) => barrel.AssistantTransport
+    >();
   });
 
   it("exports the in-memory transport and lock provider", () => {
