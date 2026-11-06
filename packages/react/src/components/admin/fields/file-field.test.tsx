@@ -132,6 +132,61 @@ describe("<FileField>", () => {
     expect(screen.getByText("No file")).toBeTruthy();
   });
 
+  it("renders a numeric title path as text", () => {
+    render(
+      <Providers>
+        <RecordContextProvider value={{ id: 1, url: "doc.pdf", version: 7 }}>
+          <FileField source="url" title="version" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    const link = screen.getByRole("link", { name: "7" });
+    expect(link.getAttribute("title")).toBe("7");
+    expect(link.getAttribute("href")).toBe("doc.pdf");
+  });
+
+  it("renders numeric array item titles as text", () => {
+    render(
+      <Providers>
+        <RecordContextProvider
+          value={{
+            id: 1,
+            files: [
+              { src: "a.pdf", size: 12 },
+              { src: "b.pdf", size: 34 },
+            ],
+          }}
+        >
+          <FileField source="files" src="src" title="size" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    expect(screen.getByRole("link", { name: "12" }).getAttribute("href")).toBe(
+      "a.pdf",
+    );
+    expect(screen.getByRole("link", { name: "34" }).getAttribute("href")).toBe(
+      "b.pdf",
+    );
+  });
+
+  it("leaves the href off an array item whose src path misses", () => {
+    const { container } = render(
+      <Providers>
+        <RecordContextProvider
+          value={{
+            id: 1,
+            files: [{ src: "a.pdf", name: "A" }, { name: "B" }],
+          }}
+        >
+          <FileField source="files" src="src" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    const links = Array.from(container.querySelectorAll("a"));
+    expect(links).toHaveLength(2);
+    expect(links.map((a) => a.getAttribute("href"))).toEqual(["a.pdf", null]);
+  });
+
   it("omits title and avoids a whole-record leak when no title prop is given", () => {
     const { container } = render(
       <Providers>

@@ -1,8 +1,9 @@
-import { getAtPath, type LooseRecord, type SourceProp } from "@chelone/core";
+import { getAtPath, type LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { ElementFieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
+import { useRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
@@ -59,17 +60,19 @@ function FileField<RecordType extends LooseRecord = LooseRecord>(
     source,
     record,
   });
-  const titleFromRecord: unknown = useFieldValue<LooseRecord>({
-    record,
-    // A `title` may be a record path OR a literal label. The hook must always be
-    // called (rules of hooks), so pass `""` when `title` is absent — but chelone
-    // reads `source:""` as the WHOLE record, so we discard that read below.
-    source: (title ?? "") as SourceProp<RecordType>,
-  });
+  // A `title` may be a record path OR a literal label, so it is read with
+  // `getAtPath` off the record rather than `useFieldValue`: that hook wants a
+  // `SourceProp<RecordType>`, and a literal label is no record's path.
+  const ctxRecord = useRecordContext<RecordType>({ record });
+  const titleFromRecord = title ? getAtPath(ctxRecord, title) : undefined;
   // Only derive a title when `title` is set: a real path resolves via the read,
   // a literal-but-missing path falls back to the literal, and no `title` prop
   // yields `undefined` (never the whole-record `"[object Object]"` leak).
-  const titleValue = title ? (titleFromRecord?.toString() ?? title) : undefined;
+  const titleValue = title
+    ? titleFromRecord == null
+      ? title
+      : String(titleFromRecord)
+    : undefined;
   const translate = useTranslate();
 
   if (
@@ -83,7 +86,7 @@ function FileField<RecordType extends LooseRecord = LooseRecord>(
     return (
       <div
         className={cn("inline-block", className)}
-        {...sanitizeFieldRestProps(rest as Record<string, unknown>)}
+        {...sanitizeFieldRestProps(rest)}
       >
         {typeof empty === "string" ? translate(empty, { _: empty }) : empty}
       </div>
@@ -94,15 +97,17 @@ function FileField<RecordType extends LooseRecord = LooseRecord>(
     return (
       <ul
         className={cn("inline-block", className)}
-        {...sanitizeFieldRestProps(rest as Record<string, unknown>)}
+        {...sanitizeFieldRestProps(rest)}
       >
         {sourceValue.map((file, index) => {
+          // Inside `title ?`, `title` is a string, so the fallback is never nullish.
           const fileTitleValue = title
-            ? ((getAtPath(file, title) ?? title) as string)
+            ? String(getAtPath(file, title) ?? title)
             : title;
-          const srcValue = src
-            ? ((getAtPath(file, src) ?? title) as string)
-            : title;
+          // `src` falls back to `title`, which may be absent: a miss stays
+          // `undefined` so the link gets no href, never the text "undefined".
+          const srcPath = src ? (getAtPath(file, src) ?? title) : title;
+          const srcValue = srcPath == null ? undefined : String(srcPath);
 
           return (
             <li key={srcValue ?? index}>
@@ -128,7 +133,7 @@ function FileField<RecordType extends LooseRecord = LooseRecord>(
   return (
     <div
       className={cn("inline-block", className)}
-      {...sanitizeFieldRestProps(rest as Record<string, unknown>)}
+      {...sanitizeFieldRestProps(rest)}
     >
       <a
         href={sourceValue?.toString()}
