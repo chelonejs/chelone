@@ -5251,6 +5251,7 @@
         "@chelone/checkbox",
         "@chelone/data-table-context",
         "@chelone/data-table-row",
+        "@chelone/lib-vnode-children",
         "@chelone/list-icons",
         "@chelone/list-pagination",
         "@chelone/table"
@@ -6537,6 +6538,140 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "inspector",
+      "type": "registry:block",
+      "title": "Chelone Inspector",
+      "categories": ["chelone", "components"],
+      "description": "The opt-in inspector add-on: Inspector is a draggable panel that edits whichever Configurable the user picks, InspectorButton turns the mode on, and SortableFieldsSelector lists a table's columns with drag to reorder. Installs @dnd-kit/vue and needs Vue 3.5.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/fields-selector",
+        "@chelone/lib-utils",
+        "@chelone/lib-vnode-children"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@dnd-kit/vue"],
+      "files": [
+        {
+          "path": "src/components/inspector/configurable-inputs.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/configurable.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/inspector-button.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/inspector-context.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/inspector.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/sortable-fields-selector.vue",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "configurable-inputs",
+      "type": "registry:component",
+      "title": "Configurable Inputs",
+      "files": [
+        {
+          "path": "src/components/inspector/configurable-inputs.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/configurable",
+        "@chelone/lib-vnode-children",
+        "@chelone/sortable-fields-selector"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "configurable",
+      "type": "registry:component",
+      "title": "Configurable",
+      "files": [
+        {
+          "path": "src/components/inspector/configurable.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/inspector-context",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "inspector-button",
+      "type": "registry:component",
+      "title": "Inspector Button",
+      "files": [
+        {
+          "path": "src/components/inspector/inspector-button.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/inspector-context"
+      ],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "inspector-context",
+      "type": "registry:component",
+      "title": "Inspector Context",
+      "files": [
+        {
+          "path": "src/components/inspector/inspector-context.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "sortable-fields-selector",
+      "type": "registry:component",
+      "title": "Sortable Fields Selector",
+      "files": [
+        {
+          "path": "src/components/inspector/sortable-fields-selector.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/fields-selector",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/vue", "@dnd-kit/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "mdx-editor",
       "type": "registry:block",
       "title": "Chelone Markdown",
@@ -6663,16 +6798,29 @@
         "@chelone/core",
         "@chelone/vue",
         "@tiptap/core",
+        "@tiptap/extension-code-block",
+        "@tiptap/extension-code-block-lowlight",
         "@tiptap/extension-image",
+        "@tiptap/extension-text-style",
         "@tiptap/extensions",
         "@tiptap/pm",
         "@tiptap/starter-kit",
         "@tiptap/vue-3",
-        "dompurify"
+        "dompurify",
+        "highlight.js",
+        "lowlight"
       ],
       "files": [
         {
+          "path": "src/components/rich-text-input/rich-text-color.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/rich-text-input/rich-text-commands.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-extensions.ts",
           "type": "registry:component"
         },
         {
@@ -6715,6 +6863,25 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "rich-text-color",
+      "type": "registry:component",
+      "title": "Rich Text Color",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-color.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/rich-text-commands"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "rich-text-commands",
       "type": "registry:component",
       "title": "Rich Text Commands",
@@ -6725,6 +6892,29 @@
         }
       ],
       "dependencies": ["@chelone/core", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-extensions",
+      "type": "registry:component",
+      "title": "Rich Text Extensions",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-extensions.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@tiptap/core",
+        "@tiptap/extension-code-block",
+        "@tiptap/extension-code-block-lowlight",
+        "@tiptap/extension-text-style",
+        "@tiptap/pm",
+        "highlight.js",
+        "lowlight"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6826,6 +7016,7 @@
         "@chelone/field",
         "@chelone/field-label-text",
         "@chelone/input-helper-text",
+        "@chelone/rich-text-extensions",
         "@chelone/rich-text-image",
         "@chelone/rich-text-toolbar",
         "@chelone/rich-text.css",
@@ -6872,6 +7063,7 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/lib-utils",
+        "@chelone/rich-text-color",
         "@chelone/rich-text-commands",
         "@chelone/rich-text-icons",
         "@chelone/rich-text-image",
@@ -6900,29 +7092,41 @@
       "type": "registry:block",
       "title": "Chelone Block Editor",
       "categories": ["chelone", "inputs"],
-      "description": "The opt-in block editor add-on: BlockEditorInput edits a document of rich text and app-defined blocks in a tiptap editor with a slash menu, and BlockDocField shows that document read-only. defineBlock declares a block from a Zod schema and its components. Installs the tiptap packages.",
+      "description": "The opt-in block editor add-on: BlockEditorInput edits a document of rich text and app-defined blocks in a tiptap editor with a slash menu, and BlockDocField shows that document read-only. defineBlock declares a block from a Zod schema and its components, and the data blocks chart a resource. Installs the tiptap packages, @unovis/vue and @unovis/ts, and the charts block.",
       "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/bar-chart",
         "@chelone/button",
+        "@chelone/card",
         "@chelone/command",
+        "@chelone/donut-chart",
         "@chelone/field",
         "@chelone/field-label-text",
         "@chelone/input",
         "@chelone/input-helper-text",
         "@chelone/lib-utils",
         "@chelone/native-select",
+        "@chelone/skeleton",
         "@chelone/source-input-props",
         "@chelone/switch",
-        "@chelone/validation-error"
+        "@chelone/table",
+        "@chelone/trend-chart",
+        "@chelone/validation-error",
+        "charts"
       ],
       "dependencies": [
         "@chelone/core",
         "@chelone/vue",
+        "@dnd-kit/dom",
+        "@dnd-kit/vue",
         "@tiptap/core",
         "@tiptap/extensions",
         "@tiptap/pm",
         "@tiptap/starter-kit",
         "@tiptap/suggestion",
-        "@tiptap/vue-3"
+        "@tiptap/vue-3",
+        "@unovis/ts",
+        "@unovis/vue"
       ],
       "files": [
         {
@@ -6931,6 +7135,14 @@
         },
         {
           "path": "src/components/block-editor/block-doc-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-drag-handle.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-drop-gap.vue",
           "type": "registry:component"
         },
         {
@@ -6962,6 +7174,34 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/block-editor/chart-block-config.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/chart-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/data-block-fields-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/data-block-parts.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/data-block-resource-select.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/data-block-state.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/data-blocks.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/block-editor/default-blocks.ts",
           "type": "registry:component"
         },
@@ -6975,6 +7215,22 @@
         },
         {
           "path": "src/components/block-editor/image-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/record-list-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/record-list-config.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/reference-record-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/reference-record-config.vue",
           "type": "registry:component"
         },
         {
@@ -7005,7 +7261,7 @@
         "@chelone/native-select",
         "@chelone/switch"
       ],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@unovis/ts", "@unovis/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7024,8 +7280,53 @@
         "@chelone/block-nodes",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-drag-handle",
+      "type": "registry:component",
+      "title": "Block Drag Handle",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-drag-handle.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-drop-gap",
+        "@chelone/block-icons",
+        "@chelone/block-toolbar"
+      ],
+      "dependencies": [
+        "@chelone/vue",
+        "@dnd-kit/dom",
+        "@dnd-kit/vue",
+        "@tiptap/core",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-drop-gap",
+      "type": "registry:component",
+      "title": "Block Drop Gap",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-drop-gap.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@dnd-kit/vue", "@unovis/ts", "@unovis/vue"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -7047,7 +7348,12 @@
         "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7062,6 +7368,7 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/block-drag-handle",
         "@chelone/block-nodes",
         "@chelone/block-picker",
         "@chelone/block-toolbar",
@@ -7073,11 +7380,14 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/vue",
+        "@dnd-kit/vue",
         "@tiptap/core",
         "@tiptap/extensions",
         "@tiptap/pm",
         "@tiptap/starter-kit",
-        "@tiptap/vue-3"
+        "@tiptap/vue-3",
+        "@unovis/ts",
+        "@unovis/vue"
       ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -7093,6 +7403,7 @@
         }
       ],
       "categories": ["chelone", "components"],
+      "dependencies": ["@unovis/ts", "@unovis/vue"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -7109,7 +7420,9 @@
         "@chelone/core",
         "@chelone/vue",
         "@tiptap/core",
-        "@tiptap/vue-3"
+        "@tiptap/vue-3",
+        "@unovis/ts",
+        "@unovis/vue"
       ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -7125,7 +7438,12 @@
         }
       ],
       "registryDependencies": ["@chelone/block-nodes", "@chelone/command"],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7149,7 +7467,9 @@
         "@chelone/core",
         "@chelone/vue",
         "@tiptap/core",
-        "@tiptap/pm"
+        "@tiptap/pm",
+        "@unovis/ts",
+        "@unovis/vue"
       ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -7169,6 +7489,145 @@
         "@chelone/default-blocks",
         "@chelone/lib-utils"
       ],
+      "categories": ["chelone", "components"],
+      "dependencies": ["@unovis/ts", "@unovis/vue"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "chart-block-config",
+      "type": "registry:component",
+      "title": "Chart Block Config",
+      "files": [
+        {
+          "path": "src/components/block-editor/chart-block-config.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/data-block-resource-select",
+        "@chelone/data-blocks",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/native-select"
+      ],
+      "dependencies": ["@chelone/vue", "@unovis/ts", "@unovis/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "chart-block",
+      "type": "registry:component",
+      "title": "Chart Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/chart-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/bar-chart",
+        "@chelone/data-block-parts",
+        "@chelone/data-block-state",
+        "@chelone/data-blocks",
+        "@chelone/donut-chart",
+        "@chelone/trend-chart"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-block-fields-input",
+      "type": "registry:component",
+      "title": "Data Block Fields Input",
+      "files": [
+        {
+          "path": "src/components/block-editor/data-block-fields-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/field", "@chelone/input"],
+      "dependencies": ["@chelone/vue", "@unovis/ts", "@unovis/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-block-parts",
+      "type": "registry:component",
+      "title": "Data Block Parts",
+      "files": [
+        {
+          "path": "src/components/block-editor/data-block-parts.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/block-nodes"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-block-resource-select",
+      "type": "registry:component",
+      "title": "Data Block Resource Select",
+      "files": [
+        {
+          "path": "src/components/block-editor/data-block-resource-select.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/field", "@chelone/native-select"],
+      "dependencies": ["@chelone/vue", "@unovis/ts", "@unovis/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-block-state",
+      "type": "registry:component",
+      "title": "Data Block State",
+      "files": [
+        {
+          "path": "src/components/block-editor/data-block-state.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/skeleton"],
+      "categories": ["chelone", "components"],
+      "dependencies": ["@unovis/ts", "@unovis/vue"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-blocks",
+      "type": "registry:component",
+      "title": "Data Blocks",
+      "files": [
+        {
+          "path": "src/components/block-editor/data-blocks.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-icons",
+        "@chelone/block-nodes",
+        "@chelone/chart-block",
+        "@chelone/chart-block-config",
+        "@chelone/data-block-parts",
+        "@chelone/record-list-block",
+        "@chelone/record-list-config",
+        "@chelone/reference-record-block",
+        "@chelone/reference-record-config"
+      ],
+      "dependencies": ["@chelone/core", "@unovis/ts", "@unovis/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7193,6 +7652,7 @@
       ],
       "devDependencies": ["zod"],
       "categories": ["chelone", "components"],
+      "dependencies": ["@unovis/ts", "@unovis/vue"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -7206,7 +7666,12 @@
         }
       ],
       "registryDependencies": ["@chelone/default-blocks"],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7225,7 +7690,12 @@
         "@chelone/field",
         "@chelone/input"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7240,7 +7710,106 @@
         }
       ],
       "registryDependencies": ["@chelone/default-blocks"],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "record-list-block",
+      "type": "registry:component",
+      "title": "Record List Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/record-list-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/data-block-parts",
+        "@chelone/data-block-state",
+        "@chelone/data-blocks",
+        "@chelone/table"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "record-list-config",
+      "type": "registry:component",
+      "title": "Record List Config",
+      "files": [
+        {
+          "path": "src/components/block-editor/record-list-config.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/data-block-fields-input",
+        "@chelone/data-block-resource-select",
+        "@chelone/data-blocks",
+        "@chelone/field",
+        "@chelone/input"
+      ],
+      "dependencies": ["@chelone/vue", "@unovis/ts", "@unovis/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-record-block",
+      "type": "registry:component",
+      "title": "Reference Record Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/reference-record-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/card",
+        "@chelone/data-block-parts",
+        "@chelone/data-block-state",
+        "@chelone/data-blocks"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "reference-record-config",
+      "type": "registry:component",
+      "title": "Reference Record Config",
+      "files": [
+        {
+          "path": "src/components/block-editor/reference-record-config.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/data-block-fields-input",
+        "@chelone/data-block-resource-select",
+        "@chelone/data-blocks",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/native-select"
+      ],
+      "dependencies": ["@chelone/vue", "@unovis/ts", "@unovis/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7254,7 +7823,13 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@tiptap/core", "@tiptap/pm", "@tiptap/suggestion"],
+      "dependencies": [
+        "@tiptap/core",
+        "@tiptap/pm",
+        "@tiptap/suggestion",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7275,6 +7850,7 @@
         "@chelone/lib-utils"
       ],
       "categories": ["chelone", "components"],
+      "dependencies": ["@unovis/ts", "@unovis/vue"],
       "author": "Chelone <https://chelone.dev>"
     },
     {

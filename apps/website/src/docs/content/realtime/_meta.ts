@@ -2,6 +2,17 @@ import type { MetaEntry } from "@/docs/types";
 
 export default [
   {
+    category: "Provider builders & transports",
+    slugs: [
+      "add-events-for-mutations",
+      "memory-transport",
+      "broadcast-channel-transport",
+      "websocket-transport",
+      "sse-transport",
+      "in-memory-lock-provider",
+    ],
+  },
+  {
     category: "Live views & menus",
     slugs: ["list-live", "edit-live", "show-live", "menu-live"],
   },
@@ -12,6 +23,18 @@ export default [
   {
     category: "Record locks",
     slugs: ["lock-on-mount", "lock-status"],
+  },
+  {
+    category: "Subscribe & publish hooks",
+    slugs: [
+      "use-subscribe",
+      "use-subscribe-to-record",
+      "use-subscribe-to-record-list",
+      "use-subscribe-callback",
+      "use-publish",
+      "use-on-reconnect",
+      "use-realtime-status",
+    ],
   },
   {
     category: "Live read hooks",

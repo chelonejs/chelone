@@ -118,3 +118,110 @@
   height: 0;
   pointer-events: none;
 }
+
+/*
+ * The color palette. Bright colors are set per theme; soft and muted ones mix a
+ * bright color into the theme's own background and muted foreground.
+ */
+:root {
+  --rich-text-color-bright-red: oklch(0.577 0.245 27.3);
+  --rich-text-color-bright-orange: oklch(0.646 0.222 41.1);
+  --rich-text-color-bright-yellow: oklch(0.681 0.162 75.8);
+  --rich-text-color-bright-green: oklch(0.627 0.194 149.2);
+  --rich-text-color-bright-blue: oklch(0.546 0.245 262.9);
+  --rich-text-color-bright-purple: oklch(0.558 0.288 302.3);
+  --rich-text-color-bright-pink: oklch(0.592 0.249 0.6);
+  --rich-text-color-soft-red: color-mix(in oklab, var(--rich-text-color-bright-red) 55%, var(--background));
+  --rich-text-color-soft-orange: color-mix(in oklab, var(--rich-text-color-bright-orange) 55%, var(--background));
+  --rich-text-color-soft-yellow: color-mix(in oklab, var(--rich-text-color-bright-yellow) 55%, var(--background));
+  --rich-text-color-soft-green: color-mix(in oklab, var(--rich-text-color-bright-green) 55%, var(--background));
+  --rich-text-color-soft-blue: color-mix(in oklab, var(--rich-text-color-bright-blue) 55%, var(--background));
+  --rich-text-color-soft-purple: color-mix(in oklab, var(--rich-text-color-bright-purple) 55%, var(--background));
+  --rich-text-color-soft-pink: color-mix(in oklab, var(--rich-text-color-bright-pink) 55%, var(--background));
+  --rich-text-color-muted-red: color-mix(in oklab, var(--rich-text-color-bright-red) 50%, var(--muted-foreground));
+  --rich-text-color-muted-orange: color-mix(in oklab, var(--rich-text-color-bright-orange) 50%, var(--muted-foreground));
+  --rich-text-color-muted-yellow: color-mix(in oklab, var(--rich-text-color-bright-yellow) 50%, var(--muted-foreground));
+  --rich-text-color-muted-green: color-mix(in oklab, var(--rich-text-color-bright-green) 50%, var(--muted-foreground));
+  --rich-text-color-muted-blue: color-mix(in oklab, var(--rich-text-color-bright-blue) 50%, var(--muted-foreground));
+  --rich-text-color-muted-purple: color-mix(in oklab, var(--rich-text-color-bright-purple) 50%, var(--muted-foreground));
+  --rich-text-color-muted-pink: color-mix(in oklab, var(--rich-text-color-bright-pink) 50%, var(--muted-foreground));
+}
+
+.dark {
+  --rich-text-color-bright-red: oklch(0.704 0.191 22.2);
+  --rich-text-color-bright-orange: oklch(0.75 0.183 55.9);
+  --rich-text-color-bright-yellow: oklch(0.852 0.199 91.9);
+  --rich-text-color-bright-green: oklch(0.792 0.209 151.7);
+  --rich-text-color-bright-blue: oklch(0.707 0.165 254.6);
+  --rich-text-color-bright-purple: oklch(0.714 0.203 305.5);
+  --rich-text-color-bright-pink: oklch(0.718 0.202 349.8);
+}
+
+/* Token colors for the classes lowlight puts on code in the editor. */
+.rich-text .hljs-comment,
+.rich-text .hljs-quote {
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
+.rich-text .hljs-keyword,
+.rich-text .hljs-selector-tag,
+.rich-text .hljs-doctag,
+.rich-text .hljs-meta .hljs-keyword {
+  color: var(--rich-text-color-bright-purple);
+}
+
+.rich-text .hljs-string,
+.rich-text .hljs-regexp,
+.rich-text .hljs-addition,
+.rich-text .hljs-meta .hljs-string {
+  color: var(--rich-text-color-bright-green);
+}
+
+.rich-text .hljs-number,
+.rich-text .hljs-literal,
+.rich-text .hljs-symbol,
+.rich-text .hljs-bullet {
+  color: var(--rich-text-color-bright-orange);
+}
+
+.rich-text .hljs-title,
+.rich-text .hljs-section,
+.rich-text .hljs-function .hljs-title {
+  color: var(--rich-text-color-bright-blue);
+}
+
+.rich-text .hljs-built_in,
+.rich-text .hljs-type,
+.rich-text .hljs-class .hljs-title {
+  color: var(--rich-text-color-bright-yellow);
+}
+
+.rich-text .hljs-attr,
+.rich-text .hljs-attribute,
+.rich-text .hljs-variable,
+.rich-text .hljs-template-variable,
+.rich-text .hljs-property {
+  color: var(--rich-text-color-bright-red);
+}
+
+.rich-text .hljs-name,
+.rich-text .hljs-tag,
+.rich-text .hljs-selector-id,
+.rich-text .hljs-selector-class {
+  color: var(--rich-text-color-bright-pink);
+}
+
+.rich-text .hljs-meta,
+.rich-text .hljs-link,
+.rich-text .hljs-deletion {
+  color: var(--rich-text-color-bright-blue);
+}
+
+.rich-text .hljs-emphasis {
+  font-style: italic;
+}
+
+.rich-text .hljs-strong {
+  font-weight: 600;
+}

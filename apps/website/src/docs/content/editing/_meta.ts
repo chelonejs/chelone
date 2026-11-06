@@ -50,6 +50,8 @@ export default [
     category: "Rich & structured inputs",
     slugs: [
       "mdx-input",
+      "block-editor-input",
+      "rich-text-input",
       "monaco-json-input",
       "file-input",
       "image-input",
@@ -66,7 +68,7 @@ export default [
   },
   {
     category: "Forms",
-    slugs: ["tabbed-form", "wizard-form", "filter-form"],
+    slugs: ["tabbed-form", "wizard-form", "filter-form", "configurable-inputs"],
   },
   {
     category: "Buttons",

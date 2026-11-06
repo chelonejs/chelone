@@ -80,6 +80,12 @@ import { DataTable, List, ReferenceField, TextField } from "@chelone/react";
   is an add-on installed from the registry.
 - **Markdown**: `<MdxField>` shows a markdown string as formatted text in a
   read-only editor. It is an add-on installed from the registry.
+- **Rich text**: [RichTextField](/docs/viewing/rich-text-field) shows HTML
+  sanitized with DOMPurify, or plain text with `stripTags`. It is an add-on
+  installed from the registry or the `/rich-text-input` npm subpath in either
+  adapter.
+- **Block editor**: `<BlockDocField>` shows a stored block document as formatted
+  text and blocks. It is an add-on installed from the registry.
 - **SaaS**: `<ApiKeyField>`, `<SubscriptionPlanField>`, `<UsageMeterField>`,
   `<WebhookEndpointField>`.
 - **List controls**: the components that sit around a `<DataTable>` rather than

@@ -77,6 +77,7 @@ The full prop list for `<Admin>` and `<Resource>` is on the
 | `<PermissionMatrix>` takes `value` and `onChange`. | `<PermissionMatrix>` is a `v-model`: `modelValue` in and `update:modelValue` out with the whole next value. It takes `class` where React takes `className`. | [Permission Matrix](/docs/editing/permission-matrix) |
 | `<InPlaceEditor>` takes `children` for the shown value and `editor` for the input. | `<InPlaceEditor>` takes the default slot for the shown value and the `#editor` slot for the input. | [In Place Editor](/docs/editing/in-place-editor) |
 | `<InPlaceEditor>` takes `onSuccess` and `onError` props. | `<InPlaceEditor>` emits `success` with the saved record and `error` with the failure. | [In Place Editor](/docs/editing/in-place-editor) |
+| `<Configurable>` takes an `editor` node prop, and `<InspectorButton>` takes the shadcn button props with an `onClick`. | `<Configurable>` takes the `#editor` slot, and `<InspectorButton>` takes `label`, `class` and `disabled`, has an `#icon` slot and emits `click`. Both take `class` where React takes `className`. | [Inspector](/docs/ui-layout/inspector) |
 | `<OnboardingTour>` takes an `onComplete` prop, called with `"finished"` or `"skipped"`. | `<OnboardingTour>` emits `complete` with the same two values. | [Onboarding Tour](/docs/ui-layout/onboarding-tour) |
 | `<OnboardingTour>` steps take a `title` and `content` that are nodes. | A step's `title` and `content` are strings. A `#step` slot, given `{ step, index }`, replaces both. | [Onboarding Tour](/docs/ui-layout/onboarding-tour) |
 | `<TrendChart>` and `<BarChart>` plot the row's `xField` value on the x axis. | They plot the row index and label each tick with that row's `xField`, so any x value keeps its order. With more than 7 rows only every step-th tick is labelled. | [Trend Chart](/docs/ui-layout/trend-chart), [Bar Chart](/docs/ui-layout/bar-chart) |
@@ -111,12 +112,28 @@ another, imported from `@chelone/vue/mdx-editor` or installed as
 `<DonutChart>` come from `@chelone/vue/charts` and need `@unovis/vue` and
 `@unovis/ts`, where React has `@chelone/react/charts` and `recharts`.
 `<MetricCard>` is not part of it: it ships in both base packages and draws no
-chart.
+chart. The rich text components are a fourth, imported from
+`@chelone/vue/rich-text-input` or installed as `@chelone/rich-text-input`. The
+block editor is a fifth: `<BlockEditorInput>`, `<BlockDocField>` and
+`defineBlock` come from `@chelone/vue/block-editor` and need the `@tiptap/*`
+packages, `@dnd-kit/vue` and `@dnd-kit/dom` for the block drag handle, and
+`@unovis/vue` and `@unovis/ts` for its chart block. That block draws with the
+`/charts` components of its own adapter: `<TrendChart>`, `<BarChart>` and
+`<DonutChart>` from `@chelone/vue/charts` here, and the same three from
+`@chelone/react/charts` in React, where the block needs `recharts` instead.
+`<BlockEditor>` emits `change` with the document, and
+`<BlockDocField>` takes a string `empty` with a `#empty` slot where React takes
+an `empty` node. The inspector is a sixth: `<Inspector>`, `<InspectorButton>`,
+`<Configurable>`, `<ConfigurableInputs>` and `<SortableFieldsSelector>` come
+from `@chelone/vue/inspector` and need `@dnd-kit/vue`, where React has
+`@chelone/react/inspector` and `@dnd-kit/react`.
 
 | React | Vue | React page |
 | ----- | --- | ---------- |
 | `<MonacoJsonInput>` and `<MonacoJsonField>` use `@monaco-editor/react`, and take `className`. The input also takes `editorClassName`. | They use `@guolao/vue-monaco-editor`, and take `class`. The input also takes `editor-class`. `<MonacoJsonInput>` has no `id`, `resource`, `isRequired`, `format`, `parse` or `alwaysOn` prop and emits no events. | [Monaco Json Input](/docs/editing/monaco-json-input), [Monaco Json Field](/docs/viewing/monaco-json-field) |
 | `<MdxInput>` and `<MdxField>` use `@mdxeditor/editor` and the `mdxeditor-dark` class. `<MdxInput>` has a fixed toolbar and takes `mdxProps`, whose `plugins` replace the defaults. `<MdxField>` has no toolbar and takes `plugins` and the other editor props directly. | They wrap Milkdown's Crepe editor, because MDXEditor is React only. The input's toolbar floats over a selection, `crepeConfig` replaces `mdxProps` and `plugins` on both components, and a theme file replaces the dark class. They take `class`, and `<MdxInput>` has no `id`, `resource`, `isRequired`, `format`, `parse` or `alwaysOn` prop. | [Mdx Input](/docs/editing/mdx-input), [Mdx Field](/docs/viewing/mdx-field) |
+| `<RichTextInput>` uses `@tiptap/react` and takes `toolbar`. `<RichTextToolbar>` reads the editor context. `<RichTextField>` accepts a node for `empty`. | The input uses `@tiptap/vue-3` and a `#toolbar` slot receiving `{ editor }`. The toolbar takes an `editor` prop. The field takes a string for `empty` or a `#empty` slot. Both components use `class`. | [Rich Text Input](/docs/editing/rich-text-input), [Rich Text Field](/docs/viewing/rich-text-field) |
+| `<BlockEditorInput>` takes `className`, a node `label` and a node `helperText`, and `<BlockDocField>` takes a node as `empty`. `<BlockEditor>` takes `onChange`. | They take `class`, a `label` that is a string or `false`, and a `helper-text` string. `<BlockEditorInput>` has no `id`, `resource`, `isRequired`, `format`, `parse` or `alwaysOn` prop. `<BlockEditor>` emits `change` with the document, and `<BlockDocField>` takes a string `empty` plus a `#empty` slot. Both entries ship the four default blocks and the three data blocks (`dataBlocks`), and both move a block with a drag handle; a chart block draws with unovis here and recharts in React. | [Block Editor Input](/docs/editing/block-editor-input), [Block Doc Field](/docs/viewing/block-doc-field) |
 
 ## What this page leaves out
 

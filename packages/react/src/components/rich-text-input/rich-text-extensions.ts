@@ -1,4 +1,5 @@
 import {
+  endColorOnEnter,
   richTextCodeBlockOptions,
   richTextStarterKitOptions,
 } from "@chelone/core";
@@ -7,7 +8,7 @@ import type { CodeBlockOptions } from "@tiptap/extension-code-block";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { Color, TextStyle } from "@tiptap/extension-text-style";
 import { Placeholder } from "@tiptap/extensions";
-import { Plugin, PluginKey } from "@tiptap/pm/state";
+import { Plugin } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
 import type { LanguageFn } from "highlight.js";
 import { common, createLowlight } from "lowlight";
@@ -34,39 +35,8 @@ const EndColorOnEnter = Extension.create({
   name: "endColorOnEnter",
   priority: 1000,
   addProseMirrorPlugins() {
-    let enterPressed = false;
-    return [
-      new Plugin({
-        key: new PluginKey("endColorOnEnter"),
-        props: {
-          handleKeyDown: (_view, event) => {
-            enterPressed =
-              event.key === "Enter" &&
-              !event.shiftKey &&
-              !event.ctrlKey &&
-              !event.metaKey &&
-              !event.altKey;
-            return false;
-          },
-        },
-        appendTransaction: (transactions, _old, state) => {
-          if (!enterPressed || !transactions.some((tr) => tr.docChanged)) {
-            return null;
-          }
-          enterPressed = false;
-          // Text after the cursor that is still colored keeps the color running.
-          const after = state.selection.$from.nodeAfter;
-          if (after?.marks.some((mark) => mark.type.name === "textStyle")) {
-            return null;
-          }
-          const marks = state.storedMarks ?? state.selection.$from.marks();
-          const kept = marks.filter((mark) => mark.type.name !== "textStyle");
-          return kept.length === marks.length
-            ? null
-            : state.tr.setStoredMarks(kept);
-        },
-      }),
-    ];
+    const { handleKeyDown, appendTransaction } = endColorOnEnter();
+    return [new Plugin({ props: { handleKeyDown }, appendTransaction })];
   },
 });
 

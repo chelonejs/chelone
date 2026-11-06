@@ -138,3 +138,28 @@ export const PanelLeftIcon = icon(() => [
   h("rect", { width: "18", height: "18", x: "3", y: "3", rx: "2" }),
   h("path", { d: "M9 3v18" }),
 ]);
+
+/** Sliders — `<InspectorButton>` and `<Configurable>`. */
+export const SlidersHorizontalIcon = paths(
+  "M10 5H3",
+  "M12 19H3",
+  "M14 3v4",
+  "M16 17v4",
+  "M21 12h-9",
+  "M21 19h-5",
+  "M21 5h-7",
+  "M8 10v4",
+  "M8 12H3",
+);
+
+/** Six dots — the drag grip of `<SortableFieldsSelector>`. */
+export const GripVerticalIcon = icon(() =>
+  [
+    [9, 12],
+    [9, 5],
+    [9, 19],
+    [15, 12],
+    [15, 5],
+    [15, 19],
+  ].map(([cx, cy]) => h("circle", { cx, cy, r: "1" })),
+);

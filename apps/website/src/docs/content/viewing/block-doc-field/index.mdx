@@ -1,0 +1,75 @@
+---
+title: "BlockDocField"
+description: "Shows a stored block document read-only, drawing each block with its read component."
+registry: "block-editor"
+---
+
+`<BlockDocField>` renders a stored block document, the tiptap JSON that
+[BlockEditorInput](/docs/editing/block-editor-input) writes, as formatted text
+and blocks with no editing controls.
+
+It is an add-on installed from the registry as `@chelone/block-editor`, with
+tiptap as an optional peer dependency. The input page covers installing it, the
+peer packages, and how the React and Vue entries differ.
+
+## In a show view
+
+```tsx title="src/resources/PostShow.tsx"
+import { RecordField, Show } from "@chelone/react";
+import { BlockDocField } from "@/components/block-editor/block-doc-field";
+import { defaultBlocks } from "@/components/block-editor/default-blocks";
+import { quoteBlock } from "@/blocks/quote-block";
+
+export const PostShow = () => (
+  <Show>
+    <RecordField source="body">
+      <BlockDocField
+        source="body"
+        blocks={[...defaultBlocks, quoteBlock]}
+        empty="No content"
+      />
+    </RecordField>
+  </Show>
+);
+```
+
+## blocks and empty
+
+`blocks` is the list the document is read with. It is read once, when the editor
+mounts, and each block draws itself with its `read` component, or with `render`
+when it has none. Pass the list the editor that wrote the document had, or the
+block shows as an unknown block.
+
+`empty` is what shows when the value is missing or is not a doc object. A string
+is translated, and in React a node renders as is. In Vue the `#empty` slot
+replaces it.
+
+For a list cell, prefer [TextField](/docs/viewing/text-field) or a
+`<FunctionField>` that prints one line. `<BlockDocField>` mounts an editor per
+cell, so a datagrid of many rows gets heavy.
+
+## Data blocks read live data
+
+A stored data block holds no data: it names a resource in its attrs and reads it
+when the field renders. `referenceRecord` runs `useGetOne`, and `recordList` and
+`chart` run `useGetList`, each for the resource its attrs name. A show view
+therefore shows the record as it stands now, not as the document stored it, and
+a reader whose data provider refuses that resource gets the block's error state
+instead of data. The row caps are the input page's: 50 for a record list, 100
+for a chart.
+
+The field's `blocks` must name those blocks, the same list the editor that wrote
+the document had, or the stored block shows as an unknown block. Pass
+`[...defaultBlocks, ...dataBlocks]` to both. What each block draws and how it is
+configured is on [Data blocks](/docs/editing/block-editor-input#data-blocks).
+
+In a datagrid, a document with data blocks adds a read per cell on top of the
+editor each cell mounts.
+
+## Props
+
+<PropsTable name="BlockDocField" />
+
+Vue takes `class` where React takes `className`, takes `empty` as a string
+rather than a node, and adds a `#empty` slot. To edit the value, use
+[BlockEditorInput](/docs/editing/block-editor-input).

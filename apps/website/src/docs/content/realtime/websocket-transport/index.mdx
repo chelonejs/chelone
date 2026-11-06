@@ -1,0 +1,101 @@
+---
+title: "webSocketTransport"
+description: "Carries realtime events over one WebSocket and reconnects with backoff. Needs a server that answers Chelone's frames."
+---
+
+`webSocketTransport` keeps one socket open and sends every topic through it.
+The socket opens on the first subscribe or publish.
+
+## Signature
+
+```ts
+function webSocketTransport(
+  options: WebSocketTransportOptions,
+): WebSocketTransport
+
+interface WebSocketTransportOptions {
+  url: string;
+  /** Subprotocols offered on every connection. */
+  protocols?: string[];
+  /** Read before every connection, so a retry carries a fresh token. */
+  getAuthToken?: () =>
+    | string
+    | null
+    | undefined
+    | Promise<string | null | undefined>;
+  /** Where the token goes. Default "query". */
+  authMode?: "query" | "subprotocol";
+  /** Exponential backoff for a dropped connection. */
+  reconnect?: RealtimeReconnectConfig;
+  /** Close the socket after this long with no subscriber. Default 30000. */
+  idleDisconnectMs?: number;
+  /** Ping this often; a ping with no reply by the next one is a drop. Default 30000. */
+  heartbeatMs?: number;
+  /** Called for every transport error, like a listener from `onError()`. */
+  onError?: (error: RealtimeTransportError) => void;
+}
+
+/** A `RealtimeTransport` with every optional member, plus `close()`. */
+interface WebSocketTransport extends Required<RealtimeTransport> {
+  /**
+   * Closes the socket, rejects queued publishes and sets `"disconnected"`.
+   * A later subscribe or publish opens again.
+   */
+  close(): void;
+}
+```
+
+## Returns
+
+The transport starts as `"idle"` and opens on the first `subscribe` or
+`publish`. Every optional member of `RealtimeTransport` works, so
+`useRealtimeStatus` follows it.
+
+The socket carries JSON text frames. The client sends `{"op":"subscribe"}`,
+`{"op":"unsubscribe"}`, `{"op":"publish"}` with the topic and event, and
+`{"op":"ping"}`. The server answers a publish or a subscription with a frame
+shaped as the event itself, and a ping with `{"op":"pong"}`. `topic` and `type`
+are required strings, `payload` and `meta` optional. A frame that is not text,
+not JSON or not an event is reported as `parse_failed`.
+
+- A `publish` made before the socket is open waits in a queue and is sent when
+  it opens. `close()` rejects the ones still waiting.
+- After a reconnect the transport sends `subscribe` again for every topic that
+  still has a listener, so the server keeps no memory of the old socket, and the
+  `onReconnect` listeners run.
+- `heartbeatMs` sets how often a `ping` goes out. A `ping` with no frame of any
+  kind back by the next one counts as a dropped connection.
+- `idleDisconnectMs` closes the socket once nothing is subscribed. The next
+  subscribe opens it again.
+- `close()` sets `"disconnected"`, and a later subscribe or publish opens again.
+
+`getAuthToken` runs before every connection, so a retry carries a fresh token.
+`authMode` says where it goes:
+
+- `"query"`, the default, adds a `token` parameter to the URL. Server logs,
+  proxy logs and browser history can keep a URL, and so can the token in it.
+- `"subprotocol"` offers the token as a subprotocol after `protocols` and keeps
+  it out of the URL. The server must accept that subprotocol in the handshake.
+
+A failure whose message could quote the URL or a subprotocol is reported with a
+cause naming only the error's name, so a token never reaches `onError`.
+
+## Example
+
+```ts
+import { realtimeDataProvider, webSocketTransport } from "@chelone/core";
+import { baseProvider } from "./baseProvider";
+import { getSession } from "./session";
+
+export const transport = webSocketTransport({
+  url: "wss://api.example.com/realtime",
+  getAuthToken: async () => (await getSession())?.accessToken,
+  authMode: "subprotocol",
+  reconnect: { initialDelayMs: 500, maxAttempts: 8 },
+});
+
+export const dataProvider = realtimeDataProvider(baseProvider, transport);
+```
+
+See the [realtime guide](/docs/app-config/realtime) for the frames in full, the
+reconnect options and the status each transport reports.

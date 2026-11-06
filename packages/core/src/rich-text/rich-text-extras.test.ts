@@ -4,6 +4,7 @@ import {
   checkRichTextImageFile,
   clampRichTextImageWidth,
   defaultRichTextImageRules,
+  endColorOnEnter,
   normalizeRichTextUpload,
   richTextCodeBlockOptions,
   richTextColors,
@@ -327,5 +328,88 @@ describe("richTextExtraToolbarItems", () => {
       expect(Object.isFrozen(entry)).toBe(true);
     }
     expect(reference && Object.isFrozen(reference)).toBe(true);
+  });
+});
+
+describe("endColorOnEnter", () => {
+  interface FakeMark {
+    type: { name: string };
+  }
+  const mark = (name: string): FakeMark => ({ type: { name } });
+  const bold = mark("bold");
+  const color = mark("textStyle");
+
+  /** The slice of a ProseMirror state the handlers read, with a transaction that records its stored marks. */
+  const stateOf = (
+    marks: readonly FakeMark[],
+    following: readonly FakeMark[] | null,
+  ) => ({
+    selection: {
+      $from: {
+        marks: () => marks,
+        nodeAfter: following ? { marks: following } : null,
+      },
+    },
+    storedMarks: null,
+    tr: {
+      setStoredMarks: (stored: readonly FakeMark[] | null) => ({ stored }),
+    },
+  });
+  const key = (init: Partial<Record<string, boolean | string>>) => ({
+    key: "Enter",
+    shiftKey: false,
+    ctrlKey: false,
+    metaKey: false,
+    altKey: false,
+    ...init,
+  });
+  const split = [{ docChanged: true }];
+
+  it("drops the color from the marks carried to the next line, and keeps the rest", () => {
+    const handlers = endColorOnEnter();
+    handlers.handleKeyDown(null, key({}));
+    expect(
+      handlers.appendTransaction(split, null, stateOf([bold, color], null)),
+    ).toEqual({ stored: [bold] });
+  });
+
+  it("leaves the marks alone with no color, or when colored text follows the cursor", () => {
+    const handlers = endColorOnEnter();
+    handlers.handleKeyDown(null, key({}));
+    expect(
+      handlers.appendTransaction(split, null, stateOf([bold], null)),
+    ).toBeNull();
+    handlers.handleKeyDown(null, key({}));
+    expect(
+      handlers.appendTransaction(split, null, stateOf([color], [color])),
+    ).toBeNull();
+  });
+
+  it("ignores a split that Enter did not cause, or a modified Enter, or an edit that left the document alone", () => {
+    const handlers = endColorOnEnter();
+    expect(
+      handlers.appendTransaction(split, null, stateOf([color], null)),
+    ).toBeNull();
+    for (const init of [
+      { shiftKey: true },
+      { ctrlKey: true },
+      { metaKey: true },
+      { altKey: true },
+      { key: "a" },
+    ]) {
+      handlers.handleKeyDown(null, key(init));
+      expect(
+        handlers.appendTransaction(split, null, stateOf([color], null)),
+        JSON.stringify(init),
+      ).toBeNull();
+    }
+    handlers.handleKeyDown(null, key({}));
+    expect(
+      handlers.appendTransaction(
+        [{ docChanged: false }],
+        null,
+        stateOf([color], null),
+      ),
+    ).toBeNull();
   });
 });

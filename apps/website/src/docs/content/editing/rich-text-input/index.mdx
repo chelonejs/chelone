@@ -1,0 +1,352 @@
+---
+title: "RichTextInput"
+description: "Edits an HTML string in a tiptap editor with a formatting toolbar, images, text color and highlighted code blocks."
+registry: "rich-text-input"
+---
+
+`<RichTextInput>` edits an HTML string in a tiptap editor. It is an add-on for
+React and Vue: it is in neither barrel, and the editor packages are optional
+peers. See [Installing the add-on](#installing-the-add-on).
+
+## When to use it
+
+Use it for formatted content stored as HTML, such as an article body or a help
+page. Choose [MdxInput](/docs/editing/mdx-input) when the stored value should be
+markdown, and [TextInput](/docs/editing/text-input) for a short plain-text
+value. To display the stored HTML, use [RichTextField](/docs/viewing/rich-text-field).
+
+## Example
+
+```tsx
+import { required } from "@chelone/core";
+import { Edit } from "@chelone/react";
+import { RichTextInput } from "@/components/rich-text-input/rich-text-input";
+
+export const PostEdit = () => (
+  <Edit>
+    <RichTextInput
+      source="body"
+      label="Body"
+      placeholder="Write an article..."
+      validate={required()}
+    />
+  </Edit>
+);
+```
+
+## Value contract
+
+- The value is an HTML string. Clearing the editor stores `""`, not `null` or an
+  empty paragraph tag. A value that is not a string reads as an empty editor.
+- The editor parses the HTML into its schema and serializes edits back to HTML.
+  It may normalize the markup. Loading a value does not mark the form dirty.
+- A form reset or `setValue` replaces the editor content without reporting a
+  user edit. `defaultValue` seeds a missing value and defaults to `""`.
+
+## Validation and read-only
+
+The usual `validate` prop runs on the HTML string, and errors appear under the
+editor. A `required()` validator sets the required marker. React also accepts
+`isRequired` to force the marker.
+
+Both `disabled` and `readOnly` prevent edits and disable the toolbar buttons.
+The stored content remains visible. `placeholder` shows while the editor is
+empty.
+
+## Toolbar
+
+The default `<RichTextToolbar>` has a block-type select, offering paragraph and
+headings 1 to 6, and one button per command: bold, italic, underline,
+strikethrough, inline code, Text color, clear formatting, Link, bullet and
+ordered lists, blockquote, code block, Image, horizontal rule, undo and redo. A
+button reports `aria-pressed` while its mark or block is on the selection. Link,
+Image and Text color open a small form instead of running a command, and link
+editing accepts safe URLs and rejects unsafe schemes.
+
+`images` and `colors` decide whether the Image and Text color buttons are in the
+toolbar at all. `codeHighlight` keeps the Code block button and changes only how
+a code block is drawn. Each prop has its own section below.
+
+In React, `toolbar` replaces the default toolbar. Pass `toolbar={null}` to hide
+it, or include `<RichTextToolbar />` in a custom wrapper to keep its controls:
+
+```tsx
+import { RichTextInput } from "@/components/rich-text-input/rich-text-input";
+import { RichTextToolbar } from "@/components/rich-text-input/rich-text-toolbar";
+
+<RichTextInput
+  source="body"
+  toolbar={<RichTextToolbar className="p-2" />}
+/>;
+```
+
+`editorOptions` passes extra options to tiptap, spread last. Supplying
+`extensions` there replaces the default extension set, and its `onUpdate` and
+`onBlur` run after the input has updated the form or recorded the blur.
+
+## Images
+
+`images` decides whether the editor takes images. `false` leaves out the image
+extension and the toolbar's Image button. An object sets the file rules and how
+a file is stored:
+
+- `allowedMimeTypes`: exact types or `type/*` patterns. Default `["image/*"]`.
+  SVG is refused whatever the list says.
+- `maxFileSize`: bytes. Default 5 MB.
+- `allowBase64`: whether a base64 raster `data:` source may be stored or shown.
+  Default `true`.
+- `uploadFn`: stores a file and resolves to its URL, or to `{ id, src }` when the
+  store has an id for it. Resolve to `null` for a failed upload. The URL must be
+  a safe image source.
+- `onImageError`: called for a refused file or URL and for a failed upload, with
+  `reason` as `"type"`, `"size"`, `"src"` or `"upload"`, and the `File` when one
+  is involved.
+
+The input reads these settings on each insert: changing a rule needs no new
+editor, only setting `images` to `false` does.
+
+```tsx title="src/resources/PostEdit.tsx"
+import { Edit } from "@chelone/react";
+import { RichTextInput } from "@/components/rich-text-input/rich-text-input";
+
+export const PostEdit = () => (
+  <Edit>
+    <RichTextInput
+      source="body"
+      label="Body"
+      images={{
+        allowedMimeTypes: ["image/png", "image/jpeg", "image/webp"],
+        maxFileSize: 2 * 1024 * 1024,
+        uploadFn: async (file) => {
+          const form = new FormData();
+          form.set("file", file);
+          const response = await fetch("/api/uploads", {
+            method: "POST",
+            body: form,
+          });
+          if (!response.ok) return null;
+          const stored = (await response.json()) as { id: string };
+          return `https://cdn.example.com/uploads/${stored.id}`;
+        },
+        onImageError: ({ cause, file, reason }) =>
+          console.error(`image refused (${reason})`, file?.name, cause),
+      }}
+    />
+  </Edit>
+);
+```
+
+Vue takes the same object as its `images` prop, so build it in `script setup`
+and bind it with `:images`.
+
+Without `uploadFn`, a file is stored in the HTML as a data URL when
+`allowBase64` is on, which keeps it under `maxFileSize` and only works for the
+raster types the sanitizer accepts: png, jpeg, gif, webp and avif. An SVG is
+never stored as a data URL.
+
+There are three ways in. The Image button opens a panel with a URL field and an
+Upload button that takes several files at once. Pasting or dropping image files
+into the editor inserts them the same way. Typing `![alt](url)` at the end of a
+line inserts the image it names, when its URL is safe.
+
+While `uploadFn` runs, the file shows from a temporary `blob:` URL under an
+uploading overlay. That URL is never stored: the form value leaves the image out
+until the upload settles, and when it finishes the editor writes the stored URL
+into the document outside the undo history and updates the value again. A failed
+upload leaves the image's error state, which offers only Remove.
+
+The HTML carries each image's `alt` and `title`, its `width` and `height` when
+they are set, `data-file-name` with the file's name, and `data-id` with the id
+`uploadFn` returned.
+
+Click an image to select it, and two resize handles appear at its left and right
+edges. Drag one, or focus it and press Arrow Left or Arrow Right to move that
+edge by 10 px. The width is clamped to 60 px and the editor's own width, and is
+stored as the `width` attribute.
+
+A selected image shows its actions: View image, Download image, Copy image, Copy
+link and Remove image. View opens the image full-screen, closed by Escape or its
+close button. Download saves the file under a name built from the alt text. Copy
+image puts the image on the clipboard, redrawn as PNG when it is another raster
+format, and Copy link copies its URL. A browser or the image's host can refuse
+either.
+
+## Text color
+
+`colors` decides whether text can be colored. `false` leaves out the color
+extension and the toolbar's Text color button. Default `true`.
+
+The Text color button opens a panel of swatches in four groups: Default, which
+clears the color, then the Bright, Soft and Muted palettes, each holding red,
+orange, yellow, green, blue, purple and pink. A swatch colors the selection and
+reports `aria-pressed` while it is the color at the caret.
+
+A color is stored as a `style` attribute holding one `color` declaration whose
+value names a palette variable:
+
+```html title="what is stored"
+<span style="color: var(--rich-text-color-bright-red)">one red word</span>
+```
+
+The add-on's stylesheet defines every `--rich-text-color-*` variable: the seven
+Bright colors as `oklch` values, with a second set under `.dark`, and Soft and
+Muted mixed from the Bright ones with `color-mix`. Override any of them after the
+stylesheet import to change the palette:
+
+```css title="src/index.css"
+:root {
+  --rich-text-color-bright-blue: oklch(0.62 0.2 250);
+}
+
+.dark {
+  --rich-text-color-bright-blue: oklch(0.72 0.17 250);
+}
+```
+
+The editor writes only these variables. A `style` attribute holding a hex,
+`rgb()` or `hsl()` color is kept by `<RichTextField>` as well, for HTML written
+somewhere else.
+
+A color ends with the line it was set on: Enter drops it, so a new paragraph
+starts uncolored, unless the text after the caret is already colored.
+
+## Code blocks
+
+`codeHighlight` decides whether a code block is highlighted while it is being
+edited. `false` shows it plain. Default `true`.
+
+The Code block button is in the toolbar whatever `codeHighlight` is, so a block
+can be made either way, and stored HTML can hold `<pre><code>` in both cases.
+
+With it on, lowlight highlights the block with highlight.js grammars: the 37
+languages in its `common` set when the block names one, and a guess when it does
+not. The Code block button starts a block with no language; typing three
+backticks and a language name on an empty line starts one with that language.
+Two empty lines and a third Enter leaves the block, as does Arrow Down at the end
+of its last line. Tab does not indent inside a block.
+
+The stored HTML carries the language and no highlight markup:
+
+```html title="what is stored"
+<pre><code class="language-js">const a = 1;</code></pre>
+```
+
+The highlight spans exist in the editor's DOM only, so `<RichTextField>` shows
+the code plain, styled by the add-on's stylesheet. The stored HTML is the same
+with `codeHighlight` off.
+
+## Props
+
+<PropsTable name="RichTextInput" />
+
+## Installing the add-on
+
+The registry installs `<RichTextInput>`, `<RichTextToolbar>` and
+[`<RichTextField>`](/docs/viewing/rich-text-field), with the link, image and
+color forms they open, their dependencies and the `rich-text.css` stylesheet:
+
+```bash
+npx shadcn add @chelone/rich-text-input
+```
+
+For Vue, use `npx shadcn-vue add @chelone/rich-text-input` with the
+[Vue registry configuration](/docs/vue/setup). These pages' React examples
+import from the files the registry writes under
+`@/components/rich-text-input/`. There is no `index.ts` in that folder.
+
+For npm, import the `@chelone/react/rich-text-input` or
+`@chelone/vue/rich-text-input` subpath and install the optional peers yourself.
+React needs:
+
+```bash
+pnpm add @tiptap/core @tiptap/pm @tiptap/react @tiptap/starter-kit \
+  @tiptap/extensions @tiptap/extension-image @tiptap/extension-text-style \
+  @tiptap/extension-code-block @tiptap/extension-code-block-lowlight \
+  lowlight highlight.js dompurify
+```
+
+```tsx
+import {
+  RichTextField,
+  RichTextInput,
+  RichTextToolbar,
+} from "@chelone/react/rich-text-input";
+import "@chelone/react/rich-text-input.css";
+```
+
+Vue needs the same set, with `@tiptap/vue-3` in place of `@tiptap/react`:
+
+```bash
+pnpm add @tiptap/core @tiptap/pm @tiptap/vue-3 @tiptap/starter-kit \
+  @tiptap/extensions @tiptap/extension-image @tiptap/extension-text-style \
+  @tiptap/extension-code-block @tiptap/extension-code-block-lowlight \
+  lowlight highlight.js dompurify
+```
+
+```ts
+import {
+  RichTextField,
+  RichTextInput,
+  RichTextToolbar,
+} from "@chelone/vue/rich-text-input";
+import "@chelone/vue/rich-text-input.css";
+```
+
+Import the stylesheet once in your entry file, including when you only use the
+field. The main `@chelone/react` and `@chelone/vue` entries never import these
+optional peers.
+
+## React and Vue
+
+Both adapters use tiptap, store the same HTML strings, and take `images`,
+`colors` and `codeHighlight`, so their toolbars offer the same controls. The
+changed surface:
+
+- React's `toolbar` prop becomes the Vue `#toolbar` slot, which receives
+  `{ editor }`. Vue shows a slot's fallback content when the slot renders
+  nothing, so an empty `#toolbar` template keeps the default toolbar: there is
+  no Vue equivalent of `toolbar={null}`. To drop the buttons, render an element,
+  `<template #toolbar><span /></template>`.
+- React's `<RichTextToolbar>` reads the editor context supplied by the input.
+  Vue's `<RichTextToolbar>` takes an `editor` prop.
+- Vue uses `class` for React's `className`. Its `label` is a string or `false`,
+  and `helper-text` is a string or `false`. It has no `id`, `resource`,
+  `isRequired`, `format`, `parse`, `alwaysOn`, `onChange` or `onBlur` prop, and
+  its `editorOptions` is tiptap's own `EditorOptions` rather than
+  `@tiptap/react`'s.
+
+For example, using the Vue npm subpath:
+
+```vue
+<script setup lang="ts">
+import { RichTextInput, RichTextToolbar } from "@chelone/vue/rich-text-input";
+</script>
+
+<template>
+  <RichTextInput source="body">
+    <template #toolbar="{ editor }">
+      <RichTextToolbar :editor="editor" class="p-2" />
+    </template>
+  </RichTextInput>
+</template>
+```
+
+See also the Vue [differences page](/docs/vue/differences#add-ons).
+
+## Stored HTML
+
+The editor drops markup its schema does not know. Loading arbitrary HTML can
+lose elements, attributes or formatting, so keep content within the configured
+extension set. The default schema drops scripts, frames, event handlers and
+unsafe link URLs.
+
+`<RichTextField>` sanitizes HTML with DOMPurify before rendering it. It removes
+scripts, event handlers, frames and form controls. An `img` is kept only from a
+safe source: `http`, `https`, `blob` or a base64 raster `data:` URL, and an SVG
+data URL never counts as one. A `style` attribute is kept only when it is one
+`color` declaration with a palette, hex, `rgb()` or `hsl()` value. Code blocks
+render without highlighting: the stored HTML carries no highlight markup and the
+field adds none.
+
+The server should still sanitize what it stores: a client can submit HTML without
+passing through this editor, and other consumers may render the stored value.

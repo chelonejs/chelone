@@ -130,9 +130,46 @@ it("keeps exactly one hand-placed preview on page-components/create", async () =
   expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(1);
 });
 
+// The inspector pages are hand-written MDX, so a bad JSX escape in their prose
+// would fail the build rather than a props lookup. Rendering them catches it
+// here, and the install block proves each `registry` frontmatter names a real
+// registry item.
+it.each([
+  ["viewing/fields-selector", "FieldsSelector"],
+  ["ui-layout/inspector", "Inspector"],
+  ["editing/configurable-inputs", "ConfigurableInputs"],
+])(
+  "renders the %s reference page with its install block and props table",
+  async (slug, title) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: title }),
+    ).toBeTruthy();
+    expect(screen.getByText("Installation")).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Props" }),
+    ).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+  },
+);
+
 // The hook pages are hand-written MDX, so a bad JSX escape in their prose would
 // fail the build rather than a props lookup. Rendering them catches it here.
 it.each([
+  ["use-subscribe", "useSubscribe"],
+  ["use-subscribe-to-record", "useSubscribeToRecord"],
+  ["use-subscribe-to-record-list", "useSubscribeToRecordList"],
+  ["use-subscribe-callback", "useSubscribeCallback"],
+  ["use-publish", "usePublish"],
+  ["use-on-reconnect", "useOnReconnect"],
+  ["use-realtime-status", "useRealtimeStatus"],
   ["use-get-list-live", "useGetListLive"],
   ["use-get-one-live", "useGetOneLive"],
   ["use-get-many-live", "useGetManyLive"],
@@ -163,6 +200,107 @@ it.each([
         heading,
       ).toBeTruthy();
     }
+    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+  },
+);
+
+// The rich text pages are hand-written: a bad JSX escape in their prose or a
+// missing props JSON would otherwise only surface at build time. Rendering them
+// also pins the install block the add-on needs in both registries.
+it.each([
+  ["editing/rich-text-input", "RichTextInput", "toolbar"],
+  ["viewing/rich-text-field", "RichTextField", "stripTags"],
+])(
+  "renders the %s page with its install block and props table",
+  async (slug, title, prop) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: title }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText("pnpm dlx shadcn@latest add @chelone/rich-text-input"),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Vue" }));
+    expect(
+      screen.getByText(
+        "pnpm dlx shadcn-vue@latest add @chelone/rich-text-input",
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Props" }),
+    ).toBeTruthy();
+    expect(screen.getByRole("cell", { name: prop })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+  },
+);
+
+// Both block editor pages are hand-written MDX whose prose names components,
+// and their install block comes from the page's registry frontmatter.
+it.each([
+  ["editing/block-editor-input", "BlockEditorInput"],
+  ["viewing/block-doc-field", "BlockDocField"],
+])(
+  "renders the %s page with its block-editor install block",
+  async (slug, title) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: title }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText("pnpm dlx shadcn@latest add @chelone/block-editor"),
+    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Vue" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+  },
+);
+
+// The core function pages are hand-written MDX as well. They carry no "In Vue"
+// heading: the function comes from @chelone/core and reads the same in both
+// adapters.
+it.each([
+  ["add-events-for-mutations", "addEventsForMutations"],
+  ["memory-transport", "memoryTransport"],
+  ["broadcast-channel-transport", "broadcastChannelTransport"],
+  ["websocket-transport", "webSocketTransport"],
+  ["sse-transport", "sseTransport"],
+  ["in-memory-lock-provider", "inMemoryLockProvider"],
+])(
+  "renders the realtime %s page with its signature, returns and example",
+  async (slug, title) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/realtime/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: title }),
+    ).toBeTruthy();
+    for (const heading of ["Signature", "Returns", "Example"]) {
+      expect(
+        screen.getByRole("heading", { level: 2, name: heading }),
+        heading,
+      ).toBeTruthy();
+    }
+    expect(
+      screen.queryByRole("heading", { level: 2, name: "In Vue" }),
+    ).toBeNull();
     expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
   },
 );

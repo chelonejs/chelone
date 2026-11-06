@@ -1,0 +1,21 @@
+---
+title: "LineStringInput"
+description: "Edits a GeoJSON LineString by drawing on a map with draw-line, edit, move and delete. A new line replaces the old one. snapToRoads snaps each drawn or edited line to the road network through the MapsProvider router, and throws when there is none. It is ShapeInput under the name of a GeoJSON type, with kind set for you."
+---
+{/* generated:gen-component-stubs */}
+
+Edits a GeoJSON `LineString` by drawing on a map with `draw-line`, `edit`, `move` and `delete`. A new line replaces the old one. `snapToRoads` snaps each drawn or edited line to the road network through the `MapsProvider` router, and throws when there is none. It is `ShapeInput` under the name of a GeoJSON type, with `kind` set for you.
+
+## Installation
+
+```tsx
+import { LineStringInput } from "@chelone/react/maps/draw";
+```
+
+See the [maps guide](/docs/app-config/maps) for the subpaths, the optional packages and `MapsProvider`.
+
+## Props
+
+The table holds the props every shape input takes. `snapToRoads` is the one `LineStringInput` adds to them.
+
+<PropsTable name="GeoJsonInputBase" />

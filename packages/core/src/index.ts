@@ -77,6 +77,7 @@ export {
   dataBlockNames,
   formatDataBlockValue,
   pickDataBlockFields,
+  readDataBlockValue,
   recordListBlockSpec,
   referenceRecordBlockSpec,
 } from "./block-editor/data-blocks";
@@ -1023,6 +1024,7 @@ export {
   checkRichTextImageFile,
   clampRichTextImageWidth,
   defaultRichTextImageRules,
+  endColorOnEnter,
   normalizeRichTextUpload,
   richTextCodeBlockOptions,
   richTextColors,

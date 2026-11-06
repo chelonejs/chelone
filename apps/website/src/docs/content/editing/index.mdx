@@ -95,6 +95,12 @@ import { TextInput } from "@chelone/react";
 - **Markdown**: `<MdxInput>` edits a markdown string in a rich-text editor. It
   is an add-on installed from the registry, not part of the `@chelone/react`
   barrel.
+- **Rich text**: [RichTextInput](/docs/editing/rich-text-input) edits an HTML
+  string with tiptap. It is an add-on installed from the registry or the
+  `/rich-text-input` npm subpath in either adapter.
+- **Block editor**: `<BlockEditorInput>` edits a document of rich text and
+  app-defined blocks, stored as tiptap JSON. It is an add-on installed from the
+  registry, not part of the `@chelone/react` barrel.
 - **SaaS**: `<ApiKeyInput>`, `<SubscriptionPlanPicker>`,
   `<WebhookEndpointInput>`.
 - **Forms and buttons**: `<TabbedForm>` and `<WizardForm>` lay inputs out in

@@ -131,3 +131,16 @@ export function formatShortcut(shortcut: string): string {
     .map((part) => names[part] ?? part.toUpperCase())
     .join(mac ? "" : "+");
 }
+
+/** Whether the editor has the color extension, which adds the toolbar's Text color button. */
+export function hasRichTextColor(editor: Editor): boolean {
+  return editor.extensionManager.extensions.some(
+    (extension) => extension.name === "color",
+  );
+}
+
+/** The color at the selection, as stored: a palette `var(...)`, or `null` for none. */
+export function currentRichTextColor(editor: Editor): string | null {
+  const { color } = editor.getAttributes("textStyle");
+  return typeof color === "string" ? color : null;
+}

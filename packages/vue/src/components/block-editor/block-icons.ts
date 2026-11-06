@@ -7,7 +7,7 @@
 
 import { type FunctionalComponent, h } from "vue";
 
-type Tag = "path" | "line" | "rect" | "circle";
+type Tag = "path" | "line" | "rect" | "circle" | "ellipse";
 type Shape = readonly [tag: Tag, attrs: Record<string, string | number>];
 
 const stroke = { fill: "none", stroke: "currentColor" };
@@ -67,6 +67,26 @@ export const VideoIcon = glyph(
   ["rect", { x: 2, y: 6, width: 14, height: 12, rx: 2 }],
 );
 
+export const DatabaseIcon = glyph(
+  ["ellipse", { cx: 12, cy: 5, rx: 9, ry: 3 }],
+  path("M3 5V19A9 3 0 0 0 21 19V5"),
+  path("M3 12A9 3 0 0 0 21 12"),
+);
+
+export const TableIcon = glyph(
+  path("M12 3v18"),
+  ["rect", { width: 18, height: 18, x: 3, y: 3, rx: 2 }],
+  path("M3 9h18"),
+  path("M3 15h18"),
+);
+
+export const ChartColumnIcon = glyph(
+  path("M3 3v16a2 2 0 0 0 2 2h16"),
+  path("M18 17V9"),
+  path("M13 17V5"),
+  path("M8 17v-3"),
+);
+
 export const ChevronRightIcon = glyph(path("m9 18 6-6-6-6"));
 
 export const SettingsIcon = glyph(
@@ -91,4 +111,13 @@ export const Trash2Icon = glyph(
   path("M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"),
   ["line", { x1: 10, x2: 10, y1: 11, y2: 17 }],
   ["line", { x1: 14, x2: 14, y1: 11, y2: 17 }],
+);
+
+export const GripVerticalIcon = glyph(
+  circle(9, 12, 1),
+  circle(9, 5, 1),
+  circle(9, 19, 1),
+  circle(15, 12, 1),
+  circle(15, 5, 1),
+  circle(15, 19, 1),
 );
