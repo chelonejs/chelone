@@ -6,17 +6,30 @@
  * whose first parameter is its props, so those two read it with `Parameters`.
  */
 
-import type { SourceProp } from "@chelone/core";
+import type { SourceProp, SourceValue } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import type ArrayField from "./array-field.vue";
 import type FunctionField from "./function-field.vue";
 import type RecordField from "./record-field.vue";
 import type WrapperField from "./wrapper-field.vue";
 
+type Post = {
+  id: number;
+  title: string;
+  tags: string[];
+};
+
 describe("composite field sources", () => {
   it("the ArrayField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ArrayField>["$props"];
+    type Props = Parameters<typeof ArrayField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
+  });
+
+  it("the ArrayField defaultValue for Post is the value type of a Post path", () => {
+    type Props = Parameters<typeof ArrayField<Post>>[0];
+    expectTypeOf<Props["defaultValue"]>().toEqualTypeOf<
+      SourceValue<Post, SourceProp<Post>> | undefined
+    >();
   });
 
   it("the RecordField source prop is SourceProp", () => {
