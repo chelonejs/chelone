@@ -15,10 +15,8 @@
  */
 
 import type { ValidationErrorMap } from "@tanstack/form-core";
-import {
-  normalizeFormError,
-  type TranslatableMessage,
-} from "./form-controller";
+import { firstFieldError } from "./field-error";
+import type { TranslatableMessage } from "./form-controller";
 
 /** Called on every membership mutation (a member added or removed). */
 export type FormGroupsListener = () => void;
@@ -123,27 +121,6 @@ export interface GroupState {
   errors: Record<string, string | TranslatableMessage>;
 }
 
-/** Cause scan order for a member's displayable error: server/submit first. */
-const ERROR_MAP_PRIORITY = [
-  "onSubmit",
-  "onDynamic",
-  "onChange",
-  "onBlur",
-  "onMount",
-  "onServer",
-] as const;
-
-/** First displayable error across a field's error-map causes, normalized. */
-function firstMemberError(
-  errorMap: ValidationErrorMap,
-): string | TranslatableMessage | undefined {
-  for (const cause of ERROR_MAP_PRIORITY) {
-    const normalized = normalizeFormError(errorMap[cause]);
-    if (normalized !== undefined) return normalized;
-  }
-  return undefined;
-}
-
 /**
  * Pure reducer: aggregate a group's member fields into a badge-ready
  * {@link GroupState}. A member with NO `fieldMeta` entry (a registered field
@@ -170,7 +147,7 @@ export function reduceGroupState(
     if (meta.isValidating) isValidating = true;
     if (!meta.isValid) {
       isValid = false;
-      const error = firstMemberError(meta.errorMap);
+      const error = firstFieldError(meta.errorMap);
       if (error !== undefined) errors[source] = error;
     }
   }

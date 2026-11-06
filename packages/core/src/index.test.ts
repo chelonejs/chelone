@@ -139,6 +139,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.createCreateFormController).toBeTypeOf("function");
   });
 
+  it("exports firstFieldError", () => {
+    expect(barrel.firstFieldError).toBeTypeOf("function");
+  });
+
   it("exports the P6 FormGroups primitive (registry + reducer)", () => {
     expect(barrel.createFormGroups).toBeTypeOf("function");
     expect(barrel.reduceGroupState).toBeTypeOf("function");
@@ -467,6 +471,7 @@ describe("@chelone/core barrel", () => {
     expect("resolveHydrationAction" in barrel).toBe(false);
     expect("isPlainObject" in barrel).toBe(false);
     expect("isJsonObject" in barrel).toBe(false);
+    expect("ERROR_MAP_PRIORITY" in barrel).toBe(false);
   });
 
   it("exports isThenable and extractEventValue", () => {

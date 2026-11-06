@@ -27,6 +27,7 @@ import {
   createFormController,
   defaultFormat,
   extractEventValue,
+  firstFieldError,
   isRequired as hasRequiredValidator,
   isResourceHandle,
 } from "@chelone/core";
@@ -41,7 +42,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { type CheloneContextValue, useCheloneContext } from "./context";
-import { firstFieldError, sameDisplayError } from "./field-error";
+import { sameDisplayError } from "./field-error";
 import { useRegisterFieldGroup } from "./form/group-hooks";
 import { useCheloneFormContext, useSourceContext } from "./form-context";
 import { useRedirectOptional } from "./router";
