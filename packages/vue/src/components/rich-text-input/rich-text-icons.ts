@@ -4,7 +4,10 @@
  * Decorative (`aria-hidden`); the button carries the accessible label.
  */
 
-import type { RichTextToolbarItemId } from "@chelone/core";
+import type {
+  RichTextImageActionId,
+  RichTextToolbarItemId,
+} from "@chelone/core";
 import { type FunctionalComponent, h } from "vue";
 
 type Attrs = Record<string, string | number>;
@@ -103,3 +106,21 @@ export const richTextIcons: Record<RichTextToolbarItemId, FunctionalComponent> =
       path("M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"),
     ),
   };
+
+export const richTextImageIcon = glyph(
+  ["rect", { x: 3, y: 3, width: 18, height: 18, rx: 2 }],
+  path("m3 16 5-5 4 4 4-4 5 5"),
+  path("M8 7h.01"),
+);
+export const richTextImageActionIcons = {
+  view: glyph(
+    path("M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8"),
+    path("M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6"),
+  ),
+  download: glyph(path("M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4")),
+  copyImage: richTextImageIcon,
+  copyLink: richTextIcons.link,
+  remove: glyph(path("M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15")),
+} satisfies Record<RichTextImageActionId, FunctionalComponent>;
+export const richTextImageCloseIcon = glyph(path("m6 6 12 12M6 18 18 6"));
+export const richTextImageSpinnerIcon = glyph(path("M12 3a9 9 0 1 0 9 9"));

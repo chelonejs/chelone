@@ -149,6 +149,17 @@ export const blocks = [
     sourceDirs: [{ path: "src/components/kanban", recursive: true }],
   },
   {
+    name: "inspector",
+    type: "registry:block",
+    title: "Chelone Inspector",
+    categories: ["chelone", "components"],
+    description:
+      "The opt-in inspector add-on: Inspector is a draggable panel that edits whichever Configurable the user picks, InspectorButton turns the mode on, and SortableFieldsSelector lists a table's columns with drag to reorder. Installs @dnd-kit/react.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [{ path: "src/components/inspector", recursive: true }],
+  },
+  {
     name: "mdx-editor",
     type: "registry:block",
     title: "Chelone Markdown",
@@ -186,9 +197,13 @@ export const blocks = [
     title: "Chelone Block Editor",
     categories: ["chelone", "inputs"],
     description:
-      "The opt-in block editor add-on: BlockEditorInput edits a document of rich text and app-defined blocks in a tiptap editor with a slash menu, and BlockDocField shows that document read-only. defineBlock declares a block from a Zod schema and its components. Installs the tiptap packages.",
+      "The opt-in block editor add-on: BlockEditorInput edits a document of rich text and app-defined blocks in a tiptap editor with a slash menu, and BlockDocField shows that document read-only. defineBlock declares a block from a Zod schema and its components, and the data blocks chart a resource. Installs the tiptap packages and recharts, and the charts block.",
     granularize: true,
     inferDependencies: true,
+    // chart-block reaches recharts only through the charts block, so the import
+    // scan cannot see it.
+    itemDependencies: ["recharts"],
+    registryDependencies: ["charts"],
     sourceDirs: [{ path: "src/components/block-editor", recursive: true }],
   },
   {

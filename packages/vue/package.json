@@ -29,6 +29,7 @@
     "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-theme.css",
     "./rich-text-input": "./src/rich-text-input.ts",
     "./rich-text-input.css": "./src/components/rich-text-input/rich-text.css",
+    "./block-editor": "./src/block-editor.ts",
     "./charts": "./src/charts.ts"
   },
   "publishConfig": {
@@ -79,6 +80,10 @@
         "default": "./dist/rich-text-input.js"
       },
       "./rich-text-input.css": "./dist/components/rich-text-input/rich-text.css",
+      "./block-editor": {
+        "types": "./dist/block-editor.d.ts",
+        "default": "./dist/block-editor.js"
+      },
       "./charts": {
         "types": "./dist/charts.d.ts",
         "default": "./dist/charts.js"
@@ -113,6 +118,7 @@
     "@tiptap/extensions": "^3.33.0",
     "@tiptap/pm": "^3.33.0",
     "@tiptap/starter-kit": "^3.33.0",
+    "@tiptap/suggestion": "^3.33.0",
     "@tiptap/vue-3": "^3.33.0",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
@@ -128,7 +134,8 @@
     "terra-draw": "^1.39.0",
     "terra-draw-maplibre-gl-adapter": "^1.5.0",
     "vue": "^3.4.0",
-    "vue-router": "^4.0.0 || ^5.0.0"
+    "vue-router": "^4.0.0 || ^5.0.0",
+    "@tiptap/extension-image": "^3.33.0"
   },
   "peerDependenciesMeta": {
     "@chelone/supabase": {
@@ -159,6 +166,9 @@
       "optional": true
     },
     "@tiptap/starter-kit": {
+      "optional": true
+    },
+    "@tiptap/suggestion": {
       "optional": true
     },
     "@tiptap/vue-3": {
@@ -202,6 +212,9 @@
     },
     "terra-draw-maplibre-gl-adapter": {
       "optional": true
+    },
+    "@tiptap/extension-image": {
+      "optional": true
     }
   },
   "devDependencies": {
@@ -218,6 +231,7 @@
     "@tiptap/extensions": "^3.33.0",
     "@tiptap/pm": "^3.33.0",
     "@tiptap/starter-kit": "^3.33.0",
+    "@tiptap/suggestion": "^3.33.0",
     "@tiptap/vue-3": "^3.33.0",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
@@ -244,6 +258,7 @@
     "vue": "^3.5.45",
     "vue-router": "^5.4.0",
     "vue-tsc": "^3.3.14",
-    "zod": "^4.6.7"
+    "zod": "^4.6.7",
+    "@tiptap/extension-image": "^3.33.0"
   }
 }

@@ -109,6 +109,8 @@ export type { CheckForApplicationUpdateProps } from "./admin/common/check-for-ap
 export { default as CheckForApplicationUpdate } from "./admin/common/check-for-application-update.vue";
 export type { FieldLabelTextProps } from "./admin/common/field-label-text.vue";
 export { default as FieldLabelText } from "./admin/common/field-label-text.vue";
+export type { I18nKeyEditorProps } from "./admin/common/i18n-key-editor.vue";
+export { default as I18nKeyEditor } from "./admin/common/i18n-key-editor.vue";
 export type { IconButtonWithTooltipProps } from "./admin/common/icon-button-with-tooltip.vue";
 export { default as IconButtonWithTooltip } from "./admin/common/icon-button-with-tooltip.vue";
 export type { InputHelperTextProps } from "./admin/common/input-helper-text.vue";
@@ -356,6 +358,8 @@ export type { CommandMenuProps } from "./admin/layout/command-menu.vue";
 export { default as CommandMenu } from "./admin/layout/command-menu.vue";
 export type { DashboardMenuItemProps } from "./admin/layout/dashboard-menu-item.vue";
 export { default as DashboardMenuItem } from "./admin/layout/dashboard-menu-item.vue";
+export type { DataProviderDevtoolsProps } from "./admin/layout/data-provider-devtools.vue";
+export { default as DataProviderDevtools } from "./admin/layout/data-provider-devtools.vue";
 export type { HideOnScrollProps } from "./admin/layout/hide-on-scroll.vue";
 export { default as HideOnScroll } from "./admin/layout/hide-on-scroll.vue";
 export { default as Layout } from "./admin/layout/layout.vue";

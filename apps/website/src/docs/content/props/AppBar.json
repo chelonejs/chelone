@@ -1,4 +1,23 @@
 {
   "name": "AppBar",
-  "props": []
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "When provided, replaces the ENTIRE default AppBar layout (the default is:\nsidebar trigger, breadcrumb portal, title portal, toolbar, user menu)."
+    },
+    {
+      "name": "toolbar",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Replaces the default right-side action cluster (`<LocalesMenuButton>` + `<ThemeModeToggle>`). Pass a\nnode to supply custom actions, or omit to keep the default."
+    },
+    {
+      "name": "userMenu",
+      "type": "ReactNode | false",
+      "optional": true,
+      "comment": "Replaces the default `<UserMenu />`. Pass `false` to suppress it entirely,\nor a node to render a custom user menu."
+    }
+  ]
 }

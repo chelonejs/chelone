@@ -842,6 +842,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/common/i18n-key-editor.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/common/icon-button-with-tooltip.vue",
           "type": "registry:component"
         },
@@ -1319,6 +1323,14 @@
         },
         {
           "path": "src/components/admin/layout/dashboard-menu-item.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/data-provider-devtools-entry.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/data-provider-devtools.vue",
           "type": "registry:component"
         },
         {
@@ -2502,6 +2514,27 @@
         }
       ],
       "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "i18n-key-editor",
+      "type": "registry:component",
+      "title": "I18n Key Editor",
+      "files": [
+        {
+          "path": "src/components/admin/common/i18n-key-editor.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/card",
+        "@chelone/input",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4559,6 +4592,39 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "data-provider-devtools-entry",
+      "type": "registry:component",
+      "title": "Data Provider Devtools Entry",
+      "files": [
+        {
+          "path": "src/components/admin/layout/data-provider-devtools-entry.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-provider-devtools",
+      "type": "registry:component",
+      "title": "Data Provider Devtools",
+      "files": [
+        {
+          "path": "src/components/admin/layout/data-provider-devtools.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/data-provider-devtools-entry",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "hide-on-scroll",
       "type": "registry:component",
       "title": "Hide On Scroll",
@@ -6597,6 +6663,7 @@
         "@chelone/core",
         "@chelone/vue",
         "@tiptap/core",
+        "@tiptap/extension-image",
         "@tiptap/extensions",
         "@tiptap/pm",
         "@tiptap/starter-kit",
@@ -6614,6 +6681,18 @@
         },
         {
           "path": "src/components/rich-text-input/rich-text-icons.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-image-form.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-image-view.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-image.ts",
           "type": "registry:component"
         },
         {
@@ -6679,6 +6758,61 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "rich-text-image-form",
+      "type": "registry:component",
+      "title": "Rich Text Image Form",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-image-form.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/input",
+        "@chelone/rich-text-image"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-image-view",
+      "type": "registry:component",
+      "title": "Rich Text Image View",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-image-view.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/rich-text-icons"],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@tiptap/vue-3"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-image",
+      "type": "registry:component",
+      "title": "Rich Text Image",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-image.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/rich-text-image-view"],
+      "dependencies": [
+        "@chelone/core",
+        "@tiptap/core",
+        "@tiptap/extension-image",
+        "@tiptap/pm",
+        "@tiptap/vue-3"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "rich-text-input-editor",
       "type": "registry:component",
       "title": "Rich Text Input Editor",
@@ -6692,6 +6826,7 @@
         "@chelone/field",
         "@chelone/field-label-text",
         "@chelone/input-helper-text",
+        "@chelone/rich-text-image",
         "@chelone/rich-text-toolbar",
         "@chelone/rich-text.css",
         "@chelone/source-input-props",
@@ -6739,6 +6874,8 @@
         "@chelone/lib-utils",
         "@chelone/rich-text-commands",
         "@chelone/rich-text-icons",
+        "@chelone/rich-text-image",
+        "@chelone/rich-text-image-form",
         "@chelone/rich-text-link-form"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue", "@tiptap/core"],
@@ -6754,6 +6891,388 @@
           "path": "src/components/rich-text-input/rich-text.css",
           "type": "registry:component"
         }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-editor",
+      "type": "registry:block",
+      "title": "Chelone Block Editor",
+      "categories": ["chelone", "inputs"],
+      "description": "The opt-in block editor add-on: BlockEditorInput edits a document of rich text and app-defined blocks in a tiptap editor with a slash menu, and BlockDocField shows that document read-only. defineBlock declares a block from a Zod schema and its components. Installs the tiptap packages.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/command",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/lib-utils",
+        "@chelone/native-select",
+        "@chelone/source-input-props",
+        "@chelone/switch",
+        "@chelone/validation-error"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@tiptap/core",
+        "@tiptap/extensions",
+        "@tiptap/pm",
+        "@tiptap/starter-kit",
+        "@tiptap/suggestion",
+        "@tiptap/vue-3"
+      ],
+      "files": [
+        {
+          "path": "src/components/block-editor/auto-config-form.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-doc-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-editor-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-editor.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-icons.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-nodes.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-picker.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-toolbar.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/callout-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/default-blocks.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/embed-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/image-block-config.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/image-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/slash-command.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/toggle-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "auto-config-form",
+      "type": "registry:component",
+      "title": "Auto Config Form",
+      "files": [
+        {
+          "path": "src/components/block-editor/auto-config-form.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-nodes",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/native-select",
+        "@chelone/switch"
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-doc-field",
+      "type": "registry:component",
+      "title": "Block Doc Field",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-doc-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-editor-shell",
+        "@chelone/block-nodes",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-editor-input",
+      "type": "registry:component",
+      "title": "Block Editor Input",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-editor-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-editor-shell",
+        "@chelone/block-nodes",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/source-input-props",
+        "@chelone/validation-error"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-editor-shell",
+      "type": "registry:component",
+      "title": "Block Editor Shell",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-editor.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-nodes",
+        "@chelone/block-picker",
+        "@chelone/block-toolbar",
+        "@chelone/button",
+        "@chelone/default-blocks",
+        "@chelone/lib-utils",
+        "@chelone/slash-command"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@tiptap/core",
+        "@tiptap/extensions",
+        "@tiptap/pm",
+        "@tiptap/starter-kit",
+        "@tiptap/vue-3"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-icons",
+      "type": "registry:component",
+      "title": "Block Icons",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-icons.ts",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-nodes",
+      "type": "registry:component",
+      "title": "Block Nodes",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-nodes.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@tiptap/core",
+        "@tiptap/vue-3"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-picker",
+      "type": "registry:component",
+      "title": "Block Picker",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-picker.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/block-nodes", "@chelone/command"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-toolbar",
+      "type": "registry:component",
+      "title": "Block Toolbar",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-toolbar.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/auto-config-form",
+        "@chelone/block-icons",
+        "@chelone/block-nodes",
+        "@chelone/button"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@tiptap/core",
+        "@tiptap/pm"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "callout-block",
+      "type": "registry:component",
+      "title": "Callout Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/callout-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-nodes",
+        "@chelone/default-blocks",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "default-blocks",
+      "type": "registry:component",
+      "title": "Default Blocks",
+      "files": [
+        {
+          "path": "src/components/block-editor/default-blocks.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-icons",
+        "@chelone/block-nodes",
+        "@chelone/callout-block",
+        "@chelone/embed-block",
+        "@chelone/image-block",
+        "@chelone/image-block-config",
+        "@chelone/toggle-block"
+      ],
+      "devDependencies": ["zod"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "embed-block",
+      "type": "registry:component",
+      "title": "Embed Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/embed-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/default-blocks"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "image-block-config",
+      "type": "registry:component",
+      "title": "Image Block Config",
+      "files": [
+        {
+          "path": "src/components/block-editor/image-block-config.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/default-blocks",
+        "@chelone/field",
+        "@chelone/input"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "image-block",
+      "type": "registry:component",
+      "title": "Image Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/image-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/default-blocks"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "slash-command",
+      "type": "registry:component",
+      "title": "Slash Command",
+      "files": [
+        {
+          "path": "src/components/block-editor/slash-command.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@tiptap/core", "@tiptap/pm", "@tiptap/suggestion"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "toggle-block",
+      "type": "registry:component",
+      "title": "Toggle Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/toggle-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-icons",
+        "@chelone/block-nodes",
+        "@chelone/default-blocks",
+        "@chelone/lib-utils"
       ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"

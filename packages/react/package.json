@@ -23,6 +23,7 @@
     "./monaco": "./src/monaco.ts",
     "./charts": "./src/charts.ts",
     "./kanban": "./src/kanban.ts",
+    "./inspector": "./src/inspector.ts",
     "./csv-import": "./src/csv-import.ts",
     "./maps": "./src/maps.ts",
     "./maps/draw": "./src/maps-draw.ts",
@@ -59,6 +60,10 @@
       "./kanban": {
         "types": "./dist/kanban.d.ts",
         "default": "./dist/kanban.js"
+      },
+      "./inspector": {
+        "types": "./dist/inspector.d.ts",
+        "default": "./dist/inspector.js"
       },
       "./csv-import": {
         "types": "./dist/csv-import.d.ts",
@@ -137,6 +142,10 @@
     "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
     "@tiptap/core": "^3.33.0",
+    "@tiptap/extension-code-block": "^3.33.0",
+    "@tiptap/extension-code-block-lowlight": "^3.33.0",
+    "@tiptap/extension-image": "^3.33.0",
+    "@tiptap/extension-text-style": "^3.33.0",
     "@tiptap/extensions": "^3.33.0",
     "@tiptap/pm": "^3.33.0",
     "@tiptap/react": "^3.33.0",
@@ -147,6 +156,8 @@
     "@turf/simplify": "^7.4.0",
     "@turf/union": "^7.4.0",
     "dompurify": "^3.4.0",
+    "highlight.js": "^11.11.1",
+    "lowlight": "^3.3.0",
     "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
     "osm2geojson-lite": "^2.0.1",
@@ -181,6 +192,18 @@
     "@tiptap/core": {
       "optional": true
     },
+    "@tiptap/extension-code-block": {
+      "optional": true
+    },
+    "@tiptap/extension-code-block-lowlight": {
+      "optional": true
+    },
+    "@tiptap/extension-image": {
+      "optional": true
+    },
+    "@tiptap/extension-text-style": {
+      "optional": true
+    },
     "@tiptap/extensions": {
       "optional": true
     },
@@ -209,6 +232,12 @@
       "optional": true
     },
     "dompurify": {
+      "optional": true
+    },
+    "highlight.js": {
+      "optional": true
+    },
+    "lowlight": {
       "optional": true
     },
     "maplibre-gl": {
@@ -253,6 +282,10 @@
     "@tanstack/react-store": "^0.11.2",
     "@testing-library/react": "^16.3.3",
     "@tiptap/core": "^3.33.0",
+    "@tiptap/extension-code-block": "^3.33.0",
+    "@tiptap/extension-code-block-lowlight": "^3.33.0",
+    "@tiptap/extension-image": "^3.33.0",
+    "@tiptap/extension-text-style": "^3.33.0",
     "@tiptap/extensions": "^3.33.0",
     "@tiptap/pm": "^3.33.0",
     "@tiptap/react": "^3.33.0",
@@ -266,7 +299,9 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "dompurify": "^3.4.17",
+    "highlight.js": "^11.11.1",
     "jsdom": "^31.0.0",
+    "lowlight": "^3.3.0",
     "maplibre-gl": "^6.16.0",
     "monaco-editor": "^0.57.0",
     "osm2geojson-lite": "^2.0.1",

@@ -48,7 +48,21 @@ const ADDONS = [
       "@tiptap/vue-3",
       "@tiptap/starter-kit",
       "@tiptap/extensions",
+      "@tiptap/extension-image",
       "dompurify",
+    ],
+  },
+  {
+    name: "block-editor",
+    folder: "src/components/block-editor",
+    entry: "src/block-editor.ts",
+    packages: [
+      "@tiptap/core",
+      "@tiptap/pm",
+      "@tiptap/vue-3",
+      "@tiptap/starter-kit",
+      "@tiptap/extensions",
+      "@tiptap/suggestion",
     ],
   },
   {

@@ -1,0 +1,17 @@
+{
+  "name": "Inspector",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

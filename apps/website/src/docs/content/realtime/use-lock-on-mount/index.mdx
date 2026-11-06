@@ -1,0 +1,99 @@
+---
+title: "useLockOnMount"
+description: "Holds a record's lock while the component is mounted and reports the lock, whether a request is in flight, and the last lock failure. A failed release reaches onLockError only. Needs a realtime data provider with lock support."
+---
+
+`useLockOnMount` takes a lock when the component mounts and releases it when it
+unmounts, including a lock still being requested. `<LockOnMount>` is the same
+session with render props or slots around it.
+
+## Signature
+
+```ts
+function useLockOnMount(options?: UseLockOnMountOptions): UseLockOnMountResult
+
+interface UseLockOnMountOptions {
+  /** Defaults to the resource context. */
+  resource?: string;
+  /** Defaults to the id of the record context. */
+  id?: Identifier;
+  /** Defaults to the auth provider's identity. */
+  identity?: Identifier;
+  meta?: Record<string, unknown>;
+  /** Called with a failed lock or release. A new function every render never relocks. */
+  onLockError?: (error: Error) => void;
+}
+
+interface UseLockOnMountResult {
+  lock: Lock | null;
+  isLocking: boolean;
+  lockError: Error | null;
+}
+```
+
+- `resource` and `id` fall back to the resource and record contexts, so a call
+  inside `<Edit>` or `<Show>` needs neither.
+- `identity` falls back to the auth provider's identity.
+- With no resource, or no id from either source, it takes no lock and reports no
+  error.
+
+## Returns
+
+`lock` is the `Lock` while the session holds it, and `null` before it has one
+and after it releases. `isLocking` is true while a lock request is in flight,
+and false on the first render, before the request starts.
+
+`lockError` is the last lock that failed. A record another identity holds
+arrives as a `LockConflictError`, whose `existingLock` is that lock. A failed
+release is not stored here: `stop()` clears the session state before the release
+runs, so a release that rejects reaches `onLockError` and nowhere else.
+
+Changing the data provider, resource, id or identity releases the old lock, even
+one still in flight, before the next is taken, so a provider never sees the new
+lock ahead of the old release. A new `meta` object, a new `authProvider` or a
+new `onLockError` does not relock: the session reads them as they were when it
+was made.
+
+The hook throws when a resource and id are present and the data provider has not
+gone through `realtimeDataProvider`. A provider wrapped without a `locks` option
+does not throw: its lock rejects with an error saying no `LockProvider` was
+configured, and that lands in `lockError`. With no `identity` and no auth
+provider to read one from, the lock fails with an error saying no identity is
+available, which lands in `lockError` too.
+
+## Example
+
+```tsx
+import { LockConflictError } from "@chelone/core";
+import { useLockOnMount } from "@chelone/react";
+
+export const PostEditor = ({ id }: { id: number }) => {
+  const { lock, isLocking, lockError } = useLockOnMount({
+    resource: "posts",
+    id,
+    identity: "you",
+    onLockError: (error) => console.error(error.message),
+  });
+
+  if (isLocking) return <p>Requesting the lock…</p>;
+  if (lockError instanceof LockConflictError)
+    return <p>Locked by {String(lockError.existingLock.identity)}</p>;
+  if (lockError) return <p>{lockError.message}</p>;
+  // No lock yet on the first render, and none once a release lands.
+  return lock ? <p>Editing as {lock.identity}</p> : null;
+};
+```
+
+`<LockOnMount>` reads the same three states: a `Skeleton` while `isLocking`, an
+alert naming `existingLock.identity` for a conflict, its children once the lock
+is held, and nothing otherwise.
+
+## In Vue
+
+`@chelone/vue` exports the same name. `resource`, `id` and `identity` take
+`MaybeRefOrGetter`, and a change releases the old lock and takes the next.
+`lock`, `isLocking` and `lockError` are refs. With no identity to lock for, and
+no auth provider to read one from, it takes nothing rather than throwing.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup, the
+`LockProvider` contract and `<LockOnMount>`.

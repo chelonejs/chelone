@@ -1,5 +1,16 @@
 <script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+import { sanitizeRichTextImageElement } from "@chelone/core";
+import DOMPurify from "dompurify";
+
+let purify: ReturnType<typeof DOMPurify> | undefined;
+function sanitizer() {
+  if (!purify) {
+    purify = DOMPurify(window);
+    purify.addHook("afterSanitizeAttributes", sanitizeRichTextImageElement);
+  }
+  return purify;
+}
 
 /** Props for {@link RichTextField}. */
 export interface RichTextFieldProps<RecordType extends LooseRecord = LooseRecord> {
@@ -34,7 +45,6 @@ export interface RichTextFieldProps<RecordType extends LooseRecord = LooseRecord
  */
 
 import { richTextSanitizeOptions } from "@chelone/core";
-import DOMPurify from "dompurify";
 import { computed, type VNode } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
@@ -67,7 +77,7 @@ const html = computed(() => {
   if (raw == null) return "";
   return typeof raw === "string" ? raw : String(raw);
 });
-const clean = computed(() => DOMPurify.sanitize(html.value, sanitizeConfig));
+const clean = computed(() => sanitizer().sanitize(html.value, sanitizeConfig));
 const text = computed(
   () =>
     new DOMParser().parseFromString(clean.value, "text/html").body
