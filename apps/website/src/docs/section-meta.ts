@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   type LucideIcon,
   PanelsTopLeft,
+  Radio,
   Rocket,
   Settings2,
   SquarePen,
@@ -41,6 +42,10 @@ export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
     "ui-layout": {
       icon: PanelsTopLeft,
       blurb: "App shell, sidebar, and theming.",
+    },
+    realtime: {
+      icon: Radio,
+      blurb: "Live views, presence, comments, and record locks.",
     },
   };
 
