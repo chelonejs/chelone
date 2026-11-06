@@ -33,9 +33,9 @@
     },
     {
       "name": "format",
-      "type": "(value: unknown) => unknown",
+      "type": "(value: NoInfer<SourceTransformValue<TRecord, TPath>> | undefined) => unknown",
       "optional": true,
-      "comment": "Read transform (raw form value → input value)."
+      "comment": "Read transform (raw form value → input value). Receives the value at\n`source`, plus the hole an untouched field leaves (a create form with no\n`defaultValue` reads `undefined`); `unknown` without a record."
     },
     {
       "name": "helperText",
@@ -87,9 +87,9 @@
     },
     {
       "name": "parse",
-      "type": "(value: unknown) => unknown",
+      "type": "(value: unknown) => NoInfer<SourceTransformValue<TRecord, TPath>>",
       "optional": true,
-      "comment": "Write transform (input value → stored value)."
+      "comment": "Write transform (input value → stored value). Must return the value at\n`source`; `unknown` without a record."
     },
     {
       "name": "readOnly",
