@@ -123,6 +123,32 @@ Where a component passes no `_`, a catalog that lacks the key shows the raw
 `ra.page.list`-style key. `englishMessages` covers the keys the components
 translate; a catalog that does not spread it needs the keys you see.
 
+### Listing the missing keys
+
+`<I18nKeyEditor>` lists the keys the current locale missed and exports what you
+type as JSON. Create a store, pass `store.record` as `onMissingKey`, and mount
+the panel with that store:
+
+```tsx title="src/i18n.ts"
+import { createI18n, createMissingKeyStore } from "@chelone/core";
+
+export const missingKeys = createMissingKeyStore();
+
+export const i18n = createI18n({
+  locale: "fr",
+  messages: { en, fr },
+  onMissingKey: missingKeys.record,
+});
+```
+
+```tsx
+<I18nKeyEditor store={missingKeys} />
+```
+
+A key counts as missing even when it has a `_` fallback or the fallback locale
+holds it. The export is flat JSON to spread into a catalog. See
+[I18nKeyEditor](/docs/ui-layout/i18n-key-editor).
+
 ## Without i18n
 
 `i18n` is optional on `<Admin>`. Without it, `<Admin>` builds one instance from

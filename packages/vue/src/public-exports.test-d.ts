@@ -59,6 +59,7 @@ import type {
   FilterListSectionProps,
   FilterLiveSearchProps,
   HideOnScrollProps,
+  I18nKeyEditorProps,
   IconButtonWithTooltipProps,
   InfiniteListProps,
   InfinitePaginationProps,
@@ -167,6 +168,11 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<FilterFormProps>().toBeObject();
     expectTypeOf<FilterLiveSearchProps>().toBeObject();
     expectTypeOf<HideOnScrollProps>().toHaveProperty("threshold");
+    expectTypeOf<I18nKeyEditorProps>().toHaveProperty("store");
+    expectTypeOf<I18nKeyEditorProps>().toHaveProperty("defaultOpen");
+    expectTypeOf<I18nKeyEditorProps>().toHaveProperty("showExport");
+    expectTypeOf<I18nKeyEditorProps>().toHaveProperty("class");
+    expectTypeOf(barrel.I18nKeyEditor).toBeObject();
     expectTypeOf<IconButtonWithTooltipProps>().toHaveProperty("label");
     expectTypeOf<InfiniteListProps>().toBeObject();
     expectTypeOf<FilterListItemProps>().toHaveProperty("value");

@@ -842,6 +842,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/common/i18n-key-editor.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/common/icon-button-with-tooltip.vue",
           "type": "registry:component"
         },
@@ -2510,6 +2514,27 @@
         }
       ],
       "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "i18n-key-editor",
+      "type": "registry:component",
+      "title": "I18n Key Editor",
+      "files": [
+        {
+          "path": "src/components/admin/common/i18n-key-editor.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/card",
+        "@chelone/input",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
