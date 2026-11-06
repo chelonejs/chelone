@@ -7067,12 +7067,14 @@
       "type": "registry:block",
       "title": "Chelone Block Editor",
       "categories": ["chelone", "inputs"],
-      "description": "The opt-in block editor add-on: BlockEditorInput edits a document of rich text and app-defined blocks in a tiptap editor with a slash menu, and BlockDocField shows that document read-only. defineBlock declares a block from a Zod schema and its components. Installs the tiptap packages.",
+      "description": "The opt-in block editor add-on: BlockEditorInput edits a document of rich text and app-defined blocks in a tiptap editor with a slash menu, and BlockDocField shows that document read-only. defineBlock declares a block from a Zod schema and its components, and the data blocks chart a resource. Installs the tiptap packages, @unovis/vue and @unovis/ts, and the charts block.",
       "registryDependencies": [
         "@chelone/badge",
+        "@chelone/bar-chart",
         "@chelone/button",
         "@chelone/card",
         "@chelone/command",
+        "@chelone/donut-chart",
         "@chelone/field",
         "@chelone/field-label-text",
         "@chelone/input",
@@ -7083,7 +7085,9 @@
         "@chelone/source-input-props",
         "@chelone/switch",
         "@chelone/table",
-        "@chelone/validation-error"
+        "@chelone/trend-chart",
+        "@chelone/validation-error",
+        "charts"
       ],
       "dependencies": [
         "@chelone/core",
@@ -7093,7 +7097,9 @@
         "@tiptap/pm",
         "@tiptap/starter-kit",
         "@tiptap/suggestion",
-        "@tiptap/vue-3"
+        "@tiptap/vue-3",
+        "@unovis/ts",
+        "@unovis/vue"
       ],
       "files": [
         {
@@ -7130,6 +7136,14 @@
         },
         {
           "path": "src/components/block-editor/callout-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/chart-block-config.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/chart-block.vue",
           "type": "registry:component"
         },
         {
@@ -7212,7 +7226,7 @@
         "@chelone/native-select",
         "@chelone/switch"
       ],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@unovis/ts", "@unovis/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7231,7 +7245,12 @@
         "@chelone/block-nodes",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7254,7 +7273,12 @@
         "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7284,7 +7308,9 @@
         "@tiptap/extensions",
         "@tiptap/pm",
         "@tiptap/starter-kit",
-        "@tiptap/vue-3"
+        "@tiptap/vue-3",
+        "@unovis/ts",
+        "@unovis/vue"
       ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -7300,6 +7326,7 @@
         }
       ],
       "categories": ["chelone", "components"],
+      "dependencies": ["@unovis/ts", "@unovis/vue"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -7316,7 +7343,9 @@
         "@chelone/core",
         "@chelone/vue",
         "@tiptap/core",
-        "@tiptap/vue-3"
+        "@tiptap/vue-3",
+        "@unovis/ts",
+        "@unovis/vue"
       ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -7332,7 +7361,12 @@
         }
       ],
       "registryDependencies": ["@chelone/block-nodes", "@chelone/command"],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7356,7 +7390,9 @@
         "@chelone/core",
         "@chelone/vue",
         "@tiptap/core",
-        "@tiptap/pm"
+        "@tiptap/pm",
+        "@unovis/ts",
+        "@unovis/vue"
       ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -7377,6 +7413,55 @@
         "@chelone/lib-utils"
       ],
       "categories": ["chelone", "components"],
+      "dependencies": ["@unovis/ts", "@unovis/vue"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "chart-block-config",
+      "type": "registry:component",
+      "title": "Chart Block Config",
+      "files": [
+        {
+          "path": "src/components/block-editor/chart-block-config.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/data-block-resource-select",
+        "@chelone/data-blocks",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/native-select"
+      ],
+      "dependencies": ["@chelone/vue", "@unovis/ts", "@unovis/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "chart-block",
+      "type": "registry:component",
+      "title": "Chart Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/chart-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/bar-chart",
+        "@chelone/data-block-parts",
+        "@chelone/data-block-state",
+        "@chelone/data-blocks",
+        "@chelone/donut-chart",
+        "@chelone/trend-chart"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -7390,7 +7475,7 @@
         }
       ],
       "registryDependencies": ["@chelone/field", "@chelone/input"],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/vue", "@unovis/ts", "@unovis/vue"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7405,7 +7490,12 @@
         }
       ],
       "registryDependencies": ["@chelone/block-nodes"],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7420,7 +7510,7 @@
         }
       ],
       "registryDependencies": ["@chelone/field", "@chelone/native-select"],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/vue", "@unovis/ts", "@unovis/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7436,6 +7526,7 @@
       ],
       "registryDependencies": ["@chelone/skeleton"],
       "categories": ["chelone", "components"],
+      "dependencies": ["@unovis/ts", "@unovis/vue"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -7451,13 +7542,15 @@
       "registryDependencies": [
         "@chelone/block-icons",
         "@chelone/block-nodes",
+        "@chelone/chart-block",
+        "@chelone/chart-block-config",
         "@chelone/data-block-parts",
         "@chelone/record-list-block",
         "@chelone/record-list-config",
         "@chelone/reference-record-block",
         "@chelone/reference-record-config"
       ],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@unovis/ts", "@unovis/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7482,6 +7575,7 @@
       ],
       "devDependencies": ["zod"],
       "categories": ["chelone", "components"],
+      "dependencies": ["@unovis/ts", "@unovis/vue"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -7495,7 +7589,12 @@
         }
       ],
       "registryDependencies": ["@chelone/default-blocks"],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7514,7 +7613,12 @@
         "@chelone/field",
         "@chelone/input"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7529,7 +7633,12 @@
         }
       ],
       "registryDependencies": ["@chelone/default-blocks"],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7549,7 +7658,12 @@
         "@chelone/data-blocks",
         "@chelone/table"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7570,7 +7684,7 @@
         "@chelone/field",
         "@chelone/input"
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/vue", "@unovis/ts", "@unovis/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7591,7 +7705,12 @@
         "@chelone/data-block-state",
         "@chelone/data-blocks"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7613,7 +7732,7 @@
         "@chelone/input",
         "@chelone/native-select"
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/vue", "@unovis/ts", "@unovis/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7627,7 +7746,13 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@tiptap/core", "@tiptap/pm", "@tiptap/suggestion"],
+      "dependencies": [
+        "@tiptap/core",
+        "@tiptap/pm",
+        "@tiptap/suggestion",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -7648,6 +7773,7 @@
         "@chelone/lib-utils"
       ],
       "categories": ["chelone", "components"],
+      "dependencies": ["@unovis/ts", "@unovis/vue"],
       "author": "Chelone <https://chelone.dev>"
     },
     {

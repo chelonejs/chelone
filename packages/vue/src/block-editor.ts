@@ -20,6 +20,7 @@ export {
   NodeViewContent,
 } from "./components/block-editor/block-nodes";
 export {
+  chartBlock,
   dataBlocks,
   recordListBlock,
   referenceRecordBlock,

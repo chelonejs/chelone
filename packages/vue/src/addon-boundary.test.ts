@@ -74,6 +74,8 @@ const ADDONS = [
       "@tiptap/starter-kit",
       "@tiptap/extensions",
       "@tiptap/suggestion",
+      "@unovis/vue",
+      "@unovis/ts",
     ],
   },
   {
