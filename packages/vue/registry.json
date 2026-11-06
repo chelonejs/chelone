@@ -3550,7 +3550,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["cronstrue"],
+      "dependencies": ["@chelone/utils"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
