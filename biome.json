@@ -290,7 +290,9 @@
                       "terra-draw",
                       "terra-draw-*",
                       "@turf/*",
-                      "osm2geojson-lite"
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
                     ],
                     "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   },
@@ -398,7 +400,9 @@
                       "terra-draw",
                       "terra-draw-*",
                       "@turf/*",
-                      "osm2geojson-lite"
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
                     ],
                     "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   },
@@ -447,7 +451,9 @@
                       "terra-draw",
                       "terra-draw-*",
                       "@turf/*",
-                      "osm2geojson-lite"
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
                     ],
                     "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   },
@@ -500,7 +506,9 @@
                       "terra-draw",
                       "terra-draw-*",
                       "@turf/*",
-                      "osm2geojson-lite"
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
                     ],
                     "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   },
@@ -553,7 +561,9 @@
                       "terra-draw",
                       "terra-draw-*",
                       "@turf/*",
-                      "osm2geojson-lite"
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
                     ],
                     "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   },
@@ -606,7 +616,9 @@
                       "terra-draw",
                       "terra-draw-*",
                       "@turf/*",
-                      "osm2geojson-lite"
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
                     ],
                     "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   },
@@ -667,7 +679,9 @@
                       "terra-draw",
                       "terra-draw-*",
                       "@turf/*",
-                      "osm2geojson-lite"
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
                     ],
                     "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   },
@@ -793,7 +807,9 @@
                       "terra-draw",
                       "terra-draw-*",
                       "@turf/*",
-                      "osm2geojson-lite"
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
                     ],
                     "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   },
@@ -851,7 +867,9 @@
                       "terra-draw",
                       "terra-draw-*",
                       "@turf/*",
-                      "osm2geojson-lite"
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
                     ],
                     "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   },
@@ -913,7 +931,9 @@
                       "terra-draw",
                       "terra-draw-*",
                       "@turf/*",
-                      "osm2geojson-lite"
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
                     ],
                     "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   },
@@ -975,7 +995,9 @@
                       "terra-draw",
                       "terra-draw-*",
                       "@turf/*",
-                      "osm2geojson-lite"
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
                     ],
                     "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   },
@@ -1037,7 +1059,9 @@
                       "terra-draw",
                       "terra-draw-*",
                       "@turf/*",
-                      "osm2geojson-lite"
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
                     ],
                     "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
                   },
@@ -1060,6 +1084,116 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/utils/src/cron/**",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**",
+                      "!@chelone/core",
+                      "!cronstrue",
+                      "!node:*",
+                      "!./**",
+                      "!../**",
+                      "!.",
+                      "!.."
+                    ],
+                    "message": "@chelone/utils/cron imports only @chelone/core, cronstrue, node:* and relative paths. Another subpath's libraries are that subpath's optional peers."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/utils/src/geo/**",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**",
+                      "!@chelone/core",
+                      "!@turf/difference",
+                      "!@turf/simplify",
+                      "!node:*",
+                      "!./**",
+                      "!../**",
+                      "!.",
+                      "!.."
+                    ],
+                    "message": "@chelone/utils/geo imports only @chelone/core, @turf/difference, @turf/simplify, node:* and relative paths. Another subpath's libraries are that subpath's optional peers."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/utils/src/osm/**",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**",
+                      "!@chelone/core",
+                      "!@turf/buffer",
+                      "!@turf/difference",
+                      "!@turf/union",
+                      "!osm2geojson-lite",
+                      "!@tanstack/query-core",
+                      "!node:*",
+                      "!./**",
+                      "!../**",
+                      "!.",
+                      "!.."
+                    ],
+                    "message": "@chelone/utils/osm imports only @chelone/core, @turf/buffer, @turf/difference, @turf/union, osm2geojson-lite, @tanstack/query-core, node:* and relative paths. Another subpath's libraries are that subpath's optional peers."
                   }
                 ]
               }
