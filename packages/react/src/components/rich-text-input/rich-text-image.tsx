@@ -1,10 +1,9 @@
 import {
-  canBeDataUrl,
-  checkRichTextImageFile,
   clampRichTextImageWidth,
   copyImage,
   downloadImage,
   isSafeImageSrc,
+  prepareRichTextImages,
   type RichTextImageActionId,
   type RichTextImageConfig,
   type RichTextImageError,
@@ -13,6 +12,7 @@ import {
   type RichTextUploadResult,
   resolveRichTextImageConfig,
   richTextImageActions,
+  richTextImageAttributes,
   type Stored,
   setUploading,
   storeFile,
@@ -89,12 +89,6 @@ function size(value: number | null | undefined): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
-function numberAttribute(value: string | null): number | null {
-  if (value === null) return null;
-  const parsed = Number.parseFloat(value);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
 /** Sets what an upload stored on the image whose `src` is `from`, outside the undo history. */
 function patchImage(
   editor: Editor,
@@ -166,32 +160,7 @@ const RichTextImage = Image.extend<RichTextImageExtensionOptions>({
   addAttributes() {
     return {
       ...this.parent?.(),
-      id: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-id"),
-        renderHTML: (attributes) =>
-          attributes.id == null ? {} : { "data-id": String(attributes.id) },
-      },
-      fileName: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-file-name"),
-        renderHTML: (attributes) =>
-          attributes.fileName == null
-            ? {}
-            : { "data-file-name": String(attributes.fileName) },
-      },
-      width: {
-        default: null,
-        parseHTML: (element) => numberAttribute(element.getAttribute("width")),
-        renderHTML: (attributes) =>
-          size(attributes.width) === null ? {} : { width: attributes.width },
-      },
-      height: {
-        default: null,
-        parseHTML: (element) => numberAttribute(element.getAttribute("height")),
-        renderHTML: (attributes) =>
-          size(attributes.height) === null ? {} : { height: attributes.height },
-      },
+      ...richTextImageAttributes(),
     };
   },
 
@@ -233,41 +202,12 @@ const RichTextImage = Image.extend<RichTextImageExtensionOptions>({
         ({ commands, dispatch, editor }) => {
           if (!dispatch) return inputs.length > 0;
           const config = this.options.config();
-          const { rules, onImageError } = config;
-          const content: JSONContent[] = [];
-          const stored: { file: File; blobUrl: string }[] = [];
-          for (const input of inputs) {
-            if (input instanceof File) {
-              const reason =
-                checkRichTextImageFile(input, rules) ??
-                (config.uploadFn === undefined &&
-                !canBeDataUrl(input, rules.allowBase64)
-                  ? "type"
-                  : null);
-              if (reason !== null) {
-                onImageError?.({ reason, file: input });
-                continue;
-              }
-              const blobUrl = URL.createObjectURL(input);
-              stored.push({ file: input, blobUrl });
-              content.push({
-                type,
-                attrs: {
-                  src: blobUrl,
-                  alt: input.name.replace(/\.[^.]*$/, ""),
-                  fileName: input.name,
-                },
-              });
-            } else if (
-              isSafeImageSrc(input.src, {
-                allowDataImages: rules.allowBase64,
-              })
-            ) {
-              content.push({ type, attrs: input });
-            } else {
-              onImageError?.({ reason: "src", file: null });
-            }
-          }
+          const prepared = prepareRichTextImages(inputs, config);
+          const stored = prepared.uploads;
+          const content: JSONContent[] = prepared.attributes.map((attrs) => ({
+            type,
+            attrs,
+          }));
           if (content.length === 0) return false;
           if (!commands.insertContent(content)) {
             for (const { blobUrl } of stored) URL.revokeObjectURL(blobUrl);

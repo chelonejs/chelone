@@ -78,4 +78,169 @@ describe("rich text images", () => {
     expect(wrapper.find('[role="status"]').exists()).toBe(false);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:test/1");
   });
+
+  it("shows the error state when uploadFn throws or returns an unsafe URL", async () => {
+    const onImageError = vi.fn();
+    const uploadFn = vi
+      .fn<(file: File) => Promise<string>>()
+      .mockRejectedValueOnce(new Error("offline"))
+      .mockResolvedValueOnce("javascript:alert(1)");
+    const { wrapper, form } = await mountInput({
+      images: { uploadFn, onImageError },
+    });
+    await wrapper.get('button[aria-label="Image"]').trigger("click");
+    const input = wrapper.get('input[type="file"]');
+    Object.defineProperty(input.element, "files", {
+      value: [
+        new File(["a"], "a.png", { type: "image/png" }),
+        new File(["b"], "b.png", { type: "image/png" }),
+      ],
+    });
+    await input.trigger("change");
+    await vi.waitFor(() =>
+      expect(
+        wrapper.findAll('[data-slot="rich-text-image-error"]'),
+      ).toHaveLength(2),
+    );
+    expect(wrapper.findAll("img")).toHaveLength(0);
+    expect(onImageError.mock.calls.map(([error]) => error.reason)).toEqual([
+      "upload",
+      "upload",
+    ]);
+    expect(form.values.value.body).toBe("");
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:test/1");
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:test/2");
+  });
+
+  it("the arrow keys on a handle resize within the limits", async () => {
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(300);
+    const { wrapper, editor, form } = await mountInput(
+      {},
+      { body: '<p></p><img src="https://example.com/a.png" width="200">' },
+    );
+    expect(wrapper.find('[data-slot="rich-text-image-handle"]').exists()).toBe(
+      false,
+    );
+    editor().commands.setNodeSelection(2);
+    await vi.waitFor(() =>
+      expect(
+        wrapper.findAll('[data-slot="rich-text-image-handle"]'),
+      ).toHaveLength(2),
+    );
+    const right = wrapper.get('[data-side="right"]');
+    const left = wrapper.get('[data-side="left"]');
+    await right.trigger("keydown", { key: "ArrowRight" });
+    expect(wrapper.get("img").attributes("width")).toBe("210");
+    await left.trigger("keydown", { key: "ArrowLeft" });
+    expect(wrapper.get("img").attributes("width")).toBe("220");
+    await right.trigger("keydown", { key: "ArrowLeft" });
+    expect(wrapper.get("img").attributes("width")).toBe("210");
+    for (let i = 0; i < 20; i++)
+      await right.trigger("keydown", { key: "ArrowRight" });
+    expect(wrapper.get("img").attributes("width")).toBe("300");
+    for (let i = 0; i < 40; i++)
+      await right.trigger("keydown", { key: "ArrowLeft" });
+    expect(wrapper.get("img").attributes("width")).toBe("60");
+    expect(form.values.value.body).toContain('width="60"');
+  });
+
+  it("view opens and Escape closes the overlay, and remove deletes the image", async () => {
+    const { wrapper, form } = await mountInput(
+      {},
+      { body: '<img src="https://example.com/a.png" alt="A cat">' },
+    );
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+    await wrapper.get('button[aria-label="View image"]').trigger("click");
+    const dialog = document.querySelector('[role="dialog"]');
+    expect(dialog?.querySelector("img")?.getAttribute("src")).toBe(
+      "https://example.com/a.png",
+    );
+    expect(document.activeElement).toBe(dialog);
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    await vi.waitFor(() =>
+      expect(document.querySelector('[role="dialog"]')).toBeNull(),
+    );
+    await wrapper.get('button[aria-label="View image"]').trigger("click");
+    document.querySelector<HTMLElement>('[role="dialog"]')?.click();
+    await vi.waitFor(() =>
+      expect(document.querySelector('[role="dialog"]')).toBeNull(),
+    );
+    await wrapper.get('button[aria-label="Remove image"]').trigger("click");
+    expect(wrapper.find("img").exists()).toBe(false);
+    expect(form.values.value.body).toBe("");
+  });
+
+  it("a stored hostile image renders no element for it", async () => {
+    const hostile = [
+      '<img src="javascript:alert(1)">',
+      '<img src="data:image/svg+xml;base64,PHN2Zz4=">',
+      "<img src=x onerror=alert(1)>",
+    ].join("");
+    const { wrapper } = await mountInput(
+      {},
+      { body: `<p>text</p>${hostile}`, fieldBody: hostile },
+    );
+    for (const slot of ["rich-text-input", "rich-text-field"]) {
+      const root = wrapper.get(`[data-slot="${slot}"]`);
+      expect(root.findAll("img").map((img) => img.attributes("src"))).toEqual([
+        "x",
+      ]);
+      for (const element of root.element.querySelectorAll("*")) {
+        expect(
+          element.getAttributeNames().filter((name) => name.startsWith("on")),
+        ).toEqual([]);
+      }
+    }
+  });
+
+  it("images false leaves out the button and drops a pasted image", async () => {
+    const paste = (dom: HTMLElement) => {
+      const event = new Event("paste", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "clipboardData", {
+        value: {
+          types: ["text/html"],
+          files: [],
+          getData: (type: string) =>
+            type === "text/html" ? '<img src="https://example.com/a.png">' : "",
+        },
+      });
+      dom.dispatchEvent(event);
+    };
+    const on = await mountInput();
+    expect(on.wrapper.find('button[aria-label="Image"]').exists()).toBe(true);
+    paste(on.dom());
+    expect(on.form.values.value.body).toContain("<img");
+    const off = await mountInput({ images: false });
+    expect(off.wrapper.find('button[aria-label="Image"]').exists()).toBe(false);
+    paste(off.dom());
+    expect(off.form.values.value.body).not.toContain("<img");
+  });
+
+  it("a pointer drag on a handle resizes the image", async () => {
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(300);
+    const { wrapper, form } = await mountInput(
+      {},
+      { body: '<img src="https://example.com/a.png" width="200">' },
+    );
+    const right = wrapper.get('[data-side="right"]');
+    right.element.dispatchEvent(
+      new PointerEvent("pointerdown", { clientX: 100, bubbles: true }),
+    );
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: 140 }));
+    window.dispatchEvent(new PointerEvent("pointerup", { clientX: 140 }));
+    await vi.waitFor(() =>
+      expect(wrapper.get("img").attributes("width")).toBe("240"),
+    );
+    expect(form.values.value.body).toContain('width="240"');
+    wrapper
+      .get('[data-side="left"]')
+      .element.dispatchEvent(
+        new PointerEvent("pointerdown", { clientX: 100, bubbles: true }),
+      );
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: 900 }));
+    window.dispatchEvent(new PointerEvent("pointerup", { clientX: 900 }));
+    await vi.waitFor(() =>
+      expect(wrapper.get("img").attributes("width")).toBe("60"),
+    );
+  });
 });

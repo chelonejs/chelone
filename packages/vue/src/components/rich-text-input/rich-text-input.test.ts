@@ -277,9 +277,10 @@ describe("RichTextInput", () => {
     const names = wrapper
       .findAll('[role="toolbar"] button')
       .map((each) => each.attributes("aria-label"));
-    expect(names).toEqual(
-      richTextToolbarItems.map((item) => item.defaultLabel),
-    );
+    expect(names).toEqual([
+      ...richTextToolbarItems.map((item) => item.defaultLabel),
+      "Image",
+    ]);
   });
 
   it("the toolbar slot replaces the default toolbar", async () => {
@@ -311,7 +312,7 @@ describe("RichTextInput", () => {
       "<p>kept</p>",
     ].join("");
     const { editor, dom, form } = await mountInput({}, { body: hostile });
-    expect(dom().querySelector("img, script, iframe")).toBeNull();
+    expect(dom().querySelector("script, iframe")).toBeNull();
     expect(dom().querySelector("a[href^='javascript']")).toBeNull();
     for (const node of dom().querySelectorAll("*")) {
       expect(
@@ -322,6 +323,7 @@ describe("RichTextInput", () => {
     await nextTick();
     const written = form.values.value.body;
     expect(written).toContain("kept");
-    expect(written).not.toMatch(/<img|<script|<iframe|onerror|javascript:/i);
+    expect(written).not.toMatch(/<script|<iframe|onerror|javascript:/i);
+    expect(dom().querySelector("img")?.getAttribute("src")).toBe("x");
   });
 });

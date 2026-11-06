@@ -43,7 +43,7 @@ import {
   readToolbarState,
   setBlockType,
 } from "./rich-text-commands";
-import { richTextIcons } from "./rich-text-icons";
+import { richTextIcons, richTextImageIcon } from "./rich-text-icons";
 import RichTextImageForm from "./rich-text-image-form.vue";
 import RichTextLinkForm from "./rich-text-link-form.vue";
 
@@ -151,7 +151,7 @@ function onBlockType(event: Event) {
           <component :is="richTextIcons[item.id]" />
         </Button>
       </div>
-      <Button v-if="hasImages" variant="ghost" size="icon" :aria-label="translate('chelone.rich_text.image', { _: 'Image' })" :aria-expanded="imageOpen" :disabled="!state.editable" @mousedown.prevent @click="imageOpen = !imageOpen">▧</Button>
+      <Button v-if="hasImages" variant="ghost" size="icon" :aria-label="translate('chelone.rich_text.image', { _: 'Image' })" :aria-expanded="imageOpen" :disabled="!state.editable" @mousedown.prevent @click="imageOpen = !imageOpen"><component :is="richTextImageIcon" /></Button>
     </div>
     <RichTextImageForm v-if="imageOpen" :editor="editor" @close="imageOpen = false" />
     <RichTextLinkForm

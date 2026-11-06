@@ -6767,7 +6767,11 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/button", "@chelone/input"],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/input",
+        "@chelone/rich-text-image"
+      ],
       "dependencies": ["@chelone/core", "@chelone/vue", "@tiptap/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6782,7 +6786,8 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/core", "@tiptap/vue-3"],
+      "registryDependencies": ["@chelone/button", "@chelone/rich-text-icons"],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@tiptap/vue-3"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6799,7 +6804,9 @@
       "registryDependencies": ["@chelone/rich-text-image-view"],
       "dependencies": [
         "@chelone/core",
+        "@tiptap/core",
         "@tiptap/extension-image",
+        "@tiptap/pm",
         "@tiptap/vue-3"
       ],
       "categories": ["chelone", "components"],

@@ -1,5 +1,6 @@
 import { isSafeImageSrc } from "./rich-text";
 import {
+  checkRichTextImageFile,
   defaultRichTextImageRules,
   normalizeRichTextUpload,
   type RichTextImageRules,
@@ -184,4 +185,90 @@ async function toPng(blob: Blob): Promise<Blob> {
 export async function copyImage(src: string) {
   const blob = await toPng(await (await fetch(src)).blob());
   await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+}
+
+/** DOMPurify's image hook, shared by both fields on their own sanitizer instances. */
+export function sanitizeRichTextImageElement(node: Node): void {
+  if (node.nodeName !== "IMG" || !(node instanceof window.Element)) return;
+  const src = node.getAttribute("src");
+  if (src === null || !isSafeImageSrc(src, { allowDataImages: true }))
+    node.remove();
+}
+
+interface PreparedImage {
+  src: string;
+  alt?: string;
+  title?: string;
+  fileName?: string;
+}
+
+/** Validate a batch and prepare its temporary previews before an adapter inserts it. */
+export function prepareRichTextImages(
+  inputs: readonly RichTextImageInput[],
+  config: RichTextImageConfig,
+) {
+  const attributes: PreparedImage[] = [];
+  const uploads: { file: File; blobUrl: string }[] = [];
+  const { rules, onImageError } = config;
+  for (const input of inputs) {
+    if (!(input instanceof File)) {
+      if (isSafeImageSrc(input.src, { allowDataImages: rules.allowBase64 }))
+        attributes.push(input);
+      else onImageError?.({ reason: "src", file: null });
+      continue;
+    }
+    const reason =
+      checkRichTextImageFile(input, rules) ??
+      (config.uploadFn === undefined && !canBeDataUrl(input, rules.allowBase64)
+        ? "type"
+        : null);
+    if (reason) {
+      onImageError?.({ reason, file: input });
+      continue;
+    }
+    const blobUrl = URL.createObjectURL(input);
+    uploads.push({ file: input, blobUrl });
+    attributes.push({
+      src: blobUrl,
+      alt: input.name.replace(/\.[^.]*$/, ""),
+      fileName: input.name,
+    });
+  }
+  return { attributes, uploads };
+}
+
+function imageDimension(value: number | null | undefined): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+/** Extra image attributes in the stored HTML, with finite dimensions only. */
+export function richTextImageAttributes() {
+  const dimension = (key: "width" | "height") => ({
+    default: null,
+    parseHTML: (element: HTMLElement) => {
+      const raw = element.getAttribute(key);
+      return raw === null ? null : imageDimension(Number.parseFloat(raw));
+    },
+    renderHTML: (attrs: { width?: number | null; height?: number | null }) =>
+      imageDimension(attrs[key]) === null ? {} : { [key]: attrs[key] },
+  });
+  return {
+    id: {
+      default: null,
+      parseHTML: (element: HTMLElement) => element.getAttribute("data-id"),
+      renderHTML: (attrs: { id?: string | number | null }) =>
+        attrs.id == null ? {} : { "data-id": String(attrs.id) },
+    },
+    fileName: {
+      default: null,
+      parseHTML: (element: HTMLElement) =>
+        element.getAttribute("data-file-name"),
+      renderHTML: (attrs: { fileName?: string | null }) =>
+        attrs.fileName == null
+          ? {}
+          : { "data-file-name": String(attrs.fileName) },
+    },
+    width: dimension("width"),
+    height: dimension("height"),
+  };
 }

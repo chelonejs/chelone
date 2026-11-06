@@ -1,14 +1,19 @@
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
 import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
-import type { Editor } from "@tiptap/core";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeAll, expect, type Mock, vi } from "vitest";
 import { defineComponent, h, reactive, type VNodeChild } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../../admin/admin.vue";
 import { type UseFormReturn, useForm } from "../../../form/use-form";
-import RichTextInput, { type RichTextInputProps } from "../rich-text-input.vue";
+import RichTextField from "../rich-text-field.vue";
+import RichTextInput, {
+  type RichTextInputProps,
+  type RichTextInputToolbarSlotProps,
+} from "../rich-text-input.vue";
+
+type Editor = RichTextInputToolbarSlotProps["editor"];
 
 // ProseMirror measures the DOM while it scrolls the selection into view,
 // which jsdom has no layout for.
@@ -46,9 +51,11 @@ export async function mountInput(
   props: Partial<RichTextInputProps> = {},
   {
     body = "",
+    fieldBody,
     slots,
   }: {
     body?: string;
+    fieldBody?: string;
     slots?: Record<string, (scope: { editor: Editor }) => VNodeChild>;
   } = {},
 ): Promise<MountedInput> {
@@ -69,21 +76,29 @@ export async function mountInput(
         onSubmit,
       });
       return () =>
-        h(
-          RichTextInput,
-          {
-            source: "body",
-            ...live,
-            editorOptions: {
-              ...props.editorOptions,
-              onCreate: (event) => {
-                created.editor = event.editor;
-                props.editorOptions?.onCreate?.(event);
+        h("div", [
+          h(
+            RichTextInput,
+            {
+              source: "body",
+              ...live,
+              editorOptions: {
+                ...props.editorOptions,
+                onCreate: (event) => {
+                  created.editor = event.editor;
+                  props.editorOptions?.onCreate?.(event);
+                },
               },
             },
-          },
-          slots,
-        );
+            slots,
+          ),
+          fieldBody === undefined
+            ? null
+            : h(RichTextField, {
+                source: "body",
+                record: { id: 1, body: fieldBody },
+              }),
+        ]);
     },
   });
   const Harness = defineComponent({

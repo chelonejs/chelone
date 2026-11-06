@@ -1,24 +1,114 @@
 <script setup lang="ts">
-import { uploadStateOf, isSafeImageSrc } from "@chelone/core";
+import { richTextImageActions, type RichTextImageActionId, downloadImage, copyImage, clampRichTextImageWidth, uploadStateOf, isSafeImageSrc } from "@chelone/core";
+import { useTranslate } from "../../i18n/use-translate";
 import { NodeViewWrapper, nodeViewProps } from "@tiptap/vue-3";
-import { computed, onScopeDispose, ref } from "vue";
+import { computed, onScopeDispose, ref, useTemplateRef, nextTick, watch } from "vue";
 
+import Button from "../ui/button.vue";
+import { richTextImageActionIcons, richTextImageCloseIcon, richTextImageIcon, richTextImageSpinnerIcon } from "./rich-text-icons";
+
+const viewing = ref(false);
+const overlay = useTemplateRef<HTMLDivElement>("overlay");
+watch(viewing, async (open) => {
+  if (!open) return;
+  await nextTick();
+  overlay.value?.focus();
+});
+const closeOnEscape = (event: KeyboardEvent) => {
+  if (event.key === "Escape") viewing.value = false;
+};
+document.addEventListener("keydown", closeOnEscape);
+onScopeDispose(() => document.removeEventListener("keydown", closeOnEscape));
+const translate = useTranslate();
+const failedSrc = ref<string | null>(null);
+const image = useTemplateRef<HTMLImageElement>("image");
 const props = defineProps(nodeViewProps);
 const revision = ref(0);
 const uploads = uploadStateOf(props.editor);
 const refresh = () => { revision.value++; };
+props.editor.on("transaction", refresh);
+onScopeDispose(() => props.editor.off("transaction", refresh));
+const editable = computed(() => { void revision.value; return props.editor.isEditable; });
 uploads.listeners.add(refresh);
 onScopeDispose(() => uploads.listeners.delete(refresh));
 const uploading = computed(() => {
   void revision.value;
   return uploads.pending.has(props.node.attrs.src);
 });
-const src = computed(() => typeof props.node.attrs.src === "string" && isSafeImageSrc(props.node.attrs.src, { allowDataImages: true }) ? props.node.attrs.src : null);
+const source = computed(() => typeof props.node.attrs.src === "string" && isSafeImageSrc(props.node.attrs.src, { allowDataImages: true }) ? props.node.attrs.src : null);
+const src = computed(() => source.value !== failedSrc.value ? source.value : null);
+const dragWidth = ref<number>();
+let drag: AbortController | undefined;
+onScopeDispose(() => drag?.abort());
+function dragHandle(event: PointerEvent, side: "left" | "right") {
+  event.preventDefault();
+  drag?.abort();
+  const controller = new AbortController();
+  drag = controller;
+  const initial = numericWidth(props.node.attrs.width) ?? (image.value?.offsetWidth || 60);
+  const maximum = props.editor.view.dom.clientWidth || Number.POSITIVE_INFINITY;
+  const start = event.clientX;
+  const options = { signal: controller.signal };
+  let latest = initial;
+  window.addEventListener("pointermove", (move) => {
+    const change = (move.clientX - start) * (side === "left" ? -1 : 1);
+    latest = clampRichTextImageWidth(initial + change, { min: 60, max: maximum });
+    dragWidth.value = latest;
+  }, options);
+  const finish = () => {
+    controller.abort();
+    drag = undefined;
+    dragWidth.value = undefined;
+    props.updateAttributes({ width: latest });
+  };
+  window.addEventListener("pointerup", finish, options);
+  window.addEventListener("pointercancel", finish, options);
+}
+const width = computed(() => numericWidth(props.node.attrs.width));
+function numericWidth(value: number | string | null | undefined): number | undefined {
+  const parsed = typeof value === "string" ? Number.parseFloat(value) : value;
+  return typeof parsed === "number" && Number.isFinite(parsed) ? parsed : undefined;
+}
+function resize(event: KeyboardEvent, side: "left" | "right") {
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+  event.preventDefault();
+  const pos = props.getPos();
+  const attrs = pos === undefined ? props.node.attrs : props.editor.state.doc.nodeAt(pos)?.attrs;
+  const current = numericWidth(attrs?.width) ?? (image.value?.offsetWidth || 60);
+  const step = (event.key === "ArrowRight") === (side === "right") ? 10 : -10;
+  props.updateAttributes({ width: clampRichTextImageWidth(current + step, { min: 60, max: props.editor.view.dom.clientWidth || Number.POSITIVE_INFINITY }) });
+}
+const actions = computed(() => richTextImageActions.filter((action) => action.id === "remove" ? editable.value : src.value !== null));
+function run(action: RichTextImageActionId) {
+  if (action === "remove") { props.deleteNode(); return; }
+  const source = src.value;
+  if (!source) return;
+  if (action === "view") { viewing.value = true; return; }
+  const operation = action === "download" ? downloadImage(source, props.node.attrs.alt ?? "")
+    : action === "copyImage" ? copyImage(source)
+    : navigator.clipboard.writeText(source);
+  void operation.catch(() => {});
+}
 </script>
 
 <template>
-  <NodeViewWrapper data-slot="rich-text-image">
-    <img v-if="src" :src="src" :alt="node.attrs.alt ?? ''" />
-    <div v-if="uploading" role="status" aria-label="Uploading image">Uploading image</div>
+  <NodeViewWrapper data-slot="rich-text-image" :data-selected="selected || undefined" class="group relative my-3 w-fit max-w-full">
+    <img v-if="src" ref="image" :width="dragWidth ?? width" :title="node.attrs.title ?? undefined" draggable data-drag-handle class="h-auto max-w-full rounded-md" :class="selected && 'ring-2 ring-ring'" :src="src" :alt="node.attrs.alt ?? ''" @error="failedSrc = src" />
+    <div v-else data-slot="rich-text-image-error" class="rounded-md border border-destructive/50 border-dashed px-3 py-2 text-destructive text-sm"><component :is="richTextImageIcon" class="size-4" />{{ translate("chelone.rich_text.image.error", { _: "The image could not be loaded" }) }}</div>
+    <div v-if="uploading" role="status" :aria-label="translate('chelone.rich_text.image.uploading', { _: 'Uploading image' })" class="absolute inset-0 flex items-center justify-center rounded-md bg-background/60"><component :is="richTextImageSpinnerIcon" class="size-6 animate-spin" /></div>
+    <div data-slot="rich-text-image-actions" :class="['absolute top-2 right-2 flex gap-1 rounded-md border bg-background p-1 opacity-0 shadow-sm focus-within:opacity-100 group-hover:opacity-100', selected && 'opacity-100']">
+      <Button v-for="action in actions" :key="action.id" variant="ghost" size="icon" class="size-8" :aria-label="translate(action.labelKey, { _: action.defaultLabel })" :title="translate(action.labelKey, { _: action.defaultLabel })" @click="run(action.id)">
+        <component :is="richTextImageActionIcons[action.id]" />
+      </Button>
+    </div>
+    <template v-if="selected && editable && src">
+      <button v-for="side in (['left', 'right'] as const)" :key="side" type="button" data-slot="rich-text-image-handle" :data-side="side" :aria-label="side === 'left' ? translate('chelone.rich_text.image.resize_left', { _: 'Resize image from the left edge' }) : translate('chelone.rich_text.image.resize_right', { _: 'Resize image from the right edge' })" :class="['absolute top-1/2 h-10 w-2 -translate-y-1/2 cursor-ew-resize touch-none rounded-full border border-background bg-primary outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50', side === 'left' ? '-left-1' : '-right-1']" @keydown="resize($event, side)" @pointerdown="dragHandle($event, side)" />
+    </template>
+    <Teleport to="body">
+      <div v-if="viewing && src" ref="overlay" role="dialog" aria-modal="true" :aria-label="node.attrs.alt || translate('chelone.rich_text.image.view', { _: 'View image' })" tabindex="-1" data-slot="rich-text-image-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 outline-none" @click="viewing = false">
+        <Button variant="secondary" size="icon" class="absolute top-4 right-4 size-8" :aria-label="translate('chelone.rich_text.image.close', { _: 'Close' })" @click="viewing = false"><component :is="richTextImageCloseIcon" /></Button>
+        <img :src="src" :alt="node.attrs.alt ?? ''" class="max-h-full max-w-full object-contain" />
+      </div>
+    </Teleport>
   </NodeViewWrapper>
 </template>

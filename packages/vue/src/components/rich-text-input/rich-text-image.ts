@@ -1,10 +1,10 @@
 import {
-  canBeDataUrl,
-  checkRichTextImageFile,
   isSafeImageSrc,
+  prepareRichTextImages,
   type RichTextImageConfig,
   type RichTextImageInput,
   resolveRichTextImageConfig,
+  richTextImageAttributes,
   type Stored,
   setUploading,
   storeFile,
@@ -78,20 +78,7 @@ export const RichTextImage = Image.extend<Options>({
   addAttributes() {
     return {
       ...this.parent?.(),
-      id: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-id"),
-        renderHTML: (attrs) =>
-          attrs.id == null ? {} : { "data-id": String(attrs.id) },
-      },
-      fileName: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-file-name"),
-        renderHTML: (attrs) =>
-          attrs.fileName == null
-            ? {}
-            : { "data-file-name": String(attrs.fileName) },
-      },
+      ...richTextImageAttributes(),
     };
   },
   parseHTML() {
@@ -124,45 +111,16 @@ export const RichTextImage = Image.extend<Options>({
         ({ commands, dispatch, editor }) => {
           if (!dispatch) return images.length > 0;
           const config = this.options.config();
-          const content: JSONContent[] = [];
-          const uploads: { file: File; src: string }[] = [];
-          for (const image of images) {
-            if (!(image instanceof File)) {
-              if (
-                isSafeImageSrc(image.src, {
-                  allowDataImages: config.rules.allowBase64,
-                })
-              )
-                content.push({ type: this.name, attrs: image });
-              else config.onImageError?.({ reason: "src", file: null });
-              continue;
-            }
-            const reason =
-              checkRichTextImageFile(image, config.rules) ??
-              (config.uploadFn === undefined &&
-              !canBeDataUrl(image, config.rules.allowBase64)
-                ? "type"
-                : null);
-            if (reason) {
-              config.onImageError?.({ reason, file: image });
-              continue;
-            }
-            const src = URL.createObjectURL(image);
-            content.push({
-              type: this.name,
-              attrs: {
-                src,
-                alt: image.name.replace(/\.[^.]*$/, ""),
-                fileName: image.name,
-              },
-            });
-            uploads.push({ file: image, src });
-          }
+          const prepared = prepareRichTextImages(images, config);
+          const content: JSONContent[] = prepared.attributes.map((attrs) => ({
+            type: this.name,
+            attrs,
+          }));
           const inserted =
             content.length > 0 && commands.insertContent(content);
-          for (const item of uploads) {
-            if (inserted) void upload(editor, item.file, item.src, config);
-            else URL.revokeObjectURL(item.src);
+          for (const item of prepared.uploads) {
+            if (inserted) void upload(editor, item.file, item.blobUrl, config);
+            else URL.revokeObjectURL(item.blobUrl);
           }
           return inserted;
         },
