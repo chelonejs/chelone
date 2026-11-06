@@ -1,15 +1,6 @@
-import {
-  type BlockDocNode,
-  createI18n,
-  defineMessages,
-  fakeDataProvider,
-  isBlockDoc,
-  required,
-} from "@chelone/core";
-import { defined, elementOf } from "@chelone/test-utils";
-import { QueryClient } from "@tanstack/vue-query";
-import { Editor } from "@tiptap/core";
-import { flushPromises, mount } from "@vue/test-utils";
+import { type BlockDocNode, isBlockDoc, required } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import {
   afterEach,
   beforeAll,
@@ -19,47 +10,23 @@ import {
   type Mock,
   vi,
 } from "vitest";
-import { defineComponent, h, type PropType, type VNodeChild } from "vue";
-import { createMemoryHistory, createRouter } from "vue-router";
+import { h } from "vue";
 import { z } from "zod";
-import Admin from "../../admin/admin.vue";
-import { type UseFormReturn, useForm } from "../../form/use-form";
+import {
+  doc,
+  type FormValues,
+  mountBlockEditor,
+  mountUnderAdmin,
+  paragraph,
+  stubLayout,
+  unmountAll,
+} from "./__fixtures__/block-editor-harness";
 import BlockDocField from "./block-doc-field.vue";
-import BlockEditorInput, {
-  type BlockEditorInputProps,
-} from "./block-editor-input.vue";
+import type { BlockEditorInputProps } from "./block-editor-input.vue";
 import { type BlockRenderProps, defineBlock } from "./block-nodes";
 
-// ProseMirror measures the DOM while it scrolls the selection into view,
-// which jsdom has no layout for.
-beforeAll(() => {
-  const rect = new DOMRect(0, 0, 0, 0);
-  const rects = Object.assign([], { item: () => null });
-  Range.prototype.getClientRects = () => rects;
-  Range.prototype.getBoundingClientRect = () => rect;
-  Element.prototype.getClientRects = () => rects;
-  document.elementFromPoint = () => null;
-});
-
-const mounted: { unmount(): void }[] = [];
-afterEach(() => {
-  for (const wrapper of mounted.splice(0)) wrapper.unmount();
-});
-
-const paragraph = (text: string): BlockDocNode => ({
-  type: "paragraph",
-  content: [{ type: "text", text }],
-});
-
-const doc = (...content: BlockDocNode[]): BlockDocNode => ({
-  type: "doc",
-  content,
-});
-
-interface FormValues {
-  // `BlockDocNode` is recursive, which form-core's path types cannot follow.
-  body: object | null;
-}
+beforeAll(stubLayout);
+afterEach(unmountAll);
 
 const callout = defineBlock({
   name: "callout",
@@ -92,75 +59,10 @@ const counter = defineBlock({
 
 const blocks = [callout, counter];
 
-const messages = defineMessages({ "chelone.validation.required": "Required" });
-
-function mountUnderAdmin(child: () => VNodeChild) {
-  const router = createRouter({
-    history: createMemoryHistory(),
-    routes: [{ path: "/", component: { render: () => null } }],
-  });
-  const wrapper = mount(
-    defineComponent({
-      setup: () => () =>
-        h(
-          Admin,
-          {
-            dataProvider: fakeDataProvider({}),
-            queryClient: new QueryClient(),
-            i18n: createI18n({ locale: "en", messages: { en: messages } }),
-          },
-          { default: child },
-        ),
-    }),
-    { global: { plugins: [router] }, attachTo: document.body },
-  );
-  mounted.push(wrapper);
-  return wrapper;
-}
-
-/** tiptap leaves its editor on the ProseMirror element. */
-function editorOf(element: Element): Editor {
-  const editor = Object.getOwnPropertyDescriptor(element, "editor")?.value;
-  if (!(editor instanceof Editor))
-    throw new Error("No tiptap editor on the element");
-  return editor;
-}
-
-async function mountInput(
+const mountInput = (
   props: Partial<BlockEditorInputProps> = {},
-  { body = null }: { body?: object | null } = {},
-) {
-  const captured: { form?: UseFormReturn<FormValues> } = {};
-  const onSubmit: Mock<(data: FormValues) => Promise<undefined>> = vi.fn(
-    async () => undefined,
-  );
-  const wrapper = mountUnderAdmin(() =>
-    h(
-      defineComponent({
-        setup() {
-          captured.form = useForm<FormValues>({ record: { body }, onSubmit });
-          return () =>
-            h(BlockEditorInput, { source: "body", blocks, ...props });
-        },
-      }),
-    ),
-  );
-  await vi.waitFor(() =>
-    expect(wrapper.find('[role="textbox"]').exists()).toBe(true),
-  );
-  await flushPromises();
-  const textbox = elementOf(
-    wrapper.get('[role="textbox"]').element,
-    HTMLElement,
-  );
-  return {
-    wrapper,
-    form: defined(captured.form),
-    onSubmit,
-    dom: () => textbox,
-    editor: () => editorOf(textbox),
-  };
-}
+  options: { body?: object | null } = {},
+) => mountBlockEditor({ blocks, ...props }, options);
 
 const options = () => [...document.querySelectorAll('[role="option"]')];
 const picker = () =>
