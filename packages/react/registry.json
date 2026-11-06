@@ -6774,10 +6774,14 @@
         "@chelone/command",
         "@chelone/field",
         "@chelone/field-label-text",
+        "@chelone/input",
         "@chelone/input-helper-text",
         "@chelone/input-props",
+        "@chelone/label",
         "@chelone/lib-field-types",
-        "@chelone/lib-utils"
+        "@chelone/lib-utils",
+        "@chelone/native-select",
+        "@chelone/switch"
       ],
       "dependencies": [
         "@chelone/core",
@@ -6787,9 +6791,15 @@
         "@tiptap/pm",
         "@tiptap/react",
         "@tiptap/starter-kit",
-        "@tiptap/suggestion"
+        "@tiptap/suggestion",
+        "lucide-react",
+        "zod"
       ],
       "files": [
+        {
+          "path": "src/components/block-editor/auto-config-form.tsx",
+          "type": "registry:component"
+        },
         {
           "path": "src/components/block-editor/block-doc-field.tsx",
           "type": "registry:component"
@@ -6811,10 +6821,39 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/block-editor/block-toolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/default-blocks.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/block-editor/slash-command.ts",
           "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "auto-config-form",
+      "type": "registry:component",
+      "title": "Auto Config Form",
+      "files": [
+        {
+          "path": "src/components/block-editor/auto-config-form.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-nodes",
+        "@chelone/input",
+        "@chelone/label",
+        "@chelone/native-select",
+        "@chelone/switch"
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6872,7 +6911,9 @@
       "registryDependencies": [
         "@chelone/block-nodes",
         "@chelone/block-picker",
+        "@chelone/block-toolbar",
         "@chelone/button",
+        "@chelone/default-blocks",
         "@chelone/lib-utils",
         "@chelone/slash-command"
       ],
@@ -6919,6 +6960,57 @@
       ],
       "registryDependencies": ["@chelone/block-nodes", "@chelone/command"],
       "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-toolbar",
+      "type": "registry:component",
+      "title": "Block Toolbar",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-toolbar.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/auto-config-form",
+        "@chelone/block-nodes",
+        "@chelone/button"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@tiptap/core",
+        "@tiptap/pm",
+        "@tiptap/react",
+        "lucide-react"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "default-blocks",
+      "type": "registry:component",
+      "title": "Default Blocks",
+      "files": [
+        {
+          "path": "src/components/block-editor/default-blocks.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-nodes",
+        "@chelone/input",
+        "@chelone/label",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "lucide-react",
+        "zod"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

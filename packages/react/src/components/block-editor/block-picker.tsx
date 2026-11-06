@@ -10,7 +10,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useTranslate } from "../../i18n-hooks";
-import type { BlockDefinition } from "./block-nodes";
+import { type BlockDefinition, translateBlock } from "./block-nodes";
 
 export interface BlockPickerProps {
   blocks: readonly BlockDefinition[];
@@ -43,7 +43,11 @@ export function BlockPicker({
   keyHandlerRef,
 }: BlockPickerProps) {
   const translate = useTranslate();
-  const matches = matchBlocks(blocks, query);
+  // Searching reads the words the user sees, so it matches the translated copy.
+  const matches = matchBlocks(
+    blocks.map((block) => translateBlock(translate, block)),
+    query,
+  );
   const [highlighted, setHighlighted] = useState("");
   const active = matches.some((block) => block.name === highlighted)
     ? highlighted

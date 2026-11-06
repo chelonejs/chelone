@@ -157,7 +157,8 @@
     "react-router": "^7.0.0 || ^8.0.0",
     "recharts": "^3.8.0",
     "terra-draw": "^1.39.0",
-    "terra-draw-maplibre-gl-adapter": "^1.5.0"
+    "terra-draw-maplibre-gl-adapter": "^1.5.0",
+    "zod": "^3.25.0 || ^4.0.0"
   },
   "peerDependenciesMeta": {
     "@chelone/supabase": {
@@ -236,6 +237,9 @@
       "optional": true
     },
     "terra-draw-maplibre-gl-adapter": {
+      "optional": true
+    },
+    "zod": {
       "optional": true
     }
   },
