@@ -33,14 +33,14 @@ type Invoice = { total: number; customer: { email: string } };
 
 describe("useInput value typing", () => {
   it("useInput types format with the value at its source", () => {
-    const format = (value: number) => value.toFixed(2);
+    const format = (value: number | null | undefined) => String(value);
     expectTypeOf(useInput<Invoice, "total">).toBeCallableWith({
       source: "total",
       format,
     });
     expectTypeOf(useInput<Invoice, "customer.email">).toBeCallableWith({
       source: "customer.email",
-      format: (value) => value.toLowerCase(),
+      format: (value) => value?.toLowerCase(),
     });
   });
 
@@ -132,7 +132,7 @@ describe("useInput value and setValue", () => {
   it("the value is what format returns; setValue takes it or an event", () => {
     const input = useInput<Invoice, "total", string>({
       source: "total",
-      format: (value) => value.toFixed(2),
+      format: (value) => (value ?? 0).toFixed(2),
       parse: (text) => Number(text),
     });
     expectTypeOf(input.value.value).toEqualTypeOf<string>();

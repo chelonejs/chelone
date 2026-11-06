@@ -1,11 +1,8 @@
-import type {
-  DeepKeys,
-  DeepValue,
-  UpdateMetaOptions,
-} from "@tanstack/form-core";
+import type { UpdateMetaOptions } from "@tanstack/form-core";
 import { isRecord } from "../guards";
 import type { LooseRecord } from "../resource/record";
-import type { SourcePath } from "../resource/source-path";
+import type { SourcePath, SourceValue } from "../resource/source-path";
+import type { FieldName, FieldValue } from "./field-name";
 import type { CheloneFormApi } from "./form-controller";
 import {
   createFieldBinding,
@@ -57,12 +54,12 @@ type ArrayItem<TRecord> = Parameters<
 >[1];
 
 /** The array form-core stores across its {@link ArrayFieldPath} union. */
-type ArrayValue<TRecord> = DeepValue<TRecord, ArrayFieldPath<TRecord>>;
+type ArrayValue<TRecord> = FieldValue<TRecord, ArrayFieldPath<TRecord>>;
 
 /** The array form-core stores at the binding's own path. */
-type PathValue<TRecord, TPath extends string> = DeepValue<
+type PathValue<TRecord, TPath extends string> = FieldValue<
   TRecord,
-  TPath & DeepKeys<TRecord>
+  TPath & FieldName<TRecord>
 >;
 
 /**
@@ -160,7 +157,7 @@ export interface ArrayBinding<
    * `field.getSnapshot()`). Do NOT create a second FieldBinding on the same
    * source — form-core registers ONE instance per field name.
    */
-  field: FieldBinding<TRecord>;
+  field: FieldBinding<TRecord, TPath>;
   /** The array field path this binding is attached to. */
   readonly source: string;
   /**
@@ -232,9 +229,16 @@ export function createArrayBinding<
   // type-escape: TS cannot see either in form-core's `DeepKeysOfType`.
   const name = source as ArrayFieldPath<TRecord>;
 
+  /** A fresh copy of the seed rows — never the option's own array. */
+  const seedRows = (): ArrayItemOf<TRecord, TPath>[] =>
+    current.defaultValue ? [...current.defaultValue] : [];
+
   /** The field-binding view of the current options (fresh seed array per call). */
-  const toFieldOptions = (): FieldBindingUpdateOptions => ({
-    defaultValue: current.defaultValue ? [...current.defaultValue] : [],
+  const toFieldOptions = (): FieldBindingUpdateOptions<
+    SourceValue<TRecord, TPath>
+  > => ({
+    // type-escape: the rows of this path are its value, deferred while `TRecord` is open.
+    defaultValue: seedRows() as SourceValue<TRecord, TPath>,
     validate: current.validate,
     schema: current.schema,
     validatorMeta: current.validatorMeta,
@@ -253,15 +257,11 @@ export function createArrayBinding<
     return Array.isArray(value) ? value : EMPTY;
   };
 
-  /** A fresh copy of the seed rows — never the option's own array. */
-  const seedRows = (): ArrayItemOf<TRecord, TPath>[] =>
-    current.defaultValue ? [...current.defaultValue] : [];
-
   /** Materializes the guarded default so positional ops act on a real array. */
   const ensureSeeded = (): void => {
     if (form.getFieldValue(name) !== undefined) return;
     // The seed IS the array form-core keeps at `name`.
-    // type-escape: its `DeepValue` stays deferred while `TRecord` is open.
+    // type-escape: its `FieldValue` stays deferred while `TRecord` is open.
     const seed = seedRows() as ArrayValue<TRecord>;
     form.setFieldValue(name, seed, HYDRATION_WRITE);
   };

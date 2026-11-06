@@ -1,4 +1,4 @@
-import type { DeepKeys, DeepValue } from "@tanstack/form-core";
+import { type FieldData, toFieldName } from "./field-name";
 import type { CheloneFormApi } from "./form-controller";
 
 /**
@@ -10,9 +10,7 @@ export function setFormValues<TValues>(
   data: Partial<NoInfer<TValues>>,
 ): void {
   for (const [key, value] of Object.entries(data)) {
-    // type-escape: a key of `data` is a top-level key of the form data, which the compiler cannot see while TValues is open
-    const name = key as DeepKeys<TValues>;
     // type-escape: the value under that key is the form's value at it
-    form.setFieldValue(name, value as DeepValue<TValues, DeepKeys<TValues>>);
+    form.setFieldValue(toFieldName<TValues>(key), value as FieldData<TValues>);
   }
 }

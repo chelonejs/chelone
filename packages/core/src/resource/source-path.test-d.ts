@@ -1,4 +1,3 @@
-import type { Get } from "dot.paths";
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import type { LooseRecord } from "./record";
@@ -107,19 +106,17 @@ describe("SourceValue", () => {
     expectTypeOf<SourceValue<Post, "items[0].sku">>().toEqualTypeOf<string>();
   });
 
-  it("SourceValue matches Get's path-nullish reading for deep, null and unknown parents", () => {
+  it("SourceValue adds the null and undefined of every parent, and reads below an unknown parent as unknown", () => {
     interface Deep {
       a?: { b: { c: number } | null; list: { n?: { z: string } }[] };
       // type-escape: the parent whose children read as unknown
       meta: unknown;
     }
-    type Path<P extends string> = Get<Deep, P, { nullish: "path" }>;
-    expectTypeOf<SourceValue<Deep, "a.b.c">>().toEqualTypeOf<Path<"a.b.c">>();
     expectTypeOf<SourceValue<Deep, "a.b.c">>().toEqualTypeOf<
       number | null | undefined
     >();
     expectTypeOf<SourceValue<Deep, "a.list[0].n.z">>().toEqualTypeOf<
-      Path<"a.list[0].n.z">
+      string | undefined
     >();
     // type-escape: nothing is known below an unknown parent
     expectTypeOf<SourceValue<Deep, "meta.x">>().toEqualTypeOf<unknown>();

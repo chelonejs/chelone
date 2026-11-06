@@ -1,9 +1,4 @@
-import type {
-  AnyFieldLikeMeta,
-  DeepKeys,
-  DeepValue,
-  StandardSchemaV1,
-} from "@tanstack/form-core";
+import type { AnyFieldLikeMeta, StandardSchemaV1 } from "@tanstack/form-core";
 import {
   type CreateController,
   type CreateControllerState,
@@ -21,6 +16,7 @@ import { isPlainObject } from "../guards";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
+import { type FieldName, type FieldValue, toFieldName } from "./field-name";
 import {
   type CheloneFormApi,
   type CheloneFormState,
@@ -408,16 +404,13 @@ export function createEditFormController<
       // are suppressed — hydration is not a user change; net-new dirt is
       // zero (only fields the user already dirtied are re-marked).
       const dirtyValues: Array<
-        [DeepKeys<TFormData>, DeepValue<TFormData, DeepKeys<TFormData>>]
+        [FieldName<TFormData>, FieldValue<TFormData, FieldName<TFormData>>]
       > = [];
       for (const [path, meta] of Object.entries<AnyFieldLikeMeta | undefined>(
         form.state.fieldMeta,
       )) {
         if (!meta?.isDirty) continue;
-        // The runtime-path cast `input-binding.ts` documents: a `fieldMeta`
-        // key is a path of the form data by construction, but TS cannot see
-        // that it is one of form-core's `DeepKeys`.
-        const name = path as DeepKeys<TFormData>;
+        const name = toFieldName<TFormData>(path);
         dirtyValues.push([name, form.getFieldValue(name)]);
       }
       form.reset(merged);
