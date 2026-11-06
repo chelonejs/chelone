@@ -178,6 +178,18 @@ describe("<I18nKeyEditor>", () => {
     expect(typed instanceof HTMLInputElement && typed.value).toBe("Sous-titre");
   });
 
+  it("the input shows the typed text before the store notifies", async () => {
+    setup({ content: <Label k="posts.subtitle" fallback="Subtitle" /> });
+    await settle();
+    const input = screen.getByLabelText("posts.subtitle");
+    // The store notifies on a microtask; a controlled input that waits for it
+    // is reset by React and loses the caret.
+    fireEvent.change(input, { target: { value: "Sous" } });
+    expect(input instanceof HTMLInputElement && input.value).toBe("Sous");
+    await settle();
+    expect(input instanceof HTMLInputElement && input.value).toBe("Sous");
+  });
+
   it("export copies the typed translations as JSON and shows Copied", async () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
     setup({ content: <Label k="posts.subtitle" fallback="Subtitle" /> });

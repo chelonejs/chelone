@@ -162,6 +162,15 @@ function KeyEntry({
   entry: MissingKeyEntry;
   onChange: (text: string) => void;
 }) {
+  // The store notifies on a microtask, so an input controlled by the store
+  // alone is reset by React before it catches up and the caret jumps to the end.
+  // The local text leads; a change that came from the store (a clear) replaces it.
+  const [text, setText] = useState(entry.translation);
+  const [seen, setSeen] = useState(entry.translation);
+  if (entry.translation !== seen) {
+    setSeen(entry.translation);
+    setText(entry.translation);
+  }
   return (
     <div data-slot="i18n-key-editor-entry" className="flex flex-col gap-1">
       <span className="break-all font-mono text-xs text-muted-foreground">
@@ -169,9 +178,12 @@ function KeyEntry({
       </span>
       <Input
         aria-label={entry.key}
-        value={entry.translation}
+        value={text}
         placeholder={entry.fallback}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => {
+          setText(event.target.value);
+          onChange(event.target.value);
+        }}
       />
     </div>
   );
