@@ -168,11 +168,13 @@ describe("<RichTextToolbar>", () => {
     const names = within(screen.getByRole("toolbar"))
       .getAllByRole("button")
       .map((each) => each.getAttribute("aria-label"));
-    // The Image button joins the insert group, right after Link.
+    // Text color joins the mark group right after Code, and Image the insert group right after Link.
     expect(names).toEqual(
-      richTextToolbarItems.flatMap((item) =>
-        item.id === "link" ? [item.defaultLabel, "Image"] : [item.defaultLabel],
-      ),
+      richTextToolbarItems.flatMap((item) => {
+        if (item.id === "code") return [item.defaultLabel, "Text color"];
+        if (item.id === "link") return [item.defaultLabel, "Image"];
+        return [item.defaultLabel];
+      }),
     );
   });
 

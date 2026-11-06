@@ -4,6 +4,8 @@
  * `stubAnimations()` and stubs `getBoundingClientRect` for its own layout.
  */
 
+import { vi } from "vitest";
+
 /** A `PointerEvent` that jsdom can construct: a mouse event with a pointer id. */
 export class StubPointerEvent extends MouseEvent {
   readonly pointerId: number;
@@ -59,4 +61,80 @@ export function stubAnimations(): void {
   document.getAnimations = () => [];
   Element.prototype.getAnimations = () => [];
   Element.prototype.animate = () => new StubAnimation();
+}
+
+/** How a test lays out a list for dnd-kit: rows stack `rowHeight` apart in document order. */
+export interface ListLayout {
+  rowSelector: string;
+  rowHeight: number;
+}
+
+const ROW_WIDTH = 300;
+
+/**
+ * Where jsdom, which lays nothing out, puts `el`: a row, or anything inside
+ * one, takes its row's slot, and the rest fills a 1024 x 768 window. A held row
+ * moves with a CSS translate, which is added here.
+ */
+export function listRowRect(el: Element, layout: ListLayout): DOMRect {
+  const row = el.closest(layout.rowSelector);
+  const rows = Array.from(document.querySelectorAll(layout.rowSelector));
+  const [x, y, width, height] = row
+    ? [0, rows.indexOf(row) * layout.rowHeight, ROW_WIDTH, layout.rowHeight]
+    : [0, 0, 1024, 768];
+  const [dx = 0, dy = 0] = (
+    (el instanceof HTMLElement &&
+      el.style.getPropertyValue("--dnd-translate")) ||
+    ""
+  )
+    .split(" ")
+    .map((n) => Number.parseFloat(n) || 0);
+  return new DOMRect(x + dx, y + dy, width, height);
+}
+
+/** The centre of `el` under `layout`. */
+export function listCentre(
+  el: Element,
+  layout: ListLayout,
+): { x: number; y: number } {
+  const { x, y, width, height } = listRowRect(el, layout);
+  return { x: x + width / 2, y: y + height / 2 };
+}
+
+/**
+ * Stubs what dnd-kit needs for a list laid out by `layout`: `PointerEvent`,
+ * `IntersectionObserver`, animations, `getBoundingClientRect` and
+ * `elementFromPoint`. Call `vi.unstubAllGlobals()` and `vi.restoreAllMocks()`
+ * after the test.
+ */
+export function stubListDragDom(layout: ListLayout): void {
+  vi.stubGlobal("PointerEvent", StubPointerEvent);
+  vi.stubGlobal("IntersectionObserver", StubIntersectionObserver);
+  stubAnimations();
+  vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
+    function (this: Element) {
+      return listRowRect(this, layout);
+    },
+  );
+  document.elementFromPoint = (_x: number, y: number) =>
+    document.querySelectorAll<HTMLElement>(layout.rowSelector)[
+      Math.floor(y / layout.rowHeight)
+    ] ?? document.body;
+}
+
+/** A primary mouse `PointerEvent` at `at`, for `fireEvent`. Needs `stubListDragDom`. */
+export function mousePointerEvent(
+  type: "pointerdown" | "pointermove" | "pointerup",
+  at: { x: number; y: number },
+): PointerEvent {
+  return new PointerEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    clientX: at.x,
+    clientY: at.y,
+    pointerType: "mouse",
+    pointerId: 1,
+    isPrimary: true,
+    button: 0,
+  });
 }

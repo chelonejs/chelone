@@ -5,6 +5,10 @@ export {
   type ConfigurableProps,
 } from "./components/inspector/configurable";
 export {
+  ConfigurableInputs,
+  type ConfigurableInputsProps,
+} from "./components/inspector/configurable-inputs";
+export {
   Inspector,
   type InspectorProps,
   useInspector,
