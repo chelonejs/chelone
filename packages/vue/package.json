@@ -20,6 +20,7 @@
     "./package.json": "./package.json",
     "./monaco": "./src/monaco.ts",
     "./kanban": "./src/kanban.ts",
+    "./inspector": "./src/inspector.ts",
     "./supabase": "./src/supabase.ts",
     "./csv-import": "./src/csv-import.ts",
     "./maps": "./src/maps.ts",
@@ -49,6 +50,10 @@
       "./kanban": {
         "types": "./dist/kanban.d.ts",
         "default": "./dist/kanban.js"
+      },
+      "./inspector": {
+        "types": "./dist/inspector.d.ts",
+        "default": "./dist/inspector.js"
       },
       "./supabase": {
         "types": "./dist/supabase.d.ts",

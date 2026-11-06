@@ -42,6 +42,7 @@ export default defineConfig({
         "src/monaco.ts",
         "src/charts.ts",
         "src/kanban.ts",
+        "src/inspector.ts",
         "src/mdx-editor.ts",
         "src/rich-text-input.ts",
         "src/block-editor.ts",
