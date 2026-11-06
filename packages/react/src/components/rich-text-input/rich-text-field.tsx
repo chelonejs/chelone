@@ -1,7 +1,8 @@
 import type { LooseRecord } from "@chelone/core";
 import {
-  richTextSanitizeOptions,
+  richTextStyledSanitizeOptions,
   sanitizeRichTextImageElement,
+  sanitizeRichTextStyle,
 } from "@chelone/core";
 import DOMPurify from "dompurify";
 import type { HTMLAttributes } from "react";
@@ -14,8 +15,8 @@ import "./rich-text.css";
 
 // DOMPurify's `Config` takes mutable arrays, and core's options are frozen.
 const sanitizeConfig = {
-  FORBID_TAGS: [...richTextSanitizeOptions.FORBID_TAGS],
-  FORBID_ATTR: [...richTextSanitizeOptions.FORBID_ATTR],
+  FORBID_TAGS: [...richTextStyledSanitizeOptions.FORBID_TAGS],
+  FORBID_ATTR: [...richTextStyledSanitizeOptions.FORBID_ATTR],
 };
 
 let purify: ReturnType<typeof DOMPurify> | undefined;
@@ -30,6 +31,13 @@ function sanitizer(): ReturnType<typeof DOMPurify> {
   const created = DOMPurify(window);
   // `javascript:` is already gone; this also drops SVG data URLs, which DOMPurify allows on an `img`.
   created.addHook("afterSanitizeAttributes", sanitizeRichTextImageElement);
+  // `style` is allowed through the options; only a palette or plain color survives.
+  created.addHook("uponSanitizeAttribute", (_node, data) => {
+    if (data.attrName !== "style") return;
+    const style = sanitizeRichTextStyle(data.attrValue);
+    if (style === null) data.keepAttr = false;
+    else data.attrValue = style;
+  });
   purify = created;
   return created;
 }
@@ -43,8 +51,10 @@ interface RichTextFieldProps<RecordType extends LooseRecord = LooseRecord>
 
 /**
  * Shows a stored HTML value, sanitized with DOMPurify and the core
- * `richTextSanitizeOptions`: scripts, event handlers, `style`, frames and form
- * controls are removed before the HTML reaches the DOM.
+ * `richTextStyledSanitizeOptions`: scripts, event handlers, frames and form
+ * controls are removed before the HTML reaches the DOM, and a `style` attribute
+ * survives only as a palette, hex, `rgb()` or `hsl()` `color`. Code blocks show
+ * without highlighting.
  *
  * Needs the optional `dompurify` peer. From npm, import
  * `@chelone/react/rich-text-input.css` once for the content styles; the

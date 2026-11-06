@@ -17,6 +17,7 @@ import {
   ListIcon,
   ListOrderedIcon,
   MinusIcon,
+  PaletteIcon,
   QuoteIcon,
   Redo2Icon,
   RemoveFormattingIcon,
@@ -39,6 +40,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../i18n-hooks";
+import { hasRichTextColor, RichTextColorPanel } from "./rich-text-color";
 import { getRichTextImageConfig } from "./rich-text-image";
 import { RichTextImageForm } from "./rich-text-image-form";
 import { RichTextUrlForm } from "./rich-text-url-form";
@@ -62,8 +64,9 @@ interface ItemSpec {
   canRun?: (editor: Editor) => boolean;
 }
 
-/** Like Link, the Image button opens a form instead of running a command. */
+/** Like Link, the Image and color buttons open a panel instead of running a command. */
 const imageSpec: ItemSpec = { icon: ImageIcon };
+const colorSpec: ItemSpec = { icon: PaletteIcon };
 
 const itemSpecs: Record<RichTextToolbarItemId, ItemSpec> = {
   bold: {
@@ -144,17 +147,33 @@ interface ToolbarState {
   buttons: ButtonState[];
   /** Whether the editor has the image extension, which adds the Image button. */
   images: boolean;
+  /** Whether the editor has the color extension, which adds the Text color button. */
+  colors: boolean;
   blockType: string;
 }
 
 type ImageToolbarItem = RichTextExtraToolbarItem & { id: "image" };
+type ColorToolbarItem = RichTextExtraToolbarItem & { id: "color" };
+type ExtraToolbarItem = ImageToolbarItem | ColorToolbarItem;
 
 function isImageItem(item: RichTextExtraToolbarItem): item is ImageToolbarItem {
   return item.id === "image";
 }
 
+function isColorItem(item: RichTextExtraToolbarItem): item is ColorToolbarItem {
+  return item.id === "color";
+}
+
 /** The Image button's place: right after Link, in core's `insert` group. */
 const imageItem = richTextExtraToolbarItems.find(isImageItem);
+/** The Text color button's place: right after Code, in core's `mark` group. */
+const colorItem = richTextExtraToolbarItems.find(isColorItem);
+
+function specOf(item: RichTextToolbarItem | ExtraToolbarItem): ItemSpec {
+  if (item.id === "image") return imageSpec;
+  if (item.id === "color") return colorSpec;
+  return itemSpecs[item.id];
+}
 
 function readToolbarState(editor: Editor): ToolbarState {
   const editable = editor.isEditable;
@@ -174,6 +193,7 @@ function readToolbarState(editor: Editor): ToolbarState {
     editable,
     buttons,
     images: getRichTextImageConfig(editor) !== null,
+    colors: hasRichTextColor(editor),
     blockType: heading?.id ?? "paragraph",
   };
 }
@@ -225,17 +245,18 @@ function ToolbarBody({
   });
   const [linkOpen, setLinkOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
+  const [colorOpen, setColorOpen] = useState(false);
 
   // A run of items in one group; core lists Link and Horizontal rule apart.
   const groups: {
     group: RichTextToolbarItem["group"];
     entries: {
-      item: RichTextToolbarItem | ImageToolbarItem;
+      item: RichTextToolbarItem | ExtraToolbarItem;
       button: ButtonState;
     }[];
   }[] = [];
   const add = (
-    item: RichTextToolbarItem | ImageToolbarItem,
+    item: RichTextToolbarItem | ExtraToolbarItem,
     button: ButtonState,
   ) => {
     const last = groups.at(-1);
@@ -248,6 +269,9 @@ function ToolbarBody({
     add(item, button);
     if (item.id === "link" && state.images && imageItem) {
       add(imageItem, { pressed: undefined, disabled: !state.editable });
+    }
+    if (item.id === "code" && state.colors && colorItem) {
+      add(colorItem, { pressed: undefined, disabled: !state.editable });
     }
   });
 
@@ -298,12 +322,16 @@ function ToolbarBody({
                     ? linkOpen
                     : item.id === "image"
                       ? imageOpen
-                      : undefined
+                      : item.id === "color"
+                        ? colorOpen
+                        : undefined
                 }
                 onToggle={() =>
                   item.id === "image"
                     ? setImageOpen((open) => !open)
-                    : setLinkOpen((open) => !open)
+                    : item.id === "color"
+                      ? setColorOpen((open) => !open)
+                      : setLinkOpen((open) => !open)
                 }
               />
             ))}
@@ -319,6 +347,9 @@ function ToolbarBody({
           onClose={() => setImageOpen(false)}
         />
       ) : null}
+      {colorOpen && state.colors ? (
+        <RichTextColorPanel editor={editor} />
+      ) : null}
     </div>
   );
 }
@@ -331,13 +362,13 @@ function ToolbarButton({
   onToggle,
 }: {
   editor: Editor;
-  item: RichTextToolbarItem | ImageToolbarItem;
+  item: RichTextToolbarItem | ExtraToolbarItem;
   state: ButtonState;
   expanded: boolean | undefined;
   onToggle: () => void;
 }) {
   const translate = useTranslate();
-  const spec = item.id === "image" ? imageSpec : itemSpecs[item.id];
+  const spec = specOf(item);
   const Icon = spec.icon;
   const label = translate(item.labelKey, { _: item.defaultLabel });
   const tooltip = item.shortcut
