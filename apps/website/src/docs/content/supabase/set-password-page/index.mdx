@@ -1,0 +1,20 @@
+---
+title: "SetPasswordPage"
+description: "Where a recovery or invite link ends: <AuthLayout> around <SetPasswordForm>, which reads the tokens the link carries and calls setPassword on the auth provider. Mount it at its static path of /set-password. With a token missing the form keeps its message on screen with a Back to login link and does not redirect. children replaces the form, and other props go to the <div>."
+registry: "set-password-page"
+---
+{/* generated:gen-component-stubs */}
+
+Where a recovery or invite link ends: `<AuthLayout>` around `<SetPasswordForm>`, which reads the tokens the link carries and calls `setPassword` on the auth provider. Mount it at its static `path` of `/set-password`. With a token missing the form keeps its message on screen with a Back to login link and does not redirect. `children` replaces the form, and other props go to the `<div>`.
+
+## Import
+
+```tsx
+import { SetPasswordPage } from "@chelone/react/supabase";
+```
+
+See the [Supabase pages guide](/docs/app-config/supabase-pages) for mounting the pages, the recovery flow, the provider buttons and the Vue slots.
+
+## Props
+
+<PropsTable name="SetPasswordPage" />

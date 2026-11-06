@@ -1,5 +1,6 @@
 import {
   Boxes,
+  KeyRound,
   Layers,
   LayoutDashboard,
   type LucideIcon,
@@ -51,6 +52,11 @@ export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
     maps: {
       icon: Map,
       blurb: "Maps for showing and drawing GeoJSON, over the services you set.",
+    },
+    supabase: {
+      icon: KeyRound,
+      blurb:
+        "The sign-in, password recovery and OAuth pieces of a Supabase admin.",
     },
   };
 

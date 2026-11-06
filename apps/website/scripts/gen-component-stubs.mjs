@@ -21,10 +21,11 @@
  * the name in `PROPS_TABLE_OF`. Any entry whose props JSON is missing is
  * SKIPPED and logged — no vaporware page.
  *
- * The ~25 T2 rich-guide slugs (page-components/*, viewing/index, editing/index,
- * the whole app-config section) are intentionally NOT in this table — they are
- * hand-written in T2. This generator owns the
- * field/input/button/layout/feedback/realtime/maps reference only.
+ * The ~25 T2 rich-guide slugs (the page-components guides, viewing/index,
+ * editing/index, the whole app-config section) are intentionally NOT in this
+ * table — they are hand-written in T2. This generator owns the
+ * field/input/button/layout/feedback/realtime/maps/supabase reference, plus the
+ * CsvImport add-on page under page-components.
  *
  * Idempotent + non-destructive: an existing index.mdx that does NOT carry the
  * generated marker is left untouched (so hand-written T2 pages win). Re-running
@@ -57,11 +58,17 @@ const MARKER = "{/* generated:gen-component-stubs */}";
  * A row may also carry `importFrom`: the module a barrel-only component is
  * imported from when it is not the barrel itself, such as an add-on entry
  * (`@chelone/react/maps/draw`). Rows without it import from `@chelone/react`.
+ * A registry-backed row may carry it too, which gives the page the subpath
+ * import next to the install block its `registry` frontmatter renders.
+ *
+ * A row may carry `guide`: the line linking back to a guide, for a page whose
+ * guide is one page rather than a whole section (`SECTION_GUIDE` is the
+ * section-wide form of it).
  *
  * Cross-checked against the @chelone/react barrel + registry.json. Slugs whose
  * component is not exported are simply absent (the DROP set from plan §2).
  */
-/** @type {{slug:string,section:string,component:string,registry:string|null,title:string,desc:string,importFrom?:string}[]} */
+/** @type {{slug:string,section:string,component:string,registry:string|null,title:string,desc:string,importFrom?:string,guide?:string}[]} */
 const STUBS = [
   // ── viewing (read-only fields) ──────────────────────────────────────────
   { slug: "api-key-field", section: "viewing", component: "ApiKeyField", registry: "api-key-field", title: "ApiKeyField", desc: "Renders a secret API key value, masked with a reveal/copy affordance." },
@@ -310,6 +317,22 @@ const STUBS = [
   { slug: "reverse-geocode-field", section: "maps", component: "ReverseGeocodeField", registry: null, title: "ReverseGeocodeField", desc: "Names the position held in two record fields, `latSource` and `lngSource`, as an address read from a geocoding provider. `format` keeps the whole name, or shortens it to its first part with `street` or to its first two with `city`. Renders nothing when either field is not a number or a numeric string, a skeleton while the lookup runs, and the coordinates to 4 decimals when the provider knows no place. Needs a provider, from `provider` or `MapsProvider`.", importFrom: "@chelone/react/maps/osm" },
   { slug: "osm-feature-add", section: "maps", component: "OsmFeatureAdd", registry: null, title: "OsmFeatureAdd", desc: "A button that merges OpenStreetMap areas into the Polygon or MultiPolygon held in `source`, queried from Overpass by `presets` and `tags`. The request runs on the click, and the result is written like a user edit, so the form turns dirty and the field's validators run. A merge that would leave a Polygon as several pieces is refused with a warning and the value is left as it was. Needs an Overpass provider, from `provider` or `MapsProvider`. It is `OsmFeatureOperator` with `mode` set to `add` for you.", importFrom: "@chelone/react/maps/osm" },
   { slug: "osm-feature-subtract", section: "maps", component: "OsmFeatureSubtract", registry: null, title: "OsmFeatureSubtract", desc: "A button that removes OpenStreetMap areas, such as the water in a delivery area, from the Polygon or MultiPolygon held in `source`, queried from Overpass by `presets` and `tags`. The request runs on the click, and the result is written like a user edit, so the form turns dirty and the field's validators run. Areas that cover the value entirely clear the field to null, and a cut that would leave a Polygon as several pieces is refused with a warning and the value is left as it was. Needs an Overpass provider, from `provider` or `MapsProvider`. It is `OsmFeatureOperator` with `mode` set to `subtract` for you.", importFrom: "@chelone/react/maps/osm" },
+
+  // ── supabase (the auth pages of the @chelone/react/supabase entry) ─────────
+  // Each is a registry item AND a subpath import: the add-on imports the
+  // optional `@chelone/supabase` peer, so the barrel never exports it. The two
+  // forms, the sixteen provider buttons and the three hooks stay in the guide:
+  // a provider button is `SocialAuthButton` with `provider` set for the caller,
+  // and a hook takes no props.
+  { slug: "supabase-login-page", section: "supabase", component: "SupabaseLoginPage", registry: "supabase-login-page", title: "SupabaseLoginPage", desc: "Chelone's `<LoginPage>` for the Supabase auth provider: an email and password form, a forgot password link and one OAuth button per provider in `providers`, none by default. `disableEmailPassword` hides the form, its divider and the link, and `disableForgotPassword` the link alone. `redirectTo` is forwarded to the form and to each button. Other props go to the `<div>` of `<LoginPage>`, and its static `path` is `/login`.", importFrom: "@chelone/react/supabase" },
+  { slug: "forgot-password-page", section: "supabase", component: "ForgotPasswordPage", registry: "forgot-password-page", title: "ForgotPasswordPage", desc: "The page a user lands on to ask for a reset email: `<AuthLayout>` around `<ForgotPasswordForm>`, which calls `resetPassword` on the auth provider. Mount it at its static `path` of `/forgot-password`, outside the layout and the auth gate, since the user is not signed in. `children` replaces the form, and other props go to the `<div>`.", importFrom: "@chelone/react/supabase" },
+  { slug: "set-password-page", section: "supabase", component: "SetPasswordPage", registry: "set-password-page", title: "SetPasswordPage", desc: "Where a recovery or invite link ends: `<AuthLayout>` around `<SetPasswordForm>`, which reads the tokens the link carries and calls `setPassword` on the auth provider. Mount it at its static `path` of `/set-password`. With a token missing the form keeps its message on screen with a Back to login link and does not redirect. `children` replaces the form, and other props go to the `<div>`.", importFrom: "@chelone/react/supabase" },
+  { slug: "social-auth-button", section: "supabase", component: "SocialAuthButton", registry: "social-auth-button", title: "SocialAuthButton", desc: "A button that starts an OAuth sign-in: a click calls `login` on the auth provider with `provider` and a `redirect`, which the Supabase provider turns into `signInWithOAuth`. `redirect` defaults to the current URL, `children` replaces the label, and a failed sign-in shows an error notification. Each provider has a ready-made button (`GithubButton`, ...) with its icon and a translated label.", importFrom: "@chelone/react/supabase" },
+
+  // ── page-components (the CsvImport add-on, from the csv-import entry) ──────
+  // A piece you put inside a <List>, so it sits under Page Components and links
+  // back to that section's Data Import guide rather than a section guide.
+  { slug: "csv-import", section: "page-components", component: "CsvImport", registry: "csv-import", title: "CsvImport", desc: "An Import button that opens a four-step dialog: upload a `.csv` file, map its columns to the resource's fields, preview the rows as the `schema` returns them, and create them in batches of `batchSize` with `create` on the data provider. `fields` and `requiredFields` override the schema's keys, `mapping` replaces the automatic header match, and `transform` reshapes a row before the schema sees it. It creates into the ambient resource, so inside `<List>` it needs no `resource`. `children` renders inside the import context, where `useCsvImport()` reads the wizard's state.", importFrom: "@chelone/react/csv-import", guide: "See the [data import guide](/docs/page-components/list/data-import) for `papaparse`, the four steps, the report and the Vue sheet." },
 ];
 
 /**
@@ -344,6 +367,8 @@ function propsTableOf(component) {
 const SECTION_GUIDE = {
   realtime: "See the [realtime guide](/docs/app-config/realtime) for provider setup and usage.",
   maps: "See the [maps guide](/docs/app-config/maps) for the subpaths, the optional packages and `MapsProvider`.",
+  supabase:
+    "See the [Supabase pages guide](/docs/app-config/supabase-pages) for mounting the pages, the recovery flow, the provider buttons and the Vue slots.",
 };
 
 /**
@@ -368,7 +393,15 @@ function mdxSafe(text) {
   return text.replace(/(?<!`)<([A-Za-z][\w.-]*)>/g, "`<$1>`");
 }
 
-function page({ component, registry, title, desc, importFrom, section }) {
+function page({
+  component,
+  registry,
+  title,
+  desc,
+  importFrom,
+  guide: stubGuide,
+  section,
+}) {
   const propsTable = propsTableOf(component);
   const hasProps = existsSync(resolve(PROPS, `${propsTable.name}.json`));
   const fm = ["---", `title: "${title}"`, `description: "${desc.replace(/`/g, "").replace(/"/g, '\\"')}"`];
@@ -376,11 +409,18 @@ function page({ component, registry, title, desc, importFrom, section }) {
   fm.push("---");
 
   const parts = [fm.join("\n"), MARKER, "", mdxSafe(desc)];
-  // `mdx-page.tsx` renders the install block from `registry` frontmatter.
-  if (!registry)
-    parts.push("", "## Installation", "", importBlock(component, importFrom));
+  // `mdx-page.tsx` renders the install block from `registry` frontmatter, so a
+  // registry-backed page names its import under `## Import` instead, which is
+  // the one thing the install block cannot say for an add-on entry.
+  if (!registry || importFrom)
+    parts.push(
+      "",
+      registry ? "## Import" : "## Installation",
+      "",
+      importBlock(component, importFrom),
+    );
 
-  const guide = SECTION_GUIDE[section];
+  const guide = stubGuide ?? SECTION_GUIDE[section];
   if (guide) parts.push("", guide);
 
   parts.push("", "## Props", "");
