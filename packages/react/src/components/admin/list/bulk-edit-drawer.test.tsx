@@ -14,6 +14,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -116,10 +117,10 @@ async function selectRows(...positions: number[]) {
 
 const findTrigger = () =>
   waitFor(() => {
-    const trigger = document.querySelector<HTMLButtonElement>(
-      "[data-bulk-edit-trigger]",
-    );
-    if (!trigger) throw new Error("trigger not rendered");
+    const trigger = document.querySelector("[data-bulk-edit-trigger]");
+    if (!(trigger instanceof HTMLButtonElement)) {
+      throw new Error("trigger not rendered");
+    }
     return trigger;
   });
 
@@ -225,9 +226,9 @@ describe("<BulkEditDrawer>", () => {
       ),
     );
     expect(screen.getByRole("dialog")).toBeTruthy();
-    expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
-      "Typed",
-    );
+    expect(
+      elementOf(screen.getByLabelText(/title/i), HTMLInputElement).value,
+    ).toBe("Typed");
     expect(onSuccess).not.toHaveBeenCalled();
     // Selection survives so the user can retry.
     expect((await findTrigger()).disabled).toBe(false);
@@ -249,9 +250,10 @@ describe("<BulkEditDrawer>", () => {
     fireEvent.change(await screen.findByLabelText(/title/i), {
       target: { value: "Slow" },
     });
-    const apply = screen.getByRole("button", {
-      name: /^apply/i,
-    }) as HTMLButtonElement;
+    const apply = elementOf(
+      screen.getByRole("button", { name: /^apply/i }),
+      HTMLButtonElement,
+    );
     fireEvent.click(apply);
 
     await waitFor(() => expect(apply.disabled).toBe(true));
@@ -272,7 +274,7 @@ describe("<BulkEditDrawer>", () => {
 
     fireEvent.click(await findTrigger());
     const reopened = await screen.findByLabelText(/title/i);
-    expect((reopened as HTMLInputElement).value).toBe("");
+    expect(elementOf(reopened, HTMLInputElement).value).toBe("");
   });
 
   it("escape resets the form like cancel", async () => {
@@ -289,7 +291,7 @@ describe("<BulkEditDrawer>", () => {
 
     fireEvent.click(await findTrigger());
     const reopened = await screen.findByLabelText(/title/i);
-    expect((reopened as HTMLInputElement).value).toBe("");
+    expect(elementOf(reopened, HTMLInputElement).value).toBe("");
     // The discarded edit is not sent either.
     fireEvent.click(screen.getByRole("button", { name: /^apply/i }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
@@ -362,9 +364,9 @@ describe("<BulkEditDrawer>", () => {
     );
     expect(updateMany).not.toHaveBeenCalled();
     // The sheet stays open with the typed value, and the selection survives.
-    expect((screen.getByLabelText(/city/i) as HTMLInputElement).value).toBe(
-      "Lyon",
-    );
+    expect(
+      elementOf(screen.getByLabelText(/city/i), HTMLInputElement).value,
+    ).toBe("Lyon");
     expect((await findTrigger()).disabled).toBe(false);
   });
 });
