@@ -15,6 +15,13 @@ const vueKanbanEntry = read("../../../packages/vue/src/kanban.ts");
 // The charts ship from the `/charts` subpath for the same reason.
 const vueChartsEntry = read("../../../packages/vue/src/charts.ts");
 
+/** The one table row holding `needle`, so a claim can be pinned to its row. */
+function rowContaining(needle: string): string {
+  const row = page.split("\n").find((line) => line.includes(needle));
+  if (!row) throw new Error(`no differences row holding ${needle}`);
+  return row;
+}
+
 it("the differences page names registry, customRoutes, the error slot scope and the default layout", () => {
   expect(page).toMatch(/^title: "Differences from React"$/m);
   expect(page).toContain("`registry`");
@@ -100,6 +107,15 @@ it("the differences page names the chart props Vue treats differently and the cr
   ]) {
     expect(page, `${slug} row`).toContain(`](/docs/ui-layout/${slug})`);
   }
+});
+
+it("the differences page gives the crosshair to the two series charts and not to the donut", () => {
+  const crosshair = rowContaining("unovis' crosshair");
+  expect(crosshair).toContain("`<TrendChart>` and `<BarChart>`");
+  expect(crosshair).not.toContain("<DonutChart>");
+  const donut = rowContaining("It has no crosshair");
+  expect(donut).toContain("`Donut.selectors.segment`");
+  expect(donut).toContain("](/docs/ui-layout/donut-chart)");
 });
 
 it("the differences page says the charts are an add-on and MetricCard is not", () => {
