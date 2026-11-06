@@ -48,6 +48,7 @@ const ADDONS = [
       "@tiptap/vue-3",
       "@tiptap/starter-kit",
       "@tiptap/extensions",
+      "@tiptap/extension-image",
       "dompurify",
     ],
   },

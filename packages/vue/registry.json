@@ -6663,6 +6663,7 @@
         "@chelone/core",
         "@chelone/vue",
         "@tiptap/core",
+        "@tiptap/extension-image",
         "@tiptap/extensions",
         "@tiptap/pm",
         "@tiptap/starter-kit",
@@ -6680,6 +6681,18 @@
         },
         {
           "path": "src/components/rich-text-input/rich-text-icons.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-image-form.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-image-view.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-image.ts",
           "type": "registry:component"
         },
         {
@@ -6745,6 +6758,54 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "rich-text-image-form",
+      "type": "registry:component",
+      "title": "Rich Text Image Form",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-image-form.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/input"],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-image-view",
+      "type": "registry:component",
+      "title": "Rich Text Image View",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-image-view.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@tiptap/vue-3"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-image",
+      "type": "registry:component",
+      "title": "Rich Text Image",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-image.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/rich-text-image-view"],
+      "dependencies": [
+        "@chelone/core",
+        "@tiptap/extension-image",
+        "@tiptap/vue-3"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "rich-text-input-editor",
       "type": "registry:component",
       "title": "Rich Text Input Editor",
@@ -6758,6 +6819,7 @@
         "@chelone/field",
         "@chelone/field-label-text",
         "@chelone/input-helper-text",
+        "@chelone/rich-text-image",
         "@chelone/rich-text-toolbar",
         "@chelone/rich-text.css",
         "@chelone/source-input-props",
@@ -6805,6 +6867,7 @@
         "@chelone/lib-utils",
         "@chelone/rich-text-commands",
         "@chelone/rich-text-icons",
+        "@chelone/rich-text-image-form",
         "@chelone/rich-text-link-form"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue", "@tiptap/core"],

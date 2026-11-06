@@ -1032,6 +1032,21 @@ export {
   richTextStyledSanitizeOptions,
   sanitizeRichTextStyle,
 } from "./rich-text/rich-text-extras";
+export {
+  canBeDataUrl,
+  copyImage,
+  downloadImage,
+  type RichTextImageConfig,
+  type RichTextImageError,
+  type RichTextImageInput,
+  type RichTextImageOptions,
+  type RichTextUploadResult,
+  resolveRichTextImageConfig,
+  type Stored,
+  setUploading,
+  storeFile,
+  uploadStateOf,
+} from "./rich-text/rich-text-image";
 export type {
   CheloneLocation,
   LocationState,

@@ -4,6 +4,7 @@ export {
   default as RichTextField,
   type RichTextFieldProps,
 } from "./components/rich-text-input/rich-text-field.vue";
+export type { RichTextImageOptions } from "./components/rich-text-input/rich-text-image";
 export {
   default as RichTextInput,
   type RichTextInputProps,

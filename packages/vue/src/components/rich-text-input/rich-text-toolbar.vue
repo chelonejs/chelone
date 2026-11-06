@@ -44,6 +44,7 @@ import {
   setBlockType,
 } from "./rich-text-commands";
 import { richTextIcons } from "./rich-text-icons";
+import RichTextImageForm from "./rich-text-image-form.vue";
 import RichTextLinkForm from "./rich-text-link-form.vue";
 
 const props = defineProps<RichTextToolbarProps>();
@@ -51,6 +52,8 @@ const props = defineProps<RichTextToolbarProps>();
 const translate = useTranslate();
 const state = shallowRef(readToolbarState(props.editor));
 const linkOpen = shallowRef(false);
+const imageOpen = shallowRef(false);
+const hasImages = computed(() => props.editor.extensionManager.extensions.some((extension) => extension.name === "image"));
 
 // tiptap's own `editor.state` ref updates two frames late, so the toolbar reads
 // the editor itself after each transaction. `setEditable` and a new
@@ -148,7 +151,9 @@ function onBlockType(event: Event) {
           <component :is="richTextIcons[item.id]" />
         </Button>
       </div>
+      <Button v-if="hasImages" variant="ghost" size="icon" :aria-label="translate('chelone.rich_text.image', { _: 'Image' })" :aria-expanded="imageOpen" :disabled="!state.editable" @mousedown.prevent @click="imageOpen = !imageOpen">▧</Button>
     </div>
+    <RichTextImageForm v-if="imageOpen" :editor="editor" @close="imageOpen = false" />
     <RichTextLinkForm
       v-if="linkOpen"
       :editor="editor"
