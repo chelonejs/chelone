@@ -7,6 +7,7 @@
 import { cleanup, render, renderHook, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { makeListContext } from "../__fixtures__/list-context";
 import { ListContextProvider, type ListContextValue } from "../form";
 import {
   useListFilterContext,
@@ -19,7 +20,7 @@ afterEach(cleanup);
 
 /** Minimal list context value with jest-fn actions for call assertions. */
 function makeList(overrides: Partial<ListContextValue> = {}): ListContextValue {
-  return {
+  return makeListContext({
     page: 2,
     perPage: 25,
     sort: [{ field: "title", order: "ASC" }],
@@ -46,7 +47,7 @@ function makeList(overrides: Partial<ListContextValue> = {}): ListContextValue {
     selectAll: vi.fn(),
     refetch: vi.fn(),
     ...overrides,
-  } as ListContextValue;
+  });
 }
 
 function wrapper(value: ListContextValue) {
