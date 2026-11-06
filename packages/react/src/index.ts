@@ -767,6 +767,10 @@ export {
   UserMenu,
   type UserMenuProps,
 } from "./components/admin/layout/user-menu";
+export {
+  ApprovalQueue,
+  type ApprovalQueueProps,
+} from "./components/admin/list/approval-queue";
 // P7e component surface — list / datatable + list controls (ported from shadmin
 // onto the single `useListContext` + the list-slice hooks below). The datatable
 // is rewritten off `useListContext` directly (chelone has no `DataTableBase` /

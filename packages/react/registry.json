@@ -1155,6 +1155,7 @@
         "@chelone/field",
         "@chelone/input",
         "@chelone/kbd",
+        "@chelone/label",
         "@chelone/pagination",
         "@chelone/popover",
         "@chelone/primitives",
@@ -1803,6 +1804,10 @@
         },
         {
           "path": "src/components/admin/layout/user-menu.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/approval-queue.tsx",
           "type": "registry:component"
         },
         {
@@ -4925,6 +4930,29 @@
       ],
       "dependencies": ["@chelone/react"],
       "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "approval-queue",
+      "type": "registry:component",
+      "title": "Approval Queue",
+      "files": [
+        {
+          "path": "src/components/admin/list/approval-queue.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/dual-approval-button",
+        "@chelone/label",
+        "@chelone/lib-utils",
+        "@chelone/textarea",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
