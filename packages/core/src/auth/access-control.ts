@@ -1,10 +1,14 @@
+import type { ResourceRecord } from "../resource/record";
 import type { CanAccessParams } from "./types";
 
-/** One grant. `record` predicate (when present) must pass against a provided record. */
-export interface Permission {
+/**
+ * One grant. `record` predicate (when present) must pass against a provided
+ * record, and reads it as `TRecord` — the same record shape the check is given.
+ */
+export interface Permission<TRecord extends ResourceRecord = ResourceRecord> {
   action: string | string[];
   resource: string;
-  record?: (record: unknown) => boolean;
+  record?: (record: TRecord) => boolean;
 }
 
 function matchesAction(granted: string | string[], action: string): boolean {
@@ -18,10 +22,16 @@ function matchesResource(granted: string, resource: string): boolean {
   return granted === resource;
 }
 
-/** Deny-by-default permission matcher (OR across permissions). */
-export function canAccessWithPermissions(
-  permissions: Permission[],
-  params: CanAccessParams,
+/**
+ * Deny-by-default permission matcher (OR across permissions). `TRecord` is fixed
+ * by the permissions and the params together, so a grant's predicate and the
+ * record it reads are the same type.
+ */
+export function canAccessWithPermissions<
+  TRecord extends ResourceRecord = ResourceRecord,
+>(
+  permissions: Permission<TRecord>[],
+  params: CanAccessParams<TRecord>,
 ): boolean {
   return permissions.some((permission) => {
     if (!matchesAction(permission.action, params.action)) return false;
