@@ -161,6 +161,24 @@ export const blocks = [
     ],
   },
   {
+    name: "rich-text-input",
+    type: "registry:block",
+    title: "Chelone Rich Text",
+    categories: ["chelone", "fields"],
+    description:
+      "The opt-in rich text add-on: RichTextField shows stored HTML sanitized with DOMPurify, or its text with stripTags, and RichTextInput edits an HTML string in a tiptap editor with a formatting toolbar. Installs dompurify and the tiptap packages.",
+    docs: "The field styles its content with rich-text.css, which the component imports itself and which reads the Chelone color tokens.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [
+      {
+        path: "src/components/rich-text-input",
+        recursive: true,
+        cssExtensions: true,
+      },
+    ],
+  },
+  {
     name: "maps",
     type: "registry:block",
     title: "Chelone Maps",
@@ -264,6 +282,8 @@ export const engine = {
     "components/admin/feedback/icons": "feedback-icons",
     "components/admin/guessers/icons": "guesser-icons",
     "components/ui/spinner": "ui-spinner",
+    // Its basename is the rich-text-input block's name, which the block keeps.
+    "components/rich-text-input/rich-text-input": "rich-text-input-editor",
   },
 };
 
