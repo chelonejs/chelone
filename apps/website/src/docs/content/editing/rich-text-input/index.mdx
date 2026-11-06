@@ -159,7 +159,10 @@ optional peers.
 Both adapters use tiptap and store the same HTML strings. The changed surface:
 
 - React's `toolbar` prop becomes the Vue `#toolbar` slot, which receives
-  `{ editor }`. An empty slot hides the toolbar.
+  `{ editor }`. Vue shows a slot's fallback content when the slot renders
+  nothing, so an empty `#toolbar` template keeps the default toolbar: there is
+  no Vue equivalent of `toolbar={null}`. To drop the buttons, render an element,
+  `<template #toolbar><span /></template>`.
 - React's `<RichTextToolbar>` reads the editor context supplied by the input.
   Vue's `<RichTextToolbar>` takes an `editor` prop.
 - Vue has no `colors` or `codeHighlight` prop: its editor has no color
