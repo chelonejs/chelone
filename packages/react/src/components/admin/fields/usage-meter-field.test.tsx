@@ -2,7 +2,13 @@
  * P7d-T2 tests: `<UsageMeterField>` — used/limit → progress bar with thresholds.
  */
 
-import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  defineMessages,
+  fakeDataProvider,
+  type LooseRecord,
+} from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -13,7 +19,7 @@ import { UsageMeterField } from "./usage-meter-field";
 
 afterEach(cleanup);
 
-function wrap(record: unknown) {
+function wrap(record: LooseRecord) {
   const i18n = createI18n({
     locale: "en",
     messages: { en: defineMessages({}) },
@@ -24,9 +30,7 @@ function wrap(record: unknown) {
       queryClient={new QueryClient()}
       i18n={i18n}
     >
-      <RecordContextProvider value={record as Record<string, unknown>}>
-        {children}
-      </RecordContextProvider>
+      <RecordContextProvider value={record}>{children}</RecordContextProvider>
     </CheloneProvider>
   );
 }
@@ -38,7 +42,10 @@ describe("<UsageMeterField />", () => {
       { wrapper: wrap({ id: 1, used: 45, limit: 100 }) },
     );
     expect(getByText("45 / 100 GB")).toBeTruthy();
-    const bar = container.querySelector("[data-usage-meter]") as HTMLElement;
+    const bar = elementOf(
+      container.querySelector("[data-usage-meter]"),
+      HTMLElement,
+    );
     expect(bar.getAttribute("data-state")).toBe("ok");
   });
 
@@ -47,7 +54,10 @@ describe("<UsageMeterField />", () => {
       <UsageMeterField source="used" limitSource="limit" />,
       { wrapper: wrap({ id: 1, used: 85, limit: 100 }) },
     );
-    const bar = container.querySelector("[data-usage-meter]") as HTMLElement;
+    const bar = elementOf(
+      container.querySelector("[data-usage-meter]"),
+      HTMLElement,
+    );
     expect(bar.getAttribute("data-state")).toBe("warning");
   });
 
@@ -56,7 +66,10 @@ describe("<UsageMeterField />", () => {
       <UsageMeterField source="used" limitSource="limit" />,
       { wrapper: wrap({ id: 1, used: 100, limit: 100 }) },
     );
-    const bar = container.querySelector("[data-usage-meter]") as HTMLElement;
+    const bar = elementOf(
+      container.querySelector("[data-usage-meter]"),
+      HTMLElement,
+    );
     expect(bar.getAttribute("data-state")).toBe("critical");
   });
 
@@ -69,7 +82,10 @@ describe("<UsageMeterField />", () => {
       />,
       { wrapper: wrap({ id: 1, used: 60, limit: 100 }) },
     );
-    const bar = container.querySelector("[data-usage-meter]") as HTMLElement;
+    const bar = elementOf(
+      container.querySelector("[data-usage-meter]"),
+      HTMLElement,
+    );
     expect(bar.getAttribute("data-state")).toBe("warning");
   });
 

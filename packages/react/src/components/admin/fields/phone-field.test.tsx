@@ -2,7 +2,13 @@
  * P7d-T2 tests: `<PhoneField>` — E.164 phone → formatted label / tel: link.
  */
 
-import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  defineMessages,
+  fakeDataProvider,
+  type LooseRecord,
+} from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -13,7 +19,7 @@ import { PhoneField } from "./phone-field";
 
 afterEach(cleanup);
 
-function wrap(record: unknown) {
+function wrap(record: LooseRecord) {
   const i18n = createI18n({
     locale: "en",
     messages: { en: defineMessages({ "myapp.empty": "—" }) },
@@ -24,9 +30,7 @@ function wrap(record: unknown) {
       queryClient={new QueryClient()}
       i18n={i18n}
     >
-      <RecordContextProvider value={record as Record<string, unknown>}>
-        {children}
-      </RecordContextProvider>
+      <RecordContextProvider value={record}>{children}</RecordContextProvider>
     </CheloneProvider>
   );
 }
@@ -36,7 +40,7 @@ describe("<PhoneField />", () => {
     const { container, getByText } = render(<PhoneField source="phone" />, {
       wrapper: wrap({ id: 1, phone: "+14155552671" }),
     });
-    const link = container.querySelector("a") as HTMLAnchorElement;
+    const link = elementOf(container.querySelector("a"), HTMLAnchorElement);
     expect(link.getAttribute("href")).toBe("tel:+14155552671");
     expect(getByText(/415.*555.*2671/)).toBeTruthy();
   });
