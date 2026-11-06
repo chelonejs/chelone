@@ -64,6 +64,12 @@ export { default as EditButton } from "./admin/buttons/edit-button.vue";
 export type { ExportButtonProps } from "./admin/buttons/export-button.vue";
 export { default as ExportButton } from "./admin/buttons/export-button.vue";
 export type {
+  FieldsSelectorListProps,
+  FieldsSelectorProps,
+  FieldsSelectorRowProps,
+} from "./admin/buttons/fields-selector.vue";
+export { default as FieldsSelector } from "./admin/buttons/fields-selector.vue";
+export type {
   FilterButtonEntry,
   FilterButtonProps,
 } from "./admin/buttons/filter-button.vue";

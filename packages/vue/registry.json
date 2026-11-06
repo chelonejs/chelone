@@ -758,6 +758,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/fields-selector.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/filter-button.vue",
           "type": "registry:component"
         },
@@ -2029,8 +2033,7 @@
         "@chelone/button",
         "@chelone/button-icons",
         "@chelone/dropdown-menu",
-        "@chelone/input",
-        "@chelone/switch"
+        "@chelone/fields-selector"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "buttons"],
@@ -2124,6 +2127,26 @@
       "registryDependencies": ["@chelone/button", "@chelone/button-icons"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "fields-selector",
+      "type": "registry:component",
+      "title": "Fields Selector",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/fields-selector.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/input",
+        "@chelone/switch"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
