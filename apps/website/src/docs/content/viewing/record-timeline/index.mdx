@@ -1,0 +1,12 @@
+---
+title: "RecordTimeline"
+description: "The records of the ambient <List> as a dated activity list, one entry per record in list order. The timeline fetches nothing: put it inside a <ReferenceManyField> or a <List>, whose sort sets the order. Each entry shows the messageSource text, an icon, and optionally the userSource and the time. The time is relative (\"2 hours ago\"), from Intl.RelativeTimeFormat, with the full date in the tooltip and the ISO date in dateTime; an entry with no valid date leaves it out. iconSource picks an icon from icons, and an entry with no match shows a clock. It is computed at render and does not tick while the page stays open."
+registry: "record-timeline"
+---
+{/* generated:gen-component-stubs */}
+
+The records of the ambient `<List>` as a dated activity list, one entry per record in list order. The timeline fetches nothing: put it inside a `<ReferenceManyField>` or a `<List>`, whose sort sets the order. Each entry shows the `messageSource` text, an icon, and optionally the `userSource` and the time. The time is relative ("2 hours ago"), from `Intl.RelativeTimeFormat`, with the full date in the tooltip and the ISO date in `dateTime`; an entry with no valid date leaves it out. `iconSource` picks an icon from `icons`, and an entry with no match shows a clock. It is computed at render and does not tick while the page stays open.
+
+## Props
+
+<PropsTable name="RecordTimeline" />

@@ -80,6 +80,7 @@ import type {
   PresenceBarProps,
   PrevNextButtonsProps,
   RecordRepresentation,
+  RecordTimelineProps,
   ReferenceFieldProps,
   ReferenceInputProps,
   RefreshIconButtonProps,
@@ -261,6 +262,12 @@ describe("@chelone/vue public exports", () => {
 
   it("PivotGrid ships beside its props", () => {
     expectTypeOf(barrel.PivotGrid).not.toBeAny();
+  });
+
+  it("RecordTimeline ships beside its props", () => {
+    expectTypeOf(barrel.RecordTimeline).not.toBeAny();
+    expectTypeOf<RecordTimelineProps>().toHaveProperty("messageSource");
+    expectTypeOf<RecordTimelineProps>().toHaveProperty("timestampSource");
   });
 
   it("TreeList ships beside its props", () => {
