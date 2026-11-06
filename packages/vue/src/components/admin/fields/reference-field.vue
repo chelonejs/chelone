@@ -38,7 +38,7 @@ export interface ReferenceFieldProps {
  * `<DataTable>` row click does not also fire.
  */
 
-import type { Identifier, LooseRecord } from "@chelone/core";
+import { isIdentifier, type LooseRecord } from "@chelone/core";
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useGetManyAggregate } from "../../../data/queries";
@@ -54,7 +54,8 @@ const props = withDefaults(defineProps<ReferenceFieldProps>(), {
 });
 
 const fk = useFieldValue({ source: props.source, record: props.record });
-const id = computed(() => fk.value as Identifier | null | undefined);
+// The FK read: only a string or number counts as an id.
+const id = computed(() => (isIdentifier(fk.value) ? fk.value : undefined));
 
 const query = useGetManyAggregate(
   props.reference,
@@ -62,9 +63,7 @@ const query = useGetManyAggregate(
   { enabled: () => id.value != null },
 );
 
-const referenceRecord = computed(
-  () => query.data.value?.[0] as LooseRecord | undefined,
-);
+const referenceRecord = computed(() => query.data.value?.[0]);
 
 // Publish the referenced record so a default-slot child field reads it.
 provideRecordContext(referenceRecord);

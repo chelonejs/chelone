@@ -1,10 +1,9 @@
-import type {
-  FilterPayload,
-  Identifier,
-  LooseRecord,
-  ResourceRecord,
-  SortPayload,
-  SourceProp,
+import {
+  type FilterPayload,
+  identifiersOf,
+  type LooseRecord,
+  type SortPayload,
+  type SourceProp,
 } from "@chelone/core";
 import type { ReactNode } from "react";
 import { ListContextProvider } from "../../../form";
@@ -31,8 +30,6 @@ interface ReferenceArrayFieldProps<
   /** Client-side page size for the resolved list. */
   perPage?: number;
 }
-
-const emptyIds: Identifier[] = [];
 
 /**
  * Displays multiple related records by following an array of foreign keys.
@@ -69,11 +66,10 @@ function ReferenceArrayField<RecordType extends LooseRecord = LooseRecord>(
 ) {
   const { source, reference, record, children, sort, filter, perPage } = props;
 
-  const value = useFieldValue({
-    source: source as SourceProp<RecordType>,
-    record,
-  });
-  const ids = (Array.isArray(value) ? value : emptyIds) as Identifier[];
+  // The FK array read. A partially valid array (a nullable int[] reads as
+  // `[1, null, 2]`) keeps the ids it has, as it did before the guard.
+  const value = useFieldValue({ source, record });
+  const ids = identifiersOf(value);
 
   const { data, isPending, isFetching, error } = useGetManyAggregate(
     reference,
@@ -82,9 +78,7 @@ function ReferenceArrayField<RecordType extends LooseRecord = LooseRecord>(
   );
 
   const listContext = useList({
-    data: (ids.length > 0 ? (data ?? undefined) : []) as
-      | ResourceRecord[]
-      | undefined,
+    data: ids.length > 0 ? (data ?? undefined) : [],
     // Only "pending" while a non-empty fetch is in flight; an empty FK array
     // resolves to an empty list synchronously.
     isPending: ids.length > 0 ? isPending : false,

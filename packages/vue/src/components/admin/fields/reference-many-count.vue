@@ -36,7 +36,7 @@ export interface ReferenceManyCountProps {
  * renders as `0`. No `link` prop and no number formatting.
  */
 
-import type { Identifier } from "@chelone/core";
+import { isIdentifier } from "@chelone/core";
 import { computed } from "vue";
 import { useGetManyReference } from "../../../data/queries";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -52,7 +52,9 @@ const fieldValue = useFieldValue({
     return props.record;
   },
 });
-const id = computed(() => fieldValue.value as Identifier | null | undefined);
+const id = computed(() =>
+  isIdentifier(fieldValue.value) ? fieldValue.value : undefined,
+);
 
 const query = useGetManyReference(
   props.reference,

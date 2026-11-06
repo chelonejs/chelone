@@ -415,6 +415,29 @@ describe("ReferenceArrayField", () => {
     );
     expect(w.findAll("li")).toHaveLength(0);
   });
+
+  it("keeps the valid ids of a partially valid FK array", async () => {
+    const w = mountAdmin(() =>
+      h(
+        defineComponent({
+          setup() {
+            provideRecordContext({ id: 10, tag_ids: [1, null, 2] });
+            return () =>
+              h(
+                ReferenceArrayField,
+                { source: "tag_ids", reference: "tags" },
+                { default: () => h(RowConsumer, { textKey: "name" }) },
+              );
+          },
+        }),
+      ),
+    );
+    await vi.waitFor(() => {
+      expect(w.text()).toContain("Tech");
+      expect(w.text()).toContain("News");
+    });
+    expect(w.text()).not.toContain("Lifestyle");
+  });
 });
 
 describe("ReferenceManyField", () => {
