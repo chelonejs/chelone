@@ -1,8 +1,10 @@
 import {
   type BlockDocNode,
   createI18n,
+  type DataProvider,
   defineMessages,
   fakeDataProvider,
+  type ResourceDefinition,
 } from "@chelone/core";
 import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
@@ -51,7 +53,15 @@ export interface FormValues {
 
 const messages = defineMessages({ "chelone.validation.required": "Required" });
 
-export function mountUnderAdmin(child: () => VNodeChild) {
+export interface AdminOptions {
+  dataProvider?: DataProvider;
+  resources?: ResourceDefinition[];
+}
+
+export function mountUnderAdmin(
+  child: () => VNodeChild,
+  { dataProvider = fakeDataProvider({}), resources }: AdminOptions = {},
+) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [{ path: "/", component: { render: () => null } }],
@@ -62,8 +72,11 @@ export function mountUnderAdmin(child: () => VNodeChild) {
         h(
           Admin,
           {
-            dataProvider: fakeDataProvider({}),
-            queryClient: new QueryClient(),
+            dataProvider,
+            resources,
+            queryClient: new QueryClient({
+              defaultOptions: { queries: { retry: false } },
+            }),
             i18n: createI18n({ locale: "en", messages: { en: messages } }),
           },
           { default: child },
@@ -85,21 +98,23 @@ export function editorOf(element: Element): Editor {
 
 export async function mountBlockEditor(
   props: Partial<BlockEditorInputProps> = {},
-  { body = null }: { body?: object | null } = {},
+  { body = null, ...admin }: { body?: object | null } & AdminOptions = {},
 ) {
   const captured: { form?: UseFormReturn<FormValues> } = {};
   const onSubmit: Mock<(data: FormValues) => Promise<undefined>> = vi.fn(
     async () => undefined,
   );
-  const wrapper = mountUnderAdmin(() =>
-    h(
-      defineComponent({
-        setup() {
-          captured.form = useForm<FormValues>({ record: { body }, onSubmit });
-          return () => h(BlockEditorInput, { source: "body", ...props });
-        },
-      }),
-    ),
+  const wrapper = mountUnderAdmin(
+    () =>
+      h(
+        defineComponent({
+          setup() {
+            captured.form = useForm<FormValues>({ record: { body }, onSubmit });
+            return () => h(BlockEditorInput, { source: "body", ...props });
+          },
+        }),
+      ),
+    admin,
   );
   await vi.waitFor(() =>
     expect(wrapper.find('[role="textbox"]').exists()).toBe(true),

@@ -7,7 +7,7 @@
 
 import { type FunctionalComponent, h } from "vue";
 
-type Tag = "path" | "line" | "rect" | "circle";
+type Tag = "path" | "line" | "rect" | "circle" | "ellipse";
 type Shape = readonly [tag: Tag, attrs: Record<string, string | number>];
 
 const stroke = { fill: "none", stroke: "currentColor" };
@@ -65,6 +65,19 @@ export const VideoIcon = glyph(
     "m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5",
   ),
   ["rect", { x: 2, y: 6, width: 14, height: 12, rx: 2 }],
+);
+
+export const DatabaseIcon = glyph(
+  ["ellipse", { cx: 12, cy: 5, rx: 9, ry: 3 }],
+  path("M3 5V19A9 3 0 0 0 21 19V5"),
+  path("M3 12A9 3 0 0 0 21 12"),
+);
+
+export const TableIcon = glyph(
+  path("M12 3v18"),
+  ["rect", { width: 18, height: 18, x: 3, y: 3, rx: 2 }],
+  path("M3 9h18"),
+  path("M3 15h18"),
 );
 
 export const ChevronRightIcon = glyph(path("m9 18 6-6-6-6"));

@@ -77,6 +77,7 @@ export {
   dataBlockNames,
   formatDataBlockValue,
   pickDataBlockFields,
+  readDataBlockValue,
   recordListBlockSpec,
   referenceRecordBlockSpec,
 } from "./block-editor/data-blocks";
