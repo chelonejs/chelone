@@ -745,6 +745,10 @@ export {
   type DashboardMenuItemProps,
 } from "./components/admin/layout/dashboard-menu-item";
 export {
+  DataProviderDevtools,
+  type DataProviderDevtoolsProps,
+} from "./components/admin/layout/data-provider-devtools";
+export {
   HideOnScroll,
   type HideOnScrollProps,
 } from "./components/admin/layout/hide-on-scroll";
