@@ -116,6 +116,19 @@ describe("<ImageField>", () => {
     expect(imgs.map((img) => img.getAttribute("title"))).toEqual(["A", "B"]);
   });
 
+  it("leaves the src off an array item whose src path misses", () => {
+    const { container } = render(
+      <Providers>
+        <RecordContextProvider value={{ id: 1, pics: [{ alt: "x" }] }}>
+          <ImageField source="pics" src="url" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    const imgs = Array.from(container.querySelectorAll("img"));
+    expect(imgs).toHaveLength(1);
+    expect(imgs[0]?.getAttribute("src")).toBeNull();
+  });
+
   it("renders nothing when the value is null and no empty prop", () => {
     const { container } = render(
       <Providers>

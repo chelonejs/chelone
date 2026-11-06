@@ -39,7 +39,6 @@ export interface CommandMenuProps {
 
 import {
   createCommandRegistry,
-  type HotkeyTarget,
   shouldHandleHotkey,
 } from "@chelone/core";
 import {
@@ -123,10 +122,8 @@ provide(CommandMenuKey, context);
 // Reads `props.hotkey` on each key, so a changed hotkey applies at once.
 function onKeydown(event: KeyboardEvent): void {
   if (props.hotkey === false) return;
-  if (
-    !shouldHandleHotkey(event, props.hotkey, event.target as HotkeyTarget | null)
-  )
-    return;
+  const target = event.target instanceof HTMLElement ? event.target : null;
+  if (!shouldHandleHotkey(event, props.hotkey, target)) return;
   event.preventDefault();
   toggle();
 }

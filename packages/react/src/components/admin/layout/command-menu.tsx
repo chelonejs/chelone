@@ -202,7 +202,7 @@ function CommandMenu({
   // The listener reads the newest `hotkey` without rebinding on each render.
   const onKeyDown = useEvent((event: KeyboardEvent) => {
     if (!hotkey) return;
-    const target = event.target as HTMLElement | null;
+    const target = event.target instanceof HTMLElement ? event.target : null;
     if (hotkey.some((binding) => shouldHandleHotkey(event, binding, target))) {
       event.preventDefault();
       setOpen(!isOpen);
