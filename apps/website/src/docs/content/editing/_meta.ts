@@ -50,6 +50,7 @@ export default [
     category: "Rich & structured inputs",
     slugs: [
       "mdx-input",
+      "rich-text-input",
       "monaco-json-input",
       "file-input",
       "image-input",

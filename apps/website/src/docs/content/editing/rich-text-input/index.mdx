@@ -1,0 +1,166 @@
+---
+title: "RichTextInput"
+description: "Edits an HTML string in a tiptap editor with a formatting toolbar."
+registry: "rich-text-input"
+---
+
+`<RichTextInput>` edits an HTML string in a tiptap editor. It is an add-on for
+React and Vue. See [Installing the add-on](#installing-the-add-on).
+
+## When to use it
+
+Use it for formatted content stored as HTML, such as an article body or a help
+page. Choose [MdxInput](/docs/editing/mdx-input) when the stored value should be
+markdown. For a short plain-text value, use [TextInput](/docs/editing/text-input).
+To display the stored HTML, use [RichTextField](/docs/viewing/rich-text-field).
+
+## Example
+
+```tsx
+import { required } from "@chelone/core";
+import { Edit } from "@chelone/react";
+import { RichTextInput } from "@/components/rich-text-input/rich-text-input";
+
+export const PostEdit = () => (
+  <Edit>
+    <RichTextInput
+      source="body"
+      label="Body"
+      placeholder="Write an article..."
+      validate={required()}
+    />
+  </Edit>
+);
+```
+
+## Value contract
+
+- The value is an HTML string. Clearing the editor stores `""`, not `null` or
+  an empty paragraph tag. A value that is not a string reads as an empty editor.
+- The editor parses the HTML into its schema and serializes edits back to HTML.
+  It may normalize the markup. Loading a value does not mark the form dirty.
+- A form reset or `setValue` replaces the editor content without reporting a
+  user edit. `defaultValue` seeds a missing value and defaults to `""`.
+
+## Validation and read-only
+
+The usual `validate` prop runs on the HTML string, and errors appear under the
+editor. A `required()` validator sets the required marker. React also accepts
+`isRequired` to force the marker.
+
+Both `disabled` and `readOnly` prevent edits and disable the default toolbar.
+The stored content remains visible.
+
+## Toolbar
+
+The default `<RichTextToolbar>` offers paragraph and heading levels 1 to 6,
+bold, italic, underline, strikethrough, inline code, clear formatting, links,
+bullet and ordered lists, blockquotes, code blocks, horizontal rules, undo and
+redo. Link editing accepts safe URLs and rejects unsafe schemes.
+
+In React, `toolbar` replaces the default toolbar. Pass `toolbar={null}` to hide
+it, or include `<RichTextToolbar />` in a custom wrapper to keep its controls:
+
+```tsx
+import { RichTextInput } from "@/components/rich-text-input/rich-text-input";
+import { RichTextToolbar } from "@/components/rich-text-input/rich-text-toolbar";
+
+<RichTextInput
+  source="body"
+  toolbar={<RichTextToolbar className="p-2" />}
+/>;
+```
+
+`editorOptions` passes extra options to tiptap. Supplying `extensions` replaces
+the default extension set. Its `onUpdate` and `onBlur` callbacks run after the
+input has updated the form or recorded the blur.
+
+## Props
+
+<PropsTable name="RichTextInput" />
+
+## Installing the add-on
+
+The registry installs `<RichTextInput>`, `<RichTextToolbar>` and
+[`<RichTextField>`](/docs/viewing/rich-text-field), including their dependencies
+and stylesheet:
+
+```bash
+npx shadcn add @chelone/rich-text-input
+```
+
+For Vue, use `npx shadcn-vue add @chelone/rich-text-input` with the
+[Vue registry configuration](/docs/vue/setup). These pages' React examples
+import from the files the registry writes under
+`@/components/rich-text-input/`. There is no `index.ts` in that folder.
+
+For npm, import the `@chelone/react/rich-text-input` or
+`@chelone/vue/rich-text-input` subpath and install its optional peers yourself.
+Both need `@tiptap/core`, `@tiptap/pm`, `@tiptap/starter-kit`,
+`@tiptap/extensions` and `dompurify`. React also needs `@tiptap/react`:
+
+```bash
+pnpm add @tiptap/core @tiptap/pm @tiptap/starter-kit @tiptap/extensions @tiptap/react dompurify
+```
+
+```tsx
+import { RichTextField, RichTextInput, RichTextToolbar } from "@chelone/react/rich-text-input";
+import "@chelone/react/rich-text-input.css";
+```
+
+Vue uses `@tiptap/vue-3`:
+
+```bash
+pnpm add @tiptap/core @tiptap/pm @tiptap/starter-kit @tiptap/extensions @tiptap/vue-3 dompurify
+```
+
+```ts
+import { RichTextField, RichTextInput, RichTextToolbar } from "@chelone/vue/rich-text-input";
+import "@chelone/vue/rich-text-input.css";
+```
+
+Import the stylesheet once in your entry file, including when you only use the
+field. The main `@chelone/react` and `@chelone/vue` entries never import these
+optional peers.
+
+## React and Vue
+
+Both adapters use tiptap and store the same HTML strings. The changed surface:
+
+- React's `toolbar` prop becomes the Vue `#toolbar` slot, which receives
+  `{ editor }`. An empty slot hides the toolbar.
+- React's `<RichTextToolbar>` reads the editor context supplied by the input.
+  Vue's `<RichTextToolbar>` takes an `editor` prop.
+- Vue uses `class` for React's `className`. Its `label` is a string or `false`,
+  and `helper-text` is a string or `false`. It has no `id`, `resource`,
+  `isRequired`, `format`, `parse`, `alwaysOn`, `onChange` or `onBlur` prop.
+
+For example, using the Vue npm subpath:
+
+```vue
+<script setup lang="ts">
+import { RichTextInput, RichTextToolbar } from "@chelone/vue/rich-text-input";
+</script>
+
+<template>
+  <RichTextInput source="body">
+    <template #toolbar="{ editor }">
+      <RichTextToolbar :editor="editor" class="p-2" />
+    </template>
+  </RichTextInput>
+</template>
+```
+
+See also the Vue [differences page](/docs/vue/differences#add-ons).
+
+## Stored HTML
+
+The editor drops markup its schema does not know. Loading arbitrary HTML can
+lose elements, attributes or formatting, so keep content within the configured
+extension set. The default schema drops scripts, frames, event handlers and
+unsafe link URLs.
+
+`<RichTextField>` sanitizes HTML with DOMPurify before rendering it. It removes
+scripts, event handlers, inline styles, frames and form controls. The server
+should still sanitize what it stores: a client can submit HTML without passing
+through this editor, and other consumers may render the stored value.
