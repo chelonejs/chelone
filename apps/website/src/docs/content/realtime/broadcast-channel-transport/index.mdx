@@ -1,0 +1,65 @@
+---
+title: "broadcastChannelTransport"
+description: "Carries realtime events between the tabs of one browser through a BroadcastChannel. No server and no socket to reconnect, and no reach past that browser."
+---
+
+`broadcastChannelTransport` shares events between tabs through a
+`BroadcastChannel`, so a second tab of the same app refreshes without a server.
+
+## Signature
+
+```ts
+function broadcastChannelTransport(
+  options: BroadcastChannelTransportOptions,
+): BroadcastChannelTransport
+
+interface BroadcastChannelTransportOptions {
+  /** The channel name; every tab that uses the same name shares events. */
+  channel: string;
+  /** Called for every transport error, like a listener from `onError()`. */
+  onError?: (error: RealtimeTransportError) => void;
+}
+
+/** A `RealtimeTransport` with every optional member, plus `close()`. */
+interface BroadcastChannelTransport extends Required<RealtimeTransport> {
+  /** Stops listening, closes the channel and sets `"disconnected"`. */
+  close(): void;
+}
+```
+
+- `channel` names the channel. Every tab on the same origin that uses the same
+  name joins it, including one belonging to another app.
+- It throws where the global `BroadcastChannel` is missing, such as a server
+  render, so create it in the browser.
+
+## Returns
+
+Every member of `RealtimeTransport`, plus `close()`.
+
+- A publish posts the event to the channel and dispatches it to this tab's
+  subscribers as well, so a tab sees its own writes.
+- It reaches the tabs of one browser and one origin. It does not reach another
+  browser, another origin or another device.
+- An incoming message that is not a topic string with an event carrying a type
+  is reported as `parse_failed` and dropped.
+- `getStatus` reports `"connected"` from creation until `close()` sets
+  `"disconnected"`. A publish after `close()` rejects.
+- `onReconnect` is there because the contract has it. Nothing calls it: a
+  channel has no connection to drop.
+
+## Example
+
+```ts
+import { broadcastChannelTransport, realtimeDataProvider } from "@chelone/core";
+import { baseProvider } from "./baseProvider";
+
+export const transport = broadcastChannelTransport({ channel: "admin" });
+
+export const dataProvider = realtimeDataProvider(baseProvider, transport);
+```
+
+Open the same page in a second tab and write in one: the other's live views
+refetch.
+
+See the [realtime guide](/docs/app-config/realtime) for the transport contract
+and the WebSocket, server-sent events and Supabase transports.
