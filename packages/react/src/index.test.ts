@@ -8,6 +8,7 @@ import type {
   AdminContextProps,
   AdminProps,
   AdminUIProps,
+  AssistantProps,
   AuthenticatedProps,
   AuthGateState,
   CardContentInnerProps,
@@ -703,5 +704,13 @@ describe("@chelone/react barrel — guessers", () => {
     expectTypeOf<CommandMenuProps>().toHaveProperty("hotkey");
     expectTypeOf<CommandMenuProps>().toHaveProperty("actions");
     expectTypeOf<CommandMenuContextValue>().toHaveProperty("registerCommand");
+  });
+
+  it("exports Assistant", () => {
+    expect(barrel.Assistant).toBeTypeOf("function");
+    expectTypeOf<AssistantProps>().toHaveProperty("transport");
+    expectTypeOf<AssistantProps>().toHaveProperty("tools");
+    expectTypeOf<AssistantProps>().toHaveProperty("placement");
+    expectTypeOf<AssistantProps>().toHaveProperty("maxToolRounds");
   });
 });
