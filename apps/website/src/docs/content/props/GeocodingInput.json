@@ -1,0 +1,89 @@
+{
+  "name": "GeocodingInput",
+  "props": [
+    {
+      "name": "bboxSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "Written with the picked result's `[west, south, east, north]`, when it has one."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "countryCodes",
+      "type": "string[]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "debounceMs",
+      "type": "number",
+      "optional": true,
+      "comment": "Typeahead providers only: wait after the last key. Defaults to 300."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "comment": "A string is translated; `false` renders none. Defaults to the label of `source`."
+    },
+    {
+      "name": "latSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "Written with the picked result's latitude. Left alone when unset."
+    },
+    {
+      "name": "limit",
+      "type": "number",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "lngSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "Written with the picked result's longitude. Left alone when unset."
+    },
+    {
+      "name": "minChars",
+      "type": "number",
+      "optional": true,
+      "comment": "Shortest trimmed query that searches. Defaults to 3."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "comment": "Defaults to `chelone.map.search_placeholder`."
+    },
+    {
+      "name": "provider",
+      "type": "GeocodingProvider",
+      "optional": true,
+      "comment": "Defaults to the `geocoder` of `MapsProvider`. One of the two is required."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The form field holding the address text."
+    },
+    {
+      "name": "viewBox",
+      "type": "LngLatBox",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

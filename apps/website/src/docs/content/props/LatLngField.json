@@ -1,0 +1,47 @@
+{
+  "name": "LatLngField",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "height",
+      "type": "string | number",
+      "optional": true,
+      "comment": "In pixels, or any CSS length. Defaults to 300."
+    },
+    {
+      "name": "latSource",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The record property holding the latitude."
+    },
+    {
+      "name": "lngSource",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The record property holding the longitude."
+    },
+    {
+      "name": "mapStyle",
+      "type": "MapStyleInput",
+      "optional": true,
+      "comment": "Defaults to the style from `MapsProvider`."
+    },
+    {
+      "name": "record",
+      "type": "TRecord",
+      "optional": true,
+      "comment": "Defaults to the ambient record."
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "optional": true,
+      "comment": ""
+    }
+  ]
+}

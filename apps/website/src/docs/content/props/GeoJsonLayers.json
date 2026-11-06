@@ -1,0 +1,35 @@
+{
+  "name": "GeoJsonLayers",
+  "props": [
+    {
+      "name": "data",
+      "type": "GeoJsonInput",
+      "optional": false,
+      "comment": "A Geometry, Feature or FeatureCollection."
+    },
+    {
+      "name": "fitBounds",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Frame the map around the data. Defaults to true."
+    },
+    {
+      "name": "fitPadding",
+      "type": "number",
+      "optional": true,
+      "comment": "Pixels kept free around the fitted box. Defaults to 20."
+    },
+    {
+      "name": "maxFitZoom",
+      "type": "number",
+      "optional": true,
+      "comment": "The highest zoom a fit may reach, which also sets a single Point's zoom. Defaults to 18."
+    },
+    {
+      "name": "shapeStyle",
+      "type": "ShapeStyle",
+      "optional": true,
+      "comment": "Partial over `DEFAULT_SHAPE_STYLE`."
+    }
+  ]
+}

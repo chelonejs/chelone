@@ -1,0 +1,11 @@
+{
+  "name": "DataTableHead",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}

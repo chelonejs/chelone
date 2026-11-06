@@ -2,7 +2,10 @@ import type { BlockDocNode } from "@chelone/core";
 import { elementOf } from "@chelone/test-utils";
 import { act, screen } from "@testing-library/react";
 import { Editor } from "@tiptap/core";
-import { mountUnderForm } from "../../rich-text-input/__fixtures__/rich-text-harness";
+import {
+  type MountOptions,
+  mountUnderForm,
+} from "../../rich-text-input/__fixtures__/rich-text-harness";
 import {
   BlockEditorInput,
   type BlockEditorInputProps,
@@ -43,10 +46,7 @@ export function editorOf(element: Element): Editor {
 
 export async function mountBlockEditor(
   props: Partial<BlockEditorInputProps> = {},
-  options: {
-    defaultValues?: Values;
-    onData?: (data: Values) => void;
-  } = { defaultValues: { body: null } },
+  options: MountOptions<Values> = { defaultValues: { body: null } },
 ) {
   const mounted = mountUnderForm<Values>(
     <BlockEditorInput source="body" {...props} />,

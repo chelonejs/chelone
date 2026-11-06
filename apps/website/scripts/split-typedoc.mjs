@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * Reads the monolithic `public-api.typedoc.json` produced by `typedoc` and
- * splits it into one JSON file per component-props interface, written to
- * `src/docs/content/props/<ComponentName>.json`.
+ * splits it into one JSON file per component with documented props, written to
+ * `src/docs/content/props/<ComponentName>.json`: a `NameProps` interface or
+ * type alias, or a component whose signature takes one.
  *
  * The `<PropsTable>` component reads these per-component files at build
  * time to render prop tables. Splitting up-front keeps each MDX page reading
@@ -125,123 +126,226 @@ function renderComment(comment) {
 }
 
 /**
- * Yield every typedoc node that looks like a `<Component>Props` interface or
- * type alias declaration. Kind 256 = Interface, kind 2097152 = TypeAlias.
+ * Documented `*Props` declarations, by declaration name. Kind 256 = Interface,
+ * kind 2097152 = TypeAlias.
+ * @type {Map<string, any>}
+ */
+const propsDecls = new Map();
+
+/**
+ * Component declarations, which carry their props in their signature rather
+ * than in a `NameProps` declaration of their own. Kind 32 = Variable, for a
+ * const holding a component (`PointField = GeoJsonField`); kind 64 = Function.
+ * @type {any[]}
+ */
+const components = [];
+
+/**
+ * Fill `propsDecls` and `components` from a typedoc node and its children.
+ * Component names start upper case, which leaves out the hooks and plain
+ * functions (`useMap`, `simplifyGeo`) that share the entry files.
  *
  * @param {any} node
- * @returns {Generator<{componentName: string, iface: any}>}
  */
-function* walk(node) {
-  if (
-    (node.kind === 256 || node.kind === 2097152) &&
-    typeof node.name === "string" &&
-    /Props$/.test(node.name)
-  ) {
-    yield {
-      componentName: node.name.replace(/Props$/, ""),
-      iface: node,
-    };
+function collect(node) {
+  if (typeof node.name === "string") {
+    if (node.kind === 256 || node.kind === 2097152) {
+      if (/Props$/.test(node.name)) {
+        if (propsDecls.has(node.name)) {
+          // First-seen-wins. If two source modules export the same `*Props`
+          // name, warn loudly rather than silently attaching the wrong table to
+          // a component.
+          console.warn(
+            `warning: duplicate props interface "${node.name}" — keeping the first; the later one is ignored. Disambiguate the source export names.`,
+          );
+        } else {
+          propsDecls.set(node.name, node);
+        }
+      }
+    } else if (
+      (node.kind === 32 || node.kind === 64) &&
+      /^[A-Z]/.test(node.name)
+    ) {
+      components.push(node);
+    }
   }
   for (const child of node.children ?? []) {
-    yield* walk(child);
+    collect(child);
   }
 }
 
 /**
- * Every declaration typedoc documented, keyed by its reflection id. A
- * `reference` type that links to one of these carries the id in `target`; a
- * reference typedoc could not link (an undocumented or external declaration)
- * carries a source location instead, and resolves to nothing.
- *
- * @param {any} node
- * @param {Map<number, any>} index
- * @returns {Map<number, any>}
+ * Utility types that wrap another props type instead of naming one, and what
+ * each does with the keys its second type argument names: `Omit` drops them,
+ * `Pick` keeps only them, and the rest restate every member of the type they
+ * wrap.
  */
-function indexDeclarations(node, index = new Map()) {
-  if (typeof node.id === "number") index.set(node.id, node);
-  for (const child of node.children ?? []) indexDeclarations(child, index);
-  return index;
-}
-
-const declarations = indexDeclarations(doc);
+const WRAPPED_PROPS = new Map([
+  ["Omit", "drop"],
+  ["Pick", "keep"],
+  ["Partial", "all"],
+  ["Required", "all"],
+  ["Readonly", "all"],
+]);
 
 /**
- * The prop members of a props declaration, following the types it is made of:
- * an interface's own children, an alias to an inline object type, an alias that
- * names another declaration, and an intersection of any of those.
+ * One props shape built from several. A member named twice keeps the position
+ * of its first appearance and the type of the branch that names it last, which
+ * is the branch the source writes to override it, and a comment from whichever
+ * branch carries one. Without this an intersection such as `Partial<InputProps>
+ * & { onChange?: (value: string) => void }` lists `onChange` twice with two
+ * different types.
  *
- * `seen` holds the declarations already on the path, so a reference cycle
- * between two aliases ends instead of recursing forever.
- *
- * @param {any} declaration
- * @param {Set<any>} seen
+ * @param {any[][]} groups
  * @returns {any[]}
  */
-function membersOf(declaration, seen) {
-  if (!declaration || seen.has(declaration)) return [];
-  seen.add(declaration);
-  return [
-    ...(declaration.children ?? []),
-    ...membersOfType(declaration.type, seen),
-  ];
+function mergeMembers(groups) {
+  const merged = new Map();
+  for (const group of groups) {
+    for (const member of group) {
+      const earlier = merged.get(member.name);
+      // An override that says nothing keeps what the branch it overrides said.
+      merged.set(
+        member.name,
+        earlier && !member.comment && earlier.comment
+          ? { ...member, comment: earlier.comment }
+          : member,
+      );
+    }
+  }
+  return [...merged.values()];
 }
 
 /**
+ * The string literals a type node holds: one literal, or a union of them.
+ *
  * @param {any} type
- * @param {Set<any>} seen
+ * @returns {Set<string>}
+ */
+function literalNames(type) {
+  const names = new Set();
+  if (!type) return names;
+  const parts = type.type === "union" ? type.types : [type];
+  for (const part of parts) {
+    if (part?.type === "literal" && typeof part.value === "string") {
+      names.add(part.value);
+    }
+  }
+  return names;
+}
+
+/**
+ * The props members of a `*Props` declaration: an interface's `children`, or a
+ * type alias read through its own type.
+ *
+ * @param {any} decl
+ * @param {Set<string>} seen declarations already on this resolution path, so a
+ *   cyclic alias cannot spin.
+ * @returns {any[]}
+ */
+function membersOf(decl, seen) {
+  if (!decl) return [];
+  if (decl.children?.length) return decl.children;
+  if (decl.name) seen.add(decl.name);
+  return membersOfType(decl.type, seen);
+}
+
+/**
+ * The props members a type node carries: an inline object, a reference to a
+ * documented `*Props` declaration, an intersection of those, or a utility type
+ * over one. `GeoJsonInputBaseProps` is `Omit<ShapeInputProps, "kind">` and
+ * `AutocompleteInputProps` holds `Partial<Pick<InputProps, "source">>`, so
+ * neither names its members directly. A reference typedoc never documented,
+ * because no entry point re-exports it (`LineStringInputProps`), carries
+ * nothing.
+ *
+ * @param {any} type
+ * @param {Set<string>} seen
  * @returns {any[]}
  */
 function membersOfType(type, seen) {
   if (!type) return [];
   switch (type.type) {
     case "reflection":
-      return membersOf(type.declaration, seen);
-    case "reference":
-      return typeof type.target === "number"
-        ? membersOf(declarations.get(type.target), seen)
-        : [];
+      return type.declaration?.children ?? [];
     case "intersection":
-      return (type.types ?? []).flatMap((/** @param {any} part */ part) =>
-        membersOfType(part, seen),
+      return mergeMembers(
+        type.types.map(/** @param {any} t */ (t) => membersOfType(t, seen)),
       );
+    case "reference": {
+      const decl = propsDecls.get(type.name);
+      if (decl) return seen.has(type.name) ? [] : membersOf(decl, seen);
+      const keeps = WRAPPED_PROPS.get(type.name);
+      if (!keeps || !type.typeArguments?.length) return [];
+      const [wrapped, keys] = type.typeArguments;
+      const named = literalNames(keys);
+      const members = membersOfType(wrapped, seen);
+      // Keys typed as something other than string literals (`keyof U`) are
+      // unreadable here: `Pick` then proves nothing about the shape and yields
+      // nothing, and `Omit` drops nothing.
+      if (keeps === "keep") return members.filter((m) => named.has(m.name));
+      if (keeps === "drop")
+        return members.filter((m) => !named.has(m.name));
+      return members;
+    }
     default:
       return [];
   }
 }
 
-const pages = new Map();
+/**
+ * The props a component declaration takes: the first parameter of its
+ * signature. A function component states its signature directly; a const
+ * holding one carries it inside its own type.
+ *
+ * @param {any} component
+ * @returns {any[]}
+ */
+function membersOfComponent(component) {
+  const signature =
+    component.kind === 64
+      ? component.signatures?.[0]
+      : component.type?.type === "reflection"
+        ? component.type.declaration?.signatures?.[0]
+        : undefined;
+  const param = signature?.parameters?.[0];
+  return param?.type ? membersOfType(param.type, new Set()) : [];
+}
 
-for (const { componentName, iface } of walk(doc)) {
-  if (pages.has(componentName)) {
-    // First-seen-wins. If two source modules export the same `*Props` name,
-    // warn loudly rather than silently attaching the wrong table to a component.
-    console.warn(
-      `warning: duplicate props interface "${componentName}Props" — keeping the first; the later one is ignored. Disambiguate the source export names.`,
-    );
-    continue;
-  }
-  // Interfaces have `children`; a type alias is an inline object type, another
-  // declaration's name, or an intersection of those. Follow all of them.
-  // A repeated name keeps the position it first appeared at and the type of the
-  // last part that declares it, as TypeScript resolves an intersection.
-  const props = new Map();
-  for (const c of membersOf(iface, new Set())) {
-    props.set(c.name, {
+/**
+ * @param {string} name
+ * @param {any[]} members
+ * @returns {string} the props page JSON
+ */
+function propsPage(name, members) {
+  const props = members.map(
+    /** @param {any} c */ (c) => ({
       name: c.name,
       type: renderType(c.type),
       optional: c.flags?.isOptional === true,
       comment: renderComment(c.comment),
-    });
-  }
-
-  pages.set(
-    componentName,
-    JSON.stringify(
-      { name: componentName, props: [...props.values()] },
-      null,
-      2,
-    ) + "\n",
+    }),
   );
+  return JSON.stringify({ name, props }, null, 2) + "\n";
+}
+
+collect(doc);
+
+const pages = new Map();
+
+for (const [declName, decl] of propsDecls) {
+  const componentName = declName.replace(/Props$/, "");
+  pages.set(componentName, propsPage(componentName, membersOf(decl, new Set())));
+}
+
+// Components typed by another component's props: `PointField` and its GeoJSON
+// siblings are all `GeoJsonField`, and the shape inputs take
+// `GeoJsonInputBaseProps`. Their tables read the props the component reads.
+for (const component of components) {
+  if (pages.has(component.name)) continue;
+  const members = membersOfComponent(component);
+  if (members.length === 0) continue;
+  pages.set(component.name, propsPage(component.name, members));
 }
 
 // Remove obsolete names before writing: case-insensitive filesystems keep the
