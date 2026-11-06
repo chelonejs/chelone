@@ -135,7 +135,9 @@ import CronInput from "./components/admin/inputs/cron-input.vue";
 import CurrencyInput, {
   type CurrencyInputProps,
 } from "./components/admin/inputs/currency-input.vue";
-import DatagridInput from "./components/admin/inputs/datagrid-input.vue";
+import DatagridInput, {
+  type DatagridInputProps,
+} from "./components/admin/inputs/datagrid-input.vue";
 import DateInput, {
   type DateInputProps,
 } from "./components/admin/inputs/date-input.vue";
@@ -444,6 +446,14 @@ type TypedInputMembers<TRecord> = {
   ) => VNode;
   CurrencyInput: <TPath extends SourceProp<TRecord>>(
     props: CurrencyInputProps<TRecord, TPath> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  DatagridInput: <
+    TPath extends SourceProp<TRecord>,
+    TChoice extends ChoiceRecord = ChoiceRecord,
+  >(
+    props: DatagridInputProps<TRecord, TPath, TChoice> &
       VNodeProps &
       AllowedComponentProps,
   ) => VNode;
