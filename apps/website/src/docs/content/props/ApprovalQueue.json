@@ -1,0 +1,89 @@
+{
+  "name": "ApprovalQueue",
+  "props": [
+    {
+      "name": "approvedValue",
+      "type": "string",
+      "optional": true,
+      "comment": "Status written once approvals reach `required`. Default `\"approved\"`."
+    },
+    {
+      "name": "approverSource",
+      "type": "keyof TRecord & string",
+      "optional": true,
+      "comment": "Record field holding the approver ids, a top-level key. Default `\"approvers\"`."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "comment": "Default `\"pessimistic\"`; `\"undoable\"` shows an Undo notification."
+    },
+    {
+      "name": "noteSource",
+      "type": "string",
+      "optional": true,
+      "comment": "Record field the reason is written to. Default `\"rejectionNote\"`."
+    },
+    {
+      "name": "pendingValue",
+      "type": "string",
+      "optional": true,
+      "comment": "Status written while approvals are short of `required`. Default `\"pending\"`."
+    },
+    {
+      "name": "rejectedBySource",
+      "type": "string",
+      "optional": true,
+      "comment": "Record field the rejecter's id is written to. Default `\"rejectedBy\"`."
+    },
+    {
+      "name": "rejectedValue",
+      "type": "string",
+      "optional": true,
+      "comment": "Status written on rejection. Default `\"rejected\"`."
+    },
+    {
+      "name": "required",
+      "type": "number",
+      "optional": true,
+      "comment": "Approvals needed. Default 1."
+    },
+    {
+      "name": "requireReason",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Refuse a rejection until a reason is typed. Default `false`."
+    },
+    {
+      "name": "rowExtra",
+      "type": "(record: TRecord) => ReactNode",
+      "optional": true,
+      "comment": "Renders extra content in each row; the row's record is the ambient record."
+    },
+    {
+      "name": "statusSource",
+      "type": "keyof TRecord & string",
+      "optional": true,
+      "comment": "Record field the status is written to and read from. Default `\"status\"`."
+    },
+    {
+      "name": "subtitleSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field shown as a second line when its value is not empty."
+    },
+    {
+      "name": "titleSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field shown as the row title; the record representation when it is null or undefined."
+    }
+  ]
+}
