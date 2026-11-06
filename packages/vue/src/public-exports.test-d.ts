@@ -76,6 +76,7 @@ import type {
   NumberInputProps,
   OfflineProps,
   PasswordInputProps,
+  PermissionMatrixProps,
   PhoneInputProps,
   PivotGridProps,
   PlaceholderProps,
@@ -263,6 +264,12 @@ describe("@chelone/vue public exports", () => {
     type Result = ReturnType<typeof barrel.useDataTableColumns>;
     expectTypeOf<Result>().toHaveProperty("toggle");
     expectTypeOf<Result>().toHaveProperty("columns");
+  });
+
+  it("PermissionMatrix ships beside its props", () => {
+    expectTypeOf(barrel.PermissionMatrix).not.toBeAny();
+    expectTypeOf<PermissionMatrixProps>().toHaveProperty("roles");
+    expectTypeOf<PermissionMatrixProps>().toHaveProperty("modelValue");
   });
 
   it("PivotGrid ships beside its props", () => {
