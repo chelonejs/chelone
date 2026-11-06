@@ -33,7 +33,7 @@
     },
     {
       "name": "record",
-      "type": "Record<string, unknown>",
+      "type": "Partial<TRecord>",
       "optional": true,
       "comment": "Seed values for the not-yet-created record."
     },
@@ -51,7 +51,7 @@
     },
     {
       "name": "schema",
-      "type": "StandardSchemaV1<Partial<Record<string, unknown>>, unknown>",
+      "type": "StandardSchemaV1<Partial<TRecord>, unknown>",
       "optional": true,
       "comment": "Resource schema (zod or any Standard Schema) — wired as the default form\nvalidator by the submit pipeline (T2)."
     },
@@ -63,7 +63,7 @@
     },
     {
       "name": "validate",
-      "type": "FormLevelValidate<Partial<Record<string, unknown>>>",
+      "type": "FormLevelValidate<Partial<TRecord>>",
       "optional": true,
       "comment": "Form-level validate fn (ra contract) — consumed by the submit pipeline (T2)."
     }

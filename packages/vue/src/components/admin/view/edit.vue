@@ -1,10 +1,14 @@
 <script lang="ts">
-import type { EditFormControllerOptions, Identifier } from "@chelone/core";
+import type {
+  EditFormControllerOptions,
+  Identifier,
+  LooseRecord,
+} from "@chelone/core";
 
 /** Props for {@link Edit}. */
-export interface EditProps
+export interface EditProps<TRecord = LooseRecord>
   extends Pick<
-    EditFormControllerOptions<Record<string, unknown>>,
+    EditFormControllerOptions<TRecord>,
     "validate" | "schema" | "sanitizeEmptyValues" | "onSuccess"
   > {
   resource?: string;
@@ -20,7 +24,7 @@ export interface EditProps
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord = LooseRecord">
 /**
  * `<Edit>` — an edit page, the Vue analog of `@chelone/react`'s `views/edit.tsx`.
  * Composes the two V1 seams the React `useEditForm` fuses: `useEditController`
@@ -34,7 +38,11 @@ export interface EditProps
  * child works with no `<SimpleForm>` in between.
  */
 
-import type { FieldErrors } from "@chelone/core";
+import {
+  type FieldErrors,
+  isResourceRecord,
+  type RecordResources,
+} from "@chelone/core";
 import { computed, watch } from "vue";
 import { useEditController } from "../../../controllers/use-edit-controller";
 import { useForm } from "../../../form/use-form";
@@ -47,7 +55,7 @@ import {
 } from "../../../resource-context";
 
 const props = withDefaults(
-  defineProps<EditProps>(),
+  defineProps<EditProps<TRecord>>(),
   { redirectOnSave: true },
 );
 
@@ -59,13 +67,18 @@ if (!resource) {
 }
 provideResourceContext(resource);
 
-const edit = useEditController({ resource, id: props.id });
+const edit = useEditController<RecordResources<TRecord>, string>({
+  resource,
+  id: props.id,
+});
 const redirect = useRedirectOptional();
 const getRecordRepresentation = useGetRecordRepresentation(resource);
 // Empty until the record loads; computed so the heading follows the hydration.
-const defaultTitle = computed(() => getRecordRepresentation(edit.record));
+const defaultTitle = computed(() =>
+  isResourceRecord(edit.record) ? getRecordRepresentation(edit.record) : "",
+);
 
-const form = useForm<Record<string, unknown>>({
+const form = useForm<Partial<TRecord>>({
   resource,
   record: edit.record,
   // Read per call: the form captures its options once, props stay live.
