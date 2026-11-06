@@ -11,6 +11,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -84,7 +85,7 @@ describe("<TextInput>", () => {
     setup(<TextInput source="title" />, {
       defaultValues: { title: "War and Peace" },
     });
-    const input = screen.getByRole("textbox") as HTMLInputElement;
+    const input = elementOf(screen.getByRole("textbox"), HTMLInputElement);
     expect(input.tagName).toBe("INPUT");
     expect(input.getAttribute("type")).toBe("text");
     expect(input.value).toBe("War and Peace");
@@ -95,17 +96,21 @@ describe("<TextInput>", () => {
 
   it("spells a stored number and renders a stored object as empty", () => {
     setup(<TextInput source="views" />, { defaultValues: { views: 5 } });
-    expect(screen.getByRole<HTMLInputElement>("textbox").value).toBe("5");
+    expect(elementOf(screen.getByRole("textbox"), HTMLInputElement).value).toBe(
+      "5",
+    );
     cleanup();
     setup(<TextInput source="views" />, {
       defaultValues: { views: { count: 5 } },
     });
-    expect(screen.getByRole<HTMLInputElement>("textbox").value).toBe("");
+    expect(elementOf(screen.getByRole("textbox"), HTMLInputElement).value).toBe(
+      "",
+    );
   });
 
   it("writes typed text back to the form value", () => {
     setup(<TextInput source="title" />, { defaultValues: { title: "" } });
-    const input = screen.getByRole("textbox") as HTMLInputElement;
+    const input = elementOf(screen.getByRole("textbox"), HTMLInputElement);
     fireEvent.change(input, { target: { value: "hello" } });
     expect(input.value).toBe("hello");
   });
@@ -116,7 +121,7 @@ describe("<TextInput>", () => {
       defaultValues: { title: "seed" },
       save,
     });
-    const input = screen.getByRole("textbox") as HTMLInputElement;
+    const input = elementOf(screen.getByRole("textbox"), HTMLInputElement);
     fireEvent.change(input, { target: { value: "" } });
     expect(input.value).toBe("");
   });
@@ -148,7 +153,7 @@ describe("<TextInput>", () => {
     setup(<TextInput source="body" multiline />, {
       defaultValues: { body: "line" },
     });
-    const input = screen.getByRole("textbox") as HTMLTextAreaElement;
+    const input = elementOf(screen.getByRole("textbox"), HTMLTextAreaElement);
     expect(input.tagName).toBe("TEXTAREA");
     expect(input.value).toBe("line");
   });
@@ -164,8 +169,8 @@ describe("<TextInput>", () => {
     setup(<TextInput source="title" disabled />, {
       defaultValues: { title: "x" },
     });
-    expect((screen.getByRole("textbox") as HTMLInputElement).disabled).toBe(
-      true,
-    );
+    expect(
+      elementOf(screen.getByRole("textbox"), HTMLInputElement).disabled,
+    ).toBe(true);
   });
 });

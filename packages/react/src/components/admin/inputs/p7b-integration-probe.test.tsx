@@ -27,6 +27,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -326,7 +327,9 @@ describe("P7b input-integration probe (one form, four inputs)", () => {
     // The other-field error slot is clean (only the boolean changed).
     const titleField = control("title").closest("[data-slot='field']");
     if (titleField) {
-      expect(within(titleField as HTMLElement).queryByRole("alert")).toBeNull();
+      expect(
+        within(elementOf(titleField, HTMLElement)).queryByRole("alert"),
+      ).toBeNull();
     }
   });
 });

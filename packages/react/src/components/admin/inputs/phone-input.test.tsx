@@ -10,6 +10,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -86,7 +87,7 @@ describe("<PhoneInput>", () => {
     setup(<PhoneInput source="phone" />, {
       defaultValues: { phone: "+14155552671" },
     });
-    const input = screen.getByLabelText("Phone") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Phone"), HTMLInputElement);
     expect(input.getAttribute("type")).toBe("tel");
     // libphonenumber formats US numbers as "(415) 555-2671".
     expect(input.value).toContain("415");
@@ -96,9 +97,10 @@ describe("<PhoneInput>", () => {
     setup(<PhoneInput source="phone" />, {
       defaultValues: { phone: "+14155552671" },
     });
-    const select = document.querySelector(
-      "select[data-country-select]",
-    ) as HTMLSelectElement;
+    const select = elementOf(
+      document.querySelector("select[data-country-select]"),
+      HTMLSelectElement,
+    );
     expect(select.value).toBe("US");
   });
 
@@ -108,7 +110,7 @@ describe("<PhoneInput>", () => {
       <PhoneInput source="phone" defaultCountry="US" />,
       { defaultValues: { phone: "" }, onData },
     );
-    const input = screen.getByLabelText("Phone") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Phone"), HTMLInputElement);
     fireEvent.change(input, { target: { value: "4155552671" } });
     await act(async () => {
       await submitRef.current?.();
@@ -120,9 +122,10 @@ describe("<PhoneInput>", () => {
     setup(<PhoneInput source="phone" allowedCountries={["US", "GB"]} />, {
       defaultValues: { phone: "" },
     });
-    const select = document.querySelector(
-      "select[data-country-select]",
-    ) as HTMLSelectElement;
+    const select = elementOf(
+      document.querySelector("select[data-country-select]"),
+      HTMLSelectElement,
+    );
     expect(select.querySelectorAll("option").length).toBe(2);
   });
 
@@ -130,9 +133,9 @@ describe("<PhoneInput>", () => {
     setup(<PhoneInput source="phone" disabled />, {
       defaultValues: { phone: "+14155552671" },
     });
-    expect((screen.getByLabelText("Phone") as HTMLInputElement).disabled).toBe(
-      true,
-    );
+    expect(
+      elementOf(screen.getByLabelText("Phone"), HTMLInputElement).disabled,
+    ).toBe(true);
   });
 
   it("surfaces a validation error via <ValidationError> after submit", async () => {

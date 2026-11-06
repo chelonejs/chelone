@@ -295,9 +295,7 @@ describe("P7c choice/reference/array integration probe", () => {
       () => {
         expect(
           getListSpy.mock.calls.some(
-            ([, params]) =>
-              (params?.filter as Record<string, unknown> | undefined)?.q ===
-              "Ali",
+            ([, params]) => params?.filter?.q === "Ali",
           ),
         ).toBe(true);
       },
@@ -323,17 +321,13 @@ describe("P7c choice/reference/array integration probe", () => {
     await waitFor(() => {
       expect(
         getListSpy.mock.calls.some(
-          ([, params]) =>
-            (params?.filter as Record<string, unknown> | undefined)?.code ===
-            "BO",
+          ([, params]) => params?.filter?.code === "BO",
         ),
       ).toBe(true);
     });
     // The selected-record resolution never used getMany (the id path).
     expect(
-      getManySpy.mock.calls.some(([, params]) =>
-        (params?.ids as unknown[] | undefined)?.includes("BO"),
-      ),
+      getManySpy.mock.calls.some(([, params]) => params?.ids?.includes("BO")),
     ).toBe(false);
   });
 
