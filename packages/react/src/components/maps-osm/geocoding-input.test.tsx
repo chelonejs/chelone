@@ -11,6 +11,7 @@ import {
   type GeocodingProvider,
   mapMessages,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { useSelector } from "@tanstack/react-store";
 import {
@@ -131,7 +132,7 @@ async function setup(
   return { view, search };
 }
 
-const field = () => screen.getByRole("combobox") as HTMLInputElement;
+const field = () => elementOf(screen.getByRole("combobox"), HTMLInputElement);
 const type = (value: string) =>
   fireEvent.change(field(), { target: { value } });
 const probe = (source: string) =>

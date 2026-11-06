@@ -5,6 +5,7 @@
  */
 
 import { createI18n, fakeDataProvider, mapMessages } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -70,18 +71,24 @@ describe("DrawToolbar", () => {
 
   it("disables delete until a feature is selected and calls onDelete", () => {
     const first = setup({ canDelete: false });
-    const locked = screen.getByRole("button", {
-      name: "Delete",
-    }) as HTMLButtonElement;
+    const locked = elementOf(
+      screen.getByRole("button", {
+        name: "Delete",
+      }),
+      HTMLButtonElement,
+    );
     expect(locked.disabled).toBe(true);
     fireEvent.click(locked);
     expect(first.onDelete).not.toHaveBeenCalled();
     cleanup();
 
     const second = setup({ canDelete: true });
-    const open = screen.getByRole("button", {
-      name: "Delete",
-    }) as HTMLButtonElement;
+    const open = elementOf(
+      screen.getByRole("button", {
+        name: "Delete",
+      }),
+      HTMLButtonElement,
+    );
     expect(open.disabled).toBe(false);
     expect(open.getAttribute("aria-pressed")).toBeNull();
     fireEvent.click(open);
