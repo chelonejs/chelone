@@ -252,6 +252,14 @@ const STUBS = [
   { slug: "lock-on-mount", section: "realtime", component: "LockOnMount", registry: "lock-on-mount", title: "LockOnMount", desc: "Acquires a record lock while mounted and releases it on unmount. Shows its children once the lock is held, a loading placeholder while requesting it, or the holder when another identity has it. Needs a realtime data provider with lock support." },
   { slug: "lock-status", section: "realtime", component: "LockStatus", registry: "lock-status", title: "LockStatus", desc: "Shows a badge naming the record's lock holder and updates when the lock is taken or released. Renders nothing for a free record unless `renderFree` is supplied. Needs a realtime data provider with lock support." },
 
+  // ── maps (the general fields, from the @chelone/react/maps entry) ────────
+  // Not named after a GeoJSON type: each takes the value as the record holds
+  // it. `GeoJsonField` is what the nine shape fields below are, and `BBoxField`
+  // reads a box through it.
+  { slug: "geo-json-field", section: "maps", component: "GeoJsonField", registry: null, title: "GeoJsonField", desc: "Shows a GeoJSON `Geometry`, `Feature` or `FeatureCollection` from a record on a map, framed to fit it. A null, a string, a number or a malformed object shows a text panel in its place: a string that holds JSON text is never parsed. The named fields (`PointField`, `PolygonField`, ...) are this component.", importFrom: "@chelone/react/maps" },
+  { slug: "bbox-field", section: "maps", component: "BBoxField", registry: null, title: "BBoxField", desc: "Shows a `BBox` value from a record, `[west, south, east, north]`, as a rectangle on a map. A value that is not four finite numbers shows the empty text panel. It is `GeoJsonField` over a box, so it takes the same props.", importFrom: "@chelone/react/maps" },
+  { slug: "lat-lng-field", section: "maps", component: "LatLngField", registry: null, title: "LatLngField", desc: "Shows a point held in two record fields, `latSource` and `lngSource`, as a marker on a map centred on it. A missing, null, non-numeric or out-of-range coordinate shows a text panel in its place; `0` is a position.", importFrom: "@chelone/react/maps" },
+
   // ── maps (shape fields, from the @chelone/react/maps entry) ──────────────
   // Each is `GeoJsonField` under the name of a GeoJSON type, so each page names
   // its type and says what sits behind the name. No registry item of their own:
@@ -268,6 +276,15 @@ const STUBS = [
   { slug: "geometry-collection-field", section: "maps", component: "GeometryCollectionField", registry: null, title: "GeometryCollectionField", desc: "Shows a GeoJSON `GeometryCollection` from a record on a map, drawing each geometry by its own type. A collection with no coordinates shows the empty text panel. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
   { slug: "feature-field", section: "maps", component: "FeatureField", registry: null, title: "FeatureField", desc: "Shows the geometry of a GeoJSON `Feature` from a record on a map. Its `properties` are not rendered. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
   { slug: "feature-collection-field", section: "maps", component: "FeatureCollectionField", registry: null, title: "FeatureCollectionField", desc: "Shows every geometry of a GeoJSON `FeatureCollection` from a record on a map. A feature with a null geometry is left out. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
+
+  // ── maps (the general inputs) ─────────────────────────────────────────────
+  // `ShapeInput` is what the ten shape inputs below are, and `BBoxInput` sets
+  // its `kind` and `tools`. `LatLngInput` needs only `maplibre-gl`, so it comes
+  // from `maps` and not `maps/draw`.
+  { slug: "shape-input", section: "maps", component: "ShapeInput", registry: null, title: "ShapeInput", desc: "Edits a GeoJSON value in a form field by drawing on a map: `kind` says what the field holds and picks the `tools` the toolbar shows. Each finished drawing, vertex drag, move or removal is written to the field, and a part the editor cannot hold shows read-only and stays in the value. The named inputs (`PointInput`, `PolygonInput`, ...) are this component with `kind` and `tools` set for you.", importFrom: "@chelone/react/maps/draw" },
+  { slug: "bbox-input", section: "maps", component: "BBoxInput", registry: null, title: "BBoxInput", desc: "Edits a `BBox` value, `[west, south, east, north]`, by drawing a rectangle with `draw-rectangle`, `edit`, `move` and `delete`. A new rectangle replaces the old one, and `aspectRatio` grows the stored box around its centre to that width over height. It is `ShapeInput` with `kind` and `tools` set for you, so its table holds neither.", importFrom: "@chelone/react/maps/draw" },
+  { slug: "lat-lng-input", section: "maps", component: "LatLngInput", registry: null, title: "LatLngInput", desc: "Edits a latitude and a longitude held in two form fields, `latSource` and `lngSource`, by typing or by clicking a map. A click or a pin drag writes both fields rounded to 6 decimals and calls `onPositionChange`; typing never calls it.", importFrom: "@chelone/react/maps" },
+  { slug: "simplify-input", section: "maps", component: "SimplifyInput", registry: null, title: "SimplifyInput", desc: "Thins a stored GeoJSON value with a `tolerance` slider and previews the result on a map: the form holds the simplified value. Every change simplifies from the first value, so sliding back to `minTolerance` restores it. `quality` picks the algorithm, `High` keeping more detail. A null value shows an empty state, and any other value than GeoJSON or null throws.", importFrom: "@chelone/react/maps/draw" },
 
   // ── maps (shape inputs, from the @chelone/react/maps/draw entry) ──────────
   // Each is `ShapeInput` under the name of a GeoJSON type, and each names the
