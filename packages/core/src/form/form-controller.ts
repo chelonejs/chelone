@@ -13,6 +13,7 @@ import {
   type TranslateParamValues,
 } from "../i18n/messages";
 import type { NotificationStore } from "../notification/notification-store";
+import { ERROR_MAP_PRIORITY } from "./field-error";
 import { createFormHandle, type FormHandle } from "./form-handle";
 import {
   composeFormValidator,
@@ -414,14 +415,7 @@ function displayableRoot(
 function firstFormLevelError(
   errorMap: ValidationErrorMap,
 ): string | TranslatableMessage | undefined {
-  for (const key of [
-    "onSubmit",
-    "onDynamic",
-    "onChange",
-    "onBlur",
-    "onMount",
-    "onServer",
-  ] as const) {
+  for (const key of ERROR_MAP_PRIORITY) {
     const candidate = displayableRoot(errorMap[key]);
     if (candidate !== undefined) return candidate;
   }
