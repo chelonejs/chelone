@@ -116,9 +116,9 @@ const { canAccess, isPending: isAccessPending } = useMenuAccess(
     record: record.value,
   })),
 );
-const { mutate } = useUpdate(resource ?? "", {
-  mutationMode: props.mutationMode,
-});
+// useUpdate picks its runner once, so the notify rules below read the same mode.
+const mutationMode = props.mutationMode;
+const { mutate } = useUpdate(resource ?? "", { mutationMode });
 
 // The saving state shows the record with the edits over it, to every field below.
 provideRecordContext<LooseRecord>(
@@ -149,7 +149,7 @@ function save(before: TRecord, dirty: Partial<TRecord>) {
     {
       onSuccess: (saved) => {
         dispatch({ type: "settled" });
-        if (props.notifyOnSuccess && props.mutationMode !== "undoable") {
+        if (props.notifyOnSuccess && mutationMode !== "undoable") {
           notifications?.notify("chelone.notification.updated", {
             type: "info",
             messageArgs: { smart_count: 1 },
@@ -161,7 +161,7 @@ function save(before: TRecord, dirty: Partial<TRecord>) {
       onError: (error) => {
         dispatch({ type: "settled" });
         // The undoable runner already notifies when its deferred commit fails.
-        if (props.mutationMode !== "undoable") {
+        if (mutationMode !== "undoable") {
           notifications?.notify("chelone.notification.http_error", {
             type: "error",
           });

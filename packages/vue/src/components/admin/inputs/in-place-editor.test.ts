@@ -14,6 +14,7 @@ import {
   type DataProvider,
   defineMessages,
   fakeDataProvider,
+  type MutationMode,
 } from "@chelone/core";
 import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
@@ -24,7 +25,7 @@ import {
   type VueWrapper,
 } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h, type VNodeChild } from "vue";
+import { defineComponent, h, ref, type VNodeChild } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../../admin/admin.vue";
 import Resource from "../../../admin/resource.vue";
@@ -516,6 +517,27 @@ describe("<InPlaceEditor>", () => {
         ([message]) => message === "chelone.notification.http_error",
       ),
     ).toHaveLength(1);
+  });
+
+  it("a mutationMode changed after mount does not change how a failure is notified", async () => {
+    const mode = ref<MutationMode | undefined>(undefined);
+    const page = await mountEditor({
+      editor: () =>
+        h(InPlaceEditor, { source: "title", mutationMode: mode.value }),
+      fail: new Error("server down"),
+    });
+    mode.value = "undoable";
+    await flushPromises();
+
+    await changeAndSubmit(await startEditing(page), "Beta");
+
+    await vi.waitFor(() =>
+      expect(page.notify).toHaveBeenCalledWith(
+        "chelone.notification.http_error",
+        { type: "error" },
+      ),
+    );
+    expect((await findReading(page)).text()).toBe("Alpha");
   });
 
   it("without edit access the value shows and cannot be clicked", async () => {
