@@ -7126,7 +7126,8 @@
         "@tiptap/suggestion",
         "@tiptap/vue-3",
         "@unovis/ts",
-        "@unovis/vue"
+        "@unovis/vue",
+        "zod"
       ],
       "files": [
         {
@@ -7650,9 +7651,8 @@
         "@chelone/image-block-config",
         "@chelone/toggle-block"
       ],
-      "devDependencies": ["zod"],
+      "dependencies": ["@unovis/ts", "@unovis/vue", "zod"],
       "categories": ["chelone", "components"],
-      "dependencies": ["@unovis/ts", "@unovis/vue"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
