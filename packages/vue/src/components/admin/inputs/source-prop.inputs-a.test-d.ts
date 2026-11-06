@@ -45,15 +45,14 @@ describe("the first eleven inputs", () => {
   });
 
   it("the DateInput source prop is SourceProp", () => {
-    expectTypeOf<
-      InstanceType<typeof DateInput>["$props"]["source"]
-    >().toEqualTypeOf<SourceProp>();
+    // A generic SFC is a function whose first parameter is its props.
+    type Props = Parameters<typeof DateInput>[0];
+    expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the DateTimeInput source prop is SourceProp", () => {
-    expectTypeOf<
-      InstanceType<typeof DateTimeInput>["$props"]["source"]
-    >().toEqualTypeOf<SourceProp>();
+    type Props = Parameters<typeof DateTimeInput>[0];
+    expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the DurationInput source prop is SourceProp", () => {
@@ -69,9 +68,8 @@ describe("the first eleven inputs", () => {
   });
 
   it("the NumberInput source prop is SourceProp", () => {
-    expectTypeOf<
-      InstanceType<typeof NumberInput>["$props"]["source"]
-    >().toEqualTypeOf<SourceProp>();
+    type Props = Parameters<typeof NumberInput>[0];
+    expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the PasswordInput source prop is SourceProp", () => {
