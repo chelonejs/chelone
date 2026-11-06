@@ -2019,6 +2019,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/widgets/job-monitor.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/widgets/metric-card.tsx",
           "type": "registry:component"
         },
@@ -5851,6 +5855,30 @@
         "@chelone/translatable-fields-tabs"
       ],
       "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "job-monitor",
+      "type": "registry:component",
+      "title": "Job Monitor",
+      "files": [
+        {
+          "path": "src/components/admin/widgets/job-monitor.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/date-field",
+        "@chelone/json-field",
+        "@chelone/lib-utils",
+        "@chelone/tabs",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

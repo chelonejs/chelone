@@ -1011,6 +1011,10 @@ export {
   type TranslatableFieldsTabsProps,
 } from "./components/admin/views/translatable-fields-tabs";
 export {
+  JobMonitor,
+  type JobMonitorProps,
+} from "./components/admin/widgets/job-monitor";
+export {
   MetricCard,
   type MetricCardProps,
 } from "./components/admin/widgets/metric-card";
