@@ -33,7 +33,7 @@ export interface MdxFieldProps {
  * <MdxField source="body" empty="No content" />
  */
 
-import { computed } from "vue";
+import { computed, type VNode } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import { useFieldValue } from "../../record/use-field-value";
@@ -41,7 +41,7 @@ import CrepeEditor from "./internal/crepe-editor.vue";
 
 const props = defineProps<MdxFieldProps>();
 
-defineSlots<{ empty?: () => unknown }>();
+defineSlots<{ empty?: () => VNode[] }>();
 
 const translate = useTranslate();
 const value = useFieldValue({

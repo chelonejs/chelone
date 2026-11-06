@@ -84,6 +84,7 @@
   },
   "dependencies": {
     "@chelone/core": "workspace:*",
+    "@chelone/utils": "workspace:*",
     "@types/geojson": "^7946.0.16",
     "cronstrue": "^3.38.0",
     "libphonenumber-js": "^1.13.15"

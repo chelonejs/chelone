@@ -25,7 +25,8 @@
         "@chelone/react",
         "@chelone/vue",
         "@chelone/supabase",
-        "@chelone/rest"
+        "@chelone/rest",
+        "@chelone/utils"
       ]
     }
   ],
@@ -34,6 +35,7 @@
     "packages/react": { "component": "@chelone/react" },
     "packages/vue": { "component": "@chelone/vue" },
     "packages/supabase": { "component": "@chelone/supabase" },
-    "packages/rest": { "component": "@chelone/rest" }
+    "packages/rest": { "component": "@chelone/rest" },
+    "packages/utils": { "component": "@chelone/utils" }
   }
 }
