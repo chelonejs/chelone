@@ -28,6 +28,12 @@ const ADDONS: {
     packages: ["@monaco-editor/react", "monaco-editor"],
   },
   {
+    name: "charts",
+    folder: "src/components/charts",
+    entry: "src/charts.ts",
+    packages: ["recharts"],
+  },
+  {
     name: "kanban",
     folder: "src/components/kanban",
     entry: "src/kanban.ts",

@@ -13,7 +13,8 @@ afterEach(cleanup);
 
 function fakeProvider(query: OverpassProvider["query"] = async () => fixture) {
   const spy = vi.fn<OverpassProvider["query"]>(query);
-  return { provider: { name: "fake", query: spy } as OverpassProvider, spy };
+  const provider: OverpassProvider = { name: "fake", query: spy };
+  return { provider, spy };
 }
 
 function setup(overpass?: OverpassProvider) {
@@ -48,10 +49,11 @@ describe("useOsmFeatures", () => {
   it("returns polygons once the bbox is set", async () => {
     const { provider } = fakeProvider();
     const { wrapper } = setup();
+    const initialProps: { box: typeof bbox | null } = { box: null };
     const { result, rerender } = renderHook(
-      ({ box }: { box: typeof bbox | null }) =>
+      ({ box }: typeof initialProps) =>
         useOsmFeatures(box, { presets: ["water"] }, { provider }),
-      { wrapper, initialProps: { box: null as typeof bbox | null } },
+      { wrapper, initialProps },
     );
     expect(result.current.data).toBeUndefined();
     rerender({ box: bbox });

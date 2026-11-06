@@ -323,6 +323,10 @@
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   },
                   {
+                    "group": ["recharts"],
+                    "message": "recharts imports only inside the charts add-on (its components folder, entry file and ui/chart.tsx); elsewhere it forces every @chelone/react user to install it."
+                  },
+                  {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
@@ -379,6 +383,10 @@
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   },
                   {
+                    "group": ["recharts"],
+                    "message": "recharts imports only inside the charts add-on (its components folder, entry file and ui/chart.tsx); elsewhere it forces every @chelone/react user to install it."
+                  },
+                  {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
@@ -433,6 +441,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["recharts"],
+                    "message": "recharts imports only inside the charts add-on (its components folder, entry file and ui/chart.tsx); elsewhere it forces every @chelone/react user to install it."
                   },
                   {
                     "group": ["@chelone/test-utils"],
@@ -495,6 +507,10 @@
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   },
                   {
+                    "group": ["recharts"],
+                    "message": "recharts imports only inside the charts add-on (its components folder, entry file and ui/chart.tsx); elsewhere it forces every @chelone/react user to install it."
+                  },
+                  {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
@@ -553,6 +569,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["recharts"],
+                    "message": "recharts imports only inside the charts add-on (its components folder, entry file and ui/chart.tsx); elsewhere it forces every @chelone/react user to install it."
                   },
                   {
                     "group": ["@chelone/test-utils"],
@@ -615,6 +635,10 @@
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   },
                   {
+                    "group": ["recharts"],
+                    "message": "recharts imports only inside the charts add-on (its components folder, entry file and ui/chart.tsx); elsewhere it forces every @chelone/react user to install it."
+                  },
+                  {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
                   }
@@ -673,6 +697,75 @@
                   {
                     "group": ["papaparse"],
                     "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["recharts"],
+                    "message": "recharts imports only inside the charts add-on (its components folder, entry file and ui/chart.tsx); elsewhere it forces every @chelone/react user to install it."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/react/src/components/charts/**",
+        "packages/react/src/charts.ts",
+        "packages/react/src/components/ui/chart.tsx",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx",
+        "!**/__fixtures__/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
                   },
                   {
                     "group": ["@chelone/test-utils"],
@@ -1318,6 +1411,10 @@
                   {
                     "group": ["@dnd-kit/*"],
                     "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["recharts"],
+                    "message": "recharts imports only inside the charts add-on (its components folder, entry file and ui/chart.tsx); elsewhere it forces every @chelone/react user to install it."
                   }
                 ]
               }

@@ -209,14 +209,15 @@ describe("saved queries", () => {
       "posts",
     );
     const entry: SortPayload = { field: "title", order: "ASC" };
+    const tags = ["a"];
     const live = value({
-      filter: { status: "draft", tags: ["a"] },
+      filter: { status: "draft", tags },
       sort: [entry],
     });
 
     controller.save("Drafts", live);
     live.filter.status = "published";
-    (live.filter.tags as string[]).push("b");
+    tags.push("b");
     entry.order = "DESC";
     live.displayedFilters.status = false;
 
