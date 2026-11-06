@@ -26,7 +26,8 @@
     "./maps/draw": "./src/maps-draw.ts",
     "./maps/osm": "./src/maps-osm.ts",
     "./mdx-editor": "./src/mdx-editor.ts",
-    "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-theme.css"
+    "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-theme.css",
+    "./charts": "./src/charts.ts"
   },
   "publishConfig": {
     "access": "public",
@@ -70,7 +71,11 @@
         "types": "./dist/mdx-editor.d.ts",
         "default": "./dist/mdx-editor.js"
       },
-      "./mdx-editor.css": "./dist/components/mdx-editor/mdx-editor-theme.css"
+      "./mdx-editor.css": "./dist/components/mdx-editor/mdx-editor-theme.css",
+      "./charts": {
+        "types": "./dist/charts.d.ts",
+        "default": "./dist/charts.js"
+      }
     }
   },
   "scripts": {
@@ -101,6 +106,8 @@
     "@turf/difference": "^7.4.0",
     "@turf/simplify": "^7.4.0",
     "@turf/union": "^7.4.0",
+    "@unovis/ts": "^1.7.1",
+    "@unovis/vue": "^1.7.1",
     "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
     "osm2geojson-lite": "^2.0.1",
@@ -141,6 +148,12 @@
     "@turf/union": {
       "optional": true
     },
+    "@unovis/ts": {
+      "optional": true
+    },
+    "@unovis/vue": {
+      "optional": true
+    },
     "maplibre-gl": {
       "optional": true
     },
@@ -175,6 +188,8 @@
     "@turf/simplify": "^7.4.0",
     "@turf/union": "^7.4.0",
     "@types/papaparse": "^5.5.2",
+    "@unovis/ts": "^1.7.1",
+    "@unovis/vue": "^1.7.1",
     "@vitejs/plugin-vue": "^6.0.10",
     "@vue/test-utils": "^2.5.1",
     "jsdom": "^31.0.0",
