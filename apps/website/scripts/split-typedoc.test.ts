@@ -40,6 +40,7 @@ interface FixtureNode {
   kind: number;
   children?: FixtureNode[];
   type?: FixtureType;
+  flags?: { isOptional?: boolean };
   comment?: { summary: { text: string }[] };
   signatures?: { parameters: { name: string; type: FixtureType }[] }[];
 }
@@ -55,6 +56,7 @@ interface FixtureProp {
   name: string;
   type?: FixtureType;
   comment?: string;
+  optional?: boolean;
 }
 
 /** typedoc's comment node for a doc line. */
@@ -65,6 +67,7 @@ function fixtureProp(prop: FixtureProp): FixtureNode {
   return {
     name: prop.name,
     kind: 1024,
+    flags: prop.optional ? { isOptional: true } : {},
     type: prop.type,
     comment: prop.comment === undefined ? undefined : docComment(prop.comment),
   };
@@ -82,6 +85,11 @@ function propsInterface(
       typeof prop === "string" ? { name: prop, kind: 1024 } : fixtureProp(prop),
     ),
   };
+}
+
+/** A type alias: `type Name = <type>`. */
+function propsAlias(name: string, type: FixtureType): FixtureNode {
+  return { name, kind: 2097152, type };
 }
 
 /** `A & B & …`, as typedoc writes an intersection. */
@@ -187,7 +195,7 @@ function generatorFixture() {
 /** One generated props page, as `split-typedoc.mjs` writes it. */
 interface GeneratedPropsPage {
   name: string;
-  props: { name: string; type: string }[];
+  props: { name: string; type: string; optional: boolean; comment: string }[];
 }
 
 it("replaces the old props page when an exported interface is renamed", () => {
@@ -327,6 +335,107 @@ it("leaves a hook or plain function without a props page", () => {
   expect(readdirSync(fixture.propsDir)).toEqual(["GeoJsonField.json"]);
 });
 
+it("follows a type alias whose type is a reference to the declaration it names", () => {
+  const fixture = generatorFixture();
+  fixture.generate([
+    propsAlias(
+      "SeriesChartProps",
+      inlineObject([
+        { name: "data", type: intrinsic("readonly TRow[]") },
+        {
+          name: "title",
+          type: intrinsic("string"),
+          optional: true,
+          comment: "Shown in the card header.",
+        },
+        { name: "color", type: intrinsic("string"), optional: true },
+      ]),
+    ),
+    propsAlias("BarChartProps", toPropsType("SeriesChartProps")),
+  ]);
+
+  expect(fixture.read("BarChart").props).toEqual([
+    { name: "data", type: "readonly TRow[]", optional: false, comment: "" },
+    {
+      name: "title",
+      type: "string",
+      optional: true,
+      comment: "Shown in the card header.",
+    },
+    { name: "color", type: "string", optional: true, comment: "" },
+  ]);
+});
+
+it("collects the props of each part of an intersection over a reference", () => {
+  const fixture = generatorFixture();
+  fixture.generate([
+    propsAlias(
+      "SeriesChartProps",
+      inlineObject([
+        { name: "data", type: intrinsic("readonly TRow[]") },
+        { name: "title", type: intrinsic("string"), optional: true },
+      ]),
+    ),
+    propsAlias(
+      "TrendChartProps",
+      intersection(
+        toPropsType("SeriesChartProps"),
+        inlineObject([
+          { name: "area", type: intrinsic("boolean"), optional: true },
+        ]),
+      ),
+    ),
+  ]);
+
+  expect(fixture.read("TrendChart").props).toEqual([
+    { name: "data", type: "readonly TRow[]", optional: false, comment: "" },
+    { name: "title", type: "string", optional: true, comment: "" },
+    { name: "area", type: "boolean", optional: true, comment: "" },
+  ]);
+});
+
+it("leaves a reference typedoc never documented out of the table", () => {
+  const fixture = generatorFixture();
+  fixture.generate([
+    propsAlias(
+      "FooProps",
+      intersection(
+        toPropsType("ComponentProps"),
+        inlineObject([{ name: "source" }]),
+      ),
+    ),
+  ]);
+
+  expect(fixture.read("Foo").props.map((prop) => prop.name)).toEqual([
+    "source",
+  ]);
+});
+
+it("stops at a reference cycle between two aliases", () => {
+  const fixture = generatorFixture();
+  fixture.generate([
+    propsAlias(
+      "FirstProps",
+      intersection(
+        toPropsType("SecondProps"),
+        inlineObject([{ name: "first", optional: true }]),
+      ),
+    ),
+    propsAlias(
+      "SecondProps",
+      intersection(
+        toPropsType("FirstProps"),
+        inlineObject([{ name: "second", optional: true }]),
+      ),
+    ),
+  ]);
+
+  expect(fixture.read("First").props.map((prop) => prop.name)).toEqual([
+    "second",
+    "first",
+  ]);
+});
+
 const propsDir = new URL("../src/docs/content/props/", import.meta.url)
   .pathname;
 
@@ -354,3 +463,40 @@ it.each(ADDON_PROPS_PAGES)(
     expect(page.props.length, `${name} props`).toBeGreaterThan(0);
   },
 );
+
+/**
+ * The charts read `SeriesChartProps`, which typedoc documents only when
+ * `typedoc.json` lists `packages/react/src/components/charts/chart-frame.tsx`.
+ * `BarChartProps` is that type named outright, and `TrendChartProps` adds five
+ * props of its own to it.
+ */
+const SERIES_CHART_PROPS = [
+  "bare",
+  "className",
+  "color",
+  "data",
+  "height",
+  "loading",
+  "title",
+  "xField",
+  "yField",
+];
+
+it("lists the props each chart inherits from SeriesChartProps", () => {
+  const bar: GeneratedPropsPage = JSON.parse(
+    readFileSync(join(propsDir, "BarChart.json"), "utf8"),
+  );
+  expect(bar.props.map((prop) => prop.name)).toEqual(SERIES_CHART_PROPS);
+
+  const trend: GeneratedPropsPage = JSON.parse(
+    readFileSync(join(propsDir, "TrendChart.json"), "utf8"),
+  );
+  expect(trend.props.map((prop) => prop.name)).toEqual([
+    ...SERIES_CHART_PROPS,
+    "area",
+    "smooth",
+    "tooltipFormatter",
+    "xTickFormatter",
+    "yTickFormatter",
+  ]);
+});

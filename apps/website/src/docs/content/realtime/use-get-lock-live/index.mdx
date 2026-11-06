@@ -1,0 +1,53 @@
+---
+title: "useGetLockLive"
+description: "useGetLock, kept fresh: refetches when the record's lock is taken or released, or the connection returns. Needs a realtime data provider with lock support."
+---
+
+`useGetLockLive` is `useGetLock` with a subscription to the record's lock topic.
+
+## Signature
+
+```ts
+function useGetLockLive<TResources extends ResourceMap = ResourceMap>(
+  resource: keyof TResources & string,
+  params: GetLockParams,
+  options?: { enabled?: boolean },
+): UseQueryResult<Lock | null, Error>
+```
+
+`UseQueryResult` is TanStack Query's query result.
+
+- `params` is `GetLockParams`: a required `id` and an optional `meta`.
+- `enabled` gates the fetch and the subscription together.
+
+## Returns
+
+The `useGetLock` result: `data` is the `Lock` or `null` for a free record.
+
+It refetches on `lockTopic(resource, id)`, which carries the `locked` and
+`unlocked` events for that record, and on a reconnect. A new `id` resubscribes.
+
+Lock queries are left out of the resource-wide invalidation the live views fire,
+so a record changing does not refetch this query: only its lock events do.
+
+## Example
+
+```tsx
+import { useGetLockLive } from "@chelone/react";
+
+export const Holder = ({ id }: { id: number }) => {
+  const { data } = useGetLockLive("posts", { id });
+  return <span>{data ? `Held by ${data.identity}` : "Free"}</span>;
+};
+```
+
+`<LockStatus>` renders this same read as a badge. Reach for the hook when the
+display is your own.
+
+## In Vue
+
+`@chelone/vue` exports the same name. `resource` is a plain string, `params`
+takes `MaybeRefOrGetter`, and `data` is a ref.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup and the
+lock provider behind this hook.

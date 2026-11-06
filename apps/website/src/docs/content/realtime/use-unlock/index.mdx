@@ -1,0 +1,78 @@
+---
+title: "useUnlock"
+description: "Releases a record's lock for the identity that holds it. Returns an unlock function, its pending state and its last error."
+---
+
+`useUnlock` is the imperative form of releasing a lock, and the counterpart of
+`useLock`.
+
+## Signature
+
+```ts
+function useUnlock(): UseUnlockResult
+
+interface UseUnlockResult {
+  unlock: (resource: string, params: LockCallParams) => Promise<Lock>;
+  isLoading: boolean;
+  error: Error | null;
+}
+
+interface LockCallParams {
+  id: Identifier;
+  /** Defaults to the auth provider's identity. */
+  identity?: Identifier;
+  meta?: Record<string, unknown>;
+}
+```
+
+- `unlock(resource, { id, identity?, meta? })` resolves the `Lock` as the
+  provider recorded it before removing it.
+- `identity` defaults to the identity the auth provider reports, which is the
+  identity `useLock` took the lock as.
+- `isLoading` is the mutation's pending state. `error` is the last rejection.
+
+## Returns
+
+`unlock` rejects with `LockConflictError` when another identity holds the
+record, so a stale editor cannot free a record it no longer owns, and with a
+plain error when nobody holds it. Its `existingLock` is the lock that was in the
+way.
+
+`useLockOnMount` releases on unmount on its own; call `unlock` only for a
+release you decide the timing of.
+
+## Example
+
+```tsx
+import { useLock, useUnlock } from "@chelone/react";
+
+export const LockToggle = ({ id }: { id: number }) => {
+  const { lock, isLoading: locking } = useLock();
+  const { unlock, isLoading: unlocking, error } = useUnlock();
+  return (
+    <>
+      <button
+        disabled={locking}
+        onClick={() => void lock("posts", { id, identity: "you" })}
+      >
+        Hold
+      </button>
+      <button
+        disabled={unlocking}
+        onClick={() => void unlock("posts", { id, identity: "you" })}
+      >
+        Release
+      </button>
+      {error ? <p>{error.message}</p> : null}
+    </>
+  );
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name. `unlock` is a plain function, and
+`isLoading` and `error` are refs.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup, the
+`LockProvider` contract and `LockConflictError`.
