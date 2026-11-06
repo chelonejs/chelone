@@ -86,4 +86,5 @@ minimumReleaseAgeExclude:
   - '@tiptap/react@3.33.0'
   - '@tiptap/starter-kit@3.33.0'
   - '@tiptap/suggestion@3.33.0'
+  - '@tiptap/extension-image@3.33.0'
   - '@tiptap/vue-3@3.33.0'
