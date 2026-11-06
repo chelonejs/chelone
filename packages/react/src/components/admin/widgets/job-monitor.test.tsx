@@ -274,6 +274,37 @@ describe("<JobMonitor>", () => {
     consoleError.mockRestore();
   });
 
+  it("a rejected write still notifies when its tab was left before the answer", async () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    const dataProvider = provider(JOBS);
+    let fail: (error: Error) => void = () => {};
+    dataProvider.update = () =>
+      new Promise((_resolve, reject) => {
+        fail = reject;
+      });
+    const { notify } = setup({ dataProvider });
+    await screen.findByRole("tablist");
+    openTab(/failed/);
+    fireEvent.click(button("job-monitor-retry"));
+    await waitFor(() =>
+      expect(button("job-monitor-retry").disabled).toBe(true),
+    );
+
+    openTab(/queued/);
+    expect(slot("job-monitor-retry")).toBeNull();
+    fail(new Error("nope"));
+
+    await waitFor(() =>
+      expect(notify).toHaveBeenCalledWith(
+        "chelone.notification.http_error",
+        expect.objectContaining({ type: "error" }),
+      ),
+    );
+    consoleError.mockRestore();
+  });
+
   it("actions false or no edit access hides Retry and Cancel", async () => {
     setup({ monitor: { actions: false } });
     await screen.findByRole("tablist");

@@ -89,23 +89,23 @@ function JobRow({
   fields,
   rules,
   actions,
+  busy,
+  onPlan,
 }: {
   job: LooseRecord;
   resource: string;
   fields: Fields;
   rules: Rules;
   actions: boolean;
+  busy: boolean;
+  onPlan: (plan: JobPlan<LooseRecord> | null) => void;
 }) {
   const translate = useTranslate();
-  const notify = useNotify();
   const [showPayload, setShowPayload] = useState(false);
   const { canAccess, isPending: isAccessPending } = useMenuAccess({
     action: "edit",
     resource,
     record: job,
-  });
-  const { mutate, isPending } = useUpdate(resource, {
-    mutationMode: "pessimistic",
   });
 
   const options: JobActionOptions<LooseRecord> = {
@@ -118,21 +118,6 @@ function JobRow({
   const error = text(getAtPath(job, fields.errorSource));
   const attempts = getAtPath(job, fields.attemptsSource);
   const hasPayload = getAtPath(job, fields.payloadSource) != null;
-
-  const run = (plan: JobPlan<LooseRecord> | null) => {
-    if (!plan) return;
-    mutate(plan, {
-      onSuccess: () =>
-        notify("chelone.notification.updated", {
-          type: "info",
-          messageArgs: { smart_count: 1 },
-        }),
-      onError: (failure) => {
-        console.error(failure);
-        notify("chelone.notification.http_error", { type: "error" });
-      },
-    });
-  };
 
   return (
     <RecordContextProvider value={job}>
@@ -188,8 +173,8 @@ function JobRow({
                 type="button"
                 size="sm"
                 data-slot="job-monitor-retry"
-                disabled={isPending}
-                onClick={() => run(planJobRetry<LooseRecord>(job, options))}
+                disabled={busy}
+                onClick={() => onPlan(planJobRetry<LooseRecord>(job, options))}
               >
                 {translate("chelone.job_monitor.retry", { _: "Retry" })}
               </Button>
@@ -200,8 +185,8 @@ function JobRow({
                 variant="outline"
                 size="sm"
                 data-slot="job-monitor-cancel"
-                disabled={isPending}
-                onClick={() => run(planJobCancel<LooseRecord>(job, options))}
+                disabled={busy}
+                onClick={() => onPlan(planJobCancel<LooseRecord>(job, options))}
               >
                 {translate("ra.action.cancel", { _: "Cancel" })}
               </Button>
@@ -248,6 +233,13 @@ function JobMonitorBody({
   className,
 }: JobMonitorProps & { resource: string }) {
   const translate = useTranslate();
+  const notify = useNotify();
+  // Owned here, not by a row: a row unmounts when its tab is left or a poll
+  // moves the job, and an unmounted observer drops the notifications below.
+  // One write at a time, so a second job's write cannot displace the first's.
+  const { mutate, isPending: isWriting } = useUpdate(resource, {
+    mutationMode: "pessimistic",
+  });
   const { data, isError } = useGetList(
     resource,
     {
@@ -256,6 +248,20 @@ function JobMonitorBody({
     },
     { refetchInterval: pollInterval },
   );
+  const write = (plan: JobPlan<LooseRecord> | null) => {
+    if (!plan) return;
+    mutate(plan, {
+      onSuccess: () =>
+        notify("chelone.notification.updated", {
+          type: "info",
+          messageArgs: { smart_count: 1 },
+        }),
+      onError: (failure) => {
+        console.error(failure);
+        notify("chelone.notification.http_error", { type: "error" });
+      },
+    });
+  };
   const fields: Fields = {
     statusSource,
     typeSource,
@@ -332,6 +338,8 @@ function JobMonitorBody({
                           cancelValue,
                         }}
                         actions={actions}
+                        busy={isWriting}
+                        onPlan={write}
                       />
                     ))}
                   </ul>
