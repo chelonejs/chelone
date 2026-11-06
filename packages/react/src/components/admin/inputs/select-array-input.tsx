@@ -24,7 +24,11 @@ import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetChoiceRepresentationText } from "../../../label";
-import type { ChoicesProps, InputProps } from "../input-props";
+import type {
+  ChoicesProps,
+  InputProps,
+  LooseFormatProps,
+} from "../input-props";
 
 /**
  * Multi-select dropdown input for choosing several values from a list.
@@ -296,7 +300,8 @@ type SelectArrayInputProps<
 > = ChoicesProps<TChoice> &
   // `source` is optional: a SelectArrayInput inside a ReferenceArrayInput
   // inherits it.
-  Partial<InputProps<TRecord, TPath>> & {
+  Partial<Omit<InputProps<TRecord, TPath>, "format">> &
+  LooseFormatProps & {
     className?: string;
     placeholder?: string;
     InputLabelProps?: React.ComponentProps<typeof FieldLabel>;
