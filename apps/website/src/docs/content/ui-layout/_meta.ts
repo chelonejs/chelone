@@ -79,4 +79,8 @@ export default [
       "data-provider-devtools",
     ],
   },
+  {
+    category: "Dashboard & charts",
+    slugs: ["metric-card", "trend-chart", "bar-chart", "donut-chart"],
+  },
 ] satisfies MetaEntry[];
