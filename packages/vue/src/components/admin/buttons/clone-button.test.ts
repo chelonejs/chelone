@@ -10,6 +10,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -111,7 +112,7 @@ const mountButtons = (
 const inputs = (wrapper: VueWrapper) =>
   wrapper
     .findAll("input")
-    .map((input) => (input.element as HTMLInputElement).value);
+    .map((input) => elementOf(input.element, HTMLInputElement).value);
 
 const createView = (props: Record<string, unknown> = {}): Component =>
   defineComponent({
@@ -166,7 +167,7 @@ describe("<Create> location seed", () => {
     const wrapper = mount(Root, {
       global: {
         provide: {
-          [CheloneContextKey as symbol]: {
+          [CheloneContextKey]: {
             dataProvider: fakeDataProvider({}),
             queryClient: new QueryClient(),
           },

@@ -14,6 +14,7 @@ import {
   defineResources,
   fakeDataProvider,
 } from "@chelone/core";
+import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -162,7 +163,7 @@ describe("<TextInput>", () => {
     await flushPromises();
 
     const input = wrapper.find('input[type="text"]');
-    expect((input.element as HTMLInputElement).value).toBe("Initial");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe("Initial");
 
     await input.setValue("Rebound");
     await nextTick();
@@ -196,7 +197,7 @@ describe("<NumberInput> / <BooleanInput>", () => {
     );
     await flushPromises();
     const input = wrapper.find('input[type="number"]');
-    expect((input.element as HTMLInputElement).value).toBe("3");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe("3");
     await input.setValue("42");
     await nextTick();
     expect(captured.values?.().views).toBe(42);
@@ -337,7 +338,9 @@ describe("<SaveButton> in <Edit>", () => {
     await vi.waitFor(() => {
       const input = wrapper.find('input[type="text"]');
       expect(input.exists()).toBe(true);
-      expect((input.element as HTMLInputElement).value).toBe("Hello World");
+      expect(elementOf(input.element, HTMLInputElement).value).toBe(
+        "Hello World",
+      );
     });
 
     const input = wrapper.find('input[type="text"]');
@@ -405,7 +408,7 @@ describe("form options on the view", () => {
 
     await vi.waitFor(() => {
       const input = wrapper.find('input[type="text"]');
-      expect((input.element as HTMLInputElement | undefined)?.value).toBe(
+      expect(elementOf(input.element, HTMLInputElement).value).toBe(
         "Hello World",
       );
     });
@@ -445,7 +448,7 @@ describe("form options on the view", () => {
 
     await vi.waitFor(() => {
       const input = wrapper.find('input[type="text"]');
-      expect((input.element as HTMLInputElement | undefined)?.value).toBe(
+      expect(elementOf(input.element, HTMLInputElement).value).toBe(
         "Hello World",
       );
     });
@@ -519,7 +522,7 @@ describe("form options on the view", () => {
 
     await vi.waitFor(() => {
       const input = wrapper.find('input[type="text"]');
-      expect((input.element as HTMLInputElement | undefined)?.value).toBe(
+      expect(elementOf(input.element, HTMLInputElement).value).toBe(
         "Hello World",
       );
     });
@@ -560,7 +563,7 @@ describe("form options on the view", () => {
 
     await vi.waitFor(() => {
       const input = wrapper.find('input[type="text"]');
-      expect((input.element as HTMLInputElement | undefined)?.value).toBe(
+      expect(elementOf(input.element, HTMLInputElement).value).toBe(
         "Hello World",
       );
     });
@@ -579,7 +582,12 @@ describe("form options on the view", () => {
   it("onSuccess on <Edit> sees the form reconciled to the server record", async () => {
     const dataProvider = makeProvider();
     vi.spyOn(dataProvider, "update").mockImplementation(async (_, params) => ({
-      data: { ...(params.data as Post), id: 1, title: "Server Title" },
+      data: {
+        ...defined(params.previousData),
+        ...params.data,
+        id: 1,
+        title: "Server Title",
+      },
     }));
     const seen: { title?: unknown; isDirty?: boolean } = {};
     let formApi: ReturnType<typeof useCheloneFormContext>["form"] | undefined;
@@ -613,7 +621,7 @@ describe("form options on the view", () => {
 
     await vi.waitFor(() => {
       const input = wrapper.find('input[type="text"]');
-      expect((input.element as HTMLInputElement | undefined)?.value).toBe(
+      expect(elementOf(input.element, HTMLInputElement).value).toBe(
         "Hello World",
       );
     });
