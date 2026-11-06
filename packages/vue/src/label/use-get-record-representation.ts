@@ -16,11 +16,7 @@
  * core's `getAtPath`, the same reader `useFieldValue` uses.
  */
 
-import {
-  getAtPath,
-  isResourceRecord,
-  type ResourceRecord,
-} from "@chelone/core";
+import { getAtPath, type ResourceRecord } from "@chelone/core";
 import { inject } from "vue";
 import { ResourceRegistryKey } from "../admin/resource-registry";
 import type { RecordRepresentation } from "../index";
@@ -42,7 +38,9 @@ function isRepresentationFunction(
 }
 
 /** The resolver `useGetRecordRepresentation` returns. */
-export type GetRecordRepresentation = (record: unknown) => string;
+export type GetRecordRepresentation = (
+  record: ResourceRecord | null | undefined,
+) => string;
 
 export function useGetRecordRepresentation(
   resource?: string,
@@ -53,15 +51,13 @@ export function useGetRecordRepresentation(
     ? registry?.definitions[name]?.recordRepresentation
     : undefined;
 
-  return (record: unknown): string => {
+  return (record): string => {
     if (record == null) return "";
     if (
       recordRepresentation !== undefined &&
       isRepresentationFunction(recordRepresentation)
     ) {
-      return isResourceRecord(record)
-        ? String(recordRepresentation(record) ?? "")
-        : "";
+      return String(recordRepresentation(record) ?? "");
     }
     if (typeof recordRepresentation === "string") {
       return String(getAtPath(record, recordRepresentation) ?? "");
