@@ -78,6 +78,61 @@ function runOnBlock(
   if (focus) editor.view.focus();
 }
 
+/** Moves child `from` of `parent` to index `to`, and selects it. `start` is where the parent's content begins. */
+function moveChild(
+  tr: Transaction,
+  parent: ProseMirrorNode,
+  start: number,
+  from: number,
+  to: number,
+) {
+  const lo = Math.min(from, to);
+  const hi = Math.max(from, to);
+  const moved = parent.child(from);
+  const between: ProseMirrorNode[] = [];
+  let rangeStart = start;
+  let rangeEnd = start;
+  parent.forEach((child, _offset, index) => {
+    if (index < lo) rangeStart += child.nodeSize;
+    if (index <= hi) rangeEnd += child.nodeSize;
+    if (index >= lo && index <= hi && index !== from) between.push(child);
+  });
+  between.splice(to - lo, 0, moved);
+  tr.replaceWith(rangeStart, rangeEnd, between);
+  let at = rangeStart;
+  for (const child of between.slice(0, to - lo)) at += child.nodeSize;
+  tr.setSelection(NodeSelection.create(tr.doc, at));
+}
+
+/**
+ * Moves the top-level block at index `from` to index `to` in one transaction,
+ * so one undo puts it back, and selects it there.
+ */
+export function moveTopLevelBlock(editor: Editor, from: number, to: number) {
+  const { doc } = editor.state;
+  if (from === to || from < 0 || to < 0) return;
+  if (from >= doc.childCount || to >= doc.childCount) return;
+  const { tr } = editor.state;
+  moveChild(tr, doc, 0, from, to);
+  editor.view.dispatch(tr.scrollIntoView());
+  editor.view.focus();
+}
+
+/** Moves the block at `pos` one place among its siblings. */
+function moveSibling(editor: Editor, pos: number, step: -1 | 1) {
+  const $pos = editor.state.doc.resolve(pos);
+  const index = $pos.index();
+  const to = index + step;
+  if (to < 0 || to >= $pos.parent.childCount) return;
+  if ($pos.depth === 0) {
+    moveTopLevelBlock(editor, index, to);
+    return;
+  }
+  runOnBlock(editor, pos, (tr) => {
+    moveChild(tr, $pos.parent, $pos.start(), index, to);
+  });
+}
+
 function ToolbarButton({
   label,
   disabled,
@@ -163,22 +218,8 @@ export function BlockToolbar({ editor, registry }: BlockToolbarProps) {
     runOnBlock(editor, pos, (tr, block) => {
       tr.delete(pos, pos + block.nodeSize);
     });
-  const moveUp = () =>
-    runOnBlock(editor, pos, (tr, block) => {
-      const before = tr.doc.resolve(pos).nodeBefore;
-      if (!before) return;
-      const start = pos - before.nodeSize;
-      tr.replaceWith(start, pos + block.nodeSize, [block, before]);
-      tr.setSelection(NodeSelection.create(tr.doc, start));
-    });
-  const moveDown = () =>
-    runOnBlock(editor, pos, (tr, block) => {
-      const end = pos + block.nodeSize;
-      const after = tr.doc.resolve(end).nodeAfter;
-      if (!after) return;
-      tr.replaceWith(pos, end + after.nodeSize, [after, block]);
-      tr.setSelection(NodeSelection.create(tr.doc, pos + after.nodeSize));
-    });
+  const moveUp = () => moveSibling(editor, pos, -1);
+  const moveDown = () => moveSibling(editor, pos, 1);
   const patch = (attrs: Partial<BlockAttrs>) =>
     runOnBlock(
       editor,

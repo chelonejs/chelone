@@ -6942,6 +6942,8 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/react",
+        "@dnd-kit/dom",
+        "@dnd-kit/react",
         "@tiptap/core",
         "@tiptap/extensions",
         "@tiptap/pm",
@@ -6959,6 +6961,10 @@
         },
         {
           "path": "src/components/block-editor/block-doc-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-drag-handle.tsx",
           "type": "registry:component"
         },
         {
@@ -7046,6 +7052,29 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "block-drag-handle",
+      "type": "registry:component",
+      "title": "Block Drag Handle",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-drag-handle.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/block-toolbar", "@chelone/lib-utils"],
+      "dependencies": [
+        "@chelone/react",
+        "@dnd-kit/dom",
+        "@dnd-kit/react",
+        "@tiptap/core",
+        "@tiptap/react",
+        "lucide-react",
+        "recharts"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "block-editor-input",
       "type": "registry:component",
       "title": "Block Editor Input",
@@ -7078,6 +7107,7 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/block-drag-handle",
         "@chelone/block-nodes",
         "@chelone/block-picker",
         "@chelone/block-toolbar",
@@ -7089,6 +7119,7 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/react",
+        "@dnd-kit/react",
         "@tiptap/core",
         "@tiptap/extensions",
         "@tiptap/pm",
