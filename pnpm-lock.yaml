@@ -728,6 +728,9 @@ importers:
       '@chelone/core':
         specifier: workspace:*
         version: link:../core
+      '@types/geojson':
+        specifier: ^7946.0.16
+        version: 7946.0.16
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: ^0.18.5
