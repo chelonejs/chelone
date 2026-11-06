@@ -1,5 +1,6 @@
 import assert from "node:assert";
 import { test } from "node:test";
+import { defined } from "@chelone/test-utils";
 import { buildNavTree } from "./nav.ts";
 import { findGroup, prevNext } from "./nav-sequence.ts";
 
@@ -21,7 +22,7 @@ const metas = {
     { slug: "advanced" },
   ],
 };
-const tree = buildNavTree(slugs, metas, (s) => s.split("/").pop()!);
+const tree = buildNavTree(slugs, metas, (s) => defined(s.split("/").pop()));
 
 test("prevNext returns neighbours within the split group", () => {
   assert.deepEqual(prevNext("page-components/edit/layout", tree), {
