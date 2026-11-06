@@ -10,6 +10,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -86,7 +87,10 @@ describe("<CronInput>", () => {
     setup(<CronInput source="schedule" />, {
       defaultValues: { schedule: "0 9 * * *" },
     });
-    const input = screen.getByLabelText("Schedule") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Schedule"),
+      HTMLInputElement,
+    );
     expect(input.value).toBe("0 9 * * *");
   });
 
@@ -112,7 +116,10 @@ describe("<CronInput>", () => {
       <CronInput source="schedule" />,
       { defaultValues: { schedule: "" }, onData },
     );
-    const input = screen.getByLabelText("Schedule") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Schedule"),
+      HTMLInputElement,
+    );
     fireEvent.change(input, { target: { value: "*/5 * * * *" } });
     await act(async () => {
       await submitRef.current?.();
@@ -125,7 +132,7 @@ describe("<CronInput>", () => {
       defaultValues: { schedule: "0 9 * * *" },
     });
     expect(
-      (screen.getByLabelText("Schedule") as HTMLInputElement).disabled,
+      elementOf(screen.getByLabelText("Schedule"), HTMLInputElement).disabled,
     ).toBe(true);
   });
 

@@ -12,6 +12,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -145,6 +146,14 @@ function resourceProviders(
   );
 }
 
+/** The labelled control inside a locale panel, checked as an input. */
+function inputInPanel(panelId: string, label: string): HTMLInputElement {
+  return elementOf(
+    within(panel(panelId)).getByLabelText(label),
+    HTMLInputElement,
+  );
+}
+
 function panel(id: string): HTMLElement {
   const el = document.getElementById(id);
   if (!el) throw new Error(`no element with id ${id}`);
@@ -206,21 +215,13 @@ describe("TranslatableInputs", () => {
       ),
     );
     await waitFor(() =>
-      expect(
-        (
-          within(panel("translatable-content-en")).getByLabelText(
-            "Name",
-          ) as HTMLInputElement
-        ).value,
-      ).toBe("Hello"),
+      expect(inputInPanel("translatable-content-en", "Name").value).toBe(
+        "Hello",
+      ),
     );
-    expect(
-      (
-        within(panel("translatable-content-fr")).getByLabelText(
-          "Name",
-        ) as HTMLInputElement
-      ).value,
-    ).toBe("Bonjour");
+    expect(inputInPanel("translatable-content-fr", "Name").value).toBe(
+      "Bonjour",
+    );
   });
 
   it("saves typed values for every locale under one field", async () => {
@@ -498,9 +499,7 @@ describe("TranslatableInputs", () => {
       </ArrayInput>,
       { defaultValues: { items: [{ name: { en: "a", fr: "b" } }] } },
     );
-    const fr = within(panel("translatable-content-fr")).getByLabelText(
-      "Name",
-    ) as HTMLInputElement;
+    const fr = inputInPanel("translatable-content-fr", "Name");
     expect(fr.value).toBe("b");
     fireEvent.change(fr, { target: { value: "c" } });
     expect(await submit()).toEqual({
@@ -525,9 +524,7 @@ describe("TranslatableInputs", () => {
         },
       },
     );
-    const fr = within(panel("translatable-content-fr")).getByLabelText(
-      "Name",
-    ) as HTMLInputElement;
+    const fr = inputInPanel("translatable-content-fr", "Name");
     expect(fr.value).toBe("b");
     fireEvent.change(fr, { target: { value: "c" } });
     expect(await submit()).toEqual({

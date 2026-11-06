@@ -12,6 +12,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -107,14 +108,15 @@ describe("<CheckboxGroupInput>", () => {
       defaultValues: { tags: ["tech", "people"] },
     });
     expect(
-      (screen.getByLabelText("Tech") as HTMLButtonElement).getAttribute(
+      elementOf(screen.getByLabelText("Tech"), HTMLButtonElement).getAttribute(
         "aria-checked",
       ),
     ).toBe("true");
     expect(
-      (screen.getByLabelText("Lifestyle") as HTMLButtonElement).getAttribute(
-        "aria-checked",
-      ),
+      elementOf(
+        screen.getByLabelText("Lifestyle"),
+        HTMLButtonElement,
+      ).getAttribute("aria-checked"),
     ).toBe("false");
   });
 
