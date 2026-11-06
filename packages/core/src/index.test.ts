@@ -397,6 +397,7 @@ describe("@chelone/core barrel", () => {
   it("exports the record workflow helpers", () => {
     expect(barrel.getApprovalState).toBeTypeOf("function");
     expect(barrel.buildApprovalUpdate).toBeTypeOf("function");
+    expect(barrel.buildRejectionUpdate).toBeTypeOf("function");
     expect(barrel.getAllowedTransitions).toBeTypeOf("function");
   });
 
