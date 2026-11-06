@@ -126,6 +126,15 @@ export {
   toggleFilterValue,
 } from "./controller/filter-toggle";
 export type {
+  InPlaceEditorEvent,
+  InPlaceEditorState,
+  InPlaceSave,
+} from "./controller/in-place-editor";
+export {
+  nextInPlaceEditorState,
+  planInPlaceSave,
+} from "./controller/in-place-editor";
+export type {
   InfiniteListController,
   InfiniteListControllerState,
 } from "./controller/infinite-list-controller";
