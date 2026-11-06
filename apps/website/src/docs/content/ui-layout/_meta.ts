@@ -71,6 +71,7 @@ export default [
     slugs: [
       "application-updated-notification",
       "check-for-application-update",
+      "i18n-key-editor",
       "refresh-button",
       "refresh-icon-button",
       "icon-button-with-tooltip",
