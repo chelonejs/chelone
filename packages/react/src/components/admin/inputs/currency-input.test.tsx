@@ -11,6 +11,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -89,7 +90,7 @@ describe("<CurrencyInput>", () => {
     setup(<CurrencyInput source="price" currency="USD" />, {
       defaultValues: { price: 1234.5 },
     });
-    const input = screen.getByLabelText("Price") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Price"), HTMLInputElement);
     expect(input.getAttribute("type")).toBe("number");
     expect(input.value).toBe("1234.5");
     expect(screen.getByText("$")).toBeTruthy();
@@ -101,7 +102,7 @@ describe("<CurrencyInput>", () => {
       <CurrencyInput source="price" currency="USD" />,
       { defaultValues: { price: 10 }, onData },
     );
-    const input = screen.getByLabelText("Price") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Price"), HTMLInputElement);
     fireEvent.change(input, { target: { value: "42.5" } });
     await act(async () => {
       await submitRef.current?.();
@@ -113,9 +114,10 @@ describe("<CurrencyInput>", () => {
     setup(<CurrencyInput source="price" currencies={["USD", "EUR"]} />, {
       defaultValues: { price: { amount: 20, currency: "EUR" } },
     });
-    const select = document.querySelector(
-      "select[data-currency-select]",
-    ) as HTMLSelectElement;
+    const select = elementOf(
+      document.querySelector("select[data-currency-select]"),
+      HTMLSelectElement,
+    );
     expect(select).toBeTruthy();
     expect(select.value).toBe("EUR");
   });
@@ -128,7 +130,7 @@ describe("<CurrencyInput>", () => {
       defaultValues: { price: { amount: 20, currency: "EUR" } },
       onData,
     });
-    const input = screen.getByLabelText("Price") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Price"), HTMLInputElement);
     fireEvent.change(input, { target: { value: "30" } });
     await act(async () => {
       await submitRef.current?.();
@@ -160,7 +162,7 @@ describe("<CurrencyInput>", () => {
     setup(<CurrencyInput source="price" currency="USD" storeAsMinorUnits />, {
       defaultValues: { price: 12345 },
     });
-    const input = screen.getByLabelText("Price") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Price"), HTMLInputElement);
     expect(input.value).toBe("123.45");
   });
 
@@ -170,7 +172,7 @@ describe("<CurrencyInput>", () => {
       <CurrencyInput source="price" currency="USD" storeAsMinorUnits />,
       { defaultValues: { price: 12345 }, onData },
     );
-    const input = screen.getByLabelText("Price") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Price"), HTMLInputElement);
     fireEvent.change(input, { target: { value: "99.99" } });
     await act(async () => {
       await submitRef.current?.();
@@ -193,7 +195,7 @@ describe("<CurrencyInput>", () => {
     setup(<CurrencyInput source="price" currency="USD" disabled />, {
       defaultValues: { price: 5 },
     });
-    const input = screen.getByLabelText("Price") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Price"), HTMLInputElement);
     expect(input.disabled).toBe(true);
   });
 
