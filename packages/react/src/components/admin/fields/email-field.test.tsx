@@ -2,7 +2,13 @@
  * P7d-T1 tests: `<EmailField>` — email as a mailto link.
  */
 
-import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  defineMessages,
+  fakeDataProvider,
+  type LooseRecord,
+} from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -13,7 +19,7 @@ import { EmailField } from "./email-field";
 
 afterEach(cleanup);
 
-function wrap(record: unknown) {
+function wrap(record: LooseRecord) {
   const i18n = createI18n({
     locale: "en",
     messages: { en: defineMessages({ "myapp.empty": "no email" }) },
@@ -24,9 +30,7 @@ function wrap(record: unknown) {
       queryClient={new QueryClient()}
       i18n={i18n}
     >
-      <RecordContextProvider value={record as Record<string, unknown>}>
-        {children}
-      </RecordContextProvider>
+      <RecordContextProvider value={record}>{children}</RecordContextProvider>
     </CheloneProvider>
   );
 }
@@ -36,7 +40,7 @@ describe("<EmailField />", () => {
     const { getByText } = render(<EmailField source="email" />, {
       wrapper: wrap({ id: 1, email: "ada@example.com" }),
     });
-    const link = getByText("ada@example.com") as HTMLAnchorElement;
+    const link = elementOf(getByText("ada@example.com"), HTMLAnchorElement);
     expect(link.tagName).toBe("A");
     expect(link.getAttribute("href")).toBe("mailto:ada@example.com");
   });
