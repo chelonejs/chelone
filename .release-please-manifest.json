@@ -3,5 +3,6 @@
   "packages/react": "0.6.0",
   "packages/vue": "0.6.0",
   "packages/supabase": "0.6.0",
-  "packages/rest": "0.6.0"
+  "packages/rest": "0.6.0",
+  "packages/utils": "0.6.0"
 }
