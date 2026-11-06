@@ -64,7 +64,7 @@ Heavy editors and integrations ship as opt-in subpaths, so an app that does not 
 - **CSV import** (in progress): `CsvImport` and `useCsvImport` from `/csv-import`. Issues #407 to #411 and #424.
 - **Supabase** (in progress): the `@chelone/supabase` package, and the `/supabase` subpath for the login, reset and set password pages. The `chelone-supabase gen` bin writes Zod schemas and a typed resources file from the project's types, for the guessers, documented on the Supabase page (#842). Issues #412 to #423, #425 and #426.
 - **Tiptap rich text input** (planned): `RichTextInput` and `RichTextField` from `/rich-text-input`. Issue #902.
-- **Block editor** (planned): `BlockEditorInput` and `BlockDocField` from `/block-editor`, also on tiptap. Issue #914.
+- **Block editor** (in progress): `BlockEditorInput`, `BlockDocField` and `defineBlock` from `/block-editor`, also on tiptap. Reference pages: `apps/website/src/docs/content/editing/block-editor-input/index.mdx` and `apps/website/src/docs/content/viewing/block-doc-field/index.mdx`. Issues #914 to #920.
 - **Charts** (planned): `TrendChart`, `BarChart` and `DonutChart` from `/charts`, on recharts in React and unovis in Vue, so the two APIs differ. Issue #880.
 - **Drag** (planned): wherever chelone drags, it uses `@dnd-kit/react` and `@dnd-kit/vue` as optional peers of the add-on that drags.
 
