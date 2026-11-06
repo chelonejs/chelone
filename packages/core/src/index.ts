@@ -552,6 +552,7 @@ export {
   fromJsonText,
   toJsonText,
 } from "./form/json-text";
+export { setFormValues } from "./form/set-form-values";
 export type { SourceScope } from "./form/source";
 export {
   composeSource,
@@ -897,6 +898,7 @@ export type {
 } from "./resource/register";
 export type {
   RecordOf,
+  RecordResources,
   ResourceConfig,
   ResourceMap,
 } from "./resource/registry";
