@@ -144,3 +144,35 @@ describe("ArrayInput of a record with no required id", () => {
     });
   });
 });
+
+describe("useArrayInput rows", () => {
+  it("returns a result whose rows are those of the array at source", () => {
+    const items = useArrayInput<Cart, "items">;
+    expectTypeOf(items).returns.toEqualTypeOf<
+      UseArrayInputResult<Cart["items"][number]>
+    >();
+    const tags = useArrayInput<Cart, "tags">;
+    expectTypeOf(tags).returns.toEqualTypeOf<UseArrayInputResult<string>>();
+  });
+
+  it("rejects a row that is not a cart item", () => {
+    const cart = useArrayInput<Cart, "items">({ source: "items" });
+    cart.add({ sku: "a", qty: 1 });
+    cart.insert(0, { sku: "b", qty: 2 });
+    cart.replace(0, { sku: "c", qty: 3 });
+    // @ts-expect-error a row needs a numeric qty
+    cart.add({ sku: "a", qty: "one" });
+    // @ts-expect-error a tag is no cart item
+    cart.insert(0, "a");
+    // @ts-expect-error `price` is no key of a cart item
+    cart.replace(0, { sku: "a", qty: 1, price: 1 });
+  });
+
+  it("keeps the untyped row for a source that is a plain string", () => {
+    const source: string = "anything[0].at";
+    const loose = useArrayInput({ source });
+    expectTypeOf(loose).toEqualTypeOf<UseArrayInputResult>();
+    loose.add({ whatever: 1 });
+    loose.replace(0, "a");
+  });
+});
