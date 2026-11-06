@@ -47,7 +47,7 @@
       "name": "format",
       "type": "(value: unknown) => unknown",
       "optional": true,
-      "comment": "Read transform (raw form value → input value)."
+      "comment": ""
     },
     {
       "name": "height",
@@ -117,9 +117,9 @@
     },
     {
       "name": "parse",
-      "type": "(value: unknown) => unknown",
+      "type": "(value: unknown) => NoInfer<SourceValue<TRecord, SourceProp<TRecord>>>",
       "optional": true,
-      "comment": "Write transform (input value → stored value)."
+      "comment": "Write transform (input value → stored value). Must return the value at\n`source`; `unknown` without a record."
     },
     {
       "name": "readOnly",
