@@ -218,6 +218,11 @@ export {
   createShowController,
 } from "./controller/record-controllers";
 export type {
+  DiffStatus,
+  RecordDiffRow,
+} from "./controller/record-diff";
+export { diffRecords, formatDiffValue } from "./controller/record-diff";
+export type {
   RecordTimelineEntry,
   ToTimelineEntriesOptions,
 } from "./controller/record-timeline";
