@@ -14,6 +14,7 @@ Each entry below needs the peer dependencies listed beside it, and only that ent
 | --- | --- |
 | `@chelone/react/tanstack-router` | `@tanstack/react-router` |
 | `@chelone/react/monaco` | `monaco-editor`, `@monaco-editor/react` |
+| `@chelone/react/charts` | `recharts` |
 | `@chelone/react/kanban` | `@dnd-kit/react`, `@dnd-kit/dom` |
 | `@chelone/react/mdx-editor` | `@mdxeditor/editor` |
 | `@chelone/react/csv-import` | `papaparse` |
