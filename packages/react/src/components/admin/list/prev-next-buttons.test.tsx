@@ -12,6 +12,7 @@ import {
   fakeDataProvider,
   getListOptions,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -118,13 +119,13 @@ describe("<PrevNextButtons>", () => {
   it("disables previous on the first record and next on the last", async () => {
     const first = mount({ id: 5 });
     const previous = await screen.findByRole("button", { name: "Previous" });
-    expect((previous as HTMLButtonElement).disabled).toBe(true);
+    expect(elementOf(previous, HTMLButtonElement).disabled).toBe(true);
     expect(hrefOf("Next")).toBe("/posts/4");
     first.unmount();
 
     mount({ id: 1 });
     const next = await screen.findByRole("button", { name: "Next" });
-    expect((next as HTMLButtonElement).disabled).toBe(true);
+    expect(elementOf(next, HTMLButtonElement).disabled).toBe(true);
     expect(hrefOf("Previous")).toBe("/posts/2");
   });
 

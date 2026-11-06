@@ -17,6 +17,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -242,7 +243,7 @@ describe("<DataTable> — selection / bulk", () => {
     const checkboxes = screen.getAllByRole("checkbox");
     expect(checkboxes.length).toBe(1 + ROWS.length);
     // Select the first row.
-    const firstRow = screen.getAllByRole("row")[1] as HTMLElement;
+    const firstRow = defined(screen.getAllByRole("row")[1]);
     const rowCheckbox = within(firstRow).getByRole("checkbox");
     fireEvent.click(rowCheckbox);
     // The bulk toolbar reflects one selected row.
@@ -255,7 +256,7 @@ describe("<DataTable> — selection / bulk", () => {
         <DataTable.Col source="title" />
       </TableHarness>,
     );
-    const headerRow = screen.getAllByRole("row")[0] as HTMLElement;
+    const headerRow = defined(screen.getAllByRole("row")[0]);
     const selectAll = within(headerRow).getByRole("checkbox");
     fireEvent.click(selectAll);
     // All three rows selected → the bulk bar shows the count.
@@ -357,7 +358,7 @@ describe("<DataTable> columns", () => {
       </TableHarness>,
     );
     expect(headers()).toEqual(["Views", "Title"]);
-    const firstRow = screen.getAllByRole("row")[1] as HTMLElement;
+    const firstRow = defined(screen.getAllByRole("row")[1]);
     expect(
       within(firstRow)
         .getAllByRole("cell")
@@ -423,11 +424,11 @@ describe("<DataTable> columns", () => {
       </TableHarness>,
     );
     expect(publishes()).toHaveLength(2);
-    expect(
-      (store.getItem("posts.datatable_columns") as { id: string }[]).map(
-        (c) => c.id,
-      ),
-    ).toEqual(["title", "views", "id"]);
+    expect(store.getItem("posts.datatable_columns")).toEqual([
+      expect.objectContaining({ id: "title" }),
+      expect.objectContaining({ id: "views" }),
+      expect.objectContaining({ id: "id" }),
+    ]);
   });
 
   it("renders every column and writes nothing when no store is provided", () => {
@@ -468,9 +469,10 @@ describe("<DataTable> columns", () => {
         <DataTable.Col source="views" />
       </TableHarness>,
     );
-    const panelCell = document.querySelector(
-      '[data-slot="data-table-expand-panel"] td',
-    ) as HTMLTableCellElement;
+    const panelCell = elementOf(
+      document.querySelector('[data-slot="data-table-expand-panel"] td'),
+      HTMLTableCellElement,
+    );
     expect(panelCell.colSpan).toBe(2);
   });
 });
@@ -515,7 +517,7 @@ describe("useDataTableColumns", () => {
     );
   }
   const state = () =>
-    JSON.parse(screen.getByTestId("state").textContent as string);
+    JSON.parse(defined(screen.getByTestId("state").textContent));
   const click = (name: string) =>
     fireEvent.click(screen.getByRole("button", { name }));
 

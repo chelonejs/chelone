@@ -9,6 +9,7 @@ import {
   type FilterPayload,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -81,7 +82,7 @@ describe("<FilterLiveSearch>", () => {
 
   it("shows a q filter set elsewhere", () => {
     const { rerender } = mount(<FilterLiveSearch />, { q: "hello" });
-    const input = screen.getByRole("textbox") as HTMLInputElement;
+    const input = elementOf(screen.getByRole("textbox"), HTMLInputElement);
     expect(input.value).toBe("hello");
     expect(input.getAttribute("placeholder")).toBe("Search posts");
     rerender({ q: "later" });
