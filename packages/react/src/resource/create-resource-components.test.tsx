@@ -4,7 +4,9 @@
  * under `<Admin>` and watches the data provider, since the binding is a
  * `resource` the views pass down.
  */
+
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -90,7 +92,7 @@ describe("createResourceComponentsOf", () => {
 
     const input = await screen.findByLabelText(/title/i);
     await waitFor(() =>
-      expect((input as HTMLInputElement).value).toBe("Alpha"),
+      expect(elementOf(input, HTMLInputElement).value).toBe("Alpha"),
     );
     expect(getOne).toHaveBeenCalledWith("posts", { id: "1" });
     expect(getOne).not.toHaveBeenCalledWith("articles", expect.anything());

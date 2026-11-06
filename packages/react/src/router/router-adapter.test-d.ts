@@ -29,6 +29,9 @@ import {
 } from "./nav-hooks";
 import { reactRouterAdapter } from "./react-router-adapter";
 
+declare const cp: ReturnType<typeof useCreatePath>;
+declare const redirect: ReturnType<typeof useRedirect>;
+
 describe("RouterAdapter type contract", () => {
   it("the default adapter satisfies RouterAdapter exactly", () => {
     expectTypeOf(reactRouterAdapter).toMatchTypeOf<RouterAdapter>();
@@ -125,7 +128,6 @@ describe("nav-hook signatures", () => {
   });
 
   it("useCreatePath returns a (CreatePathParams) => string closure", () => {
-    const cp = {} as ReturnType<typeof useCreatePath>;
     assertType<string>(cp({ type: "list", resource: "posts" }));
   });
 
@@ -136,7 +138,6 @@ describe("nav-hook signatures", () => {
   });
 
   it("useRedirect accepts every ra-core form (false / fn / CreatePathType)", () => {
-    const redirect = {} as ReturnType<typeof useRedirect>;
     assertType<void>(redirect(false));
     assertType<void>(redirect("list", "posts"));
     assertType<void>(redirect("edit", "posts", 1));
