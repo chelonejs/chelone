@@ -2,6 +2,7 @@
  * P7d-T1 tests: `<FunctionField>` — render the record via a render function.
  */
 
+import type { LooseRecord } from "@chelone/core";
 import { cleanup, render } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it } from "vitest";
@@ -10,11 +11,9 @@ import { FunctionField } from "./function-field";
 
 afterEach(cleanup);
 
-function wrap(record: unknown) {
+function wrap(record: LooseRecord) {
   return ({ children }: { children: ReactNode }) => (
-    <RecordContextProvider value={record as Record<string, unknown>}>
-      {children}
-    </RecordContextProvider>
+    <RecordContextProvider value={record}>{children}</RecordContextProvider>
   );
 }
 
