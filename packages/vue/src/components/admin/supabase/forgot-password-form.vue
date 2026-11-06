@@ -28,7 +28,7 @@ import Spinner from "../../ui/spinner.vue";
 import TextInput from "../inputs/text-input.vue";
 import { useResetPassword } from "./use-password-recovery";
 
-interface ForgotPasswordValues extends Record<string, unknown> {
+interface ForgotPasswordValues {
   email: string;
 }
 

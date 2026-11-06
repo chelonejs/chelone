@@ -1,7 +1,7 @@
 import type { LooseRecord } from "@chelone/core";
-import type { ComponentProps, HTMLAttributes, ReactNode } from "react";
+import type { ComponentProps, HTMLAttributes } from "react";
 import { Badge } from "@/components/ui/badge";
-import type { FieldProps } from "@/lib/field-types";
+import type { ElementFieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -40,7 +40,7 @@ function TextArrayField<RecordType extends LooseRecord = LooseRecord>(
     variant = "outline",
     ...rest
   } = props;
-  const data: unknown = useFieldValue<LooseRecord>({
+  const data = useFieldValue({
     defaultValue,
     source,
     record,
@@ -65,10 +65,12 @@ function TextArrayField<RecordType extends LooseRecord = LooseRecord>(
       className={cn("flex flex-wrap gap-1", className)}
       {...sanitizeFieldRestProps(rest)}
     >
-      {(data as ReactNode[]).map((item, index) => (
+      {data.map((item, index) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: field value is an array of primitives that may contain duplicates (e.g. ["a","a"]); index disambiguates equal values
         <Badge key={`${String(item)}-${index}`} variant={variant}>
-          {item != null && typeof item !== "string" ? String(item) : item}
+          {item == null || typeof item === "string" || typeof item === "number"
+            ? item
+            : String(item)}
         </Badge>
       ))}
     </div>
@@ -76,8 +78,10 @@ function TextArrayField<RecordType extends LooseRecord = LooseRecord>(
 }
 
 interface TextArrayFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+  extends ElementFieldProps<
+    RecordType,
+    Omit<HTMLAttributes<HTMLDivElement>, "children">
+  > {
   variant?: BadgeProps["variant"];
 }
 

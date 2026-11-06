@@ -1,7 +1,7 @@
 import type { LooseRecord } from "@chelone/core";
 import type * as React from "react";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
-import type { FieldProps } from "@/lib/field-types";
+import type { ElementFieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
@@ -43,12 +43,12 @@ const UrlFieldImpl = <RecordType extends LooseRecord = LooseRecord>(
     content,
     ...rest
   } = inProps;
-  const value: unknown = useFieldValue<LooseRecord>({
+  const translate = useTranslate();
+  const value = useFieldValue({
     defaultValue,
     source,
     record,
   });
-  const translate = useTranslate();
 
   if (value == null || value === "") {
     if (!empty) {
@@ -67,7 +67,7 @@ const UrlFieldImpl = <RecordType extends LooseRecord = LooseRecord>(
     // (e.g. `javascript:`), but still surface the value as plain text.
     return (
       <span className={className} {...sanitizeFieldRestProps(rest)}>
-        {value as string}
+        {typeof value === "string" ? value : String(value)}
       </span>
     );
   }
@@ -95,8 +95,10 @@ UrlFieldImpl.displayName = "UrlFieldImpl";
 const UrlField = genericMemo(UrlFieldImpl);
 
 interface UrlFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "content"> {
+  extends ElementFieldProps<
+    RecordType,
+    Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "content">
+  > {
   /** Content to display as the link text. Defaults to the URL value. */
   content?: ReactNode;
 }

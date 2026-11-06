@@ -441,6 +441,56 @@ describe("createChoicesController — status union", () => {
     c.destroy();
   });
 
+  it("a fetch error with a message notifies under that message", async () => {
+    const ctx = makeCtx();
+    vi.spyOn(ctx.dataProvider, "getList").mockRejectedValue(new Error("boom"));
+    const c = createChoicesController(ctx, { reference: "posts" });
+    attach(c);
+    await vi.waitFor(() =>
+      expect(ctx.notifications.getSnapshot()).toHaveLength(1),
+    );
+    expect(ctx.notifications.getSnapshot()[0]).toMatchObject({
+      message: "boom",
+      type: "error",
+      messageArgs: { _: "Error: boom" },
+    });
+    c.destroy();
+  });
+
+  it("a fetch error with an empty message notifies the generic http error key", async () => {
+    const ctx = makeCtx();
+    vi.spyOn(ctx.dataProvider, "getList").mockRejectedValue(new Error(""));
+    const c = createChoicesController(ctx, { reference: "posts" });
+    attach(c);
+    await vi.waitFor(() =>
+      expect(ctx.notifications.getSnapshot()).toHaveLength(1),
+    );
+    expect(ctx.notifications.getSnapshot()[0]).toMatchObject({
+      message: "chelone.notification.http_error",
+      type: "error",
+      messageArgs: { _: "Error" },
+    });
+    c.destroy();
+  });
+
+  it("the same error object notifies once", async () => {
+    const ctx = makeCtx();
+    const failure = new Error("boom");
+    const getList = vi.spyOn(ctx.dataProvider, "getList");
+    const c = createChoicesController(ctx, { reference: "posts" });
+    attach(c);
+    await settled(c);
+    // With data cached, a failed refetch keeps its error while the next one runs.
+    getList.mockRejectedValue(failure);
+    c.refetch();
+    await vi.waitFor(() => expect(c.getSnapshot().error).toBe(failure));
+    c.refetch();
+    await vi.waitFor(() => expect(getList).toHaveBeenCalledTimes(3));
+    await settled(c);
+    expect(ctx.notifications.getSnapshot()).toHaveLength(1);
+    c.destroy();
+  });
+
   it("exposes reference and source-derived metadata", () => {
     const ctx = makeCtx();
     const c = createChoicesController(ctx, {

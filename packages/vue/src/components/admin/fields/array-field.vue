@@ -1,19 +1,21 @@
-<script lang="ts">
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 import type {
   FilterPayload,
   LooseRecord,
+  ResourceRecord,
   SortPayload,
   SourceProp,
+  SourceValue,
 } from "@chelone/core";
 
 /** Props for {@link ArrayField}. */
-export interface ArrayFieldProps {
+export interface ArrayFieldProps<RecordType extends LooseRecord = LooseRecord> {
   /** The field path to the array on the current record. */
-  source: SourceProp;
+  source: SourceProp<RecordType>;
   /** The record to read. Defaults to the ambient `RecordContext` value. */
-  record?: LooseRecord;
+  record?: RecordType;
   /** Returned when the resolved value is `undefined`. */
-  defaultValue?: unknown;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   /** Client-side page size for the embedded list. */
   perPage?: number;
   /** Client-side sort for the embedded list. */
@@ -23,7 +25,7 @@ export interface ArrayFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<ArrayField>` — reads an array-valued `source` off the ambient record, drops
  * it into a client-side `ListContext` (no dataProvider), and renders its default
@@ -36,22 +38,21 @@ export interface ArrayFieldProps {
  * (`createClientListController`) the React twin uses, 1:1.
  */
 
-import type { ResourceRecord } from "@chelone/core";
 import { computed } from "vue";
 import { useFieldValue } from "../../../record/use-field-value";
 import { provideListContext } from "../../../list/list-context";
 import { useList } from "../../../list/use-list";
 
-const props = defineProps<ArrayFieldProps>();
+const props = defineProps<ArrayFieldProps<RecordType>>();
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
 });
 
 const data = computed<ResourceRecord[]>(() =>
-  Array.isArray(value.value) ? (value.value as ResourceRecord[]) : [],
+  Array.isArray(value.value) ? value.value : [],
 );
 
 const listContext = useList({

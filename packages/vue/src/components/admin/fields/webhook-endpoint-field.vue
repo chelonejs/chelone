@@ -1,5 +1,5 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** A webhook delivery outcome. */
 export type DeliveryStatus = "ok" | "failed" | "pending";
@@ -16,15 +16,17 @@ export interface WebhookEndpoint {
 }
 
 /** Props for {@link WebhookEndpointField}. */
-export interface WebhookEndpointFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface WebhookEndpointFieldProps<
+  RecordType extends LooseRecord = LooseRecord,
+> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   class?: string;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<WebhookEndpointField>` — displays a webhook endpoint's URL and last-delivery
  * status badge, the Vue analog of `@chelone/react`'s
@@ -36,16 +38,18 @@ import { computed } from "vue";
 import { cn } from "../../../lib/utils";
 import { useFieldValue } from "../../../record/use-field-value";
 
-const props = defineProps<WebhookEndpointFieldProps>();
+const props = defineProps<WebhookEndpointFieldProps<RecordType>>();
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
 });
 
 const endpoint = computed<WebhookEndpoint | null>(() => {
-  const raw = value.value;
+  // type-escape: a stored endpoint is JSON of an unchecked shape, as in the React twin
+  const raw: unknown = value.value;
+  // type-escape: the object is trusted to be a WebhookEndpoint, as in the React twin
   return raw && typeof raw === "object" ? (raw as WebhookEndpoint) : null;
 });
 
