@@ -4,13 +4,13 @@
  * wired to the ambient array input. `<ArrayInput>` renders the add button.
  */
 import {
-  type ArrayRow,
   createI18n,
   createResourceRegistry,
   defineMessages,
   type FieldErrors,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -21,6 +21,7 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { fakeArrayRow } from "../../../__fixtures__/array-row";
 import { CheloneProvider } from "../../../context";
 import { CheloneFormProvider } from "../../../form-context";
 import { useForm } from "../../../form-hooks";
@@ -103,6 +104,20 @@ function setup<TFormData extends Record<string, unknown>>(
   return { submitRef };
 }
 
+/** Every control labelled `label`, checked as an input. */
+function inputsByLabel(label: string): HTMLInputElement[] {
+  return screen
+    .getAllByLabelText(label)
+    .map((el) => elementOf(el, HTMLInputElement));
+}
+
+/** Every button named `name`, checked as a button. */
+function buttonsNamed(name: string): HTMLButtonElement[] {
+  return screen
+    .getAllByRole("button", { name })
+    .map((el) => elementOf(el, HTMLButtonElement));
+}
+
 function nth<T>(list: readonly T[], index: number): T {
   const item = list[index];
   if (item === undefined) throw new Error(`no item at ${index}`);
@@ -125,7 +140,7 @@ describe("<ArrayInputRow>", () => {
       </ArrayInput>,
       { defaultValues: { items: [{ sku: "a-1" }, { sku: "b-2" }] }, onData },
     );
-    const skus = screen.getAllByLabelText("SKU") as HTMLInputElement[];
+    const skus = inputsByLabel("SKU");
     expect(skus.map((el) => el.value)).toEqual(["a-1", "b-2"]);
 
     fireEvent.change(nth(skus, 0), { target: { value: "z-9" } });
@@ -162,17 +177,13 @@ describe("<ArrayInputRow>", () => {
       nth(screen.getAllByRole("button", { name: "Move down" }), 1),
     );
     expect(await submit()).toEqual({ tags: ["a", "c", "b", ""] });
-    const down = screen.getAllByRole("button", {
-      name: "Move down",
-    }) as HTMLButtonElement[];
+    const down = buttonsNamed("Move down");
     expect(nth(down, 3).disabled).toBe(true);
 
     // Move "b" (row 2) up.
     fireEvent.click(nth(screen.getAllByRole("button", { name: "Move up" }), 2));
     expect(await submit()).toEqual({ tags: ["a", "b", "c", ""] });
-    const up = screen.getAllByRole("button", {
-      name: "Move up",
-    }) as HTMLButtonElement[];
+    const up = buttonsNamed("Move up");
     expect(nth(up, 0).disabled).toBe(true);
 
     fireEvent.click(nth(screen.getAllByRole("button", { name: "Remove" }), 0));
@@ -195,7 +206,7 @@ describe("<ArrayInputRow>", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() =>
       setup(
-        <ArrayInputRow row={{ id: "r", index: 0 } as ArrayRow}>
+        <ArrayInputRow row={fakeArrayRow({ id: "r", index: 0 })}>
           x
         </ArrayInputRow>,
       ),
