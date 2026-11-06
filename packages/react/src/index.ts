@@ -308,6 +308,10 @@ export {
   CheckForApplicationUpdate,
   type CheckForApplicationUpdateProps,
 } from "./components/admin/common/check-for-application-update";
+export {
+  I18nKeyEditor,
+  type I18nKeyEditorProps,
+} from "./components/admin/common/i18n-key-editor";
 // P7e component surface — the layout chrome (Layout/AppBar/AppSidebar/Menu/
 // ThemeProvider/UserMenu/Notification + their sub-components). Ported from
 // shadmin `admin/layout` + `feedback/notification` onto @chelone/react's
