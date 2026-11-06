@@ -16,6 +16,7 @@ import type { Component, ComputedRef, MaybeRefOrGetter, Ref } from "vue";
 import type {
   AdminProps,
   ApplicationUpdatedNotificationProps,
+  ApprovalQueueProps,
   BooleanInputProps,
   BulkActionsToolbarProps,
   BulkEditDrawerProps,
@@ -278,6 +279,12 @@ describe("@chelone/vue public exports", () => {
 
   it("PivotGrid ships beside its props", () => {
     expectTypeOf(barrel.PivotGrid).not.toBeAny();
+  });
+
+  it("ApprovalQueue ships beside its props", () => {
+    expectTypeOf(barrel.ApprovalQueue).not.toBeAny();
+    expectTypeOf<ApprovalQueueProps>().toHaveProperty("titleSource");
+    expectTypeOf<ApprovalQueueProps>().toHaveProperty("requireReason");
   });
 
   it("RecordTimeline ships beside its props", () => {
