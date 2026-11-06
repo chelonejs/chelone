@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { Identifier, Lock } from "@chelone/core";
-import { defineComponent, h, type PropType } from "vue";
+import { defineComponent, h } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useGetLockLive } from "../../../realtime/locks";
 import { Badge } from "../../ui/badge";
@@ -19,7 +19,7 @@ export interface LockStatusProps {
 const LockStatusQuery = defineComponent({
   props: {
     resource: { type: String, required: true },
-    id: { type: [String, Number] as PropType<Identifier>, required: true },
+    id: { type: [String, Number], required: true },
   },
   setup(props, { slots }) {
     const translate = useTranslate();
