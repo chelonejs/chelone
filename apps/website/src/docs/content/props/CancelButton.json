@@ -1,4 +1,11 @@
 {
   "name": "CancelButton",
-  "props": []
+  "props": [
+    {
+      "name": "ref",
+      "type": "Ref<HTMLButtonElement>",
+      "optional": true,
+      "comment": ""
+    }
+  ]
 }

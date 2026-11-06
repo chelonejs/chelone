@@ -1,0 +1,47 @@
+{
+  "name": "MapCanvas",
+  "props": [
+    {
+      "name": "center",
+      "type": "readonly [number, number]",
+      "optional": true,
+      "comment": "`[lat, lng]`. Read once at mount. Defaults to `[0, 0]`."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered once the map has loaded. A map that fails to load shows a text panel instead."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "height",
+      "type": "string | number",
+      "optional": true,
+      "comment": "In pixels, or any CSS length. Defaults to 300."
+    },
+    {
+      "name": "mapStyle",
+      "type": "MapStyleInput",
+      "optional": true,
+      "comment": "A MapLibre style URL, or a style object such as `rasterTileStyle(...)`.\nRead once at mount. Defaults to the one from `MapsProvider`."
+    },
+    {
+      "name": "scrollZoom",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Zoom with the mouse wheel. Defaults to true."
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "optional": true,
+      "comment": "Read once at mount. Defaults to 13."
+    }
+  ]
+}
