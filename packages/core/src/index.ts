@@ -331,6 +331,12 @@ export {
   updateRecordsInCache,
 } from "./data/cache-ops";
 export { combineDataProviders } from "./data/combine-data-providers";
+export type {
+  DataProviderLog,
+  DataProviderLogEntry,
+  DataProviderLogOptions,
+} from "./data/data-provider-log";
+export { createDataProviderLog } from "./data/data-provider-log";
 export { ValidationError } from "./data/errors";
 export { fakeDataProvider } from "./data/fake-provider";
 export type {
