@@ -2,6 +2,7 @@ import {
   type DataTableColumnInfo,
   dataTableColumnKeys,
   moveColumn,
+  noop,
   toggleHiddenColumn,
 } from "@chelone/core";
 import { useCallback, useMemo, useSyncExternalStore } from "react";
@@ -29,7 +30,6 @@ export interface UseDataTableColumnsResult {
 // Module constants: a fresh array per call would fail the snapshot check.
 const NO_COLUMNS: readonly DataTableColumnInfo[] = [];
 const NO_IDS: readonly string[] = [];
-const noop = () => {};
 const noSubscribe = () => noop;
 
 /**

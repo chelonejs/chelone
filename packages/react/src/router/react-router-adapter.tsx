@@ -16,7 +16,7 @@
  */
 
 import type { CheloneLocation, LocationState, PathMatch } from "@chelone/core";
-import { parseLocation, toLocationState } from "@chelone/core";
+import { noop, parseLocation, toLocationState } from "@chelone/core";
 import {
   createContext,
   forwardRef,
@@ -144,7 +144,6 @@ function useBlocker(
     typeof shouldBlock === "boolean" ? shouldBlock : blockerFn,
   );
 
-  const noop = useCallback(() => {}, []);
   return useMemo(
     () => ({
       state: blocker.state,
@@ -154,7 +153,7 @@ function useBlocker(
       reset: blocker.reset ?? noop,
       location: blocker.location ? toCheloneLocation(blocker.location) : null,
     }),
-    [blocker, noop],
+    [blocker],
   );
 }
 

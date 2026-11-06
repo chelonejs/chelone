@@ -21,6 +21,11 @@ describe("@chelone/core barrel", () => {
     expect(barrel.richTextBlockTypes).toHaveLength(7);
   });
 
+  it("exports noop", () => {
+    expect(barrel.noop).toBeTypeOf("function");
+    expect(barrel.noop()).toBeUndefined();
+  });
+
   it("exports the date format helpers", () => {
     expect(barrel.formatDate).toBeTypeOf("function");
     expect(barrel.formatDateTime).toBeTypeOf("function");
