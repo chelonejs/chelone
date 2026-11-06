@@ -324,7 +324,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/react user to install them."
                   },
                   {
                     "group": ["recharts"],
@@ -388,7 +388,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/react user to install them."
                   },
                   {
                     "group": ["recharts"],
@@ -452,7 +452,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/react user to install them."
                   },
                   {
                     "group": ["recharts"],
@@ -520,7 +520,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/react user to install them."
                   },
                   {
                     "group": ["recharts"],
@@ -588,7 +588,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/react user to install them."
                   },
                   {
                     "group": ["recharts"],
@@ -660,7 +660,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/react user to install them."
                   },
                   {
                     "group": ["recharts"],
@@ -728,7 +728,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/react user to install them."
                   },
                   {
                     "group": ["recharts"],
@@ -796,7 +796,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/react user to install them."
                   },
                   {
                     "group": ["recharts"],
@@ -817,6 +817,8 @@
       "includes": [
         "packages/react/src/components/kanban/**",
         "packages/react/src/kanban.ts",
+        "packages/react/src/components/inspector/**",
+        "packages/react/src/inspector.ts",
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
@@ -937,7 +939,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/react user to install them."
                   },
                   {
                     "group": ["@chelone/test-utils"],
@@ -1013,7 +1015,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/vue user to install them."
                   },
                   {
                     "group": ["@unovis/*"],
@@ -1086,7 +1088,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/vue user to install them."
                   },
                   {
                     "group": ["@unovis/*"],
@@ -1159,7 +1161,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/vue user to install them."
                   },
                   {
                     "group": ["@unovis/*"],
@@ -1236,7 +1238,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/vue user to install them."
                   },
                   {
                     "group": ["@unovis/*"],
@@ -1313,7 +1315,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/vue user to install them."
                   },
                   {
                     "group": ["@unovis/*"],
@@ -1394,7 +1396,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/vue user to install them."
                   },
                   {
                     "group": ["@unovis/*"],
@@ -1471,7 +1473,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/vue user to install them."
                   },
                   {
                     "group": ["@unovis/*"],
@@ -1548,7 +1550,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/vue user to install them."
                   },
                   {
                     "group": ["@unovis/*"],
@@ -1569,6 +1571,8 @@
       "includes": [
         "packages/vue/src/components/kanban/**",
         "packages/vue/src/kanban.ts",
+        "packages/vue/src/components/inspector/**",
+        "packages/vue/src/inspector.ts",
         "!**/*.test.ts",
         "!**/*.test.tsx",
         "!**/*.test-d.ts",
@@ -1706,7 +1710,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/vue user to install them."
                   },
                   {
                     "group": ["@chelone/test-utils"],
@@ -1877,7 +1881,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/react user to install them."
                   },
                   {
                     "group": ["recharts"],
@@ -1946,7 +1950,7 @@
                   },
                   {
                     "group": ["@dnd-kit/*"],
-                    "message": "dnd-kit peers import only inside the kanban add-on (its components folder and entry file); elsewhere they force every @chelone/vue user to install them."
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/vue user to install them."
                   },
                   {
                     "group": ["@unovis/*"],
