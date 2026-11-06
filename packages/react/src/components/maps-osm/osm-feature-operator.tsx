@@ -86,7 +86,7 @@ export function OsmFeatureOperator<TRecord = LooseRecord>({
   const translate = useTranslate();
   const notify = useNotify();
   const queryClient = useQueryClient();
-  const { field } = useInput({ source, format: (v: unknown) => v ?? null });
+  const { field } = useInput({ source, format: (v) => v ?? null });
   const current = useRef<unknown>(field.value);
   current.current = field.value;
   const [running, setRunning] = useState(false);
