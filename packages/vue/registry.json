@@ -6906,9 +6906,12 @@
         "@chelone/command",
         "@chelone/field",
         "@chelone/field-label-text",
+        "@chelone/input",
         "@chelone/input-helper-text",
         "@chelone/lib-utils",
+        "@chelone/native-select",
         "@chelone/source-input-props",
+        "@chelone/switch",
         "@chelone/validation-error"
       ],
       "dependencies": [
@@ -6923,6 +6926,10 @@
       ],
       "files": [
         {
+          "path": "src/components/block-editor/auto-config-form.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/block-editor/block-doc-field.vue",
           "type": "registry:component"
         },
@@ -6935,6 +6942,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/block-editor/block-icons.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/block-editor/block-nodes.ts",
           "type": "registry:component"
         },
@@ -6943,10 +6954,59 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/block-editor/block-toolbar.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/callout-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/default-blocks.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/embed-block.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/image-block-config.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/image-block.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/block-editor/slash-command.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/toggle-block.vue",
           "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "auto-config-form",
+      "type": "registry:component",
+      "title": "Auto Config Form",
+      "files": [
+        {
+          "path": "src/components/block-editor/auto-config-form.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-nodes",
+        "@chelone/field",
+        "@chelone/input",
+        "@chelone/native-select",
+        "@chelone/switch"
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -7004,7 +7064,9 @@
       "registryDependencies": [
         "@chelone/block-nodes",
         "@chelone/block-picker",
+        "@chelone/block-toolbar",
         "@chelone/button",
+        "@chelone/default-blocks",
         "@chelone/lib-utils",
         "@chelone/slash-command"
       ],
@@ -7016,6 +7078,19 @@
         "@tiptap/pm",
         "@tiptap/starter-kit",
         "@tiptap/vue-3"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-icons",
+      "type": "registry:component",
+      "title": "Block Icons",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-icons.ts",
+          "type": "registry:component"
+        }
       ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -7055,6 +7130,121 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "block-toolbar",
+      "type": "registry:component",
+      "title": "Block Toolbar",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-toolbar.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/auto-config-form",
+        "@chelone/block-icons",
+        "@chelone/block-nodes",
+        "@chelone/button"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@tiptap/core",
+        "@tiptap/pm"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "callout-block",
+      "type": "registry:component",
+      "title": "Callout Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/callout-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-nodes",
+        "@chelone/default-blocks",
+        "@chelone/lib-utils"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "default-blocks",
+      "type": "registry:component",
+      "title": "Default Blocks",
+      "files": [
+        {
+          "path": "src/components/block-editor/default-blocks.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-icons",
+        "@chelone/block-nodes",
+        "@chelone/callout-block",
+        "@chelone/embed-block",
+        "@chelone/image-block",
+        "@chelone/image-block-config",
+        "@chelone/toggle-block"
+      ],
+      "devDependencies": ["zod"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "embed-block",
+      "type": "registry:component",
+      "title": "Embed Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/embed-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/default-blocks"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "image-block-config",
+      "type": "registry:component",
+      "title": "Image Block Config",
+      "files": [
+        {
+          "path": "src/components/block-editor/image-block-config.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/default-blocks",
+        "@chelone/field",
+        "@chelone/input"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "image-block",
+      "type": "registry:component",
+      "title": "Image Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/image-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/default-blocks"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "slash-command",
       "type": "registry:component",
       "title": "Slash Command",
@@ -7065,6 +7255,25 @@
         }
       ],
       "dependencies": ["@tiptap/core", "@tiptap/pm", "@tiptap/suggestion"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "toggle-block",
+      "type": "registry:component",
+      "title": "Toggle Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/toggle-block.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-icons",
+        "@chelone/block-nodes",
+        "@chelone/default-blocks",
+        "@chelone/lib-utils"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
