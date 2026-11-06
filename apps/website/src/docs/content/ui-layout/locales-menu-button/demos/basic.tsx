@@ -1,24 +1,39 @@
-import { createI18n, defaultMessages } from "@chelone/core";
+import { createI18n, defineMessages } from "@chelone/core";
 import {
   CheloneProvider,
   LocalesMenuButton,
   useCheloneContext,
+  useTranslate,
 } from "@chelone/react";
 import { useState } from "react";
 
-/** `<LocalesMenuButton>` switches between English and French. */
+function LocaleSelector() {
+  const translate = useTranslate();
+
+  return (
+    <div className="flex items-center gap-2 [&_button]:inline-flex">
+      <span>{translate("ra.action.change_locale")}</span>
+      <LocalesMenuButton />
+    </div>
+  );
+}
+
+/** `<LocalesMenuButton>` switches the prompt and button label between English and French. */
 export default function LocalesMenuButtonDemo() {
   const context = useCheloneContext();
   const [i18n] = useState(() =>
     createI18n({
       locale: "en",
-      messages: { en: defaultMessages, fr: defaultMessages },
+      messages: {
+        en: defineMessages({ "ra.action.change_locale": "Change locale" }),
+        fr: defineMessages({ "ra.action.change_locale": "Changer de langue" }),
+      },
     }),
   );
 
   return (
     <CheloneProvider {...context} i18n={i18n}>
-      <LocalesMenuButton />
+      <LocaleSelector />
     </CheloneProvider>
   );
 }
