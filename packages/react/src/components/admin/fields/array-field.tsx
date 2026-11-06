@@ -4,6 +4,7 @@ import type {
   ResourceRecord,
   SortPayload,
   SourceProp,
+  SourceValue,
 } from "@chelone/core";
 import type { ReactNode } from "react";
 import { ListContextProvider } from "../../../form";
@@ -71,7 +72,7 @@ interface ArrayFieldProps<RecordType extends LooseRecord = LooseRecord> {
   /** The record to read. Defaults to the ambient `RecordContext` value. */
   record?: RecordType;
   /** Returned when the resolved value is `undefined`. */
-  defaultValue?: unknown;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   /** The resource name published on the list context. */
   resource?: string;
   /** Client-side page size for the embedded list. */
