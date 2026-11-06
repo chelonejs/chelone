@@ -23,13 +23,18 @@ import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useGetChoiceRepresentationText } from "../../../label";
 import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props";
-import type { ChoicesProps, InputProps } from "../input-props";
+import type {
+  ChoicesProps,
+  InputProps,
+  LooseFormatProps,
+} from "../input-props";
 
 interface CheckboxGroupInputProps<
   TRecord = unknown,
   TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TChoice extends ChoiceRecord = ChoiceRecord,
-> extends Partial<InputProps<TRecord, TPath>>,
+> extends Partial<Omit<InputProps<TRecord, TPath>, "format">>,
+    LooseFormatProps,
     ChoicesProps<TChoice>,
     // The rendered root is a `<fieldset>` (via `<FieldSet>`); extend the
     // fieldset attribute surface so the passthrough `{...rest}` typechecks.
