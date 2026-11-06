@@ -7,6 +7,72 @@ import { SECTION_META } from "../src/docs/section-meta";
 import { unresolvedDocLinks } from "./docs-links";
 
 /**
+ * A maps reference page: its slug, the component it documents, the entry that
+ * exports it, the props JSON its table renders, and the backticked names the
+ * page must carry so it never reads as a page for a similar component.
+ */
+interface ReferencePage {
+  slug: string;
+  component: string;
+  importFrom: string;
+  propsFrom: string;
+  names: string[];
+}
+
+/**
+ * The general pieces: the fields and inputs that are not named after a GeoJSON
+ * type. `LatLngInput` sits under `maps`, not `maps/draw`, since it needs only
+ * `maplibre-gl`.
+ */
+const generalFields = [
+  {
+    slug: "geo-json-field",
+    component: "GeoJsonField",
+    importFrom: "@chelone/react/maps",
+    names: ["Geometry", "Feature", "FeatureCollection"],
+  },
+  {
+    slug: "bbox-field",
+    component: "BBoxField",
+    importFrom: "@chelone/react/maps",
+    names: ["BBox", "GeoJsonField"],
+  },
+  {
+    slug: "lat-lng-field",
+    component: "LatLngField",
+    importFrom: "@chelone/react/maps",
+    names: ["latSource", "lngSource"],
+  },
+];
+
+const generalInputs = [
+  {
+    slug: "shape-input",
+    component: "ShapeInput",
+    importFrom: "@chelone/react/maps/draw",
+    names: ["kind", "tools", "PointInput", "PolygonInput"],
+  },
+  {
+    slug: "bbox-input",
+    component: "BBoxInput",
+    importFrom: "@chelone/react/maps/draw",
+    names: ["BBox", "ShapeInput", "draw-rectangle"],
+  },
+  {
+    slug: "lat-lng-input",
+    component: "LatLngInput",
+    importFrom: "@chelone/react/maps",
+    names: ["latSource", "lngSource"],
+  },
+  {
+    slug: "simplify-input",
+    component: "SimplifyInput",
+    importFrom: "@chelone/react/maps/draw",
+    names: ["tolerance", "quality"],
+  },
+];
+
+/**
  * The nine shape fields are `GeoJsonField` under the name of a GeoJSON type
  * (packages/react/src/components/maps/shape-fields.tsx). Each page names its
  * type in backticks, so a page for `Point` never passes on `MultiPoint`.
@@ -170,9 +236,19 @@ const shapeInputs = [
   },
 ];
 
-const shapePages = [
-  ...shapeFields.map((page) => ({ ...page, propsFrom: page.component })),
-  ...shapeInputs,
+/** Every maps reference page, in the order `maps/_meta.ts` lists its categories. */
+const referencePages: ReferencePage[] = [
+  ...generalFields.map((page) => ({ ...page, propsFrom: page.component })),
+  ...shapeFields.map((page) => ({
+    ...page,
+    propsFrom: page.component,
+    names: [page.geojson, page.alias],
+  })),
+  ...generalInputs.map((page) => ({ ...page, propsFrom: page.component })),
+  ...shapeInputs.map((page) => ({
+    ...page,
+    names: [page.geojson, page.alias],
+  })),
 ];
 
 const page = (slug: string) =>
@@ -199,11 +275,11 @@ it("Maps follows Realtime and lists every maps reference page", () => {
     "maps",
   ]);
   expect(mapsMeta.flatMap((entry) => entry.slugs)).toEqual(
-    shapePages.map(({ slug }) => slug),
+    referencePages.map(({ slug }) => slug),
   );
 });
 
-it.each(shapePages)(
+it.each(referencePages)(
   "$component has a row in the stub table importing from $importFrom",
   ({ component, importFrom }) => {
     const line = stubLines.find((row) =>
@@ -216,16 +292,16 @@ it.each(shapePages)(
   },
 );
 
-it.each(shapePages)(
+it.each(referencePages)(
   "$component has a generated reference page with its props, import and a link to the maps guide",
-  ({ slug, component, geojson, alias, importFrom, propsFrom }) => {
+  ({ slug, component, names, importFrom, propsFrom }) => {
     const mdx = page(slug);
 
     expect(mdx).toContain(`title: "${component}"`);
     expect(mdx).toContain("{/* generated:gen-component-stubs */}");
-    expect(mdx).toContain(`\`${geojson}\``);
-    // The shape pages are two components under the names of GeoJSON types.
-    expect(mdx, `${component} is named as ${alias}`).toContain(`\`${alias}\``);
+    for (const name of names) {
+      expect(mdx, `${slug} names \`${name}\``).toContain(`\`${name}\``);
+    }
     expect(mdx).toContain(`<PropsTable name="${propsFrom}" />`);
     expect(mdx).toContain(`import { ${component} } from "${importFrom}";`);
     expect(mdx).toContain("](/docs/app-config/maps)");
@@ -271,9 +347,14 @@ const TOOL_NAMES = new Set([
 const SET_FOR_THE_CALLER = new Set(["kind"]);
 
 /** Props a page names that its props table cannot hold; see `propsFrom`. */
-const OUTSIDE_ITS_TABLE = new Map([["LineStringInput", ["snapToRoads"]]]);
+const OUTSIDE_ITS_TABLE = new Map([
+  ["LineStringInput", ["snapToRoads"]],
+  // `BBoxInputProps` leaves out `kind` and `tools` because `BBoxInput` sets
+  // them; only `tools` is named here, as `kind` is allowed above.
+  ["BBoxInput", ["tools"]],
+]);
 
-it.each(shapePages)(
+it.each(referencePages)(
   "$component backticks only its own props, so no page suggests a prop that does not exist",
   ({ slug, component, propsFrom }) => {
     const props = propNames(propsFrom);
@@ -292,7 +373,7 @@ it.each(shapePages)(
   },
 );
 
-it.each(shapePages)(
+it.each(referencePages)(
   "$component is exported by the $importFrom entry of both adapters",
   ({ component, importFrom }) => {
     // `@chelone/react/maps/draw` is exported by `src/maps-draw.ts`.
