@@ -6489,15 +6489,46 @@
       "title": "Chelone Rich Text",
       "categories": ["chelone", "fields"],
       "docs": "The field styles its content with rich-text.css, which the component imports itself and which reads the Chelone color tokens.",
-      "description": "The opt-in rich text add-on: RichTextField shows stored HTML sanitized with DOMPurify, or its text with stripTags. Installs dompurify.",
+      "description": "The opt-in rich text add-on: RichTextField shows stored HTML sanitized with DOMPurify, or its text with stripTags, and RichTextInput edits an HTML string in a tiptap editor with a formatting toolbar. Installs dompurify and the tiptap packages.",
       "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
         "@chelone/lib-field-types",
-        "@chelone/lib-utils"
+        "@chelone/lib-utils",
+        "@chelone/native-select",
+        "@chelone/separator",
+        "@chelone/tooltip"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react", "dompurify"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@tiptap/core",
+        "@tiptap/extensions",
+        "@tiptap/pm",
+        "@tiptap/react",
+        "@tiptap/starter-kit",
+        "dompurify",
+        "lucide-react"
+      ],
       "files": [
         {
+          "path": "src/components/rich-text-input/rich-text-extensions.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/rich-text-input/rich-text-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-toolbar.tsx",
           "type": "registry:component"
         },
         {
@@ -6505,6 +6536,25 @@
           "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-extensions",
+      "type": "registry:component",
+      "title": "Rich Text Extensions",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-extensions.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@tiptap/core",
+        "@tiptap/extensions",
+        "@tiptap/starter-kit"
+      ],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6524,6 +6574,62 @@
       ],
       "dependencies": ["@chelone/core", "@chelone/react", "dompurify"],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-input-editor",
+      "type": "registry:component",
+      "title": "Rich Text Input Editor",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils",
+        "@chelone/rich-text-extensions",
+        "@chelone/rich-text-toolbar",
+        "@chelone/rich-text.css"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@tiptap/pm",
+        "@tiptap/react"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-toolbar",
+      "type": "registry:component",
+      "title": "Rich Text Toolbar",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-toolbar.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/input",
+        "@chelone/lib-utils",
+        "@chelone/native-select",
+        "@chelone/separator",
+        "@chelone/tooltip"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@tiptap/react",
+        "lucide-react"
+      ],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
