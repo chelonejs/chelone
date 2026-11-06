@@ -15,6 +15,11 @@ import {
   getAtPath,
   type LooseRecord,
 } from "@chelone/core";
+import {
+  StubIntersectionObserver,
+  StubPointerEvent,
+  stubAnimations,
+} from "@chelone/test-utils/drag-dom";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -195,60 +200,10 @@ function rectOf(el: Element): DOMRect {
   );
 }
 
-class StubPointerEvent extends MouseEvent {
-  readonly pointerId: number;
-  readonly pointerType: string;
-  readonly isPrimary: boolean;
-  constructor(type: string, init: PointerEventInit = {}) {
-    super(type, init);
-    this.pointerId = init.pointerId ?? 1;
-    this.pointerType = init.pointerType ?? "mouse";
-    this.isPrimary = init.isPrimary ?? true;
-  }
-}
-
-/** What dnd-kit's drop animation needs of an Animation: it finishes at once. */
-class StubAnimation extends EventTarget implements Animation {
-  currentTime: CSSNumberish | null = null;
-  effect: AnimationEffect | null = null;
-  finished: Promise<Animation> = Promise.resolve(this);
-  id = "";
-  oncancel = null;
-  onfinish = null;
-  onremove = null;
-  overallProgress: number | null = null;
-  pending = false;
-  playState: AnimationPlayState = "finished";
-  playbackRate = 1;
-  ready: Promise<Animation> = Promise.resolve(this);
-  replaceState: AnimationReplaceState = "active";
-  startTime: CSSNumberish | null = null;
-  timeline: AnimationTimeline | null = null;
-  cancel() {}
-  commitStyles() {}
-  finish() {}
-  pause() {}
-  persist() {}
-  play() {}
-  reverse() {}
-  updatePlaybackRate() {}
-}
-
-class StubIntersectionObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-  takeRecords() {
-    return [];
-  }
-}
-
 beforeEach(() => {
   vi.stubGlobal("PointerEvent", StubPointerEvent);
   vi.stubGlobal("IntersectionObserver", StubIntersectionObserver);
-  document.getAnimations = () => [];
-  Element.prototype.getAnimations = () => [];
-  Element.prototype.animate = () => new StubAnimation();
+  stubAnimations();
   vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
     function (this: Element) {
       return rectOf(this);
