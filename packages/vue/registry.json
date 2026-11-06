@@ -6007,6 +6007,65 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "charts",
+      "type": "registry:block",
+      "title": "Chelone Charts",
+      "categories": ["chelone", "charts"],
+      "description": "The opt-in charts add-on: TrendChart draws a line or an area over one numeric field in a card, with unovis. Installs @unovis/vue and @unovis/ts.",
+      "registryDependencies": [
+        "@chelone/card",
+        "@chelone/chart",
+        "@chelone/skeleton"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
+      "files": [
+        {
+          "path": "src/components/charts/chart-frame.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/charts/trend-chart.vue",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "chart-frame",
+      "type": "registry:component",
+      "title": "Chart Frame",
+      "files": [
+        {
+          "path": "src/components/charts/chart-frame.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/card", "@chelone/skeleton"],
+      "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "trend-chart",
+      "type": "registry:component",
+      "title": "Trend Chart",
+      "files": [
+        {
+          "path": "src/components/charts/trend-chart.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/chart", "@chelone/chart-frame"],
+      "dependencies": ["@chelone/core", "@unovis/ts", "@unovis/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "kanban",
       "type": "registry:block",
       "title": "Chelone Kanban",
