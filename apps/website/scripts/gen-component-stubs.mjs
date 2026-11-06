@@ -66,6 +66,7 @@ const STUBS = [
   { slug: "cron-field", section: "viewing", component: "CronField", registry: "cron-field", title: "CronField", desc: "Renders a cron expression as a human-readable schedule." },
   { slug: "currency-field", section: "viewing", component: "CurrencyField", registry: "currency-field", title: "CurrencyField", desc: "Formats a numeric value as a localised currency amount." },
   { slug: "date-field", section: "viewing", component: "DateField", registry: "date-field", title: "DateField", desc: "Formats a date/time value using the active locale." },
+  { slug: "diff-viewer", section: "viewing", component: "DiffViewer", registry: "diff-viewer", title: "DiffViewer", desc: "Shows two versions of a record, one row per field, side by side or inline. The viewer fetches nothing: it compares the `before` and `after` it is given, field by field, by deep equality. Null and undefined read as missing, and `<ins>` and `<del>` mark the values." },
   { slug: "duration-field", section: "viewing", component: "DurationField", registry: "duration-field", title: "DurationField", desc: "Renders an ISO-8601 duration string as compact (`2h 30m`) or relative text." },
   { slug: "email-field", section: "viewing", component: "EmailField", registry: "email-field", title: "EmailField", desc: "Renders an email address as a mailto link." },
   { slug: "file-field", section: "viewing", component: "FileField", registry: "file-field", title: "FileField", desc: "Renders a file reference as a downloadable link." },
