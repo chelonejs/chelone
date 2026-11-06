@@ -125,19 +125,13 @@
       "name": "resettable",
       "type": "boolean",
       "optional": true,
-      "comment": ""
+      "comment": "If true (the default), a clear button is shown next to the input when it\nhas a value."
     },
     {
       "name": "clearAlwaysVisible",
       "type": "boolean",
       "optional": true,
       "comment": "If true, the clear button is always visible, even when the input is empty\n(and disabled)."
-    },
-    {
-      "name": "resettable",
-      "type": "boolean",
-      "optional": true,
-      "comment": "If true (the default), a clear button is shown next to the input when it\nhas a value."
     }
   ]
 }

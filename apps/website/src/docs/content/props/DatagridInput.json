@@ -65,7 +65,7 @@
       "name": "resource",
       "type": "string",
       "optional": true,
-      "comment": "Override the ambient resource (used to resolve the default label key)."
+      "comment": "Override the ambient resource."
     },
     {
       "name": "type",
@@ -108,12 +108,6 @@
       "type": "SourcePath<TChoice>",
       "optional": true,
       "comment": "The value path on a choice. Default `\"id\"`."
-    },
-    {
-      "name": "resource",
-      "type": "string",
-      "optional": true,
-      "comment": "Override the ambient resource."
     },
     {
       "name": "source",

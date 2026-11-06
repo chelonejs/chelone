@@ -40,6 +40,7 @@ interface FixtureNode {
   kind: number;
   children?: FixtureNode[];
   type?: FixtureType;
+  comment?: { summary: { text: string }[] };
   signatures?: { parameters: { name: string; type: FixtureType }[] }[];
 }
 
@@ -49,12 +50,85 @@ const toPropsType = (name: string): FixtureType => ({
   name,
 });
 
-/** An interface with one property per name in `props`. */
-function propsInterface(name: string, props: string[] = []): FixtureNode {
+/** A property of a fixture interface. */
+interface FixtureProp {
+  name: string;
+  type?: FixtureType;
+  comment?: string;
+}
+
+/** typedoc's comment node for a doc line. */
+const docComment = (text: string) => ({ summary: [{ text }] });
+
+/** A fixture property node. */
+function fixtureProp(prop: FixtureProp): FixtureNode {
+  return {
+    name: prop.name,
+    kind: 1024,
+    type: prop.type,
+    comment: prop.comment === undefined ? undefined : docComment(prop.comment),
+  };
+}
+
+/** An interface with one property per entry of `props`. */
+function propsInterface(
+  name: string,
+  props: (string | FixtureProp)[] = [],
+): FixtureNode {
   return {
     name,
     kind: 256,
-    children: props.map((prop) => ({ name: prop, kind: 1024 })),
+    children: props.map((prop) =>
+      typeof prop === "string" ? { name: prop, kind: 1024 } : fixtureProp(prop),
+    ),
+  };
+}
+
+/** `A & B & …`, as typedoc writes an intersection. */
+function intersection(...types: FixtureType[]): FixtureType {
+  return { type: "intersection", types };
+}
+
+/** `Omit<T, "a" | "b">`. */
+function omitType(target: FixtureType, keys: string[]): FixtureType {
+  return {
+    type: "reference",
+    name: "Omit",
+    typeArguments: [
+      target,
+      {
+        type: "union",
+        types: keys.map((key) => ({ type: "literal", value: key })),
+      },
+    ],
+  };
+}
+
+/** `Pick<T, "a" | "b">`. */
+function pickType(target: FixtureType, keys: string[]): FixtureType {
+  return {
+    type: "reference",
+    name: "Pick",
+    typeArguments: [
+      target,
+      {
+        type: "union",
+        types: keys.map((key) => ({ type: "literal", value: key })),
+      },
+    ],
+  };
+}
+
+/** `Partial<T>`. */
+function partialType(target: FixtureType): FixtureType {
+  return { type: "reference", name: "Partial", typeArguments: [target] };
+}
+
+/** An inline object type: `{ a: X; b: Y }`. */
+function inlineObject(props: FixtureProp[]): FixtureType {
+  return {
+    type: "reflection",
+    declaration: { children: props.map(fixtureProp) },
   };
 }
 
@@ -113,7 +187,7 @@ function generatorFixture() {
 /** One generated props page, as `split-typedoc.mjs` writes it. */
 interface GeneratedPropsPage {
   name: string;
-  props: { name: string }[];
+  props: { name: string; type: string }[];
 }
 
 it("replaces the old props page when an exported interface is renamed", () => {
@@ -173,14 +247,7 @@ it("reads a type alias over another props type, dropping what it omits", () => {
     {
       name: "GeoJsonInputBaseProps",
       kind: 2097152,
-      type: {
-        type: "reference",
-        name: "Omit",
-        typeArguments: [
-          toPropsType("ShapeInputProps"),
-          { type: "literal", value: "kind" },
-        ],
-      },
+      type: omitType(toPropsType("ShapeInputProps"), ["kind"]),
     },
     functionComponent("PointInput", toPropsType("GeoJsonInputBaseProps")),
   ]);
@@ -191,6 +258,61 @@ it("reads a type alias over another props type, dropping what it omits", () => {
   expect(fixture.read("PointInput").props.map((prop) => prop.name)).toEqual([
     "source",
     "tools",
+  ]);
+});
+
+it("keeps only the keys a Pick names", () => {
+  const fixture = generatorFixture();
+  fixture.generate([
+    propsInterface("InputProps", ["format", "label", "source"]),
+    {
+      name: "AutocompleteInputProps",
+      kind: 2097152,
+      type: intersection(
+        omitType(toPropsType("InputProps"), ["source", "format"]),
+        partialType(pickType(toPropsType("InputProps"), ["source"])),
+      ),
+    },
+  ]);
+
+  expect(
+    fixture.read("AutocompleteInput").props.map((prop) => prop.name),
+  ).toEqual(["label", "source"]);
+});
+
+it("lists a member an intersection overrides once, from the overriding branch", () => {
+  const fixture = generatorFixture();
+  fixture.generate([
+    propsInterface("InputProps", [
+      {
+        name: "onChange",
+        type: intrinsic("unknown"),
+        comment: "Chained after the parsed value is written.",
+      },
+      { name: "label", type: intrinsic("ReactNode") },
+    ]),
+    {
+      name: "SelectInputProps",
+      kind: 2097152,
+      type: intersection(
+        partialType(toPropsType("InputProps")),
+        inlineObject([
+          { name: "onChange", type: intrinsic("string") },
+          { name: "resettable", type: intrinsic("boolean") },
+        ]),
+      ),
+    },
+  ]);
+
+  expect(fixture.read("SelectInput").props).toEqual([
+    {
+      name: "onChange",
+      type: "string",
+      optional: false,
+      comment: "Chained after the parsed value is written.",
+    },
+    { name: "label", type: "ReactNode", optional: false, comment: "" },
+    { name: "resettable", type: "boolean", optional: false, comment: "" },
   ]);
 });
 

@@ -174,8 +174,47 @@ function collect(node) {
   }
 }
 
-/** Utility types that wrap another props type instead of naming one. */
-const WRAPPED_PROPS = new Set(["Omit", "Partial", "Pick", "Required", "Readonly"]);
+/**
+ * Utility types that wrap another props type instead of naming one, and what
+ * each does with the keys its second type argument names: `Omit` drops them,
+ * `Pick` keeps only them, and the rest restate every member of the type they
+ * wrap.
+ */
+const WRAPPED_PROPS = new Map([
+  ["Omit", "drop"],
+  ["Pick", "keep"],
+  ["Partial", "all"],
+  ["Required", "all"],
+  ["Readonly", "all"],
+]);
+
+/**
+ * One props shape built from several. A member named twice keeps the position
+ * of its first appearance and the type of the branch that names it last, which
+ * is the branch the source writes to override it, and a comment from whichever
+ * branch carries one. Without this an intersection such as `Partial<InputProps>
+ * & { onChange?: (value: string) => void }` lists `onChange` twice with two
+ * different types.
+ *
+ * @param {any[][]} groups
+ * @returns {any[]}
+ */
+function mergeMembers(groups) {
+  const merged = new Map();
+  for (const group of groups) {
+    for (const member of group) {
+      const earlier = merged.get(member.name);
+      // An override that says nothing keeps what the branch it overrides said.
+      merged.set(
+        member.name,
+        earlier && !member.comment && earlier.comment
+          ? { ...member, comment: earlier.comment }
+          : member,
+      );
+    }
+  }
+  return [...merged.values()];
+}
 
 /**
  * The string literals a type node holds: one literal, or a union of them.
@@ -214,9 +253,11 @@ function membersOf(decl, seen) {
 /**
  * The props members a type node carries: an inline object, a reference to a
  * documented `*Props` declaration, an intersection of those, or a utility type
- * over one — `GeoJsonInputBaseProps` is `Omit<ShapeInputProps, "kind">`, which
- * names no members of its own. A reference typedoc never documented, because
- * no entry point re-exports it (`LineStringInputProps`), carries nothing.
+ * over one. `GeoJsonInputBaseProps` is `Omit<ShapeInputProps, "kind">` and
+ * `AutocompleteInputProps` holds `Partial<Pick<InputProps, "source">>`, so
+ * neither names its members directly. A reference typedoc never documented,
+ * because no entry point re-exports it (`LineStringInputProps`), carries
+ * nothing.
  *
  * @param {any} type
  * @param {Set<string>} seen
@@ -228,20 +269,24 @@ function membersOfType(type, seen) {
     case "reflection":
       return type.declaration?.children ?? [];
     case "intersection":
-      return type.types.flatMap(
-        /** @param {any} t */ (t) => membersOfType(t, seen),
+      return mergeMembers(
+        type.types.map(/** @param {any} t */ (t) => membersOfType(t, seen)),
       );
     case "reference": {
       const decl = propsDecls.get(type.name);
       if (decl) return seen.has(type.name) ? [] : membersOf(decl, seen);
-      if (!WRAPPED_PROPS.has(type.name) || !type.typeArguments?.length) {
-        return [];
-      }
-      const [wrapped, omitted] = type.typeArguments;
-      const dropped = literalNames(omitted);
-      return membersOfType(wrapped, seen).filter(
-        /** @param {any} member */ (member) => !dropped.has(member.name),
-      );
+      const keeps = WRAPPED_PROPS.get(type.name);
+      if (!keeps || !type.typeArguments?.length) return [];
+      const [wrapped, keys] = type.typeArguments;
+      const named = literalNames(keys);
+      const members = membersOfType(wrapped, seen);
+      // Keys typed as something other than string literals (`keyof U`) are
+      // unreadable here: `Pick` then proves nothing about the shape and yields
+      // nothing, and `Omit` drops nothing.
+      if (keeps === "keep") return members.filter((m) => named.has(m.name));
+      if (keeps === "drop")
+        return members.filter((m) => !named.has(m.name));
+      return members;
     }
     default:
       return [];
