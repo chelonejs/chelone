@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
+import type { JsonValue } from "../guards";
 import { deepEqual } from "./deep-equal";
+
+/** Two values of one type, so a mismatch here is a runtime question, not a type error. */
+function pair(a: JsonValue, b: JsonValue): [JsonValue, JsonValue] {
+  return [a, b];
+}
 
 describe("deepEqual", () => {
   it("compares plain objects by content whatever the key order", () => {
@@ -45,8 +51,7 @@ describe("deepEqual", () => {
     expect(deepEqual([[1, [2]]], [[1, [3]]])).toBe(false);
     expect(deepEqual([{ a: 1 }], [{ a: 1 }])).toBe(true);
     expect(deepEqual([null, 1], [null, 1])).toBe(true);
-    const asArray: unknown = [1];
-    const asObject: unknown = { 0: 1 };
+    const [asArray, asObject] = pair([1], { 0: 1 });
     expect(deepEqual(asArray, asObject)).toBe(false);
   });
 
@@ -76,8 +81,7 @@ describe("deepEqual", () => {
     expect(deepEqual(1, 1)).toBe(true);
     expect(deepEqual(null, null)).toBe(true);
     expect(deepEqual(true, false)).toBe(false);
-    const number: unknown = 1;
-    const text: unknown = "a";
-    expect(deepEqual(number, text)).toBe(false);
+    const [one, letter] = pair(1, "a");
+    expect(deepEqual(one, letter)).toBe(false);
   });
 });
