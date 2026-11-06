@@ -38,6 +38,10 @@ export interface ConfirmProps {
  * `role="alertdialog"` panel, closing on Escape or backdrop click. Labels flow
  * through `translate(key, { _: fallback })`.
  *
+ * The default slot replaces `content` for a body that is not a message key,
+ * since `content` is translated. React takes a node for `content`; this is the
+ * Vue way to pass one.
+ *
  * Emits `confirm` (user accepted) and `close` (user cancelled / dismissed) — the
  * Vue idiom for the React twin's `onConfirm` / `onClose` callbacks.
  */
@@ -137,8 +141,16 @@ onBeforeUnmount(() => {
         <h2 class="text-lg font-semibold" data-slot="confirm-title">
           {{ titleText }}
         </h2>
+        <!-- The default slot holds content that must not be translated, such as a tool call's arguments. -->
+        <div
+          v-if="$slots.default"
+          class="text-sm text-muted-foreground"
+          data-slot="confirm-content"
+        >
+          <slot />
+        </div>
         <p
-          v-if="contentText"
+          v-else-if="contentText"
           class="text-sm text-muted-foreground"
           data-slot="confirm-content"
         >
