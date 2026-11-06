@@ -10,6 +10,7 @@ import {
   type FilterPayload,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -98,8 +99,8 @@ describe("<FilterLiveSearch>", () => {
     const input = wrapper.get("input");
     expect(input.attributes("placeholder")).toBe("Search posts");
     await setFilters({ q: "hello" });
-    expect((input.element as HTMLInputElement).value).toBe("hello");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe("hello");
     await setFilters({ q: "later" });
-    expect((input.element as HTMLInputElement).value).toBe("later");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe("later");
   });
 });

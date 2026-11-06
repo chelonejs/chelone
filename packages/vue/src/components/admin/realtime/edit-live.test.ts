@@ -11,6 +11,7 @@ import {
   memoryTransport,
   realtimeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -97,7 +98,7 @@ function mountUnderAdmin(
 const input = (wrapper: ReturnType<typeof mountUnderAdmin>["wrapper"]) =>
   wrapper.find('input[type="text"]');
 const value = (wrapper: ReturnType<typeof mountUnderAdmin>["wrapper"]) =>
-  (input(wrapper).element as HTMLInputElement).value;
+  elementOf(input(wrapper).element, HTMLInputElement).value;
 
 const rename = (
   dataProvider: ReturnType<typeof setup>["dataProvider"],
