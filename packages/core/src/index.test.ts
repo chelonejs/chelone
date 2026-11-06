@@ -21,6 +21,17 @@ describe("@chelone/core barrel", () => {
     expect(barrel.richTextBlockTypes).toHaveLength(7);
   });
 
+  it("exports the date format helpers", () => {
+    expect(barrel.formatDate).toBeTypeOf("function");
+    expect(barrel.formatDateTime).toBeTypeOf("function");
+    expect(barrel.formatTime).toBeTypeOf("function");
+    expect(barrel.parseDateTimeToISO).toBeTypeOf("function");
+    expect(barrel.parseTimeToDate).toBeTypeOf("function");
+    expect(barrel.isValidDate).toBeTypeOf("function");
+    expect(barrel.isValidDateTime).toBeTypeOf("function");
+    expect(barrel.isValidTime).toBeTypeOf("function");
+  });
+
   it("exports humanize, humanizeField and pluralize", () => {
     expect(barrel.humanize).toBeTypeOf("function");
     expect(barrel.humanizeField).toBeTypeOf("function");
