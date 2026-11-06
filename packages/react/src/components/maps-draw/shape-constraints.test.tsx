@@ -6,6 +6,7 @@
  */
 
 import { act, cleanup, fireEvent, screen } from "@testing-library/react";
+import type { Polygon } from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetFake as resetMaps } from "../maps/__fixtures__/fake-maplibre";
 import {
@@ -31,7 +32,7 @@ afterEach(cleanup);
 
 type Mounted = Awaited<ReturnType<typeof mountShapeInput>>;
 
-const ring = (...points: [number, number][]) => ({
+const ring = (...points: [number, number][]): Polygon => ({
   type: "Polygon",
   coordinates: [[...points, points[0] as [number, number]]],
 });

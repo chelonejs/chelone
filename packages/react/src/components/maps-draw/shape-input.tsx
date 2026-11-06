@@ -208,7 +208,7 @@ function FitToShape({
   features: DrawFeature[];
   held: DrawFeature[];
   value: unknown;
-  written: React.RefObject<unknown>;
+  written: React.RefObject<ShapeValue | undefined>;
 }) {
   const map = useMap();
   const fitted = useRef(false);
@@ -299,7 +299,7 @@ export function ShapeInput<TRecord = LooseRecord>({
   const { field, fieldState, isRequired } = useInput({
     source,
     validate: validators,
-    format: (v: unknown) => v ?? null,
+    format: (v) => v ?? null,
   });
   const invalid = fieldState.invalid;
   const error = fieldState.error;
@@ -318,7 +318,7 @@ export function ShapeInput<TRecord = LooseRecord>({
   const controlsRef = useRef(controls);
   controlsRef.current = controls;
   // What the last edit wrote, so the first shape the user draws is not framed.
-  const written = useRef<unknown>(undefined);
+  const written = useRef<ShapeValue | undefined>(undefined);
   const notifications = useCheloneNotifications();
   const latest = useRef({
     field,
@@ -405,7 +405,8 @@ export function ShapeInput<TRecord = LooseRecord>({
       aspectRatio: now.aspectRatio,
       addHeld,
     });
-    written.current = next;
+    // An emptied shape is written as null: `undefined` stands for it here.
+    written.current = next ?? undefined;
     now.field.onChange(next);
     now.field.onBlur();
     if (edit.type === "draw") setTool(null);
