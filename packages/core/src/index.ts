@@ -723,6 +723,7 @@ export {
   createTranslatableController,
   getRecordForLocale,
 } from "./i18n/translatable";
+export { deepEqual } from "./json/deep-equal";
 export { stripJsonComments } from "./json/strip-json-comments";
 export { noop } from "./noop";
 export { errorMessageOf } from "./notification/error-message";
