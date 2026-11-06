@@ -17,6 +17,7 @@ export default [
       "title",
       "title-portal",
       "skip-navigation-button",
+      "assistant",
     ],
   },
   {
