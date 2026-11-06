@@ -1,0 +1,128 @@
+---
+title: "ConfigurableInputs"
+description: "Wraps the inputs of an Edit or Create so the user hides the ones they never fill and puts the rest in their own order from the inspector."
+registry: "inspector"
+---
+
+`<ConfigurableInputs>` sits inside `<Edit>` or `<Create>` around the inputs. It
+renders them in the order the user stored, without the ones they hid, and lists
+them in the [inspector panel](/docs/ui-layout/inspector) with a switch, a grip
+and move buttons. It is part of the inspector add-on: import it from
+`@chelone/react/inspector` or `@chelone/vue/inspector`, or install
+`@chelone/inspector`.
+
+## When to use it
+
+Use it when a form has more inputs than one user needs. A record with a hundred
+fields does not have to show all of them: the user hides the ones they never
+fill and moves the ones they use to the top. The choice is theirs, kept in the
+store, and your code still declares every input.
+
+For the columns of a table, use
+[`<ColumnsButton>`](/docs/viewing/columns-button) or
+[`<SortableFieldsSelector>`](/docs/ui-layout/inspector#marking-a-piece-configurable).
+
+## Example
+
+```tsx
+import { Edit, SaveButton, TextInput } from "@chelone/react";
+import { ConfigurableInputs } from "@chelone/react/inspector";
+
+export const PostEdit = () => (
+  <Edit>
+    <ConfigurableInputs defaultHiddenInputs={["notes"]}>
+      <TextInput source="title" />
+      <TextInput source="slug" />
+      <TextInput source="notes" />
+    </ConfigurableInputs>
+    <SaveButton />
+  </Edit>
+);
+```
+
+In Vue the inputs are the default slot:
+
+```vue
+<Edit>
+  <ConfigurableInputs :default-hidden-inputs="['notes']">
+    <TextInput source="title" />
+    <TextInput source="slug" />
+    <TextInput source="notes" />
+  </ConfigurableInputs>
+  <SaveButton />
+</Edit>
+```
+
+The user turns configure mode on with
+[`<InspectorButton>`](/docs/ui-layout/inspector), clicks Customize on the form,
+and the panel opens with the title `Form`, translated through
+`chelone.inspector.inputs_title`. Pass `title` to say something else.
+
+## What the panel lists
+
+One row per input, named by its `source`, or by its `label` when it has no
+`source`. An input with neither is listed as `input-<index>`, where `index`
+counts the elements only: a child that is not an element is skipped before the
+counting starts. The label is the translated one the input would show, so
+`resources.posts.fields.title` names the `title` row.
+
+- A switch shows or hides the input.
+- A grip drags it into place.
+- Move up and Move down are the keyboard path, and the grip is off while the list
+  is searched, because the order on screen is then not the real one.
+- A search box appears once there are more than five inputs.
+- Reset forgets the stored choices, so the declared order and
+  `defaultHiddenInputs` apply again.
+
+The list is [`<FieldsSelector>`](/docs/viewing/fields-selector) with a grip, the
+same one the inspector shows for a table's columns.
+
+## What is stored
+
+The choice lives in the store the `<Admin>` is given. Without a store every
+input shows and nothing is written, so hiding and reordering need one. The keys
+come from `storeKey`, which defaults to `<resource>.inputs`: the hidden ids under
+`<key>`, the order under `<key>_columnOrder`, and the published list under
+`<key>_columns`. Give `storeKey` when one resource has two configurable forms.
+
+`defaultHiddenInputs` lists the ids hidden until the user stores a choice. Once
+the user switches any input, the stored list wins and the default no longer
+applies.
+
+`<ConfigurableInputs>` needs a resource: a `resource` prop, a `storeKey`, or the
+resource context of the `<Edit>` or `<Create>` it sits in. Without one it throws.
+
+## Hidden inputs and saving
+
+A hidden input is not mounted. It shows no error and takes no space, and the
+record keeps the value it loaded.
+
+That matters on save. The form's values come from the record, not from the
+inputs on screen, so a hidden input's loaded value is saved with the record and
+the resource schema validates the same values it would have validated with every
+input mounted. Hiding an input is not a way to leave a required field empty: a
+record with no value for it fails the schema check on save, and the message
+lands in the invalid-form notification, because the input that would show it
+under the field is not there.
+
+A child that is not an element, a bare string between two fields, keeps its
+place, is always shown and is never listed. An element with no `source` and no
+string `label`, such as a `<p>` note, is listed as `input-<index>` and can be
+hidden like any other. In `<TextInput source="title" />{"A note"}<p />` the `<p>`
+is `input-1`, not `input-2`: the string takes no number.
+
+## Props
+
+<PropsTable name="ConfigurableInputs" />
+
+The table shows the React props. The Vue shape is below.
+
+## In Vue
+
+- The inputs go in the default slot. `class` styles the wrapper, where React
+  takes `className`.
+- A text or static node in the slot is not an input: it keeps its place, is
+  always shown and takes no number in `input-<index>`, as a non-element child
+  does in React.
+- The drag runs on `@dnd-kit/vue`, which needs Vue 3.5. See
+  [Installing the add-on](/docs/ui-layout/inspector#installing-the-add-on).

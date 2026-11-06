@@ -12,4 +12,5 @@ export default [
   { dir: "editing", title: "Editing" },
   { dir: "ui-layout", title: "UI & Layout" },
   { dir: "realtime", title: "Realtime" },
+  { dir: "maps", title: "Maps" },
 ] satisfies MetaEntry[];

@@ -3,6 +3,7 @@ import {
   Layers,
   LayoutDashboard,
   type LucideIcon,
+  Map,
   PanelsTopLeft,
   Radio,
   Rocket,
@@ -46,6 +47,10 @@ export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
     realtime: {
       icon: Radio,
       blurb: "Live views, presence, comments, and record locks.",
+    },
+    maps: {
+      icon: Map,
+      blurb: "Maps for showing and drawing GeoJSON, over the services you set.",
     },
   };
 
