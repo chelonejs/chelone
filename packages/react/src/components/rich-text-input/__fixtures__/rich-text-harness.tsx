@@ -1,8 +1,10 @@
 import {
   createI18n,
+  type DataProvider,
   defineMessages,
   type FieldErrors,
   fakeDataProvider,
+  type ResourceRegistry,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { type RenderResult, render } from "@testing-library/react";
@@ -10,12 +12,21 @@ import type { ReactNode } from "react";
 import { CheloneProvider } from "../../../context";
 import { CheloneFormProvider } from "../../../form-context";
 import { useForm } from "../../../form-hooks";
+import { ResourceRegistryProvider } from "../../../resource";
 
 const messages = {
   en: defineMessages({ "chelone.validation.required": "Required" }),
 };
 
 type HarnessForm<TFormData> = ReturnType<typeof useForm<TFormData>>;
+
+export interface MountOptions<TFormData> {
+  defaultValues?: TFormData;
+  onData?: (data: TFormData) => void;
+  dataProvider?: DataProvider;
+  /** Registers the resources that hooks like `useResourceDefinitions` read. */
+  registry?: ResourceRegistry;
+}
 
 /**
  * Mounts `ui` under the providers an input needs, with a form holding
@@ -27,18 +38,18 @@ export function mountUnderForm<TFormData extends object>(
   {
     defaultValues,
     onData,
-  }: {
-    defaultValues?: TFormData;
-    onData?: (data: TFormData) => void;
-  } = {},
+    dataProvider = fakeDataProvider({}),
+    registry,
+  }: MountOptions<TFormData> = {},
 ): {
   view: RenderResult;
   form: () => HarnessForm<TFormData>;
   rerender: (next?: ReactNode) => void;
 } {
   const i18n = createI18n({ locale: "en", messages });
-  const queryClient = new QueryClient();
-  const dataProvider = fakeDataProvider({});
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   const live: { form: HarnessForm<TFormData> | null } = { form: null };
 
   function FormHost({ children }: { children: ReactNode }) {
@@ -63,7 +74,9 @@ export function mountUnderForm<TFormData extends object>(
       queryClient={queryClient}
       i18n={i18n}
     >
-      <FormHost>{children}</FormHost>
+      <ResourceRegistryProvider registry={registry}>
+        <FormHost>{children}</FormHost>
+      </ResourceRegistryProvider>
     </CheloneProvider>
   );
   const view = render(tree(ui));

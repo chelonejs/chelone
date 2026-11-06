@@ -12,7 +12,8 @@
     "../../../packages/react/src/maps-draw.ts",
     "../../../packages/react/src/maps-osm.ts",
     "../../../packages/react/src/supabase.ts",
-    "../../../packages/react/src/csv-import.ts"
+    "../../../packages/react/src/csv-import.ts",
+    "../../../packages/react/src/inspector.ts"
   ],
   "tsconfig": "../../../packages/react/tsconfig.json",
   "json": "./public-api.typedoc.json",

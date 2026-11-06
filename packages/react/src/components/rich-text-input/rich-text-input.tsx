@@ -48,6 +48,17 @@ interface RichTextInputProps<TRecord = LooseRecord>
    */
   images?: boolean | RichTextImageOptions;
   /**
+   * Text color: `false` leaves out the color extension and the toolbar's Text
+   * color button. A color is stored as a `style` attribute with a palette
+   * `var(--rich-text-color-*)` value. Default `true`.
+   */
+  colors?: boolean;
+  /**
+   * Highlights code blocks in the editor with lowlight. `false` shows them
+   * plain. The stored HTML never has highlight markup either way. Default `true`.
+   */
+  codeHighlight?: boolean;
+  /**
    * Extra tiptap editor options, spread last: `extensions` here replaces the
    * default set. `onUpdate` and `onBlur` run after the input's own.
    */
@@ -82,6 +93,8 @@ function RichTextInput<TRecord = LooseRecord>(
     placeholder,
     toolbar,
     images = true,
+    colors = true,
+    codeHighlight = true,
     editorOptions,
   } = props;
   const resource = useResourceContext({ resource: resourceProp });
@@ -109,7 +122,7 @@ function RichTextInput<TRecord = LooseRecord>(
   // The extension reads the text on each render, so a new one needs no new editor.
   const placeholderRef = useRef(placeholder ?? "");
   placeholderRef.current = placeholder ?? "";
-  // Likewise the image settings; only turning images on or off needs a new editor.
+  // Likewise the image settings; only turning images, colors or code highlighting on or off needs a new editor.
   const imagesRef = useRef(images);
   imagesRef.current = images;
   const imagesEnabled = images !== false;
@@ -120,8 +133,10 @@ function RichTextInput<TRecord = LooseRecord>(
         images: imagesEnabled
           ? () => resolveRichTextImageConfig(imagesRef.current)
           : null,
+        colors,
+        codeHighlight,
       }),
-    [imagesEnabled],
+    [imagesEnabled, colors, codeHighlight],
   );
 
   const customEditorProps = editorOptions?.editorProps;
@@ -155,7 +170,7 @@ function RichTextInput<TRecord = LooseRecord>(
         editorOptions?.onBlur?.(event);
       },
     },
-    [imagesEnabled],
+    [imagesEnabled, colors, codeHighlight],
   );
 
   // With deps, `useEditor` no longer passes changed options to a live editor.
