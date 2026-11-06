@@ -28,7 +28,7 @@ export interface TitleProps {
  * matching the React twin's "renders nothing without a target".
  */
 
-import { computed, nextTick, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref, type VNode } from "vue";
 import { cn } from "../../../lib/utils";
 import { useTranslate } from "../../../i18n/use-translate";
 import { TITLE_PORTAL_ID } from "./title-portal-id";
@@ -36,7 +36,7 @@ import { TITLE_PORTAL_ID } from "./title-portal-id";
 const props = defineProps<TitleProps>();
 const slots = defineSlots<{
   /** A custom title node rendered verbatim (replaces the translated string). */
-  default?: () => unknown;
+  default?: () => VNode[];
 }>();
 
 const translate = useTranslate();

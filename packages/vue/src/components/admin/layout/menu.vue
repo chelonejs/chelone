@@ -20,12 +20,13 @@ import {
   SidebarGroupContent,
   SidebarMenu,
 } from "../../ui/sidebar";
+import type { VNode } from "vue";
 import DashboardMenuItem from "./dashboard-menu-item.vue";
 import ResourceMenuItemGroup from "./resource-menu-item-group.vue";
 
 defineSlots<{
   /** Custom nav entries that REPLACE the auto resource list. */
-  default?: () => unknown;
+  default?: () => VNode[];
 }>();
 
 const hasDashboard = useHasDashboard();

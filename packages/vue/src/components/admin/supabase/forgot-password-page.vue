@@ -16,6 +16,7 @@ export interface ForgotPasswordPageProps {
  * register the route at `forgotPasswordPath` from `@chelone/supabase`.
  */
 
+import type { VNode } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import AuthLayout from "../auth/auth-layout.vue";
 import ForgotPasswordForm from "./forgot-password-form.vue";
@@ -24,7 +25,7 @@ const props = defineProps<ForgotPasswordPageProps>();
 
 defineSlots<{
   /** Custom content in place of the default `<ForgotPasswordForm>`. */
-  default?: () => unknown;
+  default?: () => VNode[];
 }>();
 
 const translate = useTranslate();

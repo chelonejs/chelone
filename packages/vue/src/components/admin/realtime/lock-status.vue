@@ -53,15 +53,15 @@ const LockStatusQuery = defineComponent({
  * props.
  */
 
-import { inject } from "vue";
+import { inject, type VNode } from "vue";
 import { RecordContextKey } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 
 const props = defineProps<LockStatusProps>();
 
 defineSlots<{
-  lock?: (props: { lock: Lock }) => unknown;
-  free?: () => unknown;
+  lock?: (props: { lock: Lock }) => VNode[];
+  free?: () => VNode[];
 }>();
 
 const ambientResource = useResourceContext();

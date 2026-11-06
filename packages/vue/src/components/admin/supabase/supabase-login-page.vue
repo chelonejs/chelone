@@ -32,7 +32,7 @@ export interface SupabaseLoginPageProps {
  */
 
 import { forgotPasswordPath } from "@chelone/supabase";
-import { computed } from "vue";
+import { computed, type VNode } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import LoginForm from "../auth/login-form.vue";
 import LoginPage from "../auth/login-page.vue";
@@ -79,7 +79,7 @@ const props = defineProps<SupabaseLoginPageProps>();
 
 defineSlots<{
   /** Custom content in place of the form, the link and the buttons. */
-  default?: () => unknown;
+  default?: () => VNode[];
 }>();
 
 const translate = useTranslate();
