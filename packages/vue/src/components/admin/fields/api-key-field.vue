@@ -4,16 +4,17 @@ import {
   type LooseRecord,
   type SourceKey,
   type SourceProp,
+  type SourceValue,
 } from "@chelone/core";
 
 /** Props for {@link ApiKeyField}. */
 export interface ApiKeyFieldProps<
   RecordType extends LooseRecord = LooseRecord,
 > {
-  source: SourceProp;
+  source: SourceProp<RecordType>;
   /** The record to render. Defaults to the ambient `RecordContext` value. */
   record?: RecordType;
-  defaultValue?: unknown;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   /**
    * Sibling record field with scope strings; renders chips when set. A
    * top-level key, not a path: the read is `record[scopesSource]`.
@@ -53,8 +54,7 @@ import { useFieldValue } from "../../../record/use-field-value";
 
 const props = defineProps<ApiKeyFieldProps<RecordType>>();
 
-// `source` is a loose `SourceProp` (#751), so the value read is typed loose.
-const value = useFieldValue<LooseRecord>({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

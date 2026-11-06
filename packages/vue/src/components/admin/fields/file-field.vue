@@ -1,11 +1,13 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link FileField}. */
-export interface FileFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface FileFieldProps<
+  RecordType extends LooseRecord = LooseRecord,
+> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** The path to the file url on each item, for an array of files. */
   src?: string;
@@ -19,7 +21,7 @@ export interface FileFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<FileField>` — displays a downloadable file link (or a `<ul>` of links) from a
  * record field, the Vue port of `@chelone/react`'s `fields/file-field.tsx`. A
@@ -31,24 +33,25 @@ export interface FileFieldProps {
 import { computed } from "vue";
 import { getAtPath } from "@chelone/core";
 import { cn } from "../../../lib/utils";
+import { useRecordContextRef } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = defineProps<FileFieldProps>();
+const props = defineProps<FileFieldProps<RecordType>>();
 
-const sourceValue = useFieldValue({
+const sourceValue = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
 });
 
-// A `title` may be a record path OR a literal label. `useFieldValue` must always
-// be called; pass `""` when absent — chelone reads `source:""` as the WHOLE
-// record, so the derived title below discards that read unless `title` is set.
-const titleFromRecord = useFieldValue({
-  record: props.record,
-  source: props.title ?? "",
-});
+// A `title` may be a record path OR a literal label, so it is read with
+// `getAtPath` off the ambient record instead of `useFieldValue`: that hook wants
+// a `SourceProp<RecordType>`, and a literal label is no record's path.
+const ctxRecord = useRecordContextRef<RecordType>(() => props.record);
+const titleFromRecord = computed(() =>
+  props.title ? getAtPath(ctxRecord.value, props.title) : undefined,
+);
 
 const titleValue = computed(() =>
   props.title

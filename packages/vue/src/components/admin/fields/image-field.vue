@@ -1,11 +1,13 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link ImageField}. */
-export interface ImageFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface ImageFieldProps<
+  RecordType extends LooseRecord = LooseRecord,
+> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** The path to the image url on each item, for an array of images. */
   src?: string;
@@ -15,7 +17,7 @@ export interface ImageFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<ImageField>` — displays an image (or a `<ul>` of images) from a record field,
  * the Vue port of `@chelone/react`'s `fields/image-field.tsx`. A `title` may be a
@@ -27,23 +29,25 @@ export interface ImageFieldProps {
 import { computed } from "vue";
 import { getAtPath } from "@chelone/core";
 import { cn } from "../../../lib/utils";
+import { useRecordContextRef } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = defineProps<ImageFieldProps>();
+const props = defineProps<ImageFieldProps<RecordType>>();
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
 });
 
-// A `title` may be a record path OR a literal label — discard the whole-record
-// read unless `title` is set (see `<FileField>`).
-const titleFromRecord = useFieldValue({
-  record: props.record,
-  source: props.title ?? "",
-});
+// A `title` may be a record path OR a literal label, so it is read with
+// `getAtPath` off the ambient record instead of `useFieldValue` (see
+// `<FileField>`).
+const ctxRecord = useRecordContextRef<RecordType>(() => props.record);
+const titleFromRecord = computed(() =>
+  props.title ? getAtPath(ctxRecord.value, props.title) : undefined,
+);
 
 const titleValue = computed(() =>
   props.title

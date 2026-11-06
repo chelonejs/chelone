@@ -1,14 +1,14 @@
 <script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceKey, SourceProp } from "@chelone/core";
+import type { LooseRecord, SourceKey, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link RatingField}. */
 export interface RatingFieldProps<
   RecordType extends LooseRecord = LooseRecord,
 > {
-  source: SourceProp;
+  source: SourceProp<RecordType>;
   /** The record to render. Defaults to the ambient `RecordContext` value. */
   record?: RecordType;
-  defaultValue?: unknown;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** Total stars rendered (filled + outlined). Default 5. */
   max?: number;
@@ -43,8 +43,7 @@ const props = defineProps<RatingFieldProps<RecordType>>();
 
 const max = computed(() => props.max ?? 5);
 
-// `source` is a loose `SourceProp` (#751), so the value read is typed loose.
-const value = useFieldValue<LooseRecord>({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

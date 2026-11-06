@@ -400,6 +400,12 @@ export type {
 } from "./form/choices-controller";
 export { createChoicesController } from "./form/choices-controller";
 export { getDirtyFormValues } from "./form/dirty-values";
+export type { ParsedDuration } from "./form/duration";
+export {
+  compactDuration,
+  parseIsoDuration,
+  relativeDuration,
+} from "./form/duration";
 export type {
   CreateFormController,
   CreateFormControllerOptions,
