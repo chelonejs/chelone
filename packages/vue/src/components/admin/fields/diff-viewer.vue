@@ -13,7 +13,7 @@ export interface DiffViewerProps<
   /** The later version. */
   after: RecordType;
   /** Fields to show, in this order. Without it: every top-level key. */
-  sources?: SourceProp<RecordType>[];
+  sources?: readonly SourceProp<RecordType>[];
   /** A label per source, replacing the translated field label. */
   labels?: Partial<Record<string, string>>;
   /** Table (`side-by-side`, the default) or list (`inline`). */

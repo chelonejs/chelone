@@ -21,7 +21,7 @@ declare const article: Article;
 describe("DiffViewer props", () => {
   it("sources are SourceProp of the record", () => {
     expectTypeOf<DiffViewerProps<Article>["sources"]>().toEqualTypeOf<
-      SourceProp<Article>[] | undefined
+      readonly SourceProp<Article>[] | undefined
     >();
     const props: DiffViewerProps<Article> = {
       before: article,
@@ -29,8 +29,15 @@ describe("DiffViewer props", () => {
       sources: ["title", "author.name"],
     };
     expectTypeOf(props.sources).not.toBeAny();
+    const fields = ["title", "author.name"] as const;
+    const readonlyProps: DiffViewerProps<Article> = {
+      before: article,
+      after: article,
+      sources: fields,
+    };
+    expectTypeOf(readonlyProps.sources).not.toBeAny();
     expectTypeOf<DiffViewerProps["sources"]>().toEqualTypeOf<
-      string[] | undefined
+      readonly string[] | undefined
     >();
   });
 
