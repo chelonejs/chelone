@@ -12,6 +12,7 @@ import {
   mapMessages,
   rasterTileStyle,
 } from "@chelone/core";
+import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -122,7 +123,7 @@ async function setup(
   await flushPromises();
   return {
     wrapper,
-    saved: () => ({ ...form?.form.store.state.values }) as Place,
+    saved: () => ({ ...defined(form).form.store.state.values }),
   };
 }
 
@@ -135,8 +136,7 @@ const click = async (lat: number, lng: number) => {
   map().emit("click", { lngLat: { lat, lng } });
   await flushPromises();
 };
-const address = (wrapper: VueWrapper) =>
-  wrapper.get<HTMLInputElement>('[role="combobox"]');
+const address = (wrapper: VueWrapper) => wrapper.get('[role="combobox"]');
 const searchFor = async (wrapper: VueWrapper, text: string) => {
   await address(wrapper).setValue(text);
   await address(wrapper).trigger("keydown", { key: "Enter" });
@@ -163,7 +163,9 @@ describe("MapWithSearch", () => {
     });
     expect(map().eases.at(-1)).toMatchObject({ center: [2.3522, 48.8566] });
     expect(reverse).not.toHaveBeenCalled();
-    expect(address(wrapper).element.value).toBe("Paris, France");
+    expect(elementOf(address(wrapper).element, HTMLInputElement).value).toBe(
+      "Paris, France",
+    );
   });
 
   it("writes the address after a map click", async () => {
@@ -175,7 +177,9 @@ describe("MapWithSearch", () => {
     expect(reverse).toHaveBeenCalledTimes(1);
     expect(reverse.mock.calls[0]?.slice(0, 2)).toEqual([10.123457, 20.5]);
     expect(saved().address).toBe("1 Rue de Rivoli");
-    expect(address(wrapper).element.value).toBe("1 Rue de Rivoli");
+    expect(elementOf(address(wrapper).element, HTMLInputElement).value).toBe(
+      "1 Rue de Rivoli",
+    );
   });
 
   it("keeps the address when the reverse geocode returns null", async () => {
