@@ -189,9 +189,10 @@ describe("createOsrmProvider", () => {
   });
 
   it("throws a TypeError without an endpoint", () => {
-    expect(() => createOsrmProvider({} as { endpoint: string })).toThrow(
-      TypeError,
-    );
+    expect(() => {
+      // @ts-expect-error the options carry no endpoint, which the type requires
+      createOsrmProvider({});
+    }).toThrow(TypeError);
     expect(() => createOsrmProvider({ endpoint: " " })).toThrow(/endpoint/);
   });
 });

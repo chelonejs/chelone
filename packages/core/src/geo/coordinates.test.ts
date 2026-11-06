@@ -1,6 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { minLength } from "../form/validators";
+import { minLength, type ValidatorResult } from "../form/validators";
 import { latitude, longitude, toCoordinate } from "./coordinates";
+
+/** The keys of a validator's failure payload, checked at this line. */
+async function errorKeys(
+  verdict: ValidatorResult | Promise<ValidatorResult>,
+): Promise<string[]> {
+  const result = await verdict;
+  if (typeof result !== "object" || result === null) {
+    throw new Error(`Expected an error payload, got ${String(result)}`);
+  }
+  return Object.keys(result).sort();
+}
 
 describe("toCoordinate", () => {
   it("accepts 0 and numeric strings and rejects null, empty string and NaN", () => {
@@ -65,9 +76,9 @@ describe("latitude", () => {
     );
   });
 
-  it("returns the same shape as minLength", () => {
-    expect(Object.keys(minLength(3)("a", {}, {}) as object).sort()).toEqual(
-      Object.keys(latitude()(91, {}, {}) as object).sort(),
+  it("returns the same shape as minLength", async () => {
+    expect(await errorKeys(minLength(3)("a", {}, {}))).toEqual(
+      await errorKeys(latitude()(91, {}, {})),
     );
   });
 });

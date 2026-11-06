@@ -1,6 +1,6 @@
 import { QueryClient } from "@tanstack/query-core";
 import { describe, expect, it, vi } from "vitest";
-import type { DataProvider } from "../data/types";
+import { InertDataProvider } from "../__fixtures__/data-provider";
 import { getLockOptions, getLocksOptions } from "./lock-options";
 import { realtimeDataProvider } from "./realtime-data-provider";
 import type { Lock, LockProvider } from "./types";
@@ -20,7 +20,7 @@ const setup = () => {
     getLocks: vi.fn(async () => [aLock]),
   };
   const dataProvider = realtimeDataProvider(
-    {} as DataProvider,
+    new InertDataProvider(),
     { subscribe: () => () => {}, publish: async () => {} },
     { locks },
   );
@@ -39,7 +39,7 @@ describe("getLockOptions", () => {
 
   it("fails with a clear message on a plain data provider", () => {
     const ctx = {
-      dataProvider: {} as DataProvider,
+      dataProvider: new InertDataProvider(),
       queryClient: new QueryClient(),
     };
 
