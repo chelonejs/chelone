@@ -1,14 +1,17 @@
 import {
   isSafeLinkUrl,
+  type RichTextExtraToolbarItem,
   type RichTextToolbarItem,
   type RichTextToolbarItemId,
   richTextBlockTypes,
+  richTextExtraToolbarItems,
   richTextToolbarItems,
 } from "@chelone/core";
 import { type Editor, useCurrentEditor, useEditorState } from "@tiptap/react";
 import {
   BoldIcon,
   CodeIcon,
+  ImageIcon,
   ItalicIcon,
   LinkIcon,
   ListIcon,
@@ -24,7 +27,6 @@ import {
 } from "lucide-react";
 import { type ComponentType, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   NativeSelect,
   NativeSelectOption,
@@ -37,6 +39,9 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../i18n-hooks";
+import { getRichTextImageConfig } from "./rich-text-image";
+import { RichTextImageForm } from "./rich-text-image-form";
+import { RichTextUrlForm } from "./rich-text-url-form";
 
 interface ItemSpec {
   icon: ComponentType<{ className?: string }>;
@@ -52,10 +57,13 @@ interface ItemSpec {
     | "orderedList"
     | "blockquote"
     | "codeBlock";
-  /** Absent for Link, which opens the link form instead. */
+  /** Absent for Link and Image, which open a form instead. */
   run?: (editor: Editor) => void;
   canRun?: (editor: Editor) => boolean;
 }
+
+/** Like Link, the Image button opens a form instead of running a command. */
+const imageSpec: ItemSpec = { icon: ImageIcon };
 
 const itemSpecs: Record<RichTextToolbarItemId, ItemSpec> = {
   bold: {
@@ -134,8 +142,19 @@ interface ToolbarState {
   editable: boolean;
   /** One entry per `richTextToolbarItems` entry, in order. */
   buttons: ButtonState[];
+  /** Whether the editor has the image extension, which adds the Image button. */
+  images: boolean;
   blockType: string;
 }
+
+type ImageToolbarItem = RichTextExtraToolbarItem & { id: "image" };
+
+function isImageItem(item: RichTextExtraToolbarItem): item is ImageToolbarItem {
+  return item.id === "image";
+}
+
+/** The Image button's place: right after Link, in core's `insert` group. */
+const imageItem = richTextExtraToolbarItems.find(isImageItem);
 
 function readToolbarState(editor: Editor): ToolbarState {
   const editable = editor.isEditable;
@@ -151,7 +170,12 @@ function readToolbarState(editor: Editor): ToolbarState {
       type.level !== undefined &&
       editor.isActive("heading", { level: type.level }),
   );
-  return { editable, buttons, blockType: heading?.id ?? "paragraph" };
+  return {
+    editable,
+    buttons,
+    images: getRichTextImageConfig(editor) !== null,
+    blockType: heading?.id ?? "paragraph",
+  };
 }
 
 const isMac = () =>
@@ -200,18 +224,31 @@ function ToolbarBody({
     selector: ({ editor: e }) => readToolbarState(e),
   });
   const [linkOpen, setLinkOpen] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
 
   // A run of items in one group; core lists Link and Horizontal rule apart.
   const groups: {
     group: RichTextToolbarItem["group"];
-    entries: { item: RichTextToolbarItem; button: ButtonState }[];
+    entries: {
+      item: RichTextToolbarItem | ImageToolbarItem;
+      button: ButtonState;
+    }[];
   }[] = [];
-  richTextToolbarItems.forEach((item, index) => {
-    const button = state.buttons[index];
-    if (!button) return;
+  const add = (
+    item: RichTextToolbarItem | ImageToolbarItem,
+    button: ButtonState,
+  ) => {
     const last = groups.at(-1);
     if (last?.group === item.group) last.entries.push({ item, button });
     else groups.push({ group: item.group, entries: [{ item, button }] });
+  };
+  richTextToolbarItems.forEach((item, index) => {
+    const button = state.buttons[index];
+    if (!button) return;
+    add(item, button);
+    if (item.id === "link" && state.images && imageItem) {
+      add(imageItem, { pressed: undefined, disabled: !state.editable });
+    }
   });
 
   return (
@@ -256,8 +293,18 @@ function ToolbarBody({
                 editor={editor}
                 item={item}
                 state={button}
-                expanded={item.id === "link" ? linkOpen : undefined}
-                onLink={() => setLinkOpen((open) => !open)}
+                expanded={
+                  item.id === "link"
+                    ? linkOpen
+                    : item.id === "image"
+                      ? imageOpen
+                      : undefined
+                }
+                onToggle={() =>
+                  item.id === "image"
+                    ? setImageOpen((open) => !open)
+                    : setLinkOpen((open) => !open)
+                }
               />
             ))}
           </div>
@@ -265,6 +312,12 @@ function ToolbarBody({
       </div>
       {linkOpen ? (
         <LinkForm editor={editor} onClose={() => setLinkOpen(false)} />
+      ) : null}
+      {imageOpen && state.images ? (
+        <RichTextImageForm
+          editor={editor}
+          onClose={() => setImageOpen(false)}
+        />
       ) : null}
     </div>
   );
@@ -275,16 +328,16 @@ function ToolbarButton({
   item,
   state,
   expanded,
-  onLink,
+  onToggle,
 }: {
   editor: Editor;
-  item: RichTextToolbarItem;
+  item: RichTextToolbarItem | ImageToolbarItem;
   state: ButtonState;
   expanded: boolean | undefined;
-  onLink: () => void;
+  onToggle: () => void;
 }) {
   const translate = useTranslate();
-  const spec = itemSpecs[item.id];
+  const spec = item.id === "image" ? imageSpec : itemSpecs[item.id];
   const Icon = spec.icon;
   const label = translate(item.labelKey, { _: item.defaultLabel });
   const tooltip = item.shortcut
@@ -303,7 +356,7 @@ function ToolbarButton({
           disabled={state.disabled}
           // Keeps the editor's selection, which a button click would blur.
           onMouseDown={(event) => event.preventDefault()}
-          onClick={() => (spec.run ? spec.run(editor) : onLink())}
+          onClick={() => (spec.run ? spec.run(editor) : onToggle())}
         >
           <Icon />
         </Button>
@@ -361,41 +414,28 @@ function LinkForm({
   }
 
   return (
-    <div
-      data-slot="rich-text-link-form"
-      className="flex flex-wrap items-center gap-2 border-t p-2"
+    <RichTextUrlForm
+      slot="rich-text-link-form"
+      label={translate("chelone.rich_text.link_url", { _: "URL" })}
+      applyLabel={translate("chelone.rich_text.link_apply", { _: "Apply" })}
+      error={
+        invalid
+          ? translate("chelone.rich_text.invalid_url", {
+              _: "Enter a web, mail or phone link",
+            })
+          : null
+      }
+      value={url}
+      onSubmit={apply}
+      onChange={(next) => {
+        setUrl(next);
+        setInvalid(false);
+      }}
     >
-      <Input
-        type="text"
-        className="h-8 min-w-48 flex-1"
-        aria-label={translate("chelone.rich_text.link_url", { _: "URL" })}
-        aria-invalid={invalid || undefined}
-        value={url}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            apply();
-          }
-        }}
-        onChange={(event) => {
-          setUrl(event.target.value);
-          setInvalid(false);
-        }}
-      />
-      <Button type="button" size="sm" onClick={apply}>
-        {translate("chelone.rich_text.link_apply", { _: "Apply" })}
-      </Button>
       <Button type="button" size="sm" variant="outline" onClick={remove}>
         {translate("chelone.rich_text.link_remove", { _: "Remove" })}
       </Button>
-      {invalid ? (
-        <p role="alert" className="w-full text-destructive text-xs">
-          {translate("chelone.rich_text.invalid_url", {
-            _: "Enter a web, mail or phone link",
-          })}
-        </p>
-      ) : null}
-    </div>
+    </RichTextUrlForm>
   );
 }
 
