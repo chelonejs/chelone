@@ -7,7 +7,8 @@
     "../../../packages/react/src/mdx-editor.ts",
     "../../../packages/react/src/rich-text-input.ts",
     "../../../packages/react/src/kanban.ts",
-    "../../../packages/react/src/block-editor.ts"
+    "../../../packages/react/src/block-editor.ts",
+    "../../../packages/react/src/inspector.ts"
   ],
   "tsconfig": "../../../packages/react/tsconfig.json",
   "json": "./public-api.typedoc.json",

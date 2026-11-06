@@ -6405,8 +6405,17 @@
         "@chelone/lib-utils",
         "@chelone/tooltip"
       ],
-      "dependencies": ["@chelone/react", "@dnd-kit/react", "lucide-react"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@dnd-kit/react",
+        "lucide-react"
+      ],
       "files": [
+        {
+          "path": "src/components/inspector/configurable-inputs.tsx",
+          "type": "registry:component"
+        },
         {
           "path": "src/components/inspector/configurable.tsx",
           "type": "registry:component"
@@ -6424,6 +6433,24 @@
           "type": "registry:component"
         }
       ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "configurable-inputs",
+      "type": "registry:component",
+      "title": "Configurable Inputs",
+      "files": [
+        {
+          "path": "src/components/inspector/configurable-inputs.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/configurable",
+        "@chelone/sortable-fields-selector"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
