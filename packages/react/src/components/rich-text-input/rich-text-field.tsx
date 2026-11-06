@@ -1,7 +1,7 @@
 import type { LooseRecord } from "@chelone/core";
 import {
-  isSafeImageSrc,
   richTextStyledSanitizeOptions,
+  sanitizeRichTextImageElement,
   sanitizeRichTextStyle,
 } from "@chelone/core";
 import DOMPurify from "dompurify";
@@ -30,12 +30,7 @@ function sanitizer(): ReturnType<typeof DOMPurify> {
   if (purify) return purify;
   const created = DOMPurify(window);
   // `javascript:` is already gone; this also drops SVG data URLs, which DOMPurify allows on an `img`.
-  created.addHook("afterSanitizeAttributes", (node) => {
-    if (node.nodeName !== "IMG" || !(node instanceof window.Element)) return;
-    const src = node.getAttribute("src");
-    if (src === null || !isSafeImageSrc(src, { allowDataImages: true }))
-      node.remove();
-  });
+  created.addHook("afterSanitizeAttributes", sanitizeRichTextImageElement);
   // `style` is allowed through the options; only a palette or plain color survives.
   created.addHook("uponSanitizeAttribute", (_node, data) => {
     if (data.attrName !== "style") return;
