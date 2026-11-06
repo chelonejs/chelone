@@ -21,6 +21,7 @@
 
 import type {
   ArrayBindingUpdateOptions,
+  ArrayItemOf,
   ArrayRow,
   CheloneFieldState,
   SourcePath,
@@ -40,10 +41,12 @@ import { firstFieldError } from "../form/field-error";
 import { useCheloneFormContext, useSourceScope } from "../form/form-context";
 import { useSubscribable } from "../form/subscribe-ref";
 
-export interface UseArrayInputOptions<TRecord = unknown>
-  extends ArrayBindingUpdateOptions {
+export interface UseArrayInputOptions<
+  TRecord = unknown,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+> extends ArrayBindingUpdateOptions {
   /** The array field path RELATIVE to the ambient source scope. */
-  source: SourcePath<TRecord>;
+  source: TPath;
 }
 
 /** The array field's own reactive error state (min-length validators, etc.). */
@@ -56,7 +59,7 @@ export interface ArrayFieldState {
 }
 
 /** ra-parity iterator surface: the reactive row set plus the op verbs. */
-export interface UseArrayInputResult {
+export interface UseArrayInputResult<TItem = unknown> {
   /** The array field path (final, source-scoped). */
   source: string;
   /** Stable-id rows — reference-stable until the row STRUCTURE changes. */
@@ -66,9 +69,9 @@ export interface UseArrayInputResult {
   /** The scope children bind under (the array's own path). */
   scope: SourceScope;
   /** Appends a row (scalar `''`, object first-row-keys-nulled + defaults). */
-  add(item?: unknown): void;
-  insert(index: number, item?: unknown): void;
-  replace(index: number, item: unknown): void;
+  add(item?: TItem): void;
+  insert(index: number, item?: TItem): void;
+  replace(index: number, item: TItem): void;
   remove(index: number): void;
   swap(indexA: number, indexB: number): void;
   reOrder(from: number, to: number): void;
@@ -76,8 +79,8 @@ export interface UseArrayInputResult {
   fieldState: ArrayFieldState;
 }
 
-function toBindingUpdate<TRecord>(
-  options: UseArrayInputOptions<TRecord>,
+function toBindingUpdate<TRecord, TPath extends SourcePath<TRecord>>(
+  options: UseArrayInputOptions<TRecord, TPath>,
   // type-escape: the ambient form names no record.
 ): ArrayBindingUpdateOptions<unknown> {
   return {
@@ -90,15 +93,21 @@ function toBindingUpdate<TRecord>(
   };
 }
 
-export function useArrayInput<TRecord>(
-  options: UseArrayInputOptions<TRecord>,
-): UseArrayInputResult;
+export function useArrayInput<
+  TRecord,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+>(
+  options: UseArrayInputOptions<TRecord, TPath>,
+): UseArrayInputResult<ArrayItemOf<TRecord, TPath>>;
 export function useArrayInput(
   options: UseArrayInputOptions,
 ): UseArrayInputResult;
-export function useArrayInput<TRecord>(
-  options: UseArrayInputOptions<TRecord>,
-): UseArrayInputResult {
+export function useArrayInput<
+  TRecord,
+  TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
+>(
+  options: UseArrayInputOptions<TRecord, TPath>,
+): UseArrayInputResult<ArrayItemOf<TRecord, TPath>> {
   const { form } = useCheloneFormContext();
   const parentScope = useSourceScope();
   const source = parentScope.getSource(options.source);
