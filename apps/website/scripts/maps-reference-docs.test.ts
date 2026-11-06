@@ -109,6 +109,40 @@ it.each(shapeFields)(
   },
 );
 
+/** The prop names the page's props table renders, from the typedoc JSON. */
+function propNames(component: string): Set<string> {
+  const json: { props?: { name: string }[] } = JSON.parse(
+    readFileSync(
+      new URL(`../src/docs/content/props/${component}.json`, import.meta.url),
+    ),
+    "utf8",
+  );
+  return new Set((json.props ?? []).map((prop) => prop.name));
+}
+
+// A page names these as the record's GeoJSON, never as props of the field.
+const GEOJSON_MEMBERS = new Set([
+  "coordinates",
+  "features",
+  "geometries",
+  "geometry",
+  "properties",
+]);
+
+it.each(shapeFields)(
+  "$component backticks only its own props, so no page suggests a prop that does not exist",
+  ({ slug, component }) => {
+    const props = propNames(component);
+    for (const match of page(slug).matchAll(/`([a-z][\w.]*)`/g)) {
+      const root = match[1].split(".")[0];
+      expect(
+        props.has(root) || GEOJSON_MEMBERS.has(root),
+        `${slug}: \`${match[1]}\` is not a prop of ${component}`,
+      ).toBe(true);
+    }
+  },
+);
+
 it("every shape field page is exported by the maps entry of both adapters", () => {
   for (const adapter of ["react", "vue"]) {
     const entry = readFileSync(
