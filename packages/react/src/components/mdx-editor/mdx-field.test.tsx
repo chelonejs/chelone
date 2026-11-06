@@ -4,11 +4,20 @@
  */
 
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
-import { headingsPlugin } from "@mdxeditor/editor";
+import { defined } from "@chelone/test-utils";
+import { headingsPlugin, type RealmPlugin } from "@mdxeditor/editor";
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type Mock,
+  vi,
+} from "vitest";
 import { CheloneProvider } from "../../context";
 import { RecordContextProvider } from "../../record/record-context";
 import { ThemeProvider } from "../admin/layout/theme-provider";
@@ -16,14 +25,21 @@ import { defaultFieldPlugins } from "./default-plugins";
 import { MdxField } from "./mdx-field";
 import { safeHtmlImagePlugin } from "./safe-html-image-plugin";
 
-const hoisted = vi.hoisted(() => ({
-  setMarkdown: vi.fn(),
-  plugins: undefined as unknown,
-  suppressHtmlProcessing: undefined as unknown,
-  onError: undefined as
-    | ((payload: { error: string; source: string }) => void)
-    | undefined,
-}));
+interface Hoisted {
+  setMarkdown: Mock<(value: string) => void>;
+  plugins: RealmPlugin[] | undefined;
+  suppressHtmlProcessing: boolean | undefined;
+  onError: ((payload: { error: string; source: string }) => void) | undefined;
+}
+
+const hoisted = vi.hoisted(
+  (): Hoisted => ({
+    setMarkdown: vi.fn<(value: string) => void>(),
+    plugins: undefined,
+    suppressHtmlProcessing: undefined,
+    onError: undefined,
+  }),
+);
 
 vi.mock("@mdxeditor/editor", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@mdxeditor/editor")>();
@@ -34,7 +50,7 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
       markdown: string;
       className?: string;
       readOnly?: boolean;
-      plugins?: unknown;
+      plugins?: RealmPlugin[];
       suppressHtmlProcessing?: boolean;
       onError?: (payload: { error: string; source: string }) => void;
     }
@@ -65,8 +81,11 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
 });
 
 /** The editor gets the given list as is, with the inert `<img>` plugin last. */
-function expectPluginList(actual: unknown, given: unknown[]) {
-  const list = actual as unknown[];
+function expectPluginList(
+  actual: RealmPlugin[] | undefined,
+  given: RealmPlugin[],
+) {
+  const list = defined(actual);
   expect(list).toHaveLength(given.length + 1);
   given.forEach((plugin, index) => {
     expect(list[index]).toBe(plugin);
@@ -82,7 +101,10 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-function wrap(record: unknown, theme: "light" | "dark" = "light") {
+function wrap(
+  record: Record<string, unknown>,
+  theme: "light" | "dark" = "light",
+) {
   const i18n = createI18n({
     locale: "en",
     messages: { en: defineMessages({ "myapp.empty": "*no notes*" }) },
@@ -94,9 +116,7 @@ function wrap(record: unknown, theme: "light" | "dark" = "light") {
       i18n={i18n}
     >
       <ThemeProvider defaultTheme={theme} storageKey={`t-${theme}`}>
-        <RecordContextProvider value={record as Record<string, unknown>}>
-          {children}
-        </RecordContextProvider>
+        <RecordContextProvider value={record}>{children}</RecordContextProvider>
       </ThemeProvider>
     </CheloneProvider>
   );

@@ -16,6 +16,7 @@ import {
   fakeDataProvider,
   type NotificationStore,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -252,8 +253,11 @@ describe("<LoginWithEmail>", () => {
         <LoginWithEmail loading />
       </Wrap>,
     );
-    const button = screen.getByRole("button", { name: /sign in/i });
-    expect((button as HTMLButtonElement).disabled).toBe(true);
+    const button = elementOf(
+      screen.getByRole("button", { name: /sign in/i }),
+      HTMLButtonElement,
+    );
+    expect(button.disabled).toBe(true);
     expect(button.querySelector('[role="status"]')).not.toBeNull();
   });
 
@@ -272,16 +276,15 @@ describe("<LoginWithEmail>", () => {
     );
     fillAndSubmit("user@example.com", "hunter2");
 
-    const button = screen.getByRole("button", { name: /sign in/i });
-    await waitFor(() =>
-      expect((button as HTMLButtonElement).disabled).toBe(true),
+    const button = elementOf(
+      screen.getByRole("button", { name: /sign in/i }),
+      HTMLButtonElement,
     );
+    await waitFor(() => expect(button.disabled).toBe(true));
     expect(button.querySelector('[role="status"]')).not.toBeNull();
 
     finish();
-    await waitFor(() =>
-      expect((button as HTMLButtonElement).disabled).toBe(false),
-    );
+    await waitFor(() => expect(button.disabled).toBe(false));
   });
 
   it("uses submitLabel for the button text", () => {

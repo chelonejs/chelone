@@ -12,6 +12,7 @@
  * vitest matchers (no `@testing-library/jest-dom`) to match the package's
  * existing test convention.
  */
+import { elementOf } from "@chelone/test-utils";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,10 @@ describe("ui/ foundation smoke", () => {
 
   it("renders Input as a real <input> with the passed props", () => {
     render(<Input placeholder="Title" defaultValue="hello" />);
-    const input = screen.getByPlaceholderText("Title") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByPlaceholderText("Title"),
+      HTMLInputElement,
+    );
     expect(input.tagName).toBe("INPUT");
     expect(input.getAttribute("data-slot")).toBe("input");
     expect(input.value).toBe("hello");
