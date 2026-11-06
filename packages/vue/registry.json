@@ -842,6 +842,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/common/i18n-key-editor.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/common/icon-button-with-tooltip.vue",
           "type": "registry:component"
         },
@@ -1319,6 +1323,14 @@
         },
         {
           "path": "src/components/admin/layout/dashboard-menu-item.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/data-provider-devtools-entry.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/data-provider-devtools.vue",
           "type": "registry:component"
         },
         {
@@ -2502,6 +2514,27 @@
         }
       ],
       "dependencies": ["@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "i18n-key-editor",
+      "type": "registry:component",
+      "title": "I18n Key Editor",
+      "files": [
+        {
+          "path": "src/components/admin/common/i18n-key-editor.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/card",
+        "@chelone/input",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4556,6 +4589,39 @@
       ],
       "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-provider-devtools-entry",
+      "type": "registry:component",
+      "title": "Data Provider Devtools Entry",
+      "files": [
+        {
+          "path": "src/components/admin/layout/data-provider-devtools-entry.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-provider-devtools",
+      "type": "registry:component",
+      "title": "Data Provider Devtools",
+      "files": [
+        {
+          "path": "src/components/admin/layout/data-provider-devtools.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/data-provider-devtools-entry",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {

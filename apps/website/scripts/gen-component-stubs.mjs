@@ -20,8 +20,8 @@
  *
  * The ~25 T2 rich-guide slugs (page-components/*, viewing/index, editing/index,
  * the whole app-config section) are intentionally NOT in this table — they are
- * hand-written in T2. This generator owns the field/input/button/layout/feedback
- * reference only.
+ * hand-written in T2. This generator owns the
+ * field/input/button/layout/feedback/realtime reference only.
  *
  * Idempotent + non-destructive: an existing index.mdx that does NOT carry the
  * generated marker is left untouched (so hand-written T2 pages win). Re-running
@@ -190,10 +190,13 @@ const STUBS = [
   { slug: "auth-error", section: "ui-layout", component: "AuthError", registry: "auth-error", title: "AuthError", desc: "Displays an authentication error state." },
   { slug: "auth-layout", section: "ui-layout", component: "AuthLayout", registry: "auth-layout", title: "AuthLayout", desc: "The centred shell that wraps the login/auth pages." },
   { slug: "authentication-error", section: "ui-layout", component: "AuthenticationError", registry: "authentication-error", title: "AuthenticationError", desc: "The page shown when the session is invalid or expired." },
+  { slug: "bar-chart", section: "ui-layout", component: "BarChart", registry: "bar-chart", title: "BarChart", desc: "One bar per row of a `data` array, `xField` along the axis and `yField` up it. The chart fetches nothing, so pass rows you already have, and a row whose `yField` is not a finite number is a gap: no bar is drawn for it. It is an add-on: import it from `@chelone/react/charts` or `@chelone/vue/charts`, and install `recharts` for React or `@unovis/vue` and `@unovis/ts` for Vue." },
   { slug: "can-access", section: "ui-layout", component: "CanAccess", registry: "can-access", title: "CanAccess", desc: "Renders children when the current user may perform an action on a resource, optionally scoped to a record." },
   { slug: "check-for-application-update", section: "ui-layout", component: "CheckForApplicationUpdate", registry: "check-for-application-update", title: "CheckForApplicationUpdate", desc: "Polls the deployed page and shows a notification once a new build is live. Renders nothing until then." },
   { slug: "confirm", section: "ui-layout", component: "Confirm", registry: "confirm", title: "Confirm", desc: "A confirmation dialog for destructive actions." },
   { slug: "dashboard-menu-item", section: "ui-layout", component: "DashboardMenuItem", registry: "dashboard-menu-item", title: "DashboardMenuItem", desc: "The sidebar entry that links to the dashboard." },
+  { slug: "data-provider-devtools", section: "ui-layout", component: "DataProviderDevtools", registry: "data-provider-devtools", title: "DataProviderDevtools", desc: "A floating panel that lists the data provider calls a log recorded: method, resource, duration and the error of a failed call. Wrap the provider with `createDataProviderLog().wrap()`, pass the wrapped one to `<Admin>`, and mount the panel with the same log in development only, since it shows params and results." },
+  { slug: "donut-chart", section: "ui-layout", component: "DonutChart", registry: "donut-chart", title: "DonutChart", desc: "One slice per row of a `data` array, `labelField` naming the slice and `valueField` sizing it. The chart fetches nothing, so pass rows you already have, and a row whose `valueField` is not a number above zero is a gap: it draws no slice. It is an add-on: import it from `@chelone/react/charts` or `@chelone/vue/charts`, and install `recharts` for React or `@unovis/vue` and `@unovis/ts` for Vue." },
   { slug: "error", section: "ui-layout", component: "Error", registry: "error", title: "Error", desc: "The fallback UI rendered by the admin error boundary." },
   { slug: "hide-on-scroll", section: "ui-layout", component: "HideOnScroll", registry: "hide-on-scroll", title: "HideOnScroll", desc: "Hides its wrapper on a downward scroll past a threshold and shows it again on any upward scroll." },
   { slug: "icon-button-with-tooltip", section: "ui-layout", component: "IconButtonWithTooltip", registry: "icon-button-with-tooltip", title: "IconButtonWithTooltip", desc: "A ghost icon button with a tooltip that closes when the button is clicked." },
@@ -205,12 +208,14 @@ const STUBS = [
   { slug: "loading", section: "ui-layout", component: "Loading", registry: "loading", title: "Loading", desc: "A centred loading indicator with a deferred appearance." },
   { slug: "loading-indicator", section: "ui-layout", component: "LoadingIndicator", registry: "loading-indicator", title: "LoadingIndicator", desc: "A refresh button that shows a spinner over itself while any query or mutation is in flight." },
   { slug: "locales-menu-button", section: "ui-layout", component: "LocalesMenuButton", registry: "locales-menu-button", title: "LocalesMenuButton", desc: "The app-bar menu that switches the interface language, with each language named in its own." },
+  { slug: "i18n-key-editor", section: "ui-layout", component: "I18nKeyEditor", registry: "i18n-key-editor", title: "I18nKeyEditor", desc: "A panel that lists the keys the current locale is missing, with an input per key and an export of the typed translations. The app creates a `createMissingKeyStore()`, passes `store.record` as `onMissingKey` to `createI18n`, and mounts the panel with that store. A key counts as missing even when it has a `_` fallback or the fallback locale holds it. The export is flat JSON to spread into a catalog." },
   { slug: "login-form", section: "ui-layout", component: "LoginForm", registry: "login-form", title: "LoginForm", desc: "The email/password sign-in form." },
   { slug: "login-page", section: "ui-layout", component: "LoginPage", registry: "login-page", title: "LoginPage", desc: "The full login page wrapping the login form in the auth layout." },
   { slug: "login-with-email", section: "ui-layout", component: "LoginWithEmail", registry: "login-with-email", title: "LoginWithEmail", desc: "An email/password sign-in form that takes a custom submit handler." },
   { slug: "logout", section: "ui-layout", component: "Logout", registry: "logout", title: "Logout", desc: "The user-menu item that signs the user out." },
   { slug: "menu", section: "ui-layout", component: "Menu", registry: "menu", title: "Menu", desc: "The sidebar navigation menu. Groups resources by `options.group`; compose your own with the `Menu.*` parts." },
   { slug: "menu-item-link", section: "ui-layout", component: "MenuItemLink", registry: "menu-item-link", title: "MenuItemLink", desc: "A sidebar navigation link. Optionally shows a keyboard shortcut hint and navigates on that shortcut." },
+  { slug: "metric-card", section: "ui-layout", component: "MetricCard", registry: "metric-card", title: "MetricCard", desc: "A headline number with the change since the last period, all of it given to the card as props: it fetches nothing. `delta` is a ratio, so 0.05 reads as 5.0%. It ships in the base `@chelone/react` and `@chelone/vue` packages and needs no chart library." },
   { slug: "not-found", section: "ui-layout", component: "NotFound", registry: "not-found", title: "NotFound", desc: "The page for an unknown URL, for the `catchAll` slot." },
   { slug: "notification", section: "ui-layout", component: "Notification", registry: "notification", title: "Notification", desc: "Renders the app-wide toast notifications." },
   { slug: "offline", section: "ui-layout", component: "Offline", registry: "offline", title: "Offline", desc: "Shows a banner, or its children, while the browser is offline. Renders nothing online." },
@@ -227,7 +232,17 @@ const STUBS = [
   { slug: "title-portal", section: "ui-layout", component: "TitlePortal", registry: "title-portal", title: "TitlePortal", desc: "The app-bar slot that renders each view's title." },
   { slug: "top-toolbar", section: "ui-layout", component: "TopToolbar", registry: "top-toolbar", title: "TopToolbar", desc: "A right-aligned row of view actions, for the `actions` prop of `<List>`." },
   { slug: "toolbar", section: "ui-layout", component: "Toolbar", registry: "toolbar", title: "Toolbar", desc: "The form action bar holding the save/delete buttons." },
+  { slug: "trend-chart", section: "ui-layout", component: "TrendChart", registry: "trend-chart", title: "TrendChart", desc: "A line, or a filled area with `area`, over a `data` array: one point per row, `xField` along the axis and `yField` up it. The chart fetches nothing, so pass rows you already have, and a row whose `yField` is not a finite number is a gap in the line. It is an add-on: import it from `@chelone/react/charts` or `@chelone/vue/charts`, and install `recharts` for React or `@unovis/vue` and `@unovis/ts` for Vue." },
   { slug: "user-menu", section: "ui-layout", component: "UserMenu", registry: "user-menu", title: "UserMenu", desc: "The app-bar dropdown for the signed-in user." },
+  // ── realtime ──────────────────────────────────────────────────────────
+  { slug: "list-live", section: "realtime", component: "ListLive", registry: "list-live", title: "ListLive", desc: "A `<List>` that refreshes when records in its resource change or the connection returns. Takes the same props as `<List>` and needs a realtime data provider." },
+  { slug: "edit-live", section: "realtime", component: "EditLive", registry: "edit-live", title: "EditLive", desc: "An `<Edit>` that refreshes the record on changes and reconnects. Holds incoming changes while the form has unsaved edits, then refetches once it is saved or reset. Needs a realtime data provider." },
+  { slug: "show-live", section: "realtime", component: "ShowLive", registry: "show-live", title: "ShowLive", desc: "A `<Show>` that refreshes the record on changes and reconnects. Takes the same props as `<Show>` and needs a realtime data provider." },
+  { slug: "menu-live", section: "realtime", component: "MenuLive", registry: "menu-live", title: "MenuLive", desc: "A navigation menu whose links show unread event counts for their resources. Counts new records by default and clears a link's count while its route is open. Needs a realtime data provider." },
+  { slug: "presence-bar", section: "realtime", component: "PresenceBar", registry: "presence-bar", title: "PresenceBar", desc: "Shows avatars for other users viewing the same record, with a count for those beyond `maxAvatars`. Renders nothing when nobody else is present. Needs a realtime data provider." },
+  { slug: "comments-thread", section: "realtime", component: "CommentsThread", registry: "comments-thread", title: "CommentsThread", desc: "Lists a record's comments and provides a box to post one through the data provider. `resolvable` adds a button to mark a comment resolved. Refreshes on comment events when the provider supports realtime." },
+  { slug: "lock-on-mount", section: "realtime", component: "LockOnMount", registry: "lock-on-mount", title: "LockOnMount", desc: "Acquires a record lock while mounted and releases it on unmount. Shows its children once the lock is held, a loading placeholder while requesting it, or the holder when another identity has it. Needs a realtime data provider with lock support." },
+  { slug: "lock-status", section: "realtime", component: "LockStatus", registry: "lock-status", title: "LockStatus", desc: "Shows a badge naming the record's lock holder and updates when the lock is taken or released. Renders nothing for a free record unless `renderFree` is supplied. Needs a realtime data provider with lock support." },
 ];
 
 /**
@@ -251,7 +266,7 @@ function mdxSafe(text) {
   return text.replace(/(?<!`)<([A-Za-z][\w.-]*)>/g, "`<$1>`");
 }
 
-function page({ component, registry, title, desc }) {
+function page({ component, registry, title, desc, section }) {
   const hasProps = existsSync(resolve(PROPS, `${component}.json`));
   const fm = ["---", `title: "${title}"`, `description: "${desc.replace(/`/g, "").replace(/"/g, '\\"')}"`];
   if (registry) fm.push(`registry: "${registry}"`);
@@ -260,6 +275,10 @@ function page({ component, registry, title, desc }) {
   const parts = [fm.join("\n"), MARKER, "", mdxSafe(desc)];
   // `mdx-page.tsx` renders the install block from `registry` frontmatter.
   if (!registry) parts.push("", "## Installation", "", importBlock(component));
+
+  if (section === "realtime") {
+    parts.push("", "See the [realtime guide](/docs/app-config/realtime) for provider setup and usage.");
+  }
 
   parts.push("", "## Props", "");
   parts.push(hasProps ? `<PropsTable name="${component}" />` : PROPLESS_EXPORTS.get(component));

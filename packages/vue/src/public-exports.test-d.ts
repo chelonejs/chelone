@@ -5,6 +5,7 @@
 
 import type {
   ComputeDefinitionProps,
+  DataProviderLog,
   PresenceUser,
   ResourceDefinition,
   ResourceMap,
@@ -35,6 +36,7 @@ import type {
   CreateProps,
   CurrencyInputProps,
   CustomRoute,
+  DataProviderDevtoolsProps,
   DataTableColProps,
   DataTableNumberColProps,
   DataTableProps,
@@ -57,6 +59,7 @@ import type {
   FilterListSectionProps,
   FilterLiveSearchProps,
   HideOnScrollProps,
+  I18nKeyEditorProps,
   IconButtonWithTooltipProps,
   InfiniteListProps,
   InfinitePaginationProps,
@@ -165,6 +168,11 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<FilterFormProps>().toBeObject();
     expectTypeOf<FilterLiveSearchProps>().toBeObject();
     expectTypeOf<HideOnScrollProps>().toHaveProperty("threshold");
+    expectTypeOf<I18nKeyEditorProps>().toHaveProperty("store");
+    expectTypeOf<I18nKeyEditorProps>().toHaveProperty("defaultOpen");
+    expectTypeOf<I18nKeyEditorProps>().toHaveProperty("showExport");
+    expectTypeOf<I18nKeyEditorProps>().toHaveProperty("class");
+    expectTypeOf(barrel.I18nKeyEditor).toBeObject();
     expectTypeOf<IconButtonWithTooltipProps>().toHaveProperty("label");
     expectTypeOf<InfiniteListProps>().toBeObject();
     expectTypeOf<FilterListItemProps>().toHaveProperty("value");
@@ -384,6 +392,22 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<TourStep["title"]>().toEqualTypeOf<string | undefined>();
     expectTypeOf<TourStep["content"]>().toEqualTypeOf<string>();
     expectTypeOf(barrel.OnboardingTour).not.toBeAny();
+  });
+
+  it("DataProviderDevtools ships beside its props", () => {
+    expectTypeOf<
+      DataProviderDevtoolsProps["log"]
+    >().toEqualTypeOf<DataProviderLog>();
+    expectTypeOf<DataProviderDevtoolsProps["defaultOpen"]>().toEqualTypeOf<
+      boolean | undefined
+    >();
+    expectTypeOf<DataProviderDevtoolsProps["shortcut"]>().toEqualTypeOf<
+      string | undefined
+    >();
+    expectTypeOf<DataProviderDevtoolsProps["class"]>().toEqualTypeOf<
+      string | undefined
+    >();
+    expectTypeOf(barrel.DataProviderDevtools).not.toBeAny();
   });
 
   it("Assistant ships beside its props", () => {
