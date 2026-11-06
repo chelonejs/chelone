@@ -1,10 +1,6 @@
 <script lang="ts">
-import type {
-  LooseRecord,
-  SourceProp,
-  SourceValue,
-  Validator,
-} from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
+import type { SourceInputProps } from "./source-input-props";
 
 /** A subscription plan a {@link SubscriptionPlanPicker} renders as one card. */
 export interface SubscriptionPlan {
@@ -20,25 +16,17 @@ export interface SubscriptionPlan {
 export interface SubscriptionPlanPickerProps<
   RecordType = LooseRecord,
   TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
-> {
-  /** The FK/field path holding the selected plan id. */
-  source: TPath;
+> extends SourceInputProps<RecordType, TPath> {
   /** The plans rendered as cards. */
   plans: readonly SubscriptionPlan[];
   /** Highlights one plan as recommended. */
   recommendedPlanId?: string;
-  /** Explicit label, or `false` to hide it. Absent → humanized `source`. */
-  label?: string | false;
   /** Helper text under the grid. */
   helperText?: string;
   /** Override the ambient resource (label-key resolution). */
   resource?: string;
-  /** ra-contract validators — composed, first error wins. */
-  validate?: Validator | readonly Validator[];
   /** Forces the required marker. */
   isRequired?: boolean;
-  /** Input-level default value (seeds only into a hole). */
-  defaultValue?: NoInfer<SourceValue<RecordType, TPath>>;
   /** Disables the whole picker. */
   disabled?: boolean;
   /** Root element class passthrough. */

@@ -305,6 +305,7 @@ export type { SelectArrayInputProps } from "./admin/inputs/select-array-input.vu
 export { default as SelectArrayInput } from "./admin/inputs/select-array-input.vue";
 export type { SelectInputProps } from "./admin/inputs/select-input.vue";
 export { default as SelectInput } from "./admin/inputs/select-input.vue";
+export type { SourceInputProps } from "./admin/inputs/source-input-props";
 export type {
   SubscriptionPlan,
   SubscriptionPlanPickerProps,

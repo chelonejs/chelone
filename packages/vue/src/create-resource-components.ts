@@ -136,18 +136,26 @@ import CurrencyInput, {
   type CurrencyInputProps,
 } from "./components/admin/inputs/currency-input.vue";
 import DatagridInput from "./components/admin/inputs/datagrid-input.vue";
-import DateInput from "./components/admin/inputs/date-input.vue";
-import DateTimeInput from "./components/admin/inputs/date-time-input.vue";
+import DateInput, {
+  type DateInputProps,
+} from "./components/admin/inputs/date-input.vue";
+import DateTimeInput, {
+  type DateTimeInputProps,
+} from "./components/admin/inputs/date-time-input.vue";
 import DurationInput, {
   type DurationInputProps,
 } from "./components/admin/inputs/duration-input.vue";
-import FileInput from "./components/admin/inputs/file-input.vue";
+import FileInput, {
+  type FileInputProps,
+} from "./components/admin/inputs/file-input.vue";
 import FileInputPreview from "./components/admin/inputs/file-input-preview.vue";
 import ImageInput from "./components/admin/inputs/image-input.vue";
 import ImageInputThumbnail from "./components/admin/inputs/image-input-thumbnail.vue";
 import LoadingInput from "./components/admin/inputs/loading-input.vue";
 import NullableBooleanInput from "./components/admin/inputs/nullable-boolean-input.vue";
-import NumberInput from "./components/admin/inputs/number-input.vue";
+import NumberInput, {
+  type NumberInputProps,
+} from "./components/admin/inputs/number-input.vue";
 import PasswordInput from "./components/admin/inputs/password-input.vue";
 import PhoneInput from "./components/admin/inputs/phone-input.vue";
 import RadioButtonGroupInput from "./components/admin/inputs/radio-button-group-input.vue";
@@ -167,7 +175,9 @@ import SubscriptionPlanPicker, {
 } from "./components/admin/inputs/subscription-plan-picker.vue";
 import TextArrayInput from "./components/admin/inputs/text-array-input.vue";
 import TextInput from "./components/admin/inputs/text-input.vue";
-import TimeInput from "./components/admin/inputs/time-input.vue";
+import TimeInput, {
+  type TimeInputProps,
+} from "./components/admin/inputs/time-input.vue";
 import WebhookEndpointInput, {
   type WebhookEndpointInputProps,
 } from "./components/admin/inputs/webhook-endpoint-input.vue";
@@ -344,9 +354,9 @@ type ValueMember<TComponent extends Ctor, TRecord> = ValueFunction<
  * exported props interface at the default (loose) record, retyped by
  * {@link ValueFunction} as for a {@link ValueMember}.
  */
-type GenericValueMember<TProps, TRecord> = ValueFunction<
+type GenericValueMember<TProps, TRecord, TSlots = object> = ValueFunction<
   TProps & VNodeProps & AllowedComponentProps,
-  object,
+  TSlots,
   TRecord
 >;
 
@@ -386,6 +396,9 @@ type ResourceMember<TComponent extends Ctor, TRecord> = [
 /** The slots `<ArrayInput>` declares: they do not depend on its generics. */
 type ArrayInputSlots = NonNullable<Parameters<typeof ArrayInput>[1]>["slots"];
 
+/** The preview slot `<FileInput>` declares: a per-file preview child. */
+type FileInputSlots = NonNullable<Parameters<typeof FileInput>[1]>["slots"];
+
 /**
  * `ArrayInput` is generic over its record and its `source`, so its rows are
  * typed by the array at that `source`. A generic SFC has no constructor for
@@ -398,11 +411,11 @@ type ArrayInputMember<TRecord> = <TPath extends SourceProp<TRecord>>(
 ) => VNode;
 
 /**
- * The inputs whose `defaultValue` is typed by the value at `source`. Their
- * SFCs take the loose record: a generic SFC types `defaultValue` through
- * `SourceValue`, which overflows the instantiation depth in the props helpers
- * Volar generates. The props interfaces are generic, so these members are
- * function components like {@link ArrayInputMember}.
+ * The inputs whose `defaultValue` is typed by the value at `source`. Each is a
+ * generic SFC, so it has no constructor for {@link Retyped} to read and the
+ * member is a function component like {@link ArrayInputMember}: the raw props
+ * interface where it carries no value callback, and {@link GenericValueMember}
+ * where its `format`/`parse` must take the value at `source` too.
  */
 type TypedInputMembers<TRecord> = {
   AutocompleteArrayInput: <
@@ -434,11 +447,15 @@ type TypedInputMembers<TRecord> = {
       VNodeProps &
       AllowedComponentProps,
   ) => VNode;
+  DateInput: GenericValueMember<DateInputProps, TRecord>;
+  DateTimeInput: GenericValueMember<DateTimeInputProps, TRecord>;
   DurationInput: <TPath extends SourceProp<TRecord>>(
     props: DurationInputProps<TRecord, TPath> &
       VNodeProps &
       AllowedComponentProps,
   ) => VNode;
+  FileInput: GenericValueMember<FileInputProps, TRecord, FileInputSlots>;
+  NumberInput: GenericValueMember<NumberInputProps, TRecord>;
   RatingInput: <TPath extends SourceProp<TRecord>>(
     props: RatingInputProps<TRecord, TPath> &
       VNodeProps &
@@ -457,6 +474,7 @@ type TypedInputMembers<TRecord> = {
       VNodeProps &
       AllowedComponentProps,
   ) => VNode;
+  TimeInput: GenericValueMember<TimeInputProps, TRecord>;
   WebhookEndpointInput: <TPath extends SourceProp<TRecord>>(
     props: WebhookEndpointInputProps<TRecord, TPath> &
       VNodeProps &

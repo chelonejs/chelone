@@ -1175,6 +1175,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/inputs/source-input-props.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/inputs/subscription-plan-picker.vue",
           "type": "registry:component"
         },
@@ -3570,6 +3574,7 @@
         "@chelone/input",
         "@chelone/label-text",
         "@chelone/lib-utils",
+        "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
@@ -3627,6 +3632,7 @@
         "@chelone/field",
         "@chelone/input",
         "@chelone/label-text",
+        "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
@@ -3648,6 +3654,7 @@
         "@chelone/field",
         "@chelone/input",
         "@chelone/label-text",
+        "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
@@ -3669,6 +3676,7 @@
         "@chelone/field",
         "@chelone/label-text",
         "@chelone/lib-utils",
+        "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
@@ -3719,6 +3727,7 @@
         "@chelone/file-input-preview",
         "@chelone/label-text",
         "@chelone/lib-shallow-equal",
+        "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
@@ -3823,6 +3832,7 @@
         "@chelone/field",
         "@chelone/input",
         "@chelone/label-text",
+        "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
@@ -3903,6 +3913,7 @@
       "registryDependencies": [
         "@chelone/field",
         "@chelone/label-text",
+        "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
@@ -4026,6 +4037,20 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "source-input-props",
+      "type": "registry:component",
+      "title": "Source Input Props",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/source-input-props.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "subscription-plan-picker",
       "type": "registry:component",
       "title": "Subscription Plan Picker",
@@ -4041,6 +4066,7 @@
         "@chelone/field",
         "@chelone/label-text",
         "@chelone/lib-utils",
+        "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
@@ -4101,6 +4127,7 @@
         "@chelone/field",
         "@chelone/input",
         "@chelone/label-text",
+        "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
@@ -4137,6 +4164,7 @@
         "@chelone/field",
         "@chelone/input",
         "@chelone/label-text",
+        "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
@@ -5606,9 +5634,11 @@
         "@chelone/button",
         "@chelone/field",
         "@chelone/field-label-text",
+        "@chelone/field-props",
         "@chelone/input-helper-text",
         "@chelone/lib-utils",
         "@chelone/skeleton",
+        "@chelone/source-input-props",
         "@chelone/theme-context",
         "@chelone/validation-error"
       ],
@@ -5727,6 +5757,7 @@
         "@chelone/monaco-json-field"
       ],
       "dependencies": [
+        "@chelone/core",
         "@chelone/vue",
         "@guolao/vue-monaco-editor",
         "monaco-editor"
@@ -5745,6 +5776,7 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/field-props",
         "@chelone/monaco-json-field-lazy",
         "@chelone/monaco-skeleton"
       ],
@@ -5795,7 +5827,8 @@
       ],
       "registryDependencies": [
         "@chelone/monaco-json-input-lazy",
-        "@chelone/monaco-skeleton"
+        "@chelone/monaco-skeleton",
+        "@chelone/source-input-props"
       ],
       "dependencies": ["@chelone/core", "monaco-editor"],
       "categories": ["chelone", "inputs"],
@@ -5903,6 +5936,7 @@
         "@chelone/field-label-text",
         "@chelone/input-helper-text",
         "@chelone/lib-utils",
+        "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
       "dependencies": [
@@ -5990,6 +6024,7 @@
         "@chelone/field-label-text",
         "@chelone/input-helper-text",
         "@chelone/lib-utils",
+        "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],

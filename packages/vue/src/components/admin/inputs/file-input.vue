@@ -1,26 +1,22 @@
-<script lang="ts">
+<script lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
 import type {
   FileEntry,
   FileSelection,
+  LooseRecord,
   SourceProp,
   TransformedFile,
-  Validator,
 } from "@chelone/core";
+import type { SourceInputProps } from "./source-input-props";
 
 /** Props for {@link FileInput}. */
-export interface FileInputProps {
-  /** The file field path. */
-  source: SourceProp;
-  /** Explicit label, or `false` to hide it. Absent → humanized `source`. */
-  label?: string | false;
+export interface FileInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> extends SourceInputProps<RecordType, TPath> {
   /** Override the ambient resource (label-key resolution). */
   resource?: string;
   /** Helper text under the dropzone. */
   helperText?: string;
-  /** ra-contract validators — composed, first error wins. */
-  validate?: Validator | readonly Validator[];
-  /** Input-level default value (seeds only into a hole). */
-  defaultValue?: unknown;
   /** Read transform (the files in the form → the files shown). Default makes a preview record of each dropped file. */
   format?: (value: FileSelection) => FileSelection;
   /** Write transform (the dropped or remaining files → stored value). Default makes a preview record of each dropped file. */
@@ -48,7 +44,7 @@ export interface FileInputProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
 /**
  * `<FileInput>` — a file-upload input with drag-and-drop + previews, the Vue
  * analog of `@chelone/react`'s `inputs/file-input.tsx`.
@@ -81,12 +77,15 @@ import ValidationError from "../common/validation-error.vue";
 import FileInputPreview from "./file-input-preview.vue";
 import { humanizeSource } from "./label-text";
 
-const props = withDefaults(defineProps<FileInputProps>(), {
-  label: undefined,
-  multiple: false,
-  labelMultiple: "ra.input.file.upload_several",
-  labelSingle: "ra.input.file.upload_single",
-});
+const props = withDefaults(
+  defineProps<FileInputProps<RecordType, TPath>>(),
+  {
+    label: undefined,
+    multiple: false,
+    labelMultiple: "ra.input.file.upload_several",
+    labelSingle: "ra.input.file.upload_single",
+  },
+);
 
 const translate = useTranslate();
 const slots = useSlots();
