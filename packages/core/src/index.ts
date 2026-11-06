@@ -33,6 +33,16 @@ export {
   identityQueryOptions,
   permissionsQueryOptions,
 } from "./auth/auth-options";
+export type {
+  PermissionCellState,
+  PermissionMatrixValue,
+} from "./auth/permission-matrix";
+export {
+  getPermissionCell,
+  isPermissionRowGranted,
+  setPermissionRow,
+  togglePermission,
+} from "./auth/permission-matrix";
 export type { AuthProvider, CanAccessParams, UserIdentity } from "./auth/types";
 export type {
   CartesianRow,
@@ -221,10 +231,12 @@ export type {
   AllowedTransitions,
   ApprovalOptions,
   ApprovalState,
+  RejectionOptions,
   TransitionOptions,
 } from "./controller/record-workflow";
 export {
   buildApprovalUpdate,
+  buildRejectionUpdate,
   getAllowedTransitions,
   getApprovalState,
 } from "./controller/record-workflow";

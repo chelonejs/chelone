@@ -1,11 +1,11 @@
 /**
- * Pure rules behind an approval button and a status-transition button, so
- * every adapter decides the same way.
+ * Pure rules behind an approval button, a rejection button and a
+ * status-transition button, so every adapter decides the same way.
  *
  * These are UI rules, not security ones: the approvers list is a field on the
  * record that the caller writes back whole, so two approvers acting at once
  * can overwrite each other. The server has to enforce the count and who may
- * approve.
+ * approve or reject.
  */
 
 type Id = string | number;
@@ -43,6 +43,24 @@ export type ApprovalUpdateOptions<TRecord extends object> = Omit<
   /** Record field the status is written to. Default `"status"`. */
   statusSource?: string;
 };
+
+export interface RejectionOptions {
+  /** The current user. No identity means nobody can reject. */
+  identityId?: Id | null;
+  /** Record field the status is written to and read from. Default `"status"`. */
+  statusSource?: string;
+  /** Status written on rejection. Default `"rejected"`. */
+  // type-escape: a status is whatever the app's column holds (string, number, enum)
+  rejectedValue?: unknown;
+  /** Record field the reason is written to. Default `"rejectionNote"`. */
+  noteSource?: string;
+  /** Record field the rejecter's id is written to. Default `"rejectedBy"`. */
+  rejectedBySource?: string;
+  /** Why the record is rejected. Trimmed; an empty one is written as `null`. */
+  reason?: string;
+  /** Refuse a rejection whose trimmed reason is empty. Default `false`. */
+  requireReason?: boolean;
+}
 
 export interface ApprovalState {
   /** Distinct approver ids, as strings. */
@@ -149,6 +167,36 @@ export function buildApprovalUpdate<TRecord extends object>(
     ],
     [statusSource]:
       state.count + 1 >= state.required ? approvedValue : pendingValue,
+  };
+}
+
+/**
+ * The patch that records `identityId`'s rejection, or `null` when they cannot
+ * reject: no identity, a blank reason while `requireReason` is set, or a record
+ * whose status already equals `rejectedValue`. All three sources are write
+ * targets, so they take any string.
+ */
+export function buildRejectionUpdate<TRecord extends object>(
+  record: TRecord & object,
+  options: RejectionOptions = {},
+  // type-escape: the patch is keyed by caller-chosen strings, as buildApprovalUpdate's is
+): Record<string, unknown> | null {
+  const {
+    identityId,
+    statusSource = "status",
+    rejectedValue = "rejected",
+    noteSource = "rejectionNote",
+    rejectedBySource = "rejectedBy",
+    requireReason = false,
+  } = options;
+  const reason = options.reason?.trim() ?? "";
+  if (identityId === undefined || identityId === null) return null;
+  if (requireReason && reason === "") return null;
+  if (Reflect.get(record, statusSource) === rejectedValue) return null;
+  return {
+    [statusSource]: rejectedValue,
+    [rejectedBySource]: identityId,
+    [noteSource]: reason === "" ? null : reason,
   };
 }
 

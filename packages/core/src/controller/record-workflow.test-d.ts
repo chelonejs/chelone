@@ -4,6 +4,7 @@ import type { SourceKey } from "../resource/source-path";
 import {
   type ApprovalOptions,
   buildApprovalUpdate,
+  buildRejectionUpdate,
   getAllowedTransitions,
   getApprovalState,
   type TransitionOptions,
@@ -59,6 +60,27 @@ describe("record workflow types", () => {
         identityId: "b",
       },
     );
+  });
+
+  it("buildRejectionUpdate writes fields the record does not have yet", () => {
+    buildRejectionUpdate(
+      { title: "a" },
+      {
+        identityId: 1,
+        statusSource: "state",
+        noteSource: "why",
+        rejectedBySource: "by",
+        rejectedValue: 3,
+      },
+    );
+    buildRejectionUpdate(post, { identityId: "u1", reason: "no" });
+    expectTypeOf(buildRejectionUpdate(post, {})).toEqualTypeOf<
+      ReturnType<typeof buildApprovalUpdate>
+    >();
+    // @ts-expect-error a source is a string
+    buildRejectionUpdate(post, { identityId: 1, statusSource: 1 });
+    // @ts-expect-error a reason is a string
+    buildRejectionUpdate(post, { identityId: 1, reason: 1 });
   });
 
   it("getAllowedTransitions types source by the record", () => {

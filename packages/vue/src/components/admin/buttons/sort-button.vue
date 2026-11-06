@@ -51,7 +51,7 @@ const list = useListContext();
 const translate = useTranslate();
 
 const primary = computed<SortPayload>(
-  () => (list.sort as SortPayload[])[0] ?? DEFAULT_SORT,
+  () => list.sort[0] ?? DEFAULT_SORT,
 );
 
 const orderLabel = (order: "ASC" | "DESC"): string =>
