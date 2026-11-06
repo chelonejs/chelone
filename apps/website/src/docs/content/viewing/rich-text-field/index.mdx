@@ -59,14 +59,20 @@ props.
 
 DOMPurify runs with core's `richTextStyledSanitizeOptions`: scripts, event
 handlers, frames, form controls and a `<style>` element are removed before the
-HTML reaches the DOM. A `style` attribute survives only when it is one `color`
-declaration with a palette, hex, `rgb()` or `hsl()` value, so text colored by
-`<RichTextInput>` still shows. An `img` whose `src` is unsafe is removed, and an
-SVG data URL never counts as safe. Code blocks show plain, with no highlight
-markup.
+HTML reaches the DOM. Images and colors written by `<RichTextInput>` come through
+as they are: an `img` keeps its `src`, `alt`, `title` and `width`, and colored
+text keeps its `style`.
 
-See the input page's [Stored HTML section](/docs/editing/rich-text-input#stored-html)
-for the editor schema and why the server should sanitize what it stores.
+A `style` attribute survives only when it is one `color` declaration with a
+palette, hex, `rgb()` or `hsl()` value. An `img` whose `src` is unsafe is removed,
+and an SVG data URL never counts as safe. Code blocks show plain, with no
+highlight markup.
+
+See the input page's [Images](/docs/editing/rich-text-input#images),
+[Text color](/docs/editing/rich-text-input#text-color) and
+[Stored HTML](/docs/editing/rich-text-input#stored-html) sections for what the
+editor stores, the editor schema, and why the server should sanitize what it
+stores too.
 
 ## Props
 
