@@ -42,7 +42,7 @@ import Button from "../../ui/button.vue";
 import Spinner from "../../ui/spinner.vue";
 import TextInput from "../inputs/text-input.vue";
 
-interface LoginValues extends Record<string, unknown> {
+interface LoginValues {
   email: string;
   password: string;
 }

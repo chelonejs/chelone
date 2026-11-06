@@ -1,6 +1,6 @@
 <script lang="ts">
 /** Credentials the form collects. */
-export interface LoginWithEmailValues extends Record<string, unknown> {
+export interface LoginWithEmailValues {
   email: string;
   password: string;
 }

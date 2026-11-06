@@ -50,7 +50,7 @@ import {
   type LiveSubscription,
   subscribeLiveRecord,
 } from "@chelone/core";
-import { ref, watchEffect } from "vue";
+import { ref, type Slots, watchEffect } from "vue";
 import { useCheloneContext } from "../../../context";
 import { useResourceContext } from "../../../resource-context";
 import { useRouterAdapterOptional } from "../../../router/adapter";
@@ -90,7 +90,7 @@ function onDirtyChange(dirty: boolean) {
   if (!dirty) subscription?.resume();
 }
 
-const otherSlots = (slots: Record<string, unknown>) =>
+const otherSlots = (slots: Slots) =>
   Object.keys(slots).filter((name) => name !== "default");
 </script>
 
