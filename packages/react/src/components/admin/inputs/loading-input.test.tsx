@@ -1,3 +1,4 @@
+import { elementOf } from "@chelone/test-utils";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LoadingInput } from "./loading-input";
@@ -14,7 +15,7 @@ describe("LoadingInput", () => {
   it("LoadingInput renders a disabled, busy, read-only input with its label tied to it", () => {
     render(<LoadingInput label="Title" />);
 
-    const input = screen.getByLabelText("Title") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Title"), HTMLInputElement);
     expect(input.disabled).toBe(true);
     expect(input.readOnly).toBe(true);
     expect(input.value).toBe("");

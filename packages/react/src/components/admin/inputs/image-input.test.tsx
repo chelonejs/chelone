@@ -7,6 +7,7 @@
  * child override, and helper text — never visual styling.
  */
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -60,9 +61,10 @@ describe("<ImageInput>", () => {
     setup(<ImageInput source="pictures" multiple />, {
       defaultValues: { pictures: [] },
     });
-    const input = document.querySelector(
-      "input[type='file']",
-    ) as HTMLInputElement;
+    const input = elementOf(
+      document.querySelector("input[type='file']"),
+      HTMLInputElement,
+    );
     expect(input).not.toBeNull();
     expect(screen.getByText("Pictures")).not.toBeNull();
   });
@@ -76,9 +78,7 @@ describe("<ImageInput>", () => {
         ],
       },
     });
-    const imgs = Array.from(
-      document.querySelectorAll("img"),
-    ) as HTMLImageElement[];
+    const imgs = Array.from(document.querySelectorAll("img"));
     expect(imgs).toHaveLength(2);
     const [firstImg] = imgs;
     if (!firstImg) throw new Error("expected 2 images");
