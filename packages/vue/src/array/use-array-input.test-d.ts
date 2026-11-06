@@ -2,7 +2,7 @@ import { defineResources, type RecordOf } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import { createResourceComponentsOf } from "../create-resource-components";
-import { useArrayInput } from "./use-array-input";
+import { type UseArrayInputResult, useArrayInput } from "./use-array-input";
 
 type Post = { number: string; lines: { sku: string }[] };
 
@@ -103,5 +103,35 @@ describe("ArrayInput of a record with no required id", () => {
     drafts.ArrayInput({ source: "labels", defaultValue: [1] });
     // @ts-expect-error `labelz` is no path of a setting
     settings.ArrayInput({ source: "labelz" });
+  });
+});
+
+describe("useArrayInput rows", () => {
+  it("types add, insert and replace by the row of the array at source", () => {
+    const items = useArrayInput<Cart, "items">;
+    type Result = ReturnType<typeof items>;
+    expectTypeOf<Result>().toEqualTypeOf<UseArrayInputResult<CartItem>>();
+    expectTypeOf<Parameters<Result["add"]>[0]>().toEqualTypeOf<
+      CartItem | undefined
+    >();
+    expectTypeOf<Parameters<Result["replace"]>[1]>().toEqualTypeOf<CartItem>();
+  });
+
+  it("rejects a row that is not a cart item", () => {
+    const { add, insert, replace } = useArrayInput<Cart, "tags">({
+      source: "tags",
+    });
+    add("a");
+    // @ts-expect-error a tag is a string, not a number
+    insert(0, 1);
+    // @ts-expect-error a tag is a string, not a cart item
+    replace(0, { sku: "a", qty: 1 });
+  });
+
+  it("keeps the untyped row for a source that is a plain string", () => {
+    const source: string = "anything[0].at";
+    const input = useArrayInput({ source });
+    expectTypeOf(input).toEqualTypeOf<UseArrayInputResult>();
+    input.insert(0, 5);
   });
 });
