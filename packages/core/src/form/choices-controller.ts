@@ -3,6 +3,7 @@ import {
   QueryObserver,
   type QueryObserverResult,
 } from "@tanstack/query-core";
+import { notifyFetchError } from "../controller/list-controller";
 import {
   type DataContext,
   getListOptions,
@@ -110,10 +111,6 @@ const DEFAULT_DEBOUNCE_MS = 500;
 const DEFAULT_SORT: SortPayload = { field: "id", order: "DESC" };
 /** perPage for the non-id selected getList — generous, real values sets are small. */
 const SELECTED_LIST_PER_PAGE = 1000;
-
-function errorMessageKey(error: Error): string {
-  return error.message || "chelone.notification.http_error";
-}
 
 /** Normalizes a value into a non-empty identifier list, or `[]` when there is nothing to resolve. */
 function toValueList(value: unknown): Identifier[] {
@@ -312,10 +309,7 @@ export function createChoicesController<
     if (error === lastNotifiedError) return;
     lastNotifiedError = error;
     if (error === null) return;
-    ctx.notifications?.notify(errorMessageKey(error), {
-      type: "error",
-      messageArgs: { _: String(error) },
-    });
+    notifyFetchError(ctx.notifications, error);
   };
 
   /**
