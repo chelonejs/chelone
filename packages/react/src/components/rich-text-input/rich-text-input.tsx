@@ -20,6 +20,10 @@ import type {
   LooseFormatProps,
 } from "../admin/input-props";
 import { createRichTextExtensions } from "./rich-text-extensions";
+import {
+  type RichTextImageOptions,
+  resolveRichTextImageConfig,
+} from "./rich-text-image";
 import { RichTextToolbar } from "./rich-text-toolbar";
 import "./rich-text.css";
 
@@ -34,6 +38,14 @@ interface RichTextInputProps<TRecord = LooseRecord>
    * `<RichTextToolbar />` inside it to keep the default one.
    */
   toolbar?: ReactNode;
+  /**
+   * Images: `false` leaves out the image extension and the toolbar's Image
+   * button. Options set the file rules (`allowedMimeTypes`, `maxFileSize`,
+   * `allowBase64`), `uploadFn` to store a file and return its URL, and
+   * `onImageError` for a refused file or a failed upload. Without `uploadFn`
+   * a file is stored as a data URL when `allowBase64` is on. Default `true`.
+   */
+  images?: boolean | RichTextImageOptions;
   /**
    * Extra tiptap editor options, spread last: `extensions` here replaces the
    * default set. `onUpdate` and `onBlur` run after the input's own.
@@ -68,6 +80,7 @@ function RichTextInput<TRecord = LooseRecord>(
     onBlur,
     placeholder,
     toolbar,
+    images = true,
     editorOptions,
   } = props;
   const resource = useResourceContext({ resource: resourceProp });
@@ -94,37 +107,49 @@ function RichTextInput<TRecord = LooseRecord>(
   // The extension reads the text on each render, so a new one needs no new editor.
   const placeholderRef = useRef(placeholder ?? "");
   placeholderRef.current = placeholder ?? "";
+  // Likewise the image settings; only turning images on or off needs a new editor.
+  const imagesRef = useRef(images);
+  imagesRef.current = images;
+  const imagesEnabled = images !== false;
   const extensions = useMemo(
     () =>
-      createRichTextExtensions({ placeholder: () => placeholderRef.current }),
-    [],
+      createRichTextExtensions({
+        placeholder: () => placeholderRef.current,
+        images: imagesEnabled
+          ? () => resolveRichTextImageConfig(imagesRef.current)
+          : null,
+      }),
+    [imagesEnabled],
   );
 
-  const editor = useEditor({
-    immediatelyRender: false,
-    extensions,
-    content: value,
-    editable,
-    editorProps: {
-      attributes: {
-        class: "rich-text min-h-32 px-3 py-2 outline-none",
-        ...(label === false ? {} : { "aria-labelledby": labelId }),
+  const editor = useEditor(
+    {
+      immediatelyRender: false,
+      extensions,
+      content: value,
+      editable,
+      editorProps: {
+        attributes: {
+          class: "rich-text min-h-32 px-3 py-2 outline-none",
+          ...(label === false ? {} : { "aria-labelledby": labelId }),
+        },
+      },
+      ...editorOptions,
+      onUpdate: (event) => {
+        fieldRef.current.onChange(
+          event.editor.isEmpty ? "" : event.editor.getHTML(),
+        );
+        editorOptions?.onUpdate?.(event);
+      },
+      onBlur: (event) => {
+        // tiptap reports a DOM blur, not the React event `field.onBlur` takes.
+        fieldRef.current.onBlur();
+        onBlurRef.current?.(event.event);
+        editorOptions?.onBlur?.(event);
       },
     },
-    ...editorOptions,
-    onUpdate: (event) => {
-      fieldRef.current.onChange(
-        event.editor.isEmpty ? "" : event.editor.getHTML(),
-      );
-      editorOptions?.onUpdate?.(event);
-    },
-    onBlur: (event) => {
-      // tiptap reports a DOM blur, not the React event `field.onBlur` takes.
-      fieldRef.current.onBlur();
-      onBlurRef.current?.(event.event);
-      editorOptions?.onBlur?.(event);
-    },
-  });
+    [imagesEnabled],
+  );
 
   // `setEditable` and the placeholder text dispatch nothing, so an empty
   // transaction tells the toolbar and the placeholder decoration to read again.

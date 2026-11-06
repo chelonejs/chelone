@@ -52,6 +52,7 @@ const ADDONS: {
     packages: [
       "dompurify",
       "@tiptap/core",
+      "@tiptap/extension-image",
       "@tiptap/extensions",
       "@tiptap/pm",
       "@tiptap/react",

@@ -50,6 +50,12 @@
       "comment": "Explicit element id; a generated `useId` value is used otherwise."
     },
     {
+      "name": "images",
+      "type": "boolean | RichTextImageOptions",
+      "optional": true,
+      "comment": "Images: `false` leaves out the image extension and the toolbar's Image\nbutton. Options set the file rules (`allowedMimeTypes`, `maxFileSize`,\n`allowBase64`), `uploadFn` to store a file and return its URL, and\n`onImageError` for a refused file or a failed upload. Without `uploadFn`\na file is stored as a data URL when `allowBase64` is on. Default `true`."
+    },
+    {
       "name": "isRequired",
       "type": "boolean",
       "optional": true,

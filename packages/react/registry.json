@@ -6529,6 +6529,7 @@
         "@chelone/core",
         "@chelone/react",
         "@tiptap/core",
+        "@tiptap/extension-image",
         "@tiptap/extensions",
         "@tiptap/pm",
         "@tiptap/react",
@@ -6546,11 +6547,23 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/rich-text-input/rich-text-image-form.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-image.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/rich-text-input/rich-text-input.tsx",
           "type": "registry:component"
         },
         {
           "path": "src/components/rich-text-input/rich-text-toolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-url-form.tsx",
           "type": "registry:component"
         },
         {
@@ -6570,6 +6583,7 @@
           "type": "registry:component"
         }
       ],
+      "registryDependencies": ["@chelone/rich-text-image"],
       "dependencies": [
         "@chelone/core",
         "@tiptap/core",
@@ -6599,6 +6613,52 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "rich-text-image-form",
+      "type": "registry:component",
+      "title": "Rich Text Image Form",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-image-form.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/rich-text-image",
+        "@chelone/rich-text-url-form"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-image",
+      "type": "registry:component",
+      "title": "Rich Text Image",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-image.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/tooltip"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@tiptap/core",
+        "@tiptap/extension-image",
+        "@tiptap/pm",
+        "@tiptap/react",
+        "lucide-react"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "rich-text-input-editor",
       "type": "registry:component",
       "title": "Rich Text Input Editor",
@@ -6615,6 +6675,7 @@
         "@chelone/input-props",
         "@chelone/lib-utils",
         "@chelone/rich-text-extensions",
+        "@chelone/rich-text-image",
         "@chelone/rich-text-toolbar",
         "@chelone/rich-text.css"
       ],
@@ -6639,9 +6700,11 @@
       ],
       "registryDependencies": [
         "@chelone/button",
-        "@chelone/input",
         "@chelone/lib-utils",
         "@chelone/native-select",
+        "@chelone/rich-text-image",
+        "@chelone/rich-text-image-form",
+        "@chelone/rich-text-url-form",
         "@chelone/separator",
         "@chelone/tooltip"
       ],
@@ -6651,6 +6714,20 @@
         "@tiptap/react",
         "lucide-react"
       ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-url-form",
+      "type": "registry:component",
+      "title": "Rich Text Url Form",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-url-form.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/input"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
