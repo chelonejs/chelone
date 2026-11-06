@@ -15,11 +15,12 @@ import {
   type DataProvider,
   defineMessages,
   fakeDataProvider,
+  type NotificationStore,
   type NotifyOptions,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, type MockInstance, vi } from "vitest";
 import { defineComponent, h, type VNodeChild } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../../admin/admin.vue";
@@ -140,13 +141,11 @@ function cachedPost(queryClient: QueryClient) {
   return entry?.[1];
 }
 
-function captureUndoable(notify: {
-  mock: { calls: unknown[][] };
-}): NotifyOptions {
-  const call = notify.mock.calls.find(
-    (args) => (args[1] as NotifyOptions | undefined)?.undoable,
-  );
-  const options = call?.[1] as NotifyOptions | undefined;
+type NotifySpy = MockInstance<NotificationStore["notify"]>;
+
+function captureUndoable(notify: NotifySpy): NotifyOptions {
+  const call = notify.mock.calls.find((args) => args[1]?.undoable);
+  const options = call?.[1];
   if (!options) throw new Error("no undoable notification was enqueued");
   return options;
 }
@@ -404,15 +403,13 @@ describe("<UpdateButton>", () => {
     const update = vi.spyOn(dataProvider, "update");
     const startedWhenClicked = vi.fn();
     // `notify` is assigned once `mountButton` returns, before any click.
-    let notify: { mock: { calls: unknown[][] } } | undefined;
+    let notify: NotifySpy | undefined;
     const mountedButton = await mountButton({
       button: () =>
         updateButton({
           onClick: () =>
             startedWhenClicked(
-              notify?.mock.calls.some(
-                (args) => (args[1] as NotifyOptions | undefined)?.undoable,
-              ),
+              notify?.mock.calls.some((args) => args[1]?.undoable),
             ),
         }),
       dataProvider,

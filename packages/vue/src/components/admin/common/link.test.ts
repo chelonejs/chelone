@@ -4,6 +4,7 @@
  */
 
 import { fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
@@ -52,7 +53,7 @@ function mountLink(
   return { router };
 }
 
-const anchor = () => document.querySelector("a") as HTMLAnchorElement;
+const anchor = () => elementOf(document.querySelector("a"), HTMLAnchorElement);
 
 describe("<Link>", () => {
   it("renders an anchor to the given path", async () => {
