@@ -57,12 +57,13 @@ props.
 
 ## What survives sanitizing
 
-DOMPurify runs with core's `richTextSanitizeOptions`: scripts, event handlers,
-frames, form controls and a `<style>` element are removed before the HTML reaches
-the DOM. React additionally keeps a `style` attribute when it is one `color`
+DOMPurify runs with core's `richTextStyledSanitizeOptions`: scripts, event
+handlers, frames, form controls and a `<style>` element are removed before the
+HTML reaches the DOM. A `style` attribute survives only when it is one `color`
 declaration with a palette, hex, `rgb()` or `hsl()` value, so text colored by
-`<RichTextInput>` still shows; Vue drops every `style` attribute. An `img` whose
-`src` is unsafe is removed, and an SVG data URL never counts as safe.
+`<RichTextInput>` still shows. An `img` whose `src` is unsafe is removed, and an
+SVG data URL never counts as safe. Code blocks show plain, with no highlight
+markup.
 
 See the input page's [Stored HTML section](/docs/editing/rich-text-input#stored-html)
 for the editor schema and why the server should sanitize what it stores.
