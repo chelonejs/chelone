@@ -158,7 +158,7 @@ function onClick(): void {
   const current = record.value;
   if (current?.id == null) return;
   if (props.mutationMode === "undoable") {
-    const id = current.id as Identifier;
+    const id = current.id;
     runUndoable({
       queryKeys: [[resource]],
       applyOptimistic: () =>

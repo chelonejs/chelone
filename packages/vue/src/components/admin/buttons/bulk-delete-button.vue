@@ -48,7 +48,7 @@ export interface BulkDeleteButtonProps {
  * Use inside a `<DataTable :bulk-actions>` / `<BulkActionsToolbar>`.
  */
 
-import { type Identifier, removeRecordsFromCache } from "@chelone/core";
+import { removeRecordsFromCache } from "@chelone/core";
 import { computed, ref } from "vue";
 import { useCheloneContext, useCheloneNotifications } from "../../../context";
 import { useDeleteMany } from "../../../data/mutations";
@@ -95,7 +95,7 @@ function onClick(event: MouseEvent): void {
   event.stopPropagation();
   if (selectedCount.value === 0) return;
   if (props.mutationMode === "undoable") {
-    const ids = (list.selectedIds ?? []) as Identifier[];
+    const ids = list.selectedIds ?? [];
     runUndoable({
       queryKeys: [[resource]],
       applyOptimistic: () =>
