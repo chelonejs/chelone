@@ -1,3 +1,4 @@
+import { defined } from "@chelone/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { fakeDataProvider } from "../data/fake-provider";
 import { csvErrorRows, runCsvImport } from "./run-import";
@@ -155,14 +156,9 @@ describe("csvErrorRows", () => {
       aborted: false,
     };
 
-    const [row] = csvErrorRows(report);
+    const row = defined(csvErrorRows(report)[0]);
 
-    expect(Object.keys(row as object)).toEqual([
-      "rowIndex",
-      "reason",
-      "title",
-      "price",
-    ]);
+    expect(Object.keys(row)).toEqual(["rowIndex", "reason", "title", "price"]);
     expect(row).toEqual({
       rowIndex: 4,
       reason: "Bad",

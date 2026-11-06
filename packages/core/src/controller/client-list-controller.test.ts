@@ -1,3 +1,4 @@
+import { defined } from "@chelone/test-utils";
 import { describe, expect, it } from "vitest";
 import { createClientListController } from "./client-list-controller";
 
@@ -268,7 +269,7 @@ describe("createClientListController", () => {
 
     it("setData that shrinks the list moves the page to the last page", () => {
       const six: Row[] = Array.from({ length: 6 }, (_, i) => ({
-        ...(data[0] as Row),
+        ...defined(data[0]),
         id: i + 1,
       }));
       const c = createClientListController<Row>({ data: six, perPage: 2 });
