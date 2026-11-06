@@ -10,7 +10,10 @@ import {
   type DataProvider,
   defineMessages,
   fakeDataProvider,
+  type PagePagination,
+  type Pagination,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -37,6 +40,7 @@ import {
   type EventRendererProps,
   type HeaderRendererProps,
 } from "./calendar-list";
+import type { CalendarSlot } from "./calendar-month-view";
 
 type EventRow = { id: number } & Record<string, unknown>;
 
@@ -62,6 +66,13 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+function pagePagination(pagination: Pagination | undefined): PagePagination {
+  if (!pagination || !("page" in pagination)) {
+    throw new Error("expected page pagination");
+  }
+  return pagination;
+}
+
 /** The fake provider matches filters by equality: this one reads `start_gte`, `start_lte` and `end_gte`. */
 function rangeProvider(rows: EventRow[]) {
   const base = fakeDataProvider({ meetings: rows });
@@ -70,8 +81,7 @@ function rangeProvider(rows: EventRow[]) {
       resource: string,
       params: Parameters<DataProvider["getList"]>[1],
     ) => {
-      const { start_gte, start_lte, end_gte, ...rest } = (params.filter ??
-        {}) as Record<string, unknown>;
+      const { start_gte, start_lte, end_gte, ...rest } = params.filter ?? {};
       const all = await base.getList(resource, {
         ...params,
         filter: rest,
@@ -90,10 +100,7 @@ function rangeProvider(rows: EventRow[]) {
             endTime >= new Date(String(end_gte)).getTime())
         );
       });
-      const { page, perPage } = params.pagination as {
-        page: number;
-        perPage: number;
-      };
+      const { page, perPage } = pagePagination(params.pagination);
       return {
         data: inRange.slice((page - 1) * perPage, page * perPage),
         total: inRange.length,
@@ -107,6 +114,15 @@ function rangeProvider(rows: EventRow[]) {
 function Location() {
   const { pathname } = useLocation();
   return <output data-testid="location">{pathname}</output>;
+}
+
+/** The params of the provider's latest `getList` call, with the filter and page pagination the calendar always sends. */
+function lastParams(provider: ReturnType<typeof rangeProvider>) {
+  const [, params] = defined(provider.getList.mock.lastCall);
+  return {
+    filter: defined(params.filter),
+    pagination: pagePagination(params.pagination),
+  };
 }
 
 function mount(
@@ -174,9 +190,7 @@ const calendar = (props: Record<string, unknown> = {}) => (
 );
 
 const cell = (day: string) =>
-  screen
-    .getAllByRole("gridcell")
-    .find((el) => el.dataset.day === day) as HTMLElement;
+  defined(screen.getAllByRole("gridcell").find((el) => el.dataset.day === day));
 
 describe("<CalendarList> month view", () => {
   it("renders the month title and a gridcell for every day of whole weeks", async () => {
@@ -215,10 +229,7 @@ describe("<CalendarList> month view", () => {
     const { provider } = mount(calendar());
     await screen.findByText("Standup");
 
-    const [, params] = provider.getList.mock.lastCall as [
-      string,
-      { filter: Record<string, string>; pagination: { perPage: number } },
-    ];
+    const params = lastParams(provider);
     expect(params.filter).toEqual({
       end_gte: new Date(2026, 3, 26).toISOString(),
       start_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
@@ -239,9 +250,7 @@ describe("<CalendarList> month view", () => {
     });
     await screen.findAllByText("Residency");
 
-    const params = provider.getList.mock.lastCall?.[1] as {
-      filter: Record<string, string>;
-    };
+    const params = lastParams(provider);
     expect(params.filter).toEqual({
       start_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
       end_gte: new Date(2026, 3, 26).toISOString(),
@@ -268,9 +277,7 @@ describe("<CalendarList> month view", () => {
     expect(screen.getByText("June 2026")).toBeTruthy();
     expect(await screen.findByText("Dentist")).toBeTruthy();
     expect(screen.queryByText("Standup")).toBeNull();
-    const june = provider.getList.mock.lastCall?.[1] as {
-      filter: Record<string, string>;
-    };
+    const june = lastParams(provider);
     expect(june.filter).toEqual({
       end_gte: new Date(2026, 4, 31).toISOString(),
       start_lte: new Date(2026, 6, 4, 23, 59, 59, 999).toISOString(),
@@ -280,9 +287,7 @@ describe("<CalendarList> month view", () => {
     fireEvent.click(screen.getByRole("button", { name: "Previous" }));
     expect(screen.getByText("April 2026")).toBeTruthy();
     await waitFor(() => {
-      const april = provider.getList.mock.lastCall?.[1] as {
-        filter: Record<string, string>;
-      };
+      const april = lastParams(provider);
       expect(april.filter.end_gte).toBe(new Date(2026, 2, 29).toISOString());
     });
   });
@@ -319,9 +324,7 @@ describe("<CalendarList> month view", () => {
     );
 
     await waitFor(() => {
-      const params = provider.getList.mock.lastCall?.[1] as {
-        filter: Record<string, string>;
-      };
+      const params = lastParams(provider);
       expect(params.filter).toEqual({
         from: new Date(2026, 3, 26).toISOString(),
         to: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
@@ -350,10 +353,7 @@ describe("<CalendarList> month view", () => {
       ),
     );
     await waitFor(() => {
-      const params = provider.getList.mock.lastCall?.[1] as {
-        filter: object;
-        pagination: { perPage: number };
-      };
+      const params = lastParams(provider);
       expect(params.filter).toEqual({});
       expect(params.pagination.perPage).toBe(25);
     });
@@ -368,17 +368,13 @@ describe("<CalendarList> month view", () => {
       expect(screen.queryAllByText("Offsite")).toHaveLength(0),
     );
     expect(screen.getByText("Standup")).toBeTruthy();
-    const filtered = provider.getList.mock.lastCall?.[1] as {
-      filter: Record<string, string>;
-    };
+    const filtered = lastParams(provider);
     expect(filtered.filter).toMatchObject({ kind: "work" });
     expect(filtered.filter.end_gte).toBeDefined();
 
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
     await waitFor(() => {
-      const params = provider.getList.mock.lastCall?.[1] as {
-        filter: Record<string, string>;
-      };
+      const params = lastParams(provider);
       expect(params.filter).toMatchObject({
         kind: "work",
         end_gte: new Date(2026, 4, 31).toISOString(),
@@ -568,9 +564,11 @@ describe("<CalendarList> month view", () => {
 });
 
 const hourCell = (date: Date) =>
-  screen
-    .getAllByRole("gridcell")
-    .find((el) => el.dataset.slotStart === date.toISOString()) as HTMLElement;
+  defined(
+    screen
+      .getAllByRole("gridcell")
+      .find((el) => el.dataset.slotStart === date.toISOString()),
+  );
 
 describe("<CalendarList> week view", () => {
   it("renders 7 day headers and 24 hour rows", async () => {
@@ -685,9 +683,7 @@ describe("<CalendarList> week view", () => {
         name: "Standup",
       }),
     ).toBeTruthy();
-    const params = provider.getList.mock.lastCall?.[1] as {
-      filter: Record<string, string>;
-    };
+    const params = lastParams(provider);
     expect(params.filter).toEqual({
       end_gte: new Date(2026, 4, 17).toISOString(),
       start_lte: new Date(2026, 4, 23, 23, 59, 59, 999).toISOString(),
@@ -706,7 +702,7 @@ describe("<CalendarList> week view across a clock change", () => {
     // 8 March 2026: New York goes from 02:00 straight to 03:00.
     process.env.TZ = "America/New_York";
     vi.setSystemTime(new Date(2026, 2, 8, 12));
-    const onSelectSlot = vi.fn();
+    const onSelectSlot = vi.fn<(slot: CalendarSlot) => void>();
     mount(calendar({ defaultView: "week", onSelectSlot }), { rows: [] });
     await screen.findByRole("grid");
 
@@ -719,15 +715,12 @@ describe("<CalendarList> week view across a clock change", () => {
       .getAllByRole("gridcell")
       .filter((el) => el.dataset.slotStart === undefined);
     expect(skipped).toHaveLength(1);
-    fireEvent.click(skipped[0] as HTMLElement);
+    fireEvent.click(defined(skipped[0]));
     expect(onSelectSlot).not.toHaveBeenCalled();
 
     fireEvent.click(hourCell(new Date(2026, 2, 8, 3)));
     expect(onSelectSlot).toHaveBeenCalledTimes(1);
-    const slot = onSelectSlot.mock.lastCall?.[0] as {
-      startISO: string;
-      endISO: string;
-    };
+    const slot = defined(onSelectSlot.mock.lastCall)[0];
     expect(new Date(slot.endISO).getTime()).toBeGreaterThan(
       new Date(slot.startISO).getTime(),
     );
@@ -781,9 +774,7 @@ describe("<CalendarList> agenda view", () => {
 
     expect(await screen.findByText("Dentist")).toBeTruthy();
     expect(screen.queryByText("Offsite")).toBeNull();
-    const params = provider.getList.mock.lastCall?.[1] as {
-      filter: Record<string, string>;
-    };
+    const params = lastParams(provider);
     expect(params.filter).toEqual({
       end_gte: new Date(2026, 4, 15).toISOString(),
       start_lte: new Date(2026, 5, 12, 23, 59, 59, 999).toISOString(),
@@ -826,9 +817,7 @@ describe("<CalendarList> views", () => {
       document.querySelector('[data-slot="calendar-month-view"]'),
     ).toBeNull();
     await waitFor(() => {
-      const params = provider.getList.mock.lastCall?.[1] as {
-        filter: Record<string, string>;
-      };
+      const params = lastParams(provider);
       expect(params.filter.end_gte).toBe(new Date(2026, 4, 10).toISOString());
     });
 
@@ -838,9 +827,7 @@ describe("<CalendarList> views", () => {
       document.querySelector('[data-calendar-view="agenda"]'),
     ).toBeTruthy();
     await waitFor(() => {
-      const params = provider.getList.mock.lastCall?.[1] as {
-        filter: Record<string, string>;
-      };
+      const params = lastParams(provider);
       expect(params.filter.end_gte).toBe(new Date(2026, 4, 1).toISOString());
     });
 
