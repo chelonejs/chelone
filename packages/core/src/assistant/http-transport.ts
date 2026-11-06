@@ -86,8 +86,9 @@ export function httpAssistantTransport(
         try {
           for (;;) {
             const step = await reader.read();
-            if (step.done) break;
-            pending += decoder.decode(step.value, { stream: true });
+            pending += decoder.decode(step.value, { stream: !step.done });
+            // EOF also completes a line without a trailing newline.
+            if (step.done) pending += "\n";
             let end = pending.indexOf("\n");
             while (end >= 0) {
               lineNumber++;
@@ -100,6 +101,7 @@ export function httpAssistantTransport(
               }
               end = pending.indexOf("\n");
             }
+            if (step.done) break;
           }
         } finally {
           await reader.cancel().catch(() => {});

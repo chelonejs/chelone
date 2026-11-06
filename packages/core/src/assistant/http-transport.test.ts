@@ -115,4 +115,20 @@ describe("httpAssistantTransport", () => {
       expect(response.body?.locked).toBe(false);
     }
   });
+
+  it("a stream with no done line ends the turn", async () => {
+    for (const ending of ["", "\n", "\n \n"]) {
+      const transport = httpAssistantTransport({
+        url,
+        fetch: async () =>
+          new Response(`{"type":"text","delta":"Goodbye"}${ending}`),
+      });
+
+      expect(
+        await collect(
+          transport.send([], {}, { signal: new AbortController().signal }),
+        ),
+      ).toEqual([{ type: "text", delta: "Goodbye" }, { type: "done" }]);
+    }
+  });
 });
