@@ -1427,6 +1427,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/fields/diff-viewer.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/fields/duration-field.tsx",
           "type": "registry:component"
         },
@@ -3155,6 +3159,21 @@
       ],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "diff-viewer",
+      "type": "registry:component",
+      "title": "Diff Viewer",
+      "files": [
+        {
+          "path": "src/components/admin/fields/diff-viewer.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
