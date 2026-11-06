@@ -9,11 +9,15 @@
 
 import {
   createI18n,
+  createNotificationStore,
   fakeDataProvider,
   isGeoFeatureCollection,
   isGeoGeometry,
   mapMessages,
+  type Notification,
+  type NotificationStore,
   rasterTileStyle,
+  type ShapeValue,
 } from "@chelone/core";
 import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
@@ -98,6 +102,7 @@ const holed: Geometry = {
 function mountUnderAdmin(
   content: () => ReturnType<typeof h>,
   messages: Record<string, string> = mapMessages,
+  notifications?: NotificationStore,
 ) {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -116,6 +121,7 @@ function mountUnderAdmin(
                 locale: "en",
                 messages: { en: messages },
               }),
+              notifications,
             },
             { default: content },
           ),
@@ -138,6 +144,14 @@ async function setup(
     messages = mapMessages,
   }: { ready?: boolean; messages?: Record<string, string> } = {},
 ) {
+  // Admin's toast drains the store, so keep what was pushed.
+  const notifications = createNotificationStore();
+  const pushed: Notification[] = [];
+  notifications.subscribe(() => {
+    for (const item of notifications.getSnapshot()) {
+      if (!pushed.some((seen) => seen.id === item.id)) pushed.push(item);
+    }
+  });
   let current: UseFormReturn<Values> | undefined;
   const commits: unknown[] = [];
   const FormHost = defineComponent({
@@ -156,7 +170,7 @@ async function setup(
         });
     },
   });
-  const wrapper = mountUnderAdmin(() => h(FormHost), messages);
+  const wrapper = mountUnderAdmin(() => h(FormHost), messages, notifications);
   // Lets the fake map's microtask `load` fire and Vue render what follows.
   await flushPromises();
   const draw = () => {
@@ -179,6 +193,11 @@ async function setup(
     commits,
     value: () => form().form.store.state.values.shape,
     dirty: () => form().form.store.state.isDirty,
+    /** What the input pushed as a warning, oldest first. */
+    warnings: () =>
+      pushed
+        .filter((n) => n.type === "warning")
+        .map(({ message, type }) => ({ message, type })),
     map: () => {
       const map = maps[0];
       if (!map) throw new Error("no map");
@@ -719,6 +738,50 @@ describe("ShapeInput", () => {
     for (const mode of withDistance) {
       expect(mode.options.pointerDistance, mode.modeName).toBe(35);
     }
+  });
+
+  it("an aborted refine does not warn", async () => {
+    const drawn = (offset: number): Geometry => ({
+      type: "LineString",
+      coordinates: [
+        [offset, offset],
+        [offset + 1, offset + 1],
+      ],
+    });
+    const calls: {
+      signal: AbortSignal;
+      settle: (result: ShapeValue | null) => void;
+    }[] = [];
+    const refine: ShapeInputProps["refine"] = (_value, { signal }) =>
+      new Promise<ShapeValue | null>((resolve) =>
+        calls.push({ signal, settle: resolve }),
+      );
+    const { draw, wrapper, warnings } = await setup(
+      {
+        kind: "LineString",
+        refine,
+        refineFailedMessage: "chelone.map.snap_failed",
+      },
+      null,
+    );
+
+    await button(wrapper, "Draw a line").trigger("click");
+    const first = draw().put(drawn(1), "linestring");
+    draw().emitFinish(first, "draw", "linestring");
+    await flushPromises();
+    expect(calls).toHaveLength(1);
+
+    // A newer edit aborts the pending refine.
+    await button(wrapper, "Draw a line").trigger("click");
+    const second = draw().put(drawn(2), "linestring");
+    draw().emitFinish(second, "draw", "linestring");
+    await flushPromises();
+    expect(calls[0]?.signal.aborted).toBe(true);
+
+    // The aborted call answers with null, which a live one would warn about.
+    calls[0]?.settle(null);
+    await flushPromises();
+    expect(warnings()).toEqual([]);
   });
 });
 
