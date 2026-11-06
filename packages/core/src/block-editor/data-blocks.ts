@@ -121,8 +121,9 @@ export interface ChartAggregatePoint {
   value: number;
 }
 
+/** A record's own value for a key. A key the record does not own reads as absent. */
 // type-escape: the key is a runtime string, so the value is not knowable
-const readKey = (row: object, key: string): unknown =>
+export const readDataBlockValue = (row: object, key: string): unknown =>
   Object.getOwnPropertyDescriptor(row, key)?.value;
 
 /** Group rows by `String(row[category])` in first-seen order and reduce `value` by the aggregate. */
@@ -132,11 +133,11 @@ export function aggregateChartData(
 ): ChartAggregatePoint[] {
   const groups = new Map<string, { count: number; sum: number }>();
   for (const row of rows) {
-    const raw = readKey(row, category);
+    const raw = readDataBlockValue(row, category);
     const name = raw === null || raw === undefined ? "" : String(raw);
     const group = groups.get(name) ?? { count: 0, sum: 0 };
     group.count += 1;
-    group.sum += Number(readKey(row, value)) || 0;
+    group.sum += Number(readDataBlockValue(row, value)) || 0;
     groups.set(name, group);
   }
   return [...groups].map(([name, { count, sum }]) => ({

@@ -1,4 +1,4 @@
-import type { BlockSpec, LooseRecord } from "@chelone/core";
+import type { BlockSpec } from "@chelone/core";
 import { type ReactElement, type ReactNode, useId, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -70,11 +70,6 @@ export function useDataBlockGate(
     );
   }
   return null;
-}
-
-/** A record's own value for a key. A key the record does not own reads as absent. */
-export function ownValue(record: LooseRecord, key: string) {
-  return Object.hasOwn(record, key) ? record[key] : undefined;
 }
 
 export function ConfigField({
