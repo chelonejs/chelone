@@ -81,6 +81,8 @@ const ADDONS: {
       "@tiptap/starter-kit",
       "@tiptap/extensions",
       "@tiptap/suggestion",
+      "@dnd-kit/react",
+      "@dnd-kit/dom",
       "recharts",
     ],
   },
