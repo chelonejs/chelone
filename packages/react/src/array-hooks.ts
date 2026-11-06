@@ -7,7 +7,11 @@ import type {
   SourceScope,
   TranslatableMessage,
 } from "@chelone/core";
-import { createArraySourceScope, createRowSourceScope } from "@chelone/core";
+import {
+  createArraySourceScope,
+  createRowSourceScope,
+  firstFieldError,
+} from "@chelone/core";
 import { useSelector } from "@tanstack/react-store";
 import {
   createContext,
@@ -19,7 +23,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { firstFieldError, sameDisplayError } from "./field-error";
+import { sameDisplayError } from "./field-error";
 import {
   SourceContextProvider,
   useCheloneFormContext,
