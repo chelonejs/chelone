@@ -32,6 +32,7 @@
     "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-dark.css",
     "./rich-text-input": "./src/rich-text-input.ts",
     "./rich-text-input.css": "./src/components/rich-text-input/rich-text.css",
+    "./block-editor": "./src/block-editor.ts",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -89,6 +90,10 @@
         "default": "./dist/rich-text-input.js"
       },
       "./rich-text-input.css": "./dist/components/rich-text-input/rich-text.css",
+      "./block-editor": {
+        "types": "./dist/block-editor.d.ts",
+        "default": "./dist/block-editor.js"
+      },
       "./package.json": "./package.json"
     }
   },
@@ -136,6 +141,7 @@
     "@tiptap/pm": "^3.33.0",
     "@tiptap/react": "^3.33.0",
     "@tiptap/starter-kit": "^3.33.0",
+    "@tiptap/suggestion": "^3.33.0",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
     "@turf/simplify": "^7.4.0",
@@ -184,6 +190,9 @@
       "optional": true
     },
     "@tiptap/starter-kit": {
+      "optional": true
+    },
+    "@tiptap/suggestion": {
       "optional": true
     },
     "@turf/buffer": {
@@ -244,6 +253,7 @@
     "@tiptap/pm": "^3.33.0",
     "@tiptap/react": "^3.33.0",
     "@tiptap/starter-kit": "^3.33.0",
+    "@tiptap/suggestion": "^3.33.0",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
     "@turf/simplify": "^7.4.0",
