@@ -10,6 +10,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -136,9 +137,10 @@ describe("<SubscriptionPlanPicker>", () => {
       <SubscriptionPlanPicker source="planId" plans={PLANS} />,
       { defaultValues: { planId: "free" }, onData },
     );
-    const proButton = document
-      .querySelector('[data-plan-card="pro"]')
-      ?.querySelector("button") as HTMLButtonElement;
+    const proButton = elementOf(
+      document.querySelector('[data-plan-card="pro"]')?.querySelector("button"),
+      HTMLButtonElement,
+    );
     fireEvent.click(proButton);
     await act(async () => {
       await submitRef.current?.();
@@ -152,9 +154,10 @@ describe("<SubscriptionPlanPicker>", () => {
       <SubscriptionPlanPicker source="planId" plans={PLANS} disabled />,
       { defaultValues: { planId: "free" }, onData },
     );
-    const proButton = document
-      .querySelector('[data-plan-card="pro"]')
-      ?.querySelector("button") as HTMLButtonElement;
+    const proButton = elementOf(
+      document.querySelector('[data-plan-card="pro"]')?.querySelector("button"),
+      HTMLButtonElement,
+    );
     expect(proButton.disabled).toBe(true);
     fireEvent.click(proButton);
     await act(async () => {

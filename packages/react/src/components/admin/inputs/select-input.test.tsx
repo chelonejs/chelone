@@ -194,8 +194,7 @@ describe("<SelectInput>", () => {
   });
 
   it("throws when neither source nor a reference context is present", () => {
-    // biome-ignore lint/suspicious/noExplicitAny: intentionally exercising the missing-source guard
-    const Broken = () => <SelectInput {...({} as any)} choices={choices} />;
+    const Broken = () => <SelectInput choices={choices} />;
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => setup(<Broken />, { defaultValues: {} })).toThrow(
       /must provide the source prop/,

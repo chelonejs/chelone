@@ -10,6 +10,7 @@ import {
   type FieldErrors,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -73,9 +74,10 @@ afterEach(() => cleanup());
 describe("<SearchInput>", () => {
   it("defaults to the 'q' source and shows the search placeholder", () => {
     setup(<SearchInput />, { defaultValues: { q: "" } });
-    const input = document.querySelector(
-      "input[name='q'], input#q, input",
-    ) as HTMLInputElement;
+    const input = elementOf(
+      document.querySelector("input[name='q'], input#q, input"),
+      HTMLInputElement,
+    );
     expect(input).toBeTruthy();
     expect(input.getAttribute("placeholder")).toBe("Search");
   });
@@ -98,7 +100,10 @@ describe("<SearchInput>", () => {
 
   it("clears the value when the clear button is clicked", async () => {
     setup(<SearchInput />, { defaultValues: { q: "hello" } });
-    const input = screen.getByDisplayValue("hello") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByDisplayValue("hello"),
+      HTMLInputElement,
+    );
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: /clear search/i }));
     });

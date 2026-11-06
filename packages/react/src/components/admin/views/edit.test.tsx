@@ -14,6 +14,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -109,9 +110,9 @@ describe("<Edit>", () => {
       </Providers>,
     );
     await waitFor(() =>
-      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
-        "Original",
-      ),
+      expect(
+        elementOf(screen.getByLabelText(/title/i), HTMLInputElement).value,
+      ).toBe("Original"),
     );
   });
 
@@ -171,9 +172,9 @@ describe("<Edit>", () => {
       </Providers>,
     );
     await waitFor(() =>
-      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
-        "Original",
-      ),
+      expect(
+        elementOf(screen.getByLabelText(/title/i), HTMLInputElement).value,
+      ).toBe("Original"),
     );
     fireEvent.click(screen.getByRole("button", { name: "save" }));
     await waitFor(async () => {
@@ -249,9 +250,9 @@ describe("<Edit>", () => {
       </Providers>,
     );
     await waitFor(() =>
-      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
-        "Original",
-      ),
+      expect(
+        elementOf(screen.getByLabelText(/title/i), HTMLInputElement).value,
+      ).toBe("Original"),
     );
     fireEvent.click(screen.getByRole("button", { name: "save" }));
     await screen.findByText("Title is required");
@@ -289,9 +290,9 @@ describe("<Edit>", () => {
       </Providers>,
     );
     await waitFor(() =>
-      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
-        "Original",
-      ),
+      expect(
+        elementOf(screen.getByLabelText(/title/i), HTMLInputElement).value,
+      ).toBe("Original"),
     );
     fireEvent.click(screen.getByRole("button", { name: "strict" }));
     fireEvent.click(screen.getByRole("button", { name: "save" }));
@@ -330,9 +331,9 @@ describe("<Edit>", () => {
       </Providers>,
     );
     await waitFor(() =>
-      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
-        "Original",
-      ),
+      expect(
+        elementOf(screen.getByLabelText(/title/i), HTMLInputElement).value,
+      ).toBe("Original"),
     );
     fireEvent.click(screen.getByRole("button", { name: "strict" }));
     fireEvent.click(screen.getByRole("button", { name: "save" }));

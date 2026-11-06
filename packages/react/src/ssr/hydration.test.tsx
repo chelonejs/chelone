@@ -18,11 +18,6 @@ import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 import { dehydrate, hydrate } from "./hydration";
 
-interface Post extends Record<string, unknown> {
-  id: number;
-  title: string;
-}
-
 function makeCtx(dp: DataProvider) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -42,7 +37,7 @@ describe("hydration — dehydrate/hydrate round-trip", () => {
         { id: 1, title: "a" },
         { id: 2, title: "b" },
       ],
-    }) as DataProvider;
+    });
     const server = makeCtx(dp);
     const options = getListOptions(server, "posts", {
       pagination: { page: 1, perPage: 10 },
@@ -61,17 +56,16 @@ describe("hydration — dehydrate/hydrate round-trip", () => {
     });
     hydrate(client, wire);
 
-    const cached = client.getQueryData(options.queryKey) as {
-      data: Post[];
-      total: number;
-    };
-    expect(cached.total).toBe(2);
-    expect(cached.data.map((p) => p.title)).toEqual(["a", "b"]);
+    // The cache holds untyped query data, so assert its shape instead of casting.
+    expect(client.getQueryData(options.queryKey)).toMatchObject({
+      total: 2,
+      data: [{ title: "a" }, { title: "b" }],
+    });
   });
 
   it("a hydrated cache serves the option-factory query WITHOUT refetching (cache hit)", async () => {
     const getList = vi.fn(async () => ({
-      data: [{ id: 1, title: "a" }] as Post[],
+      data: [{ id: 1, title: "a" }],
       total: 1,
     }));
     const dp = { ...fakeDataProvider({}), getList };

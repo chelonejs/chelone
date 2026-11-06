@@ -12,6 +12,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -88,7 +89,10 @@ describe("<ColorInput>", () => {
     setup(<ColorInput source="color" native />, {
       defaultValues: { color: "#3b82f6" },
     });
-    const input = screen.getByLabelText("Pick a color") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Pick a color"),
+      HTMLInputElement,
+    );
     expect(input.getAttribute("type")).toBe("color");
     expect(screen.getByText("Color").closest("label")).not.toBeNull();
   });
@@ -99,7 +103,10 @@ describe("<ColorInput>", () => {
       <ColorInput source="color" native />,
       { defaultValues: { color: "#000000" }, onData },
     );
-    const input = screen.getByLabelText("Pick a color") as HTMLInputElement;
+    const input = elementOf(
+      screen.getByLabelText("Pick a color"),
+      HTMLInputElement,
+    );
     fireEvent.change(input, { target: { value: "#ff0000" } });
     await act(async () => {
       await submitRef.current?.();
@@ -156,8 +163,11 @@ describe("<ColorInput>", () => {
     // The native `<input>` renders inside the `<fieldset disabled>`; jsdom does
     // not compute the inherited disabled on the child, so assert the mechanism
     // (the fieldset carries the disabled attribute) — the real disabling wiring.
-    const input = screen.getByLabelText("Pick a color") as HTMLInputElement;
-    const fieldset = input.closest("fieldset") as HTMLFieldSetElement;
+    const input = elementOf(
+      screen.getByLabelText("Pick a color"),
+      HTMLInputElement,
+    );
+    const fieldset = elementOf(input.closest("fieldset"), HTMLFieldSetElement);
     expect(fieldset).not.toBeNull();
     expect(fieldset.disabled).toBe(true);
   });

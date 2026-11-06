@@ -6,6 +6,7 @@
  * `clearAlwaysVisible`.
  */
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -68,7 +69,7 @@ describe("<ResettableTextInput>", () => {
     setup(<ResettableTextInput source="title" />, {
       title: "War and Peace",
     });
-    const input = screen.getByLabelText("Title") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Title"), HTMLInputElement);
     expect(input.value).toBe("War and Peace");
     fireEvent.click(screen.getByRole("button", { name: /clear value/i }));
     expect(input.value).toBe("");
@@ -92,8 +93,8 @@ describe("<ResettableTextInput>", () => {
     setup(<ResettableTextInput source="title" disabled />, {
       title: "x",
     });
-    expect((screen.getByLabelText("Title") as HTMLInputElement).disabled).toBe(
-      true,
-    );
+    expect(
+      elementOf(screen.getByLabelText("Title"), HTMLInputElement).disabled,
+    ).toBe(true);
   });
 });

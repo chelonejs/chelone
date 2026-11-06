@@ -14,8 +14,9 @@ interface Row {
   name: string;
 }
 
+declare const result: UseListResult<Row>;
+
 it("useList returns a UseListResult assignable to ListContextValue", () => {
-  const result = {} as UseListResult<Row>;
   // Drop-in for <ListContextProvider value={...}> — same erased shape.
   expectTypeOf<UseListResult<Row>>().toExtend<ListContextValue>();
   expectTypeOf(result.data).toEqualTypeOf<Row[] | undefined>();
@@ -42,7 +43,6 @@ it("useList options accept data/sort/filter/page/perPage + async flags", () => {
 });
 
 it("useList selection + param actions are present", () => {
-  const result = {} as UseListResult<Row>;
   expectTypeOf(result.setPage).toBeFunction();
   expectTypeOf(result.setSort).toBeFunction();
   expectTypeOf(result.setFilters).toBeFunction();
@@ -53,7 +53,6 @@ it("useList selection + param actions are present", () => {
 });
 
 it("useList exposes setParams taking a ListParamsPatch", () => {
-  const result = {} as UseListResult<Row>;
   expectTypeOf(result.setParams).toBeFunction();
   expectTypeOf(result.setParams).parameters.toEqualTypeOf<[ListParamsPatch]>();
   expectTypeOf(result.setParams).returns.toBeVoid();
