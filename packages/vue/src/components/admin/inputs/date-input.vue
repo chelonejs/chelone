@@ -32,6 +32,7 @@ export interface DateInputProps {
 import {
   type DateInputValue,
   type SourceProp,
+  textOf,
   toDateInputValue,
   toTextValue,
   type Validator,
@@ -62,10 +63,10 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   parse: userParse && ((v: unknown) => userParse(toTextValue(v))),
 });
 
-const buffer = ref(value.value == null ? "" : String(value.value));
+const buffer = ref(textOf(value.value));
 const focused = ref(false);
 watch(value, (next) => {
-  if (!focused.value) buffer.value = next == null ? "" : String(next);
+  if (!focused.value) buffer.value = textOf(next);
 });
 
 const invalid = computed(() => touched.value && error.value != null);
@@ -82,7 +83,7 @@ function onBlur() {
   focused.value = false;
   if (isValidDate(buffer.value)) setValue(buffer.value);
   blur();
-  buffer.value = value.value == null ? "" : String(value.value);
+  buffer.value = textOf(value.value);
 }
 </script>
 
