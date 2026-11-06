@@ -69,7 +69,8 @@ export function DonutChart<TRow extends object = LooseRecord>({
           isAnimationActive={false}
         >
           {slices.map((_slice, index) => (
-            <Cell key={`${index}`} fill={chartColor(index, colors)} />
+            // biome-ignore lint/suspicious/noArrayIndexKey: labels repeat, and a slice's color follows its position
+            <Cell key={index} fill={chartColor(index, colors)} />
           ))}
         </Pie>
       </PieChart>
