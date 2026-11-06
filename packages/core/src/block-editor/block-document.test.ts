@@ -8,6 +8,7 @@ import {
   describeBlockAttrs,
   emptyBlockDocument,
   getBlockDefaultAttrs,
+  isBlockDoc,
   isEmptyBlockDocument,
   matchBlocks,
   toEmbedSrc,
@@ -191,6 +192,30 @@ describe("wrapUnknownBlocks", () => {
     expect(unwrapUnknownBlocks(wrapUnknownBlocks(doc, known))).toEqual(doc);
   });
 
+  it("wraps a top-level block the caller cannot load, from the stored document", () => {
+    const marked: BlockDocNode = {
+      type: "paragraph",
+      content: [{ type: "text", text: "hi", marks: [{ type: "highlight" }] }],
+    };
+    const stored: BlockDocNode = {
+      type: "doc",
+      content: [marked, { type: "paragraph" }],
+    };
+    const wrapped = wrapUnknownBlocks(
+      stored,
+      known,
+      (block) => !JSON.stringify(block).includes("highlight"),
+    );
+    expect(wrapped).toEqual({
+      type: "doc",
+      content: [
+        { type: unknownBlockType, attrs: { payload: marked } },
+        { type: "paragraph" },
+      ],
+    });
+    expect(unwrapUnknownBlocks(wrapped)).toEqual(stored);
+  });
+
   it("does not mutate its input", () => {
     const before = structuredClone(doc);
     const wrapped = wrapUnknownBlocks(doc, known);
@@ -208,6 +233,17 @@ describe("emptyBlockDocument", () => {
       content: [{ type: "paragraph" }],
     });
     expect(emptyBlockDocument()).not.toBe(emptyBlockDocument());
+  });
+});
+
+describe("isBlockDoc", () => {
+  it("accepts an object whose type is doc and nothing else", () => {
+    expect(isBlockDoc(emptyBlockDocument())).toBe(true);
+    expect(isBlockDoc({ type: "paragraph" })).toBe(false);
+    expect(isBlockDoc({})).toBe(false);
+    expect(isBlockDoc("doc")).toBe(false);
+    expect(isBlockDoc(null)).toBe(false);
+    expect(isBlockDoc([])).toBe(false);
   });
 });
 

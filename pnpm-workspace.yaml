@@ -85,3 +85,4 @@ minimumReleaseAgeExclude:
   - '@tiptap/pm@3.33.0'
   - '@tiptap/react@3.33.0'
   - '@tiptap/starter-kit@3.33.0'
+  - '@tiptap/suggestion@3.33.0'
