@@ -131,6 +131,11 @@
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
+    "@tiptap/core": "^3.33.0",
+    "@tiptap/extensions": "^3.33.0",
+    "@tiptap/pm": "^3.33.0",
+    "@tiptap/react": "^3.33.0",
+    "@tiptap/starter-kit": "^3.33.0",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
     "@turf/simplify": "^7.4.0",
@@ -164,6 +169,21 @@
       "optional": true
     },
     "@tanstack/react-router": {
+      "optional": true
+    },
+    "@tiptap/core": {
+      "optional": true
+    },
+    "@tiptap/extensions": {
+      "optional": true
+    },
+    "@tiptap/pm": {
+      "optional": true
+    },
+    "@tiptap/react": {
+      "optional": true
+    },
+    "@tiptap/starter-kit": {
       "optional": true
     },
     "@turf/buffer": {
@@ -219,6 +239,11 @@
     "@tanstack/react-router": "^1.170.46",
     "@tanstack/react-store": "^0.11.2",
     "@testing-library/react": "^16.3.3",
+    "@tiptap/core": "^3.33.0",
+    "@tiptap/extensions": "^3.33.0",
+    "@tiptap/pm": "^3.33.0",
+    "@tiptap/react": "^3.33.0",
+    "@tiptap/starter-kit": "^3.33.0",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
     "@turf/simplify": "^7.4.0",

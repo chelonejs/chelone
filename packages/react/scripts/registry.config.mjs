@@ -168,7 +168,7 @@ export const blocks = [
     title: "Chelone Rich Text",
     categories: ["chelone", "fields"],
     description:
-      "The opt-in rich text add-on: RichTextField shows stored HTML sanitized with DOMPurify, or its text with stripTags. Installs dompurify.",
+      "The opt-in rich text add-on: RichTextField shows stored HTML sanitized with DOMPurify, or its text with stripTags, and RichTextInput edits an HTML string in a tiptap editor with a formatting toolbar. Installs dompurify and the tiptap packages.",
     docs: "The field styles its content with rich-text.css, which the component imports itself and which reads the Chelone color tokens.",
     granularize: true,
     inferDependencies: true,
@@ -276,7 +276,11 @@ export const engine = {
   cli: "shadcn",
   // `spinner` collides with admin/feedback/spinner (the app-facing
   // `@chelone/spinner` wrapper), so the ui primitive ships as `ui-spinner`.
-  itemNames: { "components/ui/spinner": "ui-spinner" },
+  itemNames: {
+    "components/ui/spinner": "ui-spinner",
+    // Its basename is the rich-text-input block's name, which the block keeps.
+    "components/rich-text-input/rich-text-input": "rich-text-input-editor",
+  },
 };
 
 /**
