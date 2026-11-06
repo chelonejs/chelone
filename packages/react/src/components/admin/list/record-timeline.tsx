@@ -95,7 +95,13 @@ function RecordTimeline<TRecord extends LooseRecord = LooseRecord>({
   return (
     <ol data-slot="record-timeline" className={cn("flex flex-col", className)}>
       {timeline.map((entry) => {
-        const Icon = (entry.icon && icons?.[entry.icon]) || ClockIcon;
+        // Own keys only: "constructor" or "valueOf" would find Object's.
+        const Icon =
+          (entry.icon !== undefined &&
+            icons !== undefined &&
+            Object.hasOwn(icons, entry.icon) &&
+            icons[entry.icon]) ||
+          ClockIcon;
         return (
           <li
             key={entry.id}

@@ -200,6 +200,38 @@ describe("<RecordTimeline>", () => {
     expect(star?.closest('[aria-hidden="true"]')).not.toBeNull();
   });
 
+  it("falls back to the clock for an icon key that only Object.prototype has", async () => {
+    const Star = ({ className }: { className?: string }) => (
+      <svg data-testid="star" className={className} />
+    );
+    mount({
+      timeline: { iconSource: "kind", icons: { publish: Star } },
+      records: [
+        {
+          id: 1,
+          post_id: 1,
+          message: "A",
+          at: "2026-03-10T10:00:00Z",
+          kind: "constructor",
+        },
+        {
+          id: 2,
+          post_id: 1,
+          message: "B",
+          at: "2026-03-10T10:00:00Z",
+          kind: "hasOwnProperty",
+        },
+      ],
+      sort: { field: "id", order: "ASC" },
+    });
+    const found = await entries();
+    expect(found).toHaveLength(2);
+    for (const entry of found) {
+      expect(entry.querySelector('[data-testid="star"]')).toBeNull();
+      expect(entry.querySelector("svg")).not.toBeNull();
+    }
+  });
+
   it("shows the translated empty text with no records, and the empty node when given", async () => {
     mount({
       records: [],
