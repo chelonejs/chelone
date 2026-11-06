@@ -236,6 +236,47 @@ const shapeInputs = [
   },
 ];
 
+/**
+ * The pieces of the `maps/osm` entry: the geocoding input and field, the search
+ * over a map, and the two OpenStreetMap buttons. Each calls a network service
+ * the app supplies through `MapsProvider` or a `provider` prop.
+ *
+ * `OsmFeatureOperator` has no page of its own: it is the button the two named
+ * ones are, with `mode` left to the caller.
+ */
+const geocodingAndOsm = [
+  {
+    slug: "geocoding-input",
+    component: "GeocodingInput",
+    importFrom: "@chelone/react/maps/osm",
+    names: ["source", "latSource", "lngSource", "bboxSource"],
+  },
+  {
+    slug: "map-with-search",
+    component: "MapWithSearch",
+    importFrom: "@chelone/react/maps/osm",
+    names: ["addressSource", "latSource", "lngSource", "maplibre-gl"],
+  },
+  {
+    slug: "reverse-geocode-field",
+    component: "ReverseGeocodeField",
+    importFrom: "@chelone/react/maps/osm",
+    names: ["format", "latSource", "lngSource", "street", "city"],
+  },
+  {
+    slug: "osm-feature-add",
+    component: "OsmFeatureAdd",
+    importFrom: "@chelone/react/maps/osm",
+    names: ["OsmFeatureOperator", "presets", "tags", "add"],
+  },
+  {
+    slug: "osm-feature-subtract",
+    component: "OsmFeatureSubtract",
+    importFrom: "@chelone/react/maps/osm",
+    names: ["OsmFeatureOperator", "presets", "tags", "subtract"],
+  },
+];
+
 /** Every maps reference page, in the order `maps/_meta.ts` lists its categories. */
 const referencePages: ReferencePage[] = [
   ...generalFields.map((page) => ({ ...page, propsFrom: page.component })),
@@ -249,6 +290,7 @@ const referencePages: ReferencePage[] = [
     ...page,
     names: [page.geojson, page.alias],
   })),
+  ...geocodingAndOsm.map((page) => ({ ...page, propsFrom: page.component })),
 ];
 
 const page = (slug: string) =>
@@ -343,8 +385,19 @@ const TOOL_NAMES = new Set([
   "move",
 ]);
 
-// `kind` is the prop of `ShapeInput` each shape input sets for the caller.
-const SET_FOR_THE_CALLER = new Set(["kind"]);
+// The prop each named piece sets for the caller: `kind` on `ShapeInput`, `mode`
+// on `OsmFeatureOperator`.
+const SET_FOR_THE_CALLER = new Set(["kind", "mode"]);
+
+// Values of a prop, which its props table shows as a union rather than as rows.
+const PROP_VALUES = new Map([
+  ["ReverseGeocodeField", ["full", "street", "city"]],
+  ["OsmFeatureAdd", ["add"]],
+  ["OsmFeatureSubtract", ["subtract"]],
+]);
+
+// Optional peer packages a page names as something to install, not as props.
+const PEER_PACKAGES = new Set(["maplibre-gl"]);
 
 /** Props a page names that its props table cannot hold; see `propsFrom`. */
 const OUTSIDE_ITS_TABLE = new Map([
@@ -358,7 +411,10 @@ it.each(referencePages)(
   "$component backticks only its own props, so no page suggests a prop that does not exist",
   ({ slug, component, propsFrom }) => {
     const props = propNames(propsFrom);
-    const own = new Set(OUTSIDE_ITS_TABLE.get(component) ?? []);
+    const own = new Set([
+      ...(OUTSIDE_ITS_TABLE.get(component) ?? []),
+      ...(PROP_VALUES.get(component) ?? []),
+    ]);
     for (const match of page(slug).matchAll(/`([a-z][\w.-]*)`/g)) {
       const root = match[1].split(".")[0];
       expect(
@@ -366,6 +422,7 @@ it.each(referencePages)(
           own.has(root) ||
           GEOJSON_MEMBERS.has(root) ||
           TOOL_NAMES.has(root) ||
+          PEER_PACKAGES.has(root) ||
           SET_FOR_THE_CALLER.has(root),
         `${slug}: \`${match[1]}\` is not a prop of ${component}`,
       ).toBe(true);
