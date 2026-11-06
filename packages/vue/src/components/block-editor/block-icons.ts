@@ -112,3 +112,12 @@ export const Trash2Icon = glyph(
   ["line", { x1: 10, x2: 10, y1: 11, y2: 17 }],
   ["line", { x1: 14, x2: 14, y1: 11, y2: 17 }],
 );
+
+export const GripVerticalIcon = glyph(
+  circle(9, 12, 1),
+  circle(9, 5, 1),
+  circle(9, 19, 1),
+  circle(15, 12, 1),
+  circle(15, 5, 1),
+  circle(15, 19, 1),
+);

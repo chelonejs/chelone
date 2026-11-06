@@ -76,6 +76,8 @@ const ADDONS = [
       "@tiptap/suggestion",
       "@unovis/vue",
       "@unovis/ts",
+      "@dnd-kit/vue",
+      "@dnd-kit/dom",
     ],
   },
   {

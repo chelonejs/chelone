@@ -7092,6 +7092,8 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/vue",
+        "@dnd-kit/dom",
+        "@dnd-kit/vue",
         "@tiptap/core",
         "@tiptap/extensions",
         "@tiptap/pm",
@@ -7108,6 +7110,14 @@
         },
         {
           "path": "src/components/block-editor/block-doc-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-drag-handle.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-drop-gap.vue",
           "type": "registry:component"
         },
         {
@@ -7255,6 +7265,46 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "block-drag-handle",
+      "type": "registry:component",
+      "title": "Block Drag Handle",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-drag-handle.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-drop-gap",
+        "@chelone/block-icons",
+        "@chelone/block-toolbar"
+      ],
+      "dependencies": [
+        "@chelone/vue",
+        "@dnd-kit/dom",
+        "@dnd-kit/vue",
+        "@tiptap/core",
+        "@unovis/ts",
+        "@unovis/vue"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-drop-gap",
+      "type": "registry:component",
+      "title": "Block Drop Gap",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-drop-gap.vue",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@dnd-kit/vue", "@unovis/ts", "@unovis/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "block-editor-input",
       "type": "registry:component",
       "title": "Block Editor Input",
@@ -7293,6 +7343,7 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/block-drag-handle",
         "@chelone/block-nodes",
         "@chelone/block-picker",
         "@chelone/block-toolbar",
@@ -7304,6 +7355,7 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/vue",
+        "@dnd-kit/vue",
         "@tiptap/core",
         "@tiptap/extensions",
         "@tiptap/pm",
