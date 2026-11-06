@@ -2,12 +2,13 @@
 /**
  * `<TabsTrigger>` — a `role="tab"` button. Selection follows focus (Radix's
  * automatic activation), so the arrow keys, `Home` and `End` only move focus to
- * a sibling enabled trigger and the focus handler selects it; the focus
- * handler also runs on click where the browser focuses a button. The roving
- * `tabindex` leaves only the active tab in the page's tab order.
+ * a sibling enabled trigger (ArrowLeft/Right, or ArrowUp/Down in a vertical set)
+ * and the focus handler selects it; the focus handler also runs on click where
+ * the browser focuses a button. The roving `tabindex` leaves one trigger in the
+ * page's tab order: the active one, or the first enabled when none is active.
  */
 
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted, useTemplateRef } from "vue";
 import { cn } from "../../../lib/utils";
 import { useTabs } from "./context";
 
@@ -19,6 +20,20 @@ const props = defineProps<{
 
 const tabs = useTabs();
 const active = computed(() => tabs.value.value === props.value);
+const tabbable = computed(() => tabs.tabbableValue.value === props.value);
+const button = useTemplateRef<HTMLButtonElement>("button");
+
+let unregister: (() => void) | undefined;
+onMounted(() => {
+  const element = button.value;
+  if (!element) return;
+  unregister = tabs.registerTrigger({
+    value: props.value,
+    element,
+    disabled: () => props.disabled === true,
+  });
+});
+onBeforeUnmount(() => unregister?.());
 
 function select(): void {
   if (!props.disabled && !active.value) tabs.select(props.value);
@@ -34,9 +49,12 @@ function onKeydown(event: KeyboardEvent): void {
   );
   const index = triggers.indexOf(current);
   if (index === -1) return;
+  const vertical = tabs.orientation.value === "vertical";
+  const next = triggers[(index + 1) % triggers.length];
+  const previous = triggers[(index - 1 + triggers.length) % triggers.length];
   const target = {
-    ArrowRight: triggers[(index + 1) % triggers.length],
-    ArrowLeft: triggers[(index - 1 + triggers.length) % triggers.length],
+    [vertical ? "ArrowDown" : "ArrowRight"]: next,
+    [vertical ? "ArrowUp" : "ArrowLeft"]: previous,
     Home: triggers[0],
     End: triggers[triggers.length - 1],
   }[event.key];
@@ -48,6 +66,7 @@ function onKeydown(event: KeyboardEvent): void {
 
 <template>
   <button
+    ref="button"
     type="button"
     role="tab"
     data-slot="tabs-trigger"
@@ -55,7 +74,7 @@ function onKeydown(event: KeyboardEvent): void {
     :aria-selected="active"
     :aria-controls="tabs.panelId(value)"
     :data-state="active ? 'active' : 'inactive'"
-    :tabindex="active ? 0 : -1"
+    :tabindex="tabbable ? 0 : -1"
     :disabled="disabled"
     :class="
       cn(

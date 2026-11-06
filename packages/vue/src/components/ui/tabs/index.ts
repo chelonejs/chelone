@@ -7,6 +7,8 @@ export {
   provideTabs,
   type TabsContext,
   TabsKey,
+  type TabsOrientation,
+  type TabsTriggerEntry,
   useTabs,
 } from "./context";
 export { default as Tabs } from "./tabs.vue";

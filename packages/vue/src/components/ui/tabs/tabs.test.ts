@@ -6,7 +6,7 @@
 
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, nextTick } from "vue";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./index";
 
 const wrappers: VueWrapper[] = [];
@@ -17,6 +17,7 @@ afterEach(() => {
 interface TabsProps {
   modelValue?: string;
   defaultValue?: string;
+  orientation?: "horizontal" | "vertical";
   "onUpdate:modelValue"?: (value: string) => void;
 }
 
@@ -211,5 +212,61 @@ describe("<Tabs>", () => {
     expect(tab(first, "a").attributes("aria-controls")).not.toBe(
       tab(second, "a").attributes("aria-controls"),
     );
+  });
+
+  it("makes the first enabled trigger tabbable when no trigger is active", async () => {
+    const none = mountTabs(ABC, {});
+    await nextTick();
+    expect(tab(none, "a").attributes("tabindex")).toBe("0");
+    expect(tab(none, "b").attributes("tabindex")).toBe("-1");
+    expect(tab(none, "a").attributes("aria-selected")).toBe("false");
+
+    const unknown = mountTabs(ABC, { defaultValue: "zzz" });
+    await nextTick();
+    expect(tab(unknown, "a").attributes("tabindex")).toBe("0");
+
+    const disabledActive = mountTabs(
+      [{ value: "a", disabled: true }, { value: "b" }, { value: "c" }],
+      { defaultValue: "a" },
+    );
+    await nextTick();
+    expect(tab(disabledActive, "a").attributes("tabindex")).toBe("-1");
+    expect(tab(disabledActive, "b").attributes("tabindex")).toBe("0");
+  });
+
+  it("a vertical tab set marks the list and moves with ArrowDown and ArrowUp", async () => {
+    const wrapper = mountTabs(ABC, {
+      defaultValue: "a",
+      orientation: "vertical",
+    });
+    tab(wrapper, "a").element.focus();
+
+    expect(wrapper.get('[role="tablist"]').attributes("aria-orientation")).toBe(
+      "vertical",
+    );
+    expect(
+      wrapper.get('[data-slot="tabs"]').attributes("data-orientation"),
+    ).toBe("vertical");
+
+    await tab(wrapper, "a").trigger("keydown", { key: "ArrowRight" });
+    expect(selected(wrapper)).toEqual(["tab a"]);
+
+    await tab(wrapper, "a").trigger("keydown", { key: "ArrowDown" });
+    expect(selected(wrapper)).toEqual(["tab b"]);
+
+    await tab(wrapper, "b").trigger("keydown", { key: "ArrowUp" });
+    await tab(wrapper, "a").trigger("keydown", { key: "ArrowUp" });
+    expect(selected(wrapper)).toEqual(["tab c"]);
+  });
+
+  it("a horizontal tab set marks the list and ignores ArrowDown", async () => {
+    const wrapper = mountTabs(ABC, { defaultValue: "a" });
+    tab(wrapper, "a").element.focus();
+
+    expect(wrapper.get('[role="tablist"]').attributes("aria-orientation")).toBe(
+      "horizontal",
+    );
+    await tab(wrapper, "a").trigger("keydown", { key: "ArrowDown" });
+    expect(selected(wrapper)).toEqual(["tab a"]);
   });
 });

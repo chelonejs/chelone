@@ -6,10 +6,31 @@
 
 import { type InjectionKey, inject, provide, type Ref } from "vue";
 
+/** A mounted trigger, registered so the root can pick the tabbable one. */
+export interface TabsTriggerEntry {
+  value: string;
+  element: HTMLElement;
+  /** Read inside a computed, so a toggled `disabled` is tracked. */
+  disabled: () => boolean;
+}
+
+/** Which way the tab set runs: it decides the arrow keys and the styles. */
+export type TabsOrientation = "horizontal" | "vertical";
+
 /** The reactive contract `<Tabs>` provides to its parts. */
 export interface TabsContext {
   /** The active tab's value, or `undefined` when none is selected. */
   value: Ref<string | undefined>;
+  /** The orientation of the tab set. */
+  orientation: Ref<TabsOrientation>;
+  /**
+   * The value of the one trigger with `tabindex` 0: the active trigger, or the
+   * first enabled one when the active value matches no enabled trigger, so a
+   * keyboard user can always Tab into the list.
+   */
+  tabbableValue: Ref<string | undefined>;
+  /** Register a mounted trigger. Returns the function that removes it. */
+  registerTrigger: (entry: TabsTriggerEntry) => () => void;
   /** Select a tab (emits `update:modelValue`; a controlled root stays put until its parent follows). */
   select: (value: string) => void;
   /** The id of the trigger for `value`, unique across tab sets on the page. */

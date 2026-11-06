@@ -127,7 +127,11 @@ export {
   TableRow,
 } from "./table";
 // --- tabs primitive family -----------------------------------------------
-export type { TabsContext } from "./tabs";
+export type {
+  TabsContext,
+  TabsOrientation,
+  TabsTriggerEntry,
+} from "./tabs";
 export {
   provideTabs,
   Tabs,

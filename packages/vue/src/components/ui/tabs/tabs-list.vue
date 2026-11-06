@@ -6,11 +6,14 @@
 
 import { computed } from "vue";
 import { cn } from "../../../lib/utils";
+import { useTabs } from "./context";
 
 const props = withDefaults(
   defineProps<{ variant?: "default" | "line"; class?: string }>(),
   { variant: "default" },
 );
+
+const { orientation } = useTabs();
 
 const classes = computed(() =>
   cn(
@@ -25,6 +28,7 @@ const classes = computed(() =>
   <div
     role="tablist"
     data-slot="tabs-list"
+    :aria-orientation="orientation"
     :data-variant="variant"
     :class="classes"
   >
