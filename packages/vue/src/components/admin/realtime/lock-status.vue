@@ -53,7 +53,7 @@ const LockStatusQuery = defineComponent({
  * props.
  */
 
-import { inject, type VNode } from "vue";
+import { computed, inject, type VNode } from "vue";
 import { RecordContextKey } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 
@@ -67,18 +67,22 @@ defineSlots<{
 const ambientResource = useResourceContext();
 const ambientRecord = inject(RecordContextKey, null);
 
-const resolvedResource = () => props.resource ?? ambientResource;
 // `??`, not `||`: 0 is an id.
-const resolvedId = () =>
-  props.id ?? (ambientRecord?.value?.id as Identifier | undefined);
+const target = computed(() => {
+  const resource = props.resource ?? ambientResource;
+  const id = props.id ?? ambientRecord?.value?.id;
+  return resource === undefined || id === undefined || id === null
+    ? undefined
+    : { resource, id };
+});
 </script>
 
 <template>
   <LockStatusQuery
-    v-if="resolvedResource() !== undefined && resolvedId() != null"
-    :key="resolvedResource()"
-    :resource="resolvedResource() as string"
-    :id="resolvedId() as Identifier"
+    v-if="target"
+    :key="target.resource"
+    :resource="target.resource"
+    :id="target.id"
   >
     <template v-if="$slots.lock" #lock="slotProps">
       <slot name="lock" v-bind="slotProps" />

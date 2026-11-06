@@ -1,6 +1,7 @@
 import {
   type CheloneStore,
   clearUnread,
+  isRealtimeDataProvider,
   type RealtimeDataProvider,
   type RealtimeEventType,
   subscribeUnreadCount,
@@ -37,7 +38,7 @@ const MAX_COUNT = 99;
 const toEventsKey = (events: RealtimeEventType[] = ["created"]): string =>
   [...new Set(events)].sort().join(",");
 const fromEventsKey = (eventsKey: string): RealtimeEventType[] =>
-  eventsKey.split(",").filter(Boolean) as RealtimeEventType[];
+  eventsKey.split(",").filter(Boolean);
 
 interface SharedSubscription {
   holders: number;
@@ -124,11 +125,10 @@ function MenuLiveItemLink({
   );
   const active = useMatch({ path: to, end: false }) !== null;
 
-  useEffect(
-    () =>
-      acquire(dataProvider as RealtimeDataProvider, store, resource, eventsKey),
-    [dataProvider, store, resource, eventsKey],
-  );
+  useEffect(() => {
+    if (!isRealtimeDataProvider(dataProvider)) return;
+    return acquire(dataProvider, store, resource, eventsKey);
+  }, [dataProvider, store, resource, eventsKey]);
 
   useEffect(() => {
     if (active && count > 0)
