@@ -362,6 +362,11 @@ export { default as Layout } from "./admin/layout/layout.vue";
 export { default as Menu } from "./admin/layout/menu.vue";
 export type { MenuItemLinkProps } from "./admin/layout/menu-item-link.vue";
 export { default as MenuItemLink } from "./admin/layout/menu-item-link.vue";
+export type {
+  OnboardingTourProps,
+  TourStep,
+} from "./admin/layout/onboarding-tour.vue";
+export { default as OnboardingTour } from "./admin/layout/onboarding-tour.vue";
 export type { ResourceMenuItemProps } from "./admin/layout/resource-menu-item.vue";
 export { default as ResourceMenuItem } from "./admin/layout/resource-menu-item.vue";
 export type { ResourceMenuItemGroupProps } from "./admin/layout/resource-menu-item-group.vue";
