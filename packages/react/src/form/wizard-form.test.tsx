@@ -8,6 +8,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -492,13 +493,13 @@ describe("<WizardForm> inside <Edit>", () => {
       </Edit>,
     );
     await waitFor(() =>
-      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
-        "Original",
-      ),
+      expect(
+        elementOf(screen.getByLabelText(/title/i), HTMLInputElement).value,
+      ).toBe("Original"),
     );
-    expect((screen.getByLabelText(/body/i) as HTMLInputElement).value).toBe(
-      "Body",
-    );
+    expect(
+      elementOf(screen.getByLabelText(/body/i), HTMLInputElement).value,
+    ).toBe("Body");
     fireEvent.change(screen.getByLabelText(/title/i), {
       target: { value: "Updated" },
     });
@@ -536,9 +537,9 @@ describe("<WizardForm> inside <Edit>", () => {
       </Edit>,
     );
     await waitFor(() =>
-      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
-        "Mine",
-      ),
+      expect(
+        elementOf(screen.getByLabelText(/title/i), HTMLInputElement).value,
+      ).toBe("Mine"),
     );
     fireEvent.click(screen.getByRole("button", { name: "Submit own" }));
     await waitFor(() => expect(ownSave).toHaveBeenCalledTimes(1));

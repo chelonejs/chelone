@@ -4,6 +4,7 @@ import {
   defineResources,
   fakeDataProvider,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render } from "@testing-library/react";
 import { memo, type ReactNode } from "react";
@@ -159,13 +160,13 @@ describe("form perf budget (§11 #4)", () => {
     // consumer (value slice changed); siblings' slices kept identity.
     const chars = ["a", "ab", "abc", "abcd", "abcde"];
     for (const text of chars) {
-      act(() => harness.handles.f0!.onChange(text));
+      act(() => defined(harness.handles.f0).onChange(text));
     }
 
     // f0 re-rendered at most 5 times beyond its mount.
     expect(harness.renders.f0).toBeLessThanOrEqual(1 + 5);
     expect(harness.renders.f0).toBeGreaterThanOrEqual(1 + 5);
-    expect(harness.handles.f0!.value()).toBe("abcde");
+    expect(defined(harness.handles.f0).value()).toBe("abcde");
 
     // EVERY other field consumer re-rendered zero times.
     for (let i = 1; i < FIELD_COUNT; i += 1) {
@@ -431,7 +432,9 @@ describe("form perf budget (§11 #4)", () => {
     // Edit ten different fields, five keystrokes each.
     for (let f = 0; f < 10; f += 1) {
       for (let k = 0; k < 5; k += 1) {
-        act(() => harness.handles[`f${f}`]!.onChange("x".repeat(k + 1)));
+        act(() =>
+          defined(harness.handles[`f${f}`]).onChange("x".repeat(k + 1)),
+        );
       }
     }
 
