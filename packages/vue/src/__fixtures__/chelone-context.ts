@@ -13,7 +13,9 @@ export function makeCheloneContext(
 ): CheloneContextValue {
   return {
     dataProvider: fakeDataProvider({}),
-    queryClient: new QueryClient(),
+    queryClient: new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    }),
     ...overrides,
   };
 }

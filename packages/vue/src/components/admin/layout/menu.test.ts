@@ -12,6 +12,7 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter, type Router } from "vue-router";
+import { makeCheloneContext } from "../../../__fixtures__/chelone-context";
 import Admin from "../../../admin/admin.vue";
 import { provideHasDashboard } from "../../../admin/has-dashboard";
 import Resource from "../../../admin/resource.vue";
@@ -19,7 +20,7 @@ import {
   createResourceRegistry,
   ResourceRegistryKey,
 } from "../../../admin/resource-registry";
-import { CheloneContextKey, type CheloneContextValue } from "../../../context";
+import { CheloneContextKey } from "../../../context";
 import { provideVueRouterAdapter } from "../../../router/vue-router-adapter";
 import Menu from "./menu.vue";
 import MenuItemLink from "./menu-item-link.vue";
@@ -182,8 +183,8 @@ describe("<Menu> (resource menu family)", () => {
       global: {
         plugins: [router],
         provide: {
-          [ResourceRegistryKey as symbol]: registry,
-          [CheloneContextKey as symbol]: {} as CheloneContextValue,
+          [ResourceRegistryKey]: registry,
+          [CheloneContextKey]: makeCheloneContext(),
         },
       },
     });
