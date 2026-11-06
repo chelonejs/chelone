@@ -18,3 +18,33 @@ export function elementOf<T extends Element>(
   if (!(node instanceof type)) throw new Error(`Expected ${type.name}`);
   return node;
 }
+
+/**
+ * A whole `IntersectionObserverEntry`, as the browser hands one: only
+ * `isIntersecting` varies. A fake observer hands its callback the full entry, so
+ * a test that reports "in view" needs every field, not a partial object.
+ */
+export function intersectionEntry(
+  isIntersecting: boolean,
+): IntersectionObserverEntry {
+  const rect: DOMRectReadOnly = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    toJSON: () => ({}),
+  };
+  return {
+    isIntersecting,
+    boundingClientRect: rect,
+    intersectionRect: rect,
+    rootBounds: null,
+    intersectionRatio: isIntersecting ? 1 : 0,
+    target: document.createElement("div"),
+    time: 0,
+  };
+}
