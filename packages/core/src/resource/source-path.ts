@@ -83,15 +83,14 @@ export type SourcePath<TRecord> = unknown extends TRecord
 /**
  * The value type at `TPath`, including the `null`/`undefined` of every parent
  * along it — what reading `record.author?.name` gives. `unknown` for a loose
- * record, and for a path typed as a bare `string` (no path to walk). Without
- * either guard, `Get` over a field's open `TRecord` hits TS2589.
+ * record, and for a path typed as a bare `string` (no path to walk).
+ *
+ * The guard is load-bearing even though `Get` makes the same check: without it
+ * here, `Get` over a field's open `TRecord` hangs `vue-tsc`.
  */
 export type SourceValue<TRecord, TPath extends string> = unknown extends TRecord
   ? unknown
-  : string extends TPath
-    ? // type-escape: a path typed as bare `string` names no path to walk
-      unknown
-    : Get<TRecord, TPath, { nullish: "path" }>;
+  : Get<TRecord, TPath, { nullish: "path" }>;
 
 /**
  * The value a `format`/`parse` transform carries at `TPath`.

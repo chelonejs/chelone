@@ -58,6 +58,6 @@
   },
   "dependencies": {
     "@types/geojson": "^7946.0.16",
-    "dot.paths": "^0.2.1"
+    "dot.paths": "^0.2.2"
   }
 }

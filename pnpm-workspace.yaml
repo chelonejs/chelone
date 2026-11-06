@@ -90,3 +90,4 @@ minimumReleaseAgeExclude:
   - '@tiptap/vue-3@3.33.0'
   - '@tiptap/extension-code-block-lowlight@3.33.0'
   - '@tiptap/extension-text-style@3.33.0'
+  - dot.paths@0.2.2
