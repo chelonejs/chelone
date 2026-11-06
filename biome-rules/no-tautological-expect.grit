@@ -1,0 +1,26 @@
+language js
+
+// Port of the old eslint-rules/no-tautological-expect.js custom rule:
+// flags expect(<literal>).toBe|toEqual|toStrictEqual(<same literal>):
+// placeholder assertions like expect(true).toBe(true) that test nothing.
+// Scope is literal-vs-same-literal only; identifier/call self-comparisons
+// (e.g. determinism tests expect(f(x)).toEqual(f(x))) are NOT flagged,
+// matching the old eslint rule exactly.
+// NOTE: predicate-level `or` is required: wrapping node-kind patterns in a
+// pattern-level `or { ... }` inside `<:` silently fails in Biome 2.4's
+// GritQL engine.
+or {
+  `expect($a).toBe($b)`,
+  `expect($a).toEqual($b)`,
+  `expect($a).toStrictEqual($b)`
+} where {
+  or {
+    $a <: JsNumberLiteralExpression(),
+    $a <: JsStringLiteralExpression(),
+    $a <: JsBooleanLiteralExpression(),
+    $a <: JsNullLiteralExpression(),
+    $a <: JsBigintLiteralExpression()
+  },
+  $b <: $a,
+  register_diagnostic(span=$b, message="Tautological expect: literal compared to itself always passes.")
+}
