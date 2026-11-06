@@ -40,6 +40,7 @@
     "@chelone/core": "workspace:*"
   },
   "devDependencies": {
+    "@chelone/test-utils": "workspace:*",
     "@arethetypeswrong/cli": "^0.18.5",
     "publint": "^0.3.25",
     "vite": "^8.3.6",
