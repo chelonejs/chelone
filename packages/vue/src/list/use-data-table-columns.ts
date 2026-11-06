@@ -2,6 +2,7 @@ import {
   type DataTableColumnInfo,
   dataTableColumnKeys,
   moveColumn,
+  moveColumnTo,
   toggleHiddenColumn,
 } from "@chelone/core";
 import {
@@ -27,6 +28,8 @@ export interface UseDataTableColumnsResult {
   /** The stored hidden ids, or `defaultHiddenColumns` until a choice is stored. */
   hidden: Readonly<Ref<readonly string[]>>;
   order: Readonly<Ref<readonly string[]>>;
+  /** Put the column `id` at `index` of the order, which is clamped to its ends. */
+  moveTo: (id: string, index: number) => void;
   toggle: (id: string) => void;
   move: (id: string, direction: -1 | 1) => void;
   /** Forget the stored choice: the defaults apply again. */
@@ -99,6 +102,17 @@ export function useDataTableColumns(
           columns.value.map((column) => column.id),
           id,
           direction,
+        ),
+      );
+    },
+    moveTo: (id, index) => {
+      store?.setItem(
+        keys.value.order,
+        moveColumnTo(
+          order.value,
+          columns.value.map((column) => column.id),
+          id,
+          index,
         ),
       );
     },

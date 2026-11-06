@@ -64,6 +64,12 @@ export { default as EditButton } from "./admin/buttons/edit-button.vue";
 export type { ExportButtonProps } from "./admin/buttons/export-button.vue";
 export { default as ExportButton } from "./admin/buttons/export-button.vue";
 export type {
+  FieldsSelectorListProps,
+  FieldsSelectorProps,
+  FieldsSelectorRowProps,
+} from "./admin/buttons/fields-selector.vue";
+export { default as FieldsSelector } from "./admin/buttons/fields-selector.vue";
+export type {
   FilterButtonEntry,
   FilterButtonProps,
 } from "./admin/buttons/filter-button.vue";
@@ -505,6 +511,8 @@ export type { TranslatableFieldsTabContentProps } from "./admin/view/translatabl
 export { default as TranslatableFieldsTabContent } from "./admin/view/translatable-fields-tab-content.vue";
 export type { TranslatableFieldsTabsProps } from "./admin/view/translatable-fields-tabs.vue";
 export { default as TranslatableFieldsTabs } from "./admin/view/translatable-fields-tabs.vue";
+export type { JobMonitorProps } from "./admin/widgets/job-monitor.vue";
+export { default as JobMonitor } from "./admin/widgets/job-monitor.vue";
 export type { MetricCardProps } from "./admin/widgets/metric-card.vue";
 export { default as MetricCard } from "./admin/widgets/metric-card.vue";
 // --- ui primitives --------------------------------------------------------
