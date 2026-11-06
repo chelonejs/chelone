@@ -19,6 +19,7 @@ import {
   fakeDataProvider,
   type RegisteredPermissions,
   type ResourceDefinition,
+  type ResourceDefinitionMap,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import {
@@ -41,7 +42,7 @@ import {
   useResourceDefinitions,
   useResourceRegistry,
 } from "./registry-hooks";
-import { Resource } from "./resource";
+import { Resource, type ResourceProps } from "./resource";
 import {
   ResourceContextProvider,
   useResourceContext,
@@ -88,25 +89,25 @@ const EditView = () => <div data-testid="edit">edit</div>;
 interface ResourceMarker {
   chelName: "Resource";
   registerResource: (
-    props: Record<string, unknown>,
-    permissions: unknown,
+    props: ResourceProps,
+    permissions: Permissions,
   ) => ResourceDefinition;
 }
 
 /** Build a `<Resource>`-shaped marker with a bespoke permission-aware registrar. */
 function makeMarker(
   registerResource: ResourceMarker["registerResource"],
-): ResourceMarker & ((props: Record<string, unknown>) => null) {
-  const marker = ((_: Record<string, unknown>) => null) as ResourceMarker &
-    ((props: Record<string, unknown>) => null);
-  Object.defineProperty(marker, "chelName", { value: "Resource" });
-  marker.registerResource = registerResource;
-  return marker;
+): ResourceMarker & ((props: ResourceProps) => null) {
+  const chelName: "Resource" = "Resource";
+  return Object.assign((_: ResourceProps) => null, {
+    chelName,
+    registerResource,
+  });
 }
 
 /** hasCreate is granted only to the "admin" permission (a captured signature field). */
 const PermissionAwareResource = makeMarker((props, permissions) => ({
-  name: props.name as string,
+  name: props.name,
   hasList: true,
   hasCreate: permissions === "admin",
   hasEdit: false,
@@ -122,7 +123,7 @@ const PermissionAwareResource = makeMarker((props, permissions) => ({
  * (not the signature) can force the entry to track the change.
  */
 const NullReprResource = makeMarker((props, permissions) => ({
-  name: props.name as string,
+  name: props.name,
   hasList: true,
   hasCreate: false,
   hasEdit: false,
@@ -702,7 +703,7 @@ describe("useResourceDefinitions / useResourceDefinition", () => {
   }
 
   it("useResourceDefinitions returns the whole registry map", () => {
-    let map: Record<string, unknown> = {};
+    let map: ResourceDefinitionMap = {};
     function Probe() {
       map = useResourceDefinitions();
       return null;
@@ -713,9 +714,9 @@ describe("useResourceDefinitions / useResourceDefinition", () => {
   });
 
   it("useResourceDefinition reads the ambient resource's definition", () => {
-    let def: Record<string, unknown> = {};
+    let def: Partial<ResourceDefinition> = {};
     function Probe() {
-      def = useResourceDefinition() as Record<string, unknown>;
+      def = useResourceDefinition();
       return null;
     }
     render(
@@ -734,12 +735,9 @@ describe("useResourceDefinitions / useResourceDefinition", () => {
   });
 
   it("useResourceDefinition merges an explicit resource prop", () => {
-    let def: Record<string, unknown> = {};
+    let def: Partial<ResourceDefinition> = {};
     function Probe() {
-      def = useResourceDefinition({ resource: "comments" }) as Record<
-        string,
-        unknown
-      >;
+      def = useResourceDefinition({ resource: "comments" });
       return null;
     }
     render(
@@ -754,12 +752,12 @@ describe("useResourceDefinitions / useResourceDefinition", () => {
   });
 
   it("useResourceDefinition overrides has* flags via props (prop-override merge)", () => {
-    let def: Record<string, unknown> = {};
+    let def: Partial<ResourceDefinition> = {};
     function Probe() {
       def = useResourceDefinition({
         resource: "comments",
         hasEdit: true,
-      }) as Record<string, unknown>;
+      });
       return null;
     }
     render(withRegistered(<Probe />));
