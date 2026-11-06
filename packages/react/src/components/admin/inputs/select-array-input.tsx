@@ -27,7 +27,7 @@ import { useGetChoiceRepresentationText } from "../../../label";
 import type {
   ChoicesProps,
   InputProps,
-  LooseTransformProps,
+  LooseFormatProps,
 } from "../input-props";
 
 /**
@@ -300,8 +300,8 @@ type SelectArrayInputProps<
 > = ChoicesProps<TChoice> &
   // `source` is optional: a SelectArrayInput inside a ReferenceArrayInput
   // inherits it.
-  Partial<Omit<InputProps<TRecord, TPath>, "format" | "parse">> &
-  LooseTransformProps & {
+  Partial<Omit<InputProps<TRecord, TPath>, "format">> &
+  LooseFormatProps & {
     className?: string;
     placeholder?: string;
     InputLabelProps?: React.ComponentProps<typeof FieldLabel>;

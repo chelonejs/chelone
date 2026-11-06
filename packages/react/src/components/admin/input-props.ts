@@ -84,22 +84,21 @@ export interface InputProps<
 export type InputFieldError = string | TranslatableMessage | undefined;
 
 /**
- * The `format`/`parse` pair of an input that cannot name the value at its own
- * `source`, so it hands `useInput` the untyped transforms:
+ * The `format` of an input that cannot name the value at its own `source`, so
+ * it hands `useInput` the untyped read transform:
  *
  * - a choice input (`<AutocompleteInput>`, `<CheckboxGroupInput>`,
  *   `<SelectArrayInput>`, `<DatagridInput>`) resolves `source` from the choices
  *   context inside a reference wrapper, where it is a plain string;
  * - an editor input (`<MdxInput>`, `<MonacoJsonInput>`) supplies its own
- *   default transform over the text it edits, which cannot produce a value of a
- *   record it does not know.
+ *   default transform over the text it edits.
  *
- * Every other input passes its own `TRecord`/`TPath` to `useInput` and keeps the
- * source-typed pair {@link InputProps} declares.
+ * Their `parse` keeps the source-typed return {@link InputProps} declares: a
+ * return type travels into the binding as-is, only a parameter type is checked
+ * against the value the binding reads.
  */
-export interface LooseTransformProps {
+export interface LooseFormatProps {
   format?: (value: unknown) => unknown; // type-escape: the resolved source names no path of a record
-  parse?: (value: unknown) => unknown; // type-escape: the resolved source names no path of a record
 }
 
 /**

@@ -24,16 +24,13 @@ import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
-import type { InputProps, LooseTransformProps } from "../input-props";
+import type { InputProps, LooseFormatProps } from "../input-props";
 
 type DatagridInputProps<
   TRecord = LooseRecord,
   TChoice extends ChoiceRecord = ChoiceRecord,
-> = Omit<
-  InputProps<TRecord>,
-  "source" | "disabled" | "readOnly" | "format" | "parse"
-> &
-  LooseTransformProps & {
+> = Omit<InputProps<TRecord>, "source" | "disabled" | "readOnly" | "format"> &
+  LooseFormatProps & {
     /** Inline choices (records) — omit inside a `<ReferenceArrayInput>`. */
     choices?: readonly TChoice[];
     /** The display path or a formatter for a choice. Default `"name"`. */

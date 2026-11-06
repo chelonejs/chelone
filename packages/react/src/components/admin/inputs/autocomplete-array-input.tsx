@@ -34,7 +34,7 @@ import { useEvent } from "../../../util/use-event";
 import type {
   ChoicesProps,
   InputProps,
-  LooseTransformProps,
+  LooseFormatProps,
 } from "../input-props";
 import { createDebounce } from "./create-debounce";
 
@@ -411,9 +411,9 @@ type AutocompleteArrayInputProps<
   TRecord = unknown,
   TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TChoice extends ChoiceRecord = ChoiceRecord,
-> = Omit<InputProps<TRecord, TPath>, "source" | "format" | "parse"> &
+> = Omit<InputProps<TRecord, TPath>, "source" | "format"> &
   Partial<Pick<InputProps<TRecord, TPath>, "source">> &
-  LooseTransformProps &
+  LooseFormatProps &
   ChoicesProps<TChoice> & {
     className?: string;
     debounce?: number;
