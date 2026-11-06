@@ -131,4 +131,42 @@ describe("httpAssistantTransport", () => {
       ).toEqual([{ type: "text", delta: "Goodbye" }, { type: "done" }]);
     }
   });
+
+  it("an abort stops reading and releases the reader", async () => {
+    const cancel = vi.fn();
+    const pull = vi.fn();
+    const body = new ReadableStream<Uint8Array>(
+      {
+        start(controller) {
+          controller.enqueue(
+            new TextEncoder().encode('{"type":"text","delta":"Part"}\n'),
+          );
+        },
+        pull,
+        cancel,
+      },
+      { highWaterMark: 0 },
+    );
+    const controller = new AbortController();
+    const transport = httpAssistantTransport({
+      url,
+      fetch: async () => new Response(body),
+    });
+    const iterator = transport
+      .send([], {}, { signal: controller.signal })
+      [Symbol.asyncIterator]();
+    expect(await iterator.next()).toEqual({
+      value: { type: "text", delta: "Part" },
+      done: false,
+    });
+
+    const pending = iterator.next();
+    await vi.waitFor(() => expect(pull).toHaveBeenCalledOnce());
+    controller.abort();
+
+    await expect(pending).resolves.toMatchObject({ done: true });
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(body.locked).toBe(false);
+    expect(pull).toHaveBeenCalledOnce();
+  });
 });

@@ -58,11 +58,13 @@ export function httpAssistantTransport(
     options.fetch ?? ((input, init) => globalThis.fetch(input, init));
   return {
     async *send(messages, tools, { signal }): AsyncGenerator<AssistantChunk> {
+      if (signal.aborted) return;
       const headers = new Headers(
         typeof options.headers === "function"
           ? await options.headers()
           : options.headers,
       );
+      if (signal.aborted) return;
       headers.set("Content-Type", "application/json");
       const response = await doFetch(options.url, {
         method: "POST",
@@ -83,14 +85,25 @@ export function httpAssistantTransport(
         const decoder = new TextDecoder();
         let pending = "";
         let lineNumber = 0;
+        let released = false;
+        const release = () => {
+          if (released) return;
+          released = true;
+          void reader.cancel().catch(() => {});
+          reader.releaseLock();
+        };
+        signal.addEventListener("abort", release, { once: true });
         try {
+          if (signal.aborted) return;
           for (;;) {
             const step = await reader.read();
+            if (signal.aborted) return;
             pending += decoder.decode(step.value, { stream: !step.done });
             // EOF also completes a line without a trailing newline.
             if (step.done) pending += "\n";
             let end = pending.indexOf("\n");
             while (end >= 0) {
+              if (signal.aborted) return;
               lineNumber++;
               const line = pending.slice(0, end).trim();
               pending = pending.slice(end + 1);
@@ -104,10 +117,11 @@ export function httpAssistantTransport(
             if (step.done) break;
           }
         } finally {
-          await reader.cancel().catch(() => {});
-          reader.releaseLock();
+          signal.removeEventListener("abort", release);
+          release();
         }
       }
+      if (signal.aborted) return;
       yield { type: "done" };
     },
   };
