@@ -1,10 +1,6 @@
 <script lang="ts">
-import type {
-  LooseRecord,
-  SourceProp,
-  SourceValue,
-  Validator,
-} from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
+import type { SourceInputProps } from "./source-input-props";
 
 /**
  * Props for {@link CurrencyInput}. The SFC takes the loose record; a
@@ -13,11 +9,7 @@ import type {
 export interface CurrencyInputProps<
   RecordType = LooseRecord,
   TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
-> {
-  source: TPath;
-  label?: string | false;
-  defaultValue?: NoInfer<SourceValue<RecordType, TPath>>;
-  validate?: Validator | readonly Validator[];
+> extends SourceInputProps<RecordType, TPath> {
   /** ISO-4217 currency code when storage is a plain number. */
   currency?: string;
   /** Provide to enable currency selection; stores composite { amount, currency }. */

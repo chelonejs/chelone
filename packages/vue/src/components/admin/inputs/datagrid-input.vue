@@ -1,4 +1,4 @@
-<script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+<script lang="ts" generic="TRecord = LooseRecord, TPath extends SourceProp<TRecord> = SourceProp<TRecord>, TChoice extends ChoiceRecord = ChoiceRecord">
 import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { ChoiceRecord } from "../../../choices/use-choices";
 import type { ChoiceInputBaseProps } from "./choice-input-props";
@@ -10,14 +10,16 @@ import type { ChoiceInputBaseProps } from "./choice-input-props";
  * is never disabled. The React twin has no `disableValue` prop at all.
  */
 export interface DatagridInputProps<
+  TRecord = LooseRecord,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TChoice extends ChoiceRecord = ChoiceRecord,
-> extends ChoiceInputBaseProps<LooseRecord, SourceProp, TChoice> {
+> extends ChoiceInputBaseProps<TRecord, TPath, TChoice> {
   /** Column header for the choice column. Default empty. */
   optionLabel?: string;
 }
 </script>
 
-<script setup lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+<script setup lang="ts" generic="TRecord = LooseRecord, TPath extends SourceProp<TRecord> = SourceProp<TRecord>, TChoice extends ChoiceRecord = ChoiceRecord">
 /**
  * `<DatagridInput>` — renders the choices as a selectable table: the user ticks
  * row checkboxes and the form value is the array of selected record ids. The Vue
@@ -51,7 +53,9 @@ import {
 import ValidationError from "../common/validation-error.vue";
 import { useChoiceInput } from "./use-choice-input";
 
-const props = defineProps<DatagridInputProps<TChoice>>();
+const props = defineProps<
+  DatagridInputProps<TRecord, TPath, TChoice>
+>();
 
 const translate = useTranslate();
 

@@ -22,12 +22,13 @@ describe("api-key, webhook-endpoint, mdx and monaco-json sources", () => {
   });
 
   it("the MdxInput source prop is SourceProp", () => {
-    type Props = InstanceType<typeof MdxInput>["$props"];
+    // A generic SFC is a function whose first parameter is its props.
+    type Props = Parameters<typeof MdxInput>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the MonacoJsonInput source prop is SourceProp", () => {
-    type Props = InstanceType<typeof MonacoJsonInput>["$props"];
+    type Props = Parameters<typeof MonacoJsonInput>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 });

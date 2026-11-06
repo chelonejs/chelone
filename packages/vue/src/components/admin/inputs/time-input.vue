@@ -1,12 +1,12 @@
-<script lang="ts">
-import type { DateInputValue, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
+import type { DateInputValue, LooseRecord, SourceProp } from "@chelone/core";
+import type { SourceInputProps } from "./source-input-props";
 
 /** Props for {@link TimeInput}. */
-export interface TimeInputProps {
-  source: SourceProp;
-  label?: string | false;
-  defaultValue?: unknown;
-  validate?: Validator | readonly Validator[];
+export interface TimeInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> extends SourceInputProps<RecordType, TPath> {
   helperText?: string;
   disabled?: boolean;
   readonly?: boolean;
@@ -19,7 +19,7 @@ export interface TimeInputProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
 /**
  * `<TimeInput>` — native time picker for a time-of-day value, the Vue analog of
  * `@chelone/react`'s `inputs/time-input.tsx`. Formats an incoming "HH:mm" string
@@ -29,12 +29,7 @@ export interface TimeInputProps {
  * pattern as `<DateInput>`.
  */
 
-import {
-  textOf,
-  toDateInputValue,
-  toTextValue,
-  type Validator,
-} from "@chelone/core";
+import { textOf, toDateInputValue, toTextValue } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
@@ -44,7 +39,7 @@ import { formatTime, isValidTime, parseTimeToDate } from "./date-input-format";
 import { humanizeSource } from "./label-text";
 
 const props = withDefaults(
-  defineProps<TimeInputProps>(),
+  defineProps<TimeInputProps<RecordType, TPath>>(),
   // See `<DateInput>`: default `label` to `undefined` so the Boolean-prop rule
   // doesn't coerce an absent label to `false` and suppress it.
   { label: undefined },

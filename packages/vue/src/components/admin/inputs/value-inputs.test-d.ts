@@ -10,6 +10,8 @@ import { defineResources } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import { createResourceComponentsOf } from "../../../create-resource-components";
+import type { FileInputProps } from "./file-input.vue";
+import type { NumberInputProps } from "./number-input.vue";
 
 const articleSchema = z.object({
   headline: z.string(),
@@ -92,5 +94,36 @@ describe("number, nullable-boolean and file inputs", () => {
     articles.NullableBooleanInput({ source: "readz" });
     // @ts-expect-error `readz` is no path of an article
     articles.FileInput({ source: "readz" });
+  });
+});
+
+describe("the number and file input SFCs are generic in their record and source", () => {
+  it("each props type holds the source literal and the value at it", () => {
+    expectTypeOf<
+      NumberInputProps<Article, "reads">["source"]
+    >().toEqualTypeOf<"reads">();
+    expectTypeOf<
+      FileInputProps<Article, "headline">["source"]
+    >().toEqualTypeOf<"headline">();
+    expectTypeOf<
+      NumberInputProps<Article, "reads">["defaultValue"]
+    >().not.toBeUnknown();
+    expectTypeOf<
+      FileInputProps<Article, "headline">["defaultValue"]
+    >().not.toBeUnknown();
+  });
+
+  it("each props type rejects a default of another type", () => {
+    const number: NumberInputProps<Article, "reads"> = {
+      source: "reads",
+      // @ts-expect-error `reads` is a number, not a string
+      defaultValue: "3",
+    };
+    const file: FileInputProps<Article, "headline"> = {
+      source: "headline",
+      // @ts-expect-error `headline` is a string, not a number
+      defaultValue: 3,
+    };
+    void [number, file];
   });
 });

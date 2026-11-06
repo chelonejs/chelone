@@ -21,7 +21,7 @@
     },
     {
       "name": "defaultValue",
-      "type": "unknown",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
       "optional": true,
       "comment": "Shown when the record has no value at `source`."
     },
