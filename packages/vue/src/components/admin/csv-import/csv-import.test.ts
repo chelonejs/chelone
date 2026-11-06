@@ -10,6 +10,7 @@ import {
   downloadCSV,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -88,11 +89,11 @@ const importWith = (
   dataProvider?: DataProvider,
 ) => mountImport(() => h(CsvImport, { schema, ...props }), dataProvider);
 
-const dialog = () => document.querySelector<HTMLElement>('[role="dialog"]');
+const dialog = () => document.querySelector('[role="dialog"]');
 const buttonNamed = (name: string) =>
   [...document.querySelectorAll("button")].find(
     (b) => b.textContent?.trim() === name,
-  ) as HTMLButtonElement | undefined;
+  );
 const click = async (name: string) => {
   const button = buttonNamed(name);
   if (!button) throw new Error(`no button named ${name}`);
@@ -101,9 +102,10 @@ const click = async (name: string) => {
 };
 const nextButton = () => buttonNamed("Next");
 const mapSelect = (field: string) =>
-  document.querySelector(
-    `select[data-csv-field="${field}"]`,
-  ) as HTMLSelectElement;
+  elementOf(
+    document.querySelector(`select[data-csv-field="${field}"]`),
+    HTMLSelectElement,
+  );
 const heading = () => dialog()?.querySelector("h2")?.textContent?.trim();
 const text = () => dialog()?.textContent ?? "";
 
@@ -119,9 +121,10 @@ const openSheet = async () => {
 };
 
 const uploadFile = async (csv: string, name = "posts.csv") => {
-  const input = document.querySelector<HTMLInputElement>(
-    '[data-testid="csv-file-input"]',
-  ) as HTMLInputElement;
+  const input = elementOf(
+    document.querySelector('[data-testid="csv-file-input"]'),
+    HTMLInputElement,
+  );
   const file = new File([csv], name, { type: "text/csv" });
   Object.defineProperty(input, "files", {
     value: [file],
@@ -195,9 +198,10 @@ describe("<CsvImport>", () => {
   it("says a dropped file of the wrong type was refused", async () => {
     await importWith();
     await openSheet();
-    const dropzone = document.querySelector(
-      '[data-slot="csv-import-dropzone"]',
-    ) as HTMLElement;
+    const dropzone = elementOf(
+      document.querySelector('[data-slot="csv-import-dropzone"]'),
+      HTMLElement,
+    );
     const file = new File(["title\nHello"], "posts.txt", {
       type: "text/plain",
     });
@@ -220,9 +224,10 @@ describe("<CsvImport>", () => {
       0xe9,
       ...new TextEncoder().encode(",1\n"),
     ]);
-    const input = document.querySelector<HTMLInputElement>(
-      '[data-testid="csv-file-input"]',
-    ) as HTMLInputElement;
+    const input = elementOf(
+      document.querySelector('[data-testid="csv-file-input"]'),
+      HTMLInputElement,
+    );
     const file = new File([bytes], "posts.csv", { type: "text/csv" });
     Object.defineProperty(input, "files", {
       value: [file],
