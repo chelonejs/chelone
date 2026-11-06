@@ -4,3 +4,11 @@ export {
   RichTextField,
   type RichTextFieldProps,
 } from "./components/rich-text-input/rich-text-field";
+export {
+  RichTextInput,
+  type RichTextInputProps,
+} from "./components/rich-text-input/rich-text-input";
+export {
+  RichTextToolbar,
+  type RichTextToolbarProps,
+} from "./components/rich-text-input/rich-text-toolbar";
