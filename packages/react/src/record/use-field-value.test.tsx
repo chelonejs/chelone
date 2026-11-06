@@ -21,11 +21,9 @@ afterEach(() => {
 });
 
 const wrapWith =
-  (record: unknown) =>
+  (record: object) =>
   ({ children }: { children: ReactNode }) => (
-    <RecordContextProvider value={record as Record<string, unknown>}>
-      {children}
-    </RecordContextProvider>
+    <RecordContextProvider value={record}>{children}</RecordContextProvider>
   );
 
 describe("useFieldValue", () => {

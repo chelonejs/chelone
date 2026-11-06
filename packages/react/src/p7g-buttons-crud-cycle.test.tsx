@@ -32,6 +32,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -178,7 +179,7 @@ describe("P7g CRUD cycle — (a) edit + ported SaveButton persists the mutation"
     // Hydrated: the ported Edit view shows the fetched title.
     const input = await screen.findByLabelText(/title/i);
     await waitFor(() =>
-      expect((input as HTMLInputElement).value).toBe("Alpha"),
+      expect(elementOf(input, HTMLInputElement).value).toBe("Alpha"),
     );
 
     // Change the field, then click the REAL ported SaveButton.

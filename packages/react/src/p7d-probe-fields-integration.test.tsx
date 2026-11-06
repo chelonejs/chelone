@@ -93,10 +93,10 @@ interface TagRow {
   id: string;
 }
 function TagList() {
-  const { data = [] } = useListContext();
+  const { data = [] } = useListContext<TagRow>();
   return (
     <ul>
-      {(data as TagRow[]).map((row) => (
+      {data.map((row) => (
         <li key={row.id} aria-label={row.id}>
           {row.id}
         </li>

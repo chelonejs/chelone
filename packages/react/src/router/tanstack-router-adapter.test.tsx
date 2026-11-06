@@ -19,6 +19,7 @@
  */
 
 import { matchPath as coreMatchPath } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import {
   act,
   cleanup,
@@ -530,7 +531,7 @@ describe("tanstackRouterAdapter — Link / Navigate", () => {
       );
     }
     await renderTanstack(<LinkProbe />, "/");
-    const el = screen.getByTestId("lnk") as HTMLAnchorElement;
+    const el = elementOf(screen.getByTestId("lnk"), HTMLAnchorElement);
     expect(anchorEl).toBe(el);
     expect(el.getAttribute("href")).toBe("/posts/1");
   });
