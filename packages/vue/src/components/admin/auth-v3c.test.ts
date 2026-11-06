@@ -16,6 +16,7 @@ import {
   fakeDataProvider,
   type NotificationStore,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -93,7 +94,7 @@ describe("<LoginForm>", () => {
   });
 
   it("submits the entered credentials to authProvider.login", async () => {
-    const login = vi.fn(async (_params: unknown) => {});
+    const login = vi.fn<AuthProvider["login"]>(async () => {});
     const { wrapper } = mountAdmin(() => h(LoginForm), {
       authProvider: makeAuthProvider({ login }),
     });
@@ -103,14 +104,15 @@ describe("<LoginForm>", () => {
     await wrapper.find("form").trigger("submit");
 
     await vi.waitFor(() => expect(login).toHaveBeenCalledTimes(1));
-    expect(login.mock.calls[0]![0]).toMatchObject({
+    const [params] = defined(login.mock.calls[0]);
+    expect(params).toMatchObject({
       email: "user@example.com",
       password: "s3cret",
     });
   });
 
   it("forwards redirectTo to authProvider.login", async () => {
-    const login = vi.fn(async (_params: unknown) => {});
+    const login = vi.fn<AuthProvider["login"]>(async () => {});
     const { wrapper } = mountAdmin(
       () => h(LoginForm, { redirectTo: "/dashboard" }),
       { authProvider: makeAuthProvider({ login }) },
@@ -121,7 +123,8 @@ describe("<LoginForm>", () => {
     await wrapper.find("form").trigger("submit");
 
     await vi.waitFor(() => expect(login).toHaveBeenCalledTimes(1));
-    expect(login.mock.calls[0]![0]).toMatchObject({ redirectTo: "/dashboard" });
+    const [params] = defined(login.mock.calls[0]);
+    expect(params).toMatchObject({ redirectTo: "/dashboard" });
   });
 
   it("pushes an error notification when the login rejects", async () => {
@@ -141,8 +144,9 @@ describe("<LoginForm>", () => {
     await wrapper.find("form").trigger("submit");
 
     await vi.waitFor(() => expect(notify).toHaveBeenCalledTimes(1));
-    expect(notify.mock.calls[0]![0]).toBe("bad credentials");
-    expect(notify.mock.calls[0]![1]).toMatchObject({ type: "error" });
+    const [message, options] = defined(notify.mock.calls[0]);
+    expect(message).toBe("bad credentials");
+    expect(defined(options)).toMatchObject({ type: "error" });
   });
 });
 

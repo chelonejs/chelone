@@ -125,21 +125,21 @@ const settled = (capture: { list?: ListContextValue }) =>
   vi.waitFor(() => expect(capture.list?.isPending).toBe(false));
 
 /** Read the ids currently in the cached posts list (partial-match key). */
-function cachedIds(qc: QueryClient): (string | number)[] {
-  const entries = qc.getQueriesData<GetListResult>({
+function cachedIds(qc: QueryClient): number[] {
+  const entries = qc.getQueriesData<GetListResult<Post>>({
     queryKey: ["posts", "getList"],
   });
   const hit = entries.find(([, v]) => v);
-  return (hit?.[1]?.data ?? []).map((r) => r.id as string | number);
+  return (hit?.[1]?.data ?? []).map((r) => r.id);
 }
 
 /** Read a row (by id) from the cached posts list. */
 function cachedRow(qc: QueryClient, id: number): Post | undefined {
-  const entries = qc.getQueriesData<GetListResult>({
+  const entries = qc.getQueriesData<GetListResult<Post>>({
     queryKey: ["posts", "getList"],
   });
   const hit = entries.find(([, v]) => v);
-  return (hit?.[1]?.data ?? []).find((r) => r.id === id) as Post | undefined;
+  return (hit?.[1]?.data ?? []).find((r) => r.id === id);
 }
 
 /** The undoable notification options captured off the store's `notify` spy. */

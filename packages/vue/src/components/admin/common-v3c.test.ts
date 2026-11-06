@@ -13,6 +13,7 @@ import {
   createI18n,
   fakeDataProvider,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -192,8 +193,8 @@ describe("<KeyboardShortcut>", () => {
     });
     const kbds = wrapper.findAll("kbd");
     expect(kbds).toHaveLength(2);
-    expect(kbds[0]!.text()).toBe("⌘");
-    expect(kbds[1]!.text()).toBe("K");
+    expect(defined(kbds[0]).text()).toBe("⌘");
+    expect(defined(kbds[1]).text()).toBe("K");
   });
 
   it("renders sequential chords split by >", () => {
@@ -202,8 +203,8 @@ describe("<KeyboardShortcut>", () => {
     });
     const kbds = wrapper.findAll("kbd");
     expect(kbds).toHaveLength(2);
-    expect(kbds[0]!.text()).toBe("A");
-    expect(kbds[1]!.text()).toBe("B");
+    expect(defined(kbds[0]).text()).toBe("A");
+    expect(defined(kbds[1]).text()).toBe("B");
   });
 
   it("renders nothing without a shortcut", () => {
