@@ -1,5 +1,10 @@
 <script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceKey, SourceProp } from "@chelone/core";
+import type {
+  LooseRecord,
+  SourceKey,
+  SourceProp,
+  SourceValue,
+} from "@chelone/core";
 
 /** Ratio thresholds toggling the warning / critical bar color. */
 export interface UsageMeterThresholds {
@@ -11,10 +16,10 @@ export interface UsageMeterThresholds {
 export interface UsageMeterFieldProps<
   RecordType extends LooseRecord = LooseRecord,
 > {
-  source: SourceProp;
+  source: SourceProp<RecordType>;
   /** The record to render. Defaults to the ambient `RecordContext` value. */
   record?: RecordType;
-  defaultValue?: unknown;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   /**
    * Sibling record field holding the limit/quota; the bar is only shown when
    * set. A top-level key, not a path: the read is `record[limitSource]`.
@@ -52,8 +57,7 @@ const props = defineProps<UsageMeterFieldProps<RecordType>>();
 
 const DEFAULT_THRESHOLDS: UsageMeterThresholds = { warning: 0.8, critical: 1.0 };
 
-// `source` is a loose `SourceProp` (#751), so the value read is typed loose.
-const value = useFieldValue<LooseRecord>({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

@@ -1,20 +1,18 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord } from "@chelone/core";
 import type { BadgeVariant } from "../../ui/badge";
+import type { FieldProps } from "./field-props";
 
 /** Props for {@link TextArrayField}. */
-export interface TextArrayFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
-  empty?: string;
+export interface TextArrayFieldProps<
+  RecordType extends LooseRecord = LooseRecord,
+> extends FieldProps<RecordType> {
   /** Badge variant. Default `outline` (parity with the React twin). */
   variant?: BadgeVariant;
-  class?: string;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<TextArrayField>` — renders an array of scalar values as a horizontal list of
  * `<Badge>` chips, the Vue port of `@chelone/react`'s `fields/text-array-field.tsx`.
@@ -28,11 +26,11 @@ import { cn } from "../../../lib/utils";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = defineProps<TextArrayFieldProps>();
+const props = defineProps<TextArrayFieldProps<RecordType>>();
 
 const variant = computed(() => props.variant ?? "outline");
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,
