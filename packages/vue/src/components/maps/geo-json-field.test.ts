@@ -46,7 +46,7 @@ afterEach(() => {
   for (const wrapper of mounted.splice(0)) wrapper.unmount();
 });
 
-const polygon = {
+const polygon: Geometry = {
   type: "Polygon",
   coordinates: [
     [
@@ -325,7 +325,7 @@ describe("GeoJsonLayers", () => {
     await show(
       defineComponent({
         setup: () => () =>
-          h(MapCanvas, () => h(GeoJsonLayers, { data: polygon as Geometry })),
+          h(MapCanvas, () => h(GeoJsonLayers, { data: polygon })),
       }),
       {},
     );
