@@ -162,6 +162,11 @@ export type { CurrencyFieldProps } from "./admin/fields/currency-field.vue";
 export { default as CurrencyField } from "./admin/fields/currency-field.vue";
 export type { DateFieldProps } from "./admin/fields/date-field.vue";
 export { default as DateField } from "./admin/fields/date-field.vue";
+export type {
+  DiffViewerMode,
+  DiffViewerProps,
+} from "./admin/fields/diff-viewer.vue";
+export { default as DiffViewer } from "./admin/fields/diff-viewer.vue";
 export type { DurationFieldProps } from "./admin/fields/duration-field.vue";
 export { default as DurationField } from "./admin/fields/duration-field.vue";
 export type { EmailFieldProps } from "./admin/fields/email-field.vue";
