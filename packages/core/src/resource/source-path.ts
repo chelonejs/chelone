@@ -150,6 +150,21 @@ export type SourceValue<TRecord, TPath extends string> = unknown extends TRecord
     : _ValueAt<TRecord, _Dotted<TPath>, _WalkDepth>;
 
 /**
+ * The value a `format`/`parse` transform carries at `TPath`.
+ *
+ * {@link SourceValue} walks from the record root, so a source relative to a row
+ * (`qty` under `items[]`) or a filter key (`published_at_gte`) walks to `never`.
+ * Both are legal {@link SourceProp}s and their value is simply unknown to the
+ * type, so a transform over one stays loose instead of demanding a `never` no
+ * callback can return.
+ */
+export type SourceTransformValue<TRecord, TPath extends string> = [
+  SourceValue<TRecord, TPath>,
+] extends [never]
+  ? unknown // type-escape: a row-relative or filter-key source names no value to walk
+  : SourceValue<TRecord, TPath>;
+
+/**
  * The top-level keys of `TRecord`, for props that read or write one flat key
  * (a filter's field, a reference's target). `string` for a loose record.
  */

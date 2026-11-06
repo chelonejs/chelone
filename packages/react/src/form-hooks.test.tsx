@@ -24,6 +24,7 @@ import {
   useWrappedSource,
 } from "./form-context";
 import {
+  type UseInputOptions,
   type UseInputResult,
   useCreateForm,
   useEditForm,
@@ -176,6 +177,24 @@ describe("useInput", () => {
     act(() => latestForm.current?.form.setFieldValue("code", "zz"));
     expect(latestInput.current?.field.value).toBe("[zz]");
     expect(seenAtUserHandler).toEqual(["cd"]);
+  });
+
+  it("hands format the hole an untouched field leaves, not a value", async () => {
+    // Why `format`'s parameter carries `undefined` even for a required field: a
+    // create form with no `defaultValue` reads the field as a hole.
+    const save = vi.fn(async () => undefined);
+    const sawHole: boolean[] = [];
+    const format: UseInputOptions["format"] = (value) => {
+      sawHole.push(value === undefined);
+      return value === undefined ? "hole" : String(value);
+    };
+    const { latestInput } = setupInput<{ title: string }>(
+      { save },
+      { source: "title", format },
+    );
+    await act(async () => {});
+    expect(sawHole).toContain(true);
+    expect(latestInput.current?.field.value).toBe("hole");
   });
 
   it("extracts checkbox events (target.checked) and text events (target.value)", async () => {
