@@ -25,6 +25,7 @@ export type {
   ReverseGeocodeQueryOptions,
 } from "./geocoding";
 export { geocodeQueryOptions, reverseGeocodeQueryOptions } from "./geocoding";
+export type { Feature, FeatureCollection, Geometry } from "./geojson";
 export {
   isGeoArea,
   isGeoBBox,
