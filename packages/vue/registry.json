@@ -6577,6 +6577,188 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "rich-text-input",
+      "type": "registry:block",
+      "title": "Chelone Rich Text",
+      "categories": ["chelone", "fields"],
+      "docs": "The field styles its content with rich-text.css, which the component imports itself and which reads the Chelone color tokens.",
+      "description": "The opt-in rich text add-on: RichTextField shows stored HTML sanitized with DOMPurify, or its text with stripTags, and RichTextInput edits an HTML string in a tiptap editor with a formatting toolbar. Installs dompurify and the tiptap packages.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/lib-utils",
+        "@chelone/source-input-props",
+        "@chelone/validation-error"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@tiptap/core",
+        "@tiptap/extensions",
+        "@tiptap/pm",
+        "@tiptap/starter-kit",
+        "@tiptap/vue-3",
+        "dompurify"
+      ],
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-commands.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-field.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-icons.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-input.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-link-form.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-toolbar.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text.css",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-commands",
+      "type": "registry:component",
+      "title": "Rich Text Commands",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-commands.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-field",
+      "type": "registry:component",
+      "title": "Rich Text Field",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-field.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/rich-text.css"],
+      "dependencies": ["@chelone/core", "@chelone/vue", "dompurify"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-icons",
+      "type": "registry:component",
+      "title": "Rich Text Icons",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-icons.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-input-editor",
+      "type": "registry:component",
+      "title": "Rich Text Input Editor",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-input.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/rich-text-toolbar",
+        "@chelone/rich-text.css",
+        "@chelone/source-input-props",
+        "@chelone/validation-error"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/vue",
+        "@tiptap/core",
+        "@tiptap/extensions",
+        "@tiptap/pm",
+        "@tiptap/starter-kit",
+        "@tiptap/vue-3"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-link-form",
+      "type": "registry:component",
+      "title": "Rich Text Link Form",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-link-form.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/input"],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-toolbar",
+      "type": "registry:component",
+      "title": "Rich Text Toolbar",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-toolbar.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/rich-text-commands",
+        "@chelone/rich-text-icons",
+        "@chelone/rich-text-link-form"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text.css",
+      "type": "registry:component",
+      "title": "Rich Text.css",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text.css",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "maps",
       "type": "registry:block",
       "title": "Chelone Maps",
