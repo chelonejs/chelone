@@ -6245,9 +6245,8 @@
       ],
       "dependencies": [
         "@chelone/core",
+        "@chelone/utils",
         "@chelone/vue",
-        "@turf/difference",
-        "@turf/simplify",
         "terra-draw",
         "terra-draw-maplibre-gl-adapter"
       ],
@@ -6346,7 +6345,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/core", "@turf/difference", "@turf/simplify"],
+      "dependencies": ["@chelone/utils"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
