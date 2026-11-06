@@ -59,6 +59,19 @@ const ADDONS: {
     ],
   },
   {
+    name: "block-editor",
+    folder: "src/components/block-editor",
+    entry: "src/block-editor.ts",
+    packages: [
+      "@tiptap/core",
+      "@tiptap/pm",
+      "@tiptap/react",
+      "@tiptap/starter-kit",
+      "@tiptap/extensions",
+      "@tiptap/suggestion",
+    ],
+  },
+  {
     name: "maps",
     folder: "src/components/maps",
     entry: "src/maps.ts",
