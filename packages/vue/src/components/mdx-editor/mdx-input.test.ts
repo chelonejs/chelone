@@ -12,6 +12,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -36,7 +37,9 @@ interface FakeCrepe {
   listeners: { markdownUpdated: Listener[]; blur: (() => void)[] };
 }
 
-const hoisted = vi.hoisted(() => ({ instances: [] as FakeCrepe[] }));
+const hoisted = vi.hoisted((): { instances: FakeCrepe[] } => ({
+  instances: [],
+}));
 
 vi.mock("@milkdown/crepe", () => {
   class FakeCrepeImpl implements FakeCrepe {
@@ -148,7 +151,7 @@ function mountInput(
     attachTo: document.body,
   });
   mounted.push(wrapper);
-  return { wrapper, form: captured.form as UseFormReturn<FormValues> };
+  return { wrapper, form: defined(captured.form) };
 }
 
 const only = () => {
