@@ -11,6 +11,7 @@ import type {
   SourceKey,
   SourcePath,
   SourceProp,
+  SourceTransformValue,
   SourceValue,
 } from "./source-path";
 
@@ -138,6 +139,34 @@ describe("SourceValue", () => {
       SourceValue<LooseRecord, "anything">
     >().toEqualTypeOf<unknown>();
     expectTypeOf<SourceValue<unknown, "anything">>().toEqualTypeOf<unknown>();
+  });
+});
+
+describe("SourceTransformValue", () => {
+  it("SourceTransformValue is SourceValue for a path of the record", () => {
+    expectTypeOf<SourceTransformValue<Post, "title">>().toEqualTypeOf<string>();
+    expectTypeOf<SourceTransformValue<Post, "views">>().toEqualTypeOf<number>();
+    expectTypeOf<SourceTransformValue<Post, "author.name">>().toEqualTypeOf<
+      string | undefined
+    >();
+    expectTypeOf<
+      SourceTransformValue<Post, "items[0].sku">
+    >().toEqualTypeOf<string>();
+  });
+
+  it("SourceTransformValue is unknown where SourceValue walks to never", () => {
+    // A row path and a filter key are legal `SourceProp`s, but the walk from the
+    // record root finds nothing under them.
+    expectTypeOf<SourceValue<Post, "qty">>().toBeNever();
+    expectTypeOf<SourceValue<Post, "published_at_gte">>().toBeNever();
+    expectTypeOf<SourceTransformValue<Post, "qty">>().toBeUnknown();
+    expectTypeOf<
+      SourceTransformValue<Post, "published_at_gte">
+    >().toBeUnknown();
+  });
+
+  it("SourceTransformValue is unknown for a loose record", () => {
+    expectTypeOf<SourceTransformValue<LooseRecord, "anything">>().toBeUnknown();
   });
 });
 

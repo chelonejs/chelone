@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import { ValidationError } from "../../field-error-display";
 import { useInput } from "../../form-hooks";
 import { useResourceContext } from "../../resource";
-import type { InputProps } from "../admin/input-props";
+import type { InputProps, LooseFormatProps } from "../admin/input-props";
 import { useResolvedTheme } from "../admin/layout/use-theme";
 import { defaultInputPlugins } from "./default-plugins";
 import { safeHtmlImagePlugin } from "./safe-html-image-plugin";
@@ -38,7 +38,9 @@ type MdxEditorPassthrough = Omit<
   | "ref"
 >;
 
-interface MdxInputProps<TRecord = LooseRecord> extends InputProps<TRecord> {
+interface MdxInputProps<TRecord = LooseRecord>
+  extends Omit<InputProps<TRecord>, "format">,
+    LooseFormatProps {
   className?: string;
   /**
    * Extra `MDXEditor` props. `plugins` here replaces `defaultInputPlugins`;

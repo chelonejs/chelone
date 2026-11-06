@@ -1,6 +1,7 @@
 import type {
   SourcePath,
   SourceProp,
+  SourceTransformValue,
   SourceValue,
   TranslatableMessage,
   Validator,
@@ -48,10 +49,19 @@ export interface InputProps<
   type?: string;
   /** ra-contract validators — composed, first error wins. */
   validate?: Validator | readonly Validator[];
-  /** Read transform (raw form value → input value). */
-  format?: (value: unknown) => unknown;
-  /** Write transform (input value → stored value). */
-  parse?: (value: unknown) => unknown;
+  /**
+   * Read transform (raw form value → input value). Receives the value at
+   * `source`, plus the hole an untouched field leaves (a create form with no
+   * `defaultValue` reads `undefined`); `unknown` without a record.
+   */
+  format?: (
+    value: NoInfer<SourceTransformValue<TRecord, TPath>> | undefined,
+  ) => unknown;
+  /**
+   * Write transform (input value → stored value). Must return the value at
+   * `source`; `unknown` without a record.
+   */
+  parse?: (value: unknown) => NoInfer<SourceTransformValue<TRecord, TPath>>;
   /**
    * Input-level default, ra precedence (seeds only into an untouched hole).
    * Typed as the value at `source`; `unknown` without a record.
@@ -76,6 +86,24 @@ export interface InputProps<
 
 /** The displayable field-error union chelone `fieldState.error` carries. */
 export type InputFieldError = string | TranslatableMessage | undefined;
+
+/**
+ * The `format` of an input that cannot name the value at its own `source`, so
+ * it hands `useInput` the untyped read transform:
+ *
+ * - a choice input (`<AutocompleteInput>`, `<CheckboxGroupInput>`,
+ *   `<SelectArrayInput>`, `<DatagridInput>`) resolves `source` from the choices
+ *   context inside a reference wrapper, where it is a plain string;
+ * - an editor input (`<MdxInput>`, `<MonacoJsonInput>`) supplies its own
+ *   default transform over the text it edits.
+ *
+ * Their `parse` keeps the source-typed return {@link InputProps} declares: a
+ * return type travels into the binding as-is, only a parameter type is checked
+ * against the value the binding reads.
+ */
+export interface LooseFormatProps {
+  format?: (value: unknown) => unknown; // type-escape: the resolved source names no path of a record
+}
 
 /**
  * The choice keys the inline-`choices` inputs share (ra's `ChoicesProps`), the
