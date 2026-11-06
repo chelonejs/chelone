@@ -7,7 +7,14 @@
 
 import type { RoutingProvider } from "@chelone/core";
 import { act, cleanup, fireEvent, screen } from "@testing-library/react";
-import type { Geometry, LineString, Point, Polygon } from "geojson";
+import type {
+  Feature,
+  Geometry,
+  LineString,
+  MultiPolygon,
+  Point,
+  Polygon,
+} from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetFake as resetMaps } from "../maps/__fixtures__/fake-maplibre";
 import {
@@ -223,7 +230,7 @@ describe("MultiPolygonInput", () => {
     square(10),
     square(20),
   ];
-  const multi = (...polygons: Polygon[]) => ({
+  const multi = (...polygons: Polygon[]): MultiPolygon => ({
     type: "MultiPolygon",
     coordinates: polygons.map((p) => p.coordinates),
   });
@@ -454,7 +461,10 @@ describe("FeatureInput", () => {
 });
 
 describe("FeatureCollectionInput", () => {
-  const feature = (name: string, geometry: Geometry) => ({
+  const feature = (
+    name: string,
+    geometry: Geometry,
+  ): Feature<Geometry, { name: string }> => ({
     type: "Feature",
     properties: { name },
     geometry,

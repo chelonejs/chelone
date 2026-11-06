@@ -94,7 +94,7 @@ export interface ShapeInputProps {
 
 /** What the last edit wrote, so the first shape the user draws is not framed. */
 interface Written {
-  current: unknown;
+  current: ShapeValue | undefined;
 }
 
 const AREA_TOOLS: ToolbarTool[] = [
@@ -305,7 +305,7 @@ const validators: Validator[] = [
 const input = useInput({
   source: props.source,
   validate: validators,
-  format: (v: unknown) => v ?? null,
+  format: (v) => v ?? null,
 });
 
 // The field is the source of truth: the draft follows it, from outside or from
@@ -378,7 +378,8 @@ function onEdit(edit: TerraDrawEdit) {
     aspectRatio: props.aspectRatio,
     addHeld,
   });
-  written.current = next;
+  // An emptied shape is written as null: `undefined` stands for it here.
+  written.current = next ?? undefined;
   input.setValue(next);
   input.blur();
   if (edit.type === "draw") tool.value = null;
