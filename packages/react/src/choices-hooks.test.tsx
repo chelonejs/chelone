@@ -2,6 +2,7 @@ import {
   createI18n,
   createNotificationStore,
   createStore,
+  defineMessages,
   defineResources,
   fakeDataProvider,
 } from "@chelone/core";
@@ -52,7 +53,7 @@ function makeWrapper() {
   const store = createStore();
   const i18n = createI18n({
     locale: "en",
-    messages: { en: { "my.color.red": "Rouge" } as Record<string, string> },
+    messages: { en: defineMessages({ "my.color.red": "Rouge" }) },
   });
   const wrapper = ({ children }: { children: ReactNode }) => (
     <CheloneProvider
@@ -330,11 +331,7 @@ describe("useReferenceInput — end-to-end vs fake provider", () => {
     );
     // a getList call carried the lookupKey filter
     expect(
-      getListSpy.mock.calls.some(
-        (call) =>
-          (call[1]?.filter as Record<string, unknown> | undefined)?.isbn ===
-          "isbn-20",
-      ),
+      getListSpy.mock.calls.some((call) => call[1]?.filter?.isbn === "isbn-20"),
     ).toBe(true);
   });
 });
