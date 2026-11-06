@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import type { ReactElement } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslate } from "../../i18n-hooks";
 
@@ -12,8 +13,30 @@ export type ChartFrameProps = {
   /** No number to draw: shows the empty text in place of the chart. */
   empty?: boolean;
   height: number;
+  config: ChartConfig;
   className?: string;
-  children: ReactNode;
+  /** The recharts chart, drawn inside a `ChartContainer` of the given height. */
+  children: ReactElement;
+};
+
+/** The props the charts that plot one field of a row against another share. */
+export type SeriesChartProps<
+  TRow extends object,
+  TX extends keyof TRow & string,
+> = {
+  data: readonly TRow[];
+  xField: TX;
+  /** A row whose value is not a finite number draws no point. */
+  yField: keyof TRow & string;
+  title?: string;
+  /** Any CSS color. Defaults to `var(--primary)`. */
+  color?: string;
+  /** In pixels. Defaults to 200. */
+  height?: number;
+  loading?: boolean;
+  /** Leaves out the card and the title. */
+  bare?: boolean;
+  className?: string;
 };
 
 /** The shell the chart components share: a card with an optional title, or none when `bare`. */
@@ -24,12 +47,22 @@ export function ChartFrame({
   loading = false,
   empty = false,
   height,
+  config,
   className,
   children,
 }: ChartFrameProps) {
   const translate = useTranslate();
 
-  let body = children;
+  let body: ReactElement = (
+    <ChartContainer
+      config={config}
+      className="aspect-auto w-full"
+      style={{ height }}
+      initialDimension={{ width: 320, height }}
+    >
+      {children}
+    </ChartContainer>
+  );
   if (loading) {
     body = <Skeleton style={{ height }} />;
   } else if (empty) {
