@@ -10,6 +10,7 @@
  */
 
 import { defineResources, fakeDataProvider } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -63,11 +64,7 @@ const RowConsumer = defineComponent({
       h(
         "ul",
         (list.data ?? []).map((row) =>
-          h(
-            "li",
-            { "aria-label": String((row as Record<string, unknown>).id) },
-            String((row as Record<string, unknown>)[props.textKey]),
-          ),
+          h("li", { "aria-label": String(row.id) }, String(row[props.textKey])),
         ),
       );
   },
@@ -190,8 +187,8 @@ describe("FileField", () => {
     );
     const links = w.findAll('[data-slot="file-field"] a');
     expect(links).toHaveLength(2);
-    expect(links[0]!.attributes("href")).toBe("a.pdf");
-    expect(links[1]!.text()).toBe("B");
+    expect(defined(links[0]).attributes("href")).toBe("a.pdf");
+    expect(defined(links[1]).text()).toBe("B");
   });
 
   it("FileField reads an array item's title and src by a bracket path", () => {
@@ -294,7 +291,7 @@ describe("ImageField", () => {
     );
     const imgs = w.findAll('[data-slot="image-field"] img');
     expect(imgs).toHaveLength(2);
-    expect(imgs[1]!.attributes("src")).toBe("2.png");
+    expect(defined(imgs[1]).attributes("src")).toBe("2.png");
   });
 
   it("ImageField reads an array item's title and src by a bracket path", () => {

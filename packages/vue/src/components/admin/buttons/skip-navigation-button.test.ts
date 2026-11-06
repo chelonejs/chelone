@@ -5,6 +5,7 @@
  */
 
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { h, type VNodeChild } from "vue";
@@ -78,7 +79,10 @@ describe("<SkipNavigationButton>", () => {
         h("button", { type: "button", id: "first" }, "First control"),
       ]),
     ]);
-    const main = document.getElementById("main-content") as HTMLElement;
+    const main = elementOf(
+      document.getElementById("main-content"),
+      HTMLElement,
+    );
     const tabIndexWhileFocused: Array<string | null> = [];
     const focus = vi.spyOn(main, "focus").mockImplementation(() => {
       tabIndexWhileFocused.push(main.getAttribute("tabindex"));

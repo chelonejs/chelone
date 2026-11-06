@@ -10,6 +10,7 @@
  */
 
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -24,7 +25,8 @@ const INTERVAL = 1000;
 
 const mounted: Array<{ unmount: () => void }> = [];
 let body: string;
-const fetchMock = vi.fn();
+const fetchMock =
+  vi.fn<(url: string, init: RequestInit) => Promise<Response>>();
 
 /** Lets the fetch promise chain settle, then runs timers due within `ms`. */
 async function advance(ms: number) {
@@ -134,7 +136,7 @@ describe("<CheckForApplicationUpdate>", () => {
     });
     await advance(0);
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [calledUrl, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const [calledUrl, init] = defined(fetchMock.mock.calls[0]);
     expect(calledUrl).toBe(URL);
     expect(init.cache).toBe("no-store");
     expect(init.headers).toEqual({ "x-probe": "1" });
@@ -201,7 +203,7 @@ describe("<CheckForApplicationUpdate>", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     await advance(INTERVAL);
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    const [, init] = fetchMock.mock.calls[1] as [string, RequestInit];
+    const [, init] = defined(fetchMock.mock.calls[1]);
     expect(init.headers).toEqual({ "x-tick": "3" });
   });
 
