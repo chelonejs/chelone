@@ -9,7 +9,9 @@ function toRadians(degrees: number): number {
 
 /** An element of an array whose index the caller keeps in range. */
 function at(positions: Position[], index: number): Position {
-  return positions[index] ?? [];
+  const position = positions[index];
+  if (!position) throw new RangeError(`No position at index ${index}`);
+  return position;
 }
 
 /** Longitude and latitude; `NaN` for one a short position lacks. */

@@ -1,4 +1,4 @@
-import type { Feature, FeatureCollection, Geometry } from "geojson";
+import type { Feature, FeatureCollection, Geometry, Position } from "geojson";
 import type { JsonObject } from "../guards";
 
 /**
@@ -74,26 +74,21 @@ export function geoBounds(
     | FeatureCollection<Geometry | null, JsonObject | null>,
   mode: CrossingMode = "narrowest",
 ): LngLatBox | null {
-  let bounds: LngLatBox | null = null;
+  const state: { box: LngLatBox | null } = { box: null };
   const longitudes = new Set<number>();
-  const extend = (longitude: number, latitude: number) => {
+  const extend = (position: Position) => {
+    const [longitude, latitude] = position;
+    if (longitude === undefined || latitude === undefined) return;
     longitudes.add(longitude);
-    if (!bounds) {
-      bounds = [longitude, latitude, longitude, latitude];
+    const box = state.box;
+    if (!box) {
+      state.box = [longitude, latitude, longitude, latitude];
       return;
     }
-    bounds[0] = Math.min(bounds[0], longitude);
-    bounds[1] = Math.min(bounds[1], latitude);
-    bounds[2] = Math.max(bounds[2], longitude);
-    bounds[3] = Math.max(bounds[3], latitude);
-  };
-  const walkCoordinates = (node: unknown) => {
-    if (!Array.isArray(node)) return;
-    if (typeof node[0] === "number") {
-      extend(node[0], node[1] as number);
-      return;
-    }
-    for (const child of node) walkCoordinates(child);
+    box[0] = Math.min(box[0], longitude);
+    box[1] = Math.min(box[1], latitude);
+    box[2] = Math.max(box[2], longitude);
+    box[3] = Math.max(box[3], latitude);
   };
   const walk = (
     node:
@@ -103,19 +98,41 @@ export function geoBounds(
       | null,
   ) => {
     if (!node) return;
-    if (node.type === "FeatureCollection") {
-      for (const feature of node.features) walk(feature);
-    } else if (node.type === "Feature") {
-      walk(node.geometry);
-    } else if (node.type === "GeometryCollection") {
-      for (const geometry of node.geometries) walk(geometry);
-    } else {
-      walkCoordinates(node.coordinates);
+    switch (node.type) {
+      case "FeatureCollection":
+        for (const feature of node.features) walk(feature);
+        break;
+      case "Feature":
+        walk(node.geometry);
+        break;
+      case "GeometryCollection":
+        for (const geometry of node.geometries) walk(geometry);
+        break;
+      case "Point":
+        extend(node.coordinates);
+        break;
+      case "MultiPoint":
+      case "LineString":
+        for (const position of node.coordinates) extend(position);
+        break;
+      case "MultiLineString":
+      case "Polygon":
+        for (const line of node.coordinates) {
+          for (const position of line) extend(position);
+        }
+        break;
+      case "MultiPolygon":
+        for (const polygon of node.coordinates) {
+          for (const ring of polygon) {
+            for (const position of ring) extend(position);
+          }
+        }
+        break;
     }
   };
   walk(value);
-  if (!bounds) return null;
-  const [west, south, east, north] = bounds as LngLatBox;
+  if (!state.box) return null;
+  const [west, south, east, north] = state.box;
   const [arcWest, arcEast] = longitudeArc(longitudes, west, east, mode);
   return [arcWest, south, arcEast, north];
 }
