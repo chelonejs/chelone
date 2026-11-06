@@ -64,6 +64,12 @@ export { default as EditButton } from "./admin/buttons/edit-button.vue";
 export type { ExportButtonProps } from "./admin/buttons/export-button.vue";
 export { default as ExportButton } from "./admin/buttons/export-button.vue";
 export type {
+  FieldsSelectorListProps,
+  FieldsSelectorProps,
+  FieldsSelectorRowProps,
+} from "./admin/buttons/fields-selector.vue";
+export { default as FieldsSelector } from "./admin/buttons/fields-selector.vue";
+export type {
   FilterButtonEntry,
   FilterButtonProps,
 } from "./admin/buttons/filter-button.vue";
@@ -344,6 +350,8 @@ export type { AppBarProps } from "./admin/layout/app-bar.vue";
 export { default as AppBar } from "./admin/layout/app-bar.vue";
 export type { AppSidebarProps } from "./admin/layout/app-sidebar.vue";
 export { default as AppSidebar } from "./admin/layout/app-sidebar.vue";
+export type { AssistantProps } from "./admin/layout/assistant.vue";
+export { default as Assistant } from "./admin/layout/assistant.vue";
 export type { CommandMenuProps } from "./admin/layout/command-menu.vue";
 export { default as CommandMenu } from "./admin/layout/command-menu.vue";
 export type { DashboardMenuItemProps } from "./admin/layout/dashboard-menu-item.vue";
@@ -354,6 +362,11 @@ export { default as Layout } from "./admin/layout/layout.vue";
 export { default as Menu } from "./admin/layout/menu.vue";
 export type { MenuItemLinkProps } from "./admin/layout/menu-item-link.vue";
 export { default as MenuItemLink } from "./admin/layout/menu-item-link.vue";
+export type {
+  OnboardingTourProps,
+  TourStep,
+} from "./admin/layout/onboarding-tour.vue";
+export { default as OnboardingTour } from "./admin/layout/onboarding-tour.vue";
 export type { ResourceMenuItemProps } from "./admin/layout/resource-menu-item.vue";
 export { default as ResourceMenuItem } from "./admin/layout/resource-menu-item.vue";
 export type { ResourceMenuItemGroupProps } from "./admin/layout/resource-menu-item-group.vue";

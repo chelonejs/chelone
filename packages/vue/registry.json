@@ -758,6 +758,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/buttons/fields-selector.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/filter-button.vue",
           "type": "registry:component"
         },
@@ -1286,6 +1290,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/layout/assistant.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/layout/command-menu-content.vue",
           "type": "registry:component"
         },
@@ -1331,6 +1339,18 @@
         },
         {
           "path": "src/components/admin/layout/menu.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/onboarding-tour-host.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/onboarding-tour-overlay.vue",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/onboarding-tour.vue",
           "type": "registry:component"
         },
         {
@@ -2025,8 +2045,7 @@
         "@chelone/button",
         "@chelone/button-icons",
         "@chelone/dropdown-menu",
-        "@chelone/input",
-        "@chelone/switch"
+        "@chelone/fields-selector"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "buttons"],
@@ -2120,6 +2139,26 @@
       "registryDependencies": ["@chelone/button", "@chelone/button-icons"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "fields-selector",
+      "type": "registry:component",
+      "title": "Fields Selector",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/fields-selector.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/button-icons",
+        "@chelone/input",
+        "@chelone/switch"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -4381,6 +4420,26 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "assistant",
+      "type": "registry:component",
+      "title": "Assistant",
+      "files": [
+        {
+          "path": "src/components/admin/layout/assistant.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/confirm",
+        "@chelone/layout-icons",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "command-menu-content",
       "type": "registry:component",
       "title": "Command Menu Content",
@@ -4579,6 +4638,54 @@
       ],
       "dependencies": ["@chelone/vue"],
       "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "onboarding-tour-host",
+      "type": "registry:component",
+      "title": "Onboarding Tour Host",
+      "files": [
+        {
+          "path": "src/components/admin/layout/onboarding-tour-host.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/onboarding-tour",
+        "@chelone/onboarding-tour-overlay"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "onboarding-tour-overlay",
+      "type": "registry:component",
+      "title": "Onboarding Tour Overlay",
+      "files": [
+        {
+          "path": "src/components/admin/layout/onboarding-tour-overlay.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/onboarding-tour"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "onboarding-tour",
+      "type": "registry:component",
+      "title": "Onboarding Tour",
+      "files": [
+        {
+          "path": "src/components/admin/layout/onboarding-tour.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/onboarding-tour-host"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
