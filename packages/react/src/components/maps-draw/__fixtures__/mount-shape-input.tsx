@@ -11,6 +11,7 @@ import {
   mapMessages,
   type NotificationStore,
   rasterTileStyle,
+  type ShapeValue,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { useSelector } from "@tanstack/react-store";
@@ -37,7 +38,7 @@ type Values = { shape: unknown };
  */
 export async function mountShapeInput(
   input: ReactElement,
-  shape: unknown = null,
+  shape: ShapeValue | null = null,
   config: Omit<MapsConfig, "mapStyle"> = {},
   notifications?: NotificationStore,
 ) {
