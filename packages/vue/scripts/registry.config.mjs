@@ -126,6 +126,17 @@ export const blocks = [
     sourceDirs: [{ path: "src/components/monaco", recursive: true }],
   },
   {
+    name: "charts",
+    type: "registry:block",
+    title: "Chelone Charts",
+    categories: ["chelone", "charts"],
+    description:
+      "The opt-in charts add-on: TrendChart draws a line or an area over one numeric field in a card, with unovis. Installs @unovis/vue and @unovis/ts.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [{ path: "src/components/charts", recursive: true }],
+  },
+  {
     name: "kanban",
     type: "registry:block",
     title: "Chelone Kanban",
