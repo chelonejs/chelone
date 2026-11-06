@@ -166,6 +166,7 @@ export type { DurationFieldProps } from "./admin/fields/duration-field.vue";
 export { default as DurationField } from "./admin/fields/duration-field.vue";
 export type { EmailFieldProps } from "./admin/fields/email-field.vue";
 export { default as EmailField } from "./admin/fields/email-field.vue";
+export type { FieldProps } from "./admin/fields/field-props";
 export type { FileFieldProps } from "./admin/fields/file-field.vue";
 export { default as FileField } from "./admin/fields/file-field.vue";
 export type { FunctionFieldProps } from "./admin/fields/function-field.vue";

@@ -5,11 +5,9 @@
  * `source-prop.sibling.test-d.ts`. `SelectField`'s `optionText`/`optionValue`
  * are paths of its choices: see `../inputs/source-prop.choices-b.test-d.ts`.
  *
- * Every assertion here reads the props the component itself exposes. A generic
- * SFC is a function type, not a constructor, so its props come through
- * `Parameters<typeof X>[0]` (at its default type argument) instead of
- * `InstanceType<typeof X>["$props"]`: that is `RatingField`, `SelectField`,
- * `ApiKeyField` and `UsageMeterField`.
+ * All eleven are generic in their record, and a generic SFC is a function type,
+ * not a constructor, so every assertion here reads its props through
+ * `Parameters<typeof X>[0]` (at the default type argument).
  */
 
 import type { SourceProp } from "@chelone/core";
@@ -26,6 +24,12 @@ import type SubscriptionPlanField from "./subscription-plan-field.vue";
 import type TextArrayField from "./text-array-field.vue";
 import type UsageMeterField from "./usage-meter-field.vue";
 
+type Post = {
+  id: number;
+  title: string;
+  meta: { views: number; tags: string[] };
+};
+
 describe("rating to usage-meter field sources", () => {
   it("the RatingField source prop is SourceProp", () => {
     type Props = Parameters<typeof RatingField>[0];
@@ -33,17 +37,17 @@ describe("rating to usage-meter field sources", () => {
   });
 
   it("the JsonField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof JsonField>["$props"];
+    type Props = Parameters<typeof JsonField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the BadgeField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof BadgeField>["$props"];
+    type Props = Parameters<typeof BadgeField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the ChipField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ChipField>["$props"];
+    type Props = Parameters<typeof ChipField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
@@ -53,17 +57,17 @@ describe("rating to usage-meter field sources", () => {
   });
 
   it("the TextArrayField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof TextArrayField>["$props"];
+    type Props = Parameters<typeof TextArrayField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the FileField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof FileField>["$props"];
+    type Props = Parameters<typeof FileField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the ImageField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ImageField>["$props"];
+    type Props = Parameters<typeof ImageField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
@@ -73,12 +77,26 @@ describe("rating to usage-meter field sources", () => {
   });
 
   it("the SubscriptionPlanField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof SubscriptionPlanField>["$props"];
+    type Props = Parameters<typeof SubscriptionPlanField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the UsageMeterField source prop is SourceProp", () => {
     type Props = Parameters<typeof UsageMeterField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
+  });
+
+  it("JsonField with a Post record takes Post paths only", () => {
+    const post: Post = {
+      id: 7,
+      title: "Hello",
+      meta: { views: 3, tags: ["a"] },
+    };
+    type JsonProps = Parameters<typeof JsonField<Post>>[0];
+    expectTypeOf<JsonProps["source"]>().toEqualTypeOf<SourceProp<Post>>();
+    const legal: JsonProps = { source: "meta.tags[0]", record: post };
+    // @ts-expect-error "missing" is not a path into Post
+    const illegal: JsonProps = { source: "missing", record: post };
+    void [legal, illegal];
   });
 });

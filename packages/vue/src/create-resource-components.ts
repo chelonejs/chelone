@@ -49,11 +49,15 @@ import {
 import type { ChoiceRecord } from "./choices/use-choices";
 import ApiKeyField from "./components/admin/fields/api-key-field.vue";
 import ArrayField from "./components/admin/fields/array-field.vue";
-import BadgeField from "./components/admin/fields/badge-field.vue";
+import BadgeField, {
+  type BadgeFieldProps,
+} from "./components/admin/fields/badge-field.vue";
 import BooleanField, {
   type BooleanFieldProps,
 } from "./components/admin/fields/boolean-field.vue";
-import ChipField from "./components/admin/fields/chip-field.vue";
+import ChipField, {
+  type ChipFieldProps,
+} from "./components/admin/fields/chip-field.vue";
 import ColorField, {
   type ColorFieldProps,
 } from "./components/admin/fields/color-field.vue";
@@ -72,10 +76,16 @@ import DurationField, {
 import EmailField, {
   type EmailFieldProps,
 } from "./components/admin/fields/email-field.vue";
-import FileField from "./components/admin/fields/file-field.vue";
+import FileField, {
+  type FileFieldProps,
+} from "./components/admin/fields/file-field.vue";
 import FunctionField from "./components/admin/fields/function-field.vue";
-import ImageField from "./components/admin/fields/image-field.vue";
-import JsonField from "./components/admin/fields/json-field.vue";
+import ImageField, {
+  type ImageFieldProps,
+} from "./components/admin/fields/image-field.vue";
+import JsonField, {
+  type JsonFieldProps,
+} from "./components/admin/fields/json-field.vue";
 import NumberField, {
   type NumberFieldProps,
 } from "./components/admin/fields/number-field.vue";
@@ -90,8 +100,12 @@ import ReferenceManyCount from "./components/admin/fields/reference-many-count.v
 import ReferenceManyField from "./components/admin/fields/reference-many-field.vue";
 import ReferenceOneField from "./components/admin/fields/reference-one-field.vue";
 import SelectField from "./components/admin/fields/select-field.vue";
-import SubscriptionPlanField from "./components/admin/fields/subscription-plan-field.vue";
-import TextArrayField from "./components/admin/fields/text-array-field.vue";
+import SubscriptionPlanField, {
+  type SubscriptionPlanFieldProps,
+} from "./components/admin/fields/subscription-plan-field.vue";
+import TextArrayField, {
+  type TextArrayFieldProps,
+} from "./components/admin/fields/text-array-field.vue";
 import TextField, {
   type TextFieldProps,
 } from "./components/admin/fields/text-field.vue";
@@ -338,15 +352,25 @@ type GenericValueMember<TProps, TRecord> = ValueFunction<
 
 /** The display fields that are generic in their record, retyped to `TRecord`. */
 type TypedFieldMembers<TRecord> = {
+  BadgeField: GenericValueMember<BadgeFieldProps, TRecord>;
   BooleanField: GenericValueMember<BooleanFieldProps, TRecord>;
+  ChipField: GenericValueMember<ChipFieldProps, TRecord>;
   ColorField: GenericValueMember<ColorFieldProps, TRecord>;
   CronField: GenericValueMember<CronFieldProps, TRecord>;
   CurrencyField: GenericValueMember<CurrencyFieldProps, TRecord>;
   DateField: GenericValueMember<DateFieldProps, TRecord>;
   DurationField: GenericValueMember<DurationFieldProps, TRecord>;
   EmailField: GenericValueMember<EmailFieldProps, TRecord>;
+  FileField: GenericValueMember<FileFieldProps, TRecord>;
+  ImageField: GenericValueMember<ImageFieldProps, TRecord>;
+  JsonField: GenericValueMember<JsonFieldProps, TRecord>;
   NumberField: GenericValueMember<NumberFieldProps, TRecord>;
   PhoneField: GenericValueMember<PhoneFieldProps, TRecord>;
+  SubscriptionPlanField: GenericValueMember<
+    SubscriptionPlanFieldProps,
+    TRecord
+  >;
+  TextArrayField: GenericValueMember<TextArrayFieldProps, TRecord>;
   TextField: GenericValueMember<TextFieldProps, TRecord>;
   UrlField: GenericValueMember<UrlFieldProps, TRecord>;
 };
