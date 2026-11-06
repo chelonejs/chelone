@@ -1,4 +1,5 @@
 import {
+  deepEqual,
   featuresToShape,
   geoBounds,
   heldFeatures,
@@ -109,20 +110,6 @@ export interface ShapeInputProps<TRecord = LooseRecord> {
    */
   refineFailedMessage?: string;
   className?: string;
-}
-
-function sameValue(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-  const keysA = Object.keys(a);
-  if (keysA.length !== Object.keys(b).length) return false;
-  return keysA.every((key) =>
-    sameValue(
-      (a as Record<string, unknown>)[key],
-      (b as Record<string, unknown>)[key],
-    ),
-  );
 }
 
 const AREA_TOOLS: ToolbarTool[] = [
@@ -380,7 +367,7 @@ export function ShapeInput<TRecord = LooseRecord>({
     }
     const now = latest.current;
     // Only an untouched field takes the result: anything else was edited since.
-    if (now.field.value !== committed || sameValue(result, committed)) return;
+    if (now.field.value !== committed || deepEqual(result, committed)) return;
     written.current = result;
     now.field.onChange(result);
     now.field.onBlur();

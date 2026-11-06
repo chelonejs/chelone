@@ -32,10 +32,6 @@ export interface SimplifyInputProps {
   quality?: SimplifyQuality;
   class?: string;
 }
-
-function sameJson(a: unknown, b: unknown): boolean {
-  return a === b || JSON.stringify(a) === JSON.stringify(b);
-}
 </script>
 
 <script setup lang="ts">
@@ -57,7 +53,7 @@ function sameJson(a: unknown, b: unknown): boolean {
  * <SimplifyInput source="outline" label="Outline" :tolerance="0.005" />
  */
 
-import { isGeoJsonValue } from "@chelone/core";
+import { deepEqual, isGeoJsonValue } from "@chelone/core";
 import { computed, ref, toRaw, watch } from "vue";
 import { useInput } from "../../form/use-input";
 import { useTranslate } from "../../i18n/use-translate";
@@ -115,7 +111,7 @@ watch(
       tolerance: tolerance.value,
       highQuality: quality.value === "High",
     });
-    if (sameJson(next, value)) return;
+    if (deepEqual(next, value)) return;
     written = next;
     input.setValue(next);
   },

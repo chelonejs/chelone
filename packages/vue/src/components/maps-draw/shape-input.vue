@@ -92,20 +92,6 @@ export interface ShapeInputProps {
   class?: string;
 }
 
-function sameValue(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-  const keysA = Object.keys(a);
-  if (keysA.length !== Object.keys(b).length) return false;
-  return keysA.every((key) =>
-    sameValue(
-      (a as Record<string, unknown>)[key],
-      (b as Record<string, unknown>)[key],
-    ),
-  );
-}
-
 /** What the last edit wrote, so the first shape the user draws is not framed. */
 interface Written {
   current: unknown;
@@ -258,6 +244,7 @@ const Editor = defineComponent(
  */
 
 import {
+  deepEqual,
   featuresToShape,
   heldFeatures,
   shapeToFeatures,
@@ -348,7 +335,7 @@ async function runRefine(committed: ShapeValue) {
     // Only an untouched field takes the result: anything else was edited since.
     if (
       toRaw(input.value.value) !== toRaw(committed) ||
-      sameValue(result, committed)
+      deepEqual(result, committed)
     ) {
       return;
     }

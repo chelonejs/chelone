@@ -1,4 +1,5 @@
 import {
+  deepEqual,
   editorStyles,
   fromEditorFeatures,
   type ShapeStyle,
@@ -182,20 +183,6 @@ function buildModes(
   ];
 }
 
-function sameValue(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-  const left = a as Record<string, unknown>;
-  const right = b as Record<string, unknown>;
-  const keys = Object.keys(left).filter((key) => left[key] !== undefined);
-  const other = Object.keys(right).filter((key) => right[key] !== undefined);
-  return (
-    keys.length === other.length &&
-    keys.every((key) => sameValue(left[key], right[key]))
-  );
-}
-
 type Snapshot = ReturnType<TerraDraw["getSnapshot"]>;
 
 /** The ids of the user's features in a snapshot, helper features left out. */
@@ -337,14 +324,14 @@ export function useTerraDraw({
     // A refused entry is never in the snapshot: leave it out of the comparison,
     // but only while `features` still holds it.
     const stillRefused = refusedRef.current.filter((entry) =>
-      features.some((feature) => sameValue(feature, entry)),
+      features.some((feature) => deepEqual(feature, entry)),
     );
     const drawn = features.filter(
-      (feature) => !stillRefused.some((entry) => sameValue(feature, entry)),
+      (feature) => !stillRefused.some((entry) => deepEqual(feature, entry)),
     );
     if (
       stillRefused.length === refusedRef.current.length &&
-      sameValue(fromEditorFeatures(snapshot), drawn)
+      deepEqual(fromEditorFeatures(snapshot), drawn)
     ) {
       return;
     }
