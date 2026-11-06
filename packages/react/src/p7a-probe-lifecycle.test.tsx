@@ -52,6 +52,7 @@
  */
 
 import type { ResourceRecord } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import {
   act,
   cleanup,
@@ -420,6 +421,7 @@ describe("L8 — useRecordContext / useFieldValue: no re-render beyond dependenc
     });
 
     let setRecord!: (r: { id: number; author: { name: string } }) => void;
+    let forceHarness: (() => void) | undefined;
     function Harness() {
       const [record, _setRecord] = useState({
         id: 1,
@@ -429,8 +431,7 @@ describe("L8 — useRecordContext / useFieldValue: no re-render beyond dependenc
       setRecord = _setRecord;
       // Expose a force-render that does NOT change the record.
       useEffect(() => {
-        (globalThis as Record<string, unknown>).__forceHarness = () =>
-          force((n) => n + 1);
+        forceHarness = () => force((n) => n + 1);
       });
       return (
         <RecordContextProvider value={record}>
@@ -445,7 +446,7 @@ describe("L8 — useRecordContext / useFieldValue: no re-render beyond dependenc
     // Force a Harness re-render WITHOUT changing the record → the memo'd Field
     // must NOT re-render (context value unchanged, props unchanged).
     act(() => {
-      ((globalThis as Record<string, unknown>).__forceHarness as () => void)();
+      defined(forceHarness)();
     });
     expect(fieldRenders).toHaveBeenCalledTimes(1);
 
