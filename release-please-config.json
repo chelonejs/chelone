@@ -4,6 +4,7 @@
   "bump-minor-pre-major": true,
   "include-v-in-tag": false,
   "tag-separator": "@",
+  "commit-search-depth": 3000,
   "changelog-sections": [
     { "type": "feat", "section": "Features" },
     { "type": "fix", "section": "Bug Fixes" },
