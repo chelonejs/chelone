@@ -895,6 +895,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/fields/field-props.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/fields/file-field.vue",
           "type": "registry:component"
         },
@@ -2661,7 +2665,7 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/badge"],
+      "registryDependencies": ["@chelone/badge", "@chelone/field-props"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
@@ -2691,7 +2695,11 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/badge", "@chelone/lib-utils"],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/field-props",
+        "@chelone/lib-utils"
+      ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
@@ -2781,6 +2789,20 @@
       "registryDependencies": ["@chelone/lib-utils"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "field-props",
+      "type": "registry:component",
+      "title": "Field Props",
+      "files": [
+        {
+          "path": "src/components/admin/fields/field-props.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -3017,7 +3039,11 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/badge", "@chelone/lib-utils"],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/field-props",
+        "@chelone/lib-utils"
+      ],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
@@ -3658,6 +3684,7 @@
           "type": "registry:component"
         }
       ],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

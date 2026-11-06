@@ -1,14 +1,16 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 import type { SubscriptionPlan } from "../inputs/subscription-plan-picker.vue";
 
 export type { SubscriptionPlan };
 
 /** Props for {@link SubscriptionPlanField}. */
-export interface SubscriptionPlanFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface SubscriptionPlanFieldProps<
+  RecordType extends LooseRecord = LooseRecord,
+> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** Available plans to look up by id. */
   plans: readonly SubscriptionPlan[];
@@ -16,7 +18,7 @@ export interface SubscriptionPlanFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<SubscriptionPlanField>` — displays the current subscription plan as a
  * compact badge (name + price/interval), the Vue analog of `@chelone/react`'s
@@ -30,9 +32,9 @@ import { Badge } from "../../ui/badge";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = defineProps<SubscriptionPlanFieldProps>();
+const props = defineProps<SubscriptionPlanFieldProps<RecordType>>();
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

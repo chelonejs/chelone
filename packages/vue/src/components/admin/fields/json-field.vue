@@ -1,11 +1,13 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link JsonField}. */
-export interface JsonFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+export interface JsonFieldProps<
+  RecordType extends LooseRecord = LooseRecord,
+> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** Spaces per indentation level. Defaults to 2. */
   indent?: number;
@@ -13,7 +15,7 @@ export interface JsonFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
 /**
  * `<JsonField>` — displays a record's JSON value as formatted text in a `<pre>`.
  * The Vue analog of `@chelone/react`'s `fields/json-field.tsx`. The value may be
@@ -27,9 +29,11 @@ import { cn } from "../../../lib/utils";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = withDefaults(defineProps<JsonFieldProps>(), { indent: 2 });
+const props = withDefaults(defineProps<JsonFieldProps<RecordType>>(), {
+  indent: 2,
+});
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

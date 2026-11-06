@@ -1,14 +1,18 @@
-<script lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
-import type { LooseRecord, SourcePath, SourceProp } from "@chelone/core";
+<script
+  lang="ts"
+  generic="TChoice extends ChoiceRecord = ChoiceRecord, RecordType extends LooseRecord = LooseRecord"
+>
+import type { LooseRecord, SourcePath, SourceProp, SourceValue } from "@chelone/core";
 import type { ChoiceRecord, OptionText } from "../../../choices/use-choices";
 
 /** Props for {@link SelectField}. */
 export interface SelectFieldProps<
   TChoice extends ChoiceRecord = ChoiceRecord,
+  RecordType extends LooseRecord = LooseRecord,
 > {
-  source: SourceProp;
-  record?: LooseRecord;
-  defaultValue?: unknown;
+  source: SourceProp<RecordType>;
+  record?: RecordType;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   empty?: string;
   /** The list of choices to map the value against. */
   choices?: readonly TChoice[];
@@ -22,7 +26,11 @@ export interface SelectFieldProps<
 }
 </script>
 
-<script setup lang="ts" generic="TChoice extends ChoiceRecord = ChoiceRecord">
+<script
+  setup
+  lang="ts"
+  generic="TChoice extends ChoiceRecord = ChoiceRecord, RecordType extends LooseRecord = LooseRecord"
+>
 /**
  * `<SelectField>` — displays an enumeration value by mapping it to a
  * human-readable label, the Vue port of `@chelone/react`'s
@@ -37,9 +45,9 @@ import { useChoices } from "../../../choices/use-choices";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = defineProps<SelectFieldProps<TChoice>>();
+const props = defineProps<SelectFieldProps<TChoice, RecordType>>();
 
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

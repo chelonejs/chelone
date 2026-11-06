@@ -95,6 +95,12 @@ const posts = createResourceComponentsOf<typeof resources, "posts">("posts");
 
   <!-- a member with no format, parse or transform keeps its props -->
   <posts.TextField source="title" class="x" />
+  <posts.BadgeField source="title" default-value="Untitled" />
+  <!-- @vue-expect-error -->
+  <posts.BadgeField source="titel" />
+  <posts.JsonField source="items[0].sku" />
+  <!-- @vue-expect-error -->
+  <posts.JsonField source="items[0].skuz" />
 
   <!-- a generic SFC is not a member -->
   <!-- @vue-expect-error -->

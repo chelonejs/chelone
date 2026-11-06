@@ -25,7 +25,9 @@ function mountField(props: JsonFieldProps, record: LooseRecord) {
         i18n,
       });
       provideRecordContext(record);
-      return () => h(JsonField, props);
+      // `JsonField` is generic in its record, so `h` only takes its props as a
+      // fresh object literal, which carries the implicit index signature.
+      return () => h(JsonField, { ...props });
     },
   });
   return mount(Harness);

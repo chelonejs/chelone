@@ -65,6 +65,12 @@ describe("@chelone/core barrel", () => {
     expect(barrel.shallowEqual).toBeTypeOf("function");
   });
 
+  it("exports the ISO duration helpers", () => {
+    expect(barrel.parseIsoDuration).toBeTypeOf("function");
+    expect(barrel.compactDuration).toBeTypeOf("function");
+    expect(barrel.relativeDuration).toBeTypeOf("function");
+  });
+
   it("exports textOf", () => {
     expect(barrel.textOf).toBeTypeOf("function");
   });
