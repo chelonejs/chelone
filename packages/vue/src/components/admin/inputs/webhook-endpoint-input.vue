@@ -1,10 +1,6 @@
 <script lang="ts">
-import type {
-  LooseRecord,
-  SourceProp,
-  SourceValue,
-  Validator,
-} from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
+import type { SourceInputProps } from "./source-input-props";
 
 /**
  * Storage shape a `<WebhookEndpointInput>` edits. Mirrors the React twin's
@@ -25,15 +21,11 @@ export interface WebhookEndpoint {
 export interface WebhookEndpointInputProps<
   RecordType = LooseRecord,
   TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
-> {
-  source: TPath;
-  label?: string | false;
+> extends SourceInputProps<RecordType, TPath> {
   /** Available event-type strings to surface as checkboxes. */
   eventTypes: readonly string[];
   /** Optional test-ping handler. When set, renders the test-ping button. */
   onTestPing?: (url: string, secret: string) => Promise<void> | void;
-  defaultValue?: NoInfer<SourceValue<RecordType, TPath>>;
-  validate?: Validator | readonly Validator[];
   isRequired?: boolean;
   id?: string;
   disabled?: boolean;

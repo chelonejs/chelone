@@ -1,10 +1,6 @@
 <script lang="ts">
-import type {
-  LooseRecord,
-  SourceProp,
-  SourceValue,
-  Validator,
-} from "@chelone/core";
+import type { LooseRecord, SourceProp } from "@chelone/core";
+import type { SourceInputProps } from "./source-input-props";
 
 type Unit = "d" | "h" | "m" | "s";
 
@@ -14,11 +10,7 @@ const DEFAULT_UNITS: readonly Unit[] = ["d", "h", "m", "s"];
 export interface DurationInputProps<
   RecordType = LooseRecord,
   TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
-> {
-  source: TPath;
-  label?: string | false;
-  defaultValue?: NoInfer<SourceValue<RecordType, TPath>>;
-  validate?: Validator | readonly Validator[];
+> extends SourceInputProps<RecordType, TPath> {
   /** Which units to expose. Default `["d","h","m","s"]`. */
   units?: readonly Unit[];
   disabled?: boolean;

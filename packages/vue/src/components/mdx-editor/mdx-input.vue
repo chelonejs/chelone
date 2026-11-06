@@ -1,14 +1,13 @@
-<script lang="ts">
-import type { SourceProp, Validator } from "@chelone/core";
+<script lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { CrepeEditorConfig } from "./internal/crepe-editor.vue";
+import type { SourceInputProps } from "../admin/inputs/source-input-props";
 
 /** Props for {@link MdxInput}. */
-export interface MdxInputProps {
-  source: SourceProp;
-  label?: string | false;
-  /** Used when the record has no value at `source`. Defaults to `""`. */
-  defaultValue?: unknown;
-  validate?: Validator | readonly Validator[];
+export interface MdxInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> extends SourceInputProps<RecordType, TPath> {
   helperText?: string | false;
   disabled?: boolean;
   readOnly?: boolean;
@@ -18,7 +17,7 @@ export interface MdxInputProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
 /**
  * `<MdxInput>` — edits a markdown string in a Crepe editor. The Vue twin of
  * `@chelone/react`'s `mdx-editor/mdx-input.tsx`; it wraps Milkdown's Crepe
@@ -46,10 +45,13 @@ import CrepeEditor from "./internal/crepe-editor.vue";
 
 // Explicit `undefined` defaults disable Vue's absent-Boolean cast of the
 // `string | false` props (else absent becomes `false` and hides the label).
-const props = withDefaults(defineProps<MdxInputProps>(), {
-  label: undefined,
-  helperText: undefined,
-});
+const props = withDefaults(
+  defineProps<MdxInputProps<RecordType, TPath>>(),
+  {
+    label: undefined,
+    helperText: undefined,
+  },
+);
 
 const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source: props.source,
