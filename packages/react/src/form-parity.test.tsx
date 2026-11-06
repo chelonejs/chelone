@@ -44,6 +44,9 @@ const resources = defineResources({
 });
 const seedRows = [{ id: 1, title: "t1", views: 5 }];
 
+/** A form save: what `useForm` takes. Typing the spy with it types its calls. */
+type SaveFn<TFormData> = (data: TFormData) => Promise<FieldErrors | undefined>;
+
 function makeWrapper() {
   const notifications = createNotificationStore();
   const queryClient = new QueryClient({
@@ -74,14 +77,14 @@ function makeWrapper() {
 function setupForm<TFormData extends Record<string, unknown>>(
   formOptions: {
     defaultValues?: TFormData;
-    save?: (data: TFormData) => Promise<FieldErrors | undefined>;
+    save?: SaveFn<TFormData>;
     sanitizeEmptyValues?: boolean;
   },
   inputs: Array<Parameters<typeof useInput>[0]>,
 ) {
   const { wrapper } = makeWrapper();
   const save =
-    formOptions.save ?? vi.fn(async () => undefined as FieldErrors | undefined);
+    formOptions.save ?? vi.fn<SaveFn<TFormData>>(async () => undefined);
   const latestForm: { current: ReturnType<typeof useForm<TFormData>> | null } =
     { current: null };
   const latest: Record<string, UseInputResult | null> = {};
@@ -171,7 +174,7 @@ describe("parity: defaultValue precedence matrix", () => {
 
 describe("parity: '' -> null on clear flows to the submit payload", () => {
   it("clearing a text input stores null and the save payload carries null", async () => {
-    const save = vi.fn(async () => undefined as FieldErrors | undefined);
+    const save = vi.fn<SaveFn<{ title: string | null }>>(async () => undefined);
     const { latest, latestForm } = setupForm<{ title: string | null }>(
       { defaultValues: { title: "hello" }, save },
       [{ source: "title" }],
@@ -189,7 +192,9 @@ describe("parity: '' -> null on clear flows to the submit payload", () => {
   it("sanitizeEmptyValues omits an empty key absent from the record baseline", async () => {
     // Standalone form has no record baseline -> empty top-level keys are
     // OMITTED (ra semantics), while 0/false are kept.
-    const save = vi.fn(async () => undefined as FieldErrors | undefined);
+    const save = vi.fn<SaveFn<{ title: string | null; views: number }>>(
+      async () => undefined,
+    );
     const { latest, latestForm } = setupForm<{
       title: string | null;
       views: number;
@@ -290,7 +295,7 @@ describe("parity: server-error clear-on-edit", () => {
 
 describe("parity: sticky isDirty vs isDefaultValue (unsaved-changes signal)", () => {
   it("isDirty latches sticky; isDefaultValue is the live deep-equality check", async () => {
-    const save = vi.fn(async () => undefined as FieldErrors | undefined);
+    const save = vi.fn<SaveFn<{ title: string }>>(async () => undefined);
     const { latest, latestForm } = setupForm<{ title: string }>(
       { defaultValues: { title: "a" }, save },
       [{ source: "title" }],
@@ -340,7 +345,7 @@ describe("parity: scalar-array ghost errors", () => {
         </ArrayInputProvider>
       );
     }
-    const save = vi.fn(async () => undefined as FieldErrors | undefined);
+    const save = vi.fn<SaveFn<{ tags: string[] }>>(async () => undefined);
     const latestForm: {
       current: ReturnType<typeof useForm<{ tags: string[] }>> | null;
     } = { current: null };
@@ -389,7 +394,7 @@ describe("parity: scalar-array ghost errors", () => {
 
 describe("parity: checkbox value handling", () => {
   it("a checkbox change event yields target.checked (boolean), not a string", async () => {
-    const save = vi.fn(async () => undefined as FieldErrors | undefined);
+    const save = vi.fn<SaveFn<{ done: boolean }>>(async () => undefined);
     const { latest, latestForm } = setupForm<{ done: boolean }>(
       { defaultValues: { done: false }, save },
       [{ source: "done" }],
@@ -411,7 +416,7 @@ describe("parity: checkbox value handling", () => {
   });
 
   it("a raw boolean value passes through untouched (custom toggle payload)", async () => {
-    const save = vi.fn(async () => undefined as FieldErrors | undefined);
+    const save = vi.fn<SaveFn<{ done: boolean }>>(async () => undefined);
     const { latest, latestForm } = setupForm<{ done: boolean }>(
       { defaultValues: { done: false }, save },
       [{ source: "done" }],

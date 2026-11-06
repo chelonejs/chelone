@@ -7,6 +7,7 @@ import {
   memoryTransport,
   realtimeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -104,7 +105,8 @@ function setup() {
 
 const settle = () => new Promise((resolve) => setTimeout(resolve, 20));
 
-const titleInput = () => screen.getByLabelText(/title/i) as HTMLInputElement;
+const titleInput = () =>
+  elementOf(screen.getByLabelText(/title/i), HTMLInputElement);
 
 function FormButtons() {
   const { form } = useCheloneFormContext();

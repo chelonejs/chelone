@@ -84,6 +84,22 @@ const baseAuth = (over: Partial<AuthProvider> = {}): AuthProvider => ({
   ...over,
 });
 
+/**
+ * The shape the fake provider below throws: a plain object carrying an HTTP
+ * status. A guard, so `checkError` reads the status without a cast.
+ */
+function isStatusError(
+  error: unknown,
+  status: number,
+): error is { status: number } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    error.status === status
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /* usePermissions                                                             */
 /* -------------------------------------------------------------------------- */
@@ -284,8 +300,8 @@ describe("useWatchDataErrors (data-error → checkError → logout wiring)", () 
     const logout = vi.fn(async () => {});
     const authProvider = baseAuth({
       logout,
-      checkError: async (error: unknown) => {
-        if ((error as { status?: number })?.status === 403) {
+      checkError: async (error) => {
+        if (isStatusError(error, 403)) {
           throw new Error("denied");
         }
       },
@@ -294,9 +310,9 @@ describe("useWatchDataErrors (data-error → checkError → logout wiring)", () 
       posts: [{ id: 1, title: "Alpha" }],
     });
     // getOne on a missing id → the fake rejects; force a 403 shape.
-    dataProvider.getOne = vi.fn(async () => {
+    dataProvider.getOne = async () => {
       throw { status: 403, message: "Forbidden" };
-    }) as typeof dataProvider.getOne;
+    };
 
     const { wrapper } = makeWrapper({ authProvider, dataProvider });
     render(<Harness id={999} />, { wrapper });
@@ -309,8 +325,8 @@ describe("useWatchDataErrors (data-error → checkError → logout wiring)", () 
     const logout = vi.fn(async () => {});
     const authProvider = baseAuth({
       logout,
-      checkError: async (error: unknown) => {
-        if ((error as { status?: number })?.status === 403) {
+      checkError: async (error) => {
+        if (isStatusError(error, 403)) {
           throw new Error("denied");
         }
       },
@@ -318,9 +334,9 @@ describe("useWatchDataErrors (data-error → checkError → logout wiring)", () 
     const dataProvider = fakeDataProvider<typeof resources>({
       posts: [{ id: 1, title: "Alpha" }],
     });
-    dataProvider.getOne = vi.fn(async () => {
+    dataProvider.getOne = async () => {
       throw { status: 500, message: "Server error" };
-    }) as typeof dataProvider.getOne;
+    };
 
     const { wrapper } = makeWrapper({ authProvider, dataProvider });
     render(<Harness id={999} />, { wrapper });
