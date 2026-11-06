@@ -6,9 +6,9 @@
  */
 import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { RecordContextProvider } from "../../../record/record-context";
 import { FileField } from "./file-field";
@@ -200,5 +200,73 @@ describe("<FileField>", () => {
     // No title prop → no title attribute and no "[object Object]" whole-record leak.
     expect(link?.getAttribute("title")).toBeNull();
     expect(link?.textContent ?? "").not.toContain("[object Object]");
+  });
+
+  it("a javascript: URL renders no href, for one file and for an array", () => {
+    const alertSpy = vi.fn();
+    const originalAlert = window.alert;
+    window.alert = alertSpy;
+    const { container } = render(
+      <Providers>
+        <RecordContextProvider
+          value={{ id: 1, url: "javascript:alert(1)", title: "Report" }}
+        >
+          <FileField source="url" title="title" />
+        </RecordContextProvider>
+        <RecordContextProvider
+          value={{
+            id: 2,
+            files: [{ src: "JavaScript:alert(2)", title: "Plan" }],
+          }}
+        >
+          <FileField source="files" src="src" title="title" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    try {
+      // the title text still shows
+      expect(screen.getByText("Report")).toBeTruthy();
+      expect(screen.getByText("Plan")).toBeTruthy();
+
+      const links = Array.from(container.querySelectorAll("a"));
+      expect(links).toHaveLength(2);
+      for (const link of links) {
+        expect(link.getAttribute("href")).toBeNull();
+        expect(link.href).not.toContain("javascript:");
+        fireEvent.click(link);
+      }
+      expect(alertSpy).not.toHaveBeenCalled();
+    } finally {
+      window.alert = originalAlert;
+    }
+  });
+
+  it("a blob: preview URL keeps its link", () => {
+    const { container } = render(
+      <Providers>
+        <RecordContextProvider
+          value={{
+            id: 1,
+            url: "blob:https://example.com/0b1c",
+            title: "Stored file",
+          }}
+        >
+          <FileField source="url" title="title" />
+        </RecordContextProvider>
+        <RecordContextProvider
+          value={{
+            id: 2,
+            files: [{ src: "blob:jsdom/preview", title: "a.pdf" }],
+          }}
+        >
+          <FileField source="files" src="src" title="title" />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    expect(
+      Array.from(container.querySelectorAll("a")).map((a) =>
+        a.getAttribute("href"),
+      ),
+    ).toEqual(["blob:https://example.com/0b1c", "blob:jsdom/preview"]);
   });
 });

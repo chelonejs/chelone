@@ -1,4 +1,4 @@
-import { getAtPath, type LooseRecord } from "@chelone/core";
+import { getAtPath, isSafeFileUrl, type LooseRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { ElementFieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,8 @@ interface FileFieldProps<RecordType extends LooseRecord = LooseRecord>
  * Renders file urls as clickable links that can open in a new tab or trigger a
  * download. Supports arrays of files and stops click bubbling inside a
  * `DataTable` row. To be used with `RecordField` or `DataTable.Col`, or anywhere
- * a `RecordContext` is available.
+ * a `RecordContext` is available. A url `isSafeFileUrl` rejects keeps its anchor
+ * with no `href`, so a stored `javascript:` url cannot run on click.
  *
  * Rebridge note (chelone): imports moved from `shadmin-core` to
  * `@chelone/react` (`useFieldValue`/`useTranslate`/`sanitizeFieldRestProps`);
@@ -108,11 +109,15 @@ function FileField<RecordType extends LooseRecord = LooseRecord>(
           // `undefined` so the link gets no href, never the text "undefined".
           const srcPath = src ? (getAtPath(file, src) ?? title) : title;
           const srcValue = srcPath == null ? undefined : String(srcPath);
+          // A stored url reaches `href` only when its scheme is safe. An unsafe
+          // value renders the anchor with no href, as a missing `src` does.
+          const href =
+            srcValue != null && isSafeFileUrl(srcValue) ? srcValue : undefined;
 
           return (
             <li key={srcValue ?? index}>
               <a
-                href={srcValue}
+                href={href}
                 title={fileTitleValue}
                 target={target}
                 download={download}
@@ -130,13 +135,16 @@ function FileField<RecordType extends LooseRecord = LooseRecord>(
     );
   }
 
+  const singleValue = sourceValue?.toString();
+  const href =
+    singleValue != null && isSafeFileUrl(singleValue) ? singleValue : undefined;
   return (
     <div
       className={cn("inline-block", className)}
       {...sanitizeFieldRestProps(rest)}
     >
       <a
-        href={sourceValue?.toString()}
+        href={href}
         title={titleValue}
         target={target}
         download={download}

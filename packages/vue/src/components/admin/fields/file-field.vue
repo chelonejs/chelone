@@ -27,11 +27,12 @@ export interface FileFieldProps<
  * record field, the Vue port of `@chelone/react`'s `fields/file-field.tsx`. A
  * `title` may be a record path OR a literal label. Stops click bubbling so a
  * `DataTable` row-click doesn't fire. A nullish / empty-array value renders the
- * (translated) `empty` string, or nothing.
+ * (translated) `empty` string, or nothing. A url `isSafeFileUrl` rejects keeps
+ * its anchor with no `href`, so a stored `javascript:` url cannot run on click.
  */
 
 import { computed } from "vue";
-import { getAtPath } from "@chelone/core";
+import { getAtPath, isSafeFileUrl } from "@chelone/core";
 import { cn } from "../../../lib/utils";
 import { useRecordContextRef } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -93,13 +94,21 @@ const links = computed<FileLink[]>(() => {
       ? (getAtPath(file, props.src) ?? props.title)
       : props.title;
     const srcValue = srcPath == null ? undefined : String(srcPath);
-    return { href: srcValue, title: fileTitleValue, key: srcValue ?? index };
+    return {
+      // A stored url reaches `href` only when its scheme is safe. An unsafe
+      // value renders the anchor with no href, as a missing `src` does.
+      href: srcValue != null && isSafeFileUrl(srcValue) ? srcValue : undefined,
+      title: fileTitleValue,
+      key: srcValue ?? index,
+    };
   });
 });
 
-const singleHref = computed(() =>
-  sourceValue.value == null ? undefined : String(sourceValue.value),
-);
+const singleHref = computed(() => {
+  if (sourceValue.value == null) return undefined;
+  const value = String(sourceValue.value);
+  return isSafeFileUrl(value) ? value : undefined;
+});
 
 function stop(e: Event): void {
   e.stopPropagation();
