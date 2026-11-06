@@ -263,7 +263,7 @@ for (const [file, perKind] of baseline) {
 }
 
 if (added.length > 0) {
-  console.error("New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a `// type-escape: <why>` comment:\n");
+  console.error("New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a `// type-escape: <why>` comment. A cast from `unknown` takes no comment: keep the value typed, or narrow it with a type guard.\n");
   for (const { file, kind, found, allowed } of added) {
     console.error(`${file}: ${found} ${kind}, ${base} has ${allowed}`);
     for (const site of sites.filter((s) => s.file === file && s.kind === kind)) console.error(`  ${site.file}:${site.line}`);
