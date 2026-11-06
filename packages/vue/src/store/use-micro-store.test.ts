@@ -55,9 +55,9 @@ describe("useMicroStore — MicroStore reactivity bridge", () => {
   it("(c) a store mutation propagates to the ref", async () => {
     const { store } = makeStore({ count: 0, label: "a" });
     const scope = effectScope();
-    let state!: Ref<CounterState>;
+    let state!: Readonly<Ref<CounterState>>;
     scope.run(() => {
-      state = useMicroStore(store) as Ref<CounterState>;
+      state = useMicroStore(store);
     });
     expect(state.value.count).toBe(0);
 
