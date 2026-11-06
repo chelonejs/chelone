@@ -1023,6 +1023,7 @@ export {
   checkRichTextImageFile,
   clampRichTextImageWidth,
   defaultRichTextImageRules,
+  endColorOnEnter,
   normalizeRichTextUpload,
   richTextCodeBlockOptions,
   richTextColors,

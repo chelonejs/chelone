@@ -120,6 +120,9 @@
     "@milkdown/kit": "^7.23.0",
     "@tanstack/vue-query": "^5.0.0",
     "@tiptap/core": "^3.33.0",
+    "@tiptap/extension-code-block": "^3.33.0",
+    "@tiptap/extension-code-block-lowlight": "^3.33.0",
+    "@tiptap/extension-text-style": "^3.33.0",
     "@tiptap/extensions": "^3.33.0",
     "@tiptap/pm": "^3.33.0",
     "@tiptap/starter-kit": "^3.33.0",
@@ -132,6 +135,8 @@
     "@unovis/ts": "^1.7.1",
     "@unovis/vue": "^1.7.1",
     "dompurify": "^3.4.0",
+    "highlight.js": "^11.11.1",
+    "lowlight": "^3.3.0",
     "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
     "osm2geojson-lite": "^2.0.1",
@@ -162,6 +167,15 @@
       "optional": true
     },
     "@tiptap/core": {
+      "optional": true
+    },
+    "@tiptap/extension-code-block": {
+      "optional": true
+    },
+    "@tiptap/extension-code-block-lowlight": {
+      "optional": true
+    },
+    "@tiptap/extension-text-style": {
       "optional": true
     },
     "@tiptap/extensions": {
@@ -200,6 +214,12 @@
     "dompurify": {
       "optional": true
     },
+    "highlight.js": {
+      "optional": true
+    },
+    "lowlight": {
+      "optional": true
+    },
     "maplibre-gl": {
       "optional": true
     },
@@ -233,6 +253,9 @@
     "@milkdown/kit": "^7.23.0",
     "@tanstack/vue-query": "^5.106.1",
     "@tiptap/core": "^3.33.0",
+    "@tiptap/extension-code-block": "^3.33.0",
+    "@tiptap/extension-code-block-lowlight": "^3.33.0",
+    "@tiptap/extension-text-style": "^3.33.0",
     "@tiptap/extensions": "^3.33.0",
     "@tiptap/pm": "^3.33.0",
     "@tiptap/starter-kit": "^3.33.0",
@@ -248,7 +271,9 @@
     "@vitejs/plugin-vue": "^6.0.10",
     "@vue/test-utils": "^2.5.1",
     "dompurify": "^3.4.17",
+    "highlight.js": "^11.11.1",
     "jsdom": "^31.0.0",
+    "lowlight": "^3.3.0",
     "maplibre-gl": "^6.16.0",
     "monaco-editor": "^0.57.0",
     "osm2geojson-lite": "^2.0.1",

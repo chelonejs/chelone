@@ -17,6 +17,17 @@ export interface RichTextInputProps<
   /** Image insertion and upload settings. False leaves images out of the default schema. */
   images?: boolean | RichTextImageOptions;
   /**
+   * Text color: `false` leaves out the color extension and the toolbar's Text
+   * color button. A color is stored as a `style` attribute with a palette
+   * `var(--rich-text-color-*)` value. Default `true`.
+   */
+  colors?: boolean;
+  /**
+   * Highlights code blocks in the editor with lowlight. `false` shows them
+   * plain. The stored HTML never has highlight markup either way. Default `true`.
+   */
+  codeHighlight?: boolean;
+  /**
    * Extra tiptap editor options, spread last: `extensions` here replaces the
    * default set. `onUpdate` and `onBlur` run after the input's own.
    */
@@ -49,9 +60,6 @@ export interface RichTextInputToolbarSlotProps {
  * <RichTextInput source="body" label="Article" />
  */
 
-import {
-  richTextStarterKitOptions,
-} from "@chelone/core";
 import { Placeholder } from "@tiptap/extensions";
 import { TextSelection } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
@@ -63,6 +71,14 @@ import FieldLabelText from "../admin/common/field-label-text.vue";
 import InputHelperText from "../admin/common/input-helper-text.vue";
 import ErrorMessage from "../admin/common/validation-error.vue";
 import { Field, FieldError, FieldLabel } from "../ui/field";
+import {
+  codeBlockOptions,
+  Color,
+  EndColorOnEnter,
+  HighlightedCodeBlock,
+  starterKitOptions,
+  TextStyle,
+} from "./rich-text-extensions";
 import { getRichTextHtml, RichTextImage, resolveRichTextImageConfig } from "./rich-text-image";
 import RichTextToolbar from "./rich-text-toolbar.vue";
 import "./rich-text.css";
@@ -75,6 +91,8 @@ const props = withDefaults(
     label: undefined,
     helperText: undefined,
     images: true,
+    colors: true,
+    codeHighlight: true,
   },
 );
 
@@ -94,18 +112,17 @@ const html = computed(() => (typeof value.value === "string" ? value.value : "")
 const editable = computed(() => props.disabled !== true && props.readOnly !== true);
 const invalid = computed(() => touched.value && error.value != null);
 
-// tiptap's `levels` is a mutable array, and core's options are frozen.
-const starterKitOptions = {
-  ...richTextStarterKitOptions,
-  heading: { levels: [...richTextStarterKitOptions.heading.levels] },
-};
-
 const buildEditorOptions = (): Partial<EditorOptions> => ({
   extensions: [
-    StarterKit.configure(starterKitOptions),
+    StarterKit.configure({
+      ...starterKitOptions,
+      codeBlock: props.codeHighlight ? false : codeBlockOptions,
+    }),
     ...(props.images === false ? [] : [RichTextImage.configure({ config: () => resolveRichTextImageConfig(props.images) })]),
     // The extension reads the text on each render, so a new one needs no new editor.
     Placeholder.configure({ placeholder: () => props.placeholder ?? "" }),
+    ...(props.colors ? [TextStyle, Color, EndColorOnEnter] : []),
+    ...(props.codeHighlight ? [HighlightedCodeBlock] : []),
   ],
   content: html.value,
   editable: editable.value,
@@ -127,8 +144,9 @@ const buildEditorOptions = (): Partial<EditorOptions> => ({
 });
 
 const editor = useEditor(buildEditorOptions());
+// Only turning images, colors or code highlighting on or off needs a new editor.
 watch(
-  () => props.images === false,
+  [() => props.images === false, () => props.colors, () => props.codeHighlight],
   () => {
     const current = editor.value;
     if (!current) return;

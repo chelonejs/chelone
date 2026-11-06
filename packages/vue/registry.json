@@ -6773,16 +6773,29 @@
         "@chelone/core",
         "@chelone/vue",
         "@tiptap/core",
+        "@tiptap/extension-code-block",
+        "@tiptap/extension-code-block-lowlight",
         "@tiptap/extension-image",
+        "@tiptap/extension-text-style",
         "@tiptap/extensions",
         "@tiptap/pm",
         "@tiptap/starter-kit",
         "@tiptap/vue-3",
-        "dompurify"
+        "dompurify",
+        "highlight.js",
+        "lowlight"
       ],
       "files": [
         {
+          "path": "src/components/rich-text-input/rich-text-color.vue",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/rich-text-input/rich-text-commands.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-extensions.ts",
           "type": "registry:component"
         },
         {
@@ -6825,6 +6838,25 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "rich-text-color",
+      "type": "registry:component",
+      "title": "Rich Text Color",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-color.vue",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/rich-text-commands"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "rich-text-commands",
       "type": "registry:component",
       "title": "Rich Text Commands",
@@ -6835,6 +6867,29 @@
         }
       ],
       "dependencies": ["@chelone/core", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-extensions",
+      "type": "registry:component",
+      "title": "Rich Text Extensions",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-extensions.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@tiptap/core",
+        "@tiptap/extension-code-block",
+        "@tiptap/extension-code-block-lowlight",
+        "@tiptap/extension-text-style",
+        "@tiptap/pm",
+        "highlight.js",
+        "lowlight"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6936,6 +6991,7 @@
         "@chelone/field",
         "@chelone/field-label-text",
         "@chelone/input-helper-text",
+        "@chelone/rich-text-extensions",
         "@chelone/rich-text-image",
         "@chelone/rich-text-toolbar",
         "@chelone/rich-text.css",
@@ -6982,6 +7038,7 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/lib-utils",
+        "@chelone/rich-text-color",
         "@chelone/rich-text-commands",
         "@chelone/rich-text-icons",
         "@chelone/rich-text-image",
