@@ -325,12 +325,10 @@ function captureUndoable(
 }
 
 function cachedTitles(queryClient: QueryClient): Record<number, string> {
-  const list = queryClient.getQueryData<GetListResult>(
-    listKey("posts", undoableListParams),
-  );
-  return Object.fromEntries(
-    (list?.data ?? []).map((r) => [r.id, r.title as string]),
-  );
+  const list = queryClient.getQueryData<
+    GetListResult<z.infer<typeof resources.posts.schema>>
+  >(listKey("posts", undoableListParams));
+  return Object.fromEntries((list?.data ?? []).map((r) => [r.id, r.title]));
 }
 
 describe("undoable useDelete / useUpdate hooks", () => {

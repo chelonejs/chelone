@@ -40,7 +40,13 @@ import {
   fakeDataProvider,
   noop,
 } from "@chelone/core";
-import type { AnyFieldApi } from "@tanstack/form-core";
+import { defined } from "@chelone/test-utils";
+import {
+  type AnyFieldApi,
+  type DeepKeys,
+  FieldApi,
+  type FieldInfo,
+} from "@tanstack/form-core";
 import { QueryClient } from "@tanstack/react-query";
 import { act, render, waitFor } from "@testing-library/react";
 import {
@@ -140,30 +146,19 @@ function trackDevtoolsListeners() {
   return { net: () => count(added) - count(removed) };
 }
 
-/** Structural view of form-core internals the leak assertions need. */
-interface FieldInfoView {
-  instance: AnyFieldApi | null;
-  validationMetaMap: Record<
-    string,
-    { lastAbortController: AbortController } | undefined
-  >;
-}
-
-function fieldInfoMap(form: object): Record<string, FieldInfoView | undefined> {
-  return (form as { fieldInfo: Record<string, FieldInfoView | undefined> })
-    .fieldInfo;
-}
-
 /** Registered (mounted) FieldApi instances on a form — the field-leak gauge. */
-function liveFieldInstances(form: object): number {
-  return Object.values(fieldInfoMap(form)).filter(
-    (info) => info?.instance != null,
-  ).length;
+function liveFieldInstances<TRecord>(form: CheloneFormApi<TRecord>): number {
+  const info: Partial<Record<string, FieldInfo<TRecord> | undefined>> =
+    form.fieldInfo;
+  return Object.values(info).filter((field) => field?.instance != null).length;
 }
 
 /** The in-flight async-validation AbortControllers of one field. */
-function abortControllersOf(form: object, source: string): AbortController[] {
-  const info = fieldInfoMap(form)[source];
+function abortControllersOf<TRecord>(
+  form: CheloneFormApi<TRecord>,
+  source: DeepKeys<TRecord>,
+): AbortController[] {
+  const info = form.fieldInfo[source];
   if (!info) return [];
   return Object.values(info.validationMetaMap)
     .filter((meta) => meta !== undefined)
@@ -190,7 +185,7 @@ function makeGateFormHost<TFormData extends object>(options: {
     current: null,
   };
   /** Every FormApi ever constructed through the hook — discarded ones included. */
-  const constructedForms = new Set<object>();
+  const constructedForms = new Set<CheloneFormApi<TFormData>>();
   /** The formApi of every `form.mount()` (form-core's listeners.onMount). */
   const mountEvents: object[] = [];
   const onMountValidator = vi.fn(() => undefined);
@@ -311,7 +306,7 @@ describe("P5 gate: discarded-render leaks", () => {
     await waitFor(() => expect(latestInput.current).not.toBeNull());
     // Exactly ONE live form: every mount event targets the committed form,
     // and only the committed form carries the registered field instance.
-    const liveForm = host.latestForm.current?.form as object;
+    const liveForm = defined(host.latestForm.current).form;
     expect(host.mountEvents).toHaveLength(1);
     expect(host.mountEvents[0]).toBe(liveForm);
     expect(devtools.net()).toBe(3);
@@ -570,7 +565,7 @@ describe("P5 gate: discarded-render leaks", () => {
 
     view.rerender(ui("visible")); // reveal -> effects mount -> attach
     await waitFor(() => expect(latestInput.current).not.toBeNull());
-    const liveForm = host.latestForm.current?.form as object;
+    const liveForm = defined(host.latestForm.current).form;
     expect(host.mountEvents).toHaveLength(1);
     expect(devtools.net()).toBe(3);
     expect(liveFieldInstances(liveForm)).toBe(1);
@@ -616,7 +611,7 @@ describe("P5 gate: StrictMode double-mount", () => {
     // mounts, both on the one committed FormApi; the onMount validator runs
     // once per mount (probed spec under revalidateLogic); exactly one net
     // set of devtools listeners and one registered field instance survive.
-    const liveForm = host.latestForm.current?.form as object;
+    const liveForm = defined(host.latestForm.current).form;
     expect(host.mountEvents).toHaveLength(2);
     expect(new Set(host.mountEvents).size).toBe(1);
     expect(host.mountEvents[0]).toBe(liveForm);
@@ -725,17 +720,17 @@ describe("P5 gate: Activity detach aborts in-flight async validation", () => {
     );
     const view = render(ui("visible"));
     await act(async () => {});
-    const form = host.latestForm.current?.form as object;
+    const form = defined(host.latestForm.current).form;
     expect(liveFieldInstances(form)).toBe(1);
-    const fieldApi = fieldInfoMap(form).title?.instance;
-    if (fieldApi == null) {
-      throw new Error("gate: the mounted field instance never registered");
+    const fieldApi = form.fieldInfo.title?.instance;
+    if (!(fieldApi instanceof FieldApi)) {
+      throw new Error("gate: the mounted FieldApi instance never registered");
     }
 
     // Kick a submit; the async validator parks in flight.
-    let firstSubmit!: Promise<void>;
+    let firstSubmit: Promise<void> | undefined;
     act(() => {
-      firstSubmit = host.latestForm.current?.submit() as Promise<void>;
+      firstSubmit = defined(host.latestForm.current).submit();
     });
     await waitFor(() => expect(validator).toHaveBeenCalledTimes(1));
     await waitFor(() =>
@@ -759,14 +754,9 @@ describe("P5 gate: Activity detach aborts in-flight async validation", () => {
     // abort surfaces nothing.
     await act(async () => {
       resolvers.shift()?.("late-error");
-      await firstSubmit;
+      await defined(firstSubmit);
     });
-    const fieldMeta = (
-      host.latestForm.current?.form.state.fieldMeta as Record<
-        string,
-        { errorMap: Record<string, unknown> } | undefined
-      >
-    ).title;
+    const fieldMeta = form.state.fieldMeta.title;
     expect(
       Object.values(fieldMeta?.errorMap ?? {}).filter((e) => e != null),
     ).toHaveLength(0);
@@ -779,14 +769,14 @@ describe("P5 gate: Activity detach aborts in-flight async validation", () => {
     expect(latestInput.current?.field.value).toBe("v0");
     const saveCallsAfterFirst = save.mock.calls.length;
 
-    let secondSubmit!: Promise<void>;
+    let secondSubmit: Promise<void> | undefined;
     act(() => {
-      secondSubmit = host.latestForm.current?.submit() as Promise<void>;
+      secondSubmit = defined(host.latestForm.current).submit();
     });
     await waitFor(() => expect(validator).toHaveBeenCalledTimes(2));
     await act(async () => {
       resolvers.shift()?.("async boom");
-      await secondSubmit;
+      await defined(secondSubmit);
     });
     expect(latestInput.current?.fieldState.error).toBe("async boom");
     expect(latestInput.current?.fieldState.invalid).toBe(true);
@@ -836,7 +826,7 @@ describe("P5 gate: churn", () => {
     );
     const view = render(ui("visible"));
     await act(async () => {});
-    const form = host.latestForm.current?.form as object;
+    const form = defined(host.latestForm.current).form;
 
     for (let cycle = 0; cycle < 25; cycle++) {
       view.rerender(ui("hidden"));
@@ -957,10 +947,7 @@ describe("P5 gate: churn", () => {
       save: async () => undefined,
     });
     const form = controller.form;
-    const binding = createFieldBinding(
-      form as CheloneFormApi<{ title: string }>,
-      { source: "title" },
-    );
+    const binding = createFieldBinding(form, { source: "title" });
     for (let i = 0; i < 50; i++) {
       const offA = binding.subscribe(noop);
       const offB = binding.subscribe(noop);
