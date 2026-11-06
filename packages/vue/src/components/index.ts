@@ -288,6 +288,8 @@ export { default as FileInputPreview } from "./admin/inputs/file-input-preview.v
 export type { ImageInputProps } from "./admin/inputs/image-input.vue";
 export { default as ImageInput } from "./admin/inputs/image-input.vue";
 export { default as ImageInputThumbnail } from "./admin/inputs/image-input-thumbnail.vue";
+export type { InPlaceEditorProps } from "./admin/inputs/in-place-editor.vue";
+export { default as InPlaceEditor } from "./admin/inputs/in-place-editor.vue";
 export { humanizeSource } from "./admin/inputs/label-text";
 export type { LoadingInputProps } from "./admin/inputs/loading-input.vue";
 export { default as LoadingInput } from "./admin/inputs/loading-input.vue";

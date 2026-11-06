@@ -55,6 +55,7 @@ import type {
   IconButtonWithTooltipProps,
   InfiniteListProps,
   InfinitePaginationProps,
+  InPlaceEditorProps,
   LinkProps,
   ListActionsProps,
   ListLiveProps,
@@ -193,6 +194,9 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf(barrel.MetricCard).toBeObject();
     expectTypeOf<NotFoundProps>().toHaveProperty("title");
     expectTypeOf<NotFoundProps>().toHaveProperty("class");
+    expectTypeOf<InPlaceEditorProps>().toHaveProperty("source");
+    expectTypeOf<InPlaceEditorProps>().toHaveProperty("class");
+    expectTypeOf(barrel.InPlaceEditor).toBeObject();
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");
     expectTypeOf<NumberInputProps>().toHaveProperty("source");
     expectTypeOf<OfflineProps>().toBeObject();
