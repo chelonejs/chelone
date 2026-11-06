@@ -21,7 +21,7 @@ vi.mock("recharts", async (importOriginal) => ({
 
 afterEach(cleanup);
 
-type Row = { plan: string; seats: number | string | null };
+type Row = { plan: string | null; seats: number | string | null };
 
 const ROWS: Row[] = [
   { plan: "Free", seats: 10 },
@@ -125,5 +125,38 @@ describe("<DonutChart>", () => {
     expect(
       container.querySelector('[data-slot="card-title"]')?.textContent,
     ).toBe(script);
+  });
+
+  it("keeps labels out of the page's styles", () => {
+    const { container } = mount({
+      data: [
+        { plan: "x: red;} body{display:none} a{", seats: 1 },
+        { plan: "</style><img src=x onerror=alert(1)>", seats: 2 },
+      ],
+    });
+    expect(container.querySelector("img")).toBeNull();
+    const css = [...container.querySelectorAll("style")]
+      .map((style) => style.textContent)
+      .join("");
+    expect(css).not.toContain("body{display:none}");
+    expect(css).not.toContain("<img");
+    expect(sectorFills(container)).toHaveLength(2);
+  });
+
+  it("draws a slice for each row when labels repeat or are missing", () => {
+    const { container } = mount({
+      data: [
+        { plan: "Pro", seats: 1 },
+        { plan: "Pro", seats: 2 },
+        { plan: null, seats: 3 },
+        { plan: null, seats: 4 },
+      ],
+    });
+    expect(sectorFills(container)).toEqual([
+      "var(--chart-1)",
+      "var(--chart-2)",
+      "var(--chart-3)",
+      "var(--chart-4)",
+    ]);
   });
 });

@@ -40,15 +40,9 @@ export function DonutChart<TRow extends object = LooseRecord>({
   className,
 }: DonutChartProps<TRow>) {
   const slices = toDonutSlices(data, labelField, valueField);
-  const config: ChartConfig = {
-    [valueField]: { label: valueField },
-    ...Object.fromEntries(
-      slices.map((slice, index) => [
-        slice.label,
-        { label: slice.label, color: chartColor(index, colors) },
-      ]),
-    ),
-  };
+  // Slice labels come from row data and ChartStyle writes config keys raw into a
+  // <style>, so no label goes in the config. Slice colors are set on each Cell.
+  const config: ChartConfig = {};
 
   return (
     <ChartFrame
@@ -74,8 +68,8 @@ export function DonutChart<TRow extends object = LooseRecord>({
           stroke="none"
           isAnimationActive={false}
         >
-          {slices.map((slice, index) => (
-            <Cell key={slice.label} fill={chartColor(index, colors)} />
+          {slices.map((_slice, index) => (
+            <Cell key={`${index}`} fill={chartColor(index, colors)} />
           ))}
         </Pie>
       </PieChart>
