@@ -1,5 +1,6 @@
 import {
   type DateInputValue,
+  formatDate,
   type SourceProp,
   type SourceValue,
   toDateInputValue,
@@ -49,7 +50,7 @@ function DateInput(props: DateInputProps) {
     className,
     inputClassName,
     defaultValue,
-    format = defaultFormat,
+    format = formatDate,
     label,
     source,
     helperText,
@@ -217,40 +218,5 @@ type DateInputProps<
   parse?: (value: string) => SourceValue<TRecord, TPath>;
   inputClassName?: string;
 } & Omit<React.ComponentProps<"input">, "label" | "defaultValue" | "type">;
-
-/**
- * Convert a Date to a "YYYY-MM-DD" string using the local timezone.
- */
-const convertDateToString = (value: Date) => {
-  if (!(value instanceof Date) || Number.isNaN(value.getDate())) return "";
-  const localDate = new Date(value.getTime());
-  const pad = "00";
-  const yyyy = localDate.getFullYear().toString();
-  const MM = (localDate.getMonth() + 1).toString();
-  const dd = localDate.getDate().toString();
-  return `${yyyy}-${(pad + MM).slice(-2)}-${(pad + dd).slice(-2)}`;
-};
-
-const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-
-/**
- * Convert a form-state value (string / ISO / `Date` / timestamp / "") to a bare
- * "YYYY-MM-DD" date string for `<input type="date">`. Non-bare-date inputs are
- * routed through `new Date(...)`, which MAY shift the day by the browser
- * timezone (documented ra behavior); pass a custom `parse`/`format` to control it.
- * Returns `null` for nullish/empty so the input stays controlled-by-defaultValue.
- */
-const defaultFormat = (value: DateInputValue): string | null => {
-  if (value == null || value === "") {
-    return null;
-  }
-  if (value instanceof Date) {
-    return convertDateToString(value);
-  }
-  if (typeof value === "string" && dateRegex.test(value)) {
-    return value;
-  }
-  return convertDateToString(new Date(value));
-};
 
 export { DateInput, type DateInputProps };

@@ -1,5 +1,8 @@
 import {
   type DateInputValue,
+  formatTime,
+  isValidTime,
+  parseTimeToDate,
   type SourceProp,
   type SourceValue,
   toDateInputValue,
@@ -50,7 +53,7 @@ function TimeInput(props: TimeInputProps) {
     inputClassName,
     defaultValue,
     format = formatTime,
-    parse = parseTime,
+    parse = parseTimeToDate,
     label,
     helperText,
     onBlur,
@@ -119,7 +122,7 @@ function TimeInput(props: TimeInputProps) {
       const target = event.target;
       const newValue = target.value;
       // "HH:mm" and "HH:mm:ss" are both valid time strings.
-      const isNewValueValid = newValue === "" || timeRegex.test(newValue);
+      const isNewValueValid = isValidTime(newValue);
 
       if (newValue !== "" && newValue != null && isNewValueValid) {
         field.onChange(newValue);
@@ -141,7 +144,7 @@ function TimeInput(props: TimeInputProps) {
     }
 
     const newValue = localInputRef.current.value;
-    const isNewValueValid = newValue === "" || timeRegex.test(newValue);
+    const isNewValueValid = isValidTime(newValue);
 
     if (isNewValueValid && field.value !== newValue) {
       field.onChange(newValue ?? "");
@@ -202,61 +205,5 @@ type TimeInputProps<
   parse?: (value: string) => SourceValue<TRecord, TPath>;
   inputClassName?: string;
 } & Omit<React.ComponentProps<"input">, "defaultValue" | "type">;
-
-const leftPad =
-  (nb = 2) =>
-  (value: number) =>
-    ("0".repeat(nb) + value).slice(-nb);
-const leftPad2 = leftPad(2);
-
-/**
- * Convert a Date to a local "HH:mm" string for `<input type="time">`.
- */
-const convertDateToString = (value: Date) => {
-  if (!(value instanceof Date) || Number.isNaN(value.getDate())) return "";
-  const hh = leftPad2(value.getHours());
-  const mm = leftPad2(value.getMinutes());
-  return `${hh}:${mm}`;
-};
-
-// hh:mm or hh:mm:ss
-const timeRegex = /^\d{2}:\d{2}(:\d{2})?$/;
-
-/**
- * Convert a value from the dataProvider (Date / "HH:mm" string) to the "HH:mm"
- * display string. Empty → "" (keeps the input controlled).
- */
-const formatTime = (value: DateInputValue): string => {
-  if (value == null || value === "") {
-    return "";
-  }
-  if (value instanceof Date) {
-    return convertDateToString(value);
-  }
-  if (typeof value === "string" && timeRegex.test(value)) {
-    return value;
-  }
-  return convertDateToString(new Date(value));
-};
-
-/**
- * Convert a "HH:mm"/"HH:mm:ss" string to a `Date` (today at that local time),
- * for dataProvider compatibility. Returns `null` for empty/unparseable so a
- * required validator still fires.
- */
-const parseTime = (value: string): Date | null => {
-  if (timeRegex.test(value)) {
-    const [hh = "0", mm = "0", ss = "0"] = value.split(":");
-    const d = new Date();
-    d.setHours(
-      Number.parseInt(hh, 10),
-      Number.parseInt(mm, 10),
-      Number.parseInt(ss, 10),
-      0,
-    );
-    return d;
-  }
-  return null;
-};
 
 export { TimeInput, type TimeInputProps };

@@ -1,5 +1,8 @@
 import {
   type DateInputValue,
+  formatDateTime,
+  isValidDateTime,
+  parseDateTimeToISO,
   type SourceProp,
   type SourceValue,
   toDateInputValue,
@@ -50,7 +53,7 @@ function DateTimeInput(props: DateTimeInputProps) {
     inputClassName,
     defaultValue,
     format = formatDateTime,
-    parse = convertDateStringToISO,
+    parse = parseDateTimeToISO,
     label,
     helperText,
     onBlur,
@@ -118,8 +121,7 @@ function DateTimeInput(props: DateTimeInputProps) {
       }
       const target = event.target;
       const newValue = target.value;
-      const isNewValueValid =
-        newValue === "" || !Number.isNaN(new Date(target.value).getTime());
+      const isNewValueValid = isValidDateTime(newValue);
 
       if (newValue !== "" && newValue != null && isNewValueValid) {
         field.onChange(newValue);
@@ -141,9 +143,7 @@ function DateTimeInput(props: DateTimeInputProps) {
     }
 
     const newValue = localInputRef.current.value;
-    const isNewValueValid =
-      newValue === "" ||
-      !Number.isNaN(new Date(localInputRef.current.value).getTime());
+    const isNewValueValid = isValidDateTime(newValue);
 
     if (isNewValueValid && field.value !== newValue) {
       field.onChange(newValue ?? "");
@@ -204,55 +204,5 @@ type DateTimeInputProps<
   parse?: (value: string) => SourceValue<TRecord, TPath>;
   inputClassName?: string;
 } & Omit<React.ComponentProps<"input">, "defaultValue" | "type">;
-
-const leftPad =
-  (nb = 2) =>
-  (value: number) =>
-    ("0".repeat(nb) + value).slice(-nb);
-const leftPad4 = leftPad(4);
-const leftPad2 = leftPad(2);
-
-/**
- * Convert a Date to a local "yyyy-MM-ddThh:mm" string for `datetime-local`.
- */
-const convertDateToString = (value: Date) => {
-  if (!(value instanceof Date) || Number.isNaN(value.getDate())) return "";
-  const yyyy = leftPad4(value.getFullYear());
-  const MM = leftPad2(value.getMonth() + 1);
-  const dd = leftPad2(value.getDate());
-  const hh = leftPad2(value.getHours());
-  const mm = leftPad2(value.getMinutes());
-  return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
-};
-
-// yyyy-MM-ddThh:mm
-const dateTimeRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
-
-/**
- * Convert a value from the dataProvider (ISO string / `Date`) to the local
- * `datetime-local` display string. Empty → "" (keeps the input controlled).
- */
-const formatDateTime = (value: DateInputValue): string => {
-  if (value == null || value === "") {
-    return "";
-  }
-  if (value instanceof Date) {
-    return convertDateToString(value);
-  }
-  if (typeof value === "string" && dateTimeRegex.test(value)) {
-    return value;
-  }
-  return convertDateToString(new Date(value));
-};
-
-/**
- * Convert the local `datetime-local` string back to an ISO string (browser
- * timezone). Returns `null` for empty so a required validator still fires.
- */
-const convertDateStringToISO = (value: string): string | null => {
-  if (value === "") return null;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date.toISOString();
-};
 
 export { DateTimeInput, type DateTimeInputProps };
