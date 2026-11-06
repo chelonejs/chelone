@@ -76,6 +76,7 @@ export default [
       "icon-button-with-tooltip",
       "keyboard-shortcut",
       "onboarding-tour",
+      "data-provider-devtools",
     ],
   },
 ] satisfies MetaEntry[];
