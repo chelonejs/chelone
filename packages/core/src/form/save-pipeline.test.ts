@@ -12,18 +12,21 @@ describe("sanitizeEmptyValues", () => {
   });
 
   it("omits '' and null keys absent from the record", () => {
+    const record: { title: string; extra?: string; gone?: string } = {
+      title: "old",
+    };
     expect(
-      sanitizeEmptyValues({ title: "kept", extra: "", gone: null }, {
-        title: "old",
-      } as { title: string; extra?: string; gone?: string }),
+      sanitizeEmptyValues({ title: "kept", extra: "", gone: null }, record),
     ).toEqual({ title: "kept" });
   });
 
   it("treats undefined values like null", () => {
+    const record: { onRecord?: number; offRecord?: number } = { onRecord: 1 };
     expect(
-      sanitizeEmptyValues({ onRecord: undefined, offRecord: undefined }, {
-        onRecord: 1,
-      } as { onRecord?: number; offRecord?: number }),
+      sanitizeEmptyValues(
+        { onRecord: undefined, offRecord: undefined },
+        record,
+      ),
     ).toEqual({ onRecord: null });
   });
 

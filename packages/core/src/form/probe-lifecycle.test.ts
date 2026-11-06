@@ -34,7 +34,7 @@
  *    `fieldInfo[name].validationMetaMap[cause].lastAbortController`.
  *  - field timers: pending debounce/async timers in `field.timeoutIds`.
  */
-import type { AnyFieldApi } from "@tanstack/form-core";
+import type { AnyFieldApi, DeepKeys, FieldInfo } from "@tanstack/form-core";
 import { QueryClient } from "@tanstack/query-core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
@@ -78,10 +78,10 @@ afterEach(() => {
  * (which need no `window`); the `window` devtools gauge is exercised in the
  * jsdom React gate.
  */
-const LISTENERS_PER_MOUNT = (globalThis as { window?: unknown }).window ? 3 : 0;
+const LISTENERS_PER_MOUNT = globalThis.window ? 3 : 0;
 
 function trackDevtoolsListeners() {
-  const target = (globalThis as { window?: EventTarget }).window;
+  const target = globalThis.window;
   if (!target) return { net: () => 0 };
   const added = vi.spyOn(target, "addEventListener");
   const removed = vi.spyOn(target, "removeEventListener");
@@ -91,27 +91,19 @@ function trackDevtoolsListeners() {
   return { net: () => count(added) - count(removed) };
 }
 
-interface FieldInfoView {
-  instance: object | null;
-  validationMetaMap: Record<
-    string,
-    { lastAbortController: AbortController } | undefined
-  >;
+/** Mounted field instances on this form, read through its own type. */
+function liveFieldInstances<TRecord>(form: CheloneFormApi<TRecord>): number {
+  const info: Partial<Record<string, FieldInfo<TRecord> | undefined>> =
+    form.fieldInfo;
+  return Object.values(info).filter((field) => field?.instance != null).length;
 }
 
-function fieldInfoMap(form: object): Record<string, FieldInfoView | undefined> {
-  return (form as { fieldInfo: Record<string, FieldInfoView | undefined> })
-    .fieldInfo;
-}
-
-function liveFieldInstances(form: object): number {
-  return Object.values(fieldInfoMap(form)).filter(
-    (info) => info?.instance != null,
-  ).length;
-}
-
-function abortControllersOf(form: object, source: string): AbortController[] {
-  const info = fieldInfoMap(form)[source];
+/** The abort controllers of one field's in-flight validations. */
+function abortControllersOf<TRecord>(
+  form: CheloneFormApi<TRecord>,
+  source: DeepKeys<TRecord>,
+): AbortController[] {
+  const info = form.fieldInfo[source];
   if (!info) return [];
   return Object.values(info.validationMetaMap)
     .filter((meta) => meta !== undefined)
@@ -210,10 +202,10 @@ describe("probe A: churn with async validation in flight", () => {
     });
     const form = controller.form;
     const { validator, resolvers } = makeAsyncValidator();
-    const binding = createFieldBinding(
-      form as CheloneFormApi<{ title: string }>,
-      { source: "title", validate: validator },
-    );
+    const binding = createFieldBinding(form, {
+      source: "title",
+      validate: validator,
+    });
 
     // Latch the binding's async slot before the loop. On a binding's first
     // validation the sync probe calls the validator inline, so `resolvers`
@@ -340,10 +332,7 @@ describe("probe B: post-destroy no-ops", () => {
       save: async () => undefined,
     });
     const form = controller.form;
-    const binding = createFieldBinding(
-      form as CheloneFormApi<{ title: string }>,
-      { source: "title" },
-    );
+    const binding = createFieldBinding(form, { source: "title" });
     const off = binding.subscribe(noop);
     expect(liveFieldInstances(form)).toBe(1);
     binding.destroy();
@@ -367,10 +356,7 @@ describe("probe B: post-destroy no-ops", () => {
       save: async () => undefined,
     });
     const form = controller.form;
-    const binding = createArrayBinding(
-      form as CheloneFormApi<{ tags: string[] }>,
-      { source: "tags", scalar: true },
-    );
+    const binding = createArrayBinding(form, { source: "tags", scalar: true });
     const off = binding.subscribe(noop);
     expect(liveFieldInstances(form)).toBe(1);
     binding.destroy();
@@ -535,10 +521,7 @@ describe("probe C: composed edit-form lifecycle churn", () => {
       "posts",
       { id: 1 },
     );
-    const form = controller.form as CheloneFormApi<{
-      id: number;
-      title: string;
-    }>;
+    const form = controller.form;
     const binding = createFieldBinding(form, { source: "title" });
 
     const offC = controller.subscribe(noop);
@@ -583,10 +566,7 @@ describe("probe D: detached mutations mount/observe/time nothing", () => {
       save: async () => undefined,
     });
     const form = controller.form;
-    const binding = createFieldBinding(
-      form as CheloneFormApi<{ title: string }>,
-      { source: "title" },
-    );
+    const binding = createFieldBinding(form, { source: "title" });
     // Never subscribed.
     binding.setValue("detached-write");
     expect(form.getFieldValue("title")).toBe("detached-write"); // allowed
@@ -601,10 +581,7 @@ describe("probe D: detached mutations mount/observe/time nothing", () => {
       save: async () => undefined,
     });
     const form = controller.form;
-    const binding = createArrayBinding(
-      form as CheloneFormApi<{ tags: string[] }>,
-      { source: "tags", scalar: true },
-    );
+    const binding = createArrayBinding(form, { source: "tags", scalar: true });
     // Never subscribed.
     binding.add("a");
     binding.add("b");
@@ -735,27 +712,20 @@ describe("probe F: overlapping submits", () => {
       notifications: ctx.notifications,
     });
     const off = controller.subscribe(noop);
-    const binding = createFieldBinding(
-      controller.form as CheloneFormApi<{ title: string }>,
-      { source: "title" },
-    );
+    const binding = createFieldBinding(controller.form, { source: "title" });
     const offF = binding.subscribe(noop);
     controller.form.setFieldValue("title", "edited");
 
     await controller.submit();
     await controller.submit();
     // The server error landed on the title field's onSubmit channel.
-    const errorMap = controller.form.state.fieldMeta.title?.errorMap as
-      | Record<string, unknown>
-      | undefined;
+    const errorMap = controller.form.state.fieldMeta.title?.errorMap;
     expect(errorMap?.onSubmit).toBe("server rejected");
 
     // Editing the field clears the server error (auto-clear on passing change).
     binding.setValue("fixed");
     await vi.waitFor(() => {
-      const map = controller.form.state.fieldMeta.title?.errorMap as
-        | Record<string, unknown>
-        | undefined;
+      const map = controller.form.state.fieldMeta.title?.errorMap;
       expect(map?.onSubmit == null).toBe(true);
     });
 
