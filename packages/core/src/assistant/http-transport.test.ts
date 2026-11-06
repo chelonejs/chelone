@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { HttpError } from "../data/http-error";
 import { httpAssistantTransport } from "./http-transport";
 import type { AssistantChunk, AssistantMessage } from "./types";
 
@@ -38,6 +39,54 @@ describe("httpAssistantTransport", () => {
       credentials: "include",
       body: '{"messages":[{"role":"user","content":"Hello"}],"tools":{"count":{"description":"Count records","parameters":{"type":"object"}}}}',
       signal,
+    });
+  });
+
+  it("yields each chunk of a newline-delimited stream, including a line split across reads", async () => {
+    const bytes = new TextEncoder().encode(
+      '\n{"type":"text","delta":"café"}\r\n \n{"type":"tool-call","id":"c1","toolName":"count","args":{"n":2}}\n{"type":"done"}\n',
+    );
+    const accent = bytes.indexOf(0xc3);
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(bytes.slice(0, 12));
+        controller.enqueue(bytes.slice(12, accent + 1));
+        controller.enqueue(bytes.slice(accent + 1));
+        controller.close();
+      },
+    });
+    const transport = httpAssistantTransport({
+      url,
+      fetch: async () => new Response(body),
+    });
+
+    expect(
+      await collect(
+        transport.send([], {}, { signal: new AbortController().signal }),
+      ),
+    ).toEqual([
+      { type: "text", delta: "café" },
+      { type: "tool-call", id: "c1", toolName: "count", args: { n: 2 } },
+      { type: "done" },
+    ]);
+    expect(body.locked).toBe(false);
+  });
+
+  it("a status that is not ok throws an HttpError", async () => {
+    const transport = httpAssistantTransport({
+      url,
+      fetch: async () =>
+        new Response("The model is unavailable", { status: 503 }),
+    });
+
+    const result = collect(
+      transport.send([], {}, { signal: new AbortController().signal }),
+    );
+
+    await expect(result).rejects.toBeInstanceOf(HttpError);
+    await expect(result).rejects.toMatchObject({
+      status: 503,
+      body: "The model is unavailable",
     });
   });
 });
