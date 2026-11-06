@@ -6045,6 +6045,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/maps/use-coordinates.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/maps/use-geo-json-source.ts",
           "type": "registry:component"
         },
@@ -6134,6 +6138,7 @@
       "registryDependencies": [
         "@chelone/lib-utils",
         "@chelone/map-canvas",
+        "@chelone/use-coordinates",
         "@chelone/use-map"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
@@ -6192,6 +6197,20 @@
       "registryDependencies": ["@chelone/geo-json-field"],
       "categories": ["chelone", "components"],
       "dependencies": ["maplibre-gl"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "use-coordinates",
+      "type": "registry:component",
+      "title": "Use Coordinates",
+      "files": [
+        {
+          "path": "src/components/maps/use-coordinates.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6456,6 +6475,7 @@
         "@chelone/lib-utils",
         "@chelone/skeleton",
         "@chelone/ui-spinner",
+        "@chelone/use-coordinates",
         "@chelone/use-map",
         "@chelone/validation-error",
         "maps"
@@ -6647,9 +6667,10 @@
       "registryDependencies": [
         "@chelone/lib-utils",
         "@chelone/skeleton",
+        "@chelone/use-coordinates",
         "@chelone/use-reverse-geocode"
       ],
-      "dependencies": ["@chelone/core", "@chelone/vue", "maplibre-gl"],
+      "dependencies": ["@chelone/core", "maplibre-gl"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },

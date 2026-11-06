@@ -1,14 +1,15 @@
-<script lang="ts">
+<script lang="ts" generic="TRecord">
 import type { SourceProp } from "@chelone/core";
 import type { GeoJsonViewProps } from "./geo-json-view.vue";
 
+// type-escape: without a `record` the paths are loose, as `SourceProp<unknown>` is
 /** Props for {@link GeoJsonField}. */
-export interface GeoJsonFieldProps
+export interface GeoJsonFieldProps<TRecord = unknown>
   extends Partial<Omit<GeoJsonViewProps, "data">> {
   /** The record property holding the GeoJSON value. */
   source: SourceProp;
   /** Defaults to the ambient record. */
-  record?: Record<string, unknown>;
+  record?: TRecord;
   /** Used when the property is `undefined`. */
   defaultValue?: unknown;
   /** Replaces the translation of `chelone.map.no_geometry`. */
@@ -16,7 +17,7 @@ export interface GeoJsonFieldProps
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord">
 /**
  * Shows a GeoJSON value from a record on a map. Null, a string, a number or a
  * malformed object shows a text panel in its place. A string holding JSON text
@@ -35,7 +36,7 @@ import { cn } from "../../lib/utils";
 import { useFieldValue } from "../../record/use-field-value";
 import GeoJsonView from "./geo-json-view.vue";
 
-const props = withDefaults(defineProps<GeoJsonFieldProps>(), {
+const props = withDefaults(defineProps<GeoJsonFieldProps<TRecord>>(), {
   fitBounds: true,
   fitPadding: 20,
   maxFitZoom: 18,
@@ -45,7 +46,8 @@ const props = withDefaults(defineProps<GeoJsonFieldProps>(), {
 
 const translate = useTranslate();
 // A getter, so a new record prop reaches the computed value.
-const value = useFieldValue({
+// type-escape: `source` is the loose `SourceProp`, so the read is untyped
+const value = useFieldValue<unknown>({
   source: props.source,
   get record() {
     return props.record;
