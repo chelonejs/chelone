@@ -20,6 +20,12 @@
       "comment": "Content to display as the link text. Defaults to the URL value."
     },
     {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
       "name": "empty",
       "type": "ReactNode",
       "optional": true,
