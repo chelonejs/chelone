@@ -1,6 +1,6 @@
 import { HttpError } from "@chelone/core";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { testClient } from "./__fixtures__/test-client";
 import { supabaseAuthProvider } from "./auth-provider";
 import { supabaseDataProvider } from "./data-provider";
 
@@ -17,7 +17,9 @@ const respond = (
 
 const stubFetch = (response: Response) => {
   // A body reads once, so each call gets its own copy.
-  const fetchMock = vi.fn().mockImplementation(async () => response.clone());
+  const fetchMock = vi
+    .fn<(url: string, init: RequestInit) => Promise<Response>>()
+    .mockImplementation(async () => response.clone());
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
 };
@@ -457,7 +459,7 @@ describe("supabaseDataProvider", () => {
 
       expect(rejection).toBeInstanceOf(HttpError);
       expect(rejection).toMatchObject({ status: 401 });
-      const auth = supabaseAuthProvider({ auth: {} } as SupabaseClient);
+      const auth = supabaseAuthProvider(testClient());
       await expect(auth.checkError?.(rejection)).rejects.toBe(rejection);
     });
   });

@@ -14,7 +14,9 @@ const respond = (
 
 const stubFetch = (response: Response) => {
   // A body reads once, so each call gets its own copy.
-  const fetchMock = vi.fn().mockImplementation(async () => response.clone());
+  const fetchMock = vi
+    .fn<(url: string, init: RequestInit) => Promise<Response>>()
+    .mockImplementation(async () => response.clone());
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
 };
@@ -23,10 +25,10 @@ const lastCall = (fetchMock: ReturnType<typeof stubFetch>) => {
   const [url, init] = fetchMock.mock.calls.at(-1) ?? [];
   return {
     url: new URL(String(url)),
-    method: (init?.method ?? "GET") as string,
+    method: init?.method ?? "GET",
     headers: new Headers(init?.headers),
-    credentials: init?.credentials as RequestCredentials | undefined,
-    body: init?.body as string | undefined,
+    credentials: init?.credentials,
+    body: typeof init?.body === "string" ? init.body : undefined,
   };
 };
 
@@ -224,7 +226,8 @@ describe("restDataProvider", () => {
       .catch((e: unknown) => e);
 
     expect(error).toBeInstanceOf(HttpError);
-    expect((error as HttpError).status).toBe(403);
+    if (!(error instanceof HttpError)) throw error;
+    expect(error.status).toBe(403);
   });
 
   it("getMany sends every id in one request", async () => {
@@ -355,7 +358,8 @@ describe("restDataProvider", () => {
       .catch((e: unknown) => e);
 
     expect(error).toBeInstanceOf(HttpError);
-    expect((error as HttpError).status).toBe(500);
+    if (!(error instanceof HttpError)) throw error;
+    expect(error.status).toBe(500);
   });
 
   it("update with an empty body resolves with the sent data merged over previousData", async () => {
@@ -437,8 +441,9 @@ describe("restDataProvider", () => {
       .catch((e: unknown) => e);
 
     expect(error).toBeInstanceOf(ValidationError);
-    expect((error as ValidationError).message).toBe("Invalid");
-    expect((error as ValidationError).fieldErrors).toEqual({
+    if (!(error instanceof ValidationError)) throw error;
+    expect(error.message).toBe("Invalid");
+    expect(error.fieldErrors).toEqual({
       title: "is required",
       tags: ["too short", "too long"],
     });
@@ -457,7 +462,8 @@ describe("restDataProvider", () => {
 
     for (const error of [updated, updatedMany]) {
       expect(error).toBeInstanceOf(ValidationError);
-      expect((error as ValidationError).fieldErrors).toEqual({
+      if (!(error instanceof ValidationError)) throw error;
+      expect(error.fieldErrors).toEqual({
         title: "is required",
       });
     }
@@ -480,7 +486,8 @@ describe("restDataProvider", () => {
         .catch((e: unknown) => e);
 
       expect(error).toBeInstanceOf(HttpError);
-      expect((error as HttpError).status).toBe(422);
+      if (!(error instanceof HttpError)) throw error;
+      expect(error.status).toBe(422);
     }
   });
 
@@ -493,7 +500,8 @@ describe("restDataProvider", () => {
 
     expect(error).toBeInstanceOf(HttpError);
     expect(error).not.toBeInstanceOf(ValidationError);
-    expect((error as HttpError).status).toBe(401);
+    if (!(error instanceof HttpError)) throw error;
+    expect(error.status).toBe(401);
   });
 
   it("a 422 from a read stays an HttpError", async () => {
@@ -524,8 +532,10 @@ describe("restDataProvider", () => {
 
     expect(created).toBeInstanceOf(ApiError);
     expect(created).not.toBeInstanceOf(ValidationError);
-    expect((created as Error).message).toBe("api 422");
+    if (!(created instanceof ApiError)) throw created;
+    expect(created.message).toBe("api 422");
     expect(read).toBeInstanceOf(ApiError);
-    expect((read as Error).message).toBe("api 500");
+    if (!(read instanceof ApiError)) throw read;
+    expect(read.message).toBe("api 500");
   });
 });

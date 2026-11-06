@@ -16,6 +16,7 @@ import {
   type DataProvider,
   fakeDataProvider,
 } from "@chelone/core";
+import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -131,8 +132,7 @@ async function mountBoard({
   return { wrapper, router, notify };
 }
 
-/** A wrapper's node: `VueWrapper` is generic over an unknown instance here. */
-const el = (node: { element: unknown }) => node.element as HTMLElement;
+const el = (node: { element: Node }) => elementOf(node.element, HTMLElement);
 const column = (wrapper: VueWrapper, label: string) => {
   const found = wrapper.find(`[role="group"][aria-label="${label}"]`);
   if (!found.exists()) throw new Error(`no column named ${label}`);
@@ -467,7 +467,9 @@ describe("<KanbanBoard>", () => {
     );
     expect(counts).toEqual(["2", "1", "0"]);
     expect(
-      el(wrapper.get('[data-slot="kanban-board"]')).contains(el(groups[0]!)),
+      el(wrapper.get('[data-slot="kanban-board"]')).contains(
+        el(defined(groups[0])),
+      ),
     ).toBe(true);
   });
 
@@ -814,7 +816,7 @@ describe("<KanbanBoard>", () => {
 
     // The item is a `role="menuitem"` div with `tabindex="0"`: Tab reaches it,
     // and Enter is its activation. A synthetic click would hide that.
-    const item = el(items[1]!);
+    const item = el(defined(items[1]));
     expect(item.getAttribute("tabindex")).toBe("0");
     await press(item, "Enter");
 
@@ -837,7 +839,7 @@ describe("<KanbanBoard>", () => {
 
     await fire(moveButton(wrapper, "Write it"), "click");
     const [first] = wrapper.findAll('[role="menuitem"]');
-    const space = await press(el(first!), " ");
+    const space = await press(el(defined(first)), " ");
 
     expect(space.defaultPrevented).toBe(true);
     expect(wrapper.find('[role="menuitem"]').exists()).toBe(false);
@@ -858,7 +860,7 @@ describe("<KanbanBoard>", () => {
     expect(wrapper.findAll('[role="menuitem"]')).toHaveLength(2);
 
     const [first] = wrapper.findAll('[role="menuitem"]');
-    await press(el(first!), "Escape");
+    await press(el(defined(first)), "Escape");
 
     expect(wrapper.find('[role="menuitem"]').exists()).toBe(false);
     expect(update).not.toHaveBeenCalled();
@@ -871,7 +873,7 @@ describe("<KanbanBoard>", () => {
 
     await fire(moveButton(wrapper, "Write it"), "click");
     const [first] = wrapper.findAll('[role="menuitem"]');
-    await press(el(first!), "x");
+    await press(el(defined(first)), "x");
 
     expect(wrapper.findAll('[role="menuitem"]')).toHaveLength(2);
     expect(update).not.toHaveBeenCalled();

@@ -7,6 +7,7 @@ import {
   createI18n,
   createNotificationStore,
   fakeDataProvider,
+  isGeoGeometry,
   type JsonObject,
   type MessageCatalog,
   mapMessages,
@@ -444,7 +445,10 @@ describe("OsmFeatureSubtract", () => {
     const m = await setup(subtract(), multi(field));
     await m.click();
 
-    const written = m.value() as MultiPolygon;
+    const written = m.value();
+    if (!isGeoGeometry(written) || written.type !== "MultiPolygon") {
+      throw new Error("Expected a MultiPolygon");
+    }
     expect(written.type).toBe("MultiPolygon");
     expect(written.coordinates).toHaveLength(2);
     expect(m.pushed()[0]).toMatchObject({

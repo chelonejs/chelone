@@ -17,7 +17,8 @@ const bbox: Box = [2.29, 48.84, 2.31, 48.86];
 
 function fakeProvider(query: OverpassProvider["query"] = async () => fixture) {
   const spy = vi.fn<OverpassProvider["query"]>(query);
-  return { provider: { name: "fake", query: spy } as OverpassProvider, spy };
+  const provider: OverpassProvider = { name: "fake", query: spy };
+  return { provider, spy };
 }
 
 const newClient = () =>

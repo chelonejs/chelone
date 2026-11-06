@@ -64,6 +64,7 @@ it("the Vue components the differences page names are exported by @chelone/vue",
     "StatusTransitionButton",
     "DualApprovalButton",
     "CommandMenu",
+    "DiffViewer",
   ]) {
     expect(page, `${name} on the page`).toMatch(new RegExp(`\`<?${name}\\b`));
     expect(exported, `${name} exported`).toMatch(new RegExp(`\\b${name}\\b`));
