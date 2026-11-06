@@ -403,8 +403,8 @@ export type ResourceComponents<
   >]: ResourceMember<Components[K], RecordOf<TResources, TName>>;
 } & TypedInputMembers<RecordOf<TResources, TName>> & {
     ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
-    Edit: BoundView<EditProps, ReturnType<typeof Edit>>;
-    Create: BoundView<CreateProps, ReturnType<typeof Create>>;
+    Edit: BoundView<EditProps<RecordOf<TResources, TName>>, ReactNode>;
+    Create: BoundView<CreateProps<RecordOf<TResources, TName>>, ReactNode>;
     Show: BoundView<ShowProps, ReturnType<typeof Show>>;
     List: BoundView<ListProps, ReturnType<typeof List>>;
   };

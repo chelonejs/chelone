@@ -213,6 +213,7 @@ describe("useReferenceManyFieldController", () => {
   it("follows a record whose id changes and releases the previous controller", async () => {
     const { wrapper, referenceSpy, observerCount, dataObserverCount } =
       makeHarness();
+    const initialProps: RecordProps = { record: { id: 1 } };
     const { result, rerender } = renderHook(
       ({ record }: RecordProps) =>
         useReferenceManyFieldController<R, "comments">({
@@ -220,7 +221,7 @@ describe("useReferenceManyFieldController", () => {
           target: "post_id",
           record,
         }),
-      { wrapper, initialProps: { record: { id: 1 } } as RecordProps },
+      { wrapper, initialProps },
     );
     await waitFor(() => expect(result.current.total).toBe(5));
     const attached = observerCount();
@@ -241,6 +242,7 @@ describe("useReferenceManyFieldController", () => {
 
   it("with no record id fetches nothing", async () => {
     const { wrapper, referenceSpy, dataObserverCount } = makeHarness();
+    const initialProps: RecordProps = { record: undefined };
     const { result, rerender } = renderHook(
       ({ record }: RecordProps) =>
         useReferenceManyFieldController<R, "comments">({
@@ -248,7 +250,7 @@ describe("useReferenceManyFieldController", () => {
           target: "post_id",
           record,
         }),
-      { wrapper, initialProps: { record: undefined } as RecordProps },
+      { wrapper, initialProps },
     );
     expect(result.current.data).toEqual([]);
     expect(result.current.total).toBe(0);
@@ -388,6 +390,7 @@ describe("useReferenceOneFieldController", () => {
 
   it("follows a record whose id changes", async () => {
     const { wrapper, referenceSpy, observerCount } = makeHarness();
+    const initialProps: RecordProps = { record: { id: 1 } };
     const { result, rerender } = renderHook(
       ({ record }: RecordProps) =>
         useReferenceOneFieldController<R, "profiles">({
@@ -395,7 +398,7 @@ describe("useReferenceOneFieldController", () => {
           target: "post_id",
           record,
         }),
-      { wrapper, initialProps: { record: { id: 1 } } as RecordProps },
+      { wrapper, initialProps },
     );
     await waitFor(() =>
       expect(result.current.referenceRecord).toMatchObject({ bio: "first" }),

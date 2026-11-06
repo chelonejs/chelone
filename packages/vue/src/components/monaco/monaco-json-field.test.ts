@@ -12,9 +12,7 @@ import { defineComponent, h } from "vue";
 import { provideCheloneContext } from "../../context";
 import type { Theme } from "../admin/layout/theme-context";
 import ThemeProvider from "../admin/layout/theme-provider.vue";
-import MonacoJsonField, {
-  type MonacoJsonFieldProps,
-} from "./monaco-json-field.vue";
+import MonacoJsonField from "./monaco-json-field.vue";
 
 vi.mock("monaco-editor", () => ({}));
 
@@ -76,8 +74,9 @@ afterEach(() => {
   for (const w of mounted.splice(0)) w.unmount();
 });
 
+// The component is generic in its record, so its props are its first parameter.
 function mountField(
-  props: MonacoJsonFieldProps,
+  props: Parameters<typeof MonacoJsonField>[0],
   theme: Theme = "light",
   slots?: Record<string, () => unknown>,
 ) {

@@ -1,10 +1,12 @@
-<script lang="ts">
+<script lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
+import type { DateInputValue, LooseRecord, SourceProp } from "@chelone/core";
+import type { SourceInputProps } from "./source-input-props";
+
 /** Props for {@link DateInput}. */
-export interface DateInputProps {
-  source: SourceProp;
-  label?: string | false;
-  defaultValue?: unknown;
-  validate?: Validator | readonly Validator[];
+export interface DateInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> extends SourceInputProps<RecordType, TPath> {
   /** Read transform (form value → display string). Default {@link formatDate}. */
   format?: (value: DateInputValue) => string | null;
   /** Write transform (display string → stored value). Default core parse (""→null). */
@@ -17,7 +19,7 @@ export interface DateInputProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
 /**
  * `<DateInput>` — native date picker for a "YYYY-MM-DD" value, the Vue analog of
  * `@chelone/react`'s `inputs/date-input.tsx`. Formats an incoming string / ISO /
@@ -29,13 +31,7 @@ export interface DateInputProps {
  * dance (born of RHF's `field.ref`) maps to a focused-buffer + external re-sync.
  */
 
-import {
-  type DateInputValue,
-  type SourceProp,
-  toDateInputValue,
-  toTextValue,
-  type Validator,
-} from "@chelone/core";
+import { textOf, toDateInputValue, toTextValue } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
@@ -45,7 +41,7 @@ import { formatDate, isValidDate } from "./date-input-format";
 import { humanizeSource } from "./label-text";
 
 const props = withDefaults(
-  defineProps<DateInputProps>(),
+  defineProps<DateInputProps<RecordType, TPath>>(),
   // A `string | false` prop is inferred Boolean-inclusive, so an ABSENT `label`
   // would coerce to `false` (Vue's boolean-prop rule) and suppress the label.
   // Default it to `undefined` so the humanized fallback renders.
@@ -62,10 +58,10 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   parse: userParse && ((v: unknown) => userParse(toTextValue(v))),
 });
 
-const buffer = ref(value.value == null ? "" : String(value.value));
+const buffer = ref(textOf(value.value));
 const focused = ref(false);
 watch(value, (next) => {
-  if (!focused.value) buffer.value = next == null ? "" : String(next);
+  if (!focused.value) buffer.value = textOf(next);
 });
 
 const invalid = computed(() => touched.value && error.value != null);
@@ -82,7 +78,7 @@ function onBlur() {
   focused.value = false;
   if (isValidDate(buffer.value)) setValue(buffer.value);
   blur();
-  buffer.value = value.value == null ? "" : String(value.value);
+  buffer.value = textOf(value.value);
 }
 </script>
 

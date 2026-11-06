@@ -40,6 +40,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -262,9 +263,9 @@ describe("P7e end-to-end — (b) router navigation opens the record views", () =
 
     // Edit hydrated post #2 into the form.
     await waitFor(() =>
-      expect((screen.getByLabelText(/title/i) as HTMLInputElement).value).toBe(
-        "Beta",
-      ),
+      expect(
+        elementOf(screen.getByLabelText(/title/i), HTMLInputElement).value,
+      ).toBe("Beta"),
     );
   });
 
@@ -294,7 +295,7 @@ describe("P7e end-to-end — (c) edit hydrates, edits, submits, reflects", () =>
     // Hydrated: the form shows the fetched title.
     const input = await screen.findByLabelText(/title/i);
     await waitFor(() =>
-      expect((input as HTMLInputElement).value).toBe("Alpha"),
+      expect(elementOf(input, HTMLInputElement).value).toBe("Alpha"),
     );
 
     // Edit the field, then submit.

@@ -1,4 +1,5 @@
 import {
+  deepEqual,
   featuresToShape,
   geoBounds,
   heldFeatures,
@@ -111,20 +112,6 @@ export interface ShapeInputProps<TRecord = LooseRecord> {
   className?: string;
 }
 
-function sameValue(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-  const keysA = Object.keys(a);
-  if (keysA.length !== Object.keys(b).length) return false;
-  return keysA.every((key) =>
-    sameValue(
-      (a as Record<string, unknown>)[key],
-      (b as Record<string, unknown>)[key],
-    ),
-  );
-}
-
 const AREA_TOOLS: ToolbarTool[] = [
   "draw-polygon",
   "draw-rectangle",
@@ -221,7 +208,7 @@ function FitToShape({
   features: DrawFeature[];
   held: DrawFeature[];
   value: unknown;
-  written: React.RefObject<unknown>;
+  written: React.RefObject<ShapeValue | undefined>;
 }) {
   const map = useMap();
   const fitted = useRef(false);
@@ -312,7 +299,7 @@ export function ShapeInput<TRecord = LooseRecord>({
   const { field, fieldState, isRequired } = useInput({
     source,
     validate: validators,
-    format: (v: unknown) => v ?? null,
+    format: (v) => v ?? null,
   });
   const invalid = fieldState.invalid;
   const error = fieldState.error;
@@ -331,7 +318,7 @@ export function ShapeInput<TRecord = LooseRecord>({
   const controlsRef = useRef(controls);
   controlsRef.current = controls;
   // What the last edit wrote, so the first shape the user draws is not framed.
-  const written = useRef<unknown>(undefined);
+  const written = useRef<ShapeValue | undefined>(undefined);
   const notifications = useCheloneNotifications();
   const latest = useRef({
     field,
@@ -380,7 +367,7 @@ export function ShapeInput<TRecord = LooseRecord>({
     }
     const now = latest.current;
     // Only an untouched field takes the result: anything else was edited since.
-    if (now.field.value !== committed || sameValue(result, committed)) return;
+    if (now.field.value !== committed || deepEqual(result, committed)) return;
     written.current = result;
     now.field.onChange(result);
     now.field.onBlur();
@@ -418,7 +405,8 @@ export function ShapeInput<TRecord = LooseRecord>({
       aspectRatio: now.aspectRatio,
       addHeld,
     });
-    written.current = next;
+    // An emptied shape is written as null: `undefined` stands for it here.
+    written.current = next ?? undefined;
     now.field.onChange(next);
     now.field.onBlur();
     if (edit.type === "draw") setTool(null);

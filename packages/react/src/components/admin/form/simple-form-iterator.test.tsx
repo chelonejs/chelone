@@ -11,6 +11,7 @@ import {
   type FieldErrors,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -105,6 +106,20 @@ function setup<TFormData extends Record<string, unknown>>(
   };
 }
 
+/** Every control labelled `label`, checked as an input. */
+function inputsByLabel(label: string): HTMLInputElement[] {
+  return screen
+    .getAllByLabelText(label)
+    .map((el) => elementOf(el, HTMLInputElement));
+}
+
+/** Every button named `name`, checked as a button. */
+function buttonsNamed(name: string): HTMLButtonElement[] {
+  return screen
+    .getAllByRole("button", { name })
+    .map((el) => elementOf(el, HTMLButtonElement));
+}
+
 function nth<T>(list: readonly T[], index: number): T {
   const item = list[index];
   if (item === undefined) throw new Error(`no item at ${index}`);
@@ -128,7 +143,7 @@ describe("SimpleFormIterator", () => {
     );
     const rows = screen.getAllByRole("listitem");
     expect(rows).toHaveLength(2);
-    const skus = screen.getAllByLabelText("SKU") as HTMLInputElement[];
+    const skus = inputsByLabel("SKU");
     expect(skus.map((el) => el.value)).toEqual(["a-1", "b-2"]);
     expect(within(nth(rows, 1)).getByLabelText("SKU")).toBe(nth(skus, 1));
 
@@ -164,11 +179,7 @@ describe("SimpleFormIterator", () => {
       { defaultValues: { tags: ["a", "b", "c"] } },
     );
     fireEvent.click(nth(screen.getAllByRole("button", { name: "Remove" }), 1));
-    expect(
-      (screen.getAllByLabelText("Tag") as HTMLInputElement[]).map(
-        (el) => el.value,
-      ),
-    ).toEqual(["a", "c"]);
+    expect(inputsByLabel("Tag").map((el) => el.value)).toEqual(["a", "c"]);
     expect(await submit()).toEqual({ tags: ["a", "c"] });
   });
 
@@ -181,18 +192,16 @@ describe("SimpleFormIterator", () => {
       </ArrayInput>,
       { defaultValues: { tags: ["a", "b", "c"] } },
     );
-    const buttons = (name: string) =>
-      screen.getAllByRole("button", { name }) as HTMLButtonElement[];
-    expect(nth(buttons("Move up"), 0).disabled).toBe(true);
-    expect(nth(buttons("Move up"), 1).disabled).toBe(false);
-    expect(nth(buttons("Move down"), 2).disabled).toBe(true);
-    expect(nth(buttons("Move down"), 1).disabled).toBe(false);
+    expect(nth(buttonsNamed("Move up"), 0).disabled).toBe(true);
+    expect(nth(buttonsNamed("Move up"), 1).disabled).toBe(false);
+    expect(nth(buttonsNamed("Move down"), 2).disabled).toBe(true);
+    expect(nth(buttonsNamed("Move down"), 1).disabled).toBe(false);
 
-    fireEvent.click(nth(buttons("Move down"), 0));
+    fireEvent.click(nth(buttonsNamed("Move down"), 0));
     expect(await submit()).toEqual({ tags: ["b", "a", "c"] });
-    fireEvent.click(nth(buttons("Move up"), 2));
+    fireEvent.click(nth(buttonsNamed("Move up"), 2));
     expect(await submit()).toEqual({ tags: ["b", "c", "a"] });
-    expect(nth(buttons("Move down"), 2).disabled).toBe(true);
+    expect(nth(buttonsNamed("Move down"), 2).disabled).toBe(true);
   });
 
   it("clear asks for confirmation and empties the array only on confirm", async () => {
@@ -383,14 +392,14 @@ describe("SimpleFormIterator", () => {
       </ArrayInput>,
       { defaultValues: { tags: ["a", "b", "c"] } },
     );
-    const first = nth(screen.getAllByLabelText("Tag") as HTMLInputElement[], 0);
+    const first = nth(inputsByLabel("Tag"), 0);
     first.focus();
     expect(document.activeElement).toBe(first);
 
     fireEvent.click(
       nth(screen.getAllByRole("button", { name: "Move down" }), 0),
     );
-    const inputs = screen.getAllByLabelText("Tag") as HTMLInputElement[];
+    const inputs = inputsByLabel("Tag");
     expect(inputs.map((el) => el.value)).toEqual(["b", "a", "c"]);
     expect(nth(inputs, 1)).toBe(first);
     expect(document.activeElement).toBe(first);

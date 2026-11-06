@@ -18,6 +18,7 @@
  * </CanAccess>
  */
 
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type { ReactNode } from "react";
 import { useMenuAccess } from "../layout/use-menu-access";
 
@@ -26,8 +27,12 @@ export interface CanAccessProps {
   action: string;
   /** The resource to check (e.g. `'posts'`). */
   resource: string;
-  /** Optional record the grant is scoped to (record-level predicates). */
-  record?: unknown;
+  /**
+   * Optional record the grant is scoped to (record-level predicates). `id` is
+   * the floor; the rest is whatever the grant's predicate reads, so a record of
+   * the caller's own shape and an inline record both fit.
+   */
+  record?: ResourceRecord | LooseRecord;
   /** Rendered when access is granted. */
   children: ReactNode;
   /** Rendered while the access check is pending. Defaults to `null`. */

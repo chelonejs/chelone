@@ -336,9 +336,7 @@ describe("createChoicesController — selected resolution (non-id lookupKey #16)
     expect(getManySpy).not.toHaveBeenCalled();
     // a getList call carried the lookupKey filter
     const selectedCall = getListSpy.mock.calls.find(
-      (call) =>
-        (call[1]?.filter as Record<string, unknown> | undefined)?.isbn ===
-        "isbn-20",
+      (call) => call[1]?.filter?.isbn === "isbn-20",
     );
     expect(selectedCall).toBeDefined();
     expect(c.getSnapshot().selectedChoices[0]?.isbn).toBe("isbn-20");
@@ -355,8 +353,7 @@ describe("createChoicesController — selected resolution (non-id lookupKey #16)
     const getListSpy = vi
       .spyOn(ctx.dataProvider, "getList")
       .mockImplementation(async (resource, params) => {
-        const isbn = (params.filter as Record<string, unknown> | undefined)
-          ?.isbn;
+        const isbn = params.filter?.isbn;
         if (Array.isArray(isbn)) {
           return {
             data: rows.filter((r) => isbn.includes(r.isbn)),
@@ -377,7 +374,7 @@ describe("createChoicesController — selected resolution (non-id lookupKey #16)
       expect(c.getSnapshot().selectedChoices.length).toBe(2),
     );
     const selectedCall = getListSpy.mock.calls.find((call) => {
-      const f = (call[1]?.filter as Record<string, unknown> | undefined)?.isbn;
+      const f = call[1]?.filter?.isbn;
       return Array.isArray(f);
     });
     expect(selectedCall).toBeDefined();

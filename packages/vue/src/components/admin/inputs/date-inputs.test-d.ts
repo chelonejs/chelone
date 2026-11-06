@@ -12,6 +12,9 @@ import {
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import { createResourceComponentsOf } from "../../../create-resource-components";
+import type { DateInputProps } from "./date-input.vue";
+import type { DateTimeInputProps } from "./date-time-input.vue";
+import type { TimeInputProps } from "./time-input.vue";
 
 const resources = defineResources({
   posts: {
@@ -79,5 +82,41 @@ describe("the date inputs under a resource", () => {
     posts.DateTimeInput<"publishedAtt">;
     // @ts-expect-error `publishedAtt` is no path of a post
     posts.TimeInput<"publishedAtt">;
+  });
+});
+
+describe("the date input SFCs are generic in their record and source", () => {
+  it("each props type pins defaultValue to the value at its source", () => {
+    expectTypeOf<
+      Mutual<
+        DateInputProps<Post, "publishedAt">["defaultValue"],
+        SourceValue<Post, "publishedAt"> | undefined
+      >
+    >().toEqualTypeOf<true>();
+    expectTypeOf<
+      Mutual<
+        DateTimeInputProps<Post, "publishedAt">["defaultValue"],
+        SourceValue<Post, "publishedAt"> | undefined
+      >
+    >().toEqualTypeOf<true>();
+    expectTypeOf<
+      Mutual<
+        TimeInputProps<Post, "publishedAt">["defaultValue"],
+        SourceValue<Post, "publishedAt"> | undefined
+      >
+    >().toEqualTypeOf<true>();
+  });
+
+  it("each props type rejects a default of another type", () => {
+    const date: DateInputProps<Post, "publishedAt"> = {
+      source: "publishedAt",
+      defaultValue: new Date(),
+    };
+    const wrong: DateInputProps<Post, "publishedAt"> = {
+      source: "publishedAt",
+      // @ts-expect-error `publishedAt` holds a Date, not a string
+      defaultValue: "2026-01-01",
+    };
+    void [date, wrong];
   });
 });

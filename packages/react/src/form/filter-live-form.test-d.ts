@@ -12,12 +12,14 @@ import {
   useListContext,
 } from "./filter-live-form";
 
+declare const result: UseFilterFormResult;
+declare const value: ListContextValue;
+
 it("useFilterForm accepts optional resource + debounce and returns the form surface", () => {
   expectTypeOf<UseFilterFormOptions>().toMatchTypeOf<{
     resource?: string;
     debounce?: number;
   }>();
-  const result = {} as UseFilterFormResult;
   // The result exposes the form (for the provider) and validity gate signal.
   expectTypeOf(result.form).not.toBeAny();
   expectTypeOf(result.canSubmit).toBeBoolean();
@@ -37,7 +39,6 @@ it("FilterLiveFormProps carries children + optional resource/debounce", () => {
 });
 
 it("ListContextValue carries the list filter surface FilterLiveForm reads", () => {
-  const value = {} as ListContextValue;
   // Only `filter` + `setFilters` are load-bearing for FilterLiveForm.
   expectTypeOf(value.filter).toEqualTypeOf<FilterPayload>();
   expectTypeOf(value.setFilters).toBeFunction();

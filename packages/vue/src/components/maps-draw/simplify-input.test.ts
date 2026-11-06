@@ -7,9 +7,11 @@
 import {
   createI18n,
   fakeDataProvider,
+  isGeoGeometry,
   mapMessages,
   rasterTileStyle,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -48,7 +50,7 @@ function bumpySquare(): Position[] {
   ];
   const ring: Position[] = [];
   corners.forEach((from, i) => {
-    const to = corners[(i + 1) % 4] as Position;
+    const to = defined(corners[(i + 1) % 4]);
     ring.push(from);
     for (let step = 1; step <= 4; step++) {
       const t = step / 5;
@@ -59,7 +61,7 @@ function bumpySquare(): Position[] {
       ring.push(from[1] === to[1] ? [x, y + bump] : [x + bump, y]);
     }
   });
-  ring.push(ring[0] as Position);
+  ring.push(defined(ring[0]));
   return ring;
 }
 
@@ -116,11 +118,15 @@ async function mountInput(input: () => VNode, shape: unknown) {
   return {
     wrapper,
     form,
-    value: () => form().store.state.values.shape as unknown,
+    value: () => form().store.state.values.shape,
     /** Ring entries of the stored Polygon. */
-    ringLength: () =>
-      (form().store.state.values.shape as ReturnType<typeof polygon>)
-        .coordinates[0]?.length,
+    ringLength: () => {
+      const stored = form().store.state.values.shape;
+      if (!isGeoGeometry(stored) || stored.type !== "Polygon") {
+        throw new Error("Expected a Polygon");
+      }
+      return defined(stored.coordinates[0]).length;
+    },
     /** Moves the range input, then lets Vue render what follows. */
     async slide(to: number) {
       await wrapper.get('input[type="range"]').setValue(to);
@@ -333,6 +339,24 @@ describe("SimplifyInput", () => {
     expect(wrapper.text()).toContain("Tolerance: 0.013");
     await slide(0);
     expect(wrapper.text()).toContain("Tolerance: 0.000");
+  });
+
+  it("moving the slider with a non-input event target changes nothing", async () => {
+    const { form, value, ringLength, wrapper } = await mountInput(
+      simplifyInput({ tolerance: 0 }),
+      polygon(),
+    );
+    // A bubbling `input` event whose target is not the range input, such as
+    // one a widget inside it fires.
+    const range = wrapper.get('input[type="range"]').element;
+    const inner = document.createElement("span");
+    range.append(inner);
+    inner.dispatchEvent(new Event("input", { bubbles: true }));
+    await flushPromises();
+    expect(wrapper.text()).toContain("Tolerance: 0.000");
+    expect(ringLength()).toBe(21);
+    expect(value()).toEqual(polygon());
+    expect(form().state.isDirty).toBe(false);
   });
 
   it("labels the range input and sets its bounds", async () => {

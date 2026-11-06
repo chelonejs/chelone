@@ -12,9 +12,12 @@ interface Post {
   title: string;
 }
 
+declare const edit: EditContextValue<Post>;
+declare const create: CreateContextValue<Post>;
+declare const show: ShowContextValue<Post>;
+
 describe("record view context types", () => {
   it("EditContextValue carries the record-controller state plus the save surface", () => {
-    const edit = {} as EditContextValue<Post>;
     assertType<Post | undefined>(edit.record);
     assertType<boolean>(edit.saving);
     assertType<boolean>(edit.isPending);
@@ -40,18 +43,16 @@ describe("record view context types", () => {
   });
 
   it("EditContextValue is a SaveContextValue (edit publishes into SaveContext)", () => {
-    assertType<SaveContextValue>({} as EditContextValue<Post>);
+    assertType<SaveContextValue>(edit);
   });
 
   it("CreateContextValue is a SaveContextValue and carries a partial seed record", () => {
-    const create = {} as CreateContextValue<Post>;
     assertType<Partial<Post>>(create.record);
     assertType<boolean>(create.saving);
     assertType<SaveContextValue>(create);
   });
 
   it("ShowContextValue has no save surface", () => {
-    const show = {} as ShowContextValue<Post>;
     assertType<Post | undefined>(show.record);
     assertType<boolean>(show.isPending);
     // @ts-expect-error — show is read-only, no save handler.

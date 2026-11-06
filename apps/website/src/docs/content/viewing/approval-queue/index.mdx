@@ -1,0 +1,12 @@
+---
+title: "ApprovalQueue"
+description: "The records of the ambient <List> as a queue, one card per record with an Approve and a Reject. The queue fetches nothing: it reads the ambient <List>, so filter that list on the pending status, and a decided row leaves once the update's refetch lands. Approve is <DualApprovalButton>, with required approvals of 1 by default. Reject opens a form that asks for a reason and, on Confirm reject, writes the rejected status, the reason and the signed-in user; it needs edit access on the resource and an identity. A record already in the rejected status shows Rejected in place of both buttons. The rules are in the UI only, so the server has to enforce who may approve or reject."
+registry: "approval-queue"
+---
+{/* generated:gen-component-stubs */}
+
+The records of the ambient `<List>` as a queue, one card per record with an Approve and a Reject. The queue fetches nothing: it reads the ambient `<List>`, so filter that list on the pending status, and a decided row leaves once the update's refetch lands. Approve is `<DualApprovalButton>`, with `required` approvals of 1 by default. Reject opens a form that asks for a reason and, on Confirm reject, writes the rejected status, the reason and the signed-in user; it needs `edit` access on the resource and an identity. A record already in the rejected status shows Rejected in place of both buttons. The rules are in the UI only, so the server has to enforce who may approve or reject.
+
+## Props
+
+<PropsTable name="ApprovalQueue" />

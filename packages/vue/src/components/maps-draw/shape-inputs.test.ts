@@ -8,13 +8,23 @@
 import {
   createI18n,
   fakeDataProvider,
+  isGeoGeometry,
   mapMessages,
   type RoutingProvider,
   rasterTileStyle,
+  type ShapeValue,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
-import type { Geometry, LineString, Point, Polygon } from "geojson";
+import type {
+  Feature,
+  Geometry,
+  LineString,
+  MultiPolygon,
+  Point,
+  Polygon,
+} from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, type VNode } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
@@ -123,7 +133,7 @@ const rect = (w: number, s: number, e: number, n: number): Polygon => ({
 /** Mounts `input` as the only field of a form under Admin and the maps provider. */
 async function mountShapeInput(
   input: () => VNode,
-  shape: unknown = null,
+  shape: ShapeValue | null = null,
   config: Omit<MapsConfig, "mapStyle"> = {},
 ) {
   let current: UseFormReturn<Values> | undefined;
@@ -252,7 +262,7 @@ describe("PointInput", () => {
     const { wrapper, draw } = await mountShapeInput(() =>
       h(PointInput, {
         source: "shape",
-        onCommit: (v: unknown) => commits.push(v),
+        onCommit: (v) => commits.push(v),
       }),
     );
 
@@ -405,7 +415,7 @@ describe("MultiPolygonInput", () => {
     square(10),
     square(20),
   ];
-  const multi = (...polygons: Polygon[]) => ({
+  const multi = (...polygons: Polygon[]): MultiPolygon => ({
     type: "MultiPolygon",
     coordinates: polygons.map((p) => p.coordinates),
   });
@@ -609,7 +619,7 @@ describe("FeatureInput", () => {
     ]);
 
     await button(wrapper, "Edit").trigger("click");
-    const id = draw().features[0]?.id as string;
+    const id = defined(draw().features[0]?.id);
     draw().replace(id, square(4));
     draw().emitFinish(id, "dragCoordinate", "select");
     await flushPromises();
@@ -651,7 +661,10 @@ describe("FeatureInput", () => {
 });
 
 describe("FeatureCollectionInput", () => {
-  const feature = (name: string, geometry: Geometry) => ({
+  const feature = (
+    name: string,
+    geometry: Geometry,
+  ): Feature<Geometry, { name: string }> => ({
     type: "Feature",
     properties: { name },
     geometry,
@@ -742,9 +755,13 @@ describe("BBoxInput", () => {
     expect(draw().added).toHaveLength(1);
     const added = draw().added[0] ?? [];
     expect(added).toHaveLength(1);
-    const ring = (added[0]?.geometry.coordinates as number[][][])[0] ?? [];
-    const xs = ring.map((c) => c[0] as number);
-    const ys = ring.map((c) => c[1] as number);
+    const geometry = defined(added[0]).geometry;
+    if (!isGeoGeometry(geometry) || geometry.type !== "Polygon") {
+      throw new Error("Expected a Polygon");
+    }
+    const ring = defined(geometry.coordinates[0]);
+    const xs = ring.map((c) => defined(c[0]));
+    const ys = ring.map((c) => defined(c[1]));
     expect([
       Math.min(...xs),
       Math.min(...ys),
@@ -788,8 +805,12 @@ describe("BBoxInput", () => {
     expect(value()).toEqual([-2, 0, 6, 4]);
     const shown = draw().getSnapshot();
     expect(shown).toHaveLength(1);
-    const ring = (shown[0]?.geometry.coordinates as number[][][])[0] ?? [];
-    const xs = ring.map((c) => c[0] as number);
+    const geometry = defined(shown[0]).geometry;
+    if (!isGeoGeometry(geometry) || geometry.type !== "Polygon") {
+      throw new Error("Expected a Polygon");
+    }
+    const ring = defined(geometry.coordinates[0]);
+    const xs = ring.map((c) => defined(c[0]));
     expect([Math.min(...xs), Math.max(...xs)]).toEqual([-2, 6]);
   });
 });
@@ -801,11 +822,11 @@ function pendingRefine() {
   const calls: {
     value: unknown;
     signal: AbortSignal;
-    settle: (result: unknown) => void;
+    settle: (result: Awaited<ReturnType<Refine>>) => void;
   }[] = [];
   const refine: Refine = (value, { signal }) =>
-    new Promise((resolve) => {
-      calls.push({ value, signal, settle: resolve as (r: unknown) => void });
+    new Promise<Awaited<ReturnType<Refine>>>((resolve) => {
+      calls.push({ value, signal, settle: resolve });
     });
   return { refine: vi.fn(refine), calls };
 }
@@ -918,13 +939,13 @@ function fakeRouter(
 ): RoutingProvider & { snapToRoad: ReturnType<typeof vi.fn> } {
   return {
     name: "fake",
-    snapToRoad: vi.fn(async (l: LineString) =>
+    snapToRoad: vi.fn<RoutingProvider["snapToRoad"]>(async (l) =>
       snap
         ? snap(l)
-        : ({
+        : {
             type: "LineString",
             coordinates: l.coordinates.map(([x, y]) => [(x ?? 0) + 1, y ?? 0]),
-          } as LineString),
+          },
     ),
   };
 }

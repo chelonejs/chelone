@@ -1,12 +1,10 @@
-import {
-  type AnyCheloneI18n,
-  createI18n,
-  fakeDataProvider,
-} from "@chelone/core";
+import { type AnyCheloneI18n, createI18n } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { defineComponent, h, nextTick, ref, type VNodeChild } from "vue";
-import { type CheloneContextValue, provideCheloneContext } from "../context";
+import { makeCheloneContext } from "../__fixtures__/chelone-context";
+import { provideCheloneContext } from "../context";
 import {
   provideTranslatable,
   type TranslatableContext,
@@ -14,13 +12,11 @@ import {
   useTranslatableContext,
 } from "./use-translatable";
 
-const dataProvider = fakeDataProvider({});
-
 function makeI18n(locale: string): AnyCheloneI18n {
   return createI18n({
     locale,
     messages: { en: {}, fr: {}, de: {} },
-  }) as AnyCheloneI18n;
+  });
 }
 
 /** Mount `child` under a context that carries `i18n` (or none). */
@@ -32,7 +28,7 @@ function mountWith(
   const Child = defineComponent({ setup: child });
   const Host = defineComponent({
     setup() {
-      provideCheloneContext({ dataProvider, i18n } as CheloneContextValue);
+      provideCheloneContext(makeCheloneContext({ i18n }));
       return () => h(Child);
     },
   });
@@ -54,7 +50,7 @@ function mountTranslatable(
     },
     errorHandler,
   );
-  return { wrapper, result: () => holder.result as TranslatableContext };
+  return { wrapper, result: () => defined(holder.result) };
 }
 
 describe("useTranslatable", () => {

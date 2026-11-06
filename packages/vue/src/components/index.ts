@@ -32,6 +32,11 @@ export type {
 export { default as LoginWithEmail } from "./admin/auth/login-with-email.vue";
 export type { LogoutProps } from "./admin/auth/logout.vue";
 export { default as Logout } from "./admin/auth/logout.vue";
+export type {
+  PermissionMatrixEntry,
+  PermissionMatrixProps,
+} from "./admin/auth/permission-matrix.vue";
+export { default as PermissionMatrix } from "./admin/auth/permission-matrix.vue";
 // --- admin: buttons + form ------------------------------------------------
 export type { BulkDeleteButtonProps } from "./admin/buttons/bulk-delete-button.vue";
 export { default as BulkDeleteButton } from "./admin/buttons/bulk-delete-button.vue";
@@ -58,6 +63,12 @@ export type { EditButtonProps } from "./admin/buttons/edit-button.vue";
 export { default as EditButton } from "./admin/buttons/edit-button.vue";
 export type { ExportButtonProps } from "./admin/buttons/export-button.vue";
 export { default as ExportButton } from "./admin/buttons/export-button.vue";
+export type {
+  FieldsSelectorListProps,
+  FieldsSelectorProps,
+  FieldsSelectorRowProps,
+} from "./admin/buttons/fields-selector.vue";
+export { default as FieldsSelector } from "./admin/buttons/fields-selector.vue";
 export type {
   FilterButtonEntry,
   FilterButtonProps,
@@ -98,6 +109,8 @@ export type { CheckForApplicationUpdateProps } from "./admin/common/check-for-ap
 export { default as CheckForApplicationUpdate } from "./admin/common/check-for-application-update.vue";
 export type { FieldLabelTextProps } from "./admin/common/field-label-text.vue";
 export { default as FieldLabelText } from "./admin/common/field-label-text.vue";
+export type { I18nKeyEditorProps } from "./admin/common/i18n-key-editor.vue";
+export { default as I18nKeyEditor } from "./admin/common/i18n-key-editor.vue";
 export type { IconButtonWithTooltipProps } from "./admin/common/icon-button-with-tooltip.vue";
 export { default as IconButtonWithTooltip } from "./admin/common/icon-button-with-tooltip.vue";
 export type { InputHelperTextProps } from "./admin/common/input-helper-text.vue";
@@ -162,6 +175,11 @@ export type { CurrencyFieldProps } from "./admin/fields/currency-field.vue";
 export { default as CurrencyField } from "./admin/fields/currency-field.vue";
 export type { DateFieldProps } from "./admin/fields/date-field.vue";
 export { default as DateField } from "./admin/fields/date-field.vue";
+export type {
+  DiffViewerMode,
+  DiffViewerProps,
+} from "./admin/fields/diff-viewer.vue";
+export { default as DiffViewer } from "./admin/fields/diff-viewer.vue";
 export type { DurationFieldProps } from "./admin/fields/duration-field.vue";
 export { default as DurationField } from "./admin/fields/duration-field.vue";
 export type { EmailFieldProps } from "./admin/fields/email-field.vue";
@@ -278,6 +296,8 @@ export { default as FileInputPreview } from "./admin/inputs/file-input-preview.v
 export type { ImageInputProps } from "./admin/inputs/image-input.vue";
 export { default as ImageInput } from "./admin/inputs/image-input.vue";
 export { default as ImageInputThumbnail } from "./admin/inputs/image-input-thumbnail.vue";
+export type { InPlaceEditorProps } from "./admin/inputs/in-place-editor.vue";
+export { default as InPlaceEditor } from "./admin/inputs/in-place-editor.vue";
 export { humanizeSource } from "./admin/inputs/label-text";
 export type { LoadingInputProps } from "./admin/inputs/loading-input.vue";
 export { default as LoadingInput } from "./admin/inputs/loading-input.vue";
@@ -305,6 +325,7 @@ export type { SelectArrayInputProps } from "./admin/inputs/select-array-input.vu
 export { default as SelectArrayInput } from "./admin/inputs/select-array-input.vue";
 export type { SelectInputProps } from "./admin/inputs/select-input.vue";
 export { default as SelectInput } from "./admin/inputs/select-input.vue";
+export type { SourceInputProps } from "./admin/inputs/source-input-props";
 export type {
   SubscriptionPlan,
   SubscriptionPlanPickerProps,
@@ -331,16 +352,25 @@ export type { AppBarProps } from "./admin/layout/app-bar.vue";
 export { default as AppBar } from "./admin/layout/app-bar.vue";
 export type { AppSidebarProps } from "./admin/layout/app-sidebar.vue";
 export { default as AppSidebar } from "./admin/layout/app-sidebar.vue";
+export type { AssistantProps } from "./admin/layout/assistant.vue";
+export { default as Assistant } from "./admin/layout/assistant.vue";
 export type { CommandMenuProps } from "./admin/layout/command-menu.vue";
 export { default as CommandMenu } from "./admin/layout/command-menu.vue";
 export type { DashboardMenuItemProps } from "./admin/layout/dashboard-menu-item.vue";
 export { default as DashboardMenuItem } from "./admin/layout/dashboard-menu-item.vue";
+export type { DataProviderDevtoolsProps } from "./admin/layout/data-provider-devtools.vue";
+export { default as DataProviderDevtools } from "./admin/layout/data-provider-devtools.vue";
 export type { HideOnScrollProps } from "./admin/layout/hide-on-scroll.vue";
 export { default as HideOnScroll } from "./admin/layout/hide-on-scroll.vue";
 export { default as Layout } from "./admin/layout/layout.vue";
 export { default as Menu } from "./admin/layout/menu.vue";
 export type { MenuItemLinkProps } from "./admin/layout/menu-item-link.vue";
 export { default as MenuItemLink } from "./admin/layout/menu-item-link.vue";
+export type {
+  OnboardingTourProps,
+  TourStep,
+} from "./admin/layout/onboarding-tour.vue";
+export { default as OnboardingTour } from "./admin/layout/onboarding-tour.vue";
 export type { ResourceMenuItemProps } from "./admin/layout/resource-menu-item.vue";
 export { default as ResourceMenuItem } from "./admin/layout/resource-menu-item.vue";
 export type { ResourceMenuItemGroupProps } from "./admin/layout/resource-menu-item-group.vue";
@@ -369,6 +399,8 @@ export { default as TopToolbar } from "./admin/layout/top-toolbar.vue";
 export type { UserMenuProps } from "./admin/layout/user-menu.vue";
 export { default as UserMenu } from "./admin/layout/user-menu.vue";
 // --- admin: list ----------------------------------------------------------
+export type { ApprovalQueueProps } from "./admin/list/approval-queue.vue";
+export { default as ApprovalQueue } from "./admin/list/approval-queue.vue";
 export type { BulkActionsToolbarProps } from "./admin/list/bulk-actions-toolbar.vue";
 export { default as BulkActionsToolbar } from "./admin/list/bulk-actions-toolbar.vue";
 export type { BulkEditDrawerProps } from "./admin/list/bulk-edit-drawer.vue";
@@ -413,8 +445,12 @@ export type { ListPaginationProps } from "./admin/list/list-pagination.vue";
 export { default as ListPagination } from "./admin/list/list-pagination.vue";
 export type { ListToolbarProps } from "./admin/list/list-toolbar.vue";
 export { default as ListToolbar } from "./admin/list/list-toolbar.vue";
+export type { PivotGridProps } from "./admin/list/pivot-grid.vue";
+export { default as PivotGrid } from "./admin/list/pivot-grid.vue";
 export type { PrevNextButtonsProps } from "./admin/list/prev-next-buttons.vue";
 export { default as PrevNextButtons } from "./admin/list/prev-next-buttons.vue";
+export type { RecordTimelineProps } from "./admin/list/record-timeline.vue";
+export { default as RecordTimeline } from "./admin/list/record-timeline.vue";
 export type { SavedQueriesListProps } from "./admin/list/saved-queries-list.vue";
 export { default as SavedQueriesList } from "./admin/list/saved-queries-list.vue";
 export type { SimpleListProps } from "./admin/list/simple-list.vue";
@@ -486,5 +522,9 @@ export type { TranslatableFieldsTabContentProps } from "./admin/view/translatabl
 export { default as TranslatableFieldsTabContent } from "./admin/view/translatable-fields-tab-content.vue";
 export type { TranslatableFieldsTabsProps } from "./admin/view/translatable-fields-tabs.vue";
 export { default as TranslatableFieldsTabs } from "./admin/view/translatable-fields-tabs.vue";
+export type { JobMonitorProps } from "./admin/widgets/job-monitor.vue";
+export { default as JobMonitor } from "./admin/widgets/job-monitor.vue";
+export type { MetricCardProps } from "./admin/widgets/metric-card.vue";
+export { default as MetricCard } from "./admin/widgets/metric-card.vue";
 // --- ui primitives --------------------------------------------------------
 export * from "./ui";

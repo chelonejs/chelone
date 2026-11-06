@@ -15,6 +15,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -121,9 +122,10 @@ describe("<DatagridInput>", () => {
       <DatagridInput source="tag_ids" choices={choices} />,
       { defaultValues: { tag_ids: [] }, onData },
     );
-    const newsRow = screen
-      .getByText("News")
-      .closest("tr") as HTMLTableRowElement;
+    const newsRow = elementOf(
+      screen.getByText("News").closest("tr"),
+      HTMLTableRowElement,
+    );
     fireEvent.click(within(newsRow).getByRole("checkbox"));
     await act(async () => {
       await submitRef.current?.();
@@ -137,9 +139,10 @@ describe("<DatagridInput>", () => {
       <DatagridInput source="tag_ids" choices={choices} />,
       { defaultValues: { tag_ids: [2] }, onData },
     );
-    const newsRow = screen
-      .getByText("News")
-      .closest("tr") as HTMLTableRowElement;
+    const newsRow = elementOf(
+      screen.getByText("News").closest("tr"),
+      HTMLTableRowElement,
+    );
     fireEvent.click(within(newsRow).getByRole("checkbox"));
     await act(async () => {
       await submitRef.current?.();
@@ -152,9 +155,10 @@ describe("<DatagridInput>", () => {
       <DatagridInput source="tag_ids" choices={choices} />,
       { defaultValues: { tag_ids: [1] } },
     );
-    const techRow = screen
-      .getByText("Tech")
-      .closest("tr") as HTMLTableRowElement;
+    const techRow = elementOf(
+      screen.getByText("Tech").closest("tr"),
+      HTMLTableRowElement,
+    );
     const checkbox = within(techRow).getByRole("checkbox");
     expect(checkbox.getAttribute("aria-checked")).toBe("true");
   });
@@ -166,7 +170,7 @@ describe("<DatagridInput>", () => {
       { defaultValues: { tag_ids: [] }, onData },
     );
     const [header] = screen.getAllByRole("columnheader");
-    fireEvent.click(within(header as HTMLElement).getByRole("checkbox"));
+    fireEvent.click(within(defined(header)).getByRole("checkbox"));
     await act(async () => {
       await submitRef.current?.();
     });

@@ -1,0 +1,53 @@
+{
+  "name": "DiffViewer",
+  "props": [
+    {
+      "name": "after",
+      "type": "TRecord",
+      "optional": false,
+      "comment": "The later version."
+    },
+    {
+      "name": "before",
+      "type": "TRecord",
+      "optional": false,
+      "comment": "The earlier version."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "formatters",
+      "type": "Partial<Record<string, (value: unknown) => ReactNode>>",
+      "optional": true,
+      "comment": "A renderer per source, replacing the default value text."
+    },
+    {
+      "name": "labels",
+      "type": "Partial<Record<string, ReactNode>>",
+      "optional": true,
+      "comment": "A label per source, replacing the translated field label."
+    },
+    {
+      "name": "mode",
+      "type": "DiffViewerMode",
+      "optional": true,
+      "comment": "Table (`side-by-side`, the default) or list (`inline`)."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Resource whose field labels apply. Defaults to the ambient resource."
+    },
+    {
+      "name": "sources",
+      "type": "readonly SourceProp<TRecord>[]",
+      "optional": true,
+      "comment": "Fields to show, in this order. Without it: every top-level key."
+    }
+  ]
+}

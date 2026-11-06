@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import * as barrel from "./index";
 
 /**
@@ -19,6 +19,13 @@ describe("@chelone/core barrel", () => {
     expect(barrel.richTextStarterKitOptions).toBeTypeOf("object");
     expect(barrel.richTextToolbarItems).toHaveLength(14);
     expect(barrel.richTextBlockTypes).toHaveLength(7);
+  });
+
+  it("exports the permission matrix helpers", () => {
+    expect(barrel.getPermissionCell).toBeTypeOf("function");
+    expect(barrel.togglePermission).toBeTypeOf("function");
+    expect(barrel.setPermissionRow).toBeTypeOf("function");
+    expect(barrel.isPermissionRowGranted).toBeTypeOf("function");
   });
 
   it("exports noop", () => {
@@ -293,11 +300,13 @@ describe("@chelone/core barrel", () => {
       expect(barrel[name]).toBeTypeOf("function");
     }
     expect(() =>
-      barrel.createNominatimProvider({} as { endpoint: string }),
+      // @ts-expect-error no endpoint: the provider must reject it at runtime
+      barrel.createNominatimProvider({}),
     ).toThrow(TypeError);
-    expect(() => barrel.createOsrmProvider({} as { endpoint: string })).toThrow(
-      TypeError,
-    );
+    expect(() =>
+      // @ts-expect-error no endpoint: the provider must reject it at runtime
+      barrel.createOsrmProvider({}),
+    ).toThrow(TypeError);
   });
 
   it("exports the Overpass contract, the tag parser and the presets with no default server", () => {
@@ -314,7 +323,8 @@ describe("@chelone/core barrel", () => {
       expect(barrel[name]).toBeTypeOf("function");
     }
     expect(() =>
-      barrel.createOverpassProvider({} as { endpoint: string }),
+      // @ts-expect-error no endpoint: the provider must reject it at runtime
+      barrel.createOverpassProvider({}),
     ).toThrow(TypeError);
     expect(barrel.OSM_PRESETS.roads.bufferLinesMeters).toBe(15);
     expect(new barrel.OverpassRateLimitError()).toBeInstanceOf(
@@ -390,6 +400,7 @@ describe("@chelone/core barrel", () => {
   it("exports the record workflow helpers", () => {
     expect(barrel.getApprovalState).toBeTypeOf("function");
     expect(barrel.buildApprovalUpdate).toBeTypeOf("function");
+    expect(barrel.buildRejectionUpdate).toBeTypeOf("function");
     expect(barrel.getAllowedTransitions).toBeTypeOf("function");
   });
 
@@ -427,6 +438,15 @@ describe("@chelone/core barrel", () => {
   it("exports the assistant session and the echo transport", () => {
     expect(barrel.createAssistantSession).toBeTypeOf("function");
     expect(barrel.echoAssistantTransport).toBeTypeOf("function");
+  });
+
+  it("exports the HTTP assistant transport", () => {
+    expect(barrel.httpAssistantTransport).toBeTypeOf("function");
+    expectTypeOf(barrel.httpAssistantTransport).toEqualTypeOf<
+      (
+        options: barrel.HttpAssistantTransportOptions,
+      ) => barrel.AssistantTransport
+    >();
   });
 
   it("exports the in-memory transport and lock provider", () => {
@@ -495,5 +515,11 @@ describe("@chelone/core barrel", () => {
     expect(barrel.isRecord).toBeTypeOf("function");
     expect(barrel.isRecord({ a: 1 })).toBe(true);
     expect(barrel.isRecord([1])).toBe(false);
+  });
+
+  it("exports deepEqual", () => {
+    expect(barrel.deepEqual).toBeTypeOf("function");
+    expect(barrel.deepEqual({ a: 1, b: undefined }, { a: 1 })).toBe(true);
+    expect(barrel.deepEqual([1, 2], [2, 1])).toBe(false);
   });
 });

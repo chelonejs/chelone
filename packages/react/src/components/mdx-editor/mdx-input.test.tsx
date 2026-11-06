@@ -11,7 +11,8 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
-import { headingsPlugin } from "@mdxeditor/editor";
+import { defined, elementOf } from "@chelone/test-utils";
+import { headingsPlugin, type RealmPlugin } from "@mdxeditor/editor";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -21,7 +22,15 @@ import {
   screen,
 } from "@testing-library/react";
 import { type ReactNode, useState } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type Mock,
+  vi,
+} from "vitest";
 import { CheloneProvider } from "../../context";
 import { CheloneFormProvider } from "../../form-context";
 import { useForm } from "../../form-hooks";
@@ -30,15 +39,23 @@ import { defaultInputPlugins } from "./default-plugins";
 import { MdxInput } from "./mdx-input";
 import { safeHtmlImagePlugin } from "./safe-html-image-plugin";
 
-const hoisted = vi.hoisted(() => ({
-  setMarkdown: vi.fn(),
-  plugins: undefined as unknown,
-  suppressHtmlProcessing: undefined as unknown,
-  onError: undefined as
-    | ((payload: { error: string; source: string }) => void)
-    | undefined,
-  markdownProps: [] as string[],
-}));
+interface Hoisted {
+  setMarkdown: Mock<(value: string) => void>;
+  plugins: RealmPlugin[] | undefined;
+  suppressHtmlProcessing: boolean | undefined;
+  onError: ((payload: { error: string; source: string }) => void) | undefined;
+  markdownProps: string[];
+}
+
+const hoisted = vi.hoisted(
+  (): Hoisted => ({
+    setMarkdown: vi.fn<(value: string) => void>(),
+    plugins: undefined,
+    suppressHtmlProcessing: undefined,
+    onError: undefined,
+    markdownProps: [],
+  }),
+);
 
 vi.mock("@mdxeditor/editor", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@mdxeditor/editor")>();
@@ -49,7 +66,7 @@ vi.mock("@mdxeditor/editor", async (importOriginal) => {
       markdown: string;
       className?: string;
       readOnly?: boolean;
-      plugins?: unknown;
+      plugins?: RealmPlugin[];
       suppressHtmlProcessing?: boolean;
       onError?: (payload: { error: string; source: string }) => void;
       onChange?: (markdown: string, initialMarkdownNormalize: boolean) => void;
@@ -157,8 +174,11 @@ function setup<TFormData extends Record<string, unknown>>(
 }
 
 /** The editor gets the given list as is, with the inert `<img>` plugin last. */
-function expectPluginList(actual: unknown, given: unknown[]) {
-  const list = actual as unknown[];
+function expectPluginList(
+  actual: RealmPlugin[] | undefined,
+  given: RealmPlugin[],
+) {
+  const list = defined(actual);
   expect(list).toHaveLength(given.length + 1);
   given.forEach((plugin, index) => {
     expect(list[index]).toBe(plugin);
@@ -363,7 +383,10 @@ describe("<MdxInput />", () => {
     act(() => hoisted.onError?.({ error: "unsupported", source: body }));
 
     expect(screen.queryByTestId("editor")).toBeNull();
-    const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
+    const textarea = elementOf(
+      screen.getByRole("textbox"),
+      HTMLTextAreaElement,
+    );
     expect(textarea.value).toBe(body);
   });
 
@@ -379,9 +402,9 @@ describe("<MdxInput />", () => {
     });
 
     expect(handle.form.getFieldValue("body")).toBe(`${body}\n\nMore`);
-    expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe(
-      `${body}\n\nMore`,
-    );
+    expect(
+      elementOf(screen.getByRole("textbox"), HTMLTextAreaElement).value,
+    ).toBe(`${body}\n\nMore`);
   });
 
   it("lets mdxProps replace the plugins", () => {

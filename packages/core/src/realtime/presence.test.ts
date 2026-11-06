@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { isRecord } from "../guards";
 import { memoryTransport } from "./memory-transport";
 import {
   createPresenceSession,
@@ -306,9 +307,11 @@ describe("createPresenceSession", () => {
 
     expect(
       transport.publishedEvents.filter(
+        // A payload is `unknown` at the transport, so ask for the sessionId.
         (event) =>
           event.type === "presence" &&
-          (event.payload as { sessionId: string }).sessionId === "tab-1",
+          isRecord(event.payload) &&
+          event.payload.sessionId === "tab-1",
       ),
     ).toHaveLength(2);
     expect(onError).toHaveBeenCalledWith(new Error("render failed"));

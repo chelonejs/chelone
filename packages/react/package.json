@@ -21,7 +21,9 @@
     ".": "./src/index.ts",
     "./tanstack-router": "./src/tanstack-router.ts",
     "./monaco": "./src/monaco.ts",
+    "./charts": "./src/charts.ts",
     "./kanban": "./src/kanban.ts",
+    "./inspector": "./src/inspector.ts",
     "./csv-import": "./src/csv-import.ts",
     "./maps": "./src/maps.ts",
     "./maps/draw": "./src/maps-draw.ts",
@@ -29,6 +31,9 @@
     "./supabase": "./src/supabase.ts",
     "./mdx-editor": "./src/mdx-editor.ts",
     "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-dark.css",
+    "./rich-text-input": "./src/rich-text-input.ts",
+    "./rich-text-input.css": "./src/components/rich-text-input/rich-text.css",
+    "./block-editor": "./src/block-editor.ts",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -48,9 +53,17 @@
         "types": "./dist/monaco.d.ts",
         "default": "./dist/monaco.js"
       },
+      "./charts": {
+        "types": "./dist/charts.d.ts",
+        "default": "./dist/charts.js"
+      },
       "./kanban": {
         "types": "./dist/kanban.d.ts",
         "default": "./dist/kanban.js"
+      },
+      "./inspector": {
+        "types": "./dist/inspector.d.ts",
+        "default": "./dist/inspector.js"
       },
       "./csv-import": {
         "types": "./dist/csv-import.d.ts",
@@ -77,12 +90,21 @@
         "default": "./dist/mdx-editor.js"
       },
       "./mdx-editor.css": "./dist/components/mdx-editor/mdx-editor-dark.css",
+      "./rich-text-input": {
+        "types": "./dist/rich-text-input.d.ts",
+        "default": "./dist/rich-text-input.js"
+      },
+      "./rich-text-input.css": "./dist/components/rich-text-input/rich-text.css",
+      "./block-editor": {
+        "types": "./dist/block-editor.d.ts",
+        "default": "./dist/block-editor.js"
+      },
       "./package.json": "./package.json"
     }
   },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && node scripts/rewrite-dts-aliases.mjs dist && node scripts/strip-dts-css-imports.mjs dist && node ../../scripts/dts-extensions.mjs dist",
-    "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only --exclude-entrypoints ./mdx-editor.css",
+    "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only --exclude-entrypoints ./mdx-editor.css ./rich-text-input.css",
     "test": "vitest run --typecheck",
     "typecheck": "tsc --noEmit",
     "registry:generate": "node ../../scripts/registry/generate-registry.mjs",
@@ -106,7 +128,6 @@
     "react-day-picker": "^10.0.2",
     "react-dropzone": "^20.1.4",
     "react-resizable-panels": "^4.18.1",
-    "recharts": "3.10.1",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.7.0",
     "vaul": "^1.1.2"
@@ -120,10 +141,23 @@
     "@tanstack/react-query": "^5.0.0",
     "@tanstack/react-router": "^1.0.0",
     "@tanstack/react-store": "^0.11.0",
+    "@tiptap/core": "^3.33.0",
+    "@tiptap/extension-code-block": "^3.33.0",
+    "@tiptap/extension-code-block-lowlight": "^3.33.0",
+    "@tiptap/extension-image": "^3.33.0",
+    "@tiptap/extension-text-style": "^3.33.0",
+    "@tiptap/extensions": "^3.33.0",
+    "@tiptap/pm": "^3.33.0",
+    "@tiptap/react": "^3.33.0",
+    "@tiptap/starter-kit": "^3.33.0",
+    "@tiptap/suggestion": "^3.33.0",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
     "@turf/simplify": "^7.4.0",
     "@turf/union": "^7.4.0",
+    "dompurify": "^3.4.0",
+    "highlight.js": "^11.11.1",
+    "lowlight": "^3.3.0",
     "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
     "osm2geojson-lite": "^2.0.1",
@@ -131,8 +165,10 @@
     "react": "^18 || ^19",
     "react-dom": "^18 || ^19",
     "react-router": "^7.0.0 || ^8.0.0",
+    "recharts": "^3.8.0",
     "terra-draw": "^1.39.0",
-    "terra-draw-maplibre-gl-adapter": "^1.5.0"
+    "terra-draw-maplibre-gl-adapter": "^1.5.0",
+    "zod": "^3.25.0 || ^4.0.0"
   },
   "peerDependenciesMeta": {
     "@chelone/supabase": {
@@ -153,6 +189,36 @@
     "@tanstack/react-router": {
       "optional": true
     },
+    "@tiptap/core": {
+      "optional": true
+    },
+    "@tiptap/extension-code-block": {
+      "optional": true
+    },
+    "@tiptap/extension-code-block-lowlight": {
+      "optional": true
+    },
+    "@tiptap/extension-image": {
+      "optional": true
+    },
+    "@tiptap/extension-text-style": {
+      "optional": true
+    },
+    "@tiptap/extensions": {
+      "optional": true
+    },
+    "@tiptap/pm": {
+      "optional": true
+    },
+    "@tiptap/react": {
+      "optional": true
+    },
+    "@tiptap/starter-kit": {
+      "optional": true
+    },
+    "@tiptap/suggestion": {
+      "optional": true
+    },
     "@turf/buffer": {
       "optional": true
     },
@@ -163,6 +229,15 @@
       "optional": true
     },
     "@turf/union": {
+      "optional": true
+    },
+    "dompurify": {
+      "optional": true
+    },
+    "highlight.js": {
+      "optional": true
+    },
+    "lowlight": {
       "optional": true
     },
     "maplibre-gl": {
@@ -180,16 +255,23 @@
     "react-router": {
       "optional": false
     },
+    "recharts": {
+      "optional": true
+    },
     "terra-draw": {
       "optional": true
     },
     "terra-draw-maplibre-gl-adapter": {
+      "optional": true
+    },
+    "zod": {
       "optional": true
     }
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@chelone/supabase": "workspace:*",
+    "@chelone/test-utils": "workspace:*",
     "@dnd-kit/dom": "^0.5.3",
     "@dnd-kit/react": "^0.5.3",
     "@mdxeditor/editor": "^4.5.0",
@@ -199,6 +281,16 @@
     "@tanstack/react-router": "^1.170.46",
     "@tanstack/react-store": "^0.11.2",
     "@testing-library/react": "^16.3.3",
+    "@tiptap/core": "^3.33.0",
+    "@tiptap/extension-code-block": "^3.33.0",
+    "@tiptap/extension-code-block-lowlight": "^3.33.0",
+    "@tiptap/extension-image": "^3.33.0",
+    "@tiptap/extension-text-style": "^3.33.0",
+    "@tiptap/extensions": "^3.33.0",
+    "@tiptap/pm": "^3.33.0",
+    "@tiptap/react": "^3.33.0",
+    "@tiptap/starter-kit": "^3.33.0",
+    "@tiptap/suggestion": "^3.33.0",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
     "@turf/simplify": "^7.4.0",
@@ -206,7 +298,10 @@
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "dompurify": "^3.4.17",
+    "highlight.js": "^11.11.1",
     "jsdom": "^31.0.0",
+    "lowlight": "^3.3.0",
     "maplibre-gl": "^6.16.0",
     "monaco-editor": "^0.57.0",
     "osm2geojson-lite": "^2.0.1",
@@ -215,6 +310,7 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router": "^8.5.1",
+    "recharts": "^3.10.1",
     "shadcn": "4.23.0",
     "terra-draw": "^1.39.0",
     "terra-draw-maplibre-gl-adapter": "^1.5.0",

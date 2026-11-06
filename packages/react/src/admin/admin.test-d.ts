@@ -135,7 +135,7 @@ describe("partitionChildren", () => {
       createElement(AdminTitle, null, "app");
     assertType<AdminChildren>(asFn);
     const asAsyncFn: AdminChildren = async (_permissions: unknown) =>
-      createElement(AdminTitle, null, "app") as ReactNode;
+      createElement(AdminTitle, null, "app");
     assertType<AdminChildren>(asAsyncFn);
   });
 });

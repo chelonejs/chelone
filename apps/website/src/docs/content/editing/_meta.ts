@@ -60,6 +60,8 @@ export default [
       "api-key-input",
       "subscription-plan-picker",
       "webhook-endpoint-input",
+      "permission-matrix",
+      "in-place-editor",
     ],
   },
   {

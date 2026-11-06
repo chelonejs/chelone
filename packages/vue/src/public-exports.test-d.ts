@@ -5,6 +5,7 @@
 
 import type {
   ComputeDefinitionProps,
+  DataProviderLog,
   PresenceUser,
   ResourceDefinition,
   ResourceMap,
@@ -16,6 +17,8 @@ import type { Component, ComputedRef, MaybeRefOrGetter, Ref } from "vue";
 import type {
   AdminProps,
   ApplicationUpdatedNotificationProps,
+  ApprovalQueueProps,
+  AssistantProps,
   BooleanInputProps,
   BulkActionsToolbarProps,
   BulkEditDrawerProps,
@@ -33,16 +36,22 @@ import type {
   CreateProps,
   CurrencyInputProps,
   CustomRoute,
+  DataProviderDevtoolsProps,
   DataTableColProps,
   DataTableNumberColProps,
   DataTableProps,
   DateInputProps,
   DateTimeInputProps,
+  DiffViewerMode,
+  DiffViewerProps,
   DualApprovalButtonProps,
   DurationInputProps,
   EditLiveProps,
   EditProps,
   ErrorFallbackProps,
+  FieldsSelectorListProps,
+  FieldsSelectorProps,
+  FieldsSelectorRowProps,
   FilterFormEntry,
   FilterFormProps,
   FilterListItemProps,
@@ -50,9 +59,12 @@ import type {
   FilterListSectionProps,
   FilterLiveSearchProps,
   HideOnScrollProps,
+  I18nKeyEditorProps,
   IconButtonWithTooltipProps,
   InfiniteListProps,
   InfinitePaginationProps,
+  InPlaceEditorProps,
+  JobMonitorProps,
   LinkProps,
   ListActionsProps,
   ListLiveProps,
@@ -68,16 +80,21 @@ import type {
   LoginWithEmailProps,
   MenuLiveItemLinkProps,
   MenuLiveProps,
+  MetricCardProps,
   NotFoundProps,
   NullableBooleanInputProps,
   NumberInputProps,
   OfflineProps,
+  OnboardingTourProps,
   PasswordInputProps,
+  PermissionMatrixProps,
   PhoneInputProps,
+  PivotGridProps,
   PlaceholderProps,
   PresenceBarProps,
   PrevNextButtonsProps,
   RecordRepresentation,
+  RecordTimelineProps,
   ReferenceFieldProps,
   ReferenceInputProps,
   RefreshIconButtonProps,
@@ -103,6 +120,7 @@ import type {
   ToggleFilterButtonProps,
   ToolbarProps,
   TopToolbarProps,
+  TourStep,
   TreeListProps,
   UpdateButtonProps,
   UsePresenceOptions,
@@ -134,6 +152,9 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<DataTableProps>().toBeObject();
     expectTypeOf<DateInputProps>().toHaveProperty("source");
     expectTypeOf<DateTimeInputProps>().toHaveProperty("source");
+    expectTypeOf<DiffViewerProps>().toHaveProperty("before");
+    expectTypeOf<DiffViewerProps>().toHaveProperty("sources");
+    expectTypeOf<DiffViewerMode>().toEqualTypeOf<"side-by-side" | "inline">();
     expectTypeOf<DualApprovalButtonProps>().toHaveProperty("required");
     expectTypeOf<DualApprovalButtonProps>().toHaveProperty("approverSource");
     expectTypeOf<DualApprovalButtonProps>().toHaveProperty("mutationMode");
@@ -147,6 +168,11 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<FilterFormProps>().toBeObject();
     expectTypeOf<FilterLiveSearchProps>().toBeObject();
     expectTypeOf<HideOnScrollProps>().toHaveProperty("threshold");
+    expectTypeOf<I18nKeyEditorProps>().toHaveProperty("store");
+    expectTypeOf<I18nKeyEditorProps>().toHaveProperty("defaultOpen");
+    expectTypeOf<I18nKeyEditorProps>().toHaveProperty("showExport");
+    expectTypeOf<I18nKeyEditorProps>().toHaveProperty("class");
+    expectTypeOf(barrel.I18nKeyEditor).toBeObject();
     expectTypeOf<IconButtonWithTooltipProps>().toHaveProperty("label");
     expectTypeOf<InfiniteListProps>().toBeObject();
     expectTypeOf<FilterListItemProps>().toHaveProperty("value");
@@ -174,14 +200,33 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<LoginWithEmailProps>().toHaveProperty("class");
     expectTypeOf<MenuLiveItemLinkProps>().toHaveProperty("resource");
     expectTypeOf<MenuLiveProps>().toHaveProperty("items");
+    expectTypeOf<JobMonitorProps>().toHaveProperty("pollInterval");
+    expectTypeOf<JobMonitorProps>().toHaveProperty("tabs");
+    expectTypeOf<JobMonitorProps["class"]>().toEqualTypeOf<
+      string | undefined
+    >();
+    expectTypeOf(barrel.JobMonitor).toBeObject();
+    expectTypeOf<MetricCardProps>().toHaveProperty("label");
+    expectTypeOf<MetricCardProps["icon"]>().toEqualTypeOf<
+      Component | undefined
+    >();
+    expectTypeOf<MetricCardProps["class"]>().toEqualTypeOf<
+      string | undefined
+    >();
+    expectTypeOf(barrel.MetricCard).toBeObject();
     expectTypeOf<NotFoundProps>().toHaveProperty("title");
     expectTypeOf<NotFoundProps>().toHaveProperty("class");
+    expectTypeOf<InPlaceEditorProps>().toHaveProperty("source");
+    expectTypeOf<InPlaceEditorProps>().toHaveProperty("class");
+    expectTypeOf(barrel.InPlaceEditor).toBeObject();
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");
     expectTypeOf<NumberInputProps>().toHaveProperty("source");
     expectTypeOf<OfflineProps>().toBeObject();
     expectTypeOf<PasswordInputProps>().toHaveProperty("source");
     expectTypeOf<PhoneInputProps>().toHaveProperty("source");
     expectTypeOf<PlaceholderProps>().toBeObject();
+    expectTypeOf<PivotGridProps>().toHaveProperty("rowSource");
+    expectTypeOf<PivotGridProps>().toHaveProperty("columnSource");
     expectTypeOf<PrevNextButtonsProps>().toHaveProperty("linkType");
     expectTypeOf<PrevNextButtonsProps>().toHaveProperty("class");
     expectTypeOf<UsePrevNextControllerOptions>().toHaveProperty("record");
@@ -241,10 +286,43 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf(barrel.ColumnsButton).not.toBeAny();
   });
 
+  it("FieldsSelector ships beside its props", () => {
+    expectTypeOf(barrel.FieldsSelector).not.toBeAny();
+    expectTypeOf<FieldsSelectorProps>().toHaveProperty("storeKey");
+    expectTypeOf<FieldsSelectorProps>().toHaveProperty("resource");
+    expectTypeOf<FieldsSelectorProps>().toHaveProperty("listAs");
+    expectTypeOf<FieldsSelectorProps>().toHaveProperty("rowAs");
+    expectTypeOf<FieldsSelectorListProps>().toHaveProperty("onMove");
+    expectTypeOf<FieldsSelectorRowProps>().toHaveProperty("index");
+  });
+
   it("useDataTableColumns returns refs and setters", () => {
     type Result = ReturnType<typeof barrel.useDataTableColumns>;
     expectTypeOf<Result>().toHaveProperty("toggle");
+    expectTypeOf<Result>().toHaveProperty("moveTo");
     expectTypeOf<Result>().toHaveProperty("columns");
+  });
+
+  it("PermissionMatrix ships beside its props", () => {
+    expectTypeOf(barrel.PermissionMatrix).not.toBeAny();
+    expectTypeOf<PermissionMatrixProps>().toHaveProperty("roles");
+    expectTypeOf<PermissionMatrixProps>().toHaveProperty("modelValue");
+  });
+
+  it("PivotGrid ships beside its props", () => {
+    expectTypeOf(barrel.PivotGrid).not.toBeAny();
+  });
+
+  it("ApprovalQueue ships beside its props", () => {
+    expectTypeOf(barrel.ApprovalQueue).not.toBeAny();
+    expectTypeOf<ApprovalQueueProps>().toHaveProperty("titleSource");
+    expectTypeOf<ApprovalQueueProps>().toHaveProperty("requireReason");
+  });
+
+  it("RecordTimeline ships beside its props", () => {
+    expectTypeOf(barrel.RecordTimeline).not.toBeAny();
+    expectTypeOf<RecordTimelineProps>().toHaveProperty("messageSource");
+    expectTypeOf<RecordTimelineProps>().toHaveProperty("timestampSource");
   });
 
   it("TreeList ships beside its props", () => {
@@ -304,6 +382,40 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf(barrel.useRegisterCommand)
       .parameter(0)
       .toEqualTypeOf<MaybeRefOrGetter<CommandMenuAction>>();
+  });
+
+  it("OnboardingTour ships beside its props and its step shape", () => {
+    expectTypeOf<OnboardingTourProps["steps"]>().toEqualTypeOf<TourStep[]>();
+    expectTypeOf<OnboardingTourProps["autoStart"]>().toEqualTypeOf<
+      boolean | undefined
+    >();
+    expectTypeOf<TourStep["title"]>().toEqualTypeOf<string | undefined>();
+    expectTypeOf<TourStep["content"]>().toEqualTypeOf<string>();
+    expectTypeOf(barrel.OnboardingTour).not.toBeAny();
+  });
+
+  it("DataProviderDevtools ships beside its props", () => {
+    expectTypeOf<
+      DataProviderDevtoolsProps["log"]
+    >().toEqualTypeOf<DataProviderLog>();
+    expectTypeOf<DataProviderDevtoolsProps["defaultOpen"]>().toEqualTypeOf<
+      boolean | undefined
+    >();
+    expectTypeOf<DataProviderDevtoolsProps["shortcut"]>().toEqualTypeOf<
+      string | undefined
+    >();
+    expectTypeOf<DataProviderDevtoolsProps["class"]>().toEqualTypeOf<
+      string | undefined
+    >();
+    expectTypeOf(barrel.DataProviderDevtools).not.toBeAny();
+  });
+
+  it("Assistant ships beside its props", () => {
+    expectTypeOf<AssistantProps>().toHaveProperty("transport");
+    expectTypeOf<AssistantProps>().toHaveProperty("tools");
+    expectTypeOf<AssistantProps>().toHaveProperty("placement");
+    expectTypeOf<AssistantProps>().toHaveProperty("maxToolRounds");
+    expectTypeOf(barrel.Assistant).not.toBeAny();
   });
 
   it("keeps internal helpers out of the barrel", () => {

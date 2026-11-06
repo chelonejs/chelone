@@ -3,8 +3,18 @@
   "entryPoints": [
     "../../../packages/react/src/index.ts",
     "../../../packages/react/src/monaco.ts",
+    "../../../packages/react/src/charts.ts",
+    "../../../packages/react/src/components/charts/chart-frame.tsx",
     "../../../packages/react/src/mdx-editor.ts",
-    "../../../packages/react/src/kanban.ts"
+    "../../../packages/react/src/rich-text-input.ts",
+    "../../../packages/react/src/kanban.ts",
+    "../../../packages/react/src/block-editor.ts",
+    "../../../packages/react/src/maps.ts",
+    "../../../packages/react/src/maps-draw.ts",
+    "../../../packages/react/src/maps-osm.ts",
+    "../../../packages/react/src/supabase.ts",
+    "../../../packages/react/src/csv-import.ts",
+    "../../../packages/react/src/inspector.ts"
   ],
   "tsconfig": "../../../packages/react/tsconfig.json",
   "json": "./public-api.typedoc.json",

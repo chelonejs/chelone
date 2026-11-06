@@ -10,6 +10,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -88,7 +89,7 @@ afterEach(() => cleanup());
 describe("<NumberInput>", () => {
   it("renders a labelled input of type number", () => {
     setup(<NumberInput source="price" />, { defaultValues: { price: 12 } });
-    const input = screen.getByLabelText("Price") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Price"), HTMLInputElement);
     expect(input.getAttribute("type")).toBe("number");
     expect(input.value).toBe("12");
   });
@@ -99,7 +100,7 @@ describe("<NumberInput>", () => {
       <NumberInput source="price" />,
       { defaultValues: { price: null }, onData },
     );
-    const input = screen.getByLabelText("Price") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Price"), HTMLInputElement);
     fireEvent.change(input, { target: { value: "42" } });
     await act(async () => {
       await submitRef.current?.();
@@ -113,7 +114,7 @@ describe("<NumberInput>", () => {
       <NumberInput source="price" />,
       { defaultValues: { price: 7 }, onData },
     );
-    const input = screen.getByLabelText("Price") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Price"), HTMLInputElement);
     fireEvent.change(input, { target: { value: "" } });
     await act(async () => {
       await submitRef.current?.();
@@ -125,7 +126,7 @@ describe("<NumberInput>", () => {
     setup(<NumberInput source="price" step={0.01} min={0} />, {
       defaultValues: { price: 1 },
     });
-    const input = screen.getByLabelText("Price") as HTMLInputElement;
+    const input = elementOf(screen.getByLabelText("Price"), HTMLInputElement);
     expect(input.getAttribute("step")).toBe("0.01");
     expect(input.getAttribute("min")).toBe("0");
   });
@@ -153,8 +154,8 @@ describe("<NumberInput>", () => {
     setup(<NumberInput source="price" disabled />, {
       defaultValues: { price: 1 },
     });
-    expect((screen.getByLabelText("Price") as HTMLInputElement).disabled).toBe(
-      true,
-    );
+    expect(
+      elementOf(screen.getByLabelText("Price"), HTMLInputElement).disabled,
+    ).toBe(true);
   });
 });

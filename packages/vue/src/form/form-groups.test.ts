@@ -3,14 +3,19 @@ import {
   type FormGroups,
   fakeDataProvider,
   type GroupState,
+  type Validator,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import {
   defineComponent,
   h,
+  type InjectionKey,
+  inject,
   nextTick,
+  provide,
   type Ref,
   ref,
   type VNodeChild,
@@ -30,43 +35,47 @@ import { type UseInputReturn, useInput } from "./use-input";
 
 type Post = { id: number; title: string; views: number };
 
+/** What the probes leave behind for the test to read. */
 interface Capture {
   form?: UseFormReturn<Post>;
   registry?: FormGroups;
   state?: Readonly<Ref<GroupState>>;
   inputs: Record<string, UseInputReturn>;
+  /** A validator per source, read by the input probe as it mounts. */
+  validators: Record<string, Validator>;
 }
 
+/** The capture reaches the probes through a typed key, so no prop is cast. */
+const CaptureKey: InjectionKey<Capture> = Symbol("chelone-form-groups-capture");
+
+const makeCapture = (): Capture => ({ inputs: {}, validators: {} });
+
+/** The capture the harness provided above this probe. */
+const useCapture = (): Capture => defined(inject(CaptureKey));
+
 const Input = defineComponent({
-  inheritAttrs: false,
   props: { source: { type: String, required: true } },
-  setup(props, { attrs }) {
-    const capture = attrs.capture as Capture;
-    const validate = attrs.validate as
-      | ((value: unknown) => string | undefined)
-      | undefined;
+  setup(props) {
+    const capture = useCapture();
     capture.inputs[props.source] = useInput({
       source: props.source,
-      validate,
+      validate: capture.validators[props.source],
     });
     return () => null;
   },
 });
 
 const Badge = defineComponent({
-  inheritAttrs: false,
   props: { name: { type: String, required: true } },
-  setup(props, { attrs }) {
-    const capture = attrs.capture as Capture;
-    capture.state = useFormGroup(() => props.name);
+  setup(props) {
+    useCapture().state = useFormGroup(() => props.name);
     return () => null;
   },
 });
 
 const RegistryProbe = defineComponent({
-  inheritAttrs: false,
-  setup(_, { attrs }) {
-    (attrs.capture as Capture).registry = useFormGroups();
+  setup() {
+    useCapture().registry = useFormGroups();
     return () => null;
   },
 });
@@ -96,6 +105,7 @@ function mountForm(
         queryClient,
       };
       provideCheloneContext(ctx);
+      provide(CaptureKey, capture);
       return () => h(FormProbe);
     },
   });
@@ -113,13 +123,13 @@ const stateOf = (capture: Capture): Readonly<Ref<GroupState>> => {
 
 describe("form groups", () => {
   it("an input inside a FormGroupProvider joins the group and leaves it on unmount", async () => {
-    const capture: Capture = { inputs: {} };
+    const capture = makeCapture();
     const show = ref(true);
     mountForm(capture, () =>
       h(FormGroupsProvider, null, () => [
-        h(RegistryProbe, { capture }),
+        h(RegistryProbe),
         h(FormGroupProvider, { name: "main" }, () =>
-          show.value ? h(Input, { source: "title", capture }) : null,
+          show.value ? h(Input, { source: "title" }) : null,
         ),
       ]),
     );
@@ -132,16 +142,17 @@ describe("form groups", () => {
   });
 
   it("useFormGroup is invalid while a member fails its validator and valid once it passes", async () => {
-    const capture: Capture = { inputs: {} };
+    const capture = makeCapture();
     const required = (value: unknown) => (value ? undefined : "required");
+    capture.validators.title = required;
     mountForm(
       capture,
       () =>
         h(FormGroupsProvider, null, () => [
           h(FormGroupProvider, { name: "main" }, () =>
-            h(Input, { source: "title", capture, validate: required }),
+            h(Input, { source: "title" }),
           ),
-          h(Badge, { name: "main", capture }),
+          h(Badge, { name: "main" }),
         ]),
       { id: 1, title: "", views: 0 },
     );
@@ -160,14 +171,14 @@ describe("form groups", () => {
   });
 
   it("useFormGroup keeps the same state object when a field outside the group changes", async () => {
-    const capture: Capture = { inputs: {} };
+    const capture = makeCapture();
     mountForm(capture, () =>
       h(FormGroupsProvider, null, () => [
         h(FormGroupProvider, { name: "main" }, () =>
-          h(Input, { source: "title", capture }),
+          h(Input, { source: "title" }),
         ),
-        h(Input, { source: "views", capture }),
-        h(Badge, { name: "main", capture }),
+        h(Input, { source: "views" }),
+        h(Badge, { name: "main" }),
       ]),
     );
     await flushPromises();
@@ -184,16 +195,14 @@ describe("form groups", () => {
   });
 
   it("useFormGroups throws without a FormGroupsProvider", () => {
-    const capture: Capture = { inputs: {} };
-    expect(() =>
-      mountForm(capture, () => h(RegistryProbe, { capture })),
-    ).toThrow(
+    const capture = makeCapture();
+    expect(() => mountForm(capture, () => h(RegistryProbe))).toThrow(
       "useFormGroups: no <FormGroupsProvider> found above this component.",
     );
   });
 
   it("an input outside any group registers nothing and does not throw", async () => {
-    const capture: Capture = { inputs: {} };
+    const capture = makeCapture();
     let optional: FormGroups | undefined;
     const Optional = defineComponent({
       setup() {
@@ -205,7 +214,7 @@ describe("form groups", () => {
       setup() {
         const registry = provideFormGroups();
         capture.registry = registry;
-        return () => h(Input, { source: "title", capture });
+        return () => h(Input, { source: "title" });
       },
     });
     mountForm(capture, () => h(Optional));
@@ -219,21 +228,21 @@ describe("form groups", () => {
     // Inside a registry but with no group name: still nothing registered.
     mountForm(capture, () =>
       h(FormGroupsProvider, null, () => [
-        h(RegistryProbe, { capture }),
-        h(Input, { source: "title", capture }),
+        h(RegistryProbe),
+        h(Input, { source: "title" }),
       ]),
     );
     await nextTick();
     expect(registryOf(capture).getMembers("title")).toEqual([]);
   });
   it("an input moves to the new group when the FormGroupProvider name changes", async () => {
-    const capture: Capture = { inputs: {} };
+    const capture = makeCapture();
     const groupName = ref("a");
     mountForm(capture, () =>
       h(FormGroupsProvider, null, () => [
-        h(RegistryProbe, { capture }),
+        h(RegistryProbe),
         h(FormGroupProvider, { name: groupName.value }, () =>
-          h(Input, { source: "title", capture }),
+          h(Input, { source: "title" }),
         ),
       ]),
     );
@@ -247,17 +256,18 @@ describe("form groups", () => {
   });
 
   it("useFormGroup follows its name when the badge's name prop changes", async () => {
-    const capture: Capture = { inputs: {} };
+    const capture = makeCapture();
     const required = (value: unknown) => (value ? undefined : "required");
+    capture.validators.title = required;
     const tab = ref("a");
     mountForm(
       capture,
       () =>
         h(FormGroupsProvider, null, () => [
           h(FormGroupProvider, { name: "b" }, () =>
-            h(Input, { source: "title", capture, validate: required }),
+            h(Input, { source: "title" }),
           ),
-          h(Badge, { name: tab.value, capture }),
+          h(Badge, { name: tab.value }),
         ]),
       { id: 1, title: "", views: 0 },
     );
@@ -273,16 +283,16 @@ describe("form groups", () => {
   });
 
   it("inputs and badges switch to the registry passed as the groups prop", async () => {
-    const capture: Capture = { inputs: {} };
+    const capture = makeCapture();
     const first = createFormGroups();
     const second = createFormGroups();
     const groups = ref(first);
     mountForm(capture, () =>
       h(FormGroupsProvider, { groups: groups.value }, () => [
         h(FormGroupProvider, { name: "main" }, () =>
-          h(Input, { source: "title", capture }),
+          h(Input, { source: "title" }),
         ),
-        h(Badge, { name: "main", capture }),
+        h(Badge, { name: "main" }),
       ]),
     );
     await nextTick();
@@ -298,8 +308,9 @@ describe("form groups", () => {
     expect(stateOf(capture).value.isDirty).toBe(true);
   });
   it("an input under nested FormGroupProviders registers into every enclosing group", async () => {
-    const capture: Capture = { inputs: {} };
+    const capture = makeCapture();
     const required = (value: unknown) => (value ? undefined : "required");
+    capture.validators.title = required;
     const states: Record<string, Readonly<Ref<GroupState>>> = {};
     let name: Readonly<Ref<string | undefined>> | undefined;
     const NamedBadge = defineComponent({
@@ -319,10 +330,10 @@ describe("form groups", () => {
       capture,
       () =>
         h(FormGroupsProvider, null, () => [
-          h(RegistryProbe, { capture }),
+          h(RegistryProbe),
           h(FormGroupProvider, { name: "outer" }, () =>
             h(FormGroupProvider, { name: "inner" }, () => [
-              h(Input, { source: "title", capture, validate: required }),
+              h(Input, { source: "title" }),
               h(NameProbe),
             ]),
           ),
@@ -343,7 +354,7 @@ describe("form groups", () => {
   });
 
   it("useFormGroupName resolves the ambient name when first read after setup", async () => {
-    const capture: Capture = { inputs: {} };
+    const capture = makeCapture();
     const groupName = ref("main");
     let name: Readonly<Ref<string | undefined>> | undefined;
     const NameProbe = defineComponent({

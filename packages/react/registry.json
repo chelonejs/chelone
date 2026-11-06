@@ -1155,6 +1155,7 @@
         "@chelone/field",
         "@chelone/input",
         "@chelone/kbd",
+        "@chelone/label",
         "@chelone/pagination",
         "@chelone/popover",
         "@chelone/primitives",
@@ -1214,6 +1215,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/auth/permission-matrix.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/buttons/bulk-delete-button.tsx",
           "type": "registry:component"
         },
@@ -1255,6 +1260,10 @@
         },
         {
           "path": "src/components/admin/buttons/export-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/buttons/fields-selector.tsx",
           "type": "registry:component"
         },
         {
@@ -1323,6 +1332,10 @@
         },
         {
           "path": "src/components/admin/common/field-label-text.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/common/i18n-key-editor.tsx",
           "type": "registry:component"
         },
         {
@@ -1419,6 +1432,10 @@
         },
         {
           "path": "src/components/admin/fields/date-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/fields/diff-viewer.tsx",
           "type": "registry:component"
         },
         {
@@ -1650,6 +1667,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/inputs/in-place-editor.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/inputs/loading-input.tsx",
           "type": "registry:component"
         },
@@ -1730,6 +1751,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/layout/assistant.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/layout/command-menu-context.ts",
           "type": "registry:component"
         },
@@ -1739,6 +1764,10 @@
         },
         {
           "path": "src/components/admin/layout/dashboard-menu-item.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/data-provider-devtools.tsx",
           "type": "registry:component"
         },
         {
@@ -1755,6 +1784,10 @@
         },
         {
           "path": "src/components/admin/layout/menu.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/layout/onboarding-tour.tsx",
           "type": "registry:component"
         },
         {
@@ -1803,6 +1836,10 @@
         },
         {
           "path": "src/components/admin/layout/user-menu.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/approval-queue.tsx",
           "type": "registry:component"
         },
         {
@@ -1887,6 +1924,10 @@
         },
         {
           "path": "src/components/admin/list/prev-next-buttons.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/list/record-timeline.tsx",
           "type": "registry:component"
         },
         {
@@ -1991,6 +2032,14 @@
         },
         {
           "path": "src/components/admin/views/translatable-fields.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/widgets/job-monitor.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/admin/widgets/metric-card.tsx",
           "type": "registry:component"
         },
         {
@@ -2170,6 +2219,7 @@
         }
       ],
       "registryDependencies": ["@chelone/use-menu-access"],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2243,6 +2293,25 @@
       "registryDependencies": ["@chelone/dropdown-menu", "@chelone/lib-utils"],
       "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "authentication"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "permission-matrix",
+      "type": "registry:component",
+      "title": "Permission Matrix",
+      "files": [
+        {
+          "path": "src/components/admin/auth/permission-matrix.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/checkbox",
+        "@chelone/table",
+        "@chelone/tabs"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -2347,9 +2416,8 @@
       ],
       "registryDependencies": [
         "@chelone/button",
-        "@chelone/input",
-        "@chelone/popover",
-        "@chelone/switch"
+        "@chelone/fields-selector",
+        "@chelone/popover"
       ],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
@@ -2437,6 +2505,25 @@
       "registryDependencies": ["@chelone/button"],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "fields-selector",
+      "type": "registry:component",
+      "title": "Fields Selector",
+      "files": [
+        {
+          "path": "src/components/admin/buttons/fields-selector.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/input",
+        "@chelone/switch"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -2726,6 +2813,26 @@
         }
       ],
       "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "i18n-key-editor",
+      "type": "registry:component",
+      "title": "I18n Key Editor",
+      "files": [
+        {
+          "path": "src/components/admin/common/i18n-key-editor.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/input",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3118,6 +3225,21 @@
       ],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "diff-viewer",
+      "type": "registry:component",
+      "title": "Diff Viewer",
+      "files": [
+        {
+          "path": "src/components/admin/fields/diff-viewer.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -4006,7 +4128,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["cronstrue"],
+      "dependencies": ["@chelone/utils", "cronstrue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4175,6 +4297,27 @@
       "registryDependencies": ["@chelone/file-input"],
       "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "in-place-editor",
+      "type": "registry:component",
+      "title": "In Place Editor",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/in-place-editor.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-field",
+        "@chelone/text-input",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -4597,6 +4740,26 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "assistant",
+      "type": "registry:component",
+      "title": "Assistant",
+      "files": [
+        {
+          "path": "src/components/admin/layout/assistant.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/confirm",
+        "@chelone/dialog",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "command-menu-context",
       "type": "registry:component",
       "title": "Command Menu Context",
@@ -4647,6 +4810,21 @@
       "registryDependencies": ["@chelone/menu-item-link"],
       "dependencies": ["@chelone/react", "lucide-react"],
       "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-provider-devtools",
+      "type": "registry:component",
+      "title": "Data Provider Devtools",
+      "files": [
+        {
+          "path": "src/components/admin/layout/data-provider-devtools.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -4725,6 +4903,21 @@
       ],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "onboarding-tour",
+      "type": "registry:component",
+      "title": "Onboarding Tour",
+      "files": [
+        {
+          "path": "src/components/admin/layout/onboarding-tour.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -4924,6 +5117,30 @@
       ],
       "dependencies": ["@chelone/react"],
       "categories": ["chelone", "layout"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "approval-queue",
+      "type": "registry:component",
+      "title": "Approval Queue",
+      "files": [
+        {
+          "path": "src/components/admin/list/approval-queue.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/dual-approval-button",
+        "@chelone/label",
+        "@chelone/lib-utils",
+        "@chelone/textarea",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "devDependencies": ["@tanstack/react-query"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -5281,6 +5498,24 @@
         "@chelone/skeleton"
       ],
       "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "record-timeline",
+      "type": "registry:component",
+      "title": "Record Timeline",
+      "files": [
+        {
+          "path": "src/components/admin/list/record-timeline.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/simple-list-loading"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5708,6 +5943,49 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "job-monitor",
+      "type": "registry:component",
+      "title": "Job Monitor",
+      "files": [
+        {
+          "path": "src/components/admin/widgets/job-monitor.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/date-field",
+        "@chelone/json-field",
+        "@chelone/lib-utils",
+        "@chelone/tabs",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "metric-card",
+      "type": "registry:component",
+      "title": "Metric Card",
+      "files": [
+        {
+          "path": "src/components/admin/widgets/metric-card.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/card",
+        "@chelone/lib-utils",
+        "@chelone/skeleton"
+      ],
+      "dependencies": ["@chelone/core", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "lib-are-ids-equal",
       "type": "registry:lib",
       "title": "Lib Are Ids Equal",
@@ -5967,6 +6245,102 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "charts",
+      "type": "registry:block",
+      "title": "Chelone Charts",
+      "categories": ["chelone", "components"],
+      "description": "The opt-in charts add-on: TrendChart draws a line or an area over time in a card, on shadcn's chart primitive. Installs recharts.",
+      "registryDependencies": [
+        "@chelone/card",
+        "@chelone/chart",
+        "@chelone/skeleton"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "recharts"],
+      "files": [
+        {
+          "path": "src/components/charts/bar-chart.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/charts/chart-frame.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/charts/donut-chart.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/charts/trend-chart.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "bar-chart",
+      "type": "registry:component",
+      "title": "Bar Chart",
+      "files": [
+        {
+          "path": "src/components/charts/bar-chart.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/chart", "@chelone/chart-frame"],
+      "dependencies": ["@chelone/core", "recharts"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "chart-frame",
+      "type": "registry:component",
+      "title": "Chart Frame",
+      "files": [
+        {
+          "path": "src/components/charts/chart-frame.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/card",
+        "@chelone/chart",
+        "@chelone/skeleton"
+      ],
+      "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "donut-chart",
+      "type": "registry:component",
+      "title": "Donut Chart",
+      "files": [
+        {
+          "path": "src/components/charts/donut-chart.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/chart", "@chelone/chart-frame"],
+      "dependencies": ["@chelone/core", "recharts"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "trend-chart",
+      "type": "registry:component",
+      "title": "Trend Chart",
+      "files": [
+        {
+          "path": "src/components/charts/trend-chart.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/chart", "@chelone/chart-frame"],
+      "dependencies": ["@chelone/core", "recharts"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "kanban",
       "type": "registry:block",
       "title": "Chelone Kanban",
@@ -6016,6 +6390,123 @@
         "@dnd-kit/react",
         "lucide-react"
       ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "inspector",
+      "type": "registry:block",
+      "title": "Chelone Inspector",
+      "categories": ["chelone", "components"],
+      "description": "The opt-in inspector add-on: Inspector is a draggable panel that edits whichever Configurable the user picks, InspectorButton turns the mode on, and SortableFieldsSelector lists a table's columns with drag to reorder. Installs @dnd-kit/react.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/fields-selector",
+        "@chelone/lib-utils",
+        "@chelone/tooltip"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@dnd-kit/react",
+        "lucide-react"
+      ],
+      "files": [
+        {
+          "path": "src/components/inspector/configurable-inputs.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/configurable.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/inspector-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/inspector.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/inspector/sortable-fields-selector.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "configurable-inputs",
+      "type": "registry:component",
+      "title": "Configurable Inputs",
+      "files": [
+        {
+          "path": "src/components/inspector/configurable-inputs.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/configurable",
+        "@chelone/sortable-fields-selector"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "configurable",
+      "type": "registry:component",
+      "title": "Configurable",
+      "files": [
+        {
+          "path": "src/components/inspector/configurable.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/inspector",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "inspector-button",
+      "type": "registry:component",
+      "title": "Inspector Button",
+      "files": [
+        {
+          "path": "src/components/inspector/inspector-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/inspector",
+        "@chelone/tooltip"
+      ],
+      "dependencies": ["@chelone/react", "lucide-react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "sortable-fields-selector",
+      "type": "registry:component",
+      "title": "Sortable Fields Selector",
+      "files": [
+        {
+          "path": "src/components/inspector/sortable-fields-selector.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/fields-selector",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/react", "@dnd-kit/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6147,6 +6638,677 @@
         }
       ],
       "dependencies": ["@mdxeditor/editor"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-input",
+      "type": "registry:block",
+      "title": "Chelone Rich Text",
+      "categories": ["chelone", "fields"],
+      "docs": "The field styles its content with rich-text.css, which the component imports itself and which reads the Chelone color tokens.",
+      "description": "The opt-in rich text add-on: RichTextField shows stored HTML sanitized with DOMPurify, or its text with stripTags, and RichTextInput edits an HTML string in a tiptap editor with a formatting toolbar. Installs dompurify and the tiptap packages.",
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-field-types",
+        "@chelone/lib-utils",
+        "@chelone/native-select",
+        "@chelone/separator",
+        "@chelone/tooltip"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@tiptap/core",
+        "@tiptap/extension-code-block",
+        "@tiptap/extension-code-block-lowlight",
+        "@tiptap/extension-image",
+        "@tiptap/extension-text-style",
+        "@tiptap/extensions",
+        "@tiptap/pm",
+        "@tiptap/react",
+        "@tiptap/starter-kit",
+        "dompurify",
+        "highlight.js",
+        "lowlight",
+        "lucide-react"
+      ],
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-color.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-extensions.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-image-form.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-image.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-toolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text-url-form.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rich-text-input/rich-text.css",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-color",
+      "type": "registry:component",
+      "title": "Rich Text Color",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-color.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
+      "dependencies": ["@chelone/core", "@chelone/react", "@tiptap/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-extensions",
+      "type": "registry:component",
+      "title": "Rich Text Extensions",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-extensions.ts",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/rich-text-image"],
+      "dependencies": [
+        "@chelone/core",
+        "@tiptap/core",
+        "@tiptap/extension-code-block",
+        "@tiptap/extension-code-block-lowlight",
+        "@tiptap/extension-text-style",
+        "@tiptap/extensions",
+        "@tiptap/pm",
+        "@tiptap/starter-kit",
+        "highlight.js",
+        "lowlight"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-field",
+      "type": "registry:component",
+      "title": "Rich Text Field",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-utils",
+        "@chelone/rich-text.css"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "dompurify"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-image-form",
+      "type": "registry:component",
+      "title": "Rich Text Image Form",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-image-form.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/rich-text-image",
+        "@chelone/rich-text-url-form"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "@tiptap/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-image",
+      "type": "registry:component",
+      "title": "Rich Text Image",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-image.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/tooltip"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@tiptap/core",
+        "@tiptap/extension-image",
+        "@tiptap/pm",
+        "@tiptap/react",
+        "lucide-react"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-input-editor",
+      "type": "registry:component",
+      "title": "Rich Text Input Editor",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/lib-utils",
+        "@chelone/rich-text-extensions",
+        "@chelone/rich-text-image",
+        "@chelone/rich-text-toolbar",
+        "@chelone/rich-text.css"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@tiptap/pm",
+        "@tiptap/react"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-toolbar",
+      "type": "registry:component",
+      "title": "Rich Text Toolbar",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-toolbar.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/native-select",
+        "@chelone/rich-text-color",
+        "@chelone/rich-text-image",
+        "@chelone/rich-text-image-form",
+        "@chelone/rich-text-url-form",
+        "@chelone/separator",
+        "@chelone/tooltip"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@tiptap/react",
+        "lucide-react"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text-url-form",
+      "type": "registry:component",
+      "title": "Rich Text Url Form",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text-url-form.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button", "@chelone/input"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rich-text.css",
+      "type": "registry:component",
+      "title": "Rich Text.css",
+      "files": [
+        {
+          "path": "src/components/rich-text-input/rich-text.css",
+          "type": "registry:component"
+        }
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-editor",
+      "type": "registry:block",
+      "title": "Chelone Block Editor",
+      "categories": ["chelone", "inputs"],
+      "description": "The opt-in block editor add-on: BlockEditorInput edits a document of rich text and app-defined blocks in a tiptap editor with a slash menu, and BlockDocField shows that document read-only. defineBlock declares a block from a Zod schema and its components, and the data blocks chart a resource. Installs the tiptap packages and recharts, and the charts block.",
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/bar-chart",
+        "@chelone/button",
+        "@chelone/card",
+        "@chelone/command",
+        "@chelone/donut-chart",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/input-helper-text",
+        "@chelone/input-props",
+        "@chelone/label",
+        "@chelone/lib-field-types",
+        "@chelone/lib-utils",
+        "@chelone/native-select",
+        "@chelone/skeleton",
+        "@chelone/switch",
+        "@chelone/table",
+        "@chelone/trend-chart",
+        "charts"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@dnd-kit/dom",
+        "@dnd-kit/react",
+        "@tiptap/core",
+        "@tiptap/extensions",
+        "@tiptap/pm",
+        "@tiptap/react",
+        "@tiptap/starter-kit",
+        "@tiptap/suggestion",
+        "lucide-react",
+        "recharts",
+        "zod"
+      ],
+      "files": [
+        {
+          "path": "src/components/block-editor/auto-config-form.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-doc-field.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-drag-handle.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-editor-input.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-editor.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-nodes.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-picker.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/block-toolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/chart-block.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/data-block-parts.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/data-blocks.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/default-blocks.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/block-editor/slash-command.ts",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "auto-config-form",
+      "type": "registry:component",
+      "title": "Auto Config Form",
+      "files": [
+        {
+          "path": "src/components/block-editor/auto-config-form.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-nodes",
+        "@chelone/input",
+        "@chelone/label",
+        "@chelone/native-select",
+        "@chelone/switch"
+      ],
+      "dependencies": ["@chelone/core", "recharts"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-doc-field",
+      "type": "registry:component",
+      "title": "Block Doc Field",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-doc-field.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-editor-shell",
+        "@chelone/block-nodes",
+        "@chelone/lib-field-types",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "recharts"],
+      "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-drag-handle",
+      "type": "registry:component",
+      "title": "Block Drag Handle",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-drag-handle.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/block-toolbar", "@chelone/lib-utils"],
+      "dependencies": [
+        "@chelone/react",
+        "@dnd-kit/dom",
+        "@dnd-kit/react",
+        "@tiptap/core",
+        "@tiptap/react",
+        "lucide-react",
+        "recharts"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-editor-input",
+      "type": "registry:component",
+      "title": "Block Editor Input",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-editor-input.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-editor-shell",
+        "@chelone/block-nodes",
+        "@chelone/field",
+        "@chelone/field-label-text",
+        "@chelone/input-helper-text",
+        "@chelone/input-props"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "recharts"],
+      "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-editor-shell",
+      "type": "registry:component",
+      "title": "Block Editor Shell",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-editor.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-drag-handle",
+        "@chelone/block-nodes",
+        "@chelone/block-picker",
+        "@chelone/block-toolbar",
+        "@chelone/button",
+        "@chelone/default-blocks",
+        "@chelone/lib-utils",
+        "@chelone/slash-command"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@dnd-kit/react",
+        "@tiptap/core",
+        "@tiptap/extensions",
+        "@tiptap/pm",
+        "@tiptap/react",
+        "@tiptap/starter-kit",
+        "recharts"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-nodes",
+      "type": "registry:component",
+      "title": "Block Nodes",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-nodes.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@tiptap/core",
+        "@tiptap/react",
+        "recharts"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-picker",
+      "type": "registry:component",
+      "title": "Block Picker",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-picker.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/block-nodes", "@chelone/command"],
+      "dependencies": ["@chelone/core", "@chelone/react", "recharts"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "block-toolbar",
+      "type": "registry:component",
+      "title": "Block Toolbar",
+      "files": [
+        {
+          "path": "src/components/block-editor/block-toolbar.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/auto-config-form",
+        "@chelone/block-nodes",
+        "@chelone/button"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@tiptap/core",
+        "@tiptap/pm",
+        "@tiptap/react",
+        "lucide-react",
+        "recharts"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "chart-block",
+      "type": "registry:component",
+      "title": "Chart Block",
+      "files": [
+        {
+          "path": "src/components/block-editor/chart-block.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/bar-chart",
+        "@chelone/block-nodes",
+        "@chelone/data-block-parts",
+        "@chelone/donut-chart",
+        "@chelone/trend-chart"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "lucide-react",
+        "recharts"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-block-parts",
+      "type": "registry:component",
+      "title": "Data Block Parts",
+      "files": [
+        {
+          "path": "src/components/block-editor/data-block-parts.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/input",
+        "@chelone/label",
+        "@chelone/native-select",
+        "@chelone/skeleton"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react", "recharts"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "data-blocks",
+      "type": "registry:component",
+      "title": "Data Blocks",
+      "files": [
+        {
+          "path": "src/components/block-editor/data-blocks.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/badge",
+        "@chelone/block-nodes",
+        "@chelone/card",
+        "@chelone/chart-block",
+        "@chelone/data-block-parts",
+        "@chelone/input",
+        "@chelone/label",
+        "@chelone/table"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "lucide-react",
+        "recharts"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "default-blocks",
+      "type": "registry:component",
+      "title": "Default Blocks",
+      "files": [
+        {
+          "path": "src/components/block-editor/default-blocks.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/block-nodes",
+        "@chelone/input",
+        "@chelone/label",
+        "@chelone/lib-utils"
+      ],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "lucide-react",
+        "recharts",
+        "zod"
+      ],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "slash-command",
+      "type": "registry:component",
+      "title": "Slash Command",
+      "files": [
+        {
+          "path": "src/components/block-editor/slash-command.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": [
+        "@tiptap/core",
+        "@tiptap/pm",
+        "@tiptap/suggestion",
+        "recharts"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6331,6 +7493,7 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/react",
+        "@chelone/utils",
         "@turf/difference",
         "@turf/simplify",
         "lucide-react",
@@ -6381,6 +7544,7 @@
       ],
       "registryDependencies": ["@chelone/shape-input"],
       "categories": ["chelone", "inputs"],
+      "dependencies": ["@turf/difference", "@turf/simplify"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -6398,7 +7562,12 @@
         "@chelone/lib-utils",
         "@chelone/use-terra-draw"
       ],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "dependencies": [
+        "@chelone/react",
+        "@turf/difference",
+        "@turf/simplify",
+        "lucide-react"
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6412,7 +7581,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/core", "@turf/difference", "@turf/simplify"],
+      "dependencies": ["@chelone/utils", "@turf/difference", "@turf/simplify"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6437,7 +7606,12 @@
         "@chelone/map-canvas",
         "@chelone/use-terra-draw"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@turf/difference",
+        "@turf/simplify"
+      ],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6456,7 +7630,7 @@
         "@chelone/shape-input",
         "@chelone/use-terra-draw"
       ],
-      "dependencies": ["@chelone/core"],
+      "dependencies": ["@chelone/core", "@turf/difference", "@turf/simplify"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6481,7 +7655,12 @@
         "@chelone/slider",
         "@chelone/toggle-group"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@turf/difference",
+        "@turf/simplify"
+      ],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6498,6 +7677,8 @@
       "registryDependencies": ["@chelone/geometry-ops", "@chelone/map-canvas"],
       "dependencies": [
         "@chelone/core",
+        "@turf/difference",
+        "@turf/simplify",
         "terra-draw",
         "terra-draw-maplibre-gl-adapter"
       ],
@@ -6526,6 +7707,7 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/react",
+        "@chelone/utils",
         "@turf/buffer",
         "@turf/difference",
         "@turf/union",
@@ -6591,7 +7773,13 @@
         "@chelone/maps-provider",
         "@chelone/use-geocode"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6611,7 +7799,13 @@
         "@chelone/lib-utils",
         "@chelone/maps-provider"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6637,6 +7831,8 @@
       "dependencies": [
         "@chelone/core",
         "@chelone/react",
+        "@turf/difference",
+        "@turf/union",
         "lucide-react",
         "maplibre-gl"
       ],
@@ -6655,12 +7851,13 @@
         }
       ],
       "dependencies": [
-        "@chelone/core",
+        "@chelone/utils",
         "@turf/buffer",
+        "@turf/difference",
+        "@turf/union",
         "maplibre-gl",
         "osm2geojson-lite"
       ],
-      "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6675,10 +7872,12 @@
         }
       ],
       "dependencies": [
-        "@chelone/core",
+        "@chelone/utils",
+        "@turf/buffer",
         "@turf/difference",
         "@turf/union",
-        "maplibre-gl"
+        "maplibre-gl",
+        "osm2geojson-lite"
       ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6698,7 +7897,13 @@
         "@chelone/skeleton",
         "@chelone/use-reverse-geocode"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@chelone/react",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6713,7 +7918,12 @@
         }
       ],
       "registryDependencies": ["@chelone/maps-provider"],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6732,7 +7942,12 @@
         "@chelone/maps-provider",
         "@chelone/osm-features"
       ],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
@@ -6748,7 +7963,12 @@
         }
       ],
       "registryDependencies": ["@chelone/maps-provider"],
-      "dependencies": ["@chelone/core", "maplibre-gl"],
+      "dependencies": [
+        "@chelone/core",
+        "@turf/difference",
+        "@turf/union",
+        "maplibre-gl"
+      ],
       "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"

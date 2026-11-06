@@ -22,6 +22,7 @@
  */
 
 import { fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -91,7 +92,7 @@ function makeRouter(): Router {
 
 interface Captured {
   form?: UseFormReturn<FormValues>;
-  values?: () => Record<string, unknown>;
+  values?: () => FormValues;
   /** Every payload `onSubmit` actually received — empty ⇒ save was blocked. */
   saves: unknown[];
 }
@@ -125,7 +126,7 @@ function mountInForm(
         },
       });
       captured.form = form;
-      captured.values = () => form.values.value as Record<string, unknown>;
+      captured.values = () => form.values.value;
       return () => slots.default?.();
     },
   });
@@ -256,7 +257,7 @@ describe("sample inputs round-trip through useInput (requirement 2)", () => {
 
     const input = wrapper.find("input");
     expect(input.attributes("type")).toBe("password");
-    expect((input.element as HTMLInputElement).value).toBe("s3cret");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe("s3cret");
 
     const toggle = wrapper.find("button");
     await toggle.trigger("click");
@@ -275,7 +276,7 @@ describe("sample inputs round-trip through useInput (requirement 2)", () => {
     await flushPromises();
 
     const select = wrapper.find("select");
-    expect((select.element as HTMLSelectElement).value).toBe("");
+    expect(elementOf(select.element, HTMLSelectElement).value).toBe("");
 
     await select.setValue("true");
     await nextTick();
@@ -306,7 +307,7 @@ describe("sample inputs round-trip through useInput (requirement 2)", () => {
 
     const input = wrapper.find('input[type="date"]');
     // ISO datetime is formatted down to a bare date for the control.
-    expect((input.element as HTMLInputElement).value).toBe("2021-09-11");
+    expect(elementOf(input.element, HTMLInputElement).value).toBe("2021-09-11");
 
     await input.setValue("2021-10-20");
     await nextTick();

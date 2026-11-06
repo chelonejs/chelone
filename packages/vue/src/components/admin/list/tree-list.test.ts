@@ -10,6 +10,7 @@ import {
   fakeDataProvider,
   type LooseRecord,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -288,7 +289,7 @@ describe("<TreeList>", () => {
     const press = (title: string, key: string) =>
       item(wrapper, title).trigger("keydown", { key });
 
-    (item(wrapper, "Root A").element as HTMLElement).focus();
+    elementOf(item(wrapper, "Root A").element, HTMLElement).focus();
     await press("Root A", "ArrowRight");
     expect(item(wrapper, "Root A").attributes("aria-expanded")).toBe("true");
     expect(titles(wrapper)).toEqual(["Root A", "Child A1", "Root B"]);

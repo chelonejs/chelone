@@ -27,9 +27,9 @@
     },
     {
       "name": "defaultValue",
-      "type": "unknown",
+      "type": "NoInfer<SourceValue<TRecord, SourceProp<TRecord>>>",
       "optional": true,
-      "comment": "Input-level default, ra precedence (seeds only into an untouched hole)."
+      "comment": "Input-level default, ra precedence (seeds only into an untouched hole).\nTyped as the value at `source`; `unknown` without a record."
     },
     {
       "name": "disabled",
@@ -47,7 +47,7 @@
       "name": "format",
       "type": "(value: unknown) => unknown",
       "optional": true,
-      "comment": "Read transform (raw form value → input value)."
+      "comment": ""
     },
     {
       "name": "height",
@@ -117,9 +117,9 @@
     },
     {
       "name": "parse",
-      "type": "(value: unknown) => unknown",
+      "type": "(value: unknown) => NoInfer<SourceTransformValue<TRecord, SourceProp<TRecord>>>",
       "optional": true,
-      "comment": "Write transform (input value → stored value)."
+      "comment": "Write transform (input value → stored value). Must return the value at\n`source`; `unknown` without a record."
     },
     {
       "name": "readOnly",

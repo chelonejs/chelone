@@ -8,11 +8,13 @@
  *   - frontmatter (title, one-line description, registry:<slug> when the
  *     component ships as a shadcn-registry item)
  *   - a one-line intro
- *   - for barrel-only components, an `@chelone/react` import block; registry-backed
- *     pages get their install block from `registry` frontmatter at render time
+ *   - for barrel-only components, an import block for the module they are
+ *     imported from (`@chelone/react`, or a row's `importFrom` add-on entry);
+ *     registry-backed pages get their install block from `registry`
+ *     frontmatter at render time
  *   - a <PropsTable name="<Component>"/> (reads the typedoc-generated JSON)
- *   - a <ComponentPreview> only when a demo file exists on disk (never
- *     fabricated here — demos are authored in T2 / getting-started)
+ *
+ * `mdx-page.tsx` renders a preview when `demos/basic.tsx` exists.
  *
  * HONEST-SCOPE: a stub is written ONLY when its `component` has a generated
  * props JSON (proving the component is exported from the barrel). Any entry
@@ -20,8 +22,8 @@
  *
  * The ~25 T2 rich-guide slugs (page-components/*, viewing/index, editing/index,
  * the whole app-config section) are intentionally NOT in this table — they are
- * hand-written in T2. This generator owns the field/input/button/layout/feedback
- * reference only.
+ * hand-written in T2. This generator owns the
+ * field/input/button/layout/feedback/realtime reference only.
  *
  * Idempotent + non-destructive: an existing index.mdx that does NOT carry the
  * generated marker is left untouched (so hand-written T2 pages win). Re-running
@@ -30,7 +32,6 @@
 import {
   existsSync,
   mkdirSync,
-  readdirSync,
   readFileSync,
   writeFileSync,
 } from "node:fs";
@@ -52,10 +53,14 @@ const MARKER = "{/* generated:gen-component-stubs */}";
  * command; `null` => ships only in the @chelone/react barrel), a concise
  * title, and a one-line description written FRESH (no react-admin prose).
  *
+ * A row may also carry `importFrom`: the module a barrel-only component is
+ * imported from when it is not the barrel itself, such as an add-on entry
+ * (`@chelone/react/maps/draw`). Rows without it import from `@chelone/react`.
+ *
  * Cross-checked against the @chelone/react barrel + registry.json. Slugs whose
  * component is not exported are simply absent (the DROP set from plan §2).
  */
-/** @type {{slug:string,section:string,component:string,registry:string|null,title:string,desc:string}[]} */
+/** @type {{slug:string,section:string,component:string,registry:string|null,title:string,desc:string,importFrom?:string}[]} */
 const STUBS = [
   // ── viewing (read-only fields) ──────────────────────────────────────────
   { slug: "api-key-field", section: "viewing", component: "ApiKeyField", registry: "api-key-field", title: "ApiKeyField", desc: "Renders a secret API key value, masked with a reveal/copy affordance." },
@@ -67,6 +72,7 @@ const STUBS = [
   { slug: "cron-field", section: "viewing", component: "CronField", registry: "cron-field", title: "CronField", desc: "Renders a cron expression as a human-readable schedule." },
   { slug: "currency-field", section: "viewing", component: "CurrencyField", registry: "currency-field", title: "CurrencyField", desc: "Formats a numeric value as a localised currency amount." },
   { slug: "date-field", section: "viewing", component: "DateField", registry: "date-field", title: "DateField", desc: "Formats a date/time value using the active locale." },
+  { slug: "diff-viewer", section: "viewing", component: "DiffViewer", registry: "diff-viewer", title: "DiffViewer", desc: "Shows two versions of a record, one row per field, side by side or inline. The viewer fetches nothing: it compares the `before` and `after` it is given, field by field, by deep equality. Null and undefined read as missing, and `<ins>` and `<del>` mark the values." },
   { slug: "duration-field", section: "viewing", component: "DurationField", registry: "duration-field", title: "DurationField", desc: "Renders an ISO-8601 duration string as compact (`2h 30m`) or relative text." },
   { slug: "email-field", section: "viewing", component: "EmailField", registry: "email-field", title: "EmailField", desc: "Renders an email address as a mailto link." },
   { slug: "file-field", section: "viewing", component: "FileField", registry: "file-field", title: "FileField", desc: "Renders a file reference as a downloadable link." },
@@ -108,8 +114,12 @@ const STUBS = [
   { slug: "sort-button", section: "viewing", component: "SortButton", registry: "sort-button", title: "SortButton", desc: "A menu button that sorts a list by a chosen field." },
   { slug: "columns-button", section: "viewing", component: "ColumnsButton", registry: "columns-button", title: "ColumnsButton", desc: "A button that opens a panel to show, hide and reorder the columns of a <DataTable>. It needs a `store` on <Admin>, and lists the columns the <DataTable> publishes: each one with a `source` or a string `label`." },
   { slug: "tree-list", section: "viewing", component: "TreeList", registry: "tree-list", title: "TreeList", desc: "The records of the ambient <List> as a collapsible tree, nested by a parent field. Give the list a `perPage` that covers the whole tree: a record whose parent is on another page shows as a root." },
+  { slug: "pivot-grid", section: "viewing", component: "PivotGrid", registry: "pivot-grid", title: "PivotGrid", desc: "The records of the ambient <List> as a table of rows by columns, with row, column and grand totals. The grid fetches nothing, so give the list a `perPage` that covers every record to pivot. `count`, the default, counts records; `sum`, `avg`, `min` and `max` read `valueSource` and skip values that are not numbers. A total aggregates the raw values, not the cells. A record with no row or column value lands in a `(none)` row or column." },
   { slug: "calendar-list", section: "viewing", component: "CalendarList", registry: "calendar-list", title: "CalendarList", desc: "The records of the ambient <List> as events in a month, week or agenda view. The list is filtered to the visible range with `<startSource>_gte` and `<startSource>_lte`; with `endSource` set it is `<startSource>_lte` and `<endSource>_gte`, and a record with an empty end is left out. `rangeFilter` renames the keys, and `perPage` is 1000. Dates read as local time, and a date-only value is local midnight. `onDrop` is for the month view, uses native drag and drop, and does not work on touch screens." },
   { slug: "kanban-board", section: "viewing", component: "KanbanBoard", registry: "kanban-board", title: "KanbanBoard", desc: "The records of the ambient <List> as columns, one per column definition, with a card per record. The board fetches nothing, so give the list a perPage that covers every card; a record whose group value names no column is not shown. A drop writes the target column's id to groupSource through an optimistic update: the card changes column at once, and a failed write puts the card back and notifies. A card drags only with edit access on the resource. The board imports from `/kanban` and installs dnd-kit. A card drags with mouse, touch or pen; a touch drag starts after a hold, so a swipe still scrolls the board. The `Move to` menu on each card is the keyboard path." },
+  { slug: "approval-queue", section: "viewing", component: "ApprovalQueue", registry: "approval-queue", title: "ApprovalQueue", desc: "The records of the ambient <List> as a queue, one card per record with an Approve and a Reject. The queue fetches nothing: it reads the ambient `<List>`, so filter that list on the pending status, and a decided row leaves once the update's refetch lands. Approve is <DualApprovalButton>, with `required` approvals of 1 by default. Reject opens a form that asks for a reason and, on Confirm reject, writes the rejected status, the reason and the signed-in user; it needs `edit` access on the resource and an identity. A record already in the rejected status shows Rejected in place of both buttons. The rules are in the UI only, so the server has to enforce who may approve or reject." },
+  { slug: "record-timeline", section: "viewing", component: "RecordTimeline", registry: "record-timeline", title: "RecordTimeline", desc: "The records of the ambient <List> as a dated activity list, one entry per record in list order. The timeline fetches nothing: put it inside a `<ReferenceManyField>` or a `<List>`, whose sort sets the order. Each entry shows the `messageSource` text, an icon, and optionally the `userSource` and the time. The time is relative (\"2 hours ago\"), from `Intl.RelativeTimeFormat`, with the full date in the tooltip and the ISO date in `dateTime`; an entry with no valid date leaves it out. `iconSource` picks an icon from `icons`, and an entry with no match shows a clock. It is computed at render and does not tick while the page stays open." },
+  { slug: "job-monitor", section: "viewing", component: "JobMonitor", registry: "job-monitor", title: "JobMonitor", desc: "The jobs of a resource in one tab per status, with a count on each tab. The monitor reads its resource itself, from its `resource` prop or the context, and polls it every `pollInterval` ms, 5000 by default and `0` for no polling. It groups one page of up to `perPage` jobs, 200 by default, and a job whose status has no tab is not shown. Retry and Cancel write the status through a pessimistic update, need `edit` access on the resource, and are hidden with `actions` set to `false`. The rules are in the UI only, so the server has to refuse a retry of a job that is not failed." },
   { slug: "filter-live-form", section: "viewing", component: "FilterLiveForm", registry: null, title: "FilterLiveForm", desc: "A filter form that applies each change to the list as you type." },
   // list bodies and asides (SimpleList, FilterList, counts and live search)
   { slug: "simple-list", section: "viewing", component: "SimpleList", registry: "simple-list", title: "SimpleList", desc: "The records of the ambient <List> as tappable rows, for lists too narrow for a <DataTable>. Each row links to the edit page, or the show page when the resource has no edit view." },
@@ -165,6 +175,7 @@ const STUBS = [
   { slug: "clone-button", section: "editing", component: "CloneButton", registry: "clone-button", title: "CloneButton", desc: "Opens the create view pre-filled with a copy of the current record. It needs create access, as `<CreateButton>` does." },
   { slug: "update-button", section: "editing", component: "UpdateButton", registry: "update-button", title: "UpdateButton", desc: "Patches the current record with a fixed `data` payload. `mutationMode` defaults to `undoable`." },
   { slug: "bulk-edit-drawer", section: "editing", component: "BulkEditDrawer", registry: "bulk-edit-drawer", title: "BulkEditDrawer", desc: "Edits every selected record from a side sheet. It sends only the fields the user touched." },
+  { slug: "in-place-editor", section: "editing", component: "InPlaceEditor", registry: "in-place-editor", title: "InPlaceEditor", desc: "Shows a record value and turns it into an input on click. It reads the record in context, sends only the changed fields through `update`, and makes no call when nothing changed. `Escape` cancels, and a blur cancels unless `cancelOnBlur` is false. Editing needs `edit` access to the resource. Do not put it inside an <Edit> or <Create> form: it has a form of its own." },
   { slug: "cancel-button", section: "editing", component: "CancelButton", registry: "cancel-button", title: "CancelButton", desc: "Navigates back out of a form without saving." },
   { slug: "create-button", section: "editing", component: "CreateButton", registry: "create-button", title: "CreateButton", desc: "Links to the create view of the current resource." },
   { slug: "delete-button", section: "editing", component: "DeleteButton", registry: "delete-button", title: "DeleteButton", desc: "Deletes the current record (confirm-gated)." },
@@ -174,6 +185,7 @@ const STUBS = [
   { slug: "filter-form", section: "editing", component: "FilterForm", registry: "filter-form", title: "FilterForm", desc: "The row of filter inputs for a list. Place it in the `actions` prop of `<List>`." },
   { slug: "tabbed-form", section: "editing", component: "TabbedForm", registry: null, title: "TabbedForm", desc: "Splits a create/edit form's inputs across tabs." },
   { slug: "wizard-form", section: "editing", component: "WizardForm", registry: null, title: "WizardForm", desc: "Splits a create/edit form into sequential wizard steps." },
+  { slug: "permission-matrix", section: "editing", component: "PermissionMatrix", registry: "permission-matrix", title: "PermissionMatrix", desc: "A tab per role, each holding a resource by action grid of checkboxes over that role's grants. The value maps each role id to a `Permission[]` that `canAccessWithPermissions` reads. A cell granted by a wildcard shows as a locked checked cell. The matrix gates nothing itself: wrap it in <CanAccess> to decide who sees it. In Vue the value is a `v-model`." },
 
   // ── ui-layout (shell / auth / feedback chrome) ──────────────────────────
   { slug: "access-denied", section: "ui-layout", component: "AccessDenied", registry: "access-denied", title: "AccessDenied", desc: "The splash shown when a user lacks access to a page." },
@@ -184,10 +196,13 @@ const STUBS = [
   { slug: "auth-error", section: "ui-layout", component: "AuthError", registry: "auth-error", title: "AuthError", desc: "Displays an authentication error state." },
   { slug: "auth-layout", section: "ui-layout", component: "AuthLayout", registry: "auth-layout", title: "AuthLayout", desc: "The centred shell that wraps the login/auth pages." },
   { slug: "authentication-error", section: "ui-layout", component: "AuthenticationError", registry: "authentication-error", title: "AuthenticationError", desc: "The page shown when the session is invalid or expired." },
+  { slug: "bar-chart", section: "ui-layout", component: "BarChart", registry: "bar-chart", title: "BarChart", desc: "One bar per row of a `data` array, `xField` along the axis and `yField` up it. The chart fetches nothing, so pass rows you already have, and a row whose `yField` is not a finite number is a gap: no bar is drawn for it. It is an add-on: import it from `@chelone/react/charts` or `@chelone/vue/charts`, and install `recharts` for React or `@unovis/vue` and `@unovis/ts` for Vue." },
   { slug: "can-access", section: "ui-layout", component: "CanAccess", registry: "can-access", title: "CanAccess", desc: "Renders children when the current user may perform an action on a resource, optionally scoped to a record." },
   { slug: "check-for-application-update", section: "ui-layout", component: "CheckForApplicationUpdate", registry: "check-for-application-update", title: "CheckForApplicationUpdate", desc: "Polls the deployed page and shows a notification once a new build is live. Renders nothing until then." },
   { slug: "confirm", section: "ui-layout", component: "Confirm", registry: "confirm", title: "Confirm", desc: "A confirmation dialog for destructive actions." },
   { slug: "dashboard-menu-item", section: "ui-layout", component: "DashboardMenuItem", registry: "dashboard-menu-item", title: "DashboardMenuItem", desc: "The sidebar entry that links to the dashboard." },
+  { slug: "data-provider-devtools", section: "ui-layout", component: "DataProviderDevtools", registry: "data-provider-devtools", title: "DataProviderDevtools", desc: "A floating panel that lists the data provider calls a log recorded: method, resource, duration and the error of a failed call. Wrap the provider with `createDataProviderLog().wrap()`, pass the wrapped one to `<Admin>`, and mount the panel with the same log in development only, since it shows params and results." },
+  { slug: "donut-chart", section: "ui-layout", component: "DonutChart", registry: "donut-chart", title: "DonutChart", desc: "One slice per row of a `data` array, `labelField` naming the slice and `valueField` sizing it. The chart fetches nothing, so pass rows you already have, and a row whose `valueField` is not a number above zero is a gap: it draws no slice. It is an add-on: import it from `@chelone/react/charts` or `@chelone/vue/charts`, and install `recharts` for React or `@unovis/vue` and `@unovis/ts` for Vue." },
   { slug: "error", section: "ui-layout", component: "Error", registry: "error", title: "Error", desc: "The fallback UI rendered by the admin error boundary." },
   { slug: "hide-on-scroll", section: "ui-layout", component: "HideOnScroll", registry: "hide-on-scroll", title: "HideOnScroll", desc: "Hides its wrapper on a downward scroll past a threshold and shows it again on any upward scroll." },
   { slug: "icon-button-with-tooltip", section: "ui-layout", component: "IconButtonWithTooltip", registry: "icon-button-with-tooltip", title: "IconButtonWithTooltip", desc: "A ghost icon button with a tooltip that closes when the button is clicked." },
@@ -199,12 +214,14 @@ const STUBS = [
   { slug: "loading", section: "ui-layout", component: "Loading", registry: "loading", title: "Loading", desc: "A centred loading indicator with a deferred appearance." },
   { slug: "loading-indicator", section: "ui-layout", component: "LoadingIndicator", registry: "loading-indicator", title: "LoadingIndicator", desc: "A refresh button that shows a spinner over itself while any query or mutation is in flight." },
   { slug: "locales-menu-button", section: "ui-layout", component: "LocalesMenuButton", registry: "locales-menu-button", title: "LocalesMenuButton", desc: "The app-bar menu that switches the interface language, with each language named in its own." },
+  { slug: "i18n-key-editor", section: "ui-layout", component: "I18nKeyEditor", registry: "i18n-key-editor", title: "I18nKeyEditor", desc: "A panel that lists the keys the current locale is missing, with an input per key and an export of the typed translations. The app creates a `createMissingKeyStore()`, passes `store.record` as `onMissingKey` to `createI18n`, and mounts the panel with that store. A key counts as missing even when it has a `_` fallback or the fallback locale holds it. The export is flat JSON to spread into a catalog." },
   { slug: "login-form", section: "ui-layout", component: "LoginForm", registry: "login-form", title: "LoginForm", desc: "The email/password sign-in form." },
   { slug: "login-page", section: "ui-layout", component: "LoginPage", registry: "login-page", title: "LoginPage", desc: "The full login page wrapping the login form in the auth layout." },
   { slug: "login-with-email", section: "ui-layout", component: "LoginWithEmail", registry: "login-with-email", title: "LoginWithEmail", desc: "An email/password sign-in form that takes a custom submit handler." },
   { slug: "logout", section: "ui-layout", component: "Logout", registry: "logout", title: "Logout", desc: "The user-menu item that signs the user out." },
   { slug: "menu", section: "ui-layout", component: "Menu", registry: "menu", title: "Menu", desc: "The sidebar navigation menu. Groups resources by `options.group`; compose your own with the `Menu.*` parts." },
   { slug: "menu-item-link", section: "ui-layout", component: "MenuItemLink", registry: "menu-item-link", title: "MenuItemLink", desc: "A sidebar navigation link. Optionally shows a keyboard shortcut hint and navigates on that shortcut." },
+  { slug: "metric-card", section: "ui-layout", component: "MetricCard", registry: "metric-card", title: "MetricCard", desc: "A headline number with the change since the last period, all of it given to the card as props: it fetches nothing. `delta` is a ratio, so 0.05 reads as 5.0%. It ships in the base `@chelone/react` and `@chelone/vue` packages and needs no chart library." },
   { slug: "not-found", section: "ui-layout", component: "NotFound", registry: "not-found", title: "NotFound", desc: "The page for an unknown URL, for the `catchAll` slot." },
   { slug: "notification", section: "ui-layout", component: "Notification", registry: "notification", title: "Notification", desc: "Renders the app-wide toast notifications." },
   { slug: "offline", section: "ui-layout", component: "Offline", registry: "offline", title: "Offline", desc: "Shows a banner, or its children, while the browser is offline. Renders nothing online." },
@@ -221,29 +238,30 @@ const STUBS = [
   { slug: "title-portal", section: "ui-layout", component: "TitlePortal", registry: "title-portal", title: "TitlePortal", desc: "The app-bar slot that renders each view's title." },
   { slug: "top-toolbar", section: "ui-layout", component: "TopToolbar", registry: "top-toolbar", title: "TopToolbar", desc: "A right-aligned row of view actions, for the `actions` prop of `<List>`." },
   { slug: "toolbar", section: "ui-layout", component: "Toolbar", registry: "toolbar", title: "Toolbar", desc: "The form action bar holding the save/delete buttons." },
+  { slug: "trend-chart", section: "ui-layout", component: "TrendChart", registry: "trend-chart", title: "TrendChart", desc: "A line, or a filled area with `area`, over a `data` array: one point per row, `xField` along the axis and `yField` up it. The chart fetches nothing, so pass rows you already have, and a row whose `yField` is not a finite number is a gap in the line. It is an add-on: import it from `@chelone/react/charts` or `@chelone/vue/charts`, and install `recharts` for React or `@unovis/vue` and `@unovis/ts` for Vue." },
   { slug: "user-menu", section: "ui-layout", component: "UserMenu", registry: "user-menu", title: "UserMenu", desc: "The app-bar dropdown for the signed-in user." },
+  // ── realtime ──────────────────────────────────────────────────────────
+  { slug: "list-live", section: "realtime", component: "ListLive", registry: "list-live", title: "ListLive", desc: "A `<List>` that refreshes when records in its resource change or the connection returns. Takes the same props as `<List>` and needs a realtime data provider." },
+  { slug: "edit-live", section: "realtime", component: "EditLive", registry: "edit-live", title: "EditLive", desc: "An `<Edit>` that refreshes the record on changes and reconnects. Holds incoming changes while the form has unsaved edits, then refetches once it is saved or reset. Needs a realtime data provider." },
+  { slug: "show-live", section: "realtime", component: "ShowLive", registry: "show-live", title: "ShowLive", desc: "A `<Show>` that refreshes the record on changes and reconnects. Takes the same props as `<Show>` and needs a realtime data provider." },
+  { slug: "menu-live", section: "realtime", component: "MenuLive", registry: "menu-live", title: "MenuLive", desc: "A navigation menu whose links show unread event counts for their resources. Counts new records by default and clears a link's count while its route is open. Needs a realtime data provider." },
+  { slug: "presence-bar", section: "realtime", component: "PresenceBar", registry: "presence-bar", title: "PresenceBar", desc: "Shows avatars for other users viewing the same record, with a count for those beyond `maxAvatars`. Renders nothing when nobody else is present. Needs a realtime data provider." },
+  { slug: "comments-thread", section: "realtime", component: "CommentsThread", registry: "comments-thread", title: "CommentsThread", desc: "Lists a record's comments and provides a box to post one through the data provider. `resolvable` adds a button to mark a comment resolved. Refreshes on comment events when the provider supports realtime." },
+  { slug: "lock-on-mount", section: "realtime", component: "LockOnMount", registry: "lock-on-mount", title: "LockOnMount", desc: "Acquires a record lock while mounted and releases it on unmount. Shows its children once the lock is held, a loading placeholder while requesting it, or the holder when another identity has it. Needs a realtime data provider with lock support." },
+  { slug: "lock-status", section: "realtime", component: "LockStatus", registry: "lock-status", title: "LockStatus", desc: "Shows a badge naming the record's lock holder and updates when the lock is taken or released. Renders nothing for a free record unless `renderFree` is supplied. Needs a realtime data provider with lock support." },
 ];
 
 /**
  * Barrel-only components have no registry item, so the page renders no install
- * block for them; this import is their only one.
+ * block for them; this import is their only one. `importFrom` names the module
+ * for a component an add-on entry exports instead of the barrel.
  */
-function importBlock(component) {
+function importBlock(component, importFrom = "@chelone/react") {
   return [
     "```tsx",
-    `import { ${component} } from "@chelone/react";`,
+    `import { ${component} } from "${importFrom}";`,
     "```",
   ].join("\n");
-}
-
-/** True when a demos/<*>.tsx exists for this slug (so we can embed a preview). */
-function findDemo(section, slug) {
-  const demoDir = resolve(CONTENT, section, slug, "demos");
-  if (!existsSync(demoDir)) return null;
-  const files = readdirSync(demoDir).filter((f) => f.endsWith(".tsx"));
-  if (files.length === 0) return null;
-  // name form the ComponentPreview expects: "<section>/<slug>/<demo-basename>"
-  return `${section}/${slug}/${files[0].replace(/\.tsx$/, "")}`;
 }
 
 /**
@@ -255,7 +273,7 @@ function mdxSafe(text) {
   return text.replace(/(?<!`)<([A-Za-z][\w.-]*)>/g, "`<$1>`");
 }
 
-function page({ slug, section, component, registry, title, desc }) {
+function page({ component, registry, title, desc, importFrom, section }) {
   const hasProps = existsSync(resolve(PROPS, `${component}.json`));
   const fm = ["---", `title: "${title}"`, `description: "${desc.replace(/`/g, "").replace(/"/g, '\\"')}"`];
   if (registry) fm.push(`registry: "${registry}"`);
@@ -263,11 +281,11 @@ function page({ slug, section, component, registry, title, desc }) {
 
   const parts = [fm.join("\n"), MARKER, "", mdxSafe(desc)];
   // `mdx-page.tsx` renders the install block from `registry` frontmatter.
-  if (!registry) parts.push("", "## Installation", "", importBlock(component));
+  if (!registry)
+    parts.push("", "## Installation", "", importBlock(component, importFrom));
 
-  const demo = findDemo(section, slug);
-  if (demo) {
-    parts.push("", "## Example", "", `<ComponentPreview name="${demo}" />`);
+  if (section === "realtime") {
+    parts.push("", "See the [realtime guide](/docs/app-config/realtime) for provider setup and usage.");
   }
 
   parts.push("", "## Props", "");

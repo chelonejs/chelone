@@ -1,4 +1,8 @@
 import path from "node:path";
+import mdx from "@mdx-js/rollup";
+import remarkFrontmatter from "remark-frontmatter";
+import remarkGfm from "remark-gfm";
+import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import { defineConfig } from "vitest/config";
 
 // Static `@/` resolution for the jsdom render tests. Mirrors the importer-aware
@@ -10,10 +14,25 @@ import { defineConfig } from "vitest/config";
 const wwwSrc = path.resolve(__dirname, "./src");
 const reactPkgSrc = path.resolve(__dirname, "../../packages/react/src");
 
+const mdxPlugin = mdx({
+  providerImportSource: "@/docs/mdx/mdx-components",
+  remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm],
+});
+
 export default defineConfig({
   // Use React 19's automatic JSX runtime so test/demo TSX needs no `import React`
   // (matches the app's tsconfig `jsx: "react-jsx"`).
   esbuild: { jsx: "automatic" },
+  plugins: [
+    {
+      ...mdxPlugin,
+      transform: {
+        // MDX strips queries before filtering, so skip raw imports here.
+        filter: { id: { exclude: /[?&]raw(?:&|$)/ } },
+        handler: mdxPlugin.transform,
+      },
+    },
+  ],
   resolve: {
     alias: [
       // Website-only lib module; must precede the package-wide `@/lib/` alias.

@@ -32,10 +32,6 @@ export interface SimplifyInputProps {
   quality?: SimplifyQuality;
   class?: string;
 }
-
-function sameJson(a: unknown, b: unknown): boolean {
-  return a === b || JSON.stringify(a) === JSON.stringify(b);
-}
 </script>
 
 <script setup lang="ts">
@@ -57,7 +53,12 @@ function sameJson(a: unknown, b: unknown): boolean {
  * <SimplifyInput source="outline" label="Outline" :tolerance="0.005" />
  */
 
-import { isGeoJsonValue } from "@chelone/core";
+import {
+  deepEqual,
+  isGeoJsonValue,
+  type LngLatBox,
+  type ShapeValue,
+} from "@chelone/core";
 import { computed, ref, toRaw, watch } from "vue";
 import { useInput } from "../../form/use-input";
 import { useTranslate } from "../../i18n/use-translate";
@@ -89,7 +90,7 @@ const props = withDefaults(defineProps<SimplifyInputProps>(), {
 const translate = useTranslate();
 const input = useInput({
   source: props.source,
-  format: (v: unknown) => v ?? null,
+  format: (v) => v ?? null,
 });
 
 const initial = input.value.value;
@@ -100,9 +101,9 @@ if (initial !== null && !isGeoJsonValue(initial)) {
 const tolerance = ref(props.tolerance);
 const quality = ref<SimplifyQuality>(props.quality);
 
-let original: unknown = null;
+let original: Exclude<ShapeValue, LngLatBox> | null = null;
 // What this input wrote last, to tell its own writes from a reset or a load.
-let written: unknown = null;
+let written: Exclude<ShapeValue, LngLatBox> | null = null;
 
 watch(
   [() => input.value.value, tolerance, quality],
@@ -110,12 +111,13 @@ watch(
     const value = toRaw(input.value.value);
     if (!isGeoJsonValue(value)) return;
     // By identity: a reload equal to the last write is still a new original.
-    if (original === null || value !== written) original = value;
-    const next = simplifyGeo(original as typeof value, {
+    const base = original === null || value !== written ? value : original;
+    original = base;
+    const next = simplifyGeo(base, {
       tolerance: tolerance.value,
       highQuality: quality.value === "High",
     });
-    if (sameJson(next, value)) return;
+    if (deepEqual(next, value)) return;
     written = next;
     input.setValue(next);
   },
@@ -142,7 +144,9 @@ const cssHeight = computed(() =>
 );
 
 function onRange(event: Event) {
-  tolerance.value = Number((event.target as HTMLInputElement).value);
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement)) return;
+  tolerance.value = Number(target.value);
 }
 </script>
 

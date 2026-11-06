@@ -10,6 +10,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -86,16 +87,18 @@ describe("<DurationInput>", () => {
     setup(<DurationInput source="dur" />, {
       defaultValues: { dur: "P1DT2H30M" },
     });
-    expect((screen.getByLabelText("days") as HTMLInputElement).value).toBe("1");
-    expect((screen.getByLabelText("hours") as HTMLInputElement).value).toBe(
-      "2",
-    );
-    expect((screen.getByLabelText("minutes") as HTMLInputElement).value).toBe(
-      "30",
-    );
-    expect((screen.getByLabelText("seconds") as HTMLInputElement).value).toBe(
-      "",
-    );
+    expect(
+      elementOf(screen.getByLabelText("days"), HTMLInputElement).value,
+    ).toBe("1");
+    expect(
+      elementOf(screen.getByLabelText("hours"), HTMLInputElement).value,
+    ).toBe("2");
+    expect(
+      elementOf(screen.getByLabelText("minutes"), HTMLInputElement).value,
+    ).toBe("30");
+    expect(
+      elementOf(screen.getByLabelText("seconds"), HTMLInputElement).value,
+    ).toBe("");
   });
 
   it("writes back an ISO duration when a unit changes", async () => {
@@ -160,9 +163,9 @@ describe("<DurationInput>", () => {
     setup(<DurationInput source="dur" disabled />, {
       defaultValues: { dur: "PT2H" },
     });
-    expect((screen.getByLabelText("hours") as HTMLInputElement).disabled).toBe(
-      true,
-    );
+    expect(
+      elementOf(screen.getByLabelText("hours"), HTMLInputElement).disabled,
+    ).toBe(true);
   });
 
   it("surfaces a validation error via <ValidationError> after submit", async () => {

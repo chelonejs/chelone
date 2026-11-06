@@ -11,6 +11,7 @@ import {
   fakeDataProvider,
   type Validator,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import {
@@ -20,6 +21,7 @@ import {
   describe,
   expect,
   it,
+  type Mock,
   vi,
 } from "vitest";
 import { defineComponent, h, nextTick, type VNode } from "vue";
@@ -28,9 +30,7 @@ import Admin from "../../admin/admin.vue";
 import { type UseFormReturn, useForm } from "../../form/use-form";
 import { useInput } from "../../form/use-input";
 import { MONACO_DIAGNOSTICS_DELAY_MS } from "./internal/use-monaco-markers";
-import MonacoJsonInput, {
-  type MonacoJsonInputProps,
-} from "./monaco-json-input.vue";
+import MonacoJsonInput from "./monaco-json-input.vue";
 
 vi.mock("monaco-editor", () => ({}));
 
@@ -48,23 +48,37 @@ interface DiagnosticsOptions {
   schemas?: { uri: string; fileMatch?: string[]; schema?: unknown }[];
 }
 
-const hoisted = vi.hoisted(() => ({
-  markers: [] as { severity: number; message: string }[],
-  markerListeners: new Set<(uris: { toString(): string }[]) => void>(),
-  blurListeners: new Set<() => void>(),
-  contentListeners: new Set<() => void>(),
-  diagnosticsOptions: {} as Record<string, unknown>,
-  formatRun: vi.fn(),
-  modelUri: "",
-  noJson: false,
-}));
+/** Everything the fake monaco keeps between tests. */
+interface Hoisted {
+  markers: Marker[];
+  markerListeners: Set<(uris: { toString(): string }[]) => void>;
+  blurListeners: Set<() => void>;
+  contentListeners: Set<() => void>;
+  diagnosticsOptions: DiagnosticsOptions;
+  formatRun: Mock<() => void>;
+  modelUri: string;
+  noJson: boolean;
+}
+
+const hoisted = vi.hoisted(
+  (): Hoisted => ({
+    markers: [],
+    markerListeners: new Set<(uris: { toString(): string }[]) => void>(),
+    blurListeners: new Set<() => void>(),
+    contentListeners: new Set<() => void>(),
+    diagnosticsOptions: {},
+    formatRun: vi.fn<() => void>(),
+    modelUri: "",
+    noJson: false,
+  }),
+);
 
 // One object for every editor, as in Monaco.
 const jsonDefaults = {
-  get diagnosticsOptions(): Record<string, unknown> {
+  get diagnosticsOptions(): DiagnosticsOptions {
     return hoisted.diagnosticsOptions;
   },
-  setDiagnosticsOptions(options: Record<string, unknown>) {
+  setDiagnosticsOptions(options: DiagnosticsOptions) {
     hoisted.diagnosticsOptions = options;
   },
 };
@@ -139,7 +153,11 @@ vi.mock("@guolao/vue-monaco-editor", async () => {
             value: props.value ?? "",
             onInput: (event: Event) => {
               for (const listener of hoisted.contentListeners) listener();
-              emit("update:value", (event.target as HTMLTextAreaElement).value);
+              const area = event.target;
+              if (!(area instanceof HTMLTextAreaElement)) {
+                throw new Error("Expected a textarea");
+              }
+              emit("update:value", area.value);
             },
           });
       },
@@ -209,7 +227,8 @@ function setup(
   return { wrapper, submit };
 }
 
-function input(props: MonacoJsonInputProps) {
+// The component is generic in its record, so its props are its first parameter.
+function input(props: Parameters<typeof MonacoJsonInput>[0]) {
   return () => h(MonacoJsonInput, props);
 }
 
@@ -220,8 +239,12 @@ async function editor(wrapper: VueWrapper) {
   await flushPromises();
   // The hook subscribes a tick after the stub mounts.
   await vi.waitFor(() => expect(hoisted.contentListeners.size).toBe(1));
-  return wrapper.get<HTMLTextAreaElement>('[data-testid="editor"]');
+  return wrapper.get('[data-testid="editor"]');
 }
+
+/** The stub's editor element, checked to be the textarea the stub renders. */
+const areaOf = (area: { element: Node }) =>
+  elementOf(area.element, HTMLTextAreaElement);
 
 async function type(
   el: { setValue(value: string): Promise<void> },
@@ -252,7 +275,7 @@ async function setMarkers(markers: Marker[]) {
   await flushPromises();
 }
 
-const options = () => hoisted.diagnosticsOptions as DiagnosticsOptions;
+const options = () => hoisted.diagnosticsOptions;
 
 // The first render of the lazy chunk pays for loading its module graph, which
 // can outlast a short wait when the whole suite runs in parallel. Load it once
@@ -295,7 +318,7 @@ describe("MonacoJsonInput", () => {
     const { wrapper } = setup(input({ source: "meta" }), {
       record: { meta: { a: 1, b: [true] } },
     });
-    expect((await editor(wrapper)).element.value).toBe(
+    expect(areaOf(await editor(wrapper)).value).toBe(
       JSON.stringify({ a: 1, b: [true] }, null, 2),
     );
   });
@@ -307,7 +330,7 @@ describe("MonacoJsonInput", () => {
       onData,
     });
     const el = await editor(wrapper);
-    expect(el.element.value).toBe('{"a":1}');
+    expect(areaOf(el).value).toBe('{"a":1}');
     await type(el, '{"a": 2, "b"');
     await submit();
     expect(onData).toHaveBeenCalledWith({ meta: '{"a": 2, "b"' });
@@ -333,7 +356,7 @@ describe("MonacoJsonInput", () => {
     const el = await editor(wrapper);
     await type(el, '{"a":2}');
     await type(el, '{"a":2,');
-    expect(el.element.value).toBe('{"a":2,');
+    expect(areaOf(el).value).toBe('{"a":2,');
     await submit();
     expect(errorText(wrapper)).toContain("Invalid JSON");
     expect(onData).not.toHaveBeenCalled();
@@ -570,19 +593,19 @@ describe("MonacoJsonInput", () => {
     const plain = setup(input({ source: "meta" }), {
       record: { meta: { a: 1 } },
     });
-    expect((await editor(plain.wrapper)).element.readOnly).toBe(false);
+    expect(areaOf(await editor(plain.wrapper)).readOnly).toBe(false);
     plain.wrapper.unmount();
 
     const readOnly = setup(input({ source: "meta", readOnly: true }), {
       record: { meta: { a: 1 } },
     });
-    expect((await editor(readOnly.wrapper)).element.readOnly).toBe(true);
+    expect(areaOf(await editor(readOnly.wrapper)).readOnly).toBe(true);
     readOnly.wrapper.unmount();
 
     const disabled = setup(input({ source: "meta", disabled: true }), {
       record: { meta: { a: 1 } },
     });
-    expect((await editor(disabled.wrapper)).element.readOnly).toBe(true);
+    expect(areaOf(await editor(disabled.wrapper)).readOnly).toBe(true);
   });
 
   it("lets monacoOptions override the editor defaults", async () => {
@@ -594,7 +617,7 @@ describe("MonacoJsonInput", () => {
       }),
       { record: { meta: { a: 1 } } },
     );
-    expect((await editor(wrapper)).element.readOnly).toBe(false);
+    expect(areaOf(await editor(wrapper)).readOnly).toBe(false);
   });
 
   it("sizes the editor from the height prop", async () => {

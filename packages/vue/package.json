@@ -26,7 +26,11 @@
     "./maps/draw": "./src/maps-draw.ts",
     "./maps/osm": "./src/maps-osm.ts",
     "./mdx-editor": "./src/mdx-editor.ts",
-    "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-theme.css"
+    "./mdx-editor.css": "./src/components/mdx-editor/mdx-editor-theme.css",
+    "./rich-text-input": "./src/rich-text-input.ts",
+    "./rich-text-input.css": "./src/components/rich-text-input/rich-text.css",
+    "./block-editor": "./src/block-editor.ts",
+    "./charts": "./src/charts.ts"
   },
   "publishConfig": {
     "access": "public",
@@ -70,12 +74,25 @@
         "types": "./dist/mdx-editor.d.ts",
         "default": "./dist/mdx-editor.js"
       },
-      "./mdx-editor.css": "./dist/components/mdx-editor/mdx-editor-theme.css"
+      "./mdx-editor.css": "./dist/components/mdx-editor/mdx-editor-theme.css",
+      "./rich-text-input": {
+        "types": "./dist/rich-text-input.d.ts",
+        "default": "./dist/rich-text-input.js"
+      },
+      "./rich-text-input.css": "./dist/components/rich-text-input/rich-text.css",
+      "./block-editor": {
+        "types": "./dist/block-editor.d.ts",
+        "default": "./dist/block-editor.js"
+      },
+      "./charts": {
+        "types": "./dist/charts.d.ts",
+        "default": "./dist/charts.js"
+      }
     }
   },
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.build.json && node ../../scripts/strip-dts-css-imports.mjs dist && node ../../scripts/dts-extensions.mjs dist",
-    "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only --exclude-entrypoints ./mdx-editor.css",
+    "check:pack": "publint --pack pnpm --strict && d=$(mktemp -d) && trap 'rm -rf $d' EXIT && pnpm pack --pack-destination $d && attw $d/*.tgz --profile esm-only --exclude-entrypoints ./mdx-editor.css ./rich-text-input.css",
     "test": "vitest run --typecheck",
     "typecheck": "vue-tsc --noEmit",
     "registry:generate": "node ../../scripts/registry/generate-registry.mjs",
@@ -97,10 +114,19 @@
     "@milkdown/crepe": "^7.23.0",
     "@milkdown/kit": "^7.23.0",
     "@tanstack/vue-query": "^5.0.0",
+    "@tiptap/core": "^3.33.0",
+    "@tiptap/extensions": "^3.33.0",
+    "@tiptap/pm": "^3.33.0",
+    "@tiptap/starter-kit": "^3.33.0",
+    "@tiptap/suggestion": "^3.33.0",
+    "@tiptap/vue-3": "^3.33.0",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
     "@turf/simplify": "^7.4.0",
     "@turf/union": "^7.4.0",
+    "@unovis/ts": "^1.7.1",
+    "@unovis/vue": "^1.7.1",
+    "dompurify": "^3.4.0",
     "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
     "osm2geojson-lite": "^2.0.1",
@@ -108,7 +134,8 @@
     "terra-draw": "^1.39.0",
     "terra-draw-maplibre-gl-adapter": "^1.5.0",
     "vue": "^3.4.0",
-    "vue-router": "^4.0.0 || ^5.0.0"
+    "vue-router": "^4.0.0 || ^5.0.0",
+    "@tiptap/extension-image": "^3.33.0"
   },
   "peerDependenciesMeta": {
     "@chelone/supabase": {
@@ -129,6 +156,24 @@
     "@milkdown/kit": {
       "optional": true
     },
+    "@tiptap/core": {
+      "optional": true
+    },
+    "@tiptap/extensions": {
+      "optional": true
+    },
+    "@tiptap/pm": {
+      "optional": true
+    },
+    "@tiptap/starter-kit": {
+      "optional": true
+    },
+    "@tiptap/suggestion": {
+      "optional": true
+    },
+    "@tiptap/vue-3": {
+      "optional": true
+    },
     "@turf/buffer": {
       "optional": true
     },
@@ -139,6 +184,15 @@
       "optional": true
     },
     "@turf/union": {
+      "optional": true
+    },
+    "@unovis/ts": {
+      "optional": true
+    },
+    "@unovis/vue": {
+      "optional": true
+    },
+    "dompurify": {
       "optional": true
     },
     "maplibre-gl": {
@@ -158,24 +212,37 @@
     },
     "terra-draw-maplibre-gl-adapter": {
       "optional": true
+    },
+    "@tiptap/extension-image": {
+      "optional": true
     }
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@chelone/supabase": "workspace:*",
+    "@chelone/test-utils": "workspace:*",
     "@dnd-kit/dom": "^0.5.3",
     "@dnd-kit/vue": "^0.5.3",
     "@guolao/vue-monaco-editor": "^1.6.0",
     "@milkdown/crepe": "^7.23.0",
     "@milkdown/kit": "^7.23.0",
     "@tanstack/vue-query": "^5.106.1",
+    "@tiptap/core": "^3.33.0",
+    "@tiptap/extensions": "^3.33.0",
+    "@tiptap/pm": "^3.33.0",
+    "@tiptap/starter-kit": "^3.33.0",
+    "@tiptap/suggestion": "^3.33.0",
+    "@tiptap/vue-3": "^3.33.0",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
     "@turf/simplify": "^7.4.0",
     "@turf/union": "^7.4.0",
     "@types/papaparse": "^5.5.2",
+    "@unovis/ts": "^1.7.1",
+    "@unovis/vue": "^1.7.1",
     "@vitejs/plugin-vue": "^6.0.10",
     "@vue/test-utils": "^2.5.1",
+    "dompurify": "^3.4.17",
     "jsdom": "^31.0.0",
     "maplibre-gl": "^6.16.0",
     "monaco-editor": "^0.57.0",
@@ -191,6 +258,7 @@
     "vue": "^3.5.45",
     "vue-router": "^5.4.0",
     "vue-tsc": "^3.3.14",
-    "zod": "^4.6.7"
+    "zod": "^4.6.7",
+    "@tiptap/extension-image": "^3.33.0"
   }
 }

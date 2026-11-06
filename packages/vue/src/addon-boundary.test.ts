@@ -21,6 +21,12 @@ const ADDONS = [
     packages: ["@guolao/vue-monaco-editor", "monaco-editor"],
   },
   {
+    name: "charts",
+    folder: "src/components/charts",
+    entry: "src/charts.ts",
+    packages: ["@unovis/vue", "@unovis/ts"],
+  },
+  {
     name: "kanban",
     folder: "src/components/kanban",
     entry: "src/kanban.ts",
@@ -31,6 +37,33 @@ const ADDONS = [
     folder: "src/components/mdx-editor",
     entry: "src/mdx-editor.ts",
     packages: ["@milkdown/crepe", "@milkdown/kit"],
+  },
+  {
+    name: "rich-text-input",
+    folder: "src/components/rich-text-input",
+    entry: "src/rich-text-input.ts",
+    packages: [
+      "@tiptap/core",
+      "@tiptap/pm",
+      "@tiptap/vue-3",
+      "@tiptap/starter-kit",
+      "@tiptap/extensions",
+      "@tiptap/extension-image",
+      "dompurify",
+    ],
+  },
+  {
+    name: "block-editor",
+    folder: "src/components/block-editor",
+    entry: "src/block-editor.ts",
+    packages: [
+      "@tiptap/core",
+      "@tiptap/pm",
+      "@tiptap/vue-3",
+      "@tiptap/starter-kit",
+      "@tiptap/extensions",
+      "@tiptap/suggestion",
+    ],
   },
   {
     name: "maps",

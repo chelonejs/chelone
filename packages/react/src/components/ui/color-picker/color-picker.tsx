@@ -121,7 +121,7 @@ function ColorPicker<TMode extends ColorMode | undefined>({
             const oklch = srgbToOklch(next.r, next.g, next.b, next.a);
             const formatted = formatColor(oklch, modeProp ?? "hex");
             lastEmittedRef.current = formatted;
-            onChange(formatted as Parameters<typeof onChange>[0]);
+            onChange(formatted);
           }}
           aria-label={ariaLabel}
           data-slot="color-picker-native"
@@ -153,7 +153,7 @@ function ColorPicker<TMode extends ColorMode | undefined>({
     if (modeProp == null && mode !== internalMode) setInternalMode(mode);
     const formatted = formatColor(next, mode);
     lastEmittedRef.current = formatted;
-    onChange(formatted as Parameters<typeof onChange>[0]);
+    onChange(formatted);
   };
 
   const handleEyeDropper = async () => {

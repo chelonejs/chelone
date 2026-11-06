@@ -15,6 +15,7 @@ import {
   fakeDataProvider,
   type NotificationStore,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -181,11 +182,12 @@ describe("<Notification>", () => {
       });
     });
     await screen.findByText("Element deleted");
-    const closeButton = container.ownerDocument.querySelector(
-      "[data-close-button]",
-    ) as HTMLElement | null;
+    const closeButton = elementOf(
+      container.ownerDocument.querySelector("[data-close-button]"),
+      HTMLElement,
+    );
     expect(closeButton).toBeTruthy();
-    if (closeButton) fireEvent.click(closeButton);
+    fireEvent.click(closeButton);
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
     expect(undo).not.toHaveBeenCalled();
   });

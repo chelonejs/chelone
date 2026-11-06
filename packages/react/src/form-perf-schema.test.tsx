@@ -4,6 +4,7 @@ import {
   defineResources,
   fakeDataProvider,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render } from "@testing-library/react";
 import { memo, type ReactNode } from "react";
@@ -115,7 +116,7 @@ describe("form perf budget — form-level schema isolation (§11 #4 addendum)", 
     // Every OTHER field's error ("fN required") is UNCHANGED, so its displayable
     // error slice is identity-stable => zero sibling re-renders.
     for (const t of ["a", "ab", "abc", "abcd", "abcde"]) {
-      act(() => handles.f0!(t));
+      act(() => defined(handles.f0)(t));
     }
     await act(async () => {});
 
@@ -177,8 +178,8 @@ describe("form perf budget — form-level schema isolation (§11 #4 addendum)", 
     // Drive f1 across its error boundary: "" (too short) -> "ab" (still too
     // short, SAME message) -> "abc" (valid, error clears). f1 must re-render
     // when the message clears.
-    act(() => handles.f1!("ab"));
-    act(() => handles.f1!("abc"));
+    act(() => defined(handles.f1)("ab"));
+    act(() => defined(handles.f1)("abc"));
     await act(async () => {});
 
     // f1's displayable error changed ("f1 too short" -> undefined), so it MUST

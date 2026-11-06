@@ -7,19 +7,15 @@ import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../../context";
 import { LocalesMenuButton } from "./locales-menu-button";
 
 afterEach(cleanup);
 
 // Radix DropdownMenu opens on `pointerdown`; jsdom has no `PointerEvent`.
-{
-  // biome-ignore lint/suspicious/noExplicitAny: minimal jsdom PointerEvent shim.
-  const g = globalThis as any;
-  if (typeof g.PointerEvent === "undefined") {
-    g.PointerEvent = g.MouseEvent;
-  }
+if (typeof globalThis.PointerEvent === "undefined") {
+  vi.stubGlobal("PointerEvent", MouseEvent);
 }
 
 /** Open a Radix menu trigger the way a mouse would (pointerdown + click). */

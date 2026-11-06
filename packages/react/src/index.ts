@@ -187,6 +187,10 @@ export {
   type LoginWithEmailProps,
 } from "./components/admin/auth/login-with-email";
 export { Logout, type LogoutProps } from "./components/admin/auth/logout";
+export {
+  PermissionMatrix,
+  type PermissionMatrixProps,
+} from "./components/admin/auth/permission-matrix";
 // P7g component surface — the CRUD action buttons + form toolbar + Confirm
 // dialog (ported from shadmin `admin/buttons` + `admin/feedback` onto chelone's
 // mutation/nav/save seams). SaveButton fires the ambient composed `submit`
@@ -238,6 +242,12 @@ export {
   ExportButton,
   type ExportButtonProps,
 } from "./components/admin/buttons/export-button";
+export {
+  FieldsSelector,
+  type FieldsSelectorListProps,
+  type FieldsSelectorProps,
+  type FieldsSelectorRowProps,
+} from "./components/admin/buttons/fields-selector";
 export {
   FilterButton,
   FilterButtonMenuItem,
@@ -304,6 +314,10 @@ export {
   CheckForApplicationUpdate,
   type CheckForApplicationUpdateProps,
 } from "./components/admin/common/check-for-application-update";
+export {
+  I18nKeyEditor,
+  type I18nKeyEditorProps,
+} from "./components/admin/common/i18n-key-editor";
 // P7e component surface — the layout chrome (Layout/AppBar/AppSidebar/Menu/
 // ThemeProvider/UserMenu/Notification + their sub-components). Ported from
 // shadmin `admin/layout` + `feedback/notification` onto @chelone/react's
@@ -404,6 +418,11 @@ export {
   DateField,
   type DateFieldProps,
 } from "./components/admin/fields/date-field";
+export {
+  DiffViewer,
+  type DiffViewerMode,
+  type DiffViewerProps,
+} from "./components/admin/fields/diff-viewer";
 export {
   DurationField,
   type DurationFieldProps,
@@ -624,6 +643,10 @@ export {
   type ImageInputProps,
 } from "./components/admin/inputs/image-input";
 export {
+  InPlaceEditor,
+  type InPlaceEditorProps,
+} from "./components/admin/inputs/in-place-editor";
+export {
   LoadingInput,
   type LoadingInputProps,
 } from "./components/admin/inputs/loading-input";
@@ -704,6 +727,10 @@ export {
   type AppSidebarProps,
 } from "./components/admin/layout/app-sidebar";
 export {
+  Assistant,
+  type AssistantProps,
+} from "./components/admin/layout/assistant";
+export {
   CommandMenu,
   type CommandMenuProps,
 } from "./components/admin/layout/command-menu";
@@ -718,6 +745,10 @@ export {
   type DashboardMenuItemProps,
 } from "./components/admin/layout/dashboard-menu-item";
 export {
+  DataProviderDevtools,
+  type DataProviderDevtoolsProps,
+} from "./components/admin/layout/data-provider-devtools";
+export {
   HideOnScroll,
   type HideOnScrollProps,
 } from "./components/admin/layout/hide-on-scroll";
@@ -727,6 +758,11 @@ export {
   MenuItemLink,
   type MenuItemLinkProps,
 } from "./components/admin/layout/menu-item-link";
+export {
+  OnboardingTour,
+  type OnboardingTourProps,
+  type TourStep,
+} from "./components/admin/layout/onboarding-tour";
 export {
   ResourceMenuItem,
   type ResourceMenuItemProps,
@@ -767,6 +803,10 @@ export {
   UserMenu,
   type UserMenuProps,
 } from "./components/admin/layout/user-menu";
+export {
+  ApprovalQueue,
+  type ApprovalQueueProps,
+} from "./components/admin/list/approval-queue";
 // P7e component surface — list / datatable + list controls (ported from shadmin
 // onto the single `useListContext` + the list-slice hooks below). The datatable
 // is rewritten off `useListContext` directly (chelone has no `DataTableBase` /
@@ -859,6 +899,10 @@ export {
   PrevNextButtons,
   type PrevNextButtonsProps,
 } from "./components/admin/list/prev-next-buttons";
+export {
+  RecordTimeline,
+  type RecordTimelineProps,
+} from "./components/admin/list/record-timeline";
 export {
   SavedQueriesList,
   type SavedQueriesListProps,
@@ -985,6 +1029,14 @@ export {
   TranslatableFieldsTabs,
   type TranslatableFieldsTabsProps,
 } from "./components/admin/views/translatable-fields-tabs";
+export {
+  JobMonitor,
+  type JobMonitorProps,
+} from "./components/admin/widgets/job-monitor";
+export {
+  MetricCard,
+  type MetricCardProps,
+} from "./components/admin/widgets/metric-card";
 export type { CheloneProviderProps } from "./context";
 export {
   CheloneProvider,
@@ -1076,6 +1128,7 @@ export {
   CheloneFormProvider,
   SourceContextProvider,
   useCheloneFormContext,
+  useResourceSourceScope,
   useSourceContext,
   useWrappedSource,
 } from "./form-context";

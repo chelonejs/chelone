@@ -228,8 +228,9 @@ describe("useInfiniteListContext", () => {
       }),
     );
     expect(plain.list).toBeUndefined();
-    expect(plain.error).toBeInstanceOf(Error);
-    expect((plain.error as Error).message).toBe(
+    const error = plain.error;
+    if (!(error instanceof Error)) throw error;
+    expect(error.message).toBe(
       "useInfiniteListContext: the ambient list is not an infinite list",
     );
   });

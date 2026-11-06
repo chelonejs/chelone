@@ -9,7 +9,7 @@
     },
     {
       "name": "value",
-      "type": "SaveContextValue",
+      "type": "SaveContextValue<RecordType>",
       "optional": false,
       "comment": ""
     }

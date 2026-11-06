@@ -12,6 +12,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -29,12 +30,8 @@ import {
 } from "./status-transition-button";
 
 // Radix DropdownMenu opens on `pointerdown`; jsdom has no `PointerEvent`.
-{
-  // biome-ignore lint/suspicious/noExplicitAny: minimal jsdom PointerEvent shim.
-  const g = globalThis as any;
-  if (typeof g.PointerEvent === "undefined") {
-    g.PointerEvent = g.MouseEvent;
-  }
+if (typeof globalThis.PointerEvent === "undefined") {
+  vi.stubGlobal("PointerEvent", MouseEvent);
 }
 
 afterEach(cleanup);
@@ -131,7 +128,7 @@ describe("StatusTransitionButton", () => {
     const button = await trigger();
     expect(button.getAttribute("data-slot")).toBe("status-transition-trigger");
     expect(button.textContent).toBe("draft");
-    expect((button as HTMLButtonElement).disabled).toBe(false);
+    expect(elementOf(button, HTMLButtonElement).disabled).toBe(false);
   });
 
   it("lists the allowed next states in the menu", async () => {
@@ -159,7 +156,7 @@ describe("StatusTransitionButton", () => {
     mount({ record: post({ status: "archived" }) });
 
     const button = await screen.findByRole("button", { name: "archived" });
-    expect((button as HTMLButtonElement).disabled).toBe(true);
+    expect(elementOf(button, HTMLButtonElement).disabled).toBe(true);
   });
 
   it("updates the record with the chosen state and previousData", async () => {
@@ -226,9 +223,9 @@ describe("StatusTransitionButton", () => {
     await openMenu();
     fireEvent.click(await screen.findByRole("menuitem", { name: "review" }));
     await waitFor(() =>
-      expect((screen.getByRole("button") as HTMLButtonElement).disabled).toBe(
-        true,
-      ),
+      expect(
+        elementOf(screen.getByRole("button"), HTMLButtonElement).disabled,
+      ).toBe(true),
     );
     expect(onTransition).not.toHaveBeenCalled();
 
@@ -269,7 +266,7 @@ describe("StatusTransitionButton", () => {
 
     const button = await screen.findByRole("button", { name: "-" });
     expect(button.textContent).toBe("-");
-    expect((button as HTMLButtonElement).disabled).toBe(true);
+    expect(elementOf(button, HTMLButtonElement).disabled).toBe(true);
   });
 
   it("renders nothing without a record or edit access", async () => {

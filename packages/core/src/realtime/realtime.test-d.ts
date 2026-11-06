@@ -14,6 +14,7 @@ declare const withReconnect: DataProvider<Resources> & {
   reconnect(): Promise<void>;
 };
 declare const realtime: RealtimeDataProvider<Resources>;
+declare const plain: DataProvider<Resources>;
 
 describe("realtime types", () => {
   it("a RealtimeDataProvider is assignable to DataProvider", () => {
@@ -26,13 +27,11 @@ describe("realtime types", () => {
   });
 
   it("addEventsForMutations keeps the RealtimeDataProvider type", () => {
-    const dp = {} as RealtimeDataProvider<Resources>;
-    expectTypeOf(addEventsForMutations(dp, dp)).toEqualTypeOf<
+    expectTypeOf(addEventsForMutations(realtime, realtime)).toEqualTypeOf<
       RealtimeDataProvider<Resources>
     >();
 
-    const plain = {} as DataProvider<Resources>;
-    expectTypeOf(addEventsForMutations(plain, dp)).toEqualTypeOf<
+    expectTypeOf(addEventsForMutations(plain, realtime)).toEqualTypeOf<
       DataProvider<Resources>
     >();
   });

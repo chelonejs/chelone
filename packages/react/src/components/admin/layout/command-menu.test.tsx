@@ -13,6 +13,7 @@ import {
   type DataProvider,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -196,7 +197,7 @@ describe("CommandMenu", () => {
   it("closes on Escape and clears the query", async () => {
     mount();
     await openMenu();
-    const input = screen.getByRole("combobox") as HTMLInputElement;
+    const input = elementOf(screen.getByRole("combobox"), HTMLInputElement);
     fireEvent.change(input, { target: { value: "alp" } });
     expect(input.value).toBe("alp");
 
@@ -204,7 +205,9 @@ describe("CommandMenu", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
 
     await openMenu();
-    expect((screen.getByRole("combobox") as HTMLInputElement).value).toBe("");
+    expect(
+      elementOf(screen.getByRole("combobox"), HTMLInputElement).value,
+    ).toBe("");
   });
 
   it("opens on a custom hotkey and not at all with hotkey false", async () => {
@@ -370,7 +373,10 @@ describe("CommandMenu", () => {
     );
     await openMenu();
     const recent = within(
-      screen.getByText("Recent").closest("[cmdk-group]") as HTMLElement,
+      elementOf(
+        screen.getByText("Recent").closest("[cmdk-group]"),
+        HTMLElement,
+      ),
     );
     fireEvent.click(recent.getByRole("option", { name: "Alpha" }));
     await waitFor(() =>
@@ -401,7 +407,9 @@ describe("CommandMenu", () => {
     denied = "posts";
     await openMenu();
     const recent = await screen.findByText("Recent");
-    const group = within(recent.closest("[cmdk-group]") as HTMLElement);
+    const group = within(
+      elementOf(recent.closest("[cmdk-group]"), HTMLElement),
+    );
     expect(await group.findByRole("option", { name: "Authors" })).toBeTruthy();
     await waitFor(() =>
       expect(group.queryByRole("option", { name: "Alpha" })).toBeNull(),
@@ -465,7 +473,7 @@ describe("CommandMenu", () => {
     });
     await openMenu();
     const group = within(
-      screen.getByText("Tools").closest("[cmdk-group]") as HTMLElement,
+      elementOf(screen.getByText("Tools").closest("[cmdk-group]"), HTMLElement),
     );
     expect(group.getByText("E")).toBeTruthy();
 

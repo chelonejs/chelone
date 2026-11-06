@@ -1,5 +1,5 @@
 /**
- * The glyphs the list-feature SFCs need, as dependency-free functional
+ * The glyphs the list-feature SFCs (and `<MetricCard>`) need, as dependency-free functional
  * components. `@chelone/vue` carries no icon library (unlike the React twin's
  * `lucide-react`), so these render inline SVGs with the lucide stroke recipe —
  * the same convention as the menu `icons.ts` sibling. Kept in a `.ts` file so
@@ -63,4 +63,28 @@ export const ArrowRightLeftIcon: FunctionalComponent = icon(() => [
   h("path", { d: "M20 7H4" }),
   h("path", { d: "m8 21-4-4 4-4" }),
   h("path", { d: "M4 17h16" }),
+]);
+
+/** An up arrow, `<MetricCard>`'s rising delta. */
+export const ArrowUpIcon: FunctionalComponent = icon(() => [
+  h("path", { d: "m5 12 7-7 7 7" }),
+  h("path", { d: "M12 19V5" }),
+]);
+
+/** A down arrow, `<MetricCard>`'s falling delta. */
+export const ArrowDownIcon: FunctionalComponent = icon(() => [
+  h("path", { d: "M12 5v14" }),
+  h("path", { d: "m19 12-7 7-7-7" }),
+]);
+
+/** A right arrow, `<MetricCard>`'s flat delta. */
+export const ArrowRightIcon: FunctionalComponent = icon(() => [
+  h("path", { d: "M5 12h14" }),
+  h("path", { d: "m12 5 7 7-7 7" }),
+]);
+
+/** A clock, `<RecordTimeline>`'s default entry icon. */
+export const ClockIcon: FunctionalComponent = icon(() => [
+  h("circle", { cx: "12", cy: "12", r: "10" }),
+  h("path", { d: "M12 6v6l4 2" }),
 ]);

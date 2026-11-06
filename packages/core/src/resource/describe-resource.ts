@@ -339,7 +339,8 @@ function describeKind(node: Node): Described {
   }
 }
 
-function describeField(
+/** For core's block editor helpers; not exported from the package index. */
+export function describeField(
   source: string,
   schema: unknown,
   references: ResourceConfig["references"],

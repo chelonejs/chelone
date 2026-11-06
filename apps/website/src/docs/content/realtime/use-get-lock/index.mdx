@@ -1,0 +1,55 @@
+---
+title: "useGetLock"
+description: "Reads one record's lock, or null when the record is free. Subscribes to nothing; use useGetLockLive to stay current."
+---
+
+`useGetLock` reads a record's lock through the data provider's `getLock`. It
+subscribes to nothing, so it is the read for a one-off check or a view that
+refetches on its own.
+
+## Signature
+
+```ts
+function useGetLock<TResources extends ResourceMap = ResourceMap>(
+  resource: keyof TResources & string,
+  params: GetLockParams,
+  options?: { enabled?: boolean },
+): UseQueryResult<Lock | null, Error>
+```
+
+`UseQueryResult` is TanStack Query's query result.
+
+- `params` is `GetLockParams`: a required `id` and an optional `meta` passed to
+  the lock provider.
+- `enabled` gates the fetch.
+
+## Returns
+
+`data` is the `Lock` (`{ resource, recordId, identity, createdAt }`) or `null`
+for a free record. `isPending`, `error` and `refetch` are TanStack Query's.
+
+The query is cached under the lock key for that resource and id, which is the
+key `useGetLockLive` invalidates and `LockStatus` reads.
+
+The provider must have gone through `realtimeDataProvider`: without it the read
+throws a message asking you to wrap it. A provider wrapped without a `locks`
+option rejects with an error saying no `LockProvider` was configured.
+
+## Example
+
+```tsx
+import { useGetLock } from "@chelone/react";
+
+export const Holder = ({ id }: { id: number }) => {
+  const { data } = useGetLock("posts", { id });
+  return <span>{data ? `Held by ${data.identity}` : "Free"}</span>;
+};
+```
+
+## In Vue
+
+`@chelone/vue` exports the same name. `resource` is a plain string, `params`
+takes `MaybeRefOrGetter`, and `data` is a ref.
+
+See the [realtime guide](/docs/app-config/realtime) for provider setup and the
+lock provider behind this hook.

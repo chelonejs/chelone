@@ -1,11 +1,14 @@
 import {
   asFeatureCollection,
+  deepEqual,
   geoBounds,
   isGeoJsonValue,
   isLngLatBox,
+  type LngLatBox,
   type LooseRecord,
   type MapStyleInput,
   type ShapeStyle,
+  type ShapeValue,
   type SourceProp,
 } from "@chelone/core";
 import {
@@ -86,10 +89,6 @@ function Preview({
   return null;
 }
 
-function sameJson(a: unknown, b: unknown): boolean {
-  return a === b || JSON.stringify(a) === JSON.stringify(b);
-}
-
 /**
  * Thins a stored Geometry, Feature or FeatureCollection with a tolerance
  * slider, and previews the result on a map. The form holds the simplified
@@ -126,7 +125,7 @@ export function SimplifyInput<TRecord = LooseRecord>({
   const translate = useTranslate();
   const { field, fieldState, isRequired } = useInput({
     source,
-    format: (v: unknown) => v ?? null,
+    format: (v) => v ?? null,
   });
   const value = field.value;
 
@@ -143,7 +142,7 @@ export function SimplifyInput<TRecord = LooseRecord>({
 
   const original = useRef<DrawValue | null>(null);
   // What this input wrote last, to tell its own writes from a reset or a load.
-  const written = useRef<unknown>(null);
+  const written = useRef<Exclude<ShapeValue, LngLatBox> | null>(null);
   const onChange = useRef(field.onChange);
   onChange.current = field.onChange;
 
@@ -157,7 +156,7 @@ export function SimplifyInput<TRecord = LooseRecord>({
       tolerance,
       highQuality: quality === "High",
     });
-    if (sameJson(next, value)) return;
+    if (deepEqual(next, value)) return;
     written.current = next;
     onChange.current(next);
   }, [value, tolerance, quality]);

@@ -13,6 +13,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -101,9 +102,10 @@ describe("<FileInput>", () => {
       { defaultValues: { attachments: [] } },
     );
     // The dropzone renders a hidden <input type="file">.
-    const input = document.querySelector(
-      "input[type='file']",
-    ) as HTMLInputElement;
+    const input = elementOf(
+      document.querySelector("input[type='file']"),
+      HTMLInputElement,
+    );
     expect(input).not.toBeNull();
     expect(screen.getByText("Attachments")).not.toBeNull();
   });
@@ -202,9 +204,10 @@ describe("<FileInput>", () => {
       { defaultValues: { avatar: null } },
     );
     expect(screen.queryAllByRole("link")).toHaveLength(0);
-    const input = document.querySelector(
-      "input[type='file']",
-    ) as HTMLInputElement;
+    const input = elementOf(
+      document.querySelector("input[type='file']"),
+      HTMLInputElement,
+    );
     const file = new File(["hello"], "hello.png", { type: "image/png" });
     await act(async () => {
       fireEvent.change(input, { target: { files: [file] } });

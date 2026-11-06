@@ -1,13 +1,18 @@
-<script setup lang="ts">
+<script
+  setup
+  lang="ts"
+  generic="RecordType extends LooseRecord = LooseRecord"
+>
 /**
  * The lazy half of `<MonacoJsonField>` and the only file that imports
  * `monaco-editor` at run time.
  */
 
 import { loader, VueMonacoEditor } from "@guolao/vue-monaco-editor";
+import type { LooseRecord } from "@chelone/core";
 import type { editor } from "monaco-editor";
 import * as monaco from "monaco-editor";
-import { computed, shallowRef } from "vue";
+import { computed, shallowRef, type VNode } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
 import { useFieldValue } from "../../record/use-field-value";
@@ -23,16 +28,19 @@ loader.config({ monaco });
 
 const MIN_HEIGHT = 120;
 
-const props = withDefaults(defineProps<MonacoJsonFieldProps>(), {
-  height: 200,
-  autoHeight: true,
-  maxHeight: 400,
-});
+const props = withDefaults(
+  defineProps<MonacoJsonFieldProps<RecordType>>(),
+  {
+    height: 200,
+    autoHeight: true,
+    maxHeight: 400,
+  },
+);
 
-defineSlots<{ empty?: () => unknown }>();
+defineSlots<{ empty?: () => VNode[] }>();
 
 const translate = useTranslate();
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   record: props.record,
   defaultValue: props.defaultValue,

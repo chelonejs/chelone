@@ -1,10 +1,12 @@
-<script lang="ts">
+<script lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
+import type { LooseRecord, SourceProp } from "@chelone/core";
+import type { SourceInputProps } from "./source-input-props";
+
 /** Props for {@link NumberInput}. */
-export interface NumberInputProps {
-  source: SourceProp;
-  label?: string | false;
-  defaultValue?: unknown;
-  validate?: Validator | readonly Validator[];
+export interface NumberInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> extends SourceInputProps<RecordType, TPath> {
   /** Text the input shows for the stored number (`null` when empty). */
   format?: (value: number | null) => string;
   /** The number to store for the text the user typed (`null` when empty or unparseable). */
@@ -13,7 +15,7 @@ export interface NumberInputProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
 /**
  * `<NumberInput>` — numeric input, the Vue analog of `@chelone/react`'s
  * `inputs/number-input.tsx`. Keeps a LOCAL string buffer so a user can type an
@@ -21,8 +23,7 @@ export interface NumberInputProps {
  * on empty so required validation still triggers. Binds through `useInput`.
  */
 
-import type { SourceProp, Validator } from "@chelone/core";
-import { toNumberValue } from "@chelone/core";
+import { textOf, toNumberValue } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
@@ -30,12 +31,13 @@ import Input from "../../ui/input.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = withDefaults(defineProps<NumberInputProps>(), {
-  label: undefined,
-});
+const props = withDefaults(
+  defineProps<NumberInputProps<RecordType, TPath>>(),
+  { label: undefined },
+);
 
 const defaultFormat = (value: number | null): string =>
-  value === null ? "" : String(value);
+  textOf(value);
 
 /** Parse the raw string to a number, or `null` on empty/unparseable. */
 const convertStringToNumber = (value: string | number): number | null => {

@@ -19,6 +19,7 @@ import {
   fakeDataProvider,
   type NotificationStore,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -213,8 +214,9 @@ describe("<DeleteButton>", () => {
     // Accepting the dialog dispatches the delete.
     await wrapper.find('[data-slot="confirm-accept"]').trigger("click");
     await vi.waitFor(() => expect(deleteSpy).toHaveBeenCalledTimes(1));
-    expect(deleteSpy.mock.calls[0]![0]).toBe("posts");
-    expect(deleteSpy.mock.calls[0]![1]).toMatchObject({ id: 2 });
+    const [resource, params] = defined(deleteSpy.mock.calls[0]);
+    expect(resource).toBe("posts");
+    expect(params).toMatchObject({ id: 2 });
     // Dialog closes after a successful delete.
     await vi.waitFor(() =>
       expect(wrapper.find('[data-slot="confirm"]').exists()).toBe(false),

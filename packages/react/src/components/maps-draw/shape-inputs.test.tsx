@@ -6,8 +6,16 @@
  */
 
 import type { RoutingProvider } from "@chelone/core";
+import { defined, elementOf } from "@chelone/test-utils";
 import { act, cleanup, fireEvent, screen } from "@testing-library/react";
-import type { Geometry, LineString, Point, Polygon } from "geojson";
+import type {
+  Feature,
+  Geometry,
+  LineString,
+  MultiPolygon,
+  Point,
+  Polygon,
+} from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetFake as resetMaps } from "../maps/__fixtures__/fake-maplibre";
 import {
@@ -88,7 +96,7 @@ const holed: Polygon = {
 };
 
 const button = (name: string) =>
-  screen.getByRole("button", { name }) as HTMLButtonElement;
+  elementOf(screen.getByRole("button", { name }), HTMLButtonElement);
 
 /** Presses a draw tool, then has the fake draw `geometry` in the tool's mode. */
 async function drawWith(
@@ -109,7 +117,7 @@ async function deleteStored(draw: () => TerraDraw, index: number) {
   fireEvent.click(button("Edit"));
   const feature: FakeFeature | undefined = draw().features[index];
   if (feature?.id === undefined) throw new Error(`no stored feature ${index}`);
-  await act(async () => draw().emitSelect(feature.id as string));
+  await act(async () => draw().emitSelect(defined(feature.id)));
   fireEvent.click(button("Delete"));
 }
 
@@ -223,7 +231,7 @@ describe("MultiPolygonInput", () => {
     square(10),
     square(20),
   ];
-  const multi = (...polygons: Polygon[]) => ({
+  const multi = (...polygons: Polygon[]): MultiPolygon => ({
     type: "MultiPolygon",
     coordinates: polygons.map((p) => p.coordinates),
   });
@@ -419,7 +427,7 @@ describe("FeatureInput", () => {
 
     fireEvent.click(button("Edit"));
     await act(async () => {
-      const id = draw().features[0]?.id as string;
+      const id = defined(draw().features[0]?.id);
       draw().replace(id, square(4));
       draw().emitFinish(id, "dragCoordinate", "select");
     });
@@ -454,7 +462,10 @@ describe("FeatureInput", () => {
 });
 
 describe("FeatureCollectionInput", () => {
-  const feature = (name: string, geometry: Geometry) => ({
+  const feature = (
+    name: string,
+    geometry: Geometry,
+  ): Feature<Geometry, { name: string }> => ({
     type: "Feature",
     properties: { name },
     geometry,
@@ -505,11 +516,11 @@ function pendingRefine() {
   const calls: {
     value: unknown;
     signal: AbortSignal;
-    settle: (result: unknown) => void;
+    settle: (result: Awaited<ReturnType<Refine>>) => void;
   }[] = [];
   const refine: Refine = (value, { signal }) =>
     new Promise((resolve) => {
-      calls.push({ value, signal, settle: resolve as (r: unknown) => void });
+      calls.push({ value, signal, settle: resolve });
     });
   return { refine: vi.fn(refine), calls };
 }
@@ -621,18 +632,16 @@ describe("ShapeInput refine", () => {
 });
 
 /** Snaps by shifting every position 1 degree east. */
-function fakeRouter(
-  snap?: (line: LineString) => LineString | null,
-): RoutingProvider & { snapToRoad: ReturnType<typeof vi.fn> } {
+function fakeRouter(snap?: (line: LineString) => LineString | null) {
   return {
     name: "fake",
-    snapToRoad: vi.fn(async (l: LineString) =>
+    snapToRoad: vi.fn<RoutingProvider["snapToRoad"]>(async (l) =>
       snap
         ? snap(l)
-        : ({
+        : {
             type: "LineString",
             coordinates: l.coordinates.map(([x, y]) => [(x ?? 0) + 1, y ?? 0]),
-          } as LineString),
+          },
     ),
   };
 }
@@ -647,9 +656,9 @@ describe("LineStringInput with snapToRoads", () => {
 
     expect(router.snapToRoad).toHaveBeenCalledTimes(1);
     expect(router.snapToRoad.mock.calls[0]?.[0]).toEqual(line(4));
-    expect(router.snapToRoad.mock.calls[0]?.[1].signal).toBeInstanceOf(
-      AbortSignal,
-    );
+    expect(
+      defined(defined(router.snapToRoad.mock.calls[0])[1]).signal,
+    ).toBeInstanceOf(AbortSignal);
     expect(storedValue()).toEqual({
       type: "LineString",
       coordinates: [

@@ -6,6 +6,7 @@
  * provided.
  */
 
+import { elementOf } from "@chelone/test-utils";
 import { act, cleanup, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LinearProgress } from "./linear-progress";
@@ -44,10 +45,11 @@ describe("<LinearProgress>", () => {
     act(() => {
       vi.advanceTimersByTime(1000);
     });
-    const inner = container.querySelector(
-      "[style*='width']",
-    ) as HTMLElement | null;
+    const inner = elementOf(
+      container.querySelector("[style*='width']"),
+      HTMLElement,
+    );
     expect(inner).toBeTruthy();
-    expect(inner?.style.width).toBe("50%");
+    expect(inner.style.width).toBe("50%");
   });
 });

@@ -2,7 +2,13 @@
  * P7d-T1 tests: `<UrlField>` — URL as a clickable link, with a scheme guard.
  */
 
-import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  defineMessages,
+  fakeDataProvider,
+  type LooseRecord,
+} from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -13,7 +19,7 @@ import { UrlField } from "./url-field";
 
 afterEach(cleanup);
 
-function wrap(record: unknown) {
+function wrap(record: LooseRecord) {
   const i18n = createI18n({
     locale: "en",
     messages: { en: defineMessages({ "myapp.empty": "no url" }) },
@@ -24,9 +30,7 @@ function wrap(record: unknown) {
       queryClient={new QueryClient()}
       i18n={i18n}
     >
-      <RecordContextProvider value={record as Record<string, unknown>}>
-        {children}
-      </RecordContextProvider>
+      <RecordContextProvider value={record}>{children}</RecordContextProvider>
     </CheloneProvider>
   );
 }
@@ -36,7 +40,7 @@ describe("<UrlField />", () => {
     const { getByText } = render(<UrlField source="website" />, {
       wrapper: wrap({ id: 1, website: "https://example.com" }),
     });
-    const link = getByText("https://example.com") as HTMLAnchorElement;
+    const link = elementOf(getByText("https://example.com"), HTMLAnchorElement);
     expect(link.tagName).toBe("A");
     expect(link.getAttribute("href")).toBe("https://example.com");
   });
@@ -46,14 +50,13 @@ describe("<UrlField />", () => {
       <UrlField source="website" content="Visit" />,
       { wrapper: wrap({ id: 1, website: "https://example.com" }) },
     );
-    const link = getByText("Visit") as HTMLAnchorElement;
+    const link = elementOf(getByText("Visit"), HTMLAnchorElement);
     expect(link.tagName).toBe("A");
   });
 
   it("refuses to render an anchor for an unsafe javascript: scheme", () => {
     const { getByText } = render(<UrlField source="website" />, {
-      // biome-ignore lint/suspicious/noExplicitAny: intentional unsafe value under test
-      wrapper: wrap({ id: 1, website: "javascript:alert(1)" as any }),
+      wrapper: wrap({ id: 1, website: "javascript:alert(1)" }),
     });
     const el = getByText("javascript:alert(1)");
     expect(el.tagName).toBe("SPAN");

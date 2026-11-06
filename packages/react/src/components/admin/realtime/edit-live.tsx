@@ -1,6 +1,5 @@
 import {
   type AmbientForm,
-  type Identifier,
   type LiveSubscription,
   subscribeLiveRecord,
 } from "@chelone/core";
@@ -33,7 +32,7 @@ function EditLive(props: EditLiveProps) {
   const contextResource = useResourceContext();
   const resource = props.resource ?? contextResource;
   const params = useParams();
-  const id = props.id ?? (params.id as Identifier | undefined);
+  const id = props.id ?? params.id;
   const { dataProvider, queryClient } = useCheloneContext();
 
   const subscriptionRef = useRef<LiveSubscription | null>(null);

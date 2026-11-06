@@ -127,6 +127,17 @@ export const blocks = [
     sourceDirs: [{ path: "src/components/monaco", recursive: true }],
   },
   {
+    name: "charts",
+    type: "registry:block",
+    title: "Chelone Charts",
+    categories: ["chelone", "components"],
+    description:
+      "The opt-in charts add-on: TrendChart draws a line or an area over time in a card, on shadcn's chart primitive. Installs recharts.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [{ path: "src/components/charts", recursive: true }],
+  },
+  {
     name: "kanban",
     type: "registry:block",
     title: "Chelone Kanban",
@@ -136,6 +147,17 @@ export const blocks = [
     granularize: true,
     inferDependencies: true,
     sourceDirs: [{ path: "src/components/kanban", recursive: true }],
+  },
+  {
+    name: "inspector",
+    type: "registry:block",
+    title: "Chelone Inspector",
+    categories: ["chelone", "components"],
+    description:
+      "The opt-in inspector add-on: Inspector is a draggable panel that edits whichever Configurable the user picks, InspectorButton turns the mode on, and SortableFieldsSelector lists a table's columns with drag to reorder. Installs @dnd-kit/react.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [{ path: "src/components/inspector", recursive: true }],
   },
   {
     name: "mdx-editor",
@@ -150,6 +172,39 @@ export const blocks = [
     sourceDirs: [
       { path: "src/components/mdx-editor", recursive: true, cssExtensions: true },
     ],
+  },
+  {
+    name: "rich-text-input",
+    type: "registry:block",
+    title: "Chelone Rich Text",
+    categories: ["chelone", "fields"],
+    description:
+      "The opt-in rich text add-on: RichTextField shows stored HTML sanitized with DOMPurify, or its text with stripTags, and RichTextInput edits an HTML string in a tiptap editor with a formatting toolbar. Installs dompurify and the tiptap packages.",
+    docs: "The field styles its content with rich-text.css, which the component imports itself and which reads the Chelone color tokens.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [
+      {
+        path: "src/components/rich-text-input",
+        recursive: true,
+        cssExtensions: true,
+      },
+    ],
+  },
+  {
+    name: "block-editor",
+    type: "registry:block",
+    title: "Chelone Block Editor",
+    categories: ["chelone", "inputs"],
+    description:
+      "The opt-in block editor add-on: BlockEditorInput edits a document of rich text and app-defined blocks in a tiptap editor with a slash menu, and BlockDocField shows that document read-only. defineBlock declares a block from a Zod schema and its components, and the data blocks chart a resource. Installs the tiptap packages and recharts, and the charts block.",
+    granularize: true,
+    inferDependencies: true,
+    // chart-block reaches recharts only through the charts block, so the import
+    // scan cannot see it.
+    itemDependencies: ["recharts"],
+    registryDependencies: ["charts"],
+    sourceDirs: [{ path: "src/components/block-editor", recursive: true }],
   },
   {
     name: "maps",
@@ -174,6 +229,10 @@ export const blocks = [
     docs: "Everything here needs the maps block: mount MapsProvider once with a mapStyle, or pass mapStyle to each input. Terra Draw reads its modes, snapping and styles once when the input mounts, so change key to rebuild. Terra Draw rotates a selected line or polygon with Control and r.",
     granularize: true,
     inferDependencies: true,
+    // geometry-ops reaches @turf/difference and @turf/simplify only through
+    // @chelone/utils/geo, which lists both as optional peers, so the import scan
+    // cannot see them and an installed item would miss both.
+    itemDependencies: ["@turf/difference", "@turf/simplify"],
     registryDependencies: ["maps"],
     sourceDirs: [{ path: "src/components/maps-draw", recursive: true }],
   },
@@ -188,8 +247,14 @@ export const blocks = [
     granularize: true,
     inferDependencies: true,
     // MapWithSearch reaches maplibre-gl only through the maps block, so the
-    // import scan cannot see it.
-    itemDependencies: ["maplibre-gl"],
+    // import scan cannot see it. @chelone/utils/osm imports @turf/difference
+    // and @turf/union, its optional peers, and the scan reads only this
+    // package's own imports.
+    itemDependencies: [
+      "@turf/difference",
+      "@turf/union",
+      "maplibre-gl",
+    ],
     registryDependencies: ["maps"],
     sourceDirs: [{ path: "src/components/maps-osm", recursive: true }],
   },
@@ -237,7 +302,13 @@ export const engine = {
   cli: "shadcn",
   // `spinner` collides with admin/feedback/spinner (the app-facing
   // `@chelone/spinner` wrapper), so the ui primitive ships as `ui-spinner`.
-  itemNames: { "components/ui/spinner": "ui-spinner" },
+  itemNames: {
+    "components/ui/spinner": "ui-spinner",
+    // Its basename is the rich-text-input block's name, which the block keeps.
+    "components/rich-text-input/rich-text-input": "rich-text-input-editor",
+    // Its basename is the block-editor block's name, which the block keeps.
+    "components/block-editor/block-editor": "block-editor-shell",
+  },
 };
 
 /**

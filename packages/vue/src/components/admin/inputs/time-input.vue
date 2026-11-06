@@ -1,12 +1,12 @@
-<script lang="ts">
-import type { DateInputValue, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
+import type { DateInputValue, LooseRecord, SourceProp } from "@chelone/core";
+import type { SourceInputProps } from "./source-input-props";
 
 /** Props for {@link TimeInput}. */
-export interface TimeInputProps {
-  source: SourceProp;
-  label?: string | false;
-  defaultValue?: unknown;
-  validate?: Validator | readonly Validator[];
+export interface TimeInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> extends SourceInputProps<RecordType, TPath> {
   helperText?: string;
   disabled?: boolean;
   readonly?: boolean;
@@ -19,7 +19,7 @@ export interface TimeInputProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
 /**
  * `<TimeInput>` — native time picker for a time-of-day value, the Vue analog of
  * `@chelone/react`'s `inputs/time-input.tsx`. Formats an incoming "HH:mm" string
@@ -29,11 +29,7 @@ export interface TimeInputProps {
  * pattern as `<DateInput>`.
  */
 
-import {
-  toDateInputValue,
-  toTextValue,
-  type Validator,
-} from "@chelone/core";
+import { textOf, toDateInputValue, toTextValue } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
@@ -43,7 +39,7 @@ import { formatTime, isValidTime, parseTimeToDate } from "./date-input-format";
 import { humanizeSource } from "./label-text";
 
 const props = withDefaults(
-  defineProps<TimeInputProps>(),
+  defineProps<TimeInputProps<RecordType, TPath>>(),
   // See `<DateInput>`: default `label` to `undefined` so the Boolean-prop rule
   // doesn't coerce an absent label to `false` and suppress it.
   { label: undefined },
@@ -59,10 +55,10 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   parse: (v: unknown) => parse.value(toTextValue(v)),
 });
 
-const buffer = ref(value.value == null ? "" : String(value.value));
+const buffer = ref(textOf(value.value));
 const focused = ref(false);
 watch(value, (next) => {
-  if (!focused.value) buffer.value = next == null ? "" : String(next);
+  if (!focused.value) buffer.value = textOf(next);
 });
 
 const invalid = computed(() => touched.value && error.value != null);
@@ -78,7 +74,7 @@ function onBlur() {
   focused.value = false;
   if (isValidTime(buffer.value)) setValue(buffer.value);
   blur();
-  buffer.value = value.value == null ? "" : String(value.value);
+  buffer.value = textOf(value.value);
 }
 </script>
 

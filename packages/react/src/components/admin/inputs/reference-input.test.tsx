@@ -153,9 +153,7 @@ describe("<ReferenceInput>", () => {
     await waitFor(() => {
       expect(
         getListSpy.mock.calls.some(
-          ([, params]) =>
-            (params?.filter as Record<string, unknown> | undefined)?.code ===
-            "BO",
+          ([, params]) => params?.filter?.code === "BO",
         ),
       ).toBe(true);
     });

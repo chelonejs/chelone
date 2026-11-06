@@ -15,12 +15,8 @@
  * `chelone.notification.updated`, `unselectAll`, `useRefresh`.
  */
 
-import {
-  getDirtyFormValues,
-  type Identifier,
-  type SourceScope,
-} from "@chelone/core";
-import { type ReactNode, useMemo, useRef, useState } from "react";
+import { getDirtyFormValues, type Identifier } from "@chelone/core";
+import { type ReactNode, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -36,6 +32,7 @@ import { FormGroupsProvider, useListContext } from "../../../form";
 import {
   CheloneFormProvider,
   SourceContextProvider,
+  useResourceSourceScope,
 } from "../../../form-context";
 import { useForm } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
@@ -169,14 +166,7 @@ function BulkEditDrawer(props: BulkEditDrawerProps) {
     form.reset();
   }
 
-  const sourceScope = useMemo<SourceScope>(
-    () => ({
-      getSource: (source: string) => source,
-      getLabel: (source: string) =>
-        resource ? `resources.${resource}.fields.${source}` : source,
-    }),
-    [resource],
-  );
+  const sourceScope = useResourceSourceScope(resource);
 
   const count = selectedIds.length;
   const label = translate(labelProp, { _: labelProp });

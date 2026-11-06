@@ -1,4 +1,5 @@
 import { fakeDataProvider } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -85,9 +86,11 @@ describe("useArrayInput", () => {
     const rows = array(capture).rows.value;
     expect(rows).toHaveLength(2);
     expect(array(capture).total.value).toBe(2);
-    expect(rows[0]!.name).toBe("tags[0]");
-    expect(typeof rows[0]!.id).toBe("string");
-    expect(rows[0]!.id).not.toBe(rows[1]!.id);
+    const first = defined(rows[0]);
+    const second = defined(rows[1]);
+    expect(first.name).toBe("tags[0]");
+    expect(typeof first.id).toBe("string");
+    expect(first.id).not.toBe(second.id);
   });
 
   it("add() appends a row and writes the array value through the form", async () => {
@@ -115,7 +118,7 @@ describe("useArrayInput", () => {
     const after = array(capture).rows.value;
     expect(after).toHaveLength(1);
     // The row that WAS at index 1 keeps its id — identity travels the value.
-    expect(after[0]!.id).toBe(before[1]!.id);
+    expect(defined(after[0]).id).toBe(defined(before[1]).id);
     expect(tagsOf(capture)).toEqual(["b"]);
   });
 
@@ -128,7 +131,10 @@ describe("useArrayInput", () => {
     await nextTick();
 
     const after = array(capture).rows.value;
-    expect(after.map((r) => r.id)).toEqual([before[1]!.id, before[0]!.id]);
+    expect(after.map((r) => r.id)).toEqual([
+      defined(before[1]).id,
+      defined(before[0]).id,
+    ]);
     expect(tagsOf(capture)).toEqual(["b", "a"]);
   });
 

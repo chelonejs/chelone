@@ -4,6 +4,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 
 vi.mock(
   "maplibre-gl",
@@ -60,9 +61,16 @@ describe("the maps entry", () => {
   });
 
   it("lists maplibre-gl under dependencies of the maps block and each of its items", () => {
-    const registry = JSON.parse(
-      readFileSync(resolve(root, "registry.json"), "utf8"),
-    ) as { items: { name: string; dependencies?: string[] }[] };
+    const registry = z
+      .object({
+        items: z.array(
+          z.object({
+            name: z.string(),
+            dependencies: z.array(z.string()).optional(),
+          }),
+        ),
+      })
+      .parse(JSON.parse(readFileSync(resolve(root, "registry.json"), "utf8")));
     for (const name of [
       "maps",
       "map-canvas",

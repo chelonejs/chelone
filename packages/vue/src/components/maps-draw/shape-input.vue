@@ -92,23 +92,9 @@ export interface ShapeInputProps {
   class?: string;
 }
 
-function sameValue(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-  const keysA = Object.keys(a);
-  if (keysA.length !== Object.keys(b).length) return false;
-  return keysA.every((key) =>
-    sameValue(
-      (a as Record<string, unknown>)[key],
-      (b as Record<string, unknown>)[key],
-    ),
-  );
-}
-
 /** What the last edit wrote, so the first shape the user draws is not framed. */
 interface Written {
-  current: unknown;
+  current: ShapeValue | undefined;
 }
 
 const AREA_TOOLS: ToolbarTool[] = [
@@ -258,6 +244,7 @@ const Editor = defineComponent(
  */
 
 import {
+  deepEqual,
   featuresToShape,
   heldFeatures,
   shapeToFeatures,
@@ -318,7 +305,7 @@ const validators: Validator[] = [
 const input = useInput({
   source: props.source,
   validate: validators,
-  format: (v: unknown) => v ?? null,
+  format: (v) => v ?? null,
 });
 
 // The field is the source of truth: the draft follows it, from outside or from
@@ -348,7 +335,7 @@ async function runRefine(committed: ShapeValue) {
     // Only an untouched field takes the result: anything else was edited since.
     if (
       toRaw(input.value.value) !== toRaw(committed) ||
-      sameValue(result, committed)
+      deepEqual(result, committed)
     ) {
       return;
     }
@@ -391,7 +378,8 @@ function onEdit(edit: TerraDrawEdit) {
     aspectRatio: props.aspectRatio,
     addHeld,
   });
-  written.current = next;
+  // An emptied shape is written as null: `undefined` stands for it here.
+  written.current = next ?? undefined;
   input.setValue(next);
   input.blur();
   if (edit.type === "draw") tool.value = null;

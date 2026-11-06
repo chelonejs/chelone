@@ -10,9 +10,12 @@
 import {
   createI18n,
   fakeDataProvider,
+  isGeoFeatureCollection,
+  isGeoGeometry,
   mapMessages,
   rasterTileStyle,
 } from "@chelone/core";
+import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -32,7 +35,6 @@ import {
   resetFake as resetDraws,
 } from "./__fixtures__/fake-terra-draw";
 import DrawToolbar, { type DrawToolbarProps } from "./draw-toolbar.vue";
-import type { DrawFeature } from "./geometry-ops";
 import ShapeInput, { type ShapeInputProps } from "./shape-input.vue";
 import { MultiPolygonInput, PointInput, PolygonInput } from "./shape-inputs";
 import { toolMode } from "./use-terra-draw";
@@ -193,7 +195,7 @@ const button = (wrapper: VueWrapper, name: string) => {
   return found;
 };
 const disabled = (wrapper: VueWrapper, name: string) =>
-  (button(wrapper, name).element as HTMLButtonElement).disabled;
+  elementOf(button(wrapper, name).element, HTMLButtonElement).disabled;
 
 /** The id of the user's feature in the fake store. */
 const storedId = (features: FakeFeature[]) => {
@@ -496,7 +498,10 @@ describe("ShapeInput", () => {
     expect(draw().added[0]?.map((f) => f.geometry)).toEqual([square(20)]);
     const sources = Object.values(map().sources);
     expect(sources).toHaveLength(1);
-    const data = sources[0]?.data as { features: DrawFeature[] };
+    const data = defined(sources[0]).data;
+    if (!isGeoFeatureCollection(data)) {
+      throw new Error("Expected a FeatureCollection");
+    }
     expect(data.features.map((f) => f.geometry)).toEqual([holed]);
 
     await button(wrapper, "Edit").trigger("click");
@@ -642,26 +647,17 @@ describe("ShapeInput", () => {
     const { draw } = await setup();
 
     for (const name of ["select", "select-move"]) {
-      const flags = draw().modeOf(name)?.options.flags as Record<
-        string,
-        { feature: { rotateable?: boolean } }
-      >;
-      expect(flags.linestring?.feature.rotateable, `${name} linestring`).toBe(
+      const flags = defined(draw().modeOf(name)?.options.flags);
+      expect(flags.linestring?.feature?.rotateable, `${name} linestring`).toBe(
         true,
       );
-      expect(flags.polygon?.feature.rotateable, `${name} polygon`).toBe(true);
+      expect(flags.polygon?.feature?.rotateable, `${name} polygon`).toBe(true);
     }
     // The vertex tools belong to the edit mode only.
-    const edit = draw().modeOf("select")?.options.flags as Record<
-      string,
-      { feature: { coordinates?: { snappable?: boolean } } }
-    >;
-    expect(edit.polygon?.feature.coordinates?.snappable).toBe(true);
-    const move = draw().modeOf("select-move")?.options.flags as Record<
-      string,
-      { feature: { coordinates?: unknown } }
-    >;
-    expect(move.polygon?.feature.coordinates).toBeUndefined();
+    const edit = defined(draw().modeOf("select")?.options.flags);
+    expect(edit.polygon?.feature?.coordinates?.snappable).toBe(true);
+    const move = defined(draw().modeOf("select-move")?.options.flags);
+    expect(defined(defined(move.polygon).feature).coordinates).toBeUndefined();
   });
 
   it("deletes the selected feature from the toolbar", async () => {
@@ -761,7 +757,10 @@ describe("ShapeInput cut tool", () => {
 
     await drawCutter(wrapper, draw, field(5, -5, 15, 5));
 
-    const stored = value() as { type: string; coordinates: number[][][] };
+    const stored = value();
+    if (!isGeoGeometry(stored) || stored.type !== "Polygon") {
+      throw new Error("Expected a Polygon");
+    }
     expect(stored.type).toBe("Polygon");
     // An L: six corners and the closing position.
     expect(stored.coordinates).toHaveLength(1);
@@ -801,15 +800,20 @@ describe("ShapeInput cut tool", () => {
 
     await drawCutter(wrapper, draw, field(5, -5, 15, 5));
 
-    const stored = value() as {
-      name: string;
-      crs: unknown;
-      features: { geometry: { coordinates: number[][][] } }[];
-    };
+    const stored = value();
+    if (
+      !isGeoFeatureCollection(stored) ||
+      !("name" in stored) ||
+      !("crs" in stored)
+    ) {
+      throw new Error("Expected a FeatureCollection with name and crs");
+    }
     expect(stored.name).toBe("sites");
     expect(stored.crs).toEqual(crs);
     expect(stored.features).toHaveLength(1);
-    expect(stored.features[0]?.geometry.coordinates[0]).toHaveLength(7);
+    const geometry = defined(stored.features[0]).geometry;
+    if (geometry?.type !== "Polygon") throw new Error("Expected a Polygon");
+    expect(geometry.coordinates[0]).toHaveLength(7);
   });
 
   it("commits nothing when the cutter misses every polygon", async () => {
@@ -842,11 +846,11 @@ describe("ShapeInput cut tool", () => {
       { type: "Feature", properties: {}, geometry: field(0, 0, 10, 10) },
     ],
     ["BBox", [0, 0, 10, 10]],
-  ])(
+  ] as const)(
     "commits nothing when a cut would split a %s value in two",
     async (kind, stored) => {
       const { draw, wrapper, commits, value, dirty } = await setup(
-        { kind: kind as ShapeInputProps["kind"], tools: ["cut"] },
+        { kind, tools: ["cut"] },
         stored,
       );
 
@@ -898,12 +902,18 @@ describe("ShapeInput", () => {
     expect(draw().getSnapshot()).toEqual([]);
     const sources = Object.values(map().sources);
     expect(sources).toHaveLength(1);
-    const data = sources[0]?.data as { features: DrawFeature[] };
+    const data = defined(sources[0]).data;
+    if (!isGeoFeatureCollection(data)) {
+      throw new Error("Expected a FeatureCollection");
+    }
     const rings = data.features.map((f) =>
       f.geometry?.type === "Polygon" ? f.geometry.coordinates.length : 0,
     );
     expect(rings).toEqual([2, 2]);
-    const stored = value() as { type: string; coordinates: unknown[] };
+    const stored = value();
+    if (!isGeoGeometry(stored) || stored.type !== "MultiPolygon") {
+      throw new Error("Expected a MultiPolygon");
+    }
     expect(stored.type).toBe("MultiPolygon");
     expect(stored.coordinates).toHaveLength(2);
   });

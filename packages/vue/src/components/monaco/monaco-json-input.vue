@@ -1,13 +1,13 @@
-<script lang="ts">
-import type { SourceProp, Validator } from "@chelone/core";
+<script lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
+import type { LooseRecord, SourceProp } from "@chelone/core";
 import type { editor } from "monaco-editor";
+import type { SourceInputProps } from "../admin/inputs/source-input-props";
 
 /** Props for {@link MonacoJsonInput}. */
-export interface MonacoJsonInputProps {
-  source: SourceProp;
-  label?: string | false;
-  defaultValue?: unknown;
-  validate?: Validator | readonly Validator[];
+export interface MonacoJsonInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> extends SourceInputProps<RecordType, TPath> {
   helperText?: string | false;
   disabled?: boolean;
   readOnly?: boolean;
@@ -36,7 +36,7 @@ export interface MonacoJsonInputProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
 /**
  * `<MonacoJsonInput>` — edits a JSON value in Monaco, with JSON Schema checks
  * and error markers. The Vue twin of `@chelone/react`'s
@@ -68,12 +68,15 @@ const MonacoJsonInputLazy = defineAsyncComponent(
 
 // Explicit defaults keep Vue's absent-Boolean cast from turning an unset
 // `label` into `false` or an unset `showFormatButton` off.
-const props = withDefaults(defineProps<MonacoJsonInputProps>(), {
-  label: undefined,
-  helperText: undefined,
-  autoHeight: false,
-  showFormatButton: true,
-});
+const props = withDefaults(
+  defineProps<MonacoJsonInputProps<RecordType, TPath>>(),
+  {
+    label: undefined,
+    helperText: undefined,
+    autoHeight: false,
+    showFormatButton: true,
+  },
+);
 </script>
 
 <template>

@@ -46,7 +46,7 @@ The full prop list for `<Admin>` and `<Resource>` is on the
 
 | React | Vue | React page |
 | ----- | --- | ---------- |
-| `<Confirm>` takes `onConfirm` and `onClose`. | `<Confirm>` emits `confirm` and `close`. | [Confirm](/docs/ui-layout/confirm) |
+| `<Confirm>` takes `onConfirm` and `onClose`, and a node as `content`. | `<Confirm>` emits `confirm` and `close`, and takes a string as `content`. Its default slot holds a body that is not translated. | [Confirm](/docs/ui-layout/confirm) |
 | `<BooleanField>` takes `TrueIcon` and `FalseIcon`. | `<BooleanField>` has no `TrueIcon` or `FalseIcon` props. It draws a built-in check or cross, styled through `class`. | [Boolean Field](/docs/viewing/boolean-field) |
 | `<FileInput>` and `<ImageInput>` use `react-dropzone`. | They use native drag and drop. The value shape is the same: `{ rawFile, src, title }` for a dropped file. | [File Input](/docs/editing/file-input), [Image Input](/docs/editing/image-input) |
 | `<Notification>` renders through sonner. | `<Notification>` is a dependency-free toaster, a stack at the bottom centre with its own close button. | [Notification](/docs/ui-layout/notification) |
@@ -61,12 +61,31 @@ The full prop list for `<Admin>` and `<Resource>` is on the
 | `<FilterLiveSearch>` builds on `FilterLiveForm`. | `<FilterLiveSearch>` builds on `<FilterForm>`, because Vue has no `FilterLiveForm`. | [Filter Live Search](/docs/viewing/filter-live-search) |
 | `<ColumnsButton>` opens a `Popover`. | `<ColumnsButton>` shows its panel inside a `DropdownMenu`. The panel holds plain rows, so it stays open while you switch several columns. | [Columns Button](/docs/viewing/columns-button) |
 | `<TreeList>` takes the `onSelect`, `loading` and `empty` props. | `<TreeList>` emits `select` and takes the `#loading` and `#empty` slots. With no `select` listener a row navigates, as React does with no `onSelect`. | [Tree List](/docs/viewing/tree-list) |
+| `<PivotGrid>` takes the `loading` and `empty` props. | `<PivotGrid>` takes the `#loading` and `#empty` slots. | [Pivot Grid](/docs/viewing/pivot-grid) |
+| `<PivotGrid>` takes a `format` that returns a node. | `<PivotGrid>` takes a `format` that returns a string, so a cell is always text. | [Pivot Grid](/docs/viewing/pivot-grid) |
+| `<RecordTimeline>` takes the `loading` and `empty` props. | `<RecordTimeline>` takes the `#loading` and `#empty` slots. | [Record Timeline](/docs/viewing/record-timeline) |
 | `<CalendarList>` takes the `onSelectEvent`, `onSelectSlot` and `onDrop` props. | `<CalendarList>` emits `select-event`, `select-slot` and `drop`. A `drop` listener makes month-view events draggable. | [Calendar List](/docs/viewing/calendar-list) |
 | `<CalendarList>` takes the `eventRenderer` and `headerRenderer` props. | `<CalendarList>` takes the `#event` and `#header` slots. | [Calendar List](/docs/viewing/calendar-list) |
 | `<KanbanBoard>` takes an `onSelectCard` prop. | `<KanbanBoard>` emits `select-card`. With no `select-card` listener a card navigates, as React does with no `onSelectCard`. | [Kanban Board](/docs/viewing/kanban-board) |
 | `<KanbanBoard>` takes a `cardRenderer` prop. | `<KanbanBoard>` takes the `#card` slot, given `{ record }`. | [Kanban Board](/docs/viewing/kanban-board) |
+| `<ApprovalQueue>` takes a `rowExtra` prop, a function of the record. | `<ApprovalQueue>` takes the `#extra` slot, given `{ record }`. | [Approval Queue](/docs/viewing/approval-queue) |
 | `<StatusTransitionButton>` takes an `onTransition` prop. `<DualApprovalButton>` takes only props. | `<StatusTransitionButton>` emits a `transition` event with the same `(from, to, record)` arguments. `<DualApprovalButton>` takes the same props. | [Status Transition Button](/docs/editing/status-transition-button), [Dual Approval Button](/docs/editing/dual-approval-button) |
 | `<CommandMenu>` composes cmdk's `Command` with a teleported dialog. | `<CommandMenu>` composes the native `ui/command` family with an inline dialog that is not teleported. | [Command Menu](/docs/ui-layout/command-menu) |
+| `<Assistant>` confirms a tool in a Radix `Dialog` that shows the arguments in a `<pre>`. | `<Assistant>` confirms a tool in the inline `<Confirm>`, which is not teleported. It passes the arguments in `<Confirm>`'s default slot, in a `<pre>`. Its icons are inline SVG. The props are the same. | [Assistant](/docs/ui-layout/assistant) |
+| `<DiffViewer>` takes `formatters`, a renderer per source that returns a node. | `<DiffViewer>` takes the `#value` slot, given `{ source, value, side }` with `side` either `before` or `after`. | [Diff Viewer](/docs/viewing/diff-viewer) |
+| `<DiffViewer>` takes `labels` whose values can be nodes. | `<DiffViewer>` takes `labels` whose values are strings. | [Diff Viewer](/docs/viewing/diff-viewer) |
+| `<PermissionMatrix>` takes `value` and `onChange`. | `<PermissionMatrix>` is a `v-model`: `modelValue` in and `update:modelValue` out with the whole next value. It takes `class` where React takes `className`. | [Permission Matrix](/docs/editing/permission-matrix) |
+| `<InPlaceEditor>` takes `children` for the shown value and `editor` for the input. | `<InPlaceEditor>` takes the default slot for the shown value and the `#editor` slot for the input. | [In Place Editor](/docs/editing/in-place-editor) |
+| `<InPlaceEditor>` takes `onSuccess` and `onError` props. | `<InPlaceEditor>` emits `success` with the saved record and `error` with the failure. | [In Place Editor](/docs/editing/in-place-editor) |
+| `<OnboardingTour>` takes an `onComplete` prop, called with `"finished"` or `"skipped"`. | `<OnboardingTour>` emits `complete` with the same two values. | [Onboarding Tour](/docs/ui-layout/onboarding-tour) |
+| `<OnboardingTour>` steps take a `title` and `content` that are nodes. | A step's `title` and `content` are strings. A `#step` slot, given `{ step, index }`, replaces both. | [Onboarding Tour](/docs/ui-layout/onboarding-tour) |
+| `<TrendChart>` and `<BarChart>` plot the row's `xField` value on the x axis. | They plot the row index and label each tick with that row's `xField`, so any x value keeps its order. With more than 7 rows only every step-th tick is labelled. | [Trend Chart](/docs/ui-layout/trend-chart), [Bar Chart](/docs/ui-layout/bar-chart) |
+| `<TrendChart>`'s `xTickFormatter` formats the x axis ticks. | It formats the tooltip's row label too: the axis and the crosshair share one function. | [Trend Chart](/docs/ui-layout/trend-chart) |
+| `<TrendChart>` and `<BarChart>` show their tooltip through recharts' `<ChartTooltip>`. | They show it through unovis' crosshair: `VisCrosshair` carries an HTML template and `VisTooltip` renders it. | [Trend Chart](/docs/ui-layout/trend-chart), [Bar Chart](/docs/ui-layout/bar-chart) |
+| `<DonutChart>` shows its tooltip through recharts' `<ChartTooltip>` as well. | It has no crosshair. `VisTooltip` takes a `triggers` map keyed on `Donut.selectors.segment`, so the tooltip follows the hovered segment. | [Donut Chart](/docs/ui-layout/donut-chart) |
+| `<TrendChart>`'s `tooltipFormatter` returns text recharts renders as a node. | It returns text that goes into the crosshair's HTML string. | [Trend Chart](/docs/ui-layout/trend-chart) |
+| `<DonutChart>`'s `height` sizes the chart, and the ring is 30% of the radius whatever it is. | `height` sizes the chart and the ring: the arc is 15% of `height` wide. | [Donut Chart](/docs/ui-layout/donut-chart) |
+| `<TrendChart>`, `<BarChart>`, `<DonutChart>` and `<MetricCard>` take `className`. | They take `class`. | [Trend Chart](/docs/ui-layout/trend-chart), [Bar Chart](/docs/ui-layout/bar-chart), [Donut Chart](/docs/ui-layout/donut-chart), [Metric Card](/docs/ui-layout/metric-card) |
 | `useGeoJsonSource(map, sourceId, data, style)` takes plain values. | `useGeoJsonSource(sourceId, data, style)` takes refs or getters and reads the map from the surrounding `<MapCanvas>`. | None |
 
 Theme storage differs too: the Vue `<ThemeProvider>` always uses `localStorage`
@@ -88,7 +107,11 @@ SVG icons. See [Maps](/docs/app-config/maps) for the guide.
 The Monaco components are an add-on, imported from `@chelone/vue/monaco` or
 installed from the registry as `@chelone/monaco`. The Markdown components are
 another, imported from `@chelone/vue/mdx-editor` or installed as
-`@chelone/mdx-editor`.
+`@chelone/mdx-editor`. The charts are a third: `<TrendChart>`, `<BarChart>` and
+`<DonutChart>` come from `@chelone/vue/charts` and need `@unovis/vue` and
+`@unovis/ts`, where React has `@chelone/react/charts` and `recharts`.
+`<MetricCard>` is not part of it: it ships in both base packages and draws no
+chart.
 
 | React | Vue | React page |
 | ----- | --- | ---------- |

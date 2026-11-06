@@ -13,6 +13,7 @@ import {
   fakeDataProvider,
   required,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -138,7 +139,7 @@ const tab = (wrapper: VueWrapper, locale: string, groupKey = "") =>
 const inputIn = (wrapper: VueWrapper, locale: string) =>
   panel(wrapper, locale).get("input");
 const valueIn = (wrapper: VueWrapper, locale: string) =>
-  (inputIn(wrapper, locale).element as HTMLInputElement).value;
+  elementOf(inputIn(wrapper, locale).element, HTMLInputElement).value;
 
 describe("TranslatableInputs", () => {
   it("renders one tab per locale and selects the default locale", async () => {

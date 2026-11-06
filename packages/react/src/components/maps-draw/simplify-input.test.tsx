@@ -10,6 +10,7 @@ import {
   mapMessages,
   rasterTileStyle,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { useSelector } from "@tanstack/react-store";
 import {
@@ -51,7 +52,7 @@ function bumpySquare(): Position[] {
   ];
   const ring: Position[] = [];
   corners.forEach((from, i) => {
-    const to = corners[(i + 1) % 4] as Position;
+    const to = defined(corners[(i + 1) % 4]);
     ring.push(from);
     for (let step = 1; step <= 4; step++) {
       const t = step / 5;
@@ -62,7 +63,7 @@ function bumpySquare(): Position[] {
       ring.push(from[1] === to[1] ? [x, y + bump] : [x + bump, y]);
     }
   });
-  ring.push(ring[0] as Position);
+  ring.push(defined(ring[0]));
   return ring;
 }
 
@@ -292,6 +293,23 @@ describe("SimplifyInput", () => {
     expect(screen.getByText("Tolerance: 0.013")).toBeTruthy();
     act(() => key("Home"));
     expect(screen.getByText("Tolerance: 0.000")).toBeTruthy();
+  });
+
+  it("moving the slider with a non-input event target changes nothing", async () => {
+    const { form } = await mount(
+      <SimplifyInput source="shape" tolerance={0} />,
+      polygon(),
+    );
+    // The slider is a Radix primitive: its value arrives through
+    // `onValueChange`, never through an event target.
+    const thumb = slider();
+    const inner = document.createElement("span");
+    thumb.append(inner);
+    fireEvent(inner, new Event("input", { bubbles: true }));
+    await act(async () => {});
+    expect(screen.getByText("Tolerance: 0.000")).toBeTruthy();
+    expect(ringLength()).toBe(21);
+    expect(form().state.isDirty).toBe(false);
   });
 
   it("renders a legend, the helper text and the slot", async () => {

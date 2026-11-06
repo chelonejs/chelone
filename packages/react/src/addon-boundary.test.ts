@@ -28,16 +28,63 @@ const ADDONS: {
     packages: ["@monaco-editor/react", "monaco-editor"],
   },
   {
+    name: "charts",
+    folder: "src/components/charts",
+    entry: "src/charts.ts",
+    packages: ["recharts"],
+  },
+  {
     name: "kanban",
     folder: "src/components/kanban",
     entry: "src/kanban.ts",
     packages: ["@dnd-kit/react", "@dnd-kit/dom"],
   },
   {
+    name: "inspector",
+    folder: "src/components/inspector",
+    entry: "src/inspector.ts",
+    packages: ["@dnd-kit/react"],
+  },
+  {
     name: "mdx-editor",
     folder: "src/components/mdx-editor",
     entry: "src/mdx-editor.ts",
     packages: ["@mdxeditor/editor"],
+  },
+  {
+    name: "rich-text-input",
+    folder: "src/components/rich-text-input",
+    entry: "src/rich-text-input.ts",
+    packages: [
+      "dompurify",
+      "@tiptap/core",
+      "@tiptap/extension-code-block",
+      "@tiptap/extension-code-block-lowlight",
+      "@tiptap/extension-image",
+      "@tiptap/extension-text-style",
+      "@tiptap/extensions",
+      "@tiptap/pm",
+      "@tiptap/react",
+      "@tiptap/starter-kit",
+      "highlight.js",
+      "lowlight",
+    ],
+  },
+  {
+    name: "block-editor",
+    folder: "src/components/block-editor",
+    entry: "src/block-editor.ts",
+    packages: [
+      "@tiptap/core",
+      "@tiptap/pm",
+      "@tiptap/react",
+      "@tiptap/starter-kit",
+      "@tiptap/extensions",
+      "@tiptap/suggestion",
+      "@dnd-kit/react",
+      "@dnd-kit/dom",
+      "recharts",
+    ],
   },
   {
     name: "maps",
@@ -214,6 +261,16 @@ describe("add-on boundary", () => {
       "./dist/components/mdx-editor/mdx-editor-dark.css",
     );
     // `sideEffects: false` lets a bundler drop `import "@chelone/react/mdx-editor.css"`.
+    expect(pkg.sideEffects).toContain("**/*.css");
+  });
+
+  it("the rich-text-input stylesheet is exported for npm users and survives tree shaking", () => {
+    const source = pkg.exports["./rich-text-input.css"];
+    expect(existsSync(resolve(root, source))).toBe(true);
+    expect(source.endsWith("rich-text.css")).toBe(true);
+    expect(pkg.publishConfig.exports["./rich-text-input.css"]).toBe(
+      "./dist/components/rich-text-input/rich-text.css",
+    );
     expect(pkg.sideEffects).toContain("**/*.css");
   });
 });

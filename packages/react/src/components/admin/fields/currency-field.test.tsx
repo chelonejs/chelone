@@ -2,7 +2,12 @@
  * P7d-T2 tests: `<CurrencyField>` — monetary display via `Intl.NumberFormat`.
  */
 
-import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  defineMessages,
+  fakeDataProvider,
+  type LooseRecord,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { cleanup, render } from "@testing-library/react";
 import type { ReactNode } from "react";
@@ -13,7 +18,7 @@ import { CurrencyField } from "./currency-field";
 
 afterEach(cleanup);
 
-function wrap(record: unknown, locale = "en") {
+function wrap(record: LooseRecord, locale = "en") {
   const i18n = createI18n({
     locale,
     messages: { [locale]: defineMessages({ "myapp.empty": "N/A" }) },
@@ -24,9 +29,7 @@ function wrap(record: unknown, locale = "en") {
       queryClient={new QueryClient()}
       i18n={i18n}
     >
-      <RecordContextProvider value={record as Record<string, unknown>}>
-        {children}
-      </RecordContextProvider>
+      <RecordContextProvider value={record}>{children}</RecordContextProvider>
     </CheloneProvider>
   );
 }

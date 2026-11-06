@@ -1,3 +1,4 @@
+import { defined } from "@chelone/test-utils";
 import { FieldApi } from "@tanstack/form-core";
 import { QueryClient } from "@tanstack/query-core";
 import { describe, expect, it, vi } from "vitest";
@@ -158,7 +159,7 @@ describe("createEditFormController", () => {
     // The save payload carries the hydrated record fields, NOT construction
     // defaults — the data-wipe shape is impossible.
     await c.submit();
-    const payload = update.mock.calls[0]?.[1]?.data as Record<string, unknown>;
+    const payload = defined(update.mock.calls[0]?.[1]?.data);
     expect(payload.title).toBe("typed");
     expect(payload.subtitle).toBe("s");
     c.destroy();
@@ -344,7 +345,7 @@ describe("createEditFormController", () => {
     subtitle.mount();
     subtitle.handleChange("");
     await c.submit();
-    const payload = update.mock.calls[0]?.[1]?.data as Record<string, unknown>;
+    const payload = defined(update.mock.calls[0]?.[1]?.data);
     expect(payload.subtitle).toBeNull();
     expect("notes" in payload).toBe(false);
     c.destroy();
@@ -502,7 +503,7 @@ describe("createCreateFormController", () => {
     });
     c.subscribe(() => {});
     await c.submit();
-    const payload = create.mock.calls[0]?.[1]?.data as Record<string, unknown>;
+    const payload = defined(create.mock.calls[0]?.[1]?.data);
     expect(payload).toEqual({ title: "seed", subtitle: null });
     c.destroy();
   });

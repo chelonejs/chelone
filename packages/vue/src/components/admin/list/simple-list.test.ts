@@ -85,8 +85,11 @@ async function mountList({
 }
 
 const titleOnly = {
-  "primary-text": ({ record }: { record: LooseRecord }) =>
-    (record as Post).title,
+  "primary-text": ({ record }: { record: LooseRecord }) => {
+    if (typeof record.title !== "string")
+      throw new Error("Expected a post title");
+    return record.title;
+  },
 };
 
 describe("<SimpleList>", () => {

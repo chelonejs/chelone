@@ -4,6 +4,7 @@ import type {
   SourcePath,
   SourceProp,
 } from "@chelone/core";
+import { isIdentifier, toIdentifierList } from "@chelone/core";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -23,34 +24,30 @@ import { useChoices, useChoicesContext } from "../../../choices-hooks";
 import { ValidationError } from "../../../field-error-display";
 import { useInput } from "../../../form-hooks";
 import { useTranslate } from "../../../i18n-hooks";
-import type { InputProps } from "../input-props";
+import type { InputProps, LooseFormatProps } from "../input-props";
 
 type DatagridInputProps<
   TRecord = LooseRecord,
   TChoice extends ChoiceRecord = ChoiceRecord,
-> = Omit<
-  InputProps<TRecord>,
-  "source" | "disabled" | "readOnly" | "defaultValue"
-> & {
-  /** Input-level default, ra precedence (seeds only into an untouched hole). */
-  defaultValue?: unknown;
-  /** Inline choices (records) — omit inside a `<ReferenceArrayInput>`. */
-  choices?: readonly TChoice[];
-  /** The display path or a formatter for a choice. Default `"name"`. */
-  optionText?: OptionText<TChoice>;
-  /** The value path on a choice. Default `"id"`. */
-  optionValue?: SourcePath<TChoice>;
-  /** Translate the choice text through the catalog. */
-  translateChoice?: boolean;
-  /** The FK-array field; supplied ambiently inside a `<ReferenceArrayInput>`. */
-  source?: SourceProp<TRecord>;
-  /** Override the ambient resource. */
-  resource?: string;
-  /** Extra classes on the wrapper. */
-  className?: string;
-  /** Column header for the choice column. Default the resource/source label. */
-  optionLabel?: ReactNode;
-};
+> = Omit<InputProps<TRecord>, "source" | "disabled" | "readOnly" | "format"> &
+  LooseFormatProps & {
+    /** Inline choices (records) — omit inside a `<ReferenceArrayInput>`. */
+    choices?: readonly TChoice[];
+    /** The display path or a formatter for a choice. Default `"name"`. */
+    optionText?: OptionText<TChoice>;
+    /** The value path on a choice. Default `"id"`. */
+    optionValue?: SourcePath<TChoice>;
+    /** Translate the choice text through the catalog. */
+    translateChoice?: boolean;
+    /** The FK-array field; supplied ambiently inside a `<ReferenceArrayInput>`. */
+    source?: SourceProp<TRecord>;
+    /** Override the ambient resource. */
+    resource?: string;
+    /** Extra classes on the wrapper. */
+    className?: string;
+    /** Column header for the choice column. Default the resource/source label. */
+    optionLabel?: ReactNode;
+  };
 
 /**
  * Form input that renders a list of records as a selectable table — the user
@@ -124,7 +121,7 @@ function DatagridInput<
   });
 
   const selectedIds = useMemo<Identifier[]>(
-    () => (Array.isArray(field.value) ? (field.value as Identifier[]) : []),
+    () => toIdentifierList(field.value),
     [field.value],
   );
 
@@ -144,10 +141,16 @@ function DatagridInput<
     [field, isSelected, selectedIds],
   );
 
-  const allIds = useMemo<Identifier[]>(
-    () => availableChoices.map((c) => getChoiceValue(c) as Identifier),
+  // A choice whose value is not an id has no row to tick, so it is skipped.
+  const rows = useMemo(
+    () =>
+      availableChoices.flatMap((choice) => {
+        const id = getChoiceValue(choice);
+        return isIdentifier(id) ? [{ choice, id }] : [];
+      }),
     [availableChoices, getChoiceValue],
   );
+  const allIds = useMemo(() => rows.map((row) => row.id), [rows]);
   const allSelected = allIds.length > 0 && allIds.every((id) => isSelected(id));
 
   const toggleAll = useCallback(() => {
@@ -184,8 +187,7 @@ function DatagridInput<
           </TableRow>
         </TableHeader>
         <TableBody>
-          {availableChoices.map((choice) => {
-            const id = getChoiceValue(choice) as Identifier;
+          {rows.map(({ choice, id }) => {
             return (
               <TableRow
                 key={String(id)}

@@ -1,0 +1,41 @@
+{
+  "name": "Assistant",
+  "props": [
+    {
+      "name": "maxToolRounds",
+      "type": "number",
+      "optional": true,
+      "comment": "Follow-up turns after tool calls before the session gives up. Default 5."
+    },
+    {
+      "name": "placement",
+      "type": "\"bottom-right\" | \"bottom-left\" | \"sidebar\"",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "tools",
+      "type": "Record<string, AssistantTool>",
+      "optional": true,
+      "comment": "What the model may call, by name. A new object starts a new conversation,\nso define it outside the component or memoize it."
+    },
+    {
+      "name": "transport",
+      "type": "AssistantTransport",
+      "optional": false,
+      "comment": "Where the conversation goes. A new transport starts a new conversation."
+    },
+    {
+      "name": "triggerLabel",
+      "type": "string",
+      "optional": true,
+      "comment": "Text of the button and the panel's name. Defaults to the translated \"Ask\"."
+    },
+    {
+      "name": "welcomeMessage",
+      "type": "string",
+      "optional": true,
+      "comment": "Shown before the first message. Defaults to the translated welcome."
+    }
+  ]
+}

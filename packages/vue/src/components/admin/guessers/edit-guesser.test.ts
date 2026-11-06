@@ -5,6 +5,7 @@
  */
 
 import { defineResources, fakeDataProvider } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -103,7 +104,9 @@ const labels = (wrapper: ReturnType<typeof mount>) =>
   wrapper.findAll("label").map((label) => label.text());
 
 const inputs = (wrapper: ReturnType<typeof mount>) =>
-  wrapper.findAll("input").map((input) => input.element as HTMLInputElement);
+  wrapper
+    .findAll("input")
+    .map((input) => elementOf(input.element, HTMLInputElement));
 
 async function mountLoaded(props: EditGuesserProps) {
   const mounted = mountGuesser({ enableLog: false, ...props });
@@ -183,7 +186,9 @@ describe("EditGuesser", () => {
         .filter(Boolean),
     ).toEqual(["open", "shipped"]);
     await vi.waitFor(() =>
-      expect((select.element as HTMLSelectElement).value).toBe("shipped"),
+      expect(elementOf(select.element, HTMLSelectElement).value).toBe(
+        "shipped",
+      ),
     );
   });
 

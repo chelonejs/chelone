@@ -15,6 +15,8 @@ export type {
 export { createAssistantSession } from "./assistant/assistant-session";
 export type { EchoAssistantTransportOptions } from "./assistant/echo-transport";
 export { echoAssistantTransport } from "./assistant/echo-transport";
+export type { HttpAssistantTransportOptions } from "./assistant/http-transport";
+export { httpAssistantTransport } from "./assistant/http-transport";
 export type {
   AssistantChunk,
   AssistantMessage,
@@ -33,7 +35,51 @@ export {
   identityQueryOptions,
   permissionsQueryOptions,
 } from "./auth/auth-options";
+export type {
+  PermissionCellState,
+  PermissionMatrixValue,
+} from "./auth/permission-matrix";
+export {
+  getPermissionCell,
+  isPermissionRowGranted,
+  setPermissionRow,
+  togglePermission,
+} from "./auth/permission-matrix";
 export type { AuthProvider, CanAccessParams, UserIdentity } from "./auth/types";
+export type {
+  Attrs as BlockAttrs,
+  BlockDocNode,
+  BlockRegistry,
+  BlockSpec,
+} from "./block-editor/block-document";
+export {
+  createBlockRegistry,
+  describeBlockAttrs,
+  emptyBlockDocument,
+  getBlockDefaultAttrs,
+  isBlockDoc,
+  isEmptyBlockDocument,
+  matchBlocks,
+  toEmbedSrc,
+  unknownBlockType,
+  unwrapUnknownBlocks,
+  wrapUnknownBlocks,
+} from "./block-editor/block-document";
+export type {
+  ChartAggregateOptions,
+  ChartAggregatePoint,
+  DataBlockName,
+  DataBlockSpec,
+} from "./block-editor/data-blocks";
+export {
+  aggregateChartData,
+  chartBlockSpec,
+  dataBlockNames,
+  formatDataBlockValue,
+  pickDataBlockFields,
+  recordListBlockSpec,
+  referenceRecordBlockSpec,
+} from "./block-editor/data-blocks";
 export type {
   CartesianRow,
   DonutSlice,
@@ -107,6 +153,7 @@ export {
   defaultDataTableStoreKey,
   getDataTableColumnId,
   moveColumn,
+  moveColumnTo,
   toggleHiddenColumn,
 } from "./controller/data-table-columns";
 export {
@@ -114,10 +161,33 @@ export {
   toggleFilterValue,
 } from "./controller/filter-toggle";
 export type {
+  InPlaceEditorEvent,
+  InPlaceEditorState,
+  InPlaceSave,
+} from "./controller/in-place-editor";
+export {
+  nextInPlaceEditorState,
+  planInPlaceSave,
+} from "./controller/in-place-editor";
+export type {
   InfiniteListController,
   InfiniteListControllerState,
 } from "./controller/infinite-list-controller";
 export { createInfiniteListController } from "./controller/infinite-list-controller";
+export type {
+  Inspector,
+  InspectorPosition,
+  InspectorSelection,
+  InspectorState,
+  InspectorViewport,
+} from "./controller/inspector";
+export {
+  clampInspectorPosition,
+  configurableInputColumns,
+  createInspector,
+  defaultConfigurableInputsStoreKey,
+  inspectorPositionKey,
+} from "./controller/inspector";
 export type {
   JobActionOptions,
   JobActions,
@@ -208,6 +278,11 @@ export {
   createShowController,
 } from "./controller/record-controllers";
 export type {
+  DiffStatus,
+  RecordDiffRow,
+} from "./controller/record-diff";
+export { diffRecords, formatDiffValue } from "./controller/record-diff";
+export type {
   RecordTimelineEntry,
   ToTimelineEntriesOptions,
 } from "./controller/record-timeline";
@@ -221,10 +296,12 @@ export type {
   AllowedTransitions,
   ApprovalOptions,
   ApprovalState,
+  RejectionOptions,
   TransitionOptions,
 } from "./controller/record-workflow";
 export {
   buildApprovalUpdate,
+  buildRejectionUpdate,
   getAllowedTransitions,
   getApprovalState,
 } from "./controller/record-workflow";
@@ -286,6 +363,12 @@ export {
   updateRecordsInCache,
 } from "./data/cache-ops";
 export { combineDataProviders } from "./data/combine-data-providers";
+export type {
+  DataProviderLog,
+  DataProviderLogEntry,
+  DataProviderLogOptions,
+} from "./data/data-provider-log";
+export { createDataProviderLog } from "./data/data-provider-log";
 export { ValidationError } from "./data/errors";
 export { fakeDataProvider } from "./data/fake-provider";
 export type {
@@ -392,6 +475,7 @@ export type {
   ItemDefaultsOf,
 } from "./form/array-binding";
 export { createArrayBinding } from "./form/array-binding";
+export { toIdentifierList } from "./form/choice-ids";
 export type {
   ChoicesController,
   ChoicesControllerContext,
@@ -532,6 +616,7 @@ export {
   fromJsonText,
   toJsonText,
 } from "./form/json-text";
+export { setFormValues } from "./form/set-form-values";
 export type { SourceScope } from "./form/source";
 export {
   composeSource,
@@ -599,6 +684,11 @@ export {
   geocodeQueryOptions,
   reverseGeocodeQueryOptions,
 } from "./geo/geocoding";
+export type {
+  Feature,
+  FeatureCollection,
+  Geometry,
+} from "./geo/geojson";
 export {
   isGeoArea,
   isGeoBBox,
@@ -717,6 +807,7 @@ export {
   createTranslatableController,
   getRecordForLocale,
 } from "./i18n/translatable";
+export { deepEqual } from "./json/deep-equal";
 export { stripJsonComments } from "./json/strip-json-comments";
 export { noop } from "./noop";
 export { errorMessageOf } from "./notification/error-message";
@@ -871,6 +962,7 @@ export type {
 } from "./resource/register";
 export type {
   RecordOf,
+  RecordResources,
   ResourceConfig,
   ResourceMap,
 } from "./resource/registry";
@@ -898,6 +990,7 @@ export type {
   SourceKey,
   SourcePath,
   SourceProp,
+  SourceTransformValue,
   SourceValue,
 } from "./resource/source-path";
 export type {
@@ -916,6 +1009,47 @@ export {
   richTextStarterKitOptions,
   richTextToolbarItems,
 } from "./rich-text/rich-text";
+export type {
+  RichTextColor,
+  RichTextColorPalette,
+  RichTextExtraToolbarItem,
+  RichTextExtraToolbarItemId,
+  RichTextImageAction,
+  RichTextImageActionId,
+  RichTextImageRules,
+  RichTextUpload,
+} from "./rich-text/rich-text-extras";
+export {
+  checkRichTextImageFile,
+  clampRichTextImageWidth,
+  defaultRichTextImageRules,
+  normalizeRichTextUpload,
+  richTextCodeBlockOptions,
+  richTextColors,
+  richTextExtraToolbarItems,
+  richTextImageActions,
+  richTextImageFileName,
+  richTextStyledSanitizeOptions,
+  sanitizeRichTextStyle,
+} from "./rich-text/rich-text-extras";
+export {
+  copyRichTextImage,
+  downloadRichTextImage,
+  isRichTextImageConfigSource,
+  prepareRichTextImages,
+  type RichTextImageConfig,
+  type RichTextImageError,
+  type RichTextImageInput,
+  type RichTextImageOptions,
+  type RichTextStoredImage,
+  type RichTextUploadResult,
+  resolveRichTextImageConfig,
+  richTextImageAttributes,
+  richTextImageUploadState,
+  sanitizeRichTextImageElement,
+  setRichTextImageUploading,
+  storeRichTextImageFile,
+} from "./rich-text/rich-text-image";
 export type {
   CheloneLocation,
   LocationState,

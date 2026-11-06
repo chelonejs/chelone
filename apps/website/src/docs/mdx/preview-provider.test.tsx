@@ -19,6 +19,7 @@
  *
  * Plain DOM assertions (no jest-dom) so the website needs no extra matcher dep.
  */
+import { elementOf } from "@chelone/test-utils";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
@@ -151,7 +152,10 @@ describe("PreviewProvider — live admin previews render against the fixture pro
       </PreviewProvider>,
     );
     // The fetched record hydrates the title input.
-    const input = (await screen.findByLabelText(/title/i)) as HTMLInputElement;
+    const input = elementOf(
+      await screen.findByLabelText(/title/i),
+      HTMLInputElement,
+    );
     expect(input.value).toBe("On Computable Numbers");
   });
 

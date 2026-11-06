@@ -15,7 +15,7 @@ export interface LatLngFieldProps<TRecord = LooseRecord> {
   /** The record property holding the longitude. */
   lngSource: SourceProp<TRecord>;
   /** Defaults to the ambient record. */
-  record?: Record<string, unknown>;
+  record?: TRecord;
   zoom?: number;
   /** In pixels, or any CSS length. Defaults to 300. */
   height?: number | string;

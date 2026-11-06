@@ -26,7 +26,14 @@
  *   from the record representation (chelone controllers don't carry it).
  */
 
-import type { EditFormControllerOptions, Identifier } from "@chelone/core";
+import {
+  type EditFormControllerOptions,
+  type Identifier,
+  isResourceRecord,
+  type LooseRecord,
+  type RecordResources,
+  setFormValues,
+} from "@chelone/core";
 import { type ReactNode, useCallback, useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { CheloneFormProvider } from "../../../form-context";
@@ -43,15 +50,16 @@ import { useParams } from "../../../router";
 import {
   SaveContextProvider,
   type SaveContextValue,
+  type SaveHandler,
 } from "../../../save-context";
 
 /**
  * `validate` and `onSuccess` run as of the latest render. `schema` and
  * `sanitizeEmptyValues` are read once, at mount: remount with a `key` to change them.
  */
-export interface EditProps
+export interface EditProps<TRecord = LooseRecord>
   extends Pick<
-    EditFormControllerOptions<Record<string, unknown>>,
+    EditFormControllerOptions<TRecord>,
     "validate" | "schema" | "sanitizeEmptyValues" | "onSuccess"
   > {
   /** Override the ambient resource (defaults to the `<Resource>` context). */
@@ -80,7 +88,7 @@ export interface EditProps
  *   </Edit>
  * );
  */
-function Edit(props: EditProps) {
+function Edit<TRecord = LooseRecord>(props: EditProps<TRecord>) {
   const {
     resource: resourceProp,
     id: idProp,
@@ -111,7 +119,7 @@ function Edit(props: EditProps) {
   // latest render's callbacks through the ref.
   const latest = useRef({ validate, onSuccess });
   latest.current = { validate, onSuccess };
-  const controller = useEditForm(resource, {
+  const controller = useEditForm<RecordResources<TRecord>, string>(resource, {
     id,
     validate: (values) => latest.current.validate?.(values),
     schema,
@@ -121,25 +129,23 @@ function Edit(props: EditProps) {
   const { form, submit, record } = controller;
 
   const getRecordRepresentation = useGetRecordRepresentation(resource);
-  const defaultTitle = String(getRecordRepresentation(record) ?? "");
+  const defaultTitle = isResourceRecord(record)
+    ? String(getRecordRepresentation(record) ?? "")
+    : "";
 
   // The compat save bridge: write `data` into the ambient form, then run the
   // composed submit pipeline (validate → persist → reconcile). Errors surface
   // on the form store (fieldState), so this resolves `undefined`.
-  const save = useCallback<NonNullable<SaveContextValue["save"]>>(
+  const save = useCallback<SaveHandler<TRecord>>(
     async (data, options) => {
-      for (const [key, value] of Object.entries(
-        data as Record<string, unknown>,
-      )) {
-        form.setFieldValue(key, value);
-      }
+      setFormValues(form, data);
       await submit(options);
       return undefined;
     },
     [form, submit],
   );
 
-  const editValue = useMemo<EditContextValue>(
+  const editValue = useMemo<EditContextValue<TRecord>>(
     () => ({
       record: controller.record,
       isPending: controller.isPending,
@@ -154,7 +160,7 @@ function Edit(props: EditProps) {
     [controller, resource, defaultTitle, save],
   );
 
-  const saveValue = useMemo<SaveContextValue>(
+  const saveValue = useMemo<SaveContextValue<TRecord>>(
     () => ({
       save,
       saving: controller.isSubmitting,
