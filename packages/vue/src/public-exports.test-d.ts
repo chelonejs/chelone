@@ -68,12 +68,14 @@ import type {
   LoginWithEmailProps,
   MenuLiveItemLinkProps,
   MenuLiveProps,
+  MetricCardProps,
   NotFoundProps,
   NullableBooleanInputProps,
   NumberInputProps,
   OfflineProps,
   PasswordInputProps,
   PhoneInputProps,
+  PivotGridProps,
   PlaceholderProps,
   PresenceBarProps,
   PrevNextButtonsProps,
@@ -174,6 +176,14 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<LoginWithEmailProps>().toHaveProperty("class");
     expectTypeOf<MenuLiveItemLinkProps>().toHaveProperty("resource");
     expectTypeOf<MenuLiveProps>().toHaveProperty("items");
+    expectTypeOf<MetricCardProps>().toHaveProperty("label");
+    expectTypeOf<MetricCardProps["icon"]>().toEqualTypeOf<
+      Component | undefined
+    >();
+    expectTypeOf<MetricCardProps["class"]>().toEqualTypeOf<
+      string | undefined
+    >();
+    expectTypeOf(barrel.MetricCard).toBeObject();
     expectTypeOf<NotFoundProps>().toHaveProperty("title");
     expectTypeOf<NotFoundProps>().toHaveProperty("class");
     expectTypeOf<NullableBooleanInputProps>().toHaveProperty("source");
@@ -182,6 +192,8 @@ describe("@chelone/vue public exports", () => {
     expectTypeOf<PasswordInputProps>().toHaveProperty("source");
     expectTypeOf<PhoneInputProps>().toHaveProperty("source");
     expectTypeOf<PlaceholderProps>().toBeObject();
+    expectTypeOf<PivotGridProps>().toHaveProperty("rowSource");
+    expectTypeOf<PivotGridProps>().toHaveProperty("columnSource");
     expectTypeOf<PrevNextButtonsProps>().toHaveProperty("linkType");
     expectTypeOf<PrevNextButtonsProps>().toHaveProperty("class");
     expectTypeOf<UsePrevNextControllerOptions>().toHaveProperty("record");
@@ -245,6 +257,10 @@ describe("@chelone/vue public exports", () => {
     type Result = ReturnType<typeof barrel.useDataTableColumns>;
     expectTypeOf<Result>().toHaveProperty("toggle");
     expectTypeOf<Result>().toHaveProperty("columns");
+  });
+
+  it("PivotGrid ships beside its props", () => {
+    expectTypeOf(barrel.PivotGrid).not.toBeAny();
   });
 
   it("TreeList ships beside its props", () => {

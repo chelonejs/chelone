@@ -11,10 +11,18 @@ import {
   mapMessages,
   type RoutingProvider,
   rasterTileStyle,
+  type ShapeValue,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
-import type { Geometry, LineString, Point, Polygon } from "geojson";
+import type {
+  Feature,
+  Geometry,
+  LineString,
+  MultiPolygon,
+  Point,
+  Polygon,
+} from "geojson";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, type VNode } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
@@ -123,7 +131,7 @@ const rect = (w: number, s: number, e: number, n: number): Polygon => ({
 /** Mounts `input` as the only field of a form under Admin and the maps provider. */
 async function mountShapeInput(
   input: () => VNode,
-  shape: unknown = null,
+  shape: ShapeValue | null = null,
   config: Omit<MapsConfig, "mapStyle"> = {},
 ) {
   let current: UseFormReturn<Values> | undefined;
@@ -252,7 +260,7 @@ describe("PointInput", () => {
     const { wrapper, draw } = await mountShapeInput(() =>
       h(PointInput, {
         source: "shape",
-        onCommit: (v: unknown) => commits.push(v),
+        onCommit: (v) => commits.push(v),
       }),
     );
 
@@ -405,7 +413,7 @@ describe("MultiPolygonInput", () => {
     square(10),
     square(20),
   ];
-  const multi = (...polygons: Polygon[]) => ({
+  const multi = (...polygons: Polygon[]): MultiPolygon => ({
     type: "MultiPolygon",
     coordinates: polygons.map((p) => p.coordinates),
   });
@@ -651,7 +659,10 @@ describe("FeatureInput", () => {
 });
 
 describe("FeatureCollectionInput", () => {
-  const feature = (name: string, geometry: Geometry) => ({
+  const feature = (
+    name: string,
+    geometry: Geometry,
+  ): Feature<Geometry, { name: string }> => ({
     type: "Feature",
     properties: { name },
     geometry,

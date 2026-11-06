@@ -860,6 +860,10 @@ export {
   type PrevNextButtonsProps,
 } from "./components/admin/list/prev-next-buttons";
 export {
+  RecordTimeline,
+  type RecordTimelineProps,
+} from "./components/admin/list/record-timeline";
+export {
   SavedQueriesList,
   type SavedQueriesListProps,
 } from "./components/admin/list/saved-queries-list";
@@ -985,6 +989,10 @@ export {
   TranslatableFieldsTabs,
   type TranslatableFieldsTabsProps,
 } from "./components/admin/views/translatable-fields-tabs";
+export {
+  MetricCard,
+  type MetricCardProps,
+} from "./components/admin/widgets/metric-card";
 export type { CheloneProviderProps } from "./context";
 export {
   CheloneProvider,
