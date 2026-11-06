@@ -99,11 +99,10 @@ const definition = computed(() =>
 );
 
 function runOnBlock(
+  pos: number,
   act: (tr: Transaction, block: ProseMirrorNode) => void,
   { focus = true }: { focus?: boolean } = {},
 ) {
-  const pos = selected.value?.pos;
-  if (pos === undefined) return;
   const { editor } = props;
   const block = editor.state.doc.nodeAt(pos);
   if (!block) return;
@@ -114,25 +113,22 @@ function runOnBlock(
   if (focus) editor.view.focus();
 }
 
-function duplicate() {
-  const pos = selected.value?.pos ?? 0;
-  runOnBlock((tr, block) => {
+function duplicate(pos: number) {
+  runOnBlock(pos, (tr, block) => {
     const end = pos + block.nodeSize;
     tr.insert(end, block);
     tr.setSelection(NodeSelection.create(tr.doc, end));
   });
 }
 
-function remove() {
-  const pos = selected.value?.pos ?? 0;
-  runOnBlock((tr, block) => {
+function remove(pos: number) {
+  runOnBlock(pos, (tr, block) => {
     tr.delete(pos, pos + block.nodeSize);
   });
 }
 
-function moveUp() {
-  const pos = selected.value?.pos ?? 0;
-  runOnBlock((tr, block) => {
+function moveUp(pos: number) {
+  runOnBlock(pos, (tr, block) => {
     const before = tr.doc.resolve(pos).nodeBefore;
     if (!before) return;
     const start = pos - before.nodeSize;
@@ -141,9 +137,8 @@ function moveUp() {
   });
 }
 
-function moveDown() {
-  const pos = selected.value?.pos ?? 0;
-  runOnBlock((tr, block) => {
+function moveDown(pos: number) {
+  runOnBlock(pos, (tr, block) => {
     const end = pos + block.nodeSize;
     const after = tr.doc.resolve(end).nodeAfter;
     if (!after) return;
@@ -152,15 +147,19 @@ function moveDown() {
   });
 }
 
-function patch(attrs: Partial<BlockAttrs>) {
-  const pos = selected.value?.pos ?? 0;
-  runOnBlock(
-    (tr, block) => {
-      tr.setNodeMarkup(pos, undefined, { ...block.attrs, ...attrs });
-    },
-    { focus: false },
-  );
-}
+// Bound to the block at `pos`, so a config that patches late (a file that
+// finishes reading) still writes to the block it was opened for.
+const patchAt =
+  (pos: number) =>
+  (attrs: Partial<BlockAttrs>) =>
+    runOnBlock(
+      pos,
+      (tr, block) => {
+        tr.setNodeMarkup(pos, undefined, { ...block.attrs, ...attrs });
+      },
+      { focus: false },
+    );
+const patch = computed(() => patchAt(selected.value?.pos ?? 0));
 
 const configOpen = computed(
   () => selected.value !== null && configFor.value === selected.value.name,
@@ -193,7 +192,7 @@ const actions = computed(() => {
         _: "Duplicate",
       }),
       icon: CopyIcon,
-      run: duplicate,
+      run: () => duplicate(current.pos),
     },
     {
       id: "move-up",
@@ -202,7 +201,7 @@ const actions = computed(() => {
       }),
       icon: ArrowUpIcon,
       disabled: current.index === 0,
-      run: moveUp,
+      run: () => moveUp(current.pos),
     },
     {
       id: "move-down",
@@ -211,7 +210,7 @@ const actions = computed(() => {
       }),
       icon: ArrowDownIcon,
       disabled: current.index === current.count - 1,
-      run: moveDown,
+      run: () => moveDown(current.pos),
     },
     {
       id: "delete",
@@ -219,7 +218,7 @@ const actions = computed(() => {
         _: "Delete",
       }),
       icon: Trash2Icon,
-      run: remove,
+      run: () => remove(current.pos),
     },
   ];
 });

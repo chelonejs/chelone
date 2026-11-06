@@ -327,6 +327,36 @@ describe("default blocks", () => {
     );
   });
 
+  it("an image file that finishes reading after another block is selected lands on the block it was chosen for", async () => {
+    const body = doc(
+      block("image", { src: "", alt: "first" }),
+      block("image", { src: "", alt: "second" }),
+      paragraph("End"),
+    );
+    const mounted = await mountBlockEditor({}, { body });
+    mounted.editor().commands.setNodeSelection(0);
+    await flushPromises();
+    buttonOf("Configure").click();
+    await flushPromises();
+    await choose(
+      "Upload image",
+      new File([new Uint8Array([137, 80, 78, 71])], "dot.png", {
+        type: "image/png",
+      }),
+    );
+    // Before the reader finishes, the bar moves to the second image.
+    const second = mounted.editor().state.doc.child(0).nodeSize;
+    mounted.editor().commands.setNodeSelection(second);
+    await flushPromises();
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-block="image"] img')).not.toBeNull(),
+    );
+    await mounted.submit();
+    const [first, other] = written(mounted.onSubmit)?.content ?? [];
+    expect(first?.attrs?.src).toMatch(/^data:image\/png;base64,/);
+    expect(other?.attrs?.src).toBe("");
+  });
+
   it("the URL, alt text and width write their own attribute", async () => {
     const { submit, onSubmit } = await openImageConfig();
     await typeInto("Image URL", "https://example.com/cat.png");

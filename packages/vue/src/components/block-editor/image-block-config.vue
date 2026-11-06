@@ -37,6 +37,8 @@ function upload(event: Event) {
   if (!(input instanceof HTMLInputElement)) return;
   const file = input.files?.[0];
   input.value = "";
+  // Read now: the toolbar hands a new `onChange` to whichever block is selected when the file finishes reading.
+  const { onChange } = props;
   if (!file) return;
   if (!file.type.startsWith("image/") || file.size > maxImageBytes) {
     failed.value = true;
@@ -50,7 +52,7 @@ function upload(event: Event) {
       isSafeImageSrc(result, { allowDataImages: true })
     ) {
       failed.value = false;
-      props.onChange({ src: result });
+      onChange({ src: result });
     } else failed.value = true;
   };
   reader.onerror = () => {
