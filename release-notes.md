@@ -7,9 +7,9 @@
 ## [0.7.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.6.0...@chelone/core@0.7.0) (2026-11-06)
 
 
-###   BREAKING CHANGES
+### Â  BREAKING CHANGES
 
-* **core:** `createFieldBinding`'s `defaultValue` and `parse` are typed by the value at `source`, `FieldBinding.update` takes the binding's own option types, and `FieldBinding.store` reads the binding's record. `CheloneFieldStore` and `FieldBindingUpdateOptions` default to the erased form, so an adapter's `FieldBinding<unknown>` is unchanged.
+* **core:** `createFieldBinding`'s `defaultValue` and `parse` are typed by the value at `source`, `FieldBinding.update` takes the binding's own option types, and `FieldBinding.store` reads the binding's record. `CheloneFieldStore` and `FieldBindingUpdateOptions` default to the erased form, so an adapter's `FieldBinding` of `unknown` is unchanged.
 * **core:** removed Geo* type aliases, see the pull request body.
 * **core:** GeoJSON types come from @types/geojson, and a feature's properties are JSON
 * **core:** location state is a typed LocationState, read through toLocationState
@@ -153,7 +153,7 @@
 ## [0.7.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.6.0...@chelone/react@0.7.0) (2026-11-06)
 
 
-###   BREAKING CHANGES
+### Â  BREAKING CHANGES
 
 * **core:** removed Geo* type aliases, see the pull request body.
 * **core:** GeoJSON types come from @types/geojson, and a feature's properties are JSON
@@ -199,7 +199,7 @@
 * **core,react:** save's call-time options reach the composed form submit ([217d2c7](https://github.com/chelonejs/chelone/commit/217d2c7afc3d6f455d3d1552f6cccd9a647f50de))
 * **core:** keep a stored URL string as a file entry ([6110dd9](https://github.com/chelonejs/chelone/commit/6110dd9df1b229282beda49110aa7f55d71a8cc0))
 * **core:** retry a failed assistant turn without repeating the user message ([37231d4](https://github.com/chelonejs/chelone/commit/37231d43d2ea812561ec88c995bc8a87b816e6d1))
-* **react,vue:** &lt;CanAccess&gt; takes a record with its fields ([3d61916](https://github.com/chelonejs/chelone/commit/3d619161d8b00b8636498270fbf0316e7394f064))
+* **react,vue:** `CanAccess` takes a record with its fields ([3d61916](https://github.com/chelonejs/chelone/commit/3d619161d8b00b8636498270fbf0316e7394f064))
 * **react,vue:** gate FileField hrefs through isSafeFileUrl ([a0c8ff5](https://github.com/chelonejs/chelone/commit/a0c8ff525cc6045442eb67cea33812abefceba1e))
 * **react,vue:** keep a literal SelectAllButton label out of the fallback ([8cd1c13](https://github.com/chelonejs/chelone/commit/8cd1c130c04a9f3d5edff3f23ab059d441d76a7e))
 * **react,vue:** keep a missing FileField/ImageField src a miss ([e3ce201](https://github.com/chelonejs/chelone/commit/e3ce20195927aa1e5fee81fda68b3cb9145deec2))
@@ -301,7 +301,7 @@
 * **react,vue:** read a first element with a fallback, not an assertion ([68fb3c4](https://github.com/chelonejs/chelone/commit/68fb3c434fab03f2af0ab896ebcc0356af9ab222))
 * **react,vue:** read FileField and ImageField paths without casts ([0f45883](https://github.com/chelonejs/chelone/commit/0f45883d348c2df3d7d981a6b6e93115aa898d19))
 * **react,vue:** read sibling-key values with a type check, not a cast ([90e9a9c](https://github.com/chelonejs/chelone/commit/90e9a9ca7b91405ff92fbb403f5a2eb6056ee88d))
-* **react,vue:** read the list filter without a cast to Record&lt;string, unknown&gt; ([e3e69b8](https://github.com/chelonejs/chelone/commit/e3e69b84805eee287fb2f78b03a84894e2606d3e))
+* **react,vue:** read the list filter without a cast to a string-keyed Record ([e3e69b8](https://github.com/chelonejs/chelone/commit/e3e69b84805eee287fb2f78b03a84894e2606d3e))
 * **react,vue:** realtime hooks read reconnect and record ids without casts ([0bce3a2](https://github.com/chelonejs/chelone/commit/0bce3a2d7d74634f23478a049d3951a809f9de77))
 * **react,vue:** redirect and link callbacks receive the record they act on ([7172436](https://github.com/chelonejs/chelone/commit/7172436d4389bf5b5b286bd14ced1e36e843b52e))
 * **react,vue:** reference fields read their key and records without casts ([63b5a57](https://github.com/chelonejs/chelone/commit/63b5a576b362bfa894b5d8ec46b3221d3cef09c3))
@@ -446,7 +446,7 @@
 ## [0.7.0](https://github.com/chelonejs/chelone/compare/@chelone/vue@0.6.0...@chelone/vue@0.7.0) (2026-11-06)
 
 
-###   BREAKING CHANGES
+### Â  BREAKING CHANGES
 
 * **core:** removed Geo* type aliases, see the pull request body.
 * **vue:** useListContext takes a record type, as React's does
@@ -491,7 +491,7 @@
 * **core,react,vue:** format is told about the holes a field can hold ([6ac440a](https://github.com/chelonejs/chelone/commit/6ac440af2c0582b8d39e699fa9f2f55f9b9f8da7))
 * **core,react,vue:** keep the webhook seed for a null default and a stored amount without a currency ([bfefe1b](https://github.com/chelonejs/chelone/commit/bfefe1bca01ee65eaf8be3909b4b2a3ab4627bc8))
 * **core:** keep a stored URL string as a file entry ([6110dd9](https://github.com/chelonejs/chelone/commit/6110dd9df1b229282beda49110aa7f55d71a8cc0))
-* **react,vue:** &lt;CanAccess&gt; takes a record with its fields ([3d61916](https://github.com/chelonejs/chelone/commit/3d619161d8b00b8636498270fbf0316e7394f064))
+* **react,vue:** `CanAccess` takes a record with its fields ([3d61916](https://github.com/chelonejs/chelone/commit/3d619161d8b00b8636498270fbf0316e7394f064))
 * **react,vue:** gate FileField hrefs through isSafeFileUrl ([a0c8ff5](https://github.com/chelonejs/chelone/commit/a0c8ff525cc6045442eb67cea33812abefceba1e))
 * **react,vue:** keep a literal SelectAllButton label out of the fallback ([8cd1c13](https://github.com/chelonejs/chelone/commit/8cd1c130c04a9f3d5edff3f23ab059d441d76a7e))
 * **react,vue:** keep a missing FileField/ImageField src a miss ([e3ce201](https://github.com/chelonejs/chelone/commit/e3ce20195927aa1e5fee81fda68b3cb9145deec2))
@@ -580,7 +580,7 @@
 * **react,vue:** read a first element with a fallback, not an assertion ([68fb3c4](https://github.com/chelonejs/chelone/commit/68fb3c434fab03f2af0ab896ebcc0356af9ab222))
 * **react,vue:** read FileField and ImageField paths without casts ([0f45883](https://github.com/chelonejs/chelone/commit/0f45883d348c2df3d7d981a6b6e93115aa898d19))
 * **react,vue:** read sibling-key values with a type check, not a cast ([90e9a9c](https://github.com/chelonejs/chelone/commit/90e9a9ca7b91405ff92fbb403f5a2eb6056ee88d))
-* **react,vue:** read the list filter without a cast to Record&lt;string, unknown&gt; ([e3e69b8](https://github.com/chelonejs/chelone/commit/e3e69b84805eee287fb2f78b03a84894e2606d3e))
+* **react,vue:** read the list filter without a cast to a string-keyed Record ([e3e69b8](https://github.com/chelonejs/chelone/commit/e3e69b84805eee287fb2f78b03a84894e2606d3e))
 * **react,vue:** realtime hooks read reconnect and record ids without casts ([0bce3a2](https://github.com/chelonejs/chelone/commit/0bce3a2d7d74634f23478a049d3951a809f9de77))
 * **react,vue:** redirect and link callbacks receive the record they act on ([7172436](https://github.com/chelonejs/chelone/commit/7172436d4389bf5b5b286bd14ced1e36e843b52e))
 * **react,vue:** reference fields read their key and records without casts ([63b5a57](https://github.com/chelonejs/chelone/commit/63b5a576b362bfa894b5d8ec46b3221d3cef09c3))
