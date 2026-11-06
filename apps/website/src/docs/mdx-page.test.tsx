@@ -130,6 +130,36 @@ it("keeps exactly one hand-placed preview on page-components/create", async () =
   expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(1);
 });
 
+// The inspector pages are hand-written MDX, so a bad JSX escape in their prose
+// would fail the build rather than a props lookup. Rendering them catches it
+// here, and the install block proves each `registry` frontmatter names a real
+// registry item.
+it.each([
+  ["viewing/fields-selector", "FieldsSelector"],
+  ["ui-layout/inspector", "Inspector"],
+  ["editing/configurable-inputs", "ConfigurableInputs"],
+])(
+  "renders the %s reference page with its install block and props table",
+  async (slug, title) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: title }),
+    ).toBeTruthy();
+    expect(screen.getByText("Installation")).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Props" }),
+    ).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+  },
+);
+
 // The hook pages are hand-written MDX, so a bad JSX escape in their prose would
 // fail the build rather than a props lookup. Rendering them catches it here.
 it.each([
