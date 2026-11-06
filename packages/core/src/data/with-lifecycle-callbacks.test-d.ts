@@ -13,9 +13,10 @@ const resources = defineResources({
   comments: {},
 });
 
-describe("withLifecycleCallbacks inference", () => {
-  const dp = {} as DataProvider<typeof resources>;
+/** A provider of this registry, with no runtime behind it: a type test only calls it. */
+declare const dp: DataProvider<typeof resources>;
 
+describe("withLifecycleCallbacks inference", () => {
   it("afterGetOne for a named resource receives that resource's record type, and an unknown resource name is rejected", () => {
     withLifecycleCallbacks(dp, [
       {
