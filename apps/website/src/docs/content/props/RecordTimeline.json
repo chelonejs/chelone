@@ -1,0 +1,53 @@
+{
+  "name": "RecordTimeline",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered with no records, in place of the translated \"No activity yet\"."
+    },
+    {
+      "name": "icons",
+      "type": "Record<string, ComponentType<{ className?: string }>>",
+      "optional": true,
+      "comment": "Icons by the value of `iconSource`. An entry with no match shows a clock."
+    },
+    {
+      "name": "iconSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field whose value picks an entry of `icons`."
+    },
+    {
+      "name": "loading",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Rendered while the list is pending, in place of `SimpleListLoading`."
+    },
+    {
+      "name": "messageSource",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The field printed as the entry's text; a dotted path reads a nested value."
+    },
+    {
+      "name": "timestampSource",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The field holding the entry's date. An invalid or missing date leaves the time out."
+    },
+    {
+      "name": "userSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field holding who did it. Without it, or with no value, the entry shows no user."
+    }
+  ]
+}
