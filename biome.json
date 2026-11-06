@@ -8,6 +8,7 @@
   "files": {
     "includes": ["**/*.ts", "**/*.tsx", "**/*.json", "**/*.jsonc", "**/*.vue"]
   },
+  "plugins": ["./biome-rules/no-tautological-expect.grit"],
   "formatter": {
     "enabled": true,
     "indentStyle": "space"

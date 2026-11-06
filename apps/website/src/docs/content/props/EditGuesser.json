@@ -33,7 +33,7 @@
     },
     {
       "name": "onSuccess",
-      "type": "(record: TRecord) => void | Promise<void>",
+      "type": "(record: LooseRecord) => void | Promise<void>",
       "optional": true,
       "comment": "Runs after a successful save with the SERVER record, post-reconciliation."
     },
@@ -51,7 +51,7 @@
     },
     {
       "name": "schema",
-      "type": "StandardSchemaV1<Partial<Record<string, unknown>>, unknown>",
+      "type": "StandardSchemaV1<Partial<LooseRecord>, unknown>",
       "optional": true,
       "comment": "Resource schema (zod or any Standard Schema) — wired as the default form\nvalidator by the submit pipeline (T2)."
     },
@@ -63,7 +63,7 @@
     },
     {
       "name": "validate",
-      "type": "FormLevelValidate<Partial<Record<string, unknown>>>",
+      "type": "FormLevelValidate<Partial<LooseRecord>>",
       "optional": true,
       "comment": "Form-level validate fn (ra contract) — consumed by the submit pipeline (T2)."
     }

@@ -1,14 +1,17 @@
 <script lang="ts">
-import type { CreateFormControllerOptions } from "@chelone/core";
+import type {
+  CreateFormControllerOptions,
+  LooseRecord,
+} from "@chelone/core";
 
 /** Props for {@link Create}. */
-export interface CreateProps
+export interface CreateProps<TRecord = LooseRecord>
   extends Pick<
-    CreateFormControllerOptions<Record<string, unknown>>,
+    CreateFormControllerOptions<TRecord>,
     "validate" | "schema" | "sanitizeEmptyValues" | "onSuccess"
   > {
   resource?: string;
-  record?: Record<string, unknown>;
+  record?: Partial<TRecord>;
   title?: string;
   /**
    * Redirect to the list on a successful save (the default). Vue coerces an
@@ -20,7 +23,7 @@ export interface CreateProps
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord = LooseRecord">
 /**
  * `<Create>` — a create page, the Vue analog of `@chelone/react`'s
  * `views/create.tsx`. Composes `useCreateController` (Task 5 — owns the create
@@ -31,7 +34,11 @@ export interface CreateProps
  * `<SaveButton>` child work directly.
  */
 
-import { type FieldErrors, getRecordFromLocation } from "@chelone/core";
+import {
+  type FieldErrors,
+  getRecordFromLocation,
+  type RecordResources,
+} from "@chelone/core";
 import { computed } from "vue";
 import { useCreateController } from "../../../controllers/use-create-controller";
 import { useForm } from "../../../form/use-form";
@@ -45,7 +52,7 @@ import {
 } from "../../../resource-context";
 
 const props = withDefaults(
-  defineProps<CreateProps>(),
+  defineProps<CreateProps<TRecord>>(),
   { redirectOnSave: true },
 );
 
@@ -64,9 +71,13 @@ const adapter = useRouterAdapterOptional();
 const recordFromLocation = adapter
   ? getRecordFromLocation(adapter.useLocation().value)
   : null;
-const seed = { ...props.record, ...recordFromLocation };
+// type-escape: the location's `?source=` JSON is untyped, and the form seeds from it as it does from `record`
+const seed = { ...props.record, ...recordFromLocation } as Partial<TRecord>;
 
-const create = useCreateController({ resource, record: seed });
+const create = useCreateController<RecordResources<TRecord>, string>({
+  resource,
+  record: seed,
+});
 const redirect = useRedirectOptional();
 const translate = useTranslate();
 const getResourceLabel = useGetResourceLabel();
@@ -75,7 +86,7 @@ const defaultTitle = computed(() =>
   translate("ra.page.create", { name: getResourceLabel(resource, 1) }),
 );
 
-const form = useForm<Record<string, unknown>>({
+const form = useForm<Partial<TRecord>>({
   resource,
   record: seed,
   // The form captures its options once: always hand it this wrapper, so a
