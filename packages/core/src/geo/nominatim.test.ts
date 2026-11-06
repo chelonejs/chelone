@@ -138,9 +138,10 @@ describe("createNominatimProvider search", () => {
 
 describe("createNominatimProvider", () => {
   it("throws a TypeError without an endpoint and exports no ready-made provider", () => {
-    expect(() => createNominatimProvider({} as { endpoint: string })).toThrow(
-      TypeError,
-    );
+    expect(() => {
+      // @ts-expect-error the options carry no endpoint, which the type requires
+      createNominatimProvider({});
+    }).toThrow(TypeError);
     expect(() => createNominatimProvider({ endpoint: "" })).toThrow(/endpoint/);
     expect(Object.keys(nominatim)).toEqual(["createNominatimProvider"]);
   });
