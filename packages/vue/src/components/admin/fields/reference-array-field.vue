@@ -1,7 +1,6 @@
 <script lang="ts">
 import type {
   FilterPayload,
-  Identifier,
   LooseRecord,
   SortPayload,
   SourceProp,
@@ -37,7 +36,7 @@ export interface ReferenceArrayFieldProps {
  * `provideListContext` + `provideResourceContext`.
  */
 
-import { isIdentifierArray } from "@chelone/core";
+import { identifiersOf } from "@chelone/core";
 import { computed } from "vue";
 import { useGetManyAggregate } from "../../../data/queries";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -49,10 +48,9 @@ const props = defineProps<ReferenceArrayFieldProps>();
 
 const value = useFieldValue({ source: props.source, record: props.record });
 
-// The FK array read: only an array of ids is sent to the provider.
-const ids = computed<Identifier[]>(() =>
-  isIdentifierArray(value.value) ? value.value : [],
-);
+// The FK array read. A partially valid array (a nullable int[] reads as
+// `[1, null, 2]`) keeps the ids it has, as it did before the guard.
+const ids = computed(() => identifiersOf(value.value));
 
 const query = useGetManyAggregate(
   props.reference,

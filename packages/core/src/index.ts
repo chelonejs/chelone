@@ -838,7 +838,11 @@ export type {
 export { describeResource } from "./resource/describe-resource";
 export { getAtPath } from "./resource/get-at-path";
 export type { Identifier } from "./resource/identifier";
-export { isIdentifier, isIdentifierArray } from "./resource/identifier";
+export {
+  identifiersOf,
+  isIdentifier,
+  isIdentifierArray,
+} from "./resource/identifier";
 export type { LooseRecord, ResourceRecord } from "./resource/record";
 export { isLooseRecord, isResourceRecord } from "./resource/record";
 export type {

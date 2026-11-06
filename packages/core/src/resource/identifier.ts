@@ -16,3 +16,15 @@ export function isIdentifier(value: unknown): value is Identifier {
 export function isIdentifierArray(value: unknown): value is Identifier[] {
   return Array.isArray(value) && value.every(isIdentifier);
 }
+
+/**
+ * The ids a to-many foreign key holds. An array that is all ids is returned as
+ * it is; one with a member that is not an id keeps its id members, because a
+ * nullable `int[]` reads as nulls between real ids and dropping the whole array
+ * would hide records the record has. Anything that is not an array is no ids.
+ */
+// type-escape: the value a `source` read hands over, which no record type pins
+export function identifiersOf(value: unknown): Identifier[] {
+  if (isIdentifierArray(value)) return value;
+  return Array.isArray(value) ? value.filter(isIdentifier) : [];
+}

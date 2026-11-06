@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isIdentifier, isIdentifierArray } from "./identifier";
+import { identifiersOf, isIdentifier, isIdentifierArray } from "./identifier";
 
 describe("isIdentifier", () => {
   it("accepts a string id and a number id", () => {
@@ -29,5 +29,23 @@ describe("isIdentifierArray", () => {
   it("rejects a value that is not an array", () => {
     expect(isIdentifierArray("a,2")).toBe(false);
     expect(isIdentifierArray(null)).toBe(false);
+  });
+});
+
+describe("identifiersOf", () => {
+  it("returns an array of ids as it is", () => {
+    const ids = [1, "a"];
+    expect(identifiersOf(ids)).toBe(ids);
+  });
+
+  it("keeps the id members of a partially valid array", () => {
+    // A nullable Postgres int[] reads as nulls between its ids.
+    expect(identifiersOf([1, null, 2])).toEqual([1, 2]);
+    expect(identifiersOf([1, { id: 2 }, "a"])).toEqual([1, "a"]);
+  });
+
+  it("returns an empty list for a value that is not an array", () => {
+    expect(identifiersOf("1,2")).toEqual([]);
+    expect(identifiersOf(undefined)).toEqual([]);
   });
 });

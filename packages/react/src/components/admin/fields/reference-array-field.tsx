@@ -1,7 +1,6 @@
 import {
   type FilterPayload,
-  type Identifier,
-  isIdentifierArray,
+  identifiersOf,
   type LooseRecord,
   type SortPayload,
   type SourceProp,
@@ -31,8 +30,6 @@ interface ReferenceArrayFieldProps<
   /** Client-side page size for the resolved list. */
   perPage?: number;
 }
-
-const emptyIds: Identifier[] = [];
 
 /**
  * Displays multiple related records by following an array of foreign keys.
@@ -69,9 +66,10 @@ function ReferenceArrayField<RecordType extends LooseRecord = LooseRecord>(
 ) {
   const { source, reference, record, children, sort, filter, perPage } = props;
 
-  // The FK array read: only an array of ids is sent to the provider.
+  // The FK array read. A partially valid array (a nullable int[] reads as
+  // `[1, null, 2]`) keeps the ids it has, as it did before the guard.
   const value = useFieldValue({ source, record });
-  const ids = isIdentifierArray(value) ? value : emptyIds;
+  const ids = identifiersOf(value);
 
   const { data, isPending, isFetching, error } = useGetManyAggregate(
     reference,
