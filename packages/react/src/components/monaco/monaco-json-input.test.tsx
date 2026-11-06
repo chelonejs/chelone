@@ -10,6 +10,7 @@ import {
   type FieldErrors,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   act,
@@ -27,6 +28,7 @@ import {
   describe,
   expect,
   it,
+  type Mock,
   vi,
 } from "vitest";
 import { CheloneProvider } from "../../context";
@@ -50,25 +52,40 @@ interface DiagnosticsOptions {
   schemas?: { uri: string; fileMatch?: string[]; schema?: unknown }[];
 }
 
-const hoisted = vi.hoisted(() => ({
-  markers: [] as { severity: number; message: string }[],
-  markerListeners: new Set<(uris: { toString(): string }[]) => void>(),
-  blurListeners: new Set<() => void>(),
-  contentListeners: new Set<() => void>(),
-  diagnosticsOptions: {} as Record<string, unknown>,
-  formatRun: vi.fn(),
-  modelUri: "",
-  topLevelJson: false,
-  noJson: false,
-  editorOptions: undefined as Record<string, unknown> | undefined,
-}));
+interface Hoisted {
+  markers: Marker[];
+  markerListeners: Set<(uris: { toString(): string }[]) => void>;
+  blurListeners: Set<() => void>;
+  contentListeners: Set<() => void>;
+  diagnosticsOptions: DiagnosticsOptions;
+  formatRun: Mock<() => void>;
+  modelUri: string;
+  topLevelJson: boolean;
+  noJson: boolean;
+  editorOptions: Record<string, unknown> | undefined;
+}
+
+const hoisted = vi.hoisted(
+  (): Hoisted => ({
+    markers: [],
+    markerListeners: new Set(),
+    blurListeners: new Set(),
+    contentListeners: new Set(),
+    diagnosticsOptions: {},
+    formatRun: vi.fn<() => void>(),
+    modelUri: "",
+    topLevelJson: false,
+    noJson: false,
+    editorOptions: undefined,
+  }),
+);
 
 // One object for every editor, as in Monaco.
 const jsonDefaults = {
-  get diagnosticsOptions(): Record<string, unknown> {
+  get diagnosticsOptions(): DiagnosticsOptions {
     return hoisted.diagnosticsOptions;
   },
-  setDiagnosticsOptions(options: Record<string, unknown>) {
+  setDiagnosticsOptions(options: DiagnosticsOptions) {
     hoisted.diagnosticsOptions = options;
   },
 };
@@ -196,10 +213,15 @@ function setup<TFormData extends Record<string, unknown>>(
   return { submitRef };
 }
 
+function isWrapped(value: unknown): value is { wrapped: unknown } {
+  return typeof value === "object" && value !== null && "wrapped" in value;
+}
+
 async function editor() {
-  const el = (await screen.findByTestId("editor", undefined, {
-    timeout: 5000,
-  })) as HTMLTextAreaElement;
+  const el = elementOf(
+    await screen.findByTestId("editor", undefined, { timeout: 5000 }),
+    HTMLTextAreaElement,
+  );
   // The hook subscribes a render after the stub mounts.
   await waitFor(() => expect(hoisted.contentListeners.size).toBe(1));
   return el;
@@ -324,7 +346,7 @@ describe("<MonacoJsonInput />", () => {
       defaultValues: { meta: { a: 1 } },
     });
     await editor();
-    const options = hoisted.diagnosticsOptions as DiagnosticsOptions;
+    const options = hoisted.diagnosticsOptions;
     const modelUri = "inmemory://monaco-json-input/meta-input.json";
     expect(hoisted.modelUri).toBe(modelUri);
     expect(options.validate).toBe(true);
@@ -332,9 +354,7 @@ describe("<MonacoJsonInput />", () => {
       expect.objectContaining({ fileMatch: [modelUri], schema }),
     ]);
     cleanup();
-    expect((hoisted.diagnosticsOptions as DiagnosticsOptions).schemas).toEqual(
-      [],
-    );
+    expect(hoisted.diagnosticsOptions.schemas).toEqual([]);
   });
 
   it("registers through monaco.json when the legacy languages.json is a stub", async () => {
@@ -346,9 +366,7 @@ describe("<MonacoJsonInput />", () => {
       },
     );
     await editor();
-    expect(
-      (hoisted.diagnosticsOptions as DiagnosticsOptions).schemas,
-    ).toHaveLength(1);
+    expect(hoisted.diagnosticsOptions.schemas).toHaveLength(1);
   });
 
   it("mounts and registers nothing when monaco has no json defaults", async () => {
@@ -373,13 +391,9 @@ describe("<MonacoJsonInput />", () => {
       },
     );
     await editor();
-    expect(
-      (hoisted.diagnosticsOptions as DiagnosticsOptions).schemas,
-    ).toHaveLength(2);
+    expect(hoisted.diagnosticsOptions.schemas).toHaveLength(2);
     cleanup();
-    expect((hoisted.diagnosticsOptions as DiagnosticsOptions).schemas).toEqual([
-      other,
-    ]);
+    expect(hoisted.diagnosticsOptions.schemas).toEqual([other]);
   });
 
   it("registers a schemaUri as a remote schema entry", async () => {
@@ -392,7 +406,7 @@ describe("<MonacoJsonInput />", () => {
       { defaultValues: { meta: {} } },
     );
     await editor();
-    const options = hoisted.diagnosticsOptions as DiagnosticsOptions;
+    const options = hoisted.diagnosticsOptions;
     expect(options.enableSchemaRequest).toBe(true);
     expect(options.schemas).toEqual([
       {
@@ -410,9 +424,7 @@ describe("<MonacoJsonInput />", () => {
       },
     );
     await editor();
-    expect(
-      (hoisted.diagnosticsOptions as DiagnosticsOptions).schemas ?? [],
-    ).toEqual([]);
+    expect(hoisted.diagnosticsOptions.schemas ?? []).toEqual([]);
   });
 
   it("ignores trailing commas when allowComments is set", async () => {
@@ -426,7 +438,7 @@ describe("<MonacoJsonInput />", () => {
       { defaultValues: { meta: {} } },
     );
     await editor();
-    const options = hoisted.diagnosticsOptions as DiagnosticsOptions;
+    const options = hoisted.diagnosticsOptions;
     expect(options.allowComments).toBe(true);
     expect(options.trailingCommas).toBe("ignore");
   });
@@ -615,7 +627,7 @@ describe("<MonacoJsonInput />", () => {
       defaultValues: { meta: {} },
     });
     await editor();
-    const options = hoisted.diagnosticsOptions as DiagnosticsOptions;
+    const options = hoisted.diagnosticsOptions;
     expect(options.allowComments).toBe(true);
     expect(options.trailingCommas).toBe("ignore");
   });
@@ -633,7 +645,7 @@ describe("<MonacoJsonInput />", () => {
     );
     await editor();
     cleanup();
-    const options = hoisted.diagnosticsOptions as DiagnosticsOptions;
+    const options = hoisted.diagnosticsOptions;
     expect(options.allowComments).toBe(false);
     expect(options.trailingCommas).toBeUndefined();
     expect(options.enableSchemaRequest).toBeUndefined();
@@ -649,13 +661,9 @@ describe("<MonacoJsonInput />", () => {
       { defaultValues: { a: {}, b: {} } },
     );
     await waitFor(() =>
-      expect(
-        (hoisted.diagnosticsOptions as DiagnosticsOptions).schemas,
-      ).toHaveLength(2),
+      expect(hoisted.diagnosticsOptions.schemas).toHaveLength(2),
     );
-    expect(
-      (hoisted.diagnosticsOptions as DiagnosticsOptions).enableSchemaRequest,
-    ).toBe(true);
+    expect(hoisted.diagnosticsOptions.enableSchemaRequest).toBe(true);
   });
 
   it("passes format, parse, onChange and onBlur through useInput", async () => {
@@ -666,7 +674,7 @@ describe("<MonacoJsonInput />", () => {
       <MonacoJsonInput
         source="meta"
         parse={(v) => ({ wrapped: v })}
-        format={(v) => (v as { wrapped?: unknown })?.wrapped ?? v}
+        format={(v) => (isWrapped(v) ? v.wrapped : undefined) ?? v}
         onChange={onChange}
         onBlur={onBlur}
       />,
@@ -695,10 +703,13 @@ describe("<MonacoJsonInput />", () => {
 
   it("does not lock string shape from the user's own first edit", async () => {
     const onData = vi.fn();
-    const { submitRef } = setup(<MonacoJsonInput source="meta" schema={{}} />, {
-      defaultValues: {} as { meta?: unknown },
-      onData,
-    });
+    const { submitRef } = setup<{ meta?: unknown }>(
+      <MonacoJsonInput source="meta" schema={{}} />,
+      {
+        defaultValues: {},
+        onData,
+      },
+    );
     const el = await editor();
     type(el, '"abc"');
     type(el, '"abcd"');

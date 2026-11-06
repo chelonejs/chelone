@@ -11,6 +11,7 @@ import {
   defineMessages,
   fakeDataProvider,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
   cleanup,
@@ -217,10 +218,11 @@ describe("<CloneButton>", () => {
 
     fireEvent.click(await screen.findByRole("link", { name: "Clone" }));
 
-    const title = await screen.findByLabelText(/title/i);
-    await waitFor(() =>
-      expect((title as HTMLInputElement).value).toBe("Alpha"),
+    const title = elementOf(
+      await screen.findByLabelText(/title/i),
+      HTMLInputElement,
     );
+    await waitFor(() => expect(title.value).toBe("Alpha"));
 
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
     await waitFor(() => expect(create).toHaveBeenCalled());

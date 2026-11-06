@@ -12,6 +12,7 @@ import {
   mapMessages,
   rasterTileStyle,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { useSelector } from "@tanstack/react-store";
 import {
@@ -108,8 +109,10 @@ async function setup(
   };
 }
 
-const latField = () => screen.getByLabelText("Latitude") as HTMLInputElement;
-const lngField = () => screen.getByLabelText("Longitude") as HTMLInputElement;
+const latField = () =>
+  elementOf(screen.getByLabelText("Latitude"), HTMLInputElement);
+const lngField = () =>
+  elementOf(screen.getByLabelText("Longitude"), HTMLInputElement);
 const touched = (source: string) =>
   screen.getByTestId(`touched-${source}`).textContent;
 
