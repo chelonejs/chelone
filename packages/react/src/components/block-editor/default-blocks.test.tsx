@@ -1,4 +1,4 @@
-import type { BlockDocNode } from "@chelone/core";
+import type { BlockAttrs, BlockDocNode } from "@chelone/core";
 import { defined } from "@chelone/test-utils";
 import {
   act,
@@ -20,7 +20,7 @@ afterEach(() => cleanup());
 
 const block = (
   type: string,
-  attrs: Record<string, unknown>,
+  attrs: BlockAttrs,
   ...content: BlockDocNode[]
 ): BlockDocNode => ({
   type,
