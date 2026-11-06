@@ -7,6 +7,7 @@ import {
   createI18n,
   createNotificationStore,
   fakeDataProvider,
+  isGeoGeometry,
   type JsonObject,
   type MessageCatalog,
   mapMessages,
@@ -14,6 +15,7 @@ import {
   type OverpassProvider,
   OverpassRateLimitError,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { useSelector } from "@tanstack/react-store";
 import {
@@ -114,7 +116,7 @@ function mount(
   maps: { overpass?: OverpassProvider } = { overpass },
 ): Mounted {
   const notifications = createNotificationStore();
-  const state = { value: initial as unknown, dirty: false };
+  const state = { value: initial, dirty: false };
   let setField: (value: unknown) => void = () => {};
   function Host() {
     const form = useForm<{ area: unknown }>({
@@ -290,9 +292,9 @@ describe("OsmFeatureSubtract", () => {
       ["chelone.map.osm.error", "error"],
     ]);
     expect(m.value()).toEqual(field);
-    expect((screen.getByRole("button") as HTMLButtonElement).disabled).toBe(
-      false,
-    );
+    expect(
+      elementOf(screen.getByRole("button"), HTMLButtonElement).disabled,
+    ).toBe(false);
   });
 
   it("disables the button with a spinner while the request runs", async () => {
@@ -303,7 +305,7 @@ describe("OsmFeatureSubtract", () => {
       }),
     );
     mount(<OsmFeatureSubtract source="area" presets={["water"]} />);
-    const button = screen.getByRole("button") as HTMLButtonElement;
+    const button = elementOf(screen.getByRole("button"), HTMLButtonElement);
     expect(screen.queryByRole("status")).toBeNull();
 
     await click();
@@ -393,9 +395,9 @@ describe("OsmFeatureSubtract", () => {
 
     expect(m.value()).toEqual(redrawn);
     expect(m.notifications.getSnapshot()).toEqual([]);
-    expect((screen.getByRole("button") as HTMLButtonElement).disabled).toBe(
-      false,
-    );
+    expect(
+      elementOf(screen.getByRole("button"), HTMLButtonElement).disabled,
+    ).toBe(false);
   });
 
   it("ignores an AbortError", async () => {
@@ -445,7 +447,10 @@ describe("OsmFeatureSubtract", () => {
     );
     await click();
 
-    const written = m.value() as MultiPolygon;
+    const written = m.value();
+    if (!isGeoGeometry(written) || written.type !== "MultiPolygon") {
+      throw new Error("Expected a MultiPolygon result");
+    }
     expect(written.type).toBe("MultiPolygon");
     expect(written.coordinates).toHaveLength(2);
     expect(messages(m.notifications)[0]).toMatchObject({

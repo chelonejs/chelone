@@ -12,6 +12,7 @@ import {
   mapMessages,
   rasterTileStyle,
 } from "@chelone/core";
+import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import { useSelector } from "@tanstack/react-store";
 import {
@@ -118,7 +119,7 @@ const map = () => {
 const click = async (lat: number, lng: number) => {
   await act(async () => map().emit("click", { lngLat: { lat, lng } }));
 };
-const address = () => screen.getByRole("combobox") as HTMLInputElement;
+const address = () => elementOf(screen.getByRole("combobox"), HTMLInputElement);
 const saved = () => JSON.parse(screen.getByTestId("saved").textContent ?? "");
 
 beforeEach(resetFake);
