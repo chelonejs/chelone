@@ -300,11 +300,13 @@ describe("@chelone/core barrel", () => {
       expect(barrel[name]).toBeTypeOf("function");
     }
     expect(() =>
-      barrel.createNominatimProvider({} as { endpoint: string }),
+      // @ts-expect-error no endpoint: the provider must reject it at runtime
+      barrel.createNominatimProvider({}),
     ).toThrow(TypeError);
-    expect(() => barrel.createOsrmProvider({} as { endpoint: string })).toThrow(
-      TypeError,
-    );
+    expect(() =>
+      // @ts-expect-error no endpoint: the provider must reject it at runtime
+      barrel.createOsrmProvider({}),
+    ).toThrow(TypeError);
   });
 
   it("exports the Overpass contract, the tag parser and the presets with no default server", () => {
@@ -321,7 +323,8 @@ describe("@chelone/core barrel", () => {
       expect(barrel[name]).toBeTypeOf("function");
     }
     expect(() =>
-      barrel.createOverpassProvider({} as { endpoint: string }),
+      // @ts-expect-error no endpoint: the provider must reject it at runtime
+      barrel.createOverpassProvider({}),
     ).toThrow(TypeError);
     expect(barrel.OSM_PRESETS.roads.bufferLinesMeters).toBe(15);
     expect(new barrel.OverpassRateLimitError()).toBeInstanceOf(
