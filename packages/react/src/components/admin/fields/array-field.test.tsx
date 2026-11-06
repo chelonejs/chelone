@@ -23,10 +23,10 @@ interface Row {
 }
 
 function TestConsumer() {
-  const { data = [] } = useListContext();
+  const { data = [] } = useListContext<Row>();
   return (
     <ul>
-      {(data as Row[]).map((value) => (
+      {data.map((value) => (
         <li key={value.id} aria-label={value.id}>
           {value.id}
         </li>
