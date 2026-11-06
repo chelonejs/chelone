@@ -6,6 +6,10 @@ description: "Give your AI agent access to the Chelone registry through the shad
 The shadcn MCP server lets your AI agent browse the Chelone registry and add
 components to your project from a prompt.
 
+This page covers React projects. For Vue, follow the
+[Vue installation guide](/docs/getting-started/install#install-for-vue) and keep
+its registry URL.
+
 ## Prerequisites
 
 Follow the [installation guide](/docs/getting-started/install) to set up your
@@ -35,8 +39,9 @@ npx shadcn@latest mcp init --client vscode
 
 ## Add the Chelone registry
 
-Add `@chelone` under `registries` in your project's `components.json`, keeping
-the rest of your shadcn configuration and any existing registries:
+For React projects, add `@chelone` under `registries` in your project's
+`components.json`, keeping the rest of your shadcn configuration and any
+existing registries:
 
 ```json title="components.json"
 {

@@ -28,6 +28,17 @@ it("the MCP page gives clients the Chelone registry and example prompts", () => 
   }
 });
 
+it("the MCP page scopes setup to React and preserves Vue registry configuration", () => {
+  const flat = page.replace(/\s+/g, " ");
+  expect(flat).toContain("This page covers React projects.");
+  expect(flat).toContain(
+    "For Vue, follow the [Vue installation guide](/docs/getting-started/install#install-for-vue) and keep its registry URL.",
+  );
+  expect(flat).toContain(
+    "For React projects, add `@chelone` under `registries`",
+  );
+});
+
 it("getting started lists MCP Server immediately after Installation", () => {
   expect(meta).toMatch(
     /slug: "install", title: "Installation" \},\s*\{ slug: "mcp", title: "MCP Server" \}/,
