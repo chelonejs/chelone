@@ -326,6 +326,42 @@ describe("createAssistantSession", () => {
     expect(again.getSnapshot().error).toBeNull();
   });
 
+  it("retry runs the failed turn again without a second user message", async () => {
+    const { transport, calls } = scripted(
+      async function* () {
+        yield text("part");
+        throw new Error("offline");
+      },
+      [text("back"), done],
+    );
+    const session = createAssistantSession({ transport, tools: {} });
+    await session.send("hi");
+
+    await session.retry();
+
+    expect(calls[1]?.messages).toEqual([{ role: "user", content: "hi" }]);
+    expect(session.getSnapshot()).toEqual({
+      messages: [
+        { role: "user", content: "hi" },
+        { role: "assistant", content: "back" },
+      ],
+      status: "idle",
+      error: null,
+    });
+  });
+
+  it("retry does nothing unless the last turn failed", async () => {
+    const { transport, calls } = scripted([text("ok"), done]);
+    const session = createAssistantSession({ transport, tools: {} });
+
+    await session.retry();
+    expect(calls).toHaveLength(0);
+
+    await session.send("hi");
+    await session.retry();
+    expect(calls).toHaveLength(1);
+  });
+
   it("a transport that rejects sets the error status", async () => {
     const transport: AssistantTransport = {
       send() {
