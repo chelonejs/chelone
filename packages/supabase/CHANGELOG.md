@@ -1,5 +1,35 @@
 # @chelone/supabase
 
+## [0.7.0](https://github.com/chelonejs/chelone/compare/@chelone/supabase@0.6.0...@chelone/supabase@0.7.0) (2026-11-06)
+
+
+### Features
+
+* **supabase:** add supabaseRealtimeTransport over Supabase Realtime broadcast channels ([8a3ce6c](https://github.com/chelonejs/chelone/commit/8a3ce6cc46e2443be0a302d3552e054d16c65a02))
+* **supabase:** add the chelone-supabase gen bin ([3839f63](https://github.com/chelonejs/chelone/commit/3839f63250126ec039fd9c22ae46d1781b3f7a28))
+
+
+### Bug Fixes
+
+* **core,supabase:** let getPermissions resolve undefined so the Supabase provider fits a registered AuthProvider ([038b0a5](https://github.com/chelonejs/chelone/commit/038b0a596037eeca3e99916421507ea983bf9f51))
+* **supabase:** keep the gen bin's peer message and output intact ([8c51f1c](https://github.com/chelonejs/chelone/commit/8c51f1c1b26abdd5a8963d6215c6f753f82ca7fe))
+* **supabase:** wait for a topic's earlier channel to be removed before opening another ([a4b81d9](https://github.com/chelonejs/chelone/commit/a4b81d943a4ba8115c69a269d24039f06e602ae8))
+
+
+### Refactors
+
+* **core,rest,supabase:** use isRecord for the last four object checks ([ae12a1a](https://github.com/chelonejs/chelone/commit/ae12a1a3c7c05b76577fbe626fe596849c193e62))
+* **core,supabase:** getPermissions resolves the app's registered permissions type ([8710cd0](https://github.com/chelonejs/chelone/commit/8710cd094da169fbfd94916632032ba71e780874))
+* **core,supabase:** narrow filter walks with guards instead of casts ([fd2077c](https://github.com/chelonejs/chelone/commit/fd2077cbbb4a66e2a68ebc4c416473056fd3c565))
+* **core,supabase:** one isFilterBranch decides which filter values nest ([e4654d5](https://github.com/chelonejs/chelone/commit/e4654d5e729f702358a5892132f40c1d4b6b5c9d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.7.0
+
 ## [0.6.0](https://github.com/chelonejs/chelone/compare/@chelone/supabase@0.5.0...@chelone/supabase@0.6.0) (2026-11-04)
 
 
