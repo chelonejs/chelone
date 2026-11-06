@@ -9,6 +9,7 @@
  */
 
 import { createI18n, fakeDataProvider } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -250,7 +251,7 @@ describe("ApiKeyField", () => {
     );
     const badges = w.findAll("[data-scope-badge]");
     expect(badges).toHaveLength(2);
-    expect(badges[0]!.text()).toBe("read");
+    expect(defined(badges[0]).text()).toBe("read");
   });
 
   it("does not show a scope that is not a string", () => {

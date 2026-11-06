@@ -7,7 +7,7 @@
 import { fakeDataProvider, rasterTileStyle } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { act, cleanup, render } from "@testing-library/react";
-import type { Geometry } from "geojson";
+import type { Polygon } from "geojson";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../../context";
@@ -52,7 +52,7 @@ function wrapper({ children }: { children: ReactNode }) {
 /** Lets the fake map's microtask `load` fire and React render what follows. */
 const loaded = () => act(async () => {});
 
-const polygon = {
+const polygon: Polygon = {
   type: "Polygon",
   coordinates: [
     [
@@ -289,7 +289,7 @@ describe("GeoJsonLayers", () => {
   it("draws on the surrounding map", async () => {
     render(
       <MapCanvas>
-        <GeoJsonLayers data={polygon as Geometry} />
+        <GeoJsonLayers data={polygon} />
       </MapCanvas>,
       { wrapper },
     );
@@ -304,7 +304,7 @@ describe("GeoJsonLayers", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     try {
       expect(() =>
-        render(<GeoJsonLayers data={polygon as Geometry} />, { wrapper }),
+        render(<GeoJsonLayers data={polygon} />, { wrapper }),
       ).toThrowError(/MapCanvas/);
     } finally {
       error.mockRestore();
