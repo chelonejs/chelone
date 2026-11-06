@@ -23,7 +23,7 @@
  * The ~25 T2 rich-guide slugs (page-components/*, viewing/index, editing/index,
  * the whole app-config section) are intentionally NOT in this table — they are
  * hand-written in T2. This generator owns the
- * field/input/button/layout/feedback/realtime reference only.
+ * field/input/button/layout/feedback/realtime/maps reference only.
  *
  * Idempotent + non-destructive: an existing index.mdx that does NOT carry the
  * generated marker is left untouched (so hand-written T2 pages win). Re-running
@@ -250,7 +250,33 @@ const STUBS = [
   { slug: "comments-thread", section: "realtime", component: "CommentsThread", registry: "comments-thread", title: "CommentsThread", desc: "Lists a record's comments and provides a box to post one through the data provider. `resolvable` adds a button to mark a comment resolved. Refreshes on comment events when the provider supports realtime." },
   { slug: "lock-on-mount", section: "realtime", component: "LockOnMount", registry: "lock-on-mount", title: "LockOnMount", desc: "Acquires a record lock while mounted and releases it on unmount. Shows its children once the lock is held, a loading placeholder while requesting it, or the holder when another identity has it. Needs a realtime data provider with lock support." },
   { slug: "lock-status", section: "realtime", component: "LockStatus", registry: "lock-status", title: "LockStatus", desc: "Shows a badge naming the record's lock holder and updates when the lock is taken or released. Renders nothing for a free record unless `renderFree` is supplied. Needs a realtime data provider with lock support." },
+
+  // ── maps (shape fields, from the @chelone/react/maps entry) ──────────────
+  // Each is `GeoJsonField` under the name of a GeoJSON type, so each page names
+  // its type and says what sits behind the name. No registry item of their own:
+  // they install with `@chelone/maps`, so `importFrom` is their install block.
+  // A backticked name here reads as a prop, so a paint default is stated as a
+  // number with the `shapeStyle` prop that changes it, never as `weight` or
+  // `fillOpacity`, which are `ShapeStyle` keys and not props.
+  { slug: "point-field", section: "maps", component: "PointField", registry: null, title: "PointField", desc: "Shows a GeoJSON `Point` from a record on a map as a circle marker, zoomed to `maxFitZoom`, 18 by default. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
+  { slug: "multi-point-field", section: "maps", component: "MultiPointField", registry: null, title: "MultiPointField", desc: "Shows a GeoJSON `MultiPoint` from a record on a map, one circle per coordinate. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
+  { slug: "line-string-field", section: "maps", component: "LineStringField", registry: null, title: "LineStringField", desc: "Shows a GeoJSON `LineString` from a record on a map as a line 3 pixels wide, which `shapeStyle` restyles. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
+  { slug: "multi-line-string-field", section: "maps", component: "MultiLineStringField", registry: null, title: "MultiLineStringField", desc: "Shows a GeoJSON `MultiLineString` from a record on a map, one line per part. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
+  { slug: "polygon-field", section: "maps", component: "PolygonField", registry: null, title: "PolygonField", desc: "Shows a GeoJSON `Polygon` from a record on a map, filled at 0.2 opacity and outlined 3 pixels wide, both through `shapeStyle`. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
+  { slug: "multi-polygon-field", section: "maps", component: "MultiPolygonField", registry: null, title: "MultiPolygonField", desc: "Shows a GeoJSON `MultiPolygon` from a record on a map, one filled part per polygon. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
+  { slug: "geometry-collection-field", section: "maps", component: "GeometryCollectionField", registry: null, title: "GeometryCollectionField", desc: "Shows a GeoJSON `GeometryCollection` from a record on a map, drawing each geometry by its own type. A collection with no coordinates shows the empty text panel. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
+  { slug: "feature-field", section: "maps", component: "FeatureField", registry: null, title: "FeatureField", desc: "Shows the geometry of a GeoJSON `Feature` from a record on a map. Its `properties` are not rendered. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
+  { slug: "feature-collection-field", section: "maps", component: "FeatureCollectionField", registry: null, title: "FeatureCollectionField", desc: "Shows every geometry of a GeoJSON `FeatureCollection` from a record on a map. A feature with a null geometry is left out. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
 ];
+
+/**
+ * A section whose pages are pieces of one guide: the sentence linking back to
+ * it, under the intro.
+ */
+const SECTION_GUIDE = {
+  realtime: "See the [realtime guide](/docs/app-config/realtime) for provider setup and usage.",
+  maps: "See the [maps guide](/docs/app-config/maps) for the subpaths, the optional packages and `MapsProvider`.",
+};
 
 /**
  * Barrel-only components have no registry item, so the page renders no install
@@ -285,9 +311,8 @@ function page({ component, registry, title, desc, importFrom, section }) {
   if (!registry)
     parts.push("", "## Installation", "", importBlock(component, importFrom));
 
-  if (section === "realtime") {
-    parts.push("", "See the [realtime guide](/docs/app-config/realtime) for provider setup and usage.");
-  }
+  const guide = SECTION_GUIDE[section];
+  if (guide) parts.push("", guide);
 
   parts.push("", "## Props", "");
   parts.push(hasProps ? `<PropsTable name="${component}" />` : PROPLESS_EXPORTS.get(component));
