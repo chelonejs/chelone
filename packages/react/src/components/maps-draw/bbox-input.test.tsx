@@ -3,6 +3,8 @@
  * `__fixtures__` folders; see shape-inputs.test.tsx.
  */
 
+import { isGeoGeometry } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { act, cleanup, fireEvent, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetFake as resetMaps } from "../maps/__fixtures__/fake-maplibre";
@@ -71,14 +73,18 @@ describe("BBoxInput", () => {
     expect(draw().added).toHaveLength(1);
     const added = draw().added[0] ?? [];
     expect(added).toHaveLength(1);
-    const ring = (added[0]?.geometry.coordinates as number[][][])[0] ?? [];
-    const xs = ring.map((c) => c[0]);
-    const ys = ring.map((c) => c[1]);
+    const geometry = defined(added[0]).geometry;
+    if (!isGeoGeometry(geometry) || geometry.type !== "Polygon") {
+      throw new Error("Expected a rectangle Polygon");
+    }
+    const ring = defined(geometry.coordinates[0]);
+    const xs = ring.map((c) => defined(c[0]));
+    const ys = ring.map((c) => defined(c[1]));
     expect([
-      Math.min(...(xs as number[])),
-      Math.min(...(ys as number[])),
-      Math.max(...(xs as number[])),
-      Math.max(...(ys as number[])),
+      Math.min(...xs),
+      Math.min(...ys),
+      Math.max(...xs),
+      Math.max(...ys),
     ]).toEqual([-2, 10, 6, 14]);
   });
 
@@ -113,8 +119,12 @@ describe("BBoxInput", () => {
     expect(storedValue()).toEqual([-2, 0, 6, 4]);
     const shown = draw().getSnapshot();
     expect(shown).toHaveLength(1);
-    const ring = (shown[0]?.geometry.coordinates as number[][][])[0] ?? [];
-    const xs = ring.map((c) => c[0] as number);
+    const geometry = defined(shown[0]).geometry;
+    if (!isGeoGeometry(geometry) || geometry.type !== "Polygon") {
+      throw new Error("Expected a rectangle Polygon");
+    }
+    const ring = defined(geometry.coordinates[0]);
+    const xs = ring.map((c) => defined(c[0]));
     expect([Math.min(...xs), Math.max(...xs)]).toEqual([-2, 6]);
   });
 });
