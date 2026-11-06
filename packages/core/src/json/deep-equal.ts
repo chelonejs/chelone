@@ -8,11 +8,11 @@ import { isPlainObject } from "../guards";
  * plain object - a Date, a Map, a class instance - is equal to itself only.
  */
 export function deepEqual<T>(a: T, b: T): boolean {
-  return a === b || sameValue(a, b);
+  return a === b || sameContent(a, b);
 }
 
 // type-escape: the walk holds values whose type the caller's generic has erased
-function sameValue(a: unknown, b: unknown): boolean {
+function sameContent(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (Array.isArray(a)) return Array.isArray(b) && sameList(a, b);
   if (!isPlainObject(a) || !isPlainObject(b)) return false;
@@ -20,13 +20,14 @@ function sameValue(a: unknown, b: unknown): boolean {
   const others = Object.keys(b).filter((key) => b[key] !== undefined);
   return (
     keys.length === others.length &&
-    keys.every((key) => sameValue(a[key], b[key]))
+    keys.every((key) => sameContent(a[key], b[key]))
   );
 }
 
 // type-escape: an array's members are values the caller's generic has erased
 function sameList(a: readonly unknown[], b: readonly unknown[]): boolean {
   return (
-    a.length === b.length && a.every((item, index) => sameValue(item, b[index]))
+    a.length === b.length &&
+    a.every((item, index) => sameContent(item, b[index]))
   );
 }
