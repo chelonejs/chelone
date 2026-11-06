@@ -14,7 +14,6 @@ import {
   type DataProvider,
   defineMessages,
   fakeDataProvider,
-  type LooseRecord,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import {

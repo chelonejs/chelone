@@ -637,6 +637,10 @@ export {
   type ImageInputProps,
 } from "./components/admin/inputs/image-input";
 export {
+  InPlaceEditor,
+  type InPlaceEditorProps,
+} from "./components/admin/inputs/in-place-editor";
+export {
   LoadingInput,
   type LoadingInputProps,
 } from "./components/admin/inputs/loading-input";
@@ -698,10 +702,6 @@ export {
   TextArrayInput,
   type TextArrayInputProps,
 } from "./components/admin/inputs/text-array-input";
-export {
-  InPlaceEditor,
-  type InPlaceEditorProps,
-} from "./components/admin/inputs/in-place-editor";
 export {
   TextInput,
   type TextInputProps,
@@ -1105,6 +1105,7 @@ export {
   CheloneFormProvider,
   SourceContextProvider,
   useCheloneFormContext,
+  useResourceSourceScope,
   useSourceContext,
   useWrappedSource,
 } from "./form-context";

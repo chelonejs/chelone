@@ -16,27 +16,26 @@ import {
   nextInPlaceEditorState,
   planInPlaceSave,
   type SourceProp,
-  type SourceScope,
 } from "@chelone/core";
 import {
   type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
   type RefObject,
-  useMemo,
   useReducer,
   useRef,
   useState,
 } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useUpdate } from "../../../hooks";
 import { FormGroupsProvider } from "../../../form";
 import {
   CheloneFormProvider,
   SourceContextProvider,
+  useResourceSourceScope,
 } from "../../../form-context";
 import { useForm } from "../../../form-hooks";
+import { useUpdate } from "../../../hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useNotify } from "../../../notification-hooks";
 import {
@@ -64,6 +63,7 @@ interface InPlaceEditorProps<TRecord extends LooseRecord = LooseRecord> {
   /** Default is `useUpdate`'s own. */
   mutationMode?: MutationMode;
   /** Sent with the update. */
+  // type-escape: an app's opaque bag, which only its data provider reads
   meta?: Record<string, unknown>;
   /** Cancel on a focus move out of the editor; when false, save instead. Default `true`. */
   cancelOnBlur?: boolean;
@@ -74,6 +74,7 @@ interface InPlaceEditorProps<TRecord extends LooseRecord = LooseRecord> {
   /** Runs with the saved record after a successful update. */
   onSuccess?: (record: TRecord) => void;
   /** Runs with the failure after a rejected update. */
+  // type-escape: a rejection can be anything the data provider threw
   onError?: (error: unknown) => void;
   /** Override the ambient resource. */
   resource?: string;
@@ -279,14 +280,7 @@ function InPlaceEditorForm<TRecord extends LooseRecord>(
     },
   });
 
-  const sourceScope = useMemo<SourceScope>(
-    () => ({
-      getSource: (source: string) => source,
-      getLabel: (source: string) =>
-        resource ? `resources.${resource}.fields.${source}` : source,
-    }),
-    [resource],
-  );
+  const sourceScope = useResourceSourceScope(resource);
 
   // A button must not take focus from the input before its click, or the blur
   // would cancel the edit.
