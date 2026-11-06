@@ -111,6 +111,21 @@ export function SourceContextProvider({
   );
 }
 
+/**
+ * A flat form's scope: the source is its own path, and a label key is
+ * `resources.<resource>.fields.<source>`. For a form outside an edit or create view.
+ */
+export function useResourceSourceScope(resource: string | undefined) {
+  return useMemo<SourceScope>(
+    () => ({
+      getSource: (source: string) => source,
+      getLabel: (source: string) =>
+        resource ? `resources.${resource}.fields.${source}` : source,
+    }),
+    [resource],
+  );
+}
+
 /** The ambient source scope — the identity scope when no provider is above. */
 export function useSourceContext(): SourceScope {
   return useContext(SourceContext);

@@ -15,11 +15,14 @@ import {
   type ReactNode,
   useContext,
   useEffect,
-  useMemo,
   useRef,
 } from "react";
 import type { UseListControllerResult } from "../controller-hooks";
-import { CheloneFormProvider, SourceContextProvider } from "../form-context";
+import {
+  CheloneFormProvider,
+  SourceContextProvider,
+  useResourceSourceScope,
+} from "../form-context";
 import { useForm } from "../form-hooks";
 import { useResourceContext } from "../resource";
 import { FormGroupsProvider } from "./group-hooks";
@@ -250,14 +253,7 @@ export function useFilterForm(
   }, [filterKey, form]);
 
   // Filter-flavored source scope: identity source, resource-keyed labels.
-  const sourceScope = useMemo<SourceScope>(
-    () => ({
-      getSource: (source: string) => source,
-      getLabel: (source: string) =>
-        resource ? `resources.${resource}.fields.${source}` : source,
-    }),
-    [resource],
-  );
+  const sourceScope = useResourceSourceScope(resource);
 
   return { form, sourceScope, canSubmit };
 }

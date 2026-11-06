@@ -1663,6 +1663,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/inputs/in-place-editor.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/inputs/loading-input.tsx",
           "type": "registry:component"
         },
@@ -4259,6 +4263,27 @@
       "registryDependencies": ["@chelone/file-input"],
       "dependencies": ["@chelone/react"],
       "categories": ["chelone", "inputs"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "in-place-editor",
+      "type": "registry:component",
+      "title": "In Place Editor",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/in-place-editor.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/lib-utils",
+        "@chelone/text-field",
+        "@chelone/text-input",
+        "@chelone/use-menu-access"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {

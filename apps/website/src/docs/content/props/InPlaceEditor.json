@@ -1,0 +1,77 @@
+{
+  "name": "InPlaceEditor",
+  "props": [
+    {
+      "name": "cancelOnBlur",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Cancel on a focus move out of the editor; when false, save instead. Default `true`."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "What to show while reading and saving. Default `<TextField source={source} />`."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "editor",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "What to edit with, inside the form. Default\n`<TextInput source={source} label={false} helperText={false} autoFocus />`."
+    },
+    {
+      "name": "meta",
+      "type": "Record<string, unknown>",
+      "optional": true,
+      "comment": "Sent with the update."
+    },
+    {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "comment": "Default is `useUpdate`'s own."
+    },
+    {
+      "name": "notifyOnSuccess",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Notify `chelone.notification.updated` on success. Undoable mode always notifies, with Undo. Default `false`."
+    },
+    {
+      "name": "onError",
+      "type": "(error: unknown) => void",
+      "optional": true,
+      "comment": "Runs with the failure after a rejected update."
+    },
+    {
+      "name": "onSuccess",
+      "type": "(record: TRecord) => void",
+      "optional": true,
+      "comment": "Runs with the saved record after a successful update."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient resource."
+    },
+    {
+      "name": "showButtons",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Show Save and Cancel buttons beside the input. Default `false`."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field to show and edit. Required unless both `children` and `editor`\nare given."
+    }
+  ]
+}
