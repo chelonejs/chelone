@@ -137,24 +137,39 @@ function onBlockType(event: Event) {
       >
         <span aria-hidden="true" class="mx-1 h-6 w-px bg-border" />
         <template v-for="{ item, button } in entries" :key="item.id">
-        <Button
-          :variant="button.pressed ? 'secondary' : 'ghost'"
-          size="icon"
-          :aria-label="label(item)"
-          :title="tooltip(item)"
-          :aria-pressed="button.pressed"
-          :aria-expanded="item.id === 'link' ? linkOpen : undefined"
-          :disabled="button.disabled"
-          @mousedown.prevent
-          @click="onClick(item)"
-        >
-          <component :is="richTextIcons[item.id]" />
-        </Button>
-        <Button v-if="item.id === 'link' && hasImages" variant="ghost" size="icon" :aria-label="translate('chelone.rich_text.image', { _: 'Image' })" :aria-expanded="imageOpen" :disabled="!state.editable" @mousedown.prevent @click="imageOpen = !imageOpen"><component :is="richTextImageIcon" /></Button>
+          <Button
+            :variant="button.pressed ? 'secondary' : 'ghost'"
+            size="icon"
+            :aria-label="label(item)"
+            :title="tooltip(item)"
+            :aria-pressed="button.pressed"
+            :aria-expanded="item.id === 'link' ? linkOpen : undefined"
+            :disabled="button.disabled"
+            @mousedown.prevent
+            @click="onClick(item)"
+          >
+            <component :is="richTextIcons[item.id]" />
+          </Button>
+          <Button
+            v-if="item.id === 'link' && hasImages"
+            variant="ghost"
+            size="icon"
+            :aria-label="translate('chelone.rich_text.image', { _: 'Image' })"
+            :aria-expanded="imageOpen"
+            :disabled="!state.editable"
+            @mousedown.prevent
+            @click="imageOpen = !imageOpen"
+          >
+            <component :is="richTextImageIcon" />
+          </Button>
         </template>
       </div>
     </div>
-    <RichTextImageForm v-if="imageOpen && hasImages" :editor="editor" @close="imageOpen = false" />
+    <RichTextImageForm
+      v-if="imageOpen && hasImages"
+      :editor="editor"
+      @close="imageOpen = false"
+    />
     <RichTextLinkForm
       v-if="linkOpen"
       :editor="editor"

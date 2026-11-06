@@ -1,3 +1,5 @@
+import { closeHistory } from "@tiptap/pm/history";
+import { flushPromises } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mountInput } from "./__fixtures__/rich-text-harness";
 
@@ -257,5 +259,66 @@ describe("rich text images", () => {
       expect(wrapper.find('button[aria-label="Image"]').exists()).toBe(true),
     );
     expect(wrapper.get('[role="textbox"]').text()).toBe("kept");
+  });
+
+  it("undoing removal after an upload restores the stored URL", async () => {
+    const handle = { resolve: (_value: string) => {} };
+    const promise = new Promise<string>((resolve) => {
+      handle.resolve = resolve;
+    });
+    const { wrapper, editor, form } = await mountInput({
+      images: { uploadFn: () => promise },
+    });
+    await wrapper.get('button[aria-label="Image"]').trigger("click");
+    const input = wrapper.get('input[type="file"]');
+    Object.defineProperty(input.element, "files", {
+      value: [new File(["cat"], "cat.png", { type: "image/png" })],
+    });
+    await input.trigger("change");
+    editor().view.dispatch(closeHistory(editor().state.tr));
+    await wrapper.get('button[aria-label="Remove image"]').trigger("click");
+    expect(wrapper.find("img").exists()).toBe(false);
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+    handle.resolve("https://cdn.example.com/cat.png");
+    await flushPromises();
+    editor().commands.undo();
+    await vi.waitFor(() =>
+      expect(wrapper.get("img").attributes("src")).toBe(
+        "https://cdn.example.com/cat.png",
+      ),
+    );
+    expect(form.values.value.body).toContain(
+      'src="https://cdn.example.com/cat.png"',
+    );
+    expect(form.values.value.body).not.toContain("blob:");
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:test/1");
+  });
+
+  it("stores a data URL without uploadFn and refuses files outside the rules", async () => {
+    const onImageError = vi.fn();
+    const { wrapper, form } = await mountInput({
+      images: { maxFileSize: 10, onImageError },
+    });
+    await wrapper.get('button[aria-label="Image"]').trigger("click");
+    const input = wrapper.get('input[type="file"]');
+    const tooBig = new File([new Uint8Array(11)], "big.png", {
+      type: "image/png",
+    });
+    const svg = new File(["<svg/>"], "bad.svg", { type: "image/svg+xml" });
+    Object.defineProperty(input.element, "files", {
+      value: [tooBig, svg, new File(["cat"], "cat.png", { type: "image/png" })],
+    });
+    await input.trigger("change");
+    await vi.waitFor(() =>
+      expect(form.values.value.body).toContain('src="data:image/png;base64,'),
+    );
+    expect(wrapper.findAll("img")).toHaveLength(1);
+    expect(form.values.value.body).not.toContain("blob:");
+    expect(
+      onImageError.mock.calls.map(([error]) => [error.reason, error.file]),
+    ).toEqual([
+      ["size", tooBig],
+      ["type", svg],
+    ]);
   });
 });
